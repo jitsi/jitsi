@@ -32,20 +32,22 @@ public class EncodingConfiguration
      * SDP Codes of all video formats that JMF supports.
      */
     private final String[] availableVideoEncodings = new String[]
-    { Integer.toString(Constants.H264_RTP_SDP),
-    // javax.media.format.VideoFormat.H263_RTP
+    {
+        Integer.toString(Constants.H264_RTP_SDP),
+        // javax.media.format.VideoFormat.H263_RTP
         Integer.toString(SdpConstants.H263),
         // javax.media.format.VideoFormat.JPEG_RTP
         Integer.toString(SdpConstants.JPEG),
         // javax.media.format.VideoFormat.H261_RTP
-        Integer.toString(SdpConstants.H261) };
+        Integer.toString(SdpConstants.H261)
+    };
 
     /**
      * SDP Codes of all audio formats that JMF supports.
      */
     private final String[] availableAudioEncodings = new String[]
     {
-    // ILBC
+        // ILBC
         Integer.toString(97),
         // javax.media.format.AudioFormat.G723_RTP
         Integer.toString(SdpConstants.G723),
@@ -58,13 +60,14 @@ public class EncodingConfiguration
         // javax.media.format.AudioFormat.DVI_RTP;
         Integer.toString(SdpConstants.DVI4_16000),
         // javax.media.format.AudioFormat.ALAW;
-        Integer.toString(SdpConstants.PCMA), Integer.toString(110),
+        Integer.toString(SdpConstants.PCMA),
+        Integer.toString(110),
         // javax.media.format.AudioFormat.G728_RTP;
         Integer.toString(SdpConstants.G728)
-    // javax.media.format.AudioFormat.G729_RTP
+        // javax.media.format.AudioFormat.G729_RTP
         // g729 is not suppported by JMF
         // Integer.toString(SdpConstants.G729)
-        };
+    };
 
     private final Set<String> supportedVideoEncodings =
         new TreeSet<String>(new EncodingComparator());
@@ -82,7 +85,7 @@ public class EncodingConfiguration
     private final Map<String, Integer> encodingPreferences =
         new Hashtable<String, Integer>();
 
-    private static final String[] customCodecs =
+    private static final String[] CUSTOM_CODECS =
         new String[]
         {
             FMJConditionals.FMJ_CODECS ? "net.sf.fmj.media.codec.audio.alaw.Encoder"
@@ -269,14 +272,12 @@ public class EncodingConfiguration
      */
     public void registerCustomCodecs()
     {
-        // use a set to check if the codecs are already
-        // registered in jmf.properties
-        Set<String> registeredPlugins = new HashSet<String>();
+        // Register the custom codec which haven't already been registered. 
+        Collection<String> registeredPlugins = new HashSet<String>(
+                PlugInManager.getPlugInList(null, null, PlugInManager.CODEC));
+        boolean commit = false;
 
-        registeredPlugins.addAll(PlugInManager.getPlugInList(null, null,
-            PlugInManager.CODEC));
-
-        for (String className : customCodecs)
+        for (String className : CUSTOM_CODECS)
         {
             if (registeredPlugins.contains(className))
             {
@@ -284,34 +285,50 @@ public class EncodingConfiguration
             }
             else
             {
+                commit = true;
+
+                boolean registered;
+                Throwable exception = null;
+
                 try
                 {
-                    Object instance = Class.forName(className).newInstance();
+                    Codec codec = (Codec)
+                        Class.forName(className).newInstance();
 
-                    boolean result =
-                        PlugInManager.addPlugIn(className, ((Codec) instance)
-                            .getSupportedInputFormats(), ((Codec) instance)
-                            .getSupportedOutputFormats(null),
+                    registered =
+                        PlugInManager.addPlugIn(
+                            className,
+                            codec.getSupportedInputFormats(),
+                            codec.getSupportedOutputFormats(null),
                             PlugInManager.CODEC);
-                    logger.debug("Codec : " + className
-                        + " is successfully registered : " + result);
                 }
                 catch (Throwable ex)
                 {
-                    logger.debug("Codec : " + className
-                        + " is NOT succsefully registered", ex);
+                    registered = false;
+                    exception = ex;
                 }
+                if (registered)
+                    logger.debug(
+                            "Codec "
+                            + className
+                            + " is successfully registered");
+                else
+                    logger.debug(
+                            "Codec "
+                            + className
+                            + " is NOT succsefully registered", exception);
             }
         }
 
-        try
-        {
-            PlugInManager.commit();
-        }
-        catch (IOException ex)
-        {
-            logger.error("Cannot commit to PlugInManager", ex);
-        }
+        if (commit)
+            try
+            {
+                PlugInManager.commit();
+            }
+            catch (IOException ex)
+            {
+                logger.error("Cannot commit to PlugInManager", ex);
+            }
 
         // Register the custom codec formats with the RTP manager once at
         // initialization. This is needed for the Sun JMF implementation. It
@@ -399,7 +416,7 @@ public class EncodingConfiguration
     }
 
     /**
-     * Comaparator sorting the sets according the settings in
+     * Comaparator sorting the sets according to the settings in
      * encodingPreferences.
      */
     private class EncodingComparator

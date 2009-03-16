@@ -196,13 +196,7 @@ public class CallSessionImpl
      * The flag which signals that this side of the call has put the other on
      * hold.
      */
-    private static final byte ON_HOLD_LOCALLY = 1 << 1;
-
-    /**
-     * The flag which signals that the other side of the call has put this on
-     * hold.
-     */
-    private static final byte ON_HOLD_REMOTELY = 1 << 2;
+    private static final byte ON_HOLD_LOCALLY = 1 << 0;
 
     /**
      * Indicates an audio session type.
@@ -395,7 +389,7 @@ public class CallSessionImpl
         throws MediaException
     {
         //start all audio streams
-        boolean startedAtLeastOneStream = false;
+        boolean startedAtLeastOneAudioStream = false;
         RTPManager rtpManager = getAudioRtpManager();
 
         List<SendStream> sendStreams = rtpManager.getSendStreams();
@@ -411,7 +405,7 @@ public class CallSessionImpl
                     /** @todo are we sure we want to connect here? */
                     stream.getDataSource().connect();
                     stream.start();
-                    startedAtLeastOneStream = true;
+                    startedAtLeastOneAudioStream = true;
                 }
                 catch (IOException ex)
                 {
@@ -425,6 +419,8 @@ public class CallSessionImpl
         }
 
         //start video streams
+        boolean startedAtLeastOneVideoStream = false;
+
         rtpManager = getVideoRtpManager();
         if(mediaServCallback.getMediaControl(getCall()).isLocalVideoAllowed()
                 && ((sendStreams = rtpManager.getSendStreams()) != null)
@@ -438,24 +434,24 @@ public class CallSessionImpl
                 try
                 {
                     stream.start();
-                    startedAtLeastOneStream = true;
+                    startedAtLeastOneVideoStream = true;
                 }
                 catch (IOException ex)
                 {
                     logger.warn("Failed to start stream.", ex);
                 }
             }
-
-            if (startedAtLeastOneStream)
-                setLocalVideoStreaming(true);
         }
         else
         {
             logger.trace("No video send streams will be started.");
         }
+        setLocalVideoStreaming(startedAtLeastOneVideoStream);
 
 
-        if(!startedAtLeastOneStream && sendStreams.size() > 0)
+        if(!startedAtLeastOneAudioStream
+                && !startedAtLeastOneVideoStream
+                && (sendStreams.size() > 0))
         {
             stopStreaming();
             throw new MediaException("Failed to start streaming"
@@ -841,17 +837,10 @@ public class CallSessionImpl
         mediaDescription.setAttribute(newAttribute, null);
     }
 
-    /**
-     * Determines whether a specific SDP description <tt>String</tt> offers
-     * this party to be put on hold.
-     *
-     * @param sdpOffer the SDP description <tt>String</tt> to be examined for
-     *            an offer to this party to be put on hold
-     * @return <tt>true</tt> if the specified SDP description <tt>String</tt>
-     *         offers this party to be put on hold; <tt>false</tt>, otherwise
-     * @throws MediaException
+    /*
+     * Implements CallSession#getSdpOfferMediaFlags(String).
      */
-    public boolean isSdpOfferToHold(String sdpOffer) throws MediaException
+    public int getSdpOfferMediaFlags(String sdpOffer) throws MediaException
     {
         SessionDescription description = null;
         try
@@ -878,44 +867,96 @@ public class CallSessionImpl
                 MediaException.INTERNAL_ERROR, ex);
         }
 
+        int mediaFlags = 0;
+
+        /* Determine whether we're being put on hold. */
         boolean isOfferToHold = true;
         for (Iterator<MediaDescription> mediaDescriptionIter
                         = mediaDescriptions.iterator();
-             mediaDescriptionIter.hasNext()
-             && isOfferToHold;)
+             mediaDescriptionIter.hasNext() && isOfferToHold;)
         {
             MediaDescription mediaDescription = mediaDescriptionIter.next();
-            Vector<Attribute> attributes
+            Collection<Attribute> attributes
                                 = mediaDescription.getAttributes(false);
 
             isOfferToHold = false;
             if (attributes != null)
             {
                 for (Iterator<Attribute> attributeIter = attributes.iterator();
-                     attributeIter.hasNext()
-                     && !isOfferToHold;)
+                     attributeIter.hasNext() && !isOfferToHold;)
                 {
                     try
                     {
                         String attribute = attributeIter.next().getName();
 
                         if ("sendonly".equalsIgnoreCase(attribute)
-                            || "inactive".equalsIgnoreCase(attribute))
-                        {
+                                || "inactive".equalsIgnoreCase(attribute))
                             isOfferToHold = true;
-                        }
                     }
                     catch (SdpParseException ex)
                     {
                         throw new MediaException(
-                           "Failed to get SDP media description attribute name",
-                           MediaException.INTERNAL_ERROR,
-                           ex);
+                            "Failed to get SDP media description attribute name",
+                            MediaException.INTERNAL_ERROR,
+                            ex);
                     }
                 }
             }
         }
-        return isOfferToHold;
+        if (isOfferToHold)
+            mediaFlags |= ON_HOLD_REMOTELY;
+
+        /* Determine which of the media is to be received. */
+        for (MediaDescription mediaDescription : mediaDescriptions)
+        {
+            String mediaType;
+
+            try
+            {
+                mediaType = mediaDescription.getMedia().getMediaType();
+            }
+            catch (SdpParseException ex)
+            {
+                throw new MediaException(
+                    "Failed to determine SDP description media type",
+                    MediaException.INTERNAL_ERROR,
+                    ex);
+            }
+
+            int mediaFlag = 0;
+
+            if ("audio".equalsIgnoreCase(mediaType))
+                mediaFlag = RECEIVE_AUDIO;
+            else if ("video".equalsIgnoreCase(mediaType))
+                mediaFlag = RECEIVE_VIDEO;
+
+            mediaFlags |= mediaFlag;
+
+            Collection<Attribute> attributes
+                = mediaDescription.getAttributes(false);
+
+            if (attributes != null)
+                for (Attribute attribute : attributes)
+                {
+                    try
+                    {
+                        String name = attribute.getName();
+
+                        if ("recvonly".equalsIgnoreCase(name)
+                                || "inactive".equalsIgnoreCase(name))
+                            mediaFlags &= ~mediaFlag;
+                    }
+                    catch (SdpParseException ex)
+                    {
+                        throw new MediaException(
+                            "Failed to get SDP media description attribute name",
+                            MediaException.INTERNAL_ERROR,
+                            ex);
+                    }
+                }
+        }
+
+        return mediaFlags;
     }
 
     /**
@@ -1070,7 +1111,11 @@ public class CallSessionImpl
         CallParticipantState responderState = responder.getState();
         if (CallParticipantState.CONNECTED.equals(responderState)
                 || CallParticipantState.isOnHold(responderState))
+        {
+            mediaServCallback.getMediaControl(getCall())
+                .startProcessingMedia(this);
             startStreaming();
+        }
     }
 
     /**
@@ -1476,9 +1521,8 @@ public class CallSessionImpl
             }
             else
             {
-                if (((lastIntendedDestination == null) && (intendedDestination != null))
-                    || ((lastIntendedDestination != null) && !lastIntendedDestination
-                        .equals(intendedDestination)))
+                if ((intendedDestination != null)
+                        && !intendedDestination.equals(lastIntendedDestination))
                 {
                     startStreaming = stopStreaming();
                     audioRtpManager = RTPManager.newInstance();
@@ -2420,29 +2464,11 @@ public class CallSessionImpl
                 this);
 
             // close all players that we have created in this session
-            Iterator<Player> playersIter = players.iterator();
+            Player[] players
+                = this.players.toArray(new Player[this.players.size()]);
 
-            while (playersIter.hasNext())
-            {
-                Player player = playersIter.next();
-                player.stop();
-
-                /*
-                 * The player is being disposed so let the (interested)
-                 * listeners know its Player#getVisualComponent() (if any)
-                 * should be released.
-                 */
-                Component visualComponent = getVisualComponent(player);
-                if (visualComponent != null)
-                {
-                    fireVideoEvent(VideoEvent.VIDEO_REMOVED, visualComponent,
-                        VideoEvent.REMOTE);
-                }
-
-                player.deallocate();
-                player.close();
-                playersIter.remove();
-            }
+            for (Player player : players)
+                disposePlayer(player);
 
             // remove ourselves as listeners from the call
             evt.getSourceCall().removeCallChangeListener(this);
@@ -2460,6 +2486,26 @@ public class CallSessionImpl
             for (Component localVisualComponent : localVisualComponents)
                 disposeLocalVisualComponent(localVisualComponent);
         }
+    }
+
+    private void disposePlayer(Player player)
+    {
+        player.stop();
+
+        /*
+         * The player is being disposed so let the (interested) listeners know
+         * its Player#getVisualComponent() (if any) should be released.
+         */
+        Component visualComponent = getVisualComponent(player);
+
+        player.deallocate();
+        player.close();
+
+        players.remove(player);
+
+        if (visualComponent != null)
+            fireVideoEvent(VideoEvent.VIDEO_REMOVED, visualComponent,
+                VideoEvent.REMOTE);
     }
 
     /**
@@ -2758,8 +2804,8 @@ public class CallSessionImpl
         }
         else if (ce instanceof ControllerErrorEvent)
         {
-            logger
-                .error("The following error was reported while starting a player"
+            logger.error(
+                "The following error was reported while starting a player"
                     + ce);
         }
         else if (ce instanceof ControllerClosedEvent)
@@ -3245,6 +3291,26 @@ public class CallSessionImpl
     public boolean isLocalVideoStreaming()
     {
         return localVideoStreaming;
+    }
+
+    /*
+     * Implements CallSession#setReceiveStreaming(int).
+     */
+    public void setReceiveStreaming(int mediaFlags)
+    {
+        if ((mediaFlags & RECEIVE_VIDEO) == 0)
+        {
+            Player[] players
+                = this.players.toArray(new Player[this.players.size()]);
+
+            for (Player player : players)
+            {
+                Component visualComponent = getVisualComponent(player);
+
+                if (visualComponent != null)
+                    disposePlayer(player);
+            }
+        }
     }
 
     private class LocalVisualComponentData

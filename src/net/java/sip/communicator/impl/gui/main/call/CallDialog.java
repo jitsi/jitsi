@@ -27,7 +27,7 @@ import net.java.sip.communicator.util.swing.border.*;
 public class CallDialog
     extends SIPCommFrame
     implements ActionListener,
-    MouseListener
+               MouseListener
 {
     private static final String DIAL_BUTTON = "DIAL_BUTTON";
 
@@ -71,10 +71,8 @@ public class CallDialog
         muteButton = new MuteButton(call);
 
         dialButton.setName(DIAL_BUTTON);
-
         dialButton.setToolTipText(
             GuiActivator.getResources().getI18NString("service.gui.DIALPAD"));
-
         dialButton.addActionListener(this);
         dialButton.addMouseListener(this);
 
@@ -83,15 +81,14 @@ public class CallDialog
         contentPane.add(buttonsPanel, BorderLayout.SOUTH);
 
         hangupButton.setName(HANGUP_BUTTON);
-
         hangupButton.setToolTipText(
             GuiActivator.getResources().getI18NString("service.gui.HANG_UP"));
-
         hangupButton.addActionListener(this);
 
         settingsPanel.add(dialButton);
         settingsPanel.add(holdButton);
         settingsPanel.add(muteButton);
+        settingsPanel.add(new LocalVideoButton(getCall()));
 
         buttonsPanel.add(settingsPanel, BorderLayout.WEST);
         buttonsPanel.add(hangupButton, BorderLayout.EAST);

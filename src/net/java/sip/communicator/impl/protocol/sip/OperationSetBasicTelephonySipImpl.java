@@ -885,7 +885,7 @@ public class OperationSetBasicTelephonySipImpl
         if (callParticipant.getState()
                 == CallParticipantState.CONNECTING_WITH_EARLY_MEDIA)
         {
-            // This can happen if we are receigin early media for a second time.
+            // This can happen if we are receiving early media for a second time.
             logger.warn("Ignoring invite 183 since call participant is "
                 + "already exchanging early media.");
             return;
@@ -1026,7 +1026,8 @@ public class OperationSetBasicTelephonySipImpl
 
         /*
          * Receiving an Invite OK is allowed even when the participant is
-         * already connected for the purposes of call hold.
+         * already connected. Examples include call hold, enabling/disabling the
+         * streaming of local video while in a call.
          */
 
         Request ack = null;
@@ -1074,7 +1075,7 @@ public class OperationSetBasicTelephonySipImpl
         // listeners get alerted and they need the sdp
         // ignore sdp if we have already received one in early media
         if(!CallParticipantState.CONNECTING_WITH_EARLY_MEDIA.
-            equals(callParticipant.getState()))
+                equals(callParticipant.getState()))
             callParticipant.setSdpDescription(new String(ok.getRawContent()));
 
         // notify the media manager of the sdp content
@@ -1128,13 +1129,17 @@ public class OperationSetBasicTelephonySipImpl
                 }
             }
 
-            // ignore sdp process if we have already received one in early media
+            /*
+             * We used to not process the SDP if we had already received one in
+             * early media. But functionality using re-invites (e.g. toggling
+             * the streaming of local video while in a call) may need to process
+             * the SDP (e.g. because of re-negotiating the media after toggling
+             * the streaming of local video).
+             */
             CallParticipantState callParticipantState =
                 callParticipant.getState();
-            if ((callParticipantState != CallParticipantState.CONNECTED)
-                && !CallParticipantState.isOnHold(callParticipantState)
-                && !CallParticipantState.CONNECTING_WITH_EARLY_MEDIA.
-                    equals(callParticipantState))
+            if (!CallParticipantState.CONNECTING_WITH_EARLY_MEDIA
+                    .equals(callParticipantState))
             {
                 callSession.processSdpAnswer(callParticipant, callParticipant
                     .getSdpDescription());
@@ -1145,7 +1150,7 @@ public class OperationSetBasicTelephonySipImpl
              */
             callParticipant.setCallInfoURL(callSession.getCallInfoURL());
         }
-        //at this point we have already sent our ack so in adition to logging
+        //at this point we have already sent our ack so in addition to logging
         //an error we also need to hangup the call participant.
         catch (Exception exc)//Media or parse exception.
         {
@@ -1791,8 +1796,10 @@ public class OperationSetBasicTelephonySipImpl
         try
         {
             sdpAnswer =
-                callSession.createSdpDescriptionForHold(sdpOffer, callSession
-                    .isSdpOfferToHold(sdpOffer));
+                callSession.createSdpDescriptionForHold(
+                    sdpOffer,
+                    (callSession.getSdpOfferMediaFlags(sdpOffer)
+                            & CallSession.ON_HOLD_REMOTELY) != 0);
         }
         catch (MediaException ex)
         {
@@ -1831,12 +1838,12 @@ public class OperationSetBasicTelephonySipImpl
         CallParticipantSipImpl sipParticipant =
             (CallParticipantSipImpl) participant;
 
-        boolean on = false;
+        int mediaFlags = 0;
         try
         {
-            on =
+            mediaFlags =
                 callSession
-                    .isSdpOfferToHold(sipParticipant.getSdpDescription());
+                    .getSdpOfferMediaFlags(sipParticipant.getSdpDescription());
         }
         catch (MediaException ex)
         {
@@ -1844,6 +1851,12 @@ public class OperationSetBasicTelephonySipImpl
                 "Failed to create SDP answer to put-on/off-hold request.",
                 OperationFailedException.INTERNAL_ERROR, ex);
         }
+
+        /*
+         * Comply with the request of the SDP offer with respect to putting on
+         * hold.
+         */
+        boolean on = ((mediaFlags & CallSession.ON_HOLD_REMOTELY) != 0);
 
         callSession.putOnHold(on, false);
 
@@ -1867,6 +1880,12 @@ public class OperationSetBasicTelephonySipImpl
         {
             sipParticipant.setState(CallParticipantState.ON_HOLD_REMOTELY);
         }
+
+        /*
+         * Reflect the request of the SDP offer with respect to the modification
+         * of the availability of media.
+         */
+        callSession.setReceiveStreaming(mediaFlags);
     }
 
     /**

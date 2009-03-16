@@ -100,16 +100,53 @@ public interface CallSession
         boolean onHold) throws MediaException;
 
     /**
+     * The media flag which signals that the other side of the call has put this
+     * on hold.
+     */
+    public static final byte ON_HOLD_REMOTELY = 1 << 1;
+
+    /**
+     * The media flag which signals that audio streams being received are to be
+     * handled (e.g. played).
+     */
+    public static final byte RECEIVE_AUDIO = 1 << 2;
+
+    /**
+     * The media flag which signals that video streams being received are to be
+     * handled (e.g. played).
+     */
+    public static final byte RECEIVE_VIDEO = 1 << 3;
+
+    /**
      * Determines whether a specific SDP description <tt>String</tt> offers
-     * this party to be put on hold.
+     * this party to be put on hold and which media types are offered to be
+     * received.
      *
      * @param sdpOffer the SDP description <tt>String</tt> to be examined for
-     *            an offer to this party to be put on hold
-     * @return <tt>true</tt> if the specified SDP description <tt>String</tt>
-     *         offers this party to be put on hold; <tt>false</tt>, otherwise
+     *            an offer to this party to be put on hold and media types to be
+     *            received
+     * @return an <tt>int</tt> bit mask containing
+     *         <code>ON_HOLD_REMOTELY</code> if the specified SDP description
+     *         offers this party to be put on hold, <code>RECEIVE_AUDIO</code>
+     *         and/or <code>RECEIVE_VIDEO</code> if audio and/or video,
+     *         respectively, are to be received
      * @throws MediaException
      */
-    public boolean isSdpOfferToHold(String sdpOffer) throws MediaException;
+    public int getSdpOfferMediaFlags(String sdpOffer) throws MediaException;
+
+    /**
+     * Modifies the current setup of the stream receiving in accord with a
+     * specific set of media flags (which are usually obtained through
+     * {@link #getSdpOfferMediaFlags(String)}. For example, if
+     * <code>RECEIVE_VIDEO</code> isn't present and video is currently being
+     * received and played, stops its receiving and playback.
+     *   
+     * @param mediaFlags an <code>int</code> bit mask containing any of the
+     *            media-related flags such as <code>RECEIVE_AUDIO</code> and
+     *            <code>RECEIVE_VIDEO</code> and thus specifying which media
+     *            types are to be received
+     */
+    public void setReceiveStreaming(int mediaFlags);
 
     /**
      * Puts the media of this <tt>CallSession</tt> on/off hold depending on

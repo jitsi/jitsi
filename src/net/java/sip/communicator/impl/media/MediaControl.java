@@ -10,6 +10,7 @@ import java.awt.Dimension;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+
 import javax.media.*;
 import javax.media.control.*;
 import javax.media.format.*;
@@ -90,7 +91,7 @@ public class MediaControl
      * The processor that will be handling content coming from our capture data
      * sources.
      */
-    private Processor sourceProcessor = null;
+    public Processor sourceProcessor = null;
 
     /**
      * The list of readers currently using our processor.
@@ -248,7 +249,7 @@ public class MediaControl
             setVideoDataSource((SourceCloneable) cloneableVideoDataSource);
         }
 
-        // Create the av data source
+        // Create the audio/video data source.
         if (audioDataSource != null && videoDataSource != null)
         {
             try
@@ -263,10 +264,12 @@ public class MediaControl
             {
                 logger.fatal(
                         "Failed to create a media data source!"
-                        + "Media transmission won't be enabled!", exc);
-                throw new InternalError("Failed to create a media data source!"
-                        + "Media transmission won't be enabled!"
-                        + exc.getMessage());
+                            + "Media transmission won't be enabled!",
+                        exc);
+                throw new InternalError(
+                        "Failed to create a media data source!"
+                            + "Media transmission won't be enabled!"
+                            + exc.getMessage());
             }
         }
         else if (audioDataSource != null)
@@ -279,6 +282,8 @@ public class MediaControl
         //avDataSource may be null (Bug report Vince Fourcade)
         if (avDataSource != null)
             initProcessor(avDataSource);
+        else
+            sourceProcessor = null;
     }
 
     /**
@@ -321,9 +326,7 @@ public class MediaControl
 
         //avDataSource may be null (Bug report Vince Fourcade)
         if (avDataSource != null)
-        {
             initProcessor(avDataSource);
-        }
     }
 
 
@@ -352,11 +355,11 @@ public class MediaControl
             {
                 logger.error(
                     "An internal error occurred while"
-                    + " trying to connec to to datasource!"
+                        + " trying to connec to the datasource!"
                     , ex);
                 throw new MediaException(
                     "An internal error occurred while"
-                    + " trying to connec to to datasource!"
+                        + " trying to connec to the datasource!"
                     , MediaException.INTERNAL_ERROR
                     , ex);
             }
@@ -389,7 +392,7 @@ public class MediaControl
             {
                 throw new MediaException(
                     "Media manager could not configure processor\n"
-                    + "for the specified data source",
+                        + "for the specified data source",
                     MediaException.INTERNAL_ERROR);
             }
 
@@ -398,12 +401,12 @@ public class MediaControl
         {
             logger.error(
                 "Media manager could not create a processor\n"
-                + "for the specified data source"
+                    + "for the specified data source"
                 , ex
                 );
             throw new MediaException(
                 "Media manager could not create a processor\n"
-                + "for the specified data source"
+                    + "for the specified data source"
                 , MediaException.INTERNAL_ERROR
                 , ex);
         }
@@ -411,15 +414,15 @@ public class MediaControl
         {
             logger.error(
                 "Media manager could not connect "
-                + "to the specified data source"
+                    + "to the specified data source"
                 , ex);
             throw new MediaException("Media manager could not connect "
-                                     + "to the specified data source"
+                                         + "to the specified data source"
                                      , MediaException.INTERNAL_ERROR
                                      , ex);
         }
-        sourceProcessor.setContentDescriptor(new ContentDescriptor(
-            ContentDescriptor.RAW_RTP));
+        sourceProcessor.setContentDescriptor(
+            new ContentDescriptor(ContentDescriptor.RAW_RTP));
 
         /*
          * The lists of the supported audio and video encodings will have to be
@@ -612,61 +615,57 @@ public class MediaControl
      * @throws MediaException if creating the data source fails for some reason.
      */
     public DataSource createDataSourceForEncodings(
-        Hashtable<String, List<String>> encodingSets)
+        Map<String, List<String>> encodingSets)
         throws MediaException
     {
         if (sourceProcessor == null)
         {
             logger.error("Processor is null.");
             throw new MediaException("The source Processor has not been "
-                                     + "initialized."
+                                         + "initialized."
                                      , MediaException.INTERNAL_ERROR);
         }
         // Wait for the sourceProcessor to configure
-        boolean processorIsReady = true;
         if (sourceProcessor.getState() < Processor.Configured)
         {
-            processorIsReady = processorUtility
-                .waitForState(sourceProcessor, Processor.Configured);
-        }
-        if (!processorIsReady)
-        {
-            logger.error("Couldn't configure sourceProcessor");
-            throw new MediaException("Couldn't configure sourceProcessor"
-                                     , MediaException.INTERNAL_ERROR);
+            if (!processorUtility.waitForState(sourceProcessor,
+                    Processor.Configured))
+            {
+                logger.error("Couldn't configure sourceProcessor");
+                throw new MediaException("Couldn't configure sourceProcessor"
+                                         , MediaException.INTERNAL_ERROR);
+            }
         }
         // Get the tracks from the sourceProcessor
         TrackControl[] tracks = sourceProcessor.getTrackControls();
-        // Do we have atleast one track?
-        if (tracks == null || tracks.length < 1)
+        // Do we have at least one track?
+        if ((tracks == null) || (tracks.length < 1))
         {
             logger.error("Couldn't find any tracks in sourceProcessor");
             throw new MediaException(
                 "Couldn't find any tracks in sourceProcessor"
                 , MediaException.INTERNAL_ERROR);
         }
-        // Set the output content descriptor to RAW_RTP
-        // This will limit the supported formats reported from
-        // Track.getSupportedFormats to only valid RTP formats.
-        ContentDescriptor cd = new ContentDescriptor(ContentDescriptor.
-            RAW_RTP);
-        sourceProcessor.setContentDescriptor(cd);
-        Format supported[];
-        Format chosenFormat;
+        if (logger.isDebugEnabled()
+                && (sourceProcessor.getState() > Processor.Configured))
+            logger.debug(
+                "sourceProcessor is in state "
+                    + sourceProcessor.getState()
+                    + "which is > Processor.Configured"
+                    + "and then TrackControl.setFormat(Format) may not work.");
         boolean atLeastOneTrack = false;
         // Program the tracks.
         for (int i = 0; i < tracks.length; i++)
         {
             if (tracks[i].isEnabled())
             {
-                supported = tracks[i].getSupportedFormats();
+                Format[] supported = tracks[i].getSupportedFormats();
                 if (logger.isDebugEnabled())
                 {
                     logger.debug("Available encodings are:");
                     for (int j = 0; j < supported.length; j++)
                     {
-                        logger.debug("track[" + (i + 1) + "] format[" +
-                                     (j + 1) + "]="
+                        logger.debug("track[" + i + "] format[" + j + "]="
                                      + supported[j].getEncoding());
                     }
                 }
@@ -685,7 +684,7 @@ public class MediaControl
                             encodingSets);
                         if (index != -1)
                         {
-                            chosenFormat = assertSize(
+                            Format chosenFormat = assertSize(
                                 (VideoFormat)supported[index]);
 
                             tracks[i].setFormat(chosenFormat);
@@ -711,12 +710,15 @@ public class MediaControl
                                 encodingSets);
                             if (index != -1)
                             {
-                                tracks[i].setFormat(supported[index]);
+                                Format setFormat
+                                    = tracks[i].setFormat(supported[index]);
                                 if (logger.isDebugEnabled())
                                 {
-                                    logger.debug("Track " + i +
-                                                 " is set to transmit as: "
-                                                 + supported[index]);
+                                    logger.debug(
+                                            "Track "
+                                            + i
+                                            + " is set to transmit as: "
+                                            + setFormat);
                                 }
                                 atLeastOneTrack = true;
                             }
@@ -747,9 +749,8 @@ public class MediaControl
         }
         // Realize the sourceProcessor. This will internally create a flow
         // graph and attempt to create an output datasource
-        processorIsReady = processorUtility.waitForState(sourceProcessor
-                                               , Controller.Realized);
-        if (!processorIsReady)
+        if (!processorUtility.waitForState(sourceProcessor,
+                Controller.Realized))
         {
             logger.error("Couldn't realize sourceProcessor");
             throw new MediaException("Couldn't realize sourceProcessor"
@@ -888,23 +889,24 @@ public class MediaControl
      * @return the index of the format corresponding to the first encoding that
      *         had a marching format in the <tt>availableFormats</tt> array.
      */
-    protected int findFirstMatchingFormat(Format[] availableFormats,
-        Hashtable<String, List<String>> requestedEncodings)
+    protected int findFirstMatchingFormat(
+            Format[] availableFormats,
+            Map<String, List<String>> requestedEncodings)
     {
         if (availableFormats == null || requestedEncodings == null)
         {
             return -1;
         }
 
-        Enumeration<List<String>> formatSets = requestedEncodings.elements();
-        while (formatSets.hasMoreElements())
+        for (List<String> requestedEncodingSet : requestedEncodings.values())
         {
-            for (String currentSetElement : formatSets.nextElement())
+            for (String requestedEncoding : requestedEncodingSet)
             {
                 for (int i = 0; i < availableFormats.length; i++)
                 {
-                    if (availableFormats[i].getEncoding().equals(
-                            currentSetElement))
+                    String availableEncoding = availableFormats[i].getEncoding();
+
+                    if (availableEncoding.equals(requestedEncoding))
                     {
                         return i;
                     }
@@ -913,7 +915,6 @@ public class MediaControl
         }
         return -1;
     }
-
 
     /**
      * Returns an array of Strings containing video formats in the order of
@@ -945,7 +946,7 @@ public class MediaControl
      * that we don't pull the plug from underneath their feet.
      *
      * @param reader a reference to the object calling this method, that we
-     * could use for keeping the number of simulaneous active readers.
+     * could use for keeping the number of simultaneous active readers.
      */
     public void startProcessingMedia(Object reader)
     {
@@ -1158,10 +1159,19 @@ public class MediaControl
             localVideoAllowed = allowed;
 
             if (sourceProcessor != null)
+            {
                 sourceProcessor.stop();
+                if (sourceProcessor.getState() == Processor.Realized)
+                {
+                    DataSource dataOutput = sourceProcessor.getDataOutput();
+
+                    if (dataOutput != null)
+                        dataOutput.disconnect();
+                }
+                sourceProcessor.deallocate();
+                sourceProcessor.close();
+            }
             initCaptureDevices();
-            if (sourceProcessor.getState() != Processor.Started)
-                sourceProcessor.start();
         }
     }
 
