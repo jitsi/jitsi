@@ -274,50 +274,64 @@ public class OperationSetMultiUserChatJabberImpl
 
         ChatRoom room = chatRoomCache.get(canonicalRoomName);
 
-        if (room == null)
+        if (room != null)
+            return room;
+
+        try
         {
-            try
+            RoomInfo infos = MultiUserChat.getRoomInfo(
+                getXmppConnection(), canonicalRoomName);
+            if (infos.getRoom().equals(canonicalRoomName))
             {
-                Collection<HostedRoom> co =
-                    MultiUserChat.getHostedRooms(
-                    getXmppConnection(), canonicalRoomName);
-                for (HostedRoom ho : co)
-                {
-                    if (ho.getJid().equals(canonicalRoomName))
-                    {
-                        MultiUserChat muc =
-                            new MultiUserChat(
-                            getXmppConnection(), canonicalRoomName);
-
-                        room = new ChatRoomJabberImpl(muc,
-                            jabberProvider);
-
-                        chatRoomCache.put(canonicalRoomName, room);
-                        break;
-                    }
-                }
-            } catch (XMPPException ex)
-            {
-                // if we get any error other than not found, it is not guaranted
-                // the room doesnt exists. we will know it only when we will
-                // try to join the room
-                if (!ex.getXMPPError().getCondition().equals(
-                    XMPPError.Condition.item_not_found.toString()))
-                {
-                    MultiUserChat muc =
-                        new MultiUserChat(
-                        getXmppConnection(), canonicalRoomName);
-
-                    room = new ChatRoomJabberImpl(muc,
-                        jabberProvider);
-
-                    chatRoomCache.put(canonicalRoomName, room);
-                }
-                logger.debug(
-                    "failed to find room " + canonicalRoomName + "\n", ex);
+                MultiUserChat muc =
+                new MultiUserChat(getXmppConnection(), canonicalRoomName);
+                room = new ChatRoomJabberImpl(muc, jabberProvider);
+                chatRoomCache.put(canonicalRoomName, room);
+                return room;
             }
         }
-        return room;
+        catch (XMPPException xe)
+        {
+            return null;
+        }
+        catch (NullPointerException ne)
+        {
+            // caused by some bug in smack, we will try another method
+        }
+
+        try
+        {
+            // getHostedRooms will let us if the room doesnt exists
+            // by raising an XMPPException with
+            // XMPPError.Condition.item_not_found as error condition.
+            // if we get anything else, we can conclude so we create
+            // the MultiUserChat instance and the failure point will be
+            // join method
+            Collection<HostedRoom> co =
+                MultiUserChat.getHostedRooms(
+                getXmppConnection(), canonicalRoomName);
+        }
+        catch (XMPPException xe)
+        {
+            if (xe.getXMPPError().getCondition().equals(
+                XMPPError.Condition.item_not_found.toString()))
+            {
+                return null;
+            }
+            else
+            {
+                MultiUserChat muc =
+                    new MultiUserChat(
+                    getXmppConnection(), canonicalRoomName);
+
+                room = new ChatRoomJabberImpl(muc,
+                    jabberProvider);
+
+                chatRoomCache.put(canonicalRoomName, room);
+                return room;
+            }
+        }
+        return null;
     }
 
     /**

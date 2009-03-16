@@ -597,6 +597,10 @@ public class ConferenceChatManager
         }
 
         this.joinChatRoom(chatRoomWrapper);
+        ChatWindowManager chatWindowManager
+            = GuiActivator.getUIService().getChatWindowManager();
+        chatWindowManager.openChat(
+            chatWindowManager.getMultiChat(chatRoomWrapper), true);
     }
 
     /**
