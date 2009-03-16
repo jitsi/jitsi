@@ -142,7 +142,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
         {
             String toUserID = ((ContactYahooImpl) to).getID();
 
-            byte[] msgBytesToBeSent = message.getContent().getBytes();
+            byte[] msgBytesToBeSent = message.getContent().trim().getBytes();
 
             // split the message in parts with max allowed length
             // and send them all
@@ -397,16 +397,9 @@ public class OperationSetBasicInstantMessagingYahooImpl
             String formattedMessage = ev.getMessage();
             logger.debug("original message received : " + formattedMessage);
 
-            // if the message is decorated by Yahoo, we try to "decode" it first.
-            if (formattedMessage.startsWith("\u001b"))
-            {
-                formattedMessage = processLinks(
-                        messageDecoder.decodeToHTML(formattedMessage));
-            }
-            else
-            {
-                formattedMessage = processLinks(formattedMessage);
-            }
+            // make sure we always decode message
+            formattedMessage = processLinks(
+                    messageDecoder.decodeToHTML(formattedMessage));
 
             // now, we try to fix a wrong usage of the size attribute in the
             // <font> HTML element

@@ -53,13 +53,13 @@ public class ProtocolProviderServiceYahooImpl
     private OperationSetPersistentPresenceYahooImpl persistentPresence = null;
 
     private OperationSetTypingNotificationsYahooImpl typingNotifications = null;
-    
+
     /**
      * The logo corresponding to the msn protocol.
      */
     private ProtocolIconYahooImpl yahooIcon
         = new ProtocolIconYahooImpl();
-    
+
 
     /**
      * Returns the state of the registration of this protocol provider
@@ -68,7 +68,7 @@ public class ProtocolProviderServiceYahooImpl
      */
     public RegistrationState getRegistrationState()
     {
-        if(yahooSession != null && 
+        if(yahooSession != null &&
             yahooSession.getSessionStatus() == StatusConstants.MESSAGING)
             return RegistrationState.REGISTERED;
         else
@@ -89,7 +89,7 @@ public class ProtocolProviderServiceYahooImpl
      */
     public void register(final SecurityAuthority authority)
         throws OperationFailedException
-    {       
+    {
         if(authority == null)
             throw new IllegalArgumentException(
                 "The register method needs a valid non-null authority impl "
@@ -155,18 +155,23 @@ public class ProtocolProviderServiceYahooImpl
 
             yahooSession = new YahooSession();
             yahooSession.addSessionListener(new YahooConnectionListener());
-            
+
             try
             {
+                fireRegistrationStateChanged(
+                        getRegistrationState(),
+                        RegistrationState.REGISTERING,
+                        RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
+
                 yahooSession.login(getAccountID().getUserID(), password);
 
                 if(yahooSession.getSessionStatus()==StatusConstants.MESSAGING)
                 {
                     persistentPresence.fireProviderPresenceStatusChangeEvent(
-                        persistentPresence.getPresenceStatus(), 
+                        persistentPresence.getPresenceStatus(),
                         persistentPresence.yahooStatusToPresenceStatus(
                             yahooSession.getStatus()));
-                    
+
                     fireRegistrationStateChanged(
                         getRegistrationState(),
                         RegistrationState.REGISTERED,
@@ -236,10 +241,10 @@ public class ProtocolProviderServiceYahooImpl
     void unregister(boolean fireEvent)
     {
         RegistrationState currRegState = getRegistrationState();
-        
+
         try
         {
-            if(yahooSession != null && 
+            if(yahooSession != null &&
                yahooSession.getSessionStatus() == StatusConstants.MESSAGING)
                 yahooSession.logout();
         }
@@ -247,7 +252,7 @@ public class ProtocolProviderServiceYahooImpl
         {
             logger.error("Cannot logout! ", ex);
         }
-        
+
         yahooSession = null;
 
         if(fireEvent)
@@ -312,12 +317,12 @@ public class ProtocolProviderServiceYahooImpl
                 basicInstantMessaging);
 
            //initialize the multi user chat operation set
-            OperationSetMultiUserChatYahooImpl multiUserChatOpSet = 
+            OperationSetMultiUserChatYahooImpl multiUserChatOpSet =
                new OperationSetMultiUserChatYahooImpl(this);
-            
+
             supportedOperationSets.put(OperationSetMultiUserChat.class.getName(),
                    multiUserChatOpSet);
-            
+
             //initialize the typing notifications operation set
             typingNotifications =
                 new OperationSetTypingNotificationsYahooImpl(this);
@@ -423,14 +428,14 @@ public class ProtocolProviderServiceYahooImpl
                     RegistrationState.CONNECTION_FAILED,
                     RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
         }
-        
+
         public void inputExceptionThrown(SessionExceptionEvent ev)
         {
             if(ev.getException() instanceof YMSG9BadFormatException)
             {
                 logger.error("Yahoo protocol exception occured exception",
                     ev.getException());
-                logger.error("Yahoo protocol exception occured exception cause", 
+                logger.error("Yahoo protocol exception occured exception cause",
                     ((YMSG9BadFormatException)ev.getException().getCause()));
             }
             else
@@ -444,13 +449,13 @@ public class ProtocolProviderServiceYahooImpl
                     RegistrationStateChangeEvent.REASON_INTERNAL_ERROR, null);
         }
     }
-    
+
     /**
      * Returns the yahoo protocol icon.
      * @return the yahoo protocol icon
      */
     public ProtocolIcon getProtocolIcon()
-    {           
+    {
         return yahooIcon;
     }
 }

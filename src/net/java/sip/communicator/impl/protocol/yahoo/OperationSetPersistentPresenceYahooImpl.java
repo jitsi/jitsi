@@ -124,7 +124,13 @@ public class OperationSetPersistentPresenceYahooImpl
      * buddy list.
      */
     private ServerStoredContactListYahooImpl ssContactList = null;
-    
+
+    /**
+     * Listens for events that are fired while registering to server.
+     * After we are registered instance is cleared and never used.
+     */
+    private EarlyEventListener earlyEventListener = null;
+
     /**
      * Status events are received before subscription one.
      * And when subscription is received we deliver
@@ -422,25 +428,25 @@ public class OperationSetPersistentPresenceYahooImpl
             parentProvider.unregister();
             return;
         }
-        
+
         try
         {
             if(statusMessage != null)
             {
                 boolean isAvailable = false;
-                
+
                 if(status.equals(YahooStatusEnum.AVAILABLE))
                     isAvailable = true;
-                
+
                 // false - away
                 // true - available
                 parentProvider.getYahooSession().
                     setStatus(statusMessage, isAvailable);
             }
-            
+
             parentProvider.getYahooSession().setStatus(
                 scToYahooModesMappings.get(status).longValue());
-            
+
             fireProviderPresenceStatusChangeEvent(currentStatus, status);
         }
         catch(IOException ex)
@@ -469,7 +475,7 @@ public class OperationSetPersistentPresenceYahooImpl
         IllegalArgumentException, IllegalStateException,
         OperationFailedException
     {
-        
+
         ContactYahooImpl contact = ssContactList.findContactById(contactIdentifier);
         if(contact == null)
         {
@@ -550,7 +556,7 @@ public class OperationSetPersistentPresenceYahooImpl
         if( !(group instanceof ContactGroupYahooImpl) )
             throw new IllegalArgumentException(
                 "The specified group is not an yahoo contact group: " + group);
-        
+
         throw new UnsupportedOperationException("Renaming group not supported!");
         //ssContactList.renameGroup((ContactGroupYahooImpl)group, newName);
     }
@@ -565,6 +571,14 @@ public class OperationSetPersistentPresenceYahooImpl
     public void setAuthorizationHandler(AuthorizationHandler handler)
     {
         ssContactList.setAuthorizationHandler(handler);
+
+        // we got a handler. Lets process if something has came
+        // durring login process
+        if(earlyEventListener != null)
+        {
+            earlyEventListener.processEarlyAuthorizations();
+            earlyEventListener = null;
+        }
     }
 
     /**
@@ -595,7 +609,7 @@ public class OperationSetPersistentPresenceYahooImpl
         if(! (parent instanceof ContactGroupYahooImpl) )
             throw new IllegalArgumentException(
                 "Argument is not an yahoo contact group (group=" + parent + ")");
-        
+
         ssContactList.addContact((ContactGroupYahooImpl)parent, contactIdentifier);
     }
 
@@ -787,7 +801,7 @@ public class OperationSetPersistentPresenceYahooImpl
     private void initContactStatuses()
     {
         YahooGroup[] groups = parentProvider.getYahooSession().getGroups();
-        
+
         for (int i = 0; i < groups.length; i++)
         {
             YahooGroup item = groups[i];
@@ -795,10 +809,10 @@ public class OperationSetPersistentPresenceYahooImpl
             while(iter.hasNext())
             {
                 YahooUser user =  (YahooUser)iter.next();
-                
-                ContactYahooImpl sourceContact = 
-                    ssContactList.findContactById(user.getId());                
-                
+
+                ContactYahooImpl sourceContact =
+                    ssContactList.findContactById(user.getId());
+
                 if(sourceContact != null)
                     handleContactStatusChange(sourceContact, user);
             }
@@ -825,16 +839,29 @@ public class OperationSetPersistentPresenceYahooImpl
                          + evt.getOldState()
                          + " to: " + evt.getNewState());
 
-            if(evt.getNewState() == RegistrationState.REGISTERED)
+            if(evt.getNewState() == RegistrationState.REGISTERING)
+            {
+                // add new listener waiting for events during login process
+                earlyEventListener = new EarlyEventListener();
+                parentProvider.getYahooSession().
+                        addSessionListener(earlyEventListener);
+            }
+            else if(evt.getNewState() == RegistrationState.REGISTERED)
             {
                 parentProvider.getYahooSession().
                     addSessionListener(new StatusChangedListener());
-                
+
                 ssContactList.setYahooSession(parentProvider.getYahooSession());
-                
+
                 initContactStatuses();
-                
+
                 addSubscriptionListener(statusUpdater);
+
+                if(earlyEventListener != null)
+                {
+                    parentProvider.getYahooSession().
+                            removeSessionListener(earlyEventListener);
+                }
             }
             else if(evt.getNewState() == RegistrationState.UNREGISTERED
                  || evt.getNewState() == RegistrationState.AUTHENTICATION_FAILED
@@ -849,7 +876,7 @@ public class OperationSetPersistentPresenceYahooImpl
 
                 fireProviderPresenceStatusChangeEvent(oldStatus,
                     currentStatus);
-                
+
                 removeSubscriptionListener(statusUpdater);
 
                 //send event notifications saying that all our buddies are
@@ -884,6 +911,11 @@ public class OperationSetPersistentPresenceYahooImpl
                             , oldContactStatus, YahooStatusEnum.OFFLINE);
                     }
                 }
+
+                // clear listener
+                parentProvider.getYahooSession().
+                        removeSessionListener(earlyEventListener);
+                earlyEventListener = null;
             }
         }
     }
@@ -927,7 +959,7 @@ public class OperationSetPersistentPresenceYahooImpl
 
     private void handleContactStatusChange(YahooUser yFriend)
     {
-        ContactYahooImpl sourceContact = 
+        ContactYahooImpl sourceContact =
             ssContactList.findContactById(yFriend.getId());
 
         if(sourceContact == null)
@@ -945,13 +977,13 @@ public class OperationSetPersistentPresenceYahooImpl
                 return;
             }
             // strange
-            else                    
+            else
                 return;
         }
 
         handleContactStatusChange(sourceContact, yFriend);
     }
-    
+
     void handleContactStatusChange(ContactYahooImpl sourceContact, YahooUser yFriend)
     {
         PresenceStatus oldStatus
@@ -961,7 +993,7 @@ public class OperationSetPersistentPresenceYahooImpl
 
         // statuses maybe the same and only change in status message
         sourceContact.setStatusMessage(yFriend.getCustomStatusMessage());
-        
+
         // when old and new status are the same do nothing - no change
         if(oldStatus.equals(newStatus))
         {
@@ -978,14 +1010,14 @@ public class OperationSetPersistentPresenceYahooImpl
         fireContactPresenceStatusChangeEvent(sourceContact, parent,
             oldStatus, newStatus);
     }
-    
+
     private class StatusChangedListener
         extends SessionAdapter
     {
-        public void friendsUpdateReceived(SessionFriendEvent evt) 
+        public void friendsUpdateReceived(SessionFriendEvent evt)
         {
             logger.debug("Received a status update for contact " + evt);
-            
+
             if(evt.getFriend() != null)
             {
                 handleContactStatusChange(evt.getFriend());
@@ -998,20 +1030,20 @@ public class OperationSetPersistentPresenceYahooImpl
             }
         }
     }
-    
+
     /**
      * Updates the statuses of newly created persistent contacts
      */
     private class StatusUpdater implements SubscriptionListener
     {
-        public void subscriptionCreated(SubscriptionEvent evt) 
+        public void subscriptionCreated(SubscriptionEvent evt)
         {
-            ContactYahooImpl contact = 
+            ContactYahooImpl contact =
                 (ContactYahooImpl)evt.getSourceContact();
-            
+
             if(!contact.isPersistent() || !contact.isResolved())
                 return;
-            
+
             handleContactStatusChange(contact, contact.getSourceContact());
         }
 
@@ -1020,5 +1052,30 @@ public class OperationSetPersistentPresenceYahooImpl
         public void subscriptionMoved(SubscriptionMovedEvent evt) {}
         public void subscriptionResolved(SubscriptionEvent evt) {}
         public void contactModified(ContactPropertyChangeEvent evt) {}
+    }
+
+    private class EarlyEventListener
+        extends SessionAdapter
+    {
+        private Vector<SessionAuthorizationEvent> receivedAuthorizations =
+                new Vector<SessionAuthorizationEvent>();
+
+        public void authorizationReceived(SessionAuthorizationEvent ev)
+        {
+            if(ev.isAuthorizationRequest())
+            {
+                logger.trace("authorizationRequestReceived from " +
+                        ev.getFrom());
+                receivedAuthorizations.add(ev);
+            }
+        }
+
+        public void processEarlyAuthorizations()
+        {
+            for (SessionAuthorizationEvent e : receivedAuthorizations)
+            {
+                ssContactList.processAuthorizationRequest(e);
+            }
+        }
     }
 }
