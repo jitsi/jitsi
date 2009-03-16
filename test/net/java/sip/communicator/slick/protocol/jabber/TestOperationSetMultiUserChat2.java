@@ -246,11 +246,11 @@ public class TestOperationSetMultiUserChat2
         suite.addTest(
             new TestOperationSetMultiUserChat2("testConferenceChat"));
 
-        suite.addTest(
-            new TestOperationSetMultiUserChat2("testMemberBan"));
-
-        suite.addTest(
-            new TestOperationSetMultiUserChat2("testMemberKick"));
+//        suite.addTest(
+//            new TestOperationSetMultiUserChat2("testMemberBan"));
+//
+//        suite.addTest(
+//            new TestOperationSetMultiUserChat2("testMemberKick"));
 
         return suite;
     }
