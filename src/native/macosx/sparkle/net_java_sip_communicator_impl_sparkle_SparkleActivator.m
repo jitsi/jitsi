@@ -43,7 +43,7 @@ Java_net_java_sip_communicator_impl_sparkle_SparkleActivator_initSparkle
     //Class suUpdaterClass = [bundle classNamed:@"SUUpdater"];
     //id suUpdater = [[suUpdaterClass alloc] init];
   
-	SUUpdater *suUpdater = [SUUpdater alloc];
+    SUUpdater *suUpdater = [SUUpdater alloc];
 
     (*env)->ReleaseStringUTFChars(env, pathToSparkleFramework, path);  
  
@@ -62,10 +62,10 @@ Java_net_java_sip_communicator_impl_sparkle_SparkleActivator_initSparkle
     // 0 => top, 1 => after "About..."
     [applicationMenu insertItem:checkForUpdatesMenuItem atIndex:1];
 
-	// Check at Startup (SUCheckAtStartup and SUScheduledCheckInterval
-	// specified in the Info.plist does not seem to work)
-	if (updateAtStartup == JNI_TRUE)
-		[suUpdater checkForUpdatesInBackground];
+    // Check at Startup (SUCheckAtStartup and SUScheduledCheckInterval
+    // specified in the Info.plist does not seem to work)
+    if (updateAtStartup == JNI_TRUE)
+        [suUpdater checkForUpdatesInBackground];
 
-	[suUpdater scheduleCheckWithInterval:checkInterval];
+    [suUpdater scheduleCheckWithInterval:checkInterval];
 }

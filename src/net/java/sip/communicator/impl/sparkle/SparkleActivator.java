@@ -32,11 +32,11 @@ public class SparkleActivator
     private boolean updateAtStartup = true;
 
     /**
-     * Whether updates are checked at startup
+     * Check interval period, in seconds
      */
     private int checkInterval = 86400;  // 1 day
 
-   /**
+    /**
      * Dynamically loads JNI object. Will fail if non-MacOSX 
      * or when libinit_sparkle.dylib is outside of the LD_LIBRARY_PATH
      */    
