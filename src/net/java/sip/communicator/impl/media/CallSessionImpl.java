@@ -1739,8 +1739,7 @@ public class CallSessionImpl
             mediaDescs.add(am);
         }
         //--------Video media description
-        if(mediaServCallback.getDeviceConfiguration().isVideoCaptureSupported()
-                && supportedVideoEncodings.length> 0)
+        if(supportedVideoEncodings.length> 0)
         {
             //"m=video 22222 RTP/AVP 34";
             MediaDescription vm
@@ -1765,7 +1764,9 @@ public class CallSessionImpl
 
             byte onHold = this.onHold;
 
-            if (!mediaControl.isLocalVideoAllowed())
+            if (!mediaServCallback.getDeviceConfiguration()
+                    .isVideoCaptureSupported() ||
+                 !mediaControl.isLocalVideoAllowed())
             {
                 /* We don't have anything to send. */
                 onHold |= ON_HOLD_REMOTELY;
