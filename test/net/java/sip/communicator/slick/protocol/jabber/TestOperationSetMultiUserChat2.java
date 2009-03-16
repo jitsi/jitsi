@@ -36,7 +36,7 @@ public class TestOperationSetMultiUserChat2
     /**
      * Provides constants and some utilities method.
      */
-    private JabberSlickFixture fixture = new JabberSlickFixture();
+    private final JabberSlickFixture fixture = new JabberSlickFixture();
 
     private OperationSetMultiUserChat opSetMUC1;
 
@@ -240,22 +240,18 @@ public class TestOperationSetMultiUserChat2
         suite.addTest(
             new TestOperationSetMultiUserChat2("testNickName"));
 
-// following test are not yet commplete
-
         suite.addTest(
             new TestOperationSetMultiUserChat2("testRoomSubject"));
-//
-//
-//        suite.addTest(
-//            new TestOperationSetMultiUserChat2("testConferenceChat"));
-//
-//
-//        suite.addTest(
-//            new TestOperationSetMultiUserChat2("testMemberBan"));
-//
-//
-//        suite.addTest(
-//            new TestOperationSetMultiUserChat2("testMemberKick"));
+
+        suite.addTest(
+            new TestOperationSetMultiUserChat2("testConferenceChat"));
+
+        suite.addTest(
+            new TestOperationSetMultiUserChat2("testMemberBan"));
+
+        suite.addTest(
+            new TestOperationSetMultiUserChat2("testMemberKick"));
+
         return suite;
     }
 
@@ -832,8 +828,6 @@ public class TestOperationSetMultiUserChat2
         throws OperationFailedException,
                OperationNotSupportedException
     {
-        if (true) // just to avoid the not reacheable statement when compiling
-            throw new OperationNotSupportedException("not yet implemented");
         String testRoomName = testRoomBaseName + roomID++;
 
         // we create the test room
@@ -864,21 +858,37 @@ public class TestOperationSetMultiUserChat2
         opSet2RoomCollector.waitForEvent(10000);
 
         // does every member received the message
-        assertEquals("user1 didn't received the message"
+        assertEquals("user1 didn't received an event for message delivery "
             , 1, opSet1RoomCollector.collectedEvents.size());
-        assertEquals("user1 didn't received the message"
+        assertEquals("user2 didn't received the message"
             , 1, opSet2RoomCollector.collectedEvents.size());
 
+        ChatRoomMessageDeliveredEvent deliveryEvent =
+            (ChatRoomMessageDeliveredEvent)
+                opSet1RoomCollector.collectedEvents.get(0);
+
+        assertEquals("message type is not CONVERSATION_MESSAGE_DELIVERED"
+            , ChatRoomMessageDeliveredEvent.CONVERSATION_MESSAGE_DELIVERED
+            , deliveryEvent.getEventType());
+
+        assertSame("the message has been delivered to another room instance"
+            , opSet1Room, deliveryEvent.getSourceChatRoom());
+
+        assertEquals(
+            "delivered message differ from sent message"
+            , message1, deliveryEvent.getMessage().getContent());
+
+        // what happened on user2 side
         ChatRoomMessageReceivedEvent messageEvent =
             (ChatRoomMessageReceivedEvent)
             opSet2RoomCollector.collectedEvents.get(0);
 
-        assertSame("the message comes from another room instance"
-            , opSet2Room, messageEvent.getSourceChatRoom());
-
         assertEquals("message type is not CONVERSATION_MESSAGE_RECEIVED"
             , ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED
             , messageEvent.getEventType());
+
+        assertSame("the message comes from another room instance"
+            , opSet2Room, messageEvent.getSourceChatRoom());
 
         ChatRoomMember member = messageEvent.getSourceChatRoomMember();
 
@@ -888,78 +898,16 @@ public class TestOperationSetMultiUserChat2
         assertEquals(
             "received message differ from sent message"
             , message1, messageEvent.getMessage().getContent());
-
-        // for the sender side, thereis two events, the message delivery one
-        // and the message reception itself
-        if (opSet1RoomCollector.collectedEvents.size() != 2)
-        {
-            opSet1RoomCollector.waitForEvent(10000);
-        }
-
-        assertEquals(
-            "message sender missed either the message delivery " +
-            "or the reception event"
-            , 2, opSet1RoomCollector.collectedEvents.size());
-
-        ChatRoomMessageDeliveredEvent deliveryEvent;
-        ChatRoomMessageReceivedEvent receptionEvent;
-
-        // since we dont know which message has been received first, we have
-        // to check
-        if (opSet1RoomCollector.collectedEvents.get(0)
-            instanceof ChatRoomMessageDeliveredEvent)
-        {
-            deliveryEvent = (ChatRoomMessageDeliveredEvent)
-                opSet1RoomCollector.collectedEvents.get(0);
-            receptionEvent = (ChatRoomMessageReceivedEvent)
-                opSet1RoomCollector.collectedEvents.get(1);
-        }
-        else
-        {
-            receptionEvent = (ChatRoomMessageReceivedEvent)
-                opSet1RoomCollector.collectedEvents.get(0);
-            deliveryEvent = (ChatRoomMessageDeliveredEvent)
-                opSet1RoomCollector.collectedEvents.get(1);
-        }
-
-        // looking the receptionEvent
-        assertSame("the message comes from another room instance"
-            , opSet1Room, receptionEvent.getSourceChatRoom());
-
-        assertEquals("message type is not CONVERSATION_MESSAGE_RECEIVED"
-            , ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED
-            , messageEvent.getEventType());
-
-        member = receptionEvent.getSourceChatRoomMember();
-
-        assertEquals("message comes from an unexpected user"
-            , opSet1Room.getUserNickname(), member.getName());
-
-        assertEquals("received message differ from sent message"
-            , message1, receptionEvent.getMessage().getContent());
-
-        // and now check consistency between the delivery event and the
-        // reception eveynt
-        assertSame("delivery event and reception event source rooms differ"
-            , deliveryEvent.getSourceChatRoom()
-            , receptionEvent.getSourceChatRoom());
-
-        assertSame("delivery event and reception event message content"
-            , deliveryEvent.getMessage().getContent()
-            , receptionEvent.getMessage().getContent());
     }
 
     /**
-     * Here we test conference messagin : sending, receiving messages and
-     * corresponding events.
+     * In <tt>testMemberBan</tt>, a member joins, then he is banned
+     * and try to join again
      */
     public void testMemberBan()
         throws OperationFailedException,
         OperationNotSupportedException
     {
-        if (true) // just to avoid the not reacheable statement when compiling
-            throw new OperationNotSupportedException("not yet implemented");
-
         String testRoomName = testRoomBaseName + roomID++;
 
         // we create the test room
@@ -967,20 +915,73 @@ public class TestOperationSetMultiUserChat2
             opSetMUC1.createChatRoom(testRoomName, null);
         opSet1Room.join();
 
+        MUCEventCollector opSet1RoomCollector =
+            new MUCEventCollector(
+            opSet1Room, MUCEventCollector.EVENT_PRESENCE);
+
         ChatRoom opSet2Room = opSetMUC2.findRoom(testRoomName);
         opSet2Room.join();
+
+        opSet1RoomCollector.waitForEvent(10000);
+
+        assertTrue("user2 not on member list after join"
+            , nameIsOnMemberList(fixture.userID2, opSet1Room.getMembers()));
+
+        List<ChatRoomMember> members = opSet1Room.getMembers();
+
+        ChatRoomMember memberToBan = null;
+        for (ChatRoomMember member : members)
+            if (member.getContactAddress().equals(fixture.userID2))
+            {
+                memberToBan = member;
+                break;
+            }
+
+        if (memberToBan == null)
+            throw new IllegalStateException("member to ban not found");
+
+        opSet1RoomCollector =
+            new MUCEventCollector(
+            opSet1Room, MUCEventCollector.EVENT_ROLE);
+
+        assertTrue("user2 not in a room he joined "
+            , opSet2Room.isJoined());
+
+        opSet1Room.banParticipant(memberToBan, "testMemberBan");
+
+        opSet1RoomCollector.waitForEvent(10000);
+
+        assertEquals("user1 didnt received an event for user2 ban"
+            , 1, opSet1RoomCollector.collectedEvents.size());
+
+        assertFalse("user2 still on member list after ban"
+            , nameIsOnMemberList(fixture.userID2, opSet1Room.getMembers()));
+
+        assertFalse("user2 still in a room after been banned"
+            , opSet2Room.isJoined());
+
+        try
+        {
+            opSet2Room.join();
+        }
+        catch (Exception ex)
+        {
+            // user2 has not been only kicked but banned so
+            // he must not be able to join
+        }
+        assertFalse("user2 just joined a room where he is banned"
+            , opSet2Room.isJoined());
     }
 
+
     /**
-     * Here we test conference messagin : sending, receiving messages and
-     * corresponding events.
+     * In <tt>testMemberKick</tt>, a member joins, then he is banned
+     * and try to join again
      */
     public void testMemberKick()
         throws OperationFailedException,
         OperationNotSupportedException
     {
-        if (true) // just to avoid the not reacheable statement when compiling
-            throw new OperationNotSupportedException("not yet implemented");
         String testRoomName = testRoomBaseName + roomID++;
 
         // we create the test room
@@ -988,8 +989,72 @@ public class TestOperationSetMultiUserChat2
             opSetMUC1.createChatRoom(testRoomName, null);
         opSet1Room.join();
 
+        MUCEventCollector opSet1RoomCollector =
+            new MUCEventCollector(
+            opSet1Room, MUCEventCollector.EVENT_PRESENCE);
+        
         ChatRoom opSet2Room = opSetMUC2.findRoom(testRoomName);
         opSet2Room.join();
+
+        opSet1RoomCollector.waitForEvent(10000);
+
+        assertTrue("user2 not on member list after join"
+            , nameIsOnMemberList(fixture.userID2, opSet1Room.getMembers()));
+
+        List<ChatRoomMember> members = opSet1Room.getMembers();
+
+        ChatRoomMember memberToKick = null;
+        for (ChatRoomMember member : members)
+            if (member.getContactAddress().equals(fixture.userID2))
+            {
+                memberToKick = member;
+                break;
+            }
+        if (memberToKick == null)
+            throw new IllegalStateException("member to kick not found");
+
+        opSet1RoomCollector =
+            new MUCEventCollector(
+            opSet1Room, MUCEventCollector.EVENT_PRESENCE);
+
+        assertTrue("user2 not in a room he joined "
+            , opSet2Room.isJoined());
+
+        opSet1Room.kickParticipant(memberToKick, "testMemberKick");
+
+        opSet1RoomCollector.waitForEvent(10000);
+
+        assertEquals("user1 didnt received an event for user2 kick"
+            , 1, opSet1RoomCollector.collectedEvents.size());
+
+        ChatRoomMemberPresenceChangeEvent changeEvent =
+            (ChatRoomMemberPresenceChangeEvent)
+            opSet1RoomCollector.collectedEvents.get(0);
+
+        assertEquals("the event received by user1 is not "
+            , ChatRoomMemberPresenceChangeEvent.MEMBER_KICKED
+            , changeEvent.getEventType());
+
+        assertEquals("the kicked member is not the one expected"
+            , memberToKick.getContactAddress()
+            , changeEvent.getChatRoomMember().getContactAddress());
+
+        assertFalse("user2 still on member list after ban"
+            , nameIsOnMemberList(fixture.userID2, opSet1Room.getMembers()));
+
+        assertFalse("user2 still in a room after been kicked"
+            , opSet2Room.isJoined());
+
+        // contrary to a ban, an user can join after been kicked
+        opSet2Room.join();
+
+        assertTrue("user2 can't join after been kicked "
+            , opSet2Room.isJoined());
+
+        opSet1RoomCollector.waitForEvent(10000);
+
+        assertTrue("user2 not on list when joining after a kick"
+            , nameIsOnMemberList(fixture.userID2, opSet1Room.getMembers()));
     }
 
     /**
@@ -1002,7 +1067,9 @@ public class TestOperationSetMultiUserChat2
                    ChatRoomMemberPresenceListener,
                    ChatRoomMessageListener,
                    ChatRoomMemberPropertyChangeListener,
-                   ChatRoomPropertyChangeListener
+                   ChatRoomPropertyChangeListener,
+                   ChatRoomMemberRoleListener,
+                   ChatRoomLocalUserRoleListener
     {
         private final ArrayList collectedEvents = new ArrayList();
 
@@ -1019,6 +1086,8 @@ public class TestOperationSetMultiUserChat2
         private static final int EVENT_MESSAGE = 3;
 
         private static final int EVENT_PROPERTY = 4;
+
+        private static final int EVENT_ROLE = 5;
 
         /**
          * Creates an event collector to listen for specific events from
@@ -1063,6 +1132,10 @@ public class TestOperationSetMultiUserChat2
                 case EVENT_PROPERTY:
                     room.addMemberPropertyChangeListener(this);
                     room.addPropertyChangeListener(this);
+                    break;
+                case EVENT_ROLE:
+                    room.addMemberRoleListener(this);
+                    room.addLocalUserRoleListener(this);
                     break;
                 default:
                     throw new IllegalArgumentException(
@@ -1182,6 +1255,18 @@ public class TestOperationSetMultiUserChat2
 
         public void chatRoomPropertyChangeFailed(
             ChatRoomPropertyChangeFailedEvent evt)
+        {
+            collectEvent(evt);
+        }
+
+        public void memberRoleChanged(
+            ChatRoomMemberRoleChangeEvent evt)
+        {
+            collectEvent(evt);
+        }
+
+        public void localUserRoleChanged(
+            ChatRoomLocalUserRoleChangeEvent evt)
         {
             collectEvent(evt);
         }

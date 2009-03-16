@@ -829,7 +829,11 @@ public class ChatRoomJabberImpl
             
             if(member == null)
                 return;
-            
+
+            String participantName = StringUtils.parseResource(participant);
+
+            members.remove(participantName);
+
             banList.put(participant, member);
             
             fireMemberRoleEvent(member, member.getRole(),
