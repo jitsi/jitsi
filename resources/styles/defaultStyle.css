@@ -1,71 +1,64 @@
 h1
 {
-background-color:#c6d0e1;
-margin:0px;
-text-align:center;
-font-weight:bold;
-font-size:12
+  background-color: #c6d0e1;
+  margin: 0px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 100%;
 }
 
 h2
 {
-margin:0px;
-font-family:Verdana;
-font-size:12;
-color:#ef7b1e
+  margin: 0px;
+  font-size: 100%;
+  color: #ef7b1e;
 }
 
 h3
 {
-margin:0px;
-font-family:Verdana;
-font-size:12;
-color:#2e538b
+  margin: 0px;
+  font-size: 100%;
+  color: #2e538b;
 }
 
 h4
 {
-margin:0px;
-font-family:Verdana;
-font-size:12;
-font-weight:bold;
-color:#FFC875
+  margin: 0px;
+  font-size: 100%;
+  font-weight: bold;
+  color: #FFC875;
 }
 
 h5
 {
-margin:0px;
-font-family:Verdana;
-font-size:12;
-font-weight:bold;
-color:#CC0000
+  margin: 0px;
+  font-size: 100%;
+  font-weight: bold;
+  color: #CC0000;
 }
 
 h6
 {
-margin:0px;
-font-family:Verdana;
-font-size:12;
-font-weight:bold;
-color:#990000
+  margin: 0px;
+  font-size: 100%;
+  font-weight: bold;
+  color: #990000;
 }
 p
 {
-margin:0px;
-font-family:Verdana;
-font-size:12;
-font-weight:bold;
-color:#62BD80
+  margin: 0px;
+  font-size: 100%;
+  font-weight: bold;
+  color: #62BD80;
 }
 
 div
 {
-font-family:Verdana;
-font-size:12;
-color:#000000
+  font-size: 100%;
+  color: #000000;
 }
 
 h7
 {
-background-color:#FFF4AB
+  background-color: #FFF4AB;
 }

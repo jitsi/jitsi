@@ -14,7 +14,6 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 /**
  * The <tt>DatesPanel</tt> contains the list of history dates for a contact.
  *
@@ -24,7 +23,6 @@ public class DatesPanel
     extends SCScrollPane
     implements ListSelectionListener
 {
-
     private  JList datesList = new JList();
 
     private DefaultListModel listModel = new DefaultListModel();
@@ -52,7 +50,7 @@ public class DatesPanel
 
         this.datesList.setCellRenderer(renderer);
 
-        this.datesList.setFont(Constants.FONT.deriveFont(Font.BOLD));
+        this.datesList.setFont(datesList.getFont().deriveFont(Font.BOLD));
 
         this.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(3, 3, 3, 0),

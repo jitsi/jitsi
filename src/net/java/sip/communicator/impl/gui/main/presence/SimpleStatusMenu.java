@@ -63,7 +63,7 @@ public class SimpleStatusMenu
         JLabel titleLabel = new JLabel(displayName);
 
         titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
-        titleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
+        titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD));
 
         this.add(titleLabel);
         this.addSeparator();

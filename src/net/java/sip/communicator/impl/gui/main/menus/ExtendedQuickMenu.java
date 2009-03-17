@@ -26,6 +26,7 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -42,6 +43,7 @@ import org.osgi.framework.*;
  * components.
  *
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class ExtendedQuickMenu
     extends JPanel
@@ -50,49 +52,31 @@ public class ExtendedQuickMenu
                 ComponentListener,
                 ListSelectionListener
 {
-    private Logger logger = Logger.getLogger(ExtendedQuickMenu.class.getName());
+    private final Logger logger = Logger.getLogger(ExtendedQuickMenu.class);
 
-    private SIPCommToolBar toolBar = new SIPCommToolBar();
+    private final SIPCommToolBar toolBar = new SIPCommToolBar();
 
-    BufferedImage backgroundImage
+    private final BufferedImage backgroundImage
         = ImageLoader.getImage(ImageLoader.TOOL_BAR_BACKGROUND);
 
-    Rectangle rectangle
-        = new Rectangle(0, 0,
-                    backgroundImage.getWidth(null),
-                    backgroundImage.getHeight(null));
+    private final TexturePaint texture
+        = new TexturePaint(
+            backgroundImage,
+            new Rectangle(
+                0,
+                0,
+                backgroundImage.getWidth(null),
+                backgroundImage.getHeight(null)));
 
-    TexturePaint texture = new TexturePaint(backgroundImage, rectangle);
+    private static final Dimension PREFERRED_BUTTON_SIZE = new Dimension(
+        GuiActivator.getResources().getSettingsInt(
+            "impl.gui.MAIN_TOOLBAR_BUTTON_WIDTH"),
+        GuiActivator.getResources().getSettingsInt(
+            "impl.gui.MAIN_TOOLBAR_BUTTON_HEIGHT"));
 
-    private ToolBarButton infoButton = new ToolBarButton(
-        ImageLoader.getImage(ImageLoader.QUICK_MENU_INFO_ICON));
+    private final MoreButton moreButton = new MoreButton();
 
-    private ToolBarButton configureButton = new ToolBarButton(
-        ImageLoader.getImage(ImageLoader.QUICK_MENU_CONFIGURE_ICON));
-
-    private ToolBarButton hideShowButton = new ToolBarButton(
-        ImageLoader.getImage(ImageLoader.QUICK_MENU_SHOW_OFFLINE_ICON));
-
-    private ToolBarButton addButton = new ToolBarButton(
-        ImageLoader.getImage(ImageLoader.QUICK_MENU_ADD_ICON));
-
-    private ToolBarButton soundButton = new ToolBarButton(
-        ImageLoader.getImage(ImageLoader.QUICK_MENU_SOUND_ON_ICON));
-
-    private ToolBarButton createGroupButton = new ToolBarButton(
-        ImageLoader.getImage(ImageLoader.QUICK_MENU_CREATE_GROUP_ICON));
-
-    private static int DEFAULT_BUTTON_HEIGHT
-        = GuiActivator.getResources()
-            .getSettingsInt("impl.gui.MAIN_TOOLBAR_BUTTON_HEIGHT");
-
-    private static int DEFAULT_BUTTON_WIDTH
-        = GuiActivator.getResources()
-            .getSettingsInt("impl.gui.MAIN_TOOLBAR_BUTTON_WIDTH");
-
-    private MoreButton moreButton = new MoreButton();
-
-    private MainFrame mainFrame;
+    private final MainFrame mainFrame;
 
     private final Map<PluginComponent, Component> pluginsTable =
         new Hashtable<PluginComponent, Component>();
@@ -110,97 +94,76 @@ public class ExtendedQuickMenu
 
         this.mainFrame = mainFrame;
 
+        this.toolBar.setFloatable(true);
+        this.toolBar.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
         this.toolBar.setOpaque(false);
         this.toolBar.setRollover(true);
-        this.toolBar.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        this.add(toolBar, BorderLayout.CENTER);
 
-        this.toolBar.setFloatable(true);
+        Dimension size = new Dimension(650, PREFERRED_BUTTON_SIZE.height + 5);
+        this.setMinimumSize(size);
+        this.setPreferredSize(size);
 
-        this.setMinimumSize(new Dimension(650, DEFAULT_BUTTON_HEIGHT + 5));
-        this.setPreferredSize(new Dimension(650, DEFAULT_BUTTON_HEIGHT + 5));
+        addButton(
+            ImageLoader.QUICK_MENU_ADD_ICON,
+            "service.gui.ADD_CONTACT",
+            "add");
+        addButton(
+            ImageLoader.QUICK_MENU_CREATE_GROUP_ICON,
+            "service.gui.CREATE_GROUP",
+            "createGroup");
+        addButton(
+            ImageLoader.QUICK_MENU_CONFIGURE_ICON,
+            "service.gui.SETTINGS",
+            "config");
+        addButton(
+            ImageLoader.QUICK_MENU_SHOW_OFFLINE_ICON,
+            "service.gui.HIDE_OFFLINE_CONTACTS",
+            "search");
+        ToolBarButton muteButton = addButton(
+            ImageLoader.QUICK_MENU_SOUND_ON_ICON,
+            "service.gui.SOUND_ON_OFF",
+            "sound");
 
-        this.infoButton.setPreferredSize(
-            new Dimension(DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT));
-        this.configureButton.setPreferredSize(
-            new Dimension(DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT));
-        this.hideShowButton.setPreferredSize(
-            new Dimension(DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT));
-        this.addButton.setPreferredSize(
-            new Dimension(DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT));
-        this.soundButton.setPreferredSize(
-            new Dimension(DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT));
-        this.createGroupButton.setPreferredSize(
-            new Dimension(DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT));
-
-        this.infoButton.setToolTipText(GuiActivator.getResources()
-            .getI18NString("service.gui.CONTACT_INFO"));
-        this.configureButton.setToolTipText(GuiActivator.getResources()
-            .getI18NString("service.gui.SETTINGS"));
-        this.hideShowButton.setToolTipText(GuiActivator.getResources()
-            .getI18NString("service.gui.HIDE_OFFLINE_CONTACTS"));
-        this.addButton.setToolTipText(GuiActivator.getResources()
-            .getI18NString("service.gui.ADD_CONTACT"));
-        this.soundButton.setToolTipText(GuiActivator.getResources()
-            .getI18NString("service.gui.SOUND_ON_OFF"));
-        this.createGroupButton.setToolTipText(GuiActivator.getResources()
-            .getI18NString("service.gui.CREATE_GROUP"));
-
-        this.updateMuteButton(
-                GuiActivator.getAudioNotifier().isMute());
-
-        this.init();
+        updateMuteButton(
+            muteButton, GuiActivator.getAudioNotifier().isMute());
 
         this.initPluginComponents();
     }
 
-    /**
-     * Initialize the <tt>QuickMenu</tt> by adding the buttons.
-     */
-    private void init()
+    private ToolBarButton addButton(
+            ImageID iconImage,
+            String toolTipKey,
+            String name)
     {
-        this.add(toolBar, BorderLayout.CENTER);
+        ToolBarButton button
+            = new ToolBarButton(ImageLoader.getImage(iconImage));
 
-        this.toolBar.add(addButton);
-        this.toolBar.add(createGroupButton);
-        this.toolBar.add(configureButton);
-        this.toolBar.add(hideShowButton);
-        this.toolBar.add(soundButton);
+        button.setName(name);
+        button.setPreferredSize(PREFERRED_BUTTON_SIZE);
+        button.setToolTipText(
+            GuiActivator.getResources().getI18NString(toolTipKey));
 
-        this.components.add(addButton);
-        this.components.add(createGroupButton);
-        this.components.add(configureButton);
-        this.components.add(hideShowButton);
-        this.components.add(soundButton);
+        toolBar.add(button);
+        components.add(button);
 
-        this.addButton.setName("add");
-        this.configureButton.setName("config");
-        this.hideShowButton.setName("search");
-        this.soundButton.setName("sound");
-        this.createGroupButton.setName("createGroup");
-
-        this.addButton.addMouseListener(this);
-        this.configureButton.addMouseListener(this);
-        this.hideShowButton.addMouseListener(this);
-        this.soundButton.addMouseListener(this);
-        this.createGroupButton.addMouseListener(this);
-
-        this.addButton.addComponentListener(this);
-        this.configureButton.addComponentListener(this);
-        this.hideShowButton.addComponentListener(this);
-        this.infoButton.addComponentListener(this);
-        this.soundButton.addComponentListener(this);
-        this.createGroupButton.addComponentListener(this);
+        button.addMouseListener(this);
+        button.addComponentListener(this);
+        return button;
     }
     
     private void initPluginComponents()
     {
         // Search for plugin components registered through the OSGI bundle
         // context.
-        ServiceReference[] serRefs = null;
+        ServiceReference[] serRefs;
 
-        String osgiFilter = "("
-            + Container.CONTAINER_ID
-            + "="+Container.CONTAINER_MAIN_TOOL_BAR.getID()+")";
+        String osgiFilter
+            = "("
+                + Container.CONTAINER_ID
+                + "="
+                + Container.CONTAINER_MAIN_TOOL_BAR.getID()
+                + ")";
 
         try
         {
@@ -210,52 +173,34 @@ public class ExtendedQuickMenu
         }
         catch (InvalidSyntaxException exc)
         {
+            serRefs = null;
             logger.error("Could not obtain plugin reference.", exc);
         }
 
-        if (serRefs != null)
+        if ((serRefs != null) && (serRefs.length > 0))
         {
-            for (ServiceReference serRef : serRefs)
+            boolean added = false;
+
+            try
             {
-                PluginComponent component = (PluginComponent) GuiActivator
-                    .bundleContext.getService(serRef);
+                Object selectedValue
+                    = mainFrame.getContactListPanel().getContactList()
+                        .getSelectedValue();
 
-                    Object selectedValue = mainFrame.getContactListPanel()
-                    .getContactList().getSelectedValue();
-
-                if(component.getComponent() == null)
-                    continue;
-
-                if(selectedValue instanceof MetaContact)
+                for (ServiceReference serRef : serRefs)
                 {
-                    component.setCurrentContact((MetaContact)selectedValue);
+                    PluginComponent component = (PluginComponent)
+                        GuiActivator.bundleContext.getService(serRef);
+
+                    added
+                        = addPluginComponent(component, selectedValue)
+                            || added;
                 }
-                else if(selectedValue instanceof MetaContactGroup)
-                {
-                    component
-                        .setCurrentContactGroup((MetaContactGroup)selectedValue);
-                }
-
-                Component c = (Component) component.getComponent();
-
-                if (c != null)
-                {
-                    if (component.getPositionIndex() > -1)
-                    {
-                        int index = component.getPositionIndex();
-                        this.toolBar.add(c, index);
-                        this.components.add(index, c);
-                    }
-                    else
-                    {
-                        this.toolBar.add(c);
-                        this.components.add(c);
-                    }
-
-                    this.pluginsTable.put(component, c);
-                    
+            }
+            finally
+            {
+                if (added)
                     this.repaint();
-                }
             }
         }
 
@@ -288,54 +233,59 @@ public class ExtendedQuickMenu
      */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
-        PluginComponent pluginComponent = event.getPluginComponent();
+        PluginComponent component = event.getPluginComponent();
 
         // If the container id doesn't correspond to the id of the plugin
         // container we're not interested.
-        if(!pluginComponent.getContainer()
-                .equals(Container.CONTAINER_MAIN_TOOL_BAR))
+        if(!component.getContainer().equals(Container.CONTAINER_MAIN_TOOL_BAR))
             return;
 
-        int position = pluginComponent.getPositionIndex();
+        boolean added = addPluginComponent(
+            component,
+            mainFrame.getContactListPanel().getContactList().getSelectedValue());
 
-        Component c = (Component) pluginComponent.getComponent();
+        if (added)
+        {
+            this.revalidate();
+            this.repaint();
+        }
+    }
+
+    private boolean addPluginComponent(
+            PluginComponent component, Object selectedValue)
+    {
+        Component c = (Component) component.getComponent();
 
         if (c == null)
-            return;
+            return false;
 
+        int position = component.getPositionIndex();
         if (position > -1)
         {
-            this.toolBar.add(c, position);
+            toolBar.add(c, position);
             components.add(position, c);
         }
         else
         {
-            this.toolBar.add(c);
+            toolBar.add(c);
             components.add(c);
         }
 
-        pluginsTable.put(pluginComponent, c);
+        pluginsTable.put(component, c);
 
-        c.setPreferredSize(
-            new Dimension(DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT));
+        c.setPreferredSize(PREFERRED_BUTTON_SIZE);
         c.addComponentListener(this);
-
-        Object selectedValue = mainFrame.getContactListPanel()
-                .getContactList().getSelectedValue();
 
         if(selectedValue instanceof MetaContact)
         {
-            pluginComponent
-                .setCurrentContact((MetaContact)selectedValue);
+            component.setCurrentContact((MetaContact)selectedValue);
         }
         else if(selectedValue instanceof MetaContactGroup)
         {
-            pluginComponent
+            component
                 .setCurrentContactGroup((MetaContactGroup)selectedValue);
         }
-
-        this.revalidate();
-        this.repaint();
+        return true;
     }
 
     /**
@@ -406,7 +356,7 @@ public class ExtendedQuickMenu
     
     public void valueChanged(ListSelectionEvent e)
     {
-        if((e.getFirstIndex() != -1 || e.getLastIndex() != -1))
+        if((e.getFirstIndex() != -1) || (e.getLastIndex() != -1))
         {
             for (PluginComponent plugin : pluginsTable.keySet())
             {
@@ -426,16 +376,12 @@ public class ExtendedQuickMenu
         }
     }
 
-    public void updateMuteButton(boolean isMute)
+    private void updateMuteButton(ToolBarButton button, boolean isMute)
     {
-        if(!isMute)
-            this.soundButton.setIcon(
-                new ImageIcon(ImageLoader.getImage(
-                    ImageLoader.QUICK_MENU_SOUND_ON_ICON)));
-        else
-            this.soundButton.setIcon(
-                new ImageIcon(ImageLoader.getImage(
-                    ImageLoader.QUICK_MENU_SOUND_OFF_ICON)));
+        button.setIcon(new ImageIcon(ImageLoader.getImage(
+            isMute
+                ? ImageLoader.QUICK_MENU_SOUND_OFF_ICON
+                : ImageLoader.QUICK_MENU_SOUND_ON_ICON)));
     }
 
     private static class ToolBarButton
@@ -449,11 +395,12 @@ public class ExtendedQuickMenu
         {
             super(new ImageIcon(iconImage));
 
-            this.setFont(getFont().deriveFont(Font.BOLD, 10f));
+            Font font = getFont();
+            this.setFont(font.deriveFont(Font.BOLD, font.getSize() - 2));
+
             this.setForeground(new Color(
                 GuiActivator.getResources()
                     .getColor("service.gui.TOOL_BAR_FOREGROUND")));
-
             this.setVerticalTextPosition(SwingConstants.BOTTOM);
             this.setHorizontalTextPosition(SwingConstants.CENTER);
         }
@@ -491,11 +438,9 @@ public class ExtendedQuickMenu
 
             Graphics2D g2 = (Graphics2D) g;
 
-            Color color = null;
-
             if(isMouseOver)
             {
-                color = new Color(
+                Color color = new Color(
                     GuiActivator.getResources()
                     .getColor("service.gui.TOOL_BAR_ROLLOVER_BACKGROUND"));
 
@@ -506,7 +451,7 @@ public class ExtendedQuickMenu
 
             if (isMousePressed)
             {
-                color = new Color(
+                Color color = new Color(
                     GuiActivator.getResources()
                         .getColor("service.gui.TOOL_BAR_BACKGROUND"));
 
@@ -587,17 +532,17 @@ public class ExtendedQuickMenu
                 .getContactList().getSelectedValue();
 
             if (selectedValue == null
-                || !(selectedValue instanceof MetaContact))
+                    || !(selectedValue instanceof MetaContact))
             {
                 AboutWindow aboutWindow = new AboutWindow();
 
                 aboutWindow.pack();
 
+                Dimension screenSize
+                    = Toolkit.getDefaultToolkit().getScreenSize();
                 aboutWindow.setLocation(
-                    Toolkit.getDefaultToolkit().getScreenSize().width / 2
-                        - aboutWindow.getWidth() / 2,
-                    Toolkit.getDefaultToolkit().getScreenSize().height / 2
-                        - aboutWindow.getHeight() / 2);
+                    screenSize.width / 2 - aboutWindow.getWidth() / 2,
+                    screenSize.height / 2 - aboutWindow.getHeight() / 2);
 
                 aboutWindow.setVisible(true);
             }
@@ -643,16 +588,11 @@ public class ExtendedQuickMenu
         }
         else if (buttonName.equals("sound"))
         {
-            if(GuiActivator.getAudioNotifier().isMute())
-            {
-                updateMuteButton(false);
-                GuiActivator.getAudioNotifier().setMute(false);
-            }
-            else
-            {
-                updateMuteButton(true);
-                GuiActivator.getAudioNotifier().setMute(true);
-            }
+            ToolBarButton muteButton = (ToolBarButton) button;
+            boolean mute = !GuiActivator.getAudioNotifier().isMute();
+
+            updateMuteButton(muteButton, mute);
+            GuiActivator.getAudioNotifier().setMute(mute);
         }
         else if (buttonName.equals("createGroup"))
         {
@@ -687,16 +627,16 @@ public class ExtendedQuickMenu
         if (backgroundImage != null)
         {
             Graphics2D g2 = (Graphics2D) g;
+            int width = getWidth();
+            int height = getHeight();
 
             g2.setPaint(texture);
-
-            g2.fillRect(0, 2, this.getWidth(), this.getHeight() - 2);
+            g2.fillRect(0, 2, width, height - 2);
 
             g2.setColor(new Color(
                 GuiActivator.getResources()
-                .getColor("service.gui.DESKTOP_BACKGROUND")));
-
-            g2.drawRect(0, this.getHeight() - 2, this.getWidth(), 2);
+                    .getColor("service.gui.DESKTOP_BACKGROUND")));
+            g2.drawRect(0, height - 2, width, 2);
         }
     }
 }

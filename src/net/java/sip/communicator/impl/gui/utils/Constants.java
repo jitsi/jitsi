@@ -11,6 +11,7 @@ import java.awt.event.*;
 import java.awt.image.*;
 import java.io.*;
 
+import javax.swing.*;
 import javax.swing.text.html.*;
 
 import net.java.sip.communicator.impl.gui.*;
@@ -22,10 +23,9 @@ import net.java.sip.communicator.util.*;
  *
  * @author Yana Stamcheva
  */
-
 public class Constants
 {
-    private static Logger logger = Logger.getLogger(Constants.class);
+    private static final Logger logger = Logger.getLogger(Constants.class);
 
     /**
      * Indicates that the user is connected and ready to communicate.
@@ -209,20 +209,41 @@ public class Constants
      */
 
     /**
-     * The name of the font used in this ui implementation.
-     */
-    public static final String FONT_NAME = "Verdana";
-
-    /**
-     * The size of the font used in this ui implementation.
-     */
-    public static final String FONT_SIZE = "12";
-
-    /**
      * The default <tt>Font</tt> object used through this ui implementation.
      */
-    public static final Font FONT = new Font(Constants.FONT_NAME, Font.PLAIN,
-            Integer.parseInt(Constants.FONT_SIZE));
+    public static final Font FONT;
+
+    static
+    {
+        Font font = null;
+        String fontName = null;
+        int fontSize = 0;
+
+        LookAndFeel laf = UIManager.getLookAndFeel();
+        if ((laf != null)
+                && "com.sun.java.swing.plaf.windows.WindowsLookAndFeel".equals(
+                        laf.getClass().getName()))
+        {
+            Object desktopPropertyValue
+                = Toolkit.getDefaultToolkit().getDesktopProperty(
+                        "win.messagebox.font");
+
+            if (desktopPropertyValue instanceof Font)
+            {
+                font = (Font) desktopPropertyValue;
+                fontName = font.getFontName();
+                fontSize = font.getSize();
+            }
+        }
+
+        FONT
+            = (font == null)
+                ? new Font(
+                        (fontName == null) ? "Verdana" : fontName,
+                        Font.PLAIN,
+                        (fontSize == 0) ? 12 : fontSize)
+                : font;
+    }
 
     /*
      * ======================================================================
@@ -394,17 +415,41 @@ public class Constants
      * Temporary method to load the css style used in the chat window.
      * @param style
      */
-    public static void loadSimpleStyle(StyleSheet style) {
+    public static void loadSimpleStyle(StyleSheet style, Font defaultFont)
+    {
+        Reader r =
+            new BufferedReader(
+                new InputStreamReader(
+                    GuiActivator.getResources().getSettingsInputStream(
+                        "service.gui.HTML_TEXT_STYLE")));
 
-        InputStream is = GuiActivator.getResources()
-            .getSettingsInputStream("service.gui.HTML_TEXT_STYLE");
+        if (defaultFont != null)
+            style.addRule(
+                "body, div, h1, h2, h3, h4, h5, h6, h7, p, td, th { "
+                    + "font-family: \""
+                    + defaultFont.getName()
+                    + "\"; font-size: "
+                    + defaultFont.getSize()
+                    + "pt; }");
 
-        Reader r = new BufferedReader(new InputStreamReader(is));
-        try {
+        try
+        {
             style.loadRules(r, null);
-            r.close();
-        } catch (IOException e) {
-            logger.error("Failed to load css style.", e);
+        }
+        catch (IOException ex)
+        {
+            logger.error("Failed to load CSS stream.", ex);
+        }
+        finally
+        {
+            try
+            {
+                r.close();
+            }
+            catch (IOException ex)
+            {
+                logger.error("Failed to close CSS stream.", ex);
+            }
         }
     }
 }

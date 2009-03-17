@@ -38,7 +38,6 @@ public class AboutWindow
 
         mainPanel.setLayout(null);
 
-        versionLabel.setFont(Constants.FONT.deriveFont(12));
         versionLabel.setForeground(new Color(
             GuiActivator.getResources()
                 .getColor("service.gui.SPLASH_SCREEN_TITLE_COLOR")));

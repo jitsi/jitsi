@@ -438,7 +438,8 @@ class Entities {
     }
 
     static class PrimitiveEntityMap implements EntityMap {
-        private Map mapNameToValue = new HashMap();
+        private final Map<String, Integer> mapNameToValue
+            = new HashMap<String, Integer>();
 
         private IntHashMap mapValueToName = new IntHashMap();
 
@@ -446,7 +447,7 @@ class Entities {
          * {@inheritDoc}
          */
         public void add(String name, int value) {
-            mapNameToValue.put(name, new Integer(value));
+            mapNameToValue.put(name, value);
             mapValueToName.put(value, name);
         }
 
@@ -461,43 +462,37 @@ class Entities {
          * {@inheritDoc}
          */
         public int value(String name) {
-            Object value = mapNameToValue.get(name);
-            if (value == null) {
-                return -1;
-            }
-            return ((Integer) value).intValue();
+            Integer value = mapNameToValue.get(name);
+            return (value == null) ? -1 : value;
         }
     }
 
     static abstract class MapIntMap implements Entities.EntityMap {
-        protected Map mapNameToValue;
+        protected Map<String, Integer> mapNameToValue;
 
-        protected Map mapValueToName;
+        protected Map<Integer, String> mapValueToName;
 
         /**
          * {@inheritDoc}
          */
         public void add(String name, int value) {
-            mapNameToValue.put(name, new Integer(value));
-            mapValueToName.put(new Integer(value), name);
+            mapNameToValue.put(name, value);
+            mapValueToName.put(value, name);
         }
 
         /**
          * {@inheritDoc}
          */
         public String name(int value) {
-            return (String) mapValueToName.get(new Integer(value));
+            return mapValueToName.get(value);
         }
 
         /**
          * {@inheritDoc}
          */
         public int value(String name) {
-            Object value = mapNameToValue.get(name);
-            if (value == null) {
-                return -1;
-            }
-            return ((Integer) value).intValue();
+            Integer value = mapNameToValue.get(name);
+            return (value == null) ? -1 : value;
         }
     }
 
@@ -506,8 +501,8 @@ class Entities {
          * Constructs a new instance of <code>HashEntityMap</code>.
          */
         public HashEntityMap() {
-            mapNameToValue = new HashMap();
-            mapValueToName = new HashMap();
+            mapNameToValue = new HashMap<String, Integer>();
+            mapValueToName = new HashMap<Integer, String>();
         }
     }
 
@@ -516,8 +511,8 @@ class Entities {
          * Constructs a new instance of <code>TreeEntityMap</code>.
          */
         public TreeEntityMap() {
-            mapNameToValue = new TreeMap();
-            mapValueToName = new TreeMap();
+            mapNameToValue = new TreeMap<String, Integer>();
+            mapValueToName = new TreeMap<Integer, String>();
         }
     }
 
@@ -1033,8 +1028,8 @@ class Entities {
          * table.</p>
          */
         private static class Entry {
-            int hash;
-            int key;
+            final int hash;
+            final int key;
             Object value;
             Entry next;
 

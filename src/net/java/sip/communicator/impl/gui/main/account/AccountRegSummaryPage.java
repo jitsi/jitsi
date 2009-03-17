@@ -12,7 +12,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.utils.*;
+
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -51,7 +51,8 @@ public class AccountRegSummaryPage
         JLabel pageTitleLabel = new JLabel(
                 GuiActivator.getResources().getI18NString("service.gui.SUMMARY"),
                 JLabel.CENTER);
-        pageTitleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18f));
+        Font font = getFont();
+        pageTitleLabel.setFont(font.deriveFont(Font.BOLD, font.getSize() + 6));
 
         JPanel mainPanel = new TransparentPanel(new BorderLayout(10, 10));
         mainPanel.add(pageTitleLabel, BorderLayout.NORTH);

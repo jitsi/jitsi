@@ -83,7 +83,7 @@ public class PresenceStatusMenu
         titleLabel = new JLabel(protocolProvider.getAccountID().getDisplayName());
 
         titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
-        titleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
+        titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD));
 
         this.add(titleLabel);
         this.addSeparator();

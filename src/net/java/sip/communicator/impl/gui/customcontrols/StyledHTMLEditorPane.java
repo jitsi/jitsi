@@ -32,11 +32,11 @@ public class StyledHTMLEditorPane
         this.setEditorKitForContentType("text/html", editorKit);
         this.setEditorKit(editorKit);
         this.setDocument(document);
-        
-        Constants.loadSimpleStyle(document.getStyleSheet());
+
+        putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
+        Constants.loadSimpleStyle(document.getStyleSheet(), getFont());
     }
-    
-    
+
     public void appendToEnd(String text)
     {
         Element root = document.getDefaultRootElement();

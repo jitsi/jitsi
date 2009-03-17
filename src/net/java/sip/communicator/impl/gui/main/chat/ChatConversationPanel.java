@@ -103,7 +103,10 @@ public class ChatConversationPanel
 
         this.chatEditorPane.setDocument(document);
 
-        Constants.loadSimpleStyle(document.getStyleSheet());
+        chatEditorPane.putClientProperty(
+            JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
+        Constants.loadSimpleStyle(
+            document.getStyleSheet(), chatEditorPane.getFont());
 
         this.chatEditorPane.addHyperlinkListener(this);
         this.chatEditorPane.addMouseListener(this);
@@ -926,7 +929,8 @@ public class ChatConversationPanel
     public void clear()
     {
         this.document = (HTMLDocument) editorKit.createDefaultDocument();
-        Constants.loadSimpleStyle(document.getStyleSheet());
+        Constants.loadSimpleStyle(
+            document.getStyleSheet(), chatEditorPane.getFont());
     }
 
     /**

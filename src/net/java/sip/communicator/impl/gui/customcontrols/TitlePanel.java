@@ -33,12 +33,7 @@ public class TitlePanel
      */
     public TitlePanel()
     {
-
-        super(new FlowLayout(FlowLayout.CENTER));
-
-        this.setPreferredSize(new Dimension(0, 30));
-
-        this.titleLabel.setFont(this.getFont().deriveFont(Font.BOLD, 14));
+        this(null);
     }
 
     /**
@@ -51,11 +46,13 @@ public class TitlePanel
     {
         super(new FlowLayout(FlowLayout.CENTER));
 
-        this.titleLabel.setFont(this.getFont().deriveFont(Font.BOLD, 14));
+        Font font = getFont();
+        titleLabel.setFont(font.deriveFont(Font.BOLD, font.getSize() + 2));
 
-        this.titleLabel.setText(title);
-
-        this.add(titleLabel);
+        if (title != null)
+            setTitleText(title);
+        else
+            setPreferredSize(new Dimension(0, 30));
     }
 
     /**
@@ -67,16 +64,18 @@ public class TitlePanel
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D) g;
-
+        int width = getWidth();
+        int height = getHeight();
         GradientPaint p =
-            new GradientPaint(this.getWidth() / 2, 0,
-                                gradientStartColor,
-                                this.getWidth() / 2,
-                                getHeight(),
-                                gradientEndColor);
+            new GradientPaint(width / 2,
+                              0,
+                              gradientStartColor,
+                              width / 2,
+                              height,
+                              gradientEndColor);
 
         g2.setPaint(p);
-        g2.fillRoundRect(0, 0, this.getWidth(), getHeight(), 10, 10);
+        g2.fillRoundRect(0, 0, width, height, 10, 10);
     }
 
     /**

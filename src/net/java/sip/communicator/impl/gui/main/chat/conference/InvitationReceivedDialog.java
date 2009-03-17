@@ -122,7 +122,7 @@ public class InvitationReceivedDialog
             this.dataPanel.add(invitationReasonTextArea, BorderLayout.CENTER);
         }
         
-        this.infoTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));
+        this.infoTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD));
         this.infoTextArea.setLineWrap(true);
         this.infoTextArea.setOpaque(false);
         this.infoTextArea.setWrapStyleWord(true);

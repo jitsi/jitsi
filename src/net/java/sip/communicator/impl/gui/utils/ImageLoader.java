@@ -1356,16 +1356,13 @@ public class ImageLoader
         {
             BufferedImage buffImage =
                 new BufferedImage(22, 16, BufferedImage.TYPE_INT_ARGB);
-
             Graphics2D g = (Graphics2D) buffImage.getGraphics();
-            AlphaComposite ac =
-                AlphaComposite.getInstance(AlphaComposite.SRC_OVER);
 
             AntialiasingManager.activateAntialiasing(g);
             g.setColor(Color.DARK_GRAY);
             g.setFont(Constants.FONT.deriveFont(Font.BOLD, 9));
             g.drawImage(statusImage, 0, 0, null);
-            g.setComposite(ac);
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
             g.drawString(Integer.toString(index + 1), 14, 8);
 
             img = buffImage;

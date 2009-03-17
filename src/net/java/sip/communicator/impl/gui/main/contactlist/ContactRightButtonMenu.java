@@ -193,7 +193,7 @@ public class ContactRightButtonMenu
                     .getI18NString("service.gui.SELECT_ACCOUNT"));
 
             infoLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
-            infoLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
+            infoLabel.setFont(infoLabel.getFont().deriveFont(Font.BOLD));
 
             this.addSubcontactMenu.add(infoLabel);
             this.addSubcontactMenu.addSeparator();
@@ -226,7 +226,7 @@ public class ContactRightButtonMenu
                     .getI18NString("service.gui.SELECT_GROUP"));
 
             infoLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
-            infoLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
+            infoLabel.setFont(infoLabel.getFont().deriveFont(Font.BOLD));
 
             this.moveToMenu.add(infoLabel);
             this.moveToMenu.addSeparator();

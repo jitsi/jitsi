@@ -739,8 +739,7 @@ public class UIServiceImpl
         boolean lafIsSet = false;
 
         if ((laf != null)
-            && !laf
-                .equals(UIManager.getCrossPlatformLookAndFeelClassName()))
+                && !laf.equals(UIManager.getCrossPlatformLookAndFeelClassName()))
         {
             try
             {
@@ -749,23 +748,17 @@ public class UIServiceImpl
                 lafIsSet = true;
 
                 UIDefaults uiDefaults = UIManager.getDefaults();
-                // Workaround for bug 6396936 (http://bugs.sun.com): WinL&F :
-                // font for text area is incorrect.
                 if (osName.startsWith("Windows"))
-                {
-                    uiDefaults.put( "TextArea.font",
-                                    uiDefaults.get("TextField.font"));
-                }
+                    fixWindowsUIDefaults(uiDefaults);
                 // Workaround for SC issue #516
                 // "GNOME SCScrollPane has rounded and rectangular borders"
-                if(laf.equals("com.sun.java.swing.plaf.gtk.GTKLookAndFeel")
-                   || laf
-                      .equals("com.sun.java.swing.plaf.motif.MotifLookAndFeel"))
+                if (laf.equals("com.sun.java.swing.plaf.gtk.GTKLookAndFeel")
+                        || laf.equals("com.sun.java.swing.plaf.motif.MotifLookAndFeel"))
                 {
-                    UIDefaults metalDefaults = (new javax.swing.plaf.metal
-                            .MetalLookAndFeel()).getDefaults();
-                    uiDefaults.put("ScrollPaneUI",
-                            metalDefaults.get("ScrollPaneUI"));
+                    uiDefaults.put(
+                        "ScrollPaneUI",
+                        new javax.swing.plaf.metal.MetalLookAndFeel()
+                            .getDefaults().get("ScrollPaneUI"));
                 }
             }
             catch (ClassNotFoundException ex)
@@ -817,6 +810,72 @@ public class UIServiceImpl
                     e);
             }
         }
+    }
+
+    private void fixWindowsUIDefaults(UIDefaults uiDefaults)
+    {
+
+        /*
+         * Windows actually uses different fonts for the controls in windows and
+         * the controls in dialogs. Unfortunately, win.defaultGUI.font may not
+         * be the font Windows will use for controls in windows but the one to
+         * be used for dialogs. And win.messagebox.font will be the font for
+         * windows but the L&F will use it for OptionPane which in turn should
+         * rather use the font for dialogs. So swap the meanings of the two to
+         * get standard fonts in the windows while compromizing that dialogs may
+         * appear in it as well (if the dialogs are created as non-OptionPanes
+         * and in this case SIP Communicator will behave as Mozilla Firfox and
+         * Eclipse with respect to using the window font for the dialogs).
+         */
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        Object menuFont = toolkit.getDesktopProperty("win.menu.font");
+        Object messageboxFont
+            = toolkit.getDesktopProperty("win.messagebox.font");
+        if ((messageboxFont != null) && messageboxFont.equals(menuFont))
+        {
+            Object defaultGUIFont
+                = toolkit.getDesktopProperty("win.defaultGUI.font");
+            if ((defaultGUIFont != null)
+                    && !defaultGUIFont.equals(messageboxFont))
+            {
+                Object messageFont = uiDefaults.get("OptionPane.font");
+                Object controlFont = uiDefaults.get("Panel.font");
+                if ((messageFont != null) && !messageFont.equals(controlFont))
+                {
+                    uiDefaults.put("OptionPane.font", controlFont);
+                    uiDefaults.put("OptionPane.messageFont", controlFont);
+                    uiDefaults.put("OptionPane.buttonFont", controlFont);
+
+                    uiDefaults.put("Button.font", messageFont);
+                    uiDefaults.put("CheckBox.font", messageFont);
+                    uiDefaults.put("ComboBox.font", messageFont);
+                    uiDefaults.put("EditorPane.font", messageFont);
+                    uiDefaults.put("FormattedTextField.font", messageFont);
+                    uiDefaults.put("Label.font", messageFont);
+                    uiDefaults.put("List.font", messageFont);
+                    uiDefaults.put("RadioButton.font", messageFont);
+                    uiDefaults.put("Panel.font", messageFont);
+                    uiDefaults.put("PasswordField.font", messageFont);
+                    uiDefaults.put("ProgressBar.font", messageFont);
+                    uiDefaults.put("ScrollPane.font", messageFont);
+                    uiDefaults.put("Slider.font", messageFont);
+                    uiDefaults.put("Spinner.font", messageFont);
+                    uiDefaults.put("TabbedPane.font", messageFont);
+                    uiDefaults.put("Table.font", messageFont);
+                    uiDefaults.put("TableHeader.font", messageFont);
+                    uiDefaults.put("TextField.font", messageFont);
+                    uiDefaults.put("TextPane.font", messageFont);
+                    uiDefaults.put("TitledBorder.font", messageFont);
+                    uiDefaults.put("ToggleButton.font", messageFont);
+                    uiDefaults.put("Tree.font", messageFont);
+                    uiDefaults.put("Viewport.font", messageFont);
+                }
+            }
+        }
+
+        // Workaround for bug 6396936 (http://bugs.sun.com): WinL&F : font for
+        // text area is incorrect.
+        uiDefaults.put("TextArea.font", uiDefaults.get("TextField.font"));
     }
 
     /**

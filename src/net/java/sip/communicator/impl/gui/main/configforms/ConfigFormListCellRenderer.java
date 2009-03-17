@@ -43,9 +43,9 @@ public class ConfigFormListCellRenderer
     private static final Color SELECTED_START_COLOR
         = new Color(209, 212, 225);
     
-    private JLabel textLabel = new JLabel();
+    private final JLabel textLabel = new JLabel();
 
-    private JLabel iconLabel = new JLabel();
+    private final JLabel iconLabel = new JLabel();
 
     private boolean isSelected = false;
     
@@ -55,23 +55,18 @@ public class ConfigFormListCellRenderer
     public ConfigFormListCellRenderer()
     {
         this.setBackground(Color.WHITE);
-
+        this.setBorder(BorderFactory.createEmptyBorder(3, 3, 5, 3));
+        this.setLayout(new BorderLayout(0, 0));
         this.setOpaque(true);
-        
         this.setPreferredSize(new Dimension(100, 65));
 
-        this.setLayout(new BorderLayout(0, 0));
-
-        this.setBorder(BorderFactory.createEmptyBorder(3, 3, 5, 3));
-
-        this.textLabel.setFont(this.getFont().deriveFont(Font.BOLD, 10));
+        Font font = getFont();
+        this.textLabel.setFont(font.deriveFont(Font.BOLD, font.getSize() - 2));
         
         this.iconLabel.setHorizontalAlignment(JLabel.CENTER);
-        
         this.textLabel.setHorizontalAlignment(JLabel.CENTER);
         
         this.add(iconLabel, BorderLayout.CENTER);
-
         this.add(textLabel, BorderLayout.SOUTH);
     }
 

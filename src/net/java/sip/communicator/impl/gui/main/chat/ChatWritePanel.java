@@ -71,7 +71,10 @@ public class ChatWritePanel
         this.chatPanel = panel;
 
         this.editorPane.setContentType("text/html");
-        this.editorPane.setFont(Constants.FONT);
+
+        this.editorPane.putClientProperty(
+            JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
+
         this.editorPane.setCaretPosition(0);
         this.editorPane.setEditorKit(new SIPCommHTMLEditorKit());
         this.editorPane.getDocument().addUndoableEditListener(this);
