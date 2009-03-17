@@ -29,7 +29,7 @@ public class TestOperationSetMultiUserChat2
         Logger.getLogger(TestOperationSetMultiUserChat2.class);
 
     //room name for each test will be testRoomBaseName + roomID
-    private static String testRoomBaseName = "muctestroom";
+    private static String testRoomBaseName = "lmuctestroom";
 
     private static int roomID = 0;
 
@@ -246,11 +246,11 @@ public class TestOperationSetMultiUserChat2
         suite.addTest(
             new TestOperationSetMultiUserChat2("testConferenceChat"));
 
-//        suite.addTest(
-//            new TestOperationSetMultiUserChat2("testMemberBan"));
-//
-//        suite.addTest(
-//            new TestOperationSetMultiUserChat2("testMemberKick"));
+        suite.addTest(
+            new TestOperationSetMultiUserChat2("testMemberBan"));
+
+        suite.addTest(
+            new TestOperationSetMultiUserChat2("testMemberKick"));
 
         return suite;
     }
@@ -301,11 +301,28 @@ public class TestOperationSetMultiUserChat2
     {
         String testRoomName = testRoomBaseName + roomID++;
 
+        MUCEventCollector opSet1Collector =
+            new MUCEventCollector(opSetMUC1, MUCEventCollector.EVENT_PRESENCE);
+
         // we create the test room
         ChatRoom opSet1Room =
             opSetMUC1.createChatRoom(testRoomName, null);
 
         opSet1Room.join();
+
+        opSet1Collector.waitForEvent(10000);
+
+        assertEquals("user1 didn't ge an event since he joinde"
+            , 1, opSet1Collector.collectedEvents.size());
+
+        LocalUserChatRoomPresenceChangeEvent changeEvent =
+            (LocalUserChatRoomPresenceChangeEvent)
+            opSet1Collector.collectedEvents.get(0);
+
+        assertEquals("the event user1 received after he joined is no " +
+            "LOCAL_USER_JOINED"
+            , LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED
+            , changeEvent.getEventType());
 
         assertTrue(
             "we are not in the room we just joined", opSet1Room.isJoined());
@@ -947,7 +964,20 @@ public class TestOperationSetMultiUserChat2
         assertTrue("user2 not in a room he joined "
             , opSet2Room.isJoined());
 
+        MUCEventCollector opSet2RoomCollector =
+            new MUCEventCollector(
+            opSet2Room, MUCEventCollector.EVENT_PRESENCE);
+
         opSet1Room.banParticipant(memberToBan, "testMemberBan");
+
+        // when an user is kicked or banned, the smack lib deliver corresponding
+        // events to remaining room members but nothing to the kicked or banned
+        // user. altough, if we dont wait some amount of time, the banned user
+        // could still been reported as joined on his side.
+        opSet2RoomCollector.waitForEvent(2000);
+
+        assertFalse("user2 still in a room after been banned"
+            , opSet2Room.isJoined());
 
         opSet1RoomCollector.waitForEvent(10000);
 
@@ -956,9 +986,6 @@ public class TestOperationSetMultiUserChat2
 
         assertFalse("user2 still on member list after ban"
             , nameIsOnMemberList(fixture.userID2, opSet1Room.getMembers()));
-
-        assertFalse("user2 still in a room after been banned"
-            , opSet2Room.isJoined());
 
         try
         {
@@ -1020,7 +1047,20 @@ public class TestOperationSetMultiUserChat2
         assertTrue("user2 not in a room he joined "
             , opSet2Room.isJoined());
 
+        MUCEventCollector opSet2RoomCollector =
+            new MUCEventCollector(
+            opSet2Room, MUCEventCollector.EVENT_PRESENCE);
+
         opSet1Room.kickParticipant(memberToKick, "testMemberKick");
+
+        // when an user is kicked or banned, the smack lib deliver corresponding
+        // events to remaining room members but nothing to the kicked or banned
+        // user. altough, if we dont wait some amount of time, the banned user
+        // could stils been reported as joined on his side.
+        opSet2RoomCollector.waitForEvent(2000);
+
+        assertFalse("user2 still in a room after been kicked"
+            , opSet2Room.isJoined());
 
         opSet1RoomCollector.waitForEvent(10000);
 
@@ -1039,11 +1079,8 @@ public class TestOperationSetMultiUserChat2
             , memberToKick.getContactAddress()
             , changeEvent.getChatRoomMember().getContactAddress());
 
-        assertFalse("user2 still on member list after ban"
+        assertFalse("user2 still on member list after kick"
             , nameIsOnMemberList(fixture.userID2, opSet1Room.getMembers()));
-
-        assertFalse("user2 still in a room after been kicked"
-            , opSet2Room.isJoined());
 
         // contrary to a ban, an user can join after been kicked
         opSet2Room.join();
