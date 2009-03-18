@@ -16,6 +16,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>SimpleStatusSelectorBox</tt> is a <tt>SIPCommMenu</tt> that contains
@@ -46,14 +47,16 @@ public class SimpleStatusMenu
     {
         this(protocolProvider,
             protocolProvider.getAccountID().getDisplayName(),
-            new ImageIcon(ImageLoader.getAccountStatusImage(protocolProvider)));
+            ImageLoader.getBytesInImage(
+                protocolProvider.getProtocolIcon().getIcon(
+                    ProtocolIcon.ICON_SIZE_16x16)));
     }
 
-    private SimpleStatusMenu(   ProtocolProviderService protocolProvider,
-                                String displayName,
-                                ImageIcon statusIcon)
+    private SimpleStatusMenu(ProtocolProviderService protocolProvider,
+                             String displayName,
+                             Image onlineImage)
     {
-        super(displayName, statusIcon);
+        super(displayName, new ImageIcon(onlineImage));
 
         this.protocolProvider = protocolProvider;
 
@@ -68,21 +71,24 @@ public class SimpleStatusMenu
         this.add(titleLabel);
         this.addSeparator();
 
-        onlineItem =
-            createMenuItem("service.gui.ONLINE", statusIcon,
-                Constants.ONLINE_STATUS);
-        offlineItem =
-            createMenuItem("service.gui.OFFLINE", statusIcon,
-                Constants.OFFLINE_STATUS);
+        onlineItem = createMenuItem(
+            "service.gui.ONLINE",
+            getIcon(),
+            Constants.ONLINE_STATUS);
+        offlineItem = createMenuItem(
+            "service.gui.OFFLINE",
+            new ImageIcon(LightGrayFilter.createDisabledImage(onlineImage)),
+            Constants.OFFLINE_STATUS);
     }
 
     private JMenuItem createMenuItem(String textKey, Icon icon, String name)
     {
         JMenuItem menuItem =
-            new JMenuItem(GuiActivator.getResources().getI18NString(textKey),
+            new JMenuItem(
+                GuiActivator.getResources().getI18NString(textKey),
                 icon);
 
-        menuItem.setName(Constants.ONLINE_STATUS);
+        menuItem.setName(name);
         menuItem.addActionListener(this);
         this.add(menuItem);
         return menuItem;

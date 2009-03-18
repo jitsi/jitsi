@@ -1348,10 +1348,16 @@ public class ImageLoader
             }
         }
 
+        return badgeImageWithProtocolIndex(statusImage, pps);
+    }
+
+    public static Image badgeImageWithProtocolIndex(
+            Image image, ProtocolProviderService pps)
+    {
         int index
             = GuiActivator.getUIService().getMainFrame().getProviderIndex(pps);
+        Image badged;
 
-        Image img = null;
         if (index > 0)
         {
             BufferedImage buffImage =
@@ -1361,16 +1367,14 @@ public class ImageLoader
             AntialiasingManager.activateAntialiasing(g);
             g.setColor(Color.DARK_GRAY);
             g.setFont(Constants.FONT.deriveFont(Font.BOLD, 9));
-            g.drawImage(statusImage, 0, 0, null);
+            g.drawImage(image, 0, 0, null);
             g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
             g.drawString(Integer.toString(index + 1), 14, 8);
 
-            img = buffImage;
+            badged = buffImage;
         }
         else
-        {
-            img = statusImage;
-        }
-        return img;
+            badged = image;
+        return badged;
     }
 }
