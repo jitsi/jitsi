@@ -426,9 +426,9 @@ public class Constants
         if (defaultFont != null)
             style.addRule(
                 "body, div, h1, h2, h3, h4, h5, h6, h7, p, td, th { "
-                    + "font-family: \""
+                    + "font-family: "
                     + defaultFont.getName()
-                    + "\"; font-size: "
+                    + "; font-size: "
                     + defaultFont.getSize()
                     + "pt; }");
 

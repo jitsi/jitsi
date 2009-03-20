@@ -27,6 +27,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.keybindings.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.event.*;
@@ -136,7 +137,9 @@ public class ChatWindow
         else
             mainToolBar = new MainToolBar(this);
 
-        northPanel.add(new LogoBar(), BorderLayout.NORTH);
+        Component logoBar = LogoBar.createInstance();
+        if (logoBar != null)
+            northPanel.add(logoBar, BorderLayout.NORTH);
         northPanel.add(mainToolBar, BorderLayout.CENTER);
         northPanel.add(contactPhotoPanel, BorderLayout.EAST);
 
@@ -854,21 +857,28 @@ public class ChatWindow
     private static class LogoBar
         extends JPanel
     {
+        public static LogoBar createInstance()
+        {
+            ResourceManagementService resources = GuiActivator.getResources();
+            int width = resources.getSettingsInt("impl.gui.LOGO_BAR_WIDTH");
+            int height = resources.getSettingsInt("impl.gui.LOGO_BAR_HEIGHT");
+
+            return ((width > 0) || (height > 0))
+                    ? new LogoBar(width, height)
+                    : null;
+        }
+
         private final TexturePaint texture;
 
         /**
          * Creates the logo bar and specify the size.
          */
-        public LogoBar()
+        private LogoBar(int width, int height)
         {
-            int width = GuiActivator.getResources()
-                .getSettingsInt("impl.gui.LOGO_BAR_WIDTH");
+            Dimension size = new Dimension(width, height);
 
-            int height = GuiActivator.getResources()
-                .getSettingsInt("impl.gui.LOGO_BAR_HEIGHT");
-
-            this.setMinimumSize(new Dimension(width, height));
-            this.setPreferredSize(new Dimension(width, height));
+            this.setMinimumSize(size);
+            this.setPreferredSize(size);
 
             BufferedImage bgImage
                 = ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR_BG);
@@ -1013,7 +1023,7 @@ public class ChatWindow
             new FramedImage(ChatContact.AVATAR_ICON_WIDTH,
                 ChatContact.AVATAR_ICON_HEIGHT);
 
-        private JLabel addContactButton = new JLabel(
+        private final JLabel addContactButton = new JLabel(
             new ImageIcon(ImageLoader.getImage(
                 ImageLoader.ADD_CONTACT_CHAT_ICON)));
 

@@ -11,6 +11,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 
@@ -48,7 +49,7 @@ public class ChatRoomMemberListPanel
         this.memberList.setModel(memberListModel);
         this.memberList.setCellRenderer(new ChatContactCellRenderer());
 
-        JScrollPane contactsScrollPane = new JScrollPane();
+        JScrollPane contactsScrollPane = new SCScrollPane();
         contactsScrollPane.setHorizontalScrollBarPolicy(
             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
