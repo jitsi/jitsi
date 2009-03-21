@@ -21,15 +21,18 @@ import net.java.sip.communicator.service.protocol.event.*;
  * An implementation of <tt>ChatSession</tt> for conference chatting.
  * 
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class ConferenceChatSession
     implements  ChatSession,
                 ChatRoomMemberPresenceListener,
                 ChatRoomPropertyChangeListener
 {
-    private final ArrayList chatParticipants = new ArrayList();
+    private final List<ChatContact> chatParticipants
+        = new ArrayList<ChatContact>();
 
-    private final ArrayList chatTransports = new ArrayList();
+    private final List<ChatTransport> chatTransports
+        = new ArrayList<ChatTransport>();
 
     private ChatTransport currentChatTransport;
 
@@ -60,8 +63,9 @@ public class ConferenceChatSession
 
         this.initChatParticipants();
 
-        chatRoomWrapper.getChatRoom().addMemberPresenceListener(this);
-        chatRoomWrapper.getChatRoom().addPropertyChangeListener(this);
+        ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
+        chatRoom.addMemberPresenceListener(this);
+        chatRoom.addPropertyChangeListener(this);
     }
 
     /**
@@ -79,8 +83,9 @@ public class ConferenceChatSession
      */
     public void dispose()
     {
-        chatRoomWrapper.getChatRoom().removeMemberPresenceListener(this);
-        chatRoomWrapper.getChatRoom().removePropertyChangeListener(this);
+        ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
+        chatRoom.removeMemberPresenceListener(this);
+        chatRoom.removePropertyChangeListener(this);
     }
 
     /**
@@ -373,12 +378,12 @@ public class ConferenceChatSession
         String eventType = evt.getEventType();
         ChatRoomMember chatRoomMember = evt.getChatRoomMember();
 
-        ConferenceChatContact chatContact = null;
         String statusMessage = null;
 
         if (eventType.equals(ChatRoomMemberPresenceChangeEvent.MEMBER_JOINED))
         {
-            chatContact = new ConferenceChatContact(chatRoomMember);
+            ConferenceChatContact chatContact
+                = new ConferenceChatContact(chatRoomMember);
 
             chatParticipants.add(chatContact);
 
@@ -415,13 +420,8 @@ public class ConferenceChatSession
                     new String[] {sourceChatRoom.getName()});
             }
 
-            Iterator<ConferenceChatContact> chatContactsIter
-                = chatParticipants.iterator();
-
-            while (chatContactsIter.hasNext())
+            for (ChatContact chatContact : chatParticipants)
             {
-                chatContact = chatContactsIter.next();
-
                 if(chatContact.getDescriptor().equals(chatRoomMember))
                 {
                     sessionRenderer.updateChatContactStatus(
@@ -465,17 +465,9 @@ public class ConferenceChatSession
 
     public ChatTransport findChatTransportForDescriptor(Object descriptor)
     {
-        Iterator<ChatTransport> chatTransportsIter = chatTransports.iterator();
-
-        while (chatTransportsIter.hasNext())
-        {
-            ChatTransport chatTransport = chatTransportsIter.next();
-
-            if (chatTransport.getDescriptor().equals(descriptor))
-                return chatTransport;
-        }
-
-        return null;
+        return MetaContactChatSession.findChatTransportForDescriptor(
+            chatTransports,
+            descriptor);
     }
 
     /**
@@ -486,14 +478,9 @@ public class ConferenceChatSession
      */
     public void loadChatRoom(ChatRoom chatRoom)
     {
-        List membersList = chatRoom.getMembers();
-
-        for (int i = 0; i < membersList.size(); i ++)
+        for (ChatRoomMember member : chatRoom.getMembers())
         {
-            ChatContact chatContact
-                = new ConferenceChatContact((ChatRoomMember)membersList.get(i));
-
-            sessionRenderer.addChatContact(chatContact);
+            sessionRenderer.addChatContact(new ConferenceChatContact(member));
         }
 
         chatRoom.addPropertyChangeListener(this);
@@ -534,18 +521,20 @@ public class ConferenceChatSession
      */
     private void initChatParticipants()
     {
-        if(chatRoomWrapper.getChatRoom() != null
-                && chatRoomWrapper.getChatRoom().isJoined())
+        ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
+
+        if ((chatRoom != null) && chatRoom.isJoined())
         {
-            List membersList = chatRoomWrapper.getChatRoom().getMembers();
-
-            for (int i = 0; i < membersList.size(); i ++)
+            for (ChatRoomMember member : chatRoom.getMembers())
             {
-                ChatContact chatContact = new ConferenceChatContact(
-                    (ChatRoomMember) membersList.get(i));
-
-                chatParticipants.add(chatContact);
+                chatParticipants.add(new ConferenceChatContact(member));
             }
         }
+    }
+
+    /* Implements ChatSession#isContactListSupported(). */
+    public boolean isContactListSupported()
+    {
+        return !chatRoomWrapper.getChatRoom().isSystem();
     }
 }

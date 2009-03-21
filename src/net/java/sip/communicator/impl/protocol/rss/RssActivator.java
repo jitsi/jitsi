@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.protocol.rss;
 
 import org.osgi.framework.*;
 
-import net.java.sip.communicator.util.*;
 import java.util.*;
 
 import javax.net.ssl.*;
@@ -16,6 +15,7 @@ import javax.net.ssl.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Loads the Rss provider factory and registers its services in the OSGI

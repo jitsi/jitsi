@@ -24,24 +24,27 @@ import net.java.sip.communicator.service.protocol.event.*;
  * user-to-user chat session.
  * 
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class MetaContactChatSession
     implements  ChatSession,
                 MetaContactListListener
 {
-    private MetaContact metaContact;
+    private final MetaContact metaContact;
 
-    private Contact protocolContact;
+    private final Contact protocolContact;
 
-    private ArrayList<ChatContact> chatParticipants = new ArrayList();
+    private final List<ChatContact> chatParticipants
+        = new ArrayList<ChatContact>();
 
-    private ArrayList<ChatTransport> chatTransports = new ArrayList();
+    private final List<ChatTransport> chatTransports
+        = new ArrayList<ChatTransport>();
 
-    private MetaContactListService metaContactListService;
+    private final MetaContactListService metaContactListService;
 
     private ChatTransport currentChatTransport;
 
-    private ChatSessionRenderer sessionRenderer;
+    private final ChatSessionRenderer sessionRenderer;
 
     /**
      * Creates an instance of <tt>MetaContactChatSession</tt> by specifying the
@@ -84,7 +87,7 @@ public class MetaContactChatSession
      * @return an iterator to the list of all participants contained in this 
      * chat session.
      */
-    public Iterator getParticipants()
+    public Iterator<ChatContact> getParticipants()
     {
         return chatParticipants.iterator();
     }
@@ -95,7 +98,7 @@ public class MetaContactChatSession
      * 
      * @return all available chat transports for this chat session.
      */
-    public Iterator getChatTransports()
+    public Iterator<ChatTransport> getChatTransports()
     {
         return chatTransports.iterator();
     }
@@ -413,19 +416,7 @@ public class MetaContactChatSession
 
         if (evt.getOldParent().equals(metaContact))
         {
-            Iterator chatTransportsIter = chatTransports.iterator();
-
-            while (chatTransportsIter.hasNext())
-            {
-                chatTransport
-                    = (MetaContactChatTransport) chatTransportsIter.next();
-
-                if(chatTransport.getContact().equals(evt.getProtoContact()))
-                {
-                    sessionRenderer.removeChatTransport(chatTransport);
-                    break;
-                }
-            }
+            protoContactRemoved(evt);
         }
         else if (evt.getNewParent().equals(metaContact))
         {
@@ -445,15 +436,12 @@ public class MetaContactChatSession
     {
         if (evt.getOldParent().equals(metaContact))
         {
-            Iterator chatTransportsIter = chatTransports.iterator();
+            Contact protoContact = evt.getProtoContact();
 
-            MetaContactChatTransport chatTransport = null;
-            while (chatTransportsIter.hasNext())
+            for (ChatTransport chatTransport : chatTransports)
             {
-                chatTransport
-                    = (MetaContactChatTransport) chatTransportsIter.next();
-
-                if(chatTransport.getContact().equals(evt.getProtoContact()))
+                if(((MetaContactChatTransport) chatTransport).getContact()
+                        .equals(protoContact))
                 {
                     sessionRenderer.removeChatTransport(chatTransport);
                     break;
@@ -472,13 +460,8 @@ public class MetaContactChatSession
      */
     private ChatContact findChatContactByMetaContact(MetaContact metaContact)
     {
-        Iterator chatContactsIter = chatParticipants.iterator();
-
-        while(chatContactsIter.hasNext())
+        for (ChatContact chatContact : chatParticipants)
         {
-            ChatContact chatContact
-                = (ChatContact) chatContactsIter.next();
-
             Object chatSourceContact = chatContact.getDescriptor();
 
             MetaContact parentMetaContact
@@ -501,14 +484,8 @@ public class MetaContactChatSession
         if (metaContactListService != null)
             metaContactListService.removeMetaContactListListener(this);
 
-        Iterator<ChatTransport> chatTransportsIter = chatTransports.iterator();
-
-        while (chatTransportsIter.hasNext())
-        {
-            ChatTransport chatTransport = chatTransportsIter.next();
-
+        for (ChatTransport chatTransport : chatTransports)
             chatTransport.dispose();
-        }
     }
 
     /**
@@ -579,16 +556,18 @@ public class MetaContactChatSession
      */
     public ChatTransport findChatTransportForDescriptor(Object descriptor)
     {
-        Iterator<ChatTransport> chatTransportsIter = chatTransports.iterator();
+        return findChatTransportForDescriptor(chatTransports, descriptor);
+    }
 
-        while (chatTransportsIter.hasNext())
+    public static ChatTransport findChatTransportForDescriptor(
+            Iterable<ChatTransport> chatTransports,
+            Object descriptor)
+    {
+        for (ChatTransport chatTransport : chatTransports)
         {
-            ChatTransport chatTransport = chatTransportsIter.next();
-
             if (chatTransport.getDescriptor().equals(descriptor))
                 return chatTransport;
         }
-
         return null;
     }
 
@@ -617,4 +596,10 @@ public class MetaContactChatSession
 
     public void protoContactModified(ProtoContactEvent evt)
     {}
+
+    /* Implements ChatSession#isContactListSupported(). */
+    public boolean isContactListSupported()
+    {
+        return false;
+    }
 }

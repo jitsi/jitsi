@@ -17,7 +17,6 @@ import javax.swing.text.*;
 import javax.swing.text.html.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -107,19 +106,18 @@ public class ChatPanel
         this.chatWindow = chatWindow;
 
         this.conversationPanel = new ChatConversationPanel(this);
+        this.conversationPanel.setPreferredSize(new Dimension(400, 200));
 
         this.sendPanel = new ChatSendPanel(this);
 
         this.writeMessagePanel = new ChatWritePanel(this);
+        Dimension writeMessagePanelSize = new Dimension(500, 100);
+        this.writeMessagePanel.setMinimumSize(writeMessagePanelSize);
+        this.writeMessagePanel.setPreferredSize(writeMessagePanelSize);
 
         this.messagePane.setBorder(null);
         this.messagePane.setOpaque(false);
         this.messagePane.setResizeWeight(1.0D);
-
-        this.writeMessagePanel.setPreferredSize(new Dimension(500, 100));
-        this.writeMessagePanel.setMinimumSize(new Dimension(500, 100));
-        this.conversationPanel.setPreferredSize(new Dimension(400, 200));
-
         this.messagePane.setBottomComponent(writeMessagePanel);
 
         this.add(messagePane, BorderLayout.CENTER);
@@ -132,6 +130,45 @@ public class ChatPanel
     {
         this.chatSession = chatSession;
 
+        if ((this.chatSession != null)
+                && this.chatSession.isContactListSupported())
+        {
+            messagePane.remove(conversationPanel);
+
+            this.chatContactListPanel = new ChatRoomMemberListPanel(this);
+            Dimension chatContactPanelSize = new Dimension(150, 100);
+            this.chatContactListPanel.setMinimumSize(chatContactPanelSize);
+            this.chatContactListPanel.setPreferredSize(chatContactPanelSize);
+            this.chatContactListPanel.setOpaque(false);
+
+            topSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);            
+            topSplitPane.setBorder(null); // remove default borders
+            topSplitPane.setOneTouchExpandable(true);
+            topSplitPane.setOpaque(false);
+            topSplitPane.setResizeWeight(1.0D);
+
+            topSplitPane.setLeftComponent(conversationPanel);
+            topSplitPane.setRightComponent(chatContactListPanel);
+
+            messagePane.setTopComponent(topSplitPane);
+        }
+        else
+        {
+            if (topSplitPane != null)
+            {
+                if (chatContactListPanel != null)
+                {
+                    topSplitPane.remove(chatContactListPanel);
+                    chatContactListPanel = null;
+                }
+
+                this.messagePane.remove(topSplitPane);
+                topSplitPane = null;
+            }
+
+            this.messagePane.setTopComponent(conversationPanel);
+        }
+
         if (chatSession instanceof MetaContactChatSession)
         {
             // The subject panel is added here, because it's specific for the
@@ -139,19 +176,11 @@ public class ChatPanel
             if (subjectPanel != null)
             {
                 this.remove(subjectPanel);
+                subjectPanel = null;
+
                 this.revalidate();
                 this.repaint();
             }
-
-            if (topSplitPane != null)
-            {
-                if (chatContactListPanel != null)
-                    topSplitPane.remove(chatContactListPanel);
-
-                this.messagePane.remove(topSplitPane);
-            }
-
-            this.messagePane.setTopComponent(conversationPanel);
 
             initChatTransportSelectorBox();
 
@@ -180,36 +209,19 @@ public class ChatPanel
         {
             removeChatTransportSelectorBox();
 
-            messagePane.remove(conversationPanel);
 
-//            We don't add the subject panel for now. It takes too much space
-//            and is not used.
-//            subjectPanel
-//                = new ChatRoomSubjectPanel( chatWindow,
-//                                            (ConferenceChatSession) chatSession);
-
-            this.chatContactListPanel = new ChatRoomMemberListPanel(this);
-            this.chatContactListPanel.setPreferredSize(new Dimension(150, 100));
-            this.chatContactListPanel.setMinimumSize(new Dimension(150, 100));
-            this.chatContactListPanel.setOpaque(false);
-
-            this.topSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-
-            // Remove default borders from split panes.
-            this.topSplitPane.setBorder(null);
-            this.topSplitPane.setResizeWeight(1.0D);
-            this.topSplitPane.setOneTouchExpandable(true);
-
-            topSplitPane.setLeftComponent(conversationPanel);
-
-            this.messagePane.setTopComponent(topSplitPane);
-
+//          We don't add the subject panel for now. It takes too much space
+//          and is not used.
+//          subjectPanel
+//              = new ChatRoomSubjectPanel( chatWindow,
+//                                          (ConferenceChatSession) chatSession);
             // The subject panel is added here, because it's specific for the
             // multi user chat and is not contained in the single chat chat panel.
 //            this.add(subjectPanel, BorderLayout.NORTH);
+        }
 
-            topSplitPane.setRightComponent(chatContactListPanel);
-            topSplitPane.setOpaque(false);
+        if (chatContactListPanel != null)
+        {
 
             // Initialize chat participants' panel.
             Iterator<ChatContact> chatParticipants
@@ -217,10 +229,8 @@ public class ChatPanel
 
             while (chatParticipants.hasNext())
             {
-                ChatContact chatContact = chatParticipants.next();
-
                 //Add the contact to the list of contacts contained in this chat.
-                chatContactListPanel.addContact(chatContact);
+                chatContactListPanel.addContact(chatParticipants.next());
             }
         }
 
@@ -314,19 +324,8 @@ public class ChatPanel
      * for example.
      */
     private class TabSelectionComponentListener
-        implements ComponentListener {
-
-        public TabSelectionComponentListener()
-        {
-            super();
-        }
-
-        public void componentResized(ComponentEvent evt)
-        {}
-
-        public void componentMoved(ComponentEvent evt)
-        {}
-
+        extends ComponentAdapter
+    {
         public void componentShown(ComponentEvent evt)
         {
             Component component = evt.getComponent();
@@ -341,9 +340,6 @@ public class ChatPanel
                 return;
 
             chatWindow.setCurrentChatPanel(ChatPanel.this);
-        }
-
-        public void componentHidden(ComponentEvent evt) {
         }
     }
 
@@ -1197,8 +1193,7 @@ public class ChatPanel
              * This is the menu, where user could select the protocol specific
              * contact to communicate through.
              */
-            SIPCommMenu contactSelector = transportSelectorBox.getMenu();
-            contactSelector.doClick();
+            transportSelectorBox.getMenu().doClick();
         }
     }
 

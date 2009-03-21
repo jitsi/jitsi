@@ -11,8 +11,8 @@ import java.util.*;
 import javax.swing.*;
 
 /**
- * 
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public interface ChatSession
 {
@@ -164,4 +164,16 @@ public interface ChatSession
      * @return the avatar icon of this chat session.
      */
     public byte[] getChatAvatar();
+
+    /**
+     * Gets the indicator which determines whether a contact list of (multiple)
+     * participants is supported by this <code>ChatSession</code>. For example,
+     * UI implementations may use the indicator to determine whether UI elements
+     * should be created for the user to represent the contact list of the
+     * participants in this <code>ChatSession</code>.
+     *
+     * @return <tt>true</tt> if this <code>ChatSession</code> supports a contact
+     *         list of (multiple) participants; otherwise, <tt>false</tt>
+     */
+    public boolean isContactListSupported();
 }
