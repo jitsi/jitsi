@@ -601,7 +601,7 @@ public class ZRTPTransformEngine
                 return null;
             }
             byte[] extHeader = zPkt.getMessagePart();
-            zrtpEngine.processZrtpMessage(extHeader);
+            zrtpEngine.processZrtpMessage(extHeader, zPkt.getSSRC());
         }
         return null;
     }

@@ -1935,15 +1935,16 @@ javax.swing.event, javax.swing.border"/>
         <jar compress="true" destfile="${bundles.dest}/zrtp4j.jar"
             filesetmanifest="merge">
 
-            <zipfileset src="${lib.noinst}/zrtp4j-1.4.3.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/zrtp4j-1.4.4.jar" prefix=""/>
             <manifest>
-                <attribute name="Export-Package" value="gnu.java.zrtp,gnu.java.zrtp.packets,gnu.java.zrtp.utils,gnu.java.zrtp.zidfile"/>
-                <attribute name="Import-Package" value=" org.bouncycastle.crypto,org.bouncycastle.crypto.digests,org.bouncycastle.crypto.macs,
-                  org.bouncycastle.crypto.params,org.bouncycastle.crypto.engines,org.bouncycastle.crypto.agreement,
-                  org.bouncycastle.crypto.generators,org.bouncycastle.crypto.modes "/>
+                <attribute name="Export-Package" value="gnu.java.zrtp,gnu.java.zrtp.packets,
+                  gnu.java.zrtp.utils,gnu.java.zrtp.zidfile,
+                  org.bouncycastle.crypto,org.bouncycastle.crypto.digests,org.bouncycastle.crypto.macs,
+                  org.bouncycastle.crypto.params,org.bouncycastle.crypto.engines,
+                  org.bouncycastle.crypto.modes"/>
                 <attribute name="Bundle-Name" value="ZRTP4J"/>
                 <attribute name="Bundle-Description" value="ZRTP for Java library."/>
-                <attribute name="Bundle-Version" value="1.4.3"/>
+                <attribute name="Bundle-Version" value="1.4.4"/>
                 <attribute name="System-Bundle" value="yes"/>
             </manifest>
         </jar>
