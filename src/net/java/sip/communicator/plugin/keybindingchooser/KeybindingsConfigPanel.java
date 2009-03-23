@@ -162,8 +162,7 @@ public class KeybindingsConfigPanel
         {
             // Converts to I18N strings for UI
             String actionInternal = newEntry.getAction();
-            String actionLabel = KeybindingChooserActivator.getResources()
-                .getI18NString(actionInternal);
+            String actionLabel = getI18NString(actionInternal);
             this.actionLabels.put(actionLabel, actionInternal);
             newEntry.setAction(actionLabel);
 
@@ -179,6 +178,40 @@ public class KeybindingsConfigPanel
             newEntry.add(newEntry.getField(BindingEntry.Field.SHORTCUT));
 
             return super.putBinding(newEntry, index);
+        }
+
+        /**
+         * Gets the internationalized string corresponding to a specific key
+         * given in its plugin-specific format. The key is translated to the
+         * global format of the ReouseceManagementService and the translated key
+         * is used to retrieve the string from the resource files.
+         * 
+         * @param key the key of the string to be retrieved given in its
+         *            plugin-specific format
+         * @return the internationalized string corresponding to a specific key
+         *         given in its plugin-specific format
+         */
+        private String getI18NString(String key)
+        {
+            StringBuffer newKey = new StringBuffer();
+            newKey.append("plugin.keybindings.");
+            char[] keyChars = key.toCharArray();
+            for (char keyChar : keyChars)
+            {
+                if (Character.isLowerCase(keyChar))
+                    newKey.append(Character.toUpperCase(keyChar));
+                else if (Character.isUpperCase(keyChar))
+                {
+                    newKey.append('_');
+                    newKey.append(keyChar);
+                }
+                else
+                    newKey.append('_');
+            }
+
+            return
+                KeybindingChooserActivator.getResources().getI18NString(
+                    newKey.toString());
         }
 
         public LinkedHashMap<KeyStroke, String> getBindingMap()
