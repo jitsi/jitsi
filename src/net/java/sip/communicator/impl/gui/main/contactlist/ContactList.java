@@ -32,6 +32,7 @@ import net.java.sip.communicator.util.*;
  * <code>metaContactMoved</code>, <code>metaContactGroupAdded</code>, etc.
  *
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class ContactList
     extends DefaultContactList
@@ -45,21 +46,24 @@ public class ContactList
 
     private static final String MODIFY_OPERATION = "ModifyOperation";
 
-    private Logger logger = Logger.getLogger(ContactList.class.getName());
+    private final Logger logger = Logger.getLogger(ContactList.class);
 
-    private MetaContactListService contactListService;
+    private final MetaContactListService contactListService;
 
-    private ContactListModel listModel;
+    private final ContactListModel listModel;
 
     private Object currentlySelectedObject;
 
-    private Vector contactListListeners = new Vector();
+    private final java.util.List<ContactListListener> contactListListeners
+        = new Vector<ContactListListener>();
 
-    private Vector excContactListListeners = new Vector();
+    private final java.util.List<ContactListListener> excContactListListeners
+        = new Vector<ContactListListener>();
 
-    private MainFrame mainFrame;
+    private final MainFrame mainFrame;
 
-    private Hashtable contentToRefresh = new Hashtable();
+    private final Map<Object, String> contentToRefresh
+        = new Hashtable<Object, String>();
 
     private boolean refreshEnabled = true;
 
@@ -74,7 +78,8 @@ public class ContactList
      * is a contact that has been sent a message. The list is used to indicate
      * these contacts with a special icon.
      */
-    private Vector activeContacts = new Vector();
+    private final java.util.List<MetaContact> activeContacts
+        = new Vector<MetaContact>();
 
     /**
      * Creates an instance of the <tt>ContactList</tt>.
@@ -88,7 +93,6 @@ public class ContactList
         this.contactListService = GuiActivator.getMetaContactListService();
 
         this.listModel = new ContactListModel(contactListService);
-
         this.setModel(listModel);
 
         this.setShowOffline(ConfigurationManager.isShowOffline());
@@ -120,22 +124,17 @@ public class ContactList
             }
         });
 
-        CListKeySearchListener keyListener
-            = new CListKeySearchListener(this);
-
-        this.addKeyListener(keyListener);
+        this.addKeyListener(new CListKeySearchListener(this));
 
         this.addKeyListener(new KeyAdapter()
         {
             public void keyPressed(KeyEvent e)
             {
-                if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
+                if ((e.getKeyCode() == KeyEvent.VK_ESCAPE)
+                        && (draggedElement != null))
                 {
-                    if (draggedElement != null)
-                    {
-                        draggedElement.setVisible(false);
-                        draggedElement = null;
-                    }
+                    draggedElement.setVisible(false);
+                    draggedElement = null;
                 }
             }
         });
@@ -183,9 +182,7 @@ public class ContactList
      */
     public void protoContactAdded(ProtoContactEvent evt)
     {
-        MetaContact parentMetaContact = evt.getNewParent();
-
-        this.refreshContact(parentMetaContact);
+        this.refreshContact(evt.getNewParent());
     }
 
     /**
@@ -203,11 +200,8 @@ public class ContactList
      */
     public void protoContactMoved(ProtoContactEvent evt)
     {
-        MetaContact oldParentMetaContact = evt.getOldParent();
-        MetaContact newParentMetaContact = evt.getNewParent();
-
-        this.refreshContact(oldParentMetaContact);
-        this.refreshContact(newParentMetaContact);
+        this.refreshContact(evt.getOldParent());
+        this.refreshContact(evt.getNewParent());
     }
 
     /**
@@ -304,14 +298,9 @@ public class ContactList
         int max = listModel.getSize();
 
         if (prefix == null)
-        {
-            throw new IllegalArgumentException();
-        }
-
+            throw new IllegalArgumentException("prefix");
         if (startIndex < 0 || startIndex >= max)
-        {
-            throw new IllegalArgumentException();
-        }
+            throw new IllegalArgumentException("startIndex");
 
         prefix = prefix.toUpperCase();
 
@@ -360,15 +349,14 @@ public class ContactList
      */
     public MetaContactGroup getGroupByID(String metaUID)
     {
-        Iterator i = contactListService.getRoot().getSubgroups();
+        Iterator<MetaContactGroup> i
+            = contactListService.getRoot().getSubgroups();
         while (i.hasNext())
         {
-            MetaContactGroup group = (MetaContactGroup) i.next();
+            MetaContactGroup group = i.next();
 
             if (group.getMetaUID().equals(metaUID))
-            {
                 return group;
-            }
         }
         return null;
     }
@@ -383,7 +371,7 @@ public class ContactList
         synchronized (contactListListeners)
         {
             if (!contactListListeners.contains(listener))
-                this.contactListListeners.add(listener);
+                contactListListeners.add(listener);
         }
     }
 
@@ -396,7 +384,7 @@ public class ContactList
     {
         synchronized (contactListListeners)
         {
-            this.contactListListeners.remove(listener);
+            contactListListeners.remove(listener);
         }
     }
 
@@ -410,7 +398,7 @@ public class ContactList
         synchronized (excContactListListeners)
         {
             if (!excContactListListeners.contains(listener))
-                this.excContactListListeners.add(listener);
+                excContactListListeners.add(listener);
         }
     }
 
@@ -423,7 +411,7 @@ public class ContactList
     {
         synchronized (excContactListListeners)
         {
-            this.excContactListListeners.remove(listener);
+            excContactListListeners.remove(listener);
         }
     }
 
@@ -439,63 +427,18 @@ public class ContactList
     {
         ContactListEvent evt = new ContactListEvent(source, eventID, clickCount);
 
-        if (excContactListListeners.size() > 0)
+        synchronized (excContactListListeners)
         {
-            synchronized (excContactListListeners)
+            if (excContactListListeners.size() > 0)
             {
-                Iterator listeners = new Vector(this.excContactListListeners)
-                    .iterator();
-
-                while (listeners.hasNext())
-                {
-                    ContactListListener listener
-                        = (ContactListListener) listeners.next();
-
-                    switch (evt.getEventID())
-                    {
-                        case ContactListEvent.CONTACT_SELECTED:
-                            listener.contactClicked(evt);
-                            break;
-                        case ContactListEvent.PROTOCOL_CONTACT_SELECTED:
-                            listener.protocolContactClicked(evt);
-                            break;
-                        case ContactListEvent.GROUP_SELECTED:
-                            listener.groupSelected(evt);
-                            break;
-                        default:
-                            logger.error("Unknown event type "
-                                + evt.getEventID());
-                    }
-                }
+                fireContactListEvent(
+                    new Vector<ContactListListener>(excContactListListeners),
+                    evt);
+                return;
             }
         }
-        else
-        {
-            synchronized (contactListListeners)
-            {
-                Iterator listeners = this.contactListListeners.iterator();
 
-                while (listeners.hasNext())
-                {
-                    ContactListListener listener = (ContactListListener) listeners
-                        .next();
-                    switch (evt.getEventID())
-                    {
-                    case ContactListEvent.CONTACT_SELECTED:
-                        listener.contactClicked(evt);
-                        break;
-                    case ContactListEvent.PROTOCOL_CONTACT_SELECTED:
-                        listener.protocolContactClicked(evt);
-                        break;
-                    case ContactListEvent.GROUP_SELECTED:
-                        listener.groupSelected(evt);
-                        break;
-                    default:
-                        logger.error("Unknown event type " + evt.getEventID());
-                    }
-                }
-            }
-        }
+        fireContactListEvent(contactListListeners, evt);
     }
 
     /**
@@ -509,27 +452,32 @@ public class ContactList
     public void fireContactListEvent(MetaContact sourceContact,
         Contact protocolContact, int eventID)
     {
-        ContactListEvent evt = new ContactListEvent(sourceContact,
-            protocolContact, eventID);
+        fireContactListEvent(
+            contactListListeners,
+            new ContactListEvent(sourceContact, protocolContact, eventID));
+    }
 
+    protected void fireContactListEvent(
+            java.util.List<ContactListListener> contactListListeners,
+            ContactListEvent event)
+    {
         synchronized (contactListListeners)
         {
-            Iterator listeners = this.contactListListeners.iterator();
-
-            while (listeners.hasNext())
+            for (ContactListListener listener : contactListListeners)
             {
-                ContactListListener listener = (ContactListListener) listeners
-                    .next();
-                switch (evt.getEventID())
+                switch (event.getEventID())
                 {
                 case ContactListEvent.CONTACT_SELECTED:
-                    listener.contactClicked(evt);
+                    listener.contactClicked(event);
                     break;
                 case ContactListEvent.PROTOCOL_CONTACT_SELECTED:
-                    listener.protocolContactClicked(evt);
+                    listener.protocolContactClicked(event);
+                    break;
+                case ContactListEvent.GROUP_SELECTED:
+                    listener.groupSelected(event);
                     break;
                 default:
-                    logger.error("Unknown event type " + evt.getEventID());
+                    logger.error("Unknown event type " + event.getEventID());
                 }
             }
         }
@@ -851,12 +799,12 @@ public class ContactList
                     else
                     {
                         // we move all contacts from this meta contact
-                        Iterator i = draggedElement.
-                            getMetaContact().getContacts();
-
+                        Iterator<Contact> i
+                            = draggedElement.getMetaContact().getContacts();
                         while(i.hasNext())
                         {
-                            Contact contact = (Contact) i.next();
+                            Contact contact = i.next();
+
                             new MoveContactToMetaContactThread(
                                 contact,
                                 contactDest).start();
@@ -959,10 +907,9 @@ public class ContactList
     private class RunInfoWindow
         implements Runnable
     {
+        private final MetaContact contactItem;
 
-        private MetaContact contactItem;
-
-        private Point p;
+        private final Point p;
 
         private RunInfoWindow(Point p, MetaContact contactItem)
         {
@@ -973,13 +920,12 @@ public class ContactList
 
         public void run()
         {
-
             ContactInfoDialog contactInfoPanel = new ContactInfoDialog(mainFrame,
                 contactItem);
 
             SwingUtilities.convertPointToScreen(p, ContactList.this);
 
-            // TODO: to calculate popup window posititon properly.
+            // TODO: to calculate popup window position properly.
             contactInfoPanel.setPopupLocation(p.x - 140, p.y - 15);
 
             contactInfoPanel.setVisible(true);
@@ -998,32 +944,26 @@ public class ContactList
         {
             try
             {
-                Map copyContentToRefresh = null;
-
                 while (refreshEnabled)
                 {
+                    Map<Object, String> copyContentToRefresh;
 
                     synchronized (contentToRefresh)
                     {
                         if (contentToRefresh.isEmpty())
                             contentToRefresh.wait();
 
-                        copyContentToRefresh = new Hashtable(contentToRefresh);
+                        copyContentToRefresh = new Hashtable<Object, String>(contentToRefresh);
                         contentToRefresh.clear();
                     }
 
-                    Iterator i = copyContentToRefresh.entrySet().iterator();
-                    while (i.hasNext())
+                    for (Map.Entry<Object, String> groupEntry : copyContentToRefresh.entrySet())
                     {
-                        Map.Entry groupEntry = (Map.Entry) i.next();
-
-                        String operation = (String) groupEntry.getValue();
-
+                        String operation = groupEntry.getValue();
                         Object o = groupEntry.getKey();
 
                         if (o instanceof MetaContactGroup)
                         {
-
                             MetaContactGroup group = (MetaContactGroup) o;
 
                             SwingUtilities.invokeLater(new RefreshGroup(group,
@@ -1031,7 +971,6 @@ public class ContactList
                         }
                         else if (o instanceof MetaContact)
                         {
-
                             MetaContact contact = (MetaContact) o;
 
                             SwingUtilities.invokeLater(new RefreshContact(
@@ -1040,7 +979,6 @@ public class ContactList
                         }
                         else if (o instanceof MetaContactEvent)
                         {
-
                             MetaContactEvent event = (MetaContactEvent) o;
                             MetaContact contact = event.getSourceMetaContact();
                             MetaContactGroup parentGroup = event
@@ -1064,12 +1002,11 @@ public class ContactList
          * @param group the group to update
          */
         private class RefreshGroup
-            implements
-            Runnable
+            implements Runnable
         {
-            private MetaContactGroup group;
+            private final MetaContactGroup group;
 
-            private String operation;
+            private final String operation;
 
             public RefreshGroup(MetaContactGroup group, String operation)
             {
@@ -1126,19 +1063,17 @@ public class ContactList
          * @param group the contact to refresh
          */
         private class RefreshContact
-            implements
-            Runnable
+            implements Runnable
         {
-            private MetaContact contact;
+            private final MetaContact contact;
 
-            private MetaContactGroup parentGroup;
+            private final MetaContactGroup parentGroup;
 
-            private String operation;
+            private final String operation;
 
             public RefreshContact(MetaContact contact,
                 MetaContactGroup parentGroup, String operation)
             {
-
                 this.contact = contact;
                 this.parentGroup = parentGroup;
                 this.operation = operation;
@@ -1242,8 +1177,8 @@ public class ContactList
         {
             if (contact != null
                 && !contentToRefresh.containsKey(contact)
-                && !contentToRefresh.containsKey(contact
-                    .getParentMetaContactGroup()))
+                && !contentToRefresh.containsKey(
+                        contact.getParentMetaContactGroup()))
             {
 
                 contentToRefresh.put(contact, MODIFY_OPERATION);
@@ -1269,8 +1204,8 @@ public class ContactList
         {
             if (contact != null
                 && !contentToRefresh.containsKey(contact)
-                && !contentToRefresh.containsKey(contact
-                    .getParentMetaContactGroup()))
+                && !contentToRefresh.containsKey(
+                        contact.getParentMetaContactGroup()))
             {
 
                 contentToRefresh.put(contact, ADD_OPERATION);
@@ -1284,12 +1219,11 @@ public class ContactList
      */
     public void removeContact(MetaContactEvent event)
     {
-        MetaContact metaContact = event.getSourceMetaContact();
         synchronized (contentToRefresh)
         {
-            if (metaContact != null && !contentToRefresh.contains(event))
+            if (event.getSourceMetaContact() != null
+                    && !contentToRefresh.containsKey(event))
             {
-
                 contentToRefresh.put(event, REMOVE_OPERATION);
                 contentToRefresh.notifyAll();
             }
@@ -1414,8 +1348,8 @@ public class ContactList
      */
     private class MoveContactToMetaContactThread extends Thread
     {
-        private Contact srcContact;
-        private MetaContact destMetaContact;
+        private final Contact srcContact;
+        private final MetaContact destMetaContact;
 
         public MoveContactToMetaContactThread(  Contact srcContact,
                                                 MetaContact destMetaContact)
@@ -1448,20 +1382,17 @@ public class ContactList
                     GuiActivator.getResources()
                         .getI18NString("service.gui.MOVE"));
 
-            int returnCode = dialog.showDialog();
-
-            if (returnCode == MessageDialog.OK_RETURN_CODE)
+            switch (dialog.showDialog())
             {
-                // we move the specified contact
-                mainFrame.getContactList().moveContact(
-                    srcContact, destMetaContact);
-            }
-            else if (returnCode == MessageDialog.OK_DONT_ASK_CODE)
-            {
+            case MessageDialog.OK_DONT_ASK_CODE:
                 ConfigurationManager.setMoveContactConfirmationRequested(false);
+                // do fall through
+
+            case MessageDialog.OK_RETURN_CODE:
                 // we move the specified contact
                 mainFrame.getContactList().moveContact(
                     srcContact, destMetaContact);
+                break;
             }
         }
     }
@@ -1472,8 +1403,8 @@ public class ContactList
      */
     private class MoveContactToGroupThread extends Thread
     {
-        private Contact srcContact;
-        private MetaContactGroup destGroup;
+        private final Contact srcContact;
+        private final MetaContactGroup destGroup;
 
         public MoveContactToGroupThread(Contact srcContact,
                                           MetaContactGroup destGroup)
@@ -1506,20 +1437,17 @@ public class ContactList
                     GuiActivator.getResources()
                         .getI18NString("service.gui.MOVE"));
 
-            int returnCode = dialog.showDialog();
-
-            if (returnCode == MessageDialog.OK_RETURN_CODE)
+            switch (dialog.showDialog())
             {
-                // we move the specified contact
-                mainFrame.getContactList().moveContact(
-                    srcContact, destGroup);
-            }
-            else if (returnCode == MessageDialog.OK_DONT_ASK_CODE)
-            {
+            case MessageDialog.OK_DONT_ASK_CODE:
                 ConfigurationManager.setMoveContactConfirmationRequested(false);
+                // do fall through
+
+            case MessageDialog.OK_RETURN_CODE:
                 // we move the specified contact
                 mainFrame.getContactList().moveContact(
                     srcContact, destGroup);
+                break;
             }
         }
     }
@@ -1528,10 +1456,11 @@ public class ContactList
      * Moves the given <tt>MetaContact</tt> to the given <tt>MetaContactGroup</tt>
      * and asks user for confirmation.
      */
-    private class MoveMetaContactThread extends Thread
+    private class MoveMetaContactThread
+        extends Thread
     {
-        private MetaContact srcContact;
-        private MetaContactGroup destGroup;
+        private final MetaContact srcContact;
+        private final MetaContactGroup destGroup;
 
         public MoveMetaContactThread(   MetaContact srcContact,
                                         MetaContactGroup destGroup)
@@ -1564,20 +1493,17 @@ public class ContactList
                     GuiActivator.getResources()
                         .getI18NString("service.gui.MOVE"));
 
-            int returnCode = dialog.showDialog();
-
-            if (returnCode == MessageDialog.OK_RETURN_CODE)
+            switch (dialog.showDialog())
             {
-                // we move the specified contact
-                mainFrame.getContactList().moveMetaContact(
-                    srcContact, destGroup);
-            }
-            else if (returnCode == MessageDialog.OK_DONT_ASK_CODE)
-            {
+            case MessageDialog.OK_DONT_ASK_CODE:
                 ConfigurationManager.setMoveContactConfirmationRequested(false);
+                // do fall through
+
+            case MessageDialog.OK_RETURN_CODE:
                 // we move the specified contact
                 mainFrame.getContactList().moveMetaContact(
                     srcContact, destGroup);
+                break;
             }
         }
     }
@@ -1591,12 +1517,16 @@ public class ContactList
     {
         synchronized (activeContacts)
         {
-            SystrayService stray = GuiActivator.getSystrayService();
-            if(activeContacts.size() == 0 && stray != null)
-                stray.setSystrayIcon(SystrayService.ENVELOPE_IMG_TYPE);
+            if(activeContacts.size() == 0)
+            {
+                SystrayService stray = GuiActivator.getSystrayService();
+
+                if (stray != null)
+                    stray.setSystrayIcon(SystrayService.ENVELOPE_IMG_TYPE);
+            }
 
             if(!activeContacts.contains(metaContact))
-                this.activeContacts.add(metaContact);
+                activeContacts.add(metaContact);
         }
 
         this.refreshContact(metaContact);
@@ -1611,8 +1541,7 @@ public class ContactList
     {
         synchronized (activeContacts)
         {
-            if(activeContacts.contains(metaContact))
-                this.activeContacts.remove(metaContact);
+            activeContacts.remove(metaContact);
 
             if(activeContacts.size() == 0)
                 GuiActivator.getSystrayService().setSystrayIcon(
@@ -1631,7 +1560,7 @@ public class ContactList
         {
             if(activeContacts.size() > 0)
             {
-                this.activeContacts.removeAllElements();
+                activeContacts.clear();
 
                 GuiActivator.getSystrayService().setSystrayIcon(
                    SystrayService.SC_IMG_TYPE);
@@ -1652,7 +1581,7 @@ public class ContactList
     {
         synchronized (activeContacts)
         {
-            return this.activeContacts.contains(metaContact);
+            return activeContacts.contains(metaContact);
         }
     }
 

@@ -82,4 +82,9 @@ public class ConferenceChatContact
         else
             return null;
     }
+
+    public ChatRoomMemberRole getRole()
+    {
+        return chatRoomMember.getRole();
+    }
 }

@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.gui.main.chat.conference;
 
 import java.awt.*;
-import java.awt.event.*;
 
 import javax.swing.*;
 
@@ -27,11 +26,11 @@ import net.java.sip.communicator.impl.gui.main.contactlist.*;
  */
 public class ChatRoomMemberListPanel
     extends JPanel
-    implements  MouseListener
 {
-    private final DefaultContactList memberList;
+    private final DefaultContactList memberList = new DefaultContactList();
 
-    private final DefaultListModel memberListModel = new DefaultListModel();
+    private final ChatContactListModel memberListModel
+        = new ChatContactListModel();
 
     // private final ChatPanel chatPanel;
 
@@ -42,8 +41,6 @@ public class ChatRoomMemberListPanel
     {
         super(new BorderLayout());
 
-        this.memberList = new DefaultContactList();
-
         // this.chatPanel = chat;
 
         this.memberList.setModel(memberListModel);
@@ -52,10 +49,11 @@ public class ChatRoomMemberListPanel
         JScrollPane contactsScrollPane = new SCScrollPane();
         contactsScrollPane.setHorizontalScrollBarPolicy(
             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-
-        contactsScrollPane.getViewport().add(memberList);
-        contactsScrollPane.getViewport().setOpaque(false);
         contactsScrollPane.setOpaque(false);
+
+        JViewport viewport = contactsScrollPane.getViewport();
+        viewport.setOpaque(false);
+        viewport.add(memberList);
 
         this.add(contactsScrollPane);
     }
@@ -88,28 +86,6 @@ public class ChatRoomMemberListPanel
      * @param chatContact the <tt>ChatContact</tt> to be renamed
      */
     public void renameContact(ChatContact chatContact)
-    {
-
-    }
-
-    public void mouseClicked(MouseEvent e)
-    {
-    }
-
-    public void mouseEntered(MouseEvent e)
-    {
-    }
-
-    public void mouseExited(MouseEvent e)
-    {
-    }
-
-    public void mousePressed(MouseEvent e)
-    {
-
-    }
-
-    public void mouseReleased(MouseEvent e)
     {
     }
 

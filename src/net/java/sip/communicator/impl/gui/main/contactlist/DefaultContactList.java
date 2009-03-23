@@ -18,13 +18,15 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * DeafultContactlist used to display Jlists with contacts.
+ * DeafultContactlist used to display <code>JList</code>s with contacts.
  *
  * @author Damian Minkov
  */
 public class DefaultContactList
     extends JList
 {
+    private static final long serialVersionUID = 0L;
+
     public DefaultContactList()
     {
         this.setOpaque(false);
@@ -37,7 +39,7 @@ public class DefaultContactList
 
     /**
      * Checks if the given contact is currently active.
-     * Dummy method used and overrided from classes extending this
+     * Dummy method used and overridden from classes extending this
      * functionality such as ContactList.
      *
      * @param metaContact the <tt>MetaContact</tt> to verify
@@ -51,7 +53,7 @@ public class DefaultContactList
 
     /**
      * Checks whether the group is closed.
-     * Dummy method used and overrided from classes extending this
+     * Dummy method used and overridden from classes extending this
      * functionality such as ContactList.
      *
      * @param group The group to check.
@@ -65,18 +67,18 @@ public class DefaultContactList
     /**
      * Returns the general status of the given MetaContact. Detects the status
      * using the priority status table. The priority is defined on the
-     * "availablity" factor and here the most "available" status is returned.
+     * "availability" factor and here the most "available" status is returned.
      *
-     * @param metaContact The metaContact fot which the status is asked.
+     * @param metaContact The metaContact for which the status is asked.
      * @return PresenceStatus The most "available" status from all subcontact
      *         statuses.
      */
     public PresenceStatus getMetaContactStatus(MetaContact metaContact)
     {
         PresenceStatus status = null;
-        Iterator i = metaContact.getContacts();
+        Iterator<Contact> i = metaContact.getContacts();
         while (i.hasNext()) {
-            Contact protoContact = (Contact) i.next();
+            Contact protoContact = i.next();
             PresenceStatus contactStatus = protoContact.getPresenceStatus();
 
             if (status == null) {
@@ -120,7 +122,7 @@ public class DefaultContactList
 
             while (i.hasNext())
             {
-                Contact protocolContact = (Contact) i.next();
+                Contact protocolContact = i.next();
 
                 Image protocolStatusIcon
                     = ImageLoader.getBytesInImage(
