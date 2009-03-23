@@ -323,6 +323,14 @@ public class ProtocolProviderServiceIrcImpl
     protected void setCurrentRegistrationState(
         RegistrationState regState)
     {
+        RegistrationState oldState = this.currentRegistrationState;
+
         this.currentRegistrationState = regState;
+
+        fireRegistrationStateChanged(
+            oldState,
+            this.currentRegistrationState,
+            RegistrationStateChangeEvent.REASON_USER_REQUEST,
+            null);
     }
 }

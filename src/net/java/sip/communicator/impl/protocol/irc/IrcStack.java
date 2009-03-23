@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.protocol.irc;
 
 import java.io.*;
@@ -78,7 +77,8 @@ public class IrcStack
     private ArrayList joinCache = new ArrayList();
 
     /**
-     * Dectects calls to onConnect.
+     * The indicator which determines whether #onConnect() has been invoked and
+     * thus a manual invocation of its old functionality is pending.
      */
     private boolean onConnectInvoked = false;
 
@@ -125,22 +125,24 @@ public class IrcStack
         throws OperationFailedException
     {
         this.setVerbose(false);
-
         this.setAutoNickChange(autoNickChange);
+
+        boolean onConnectInvoked;
 
         try
         {
             // avoids deadlock - issue#620. Call the event
             // in non synchronized code
-            synchronized(this)
+            synchronized (this)
             {
-                onConnectInvoked = false;
+                this.onConnectInvoked = false;
+
                 if (serverPassword == null)
-                {
                     this.connect(serverAddress, serverPort);
-                }
                 else
                     this.connect(serverAddress, serverPort, serverPassword);
+
+                onConnectInvoked = this.onConnectInvoked;
             }
         }
         catch (IOException e)
@@ -161,18 +163,10 @@ public class IrcStack
 
         // if onConnect method is called fire event from code that
         // is not synchronized - issue#620
-        if(onConnectInvoked)
+        if (onConnectInvoked)
         {
-            RegistrationState oldState
-                = parentProvider.getCurrentRegistrationState();
-
             parentProvider
                 .setCurrentRegistrationState(RegistrationState.REGISTERED);
-
-            parentProvider.fireRegistrationStateChanged(
-                oldState,
-                RegistrationState.REGISTERED,
-                RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
 
             // It should be done when a getExistingChatRooms request is processed.
             // Obtain information for all channels on this server.
@@ -183,14 +177,15 @@ public class IrcStack
     /**
      * Called when we're connected to the IRC server.
      */
-    protected void onConnect()
+    protected synchronized void onConnect()
     {
-        // just mark that onConnect method is invoked
-        // avoiding deadlock - issue#620
-        synchronized(this)
-        {
-            onConnectInvoked = true;
-        }
+
+        /*
+         * Just mark that the onConnect method is invoked so that its old
+         * functionality can be invoked manually elsewhere later on thus
+         * avoiding a deadlock - issue #620.
+         */
+        onConnectInvoked = true;
     }
 
     /**
@@ -198,16 +193,8 @@ public class IrcStack
      */
     protected void onDisconnect()
     {
-        RegistrationState oldState
-            = parentProvider.getCurrentRegistrationState();
-
         parentProvider
             .setCurrentRegistrationState(RegistrationState.UNREGISTERED);
-
-        parentProvider.fireRegistrationStateChanged(
-            oldState,
-            RegistrationState.UNREGISTERED,
-            RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
     }
 
     /**
