@@ -78,6 +78,11 @@ public class IrcStack
     private ArrayList joinCache = new ArrayList();
 
     /**
+     * Dectects calls to onConnect.
+     */
+    private boolean onConnectInvoked = false;
+
+    /**
      * Creates an instance of <tt>IrcStack</tt>.
      * 
      * @param parentProvider the IRC protocol provider service
@@ -125,12 +130,18 @@ public class IrcStack
 
         try
         {
-            if (serverPassword == null)
+            // avoids deadlock - issue#620. Call the event
+            // in non synchronized code
+            synchronized(this)
             {
-                this.connect(serverAddress, serverPort);
+                onConnectInvoked = false;
+                if (serverPassword == null)
+                {
+                    this.connect(serverAddress, serverPort);
+                }
+                else
+                    this.connect(serverAddress, serverPort, serverPassword);
             }
-            else
-                this.connect(serverAddress, serverPort, serverPassword);
         }
         catch (IOException e)
         {
@@ -147,6 +158,26 @@ public class IrcStack
             throw new OperationFailedException(e.getMessage(),
                 OperationFailedException.GENERAL_ERROR);
         }
+
+        // if onConnect method is called fire event from code that
+        // is not synchronized - issue#620
+        if(onConnectInvoked)
+        {
+            RegistrationState oldState
+                = parentProvider.getCurrentRegistrationState();
+
+            parentProvider
+                .setCurrentRegistrationState(RegistrationState.REGISTERED);
+
+            parentProvider.fireRegistrationStateChanged(
+                oldState,
+                RegistrationState.REGISTERED,
+                RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
+
+            // It should be done when a getExistingChatRooms request is processed.
+            // Obtain information for all channels on this server.
+            // this.listChannels();
+        }
     }
 
     /**
@@ -154,20 +185,12 @@ public class IrcStack
      */
     protected void onConnect()
     {
-        RegistrationState oldState
-            = parentProvider.getCurrentRegistrationState();
-
-        parentProvider
-            .setCurrentRegistrationState(RegistrationState.REGISTERED);
-
-        parentProvider.fireRegistrationStateChanged(
-            oldState,
-            RegistrationState.REGISTERED,
-            RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
-
-        // It should be done when a getExistingChatRooms request is processed.
-        // Obtain information for all channels on this server.
-        // this.listChannels();
+        // just mark that onConnect method is invoked
+        // avoiding deadlock - issue#620
+        synchronized(this)
+        {
+            onConnectInvoked = true;
+        }
     }
 
     /**
