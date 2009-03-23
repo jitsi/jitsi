@@ -287,8 +287,43 @@ public class NetworkAddressManagerServiceImpl
                     }
                 }
                 else
+                // an IPv4 destination
+                {
+                    // first try the easy way
                     localHost = InetAddress.getLocalHost();
-                /** @todo test on windows for ipv6 cases */
+
+                    // Make sure we got an IPv4 address.
+                    if (!(localHost instanceof Inet4Address))
+                    {
+                        // return the first non localhost interface we find.
+                        Enumeration<NetworkInterface> interfaces = NetworkInterface
+                                        .getNetworkInterfaces();
+
+                        while (interfaces.hasMoreElements())
+                        {
+                            NetworkInterface iface = interfaces.nextElement();
+                            Enumeration<InetAddress> addresses = iface
+                                            .getInetAddresses();
+                            while (addresses.hasMoreElements())
+                            {
+                                InetAddress address = addresses.nextElement();
+                                if (address instanceof Inet4Address)
+                                {
+                                    if (!address.isLoopbackAddress())
+                                    {
+                                        if (logger.isTraceEnabled())
+                                        {
+                                            logger.trace(
+                                                "will return ipv6 addr "
+                                                + address);
+                                        }
+                                        return address;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
