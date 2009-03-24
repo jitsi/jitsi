@@ -5,7 +5,6 @@
  */
 package net.java.sip.communicator.impl.gui.main.account;
 
-import java.awt.*;
 import java.io.*;
 import java.util.*;
 import java.util.List;
@@ -39,7 +38,8 @@ public class AccountRegWizardContainerImpl
 
     private AccountRegistrationWizard currentWizard;
 
-    private final ConfigurationService configService = GuiActivator.getConfigurationService();
+    private final ConfigurationService configService
+        = GuiActivator.getConfigurationService();
 
     private final Map<String, AccountRegistrationWizard> registeredWizards =
         new Hashtable<String, AccountRegistrationWizard>();
@@ -78,16 +78,12 @@ public class AccountRegWizardContainerImpl
             logger.debug("Found "
                          + accountWizardRefs.length
                          + " already installed providers.");
-            for (int i = 0; i < accountWizardRefs.length; i++)
+            for (ServiceReference serRef : accountWizardRefs)
             {
-                ServiceReference serRef = accountWizardRefs[i];
-
-                String protocolName = (String) serRef
-                    .getProperty(ProtocolProviderFactory.PROTOCOL);
-
-                AccountRegistrationWizard wizard
-                    = (AccountRegistrationWizard) GuiActivator.bundleContext
-                        .getService(serRef);
+                String protocolName = (String)
+                    serRef.getProperty(ProtocolProviderFactory.PROTOCOL);
+                AccountRegistrationWizard wizard = (AccountRegistrationWizard)
+                    GuiActivator.bundleContext.getService(serRef);
 
                 this.addAccountRegistrationWizard(protocolName, wizard);
             }
@@ -152,35 +148,7 @@ public class AccountRegWizardContainerImpl
 
         wizard.setModification(true);
 
-        Iterator<WizardPage> i = wizard.getPages();
-
-        boolean firstPage = true;
-
-        while (i.hasNext())
-        {
-            WizardPage page = i.next();
-            Object identifier = page.getIdentifier();
-
-            this.registerWizardPage(identifier, page);
-
-            if (firstPage)
-            {
-                this.setCurrentPage(identifier);
-                firstPage = false;
-            }
-        }
-
         wizard.loadAccount(protocolProvider);
-
-        try
-        {
-            this.setWizzardIcon(ImageIO.read(new ByteArrayInputStream(wizard
-                .getPageImage())));
-        }
-        catch (IOException e1)
-        {
-            e1.printStackTrace();
-        }
     }
 
     /**
@@ -204,10 +172,9 @@ public class AccountRegWizardContainerImpl
         {
             String accountUID = configService.getString(accountRootPropName);
 
-            if (accountUID.equals(protocolProvider.getAccountID()
-                .getAccountUniqueID()))
+            if (accountUID.equals(
+                    protocolProvider.getAccountID().getAccountUniqueID()))
             {
-
                 configService.setProperty(accountRootPropName + ".wizard",
                     wizard.getClass().getName().replace('.', '_'));
 
@@ -217,11 +184,8 @@ public class AccountRegWizardContainerImpl
 
         if (!savedAccount)
         {
-            String accNodeName =
-                "acc" + Long.toString(System.currentTimeMillis());
-
-            String accountPackage =
-                "net.java.sip.communicator.impl.gui.accounts." + accNodeName;
+            String accountPackage
+                = prefix + ".acc" + Long.toString(System.currentTimeMillis());
 
             configService.setProperty(accountPackage, protocolProvider
                 .getAccountID().getAccountUniqueID());
@@ -250,9 +214,7 @@ public class AccountRegWizardContainerImpl
     {
         this.currentWizard = wizard;
 
-        Dimension wizardSize = this.currentWizard.getSize();
-
-        summaryPage.setPreferredSize(wizardSize);
+        summaryPage.setPreferredSize(this.currentWizard.getSize());
 
         Iterator<WizardPage> i = wizard.getPages();
 
@@ -298,19 +260,14 @@ public class AccountRegWizardContainerImpl
             return;
 
         ServiceReference serRef = event.getServiceReference();
-
-        String protocolName
-            = (String) serRef.getProperty(ProtocolProviderFactory.PROTOCOL);
-
-        Object sService = GuiActivator.bundleContext.getService(
-            event.getServiceReference());
+        Object sService = GuiActivator.bundleContext.getService(serRef);
 
         // we don't care if the source service is not a plugin component
         if (! (sService instanceof AccountRegistrationWizard))
-        {
             return;
-        }
 
+        String protocolName
+            = (String) serRef.getProperty(ProtocolProviderFactory.PROTOCOL);
         AccountRegistrationWizard wizard
             = (AccountRegistrationWizard) sService;
 

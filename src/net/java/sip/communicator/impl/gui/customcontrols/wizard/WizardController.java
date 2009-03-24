@@ -125,37 +125,27 @@ public class WizardController implements ActionListener {
      *  panel in question has one or more panels in front of it, enables the
      *  next button. Otherwise, disables it.
      */
-    void resetButtonsToPanelRules() {
-
+    void resetButtonsToPanelRules()
+    {
         WizardModel model = wizard.getModel();
         WizardPage page = model.getCurrentWizardPage();
 
         model.setCancelButtonText(Wizard.CANCEL_TEXT);
 
+        Object backPageIdentifier = page.getBackPageIdentifier();
+        model.setBackButtonEnabled(
+            (backPageIdentifier != null)
+                && !WizardPage.DEFAULT_PAGE_IDENTIFIER.equals(backPageIdentifier));
+
         model.setBackButtonText(Wizard.BACK_TEXT);
 
-        if (page.getBackPageIdentifier() != null) {
-            model.setBackButtonEnabled(Boolean.TRUE);
-        }
-        else {
-            model.setBackButtonEnabled(Boolean.FALSE);
-        }
+        model.setNextFinishButtonEnabled(page.getNextPageIdentifier() != null);
 
-        if (page.getNextPageIdentifier() != null) {
-            model.setNextFinishButtonEnabled(Boolean.TRUE);
-
-        }
-        else {
-            model.setNextFinishButtonEnabled(Boolean.FALSE);
-        }
-
-        if (page.getNextPageIdentifier()
-                .equals(WizardPage.FINISH_PAGE_IDENTIFIER)) {
-
+        if (page.getNextPageIdentifier().equals(
+                WizardPage.FINISH_PAGE_IDENTIFIER)) {
             model.setNextFinishButtonText(Wizard.FINISH_TEXT);
         } else {
             model.setNextFinishButtonText(Wizard.NEXT_TEXT);
         }
-
     }
 }

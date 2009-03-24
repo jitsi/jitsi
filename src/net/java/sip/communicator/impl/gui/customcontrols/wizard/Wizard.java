@@ -96,7 +96,7 @@ public class Wizard
 
     static Icon CANCEL_ICON;
 
-    private final WizardModel wizardModel;
+    private final WizardModel wizardModel = new WizardModel();
 
     private WizardController wizardController;
 
@@ -110,8 +110,8 @@ public class Wizard
 
     private JButton cancelButton;
 
-    private final java.util.List<WizardListener> wizardListeners =
-        new Vector<WizardListener>();
+    private final java.util.List<WizardListener> wizardListeners
+        = new Vector<WizardListener>();
 
     /**
      * This method accepts a java.awt.Dialog object as the javax.swing.JDialog's
@@ -122,8 +122,6 @@ public class Wizard
     public Wizard(Dialog owner)
     {
         super(owner, false);
-
-        wizardModel = new WizardModel();
 
         initComponents();
     }
@@ -138,8 +136,6 @@ public class Wizard
     public Wizard(Frame owner)
     {
         super(owner, false);
-
-        wizardModel = new WizardModel();
 
         initComponents();
     }
@@ -209,7 +205,7 @@ public class Wizard
      * Removes from the wizard the <tt>WizardPage</tt> corresponding to the
      * given identifier.
      * 
-     * @param id The identifer of the wizard page.
+     * @param id The identifier of the wizard page.
      */
     public void unregisterWizardPage(Object id)
     {
@@ -277,53 +273,45 @@ public class Wizard
      */
     public void propertyChange(PropertyChangeEvent evt)
     {
+        String name = evt.getPropertyName();
 
-        if (evt.getPropertyName().equals(WizardModel.CURRENT_PAGE_PROPERTY))
+        if (WizardModel.CURRENT_PAGE_PROPERTY.equals(name))
         {
             wizardController.resetButtonsToPanelRules();
         }
-        else if (evt.getPropertyName().equals(
-            WizardModel.NEXT_FINISH_BUTTON_TEXT_PROPERTY))
+        else if (WizardModel.NEXT_FINISH_BUTTON_TEXT_PROPERTY.equals(name))
         {
             nextButton.setText(evt.getNewValue().toString());
         }
-        else if (evt.getPropertyName().equals(
-            WizardModel.BACK_BUTTON_TEXT_PROPERTY))
+        else if (WizardModel.BACK_BUTTON_TEXT_PROPERTY.equals(name))
         {
             backButton.setText(evt.getNewValue().toString());
         }
-        else if (evt.getPropertyName().equals(
-            WizardModel.CANCEL_BUTTON_TEXT_PROPERTY))
+        else if (WizardModel.CANCEL_BUTTON_TEXT_PROPERTY.equals(name))
         {
             cancelButton.setText(evt.getNewValue().toString());
         }
-        else if (evt.getPropertyName().equals(
-            WizardModel.NEXT_FINISH_BUTTON_ENABLED_PROPERTY))
+        else if (WizardModel.NEXT_FINISH_BUTTON_ENABLED_PROPERTY.equals(name))
         {
             nextButton.setEnabled((Boolean) evt.getNewValue());
         }
-        else if (evt.getPropertyName().equals(
-            WizardModel.BACK_BUTTON_ENABLED_PROPERTY))
+        else if (WizardModel.BACK_BUTTON_ENABLED_PROPERTY.equals(name))
         {
             backButton.setEnabled((Boolean) evt.getNewValue());
         }
-        else if (evt.getPropertyName().equals(
-            WizardModel.CANCEL_BUTTON_ENABLED_PROPERTY))
+        else if (WizardModel.CANCEL_BUTTON_ENABLED_PROPERTY.equals(name))
         {
             cancelButton.setEnabled((Boolean) evt.getNewValue());
         }
-        else if (evt.getPropertyName().equals(
-            WizardModel.NEXT_FINISH_BUTTON_ICON_PROPERTY))
+        else if (WizardModel.NEXT_FINISH_BUTTON_ICON_PROPERTY.equals(name))
         {
             nextButton.setIcon((Icon) evt.getNewValue());
         }
-        else if (evt.getPropertyName().equals(
-            WizardModel.BACK_BUTTON_ICON_PROPERTY))
+        else if (WizardModel.BACK_BUTTON_ICON_PROPERTY.equals(name))
         {
             backButton.setIcon((Icon) evt.getNewValue());
         }
-        else if (evt.getPropertyName().equals(
-            WizardModel.CANCEL_BUTTON_ICON_PROPERTY))
+        else if (WizardModel.CANCEL_BUTTON_ICON_PROPERTY.equals(name))
         {
             cancelButton.setIcon((Icon) evt.getNewValue());
         }
@@ -418,10 +406,8 @@ public class Wizard
      * a JDialog as a CardLayout panel surrounded by a small amount of space on
      * each side, as well as three buttons at the bottom.
      */
-
     private void initComponents()
     {
-
         wizardModel.addPropertyChangeListener(this);
         wizardController = new WizardController(this);
 
@@ -502,6 +488,7 @@ public class Wizard
 
     static {
         ResourceManagementService resources = GuiActivator.getResources();
+
         BACK_TEXT = resources.getI18NString("service.gui.PREVIOUS");
         NEXT_TEXT = resources.getI18NString("service.gui.NEXT");
         CANCEL_TEXT = resources.getI18NString("service.gui.CANCEL");
