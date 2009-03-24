@@ -1712,31 +1712,30 @@ public class CallSessionImpl
 
             byte onHold = this.onHold;
 
-            if (!mediaServCallback.getDeviceConfiguration()
+            // add audio line to the sdp only when we support audio/audio-capture
+            if (mediaServCallback.getDeviceConfiguration()
                 .isAudioCaptureSupported())
             {
-                /* We don't have anything to send. */
-                onHold |= ON_HOLD_REMOTELY;
-            }
-            setAttributeOnHold(am, onHold);
+                setAttributeOnHold(am, onHold);
 
-            // check if ZRTP engine is used and set SDP attribute
-            TransformConnector transConnector = this.transConnectors
-                    .get(audioRtpManager);
-            if (transConnector != null)
-            {
-                TransformEngine engine = transConnector.getEngine();
-                if (engine instanceof ZRTPTransformEngine)
+                // check if ZRTP engine is used and set SDP attribute
+                TransformConnector transConnector = this.transConnectors
+                        .get(audioRtpManager);
+                if (transConnector != null)
                 {
-                    ZRTPTransformEngine ze = (ZRTPTransformEngine) engine;
+                    TransformEngine engine = transConnector.getEngine();
+                    if (engine instanceof ZRTPTransformEngine)
+                    {
+                        ZRTPTransformEngine ze = (ZRTPTransformEngine) engine;
 
-                    String helloHash = ze.getHelloHash();
+                        String helloHash = ze.getHelloHash();
 
-                    if( helloHash != null && helloHash.length() > 0)
-                        am.setAttribute("zrtp-hash", ze.getHelloHash());
+                        if( helloHash != null && helloHash.length() > 0)
+                            am.setAttribute("zrtp-hash", ze.getHelloHash());
+                    }
                 }
+                mediaDescs.add(am);
             }
-            mediaDescs.add(am);
         }
         //--------Video media description
         if(supportedVideoEncodings.length> 0)

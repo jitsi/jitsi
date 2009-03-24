@@ -42,22 +42,35 @@ public class AudioNotifierServiceImpl
             }
             else
             {
-                URL url = 
+                URL url =
                     AudioNotifierActivator.getResources().getSoundURLForPath(uri);
 
                 if (url == null)
                 {
                     // Not found by the class loader. Perhaps it's a local file.
-                    try 
+                    try
                     {
                         url = new URL(uri);
                     }
                     catch (MalformedURLException e)
                     {
                         //logger.error("The given uri could not be parsed.", e);
+                        return null;
                     }
                 }
-                audioClip = new SCAudioClipImpl(url, this);
+                
+                try
+                {
+                    audioClip = new SCAudioClipImpl(url, this);
+
+                    if(audioClip == null)
+                        return null;
+                }
+                catch (Throwable e)
+                {
+                    // Cannot create audio to play
+                    return null;
+                }
 
                 audioClips.put(uri, audioClip);
             }

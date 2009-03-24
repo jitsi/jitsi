@@ -79,6 +79,10 @@ public class SoundNotificationHandlerImpl
 
         audio = audioNotifService.createAudio(soundFileDescriptor);
 
+        // it is possible that audio cannot be created
+        if(audio == null)
+            return;
+
         if(loopInterval > -1)
             audio.playInLoop(loopInterval);
         else
