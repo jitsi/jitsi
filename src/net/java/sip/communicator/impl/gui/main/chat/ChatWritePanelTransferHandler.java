@@ -109,11 +109,16 @@ public class ChatWritePanelTransferHandler
                                     flavor.getReaderForText(transferable));
 
                     StringBuffer buffToPaste = new StringBuffer();
-                    String line = null;
+                    String line = reader.readLine();
 
-                    while((line = reader.readLine() ) != null)
+                    while(line != null)
                     {
-                        buffToPaste.append(line).append("\n");
+                        buffToPaste.append(line);
+
+                        //read next line
+                        line = reader.readLine();
+                        if(line != null)
+                            buffToPaste.append("\n");
                     }
 
                     ((JTextComponent)comp)
