@@ -17,7 +17,16 @@ import net.java.sip.communicator.service.protocol.*;
 public class SipAccountID
     extends AccountID
 {
-    private static String getUserIDWithoutServerName(String userID)
+    /**
+     * Removes the server part from a sip user id if there is one. Used when
+     * calling the super constructor to ensure that we will be consistent about
+     * the value of the user id.
+     *
+     * @param userID the sip user id that we'd like to remove a server from.
+     *
+     * @return the user part of the <tt>userID</tt>
+     */
+    private static String stripServerNameFromUserID(String userID)
     {
         int index = userID.indexOf("@");
         return (index > -1) ? userID.substring(0, index) : userID;
@@ -33,7 +42,7 @@ public class SipAccountID
     protected SipAccountID(String userID, Map accountProperties,
         String serverName)
     {
-        super(getUserIDWithoutServerName(userID), accountProperties,
+        super(stripServerNameFromUserID(userID), accountProperties,
             (String) accountProperties.get(ProtocolProviderFactory.PROTOCOL),
             serverName);
     }
@@ -77,7 +86,8 @@ public class SipAccountID
      */
     public String getDisplayName()
     {
-        String returnValue = getUserID();
+        String returnValue = super.getAccountPropertyString(
+                            ProtocolProviderFactory.USER_ID);
 
         String protocolName =
             getAccountPropertyString(ProtocolProviderFactory.PROTOCOL);
@@ -87,10 +97,6 @@ public class SipAccountID
         {
             // this is apparently a no registrar account
             protocolName = "RegistrarLess " + protocolName;
-        }
-        else
-        {
-            returnValue += "@" + service;
         }
 
         if (protocolName != null && protocolName.trim().length() > 0)

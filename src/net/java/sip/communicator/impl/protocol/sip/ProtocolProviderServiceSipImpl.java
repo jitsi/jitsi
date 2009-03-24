@@ -401,7 +401,8 @@ public class ProtocolProviderServiceSipImpl
                 if (preferredSipPort > NetworkUtils.MAX_PORT_NUMBER)
                 {
                     logger.error(preferredSipPort + " is larger than "
-                                 + NetworkUtils.MAX_PORT_NUMBER + " and does not "
+                                 + NetworkUtils.MAX_PORT_NUMBER
+                                 + " and does not "
                                  + "therefore represent a valid port nubmer.");
                 }
             }
@@ -414,7 +415,8 @@ public class ProtocolProviderServiceSipImpl
                 accountID.getAccountPropertyBoolean(
                     ProtocolProviderFactory.IS_PRESENCE_ENABLED, true);
 
-            boolean forceP2P = accountID.getAccountPropertyBoolean(ProtocolProviderFactory.FORCE_P2P_MODE, true);
+            boolean forceP2P = accountID.getAccountPropertyBoolean(
+                            ProtocolProviderFactory.FORCE_P2P_MODE, true);
 
             int pollingValue =
                 accountID.getAccountPropertyInt(
@@ -490,9 +492,8 @@ public class ProtocolProviderServiceSipImpl
             new ClientCapabilities(this);
 
             //initialize our display name
-            ourDisplayName =
-                accountID
-                    .getAccountPropertyString(ProtocolProviderFactory.DISPLAY_NAME);
+            ourDisplayName = accountID.getAccountPropertyString(
+                                    ProtocolProviderFactory.DISPLAY_NAME);
 
             if(ourDisplayName == null
                || ourDisplayName.trim().length() == 0)
