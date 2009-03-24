@@ -241,10 +241,8 @@ public class ConferenceChatSession
      * 
      * @return the start date of the history of this chat session.
      */
-    public Date getHistoryStartDate()
+    public long getHistoryStartDate()
     {
-        Date startHistoryDate = null;
-
         MessageHistoryService msgHistory
             = GuiActivator.getMsgHistoryService();
 
@@ -252,7 +250,9 @@ public class ConferenceChatSession
         // here. The MessageHistoryService could be "disabled" from the user
         // through one of the configuration forms.
         if (msgHistory == null)
-            return null;
+            return 0;
+
+        long startHistoryDate = 0;
 
         Collection firstMessage = msgHistory
             .findFirstMessagesAfter(chatRoomWrapper.getChatRoom(),
@@ -288,10 +288,8 @@ public class ConferenceChatSession
      * 
      * @return the end date of the history of this chat session.
      */
-    public Date getHistoryEndDate()
+    public long getHistoryEndDate()
     {
-        Date endHistoryDate = null;
-
         MessageHistoryService msgHistory
             = GuiActivator.getMsgHistoryService();
 
@@ -299,7 +297,9 @@ public class ConferenceChatSession
         // here. The MessageHistoryService could be "disabled" from the user
         // through one of the configuration forms.
         if (msgHistory == null)
-            return null;
+            return 0;
+
+        long endHistoryDate = 0;
 
         Collection lastMessage = msgHistory
             .findLastMessagesBefore(chatRoomWrapper.getChatRoom(),

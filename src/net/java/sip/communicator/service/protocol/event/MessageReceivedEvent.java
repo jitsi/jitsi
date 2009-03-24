@@ -44,7 +44,7 @@ public class MessageReceivedEvent
     /**
      * A timestamp indicating the exact date when the event occurred.
      */
-    private Date timestamp = null;
+    private final long timestamp;
 
     /**
      * The type of message event that this instance represents.
@@ -60,7 +60,7 @@ public class MessageReceivedEvent
      * @param from the <tt>Contact</tt> that has sent this message.
      * @param timestamp the exact date when the event ocurred.
      */
-    public MessageReceivedEvent(Message source, Contact from, Date timestamp)
+    public MessageReceivedEvent(Message source, Contact from, long timestamp)
     {
        this(source, from, timestamp, CONVERSATION_MESSAGE_RECEIVED); 
     }
@@ -77,7 +77,7 @@ public class MessageReceivedEvent
      * (one of the XXX_MESSAGE_RECEIVED static fields). 
      */
     public MessageReceivedEvent(Message source, Contact from,
-        Date timestamp, int eventType)
+        long timestamp, int eventType)
     {
         super(source);
 
@@ -109,11 +109,11 @@ public class MessageReceivedEvent
     }
 
     /**
-     * A timestamp indicating the exact date when the event ocurred.
+     * A timestamp indicating the exact date when the event occurred.
      * 
-     * @return a Date indicating when the event ocurred.
+     * @return a Date indicating when the event occurred.
      */
-    public Date getTimestamp()
+    public long getTimestamp()
     {
         return timestamp;
     }

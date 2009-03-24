@@ -181,7 +181,6 @@ public class ConferenceChatManager
         logger.trace("MESSAGE RECEIVED from contact: "
             + sourceMember.getContactAddress());
 
-        Date date = evt.getTimestamp();
         Message message = evt.getMessage();
 
         ChatPanel chatPanel = null;
@@ -206,7 +205,8 @@ public class ConferenceChatManager
         }
 
         chatPanel.processMessage(
-            sourceMember.getName(), date,
+            sourceMember.getName(),
+            evt.getTimestamp(),
             messageType,
             message.getContent(),
             message.getContentType());
@@ -279,14 +279,14 @@ public class ConferenceChatManager
 
         chatPanel.processMessage(
                 destMember.getName(),
-                new Date(System.currentTimeMillis()),
+                System.currentTimeMillis(),
                 Constants.OUTGOING_MESSAGE,
                 sourceMessage.getContent(),
                 sourceMessage.getContentType());
 
         chatPanel.processMessage(
                 destMember.getName(),
-                new Date(System.currentTimeMillis()),
+                System.currentTimeMillis(),
                 Constants.ERROR_MESSAGE,
                 errorMsg, "text");
 

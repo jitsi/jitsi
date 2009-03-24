@@ -114,14 +114,14 @@ public interface ChatSession
      * 
      * @return the start date of the history of this chat session.
      */
-    public Date getHistoryStartDate();
+    public long getHistoryStartDate();
 
     /**
      * Returns the end date of the history of this chat session.
      * 
      * @return the end date of the history of this chat session.
      */
-    public Date getHistoryEndDate();
+    public long getHistoryEndDate();
 
     /**
      * Returns the default mobile number used to send sms-es in this session.

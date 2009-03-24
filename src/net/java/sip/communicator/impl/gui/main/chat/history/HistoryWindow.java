@@ -405,7 +405,7 @@ public class HistoryWindow
             if (msgList != null)
             for (Object o : msgList)
             {
-                Date date = null;
+                long date = 0;
 
                 if (o instanceof MessageDeliveredEvent)
                 {
@@ -437,13 +437,12 @@ public class HistoryWindow
                     Date date1 = (Date)datesVector.get(j);
                     
                     containsDate = Math.floor(date1.getTime()/milisecondsPerDay)
-                        == Math.floor(date.getTime()/milisecondsPerDay);
+                        == Math.floor(date/milisecondsPerDay);
                 }
 
                 if(!containsDate)
                 {
-                    datesVector.add(new Date(date.getTime()
-                            - date.getTime()%milisecondsPerDay));
+                    datesVector.add(new Date(date - date % milisecondsPerDay));
                 }
             }
             
@@ -571,7 +570,7 @@ public class HistoryWindow
 
             if (msgList != null)
             for (Object o : msgList) {
-                Date date = null;
+                long date = 0;
                         
                 if (o instanceof MessageDeliveredEvent) {
                     MessageDeliveredEvent evt = (MessageDeliveredEvent)o;
@@ -587,7 +586,7 @@ public class HistoryWindow
                     Date date1 = (Date)datesVector.get(j);
                     
                     if(Math.floor(date1.getTime()/milisecondsPerDay)
-                        == Math.floor(date.getTime()/milisecondsPerDay)
+                        == Math.floor(date/milisecondsPerDay)
                         && !keywordDatesVector.contains(date1)) {
                         
                         keywordDatesVector.add(date1);
@@ -716,7 +715,7 @@ public class HistoryWindow
      * @param messageContent the content text of the message
      */
     private void processMessage(Contact contact,
-                                Date timestamp,
+                                long timestamp,
                                 String messageType,
                                 String messageContent,
                                 String messageContentType)
@@ -739,7 +738,7 @@ public class HistoryWindow
             Date lastDate = datesPanel.getDate(lastDateIndex);
             
             if(lastDate != null
-                && GuiUtils.compareDates(lastDate, timestamp) == 0)
+                && GuiUtils.compareDates(lastDate.getTime(), timestamp) == 0)
             {
                 HTMLDocument document
                     = (HTMLDocument) dateHistoryTable.get(lastDate);
@@ -757,12 +756,11 @@ public class HistoryWindow
                 }
             }
             else if (lastDate == null
-                || GuiUtils.compareDates(lastDate, timestamp) < 0)
+                || GuiUtils.compareDates(lastDate.getTime(), timestamp) < 0)
             {
                 long milisecondsPerDay = 24*60*60*1000;
                                 
-                Date date = new Date(timestamp.getTime()
-                    - timestamp.getTime()%milisecondsPerDay);
+                Date date = new Date(timestamp - timestamp % milisecondsPerDay);
                 
                 datesVector.add(date);
                 datesPanel.addDate(date);

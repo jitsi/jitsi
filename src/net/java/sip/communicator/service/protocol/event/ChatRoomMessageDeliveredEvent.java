@@ -39,7 +39,7 @@ public class ChatRoomMessageDeliveredEvent
      /**
       * A timestamp indicating the exact date when the event occurred.
       */
-     private Date timestamp = null;
+     private final long timestamp;
 
      /**
       * The received <tt>Message</tt>.
@@ -57,13 +57,13 @@ public class ChatRoomMessageDeliveredEvent
       *
       * @param source the <tt>ChatRoom</tt> which triggered this event.
       * @param timestamp a date indicating the exact moment when the event
-      * ocurred
+      * occurred
       * @param message the message that triggered this event.
       * @param eventType indicating the type of the delivered event. It's
       * either an ACTION_MESSAGE_DELIVERED or a CONVERSATION_MESSAGE_DELIVERED.
       */
      public ChatRoomMessageDeliveredEvent(ChatRoom  source,
-                                          Date      timestamp,
+                                          long      timestamp,
                                           Message   message,
                                           int       eventType)
      {
@@ -84,10 +84,10 @@ public class ChatRoomMessageDeliveredEvent
      }
 
      /**
-      * A timestamp indicating the exact date when the event ocurred.
-      * @return a Date indicating when the event ocurred.
+      * A timestamp indicating the exact date when the event occurred.
+      * @return a Date indicating when the event occurred.
       */
-     public Date getTimestamp()
+     public long getTimestamp()
      {
          return timestamp;
      }

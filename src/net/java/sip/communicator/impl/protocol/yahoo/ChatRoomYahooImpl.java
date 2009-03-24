@@ -719,7 +719,7 @@ public class ChatRoomYahooImpl implements ChatRoom
            ChatRoomMessageDeliveredEvent msgDeliveredEvt
                = new ChatRoomMessageDeliveredEvent(
                    this,
-                   new Date(),
+                   System.currentTimeMillis(),
                    message,
                    ChatRoomMessageDeliveredEvent.CONVERSATION_MESSAGE_DELIVERED);
 

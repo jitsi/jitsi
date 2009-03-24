@@ -188,9 +188,9 @@ public class MetaContactChatSession
      * 
      * @return the start date of the history of this chat session.
      */
-    public Date getHistoryStartDate()
+    public long getHistoryStartDate()
     {
-        Date startHistoryDate = null;
+        long startHistoryDate = 0;
 
         MessageHistoryService msgHistory
             = GuiActivator.getMsgHistoryService();
@@ -199,7 +199,7 @@ public class MetaContactChatSession
         // here. The MessageHistoryService could be "disabled" from the user
         // through one of the configuration forms.
         if (msgHistory == null)
-            return null;
+            return startHistoryDate;
 
         Collection firstMessage = msgHistory
             .findFirstMessagesAfter(metaContact, new Date(0), 1);
@@ -233,9 +233,9 @@ public class MetaContactChatSession
      * 
      * @return the end date of the history of this chat session.
      */
-    public Date getHistoryEndDate()
+    public long getHistoryEndDate()
     {
-        Date endHistoryDate = null;
+        long endHistoryDate = 0;
 
         MessageHistoryService msgHistory
             = GuiActivator.getMsgHistoryService();
@@ -244,7 +244,7 @@ public class MetaContactChatSession
         // here. The MessageHistoryService could be "disabled" from the user
         // through one of the configuration forms.
         if (msgHistory == null)
-            return null;
+            return endHistoryDate;
 
         Collection lastMessage = msgHistory
             .findLastMessagesBefore(metaContact, new Date(Long.MAX_VALUE), 1);

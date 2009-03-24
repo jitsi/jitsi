@@ -174,7 +174,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
                 
                 MessageDeliveredEvent msgDeliveredEvt
                     = new MessageDeliveredEvent(
-                        message, to, new Date());
+                            message, to, System.currentTimeMillis());
 
                 fireMessageEvent(msgDeliveredEvt);
             }
@@ -372,7 +372,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
              }
              MessageReceivedEvent msgReceivedEvt
                  = new MessageReceivedEvent(
-                     newMailMessage, sourceContact, new Date(),
+                     newMailMessage, sourceContact, System.currentTimeMillis(),
                      MessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
 
              fireMessageEvent(msgReceivedEvt);
@@ -433,7 +433,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
 
             MessageReceivedEvent msgReceivedEvt
                 = new MessageReceivedEvent(
-                    newMessage, sourceContact , new Date() );
+                    newMessage, sourceContact , System.currentTimeMillis() );
 
             fireMessageEvent(msgReceivedEvt);
         }

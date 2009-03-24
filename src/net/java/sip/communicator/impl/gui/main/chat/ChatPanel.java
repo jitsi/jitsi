@@ -87,9 +87,9 @@ public class ChatPanel
 
     private ChatSession chatSession;
 
-    private Date firstHistoryMsgTimestamp;
+    private long firstHistoryMsgTimestamp;
 
-    private Date lastHistoryMsgTimestamp;
+    private long lastHistoryMsgTimestamp;
 
     private final java.util.List<ChatFocusListener> focusListeners =
         new Vector<ChatFocusListener>();
@@ -526,7 +526,7 @@ public class ChatPanel
      * or INCOMING_MESSAGE.
      * @param message The message text.
      */
-    public void processMessage(String contactName, Date date,
+    public void processMessage(String contactName, long date,
             String messageType, String message, String contentType)
     {
         String processedMessage
@@ -549,7 +549,7 @@ public class ChatPanel
      * @return a string containing the processed message.
      */
     public String processHistoryMessage(String contactName,
-                                        Date date,
+                                        long date,
                                         String messageType,
                                         String message,
                                         String contentType)
@@ -819,14 +819,14 @@ public class ChatPanel
 
             this.processMessage(
                 smsChatTransport.getName(),
-                new Date(System.currentTimeMillis()),
+                System.currentTimeMillis(),
                 Constants.OUTGOING_MESSAGE,
                 messageText,
                 "plain/text");
 
             this.processMessage(
                 smsChatTransport.getName(),
-                new Date(System.currentTimeMillis()),
+                System.currentTimeMillis(),
                 Constants.ERROR_MESSAGE,
                 GuiActivator.getResources().getI18NString(
                     "service.gui.SEND_SMS_NOT_SUPPORTED"),
@@ -884,14 +884,14 @@ public class ChatPanel
 
             this.processMessage(
                 chatSession.getCurrentChatTransport().getName(),
-                new Date(System.currentTimeMillis()),
+                System.currentTimeMillis(),
                 Constants.OUTGOING_MESSAGE,
                 messageText,
                 mimeType);
 
             this.processMessage(
                 chatSession.getCurrentChatTransport().getName(),
-                new Date(System.currentTimeMillis()),
+                System.currentTimeMillis(),
                 Constants.ERROR_MESSAGE,
                 GuiActivator.getResources().getI18NString(
                     "service.gui.MSG_SEND_CONNECTION_PROBLEM"),
@@ -905,14 +905,14 @@ public class ChatPanel
 
             this.processMessage(
                 chatSession.getCurrentChatTransport().getName(),
-                new Date(System.currentTimeMillis()),
+                System.currentTimeMillis(),
                 Constants.OUTGOING_MESSAGE,
                 messageText,
                 mimeType);
 
             this.processMessage(
                 chatSession.getCurrentChatTransport().getName(),
-                new Date(System.currentTimeMillis()),
+                System.currentTimeMillis(),
                 Constants.ERROR_MESSAGE,
                 GuiActivator.getResources().getI18NString(
                     "service.gui.MSG_DELIVERY_UNKNOWN_ERROR",
@@ -1002,13 +1002,13 @@ public class ChatPanel
 
             processMessage(
                 contact.getDisplayName(),
-                new Date(System.currentTimeMillis()),
+                System.currentTimeMillis(),
                 Constants.OUTGOING_MESSAGE,
                 msg.getContent(), msg.getContentType());
 
             processMessage(
                     contact.getDisplayName(),
-                    new Date(System.currentTimeMillis()),
+                    System.currentTimeMillis(),
                     Constants.ACTION_MESSAGE,
                     GuiActivator.getResources().getI18NString(
                         "service.gui.SMS_SUCCESSFULLY_SENT"),
@@ -1059,14 +1059,14 @@ public class ChatPanel
 
             processMessage(
                     metaContact.getDisplayName(),
-                    new Date(System.currentTimeMillis()),
+                    System.currentTimeMillis(),
                     Constants.OUTGOING_MESSAGE,
                     sourceMessage.getContent(),
                     sourceMessage.getContentType());
 
             processMessage(
                     metaContact.getDisplayName(),
-                    new Date(System.currentTimeMillis()),
+                    System.currentTimeMillis(),
                     Constants.ERROR_MESSAGE,
                     errorMsg,
                     "text");
@@ -1081,7 +1081,7 @@ public class ChatPanel
      *
      * @return the date of the first message in history for this chat.
      */
-    public Date getFirstHistoryMsgTimestamp()
+    public long getFirstHistoryMsgTimestamp()
     {
         return firstHistoryMsgTimestamp;
     }
@@ -1091,7 +1091,7 @@ public class ChatPanel
      *
      * @return the date of the last message in history for this chat.
      */
-    public Date getLastHistoryMsgTimestamp()
+    public long getLastHistoryMsgTimestamp()
     {
         return lastHistoryMsgTimestamp;
     }
@@ -1237,7 +1237,7 @@ public class ChatPanel
         // Show a status message to the user.
         String message = getChatConversationPanel().processMessage(
             chatTransport.getName(),
-            new Date(System.currentTimeMillis()),
+            System.currentTimeMillis(),
             Constants.STATUS_MESSAGE,
             GuiActivator.getResources().getI18NString(
                 "service.gui.STATUS_CHANGED_CHAT_MESSAGE",
@@ -1374,7 +1374,7 @@ public class ChatPanel
     {
         this.processMessage(
             chatContact.getName(),
-            new Date(System.currentTimeMillis()),
+            System.currentTimeMillis(),
             Constants.STATUS_MESSAGE,
             statusMessage,
             ChatConversationPanel.TEXT_CONTENT_TYPE);
@@ -1388,7 +1388,7 @@ public class ChatPanel
 
             this.processMessage(
                 chatSession.getChatName(),
-                new Date(System.currentTimeMillis()),
+                System.currentTimeMillis(),
                 Constants.STATUS_MESSAGE,
                 GuiActivator.getResources().getI18NString(
                     "service.gui.CHAT_ROOM_SUBJECT_CHANGED",

@@ -538,22 +538,22 @@ public class MessageHistoryServiceImpl
     private Object convertHistoryRecordToMessageEvent(HistoryRecord hr, Contact contact)
     {
         MessageImpl msg = createMessageFromHistoryRecord(hr);
-        Date timestamp = null;
+        long timestamp;
 
         // if there is value for date of receiving the message
         // this is the event timestamp (this is the date that had came from protocol)
         // the HistoryRecord timestamp is the timestamp when the record was written
-        if(msg.getMessageReceivedDate() != null)
+        long messageReceivedDate = msg.getMessageReceivedDate();
+        long hrTimestamp = hr.getTimeInMillis();
+        if (messageReceivedDate != 0)
         {
-            if(msg.getMessageReceivedDate().after(hr.getTimestamp()) &&
-                (msg.getMessageReceivedDate().getTime() -
-                 hr.getTimestamp().getTime()) > 86400000) // 24*60*60*1000
-                timestamp = hr.getTimestamp();
+            if(messageReceivedDate - hrTimestamp > 86400000) // 24*60*60*1000
+                timestamp = hrTimestamp;
             else
                 timestamp = msg.getMessageReceivedDate();
         }
         else
-            timestamp = hr.getTimestamp();
+            timestamp = hrTimestamp;
 
         if(msg.isOutgoing)
         {
@@ -582,22 +582,22 @@ public class MessageHistoryServiceImpl
         HistoryRecord hr, ChatRoom room)
     {
         MessageImpl msg = createMessageFromHistoryRecord(hr);
-        Date timestamp = null;
+        long timestamp;
 
         // if there is value for date of receiving the message
         // this is the event timestamp (this is the date that had came from protocol)
         // the HistoryRecord timestamp is the timestamp when the record was written
-        if(msg.getMessageReceivedDate() != null)
+        long messageReceivedDate = msg.getMessageReceivedDate();
+        long hrTimestamp = hr.getTimeInMillis();
+        if(messageReceivedDate != 0)
         {
-            if(msg.getMessageReceivedDate().after(hr.getTimestamp()) &&
-                (msg.getMessageReceivedDate().getTime() -
-                 hr.getTimestamp().getTime()) > 86400000) // 24*60*60*1000
-                timestamp = hr.getTimestamp();
+            if(messageReceivedDate - hrTimestamp > 86400000) // 24*60*60*1000
+                timestamp = hrTimestamp;
             else
                 timestamp = msg.getMessageReceivedDate();
         }
         else
-            timestamp = hr.getTimestamp();
+            timestamp = hrTimestamp;
 
         // 5 is the index of the subject in the structure
         String fromStr = hr.getPropertyValues()[5];
@@ -639,7 +639,7 @@ public class MessageHistoryServiceImpl
         String messageUID = null;
         String subject = null;
         boolean isOutgoing = false;
-        Date messageReceivedDate = null;
+        long messageReceivedDate = 0;
         for (int i = 0; i < hr.getPropertyNames().length; i++)
         {
             String propName = hr.getPropertyNames()[i];
@@ -664,7 +664,7 @@ public class MessageHistoryServiceImpl
             else if (propName.equals(STRUCTURE_NAMES[6]))
             {
                 messageReceivedDate =
-                    new Date(Long.parseLong(hr.getPropertyValues()[i]));
+                    Long.parseLong(hr.getPropertyValues()[i]);
             }
         }
         return new MessageImpl(textContent, contentType, contentEncoding,
@@ -806,7 +806,7 @@ public class MessageHistoryServiceImpl
      *                          that came from the protocol provider
      */
     private void writeMessage(String direction, Contact source,
-            Contact destination, Message message, Date messageTimestamp)
+            Contact destination, Message message, long messageTimestamp)
     {
         try {
             History history = this.getHistory(source, destination);
@@ -826,14 +826,14 @@ public class MessageHistoryServiceImpl
      *                          that came from the protocol provider
      */
     private void writeMessage(History history, String direction,
-            Message message, Date messageTimestamp)
+            Message message, long messageTimestamp)
     {
         try {
             HistoryWriter historyWriter = history.getWriter();
             historyWriter.addRecord(new String[] { direction,
                     message.getContent(), message.getContentType(),
                     message.getEncoding(), message.getMessageUID(),
-                    message.getSubject(), String.valueOf(messageTimestamp.getTime()) },
+                    message.getSubject(), String.valueOf(messageTimestamp) },
                     new Date()); // this date is when the history record is written
         } catch (IOException e)
         {
@@ -850,7 +850,7 @@ public class MessageHistoryServiceImpl
      */
     private void writeMessage(History history, String direction,
             ChatRoomMember from,
-            Message message, Date messageTimestamp)
+            Message message, long messageTimestamp)
     {
         try {
             HistoryWriter historyWriter = history.getWriter();
@@ -858,7 +858,7 @@ public class MessageHistoryServiceImpl
                     message.getContent(), message.getContentType(),
                     message.getEncoding(), message.getMessageUID(),
                     from.getContactAddress(),
-                    String.valueOf(messageTimestamp.getTime()) },
+                    String.valueOf(messageTimestamp) },
                     new Date()); // this date is when the history record is written
         } catch (IOException e)
         {
@@ -1810,11 +1810,11 @@ public class MessageHistoryServiceImpl
     {
         private final boolean isOutgoing;
 
-        private final Date messageReceivedDate;
+        private final long messageReceivedDate;
 
         MessageImpl(String content, String contentType, String encoding,
             String subject, String messageUID, boolean isOutgoing,
-            Date messageReceivedDate)
+            long messageReceivedDate)
         {
             super(content, contentType, encoding, subject, messageUID);
 
@@ -1822,7 +1822,7 @@ public class MessageHistoryServiceImpl
             this.messageReceivedDate = messageReceivedDate;
         }
 
-        public Date getMessageReceivedDate()
+        public long getMessageReceivedDate()
         {
             return messageReceivedDate;
         }
@@ -1837,8 +1837,8 @@ public class MessageHistoryServiceImpl
     {
         public int compare(Object o1, Object o2)
         {
-            Date date1 = null;
-            Date date2 = null;
+            long date1;
+            long date2;
 
             if(o1 instanceof MessageDeliveredEvent)
                 date1 = ((MessageDeliveredEvent)o1).getTimestamp();
@@ -1854,7 +1854,7 @@ public class MessageHistoryServiceImpl
             else
                 return 0;
 
-            return date1.compareTo(date2);
+            return (date1 < date2) ? -1 : ((date1 == date2) ? 0 : 1);
         }
     }
 
@@ -1868,8 +1868,8 @@ public class MessageHistoryServiceImpl
     {
         public int compare(Object o1, Object o2)
         {
-            Date date1 = null;
-            Date date2 = null;
+            long date1;
+            long date2;
 
             if(o1 instanceof ChatRoomMessageDeliveredEvent)
                 date1 = ((ChatRoomMessageDeliveredEvent)o1).getTimestamp();
@@ -1885,7 +1885,7 @@ public class MessageHistoryServiceImpl
             else
                 return 0;
 
-            return date1.compareTo(date2);
+            return (date1 < date2) ? -1 : ((date1 == date2) ? 0 : 1);
         }
     }
 

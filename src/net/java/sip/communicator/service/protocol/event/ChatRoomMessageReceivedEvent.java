@@ -14,6 +14,7 @@ import net.java.sip.communicator.service.protocol.*;
  * <tt>MessageReceivedEvent</tt>s indicate reception of an instant message.
  *
  * @author Emil Ivov
+ * @author Lubomir Marinov
  */
 public class ChatRoomMessageReceivedEvent
     extends EventObject
@@ -45,22 +46,22 @@ public class ChatRoomMessageReceivedEvent
     /**
      * The chat room member that has sent this message.
      */
-    private ChatRoomMember from = null;
+    private final ChatRoomMember from;
 
     /**
      * A timestamp indicating the exact date when the event occurred.
      */
-    private Date timestamp = null;
+    private final long timestamp;
 
     /**
      * The received <tt>Message</tt>.
      */
-    private Message message = null;
+    private final Message message;
 
     /**
      * The type of message event that this instance represents.
      */
-    private int eventType = -1;
+    private final int eventType;
 
     /**
      * Creates a <tt>MessageReceivedEvent</tt> representing reception of the
@@ -69,14 +70,14 @@ public class ChatRoomMessageReceivedEvent
      *
      * @param source the <tt>ChatRoom</tt> for which the message is received.
      * @param from the <tt>ChatRoomMember</tt> that has sent this message.
-     * @param timestamp the exact date when the event ocurred.
+     * @param timestamp the exact date when the event occurred.
      * @param message the received <tt>Message</tt>.
      * @param eventType the type of message event that this instance represents
      * (one of the XXX_MESSAGE_RECEIVED static fields).
      */
     public ChatRoomMessageReceivedEvent(ChatRoom        source,
                                         ChatRoomMember  from,
-                                        Date            timestamp,
+                                        long            timestamp,
                                         Message         message,
                                         int             eventType)
     {
@@ -110,10 +111,10 @@ public class ChatRoomMessageReceivedEvent
     }
 
     /**
-     * A timestamp indicating the exact date when the event ocurred.
-     * @return a Date indicating when the event ocurred.
+     * A timestamp indicating the exact date when the event occurred.
+     * @return a Date indicating when the event occurred.
      */
-    public Date getTimestamp()
+    public long getTimestamp()
     {
         return timestamp;
     }

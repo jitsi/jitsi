@@ -114,7 +114,8 @@ public abstract class AbstractOperationSetBasicInstantMessaging
      */
     protected void fireMessageDelivered(Message message, Contact to)
     {
-        fireMessageEvent(new MessageDeliveredEvent(message, to, new Date()));
+        fireMessageEvent(
+            new MessageDeliveredEvent(message, to, System.currentTimeMillis()));
     }
 
     /**
@@ -164,7 +165,8 @@ public abstract class AbstractOperationSetBasicInstantMessaging
      */
     protected void fireMessageReceived(Message message, Contact from)
     {
-        fireMessageEvent(new MessageReceivedEvent(message, from, new Date()));
+        fireMessageEvent(
+            new MessageReceivedEvent(message, from, System.currentTimeMillis()));
     }
 
     /**

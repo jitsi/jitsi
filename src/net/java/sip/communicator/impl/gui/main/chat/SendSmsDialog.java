@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 
 import javax.swing.*;
 
@@ -134,14 +133,14 @@ public class SendSmsDialog
 
             chatPanel.processMessage(
                 phoneNumber,
-                new Date(System.currentTimeMillis()),
+                System.currentTimeMillis(),
                 Constants.OUTGOING_MESSAGE,
                 message,
                 "text/plain");
 
             chatPanel.processMessage(
                 phoneNumber,
-                new Date(System.currentTimeMillis()),
+                System.currentTimeMillis(),
                 Constants.ERROR_MESSAGE,
                 GuiActivator.getResources()
                     .getI18NString("service.gui.SMS_SEND_CONNECTION_PROBLEM"),
@@ -155,14 +154,14 @@ public class SendSmsDialog
 
             chatPanel.processMessage(
                 phoneNumber,
-                new Date(System.currentTimeMillis()),
+                System.currentTimeMillis(),
                 Constants.OUTGOING_MESSAGE,
                 message,
                 "text/plain");
 
             chatPanel.processMessage(
                 phoneNumber,
-                new Date(System.currentTimeMillis()),
+                System.currentTimeMillis(),
                 Constants.ERROR_MESSAGE,
                 GuiActivator.getResources()
                     .getI18NString("service.gui.MSG_DELIVERY_UNKNOWN_ERROR",

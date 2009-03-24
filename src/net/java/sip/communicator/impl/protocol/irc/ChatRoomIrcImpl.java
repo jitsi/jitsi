@@ -794,7 +794,7 @@ public class ChatRoomIrcImpl
 
         ChatRoomMessageDeliveredEvent msgDeliveredEvt
             = new ChatRoomMessageDeliveredEvent(this,
-                                                new Date(),
+                                                System.currentTimeMillis(),
                                                 msg,
                                                 eventType);
 
@@ -827,7 +827,7 @@ public class ChatRoomIrcImpl
      */
     public void fireMessageReceivedEvent(   Message message,
                                             ChatRoomMember fromMember,
-                                            Date date,
+                                            long date,
                                             int eventType)
     {
         ChatRoomMessageReceivedEvent event

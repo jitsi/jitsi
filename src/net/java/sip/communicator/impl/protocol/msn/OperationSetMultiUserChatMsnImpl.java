@@ -616,7 +616,7 @@ public class OperationSetMultiUserChatMsnImpl
                     new ChatRoomMessageReceivedEvent(
                         chatRoom,
                         member,
-                        new Date(),
+                        System.currentTimeMillis(),
                         newMessage,
                         ChatRoomMessageReceivedEvent
                             .CONVERSATION_MESSAGE_RECEIVED);

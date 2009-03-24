@@ -211,11 +211,9 @@ public class ChatConversationPanel
      * @param message The message text.
      * @return the formatted message
      */
-    public String processMessage(String contactName, Date date,
+    public String processMessage(String contactName, long date,
         String messageType, String message, String contentType)
     {
-        long msgDate = date.getTime();
-
         String msgID = "message";
         String msgHeaderID = "messageHeader";
         String chatString = "";
@@ -244,9 +242,9 @@ public class ChatConversationPanel
         }
 
         Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
+        calendar.setTimeInMillis(date);
 
-        if (GuiUtils.compareDates(date, new Date(System.currentTimeMillis())) < 0)
+        if (GuiUtils.compareDates(date, System.currentTimeMillis()) < 0)
         {
             timeString = GuiUtils.formatDate(date) + " ";
         }
@@ -258,7 +256,7 @@ public class ChatConversationPanel
             chatString      = "<h2 identifier=\""
                             + msgHeaderID
                             + "\" date=\""
-                            + msgDate + "\">";
+                            + date + "\">";
 
             endHeaderTag = "</h2>";
 
@@ -272,7 +270,7 @@ public class ChatConversationPanel
             chatString      = "<h2 identifier=\""
                             + msgHeaderID
                             + "\" date=\""
-                            + msgDate + "\">";
+                            + date + "\">";
 
             endHeaderTag = "</h2>";
 
@@ -286,7 +284,7 @@ public class ChatConversationPanel
             chatString      = "<h3 identifier=\""
                             + msgHeaderID
                             + "\" date=\""
-                            + msgDate + "\">";
+                            + date + "\">";
 
             endHeaderTag = "</h3>";
 
@@ -301,7 +299,7 @@ public class ChatConversationPanel
         else if (messageType.equals(Constants.STATUS_MESSAGE))
         {
             chatString =    "<h4 identifier=\"statusMessage\" date=\""
-                            + msgDate + "\">";
+                            + date + "\">";
             endHeaderTag = "</h4>";
 
             chatString += GuiUtils.formatTime(date)
@@ -312,7 +310,7 @@ public class ChatConversationPanel
         else if (messageType.equals(Constants.ACTION_MESSAGE))
         {
             chatString =    "<p identifier=\"actionMessage\" date=\""
-                            + msgDate + "\">";
+                            + date + "\">";
             endHeaderTag = "</p>";
 
             chatString += "* " + GuiUtils.formatTime(date)
@@ -333,7 +331,7 @@ public class ChatConversationPanel
             chatString      = "<h6 identifier=\""
                             + msgHeaderID
                             + "\" date=\""
-                            + msgDate + "\">";
+                            + date + "\">";
             
             endHeaderTag = "</h6>";
 
@@ -351,7 +349,7 @@ public class ChatConversationPanel
             chatString      = "<h2 identifier='"
                             + msgHeaderID
                             + "' date=\""
-                            + msgDate + "\">";
+                            + date + "\">";
 
             endHeaderTag = "</h2>";
 
@@ -365,7 +363,7 @@ public class ChatConversationPanel
             chatString      = "<h3 identifier=\""
                             + msgHeaderID
                             + "\" date=\""
-                            + msgDate + "\">";
+                            + date + "\">";
             
             endHeaderTag = "</h3>";
 
@@ -390,7 +388,7 @@ public class ChatConversationPanel
      *            INCOMING_MESSAGE.
      * @param message The message text.
      */
-    public String processMessage(String contactName, Date date,
+    public String processMessage(String contactName, long date,
         String messageType, String message, String contentType, String keyword)
     {
         String formattedMessage = message;

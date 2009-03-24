@@ -59,8 +59,24 @@ public class GuiUtils
      */
     public static int compareDates(Date date1, Date date2)
     {
-        c1.setTime(date1);
-        c2.setTime(date2);
+        return compareDates(date1.getTime(), date2.getTime());
+    }
+
+    /**
+     * Compares the two dates. The comparison is based only on the day, month
+     * and year values. Returns 0 if the two dates are equals, a value < 0 if
+     * the first date is before the second one and > 0 if the first date is after
+     * the second one.
+     * @param date1 the first date to compare
+     * @param date2 the second date to compare with 
+     * @return Returns 0 if the two dates are equals, a value < 0 if
+     * the first date is before the second one and > 0 if the first date is after
+     * the second one
+     */
+    public static int compareDates(long date1, long date2)
+    {
+        c1.setTimeInMillis(date1);
+        c2.setTimeInMillis(date2);
         
         int day1 = c1.get(Calendar.DAY_OF_MONTH);
         int month1 = c1.get(Calendar.MONTH);
@@ -87,7 +103,7 @@ public class GuiUtils
             return 1;
         }
     }
-    
+
     /**
      * Formats the given date. The result format is the following:
      * [Month] [Day], [Year]. For example: Dec 24, 2000.
@@ -96,13 +112,25 @@ public class GuiUtils
      */
     public static String formatDate(Date date)
     {
-        c1.setTime(date);
-
-        return GuiUtils.processMonth(c1.get(Calendar.MONTH) + 1) + " " 
-            + GuiUtils.formatTime(c1.get(Calendar.DAY_OF_MONTH)) + ", "
-            + GuiUtils.formatTime(c1.get(Calendar.YEAR));
+        return formatDate(date.getTime());
     }
-    
+
+    /**
+     * Formats the given date. The result format is the following:
+     * [Month] [Day], [Year]. For example: Dec 24, 2000.
+     * @param date the date to format
+     * @return the formatted date string
+     */
+    public static String formatDate(long date)
+    {
+        c1.setTimeInMillis(date);
+
+        return
+            GuiUtils.processMonth(c1.get(Calendar.MONTH) + 1) + " " 
+                + GuiUtils.formatTime(c1.get(Calendar.DAY_OF_MONTH)) + ", "
+                + GuiUtils.formatTime(c1.get(Calendar.YEAR));
+    }
+
     /**
      * Formats the time for the given date. The result format is the following:
      * [Hour]:[Minute]:[Second]. For example: 12:25:30. 
@@ -111,15 +139,27 @@ public class GuiUtils
      */
     public static String formatTime(Date date)
     {
-        c1.setTime(date);
-        
-        return  GuiUtils.formatTime(c1.get(Calendar.HOUR_OF_DAY)) + ":"
-            + GuiUtils.formatTime(c1.get(Calendar.MINUTE)) + ":"
-            + GuiUtils.formatTime(c1.get(Calendar.SECOND)) ;
+        return formatTime(date.getTime());
     }
-    
+
     /**
-     * Substracts the two dates.
+     * Formats the time for the given date. The result format is the following:
+     * [Hour]:[Minute]:[Second]. For example: 12:25:30. 
+     * @param date the date to format
+     * @return the formatted hour string
+     */
+    public static String formatTime(long time)
+    {
+        c1.setTimeInMillis(time);
+
+        return
+            GuiUtils.formatTime(c1.get(Calendar.HOUR_OF_DAY)) + ":"
+                + GuiUtils.formatTime(c1.get(Calendar.MINUTE)) + ":"
+                + GuiUtils.formatTime(c1.get(Calendar.SECOND)) ;
+    }
+
+    /**
+     * Subtracts the two dates.
      * @param date1 the first date argument
      * @param date2 the second date argument
      * @return the date resulted from the substracting

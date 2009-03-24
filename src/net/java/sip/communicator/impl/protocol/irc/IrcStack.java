@@ -233,7 +233,7 @@ public class IrcStack
         chatRoom.fireMessageReceivedEvent(
             message,
             sourceMember,
-            new Date(System.currentTimeMillis()),
+            System.currentTimeMillis(),
             ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
     }
 
@@ -286,7 +286,7 @@ public class IrcStack
         chatRoom.fireMessageReceivedEvent(
             message,
             sourceMember,
-            new Date(System.currentTimeMillis()),
+            System.currentTimeMillis(),
             ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
     }
 
@@ -333,7 +333,7 @@ public class IrcStack
         chatRoom.fireMessageReceivedEvent(
             actionMessage,
             sourceMember,
-            new Date(System.currentTimeMillis()),
+            System.currentTimeMillis(),
             ChatRoomMessageReceivedEvent.ACTION_MESSAGE_RECEIVED);
     }
 
@@ -656,7 +656,7 @@ public class IrcStack
         chatRoom.fireMessageReceivedEvent(
                 message,
                 sourceMember,
-                new Date(System.currentTimeMillis()),
+                System.currentTimeMillis(),
                 ChatRoomMessageReceivedEvent.ACTION_MESSAGE_RECEIVED);
     }
 
@@ -1252,7 +1252,7 @@ public class IrcStack
             serverRoom.fireMessageReceivedEvent(
                     message,
                     serverMember,
-                    new Date(System.currentTimeMillis()),
+                    System.currentTimeMillis(),
                     ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
         }
     }
@@ -1847,7 +1847,7 @@ public class IrcStack
         chatRoom.fireMessageReceivedEvent(
             message,
             sourceMember,
-            new Date(System.currentTimeMillis()),
+            System.currentTimeMillis(),
             ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
     }
     
@@ -2091,7 +2091,7 @@ public class IrcStack
         privateChatRoom.fireMessageReceivedEvent(
             queryMessage,
             sourceMember,
-            new Date(System.currentTimeMillis()),
+            System.currentTimeMillis(),
             ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
     }
 }

@@ -737,7 +737,7 @@ public class OperationSetMultiUserChatYahooImpl
                        = new ChatRoomMessageReceivedEvent(
                            chatRoom,
                            member,
-                           new Date(),
+                           System.currentTimeMillis(),
                            newMessage,
                            ChatRoomMessageReceivedEvent
                                .CONVERSATION_MESSAGE_RECEIVED);

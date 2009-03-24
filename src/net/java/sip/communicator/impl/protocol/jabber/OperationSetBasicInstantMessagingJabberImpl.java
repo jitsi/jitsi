@@ -223,7 +223,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
             MessageDeliveredEvent msgDeliveredEvt
                 = new MessageDeliveredEvent(
-                    message, to, new Date());
+                        message, to, System.currentTimeMillis());
 
             fireMessageEvent(msgDeliveredEvt);
         }
@@ -408,7 +408,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
             MessageReceivedEvent msgReceivedEvt
                 = new MessageReceivedEvent(
-                    newMessage, sourceContact , new Date() );
+                    newMessage, sourceContact , System.currentTimeMillis() );
 
             fireMessageEvent(msgReceivedEvt);
         }

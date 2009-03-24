@@ -13,13 +13,12 @@
 package net.java.sip.communicator.impl.protocol.ssh;
 
 import java.io.*;
-import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
 /**
- * Instant messaging functionalites for the SSH protocol.
+ * Instant messaging functionality for the SSH protocol.
  *
  * @author Shobhit Jindal
  */
@@ -254,12 +253,16 @@ public class OperationSetBasicInstantMessagingSSHImpl
      */
     protected void fireMessageReceived(Message message, Contact from)
     {
-        fireMessageEvent(new MessageReceivedEvent(message, from, new Date(),
-            ((ContactSSH) from).getMessageType()));
+        fireMessageEvent(
+            new MessageReceivedEvent(
+                    message,
+                    from,
+                    System.currentTimeMillis(),
+                    ((ContactSSH) from).getMessageType()));
     }
     
     /**
-     * Determines wheter the SSH protocol provider supports
+     * Determines whether the SSH protocol provider supports
      * sending and receiving offline messages.
      *
      * @return <tt>false</tt>

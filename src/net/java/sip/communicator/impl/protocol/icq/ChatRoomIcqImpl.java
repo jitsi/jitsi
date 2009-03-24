@@ -719,7 +719,7 @@ public class ChatRoomIcqImpl implements ChatRoom
            ChatRoomMessageDeliveredEvent msgDeliveredEvt
                = new ChatRoomMessageDeliveredEvent(
                    this,
-                   new Date(),
+                   System.currentTimeMillis(),
                    message,
                    ChatRoomMessageDeliveredEvent.CONVERSATION_MESSAGE_DELIVERED);
 
@@ -907,7 +907,10 @@ public class ChatRoomIcqImpl implements ChatRoom
 
            ChatRoomMessageReceivedEvent msgReceivedEvent
                = new ChatRoomMessageReceivedEvent(
-                   chatRoom, member, new Date(), newMessage,
+                   chatRoom,
+                   member,
+                   System.currentTimeMillis(),
+                   newMessage,
                    ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
 
            fireMessageEvent(msgReceivedEvent);

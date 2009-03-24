@@ -750,7 +750,7 @@ public class ChatRoomJabberImpl
              ChatRoomMessageDeliveredEvent msgDeliveredEvt
                  = new ChatRoomMessageDeliveredEvent(
                      this,
-                     new Date(),
+                     System.currentTimeMillis(),
                      message,
                      ChatRoomMessageDeliveredEvent
                          .CONVERSATION_MESSAGE_DELIVERED);
@@ -1553,7 +1553,7 @@ public class ChatRoomJabberImpl
                 = new ChatRoomMessageReceivedEvent(
                     ChatRoomJabberImpl.this,
                     member,
-                    new Date(),
+                    System.currentTimeMillis(),
                     newMessage,
                     ChatRoomMessageReceivedEvent
                         .CONVERSATION_MESSAGE_RECEIVED);

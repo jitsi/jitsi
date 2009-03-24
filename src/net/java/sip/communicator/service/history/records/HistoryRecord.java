@@ -96,4 +96,8 @@ public class HistoryRecord
         return this.timestamp;
     }
 
+    public long getTimeInMillis()
+    {
+        return (timestamp == null) ? 0 : timestamp.getTime();
+    }
 }

@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.msn;
 
-import java.util.*;
 import java.text.*;
 
 import net.java.sip.communicator.service.protocol.*;
@@ -123,8 +122,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
                 message.getContent()
             );
         MessageDeliveredEvent msgDeliveredEvt
-            = new MessageDeliveredEvent(
-                message, to, new Date());
+            = new MessageDeliveredEvent(message, to, System.currentTimeMillis());
 
         fireMessageEvent(msgDeliveredEvt);
     }
@@ -207,7 +205,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
 
             MessageReceivedEvent msgReceivedEvt
                 = new MessageReceivedEvent(
-                    newMessage, sourceContact , new Date() );
+                    newMessage, sourceContact , System.currentTimeMillis() );
 
             fireMessageEvent(msgReceivedEvt);
         }
@@ -243,7 +241,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
 
             MessageReceivedEvent msgReceivedEvt
                 = new MessageReceivedEvent(
-                    newMessage, sourceContact , new Date() );
+                    newMessage, sourceContact , System.currentTimeMillis() );
 
             fireMessageEvent(msgReceivedEvt);
         }
@@ -307,7 +305,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
              }
              MessageReceivedEvent msgReceivedEvt
                  = new MessageReceivedEvent(
-                     newMailMessage, sourceContact, new Date(),
+                     newMailMessage, sourceContact, System.currentTimeMillis(),
                      MessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
 
              fireMessageEvent(msgReceivedEvt);

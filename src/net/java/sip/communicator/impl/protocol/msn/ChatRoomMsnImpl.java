@@ -617,8 +617,11 @@ public class ChatRoomMsnImpl
 
         switchboard.sendText(message.getContent());
 
-        ChatRoomMessageDeliveredEvent msgDeliveredEvt =
-            new ChatRoomMessageDeliveredEvent(this, new Date(), message,
+        ChatRoomMessageDeliveredEvent msgDeliveredEvt
+            = new ChatRoomMessageDeliveredEvent(
+                this,
+                System.currentTimeMillis(),
+                message,
                 ChatRoomMessageDeliveredEvent.CONVERSATION_MESSAGE_DELIVERED);
 
         fireMessageEvent(msgDeliveredEvt);

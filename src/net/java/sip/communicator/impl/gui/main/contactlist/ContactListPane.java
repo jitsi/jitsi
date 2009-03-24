@@ -309,7 +309,6 @@ public class ContactListPane
             + evt.getSourceContact().getAddress());
 
         Contact protocolContact = evt.getSourceContact();
-        Date date = evt.getTimestamp();
         Message message = evt.getSourceMessage();
         int eventType = evt.getEventType();
 
@@ -346,8 +345,11 @@ public class ContactListPane
                 messageType = Constants.SMS_MESSAGE;
             }
 
-            chatPanel.processMessage(protocolContact.getDisplayName(), date,
-                messageType, message.getContent(),
+            chatPanel.processMessage(
+                protocolContact.getDisplayName(),
+                evt.getTimestamp(),
+                messageType,
+                message.getContent(),
                 message.getContentType());
 
             // A bug Fix for Previous/Next buttons .
@@ -420,10 +422,12 @@ public class ContactListPane
                     + evt.getDestinationContact().getAddress()
                     + " MESSAGE: " + msg.getContent());
 
-            chatPanel.processMessage(this.mainFrame
-                    .getAccount(protocolProvider), evt.getTimestamp(),
-                    Constants.OUTGOING_MESSAGE, msg.getContent(),
-                    msg.getContentType());
+            chatPanel.processMessage(
+                this.mainFrame.getAccount(protocolProvider),
+                evt.getTimestamp(),
+                Constants.OUTGOING_MESSAGE,
+                msg.getContent(),
+                msg.getContentType());
         }
     }
 
@@ -482,14 +486,14 @@ public class ContactListPane
 
         chatPanel.processMessage(
                 metaContact.getDisplayName(),
-                new Date(System.currentTimeMillis()),
+                System.currentTimeMillis(),
                 Constants.OUTGOING_MESSAGE,
                 sourceMessage.getContent(),
                 sourceMessage.getContentType());
 
         chatPanel.processMessage(
                 metaContact.getDisplayName(),
-                new Date(System.currentTimeMillis()),
+                System.currentTimeMillis(),
                 Constants.ERROR_MESSAGE,
                 errorMsg,
                 "text");

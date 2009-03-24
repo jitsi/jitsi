@@ -179,8 +179,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
             imConversation.sendMessage(new SimpleMessage(messageContent), true);
 
         MessageDeliveredEvent msgDeliveredEvt
-            = new MessageDeliveredEvent(
-                message, to, new Date());
+            = new MessageDeliveredEvent(message, to, System.currentTimeMillis());
 
         fireMessageEvent(msgDeliveredEvt);
     }
@@ -258,7 +257,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
                     = new MessageReceivedEvent(
                         createMessage(offlineMsgCmd.getContents()),
                         sourceContact,
-                        new Date(msgDate));
+                        msgDate);
                 logger.debug("fire msg received for : " +
                              offlineMsgCmd.getContents());
                 fireMessageEvent(msgReceivedEvt);
@@ -530,7 +529,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
 
             MessageReceivedEvent msgReceivedEvt
                 = new MessageReceivedEvent(
-                    newMessage, sourceContact , new Date(msgDate) );
+                    newMessage, sourceContact , msgDate );
 
             fireMessageEvent(msgReceivedEvt);
         }

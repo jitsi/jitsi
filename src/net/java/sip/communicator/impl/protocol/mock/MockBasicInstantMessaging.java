@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.mock;
 
-import java.util.*;
-
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
@@ -68,7 +66,8 @@ public class MockBasicInstantMessaging
         throws IllegalStateException,
         IllegalArgumentException
     {
-        fireMessageEvent(new MessageDeliveredEvent(message, to, new Date()));
+        fireMessageEvent(
+            new MessageDeliveredEvent(message, to, System.currentTimeMillis()));
     }
 
     /**
@@ -112,7 +111,8 @@ public class MockBasicInstantMessaging
     {
         Contact sourceContact = opSetPersPresence.findContactByID(to);
 
-        fireMessageEvent(new MessageReceivedEvent(msg, sourceContact,
-            new Date()));
+        fireMessageEvent(
+            new MessageReceivedEvent(
+                    msg, sourceContact, System.currentTimeMillis()));
     }
 }

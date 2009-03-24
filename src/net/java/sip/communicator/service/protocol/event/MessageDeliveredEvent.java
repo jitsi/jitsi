@@ -27,7 +27,7 @@ public class MessageDeliveredEvent
      /**
       * A timestamp indicating the exact date when the event occurred.
       */
-     private Date timestamp = null;
+     private final long timestamp;
 
      /**
       * Creates a <tt>MessageDeliveredEvent</tt> representing delivery of the
@@ -38,7 +38,7 @@ public class MessageDeliveredEvent
       * @param timestamp a date indicating the exact moment when the event
       * ocurred
       */
-     public MessageDeliveredEvent(Message source, Contact to, Date timestamp)
+     public MessageDeliveredEvent(Message source, Contact to, long timestamp)
      {
          super(source);
 
@@ -69,10 +69,10 @@ public class MessageDeliveredEvent
 
 
      /**
-      * A timestamp indicating the exact date when the event ocurred.
-      * @return a Date indicating when the event ocurred.
+      * A timestamp indicating the exact date when the event occurred.
+      * @return a Date indicating when the event occurred.
       */
-     public Date getTimestamp()
+     public long getTimestamp()
      {
          return timestamp;
      }

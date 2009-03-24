@@ -181,12 +181,20 @@ public class OperationSetBasicInstantMessagingRssImpl
             //The feed has been updated or if the user made a request on a
             //specific feed/contact, we fire a new message containing the new items
             //to the user
-            fireMessageEvent(new MessageReceivedEvent(createMessage(news), rssContact, new Date()));
+            fireMessageEvent(
+                new MessageReceivedEvent(
+                        createMessage(news),
+                        rssContact,
+                        System.currentTimeMillis()));
         }
         else if(userRequestedUpdate)
         {
             news = rssFeed.getNoNewFeedString();
-            fireMessageEvent(new MessageReceivedEvent(createMessage(news), rssContact, new Date()));
+            fireMessageEvent(
+                new MessageReceivedEvent(
+                        createMessage(news),
+                        rssContact,
+                        System.currentTimeMillis()));
         }
     }
 
@@ -296,7 +304,8 @@ public class OperationSetBasicInstantMessagingRssImpl
         Message msg = new MessageRssImpl("Refreshing feed...",
             DEFAULT_MIME_TYPE, DEFAULT_MIME_ENCODING, null);
 
-        fireMessageEvent(new MessageDeliveredEvent(msg, to, new Date()));
+        fireMessageEvent(
+            new MessageDeliveredEvent(msg, to, System.currentTimeMillis()));
 
         threadedContactFeedUpdate((ContactRssImpl)to);
     }
