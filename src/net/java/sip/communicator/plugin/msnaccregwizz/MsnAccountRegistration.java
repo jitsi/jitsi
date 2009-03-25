@@ -75,7 +75,7 @@ public class MsnAccountRegistration
      * 
      * @param id the identifier of the MSN registration account.
      */
-    public void setId(String id)
+    public void setUserID(String id)
     {
         this.id = id;
     }

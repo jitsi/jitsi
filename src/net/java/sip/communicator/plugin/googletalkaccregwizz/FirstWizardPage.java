@@ -118,7 +118,7 @@ public class FirstWizardPage
 
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
-     * 
+     *
      * @param wizard the parent wizard
      */
     public FirstWizardPage(GoogleTalkAccountRegistrationWizard wizard)
@@ -291,7 +291,7 @@ public class FirstWizardPage
     /**
      * Implements the <code>WizardPage.getIdentifier</code> to return this
      * page identifier.
-     * 
+     *
      * @return the id of the first wizard page.
      */
     public Object getIdentifier()
@@ -302,7 +302,7 @@ public class FirstWizardPage
     /**
      * Implements the <code>WizardPage.getNextPageIdentifier</code> to return
      * the next page identifier - the summary page.
-     * 
+     *
      * @return the id of the next wizard page.
      */
     public Object getNextPageIdentifier()
@@ -313,7 +313,7 @@ public class FirstWizardPage
     /**
      * Implements the <code>WizardPage.getBackPageIdentifier</code> to return
      * the next back identifier - the default page.
-     * 
+     *
      * @return the id of the default wizard page.
      */
     public Object getBackPageIdentifier()
@@ -324,7 +324,7 @@ public class FirstWizardPage
     /**
      * Implements the <code>WizardPage.getWizardForm</code> to return this
      * panel.
-     * 
+     *
      * @return this wizard page.
      */
     public Object getWizardForm()
@@ -348,7 +348,13 @@ public class FirstWizardPage
     {
         GoogleTalkAccountRegistration registration = wizard.getRegistration();
 
-        registration.setUserID(userIDField.getText());
+        String userID = userIDField.getText();
+
+        if(userID == null || userID.trim().length() == 0)
+            throw new IllegalStateException("No user ID provided.");
+
+        registration.setUserID(userID);
+
         registration.setPassword(new String(passField.getPassword()));
         registration.setRememberPassword(rememberPassBox.isSelected());
 
@@ -402,7 +408,7 @@ public class FirstWizardPage
     /**
      * Fills the User ID and Password fields in this panel with the data coming
      * from the given protocolProvider.
-     * 
+     *
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to load
      *            the data from.
      */
@@ -489,7 +495,7 @@ public class FirstWizardPage
     {
         return userIDPassPanel;
     }
-    
+
     public boolean isCommitted()
     {
         return isCommitted;

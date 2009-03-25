@@ -1,6 +1,6 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.yahooaccregwizz;
@@ -17,7 +17,7 @@ import net.java.sip.communicator.util.swing.*;
 /**
  * The <tt>FirstWizardPage</tt> is the page, where user could enter the uin
  * and the password of the account.
- * 
+ *
  * @author Yana Stamcheva
  * @author Damian Minkov
  */
@@ -48,7 +48,7 @@ public class FirstWizardPage
 
     private JLabel uinExampleLabel = new JLabel(USER_NAME_EXAMPLE);
 
-    private JTextField uinField = new JTextField();
+    private JTextField userIDField = new JTextField();
 
     private JPasswordField passField = new JPasswordField();
 
@@ -66,7 +66,7 @@ public class FirstWizardPage
 
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
-     * 
+     *
      * @param wizard the parent wizard
      */
     public FirstWizardPage(YahooAccountRegistrationWizard wizard)
@@ -100,7 +100,7 @@ public class FirstWizardPage
         this.uinPassPanel.setOpaque(false);
         this.emptyPanel.setOpaque(false);
 
-        this.uinField.getDocument().addDocumentListener(this);
+        this.userIDField.getDocument().addDocumentListener(this);
         this.rememberPassBox.setSelected(true);
 
         this.uinExampleLabel.setForeground(Color.GRAY);
@@ -113,7 +113,7 @@ public class FirstWizardPage
         labelsPanel.add(emptyPanel);
         labelsPanel.add(passLabel);
 
-        valuesPanel.add(uinField);
+        valuesPanel.add(userIDField);
         valuesPanel.add(uinExampleLabel);
         valuesPanel.add(passField);
 
@@ -180,7 +180,12 @@ public class FirstWizardPage
     {
         YahooAccountRegistration registration = wizard.getRegistration();
 
-        registration.setUin(uinField.getText());
+        String userID = userIDField.getText();
+
+        if(userID == null || userID.trim().length() == 0)
+            throw new IllegalStateException("No user ID provided.");
+
+        registration.setUserID(userID);
         registration.setPassword(new String(passField.getPassword()));
         registration.setRememberPassword(rememberPassBox.isSelected());
 
@@ -195,7 +200,7 @@ public class FirstWizardPage
      */
     private void setNextButtonAccordingToUIN()
     {
-        if (uinField.getText() == null || uinField.getText().equals(""))
+        if (userIDField.getText() == null || userIDField.getText().equals(""))
         {
             wizard.getWizardContainer().setNextFinishButtonEnabled(false);
         }
@@ -244,7 +249,7 @@ public class FirstWizardPage
     /**
      * Fills the UIN and Password fields in this panel with the data coming
      * from the given protocolProvider.
-     * 
+     *
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to load
      *            the data from.
      */
@@ -255,8 +260,8 @@ public class FirstWizardPage
             accountID
                 .getAccountPropertyString(ProtocolProviderFactory.PASSWORD);
 
-        this.uinField.setEnabled(false);
-        this.uinField.setText(accountID.getUserID());
+        this.userIDField.setEnabled(false);
+        this.userIDField.setText(accountID.getUserID());
 
         if (password != null)
         {
@@ -269,7 +274,7 @@ public class FirstWizardPage
     {
         return uinPassPanel;
     }
-    
+
     public boolean isCommitted()
     {
         return isCommitted;

@@ -1,6 +1,6 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.aimaccregwizz;
@@ -18,7 +18,7 @@ import net.java.sip.communicator.util.swing.*;
 /**
  * The <tt>FirstWizardPage</tt> is the page, where user could enter the uin
  * and the password of the account.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class FirstWizardPage
@@ -114,7 +114,7 @@ public class FirstWizardPage
 
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
-     * 
+     *
      * @param wizard the parent wizard
      */
     public FirstWizardPage( AimAccountRegistrationWizard wizard)
@@ -269,6 +269,9 @@ public class FirstWizardPage
     {
         String uin = uinField.getText();
 
+        if(uin == null || uin.trim().length() == 0)
+            throw new IllegalStateException("No user ID provided.");
+
         AimAccountRegistration registration = wizard.getRegistration();
 
         registration.setUin(uin);
@@ -347,7 +350,7 @@ public class FirstWizardPage
     /**
      * Fills the UIN and Password fields in this panel with the data comming
      * from the given protocolProvider.
-     * 
+     *
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to load
      *            the data from.
      */

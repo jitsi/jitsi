@@ -33,72 +33,72 @@ public class FirstWizardPage
     implements WizardPage, DocumentListener
 {
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
-    
+
     private JPanel accountPanel = new TransparentPanel(new BorderLayout(10, 10));
-    
+
     private JPanel labelsPanel = new TransparentPanel();
-    
+
     private JPanel valuesPanel = new TransparentPanel();
-    
+
     private JLabel accountID
         = new JLabel(Resources.getString("plugin.sshaccregwizz.USERNAME"));
-    
+
     private JLabel identityFile
         = new JLabel(Resources.getString("plugin.sshaccregwizz.IDENTITY_FILE"));
-    
+
     private JLabel knownHostsFile
         = new JLabel(Resources.getString("plugin.sshaccregwizz.KNOWN_HOSTS"));
-    
+
     private JPanel emptyPanel1 = new TransparentPanel();
-    
+
     private JPanel emptyPanel2 = new TransparentPanel();
-    
+
     private JPanel emptyPanel3 = new TransparentPanel();
-    
+
     private JPanel emptyPanel4 = new TransparentPanel();
-    
+
     private JPanel emptyPanel5 = new TransparentPanel();
-    
+
     private JPanel emptyPanel6 = new TransparentPanel();
-    
+
     private JPanel emptyPanel7 = new TransparentPanel();
-    
+
     private JPanel emptyPanel8 = new TransparentPanel();
-    
+
     private JPanel emptyPanel9 = new TransparentPanel();
-    
-    private JTextField accountIDField = new JTextField();
-    
+
+    private JTextField userIDField = new JTextField();
+
     private JTextField identityFileField = new JTextField(
         Resources.getString("plugin.sshaccregwizz.OPTIONAL"));
-    
+
     private JButton identityFileButton = new JButton(
         Resources.getString("service.gui.BROWSE"));
-    
+
     private JFileChooser identityFileChooser = new JFileChooser();
-    
+
     private JPanel identityFilePanel = new TransparentPanel();
-    
+
     private JTextField knownHostsFileField = new JTextField(
         Resources.getString("plugin.sshaccregwizz.KNOWN_HOSTS"));
-    
+
     private JButton knownHostsFileButton = new JButton(
         Resources.getString("service.gui.BROWSE"));
-    
+
     private JFileChooser knownHostsFileChooser = new JFileChooser();
-    
+
     private JPanel knownHostsFilePanel = new TransparentPanel();
-    
+
     private JPanel mainPanel = new TransparentPanel();
-    
+
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
-    
+
     private SSHAccountRegistration registration = null;
-    
+
     private WizardContainer wizardContainer;
-    
+
     private boolean isCommitted = false;
-    
+
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
      * @param registration the <tt>SSHAccountRegistration</tt>, where
@@ -109,42 +109,42 @@ public class FirstWizardPage
     public FirstWizardPage(SSHAccountRegistration registration,
             WizardContainer wizardContainer)
     {
-        
+
         super(new BorderLayout());
-        
+
         this.wizardContainer = wizardContainer;
-        
+
         this.registration = registration;
-        
+
         this.setPreferredSize(new Dimension(300, 150));
-        
+
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        
+
         identityFileField.setEditable(false);
-        
+
         knownHostsFileField.setEditable(false);
-        
+
         identityFileChooser.setFileHidingEnabled(false);
-        
+
         knownHostsFileChooser.setFileHidingEnabled(false);
-        
+
         this.init();
-        
+
         this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
+
         this.labelsPanel.setLayout(new BoxLayout(labelsPanel,
                 BoxLayout.Y_AXIS));
-        
+
         this.valuesPanel.setLayout(new BoxLayout(valuesPanel,
                 BoxLayout.Y_AXIS));
-        
+
         this.identityFilePanel.setLayout(new BoxLayout(identityFilePanel,
                 BoxLayout.X_AXIS));
-        
-        this.knownHostsFilePanel.setLayout(new BoxLayout(knownHostsFilePanel, 
+
+        this.knownHostsFilePanel.setLayout(new BoxLayout(knownHostsFilePanel,
                 BoxLayout.X_AXIS));
     }
-    
+
     /**
      * Initializes all panels, buttons, etc.
      */
@@ -166,7 +166,7 @@ public class FirstWizardPage
         this.emptyPanel8.setOpaque(false);
         this.emptyPanel9.setOpaque(false);
 
-        this.accountIDField.getDocument().addDocumentListener(this);
+        this.userIDField.getDocument().addDocumentListener(this);
 
         /*
          * Following empty panels cover the space needed between key labels
@@ -179,13 +179,13 @@ public class FirstWizardPage
         this.emptyPanel5.setMaximumSize(new Dimension(40, 35));
         this.emptyPanel6.setMaximumSize(new Dimension(40, 35));
         this.emptyPanel7.setMaximumSize(new Dimension(40, 35));
-        
+
         identityFilePanel.add(identityFileField);
         identityFilePanel.add(identityFileButton);
-        
+
         knownHostsFilePanel.add(knownHostsFileField);
         knownHostsFilePanel.add(knownHostsFileButton);
-        
+
         labelsPanel.add(emptyPanel1);
         labelsPanel.add(accountID);
         labelsPanel.add(emptyPanel2);
@@ -195,52 +195,52 @@ public class FirstWizardPage
         labelsPanel.add(emptyPanel5);
         labelsPanel.add(knownHostsFile);
         labelsPanel.add(emptyPanel6);
-        
-        valuesPanel.add(accountIDField);
+
+        valuesPanel.add(userIDField);
         valuesPanel.add(emptyPanel7);
         valuesPanel.add(identityFilePanel);
         valuesPanel.add(emptyPanel8);
         valuesPanel.add(knownHostsFilePanel);
         labelsPanel.add(emptyPanel9);
-        
+
         accountPanel.add(labelsPanel, BorderLayout.WEST);
         accountPanel.add(valuesPanel, BorderLayout.CENTER);
-        
+
         identityFileButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent event)
             {
                 int returnVal = identityFileChooser.showDialog
                         (FirstWizardPage.this, "Select Identify File");
-                
+
                 if(returnVal == JFileChooser.APPROVE_OPTION)
                     identityFileField.setText(identityFileChooser
                             .getSelectedFile().getAbsolutePath());
             }
         }
         );
-        
+
         knownHostsFileButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent event)
             {
                 int returnVal = knownHostsFileChooser.showDialog
                         (FirstWizardPage.this, "Select SSH Known Hosts File");
-                
+
                 if(returnVal == JFileChooser.APPROVE_OPTION)
                     knownHostsFileField.setText(knownHostsFileChooser
                             .getSelectedFile().getAbsolutePath());
             }
         }
         );
-        
+
         accountPanel.setBorder(BorderFactory
                 .createTitledBorder(Resources.getString(
                 "plugin.sshaccregwizz.ACCOUNT_DETAILS")));
-        
+
         this.add(accountPanel, BorderLayout.NORTH);
     }
-    
+
     /**
      * Fills the Account ID, Identity File and Known Hosts File fields in this
      * panel with the data comming from the given protocolProvider.
@@ -263,13 +263,13 @@ public class FirstWizardPage
             accountID
                 .getAccountPropertyString(ProtocolProviderFactorySSH.KNOWN_HOSTS_FILE);
 
-        this.accountIDField.setText(accountID.getUserID());
+        this.userIDField.setText(accountID.getUserID());
 
         this.identityFileField.setText(identityFile);
 
         this.knownHostsFileField.setText(knownHostsFile);
     }
-    
+
     /**
      * Implements the <code>WizardPage.getIdentifier</code> to return
      * this page identifier.
@@ -280,7 +280,7 @@ public class FirstWizardPage
     {
         return FIRST_PAGE_IDENTIFIER;
     }
-    
+
     /**
      * Implements the <code>WizardPage.getNextPageIdentifier</code> to return
      * the next page identifier - the summary page.
@@ -291,7 +291,7 @@ public class FirstWizardPage
     {
         return nextPageIdentifier;
     }
-    
+
     /**
      * Implements the <code>WizardPage.getBackPageIdentifier</code> to return
      * the next back identifier - the default page.
@@ -302,7 +302,7 @@ public class FirstWizardPage
     {
         return WizardPage.DEFAULT_PAGE_IDENTIFIER;
     }
-    
+
     /**
      * Implements the <code>WizardPage.getWizardForm</code> to return
      * this panel.
@@ -313,7 +313,7 @@ public class FirstWizardPage
     {
         return this;
     }
-    
+
     /**
      * Before this page is displayed enables or disables the "Next" wizard
      * button according to whether the UserID field is empty.
@@ -322,13 +322,18 @@ public class FirstWizardPage
     {
         this.setNextButtonAccordingToUserID();
     }
-    
+
     /**
      * Saves the user input when the "Next" wizard buttons is clicked.
      */
     public void commitPage()
     {
-        registration.setAccountID(accountIDField.getText());
+        String userID = userIDField.getText();
+
+        if(userID == null || userID.trim().length() == 0)
+            throw new IllegalStateException("No user ID provided.");
+
+        registration.setUserID(userID);
         registration.setIdentityFile(identityFileField.getText());
         registration.setKnownHostsFile(knownHostsFileField.getText());
 
@@ -336,14 +341,14 @@ public class FirstWizardPage
 
         isCommitted = true;
     }
-    
+
     /**
      * Enables or disables the "Next" wizard button according to whether the
      * User ID field is empty.
      */
     private void setNextButtonAccordingToUserID()
     {
-        if (accountIDField.getText() == null || accountIDField.getText()
+        if (userIDField.getText() == null || userIDField.getText()
                 .equals(""))
         {
             wizardContainer.setNextFinishButtonEnabled(false);
@@ -353,7 +358,7 @@ public class FirstWizardPage
             wizardContainer.setNextFinishButtonEnabled(true);
         }
     }
-    
+
     /**
      * Handles the <tt>DocumentEvent</tt> triggered when user types in the
      * User ID field. Enables or disables the "Next" wizard button according to
@@ -365,7 +370,7 @@ public class FirstWizardPage
     {
         this.setNextButtonAccordingToUserID();
     }
-    
+
     /**
      * Handles the <tt>DocumentEvent</tt> triggered when user deletes letters
      * from the UserID field. Enables or disables the "Next" wizard button
@@ -377,28 +382,28 @@ public class FirstWizardPage
     {
         this.setNextButtonAccordingToUserID();
     }
-    
+
     public void changedUpdate(DocumentEvent event)
     {
     }
-    
+
     public void pageHiding()
     {
     }
-    
+
     public void pageShown()
     {
     }
-    
+
     public void pageBack()
     {
     }
-    
+
     public Object getSimpleForm()
     {
         return accountPanel;
     }
-    
+
     public boolean isCommitted()
     {
         return isCommitted;

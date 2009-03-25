@@ -80,7 +80,7 @@ public class FirstWizardPage
 
     private JLabel serverExampleLabel = new JLabel(SERVER_EXAMPLE);
 
-    private JTextField nickField = new JTextField();
+    private JTextField userIDField = new JTextField();
 
     private JPasswordField passField = new JPasswordField();
 
@@ -111,7 +111,7 @@ public class FirstWizardPage
 
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
-     * 
+     *
      * @param wizard the parent wizard
      */
     public FirstWizardPage(IrcAccountRegistrationWizard wizard)
@@ -158,7 +158,7 @@ public class FirstWizardPage
         this.valuesPanel.setOpaque(false);
         this.emptyPanel.setOpaque(false);
 
-        this.nickField.getDocument().addDocumentListener(this);
+        this.userIDField.getDocument().addDocumentListener(this);
         this.serverField.getDocument().addDocumentListener(this);
         this.defaultPort.addActionListener(this);
         this.passwordNotRequired.addActionListener(this);
@@ -187,7 +187,7 @@ public class FirstWizardPage
 
 //        labelsPanel.add(server);
 
-        valuesPanel.add(nickField);
+        valuesPanel.add(userIDField);
         valuesPanel.add(nickExampleLabel);
         valuesPanel.add(passField);
 //        valuesPanel.add(serverField);
@@ -197,32 +197,32 @@ public class FirstWizardPage
         userPassPanel.add(valuesPanel, BorderLayout.CENTER);
         userPassPanel.add(passwordNotRequired, BorderLayout.SOUTH);
 //        userPassPanel.add(autoChangeNick, BorderLayout.SOUTH);
-        
+
         userPassPanel.setBorder(BorderFactory
                                 .createTitledBorder(Resources.getString(
                                 "plugin.ircaccregwizz.USERNAME_AND_PASSWORD")));
-        
+
         labelsServerPanel.add(server);
         labelsServerPanel.add(emptyPanel2);
         labelsServerPanel.add(port);
-        
+
         valuesServerPanel.add(serverField);
         valuesServerPanel.add(serverExampleLabel);
         valuesServerPanel.add(portField);
-        
+
         serverPanel.add(labelsServerPanel, BorderLayout.WEST);
         serverPanel.add(valuesServerPanel, BorderLayout.CENTER);
         serverPanel.add(defaultPort, BorderLayout.SOUTH);
-        
+
         serverPanel.setBorder(BorderFactory.createTitledBorder(
             Resources.getString("plugin.ircaccregwizz.IRC_SERVER")));
-        
+
         optionsPanel.add(rememberPassBox, BorderLayout.CENTER);
         optionsPanel.add(autoNickChange, BorderLayout.SOUTH);
-        
+
         optionsPanel.setBorder(BorderFactory.createTitledBorder(
             Resources.getString("service.gui.OPTIONS")));
-        
+
         mainPanel.add(userPassPanel);
         mainPanel.add(serverPanel);
         mainPanel.add(optionsPanel);
@@ -294,7 +294,12 @@ public class FirstWizardPage
 
         IrcAccountRegistration registration = wizard.getRegistration();
 
-        registration.setUserID(nickField.getText());
+        String userID = userIDField.getText();
+
+        if(userID == null || userID.trim().length() == 0)
+            throw new IllegalStateException("No user ID provided.");
+
+        registration.setUserID(userID);
 
         if (passField.getPassword() != null)
             registration.setPassword(new String(passField.getPassword()));
@@ -314,8 +319,8 @@ public class FirstWizardPage
      */
     private void setNextButtonAccordingToUserID()
     {
-        if (nickField.getText() == null
-                || nickField.getText().equals("")
+        if (userIDField.getText() == null
+                || userIDField.getText().equals("")
                 || serverField.getText() == null
                 || serverField.getText().equals("")
                 || (!passwordNotRequired.isSelected() && isEmpty(passField)))
@@ -376,7 +381,7 @@ public class FirstWizardPage
     /**
      * Fills the UserID and Password fields in this panel with the data coming
      * from the given protocolProvider.
-     * 
+     *
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to load the
      * data from.
      */
@@ -404,8 +409,8 @@ public class FirstWizardPage
             accountID
                 .getAccountPropertyString(ProtocolProviderFactory.NO_PASSWORD_REQUIRED);
 
-        this.nickField.setEnabled(false);
-        this.nickField.setText(accountID.getUserID());
+        this.userIDField.setEnabled(false);
+        this.userIDField.setText(accountID.getUserID());
         this.serverField.setText(server);
 
         if (password != null)
@@ -463,7 +468,7 @@ public class FirstWizardPage
             passField.setEnabled(true);
             rememberPassBox.setEnabled(true);
         }
-        
+
     }
 
     public void changedUpdate(DocumentEvent event){}
@@ -473,7 +478,7 @@ public class FirstWizardPage
     public void pageShown(){}
 
     public void pageBack(){}
-    
+
     public Object getSimpleForm()
     {
         JPanel simplePanel = new TransparentPanel(new BorderLayout());
@@ -493,14 +498,14 @@ public class FirstWizardPage
         labelsPanel.add(server);
         labelsPanel.add(emptyPanel2);
 
-        valuesPanel.add(nickField);
+        valuesPanel.add(userIDField);
         valuesPanel.add(nickExampleLabel);
         valuesPanel.add(serverField);
         valuesPanel.add(serverExampleLabel);
 
         return simplePanel;
     }
-    
+
     public boolean isCommitted()
     {
         return isCommitted;

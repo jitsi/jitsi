@@ -38,7 +38,7 @@ public class FirstWizardPage
     private JPanel labelsPanel = new TransparentPanel();
 
     private JPanel valuesPanel = new TransparentPanel();
-    
+
     private JLabel uinLabel
         = new JLabel(Resources.getString("plugin.sipaccregwizz.USERNAME"));
 
@@ -49,7 +49,7 @@ public class FirstWizardPage
 
     private JLabel uinExampleLabel = new JLabel(USER_NAME_EXAMPLE);
 
-    private JTextField uinField = new JTextField();
+    private JTextField userIDField = new JTextField();
 
     private JPasswordField passField = new JPasswordField();
 
@@ -71,7 +71,7 @@ public class FirstWizardPage
 
     private JCheckBox enableDefaultEncryption =
         new SIPCommCheckBox(Resources
-            .getString("plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"), true); 
+            .getString("plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"), true);
 
     private JLabel proxyLabel
         = new JLabel(Resources.getString("plugin.sipaccregwizz.PROXY"));
@@ -204,7 +204,7 @@ public class FirstWizardPage
         this.uinPassPanel.setOpaque(false);
         this.emptyPanel.setOpaque(false);
 
-        this.uinField.getDocument().addDocumentListener(this);
+        this.userIDField.getDocument().addDocumentListener(this);
         this.transportCombo.addItemListener(this);
         this.rememberPassBox.setSelected(true);
 
@@ -218,7 +218,7 @@ public class FirstWizardPage
         labelsPanel.add(emptyPanel);
         labelsPanel.add(passLabel);
 
-        valuesPanel.add(uinField);
+        valuesPanel.add(userIDField);
         valuesPanel.add(uinExampleLabel);
         valuesPanel.add(passField);
 
@@ -378,7 +378,7 @@ public class FirstWizardPage
      */
     public void commitPage()
     {
-        String uin = uinField.getText();
+        String uin = userIDField.getText();
         int indexOfSeparator = uin.indexOf('@');
         if (indexOfSeparator > -1) {
             uin = uin.substring(0, indexOfSeparator);
@@ -386,7 +386,12 @@ public class FirstWizardPage
 
         SIPAccountRegistration registration = wizard.getRegistration();
 
-        registration.setId(uinField.getText());
+        String userID = userIDField.getText();
+
+        if(userID == null || userID.trim().length() == 0)
+            throw new IllegalStateException("No user ID provided.");
+
+        registration.setUserID(userID);
 
         if (passField.getPassword() != null)
             registration.setPassword(new String(passField.getPassword()));
@@ -402,7 +407,7 @@ public class FirstWizardPage
 
         registration.setEnablePresence(enablePresOpButton.isSelected());
         registration.setForceP2PMode(forceP2PPresOpButton.isSelected());
-        registration.setDefaultEncryption(enableDefaultEncryption.isSelected()); 
+        registration.setDefaultEncryption(enableDefaultEncryption.isSelected());
         registration.setPollingPeriod(pollPeriodField.getText());
         registration.setSubscriptionExpiration(subscribeExpiresField
             .getText());
@@ -423,7 +428,7 @@ public class FirstWizardPage
      */
     private void setNextButtonAccordingToUIN()
     {
-        if (uinField.getText() == null || uinField.getText().equals(""))
+        if (userIDField.getText() == null || userIDField.getText().equals(""))
         {
             wizard.getWizardContainer().setNextFinishButtonEnabled(false);
         }
@@ -523,8 +528,8 @@ public class FirstWizardPage
         this.isServerOverridden = accountID.getAccountPropertyBoolean(
             ProtocolProviderFactory.IS_SERVER_OVERRIDDEN, false);
 
-        uinField.setEnabled(false);
-        this.uinField.setText((serverAddress == null) ? accountID.getUserID()
+        userIDField.setEnabled(false);
+        this.userIDField.setText((serverAddress == null) ? accountID.getUserID()
             : (accountID.getUserID() + "@" + serverAddress));
 
         if (password != null)
@@ -545,7 +550,7 @@ public class FirstWizardPage
 
         enablePresOpButton.setSelected(enablePresence);
         forceP2PPresOpButton.setSelected(forceP2P);
-        enableDefaultEncryption.setSelected(enabledDefaultEncryption); 
+        enableDefaultEncryption.setSelected(enabledDefaultEncryption);
         pollPeriodField.setText(pollingPeriod);
         subscribeExpiresField.setText(subscriptionPeriod);
 
@@ -565,7 +570,7 @@ public class FirstWizardPage
     private void setServerFieldAccordingToUIN()
     {
         String serverAddress
-            = wizard.getServerFromUserName(uinField.getText());
+            = wizard.getServerFromUserName(userIDField.getText());
 
         if (!wizard.isModification() || !isServerOverridden)
         {
@@ -576,7 +581,7 @@ public class FirstWizardPage
 
     /**
      * Enables or disable all presence related options.
-     * 
+     *
      * @param isEnabled <code>true</code> to enable the presence related
      * options, <code>false</code> - to disable them.
      */

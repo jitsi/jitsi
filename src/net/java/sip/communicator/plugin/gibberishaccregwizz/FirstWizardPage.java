@@ -17,7 +17,7 @@ import net.java.sip.communicator.util.swing.*;
 /**
  * The <tt>FirstWizardPage</tt> is the page, where user could enter the user ID
  * and the password of the account.
- * 
+ *
  * @author Emil Ivov
  */
 public class FirstWizardPage
@@ -184,7 +184,12 @@ public class FirstWizardPage
         GibberishAccountRegistration registration
             = wizard.getRegistration();
 
-        registration.setUserID(userIDField.getText());
+        String userID = userIDField.getText();
+
+        if(userID == null || userID.trim().length() == 0)
+            throw new IllegalStateException("No user ID provided.");
+
+        registration.setUserID(userID);
 
         if (passField.getPassword() != null)
             registration.setPassword(new String(passField.getPassword()));

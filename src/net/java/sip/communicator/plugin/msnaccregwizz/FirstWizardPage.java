@@ -179,7 +179,12 @@ public class FirstWizardPage
         MsnAccountRegistration registration
             = wizard.getRegistration();
 
-        registration.setId(uinField.getText());
+        String userID = uinField.getText();
+
+        if(userID == null || userID.trim().length() == 0)
+            throw new IllegalStateException("No user ID provided.");
+
+        registration.setUserID(userID);
 
         if (passField.getPassword() != null)
             registration.setPassword(new String(passField.getPassword()));

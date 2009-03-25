@@ -163,7 +163,7 @@ public class SIPAccountRegistration
      *
      * @param uin the identifier of the sip registration account.
      */
-    public void setId(String id)
+    public void setUserID(String id)
     {
         this.id = id;
     }

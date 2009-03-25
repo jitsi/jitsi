@@ -18,13 +18,13 @@ import net.java.sip.communicator.util.swing.*;
 /**
  * The <tt>FirstWizardPage</tt> is the page, where user could enter the user ID
  * and the password of the account.
- * 
+ *
  * @author Christian Vincenot
  * @author Maxime Catelin
  */
 public class FirstWizardPage
-    extends TransparentPanel 
-    implements WizardPage, 
+    extends TransparentPanel
+    implements WizardPage,
                DocumentListener
 {
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
@@ -61,7 +61,7 @@ public class FirstWizardPage
     private JTextField lastField = new JTextField();
     private JTextField mailField = new JTextField();
 
-    private JCheckBox rememberContacts = 
+    private JCheckBox rememberContacts =
         new SIPCommCheckBox(Resources.getString(
             "plugin.zeroaccregwizz.REMEMBER_CONTACTS"));
 
@@ -75,7 +75,7 @@ public class FirstWizardPage
 
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
-     * 
+     *
      * @param wizard the parent wizard
      */
     public FirstWizardPage(ZeroconfAccountRegistrationWizard wizard)
@@ -123,14 +123,14 @@ public class FirstWizardPage
         this.emptyPanel2.setMaximumSize(new Dimension(40, 35));
         this.firstExampleLabel.setBorder(
                 BorderFactory.createEmptyBorder(0, 0, 8,0));
-        
+
         this.lastExampleLabel.setForeground(Color.GRAY);
         this.lastExampleLabel.setFont(
                 lastExampleLabel.getFont().deriveFont(8));
         this.emptyPanel3.setMaximumSize(new Dimension(40, 35));
         this.lastExampleLabel.setBorder(
                 BorderFactory.createEmptyBorder(0, 0, 8,0));
-        
+
         this.mailExampleLabel.setForeground(Color.GRAY);
         this.mailExampleLabel.setFont(
                 mailExampleLabel.getFont().deriveFont(8));
@@ -226,7 +226,12 @@ public class FirstWizardPage
         ZeroconfAccountRegistration registration
             = wizard.getRegistration();
 
-        registration.setUserID(userIDField.getText());
+        String userID = userIDField.getText();
+
+        if(userID == null || userID.trim().length() == 0)
+            throw new IllegalStateException("No user ID provided.");
+
+        registration.setUserID(userID);
         registration.setFirst(firstField.getText());
         registration.setLast(lastField.getText());
         registration.setMail(mailField.getText());
@@ -339,7 +344,7 @@ public class FirstWizardPage
 
         return simplePanel;
     }
-    
+
     public boolean isCommitted()
     {
         return isCommitted;

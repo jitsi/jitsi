@@ -341,7 +341,12 @@ public class FirstWizardPage
     {
         JabberAccountRegistration registration = wizard.getRegistration();
 
-        registration.setUserID(userIDField.getText());
+        String userID = userIDField.getText();
+
+        if(userID == null || userID.trim().length() == 0)
+            throw new IllegalStateException("No user ID provided.");
+
+        registration.setUserID(userID);
         registration.setPassword(new String(passField.getPassword()));
         registration.setRememberPassword(rememberPassBox.isSelected());
 

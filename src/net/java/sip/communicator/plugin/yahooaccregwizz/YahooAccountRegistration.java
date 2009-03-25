@@ -65,7 +65,7 @@ public class YahooAccountRegistration {
      * Sets the UIN of the yahoo registration account.
      * @param uin the UIN of the yahoo registration account.
      */
-    public void setUin(String uin) {
+    public void setUserID(String uin) {
         this.uin = uin;
     }
 

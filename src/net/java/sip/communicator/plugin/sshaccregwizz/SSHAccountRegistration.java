@@ -49,7 +49,7 @@ public class SSHAccountRegistration
      * 
      * @param accountID the accountID of the ssh registration account.
      */
-    public void setAccountID(String accountID)
+    public void setUserID(String accountID)
     {
         this.accountID = accountID;
     }

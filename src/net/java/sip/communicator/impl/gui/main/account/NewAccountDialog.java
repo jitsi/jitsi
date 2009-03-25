@@ -60,6 +60,9 @@ public class NewAccountDialog
 
     private static NewAccountDialog newAccountDialog;
 
+    /**
+     * Creates the dialog and initializes the UI.
+     */
     public NewAccountDialog()
     {
         super(GuiActivator.getUIService().getMainFrame());
@@ -109,6 +112,10 @@ public class NewAccountDialog
         this.initNetworkList();
     }
 
+    /**
+     * Detects all currently registered protocol wizards so that we could fill
+     * the protocol/network combo with their graphical representation.
+     */
     private void initNetworkList()
     {
         // check for preferred wizard
@@ -142,9 +149,9 @@ public class NewAccountDialog
                          + " already installed providers.");
 
             // Create a list to sort the wizards
-            ArrayList<AccountRegistrationWizard> list =
+            ArrayList<AccountRegistrationWizard> networksList =
                 new ArrayList<AccountRegistrationWizard>();
-            list.ensureCapacity(accountWizardRefs.length);
+            networksList.ensureCapacity(accountWizardRefs.length);
 
             AccountRegistrationWizard prefWiz = null;
 
@@ -154,7 +161,7 @@ public class NewAccountDialog
                     = (AccountRegistrationWizard) GuiActivator.bundleContext
                         .getService(accountWizardRefs[i]);
 
-                list.add(wizard);
+                networksList.add(wizard);
 
                 // is it the prefered protocol ?
                 if(preferredWizardName != null
@@ -165,23 +172,31 @@ public class NewAccountDialog
             }
 
             // Sort the list
-            Collections.sort(list, new Comparator<AccountRegistrationWizard>() {
+            Collections.sort(networksList,
+                            new Comparator<AccountRegistrationWizard>()
+            {
                 public int compare(AccountRegistrationWizard arg0,
-                        AccountRegistrationWizard arg1)
+                                   AccountRegistrationWizard arg1)
                 {
-                    return arg0.getProtocolName().compareTo(arg1.getProtocolName());
+                    return arg0.getProtocolName().compareTo(
+                                    arg1.getProtocolName());
                 }
             });
 
-            // Add the item in the combobox and if
-            // there is a prefered wizard auto select it
-            for (int i=0; i<list.size(); i++)
+            // Add the items in the combobox
+            for (int i=0; i<networksList.size(); i++)
             {
-                networkComboBox.addItem(list.get(i));
+                networkComboBox.addItem(networksList.get(i));
             }
+
+            //if we have a prefered wizard auto select it
             if (prefWiz != null)
             {
                 networkComboBox.setSelectedItem(prefWiz);
+            }
+            else//if we don't we send our empty page and let the wizard choose.
+            {
+
             }
         }
     }
@@ -192,7 +207,7 @@ public class NewAccountDialog
     {
         private static final long serialVersionUID = 0L;
 
-		public NetworkListCellRenderer()
+        public NetworkListCellRenderer()
         {
             this.setOpaque(true);
 
@@ -336,6 +351,17 @@ public class NewAccountDialog
                                 "service.gui.ACCOUNT_CREATION_FAILED",
                                 new String[]{e.getMessage()}));
                 }
+            }
+            catch (Exception e)
+            {
+                // If the sign in operation has failed we don't want to close
+                // the dialog in order to give the user the possibility to
+                // retry.
+                logger.debug("The sign in operation has failed.");
+
+                loadErrorMessage(GuiActivator.getResources().getI18NString(
+                                "service.gui.ACCOUNT_CREATION_FAILED",
+                                new String[]{e.getMessage()}));
             }
         }
         else if (sourceButton.equals(cancelButton))
