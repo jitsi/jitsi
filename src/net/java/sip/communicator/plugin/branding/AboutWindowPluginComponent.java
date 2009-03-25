@@ -16,9 +16,14 @@ import net.java.sip.communicator.service.gui.*;
 public class AboutWindowPluginComponent
     implements PluginComponent
 {
+
+    /**
+     * Invokes the default action associated with Help > About regardless of the
+     * specifics of its visual representation.
+     */
     public static void actionPerformed()
     {
-        new AboutWindow(null).setVisible(true);
+        AboutWindow.showAboutWindow();
     }
 
     private final JMenuItem aboutMenuItem

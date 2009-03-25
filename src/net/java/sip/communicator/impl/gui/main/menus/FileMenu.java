@@ -140,11 +140,7 @@ public class FileMenu
         }
         else if (itemName.equals("myChatRooms"))
         {
-            ChatRoomListDialog chatRoomsDialog
-                = new ChatRoomListDialog(parentWindow);
-
-            chatRoomsDialog.setPreferredSize(new Dimension(500, 400));
-            chatRoomsDialog.setVisible(true);
+            ChatRoomListDialog.showChatRoomListDialog();
         }
     }
 

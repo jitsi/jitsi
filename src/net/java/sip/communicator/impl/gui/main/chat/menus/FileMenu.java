@@ -85,12 +85,7 @@ public class FileMenu extends SIPCommMenu
 
         if (itemText.equalsIgnoreCase("myChatRooms"))
         {
-            ChatRoomListDialog chatRoomsDialog
-                = new ChatRoomListDialog(
-                    GuiActivator.getUIService().getMainFrame());
-
-            chatRoomsDialog.setPreferredSize(new Dimension(500, 400));
-            chatRoomsDialog.setVisible(true);
+            ChatRoomListDialog.showChatRoomListDialog();
         }
         else if (itemText.equalsIgnoreCase("service.gui.CLOSE"))
         {

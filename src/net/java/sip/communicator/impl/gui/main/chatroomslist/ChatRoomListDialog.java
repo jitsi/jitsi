@@ -12,7 +12,6 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.createforms.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
@@ -24,11 +23,48 @@ import net.java.sip.communicator.util.swing.*;
  * chat rooms, etc.
  * 
  * @author Yana Stamcheva
+ * @authro Lubomir Marinov
  */
 public class ChatRoomListDialog
     extends SIPCommDialog
     implements  ActionListener
 {
+
+    /**
+     * The global/shared <code>ChatRoomListDialog</code> currently showing.
+     */
+    private static ChatRoomListDialog chatRoomListDialog;
+
+    /**
+     * Shows a <code>ChatRoomListDialog</code> creating it first if necessary.
+     * The shown instance is shared in order to prevent displaying multiple
+     * instances of one and the same <code>ChatRoomListDialog</code>.
+     */
+    public static void showChatRoomListDialog()
+    {
+        if (chatRoomListDialog == null)
+        {
+            chatRoomListDialog
+                = new ChatRoomListDialog(
+                        GuiActivator.getUIService().getMainFrame());
+            chatRoomListDialog.setPreferredSize(new Dimension(500, 400));
+
+            /*
+             * When the global/shared ChatRoomListDialog closes, don't keep a
+             * reference to it and let it be garbage-collected.
+             */
+            chatRoomListDialog.addWindowListener(new WindowAdapter()
+            {
+                public void windowClosed(WindowEvent e)
+                {
+                    if (chatRoomListDialog == e.getWindow())
+                        chatRoomListDialog = null;
+                }
+            });
+        }
+        chatRoomListDialog.setVisible(true);
+    }
+
     private static final String CREATE_CHAT_ROOM = "CreateChatRoom";
 
     private static final String JOIN_CHAT_ROOM = "JoinChatRoom";

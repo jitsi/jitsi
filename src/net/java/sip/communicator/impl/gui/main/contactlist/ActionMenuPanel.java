@@ -192,11 +192,7 @@ public class ActionMenuPanel
         }
         else if (buttonName.equals("chatRooms"))
         {
-            ChatRoomListDialog chatRoomsDialog = new ChatRoomListDialog(
-                GuiActivator.getUIService().getMainFrame());
-
-            chatRoomsDialog.setPreferredSize(new Dimension(500, 400));
-            chatRoomsDialog.setVisible(true);
+            ChatRoomListDialog.showChatRoomListDialog();
         }
     }
 

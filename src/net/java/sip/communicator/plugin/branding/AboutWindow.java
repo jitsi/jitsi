@@ -26,6 +26,39 @@ public class AboutWindow
     extends JDialog
     implements HyperlinkListener, ActionListener, ExportedWindow
 {
+
+    /**
+     * The global/shared <code>AboutWindow</code> currently showing.
+     */
+    private static AboutWindow aboutWindow;
+
+    /**
+     * Shows a <code>AboutWindow</code> creating it first if necessary. The
+     * shown instance is shared in order to prevent displaying multiple
+     * instances of one and the same <code>AboutWindow</code>.
+     */
+    public static void showAboutWindow()
+    {
+        if (aboutWindow == null)
+        {
+            aboutWindow = new AboutWindow(null);
+
+            /*
+             * When the global/shared AboutWindow closes, don't keep a reference
+             * to it and let it be garbage-collected.
+             */
+            aboutWindow.addWindowListener(new WindowAdapter()
+            {
+                public void windowClosed(WindowEvent e)
+                {
+                    if (aboutWindow == e.getWindow())
+                        aboutWindow = null;
+                }
+            });
+        }
+        aboutWindow.setVisible(true);
+    }
+
     private static final int DEFAULT_TEXT_INDENT
         = BrandingActivator.getResources()
             .getSettingsInt("plugin.branding.ABOUT_TEXT_INDENT");
