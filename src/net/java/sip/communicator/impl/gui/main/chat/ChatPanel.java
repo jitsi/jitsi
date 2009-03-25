@@ -242,6 +242,16 @@ public class ChatPanel
     {
         return chatSession;
     }
+    
+    /**
+     * Shows or hides the Stylebar depending on the value of parameter b.
+     * 
+     * @param b if true, makes the Stylebar visible, otherwise hides the Stylebar
+     */
+    public void setStylebarVisible(boolean b)
+    {
+        this.writeMessagePanel.setStylebarVisible(b);
+    }
 
     /**
      * Runs clean-up for associated resources which need explicit disposal (e.g.

@@ -36,6 +36,8 @@ public class MessageWindowMenuBar
     private FileMenu fileMenu;
 
     private EditMenu editMenu;
+    
+    private OptionsMenu optionsMenu;
 
     private final HelpMenu helpMenu;
 
@@ -58,6 +60,8 @@ public class MessageWindowMenuBar
         fileMenu = new FileMenu(this.parentWindow);
 
         editMenu = new EditMenu(this.parentWindow);
+        
+        optionsMenu = new OptionsMenu(this.parentWindow);
 
         helpMenu = new HelpMenu(this.parentWindow);
 
@@ -90,6 +94,8 @@ public class MessageWindowMenuBar
         this.add(fileMenu);
 
         this.add(editMenu);
+        
+        this.add(optionsMenu);
 
         this.add(helpMenu);
     }

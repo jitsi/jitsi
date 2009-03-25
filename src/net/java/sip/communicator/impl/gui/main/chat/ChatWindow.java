@@ -136,6 +136,8 @@ public class ChatWindow
             mainToolBar = new ExtendedMainToolBar(this);
         else
             mainToolBar = new MainToolBar(this);
+        
+        mainToolBar.setVisible(ConfigurationManager.isChatToolbarVisible());
 
         Component logoBar = LogoBar.createInstance();
         if (logoBar != null)
@@ -188,6 +190,38 @@ public class ChatWindow
         northPanel.setOpaque(isOpaque);
         mainPanel.setOpaque(isOpaque);
         statusBarPanel.setOpaque(isOpaque);
+    }
+    
+    /**
+     * Shows or hides the Toolbar depending on the value of parameter b. 
+     * 
+     * @param b if true, makes the Toolbar visible, otherwise hides the Toolbar
+     */
+    public void setToolbarVisible(boolean b)
+    {
+        this.mainToolBar.setVisible(b);
+    }
+    
+    /**
+     * Shows or hides the Stylebar depending on the value of parameter b.
+     * 
+     * @param b if true, makes the Stylebar visible, otherwise hides the Stylebar
+     */
+    public void setStylebarVisible(boolean b)
+    {
+        ChatPanel p = this.getCurrentChatPanel();
+        
+        // Set the value for the current chat panel
+        if (p != null)
+            p.setStylebarVisible(b);
+        
+        // if there is tabs, set it for all
+        int i, imax = this.getChatTabCount();
+        for (i=0; i<imax; i++)
+        {
+            p = (ChatPanel) this.chatTabbedPane.getComponentAt(i);
+            p.setStylebarVisible(b);
+        }
     }
 
     /*

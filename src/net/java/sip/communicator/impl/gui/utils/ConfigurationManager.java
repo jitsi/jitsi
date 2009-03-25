@@ -52,6 +52,10 @@ public class ConfigurationManager
     
     private static boolean isWindowDecorated;
     
+    private static boolean isChatToolbarVisible;
+    
+    private static boolean isChatStylebarVisible;
+    
     private static ConfigurationService configService
         = GuiActivator.getConfigurationService();
     
@@ -285,6 +289,24 @@ public class ConfigurationManager
             isWindowDecorated
                 = Boolean.parseBoolean(isWindowDecoratedString);
         }
+        
+        // Load the "isChatToolbarVisible" property
+        String chatToolbarVisible = configService.getString(
+            "net.java.sip.communicator.impl.gui.chat.ChatWindow.showToolbar");
+
+        if(chatToolbarVisible != null && chatToolbarVisible.length() > 0)
+            isChatToolbarVisible = Boolean.parseBoolean(chatToolbarVisible);
+        else
+            isChatToolbarVisible = true;
+        
+        // Load the "isChatToolbarVisible" property
+        String chatStylebarVisible = configService.getString(
+            "net.java.sip.communicator.impl.gui.chat.ChatWindow.showStylebar");
+
+        if(chatStylebarVisible != null && chatStylebarVisible.length() > 0)
+            isChatStylebarVisible = Boolean.parseBoolean(chatStylebarVisible);
+        else
+            isChatStylebarVisible = true;
 
         // Load the "lastContactParent" property.
         lastContactParent = configService.getString(
@@ -422,6 +444,28 @@ public class ConfigurationManager
     public static boolean isWindowDecorated()
     {
         return isWindowDecorated;
+    }
+    
+    /**
+     * Returns <code>true</code> if the "isChatToolbarVisible" property is
+     * true, otherwise - returns <code>false</code>..
+     * @return <code>true</code> if the "isChatToolbarVisible" property is
+     * true, otherwise - returns <code>false</code>.
+     */
+    public static boolean isChatToolbarVisible()
+    {
+        return isChatToolbarVisible;
+    }
+    
+    /**
+     * Returns <code>true</code> if the "isChatStylebarVisible" property is
+     * true, otherwise - returns <code>false</code>..
+     * @return <code>true</code> if the "isChatStylebarVisible" property is
+     * true, otherwise - returns <code>false</code>.
+     */
+    public static boolean isChatStylebarVisible()
+    {
+        return isChatStylebarVisible;
     }
 
     /**
@@ -600,6 +644,36 @@ public class ConfigurationManager
         configService.setProperty(
                 "impl.gui.IS_TRANSPARENT_WINDOW_ENABLED",
                 Boolean.toString(isTransparentWindowEnabled));
+    }
+    
+    /**
+     * Updates the "isChatToolbarVisible" property through the
+     * <tt>ConfigurationService</tt>.
+     * 
+     * @param isVisible indicates if the chat toolbar is visible.
+     */
+    public static void setChatToolbarVisible(boolean isVisible)
+    {
+        isChatToolbarVisible = isVisible;
+        
+        configService.setProperty(
+                "net.java.sip.communicator.impl.gui.chat.ChatWindow.showToolbar",
+                Boolean.toString(isChatToolbarVisible));
+    }
+    
+    /**
+     * Updates the "isChatStylebarVisible" property through the
+     * <tt>ConfigurationService</tt>.
+     * 
+     * @param isVisible indicates if the chat stylebar is visible.
+     */
+    public static void setChatStylebarVisible(boolean isVisible)
+    {
+        isChatStylebarVisible = isVisible;
+        
+        configService.setProperty(
+                "net.java.sip.communicator.impl.gui.chat.ChatWindow.showStylebar",
+                Boolean.toString(isChatStylebarVisible));
     }
 
     /**
@@ -948,6 +1022,18 @@ public class ConfigurationManager
 
                 windowTransparency
                     = new Integer(windowTransparencyString).intValue();
+            }
+            else if (evt.getPropertyName().equals(
+                "net.java.sip.communicator.impl.gui.chat.ChatWindow.showStylebar"))
+            {
+                String chatBarString = (String) evt.getNewValue();
+                isChatStylebarVisible = Boolean.parseBoolean(chatBarString);
+            }
+            else if (evt.getPropertyName().equals(
+                "net.java.sip.communicator.impl.gui.chat.ChatWindow.showToolbar"))
+            {
+                String chatBarString = (String) evt.getNewValue();
+                isChatToolbarVisible = Boolean.parseBoolean(chatBarString);
             }
         }
     }

@@ -160,7 +160,7 @@ public class ProtocolProviderFactoryDictImpl
         
         // Gets contact name
         String contactName = DictActivator.getResources()
-            .getI18NString("dict.plugin.dictaccregwizz.ANY_DICTIONARY_FORM",
+            .getI18NString("plugin.dictaccregwizz.ANY_DICTIONARY_FORM",
                 new String[] {accountID.getUserID()});
         
         // Gets the MetaContactGroup for the "dictionaries" group.

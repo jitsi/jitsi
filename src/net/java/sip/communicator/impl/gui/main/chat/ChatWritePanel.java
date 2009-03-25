@@ -87,6 +87,7 @@ public class ChatWritePanel
         this.editorPane.setTransferHandler(new ChatWritePanelTransferHandler());
 
         this.editTextToolBar = new EditTextToolBar(this);
+        this.editTextToolBar.setVisible(ConfigurationManager.isChatStylebarVisible());
 
         this.add(editTextToolBar, BorderLayout.NORTH);
         this.add(scrollPane, BorderLayout.CENTER);
@@ -116,6 +117,16 @@ public class ChatWritePanel
 
         this.changeSendCommand((messageCommand == null || messageCommand
             .equalsIgnoreCase("enter")));
+    }
+    
+    /**
+     * Shows or hides the Stylebar depending on the value of parameter b.
+     * 
+     * @param b if true, makes the Stylebar visible, otherwise hides the Stylebar
+     */
+    public void setStylebarVisible(boolean b)
+    {
+        this.editTextToolBar.setVisible(b);
     }
 
     /**
