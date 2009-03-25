@@ -14,6 +14,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
+import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 
@@ -29,6 +30,10 @@ public class FileMenu extends SIPCommMenu
     private JMenuItem myChatRoomsItem = new JMenuItem(
         GuiActivator.getResources().getI18NString("service.gui.MY_CHAT_ROOMS"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.CHAT_ROOM_16x16_ICON)));
+
+    private JMenuItem historyItem = new JMenuItem(
+        GuiActivator.getResources().getI18NString("service.gui.HISTORY"),
+        new ImageIcon(ImageLoader.getImage(ImageLoader.HISTORY_ICON)));
 
     private JMenuItem closeMenuItem = new JMenuItem(
         GuiActivator.getResources().getI18NString("service.gui.CLOSE"),
@@ -56,21 +61,25 @@ public class FileMenu extends SIPCommMenu
             GuiActivator.getResources().getI18nMnemonic("service.gui.FILE"));
 
         this.add(myChatRoomsItem);
+        this.add(historyItem);
 
         this.addSeparator();
 
         this.add(closeMenuItem);
 
         this.myChatRoomsItem.setName("myChatRooms");
+        this.historyItem.setName("history");
         this.closeMenuItem.setName("close");
 
         this.myChatRoomsItem.addActionListener(this);
+        this.historyItem.addActionListener(this);
         this.closeMenuItem.addActionListener(this);
 
         this.myChatRoomsItem.setMnemonic(
             GuiActivator.getResources()
                 .getI18nMnemonic("service.gui.MY_CHAT_ROOMS"));
-
+        this.historyItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.HISTORY"));
         this.closeMenuItem.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.CLOSE"));
     }
@@ -86,6 +95,36 @@ public class FileMenu extends SIPCommMenu
         if (itemText.equalsIgnoreCase("myChatRooms"))
         {
             ChatRoomListDialog.showChatRoomListDialog();
+        }
+        else if (itemText.equals("history"))
+        {
+            HistoryWindow history;
+
+            HistoryWindowManager historyWindowManager
+                = GuiActivator.getUIService().getHistoryWindowManager();
+
+            ChatPanel chatPanel = this.parentWindow.getCurrentChatPanel();
+            ChatSession chatSession = chatPanel.getChatSession();
+
+            if(historyWindowManager.containsHistoryWindowForContact(chatSession.getDescriptor()))
+            {
+                history = historyWindowManager.getHistoryWindowForContact(
+                    chatSession.getDescriptor());
+
+                if(history.getState() == JFrame.ICONIFIED)
+                    history.setState(JFrame.NORMAL);
+
+                history.toFront();
+            }
+            else
+            {
+                history = new HistoryWindow(chatPanel.getChatSession().getDescriptor());
+
+                history.setVisible(true);
+
+                historyWindowManager
+                    .addHistoryWindowForContact(chatSession.getDescriptor(), history);
+            }
         }
         else if (itemText.equalsIgnoreCase("service.gui.CLOSE"))
         {
