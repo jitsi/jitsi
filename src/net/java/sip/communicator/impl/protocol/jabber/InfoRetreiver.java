@@ -257,14 +257,6 @@ public class InfoRetreiver
                     + this + " : " + exc.getMessage()
                     , exc);
             }
-            
-            
-            Iterator i = result.iterator();
-            while (i.hasNext())
-            {
-                Object object = i.next();
-                logger.info("--------------- " + object.getClass() + " " + object);
-            }
         }
 
         retreivedDetails.put(contactAddress, result);

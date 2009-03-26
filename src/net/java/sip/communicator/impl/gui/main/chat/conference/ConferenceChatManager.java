@@ -691,7 +691,7 @@ public class ConferenceChatManager
                 GuiActivator.getUIService().getMainFrame(),
                 GuiActivator.getResources().getI18NString("service.gui.WARNING"),
                 GuiActivator.getResources().getI18NString(
-                    "service.gui.CHAT_ROOM_LEAVE_NOT_CONNECTED="))
+                    "service.gui.CHAT_ROOM_LEAVE_NOT_CONNECTED"))
                     .showDialog();
 
             return;

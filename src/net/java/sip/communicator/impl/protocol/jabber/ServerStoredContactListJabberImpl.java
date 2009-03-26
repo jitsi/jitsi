@@ -543,7 +543,8 @@ public class ServerStoredContactListJabberImpl
             while (iter.hasNext())
             {
                 ContactJabberImpl item = (ContactJabberImpl) iter.next();
-                roster.removeEntry(item.getSourceEntry());
+                if(item.isPersistent())
+                    roster.removeEntry(item.getSourceEntry());
             }
         }
         catch (XMPPException ex)

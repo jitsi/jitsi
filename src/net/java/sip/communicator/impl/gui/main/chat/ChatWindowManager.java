@@ -39,8 +39,20 @@ public class ChatWindowManager
      * @param setSelected specifies whether we should bring the chat to front
      * after creating it.
      */
-    public void openChat(ChatPanel chatPanel, boolean setSelected)
+    public void openChat(final ChatPanel chatPanel, final boolean setSelected)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    openChat(chatPanel, setSelected);
+                }
+            });
+            return;
+        }
+
         synchronized (syncChat)
         {
             ChatWindow chatWindow = chatPanel.getChatWindow();
@@ -154,7 +166,7 @@ public class ChatWindowManager
                     ChatRoomWrapper chatRoomWrapper
                         = (ChatRoomWrapper) descriptor;
 
-                    if(chatRoomWrapper.getChatRoom().equals(chatRoom)
+                    if(chatRoomWrapper.getChatRoomID().equals(chatRoom.getIdentifier())
                         && getChat(chatSession).isShown())
                     {
                         return true;
@@ -409,8 +421,8 @@ public class ChatWindowManager
             }
             else
                 return createChat(chatRoomWrapper);
+            }
         }
-    }
 
     /**
      * Returns the chat panel corresponding to the given chat room.

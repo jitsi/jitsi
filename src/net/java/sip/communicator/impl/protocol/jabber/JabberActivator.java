@@ -10,6 +10,7 @@ import java.util.*;
 
 import org.osgi.framework.*;
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.media.*;
 
@@ -48,6 +49,10 @@ public class JabberActivator
      */
     private static ProtocolProviderFactoryJabberImpl jabberProviderFactory = null;
 
+    private UriHandlerJabberImpl uriHandlerImpl = null;
+
+    private static UIService            uiService             = null;
+
     /**
      * Called when this bundle is started so the Framework can perform the
      * bundle-specific activities necessary to start this bundle.
@@ -66,6 +71,13 @@ public class JabberActivator
         hashtable.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.JABBER);
 
         jabberProviderFactory = new ProtocolProviderFactoryJabberImpl();
+
+         /*
+         * Install the UriHandler prior to registering the factory service in
+         * order to allow it to detect when the stored accounts are loaded
+         * (because they may be asynchronously loaded).
+         */
+        uriHandlerImpl = new UriHandlerJabberImpl(jabberProviderFactory);
 
         //reg the jabber account man.
         jabberPpFactoryServReg =  context.registerService(
@@ -153,5 +165,31 @@ public class JabberActivator
     {
         jabberProviderFactory.stop();
         jabberPpFactoryServReg.unregister();
+
+        if (uriHandlerImpl != null)
+        {
+            uriHandlerImpl.dispose();
+            uriHandlerImpl = null;
+        }
+    }
+
+    /**
+     * Returns a reference to the UIService implementation currently registered
+     * in the bundle context or null if no such implementation was found.
+     *
+     * @return a reference to a UIService implementation currently registered
+     * in the bundle context or null if no such implementation was found.
+     */
+    public static UIService getUIService()
+    {
+        if(uiService == null)
+        {
+            ServiceReference uiServiceReference
+                = bundleContext.getServiceReference(
+                    UIService.class.getName());
+            uiService = (UIService)bundleContext
+                .getService(uiServiceReference);
+        }
+        return uiService;
     }
 }

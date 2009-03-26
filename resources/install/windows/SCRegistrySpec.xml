@@ -35,5 +35,22 @@
         root="HKCR"
         string="$INSTALL_PATH\run.exe %1"/>
 
+    <value name="URL Protocol"
+            keypath="xmpp"
+            root="HKCR"
+            string=""/>
+    <value name=""
+            keypath="xmpp"
+            root="HKCR"
+            string="URL: XMPP Protocol handler"/>
+    <value name=""
+            keypath="xmpp\DefaultIcon"
+            root="HKCR"
+            string="$INSTALL_PATH\sc-logo.ico"/>
+    <value name=""
+        keypath="xmpp\shell\open\command"
+        root="HKCR"
+        string="$INSTALL_PATH\run.exe %1"/>
+
 </pack>
 </registry>

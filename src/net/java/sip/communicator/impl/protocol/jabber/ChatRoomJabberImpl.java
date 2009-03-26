@@ -20,6 +20,7 @@ import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.muc.*;
+import org.jivesoftware.smackx.packet.DiscoverInfo;
 
 /**
  * Implements chat rooms for jabber. The class encapsulates instances of the
@@ -1724,10 +1725,15 @@ public class ChatRoomJabberImpl
         String roomName = multiUserChat.getRoom();
         try
         {
-            RoomInfo info = MultiUserChat.getRoomInfo(
-                provider.getConnection(), roomName);
+            // Do not use getRoomInfo, as it has bug and 
+            // throws NPE
+            DiscoverInfo info =
+                ServiceDiscoveryManager.getInstanceFor(provider.getConnection()).
+                    discoverInfo(roomName);
+
             if (info != null)
-                persistent = info.isPersistent();
+                persistent = info.containsFeature("muc_persistent");
+            
         } catch (Exception ex)
         {
             logger.warn("could not get persistent state for room :" +

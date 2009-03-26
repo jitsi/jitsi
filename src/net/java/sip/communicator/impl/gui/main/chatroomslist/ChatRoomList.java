@@ -246,7 +246,16 @@ public class ChatRoomList
                     = provider.findChatRoomWrapperForChatRoom(chatRoom);
 
                 if (chatRoomWrapper != null)
+                {
+                    // stored chatrooms has no chatroom, but their
+                    // id is the same as the chatroom we are searching wrapper for
+                    if(chatRoomWrapper.getChatRoom() == null)
+                    {
+                        chatRoomWrapper.setChatRoom(chatRoom);
+                    }
+
                     return chatRoomWrapper;
+                }
             }
         }
 

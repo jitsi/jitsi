@@ -358,7 +358,36 @@ public class ProtocolProviderServiceJabberImpl
                 if(accountResource == null || accountResource.equals(""))
                     accountResource = "sip-comm";
 
-                connection.login(userID, password, accountResource);
+                SASLAuthentication.supportSASLMechanism("PLAIN", 0);
+
+                try
+                {
+                    connection.login(userID, password, accountResource);
+                } catch (XMPPException e1)
+                {
+                    // after updating to new smack lib
+                    // login mechanisum changed
+                    // this is a way to avoid the problem
+                    try
+                    {
+                        // server disconnect us after such un error
+                        // cleanup
+                        try
+                        {
+                            connection.disconnect();
+                        } catch (Exception e)
+                        {}
+                        // and connect again
+                        connection.connect();
+                        // logging in to google need and service name
+                        connection.login(userID + "@" + serviceName,
+                                password, accountResource);
+                    } catch (XMPPException e2)
+                    {
+                        // if it happens once again throw the original exception
+                        throw e1;
+                    }
+                }
 
                 if(connection.isAuthenticated())
                 {
