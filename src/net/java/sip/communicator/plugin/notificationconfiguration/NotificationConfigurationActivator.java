@@ -42,7 +42,9 @@ public class NotificationConfigurationActivator implements BundleActivator
                     "net.java.sip.communicator.plugin.notificationconfiguration.NotificationConfigurationPanel",
                     getClass().getClassLoader(),
                     "plugin.notificationconfig.PLUGIN_ICON",
-                    "service.gui.NOTIFICATIONS"), null);
+                    "service.gui.NOTIFICATIONS",
+                    30),
+                null);
 
         logger.trace("Notification Configuration: [ STARTED ]");
     }

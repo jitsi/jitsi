@@ -111,11 +111,13 @@ public class ConfigurationFrame
      */
     public void addDefaultForms()
     {
-        this
-            .addConfigurationForm(new LazyConfigurationForm(
+        addConfigurationForm(
+            new LazyConfigurationForm(
                 "net.java.sip.communicator.impl.gui.main.account.AccountsConfigurationPanel",
-                getClass().getClassLoader(), "service.gui.icons.ACCOUNT_ICON",
-                "service.gui.ACCOUNTS", 1));
+                getClass().getClassLoader(),
+                "service.gui.icons.ACCOUNT_ICON",
+                "service.gui.ACCOUNTS",
+                10));
     }
 
     /**
@@ -215,17 +217,7 @@ public class ConfigurationFrame
      */
     private void addConfigurationForm(ConfigurationForm configForm)
     {
-        ConfigFormDescriptor descriptor = new ConfigFormDescriptor(configForm);
-
-        if (descriptor != null)
-        {
-            int index = configForm.getIndex();
-
-            if (index > -1)
-                configList.addConfigForm(descriptor, index);
-            else
-                configList.addConfigForm(descriptor);
-        }
+        configList.addConfigForm(configForm);
     }
 
     /**

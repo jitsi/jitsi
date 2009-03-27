@@ -79,8 +79,11 @@ public class MailboxActivator
                 ConfigurationForm.class.getName(),
                 new LazyConfigurationForm(
                     "net.java.sip.communicator.plugin.mailbox.MailboxConfigurationPanel",
-                    getClass().getClassLoader(), "plugin.mailbox.PLUGIN_ICON",
-                    "plugin.mailbox.MAILBOX"), null);
+                    getClass().getClassLoader(),
+                    "plugin.mailbox.PLUGIN_ICON",
+                    "plugin.mailbox.MAILBOX",
+                    500),
+                null);
 
         logger.info("Mailbox plug-in...[STARTED]");
     }

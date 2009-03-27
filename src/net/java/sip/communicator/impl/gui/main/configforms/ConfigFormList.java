@@ -42,26 +42,26 @@ public class ConfigFormList
     }
 
     /**
-     * Inserts a new <tt>ConfigurationForm</tt> to this list at the desired
-     * index. 
-     * @param configForm The <tt>ConfigurationForm</tt> to add.
-     * @param index the index indicating the order of the configuration forms.
-     */
-    public void addConfigForm(ConfigFormDescriptor configForm, int index)
-    {
-        if(index <= listModel.getSize())
-            listModel.add(index, configForm);
-        else
-            listModel.addElement(configForm);
-    }
-
-    /**
      * Adds a new <tt>ConfigurationForm</tt> to this list. 
      * @param configForm The <tt>ConfigurationForm</tt> to add.
      */
-    public void addConfigForm(ConfigFormDescriptor configForm)
+    public void addConfigForm(ConfigurationForm configForm)
     {
-        listModel.addElement(configForm);
+        if (configForm == null)
+            throw new IllegalArgumentException("configForm");
+
+        int i = 0;
+        int count = listModel.size();
+        int configFormIndex = configForm.getIndex();
+        for (; i < count; i++)
+        {
+            ConfigFormDescriptor descriptor
+                = (ConfigFormDescriptor) listModel.get(i);
+
+            if (configFormIndex < descriptor.getConfigForm().getIndex())
+                break;
+        }
+        listModel.add(i, new ConfigFormDescriptor(configForm));
     }
 
     /**
@@ -70,13 +70,19 @@ public class ConfigFormList
      */
     public void removeConfigForm(ConfigurationForm configForm)
     {
-        for(int i = 0; i < listModel.getSize(); i ++)
+        for(int count = listModel.getSize(), i = count - 1; i >= 0; i--)
         {
             ConfigFormDescriptor descriptor
                 = (ConfigFormDescriptor) listModel.get(i);
             
             if(descriptor.getConfigForm().equals(configForm))
-                listModel.removeElement(descriptor);
+            {
+                listModel.remove(i);
+                /*
+                 * TODO We may just consider not allowing duplicates on addition
+                 * and then break here.
+                 */
+            }
         }
     }
 

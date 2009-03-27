@@ -40,7 +40,9 @@ public class PluginManagerActivator
                     "net.java.sip.communicator.plugin.pluginmanager.PluginManagerPanel",
                     getClass().getClassLoader(),
                     "plugin.pluginmanager.PLUGIN_ICON",
-                    "plugin.pluginmanager.PLUGINS"), null);
+                    "plugin.pluginmanager.PLUGINS",
+                    1000),
+                null);
     }
 
     /**

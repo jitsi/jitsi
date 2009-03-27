@@ -51,8 +51,11 @@ public class AutoAwayActivator implements BundleActivator
                 ConfigurationForm.class.getName(),
                 new LazyConfigurationForm(
                     "net.java.sip.communicator.plugin.autoaway.AutoAwayConfigurationPanel",
-                    getClass().getClassLoader(), "plugin.autoaway.PLUGIN_ICON",
-                    "plugin.autoaway.AUTO_STATUS"), null);
+                    getClass().getClassLoader(),
+                    "plugin.autoaway.PLUGIN_ICON",
+                    "plugin.autoaway.AUTO_STATUS",
+                    20),
+                null);
 
         new Thread(new Runnable()
         {

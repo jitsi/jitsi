@@ -681,6 +681,8 @@
 
             <!-- add some eventual profiler args -->
             <jvmarg line="${profiler.args} ${jvmarg.line}"/>
+
+            <sysproperty key="apple.laf.useScreenMenuBar" value="true" />
         </java>
     </target>
 

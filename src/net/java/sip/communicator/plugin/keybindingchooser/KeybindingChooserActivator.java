@@ -45,7 +45,9 @@ public class KeybindingChooserActivator
                     "net.java.sip.communicator.plugin.keybindingchooser.KeybindingsConfigPanel",
                     getClass().getClassLoader(),
                     "plugin.keybinding.PLUGIN_ICON",
-                    "plugin.keybindings.PLUGIN_NAME"), null);
+                    "plugin.keybindings.PLUGIN_NAME",
+                    900),
+                null);
     }
 
     /**
