@@ -228,6 +228,16 @@ public interface UIService
     public String getCurrentPhoneNumber();
 
     /**
+     * Sets the phone number in the phone number field. This method is meant to
+     * be used by plugins that are interested in operations with the currently
+     * entered phone number.
+     * 
+     * @param phoneNumber the phone number to enter.
+     */
+
+    public void setCurrentPhoneNumber(String phoneNumber);
+
+    /**
      * Returns an <tt>ExportableComponent</tt> that corresponds to an
      * authentication window for the given protocol provider and user
      * information. Initially this method is meant to be used by the

@@ -1364,6 +1364,16 @@ public class MainFrame
     }
 
     /**
+     * Changes the phone number currently entered in the phone number field.
+     *
+     * @param number the phone number to enter in the phone number field.
+     */
+    public void setCurrentPhoneNumber(String number)
+    {
+        mainCallPanel.setPhoneNumberComboText(number);
+    }
+
+    /**
      * Implementation of {@link ExportedWindow#setParams(Object[])}.
      */
     public void setParams(Object[] windowParams) {}

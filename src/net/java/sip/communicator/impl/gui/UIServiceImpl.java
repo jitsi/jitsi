@@ -582,6 +582,16 @@ public class UIServiceImpl
     {
         return mainFrame.getCurrentPhoneNumber();
     }
+ 
+    /**
+     * Changes the phone number currently entered in the phone number field.
+     *
+     * @param number the phone number to enter in the phone number field.
+     */
+    public void setCurrentPhoneNumber(String phoneNumber)
+    {
+        mainFrame.setCurrentPhoneNumber(phoneNumber);
+    }
 
     /**
      * Implements the <code>UIService.isContainerSupported</code> method.
