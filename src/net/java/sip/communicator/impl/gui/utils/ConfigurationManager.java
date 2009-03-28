@@ -291,22 +291,15 @@ public class ConfigurationManager
         }
         
         // Load the "isChatToolbarVisible" property
-        String chatToolbarVisible = configService.getString(
-            "net.java.sip.communicator.impl.gui.chat.ChatWindow.showToolbar");
-
-        if(chatToolbarVisible != null && chatToolbarVisible.length() > 0)
-            isChatToolbarVisible = Boolean.parseBoolean(chatToolbarVisible);
-        else
-            isChatToolbarVisible = true;
-        
+        isChatToolbarVisible
+            = configService.getBoolean(
+                "net.java.sip.communicator.impl.gui.chat.ChatWindow.showToolbar",
+                true);
         // Load the "isChatToolbarVisible" property
-        String chatStylebarVisible = configService.getString(
-            "net.java.sip.communicator.impl.gui.chat.ChatWindow.showStylebar");
-
-        if(chatStylebarVisible != null && chatStylebarVisible.length() > 0)
-            isChatStylebarVisible = Boolean.parseBoolean(chatStylebarVisible);
-        else
-            isChatStylebarVisible = true;
+        isChatStylebarVisible
+            = configService.getBoolean(
+                "net.java.sip.communicator.impl.gui.chat.ChatWindow.showStylebar",
+                true);
 
         // Load the "lastContactParent" property.
         lastContactParent = configService.getString(

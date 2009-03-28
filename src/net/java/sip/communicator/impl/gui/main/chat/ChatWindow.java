@@ -136,8 +136,10 @@ public class ChatWindow
             mainToolBar = new ExtendedMainToolBar(this);
         else
             mainToolBar = new MainToolBar(this);
-        
-        mainToolBar.setVisible(ConfigurationManager.isChatToolbarVisible());
+
+        boolean chatToolbarVisible = ConfigurationManager.isChatToolbarVisible();
+        mainToolBar.setVisible(chatToolbarVisible);
+        contactPhotoPanel.setVisible(chatToolbarVisible);
 
         Component logoBar = LogoBar.createInstance();
         if (logoBar != null)
@@ -199,7 +201,8 @@ public class ChatWindow
      */
     public void setToolbarVisible(boolean b)
     {
-        this.mainToolBar.setVisible(b);
+        mainToolBar.setVisible(b);
+        contactPhotoPanel.setVisible(b);
     }
     
     /**
@@ -216,8 +219,7 @@ public class ChatWindow
             p.setStylebarVisible(b);
         
         // if there is tabs, set it for all
-        int i, imax = this.getChatTabCount();
-        for (i=0; i<imax; i++)
+        for (int i = 0, imax = this.getChatTabCount(); i < imax; i++)
         {
             p = (ChatPanel) this.chatTabbedPane.getComponentAt(i);
             p.setStylebarVisible(b);
