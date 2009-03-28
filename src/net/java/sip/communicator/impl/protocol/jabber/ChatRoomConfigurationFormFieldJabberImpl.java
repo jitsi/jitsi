@@ -87,10 +87,10 @@ public class ChatRoomConfigurationFormFieldJabberImpl
      * 
      * @return the options of the corresponding smack property
      */
-    public Iterator getOptions()
+    public Iterator<String> getOptions()
     {
-        List options = new ArrayList();
-        Iterator smackOptions = smackFormField.getOptions();
+        List<String> options = new ArrayList<String>();
+        Iterator<FormField.Option> smackOptions = smackFormField.getOptions();
                 
         while(smackOptions.hasNext())
         {
@@ -150,7 +150,7 @@ public class ChatRoomConfigurationFormFieldJabberImpl
     {
         Iterator valuesIter = null;
         List values = new ArrayList();
-        Iterator smackValues = smackFormField.getValues();
+        Iterator<String> smackValues = smackFormField.getValues();
         
         if(smackFormField.getType().equals(FormField.TYPE_BOOLEAN))
         {

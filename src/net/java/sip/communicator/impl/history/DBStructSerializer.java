@@ -137,7 +137,7 @@ public class DBStructSerializer {
         NodeList nodes = structNode.getChildNodes();
         int count = nodes.getLength();
 
-        ArrayList propertyNames = new ArrayList(count);
+        ArrayList<String> propertyNames = new ArrayList<String>(count);
 
         for (int i = 0; i < count; i++)
         {
@@ -166,7 +166,7 @@ public class DBStructSerializer {
     private HistoryID loadID(Node parent) throws ParseException
     {
         Element idnode = findElement(parent, "id");
-        ArrayList al = loadID(new ArrayList(), idnode);
+        ArrayList<String> al = loadID(new ArrayList<String>(), idnode);
 
         String[] id = new String[al.size()];
         al.toArray(id);
@@ -174,7 +174,7 @@ public class DBStructSerializer {
         return HistoryID.createFromID(id);
     }
 
-    private ArrayList loadID(ArrayList loadedIDs, Node parent)
+    private ArrayList<String> loadID(ArrayList<String> loadedIDs, Node parent)
             throws ParseException {
         Element node = findElement(parent, "component");
         if (node != null)

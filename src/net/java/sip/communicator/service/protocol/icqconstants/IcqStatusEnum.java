@@ -100,7 +100,8 @@ public class IcqStatusEnum
     /**
      * The minimal set of states that any ICQ implementation must support.
      */
-    public static final ArrayList icqStatusSet =new ArrayList();
+    public static final ArrayList<IcqStatusEnum> icqStatusSet 
+        = new ArrayList<IcqStatusEnum>();
     static{
             icqStatusSet.add(FREE_FOR_CHAT);
             icqStatusSet.add(ONLINE);

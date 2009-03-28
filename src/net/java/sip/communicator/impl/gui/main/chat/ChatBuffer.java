@@ -16,7 +16,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * 
  * @author Yana Stamcheva
  */
-public class ChatBuffer extends ArrayList {
+public class ChatBuffer<E> extends ArrayList<E> {
 	private static final long serialVersionUID = 0L;
 
 	/**
@@ -44,7 +44,7 @@ public class ChatBuffer extends ArrayList {
      * @return <code>true</code> (as per the general contract of the
      * Collection.add)
      */
-    public boolean add(Object o) {
+    public boolean add(E o) {
         this.recalculateBuffer();
 
         return super.add(o);

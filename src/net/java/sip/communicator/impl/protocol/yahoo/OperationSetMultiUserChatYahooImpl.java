@@ -3,6 +3,8 @@ package net.java.sip.communicator.impl.protocol.yahoo;
 import java.io.IOException;
 import java.util.*;
 
+import org.jivesoftware.smackx.muc.*;
+
 import ymsg.network.*;
 import ymsg.network.event.*;
 import ymsg.support.MessageDecoder;
@@ -24,24 +26,29 @@ public class OperationSetMultiUserChatYahooImpl
    /**
     * A list of listeners subscribed for invitations multi user chat events.
     */
-   private Vector invitationListeners = new Vector();
+   private Vector<ChatRoomInvitationListener> invitationListeners 
+       = new Vector<ChatRoomInvitationListener>();
 
    /**
     * A list of listeners subscribed for events indicating rejection of a multi
     * user chat invitation sent by us.
     */
-   private Vector invitationRejectionListeners = new Vector();
+   private Vector<ChatRoomInvitationRejectionListener> 
+       invitationRejectionListeners 
+           = new Vector<ChatRoomInvitationRejectionListener>();
 
    /**
     * Listeners that will be notified of changes in our status in the room such
     * as us being kicked, banned, or granted admin permissions.
     */
-   private Vector presenceListeners = new Vector();
+   private Vector<LocalUserChatRoomPresenceListener> presenceListeners 
+       = new Vector<LocalUserChatRoomPresenceListener>();
 
    /**
     * A list of the rooms that are currently open by this account.
     */
-   private Hashtable chatRoomCache = new Hashtable();
+   private Hashtable<String, ChatRoomYahooImpl> chatRoomCache 
+       = new Hashtable<String, ChatRoomYahooImpl>();
 
    /**
     * The currently valid Yahoo protocol provider service implementation.
@@ -59,11 +66,6 @@ public class OperationSetMultiUserChatYahooImpl
     * contains some specials characters, to HTML or to plain text.
     */
    private MessageDecoder messageDecoder = new MessageDecoder();
-
-   /**
-    * Default Invitation message.
-    */
-   private final String DEFAULT_INVITATION = "Please join my chat room!";
 
    /**
     * Instantiates the user operation set with a currently valid instance of
@@ -209,7 +211,8 @@ public class OperationSetMultiUserChatYahooImpl
     * 
     * @return ChatRoom the chat room that we've just created.
     */
-   public ChatRoom createChatRoom(String roomName, Hashtable roomProperties)
+   public ChatRoom createChatRoom(String roomName, 
+                                   Hashtable<String, Object> roomProperties)
            throws OperationFailedException, OperationNotSupportedException
    {
        ChatRoom chatRoom = null;
@@ -271,7 +274,7 @@ public class OperationSetMultiUserChatYahooImpl
    public ChatRoom findRoom(YahooConference yahooConference)
            throws OperationFailedException, OperationNotSupportedException
    {
-       ChatRoom room = (ChatRoom) chatRoomCache.get(yahooConference.getName());
+       ChatRoomYahooImpl room = chatRoomCache.get(yahooConference.getName());
 
        if (room == null)
        {
@@ -290,12 +293,13 @@ public class OperationSetMultiUserChatYahooImpl
     * 
     * @return ChatRoom the chat room that we've just created.
     */
-   private ChatRoom createLocalChatRoomInstance(YahooConference yahooConference)
+   private ChatRoomYahooImpl 
+       createLocalChatRoomInstance(YahooConference yahooConference)
    {
        synchronized (chatRoomCache)
        {
-           ChatRoom newChatRoom = new ChatRoomYahooImpl(yahooConference,
-                   yahooProvider);
+           ChatRoomYahooImpl newChatRoom 
+               = new ChatRoomYahooImpl(yahooConference, yahooProvider);
 
            return newChatRoom;
        }
@@ -308,13 +312,14 @@ public class OperationSetMultiUserChatYahooImpl
     * @return a <tt>List</tt> of the rooms where the user has joined using a
     *         given connection.
     */
-   public List getCurrentlyJoinedChatRooms()
+   public List<ChatRoom> getCurrentlyJoinedChatRooms()
    {
        synchronized (chatRoomCache)
        {
-           List joinedRooms = new LinkedList(this.chatRoomCache.values());
+           List<ChatRoom> joinedRooms 
+               = new LinkedList<ChatRoom>(this.chatRoomCache.values());
 
-           Iterator joinedRoomsIter = joinedRooms.iterator();
+           Iterator<ChatRoom> joinedRoomsIter = joinedRooms.iterator();
 
            while (joinedRoomsIter.hasNext())
            {
@@ -341,29 +346,32 @@ public class OperationSetMultiUserChatYahooImpl
     * @throws OperationNotSupportedException
     *             if the server does not support multi user chat
     */
-   public List getCurrentlyJoinedChatRooms(ChatRoomMember chatRoomMember)
+   public List<String> getCurrentlyJoinedChatRooms(ChatRoomMember chatRoomMember)
            throws OperationFailedException, OperationNotSupportedException
    {
        synchronized (chatRoomCache)
        {
-           List joinedRooms = new LinkedList(this.chatRoomCache.values());
+           List<String> joinedRooms 
+               = new LinkedList<String>();
 
-           Iterator joinedRoomsIter = joinedRooms.iterator();
+           Iterator<ChatRoom> joinedRoomsIter = new LinkedList<ChatRoom>(
+                           this.chatRoomCache.values()).iterator();
 
            while (joinedRoomsIter.hasNext())
            {
-               if (!((ChatRoom) joinedRoomsIter.next()).isJoined())
-                   joinedRoomsIter.remove();
+               ChatRoom room = joinedRoomsIter.next();
+               if (room.isJoined())
+                   joinedRooms.add(room.getName());
            }
 
            return joinedRooms;
        }
    }
 
-   public List getExistingChatRooms() throws OperationFailedException,
+   public List<String> getExistingChatRooms() throws OperationFailedException,
            OperationNotSupportedException
    {
-       LinkedList list = new LinkedList();
+       LinkedList<String> list = new LinkedList<String>();
 
        // disabled due to new security system for chat rooms.
 
@@ -446,10 +454,11 @@ public class OperationSetMultiUserChatYahooImpl
        ChatRoomInvitationReceivedEvent evt = new ChatRoomInvitationReceivedEvent(
                this, invitation, new Date(System.currentTimeMillis()));
 
-       Iterator listeners = null;
+       Iterator<ChatRoomInvitationListener> listeners = null;
        synchronized (invitationListeners)
        {
-           listeners = new ArrayList(invitationListeners).iterator();
+           listeners = new ArrayList<ChatRoomInvitationListener>(
+                               invitationListeners).iterator();
        }
 
        while (listeners.hasNext())
@@ -479,10 +488,11 @@ public class OperationSetMultiUserChatYahooImpl
                this, sourceChatRoom, invitee, reason, new Date(System
                        .currentTimeMillis()));
 
-       Iterator listeners = null;
+       Iterator<ChatRoomInvitationRejectionListener> listeners = null;
        synchronized (invitationRejectionListeners)
        {
-           listeners = new ArrayList(invitationRejectionListeners).iterator();
+           listeners = new ArrayList<ChatRoomInvitationRejectionListener>(
+                               invitationRejectionListeners).iterator();
        }
 
        while (listeners.hasNext())
@@ -515,10 +525,11 @@ public class OperationSetMultiUserChatYahooImpl
                                                        eventType,
                                                        reason);
 
-       Iterator listeners = null;
+       Iterator<LocalUserChatRoomPresenceListener> listeners = null;
        synchronized (presenceListeners)
        {
-           listeners = new ArrayList(presenceListeners).iterator();
+           listeners = new ArrayList<LocalUserChatRoomPresenceListener>(
+                           presenceListeners).iterator();
        }
 
        while (listeners.hasNext())
@@ -722,8 +733,9 @@ public class OperationSetMultiUserChatYahooImpl
                // the gui
                
                Message newMessage = createMessage(formattedMessage.getBytes(),
-                       opSetBasic.HTML_MIME_TYPE,
-                       opSetBasic.DEFAULT_MIME_ENCODING, null);
+                       OperationSetBasicInstantMessaging.HTML_MIME_TYPE,
+                       OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING, 
+                       null);
 
                ChatRoomYahooImpl chatRoom = (ChatRoomYahooImpl) findRoom(ev
                        .getRoom().getName());

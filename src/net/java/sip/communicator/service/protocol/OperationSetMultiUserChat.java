@@ -79,7 +79,8 @@ public interface OperationSetMultiUserChat
      *
      * @return the newly created <tt>ChatRoom</tt> named <tt>roomName</tt>.
      */
-    public ChatRoom createChatRoom(String roomName, Hashtable roomProperties)
+    public ChatRoom createChatRoom(String roomName, 
+                                   Hashtable<String, Object> roomProperties)
         throws OperationFailedException, OperationNotSupportedException;
 
     /**

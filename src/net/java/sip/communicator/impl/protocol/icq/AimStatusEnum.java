@@ -59,7 +59,8 @@ public class AimStatusEnum
     /**
      * The minimal set of states that any AIM implementation must support.
      */
-    public static final ArrayList aimStatusSet =new ArrayList();
+    public static final ArrayList<AimStatusEnum> aimStatusSet 
+        = new ArrayList<AimStatusEnum>();
     static{
             aimStatusSet.add(ONLINE);
             aimStatusSet.add(INVISIBLE);

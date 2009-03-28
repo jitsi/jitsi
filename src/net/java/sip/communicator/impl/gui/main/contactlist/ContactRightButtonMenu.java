@@ -43,6 +43,11 @@ public class ContactRightButtonMenu
                 PluginComponentListener,
                 ContactListListener
 {
+    /**
+     * An eclipse generated serial version unique ID
+     */
+    private static final long serialVersionUID = 3033031652970285857L;
+
     private Logger logger = Logger.getLogger(ContactRightButtonMenu.class);
 
     private static final String allContactsString
@@ -1001,6 +1006,11 @@ public class ContactRightButtonMenu
      */
     private static class ProviderAwareMenuItem extends JMenuItem
     {
+        /**
+         * An eclipse generated serialVersionUID.
+         */
+        private static final long serialVersionUID = 6343418726839985645L;
+        
         private ProtocolProviderService provider = null;
         
         /**

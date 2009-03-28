@@ -20,7 +20,8 @@ import net.java.sip.communicator.service.protocol.*;
  */
 public class NewContact {
 
-    private ArrayList protocolProviders = new ArrayList();
+    private ArrayList<ProtocolProviderService> protocolProviders 
+        = new ArrayList<ProtocolProviderService>();
     
     private MetaContactGroup group;
     
@@ -80,7 +81,7 @@ public class NewContact {
      * @return a list of protocol providers, where this contact should be
      * added.
      */
-    public ArrayList getProtocolProviders() {
+    public ArrayList<ProtocolProviderService> getProtocolProviders() {
         return protocolProviders;
     }
 }

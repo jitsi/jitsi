@@ -27,6 +27,11 @@ public class AddContactWizard
     extends Wizard
     implements  WizardListener
 {
+    /**
+     * An Eclipse generated serial version UID.
+     */
+    private static final long serialVersionUID = 6001213290904019062L;
+
     private Logger logger = Logger.getLogger(AddContactWizard.class.getName());
 
     private MainFrame mainFrame;
@@ -53,8 +58,10 @@ public class AddContactWizard
         this.setFinishButtonText(GuiActivator.getResources()
             .getI18NString("service.gui.ADD_CONTACT"));
 
-        Vector pps = new Vector();
-        Iterator iter = mainFrame.getProtocolProviders();
+        Vector<ProtocolProviderService> pps 
+            = new Vector<ProtocolProviderService>();
+        Iterator<ProtocolProviderService> iter 
+            = mainFrame.getProtocolProviders();
         while (iter.hasNext())
         {
             ProtocolProviderService p = (ProtocolProviderService)iter.next();
@@ -177,7 +184,8 @@ public class AddContactWizard
     {
         if(e.getEventCode() == WizardEvent.SUCCESS) {
             
-            ArrayList ppList = newContact.getProtocolProviders();
+            ArrayList<ProtocolProviderService> ppList 
+                = newContact.getProtocolProviders();
                 
             for(int i = 0; i < ppList.size(); i ++) {
                 ProtocolProviderService pps
