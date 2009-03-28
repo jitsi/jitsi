@@ -56,6 +56,9 @@ public class NewAccountDialog
     private TransparentPanel buttonPanel
         = new TransparentPanel(new BorderLayout());
 
+    private EmptyAccountRegistrationWizard emptyWizard
+            = new EmptyAccountRegistrationWizard();
+
     private String preferredWizardName;
 
     private static NewAccountDialog newAccountDialog;
@@ -196,7 +199,8 @@ public class NewAccountDialog
             }
             else//if we don't we send our empty page and let the wizard choose.
             {
-
+                networkComboBox.insertItemAt(emptyWizard, 0);
+                networkComboBox.setSelectedItem(emptyWizard);
             }
         }
     }
@@ -232,8 +236,18 @@ public class NewAccountDialog
             }
 
             this.setText(wizard.getProtocolName());
-            this.setIcon(new ImageIcon(
-                ImageLoader.getBytesInImage(wizard.getIcon())));
+            byte[] icon = wizard.getIcon();
+
+            if( icon != null && icon.length > 0)
+            {
+                this.setIcon(new ImageIcon(
+                                ImageLoader.getBytesInImage(icon)));
+            }
+            else
+            {
+                this.setIcon(null);
+            }
+
 
             return this;
         }
@@ -319,6 +333,12 @@ public class NewAccountDialog
             ProtocolProviderService protocolProvider;
             try
             {
+                if(wizard == emptyWizard)
+                {
+                    loadErrorMessage(GuiActivator.getResources().getI18NString(
+                        "service.gui.CHOOSE_NETWORK"));
+
+                }
                 protocolProvider = wizard.signin();
 
                 if (protocolProvider != null)

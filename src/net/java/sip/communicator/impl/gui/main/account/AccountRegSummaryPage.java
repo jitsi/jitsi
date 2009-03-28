@@ -72,11 +72,11 @@ public class AccountRegSummaryPage
      *
      * @param summaryData The data to insert in the summary page.
      */
-    private void init(Iterator<Map.Entry> summaryData)
+    private void init(Iterator<Map.Entry<String, String>> summaryData)
     {
         while (summaryData.hasNext())
         {
-            Map.Entry entry = summaryData.next();
+            Map.Entry<String, String> entry = summaryData.next();
 
             JLabel keyLabel = new JLabel(entry.getKey().toString() + ":");
             JLabel valueLabel = new JLabel(entry.getValue().toString());
