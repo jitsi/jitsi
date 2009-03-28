@@ -47,12 +47,6 @@ public class ChatRoomListDialog
     private static final String JOIN_CHAT_ROOM = "service.gui.JOIN_CHAT_ROOM";
 
     /**
-     * The key for the string containing the name of the Close button.
-     */
-    private static final String CLOSE_CHAT_ROOM_DIALOG 
-        = "service.gui.CLOSE_CHAT_ROOM_DIALOG";
-    
-    /**
      * The key for the string containing the name of the "My Chat Rooms" title.
      */
     private static final String MY_CHAT_ROOMS = "service.gui.MY_CHAT_ROOMS";
@@ -126,10 +120,6 @@ public class ChatRoomListDialog
             GuiActivator.getResources()
                 .getI18NString(JOIN_CHAT_ROOM));
 
-        JButton cancelButton = new JButton(
-            GuiActivator.getResources()
-                .getI18NString(CLOSE_CHAT_ROOM_DIALOG));
-
         TransparentPanel buttonPanel = new TransparentPanel();
 
         this.setTitle(GuiActivator.getResources()
@@ -140,22 +130,17 @@ public class ChatRoomListDialog
 
         buttonPanel.add(joinChatRoomButton);
         buttonPanel.add(createChatRoomButton);
-        buttonPanel.add(cancelButton);
 
         createChatRoomButton.addActionListener(this);
         joinChatRoomButton.addActionListener(this);
-        cancelButton.addActionListener(this);
 
         createChatRoomButton.setName(CREATE_CHAT_ROOM);
         joinChatRoomButton.setName(JOIN_CHAT_ROOM);
-        cancelButton.setName(CLOSE_CHAT_ROOM_DIALOG);
 
         createChatRoomButton.setMnemonic(GuiActivator.getResources()
             .getI18nMnemonic(CREATE_CHAT_ROOM));
         joinChatRoomButton.setMnemonic(GuiActivator.getResources()
             .getI18nMnemonic(JOIN_CHAT_ROOM));
-        cancelButton.setMnemonic(GuiActivator.getResources()
-            .getI18nMnemonic(CLOSE_CHAT_ROOM_DIALOG));
     }
 
     /**
@@ -179,10 +164,6 @@ public class ChatRoomListDialog
                 = new JoinChatRoomWizard(mainFrame);
 
             joinChatRoomWizard.showDialog(false);
-        }
-        else if (buttonName.equals(CLOSE_CHAT_ROOM_DIALOG))
-        {
-            this.dispose();
         }
     }
 
