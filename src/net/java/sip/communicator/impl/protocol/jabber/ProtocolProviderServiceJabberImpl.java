@@ -36,6 +36,13 @@ public class ProtocolProviderServiceJabberImpl
         Logger.getLogger(ProtocolProviderServiceJabberImpl.class);
 
     /**
+     * The name of the property that tells us whether we are supposed to start
+     * experimental support for Jingle.
+     */
+    private static final String PNAME_ENABLE_JINGLE = "net.java.sip"
+        + ".communicator.impl.protocol.jabber.ENABLE_EXPERIMENTAL_JINGLE";
+
+    /**
      * Used to connect to a XMPP server.
      */
     private XMPPConnection connection = null;
@@ -87,7 +94,7 @@ public class ProtocolProviderServiceJabberImpl
      * We can find features corresponding to op set in the xep(s) related
      * to implemented functionality.
      */
-    private final List supportedFeatures = new ArrayList();
+    private final List<String> supportedFeatures = new ArrayList<String>();
 
     /**
      * The <tt>ServiceDiscoveryManager</tt> is responsible for advertising
@@ -611,8 +618,13 @@ public class ProtocolProviderServiceJabberImpl
             supportedFeatures.add("http://jabber.org/protocol/muc#rooms");
             supportedFeatures.add("http://jabber.org/protocol/muc#traffic");
 
+            //check if we are supposed to start telephony
+
             //initialize the telephony opset
-            if(JabberActivator.getMediaService() != null)
+            String enableJingle = (String)JabberActivator
+                .getConfigurationService().getProperty(PNAME_ENABLE_JINGLE);
+            if( Boolean.getBoolean(enableJingle)    
+                && JabberActivator.getMediaService() != null)
             {
                 OperationSetBasicTelephony opSetBasicTelephony
                     = new OperationSetBasicTelephonyJabberImpl(this);
