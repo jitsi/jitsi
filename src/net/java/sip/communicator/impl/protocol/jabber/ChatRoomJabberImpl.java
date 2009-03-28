@@ -44,39 +44,46 @@ public class ChatRoomJabberImpl
      * Listeners that will be notified of changes in member status in the
      * room such as member joined, left or being kicked or dropped.
      */
-    private final Vector memberListeners = new Vector();
+    private final Vector<ChatRoomMemberPresenceListener> memberListeners 
+        = new Vector<ChatRoomMemberPresenceListener>();
 
     /**
      * Listeners that will be notified of changes in member role in the
      * room such as member being granted admin permissions, or revoked admin
      * permissions.
      */
-    private final Vector memberRoleListeners = new Vector();
+    private final Vector<ChatRoomMemberRoleListener> memberRoleListeners 
+        = new Vector<ChatRoomMemberRoleListener>();
     
     /**
      * Listeners that will be notified of changes in local user role in the
      * room such as member being granted admin permissions, or revoked admin
      * permissions.
      */
-    private final Vector localUserRoleListeners = new Vector();
+    private final Vector<ChatRoomLocalUserRoleListener> localUserRoleListeners 
+        = new Vector<ChatRoomLocalUserRoleListener>();
 
     /**
      * Listeners that will be notified every time
      * a new message is received on this chat room.
      */
-    private final Vector messageListeners = new Vector();
+    private final Vector<ChatRoomMessageListener> messageListeners 
+        = new Vector<ChatRoomMessageListener>();
 
     /**
      * Listeners that will be notified every time
      * a chat room property has been changed.
      */
-    private final Vector propertyChangeListeners = new Vector();
+    private final Vector<ChatRoomPropertyChangeListener> propertyChangeListeners
+        = new Vector<ChatRoomPropertyChangeListener>();
 
     /**
      * Listeners that will be notified every time
      * a chat room member property has been changed.
      */
-    private final Vector memberPropChangeListeners = new Vector();
+    private final Vector<ChatRoomMemberPropertyChangeListener> 
+        memberPropChangeListeners 
+            = new Vector<ChatRoomMemberPropertyChangeListener>();
 
     /**
      * The protocol provider that created us
@@ -316,7 +323,7 @@ public class ChatRoomJabberImpl
      */
     public List<ChatRoomMember> getMembers()
     {
-        return new LinkedList(members.values());
+        return new LinkedList<ChatRoomMember>(members.values());
     }
 
     /**
@@ -703,11 +710,13 @@ public class ChatRoomJabberImpl
 
 // FIXME : do we have to do the following when we leave the room ?
 
-        Iterator membersSet = members.entrySet().iterator();
+        Iterator<Map.Entry<String, ChatRoomMember>> membersSet 
+            = members.entrySet().iterator();
         
         while(membersSet.hasNext())
         {
-            Map.Entry memberEntry = (Map.Entry) membersSet.next();
+            Map.Entry<String, ChatRoomMember> memberEntry 
+                = (Map.Entry<String, ChatRoomMember>) membersSet.next();
             
             ChatRoomMember member = (ChatRoomMember) memberEntry.getValue();
             
@@ -1365,10 +1374,11 @@ public class ChatRoomJabberImpl
         
         logger.trace("Will dispatch the following ChatRoom event: " + evt);
     
-        Iterator listeners = null;
+        Iterator<ChatRoomMemberPresenceListener> listeners = null;
         synchronized (memberListeners)
         {
-            listeners = new ArrayList(memberListeners).iterator();
+            listeners = new ArrayList<ChatRoomMemberPresenceListener>(
+                                memberListeners).iterator();
         }
     
         while (listeners.hasNext())
@@ -1401,10 +1411,11 @@ public class ChatRoomJabberImpl
         
         logger.trace("Will dispatch the following ChatRoom event: " + evt);
     
-        Iterator listeners = null;
+        Iterator<ChatRoomMemberPresenceListener> listeners = null;
         synchronized (memberListeners)
         {
-            listeners = new ArrayList(memberListeners).iterator();
+            listeners = new ArrayList<ChatRoomMemberPresenceListener>(
+                            memberListeners).iterator();
         }
     
         while (listeners.hasNext())
@@ -1434,10 +1445,11 @@ public class ChatRoomJabberImpl
         
         logger.trace("Will dispatch the following ChatRoom event: " + evt);
     
-        Iterator listeners = null;
+        Iterator<ChatRoomMemberRoleListener> listeners = null;
         synchronized (memberRoleListeners)
         {
-            listeners = new ArrayList(memberRoleListeners).iterator();
+            listeners = new ArrayList<ChatRoomMemberRoleListener>(
+                                memberRoleListeners).iterator();
         }
     
         while (listeners.hasNext())
@@ -1456,10 +1468,11 @@ public class ChatRoomJabberImpl
      */
     private void fireMessageEvent(EventObject evt)
     {
-        Iterator listeners = null;
+        Iterator<ChatRoomMessageListener> listeners = null;
         synchronized (messageListeners)
         {
-            listeners = new ArrayList(messageListeners).iterator();
+            listeners = new ArrayList<ChatRoomMessageListener>(messageListeners)
+                .iterator();
         }
 
         while (listeners.hasNext())
@@ -1592,10 +1605,11 @@ public class ChatRoomJabberImpl
      */
     private void firePropertyChangeEvent(PropertyChangeEvent evt)
     {
-        Iterator listeners = null;
+        Iterator<ChatRoomPropertyChangeListener> listeners = null;
         synchronized (propertyChangeListeners)
         {
-            listeners = new ArrayList(propertyChangeListeners).iterator();
+            listeners = new ArrayList<ChatRoomPropertyChangeListener>(
+                            propertyChangeListeners).iterator();
         }
 
         while (listeners.hasNext())
@@ -1625,10 +1639,11 @@ public class ChatRoomJabberImpl
     public void fireMemberPropertyChangeEvent(
         ChatRoomMemberPropertyChangeEvent evt)
     {
-        Iterator listeners = null;
+        Iterator<ChatRoomMemberPropertyChangeListener> listeners = null;
         synchronized (memberPropChangeListeners)
         {
-            listeners = new ArrayList(memberPropChangeListeners).iterator();
+            listeners = new ArrayList<ChatRoomMemberPropertyChangeListener>(
+                                memberPropChangeListeners).iterator();
         }
 
         while (listeners.hasNext())

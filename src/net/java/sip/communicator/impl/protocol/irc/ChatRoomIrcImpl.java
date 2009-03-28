@@ -39,7 +39,8 @@ public class ChatRoomIrcImpl
     /**
      * list of members of this chatRoom
      */
-    private Hashtable chatRoomMembers = new Hashtable();
+    private Hashtable<String, ChatRoomMember> chatRoomMembers 
+        = new Hashtable<String, ChatRoomMember>();
 
     /**
      * The parent protocol service provider
@@ -50,44 +51,51 @@ public class ChatRoomIrcImpl
      * Listeners that will be notified of changes in member status in the
      * room such as member joined, left or being kicked or dropped.
      */
-    private Vector memberListeners = new Vector();
+    private Vector<ChatRoomMemberPresenceListener> 
+        memberListeners = new Vector<ChatRoomMemberPresenceListener>();
 
     /**
      * Listeners that will be notified of changes in member role in the
      * room such as member being granted admin permissions, or revoked admin
      * permissions.
      */
-    private Vector memberRoleListeners = new Vector();
+    private Vector<ChatRoomMemberRoleListener> memberRoleListeners 
+        = new Vector<ChatRoomMemberRoleListener>();
     
     /**
      * Listeners that will be notified of changes in local user role in the
      * room such as member being granted administrator permissions, or revoked
      * administrator permissions.
      */
-    private Vector localUserRoleListeners = new Vector();
+    private Vector<ChatRoomLocalUserRoleListener> localUserRoleListeners 
+        = new Vector<ChatRoomLocalUserRoleListener>();
 
     /**
      * Listeners that will be notified every time
      * a new message is received on this chat room.
      */
-    private Vector messageListeners = new Vector();
+    private Vector<ChatRoomMessageListener> messageListeners 
+        = new Vector<ChatRoomMessageListener>();
 
     /**
      * Listeners that will be notified every time
      * a chat room property has been changed.
      */
-    private Vector propertyChangeListeners = new Vector();
+    private Vector<ChatRoomPropertyChangeListener> propertyChangeListeners 
+        = new Vector<ChatRoomPropertyChangeListener>();
 
     /**
      * Listeners that will be notified every time
      * a chat room member property has been changed.
      */
-    private Vector memberPropChangeListeners = new Vector();
+    private Vector<ChatRoomMemberPropertyChangeListener> memberPropChangeListeners 
+        = new Vector<ChatRoomMemberPropertyChangeListener>();
 
     /**
      * The table containing all banned members.
      */
-    private Hashtable bannedMembers = new Hashtable();
+    private ArrayList<ChatRoomMember> bannedMembers 
+        = new ArrayList<ChatRoomMember>();
 
     /**
      * Indicates if this chat room is a private one (i.e. created with the 
@@ -262,10 +270,10 @@ public class ChatRoomIrcImpl
      * @throws OperationFailedException if we are not joined or we don't have
      * enough privileges to obtain the ban list.
      */
-    public Iterator getBanList()
+    public Iterator<ChatRoomMember> getBanList()
         throws OperationFailedException
     {
-        return bannedMembers.values().iterator();
+        return bannedMembers.iterator();
     }
 
     /**
@@ -640,9 +648,9 @@ public class ChatRoomIrcImpl
      * @return a <tt>List</tt> of <tt>Contact</tt> corresponding to all room
      *         members.
      */
-    public List getMembers()
+    public List<ChatRoomMember> getMembers()
     {
-        return new ArrayList(chatRoomMembers.values());
+        return new ArrayList<ChatRoomMember>(chatRoomMembers.values());
     }
 
     /**
@@ -798,10 +806,11 @@ public class ChatRoomIrcImpl
                                                 msg,
                                                 eventType);
 
-        Iterator listeners = null;
+        Iterator<ChatRoomMessageListener> listeners = null;
         synchronized (messageListeners)
         {
-            listeners = new ArrayList(messageListeners).iterator();
+            listeners = new ArrayList<ChatRoomMessageListener>(messageListeners)
+                .iterator();
         }
     
         while (listeners.hasNext())
@@ -837,10 +846,11 @@ public class ChatRoomIrcImpl
                                                 message,
                                                 eventType);
 
-        Iterator listeners = null;
+        Iterator<ChatRoomMessageListener> listeners = null;
         synchronized (messageListeners)
         {
-            listeners = new ArrayList(messageListeners).iterator();
+            listeners = new ArrayList<ChatRoomMessageListener>(
+                            messageListeners).iterator();
         }
 
         while (listeners.hasNext())
@@ -860,10 +870,11 @@ public class ChatRoomIrcImpl
      */
     public void firePropertyChangeEvent(PropertyChangeEvent evt)
     {
-        Iterator listeners = null;
+        Iterator<ChatRoomPropertyChangeListener> listeners = null;
         synchronized (propertyChangeListeners)
         {
-            listeners = new ArrayList(propertyChangeListeners).iterator();
+            listeners = new ArrayList<ChatRoomPropertyChangeListener>(
+                                propertyChangeListeners).iterator();
         }
 
         while (listeners.hasNext())
@@ -893,10 +904,11 @@ public class ChatRoomIrcImpl
     public void fireMemberPropertyChangeEvent(
         ChatRoomMemberPropertyChangeEvent evt)
     {
-        Iterator listeners = null;
+        Iterator<ChatRoomMemberPropertyChangeListener> listeners = null;
         synchronized (memberPropChangeListeners)
         {
-            listeners = new ArrayList(memberPropChangeListeners).iterator();
+            listeners = new ArrayList<ChatRoomMemberPropertyChangeListener>(
+                            memberPropChangeListeners).iterator();
         }
 
         while (listeners.hasNext())
@@ -935,10 +947,11 @@ public class ChatRoomIrcImpl
 
         logger.trace("Will dispatch the following ChatRoom event: " + evt);
 
-        Iterator listeners = null;
+        Iterator<ChatRoomMemberPresenceListener> listeners = null;
         synchronized (memberListeners)
         {
-            listeners = new ArrayList(memberListeners).iterator();
+            listeners = new ArrayList<ChatRoomMemberPresenceListener>(
+                            memberListeners).iterator();
         }
 
         while (listeners.hasNext())
@@ -971,10 +984,11 @@ public class ChatRoomIrcImpl
         
         logger.trace("Will dispatch the following ChatRoom event: " + evt);
     
-        Iterator listeners = null;
+        Iterator<ChatRoomMemberRoleListener> listeners = null;
         synchronized (memberRoleListeners)
         {
-            listeners = new ArrayList(memberRoleListeners).iterator();
+            listeners = new ArrayList<ChatRoomMemberRoleListener>(
+                            memberRoleListeners).iterator();
         }
     
         while (listeners.hasNext())
