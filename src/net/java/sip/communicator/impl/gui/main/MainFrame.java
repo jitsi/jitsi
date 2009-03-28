@@ -399,8 +399,9 @@ public class MainFrame
      */
     public Iterator<ProtocolProviderService> getProtocolProviders()
     {
-        return ((Map<ProtocolProviderService, Integer>)
-            protocolProviders.clone()).keySet().iterator();
+        return new LinkedList<ProtocolProviderService>(
+                        protocolProviders.keySet())
+                        .iterator();
     }
 
     /**

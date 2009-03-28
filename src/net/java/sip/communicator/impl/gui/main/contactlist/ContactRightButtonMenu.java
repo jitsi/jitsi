@@ -184,7 +184,8 @@ public class ContactRightButtonMenu
                 .getImage(ImageLoader.CALL_16x16_ICON)));
 
         //Initialize the addSubcontact menu.
-        Iterator providers = mainFrame.getProtocolProviders();
+        Iterator<ProtocolProviderService> providers 
+                = mainFrame.getProtocolProviders();
 
         if(providers.hasNext())
         {
@@ -206,8 +207,9 @@ public class ContactRightButtonMenu
 
             String protocolName = pps.getProtocolName();
 
-            JMenuItem menuItem = new JMenuItem(pps.getAccountID()
-                    .getDisplayName(),
+            ProviderAwareMenuItem menuItem 
+                = new ProviderAwareMenuItem(pps, 
+                    pps.getAccountID().getDisplayName(),
                     new ImageIcon(ImageLoader.getAccountStatusImage(pps)));
 
             menuItem.setName(addSubcontactPrefix + protocolName);
@@ -463,13 +465,12 @@ public class ContactRightButtonMenu
     {
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
-        String itemText = menuItem.getText();
         Contact cont = null;
 
         if (itemName.startsWith(addSubcontactPrefix))
         {
             ProtocolProviderService pps
-                = mainFrame.getProtocolProviderForAccount(itemText);
+                = ((ProviderAwareMenuItem)menuItem).getProvider();
 
             if(pps != null)
             {
@@ -901,11 +902,11 @@ public class ContactRightButtonMenu
 
         public void run()
         {
-            Iterator i = contactItem.getContacts();
+            Iterator<Contact> i = contactItem.getContacts();
 
             while(i.hasNext())
             {
-                Contact contact = (Contact) i.next();
+                Contact contact = i.next();
                 mainFrame.getContactList()
                     .moveContact(contact, metaContact);
             }
@@ -991,5 +992,44 @@ public class ContactRightButtonMenu
             img = statusImage;
         }
         return img;
+    }
+    
+    /**
+     * A menu item that performs an action related to a specific protocol
+     * provider.
+     *
+     */
+    private static class ProviderAwareMenuItem extends JMenuItem
+    {
+        private ProtocolProviderService provider = null;
+        
+        /**
+         * Initializes the menu item and stores a reference to the specified 
+         * provider.
+         * 
+         * @param provider the provider that we are related to
+         * @param text the text string for this menu
+         * @param icon the icon to display when showing this menu
+         */
+        public ProviderAwareMenuItem(ProtocolProviderService provider,
+                                     String text,
+                                     Icon icon)
+        {
+            super(text, icon);
+            
+            this.provider = provider;
+        }
+        
+        /**
+         * Returns a reference to the <tt>ProtocolProviderService</tt> that 
+         * this item is related to.
+         * 
+         * @return a reference to the <tt>ProtocolProviderService</tt> that 
+         * this item is related to.
+         */
+        public ProtocolProviderService getProvider()
+        {
+            return provider;
+        }
     }
 }
