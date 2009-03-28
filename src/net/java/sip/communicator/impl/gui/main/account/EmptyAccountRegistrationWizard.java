@@ -132,7 +132,7 @@ class EmptyAccountRegistrationWizard
      */
     public Object getSimpleForm()
     {
-        return page;
+        return page.getSimpleForm();
     }
 
     /**
