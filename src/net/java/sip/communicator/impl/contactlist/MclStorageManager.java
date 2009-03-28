@@ -247,14 +247,14 @@ public class MclStorageManager
      * of the contact list file.
      * 
      * @param bc a reference to the currently valid OSGI <tt>BundleContext</tt>
-     * @param mclServiceImpl a reference to the currently valid instance of the
+     * @param mclServImpl a reference to the currently valid instance of the
      *            <tt>MetaContactListServiceImpl</tt> that we could use to pass
      *            parsed contacts and contact groups.
      * @throws IOException if the contact list file specified file does not
      *             exist and could not be created.
      * @throws XMLException if there is a problem with the file syntax.
      */
-    void start(BundleContext bc, MetaContactListServiceImpl mclServiceImpl)
+    void start(BundleContext bc, MetaContactListServiceImpl mclServImpl)
         throws IOException,
         XMLException
     {
@@ -328,7 +328,7 @@ public class MclStorageManager
             {
                 // if the contact list does not exist - create it.
                 contactListDocument = builder.newDocument();
-                initVirginDocument(mclServiceImpl, contactListDocument);
+                initVirginDocument(mclServImpl, contactListDocument);
 
                 // write the contact list so that it is there for the parser
                 storeContactList0();
@@ -348,7 +348,7 @@ public class MclStorageManager
                     contactlistFile.delete();
                     contactlistFile.createNewFile();
                     contactListDocument = builder.newDocument();
-                    initVirginDocument(mclServiceImpl, contactListDocument);
+                    initVirginDocument(mclServImpl, contactListDocument);
 
                     // write the contact list so that it is there for the parser
                     storeContactList0();
@@ -362,8 +362,8 @@ public class MclStorageManager
             logger.error("Error finding configuration for default parsers", ex);
         }
 
-        mclServiceImpl.addMetaContactListListener(this);
-        this.mclServiceImpl = mclServiceImpl;
+        mclServImpl.addMetaContactListListener(this);
+        this.mclServiceImpl = mclServImpl;
         started = true;
         this.launchStorageThread();
     }
@@ -481,8 +481,8 @@ public class MclStorageManager
      */
     public void storeContactListAndStopStorageManager()
     {
-        Object contactListRWLock = getContactListRWLock();
-        synchronized (contactListRWLock)
+        Object contactLstRWLock = getContactListRWLock();
+        synchronized (contactLstRWLock)
         {
             if (!isStarted())
                 return;
@@ -490,7 +490,7 @@ public class MclStorageManager
             started = false;
 
             // make sure everyone gets released after we finish.
-            contactListRWLock.notifyAll();
+            contactLstRWLock.notifyAll();
 
             // write the contact list ourselves before we go out..
             try
@@ -555,20 +555,20 @@ public class MclStorageManager
      * Fills the document with the tags necessary for it to be filled properly
      * as the meta contact list evolves.
      * 
-     * @param mclServiceImpl the meta contact list service to use when
+     * @param mclServImpl the meta contact list service to use when
      *            initializing the document.
-     * @param contactListDocument the document to init.
+     * @param contactListDoc the document to init.
      */
-    private void initVirginDocument(MetaContactListServiceImpl mclServiceImpl,
-        Document contactListDocument)
+    private void initVirginDocument(MetaContactListServiceImpl mclServImpl,
+        Document contactListDoc)
     {
-        Element root = contactListDocument.createElement(DOCUMENT_ROOT_NAME);
+        Element root = contactListDoc.createElement(DOCUMENT_ROOT_NAME);
 
-        contactListDocument.appendChild(root);
+        contactListDoc.appendChild(root);
 
         // create the rootGroup
         Element rootGroup =
-            createMetaContactGroupNode(mclServiceImpl.getRoot());
+            createMetaContactGroupNode(mclServImpl.getRoot());
 
         root.appendChild(rootGroup);
     }
@@ -652,7 +652,7 @@ public class MclStorageManager
      * instances through <tt>mclServiceImpl</tt> as children of
      * <tt>parentGroup</tt>
      * 
-     * @param mclServiceImpl the <tt>MetaContactListServiceImpl</tt> for
+     * @param mclServImpl the <tt>MetaContactListServiceImpl</tt> for
      *            creating new contacts and groups.
      * @param accountID a String identifier of the account whose contacts we're
      *            interested in.
@@ -665,7 +665,7 @@ public class MclStorageManager
      *            map binds UIDs to group references and may be null for top
      *            level groups.
      */
-    private void processGroupXmlNode(MetaContactListServiceImpl mclServiceImpl,
+    private void processGroupXmlNode(MetaContactListServiceImpl mclServImpl,
         String accountID, Element groupNode, MetaContactGroupImpl parentGroup,
         Map<String, ContactGroup> parentProtoGroups)
     {
@@ -681,7 +681,7 @@ public class MclStorageManager
 
         if (parentGroup == null)
         {
-            currentMetaGroup = mclServiceImpl.rootMetaGroup;
+            currentMetaGroup = mclServImpl.rootMetaGroup;
         }
         else
         {
@@ -692,7 +692,7 @@ public class MclStorageManager
 
             // create the meta group
             currentMetaGroup =
-                mclServiceImpl.loadStoredMetaContactGroup(parentGroup,
+                mclServImpl.loadStoredMetaContactGroup(parentGroup,
                     groupMetaUID, groupDisplayName);
             // extract and load one by one all proto groups in this meta group.
             Node protoGroupsNode =
@@ -742,7 +742,7 @@ public class MclStorageManager
 
                 // create the proto group
                 ContactGroup newProtoGroup =
-                    mclServiceImpl.loadStoredContactGroup(currentMetaGroup,
+                    mclServImpl.loadStoredContactGroup(currentMetaGroup,
                         protoGroupUID, parentProtoGroup, persistentData,
                         accountID);
 
@@ -830,7 +830,7 @@ public class MclStorageManager
                 }
 
                 // pass the parsed proto contacts to the mcl service
-                mclServiceImpl.loadStoredMetaContact(currentMetaGroup, uid,
+                mclServImpl.loadStoredMetaContact(currentMetaGroup, uid,
                     displayName, details, protoContacts, accountID);
             }
             catch (Throwable thr)
@@ -843,8 +843,7 @@ public class MclStorageManager
                     + ". Will remove and continue with other contacts", thr);
 
                 // remove the node so that it doesn't cause us problems again
-                if (currentMetaContactNode != null
-                    && currentMetaContactNode.getParentNode() != null)
+                if (currentMetaContactNode.getParentNode() != null)
                 {
                     try
                     {
@@ -883,7 +882,7 @@ public class MclStorageManager
 
             try
             {
-                processGroupXmlNode(mclServiceImpl, accountID,
+                processGroupXmlNode(mclServImpl, accountID,
                     (Element) currentGroupNode, currentMetaGroup,
                     protoGroupsMap);
             }
@@ -895,8 +894,7 @@ public class MclStorageManager
                     + ". Removing.", throwable);
 
                 // remove the node so that it doesn't cause us problems again
-                if (currentGroupNode != null
-                    && currentGroupNode.getParentNode() != null)
+                if (currentGroupNode.getParentNode() != null)
                 {
                     try
                     {

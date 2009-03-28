@@ -62,9 +62,6 @@ public class AudioNotifierServiceImpl
                 try
                 {
                     audioClip = new SCAudioClipImpl(url, this);
-
-                    if(audioClip == null)
-                        return null;
                 }
                 catch (Throwable e)
                 {

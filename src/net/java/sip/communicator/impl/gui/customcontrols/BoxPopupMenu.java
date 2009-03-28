@@ -18,6 +18,8 @@ import javax.swing.*;
  */
 public class BoxPopupMenu extends JPopupMenu {
 
+    private static final long serialVersionUID = -8488327445916201464L;
+
     private int itemsCount;
 
     private int gridRowCount = 0;

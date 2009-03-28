@@ -46,6 +46,8 @@ public class SCScrollPane
     private static class SCViewport
         extends JViewport
     {
+        private static final long serialVersionUID = 1L;
+
         private final BufferedImage bgImage;
 
         private final Color color;

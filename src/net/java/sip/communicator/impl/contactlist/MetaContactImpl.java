@@ -801,15 +801,15 @@ public class MetaContactImpl
      * If <tt>parentGroup</tt> was the parent of this meta contact then it
      * sets it to null. Call this method when removing this contact from a
      * meta contact group.
-     * @param parentGroup the <tt>MetaContactGroupImpl</tt> that we don't want
+     * @param parentGrp the <tt>MetaContactGroupImpl</tt> that we don't want
      * considered as a parent of this contact any more.
      */
-    void unsetParentGroup(MetaContactGroupImpl parentGroup)
+    void unsetParentGroup(MetaContactGroupImpl parentGrp)
     {
         synchronized(parentGroupModLock)
         {
-            if (this.parentGroup == parentGroup)
-                this.parentGroup = null;
+            if (parentGroup == parentGrp)
+                parentGroup = null;
         }
     }
 

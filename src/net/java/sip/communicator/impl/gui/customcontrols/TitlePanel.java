@@ -22,6 +22,8 @@ import net.java.sip.communicator.util.swing.*;
 public class TitlePanel
     extends TransparentPanel
 {
+    private static final long serialVersionUID = 1L;
+
     private final JLabel titleLabel = new JLabel();
 
     private final Color gradientStartColor = new Color(255, 255, 255, 200);

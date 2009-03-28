@@ -142,7 +142,7 @@ public class XMLConfigurationStore
             DocumentBuilderFactory factory =
                 DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Map<String, Object> properties = new Hashtable<String, Object>();
+            Map<String, Object> props = new Hashtable<String, Object>();
 
             //if the file is empty (or contains only sth insignificant)
             //ifnore it and create a new document.
@@ -163,11 +163,11 @@ public class XMLConfigurationStore
                 {
                     StringBuffer propertyNameBuff = new StringBuffer();
                     propertyNameBuff.append(currentNode.getNodeName());
-                    loadNode(currentNode, propertyNameBuff, properties);
+                    loadNode(currentNode, propertyNameBuff, props);
                 }
             }
 
-            return properties;
+            return props;
         }
         catch(SAXException ex)
         {
@@ -195,7 +195,7 @@ public class XMLConfigurationStore
      */
     private void loadNode(Node         node,
                           StringBuffer propertyNameBuff,
-                          Map<String, Object>          properties)
+                          Map<String, Object>          props)
     {
         Node currentNode = null;
         NodeList children = node.getChildNodes();
@@ -225,19 +225,19 @@ public class XMLConfigurationStore
                     if(propertyType != null
                        && propertyType.equals(SYSTEM_ATTRIBUTE_TRUE))
                     {
-                        properties.put(
+                        props.put(
                             newPropBuff.toString(),
                             new PropertyReference(newPropBuff.toString()));
                         System.setProperty(newPropBuff.toString(), value);
                     }
                     else
                     {
-                        properties.put(newPropBuff.toString(), value);
+                        props.put(newPropBuff.toString(), value);
                     }
                 }
 
                 //load child nodes
-                loadNode(currentNode, newPropBuff, properties);
+                loadNode(currentNode, newPropBuff, props);
             }
         }
     }
@@ -382,11 +382,11 @@ public class XMLConfigurationStore
      * @param propertyNameBuff a StringBuffer containing the prefix describing
      *            the dot separated route to the specified node including its
      *            one name
-     * @param properties the dictionary object where the up to date values of
+     * @param props the dictionary object where the up to date values of
      *            the node should be queried.
      */
     private void updateNode(Node node, StringBuffer propertyNameBuff,
-        Map<String, Object> properties)
+        Map<String, Object> props)
     {
         Node currentNode = null;
         NodeList children = node.getChildNodes();
@@ -406,7 +406,7 @@ public class XMLConfigurationStore
                 if (attr != null)
                 {
                     // update the corresponding node
-                    Object value = properties.get(newPropBuff.toString());
+                    Object value = props.get(newPropBuff.toString());
 
                     if (value == null)
                     {
@@ -433,7 +433,7 @@ public class XMLConfigurationStore
                 }
 
                 // update child nodes
-                updateNode(currentNode, newPropBuff, properties);
+                updateNode(currentNode, newPropBuff, props);
             }
         }
     }

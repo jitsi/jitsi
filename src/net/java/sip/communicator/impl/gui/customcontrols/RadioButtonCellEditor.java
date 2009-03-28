@@ -15,6 +15,7 @@ public class RadioButtonCellEditor
     extends DefaultCellEditor
     implements ItemListener
 {
+    private static final long serialVersionUID = 1L;
     private JRadioButton button;
 
     public RadioButtonCellEditor(JCheckBox checkBox)

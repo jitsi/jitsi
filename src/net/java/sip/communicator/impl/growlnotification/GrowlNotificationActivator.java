@@ -61,7 +61,7 @@ public class GrowlNotificationActivator
         }
     }
 
-    public void stop(BundleContext bundleContext) throws Exception
+    public void stop(BundleContext bContext) throws Exception
     {
         logger.info("Growl Notification Service ...[Stopped]");
     }

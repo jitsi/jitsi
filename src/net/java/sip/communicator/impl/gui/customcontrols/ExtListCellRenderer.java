@@ -20,6 +20,8 @@ public class ExtListCellRenderer
     extends JPanel
     implements ListCellRenderer
 {
+    
+    private static final long serialVersionUID = 1L;
     private final JLabel label = new JLabel();
     private boolean isSelected;
     
@@ -34,10 +36,10 @@ public class ExtListCellRenderer
      * Implements the <tt>ListCellRenderer</tt> method.
      */
     public Component getListCellRendererComponent(JList list, Object value,
-            int index, boolean isSelected, boolean cellHasFocus)
+            int index, boolean isSelect, boolean cellHasFocus)
     {
         this.label.setText(value.toString());
-        this.isSelected = isSelected;
+        this.isSelected = isSelect;
         
         return this;
     }

@@ -29,6 +29,8 @@ public class MessageDialog
     extends SIPCommDialog
     implements ActionListener
 {
+    private static final long serialVersionUID = 1L;
+
     private JButton cancelButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
 

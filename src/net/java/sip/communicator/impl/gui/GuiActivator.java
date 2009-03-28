@@ -69,11 +69,11 @@ public class GuiActivator implements BundleActivator
      *
      * @param bundleContext The execution context of the bundle being started.
      */
-    public void start(BundleContext bundleContext)
+    public void start(BundleContext bContext)
         throws Exception
     {
         isStarted = true;
-        GuiActivator.bundleContext = bundleContext;
+        GuiActivator.bundleContext = bContext;
 
         NotificationManager.registerGuiNotifications();
         notificationServiceListener = new NotificationServiceListener();
@@ -110,13 +110,13 @@ public class GuiActivator implements BundleActivator
      * Called when this bundle is stopped so the Framework can perform the
      * bundle-specific activities necessary to stop the bundle.
      *
-     * @param bundleContext The execution context of the bundle being stopped.
+     * @param bContext The execution context of the bundle being stopped.
      * @throws Exception If this method throws an exception, the bundle is
      *   still marked as stopped, and the Framework will remove the bundle's
      *   listeners, unregister all services registered by the bundle, and
      *   release all services used by the bundle.
      */
-    public void stop(BundleContext bundleContext) throws Exception
+    public void stop(BundleContext bContext) throws Exception
     {
         logger.info("UI Service ...[STOPPED]");
         isStarted = false;
@@ -124,8 +124,8 @@ public class GuiActivator implements BundleActivator
         GuiActivator.getConfigurationService()
             .removePropertyChangeListener(uiService);
 
-        bundleContext.removeServiceListener(uiService);
-        bundleContext.removeServiceListener(notificationServiceListener);
+        bContext.removeServiceListener(uiService);
+        bContext.removeServiceListener(notificationServiceListener);
     }
 
     /**
@@ -152,17 +152,19 @@ public class GuiActivator implements BundleActivator
             logger.error("LoginManager : " + e);
         }
 
-        for (int i = 0; i < serRefs.length; i++)
+        if (serRefs != null) 
         {
+            for (int i = 0; i < serRefs.length; i++) 
+            {
 
-            ProtocolProviderFactory providerFactory =
-                (ProtocolProviderFactory) bundleContext.getService(serRefs[i]);
+                ProtocolProviderFactory providerFactory = (ProtocolProviderFactory) bundleContext
+                        .getService(serRefs[i]);
 
-            providerFactoriesMap
-                .put(serRefs[i].getProperty(ProtocolProviderFactory.PROTOCOL),
-                    providerFactory);
+                providerFactoriesMap.put(serRefs[i]
+                        .getProperty(ProtocolProviderFactory.PROTOCOL),
+                        providerFactory);
+            }
         }
-
         return providerFactoriesMap;
     }
 

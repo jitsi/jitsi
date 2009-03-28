@@ -33,6 +33,8 @@ public class ErrorDialog
     implements  ActionListener,
                 HyperlinkListener
 {
+    private static final long serialVersionUID = 1L;
+
     private final Logger logger = Logger.getLogger(ErrorDialog.class);
 
     private JButton okButton = new JButton(
@@ -68,8 +70,6 @@ public class ErrorDialog
     private boolean isDetailsShowed = true;
 
     public static final int WARNING = 1;
-
-    public static final int ERROR = 0;
 
     /**
      * The maximum width that we allow message dialogs to have.

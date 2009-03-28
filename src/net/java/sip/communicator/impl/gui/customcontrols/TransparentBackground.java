@@ -39,6 +39,8 @@ import net.java.sip.communicator.util.swing.*;
  * @author Yana Stamcheva
  */
 public class TransparentBackground extends JComponent {
+    private static final long serialVersionUID = 1L;
+
     private BufferedImage background;
 
     private final Robot robot;
@@ -55,14 +57,14 @@ public class TransparentBackground extends JComponent {
     public TransparentBackground(Window window) {
         this.window = window;
 
-        Robot robot;
+        Robot rbt;
         try {
-            robot = new Robot();
+            rbt = new Robot();
         } catch (AWTException e) {
             e.printStackTrace();
-            robot = null;
+            rbt = null;
         }
-        this.robot = robot;
+        this.robot = rbt;
     }
 
     /**

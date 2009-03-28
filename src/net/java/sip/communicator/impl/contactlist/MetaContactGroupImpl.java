@@ -363,14 +363,14 @@ public class MetaContactGroupImpl
      * Returns a contact group encapsulated by this meta contact group, having
      * the specified groupName and coming from the indicated ownerProvider.
      *
-     * @param groupName the name of the contact group who we're looking for.
+     * @param grpName1 the name of the contact group who we're looking for.
      * @param ownerProvider a reference to the ProtocolProviderService that
      * the contact we're looking for belongs to.
      * @return a reference to a <tt>ContactGroup</tt>, encapsulated by this
      * MetaContactGroup, carrying the specified name and originating from the
      * specified ownerProvider or null if no such contact group was found.
      */
-    public ContactGroup getContactGroup(String groupName,
+    public ContactGroup getContactGroup(String grpName,
                                         ProtocolProviderService ownerProvider)
     {
         Iterator<ContactGroup> encapsulatedGroups = getContactGroups();
@@ -379,7 +379,7 @@ public class MetaContactGroupImpl
         {
             ContactGroup group = encapsulatedGroups.next();
 
-            if (group.getGroupName().equals(groupName)
+            if (group.getGroupName().equals(grpName)
                 && group.getProtocolProvider() == ownerProvider)
             {
                 return group;
@@ -403,7 +403,7 @@ public class MetaContactGroupImpl
                                             ProtocolProviderService provider)
     {
         Iterator<ContactGroup> encapsulatedGroups = getContactGroups();
-        LinkedList<ContactGroup> protoGroups = new LinkedList<ContactGroup>();
+        LinkedList<ContactGroup> protGroups = new LinkedList<ContactGroup>();
 
         while(encapsulatedGroups.hasNext())
         {
@@ -411,10 +411,10 @@ public class MetaContactGroupImpl
 
             if(group.getProtocolProvider() == provider)
             {
-                protoGroups.add(group);
+                protGroups.add(group);
             }
         }
-        return protoGroups.iterator();
+        return protGroups.iterator();
     }
 
     /**
@@ -437,7 +437,7 @@ public class MetaContactGroupImpl
     public Iterator<ContactGroup> getContactGroupsForAccountID(String accountID)
     {
         Iterator<ContactGroup> encapsulatedGroups = getContactGroups();
-        LinkedList<ContactGroup> protoGroups = new LinkedList<ContactGroup>();
+        LinkedList<ContactGroup> protGroups = new LinkedList<ContactGroup>();
 
         while(encapsulatedGroups.hasNext())
         {
@@ -446,10 +446,10 @@ public class MetaContactGroupImpl
             if(group.getProtocolProvider().getAccountID()
                .getAccountUniqueID().equals(accountID))
             {
-                protoGroups.add(group);
+                protGroups.add(group);
             }
         }
-        return protoGroups.iterator();
+        return protGroups.iterator();
     }
 
     /**
@@ -680,11 +680,11 @@ public class MetaContactGroupImpl
     /**
      * Returns the <tt>MetaContactGroup</tt> with the specified name.
      *
-     * @param groupName the name of the group to return.
+     * @param grpName the name of the group to return.
      * @return the <tt>MetaContactGroup</tt> with the specified name or null
      *   if no such group exists.
      */
-    public MetaContactGroup getMetaContactSubgroup(String groupName)
+    public MetaContactGroup getMetaContactSubgroup(String grpName)
     {
         Iterator<MetaContactGroup> groupsIter = getSubgroups();
 
@@ -692,7 +692,7 @@ public class MetaContactGroupImpl
         {
             MetaContactGroup mcGroup = groupsIter.next();
 
-            if(mcGroup.getGroupName().equals(groupName))
+            if(mcGroup.getGroupName().equals(grpName))
                 return mcGroup;
         }
 
@@ -702,11 +702,11 @@ public class MetaContactGroupImpl
     /**
      * Returns the <tt>MetaContactGroup</tt> with the specified groupUID.
      *
-     * @param groupUID the uid of the group to return.
+     * @param grpUID the uid of the group to return.
      * @return the <tt>MetaContactGroup</tt> with the specified uid or null
      *   if no such group exists.
      */
-    public MetaContactGroup getMetaContactSubgroupByUID(String groupUID)
+    public MetaContactGroup getMetaContactSubgroupByUID(String grpUID)
     {
         Iterator<MetaContactGroup> groupsIter = getSubgroups();
 
@@ -714,7 +714,7 @@ public class MetaContactGroupImpl
         {
             MetaContactGroup mcGroup = groupsIter.next();
 
-            if(mcGroup.getMetaUID().equals(groupUID))
+            if(mcGroup.getMetaUID().equals(grpUID))
                 return mcGroup;
         }
 

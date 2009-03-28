@@ -377,7 +377,7 @@ public class CallHistoryServiceImpl
                 callParticipantStates = getStates(value);
         }
 
-        final int callParticipantCount = callParticipantIDs.size();
+        final int callParticipantCount = callParticipantIDs == null ? 0 : callParticipantIDs.size();
         for (int i = 0; i < callParticipantCount; i++)
         {
             CallParticipantRecordImpl cpr =
@@ -622,11 +622,11 @@ public class CallHistoryServiceImpl
      *
      * @param historyService HistoryService
      */
-    public void unsetHistoryService(HistoryService historyService)
+    public void unsetHistoryService(HistoryService hService)
     {
         synchronized (this.syncRoot_HistoryService)
         {
-            if (this.historyService == historyService)
+            if (this.historyService == hService)
             {
                 this.historyService = null;
 

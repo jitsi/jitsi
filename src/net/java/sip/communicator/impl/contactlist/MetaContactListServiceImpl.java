@@ -901,7 +901,7 @@ public class MetaContactListServiceImpl
 
         //if the contact is not currently in the proto group corresponding to
         //its new metacontact group parent then move it
-        if(contact.getParentContactGroup() != parentProtoGroup)
+        if(contact.getParentContactGroup() != parentProtoGroup && opSetPresence != null)
             opSetPresence.moveContactToGroup(contact, parentProtoGroup);
 
         ( (MetaContactImpl) newParentMetaContact).addProtoContact(contact);
@@ -994,8 +994,10 @@ public class MetaContactListServiceImpl
                 {
                     /** @todo handle non persistent presence operation sets */
                 }
-
-                opSetPresence.moveContactToGroup(protoContact, protoGroup);
+                else 
+                {
+                    opSetPresence.moveContactToGroup(protoContact, protoGroup);
+                }
             }
         }
         catch (Exception ex)
@@ -1158,7 +1160,7 @@ public class MetaContactListServiceImpl
 
 
         MetaContactGroupImpl parentMetaGroup = (MetaContactGroupImpl)
-            findParentMetaContactGroup( (MetaContactGroupImpl) groupToRemove);
+            findParentMetaContactGroup(groupToRemove);
 
         parentMetaGroup.removeSubgroup(groupToRemove);
 
@@ -2949,13 +2951,13 @@ public class MetaContactListServiceImpl
          * @param evt a ServerStoredGroupChangeEvent containing a reference to
          * the newly created group.
          */
-        public void groupCreated(ServerStoredGroupEvent evt)
+        public void groupCreated(ServerStoredGroupEvent event)
         {
             synchronized (this)
             {
-                if (evt.getSourceGroup().getGroupName().equals(groupName))
+                if (event.getSourceGroup().getGroupName().equals(groupName))
                 {
-                    this.evt = evt;
+                    this.evt = event;
                     this.notifyAll();
                 }
             }
@@ -2965,21 +2967,21 @@ public class MetaContactListServiceImpl
          * Evens delivered through this method are ignored
          * @param evt param ignored
          */
-        public void groupRemoved(ServerStoredGroupEvent evt)
+        public void groupRemoved(ServerStoredGroupEvent event)
         {}
 
         /**
          * Evens delivered through this method are ignored
          * @param evt param ignored
          */
-        public void groupNameChanged(ServerStoredGroupEvent evt)
+        public void groupNameChanged(ServerStoredGroupEvent event)
         {}
 
         /**
          * Evens delivered through this method are ignored
          * @param evt param ignored
          */
-        public void groupResolved(ServerStoredGroupEvent evt)
+        public void groupResolved(ServerStoredGroupEvent event)
         {}
 
         /**
@@ -3028,21 +3030,21 @@ public class MetaContactListServiceImpl
          * Events delivered through this method are ignored
          * @param evt param ignored
          */
-        public void groupResolved(ServerStoredGroupEvent evt)
+        public void groupResolved(ServerStoredGroupEvent event)
         {}
 
         /**
          * Events delivered through this method are ignored
          * @param evt param ignored
          */
-        public void groupRemoved(ServerStoredGroupEvent evt)
+        public void groupRemoved(ServerStoredGroupEvent event)
         {}
 
         /**
          * Events delivered through this method are ignored
          * @param evt param ignored
          */
-        public void groupNameChanged(ServerStoredGroupEvent evt)
+        public void groupNameChanged(ServerStoredGroupEvent event)
         {}
 
         /**
@@ -3059,18 +3061,18 @@ public class MetaContactListServiceImpl
         /**
          * Called whenever an indication is received that a new server stored group
          * is created.
-         * @param evt a ServerStoredGroupEvent containing a reference to the
+         * @param event a ServerStoredGroupEvent containing a reference to the
          * newly created group.
          */
-        public void groupCreated(ServerStoredGroupEvent evt)
+        public void groupCreated(ServerStoredGroupEvent event)
         {
             synchronized (this)
             {
                 Contact contact
-                    = evt.getSourceGroup().getContact(subscriptionAddress);
+                    = event.getSourceGroup().getContact(subscriptionAddress);
                 if ( contact != null)
                 {
-                    this.evt = evt;
+                    this.evt = event;
                     this.sourceContact = contact;
                     this.notifyAll();
                 }
@@ -3081,19 +3083,19 @@ public class MetaContactListServiceImpl
         /**
          * Called whenever an indication is received that a subscription is
          * created.
-         * @param evt a <tt>SubscriptionEvent</tt> containing a reference to
+         * @param event a <tt>SubscriptionEvent</tt> containing a reference to
          * the newly created contact.
          */
-        public void subscriptionCreated(SubscriptionEvent evt)
+        public void subscriptionCreated(SubscriptionEvent event)
         {
             synchronized (this)
             {
-                if (evt.getSourceContact().getAddress()
+                if (event.getSourceContact().getAddress()
                     .equals(subscriptionAddress)
-                    || evt.getSourceContact().equals(subscriptionAddress))
+                    || event.getSourceContact().equals(subscriptionAddress))
                 {
-                    this.evt = evt;
-                    this.sourceContact = evt.getSourceContact();
+                    this.evt = event;
+                    this.sourceContact = event.getSourceContact();
                     this.notifyAll();
                 }
             }
@@ -3103,24 +3105,24 @@ public class MetaContactListServiceImpl
          * Events delivered through this method are ignored
          * @param evt param ignored
          */
-        public void subscriptionRemoved(SubscriptionEvent evt)
+        public void subscriptionRemoved(SubscriptionEvent event)
         {}
 
         /**
          * Called whenever an indication is received that a subscription
          * creation has failed.
-         * @param evt a <tt>SubscriptionEvent</tt> containing a reference to
+         * @param event a <tt>SubscriptionEvent</tt> containing a reference to
          * the contact we are trying to subscribe.
          */
-        public void subscriptionFailed(SubscriptionEvent evt)
+        public void subscriptionFailed(SubscriptionEvent event)
         {
             synchronized (this)
             {
-                if (evt.getSourceContact().getAddress()
+                if (event.getSourceContact().getAddress()
                     .equals(subscriptionAddress))
                 {
-                    this.evt = evt;
-                    this.sourceContact = evt.getSourceContact();
+                    this.evt = event;
+                    this.sourceContact = event.getSourceContact();
                     this.notifyAll();
                 }
             }
@@ -3130,21 +3132,21 @@ public class MetaContactListServiceImpl
          * Events delivered through this method are ignored
          * @param evt param ignored
          */
-        public void subscriptionMoved(SubscriptionMovedEvent evt)
+        public void subscriptionMoved(SubscriptionMovedEvent event)
         {}
 
         /**
          * Events delivered through this method are ignored
          * @param evt param ignored
          */
-        public void subscriptionResolved(SubscriptionEvent evt)
+        public void subscriptionResolved(SubscriptionEvent event)
         {}
 
         /**
          * Events delivered through this method are ignored
          * @param evt param ignored
          */
-        public void contactModified(ContactPropertyChangeEvent evt)
+        public void contactModified(ContactPropertyChangeEvent event)
         {}
 
         /**

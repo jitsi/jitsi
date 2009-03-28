@@ -27,10 +27,10 @@ public class ExtendedTableModel extends DefaultTableModel
      */
     public int rowIndexOf(Object value)
     {
-        Vector dataVector = this.getDataVector();
+        Vector<Vector<Object>> dataVec = this.getDataVector();
         
         for(int i = 0; i < dataVector.size(); i ++) {
-            Vector rowVector = (Vector)dataVector.get(i);
+            Vector<Object> rowVector = dataVec.get(i);
             
             if(rowVector.contains(value)) {
                 return i;

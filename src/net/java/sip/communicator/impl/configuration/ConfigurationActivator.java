@@ -32,11 +32,11 @@ public class ConfigurationActivator
      * framework.
      * @throws Exception if anything goes wrong
      */
-    public void start(BundleContext bundleContext) throws Exception
+    public void start(BundleContext bContext) throws Exception
     {
         logger.debug("Service Impl: " + getClass().getName() + " [  STARTED ]");
         
-        ConfigurationActivator.bundleContext = bundleContext;
+        ConfigurationActivator.bundleContext = bContext;
         impl.start();
 
         bundleContext.registerService(ConfigurationService.class.getName(),

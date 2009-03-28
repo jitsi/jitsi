@@ -22,6 +22,7 @@ import javax.swing.*;
 public class SIPCommMenu
     extends JMenu
 {
+    private static final long serialVersionUID = 1L;
     private Object selectedObject;
 
     /**
@@ -62,11 +63,11 @@ public class SIPCommMenu
      * @param actionListener The <tt>ActionListener</tt>, which handles the
      * case, when the item is selected.
      */
-    public void addItem(String text, Icon icon, ActionListener actionListener)
+    public void addItem(String text, Icon icon, ActionListener actionLstner)
     {
         JMenuItem item = new JMenuItem(text, icon);
 
-        item.addActionListener(actionListener);
+        item.addActionListener(actionLstner);
 
         this.add(item);
     }

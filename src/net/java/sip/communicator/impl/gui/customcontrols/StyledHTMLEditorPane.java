@@ -18,6 +18,8 @@ import net.java.sip.communicator.util.*;
 public class StyledHTMLEditorPane
     extends JEditorPane
 {
+    private static final long serialVersionUID = 1L;
+
     private final Logger logger = Logger.getLogger(StyledHTMLEditorPane.class);
     
     private final HTMLEditorKit editorKit = new SIPCommHTMLEditorKit();

@@ -504,7 +504,7 @@ public class ConfigurationServiceImpl
             DocumentBuilderFactory factory =
                 DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Map<String, Object> properties = new Hashtable<String, Object>();
+            Map<String, Object> props = new Hashtable<String, Object>();
 
             //if the file is empyt (or contains only sth insignificant)
             //ifnore it and create a new document.
@@ -525,11 +525,11 @@ public class ConfigurationServiceImpl
                 {
                     StringBuffer propertyNameBuff = new StringBuffer();
                     propertyNameBuff.append(currentNode.getNodeName());
-                    loadNode(currentNode, propertyNameBuff, properties);
+                    loadNode(currentNode, propertyNameBuff, props);
                 }
             }
 
-            return properties;
+            return props;
         }
         catch(SAXException ex)
         {
@@ -646,9 +646,9 @@ public class ConfigurationServiceImpl
      * @param properties the dictionary object where all properties extracted
      * from this node and its children should be recorded.
      */
-    private void loadNode(Node         node,
+    private void loadNode(Node node,
                           StringBuffer propertyNameBuff,
-                          Map<String, Object>          properties)
+                          Map<String, Object> props)
     {
         Node currentNode = null;
         NodeList children = node.getChildNodes();
@@ -678,19 +678,19 @@ public class ConfigurationServiceImpl
                     if(propertyType != null
                        && propertyType.equals(SYSTEM_ATTRIBUTE_TRUE))
                     {
-                        properties.put(
+                        props.put(
                             newPropBuff.toString(),
                             new PropertyReference(newPropBuff.toString()));
                         System.setProperty(newPropBuff.toString(), value);
                     }
                     else
                     {
-                        properties.put(newPropBuff.toString(), value);
+                        props.put(newPropBuff.toString(), value);
                     }
                 }
 
                 //load child nodes
-                loadNode(currentNode, newPropBuff, properties);
+                loadNode(currentNode, newPropBuff, props);
             }
         }
     }
@@ -708,9 +708,9 @@ public class ConfigurationServiceImpl
      * @param properties the dictionary object where the up to date values of
      * the node should be queried.
      */
-    private void updateNode(Node         node,
+    private void updateNode(Node node,
                             StringBuffer propertyNameBuff,
-                            Map<String, Object>          properties)
+                            Map<String, Object> props)
     {
         Node currentNode = null;
         NodeList children = node.getChildNodes();
@@ -730,7 +730,7 @@ public class ConfigurationServiceImpl
                 if(attr != null)
                 {
                     //update the corresponding node
-                    Object value = properties.get(newPropBuff.toString());
+                    Object value = props.get(newPropBuff.toString());
 
                     if(value == null)
                     {
@@ -757,7 +757,7 @@ public class ConfigurationServiceImpl
                 }
 
                 //update child nodes
-                updateNode(currentNode, newPropBuff, properties);
+                updateNode(currentNode, newPropBuff, props);
             }
         }
     }

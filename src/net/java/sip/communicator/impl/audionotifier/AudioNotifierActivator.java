@@ -39,10 +39,10 @@ public class AudioNotifierActivator implements BundleActivator
      *
      * @param bundleContext The execution context of the bundle being started.
      */
-    public void start(BundleContext bundleContext) throws Exception
+    public void start(BundleContext bContext) throws Exception
     {
         try {
-            AudioNotifierActivator.bundleContext = bundleContext;
+            AudioNotifierActivator.bundleContext = bContext;
             
             //Create the audio notifier service
             audioNotifier = new AudioNotifierServiceImpl();
@@ -85,7 +85,7 @@ public class AudioNotifierActivator implements BundleActivator
      *   listeners, unregister all services registered by the bundle, and
      *   release all services used by the bundle.
      */
-    public void stop(BundleContext bundleContext) throws Exception
+    public void stop(BundleContext bContext) throws Exception
     {
         //TODO: Stop all currently playing sounds here
         try {

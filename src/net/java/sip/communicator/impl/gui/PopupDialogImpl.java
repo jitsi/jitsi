@@ -34,9 +34,9 @@ public class PopupDialogImpl
      *
      * @param message the object to display
      */
-    public String showInputPopupDialog(Object message)
+    public String showInputPopupDialog(Object mesg)
     {
-        return showInputDialog(message);
+        return showInputDialog(mesg);
     }
 
     /**
@@ -48,10 +48,10 @@ public class PopupDialogImpl
      * @param initialSelectionValue the value used to initialize the input
      * field.
      */
-    public String showInputPopupDialog(Object message,
-            String initialSelectionValue)
+    public String showInputPopupDialog(Object mesg,
+            String initialSelectionVal)
     {
-        return showInputDialog(message, initialSelectionValue);
+        return showInputDialog(mesg, initialSelectionVal);
     }
 
     /**
@@ -64,11 +64,11 @@ public class PopupDialogImpl
      * INFORMATION_MESSAGE, WARNING_MESSAGE, QUESTION_MESSAGE, or PLAIN_MESSAGE
      * @param title the String to display in the dialog title bar
      */
-    public String showInputPopupDialog(Object message, String title,
-        int messageType)
+    public String showInputPopupDialog(Object mesg, String title,
+        int mesgType)
     {
-        return showInputDialog(null, message, title,
-            popupDialog2JOptionPaneMessageType(messageType));
+        return showInputDialog(null, mesg, title,
+            popupDialog2JOptionPaneMessageType(mesgType));
     }
 
     private static int popupDialog2JOptionPaneMessageType(int type)
@@ -101,12 +101,12 @@ public class PopupDialogImpl
      * selections
      * @param initialSelectionValue the value used to initialize the input field
      */
-    public Object showInputPopupDialog(Object message, String title,
-        int messageType, Object[] selectionValues, Object initialSelectionValue)
+    public Object showInputPopupDialog(Object mesg, String title,
+        int mesgType, Object[] selectionVal, Object initialSelectionVal)
     {
-        return showInputDialog(null, message, title,
-            popupDialog2JOptionPaneMessageType(messageType), null,
-            selectionValues, initialSelectionValue);
+        return showInputDialog(null, mesg, title,
+            popupDialog2JOptionPaneMessageType(mesgType), null,
+            selectionVal, initialSelectionVal);
     }
 
     /**
@@ -124,13 +124,13 @@ public class PopupDialogImpl
      * @param initialSelectionValue the value used to initialize the input field
      * @param icon the icon to show in the input window.
      */
-    public Object showInputPopupDialog(Object message, String title,
-        int messageType, Object[] selectionValues,
-        Object initialSelectionValue, byte[] icon)
+    public Object showInputPopupDialog(Object mesg, String title,
+        int mesgType, Object[] selectionVal,
+        Object initialSelectionVal, byte[] icn)
     {
-        return showInputDialog(null, message, title,
-            popupDialog2JOptionPaneMessageType(messageType),
-            createImageIcon(icon), selectionValues, initialSelectionValue);
+        return showInputDialog(null, mesg, title,
+            popupDialog2JOptionPaneMessageType(mesgType),
+            createImageIcon(icn), selectionVal, initialSelectionVal);
     }
 
     private static ImageIcon createImageIcon(byte[] icon)
@@ -145,9 +145,9 @@ public class PopupDialogImpl
      *
      * @param message the Object to display
      */
-    public void showMessagePopupDialog(Object message)
+    public void showMessagePopupDialog(Object mesg)
     {
-        showMessageDialog(null, message);
+        showMessageDialog(null, mesg);
     }
 
     /**
@@ -160,11 +160,11 @@ public class PopupDialogImpl
      * @param messageType the type of message to be displayed: ERROR_MESSAGE,
      * INFORMATION_MESSAGE, WARNING_MESSAGE, QUESTION_MESSAGE, or PLAIN_MESSAGE
      */
-    public void showMessagePopupDialog(Object message, String title,
-        int messageType)
+    public void showMessagePopupDialog(Object mesg, String title,
+        int mesgType)
     {
-        showMessageDialog(null, message, title,
-            popupDialog2JOptionPaneMessageType(messageType));
+        showMessageDialog(null, mesg, title,
+            popupDialog2JOptionPaneMessageType(mesgType));
     }
 
     /**
@@ -178,12 +178,12 @@ public class PopupDialogImpl
      * INFORMATION_MESSAGE, WARNING_MESSAGE, QUESTION_MESSAGE, or PLAIN_MESSAGE
      * @param icon the image to display in the message dialog.
      */
-    public void showMessagePopupDialog(Object message, String title,
-        int messageType, byte[] icon)
+    public void showMessagePopupDialog(Object mesg, String title,
+        int mesgType, byte[] icn)
     {
-        showMessageDialog(null, message, title,
-            popupDialog2JOptionPaneMessageType(messageType),
-            createImageIcon(icon));
+        showMessageDialog(null, mesg, title,
+            popupDialog2JOptionPaneMessageType(mesgType),
+            createImageIcon(icn));
     }
 
     /**
@@ -193,9 +193,9 @@ public class PopupDialogImpl
      *
      * @param message the message to display
      */
-    public int showConfirmPopupDialog(Object message)
+    public int showConfirmPopupDialog(Object mesg)
     {
-        return showConfirmDialog(null, message);
+        return showConfirmDialog(null, mesg);
     }
 
     /**
@@ -208,11 +208,11 @@ public class PopupDialogImpl
      * @param optionType an integer designating the options available on the
      * dialog: YES_NO_OPTION, or YES_NO_CANCEL_OPTION
      */
-    public int showConfirmPopupDialog(Object message, String title,
-        int optionType)
+    public int showConfirmPopupDialog(Object mesg, String title,
+        int optType)
     {
-        return showConfirmDialog(null, message, title,
-            popupDialog2JOptionPaneOptionType(optionType));
+        return showConfirmDialog(null, mesg, title,
+            popupDialog2JOptionPaneOptionType(optType));
     }
 
     private static int popupDialog2JOptionPaneOptionType(int optionType)
@@ -243,12 +243,12 @@ public class PopupDialogImpl
      * ERROR_MESSAGE, INFORMATION_MESSAGE, WARNING_MESSAGE, QUESTION_MESSAGE,
      * or PLAIN_MESSAGE
      */
-    public int showConfirmPopupDialog(Object message, String title,
-        int optionType, int messageType)
+    public int showConfirmPopupDialog(Object mesg, String title,
+        int optType, int mesgType)
     {
-        return showConfirmDialog(null, message, title,
-            popupDialog2JOptionPaneOptionType(optionType),
-            popupDialog2JOptionPaneMessageType(messageType));
+        return showConfirmDialog(null, mesg, title,
+            popupDialog2JOptionPaneOptionType(optType),
+            popupDialog2JOptionPaneMessageType(mesgType));
     }
 
     /**
@@ -266,13 +266,13 @@ public class PopupDialogImpl
      * or PLAIN_MESSAGE
      * @param icon the icon to display in the dialog
      */
-    public int showConfirmPopupDialog(Object message, String title,
-        int optionType, int messageType, byte[] icon)
+    public int showConfirmPopupDialog(Object mesg, String title,
+        int optType, int mesgType, byte[] icn)
     {
-        return showConfirmDialog(null, message, title,
-            popupDialog2JOptionPaneOptionType(optionType),
-            popupDialog2JOptionPaneMessageType(messageType),
-            createImageIcon(icon));
+        return showConfirmDialog(null, mesg, title,
+            popupDialog2JOptionPaneOptionType(optType),
+            popupDialog2JOptionPaneMessageType(mesgType),
+            createImageIcon(icn));
     }
 
     /**

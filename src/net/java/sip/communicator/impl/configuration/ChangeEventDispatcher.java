@@ -98,7 +98,7 @@ public class ChangeEventDispatcher
             propertyChangeChildren =
                 new Hashtable<String, ChangeEventDispatcher>();
         }
-        ChangeEventDispatcher child = (ChangeEventDispatcher) propertyChangeChildren.get(
+        ChangeEventDispatcher child = propertyChangeChildren.get(
             propertyName);
         if (child == null)
         {
@@ -298,7 +298,7 @@ public class ChangeEventDispatcher
             }
         }
 
-        if (vetoableChangeListeners != null)
+        if (vetoableChangeListeners != null && targets != null)
         {
             for (int i = 0; i < targets.length; i++)
             {
