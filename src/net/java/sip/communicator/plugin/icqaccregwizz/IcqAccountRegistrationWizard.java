@@ -105,15 +105,15 @@ public class IcqAccountRegistrationWizard
     /**
      * Returns the set of data that user has entered through this wizard.
      */
-    public Iterator<Map.Entry> getSummary()
+    public Iterator<Map.Entry<String,String>> getSummary()
     {
-        Map<String, Object> summaryTable
-            = new LinkedHashMap<String, Object>();
+        Map<String, String> summaryTable
+            = new LinkedHashMap<String, String>();
 
         summaryTable.put(Resources.getString("service.gui.USER_IDENTIFIER"),
                         registration.getUin());
         summaryTable.put(Resources.getString("service.gui.REMEMBER_PASSWORD"),
-                new Boolean(registration.isRememberPassword()));
+                Boolean.toString(registration.isRememberPassword()));
 
         if (registration.getProxy() != null)
             summaryTable.put(Resources.getString("plugin.icqaccregwizz.PROXY"),
@@ -135,7 +135,7 @@ public class IcqAccountRegistrationWizard
             summaryTable.put(Resources.getString("proxyPassword"),
                 registration.getProxyPassword());
 
-        return ((Map) summaryTable).entrySet().iterator();
+        return summaryTable.entrySet().iterator();
     }
 
     /**

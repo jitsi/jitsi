@@ -116,9 +116,9 @@ public class JabberAccountRegistrationWizard
      * Returns the set of data that user has entered through this wizard.
      * @return Iterator
      */
-    public Iterator<Map.Entry> getSummary()
+    public Iterator<Map.Entry<String,String>> getSummary()
     {
-        Hashtable summaryTable = new Hashtable();
+        Hashtable<String,String> summaryTable = new Hashtable<String,String>();
 
         summaryTable.put(
             Resources.getString("plugin.jabberaccregwizz.USERNAME"),
@@ -126,7 +126,7 @@ public class JabberAccountRegistrationWizard
 
         summaryTable.put(
             Resources.getString("service.gui.REMEMBER_PASSWORD"),
-            new Boolean(registration.isRememberPassword()));
+            Boolean.toString(registration.isRememberPassword()));
 
         summaryTable.put(
             Resources.getString("plugin.jabberaccregwizz.SERVER"),

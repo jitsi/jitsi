@@ -120,7 +120,7 @@ public class DictAccountRegistrationWizard
      * Returns the set of data that user has entered through this wizard.
      * @return Returns the set of data that user has entered through this wizard.
      */
-    public Iterator<Map.Entry> getSummary()
+    public Iterator<Map.Entry<String, String>> getSummary()
     {
         Map<String, String> summaryTable = new LinkedHashMap<String, String>();
 
@@ -128,7 +128,7 @@ public class DictAccountRegistrationWizard
         summaryTable.put("Port", String.valueOf(registration.getPort()));
         summaryTable.put("Strategy", registration.getStrategy().getName());
 
-        return ((Map) summaryTable).entrySet().iterator();
+        return summaryTable.entrySet().iterator();
     }
 
     /**
@@ -176,7 +176,8 @@ public class DictAccountRegistrationWizard
         String strategy)
         throws OperationFailedException
     {
-        Hashtable accountProperties = new Hashtable();
+        Hashtable<String, String> accountProperties 
+            = new Hashtable<String, String>();
         
         // Set this property to indicate that Dict account does not require 
         // authentication.
@@ -372,12 +373,13 @@ public class DictAccountRegistrationWizard
         ProtocolProviderFactory factory =
             DictAccRegWizzActivator.getDictProtocolProviderFactory();
 
-        ArrayList registeredAccounts = factory.getRegisteredAccounts();
+        ArrayList<AccountID> registeredAccounts 
+            = factory.getRegisteredAccounts();
         int total = 0;
 
         for (int i = 0; i < registeredAccounts.size(); i++)
         {
-            AccountID accountID = (AccountID) registeredAccounts.get(i);
+            AccountID accountID = registeredAccounts.get(i);
 
             // The host is always stored at the start
             if (accountID.getUserID().startsWith(host.toLowerCase()))

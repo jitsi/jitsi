@@ -117,9 +117,9 @@ public class GibberishAccountRegistrationWizard
      * Returns the set of data that user has entered through this wizard.
      * @return Iterator
      */
-    public Iterator<Map.Entry> getSummary()
+    public Iterator<Map.Entry<String, String>> getSummary()
     {
-        Map summaryTable = new Hashtable();
+        Map<String, String> summaryTable = new Hashtable<String, String>();
 
         summaryTable.put("User ID", registration.getUserID());
 
@@ -164,7 +164,8 @@ public class GibberishAccountRegistrationWizard
         throws OperationFailedException
     {
 
-        Hashtable accountProperties = new Hashtable();
+        Hashtable<String, String> accountProperties 
+            = new Hashtable<String, String>();
 
         if (registration.isRememberPassword())
         {

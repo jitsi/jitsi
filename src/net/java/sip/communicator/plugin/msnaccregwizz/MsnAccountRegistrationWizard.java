@@ -115,14 +115,14 @@ public class MsnAccountRegistrationWizard
      * 
      * @return Iterator
      */
-    public Iterator<Map.Entry> getSummary()
+    public Iterator<Map.Entry<String, String>> getSummary()
     {
-        Hashtable summaryTable = new Hashtable();
+        Hashtable<String,String> summaryTable = new Hashtable<String,String>();
 
-        summaryTable.put(   Resources.getString("plugin.msnaccregwizz.USERNAME"),
-                            registration.getId());
-        summaryTable.put(   Resources.getString("service.gui.REMEMBER_PASSWORD"),
-                            new Boolean(registration.isRememberPassword()));
+        summaryTable.put( Resources.getString("plugin.msnaccregwizz.USERNAME"),
+                          registration.getId());
+        summaryTable.put( Resources.getString("service.gui.REMEMBER_PASSWORD"),
+                          Boolean.toString(registration.isRememberPassword()));
 
         return summaryTable.entrySet().iterator();
     }
@@ -173,7 +173,8 @@ public class MsnAccountRegistrationWizard
         throws OperationFailedException
     {
 
-        Hashtable accountProperties = new Hashtable();
+        Hashtable<String,String> accountProperties 
+            = new Hashtable<String,String>();
 
         if (registration.isRememberPassword())
         {

@@ -108,7 +108,8 @@ public class SIPAccountRegistrationWizard
      * Returns the set of data that user has entered through this wizard.
      * @return Iterator
      */
-    public Iterator<Map.Entry> getSummary() {
+    public Iterator<Map.Entry<String, String>> getSummary() 
+    {
         Map<String, String> summaryTable = new Hashtable<String, String>();
         boolean rememberPswd = registration.isRememberPassword();
         String rememberPswdString = Resources.getString(
@@ -189,7 +190,7 @@ public class SIPAccountRegistrationWizard
             Resources.getString("plugin.sipaccregwizz.KEEP_ALIVE_INTERVAL"),
             registration.getKeepAliveInterval());
 
-        return ((Map) summaryTable).entrySet().iterator();
+        return summaryTable.entrySet().iterator();
     }
 
     /**

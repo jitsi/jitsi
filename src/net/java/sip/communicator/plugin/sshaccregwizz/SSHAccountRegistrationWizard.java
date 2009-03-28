@@ -123,8 +123,8 @@ public class SSHAccountRegistrationWizard
      * Returns the set of data that user has entered through this wizard.
      * @return Iterator
      */
-    public Iterator<Map.Entry> getSummary() {
-        Hashtable summaryTable = new Hashtable();
+    public Iterator<Map.Entry<String, String>> getSummary() {
+        Hashtable<String, String> summaryTable = new Hashtable<String, String>();
         
         /*
          * Hashtable arranges the entries alphabetically so the order 

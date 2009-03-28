@@ -113,7 +113,7 @@ public interface AccountRegistrationWizard
      * @return a set of key-value pairs that will represent the summary for
      * this wizard. 
      */
-    public Iterator<Map.Entry> getSummary();
+    public Iterator<Map.Entry<String, String>> getSummary();
 
     /**
      * Defines the operations that will be executed when the user clicks on

@@ -117,16 +117,17 @@ public class YahooAccountRegistrationWizard
      * 
      * @return Iterator
      */
-    public Iterator<Map.Entry> getSummary()
+    public Iterator<Map.Entry<String, String>> getSummary()
     {
-        Hashtable summaryTable = new Hashtable();
+        Hashtable<String, String> summaryTable 
+            = new Hashtable<String, String>();
 
         summaryTable.put(
             Resources.getString("plugin.yahooaccregwizz.USERNAME"),
             registration.getUin());
         summaryTable.put(
             Resources.getString("service.gui.REMEMBER_PASSWORD"),
-            new Boolean(registration.isRememberPassword()));
+            Boolean.toString(registration.isRememberPassword()));
 
         return summaryTable.entrySet().iterator();
     }
@@ -174,7 +175,8 @@ public class YahooAccountRegistrationWizard
         ProtocolProviderFactory providerFactory, String user, String passwd)
         throws OperationFailedException
     {
-        Hashtable accountProperties = new Hashtable();
+        Hashtable<String, String> accountProperties 
+            = new Hashtable<String, String>();
 
         if (registration.isRememberPassword())
         {

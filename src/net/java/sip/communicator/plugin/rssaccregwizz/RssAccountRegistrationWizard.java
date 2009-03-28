@@ -118,9 +118,10 @@ public class RssAccountRegistrationWizard
      * Returns the set of data that user has entered through this wizard.
      * @return Iterator
      */
-    public Iterator<Map.Entry> getSummary()
+    public Iterator<Map.Entry<String, String>> getSummary()
     {
-        Hashtable summaryTable = new Hashtable();
+        Hashtable<String, String> summaryTable 
+            = new Hashtable<String, String>();
 
         summaryTable.put("User ID", registration.getUserID());
 
@@ -166,11 +167,12 @@ public class RssAccountRegistrationWizard
         throws OperationFailedException
     {
 
-        Hashtable accountProperties = new Hashtable();
+        Hashtable<String, String> accountProperties 
+            = new Hashtable<String, String>();
 
         accountProperties.put(
             ProtocolProviderFactory.NO_PASSWORD_REQUIRED,
-            new Boolean(true).toString());
+            Boolean.toString(true));
 
         try
         {

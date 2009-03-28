@@ -117,9 +117,9 @@ public class IrcAccountRegistrationWizard
      * Returns the set of data that user has entered through this wizard.
      * @return Iterator
      */
-    public Iterator<Map.Entry> getSummary()
+    public Iterator<Map.Entry<String,String>> getSummary()
     {
-        Hashtable summaryTable = new Hashtable();
+        Hashtable<String,String> summaryTable = new Hashtable<String,String>();
         String pass = new String();
         String port = new String();
 
