@@ -24,7 +24,7 @@ import net.java.sip.communicator.service.gui.*;
  */
 public class JoinChatRoomWizardPage1
         implements  WizardPage,
-                    CellEditorListener
+                    ListSelectionListener
 {
     /**
      * The identifier of this wizard page.
@@ -54,7 +54,7 @@ public class JoinChatRoomWizardPage1
         selectAccountPanel
             = new SelectAccountPanel(joinChatRoom, chatRoomProviders);
 
-        selectAccountPanel.addCheckBoxCellListener(this);
+        selectAccountPanel.addListSelectionListener(this);
     }
     
     /**
@@ -64,37 +64,30 @@ public class JoinChatRoomWizardPage1
      */
     public void pageShowing()
     {
-        setNextButtonAccordingToCheckBox();
+        setNextButtonAccordingToRowSelection();
     }
 
     /**
      * Enables the next button when the user makes a choice and disables it 
      * if nothing is selected.
      */
-    private void setNextButtonAccordingToCheckBox()
+    private void setNextButtonAccordingToRowSelection()
     {
-        if (selectAccountPanel.isRadioSelected())
+        if (selectAccountPanel.isRowSelected())
             this.wizard.setNextFinishButtonEnabled(true);
         else
             this.wizard.setNextFinishButtonEnabled(false);
     }
 
     /**
-     * When user canceled editing the next button is enabled or disabled
-     * depending on if the user has selected a check box or not.
+     * Listens for selection evens so that we would only enable the next button
+     * if an account has actually been chosen.
+     * 
+     * @param e the <tt>ListSelectionEvent</tt> that has just occurred.
      */
-    public void editingCanceled(ChangeEvent e)
+    public void valueChanged(ListSelectionEvent e)
     {
-        setNextButtonAccordingToCheckBox();
-    }
-
-    /**
-     * When user stopped editing the next button is enabled or disabled
-     * depending on if the user has selected a check box or not.
-     */
-    public void editingStopped(ChangeEvent e)
-    {
-        setNextButtonAccordingToCheckBox();
+        setNextButtonAccordingToRowSelection();
     }
 
     /**
@@ -150,7 +143,7 @@ public class JoinChatRoomWizardPage1
      */
     public void commitPage()
     {
-        selectAccountPanel.setSelectedAccount();
+        selectAccountPanel.initSelectedAccount();
     }
 
     public void pageBack()

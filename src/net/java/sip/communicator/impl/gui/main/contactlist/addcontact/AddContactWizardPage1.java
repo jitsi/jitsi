@@ -11,6 +11,7 @@ import java.util.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>AddContactWizardPage1</tt> is the first page of the "Add Contact"
@@ -20,7 +21,7 @@ import net.java.sip.communicator.service.gui.*;
  * @author Yana Stamcheva
  */
 public class AddContactWizardPage1
-    implements WizardPage, CellEditorListener
+    implements WizardPage, ListSelectionListener
 {
 
     public static final String IDENTIFIER = "SELECT_ACCOUNT_PANEL";
@@ -34,20 +35,20 @@ public class AddContactWizardPage1
      * 
      * @param newContact An object that collects all user choices through the
      *            wizard.
-     * @param protocolProvidersList The list of available
+     * @param providerList The list of available
      *            <tt>ProtocolProviderServices</tt>, from which the user
      *            could select.
      */
-    public AddContactWizardPage1(   WizardContainer wizard,
-                                    NewContact newContact,
-                                    Iterator protocolProvidersList)
+    public AddContactWizardPage1(WizardContainer wizard,
+                                 NewContact newContact,
+                                 Iterator<ProtocolProviderService> providerList)
     {
 
         this.wizard = wizard;
 
         selectAccountPanel
-            = new SelectAccountPanel(newContact, protocolProvidersList);
-        selectAccountPanel.addCheckBoxCellListener(this);
+            = new SelectAccountPanel(newContact, providerList);
+        selectAccountPanel.addListSelectionListener(this);
     }
 
     /**
@@ -61,31 +62,25 @@ public class AddContactWizardPage1
     }
 
     /**
-     * Enables the next button when the user makes a choise and disables it if
+     * Enables the next button when the user makes a choice and disables it if
      * nothing is selected.
      */
     private void setNextButtonAccordingToCheckBox()
     {
-        if (selectAccountPanel.isCheckBoxSelected())
+        if (selectAccountPanel.isAccountSelected())
             this.wizard.setNextFinishButtonEnabled(true);
         else
             this.wizard.setNextFinishButtonEnabled(false);
     }
 
     /**
-     * When user canceled editing the next button is enabled or disabled
-     * depending on if the user has selected a check box or not.
+     * If there's no protocol selected by default the "Next" button would 
+     * start as disabled. This method should make sure we re-enable it 
+     * once a protocol has been selected
+     * 
+     * @param e the <tt>ListSelectionEvent</tt> that has just occurred.
      */
-    public void editingCanceled(ChangeEvent e)
-    {
-        setNextButtonAccordingToCheckBox();
-    }
-
-    /**
-     * When user stopped editing the next button is enabled or disabled
-     * depending on if the user has selected a check box or not.
-     */
-    public void editingStopped(ChangeEvent e)
+    public void valueChanged(ListSelectionEvent e)
     {
         setNextButtonAccordingToCheckBox();
     }
@@ -120,7 +115,7 @@ public class AddContactWizardPage1
 
     public void commitPage()
     {
-        selectAccountPanel.setSelectedAccounts();
+        selectAccountPanel.initSelectedAccount();
     }
 
     public void pageBack()

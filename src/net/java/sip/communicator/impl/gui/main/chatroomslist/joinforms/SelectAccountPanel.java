@@ -28,21 +28,38 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class SelectAccountPanel extends TransparentPanel
 {
+    /**
+     * An Eclipse generated serial version UID.
+     */
+    private static final long serialVersionUID = 4717173525426074284L;
+
+    /**
+     * The index of the column that contains protocol names and icons.
+     */
+    private static final int PROTOCOL_COLUMN_INDEX = 0;
+    
+    /**
+     * The index of the column that contains account display names
+     */
+    private static final int ACCOUNT_COLUMN_INDEX = 1;
+    
     private final JScrollPane tablePane = new JScrollPane(
         JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
         JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     
     private final JTable accountsTable;
     
-    private final DefaultTableModel tableModel = new DefaultTableModel();
+    private final AccountsTableModel tableModel = new AccountsTableModel();
     
     private final NewChatRoom joinChatRoom;
     
-    private final Iterator chatRoomProvidersList;
+    private final Iterator<ChatRoomProviderWrapper> chatRoomProvidersList;
     
-    private final JPanel labelsPanel = new TransparentPanel(new GridLayout(0, 1));
+    private final JPanel labelsPanel 
+        = new TransparentPanel(new GridLayout(0, 1));
     
-    private final JPanel rightPanel = new TransparentPanel(new BorderLayout(5, 5));
+    private final JPanel rightPanel 
+        = new TransparentPanel(new BorderLayout(5, 5));
     
     private final JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.ADD_CONTACT_WIZARD_ICON)));
@@ -55,8 +72,6 @@ public class SelectAccountPanel extends TransparentPanel
         GuiActivator.getResources()
             .getI18NString("service.gui.SELECT_ACCOUNT"), 
         JLabel.CENTER);
-    
-    private final ButtonGroup radioButtonGroup = new ButtonGroup();
     
     /**
      * Creates and initializes the <tt>SelectAccountPanel</tt>.
@@ -95,6 +110,11 @@ public class SelectAccountPanel extends TransparentPanel
 
         accountsTable = new JTable(tableModel)
         {
+            /**
+             * An eclipse generated serial version uid.
+             */
+            private static final long serialVersionUID = 6321836989166142791L;
+
             public void tableChanged(TableModelEvent e)
             {
               super.tableChanged(e);
@@ -112,11 +132,10 @@ public class SelectAccountPanel extends TransparentPanel
     {
         accountsTable.setPreferredScrollableViewportSize(new Dimension(500, 70));
 
-        tableModel.addColumn("");
-        tableModel.addColumn(
-            GuiActivator.getResources().getI18NString("service.gui.ACCOUNT"));
         tableModel.addColumn(
             GuiActivator.getResources().getI18NString("service.gui.PROTOCOL"));
+        tableModel.addColumn(
+            GuiActivator.getResources().getI18NString("service.gui.ACCOUNT"));
 
         while(chatRoomProvidersList.hasNext())
         {
@@ -134,27 +153,20 @@ public class SelectAccountPanel extends TransparentPanel
             if (providerImage != null)
                 protocolLabel.setIcon(new ImageIcon(providerImage));
 
-            JRadioButton radioButton = new JRadioButton();
+            tableModel.addRow(new Object[]{protocolLabel, provider});
 
-            tableModel.addRow(new Object[]{radioButton,
-                    provider, protocolLabel});
-
-            radioButtonGroup.add(radioButton);
         }
 
         accountsTable.setRowHeight(22);
 
-        accountsTable.getColumnModel().getColumn(0).setPreferredWidth(30);
-        accountsTable.getColumnModel().getColumn(0).setCellRenderer(
-            new RadioButtonTableCellRenderer());
-
-        accountsTable.getColumnModel().getColumn(0).setCellEditor(
-            new RadioButtonCellEditor(new JCheckBox()));
-
-        accountsTable.getColumnModel().getColumn(2)
+        accountsTable.getColumnModel().getColumn(ACCOUNT_COLUMN_INDEX)
             .setCellRenderer(new LabelTableCellRenderer());
-        accountsTable.getColumnModel().getColumn(1)
+        accountsTable.getColumnModel()
+            .getColumn(PROTOCOL_COLUMN_INDEX).sizeWidthToFit();        
+        accountsTable.getColumnModel().getColumn(PROTOCOL_COLUMN_INDEX)
             .setCellRenderer(new LabelTableCellRenderer());
+        accountsTable.getColumnModel()
+            .getColumn(ACCOUNT_COLUMN_INDEX).setPreferredWidth(300);
 
         this.tablePane.getViewport().add(accountsTable);
 
@@ -173,65 +185,64 @@ public class SelectAccountPanel extends TransparentPanel
     }
 
     /**
-     * Adds a <tt>CellEditorListener</tt> to the list of account, which will
-     * listen for events triggered by user clicks on the check boxes in the
-     * first column of the accounts table.
+     * Adds a <tt>ListSelectionListener</tt> to the list of accounts, which will
+     * listen for events triggered by user clicks on the rows in the table.
      * 
-     * @param l the <tt>CellEditorListener</tt> to add
+     * @param listener the <tt>ListSelectionListener</tt> to add
      */
-    public void addCheckBoxCellListener(CellEditorListener l)
+    public void addListSelectionListener(ListSelectionListener listener)
     {
-        if(accountsTable.getModel().getRowCount() != 0)
-        {
-            accountsTable.getCellEditor(0, 0).addCellEditorListener(l);
-        }
+        accountsTable.getSelectionModel().addListSelectionListener(listener);
     }
 
     /**
-     * Checks whether there is a selected radio button in the table.
-     * @return <code>true</code> if any of the check boxes is selected,
-     * <code>false</code> otherwise.
+     * Checks whether there is a selected row in the table.
+     * 
+     * @return <tt>true</tt> if a row is selected and <tt>false</tt> otherwise.
      */
-    public boolean isRadioSelected()
+    public boolean isRowSelected()
     {
-        TableModel model = accountsTable.getModel();
-
-        for (int i = 0; i < accountsTable.getRowCount(); i ++) {
-            Object value = model.getValueAt(i, 0);
-
-            if (value instanceof JRadioButton)
-            {
-                JRadioButton radioButton = (JRadioButton) value;
-
-                if(radioButton.isSelected())
-                    return true;
-            }
-        }
-        
-        return false;
+        return accountsTable.getSelectedRow() != -1;
     }
 
     /**
-     * Set the selected account, which will be used in the rest of the wizard.
+     * Determine the selected account, which will be used in the rest of the 
+     * wizard.
      */
-    public void setSelectedAccount()
+    public void initSelectedAccount()
     {
         TableModel model = accountsTable.getModel();
 
-        for (int i = 0; i < accountsTable.getRowCount(); i ++)
+        int selectedRow = accountsTable.getSelectedRow();
+        if(selectedRow != -1)
         {
-            Object value = model.getValueAt(i, 0);
-
-            if (value instanceof JRadioButton)
-            {
-                JRadioButton radioButton = (JRadioButton) value;
-
-                if(radioButton.isSelected())
-                {
-                    joinChatRoom.setChatRoomProvider(
-                        (ChatRoomProviderWrapper) model.getValueAt(i, 1));
-                }
-            }
+            joinChatRoom.setChatRoomProvider((ChatRoomProviderWrapper) 
+                        model.getValueAt(selectedRow, ACCOUNT_COLUMN_INDEX));
         }
     }
+    
+    /**
+     * The table model that we use for the accounts table. The only reason we
+     * need a model is to make sure our table is not editable.
+     */
+    private static class AccountsTableModel extends DefaultTableModel
+    {
+        /**
+         * An eclipse generated serial version uid.
+         */
+        private static final long serialVersionUID = 4259505654018472178L;
+
+        /**
+         * Returns fale regardless of parameter values.
+         *
+         * @param   row             the row whose value is to be queried
+         * @param   column          the column whose value is to be queried
+         * @return                  false
+         */
+        @Override
+        public boolean isCellEditable(int row, int column) 
+        {
+            return false;
+        }
+    };
 }

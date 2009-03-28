@@ -31,6 +31,33 @@ public class ChatRoomListDialog
 {
 
     /**
+     * An eclipse generated serial version uid.
+     */
+    private static final long serialVersionUID = -5117526914795659109L;
+
+    /**
+     * The key for the string containing the name of the Create button.
+     */
+    private static final String CREATE_CHAT_ROOM 
+        = "service.gui.CREATE_CHAT_ROOM";
+
+    /**
+     * The key for the string containing the name of the Join button.
+     */
+    private static final String JOIN_CHAT_ROOM = "service.gui.JOIN_CHAT_ROOM";
+
+    /**
+     * The key for the string containing the name of the Close button.
+     */
+    private static final String CLOSE_CHAT_ROOM_DIALOG 
+        = "service.gui.CLOSE_CHAT_ROOM_DIALOG";
+    
+    /**
+     * The key for the string containing the name of the "My Chat Rooms" title.
+     */
+    private static final String MY_CHAT_ROOMS = "service.gui.MY_CHAT_ROOMS";
+    
+    /**
      * The global/shared <code>ChatRoomListDialog</code> currently showing.
      */
     private static ChatRoomListDialog chatRoomListDialog;
@@ -65,12 +92,6 @@ public class ChatRoomListDialog
         chatRoomListDialog.setVisible(true);
     }
 
-    private static final String CREATE_CHAT_ROOM = "CreateChatRoom";
-
-    private static final String JOIN_CHAT_ROOM = "JoinChatRoom";
-
-    private static final String CANCEL = "Cancel";
-
     private MainFrame mainFrame;
 
     /**
@@ -99,19 +120,20 @@ public class ChatRoomListDialog
 
         JButton createChatRoomButton = new JButton(
             GuiActivator.getResources()
-                .getI18NString("service.gui.CREATE_CHAT_ROOM"));
+                .getI18NString(CREATE_CHAT_ROOM));
 
         JButton joinChatRoomButton = new JButton(
             GuiActivator.getResources()
-                .getI18NString("service.gui.JOIN_CHAT_ROOM"));
+                .getI18NString(JOIN_CHAT_ROOM));
 
         JButton cancelButton = new JButton(
-            GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
+            GuiActivator.getResources()
+                .getI18NString(CLOSE_CHAT_ROOM_DIALOG));
 
         TransparentPanel buttonPanel = new TransparentPanel();
 
         this.setTitle(GuiActivator.getResources()
-            .getI18NString("service.gui.MY_CHAT_ROOMS"));
+            .getI18NString(MY_CHAT_ROOMS));
 
         this.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
         this.getContentPane().add(chatRoomsListUI, BorderLayout.CENTER);
@@ -126,14 +148,14 @@ public class ChatRoomListDialog
 
         createChatRoomButton.setName(CREATE_CHAT_ROOM);
         joinChatRoomButton.setName(JOIN_CHAT_ROOM);
-        cancelButton.setName(CANCEL);
+        cancelButton.setName(CLOSE_CHAT_ROOM_DIALOG);
 
         createChatRoomButton.setMnemonic(GuiActivator.getResources()
-            .getI18nMnemonic("service.gui.CREATE_CHAT_ROOM"));
+            .getI18nMnemonic(CREATE_CHAT_ROOM));
         joinChatRoomButton.setMnemonic(GuiActivator.getResources()
-            .getI18nMnemonic("service.gui.JOIN_CHAT_ROOM"));
+            .getI18nMnemonic(JOIN_CHAT_ROOM));
         cancelButton.setMnemonic(GuiActivator.getResources()
-            .getI18nMnemonic("service.gui.CANCEL"));
+            .getI18nMnemonic(CLOSE_CHAT_ROOM_DIALOG));
     }
 
     /**
@@ -158,7 +180,7 @@ public class ChatRoomListDialog
 
             joinChatRoomWizard.showDialog(false);
         }
-        else if (buttonName.equals(CANCEL))
+        else if (buttonName.equals(CLOSE_CHAT_ROOM_DIALOG))
         {
             this.dispose();
         }

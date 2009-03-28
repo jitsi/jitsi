@@ -28,9 +28,11 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class SelectAccountPanel extends TransparentPanel
 {
-    private static final Logger logger =
-        Logger.getLogger(SelectAccountPanel.class);
-    
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 7709876019954774312L;
+
     private final JScrollPane tablePane = new JScrollPane(
         JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
         JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -41,11 +43,13 @@ public class SelectAccountPanel extends TransparentPanel
     
     private final NewChatRoom newChatRoom;
     
-    private final Iterator protocolProvidersList;
+    private final Iterator<ProtocolProviderService> protocolProvidersList;
     
-    private final JPanel labelsPanel = new TransparentPanel(new GridLayout(0, 1));
+    private final JPanel labelsPanel 
+            = new TransparentPanel(new GridLayout(0, 1));
     
-    private final JPanel rightPanel = new TransparentPanel(new BorderLayout(10, 10));
+    private final JPanel rightPanel 
+            = new TransparentPanel(new BorderLayout(10, 10));
     
     private final JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.ADD_CONTACT_WIZARD_ICON)));
@@ -69,7 +73,7 @@ public class SelectAccountPanel extends TransparentPanel
      * <tt>ProtocolProviderServices</tt>, from which the user could select.
      */
     public SelectAccountPanel(NewChatRoom newChatRoom, 
-            Iterator protocolProvidersList)
+            Iterator<ProtocolProviderService> protocolProvidersList)
     {
         super(new BorderLayout());
 
@@ -120,11 +124,10 @@ public class SelectAccountPanel extends TransparentPanel
     {
         accountsTable.setPreferredScrollableViewportSize(new Dimension(500, 70));
 
-        tableModel.addColumn("");
-        tableModel.addColumn(
-            GuiActivator.getResources().getI18NString("service.gui.ACCOUNT"));
         tableModel.addColumn(
             GuiActivator.getResources().getI18NString("service.gui.PROTOCOL"));
+        tableModel.addColumn(
+            GuiActivator.getResources().getI18NString("service.gui.ACCOUNT"));
 
         while(protocolProvidersList.hasNext())
         {

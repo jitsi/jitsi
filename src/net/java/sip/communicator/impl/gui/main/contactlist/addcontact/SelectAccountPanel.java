@@ -36,14 +36,28 @@ public class SelectAccountPanel
     extends TransparentPanel
     implements ServiceListener
 {
+    /**
+     * An Eclipse generated serial version UID
+     */
+    private static final long serialVersionUID = 8635141487622436216L;
+    
+    /**
+     * The index of the column that contains protocol names and icons.
+     */
+    private static final int PROTOCOL_COLUMN_INDEX = 0;
+    
+    /**
+     * The index of the column that contains account display names
+     */
+    private static final int ACCOUNT_COLUMN_INDEX = 1;
+
     private Logger logger = Logger.getLogger(SelectAccountPanel.class);
 
     private JScrollPane tablePane = new JScrollPane();
 
     private JTable accountsTable = new JTable();
-
-    private BooleanToCheckTableModel tableModel =
-        new BooleanToCheckTableModel();
+    
+    private AccountsTableModel tableModel = new AccountsTableModel();
 
     private NewContact newContact;
 
@@ -102,6 +116,8 @@ public class SelectAccountPanel
 
         this.labelsPanel.add(infoTitleLabel);
         this.labelsPanel.add(infoLabel);
+        
+        accountsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         this.rightPanel.add(labelsPanel, BorderLayout.NORTH);
         this.rightPanel.add(tablePane, BorderLayout.CENTER);
@@ -137,11 +153,10 @@ public class SelectAccountPanel
         accountsTable
             .setPreferredScrollableViewportSize(new Dimension(500, 70));
 
-        tableModel.addColumn("");
-        tableModel.addColumn(
-            GuiActivator.getResources().getI18NString("service.gui.ACCOUNT"));
         tableModel.addColumn(
             GuiActivator.getResources().getI18NString("service.gui.PROTOCOL"));
+        tableModel.addColumn(
+            GuiActivator.getResources().getI18NString("service.gui.ACCOUNT"));
 
         while (protocolProvidersList.hasNext())
         {
@@ -158,9 +173,9 @@ public class SelectAccountPanel
             Image protocolImage = null;
             try
             {
-                protocolImage =
-                    ImageIO.read(new ByteArrayInputStream(pps.getProtocolIcon()
-                        .getIcon(ProtocolIcon.ICON_SIZE_16x16)));
+                protocolImage = ImageIO.read(
+                                new ByteArrayInputStream(pps.getProtocolIcon()
+                                    .getIcon(ProtocolIcon.ICON_SIZE_16x16)));
             }
             catch (IOException e)
             {
@@ -171,75 +186,39 @@ public class SelectAccountPanel
             protocolLabel.setText(pName);
             protocolLabel.setIcon(new ImageIcon(protocolImage));
 
-            tableModel.addRow(new Object[]
-            { new Boolean(false), pps, protocolLabel });
+            tableModel.addRow(new Object[] { protocolLabel, pps });
         }
 
         accountsTable.setRowHeight(22);
         accountsTable.setModel(tableModel);
 
-        accountsTable.getColumnModel().getColumn(0).sizeWidthToFit();
-        accountsTable.getColumnModel().getColumn(2).setCellRenderer(
-            new LabelTableCellRenderer());
-        accountsTable.getColumnModel().getColumn(1).setCellRenderer(
-            new LabelTableCellRenderer());
-
+        accountsTable.getColumnModel().getColumn(PROTOCOL_COLUMN_INDEX)
+                        .setCellRenderer(new LabelTableCellRenderer());
+        accountsTable.getColumnModel()
+                        .getColumn(PROTOCOL_COLUMN_INDEX).sizeWidthToFit();
+        
+        accountsTable.getColumnModel().getColumn(ACCOUNT_COLUMN_INDEX)
+                        .setCellRenderer( new LabelTableCellRenderer());
+        
+        accountsTable.getColumnModel()
+                        .getColumn(ACCOUNT_COLUMN_INDEX).setPreferredWidth(300);
+        
         this.tablePane.getViewport().add(accountsTable);
     }
 
-    public void addCheckBoxCellListener(CellEditorListener l)
-    {
-        if (accountsTable.getModel().getRowCount() != 0)
-        {
-            accountsTable.getCellEditor(0, 0).addCellEditorListener(l);
-        }
-    }
-
     /**
-     * Checks whether there is a selected check box in the table.
-     * 
-     * @return <code>true</code> if any of the check boxes is selected,
-     *         <code>false</code> otherwise.
+     * Determines if an account has been selected in the accounts table and 
+     * sets it in <tt>newContact.</tt>
      */
-    public boolean isCheckBoxSelected()
-    {
-        boolean isSelected = false;
-        TableModel model = accountsTable.getModel();
-
-        for (int i = 0; i < accountsTable.getRowCount(); i++)
-        {
-            Object value = model.getValueAt(i, 0);
-
-            if (value instanceof Boolean)
-            {
-                Boolean check = (Boolean) value;
-                if (check.booleanValue())
-                {
-                    isSelected = check.booleanValue();
-                }
-            }
-        }
-        return isSelected;
-    }
-
-    public void setSelectedAccounts()
+    public void initSelectedAccount()
     {
         TableModel model = accountsTable.getModel();
 
-        for (int i = 0; i < accountsTable.getRowCount(); i++)
+        int selectedRow = accountsTable.getSelectedRow();
+        if(selectedRow != -1)
         {
-            Object value = model.getValueAt(i, 0);
-
-            if (value instanceof Boolean)
-            {
-                Boolean check = (Boolean) value;
-                if (check.booleanValue())
-                {
-                    newContact
-                        .addProtocolProvider((ProtocolProviderService) model
-                            .getValueAt(i, 1));
-                }
-            }
+            newContact.addProtocolProvider((ProtocolProviderService) model
+                            .getValueAt(selectedRow, ACCOUNT_COLUMN_INDEX));
         }
     }
 
@@ -285,15 +264,15 @@ public class SelectAccountPanel
             protocolLabel.setText(pName);
             protocolLabel.setIcon(new ImageIcon(protocolImage));
 
-            tableModel.addRow(new Object[]
-            { new Boolean(false), sourcePProvider, protocolLabel });
+            tableModel.addRow(new Object[]{ protocolLabel, sourcePProvider });
         }
         else if (event.getType() == ServiceEvent.UNREGISTERING)
         {
             for (int i = 0; i < tableModel.getRowCount(); i++)
             {
                 ProtocolProviderService protocolProvider =
-                    (ProtocolProviderService) tableModel.getValueAt(i, 1);
+                    (ProtocolProviderService) tableModel
+                        .getValueAt(i,ACCOUNT_COLUMN_INDEX);
 
                 if (protocolProvider.equals(sourcePProvider))
                 {
@@ -303,4 +282,52 @@ public class SelectAccountPanel
             }
         }
     }
+    
+    /**
+     * Registers listener as a PropertyChangeListener on the table in this 
+     * 
+     * @param listener the listener that we'd like to register with the 
+     * accounts table
+     */
+    public void addListSelectionListener(ListSelectionListener listener)
+    {
+        accountsTable.getSelectionModel().addListSelectionListener(listener);
+    }
+    
+    /**
+     * Determines whether or not there's a currently selected account in the 
+     * accounts table.
+     * 
+     * @return true if an account has been selected in the accounts table and
+     * false otherwise.
+     */
+    public boolean isAccountSelected()
+    {
+        return accountsTable.getSelectedRow() != -1;
+    }
+    
+    /**
+     * The table model that we use for the accounts table. The only reason we
+     * need a model is to make sure our table is not editable.
+     */
+    private static class AccountsTableModel extends DefaultTableModel
+    {
+        /**
+         * An eclipse generated serial version uid.
+         */
+        private static final long serialVersionUID = 4259505654018472178L;
+
+        /**
+         * Returns fale regardless of parameter values.
+         *
+         * @param   row             the row whose value is to be queried
+         * @param   column          the column whose value is to be queried
+         * @return                  false
+         */
+        @Override
+        public boolean isCellEditable(int row, int column) 
+        {
+            return false;
+        }
+    };
 }
