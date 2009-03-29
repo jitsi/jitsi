@@ -201,6 +201,11 @@ public class NewAccountDialog
             {
                 networkComboBox.insertItemAt(emptyWizard, 0);
                 networkComboBox.setSelectedItem(emptyWizard);
+                
+                //disable the advanced and add buttons so that it would be 
+                //clear for the user that they need to choose a network first
+                advancedButton.setEnabled(false);
+                addAccountButton.setEnabled(false);
             }
         }
     }
@@ -268,6 +273,13 @@ public class NewAccountDialog
         simpleWizardForm.setOpaque(false);
 
         accountPanel.add(simpleWizardForm);
+        
+        //enable the add and advanced buttons if this is a real protocol
+        addAccountButton.setEnabled(
+                        !(wizard instanceof EmptyAccountRegistrationWizard));
+        advancedButton.setEnabled(
+                        !(wizard instanceof EmptyAccountRegistrationWizard));
+        
         accountPanel.revalidate();
         accountPanel.repaint();
 
