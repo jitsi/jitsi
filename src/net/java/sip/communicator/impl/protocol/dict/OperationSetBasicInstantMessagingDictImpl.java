@@ -11,6 +11,7 @@ import java.util.*;
 import net.java.dict4j.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.Html2Text;
 
 /**
  * Instant messaging functionalities for the Dict protocol.
@@ -86,6 +87,9 @@ public class OperationSetBasicInstantMessagingDictImpl
                "The specified contact is not a Dict contact."
                + to);
         }
+        
+        // Remove all html tags from the message
+        message = createMessage(Html2Text.extractText(message.getContent()));
         
         // Display the queried word
         fireMessageDelivered(message, to);
