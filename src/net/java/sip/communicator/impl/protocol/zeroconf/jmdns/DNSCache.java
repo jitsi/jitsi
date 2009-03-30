@@ -18,11 +18,11 @@ import java.util.logging.*;
  * when iterating over entries in the cache. Here's how to iterate over
  * all entries in the cache:
  * <pre>
- * for (Iterator i=dnscache.iterator(); i.hasNext(); ) 
+ * for (Iterator i=dnscache.iterator(); i.hasNext(); )
  * {
- *    for ( DNSCache.CacheNode n = (DNSCache.CacheNode) i.next(); 
- *          n != null; 
- *          n.next()) 
+ *    for ( DNSCache.CacheNode n = (DNSCache.CacheNode) i.next();
+ *          n != null;
+ *          n.next())
  *    {
  *       DNSEntry entry = n.getValue();
  *       ...do something with entry...
@@ -32,9 +32,9 @@ import java.util.logging.*;
  * <p/>
  * And here's how to iterate over all entries having a given name:
  * <pre>
- * for (    DNSCache.CacheNode n = (DNSCache.CacheNode) dnscache.find(name); 
- *          n != null; 
- *          n.next()) 
+ * for (    DNSCache.CacheNode n = (DNSCache.CacheNode) dnscache.find(name);
+ *          n != null;
+ *          n.next())
  * {
  *     DNSEntry entry = n.getValue();
  *     ...do something with entry...
@@ -55,9 +55,9 @@ class DNSCache
     // Since DNSCache is not a public class, it does not seem worth the effort
     // to clean its API up that much.
 
-    // [PJYF Oct 15 2004] This should implements Collections 
+    // [PJYF Oct 15 2004] This should implements Collections
     // that would be amuch cleaner implementation
-    
+
     /**
      * The number of DNSEntry's in the cache.
      */
@@ -86,7 +86,7 @@ class DNSCache
             this.value = value;
             String SLevel = System.getProperty("jmdns.debug");
             if (SLevel == null) SLevel = "INFO";
-            this.logger.setLevel(Level.parse(SLevel)); 
+            this.logger.setLevel(Level.parse(SLevel));
         }
 
         public CacheNode next()
@@ -108,10 +108,10 @@ class DNSCache
     public DNSCache(final int size)
     {
         hashtable = new HashMap(size);
-        
+
         String SLevel = System.getProperty("jmdns.debug");
         if (SLevel == null) SLevel = "INFO";
-        logger.setLevel(Level.parse(SLevel)); 
+        logger.setLevel(Level.parse(SLevel));
     }
 
     /**
@@ -145,7 +145,7 @@ class DNSCache
     }
 
     /**
-     * Remove a specific entry from the table. 
+     * Remove a specific entry from the table.
      * @param entry removed from table.
      * @return Returns true if the entry was found.
      */
@@ -205,9 +205,9 @@ class DNSCache
 
     /**
      * Get a matching DNS entry from the table.
-     * @param name 
-     * @param type 
-     * @param clazz 
+     * @param name
+     * @param type
+     * @param clazz
      * @return Return the entry if found, null otherwise.
      */
     public synchronized DNSEntry get(String name, int type, int clazz)
@@ -230,7 +230,7 @@ class DNSCache
      * code snippets in the header of the class.
      * @return Returns iterator with instances of DNSCache.CacheNode.
      */
-    public Iterator iterator()
+    public Iterator<DNSCache.CacheNode> iterator()
     {
         return Collections.unmodifiableCollection(hashtable.values()).iterator();
     }

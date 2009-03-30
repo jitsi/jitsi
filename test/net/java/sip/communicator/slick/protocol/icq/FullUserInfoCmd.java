@@ -223,15 +223,15 @@ public class FullUserInfoCmd
 //        infoData.add(new ServerStoredDetails.NicknameDetail(bscInfo[0]));
 //        infoData.add(new ServerStoredDetails.FirstNameDetail(bscInfo[1]));
 
-		if(bscInfo[2] != null)
-			infoData.put(LAST_NAME, bscInfo[2]);
+        if(bscInfo[2] != null)
+            infoData.put(LAST_NAME, bscInfo[2]);
 
 //        infoData.add(new ServerStoredDetails.EmailAddressDetail(bscInfo[3]));
 //        infoData.add(new ServerStoredDetails.CityDetail(bscInfo[4]));
 //        infoData.add(new ServerStoredDetails.ProvinceDetail(bscInfo[5]));
 
         if(bscInfo[6] != null)
-			infoData.put(PHONE_NUMBER, bscInfo[6]);
+            infoData.put(PHONE_NUMBER, bscInfo[6]);
 
 //        infoData.add(new ServerStoredDetails.FaxDetail(bscInfo[7]));
 //        infoData.add(new ServerStoredDetails.AddressDetail(bscInfo[8]));
@@ -290,7 +290,7 @@ public class FullUserInfoCmd
 //            infoData.add(new ServerStoredDetails.BirthDateDetail(birthDate));
 //        }
 //
-        ArrayList langs = new ArrayList();
+        ArrayList<Integer> langs = new ArrayList<Integer>();
         short speakingLanguage1 = getUByte(block, offset);
         offset += 1;
         if(speakingLanguage1 != 0 && speakingLanguage1 != 255)
@@ -762,7 +762,7 @@ public class FullUserInfoCmd
     private static class CommandFactory
         implements SnacCmdFactory
     {
-        static final List SUPPORTED_TYPES =
+        static final List<CmdType> SUPPORTED_TYPES =
         DefensiveTools.asUnmodifiableList(new CmdType[]
                                           {new CmdType(21, 3)});
 
@@ -773,7 +773,7 @@ public class FullUserInfoCmd
             return new FullUserInfoCmd(packet);
         }
 
-        public List getSupportedTypes()
+        public List<CmdType> getSupportedTypes()
         {
             return SUPPORTED_TYPES;
         }

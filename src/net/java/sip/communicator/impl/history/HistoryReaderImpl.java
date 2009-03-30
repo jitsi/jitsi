@@ -22,7 +22,8 @@ public class HistoryReaderImpl
     implements HistoryReader
 {
     private HistoryImpl historyImpl;
-    private Vector progressListeners = new Vector();
+    private Vector<HistorySearchProgressListener> progressListeners
+        = new Vector<HistorySearchProgressListener>();
 
     // regexp used for index of case(in)sensitive impl
     private static String REGEXP_END = ".*$";
@@ -146,10 +147,11 @@ public class HistoryReaderImpl
     public synchronized QueryResultSet findLast(int count) throws RuntimeException
     {
         // the files are supposed to be ordered from oldest to newest
-        Vector filelist =
+        Vector<String> filelist =
             filterFilesByDate(this.historyImpl.getFileList(), null, null);
 
-        TreeSet result = new TreeSet(new HistoryRecordComparator());
+        TreeSet<HistoryRecord> result
+            = new TreeSet<HistoryRecord>(new HistoryRecordComparator());
         int leftCount = count;
         int currentFile = filelist.size() - 1;
 
@@ -166,14 +168,14 @@ public class HistoryReaderImpl
 
             // will get nodes and construct a List of nodes
             // so we can easyly get sublist of it
-            List nodes = new ArrayList();
+            List<Node> nodes = new ArrayList<Node>();
             NodeList nodesList = doc.getElementsByTagName("record");
             for (int i = 0; i < nodesList.getLength(); i++)
             {
                 nodes.add(nodesList.item(i));
             }
 
-            List lNodes = null;
+            List<Node> lNodes = null;
 
             if (nodes.size() > leftCount)
             {
@@ -186,7 +188,7 @@ public class HistoryReaderImpl
                 leftCount -= nodes.size();
             }
 
-            Iterator i = lNodes.iterator();
+            Iterator<Node> i = lNodes.iterator();
             while (i.hasNext())
             {
                 Node node = (Node) i.next();
@@ -197,7 +199,7 @@ public class HistoryReaderImpl
                     .getNodeValue();
                 Date timestamp = new Date(Long.parseLong(ts));
 
-                ArrayList nameVals = new ArrayList();
+                ArrayList<String> nameVals = new ArrayList<String>();
 
                 boolean isRecordOK = true;
                 int len = propertyNodes.getLength();
@@ -312,9 +314,10 @@ public class HistoryReaderImpl
     public QueryResultSet findFirstRecordsAfter(Date date, int count) throws
         RuntimeException
     {
-        TreeSet result = new TreeSet(new HistoryRecordComparator());
+        TreeSet<HistoryRecord> result
+            = new TreeSet<HistoryRecord>(new HistoryRecordComparator());
 
-        Vector filelist =
+        Vector<String> filelist =
             filterFilesByDate(this.historyImpl.getFileList(), date, null);
 
         int leftCount = count;
@@ -347,7 +350,7 @@ public class HistoryReaderImpl
                 if(!isInPeriod(timestamp, date, null))
                     continue;
 
-                ArrayList nameVals = new ArrayList();
+                ArrayList<String> nameVals = new ArrayList<String>();
 
                 boolean isRecordOK = true;
                 int len = propertyNodes.getLength();
@@ -406,10 +409,11 @@ public class HistoryReaderImpl
         RuntimeException
     {
         // the files are supposed to be ordered from oldest to newest
-        Vector filelist =
+        Vector<String> filelist =
             filterFilesByDate(this.historyImpl.getFileList(), null, date);
 
-        TreeSet result = new TreeSet(new HistoryRecordComparator());
+        TreeSet<HistoryRecord> result
+            = new TreeSet<HistoryRecord>(new HistoryRecordComparator());
         int leftCount = count;
 
         int currentFile = filelist.size() - 1;
@@ -440,7 +444,7 @@ public class HistoryReaderImpl
                 if(!isInPeriod(timestamp, null, date))
                     continue;
 
-                ArrayList nameVals = new ArrayList();
+                ArrayList<String> nameVals = new ArrayList<String>();
 
                 boolean isRecordOK = true;
                 int len = propertyNodes.getLength();
@@ -491,9 +495,10 @@ public class HistoryReaderImpl
         Date startDate, Date endDate,
         String[] keywords, String field, boolean caseSensitive)
     {
-        TreeSet result = new TreeSet(new HistoryRecordComparator());
+        TreeSet<HistoryRecord> result
+            = new TreeSet<HistoryRecord>(new HistoryRecordComparator());
 
-        Vector filelist =
+        Vector<String> filelist =
             filterFilesByDate(this.historyImpl.getFileList(), startDate, endDate);
 
         double currentProgress = HistorySearchProgressListener.PROGRESS_MINIMUM_VALUE;
@@ -507,10 +512,10 @@ public class HistoryReaderImpl
         fireProgressStateChanged(startDate, endDate,
             keywords, HistorySearchProgressListener.PROGRESS_MINIMUM_VALUE);
 
-        Iterator fileIterator = filelist.iterator();
+        Iterator<String> fileIterator = filelist.iterator();
         while (fileIterator.hasNext())
         {
-            String filename = (String) fileIterator.next();
+            String filename = fileIterator.next();
 
             Document doc = this.historyImpl.getDocumentForFile(filename);
 
@@ -609,7 +614,7 @@ public class HistoryReaderImpl
                                           String field,
                                           boolean caseSensitive)
     {
-        ArrayList nameVals = new ArrayList();
+        ArrayList<String> nameVals = new ArrayList<String>();
         int len = propertyNodes.getLength();
         for (int j = 0; j < len; j++)
         {
@@ -695,13 +700,13 @@ public class HistoryReaderImpl
      * @param endDate Date
      * @return Iterator
      */
-    private Vector filterFilesByDate(
-        Iterator filelist, Date startDate, Date endDate)
+    private Vector<String> filterFilesByDate(
+        Iterator<String> filelist, Date startDate, Date endDate)
     {
         if(startDate == null && endDate == null)
         {
             // no filtering needed then just return the same list
-            Vector result = new Vector();
+            Vector<String> result = new Vector<String>();
             while (filelist.hasNext())
             {
                 result.add(filelist.next());
@@ -709,7 +714,7 @@ public class HistoryReaderImpl
             return result;
         }
         // first convert all files to long
-        TreeSet files = new TreeSet();
+        TreeSet<Long> files = new TreeSet<Long>();
         while (filelist.hasNext())
         {
             String filename = (String)filelist.next();
@@ -717,22 +722,22 @@ public class HistoryReaderImpl
             files.add(
                 Long.parseLong(filename.substring(0, filename.length() - 4)));
         }
-        
-        TreeSet resultAsLong = new TreeSet();
-        
+
+        TreeSet<Long> resultAsLong = new TreeSet<Long>();
+
         // Temporary fix of a NoSuchElementException
         if(files.size() == 0)
-        { 
-            Vector result = new Vector();
-            Iterator iter = resultAsLong.iterator();
-            
+        {
+            Vector<String> result = new Vector<String>();
+            Iterator<Long> iter = resultAsLong.iterator();
+
             while (iter.hasNext())
             {
                 Long item = (Long) iter.next();
                 result.add(item.toString() + ".xml");
             }
             return result;
-        }        
+        }
 
         // if there is no startDate limit only to end date
         if(startDate == null)
@@ -762,7 +767,7 @@ public class HistoryReaderImpl
 
                 resultAsLong.addAll(files.subSet(startLong, files.last()));
                 resultAsLong.add(files.last());
-                
+
                 // here we must get and the element before startLong
                 resultAsLong.add(files.subSet(files.first(), startLong).last());
                 resultAsLong.remove(startLong);
@@ -780,7 +785,8 @@ public class HistoryReaderImpl
             resultAsLong.addAll(files.subSet(startLong, endLong));
 
             // here we must get and the element before startLong
-            SortedSet theFirstToStart = files.subSet(files.first(), startLong);
+            SortedSet<Long> theFirstToStart
+                = files.subSet(files.first(), startLong);
             if(!theFirstToStart.isEmpty())
                 resultAsLong.add(theFirstToStart.last());
 
@@ -788,12 +794,12 @@ public class HistoryReaderImpl
             resultAsLong.remove(endLong);
         }
 
-        Vector result = new Vector();
+        Vector<String> result = new Vector<String>();
 
-        Iterator iter = resultAsLong.iterator();
+        Iterator<Long> iter = resultAsLong.iterator();
         while (iter.hasNext())
         {
-            Long item = (Long) iter.next();
+            Long item = iter.next();
             result.add(item.toString() + ".xml");
         }
 
@@ -808,7 +814,8 @@ public class HistoryReaderImpl
 
         synchronized(progressListeners)
         {
-            Iterator iter = progressListeners.iterator();
+            Iterator<HistorySearchProgressListener> iter
+                = progressListeners.iterator();
             while (iter.hasNext())
             {
                 HistorySearchProgressListener item =
@@ -843,16 +850,16 @@ public class HistoryReaderImpl
             progressListeners.remove(listener);
         }
     }
-    
+
     /**
      * Count the number of messages that a search will return
      * Actually only the last file is parsed and its nodes are counted.
-     * We accept that the other files are full with max records, 
-     * this way we escape parsing all files which will significantly 
+     * We accept that the other files are full with max records,
+     * this way we escape parsing all files which will significantly
      * slow the process and for one search will parse the files twice.
-     * 
+     *
      * @return the number of searched messages
-     * @throws UnsupportedOperationException 
+     * @throws UnsupportedOperationException
      *              Thrown if an exception occurs during the execution of the
      *              query, such as internal IO error.
      */
@@ -861,7 +868,7 @@ public class HistoryReaderImpl
     {
         int result = 0;
         String lastFile = null;
-        Iterator filelistIter = this.historyImpl.getFileList();
+        Iterator<String> filelistIter = this.historyImpl.getFileList();
         while (filelistIter.hasNext())
         {
             lastFile = (String)filelistIter.next();
@@ -870,7 +877,7 @@ public class HistoryReaderImpl
 
         if(lastFile == null)
             return result;
-        
+
         Document doc = this.historyImpl.getDocumentForFile(lastFile);
 
         if(doc == null)
@@ -879,7 +886,7 @@ public class HistoryReaderImpl
         NodeList nodes = doc.getElementsByTagName("record");
 
         result += nodes.getLength();
-        
+
         return result;
     }
 
@@ -888,17 +895,12 @@ public class HistoryReaderImpl
      * ant to be ordered in TreeSet
      */
     private static class HistoryRecordComparator
-        implements Comparator
+        implements Comparator<HistoryRecord>
     {
-        public int compare(Object o1, Object o2)
+        public int compare(HistoryRecord h1, HistoryRecord h2)
         {
-            if(o1 instanceof HistoryRecord && o2 instanceof HistoryRecord)
-            {
-                return ((HistoryRecord)o1).getTimestamp().
-                    compareTo(((HistoryRecord)o2).getTimestamp());
-            }
-            else
-                return 0;
+                return h1.getTimestamp().
+                    compareTo(h2.getTimestamp());
         }
     }
 }

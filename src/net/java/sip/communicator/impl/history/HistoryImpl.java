@@ -38,7 +38,8 @@ public class HistoryImpl implements History {
 
     private HistoryWriter writer;
 
-    private SortedMap historyDocuments = new TreeMap();
+    private SortedMap<String, Object> historyDocuments
+        = new TreeMap<String, Object>();
 
     protected HistoryImpl(HistoryID id, File directory,
             HistoryRecordStructure historyRecordStructure,
@@ -194,7 +195,7 @@ public class HistoryImpl implements History {
         }
     }
 
-    protected Iterator getFileList()
+    protected Iterator<String> getFileList()
     {
         return this.historyDocuments.keySet().iterator();
     }

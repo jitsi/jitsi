@@ -30,39 +30,46 @@ public class ChatRoomYahooImpl implements ChatRoom
     * Listeners that will be notified of changes in member status in the room
     * such as member joined, left or being kicked or dropped.
     */
-   private Vector memberListeners = new Vector();
+   private Vector<ChatRoomMemberPresenceListener> memberListeners 
+       = new Vector<ChatRoomMemberPresenceListener>();
 
    /**
     * Listeners that will be notified of changes in member role in the room
     * such as member being granted admin permissions, or revoked admin
     * permissions.
     */
-   private Vector memberRoleListeners = new Vector();
+   private Vector<ChatRoomMemberRoleListener> memberRoleListeners 
+       = new Vector<ChatRoomMemberRoleListener>();
 
    /**
     * Listeners that will be notified of changes in local user role in the room
     * such as member being granted admin permissions, or revoked admin
     * permissions.
     */
-   private Vector localUserRoleListeners = new Vector();
+   private Vector<ChatRoomLocalUserRoleListener> localUserRoleListeners 
+       = new Vector<ChatRoomLocalUserRoleListener>();
 
    /**
     * Listeners that will be notified every time a new message is received on
     * this chat room.
     */
-   private Vector messageListeners = new Vector();
+   private Vector<ChatRoomMessageListener> messageListeners 
+       = new Vector<ChatRoomMessageListener>();
 
    /**
     * Listeners that will be notified every time a chat room property has been
     * changed.
     */
-   private Vector propertyChangeListeners = new Vector();
+   private Vector<ChatRoomPropertyChangeListener> propertyChangeListeners 
+       = new Vector<ChatRoomPropertyChangeListener>();
 
    /**
     * Listeners that will be notified every time a chat room member property
     * has been changed.
     */
-   private Vector memberPropChangeListeners = new Vector();
+   private Vector<ChatRoomMemberPropertyChangeListener> 
+       memberPropChangeListeners 
+           = new Vector<ChatRoomMemberPropertyChangeListener>();
 
    /**
     * The protocol provider that created us
@@ -77,12 +84,14 @@ public class ChatRoomYahooImpl implements ChatRoom
    /**
     * The list of members of this chat room.
     */
-   private Hashtable members = new Hashtable();
+   private Hashtable<String, ChatRoomMemberYahooImpl> members 
+       = new Hashtable<String, ChatRoomMemberYahooImpl>();
 
    /**
     * The list of members of this chat room.
     */
-   private Hashtable banList = new Hashtable();
+   private Hashtable<String, ChatRoomMemberYahooImpl> banList 
+       = new Hashtable<String, ChatRoomMemberYahooImpl>();
 
    /**
     * The nickname of this chat room local user participant.
@@ -305,12 +314,12 @@ public class ChatRoomYahooImpl implements ChatRoom
    
    public void updateMemberList()
    {
-       Vector memberList = yahooConference.getMembers();
-       Iterator it = memberList.iterator();
+       Vector<YahooUser> memberList = yahooConference.getMembers();
+       Iterator<YahooUser> it = memberList.iterator();
 
        while (it.hasNext())
        {
-           YahooUser user = (YahooUser) it.next();
+           YahooUser user = it.next();
            ChatRoomMemberYahooImpl member = new ChatRoomMemberYahooImpl(this,
                    user.getId(), user.getId(), ChatRoomMemberRole.MEMBER);
            
@@ -377,9 +386,9 @@ public class ChatRoomYahooImpl implements ChatRoom
     * Returns the list of banned users, since it is not possible to 
     */
    
-   public Iterator getBanList() throws OperationFailedException
+   public Iterator<ChatRoomMember> getBanList() throws OperationFailedException
    {
-       return banList.values().iterator();
+       return new LinkedList<ChatRoomMember>(banList.values()).iterator();
    }
    
    /**
@@ -643,11 +652,14 @@ public class ChatRoomYahooImpl implements ChatRoom
        {
            provider.getYahooSession().leaveConference(yahooConference);
            
-           Iterator membersSet = members.entrySet().iterator();
+           Iterator< Map.Entry<String, ChatRoomMemberYahooImpl>> membersSet 
+               = members.entrySet().iterator();
 
            while (membersSet.hasNext())
            {
-               Map.Entry memberEntry = (Map.Entry) membersSet.next();
+               Map.Entry<String, ChatRoomMemberYahooImpl> memberEntry 
+                   = (Map.Entry<String, ChatRoomMemberYahooImpl>) membersSet
+                       .next();
 
                ChatRoomMember member = (ChatRoomMember) memberEntry.getValue();
 
@@ -773,7 +785,7 @@ public class ChatRoomYahooImpl implements ChatRoom
     */
    public ChatRoomMemberYahooImpl getChatRoomMember(String userAddress)
    {
-       Iterator it = members.values().iterator();
+       Iterator<ChatRoomMemberYahooImpl> it = members.values().iterator();
 
        while (it.hasNext())
        {
@@ -797,10 +809,11 @@ public class ChatRoomYahooImpl implements ChatRoom
     */
    public void fireMessageEvent(EventObject evt)
    {
-       Iterator listeners = null;
+       Iterator<ChatRoomMessageListener> listeners = null;
        synchronized (messageListeners)
        {
-           listeners = new ArrayList(messageListeners).iterator();
+           listeners = new ArrayList<ChatRoomMessageListener>(
+                           messageListeners).iterator();
        }
 
        while (listeners.hasNext())
@@ -842,10 +855,11 @@ public class ChatRoomYahooImpl implements ChatRoom
 
        logger.trace("Will dispatch the following ChatRoom event: " + evt);
 
-       Iterator listeners = null;
+       Iterator<ChatRoomMemberPresenceListener> listeners = null;
        synchronized (memberListeners)
        {
-           listeners = new ArrayList(memberListeners).iterator();
+           listeners = new ArrayList<ChatRoomMemberPresenceListener>(
+                           memberListeners).iterator();
        }
 
        while (listeners.hasNext())

@@ -13,7 +13,7 @@ import java.util.logging.*;
  * @version 1.0  May 23, 2004  Created.
  */
 public class DNSState 
-    implements Comparable
+    implements Comparable<DNSState>
 {
     private static Logger logger = 
         Logger.getLogger(DNSState.class.toString());
@@ -33,7 +33,8 @@ public class DNSState
      * The sequence is consistent with the ordinal of a state.
      * This is used for advancing through states.
      */
-    private final static ArrayList sequence = new ArrayList();
+    private final static ArrayList<DNSState> sequence 
+        = new ArrayList<DNSState>();
 
     private DNSState(String name)
     {
@@ -116,8 +117,8 @@ public class DNSState
      * PROBING_1 &lt; PROBING_2 &lt; PROBING_3 &lt; ANNOUNCING_1 &lt;
      * ANNOUNCING_2 &lt; RESPONDING &lt; ANNOUNCED &lt; CANCELED.
      */
-    public int compareTo(Object o)
+    public int compareTo(DNSState state)
     {
-        return ordinal - ((DNSState) o).ordinal;
+        return ordinal - state.ordinal;
     }
 }

@@ -39,13 +39,14 @@ public class ChatRoomMsnImpl
     /**
      * List of unresolved member names.
      */
-    private ArrayList<String> pendingInvitations = new ArrayList();
+    private ArrayList<String> pendingInvitations = new ArrayList<String>();
 
     /**
      * List of the users that are banned. Note: Not possible inside the MSN
      * protocol, the list is always empty.
      */
-    private Hashtable banList = new Hashtable();
+    private Hashtable<String, ChatRoomMemberMsnImpl> banList 
+        = new Hashtable<String, ChatRoomMemberMsnImpl>();
 
     /**
      * The chat rooms name.
@@ -64,13 +65,6 @@ public class ChatRoomMsnImpl
     private String chatSubject = null;
 
     /**
-     * The old chat room subject.
-     * 
-     * @see chatSubject.
-     */
-    private String oldSubject;
-
-    /**
      * The corresponding switchboard for the chat room. Each chat room has its
      * own switchboard and if it is closed the user cannot reconnect to it, see
      * MSN documentation for further infos.
@@ -86,51 +80,51 @@ public class ChatRoomMsnImpl
      * Listeners that will be notified of changes in member status in the room
      * such as member joined, left or being kicked or dropped.
      */
-    private Vector memberListeners = new Vector();
+    private Vector<ChatRoomMemberPresenceListener> memberListeners 
+        = new Vector<ChatRoomMemberPresenceListener>();
 
     /**
      * Listeners that will be notified of changes in member role in the room
      * such as member being granted admin permissions, or revoked admin
      * permissions.
      */
-    private Vector memberRoleListeners = new Vector();
+    private Vector<ChatRoomMemberRoleListener> memberRoleListeners 
+        = new Vector<ChatRoomMemberRoleListener>();
 
     /**
      * Listeners that will be notified of changes in local user role in the room
      * such as member being granted administrator permissions, or revoked
      * administrator permissions.
      */
-    private Vector localUserRoleListeners = new Vector();
+    private Vector<ChatRoomLocalUserRoleListener> localUserRoleListeners 
+        = new Vector<ChatRoomLocalUserRoleListener>();
 
     /**
      * Listeners that will be notified every time a new message is received on
      * this chat room.
      */
-    private Vector messageListeners = new Vector();
+    private Vector<ChatRoomMessageListener> messageListeners 
+        = new Vector<ChatRoomMessageListener>();
 
     /**
      * Listeners that will be notified every time a chat room property has been
      * changed.
      */
-    private Vector propertyChangeListeners = new Vector();
+    private Vector<ChatRoomPropertyChangeListener> propertyChangeListeners 
+        = new Vector<ChatRoomPropertyChangeListener>();
 
     /**
      * Listeners that will be notified every time a chat room member property
      * has been changed.
      */
-    private Vector memberPropChangeListeners = new Vector();
+    private Vector<ChatRoomMemberPropertyChangeListener> 
+        memberPropChangeListeners 
+            = new Vector<ChatRoomMemberPropertyChangeListener>();
 
     /**
      * A Message buffer, will keep all messages until the msn chatroom is ready.
      */
     public Vector<EventObject> messageBuffer = new Vector<EventObject>();
-
-    private String invitationMessage = "";
-
-    /**
-     * Default Invitation message.
-     */
-    private final String DEFAULT_INVITATION = "Please join my chat room!";
 
     /**
      * Creates an instance of <tt>ChatRoomMsnImpl</tt>, by specifying the name
@@ -438,9 +432,9 @@ public class ChatRoomMsnImpl
     /**
      * Returns the list of banned users.
      */
-    public Iterator getBanList() throws OperationFailedException
+    public Iterator<ChatRoomMember> getBanList() throws OperationFailedException
     {
-        return banList.values().iterator();
+        return new LinkedList<ChatRoomMember>(banList.values()).iterator();
     }
 
     /**
@@ -479,9 +473,9 @@ public class ChatRoomMsnImpl
      * @return a <tt>List</tt> of <tt>Contact</tt> corresponding to all room
      *         members.
      */
-    public List getMembers()
+    public List<ChatRoomMember> getMembers()
     {
-        return new LinkedList(members.values());
+        return new LinkedList<ChatRoomMember>(members.values());
     }
 
     /**
@@ -725,7 +719,8 @@ public class ChatRoomMsnImpl
             switchboard = null;
         }
 
-        Iterator membersIter = members.values().iterator();
+        Iterator<ChatRoomMemberMsnImpl> membersIter 
+            = members.values().iterator();
 
         while (membersIter.hasNext())
         {
@@ -806,10 +801,11 @@ public class ChatRoomMsnImpl
      */
     public void fireMessageEvent(EventObject evt)
     {
-        Iterator listeners = null;
+        Iterator<ChatRoomMessageListener> listeners = null;
         synchronized (messageListeners)
         {
-            listeners = new ArrayList(messageListeners).iterator();
+            listeners = new ArrayList<ChatRoomMessageListener>(
+                                messageListeners).iterator();
         }
 
         if (!listeners.hasNext())
@@ -896,10 +892,11 @@ public class ChatRoomMsnImpl
 
         logger.trace("Will dispatch the following ChatRoom event: " + evt);
 
-        Iterator listeners = null;
+        Iterator<ChatRoomMemberPresenceListener> listeners = null;
         synchronized (memberListeners)
         {
-            listeners = new ArrayList(memberListeners).iterator();
+            listeners = new ArrayList<ChatRoomMemberPresenceListener>(
+                                memberListeners).iterator();
         }
 
         while (listeners.hasNext())

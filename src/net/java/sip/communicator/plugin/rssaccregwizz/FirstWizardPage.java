@@ -28,6 +28,11 @@ public class FirstWizardPage
     implements  WizardPage,
                 DocumentListener
 {
+    /**
+     * An Eclipse generated UID.
+     */
+    private static final long serialVersionUID = -4099426006855229937L;
+
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
     private JPanel labelsPanel = new TransparentPanel();
@@ -268,11 +273,12 @@ public class FirstWizardPage
         ProtocolProviderFactory factory
             = RssAccRegWizzActivator.getRssProtocolProviderFactory();
 
-        ArrayList registeredAccounts = factory.getRegisteredAccounts();
+        ArrayList<AccountID> registeredAccounts 
+            = factory.getRegisteredAccounts();
 
         for (int i = 0; i < registeredAccounts.size(); i++)
         {
-            AccountID accountID = (AccountID) registeredAccounts.get(i);
+            AccountID accountID = registeredAccounts.get(i);
 
             if (userID.equalsIgnoreCase(accountID.getUserID()))
             {

@@ -49,13 +49,13 @@ public class JmDNS
      * Must by a synchronized collection, because it is updated from
      * concurrent threads.
      */
-    private List listeners;
+    private List<DNSListener> listeners;
     /**
      * Holds instances of ServiceListener's.
      * Keys are Strings holding a fully qualified service type.
      * Values are LinkedList's of ServiceListener's.
      */
-    private Map serviceListeners;
+    private Map<String, List<ServiceListener>> serviceListeners;
     /**
      * Holds instances of ServiceTypeListener's.
      */
@@ -554,10 +554,10 @@ public class JmDNS
     {
         String lotype = type.toLowerCase();
         removeServiceListener(lotype, listener);
-        List list = null;
+        List<ServiceListener> list = null;
         synchronized (this)
         {
-            list = (List) serviceListeners.get(lotype);
+            list = serviceListeners.get(lotype);
             if (list == null)
             {
                 list = Collections.synchronizedList(new LinkedList());
@@ -599,7 +599,7 @@ public class JmDNS
     public void removeServiceListener(String type, ServiceListener listener)
     {
         type = type.toLowerCase();
-        List list = (List) serviceListeners.get(type);
+        List<ServiceListener> list = serviceListeners.get(type);
         if (list != null)
         {
             synchronized (this)
@@ -763,49 +763,6 @@ public class JmDNS
     }
 
     /**
-     * Generate a possibly unique name for a host using the information we
-     * have in the cache.
-     *
-     * @return returns true, if the name of the host had to be changed.
-     */
-    private boolean makeHostNameUnique(DNSRecord.Address host)
-    {
-        String originalName = host.getName();
-        long now = System.currentTimeMillis();
-
-        boolean collision;
-        do
-        {
-            collision = false;
-
-            // Check for collision in cache
-            for (DNSCache.CacheNode j = cache.find(
-                                host.getName().toLowerCase());
-                j != null;
-                j = j.next())
-            {
-                DNSRecord a = (DNSRecord) j.getValue();
-                if (false)
-                {
-                    host.name = incrementName(host.getName());
-                    collision = true;
-                    break;
-                }
-            }
-        }
-        while (collision);
-
-        if (originalName.equals(host.getName()))
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
-    }
-
-    /**
      * Generate a possibly unique name for a service using the information we
      * have in the cache.
      *
@@ -936,15 +893,16 @@ public class JmDNS
     {
         // We do not want to block the entire DNS
         // while we are updating the record for each listener (service info)
-        List listenerList = null;
+        List<DNSListener> listenerList = null;
         synchronized (this)
         {
-            listenerList = new ArrayList(listeners);
+            listenerList = new ArrayList<DNSListener>(listeners);
         }
 
         //System.out.println("OUT OF MUTEX!!!!!");
 
-        for (Iterator iterator = listenerList.iterator(); iterator.hasNext();)
+        for (Iterator<DNSListener> iterator = listenerList.iterator();
+                iterator.hasNext();)
         {
             DNSListener listener = (DNSListener) iterator.next();
             listener.updateRecord(this, now, rec);
@@ -1329,12 +1287,13 @@ public class JmDNS
                 // -------------------------------------
                 // To prevent race conditions, we defensively copy all cache
                 // entries into a list.
-                List list = new ArrayList();
+                List<DNSEntry> list = new ArrayList<DNSEntry>();
                 synchronized (cache)
                 {
-                    for (Iterator i = cache.iterator(); i.hasNext();)
+                    for (Iterator<DNSCache.CacheNode> i = cache.iterator();
+                            i.hasNext();)
                     {
-                        for (DNSCache.CacheNode n = (DNSCache.CacheNode) i.next();
+                        for (DNSCache.CacheNode n = i.next();
                             n != null;
                             n = n.next())
                         {
@@ -1344,9 +1303,9 @@ public class JmDNS
                 }
                 // Now, we remove them.
                 long now = System.currentTimeMillis();
-                for (Iterator i = list.iterator(); i.hasNext();)
+                for (Iterator<DNSEntry> i = list.iterator(); i.hasNext();)
                 {
-                    DNSRecord c = (DNSRecord) i.next();
+                    DNSRecord c = (DNSRecord)i.next();
                     if (c.isExpired(now))
                     {
                         updateRecord(now, c);
@@ -1439,9 +1398,10 @@ public class JmDNS
             // Remove associations from services to this
             synchronized (JmDNS.this)
             {
-                for (Iterator i = services.values().iterator(); i.hasNext();)
+                for (Iterator<ServiceInfo> i = services.values().iterator();
+                            i.hasNext();)
                 {
-                    ServiceInfo info = (ServiceInfo) i.next();
+                    ServiceInfo info = i.next();
                     if (info.task == this)
                     {
                         info.task = null;
@@ -1614,9 +1574,10 @@ public class JmDNS
             // Remove associations from services to this
             synchronized (JmDNS.this)
             {
-                for (Iterator i = services.values().iterator(); i.hasNext();)
+                for (Iterator<ServiceInfo> i = services.values().iterator();
+                        i.hasNext();)
                 {
-                    ServiceInfo info = (ServiceInfo) i.next();
+                    ServiceInfo info = i.next();
                     if (info.task == this)
                     {
                         info.task = null;
@@ -1784,9 +1745,10 @@ public class JmDNS
             // Remove associations from services to this
             synchronized (JmDNS.this)
             {
-                for (Iterator i = services.values().iterator(); i.hasNext();)
+                for (Iterator<ServiceInfo> i = services.values().iterator();
+                        i.hasNext();)
                 {
-                    ServiceInfo info = (ServiceInfo) i.next();
+                    ServiceInfo info = i.next();
                     if (info.task == this)
                     {
                         info.task = null;
@@ -1977,21 +1939,19 @@ public class JmDNS
 
                 // We use these sets to prevent duplicate records
                 // FIXME - This should be moved into DNSOutgoing
-                HashSet questions = new HashSet();
-                HashSet answers = new HashSet();
+                HashSet<DNSQuestion> questions = new HashSet<DNSQuestion>();
+                HashSet<DNSRecord> answers = new HashSet<DNSRecord>();
 
 
                 if (state == DNSState.ANNOUNCED)
                 {
                     try
                     {
-                        long now = System.currentTimeMillis();
-                        long expirationTime = now + 1; //=now+DNSConstants.KNOWN_ANSWER_TTL;
                         boolean isUnicast = (port != DNSConstants.MDNS_PORT);
 
 
                         // Answer questions
-                        for (Iterator iterator = in.questions.iterator();
+                        for (Iterator<DNSEntry> iterator = in.questions.iterator();
                             iterator.hasNext();)
                         {
                             DNSEntry entry = (DNSEntry) iterator.next();
@@ -2120,7 +2080,7 @@ public class JmDNS
                                         }
                                         if (q.name.equalsIgnoreCase("_services._mdns._udp.local."))
                                         {
-                                            for (Iterator serviceTypeIterator = serviceTypes.values().iterator();
+                                            for (Iterator<String> serviceTypeIterator = serviceTypes.values().iterator();
                                                 serviceTypeIterator.hasNext();)
                                             {
                                                 answers.add(
@@ -2214,18 +2174,20 @@ public class JmDNS
                             if (isUnicast)
                             {
                                 out = new DNSOutgoing(
-                                    DNSConstants.FLAGS_QR_RESPONSE | DNSConstants.FLAGS_AA,
+                                    DNSConstants.FLAGS_QR_RESPONSE
+                                    | DNSConstants.FLAGS_AA,
                                     false);
                             }
 
-                            for (Iterator i = questions.iterator(); i.hasNext();)
+                            for (Iterator<DNSQuestion> i = questions.iterator();
+                                    i.hasNext();)
                             {
                                 out.addQuestion((DNSQuestion) i.next());
                             }
-                            for (Iterator i = answers.iterator(); i.hasNext();)
+                            for (Iterator<DNSRecord> i = answers.iterator();
+                                    i.hasNext();)
                             {
-                                out = addAnswer(in, addr, port, out,
-                                    (DNSRecord) i.next());
+                                out = addAnswer(in, addr, port, out, i.next());
                             }
                             send(out);
                         }

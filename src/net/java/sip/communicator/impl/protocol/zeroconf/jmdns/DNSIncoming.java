@@ -3,14 +3,10 @@
 //Original license LGPL
 package net.java.sip.communicator.impl.protocol.zeroconf.jmdns;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import java.util.logging.*;
 
 /**
  * Parse an incoming DNS message into its components.
@@ -26,7 +22,7 @@ final class DNSIncoming
     // we get undesired results. To fix this, we have to migrate to
     // the Collections API of Java 1.2. i.e we replace Vector by List.
     // final static Vector EMPTY = new Vector();
-    
+
     private DatagramPacket packet;
     private int off;
     private int len;
@@ -40,8 +36,8 @@ final class DNSIncoming
     private int numAdditionals;
     private long receivedTime;
 
-    List questions;
-    List answers;
+    List<DNSEntry> questions;
+    List<DNSRecord> answers;
 
     /**
      * Parse a message from a datagram packet.
@@ -50,14 +46,14 @@ final class DNSIncoming
     {
         String SLevel = System.getProperty("jmdns.debug");
         if (SLevel == null) SLevel = "INFO";
-        logger.setLevel(Level.parse(SLevel)); 
-        
+        logger.setLevel(Level.parse(SLevel));
+
         this.packet = packet;
         this.data = packet.getData();
         this.len = packet.getLength();
         this.off = packet.getOffset();
-        this.questions = Collections.EMPTY_LIST;
-        this.answers = Collections.EMPTY_LIST;
+        this.questions = new LinkedList<DNSEntry>();
+        this.answers = new LinkedList<DNSRecord>();
         this.receivedTime = System.currentTimeMillis();
 
         try
@@ -72,16 +68,17 @@ final class DNSIncoming
             // parse questions
             if (numQuestions > 0)
             {
-                questions = 
-                    Collections.synchronizedList(new ArrayList(numQuestions));
+                questions =
+                    Collections.synchronizedList(
+                                    new ArrayList<DNSEntry>(numQuestions));
                 for (int i = 0; i < numQuestions; i++)
                 {
-                    DNSQuestion question = 
+                    DNSQuestion question =
                         new DNSQuestion(
-                            readName(), 
-                            readUnsignedShort(), 
+                            readName(),
+                            readUnsignedShort(),
                             readUnsignedShort());
-                    
+
                     questions.add(question);
                 }
             }
@@ -91,7 +88,8 @@ final class DNSIncoming
             if (n > 0)
             {
                 //System.out.println("JMDNS received "+n+" answers!");
-                answers = Collections.synchronizedList(new ArrayList(n));
+                answers = Collections.synchronizedList(
+                                new ArrayList<DNSRecord>(n));
                 for (int i = 0; i < n; i++)
                 {
                     String domain = readName();
@@ -120,13 +118,13 @@ final class DNSIncoming
                             break;
                         case DNSConstants.TYPE_SRV:
                             //System.out.println("JMDNS: One is a SRV field!!");
-                            rec = new DNSRecord.Service(    domain, 
-                                                            type, 
-                                                            clazz, 
+                            rec = new DNSRecord.Service(    domain,
+                                                            type,
+                                                            clazz,
                                                             ttl,
-                                                            readUnsignedShort(), 
-                                                            readUnsignedShort(), 
-                                                            readUnsignedShort(), 
+                                                            readUnsignedShort(),
+                                                            readUnsignedShort(),
+                                                            readUnsignedShort(),
                                                             readName());
                             break;
                         case DNSConstants.TYPE_HINFO:
@@ -157,8 +155,8 @@ final class DNSIncoming
                             }
                             else
                             {
-                                if (answers.size() < numAnswers + 
-                                                     numAuthorities + 
+                                if (answers.size() < numAnswers +
+                                                     numAuthorities +
                                                      numAdditionals)
                                 {
                                     numAdditionals--;
@@ -172,7 +170,7 @@ final class DNSIncoming
         }
         catch (IOException e)
         {
-            logger.log(Level.WARNING, 
+            logger.log(Level.WARNING,
                 "DNSIncoming() dump " + print(true) + "\n exception ", e);
             throw e;
         }
@@ -183,7 +181,7 @@ final class DNSIncoming
      */
     boolean isQuery()
     {
-        return (flags & DNSConstants.FLAGS_QR_MASK) == 
+        return (flags & DNSConstants.FLAGS_QR_MASK) ==
                 DNSConstants.FLAGS_QR_QUERY;
     }
 
@@ -200,7 +198,7 @@ final class DNSIncoming
      */
     boolean isResponse()
     {
-        return (flags & DNSConstants.FLAGS_QR_MASK) == 
+        return (flags & DNSConstants.FLAGS_QR_MASK) ==
                 DNSConstants.FLAGS_QR_RESPONSE;
     }
 
@@ -254,8 +252,8 @@ final class DNSIncoming
                     break;
                 case 14:
                     // 1110 xxxx  10xx xxxx  10xx xxxx
-                    ch =    ((ch & 0x0f) << 12) | 
-                            ((get(off++) & 0x3F) << 6) | 
+                    ch =    ((ch & 0x0f) << 12) |
+                            ((get(off++) & 0x3F) << 6) |
                             (get(off++) & 0x3F);
                     break;
                 default:
@@ -319,12 +317,15 @@ final class DNSIncoming
     {
         StringBuffer buf = new StringBuffer();
         buf.append(toString() + "\n");
-        for (Iterator iterator = questions.iterator(); iterator.hasNext();)
+        for (Iterator<DNSEntry> iterator = questions.iterator();
+                iterator.hasNext();)
         {
             buf.append("    ques:" + iterator.next() + "\n");
         }
         int count = 0;
-        for (Iterator iterator = answers.iterator(); iterator.hasNext(); count++)
+        for (Iterator<DNSRecord> iterator = answers.iterator();
+                iterator.hasNext();
+                count++)
         {
             if (count < numAnswers)
             {
@@ -458,30 +459,31 @@ final class DNSIncoming
         {
             if (that.numQuestions > 0) {
                 if (Collections.EMPTY_LIST.equals(this.questions))
-                    this.questions = 
+                    this.questions =
                         Collections.synchronizedList(
-                            new ArrayList(that.numQuestions));
+                            new ArrayList<DNSEntry>(that.numQuestions));
 
                 this.questions.addAll(that.questions);
                 this.numQuestions += that.numQuestions;
             }
-            
+
             if (Collections.EMPTY_LIST.equals(answers))
             {
-                answers = Collections.synchronizedList(new ArrayList());
+                answers = Collections.synchronizedList(
+                                    new ArrayList<DNSRecord>());
             }
 
             if (that.numAnswers > 0)
             {
-                this.answers.addAll(this.numAnswers, 
+                this.answers.addAll(this.numAnswers,
                                     that.answers.subList(0, that.numAnswers));
                 this.numAnswers += that.numAnswers;
             }
             if (that.numAuthorities > 0)
             {
-                this.answers.addAll(this.numAnswers + this.numAuthorities, 
+                this.answers.addAll(this.numAnswers + this.numAuthorities,
                                     that.answers.subList(
-                                        that.numAnswers, 
+                                        that.numAnswers,
                                         that.numAnswers + that.numAuthorities));
                 this.numAuthorities += that.numAuthorities;
             }
@@ -489,7 +491,7 @@ final class DNSIncoming
             {
                 this.answers.addAll(
                     that.answers.subList(
-                        that.numAnswers + that.numAuthorities, 
+                        that.numAnswers + that.numAuthorities,
                         that.numAnswers + that.numAuthorities + that.numAdditionals));
                 this.numAdditionals += that.numAdditionals;
             }
