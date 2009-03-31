@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -27,7 +26,6 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.keybindings.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.event.*;
@@ -141,9 +139,6 @@ public class ChatWindow
         mainToolBar.setVisible(chatToolbarVisible);
         contactPhotoPanel.setVisible(chatToolbarVisible);
 
-        Component logoBar = LogoBar.createInstance();
-        if (logoBar != null)
-            northPanel.add(logoBar, BorderLayout.NORTH);
         northPanel.add(mainToolBar, BorderLayout.CENTER);
         northPanel.add(contactPhotoPanel, BorderLayout.EAST);
 
@@ -883,72 +878,6 @@ public class ChatWindow
         synchronized (chatChangeListeners)
         {
             chatChangeListeners.remove(listener);
-        }
-    }
-
-    /**
-     * The logo bar is positioned on the top of the window and is meant to
-     * contain the application logo.
-     */
-    private static class LogoBar
-        extends JPanel
-    {
-        public static LogoBar createInstance()
-        {
-            ResourceManagementService resources = GuiActivator.getResources();
-            int width = resources.getSettingsInt("impl.gui.LOGO_BAR_WIDTH");
-            int height = resources.getSettingsInt("impl.gui.LOGO_BAR_HEIGHT");
-
-            return ((width > 0) || (height > 0))
-                    ? new LogoBar(width, height)
-                    : null;
-        }
-
-        private final TexturePaint texture;
-
-        /**
-         * Creates the logo bar and specify the size.
-         */
-        private LogoBar(int width, int height)
-        {
-            Dimension size = new Dimension(width, height);
-
-            this.setMinimumSize(size);
-            this.setPreferredSize(size);
-
-            BufferedImage bgImage
-                = ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR_BG);
-
-            Rectangle rect
-                = new Rectangle(0, 0,
-                            bgImage.getWidth(null),
-                            bgImage.getHeight(null));
-
-            texture = new TexturePaint(bgImage, rect);
-        }
-
-        /**
-         * Paints the logo bar.
-         * 
-         * @param g the <tt>Graphics</tt> object used to paint the background
-         * image of this logo bar.
-         */
-        public void paintComponent(Graphics g)
-        {
-            super.paintComponent(g);
-
-            Image logoImage
-                 = ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR);
-
-            g.drawImage(logoImage, 0, 0, null);
-            g.setColor(new Color(GuiActivator.getResources()
-                .getColor("service.gui.LOGO_BAR_BACKGROUND")));
-
-            Graphics2D g2 = (Graphics2D) g;
-
-            g2.setPaint(texture);
-            g2.fillRect(logoImage.getWidth(null), 0,
-                this.getWidth(), this.getHeight());
         }
     }
 
