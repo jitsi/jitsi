@@ -128,7 +128,7 @@ public class ChatWindow
 
         boolean isToolBarExtended
             = Boolean.parseBoolean(GuiActivator.getResources().
-                getSettingsString("impl.gui.IS_TOOLBAR_EXTENDED"));
+                getSettingsString("impl.gui.IS_CHAT_TOOLBAR_EXTENDED"));
 
         if (isToolBarExtended)
             mainToolBar = new ExtendedMainToolBar(this);
