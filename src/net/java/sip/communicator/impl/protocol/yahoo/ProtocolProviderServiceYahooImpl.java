@@ -253,14 +253,20 @@ public class ProtocolProviderServiceYahooImpl
             logger.error("Cannot logout! ", ex);
         }
 
-        yahooSession = null;
-
-        if(fireEvent)
+        try
         {
-            fireRegistrationStateChanged(
-                currRegState,
-                RegistrationState.UNREGISTERED,
-                RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
+            if(fireEvent)
+            {
+                fireRegistrationStateChanged(
+                    currRegState,
+                    RegistrationState.UNREGISTERED,
+                    RegistrationStateChangeEvent.REASON_USER_REQUEST,
+                    null);
+			}
+        }
+        finally
+        {
+            yahooSession = null;
         }
     }
 
