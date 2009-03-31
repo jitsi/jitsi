@@ -152,7 +152,7 @@ public abstract class SIPCommFrame
         throws PropertyVetoException
     {
         ConfigurationService config = UtilActivator.getConfigurationService();
-        String className = component.getClass().getName();
+        String className = component.getClass().getName().replaceAll("\\$", "_");
 
         config.setProperty(className + ".width", component.getWidth());
         config.setProperty(className + ".height", component.getHeight());

@@ -159,7 +159,7 @@ public abstract class SIPCommDialog extends JDialog
         ConfigurationService configService =
             UtilActivator.getConfigurationService();
 
-        String className = this.getClass().getName();
+        String className = this.getClass().getName().replaceAll("\\$", "_");
         
         String widthString = configService.getString(
             className + ".width");

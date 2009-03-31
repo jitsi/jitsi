@@ -352,6 +352,7 @@
             <entry key="last_version" value="${sip-communicator.version}" />
             <entry key="download_link"
                     value="http://download.sip-communicator.org/nightly/windows/${package.name}-${sip-communicator.version}.exe" />
+            <entry key="changes_html" value="changes.html" />
         </propertyfile>
 
         <!--
@@ -366,6 +367,7 @@
                 <include name="run.bat" />
                 <include name="run.exe" />
                 <include name="sc-logo.ico" />
+                <include name="updater.exe" />
             </fileset>
         </copy>
         <mkdir dir="${light.dir}/lib" />
@@ -450,7 +452,7 @@
         <filter token="WelcomeText1" value="${installer.welcome.wtext1}" />
         <filter token="WelcomeText2" value="${installer.welcome.wtext2}" />
         <filter token="WelcomeText3" value="${installer.welcome.wtext3}" />
-    	<filter token="WINDOWS_JRE_FILE" value="${windows.jre.file}" />
+        <filter token="WINDOWS_JRE_FILE" value="${windows.jre.file}" />
         <filter token="WIX_PRODUCT_ID" value="${wix.product.id}" />
         <filter token="WIX_UPGRADE_CODE" value="${wix.upgrade.code}" />
         <copy
@@ -518,13 +520,13 @@
             <arg value="setup.exe" />
             <arg value="/v" />
             <arg value="200" />
-        	<arg value="/n" />
-        	<arg value="${application.name}" />
-        	<arg value="/o" />
-        	<arg value="INSTALL" />
-        	<arg value="/d" />
+            <arg value="/n" />
+            <arg value="${application.name}" />
+            <arg value="/o" />
+            <arg value="INSTALL" />
+            <arg value="/d" />
             <arg value="setup.msi" />
-        	<arg value="/b" />
+            <arg value="/b" />
             <arg value="setup.msi" />
         </exec>
         <copy
@@ -638,7 +640,7 @@
         <javaproperty name="java.library.path"
                       value="$JAVAROOT/lib/native/mac:${system.DYLD_LIBRARY_PATH}"/>
         <javaproperty name="jna.library.path"
-	                      value="$JAVAROOT/lib/native/mac:${system.DYLD_LIBRARY_PATH}"/>
+                          value="$JAVAROOT/lib/native/mac:${system.DYLD_LIBRARY_PATH}"/>
 
         <javaproperty name="net.java.sip.communicator.SC_HOME_DIR_NAME"
                       value="${application.name}"/>
@@ -715,7 +717,7 @@
             todir="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/lib/native/mac/"/>
 
       <!-- Add the Sparkle properties in the Info.plist file -->
-	  <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
+      <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
         <replacetoken><![CDATA[<key>CFBundleName</key>]]></replacetoken>
         <replacevalue><![CDATA[<key>SUCheckAtStartup</key>
     <string>false</string>
@@ -846,7 +848,7 @@
         token="_PACKAGE_NAME_"
         value="${package.name}"/>
 
-	<!-- Prepare the rules file -->
+    <!-- Prepare the rules file -->
     <copy file="${inst.resrc}/debian/rules.tmpl"
         tofile="${inst.resrc}/debian/rules"
         overwrite="true"/>
