@@ -33,12 +33,12 @@ public class ContactGroupDictImpl
     /**
      * The list of this group's members.
      */
-    private Vector contacts = new Vector();
+    private List<Contact> contacts = new ArrayList<Contact>();
 
     /**
      * The list of sub groups belonging to this group.
      */
-    private Vector subGroups = new Vector();
+    private List<ContactGroup> subGroups = new ArrayList<ContactGroup>();
 
     /**
      * The group that this group belongs to (or null if this is the root group).
@@ -116,7 +116,7 @@ public class ContactGroupDictImpl
      * @return a java.util.Iterator over all contacts inside this
      *   <tt>ContactGroup</tt>
      */
-    public Iterator contacts()
+    public Iterator<Contact> contacts()
     {
         return contacts.iterator();
     }
@@ -213,13 +213,12 @@ public class ContactGroupDictImpl
      * @return the ContactGroupDictImpl instance that dictGroup
      * belongs to or null if no parent was found.
      */
-    public ContactGroupDictImpl findGroupParent(
-                                    ContactGroupDictImpl dictGroup)
+    public ContactGroupDictImpl findGroupParent(ContactGroupDictImpl dictGroup)
     {
         if ( subGroups.contains(dictGroup) )
             return this;
 
-        Iterator subGroupsIter = subgroups();
+        Iterator<ContactGroup> subGroupsIter = subgroups();
         while (subGroupsIter.hasNext())
         {
             ContactGroupDictImpl subgroup
@@ -248,7 +247,7 @@ public class ContactGroupDictImpl
         if ( contacts.contains(dictContact) )
             return this;
 
-        Iterator subGroupsIter = subgroups();
+        Iterator<ContactGroup> subGroupsIter = subgroups();
         while (subGroupsIter.hasNext())
         {
             ContactGroupDictImpl subgroup
@@ -274,7 +273,7 @@ public class ContactGroupDictImpl
      */
     public Contact getContact(String id)
     {
-        Iterator contactsIter = contacts();
+        Iterator<Contact> contactsIter = contacts();
         while (contactsIter.hasNext())
         {
             ContactDictImpl contact = (ContactDictImpl) contactsIter.next();
@@ -293,7 +292,7 @@ public class ContactGroupDictImpl
      */
     public ContactGroup getGroup(int index)
     {
-        return (ContactGroup)subGroups.get(index);
+        return subGroups.get(index);
     }
 
     /**
@@ -304,7 +303,7 @@ public class ContactGroupDictImpl
      */
     public ContactGroup getGroup(String groupName)
     {
-        Iterator groupsIter = subgroups();
+        Iterator<ContactGroup> groupsIter = subgroups();
         while (groupsIter.hasNext())
         {
             ContactGroupDictImpl contactGroup
@@ -343,7 +342,7 @@ public class ContactGroupDictImpl
      * @return a java.util.Iterator over the <tt>ContactGroup</tt> children
      *   of this group (i.e. subgroups).
      */
-    public Iterator subgroups()
+    public Iterator<ContactGroup> subgroups()
     {
         return subGroups.iterator();
     }
@@ -366,7 +365,7 @@ public class ContactGroupDictImpl
     public ContactDictImpl findContactByID(String id)
     {
         //first go through the contacts that are direct children.
-        Iterator contactsIter = contacts();
+        Iterator<Contact> contactsIter = contacts();
 
         while(contactsIter.hasNext())
         {
@@ -377,7 +376,7 @@ public class ContactGroupDictImpl
         }
 
         //if we didn't find it here, let's try in the subougroups
-        Iterator groupsIter = subgroups();
+        Iterator<ContactGroup> groupsIter = subgroups();
 
         while( groupsIter.hasNext() )
         {
@@ -404,7 +403,7 @@ public class ContactGroupDictImpl
         StringBuffer buff = new StringBuffer(getGroupName());
         buff.append(".subGroups=" + countSubgroups() + ":\n");
 
-        Iterator subGroups = subgroups();
+        Iterator<ContactGroup> subGroups = subgroups();
         while (subGroups.hasNext())
         {
             ContactGroupDictImpl group = (ContactGroupDictImpl)subGroups.next();
@@ -415,7 +414,7 @@ public class ContactGroupDictImpl
 
         buff.append("\nChildContacts="+countContacts()+":[");
 
-        Iterator contacts = contacts();
+        Iterator<Contact> contacts = contacts();
         while (contacts.hasNext())
         {
             ContactDictImpl contact = (ContactDictImpl) contacts.next();
@@ -550,7 +549,7 @@ public class ContactGroupDictImpl
             return false;
 
         //traverse child contacts
-        Iterator theirContacts = dictGroup.contacts();
+        Iterator<Contact> theirContacts = dictGroup.contacts();
 
         while(theirContacts.hasNext())
         {
@@ -566,7 +565,7 @@ public class ContactGroupDictImpl
         }
 
         //traverse subgroups
-        Iterator theirSubgroups = dictGroup.subgroups();
+        Iterator<ContactGroup> theirSubgroups = dictGroup.subgroups();
 
         while(theirSubgroups.hasNext())
         {
