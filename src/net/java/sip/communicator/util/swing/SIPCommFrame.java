@@ -418,10 +418,17 @@ public abstract class SIPCommFrame
             ResourceManagementService resources =
                 UtilActivator.getResources();
 
+            int borderSize =
+                resources
+                    .getSettingsInt("impl.gui.MAIN_WINDOW_BORDER_SIZE");
+            this.setBorder(BorderFactory.createEmptyBorder(borderSize,
+                borderSize, borderSize, borderSize));
+
             isColorBgEnabled =
                 new Boolean(resources.getSettingsString(
                     "impl.gui.IS_WINDOW_COLOR_BACKGROUND_ENABLED"))
                     .booleanValue();
+
             if (isColorBgEnabled)
             {
                 bgStartColor =
@@ -429,12 +436,6 @@ public abstract class SIPCommFrame
                 bgEndColor =
                     new Color(resources
                         .getColor("service.gui.MAIN_BACKGROUND_GRADIENT"));
-
-                int borderSize =
-                    resources
-                        .getSettingsInt("impl.gui.MAIN_WINDOW_BORDER_SIZE");
-                this.setBorder(BorderFactory.createEmptyBorder(borderSize,
-                    borderSize, borderSize, borderSize));
             }
             else
             {
