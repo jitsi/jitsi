@@ -81,6 +81,8 @@ public class MainToolBar
         this.add(historyButton);
         this.add(optionsButton);
 
+//      Commented until Issue #481 is resolved.
+//
 //        this.previousButton.setName("previous");
 //        this.previousButton.setToolTipText(
 //            GuiActivator.getResources().getI18NString("service.gui.PREVIOUS").getText());
