@@ -20,8 +20,6 @@ import net.java.sip.communicator.util.*;
 
 import net.java.sip.communicator.util.swing.*;
 
-import say.swing.*;
-
 /**
  * The <tt>EditTextToolBar</tt> is a <tt>JToolBar</tt> which contains
  * buttons for formatting a text, like make text in bold or italic, change the
@@ -93,83 +91,7 @@ public class EditTextToolBar
         {
             public void actionPerformed(ActionEvent event)
             {
-                JFontChooser fontChooser = new JFontChooser();
-                fontChooser.setSelectedFontFamily(
-                    chatEditorPane.getFont().getFontName());
-                fontChooser.setSelectedFontSize(
-                    chatEditorPane.getFont().getSize());
-
-                if (boldButton.isSelected())
-                    fontChooser.setSelectedFontStyle(Font.BOLD);
-                else if (italicButton.isSelected())
-                    fontChooser.setSelectedFontStyle(Font.ITALIC);
-
-                int result = fontChooser.showDialog(chatWritePanel);
-
-                chatEditorPane.requestFocus();
-
-                if (result == JFontChooser.OK_OPTION)
-                {
-                    String fontName = fontChooser.getSelectedFontFamily();
-                    int fontSize = fontChooser.getSelectedFontSize();
-                    int fontStyle = fontChooser.getSelectedFontStyle();
-
-                    ActionEvent fontNameActionEvent
-                        = new ActionEvent(  chatEditorPane,
-                                            ActionEvent.ACTION_PERFORMED,
-                                            fontName);
-
-                    Action action = new StyledEditorKit.FontFamilyAction(
-                                fontName,
-                                fontName);
-
-                    action.actionPerformed(fontNameActionEvent);
-
-                    ActionEvent fontSizeActionEvent
-                        = new ActionEvent(  chatEditorPane,
-                                            ActionEvent.ACTION_PERFORMED,
-                                            Integer.toString(fontSize));
-
-                    action
-                        = new StyledEditorKit.FontSizeAction(
-                            Integer.toString(fontSize),
-                            fontSize);
-
-                    action.actionPerformed(fontSizeActionEvent);
-
-                    if (fontStyle == Font.BOLD)
-                    {
-                        if (!boldButton.isSelected())
-                            boldButton.doClick();
-
-                        if (italicButton.isSelected())
-                            italicButton.doClick();
-                    }
-                    else if (fontStyle == Font.ITALIC)
-                    {
-                        if (!italicButton.isSelected())
-                            italicButton.doClick();
-
-                        if (boldButton.isSelected())
-                            boldButton.doClick();
-                    }
-                    else if (fontStyle == (Font.BOLD + Font.ITALIC))
-                    {
-                        if (!boldButton.isSelected())
-                            boldButton.doClick();
-
-                        if (!italicButton.isSelected())
-                            italicButton.doClick();
-                    }
-                    else
-                    {
-                        if (boldButton.isSelected())
-                            boldButton.doClick();
-
-                        if (italicButton.isSelected())
-                            italicButton.doClick();
-                    }
-                }
+                showFontChooserDialog();
             }
         });
     }
@@ -196,19 +118,8 @@ public class EditTextToolBar
                                             "Choose a colour",
                                             colorLabel.getBackground());
 
-                if (newColor != null) {
-                    colorLabel.setBackground(newColor);
-
-                    ActionEvent evt =
-                        new ActionEvent(chatEditorPane,
-                            ActionEvent.ACTION_PERFORMED, "");
-
-                    Action action =
-                        new HTMLEditorKit.ForegroundAction(Integer.toString(newColor
-                            .getRGB()), newColor);
-
-                    action.actionPerformed(evt);
-                }
+                if (newColor != null)
+                    setFontColor(newColor);
 
                 chatEditorPane.requestFocus();
             }
@@ -464,6 +375,105 @@ public class EditTextToolBar
                 g.dispose();
             }
         }
+    }
+    
+    /**
+     * Shows the font chooser dialog
+     */
+    public void showFontChooserDialog()
+    {
+        FontChooser fontChooser = new FontChooser();
+        
+        fontChooser.setFontFamily(
+            chatEditorPane.getFont().getFontName());
+        fontChooser.setFontSize(
+            chatEditorPane.getFont().getSize());
+
+        fontChooser.setBoldStyle(boldButton.isSelected());
+        fontChooser.setItalicStyle(italicButton.isSelected());
+        fontChooser.setUnderlineStyle(underlineButton.isSelected());
+
+        int result = fontChooser.showDialog(this.chatWritePanel);
+
+        if (result == FontChooser.OK_OPTION)
+        {
+            // Font family and size
+            setFontFamilyAndSize(fontChooser.getFontFamily(), fontChooser.getFontSize());
+
+            // Font style
+            setBoldStyleEnable(fontChooser.isBoldStyleSelected());
+            setItalicStyleEnable(fontChooser.isItalicStyleSelected());
+            setUnderlineStyleEnable(fontChooser.isUnderlineStyleSelected());
+
+            // Font color
+            setFontColor(fontChooser.getFontColor());
+        }
+        
+        chatEditorPane.requestFocus();
+    }
+    
+    /**
+     * Sets the font family and size
+     * @param family the family name
+     * @param size the size
+     */
+    public void setFontFamilyAndSize(String family, int size)
+    {
+        // Family
+        ActionEvent evt = new ActionEvent(chatEditorPane, ActionEvent.ACTION_PERFORMED, family);
+        Action action = new StyledEditorKit.FontFamilyAction(family, family);
+        action.actionPerformed(evt);
+        
+        // Size
+        evt = new ActionEvent(chatEditorPane, ActionEvent.ACTION_PERFORMED, Integer.toString(size)); 
+        action = new StyledEditorKit.FontSizeAction(Integer.toString(size), size);
+        action.actionPerformed(evt);
+    }
+    
+    /**
+     * Enables the bold style
+     * @param b TRUE enable - FALSE disable
+     */
+    public void setBoldStyleEnable(boolean b)
+    {
+        if ((b && !boldButton.isSelected()) || (!b && boldButton.isSelected()))
+            boldButton.doClick();
+    }
+    
+    /**
+     * Enables the italic style
+     * @param b TRUE enable - FALSE disable
+     */
+    public void setItalicStyleEnable(boolean b)
+    {
+        if ((b && !italicButton.isSelected()) || (!b && italicButton.isSelected()))
+            italicButton.doClick();
+    }
+    
+    /**
+     * Enables the underline style
+     * @param b TRUE enable - FALSE disable
+     */
+    public void setUnderlineStyleEnable(boolean b)
+    {
+        if ((b && !underlineButton.isSelected()) || (!b && underlineButton.isSelected()))
+            underlineButton.doClick();
+    }
+    
+    /**
+     * Sets the font color
+     * @param color the color
+     */
+    public void setFontColor(Color color)
+    {
+        colorLabel.setBackground(color);
+        
+        ActionEvent evt = new ActionEvent(chatEditorPane, ActionEvent.ACTION_PERFORMED, "");
+
+        Action action =
+            new HTMLEditorKit.ForegroundAction(Integer.toString(color.getRGB()), color);
+
+        action.actionPerformed(evt);
     }
 
     /**
