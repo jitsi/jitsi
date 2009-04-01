@@ -87,7 +87,7 @@ public class MainCallPanel
                 GuiActivator.getResources().getI18NString("service.gui.CALL_VIA")
                 + " ");
 
-        this.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+        this.createBorder();
 
         this.dialpadDialog = new DialpadDialog(this);
 
@@ -116,6 +116,26 @@ public class MainCallPanel
         callButton.addActionListener(this);
 
         this.initPluginComponents();
+    }
+
+    /**
+     * Creates the border for this panel according to the current 
+     * main frame border size.
+     */
+    private void createBorder()
+    {
+        int mainBorderSize =
+            GuiActivator.getResources()
+                .getSettingsInt("impl.gui.MAIN_WINDOW_BORDER_SIZE");
+
+        int borderSize = 0;
+        if (mainBorderSize < 5)
+            borderSize = 5 - mainBorderSize;
+
+        // We set a fixed top border because it doesn't depend on the main
+        // window border.
+        this.setBorder(BorderFactory.createEmptyBorder(
+            5, borderSize, borderSize, borderSize));
     }
 
     private Component createDialButton()

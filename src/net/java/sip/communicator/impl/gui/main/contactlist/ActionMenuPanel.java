@@ -147,10 +147,10 @@ public class ActionMenuPanel
                     height, endBgColor);
 
             g2.setPaint(p);
-            g2.fillRoundRect(0, 0, width - 1, height - 1, 15, 15);
+            g2.fillRect(0, 0, width - 1, height - 1);
 
             g2.setColor(baseStartColor);
-            g2.drawRoundRect(0, 0, width - 1, height - 1, 15, 15);
+            g2.drawRect(0, 0, width - 1, height - 1);
         }
         finally
         {

@@ -21,6 +21,7 @@ import net.java.sip.communicator.impl.gui.main.chat.toolBars.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
@@ -139,6 +140,7 @@ public class ChatWindow
         mainToolBar.setVisible(chatToolbarVisible);
         contactPhotoPanel.setVisible(chatToolbarVisible);
 
+        northPanel.setBorder(BorderFactory.createEmptyBorder(3, 0, 3, 0));
         northPanel.add(mainToolBar, BorderLayout.CENTER);
         northPanel.add(contactPhotoPanel, BorderLayout.EAST);
 
@@ -388,7 +390,7 @@ public class ChatWindow
 
     /**
      * Removes all tabs in the chat tabbed pane. If not in mode
-     * TABBED_CHAT_WINDOW doesn nothing.
+     * TABBED_CHAT_WINDOW does nothing.
      */
     public void removeAllChats()
     {
@@ -984,9 +986,7 @@ public class ChatWindow
      */
     private class ContactPhotoPanel extends JLayeredPane
     {
-        private final FramedImage photoLabel =
-            new FramedImage(ChatContact.AVATAR_ICON_WIDTH,
-                ChatContact.AVATAR_ICON_HEIGHT);
+        private final JLabel photoLabel = new JLabel();
 
         private final JLabel addContactButton = new JLabel(
             new ImageIcon(ImageLoader.getImage(
@@ -1048,22 +1048,25 @@ public class ChatWindow
 
             byte[] chatAvatar = chatSession.getChatAvatar();
 
-            ImageIcon contactPhotoIcon;
             if (chatAvatar != null && chatAvatar.length > 0)
             {
-                contactPhotoIcon = new ImageIcon(chatAvatar);
-
                 this.tooltipIcon = new ImageIcon(chatAvatar);
+
+                ImageIcon contactPhotoIcon
+                    = ImageUtils.getScaledRoundedIcon(chatAvatar,
+                        ChatContact.AVATAR_ICON_WIDTH ,
+                        ChatContact.AVATAR_ICON_HEIGHT);
+
+                if (contactPhotoIcon != null)
+                    this.photoLabel.setIcon(contactPhotoIcon);
             }
             else
             {
-                contactPhotoIcon = new ImageIcon(
-                    ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO));
-
+                // Even if we don't have the icon of the current contact we
+                // should remove the one of the previously selected contact.
+                this.photoLabel.setIcon(null);
                 this.tooltipIcon = null;
             }
-
-            this.photoLabel.setImageIcon(contactPhotoIcon);
 
             // Need to set the tooltip in order to have createToolTip called
             // from the TooltipManager.

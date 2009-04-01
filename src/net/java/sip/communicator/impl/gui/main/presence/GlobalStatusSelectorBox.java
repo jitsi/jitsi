@@ -98,7 +98,7 @@ public class GlobalStatusSelectorBox
         this.mainFrame = mainFrame;
 
         this.setUI(new SIPCommStatusMenuUI());
-
+        this.setBorder(null);
         this.setOpaque(false);
 
         this.setText("Offline");

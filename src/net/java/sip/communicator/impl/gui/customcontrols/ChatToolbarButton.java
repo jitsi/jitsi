@@ -28,6 +28,6 @@ public class ChatToolbarButton extends SIPCommButton
     {
         super(null, iconImage);
 
-        this.setPreferredSize(new Dimension(26, 26));
+        this.setPreferredSize(new Dimension(25, 25));
     }
 }

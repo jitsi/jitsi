@@ -15,6 +15,14 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.swing.*;
 
+/**
+ * The SCScrollPane is a JScrollPane with a custom viewport that allows to
+ * set an image as a background. Depending on the
+ * "impl.gui.IS_TEXTURE_BACKGROUND" property we'll be setting a single image or
+ * a texture of images.
+ * 
+ * @author Yana Stamcheva
+ */
 public class SCScrollPane
     extends JScrollPane
 {
@@ -22,7 +30,8 @@ public class SCScrollPane
 
 	public SCScrollPane()
     {
-        this.setBorder(null);
+	    this.setBorder(BorderFactory.createMatteBorder(
+            1, 0, 1, 0, Color.GRAY));
         this.setOpaque(false);
 
         this.setViewport(new SCViewport());
@@ -56,9 +65,6 @@ public class SCScrollPane
 
         public SCViewport()
         {
-            this.setOpaque(false);
-            this.setBorder(null);
-
             if (getSettingsBoolean("impl.gui.IS_WINDOW_BACKGROUND_ENABLED"))
             {
                 bgImage =
@@ -77,7 +83,7 @@ public class SCScrollPane
                     texture = null;
                     color =
                         new Color(GuiActivator.getResources().getColor(
-                            "contactListBackground"));
+                            "service.gui.CONTACT_LIST_BACKGROUND"));
                 }
             }
             else
@@ -106,14 +112,6 @@ public class SCScrollPane
                 Graphics2D g2 = (Graphics2D) g;
                 int width = getWidth();
                 int height = getHeight();
-
-                g2.setColor(Color.WHITE);
-
-                g2.fillRoundRect(0, 0, width - 1, height - 1, 15, 15);
-
-                g2.setColor(Color.GRAY);
-
-                g2.drawRoundRect(0, 0, width - 1, height - 1, 15, 15);
 
                 // paint the image
                 if (bgImage != null)

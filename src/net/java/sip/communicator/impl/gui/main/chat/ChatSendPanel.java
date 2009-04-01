@@ -29,11 +29,10 @@ public class ChatSendPanel
 {
     private final JButton sendButton;
 
-    private final TransparentPanel statusPanel
-        = new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
+    private final StatusPanel statusPanel = new StatusPanel();
 
     private final TransparentPanel sendPanel
-        = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
+        = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
 
     private final JLabel statusLabel = new JLabel();
 
@@ -47,6 +46,8 @@ public class ChatSendPanel
     public ChatSendPanel(ChatPanel chatPanel)
     {
         super(new BorderLayout(5, 0));
+
+        this.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 
         sendButton = new JButton(
             GuiActivator.getResources().getI18NString("service.gui.SEND"));
@@ -124,32 +125,40 @@ public class ChatSendPanel
         statusLabel.setText(statusMessage);
     }
 
-    /**
-     * Overrides the <code>javax.swing.JComponent.paint()</code> to provide a
-     * new round border for the status panel.
-     *
-     * @param g The Graphics object.
-     */
-    public void paint(Graphics g)
+    private class StatusPanel extends TransparentPanel
     {
-        super.paint(g);
-
-        g = g.create();
-        try
+        public StatusPanel()
         {
-            AntialiasingManager.activateAntialiasing(g);
-
-            Graphics2D g2 = (Graphics2D) g;
-
-            g2.setColor(Constants.GRADIENT_DARK_COLOR);
-            g2.setStroke(new BasicStroke(1f));
-
-            g2.drawRoundRect(3, 4, this.statusPanel.getWidth() - 2,
-                this.statusPanel.getHeight() - 2, 8, 8);
+            super(new FlowLayout(FlowLayout.LEFT, 0, 0));
         }
-        finally
+
+        /**
+         * Overrides the <code>javax.swing.JComponent.paint()</code> to provide a
+         * new round border for the status panel.
+         *
+         * @param g The Graphics object.
+         */
+        public void paint(Graphics g)
         {
-            g.dispose();
+            super.paint(g);
+
+            g = g.create();
+            try
+            {
+                AntialiasingManager.activateAntialiasing(g);
+
+                Graphics2D g2 = (Graphics2D) g;
+
+                g2.setColor(Constants.BORDER_COLOR);
+                g2.setStroke(new BasicStroke(1f));
+
+                g2.drawRoundRect(0, 0, this.getWidth() - 1,
+                    this.getHeight() - 1, 8, 8);
+            }
+            finally
+            {
+                g.dispose();
+            }
         }
     }
 
@@ -180,7 +189,6 @@ public class ChatSendPanel
     {
         return statusPanel;
     }
-    
 
     /**
      * Returns the send button.

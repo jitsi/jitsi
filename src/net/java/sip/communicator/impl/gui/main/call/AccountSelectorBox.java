@@ -16,6 +16,7 @@ import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The AccountSelectorBox is located in the main application window under the
@@ -29,7 +30,7 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class AccountSelectorBox
-    extends JMenuBar
+    extends SIPCommMenuBar
     implements ActionListener
 {
     private static final Logger logger =

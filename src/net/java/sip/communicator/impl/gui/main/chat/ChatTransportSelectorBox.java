@@ -29,7 +29,7 @@ import net.java.sip.communicator.util.swing.*;
  * @author Yana Stamcheva
  */
 public class ChatTransportSelectorBox
-    extends JMenuBar
+    extends SIPCommMenuBar
     implements ActionListener
 {
     private static final Logger logger
@@ -128,7 +128,8 @@ public class ChatTransportSelectorBox
     {
         JMenuItem menuItem = (JMenuItem) e.getSource();
 
-        for (Map.Entry<ChatTransport, JMenuItem> transportMenuItem : transportMenuItems.entrySet())
+        for (Map.Entry<ChatTransport, JMenuItem> transportMenuItem
+                : transportMenuItems.entrySet())
         {
             ChatTransport chatTransport = transportMenuItem.getKey();
 

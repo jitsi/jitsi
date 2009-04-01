@@ -16,9 +16,9 @@ import javax.swing.*;
  */
 public abstract class ChatContact
 {
-    public static final int AVATAR_ICON_HEIGHT = 30;
+    public static final int AVATAR_ICON_HEIGHT = 25;
 
-    public static final int AVATAR_ICON_WIDTH = 30;
+    public static final int AVATAR_ICON_WIDTH = 25;
 
     private boolean isSelected;
 

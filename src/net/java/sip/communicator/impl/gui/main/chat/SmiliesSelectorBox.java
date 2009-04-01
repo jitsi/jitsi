@@ -14,6 +14,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>SmiliesSelectorBox</tt> is the component where user could choose a
@@ -22,7 +23,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * @author Yana Stamcheva
  */
 public class SmiliesSelectorBox
-    extends JMenuBar
+    extends SIPCommMenuBar
     implements ActionListener
 {
     private final ChatWritePanel chatWritePanel;

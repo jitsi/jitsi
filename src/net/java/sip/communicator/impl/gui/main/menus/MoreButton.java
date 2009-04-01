@@ -18,6 +18,9 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 
+/**
+ * @author Yana Stamcheva
+ */
 public class MoreButton
     extends JLabel
     implements  PluginComponent,
