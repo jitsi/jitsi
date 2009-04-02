@@ -88,6 +88,8 @@ public class GlobalStatusSelectorBox
 
     private JLabel titleLabel;
 
+    private static int STATUS_STRING_WIDTH = 0;
+
     /**
      * Creates an instance of <tt>SimpleStatusSelectorBox</tt>.
      *
@@ -240,7 +242,8 @@ public class GlobalStatusSelectorBox
                         continue;
                     }
 
-                    Iterator<PresenceStatus> statusSet = presence.getSupportedStatusSet();
+                    Iterator<PresenceStatus> statusSet
+                        = presence.getSupportedStatusSet();
 
                     while (statusSet.hasNext())
                     {
@@ -284,7 +287,8 @@ public class GlobalStatusSelectorBox
                         continue;
                     }
 
-                    Iterator<PresenceStatus> statusSet = presence.getSupportedStatusSet();
+                    Iterator<PresenceStatus> statusSet
+                        = presence.getSupportedStatusSet();
 
                     while (statusSet.hasNext())
                     {
@@ -328,7 +332,8 @@ public class GlobalStatusSelectorBox
                 if (presence == null)
                     continue;
 
-                Iterator<PresenceStatus> statusSet = presence.getSupportedStatusSet();
+                Iterator<PresenceStatus> statusSet
+                    = presence.getSupportedStatusSet();
 
                 PresenceStatus status = null;
 
@@ -366,7 +371,8 @@ public class GlobalStatusSelectorBox
                 if (presence == null)
                     continue;
 
-                Iterator<PresenceStatus> statusSet = presence.getSupportedStatusSet();
+                Iterator<PresenceStatus> statusSet
+                    = presence.getSupportedStatusSet();
 
                 PresenceStatus status = null;
 
@@ -530,12 +536,22 @@ public class GlobalStatusSelectorBox
                                 (ImageIcon)item.getIcon(),
                                 item);
 
+        // Obtain the width of the text in order to use it in arrow painting
+        // calculations.
+        STATUS_STRING_WIDTH = SwingUtilities.computeStringWidth(
+            this.getFontMetrics(this.getFont()), item.getText());
+
         setSelected(selectedObject);
 
         this.revalidate();
         setSystrayIcon(status);
     }
 
+    /**
+     * Sets the systray icon corresponding to the given status.
+     * 
+     * @param status the status, for which we're setting the systray icon.
+     */
     private void setSystrayIcon(int status)
     {
         SystrayService trayServce = GuiActivator.getSystrayService();
@@ -766,12 +782,7 @@ public class GlobalStatusSelectorBox
         {
             AntialiasingManager.activateAntialiasing(g);
 
-            SelectedObject selected = (SelectedObject) this.getSelected();
-
-            int stringWidth = SwingUtilities.computeStringWidth(
-                this.getFontMetrics(this.getFont()), selected.getText());
-
-            g.drawImage(arrowImage, stringWidth + 2*IMAGE_INDENT + 2,
+            g.drawImage(arrowImage, STATUS_STRING_WIDTH + 2*IMAGE_INDENT + 2,
                 (this.getHeight() - arrowImage.getHeight(null)) / 2 + 3, null);
         }
         finally
