@@ -46,7 +46,6 @@ public class SCScrollPane
      */
     public void setViewportView(JComponent view)
     {
-        view.setOpaque(false);
         view.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 
         super.setViewportView(view);
