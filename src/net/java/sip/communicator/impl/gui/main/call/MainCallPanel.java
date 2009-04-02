@@ -116,6 +116,10 @@ public class MainCallPanel
         callButton.addActionListener(this);
 
         this.initPluginComponents();
+
+        // Make this panel visible only after we have accounts supporting
+        // telephony.
+        this.setVisible(false);
     }
 
     /**
@@ -328,6 +332,12 @@ public class MainCallPanel
         {
             this.comboPanel.add(callViaPanel, BorderLayout.SOUTH);
         }
+        else
+        {
+            // Make this panel visible after we have accounts supporting
+            // telephony.
+            this.setVisible(true);
+        }
 
         accountSelectorBox.addAccount(pps);
 
@@ -346,10 +356,15 @@ public class MainCallPanel
 
         pps.removeRegistrationStateChangeListener(this);
 
-        if (accountSelectorBox.getAccountsNumber() < 2)
+        int accountsNumber = accountSelectorBox.getAccountsNumber();
+
+        if (accountsNumber < 2)
         {
             this.comboPanel.remove(callViaPanel);
         }
+
+        if (accountsNumber == 0)
+            this.setVisible(false);
     }
 
     /**
