@@ -12,6 +12,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
@@ -54,7 +55,7 @@ public class ChatSendPanel
 
         this.chatPanel = chatPanel;
 
-        this.statusPanel.add(statusLabel);
+        this.statusPanel.add(statusLabel, BorderLayout.WEST);
 
         this.sendPanel.add(sendButton);
 
@@ -129,36 +130,11 @@ public class ChatSendPanel
     {
         public StatusPanel()
         {
-            super(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        }
+            super(new BorderLayout());
 
-        /**
-         * Overrides the <code>javax.swing.JComponent.paint()</code> to provide a
-         * new round border for the status panel.
-         *
-         * @param g The Graphics object.
-         */
-        public void paint(Graphics g)
-        {
-            super.paint(g);
-
-            g = g.create();
-            try
-            {
-                AntialiasingManager.activateAntialiasing(g);
-
-                Graphics2D g2 = (Graphics2D) g;
-
-                g2.setColor(Constants.BORDER_COLOR);
-                g2.setStroke(new BasicStroke(1f));
-
-                g2.drawRoundRect(0, 0, this.getWidth() - 1,
-                    this.getHeight() - 1, 8, 8);
-            }
-            finally
-            {
-                g.dispose();
-            }
+            this.setBorder(BorderFactory.createCompoundBorder(
+                SIPCommBorders.getRoundBorder(),
+                BorderFactory.createEmptyBorder(3, 3, 3, 3)));
         }
     }
 
