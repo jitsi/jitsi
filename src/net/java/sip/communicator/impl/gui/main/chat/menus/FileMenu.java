@@ -106,7 +106,8 @@ public class FileMenu extends SIPCommMenu
             ChatPanel chatPanel = this.parentWindow.getCurrentChatPanel();
             ChatSession chatSession = chatPanel.getChatSession();
 
-            if(historyWindowManager.containsHistoryWindowForContact(chatSession.getDescriptor()))
+            if(historyWindowManager
+                .containsHistoryWindowForContact(chatSession.getDescriptor()))
             {
                 history = historyWindowManager.getHistoryWindowForContact(
                     chatSession.getDescriptor());
@@ -118,12 +119,13 @@ public class FileMenu extends SIPCommMenu
             }
             else
             {
-                history = new HistoryWindow(chatPanel.getChatSession().getDescriptor());
+                history = new HistoryWindow(
+                    chatPanel.getChatSession().getDescriptor());
 
                 history.setVisible(true);
 
-                historyWindowManager
-                    .addHistoryWindowForContact(chatSession.getDescriptor(), history);
+                historyWindowManager.addHistoryWindowForContact(
+                    chatSession.getDescriptor(), history);
             }
         }
         else if (itemText.equalsIgnoreCase("close"))
