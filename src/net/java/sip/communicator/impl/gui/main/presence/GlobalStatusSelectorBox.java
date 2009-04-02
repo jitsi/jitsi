@@ -777,17 +777,22 @@ public class GlobalStatusSelectorBox
     {
         super.paintComponent(g);
 
-        g = g.create();
-        try
+        if (STATUS_STRING_WIDTH != 0)
         {
-            AntialiasingManager.activateAntialiasing(g);
+            g = g.create();
+            try
+            {
+                AntialiasingManager.activateAntialiasing(g);
 
-            g.drawImage(arrowImage, STATUS_STRING_WIDTH + 2*IMAGE_INDENT + 2,
-                (this.getHeight() - arrowImage.getHeight(null)) / 2 + 3, null);
-        }
-        finally
-        {
-            g.dispose();
+                g.drawImage(arrowImage,
+                    STATUS_STRING_WIDTH + 2*IMAGE_INDENT + 2,
+                    (this.getHeight() - arrowImage.getHeight(null)) / 2 + 3,
+                    null);
+            }
+            finally
+            {
+                g.dispose();
+            }
         }
     }
 }
