@@ -37,6 +37,23 @@
           Value='"[INSTALLDIR]run.exe" %1' />
     </RegistryKey>
   </Component>
+  <Component
+      Id="Component_XmppRegistryEntries"
+      Directory="TARGETDIR"
+      Guid="3C9C09AE-1F57-11DE-B96D-6B8D56D89593">
+    <Condition><![CDATA[CREATE_XMPP_REGISTRY_ENTRIES]]></Condition>
+    <RegistryKey Action="createAndRemoveOnUninstall" Key="xmpp" Root="HKCR">
+      <RegistryValue Type="string" Value="URL: XMPP Protocol handler" />
+      <RegistryValue Name="URL Protocol" Type="string" Value="" />
+      <RegistryValue
+          Key="DefaultIcon" Type="string" Value="[INSTALLDIR]sc-logo.ico" />
+      <RegistryValue
+          Key="shell\open\command"
+          KeyPath="yes"
+          Type="string"
+          Value='"[INSTALLDIR]run.exe" %1' />
+    </RegistryKey>
+  </Component>
 
 </ComponentGroup>
 </Fragment>
