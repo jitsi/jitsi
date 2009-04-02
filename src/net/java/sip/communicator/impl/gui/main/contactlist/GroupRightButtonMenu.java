@@ -167,7 +167,6 @@ public class GroupRightButtonMenu
      */
     public void actionPerformed(ActionEvent e) {
         JMenuItem item = (JMenuItem)e.getSource();
-        String itemText = item.getText();
         String itemName = item.getName();
 
         if(itemName.equals("removeGroup"))
@@ -175,7 +174,7 @@ public class GroupRightButtonMenu
             if(group != null)
                 new RemoveGroupThread(group).start();
         }
-        else if(itemName.equals("service.gui.RENAME_GROUP"))
+        else if(itemName.equals("renameGroup"))
         {
 
             RenameGroupDialog dialog = new RenameGroupDialog(
