@@ -322,6 +322,10 @@
             dest="${resources}/languages"
             encoding="UTF-8"
             includes="**/*.properties"/>
+        <!-- Copy the default resources to english one, as our defualt
+            language is English and without the resource we cannot excplictly set it.-->
+        <copy file="${sc.basedir}/resources/languages/resources.properties"
+              tofile="${resources}/languages/resources_en.properties"/>
     </target>
 
     <!-- JAVADOC -->

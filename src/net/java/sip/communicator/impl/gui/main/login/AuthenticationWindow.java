@@ -95,16 +95,22 @@ public class AuthenticationWindow
 
         this.isUserNameEditable = isUserNameEditable;
 
-        ProtocolIcon protocolIcon = protocolProvider.getProtocolIcon();
-
         Image logoImage = null;
+        if(protocolProvider != null)
+        {
+            ProtocolIcon protocolIcon = protocolProvider.getProtocolIcon();
 
-        if(protocolIcon.isSizeSupported(ProtocolIcon.ICON_SIZE_64x64))
-            logoImage = ImageLoader.getBytesInImage(
-                protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_64x64));
-        else if(protocolIcon.isSizeSupported(ProtocolIcon.ICON_SIZE_48x48))
-            logoImage = ImageLoader.getBytesInImage(
-                protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_48x48));
+            if(protocolIcon.isSizeSupported(ProtocolIcon.ICON_SIZE_64x64))
+                logoImage = ImageLoader.getBytesInImage(
+                    protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_64x64));
+            else if(protocolIcon.isSizeSupported(ProtocolIcon.ICON_SIZE_48x48))
+                logoImage = ImageLoader.getBytesInImage(
+                    protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_48x48));
+
+            this.setTitle(GuiActivator.getResources().getI18NString(
+                "service.gui.AUTHENTICATION_WINDOW_TITLE",
+                new String[]{protocolProvider.getProtocolName()}));
+        }
 
         if(logoImage != null)
             backgroundPanel = new LoginWindowBackground(logoImage);
@@ -128,11 +134,16 @@ public class AuthenticationWindow
 
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
-        this.setTitle(GuiActivator.getResources().getI18NString(
-            "service.gui.AUTHENTICATION_WINDOW_TITLE",
-            new String[]{protocolProvider.getProtocolName()}));
-
         this.enableKeyActions();
+    }
+
+    /**
+     * Creates an instance of the <tt>LoginWindow</tt>.
+     * @param mainFrame the parent <tt>MainFrame</tt> window.
+     */
+    public AuthenticationWindow(MainFrame mainFrame)
+    {
+        this(mainFrame, null, null, null, false);
     }
 
     /**
@@ -168,14 +179,22 @@ public class AuthenticationWindow
      */
     private void init()
     {
-        if(!isUserNameEditable)
-            this.uinValue = new JLabel(userCredentials.getUserName());
-        else
-            this.uinValue = new JTextField(userCredentials.getUserName());
+        if(userCredentials != null)
+        {
+            if(!isUserNameEditable)
+                this.uinValue = new JLabel(userCredentials.getUserName());
+            else
+                this.uinValue = new JTextField(userCredentials.getUserName());
 
-        char[] password = userCredentials.getPassword();
-        if (password != null) {
-            this.passwdField.setText(String.valueOf(password));
+            char[] password = userCredentials.getPassword();
+            if (password != null) {
+                this.passwdField.setText(String.valueOf(password));
+            }
+        }
+        else
+        {
+            // no user credentials just an empty field
+            this.uinValue = new JTextField();
         }
 
         this.realmTextArea.setEditable(false);
@@ -253,12 +272,21 @@ public class AuthenticationWindow
         String buttonName = button.getName();
 
         if (buttonName.equals("ok")) {
+            if(uinValue instanceof JLabel)
+                userCredentials.setUserName(((JLabel)uinValue).getText());
+            else
+                if(uinValue instanceof JTextField)
+                    userCredentials.setUserName(((JTextField)uinValue).getText());
+
             userCredentials.setPassword(
                     passwdField.getPassword());
             userCredentials.setPasswordPersistent(
                     rememberPassCheckBox.isSelected());
         }
         else {
+            // if usercredentials are created outside the exported window
+            // by specifying null username we note that the window was canceled
+            this.userCredentials.setUserName(null);
             this.userCredentials = null;
         }
 
@@ -406,5 +434,15 @@ public class AuthenticationWindow
     /**
      * Implementation of {@link ExportedWindow#setParams(Object[])}.
      */
-    public void setParams(Object[] windowParams) {}
+    public void setParams(Object[] windowParams)
+    {
+        if(windowParams != null && windowParams.length > 0)
+        {
+            Object param = windowParams[0];
+            if(param instanceof UserCredentials)
+            {
+                this.userCredentials = (UserCredentials)param;
+            }
+        }
+    }
 }

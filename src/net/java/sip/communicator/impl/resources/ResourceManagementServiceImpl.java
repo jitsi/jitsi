@@ -75,6 +75,14 @@ public class ResourceManagementServiceImpl
         if (imagePack != null)
             imageResources = getResources(imagePack);
 
+        // changes the default locale if set in the config
+        String defaultLocale = (String)ResourceManagementActivator.
+                getConfigurationService().getProperty(DEFAULT_LOCALE_CONFIG);
+        if(defaultLocale != null)
+        {
+            Locale.setDefault(new Locale(defaultLocale));
+        }
+
         languagePack =
             (LanguagePack) getDefaultResourcePack(LanguagePack.class.getName(),
                 LanguagePack.RESOURCE_NAME_DEFAULT_VALUE);
@@ -373,6 +381,15 @@ public class ResourceManagementServiceImpl
     }
 
     // Language pack methods
+    /**
+     * All the locales in the language pack.
+     * @return all the locales this Language pack contains.
+     */
+    public Iterator<Locale> getAvailableLocales()
+    {
+        return languagePack.getAvailableLocales();
+    }
+
     /**
      * Returns an internationalized string corresponding to the given key.
      *

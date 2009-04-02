@@ -19,6 +19,7 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 import com.izforge.izpack.util.os.*;
+import java.util.*;
 import org.osgi.framework.*;
 
 /**
@@ -46,6 +47,8 @@ public class GeneralConfigurationPanel
     private JPanel notifConfigPanel;
     private JLabel notifConfigLabel;
     private JComboBox notifConfigComboBox;
+
+    private JComboBox localesConfigComboBox;
 
     public GeneralConfigurationPanel()
     {
@@ -287,6 +290,66 @@ public class GeneralConfigurationPanel
                             notifConfigComboBox, BorderLayout.CENTER);
                     }
                 }
+
+            }
+            {
+                JPanel localeConfigPanel = new JPanel();
+                localeConfigPanel.setOpaque(false);
+                localeConfigPanel.setLayout(new BorderLayout(10, 10));
+                localeConfigPanel.setAlignmentX(0.0f);
+                localeConfigPanel.setPreferredSize(new Dimension(380, 22));
+
+                mainPanel.add(localeConfigPanel);
+                mainPanel.add(Box.createVerticalStrut(10));
+                {
+                    localeConfigPanel.add(
+                        new JLabel(
+                            Resources.getString(
+                            "plugin.generalconfig.DEFAULT_LANGUAGE")),
+                        BorderLayout.WEST);
+                }
+                {
+                    localesConfigComboBox = new JComboBox();
+                    localesConfigComboBox.setRenderer(new LocalesRenderer());
+
+                    Iterator<Locale> iter =
+                            Resources.getResources().getAvailableLocales();
+                    while (iter.hasNext())
+                    {
+                        Locale locale = iter.next();
+                        localesConfigComboBox.addItem(locale);
+                    }
+                    localesConfigComboBox.setSelectedItem(
+                        ConfigurationManager.getCurrentLanguage());
+
+                    // Find the selected Item by comparing the language
+                    Locale curr = ConfigurationManager.getCurrentLanguage();
+                    iter = Resources.getResources().getAvailableLocales();
+                    while (iter.hasNext())
+                    {
+                        Locale locale = iter.next();
+                        if(locale.getLanguage().equals(curr.getLanguage()))
+                        {
+                            localesConfigComboBox.setSelectedItem(locale);
+                            break;
+                        }
+                    }
+
+                    localesConfigComboBox.addActionListener(new ActionListener()
+                    {
+                        public void actionPerformed(ActionEvent e)
+                        {
+                            GeneralConfigPluginActivator.getUIService().getPopupDialog().
+                                showMessagePopupDialog(Resources.getString(
+                                "plugin.generalconfig.DEFAULT_LANGUAGE_RESTART_WARN"));
+
+                            ConfigurationManager.setLanguage(
+                                (Locale)localesConfigComboBox.getSelectedItem());
+                        }
+                    });
+                    localeConfigPanel.add(
+                        localesConfigComboBox, BorderLayout.CENTER);
+                }
             }
 //            {
 //                JPanel transparencyPanel = new JPanel();
@@ -502,4 +565,37 @@ public class GeneralConfigurationPanel
             logger.error(e);
         }
     }
+
+    private static class LocalesRenderer
+        extends JLabel implements ListCellRenderer
+    {
+        public LocalesRenderer()
+        {
+            setOpaque(true);
+        }
+
+        public Component getListCellRendererComponent(
+                                       JList list,
+                                       Object value,
+                                       int index,
+                                       boolean isSelected,
+                                       boolean cellHasFocus)
+        {
+            if (isSelected)
+            {
+                setBackground(list.getSelectionBackground());
+                setForeground(list.getSelectionForeground());
+            } else
+            {
+                setBackground(list.getBackground());
+                setForeground(list.getForeground());
+            }
+
+            setText(((Locale)value).getDisplayLanguage());
+            setFont(list.getFont());
+
+            return this;
+        }
+    }
+
 }

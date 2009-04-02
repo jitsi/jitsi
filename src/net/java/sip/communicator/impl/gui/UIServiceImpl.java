@@ -382,6 +382,7 @@ public class UIServiceImpl
     public void initExportedWindows()
     {
         registerExportedWindow(new AddContactWizardExportedWindow(mainFrame));
+        registerExportedWindow(new AuthenticationWindow(mainFrame));
     }
 
     /**

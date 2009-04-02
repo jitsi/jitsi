@@ -1,16 +1,17 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.defaultresourcepack;
 
+import java.net.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.resources.*;
 
 /**
- * 
+ *
  * @author Damian Minkov
  */
 public class DefaultLanguagePackImpl
@@ -18,21 +19,50 @@ public class DefaultLanguagePackImpl
 {
     private static final String DEFAULT_RESOURCE_PATH
         = "resources.languages.resources";
-    
+
     /**
      * The locale used for the last resources request
      */
     private Locale localeInBuffer = null;
-    
+
     /**
      * The result of the last resources request
      */
     private Map<String, String> lastResourcesAsked = null;
 
     /**
+     * All language resource locales.
+     */
+    private Vector<Locale> availableLocales = new Vector<Locale>();
+
+    public DefaultLanguagePackImpl()
+    {
+        // Finds all the files *.properties in the path : /resources/languages.
+        Enumeration fsEnum = DefaultResourcePackActivator.bundleContext.getBundle().
+                findEntries("/resources/languages", "*.properties", false);
+
+        while (fsEnum.hasMoreElements())
+        {
+            String fileName = ((URL)fsEnum.nextElement()).getFile();
+
+            int localeIndex = fileName.indexOf('_');
+
+            if(localeIndex != -1)
+            {
+                String localeName =
+                    fileName.substring(
+                        localeIndex + 1,
+                        fileName.indexOf('.', localeIndex));
+
+                availableLocales.add(new Locale(localeName));
+            }
+        }
+    }
+
+    /**
      * Returns a <tt>Map</tt>, containing all [key, value] pairs for this
      * resource pack.
-     * 
+     *
      * @return a <tt>Map</tt>, containing all [key, value] pairs for this
      * resource pack.
      */
@@ -44,18 +74,18 @@ public class DefaultLanguagePackImpl
     /**
      * Returns a <tt>Map</tt>, containing all [key, value] pairs for the given
      * locale.
-     * 
+     *
      * @param locale The <tt>Locale</tt> we're looking for.
      * @return a <tt>Map</tt>, containing all [key, value] pairs for the given
      * locale.
      */
     public Map<String, String> getResources(Locale locale)
     {
-    	// check if we didn't computed it at the previous call
-    	if (locale.equals(localeInBuffer) && lastResourcesAsked != null) {
-    		return lastResourcesAsked;
-    	}
-    	
+        // check if we didn't computed it at the previous call
+        if (locale.equals(localeInBuffer) && lastResourcesAsked != null) {
+            return lastResourcesAsked;
+        }
+
         ResourceBundle resourceBundle
             = ResourceBundle.getBundle(DEFAULT_RESOURCE_PATH, locale);
 
@@ -64,7 +94,7 @@ public class DefaultLanguagePackImpl
         this.initResources(resourceBundle, resources);
 
         this.initPluginResources(resources, locale);
-        
+
         // keep it just in case of...
         localeInBuffer = locale;
         lastResourcesAsked = resources;
@@ -74,7 +104,7 @@ public class DefaultLanguagePackImpl
 
     /**
      * Returns the name of this resource pack.
-     * 
+     *
      * @return the name of this resource pack.
      */
     public String getName()
@@ -84,7 +114,7 @@ public class DefaultLanguagePackImpl
 
     /**
      * Returns the description of this resource pack.
-     * 
+     *
      * @return the description of this resource pack.
      */
     public String getDescription()
@@ -97,7 +127,7 @@ public class DefaultLanguagePackImpl
      * given <tt>ResourceBundle</tt>. This method will look in the properties
      * files for references to other properties files and will include in the
      * final map data from all referenced files.
-     * 
+     *
      * @param resourceBundle The initial <tt>ResourceBundle</tt>, corresponding
      * to the "main" properties file.
      * @param resources A <tt>Map</tt> that would store the data.
@@ -115,7 +145,7 @@ public class DefaultLanguagePackImpl
             resources.put(key, value);
         }
     }
-    
+
     /**
      * Finds all plugin color resources, matching the "images-*.properties"
      * pattern and adds them to this resource pack.
@@ -142,5 +172,14 @@ public class DefaultLanguagePackImpl
                 initResources(resourceBundle, resources);
             }
         }
+    }
+
+    /**
+     * All the locales in the language pack.
+     * @return all the locales this Language pack contains.
+     */
+    public Iterator<Locale> getAvailableLocales()
+    {
+        return availableLocales.iterator();
     }
 }

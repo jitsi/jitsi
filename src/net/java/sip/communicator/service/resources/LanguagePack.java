@@ -12,7 +12,7 @@ import java.util.*;
  *
  * @author Damian Minkov
  */
-public interface LanguagePack 
+public interface LanguagePack
     extends ResourcePack
 {
     public String RESOURCE_NAME_DEFAULT_VALUE = "DefaultLanguagePack";
@@ -20,11 +20,16 @@ public interface LanguagePack
     /**
      * Returns a <tt>Map</tt>, containing all [key, value] pairs for the given
      * locale.
-     * 
+     *
      * @param locale The <tt>Locale</tt> we're looking for.
      * @return a <tt>Map</tt>, containing all [key, value] pairs for the given
      * locale.
      */
     public Map<String, String> getResources(Locale locale);
 
+    /**
+     * All the locales in the language pack.
+     * @return all the locales this Language pack contains.
+     */
+    public Iterator<Locale> getAvailableLocales();
 }

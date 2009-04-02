@@ -6,7 +6,9 @@
  */
 package net.java.sip.communicator.plugin.generalconfig;
 
+import java.util.Locale;
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.resources.ResourceManagementService;
 
 public class ConfigurationManager
 {
@@ -460,5 +462,23 @@ public class ConfigurationManager
         configService.setProperty(
             "service.gui.MESSAGE_HISTORY_SIZE",
             Integer.toString(chatHistorySize));
+    }
+
+    public static Locale getCurrentLanguage()
+    {
+        String locale = (String)configService.
+            getProperty(ResourceManagementService.DEFAULT_LOCALE_CONFIG);
+
+        if(locale != null)
+            return new Locale(locale);
+        else
+           return Locale.getDefault();
+    }
+
+    public static void setLanguage(Locale locale)
+    {
+        configService.setProperty(
+            ResourceManagementService.DEFAULT_LOCALE_CONFIG,
+            locale.getLanguage());
     }
 }

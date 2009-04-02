@@ -6,13 +6,16 @@ Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.browserlauncher,
+ net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.service.gui,
  net.java.sip.communicator.service.resources,
  net.java.sip.communicator.service.version,
+ net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.util,
  net.java.sip.communicator.util.swing,
  javax.swing,
  javax.swing.event,
  javax.swing.text,
  javax.swing.text.html,
- javax.imageio
+ javax.imageio,
+ javax.net.ssl

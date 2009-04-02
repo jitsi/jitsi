@@ -24,65 +24,65 @@ public class DefaultResourcePackActivator
     private Logger logger =
         Logger.getLogger(DefaultResourcePackActivator.class);
 
-    private static BundleContext bundleContext;
-    
+    static BundleContext bundleContext;
+
     // buffer for ressource files found
     private static Hashtable<String, Iterator<String>> ressourcesFiles =
-    	new Hashtable<String, Iterator<String>>();
+        new Hashtable<String, Iterator<String>>();
 
     public void start(BundleContext bc) throws Exception
     {
         bundleContext = bc;
 
-        DefaultColorPackImpl colPackImpl = 
+        DefaultColorPackImpl colPackImpl =
             new DefaultColorPackImpl();
 
         Hashtable props = new Hashtable();
-        props.put(ResourcePack.RESOURCE_NAME, 
+        props.put(ResourcePack.RESOURCE_NAME,
                   ColorPack.RESOURCE_NAME_DEFAULT_VALUE);
 
         bundleContext.registerService(  ColorPack.class.getName(),
                                         colPackImpl,
                                         props);
 
-        DefaultImagePackImpl imgPackImpl = 
+        DefaultImagePackImpl imgPackImpl =
             new DefaultImagePackImpl();
 
         Hashtable imgProps = new Hashtable();
-        imgProps.put(ResourcePack.RESOURCE_NAME, 
+        imgProps.put(ResourcePack.RESOURCE_NAME,
                     ImagePack.RESOURCE_NAME_DEFAULT_VALUE);
 
         bundleContext.registerService(  ImagePack.class.getName(),
                                         imgPackImpl,
                                         imgProps);
 
-        DefaultLanguagePackImpl langPackImpl = 
+        DefaultLanguagePackImpl langPackImpl =
             new DefaultLanguagePackImpl();
 
         Hashtable langProps = new Hashtable();
-        langProps.put(ResourcePack.RESOURCE_NAME, 
+        langProps.put(ResourcePack.RESOURCE_NAME,
                     LanguagePack.RESOURCE_NAME_DEFAULT_VALUE);
 
         bundleContext.registerService(  LanguagePack.class.getName(),
                                         langPackImpl,
                                         langProps);
 
-        DefaultSettingsPackImpl setPackImpl = 
+        DefaultSettingsPackImpl setPackImpl =
             new DefaultSettingsPackImpl();
 
         Hashtable setProps = new Hashtable();
-        langProps.put(ResourcePack.RESOURCE_NAME, 
+        langProps.put(ResourcePack.RESOURCE_NAME,
                       SettingsPack.RESOURCE_NAME_DEFAULT_VALUE);
 
         bundleContext.registerService(  SettingsPack.class.getName(),
                                         setPackImpl,
                                         setProps);
 
-        DefaultSoundPackImpl sndPackImpl = 
+        DefaultSoundPackImpl sndPackImpl =
             new DefaultSoundPackImpl();
 
         Hashtable sndProps = new Hashtable();
-        langProps.put(ResourcePack.RESOURCE_NAME, 
+        langProps.put(ResourcePack.RESOURCE_NAME,
                       SoundPack.RESOURCE_NAME_DEFAULT_VALUE);
 
         bundleContext.registerService(  SoundPack.class.getName(),
@@ -99,7 +99,7 @@ public class DefaultResourcePackActivator
 
     /**
      * Finds all properties files for the given path in this bundle.
-     * 
+     *
      * @param path the path pointing to the properties files.
      */
     protected static Iterator<String> findResourcePaths(  String path,
@@ -107,15 +107,15 @@ public class DefaultResourcePackActivator
     {
         Iterator<String> bufferedResult = ressourcesFiles.get(path + pattern);
         if (bufferedResult != null) {
-        	return bufferedResult;
-        }    	
-    	
+            return bufferedResult;
+        }
+
         ArrayList<String> propertiesList = new ArrayList<String>();
 
         @SuppressWarnings ("unchecked")
         Enumeration<URL> propertiesUrls = bundleContext.getBundle()
             .findEntries(path,
-                        pattern, 
+                        pattern,
                         false);
 
         if (propertiesUrls != null)
@@ -134,7 +134,7 @@ public class DefaultResourcePackActivator
                 propertiesList.add(propertyFilePath);
             }
         }
-        
+
         Iterator<String> result = propertiesList.iterator();
         ressourcesFiles.put(path + pattern, result);
 

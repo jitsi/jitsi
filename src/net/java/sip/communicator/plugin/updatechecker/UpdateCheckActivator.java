@@ -13,13 +13,17 @@ import java.awt.Toolkit;
 import java.awt.event.*;
 import java.io.*;
 import java.net.*;
+import java.security.cert.*;
 import java.util.*;
 
+import javax.net.ssl.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.service.browserlauncher.*;
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.version.*;
 import net.java.sip.communicator.util.*;
@@ -43,11 +47,25 @@ public class UpdateCheckActivator
 
     private static ResourceManagementService resourcesService;
 
-    private static UIService            uiService             = null;
+    private static ConfigurationService configService;
+
+    private static UIService uiService = null;
 
     private String downloadLink = null;
     private String lastVersion = null;
     private String changesLink = null;
+
+    private static UserCredentials userCredentials = null;
+
+    private static final String UPDATE_USERNAME_CONFIG = 
+        "net.java.sip.communicator.plugin.updatechecker.UPDATE_SITE_USERNAME";
+    private static final String UPDATE_PASSWORD_CONFIG =
+        "net.java.sip.communicator.plugin.updatechecker.UPDATE_SITE_PASSWORD";
+
+    static
+    {
+        removeDownloadRestrictions();
+    }
 
     /**
      * Starts this bundle
@@ -200,6 +218,29 @@ public class UpdateCheckActivator
         }
 
         return browserLauncherService;
+    }
+
+    /**
+     * Returns the <tt>ConfigurationService</tt> obtained from the bundle
+     * context.
+     *
+     * @return the <tt>ConfigurationService</tt> obtained from the bundle
+     *         context
+     */
+    public static ConfigurationService getConfigurationService()
+    {
+        if (configService == null)
+        {
+            ServiceReference configReference =
+                bundleContext.getServiceReference(ConfigurationService.class
+                    .getName());
+
+            configService =
+                (ConfigurationService) bundleContext
+                    .getService(configReference);
+        }
+
+        return configService;
     }
 
     /**
@@ -413,7 +454,45 @@ public class UpdateCheckActivator
             tempF = temp;
 
             URL u = new URL(downloadLink);
-            URLConnection uc = u.openConnection();
+            HttpURLConnection uc = (HttpURLConnection)u.openConnection();
+
+            if(uc.getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED)
+            {
+                new Thread(new Runnable()
+                {
+                    public void run()
+                    {
+                        ExportedWindow authWindow =
+                            getUIService().getExportedWindow(
+                                ExportedWindow.AUTHENTICATION_WINDOW);
+
+                        UserCredentials cred = new UserCredentials();
+                        authWindow.setParams(new Object[]{cred});
+                        authWindow.setVisible(true);
+
+                        userCredentials = cred;
+
+                        if(cred.getUserName() == null)
+                        {
+                            userCredentials = null;
+                        }
+                        else
+                            windowsUpdate();
+                    }
+                }).start();
+            }
+            else if(uc.getResponseCode() == HttpURLConnection.HTTP_OK
+                    && userCredentials != null
+                    && userCredentials.getUserName() != null
+                    && userCredentials.isPasswordPersistent())
+            {
+                // if save password is checked save the pass
+                getConfigurationService().setProperty(
+                        UPDATE_USERNAME_CONFIG, userCredentials.getUserName());
+                getConfigurationService().setProperty(
+                        UPDATE_PASSWORD_CONFIG, new String(Base64.encode(
+                            userCredentials.getPasswordAsString().getBytes())));
+            }
             InputStream in = uc.getInputStream();
 
             // Chain a ProgressMonitorInputStream to the
@@ -450,7 +529,7 @@ public class UpdateCheckActivator
                                 "plugin.updatechecker.DIALOG_TITLE"),
                             PopupDialog.YES_NO_OPTION,
                             PopupDialog.QUESTION_MESSAGE
-                            ) == PopupDialog.CANCEL_OPTION)
+                            ) != PopupDialog.YES_OPTION)
                         {
                             return;
                         }
@@ -476,7 +555,16 @@ public class UpdateCheckActivator
                 }
             }).start();
 
-        } catch (Exception e)
+        }
+        catch(FileNotFoundException e)
+        {
+            getUIService().getPopupDialog().showMessagePopupDialog(
+                getResources().getI18NString("plugin.updatechecker.DIALOG_MISSING_UPDATE"),
+                getResources().getI18NString("plugin.updatechecker.DIALOG_NOUPDATE_TITLE"),
+                PopupDialog.INFORMATION_MESSAGE);
+            tempF.delete();
+        }
+        catch (Exception e)
         {
             logger.info("Error starting update process!", e);
             tempF.delete();
@@ -497,6 +585,66 @@ public class UpdateCheckActivator
         }
         else
             windowsUpdaterShow();
+    }
+
+    /**
+     * Installs Dummy TrustManager will not try to validate self-signed certs.
+     * Fix some problems with not proper use of certs.
+     */
+    private static void removeDownloadRestrictions()
+    {
+        try
+        {
+            SSLContext sc = SSLContext.getInstance("SSLv3");
+            TrustManager[] tma = {new DummyTrustManager()};
+            sc.init(null, tma, null);
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+        }
+        catch (Exception e)
+        {
+            logger.warn("Failed to init dummy trust magaer", e);
+        }
+
+        HostnameVerifier hv = new HostnameVerifier()
+        {
+            public boolean verify(String urlHostName, SSLSession session)
+            {
+                logger.warn("Warning: URL Host: " + urlHostName +
+                        " vs. " + session.getPeerHost());
+                return true;
+            }
+        };
+        HttpsURLConnection.setDefaultHostnameVerifier(hv);
+
+        Authenticator.setDefault(new Authenticator()
+        {
+            protected PasswordAuthentication getPasswordAuthentication()
+            {
+                // if there is something save return it
+                String uName = (String)getConfigurationService().
+                        getProperty(UPDATE_USERNAME_CONFIG);
+                if(uName != null)
+                {
+                    String pass = (String)getConfigurationService().
+                            getProperty(UPDATE_PASSWORD_CONFIG);
+
+                    if(pass != null)
+                        return new PasswordAuthentication(uName,
+                            new String(Base64.decode(pass)).toCharArray());
+                }
+
+                if(userCredentials != null)
+                {
+                    return new PasswordAuthentication(
+                        userCredentials.getUserName(),
+                        userCredentials.getPassword());
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        });
     }
 
     /**
@@ -561,6 +709,29 @@ public class UpdateCheckActivator
         public boolean isNativeComponent()
         {
             return false;
+        }
+    }
+
+    /**
+     * Dummy trust manager, trusts everything.
+     */
+    private static class DummyTrustManager
+        implements X509TrustManager
+    {
+
+        public void checkClientTrusted(X509Certificate[] arg0, String arg1)
+            throws CertificateException
+        {
+        }
+
+        public void checkServerTrusted(X509Certificate[] arg0, String arg1)
+            throws CertificateException
+        {
+        }
+
+        public X509Certificate[] getAcceptedIssuers()
+        {
+            return null;
         }
     }
 }
