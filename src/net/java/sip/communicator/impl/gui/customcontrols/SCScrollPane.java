@@ -32,7 +32,6 @@ public class SCScrollPane
     {
 	    this.setBorder(BorderFactory.createMatteBorder(
             1, 0, 1, 0, Color.GRAY));
-        this.setOpaque(false);
 
         this.setViewport(new SCViewport());
 
