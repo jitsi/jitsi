@@ -45,8 +45,8 @@ public class FileMenu extends SIPCommMenu
      * Creates an instance of <tt>FileMenu</tt>.
      * @param parentWindow The parent <tt>ChatWindow</tt>.
      */
-    public FileMenu(ChatWindow parentWindow) {
-
+    public FileMenu(ChatWindow parentWindow)
+    {
         super(GuiActivator.getResources().getI18NString("service.gui.FILE"));
 
         this.setOpaque(false);
@@ -126,7 +126,7 @@ public class FileMenu extends SIPCommMenu
                     .addHistoryWindowForContact(chatSession.getDescriptor(), history);
             }
         }
-        else if (itemText.equalsIgnoreCase("service.gui.CLOSE"))
+        else if (itemText.equalsIgnoreCase("close"))
         {
             this.parentWindow.setVisible(false);
             this.parentWindow.dispose();
