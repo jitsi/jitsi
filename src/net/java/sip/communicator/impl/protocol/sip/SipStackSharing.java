@@ -344,10 +344,16 @@ public class SipStackSharing
             this.clearJainSipProvider = null;
 
             Iterator<ListeningPoint> it = this.stack.getListeningPoints();
+            Vector<ListeningPoint> lpointsToRemove = new Vector<ListeningPoint>();
             while(it.hasNext())
             {
+                lpointsToRemove.add(it.next());
+            }
+
+            it = lpointsToRemove.iterator();
+            while (it.hasNext())
+            {
                 this.stack.deleteListeningPoint(it.next());
-                it = this.stack.getListeningPoints();
             }
 
             this.stack.stop();
