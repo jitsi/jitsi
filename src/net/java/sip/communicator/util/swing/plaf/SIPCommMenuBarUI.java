@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.lookandfeel;
+package net.java.sip.communicator.util.swing.plaf;
 
 import javax.swing.*;
 import javax.swing.plaf.*;

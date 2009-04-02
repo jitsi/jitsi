@@ -8,6 +8,7 @@ package net.java.sip.communicator.util.swing;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.util.swing.plaf.*;
 /**
  * The SIPCommMenuBar is a <tt>JMenuBar</tt> without border decoration that can
  * be used as a container for other components, like selector boxes that won't
@@ -20,6 +21,7 @@ public class SIPCommMenuBar
 {
     public SIPCommMenuBar()
     {
-        this.setBorder(null);
+        this.setBorder(BorderFactory.createEmptyBorder());
+        this.setUI(new SIPCommMenuBarUI());
     }
 }

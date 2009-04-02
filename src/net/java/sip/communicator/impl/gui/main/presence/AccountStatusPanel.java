@@ -42,7 +42,7 @@ public class AccountStatusPanel
 
     private final TexturePaint texture = new TexturePaint(bgImage, rect);
 
-    private JMenuBar statusMenuBar = new JMenuBar();
+    private SIPCommMenuBar statusMenuBar = new SIPCommMenuBar();
 
     private GlobalStatusSelectorBox statusComboBox;
 
@@ -73,11 +73,9 @@ public class AccountStatusPanel
             this.setUI(new SIPCommOpaquePanelUI());
 
         this.accountNameLabel.setOpaque(false);
-        this.statusMenuBar.setOpaque(false);
 
         // Align status combo box with account name field.
         statusMenuBar.setLayout(new BorderLayout(0, 0));
-        statusMenuBar.setUI(new SIPCommMenuBarUI());
         statusComboBox.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
         accountNameLabel.setFont(

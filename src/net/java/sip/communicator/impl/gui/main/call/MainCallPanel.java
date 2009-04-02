@@ -65,7 +65,7 @@ public class MainCallPanel
         = new TransparentPanel(new BorderLayout());
 
     private TransparentPanel callViaPanel
-        = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT, 0, 4));
+        = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT, 0, 2));
 
     private AccountSelectorBox accountSelectorBox = new AccountSelectorBox(this);
 

@@ -91,6 +91,16 @@ public class SIPCommMenu
     }
 
     /**
+     * Returns the currently selected item.
+     * 
+     * @return the currently selected item.
+     */
+    public SelectedObject getSelected()
+    {
+        return new SelectedObject(getText(), getIcon(), getSelectedObject());
+    }
+
+    /**
      * Selects the given object.
      * 
      * @param o The <tt>Object</tt> to select.

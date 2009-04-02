@@ -187,7 +187,8 @@ public class AccountSelectorBox
      */
     public void setSelected(ProtocolProviderService pps)
     {
-        this.setSelected(pps, new ImageIcon(ImageLoader.getAccountStatusImage(pps)));
+        this.setSelected(pps,
+            new ImageIcon(ImageLoader.getAccountStatusImage(pps)));
     }
 
     /**

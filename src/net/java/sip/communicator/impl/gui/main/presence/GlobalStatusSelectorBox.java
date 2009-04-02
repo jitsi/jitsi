@@ -98,7 +98,6 @@ public class GlobalStatusSelectorBox
         this.mainFrame = mainFrame;
 
         this.setUI(new SIPCommStatusMenuUI());
-        this.setBorder(null);
         this.setOpaque(false);
 
         this.setText("Offline");
@@ -732,7 +731,8 @@ public class GlobalStatusSelectorBox
 
         String prefix = "net.java.sip.communicator.impl.gui.accounts";
 
-        List<String> accounts = configService.getPropertyNamesByPrefix(prefix, true);
+        List<String> accounts
+            = configService.getPropertyNamesByPrefix(prefix, true);
 
         for (String accountRootPropName : accounts)
         {
@@ -766,9 +766,13 @@ public class GlobalStatusSelectorBox
         {
             AntialiasingManager.activateAntialiasing(g);
 
-            g.drawImage(arrowImage, this.getWidth() - arrowImage.getWidth(null)
-                - IMAGE_INDENT,
-                (this.getHeight() - arrowImage.getHeight(null)) / 2, null);
+            SelectedObject selected = (SelectedObject) this.getSelected();
+
+            int stringWidth = SwingUtilities.computeStringWidth(
+                this.getFontMetrics(this.getFont()), selected.getText());
+
+            g.drawImage(arrowImage, stringWidth + 2*IMAGE_INDENT + 2,
+                (this.getHeight() - arrowImage.getHeight(null)) / 2 + 3, null);
         }
         finally
         {
