@@ -32,7 +32,7 @@ public class ChatWindowManager
     private final Object syncChat = new Object();
 
     /**
-     * Opens a the specified chatPanel and brings it to the front if so
+     * Opens the specified chatPanel and brings it to the front if so
      * specified.
      *
      * @param chatPanel the chat panel that we will be opening

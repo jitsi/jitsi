@@ -21,7 +21,6 @@ import net.java.sip.communicator.impl.gui.main.chat.toolBars.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
@@ -54,7 +53,7 @@ public class ChatWindow
 {
     private final Logger logger = Logger.getLogger(ChatWindow.class);
 
-    private SIPCommTabbedPane chatTabbedPane = null;
+    private ChatTabbedPane chatTabbedPane = null;
 
     private int chatCount = 0;
 
@@ -98,7 +97,7 @@ public class ChatWindow
         //If in mode TABBED_CHAT_WINDOW initialize the tabbed pane
         if(ConfigurationManager.isMultiChatWindowEnabled())
         {
-            chatTabbedPane = new SIPCommTabbedPane(true, false);
+            chatTabbedPane = new ChatTabbedPane();
 
             chatTabbedPane.addCloseListener(new CloseListener()
             {
@@ -498,8 +497,12 @@ public class ChatWindow
      */
     public void highlightTab(ChatPanel chatPanel)
     {
-        this.chatTabbedPane.highlightTab(
-            chatTabbedPane.indexOfComponent(chatPanel));
+        int tabIndex = chatTabbedPane.indexOfComponent(chatPanel);
+
+        chatPanel.unreadMessageNumber ++;
+
+        this.chatTabbedPane
+            .highlightTab(tabIndex, chatPanel.getUnreadMessageNumber());
     }
 
     /**

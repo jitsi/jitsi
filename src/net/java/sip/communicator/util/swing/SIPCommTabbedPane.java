@@ -424,7 +424,8 @@ public class SIPCommTabbedPane
      */
     public void setSelectedIndex(int tabIndex)
     {
-        SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) this.getUI();
+        SIPCommTabbedPaneEnhancedUI ui
+            = (SIPCommTabbedPaneEnhancedUI) this.getUI();
         if (ui.isTabHighlighted(tabIndex))
         {
             ui.tabRemoveHighlight(tabIndex);
@@ -439,7 +440,8 @@ public class SIPCommTabbedPane
      */
     public void highlightTab(int tabIndex)
     {
-        SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) this.getUI();
+        SIPCommTabbedPaneEnhancedUI ui
+            = (SIPCommTabbedPaneEnhancedUI) this.getUI();
 
         if (!ui.isTabHighlighted(tabIndex)
                 && this.getSelectedIndex() != tabIndex)
@@ -447,7 +449,7 @@ public class SIPCommTabbedPane
 
         this.repaint();
     }
-    
+
     public void removeTabAt(int index)
     {
         if (index < lastSelectedIndex)
@@ -461,7 +463,7 @@ public class SIPCommTabbedPane
         
         super.removeTabAt(index);
     }
-    
+
     public void stateChanged(ChangeEvent e)
     {
         lastSelectedIndex = this.getSelectedIndex();

@@ -111,9 +111,6 @@ public class SIPCommTabbedPaneUI
 
     protected JMenuItem closeItem;
 
-    protected final java.util.List<Integer> highlightedTabs
-        = new Vector<Integer>();
-
     public SIPCommTabbedPaneUI()
     {
         //closeImgB = UtilActivator.getImage(CLOSE_TAB_SELECTED_ICON);
@@ -1725,36 +1722,11 @@ public class SIPCommTabbedPaneUI
         }
     }
 
-    public void tabAddHightlight(int tabIndex)
-    {
-        this.highlightedTabs.add(tabIndex);
-    }
-
-    public void tabRemoveHighlight(int tabIndex)
-    {
-        Iterator<Integer> highlightedIter = highlightedTabs.iterator();
-
-        while (highlightedIter.hasNext())
-        {
-            if (highlightedIter.next().intValue() == tabIndex)
-            {
-                highlightedIter.remove();
-                break;
-            }
-        }
-    }
-
-    public boolean isTabHighlighted(int tabIndex)
-    {
-        return highlightedTabs.contains(tabIndex);
-    }
-
     /**
      * We don't want to have a content border.
      */
     protected void paintContentBorder(  Graphics g,
                                         int tabPlacement,
                                         int selectedIndex)
-    {
-    }
+    {}
 }

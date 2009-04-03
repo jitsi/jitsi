@@ -14,6 +14,7 @@ package net.java.sip.communicator.util.swing.plaf;
 
 import java.awt.*;
 import java.awt.image.*;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.plaf.*;
@@ -83,25 +84,27 @@ public class SIPCommTabbedPaneEnhancedUI
     private static final String TAB_RIGHT_BG =
         "service.gui.lookandfeel.TAB_RIGHT_BG";
 
-    public static ComponentUI createUI(JComponent c) {
+    protected final java.util.List<Integer> highlightedTabs
+        = new Vector<Integer>();
+
+    public static ComponentUI createUI(JComponent c)
+    {
         return new SIPCommTabbedPaneEnhancedUI();
     }
 
     protected void paintFocusIndicator(Graphics g, int tabPlacement,
             Rectangle[] rects, int tabIndex, Rectangle iconRect,
-            Rectangle textRect, boolean isSelected) {
-    }
+            Rectangle textRect, boolean isSelected) {}
 
     /**
      * Overriden to paint nothing.
      */
     protected void paintTabBorder(Graphics g, int tabPlacement, int tabIndex,
-            int x, int y, int w, int h, boolean isSelected) {
-    }
+            int x, int y, int w, int h, boolean isSelected) {}
 
     protected void paintContentBorderTopEdge(Graphics g, int tabPlacement,
-            int selectedIndex, int x, int y, int w, int h) {
-
+            int selectedIndex, int x, int y, int w, int h)
+    {
         if (tabPane.getTabCount() < 1)
             return;
 
@@ -110,8 +113,8 @@ public class SIPCommTabbedPaneEnhancedUI
     }
 
     protected void paintContentBorderLeftEdge(Graphics g, int tabPlacement,
-            int selectedIndex, int x, int y, int w, int h) {
-
+            int selectedIndex, int x, int y, int w, int h)
+    {
         if (tabPane.getTabCount() < 1)
             return;
 
@@ -121,8 +124,8 @@ public class SIPCommTabbedPaneEnhancedUI
     }
 
     protected void paintContentBorderBottomEdge(Graphics g, int tabPlacement,
-            int selectedIndex, int x, int y, int w, int h) {
-
+            int selectedIndex, int x, int y, int w, int h)
+    {
         if (tabPane.getTabCount() < 1)
             return;
 
@@ -135,8 +138,8 @@ public class SIPCommTabbedPaneEnhancedUI
     }
 
     protected void paintContentBorderRightEdge(Graphics g, int tabPlacement,
-            int selectedIndex, int x, int y, int w, int h) {
-
+            int selectedIndex, int x, int y, int w, int h)
+    {
         if (tabPane.getTabCount() < 1)
             return;
 
@@ -170,13 +173,13 @@ public class SIPCommTabbedPaneEnhancedUI
         BufferedImage leftImg = null;
         BufferedImage middleImg = null;
         BufferedImage rightImg = null;
-        
+
         Graphics2D g2 = (Graphics2D) g;
 
         AntialiasingManager.activateAntialiasing(g2);
-      
+
         int tabOverlap = 0;
-        
+
         if (isSelected)
         {
             if (tabPane.isEnabledAt(tabIndex))
@@ -210,8 +213,8 @@ public class SIPCommTabbedPaneEnhancedUI
 
     protected void paintText(Graphics g, int tabPlacement, Font font,
             FontMetrics metrics, int tabIndex, String title,
-            Rectangle textRect, boolean isSelected) {
-
+            Rectangle textRect, boolean isSelected)
+    {
         g.setFont(font);
 
         int titleWidth = SwingUtilities.computeStringWidth(metrics, title);
@@ -220,18 +223,20 @@ public class SIPCommTabbedPaneEnhancedUI
         if (isOneActionButtonEnabled()) {
             preferredWidth = calculateTabWidth(tabPlacement, tabIndex, metrics)
                 - WIDTHDELTA - 15;
-            
+
             if (isCloseEnabled())
                 preferredWidth -= BUTTONSIZE;
 
             if (isMaxEnabled())
                 preferredWidth -= BUTTONSIZE;
         }
-        else {
+        else
+        {
             preferredWidth = titleWidth;
         }
 
-        while (titleWidth > preferredWidth) {
+        while (titleWidth > preferredWidth)
+        {
             if (title.endsWith("..."))
                 title = title.substring(0, title.indexOf("...") - 1)
                         .concat("...");
@@ -245,29 +250,37 @@ public class SIPCommTabbedPaneEnhancedUI
         textRect.width = titleWidth;
 
         View v = getTextViewForTab(tabIndex);
-        if (v != null) {
+        if (v != null)
+        {
             // html
             v.paint(g, textRect);
-        } else {
+        }
+        else
+        {
             // plain text
             int mnemIndex = tabPane.getDisplayedMnemonicIndexAt(tabIndex);
 
-            if (tabPane.isEnabled() && tabPane.isEnabledAt(tabIndex)) {
+            if (tabPane.isEnabled() && tabPane.isEnabledAt(tabIndex))
+            {
                 if (isSelected)
                     g.setColor(whiteColor);
-                else {
-                    if (this.isTabHighlighted(tabIndex)) {
-                        g.setColor(
-                            UIManager.getColor("TabbedPane.tabTitleHighlight"));
-                    } else
+                else
+                {
+                    if (this.isTabHighlighted(tabIndex))
+                    {
+                        g.setColor(new Color(UtilActivator.getResources()
+                            .getColor("service.gui.TAB_TITLE_HIGHLIGHT")));
+                    }
+                    else
                         g.setColor(tabPane.getForegroundAt(tabIndex));
                 }
 
                 BasicGraphicsUtils
-                        .drawStringUnderlineCharAt(g, title, mnemIndex,
+                        .drawString(g, title, mnemIndex,
                                 textRect.x, textRect.y + metrics.getAscent());
-
-            } else { // tab disabled
+            }
+            else
+            { // tab disabled
                 g.setColor(tabPane.getBackgroundAt(tabIndex).brighter());
                 BasicGraphicsUtils
                         .drawStringUnderlineCharAt(g, title, mnemIndex,
@@ -282,18 +295,21 @@ public class SIPCommTabbedPaneEnhancedUI
     }
 
     protected class ScrollableTabButton extends
-            SIPCommTabbedPaneUI.ScrollableTabButton {
-
-        public ScrollableTabButton(int direction) {
+            SIPCommTabbedPaneUI.ScrollableTabButton
+    {
+        public ScrollableTabButton(int direction)
+        {
             super(direction);
             setRolloverEnabled(true);
         }
 
-        public Dimension getPreferredSize() {
+        public Dimension getPreferredSize()
+        {
             return new Dimension(16, calculateMaxTabHeight(0));
         }
 
-        public void paint(Graphics g) {
+        public void paint(Graphics g)
+        {
             Color origColor;
             boolean isPressed, isRollOver, isEnabled;
             int w, h, size;
@@ -377,22 +393,48 @@ public class SIPCommTabbedPaneEnhancedUI
     }
 
     protected SIPCommTabbedPaneUI.ScrollableTabButton createScrollableTabButton(
-            int direction) {
+            int direction)
+    {
         return new ScrollableTabButton(direction);
     }
 
     
     protected int calculateTabWidth(int tabPlacement, int tabIndex,
-            FontMetrics metrics) {
-        
+            FontMetrics metrics)
+    {
         int width = super.calculateTabWidth(tabPlacement, tabIndex, metrics);
-        
+
         if (isOneActionButtonEnabled())
         {
             if(width > PREFERRED_WIDTH)
                 width = PREFERRED_WIDTH;
         }
-        
+
         return width + WIDTHDELTA;
-    }   
+    }
+
+    public void tabAddHightlight(int tabIndex)
+    {
+        this.highlightedTabs.add(tabIndex);
+    }
+
+    public void tabRemoveHighlight(int tabIndex)
+    {
+        Iterator<Integer> highlightedIter = highlightedTabs.iterator();
+
+        while (highlightedIter.hasNext())
+        {
+            if (highlightedIter.next().intValue() == tabIndex)
+            {
+                highlightedIter.remove();
+                break;
+            }
+        }
+    }
+
+    public boolean isTabHighlighted(int tabIndex)
+    {
+        return highlightedTabs.contains(tabIndex);
+    }
+
 }
