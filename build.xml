@@ -42,6 +42,7 @@
     <property name="inst.resrc" value="${sc.basedir}/resources/install"/>
     <property name="path" value="${lib}/native/windows;${system.PATH}"/>
     <property name='j2se_api' value='http://java.sun.com/j2se/1.5/docs/api' />
+    <property name='maxwarns' value='101' />
 
     <!-- set the build label property and make it take the cc bild into account -->
     <condition property="build.label"
@@ -232,7 +233,7 @@
                 <src path="${src2}"/>
                 <include name="**/*.java" />
                 <exclude name="net/java/sip/communicator/launcher/*.java" />
-                <compilerarg value="-Xlint"/>
+                <compilerarg line="-Xlint -Xmaxwarns ${maxwarns}"/>
         </javac>
         <!--
             sc-launcher.jar needs to be compatible with 1.4 in order to enable
@@ -244,7 +245,7 @@
                 <src path="${src}"/>
                 <src path="${src2}"/>
                 <include name="net/java/sip/communicator/launcher/*.java" />
-                <compilerarg value="-Xlint"/>
+                <compilerarg line="-Xlint -Xmaxwarns ${maxwarns}"/>
         </javac>
     </target>
 

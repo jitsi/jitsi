@@ -152,7 +152,7 @@ public class ChatWindow
 
         this.setKeybindingInput(KeybindingSet.Category.CHAT);
         this.addKeybindingAction(   "plugin.keybindings.CHAT_NEXT_TAB",
-                                    new ForwordTabAction());
+                                    new ForwardTabAction());
         this.addKeybindingAction(   "plugin.keybindings.CHAT_PREVIOUS_TAB",
                                     new BackwordTabAction());
         this.addKeybindingAction(   "plugin.keybindings.CHAT_COPY",
@@ -531,11 +531,11 @@ public class ChatWindow
     }
 
     /**
-     * The <tt>ForwordTabAction</tt> is an <tt>AbstractAction</tt> that
+     * The <tt>ForwardTabAction</tt> is an <tt>AbstractAction</tt> that
      * changes the currently selected tab with the next one. Each time when the
      * last tab index is reached the first one is selected.
      */
-    private class ForwordTabAction
+    private class ForwardTabAction
         extends AbstractAction
     {
         public void actionPerformed(ActionEvent e)
