@@ -140,7 +140,7 @@ public class GeneralConfigurationPanel
                     });
                 }
                 {
-                    SpinnerNumberModel historySizeSpinnerModel = 
+                    SpinnerNumberModel historySizeSpinnerModel =
                         new SpinnerNumberModel(0, 0, 100, 1);
                     historySizeSpinner = new JSpinner();
                     logHistoryPanel.add(historySizeSpinner);
@@ -184,7 +184,7 @@ public class GeneralConfigurationPanel
                         Resources.getString("plugin.generalconfig.SEND_MESSAGES_WITH"));
                 }
                 {
-                    ComboBoxModel sendMessageComboBoxModel = 
+                    ComboBoxModel sendMessageComboBoxModel =
                         new DefaultComboBoxModel(
                             new String[] {
                                 ConfigurationManager.ENTER_COMMAND,
@@ -266,7 +266,7 @@ public class GeneralConfigurationPanel
                             notifConfigComboBox.addItem(handler);
 
                             String handlerName = handler.getClass().getName();
-                            
+
                             if (handlerName.equals(currentConfig))
                                 notifConfigComboBox.setSelectedItem(handler);
                         }
@@ -281,7 +281,7 @@ public class GeneralConfigurationPanel
 
                                 ConfigurationManager.setPopupHandlerConfig(
                                     handler.getClass().getName());
-                                
+
                                 GeneralConfigPluginActivator.getSystrayService()
                                     .setActivePopupMessageHandler(handler);
                             }
@@ -310,30 +310,16 @@ public class GeneralConfigurationPanel
                 }
                 {
                     localesConfigComboBox = new JComboBox();
-                    localesConfigComboBox.setRenderer(new LocalesRenderer());
 
                     Iterator<Locale> iter =
                             Resources.getResources().getAvailableLocales();
                     while (iter.hasNext())
                     {
                         Locale locale = iter.next();
-                        localesConfigComboBox.addItem(locale);
+                        localesConfigComboBox.addItem(locale.getDisplayLanguage());
                     }
                     localesConfigComboBox.setSelectedItem(
-                        ConfigurationManager.getCurrentLanguage());
-
-                    // Find the selected Item by comparing the language
-                    Locale curr = ConfigurationManager.getCurrentLanguage();
-                    iter = Resources.getResources().getAvailableLocales();
-                    while (iter.hasNext())
-                    {
-                        Locale locale = iter.next();
-                        if(locale.getLanguage().equals(curr.getLanguage()))
-                        {
-                            localesConfigComboBox.setSelectedItem(locale);
-                            break;
-                        }
-                    }
+                        ConfigurationManager.getCurrentLanguage().getDisplayLanguage());
 
                     localesConfigComboBox.addActionListener(new ActionListener()
                     {
@@ -343,8 +329,19 @@ public class GeneralConfigurationPanel
                                 showMessagePopupDialog(Resources.getString(
                                 "plugin.generalconfig.DEFAULT_LANGUAGE_RESTART_WARN"));
 
-                            ConfigurationManager.setLanguage(
-                                (Locale)localesConfigComboBox.getSelectedItem());
+                            String language =
+                                    (String)localesConfigComboBox.getSelectedItem();
+                            Iterator<Locale> iter =
+                                Resources.getResources().getAvailableLocales();
+                            while (iter.hasNext())
+                            {
+                                Locale locale = iter.next();
+                                if(locale.getDisplayLanguage().equals(language))
+                                {
+                                    ConfigurationManager.setLanguage(locale);
+                                    break;
+                                }
+                            }
                         }
                     });
                     localeConfigPanel.add(
@@ -451,10 +448,10 @@ public class GeneralConfigurationPanel
     public void actionPerformed(ActionEvent event)
     {
         Object sourceObject = event.getSource();
-        
+
         if (sourceObject.equals(autoStartCheckBox))
         {
-            try 
+            try
             {
                 String workingDir = new File(".").getCanonicalPath();
 
@@ -469,17 +466,17 @@ public class GeneralConfigurationPanel
                 shortcut.setShowCommand(ShellLink.MINNOACTIVE);
                 shortcut.setTargetPath(workingDir + File.separator + "run.exe");
                 shortcut.setWorkingDirectory(workingDir);
-                
-                String f1 = shortcut.getcurrentUserLinkPath() + 
+
+                String f1 = shortcut.getcurrentUserLinkPath() +
                         File.separator + appName + ".lnk";
-            
+
                 String f2 = f1.replaceAll(
-                        System.getProperty("user.name"), 
+                        System.getProperty("user.name"),
                         "All Users");
 
                 if(autoStartCheckBox.isSelected())
                 {
-                    if(!new File(f1).exists() && 
+                    if(!new File(f1).exists() &&
                        !new File(f2).exists())
                     shortcut.save();
                 }
@@ -489,10 +486,10 @@ public class GeneralConfigurationPanel
                     try {
                         isFileDeleted = new File(f1).delete();
                     } catch (Exception e) {}
-                    
+
                     try {
                         new File(f2).delete();
-                    } catch (Exception e) 
+                    } catch (Exception e)
                     {
                         if(!isFileDeleted)
                             GeneralConfigPluginActivator.getUIService().
@@ -504,7 +501,7 @@ public class GeneralConfigurationPanel
                         // cannot delete no permissions
                     }
                 }
-            } catch (Exception e) 
+            } catch (Exception e)
             {
                 logger.error("Cannot create/delete startup shortcut", e);
             }
@@ -538,21 +535,21 @@ public class GeneralConfigurationPanel
 
     private void initAutoStartCheckBox()
     {
-        try 
+        try
         {
             String appName = getApplicationName();
 
-            ShellLink shortcut = 
+            ShellLink shortcut =
                 new ShellLink(
-                    ShellLink.STARTUP, 
+                    ShellLink.STARTUP,
                     appName);
             shortcut.setUserType(ShellLink.CURRENT_USER);
 
-            String f1 = shortcut.getcurrentUserLinkPath() + 
+            String f1 = shortcut.getcurrentUserLinkPath() +
                         File.separator + appName + ".lnk";
 
             String f2 = f1.replaceAll(
-                    System.getProperty("user.name"), 
+                    System.getProperty("user.name"),
                     "All Users");
 
             if(new File(f1).exists() || new File(f2).exists())
@@ -560,41 +557,9 @@ public class GeneralConfigurationPanel
             else
                 autoStartCheckBox.setSelected(false);
         }
-        catch (Exception e) 
+        catch (Exception e)
         {
             logger.error(e);
-        }
-    }
-
-    private static class LocalesRenderer
-        extends JLabel implements ListCellRenderer
-    {
-        public LocalesRenderer()
-        {
-            setOpaque(true);
-        }
-
-        public Component getListCellRendererComponent(
-                                       JList list,
-                                       Object value,
-                                       int index,
-                                       boolean isSelected,
-                                       boolean cellHasFocus)
-        {
-            if (isSelected)
-            {
-                setBackground(list.getSelectionBackground());
-                setForeground(list.getSelectionForeground());
-            } else
-            {
-                setBackground(list.getBackground());
-                setForeground(list.getForeground());
-            }
-
-            setText(((Locale)value).getDisplayLanguage());
-            setFont(list.getFont());
-
-            return this;
         }
     }
 
