@@ -33,13 +33,14 @@ import org.osgi.framework.*;
 
 /**
  * Activates the UpdateCheck plugin
+ * 
  * @author Damian Minkov
-**/
+ */
 public class UpdateCheckActivator
     implements BundleActivator
 {
-
-    private static Logger logger = Logger.getLogger(UpdateCheckActivator.class);
+    private static final Logger logger
+        = Logger.getLogger(UpdateCheckActivator.class);
 
     private static BundleContext bundleContext = null;
 
@@ -93,12 +94,12 @@ public class UpdateCheckActivator
             Hashtable<String, String> toolsMenuFilter
                 = new Hashtable<String, String>();
             toolsMenuFilter.put( Container.CONTAINER_ID,
-                                 Container.CONTAINER_TOOLS_MENU.getID());
+                                 Container.CONTAINER_HELP_MENU.getID());
 
             bundleContext.registerService(
                 PluginComponent.class.getName(),
                 new UpdateMenuButtonComponent(
-                    Container.CONTAINER_TOOLS_MENU),
+                    Container.CONTAINER_HELP_MENU),
                 toolsMenuFilter);
         }
 
@@ -183,11 +184,10 @@ public class UpdateCheckActivator
 
         dialog.pack();
 
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         dialog.setLocation(
-            Toolkit.getDefaultToolkit().getScreenSize().width/2
-                - dialog.getWidth()/2,
-            Toolkit.getDefaultToolkit().getScreenSize().height/2
-                - dialog.getHeight()/2
+            screenSize.width/2 - dialog.getWidth()/2,
+            screenSize.height/2 - dialog.getHeight()/2
         );
 
         dialog.setVisible(true);
@@ -326,7 +326,7 @@ public class UpdateCheckActivator
             logger.warn("Cannot get and compare versions!");
             logger.debug("Error was: ", e);
             // if we get an exception this mean we were unable to compare versions
-            // will retrun that current is newest to prevent opening info dialog
+            // will return that current is newest to prevent opening info dialog
             // about new version
             return true;
         }
@@ -442,7 +442,7 @@ public class UpdateCheckActivator
      * The update process itself.
      * - Downloads the installer in a temp directory.
      * - Warns that update will shutdown.
-     * - Trigers update (installer) in separate process with the help
+     * - Triggers update (installer) in separate process with the help
      * of update.exe and shutdowns.
      */
     private void windowsUpdate()
@@ -454,45 +454,51 @@ public class UpdateCheckActivator
             tempF = temp;
 
             URL u = new URL(downloadLink);
-            HttpURLConnection uc = (HttpURLConnection)u.openConnection();
+            URLConnection uc = u.openConnection();
 
-            if(uc.getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED)
+            if (uc instanceof HttpURLConnection)
             {
-                new Thread(new Runnable()
+                int responseCode = ((HttpURLConnection) uc).getResponseCode();
+
+                if(responseCode == HttpURLConnection.HTTP_UNAUTHORIZED)
                 {
-                    public void run()
+                    new Thread(new Runnable()
                     {
-                        ExportedWindow authWindow =
-                            getUIService().getExportedWindow(
-                                ExportedWindow.AUTHENTICATION_WINDOW);
-
-                        UserCredentials cred = new UserCredentials();
-                        authWindow.setParams(new Object[]{cred});
-                        authWindow.setVisible(true);
-
-                        userCredentials = cred;
-
-                        if(cred.getUserName() == null)
+                        public void run()
                         {
-                            userCredentials = null;
+                            ExportedWindow authWindow =
+                                getUIService().getExportedWindow(
+                                    ExportedWindow.AUTHENTICATION_WINDOW);
+
+                            UserCredentials cred = new UserCredentials();
+                            authWindow.setParams(new Object[]{cred});
+                            authWindow.setVisible(true);
+
+                            userCredentials = cred;
+
+                            if(cred.getUserName() == null)
+                            {
+                                userCredentials = null;
+                            }
+                            else
+                                windowsUpdate();
                         }
-                        else
-                            windowsUpdate();
-                    }
-                }).start();
-            }
-            else if(uc.getResponseCode() == HttpURLConnection.HTTP_OK
-                    && userCredentials != null
-                    && userCredentials.getUserName() != null
-                    && userCredentials.isPasswordPersistent())
-            {
-                // if save password is checked save the pass
-                getConfigurationService().setProperty(
+                    }).start();
+                }
+                else if(responseCode == HttpURLConnection.HTTP_OK
+                        && userCredentials != null
+                        && userCredentials.getUserName() != null
+                        && userCredentials.isPasswordPersistent())
+                {
+                    // if save password is checked save the pass
+                    getConfigurationService().setProperty(
                         UPDATE_USERNAME_CONFIG, userCredentials.getUserName());
-                getConfigurationService().setProperty(
+                    getConfigurationService().setProperty(
                         UPDATE_PASSWORD_CONFIG, new String(Base64.encode(
                             userCredentials.getPasswordAsString().getBytes())));
+                }
             }
+
             InputStream in = uc.getInputStream();
 
             // Chain a ProgressMonitorInputStream to the
@@ -536,10 +542,18 @@ public class UpdateCheckActivator
 
                         // file saved. Now start updater and shutdown.
                         String workingDir = System.getProperty("user.dir");
-                        new ProcessBuilder(
-                            new String[]{
-                                workingDir + File.separator + "updater.exe",
-                                temp.getCanonicalPath()}).start();
+                        ProcessBuilder processBuilder
+                            = new ProcessBuilder(
+                                new String[]
+                                {
+                                    workingDir + File.separator + "updater.exe",
+                                    temp.getCanonicalPath()
+                                });
+                        processBuilder.environment().put(
+                            "SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR",
+                            workingDir);
+                        processBuilder.start();
+
                         getUIService().beginShutdown();
 
                     } catch (Exception e)

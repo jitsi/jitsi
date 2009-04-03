@@ -186,8 +186,35 @@
   </Publish>
 
   <InstallUISequence>
-    <Show Dialog="CExitDialog" OnExit="success" />
-    <Show Dialog="CWelcomeDlg" Before="ProgressDlg">NOT Installed</Show>
+    <Show Dialog="CExitDialog" OnExit="success">
+      NOT (IS_AUTOUPDATE = 1)
+    </Show>
+    <Show Dialog="CWelcomeDlg" Before="ProgressDlg">
+      NOT Installed AND NOT (IS_AUTOUPDATE = 1)
+    </Show>
+
+    <Custom Action="SetIS_AUTOUPDATE" After="AppSearch">
+      <![CDATA[NOT Installed AND %SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR <> ""]]>
+    </Custom>
+    <Custom Action="SetINSTALLDIR" After="SetIS_AUTOUPDATE" />
+    <Custom Action="SetCREATE_DESKTOP_SHORTCUT" After="SetINSTALLDIR">
+      <![CDATA[(IS_AUTOUPDATE = 1) AND HAS_DESKTOP_SHORTCUT]]>
+    </Custom>
+    <Custom Action="UnsetCREATE_DESKTOP_SHORTCUT" After="SetINSTALLDIR">
+      <![CDATA[(IS_AUTOUPDATE = 1) AND NOT HAS_DESKTOP_SHORTCUT AND NOT (HAS_DESKTOP_SHORTCUT = "#1")]]>
+    </Custom>
+    <Custom Action="SetCREATE_START_MENU_SHORTCUT" After="SetINSTALLDIR">
+      <![CDATA[(IS_AUTOUPDATE = 1) AND HAS_START_MENU_SHORTCUT]]>
+    </Custom>
+    <Custom Action="UnsetCREATE_START_MENU_SHORTCUT" After="SetINSTALLDIR">
+      <![CDATA[(IS_AUTOUPDATE = 1) AND NOT HAS_START_MENU_SHORTCUT AND NOT (HAS_START_MENU_SHORTCUT = "#1")]]>
+    </Custom>
+    <Custom Action="SetCREATE_STARTUP_SHORTCUT" After="SetINSTALLDIR">
+      <![CDATA[(IS_AUTOUPDATE = 1) AND HAS_STARTUP_SHORTCUT]]>
+    </Custom>
+    <Custom Action="UnsetCREATE_STARTUP_SHORTCUT" After="SetINSTALLDIR">
+      <![CDATA[(IS_AUTOUPDATE = 1) AND NOT HAS_STARTUP_SHORTCUT AND NOT (HAS_STARTUP_SHORTCUT = "#1")]]>
+    </Custom>
 
     <Custom Action="SetWIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" After="AppSearch">
       <![CDATA[JRE_VERSION < "1.5" AND NOT Installed]]>
@@ -195,7 +222,9 @@
   </InstallUISequence>
 
   <AdminUISequence>
-    <Show Dialog="CExitDialog" OnExit="success" />
+    <Show Dialog="CExitDialog" OnExit="success">
+      NOT (IS_AUTOUPDATE = 1)
+    </Show>
   </AdminUISequence>
 </UI>
 
@@ -210,18 +239,97 @@
     DllEntry="WixShellExec"
     Impersonate="yes" />
 <CustomAction
+    Id="SetCREATE_DESKTOP_SHORTCUT"
+    Property="CREATE_DESKTOP_SHORTCUT"
+    Value="1" />
+<CustomAction
+    Id="SetCREATE_START_MENU_SHORTCUT"
+    Property="CREATE_START_MENU_SHORTCUT"
+    Value="1" />
+<CustomAction
+    Id="SetCREATE_STARTUP_SHORTCUT"
+    Property="CREATE_STARTUP_SHORTCUT"
+    Value="1" />
+<CustomAction
+    Id="SetINSTALLDIR"
+    Property="INSTALLDIR"
+    Value="[%SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR]" />
+<CustomAction
+    Id="SetIS_AUTOUPDATE"
+    Property="IS_AUTOUPDATE"
+    Value="1" />
+<CustomAction
     Id="SetWIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT"
     Property="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT"
     Value="Install Java(TM) SE Runtime Environment" />
+<CustomAction
+    Id="UnsetCREATE_DESKTOP_SHORTCUT"
+    Property="CREATE_DESKTOP_SHORTCUT"
+    Value="0" />
+<CustomAction
+    Id="UnsetCREATE_START_MENU_SHORTCUT"
+    Property="CREATE_START_MENU_SHORTCUT"
+    Value="0" />
+<CustomAction
+    Id="UnsetCREATE_STARTUP_SHORTCUT"
+    Property="CREATE_STARTUP_SHORTCUT"
+    Value="0" />
 
 <InstallExecuteSequence>
   <RemoveExistingProducts After="InstallFinalize" />
+
+  <Custom Action="SetIS_AUTOUPDATE" After="AppSearch">
+    <![CDATA[NOT Installed AND %SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR <> ""]]>
+  </Custom>
+  <Custom Action="SetINSTALLDIR" After="SetIS_AUTOUPDATE" />
+  <Custom Action="SetCREATE_DESKTOP_SHORTCUT" After="SetINSTALLDIR">
+    <![CDATA[(IS_AUTOUPDATE = 1) AND HAS_DESKTOP_SHORTCUT]]>
+  </Custom>
+  <Custom Action="UnsetCREATE_DESKTOP_SHORTCUT" After="SetINSTALLDIR">
+    <![CDATA[(IS_AUTOUPDATE = 1) AND NOT HAS_DESKTOP_SHORTCUT AND NOT (HAS_DESKTOP_SHORTCUT = "#1")]]>
+  </Custom>
+  <Custom Action="SetCREATE_START_MENU_SHORTCUT" After="SetINSTALLDIR">
+    <![CDATA[(IS_AUTOUPDATE = 1) AND HAS_START_MENU_SHORTCUT]]>
+  </Custom>
+  <Custom Action="UnsetCREATE_START_MENU_SHORTCUT" After="SetINSTALLDIR">
+    <![CDATA[(IS_AUTOUPDATE = 1) AND NOT HAS_START_MENU_SHORTCUT AND NOT (HAS_START_MENU_SHORTCUT = "#1")]]>
+  </Custom>
+  <Custom Action="SetCREATE_STARTUP_SHORTCUT" After="SetINSTALLDIR">
+    <![CDATA[(IS_AUTOUPDATE = 1) AND HAS_STARTUP_SHORTCUT]]>
+  </Custom>
+  <Custom Action="UnsetCREATE_STARTUP_SHORTCUT" After="SetINSTALLDIR">
+    <![CDATA[(IS_AUTOUPDATE = 1) AND NOT HAS_STARTUP_SHORTCUT AND NOT (HAS_STARTUP_SHORTCUT = "#1")]]>
+  </Custom>
 
   <Custom Action="SetWIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" After="AppSearch">
     <![CDATA[JRE_VERSION < "1.5" AND NOT Installed]]>
   </Custom>
 </InstallExecuteSequence>
 
+<Property Id="HAS_DESKTOP_SHORTCUT">
+  <RegistrySearch
+      Id="RegistrySearch_HasDesktopShortcut"
+      Key="Software\Microsoft\@APP_NAME@"
+      Name="DesktopShortcut"
+      Root="HKCU"
+      Type="raw" />
+</Property>
+<Property Id="HAS_START_MENU_SHORTCUT">
+  <RegistrySearch
+      Id="RegistrySearch_HasStartMenuShortcut"
+      Key="Software\Microsoft\@APP_NAME@"
+      Name="StartMenuShortcut"
+      Root="HKCU"
+      Type="raw" />
+</Property>
+<Property Id="HAS_STARTUP_SHORTCUT">
+  <RegistrySearch
+      Id="RegistrySearch_HasStartupShortcut"
+      Key="Software\Microsoft\@APP_NAME@"
+      Name="StartupShortcut"
+      Root="HKCU"
+      Type="raw" />
+</Property>
 <Property Id="JRE_VERSION">
   <RegistrySearch
       Id="RegistrySearch_JREVersion"
@@ -237,6 +345,7 @@
 <Property Id="CREATE_FEED_REGISTRY_ENTRIES" Value="1" />
 <Property Id="CREATE_SIP_REGISTRY_ENTRIES" Value="1" />
 <Property Id="CREATE_XMPP_REGISTRY_ENTRIES" Value="1" />
+<Property Id="IS_AUTOUPDATE" Value="0" Hidden="yes" />
 <Property Id="WixShellExecTarget" Value="[#run.exe]" />
 <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
 <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch @APP_NAME@" />
