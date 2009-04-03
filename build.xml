@@ -232,6 +232,7 @@
                 <src path="${src2}"/>
                 <include name="**/*.java" />
                 <exclude name="net/java/sip/communicator/launcher/*.java" />
+                <compilerarg value="-Xlint"/>
         </javac>
         <!--
             sc-launcher.jar needs to be compatible with 1.4 in order to enable
@@ -243,6 +244,7 @@
                 <src path="${src}"/>
                 <src path="${src2}"/>
                 <include name="net/java/sip/communicator/launcher/*.java" />
+                <compilerarg value="-Xlint"/>
         </javac>
     </target>
 
