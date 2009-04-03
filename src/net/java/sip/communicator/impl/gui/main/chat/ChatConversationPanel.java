@@ -61,17 +61,17 @@ public class ChatConversationPanel
 
     private final JSeparator copyLinkSeparator = new JSeparator();
 
-    /*
-     * Tooltip on hyperlinks - JDK 1.5+
-     * 
-     * private JPopupMenu linkPopup = new JPopupMenu();
-     * 
-     * private JTextArea hrefItem = new JTextArea();
-     * 
-     * private final int hrefPopupMaxWidth = 300; private final int
-     * hrefPopupInitialHeight = 20;
-     */
-	private long lastIncomingMsgTimestamp;
+    private final JPopupMenu urlPopup = new JPopupMenu();
+
+    private final JTextArea urlItem = new JTextArea();
+
+    private final static int urlPopupMaxWidth = 300;
+
+    private final static int urlPopupInitialHeight = 20;
+
+    private final static int urlPopupBorderSize = 3;
+
+    private long lastIncomingMsgTimestamp;
 
     private final boolean isHistory;
 
@@ -167,13 +167,18 @@ public class ChatConversationPanel
             GuiActivator.getResources().getI18nMnemonic(
                 "service.gui.COPY_LINK"));
 
-        /*
-         * Tooltip on hyperlinks - JDK 1.5+
-         * 
-         * this.hrefItem.setLineWrap(true); this.linkPopup.add(hrefItem);
-         * this.hrefItem.setSize(new Dimension(hrefPopupMaxWidth,
-         * hrefPopupInitialHeight));
-         */
+        // Initialize URL popup component.
+        this.urlItem.setLineWrap(true);
+        this.urlPopup.setLayout(new BorderLayout());
+        this.urlPopup.add(urlItem);
+        this.urlItem.setBorder(
+            BorderFactory.createEmptyBorder(urlPopupBorderSize,
+                                            urlPopupBorderSize,
+                                            urlPopupBorderSize,
+                                            urlPopupBorderSize));
+
+        this.urlItem.setSize(new Dimension(urlPopupMaxWidth,
+                                           urlPopupInitialHeight));
     }
 
     /**
@@ -764,32 +769,19 @@ public class ChatConversationPanel
         {
             String href = e.getDescription();
 
-            this.chatContainer.setStatusMessage(href);
-
             this.currentHref = href;
-            /*
-             * Tooltip on hyperlinks - JDK1.5+
-             * 
-             * int stringWidth = StringUtils.getStringWidth(hrefItem, href);
-             * 
-             * hrefItem.setText(href);
-             * 
-             * if (stringWidth < hrefPopupMaxWidth)
-             * hrefItem.setSize(stringWidth, hrefItem.getHeight()); else
-             * hrefItem.setSize(hrefPopupMaxWidth, hrefItem.getHeight());
-             * 
-             * linkPopup.setLocation(MouseInfo.getPointerInfo().getLocation());
-             * linkPopup.setVisible(true);
-             */
 
+            urlItem.setText(href);
+
+            urlPopup.setLocation(MouseInfo.getPointerInfo().getLocation());
+            urlPopup.pack();
+            urlPopup.setVisible(true);
         }
         else if (e.getEventType() == HyperlinkEvent.EventType.EXITED)
         {
-            this.chatContainer.setStatusMessage("");
             this.currentHref = "";
-            /*
-             * Tooltip on hyperlinks - JDK1.5+ linkPopup.setVisible(false);
-             */
+
+            urlPopup.setVisible(false);
         }
     }
 
