@@ -29,6 +29,8 @@ public class CallDialog
     implements ActionListener,
                MouseListener
 {
+    private static final long serialVersionUID = 1L;
+
     private static final String DIAL_BUTTON = "DIAL_BUTTON";
 
     private static final String HANGUP_BUTTON = "HANGUP_BUTTON";

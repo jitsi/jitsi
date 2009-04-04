@@ -40,6 +40,8 @@ public class ChatConversationPanel
                 MouseListener,
                 ClipboardOwner
 {
+    private static final long serialVersionUID = 1L;
+
     private static final Logger logger =
         Logger.getLogger(ChatConversationPanel.class);
 
@@ -602,10 +604,9 @@ public class ChatConversationPanel
         // new lines, but only the smilies.
         if (contentType == null || !contentType.equals(HTML_CONTENT_TYPE))
         {
-            String linkProcessedString = processLinks(message, contentType);
+            String linkProcessedString = processLinks(message);
 
-            processedString = processNewLines(linkProcessedString,
-                contentType);
+            processedString = processNewLines(linkProcessedString);
         }
         // If the message content is HTML, we process br and img tags.
         else if(contentType.equals(HTML_CONTENT_TYPE))
@@ -625,7 +626,7 @@ public class ChatConversationPanel
      * @param message The source message string.
      * @return The message string with properly formatted links.
      */
-    private String processLinks(String message, String contentType)
+    private String processLinks(String message)
     {
         String startPlainTextTag = "<PLAINTEXT>";
         String endPlainTextTag = "</PLAINTEXT>";
@@ -674,7 +675,7 @@ public class ChatConversationPanel
      * @param message The source message string.
      * @return The message string with properly formatted new lines.
      */
-    private String processNewLines(String message, String contentType)
+    private String processNewLines(String message)
     {
         String startPlainTextTag = "<PLAINTEXT>";
         String endPlainTextTag = "</PLAINTEXT>";

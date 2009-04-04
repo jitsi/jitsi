@@ -88,6 +88,7 @@ public class MuteButton
         implements ActionListener
     {
 
+        private static final long serialVersionUID = 1L;
         /**
          * The <tt>CallParticipant</tt> whose state is being adapted for the
          * purposes of depicting as a toggle button.

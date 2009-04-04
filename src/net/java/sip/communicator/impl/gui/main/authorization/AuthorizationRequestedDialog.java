@@ -26,6 +26,8 @@ public class AuthorizationRequestedDialog
     extends SIPCommDialog
     implements ActionListener {
     
+    private static final long serialVersionUID = 1L;
+
     public static final int ACCEPT_CODE = 0;
     
     public static final int REJECT_CODE = 1;

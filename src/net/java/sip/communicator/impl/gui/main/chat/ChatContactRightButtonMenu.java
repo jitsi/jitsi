@@ -30,6 +30,8 @@ public class ChatContactRightButtonMenu
     extends JPopupMenu
     implements  ActionListener
 {
+    private static final long serialVersionUID = 1L;
+
     private Logger logger = Logger.getLogger(ChatContactRightButtonMenu.class);
     
     private JMenuItem kickItem = new JMenuItem(
@@ -103,6 +105,8 @@ public class ChatContactRightButtonMenu
     
     private class ReasonDialog extends SIPCommDialog
     {
+        private static final long serialVersionUID = 1L;
+
         private JLabel iconLabel = new JLabel(new ImageIcon(
             ImageLoader.getImage(ImageLoader.REASON_DIALOG_ICON)));
         

@@ -23,6 +23,8 @@ import net.java.sip.communicator.impl.gui.utils.*;
  */
 class SIPCommSplitPaneDivider extends BasicSplitPaneDivider {
 
+    private static final long serialVersionUID = 1L;
+
     private final BufferedImage horizontalDivider 
         = ImageLoader.getImage(ImageLoader.SPLITPANE_HORIZONTAL);
     private final BufferedImage verticalDivider 
@@ -60,6 +62,8 @@ class SIPCommSplitPaneDivider extends BasicSplitPaneDivider {
     */
     protected JButton createLeftOneTouchButton() {
         JButton b = new JButton() {
+        private static final long serialVersionUID = 1L;
+
         // Sprite buffer for the arrow image of the left button
         int[][]     buffer = {{0, 0, 0, 2, 2, 0, 0, 0, 0},
                       {0, 0, 2, 1, 1, 1, 0, 0, 0},
@@ -152,6 +156,7 @@ class SIPCommSplitPaneDivider extends BasicSplitPaneDivider {
     */
     protected JButton createRightOneTouchButton() {
     JButton b = new JButton() {
+    private static final long serialVersionUID = 1L;
     // Sprite buffer for the arrow image of the right button
     int[][]     buffer = {{2, 2, 2, 2, 2, 2, 2, 2},
                   {0, 1, 1, 1, 1, 1, 1, 3},
@@ -306,11 +311,11 @@ class SIPCommSplitPaneDivider extends BasicSplitPaneDivider {
     */
     
     int getOneTouchSizeFromSuper() {
-        return super.ONE_TOUCH_SIZE;
+        return BasicSplitPaneDivider.ONE_TOUCH_SIZE;
     }
     
     int getOneTouchOffsetFromSuper() {
-        return super.ONE_TOUCH_OFFSET;
+        return BasicSplitPaneDivider.ONE_TOUCH_OFFSET;
     }
     
     int getOrientationFromSuper() {

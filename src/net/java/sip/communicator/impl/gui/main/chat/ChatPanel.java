@@ -46,6 +46,8 @@ public class ChatPanel
                 Chat,
                 ChatConversationContainer
 {
+    private static final long serialVersionUID = 1L;
+
     private static final Logger logger = Logger.getLogger(ChatPanel.class);
 
     private final JSplitPane messagePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);

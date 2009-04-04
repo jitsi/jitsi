@@ -41,6 +41,8 @@ public class SIPCommComboBoxEditor extends MetalComboBoxEditor {
     private static class EditorBorder
         extends AbstractBorder
     {
+        private static final long serialVersionUID = 1L;
+
         public void paintBorder(Component c, Graphics g, int x, int y, int w,
                 int h) {
             g = g.create();

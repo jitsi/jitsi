@@ -31,6 +31,8 @@ public class AccountRegWizardContainerImpl
     implements  WizardContainer,
                 ServiceListener
 {
+    private static final long serialVersionUID = 1L;
+
     private static final Logger logger =
         Logger.getLogger(AccountRegWizardContainerImpl.class);
 

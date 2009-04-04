@@ -22,6 +22,8 @@ import net.java.sip.communicator.util.swing.*;
 public class AuthorizationResponseDialog extends SIPCommDialog
     implements ActionListener {
     
+    private static final long serialVersionUID = 1L;
+
     private JTextArea infoTextArea = new JTextArea();
     
     private JTextArea responseArea = new JTextArea();

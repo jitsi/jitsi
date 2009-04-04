@@ -28,6 +28,8 @@ public class AccountRegSummaryPage
     extends SCScrollPane
     implements WizardPage
 {
+    private static final long serialVersionUID = 1L;
+
     private final Logger logger = Logger.getLogger(AccountRegSummaryPage.class);
 
     private final JPanel keysPanel

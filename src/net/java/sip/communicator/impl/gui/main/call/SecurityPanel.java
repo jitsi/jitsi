@@ -19,6 +19,8 @@ import net.java.sip.communicator.util.swing.*;
 public class SecurityPanel
     extends TransparentPanel
 {
+    private static final long serialVersionUID = 1L;
+
     private final CallParticipant participant;
 
     private final Image iconEncr;

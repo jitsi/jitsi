@@ -32,6 +32,8 @@ public class AccountsConfigurationPanel
                 ServiceListener,
                 ProviderPresenceStatusListener
 {
+    private static final long serialVersionUID = 1L;
+
     private final JPanel accountsPanel = new TransparentPanel();
 
     private final JButton newButton =
@@ -186,7 +188,7 @@ public class AccountsConfigurationPanel
         }
         else if (event.getType() == ServiceEvent.UNREGISTERING)
         {
-            this.accountsPanel.remove((JPanel) accounts.get(pps));
+            this.accountsPanel.remove(accounts.get(pps));
             this.accountsPanel.revalidate();
             this.accountsPanel.repaint();
         }
@@ -210,6 +212,8 @@ public class AccountsConfigurationPanel
         extends TransparentPanel
         implements ActionListener
     {
+        private static final long serialVersionUID = 1L;
+
         private JLabel protocolLabel = new JLabel();
 
         private JLabel accountLabel = new JLabel();

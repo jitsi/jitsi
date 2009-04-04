@@ -31,6 +31,8 @@ public class CallComboBox
                 DocumentListener,
                 FocusListener
 {
+    private static final long serialVersionUID = 1L;
+
     public final static int MAX_HISTORY_SIZE = 30;
 
     private final MainCallPanel parentCallPanel;
@@ -155,6 +157,8 @@ public class CallComboBox
     private class CreateCallAction
         extends AbstractAction
     {
+        private static final long serialVersionUID = -6697604161662302091L;
+
         public void actionPerformed(ActionEvent e)
         {
             String item = getEditor().getItem().toString();
