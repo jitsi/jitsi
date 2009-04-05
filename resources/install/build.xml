@@ -345,8 +345,8 @@
             depends="clean-install-windows,version">
 
         <!--
-            This versionupdate.properties isn't of interest to be MSI but is
-            necessary for the site
+            This versionupdate.properties file isn't of interest to the MSI but
+            is necessary for the site.
         -->
         <propertyfile file="${windows.app.dir}/versionupdate.properties">
             <entry key="last_version" value="${sip-communicator.version}" />
@@ -357,7 +357,7 @@
 
         <!--
             Prepare for the execution of heat.exe (which is part of the
-            preparation for the execution of candle.exe)
+            preparation for the execution of candle.exe).
         -->
         <property name="light.dir" value="${windows.app.dir}/tmp/light" />
 
@@ -367,7 +367,7 @@
                 <include name="run.bat" />
                 <include name="run.exe" />
                 <include name="sc-logo.ico" />
-                <include name="updater.exe" />
+                <include name="up2date.exe" />
             </fileset>
         </copy>
         <mkdir dir="${light.dir}/lib" />
@@ -413,8 +413,8 @@
         </copy>
 
         <!--
-            This versionupdate.properties is the only of interest to the MSI
-            i.e. it gets installed on the user machine.
+            This versionupdate.properties file is the only of interest to the
+            MSI i.e. it gets installed on the user machine.
         -->
         <copy
                 file="${inst.resrc}/windows/versionupdate.properties"

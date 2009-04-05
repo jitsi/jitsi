@@ -546,12 +546,11 @@ public class UpdateCheckActivator
                             = new ProcessBuilder(
                                 new String[]
                                 {
-                                    workingDir + File.separator + "updater.exe",
-                                    temp.getCanonicalPath()
+                                    workingDir + File.separator + "up2date.exe",
+                                    "--allow-elevation",
+                                    temp.getCanonicalPath(),
+                                    workingDir
                                 });
-                        processBuilder.environment().put(
-                            "SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR",
-                            workingDir);
                         processBuilder.start();
 
                         getUIService().beginShutdown();
