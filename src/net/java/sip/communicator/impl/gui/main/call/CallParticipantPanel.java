@@ -31,8 +31,6 @@ import net.java.sip.communicator.util.swing.*;
 public class CallParticipantPanel
     extends TransparentPanel
 {
-    private static final long serialVersionUID = 1L;
-
     private static final Logger logger =
         Logger.getLogger(CallParticipantPanel.class);
 

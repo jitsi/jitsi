@@ -24,7 +24,6 @@ public class DialpadDialog
     extends JDialog
     implements WindowFocusListener
 {
-    private static final long serialVersionUID = 1L;
     private DialPanel dialPanel;
 
     /**
@@ -84,8 +83,6 @@ public class DialpadDialog
      */
     private static class BackgroundPanel extends JPanel
     {
-        private static final long serialVersionUID = 1L;
-
         public void paintComponent(Graphics g)
         {
             super.paintComponent(g);

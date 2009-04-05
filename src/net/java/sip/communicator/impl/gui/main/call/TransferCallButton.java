@@ -28,8 +28,6 @@ import net.java.sip.communicator.util.swing.*;
 public class TransferCallButton
     extends SIPCommButton
 {
-    private static final long serialVersionUID = 1L;
-
     private static final Logger logger =
         Logger.getLogger(TransferCallButton.class);
 
@@ -172,13 +170,12 @@ public class TransferCallButton
      * @param address the address to locate the associated
      *            <code>CallParticipant</code> of
      */
-
     private CallParticipant findCallParticipant(
         OperationSetBasicTelephony telephony, String address)
     {
-        for (Iterator<Call> callIter = telephony.getActiveCalls(); callIter.hasNext();)
+        for (Iterator callIter = telephony.getActiveCalls(); callIter.hasNext();)
         {
-            Call call = callIter.next();
+            Call call = (Call) callIter.next();
 
             for (Iterator<CallParticipant> participantIter =
                 call.getCallParticipants(); participantIter.hasNext();)

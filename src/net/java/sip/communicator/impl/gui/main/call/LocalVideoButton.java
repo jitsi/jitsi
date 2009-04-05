@@ -44,8 +44,6 @@ public class LocalVideoButton
         implements ActionListener,
                    Runnable
     {
-        private static final long serialVersionUID = 1L;
-
         private final Call call;
 
         private Thread runner;

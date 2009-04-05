@@ -17,8 +17,6 @@ import net.java.sip.communicator.service.gui.*;
 public class PluginComponentEvent
     extends EventObject
 {
-    private static final long serialVersionUID = 1L;
-
     private final int eventID;
 
     /**

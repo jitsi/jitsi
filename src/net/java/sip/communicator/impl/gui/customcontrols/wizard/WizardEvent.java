@@ -11,8 +11,6 @@ import java.util.*;
 public class WizardEvent
     extends EventObject
 {
-    private static final long serialVersionUID = 1L;
-
     private final int eventCode;
     
     /**

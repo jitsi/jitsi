@@ -19,6 +19,8 @@ import net.java.sip.communicator.service.protocol.*;
 public class MessageDeliveredEvent
     extends EventObject
 {
+    private static final long serialVersionUID = 1L;
+
     /**
       * The contact that has sent this message.
       */

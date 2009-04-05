@@ -54,8 +54,6 @@ public class MainFrame
     implements  ExportedWindow,
                 PluginComponentListener
 {
-    private static final long serialVersionUID = 1L;
-
     private final Logger logger = Logger.getLogger(MainFrame.class);
 
     private final TransparentPanel mainPanel
@@ -1381,9 +1379,6 @@ public class MainFrame
      */
     public void setParams(Object[] windowParams) {}
 
-    /**
-     * @param event Not used in this method 
-     */
     protected void windowClosed(WindowEvent event)
     {
         if(GuiActivator.getUIService().getExitOnMainWindowClose())
@@ -1406,9 +1401,6 @@ public class MainFrame
         }
     }
 
-    /**
-     * @param event Not used in this method 
-     */
     protected void windowClosing(WindowEvent event)
     {
         if (!GuiActivator.getUIService().getExitOnMainWindowClose())

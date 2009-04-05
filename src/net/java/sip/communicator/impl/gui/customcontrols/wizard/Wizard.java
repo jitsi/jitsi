@@ -34,8 +34,6 @@ public class Wizard
                 PropertyChangeListener
 {
 
-    private static final long serialVersionUID = 1L;
-
     /**
      * Indicates that the 'Finish' button was pressed to close the dialog.
      */

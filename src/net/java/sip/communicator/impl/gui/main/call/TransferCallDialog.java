@@ -26,8 +26,6 @@ import net.java.sip.communicator.util.swing.*;
 public class TransferCallDialog
     extends SIPCommDialog
 {
-    private static final long serialVersionUID = 1L;
-
     private final JButton cancelButton;
 
     private final JButton okButton;

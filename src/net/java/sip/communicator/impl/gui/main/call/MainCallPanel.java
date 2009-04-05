@@ -41,8 +41,6 @@ public class MainCallPanel
                 PluginComponentListener,
                 MouseListener
 {
-    private static final long serialVersionUID = 1L;
-
     private final Logger logger = Logger.getLogger(MainCallPanel.class);
 
     private static final String CALL_BUTTON = "CALL_BUTTON";

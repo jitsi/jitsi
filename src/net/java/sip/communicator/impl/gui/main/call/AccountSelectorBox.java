@@ -33,8 +33,6 @@ public class AccountSelectorBox
     extends SIPCommMenuBar
     implements ActionListener
 {
-    private static final long serialVersionUID = 1L;
-
     private static final Logger logger =
         Logger.getLogger(AccountSelectorBox.class);
 

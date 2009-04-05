@@ -148,7 +148,6 @@ public class EmptyAccountRegistrationWizardPage
     /**
      * Empty interface method implementation, unused in the case of the
      * {@link EmptyAccountRegistrationWizardPage}
-     * @param e Not used in this method
      */
     public void changedUpdate(DocumentEvent e)
     {

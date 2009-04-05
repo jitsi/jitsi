@@ -35,8 +35,6 @@ public class CallPanel
                 PropertyChangeListener,
                 CallParticipantSecurityListener
 {
-    private static final long serialVersionUID = 1L;
-
     private final TransparentPanel mainPanel = new TransparentPanel();
 
     private final Hashtable<CallParticipant, CallParticipantPanel>

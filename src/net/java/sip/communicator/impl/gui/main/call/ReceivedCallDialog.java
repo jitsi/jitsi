@@ -30,8 +30,6 @@ public class ReceivedCallDialog
     implements  ActionListener,
                 CallListener
 {
-    private static final long serialVersionUID = 1L;
-
     private static final String CALL_BUTTON = "CallButton";
 
     private static final String HANGUP_BUTTON = "HangupButton";

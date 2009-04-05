@@ -28,8 +28,6 @@ public class RequestAuthorizationDialog
     extends SIPCommDialog
     implements ActionListener
 {
-    private static final long serialVersionUID = 1L;
-
     public static final int OK_RETURN_CODE = 1;
     
     public static final int CANCEL_RETURN_CODE = 0;

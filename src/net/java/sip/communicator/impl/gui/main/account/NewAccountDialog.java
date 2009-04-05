@@ -25,8 +25,6 @@ public class NewAccountDialog
     extends SIPCommDialog
     implements  ActionListener
 {
-    private static final long serialVersionUID = 1L;
-
     private final Logger logger = Logger.getLogger(NewAccountDialog.class);
 
     private TransparentPanel mainPanel

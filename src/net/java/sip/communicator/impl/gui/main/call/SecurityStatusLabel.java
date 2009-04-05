@@ -16,8 +16,6 @@ import net.java.sip.communicator.impl.gui.utils.*;
 public class SecurityStatusLabel
     extends JLabel
 {
-    private static final long serialVersionUID = 1L;
-
     private final CallParticipantPanel callParticipantPanel;
 
     public SecurityStatusLabel( CallParticipantPanel callParticipantPanel,
