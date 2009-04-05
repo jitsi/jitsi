@@ -24,11 +24,6 @@ public class ProgressEvent
     extends java.util.EventObject
 {
     /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
-
-    /**
      * The start date in the search condition.
      */
     private Date startDate = null;
