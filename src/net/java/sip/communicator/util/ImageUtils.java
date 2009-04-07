@@ -30,7 +30,7 @@ public class ImageUtils
     /**
      * Returns a scaled image fitting within the given bounds while keeping the
      * aspect ratio.
-     * 
+     *
      * @param image the image to scale
      * @param width maximum width of the scaled image
      * @param height maximum height of the scaled image
@@ -64,9 +64,9 @@ public class ImageUtils
 
     /**
      * Creates a rounded avatar image.
-     * 
+     *
      * @param avatarBytes The bytes of the initial avatar image.
-     * 
+     *
      * @return The rounded corner image.
      */
     public static Image getScaledRoundedImage(Image image, int width, int height)
@@ -111,11 +111,11 @@ public class ImageUtils
 
     /**
      * Creates a rounded corner scaled image.
-     * 
+     *
      * @param imageBytes The bytes of the image to be scaled.
      * @param width The maximum width of the scaled image.
      * @param height The maximum height of the scaled image.
-     * 
+     *
      * @return The rounded corner scaled image.
      */
     public static ImageIcon getScaledRoundedIcon(  byte[] imageBytes,
@@ -129,9 +129,23 @@ public class ImageUtils
 
         try
         {
-            InputStream in = new ByteArrayInputStream(imageBytes);
-            BufferedImage image = ImageIO.read(in);
+            Image image = null;
 
+            // sometimes ImageIO fails, will fall back to awt Toolkit
+            try
+            {
+                image = ImageIO.read(new ByteArrayInputStream(imageBytes));
+            } catch (Exception e)
+            {
+                try
+                {
+                    image = Toolkit.getDefaultToolkit().createImage(imageBytes);
+                } catch (Exception e1)
+                {
+                    // if it fails throw the original exception
+                    throw e;
+                }
+            }
             if(image != null)
                 imageIcon = getScaledRoundedIcon(image, width, height);
             else
@@ -147,9 +161,9 @@ public class ImageUtils
 
     /**
      * Returns the buffered image corresponding to the given url image path.
-     * 
+     *
      * @param imagePath the path indicating, where we can find the image.
-     * 
+     *
      * @return the buffered image corresponding to the given url image path.
      */
     public static BufferedImage getBufferedImage(URL imagePath)
