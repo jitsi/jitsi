@@ -118,10 +118,10 @@ public class ChatWritePanel
         this.changeSendCommand((messageCommand == null || messageCommand
             .equalsIgnoreCase("enter")));
     }
-    
+
     /**
      * Shows or hides the Stylebar depending on the value of parameter b.
-     * 
+     *
      * @param b if true, makes the Stylebar visible, otherwise hides the Stylebar
      */
     public void setStylebarVisible(boolean b)
@@ -308,7 +308,10 @@ public class ChatWritePanel
                 redo();
         }
         else if (ConfigurationManager.isSendTypingNotifications()
-            && e.getKeyCode() != KeyEvent.VK_ESCAPE)
+            && e.getKeyCode() != KeyEvent.VK_ESCAPE
+            && !e.isAltDown() // skip event if alt is pressed: like alt+tab
+            && !e.isControlDown() // skip if control is pressed
+            && !e.isActionKey()) // skip if an action key: arrows, copying, pageup
         {
             if (typingState != OperationSetTypingNotifications.STATE_TYPING)
             {
