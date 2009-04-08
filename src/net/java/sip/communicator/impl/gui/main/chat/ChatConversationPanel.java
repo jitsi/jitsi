@@ -43,7 +43,7 @@ public class ChatConversationPanel
     private static final Logger logger =
         Logger.getLogger(ChatConversationPanel.class);
 
-    private final JEditorPane chatEditorPane = new JEditorPane();
+    private final JEditorPane chatEditorPane = new MyEditorPane();
 
     private final HTMLEditorKit editorKit = new SIPCommHTMLEditorKit();
 
@@ -61,16 +61,6 @@ public class ChatConversationPanel
 
     private final JSeparator copyLinkSeparator = new JSeparator();
 
-    private final JPopupMenu urlPopup = new JPopupMenu();
-
-    private final JTextArea urlItem = new JTextArea();
-
-    private final static int urlPopupMaxWidth = 300;
-
-    private final static int urlPopupInitialHeight = 20;
-
-    private final static int urlPopupBorderSize = 3;
-
     private long lastIncomingMsgTimestamp;
 
     private final boolean isHistory;
@@ -78,10 +68,10 @@ public class ChatConversationPanel
     public static final String HTML_CONTENT_TYPE = "text/html";
 
     public static final String TEXT_CONTENT_TYPE = "text/plain";
-    
+
     /**
      * Creates an instance of <tt>ChatConversationPanel</tt>.
-     * 
+     *
      * @param chatContainer The parent <tt>ChatConversationContainer</tt>.
      */
     public ChatConversationPanel(ChatConversationContainer chatContainer)
@@ -166,19 +156,6 @@ public class ChatConversationPanel
         copyLinkItem.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic(
                 "service.gui.COPY_LINK"));
-
-        // Initialize URL popup component.
-        this.urlItem.setLineWrap(true);
-        this.urlPopup.setLayout(new BorderLayout());
-        this.urlPopup.add(urlItem);
-        this.urlItem.setBorder(
-            BorderFactory.createEmptyBorder(urlPopupBorderSize,
-                                            urlPopupBorderSize,
-                                            urlPopupBorderSize,
-                                            urlPopupBorderSize));
-
-        this.urlItem.setSize(new Dimension(urlPopupMaxWidth,
-                                           urlPopupInitialHeight));
     }
 
     /**
@@ -208,7 +185,7 @@ public class ChatConversationPanel
 
     /**
      * Processes the message given by the parameters.
-     * 
+     *
      * @param contactName The name of the contact sending the message.
      * @param date The time at which the message is sent or received.
      * @param messageType The type of the message. One of OUTGOING_MESSAGE or
@@ -255,7 +232,7 @@ public class ChatConversationPanel
         }
 
         if (messageType.equals(Constants.INCOMING_MESSAGE))
-        {   
+        {
             this.lastIncomingMsgTimestamp = System.currentTimeMillis();
 
             chatString      = "<h2 identifier=\""
@@ -337,7 +314,7 @@ public class ChatConversationPanel
                             + msgHeaderID
                             + "\" date=\""
                             + date + "\">";
-            
+
             endHeaderTag = "</h6>";
 
             String errorIcon = "<IMG SRC='"
@@ -369,7 +346,7 @@ public class ChatConversationPanel
                             + msgHeaderID
                             + "\" date=\""
                             + date + "\">";
-            
+
             endHeaderTag = "</h3>";
 
             chatString += timeString
@@ -386,7 +363,7 @@ public class ChatConversationPanel
 
     /**
      * Processes the message given by the parameters.
-     * 
+     *
      * @param contactName The name of the contact sending the message.
      * @param date The time at which the message is sent or received.
      * @param messageType The type of the message. One of OUTGOING_MESSAGE or
@@ -409,7 +386,7 @@ public class ChatConversationPanel
     /**
      * Appends the given string at the end of the contained in this panel
      * document.
-     * 
+     *
      * @param chatString the string to append
      */
     public void appendMessageToEnd(String chatString)
@@ -440,7 +417,7 @@ public class ChatConversationPanel
     /**
      * Inserts the given string at the beginning of the contained in this panel
      * document.
-     * 
+     *
      * @param chatString the string to insert
      */
     public void insertMessageAfterStart(String chatString)
@@ -476,18 +453,18 @@ public class ChatConversationPanel
         if (document.getLength() > Constants.CHAT_BUFFER_SIZE)
         {
             int msgElementCount = 0;
-            
-            Element firstMsgElement = null; 
-            
+
+            Element firstMsgElement = null;
+
             int firstMsgIndex = 0;
-            
+
             Element rootElement = this.document.getDefaultRootElement();
             // Count how many messages we have in the document.
             for (int i = 0; i < rootElement.getElementCount(); i++)
-            {   
+            {
                 String idAttr = (String) rootElement.getElement(i)
                     .getAttributes().getAttribute("identifier");
-            
+
                 if(idAttr != null
                     && (idAttr.equals("message")
                         || idAttr.equals("statusMessage")
@@ -498,28 +475,28 @@ public class ChatConversationPanel
                         firstMsgElement = rootElement.getElement(i);
                         firstMsgIndex = i;
                     }
-                    
+
                     msgElementCount++;
                 }
             }
-            
+
             // If we doesn't have any known elements in the document or if we
-            // have only one long message we don't want to remove it. 
+            // have only one long message we don't want to remove it.
             if(firstMsgElement == null || msgElementCount < 2)
                 return;
-                
+
             try
             {
                 // Remove the header of the message if such exists.
                 if(firstMsgIndex > 0)
                 {
                     Element headerElement = rootElement.getElement(firstMsgIndex - 1);
-                
+
                     String idAttr = (String) headerElement
                         .getAttributes().getAttribute("identifier");
-                    
+
                     if(idAttr != null && idAttr.equals("messageHeader"))
-                    {   
+                    {
                         this.document.remove(headerElement.getStartOffset(),
                             headerElement.getEndOffset()
                                 - headerElement.getStartOffset());
@@ -540,7 +517,7 @@ public class ChatConversationPanel
 
     /**
      * Highlights keywords searched in the history.
-     * 
+     *
      * @param message the source message
      * @param keyword the searched keyword
      * @return the formatted message
@@ -591,7 +568,7 @@ public class ChatConversationPanel
     /**
      * Formats the given message. Processes all smilies chars, new lines and all
      * the links.
-     * 
+     *
      * @return the formatted message
      */
     private String formatMessage(String message, String contentType)
@@ -621,7 +598,7 @@ public class ChatConversationPanel
 
     /**
      * Formats all links in the given message.
-     * 
+     *
      * @param message The source message string.
      * @return The message string with properly formatted links.
      */
@@ -670,7 +647,7 @@ public class ChatConversationPanel
 
     /**
      * Formats message new lines.
-     * 
+     *
      * @param message The source message string.
      * @return The message string with properly formatted new lines.
      */
@@ -678,15 +655,15 @@ public class ChatConversationPanel
     {
         String startPlainTextTag = "<PLAINTEXT>";
         String endPlainTextTag = "</PLAINTEXT>";
-        
+
         /*
          * <br> tags are needed to visualize a new line in the html format, but
          * when copied to the clipboard they are exported to the plain text
          * format as ' ' and not as '\n'.
-         * 
+         *
          * See bug N4988885:
          * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4988885
-         * 
+         *
          * To fix this we need "&#10;" - the HTML-Code for ASCII-Character No.10
          * (Line feed).
          */
@@ -696,7 +673,7 @@ public class ChatConversationPanel
 
     /**
      * Formats message smilies.
-     * 
+     *
      * @param message The source message string.
      * @return The message string with properly formated smilies.
      */
@@ -760,7 +737,7 @@ public class ChatConversationPanel
     /**
      * Opens a link in the default browser when clicked and shows link url in a
      * popup on mouseover.
-     * 
+     *
      * @param e The HyperlinkEvent.
      */
     public void hyperlinkUpdate(HyperlinkEvent e)
@@ -770,24 +747,16 @@ public class ChatConversationPanel
             String href = e.getDescription();
 
             this.currentHref = href;
-
-            urlItem.setText(href);
-
-            urlPopup.setLocation(MouseInfo.getPointerInfo().getLocation());
-            urlPopup.pack();
-            urlPopup.setVisible(true);
         }
         else if (e.getEventType() == HyperlinkEvent.EventType.EXITED)
         {
             this.currentHref = "";
-
-            urlPopup.setVisible(false);
         }
     }
 
     /**
      * Returns the editor of this conversation panel.
-     * 
+     *
      * @return The editor of this conversation panel.
      */
     public JEditorPane getChatEditorPane()
@@ -797,7 +766,7 @@ public class ChatConversationPanel
 
     /**
      * Returns the time of the last received message.
-     * 
+     *
      * @return The time of the last received message.
      */
     public long getLastIncomingMsgTimestamp()
@@ -820,7 +789,7 @@ public class ChatConversationPanel
     /**
      * When a right button click is performed in the editor pane, a popup menu
      * is opened.
-     * 
+     *
      * @param e The MouseEvent.
      */
     public void mouseClicked(MouseEvent e)
@@ -842,7 +811,7 @@ public class ChatConversationPanel
 
     /**
      * Opens this panel context menu at the given point.
-     * 
+     *
      * @param p the point where to position the left-top cornet of the context
      *            menu
      */
@@ -896,7 +865,7 @@ public class ChatConversationPanel
 
     /**
      * Returns the chat container.
-     * 
+     *
      * @return the chat container
      */
     public ChatConversationContainer getChatContainer()
@@ -925,7 +894,7 @@ public class ChatConversationPanel
 
     /**
      * Sets the given document to the editor pane in this panel.
-     * 
+     *
      * @param doc the document to set
      */
     public void setContent(HTMLDocument doc)
@@ -945,7 +914,7 @@ public class ChatConversationPanel
 
     /**
      * Returns the document contained in this panel.
-     * 
+     *
      * @return the document contained in this panel
      */
     public HTMLDocument getContent()
@@ -955,7 +924,7 @@ public class ChatConversationPanel
 
     /**
      * Returns the right button popup menu.
-     * 
+     *
      * @return the right button popup menu
      */
     public ChatRightButtonMenu getRightButtonMenu()
@@ -965,20 +934,20 @@ public class ChatConversationPanel
 
     /**
      * Returns the date of the first message in the current page.
-     * 
+     *
      * @return the date of the first message in the current page
      */
     public Date getPageFirstMsgTimestamp()
-    {        
+    {
         Element rootElement = this.document.getDefaultRootElement();
-        
+
         Element firstMessageElement = null;
-        
+
         for(int i = 0; i < rootElement.getElementCount(); i ++)
-        {   
+        {
             String idAttr = (String) rootElement.getElement(i)
                     .getAttributes().getAttribute("identifier");
-                        
+
             if (idAttr != null && idAttr.equals("messageHeader"))
             {
                 firstMessageElement = rootElement.getElement(i);
@@ -988,29 +957,29 @@ public class ChatConversationPanel
 
         if(firstMessageElement == null)
             return new Date(Long.MAX_VALUE);
-        
+
         String dateString = (String)firstMessageElement
             .getAttributes().getAttribute("date");
-            
-        return new Date(Long.parseLong(dateString)); 
+
+        return new Date(Long.parseLong(dateString));
     }
 
     /**
      * Returns the date of the last message in the current page.
-     * 
+     *
      * @return the date of the last message in the current page
      */
     public Date getPageLastMsgTimestamp()
-    {   
+    {
         Element rootElement = this.document.getDefaultRootElement();
-        
+
         Element lastMessageElement = null;
 
         for(int i = rootElement.getElementCount() - 1; i >= 0; i --)
         {
             String idAttr = (String) rootElement.getElement(i)
                 .getAttributes().getAttribute("identifier");
-            
+
             if (idAttr != null && idAttr.equals("messageHeader"))
             {
                 lastMessageElement = rootElement.getElement(i);
@@ -1020,13 +989,13 @@ public class ChatConversationPanel
 
         if(lastMessageElement == null)
             return new Date(0);
-        
+
         String dateString = (String) lastMessageElement
             .getAttributes().getAttribute("date");
-        
+
         return new Date(Long.parseLong(dateString));
     }
-    
+
     /**
      * Formats HTML tags &lt;br/&gt; to &lt;br&gt; or &lt;BR/&gt; to &lt;BR&gt;.
      * The reason of this function is that the ChatPanel does not support
@@ -1078,7 +1047,7 @@ public class ChatConversationPanel
         }
         return processedMessage.toString();
     }
-    
+
     /**
      * Formats HTML tags &lt;img ... /&gt; to &lt; img ... &gt;&lt;/img&gt; or
      * &lt;IMG ... /&gt; to &lt;IMG&gt;&lt;/IMG&gt;.
@@ -1131,5 +1100,36 @@ public class ChatConversationPanel
             processedMessage = new StringBuffer(message);
         }
         return processedMessage.toString();
+    }
+
+    /**
+     * Extend Editor pane to add url tooltips.
+     */
+    private class MyEditorPane
+        extends JEditorPane
+    {
+        /**
+         * Create tooltip.
+         */
+        public JToolTip createToolTip()
+        {
+            JToolTip tip = new JToolTip();
+            tip.setComponent(this);
+
+            return tip;
+        }
+
+        /**
+         * Returns the string to be used as the tooltip for <i>event</i>. 
+         *
+         * @return the string to be used as the tooltip for <i>event</i>.
+         */
+        public String getToolTipText(MouseEvent event)
+        {
+            if(currentHref != null && currentHref.length() != 0)
+                return currentHref;
+            else
+                return "";
+        }
     }
 }
