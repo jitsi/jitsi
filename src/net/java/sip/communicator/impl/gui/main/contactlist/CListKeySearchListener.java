@@ -16,22 +16,22 @@ import net.java.sip.communicator.service.contactlist.*;
 /**
  * The main goal of the <tt>CListKeySearchListener</tt> is to listen for key
  * events and to search the ContactList when a key is typed over it. It selects
- * the Contact name closest to the typed string. 
- * 
+ * the Contact name closest to the typed string.
+ *
  * The time between two button presses is checked to determine whether the user
  * makes a new search or a continious search. When user types the same letter
  * consecutively the search mechanism selects the next Contact name starting
  * with the same letter.
- * 
+ *
  * The <tt>CListKeySearchListener</tt> is added to the <tt>MainFrame</tt> and
  * the <tt>ContactListPanel</tt> to provide a search functionality over the
  * contact list when one of them is focused.
- * 
+ *
  * The 'space' key, the '+' and the '-' keys are proccess seperately to provide
  * another functionality completely different from the search. When user types
  * a '-' or 'space' and there's currently a group selected, the selected group
  * is closed. When user types '+' the selected group is opened.
- *  
+ *
  * @author Yana Stamcheva
  */
 public class CListKeySearchListener implements KeyListener {
@@ -53,7 +53,26 @@ public class CListKeySearchListener implements KeyListener {
         this.contactList = contactList;
     }
 
-    public void keyPressed(KeyEvent e) {
+    public void keyPressed(KeyEvent e)
+    {
+        //Nothing to do if the contact list is empty
+        if(contactList.getModel().getSize() <= 0)
+            return;
+
+        int keyCode = e.getKeyCode();
+
+        if(keyCode == KeyEvent.VK_LEFT)
+        {
+            closeGroup();
+        }
+        else if(keyCode == KeyEvent.VK_RIGHT)
+        {
+            openGroup();
+        }
+        else if(keyCode == KeyEvent.VK_ENTER)
+        {
+            openOrCloseGroup();
+        }
     }
 
     public void keyReleased(KeyEvent e) {
@@ -68,16 +87,16 @@ public class CListKeySearchListener implements KeyListener {
      * starting with the same letter.
      */
     public void keyTyped(KeyEvent e) {
-        
+
         //Nothing to do if the contact list is empty
         if(contactList.getModel().getSize() <= 0)
             return;
-        
+
         long eventTimestamp = e.getWhen();
         char keyChar = e.getKeyChar();
 
         if(keyChar == ' ') {
-            closeGroup();
+            openOrCloseGroup();
         }
         else if(keyChar == '+') {
             openGroup();
@@ -86,7 +105,7 @@ public class CListKeySearchListener implements KeyListener {
             closeGroup();
         }
         else {
-            
+
             if ((lastTypedTimestamp - eventTimestamp) > 1000) {
                 keyBuffer.delete(0, keyBuffer.length() - 1);
             }
@@ -106,7 +125,7 @@ public class CListKeySearchListener implements KeyListener {
                             .getDisplayName();
 
                     if (selectedContactName != null) {
-                        selectedSameLetterContact 
+                        selectedSameLetterContact
                             = selectedContactName.substring(0, 1)
                                 .equalsIgnoreCase(keyBuffer.toString());
                     }
@@ -133,44 +152,68 @@ public class CListKeySearchListener implements KeyListener {
             this.contactList.ensureIndexIsVisible(currentlySelectedIndex);
 
             this.lastTypedKey = keyChar;
-        }        
+        }
     }
-        
+
     /**
      * Closes a group when it's opened.
-     */    
-    public void closeGroup() {            
+     */
+    public void closeGroup() {
         Object selectedValue = this.contactList.getSelectedValue();
-        
+
         if (selectedValue instanceof MetaContactGroup) {
             MetaContactGroup group = (MetaContactGroup) selectedValue;
-            
-            ContactListModel model 
+
+            ContactListModel model
                 = (ContactListModel)contactList.getModel();
-            
+
             if (!model.isGroupClosed(group)) {
                 model.closeGroup(group);
             }
         }
     }
-    
-    
+
+
     /**
      * Opens a group when it's closed.
-     */    
+     */
     public void openGroup() {
         Object selectedValue = this.contactList.getSelectedValue();
-        
+
         if (selectedValue instanceof MetaContactGroup) {
             MetaContactGroup group = (MetaContactGroup) selectedValue;
-            
-            ContactListModel model 
+
+            ContactListModel model
                 = (ContactListModel) contactList.getModel();
-            
+
             if (model.isGroupClosed(group)) {
                 model.openGroup(group);
             }
         }
     }
-    
+
+    /**
+     * Opens or closes a group depending the state.
+     */
+    public void openOrCloseGroup()
+    {
+        Object selectedValue = this.contactList.getSelectedValue();
+
+        if (selectedValue instanceof MetaContactGroup)
+        {
+            MetaContactGroup group = (MetaContactGroup) selectedValue;
+
+            ContactListModel model
+                = (ContactListModel) contactList.getModel();
+            System.out.println("close ? " + model.isGroupClosed(group));
+            if (model.isGroupClosed(group))
+            {
+                model.openGroup(group);
+            }
+            else
+            {
+                model.closeGroup(group);
+            }
+        }
+    }
 }

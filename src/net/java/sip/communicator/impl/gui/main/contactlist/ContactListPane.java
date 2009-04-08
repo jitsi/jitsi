@@ -682,16 +682,6 @@ public class ContactListPane
 
                 SwingUtilities.invokeLater(new RunMessageWindow(contact));
             }
-            else if (selectedValue instanceof MetaContactGroup) {
-                MetaContactGroup group = (MetaContactGroup) selectedValue;
-
-                ContactListModel model
-                    = (ContactListModel) contactList.getModel();
-
-                if (model.isGroupClosed(group)) {
-                    model.openGroup(group);
-                }
-            }
         }
     }
 
