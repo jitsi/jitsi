@@ -1109,17 +1109,6 @@ public class ChatConversationPanel
         extends JEditorPane
     {
         /**
-         * Create tooltip.
-         */
-        public JToolTip createToolTip()
-        {
-            JToolTip tip = new JToolTip();
-            tip.setComponent(this);
-
-            return tip;
-        }
-
-        /**
          * Returns the string to be used as the tooltip for <i>event</i>. 
          *
          * @return the string to be used as the tooltip for <i>event</i>.
@@ -1129,7 +1118,7 @@ public class ChatConversationPanel
             if(currentHref != null && currentHref.length() != 0)
                 return currentHref;
             else
-                return "";
+                return null;
         }
     }
 }
