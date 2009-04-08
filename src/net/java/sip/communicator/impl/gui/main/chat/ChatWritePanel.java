@@ -282,36 +282,14 @@ public class ChatWritePanel
         }
     }
 
+    /**
+     * Sends typing notifications when user types.
+     *
+     * @param e the event.
+     */
     public void keyTyped(KeyEvent e)
     {
-    }
-
-    /**
-     * When CTRL+Z is pressed invokes the <code>ChatWritePanel.undo()</code>
-     * method, when CTRL+R is pressed invokes the
-     * <code>ChatWritePanel.redo()</code> method.
-     * <p>
-     * Sends typing notifications when user types.
-     */
-    public void keyPressed(KeyEvent e)
-    {
-        if ((e.getModifiers() & KeyEvent.CTRL_MASK) == KeyEvent.CTRL_MASK
-            && (e.getKeyCode() == KeyEvent.VK_Z))
-        {
-            if (undo.canUndo())
-                undo();
-        }
-        else if ((e.getModifiers() & KeyEvent.CTRL_MASK) == KeyEvent.CTRL_MASK
-            && (e.getKeyCode() == KeyEvent.VK_R))
-        {
-            if (undo.canRedo())
-                redo();
-        }
-        else if (ConfigurationManager.isSendTypingNotifications()
-            && e.getKeyCode() != KeyEvent.VK_ESCAPE
-            && !e.isAltDown() // skip event if alt is pressed: like alt+tab
-            && !e.isControlDown() // skip if control is pressed
-            && !e.isActionKey()) // skip if an action key: arrows, copying, pageup
+        if (ConfigurationManager.isSendTypingNotifications())
         {
             if (typingState != OperationSetTypingNotifications.STATE_TYPING)
             {
@@ -330,6 +308,28 @@ public class ChatWritePanel
                 stoppedTypingTimer.start();
             else
                 stoppedTypingTimer.restart();
+        }
+    }
+
+    /**
+     * When CTRL+Z is pressed invokes the <code>ChatWritePanel.undo()</code>
+     * method, when CTRL+R is pressed invokes the
+     * <code>ChatWritePanel.redo()</code> method.
+     * <p>
+     */
+    public void keyPressed(KeyEvent e)
+    {
+        if ((e.getModifiers() & KeyEvent.CTRL_MASK) == KeyEvent.CTRL_MASK
+            && (e.getKeyCode() == KeyEvent.VK_Z))
+        {
+            if (undo.canUndo())
+                undo();
+        }
+        else if ((e.getModifiers() & KeyEvent.CTRL_MASK) == KeyEvent.CTRL_MASK
+            && (e.getKeyCode() == KeyEvent.VK_R))
+        {
+            if (undo.canRedo())
+                redo();
         }
     }
 
