@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.chat.toolBars;
 import java.awt.*;
 import java.awt.event.*;
 
+import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
@@ -31,7 +32,7 @@ import org.osgi.framework.*;
  * It's the main toolbar in the <tt>ChatWindow</tt>. It contains only
  * <tt>ChatToolbarButton</tt>s, which have a specific background icon and
  * rollover behaviour to differentiates them from normal buttons.
- * 
+ *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  */
@@ -55,6 +56,12 @@ public class MainToolBar
         = new ChatToolbarButton(
                 ImageLoader.getImage(ImageLoader.SEND_FILE_ICON));
 
+    private ChatToolbarButton previousButton = new ChatToolbarButton(
+        ImageLoader.getImage(ImageLoader.PREVIOUS_ICON));
+
+    private ChatToolbarButton nextButton = new ChatToolbarButton(
+        ImageLoader.getImage(ImageLoader.NEXT_ICON));
+
     private ChatWindow messageWindow;
 
     /**
@@ -66,7 +73,7 @@ public class MainToolBar
 
     /**
      * Creates an instance and constructs the <tt>MainToolBar</tt>.
-     * 
+     *
      * @param messageWindow The parent <tt>ChatWindow</tt>.
      */
     public MainToolBar(ChatWindow messageWindow)
@@ -81,15 +88,16 @@ public class MainToolBar
         this.add(historyButton);
         this.add(optionsButton);
 
-//      Commented until Issue #481 is resolved.
-//
-//        this.previousButton.setName("previous");
-//        this.previousButton.setToolTipText(
-//            GuiActivator.getResources().getI18NString("service.gui.PREVIOUS").getText());
-//
-//        this.nextButton.setName("next");
-//        this.nextButton.setToolTipText(
-//            GuiActivator.getResources().getI18NString("service.gui.NEXT").getText());
+        this.add(previousButton);
+        this.add(nextButton);
+
+        this.previousButton.setName("previous");
+        this.previousButton.setToolTipText(
+            GuiActivator.getResources().getI18NString("service.gui.PREVIOUS"));
+
+        this.nextButton.setName("next");
+        this.nextButton.setToolTipText(
+            GuiActivator.getResources().getI18NString("service.gui.NEXT"));
 
         this.sendFileButton.setName("sendFile");
         this.sendFileButton.setToolTipText(
@@ -108,8 +116,8 @@ public class MainToolBar
         this.optionsButton.setToolTipText(
             GuiActivator.getResources().getI18NString("service.gui.OPTIONS"));
 
-//        this.previousButton.addActionListener(this);
-//        this.nextButton.addActionListener(this);
+        this.previousButton.addActionListener(this);
+        this.nextButton.addActionListener(this);
         this.sendFileButton.addActionListener(this);
         this.historyButton.addActionListener(this);
         this.inviteButton.addActionListener(this);
@@ -182,7 +190,7 @@ public class MainToolBar
                                                     history);
             }
         }
-        else if (buttonText.equals("invite")) 
+        else if (buttonText.equals("invite"))
         {
             ChatInviteDialog inviteDialog
                 = new ChatInviteDialog(chatPanel);
@@ -197,7 +205,7 @@ public class MainToolBar
 
     /**
      * Returns the button used to show the history window.
-     * 
+     *
      * @return the button used to show the history window.
      */
     public ChatToolbarButton getHistoryButton()
@@ -211,36 +219,34 @@ public class MainToolBar
      */
     public void changeHistoryButtonsState(ChatPanel chatPanel)
     {
-//        Disabling history buttons until they start to work properly.
-//        
-//        ChatConversationPanel convPanel = chatPanel.getChatConversationPanel();
-//        
-//        Date firstMsgInHistory = chatPanel.getFirstHistoryMsgTimestamp();
-//        Date lastMsgInHistory = chatPanel.getLastHistoryMsgTimestamp();
-//        Date firstMsgInPage = convPanel.getPageFirstMsgTimestamp();
-//        Date lastMsgInPage = convPanel.getPageLastMsgTimestamp();
-//        
-//        if(firstMsgInHistory == null || lastMsgInHistory == null)
-//        {
-//            previousButton.setEnabled(false);
-//            nextButton.setEnabled(false);
-//            return;
-//        }
-//        
-//        if(firstMsgInHistory.compareTo(firstMsgInPage) < 0)
-//            previousButton.setEnabled(true);
-//        else
-//            previousButton.setEnabled(false);
-//        
-//        if(lastMsgInPage.getTime() > 0
-//                && (lastMsgInHistory.compareTo(lastMsgInPage) > 0))
-//        {
-//            nextButton.setEnabled(true);
-//        }
-//        else
-//        {
-//            nextButton.setEnabled(false);
-//        }
+        ChatConversationPanel convPanel = chatPanel.getChatConversationPanel();
+
+        long firstMsgInHistory = chatPanel.getFirstHistoryMsgTimestamp();
+        long lastMsgInHistory = chatPanel.getLastHistoryMsgTimestamp();
+        Date firstMsgInPage = convPanel.getPageFirstMsgTimestamp();
+        Date lastMsgInPage = convPanel.getPageLastMsgTimestamp();
+
+        if(firstMsgInHistory == 0 || lastMsgInHistory == 0)
+        {
+            previousButton.setEnabled(false);
+            nextButton.setEnabled(false);
+            return;
+        }
+
+        if(firstMsgInHistory < firstMsgInPage.getTime())
+            previousButton.setEnabled(true);
+        else
+            previousButton.setEnabled(false);
+
+        if(lastMsgInPage.getTime() > 0
+                && (lastMsgInHistory > lastMsgInPage.getTime()))
+        {
+            nextButton.setEnabled(true);
+        }
+        else
+        {
+            nextButton.setEnabled(false);
+        }
     }
 
     private void initPluginComponents()
@@ -269,7 +275,7 @@ public class MainToolBar
             for (int i = 0; i < serRefs.length; i ++)
             {
                 PluginComponent component = (PluginComponent) GuiActivator
-                    .bundleContext.getService(serRefs[i]);;
+                    .bundleContext.getService(serRefs[i]);
 
                 this.add((Component)component.getComponent());
 
@@ -314,7 +320,7 @@ public class MainToolBar
 
     /**
      * Enables or disables the conference button in this tool bar.
-     * 
+     *
      * @param isEnabled <code>true</code> if the conference button should be
      * enabled, <code>false</code> - otherwise.
      */

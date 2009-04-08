@@ -323,7 +323,13 @@ public class MessageHistoryServiceImpl
                 History history = this.getHistory(null, item);
 
                 HistoryReader reader = history.getReader();
-                Iterator recs = reader.findFirstRecordsAfter(date, count);
+                // date param of method is the one saved in receivedTimestamp
+                // the method findFirstRecordsAfter compares to the
+                // attribute timestamp. Most of the times there is 1 or 2 mills
+                // difference between the two dates. So we will request more records
+                // from the reader and than will get the needed count according
+                // to the correct field comparsion (receivedTimestamp)
+                Iterator recs = reader.findFirstRecordsAfter(date, count + 4);
                 while (recs.hasNext())
                 {
                     result.add(
@@ -338,13 +344,35 @@ public class MessageHistoryServiceImpl
             }
         }
 
+        // check the dates and skip the starting records which are not ok
+        int startIx = 0;
+        Iterator i = result.iterator();
+        boolean isRecordOK = false;
+        while (i.hasNext() && !isRecordOK)
+        {
+            Object object = i.next();
+            if(object instanceof MessageDeliveredEvent)
+            {
+                isRecordOK =
+                    (((MessageDeliveredEvent)object).getTimestamp() > date.getTime());
+            }
+            else if(object instanceof MessageReceivedEvent)
+            {
+                isRecordOK =
+                    (((MessageReceivedEvent)object).getTimestamp() > date.getTime());
+            }
+
+            if(!isRecordOK)
+                startIx++;
+        }
+
         LinkedList resultAsList = new LinkedList(result);
 
-        int toIndex = count;
+        int toIndex = startIx + count;
         if(toIndex > resultAsList.size())
             toIndex = resultAsList.size();
 
-        return resultAsList.subList(0, toIndex);
+        return resultAsList.subList(startIx, toIndex);
     }
 
     /**
