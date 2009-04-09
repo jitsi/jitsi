@@ -6,6 +6,7 @@
  */
 #include <windows.h>
 #include <shellapi.h> /* ShellExecute */
+#include <tlhelp32.h> /* CreateToolhelp32Snapshot */
 
 #include <stdlib.h>
 #include <string.h>
@@ -26,9 +27,13 @@
 DWORD  up2date_createProcess(LPCTSTR);
 DWORD  up2date_displayError(DWORD error);
 LPTSTR up2date_getAllowElevation(LPTSTR, BOOL *);
+LPTSTR up2date_getBoolArg(LPCTSTR, LPTSTR, BOOL *);
 DWORD  up2date_getExePath(LPTSTR, DWORD);
+DWORD  up2date_getParentProcessId(DWORD *);
+LPTSTR up2date_getWaitParent(LPTSTR, BOOL *);
 LPTSTR up2date_skipWhitespace(LPTSTR);
 LPTSTR up2date_str2tstr(LPCSTR);
+DWORD  up2date_waitParent();
 
 int WINAPI
 WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, int cmdShow) {
@@ -36,13 +41,22 @@ WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, int cmdShow) 
 
     commandLine = up2date_str2tstr(cmdLine);
     if (commandLine) {
+        BOOL waitParent;
+        LPTSTR noWaitParentCommandLine;
         BOOL allowElevation;
         LPTSTR noAllowElevationCommandLine;
         DWORD error;
 
+        waitParent = FALSE;
+        noWaitParentCommandLine
+            = up2date_getWaitParent(commandLine, &waitParent);
+        if (waitParent)
+            up2date_waitParent();
+
         allowElevation = FALSE;
         noAllowElevationCommandLine
-            = up2date_getAllowElevation(commandLine, &allowElevation);
+            = up2date_getAllowElevation(
+                    noWaitParentCommandLine, &allowElevation);
 
         error = up2date_createProcess(noAllowElevationCommandLine);
         if ((ERROR_ELEVATION_REQUIRED == error) && allowElevation) {
@@ -132,10 +146,19 @@ up2date_displayError(DWORD error) {
 
 LPTSTR
 up2date_getAllowElevation(LPTSTR commandLine, BOOL *allowElevation) {
-    LPCTSTR argName = TEXT("--allow-elevation");
-    size_t argNameLength = _tcslen(argName);
+    return
+        up2date_getBoolArg(
+            TEXT("--allow-elevation"),
+            commandLine,
+            allowElevation);
+}
+
+LPTSTR
+up2date_getBoolArg(LPCTSTR argName, LPTSTR commandLine, BOOL *boolValue) {
+    size_t argNameLength;
     BOOL argValue;
 
+    argNameLength = _tcslen(argName);
     commandLine = up2date_skipWhitespace(commandLine);
     if (0 == _tcsncicmp(commandLine, argName, argNameLength)) {
         argValue = TRUE;
@@ -143,8 +166,8 @@ up2date_getAllowElevation(LPTSTR commandLine, BOOL *allowElevation) {
             = up2date_skipWhitespace(commandLine + argNameLength);
     } else
         argValue = FALSE;
-    if (allowElevation)
-        *allowElevation = argValue;
+    if (boolValue)
+        *boolValue = argValue;
     return commandLine;
 }
 
@@ -154,6 +177,53 @@ up2date_getExePath(LPTSTR exePath, DWORD exePathSize) {
         GetModuleFileName(NULL, (LPTSTR) exePath, exePathSize)
             ? 0
             : GetLastError();
+}
+
+DWORD
+up2date_getParentProcessId(DWORD *ppid) {
+    HANDLE snapshot;
+    DWORD error;
+
+    snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (snapshot == INVALID_HANDLE_VALUE)
+        error = GetLastError();
+    else {
+        PROCESSENTRY32 entry;
+
+        entry.dwSize = sizeof(PROCESSENTRY32);
+        if (Process32First(snapshot, &entry)) {
+            DWORD pid;
+
+            error = 0;
+            pid = GetCurrentProcessId();
+            if (ppid)
+                *ppid = 0;
+
+            do {
+                if (entry.th32ProcessID == pid) {
+                    if (ppid)
+                        *ppid = entry.th32ParentProcessID;
+                    break;
+                }
+                if (!Process32Next(snapshot, &entry)) {
+                    error = GetLastError();
+                    break;
+                }
+            } while (1);
+        } else
+            error = GetLastError();
+        CloseHandle(snapshot);
+    }
+    return error;
+}
+
+LPTSTR
+up2date_getWaitParent(LPTSTR commandLine, BOOL *waitParent) {
+    return
+        up2date_getBoolArg(
+            TEXT("--wait-parent"),
+            commandLine,
+            waitParent);
 }
 
 LPTSTR
@@ -192,4 +262,33 @@ up2date_str2tstr(LPCSTR str) {
 #endif
 
     return tstr;
+}
+
+DWORD
+up2date_waitParent() {
+    DWORD error;
+    DWORD ppid;
+
+    error = up2date_getParentProcessId(&ppid);
+    if (!error) {
+        HANDLE parentProcess;
+
+        parentProcess = OpenProcess(SYNCHRONIZE, FALSE, ppid);
+        if (parentProcess) {
+            DWORD event;
+
+            error = 0;
+
+            do {
+                event = WaitForSingleObject(parentProcess, INFINITE);
+                if (WAIT_FAILED == event) {
+                    error = GetLastError();
+                    break;
+                }
+            } while (WAIT_TIMEOUT == event);
+            CloseHandle(parentProcess);
+        } else
+            error = GetLastError();
+    }
+    return error;
 }

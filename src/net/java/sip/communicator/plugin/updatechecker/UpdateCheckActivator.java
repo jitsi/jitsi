@@ -547,6 +547,7 @@ public class UpdateCheckActivator
                                 new String[]
                                 {
                                     workingDir + File.separator + "up2date.exe",
+                                    "--wait-parent",
                                     "--allow-elevation",
                                     temp.getCanonicalPath(),
                                     workingDir
