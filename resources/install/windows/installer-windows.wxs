@@ -1,5 +1,11 @@
 <?xml version="1.0" ?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+<!--
+  SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+
+  Distributable under LGPL license.
+  See terms of license at gnu.org.
+-->
 
 <Product
     Id="*"
@@ -189,8 +195,15 @@
     <Show Dialog="CExitDialog" OnExit="success">
       NOT (IS_AUTOUPDATE = 1)
     </Show>
-    <Show Dialog="CWelcomeDlg" Before="ProgressDlg">
+    <Show Dialog="CWelcomeDlg" Before="CProgressDlg">
       NOT Installed AND NOT (IS_AUTOUPDATE = 1)
+    </Show>
+
+    <Show Dialog="CProgressDlg" Before="ExecuteAction">
+      NOT (IS_AUTOUPDATE = 1)
+    </Show>
+    <Show Dialog="CAutoupdateProgressDlg" Before="ExecuteAction">
+      <![CDATA[IS_AUTOUPDATE = 1]]>
     </Show>
 
     <Custom Action="SetIS_AUTOUPDATE" After="AppSearch">
@@ -363,6 +376,64 @@
 
 </Product>
 
+    <!-- Modified ProgressDlg -->
+    <Fragment>
+        <UI>
+            <Dialog Id="CProgressDlg" Width="370" Height="270" Title="!(loc.ProgressDlg_Title)" Modeless="yes">
+                <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Default="yes" Cancel="yes" Text="!(loc.WixUICancel)">
+                    <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
+                </Control>
+                <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no" Text="!(loc.ProgressDlgBannerBitmap)" />
+                <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Disabled="yes" Text="!(loc.WixUIBack)" />
+                <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Disabled="yes" Text="!(loc.WixUINext)" />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+                <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
+                <!-- mutually exclusive title and description strings overlap  -->
+                <Control Id="TextInstalling" Type="Text" X="20" Y="65" Width="330" Height="35" Hidden="yes" NoPrefix="yes" Text="!(loc.ProgressDlgTextInstalling)">
+                    <Condition Action="show">NOT Installed OR (Installed AND (RESUME OR Preselected) AND NOT PATCH)</Condition>
+                </Control>
+                <Control Id="TitleInstalling" Type="Text" X="20" Y="15" Width="330" Height="15" Transparent="yes" NoPrefix="yes" Hidden="yes" Text="!(loc.ProgressDlgTitleInstalling)">
+                    <Condition Action="show">NOT Installed OR (Installed AND (RESUME OR Preselected) AND NOT PATCH)</Condition>
+                </Control>
+                <Control Id="TextChanging" Type="Text" X="20" Y="65" Width="330" Height="35" Hidden="yes" NoPrefix="yes" Text="!(loc.ProgressDlgTextChanging)">
+                    <Condition Action="show">WixUI_InstallMode = "Change"</Condition>
+                </Control>
+                <Control Id="TitleChanging" Type="Text" X="20" Y="15" Width="330" Height="15" Transparent="yes" NoPrefix="yes" Hidden="yes" Text="!(loc.ProgressDlgTitleChanging)">
+                    <Condition Action="show">WixUI_InstallMode = "Change"</Condition>
+                </Control>
+                <Control Id="TextRepairing" Type="Text" X="20" Y="65" Width="330" Height="35" Hidden="yes" NoPrefix="yes" Text="!(loc.ProgressDlgTextRepairing)">
+                    <Condition Action="show">WixUI_InstallMode = "Repair"</Condition>
+                </Control>
+                <Control Id="TitleRepairing" Type="Text" X="20" Y="15" Width="330" Height="15" Transparent="yes" NoPrefix="yes" Hidden="yes" Text="!(loc.ProgressDlgTitleRepairing)">
+                    <Condition Action="show">WixUI_InstallMode = "Repair"</Condition>
+                </Control>
+                <Control Id="TextRemoving" Type="Text" X="20" Y="65" Width="330" Height="35" Hidden="yes" NoPrefix="yes" Text="!(loc.ProgressDlgTextRemoving)">
+                    <Condition Action="show">WixUI_InstallMode = "Remove"</Condition>
+                </Control>
+                <Control Id="TitleRemoving" Type="Text" X="20" Y="15" Width="330" Height="15" Transparent="yes" NoPrefix="yes" Hidden="yes" Text="!(loc.ProgressDlgTitleRemoving)">
+                    <Condition Action="show">WixUI_InstallMode = "Remove"</Condition>
+                </Control>
+                <Control Id="ActionText" Type="Text" X="70" Y="100" Width="285" Height="10">
+                    <Subscribe Event="ActionText" Attribute="Text" />
+                </Control>
+                <Control Id="ProgressBar" Type="ProgressBar" X="20" Y="115" Width="330" Height="10" ProgressBlocks="yes" Text="!(loc.ProgressDlgProgressBar)">
+                    <Subscribe Event="SetProgress" Attribute="Progress" />
+                </Control>
+                <Control Id="StatusLabel" Type="Text" X="20" Y="100" Width="50" Height="10" Text="!(loc.ProgressDlgStatusLabel)" />
+            </Dialog>
+
+            <Dialog Id="CAutoupdateProgressDlg" Width="370" Height="65" Title="!(loc.ProgressDlg_Title)" Modeless="yes">
+                <Control Id="ActionText" Type="Text" X="70" Y="20" Width="285" Height="10">
+                    <Subscribe Event="ActionText" Attribute="Text" />
+                </Control>
+                <Control Id="ProgressBar" Type="ProgressBar" X="20" Y="35" Width="330" Height="10" ProgressBlocks="yes" Text="!(loc.ProgressDlgProgressBar)">
+                    <Subscribe Event="SetProgress" Attribute="Progress" />
+                </Control>
+                <Control TabSkip="no" Id="StatusLabel" Type="Text" X="20" Y="20" Width="50" Height="10" Text="!(loc.ProgressDlgStatusLabel)" />
+            </Dialog>
+        </UI>
+    </Fragment>
+
     <!-- Modified WixUI_InstallDir -->
     <Fragment>
         <UI Id="WixUI_CInstallDir">
@@ -380,7 +451,8 @@
             <DialogRef Id="FilesInUse" />
             <DialogRef Id="MsiRMFilesInUse" />
             <DialogRef Id="PrepareDlg" />
-            <DialogRef Id="ProgressDlg" />
+            <DialogRef Id="CProgressDlg" />
+            <DialogRef Id="CAutoupdateProgressDlg" />
             <DialogRef Id="ResumeDlg" />
             <DialogRef Id="UserExit" />
             
