@@ -545,6 +545,9 @@ public class ChatPanel
             = this.conversationPanel.processMessage(contactName, date,
                                             messageType, message, contentType);
         this.conversationPanel.appendMessageToEnd(processedMessage);
+
+        // change the last history message timestamp after we add one.
+        this.lastHistoryMsgTimestamp = date;
     }
 
     /**
