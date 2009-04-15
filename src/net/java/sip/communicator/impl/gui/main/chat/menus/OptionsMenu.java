@@ -76,8 +76,10 @@ public class OptionsMenu
     
     private void initValues()
     {
-        this.viewToolBar.setSelected(ConfigurationManager.isChatToolbarVisible());
-        this.viewStyleBar.setSelected(ConfigurationManager.isChatStylebarVisible());
+        this.viewToolBar.setSelected(
+            ConfigurationManager.isChatToolbarVisible());
+        this.viewStyleBar.setSelected(
+            ConfigurationManager.isChatStylebarVisible());
     }
 
     /**
@@ -91,12 +93,14 @@ public class OptionsMenu
         if (action.equals(ACTCMD_VIEW_TOOLBAR))
         {
             this.chatWindow.setToolbarVisible(this.viewToolBar.isSelected());
-            ConfigurationManager.setChatToolbarVisible(this.viewToolBar.isSelected());
+            ConfigurationManager
+                .setChatToolbarVisible(this.viewToolBar.isSelected());
         }
         else if (action.equals(ACTCMD_VIEW_STYLEBAR))
         {
             this.chatWindow.setStylebarVisible(this.viewStyleBar.isSelected());
-            ConfigurationManager.setChatStylebarVisible(this.viewStyleBar.isSelected());
+            ConfigurationManager
+                .setChatStylebarVisible(this.viewStyleBar.isSelected());
         }
         else if (action.equals(ACTCMD_SHOW_FONTDIALOG))
         {

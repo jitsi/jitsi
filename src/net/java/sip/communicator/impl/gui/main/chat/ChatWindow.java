@@ -197,8 +197,8 @@ public class ChatWindow
      */
     public void setToolbarVisible(boolean b)
     {
-        mainToolBar.setVisible(b);
-        contactPhotoPanel.setVisible(b);
+        // The north panel is the one containing the toolbar and contact photo.
+        northPanel.setVisible(b);
     }
     
     /**
