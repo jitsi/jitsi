@@ -30,12 +30,13 @@ public class IrcStack
     /**
      * Timeout for server response.
      */
-    private int timeout = 10000;
+    private static final int TIMEOUT = 10000;
 
     /**
      * A list of timers indicating when a chat room join fails.
      */
-    private Hashtable joinTimeoutTimers = new Hashtable();
+    private final Map<ChatRoom, Timer> joinTimeoutTimers
+        = new Hashtable<ChatRoom, Timer>();
 
     /**
      * A list of the channels on this server
@@ -46,20 +47,21 @@ public class IrcStack
      * A list of users that we have info about, it is used to stock "whois"
      * responses
      */
-    private Hashtable userInfoTable = new Hashtable();
+    private final Map<String, UserInfo> userInfoTable
+        = new Hashtable<String, UserInfo>();
 
     /**
      * The IRC multi-user chat operation set.
      */
-    private OperationSetMultiUserChatIrcImpl ircMUCOpSet;
+    private final OperationSetMultiUserChatIrcImpl ircMUCOpSet;
 
     /**
      * The IRC protocol provider service.
      */
-    private ProtocolProviderServiceIrcImpl parentProvider;
+    private final ProtocolProviderServiceIrcImpl parentProvider;
 
 
-    private Object operationLock = new Object();
+    private final Object operationLock = new Object();
 
     /**
      * The operation response code indicates 
@@ -74,7 +76,7 @@ public class IrcStack
     /**
      * Keeps all join requests received before the server is initialized.
      */
-    private ArrayList joinCache = new ArrayList();
+    private final List<ChatRoom> joinCache = new ArrayList<ChatRoom>();
 
     /**
      * The indicator which determines whether #onConnect() has been invoked and
@@ -469,7 +471,7 @@ public class IrcStack
 
         if(joinTimeoutTimers.containsKey(chatRoom))
         {
-            Timer timer = (Timer) joinTimeoutTimers.get(chatRoom);
+            Timer timer = joinTimeoutTimers.get(chatRoom);
 
             timer.cancel();
             joinTimeoutTimers.remove(chatRoom);
@@ -1144,8 +1146,7 @@ public class IrcStack
 
             if (userInfoTable.containsKey(userNickName))
             {
-                ((UserInfo) userInfoTable.get(userNickName))
-                        .setServerInfo(serverInfo);
+                userInfoTable.get(userNickName).setServerInfo(serverInfo);
             }
         }
         else if (code == RPL_WHOISOPERATOR)
@@ -1156,7 +1157,7 @@ public class IrcStack
 
             if (userInfoTable.containsKey(userNickName))
             {
-                ((UserInfo) userInfoTable.get(userNickName)).setIrcOp(true);
+                userInfoTable.get(userNickName).setIrcOp(true);
             }
         }
         else if (code == RPL_WHOISIDLE)
@@ -1168,7 +1169,7 @@ public class IrcStack
 
             if (userInfoTable.containsKey(userNickName))
             {
-                ((UserInfo) userInfoTable.get(userNickName)).setIdle(idle);
+                userInfoTable.get(userNickName).setIdle(idle);
             }
         }
         else if (code == RPL_WHOISCHANNELS)
@@ -1179,8 +1180,7 @@ public class IrcStack
 
             if (userInfoTable.containsKey(userNickName))
             {
-                ((UserInfo) userInfoTable.get(userNickName))
-                    .clearJoinedChatRoom();
+                userInfoTable.get(userNickName).clearJoinedChatRoom();
 
                 while(tokenizer.hasMoreTokens())
                 {
@@ -1189,8 +1189,7 @@ public class IrcStack
                     if(channel.startsWith(":"))
                         channel = channel.substring(1);
 
-                    ((UserInfo) userInfoTable.get(userNickName))
-                        .addJoinedChatRoom(channel);
+                    userInfoTable.get(userNickName).addJoinedChatRoom(channel);
                 }
             }
         }
@@ -1202,8 +1201,7 @@ public class IrcStack
 
             if (userInfoTable.containsKey(userNickName))
             {
-                UserInfo userInfo
-                    = (UserInfo) userInfoTable.get(userNickName);
+                UserInfo userInfo = userInfoTable.get(userNickName);
                 
                 this.onWhoIs(userInfo);
             }
@@ -1212,13 +1210,14 @@ public class IrcStack
         {
             this.isInitialized = true;
 
-            ArrayList joinCacheCopy = new ArrayList(joinCache);
+            ChatRoom[] joinCacheCopy
+                = joinCache.toArray(new ChatRoom[joinCache.size()]);
 
             joinCache.clear();
 
-            for (int i = 0; i < joinCacheCopy.size(); i ++)
+            for (ChatRoom joinCacheElement : joinCacheCopy)
             {
-                this.join((ChatRoom) joinCacheCopy.get(i));
+                this.join(joinCacheElement);
             }
         }
         else if (code != RPL_LISTSTART
@@ -1666,7 +1665,7 @@ public class IrcStack
 
         joinTimeoutTimers.put(chatRoom, joinTimeoutTimer);
 
-        joinTimeoutTimer.schedule(new JoinTimeoutTask(chatRoom), timeout);
+        joinTimeoutTimer.schedule(new JoinTimeoutTask(chatRoom), TIMEOUT);
     }
 
     /**
@@ -1683,7 +1682,7 @@ public class IrcStack
 
         joinTimeoutTimers.put(chatRoom, joinTimeoutTimer);
         
-        joinTimeoutTimer.schedule(new JoinTimeoutTask(chatRoom), timeout);
+        joinTimeoutTimer.schedule(new JoinTimeoutTask(chatRoom), TIMEOUT);
     }
 
     /**

@@ -26,10 +26,10 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class FirstWizardPage
     extends TransparentPanel
-    implements  WizardPage
+    implements WizardPage
 {
-    private static final Logger logger = Logger
-        .getLogger(FirstWizardPage.class);
+    private static final Logger logger
+        = Logger.getLogger(FirstWizardPage.class);
 
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
@@ -38,17 +38,11 @@ public class FirstWizardPage
     private JPanel userIDPassPanel
         = new TransparentPanel(new BorderLayout(10, 10));
 
-    private JPanel labelsPanel = new TransparentPanel();
-
-    private JPanel valuesPanel = new TransparentPanel();
-
     private JLabel userIDLabel = new JLabel(
         Resources.getString("plugin.googletalkaccregwizz.USERNAME"));
 
     private JLabel passLabel
         = new JLabel(Resources.getString("service.gui.PASSWORD"));
-
-    private JPanel emptyPanel = new TransparentPanel();
 
     private JLabel userIDExampleLabel = new JLabel(USER_NAME_EXAMPLE);
 
@@ -108,9 +102,7 @@ public class FirstWizardPage
 
     private JPanel mainPanel = new TransparentPanel();
 
-    private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
-
-    private GoogleTalkAccountRegistrationWizard wizard;
+    private final GoogleTalkAccountRegistrationWizard wizard;
 
     private boolean isCommitted = false;
 
@@ -123,34 +115,14 @@ public class FirstWizardPage
      */
     public FirstWizardPage(GoogleTalkAccountRegistrationWizard wizard)
     {
-
         super(new BorderLayout());
 
         this.wizard = wizard;
 
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
-        this.init();
-
-        this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        this.labelsPanel
-            .setLayout(new BoxLayout(labelsPanel, BoxLayout.Y_AXIS));
-
-        this.valuesPanel
-            .setLayout(new BoxLayout(valuesPanel, BoxLayout.Y_AXIS));
-    }
-
-    /**
-     * Initializes all panels, buttons, etc.
-     */
-    private void init()
-    {
         this.mainPanel.setOpaque(false);
-        this.labelsPanel.setOpaque(false);
-        this.valuesPanel.setOpaque(false);
         this.userIDPassPanel.setOpaque(false);
-        this.emptyPanel.setOpaque(false);
 
         this.userIDField.getDocument().addDocumentListener(new DocumentListener()
         {
@@ -176,14 +148,20 @@ public class FirstWizardPage
         this.userIDExampleLabel.setForeground(Color.GRAY);
         this.userIDExampleLabel.setFont(userIDExampleLabel.getFont()
             .deriveFont(8));
-        this.emptyPanel.setMaximumSize(new Dimension(40, 35));
         this.userIDExampleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0,
             8, 0));
 
+        JPanel emptyPanel = new TransparentPanel();
+        emptyPanel.setMaximumSize(new Dimension(40, 35));
+
+        JPanel labelsPanel = new TransparentPanel();
+        labelsPanel.setLayout(new BoxLayout(labelsPanel, BoxLayout.Y_AXIS));
         labelsPanel.add(userIDLabel);
         labelsPanel.add(emptyPanel);
         labelsPanel.add(passLabel);
 
+        JPanel valuesPanel = new TransparentPanel();
+        valuesPanel.setLayout(new BoxLayout(valuesPanel, BoxLayout.Y_AXIS));
         valuesPanel.add(userIDField);
         valuesPanel.add(userIDExampleLabel);
         valuesPanel.add(passField);
@@ -264,7 +242,7 @@ public class FirstWizardPage
                  * We don't have our own implementation of registering/signing
                  * up with Google Talk so we'll just use webSignup.
                  */
-                wizard.webSignup();
+                FirstWizardPage.this.wizard.webSignup();
 
                 logger.debug("Reg End");
             }
@@ -286,6 +264,8 @@ public class FirstWizardPage
         mainPanel.add(registerPanel);
 
         this.add(mainPanel, BorderLayout.NORTH);
+
+        this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     }
 
     /**
@@ -307,7 +287,7 @@ public class FirstWizardPage
      */
     public Object getNextPageIdentifier()
     {
-        return nextPageIdentifier;
+        return SUMMARY_PAGE_IDENTIFIER;
     }
 
     /**
@@ -369,8 +349,6 @@ public class FirstWizardPage
             registration.setPriority(
                 Integer.parseInt(priorityField.getText()));
 
-        nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
-
         isCommitted = true;
     }
 
@@ -380,17 +358,18 @@ public class FirstWizardPage
      */
     private void setNextButtonAccordingToUserIDAndResource()
     {
-        if (userIDField.getText() == null
-            || userIDField.getText().equals("")
-            || resourceField.getText() == null
-            || resourceField.getText().equals(""))
-        {
-            wizard.getWizardContainer().setNextFinishButtonEnabled(false);
-        }
+        String userID = userIDField.getText();
+        boolean enabled;
+
+        if ((userID == null) || userID.equals(""))
+            enabled = false;
         else
         {
-            wizard.getWizardContainer().setNextFinishButtonEnabled(true);
+            String resource = resourceField.getText();
+
+            enabled = ((resource != null) && !resource.equals(""));
         }
+        wizard.getWizardContainer().setNextFinishButtonEnabled(enabled);
     }
 
     public void pageHiding()
@@ -440,8 +419,9 @@ public class FirstWizardPage
 
         portField.setText(serverPort);
 
-        boolean keepAlive = new Boolean((String)accountProperties
-            .get("SEND_KEEP_ALIVE")).booleanValue();
+        boolean keepAlive
+            = Boolean.parseBoolean(
+                (String) accountProperties.get("SEND_KEEP_ALIVE"));
 
         sendKeepAliveBox.setSelected(keepAlive);
 
@@ -457,12 +437,11 @@ public class FirstWizardPage
 
         this.isServerOverridden = accountID.getAccountPropertyBoolean(
             ProtocolProviderFactory.IS_SERVER_OVERRIDDEN, false);
-
     }
 
     /**
      * Parse the server part from the Google Talk id and set it to server as
-     * default value. If Advanced option is enabled Do nothing.
+     * default value. If Advanced option is enabled, do nothing.
      */
     private void setServerFieldAccordingToUserID()
     {
@@ -479,16 +458,19 @@ public class FirstWizardPage
      */
     private void setNextButtonAccordingToPortAndPriority()
     {
+        boolean enabled;
+
         try
         {
-            new Integer(portField.getText());
-            new Integer(priorityField.getText());
-            wizard.getWizardContainer().setNextFinishButtonEnabled(true);
+            Integer.parseInt(portField.getText());
+            Integer.parseInt(priorityField.getText());
+            enabled = true;
         }
         catch (NumberFormatException ex)
         {
-            wizard.getWizardContainer().setNextFinishButtonEnabled(false);
+            enabled = false;
         }
+        wizard.getWizardContainer().setNextFinishButtonEnabled(enabled);
     }
 
     public Object getSimpleForm()
