@@ -136,8 +136,7 @@ public class ChatWindow
             mainToolBar = new MainToolBar(this);
 
         boolean chatToolbarVisible = ConfigurationManager.isChatToolbarVisible();
-        mainToolBar.setVisible(chatToolbarVisible);
-        contactPhotoPanel.setVisible(chatToolbarVisible);
+        northPanel.setVisible(chatToolbarVisible);
 
         northPanel.setBorder(BorderFactory.createEmptyBorder(3, 0, 3, 0));
         northPanel.add(mainToolBar, BorderLayout.CENTER);
