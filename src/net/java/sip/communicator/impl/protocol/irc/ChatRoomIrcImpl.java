@@ -936,8 +936,7 @@ public class ChatRoomIrcImpl
                                         String eventID,
                                         String eventReason)
     {
-        ChatRoomMemberPresenceChangeEvent evt = null;
-        
+        ChatRoomMemberPresenceChangeEvent evt;
         if(actorMember != null)
             evt = new ChatRoomMemberPresenceChangeEvent(
                 this, member, actorMember, eventID, eventReason);
@@ -947,20 +946,14 @@ public class ChatRoomIrcImpl
 
         logger.trace("Will dispatch the following ChatRoom event: " + evt);
 
-        Iterator<ChatRoomMemberPresenceListener> listeners = null;
+        List<ChatRoomMemberPresenceListener> listeners;
         synchronized (memberListeners)
         {
             listeners = new ArrayList<ChatRoomMemberPresenceListener>(
-                            memberListeners).iterator();
+                            memberListeners);
         }
-
-        while (listeners.hasNext())
-        {
-            ChatRoomMemberPresenceListener listener
-                = (ChatRoomMemberPresenceListener) listeners.next();
-
+        for (ChatRoomMemberPresenceListener listener : listeners)
             listener.memberPresenceChanged(evt);
-        }
     }
 
     /**

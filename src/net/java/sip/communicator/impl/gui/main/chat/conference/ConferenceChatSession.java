@@ -389,11 +389,23 @@ public class ConferenceChatSession
 
             sessionRenderer.addChatContact(chatContact);
 
-            statusMessage = GuiActivator.getResources().getI18NString(
-                "service.gui.CHAT_ROOM_USER_JOINED",
-                new String[] {sourceChatRoom.getName()});
+            /*
+             * When the whole list of members of a given chat room is reported,
+             * it doesn't make sense to see "ChatContact has joined #ChatRoom"
+             * for all of them one after the other. Such an event occurs not
+             * because the ChatContact has joined after us but rather she was
+             * there before us.
+             */
+            if (!evt.isReasonUserList())
+            {
+                statusMessage = GuiActivator.getResources().getI18NString(
+                    "service.gui.CHAT_ROOM_USER_JOINED",
+                    new String[] {sourceChatRoom.getName()});
 
-            sessionRenderer.updateChatContactStatus(chatContact, statusMessage);
+                sessionRenderer.updateChatContactStatus(
+                    chatContact,
+                    statusMessage);
+            }
         }
         else if (eventType.equals(ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT)
             || eventType.equals(ChatRoomMemberPresenceChangeEvent.MEMBER_KICKED)

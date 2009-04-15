@@ -41,7 +41,7 @@ public class IrcStack
     /**
      * A list of the channels on this server
      */
-    private List serverChatRoomList = new ArrayList();
+    private final List<String> serverChatRoomList = new ArrayList<String>();
 
     /**
      * A list of users that we have info about, it is used to stock "whois"
@@ -1524,28 +1524,19 @@ public class IrcStack
 
         chatRoom.clearChatRoomMemberList();
 
-        for (int i = 0; i < users.length; i++)
+        for (User user : users)
         {
-            User user = users[i];
-
+            String userPrefix = user.getPrefix();
             ChatRoomMemberRole newMemberRole;
 
-            if (user.getPrefix().equalsIgnoreCase("@"))
-            {
+            if ("@".equalsIgnoreCase(userPrefix))
                 newMemberRole = ChatRoomMemberRole.ADMINISTRATOR;
-            }
-            else if (user.getPrefix().equalsIgnoreCase("%"))
-            {
+            else if ("%".equalsIgnoreCase(userPrefix))
                 newMemberRole = ChatRoomMemberRole.MODERATOR;
-            }
-            else if (user.getPrefix().equalsIgnoreCase("+"))
-            {
+            else if ("+".equalsIgnoreCase(userPrefix))
                 newMemberRole = ChatRoomMemberRole.MEMBER;
-            }
             else
-            {
                 newMemberRole = ChatRoomMemberRole.GUEST;
-            }
 
             ChatRoomMemberIrcImpl newMember
                 = new ChatRoomMemberIrcImpl(parentProvider,
@@ -1557,12 +1548,11 @@ public class IrcStack
 
             chatRoom.addChatRoomMember(user.getNick(), newMember);
 
-          //we don't specify a reason
             chatRoom.fireMemberPresenceEvent(
                 newMember,
                 null,
                 ChatRoomMemberPresenceChangeEvent.MEMBER_JOINED,
-                null);
+                ChatRoomMemberPresenceChangeEvent.REASON_USER_LIST);
         }
     }
 
@@ -1603,7 +1593,7 @@ public class IrcStack
      * 
      * @return the list of chat rooms on this server
      */
-    public List getServerChatRoomList()
+    public List<String> getServerChatRoomList()
     {
         return serverChatRoomList;
     }

@@ -15,6 +15,7 @@ import net.java.sip.communicator.service.protocol.*;
  * being kicked, join, left...
  *
  * @author Emil Ivov
+ * @author Lubomir Marinov
  */
 public class ChatRoomMemberPresenceChangeEvent
     extends EventObject
@@ -25,7 +26,6 @@ public class ChatRoomMemberPresenceChangeEvent
      */
     public static final String MEMBER_JOINED = "MemberJoined";
 
-    
     /**
      * Indicates that this event was triggered as a result of the participant
      * leaving the source chat room.
@@ -37,35 +37,42 @@ public class ChatRoomMemberPresenceChangeEvent
      * being "kicked" out of the chat room.
      */
     public static final String MEMBER_KICKED = "MemberKicked";
-    
+
     /**
      * Indicates that this event was triggered as a result of the participant
      * being disconnected from the server brutally, or due to a ping timeout.
      */
-     public static final String MEMBER_QUIT = "MemberQuit";
+    public static final String MEMBER_QUIT = "MemberQuit";
+
+    /**
+     * The well-known reason for a
+     * <code>ChatRoomMemberPresenceChangeEvent</code> to occur as part of an
+     * operation which lists all users in a <code>ChatRoom</code>.
+     */
+    public static final String REASON_USER_LIST = "ReasonUserList";
 
     /**
      * The chat room member that the event relates to.
      */
-    private ChatRoomMember sourceMember = null;
-    
+    private final ChatRoomMember sourceMember;
+
     /**
      * The chat room member that participated as an actor in this event. In the
      * case of MEMBER_KICKED event this would be the moderator that kicked the
      * participant.
      */
-    private ChatRoomMember actorMember = null;
+    private final ChatRoomMember actorMember;
 
     /**
      * The type of this event. Values can be any of the MEMBER_XXX fields.
      */
-    private String eventType = null;
+    private final String eventType;
 
     /**
      * An optional String indicating a possible reason as to why the event
      * might have occurred.
      */
-    private String reason = null;
+    private final String reason;
 
     /**
      * Creates a <tt>ChatRoomMemberPresenceChangeEvent</tt> representing that
@@ -82,10 +89,7 @@ public class ChatRoomMemberPresenceChangeEvent
                                                 String         eventType,
                                                 String         reason )
     {
-        super(sourceRoom);
-        this.sourceMember = sourceMember;
-        this.eventType = eventType;
-        this.reason = reason;
+        this(sourceRoom, sourceMember, null, eventType, reason);
     }
 
     /**
@@ -142,6 +146,20 @@ public class ChatRoomMemberPresenceChangeEvent
     public String getReason()
     {
         return reason;
+    }
+
+    /**
+     * Gets the indicator which determines whether this event has occurred with
+     * the well-known reason of listing all users in a <code>ChatRoom</code>.
+     *  
+     * @return <tt>true</tt> if this event has occurred with the well-known
+     * reason of listing all users in a <code>ChatRoom</code> i.e.
+     * {@link #getReason()} returns a value of {@link #REASON_USER_LIST};
+     * otherwise, <tt>false</tt>
+     */
+    public boolean isReasonUserList()
+    {
+        return REASON_USER_LIST.equals(getReason());
     }
 
     /**

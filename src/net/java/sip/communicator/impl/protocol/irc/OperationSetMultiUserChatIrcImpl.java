@@ -10,18 +10,22 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
- * Allows creating, configuring, joining and administrating of individual
+ * Allows creating, configuring, joining and administering of individual
  * text-based conference rooms.
  *
  * @author Stephane Remy
  * @author Loic Kempf
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class OperationSetMultiUserChatIrcImpl
     implements  OperationSetMultiUserChat
 {
+    private static final Logger logger
+        = Logger.getLogger(OperationSetMultiUserChatIrcImpl.class);
 
     /**
      * A call back to the IRC provider that created us.
@@ -42,14 +46,16 @@ public class OperationSetMultiUserChatIrcImpl
     /**
      * list of this chat room local user status listener
      */
-    private ArrayList localUserPresenceListeners = new ArrayList();
+    private final List<LocalUserChatRoomPresenceListener> localUserPresenceListeners
+        = new ArrayList<LocalUserChatRoomPresenceListener>();
 
     /**
      * A list of the rooms that are currently open by this account. Note that
      * we have not necessarily joined these rooms, we might have simply been
      * searching through them.
      */
-    private Hashtable chatRoomCache = new Hashtable();
+    private final Map<String, ChatRoom> chatRoomCache
+        = new Hashtable<String, ChatRoom>();
 
     /**
      * A list of all private rooms opened by user on this server. These rooms
@@ -88,7 +94,7 @@ public class OperationSetMultiUserChatIrcImpl
      * @throws OperationFailedException if we failed retrieving this list from
      * the server.
      */
-    public List getExistingChatRooms() throws OperationFailedException
+    public List<String> getExistingChatRooms() throws OperationFailedException
     {
         return ircProvider.getIrcStack().getServerChatRoomList();
     }
@@ -168,18 +174,10 @@ public class OperationSetMultiUserChatIrcImpl
     public ChatRoom findRoom(String roomName)
     {
         //first check whether we have already initialized the room.
-        ChatRoom room = (ChatRoom)chatRoomCache.get(roomName);
+        ChatRoom room = chatRoomCache.get(roomName);
 
-        //if yes - we return it
-        if(room != null)
-        {
-            return room;
-        }
-        //if not, we create it.
-        else
-        {
-            return createLocalChatRoomInstance(roomName);
-        }
+        //if yes - we return it. if not, we create it.
+        return (room != null) ? room : createLocalChatRoomInstance(roomName);
     }
 
     /**
@@ -315,20 +313,21 @@ public class OperationSetMultiUserChatIrcImpl
                                                         chatRoom,
                                                         eventType,
                                                         reason);
-        
-        Iterator listeners = null;
+
+        logger.trace(
+            "Will dispatch the following OperationSetMultiUserChatIrcImpl event: "
+            + evt);
+
+        List<LocalUserChatRoomPresenceListener> listeners;
         synchronized (localUserPresenceListeners)
         {
-            listeners = new ArrayList(localUserPresenceListeners).iterator();
+            listeners
+                = new ArrayList<LocalUserChatRoomPresenceListener>(
+                        localUserPresenceListeners);
         }
 
-        while (listeners.hasNext())
-        {
-            LocalUserChatRoomPresenceListener listener
-                = (LocalUserChatRoomPresenceListener) listeners.next();
-            
+        for (LocalUserChatRoomPresenceListener listener : listeners)
             listener.localUserPresenceChanged(evt);
-        }
     }
 
     /**
