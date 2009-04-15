@@ -1071,7 +1071,7 @@ public class MclStorageManager
      * @return the XML Element containing the persistent version of
      *         <tt>metaContact</tt>
      */
-    private Element createMetaContactNode(MetaContact metaContact)
+        private Element createMetaContactNode(MetaContact metaContact)
     {
         Element metaContactElement =
             this.contactListDocument.createElement(META_CONTACT_NODE_NAME);
@@ -1321,14 +1321,6 @@ public class MclStorageManager
         Element newParentNode =
             findMetaContactGroupNode(evt.getNewParent().getMetaUID());
 
-        // not sure what to do in case of null. we'll be logging an internal err
-        // for now and that's all.
-        if (metaContactNode == null)
-        {
-            logger.error("Save after metacontact moved. Contact not found: "
-                + evt.getSourceMetaContact());
-            return;
-        }
         if (newParentNode == null)
         {
             logger.error("Save after metacontact moved. new parent not found: "
@@ -1336,8 +1328,17 @@ public class MclStorageManager
             return;
         }
 
-        // move the meta contact
-        metaContactNode.getParentNode().removeChild(metaContactNode);
+        // in case of null this is a case of moving from non persistent group
+        // to a persistent one.
+        if(metaContactNode == null)
+        {
+            // create new node
+            metaContactNode = createMetaContactNode(evt.getSourceMetaContact());
+        }
+        else
+        {
+            metaContactNode.getParentNode().removeChild(metaContactNode);
+        }
 
         updateParentsForMetaContactNode(metaContactNode, evt.getNewParent());
 

@@ -186,7 +186,7 @@ public class AddContactDialog
                                     GuiActivator.getResources().getI18NString(
                                     "addContactErrorTitle"),
                                     GuiActivator.getResources().getI18NString(
-                                            "addContactExistError",
+                                            "service.gui.ADD_CONTACT_EXIST_ERROR",
                                             new String[]{uin}),
                                     ex)
                                 .showDialog();

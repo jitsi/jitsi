@@ -563,7 +563,7 @@ public class OperationSetBasicTelephonySipImpl
             try
             {
                 serverTransaction =
-                    jainSipProvider.getNewServerTransaction(request);
+                    SipStackSharing.getOrCreateServerTransaction(requestEvent);
             }
             catch (TransactionAlreadyExistsException ex)
             {

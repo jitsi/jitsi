@@ -710,8 +710,8 @@ public class ProtocolProviderServiceSipImpl
                 {
                     try
                     {
-                        serverTransaction = jainSipProvider
-                            .getNewServerTransaction(request);
+                        serverTransaction = SipStackSharing.
+                            getOrCreateServerTransaction(requestEvent);
                     }
                     catch (TransactionAlreadyExistsException ex)
                     {

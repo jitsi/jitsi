@@ -759,10 +759,8 @@ public class OperationSetBasicInstantMessagingSipImpl
             {
                 Response ok = sipProvider.getMessageFactory()
                     .createResponse(Response.OK, requestEvent.getRequest());
-                SipProvider jainSipProvider = (SipProvider) requestEvent.
-                    getSource();
-                jainSipProvider.getNewServerTransaction(
-                    requestEvent.getRequest()).sendResponse(ok);
+                SipStackSharing.getOrCreateServerTransaction(requestEvent).
+                    sendResponse(ok);
             }
             catch (ParseException exc)
             {

@@ -146,7 +146,7 @@ public class AddContactWizard
                             GuiActivator.getResources().getI18NString(
                             "addContactErrorTitle"),
                             GuiActivator.getResources().getI18NString(
-                                    "addContactExistError",
+                                    "service.gui.ADD_CONTACT_EXIST_ERROR",
                                     new String[]{newContact.getUin()}),
                             ex)
                         .showDialog();

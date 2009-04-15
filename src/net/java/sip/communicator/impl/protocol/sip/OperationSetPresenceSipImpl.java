@@ -476,14 +476,14 @@ public class OperationSetPresenceSipImpl
         ContactGroupSipImpl parentSipGroup
             = (ContactGroupSipImpl) sipContact.getParentContactGroup();
 
-        parentSipGroup.removeContact(sipContact);
+            parentSipGroup.removeContact(sipContact);
 
-        ((ContactGroupSipImpl) newParent).addContact(sipContact);
+            ((ContactGroupSipImpl) newParent).addContact(sipContact);
 
-        fireSubscriptionMovedEvent(contactToMove,
+            fireSubscriptionMovedEvent(contactToMove,
                                    parentSipGroup,
-                                   newParent);
-    }
+                                       newParent);
+        }
 
     /**
      * Removes the specified group from the server stored contact list.
@@ -1091,11 +1091,20 @@ public class OperationSetPresenceSipImpl
         ContactSipImpl contact = (ContactSipImpl)
             resolveContactID(contactIdentifier);
 
-        if (contact != null)
+        if (contact != null && contact.isPersistent())
         {
             throw new OperationFailedException(
                 "Contact " + contactIdentifier + " already exists.",
                 OperationFailedException.SUBSCRIPTION_ALREADY_EXISTS);
+        }
+        else if(!contact.isPersistent())
+        {
+            // we will remove it as we will created again
+            ContactGroupSipImpl oldParentGroup =
+                (ContactGroupSipImpl)contact.getParentContactGroup();
+            oldParentGroup.removeContact(contact);
+            fireSubscriptionEvent(contact, oldParentGroup,
+                SubscriptionEvent.SUBSCRIPTION_REMOVED);
         }
 
         Address contactAddress;
@@ -1110,13 +1119,13 @@ public class OperationSetPresenceSipImpl
                 contactIdentifier + " is not a valid string.", exc);
         }
 
-        // create a new contact, marked as resolvable and non resolved
-        contact = new ContactSipImpl(contactAddress, this.parentProvider);
+            // create a new contact, marked as resolvable and non resolved
+            contact = new ContactSipImpl(contactAddress, this.parentProvider);
         ((ContactGroupSipImpl) parentGroup).addContact(contact);
 
-        fireSubscriptionEvent(contact,
-                parentGroup,
-                SubscriptionEvent.SUBSCRIPTION_CREATED);
+            fireSubscriptionEvent(contact,
+                    parentGroup,
+                    SubscriptionEvent.SUBSCRIPTION_CREATED);
 
         // do not query the presence state
         if (this.presenceEnabled == false)
@@ -2521,8 +2530,8 @@ public class OperationSetPresenceSipImpl
         {
             try
             {
-                serverTransaction = jainSipProvider.getNewServerTransaction(
-                    request);
+                serverTransaction =
+                    SipStackSharing.getOrCreateServerTransaction(requestEvent);
             }
             catch (TransactionAlreadyExistsException ex)
             {
@@ -3666,6 +3675,21 @@ public class OperationSetPresenceSipImpl
                         }
                     }
                 }
+            }
+
+            if (res == null)
+            {
+                //some contacts uri : sip:user_name@ip_address:5060;transport=udp
+                int ix = contactID.indexOf(":", 4);
+                // if port is absent try removing the params after ;
+                if(ix == -1)
+                    ix = contactID.indexOf(";", 4);
+
+                if(ix > 0)
+                    res = this.findContactByID(
+                        contactID.substring(
+                            4,
+                            contactID.indexOf(":", 4)));
             }
         }
 

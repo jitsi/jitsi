@@ -106,15 +106,8 @@ public class ClientCapabilities
 
         try
         {
-            ServerTransaction sTran =  requestEvent.getServerTransaction();
-            if (sTran == null)
-            {
-                SipProvider sipProvider = (SipProvider)requestEvent.getSource();
-                sTran = sipProvider
-                    .getNewServerTransaction(requestEvent.getRequest());
-            }
-
-            sTran.sendResponse(optionsOK);
+            SipStackSharing.getOrCreateServerTransaction(requestEvent).
+                sendResponse(optionsOK);
         }
         catch(TransactionUnavailableException ex)
         {

@@ -883,6 +883,31 @@ public class SipStackSharing
     {
         logger.error("An error occurred while processing event of type: "
                         + eventClass.getName());
-        logger.debug(exc);
+        logger.debug("An error occurred while processing event of type: "
+                        + eventClass.getName(), exc);
+    }
+
+    /**
+     * Safly returns the transaction from the event if already exists.
+     * If not a new transaction is created.
+     *
+     * @param event the request event
+     * @return the server transaction
+     * @throws javax.sip.TransactionAlreadyExistsException if transaction exists
+     * @throws javax.sip.TransactionUnavailableException if unavailable
+     */
+    public static ServerTransaction getOrCreateServerTransaction(RequestEvent event)
+        throws TransactionAlreadyExistsException,
+                TransactionUnavailableException
+    {
+        if(event.getServerTransaction() != null)
+            return event.getServerTransaction();
+        else
+        {
+            SipProvider jainSipProvider = (SipProvider) event.getSource();
+
+            return jainSipProvider.getNewServerTransaction(
+                    event.getRequest());
+        }
     }
 }

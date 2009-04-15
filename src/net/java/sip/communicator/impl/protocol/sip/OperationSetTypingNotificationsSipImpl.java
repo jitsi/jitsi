@@ -24,13 +24,13 @@ import net.java.sip.communicator.util.xml.*;
 /**
  * A implementation of the typing notification operation
  * set.
- * 
+ *
  * rfc3994
  *
  * @author Damian Minkov
  */
 public class OperationSetTypingNotificationsSipImpl
-    implements  OperationSetTypingNotifications, 
+    implements  OperationSetTypingNotifications,
                 SipMessageProcessor,
                 MessageListener
 {
@@ -52,30 +52,30 @@ public class OperationSetTypingNotificationsSipImpl
      * to match incoming messages to <tt>Contact</tt>s and vice versa.
      */
     private OperationSetPresenceSipImpl opSetPersPresence = null;
-    
+
     /**
      * A reference to the persistent presence operation set that we use
      * to match incoming messages to <tt>Contact</tt>s and vice versa.
      */
     private OperationSetBasicInstantMessagingSipImpl opSetBasicIm = null;
-    
+
     // XML documents types
     private final String CONTENT_TYPE = "application/im-iscomposing+xml";
     private final String CONTENT_SUBTYPE = "im-iscomposing+xml";
-    
+
     // isComposing elements and attributes
     private static final String NS_VALUE = "urn:ietf:params:xml:ns:im-iscomposing";
     private static final String STATE_ELEMENT= "state";
     private static final String REFRESH_ELEMENT= "refresh";
-    
+
     private static final int REFRESH_DEFAULT_TIME = 120;
-    
+
     private static final String COMPOSING_STATE_ACTIVE = "active";
     private static final String COMPOSING_STATE_IDLE = "idle";
-    
+
     private Timer timer = new Timer();
     private final List<TypingTask> typingTasks = new Vector<TypingTask>();
-    
+
     /**
      * Creates an instance of this operation set.
      * @param provider a ref to the <tt>ProtocolProviderServiceImpl</tt>
@@ -83,7 +83,7 @@ public class OperationSetTypingNotificationsSipImpl
      * connection.
      */
     OperationSetTypingNotificationsSipImpl(
-        ProtocolProviderServiceSipImpl provider, 
+        ProtocolProviderServiceSipImpl provider,
         OperationSetBasicInstantMessagingSipImpl opSetBasicIm)
     {
         this.sipProvider = provider;
@@ -171,7 +171,7 @@ public class OperationSetTypingNotificationsSipImpl
             listener.typingNotificationReceived(evt);
         }
     }
-    
+
     /**
      * Process the incoming sip messages
      * @param requestEvent the incoming event holding the message
@@ -184,10 +184,10 @@ public class OperationSetTypingNotificationsSipImpl
 
         Request req = requestEvent.getRequest();
 
-        ContentTypeHeader ctheader = 
+        ContentTypeHeader ctheader =
             (ContentTypeHeader)req.getHeader(ContentTypeHeader.NAME);
 
-        // ignore messages which are not typing 
+        // ignore messages which are not typing
         // notifications and continue processing
         if (ctheader == null || !ctheader.getContentSubType()
                 .equalsIgnoreCase(CONTENT_SUBTYPE))
@@ -201,7 +201,7 @@ public class OperationSetTypingNotificationsSipImpl
             sendResponse(requestEvent, Response.BAD_REQUEST);
             return false;
         }
-        
+
         // who sent this request ?
         FromHeader fromHeader = (FromHeader)
             requestEvent.getRequest().getHeader(FromHeader.NAME);
@@ -214,7 +214,15 @@ public class OperationSetTypingNotificationsSipImpl
 
         Contact from = opSetPersPresence.resolveContactID(
             fromHeader.getAddress().getURI().toString());
-        
+
+        // create fn not in contact list
+        if(from == null)
+        {
+            //create the volatile contact
+            from = opSetPersPresence.createVolatileContact(
+                    fromHeader.getAddress());
+        }
+
         // parse content
         Document doc = null;
         try
@@ -223,8 +231,8 @@ public class OperationSetTypingNotificationsSipImpl
             doc = opSetPersPresence.convertDocument(content);
         }
         catch(Exception e){}
-        
-        if (doc == null) 
+
+        if (doc == null)
         {
              // send error
              sendResponse(requestEvent, Response.BAD_REQUEST);
@@ -237,7 +245,7 @@ public class OperationSetTypingNotificationsSipImpl
         NodeList stateList = doc.getElementsByTagNameNS(NS_VALUE,
              STATE_ELEMENT);
 
-        if (stateList.getLength() == 0) 
+        if (stateList.getLength() == 0)
         {
             logger.error("no state element in this document");
             // send error
@@ -246,7 +254,7 @@ public class OperationSetTypingNotificationsSipImpl
         }
 
         Node stateNode = stateList.item(0);
-        if (stateNode.getNodeType() != Node.ELEMENT_NODE) 
+        if (stateNode.getNodeType() != Node.ELEMENT_NODE)
         {
             logger.error("the state node is not an element");
             // send error
@@ -285,12 +293,12 @@ public class OperationSetTypingNotificationsSipImpl
                }
            }
         }
-        
+
         // process the typing info we have gathered
         if(state.equals(COMPOSING_STATE_ACTIVE))
         {
             TypingTask task = findTypingTask(from);
-            
+
             if(task == null)
             {
                 task = new TypingTask(from);
@@ -298,9 +306,9 @@ public class OperationSetTypingNotificationsSipImpl
             }
             else
                 task.cancel();
-            
+
             timer.schedule(task, refresh * 1000);
-         
+
             fireTypingNotificationsEvent(from, STATE_TYPING);
         }
         else
@@ -308,12 +316,12 @@ public class OperationSetTypingNotificationsSipImpl
             {
                 fireTypingNotificationsEvent(from, STATE_PAUSED);
             }
-         
+
         // send ok
         sendResponse(requestEvent, Response.OK);
         return false;
     }
-    
+
     /**
      * Process the responses of sent messages
      * @param responseEvent the incoming event holding the response
@@ -326,21 +334,21 @@ public class OperationSetTypingNotificationsSipImpl
 
         Request req = responseEvent.getClientTransaction().getRequest();
 
-        ContentTypeHeader ctheader = 
+        ContentTypeHeader ctheader =
             (ContentTypeHeader)req.getHeader(ContentTypeHeader.NAME);
 
-        // ignore messages which are not typing 
+        // ignore messages which are not typing
         // notifications and continue processing
         if (ctheader == null || !ctheader.getContentSubType()
                 .equalsIgnoreCase(CONTENT_SUBTYPE))
             return true;
-     
+
         int status = responseEvent.getResponse().getStatusCode();
 
         // we retrieve the original message
         String key = ((CallIdHeader)req.getHeader(CallIdHeader.NAME))
             .getCallId();
-        
+
         if (status >= 200 && status < 300)
         {
             logger.debug(
@@ -349,7 +357,7 @@ public class OperationSetTypingNotificationsSipImpl
 
             // we don't need this message anymore
             sentMsg.remove(key);
-            
+
             return false;
         }
         else if (status >= 400 && status != 401 && status != 407)
@@ -357,17 +365,17 @@ public class OperationSetTypingNotificationsSipImpl
             logger.warn(
                 "Error received : "
                 + responseEvent.getResponse().getReasonPhrase());
-            
+
             // we don't need this message anymore
             sentMsg.remove(key);
-            
+
             return false;
         }
-        
+
         // process messages as auth required
         return true;
     }
-    
+
     /**
      * Process the timeouts of sent messages
      * @param timeoutEvent the event holding the request
@@ -376,19 +384,19 @@ public class OperationSetTypingNotificationsSipImpl
     public boolean processTimeout(TimeoutEvent timeoutEvent, Map sentMessages)
     {
         Request req = timeoutEvent.getClientTransaction().getRequest();
-        
-        ContentTypeHeader ctheader = 
+
+        ContentTypeHeader ctheader =
             (ContentTypeHeader)req.getHeader(ContentTypeHeader.NAME);
 
-        // ignore messages which are not typing 
+        // ignore messages which are not typing
         // notifications and continue processing
         if (ctheader == null || !ctheader.getContentSubType()
                 .equalsIgnoreCase(CONTENT_SUBTYPE))
             return true;
-        
+
         return false;
     }
-    
+
     private TypingTask findTypingTask(Contact contact)
     {
         for (TypingTask typingTask : typingTasks)
@@ -398,7 +406,7 @@ public class OperationSetTypingNotificationsSipImpl
         }
         return null;
     }
-    
+
     /**
      * Adds <tt>l</tt> to the list of listeners registered for receiving
      * <tt>TypingNotificationEvent</tt>s
@@ -431,8 +439,8 @@ public class OperationSetTypingNotificationsSipImpl
             typingNotificationsListeners.remove(listener);
         }
     }
-    
-    public void sendTypingNotification(Contact to, int typingState) 
+
+    public void sendTypingNotification(Contact to, int typingState)
         throws IllegalStateException, IllegalArgumentException
     {
         assertConnected();
@@ -441,25 +449,25 @@ public class OperationSetTypingNotificationsSipImpl
            throw new IllegalArgumentException(
                "The specified contact is not a Sip contact."
                + to);
-        
+
         Document doc = opSetPersPresence.createDocument();
-        
+
         Element rootEl = doc.createElementNS(NS_VALUE, "isComposing");
         rootEl.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
         doc.appendChild(rootEl);
-        
-        
+
+
         /*
         Element contentType = doc.createElement("contenttype");
-        Node contentTypeValue = 
+        Node contentTypeValue =
             doc.createTextNode(OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
         contentType.appendChild(contentTypeValue);
         rootEl.appendChild(contentType);*/
-        
+
         if(typingState == STATE_TYPING)
         {
             Element state = doc.createElement("state");
-            Node stateValue = 
+            Node stateValue =
                 doc.createTextNode(COMPOSING_STATE_ACTIVE);
             state.appendChild(stateValue);
             rootEl.appendChild(state);
@@ -472,7 +480,7 @@ public class OperationSetTypingNotificationsSipImpl
         else if(typingState == STATE_STOPPED)
         {
             Element state = doc.createElement("state");
-            Node stateValue = 
+            Node stateValue =
                 doc.createTextNode(COMPOSING_STATE_IDLE);
             state.appendChild(stateValue);
             rootEl.appendChild(state);
@@ -484,7 +492,7 @@ public class OperationSetTypingNotificationsSipImpl
             opSetBasicIm.createMessage(opSetPersPresence.convertDocument(doc),
                 CONTENT_TYPE,
                 OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING, null);
-            
+
         //create the message
         Request mes;
         try
@@ -519,7 +527,7 @@ public class OperationSetTypingNotificationsSipImpl
             return;
         }
     }
-    
+
     private void sendResponse(RequestEvent requestEvent, int response)
     {
         // answer
@@ -527,10 +535,8 @@ public class OperationSetTypingNotificationsSipImpl
         {
             Response ok = sipProvider.getMessageFactory()
                 .createResponse(response, requestEvent.getRequest());
-            SipProvider jainSipProvider = (SipProvider) requestEvent.
-                getSource();
-            jainSipProvider.getNewServerTransaction(
-                requestEvent.getRequest()).sendResponse(ok);
+            SipStackSharing.getOrCreateServerTransaction(requestEvent).
+                sendResponse(ok);
         }
         catch (ParseException exc)
         {
@@ -558,12 +564,12 @@ public class OperationSetTypingNotificationsSipImpl
     {
         Contact from = evt.getSourceContact();
         TypingTask task = findTypingTask(from);
-        
+
         if(task != null)
         {
             task.cancel();
-            
-            fireTypingNotificationsEvent(from, STATE_STOPPED); 
+
+            fireTypingNotificationsEvent(from, STATE_STOPPED);
         }
     }
 
@@ -572,7 +578,7 @@ public class OperationSetTypingNotificationsSipImpl
 
     public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)
     {}
-    
+
     /**
      * Task that will fire typing stoppped when refresh time expires.
      */
@@ -580,12 +586,12 @@ public class OperationSetTypingNotificationsSipImpl
         extends TimerTask
     {
         public final Contact typingContact;
-        
+
         TypingTask(Contact typingContact)
         {
             this.typingContact = typingContact;
         }
-        
+
         public void run()
         {
             fireTypingNotificationsEvent(typingContact, STATE_STOPPED);
