@@ -1490,8 +1490,10 @@ public class OperationSetServerStoredAccountInfoIcqImpl
                 {
                     synchronized(this)
                     {
-                        accountImage = new ImageDetail("Account Image",
-                            byteBlock.toByteArray());
+                        byte[] img = byteBlock.toByteArray();
+
+                        if(img != null && img.length > 0)
+                            accountImage = new ImageDetail("Account Image", img);
 
                         this.notifyAll();
                     }

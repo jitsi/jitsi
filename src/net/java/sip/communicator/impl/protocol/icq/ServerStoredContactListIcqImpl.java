@@ -1379,8 +1379,19 @@ public class ServerStoredContactListIcqImpl
 
                         String oldNickname = contact.getDisplayName();
 
-                        String nickName = getParentProvider().
-                            getInfoRetreiver().getNickName(contact.getUIN());
+                        String nickName = null;
+
+                        try
+                        {
+                            nickName = getParentProvider().
+                                getInfoRetreiver().getNickName(contact.getUIN());
+                        }
+                        catch (Exception e)
+                        {
+                            // if something happens do not interrupt
+                            // the nickname retreiver
+                            continue;
+                        }
 
                         if(nickName != null)
                         {

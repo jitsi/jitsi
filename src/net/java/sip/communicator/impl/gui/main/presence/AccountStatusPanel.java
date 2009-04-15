@@ -163,8 +163,10 @@ public class AccountStatusPanel
 
                         if (accountImage != null)
                         {
-                            accountImageLabel
-                                .setImageIcon(new ImageIcon(accountImage));
+                            // do not set empty images
+                            if(accountImage.length > 0)
+                                accountImageLabel
+                                    .setImageIcon(new ImageIcon(accountImage));
                         }
 
                         String firstName
