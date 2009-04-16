@@ -62,7 +62,8 @@ public class OperationSetMultiUserChatIrcImpl
      * are a result of exchange of private messages between the local user and
      * some of the other chat room members.
      */
-    private Hashtable privateRoomCache = new Hashtable();
+    private final Map<String, ChatRoomIrcImpl> privateRoomCache
+        = new Hashtable<String, ChatRoomIrcImpl>();
 
     /**
      * The <tt>ChatRoom</tt> corresponding to the IRC server channel. This chat
@@ -376,7 +377,7 @@ public class OperationSetMultiUserChatIrcImpl
         synchronized(privateRoomCache)
         {
             if(privateRoomCache.containsKey(nickIdentifier))
-                return (ChatRoomIrcImpl) privateRoomCache.get(nickIdentifier);
+                return privateRoomCache.get(nickIdentifier);
 
             ChatRoomIrcImpl chatRoom
                 = new ChatRoomIrcImpl(nickIdentifier, ircProvider, true, false);

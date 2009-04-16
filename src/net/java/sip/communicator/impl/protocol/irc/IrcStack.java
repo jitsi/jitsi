@@ -1529,11 +1529,11 @@ public class IrcStack
             String userPrefix = user.getPrefix();
             ChatRoomMemberRole newMemberRole;
 
-            if ("@".equalsIgnoreCase(userPrefix))
+            if (userPrefix.contains("@"))
                 newMemberRole = ChatRoomMemberRole.ADMINISTRATOR;
-            else if ("%".equalsIgnoreCase(userPrefix))
+            else if (userPrefix.contains("%"))
                 newMemberRole = ChatRoomMemberRole.MODERATOR;
-            else if ("+".equalsIgnoreCase(userPrefix))
+            else if (userPrefix.contains("+"))
                 newMemberRole = ChatRoomMemberRole.MEMBER;
             else
                 newMemberRole = ChatRoomMemberRole.GUEST;
