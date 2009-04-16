@@ -82,28 +82,39 @@ public class PluginManagerPanel
             Bundle selectedBundle =
                 (Bundle) pluginTable.getValueAt(selectedRow, 0);
 
-            Object sysBundleProp =
-                selectedBundle.getHeaders().get("System-Bundle");
 
-            if (sysBundleProp != null && sysBundleProp.equals("yes"))
+            if(PluginManagerActivator.isSystemBundle(selectedBundle))
+            {
                 buttonsPanel.enableUninstallButton(false);
+                buttonsPanel.enableDeactivateButton(false);
+
+                if (selectedBundle.getState() != Bundle.ACTIVE)
+                {
+                    buttonsPanel.enableActivateButton(true);
+                }
+                else
+                {
+                    buttonsPanel.enableActivateButton(false);
+                }
+            }
             else
+            {
                 buttonsPanel.enableUninstallButton(true);
 
-            if (selectedBundle.getState() == Bundle.ACTIVE)
-            {
-                if (sysBundleProp != null && sysBundleProp.equals("yes"))
+                if (selectedBundle.getState() != Bundle.ACTIVE)
+                {
+                    buttonsPanel.enableActivateButton(true);
                     buttonsPanel.enableDeactivateButton(false);
+                }
                 else
+                {
+                    buttonsPanel.enableActivateButton(false);
                     buttonsPanel.enableDeactivateButton(true);
+                }
+            }
 
-                buttonsPanel.enableActivateButton(false);
-            }
-            else
-            {
-                buttonsPanel.enableActivateButton(true);
-                buttonsPanel.enableDeactivateButton(false);
-            }
+            // every bundle can be updated
+            buttonsPanel.enableUpdateButton(true);
         }
     }
 

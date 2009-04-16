@@ -95,9 +95,7 @@ public class ManageButtonsPanel
         this.updateButton.addActionListener(this);
 
         //default as nothing is selected
-        enableActivateButton(false);
-        enableDeactivateButton(false);
-        enableUninstallButton(false);
+        defaultButtonState();
     }
 
     public void actionPerformed(ActionEvent e)
@@ -138,6 +136,8 @@ public class ManageButtonsPanel
                             PopupDialog.ERROR_MESSAGE);
                 }
             }
+
+            defaultButtonState();
         }
         else if(sourceButton.equals(deactivateButton))
         {
@@ -159,6 +159,8 @@ public class ManageButtonsPanel
                         PopupDialog.ERROR_MESSAGE);
                 }
             }
+
+            defaultButtonState();
         }
         else if(sourceButton.equals(uninstallButton))
         {
@@ -180,6 +182,8 @@ public class ManageButtonsPanel
                         PopupDialog.ERROR_MESSAGE);
                 }
             }
+
+            defaultButtonState();
         }
         else if(sourceButton.equals(updateButton))
         {
@@ -201,7 +205,21 @@ public class ManageButtonsPanel
                         PopupDialog.ERROR_MESSAGE);
                 }
             }
+
+            // update button deselects bundles, revert buttons to defautl state
+            defaultButtonState();
         }
+    }
+
+    /**
+     * Default state of buttons, as nothing is selected
+     */
+    private void defaultButtonState()
+    {
+        enableActivateButton(false);
+        enableDeactivateButton(false);
+        enableUninstallButton(false);
+        enableUpdateButton(false);
     }
 
     /**
@@ -237,6 +255,17 @@ public class ManageButtonsPanel
     }
 
     /**
+     * Enable or disable the update button.
+     *
+     * @param enable TRUE - to enable the update button, FALSE - to disable it
+     */
+    public void enableUpdateButton(boolean enable)
+    {
+        this.updateButton.setEnabled(enable);
+    }
+
+
+    /**
      * Adds all system bundles to the bundles list when the check box is
      * selected and removes them when user deselect it.
      */
@@ -270,9 +299,7 @@ public class ManageButtonsPanel
 
             // as this changes the selection to none, make the buttons
             // at defautl state
-            enableActivateButton(false);
-            enableDeactivateButton(false);
-            enableUninstallButton(false);
+            defaultButtonState();
         }
     }
 
