@@ -77,23 +77,46 @@ public abstract class AbstractProtocolProviderService
             new RegistrationStateChangeEvent(
                             this, oldState, newState, reasonCode, reason);
 
-        logger.debug("Dispatching " + event + " to "
-                     + registrationListeners.size()+ " listeners.");
-
-        Iterator<RegistrationStateChangeListener> listeners = null;
+        RegistrationStateChangeListener[] listeners;
         synchronized (registrationListeners)
         {
-            listeners =
-                new ArrayList<RegistrationStateChangeListener>(
-                    registrationListeners).iterator();
+            listeners
+                = registrationListeners.toArray(
+                        new RegistrationStateChangeListener[
+                                registrationListeners.size()]);
         }
 
-        while (listeners.hasNext())
-        {
-            RegistrationStateChangeListener listener = listeners.next();
+        if (logger.isDebugEnabled())
+            logger.debug(
+                "Dispatching "
+                    + event
+                    + " to "
+                    + listeners.length
+                    + " listeners.");
 
-            listener.registrationStateChanged(event);
-        }
+        for (RegistrationStateChangeListener listener : listeners)
+            try
+            {
+                listener.registrationStateChanged(event);
+            }
+            catch (Throwable throwable)
+            {
+
+                /*
+                 * The registration state has already changed and we're not
+                 * using the RegistrationStateChangeListeners to veto the change
+                 * so it doesn't make sense to, for example, disconnect because
+                 * one of them malfunctioned.
+                 *
+                 * Of course, death cannot be ignored.
+                 */
+                if (throwable instanceof ThreadDeath)
+                    throw (ThreadDeath) throwable;
+                logger.error(
+                    "An error occurred while executing RegistrationStateChangeLister#registrationStateChanged(RegistrationStateChangeEvent) of "
+                        + listener,
+                    throwable);
+            }
 
         logger.trace("Done.");
     }
