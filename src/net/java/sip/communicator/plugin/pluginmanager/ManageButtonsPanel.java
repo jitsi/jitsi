@@ -20,7 +20,7 @@ import org.osgi.framework.*;
 
 /**
  * The panel containing all buttons for the <tt>PluginManagerConfigForm</tt>.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ManageButtonsPanel
@@ -55,7 +55,7 @@ public class ManageButtonsPanel
     public ManageButtonsPanel(JTable pluginTable)
     {
         this.pluginTable = pluginTable;
-        
+
         this.setLayout(new BorderLayout());
 
         this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
@@ -93,12 +93,17 @@ public class ManageButtonsPanel
         this.deactivateButton.addActionListener(this);
         this.uninstallButton.addActionListener(this);
         this.updateButton.addActionListener(this);
+
+        //default as nothing is selected
+        enableActivateButton(false);
+        enableDeactivateButton(false);
+        enableUninstallButton(false);
     }
 
     public void actionPerformed(ActionEvent e)
     {
         JButton sourceButton = (JButton) e.getSource();
-        
+
         if(sourceButton.equals(newButton))
         {
             NewBundleDialog dialog = new NewBundleDialog();
@@ -137,7 +142,7 @@ public class ManageButtonsPanel
         else if(sourceButton.equals(deactivateButton))
         {
             int[] selectedRows = pluginTable.getSelectedRows();
-            
+
             for (int i = 0; i < selectedRows.length; i++)
             {
                 try
@@ -179,7 +184,7 @@ public class ManageButtonsPanel
         else if(sourceButton.equals(updateButton))
         {
             int[] selectedRows = pluginTable.getSelectedRows();
-            
+
             for (int i = 0; i < selectedRows.length; i++)
             {
                 try
@@ -198,20 +203,20 @@ public class ManageButtonsPanel
             }
         }
     }
-    
+
     /**
      * Enable or disable the activate button.
-     * 
+     *
      * @param enable TRUE - to enable the activate button, FALSE - to disable it
      */
     public void enableActivateButton(boolean enable)
     {
         this.activateButton.setEnabled(enable);
     }
-    
+
     /**
      * Enable or disable the deactivate button.
-     * 
+     *
      * @param enable TRUE - to enable the deactivate button, FALSE - to
      * disable it
      */
@@ -219,10 +224,10 @@ public class ManageButtonsPanel
     {
         this.deactivateButton.setEnabled(enable);
     }
-    
+
     /**
      * Enable or disable the uninstall button.
-     * 
+     *
      * @param enable TRUE - to enable the uninstall button, FALSE - to
      * disable it
      */
@@ -230,7 +235,7 @@ public class ManageButtonsPanel
     {
         this.uninstallButton.setEnabled(enable);
     }
-    
+
     /**
      * Adds all system bundles to the bundles list when the check box is
      * selected and removes them when user deselect it.
@@ -255,16 +260,22 @@ public class ManageButtonsPanel
             PluginManagerActivator.getConfigurationService().setProperty(
                 "net.java.sip.communicator.plugin.pluginManager.showSystemBundles",
                 new Boolean(showSysBundlesCheckBox.isSelected()));
-                        
+
             PluginTableModel tableModel
                 = (PluginTableModel)pluginTable.getModel();
-            
+
             tableModel.setShowSystemBundles(showSysBundlesCheckBox.isSelected());
-            
+
             tableModel.update();
+
+            // as this changes the selection to none, make the buttons
+            // at defautl state
+            enableActivateButton(false);
+            enableDeactivateButton(false);
+            enableUninstallButton(false);
         }
     }
-    
+
     /**
      * Returns the current value of the "showSystemBundles" check box.
      * @return TRUE if the the "showSystemBundles" check box is selected,
