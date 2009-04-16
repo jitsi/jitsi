@@ -3,7 +3,6 @@ package net.java.sip.communicator.impl.history;
 import java.util.*;
 
 import net.java.sip.communicator.service.history.*;
-import net.java.sip.communicator.service.history.records.*;
 
 /**
  * This implementation is the same as DefaultQueryResultSet but the
@@ -11,16 +10,16 @@ import net.java.sip.communicator.service.history.records.*;
  *
  * @author Damian Minkov
  */
-public class OrderedQueryResultSet
-    implements QueryResultSet
+public class OrderedQueryResultSet<T>
+    implements QueryResultSet<T>
 {
-    private LinkedList records = null;
+    private LinkedList<T> records = null;
 
     private int currentPos = -1;
 
-    public OrderedQueryResultSet(Set records)
+    public OrderedQueryResultSet(Set<T> records)
     {
-        this.records = new LinkedList(records);
+        this.records = new LinkedList<T>(records);
     }
 
     /**
@@ -48,7 +47,7 @@ public class OrderedQueryResultSet
      *
      * @return the next element in the iteration.
      */
-    public Object next()
+    public T next()
     {
         this.currentPos++;
 
@@ -66,9 +65,9 @@ public class OrderedQueryResultSet
      * @return the next history record.
      * @throws NoSuchElementException iteration has no more elements.
      */
-    public HistoryRecord nextRecord() throws NoSuchElementException
+    public T nextRecord() throws NoSuchElementException
     {
-        return (HistoryRecord) this.next();
+        return this.next();
     }
 
     /**
@@ -77,7 +76,7 @@ public class OrderedQueryResultSet
      * @return the previous element in the iteration.
      * @throws NoSuchElementException iteration has no more elements.
      */
-    public Object prev() throws NoSuchElementException
+    public T prev() throws NoSuchElementException
     {
         this.currentPos--;
 
@@ -95,9 +94,9 @@ public class OrderedQueryResultSet
      * @return the previous history record.
      * @throws NoSuchElementException iteration has no more elements.
      */
-    public HistoryRecord prevRecord() throws NoSuchElementException
+    public T prevRecord() throws NoSuchElementException
     {
-        return (HistoryRecord) this.prev();
+        return this.prev();
     }
 
     /**

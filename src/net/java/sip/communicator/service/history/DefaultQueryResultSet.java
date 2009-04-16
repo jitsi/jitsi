@@ -7,30 +7,28 @@
 
 import java.util.*;
 
-import net.java.sip.communicator.service.history.records.*;
-
 /**
  * @author Alexander Pelov
  */
-public class DefaultQueryResultSet implements QueryResultSet {
+public class DefaultQueryResultSet<T> implements QueryResultSet<T> {
 
-    private Vector records = new Vector();
+    private Vector<T> records = new Vector<T>();
 
     private int currentPos = -1;
 
-    public DefaultQueryResultSet(Vector records)
+    public DefaultQueryResultSet(Vector<T> records)
     {
         this.records = records;
     }
 
-    public HistoryRecord nextRecord() throws NoSuchElementException
+    public T nextRecord() throws NoSuchElementException
     {
-        return (HistoryRecord) this.next();
+        return this.next();
     }
 
-    public HistoryRecord prevRecord() throws NoSuchElementException
+    public T prevRecord() throws NoSuchElementException
     {
-        return (HistoryRecord) this.prev();
+        return this.prev();
     }
 
     public boolean hasPrev()
@@ -38,7 +36,7 @@ public class DefaultQueryResultSet implements QueryResultSet {
         return this.currentPos - 1 >= 0;
     }
 
-    public Object prev() throws NoSuchElementException
+    public T prev() throws NoSuchElementException
     {
         this.currentPos--;
 
@@ -55,7 +53,7 @@ public class DefaultQueryResultSet implements QueryResultSet {
         return this.currentPos + 1 < this.records.size();
     }
 
-    public Object next()
+    public T next()
     {
         this.currentPos++;
 

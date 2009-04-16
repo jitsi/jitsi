@@ -29,7 +29,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection findByStartDate(MetaContact contact, Date startDate)
+    public Collection<EventObject> findByStartDate(MetaContact contact, Date startDate)
         throws RuntimeException;
 
     /**
@@ -41,7 +41,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection findByEndDate(MetaContact contact, Date endDate)
+    public Collection<EventObject> findByEndDate(MetaContact contact, Date endDate)
         throws RuntimeException;
 
     /**
@@ -54,7 +54,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection findByPeriod(MetaContact contact, Date startDate, Date endDate)
+    public Collection<EventObject> findByPeriod(MetaContact contact, Date startDate, Date endDate)
         throws RuntimeException;
 
     /**
@@ -69,7 +69,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection findByPeriod(MetaContact contact, Date startDate, Date endDate, String[] keywords)
+    public Collection<EventObject> findByPeriod(MetaContact contact, Date startDate, Date endDate, String[] keywords)
         throws RuntimeException;
 
     /**
@@ -85,7 +85,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection findByPeriod(MetaContact contact, Date startDate, Date endDate,
+    public Collection<EventObject> findByPeriod(MetaContact contact, Date startDate, Date endDate,
                             String[] keywords, boolean caseSensitive)
         throws RuntimeException;
 
@@ -98,7 +98,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection findByKeyword(MetaContact contact, String keyword)
+    public Collection<EventObject> findByKeyword(MetaContact contact, String keyword)
         throws RuntimeException;
 
     /**
@@ -111,7 +111,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    Collection findByKeyword(MetaContact contact, String keyword, boolean caseSensitive)
+    Collection<EventObject> findByKeyword(MetaContact contact, String keyword, boolean caseSensitive)
         throws RuntimeException;
 
     /**
@@ -123,7 +123,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection findByKeywords(MetaContact contact, String[] keywords)
+    public Collection<EventObject> findByKeywords(MetaContact contact, String[] keywords)
         throws RuntimeException;
 
     /**
@@ -136,7 +136,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection findByKeywords(MetaContact contact, String[] keywords, boolean caseSensitive)
+    public Collection<EventObject> findByKeywords(MetaContact contact, String[] keywords, boolean caseSensitive)
         throws RuntimeException;
 
     /**
@@ -148,7 +148,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection findLast(MetaContact contact, int count)
+    public Collection<EventObject> findLast(MetaContact contact, int count)
         throws RuntimeException;
 
     /**
@@ -161,7 +161,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection findFirstMessagesAfter(MetaContact contact, Date date, int count)
+    public Collection<EventObject> findFirstMessagesAfter(MetaContact contact, Date date, int count)
         throws RuntimeException;
 
     /**
@@ -174,7 +174,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection findLastMessagesBefore(MetaContact contact, Date date, int count)
+    public Collection<EventObject> findLastMessagesBefore(MetaContact contact, Date date, int count)
         throws RuntimeException;
 
     /**
@@ -200,7 +200,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection findByStartDate(ChatRoom room, Date startDate)
+    public Collection<EventObject> findByStartDate(ChatRoom room, Date startDate)
         throws RuntimeException;
 
     /**
@@ -212,7 +212,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection findByEndDate(ChatRoom room, Date endDate)
+    public Collection<EventObject> findByEndDate(ChatRoom room, Date endDate)
         throws RuntimeException;
 
     /**
@@ -225,7 +225,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection findByPeriod(ChatRoom room, Date startDate, Date endDate)
+    public Collection<EventObject> findByPeriod(ChatRoom room, Date startDate, Date endDate)
         throws RuntimeException;
 
     /**
@@ -240,7 +240,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection findByPeriod(ChatRoom room, 
+    public Collection<EventObject> findByPeriod(ChatRoom room, 
             Date startDate, Date endDate, String[] keywords)
         throws RuntimeException;
 
@@ -257,7 +257,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection findByPeriod(ChatRoom room, Date startDate, Date endDate,
+    public Collection<EventObject> findByPeriod(ChatRoom room, Date startDate, Date endDate,
                             String[] keywords, boolean caseSensitive)
         throws RuntimeException;
 
@@ -270,7 +270,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection findByKeyword(ChatRoom room, String keyword)
+    public Collection<EventObject> findByKeyword(ChatRoom room, String keyword)
         throws RuntimeException;
 
     /**
@@ -283,7 +283,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    Collection findByKeyword(ChatRoom room, String keyword, 
+    Collection<EventObject> findByKeyword(ChatRoom room, String keyword, 
             boolean caseSensitive)
         throws RuntimeException;
 
@@ -296,7 +296,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection findByKeywords(ChatRoom room, String[] keywords)
+    public Collection<EventObject> findByKeywords(ChatRoom room, String[] keywords)
         throws RuntimeException;
 
     /**
@@ -309,7 +309,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection findByKeywords(ChatRoom room, String[] keywords, 
+    public Collection<EventObject> findByKeywords(ChatRoom room, String[] keywords, 
             boolean caseSensitive)
         throws RuntimeException;
 
@@ -322,7 +322,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection findLast(ChatRoom room, int count)
+    public Collection<EventObject> findLast(ChatRoom room, int count)
         throws RuntimeException;
 
     /**
@@ -335,7 +335,7 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection findFirstMessagesAfter(ChatRoom room, Date date, int count)
+    public Collection<EventObject> findFirstMessagesAfter(ChatRoom room, Date date, int count)
         throws RuntimeException;
 
     /**
@@ -348,6 +348,6 @@ public interface MessageHistoryService
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    public Collection findLastMessagesBefore(ChatRoom room, Date date, int count)
+    public Collection<EventObject> findLastMessagesBefore(ChatRoom room, Date date, int count)
         throws RuntimeException;
 }

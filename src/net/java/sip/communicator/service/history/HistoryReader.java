@@ -8,6 +8,7 @@ package net.java.sip.communicator.service.history;
 
 import java.util.*;
 import net.java.sip.communicator.service.history.event.*;
+import net.java.sip.communicator.service.history.records.HistoryRecord;
 
 /**
  * Used to serach over the history records
@@ -27,7 +28,7 @@ public interface HistoryReader {
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public QueryResultSet findByStartDate(Date startDate) throws RuntimeException;
+    public QueryResultSet<HistoryRecord> findByStartDate(Date startDate) throws RuntimeException;
 
     /**
      * Searches the history for all records with timestamp before
@@ -39,7 +40,7 @@ public interface HistoryReader {
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public QueryResultSet findByEndDate(Date endDate) throws RuntimeException;
+    public QueryResultSet<HistoryRecord> findByEndDate(Date endDate) throws RuntimeException;
 
     /**
      * Searches the history for all records with timestamp between
@@ -52,7 +53,7 @@ public interface HistoryReader {
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public QueryResultSet findByPeriod(Date startDate, Date endDate)
+    public QueryResultSet<HistoryRecord> findByPeriod(Date startDate, Date endDate)
             throws RuntimeException;
 
     /**
@@ -65,7 +66,7 @@ public interface HistoryReader {
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public QueryResultSet findByKeyword(String keyword, String field) throws RuntimeException;
+    public QueryResultSet<HistoryRecord> findByKeyword(String keyword, String field) throws RuntimeException;
 
     /**
      * Searches the history for all records containing the <tt>keyword</tt>.
@@ -78,7 +79,7 @@ public interface HistoryReader {
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public QueryResultSet findByKeyword(String keyword, String field, boolean caseSensitive)
+    public QueryResultSet<HistoryRecord> findByKeyword(String keyword, String field, boolean caseSensitive)
         throws RuntimeException;
 
     /**
@@ -91,7 +92,7 @@ public interface HistoryReader {
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public QueryResultSet findByKeywords(String[] keywords, String field) throws RuntimeException;
+    public QueryResultSet<HistoryRecord> findByKeywords(String[] keywords, String field) throws RuntimeException;
 
     /**
      * Searches the history for all records containing all <tt>keywords</tt>.
@@ -104,7 +105,7 @@ public interface HistoryReader {
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public QueryResultSet findByKeywords(String[] keywords, String field, boolean caseSensitive)
+    public QueryResultSet<HistoryRecord> findByKeywords(String[] keywords, String field, boolean caseSensitive)
         throws RuntimeException;
 
     /**
@@ -120,7 +121,7 @@ public interface HistoryReader {
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public QueryResultSet findByPeriod(Date startDate, Date endDate,
+    public QueryResultSet<HistoryRecord> findByPeriod(Date startDate, Date endDate,
                                 String[] keywords, String field)
             throws UnsupportedOperationException;
 
@@ -138,7 +139,7 @@ public interface HistoryReader {
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public QueryResultSet findByPeriod(Date startDate, Date endDate,
+    public QueryResultSet<HistoryRecord> findByPeriod(Date startDate, Date endDate,
                                 String[] keywords, String field, boolean caseSensitive)
         throws UnsupportedOperationException;
 
@@ -149,7 +150,7 @@ public interface HistoryReader {
      * @return the found records
      * @throws RuntimeException
      */
-    QueryResultSet findLast(int count) throws RuntimeException;
+    QueryResultSet<HistoryRecord> findLast(int count) throws RuntimeException;
 
     /**
      * Returns the supplied number of recent messages after the given date
@@ -159,7 +160,7 @@ public interface HistoryReader {
      * @return QueryResultSet the found records
      * @throws RuntimeException
      */
-    public QueryResultSet findFirstRecordsAfter(Date date, int count) throws RuntimeException;
+    public QueryResultSet<HistoryRecord> findFirstRecordsAfter(Date date, int count) throws RuntimeException;
 
     /**
      * Returns the supplied number of recent messages before the given date
@@ -169,7 +170,7 @@ public interface HistoryReader {
      * @return QueryResultSet the found records
      * @throws RuntimeException
      */
-    public QueryResultSet findLastRecordsBefore(Date date, int count) throws RuntimeException;
+    public QueryResultSet<HistoryRecord> findLastRecordsBefore(Date date, int count) throws RuntimeException;
 
     /**
      * Adding progress listener for monitoring progress of search process

@@ -16,7 +16,7 @@ import java.util.*;
  * 
  * @author Alexander Pelov
  */
-public interface BidirectionalIterator extends Iterator {
+public interface BidirectionalIterator<T> extends Iterator<T> {
     /**
      * Returns true if the iteration has elements preceeding the current one.
      * (In other words, returns true if <tt>prev</tt> would return an element
@@ -34,5 +34,5 @@ public interface BidirectionalIterator extends Iterator {
      * @throws NoSuchElementException
      *             iteration has no more elements.
      */
-    Object prev() throws NoSuchElementException;
+    T prev() throws NoSuchElementException;
 }

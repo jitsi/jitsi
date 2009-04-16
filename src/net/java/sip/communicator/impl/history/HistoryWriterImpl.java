@@ -162,12 +162,12 @@ public class HistoryWriterImpl implements HistoryWriter {
 
         if (loadLastFile)
         {
-            Iterator files = historyImpl.getFileList();
+            Iterator<String> files = historyImpl.getFileList();
 
             String file = null;
             while (files.hasNext())
             {
-                file = (String) files.next();
+                file = files.next();
             }
 
             if (file != null)

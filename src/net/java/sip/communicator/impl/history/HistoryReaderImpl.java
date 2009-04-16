@@ -45,7 +45,7 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public synchronized QueryResultSet findByStartDate(Date startDate)
+    public synchronized QueryResultSet<HistoryRecord> findByStartDate(Date startDate)
             throws RuntimeException
     {
         return find(startDate, null, null, null, false);
@@ -61,7 +61,7 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public synchronized QueryResultSet findByEndDate(Date endDate)
+    public synchronized QueryResultSet<HistoryRecord> findByEndDate(Date endDate)
         throws RuntimeException
     {
         return find(null, endDate, null, null, false);
@@ -78,7 +78,7 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public synchronized QueryResultSet findByPeriod(Date startDate, Date endDate)
+    public synchronized QueryResultSet<HistoryRecord> findByPeriod(Date startDate, Date endDate)
             throws RuntimeException
     {
         return find(startDate, endDate, null, null, false);
@@ -94,7 +94,7 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public synchronized QueryResultSet findByKeyword(String keyword, String field)
+    public synchronized QueryResultSet<HistoryRecord> findByKeyword(String keyword, String field)
         throws RuntimeException
     {
         return findByKeywords(new String[] { keyword }, field);
@@ -110,7 +110,7 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public synchronized QueryResultSet findByKeywords(String[] keywords, String field)
+    public synchronized QueryResultSet<HistoryRecord> findByKeywords(String[] keywords, String field)
             throws RuntimeException
     {
             return find(null, null, keywords, field, false);
@@ -129,7 +129,7 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public synchronized QueryResultSet findByPeriod(Date startDate, Date endDate,
+    public synchronized QueryResultSet<HistoryRecord> findByPeriod(Date startDate, Date endDate,
             String[] keywords, String field) throws UnsupportedOperationException
     {
         return find(startDate, endDate, keywords, field, false);
@@ -144,7 +144,7 @@ public class HistoryReaderImpl
      * @return QueryResultSet
      * @throws RuntimeException
      */
-    public synchronized QueryResultSet findLast(int count) throws RuntimeException
+    public synchronized QueryResultSet<HistoryRecord> findLast(int count) throws RuntimeException
     {
         // the files are supposed to be ordered from oldest to newest
         Vector<String> filelist =
@@ -158,7 +158,7 @@ public class HistoryReaderImpl
         while(leftCount > 0 && currentFile >= 0)
         {
             Document doc = this.historyImpl.
-                getDocumentForFile( (String) filelist.get(currentFile));
+                getDocumentForFile(filelist.get(currentFile));
 
             if(doc == null)
             {
@@ -191,7 +191,7 @@ public class HistoryReaderImpl
             Iterator<Node> i = lNodes.iterator();
             while (i.hasNext())
             {
-                Node node = (Node) i.next();
+                Node node = i.next();
 
                 NodeList propertyNodes = node.getChildNodes();
 
@@ -229,8 +229,8 @@ public class HistoryReaderImpl
                 String[] propertyValues = new String[propertyNames.length];
                 for (int j = 0; j < propertyNames.length; j++)
                 {
-                    propertyNames[j] = (String) nameVals.get(j * 2);
-                    propertyValues[j] = (String) nameVals.get(j * 2 + 1);
+                    propertyNames[j] = nameVals.get(j * 2);
+                    propertyValues[j] = nameVals.get(j * 2 + 1);
                 }
 
                 HistoryRecord record = new HistoryRecord(propertyNames,
@@ -242,7 +242,7 @@ public class HistoryReaderImpl
             currentFile--;
         }
 
-        return new OrderedQueryResultSet(result);
+        return new OrderedQueryResultSet<HistoryRecord>(result);
     }
 
     /**
@@ -256,7 +256,7 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public synchronized QueryResultSet findByKeyword(String keyword, String field,
+    public synchronized QueryResultSet<HistoryRecord> findByKeyword(String keyword, String field,
                                         boolean caseSensitive)
         throws RuntimeException
     {
@@ -274,7 +274,7 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public synchronized QueryResultSet findByKeywords(String[] keywords, String field,
+    public synchronized QueryResultSet<HistoryRecord> findByKeywords(String[] keywords, String field,
                                          boolean caseSensitive)
         throws RuntimeException
     {
@@ -295,7 +295,7 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public synchronized QueryResultSet findByPeriod(Date startDate, Date endDate,
+    public synchronized QueryResultSet<HistoryRecord> findByPeriod(Date startDate, Date endDate,
                                        String[] keywords, String field,
                                        boolean caseSensitive)
         throws UnsupportedOperationException
@@ -311,7 +311,7 @@ public class HistoryReaderImpl
      * @return QueryResultSet the found records
      * @throws RuntimeException
      */
-    public QueryResultSet findFirstRecordsAfter(Date date, int count) throws
+    public QueryResultSet<HistoryRecord> findFirstRecordsAfter(Date date, int count) throws
         RuntimeException
     {
         TreeSet<HistoryRecord> result
@@ -326,7 +326,7 @@ public class HistoryReaderImpl
         while(leftCount > 0 && currentFile < filelist.size())
         {
             Document doc = this.historyImpl.
-                getDocumentForFile( (String) filelist.get(currentFile));
+                getDocumentForFile(filelist.get(currentFile));
 
             if(doc == null)
             {
@@ -380,8 +380,8 @@ public class HistoryReaderImpl
                 String[] propertyValues = new String[propertyNames.length];
                 for (int j = 0; j < propertyNames.length; j++)
                 {
-                    propertyNames[j] = (String) nameVals.get(j * 2);
-                    propertyValues[j] = (String) nameVals.get(j * 2 + 1);
+                    propertyNames[j] = nameVals.get(j * 2);
+                    propertyValues[j] = nameVals.get(j * 2 + 1);
                 }
 
                 HistoryRecord record = new HistoryRecord(propertyNames,
@@ -394,7 +394,7 @@ public class HistoryReaderImpl
             currentFile++;
         }
 
-        return new OrderedQueryResultSet(result);
+        return new OrderedQueryResultSet<HistoryRecord>(result);
     }
 
     /**
@@ -405,7 +405,7 @@ public class HistoryReaderImpl
      * @return QueryResultSet the found records
      * @throws RuntimeException
      */
-    public QueryResultSet findLastRecordsBefore(Date date, int count) throws
+    public QueryResultSet<HistoryRecord> findLastRecordsBefore(Date date, int count) throws
         RuntimeException
     {
         // the files are supposed to be ordered from oldest to newest
@@ -421,7 +421,7 @@ public class HistoryReaderImpl
         while(leftCount > 0 && currentFile >= 0)
         {
             Document doc = this.historyImpl.
-                getDocumentForFile( (String) filelist.get(currentFile));
+                getDocumentForFile(filelist.get(currentFile));
 
             if(doc == null)
             {
@@ -474,8 +474,8 @@ public class HistoryReaderImpl
                 String[] propertyValues = new String[propertyNames.length];
                 for (int j = 0; j < propertyNames.length; j++)
                 {
-                    propertyNames[j] = (String) nameVals.get(j * 2);
-                    propertyValues[j] = (String) nameVals.get(j * 2 + 1);
+                    propertyNames[j] = nameVals.get(j * 2);
+                    propertyValues[j] = nameVals.get(j * 2 + 1);
                 }
 
                 HistoryRecord record = new HistoryRecord(propertyNames,
@@ -488,10 +488,10 @@ public class HistoryReaderImpl
             currentFile--;
         }
 
-        return new OrderedQueryResultSet(result);
+        return new OrderedQueryResultSet<HistoryRecord>(result);
     }
 
-    private QueryResultSet find(
+    private QueryResultSet<HistoryRecord> find(
         Date startDate, Date endDate,
         String[] keywords, String field, boolean caseSensitive)
     {
@@ -567,7 +567,7 @@ public class HistoryReaderImpl
                                      PROGRESS_MAXIMUM_VALUE);
         }
 
-        return new OrderedQueryResultSet(result);
+        return new OrderedQueryResultSet<HistoryRecord>(result);
     }
 
     /**
@@ -649,8 +649,8 @@ public class HistoryReaderImpl
         String[] propertyValues = new String[propertyNames.length];
         for (int j = 0; j < propertyNames.length; j++)
         {
-            propertyNames[j] = (String) nameVals.get(j * 2);
-            propertyValues[j] = (String) nameVals.get(j * 2 + 1);
+            propertyNames[j] = nameVals.get(j * 2);
+            propertyValues[j] = nameVals.get(j * 2 + 1);
         }
 
         return new HistoryRecord(propertyNames, propertyValues, timestamp);
@@ -717,7 +717,7 @@ public class HistoryReaderImpl
         TreeSet<Long> files = new TreeSet<Long>();
         while (filelist.hasNext())
         {
-            String filename = (String)filelist.next();
+            String filename = filelist.next();
 
             files.add(
                 Long.parseLong(filename.substring(0, filename.length() - 4)));
@@ -733,7 +733,7 @@ public class HistoryReaderImpl
 
             while (iter.hasNext())
             {
-                Long item = (Long) iter.next();
+                Long item = iter.next();
                 result.add(item.toString() + ".xml");
             }
             return result;
@@ -755,7 +755,7 @@ public class HistoryReaderImpl
             Long startLong = Long.valueOf(startDate.getTime());
 
             if(files.size() > 0 &&
-               (startLong.longValue() < ((Long)files.first()).longValue()))
+               (startLong.longValue() < (files.first()).longValue()))
             {
                 // if the start date is before any existing file date
                 // then return all the files
@@ -818,8 +818,7 @@ public class HistoryReaderImpl
                 = progressListeners.iterator();
             while (iter.hasNext())
             {
-                HistorySearchProgressListener item =
-                    (HistorySearchProgressListener) iter.next();
+                HistorySearchProgressListener item = iter.next();
                 item.progressChanged(event);
             }
         }
@@ -871,7 +870,7 @@ public class HistoryReaderImpl
         Iterator<String> filelistIter = this.historyImpl.getFileList();
         while (filelistIter.hasNext())
         {
-            lastFile = (String)filelistIter.next();
+            lastFile = filelistIter.next();
             result += HistoryWriterImpl.MAX_RECORDS_PER_FILE;
         }
 

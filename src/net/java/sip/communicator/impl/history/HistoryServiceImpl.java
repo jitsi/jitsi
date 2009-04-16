@@ -137,7 +137,7 @@ public class HistoryServiceImpl
         {
             if (histories.containsKey(id))
             {
-                retVal = (History) histories.get(id);
+                retVal = histories.get(id);
             } else {
                 throw new IllegalArgumentException(
                         "No history corresponds to the specified ID.");
