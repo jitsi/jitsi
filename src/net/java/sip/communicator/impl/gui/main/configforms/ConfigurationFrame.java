@@ -12,7 +12,6 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
@@ -46,10 +45,6 @@ public class ConfigurationFrame
     {
         super(mainFrame);
 
-        JPanel mainPanel = new TransparentPanel(new BorderLayout(5, 5));
-        JPanel buttonsPanel =
-            new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
-
         this.configList = new ConfigFormList(this);
 
         SCScrollPane configScrollList = new SCScrollPane();
@@ -66,16 +61,10 @@ public class ConfigurationFrame
 
         this.addDefaultForms();
 
+        JPanel mainPanel = new TransparentPanel(new BorderLayout(5, 5));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
         mainPanel.add(centerPanel, BorderLayout.CENTER);
-
         mainPanel.add(configScrollList, BorderLayout.WEST);
-
-        buttonsPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0,
-            Constants.BORDER_COLOR));
-
-        mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
         this.getContentPane().add(mainPanel);
 
