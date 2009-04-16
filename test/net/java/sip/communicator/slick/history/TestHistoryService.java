@@ -155,7 +155,7 @@ public class TestHistoryService extends TestCase {
     {
         HistoryReader reader = this.history.getReader();
 
-        QueryResultSet result = reader.findByKeyword("name2", "name");
+        QueryResultSet<HistoryRecord> result = reader.findByKeyword("name2", "name");
 
         assertTrue("Nothing found", result.hasNext());
 
