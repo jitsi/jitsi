@@ -8,11 +8,11 @@ package net.java.sip.communicator.plugin.autoaway;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.configuration.ConfigurationService;
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
@@ -21,11 +21,10 @@ import org.osgi.framework.*;
  * 
  * @author Thomas Hofer
  */
-public class AutoAwayActivator implements BundleActivator
+public class AutoAwayActivator
+    implements BundleActivator
 {
-
-    private static Logger logger = Logger
-            .getLogger(AutoAwayActivator.class);
+    private static Logger logger = Logger.getLogger(AutoAwayActivator.class);
 
     static BundleContext bundleContext = null;
 

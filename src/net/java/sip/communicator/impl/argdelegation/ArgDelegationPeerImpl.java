@@ -23,10 +23,11 @@ import net.java.sip.communicator.util.launchutils.*;
  * @author Emil Ivov
  */
 public class ArgDelegationPeerImpl
-    implements ArgDelegationPeer, ServiceListener
+    implements ArgDelegationPeer,
+               ServiceListener
 {
-    private static final Logger logger =
-        Logger.getLogger(ArgDelegationPeerImpl.class);
+    private static final Logger logger
+        = Logger.getLogger(ArgDelegationPeerImpl.class);
 
     /**
      * The list of uriHandlers that we are currently aware of.
@@ -43,31 +44,30 @@ public class ArgDelegationPeerImpl
      */
     public ArgDelegationPeerImpl(BundleContext bundleContext)
     {
-        ServiceReference[] uriHandlerRefs = null;
+        ServiceReference[] uriHandlerRefs;
+
+        try
+        {
+            uriHandlerRefs = bundleContext.getServiceReferences(
+                                UriHandler.class.getName(), null);
+        }
+        catch (InvalidSyntaxException exc)
+        {
+            // this shouldn't happen because we aren't using a filter
+            // but let's log just the same.
+            logger.info("An error occurred while retrieving UriHandlers", exc);
+            return;
+        }
+
+        if(uriHandlerRefs == null)
+        {
+            //none URI handlers are registered at this point. Some might
+            //come later.
+            return;
+        }
 
         synchronized (uriHandlers)
         {
-            try
-            {
-                uriHandlerRefs = bundleContext.getServiceReferences(
-                                UriHandler.class.getName(), null);
-            }
-            catch (InvalidSyntaxException exc)
-            {
-                // this shouldn't happen because we aren't using a filter
-                // but let's log just the same.
-                logger.info("An error occurred while retrieving UriHandlers",
-                                exc);
-                return;
-            }
-
-            if(uriHandlerRefs == null)
-            {
-                //none URI handlers are registered at this point. Some might
-                //come later.
-                return;
-            }
-
             for (ServiceReference uriHandlerRef : uriHandlerRefs)
             {
                 UriHandler uriHandler = (UriHandler) bundleContext
@@ -86,34 +86,41 @@ public class ArgDelegationPeerImpl
      */
     public void serviceChanged(ServiceEvent event)
     {
+        BundleContext bc
+            = event.getServiceReference().getBundle().getBundleContext();
+
+        /*
+         * TODO When the Update button of the plug-in manager is invoked for the
+         * IRC protocol provider plug-in, bc is of value null and thus causes a
+         * NullPointerException. Determine whether it is a problem (in general)
+         * to not process ServiceEvent.UNREGISTERING in such a case.
+         */
+        if (bc == null)
+            return;
+
+        Object service = bc.getService(event.getServiceReference());
+
+        //we are only interested in UriHandler-s
+        if (!(service instanceof UriHandler))
+            return;
+
+        UriHandler uriHandler = (UriHandler) service;
+
         synchronized (uriHandlers)
         {
-            BundleContext bc = event.getServiceReference().getBundle()
-                            .getBundleContext();
-
-            Object service = bc.getService(event.getServiceReference());
-
-            //we are only interested in UriHandler-s
-            if(!(service instanceof UriHandler) )
+            switch (event.getType())
             {
-                return;
-            }
-
-            if (event.getType() == ServiceEvent.MODIFIED
-                            || event.getType() == ServiceEvent.REGISTERED)
-            {
-                UriHandler uriHandler = (UriHandler) bc.getService(event
-                                .getServiceReference());
-
+            case ServiceEvent.MODIFIED:
+            case ServiceEvent.REGISTERED:
                 uriHandlers.put(uriHandler.getProtocol(), uriHandler);
-            }
-            else if (event.getType() == ServiceEvent.UNREGISTERING)
-            {
-                UriHandler uriHandler = (UriHandler) bc.getService(event
-                                .getServiceReference());
+                break;
 
-                if(uriHandlers.get(uriHandler.getProtocol()) == uriHandler)
-                    uriHandlers.remove(uriHandler.getProtocol());
+            case ServiceEvent.UNREGISTERING:
+                String protocol = uriHandler.getProtocol();
+
+                if(uriHandlers.get(protocol) == uriHandler)
+                    uriHandlers.remove(protocol);
+                break;
             }
         }
     }
@@ -148,7 +155,10 @@ public class ArgDelegationPeerImpl
 
         String scheme = uriArg.substring(0, colonIndex);
 
-        UriHandler handler = uriHandlers.get(scheme);
+        UriHandler handler;
+        synchronized (uriHandlers) {
+            handler = uriHandlers.get(scheme);
+        }
 
         //if handler is null we need to tell the user.
         if(handler == null)
@@ -171,6 +181,10 @@ public class ArgDelegationPeerImpl
         //catch every possible exception
         catch(Throwable thr)
         {
+            // ThreadDeath should always be re-thrown.
+            if (thr instanceof ThreadDeath)
+                throw (ThreadDeath) thr;
+
             ArgDelegationActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(
                     "Error handling " + uriArg,
@@ -191,6 +205,4 @@ public class ArgDelegationPeerImpl
     {
         ArgDelegationActivator.getUIService().setVisible(true);
     }
-
-
 }

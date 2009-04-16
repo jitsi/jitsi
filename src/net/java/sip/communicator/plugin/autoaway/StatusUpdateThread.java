@@ -9,7 +9,7 @@ package net.java.sip.communicator.plugin.autoaway;
 import java.awt.*;
 import java.util.*;
 
-import net.java.sip.communicator.service.configuration.ConfigurationService;
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -17,9 +17,9 @@ import net.java.sip.communicator.service.protocol.*;
  * not moved, all accounts are set to "Away" or similar states.
  * 
  * @author Thomas Hofer
- * 
  */
-public class StatusUpdateThread implements Runnable
+public class StatusUpdateThread
+    implements Runnable
 {
     private boolean run = false;
     private Point lastPosition = null;
