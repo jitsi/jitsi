@@ -63,6 +63,8 @@ public class SCScrollPane
 
         public SCViewport()
         {
+            this.setBackground(Color.WHITE);
+
             if (getSettingsBoolean("impl.gui.IS_WINDOW_BACKGROUND_ENABLED"))
             {
                 bgImage =
@@ -74,6 +76,7 @@ public class SCScrollPane
                     texture =
                         new TexturePaint(bgImage, new Rectangle(0, 0, bgImage
                             .getWidth(null), bgImage.getHeight(null)));
+
                     color = null;
                 }
                 else

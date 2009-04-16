@@ -101,11 +101,12 @@ public class ContactListPane
         this.setViewportView(transparentPanel);
 
         this.contactList.addContactListListener(this);
-        this.addMouseListener(new MouseAdapter() {
+        this.addMouseListener(new MouseAdapter()
+        {
             public void mousePressed(MouseEvent e)
             {
-
-                if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
+                if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0)
+                {
                     commonRightButtonMenu = new CommonRightButtonMenu(mainFrame);
 
                     commonRightButtonMenu.setInvoker(ContactListPane.this);
