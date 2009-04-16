@@ -39,9 +39,6 @@ public class ExtendedCallHistorySearchDialog
 
     private JPanel callTypePanel = new TransparentPanel(new GridBagLayout());
 
-    private JPanel callListResultPanel =
-        new TransparentPanel(new BorderLayout());
-
     /* BUTTON */
     private JButton searchButton = new JButton(
         ExtendedCallHistorySearchActivator.getResources()
@@ -77,9 +74,6 @@ public class ExtendedCallHistorySearchDialog
     private JCheckBox outCheckBox = new SIPCommCheckBox(
         ExtendedCallHistorySearchActivator.getResources()
             .getI18NString("plugin.callhistoryform.OUTGOING"), true);
-
-    /* SCROLL PANE */
-    private JScrollPane scrollPane = new JScrollPane();
 
     /* contraint grid */
     private GridBagConstraints constraintsGRbag = new GridBagConstraints();
@@ -122,10 +116,6 @@ public class ExtendedCallHistorySearchDialog
                 .createEmptyBorder(5, 5, 5, 5)));
 
         this.callTypePanel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createTitledBorder(""), BorderFactory
-                .createEmptyBorder(5, 5, 5, 5)));
-
-        this.callListResultPanel.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createTitledBorder(""), BorderFactory
                 .createEmptyBorder(5, 5, 5, 5)));
 
@@ -173,9 +163,12 @@ public class ExtendedCallHistorySearchDialog
         this.mainSearchPanel.add(searchPanel, BorderLayout.NORTH);
         this.mainSearchPanel.add(callTypePanel, BorderLayout.CENTER);
 
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.getViewport().add(callList);
+
         this.mainPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         this.mainPanel.add(mainSearchPanel, BorderLayout.NORTH);
-        this.mainPanel.add(callListResultPanel, BorderLayout.CENTER);
+        this.mainPanel.add(scrollPane, BorderLayout.CENTER);
 
         /* SEARCH PANEL */
         constraintsGRbag.anchor = GridBagConstraints.WEST;
@@ -228,10 +221,6 @@ public class ExtendedCallHistorySearchDialog
         this.callTypePanel.add(inCheckBox, constraintsGRbag);
         constraintsGRbag.gridx = 3;
         this.callTypePanel.add(outCheckBox, constraintsGRbag);
-
-        /* CALL LIST PANEL */
-        this.scrollPane.getViewport().add(callList);
-        this.callListResultPanel.add(scrollPane, BorderLayout.CENTER);
     }
 
     /**
