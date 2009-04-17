@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -27,7 +26,6 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
 
@@ -968,35 +966,11 @@ public class ContactRightButtonMenu
      */
     public Image createContactStatusImage(Contact protoContact)
     {
-        Image statusImage = ImageLoader.getBytesInImage(
-                protoContact.getPresenceStatus().getStatusIcon());
-
-        int index = mainFrame.getProviderIndex(
-            protoContact.getProtocolProvider());
-
-        Image img = null;
-        if(index > 0)
-        {
-            BufferedImage buffImage = new BufferedImage(
-                    22, 16, BufferedImage.TYPE_INT_ARGB);
-
-            Graphics2D g = (Graphics2D)buffImage.getGraphics();
-            AlphaComposite ac =
-                AlphaComposite.getInstance(AlphaComposite.SRC_OVER);
-
-            AntialiasingManager.activateAntialiasing(g);
-            g.setColor(Color.DARK_GRAY);
-            g.setFont(Constants.FONT.deriveFont(Font.BOLD, 9));
-            g.drawImage(statusImage, 0, 0, null);
-            g.setComposite(ac);
-            g.drawString(Integer.toString(index+1), 14, 8);
-
-            img = buffImage;
-        }
-        else {
-            img = statusImage;
-        }
-        return img;
+        return
+            ImageLoader.badgeImageWithProtocolIndex(
+                ImageLoader.getBytesInImage(
+                    protoContact.getPresenceStatus().getStatusIcon()),
+                protoContact.getProtocolProvider());
     }
     
     /**

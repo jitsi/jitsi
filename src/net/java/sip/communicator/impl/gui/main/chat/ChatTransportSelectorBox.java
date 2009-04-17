@@ -8,12 +8,10 @@ package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.*;
 import java.util.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -57,13 +55,9 @@ public class ChatTransportSelectorBox
         // a valid menu item
         this.menu.setEnabled(false);
 
-        Iterator chatTransports = chatSession.getChatTransports();
+        Iterator<ChatTransport> chatTransports = chatSession.getChatTransports();
         while (chatTransports.hasNext())
-        {
-            ChatTransport chatTransport = (ChatTransport) chatTransports.next();
-
-            this.addChatTransport(chatTransport);
-        }
+            this.addChatTransport(chatTransports.next());
 
         if (this.menu.getItemCount() > 0 &&
             selectedChatTransport.allowsInstantMessage())
@@ -156,31 +150,11 @@ public class ChatTransportSelectorBox
      */
     public Image createTransportStatusImage(ChatTransport chatTransport)
     {
-        Image statusImage = ImageLoader.getBytesInImage(
-                chatTransport.getStatus().getStatusIcon());
-
-        int index = GuiActivator.getUIService().getMainFrame()
-            .getProviderIndex(chatTransport.getProtocolProvider());
-
-        Image img;
-        if(index > 0) {
-            BufferedImage buffImage
-                = new BufferedImage(22, 16, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D g = (Graphics2D)buffImage.getGraphics();
-
-            AntialiasingManager.activateAntialiasing(g);
-            g.setColor(Color.DARK_GRAY);
-            g.setFont(Constants.FONT.deriveFont(Font.BOLD, 9));
-            g.drawImage(statusImage, 0, 0, null);
-            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
-            g.drawString(Integer.toString(index+1), 14, 8);
-
-            img = buffImage;
-        }
-        else {
-            img = statusImage;
-        }
-        return img;
+        return
+            ImageLoader.badgeImageWithProtocolIndex(
+                ImageLoader.getBytesInImage(
+                    chatTransport.getStatus().getStatusIcon()),
+                chatTransport.getProtocolProvider());
     }
 
     /**

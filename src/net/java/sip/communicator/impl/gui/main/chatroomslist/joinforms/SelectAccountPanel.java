@@ -96,7 +96,9 @@ public class SelectAccountPanel extends TransparentPanel
 
         this.infoLabel.setEditable(false);
 
-        this.infoTitleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18));
+        Font font = infoTitleLabel.getFont();
+        infoTitleLabel.setFont(
+            font.deriveFont(Font.BOLD, font.getSize2D() + 6));
 
         this.labelsPanel.add(infoTitleLabel);
         this.labelsPanel.add(infoLabel);

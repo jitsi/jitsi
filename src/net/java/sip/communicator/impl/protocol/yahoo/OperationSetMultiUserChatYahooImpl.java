@@ -3,11 +3,10 @@ package net.java.sip.communicator.impl.protocol.yahoo;
 import java.io.IOException;
 import java.util.*;
 
-import org.jivesoftware.smackx.muc.*;
-
 import ymsg.network.*;
 import ymsg.network.event.*;
 import ymsg.support.MessageDecoder;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;

@@ -89,8 +89,10 @@ public class RequestAuthorizationDialog
         this.setTitle(title);
         
         titleLabel.setHorizontalAlignment(JLabel.CENTER);
-        titleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18f));
         titleLabel.setText(title);
+
+        Font font = titleLabel.getFont();
+        titleLabel.setFont(font.deriveFont(Font.BOLD, font.getSize2D() + 6));
         
         this.mainPanel.setPreferredSize(new Dimension(400, 230));
         

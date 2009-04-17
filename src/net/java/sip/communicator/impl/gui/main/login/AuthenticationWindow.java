@@ -26,17 +26,10 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class AuthenticationWindow
     extends SIPCommFrame
-    implements  ActionListener,
-                ExportedWindow
+    implements ActionListener,
+               ExportedWindow
 {
-
     private JTextArea realmTextArea = new JTextArea();
-
-    private JLabel uinLabel = new JLabel(
-        GuiActivator.getResources().getI18NString("service.gui.IDENTIFIER"));
-
-    private JLabel passwdLabel = new JLabel(
-        GuiActivator.getResources().getI18NString("service.gui.PASSWORD"));
 
     private JComponent uinValue;
 
@@ -68,11 +61,11 @@ public class AuthenticationWindow
 
     private UserCredentials userCredentials;
 
-    private Object lock = new Object();
+    private final Object lock = new Object();
 
     private String realm;
 
-    private boolean isUserNameEditable = false;
+    private final boolean isUserNameEditable;
 
     /**
      * Creates an instance of the <tt>LoginWindow</tt>.
@@ -112,17 +105,11 @@ public class AuthenticationWindow
                 new String[]{protocolProvider.getProtocolName()}));
         }
 
-        if(logoImage != null)
-            backgroundPanel = new LoginWindowBackground(logoImage);
-        else
-            backgroundPanel = new LoginWindowBackground();
-
-        this.backgroundPanel.setPreferredSize(new Dimension(420, 230));
-
-        this.backgroundPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-
+        backgroundPanel = new LoginWindowBackground(logoImage);
         this.backgroundPanel.setBorder(
                 BorderFactory.createEmptyBorder(20, 5, 5, 5));
+        this.backgroundPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        this.backgroundPanel.setPreferredSize(new Dimension(420, 230));
 
         this.getContentPane().setLayout(new BorderLayout());
 
@@ -201,14 +188,24 @@ public class AuthenticationWindow
         this.realmTextArea.setOpaque(false);
         this.realmTextArea.setLineWrap(true);
         this.realmTextArea.setWrapStyleWord(true);
-        this.realmTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));
+        this.realmTextArea.setFont(
+            realmTextArea.getFont().deriveFont(Font.BOLD));
         this.realmTextArea.setText(
             GuiActivator.getResources().getI18NString(
                 "service.gui.SECURITY_AUTHORITY_REALM",
                 new String[]{realm}));
 
-        this.uinLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
-        this.passwdLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
+        JLabel uinLabel
+            = new JLabel(
+                    GuiActivator.getResources().getI18NString(
+                        "service.gui.IDENTIFIER"));
+        uinLabel.setFont(uinLabel.getFont().deriveFont(Font.BOLD));
+
+        JLabel passwdLabel
+            = new JLabel(
+                    GuiActivator.getResources().getI18NString(
+                        "service.gui.PASSWORD"));
+        passwdLabel.setFont(passwdLabel.getFont().deriveFont(Font.BOLD));
 
         this.labelsPanel.add(uinLabel);
         this.labelsPanel.add(passwdLabel);
@@ -248,7 +245,7 @@ public class AuthenticationWindow
 
     /**
      * Sets transparent background to all components in the login window,
-     * because of the nonwhite background.
+     * because of the non-white background.
      * @param transparent <code>true</code> to set a transparent background,
      * <code>false</code> otherwise.
      */
@@ -274,9 +271,8 @@ public class AuthenticationWindow
         if (buttonName.equals("ok")) {
             if(uinValue instanceof JLabel)
                 userCredentials.setUserName(((JLabel)uinValue).getText());
-            else
-                if(uinValue instanceof JTextField)
-                    userCredentials.setUserName(((JTextField)uinValue).getText());
+            else if(uinValue instanceof JTextField)
+                userCredentials.setUserName(((JTextField)uinValue).getText());
 
             userCredentials.setPassword(
                     passwdField.getPassword());
@@ -284,7 +280,7 @@ public class AuthenticationWindow
                     rememberPassCheckBox.isSelected());
         }
         else {
-            // if usercredentials are created outside the exported window
+            // if userCredentials are created outside the exported window
             // by specifying null username we note that the window was canceled
             this.userCredentials.setUserName(null);
             this.userCredentials = null;
@@ -302,7 +298,8 @@ public class AuthenticationWindow
      * the <code>paintComponent</code> method to provide a custom background
      * image for this window.
      */
-    private static class LoginWindowBackground extends TransparentPanel
+    private static class LoginWindowBackground
+        extends TransparentPanel
     {
         private final Image bgImage;
 
@@ -311,28 +308,23 @@ public class AuthenticationWindow
             this.bgImage = bgImage;
         }
 
-        public LoginWindowBackground()
-        {
-            this.bgImage = null;
-        }
-
         protected void paintComponent(Graphics g)
         {
             super.paintComponent(g);
 
-            g = g.create();
-            try
+            if (bgImage != null)
             {
-                AntialiasingManager.activateAntialiasing(g);
+                g = g.create();
+                try
+                {
+                    AntialiasingManager.activateAntialiasing(g);
 
-                Graphics2D g2 = (Graphics2D) g;
-
-                if (bgImage != null)
-                    g2.drawImage(bgImage, 30, 30, null);
-            }
-            finally
-            {
-                g.dispose();
+                    g.drawImage(bgImage, 30, 30, null);
+                }
+                finally
+                {
+                    g.dispose();
+                }
             }
         }
     }
@@ -341,10 +333,12 @@ public class AuthenticationWindow
      * Enables the actions when a key is pressed, for now
      * closes the window when esc is pressed.
      */
-    private void enableKeyActions() {
-
-        AbstractAction act = new AbstractAction() {
-            public void actionPerformed(ActionEvent e) {
+    private void enableKeyActions()
+    {
+        AbstractAction act = new AbstractAction()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
                 AuthenticationWindow.this.setVisible(false);
             }
         };

@@ -85,7 +85,7 @@ public class ChatInviteDialog
         infoTextArea.setText(GuiActivator.getResources()
             .getI18NString("service.gui.INVITE_CONTACT_MSG"));
 
-        infoTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD));
+        infoTextArea.setFont(infoTextArea.getFont().deriveFont(Font.BOLD));
         infoTextArea.setLineWrap(true);
         infoTextArea.setOpaque(false);
         infoTextArea.setWrapStyleWord(true);

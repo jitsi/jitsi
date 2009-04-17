@@ -65,8 +65,10 @@ public class AuthorizationResponseDialog extends SIPCommDialog
         this.setTitle(title);
         
         titleLabel.setHorizontalAlignment(JLabel.CENTER);
-        titleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18f));
         titleLabel.setText(title);
+
+        Font font = titleLabel.getFont();
+        titleLabel.setFont(font.deriveFont(Font.BOLD, font.getSize2D() + 6));
         
         this.mainPanel.setPreferredSize(new Dimension(400, 250));
         
@@ -106,7 +108,7 @@ public class AuthorizationResponseDialog extends SIPCommDialog
             this.mainPanel.setPreferredSize(new Dimension(400, 180));
         }
                 
-        this.infoTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));
+        this.infoTextArea.setFont(infoTextArea.getFont().deriveFont(Font.BOLD));
         this.infoTextArea.setLineWrap(true);
         this.infoTextArea.setWrapStyleWord(true);
         this.infoTextArea.setEditable(false);

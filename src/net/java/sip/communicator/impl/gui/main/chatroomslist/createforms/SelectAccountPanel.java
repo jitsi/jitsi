@@ -17,7 +17,6 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -90,7 +89,9 @@ public class SelectAccountPanel extends TransparentPanel
 
         this.infoLabel.setEditable(false);
 
-        this.infoTitleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18));
+        Font font = infoTitleLabel.getFont();
+        infoTitleLabel.setFont(
+            font.deriveFont(Font.BOLD, font.getSize2D() + 6));
 
         this.labelsPanel.add(infoTitleLabel);
         this.labelsPanel.add(infoLabel);

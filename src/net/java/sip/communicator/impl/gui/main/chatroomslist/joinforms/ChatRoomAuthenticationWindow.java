@@ -113,15 +113,15 @@ public class ChatRoomAuthenticationWindow
         this.infoTextArea.setOpaque(false);
         this.infoTextArea.setLineWrap(true);
         this.infoTextArea.setWrapStyleWord(true);
-        this.infoTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));
+        this.infoTextArea.setFont(infoTextArea.getFont().deriveFont(Font.BOLD));
         this.infoTextArea.setEditable(false);
         this.infoTextArea.setText(
             GuiActivator.getResources().getI18NString(
                 "service.gui.CHAT_ROOM_REQUIRES_PASSWORD",
                 new String[]{chatRoom.getChatRoomName()}));
 
-        this.idLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
-        this.passwdLabel.setFont(Constants.FONT.deriveFont(Font.BOLD));
+        this.idLabel.setFont(idLabel.getFont().deriveFont(Font.BOLD));
+        this.passwdLabel.setFont(passwdLabel.getFont().deriveFont(Font.BOLD));
 
         this.labelsPanel.add(idLabel);
         this.labelsPanel.add(passwdLabel);

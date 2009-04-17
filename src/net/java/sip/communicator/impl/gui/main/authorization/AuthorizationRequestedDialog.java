@@ -90,15 +90,17 @@ public class AuthorizationRequestedDialog
         this.setTitle(title);
         
         titleLabel.setHorizontalAlignment(JLabel.CENTER);
-        titleLabel.setFont(Constants.FONT.deriveFont(Font.BOLD, 18f));
         titleLabel.setText(title);
+
+        Font font = titleLabel.getFont();
+        titleLabel.setFont(font.deriveFont(Font.BOLD, font.getSize2D() + 6));
         
         infoTextArea.setText(
             GuiActivator.getResources().getI18NString(
                 "service.gui.AUTHORIZATION_REQUESTED_INFO", 
                 new String[]{contact.getDisplayName()}));
         
-        this.infoTextArea.setFont(Constants.FONT.deriveFont(Font.BOLD, 12f));
+        this.infoTextArea.setFont(infoTextArea.getFont().deriveFont(Font.BOLD));
         this.infoTextArea.setLineWrap(true);
         this.infoTextArea.setWrapStyleWord(true);
         this.infoTextArea.setOpaque(false);
