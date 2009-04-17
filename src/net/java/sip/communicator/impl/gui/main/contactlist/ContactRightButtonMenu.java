@@ -606,6 +606,7 @@ public class ContactRightButtonMenu
                     itemName.substring(moveSubcontactPrefix.length()));
 
             guiContactList.addExcContactListListener(this);
+            guiContactList.setDisableOpenClose(true);
 
             // FIXME: set the special cursor while moving a subcontact
             //guiContactList.setCursor(
@@ -613,6 +614,15 @@ public class ContactRightButtonMenu
 
             this.moveDialog = new MoveSubcontactMessageDialog(mainFrame, this);
 
+            // Be sure we allow open/close groups in the contactlist if
+            // user cancels the action
+            this.moveDialog.addWindowListener(new WindowAdapter()
+                {
+                    public void windowClosed(WindowEvent e)
+                    {
+                        guiContactList.setDisableOpenClose(false);
+                    }
+                });
             this.moveDialog.setVisible(true);
 
             if(contact != null)
@@ -798,6 +808,8 @@ public class ContactRightButtonMenu
         {
             new MoveSubcontactThread(sourceGroup).start();
         }
+
+        guiContactList.setDisableOpenClose(false);
     }
 
     /**

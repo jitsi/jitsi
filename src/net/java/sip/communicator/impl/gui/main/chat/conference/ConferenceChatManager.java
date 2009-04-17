@@ -451,7 +451,8 @@ public class ConferenceChatManager
                 GuiActivator.getUIService().getMainFrame(),
                 GuiActivator.getResources().getI18NString("service.gui.WARNING"),
                 GuiActivator.getResources().getI18NString(
-                    "haveToBeConnectedToJoin"))
+                    "service.gui.CHAT_ROOM_NOT_CONNECTED",
+                    new String[]{chatRoomWrapper.getChatRoomName()}))
                     .showDialog();
 
             return;

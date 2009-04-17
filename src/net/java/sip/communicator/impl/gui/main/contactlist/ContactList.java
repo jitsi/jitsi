@@ -82,6 +82,11 @@ public class ContactList
         = new Vector<MetaContact>();
 
     /**
+     * If set to true prevents groups to be closed or opened using the mouse.
+     */
+    private boolean disableOpenClose = false;
+
+    /**
      * Creates an instance of the <tt>ContactList</tt>.
      *
      * @param mainFrame The main application window.
@@ -545,40 +550,46 @@ public class ContactList
             }
             else if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0)
             {
-                if (listModel.isGroupClosed(group))
-                    listModel.openGroup(group);
-                else
-                    listModel.closeGroup(group);
+                if(!disableOpenClose)
+                {
+                    if (listModel.isGroupClosed(group))
+                        listModel.openGroup(group);
+                    else
+                        listModel.closeGroup(group);
+                }
 
                 fireContactListEvent(   group,
                                         ContactListEvent.GROUP_SELECTED,
                                         e.getClickCount());
 
-                // get the component under the mouse
-                Component component = this.getHorizontalComponent(renderer,
-                    translatedX);
-
-                if (component instanceof JPanel)
+                if(!disableOpenClose)
                 {
-                    if (component.getName() != null
-                        && component.getName().equals("buttonsPanel"))
+                    // get the component under the mouse
+                    Component component = this.getHorizontalComponent(renderer,
+                        translatedX);
+
+                    if (component instanceof JPanel)
                     {
-                        JPanel panel = (JPanel) component;
-
-                        int internalX = translatedX
-                            - (renderer.getWidth() - panel.getWidth() - 2);
-
-                        Component c = getHorizontalComponent(panel, internalX);
-
-                        if (c instanceof JLabel)
+                        if (component.getName() != null
+                            && component.getName().equals("buttonsPanel"))
                         {
-                            if (listModel.isGroupClosed(group))
+                            JPanel panel = (JPanel) component;
+
+                            int internalX = translatedX
+                                - (renderer.getWidth() - panel.getWidth() - 2);
+
+                            Component c = getHorizontalComponent(panel, internalX);
+
+                            if (c instanceof JLabel)
                             {
-                                listModel.openGroup(group);
-                            }
-                            else
-                            {
-                                listModel.closeGroup(group);
+                                if (listModel.isGroupClosed(group))
+                                {
+                                    listModel.openGroup(group);
+                                }
+                                else
+                                {
+                                    listModel.closeGroup(group);
+                                }
                             }
                         }
                     }
@@ -898,6 +909,15 @@ public class ContactList
             }
         }
         return null;
+    }
+
+    /**
+     * If set to true prevents groups to be closed or opened using the mouse.
+     * @param disableOpenClose the disableOpenClose to set
+     */
+    public void setDisableOpenClose(boolean disableOpenClose)
+    {
+        this.disableOpenClose = disableOpenClose;
     }
 
     /**
