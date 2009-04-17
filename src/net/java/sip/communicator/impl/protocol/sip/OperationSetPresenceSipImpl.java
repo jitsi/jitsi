@@ -1091,20 +1091,25 @@ public class OperationSetPresenceSipImpl
         ContactSipImpl contact = (ContactSipImpl)
             resolveContactID(contactIdentifier);
 
-        if (contact != null && contact.isPersistent())
+        if (contact != null)
         {
-            throw new OperationFailedException(
-                "Contact " + contactIdentifier + " already exists.",
-                OperationFailedException.SUBSCRIPTION_ALREADY_EXISTS);
-        }
-        else if(!contact.isPersistent())
-        {
-            // we will remove it as we will created again
-            ContactGroupSipImpl oldParentGroup =
-                (ContactGroupSipImpl)contact.getParentContactGroup();
-            oldParentGroup.removeContact(contact);
-            fireSubscriptionEvent(contact, oldParentGroup,
-                SubscriptionEvent.SUBSCRIPTION_REMOVED);
+            if(contact.isPersistent())
+            {
+                throw new OperationFailedException(
+                    "Contact " + contactIdentifier + " already exists.",
+                    OperationFailedException.SUBSCRIPTION_ALREADY_EXISTS);
+            }
+            else
+            {
+                // we will remove it as we will created again
+                // this is the case when making a non persistent contact to
+                // a persistent one
+                ContactGroupSipImpl oldParentGroup =
+                    (ContactGroupSipImpl)contact.getParentContactGroup();
+                oldParentGroup.removeContact(contact);
+                fireSubscriptionEvent(contact, oldParentGroup,
+                    SubscriptionEvent.SUBSCRIPTION_REMOVED);
+            }
         }
 
         Address contactAddress;
@@ -1119,13 +1124,13 @@ public class OperationSetPresenceSipImpl
                 contactIdentifier + " is not a valid string.", exc);
         }
 
-            // create a new contact, marked as resolvable and non resolved
-            contact = new ContactSipImpl(contactAddress, this.parentProvider);
+        // create a new contact, marked as resolvable and non resolved
+        contact = new ContactSipImpl(contactAddress, this.parentProvider);
         ((ContactGroupSipImpl) parentGroup).addContact(contact);
 
-            fireSubscriptionEvent(contact,
-                    parentGroup,
-                    SubscriptionEvent.SUBSCRIPTION_CREATED);
+        fireSubscriptionEvent(contact,
+                parentGroup,
+                SubscriptionEvent.SUBSCRIPTION_CREATED);
 
         // do not query the presence state
         if (this.presenceEnabled == false)
