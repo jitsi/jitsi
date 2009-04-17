@@ -1377,7 +1377,7 @@ public class ServerStoredContactListIcqImpl
                     {
                         ContactIcqImpl contact = (ContactIcqImpl) iter.next();
 
-                        String oldNickname = contact.getDisplayName();
+                        String oldNickname = contact.getUIN();
 
                         String nickName = null;
 
@@ -1390,7 +1390,6 @@ public class ServerStoredContactListIcqImpl
                         {
                             // if something happens do not interrupt
                             // the nickname retreiver
-                            continue;
                         }
 
                         if(nickName != null)
