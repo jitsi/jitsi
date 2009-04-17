@@ -547,6 +547,10 @@ public class ConferenceChatSession
     /* Implements ChatSession#isContactListSupported(). */
     public boolean isContactListSupported()
     {
-        return !chatRoomWrapper.getChatRoom().isSystem();
+        ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
+
+        return
+            !chatRoom.isSystem()
+                && !ConferenceChatManager.isPrivate(chatRoom);
     }
 }

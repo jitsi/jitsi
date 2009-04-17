@@ -184,7 +184,7 @@ public class TestOperationSetMultiUserChat
     {
         //create room
         ChatRoom testChatRoom = opSetMultiChat1
-            .createChatRoom(fixture.chatRoomName, new Hashtable());
+            .createChatRoom(fixture.chatRoomName, null);
 
         //get available rooms
         assertNotNull("createChatRoom() returned null", testChatRoom);

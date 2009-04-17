@@ -7,10 +7,11 @@
 package net.java.sip.communicator.service.protocol;
 
 import java.util.*;
+
 import net.java.sip.communicator.service.protocol.event.*;
 
 /**
- * Allows creating, configuring, joining and administrating of individual
+ * Allows creating, configuring, joining and administering of individual
  * text-based conference rooms.
  *
  * @author Emil Ivov
@@ -27,10 +28,10 @@ public interface OperationSetMultiUserChat
      * rooms that are currently available on the server that this protocol
      * provider is connected to.
      *
-     * @throws OperationFailedException if we faile retrieving this list from
+     * @throws OperationFailedException if we failed retrieving this list from
      * the server.
      * @throws OperationNotSupportedException if the server does not support
-     * multi user chat
+     * multi-user chat
      */
     public List<String> getExistingChatRooms()
         throws OperationFailedException, OperationNotSupportedException;
@@ -56,7 +57,7 @@ public interface OperationSetMultiUserChat
      * @throws OperationFailedException if an error occurs while trying to
      * discover the room on the server.
      * @throws OperationNotSupportedException if the server does not support
-     * multi user chat
+     * multi-user chat
      */
     public List<String> getCurrentlyJoinedChatRooms(ChatRoomMember chatRoomMember)
         throws OperationFailedException, OperationNotSupportedException;
@@ -68,20 +69,26 @@ public interface OperationSetMultiUserChat
      * local user will not have joined it and thus will not receive messages on
      * it until the <tt>ChatRoom.join()</tt> method is called.
      * <p>
-     * @param roomName the name of the <tt>ChatRoom</tt> to create.
-     * @param roomProperties properties specifying how the room should be
-     * created.
-     * @throws OperationFailedException if the room couldn't be created for some
-     * reason (e.g. room already exists; user already joined to an existent
-     * room or user has no permissions to create a chat room).
-     * @throws OperationNotSupportedException if chat room creation is not
-     * supported by this server
-     *
+     * 
+     * @param roomName
+     *            the name of the <tt>ChatRoom</tt> to create.
+     * @param roomProperties
+     *            properties specifying how the room should be created;
+     *            <tt>null</tt> for no properties just like an empty
+     *            <code>Map</code>
+     * @throws OperationFailedException
+     *             if the room couldn't be created for some reason (e.g. room
+     *             already exists; user already joined to an existent room or
+     *             user has no permissions to create a chat room).
+     * @throws OperationNotSupportedException
+     *             if chat room creation is not supported by this server
+     * 
      * @return the newly created <tt>ChatRoom</tt> named <tt>roomName</tt>.
      */
     public ChatRoom createChatRoom(String roomName, 
-                                   Hashtable<String, Object> roomProperties)
-        throws OperationFailedException, OperationNotSupportedException;
+                                   Map<String, Object> roomProperties)
+        throws OperationFailedException,
+               OperationNotSupportedException;
 
     /**
      * Returns a reference to a chatRoom named <tt>roomName</tt> or null
@@ -94,7 +101,7 @@ public interface OperationSetMultiUserChat
      * @throws OperationFailedException if an error occurs while trying to
      * discover the room on the server.
      * @throws OperationNotSupportedException if the server does not support
-     * multi user chat
+     * multi-user chat
      */
     public ChatRoom findRoom(String roomName)
         throws OperationFailedException, OperationNotSupportedException;
@@ -143,7 +150,7 @@ public interface OperationSetMultiUserChat
                                 ChatRoomInvitationRejectionListener listener);
 
     /**
-     * Returns true if <tt>contact</tt> supports multi user chat sessions.
+     * Returns true if <tt>contact</tt> supports multi-user chat sessions.
      *
      * @param contact reference to the contact whose support for chat rooms
      * we are currently querying.

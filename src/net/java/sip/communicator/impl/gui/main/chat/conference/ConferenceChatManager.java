@@ -32,6 +32,7 @@ import org.osgi.framework.*;
  * invitations.
  *
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class ConferenceChatManager
     implements  ChatRoomMessageListener,
@@ -152,7 +153,7 @@ public class ConferenceChatManager
     /**
      * Implements the <tt>ChatRoomMessageListener.messageReceived</tt> method.
      * <br>
-     * Obtains the corresponding <tt>ChatPanel</tt> and proccess the message
+     * Obtains the corresponding <tt>ChatPanel</tt> and process the message
      * there.
      */
     public void messageReceived(ChatRoomMessageReceivedEvent evt)
@@ -163,20 +164,17 @@ public class ConferenceChatManager
 
         String messageType = null;
 
-        if (evt.getEventType()
-            == ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED)
+        switch (evt.getEventType())
         {
+        case ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED:
             messageType = Constants.INCOMING_MESSAGE;
-        }
-        else if (evt.getEventType()
-            == ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED)
-        {
+            break;
+        case ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED:
             messageType = Constants.SYSTEM_MESSAGE;
-        }
-        else if (evt.getEventType()
-            == ChatRoomMessageReceivedEvent.ACTION_MESSAGE_RECEIVED)
-        {
+            break;
+        case ChatRoomMessageReceivedEvent.ACTION_MESSAGE_RECEIVED:
             messageType = Constants.ACTION_MESSAGE;
+            break;
         }
 
         logger.trace("MESSAGE RECEIVED from contact: "
@@ -205,26 +203,83 @@ public class ConferenceChatManager
                 .getMultiChat(sourceChatRoom, message.getMessageUID());
         }
 
+        String messageContent = message.getContent();
+
         chatPanel.processMessage(
             sourceMember.getName(),
             evt.getTimestamp(),
             messageType,
-            message.getContent(),
+            messageContent,
             message.getContentType());
 
         chatWindowManager.openChat(chatPanel, false);
 
         // Fire notification
-        String title
-            = GuiActivator.getResources().getI18NString(
-                "service.gui.MSG_RECEIVED",
-                new String[]{sourceMember.getName()});
+        boolean fireChatNotification;
 
-        NotificationManager.fireChatNotification(
-            sourceChatRoom,
-            NotificationManager.INCOMING_MESSAGE,
-            title,
-            message.getContent());
+        /*
+         * It is uncommon for IRC clients to display popup notifications for
+         * messages which are sent to public channels and which do not mention
+         * the nickname of the local user.
+         */
+        if (sourceChatRoom.isSystem()
+                || isPrivate(sourceChatRoom)
+                || (messageContent == null))
+            fireChatNotification = true;
+        else
+        {
+            String nickname = sourceChatRoom.getUserNickname();
+
+            fireChatNotification =
+                (nickname == null)
+                    || messageContent.toLowerCase().contains(
+                            nickname.toLowerCase());
+        }
+        if (fireChatNotification)
+        {
+            String title
+                = GuiActivator.getResources().getI18NString(
+                        "service.gui.MSG_RECEIVED",
+                        new String[] { sourceMember.getName() });
+
+            NotificationManager.fireChatNotification(
+                sourceChatRoom,
+                NotificationManager.INCOMING_MESSAGE,
+                title,
+                messageContent);
+        }
+    }
+
+    /**
+     * Determines whether a specific <code>ChatRoom</code> is private i.e.
+     * represents a one-to-one conversation which is not a channel. Since the
+     * interface {@link ChatRoom} does not expose the private property, an
+     * heuristic is used as a workaround: (1) a system <code>ChatRoom</code> is
+     * obviously not private and (2) a <code>ChatRoom</code> is private if it
+     * has only one <code>ChatRoomMember</code> who is not the local user.
+     * 
+     * @param chatRoom
+     *            the <code>ChatRoom</code> to be determined as private or not
+     * @return <tt>true</tt> if the specified <code>ChatRoom</code> is private;
+     *         otherwise, <tt>false</tt>
+     */
+    static boolean isPrivate(ChatRoom chatRoom)
+    {
+        if (!chatRoom.isSystem()
+                && chatRoom.isJoined()
+                && (chatRoom.getMembersCount() == 1))
+        {
+            String nickname = chatRoom.getUserNickname();
+
+            if (nickname != null)
+            {
+                for (ChatRoomMember member : chatRoom.getMembers())
+                    if (nickname.equals(member.getName()))
+                        return false;
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -485,8 +540,7 @@ public class ConferenceChatManager
         ChatRoom chatRoom = null;
         try
         {
-            chatRoom = groupChatOpSet
-                .createChatRoom(chatRoomName, new Hashtable());
+            chatRoom = groupChatOpSet.createChatRoom(chatRoomName, null);
         }
         catch (OperationFailedException ex)
         {

@@ -728,18 +728,12 @@ public class IrcStack
                 LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT,
                 "");
 
-            Iterator members = chatRoom.getMembers().iterator();
-
-            while(members.hasNext())
-            {
-                ChatRoomMember member = (ChatRoomMember) members.next();
-
+            for (ChatRoomMember member : chatRoom.getMembers())
                 chatRoom.fireMemberPresenceEvent(
                     member,
                     null,
                     ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT,
                     "Local user has left the chat room.");
-            }
 
             // Delete the list of members
             chatRoom.clearChatRoomMemberList();
@@ -1620,12 +1614,10 @@ public class IrcStack
         {
             String[] channels = this.getChannels();
 
-            for (int i = 0; i < channels.length; i++)
+            for (String channel : channels)
             {
-                if (chatRoom.getName().equals(channels[i]))
-                {
+                if (chatRoom.getName().equals(channel))
                     return true;
-                }
             }
             return false;
         }
@@ -1885,26 +1877,6 @@ public class IrcStack
                     LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOIN_FAILED,
                     "Failed to join the  " + chatRoom.getName()
                     + " chat room, because there is no response from the server.");
-        }
-    }
-
-    /**
-     * Parses a <code>String</code> to an <code>int</code> via
-     * <code>Integer.parseInt</code> but avoids the
-     * <code>NumberFormatException</code>.
-     * @param str The <code>String</code> to parse.
-     * @return The parsed new <code>int</code>. <code>-1</code> if
-     *         <code>NumberFormatException</code> was thrown. 
-     */
-    private int parseInt(String str)
-    {
-        try
-        {
-            return Integer.parseInt(str);
-        }
-        catch (NumberFormatException exc)
-        {
-            return -1;
         }
     }
 

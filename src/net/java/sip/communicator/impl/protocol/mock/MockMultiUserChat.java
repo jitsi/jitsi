@@ -127,14 +127,16 @@ public class MockMultiUserChat
      * @param roomProperties properties specifying how the room should be
      * created.
      * @throws OperationFailedException if the room couldn't be created for some
-     * reason (e.g. room already exists; user already joined to an existant
+     * reason (e.g. room already exists; user already joined to an existing
      * room or user has no permissions to create a chat room).
      * @throws OperationNotSupportedException if chat room creation is not
      * supported by this server
      *
      * @return the newly created <tt>ChatRoom</tt> named <tt>roomName</tt>.
      */
-    public ChatRoom createChatRoom(String roomName, Hashtable roomProperties) 
+    public ChatRoom createChatRoom(
+            String roomName,
+            Map<String, Object> roomProperties) 
         throws OperationFailedException, 
                OperationNotSupportedException
     {

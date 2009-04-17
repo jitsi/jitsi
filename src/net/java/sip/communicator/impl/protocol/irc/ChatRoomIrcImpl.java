@@ -1059,6 +1059,12 @@ public class ChatRoomIrcImpl
      */
     public boolean isPersistent()
     {
-        return true;
+
+        /*
+         * Private ChatRooms are not persistent because they correspond to
+         * conversations created by sending private messages and such
+         * conversations are not traditionally persisted by other IRC clients.
+         */
+        return !isPrivate();
     }
 }

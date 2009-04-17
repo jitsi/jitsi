@@ -159,8 +159,11 @@ public class OperationSetMultiUserChatIrcImpl
      *
      * @return the newly created <tt>ChatRoom</tt> named <tt>roomName</tt>.
      */
-    public ChatRoom createChatRoom(String roomName, Hashtable roomProperties)
-        throws OperationFailedException, OperationNotSupportedException
+    public ChatRoom createChatRoom(
+            String roomName,
+            Map<String, Object> roomProperties)
+        throws OperationFailedException,
+               OperationNotSupportedException
     {
         return findRoom(roomName);
     }
@@ -374,23 +377,32 @@ public class OperationSetMultiUserChatIrcImpl
      */
     protected ChatRoomIrcImpl findPrivateChatRoom(String nickIdentifier)
     {
+        ChatRoomIrcImpl chatRoom;
+
         synchronized(privateRoomCache)
         {
             if(privateRoomCache.containsKey(nickIdentifier))
                 return privateRoomCache.get(nickIdentifier);
 
-            ChatRoomIrcImpl chatRoom
-                = new ChatRoomIrcImpl(nickIdentifier, ircProvider, true, false);
-
+            chatRoom =
+                new ChatRoomIrcImpl(
+                        nickIdentifier,
+                        ircProvider,
+                        true,
+                        false);
             privateRoomCache.put(nickIdentifier, chatRoom);
-
-            fireLocalUserPresenceEvent(
-                    chatRoom,
-                    LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
-                    "Private conversation initiated.");
-
-            return chatRoom;
         }
+
+        /*
+         * As a rule of thumb, firing inside synchronized blocks increases the
+         * chances of creating deadlocks.
+         */
+        fireLocalUserPresenceEvent(
+            chatRoom,
+            LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
+            "Private conversation initiated.");
+
+        return chatRoom;
     }
 
     /**

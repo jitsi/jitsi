@@ -29,7 +29,7 @@ import net.java.sip.communicator.util.*;
  * The <tt>ChatConversationPanel</tt> is the panel, where all sent and received
  * messages appear. All data is stored in an HTML document. An external CSS file
  * is applied to the document to provide the look&feel. All smilies and link
- * strings are processed and finally replaced by corresponding images and html
+ * strings are processed and finally replaced by corresponding images and HTML
  * links.
  *
  * @author Yana Stamcheva

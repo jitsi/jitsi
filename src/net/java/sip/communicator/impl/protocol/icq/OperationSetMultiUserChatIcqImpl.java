@@ -209,7 +209,7 @@ public class OperationSetMultiUserChatIcqImpl
     * @return ChatRoom the chat room that we've just created.
     */
    public ChatRoom createChatRoom( String roomName,
-                                   Hashtable roomProperties)
+                                   Map<String, Object> roomProperties)
            throws  OperationFailedException,
                    OperationNotSupportedException
    {

@@ -7,7 +7,7 @@
 package net.java.sip.communicator.service.protocol;
 
 /**
- * This interface representes chat room participants. Instances are retrieved
+ * This interface represents chat room participants. Instances are retrieved
  * through implementations of the <tt>ChatRoom</tt> interface and offer methods
  * that allow querying member properties, such as, moderation permissions,
  * associated chat room and other.
