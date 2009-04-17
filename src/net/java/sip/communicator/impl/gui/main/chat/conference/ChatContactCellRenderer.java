@@ -34,8 +34,6 @@ public class ChatContactCellRenderer
 
         this.photoLabel.setIcon(null);
 
-        DefaultContactList contactList = (DefaultContactList) list;
-
         ChatContact chatContact = (ChatContact) value;
 
         this.setPreferredSize(new Dimension(20, 30));

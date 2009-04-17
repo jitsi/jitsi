@@ -1379,6 +1379,9 @@ public class MainFrame
      */
     public void setParams(Object[] windowParams) {}
 
+    /**
+     * @param event Currently not used 
+     */
     protected void windowClosed(WindowEvent event)
     {
         if(GuiActivator.getUIService().getExitOnMainWindowClose())
@@ -1401,6 +1404,9 @@ public class MainFrame
         }
     }
 
+    /**
+     * @param event Currently not used 
+     */
     protected void windowClosing(WindowEvent event)
     {
         if (!GuiActivator.getUIService().getExitOnMainWindowClose())

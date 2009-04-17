@@ -172,7 +172,7 @@ public class ConferenceChatSession
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
      */
-    public Collection getHistory(int count)
+    public Collection<EventObject> getHistory(int count)
     {
         final MessageHistoryService msgHistory
             = GuiActivator.getMsgHistoryService();
@@ -195,7 +195,7 @@ public class ConferenceChatSession
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
      */
-    public Collection getHistoryBeforeDate(Date date, int count)
+    public Collection<EventObject> getHistoryBeforeDate(Date date, int count)
     {
         final MessageHistoryService msgHistory
             = GuiActivator.getMsgHistoryService();
@@ -219,7 +219,7 @@ public class ConferenceChatSession
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
      */
-    public Collection getHistoryAfterDate(Date date, int count)
+    public Collection<EventObject> getHistoryAfterDate(Date date, int count)
     {
         final MessageHistoryService msgHistory
             = GuiActivator.getMsgHistoryService();
@@ -254,14 +254,14 @@ public class ConferenceChatSession
 
         long startHistoryDate = 0;
 
-        Collection firstMessage = msgHistory
+        Collection<EventObject> firstMessage = msgHistory
             .findFirstMessagesAfter(chatRoomWrapper.getChatRoom(),
                                     new Date(0),
                                     1);
 
         if(firstMessage.size() > 0)
         {
-            Iterator i = firstMessage.iterator();
+            Iterator<EventObject> i = firstMessage.iterator();
 
             Object o = i.next();
 
@@ -301,13 +301,13 @@ public class ConferenceChatSession
 
         long endHistoryDate = 0;
 
-        Collection lastMessage = msgHistory
+        Collection<EventObject> lastMessage = msgHistory
             .findLastMessagesBefore(chatRoomWrapper.getChatRoom(),
                                     new Date(Long.MAX_VALUE), 1);
 
         if(lastMessage.size() > 0)
         {
-            Iterator i1 = lastMessage.iterator();
+            Iterator<EventObject> i1 = lastMessage.iterator();
 
             Object o1 = i1.next();
 

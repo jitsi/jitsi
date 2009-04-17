@@ -73,10 +73,9 @@ public class GroupRightButtonMenu
 
         this.add(addContactMenu);
 
-        Iterator providers = mainFrame.getProtocolProviders();
+        Iterator<ProtocolProviderService> providers = mainFrame.getProtocolProviders();
         while(providers.hasNext()) {
-            ProtocolProviderService pps
-                = (ProtocolProviderService)providers.next();
+            ProtocolProviderService pps = providers.next();
 
             boolean isHidden =
                 pps.getAccountID().getAccountProperty(

@@ -115,7 +115,7 @@ public interface ChatRoomConfigurationFormField
      *
      * @return Iterator for the available options.
      */
-    public Iterator getOptions();
+    public Iterator<String> getOptions();
     
     /**
      * Returns true if the question must be answered in order to complete the
@@ -143,7 +143,7 @@ public interface ChatRoomConfigurationFormField
      * @return an Iterator for the default values or answered values of the
      * field
      */
-    public Iterator getValues();
+    public Iterator<Object> getValues();
     
     /**
      * Adds the given value to the values of this field.

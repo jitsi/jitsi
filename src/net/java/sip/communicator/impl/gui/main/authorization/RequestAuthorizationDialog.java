@@ -67,8 +67,6 @@ public class RequestAuthorizationDialog
     private String title = GuiActivator.getResources()
         .getI18NString("service.gui.REQUEST_AUTHORIZATION");
     
-    private AuthorizationRequest request;
-    
     private Object lock = new Object();
     
     private int returnCode;
@@ -95,8 +93,6 @@ public class RequestAuthorizationDialog
         titleLabel.setFont(font.deriveFont(Font.BOLD, font.getSize2D() + 6));
         
         this.mainPanel.setPreferredSize(new Dimension(400, 230));
-        
-        this.request = request;
         
         infoTextArea.setText(GuiActivator.getResources().getI18NString(
             "service.gui.REQUEST_AUTHORIZATION_MSG", 

@@ -132,8 +132,7 @@ public class SelectAccountPanel extends TransparentPanel
 
         while(protocolProvidersList.hasNext())
         {
-            ProtocolProviderService pps 
-                = (ProtocolProviderService)protocolProvidersList.next();
+            ProtocolProviderService pps = protocolProvidersList.next();
 
             OperationSet opSet = pps.getOperationSet(
                 OperationSetMultiUserChat.class);

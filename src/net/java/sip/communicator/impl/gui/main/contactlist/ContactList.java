@@ -1341,13 +1341,12 @@ public class ContactList
             if (selectedObject instanceof MetaContact)
             {
                 this.setSelectedIndex(
-                    listModel.indexOf((MetaContact) selectedObject));
+                    listModel.indexOf(selectedObject));
             }
             else
             {
                 this.setSelectedIndex(
-                    listModel.indexOf(
-                            (MetaContactGroup) selectedObject));
+                    listModel.indexOf(selectedObject));
             }
         }
     }

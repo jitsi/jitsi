@@ -588,14 +588,18 @@ public class MediaControl
         catch (NoDataSourceException ex) {
             // The failure only concens us
             logger.error("Could not create data source for " +
-                    locator.toExternalForm()
+                    ((locator != null)
+                            ? locator.toExternalForm()
+                            : "null")
                     , ex);
             return null;
         }
         catch (IOException ex) {
             // The failure only concerns us
             logger.error("Could not create data source for " +
-                    locator.toExternalForm()
+                    ((locator != null)
+                            ? locator.toExternalForm()
+                            : "null")
                     , ex);
             return null;
         }

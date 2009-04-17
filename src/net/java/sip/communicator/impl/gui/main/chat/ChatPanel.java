@@ -1002,11 +1002,12 @@ public class ChatPanel
 
     private class SmsMessageListener implements MessageListener
     {
-        private final ChatTransport chatTransport;
 
+        /**
+         * @param chatTransport Currently unused 
+         */
         public SmsMessageListener(ChatTransport chatTransport)
         {
-            this.chatTransport = chatTransport;
         }
 
         public void messageDelivered(MessageDeliveredEvent evt)
@@ -1128,15 +1129,15 @@ public class ChatPanel
                 loadHistoryPeriod();
 
                 // Load the last N=CHAT_HISTORY_SIZE messages from history.
-                Collection historyList = chatSession.getHistory(
+                Collection<EventObject> historyList = chatSession.getHistory(
                     ConfigurationManager.getChatHistorySize());
 
                 if(historyList.size() > 0) {
                     class ProcessHistory implements Runnable
                     {
-                        Collection historyList;
+                        Collection<EventObject> historyList;
 
-                        ProcessHistory(Collection historyList)
+                        ProcessHistory(Collection<EventObject> historyList)
                         {
                             this.historyList = historyList;
                         }
@@ -1167,7 +1168,7 @@ public class ChatPanel
         // window tool bar.
         loadHistoryPeriod();
 
-        Collection historyList = chatSession.getHistory(
+        Collection<EventObject> historyList = chatSession.getHistory(
                 ConfigurationManager.getChatHistorySize());
 
         processHistory(historyList, escapedMessageID);
@@ -1295,7 +1296,7 @@ public class ChatPanel
                 Date firstMsgDate
                     = conversationPanel.getPageFirstMsgTimestamp();
 
-                Collection c = null;
+                Collection<EventObject> c = null;
 
                 if(firstMsgDate != null)
                 {
@@ -1335,7 +1336,7 @@ public class ChatPanel
                 Date lastMsgDate
                     = getChatConversationPanel().getPageLastMsgTimestamp();
 
-                Collection c = null;
+                Collection<EventObject> c = null;
                 if(lastMsgDate != null)
                 {
                     c = chatSession.getHistoryAfterDate(
@@ -1355,9 +1356,9 @@ public class ChatPanel
      */
     private class HistoryMessagesLoader implements Runnable
     {
-        private final Collection msgHistory;
+        private final Collection<EventObject> msgHistory;
 
-        public HistoryMessagesLoader(Collection msgHistory)
+        public HistoryMessagesLoader(Collection<EventObject> msgHistory)
         {
             this.msgHistory = msgHistory;
         }

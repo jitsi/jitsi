@@ -149,7 +149,7 @@ public class EmptyAccountRegistrationWizardPage
      * Empty interface method implementation, unused in the case of the
      * {@link EmptyAccountRegistrationWizardPage}
      */
-    public void changedUpdate(DocumentEvent e)
+    public void changedUpdate(@SuppressWarnings("unused") DocumentEvent e)
     {
     }
 

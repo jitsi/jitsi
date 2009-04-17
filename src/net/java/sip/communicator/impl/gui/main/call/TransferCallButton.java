@@ -173,9 +173,9 @@ public class TransferCallButton
     private CallParticipant findCallParticipant(
         OperationSetBasicTelephony telephony, String address)
     {
-        for (Iterator callIter = telephony.getActiveCalls(); callIter.hasNext();)
+        for (Iterator<Call> callIter = telephony.getActiveCalls(); callIter.hasNext();)
         {
-            Call call = (Call) callIter.next();
+            Call call = callIter.next();
 
             for (Iterator<CallParticipant> participantIter =
                 call.getCallParticipants(); participantIter.hasNext();)

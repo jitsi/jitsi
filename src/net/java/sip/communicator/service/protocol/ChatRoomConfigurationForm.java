@@ -32,7 +32,7 @@ public interface ChatRoomConfigurationForm
      * @return a list of <tt>ChatRoomConfigurationFormField</tt>s, containing
      * the current configuration of the chat room
      */
-    public Iterator getConfigurationSet();
+    public Iterator<ChatRoomConfigurationFormField> getConfigurationSet();
     
     /**
      * Submits the information in this configuration form to the server.

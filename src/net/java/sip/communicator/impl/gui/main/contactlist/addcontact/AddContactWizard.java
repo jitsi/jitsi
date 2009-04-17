@@ -64,7 +64,7 @@ public class AddContactWizard
             = mainFrame.getProtocolProviders();
         while (iter.hasNext())
         {
-            ProtocolProviderService p = (ProtocolProviderService)iter.next();
+            ProtocolProviderService p = iter.next();
 
             boolean isHidden =
                 p.getAccountID().getAccountProperty(
@@ -79,8 +79,7 @@ public class AddContactWizard
 
         this.registerWizardPage(AddContactWizardPage1.IDENTIFIER, page1);
 
-        page2 = new AddContactWizardPage2(this, newContact,
-                    mainFrame.getAllGroups());
+        page2 = new AddContactWizardPage2(this, newContact);
 
         this.registerWizardPage(AddContactWizardPage2.IDENTIFIER, page2);
 
@@ -188,8 +187,7 @@ public class AddContactWizard
                 = newContact.getProtocolProviders();
                 
             for(int i = 0; i < ppList.size(); i ++) {
-                ProtocolProviderService pps
-                    = (ProtocolProviderService)ppList.get(i);
+                ProtocolProviderService pps = ppList.get(i);
 
                 new CreateContact(pps, newContact).start();
             }

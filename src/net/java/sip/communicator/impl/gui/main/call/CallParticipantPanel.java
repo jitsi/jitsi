@@ -369,9 +369,7 @@ public class CallParticipantPanel
                     event.getPropertyName()))
             {
                 handleLocalVideoStreamingChange(
-                        this,
-                        (Boolean) event.getOldValue(),
-                        (Boolean) event.getNewValue());
+                        this);
             }
         }
 
@@ -432,12 +430,8 @@ public class CallParticipantPanel
 
                     handleVideoEvent(null);
 
-                    boolean localVideoStreaming
-                        = videoTelephony.isLocalVideoStreaming(call);
                     handleLocalVideoStreamingChange(
-                            videoTelephonyListener,
-                            !localVideoStreaming,
-                            localVideoStreaming);
+                            videoTelephonyListener);
                 }
             }
 
@@ -625,7 +619,7 @@ public class CallParticipantPanel
     }
 
     private void handleLocalVideoStreamingChange(
-            VideoTelephonyListener listener, boolean oldValue, boolean newValue)
+            VideoTelephonyListener listener)
     {
         synchronized (videoContainers)
         {

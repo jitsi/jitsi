@@ -205,8 +205,7 @@ public class ContactRightButtonMenu
 
         while (providers.hasNext())
         {
-            ProtocolProviderService pps
-                = (ProtocolProviderService)providers.next();
+            ProtocolProviderService pps = providers.next();
 
             String protocolName = pps.getProtocolName();
 

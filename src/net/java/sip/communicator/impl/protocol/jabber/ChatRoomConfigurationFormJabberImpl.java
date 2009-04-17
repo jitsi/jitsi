@@ -67,15 +67,15 @@ public class ChatRoomConfigurationFormJabberImpl
      * @return an Iterator over a list of
      * <tt>ChatRoomConfigurationFormFields</tt>
      */
-    public Iterator getConfigurationSet()
+    public Iterator<ChatRoomConfigurationFormField> getConfigurationSet()
     {
-        Vector configFormFields = new Vector();
+        Vector<ChatRoomConfigurationFormField> configFormFields = new Vector<ChatRoomConfigurationFormField>();
         
-        Iterator smackFormFields =  smackConfigForm.getFields();
+        Iterator<FormField> smackFormFields =  smackConfigForm.getFields();
         
         while(smackFormFields.hasNext())
         {
-            FormField smackFormField = (FormField) smackFormFields.next();
+            FormField smackFormField = smackFormFields.next();
             
             if(smackFormField == null
                 || smackFormField.getType().equals(FormField.TYPE_HIDDEN))

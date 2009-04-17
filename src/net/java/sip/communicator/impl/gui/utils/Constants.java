@@ -407,7 +407,7 @@ public class Constants
      */
     public static void loadAdiumStyle(){
 
-        File is = new File(Constants.class.getClassLoader()
+        new File(Constants.class.getClassLoader()
             .getResource(DEFAULT_STYLE_PATH + "/TotallyClear").toString());
     }
 

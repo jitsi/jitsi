@@ -89,7 +89,7 @@ public interface ChatSession
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
      */
-    public Collection getHistory(int count);
+    public Collection<EventObject> getHistory(int count);
 
     /**
      * Returns a collection of the last N number of messages given by count.
@@ -98,7 +98,7 @@ public interface ChatSession
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
      */
-    public Collection getHistoryBeforeDate(Date date, int count);
+    public Collection<EventObject> getHistoryBeforeDate(Date date, int count);
 
     /**
      * Returns a collection of the last N number of messages given by count.
@@ -107,7 +107,7 @@ public interface ChatSession
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
      */
-    public Collection getHistoryAfterDate(Date date, int count);
+    public Collection<EventObject> getHistoryAfterDate(Date date, int count);
 
     /**
      * Returns the start date of the history of this chat session.

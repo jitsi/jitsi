@@ -443,8 +443,9 @@ public class MessageHistoryServiceImpl
         String remoteId = remoteContact == null ? "default" : remoteContact
                 .getAddress();
 
-        String account =
-            remoteContact.getProtocolProvider().getAccountID().getAccountUniqueID();
+        String account = "unkown";
+        if (remoteContact != null)
+            account = remoteContact.getProtocolProvider().getAccountID().getAccountUniqueID();
 
         HistoryID historyId = HistoryID.createFromRawID(
             new String[] {  "messages",
@@ -501,7 +502,6 @@ public class MessageHistoryServiceImpl
      * @throws IOException
      */
     private History getHistoryForMultiChat(
-                        Contact localContact,
                         ChatRoom room)
         throws IOException
     {
@@ -794,7 +794,6 @@ public class MessageHistoryServiceImpl
         try
         {
             History history = this.getHistoryForMultiChat(
-                null,
                 evt.getSourceChatRoom());
 
             writeMessage(history, "in", evt.getSourceChatRoomMember(),
@@ -811,7 +810,6 @@ public class MessageHistoryServiceImpl
         {
             History history = this.
                 getHistoryForMultiChat(
-                null,
                 evt.getSourceChatRoom());
 
             writeMessage(history, "out", evt.getMessage(), evt.getTimestamp());
@@ -1328,7 +1326,7 @@ public class MessageHistoryServiceImpl
         {
             // get the readers for this room
             HistoryReader reader =
-                this.getHistoryForMultiChat(null, room).getReader();
+                this.getHistoryForMultiChat(room).getReader();
 
             // add the progress listeners
             addHistorySearchProgressListeners(reader, 1);
@@ -1365,7 +1363,7 @@ public class MessageHistoryServiceImpl
         {
             // get the readers for this room
             HistoryReader reader =
-                this.getHistoryForMultiChat(null, room).getReader();
+                this.getHistoryForMultiChat(room).getReader();
 
             // add the progress listeners
             addHistorySearchProgressListeners(reader, 1);
@@ -1403,7 +1401,7 @@ public class MessageHistoryServiceImpl
         {
             // get the readers for this room
             HistoryReader reader =
-                this.getHistoryForMultiChat(null, room).getReader();
+                this.getHistoryForMultiChat(room).getReader();
 
             // add the progress listeners
             addHistorySearchProgressListeners(reader, 1);
@@ -1464,7 +1462,7 @@ public class MessageHistoryServiceImpl
         {
             // get the readers for this room
             HistoryReader reader =
-                this.getHistoryForMultiChat(null, room).getReader();
+                this.getHistoryForMultiChat(room).getReader();
 
             // add the progress listeners
             addHistorySearchProgressListeners(reader, 1);
@@ -1519,7 +1517,7 @@ public class MessageHistoryServiceImpl
         {
             // get the readers for this room
             HistoryReader reader =
-                this.getHistoryForMultiChat(null, room).getReader();
+                this.getHistoryForMultiChat(room).getReader();
 
             // add the progress listeners
             addHistorySearchProgressListeners(reader, 1);
@@ -1574,7 +1572,7 @@ public class MessageHistoryServiceImpl
         {
             // get the readers for this room
             HistoryReader reader =
-                this.getHistoryForMultiChat(null, room).getReader();
+                this.getHistoryForMultiChat(room).getReader();
 
             // add the progress listeners
             addHistorySearchProgressListeners(reader, 1);
@@ -1613,7 +1611,7 @@ public class MessageHistoryServiceImpl
         {
             // get the readers for this room
             HistoryReader reader =
-                this.getHistoryForMultiChat(null, room).getReader();
+                this.getHistoryForMultiChat(room).getReader();
             Iterator<HistoryRecord> recs = reader.findLast(count);
             while (recs.hasNext())
             {
@@ -1654,7 +1652,7 @@ public class MessageHistoryServiceImpl
         try
         {
             HistoryReader reader =
-                this.getHistoryForMultiChat(null, room).getReader();
+                this.getHistoryForMultiChat(room).getReader();
             Iterator<HistoryRecord> recs = reader.findFirstRecordsAfter(date, count);
             while (recs.hasNext())
             {
@@ -1695,7 +1693,7 @@ public class MessageHistoryServiceImpl
         try
         {
             HistoryReader reader =
-                this.getHistoryForMultiChat(null, room).getReader();
+                this.getHistoryForMultiChat(room).getReader();
             Iterator<HistoryRecord> recs = reader.findLastRecordsBefore(date, count);
             while (recs.hasNext())
             {

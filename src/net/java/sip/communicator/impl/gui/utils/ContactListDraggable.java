@@ -66,7 +66,7 @@ public class ContactListDraggable extends JComponent
      * A set of 2 cursors indicating if the dragged element is currently
      * located over the contactlist or not.
      */
-    private static Hashtable cursors = new Hashtable(2);
+    private static Hashtable<String, Cursor> cursors = new Hashtable<String, Cursor>(2);
     static {
         try
         {
@@ -237,11 +237,11 @@ public class ContactListDraggable extends JComponent
         Point p = SwingUtilities.convertPoint(this, location, contactList);
         if (contactList.contains(p))
         {
-            setCursor((Cursor) cursors.get("valid"));
+            setCursor(cursors.get("valid"));
         }
         else
         {
-            setCursor((Cursor) cursors.get("invalid"));
+            setCursor(cursors.get("invalid"));
         }
     }
 }

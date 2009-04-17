@@ -165,6 +165,9 @@ public class SimpleStatusMenu
         }
     }
 
+    /**
+     * @param status Currently unused 
+     */
     public void updateStatus(Object status)
     {
     }

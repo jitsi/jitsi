@@ -28,8 +28,6 @@ public class ContactInfoDialog
 
     private JPanel protocolsPanel = new TransparentPanel(new GridLayout(0, 1));
 
-    private MetaContact contactItem;
-
     private TransparentBackground bg;
 
     /**
@@ -41,8 +39,6 @@ public class ContactInfoDialog
     public ContactInfoDialog(Frame owner, MetaContact contactItem)
     {
         super(owner);
-
-        this.contactItem = contactItem;
 
         this.setUndecorated(true);
 

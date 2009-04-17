@@ -7,6 +7,7 @@
 package net.java.sip.communicator.service.media;
 
 import java.util.*;
+
 import net.java.sip.communicator.service.media.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import java.net.*;
@@ -117,7 +118,7 @@ public interface MediaService
                                  int localPort,
                                  String remoteIP,
                                  int remotePort,
-                                 Map mediaEncodings)
+                                 Map<String, List<String>> mediaEncodings)
         throws MediaException;
 
     /**

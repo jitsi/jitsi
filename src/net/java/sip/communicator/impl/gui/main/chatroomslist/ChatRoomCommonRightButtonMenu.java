@@ -50,6 +50,8 @@ public class ChatRoomCommonRightButtonMenu
     private ChatRoomProviderWrapper chatRoomProvider;
     /**
      * Creates an instance of <tt>ChatRoomsListRightButtonMenu</tt>.
+     * 
+     * @param mainFrame Currently not used
      */
     public ChatRoomCommonRightButtonMenu(   MainFrame mainFrame,
                                             ChatRoomProviderWrapper provider)

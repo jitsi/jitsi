@@ -186,7 +186,7 @@ public class AccountsConfigurationPanel
         }
         else if (event.getType() == ServiceEvent.UNREGISTERING)
         {
-            this.accountsPanel.remove((JPanel) accounts.get(pps));
+            this.accountsPanel.remove(accounts.get(pps));
             this.accountsPanel.revalidate();
             this.accountsPanel.repaint();
         }
@@ -302,7 +302,7 @@ public class AccountsConfigurationPanel
             ProtocolProviderFactory providerFactory =
                 GuiActivator.getProtocolProviderFactory(protocolProvider);
 
-            Map accountProperties =
+            Map<String, String> accountProperties =
                 protocolProvider.getAccountID().getAccountProperties();
 
             String password = new String(passwordField.getPassword());

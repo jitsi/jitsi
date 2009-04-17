@@ -55,7 +55,7 @@ public class AboutWindow
         {
             public void mouseClicked(MouseEvent e)
             {
-                AboutWindow.this.close(false);
+                AboutWindow.this.close();
             }
         });
 
@@ -71,7 +71,7 @@ public class AboutWindow
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
     }
 
-    protected void close(boolean isEscaped)
+    protected void close()
     {
         this.dispose();
     }
@@ -83,7 +83,7 @@ public class AboutWindow
     {
         public void actionPerformed(ActionEvent e)
         {
-            AboutWindow.this.close(true);
+            AboutWindow.this.close();
         }
     }
 

@@ -333,12 +333,12 @@ public class SIPCommDefaultTheme
 
     public void addCustomEntriesToTable(UIDefaults table)
     {
-        List buttonGradient
+        List<Object> buttonGradient
             = Arrays.asList(new Object[]
                { new Float(.3f), new Float(0f), BUTTON_GRADIENT_DARK_COLOR,
                 getWhite(), BUTTON_GRADIENT_LIGHT_COLOR });
 
-        List sliderGradient
+        List<Object> sliderGradient
             = Arrays.asList(new Object[]
                { new Float(.3f), new Float(.2f), SLIDER_GRADIENT_DARK_COLOR,
                 getWhite(), SLIDER_GRADIENT_LIGHT_COLOR });

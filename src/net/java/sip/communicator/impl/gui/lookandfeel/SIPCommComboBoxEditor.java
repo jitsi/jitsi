@@ -46,7 +46,7 @@ public class SIPCommComboBoxEditor extends MetalComboBoxEditor {
             g = g.create();
             try
             {
-                internalPaintBorder(c, g, x, y, w, h);
+                internalPaintBorder(g, x, y, w, h);
             }
             finally
             {
@@ -54,7 +54,7 @@ public class SIPCommComboBoxEditor extends MetalComboBoxEditor {
             }
         }
 
-        private void internalPaintBorder(Component c, Graphics g, int x, int y,
+        private void internalPaintBorder(Graphics g, int x, int y,
                 int w, int h)
         {
             Graphics2D g2d = (Graphics2D)g;

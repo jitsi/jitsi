@@ -36,8 +36,8 @@ public class ChatRoomListUI
 
     /**
      * Creates the scroll panel containing the chat rooms list.
-     *
-     * @param frame the main application frame
+     * 
+     * @param parentDialog Currently not used
      */
     public ChatRoomListUI(ChatRoomListDialog parentDialog)
     {

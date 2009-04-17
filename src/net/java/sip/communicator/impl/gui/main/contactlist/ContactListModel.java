@@ -277,7 +277,7 @@ public class ContactListModel
                 Iterator<MetaContact> i = parentGroup.getChildContacts();
                 while (i.hasNext())
                 {
-                    MetaContact contact = (MetaContact) i.next();
+                    MetaContact contact = i.next();
 
                     if (isContactOnline(contact))
                         count++;

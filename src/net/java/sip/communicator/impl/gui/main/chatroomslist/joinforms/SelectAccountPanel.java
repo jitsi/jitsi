@@ -141,8 +141,7 @@ public class SelectAccountPanel extends TransparentPanel
 
         while(chatRoomProvidersList.hasNext())
         {
-            ChatRoomProviderWrapper provider 
-                = (ChatRoomProviderWrapper) chatRoomProvidersList.next();
+            ChatRoomProviderWrapper provider = chatRoomProvidersList.next();
 
             String pName = provider.getName();
 

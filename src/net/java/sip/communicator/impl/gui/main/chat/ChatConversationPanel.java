@@ -160,28 +160,29 @@ public class ChatConversationPanel
 
     /**
      * Initializes the editor by adding a header containing the date.
+     * TODO: remove if not used anymore
      */
-    private void initEditor()
-    {
-        Element root = this.document.getDefaultRootElement();
-
-        Date date = new Date(System.currentTimeMillis());
-
-        String chatHeader = "<h1>" + GuiUtils.formatDate(date) + " " + "</h1>";
-
-        try
-        {
-            this.document.insertAfterStart(root, chatHeader);
-        }
-        catch (BadLocationException e)
-        {
-            logger.error("Insert in the HTMLDocument failed.", e);
-        }
-        catch (IOException e)
-        {
-            logger.error("Insert in the HTMLDocument failed.", e);
-        }
-    }
+//    private void initEditor()
+//    {
+//        Element root = this.document.getDefaultRootElement();
+//
+//        Date date = new Date(System.currentTimeMillis());
+//
+//        String chatHeader = "<h1>" + GuiUtils.formatDate(date) + " " + "</h1>";
+//
+//        try
+//        {
+//            this.document.insertAfterStart(root, chatHeader);
+//        }
+//        catch (BadLocationException e)
+//        {
+//            logger.error("Insert in the HTMLDocument failed.", e);
+//        }
+//        catch (IOException e)
+//        {
+//            logger.error("Insert in the HTMLDocument failed.", e);
+//        }
+//    }
 
     /**
      * Processes the message given by the parameters.
@@ -579,10 +580,9 @@ public class ChatConversationPanel
         // new lines, but only the smilies.
         if (contentType == null || !contentType.equals(HTML_CONTENT_TYPE))
         {
-            String linkProcessedString = processLinks(message, contentType);
+            String linkProcessedString = processLinks(message);
 
-            processedString = processNewLines(linkProcessedString,
-                contentType);
+            processedString = processNewLines(linkProcessedString);
         }
         // If the message content is HTML, we process br and img tags.
         else if(contentType.equals(HTML_CONTENT_TYPE))
@@ -602,7 +602,7 @@ public class ChatConversationPanel
      * @param message The source message string.
      * @return The message string with properly formatted links.
      */
-    private String processLinks(String message, String contentType)
+    private String processLinks(String message)
     {
         String startPlainTextTag = "<PLAINTEXT>";
         String endPlainTextTag = "</PLAINTEXT>";
@@ -651,7 +651,7 @@ public class ChatConversationPanel
      * @param message The source message string.
      * @return The message string with properly formatted new lines.
      */
-    private String processNewLines(String message, String contentType)
+    private String processNewLines(String message)
     {
         String startPlainTextTag = "<PLAINTEXT>";
         String endPlainTextTag = "</PLAINTEXT>";

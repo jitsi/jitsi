@@ -47,7 +47,8 @@ public class GlobalStatusSelectorBox
     private Logger logger = Logger.getLogger(
         GlobalStatusSelectorBox.class.getName());
 
-    private Hashtable accountMenus = new Hashtable();
+    private Hashtable<ProtocolProviderService, StatusSelectorMenu> accountMenus =
+        new Hashtable<ProtocolProviderService, StatusSelectorMenu>();
 
     private MainFrame mainFrame;
 
@@ -168,8 +169,8 @@ public class GlobalStatusSelectorBox
 
     public void removeAccount(ProtocolProviderService protocolProvider)
     {
-        StatusSelectorMenu statusSelectorMenu
-            = (StatusSelectorMenu) this.accountMenus.get(protocolProvider);
+        StatusSelectorMenu statusSelectorMenu =
+            this.accountMenus.get(protocolProvider);
 
         this.remove(statusSelectorMenu);
 
@@ -187,12 +188,12 @@ public class GlobalStatusSelectorBox
      */
     public boolean hasSelectedMenus()
     {
-        Enumeration statusMenus = accountMenus.elements();
+        Enumeration<StatusSelectorMenu> statusMenus = accountMenus.elements();
 
         while (statusMenus.hasMoreElements())
         {
             StatusSelectorMenu statusSelectorMenu =
-                (StatusSelectorMenu) statusMenus.nextElement();
+                statusMenus.nextElement();
 
             if (statusSelectorMenu.isSelected())
             {
@@ -211,12 +212,12 @@ public class GlobalStatusSelectorBox
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
 
-        Iterator pProviders = mainFrame.getProtocolProviders();
+        Iterator<ProtocolProviderService> pProviders = mainFrame.getProtocolProviders();
 
         while (pProviders.hasNext())
         {
             ProtocolProviderService protocolProvider
-                = (ProtocolProviderService) pProviders.next();
+                = pProviders.next();
 
             if(itemName.equals(Constants.ONLINE_STATUS))
             {
@@ -389,13 +390,14 @@ public class GlobalStatusSelectorBox
                         status = currentStatus;
                     }
 
-                    if (currentStatus.getStatus()
-                            < PresenceStatus.AVAILABLE_THRESHOLD
-                        && currentStatus.getStatus()
-                            >= PresenceStatus.ONLINE_THRESHOLD
-                        && currentStatus.getStatus() > status.getStatus())
+                    if (status != null) 
                     {
-                        status = currentStatus;
+                        if (currentStatus.getStatus() < PresenceStatus.AVAILABLE_THRESHOLD
+                                && currentStatus.getStatus() >= PresenceStatus.ONLINE_THRESHOLD
+                                && currentStatus.getStatus() > status.getStatus()) 
+                        {
+                            status = currentStatus;
+                        }
                     }
                 }
 
@@ -413,8 +415,7 @@ public class GlobalStatusSelectorBox
 
     public void updateStatus(ProtocolProviderService protocolProvider)
     {
-        StatusSelectorMenu accountMenu =
-            (StatusSelectorMenu) accountMenus.get(protocolProvider);
+        StatusSelectorMenu accountMenu = accountMenus.get(protocolProvider);
 
         if (accountMenu == null)
             return;
@@ -464,8 +465,7 @@ public class GlobalStatusSelectorBox
     public void updateStatus(ProtocolProviderService protocolProvider,
                             PresenceStatus presenceStatus)
     {
-        StatusSelectorMenu accountMenu =
-            (StatusSelectorMenu) accountMenus.get(protocolProvider);
+        StatusSelectorMenu accountMenu = accountMenus.get(protocolProvider);
 
         if (accountMenu == null)
             return;
@@ -489,14 +489,15 @@ public class GlobalStatusSelectorBox
     {
         int status = 0;
 
-        Iterator pProviders = mainFrame.getProtocolProviders();
+        Iterator<ProtocolProviderService> pProviders =
+            mainFrame.getProtocolProviders();
 
         boolean isProtocolHidden;
 
         while (pProviders.hasNext())
         {
             ProtocolProviderService protocolProvider
-                = (ProtocolProviderService) pProviders.next();
+                = pProviders.next();
 
             // We do not show hidden protocols in our status bar, so we do not
             // care about their status here.
@@ -533,7 +534,7 @@ public class GlobalStatusSelectorBox
 
         SelectedObject selectedObject
             = new SelectedObject(item.getText(),
-                                (ImageIcon)item.getIcon(),
+                                item.getIcon(),
                                 item);
 
         // Obtain the width of the text in order to use it in arrow painting

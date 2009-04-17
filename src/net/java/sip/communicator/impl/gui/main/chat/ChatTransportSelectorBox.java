@@ -40,6 +40,9 @@ public class ChatTransportSelectorBox
 
     private final ChatSession chatSession;
 
+    /**
+     * @param chatPanel Currently not used 
+     */
     public ChatTransportSelectorBox(ChatPanel chatPanel,
                                     ChatSession chatSession,
                                     ChatTransport selectedChatTransport)

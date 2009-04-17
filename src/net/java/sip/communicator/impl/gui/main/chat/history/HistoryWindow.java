@@ -66,14 +66,14 @@ public class HistoryWindow
 
     private MessageHistoryService msgHistory;
 
-    private Hashtable dateHistoryTable = new Hashtable();
+    private Hashtable<Date, HTMLDocument> dateHistoryTable = new Hashtable<Date, HTMLDocument>();
     
     private JLabel readyLabel = new JLabel(
         GuiActivator.getResources().getI18NString("service.gui.READY"));
     
     private String searchKeyword;
     
-    private Vector datesVector = new Vector();
+    private Vector<Date> datesVector = new Vector<Date>();
     
     private Date ignoreProgressDate;
     
@@ -120,11 +120,11 @@ public class HistoryWindow
                     "service.gui.HISTORY_CONTACT",
                     new String[]{metaContact.getDisplayName()}));
 
-            Iterator protoContacts = metaContact.getContacts();
+            Iterator<Contact> protoContacts = metaContact.getContacts();
             
             while(protoContacts.hasNext())
             {
-                Contact protoContact = (Contact) protoContacts.next();
+                Contact protoContact = protoContacts.next();
                 
                 ((OperationSetBasicInstantMessaging) protoContact
                     .getProtocolProvider().getOperationSet(
@@ -180,8 +180,7 @@ public class HistoryWindow
         if((searchKeyword == null || searchKeyword == "")
                 && dateHistoryTable.containsKey(startDate)) {
             
-            HTMLDocument document
-                = (HTMLDocument)dateHistoryTable.get(startDate);
+            HTMLDocument document = dateHistoryTable.get(startDate);
                         
             this.chatConvPanel.setContent(document);
         }
@@ -214,11 +213,11 @@ public class HistoryWindow
      * Shows the history given by the collection into a ChatConversationPanel.
      * @param historyRecords a collection of history records
      */
-    private HTMLDocument createHistory(Collection historyRecords)
+    private HTMLDocument createHistory(Collection<EventObject> historyRecords)
     {
         if((historyRecords != null) && (historyRecords.size() > 0)) {
             
-            Iterator i = historyRecords.iterator();
+            Iterator<EventObject> i = historyRecords.iterator();
             String processedMessage = "";
             while (i.hasNext()) {
 
@@ -320,7 +319,7 @@ public class HistoryWindow
     {
         int dateIndex = datesVector.indexOf(date);
         if(dateIndex < datesVector.size() - 1)
-            return (Date)datesVector.get(dateIndex + 1);
+            return datesVector.get(dateIndex + 1);
         else
             return new Date(System.currentTimeMillis());
     }
@@ -381,7 +380,7 @@ public class HistoryWindow
     {
         public void run()
         {
-            Collection msgList = null;
+            Collection<EventObject> msgList = null;
 
             if (historyContact instanceof MetaContact)
             {
@@ -403,7 +402,7 @@ public class HistoryWindow
             }
 
             if (msgList != null)
-            for (Object o : msgList)
+            for (EventObject o : msgList)
             {
                 long date = 0;
 
@@ -434,7 +433,7 @@ public class HistoryWindow
                 long milisecondsPerDay = 24*60*60*1000;
                 for(int j = 0; !containsDate && j < datesVector.size(); j ++)
                 {
-                    Date date1 = (Date)datesVector.get(j);
+                    Date date1 = datesVector.get(j);
                     
                     containsDate = Math.floor(date1.getTime()/milisecondsPerDay)
                         == Math.floor(date/milisecondsPerDay);
@@ -452,7 +451,7 @@ public class HistoryWindow
                     public void run() {
                         Date date = null;
                         for(int i = 0; i < datesVector.size(); i++) {
-                            date = (Date)datesVector.get(i);
+                            date = datesVector.get(i);
                             datesPanel.addDate(date);
                         }
                         if(date != null) {
@@ -492,7 +491,7 @@ public class HistoryWindow
         
         public void run()
         {
-            final Collection msgList;
+            final Collection<EventObject> msgList;
 
             if(historyContact instanceof MetaContact)
             {
@@ -533,7 +532,7 @@ public class HistoryWindow
      * Loads dates found for keyword.
      */
     private class KeywordDatesLoader extends Thread {
-        private Vector keywordDatesVector = new Vector();
+        private Vector<Date> keywordDatesVector = new Vector<Date>();
         private final String keyword;
 
         /**
@@ -549,7 +548,7 @@ public class HistoryWindow
         
         public void run()
         {
-            Collection msgList = null;
+            Collection<EventObject> msgList = null;
 
             if (historyContact instanceof MetaContact)
             {
@@ -583,7 +582,7 @@ public class HistoryWindow
                 
                 long milisecondsPerDay = 24*60*60*1000;
                 for(int j = 0; j < datesVector.size(); j ++) {
-                    Date date1 = (Date)datesVector.get(j);
+                    Date date1 = datesVector.get(j);
                     
                     if(Math.floor(date1.getTime()/milisecondsPerDay)
                         == Math.floor(date/milisecondsPerDay)
@@ -600,7 +599,7 @@ public class HistoryWindow
                     if(keywordDatesVector.size() > 0) {
                         Date date = null;
                         for(int i = 0; i < keywordDatesVector.size(); i++) {
-                            date = (Date)keywordDatesVector.get(i);
+                            date = keywordDatesVector.get(i);
                             
                             /* I have tried to remove and add dates in the
                              * datesList. A lot of problems occured because
@@ -740,8 +739,7 @@ public class HistoryWindow
             if(lastDate != null
                 && GuiUtils.compareDates(lastDate.getTime(), timestamp) == 0)
             {
-                HTMLDocument document
-                    = (HTMLDocument) dateHistoryTable.get(lastDate);
+                HTMLDocument document = dateHistoryTable.get(lastDate);
                 
                 if(document != null)
                 {

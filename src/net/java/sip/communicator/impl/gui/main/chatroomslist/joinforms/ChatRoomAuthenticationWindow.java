@@ -72,10 +72,7 @@ public class ChatRoomAuthenticationWindow
         ImageIcon logoImage
             = new ImageIcon(chatRoom.getParentProvider().getImage());
 
-        if(logoImage != null)
-            backgroundPanel = new LoginWindowBackground(logoImage);
-        else
-            backgroundPanel = new LoginWindowBackground();
+        backgroundPanel = new LoginWindowBackground(logoImage);
 
         this.backgroundPanel.setPreferredSize(new Dimension(420, 230));
 

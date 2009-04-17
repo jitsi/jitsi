@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.gui.main.contactlist.addcontact;
 
-import java.util.*;
-
 import javax.swing.event.*;
 
 import net.java.sip.communicator.service.gui.*;
@@ -38,8 +36,7 @@ public class AddContactWizardPage2
      * the user could select.
      */
     public AddContactWizardPage2(   AddContactWizard wizard, 
-                                    NewContact newContact,
-                                    Iterator groupsList)
+                                    NewContact newContact)
     {
         this.newContact = newContact;
 

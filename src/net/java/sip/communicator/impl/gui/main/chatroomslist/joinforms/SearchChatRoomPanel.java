@@ -125,7 +125,7 @@ public class SearchChatRoomPanel
      */
     public void loadChatRoomsList()
     {
-        List list = GuiActivator.getUIService().getConferenceChatManager()
+        List<String> list = GuiActivator.getUIService().getConferenceChatManager()
             .getExistingChatRooms(chatRoomProvider);
 
         if(list != null)
@@ -136,7 +136,7 @@ public class SearchChatRoomPanel
                     .getI18NString("service.gui.NO_AVAILABLE_ROOMS"));
             }
 
-            chatRoomsList.setListData(new Vector(list));
+            chatRoomsList.setListData(new Vector<String>(list));
             chatRoomsList.setBorder(
                     BorderFactory.createLineBorder(Color.LIGHT_GRAY));
             

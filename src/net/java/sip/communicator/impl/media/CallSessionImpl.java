@@ -451,6 +451,7 @@ public class CallSessionImpl
 
         if(!startedAtLeastOneAudioStream
                 && !startedAtLeastOneVideoStream
+                && sendStreams != null 
                 && (sendStreams.size() > 0))
         {
             stopStreaming();

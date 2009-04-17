@@ -12,6 +12,7 @@ import java.util.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>CreateChatRoomWizardPage1</tt> is the first page of the
@@ -41,7 +42,7 @@ public class CreateChatRoomWizardPage1
      */
     public CreateChatRoomWizardPage1(WizardContainer wizard,
             NewChatRoom newChatRoom, 
-            Iterator protocolProvidersList)
+            Iterator<ProtocolProviderService> protocolProvidersList)
     {
         this.wizard = wizard;
 

@@ -58,7 +58,7 @@ public class NotificationManager
                 null);
 
         SoundNotificationHandler inCallSoundHandler
-            = (SoundNotificationHandler) notificationService
+            = notificationService
                 .createSoundNotificationHandler(SoundProperties.INCOMING_CALL,
                                                 2000);
 
@@ -69,7 +69,7 @@ public class NotificationManager
 
         // Register outgoing call notifications.
         SoundNotificationHandler outCallSoundHandler
-            = (SoundNotificationHandler) notificationService
+            = notificationService
                 .createSoundNotificationHandler(SoundProperties.OUTGOING_CALL,
                                                 3000);
 
@@ -80,7 +80,7 @@ public class NotificationManager
 
         // Register busy call notifications.
         SoundNotificationHandler busyCallSoundHandler
-            = (SoundNotificationHandler) notificationService
+            = notificationService
                 .createSoundNotificationHandler(SoundProperties.BUSY, 1);
 
         notificationService.registerDefaultNotificationForEvent(
@@ -187,15 +187,16 @@ public class NotificationManager
             chatPanel = GuiActivator.getUIService().getChat(chatRoom);
         }
 
-        if(eventType.equals(INCOMING_MESSAGE)
-            && chatPanel.isChatFocused())
+        if (chatPanel != null) 
         {
-            popupActionHandler = notificationService
-                .getEventNotificationActionHandler(
-                                    eventType,
-                                    NotificationService.ACTION_POPUP_MESSAGE);
+            if (eventType.equals(INCOMING_MESSAGE) && chatPanel.isChatFocused()) 
+            {
+                popupActionHandler = notificationService
+                        .getEventNotificationActionHandler(eventType,
+                                NotificationService.ACTION_POPUP_MESSAGE);
 
-            popupActionHandler.setEnabled(false);
+                popupActionHandler.setEnabled(false);
+            }
         }
 
         notificationService.fireNotification(   eventType,

@@ -15,7 +15,7 @@ import java.util.*;
  */
 public class HistoryWindowManager
 {
-    private Hashtable contactHistory = new Hashtable();
+    private Hashtable<Object, HistoryWindow> contactHistory = new Hashtable<Object, HistoryWindow>();
 
     /**
      * Checks if there's an open history window for the given history contact.
@@ -37,7 +37,7 @@ public class HistoryWindowManager
      */
     public HistoryWindow getHistoryWindowForContact(Object historyContact)
     {
-        return (HistoryWindow) contactHistory.get(historyContact);
+        return contactHistory.get(historyContact);
     }
 
     /**

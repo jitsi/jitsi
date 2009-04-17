@@ -43,7 +43,8 @@ public class ConferenceChatManager
     private static final Logger logger
         = Logger.getLogger(ConferenceChatManager.class);
 
-    private final Hashtable chatRoomHistory = new Hashtable();
+    private final Hashtable<ChatRoomWrapper, HistoryWindow> chatRoomHistory =
+        new Hashtable<ChatRoomWrapper, HistoryWindow>();
 
     private final ChatRoomList chatRoomList = new ChatRoomList();
 
@@ -763,7 +764,7 @@ public class ConferenceChatManager
     public HistoryWindow getHistoryWindowForChatRoom(
         ChatRoomWrapper chatRoomWrapper)
     {
-        return (HistoryWindow) chatRoomHistory.get(chatRoomWrapper);
+        return chatRoomHistory.get(chatRoomWrapper);
     }
 
     /**

@@ -48,7 +48,7 @@ public class ChatRoomConfigurationWindow
     
     private TitlePanel titlePanel = new TitlePanel();
     
-    private Hashtable uiFieldsTable = new Hashtable();
+    private Hashtable<String, JComponent> uiFieldsTable = new Hashtable<String, JComponent>();
     
     /**
      * Creates an instance of <tt>ChatRoomConfigurationWindow</tt> and
@@ -118,17 +118,17 @@ public class ChatRoomConfigurationWindow
      */
     private void loadConfigurationForm()
     {
-        Iterator configurationSet = configForm.getConfigurationSet();
+        Iterator<ChatRoomConfigurationFormField> configurationSet = configForm.getConfigurationSet();
         
         int labelWidth = computeLabelWidth(configForm);
         
         while(configurationSet.hasNext())
         {
             ChatRoomConfigurationFormField formField
-                = (ChatRoomConfigurationFormField) configurationSet.next();
+                = configurationSet.next();
             
-            Iterator values = formField.getValues();
-            Iterator options = formField.getOptions();
+            Iterator<Object> values = formField.getValues();
+            Iterator<String> options = formField.getOptions();
             
             JComponent field = null;
             JLabel label = new JLabel();
@@ -174,7 +174,7 @@ public class ChatRoomConfigurationWindow
                 
                 field.setBorder(BorderFactory.createLineBorder(Color.GRAY));
                 
-                Hashtable optionCheckBoxes = new Hashtable();
+                Hashtable<Object, JCheckBox> optionCheckBoxes = new Hashtable<Object, JCheckBox>();
                 
                 while(options.hasNext())
                 {
@@ -189,7 +189,7 @@ public class ChatRoomConfigurationWindow
                 {
                     Object value = values.next();
                     
-                    ((JCheckBox)optionCheckBoxes.get(value)).setSelected(true);
+                    (optionCheckBoxes.get(value)).setSelected(true);
                 }
             }
             else if(fieldType.equals(
@@ -298,12 +298,12 @@ public class ChatRoomConfigurationWindow
     {
         int labelWidth = 0;
         
-        Iterator configurationSet = configForm.getConfigurationSet();
+        Iterator<ChatRoomConfigurationFormField> configurationSet = configForm.getConfigurationSet();
         
         while(configurationSet.hasNext())
         {
             ChatRoomConfigurationFormField formField
-                = (ChatRoomConfigurationFormField) configurationSet.next();
+                = configurationSet.next();
          
             if(formField.getLabel() == null)
                 continue;
@@ -331,12 +331,12 @@ public class ChatRoomConfigurationWindow
         
         if(button.equals(saveButton))
         {
-            Iterator configurationSet = configForm.getConfigurationSet();
+            Iterator<ChatRoomConfigurationFormField> configurationSet = configForm.getConfigurationSet();
             
             while(configurationSet.hasNext())
             {
                 ChatRoomConfigurationFormField formField
-                    = (ChatRoomConfigurationFormField) configurationSet.next();
+                    = configurationSet.next();
              
                 // If the field is of type fixed the user could not change it,
                 // so we skip it.
@@ -345,7 +345,7 @@ public class ChatRoomConfigurationWindow
                     continue;
 
                 JComponent c
-                    = (JComponent) uiFieldsTable.get(formField.getName());
+                    = uiFieldsTable.get(formField.getName());
 
                 if (c instanceof JTextComponent)
                 {

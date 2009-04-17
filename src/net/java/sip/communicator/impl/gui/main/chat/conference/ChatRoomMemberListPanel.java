@@ -36,6 +36,7 @@ public class ChatRoomMemberListPanel
 
     /**
      * Creates an instance of <tt>ChatContactListPanel</tt>.
+     * @param chat Currently not used
      */
     public ChatRoomMemberListPanel(ChatPanel chat)
     {

@@ -80,11 +80,9 @@ public class ProcessorUtility implements ControllerListener {
             // to the waiting thread in waitForState method.
         }
 
-        if (ce instanceof ControllerEvent) {
-            Object stateLock = getStateLock();
-            synchronized (stateLock) {
-                stateLock.notifyAll();
-            }
+        Object stateLock = getStateLock();
+        synchronized (stateLock) {
+            stateLock.notifyAll();
         }
     }
 

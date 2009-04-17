@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.media;
 
 import java.net.*;
 import java.util.*;
+
 import javax.sdp.*;
 import javax.media.Time;
 
@@ -189,13 +190,13 @@ public class MediaServiceImpl
                                  int localPort,
                                  String remoteIP,
                                  int remotePort,
-                                 Map mediaEncodings)
+                                 Map<String, List<String>> mediaEncodings)
         throws MediaException
     {
         waitUntilStarted();
 
         return new RtpFlowImpl(this, localIP, remoteIP,
-                localPort, remotePort, new Hashtable(mediaEncodings));
+                localPort, remotePort, new Hashtable<String, List<String>>(mediaEncodings));
     }
 
 
