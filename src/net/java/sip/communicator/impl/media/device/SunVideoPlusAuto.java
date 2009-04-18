@@ -57,12 +57,12 @@ public class SunVideoPlusAuto
         /*
          * First remove any old entries
          */
-        Vector devices = (Vector) CaptureDeviceManager.
+        Vector<CaptureDeviceInfo> devices = (Vector) CaptureDeviceManager.
             getDeviceList(null).clone();
-        Enumeration enumeration = devices.elements();
+        Enumeration<CaptureDeviceInfo> enumeration = devices.elements();
         while (enumeration.hasMoreElements())
         {
-            CaptureDeviceInfo cdi = (CaptureDeviceInfo) enumeration.nextElement();
+            CaptureDeviceInfo cdi = enumeration.nextElement();
             String devName = cdi.getLocator().getProtocol();
             if (devName.equals(PROTOCOL))
                 CaptureDeviceManager.removeDevice(cdi);
@@ -151,13 +151,12 @@ public class SunVideoPlusAuto
     {
         currentID = id;
         FormatSetup fd = new FormatSetup(currentID);
-        Vector cdiv = fd.getDeviceInfo();
+        Vector<CaptureDeviceInfo> cdiv = fd.getDeviceInfo();
         if (cdiv != null && cdiv.size() > 0)
         {
             for (int i = 0; i < cdiv.size(); i++)
             {
-                CaptureDeviceInfo cdi =
-                    (CaptureDeviceInfo) cdiv.elementAt(i);
+                CaptureDeviceInfo cdi = cdiv.elementAt(i);
                 // At the moment, the name and locator are identical
                 System.err.println("CaptureDeviceInfo = "
                                    + cdi.getName());
@@ -178,7 +177,7 @@ public class SunVideoPlusAuto
 
         String sAnalog, sPort, sVideoFormat, sSize;
 
-        Hashtable videoFormats = new Hashtable();
+        Hashtable<String, Format> videoFormats = new Hashtable<String, Format>();
 
         OPICapture opiVidCap = null;
 
@@ -375,16 +374,16 @@ public class SunVideoPlusAuto
             Toolkit.getDefaultToolkit().beep();
         }
 
-        public Enumeration sortedFormats(Hashtable formats)
+        public Enumeration<String> sortedFormats(Hashtable<String, Format> formats)
         {
-            Vector sorted = new Vector();
-            keyloop:for (Enumeration en = formats.keys();
+            Vector<String> sorted = new Vector<String>();
+            keyloop:for (Enumeration<String> en = formats.keys();
                          en.hasMoreElements(); )
             {
-                String key = (String) en.nextElement();
+                String key = en.nextElement();
                 for (int i = 0; i < sorted.size(); i++)
                 {
-                    if (key.compareTo( (String) sorted.elementAt(i)) < 0)
+                    if (key.compareTo( sorted.elementAt(i)) < 0)
                     {
                         sorted.insertElementAt(key, i);
                         continue keyloop;
@@ -395,21 +394,21 @@ public class SunVideoPlusAuto
             return sorted.elements();
         }
 
-        public Vector getDeviceInfo()
+        public Vector<CaptureDeviceInfo> getDeviceInfo()
         {
             doFormat();
             mydispose();
 
             String locatorPrefix = LOCATOR_PREFIX + id;
-            Vector devices = new Vector();
+            Vector<CaptureDeviceInfo> devices = new Vector<CaptureDeviceInfo>();
             if (anyVideo)
             {
 
-                for (Enumeration ve = sortedFormats(videoFormats);
+                for (Enumeration<String> ve = sortedFormats(videoFormats);
                      ve.hasMoreElements(); )
                 {
-                    String vKey = (String) ve.nextElement();
-                    Format vForm = (VideoFormat) videoFormats.get(vKey);
+                    String vKey = ve.nextElement();
+                    Format vForm = videoFormats.get(vKey);
                     Format[] farray = null;
                     farray = new Format[1];
                     farray[0] = vForm;

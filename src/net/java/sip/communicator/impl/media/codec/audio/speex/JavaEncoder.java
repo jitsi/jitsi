@@ -21,7 +21,6 @@ public class JavaEncoder
     extends com.ibm.media.codec.audio.AudioCodec
 {
     private Format lastFormat = null;
-    private int numberOfChannels = 0;
 
     private static int FRAME_SIZE = 320;
 
@@ -76,7 +75,6 @@ public class JavaEncoder
     private void initConverter(AudioFormat inFormat)
     {
         lastFormat = inFormat;
-        numberOfChannels = inFormat.getChannels();
 
         encoder = new SpeexEncoder();
 

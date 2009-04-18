@@ -12,7 +12,7 @@ package net.java.sip.communicator.impl.media.codec.audio.ilbc;
 class ilbc_constants {
     /* general codec settings */
 
-    static float FS = (float)8000.0f;
+    static float FS = 8000.0f;
     static int BLOCKL_20MS = 160;
     static int BLOCKL_30MS = 240;
     static int BLOCKL_MAX = 240;
@@ -37,8 +37,8 @@ class ilbc_constants {
     static int LPC_N_30MS = 2;
     static int LPC_N_MAX = 2;
     static int LPC_ASYMDIFF = 20;
-    static float LPC_BW = (float)60.0f;
-    static float LPC_WN = (float)1.0001f;
+    static float LPC_BW = 60.0f;
+    static float LPC_WN = 1.0001f;
     static int LSF_NSPLIT = 3;
     static int LSF_NUMBER_OF_STEPS = 4;
     static int LPC_HALFORDER = (LPC_FILTERORDER/2);
@@ -74,7 +74,7 @@ class ilbc_constants {
     static int ENH_NBLOCKS_TOT = 8;   /* ENH_NBLOCKS +
 					 ENH_NBLOCKS_EXTRA */
     static int ENH_BUFL = (ENH_NBLOCKS_TOT)*ENH_BLOCKL;
-    static float ENH_ALPHA0 = (float)0.05f;
+    static float ENH_ALPHA0 = 0.05f;
 
     /* Down sampling */
 
@@ -150,10 +150,10 @@ class ilbc_constants {
 					{{0,0,0,0,0}, {0,0,0,0,0}, {0,0,0,0,0}}};
 
     /* HP filters */
-    static float hpi_zero_coefsTbl[] = {(float)0.92727436f, (float)-1.8544941f, (float)0.92727436f};
-    static float hpi_pole_coefsTbl[] = {(float)1.0f, (float)-1.9059465f, (float)0.9114024f};
-    static float hpo_zero_coefsTbl[] = {(float)0.93980581f, (float)-1.8795834f, (float)0.93980581f};
-    static float hpo_pole_coefsTbl[] = {(float)1.0f, (float)-1.9330735f, (float)0.93589199f};
+    static float hpi_zero_coefsTbl[] = {0.92727436f, -1.8544941f, 0.92727436f};
+    static float hpi_pole_coefsTbl[] = {1.0f, -1.9059465f, 0.9114024f};
+    static float hpo_zero_coefsTbl[] = {0.93980581f, -1.8795834f, 0.93980581f};
+    static float hpo_pole_coefsTbl[] = {1.0f, -1.9330735f, 0.93589199f};
 
     /* LP Filter */
 
@@ -253,9 +253,9 @@ class ilbc_constants {
 	(float)0.288330,
 	(float)-0.076904, (float)0.015625, (float)-0.018799};
 
-    static float enh_plocsTbl[] = {(float)40.0f, (float)120.0f,
-				    (float)200.0f, (float)280.0f, (float)360.0f,
-				    (float)440.0f, (float)520.0f, (float)600.0};
+    static float enh_plocsTbl[] = {40.0f, 120.0f,
+				    200.0f, 280.0f, 360.0f,
+				    440.0f, 520.0f, 600.0f};
 
     /* LPC analysis and quantization */
 
@@ -270,7 +270,7 @@ class ilbc_constants {
 
     static float lsf_weightTbl_30ms[] = {(float)(1.0f/2.0), (float)1.0,
 					  (float)(2.0f/3.0),
-					  (float)(1.0f/3.0), (float)0.0f, (float)0.0};
+					  (float)(1.0f/3.0), 0.0f, (float)0.0};
 
     static float lsf_weightTbl_20ms[] = {(float)(3.0f/4.0), (float)(2.0/4.0),
 					  (float)(1.0f/4.0), (float)(0.0)};

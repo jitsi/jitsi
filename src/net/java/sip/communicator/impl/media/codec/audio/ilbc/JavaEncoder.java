@@ -52,8 +52,6 @@ public class JavaEncoder
 
     protected Format[] getMatchingOutputFormats(Format in)
     {
-        AudioFormat af = (AudioFormat) in;
-
         supportedOutputFormats = new AudioFormat[]
             {new AudioFormat(
                 Constants.ILBC_RTP,
@@ -149,6 +147,6 @@ public class JavaEncoder
             controls = new Control[1];
             controls[0] = new com.sun.media.controls.SilenceSuppressionAdapter(this, false, false);
         }
-        return (Object[]) controls;
+        return controls;
     }
 }

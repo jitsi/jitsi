@@ -34,7 +34,7 @@ public class SunVideoAuto
 
     XILCapture xilCap;
 
-    Vector formats = null;
+    Vector<Format> formats = null;
 
     int [] ports = { 1, 2, 0 };     // most likely ports for a device
 
@@ -56,10 +56,10 @@ public class SunVideoAuto
      */
     public int autoDetectDevices()
     {
-        Vector devices = (Vector) CaptureDeviceManager.getDeviceList(null).clone();
-        Enumeration enumeration = devices.elements();
+        Vector<CaptureDeviceInfo> devices = (Vector) CaptureDeviceManager.getDeviceList(null).clone();
+        Enumeration<CaptureDeviceInfo> enumeration = devices.elements();
         while (enumeration.hasMoreElements()) {
-            CaptureDeviceInfo cdi = (CaptureDeviceInfo) enumeration.nextElement();
+            CaptureDeviceInfo cdi = enumeration.nextElement();
             String devName = cdi.getLocator().getProtocol();
             if (devName.equals(PROTOCOL))
                 CaptureDeviceManager.removeDevice(cdi);
@@ -85,9 +85,9 @@ public class SunVideoAuto
 
     private void addFormat(Format fin)
     {
-        Enumeration enumeration = formats.elements();
+        Enumeration<Format> enumeration = formats.elements();
         while (enumeration.hasMoreElements()) {
-            Format format = (Format) enumeration.nextElement();
+            Format format = enumeration.nextElement();
             if (format.equals(fin))
                 return;
         }
@@ -100,7 +100,7 @@ public class SunVideoAuto
     {
 
         xilCap = new XILCapture(null);
-        formats = new Vector();
+        formats = new Vector<Format>();
         //boolean gotPort = false;
 
         if (!xilCap.connect(index)) {
@@ -111,8 +111,8 @@ public class SunVideoAuto
 
         for (int i = 0; i < ports.length; i++) {
             if (xilCap.setPort(ports[i])) {
-                getJpegFormats(i);
-                getRGBFormats(i);
+                getJpegFormats();
+                getRGBFormats();
             }
         }
         xilCap.disconnect();
@@ -124,7 +124,7 @@ public class SunVideoAuto
     }
 
 
-    private void getRGBFormats(int index)
+    private void getRGBFormats()
     {
         if (!xilCap.setCompress("RGB"))
             return;
@@ -147,7 +147,7 @@ public class SunVideoAuto
         }
     }
 
-    private void getJpegFormats(int index) {
+    private void getJpegFormats() {
         if (!xilCap.setCompress("Jpeg"))
             return;
         for (int i = 0; i < scales.length; i++) {
@@ -181,11 +181,11 @@ public class SunVideoAuto
         String locator = LOCATOR_PREFIX + index;
 
         Format [] farray = new Format[formats.size()];
-        Enumeration enumeration = formats.elements();
+        Enumeration<Format> enumeration = formats.elements();
 
         int i = 0;
         while (enumeration.hasMoreElements()) {
-            Format format = (Format) enumeration.nextElement();
+            Format format = enumeration.nextElement();
             farray[i++] = format;
         }
 

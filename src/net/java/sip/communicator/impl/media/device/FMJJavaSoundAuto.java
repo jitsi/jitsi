@@ -27,7 +27,7 @@ public class FMJJavaSoundAuto
         // Done using reflection to avoid compile-time dependency on FMJ:
         //new net.sf.fmj.media.cdp.javasound.CaptureDevicePlugger()
         //.addCaptureDevices();
-        final Class clazz = Class.forName(
+        final Class<?> clazz = Class.forName(
             "net.sf.fmj.media.cdp.javasound.CaptureDevicePlugger");
         final Method addCaptureDevices = clazz.getMethod("addCaptureDevices");
         final Object captureDevicePlugger = clazz.newInstance();

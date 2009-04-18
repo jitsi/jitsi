@@ -329,7 +329,7 @@ class ilbc_decoder {
 		in_ptr = in_idx + i;
 		state_ptr = ilbc_constants.FILTERORDER_DS - 2;
 
-		o = (float)0.0f;
+		o = 0.0f;
 
 		//		stop = (i < ilbc_constants.FILTERORDER_DS) ? i + 1 : ilbc_constants.FILTERORDER_DS;
 		if (i < ilbc_constants.FILTERORDER_DS) {
@@ -361,7 +361,7 @@ class ilbc_decoder {
        for (i=(lengthIn+ilbc_constants.FACTOR_DS); i<(lengthIn+ilbc_constants.DELAY_DS);
                i+=ilbc_constants.FACTOR_DS) {
 
-           o=(float)0.0f;
+           o=0.0f;
 
            if (i<lengthIn) {
                coef_ptr = 0;
@@ -475,7 +475,7 @@ class ilbc_decoder {
 	filterlength=2*hfl+1;
 
 	if ( filterlength > dim1 ) {
-	    hfl2=(int) (dim1/2);
+	    hfl2=(dim1/2);
 	    for (j=0; j<ilbc_constants.ENH_UPS0; j++) {
 		polyp[j]=j*filterlength+hfl-hfl2;
 	    }
@@ -551,6 +551,9 @@ class ilbc_decoder {
     }
 
 
+    /**
+     * @param period Currently not used 
+     */
     /*----------------------------------------------------------------*
      * find segment starting near idata+estSegPos that has highest
      * correlation with idata+centerStartPos through
@@ -611,9 +614,9 @@ class ilbc_decoder {
 	/* make vector can be upsampled without ever running outside
 	   bounds */
 
-	updStartPos= (float)searchSegStartPos +
-	    (float)tloc/(float)ilbc_constants.ENH_UPS0+(float)1.0f;
-	tloc2=(int)(tloc/ilbc_constants.ENH_UPS0);
+	updStartPos= searchSegStartPos +
+	    (float)tloc/(float)ilbc_constants.ENH_UPS0+1.0f;
+	tloc2=tloc/ilbc_constants.ENH_UPS0;
 
 	if (tloc>tloc2*ilbc_constants.ENH_UPS0) {
 	    tloc2++;
@@ -688,7 +691,7 @@ class ilbc_decoder {
 	   current one */
 
 	for (i=1; i<=2*hl+1; i++) {
-	    wt[i-1] = (float)0.5*(1 - (float)(float)Math.cos(2*ilbc_constants.PI*i/(2*hl+2)));
+	    wt[i-1] = (float)0.5*(1 - (float)Math.cos(2*ilbc_constants.PI*i/(2*hl+2)));
 	}
 	wt[hl]=0.0f; /* for clarity, not used */
 	for (i=0; i<ilbc_constants.ENH_BLOCKL; i++) {
@@ -717,10 +720,10 @@ class ilbc_decoder {
 	    w10+=surround[i]*sseq[psseq+i];
 	}
 
-	if ((float)Math.abs(w11) < 1.0f) {
+	if (Math.abs(w11) < 1.0f) {
 	    w11=1.0f;
 	}
-	C = (float)(float)Math.sqrt( w00/w11);
+	C = (float)Math.sqrt( w00/w11);
 
 	/* first try enhancement without power-constraint */
 
@@ -742,7 +745,7 @@ class ilbc_decoder {
 
 	    if (denom > 0.0001f) { /* eliminates numerical problems
 				     for if smooth */
-		A = (float)(float)Math.sqrt( (alpha0- alpha0*alpha0/4)/denom);
+		A = (float)Math.sqrt( (alpha0- alpha0*alpha0/4)/denom);
 		B = -alpha0/2 - A * w10/w00;
 		B = B+1;
 	    }
@@ -790,7 +793,7 @@ class ilbc_decoder {
 	lagBlock[hl] = NearestNeighbor(plocs,
 			(float)0.5*(centerStartPos+centerEndPos),periodl);
 
-	blockStartPos[hl]=(float)centerStartPos;
+	blockStartPos[hl]=centerStartPos;
 
 	psseq=ilbc_constants.ENH_BLOCKL*hl;
 // 	psseq=sseq+ENH_BLOCKL*hl;
@@ -902,10 +905,10 @@ class ilbc_decoder {
 	}
 
 	if (ftmp1 > 0.0f) {
-	    return (float)(ftmp1*ftmp1/ftmp2);
+	    return (ftmp1*ftmp1/ftmp2);
 	}
 	else {
-	    return (float)0.0f;
+	    return 0.0f;
 	}
     }
 
@@ -1016,7 +1019,7 @@ class ilbc_decoder {
 		}
 	    }
 
-	    enh_period[ilbc_constants.ENH_NBLOCKS_EXTRA+ioffset-1]=(float)lag;
+	    enh_period[ilbc_constants.ENH_NBLOCKS_EXTRA+ioffset-1]=lag;
 
 	    /* compute new concealed residual for the old lookahead,
 	       mix the forward PLC with a backward PLC from
@@ -1058,16 +1061,16 @@ class ilbc_decoder {
 		    enh_buf[ilbc_constants.ENH_BUFL-1-this.ULP_inst.blockl-i];
 		ftmp1+=plc_pred[i]*plc_pred[i];
 	    }
-	    ftmp1=(float)(float)Math.sqrt(ftmp1/(float)plc_blockl);
-	    ftmp2=(float)(float)Math.sqrt(ftmp2/(float)plc_blockl);
-	    if (ftmp1>(float)2.0f*ftmp2 && ftmp1>0.0) {
+	    ftmp1=(float)Math.sqrt(ftmp1/plc_blockl);
+	    ftmp2=(float)Math.sqrt(ftmp2/plc_blockl);
+	    if (ftmp1 > 2.0f*ftmp2 && ftmp1 > 0.0) {
 		for (i=0;i<plc_blockl-10;i++) {
-		    plc_pred[i]*=(float)2.0f*ftmp2/ftmp1;
+		    plc_pred[i] *= 2.0f*ftmp2/ftmp1;
 		}
 		for (i=plc_blockl-10;i<plc_blockl;i++) {
-		    plc_pred[i]*=(float)(i-plc_blockl+10)*
-			((float)1.0f-(float)2.0*ftmp2/ftmp1)/(float)(10)+
-			(float)2.0f*ftmp2/ftmp1;
+		    plc_pred[i]*= (i-plc_blockl+10)*
+			(1.0f-(float)2.0*ftmp2/ftmp1)/(10)+
+			2.0f*ftmp2/ftmp1;
 		}
 	    }
 
@@ -1077,7 +1080,7 @@ class ilbc_decoder {
 		ftmp1 = (float) (i+1) / (float) (plc_blockl+1);
 		enh_buf[enh_bufPtr1] *= ftmp1;
 // 		*enh_bufPtr1 *= ftmp1;
-		enh_buf[enh_bufPtr1] += ((float)1.0f-ftmp1)*
+		enh_buf[enh_bufPtr1] += (1.0f-ftmp1)*
 		    plc_pred[plc_blockl-1-i];
 // 		*enh_bufPtr1 += ((float)1.0f-ftmp1)*
 // 		    plc_pred[plc_blockl-1-i];
@@ -1148,9 +1151,9 @@ class ilbc_decoder {
 
 	if (ftmp2 > 0.0f) {
 	    cc[0] = ftmp1*ftmp1/ftmp2;
-	    gc[0] = (float)(float)Math.abs(ftmp1 / ftmp2);
-	    pm[0] = (float)(float)Math.abs(ftmp1) /
-		((float)(float)Math.sqrt(ftmp2)*(float)Math.sqrt(ftmp3));
+	    gc[0] = Math.abs(ftmp1 / ftmp2);
+	    pm[0] = Math.abs(ftmp1) /
+		((float)Math.sqrt(ftmp2)*(float)Math.sqrt(ftmp3));
 	}
 	else {
 	    cc[0] = 0.0f;
@@ -1241,18 +1244,18 @@ class ilbc_decoder {
 
 	    use_gain=1.0f;
 	    if (this.consPLICount*this.ULP_inst.blockl>320)
-		use_gain=(float)0.9;
+		use_gain=0.9f;
 	    else if (this.consPLICount*this.ULP_inst.blockl>2*320)
-		use_gain=(float)0.7;
+		use_gain=0.7f;
 	    else if (this.consPLICount*this.ULP_inst.blockl>3*320)
-		use_gain=(float)0.5;
+		use_gain=0.5f;
 	    else if (this.consPLICount*this.ULP_inst.blockl>4*320)
-		use_gain=(float)0.0f;
+		use_gain=0.0f;
 
 	    /* mix noise and pitch repeatition */
-	    ftmp=(float)(float)Math.sqrt(max_per);
-	    if (ftmp>(float)0.7)
-		pitchfact=(float)1.0f;
+	    ftmp=(float)Math.sqrt(max_per);
+	    if (ftmp > 0.7f)
+		pitchfact=1.0f;
 	    else if (ftmp>(float)0.4)
 		pitchfact=(ftmp-(float)0.4)/((float)0.7-(float)0.4);
 	    else
@@ -1295,22 +1298,22 @@ class ilbc_decoder {
 		if (i<80)
 		    PLCresidual[i] = use_gain*(pitchfact *
 					       PLCresidual[i] +
-					       ((float)1.0f - pitchfact) * randvec[i]);
+					       (1.0f - pitchfact) * randvec[i]);
 		else if (i<160)
 		    PLCresidual[i] = (float)0.95*use_gain*(pitchfact *
 							    PLCresidual[i] +
-							    ((float)1.0f - pitchfact) * randvec[i]);
+							    (1.0f - pitchfact) * randvec[i]);
 		else
 		    PLCresidual[i] = (float)0.9*use_gain*(pitchfact *
 							   PLCresidual[i] +
-							   ((float)1.0f - pitchfact) * randvec[i]);
+							   (1.0f - pitchfact) * randvec[i]);
 
 		energy += PLCresidual[i] * PLCresidual[i];
 	    }
 
 	    /* less than 30 dB, use only noise */
 
-	    if ((float)Math.sqrt(energy/(float)this.ULP_inst.blockl) < 30.0f) {
+	    if ((float)Math.sqrt(energy/this.ULP_inst.blockl) < 30.0f) {
 		gain=0.0f;
 		for (i=0; i<this.ULP_inst.blockl; i++) {
 		    PLCresidual[i] = randvec[i];
@@ -1627,11 +1630,11 @@ class ilbc_decoder {
 	float [] PLClpc = new float[ilbc_constants.LPC_FILTERORDER + 1];
 	float [] zeros = new float[ilbc_constants.BLOCKL_MAX];
 	float [] one = new float[ilbc_constants.LPC_FILTERORDER + 1];
-	int k, i, start, idxForMax, pos, lastpart, ulp;
+	int k, i, start, idxForMax, /*pos,*/ lastpart, ulp;
 	int lag, ilag;
 	float cc, maxcc;
 	int [] idxVec = new int[ilbc_constants.STATE_LEN];
-	int check;
+//	int check;
 	int [] gain_index = new int[ilbc_constants.NASUB_MAX * ilbc_constants.CB_NSTAGES];
 	int [] extra_gain_index = new int[ilbc_constants.CB_NSTAGES];
 	int [] cb_index = new int[ilbc_constants.CB_NSTAGES * ilbc_constants.NASUB_MAX];
@@ -1651,7 +1654,7 @@ class ilbc_decoder {
 	    /* decode data */
 
 	    //	    pbytes=bytes;
-	    pos=0;
+	    // pos=0;
 
 	    /* Set everything to zero before decoding */
 
@@ -1818,8 +1821,10 @@ class ilbc_decoder {
 		SimplelsfDEQ(lsfdeq, lsf_i, this.ULP_inst.lpc_n);
 // 		for (int li = 0; li < lsfdeq.length; li++)
 // 		    System.out.println("lsfdeq["+li+"] = " + lsfdeq[li]);
-		check=ilbc_common.LSF_check(lsfdeq, ilbc_constants.LPC_FILTERORDER,
-				this.ULP_inst.lpc_n);
+        ilbc_common.LSF_check(lsfdeq, ilbc_constants.LPC_FILTERORDER,
+                this.ULP_inst.lpc_n);
+//		check=ilbc_common.LSF_check(lsfdeq, ilbc_constants.LPC_FILTERORDER,
+//				this.ULP_inst.lpc_n);
 // 		System.out.println("check returns " + check);
 		DecoderInterpolateLSF(syntdenum, weightdenum,
 				      lsfdeq, ilbc_constants.LPC_FILTERORDER);

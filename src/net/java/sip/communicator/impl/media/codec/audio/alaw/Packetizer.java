@@ -90,7 +90,7 @@ public class Packetizer
             controls = new Control[1];
             controls[0] = new PacketSizeAdapter(this, packetSize, true);
         }
-        return (Object[]) controls;
+        return controls;
     }
 
     public synchronized void setPacketSize(int newPacketSize)

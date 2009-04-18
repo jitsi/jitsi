@@ -367,7 +367,7 @@ class ilbc_common {
        int i;
        float invcoef;
 
-       invcoef = (float)1.0f - coef;
+       invcoef = 1.0f - coef;
        for (i = 0; i < length; i++) {
            out[i] = coef * in1[i] + invcoef * in2[i + in2_idx];
 	   //	   System.out.println("out["+i+"] devient " + out[i] + ", par " +
@@ -450,7 +450,7 @@ class ilbc_common {
            alfa1=(float)0.2;
            alfa=0.0f;
            for (j=ilow; j<ihigh; j++) {
-               cbvec[j]=((float)1.0f-alfa)*mem[mem_idx + lMem-k/2+j]+
+               cbvec[j]=(1.0f-alfa)*mem[mem_idx + lMem-k/2+j]+
                    alfa*mem[mem_idx + lMem-k+j];
                alfa+=alfa1;
            }
@@ -574,7 +574,7 @@ class ilbc_common {
                alfa1=(float)0.2;
                alfa=0.0f;
                for (j=ilow; j<ihigh; j++) {
-                   cbvec[j]=((float)1.0f-alfa)*
+                   cbvec[j]=(1.0f-alfa)*
                        tmpbuf[lMem-k/2+j]+alfa*tmpbuf[lMem-k+j];
                    alfa+=alfa1;
                }
@@ -651,7 +651,7 @@ class ilbc_common {
 
 	/* obtain correct scale factor */
 
-	scale=(float)(float)Math.abs(maxIn);
+	scale=Math.abs(maxIn);
 
 	if (scale < 0.1) {
 	    scale=(float)0.1;
@@ -695,11 +695,11 @@ class ilbc_common {
        gain[0] = gaindequant(gain_index[gain_index_idx + 0], 1.0f, 32);
        if (nStages > 1) {
            gain[1] = gaindequant(gain_index[gain_index_idx + 1],
-               (float)(float)Math.abs(gain[0]), 16);
+               Math.abs(gain[0]), 16);
        }
        if (nStages > 2) {
            gain[2] = gaindequant(gain_index[gain_index_idx + 2],
-               (float)(float)Math.abs(gain[1]), 8);
+               Math.abs(gain[1]), 8);
        }
 
        /* codebook vector construction and construction of

@@ -72,7 +72,7 @@ public class JMFInit
     private void detectCaptureDevices() {
         // check if JavaSound capture is available
         logger.info("Looking for Audio capturer");
-        Class dsauto = null;
+        Class<?> dsauto = null;
         try {
             dsauto = Class.forName(
                     "net.java.sip.communicator.impl.media.device.DirectSoundAuto");
@@ -86,7 +86,7 @@ public class JMFInit
             logger.warn("DirectSound capturer detection failed!", t);
         }
 
-        Class jsauto = null;
+        Class<?> jsauto = null;
         try {
             jsauto = Class.forName(
                     "net.java.sip.communicator.impl.media.device.JavaSoundAuto");
@@ -102,8 +102,8 @@ public class JMFInit
 
         // Check if VFWAuto or SunVideoAuto is available
         logger.info("Looking for video capture devices");
-        Class auto = null;
-        Class autoPlus = null;
+        Class<?> auto = null;
+        Class<?> autoPlus = null;
         try {
             auto = Class.forName(
                     "net.java.sip.communicator.impl.media.device.VFWAuto");
@@ -152,7 +152,7 @@ public class JMFInit
     }
 
     private void detectDirectAudio() {
-        Class cls;
+        Class<?> cls;
         int plType = PlugInManager.RENDERER;
         String dar = "com.sun.media.renderer.audio.DirectAudioRenderer";
         try {
@@ -177,7 +177,7 @@ public class JMFInit
                 PlugInManager.addPlugIn(dar, inputFormats, new Format[0],
                                         plType);
                 // Move it to the top of the list
-                Vector rendList =
+                Vector<String> rendList =
                     PlugInManager.getPlugInList(null, null, plType);
                 int listSize = rendList.size();
                 if (rendList.elementAt(listSize - 1).equals(dar)) {

@@ -59,7 +59,6 @@ public class JavaEncoder
     {
 
         AudioFormat inFormat = (AudioFormat) in;
-        int channels = inFormat.getChannels();
         int sampleRate = (int) (inFormat.getSampleRate());
 
         supportedOutputFormats = new AudioFormat[]
@@ -130,7 +129,6 @@ public class JavaEncoder
             initConverter( (AudioFormat) newFormat);
         }
 
-        int inpLength = inputBuffer.getLength();
         int outLength = calculateOutputSize(inputBuffer.getLength());
 
         byte[] inpData = (byte[]) inputBuffer.getData();

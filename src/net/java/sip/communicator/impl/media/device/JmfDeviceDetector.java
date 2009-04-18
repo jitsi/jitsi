@@ -271,7 +271,7 @@ public class JmfDeviceDetector
                 PlugInManager.addPlugIn(dar, inputFormats, new Format[0],
                                         plType);
                 // Move it to the top of the list
-                Vector rendList =
+                Vector<String> rendList =
                     PlugInManager.getPlugInList(null, null, plType);
                 int listSize = rendList.size();
                 if (rendList.elementAt(listSize - 1).equals(dar))
@@ -380,7 +380,7 @@ public class JmfDeviceDetector
              * DDRenderer will cause Windows Vista to switch its theme from Aero
              * to Vista Basic so try to pick up a different Renderer.
              */
-            Vector renderers =
+            Vector<String> renderers =
                 PlugInManager.getPlugInList(null, null, PlugInManager.RENDERER);
 
             if (renderers.contains("com.sun.media.renderer.video.GDIRenderer"))
@@ -392,7 +392,7 @@ public class JmfDeviceDetector
         }
         else if(!isLinux32())
         {
-            Vector renderers =
+            Vector<String> renderers =
                 PlugInManager.getPlugInList(null, null, PlugInManager.RENDERER);
             
             if (renderers.contains("com.sun.media.renderer.video.LightWeightRenderer") ||

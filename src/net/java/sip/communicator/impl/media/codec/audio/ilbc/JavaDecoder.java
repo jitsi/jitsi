@@ -136,6 +136,6 @@ public class JavaDecoder
             controls = new Control[1];
             controls[0] = new com.sun.media.controls.SilenceSuppressionAdapter(this, false, false);
         }
-        return (Object[]) controls;
+        return controls;
     }
 }

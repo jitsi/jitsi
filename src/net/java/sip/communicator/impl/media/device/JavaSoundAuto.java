@@ -32,7 +32,7 @@ public class JavaSoundAuto {
         boolean supported = false;
         // instance JavaSoundDetector to check is javasound's capture is availabe
         try {
-            Class cls = Class.forName(detectClass);
+            Class<?> cls = Class.forName(detectClass);
             JavaSoundDetector detect = (JavaSoundDetector)cls.newInstance();
             supported = detect.isSupported();
         } catch (Throwable thr) {
@@ -44,13 +44,13 @@ public class JavaSoundAuto {
 
         if (supported) {
             // It's there, start to register JavaSound with CaptureDeviceManager
-            Vector devices = (Vector) CaptureDeviceManager.getDeviceList(null).clone();
+            Vector<CaptureDeviceInfo> devices = (Vector) CaptureDeviceManager.getDeviceList(null).clone();
 
             // remove the old javasound capturers
             String name;
-            Enumeration enumeration = devices.elements();
+            Enumeration<CaptureDeviceInfo> enumeration = devices.elements();
             while (enumeration.hasMoreElements()) {
-                CaptureDeviceInfo cdi = (CaptureDeviceInfo) enumeration.nextElement();
+                CaptureDeviceInfo cdi = enumeration.nextElement();
                 name = cdi.getName();
                 if (name.startsWith("JavaSound"))
                     CaptureDeviceManager.removeDevice(cdi);

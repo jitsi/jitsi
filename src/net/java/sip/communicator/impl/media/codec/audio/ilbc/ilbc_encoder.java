@@ -28,6 +28,9 @@ class ilbc_encoder {
 
     ilbc_ulp ULP_inst = null;
 
+    /**
+     * @param syntDenum Currently not used 
+     */
     /* encoder methods start here */
 
    /*----------------------------------------------------------------*
@@ -52,7 +55,7 @@ class ilbc_encoder {
        int syntOut;
        float [] syntOutBuf = new float[ilbc_constants.LPC_FILTERORDER +
 					 ilbc_constants.STATE_SHORT_LEN_30MS];
-       float toQ, xq;
+       float toQ;
        int n;
        int [] index = new int[1];
 
@@ -115,7 +118,7 @@ class ilbc_encoder {
 
            toQ = in[in_idx+n] - syntOutBuf[syntOut+n];
 
-           xq = sort_sq(index, 0, toQ, ilbc_constants.state_sq3Tbl, 8);
+           sort_sq(index, 0, toQ, ilbc_constants.state_sq3Tbl, 8);
            out[n]=index[0];
            syntOutBuf[syntOut + n] = ilbc_constants.state_sq3Tbl[out[n]];
 
@@ -144,7 +147,7 @@ class ilbc_encoder {
        int state_first)     /* (i) position of start state in the
                                   80 vec */
     {
-	float dtmp, maxVal;
+	float maxVal;
 	float [] tmpbuf = new float[ilbc_constants.LPC_FILTERORDER +
 				      2 * ilbc_constants.STATE_SHORT_LEN_30MS];
 	//	float *tmp,
@@ -200,7 +203,7 @@ class ilbc_encoder {
                maxVal = foutbuf[fout+k];
            }
        }
-       maxVal=(float)Math.abs(maxVal);
+       maxVal=Math.abs(maxVal);
 
        /* encoding of the maximum amplitude value */
 
@@ -210,7 +213,7 @@ class ilbc_encoder {
        // log10 is since 1.5
        //maxVal = (float)Math.log10(maxVal);
        maxVal = (float)(Math.log(maxVal)/Math.log(10));
-       dtmp = sort_sq(idxForMax, 0, maxVal, ilbc_constants.state_frgqTbl, 64);
+       sort_sq(idxForMax, 0, maxVal, ilbc_constants.state_frgqTbl, 64);
 
        /* decoding of the maximum amplitude representation value,
           and corresponding scaling of start state */
@@ -238,8 +241,7 @@ class ilbc_encoder {
        int freq_idx,
        float a[])    /* (i) lpc coefficients */
     {
-	float [] steps = {(float)0.00635f, (float)0.003175f, (float)0.0015875f,
-			   (float)0.00079375f};
+	float [] steps = {0.00635f, 0.003175f, 0.0015875f, 0.00079375f};
 	float step;
 	int step_idx;
 	int lsp_index;
@@ -258,18 +260,18 @@ class ilbc_encoder {
 	float hlp, hlp1, hlp2, hlp3, hlp4, hlp5;
 
 	for (i=0; i < ilbc_constants.LPC_HALFORDER; i++) {
-	    p[i] = (float)-1.0f * (a[i + 1] + a[ilbc_constants.LPC_FILTERORDER - i]);
+	    p[i] = -1.0f * (a[i + 1] + a[ilbc_constants.LPC_FILTERORDER - i]);
 	    q[i] = a[ilbc_constants.LPC_FILTERORDER - i] - a[i + 1];
 	}
 
-	p_pre[0] = (float) -1.0f - p[0];
+	p_pre[0] = -1.0f - p[0];
 	p_pre[1] = - p_pre[0] - p[1];
 	p_pre[2] = - p_pre[1] - p[2];
 	p_pre[3] = - p_pre[2] - p[3];
 	p_pre[4] = - p_pre[3] - p[4];
 	p_pre[4] = p_pre[4] / 2;
 
-	q_pre[0] = (float) 1.0f - q[0];
+	q_pre[0] = 1.0f - q[0];
 	q_pre[1] = q_pre[0] - q[1];
 	q_pre[2] = q_pre[1] - q[2];
 	q_pre[3] = q_pre[2] - q[3];
@@ -320,7 +322,7 @@ class ilbc_encoder {
 
                    if (step_idx == (ilbc_constants.LSF_NUMBER_OF_STEPS - 1)){
 
-                       if ((float)Math.abs(hlp5) >= Math.abs(olds[old])) {
+                       if (Math.abs(hlp5) >= Math.abs(olds[old])) {
 			   //System.out.println("acces index " + freq_idx + lsp_index);
                            freq[freq_idx+lsp_index] = omega - step;
                        } else {
@@ -584,7 +586,6 @@ class ilbc_encoder {
    {
        float [] lsf = new float[ilbc_constants.LPC_FILTERORDER * ilbc_constants.LPC_N_MAX];
        float [] lsfdeq= new float[ilbc_constants.LPC_FILTERORDER * ilbc_constants.LPC_N_MAX];
-       int change = 0;
 
        SimpleAnalysis(lsf, data);
        //       for (int li = 0; li < ilbc_constants.LPC_FILTERORDER * ilbc_constants.LPC_N_MAX; li++)
@@ -597,7 +598,7 @@ class ilbc_encoder {
 	      //       for (int li = 0; li < lsf_index.length; li++)
 	      //	   System.out.println("index postSlsfQ n-" + li + " is worth " + lsf_index[li]);
 
-       change = ilbc_common.LSF_check(lsfdeq, ilbc_constants.LPC_FILTERORDER, this.ULP_inst.lpc_n);
+       ilbc_common.LSF_check(lsfdeq, ilbc_constants.LPC_FILTERORDER, this.ULP_inst.lpc_n);
        //System.out.println("check gives " + change);
        SimpleInterpolateLSF(syntdenum, weightdenum,
 			    lsf, lsfdeq, this.lsfold,
@@ -712,8 +713,8 @@ class ilbc_encoder {
 
            /* initialize search measure */
 
-           max_measure = (float)-10000000.0f;
-           gain = (float)0.0f;
+           max_measure = -10000000.0f;
+           gain = 0.0f;
            best_index = 0;
 
            /* Compute cross dot product between the target
@@ -747,14 +748,14 @@ class ilbc_encoder {
                }
 
                if (energy[ppe] > 0.0f) {
-                   invenergy[0] = (float) 1.0f / (energy[ppe] + ilbc_constants.EPS);
+                   invenergy[0] = 1.0f / (energy[ppe] + ilbc_constants.EPS);
                } else {
-                   invenergy[0] = (float) 0.0f;
+                   invenergy[0] = 0.0f;
 
                }
                ppe++;
 
-               measure=(float)-10000000.0f;
+               measure=-10000000.0f;
 
                if (crossDot > 0.0f) {
                       measure = crossDot*crossDot*invenergy[0];
@@ -767,7 +768,7 @@ class ilbc_encoder {
            /* check if measure is better */
            ftmp = crossDot*invenergy[0];
 
-           if ((measure>max_measure) && ((float)Math.abs(ftmp) < ilbc_constants.CB_MAXGAIN)) {
+           if ((measure>max_measure) && (Math.abs(ftmp) < ilbc_constants.CB_MAXGAIN)) {
                best_index = 0;
                max_measure = measure;
                gain = ftmp;
@@ -798,12 +799,12 @@ class ilbc_encoder {
 
                    if (energy[icount]>0.0f) {
                        invenergy[icount] =
-                           (float)1.0f/(energy[icount]+ilbc_constants.EPS);
+                           1.0f/(energy[icount]+ilbc_constants.EPS);
                    } else {
-                       invenergy[icount] = (float) 0.0f;
+                       invenergy[icount] = 0.0f;
                    }
 
-                   measure=(float)-10000000.0f;
+                   measure=-10000000.0f;
 
                    if (crossDot > 0.0f) {
                        measure = crossDot*crossDot*invenergy[icount];
@@ -816,7 +817,7 @@ class ilbc_encoder {
                /* check if measure is better */
                ftmp = crossDot*invenergy[icount];
 
-               if ((measure>max_measure) && ((float)Math.abs(ftmp) < ilbc_constants.CB_MAXGAIN)) {
+               if ((measure>max_measure) && (Math.abs(ftmp) < ilbc_constants.CB_MAXGAIN)) {
                    best_index = icount;
                    max_measure = measure;
                    gain = ftmp;
@@ -982,14 +983,14 @@ class ilbc_encoder {
                }
 
                if (energy[icount]>0.0f) {
-                   invenergy[icount] =(float)1.0f/(energy[icount]+ilbc_constants.EPS);
+                   invenergy[icount] = 1.0f/(energy[icount]+ilbc_constants.EPS);
                } else {
-                   invenergy[icount] =(float)0.0f;
+                   invenergy[icount] = 0.0f;
                }
 
                if (stage==0) {
 
-                   measure=(float)-10000000.0f;
+                   measure = -10000000.0f;
 
                    if (crossDot > 0.0f) {
                        measure = crossDot*crossDot*
@@ -1003,7 +1004,7 @@ class ilbc_encoder {
                /* check if measure is better */
                ftmp = crossDot*invenergy[icount];
 
-               if ((measure > max_measure) && ((float)Math.abs(ftmp)<ilbc_constants.CB_MAXGAIN)) {
+               if ((measure > max_measure) && (Math.abs(ftmp)<ilbc_constants.CB_MAXGAIN)) {
                    best_index = icount;
                    max_measure = measure;
                    gain = ftmp;
@@ -1037,16 +1038,16 @@ class ilbc_encoder {
                }
 
                if (gain > ilbc_constants.CB_MAXGAIN) {
-                   gain = (float)ilbc_constants.CB_MAXGAIN;
+                   gain = ilbc_constants.CB_MAXGAIN;
                }
                gain = ilbc_common.gainquant(gain, 1.0f, 32, gain_index, gain_index_idx + stage);
            }
            else {
                if (stage==1) {
-                   gain = ilbc_common.gainquant(gain, (float)(float)Math.abs(gains[stage-1]),
+                   gain = ilbc_common.gainquant(gain, Math.abs(gains[stage-1]),
                        16, gain_index, gain_index_idx + stage);
                } else {
-                   gain = ilbc_common.gainquant(gain, (float)(float)Math.abs(gains[stage-1]),
+                   gain = ilbc_common.gainquant(gain, Math.abs(gains[stage-1]),
                        8, gain_index, gain_index_idx + stage);
                }
            }
@@ -1406,17 +1407,13 @@ class ilbc_encoder {
 	int n, l, max_ssqEn_n;
 // 	float [] ssqEn_win[NSUB_MAX-1]={(float)0.8,(float)0.9,
 
-	float [] ssqEn_win = { (float)0.8,
-				(float)0.9,
-				(float)1.0f,
-				(float)0.9,
-				(float)0.8 };
+	float [] ssqEn_win = { 0.8f, 0.9f, 1.0f, 0.9f, 0.8f };
 
-	float [] sampEn_win = { (float)1.0f/(float)6.0,
-				 (float)2.0f/(float)6.0,
-				 (float)3.0f/(float)6.0,
-				 (float)4.0f/(float)6.0,
-				 (float)5.0f/(float)6.0 };
+	float [] sampEn_win = {1.0f / 6.0f,
+				 2.0f/6.0f,
+				 3.0f/6.0f,
+				 4.0f/6.0f,
+				 5.0f/6.0f };
 
        /* init the front and back energies to zero */
 
@@ -1624,7 +1621,7 @@ class ilbc_encoder {
 	//	for (pp = 0; pp < buffer.length; pp++)
 	//	    System.out.println("buffer[" + (pp - buffer_idx) + "] = " + buffer[pp]);
 
-	nrjRecursive = (float) 0.0f;
+	nrjRecursive = 0.0f;
 	//       pp = buffer - low + 1;
 	pp = 1 - low + buffer_idx;
 	for (j=0; j<(low-5); j++) {
@@ -1651,7 +1648,7 @@ class ilbc_encoder {
 	    /* Compute cross dot product for the first (low-5)
 	       samples */
 
-	    crossDot = (float) 0.0f;
+	    crossDot = 0.0f;
 	    pp = buffer_idx - icount;
 	    for (j = 0; j < ilow; j++) {
 		crossDot += target[j]*buffer[pp];
@@ -1663,7 +1660,7 @@ class ilbc_encoder {
 	    ppo = buffer_idx - 4;
 	    ppi = buffer_idx - icount - 4;
 	    for (j=ilow; j<icount; j++) {
-		weighted = ((float)1.0f-alfa)*(buffer[ppo])+alfa*(buffer[ppi]);
+		weighted = (1.0f-alfa)*(buffer[ppo])+alfa*(buffer[ppi]);
 		ppo++;
 		ppi++;
 		energy[tmpIndex] += weighted*weighted;
@@ -1681,13 +1678,13 @@ class ilbc_encoder {
 	    }
 
 	    if (energy[tmpIndex]>0.0f) {
-		invenergy[tmpIndex]=(float)1.0f/(energy[tmpIndex] + ilbc_constants.EPS);
+		invenergy[tmpIndex] = 1.0f/(energy[tmpIndex] + ilbc_constants.EPS);
 	    } else {
-		invenergy[tmpIndex] = (float) 0.0f;
+		invenergy[tmpIndex] = 0.0f;
 	    }
 
 	    if (stage==0) {
-		measure = (float)-10000000.0f;
+		measure = -10000000.0f;
 
 		if (crossDot > 0.0f) {
 		    measure = crossDot*crossDot*invenergy[tmpIndex];
@@ -1703,7 +1700,7 @@ class ilbc_encoder {
 	    //	    System.out.println("on compare " + measure + " et " + max_measure[0]);
 	    //	    System.out.println("ainsi que " + Math.abs(ftmp) + " et " + ilbc_constants.CB_MAXGAIN);
 
-	    if ((measure>max_measure[0]) && ((float)Math.abs(ftmp) < ilbc_constants.CB_MAXGAIN)) {
+	    if ((measure>max_measure[0]) && (Math.abs(ftmp) < ilbc_constants.CB_MAXGAIN)) {
 		//		System.out.println("new best index at " + tmpIndex + ", where icount = " + icount);
 		best_index[0] = tmpIndex;
 		max_measure[0] = measure;
@@ -1830,8 +1827,8 @@ class ilbc_encoder {
 
 	/* convert signal to float */
 
-	for (k=0; k<this.ULP_inst.blockl; k++)
-	    block[k] = (float) data[k];
+	for (k = 0; k < this.ULP_inst.blockl; k++)
+	    block[k] = data[k];
 
 	//	for (int li = 0; li < block.length; li++)
 	//	    System.out.println("block " + li + " : " + block[li]);
@@ -1853,9 +1850,8 @@ class ilbc_encoder {
     {
 	int start;
 	int [] idxForMax = new int[1];
-	int n, k, meml_gotten, Nfor, Nback, i, pos;
+	int n, k, meml_gotten, Nfor, Nback, i;
 	//       unsigned char *pbytes;
-	int pbytes;
 	int diff, start_pos, state_first;
 	float en1, en2;
 	int index, ulp;
@@ -2205,13 +2201,11 @@ class ilbc_encoder {
 	/* pack bytes */
 
 	//       pbytes=bytes;
-	pos=0;
 
 	/* loop over the 3 ULP classes */
 
-	for (ulp=0; ulp<3; ulp++) {
+	for (ulp = 0; ulp < 3; ulp++) {
 
-	    int [] psarray = new int[1];
 	    /* LSF */
 	    //	    System.out.println("ULP Class " + ulp);
 	    for (k=0; k<ilbc_constants.LSF_NSPLIT*this.ULP_inst.lpc_n; k++) {

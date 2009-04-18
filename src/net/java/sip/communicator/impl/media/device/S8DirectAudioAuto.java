@@ -16,7 +16,7 @@ public class S8DirectAudioAuto
 {
     public S8DirectAudioAuto() throws Exception
     {
-        Class cls;
+        Class<?> cls;
         int plType = PlugInManager.RENDERER;
         String dar = "com.sun.media.renderer.audio.DirectAudioRenderer";
 
@@ -33,7 +33,7 @@ public class S8DirectAudioAuto
             ! ( (ExclusiveUse) rend).isExclusive())
         {
             // sol8+, DAR supports mixing
-            Vector rendList = PlugInManager.getPlugInList(null, null,
+            Vector<String> rendList = PlugInManager.getPlugInList(null, null,
                 plType);
             int listSize = rendList.size();
             boolean found = false;
@@ -41,7 +41,7 @@ public class S8DirectAudioAuto
 
             for (int i = 0; i < listSize; i++)
             {
-                rname = (String) (rendList.elementAt(i));
+                rname = rendList.elementAt(i);
                 if (rname.equals(dar))
                 { // DAR is in the registry
                     found = true;

@@ -42,12 +42,12 @@ public class V4LAuto {
      */
     public int autoDetectDevices()
     {
-        Vector devices
+        Vector<CaptureDeviceInfo> devices
             = (Vector) CaptureDeviceManager.getDeviceList(null).clone();
-        Enumeration enumeration = devices.elements();
+        Enumeration<CaptureDeviceInfo> enumeration = devices.elements();
         while (enumeration.hasMoreElements())
         {
-            CaptureDeviceInfo cdi = (CaptureDeviceInfo) enumeration.nextElement();
+            CaptureDeviceInfo cdi = enumeration.nextElement();
             String name = cdi.getName();
             if (name.startsWith("v4l:"))
                 CaptureDeviceManager.removeDevice(cdi);

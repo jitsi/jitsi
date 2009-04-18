@@ -56,13 +56,13 @@ public class DirectSoundAuto {
         
         if (supported) {
             // It's there, start to register JavaSound with CaptureDeviceManager
-            Vector devices = (Vector) CaptureDeviceManager.getDeviceList(null).clone();
+            Vector<CaptureDeviceInfo> devices = (Vector<CaptureDeviceInfo>)CaptureDeviceManager.getDeviceList(null).clone();
             
             // remove the old direct sound capturers
             String name;
-            Enumeration enumeration = devices.elements();
+            Enumeration<CaptureDeviceInfo> enumeration = devices.elements();
             while (enumeration.hasMoreElements()) {
-                CaptureDeviceInfo cdi = (CaptureDeviceInfo) enumeration.nextElement(); 
+                CaptureDeviceInfo cdi = enumeration.nextElement(); 
                 name = cdi.getName();
                 if (name.startsWith(com.sun.media.protocol.dsound.DataSource.NAME))
                     CaptureDeviceManager.removeDevice(cdi);
@@ -74,7 +74,7 @@ public class DirectSoundAuto {
             float [] Rates = new float[] {
                     48000, 44100, 32000, 22050, 16000, 11025, 8000
             };
-            Vector formats = new Vector(4);
+            Vector<AudioFormat> formats = new Vector<AudioFormat>(4);
             for (int rateIndex = 0; rateIndex < Rates.length; rateIndex++) {
                 float rate = Rates[rateIndex];
                 AudioFormat af;
@@ -90,7 +90,7 @@ public class DirectSoundAuto {
             
             AudioFormat [] formatArray = new AudioFormat[formats.size()];
             for (int fa = 0; fa < formatArray.length; fa++)
-                formatArray[fa] = (AudioFormat) formats.elementAt(fa);
+                formatArray[fa] = formats.elementAt(fa);
             
             CaptureDeviceInfo cdi = new CaptureDeviceInfo(
                     com.sun.media.protocol.dsound.DataSource.NAME,

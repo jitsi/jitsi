@@ -26,7 +26,7 @@ public class FMJCivilVideoAuto
     {
         // Done using reflection to avoid compile-time dependency on FMJ:
         //new net.sf.fmj.media.cdp.civil.CaptureDevicePlugger().addCaptureDevices();
-        final Class clazz 
+        final Class<?> clazz 
             = Class.forName("net.sf.fmj.media.cdp.civil.CaptureDevicePlugger");
         final Method addCaptureDevices = clazz.getMethod("addCaptureDevices");
         final Object captureDevicePlugger = clazz.newInstance();

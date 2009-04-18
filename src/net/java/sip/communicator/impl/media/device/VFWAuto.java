@@ -40,13 +40,13 @@ public class VFWAuto
      */
     public int autoDetectDevices()
     {
-        Vector devices
+        Vector<CaptureDeviceInfo> devices
             = (Vector) CaptureDeviceManager.getDeviceList(null).clone();
-        Enumeration devicesEnum = devices.elements();
+        Enumeration<CaptureDeviceInfo> devicesEnum = devices.elements();
 
         while (devicesEnum.hasMoreElements())
         {
-            CaptureDeviceInfo cdi = (CaptureDeviceInfo)devicesEnum.nextElement();
+            CaptureDeviceInfo cdi = devicesEnum.nextElement();
             String name = cdi.getName();
             if (name.startsWith("vfw:"))
                 CaptureDeviceManager.removeDevice(cdi);
