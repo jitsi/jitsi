@@ -538,12 +538,12 @@ public class AccountManagerImpl
         }
 
         // store the rest of the properties
-        Map<?, ?> accountProperties = accountID.getAccountProperties();
+        Map<String, String> accountProperties = accountID.getAccountProperties();
 
-        for (Map.Entry entry : accountProperties.entrySet())
+        for (Map.Entry<String, String> entry : accountProperties.entrySet())
         {
-            String property = (String) entry.getKey();
-            String value = (String) entry.getValue();
+            String property = entry.getKey();
+            String value = entry.getValue();
 
             // if this is a password - encode it.
             if (property.equals(ProtocolProviderFactory.PASSWORD))

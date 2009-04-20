@@ -19,7 +19,6 @@ import net.java.sip.communicator.impl.media.transform.*;
 public class SRTCPTransformer
     implements PacketTransformer
 {
-    private SRTPTransformEngine engine;
     
     /**
      * Constructs a SRTCPTransformer object
@@ -28,7 +27,6 @@ public class SRTCPTransformer
      */
     public SRTCPTransformer(SRTPTransformEngine engine)
     {
-        this.engine = engine;
     }
 
     /**

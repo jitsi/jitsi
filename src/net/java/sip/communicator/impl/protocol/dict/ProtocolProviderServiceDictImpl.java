@@ -114,9 +114,7 @@ public class ProtocolProviderServiceDictImpl
             //initialize the IM operation set
             OperationSetBasicInstantMessagingDictImpl basicInstantMessaging
                 = new OperationSetBasicInstantMessagingDictImpl(
-                    this
-                    , (OperationSetPersistentPresenceDictImpl)
-                            persistentPresence);
+                    this, persistentPresence);
 
             supportedOperationSets.put(
                 OperationSetBasicInstantMessaging.class.getName(),

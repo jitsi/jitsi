@@ -34,7 +34,7 @@ public class PacketManipulator
         }
         else
         {
-            return (int)pkt.readByte(pkt.getLength() - 1);
+            return pkt.readByte(pkt.getLength() - 1);
         }
     }
 
@@ -53,7 +53,7 @@ public class PacketManipulator
             return -1;
         }
 
-        int csrcNum = (int)(pkt.readByte(0) & 0xF);
+        int csrcNum = pkt.readByte(0) & 0xF;
         return 12 + 4 * csrcNum; 
     }
 

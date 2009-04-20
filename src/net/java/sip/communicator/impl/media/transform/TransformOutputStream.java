@@ -119,10 +119,8 @@ public class TransformOutputStream
 
         for (int i = 0; i < this.remoteAddrs.size(); ++i)
         {
-            InetAddress remoteAddr =
-                    (InetAddress) this.remoteAddrs.elementAt(i);
-            int remotePort =
-                    ((Integer) this.remotePorts.elementAt(i)).intValue();
+            InetAddress remoteAddr = this.remoteAddrs.elementAt(i);
+            int remotePort = (this.remotePorts.elementAt(i)).intValue();
 
             try
             {

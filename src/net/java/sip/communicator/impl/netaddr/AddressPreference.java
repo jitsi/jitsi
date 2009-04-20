@@ -10,7 +10,7 @@ package net.java.sip.communicator.impl.netaddr;
  * @author Emil Ivov
  */
 public class AddressPreference
-        implements Comparable
+        implements Comparable<AddressPreference>
 {
     public static final int MAX_PREF = 100;
     public static final int MIN_PREF = 0;
@@ -73,11 +73,9 @@ public class AddressPreference
      * @throws ClassCastException if the specified object's type is not an
      * instance or a descendant of AddressPreference.
      */
-    public int compareTo(Object o)
+    public int compareTo(AddressPreference o)
     {
-        AddressPreference other = (AddressPreference)o;
-
-        return this.preference - other.preference;
+        return this.preference - o.preference;
     }
 
     /**
@@ -91,8 +89,7 @@ public class AddressPreference
      */
     public boolean equals(Object obj)
     {
-        if (! (obj instanceof AddressPreference)
-            || obj == null)
+        if (! (obj instanceof AddressPreference))
             return false;
 
         if (obj == this

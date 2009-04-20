@@ -50,7 +50,7 @@ public interface ProtocolIcon
      * icon sizes. Each icon size in the set is one of the ICON_SIZE_XXX
      * constants.
      */
-    public Iterator getSupportedSizes();
+    public Iterator<String> getSupportedSizes();
     
     /**
      * Checks if the given icon size is supported by the current protocol

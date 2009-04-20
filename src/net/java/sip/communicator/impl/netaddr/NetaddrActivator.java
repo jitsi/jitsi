@@ -47,7 +47,7 @@ public class NetaddrActivator
             //end ugly property set
 
             //keep a reference to the bundle context for later usage.
-            this.bundleContext = bundleContext;
+            NetaddrActivator.bundleContext = bundleContext;
 
             //Create and start the network address manager.
             networkAMS =

@@ -32,7 +32,7 @@ public class EventNotification
      * Contains all actions which will be executed when this event notification
      * is fired.
      */
-    private final Hashtable actionsTable = new Hashtable();
+    private final Hashtable<String, Action> actionsTable = new Hashtable<String, Action>();
     
     /**
      * Creates an instance of <tt>EventNotification</tt> by specifying the
@@ -79,7 +79,7 @@ public class EventNotification
      * 
      * @return the set of actions registered for this event notification
      */
-    public Map getActions()
+    public Map<String, Action> getActions()
     {   
         return actionsTable;
     }
@@ -95,7 +95,7 @@ public class EventNotification
      */
     public Action getAction(String actionType)
     {
-        return (Action) actionsTable.get(actionType);
+        return actionsTable.get(actionType);
     }
     
     /**

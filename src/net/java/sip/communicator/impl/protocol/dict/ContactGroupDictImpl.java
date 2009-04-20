@@ -203,7 +203,7 @@ public class ContactGroupDictImpl
      */
     public Contact getContact(int index)
     {
-        return (ContactDictImpl)contacts.get(index);
+        return contacts.get(index);
     }
 
     /**

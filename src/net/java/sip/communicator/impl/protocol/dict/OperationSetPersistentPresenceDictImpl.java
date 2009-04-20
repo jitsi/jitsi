@@ -33,19 +33,22 @@ public class OperationSetPersistentPresenceDictImpl
     /**
      * A list of listeners registered for <tt>ServerStoredGroupChangeEvent</tt>s.
      */
-    private Vector serverStoredGroupListeners = new Vector();
+    private Vector<ServerStoredGroupListener> serverStoredGroupListeners = 
+        new Vector<ServerStoredGroupListener>();
 
     /**
      * A list of listeners registered for
      *  <tt>ProviderPresenceStatusChangeEvent</tt>s.
      */
-    private Vector providerPresenceStatusListeners = new Vector();
+    private Vector<ProviderPresenceStatusListener> providerPresenceStatusListeners = 
+        new Vector<ProviderPresenceStatusListener>();
 
     /**
      * A list of listeneres registered for
      * <tt>ContactPresenceStatusChangeEvent</tt>s.
      */
-    private Vector contactPresenceStatusListeners = new Vector();
+    private Vector<ContactPresenceStatusListener> contactPresenceStatusListeners = 
+        new Vector<ContactPresenceStatusListener>();
 
     /**
      * The root of the dict contact list.
@@ -118,17 +121,18 @@ public class OperationSetPersistentPresenceDictImpl
             = new ContactPresenceStatusChangeEvent(source, parentProvider
                         , parentGroup, oldValue, source.getPresenceStatus());
 
-        Iterator listeners = null;
-        synchronized(contactPresenceStatusListeners)
+        Iterator<ContactPresenceStatusListener> listeners = null;
+        synchronized (contactPresenceStatusListeners) 
         {
-            listeners = new ArrayList(contactPresenceStatusListeners).iterator();
+            listeners = new ArrayList<ContactPresenceStatusListener>(
+                    contactPresenceStatusListeners).iterator();
         }
 
 
         while(listeners.hasNext())
         {
             ContactPresenceStatusListener listener
-                = (ContactPresenceStatusListener)listeners.next();
+                = listeners.next();
 
             listener.contactPresenceStatusChanged(evt);
         }
@@ -144,19 +148,18 @@ public class OperationSetPersistentPresenceDictImpl
                                            int                        eventID)
     {
         ServerStoredGroupEvent evt  = new ServerStoredGroupEvent(
-            source, eventID,  (ContactGroupDictImpl)source.getParentContactGroup()
+            source, eventID,  source.getParentContactGroup()
            , this.parentProvider, this);
 
-        Iterator listeners = null;
+        Iterator<ServerStoredGroupListener> listeners = null;
         synchronized (serverStoredGroupListeners)
         {
-            listeners = new ArrayList(serverStoredGroupListeners).iterator();
+            listeners = new ArrayList<ServerStoredGroupListener>(serverStoredGroupListeners).iterator();
         }
 
         while (listeners.hasNext())
         {
-            ServerStoredGroupListener listener
-                = (ServerStoredGroupListener) listeners.next();
+            ServerStoredGroupListener listener = listeners.next();
 
             if(eventID == ServerStoredGroupEvent.GROUP_CREATED_EVENT)
             {
@@ -184,16 +187,15 @@ public class OperationSetPersistentPresenceDictImpl
             = new ProviderPresenceStatusChangeEvent(this.parentProvider,
                                         oldValue, this.getPresenceStatus());
 
-        Iterator listeners = null;
+        Iterator<ProviderPresenceStatusListener> listeners = null;
         synchronized (providerPresenceStatusListeners)
         {
-            listeners = new ArrayList(providerPresenceStatusListeners).iterator();
+            listeners = new ArrayList<ProviderPresenceStatusListener>(providerPresenceStatusListeners).iterator();
         }
 
         while (listeners.hasNext())
         {
-            ProviderPresenceStatusListener listener
-                = (ProviderPresenceStatusListener) listeners.next();
+            ProviderPresenceStatusListener listener = listeners.next();
 
             listener.providerStatusChanged(evt);
         }
@@ -450,9 +452,9 @@ public class OperationSetPersistentPresenceDictImpl
 
         //now check whether we are in someone else's contact list and modify
         //our status there
-        List contacts = findContactsPointingToUs();
+        List<Contact> contacts = findContactsPointingToUs();
 
-        Iterator contactsIter = contacts.iterator();
+        Iterator<Contact> contactsIter = contacts.iterator();
         while (contactsIter.hasNext())
         {
             ContactDictImpl contact
@@ -524,7 +526,7 @@ public class OperationSetPersistentPresenceDictImpl
                                                     PresenceStatus newStatus)
     {
         //first set the status for contacts in this group
-        Iterator childContacts = parent.contacts();
+        Iterator<Contact> childContacts = parent.contacts();
 
         while(childContacts.hasNext())
         {
@@ -545,11 +547,11 @@ public class OperationSetPersistentPresenceDictImpl
         }
 
         //now call this method recursively for all subgroups
-        Iterator subgroups = parent.subgroups();
+        Iterator<ContactGroup> subgroups = parent.subgroups();
 
         while(subgroups.hasNext())
         {
-            ContactGroup subgroup = (ContactGroup)subgroups.next();
+            ContactGroup subgroup = subgroups.next();
             changePresenceStatusForAllContacts(subgroup, newStatus);
         }
     }
@@ -844,7 +846,7 @@ public class OperationSetPersistentPresenceDictImpl
 
         parentGroup.removeContact((ContactDictImpl)contact);
 
-        fireSubscriptionEvent((ContactDictImpl)contact,
+        fireSubscriptionEvent(contact,
              ((ContactDictImpl)contact).getParentContactGroup()
            , SubscriptionEvent.SUBSCRIPTION_REMOVED);
     }
@@ -971,9 +973,9 @@ public class OperationSetPersistentPresenceDictImpl
      * @return a list of all contacts in other providers' contact lists that
      * point to us.
      */
-    public List findContactsPointingToUs()
+    public List<Contact> findContactsPointingToUs()
     {
-        List contacts = new LinkedList();
+        List<Contact> contacts = new LinkedList<Contact>();
         BundleContext bc = DictActivator.getBundleContext();
 
         String osgiQuery =
@@ -1079,14 +1081,14 @@ public class OperationSetPersistentPresenceDictImpl
             //offline. The icq protocol does not implement top level buddies
             //nor subgroups for top level groups so a simple nested loop
             //would be enough.
-            Iterator groupsIter = getServerStoredContactListRoot()
+            Iterator<ContactGroup> groupsIter = getServerStoredContactListRoot()
                 .subgroups();
             while (groupsIter.hasNext())
             {
                 ContactGroupDictImpl group
                     = (ContactGroupDictImpl) groupsIter.next();
 
-                Iterator contactsIter = group.contacts();
+                Iterator<Contact> contactsIter = group.contacts();
 
                 while (contactsIter.hasNext())
                 {

@@ -123,7 +123,7 @@ public class NotificationServiceImpl
         EventNotification notification = null;
 
         if(notificationsTable.containsKey(eventType))
-            notification = (EventNotification) notificationsTable.get(eventType);
+            notification = notificationsTable.get(eventType);
         else
         {
             notification = new EventNotification(eventType);
@@ -236,7 +236,7 @@ public class NotificationServiceImpl
                                                 String actionType)
     {
         EventNotification notification
-            = (EventNotification) notificationsTable.get(eventType);
+            = notificationsTable.get(eventType);
         
         if(notification == null)
             return;
@@ -271,7 +271,7 @@ public class NotificationServiceImpl
      * @return an iterator over a list of all events registered in this
      * notifications service
      */
-    public Iterator getRegisteredEvents()
+    public Iterator<String> getRegisteredEvents()
     {
         return Collections.unmodifiableSet(
             notificationsTable.keySet()).iterator();
@@ -295,6 +295,8 @@ public class NotificationServiceImpl
         if(notification == null)
             return null;
 
+        // TODO: cleanup mixed usage of different classes/objects in hashtable
+        // Cleanup together with NotificationService and NotificationConfigurationPanel
         Hashtable actions = new Hashtable();
 
         for (Object value : notification.getActions().values())
@@ -324,7 +326,7 @@ public class NotificationServiceImpl
                                                             String actionType)
     {
         EventNotification notification
-            = (EventNotification) notificationsTable.get(eventType);
+            = notificationsTable.get(eventType);
 
         if(notification == null)
             return null;
@@ -388,16 +390,16 @@ public class NotificationServiceImpl
         Object tag)
     {
         EventNotification notification
-            = (EventNotification) notificationsTable.get(eventType);
+            = notificationsTable.get(eventType);
 
         if(notification == null || !notification.isActive())
             return;
 
-        Iterator actions = notification.getActions().values().iterator();
+        Iterator<Action> actions = notification.getActions().values().iterator();
 
         while(actions.hasNext())
         {
-            Action action = (Action) actions.next();
+            Action action = actions.next();
             
             String actionType = action.getActionType();
 
@@ -671,7 +673,7 @@ public class NotificationServiceImpl
                 
                 // Load the data in the notifications table.
                 EventNotification notification
-                    = (EventNotification)notificationsTable.get(eventType);
+                    = notificationsTable.get(eventType);
                     
                 if(notification == null)
                 {
@@ -733,7 +735,7 @@ public class NotificationServiceImpl
     public boolean isActive(String eventType)
     {
         EventNotification eventNotification
-            = (EventNotification) notificationsTable.get(eventType);
+            = notificationsTable.get(eventType);
         
         if(eventNotification == null)
             return false;
@@ -803,7 +805,7 @@ public class NotificationServiceImpl
 
         for (int i = 0 ; i < changeListeners.size(); i ++)
         {
-            listener = (NotificationChangeListener) changeListeners.get(i);
+            listener = changeListeners.get(i);
 
             if (eventType.equals(NotificationActionTypeEvent.ACTION_ADDED))
             {
@@ -901,7 +903,7 @@ public class NotificationServiceImpl
             EventNotification notification = null;
 
             if(notificationsTable.containsKey(eventType))
-                notification = (EventNotification) notificationsTable.get(eventType);
+                notification = notificationsTable.get(eventType);
             else
             {
                 notification = new EventNotification(eventType);
@@ -994,7 +996,7 @@ public class NotificationServiceImpl
             EventNotification notification = null;
 
             if(notificationsTable.containsKey(eventType))
-                notification = (EventNotification) notificationsTable.get(eventType);
+                notification = notificationsTable.get(eventType);
             else
             {
                 notification = new EventNotification(eventType);
@@ -1061,11 +1063,11 @@ public class NotificationServiceImpl
         {
             EventNotification notification = notificationsTable.get(eventType);
 
-            Vector actionsToRemove = new Vector(notification.getActions().keySet());
-            Iterator actionIter = actionsToRemove.iterator();
+            Vector<String> actionsToRemove = new Vector<String>(notification.getActions().keySet());
+            Iterator<String> actionIter = actionsToRemove.iterator();
             while (actionIter.hasNext())
             {
-                String actionType = (String)actionIter.next();
+                String actionType = actionIter.next();
                 
                 removeEventNotificationAction(eventType, actionType);
             }
@@ -1078,10 +1080,10 @@ public class NotificationServiceImpl
             String eventType = entry.getKey();
             EventNotification notification = entry.getValue();
 
-            Iterator actionIter = notification.getActions().keySet().iterator();
+            Iterator<String> actionIter = notification.getActions().keySet().iterator();
             while (actionIter.hasNext())
             {
-                String actionType = (String)actionIter.next();
+                String actionType = actionIter.next();
                 
                 registerNotificationForEvent(
                     eventType, 

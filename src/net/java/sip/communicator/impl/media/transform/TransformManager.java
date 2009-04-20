@@ -11,8 +11,6 @@ import javax.media.rtp.*;
 import net.java.sip.communicator.impl.media.transform.dummy.*;
 import net.java.sip.communicator.impl.media.transform.srtp.*;
 import net.java.sip.communicator.impl.media.transform.zrtp.*;
-import net.java.sip.communicator.service.media.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * TransformManager class encapsulate the logic of creating different kinds of
@@ -24,8 +22,8 @@ import net.java.sip.communicator.util.*;
  */
 public class TransformManager
 {
-    private static final Logger logger
-        = Logger.getLogger(TransformManager.class);
+//    private static final Logger logger
+//        = Logger.getLogger(TransformManager.class);
 
     /**
      * Create a SRTP TransformConnector, which will provide SRTP encryption /
@@ -70,8 +68,7 @@ public class TransformManager
      * @return the TransformConnector used for ZRTP processing
      * @throws InvalidSessionAddressException
      */
-    public static TransformConnector createZRTPConnector(SessionAddress addr,
-                                                         CallSession callSession)
+    public static TransformConnector createZRTPConnector(SessionAddress addr)
         throws InvalidSessionAddressException
     {
         ZRTPTransformEngine engine = new ZRTPTransformEngine(); 

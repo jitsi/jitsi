@@ -40,8 +40,9 @@ public class AddressDiagnosticsKit
      * fails and are only usable with other boxes using the same address
      * in the same net segment. That's why they get their low preference.
      */
-    private static final AddressPreference ADDR_PREF_LOCAL_IPV4_AUTOCONF
-        = new AddressPreference(40);
+    // TODO Remove after confirmation that this not used
+//    private static final AddressPreference ADDR_PREF_LOCAL_IPV4_AUTOCONF
+//        = new AddressPreference(40);
 
     /**
      * Local IPv6 addresses are assigned by default to any network iface running
@@ -135,7 +136,7 @@ public class AddressDiagnosticsKit
 
         //implements the algorithm from AssigningAddressPreferences.png
 
-        setDiagnosticsStatus(this.DIAGNOSTICS_STATUS_DISOVERING_CONFIG);
+        setDiagnosticsStatus(DIAGNOSTICS_STATUS_DISOVERING_CONFIG);
 
         InetAddress address = addressEntry.getInetAddress();
 

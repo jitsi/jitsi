@@ -427,8 +427,8 @@ public class SRTPCryptoContext
      */
     public void processPacketAESCM(RawPacket pkt) {
         long ssrc = PacketManipulator.GetRTPSSRC(pkt);
-        int seqNum = PacketManipulator.GetRTPSequenceNumber(pkt);
-        long index = ((long) this.roc << 16) | (long) seqNum;
+        int seqNo = PacketManipulator.GetRTPSequenceNumber(pkt);
+        long index = ((long) this.roc << 16) | seqNo;
 
         // byte[] iv = new byte[16];
         ivStore[0] = saltKey[0];
@@ -508,7 +508,7 @@ public class SRTPCryptoContext
      * Sequence Number is guaranteed to be real (not faked) through 
      * authentication.
      * 
-     * @param seqNum sequence number of the packet
+     * @param seqNo sequence number of the packet
      * @return true if this sequence number indicates the packet is not a
      * replayed one, false if not
      */

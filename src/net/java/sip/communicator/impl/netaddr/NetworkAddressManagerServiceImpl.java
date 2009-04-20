@@ -97,7 +97,8 @@ public class NetworkAddressManagerServiceImpl
      * <br>
      * {@link http://ietf.org/rfc/rfc3927.txt}
      */
-    private static final String DYNAMIC_CONF_FOR_IPV4_ADDR_PREFIX = "169.254";
+    // TODO Remove after confirmation that it is not used
+//    private static final String DYNAMIC_CONF_FOR_IPV4_ADDR_PREFIX = "169.254";
 
     /**
      * The name of the property containing the number of binds that we should

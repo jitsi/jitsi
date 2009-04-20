@@ -264,7 +264,7 @@ public interface NotificationService
      * @return an iterator over a list of all events registered in this
      * notifications service
      */
-    public Iterator getRegisteredEvents();
+    public Iterator<String> getRegisteredEvents();
     
     /**
      * Returns a Map containing all action types (as keys) and actionDescriptors

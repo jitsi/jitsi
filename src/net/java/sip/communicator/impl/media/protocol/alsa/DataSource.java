@@ -103,7 +103,7 @@ public class DataSource
      */
     public Object getControl(String controlType) {
        try {
-          Class  cls = Class.forName(controlType);
+          Class<?>  cls = Class.forName(controlType);
           Object cs[] = getControls();
           for (int i = 0; i < cs.length; i++) {
              if (cls.isInstance(cs[i]))

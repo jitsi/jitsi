@@ -2179,8 +2179,7 @@ public class CallSessionImpl
                 // The crypto provider solution should be queried somehow
                 // or taken from a resources file
                 TransformConnector transConnector
-                    = TransformManager.createZRTPConnector(
-                                            bindAddress, this);
+                    = TransformManager.createZRTPConnector(bindAddress);
 
                 rtpManager.initialize(transConnector);
                 this.transConnectors.put(rtpManager, transConnector);
