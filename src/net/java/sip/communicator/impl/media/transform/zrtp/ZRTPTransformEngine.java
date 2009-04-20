@@ -572,10 +572,10 @@ public class ZRTPTransformEngine
             }
             pkt = srtpInTransformer.reverseTransform(pkt);
             // if packet was valid (i.e. not null) and ZRTP engine started and
-            // not yet in secure state - emulate a Conf2Ack packet. See ZRTP
-            // specification chap. 5.6
-            if (pkt != null && zrtpEngine != null
-                && !zrtpEngine.inState(ZrtpStateClass.ZrtpStates.SecureState))
+            // in Wait for Confirm2 Ack then emulate a Conf2Ack packet. 
+            // See ZRTP specification chap. 5.6
+            if (pkt != null && started
+                && zrtpEngine.inState(ZrtpStateClass.ZrtpStates.WaitConfAck))
             {
                 zrtpEngine.conf2AckSecure();
             }
@@ -583,8 +583,15 @@ public class ZRTPTransformEngine
         }
 
         /*
-         * If ZRTP is enabled process it. In any case return null
-         * because ZRTP packets never reach the application.
+         * If ZRTP is enabled process it. 
+         * 
+         * The check "!started && ... " covers the case that the
+         * other party sends ZRTP messages only. This may happen in 
+         * "half-duplex" session, for example only one party can send video
+         * and the other party just receives it.
+         * 
+         * In any case return null because ZRTP packets must never reach 
+         * the application.
          */
         if (enableZrtp)
         {
@@ -599,6 +606,10 @@ public class ZRTPTransformEngine
             if (!zPkt.hasMagic() || zrtpEngine == null)
             {
                 return null;
+            }
+            if (!started && (multiStream || (sendPacketCount >= 1)))
+            {
+                startZrtp();
             }
             byte[] extHeader = zPkt.getMessagePart();
             zrtpEngine.processZrtpMessage(extHeader, zPkt.getSSRC());
