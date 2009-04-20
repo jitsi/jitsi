@@ -25,6 +25,9 @@ import net.java.sip.communicator.impl.gui.utils.*;
 public class EditMenu extends SIPCommMenu 
     implements ActionListener
 {
+    private JMenuItem fontDialogMenuItem = new JMenuItem(
+            GuiActivator.getResources().getI18NString("service.gui.FONT"));
+    
     private JMenuItem cutMenuItem = new JMenuItem(
         GuiActivator.getResources().getI18NString("service.gui.CUT"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.CUT_ICON)));
@@ -59,14 +62,18 @@ public class EditMenu extends SIPCommMenu
         this.cutMenuItem.setName("cut");
         this.copyMenuItem.setName("copy");
         this.pasteMenuItem.setName("paste");
+        this.fontDialogMenuItem.setName("font");
 
         this.cutMenuItem.addActionListener(this);
         this.copyMenuItem.addActionListener(this);
         this.pasteMenuItem.addActionListener(this);
+        this.fontDialogMenuItem.addActionListener(this);
 
         this.add(cutMenuItem);
         this.add(copyMenuItem);
         this.add(pasteMenuItem);
+        this.addSeparator();
+        this.add(fontDialogMenuItem);
 
         this.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.EDIT"));
@@ -76,6 +83,8 @@ public class EditMenu extends SIPCommMenu
             GuiActivator.getResources().getI18nMnemonic("service.gui.COPY"));
         this.pasteMenuItem.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.PASTE"));
+        this.fontDialogMenuItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic("service.gui.FONT"));
 
         this.cutMenuItem.setAccelerator(
                 KeyStroke.getKeyStroke(KeyEvent.VK_X,
@@ -108,6 +117,10 @@ public class EditMenu extends SIPCommMenu
         else if (menuItemName.equalsIgnoreCase("paste")) {
 
             this.chatWindow.getCurrentChatPanel().paste();
+        }
+        else if (menuItemName.equalsIgnoreCase("font")) {
+            this.chatWindow.getCurrentChatPanel().getChatWritePanel()
+                .getEditTextToolBar().showFontChooserDialog();
         }
     }
 }

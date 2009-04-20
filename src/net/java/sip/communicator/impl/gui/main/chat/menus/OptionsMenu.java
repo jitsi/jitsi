@@ -27,10 +27,6 @@ public class OptionsMenu
 {
     private ChatWindow chatWindow = null;
     
-    private JMenuItem fontDialogItem = new JMenuItem(
-        GuiActivator.getResources().getI18NString("service.gui.FONT"));
-    private static final String ACTCMD_SHOW_FONTDIALOG = "ACTCMD_SHOW_FONTDIALOG";
-    
     private JCheckBoxMenuItem viewToolBar = new JCheckBoxMenuItem(
         GuiActivator.getResources().getI18NString("service.gui.VIEW_TOOLBAR"));
     private static final String ACTCMD_VIEW_TOOLBAR = "ACTCMD_VIEW_TOOLBAR";
@@ -45,7 +41,7 @@ public class OptionsMenu
      */
     public OptionsMenu(ChatWindow chatWindow)
     {
-        super(GuiActivator.getResources().getI18NString("service.gui.OPTIONS"));
+        super(GuiActivator.getResources().getI18NString("service.gui.TOOLS"));
         this.chatWindow = chatWindow;
 
         this.setOpaque(false);
@@ -55,13 +51,7 @@ public class OptionsMenu
                 .getColor("service.gui.CHAT_MENU_FOREGROUND")));
 
         this.setMnemonic(
-            GuiActivator.getResources().getI18nMnemonic("service.gui.OPTIONS"));
-        
-        this.fontDialogItem.setActionCommand(ACTCMD_SHOW_FONTDIALOG);
-        this.fontDialogItem.addActionListener(this);
-        this.add(this.fontDialogItem);
-        
-        this.addSeparator();
+            GuiActivator.getResources().getI18nMnemonic("service.gui.TOOLS"));
         
         this.viewToolBar.setActionCommand(ACTCMD_VIEW_TOOLBAR);
         this.viewToolBar.addActionListener(this);
@@ -101,11 +91,6 @@ public class OptionsMenu
             this.chatWindow.setStylebarVisible(this.viewStyleBar.isSelected());
             ConfigurationManager
                 .setChatStylebarVisible(this.viewStyleBar.isSelected());
-        }
-        else if (action.equals(ACTCMD_SHOW_FONTDIALOG))
-        {
-            this.chatWindow.getCurrentChatPanel().getChatWritePanel()
-                .getEditTextToolBar().showFontChooserDialog();
         }
     }
 }
