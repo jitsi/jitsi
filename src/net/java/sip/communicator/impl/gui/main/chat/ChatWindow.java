@@ -53,6 +53,9 @@ public class ChatWindow
 {
     private final Logger logger = Logger.getLogger(ChatWindow.class);
 
+    private Image logoBgImage
+        = ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR);
+
     private ChatTabbedPane chatTabbedPane = null;
 
     private int chatCount = 0;
@@ -62,7 +65,7 @@ public class ChatWindow
 
     private final JPanel mainPanel = new JPanel(new BorderLayout());
 
-    private final JPanel northPanel = new JPanel(new BorderLayout());
+    private final NorthPanel northPanel = new NorthPanel(new BorderLayout());
 
     private final JPanel statusBarPanel = new JPanel(new BorderLayout());
 
@@ -173,6 +176,10 @@ public class ChatWindow
             .getSettingsInt("impl.gui.CHAT_WINDOW_HEIGHT");
 
         this.setSize(width, height);
+
+        if (logoBgImage != null)
+            logoBgImage
+                = ImageUtils.scaleImageWithinBounds(logoBgImage, 80, 35);
     }
 
     /**
@@ -1185,6 +1192,25 @@ public class ChatWindow
 
             this.getCurrentChatPanel()
                 .fireChatFocusEvent(ChatFocusEvent.FOCUS_GAINED);
+        }
+    }
+    
+    private class NorthPanel extends JPanel
+    {
+        public NorthPanel(LayoutManager layoutManager)
+        {
+            super(layoutManager);
+        }
+
+        public void paintComponent(Graphics g)
+        { 
+            super.paintComponent(g);
+
+            if (logoBgImage != null)
+            {
+                g.drawImage(logoBgImage,
+                    (this.getWidth() - logoBgImage.getWidth(null))/2, 0, null);
+            }
         }
     }
 }
