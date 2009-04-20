@@ -209,7 +209,15 @@ public class SIPCommTabbedPaneEnhancedUI
             middleImg = UtilActivator.getImage(TAB_MIDDLE_BG);
             rightImg = UtilActivator.getImage(TAB_RIGHT_BG);
         }
-        
+
+        // Remove the existing gap between the tabs and the panel, which is due
+        // to the removal of the tabbed pane border.
+        y++;
+        // If the current tab is not the selected tab we paint it 2 more pixels
+        // to the bottom in order to create the disabled look.
+        if (!isSelected)
+            y+=2;
+
         g2.drawImage(leftImg, x, y, null);
         g2.drawImage(middleImg, x + leftImg.getWidth(), y,
             w - leftImg.getWidth() - rightImg.getWidth() + tabOverlap,

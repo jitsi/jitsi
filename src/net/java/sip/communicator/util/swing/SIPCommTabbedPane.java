@@ -19,6 +19,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
 
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.event.*;
 import net.java.sip.communicator.util.swing.plaf.*;
 
@@ -53,6 +54,10 @@ public class SIPCommTabbedPane
 
         UIManager.getDefaults()
             .put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0));
+
+        this.setForeground(
+            new Color(UtilActivator.getResources()
+                .getColor("service.gui.TAB_TITLE")));
 
         this.setUI(new SIPCommTabbedPaneEnhancedUI());
 
