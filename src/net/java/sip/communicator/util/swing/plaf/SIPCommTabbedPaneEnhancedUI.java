@@ -34,7 +34,13 @@ import net.java.sip.communicator.util.swing.*;
 public class SIPCommTabbedPaneEnhancedUI
     extends SIPCommTabbedPaneUI
 {
-    private static final Color whiteColor = Color.white;
+    private static final Color TAB_HIGHLIGHT_FOREGROUND_COLOR
+        = new Color(UtilActivator.getResources()
+            .getColor("service.gui.TAB_TITLE_HIGHLIGHT"));
+
+    private static final Color TAB_SELECTED_FOREGROUND_COLOR
+        = new Color(UtilActivator.getResources()
+            .getColor("service.gui.TAB_TITLE_SELECTED"));
 
     private static final int TAB_OVERLAP
         = Integer.parseInt(UtilActivator.getResources().
@@ -263,13 +269,12 @@ public class SIPCommTabbedPaneEnhancedUI
             if (tabPane.isEnabled() && tabPane.isEnabledAt(tabIndex))
             {
                 if (isSelected)
-                    g.setColor(whiteColor);
+                    g.setColor(TAB_SELECTED_FOREGROUND_COLOR);
                 else
                 {
                     if (this.isTabHighlighted(tabIndex))
                     {
-                        g.setColor(new Color(UtilActivator.getResources()
-                            .getColor("service.gui.TAB_TITLE_HIGHLIGHT")));
+                        g.setColor(TAB_HIGHLIGHT_FOREGROUND_COLOR);
                     }
                     else
                         g.setColor(tabPane.getForegroundAt(tabIndex));
@@ -334,17 +339,20 @@ public class SIPCommTabbedPaneEnhancedUI
 
             g.drawLine(0, 0, w - 2, 0); // top
 
-            if (isRollOver) {
+            if (isRollOver)
+            {
                 // do highlights or shadows
-
                 Color color1;
                 Color color2;
 
-                if (isPressed) {
-                    color2 = whiteColor;
+                if (isPressed)
+                {
+                    color2 = Color.WHITE;
                     color1 = shadow;
-                } else {
-                    color1 = whiteColor;
+                }
+                else
+                {
+                    color1 = Color.WHITE;
                     color2 = shadow;
                 }
 
