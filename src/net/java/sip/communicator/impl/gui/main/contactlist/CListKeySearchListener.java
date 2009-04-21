@@ -11,6 +11,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.text.*;
 
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.service.contactlist.*;
 
 /**
@@ -130,6 +131,16 @@ public class CListKeySearchListener implements KeyListener {
                                 .equalsIgnoreCase(keyBuffer.toString());
                     }
                 }
+                else if(selectedObject instanceof ConferenceChatContact) {
+                    String selectedContactName =
+                            ((ConferenceChatContact) selectedObject).getName();
+
+                    if (selectedContactName != null) {
+                        selectedSameLetterContact
+                            = selectedContactName.substring(0, 1)
+                                .equalsIgnoreCase(keyBuffer.toString());
+                    }
+                }
             }
             // The search starts from the beginning if:
             // 1) the newly entered character is different from the last one
@@ -205,7 +216,7 @@ public class CListKeySearchListener implements KeyListener {
 
             ContactListModel model
                 = (ContactListModel) contactList.getModel();
-            System.out.println("close ? " + model.isGroupClosed(group));
+
             if (model.isGroupClosed(group))
             {
                 model.openGroup(group);

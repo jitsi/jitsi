@@ -45,6 +45,7 @@ public class ChatRoomMemberListPanel
         // this.chatPanel = chat;
 
         this.memberList.setModel(memberListModel);
+        this.memberList.addKeyListener(new CListKeySearchListener(memberList));
         this.memberList.setCellRenderer(new ChatContactCellRenderer());
 
         JScrollPane contactsScrollPane = new SCScrollPane();

@@ -11,8 +11,10 @@ import java.awt.event.*;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.main.chat.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -199,5 +201,58 @@ public class DefaultContactList
         }
 
         return null;
+    }
+
+        /**
+     * Returns the next list element that starts with a prefix.
+     *
+     * @param prefix the string to test for a match
+     * @param startIndex the index for starting the search
+     * @param bias the search direction, either Position.Bias.Forward or
+     *            Position.Bias.Backward.
+     * @return the index of the next list element that starts with the prefix;
+     *         otherwise -1
+     */
+    public int getNextMatch(String prefix, int startIndex, Position.Bias bias)
+    {
+        int max = getModel().getSize();
+
+        if (prefix == null)
+            throw new IllegalArgumentException("prefix");
+        if (startIndex < 0 || startIndex >= max)
+            throw new IllegalArgumentException("startIndex");
+
+        prefix = prefix.toUpperCase();
+
+        // start search from the next element after the selected element
+        int increment = (bias == Position.Bias.Forward) ? 1 : -1;
+        int index = startIndex;
+        do
+        {
+            Object o = getModel().getElementAt(index);
+
+            if (o != null)
+            {
+                String contactName = null;
+
+                if (o instanceof MetaContact)
+                {
+                    contactName = ((MetaContact) o).getDisplayName()
+                        .toUpperCase();
+                }
+                else if(o instanceof ConferenceChatContact)
+                {
+                    contactName = ((ConferenceChatContact) o).getName()
+                        .toUpperCase();
+                }
+
+                if (contactName != null && contactName.startsWith(prefix))
+                {
+                    return index;
+                }
+            }
+            index = (index + increment + max) % max;
+        } while (index != startIndex);
+        return -1;
     }
 }
