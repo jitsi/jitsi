@@ -16,8 +16,19 @@ import javax.swing.*;
 
 import net.java.sip.communicator.util.swing.*;
 
+/**
+ * The <tt>WelcomeWindow</tt> is actually the splash screen shown while the
+ * application is loading. It displays the status of the loading process and
+ * some general information about the version, licenses and contact details.
+ * 
+ * @author Yana Stamcheva
+ */
 public class WelcomeWindow extends JDialog
 {
+    private static final int PREFERRED_WIDTH = 570;
+
+    private static final int PREFERRED_HEIGHT = 330;
+
     private static final String APPLICATION_NAME
         = BrandingActivator.getResources()
             .getSettingsString("service.gui.APPLICATION_NAME");
@@ -26,29 +37,31 @@ public class WelcomeWindow extends JDialog
         = BrandingActivator.getResources()
             .getSettingsInt("plugin.branding.SPLASH_SCREEN_TEXT_INDENT");
 
-    private JLabel titleLabel = new JLabel(APPLICATION_NAME);
+    private final JLabel loadingLabel = new JLabel(
+        BrandingActivator.getResources()
+            .getI18NString("plugin.branding.LOADING") + ": ");
 
-    private JLabel versionLabel = new JLabel(" "
-            + System.getProperty("sip-communicator.version"));
+    private final JLabel bundleLabel = new JLabel();
 
-    private JTextArea logoArea = new JTextArea(
-        BrandingActivator.getResources().getI18NString("plugin.branding.LOGO_MESSAGE"));
-
-    private StyledHTMLEditorPane rightsArea = new StyledHTMLEditorPane();
-
-    private StyledHTMLEditorPane licenseArea = new StyledHTMLEditorPane();
-
-    private JPanel textPanel = new JPanel();
-
-    private JPanel loadingPanel = new JPanel(new BorderLayout());
-
-    private JLabel loadingLabel = new JLabel(
-        BrandingActivator.getResources().getI18NString("plugin.branding.LOADING") + ": ");
-
-    private JLabel bundleLabel = new JLabel();
+    private final JPanel loadingPanel = new JPanel(new BorderLayout());
 
     public WelcomeWindow()
     {
+        JLabel titleLabel = new JLabel(APPLICATION_NAME);
+
+        JLabel versionLabel = new JLabel(" "
+                + System.getProperty("sip-communicator.version"));
+
+        JTextArea logoArea = new JTextArea(
+            BrandingActivator.getResources()
+                .getI18NString("plugin.branding.LOGO_MESSAGE"));
+
+        StyledHTMLEditorPane rightsArea = new StyledHTMLEditorPane();
+
+        StyledHTMLEditorPane licenseArea = new StyledHTMLEditorPane();
+
+        JPanel textPanel = new JPanel();
+
         Container mainPanel = new WindowBackground();
 
         this.setTitle(APPLICATION_NAME);
@@ -58,83 +71,29 @@ public class WelcomeWindow extends JDialog
 
         mainPanel.setLayout(new BorderLayout());
 
-        this.textPanel.setPreferredSize(new Dimension(470, 280));
-        this.textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
-        this.textPanel
+        textPanel.setPreferredSize(new Dimension(470, 280));
+        textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
+        textPanel
                 .setBorder(BorderFactory.createEmptyBorder(15, 15, 0, 15));
-        this.textPanel.setOpaque(false);
+        textPanel.setOpaque(false);
 
-        this.titleLabel.setFont(
-            titleLabel.getFont().deriveFont(Font.BOLD, 28));
-        this.titleLabel.setForeground(Constants.TITLE_COLOR);
-        this.titleLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        this.initTitleLabel(titleLabel);
 
-        this.versionLabel.setFont(
-            versionLabel.getFont().deriveFont(Font.BOLD, 18));
-        this.versionLabel.setForeground(Constants.TITLE_COLOR);
-        this.versionLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        this.initVersionLabel(versionLabel);
 
-        int logoAreaFontSize = BrandingActivator.getResources().
-            getSettingsInt("plugin.branding.ABOUT_LOGO_FONT_SIZE");
+        this.initLogoArea(logoArea);
 
-        this.logoArea.setFont(
-            logoArea.getFont().deriveFont(Font.BOLD, logoAreaFontSize));
-        this.logoArea.setForeground(Constants.TITLE_COLOR);
-        this.logoArea.setOpaque(false);
-        this.logoArea.setLineWrap(true);
-        this.logoArea.setWrapStyleWord(true);
-        this.logoArea.setEditable(false);
-        this.logoArea.setPreferredSize(new Dimension(100, 20));
-        this.logoArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        this.logoArea.setBorder(BorderFactory
-            .createEmptyBorder(20, DEFAULT_TEXT_INDENT, 0, 0));
+        this.initRightsArea(rightsArea);
 
-        this.rightsArea.setContentType("text/html");
-        this.rightsArea.appendToEnd(BrandingActivator.getResources().getI18NString(
-            "plugin.branding.WELCOME_MESSAGE",
-            new String[]{
-                Constants.TEXT_COLOR,
-                APPLICATION_NAME,
-                BrandingActivator.getResources()
-                    .getSettingsString("service.gui.APPLICATION_WEB_SITE")
-                }));
+        this.initLicenseArea(licenseArea);
 
-        this.rightsArea.setPreferredSize(new Dimension(50, 50));
-        this.rightsArea
-                .setBorder(BorderFactory
-                    .createEmptyBorder(0, DEFAULT_TEXT_INDENT, 0, 0));
-        this.rightsArea.setOpaque(false);
-        this.rightsArea.setEditable(false);
-        this.rightsArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        this.initLoadingPanel();
 
-        this.licenseArea.setContentType("text/html");
-        this.licenseArea.appendToEnd(BrandingActivator.getResources().getI18NString(
-            "plugin.branding.LICENSE",
-            new String[]
-                       {
-                            Constants.TEXT_COLOR
-                       }));
-
-        this.licenseArea.setPreferredSize(new Dimension(50, 20));
-        this.licenseArea.setBorder(BorderFactory
-                .createEmptyBorder(0, DEFAULT_TEXT_INDENT, 0, 0));
-        this.licenseArea.setOpaque(false);
-        this.licenseArea.setEditable(false);
-        this.licenseArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
-
-        this.bundleLabel.setFont(loadingLabel.getFont().deriveFont(Font.PLAIN));
-        this.loadingPanel.setOpaque(false);
-        this.loadingPanel.add(loadingLabel, BorderLayout.WEST);
-        this.loadingPanel.add(bundleLabel, BorderLayout.CENTER);
-        this.loadingPanel.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        this.loadingPanel.setBorder(
-            BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        this.textPanel.add(titleLabel);
-        this.textPanel.add(versionLabel);
-        this.textPanel.add(logoArea);
-        this.textPanel.add(rightsArea);
-        this.textPanel.add(licenseArea);
+        textPanel.add(titleLabel);
+        textPanel.add(versionLabel);
+        textPanel.add(logoArea);
+        textPanel.add(rightsArea);
+        textPanel.add(licenseArea);
 
         mainPanel.add(textPanel, BorderLayout.CENTER);
         mainPanel.add(loadingPanel, BorderLayout.SOUTH);
@@ -143,12 +102,146 @@ public class WelcomeWindow extends JDialog
 
         this.setResizable(false);
 
-        mainPanel.setPreferredSize(new Dimension(570, 330));
+        mainPanel.setPreferredSize(
+            new Dimension(PREFERRED_WIDTH, PREFERRED_HEIGHT));
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         this.setLocation(screenSize.width / 2 - 527 / 2,
             screenSize.height / 2 - 305 / 2);
 
+        this.initCloseActions();
+    }
+
+    /**
+     * Initializes the title label.
+     * 
+     * @param titleLabel the title label
+     */
+    private void initTitleLabel(JLabel titleLabel)
+    {
+        titleLabel.setFont(
+            titleLabel.getFont().deriveFont(Font.BOLD, 28));
+        titleLabel.setForeground(Constants.TITLE_COLOR);
+        titleLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+    }
+
+    /**
+     * Initializes the version label.
+     * 
+     * @param versionLabel the version label
+     */
+    private void initVersionLabel(JLabel versionLabel)
+    {
+        versionLabel.setFont(
+            versionLabel.getFont().deriveFont(Font.BOLD, 18));
+        versionLabel.setForeground(Constants.TITLE_COLOR);
+        versionLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+    }
+
+    /**
+     * Initializes the logo area.
+     * 
+     * @param logoArea the logo area
+     */
+    private void initLogoArea(JTextArea logoArea)
+    {
+        int logoAreaFontSize = BrandingActivator.getResources().
+            getSettingsInt("plugin.branding.ABOUT_LOGO_FONT_SIZE");
+
+        logoArea.setFont(
+            logoArea.getFont().deriveFont(Font.BOLD, logoAreaFontSize));
+        logoArea.setForeground(Constants.TITLE_COLOR);
+        logoArea.setOpaque(false);
+        logoArea.setLineWrap(true);
+        logoArea.setWrapStyleWord(true);
+        logoArea.setEditable(false);
+        logoArea.setPreferredSize(new Dimension(100, 20));
+        logoArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        logoArea.setBorder(BorderFactory
+            .createEmptyBorder(20, DEFAULT_TEXT_INDENT, 0, 0));
+    }
+
+    /**
+     * Initializes the copyright area.
+     * 
+     * @param rightsArea the copyright area.
+     */
+    private void initRightsArea(StyledHTMLEditorPane rightsArea)
+    {
+        rightsArea.setContentType("text/html");
+        rightsArea.appendToEnd(
+            BrandingActivator.getResources().getI18NString(
+            "plugin.branding.WELCOME_MESSAGE",
+            new String[]{
+                Constants.TEXT_COLOR,
+                APPLICATION_NAME,
+                BrandingActivator.getResources()
+                    .getSettingsString("service.gui.APPLICATION_WEB_SITE")
+                }));
+
+        rightsArea.setPreferredSize(new Dimension(50, 50));
+        rightsArea
+                .setBorder(BorderFactory
+                    .createEmptyBorder(0, DEFAULT_TEXT_INDENT, 0, 0));
+        rightsArea.setOpaque(false);
+        rightsArea.setEditable(false);
+        rightsArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
+    }
+
+    /**
+     * Initializes the license area.
+     * 
+     * @param licenseArea the license area.
+     */
+    private void initLicenseArea(StyledHTMLEditorPane licenseArea)
+    {
+        licenseArea.setContentType("text/html");
+        licenseArea.appendToEnd(
+            BrandingActivator.getResources().getI18NString(
+            "plugin.branding.LICENSE",
+            new String[]
+                       {
+                            Constants.TEXT_COLOR
+                       }));
+
+        licenseArea.setPreferredSize(new Dimension(50, 20));
+        licenseArea.setBorder(BorderFactory
+                .createEmptyBorder(0, DEFAULT_TEXT_INDENT, 0, 0));
+        licenseArea.setOpaque(false);
+        licenseArea.setEditable(false);
+        licenseArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
+    }
+
+    private void initLoadingPanel()
+    {
+        this.bundleLabel.setFont(loadingLabel.getFont().deriveFont(Font.PLAIN));
+        this.loadingPanel.setOpaque(false);
+        this.loadingPanel.add(loadingLabel, BorderLayout.WEST);
+        this.loadingPanel.add(bundleLabel, BorderLayout.CENTER);
+
+        int loadingPanelBorder
+            = BrandingActivator.getResources()
+                .getSettingsInt("plugin.branding.LOADING_BUNDLE_PANEL_BORDER");
+
+        this.loadingPanel.setBorder(
+            BorderFactory.createEmptyBorder(loadingPanelBorder,
+                                            loadingPanelBorder,
+                                            loadingPanelBorder,
+                                            loadingPanelBorder));
+
+        int loadingPanelHeight
+            = BrandingActivator.getResources()
+                .getSettingsInt("plugin.branding.LOADING_BUNDLE_PANEL_HEIGHT");
+
+        this.loadingPanel.setPreferredSize(
+            new Dimension(PREFERRED_WIDTH, loadingPanelHeight));
+    }
+
+    /**
+     * Initializes close actions on mouse click and esc key.
+     */
+    private void initCloseActions()
+    {
         // Close the splash screen on simple click or Esc.
         this.getGlassPane().addMouseListener(new MouseAdapter()
         {
@@ -170,11 +263,19 @@ public class WelcomeWindow extends JDialog
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
     }
 
+    /**
+     * Disposes this window.
+     */
     protected void close()
     {
         this.dispose();
     }
 
+    /**
+     * Sets the name of the currently loading bundle.
+     * 
+     * @param bundleName the name of the bundle to display
+     */
     public void setBundle(String bundleName)
     {
         this.bundleLabel.setText(bundleName);
