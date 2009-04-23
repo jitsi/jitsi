@@ -573,7 +573,7 @@ public class OperationSetPersistentPresenceYahooImpl
         ssContactList.setAuthorizationHandler(handler);
 
         // we got a handler. Lets process if something has came
-        // durring login process
+        // during login process
         if(earlyEventListener != null)
         {
             earlyEventListener.processEarlyAuthorizations();
@@ -827,7 +827,7 @@ public class OperationSetPersistentPresenceYahooImpl
         implements RegistrationStateChangeListener
     {
         /**
-         * The method is called by a ProtocolProvider implementation whenver
+         * The method is called by a ProtocolProvider implementation whenever
          * a change in the registration state of the corresponding provider had
          * occurred.
          * @param evt ProviderStatusChangeEvent the event describing the status
@@ -842,9 +842,8 @@ public class OperationSetPersistentPresenceYahooImpl
             if(evt.getNewState() == RegistrationState.REGISTERING)
             {
                 // add new listener waiting for events during login process
-                earlyEventListener = new EarlyEventListener();
-                parentProvider.getYahooSession().
-                        addSessionListener(earlyEventListener);
+                earlyEventListener
+                    = new EarlyEventListener(parentProvider.getYahooSession());
             }
             else if(evt.getNewState() == RegistrationState.REGISTERED)
             {
@@ -859,8 +858,8 @@ public class OperationSetPersistentPresenceYahooImpl
 
                 if(earlyEventListener != null)
                 {
-                    parentProvider.getYahooSession().
-                            removeSessionListener(earlyEventListener);
+                    earlyEventListener.dispose();
+                    earlyEventListener = null;
                 }
             }
             else if(evt.getNewState() == RegistrationState.UNREGISTERED
@@ -915,8 +914,7 @@ public class OperationSetPersistentPresenceYahooImpl
                 // clear listener
                 if(earlyEventListener != null)
                 {
-                    parentProvider.getYahooSession().
-                            removeSessionListener(earlyEventListener);
+                    earlyEventListener.dispose();
                     earlyEventListener = null;
                 }
             }
@@ -1060,8 +1058,23 @@ public class OperationSetPersistentPresenceYahooImpl
     private class EarlyEventListener
         extends SessionAdapter
     {
-        private Vector<SessionAuthorizationEvent> receivedAuthorizations =
-                new Vector<SessionAuthorizationEvent>();
+        private final List<SessionAuthorizationEvent> receivedAuthorizations
+            = new Vector<SessionAuthorizationEvent>();
+
+        /**
+         * The <code>YahooSession</code> this instance is listening to because
+         * the <code>YahooSession</code> isn't available in
+         * <code>parentProvider</code> after
+         * {@link RegistrationState#UNREGISTERED} and then this listener cannot
+         * be removed.
+         */
+        private final YahooSession yahooSession;
+
+        public EarlyEventListener(YahooSession yahooSession)
+        {
+            this.yahooSession = yahooSession;
+            this.yahooSession.addSessionListener(this);
+        }
 
         public void authorizationReceived(SessionAuthorizationEvent ev)
         {
@@ -1071,6 +1084,11 @@ public class OperationSetPersistentPresenceYahooImpl
                         ev.getFrom());
                 receivedAuthorizations.add(ev);
             }
+        }
+
+        public void dispose()
+        {
+            yahooSession.removeSessionListener(this);
         }
 
         public void processEarlyAuthorizations()

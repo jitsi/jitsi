@@ -38,7 +38,7 @@ public class ProtocolProviderServiceYahooImpl
     /**
      * We use this to lock access to initialization.
      */
-    private Object initializationLock = new Object();
+    private final Object initializationLock = new Object();
 
     /**
      * The identifier of the account that this provider represents.
@@ -244,8 +244,8 @@ public class ProtocolProviderServiceYahooImpl
 
         try
         {
-            if(yahooSession != null &&
-               yahooSession.getSessionStatus() == StatusConstants.MESSAGING)
+            if((yahooSession != null)
+                    && (yahooSession.getSessionStatus() == StatusConstants.MESSAGING))
                 yahooSession.logout();
         }
         catch(Exception ex)
@@ -253,21 +253,14 @@ public class ProtocolProviderServiceYahooImpl
             logger.error("Cannot logout! ", ex);
         }
 
-        try
-        {
-            if(fireEvent)
-            {
-                fireRegistrationStateChanged(
-                    currRegState,
-                    RegistrationState.UNREGISTERED,
-                    RegistrationStateChangeEvent.REASON_USER_REQUEST,
-                    null);
-			}
-        }
-        finally
-        {
-            yahooSession = null;
-        }
+        yahooSession = null;
+
+        if(fireEvent)
+            fireRegistrationStateChanged(
+                currRegState,
+                RegistrationState.UNREGISTERED,
+                RegistrationStateChangeEvent.REASON_USER_REQUEST,
+                null);
     }
 
     /**

@@ -7,12 +7,14 @@
 package net.java.sip.communicator.impl.protocol.sip;
 
 import java.net.*;
+
 import javax.sip.*;
 import javax.sip.address.*;
+
 import gov.nist.core.net.*;
 import gov.nist.javax.sip.stack.*;
-import net.java.sip.communicator.util.*;
 
+import net.java.sip.communicator.util.*;
 
 /**
  * Lookup for SRV records for given host. If nothing found
@@ -32,13 +34,12 @@ public class AddressResolverImpl
     {
         try
         {
-            InetSocketAddress host = null;
-
             String transport = inputAddress.getTransport();
 
             if (transport == null)
                 transport = ListeningPoint.UDP;
 
+            InetSocketAddress host;
 
             if (transport.equalsIgnoreCase(ListeningPoint.TLS))
             {
@@ -51,38 +52,44 @@ public class AddressResolverImpl
                         "sip", transport, inputAddress.getHost());
             }
 
-            if(logger.isTraceEnabled())
-                logger.trace("Returning hop as follows"
-                                + " host= " + host.getHostName()
-                                + " port= " + host.getPort()
-                                + " transport= " + transport);
+            if (host != null)
+            {
+                if(logger.isTraceEnabled())
+                    logger.trace("Returning hop as follows"
+                                    + " host= " + host.getHostName()
+                                    + " port= " + host.getPort()
+                                    + " transport= " + transport);
 
-
-            return new HopImpl(host.getHostName(), host.getPort(), transport);
-
+                return
+                    new HopImpl(host.getHostName(), host.getPort(), transport);
+            }
         }
         catch (Exception ex)
         {
             //could mean there was no SRV record
             if(logger.isDebugEnabled())
-            {
                 logger.debug("Domain "+ inputAddress
                                 +" could not be resolved " + ex.getMessage());
-                //show who called us
+            //show who called us
+            if(logger.isTraceEnabled())
                 logger.trace("Printing SRV resolution stack trace", ex);
-            }
         }
 
-        Hop returnHop = null;
+        Hop returnHop;
+
         if (inputAddress.getPort()  != -1)
         {
             returnHop = inputAddress;
         }
         else
         {
-            returnHop = new HopImpl(inputAddress.getHost(),
-                MessageProcessor.getDefaultPort(
-                    inputAddress.getTransport()),inputAddress.getTransport() );
+            String transport = inputAddress.getTransport();
+
+            returnHop
+                = new HopImpl(
+                        inputAddress.getHost(),
+                        MessageProcessor.getDefaultPort(transport),
+                        transport);
         }
 
         if(logger.isDebugEnabled())
