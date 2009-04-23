@@ -1066,21 +1066,16 @@ public class NotificationConfigurationPanel
 
     public void buildingVector()
     {
-        Iterator it = notificationService.getRegisteredEvents();
+        Iterator<String> it = notificationService.getRegisteredEvents();
         NotificationsTableEntry tmpNTE = null;
         String event = null;
         Map actionsMap = null;
-        int i;
 
         dataVector.removeAllElements();
 
-        if(!it.hasNext())
-            return;
-
         while(it.hasNext())
         {
-            String actionType = null;
-            event = (String) it.next();
+            event = it.next();
 
             tmpNTE = new NotificationsTableEntry(
                     notificationService.isActive(event),
@@ -1101,7 +1096,7 @@ public class NotificationConfigurationPanel
                 while(itEntry.hasNext())
                 {
                     Map.Entry mEntry = (Map.Entry) itEntry.next();
-                    actionType = (String) mEntry.getKey();
+                    String actionType = (String) mEntry.getKey();
 
                     NotificationActionHandler handler = null;
 
