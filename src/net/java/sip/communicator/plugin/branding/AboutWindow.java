@@ -172,8 +172,8 @@ public class AboutWindow
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         this.getContentPane().add(mainPanel);
-        this.setSize(mainPanel.getPreferredSize());
 
+        this.pack();
         this.setResizable(false);
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
