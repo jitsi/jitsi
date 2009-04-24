@@ -70,7 +70,7 @@
       <replace  file="${inst.resrc}/windows/tmp.run.exe.jsmooth"
         token="_APP_NAME_" value="${application.name}"/>
 
-        <jsmoothgen project="${inst.resrc}/windows/run.exe.jsmooth"
+        <jsmoothgen project="${inst.resrc}/windows/tmp.run.exe.jsmooth"
             skeletonroot="${inst.resrc}/windows/skeletons"/>
 
         <delete file="${inst.resrc}/windows/tmp.run.exe.jsmooth"/>
