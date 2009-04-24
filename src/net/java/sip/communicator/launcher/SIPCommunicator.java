@@ -141,6 +141,8 @@ public class SIPCommunicator
         String location = System.getProperty(PNAME_SC_HOME_DIR_LOCATION);
         String name = System.getProperty(PNAME_SC_HOME_DIR_NAME);
 
+        boolean isHomeDirnameForced = name != null;
+
         if ((location == null) || (name == null))
         {
             String defaultLocation = System.getProperty("user.home");
@@ -158,7 +160,6 @@ public class SIPCommunicator
             }
             else if (osName.startsWith("Windows"))
             {
-
                 /*
                  * Primarily important on Vista because Windows Explorer opens
                  * in %USERPROFILE% so .sip-communicator is always visible. But
@@ -179,10 +180,12 @@ public class SIPCommunicator
 
             /*
              * As it was noted earlier, make sure we're compatible with previous
-             * releases.
+             * releases. If the home dir name is forced (set as system property)
+             * doesn't look for the default dir.
              */
-            if ((new File(location, name).isDirectory() == false)
-                    && new File(defaultLocation, defaultName).isDirectory())
+            if (!isHomeDirnameForced
+                && (new File(location, name).isDirectory() == false)
+                && new File(defaultLocation, defaultName).isDirectory())
             {
                 location = defaultLocation;
                 name = defaultName;

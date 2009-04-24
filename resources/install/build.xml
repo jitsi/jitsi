@@ -44,6 +44,55 @@
                                classname="com.izforge.izpack.ant.IzPackTask"/>
     </target>
 
+    <!-- if application.home.dirname is set we are going to change application
+        home directory so we will generate new exe file, so we must define
+        jmsooth task
+    -->
+    <target name="define-jsmooth-task" if="application.home.dirname">
+        <taskdef name="jsmoothgen"
+            classname="net.charabia.jsmoothgen.ant.JSmoothGen"
+            classpath="${inst.resrc}/windows/jsmoothgen-ant.jar"/>
+    </target>
+    <target name="windows-generate-exe" depends="define-jsmooth-task">
+
+        <copy file="${inst.resrc}/windows/run.exe.jsmooth"
+            tofile="${inst.resrc}/windows/tmp.run.exe.jsmooth"/>
+
+        <replace file="${inst.resrc}/windows/tmp.run.exe.jsmooth">
+        <replacetoken><![CDATA[<name>felix.config.properties</name>]]></replacetoken>
+        <replacevalue><![CDATA[<name>net.java.sip.communicator.SC_HOME_DIR_NAME</name>
+<value>_APP_NAME_</value>
+</javaProperties>
+<javaProperties>
+<name>felix.config.properties</name>]]></replacevalue>
+      </replace>
+
+      <replace  file="${inst.resrc}/windows/tmp.run.exe.jsmooth"
+        token="_APP_NAME_" value="${application.name}"/>
+
+        <jsmoothgen project="${inst.resrc}/windows/run.exe.jsmooth"
+            skeletonroot="${inst.resrc}/windows/skeletons"/>
+
+        <delete file="${inst.resrc}/windows/tmp.run.exe.jsmooth"/>
+    </target>
+
+    <target name="-prepare-debian-sh"
+        depends="-prepare-debian-sh-copy,-prepare-debian-sh-homedir"/>
+    <target name="-prepare-debian-sh-copy">
+        <!-- Put correct version in the sip-communicator executable file -->
+        <copy file="${inst.resrc}/debian/sip-communicator.sh.tmpl"
+            tofile="${inst.resrc}/debian/sip-communicator.sh"
+               overwrite="true"/>
+        <replace file="${inst.resrc}/debian/sip-communicator.sh"
+            token="_SC_VERSION_"
+            value="${sip-communicator.version}"/>
+    </target>
+    <target name="-prepare-debian-sh-homedir" if="application.home.dirname">
+        <replace file="${inst.resrc}/debian/sip-communicator.sh"
+            token="net.java.sip.communicator.launcher.SIPCommunicator"
+            value="-Dnet.java.sip.communicator.SC_HOME_DIR_NAME=${application.home.dirname} net.java.sip.communicator.launcher.SIPCommunicator"/>
+    </target>
+
     <!-- Put here the Windows release directory -->
     <property name="windows.app.dir" value="${sc.basedir}/${release}/windows"/>
     <!-- Put here the Linux release directory -->
@@ -342,8 +391,7 @@
     </target>
 
     <target name="build-installation-wix"
-            depends="clean-install-windows,version">
-
+            depends="clean-install-windows,version,windows-generate-exe">
         <!--
             This versionupdate.properties file isn't of interest to the MSI but
             is necessary for the site.
@@ -683,6 +731,7 @@
           <array>
             <string>sip</string>
             <string>feed</string>
+            <string>xmpp</string>
           </array>
         </dict>
       </array>
@@ -748,12 +797,12 @@
             if="is.running.macos"
             description="Create a .dmg package for MACOSX (only works on MACOSX)">
 
-      <propertyfile file="${macosx.app.dir}/versionupdate.properties"
+      <!--propertyfile file="${macosx.app.dir}/versionupdate.properties"
             comment="Last Build Version">
             <entry  key="last_version" value="${sip-communicator.version}"/>
             <entry  key="download_link"
                     value="http://download.sip-communicator.org/nightly/macosx/${package.name}-${sip-communicator.version}.dmg"/>
-      </propertyfile>
+      </propertyfile-->
 
       <property name="macosx.dmg.name"
                 value="${package.name}-${sip-communicator.version}.dmg"/>
@@ -825,7 +874,7 @@
     </target>
 
     <!-- Create a Debian package - This needs dpkg utilities -->
-    <target name="deb" depends="version,dpkg-build-warning"
+    <target name="deb" depends="version,dpkg-build-warning,-prepare-debian-sh"
             if="dpkg.build.present"
             description="Create a .deb package for Debian (needs dpkg utilities)">
 
@@ -866,14 +915,6 @@
     <replace file="${inst.resrc}/debian/changelog"
         token="_DATE_"
         value="${date}"/>
-
-    <!-- Put correct version in the sip-communicator executable file -->
-    <copy file="${inst.resrc}/debian/sip-communicator.sh.tmpl"
-        tofile="${inst.resrc}/debian/sip-communicator.sh"
-           overwrite="true"/>
-    <replace file="${inst.resrc}/debian/sip-communicator.sh"
-        token="_SC_VERSION_"
-        value="${sip-communicator.version}"/>
 
     <!-- Build i386 binary package -->
     <exec executable="${dpkg-buildpackage}" dir="${inst.resrc}">

@@ -325,10 +325,6 @@
             dest="${resources}/languages"
             encoding="UTF-8"
             includes="**/*.properties"/>
-        <!-- Copy the default resources to english one, as our defualt
-            language is English and without the resource we cannot excplictly set it.-->
-        <copy file="${sc.basedir}/resources/languages/resources.properties"
-              tofile="${resources}/languages/resources_en.properties"/>
     </target>
 
     <!-- JAVADOC -->
@@ -1865,6 +1861,10 @@ javax.swing.event, javax.swing.border"/>
 
     <!--BUNDLE-DEFAULT-RESOURCES-->
     <target name="bundle-resources-defaultpack">
+        <!-- Copy the default resources to english one, as our defualt
+            language is English and without the resource we cannot excplictly set it.-->
+        <copy file="${sc.basedir}/resources/languages/resources.properties"
+              tofile="${resources}/languages/resources_en.properties"/>
         <!-- Creates a bundle for the default resource pack."-->
         <jar
             compress="false" destfile="${bundles.dest}/defaultresources.jar"
@@ -1877,7 +1877,7 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset dir="${resources}/config"
                     prefix="resources/config"/>
             <zipfileset dir="${resources}/images"
-                    prefix="resources/images"/>
+                    prefix="resources/images" excludes="**/*.svg"/>
             <zipfileset dir="${resources}/languages"
                     prefix="resources/languages"/>
             <zipfileset dir="${resources}/sounds"
