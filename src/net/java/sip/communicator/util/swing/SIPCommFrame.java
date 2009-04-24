@@ -8,7 +8,6 @@ package net.java.sip.communicator.util.swing;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.*;
 import java.awt.image.*;
 import java.net.*;
 import java.util.*;
@@ -467,9 +466,9 @@ public abstract class SIPCommFrame
         {
             super.paintComponent(g);
 
-            // If the custom color window background is not enabled we have
-            // nothing to do here.
-            if (isColorBgEnabled)
+            // If the custom color or image window background is not enabled we
+            // have nothing to do here.
+            if (isColorBgEnabled || isImageBgEnabled)
             {
                 g = g.create();
                 try
@@ -479,18 +478,6 @@ public abstract class SIPCommFrame
                 finally
                 {
                     g.dispose();
-                }
-            }
-
-            if (isImageBgEnabled)
-            {
-                if (bgImage != null && texture != null)
-                {
-                    Graphics2D g2 = (Graphics2D) g;
-
-                    g2.setPaint(texture);
-
-                    g2.fillRect(0, 0, this.getWidth(), bgImage.getHeight());
                 }
             }
         }
@@ -503,38 +490,28 @@ public abstract class SIPCommFrame
             int width = getWidth();
             int height = getHeight();
 
-            GradientPaint bgGradientColor =
-                new GradientPaint(width / 2, 0, bgStartColor, width / 2, 80,
-                    bgEndColor);
+            if (isColorBgEnabled)
+            {
+                GradientPaint bgGradientColor =
+                    new GradientPaint(width / 2, 0, bgStartColor, width / 2, 80,
+                        bgEndColor);
 
-            g2.setPaint(bgGradientColor);
-            g2.fillRect(0, 0, width, 80);
+                g2.setPaint(bgGradientColor);
+                g2.fillRect(0, 0, width, 80);
 
-            g2.setColor(bgEndColor);
-            g2.fillRect(0, 78, width, height);
+                g2.setColor(bgEndColor);
+                g2.fillRect(0, 78, width, height);
+            }
 
-            GradientPaint curveShadow =
-                new GradientPaint(0, 0, new Color(255, 255, 255, 150), width,
-                    height, new Color(255, 255, 255, 50));
+            if (isImageBgEnabled)
+            {
+                if (bgImage != null && texture != null)
+                {
+                    g2.setPaint(texture);
 
-            g2.setPaint(curveShadow);
-            g2.setStroke(new BasicStroke(1f));
-            CubicCurve2D curve1 =
-                new CubicCurve2D.Float(50, -1, 250, 30, 50, 150, 0, 300);
-
-            g2.draw(curve1);
-
-            CubicCurve2D curve2 =
-                new CubicCurve2D.Float(width - 20, 0, width, 100, width / 2,
-                    100, 0, 150);
-
-            g2.draw(curve2);
-
-            CubicCurve2D curve3 =
-                new CubicCurve2D.Float(0, 90, width / 3, 60, 2 * width / 3, 60,
-                    width, 90);
-
-            g2.draw(curve3);
+                    g2.fillRect(0, 0, this.getWidth(), bgImage.getHeight());
+                }
+            }
         }
     }
 
