@@ -994,7 +994,7 @@ public class MetaContactListServiceImpl
                 {
                     /** @todo handle non persistent presence operation sets */
                 }
-                else 
+                else
                 {
                     opSetPresence.moveContactToGroup(protoContact, protoGroup);
                 }

@@ -19,13 +19,23 @@ public class RootContactGroupJabberImpl
     extends AbstractContactGroupJabberImpl
 {
     private String ROOT_CONTACT_GROUP_NAME = "ContactListRoot";
-    private List subGroups = new LinkedList();
+
+    /**
+     * Maps all JIDs in our roster to the actual contacts so that we could
+     * easily search the set of existing contacts. Note that we only store
+     * lower case  strings in the left column because JIDs in XMPP are not case
+     * sensitive.
+     */
+    private List<ContactGroupJabberImpl> subGroups
+        = new LinkedList<ContactGroupJabberImpl>();
+
     private boolean isResolved = false;
 
     /**
      * An empty list that we use when returning an iterator.
      */
-    private List contacts = new LinkedList();
+    private Map<String, ContactJabberImpl> contacts
+        = new Hashtable<String, ContactJabberImpl>();
 
     private ProtocolProviderServiceJabberImpl ownerProvider = null;
 
@@ -80,7 +90,7 @@ public class RootContactGroupJabberImpl
      */
     void addContact(ContactJabberImpl contact)
     {
-        contacts.add(contact);
+        contacts.put(contact.getAddress(), contact);
     }
 
     /**
@@ -108,21 +118,6 @@ public class RootContactGroupJabberImpl
     void removeSubGroup(int index)
     {
         subGroups.remove(index);
-    }
-
-    /**
-     * Removes all contact sub groups and reinsterts them as specified
-     * by the <tt>newOrder</tt> param. Contact groups not contained in the
-     * newOrder list are left at the end of this group.
-     *
-     * @param newOrder a list containing all contact groups in the order that is
-     * to be applied.
-     *
-     */
-    void reorderSubGroups(List newOrder)
-    {
-        subGroups.removeAll(newOrder);
-        subGroups.addAll(0, newOrder);
     }
 
     /**
@@ -185,16 +180,22 @@ public class RootContactGroupJabberImpl
      */
     public Contact getContact(String id)
     {
-        Iterator contacts = contacts();
-        while (contacts.hasNext())
-        {
-            ContactJabberImpl c = (ContactJabberImpl)contacts.next();
+        return findContact(id);
+    }
 
-            if (c.getAddress().equals(id))
-                return c;
-        }
-
-        return null;
+    /**
+     * Returns the contact encapsulating with the spcieified name or
+     * null if no such contact was found.
+     *
+     * @param id the id for the contact we're looking for.
+     * @return the <tt>ContactJabberImpl</tt> corresponding to the specified
+     * jid or null if no such contact existed.
+     */
+    ContactJabberImpl findContact(String id)
+    {
+        if(id == null)
+            return null;
+        return contacts.get(id.toLowerCase());
     }
 
     /**
@@ -228,19 +229,7 @@ public class RootContactGroupJabberImpl
      */
     public Iterator contacts()
     {
-        return contacts.iterator();
-    }
-
-    /**
-     * A dummy impl of the corresponding interface method - always returns null.
-     *
-     * @param index the index of the <tt>Contact</tt> to return.
-     * @return the <tt>Contact</tt> with the specified index, i.e. always
-     * null.
-     */
-    public Contact getContact(int index)
-    {
-        return (Contact)contacts.get(index);
+        return contacts.values().iterator();
     }
 
     /**
@@ -270,7 +259,7 @@ public class RootContactGroupJabberImpl
             if(contactsIter.hasNext())
                 buff.append("\n");
         }
-        
+
         return buff.toString();
     }
 

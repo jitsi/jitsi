@@ -30,11 +30,6 @@ public class ServerStoredContactListMsnImpl
         Logger.getLogger(ServerStoredContactListMsnImpl.class);
 
     /**
-     * The name of the Volatile group
-     */
-    private static final String VOLATILE_GROUP_NAME = "NotInContactList";
-
-    /**
      * The root group. The container for all msn buddies and groups.
      */
     private RootContactGroupMsnImpl rootGroup = new RootContactGroupMsnImpl();
@@ -56,7 +51,8 @@ public class ServerStoredContactListMsnImpl
      * Listeners that would receive event notifications for changes in group
      * names or other properties, removal or creation of groups.
      */
-    private Vector serverStoredGroupListeners = new Vector();
+    private Vector<ServerStoredGroupListener> serverStoredGroupListeners
+        = new Vector<ServerStoredGroupListener>();
 
     /**
      * Manages and fires contact list modifications
@@ -71,7 +67,7 @@ public class ServerStoredContactListMsnImpl
      */
     private boolean isInitialized = false;
 
-    private Vector skipAddEvent = new Vector();
+    private Vector<String> skipAddEvent = new Vector<String>();
 
     /**
      * Creates a ServerStoredContactList wrapper for the specified BuddyList.
@@ -100,8 +96,10 @@ public class ServerStoredContactListMsnImpl
                     RegistrationStateChangeEvent evt)
                 {
                     if (evt.getNewState() == RegistrationState.UNREGISTERED
-                        || evt.getNewState() == RegistrationState.AUTHENTICATION_FAILED
-                        || evt.getNewState() == RegistrationState.CONNECTION_FAILED)
+                        || evt.getNewState()
+                                == RegistrationState.AUTHENTICATION_FAILED
+                        || evt.getNewState()
+                                == RegistrationState.CONNECTION_FAILED)
                     {
                         isInitialized = false;
                     }
@@ -123,7 +121,8 @@ public class ServerStoredContactListMsnImpl
     /**
      * Registers the specified group listener so that it would receive events
      * on group modification/creation/destruction.
-     * @param listener the ServerStoredGroupListener to register for group events
+     * @param listener the ServerStoredGroupListener to register for group
+     * events
      */
     void addGroupListener(ServerStoredGroupListener listener)
     {
@@ -171,16 +170,16 @@ public class ServerStoredContactListMsnImpl
 
         logger.trace("Will dispatch the following grp event: " + evt);
 
-        Iterator listeners = null;
+        Iterator<ServerStoredGroupListener> listeners = null;
         synchronized (serverStoredGroupListeners)
         {
-            listeners = new ArrayList(serverStoredGroupListeners).iterator();
+            listeners = new ArrayList<ServerStoredGroupListener>(
+                            serverStoredGroupListeners).iterator();
         }
 
         while (listeners.hasNext())
         {
-            ServerStoredGroupListener listener
-                = (ServerStoredGroupListener) listeners.next();
+            ServerStoredGroupListener listener = listeners.next();
 
             if (eventID == ServerStoredGroupEvent.GROUP_REMOVED_EVENT)
                 listener.groupRemoved(evt);
@@ -255,12 +254,11 @@ public class ServerStoredContactListMsnImpl
      */
     public ContactGroupMsnImpl findContactGroup(String name)
     {
-        Iterator contactGroups = rootGroup.subgroups();
+        Iterator<ContactGroupMsnImpl> contactGroups = rootGroup.subgroups();
 
         while(contactGroups.hasNext())
         {
-            ContactGroupMsnImpl contactGroup
-                = (ContactGroupMsnImpl) contactGroups.next();
+            ContactGroupMsnImpl contactGroup = contactGroups.next();
 
             if (contactGroup.getGroupName().equals(name))
                 return contactGroup;
@@ -279,13 +277,12 @@ public class ServerStoredContactListMsnImpl
      */
     public ContactMsnImpl findContactById(String id)
     {
-        Iterator contactGroups = rootGroup.subgroups();
+        Iterator<ContactGroupMsnImpl> contactGroups = rootGroup.subgroups();
         ContactMsnImpl result = null;
 
         while(contactGroups.hasNext())
         {
-            ContactGroupMsnImpl contactGroup
-                = (ContactGroupMsnImpl) contactGroups.next();
+            ContactGroupMsnImpl contactGroup = contactGroups.next();
 
             result = contactGroup.findContact(id);
 
@@ -294,7 +291,7 @@ public class ServerStoredContactListMsnImpl
 
         }
 
-        Iterator rootContacts = rootGroup.contacts();
+        Iterator<ContactMsnImpl> rootContacts = rootGroup.contacts();
         while (rootContacts.hasNext())
         {
             ContactMsnImpl item = (ContactMsnImpl) rootContacts.next();
@@ -317,22 +314,21 @@ public class ServerStoredContactListMsnImpl
      */
     public ContactGroup findContactGroup(ContactMsnImpl child)
     {
-        Iterator contactGroups = rootGroup.subgroups();
+        Iterator<ContactGroupMsnImpl> contactGroups = rootGroup.subgroups();
 
         while(contactGroups.hasNext())
         {
-            ContactGroupMsnImpl contactGroup
-                = (ContactGroupMsnImpl) contactGroups.next();
+            ContactGroupMsnImpl contactGroup = contactGroups.next();
 
             if( contactGroup.findContact(child.getAddress())!= null)
                 return contactGroup;
         }
 
-        Iterator contacts = rootGroup.contacts();
+        Iterator<ContactMsnImpl> contacts = rootGroup.contacts();
 
         while(contacts.hasNext())
         {
-            ContactMsnImpl contact = (ContactMsnImpl) contacts.next();
+            ContactMsnImpl contact = contacts.next();
 
             if( contact.equals(child))
                 return rootGroup;
@@ -566,7 +562,8 @@ public class ServerStoredContactListMsnImpl
      */
     void removeContact(ContactMsnImpl contactToRemove)
     {
-        logger.trace("Removing msn contact " + contactToRemove.getSourceContact());
+        logger.trace("Removing msn contact "
+                        + contactToRemove.getSourceContact());
 
         Email contactsEmail = contactToRemove.getSourceContact().getEmail();
 
@@ -613,7 +610,8 @@ public class ServerStoredContactListMsnImpl
             msnProvider.getMessenger().
                 copyFriend(
                     contact.getSourceContact().getEmail(),
-                    ((ContactGroupMsnImpl)newParent).getSourceGroup().getGroupId());
+                    ((ContactGroupMsnImpl)newParent).getSourceGroup()
+                        .getGroupId());
         }
         else
         {
@@ -649,15 +647,16 @@ public class ServerStoredContactListMsnImpl
             }
             else
             {
-                logger.trace("Will Move from " +  contact.getParentContactGroup()
+                logger.trace("Will Move from "
+                                +  contact.getParentContactGroup()
                     + " to : " + newParent + " - contact: " + contact);
 //                contactListModListenerImpl.waitForMove(contact.getAddress());
                 msnProvider.getMessenger().moveFriend(
                     contact.getSourceContact().getEmail(),
                     ( (ContactGroupMsnImpl) contact.getParentContactGroup()).
                         getSourceGroup().getGroupId(),
-                    ((ContactGroupMsnImpl)newParent).getSourceGroup().getGroupId()
-                    );
+                    ((ContactGroupMsnImpl)newParent).getSourceGroup()
+                        .getGroupId());
             }
         }
     }
@@ -688,12 +687,11 @@ public class ServerStoredContactListMsnImpl
      */
     private ContactGroupMsnImpl findContactGroupByMsnId(String id)
     {
-        Iterator contactGroups = rootGroup.subgroups();
+        Iterator<ContactGroupMsnImpl> contactGroups = rootGroup.subgroups();
 
         while(contactGroups.hasNext())
         {
-            ContactGroupMsnImpl contactGroup
-                = (ContactGroupMsnImpl) contactGroups.next();
+            ContactGroupMsnImpl contactGroup = contactGroups.next();
 
             if (contactGroup.getSourceGroup().getGroupId().equals(id))
                 return contactGroup;
@@ -775,8 +773,8 @@ public class ServerStoredContactListMsnImpl
      * Returns true if the contact list is initialized and
      * ready for use, and false otherwise.
      *
-     * @return true if the contact list is initialized and ready for use and false
-     * otherwise
+     * @return true if the contact list is initialized and ready for use and
+     * false otherwise
      */
     boolean isInitialized()
     {
@@ -784,8 +782,8 @@ public class ServerStoredContactListMsnImpl
     }
 
     /**
-     * Waits for init in the contact list and populates the contacts and fills or
-     * resolves our contact list
+     * Waits for init in the contact list and populates the contacts and fills
+     * or resolves our contact list
      */
     private class ContactListListener
         implements net.sf.jml.event.MsnContactListListener
@@ -812,7 +810,8 @@ public class ServerStoredContactListMsnImpl
                 if(item.isDefaultGroup())
                     continue;
 
-                ContactGroupMsnImpl group = findContactGroup(item.getGroupName());
+                ContactGroupMsnImpl group
+                    = findContactGroup(item.getGroupName());
 
                 if (group == null)
                 {
@@ -827,8 +826,8 @@ public class ServerStoredContactListMsnImpl
                     rootGroup.addSubGroup(newGroup);
 
                     //tell listeners about the added group
-                    fireGroupEvent(newGroup
-                                   , ServerStoredGroupEvent.GROUP_CREATED_EVENT);
+                    fireGroupEvent(newGroup,
+                                   ServerStoredGroupEvent.GROUP_CREATED_EVENT);
                 }
                 else
                 {
@@ -837,8 +836,8 @@ public class ServerStoredContactListMsnImpl
                     group.setResolved(item);
 
                     //fire an event saying that the group has been resolved
-                    fireGroupEvent(group
-                                   , ServerStoredGroupEvent.GROUP_RESOLVED_EVENT);
+                    fireGroupEvent(group,
+                                   ServerStoredGroupEvent.GROUP_RESOLVED_EVENT);
 
                     /** @todo  if something to delete . delete it */
                 }
@@ -861,7 +860,10 @@ public class ServerStoredContactListMsnImpl
                     {
                         // if there is no such contact create it
                         contact = new ContactMsnImpl(
-                            item, ServerStoredContactListMsnImpl.this, true, true);
+                                        item,
+                                        ServerStoredContactListMsnImpl.this,
+                                        true,
+                                        true);
                         rootGroup.addContact(contact);
 
                         fireContactAdded(rootGroup, contact);
@@ -911,20 +913,26 @@ public class ServerStoredContactListMsnImpl
                 AuthorizationRequest authRequest = new AuthorizationRequest();
 
                 AuthorizationResponse authResponse =
-                    parentOperationSet.getAuthorizationHandler().processAuthorisationRequest(
-                        authRequest, contactImpl);
+                    parentOperationSet.getAuthorizationHandler()
+                        .processAuthorisationRequest( authRequest, contactImpl);
 
-                if (authResponse.getResponseCode() == AuthorizationResponse.IGNORE)
+                if (authResponse.getResponseCode()
+                                == AuthorizationResponse.IGNORE)
+                {
                     return;
+                }
                 else if (authResponse.getResponseCode()
                             == AuthorizationResponse.REJECT)
+                {
                     msnProvider.getMessenger().blockFriend(contact.getEmail());
+                }
                 else  if (authResponse.getResponseCode()
                             == AuthorizationResponse.ACCEPT)
                 {
                     moveContact(contactImpl, rootGroup);
-//                    addContact(contact.getEmail().getEmailAddress());
-//                    msnProvider.getMessenger().unblockFriend(contact.getEmail());
+//                  addContact(contact.getEmail().getEmailAddress());
+//                  msnProvider.getMessenger()
+//                      .unblockFriend(contact.getEmail());
                 }
 //            }
 //            catch (OperationFailedException ex)
@@ -937,7 +945,9 @@ public class ServerStoredContactListMsnImpl
         {
         }
 
-        public void contactAddCompleted(MsnMessenger messenger, MsnContact contact, MsnList list)
+        public void contactAddCompleted(MsnMessenger messenger,
+                                        MsnContact contact,
+                                        MsnList list)
         {
             String contactID = contact.getEmail().getEmailAddress();
 
@@ -964,7 +974,9 @@ public class ServerStoredContactListMsnImpl
             }
         }
 
-        public void contactRemoveCompleted(MsnMessenger messenger, MsnContact contact, MsnList list)
+        public void contactRemoveCompleted(MsnMessenger messenger,
+                                           MsnContact contact,
+                                           MsnList list)
         {
             ContactMsnImpl contactToRemove =
                 findContactById(contact.getEmail().getEmailAddress());
@@ -975,15 +987,16 @@ public class ServerStoredContactListMsnImpl
                 return;
             }
 
-            if(contactToRemove.getParentContactGroup() instanceof RootContactGroupMsnImpl)
+            if(contactToRemove.getParentContactGroup()
+                            instanceof RootContactGroupMsnImpl)
             {
                 rootGroup.removeContact(contactToRemove);
                 fireContactRemoved(rootGroup, contactToRemove);
             }
             else
             {
-                ContactGroupMsnImpl parentGroup =
-                    (ContactGroupMsnImpl)contactToRemove.getParentContactGroup();
+                ContactGroupMsnImpl parentGroup = (ContactGroupMsnImpl)
+                    contactToRemove.getParentContactGroup();
                 parentGroup.removeContact(contactToRemove);
                 fireContactRemoved(parentGroup, contactToRemove);
             }
@@ -1014,13 +1027,25 @@ public class ServerStoredContactListMsnImpl
             rootGroup.removeSubGroup(group);
             fireGroupEvent(group, ServerStoredGroupEvent.GROUP_REMOVED_EVENT);
         }
-        public void contactAddInGroupCompleted(MsnMessenger messenger, MsnContact c, MsnGroup g)
+
+        /**
+         * Called when a contact has been added to a group. Note that this
+         * method would also be called after moving a contact.
+         *
+         * @param messenger a reference to the currently valid messenger
+         * @param c the contact that has been added
+         * @param g the group that the contact was added to
+         */
+        public void contactAddInGroupCompleted( MsnMessenger messenger,
+                                                MsnContact c,
+                                                MsnGroup g)
         {
             ContactMsnImpl contactToAdd =
                     findContactById(c.getEmail().getEmailAddress());
 
             if(contactToAdd == null)
             {
+                //this is really a new contact
                 contactToAdd =
                     new ContactMsnImpl(
                             c,
@@ -1041,6 +1066,7 @@ public class ServerStoredContactListMsnImpl
             }
             else
             {
+                //the contact was added here.
                 ContactGroup oldGroup =
                     contactToAdd.getParentContactGroup();
 
@@ -1057,13 +1083,19 @@ public class ServerStoredContactListMsnImpl
 
 
                 if(oldGroup instanceof RootContactGroupMsnImpl)
-                    ((RootContactGroupMsnImpl)oldGroup).removeContact(contactToAdd);
+                {
+                    ((RootContactGroupMsnImpl)oldGroup)
+                        .removeContact(contactToAdd);
+                }
                 else
+                {
                     ((ContactGroupMsnImpl)oldGroup).removeContact(contactToAdd);
+                }
 
                 fireContactMoved(oldGroup, group, contactToAdd);
             }
         }
+
         public void contactRemoveFromGroupCompleted(MsnMessenger messenger,
             MsnContact c, MsnGroup g)
         {
@@ -1091,8 +1123,14 @@ public class ServerStoredContactListMsnImpl
                 return;
             }
 
-            dstGroup.removeContact(contactToRemove);
-            fireContactRemoved(dstGroup, contactToRemove);
+            //make sure that the contact was really in the group because when
+            //moving contacts with multiple parent groups we get multiple
+            //removal events. That's a problem because we don't support multiple
+            //parent groups and we only show a single parent so all remove
+            //events for the parent groups we are not displaying will cause
+            //exceptions
+            if(dstGroup.removeContact(contactToRemove))
+                fireContactRemoved(dstGroup, contactToRemove);
         }
 
         public void ownerDisplayNameChanged(MsnMessenger arg0)
@@ -1266,7 +1304,8 @@ public class ServerStoredContactListMsnImpl
                                c[i].getBelongGroups().length);
         }
 
-        logger.info("Number of groups : " + messenger.getContactList().getGroups().length);
+        logger.info("Number of groups : "
+                        + messenger.getContactList().getGroups().length);
         MsnGroup[] groups = messenger.getContactList().getGroups();
         for(int j = 0; j < groups.length; j++)
         {
@@ -1284,12 +1323,13 @@ public class ServerStoredContactListMsnImpl
             this.contact = contact;
         }
 
-        public void notifyMsnObjectRetrieval(MsnMessenger arg0messenger,
-                                             DisplayPictureRetrieveWorker worker,
-                                             MsnObject msnObject,
-                                             ResultStatus result,
-                                             byte[] resultBytes,
-                                             Object context)
+        public void notifyMsnObjectRetrieval(
+                        MsnMessenger arg0messenger,
+                        DisplayPictureRetrieveWorker worker,
+                        MsnObject msnObject,
+                        ResultStatus result,
+                        byte[] resultBytes,
+                        Object context)
         {
             if (result == ResultStatus.GOOD)
             {

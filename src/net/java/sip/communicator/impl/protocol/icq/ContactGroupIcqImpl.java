@@ -27,7 +27,15 @@ import net.kano.joustsim.oscar.oscar.service.ssi.*;
 public class ContactGroupIcqImpl
     extends AbstractContactGroupIcqImpl
 {
-    private List buddies = new LinkedList();
+    /**
+     * Maps all UINs/Screenname-s to the actual contacts so that we could easily
+     * search the set of existing contacts. Note that we only store lowercase
+     * strings in the left column because screen names in AIM/ICQ are not case
+     * sensitive.
+     */
+    private Map<String, ContactIcqImpl> buddies
+        = new Hashtable<String, ContactIcqImpl>();
+
     private boolean isResolved = false;
 
     /**
@@ -39,7 +47,8 @@ public class ContactGroupIcqImpl
      * a list that would always remain empty. We only use it so that we're able
      * to extract empty iterators
      */
-    private List dummyGroupsList = new LinkedList();
+    private LinkedHashSet<ContactGroupIcqImpl> dummyGroupsList
+        = new LinkedHashSet<ContactGroupIcqImpl>();
 
     /**
      * A variable that we use as a means of detecting changes in the name
@@ -70,7 +79,7 @@ public class ContactGroupIcqImpl
      * resolved against the server.
      */
     ContactGroupIcqImpl(MutableGroup joustSimGroup,
-                        List groupMembers,
+                        List<Buddy> groupMembers,
                         ServerStoredContactListIcqImpl ssclCallback,
                         boolean isResolved)
     {
@@ -86,12 +95,22 @@ public class ContactGroupIcqImpl
         //their real addresses and we can only get a list of copies from the
         //group itself.
 
-        for (int i = 0; i < groupMembers.size(); i++)
+        Iterator<Buddy> buddies = groupMembers.iterator();
+        while(buddies.hasNext())
         {
+            Buddy buddy = buddies.next();
+            //only add the buddy if it doesn't already exist in some other group
+            //this is necessary because AIM would allow having one and the
+            //same buddy in more than one group.
+            if(ssclCallback.findContactByJoustSimBuddy(buddy) != null)
+            {
+                continue;
+            }
+
             // here we are not checking for AwaitingAuthorization buddies
             // as we are creating group with list of buddies
             // these checks must have been made already
-            addContact( new ContactIcqImpl((Buddy)groupMembers.get(i),
+            addContact( new ContactIcqImpl(buddy,
                                            ssclCallback, true, true) );
         }
     }
@@ -119,22 +138,12 @@ public class ContactGroupIcqImpl
     }
 
     /**
-     * Adds the specified contact at the specified position.
-     * @param contact the new contact to add to this group
-     * @param index the position where the new contact should be added.
-     */
-    void addContact(int index, ContactIcqImpl contact)
-    {
-        buddies.add(index, contact);
-    }
-
-    /**
      * Adds the specified contact to the end of this group.
      * @param contact the new contact to add to this group
      */
     void addContact(ContactIcqImpl contact)
     {
-        addContact(countContacts(), contact);
+        buddies.put(contact.getUIN().toLowerCase(), contact);
     }
 
 
@@ -144,31 +153,7 @@ public class ContactGroupIcqImpl
      */
     void removeContact(ContactIcqImpl contact)
     {
-        removeContact(buddies.indexOf(contact));
-    }
-
-    /**
-     * Removes the contact with the specified index.
-     * @param index the index of the cntact to remove
-     */
-    void removeContact(int index)
-    {
-        buddies.remove(index);
-    }
-
-    /**
-     * Removes all buddies in this group and reinsterts them as specified
-     * by the <tt>newOrder</tt> param. Contacts not contained in the
-     * newOrder list are left at the end of this group.
-     *
-     * @param newOrder a list containing all contacts in the order that is
-     * to be applied.
-     *
-     */
-    void reorderContacts(List newOrder)
-    {
-        buddies.removeAll(newOrder);
-        buddies.addAll(0, newOrder);
+        buddies.remove(contact);
     }
 
     /**
@@ -181,24 +166,13 @@ public class ContactGroupIcqImpl
      */
     public Iterator contacts()
     {
-        return buddies.iterator();
-    }
-
-    /**
-     * Returns the <tt>Contact</tt> with the specified index.
-     *
-     * @param index the index of the <tt>Contact</tt> to return.
-     * @return the <tt>Contact</tt> with the specified index.
-     */
-    public Contact getContact(int index)
-    {
-        return (ContactIcqImpl) buddies.get(index);
+        return buddies.values().iterator();
     }
 
     /**
      * Returns the <tt>Contact</tt> with the specified address or
      * identifier.
-     * @param id the addres or identifier of the <tt>Contact</tt> we are
+     * @param id the address or identifier of the <tt>Contact</tt> we are
      * looking for.
      * @return the <tt>Contact</tt> with the specified id or address.
      */
@@ -372,29 +346,6 @@ public class ContactGroupIcqImpl
     }
 
     /**
-     * Returns the index of icq contact encapsulating the specified joustSim
-     * buddy or -1 if no such buddy was found.
-     *
-     * @param joustSimBuddy the buddy whose encapsulating contact's index we're
-     * looking for.
-     * @return the index of the contact corresponding to the specified
-     * joustSimBuddy or null if no such contact was found.
-     */
-    int findContactIndex(Buddy joustSimBuddy)
-    {
-        Iterator contacts = contacts();
-        int i = 0;
-        while (contacts.hasNext())
-        {
-            ContactIcqImpl item = (ContactIcqImpl) contacts.next();
-            if(item.getJoustSimBuddy() == joustSimBuddy)
-                return i;
-            i++;
-        }
-        return -1;
-    }
-
-    /**
      * Returns the index of contact in this group -1 if no such contact was
      * found.
      *
@@ -427,19 +378,15 @@ public class ContactGroupIcqImpl
      */
     ContactIcqImpl findContact(String screenName)
     {
-        Iterator contacts = contacts();
-        while (contacts.hasNext())
-        {
-            ContactIcqImpl item = (ContactIcqImpl) contacts.next();
-            if(item.getJoustSimBuddy().getScreenname().getFormatted()
-                .equalsIgnoreCase(screenName))
-                return item;
-        }
-        return null;
+        if(screenName == null)
+            return null;
+
+        String lcScreenName = screenName.toLowerCase();
+        return buddies.get(lcScreenName);
     }
 
     /**
-     * Sets the name copy field that we use as a means of detecing changes in
+     * Sets the name copy field that we use as a means of detecting changes in
      * the group name.
      */
     void initNameCopy()
@@ -538,7 +485,7 @@ public class ContactGroupIcqImpl
                 ssclCallback.addAwaitingAuthorizationContact(buddy);
                 continue;
             }
-            
+
             ContactIcqImpl contact
                 = findContact(buddy.getScreenname().getFormatted());
 

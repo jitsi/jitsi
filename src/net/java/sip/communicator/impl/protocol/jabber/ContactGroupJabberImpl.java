@@ -31,7 +31,15 @@ public class ContactGroupJabberImpl
     extends AbstractContactGroupJabberImpl
 {
 
-    private List buddies = new LinkedList();
+    /**
+     * Maps all JIDs in our roster to the actual contacts so that we could
+     * easily search the set of existing contacts. Note that we only store
+     * lower case  strings in the left column because JIDs in XMPP are not case
+     * sensitive.
+     */
+    private Map<String, ContactJabberImpl> buddies
+        = new Hashtable<String, ContactJabberImpl>();
+
     private boolean isResolved = false;
 
     /**
@@ -43,7 +51,8 @@ public class ContactGroupJabberImpl
      * a list that would always remain empty. We only use it so that we're able
      * to extract empty iterators
      */
-    private List dummyGroupsList = new LinkedList();
+    private List<ContactGroupJabberImpl> dummyGroupsList
+        = new LinkedList<ContactGroupJabberImpl>();
 
     /**
      * A variable that we use as a means of detecting changes in the name
@@ -73,7 +82,7 @@ public class ContactGroupJabberImpl
      */
     ContactGroupJabberImpl(
                         RosterGroup rosterGroup,
-                        Iterator groupMembers,
+                        Iterator<RosterEntry> groupMembers,
                         ServerStoredContactListJabberImpl ssclCallback,
                         boolean isResolved)
     {
@@ -85,12 +94,21 @@ public class ContactGroupJabberImpl
         if(rosterGroup != null)
             this.nameCopy = rosterGroup.getName();
 
-        Iterator iter = groupMembers;
+        Iterator<RosterEntry> iter = groupMembers;
         while (iter.hasNext())
         {
-            RosterEntry item = (RosterEntry) iter.next();
+            RosterEntry rEntry = iter.next();
 
-            addContact( new ContactJabberImpl(item, ssclCallback, true, true) );
+            //only add the buddy if it doesn't already exist in some other group
+            //this is necessary because XMPP would allow having one and the
+            //same buddy in more than one group.
+            if(ssclCallback.findContactById(rEntry.getUser()) != null)
+            {
+                continue;
+            }
+
+            addContact(
+                new ContactJabberImpl(rEntry, ssclCallback, true, true));
         }
     }
 
@@ -127,22 +145,12 @@ public class ContactGroupJabberImpl
     }
 
     /**
-     * Adds the specified contact at the specified position.
-     * @param contact the new contact to add to this group
-     * @param index the position where the new contact should be added.
-     */
-    void addContact(int index, ContactJabberImpl contact)
-    {
-        buddies.add(index, contact);
-    }
-
-    /**
      * Adds the specified contact to the end of this group.
      * @param contact the new contact to add to this group
      */
     void addContact(ContactJabberImpl contact)
     {
-        addContact(countContacts(), contact);
+        buddies.put(contact.getAddress().toLowerCase(), contact);
     }
 
 
@@ -152,31 +160,7 @@ public class ContactGroupJabberImpl
      */
     void removeContact(ContactJabberImpl contact)
     {
-        removeContact(buddies.indexOf(contact));
-    }
-
-    /**
-     * Removes the contact with the specified index.
-     * @param index the index of the cntact to remove
-     */
-    void removeContact(int index)
-    {
-        buddies.remove(index);
-    }
-
-    /**
-     * Removes all buddies in this group and reinsterts them as specified
-     * by the <tt>newOrder</tt> param. Contacts not contained in the
-     * newOrder list are left at the end of this group.
-     *
-     * @param newOrder a list containing all contacts in the order that is
-     * to be applied.
-     *
-     */
-    void reorderContacts(List newOrder)
-    {
-        buddies.removeAll(newOrder);
-        buddies.addAll(0, newOrder);
+        buddies.remove(contact.getAddress().toLowerCase());
     }
 
     /**
@@ -189,18 +173,7 @@ public class ContactGroupJabberImpl
      */
     public Iterator contacts()
     {
-        return buddies.iterator();
-    }
-
-    /**
-     * Returns the <tt>Contact</tt> with the specified index.
-     *
-     * @param index the index of the <tt>Contact</tt> to return.
-     * @return the <tt>Contact</tt> with the specified index.
-     */
-    public Contact getContact(int index)
-    {
-        return (ContactJabberImpl) buddies.get(index);
+        return buddies.values().iterator();
     }
 
     /**
@@ -359,14 +332,9 @@ public class ContactGroupJabberImpl
      */
     ContactJabberImpl findContact(String id)
     {
-        Iterator contacts = contacts();
-        while (contacts.hasNext())
-        {
-            ContactJabberImpl item = (ContactJabberImpl) contacts.next();
-            if(item.getAddress().equals(id))
-                return item;
-        }
-        return null;
+        if(id == null)
+            return null;
+        return buddies.get(id.toLowerCase());
     }
 
     /**

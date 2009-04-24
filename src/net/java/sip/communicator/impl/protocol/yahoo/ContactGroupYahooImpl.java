@@ -43,7 +43,7 @@ public class ContactGroupYahooImpl
      * to extract empty iterators
      */
     private List dummyGroupsList = new LinkedList();
-    
+
     private String tempId = null;
 
     private ServerStoredContactListYahooImpl ssclCallback = null;
@@ -79,11 +79,11 @@ public class ContactGroupYahooImpl
         {
             addContact(
                 new ContactYahooImpl(
-                (YahooUser)iter.next(), 
+                (YahooUser)iter.next(),
                 ssclCallback, true, true) );
         }
     }
-    
+
     ContactGroupYahooImpl(
         String id,
         ServerStoredContactListYahooImpl ssclCallback)
@@ -180,17 +180,6 @@ public class ContactGroupYahooImpl
     public Iterator contacts()
     {
         return buddies.iterator();
-    }
-
-    /**
-     * Returns the <tt>Contact</tt> with the specified index.
-     *
-     * @param index the index of the <tt>Contact</tt> to return.
-     * @return the <tt>Contact</tt> with the specified index.
-     */
-    public Contact getContact(int index)
-    {
-        return (ContactYahooImpl) buddies.get(index);
     }
 
     /**

@@ -69,13 +69,6 @@ public interface ContactGroup
     public int countContacts();
 
     /**
-     * Returns the <tt>Contact</tt> with the specified index.
-     * @param index the index of the <tt>Contact</tt> to return.
-     * @return the <tt>Contact</tt> with the specified index.
-     */
-    public Contact getContact(int index);
-
-    /**
      * Returns the <tt>Contact</tt> with the specified address or
      * identifier.
      * @param id the addres or identifier of the <tt>Contact</tt> we are

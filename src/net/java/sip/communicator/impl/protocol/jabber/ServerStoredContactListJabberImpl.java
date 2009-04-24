@@ -42,7 +42,8 @@ public class ServerStoredContactListJabberImpl
     /**
      * The root contagroup. The container for all jabber buddies and groups.
      */
-    private RootContactGroupJabberImpl rootGroup = new RootContactGroupJabberImpl();
+    private RootContactGroupJabberImpl rootGroup
+        = new RootContactGroupJabberImpl();
 
     /**
      * The operation set that created us and that we could use when dispatching
@@ -276,13 +277,12 @@ public class ServerStoredContactListJabberImpl
      */
     public ContactJabberImpl findContactById(String id)
     {
-        Iterator contactGroups = rootGroup.subgroups();
+        Iterator<ContactGroupJabberImpl> contactGroups = rootGroup.subgroups();
         ContactJabberImpl result = null;
 
         while(contactGroups.hasNext())
         {
-            ContactGroupJabberImpl contactGroup
-                = (ContactGroupJabberImpl) contactGroups.next();
+            ContactGroupJabberImpl contactGroup = contactGroups.next();
 
             result = contactGroup.findContact(id);
 
@@ -291,16 +291,8 @@ public class ServerStoredContactListJabberImpl
 
         }
 
-        Iterator rootContacts = rootGroup.contacts();
-        while (rootContacts.hasNext())
-        {
-            ContactJabberImpl item = (ContactJabberImpl) rootContacts.next();
-
-            if(item.getAddress().equalsIgnoreCase(id))
-                return item;
-        }
-
-        return null;
+        //try the root group now
+        return rootGroup.findContact(id);
     }
 
     /**

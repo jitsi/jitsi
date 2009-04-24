@@ -207,18 +207,6 @@ public class RootContactGroupMsnImpl
     }
 
     /**
-     * A dummy impl of the corresponding interface method - always returns null.
-     *
-     * @param index the index of the <tt>Contact</tt> to return.
-     * @return the <tt>Contact</tt> with the specified index, i.e. always
-     * null.
-     */
-    public Contact getContact(int index)
-    {
-        return null;
-    }
-
-    /**
      * Returns the <tt>Contact</tt> with the specified address or
      * identifier.
      * @param id the addres or identifier of the <tt>Contact</tt> we are

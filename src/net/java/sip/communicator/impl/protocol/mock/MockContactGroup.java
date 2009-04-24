@@ -147,18 +147,6 @@ public class MockContactGroup
         subgroup.setParentGroup(null);
     }
 
-
-    /**
-     * Returns the <tt>Contact</tt> with the specified index.
-     *
-     * @param index the index of the <tt>Contact</tt> to return.
-     * @return the <tt>Contact</tt> with the specified index.
-     */
-    public Contact getContact(int index)
-    {
-        return (MockContact)contacts.get(index);
-    }
-
     /**
      * Returns the group that is parent of the specified mockGroup or null
      * if no parent was found.

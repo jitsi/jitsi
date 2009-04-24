@@ -65,11 +65,6 @@ public class ServerStoredContactListIcqImpl
     private RootContactGroupIcqImpl rootGroup = new RootContactGroupIcqImpl();
 
     /**
-     * Listeners that others registered with us for contact list events.
-     */
-    private Vector contactListListeners = new Vector();
-
-    /**
      * The joust sim service that deals with server stored information.
      */
     private SsiService jSimSsiService = null;
@@ -89,17 +84,25 @@ public class ServerStoredContactListIcqImpl
      * Listeners that would receive event notifications for changes in group
      * names or other properties, removal or creation of groups.
      */
-    private Vector serverStoredGroupListeners = new Vector();
+    private Vector<ServerStoredGroupListener> serverStoredGroupListeners
+        = new Vector<ServerStoredGroupListener>();
 
     /**
      * Used for retrieveing missing nicks on specified contacts
      */
     private NickRetriever nickRetriever = null;
-    
+
     /**
      * Used for retrieveing missing nicks on specified contacts
      */
-    static String awaitingAuthorizationGroupName = new String("Awaiting authorization");    
+    static String awaitingAuthorizationGroupName
+        = new String("Awaiting authorization");
+
+    /**
+     * A map containing all contacts currently
+     */
+    private Map<String, String> contactParentsMap
+        = new Hashtable<String, String>();
 
     /**
      * Creates a ServerStoredContactList wrapper for the specified BuddyList.
@@ -127,7 +130,7 @@ public class ServerStoredContactListIcqImpl
         if(icqProvider.USING_ICQ)
         {
             nickRetriever = new NickRetriever();
-            
+
             parentOperationSet.addContactPresenceStatusListener(nickRetriever);
 
             // start the nick retreiver thread
@@ -196,10 +199,11 @@ public class ServerStoredContactListIcqImpl
 
         logger.trace("Will dispatch the following grp event: " + evt);
 
-        Iterator listeners = null;
+        Iterator<ServerStoredGroupListener> listeners = null;
         synchronized (serverStoredGroupListeners)
         {
-            listeners = new ArrayList(serverStoredGroupListeners).iterator();
+            listeners = new ArrayList<ServerStoredGroupListener>(
+                                serverStoredGroupListeners).iterator();
         }
 
         while (listeners.hasNext())
@@ -232,8 +236,7 @@ public class ServerStoredContactListIcqImpl
      * @param index the index at which it was added.
      */
     private void fireContactAdded( ContactGroupIcqImpl parentGroup,
-                                   ContactIcqImpl contact,
-                                   int index)
+                                   ContactIcqImpl contact)
     {
         //bail out if no one's listening
         if(parentOperationSet == null){
@@ -336,7 +339,7 @@ public class ServerStoredContactListIcqImpl
      */
     public int findContactGroupIndex(Group joustSimGroup)
     {
-        Iterator contactGroups = rootGroup.subgroups();
+        Iterator<Group> contactGroups = rootGroup.subgroups();
         int index = 0;
 
         for (; contactGroups.hasNext(); index++)
@@ -361,12 +364,11 @@ public class ServerStoredContactListIcqImpl
      */
     public ContactGroupIcqImpl findContactGroup(String name)
     {
-        Iterator contactGroups = rootGroup.subgroups();
+        Iterator<ContactGroupIcqImpl> contactGroups = rootGroup.subgroups();
 
         while(contactGroups.hasNext())
         {
-            ContactGroupIcqImpl contactGroup
-                = (ContactGroupIcqImpl) contactGroups.next();
+            ContactGroupIcqImpl contactGroup = contactGroups.next();
 
             if (contactGroup.getGroupName().equals(name))
                 return contactGroup;
@@ -384,12 +386,11 @@ public class ServerStoredContactListIcqImpl
      */
     public ContactGroupIcqImpl findContactGroup(Group joustSimGroup)
     {
-        Iterator contactGroups = rootGroup.subgroups();
+        Iterator<ContactGroupIcqImpl> contactGroups = rootGroup.subgroups();
 
         while(contactGroups.hasNext())
         {
-            ContactGroupIcqImpl contactGroup
-                = (ContactGroupIcqImpl) contactGroups.next();
+            ContactGroupIcqImpl contactGroup = contactGroups.next();
 
             if (joustSimGroup == contactGroup.getJoustSimSourceGroup())
                 return contactGroup;
@@ -408,13 +409,39 @@ public class ServerStoredContactListIcqImpl
      */
     public ContactIcqImpl findContactByScreenName(String screenName)
     {
-        Iterator contactGroups = rootGroup.subgroups();
+        Iterator<ContactGroupIcqImpl> contactGroups = rootGroup.subgroups();
         ContactIcqImpl result = null;
 
         while(contactGroups.hasNext())
         {
-            ContactGroupIcqImpl contactGroup
-                = (ContactGroupIcqImpl) contactGroups.next();
+            ContactGroupIcqImpl contactGroup = contactGroups.next();
+
+            result = contactGroup.findContact(screenName);
+
+            if (result != null)
+                return result;
+
+        }
+        return null;
+    }
+
+    /**
+     * Returns the Contact with the specified screenname (or icq UIN) or null if
+     * no such screenname was found.
+     *
+     * @param screenName the screen name (or ICQ UIN) of the contact to find.
+     * @return the <tt>Contact</tt> carrying the specified
+     * <tt>screenName</tt> or <tt>null</tt> if no such contact exits.
+     */
+    public ContactIcqImpl findContactByJoustSimBuddy(Buddy buddy)
+    {
+        Iterator<ContactGroupIcqImpl> contactGroups = rootGroup.subgroups();
+        String screenName = buddy.getScreenname().getFormatted();
+        ContactIcqImpl result = null;
+
+        while(contactGroups.hasNext())
+        {
+            ContactGroupIcqImpl contactGroup = contactGroups.next();
 
             result = contactGroup.findContact(screenName);
 
@@ -437,12 +464,11 @@ public class ServerStoredContactListIcqImpl
      */
     public ContactGroupIcqImpl findContactGroup(ContactIcqImpl child)
     {
-        Iterator contactGroups = rootGroup.subgroups();
+        Iterator<ContactGroupIcqImpl> contactGroups = rootGroup.subgroups();
 
         while(contactGroups.hasNext())
         {
-            ContactGroupIcqImpl contactGroup
-                = (ContactGroupIcqImpl) contactGroups.next();
+            ContactGroupIcqImpl contactGroup = contactGroups.next();
 
             if( contactGroup.findContact(child.getJoustSimBuddy())!= null)
                 return contactGroup;
@@ -486,7 +512,7 @@ public class ServerStoredContactListIcqImpl
         //if the parent group is null then add necessary create the group
         if (theVolatileGroup == null)
         {
-            List emptyBuddies = new LinkedList();
+            List<Buddy> emptyBuddies = new LinkedList<Buddy>();
             theVolatileGroup = new ContactGroupIcqImpl(
                 new VolatileGroup(), emptyBuddies, this, false);
             theVolatileGroup.addContact(newVolatileContact);
@@ -499,9 +525,7 @@ public class ServerStoredContactListIcqImpl
         else
         {
             theVolatileGroup.addContact(newVolatileContact);
-            fireContactAdded(theVolatileGroup
-                             , newVolatileContact
-                             , theVolatileGroup.findContactIndex(volatileBuddy));
+            fireContactAdded(theVolatileGroup, newVolatileContact);
         }
 
         return newVolatileContact;
@@ -533,8 +557,7 @@ public class ServerStoredContactListIcqImpl
         parentGroup.addContact(newUnresolvedContact);
 
         fireContactAdded(  parentGroup
-                         , newUnresolvedContact
-                         , parentGroup.findContactIndex(volatileBuddy));
+                         , newUnresolvedContact);
 
         return newUnresolvedContact;
     }
@@ -552,7 +575,7 @@ public class ServerStoredContactListIcqImpl
     ContactGroupIcqImpl createUnresolvedContactGroup(String groupName)
     {
         //First create the new volatile contact;
-        List emptyBuddies = new LinkedList();
+        List<Buddy> emptyBuddies = new LinkedList<Buddy>();
         ContactGroupIcqImpl newUnresolvedGroup = new ContactGroupIcqImpl(
                 new VolatileGroup(groupName), emptyBuddies, this, false);
 
@@ -648,7 +671,7 @@ public class ServerStoredContactListIcqImpl
     {
         if(contact.isPersistent())
         {
-            List contactsToMove = new ArrayList();
+            List<Buddy> contactsToMove = new ArrayList<Buddy>();
 
             contactsToMove.add(contact.getJoustSimBuddy());
 
@@ -660,8 +683,6 @@ public class ServerStoredContactListIcqImpl
             // if the contact buddy is volatile
             // just add the buddy to the new group
             // if everything is ok. The volatile contact will be reused
-            ContactGroupIcqImpl oldParent =
-                (ContactGroupIcqImpl)contact.getParentContactGroup();
 
             addContact(newParent, contact.getUIN());
         }
@@ -716,7 +737,7 @@ public class ServerStoredContactListIcqImpl
             ContactGroupIcqImpl gr =
                 (ContactGroupIcqImpl)getRootGroup().getGroup(i);
 
-            if(!gr.isPersistent() && 
+            if(!gr.isPersistent() &&
                     !gr.getGroupName().equals(awaitingAuthorizationGroupName))
                 return gr;
         }
@@ -737,32 +758,35 @@ public class ServerStoredContactListIcqImpl
         if(icqProvider.USING_ICQ)
             nickRetriever.addContact(c);
     }
-    
+
     protected void addAwaitingAuthorizationContact(Buddy buddy)
     {
-        //Check whether a Awaiting authorization group already exists and if not create
-        //one
-        ContactGroupIcqImpl theAwaitingAuthorizationGroup = 
+        //Check whether a Awaiting authorization group already exists and if
+        //not create one
+        ContactGroupIcqImpl theAwaitingAuthorizationGroup =
                 findContactGroup(awaitingAuthorizationGroupName);
-        
+
         if(theAwaitingAuthorizationGroup == null)
         {
-            List emptyBuddies = new LinkedList();
+            List<Buddy> emptyBuddies = new LinkedList<Buddy>();
             theAwaitingAuthorizationGroup = new ContactGroupIcqImpl(
-                new VolatileGroup(awaitingAuthorizationGroupName), emptyBuddies, this, false);
+                new VolatileGroup(awaitingAuthorizationGroupName),
+                emptyBuddies,
+                this,
+                false);
 
             this.rootGroup.addSubGroup(theAwaitingAuthorizationGroup);
 
             fireGroupEvent(theAwaitingAuthorizationGroup
                            , ServerStoredGroupEvent.GROUP_CREATED_EVENT);
-        }        
+        }
 
         ContactGroupIcqImpl oldParentGroup = null;
-        ContactIcqImpl newContact
-                = findContactByScreenName(buddy.getScreenname().getFormatted());
+        ContactIcqImpl newContact = findContactByJoustSimBuddy(buddy);
 
         if(newContact != null)
-            oldParentGroup = (ContactGroupIcqImpl)newContact.getParentContactGroup();
+            oldParentGroup = (ContactGroupIcqImpl)newContact
+                                        .getParentContactGroup();
 
         boolean fireResolvedEvent = false;
 
@@ -774,7 +798,7 @@ public class ServerStoredContactListIcqImpl
         else
         {
             oldParentGroup.removeContact(newContact);
-            
+
             newContact.setJoustSimBuddy(buddy);
             newContact.setPersistent(true);
             if(!newContact.isResolved())
@@ -794,7 +818,7 @@ public class ServerStoredContactListIcqImpl
         //tell listeners about the added group
         if(oldParentGroup == null)
         {
-            fireContactAdded(theAwaitingAuthorizationGroup, newContact, index);
+            fireContactAdded(theAwaitingAuthorizationGroup, newContact);
         }
         else if(oldParentGroup != theAwaitingAuthorizationGroup)
         {
@@ -808,32 +832,33 @@ public class ServerStoredContactListIcqImpl
             fireContactResolved(theAwaitingAuthorizationGroup, newContact);
         }
     }
-    
+
     protected void moveAwaitingAuthorizationContact(ContactIcqImpl contact)
     {
         ContactGroupIcqImpl parentGroup = findGroup(contact.getJoustSimBuddy());
-        
+
         if(parentGroup == null)
             return;
-        
+
         findContactGroup(awaitingAuthorizationGroupName).removeContact(contact);
         parentGroup.addContact(contact);
-        
+
         fireContactMoved(findContactGroup(awaitingAuthorizationGroupName),
             parentGroup, contact, parentGroup.findContactIndex(contact));
     }
-    
+
     ContactGroupIcqImpl findGroup(Buddy buddy)
     {
-        Iterator iter = rootGroup.subgroups();
+        Iterator<ContactGroupIcqImpl> iter = rootGroup.subgroups();
         while (iter.hasNext())
         {
-            ContactGroupIcqImpl elem = (ContactGroupIcqImpl) iter.next();
-            
+            ContactGroupIcqImpl elem = iter.next();
+
             if(!elem.isPersistent() || !elem.isResolved())
                 continue;
-            
-            Iterator bs = elem.getJoustSimSourceGroup().getBuddiesCopy().iterator();
+
+            Iterator bs = elem.getJoustSimSourceGroup().getBuddiesCopy()
+                .iterator();
             while (bs.hasNext())
             {
                 Buddy b = (Buddy) bs.next();
@@ -841,7 +866,7 @@ public class ServerStoredContactListIcqImpl
                     return elem;
             }
         }
-        
+
         return null;
     }
 
@@ -889,7 +914,8 @@ public class ServerStoredContactListIcqImpl
                 // set it to resolved, do the same with its child buddies, fire
                 // the corresponding events and bail out.
                 List newContacts = new ArrayList();
-                List deletedContacts = new ArrayList();
+                List<ContactIcqImpl> deletedContacts
+                    = new ArrayList<ContactIcqImpl>();
                 newGroup.updateGroup((MutableGroup)group, buddies
                                      , newContacts, deletedContacts);
 
@@ -898,7 +924,8 @@ public class ServerStoredContactListIcqImpl
                                , ServerStoredGroupEvent.GROUP_RESOLVED_EVENT);
 
                 //fire events for contacts that have been removed;
-                Iterator deletedContactsIter = deletedContacts.iterator();
+                Iterator<ContactIcqImpl> deletedContactsIter
+                    = deletedContacts.iterator();
                 while(deletedContactsIter.hasNext())
                 {
                     ContactIcqImpl contact
@@ -907,14 +934,15 @@ public class ServerStoredContactListIcqImpl
                 }
 
                 //fire events for that contacts have been resolved or added
-                Iterator contactsIter = newGroup.contacts();
+                Iterator<ContactIcqImpl> contactsIter
+                    = newGroup.contacts();
                 while(contactsIter.hasNext())
                 {
                     ContactIcqImpl contact
                         = (ContactIcqImpl)contactsIter.next();
 
                     if(newContacts.contains(contact))
-                        fireContactAdded(newGroup, contact, 0);
+                        fireContactAdded(newGroup, contact);
                     else
                         fireContactResolved(newGroup, contact);
                 }
@@ -980,8 +1008,7 @@ public class ServerStoredContactListIcqImpl
             //same contact instance and issue a contact moved event instead of
             //a contact added event.
             ContactGroupIcqImpl oldParentGroup = null;
-            ContactIcqImpl newContact
-                = findContactByScreenName(buddy.getScreenname().getFormatted());
+            ContactIcqImpl newContact = findContactByJoustSimBuddy(buddy);
             ContactGroupIcqImpl parentGroup = findContactGroup(joustSimGroup);
 
             boolean fireResolvedEvent = false;
@@ -992,7 +1019,7 @@ public class ServerStoredContactListIcqImpl
                              + joustSimGroup + " found for buddy: " + buddy);
                 return;
             }
-            
+
             if(buddy.isAwaitingAuthorization())
             {
                 addAwaitingAuthorizationContact(buddy);
@@ -1029,7 +1056,7 @@ public class ServerStoredContactListIcqImpl
             //tell listeners about the added group
             if(oldParentGroup == null)
             {
-                fireContactAdded(parentGroup, newContact, index);
+                fireContactAdded(parentGroup, newContact);
             }
             else if(oldParentGroup != parentGroup)
             {
@@ -1064,18 +1091,18 @@ public class ServerStoredContactListIcqImpl
                 // this buddy is not in this group
                 // it can be in awaiting authorization group
                 // will search it there
-                
-                ContactGroupIcqImpl theAwaitingAuthorizationGroup = 
+
+                ContactGroupIcqImpl theAwaitingAuthorizationGroup =
                     findContactGroup(awaitingAuthorizationGroupName);
                 if(theAwaitingAuthorizationGroup != null)
                 {
-                    contactToRemove = 
+                    contactToRemove =
                         theAwaitingAuthorizationGroup.
                             findContact(buddy.getScreenname().getFormatted());
-                    
+
                     if(contactToRemove == null)
                         return;
-                    
+
                     theAwaitingAuthorizationGroup.removeContact(contactToRemove);
 
                     buddy.removeBuddyListener(jsimBuddyListener);
@@ -1106,31 +1133,8 @@ public class ServerStoredContactListIcqImpl
         public void buddiesReordered(BuddyList list, Group group,
                                      List oldBuddies, List newBuddies)
         {
-            ContactGroupIcqImpl contactGroup = findContactGroup(group);
-
-            if (contactGroup == null)
-            {
-                logger.debug(
-                    "buddies reordered event received for unknown group"
-                    + group);
-            }
-
-            List reorderedContacts = new ArrayList();
-            Iterator newBuddiesIter = newBuddies.iterator();
-            while (newBuddiesIter.hasNext())
-            {
-                Buddy buddy = (Buddy) newBuddiesIter.next();
-                ContactIcqImpl contact = contactGroup.findContact(buddy);
-
-                //make sure that this was not an empty buddy.
-                if (contact == null)
-                    continue;
-                reorderedContacts.add(contact);
-            }
-
-            contactGroup.reorderContacts(reorderedContacts);
-
-            fireContactsReordered(contactGroup);
+            //we don't support this any longer. check out SVN archives if
+            //you need it for some reason.
         }
 
         /**
@@ -1147,11 +1151,12 @@ public class ServerStoredContactListIcqImpl
         public void groupsReordered(BuddyList list, List oldOrder,
                                     List newOrder)
         {
-            List reorderedGroups = new ArrayList();
-            Iterator newOrderIter = newOrder.iterator();
+            List<ContactGroupIcqImpl> reorderedGroups
+                = new ArrayList<ContactGroupIcqImpl>();
+            Iterator<Group> newOrderIter = newOrder.iterator();
             while (newOrderIter.hasNext())
             {
-                Group group = (Group) newOrderIter.next();
+                Group group = newOrderIter.next();
                 ContactGroupIcqImpl contactGroup = findContactGroup(group);
 
                 //make sure that this was not an empty buddy.
@@ -1352,7 +1357,8 @@ public class ServerStoredContactListIcqImpl
         /**
          * list with the accounts with missing nicknames
          */
-        private Vector contactsForUpdate = new Vector();
+        private Vector<ContactIcqImpl> contactsForUpdate
+            = new Vector<ContactIcqImpl>();
 
         private boolean isReadyForRetreive = false;
 
@@ -1360,7 +1366,7 @@ public class ServerStoredContactListIcqImpl
         {
             try
             {
-                Collection copyContactsForUpdate = null;
+                Collection<ContactIcqImpl> copyContactsForUpdate = null;
                 while (true)
                 {
                     synchronized(contactsForUpdate){
@@ -1368,11 +1374,13 @@ public class ServerStoredContactListIcqImpl
                         if(contactsForUpdate.isEmpty())
                             contactsForUpdate.wait();
 
-                        copyContactsForUpdate = new Vector(contactsForUpdate);
+                        copyContactsForUpdate
+                            = new Vector<ContactIcqImpl>(contactsForUpdate);
                         contactsForUpdate.clear();
                     }
 
-                    Iterator iter = copyContactsForUpdate.iterator();
+                    Iterator<ContactIcqImpl> iter
+                        = copyContactsForUpdate.iterator();
                     while (iter.hasNext())
                     {
                         ContactIcqImpl contact = (ContactIcqImpl) iter.next();

@@ -38,7 +38,7 @@ import net.java.sip.communicator.util.xml.XMLUtils;
  * provider. Unresolved proto groups and contacts will be created for every one
  * of them.
  * <p>
- * 
+ *
  * @author Emil Ivov
  */
 public class MclStorageManager
@@ -220,7 +220,7 @@ public class MclStorageManager
      * Determines whether the storage manager has been properly started or in
      * other words that it has successfully found and read the xml contact list
      * file.
-     * 
+     *
      * @return true if the storage manager has been successfully initialized and
      *         false otherwise.
      */
@@ -245,7 +245,7 @@ public class MclStorageManager
     /**
      * Initializes the storage manager and makes it do initial load and parsing
      * of the contact list file.
-     * 
+     *
      * @param bc a reference to the currently valid OSGI <tt>BundleContext</tt>
      * @param mclServImpl a reference to the currently valid instance of the
      *            <tt>MetaContactListServiceImpl</tt> that we could use to pass
@@ -370,7 +370,7 @@ public class MclStorageManager
 
     /**
      * Stores the contact list in its current state.
-     * 
+     *
      * @throws IOException if writing fails.
      */
     private void scheduleContactListStorage() throws IOException
@@ -387,7 +387,7 @@ public class MclStorageManager
 
     /**
      * Writes the contact list on the hard disk.
-     * 
+     *
      * @throws IOException in case writing fails.
      */
     private void storeContactList0() throws IOException
@@ -468,7 +468,7 @@ public class MclStorageManager
 
     /**
      * Returns the object that we use to lock when writing the contact list.
-     * 
+     *
      * @return the object that we use to lock when writing the contact list.
      */
     public Object getContactListRWLock()
@@ -508,7 +508,7 @@ public class MclStorageManager
     /**
      * update persistent data in the dom object model for the given metacontact
      * and its contacts
-     * 
+     *
      * @param metaContact MetaContact target meta contact
      */
     private void updatePersistentDataForMetaContact(MetaContact metaContact)
@@ -554,7 +554,7 @@ public class MclStorageManager
     /**
      * Fills the document with the tags necessary for it to be filled properly
      * as the meta contact list evolves.
-     * 
+     *
      * @param mclServImpl the meta contact list service to use when
      *            initializing the document.
      * @param contactListDoc the document to init.
@@ -578,7 +578,7 @@ public class MclStorageManager
      * belonging to <tt>mclServiceImpl</tt> for every meta contact and meta
      * contact group stored in the (contactlist.xml) file that correspond to a
      * provider caring the specified <tt>accountID</tt>.
-     * 
+     *
      * @param accountID the identifier of the account whose contacts we're
      *            interested in.
      * @throws XMLException if a problem occurs while parsing contact list
@@ -651,7 +651,7 @@ public class MclStorageManager
      * Parses <tt>groupNode</tt> and all of its subnodes, creating corresponding
      * instances through <tt>mclServiceImpl</tt> as children of
      * <tt>parentGroup</tt>
-     * 
+     *
      * @param mclServImpl the <tt>MetaContactListServiceImpl</tt> for
      *            creating new contacts and groups.
      * @param accountID a String identifier of the account whose contacts we're
@@ -922,7 +922,7 @@ public class MclStorageManager
      * contain proto contacts originating from the specified account, an empty
      * list is returned.
      * <p>
-     * 
+     *
      * @param metaContactNode the Element whose proto contacts we'd like to
      *            extract.
      * @param accountID the id of the account whose contacts we're interested
@@ -993,7 +993,7 @@ public class MclStorageManager
 
     /**
      * Creates a node element corresponding to <tt>protoContact</tt>.
-     * 
+     *
      * @param protoContact the Contact whose element we'd like to create
      * @return a XML Element corresponding to <tt>protoContact</tt>.
      */
@@ -1029,7 +1029,7 @@ public class MclStorageManager
 
     /**
      * Creates a node element corresponding to <tt>protoGroup</tt>.
-     * 
+     *
      * @param protoGroup the ContactGroup whose element we'd like to create
      * @return a XML Element corresponding to <tt>protoGroup</tt>.
      */
@@ -1065,8 +1065,8 @@ public class MclStorageManager
     /**
      * Creates a meta contact node element corresponding to <tt>metaContact</tt>
      * .
-     * 
-     * 
+     *
+     *
      * @param metaContact the MetaContact that the new node is about
      * @return the XML Element containing the persistent version of
      *         <tt>metaContact</tt>
@@ -1104,7 +1104,7 @@ public class MclStorageManager
     /**
      * Creates a meta contact group node element corresponding to
      * <tt>metaGroup</tt>.
-     * 
+     *
      * @param metaGroup the MetaContactGroup that the new node is about
      * @return the XML Element containing the persistent version of
      *         <tt>metaGroup</tt>
@@ -1174,7 +1174,7 @@ public class MclStorageManager
     /**
      * Indicates that a MetaContact has been successfully added to the
      * MetaContact list.
-     * 
+     *
      * @param evt the MetaContactListEvent containing the corresponding contact
      */
     public void metaContactAdded(MetaContactEvent evt)
@@ -1188,6 +1188,10 @@ public class MclStorageManager
         {
             logger.error("Couldn't find parent of a newly added contact: "
                 + evt.getSourceMetaContact());
+            if(logger.isTraceEnabled())
+                logger.trace("The above exception occurred with the "
+                                + "following stack trace: ",
+                                new Exception());
             return;
         }
 
@@ -1219,7 +1223,7 @@ public class MclStorageManager
      * Creates XML nodes for the source metacontact group, its child meta
      * contacts and associated protogroups and adds them to the xml contact
      * list.
-     * 
+     *
      * @param evt the MetaContactListEvent containing the corresponding contact
      */
     public void metaContactGroupAdded(MetaContactGroupEvent evt)
@@ -1271,7 +1275,7 @@ public class MclStorageManager
 
     /**
      * Removes the corresponding node from the xml document.
-     * 
+     *
      * @param evt the MetaContactGroupEvent containing the corresponding contact
      */
     public void metaContactGroupRemoved(MetaContactGroupEvent evt)
@@ -1311,7 +1315,7 @@ public class MclStorageManager
     /**
      * Moves the corresponding node from its old parent to the node
      * corresponding to the new parent meta group.
-     * 
+     *
      * @param evt the MetaContactListEvent containing the corresponding contact
      */
     public void metaContactMoved(MetaContactMovedEvent evt)
@@ -1325,6 +1329,10 @@ public class MclStorageManager
         {
             logger.error("Save after metacontact moved. new parent not found: "
                 + evt.getNewParent());
+            if(logger.isTraceEnabled())
+                logger.error("The above exception has occurred with the "
+                                +"following stack trace",
+                                new Exception());
             return;
         }
 
@@ -1369,7 +1377,7 @@ public class MclStorageManager
      * updates theirs parent proto group uid-s to point to the first contact
      * group that is encapsulated by the newParent meta group and that belongs
      * to the same account as the contact itself.
-     * 
+     *
      * @param metaContactNode the meta contact node whose child contacts we're
      *            to update.
      * @param newParent a reference to the <tt>MetaContactGroup</tt> where
@@ -1413,7 +1421,7 @@ public class MclStorageManager
 
     /**
      * Removes the corresponding node from the xml document.
-     * 
+     *
      * @param evt the MetaContactListEvent containing the corresponding contact
      */
     public void metaContactRemoved(MetaContactEvent evt)
@@ -1451,7 +1459,7 @@ public class MclStorageManager
 
     /**
      * Changes the display name attribute of the specified meta contact node.
-     * 
+     *
      * @param evt the MetaContactListEvent containing the corresponding contact
      */
     public void metaContactRenamed(MetaContactRenamedEvent evt)
@@ -1494,7 +1502,7 @@ public class MclStorageManager
 
     /**
      * Updates the data stored for the contact that caused this event.
-     * 
+     *
      * @param evt the MetaContactListEvent containing the corresponding contact
      */
     public void protoContactModified(ProtoContactEvent evt)
@@ -1534,7 +1542,7 @@ public class MclStorageManager
 
     /**
      * Indicates that a MetaContact has been modified.
-     * 
+     *
      * @param evt the MetaContactModifiedEvent containing the corresponding
      *            contact
      */
@@ -1680,7 +1688,7 @@ public class MclStorageManager
 
     /**
      * Removes the corresponding node from the xml contact list.
-     * 
+     *
      * @param evt a reference to the corresponding <tt>ProtoContactEvent</tt>
      */
     public void protoContactRemoved(ProtoContactEvent evt)
@@ -1722,7 +1730,7 @@ public class MclStorageManager
 
     /**
      * We simply ignore - we're not interested in this kind of events.
-     * 
+     *
      * @param evt the <tt>MetaContactGroupEvent</tt> containing details of this
      *            event.
      */
@@ -1734,7 +1742,7 @@ public class MclStorageManager
     /**
      * Determines the exact type of the change and acts accordingly by either
      * updating group name or .
-     * 
+     *
      * @param evt the MetaContactListEvent containing the corresponding contact
      */
     public void metaContactGroupModified(MetaContactGroupEvent evt)
@@ -1749,6 +1757,10 @@ public class MclStorageManager
         {
             logger.error("Failed to find meta contact group: "
                 + evt.getSourceMetaContactGroup());
+            if(logger.isTraceEnabled())
+                logger.trace("The above error occurred with the following "
+                                +"stack trace: ",
+                                new Exception());
             return;
         }
 
@@ -1816,7 +1828,7 @@ public class MclStorageManager
      * Indicates that a protocol specific <tt>Contact</tt> instance has been
      * added to the list of protocol specific buddies in this
      * <tt>MetaContact</tt>
-     * 
+     *
      * @param evt a reference to the corresponding <tt>ProtoContactEvent</tt>
      */
     public void protoContactAdded(ProtoContactEvent evt)
@@ -1855,7 +1867,7 @@ public class MclStorageManager
     /**
      * Indicates that a protocol specific <tt>Contact</tt> instance has been
      * moved from within one <tt>MetaContact</tt> to another.
-     * 
+     *
      * @param evt a reference to the <tt>ProtoContactMovedEvent</tt> instance.
      */
     public void protoContactMoved(ProtoContactEvent evt)
@@ -1912,7 +1924,7 @@ public class MclStorageManager
     /**
      * Returns the node corresponding to the meta contact with the specified uid
      * or null if no such node was found.
-     * 
+     *
      * @param metaContactUID the UID String of the meta contact whose node we
      *            are looking for.
      * @return the node corresponding to the meta contact with the specified UID
@@ -1930,7 +1942,7 @@ public class MclStorageManager
     /**
      * Returns the node corresponding to the meta contact with the specified uid
      * or null if no such node was found.
-     * 
+     *
      * @param metaContactGroupUID the UID String of the meta contact whose node
      *            we are looking for.
      * @return the node corresponding to the meta contact group with the
@@ -1975,7 +1987,7 @@ public class MclStorageManager
 
         /**
          * Returns a string representation of the descriptor.
-         * 
+         *
          * @return a string representation of the descriptor.
          */
         public String toString()
@@ -1995,7 +2007,7 @@ public class MclStorageManager
          * Utility method that allows us to verify whether a ContactDescriptor
          * corresponding to a particular contact is already in a descriptor list
          * and thus eliminate duplicates.
-         * 
+         *
          * @param contactAddress the address of the contact whose descriptor we
          *            are looking for.
          * @param list the <tt>List</tt> of

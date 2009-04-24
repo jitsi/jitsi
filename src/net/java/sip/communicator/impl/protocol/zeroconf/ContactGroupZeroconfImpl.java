@@ -17,7 +17,7 @@ import net.java.sip.communicator.service.protocol.*;
  * the contact group implementation would rather encapsulate group objects from
  * the protocol stack and group property values should be returned by consulting
  * the encapsulated object.
- * 
+ *
  * @author Christian Vincenot
  * @author Maxime Catelin
  * @author Jonathan Martin
@@ -157,7 +157,7 @@ public class ContactGroupZeroconfImpl
 
     /**
      * Adds the specified contact group to the contained by this group.
-     * @param subgroup the ContactGroupZeroconfImpl to add as a 
+     * @param subgroup the ContactGroupZeroconfImpl to add as a
      *      subgroup to this group.
      */
     public void addSubgroup(ContactGroupZeroconfImpl subgroup)
@@ -194,18 +194,6 @@ public class ContactGroupZeroconfImpl
     {
         this.subGroups.remove(subgroup);
         subgroup.setParentGroup(null);
-    }
-
-
-    /**
-     * Returns the <tt>Contact</tt> with the specified index.
-     *
-     * @param index the index of the <tt>Contact</tt> to return.
-     * @return the <tt>Contact</tt> with the specified index.
-     */
-    public Contact getContact(int index)
-    {
-        return (ContactZeroconfImpl)contacts.get(index);
     }
 
     /**
@@ -279,9 +267,9 @@ public class ContactGroupZeroconfImpl
         Iterator contactsIter = contacts();
         while (contactsIter.hasNext())
         {
-            ContactZeroconfImpl contact = 
+            ContactZeroconfImpl contact =
                 (ContactZeroconfImpl)contactsIter.next();
-            
+
             if (contact.getAddress().equals(id))
                 return contact;
 
@@ -374,7 +362,7 @@ public class ContactGroupZeroconfImpl
 
         while(contactsIter.hasNext())
         {
-            ContactZeroconfImpl mContact = 
+            ContactZeroconfImpl mContact =
                 (ContactZeroconfImpl)contactsIter.next();
 
             if( mContact.getAddress().equals(id) )
@@ -386,7 +374,7 @@ public class ContactGroupZeroconfImpl
 
         while( groupsIter.hasNext() )
         {
-            ContactGroupZeroconfImpl mGroup = 
+            ContactGroupZeroconfImpl mGroup =
                 (ContactGroupZeroconfImpl)groupsIter.next();
 
             ContactZeroconfImpl mContact = mGroup.findContactByID(id);
@@ -413,7 +401,7 @@ public class ContactGroupZeroconfImpl
         Iterator subGroups = subgroups();
         while (subGroups.hasNext())
         {
-            ContactGroupZeroconfImpl group = 
+            ContactGroupZeroconfImpl group =
                 (ContactGroupZeroconfImpl)subGroups.next();
             buff.append(group.toString());
             if (subGroups.hasNext())
@@ -550,7 +538,7 @@ public class ContactGroupZeroconfImpl
         ContactGroupZeroconfImpl zeroconfGroup
             = (ContactGroupZeroconfImpl)obj;
 
-        if(!zeroconfGroup.getGroupName().equals(getGroupName()) || 
+        if(!zeroconfGroup.getGroupName().equals(getGroupName()) ||
             !zeroconfGroup.getUID().equals(getUID()) ||
             zeroconfGroup.countContacts() != countContacts() ||
             zeroconfGroup.countSubgroups() != countSubgroups())

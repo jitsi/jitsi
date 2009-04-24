@@ -193,18 +193,6 @@ public class ContactGroupRssImpl
         subgroup.setParentGroup(null);
     }
 
-
-    /**
-     * Returns the <tt>Contact</tt> with the specified index.
-     *
-     * @param index the index of the <tt>Contact</tt> to return.
-     * @return the <tt>Contact</tt> with the specified index.
-     */
-    public Contact getContact(int index)
-    {
-        return (ContactRssImpl)contacts.get(index);
-    }
-
     /**
      * Returns the group that is parent of the specified rssGroup or null
      * if no parent was found.
@@ -454,7 +442,7 @@ public class ContactGroupRssImpl
         //return buff.append("]").toString();
         return rssURLList;
      }
-     
+
     /**
      * Specifies whether or not this contact group is being stored by the server.
      * Non persistent contact groups are common in the case of simple,

@@ -194,18 +194,6 @@ public class ContactGroupDictImpl
         subgroup.setParentGroup(null);
     }
 
-
-    /**
-     * Returns the <tt>Contact</tt> with the specified index.
-     *
-     * @param index the index of the <tt>Contact</tt> to return.
-     * @return the <tt>Contact</tt> with the specified index.
-     */
-    public Contact getContact(int index)
-    {
-        return contacts.get(index);
-    }
-
     /**
      * Returns the group that is parent of the specified dictGroup or null
      * if no parent was found.

@@ -19,13 +19,15 @@ public class RootContactGroupIcqImpl
     extends AbstractContactGroupIcqImpl
 {
     private String ROOT_CONTACT_GROUP_NAME = "ContactListRoot";
-    private List subGroups = new LinkedList();
+    private List<ContactGroupIcqImpl> subGroups
+        = new LinkedList<ContactGroupIcqImpl>();
     private boolean isResolved = false;
 
     /**
      * An empty list that we use when returning an iterator.
      */
-    private List dummyContacts = new LinkedList();
+    private List<ContactIcqImpl> dummyContacts
+        = new LinkedList<ContactIcqImpl>();
 
     private ProtocolProviderServiceIcqImpl ownerProvider = null;
 
@@ -112,7 +114,7 @@ public class RootContactGroupIcqImpl
      * to be applied.
      *
      */
-    void reorderSubGroups(List newOrder)
+    void reorderSubGroups(List<ContactGroupIcqImpl> newOrder)
     {
         subGroups.removeAll(newOrder);
         subGroups.addAll(0, newOrder);
@@ -157,10 +159,10 @@ public class RootContactGroupIcqImpl
      */
     public ContactGroup getGroup(String groupName)
     {
-        Iterator subgroups = subgroups();
+        Iterator<ContactGroupIcqImpl> subgroups = subgroups();
         while (subgroups.hasNext())
         {
-            ContactGroupIcqImpl grp = (ContactGroupIcqImpl)subgroups.next();
+            ContactGroupIcqImpl grp = subgroups.next();
 
             if (grp.getGroupName().equals(groupName))
                 return grp;
@@ -217,18 +219,6 @@ public class RootContactGroupIcqImpl
     }
 
     /**
-     * A dummy impl of the corresponding interface method - always returns null.
-     *
-     * @param index the index of the <tt>Contact</tt> to return.
-     * @return the <tt>Contact</tt> with the specified index, i.e. always
-     * null.
-     */
-    public Contact getContact(int index)
-    {
-        return null;
-    }
-
-    /**
      * Returns a string representation of the root contact group that contains
      * all subgroups and subcontacts of this group.
      *
@@ -239,7 +229,7 @@ public class RootContactGroupIcqImpl
         StringBuffer buff = new StringBuffer(getGroupName());
         buff.append(".subGroups="+countSubgroups()+":\n");
 
-        Iterator subGroups = subgroups();
+        Iterator<ContactGroupIcqImpl> subGroups = subgroups();
         while (subGroups.hasNext())
         {
             ContactGroup group = (ContactGroup) subGroups.next();
