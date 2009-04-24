@@ -340,7 +340,7 @@ public class DialPanel
         Graphics2D g2 = (Graphics2D) g;
 
         boolean isTextureBackground = Boolean.parseBoolean(GuiActivator.getResources()
-            .getSettingsString("impl.gui.IS_TEXTURE_BACKGROUND"));
+            .getSettingsString("impl.gui.IS_CONTACT_LIST_TEXTURE_BG_ENABLED"));
 
         BufferedImage bgImage
             = ImageLoader.getImage(ImageLoader.MAIN_WINDOW_BACKGROUND);

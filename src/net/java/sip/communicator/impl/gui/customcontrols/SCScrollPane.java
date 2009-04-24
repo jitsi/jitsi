@@ -18,8 +18,8 @@ import net.java.sip.communicator.util.swing.*;
 /**
  * The SCScrollPane is a JScrollPane with a custom viewport that allows to
  * set an image as a background. Depending on the
- * "impl.gui.IS_TEXTURE_BACKGROUND" property we'll be setting a single image or
- * a texture of images.
+ * "impl.gui.IS_CONTACT_LIST_TEXTURE_BG_ENABLED" property we'll be setting a
+ * single image or a texture of images.
  * 
  * @author Yana Stamcheva
  */
@@ -66,12 +66,13 @@ public class SCScrollPane
         {
             this.setBackground(Color.WHITE);
 
-            if (getSettingsBoolean("impl.gui.IS_WINDOW_BACKGROUND_ENABLED"))
+            if (getSettingsBoolean("impl.gui.IS_CONTACT_LIST_IMG_BG_ENABLED"))
             {
                 bgImage =
                     ImageLoader.getImage(ImageLoader.MAIN_WINDOW_BACKGROUND);
 
-                if (getSettingsBoolean("impl.gui.IS_TEXTURE_BACKGROUND")
+                if (getSettingsBoolean(
+                    "impl.gui.IS_CONTACT_LIST_TEXTURE_BG_ENABLED")
                     && (bgImage != null))
                 {
                     texture =
