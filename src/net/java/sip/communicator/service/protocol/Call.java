@@ -49,6 +49,13 @@ public abstract class Call
     private final boolean defaultEncryption;
 
     /**
+     * If this flag is set to true according to the account properties
+     * related with the sourceProvider the associated CallSession will set
+     * the SIP/SDP attribute (where applicable)
+     */
+    private final boolean sipZrtpAttribute;
+
+    /**
      * Creates a new Call instance.
      *
      * @param sourceProvider the proto provider that created us.
@@ -64,6 +71,9 @@ public abstract class Call
         defaultEncryption =
             protocolProvider.getAccountID().getAccountPropertyBoolean(
                 ProtocolProviderFactory.DEFAULT_ENCRYPTION, true);
+        sipZrtpAttribute =
+            protocolProvider.getAccountID().getAccountPropertyBoolean(
+                ProtocolProviderFactory.DEFAULT_SIPZRTP_ATTRIBUTE, true);
     }
 
     /**
@@ -258,5 +268,14 @@ public abstract class Call
     public boolean isDefaultEncrypted()
     {
         return defaultEncryption;
+    }
+
+    /**
+     * Check if to include the ZRTP attribute to SIP/SDP
+     * 
+     * @return include the ZRTP attribute to SIP/SDP
+     */
+    public boolean isSipZrtpAttribute() {
+        return sipZrtpAttribute;
     }
 }

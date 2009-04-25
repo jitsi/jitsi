@@ -96,6 +96,7 @@ public class SIPAccRegWizzActivator
         catch (InvalidSyntaxException ex)
         {
             logger.error("SIPAccRegWizzActivator : " + ex);
+            return null;
         }
 
         return (ProtocolProviderFactory) bundleContext.getService(serRefs[0]);

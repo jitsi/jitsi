@@ -176,6 +176,19 @@ public class SIPAccountRegistrationWizard
                 Resources.getString("service.gui.NO"));
         }
 
+        if (registration.isSipZrtpAttribute())
+        {
+            summaryTable.put(Resources.getString(
+                "plugin.sipaccregwizz.ENABLE_SIPZRTP_ATTRIBUTE"),
+                Resources.getString("service.gui.YES"));
+        }
+        else
+        {
+            summaryTable.put(Resources.getString(
+                "plugin.sipaccregwizz.ENABLE_SIPZRTP_ATTRIBUTE"),
+                Resources.getString("service.gui.NO"));
+        }
+
         summaryTable.put(Resources.getString(
                 "plugin.sipaccregwizz.OFFLINE_CONTACT_POLLING_PERIOD"),
                 registration.getPollingPeriod());
@@ -292,6 +305,9 @@ public class SIPAccountRegistrationWizard
 
         accountProperties.put(ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                 Boolean.toString(registration.isDefaultEncryption()));
+
+        accountProperties.put(ProtocolProviderFactory.DEFAULT_SIPZRTP_ATTRIBUTE,
+                Boolean.toString(registration.isSipZrtpAttribute()));
 
         accountProperties.put(ProtocolProviderFactory.POLLING_PERIOD,
                 registration.getPollingPeriod());

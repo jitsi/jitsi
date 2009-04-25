@@ -73,6 +73,10 @@ public class FirstWizardPage
         new SIPCommCheckBox(Resources
             .getString("plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"), true);
 
+    private JCheckBox enableSipZrtpAttribute =
+        new SIPCommCheckBox(Resources
+            .getString("plugin.sipaccregwizz.ENABLE_SIPZRTP_ATTRIBUTE"), true);
+
     private JLabel proxyLabel
         = new JLabel(Resources.getString("plugin.sipaccregwizz.PROXY"));
 
@@ -251,7 +255,23 @@ public class FirstWizardPage
 
         advancedOpPanel.add(labelsAdvOpPanel, BorderLayout.WEST);
         advancedOpPanel.add(valuesAdvOpPanel, BorderLayout.CENTER);
-        advancedOpPanel.add(enableDefaultEncryption, BorderLayout.SOUTH);
+        
+        JPanel encryptionPanel = new TransparentPanel(new GridLayout(1, 2, 2, 2));
+        encryptionPanel.add(enableDefaultEncryption, BorderLayout.WEST);
+        encryptionPanel.add(enableSipZrtpAttribute, BorderLayout.EAST);
+
+        enableDefaultEncryption.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent evt)
+            {
+                // Perform action
+                JCheckBox cb = (JCheckBox) evt.getSource();
+
+                enableSipZrtpAttribute.setEnabled(cb.isSelected());
+            }
+        });
+        
+        advancedOpPanel.add(encryptionPanel, BorderLayout.SOUTH);
 
         advancedOpPanel.setBorder(BorderFactory.createTitledBorder(Resources
             .getString("plugin.aimaccregwizz.ADVANCED_OPTIONS")));
@@ -408,6 +428,7 @@ public class FirstWizardPage
         registration.setEnablePresence(enablePresOpButton.isSelected());
         registration.setForceP2PMode(forceP2PPresOpButton.isSelected());
         registration.setDefaultEncryption(enableDefaultEncryption.isSelected());
+        registration.setSipZrtpAttribute(enableSipZrtpAttribute.isSelected());
         registration.setPollingPeriod(pollPeriodField.getText());
         registration.setSubscriptionExpiration(subscribeExpiresField
             .getText());
@@ -513,6 +534,10 @@ public class FirstWizardPage
         boolean enabledDefaultEncryption = accountID.getAccountPropertyBoolean(
                             ProtocolProviderFactory.DEFAULT_ENCRYPTION, true);
 
+        boolean enabledSipZrtpAttribute = accountID.getAccountPropertyBoolean(
+                ProtocolProviderFactory.DEFAULT_SIPZRTP_ATTRIBUTE, true);
+
+
         String pollingPeriod = accountID.getAccountPropertyString(
                             ProtocolProviderFactory.POLLING_PERIOD);
 
@@ -550,7 +575,11 @@ public class FirstWizardPage
 
         enablePresOpButton.setSelected(enablePresence);
         forceP2PPresOpButton.setSelected(forceP2P);
+        
         enableDefaultEncryption.setSelected(enabledDefaultEncryption);
+        enableSipZrtpAttribute.setSelected(enabledSipZrtpAttribute);
+        enableSipZrtpAttribute.setEnabled(enabledDefaultEncryption);
+        
         pollPeriodField.setText(pollingPeriod);
         subscribeExpiresField.setText(subscriptionPeriod);
 

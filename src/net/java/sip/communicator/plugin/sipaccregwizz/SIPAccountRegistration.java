@@ -48,6 +48,8 @@ public class SIPAccountRegistration
     private boolean forceP2PMode = true;
     
     private boolean defaultEncryption = false;
+    
+    private boolean sipZrtpAttribute = false;
 
     private String pollingPeriod = DEFAULT_POLL_PERIOD;
 
@@ -336,5 +338,24 @@ public class SIPAccountRegistration
     public void setDefaultEncryption(boolean defaultEncryption)
     {
     	this.defaultEncryption = defaultEncryption;
+    }
+
+    /**
+     * Sets SIP ZRTP attribute support
+     * 
+     * @param sipZrtpAttribute include the ZRTP attribute to SIP/SDP
+     */
+    public void setSipZrtpAttribute(boolean sipZrtpAttribute) {
+        this.sipZrtpAttribute = sipZrtpAttribute;
+    }
+
+    
+    /**
+     * Check if to include the ZRTP attribute to SIP/SDP
+     * 
+     * @return include the ZRTP attribute to SIP/SDP
+     */
+    public boolean isSipZrtpAttribute() {
+        return sipZrtpAttribute;
     } 
 }

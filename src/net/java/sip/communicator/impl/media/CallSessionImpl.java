@@ -1719,20 +1719,20 @@ public class CallSessionImpl
             {
                 setAttributeOnHold(am, onHold);
 
-                // check if ZRTP engine is used and set SDP attribute
+                // check if ZRTP engine is used and set SDP attribute if enabled
                 TransformConnector transConnector = this.transConnectors
                         .get(audioRtpManager);
                 if (transConnector != null)
                 {
                     TransformEngine engine = transConnector.getEngine();
-                    if (engine instanceof ZRTPTransformEngine)
+                    if (engine instanceof ZRTPTransformEngine && call.isSipZrtpAttribute())
                     {
                         ZRTPTransformEngine ze = (ZRTPTransformEngine) engine;
 
                         String helloHash = ze.getHelloHash();
 
                         if( helloHash != null && helloHash.length() > 0)
-                            am.setAttribute("zrtp-hash", ze.getHelloHash());
+                            am.setAttribute("zrtp-hash", helloHash);
                     }
                 }
                 mediaDescs.add(am);
@@ -1773,20 +1773,20 @@ public class CallSessionImpl
             }
             setAttributeOnHold(vm, onHold);
 
-            // check if ZRTP engine is used and set SDP attribute
+            // check if ZRTP engine is used and set SDP attribute if enabled
             TransformConnector transConnector = this.transConnectors
                     .get(videoRtpManager);
             if (transConnector != null)
             {
                 TransformEngine engine = transConnector.getEngine();
-                if (engine instanceof ZRTPTransformEngine)
+                if (engine instanceof ZRTPTransformEngine && call.isSipZrtpAttribute())
                 {
                     ZRTPTransformEngine ze = (ZRTPTransformEngine) engine;
 
                     String helloHash = ze.getHelloHash();
 
                     if( helloHash != null && helloHash.length() > 0)
-                        vm.setAttribute("zrtp-hash", ze.getHelloHash());
+                        vm.setAttribute("zrtp-hash", helloHash);
                 }
             }
             mediaDescs.add(vm);

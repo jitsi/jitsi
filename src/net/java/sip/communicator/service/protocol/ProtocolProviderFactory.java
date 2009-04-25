@@ -144,6 +144,11 @@ public abstract class ProtocolProviderFactory
     public static final String DEFAULT_ENCRYPTION = "DEFAULT_ENCRYPTION"; 
 
     /**
+     * The name of the property which defines if to include the ZRTP attribute to SIP/SDP
+     */
+    public static final String DEFAULT_SIPZRTP_ATTRIBUTE = "DEFAULT_SIPZRTP_ATTRIBUTE";
+    
+    /**
      * The name of the property under which we store the boolean value
      * indicating if the user name should be automatically changed if the
      * specified name already exists. This property is meant to be used by IRC
@@ -328,7 +333,7 @@ public abstract class ProtocolProviderFactory
         synchronized (registeredAccounts)
         {
             registration =
-                (ServiceRegistration) registeredAccounts.get(accountID);
+                registeredAccounts.get(accountID);
         }
         return (registration == null) ? null : registration.getReference();
     }
