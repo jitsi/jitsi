@@ -110,100 +110,100 @@ public class SIPAccountRegistrationWizard
      */
     public Iterator<Map.Entry<String, String>> getSummary() 
     {
-        Map<String, String> summaryTable = new Hashtable<String, String>();
+        ArrayList<Map.Entry<String, String>> summaryTable = new ArrayList<Map.Entry<String, String>>();
         boolean rememberPswd = registration.isRememberPassword();
         String rememberPswdString = Resources.getString(
                 rememberPswd ? "service.gui.YES" : "service.gui.NO");
 
-        summaryTable.put(
+        summaryTable.add(new AbstractMap.SimpleEntry<String, String>(
             Resources.getString("plugin.sipaccregwizz.USERNAME"),
-            registration.getId());
-        summaryTable.put(
+            registration.getId()));
+        summaryTable.add(new AbstractMap.SimpleEntry<String, String>(
             Resources.getString("service.gui.REMEMBER_PASSWORD"),
-            rememberPswdString);
-        summaryTable.put(
+            rememberPswdString));
+        summaryTable.add(new AbstractMap.SimpleEntry<String, String>(
             Resources.getString("plugin.sipaccregwizz.REGISTRAR"),
-            registration.getServerAddress());
-        summaryTable.put(
+            registration.getServerAddress()));
+        summaryTable.add(new AbstractMap.SimpleEntry<String, String>(
             Resources.getString("plugin.sipaccregwizz.SERVER_PORT"),
-            registration.getServerPort());
-        summaryTable.put(
+            registration.getServerPort()));
+        summaryTable.add(new AbstractMap.SimpleEntry<String, String>(
             Resources.getString("plugin.sipaccregwizz.PROXY"),
-            registration.getProxy());
-        summaryTable.put(
+            registration.getProxy()));
+        summaryTable.add(new AbstractMap.SimpleEntry<String, String>(
             Resources.getString("plugin.sipaccregwizz.PROXY_PORT"),
-            registration.getProxyPort());
-        summaryTable.put(
+            registration.getProxyPort()));
+        summaryTable.add(new AbstractMap.SimpleEntry<String, String>(
             Resources.getString("plugin.sipaccregwizz.PREFERRED_TRANSPORT"),
-            registration.getPreferredTransport());
+            registration.getPreferredTransport()));
 
         if (registration.isEnablePresence())
         {
-            summaryTable.put(
+            summaryTable.add(new AbstractMap.SimpleEntry<String, String>(
                 Resources.getString("plugin.sipaccregwizz.ENABLE_PRESENCE"),
-                Resources.getString("service.gui.YES"));
+                Resources.getString("service.gui.YES")));
         }
         else
         {
-            summaryTable.put(
+            summaryTable.add(new AbstractMap.SimpleEntry<String, String>(
                 Resources.getString("plugin.sipaccregwizz.ENABLE_PRESENCE"),
-                Resources.getString("service.gui.NO"));
+                Resources.getString("service.gui.NO")));
         }
 
         if (registration.isForceP2PMode())
         {
-            summaryTable.put(
+            summaryTable.add(new AbstractMap.SimpleEntry<String, String>(
                 Resources.getString("plugin.sipaccregwizz.FORCE_P2P_PRESENCE"),
-                Resources.getString("service.gui.YES"));
+                Resources.getString("service.gui.YES")));
         }
         else
         {
-            summaryTable.put(
+            summaryTable.add(new AbstractMap.SimpleEntry<String, String>(
                 Resources.getString("plugin.sipaccregwizz.FORCE_P2P_PRESENCE"),
-                Resources.getString("service.gui.NO"));
+                Resources.getString("service.gui.NO")));
         }
 
         if (registration.isDefaultEncryption())
         {
-            summaryTable.put(Resources.getString(
+            summaryTable.add(new AbstractMap.SimpleEntry<String, String>(Resources.getString(
                 "plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"),
-                Resources.getString("service.gui.YES"));
+                Resources.getString("service.gui.YES")));
         }
         else
         {
-            summaryTable.put(Resources.getString(
+            summaryTable.add(new AbstractMap.SimpleEntry<String, String>(Resources.getString(
                 "plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"),
-                Resources.getString("service.gui.NO"));
+                Resources.getString("service.gui.NO")));
         }
 
         if (registration.isSipZrtpAttribute())
         {
-            summaryTable.put(Resources.getString(
+            summaryTable.add(new AbstractMap.SimpleEntry<String, String>(Resources.getString(
                 "plugin.sipaccregwizz.ENABLE_SIPZRTP_ATTRIBUTE"),
-                Resources.getString("service.gui.YES"));
+                Resources.getString("service.gui.YES")));
         }
         else
         {
-            summaryTable.put(Resources.getString(
+            summaryTable.add(new AbstractMap.SimpleEntry<String, String>(Resources.getString(
                 "plugin.sipaccregwizz.ENABLE_SIPZRTP_ATTRIBUTE"),
-                Resources.getString("service.gui.NO"));
+                Resources.getString("service.gui.NO")));
         }
 
-        summaryTable.put(Resources.getString(
+        summaryTable.add(new AbstractMap.SimpleEntry<String, String>(Resources.getString(
                 "plugin.sipaccregwizz.OFFLINE_CONTACT_POLLING_PERIOD"),
-                registration.getPollingPeriod());
-        summaryTable.put(Resources.getString(
+                registration.getPollingPeriod()));
+        summaryTable.add(new AbstractMap.SimpleEntry<String, String>(Resources.getString(
                 "plugin.sipaccregwizz.SUBSCRIPTION_EXPIRATION"),
-                registration.getSubscriptionExpiration());
+                registration.getSubscriptionExpiration()));
 
-        summaryTable.put(
+        summaryTable.add(new AbstractMap.SimpleEntry<String, String>(
             Resources.getString("plugin.sipaccregwizz.KEEP_ALIVE_METHOD"),
-            registration.getKeepAliveMethod());
-        summaryTable.put(
+            registration.getKeepAliveMethod()));
+        summaryTable.add(new AbstractMap.SimpleEntry<String, String>(
             Resources.getString("plugin.sipaccregwizz.KEEP_ALIVE_INTERVAL"),
-            registration.getKeepAliveInterval());
+            registration.getKeepAliveInterval()));
 
-        return summaryTable.entrySet().iterator();
+        return summaryTable.iterator();
     }
 
     /**
