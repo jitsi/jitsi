@@ -320,12 +320,6 @@ public class ZRTPTransformEngine
     private boolean started = false;
 
     /**
-     * The flag used to temporarily stop the media streaming
-     * required by the GoClear transition
-     */
-    private boolean holdFlag = false;
-
-    /**
      * Only multi-stream session may be started as one-way communication
      * channels.
      */
@@ -411,8 +405,9 @@ public class ZRTPTransformEngine
         String zidFilePath = null;
         try
         {
-            // Get the absolute path of the created zid file
-            zidFilePath = file.getAbsolutePath();
+            if (file != null)
+                // Get the absolute path of the created zid file
+                zidFilePath = file.getAbsolutePath();
         }
         catch (SecurityException e)
         {
@@ -514,19 +509,6 @@ public class ZRTPTransformEngine
         {
             return pkt;
         }
-
-        /*
-         * Discard the media packets if the hold flag is set
-         * (Needed in the GoClear transition)
-         */
-        /* TODO GoClear
-         * To uncomment in order to use the GoClear feature
-         * (uncomment also the check in write method of TransformOutputStream)
-         */
-        /*
-        if (holdFlag)
-            return null;
-        */
 
         // ZRTP needs the SSRC of the sending stream.
         if (enableZrtp && ownSSRC == 0)
@@ -857,23 +839,6 @@ public class ZRTPTransformEngine
 
     /**
      * 
-     * @see gnu.java.zrtp.ZrtpCallback#goClearProcedureFailed(
-     *                                 gnu.java.zrtp.ZrtpCodes.MessageSeverity,
-     *                                 java.util.EnumSet, boolean)
-     */
-    public void goClearProcedureFailed(ZrtpCodes.MessageSeverity severity,
-                                        EnumSet<?> subCode,
-                                        boolean maintainSecurity)
-    {
-//        if (userCallback != null)
-//        {
-//            userCallback.goClearProcedureFailed(severity,
-//                                                subCode, maintainSecurity);
-//        }
-    }
-
-    /**
-     * 
      * @see gnu.java.zrtp.ZrtpCallback#zrtpNotSuppOther()
      */
     public void zrtpNotSuppOther()
@@ -1167,15 +1132,6 @@ public class ZRTPTransformEngine
     public boolean isStarted()
     {
        return started;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see gnu.java.zrtp.ZrtpCallback#stopStreaming(boolean)
-     */
-    public void stopStreaming(boolean stop)
-    {
-        holdFlag = stop;
     }
 
     /**
