@@ -3,7 +3,9 @@
  *
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
- */package net.java.sip.communicator.util;
+ */
+package net.java.sip.communicator.util;
+
 import java.util.logging.*;
 
 /**
@@ -13,7 +15,7 @@ import java.util.logging.*;
  */
 public class Logger
 {
-    private java.util.logging.Logger loggerDelegate = null;
+    private final java.util.logging.Logger loggerDelegate;
 
     /**
      * Base constructor
@@ -40,7 +42,7 @@ public class Logger
      * @return a suitable Logger
      * @throws NullPointerException if the name is null.
      */
-    public static Logger getLogger(Class clazz)
+    public static Logger getLogger(Class<?> clazz)
         throws NullPointerException
     {
         return getLogger(clazz.getName());
@@ -346,10 +348,9 @@ public class Logger
     private void setLevel(java.util.logging.Level level)
     {
         Handler[] handlers = loggerDelegate.getHandlers();
-        for (int i = 0; i < handlers.length; i++)
-        {
-            handlers[i].setLevel(level);
-        }
+        for (Handler handler : handlers)
+            handler.setLevel(level);
+
         loggerDelegate.setLevel(level);
     }
 }

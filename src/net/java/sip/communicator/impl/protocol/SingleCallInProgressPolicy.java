@@ -240,18 +240,11 @@ public class SingleCallInProgressPolicy
         {
             synchronized (calls)
             {
-                for (Iterator<Call> callIter = calls.iterator(); callIter
-                    .hasNext();)
-                {
-                    Call otherCall = callIter.next();
-
+                for (Call otherCall : calls)
                     if (!call.equals(otherCall)
-                        && CallState.CALL_IN_PROGRESS.equals(otherCall
-                            .getCallState()))
-                    {
+                            && CallState.CALL_IN_PROGRESS
+                                    .equals(otherCall.getCallState()))
                         putOnHold(otherCall);
-                    }
-                }
             }
         }
     }
