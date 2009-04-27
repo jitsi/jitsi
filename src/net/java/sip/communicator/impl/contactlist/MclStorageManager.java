@@ -1044,8 +1044,15 @@ public class MclStorageManager
         protoGroupElement.setAttribute(ACCOUNT_ID_ATTR_NAME, protoGroup
             .getProtocolProvider().getAccountID().getAccountUniqueID());
 
-        protoGroupElement.setAttribute(PARENT_PROTO_GROUP_UID_ATTR_NAME,
-            protoGroup.getParentContactGroup().getUID());
+        /*
+         * The Javadoc on ContactGroup#getParentContactGroup() states null may
+         * be returned. Prevent a NullPointerException.
+         */
+        ContactGroup parentContactGroup = protoGroup.getParentContactGroup();
+        if (parentContactGroup != null)
+            protoGroupElement.setAttribute(
+                    PARENT_PROTO_GROUP_UID_ATTR_NAME,
+                    parentContactGroup.getUID());
 
         // append persistent data child node
         String persistentData = protoGroup.getPersistentData();
