@@ -32,11 +32,6 @@ public class CallSipImpl
         new Vector<CallParticipantSipImpl>();
 
     /**
-     * The state that this call is currently in.
-     */
-    private CallState callState = CallState.CALL_INITIALIZATION;
-
-    /**
      * The <tt>CallSession</tt> that the media service has created for this
      * call.
      */
@@ -105,37 +100,6 @@ public class CallSipImpl
 
         if (callParticipants.size() == 0)
             setCallState(CallState.CALL_ENDED);
-    }
-
-    /**
-     * Sets the state of this call and fires a call change event notifying
-     * registered listeners for the change.
-     *
-     * @param newState a reference to the <tt>CallState</tt> instance that the
-     *            call is to enter.
-     */
-    public void setCallState(CallState newState)
-    {
-        CallState oldState = getCallState();
-
-        if (oldState == newState)
-            return;
-
-        this.callState = newState;
-
-        fireCallChangeEvent(CallChangeEvent.CALL_STATE_CHANGE, oldState,
-            newState);
-    }
-
-    /**
-     * Returns the state that this call is currently in.
-     *
-     * @return a reference to the <tt>CallState</tt> instance that the call is
-     *         currently in.
-     */
-    public CallState getCallState()
-    {
-        return callState;
     }
 
     /**

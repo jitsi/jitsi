@@ -1,3 +1,9 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.protocol.mock;
 
 import java.util.*;
@@ -19,11 +25,6 @@ public class MockCall
      * A list containing all <tt>CallParticipant</tt>s of this call.
      */
     private Vector callParticipants = new Vector();
-
-    /**
-     * The state that this call is currently in.
-     */
-    private CallState callState = CallState.CALL_INITIALIZATION;
 
 
     public MockCall(MockProvider sourceProvider)
@@ -51,17 +52,6 @@ public class MockCall
     public int getCallParticipantsCount()
     {
         return callParticipants.size();
-    }
-
-    /**
-     * Returns the state that this call is currently in.
-     *
-     * @return a reference to the <tt>CallState</tt> instance that the call
-     *   is currently in.
-     */
-    public CallState getCallState()
-    {
-        return callState;
     }
 
     /**
@@ -106,26 +96,6 @@ public class MockCall
 
         if(callParticipants.size() == 0)
             setCallState(CallState.CALL_ENDED);
-    }
-
-    /**
-     * Sets the state of this call and fires a call change event notifying
-     * registered listenres for the change.
-     *
-     * @param newState a reference to the <tt>CallState</tt> instance that
-     * the call is to enter.
-     */
-    public void setCallState(CallState newState)
-    {
-        CallState oldState = getCallState();
-
-        if(oldState == newState)
-            return;
-
-        this.callState = newState;
-
-        fireCallChangeEvent(
-            CallChangeEvent.CALL_STATE_CHANGE, oldState, newState);
     }
 
     public void participantStateChanged(CallParticipantChangeEvent evt)

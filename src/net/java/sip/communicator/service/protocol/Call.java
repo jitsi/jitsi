@@ -56,6 +56,11 @@ public abstract class Call
     private final boolean sipZrtpAttribute;
 
     /**
+     * The state that this call is currently in.
+     */
+    private CallState callState = CallState.CALL_INITIALIZATION;
+
+    /**
      * Creates a new Call instance.
      *
      * @param sourceProvider the proto provider that created us.
@@ -256,9 +261,32 @@ public abstract class Call
      * Returns the state that this call is currently in.
      *
      * @return a reference to the <tt>CallState</tt> instance that the call is
-     * currently in.
+     *         currently in.
      */
-    public abstract CallState getCallState();
+    public CallState getCallState()
+    {
+        return callState;
+    }
+
+    /**
+     * Sets the state of this call and fires a call change event notifying
+     * registered listeners for the change.
+     *
+     * @param newState a reference to the <tt>CallState</tt> instance that the
+     *            call is to enter.
+     */
+    protected void setCallState(CallState newState)
+    {
+        CallState oldState = getCallState();
+
+        if (oldState != newState)
+        {
+            this.callState = newState;
+
+            fireCallChangeEvent(
+                CallChangeEvent.CALL_STATE_CHANGE, oldState, newState);
+        }
+    }
 
     /**
      * Returns the default call encryption flag

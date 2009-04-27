@@ -8,10 +8,11 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.service.media.*;
+
 import org.jivesoftware.smackx.jingle.*;
 
 /**
@@ -33,11 +34,6 @@ public class CallJabberImpl
      * A list containing all <tt>CallParticipant</tt>s of this call.
      */
     private Vector callParticipants = new Vector();
-
-    /**
-     * The state that this call is currently in.
-     */
-    private CallState callState = CallState.CALL_INITIALIZATION;
 
     /**
      * The <tt>CallSession</tt> that the media service has created for this
@@ -97,37 +93,6 @@ public class CallJabberImpl
 
         if(callParticipants.size() == 0)
             setCallState(CallState.CALL_ENDED);
-    }
-
-    /**
-     * Sets the state of this call and fires a call change event notifying
-     * registered listenres for the change.
-     *
-     * @param newState a reference to the <tt>CallState</tt> instance that
-     * the call is to enter.
-     */
-    public void setCallState(CallState newState)
-    {
-        CallState oldState = getCallState();
-
-        if(oldState == newState)
-            return;
-
-        this.callState = newState;
-
-        fireCallChangeEvent(
-            CallChangeEvent.CALL_STATE_CHANGE, oldState, newState);
-    }
-
-    /**
-     * Returns the state that this call is currently in.
-     *
-     * @return a reference to the <tt>CallState</tt> instance that the call is
-     * currently in.
-     */
-    public CallState getCallState()
-    {
-        return callState;
     }
 
     /**
