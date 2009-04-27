@@ -655,8 +655,8 @@ public class MediaControl
             logger.debug(
                 "sourceProcessor is in state "
                     + sourceProcessor.getState()
-                    + "which is > Processor.Configured"
-                    + "and then TrackControl.setFormat(Format) may not work.");
+                    + " which is > Processor.Configured"
+                    + " and then TrackControl.setFormat(Format) may not work.");
         boolean atLeastOneTrack = false;
         // Program the tracks.
         for (int i = 0; i < tracks.length; i++)

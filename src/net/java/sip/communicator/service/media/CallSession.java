@@ -179,7 +179,7 @@ public interface CallSession
      * by the caller in their <tt>sdpOffer</tt>.
      *
      * @throws MediaException code INTERNAL_ERROR if processing the offer and/or
-     * generating the anser fail for some reason.
+     * generating the answer fail for some reason.
      * @throws ParseException if <tt>sdpOfferStr</tt> does not contain a valid
      * sdp string.
      */
@@ -249,6 +249,14 @@ public interface CallSession
      * Starts the streaming of the local media (to the remote destinations).
      */
     public void startStreaming()
+        throws MediaException;
+
+    /**
+     * Calls {@link #startStreaming() in order to start the streaming of the
+     * local media and then begins processing the received and sent media
+     * streams.
+     */
+    public void startStreamingAndProcessingMedia()
         throws MediaException;
 
     /**

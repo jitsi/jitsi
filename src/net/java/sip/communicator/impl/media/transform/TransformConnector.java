@@ -12,6 +12,8 @@ import java.net.*;
 import javax.media.protocol.*;
 import javax.media.rtp.*;
 
+import net.java.sip.communicator.util.*;
+
 /**
  * TransformConnector implements the RTPConnector interface. RTPConnector
  * is originally designed for programmers to abstract the underlying transport
@@ -37,6 +39,9 @@ import javax.media.rtp.*;
 public class TransformConnector
     implements RTPConnector
 {
+    private static final Logger logger
+        = Logger.getLogger(TransformConnector.class);
+
     /**
      * The customized TransformEngine object, which contains the concrete
      * transform logic.
@@ -102,9 +107,18 @@ public class TransformConnector
                                             this.localAddr.getControlPort(),
                                             this.localAddr.getControlAddress());
         }
-        catch (SocketException e)
+        catch (SocketException se)
         {
-            throw new InvalidSessionAddressException();
+            /*
+             * TODO Could anyone please provide a meaningful message for the
+             * Logger here because I don't have an idea?
+             */
+            logger.error(null, se);
+
+            InvalidSessionAddressException isae
+                = new InvalidSessionAddressException();
+            isae.initCause(se);
+            throw isae;
         }
     }
 

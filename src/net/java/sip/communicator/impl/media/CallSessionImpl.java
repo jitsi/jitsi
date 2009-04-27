@@ -73,14 +73,14 @@ import gnu.java.zrtp.*;
  */
 public class CallSessionImpl
     extends PropertyChangeNotifier
-        implements   CallSession
-                   , CallParticipantListener
-                   , CallChangeListener
-                   , ReceiveStreamListener
-                   , SendStreamListener
-                   , SessionListener
-                   , ControllerListener
-//                   , SecureEventListener
+    implements CallSession
+               , CallParticipantListener
+               , CallChangeListener
+               , ReceiveStreamListener
+               , SendStreamListener
+               , SessionListener
+               , ControllerListener
+//             , SecureEventListener
 {
     private static final Logger logger
         = Logger.getLogger(CallSessionImpl.class);
@@ -462,32 +462,71 @@ public class CallSessionImpl
         applyOnHold();
     }
 
+    /* Implements CallSession#startStreamingAndProcessingMedia(). */
+    public void startStreamingAndProcessingMedia()
+        throws MediaException
+    {
+        startStreaming();
+        mediaServCallback.getMediaControl(getCall()).startProcessingMedia(this);
+    }
+
     /**
      * Stops and closes all streams that have been initialized for local
-     * RTP managers.
+     * RTP managers and disposes of the local RTP managers.
      */
     public boolean stopStreaming()
+    {
+        return stopStreaming(true);
+    }
+
+    /**
+     * Stops and closes all streams that have been initialized for local
+     * RTP managers and, optionally, disposes of the local RTP managers.
+     *
+     * @param dispose <tt>true</tt> to dispose of the local RTP managers once
+     *            their streams have been stopped and closed; <tt>false</tt> to
+     *            only stop and close the initialized streams but not dispose of
+     *            the local RTP managers
+     * @return <tt>true</tt> if at least one stream has been closed and stopped;
+     *         otherwise, <tt>false</tt>
+     */
+    private boolean stopStreaming(boolean dispose)
     {
         boolean stoppedStreaming = false;
 
         RTPManager audioRtpManager = getAudioRtpManager();
         if (audioRtpManager != null)
         {
-            stoppedStreaming = stopStreaming(audioRtpManager);
-            this.audioRtpManager = null;
+            stoppedStreaming = stopStreaming(audioRtpManager, dispose);
+            if (dispose)
+            {
+                transConnectors.remove(this.audioRtpManager); // clean up
+                this.audioRtpManager = null;
+            }
         }
         RTPManager videoRtpManager = getVideoRtpManager();
         if (videoRtpManager != null)
         {
             stoppedStreaming =
-                stopStreaming(videoRtpManager) || stoppedStreaming;
-            this.videoRtpManager = null;
+                stopStreaming(videoRtpManager, dispose) || stoppedStreaming;
+            if (dispose)
+            {
+                transConnectors.remove(this.videoRtpManager); // clean up
+                this.videoRtpManager = null;
+            }
         }
 
         lastIntendedDestination = null;
         return stoppedStreaming;
     }
 
+    /**
+     * Stops and closes the <code>SendStream</code>s initialized for the local
+     * RTP managers.
+     *
+     * @return <tt>true</tt> if at least one stream has been closed and stopped;
+     *         otherwise, <tt>false</tt>
+     */
     private boolean stopSendStreaming()
     {
         boolean stoppedAtLeastOneStream = false;
@@ -505,9 +544,18 @@ public class CallSessionImpl
         return stoppedAtLeastOneStream;
     }
 
+    /**
+     * Stops and closes the <code>SendStream</code>s initialized for a specific
+     * <code>RTPManager</code>.
+     *
+     * @param rtpManager the <code>RTPManager</code> whose
+     *            <code>SendStream</code>s are to be stopped and closed
+     * @return <tt>true</tt> if at least one stream has been closed and stopped;
+     *         otherwise, <tt>false</tt>
+     */
     private boolean stopSendStreaming(RTPManager rtpManager)
     {
-        List<SendStream> sendStreams = rtpManager.getSendStreams();
+        Iterable<SendStream> sendStreams = rtpManager.getSendStreams();
         boolean stoppedAtLeastOneStream = false;
 
         for (SendStream stream : sendStreams)
@@ -535,7 +583,7 @@ public class CallSessionImpl
      *         the streaming wasn't already stopped before this request;
      *         <tt>false</tt>, otherwise
      */
-    private boolean stopStreaming(RTPManager rtpManager)
+    private boolean stopStreaming(RTPManager rtpManager, boolean dispose)
     {
         boolean stoppedAtLeastOneStream = stopSendStreaming(rtpManager);
 
@@ -556,7 +604,14 @@ public class CallSessionImpl
         {
             try
             {
-                stream.getDataSource().stop();
+                DataSource streamDataSource = stream.getDataSource();
+
+                /*
+                 * For an unknown reason, the stream DataSource can be null at
+                 * the end of the Call after re-INVITEs have been handled.
+                 */
+                if (streamDataSource != null)
+                    streamDataSource.stop();
             }
             catch (IOException ex)
             {
@@ -575,7 +630,7 @@ public class CallSessionImpl
 
             if (transConnector != null)
             {
-                if (usingZRTP)
+                if (dispose && usingZRTP)
                 {
                     ZRTPTransformEngine engine
                         = (ZRTPTransformEngine) transConnector.getEngine();
@@ -593,11 +648,14 @@ public class CallSessionImpl
 
         printFlowStatistics(rtpManager);
 
-        //stop listening
-        rtpManager.removeReceiveStreamListener(this);
-        rtpManager.removeSendStreamListener(this);
-        rtpManager.removeSessionListener(this);
-        rtpManager.dispose();
+        if (dispose)
+        {
+            //stop listening
+            rtpManager.removeReceiveStreamListener(this);
+            rtpManager.removeSendStreamListener(this);
+            rtpManager.removeSessionListener(this);
+            rtpManager.dispose();
+        }
 
         return stoppedAtLeastOneStream;
     }
@@ -728,13 +786,40 @@ public class CallSessionImpl
      *            callee to be put on hold or answer an offer from the remote
      *            callee to be put on hold; <tt>false</tt> to work in the
      *            context of a put-off-hold offer
-     * @return an SDP description <tt>String</tt> which offers the remote
+     * @return a SDP description <tt>String</tt> which offers the remote
      *         callee to be put her on/off hold or answers an offer from the
      *         remote callee to be put on/off hold
      * @throws MediaException
      */
     public String createSdpDescriptionForHold(String participantSdpDescription,
-        boolean on) throws MediaException
+                                              boolean on)
+        throws MediaException
+    {
+        return
+            createSessionDescriptionForHold(participantSdpDescription, on)
+                .toString();
+    }
+
+    /**
+     * The method is meant for use by protocol service implementations when
+     * willing to send an in-dialog invitation to a remote callee to put her
+     * on/off hold or to send an answer to an offer to be put on/off hold.
+     *
+     * @param participantSdpDescription the last SDP description of the remote
+     *            callee
+     * @param on <tt>true</tt> if the SDP description should offer the remote
+     *            callee to be put on hold or answer an offer from the remote
+     *            callee to be put on hold; <tt>false</tt> to work in the
+     *            context of a put-off-hold offer
+     * @return a <code>SessionDescription</code> which offers the remote
+     *         callee to be put her on/off hold or answers an offer from the
+     *         remote callee to be put on/off hold
+     * @throws MediaException
+     */
+    private SessionDescription createSessionDescriptionForHold(
+            String participantSdpDescription,
+            boolean on)
+        throws MediaException
     {
         SessionDescription participantDescription = null;
         try
@@ -793,7 +878,7 @@ public class CallSessionImpl
                 MediaException.INTERNAL_ERROR, ex);
         }
 
-        return sdpOffer.toString();
+        return sdpOffer;
     }
 
     /**
@@ -1066,33 +1151,81 @@ public class CallSessionImpl
      * String.
      */
     public void processSdpAnswer(CallParticipant responder,
-                                              String sdpAnswerStr)
+                                 String sdpAnswerStr)
         throws MediaException, ParseException
     {
-        logger.trace("Parsing sdp answer: " + sdpAnswerStr);
+        processSdpStr(responder, sdpAnswerStr, true);
+    }
+
+    private String processSdpStr(CallParticipant participant,
+                                 String sdpStr,
+                                 boolean answer)
+        throws MediaException, ParseException
+    {
+        String answerStr = answer ? "answer" : "offer";
+
+        logger.trace("Parsing SDP " + answerStr + ": " + sdpStr);
+
         //first parse the answer
-        SessionDescription sdpAnswer = null;
+        SessionDescription sdp;
         try
         {
-            sdpAnswer = mediaServCallback.getSdpFactory()
-                .createSessionDescription(sdpAnswerStr);
+            sdp = mediaServCallback.getSdpFactory()
+                    .createSessionDescription(sdpStr);
         }
         catch (SdpParseException ex)
         {
-            throw new ParseException("Failed to parse SDPOffer: "
-                                     + ex.getMessage()
-                                     , ex.getCharOffset());
+            throw new ParseException("Failed to parse SDP "
+                                         + answerStr
+                                         + ": "
+                                         + ex.getMessage(),
+                                     ex.getCharOffset());
+        }
+        //it appears that in some cases parsing could also fail with
+        //other exceptions such as a NullPointerException for example so make
+        //sure we get those too.
+        catch (Exception ex)
+        {
+            throw new ParseException("Failed to parse SDP "
+                                         + answerStr
+                                         + ": "
+                                         + ex.getMessage(),
+                                     0);
         }
 
-        //extract URI (rfc4566 says that if present it should be before the
-        //media description so let's start with it)
-        setCallURL(sdpAnswer.getURI());
+        SessionDescription sdpAnswer;
+
+        if (answer)
+        {
+            /*
+             * extract URI (rfc4566 says that if present it should be before the
+             * media description so let's start with it)
+             */
+            setCallURL(sdp.getURI());
+
+            sdpAnswer = sdp;
+        }
+        else
+        {
+            //create an sdp answer.
+            CallParticipantState participantState = participant.getState();
+
+            if (CallParticipantState.CONNECTED.equals(participantState)
+                    || CallParticipantState.isOnHold(participantState))
+                sdpAnswer =
+                    createSessionDescriptionForHold(
+                        sdpStr,
+                        (getSdpOfferMediaFlags(sdpStr)
+                            & CallSession.ON_HOLD_REMOTELY) != 0);
+            else
+                sdpAnswer = createSessionDescription(sdp, null);
+        }
 
         //extract media descriptions
-        Vector<MediaDescription> mediaDescriptions = null;
+        Vector<MediaDescription> mediaDescriptions;
         try
         {
-            mediaDescriptions = sdpAnswer.getMediaDescriptions(true);
+            mediaDescriptions = sdp.getMediaDescriptions(true);
         }
         catch (SdpException exc)
         {
@@ -1103,20 +1236,22 @@ public class CallSessionImpl
         }
 
         //add the RTP targets
-        this.initStreamTargets(sdpAnswer.getConnection(), mediaDescriptions);
+        initStreamTargets(sdp.getConnection(), mediaDescriptions);
 
         //create and init the streams (don't start streaming just yet but wait
         //for the call to enter the connected state).
         createSendStreams(mediaDescriptions);
 
-        CallParticipantState responderState = responder.getState();
-        if (CallParticipantState.CONNECTED.equals(responderState)
-                || CallParticipantState.isOnHold(responderState))
+        if (answer)
         {
-            mediaServCallback.getMediaControl(getCall())
-                .startProcessingMedia(this);
-            startStreaming();
+            CallParticipantState participantState = participant.getState();
+
+            if (CallParticipantState.CONNECTED.equals(participantState)
+                    || CallParticipantState.isOnHold(participantState))
+                startStreamingAndProcessingMedia();
         }
+
+        return sdpAnswer.toString();
     }
 
     /**
@@ -1140,55 +1275,7 @@ public class CallSessionImpl
     public String processSdpOffer(CallParticipant offerer, String sdpOfferStr)
         throws MediaException, ParseException
     {
-        //first parse the offer
-        SessionDescription sdpOffer = null;
-        try
-        {
-            sdpOffer = mediaServCallback.getSdpFactory()
-                .createSessionDescription(sdpOfferStr);
-        }
-        catch (SdpParseException ex)
-        {
-            throw new ParseException("Failed to parse SDPOffer: "
-                                     + ex.getMessage()
-                                     , ex.getCharOffset());
-        }
-        //it appears that in some cases parsing could also fail with
-        //other exceptions such as a NullPointerException for example so make
-        //sure we get those too.
-        catch(Exception ex)
-        {
-            throw new ParseException("Failed to parse SDPOffer: "
-                                     + ex.getMessage()
-                                     , 0);
-        }
-
-        //create an sdp answer.
-        SessionDescription sdpAnswer = createSessionDescription(sdpOffer, null);
-
-        //extract the remote addresses.
-        Vector<MediaDescription> mediaDescriptions = null;
-        try
-        {
-            mediaDescriptions = sdpOffer.getMediaDescriptions(true);
-        }
-        catch (SdpException exc)
-        {
-            logger.error("failed to extract media descriptions", exc);
-            throw new MediaException("failed to extract media descriptions"
-                                    , MediaException.INTERNAL_ERROR
-                                    , exc);
-        }
-
-
-        //add the RTP targets
-        this.initStreamTargets(sdpOffer.getConnection(), mediaDescriptions);
-
-        //create and init the streams (don't start streaming just yet but wait
-        //for the call to enter the connected state).
-        createSendStreams(mediaDescriptions);
-
-        return sdpAnswer.toString();
+        return processSdpStr(offerer, sdpOfferStr, false);
     }
 
     /**
@@ -1448,8 +1535,6 @@ public class CallSessionImpl
             //we don't yet implement ice so just try to choose a local address
             //that corresponds to the address provided by the offer or as an
             //intended destination.
-            NetworkAddressManagerService netAddressManager
-                = MediaActivator.getNetworkAddressManagerService();
 
             if(offer != null)
             {
@@ -1511,34 +1596,23 @@ public class CallSessionImpl
              */
             boolean allocateMediaPorts = false;
 
-            /*
-             * TODO Should the reinitializing for the purposes of re-INVITE
-             * start the streaming before ACK?
-             */
-            boolean startStreaming = false;
             if ((audioSessionAddress == null) || (videoSessionAddress == null))
             {
                 allocateMediaPorts = true;
             }
-            else
-            {
-                if ((intendedDestination != null)
+            else if ((intendedDestination != null)
                         && !intendedDestination.equals(lastIntendedDestination))
-                {
-                    startStreaming = stopStreaming();
-                    audioRtpManager = RTPManager.newInstance();
-                    videoRtpManager = RTPManager.newInstance();
+            {
+                stopStreaming(false);
+                //audioRtpManager = RTPManager.newInstance();
+                //videoRtpManager = RTPManager.newInstance();
 
-                    allocateMediaPorts = true;
-                }
+                //allocateMediaPorts = true;
             }
             if (allocateMediaPorts)
             {
                 allocateMediaPorts(intendedDestination);
                 lastIntendedDestination = intendedDestination;
-
-                if (startStreaming)
-                    startStreaming();
             }
 
             InetAddress publicIpAddress = audioPublicAddress.getAddress();
@@ -1578,9 +1652,10 @@ public class CallSessionImpl
             sessDescr.setTimeDescriptions(timeDescs);
 
             //media descriptions.
-            Vector<MediaDescription> offeredMediaDescriptions  = null;
-            if(offer != null)
-                offeredMediaDescriptions = offer.getMediaDescriptions(false);
+            Vector<MediaDescription> offeredMediaDescriptions
+                = (offer == null)
+                        ? null
+                        : offer.getMediaDescriptions(false);
 
             logger.debug("Will create media descs with: audio public address="
                          + audioPublicAddress
@@ -1595,9 +1670,7 @@ public class CallSessionImpl
             sessDescr.setMediaDescriptions(mediaDescs);
 
             if (logger.isTraceEnabled())
-            {
                 logger.trace("Generated SDP - " + sessDescr.toString());
-            }
 
             return sessDescr;
         }
@@ -1605,7 +1678,7 @@ public class CallSessionImpl
         {
             throw new MediaException(
                 "An SDP exception occurred while generating local "
-                + "sdp description"
+                    + "SDP description"
                 , MediaException.INTERNAL_ERROR
                 , exc);
         }
@@ -2086,58 +2159,60 @@ public class CallSessionImpl
     private void allocateMediaPorts(InetAddress intendedDestination)
         throws MediaException
     {
-        NetworkAddressManagerService netAddressManager = MediaActivator
-                .getNetworkAddressManagerService();
-
         // Get our local address for the intended destination.
         // Use this address to bind our local RTP sockets
         InetAddress inAddrLocal
-                        = netAddressManager.getLocalHost(intendedDestination);
+            = MediaActivator.getNetworkAddressManagerService()
+                    .getLocalHost(intendedDestination);
 
         //check the number of times that we'd have to retry binding to local
         //ports before giving up.
-        String bindRetriesStr
-            = MediaActivator.getConfigurationService().getString(
-                MediaService.BIND_RETRIES_PROPERTY_NAME);
-
-        int bindRetries = MediaService.BIND_RETRIES_DEFAULT_VALUE;
-        try
-        {
-            if(bindRetriesStr != null && bindRetriesStr.length() > 0)
-                bindRetries = Integer.parseInt(bindRetriesStr);
-        }
-        catch (NumberFormatException ex)
-        {
-            logger.warn(bindRetriesStr
-                        + " is not a valid value for number of bind retries."
-                        , ex);
-        }
+        int bindRetries
+            = MediaActivator.getConfigurationService()
+                    .getInt(
+                            MediaService.BIND_RETRIES_PROPERTY_NAME,
+                            MediaService.BIND_RETRIES_DEFAULT_VALUE);
 
         //initialize audio rtp manager.
-        audioSessionAddress = new SessionAddress(inAddrLocal, minPortNumber);
-        audioPublicAddress = allocatePort(intendedDestination,
-                                          audioSessionAddress,
-                                          bindRetries);
+
+        /*
+         * XXX If the ports have to be relocated, keep in mind that when X-Lite
+         * sends a re-INVITE and our port change is reported as part of the OK
+         * response to the re-INVITE, X-Lite continues to stream to the old
+         * ports and not to the new ones.
+         */
+        if (audioSessionAddress == null)
+        {
+            audioSessionAddress
+                = new SessionAddress(inAddrLocal, minPortNumber);
+            audioPublicAddress
+                = allocatePort(
+                        intendedDestination, audioSessionAddress, bindRetries);
+
+            //augment min port number so that no one else tries to bind here.
+            minPortNumber = audioSessionAddress.getDataPort() + 2;
+        }
 
         if (logger.isDebugEnabled()) {
             logger.debug("AudioSessionAddress=" + audioSessionAddress);
             logger.debug("AudioPublicAddress=" + audioPublicAddress);
         }
 
-        //augment min port number so that no one else tries to bind here.
-        minPortNumber = audioSessionAddress.getDataPort() + 2;
-
         //initialize video rtp manager.
-        videoSessionAddress = new SessionAddress(inAddrLocal, minPortNumber);
-        videoPublicAddress = allocatePort(intendedDestination,
-                                          videoSessionAddress,
-                                          bindRetries);
+        if (videoSessionAddress == null)
+        {
+            videoSessionAddress
+                = new SessionAddress(inAddrLocal, minPortNumber);
+            videoPublicAddress
+                = allocatePort(
+                        intendedDestination, videoSessionAddress, bindRetries);
 
-        //augment min port number so that no one else tries to bind here.
-        minPortNumber = videoSessionAddress.getDataPort() + 2;
+            //augment min port number so that no one else tries to bind here.
+            minPortNumber = videoSessionAddress.getDataPort() + 2;
+        }
 
         //if we have reached the max port number - reinit.
-        if(minPortNumber > maxPortNumber -2)
+        if (minPortNumber > maxPortNumber - 2)
             initializePortNumbers();
 
         //now init the rtp managers and make them bind
@@ -2446,9 +2521,7 @@ public class CallSessionImpl
             try
             {
                 logger.debug("call connected. starting streaming");
-                startStreaming();
-                mediaServCallback.getMediaControl(getCall())
-                    .startProcessingMedia(this);
+                startStreamingAndProcessingMedia();
             }
             catch (MediaException ex)
             {
@@ -2591,27 +2664,26 @@ public class CallSessionImpl
      */
     public synchronized void update(SessionEvent event)
     {
-        if (event instanceof NewParticipantEvent)
+        if (logger.isDebugEnabled())
         {
-            Participant participant
-                = ( (NewParticipantEvent) event).getParticipant();
-            if (logger.isDebugEnabled())
+            if (event instanceof NewParticipantEvent)
             {
-                logger.debug("A new participant had just joined: "
-                             + participant.getCNAME());
-            }
-        }
-        else
-        {
-            if (logger.isDebugEnabled())
-            {
-                logger.debug(
-                    "Received the following JMF Session event - "
-                    + event.getClass().getName() + "=" + event);
-            }
-        }
+                Participant participant
+                    = ((NewParticipantEvent) event).getParticipant();
 
+                logger.debug("A new participant had just joined: "
+                                 + participant.getCNAME());
+            }
+            else
+            {
+                logger.debug("Received the following JMF Session event - "
+                                 + event.getClass().getName()
+                                 + "="
+                                 + event);
+            }
+        }
     }
+
     /**
      * Method called back in the RTPSessionListener to notify
      * listener of all SendStream Events.

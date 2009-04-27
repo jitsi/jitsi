@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
-import gov.nist.javax.sip.header.HeaderFactoryImpl;
+import gov.nist.javax.sip.header.HeaderFactoryImpl; // disambiguates Contact
 import gov.nist.javax.sip.header.extensions.*;
 
 import java.net.*;
@@ -696,10 +696,7 @@ public class OperationSetBasicTelephonySipImpl
                 processInviteOK(clientTransaction, response);
                 processed = true;
             }
-            else if (method.equals(Request.BYE))
-            {
-                // ignore
-            }
+            // Ignore the case of method.equals(Request.BYE)
             break;
 
         // Ringing
@@ -1074,8 +1071,8 @@ public class OperationSetBasicTelephonySipImpl
         // !!! set sdp content before setting call state as that is where
         // listeners get alerted and they need the sdp
         // ignore sdp if we have already received one in early media
-        if(!CallParticipantState.CONNECTING_WITH_EARLY_MEDIA.
-                equals(callParticipant.getState()))
+        if(!CallParticipantState.CONNECTING_WITH_EARLY_MEDIA
+               .equals(callParticipant.getState()))
             callParticipant.setSdpDescription(new String(ok.getRawContent()));
 
         // notify the media manager of the sdp content
@@ -1098,9 +1095,10 @@ public class OperationSetBasicTelephonySipImpl
                     callSession
                         .setSessionCreatorCallback(callParticipant);
 
-                    String sdp =
-                        callSession.processSdpOffer(callParticipant,
-                            callParticipant.getSdpDescription());
+                    String sdp
+                        = callSession.processSdpOffer(
+                                callParticipant,
+                                callParticipant.getSdpDescription());
                     ack.setContent(sdp, contentTypeHeader);
 
                     // set the call url in case there was one
@@ -1141,9 +1139,11 @@ public class OperationSetBasicTelephonySipImpl
             if (!CallParticipantState.CONNECTING_WITH_EARLY_MEDIA
                     .equals(callParticipantState))
             {
-                callSession.processSdpAnswer(callParticipant, callParticipant
-                    .getSdpDescription());
+                callSession.processSdpAnswer(
+                    callParticipant,
+                    callParticipant.getSdpDescription());
             }
+
             // set the call url in case there was one
             /**
              * @todo this should be done in CallSession, once we move it here.
@@ -1155,20 +1155,23 @@ public class OperationSetBasicTelephonySipImpl
         catch (Exception exc)//Media or parse exception.
         {
             logger.error("There was an error parsing the SDP description of "
-                            + callParticipant.getDisplayName() + "("
-                            + callParticipant.getAddress() + ")", exc);
-            try{
+                             + callParticipant.getDisplayName()
+                             + "(" + callParticipant.getAddress() + ")",
+                         exc);
+            try
+            {
                 //we are connected from a SIP point of view (cause we sent our
-                //ack) sp make sure we set the state accordingly or the hangup
+                //ack) so make sure we set the state accordingly or the hangup
                 //method won't know how to end the call.
                 callParticipant.setState(CallParticipantState.CONNECTED);
                 hangupCallParticipant(callParticipant);
             }
-            catch (Exception e){
+            catch (Exception e)
+            {
                 //I don't see what more we could do.
                 logger.error(e);
                 callParticipant.setState(CallParticipantState.FAILED,
-                                e.getMessage());
+                                         e.getMessage());
             }
             return;
         }
@@ -1788,18 +1791,15 @@ public class OperationSetBasicTelephonySipImpl
 
         CallSession callSession =
             ((CallSipImpl) participant.getCall()).getMediaCallSession();
-        CallParticipantSipImpl sipParticipant =
-            (CallParticipantSipImpl) participant;
-        String sdpOffer = sipParticipant.getSdpDescription();
 
         String sdpAnswer = null;
         try
         {
-            sdpAnswer =
-                callSession.createSdpDescriptionForHold(
-                    sdpOffer,
-                    (callSession.getSdpOfferMediaFlags(sdpOffer)
-                            & CallSession.ON_HOLD_REMOTELY) != 0);
+            sdpAnswer
+                = callSession.processSdpOffer(
+                        participant,
+                        ((CallParticipantSipImpl) participant)
+                            .getSdpDescription());
         }
         catch (MediaException ex)
         {
@@ -1808,8 +1808,10 @@ public class OperationSetBasicTelephonySipImpl
                 OperationFailedException.INTERNAL_ERROR, ex);
         }
 
-        response.setContent(sdpAnswer, protocolProvider.getHeaderFactory()
-            .createContentTypeHeader("application", "sdp"));
+        response.setContent(
+            sdpAnswer,
+            protocolProvider.getHeaderFactory()
+                .createContentTypeHeader("application", "sdp"));
     }
 
     /**
@@ -1974,26 +1976,47 @@ public class OperationSetBasicTelephonySipImpl
                             Request ackRequest)
     {
         // find the call
-        CallParticipantSipImpl callParticipant =
-            activeCallsRepository.findCallParticipant(serverTransaction
-                .getDialog());
+        CallParticipantSipImpl participant
+            = activeCallsRepository.findCallParticipant(
+                    serverTransaction.getDialog());
 
-        if (callParticipant == null)
+        if (participant == null)
         {
             // this is most probably the ack for a killed call - don't signal it
             logger.debug("didn't find an ack's call, returning");
             return;
         }
 
-        ContentLengthHeader cl = ackRequest.getContentLength();
-        if (cl != null && cl.getContentLength() > 0)
+        ContentLengthHeader contentLength = ackRequest.getContentLength();
+        if ((contentLength != null) && (contentLength.getContentLength() > 0))
         {
-            callParticipant.setSdpDescription(new String(ackRequest
-                .getRawContent()));
+            participant.setSdpDescription(
+                new String(ackRequest.getRawContent()));
         }
+
         // change status
-        if (!CallParticipantState.isOnHold(callParticipant.getState()))
-            callParticipant.setState(CallParticipantState.CONNECTED);
+        CallParticipantState participantState = participant.getState();
+        if (!CallParticipantState.isOnHold(participantState))
+        {
+            if (CallParticipantState.CONNECTED.equals(participantState))
+            {
+                try
+                {
+                    ((CallSipImpl) participant.getCall())
+                        .getMediaCallSession()
+                            .startStreamingAndProcessingMedia();
+                }
+                catch (MediaException ex)
+                {
+                    logger.error(
+                        "Failed to start the streaming"
+                            + " and the processing of the media",
+                        ex);
+                }
+            }
+            else
+                participant.setState(CallParticipantState.CONNECTED);
+        }
     }
 
     /**
@@ -2002,8 +2025,8 @@ public class OperationSetBasicTelephonySipImpl
      * @param serverTransaction the transaction that the cancel was received in.
      * @param cancelRequest the Request that we've just received.
      */
-    void processCancel(ServerTransaction serverTransaction,
-        Request cancelRequest)
+    private void processCancel(ServerTransaction serverTransaction,
+                               Request cancelRequest)
     {
         // find the call
         CallParticipantSipImpl callParticipant =
@@ -2966,11 +2989,11 @@ public class OperationSetBasicTelephonySipImpl
             //exception as it would go to the stack and there's nothing it could
             //do with it.
             logger.error(
-                "Failed to created an SDP description for an ok response "
-                + "to an INVITE request!",
+                "Failed to create an SDP description for an OK response "
+                    + "to an INVITE request!",
                 ex);
             this.sayError((CallParticipantSipImpl) participant,
-                Response.NOT_ACCEPTABLE_HERE);
+                          Response.NOT_ACCEPTABLE_HERE);
         }
         catch (ParseException ex)
         {
@@ -2981,7 +3004,7 @@ public class OperationSetBasicTelephonySipImpl
                 "Failed to parse sdp data while creating invite request!",
                 ex);
             this.sayError((CallParticipantSipImpl) participant,
-                            Response.NOT_ACCEPTABLE_HERE);
+                          Response.NOT_ACCEPTABLE_HERE);
         }
 
         ContactHeader contactHeader = protocolProvider.getContactHeader(
@@ -2998,7 +3021,8 @@ public class OperationSetBasicTelephonySipImpl
             callParticipant.setState(CallParticipantState.DISCONNECTED);
             throwOperationFailedException(
                 "Failed to send an OK response to an INVITE request",
-                OperationFailedException.NETWORK_FAILURE, ex);
+                OperationFailedException.NETWORK_FAILURE,
+                ex);
         }
     } // answer call
 
