@@ -637,6 +637,10 @@
       <replace file="${macosx.resrc.dir}/felix.client.run.properties"
             token="org.osgi.framework.system.packages.extra="
             value="org.osgi.framework.system.packages.extra= com.growl;"/>
+      <!-- Remove the reference to the updatechecker bundle -->
+      <replace file="${macosx.resrc.dir}/felix.client.run.properties"
+               token="reference:file:sc-bundles/updatechecker.jar"
+               value=""/>
       <replaceregexp file="${macosx.resrc.dir}/felix.client.run.properties"
                 match="^org.osgi.framework.storage=\$\{user.home\}/.sip-communicator/sip-communicator.bin"
                 replace="org.osgi.framework.storage=$\{user.home\}/Library/Application Support/${application.name}/sip-communicator.bin"
@@ -711,14 +715,13 @@
             <include name="${bundles.dest}/*.jar" />
             <exclude name="${bundles.dest}/*-slick.jar" />
             <exclude name="${bundles.dest}/sparkle.jar" />
+            <exclude name="${bundles.dest}/updatechecker.jar" />
             <include name="resources/images/logo/sc_logo_128x128.icns" />
         </jarfileset>
         <javafilelist dir="${macosx.resrc.dir}"
                       files="logging.properties"/>
         <javafilelist dir="${macosx.resrc.dir}"
                       files="felix.client.run.properties"/>
-        <javafilelist dir="${macosx.resrc.dir}"
-                      files="versionupdate.properties"/>
       </jarbundler>
 
       <!-- Add the url types in the Info.plist file -->
@@ -751,13 +754,6 @@
       <echo file="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/felix.client.run.properties"
             append="true">felix.auto.start.71= reference:file:sc-bundles/sparkle.jar
       </echo>
-
-      <!-- Remove the path to the updatechecker bundle in the felix.client.run.properties file -->
-      <replace file="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/felix.client.run.properties"
-               token="reference:file:sc-bundles/updatechecker.jar"
-               value=""/>
-      <delete file="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/sc-bundles/updatechecker.jar"
-              failonerror="false" />
 
       <!-- Add the Sparkle bundle and JNI to the application package -->
       <copy file="${bundles.dest}/sparkle.jar"
@@ -796,13 +792,6 @@
     <target name="dmg" depends="macosx-sparkle"
             if="is.running.macos"
             description="Create a .dmg package for MACOSX (only works on MACOSX)">
-
-      <!--propertyfile file="${macosx.app.dir}/versionupdate.properties"
-            comment="Last Build Version">
-            <entry  key="last_version" value="${sip-communicator.version}"/>
-            <entry  key="download_link"
-                    value="http://download.sip-communicator.org/nightly/macosx/${package.name}-${sip-communicator.version}.dmg"/>
-      </propertyfile-->
 
       <property name="macosx.dmg.name"
                 value="${package.name}-${sip-communicator.version}.dmg"/>
