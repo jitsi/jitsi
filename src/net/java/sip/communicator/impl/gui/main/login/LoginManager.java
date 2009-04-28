@@ -35,9 +35,9 @@ public class LoginManager
     implements  ServiceListener,
                 RegistrationStateChangeListener
 {
-    private Logger logger = Logger.getLogger(LoginManager.class.getName());
+    private final Logger logger = Logger.getLogger(LoginManager.class);
 
-    private MainFrame mainFrame;
+    private final MainFrame mainFrame;
 
     private boolean manuallyDisconnected = false;
 
@@ -127,21 +127,20 @@ public class LoginManager
      */
     public void registrationStateChanged(RegistrationStateChangeEvent evt)
     {
+        RegistrationState newState = evt.getNewState();
         ProtocolProviderService protocolProvider = evt.getProvider();
-
         AccountID accountID = protocolProvider.getAccountID();
 
         logger.trace("Protocol provider: " + protocolProvider
             + " changed its state to: " + evt.getNewState().getStateName());
 
-        OperationSetPresence presence = mainFrame
-            .getProtocolPresenceOpSet(protocolProvider);
-
-        OperationSetMultiUserChat multiUserChat = mainFrame
-            .getMultiUserChatOpSet(protocolProvider);
-
-        if (evt.getNewState().equals(RegistrationState.REGISTERED))
+        if (newState.equals(RegistrationState.REGISTERED))
         {
+            OperationSetPresence presence = mainFrame
+                .getProtocolPresenceOpSet(protocolProvider);
+            OperationSetMultiUserChat multiUserChat = mainFrame
+                .getMultiUserChatOpSet(protocolProvider);
+
             if (presence != null)
             {
                 presence.setAuthorizationHandler(new AuthorizationHandlerImpl(
@@ -155,8 +154,7 @@ public class LoginManager
                         protocolProvider, multiUserChat);
             }
         }
-        else if (evt.getNewState().equals(
-            RegistrationState.AUTHENTICATION_FAILED))
+        else if (newState.equals(RegistrationState.AUTHENTICATION_FAILED))
         {
             if (evt.getReasonCode() == RegistrationStateChangeEvent
                     .REASON_RECONNECTION_RATE_LIMIT_EXCEEDED)
@@ -188,7 +186,7 @@ public class LoginManager
 
             logger.trace(evt.getReason());
         }
-        else if (evt.getNewState().equals(RegistrationState.CONNECTION_FAILED))
+        else if (newState.equals(RegistrationState.CONNECTION_FAILED))
         {
             String msgText = GuiActivator.getResources().getI18NString(
                 "service.gui.CONNECTION_FAILED_MSG",
@@ -210,7 +208,7 @@ public class LoginManager
 
             logger.trace(evt.getReason());
         }
-        else if (evt.getNewState().equals(RegistrationState.EXPIRED))
+        else if (newState.equals(RegistrationState.EXPIRED))
         {
             String msgText = GuiActivator.getResources().getI18NString(
                 "service.gui.CONNECTION_EXPIRED_MSG",
@@ -223,7 +221,7 @@ public class LoginManager
 
             logger.error(evt.getReason());
         }
-        else if (evt.getNewState().equals(RegistrationState.UNREGISTERED))
+        else if (newState.equals(RegistrationState.UNREGISTERED))
         {
             if (!manuallyDisconnected)
             {
@@ -274,26 +272,6 @@ public class LoginManager
     }
 
     /**
-     * Returns the MainFrame.
-     *
-     * @return The MainFrame.
-     */
-    public MainFrame getMainFrame()
-    {
-        return mainFrame;
-    }
-
-    /**
-     * Sets the MainFrame.
-     *
-     * @param mainFrame The main frame.
-     */
-    public void setMainFrame(MainFrame mainFrame)
-    {
-        this.mainFrame = mainFrame;
-    }
-
-    /**
      * Implements the <tt>ServiceListener</tt> method. Verifies whether the
      * passed event concerns a <tt>ProtocolProviderService</tt> and adds the
      * corresponding UI controls.
@@ -302,16 +280,16 @@ public class LoginManager
      */
     public void serviceChanged(ServiceEvent event)
     {
+        ServiceReference serviceRef = event.getServiceReference();
+
         // if the event is caused by a bundle being stopped, we don't want to
         // know
-        if (event.getServiceReference().getBundle().getState()
-                == Bundle.STOPPING)
+        if (serviceRef.getBundle().getState() == Bundle.STOPPING)
         {
             return;
         }
 
-        Object service = GuiActivator.bundleContext.getService(event
-            .getServiceReference());
+        Object service = GuiActivator.bundleContext.getService(serviceRef);
 
         // we don't care if the source service is not a protocol provider
         if (!(service instanceof ProtocolProviderService))
@@ -319,13 +297,14 @@ public class LoginManager
             return;
         }
 
-        if (event.getType() == ServiceEvent.REGISTERED)
+        switch (event.getType())
         {
+        case ServiceEvent.REGISTERED:
             this.handleProviderAdded((ProtocolProviderService) service);
-        }
-        else if (event.getType() == ServiceEvent.UNREGISTERING)
-        {
+            break;
+        case ServiceEvent.UNREGISTERING:
             this.handleProviderRemoved((ProtocolProviderService) service);
+            break;
         }
     }
 

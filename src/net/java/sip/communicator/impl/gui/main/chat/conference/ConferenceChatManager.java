@@ -962,13 +962,7 @@ public class ConferenceChatManager
         }
         else if (event.getType() == ServiceEvent.UNREGISTERING)
         {
-            ChatRoomProviderWrapper chatRoomProvider
-                = chatRoomList.findServerWrapperFromProvider(protocolProvider);
-
-            if (chatRoomProvider != null)
-            {
-                chatRoomList.removeChatProvider(chatRoomProvider);
-            }
+            chatRoomList.removeChatProvider(protocolProvider);
         }
     }
 

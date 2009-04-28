@@ -29,7 +29,7 @@ public class ChatRoomList
     /**
      * The list containing all chat servers and rooms.
      */
-    private final Vector<ChatRoomProviderWrapper> providersList
+    private final List<ChatRoomProviderWrapper> providersList
         = new Vector<ChatRoomProviderWrapper>();
 
     /**
@@ -48,13 +48,11 @@ public class ChatRoomList
             if (serRefs == null)
                 return;
 
-            for (int i = 0; i < serRefs.length; i ++)
+            for (ServiceReference serRef : serRefs)
             {
-                ServiceReference protocolProviderRef = serRefs[i];
-
                 ProtocolProviderService protocolProvider
-                    = (ProtocolProviderService) GuiActivator
-                        .bundleContext.getService(protocolProviderRef);
+                    = (ProtocolProviderService)
+                            GuiActivator.bundleContext.getService(serRef);
 
                 Object multiUserChatOpSet
                     = protocolProvider
@@ -130,38 +128,49 @@ public class ChatRoomList
      * list.
      * 
      * @param pps the <tt>ProtocolProviderService</tt> corresponding to the
-     * server to remove
+     *            server to remove
      */
-    public void removeChatProvider(ChatRoomProviderWrapper chatRoomProvider)
+    public void removeChatProvider(ProtocolProviderService pps)
     {
+        ChatRoomProviderWrapper wrapper = findServerWrapperFromProvider(pps);
+
+        if (wrapper != null)
+            removeChatProvider(wrapper);
+    }
+
+    /**
+     * Removes the corresponding server and all related chat rooms from this
+     * list.
+     * 
+     * @param chatRoomProvider the <tt>ChatRoomProviderWrapper</tt>
+     *            corresponding to the server to remove
+     */
+    private void removeChatProvider(ChatRoomProviderWrapper chatRoomProvider)
+    {
+        providersList.remove(chatRoomProvider);
+
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
-
         String prefix = "net.java.sip.communicator.impl.gui.accounts";
+        String providerAccountUID
+            = chatRoomProvider
+                    .getProtocolProvider().getAccountID().getAccountUniqueID();
 
-        Iterator<String> accountsIter = configService
-            .getPropertyNamesByPrefix(prefix, true).iterator();
-
-        while(accountsIter.hasNext())
+        for (String accountRootPropName
+                : configService.getPropertyNamesByPrefix(prefix, true))
         {
-            String accountRootPropName = accountsIter.next();
-
             String accountUID
                 = configService.getString(accountRootPropName);
 
-            if(accountUID.equals(chatRoomProvider.getProtocolProvider()
-                    .getAccountID().getAccountUniqueID()))
+            if(accountUID.equals(providerAccountUID))
             {
-                List<String> chatRooms = configService
-                    .getPropertyNamesByPrefix(
-                        accountRootPropName + ".chatRooms", true);
+                List<String> chatRooms
+                    = configService.getPropertyNamesByPrefix(
+                            accountRootPropName + ".chatRooms",
+                            true);
 
-                Iterator<String> chatRoomsIter = chatRooms.iterator();
-
-                while(chatRoomsIter.hasNext())
+                for (String chatRoomPropName : chatRooms)
                 {
-                    String chatRoomPropName = chatRoomsIter.next();
-
                     configService.setProperty(
                         chatRoomPropName + ".chatRoomName",
                         null);
@@ -234,9 +243,9 @@ public class ChatRoomList
         for (ChatRoomProviderWrapper provider : providersList)
         {
             ChatRoomWrapper systemRoomWrapper = provider.getSystemRoomWrapper();
+            ChatRoom systemRoom = systemRoomWrapper.getChatRoom();
 
-            if (systemRoomWrapper.getChatRoom() != null
-                && systemRoomWrapper.getChatRoom().equals(chatRoom))
+            if ((systemRoom != null) && systemRoom.equals(chatRoom))
             {
                 return systemRoomWrapper;
             }
@@ -248,7 +257,8 @@ public class ChatRoomList
                 if (chatRoomWrapper != null)
                 {
                     // stored chatrooms has no chatroom, but their
-                    // id is the same as the chatroom we are searching wrapper for
+                    // id is the same as the chatroom we are searching wrapper
+                    // for
                     if(chatRoomWrapper.getChatRoom() == null)
                     {
                         chatRoomWrapper.setChatRoom(chatRoom);

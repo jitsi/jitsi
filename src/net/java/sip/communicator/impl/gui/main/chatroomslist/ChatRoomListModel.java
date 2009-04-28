@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.chatroomslist;
 
 import java.util.*;
@@ -15,12 +14,12 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 
 /**
- * 
  * @author Yana Stamcheva
  */
-public class ChatRoomListModel extends AbstractListModel
+public class ChatRoomListModel
+    extends AbstractListModel
 {
-    private ChatRoomList chatRoomList;
+    private final ChatRoomList chatRoomList;
 
     public ChatRoomListModel()
     {

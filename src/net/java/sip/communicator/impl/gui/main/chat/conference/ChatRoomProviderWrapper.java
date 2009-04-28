@@ -14,18 +14,18 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * 
  * @author Yana Stamcheva
  */
 public class ChatRoomProviderWrapper
 {
-    private Logger logger = Logger.getLogger(ChatRoomProviderWrapper.class);
+    private static final Logger logger
+        = Logger.getLogger(ChatRoomProviderWrapper.class);
 
-    private ProtocolProviderService protocolProvider;
+    private final ProtocolProviderService protocolProvider;
 
-    private ChatRoomWrapper systemRoomWrapper;
+    private final ChatRoomWrapper systemRoomWrapper;
 
-    private List<ChatRoomWrapper> chatRoomsOrderedCopy
+    private final List<ChatRoomWrapper> chatRoomsOrderedCopy
         = new LinkedList<ChatRoomWrapper>();
 
     /**
@@ -39,11 +39,10 @@ public class ChatRoomProviderWrapper
         ProtocolProviderService protocolProvider)
     {
         this.protocolProvider = protocolProvider;
+
+        String accountIdService = protocolProvider.getAccountID().getService();
         this.systemRoomWrapper
-            = new ChatRoomWrapper(
-                this,
-                protocolProvider.getAccountID().getService(),
-                protocolProvider.getAccountID().getService());
+            = new ChatRoomWrapper(this, accountIdService, accountIdService);
     }
 
     /**
@@ -200,7 +199,7 @@ public class ChatRoomProviderWrapper
      *
      * @param protocolProvider the protocol provider for the account to
      * synchronize
-     * @param opSet the multi user chat operation set, which give us access to
+     * @param opSet the multi-user chat operation set, which give us access to
      * chat room server 
      */
     public void synchronizeProvider()
