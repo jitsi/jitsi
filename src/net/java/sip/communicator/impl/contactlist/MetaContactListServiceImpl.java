@@ -31,8 +31,8 @@ public class MetaContactListServiceImpl
                ServiceListener,
                ContactPresenceStatusListener
 {
-    private static final Logger logger = Logger
-        .getLogger(MetaContactListServiceImpl.class);
+    private static final Logger logger
+        = Logger.getLogger(MetaContactListServiceImpl.class);
 
     /**
      * The BundleContext that we got from the OSGI bus.
@@ -74,7 +74,7 @@ public class MetaContactListServiceImpl
      * Listeners interested in events dispatched upon modification of the meta
      * contact list.
      */
-    private final Vector<MetaContactListListener> metaContactListListeners
+    private final List<MetaContactListListener> metaContactListListeners
         = new Vector<MetaContactListListener>();
 
     /**
@@ -146,7 +146,7 @@ public class MetaContactListServiceImpl
         logger.debug("Starting the meta contact list implementation.");
         this.bundleContext = bc;
 
-        //initializne the meta contact list from what has been stored locally.
+        //initialize the meta contact list from what has been stored locally.
         try
         {
             storageManager.start(bundleContext, this);
@@ -184,10 +184,10 @@ public class MetaContactListServiceImpl
             logger.debug("Found "
                          + protocolProviderRefs.length
                          + " already installed providers.");
-            for (int i = 0; i < protocolProviderRefs.length; i++)
+            for (ServiceReference providerRef : protocolProviderRefs)
             {
-                ProtocolProviderService provider = (ProtocolProviderService) bc
-                    .getService(protocolProviderRefs[i]);
+                ProtocolProviderService provider
+                    = (ProtocolProviderService) bc.getService(providerRef);
 
                 this.handleProviderAdded(provider);
             }
@@ -205,13 +205,8 @@ public class MetaContactListServiceImpl
         bc.removeServiceListener(this);
 
         //stop listening to all currently installed providers
-        Iterator<ProtocolProviderService> providers
-            = this.currentlyInstalledProviders.values().iterator();
-
-        while (providers.hasNext())
+        for (ProtocolProviderService pp : currentlyInstalledProviders.values())
         {
-            ProtocolProviderService pp = providers.next();
-
             OperationSetPersistentPresence opSetPersPresence
                 = (OperationSetPersistentPresence)pp
                     .getOperationSet(OperationSetPersistentPresence.class);
@@ -251,7 +246,7 @@ public class MetaContactListServiceImpl
         synchronized (metaContactListListeners)
         {
             if(!metaContactListListeners.contains(listener))
-                this.metaContactListListeners.add(listener);
+                metaContactListListeners.add(listener);
         }
     }
 
@@ -780,7 +775,7 @@ public class MetaContactListServiceImpl
 
         ((MetaContactImpl)metaContact).setDisplayName(newDisplayName);
 
-        fireMetaContactPropertyChangeEvent(new MetaContactRenamedEvent(
+        fireMetaContactEvent(new MetaContactRenamedEvent(
             metaContact, oldDisplayName, newDisplayName));
 
         //changing the display name has surely brought a change in the order as
@@ -790,7 +785,6 @@ public class MetaContactListServiceImpl
                     , null
                     , null
                     , MetaContactGroupEvent.CHILD_CONTACTS_REORDERED);
-
     }
 
     /**
@@ -816,10 +810,8 @@ public class MetaContactListServiceImpl
         byte[] oldAvatar = metaContact.getAvatar(true);
         ((MetaContactImpl)metaContact).cacheAvatar(protoContact, newAvatar);
 
-        fireMetaContactPropertyChangeEvent(new MetaContactAvatarUpdate(
-            metaContact,
-            oldAvatar,
-            newAvatar));
+        fireMetaContactEvent(
+            new MetaContactAvatarUpdate(metaContact, oldAvatar, newAvatar));
     }
 
     /**
@@ -1859,17 +1851,16 @@ public class MetaContactListServiceImpl
                                         Contact contact,
                                         ProtocolProviderService ownerProvider)
     {
-        Enumeration<String> ignoredAddressList = contactEventIgnoreList.keys();
-
-        while(ignoredAddressList.hasMoreElements())
+        for (Map.Entry<String, List<ProtocolProviderService>> contactEventIgnoreEntry
+                : contactEventIgnoreList.entrySet())
         {
-            String contactAddress = ignoredAddressList.nextElement();
+            String contactAddress = contactEventIgnoreEntry.getKey();
 
             if(contact.getAddress().equals(contactAddress)
                || contact.equals(contactAddress))
             {
-                List<ProtocolProviderService> existingProvList =
-                    this.contactEventIgnoreList.get(contactAddress);
+                List<ProtocolProviderService> existingProvList
+                    = contactEventIgnoreEntry.getValue();
 
                 return existingProvList != null
                     && existingProvList.contains(ownerProvider);
@@ -1944,9 +1935,9 @@ public class MetaContactListServiceImpl
             = event.getServiceReference().getBundle()
                 .getRegisteredServices();
 
-        for (int i = 0; i < allBundleServices.length; i++)
+        for (ServiceReference bundleServiceRef : allBundleServices)
         {
-            Object service = bundleContext.getService(allBundleServices[i]);
+            Object service = bundleContext.getService(bundleServiceRef);
             if(service instanceof ProtocolProviderFactory)
             {
                 sourceFactory = (ProtocolProviderFactory) service;
@@ -2453,8 +2444,6 @@ public class MetaContactListServiceImpl
             //protocol specific contact group. Contrary to contacts, meta
             //contact groups are to only be remove upon user indication or
             //otherwise it would be difficult for a user to create a new grp.
-
-
         }
 
         /**
@@ -2465,7 +2454,6 @@ public class MetaContactListServiceImpl
          */
         public void groupNameChanged(ServerStoredGroupEvent evt)
         {
-
             logger.trace("ContactGroup renamed: " + evt);
 
             MetaContactGroup metaContactGroup
@@ -2498,17 +2486,8 @@ public class MetaContactListServiceImpl
         logger.trace("Will dispatch the following mcl event: "
                      + evt);
 
-        Iterator<MetaContactListListener> listeners = null;
-        synchronized (metaContactListListeners)
+        for (MetaContactListListener listener : getMetaContactListListeners())
         {
-            listeners = new ArrayList<MetaContactListListener>(
-                            metaContactListListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            MetaContactListListener listener = listeners.next();
-
             switch (evt.getEventID())
             {
                 case MetaContactEvent.META_CONTACT_ADDED:
@@ -2524,6 +2503,29 @@ public class MetaContactListServiceImpl
     }
 
     /**
+     * Gets a copy of the list of current <code>MetaContactListListener</code>
+     * interested in events fired by this instance.
+     *
+     * @return an array of <code>MetaContactListListener</code>s currently
+     *         interested in events fired by this instance. The returned array
+     *         is a copy of the internal listener storage and thus can be safely
+     *         modified.
+     */
+    private MetaContactListListener[] getMetaContactListListeners()
+    {
+        MetaContactListListener[] listeners;
+
+        synchronized (metaContactListListeners)
+        {
+            listeners
+                = metaContactListListeners.toArray(
+                        new MetaContactListListener[
+                                metaContactListListeners.size()]);
+        }
+        return listeners;
+    }
+
+    /**
      * Creates the corresponding <tt>MetaContactPropertyChangeEvent</tt>
      * instance and notifies all <tt>MetaContactListListener</tt>s that a
      * MetaContact has been modified.
@@ -2535,17 +2537,8 @@ public class MetaContactListServiceImpl
         logger.trace("Will dispatch the following mcl property change event: "
                      + event);
 
-        Iterator<MetaContactListListener> listeners = null;
-        synchronized (metaContactListListeners)
+        for (MetaContactListListener listener : getMetaContactListListeners())
         {
-            listeners = new ArrayList<MetaContactListListener>(
-                                    metaContactListListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            MetaContactListListener listener = listeners.next();
-
             if (event instanceof MetaContactMovedEvent)
             {
                 listener.metaContactMoved( (MetaContactMovedEvent) event);
@@ -2557,41 +2550,6 @@ public class MetaContactListServiceImpl
             else if (event instanceof MetaContactModifiedEvent)
             {
                 listener.metaContactModified( (MetaContactModifiedEvent) event);
-            }
-        }
-    }
-
-    /**
-     * Creates the corresponding <tt>MetaContactPropertyChangeEvent</tt>
-     * instance and notifies all <tt>MetaContactListListener</tt>s that a
-     * MetaContact has been modified.
-     *
-     * @param event the event to dispatch.
-     */
-    private void fireMetaContactPropertyChangeEvent(
-                                    MetaContactPropertyChangeEvent event)
-    {
-        logger.trace("Will dispatch the following mcl property change event: "
-                     + event);
-
-        Iterator<MetaContactListListener> listeners = null;
-        synchronized (metaContactListListeners)
-        {
-            listeners = new ArrayList<MetaContactListListener>(
-                            metaContactListListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            MetaContactListListener listener = listeners.next();
-
-            if (event instanceof MetaContactMovedEvent)
-            {
-                listener.metaContactMoved( (MetaContactMovedEvent) event);
-            }
-            else if (event instanceof MetaContactRenamedEvent)
-            {
-                listener.metaContactRenamed( (MetaContactRenamedEvent) event);
             }
         }
     }
@@ -2622,17 +2580,8 @@ public class MetaContactListServiceImpl
         logger.trace("Will dispatch the following mcl property change event: "
                      + event);
 
-        Iterator<MetaContactListListener> listeners = null;
-        synchronized (metaContactListListeners)
+        for (MetaContactListListener listener : getMetaContactListListeners())
         {
-            listeners = new ArrayList<MetaContactListListener>(
-                                        metaContactListListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            MetaContactListListener listener = listeners.next();
-
             if (eventName.equals(ProtoContactEvent.PROTO_CONTACT_ADDED))
             {
                 listener.protoContactAdded(event);
@@ -2761,7 +2710,6 @@ public class MetaContactListServiceImpl
         containingMetaGroup.addProtoGroup(newProtoGroup);
 
         return newProtoGroup;
-
     }
 
     /**
@@ -2803,17 +2751,9 @@ public class MetaContactListServiceImpl
             (OperationSetPersistentPresence) sourceProvider
                 .getOperationSet(OperationSetPersistentPresence.class);
 
-        Iterator<MclStorageManager.StoredProtoContactDescriptor> contactsIter
-            = protoContacts.iterator();
-        while (contactsIter.hasNext())
+        for (MclStorageManager.StoredProtoContactDescriptor contactDescriptor
+                : protoContacts)
         {
-            MclStorageManager.StoredProtoContactDescriptor contactDescriptor
-                = contactsIter.next();
-
-            if(contactDescriptor.contactAddress.indexOf("238431632") > -1)
-                logger.debug("asdfasdfasdfasdfasdfasdfasdf");
-
-
             //this contact has already been registered by another meta contact
             //so we'll ignore it. If this is the only contact in the meta
             //contact, we'll throw an exception at the end of the method and
@@ -2830,7 +2770,6 @@ public class MetaContactListServiceImpl
                             + "folloing meta contact:" + mc);
                 continue;
             }
-
 
             Contact protoContact = presenceOpSet.createUnresolvedContact(
                 contactDescriptor.contactAddress,
@@ -2883,19 +2822,8 @@ public class MetaContactListServiceImpl
         logger.trace("Will dispatch the following mcl event: "
                      + evt);
 
-
-
-        Iterator<MetaContactListListener> listeners = null;
-        synchronized (metaContactListListeners)
+        for (MetaContactListListener listener : getMetaContactListListeners())
         {
-            listeners = new ArrayList<MetaContactListListener>(
-                                metaContactListListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            MetaContactListListener listener = listeners.next();
-
             switch (eventID)
             {
                 case MetaContactGroupEvent.META_CONTACT_GROUP_ADDED:
@@ -2951,15 +2879,12 @@ public class MetaContactListServiceImpl
          * @param evt a ServerStoredGroupChangeEvent containing a reference to
          * the newly created group.
          */
-        public void groupCreated(ServerStoredGroupEvent event)
+        public synchronized void groupCreated(ServerStoredGroupEvent event)
         {
-            synchronized (this)
+            if (event.getSourceGroup().getGroupName().equals(groupName))
             {
-                if (event.getSourceGroup().getGroupName().equals(groupName))
-                {
-                    this.evt = event;
-                    this.notifyAll();
-                }
+                this.evt = event;
+                this.notifyAll();
             }
         }
 
@@ -2990,24 +2915,19 @@ public class MetaContactListServiceImpl
          * @param millis the number of millis that we should wait before we
          * determine failure.
          */
-        public void waitForEvent(long millis)
+        public synchronized void waitForEvent(long millis)
         {
-            synchronized (this)
+            //no need to wait if an event is already there.
+            if (evt == null)
             {
-                //no need to wait if an event is already there.
-                if (evt != null)
-                {
-                    return;
-                }
-
                 try
                 {
                     this.wait(millis);
                 }
                 catch (InterruptedException ex)
                 {
-                    logger.error("Interrupted while waiting for group creation"
-                                 , ex);
+                    logger.error("Interrupted while waiting for group creation",
+                                 ex);
                 }
             }
         }
@@ -3064,20 +2984,16 @@ public class MetaContactListServiceImpl
          * @param event a ServerStoredGroupEvent containing a reference to the
          * newly created group.
          */
-        public void groupCreated(ServerStoredGroupEvent event)
+        public synchronized void groupCreated(ServerStoredGroupEvent event)
         {
-            synchronized (this)
+            Contact contact
+                = event.getSourceGroup().getContact(subscriptionAddress);
+            if ( contact != null)
             {
-                Contact contact
-                    = event.getSourceGroup().getContact(subscriptionAddress);
-                if ( contact != null)
-                {
-                    this.evt = event;
-                    this.sourceContact = contact;
-                    this.notifyAll();
-                }
+                this.evt = event;
+                this.sourceContact = contact;
+                this.notifyAll();
             }
-
         }
 
         /**
@@ -3086,18 +3002,15 @@ public class MetaContactListServiceImpl
          * @param event a <tt>SubscriptionEvent</tt> containing a reference to
          * the newly created contact.
          */
-        public void subscriptionCreated(SubscriptionEvent event)
+        public synchronized void subscriptionCreated(SubscriptionEvent event)
         {
-            synchronized (this)
-            {
-                if (event.getSourceContact().getAddress()
+            if (event.getSourceContact().getAddress()
                     .equals(subscriptionAddress)
-                    || event.getSourceContact().equals(subscriptionAddress))
-                {
-                    this.evt = event;
-                    this.sourceContact = event.getSourceContact();
-                    this.notifyAll();
-                }
+                || event.getSourceContact().equals(subscriptionAddress))
+            {
+                this.evt = event;
+                this.sourceContact = event.getSourceContact();
+                this.notifyAll();
             }
         }
 
@@ -3114,17 +3027,14 @@ public class MetaContactListServiceImpl
          * @param event a <tt>SubscriptionEvent</tt> containing a reference to
          * the contact we are trying to subscribe.
          */
-        public void subscriptionFailed(SubscriptionEvent event)
+        public synchronized void subscriptionFailed(SubscriptionEvent event)
         {
-            synchronized (this)
-            {
-                if (event.getSourceContact().getAddress()
+            if (event.getSourceContact().getAddress()
                     .equals(subscriptionAddress))
-                {
-                    this.evt = event;
-                    this.sourceContact = event.getSourceContact();
-                    this.notifyAll();
-                }
+            {
+                this.evt = event;
+                this.sourceContact = event.getSourceContact();
+                this.notifyAll();
             }
         }
 
@@ -3154,16 +3064,11 @@ public class MetaContactListServiceImpl
          * created event is received or milis miliseconds pass.
          * @param millis the number of milis to wait upon determining a failure.
          */
-        public void waitForEvent(long millis)
+        public synchronized void waitForEvent(long millis)
         {
-            synchronized (this)
+            //no need to wait if an event is already there.
+            if (evt == null)
             {
-                //no need to wait if an event is already there.
-                if (evt != null)
-                {
-                    return;
-                }
-
                 try
                 {
                     this.wait(millis);
@@ -3177,5 +3082,4 @@ public class MetaContactListServiceImpl
             }
         }
     }
-
 }

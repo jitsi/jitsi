@@ -108,7 +108,7 @@ public interface MetaContactListListener
     /**
      * Indicates that the order under which the child contacts were ordered
      * inside the source group has changed.
-     * @param evt the <tt>MetaContactGroupEvent</tt> containind details of this
+     * @param evt the <tt>MetaContactGroupEvent</tt> containing details of this
      * event.
      */
     public void childContactsReordered(MetaContactGroupEvent evt);

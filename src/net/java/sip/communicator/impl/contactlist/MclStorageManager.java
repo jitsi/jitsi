@@ -44,8 +44,8 @@ import net.java.sip.communicator.util.xml.XMLUtils;
 public class MclStorageManager
     implements MetaContactListListener
 {
-    private static final Logger logger =
-        Logger.getLogger(MclStorageManager.class.getName());
+    private static final Logger logger
+        = Logger.getLogger(MclStorageManager.class);
 
     /**
      * Indicates whether the storage manager has been properly started or in
@@ -156,8 +156,8 @@ public class MclStorageManager
         "parent-proto-group-uid";
 
     /**
-     * The name of the XML attribute that contains account identifers indicating
-     * proto group's and proto contacts' owning providers.
+     * The name of the XML attribute that contains account identifiers
+     * indicating proto group's and proto contacts' owning providers.
      */
     private static final String ACCOUNT_ID_ATTR_NAME = "account-id";
 
@@ -289,10 +289,9 @@ public class MclStorageManager
         {
             contactlistFile = faService.getPrivatePersistentFile(fileName);
 
-            if (!contactlistFile.exists())
-                if (!contactlistFile.createNewFile())
-                    throw new IOException("Failed to create file"
-                        + contactlistFile.getAbsolutePath());
+            if (!contactlistFile.exists() && !contactlistFile.createNewFile())
+                throw new IOException("Failed to create file"
+                                          + contactlistFile.getAbsolutePath());
         }
         catch (Exception ex)
         {
@@ -467,22 +466,11 @@ public class MclStorageManager
     }
 
     /**
-     * Returns the object that we use to lock when writing the contact list.
-     *
-     * @return the object that we use to lock when writing the contact list.
-     */
-    public Object getContactListRWLock()
-    {
-        return contactListRWLock;
-    }
-
-    /**
      * Stops the storage manager and performs a final write
      */
     public void storeContactListAndStopStorageManager()
     {
-        Object contactLstRWLock = getContactListRWLock();
-        synchronized (contactLstRWLock)
+        synchronized (contactListRWLock)
         {
             if (!isStarted())
                 return;
@@ -490,7 +478,7 @@ public class MclStorageManager
             started = false;
 
             // make sure everyone gets released after we finish.
-            contactLstRWLock.notifyAll();
+            contactListRWLock.notifyAll();
 
             // write the contact list ourselves before we go out..
             try
@@ -1560,11 +1548,11 @@ public class MclStorageManager
         Element metaContactNode =
             findMetaContactNode(evt.getSourceMetaContact().getMetaUID());
 
-        // not sure what to do in case of null. we'll be loggin an internal err
+        // not sure what to do in case of null. we'll be logging an internal err
         // for now and that's all.
         if (metaContactNode == null)
         {
-            logger.error("Save after renam failed. Contact not found: "
+            logger.error("Save after rename failed. Contact not found: "
                 + evt.getSourceMetaContact());
             return;
         }
@@ -2027,15 +2015,14 @@ public class MclStorageManager
         private static StoredProtoContactDescriptor findContactInList(
             String contactAddress, List<StoredProtoContactDescriptor> list)
         {
-            if (list == null || list.size() == 0)
-                return null;
-
-            for (StoredProtoContactDescriptor desc : list)
+            if (list != null && list.size() > 0)
             {
-                if (desc.contactAddress.equals(contactAddress))
-                    return desc;
+                for (StoredProtoContactDescriptor desc : list)
+                {
+                    if (desc.contactAddress.equals(contactAddress))
+                        return desc;
+                }
             }
-
             return null;
         }
     }
