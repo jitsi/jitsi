@@ -19,15 +19,13 @@ public class RootContactGroupIcqImpl
     extends AbstractContactGroupIcqImpl
 {
     private String ROOT_CONTACT_GROUP_NAME = "ContactListRoot";
-    private List<ContactGroupIcqImpl> subGroups
-        = new LinkedList<ContactGroupIcqImpl>();
+    private List<ContactGroup> subGroups = new LinkedList<ContactGroup>();
     private boolean isResolved = false;
 
     /**
      * An empty list that we use when returning an iterator.
      */
-    private List<ContactIcqImpl> dummyContacts
-        = new LinkedList<ContactIcqImpl>();
+    private List<Contact> dummyContacts = new LinkedList<Contact>();
 
     private ProtocolProviderServiceIcqImpl ownerProvider = null;
 
@@ -159,10 +157,10 @@ public class RootContactGroupIcqImpl
      */
     public ContactGroup getGroup(String groupName)
     {
-        Iterator<ContactGroupIcqImpl> subgroups = subgroups();
+        Iterator<ContactGroup> subgroups = subgroups();
         while (subgroups.hasNext())
         {
-            ContactGroupIcqImpl grp = subgroups.next();
+            ContactGroup grp = subgroups.next();
 
             if (grp.getGroupName().equals(groupName))
                 return grp;
@@ -191,7 +189,7 @@ public class RootContactGroupIcqImpl
      * @return a java.util.Iterator over the <tt>ContactGroup</tt>
      *   children of this group (i.e. subgroups).
      */
-    public Iterator subgroups()
+    public Iterator<ContactGroup> subgroups()
     {
         return subGroups.iterator();
     }
@@ -213,7 +211,7 @@ public class RootContactGroupIcqImpl
      * @return a java.util.Iterator over all contacts inside this
      * <tt>ContactGroup</tt>
      */
-    public Iterator contacts()
+    public Iterator<Contact> contacts()
     {
         return dummyContacts.iterator();
     }
@@ -229,10 +227,10 @@ public class RootContactGroupIcqImpl
         StringBuffer buff = new StringBuffer(getGroupName());
         buff.append(".subGroups="+countSubgroups()+":\n");
 
-        Iterator<ContactGroupIcqImpl> subGroups = subgroups();
+        Iterator<ContactGroup> subGroups = subgroups();
         while (subGroups.hasNext())
         {
-            ContactGroup group = (ContactGroup) subGroups.next();
+            ContactGroup group = subGroups.next();
             buff.append(group.toString());
             if(subGroups.hasNext())
                 buff.append("\n");

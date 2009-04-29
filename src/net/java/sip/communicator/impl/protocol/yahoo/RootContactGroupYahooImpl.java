@@ -19,13 +19,13 @@ public class RootContactGroupYahooImpl
     extends AbstractContactGroupYahooImpl
 {
     private String ROOT_CONTACT_GROUP_NAME = "ContactListRoot";
-    private List subGroups = new LinkedList();
+    private List<ContactGroup> subGroups = new LinkedList<ContactGroup>();
     private boolean isResolved = false;
 
     /**
      * An empty list that we use when returning an iterator.
      */
-    private List dummyContacts = new LinkedList();
+    private List<Contact> dummyContacts = new LinkedList<Contact>();
 
     private ProtocolProviderServiceYahooImpl ownerProvider = null;
 
@@ -92,21 +92,6 @@ public class RootContactGroupYahooImpl
     }
 
     /**
-     * Removes all contact sub groups and reinsterts them as specified
-     * by the <tt>newOrder</tt> param. Contact groups not contained in the
-     * newOrder list are left at the end of this group.
-     *
-     * @param newOrder a list containing all contact groups in the order that is
-     * to be applied.
-     *
-     */
-    void reorderSubGroups(List newOrder)
-    {
-        subGroups.removeAll(newOrder);
-        subGroups.addAll(0, newOrder);
-    }
-
-    /**
      * Returns the number of subgroups contained by this
      * <tt>RootContactGroupImpl</tt>.
      *
@@ -145,10 +130,10 @@ public class RootContactGroupYahooImpl
      */
     public ContactGroup getGroup(String groupName)
     {
-        Iterator subgroups = subgroups();
+        Iterator<ContactGroup> subgroups = subgroups();
         while (subgroups.hasNext())
         {
-            ContactGroupYahooImpl grp = (ContactGroupYahooImpl) subgroups.next();
+            ContactGroup grp = subgroups.next();
 
             if (grp.getGroupName().equals(groupName))
                 return grp;
@@ -164,7 +149,7 @@ public class RootContactGroupYahooImpl
      * @return a java.util.Iterator over the <tt>ContactGroup</tt>
      *   children of this group (i.e. subgroups).
      */
-    public Iterator subgroups()
+    public Iterator<ContactGroup> subgroups()
     {
         return subGroups.iterator();
     }
@@ -186,7 +171,7 @@ public class RootContactGroupYahooImpl
      * @return a java.util.Iterator over all contacts inside this
      * <tt>ContactGroup</tt>
      */
-    public Iterator contacts()
+    public Iterator<Contact> contacts()
     {
         return dummyContacts.iterator();
     }
@@ -216,10 +201,10 @@ public class RootContactGroupYahooImpl
         StringBuffer buff = new StringBuffer(getGroupName());
         buff.append(".subGroups=" + countSubgroups() + ":\n");
 
-        Iterator subGroups = subgroups();
+        Iterator<ContactGroup> subGroups = subgroups();
         while (subGroups.hasNext())
         {
-            ContactGroup group = (ContactGroup) subGroups.next();
+            ContactGroup group = subGroups.next();
             buff.append(group.toString());
             if (subGroups.hasNext())
                 buff.append("\n");

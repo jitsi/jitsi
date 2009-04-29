@@ -24,6 +24,7 @@ import org.jivesoftware.smackx.packet.*;
  * corresponding sip-communicator events to all events coming from smack.
  *
  * @author Damian Minkov
+ * @author Emil Ivov
  */
 public class ServerStoredContactListJabberImpl
 {

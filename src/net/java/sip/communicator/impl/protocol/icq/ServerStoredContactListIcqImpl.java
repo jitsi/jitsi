@@ -316,11 +316,6 @@ public class ServerStoredContactListIcqImpl
             contact, parentGroup, SubscriptionEvent.SUBSCRIPTION_REMOVED);
     }
 
-    private void fireContactsReordered( ContactGroupIcqImpl parentGroup)
-    {
-        /** @todo implement fireContactsReordered() */
-    }
-
     /**
      * Retrns a reference to the provider that created us.
      * @return a reference to a ProtocolProviderServiceIcqImpl instance.
@@ -339,7 +334,7 @@ public class ServerStoredContactListIcqImpl
      */
     public int findContactGroupIndex(Group joustSimGroup)
     {
-        Iterator<Group> contactGroups = rootGroup.subgroups();
+        Iterator<ContactGroup> contactGroups = rootGroup.subgroups();
         int index = 0;
 
         for (; contactGroups.hasNext(); index++)
@@ -364,14 +359,14 @@ public class ServerStoredContactListIcqImpl
      */
     public ContactGroupIcqImpl findContactGroup(String name)
     {
-        Iterator<ContactGroupIcqImpl> contactGroups = rootGroup.subgroups();
+        Iterator<ContactGroup> contactGroups = rootGroup.subgroups();
 
         while(contactGroups.hasNext())
         {
-            ContactGroupIcqImpl contactGroup = contactGroups.next();
+            ContactGroup contactGroup = contactGroups.next();
 
             if (contactGroup.getGroupName().equals(name))
-                return contactGroup;
+                return (ContactGroupIcqImpl)contactGroup;
 
         }
         return null;
@@ -386,11 +381,12 @@ public class ServerStoredContactListIcqImpl
      */
     public ContactGroupIcqImpl findContactGroup(Group joustSimGroup)
     {
-        Iterator<ContactGroupIcqImpl> contactGroups = rootGroup.subgroups();
+        Iterator<ContactGroup> contactGroups = rootGroup.subgroups();
 
         while(contactGroups.hasNext())
         {
-            ContactGroupIcqImpl contactGroup = contactGroups.next();
+            ContactGroupIcqImpl contactGroup
+                = (ContactGroupIcqImpl)contactGroups.next();
 
             if (joustSimGroup == contactGroup.getJoustSimSourceGroup())
                 return contactGroup;
@@ -409,12 +405,13 @@ public class ServerStoredContactListIcqImpl
      */
     public ContactIcqImpl findContactByScreenName(String screenName)
     {
-        Iterator<ContactGroupIcqImpl> contactGroups = rootGroup.subgroups();
+        Iterator<ContactGroup> contactGroups = rootGroup.subgroups();
         ContactIcqImpl result = null;
 
         while(contactGroups.hasNext())
         {
-            ContactGroupIcqImpl contactGroup = contactGroups.next();
+            ContactGroupIcqImpl contactGroup
+                = (ContactGroupIcqImpl)contactGroups.next();
 
             result = contactGroup.findContact(screenName);
 
@@ -435,13 +432,14 @@ public class ServerStoredContactListIcqImpl
      */
     public ContactIcqImpl findContactByJoustSimBuddy(Buddy buddy)
     {
-        Iterator<ContactGroupIcqImpl> contactGroups = rootGroup.subgroups();
+        Iterator<ContactGroup> contactGroups = rootGroup.subgroups();
         String screenName = buddy.getScreenname().getFormatted();
         ContactIcqImpl result = null;
 
         while(contactGroups.hasNext())
         {
-            ContactGroupIcqImpl contactGroup = contactGroups.next();
+            ContactGroupIcqImpl contactGroup
+                = (ContactGroupIcqImpl)contactGroups.next();
 
             result = contactGroup.findContact(screenName);
 
@@ -464,11 +462,12 @@ public class ServerStoredContactListIcqImpl
      */
     public ContactGroupIcqImpl findContactGroup(ContactIcqImpl child)
     {
-        Iterator<ContactGroupIcqImpl> contactGroups = rootGroup.subgroups();
+        Iterator<ContactGroup> contactGroups = rootGroup.subgroups();
 
         while(contactGroups.hasNext())
         {
-            ContactGroupIcqImpl contactGroup = contactGroups.next();
+            ContactGroupIcqImpl contactGroup
+                = (ContactGroupIcqImpl)contactGroups.next();
 
             if( contactGroup.findContact(child.getJoustSimBuddy())!= null)
                 return contactGroup;
@@ -849,10 +848,10 @@ public class ServerStoredContactListIcqImpl
 
     ContactGroupIcqImpl findGroup(Buddy buddy)
     {
-        Iterator<ContactGroupIcqImpl> iter = rootGroup.subgroups();
+        Iterator<ContactGroup> iter = rootGroup.subgroups();
         while (iter.hasNext())
         {
-            ContactGroupIcqImpl elem = iter.next();
+            ContactGroupIcqImpl elem = (ContactGroupIcqImpl)iter.next();
 
             if(!elem.isPersistent() || !elem.isResolved())
                 continue;
@@ -913,7 +912,7 @@ public class ServerStoredContactListIcqImpl
                 // if this is not a new group then it must be a unresolved one.
                 // set it to resolved, do the same with its child buddies, fire
                 // the corresponding events and bail out.
-                List newContacts = new ArrayList();
+                List<Contact> newContacts = new ArrayList<Contact>();
                 List<ContactIcqImpl> deletedContacts
                     = new ArrayList<ContactIcqImpl>();
                 newGroup.updateGroup((MutableGroup)group, buddies
@@ -934,8 +933,7 @@ public class ServerStoredContactListIcqImpl
                 }
 
                 //fire events for that contacts have been resolved or added
-                Iterator<ContactIcqImpl> contactsIter
-                    = newGroup.contacts();
+                Iterator<Contact> contactsIter = newGroup.contacts();
                 while(contactsIter.hasNext())
                 {
                     ContactIcqImpl contact
@@ -996,8 +994,11 @@ public class ServerStoredContactListIcqImpl
          * @param newItems unused
          * @param buddy the newly added <tt>buddy</tt>
          */
-        public void buddyAdded(BuddyList list, Group joustSimGroup, List oldItems,
-                               List newItems, Buddy buddy)
+        public void buddyAdded( BuddyList list,
+                                Group joustSimGroup,
+                                List oldItems,
+                                List newItems,
+                                Buddy buddy)
         {
             logger.trace("Received buddyAdded " + buddy);
             //it is possible that the buddy being added is already in our

@@ -14,6 +14,7 @@ import net.java.sip.communicator.service.protocol.*;
  * A dummy ContactGroup implementation representing the ContactList root for
  * Jabber contact lists.
  * @author Damian Minkov
+ * @author Emil Ivov
  */
 public class RootContactGroupJabberImpl
     extends AbstractContactGroupJabberImpl

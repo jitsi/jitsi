@@ -14,6 +14,7 @@ import ymsg.network.*;
 /**
  * The Yahoo implementation of the service.protocol.Contact interface.
  * @author Damian Minkov
+ * @author Emil Ivov
  */
 public class ContactYahooImpl
     implements Contact

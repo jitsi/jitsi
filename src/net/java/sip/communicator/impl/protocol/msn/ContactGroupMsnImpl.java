@@ -26,6 +26,7 @@ import net.sf.jml.MsnContact;
  * source group is changed.
  *
  * @author Damian Minkov
+ * @author Emil Ivov
  */
 public class ContactGroupMsnImpl
     extends AbstractContactGroupMsnImpl
@@ -37,8 +38,8 @@ public class ContactGroupMsnImpl
      * lower case  strings in the left column because MSN IDs in XMPP are not
      * case sensitive.
      */
-    private Map<String, ContactMsnImpl> buddies
-        = new Hashtable<String, ContactMsnImpl>();
+    private Map<String, Contact> buddies
+        = new Hashtable<String, Contact>();
     private boolean isResolved = false;
 
     /**
@@ -50,8 +51,7 @@ public class ContactGroupMsnImpl
      * a list that would always remain empty. We only use it so that we're able
      * to extract empty iterators
      */
-    private List<ContactGroupMsnImpl> dummyGroupsList
-        = new LinkedList<ContactGroupMsnImpl>();
+    private List<ContactGroup> dummyGroupsList = new LinkedList<ContactGroup>();
 
     private ServerStoredContactListMsnImpl ssclCallback = null;
 
@@ -148,7 +148,7 @@ public class ContactGroupMsnImpl
      *   <tt>ContactGroup</tt>. In case the group doesn't contain any
      * memebers it will return an empty iterator.
      */
-    public Iterator contacts()
+    public Iterator<Contact> contacts()
     {
         return buddies.values().iterator();
     }
@@ -212,7 +212,7 @@ public class ContactGroupMsnImpl
      *
      * @return an empty iterator
      */
-    public Iterator subgroups()
+    public Iterator<ContactGroup> subgroups()
     {
         return dummyGroupsList.iterator();
     }
@@ -285,10 +285,10 @@ public class ContactGroupMsnImpl
         buff.append(getGroupName());
         buff.append(", childContacts="+countContacts()+":[");
 
-        Iterator contacts = contacts();
+        Iterator<Contact> contacts = contacts();
         while (contacts.hasNext())
         {
-            ContactMsnImpl contact = (ContactMsnImpl) contacts.next();
+            Contact contact = contacts.next();
             buff.append(contact.toString());
             if(contacts.hasNext())
                 buff.append(", ");
@@ -306,14 +306,10 @@ public class ContactGroupMsnImpl
      */
     ContactMsnImpl findContact(String id)
     {
-        Iterator contacts = contacts();
-        while (contacts.hasNext())
-        {
-            ContactMsnImpl item = (ContactMsnImpl) contacts.next();
-            if(item.getAddress().equals(id))
-                return item;
-        }
-        return null;
+        if (id == null)
+            return null;
+
+        return (ContactMsnImpl)buddies.get(id.toLowerCase());
     }
 
     /**

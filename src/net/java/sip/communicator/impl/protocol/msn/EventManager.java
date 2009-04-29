@@ -31,18 +31,19 @@ public class EventManager
     private static final Logger logger = Logger.getLogger(EventManager.class);
 
     private BasicMessenger msnMessenger = null;
-    private Vector listeners = new Vector();
+    private Vector<MsnContactListEventListener> listeners
+        = new Vector<MsnContactListEventListener>();
 
     /**
      * The provider that is on top of us.
      */
     private ProtocolProviderServiceMsnImpl msnProvider = null;
-    
+
     /**
      * Creates the manager
      * @param msnMessenger BasicMessenger the messenger
      */
-    public EventManager(ProtocolProviderServiceMsnImpl msnProvider, 
+    public EventManager(ProtocolProviderServiceMsnImpl msnProvider,
         BasicMessenger msnMessenger)
     {
         this.msnProvider = msnProvider;
@@ -129,15 +130,13 @@ public class EventManager
         }
         else if(incoming instanceof IncomingQNG)
         {
-            IncomingQNG incomingQNG  = (IncomingQNG)incoming;
-            
             connected = true;
         }
     }
 
     private boolean connected = false;
     private Timer connectionTimer = new Timer();
-            
+
     public void sessionTimeout(Session socketSession) throws Exception
     {
         connectionTimer.schedule(new TimerTask()
@@ -161,11 +160,10 @@ public class EventManager
     private void fireMessageDelivered(int transactionID)
     {
         synchronized(listeners){
-            Iterator iter = listeners.iterator();
+            Iterator<MsnContactListEventListener> iter = listeners.iterator();
             while (iter.hasNext())
             {
-                ((MsnContactListEventListener)iter.next()).
-                    messageDelivered(transactionID);
+                iter.next().messageDelivered(transactionID);
             }
         }
     }
@@ -177,11 +175,10 @@ public class EventManager
     private void fireMessageDeliveredFailed(int transactionID)
     {
         synchronized(listeners){
-            Iterator iter = listeners.iterator();
+            Iterator<MsnContactListEventListener> iter = listeners.iterator();
             while (iter.hasNext())
             {
-                ((MsnContactListEventListener)iter.next()).
-                    messageDeliveredFailed(transactionID);
+                iter.next().messageDeliveredFailed(transactionID);
             }
         }
     }
@@ -193,10 +190,10 @@ public class EventManager
     private void fireGroupRenamed(MsnGroup group)
     {
         synchronized(listeners){
-            Iterator iter = listeners.iterator();
+            Iterator<MsnContactListEventListener> iter = listeners.iterator();
             while (iter.hasNext())
             {
-                ((MsnContactListEventListener)iter.next()).groupRenamed(group);
+                iter.next().groupRenamed(group);
             }
         }
     }
@@ -208,11 +205,10 @@ public class EventManager
     {
         synchronized (listeners)
         {
-            Iterator iter = listeners.iterator();
+            Iterator<MsnContactListEventListener> iter = listeners.iterator();
             while (iter.hasNext())
             {
-                ( (MsnContactListEventListener) iter.next())
-                    .loggingFromOtherLocation();
+                iter.next().loggingFromOtherLocation();
             }
         }
     }

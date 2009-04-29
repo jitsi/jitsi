@@ -22,6 +22,7 @@ import ymsg.network.event.*;
  * corresponding sip-communicator events to all events coming from smack.
  *
  * @author Damian Minkov
+ * @author Emil Ivov
  */
 public class ServerStoredContactListYahooImpl
 {
@@ -61,7 +62,8 @@ public class ServerStoredContactListYahooImpl
      * Listeners that would receive event notifications for changes in group
      * names or other properties, removal or creation of groups.
      */
-    private Vector serverStoredGroupListeners = new Vector();
+    private Vector<ServerStoredGroupListener> serverStoredGroupListeners
+        = new Vector<ServerStoredGroupListener>();
 
     private ContactListModListenerImpl contactListModListenerImpl
         = new ContactListModListenerImpl();
@@ -71,7 +73,8 @@ public class ServerStoredContactListYahooImpl
      */
     private AuthorizationHandler handler = null;
 
-    private Hashtable addedCustomYahooIds = new Hashtable();
+    private Hashtable<String, String> addedCustomYahooIds
+        = new Hashtable<String, String>();
 
     /**
      * Creates a ServerStoredContactList wrapper for the specified BuddyList.
@@ -165,16 +168,16 @@ public class ServerStoredContactListYahooImpl
 
         logger.trace("Will dispatch the following grp event: " + evt);
 
-        Iterator listeners = null;
+        Iterator<ServerStoredGroupListener> listeners = null;
         synchronized (serverStoredGroupListeners)
         {
-            listeners = new ArrayList(serverStoredGroupListeners).iterator();
+            listeners = new ArrayList<ServerStoredGroupListener>(
+                            serverStoredGroupListeners).iterator();
         }
 
         while (listeners.hasNext())
         {
-            ServerStoredGroupListener listener
-                = (ServerStoredGroupListener) listeners.next();
+            ServerStoredGroupListener listener = listeners.next();
 
             try{
                 if (eventID == ServerStoredGroupEvent.GROUP_REMOVED_EVENT)
@@ -235,7 +238,7 @@ public class ServerStoredContactListYahooImpl
     }
 
     /**
-     * Retrns a reference to the provider that created us.
+     * Returns a reference to the provider that created us.
      * @return a reference to a ProtocolProviderServiceImpl instance.
      */
     ProtocolProviderServiceYahooImpl getParentProvider()
@@ -253,7 +256,7 @@ public class ServerStoredContactListYahooImpl
      */
     public ContactGroupYahooImpl findContactGroup(String name)
     {
-        Iterator contactGroups = rootGroup.subgroups();
+        Iterator<ContactGroup> contactGroups = rootGroup.subgroups();
 
         while(contactGroups.hasNext())
         {
@@ -277,7 +280,7 @@ public class ServerStoredContactListYahooImpl
      */
     public ContactYahooImpl findContactById(String id)
     {
-        Iterator contactGroups = rootGroup.subgroups();
+        Iterator<ContactGroup> contactGroups = rootGroup.subgroups();
         ContactYahooImpl result = null;
 
         while(contactGroups.hasNext())
@@ -295,6 +298,19 @@ public class ServerStoredContactListYahooImpl
     }
 
     /**
+     * Returns the Contact corresponding to the specified <tt>YahooUser</tt>
+     * or null if no such id was found.
+     *
+     * @param yahooUser the YahooUser of the contact to find.
+     * @return the <tt>Contact</tt> carrying the specified
+     * <tt>screenName</tt> or <tt>null</tt> if no such contact exits.
+     */
+    public ContactYahooImpl findContactByYahooUser(YahooUser yahooUser)
+    {
+        return findContactById(yahooUser.getId().toLowerCase());
+    }
+
+    /**
      * Returns the ContactGroup containing the specified contact or null
      * if no such group or contact exist.
      *
@@ -305,14 +321,15 @@ public class ServerStoredContactListYahooImpl
      */
     public ContactGroup findContactGroup(ContactYahooImpl child)
     {
-        Iterator contactGroups = rootGroup.subgroups();
+        Iterator<ContactGroup> contactGroups = rootGroup.subgroups();
+        String contactAddress = child.getAddress();
 
         while(contactGroups.hasNext())
         {
             ContactGroupYahooImpl contactGroup
                 = (ContactGroupYahooImpl) contactGroups.next();
 
-            if( contactGroup.findContact(child.getAddress())!= null)
+            if( contactGroup.findContact(contactAddress)!= null)
                 return contactGroup;
         }
 
@@ -433,9 +450,11 @@ public class ServerStoredContactListYahooImpl
      * @param id the Address of the contact to create.
      * @return the newly created unresolved <tt>ContactImpl</tt>
      */
-    ContactYahooImpl createUnresolvedContact(ContactGroup parentGroup, String id)
+    ContactYahooImpl createUnresolvedContact(ContactGroup parentGroup,
+                                            String id)
     {
-        logger.trace("Creating unresolved contact " + id + " to parent=" + parentGroup);
+        logger.trace("Creating unresolved contact " + id
+                        + " to parent=" + parentGroup);
         ContactYahooImpl newUnresolvedContact
             = new ContactYahooImpl(id, this, false, false, false);
 
@@ -460,6 +479,15 @@ public class ServerStoredContactListYahooImpl
      */
     ContactGroupYahooImpl createUnresolvedContactGroup(String groupName)
     {
+        ContactGroupYahooImpl existingGroup = findContactGroup(groupName);
+
+        if( existingGroup != null && existingGroup.isPersistent() )
+        {
+            logger.debug("ContactGroup " + groupName + " already exists.");
+            throw new IllegalArgumentException(
+                           "ContactGroup " + groupName + " already exists.");
+        }
+
         ContactGroupYahooImpl newUnresolvedGroup =
             new ContactGroupYahooImpl(groupName, this);
 
@@ -515,7 +543,8 @@ public class ServerStoredContactListYahooImpl
             return;
         }
 
-        Vector contacts = groupToRemove.getSourceGroup().getMembers();
+        Vector<YahooUser> contacts
+            = groupToRemove.getSourceGroup().getMembers();
 
         if(contacts.size() == 0)
         {
@@ -526,14 +555,15 @@ public class ServerStoredContactListYahooImpl
             return;
         }
 
-        Iterator iter = contacts.iterator();
+        Iterator<YahooUser> iter = contacts.iterator();
         while(iter.hasNext())
         {
-            YahooUser item =  (YahooUser)iter.next();
+            YahooUser item =  iter.next();
 
             try
             {
-                yahooSession.removeFriend(item.getId(), groupToRemove.getGroupName());
+                yahooSession.removeFriend(item.getId(),
+                                          groupToRemove.getGroupName());
             }
             catch(IOException ex)
             {
@@ -661,27 +691,6 @@ public class ServerStoredContactListYahooImpl
     }
 
     /**
-     * Finds Group by provided its yahoo ID
-     * @param id String
-     * @return ContactGroupYahooImpl
-     */
-    private ContactGroupYahooImpl findContactGroupByYahooId(String id)
-    {
-        Iterator contactGroups = rootGroup.subgroups();
-
-        while(contactGroups.hasNext())
-        {
-            ContactGroupYahooImpl contactGroup
-                = (ContactGroupYahooImpl) contactGroups.next();
-
-            if (contactGroup.getSourceGroup().getName().equals(id))
-                return contactGroup;
-        }
-
-        return null;
-    }
-
-    /**
      * Make the parent persistent presence operation set dispatch a contact
      * added event.
      * @param parentGroup the group where the new contact was added
@@ -727,7 +736,8 @@ public class ServerStoredContactListYahooImpl
      */
     private void initList()
     {
-        logger.trace("Start init list of " + yahooProvider.getAccountID().getUserID());
+        logger.trace("Start init list of "
+                        + yahooProvider.getAccountID().getUserID());
 
         YahooGroup[] groups = yahooSession.getGroups();
 
@@ -740,13 +750,14 @@ public class ServerStoredContactListYahooImpl
             if(group == null)
             {
                 // create the group as it doesn't exist
-                group =
-                    new ContactGroupYahooImpl(item, item.getMembers(), this, true);
+                group = new ContactGroupYahooImpl(
+                                    item, item.getMembers(), this, true);
 
                 rootGroup.addSubGroup(group);
 
                 //tell listeners about the added group
-                fireGroupEvent(group, ServerStoredGroupEvent.GROUP_CREATED_EVENT);
+                fireGroupEvent(group,
+                               ServerStoredGroupEvent.GROUP_CREATED_EVENT);
             }
             else
             {
@@ -860,7 +871,7 @@ public class ServerStoredContactListYahooImpl
     private class ContactListModListenerImpl
         extends SessionAdapter
     {
-        private Hashtable waitMove = new Hashtable();
+        private Hashtable<String, Object> waitMove = new Hashtable<String, Object>();
 
         public void waitForMove(String id, String oldParent)
         {
@@ -926,7 +937,7 @@ public class ServerStoredContactListYahooImpl
                 if(addedCustomYahooIds.containsKey(contactID))
                 {
                     String expectedContactID =
-                         (String)addedCustomYahooIds.remove(contactID);
+                         addedCustomYahooIds.remove(contactID);
 
                     contactToAdd =
                         new ContactYahooImpl(expectedContactID, ev.getFriend(),

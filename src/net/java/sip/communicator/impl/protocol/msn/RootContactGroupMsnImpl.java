@@ -14,15 +14,16 @@ import net.java.sip.communicator.service.protocol.*;
  * A dummy ContactGroup implementation representing the ContactList root for
  * Msn contact lists.
  * @author Damian Minkov
+ * @author Emil Ivov
  */
 public class RootContactGroupMsnImpl
     extends AbstractContactGroupMsnImpl
 {
     private String ROOT_CONTACT_GROUP_NAME = "ContactListRoot";
-    private List subGroups = new LinkedList();
+    private List<ContactGroup> subGroups = new LinkedList<ContactGroup>();
     private boolean isResolved = false;
 
-    private List contacts = new LinkedList();
+    private List<Contact> contacts = new LinkedList<Contact>();
 
     private ProtocolProviderServiceMsnImpl ownerProvider = null;
 
@@ -107,21 +108,6 @@ public class RootContactGroupMsnImpl
     }
 
     /**
-     * Removes all contact sub groups and reinsterts them as specified
-     * by the <tt>newOrder</tt> param. Contact groups not contained in the
-     * newOrder list are left at the end of this group.
-     *
-     * @param newOrder a list containing all contact groups in the order that is
-     * to be applied.
-     *
-     */
-    void reorderSubGroups(List newOrder)
-    {
-        subGroups.removeAll(newOrder);
-        subGroups.addAll(0, newOrder);
-    }
-
-    /**
      * Returns the number of subgroups contained by this
      * <tt>RootContactGroupImpl</tt>.
      *
@@ -160,10 +146,10 @@ public class RootContactGroupMsnImpl
      */
     public ContactGroup getGroup(String groupName)
     {
-        Iterator subgroups = subgroups();
+        Iterator<ContactGroup> subgroups = subgroups();
         while (subgroups.hasNext())
         {
-            ContactGroupMsnImpl grp = (ContactGroupMsnImpl) subgroups.next();
+            ContactGroup grp = subgroups.next();
 
             if (grp.getGroupName().equals(groupName))
                 return grp;
@@ -179,7 +165,7 @@ public class RootContactGroupMsnImpl
      * @return a java.util.Iterator over the <tt>ContactGroup</tt>
      *   children of this group (i.e. subgroups).
      */
-    public Iterator subgroups()
+    public Iterator<ContactGroup> subgroups()
     {
         return subGroups.iterator();
     }
@@ -201,7 +187,7 @@ public class RootContactGroupMsnImpl
      * @return a java.util.Iterator over all contacts inside this
      * <tt>ContactGroup</tt>
      */
-    public Iterator contacts()
+    public Iterator<Contact> contacts()
     {
         return contacts.iterator();
     }
@@ -231,10 +217,10 @@ public class RootContactGroupMsnImpl
         StringBuffer buff = new StringBuffer(getGroupName());
         buff.append(".subGroups=" + countSubgroups() + ":\n");
 
-        Iterator subGroups = subgroups();
+        Iterator<ContactGroup> subGroups = subgroups();
         while (subGroups.hasNext())
         {
-            ContactGroup group = (ContactGroup) subGroups.next();
+            ContactGroup group = subGroups.next();
             buff.append(group.toString());
             if (subGroups.hasNext())
                 buff.append("\n");

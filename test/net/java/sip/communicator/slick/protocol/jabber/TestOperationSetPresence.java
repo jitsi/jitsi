@@ -37,13 +37,17 @@ public class TestOperationSetPresence
 
     private JabberSlickFixture fixture = new JabberSlickFixture();
     private OperationSetPresence operationSetPresence1 = null;
-    private final Map supportedStatusSet1 = new HashMap();
+    private final Map<String, PresenceStatus> supportedStatusSet1
+        = new HashMap<String, PresenceStatus>();
     private OperationSetPresence operationSetPresence2 = null;
-    private final Map supportedStatusSet2 = new HashMap();
+    private final Map<String, PresenceStatus> supportedStatusSet2
+        = new HashMap<String, PresenceStatus>();
     private String statusMessageRoot = new String("Our status is now: ");
 
-    private static AuthEventCollector authEventCollector1 = new AuthEventCollector();
-    private static AuthEventCollector authEventCollector2 = new AuthEventCollector();
+    private static AuthEventCollector authEventCollector1
+        = new AuthEventCollector();
+    private static AuthEventCollector authEventCollector2
+        = new AuthEventCollector();
 
     public TestOperationSetPresence(String name)
     {
@@ -109,22 +113,20 @@ public class TestOperationSetPresence
          * are specific to the ProtocolProviderService implementations.
          */
         // operationSetPresence1
-        for (Iterator supportedStatusIt =
-            operationSetPresence1.getSupportedStatusSet(); supportedStatusIt
-            .hasNext();)
+        for (Iterator<PresenceStatus> supportedStatusIt
+                        = operationSetPresence1.getSupportedStatusSet();
+             supportedStatusIt.hasNext();)
         {
-            PresenceStatus supportedStatus =
-                (PresenceStatus) supportedStatusIt.next();
+            PresenceStatus supportedStatus = supportedStatusIt.next();
             supportedStatusSet1.put(supportedStatus.getStatusName(),
                 supportedStatus);
         }
         // operationSetPresence2
-        for (Iterator supportedStatusIt =
-            operationSetPresence2.getSupportedStatusSet(); supportedStatusIt
-            .hasNext();)
+        for (Iterator<PresenceStatus> supportedStatusIt
+                        = operationSetPresence2.getSupportedStatusSet();
+             supportedStatusIt.hasNext();)
         {
-            PresenceStatus supportedStatus =
-                (PresenceStatus) supportedStatusIt.next();
+            PresenceStatus supportedStatus = supportedStatusIt.next();
             supportedStatusSet2.put(supportedStatus.getStatusName(),
                 supportedStatus);
         }
@@ -182,10 +184,10 @@ public class TestOperationSetPresence
     {
         //first create a local list containing the presence status instances
         //supported by the underlying implementation.
-        Iterator supportedStatusSetIter =
+        Iterator<PresenceStatus> supportedStatusSetIter =
             operationSetPresence1.getSupportedStatusSet();
 
-        List supportedStatusNames = new LinkedList();
+        List<String> supportedStatusNames = new LinkedList<String>();
         while (supportedStatusSetIter.hasNext())
         {
             supportedStatusNames.add(((PresenceStatus) supportedStatusSetIter
@@ -194,7 +196,7 @@ public class TestOperationSetPresence
 
         //create a copy of the MUST status set and remove any matching status
         //that is also present in the supported set.
-        List requiredStatusNames =
+        List<String> requiredStatusNames =
             Arrays.asList(JabberStatusEnum.getStatusNames());
 
         requiredStatusNames.removeAll(supportedStatusNames);
@@ -228,8 +230,8 @@ public class TestOperationSetPresence
     }
 
     /**
-     * Verify that changing state to FREE_FOR_CHAT works as supposed to and that it
-     * generates the corresponding event.
+     * Verify that changing state to FREE_FOR_CHAT works as supposed to and
+     * that it generates the corresponding event.
      * @throws Exception in case a failure occurs while the operation set
      * is switching to the new state.
      */
@@ -261,11 +263,11 @@ public class TestOperationSetPresence
     {
         logger.trace(" --=== beginning state transition test ===--");
 
-        PresenceStatus newStatus =
-            getPresenceStatus(supportedStatusSet1, newStatusName);
+        PresenceStatus newStatus = supportedStatusSet1.get(newStatusName);
 
         PresenceStatus oldStatus = operationSetPresence1.getPresenceStatus();
-        String oldStatusMessage = operationSetPresence1.getCurrentStatusMessage();
+        String oldStatusMessage
+            = operationSetPresence1.getCurrentStatusMessage();
         String newStatusMessage = statusMessageRoot + newStatus;
 
         logger.debug(   "old status is=" + oldStatus.getStatusName()
@@ -279,7 +281,8 @@ public class TestOperationSetPresence
             statusEventCollector);
 
         //change the status
-        operationSetPresence1.publishPresenceStatus(newStatus, newStatusMessage);
+        operationSetPresence1
+            .publishPresenceStatus(newStatus, newStatusMessage);
         pauseAfterStateChanges();
 
         //test event notification.
@@ -293,14 +296,12 @@ public class TestOperationSetPresence
                      1, statusEventCollector.collectedPresEvents.size());
         assertEquals("A status changed event contained wrong old status.",
                      oldStatus,
-                     ((ProviderPresenceStatusChangeEvent)
-                        statusEventCollector.collectedPresEvents.get(0))
-                            .getOldStatus());
+                     statusEventCollector
+                         .collectedPresEvents.get(0).getOldStatus());
         assertEquals("A status changed event contained wrong new status.",
                      newStatus,
-                     ((ProviderPresenceStatusChangeEvent)
-                        statusEventCollector.collectedPresEvents.get(0))
-                            .getNewStatus());
+                     statusEventCollector
+                         .collectedPresEvents.get(0).getNewStatus());
 
         // verify that the operation set itself is aware of the status change
         assertEquals("opSet.getPresenceStatus() did not return properly.",
@@ -344,7 +345,7 @@ public class TestOperationSetPresence
     {
         try
         {
-            Thread.currentThread().sleep(1500);
+            Thread.sleep(1500);
         }
         catch (InterruptedException ex)
         {
@@ -395,8 +396,8 @@ public class TestOperationSetPresence
     private void subtestQueryContactStatus(String status, String expectedReturn)
         throws Exception
     {
-        operationSetPresence2.publishPresenceStatus(getPresenceStatus(
-            supportedStatusSet2, status), "status message");
+        operationSetPresence2.publishPresenceStatus(
+            supportedStatusSet2.get(status), "status message");
 
         pauseAfterStateChanges();
 
@@ -405,7 +406,7 @@ public class TestOperationSetPresence
         assertEquals("Querying a "
                      + expectedReturn
                      + " state did not return as expected"
-                     , getPresenceStatus(supportedStatusSet1, expectedReturn)
+                     , supportedStatusSet1.get(expectedReturn)
                      , actualReturn);
     }
 
@@ -493,7 +494,8 @@ public class TestOperationSetPresence
              authEventCollector2.responseToRequest.getResponseCode(),
              authEventCollector1.response.getResponseCode());
 
-        // fix . from no on accept all subscription request for the two tested accounts
+        // fix . from no on accept all subscription request for the two
+        // tested accounts
         authEventCollector1.responseToRequest =
             new AuthorizationResponse(AuthorizationResponse.ACCEPT, null);
         authEventCollector2.responseToRequest =
@@ -501,20 +503,21 @@ public class TestOperationSetPresence
 
         operationSetPresence1.removeSubscriptionListener(subEvtCollector);
 
-        
+
         assertTrue("Subscription event dispatching failed."
                      , subEvtCollector.collectedEvents.size() > 0);
-        
+
         SubscriptionEvent subEvt = null;
-        
-        Iterator events = subEvtCollector.collectedEvents.iterator();
+
+        Iterator<EventObject> events
+            = subEvtCollector.collectedEvents.iterator();
         while (events.hasNext())
         {
             SubscriptionEvent elem = (SubscriptionEvent) events.next();
             if(elem.getEventID() == SubscriptionEvent.SUBSCRIPTION_CREATED)
                 subEvt = elem;
         }
-        
+
         // it happens that when adding contacts which require authorization
         // sometimes the collected events are 3 - added, deleted, added
         // so we get the last one if there is such
@@ -538,16 +541,14 @@ public class TestOperationSetPresence
         PresenceStatus oldStatus
             = operationSetPresence2.getPresenceStatus();
 
-        PresenceStatus newStatus =
-            getPresenceStatus(supportedStatusSet2,
-                JabberStatusEnum.FREE_FOR_CHAT);
+        PresenceStatus newStatus
+            = supportedStatusSet2.get(JabberStatusEnum.FREE_FOR_CHAT);
 
         //in case we are by any chance already in a FREE_FOR_CHAT status, we'll
         //be changing to something else
         if(oldStatus.equals(newStatus)){
-            newStatus =
-                getPresenceStatus(supportedStatusSet2,
-                    JabberStatusEnum.DO_NOT_DISTURB);
+            newStatus
+                = supportedStatusSet2.get(JabberStatusEnum.DO_NOT_DISTURB);
         }
 
         //now do the actual status notification testing
@@ -558,7 +559,8 @@ public class TestOperationSetPresence
             contactPresEvtCollector);
 
         synchronized (contactPresEvtCollector){
-            operationSetPresence2.publishPresenceStatus(newStatus, "new status");
+            operationSetPresence2
+                .publishPresenceStatus(newStatus, "new status");
             //we may already have the event, but it won't hurt to check.
             contactPresEvtCollector.waitForEvent(10000);
             operationSetPresence1
@@ -647,16 +649,14 @@ public class TestOperationSetPresence
         logger.debug("Testing (lack of) presence notifications.");
         PresenceStatus oldStatus
             = operationSetPresence2.getPresenceStatus();
-        PresenceStatus newStatus =
-            getPresenceStatus(supportedStatusSet2,
-                JabberStatusEnum.FREE_FOR_CHAT);
+        PresenceStatus newStatus
+            = supportedStatusSet2.get(JabberStatusEnum.FREE_FOR_CHAT);
 
         //in case we are by any chance already in a FREE_FOR_CHAT status, we'll
         //be changing to something else
         if(oldStatus.equals(newStatus)){
-            newStatus =
-                getPresenceStatus(supportedStatusSet2,
-                    JabberStatusEnum.DO_NOT_DISTURB);
+            newStatus
+                = supportedStatusSet2.get(JabberStatusEnum.DO_NOT_DISTURB);
         }
 
         //now do the actual status notification testing
@@ -665,8 +665,10 @@ public class TestOperationSetPresence
         operationSetPresence1.addContactPresenceStatusListener(
             contactPresEvtCollector);
 
-        synchronized (contactPresEvtCollector){
-            operationSetPresence2.publishPresenceStatus(newStatus, "new status");
+        synchronized (contactPresEvtCollector)
+        {
+            operationSetPresence2.publishPresenceStatus(
+                            newStatus, "new status");
 
             //we may already have the event, but it won't hurt to check.
             contactPresEvtCollector.waitForEvent(10000);
@@ -700,14 +702,17 @@ public class TestOperationSetPresence
     private class PresenceStatusEventCollector
         implements ProviderPresenceStatusListener
     {
-        public ArrayList collectedPresEvents = new ArrayList();
-        public ArrayList collectedStatMsgEvents = new ArrayList();
+        public ArrayList<ProviderPresenceStatusChangeEvent> collectedPresEvents
+            = new ArrayList<ProviderPresenceStatusChangeEvent>();
+        public ArrayList<PropertyChangeEvent> collectedStatMsgEvents
+            = new ArrayList<PropertyChangeEvent>();
 
         public void providerStatusChanged(ProviderPresenceStatusChangeEvent evt)
         {
             synchronized(this)
             {
-                logger.debug("Collected evt("+collectedPresEvents.size()+")= "+evt);
+                logger.debug("Collected evt("+collectedPresEvents.size()
+                                    +")= "+evt);
                 collectedPresEvents.add(evt);
                 notifyAll();
             }
@@ -737,7 +742,8 @@ public class TestOperationSetPresence
             synchronized(this)
             {
                 if(collectedPresEvents.size() > 0){
-                    logger.trace("Change already received. " + collectedPresEvents);
+                    logger.trace("Change already received. "
+                                    + collectedPresEvents);
                     return;
                 }
 
@@ -782,8 +788,8 @@ public class TestOperationSetPresence
                                      +waitFor+"ms.");
                 }
                 catch (InterruptedException ex){
-                    logger.debug("Interrupted while waiting for a status msg evt"
-                        , ex);
+                    logger.debug(
+                        "Interrupted while waiting for a status msg evt", ex);
                 }
             }
         }
@@ -795,7 +801,8 @@ public class TestOperationSetPresence
      */
     private class SubscriptionEventCollector implements SubscriptionListener
     {
-        public ArrayList collectedEvents = new ArrayList();
+        public ArrayList<EventObject> collectedEvents
+            = new ArrayList<EventObject>();
 
         /**
          * Blocks until at least one event is received or until waitFor
@@ -922,7 +929,8 @@ public class TestOperationSetPresence
     private class ContactPresenceEventCollector
         implements ContactPresenceStatusListener
     {
-        public ArrayList collectedEvents = new ArrayList();
+        public ArrayList<ContactPresenceStatusChangeEvent> collectedEvents
+            = new ArrayList<ContactPresenceStatusChangeEvent>();
         private String trackedScreenName = null;
         private PresenceStatus status = null;
 
@@ -977,7 +985,7 @@ public class TestOperationSetPresence
 
                 if( status == null )
                     return;
-                
+
                 if(status != evt.getNewStatus())
                     return;
 
@@ -986,12 +994,6 @@ public class TestOperationSetPresence
                 notifyAll();
             }
         }
-    }
-
-    private PresenceStatus getPresenceStatus(Map supportedStatusSet,
-        String statusName)
-    {
-        return (PresenceStatus) supportedStatusSet.get(statusName);
     }
 
     /**
@@ -1101,7 +1103,7 @@ public class TestOperationSetPresence
         {
             synchronized(this)
             {
-                if(isAuthorizationRequestReceived) 
+                if(isAuthorizationRequestReceived)
                 {
                     logger.debug("authorization request already received");
                     return;
@@ -1116,47 +1118,5 @@ public class TestOperationSetPresence
                 }
             }
         }
-    }
-
-    /**
-     * Used to wait till buddy is removed from our contact list.
-     * Used in the authorization process tests
-     */
-    private class UnsubscribeWait implements SubscriptionListener
-    {
-        public void waitForUnsubscribre(long waitFor)
-        {
-            synchronized(this)
-            {
-                try{
-                    wait(waitFor);
-                }
-                catch (InterruptedException ex)
-                {
-                    logger.debug(
-                        "Interrupted while waiting for a subscription evt", ex);
-                }
-            }
-        }
-
-        public void subscriptionRemoved(SubscriptionEvent evt)
-        {
-            synchronized(this)
-            {
-                logger.debug("Got subscriptionRemoved " + evt);
-                notifyAll();
-            }
-        }
-
-        public void subscriptionCreated(SubscriptionEvent evt)
-        {}
-        public void subscriptionFailed(SubscriptionEvent evt)
-        {}
-        public void subscriptionMoved(SubscriptionMovedEvent evt)
-        {}
-        public void subscriptionResolved(SubscriptionEvent evt)
-        {}
-        public void contactModified(ContactPropertyChangeEvent evt)
-        {}
     }
 }

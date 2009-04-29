@@ -26,6 +26,7 @@ import net.java.sip.communicator.service.protocol.*;
  * source group is changed.
  *
  * @author Damian Minkov
+ * @author Emil Ivov
  */
 public class ContactGroupJabberImpl
     extends AbstractContactGroupJabberImpl

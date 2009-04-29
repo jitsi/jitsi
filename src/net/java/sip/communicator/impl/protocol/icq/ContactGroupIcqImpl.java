@@ -33,8 +33,8 @@ public class ContactGroupIcqImpl
      * strings in the left column because screen names in AIM/ICQ are not case
      * sensitive.
      */
-    private Map<String, ContactIcqImpl> buddies
-        = new Hashtable<String, ContactIcqImpl>();
+    private Map<String, Contact> buddies
+        = new Hashtable<String, Contact>();
 
     private boolean isResolved = false;
 
@@ -47,8 +47,8 @@ public class ContactGroupIcqImpl
      * a list that would always remain empty. We only use it so that we're able
      * to extract empty iterators
      */
-    private LinkedHashSet<ContactGroupIcqImpl> dummyGroupsList
-        = new LinkedHashSet<ContactGroupIcqImpl>();
+    private LinkedHashSet<ContactGroup> dummyGroupsList
+        = new LinkedHashSet<ContactGroup>();
 
     /**
      * A variable that we use as a means of detecting changes in the name
@@ -164,7 +164,7 @@ public class ContactGroupIcqImpl
      *   <tt>ContactGroup</tt>. In case the group doesn't contain any
      * memebers it will return an empty iterator.
      */
-    public Iterator contacts()
+    public Iterator<Contact> contacts()
     {
         return buddies.values().iterator();
     }
@@ -228,7 +228,7 @@ public class ContactGroupIcqImpl
      *
      * @return an empty iterator
      */
-    public Iterator subgroups()
+    public Iterator<ContactGroup> subgroups()
     {
         return dummyGroupsList.iterator();
     }
@@ -313,10 +313,10 @@ public class ContactGroupIcqImpl
         buff.append(getGroupName());
         buff.append(", childContacts="+countContacts()+":[");
 
-        Iterator contacts = contacts();
+        Iterator<Contact> contacts = contacts();
         while (contacts.hasNext())
         {
-            ContactIcqImpl contact = (ContactIcqImpl) contacts.next();
+            Contact contact = contacts.next();
             buff.append(contact.toString());
             if(contacts.hasNext())
                 buff.append(", ");
@@ -335,7 +335,7 @@ public class ContactGroupIcqImpl
      */
     ContactIcqImpl findContact(Buddy joustSimBuddy)
     {
-        Iterator contacts = contacts();
+        Iterator<Contact> contacts = contacts();
         while (contacts.hasNext())
         {
             ContactIcqImpl item = (ContactIcqImpl) contacts.next();
@@ -354,7 +354,7 @@ public class ContactGroupIcqImpl
      */
     int findContactIndex(Contact contact)
     {
-        Iterator contacts = contacts();
+        Iterator<Contact> contacts = contacts();
         int i = 0;
         while (contacts.hasNext())
         {
@@ -382,7 +382,7 @@ public class ContactGroupIcqImpl
             return null;
 
         String lcScreenName = screenName.toLowerCase();
-        return buddies.get(lcScreenName);
+        return (ContactIcqImpl)buddies.get(lcScreenName);
     }
 
     /**

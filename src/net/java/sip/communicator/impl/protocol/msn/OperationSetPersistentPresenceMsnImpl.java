@@ -47,27 +47,32 @@ public class OperationSetPersistentPresenceMsnImpl
      * The list of listeners interested in receiving changes in our local
      * presence status.
      */
-    private Vector providerPresenceStatusListeners = new Vector();
+    private Vector<ProviderPresenceStatusListener>
+        providerPresenceStatusListeners
+            = new Vector<ProviderPresenceStatusListener>();
 
     /**
      * The list of presence status listeners interested in receiving presence
      * notifications of changes in status of contacts in our contact list.
      */
-    private Vector contactPresenceStatusListeners = new Vector();
+    private Vector<ContactPresenceStatusListener> contactPresenceStatusListeners
+        = new Vector<ContactPresenceStatusListener>();
 
     /**
      * Sometimes status changes are received before the contact list is inited
      * here we store such events so we can show them correctly
      */
-    private Hashtable earlyStatusChange = new Hashtable();
-    
+    private Hashtable<String, MsnUserStatus> earlyStatusChange
+        = new Hashtable<String, MsnUserStatus>();
+
     private AuthorizationHandler authorizationHandler = null;
 
     /**
      * The array list we use when returning from the getSupportedStatusSet()
      * method.
      */
-    private static final List<PresenceStatus> supportedPresenceStatusSet = new ArrayList<PresenceStatus>();
+    private static final List<PresenceStatus> supportedPresenceStatusSet
+        = new ArrayList<PresenceStatus>();
     static{
         supportedPresenceStatusSet.add(MsnStatusEnum.AWAY);
         supportedPresenceStatusSet.add(MsnStatusEnum.BE_RIGHT_BACK);
@@ -84,7 +89,8 @@ public class OperationSetPersistentPresenceMsnImpl
      * A map containing bindings between SIP Communicator's msn presence status
      * instances and Msn status codes
      */
-    private static Map scToMsnModesMappings = new Hashtable();
+    private static Map<MsnStatusEnum, MsnUserStatus> scToMsnModesMappings
+        = new Hashtable<MsnStatusEnum, MsnUserStatus>();
     static{
         scToMsnModesMappings.put(MsnStatusEnum.AWAY,
                                  MsnUserStatus.AWAY);
@@ -529,7 +535,7 @@ public class OperationSetPersistentPresenceMsnImpl
     {
         this.authorizationHandler = handler;
     }
-    
+
     /**
      * Returns the AuthorizationHandler.
      * @return AuthorizationHandler
@@ -692,16 +698,16 @@ public class OperationSetPersistentPresenceMsnImpl
                      + providerPresenceStatusListeners.size()
                      + " evt=" + evt);
 
-        Iterator listeners = null;
+        Iterator<ProviderPresenceStatusListener> listeners = null;
         synchronized (providerPresenceStatusListeners)
         {
-            listeners = new ArrayList(providerPresenceStatusListeners).iterator();
+            listeners = new ArrayList<ProviderPresenceStatusListener>(
+                                providerPresenceStatusListeners).iterator();
         }
 
         while (listeners.hasNext())
         {
-            ProviderPresenceStatusListener listener
-                = (ProviderPresenceStatusListener) listeners.next();
+            ProviderPresenceStatusListener listener = listeners.next();
 
             listener.providerStatusChanged(evt);
         }
@@ -725,16 +731,16 @@ public class OperationSetPersistentPresenceMsnImpl
                      + providerPresenceStatusListeners.size()
                      + " evt=" + evt);
 
-        Iterator listeners = null;
+        Iterator<ProviderPresenceStatusListener> listeners = null;
         synchronized (providerPresenceStatusListeners)
         {
-            listeners = new ArrayList(providerPresenceStatusListeners).iterator();
+            listeners = new ArrayList<ProviderPresenceStatusListener>(
+                                providerPresenceStatusListeners).iterator();
         }
 
         while (listeners.hasNext())
         {
-            ProviderPresenceStatusListener listener =
-                (ProviderPresenceStatusListener) listeners.next();
+            ProviderPresenceStatusListener listener = listeners.next();
 
             listener.providerStatusMessageChanged(evt);
         }
@@ -780,8 +786,8 @@ public class OperationSetPersistentPresenceMsnImpl
                     currentStatus);
 
                 //send event notifications saying that all our buddies are
-                //offline. 
-                Iterator rootContactsIter = 
+                //offline.
+                Iterator rootContactsIter =
                     getServerStoredContactListRoot().contacts();
                 while(rootContactsIter.hasNext())
                 {
@@ -801,15 +807,15 @@ public class OperationSetPersistentPresenceMsnImpl
                         , contact.getParentContactGroup()
                         , oldContactStatus, MsnStatusEnum.OFFLINE);
                 }
-                
-                Iterator groupsIter =
-                    getServerStoredContactListRoot().subgroups();
+
+                Iterator<ContactGroup> groupsIter
+                    = getServerStoredContactListRoot().subgroups();
                 while(groupsIter.hasNext())
                 {
                     ContactGroupMsnImpl group
                         = (ContactGroupMsnImpl)groupsIter.next();
 
-                    Iterator contactsIter = group.contacts();
+                    Iterator<Contact> contactsIter = group.contacts();
 
                     while(contactsIter.hasNext())
                     {
@@ -856,16 +862,16 @@ public class OperationSetPersistentPresenceMsnImpl
                      + contactPresenceStatusListeners.size()
                      + " evt=" + evt);
 
-        Iterator listeners = null;
+        Iterator<ContactPresenceStatusListener> listeners = null;
         synchronized (contactPresenceStatusListeners)
         {
-            listeners = new ArrayList(contactPresenceStatusListeners).iterator();
+            listeners = new ArrayList<ContactPresenceStatusListener>(
+                            contactPresenceStatusListeners).iterator();
         }
 
         while (listeners.hasNext())
         {
-            ContactPresenceStatusListener listener
-                = (ContactPresenceStatusListener) listeners.next();
+            ContactPresenceStatusListener listener =  listeners.next();
 
             listener.contactPresenceStatusChanged(evt);
         }
@@ -887,12 +893,13 @@ public class OperationSetPersistentPresenceMsnImpl
      */
     void earlyStatusesDispatch()
     {
-        Iterator iter = earlyStatusChange.keySet().iterator();
+        Iterator<String> iter = earlyStatusChange.keySet().iterator();
         while (iter.hasNext())
         {
             String contactEmail = (String)iter.next();
 
-            ContactMsnImpl sourceContact = ssContactList.findContactById(contactEmail);
+            ContactMsnImpl sourceContact
+                = ssContactList.findContactById(contactEmail);
 
             if (sourceContact == null)
             {
@@ -957,7 +964,7 @@ public class OperationSetPersistentPresenceMsnImpl
 
             if (sourceContact == null)
             {
-                logger.warn("No source contact found for msncontact=" + contact);
+                logger.debug("No source contact found for msncontact=" + contact);
 
                 // maybe list is not inited yet will store till init
                 earlyStatusChange.put(contact.getEmail().getEmailAddress(),

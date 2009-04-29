@@ -23,6 +23,7 @@ import net.sf.jml.message.p2p.*;
  * corresponding sip-communicator events to all events coming from smack.
  *
  * @author Damian Minkov
+ * @author Emil Ivov
  */
 public class ServerStoredContactListMsnImpl
 {
@@ -254,14 +255,14 @@ public class ServerStoredContactListMsnImpl
      */
     public ContactGroupMsnImpl findContactGroup(String name)
     {
-        Iterator<ContactGroupMsnImpl> contactGroups = rootGroup.subgroups();
+        Iterator<ContactGroup> contactGroups = rootGroup.subgroups();
 
         while(contactGroups.hasNext())
         {
-            ContactGroupMsnImpl contactGroup = contactGroups.next();
+            ContactGroup contactGroup = contactGroups.next();
 
             if (contactGroup.getGroupName().equals(name))
-                return contactGroup;
+                return (ContactGroupMsnImpl)contactGroup;
         }
 
         return null;
@@ -277,12 +278,13 @@ public class ServerStoredContactListMsnImpl
      */
     public ContactMsnImpl findContactById(String id)
     {
-        Iterator<ContactGroupMsnImpl> contactGroups = rootGroup.subgroups();
+        Iterator<ContactGroup> contactGroups = rootGroup.subgroups();
         ContactMsnImpl result = null;
 
         while(contactGroups.hasNext())
         {
-            ContactGroupMsnImpl contactGroup = contactGroups.next();
+            ContactGroupMsnImpl contactGroup
+                = (ContactGroupMsnImpl)contactGroups.next();
 
             result = contactGroup.findContact(id);
 
@@ -291,13 +293,13 @@ public class ServerStoredContactListMsnImpl
 
         }
 
-        Iterator<ContactMsnImpl> rootContacts = rootGroup.contacts();
+        Iterator<Contact> rootContacts = rootGroup.contacts();
         while (rootContacts.hasNext())
         {
-            ContactMsnImpl item = (ContactMsnImpl) rootContacts.next();
+            Contact item = rootContacts.next();
 
             if(item.getAddress().equals(id))
-                return item;
+                return (ContactMsnImpl)item;
         }
 
         return null;
@@ -314,21 +316,22 @@ public class ServerStoredContactListMsnImpl
      */
     public ContactGroup findContactGroup(ContactMsnImpl child)
     {
-        Iterator<ContactGroupMsnImpl> contactGroups = rootGroup.subgroups();
+        Iterator<ContactGroup> contactGroups = rootGroup.subgroups();
 
         while(contactGroups.hasNext())
         {
-            ContactGroupMsnImpl contactGroup = contactGroups.next();
+            ContactGroupMsnImpl contactGroup
+                = (ContactGroupMsnImpl)contactGroups.next();
 
             if( contactGroup.findContact(child.getAddress())!= null)
                 return contactGroup;
         }
 
-        Iterator<ContactMsnImpl> contacts = rootGroup.contacts();
+        Iterator<Contact> contacts = rootGroup.contacts();
 
         while(contacts.hasNext())
         {
-            ContactMsnImpl contact = contacts.next();
+            Contact contact = contacts.next();
 
             if( contact.equals(child))
                 return rootGroup;
@@ -687,11 +690,12 @@ public class ServerStoredContactListMsnImpl
      */
     private ContactGroupMsnImpl findContactGroupByMsnId(String id)
     {
-        Iterator<ContactGroupMsnImpl> contactGroups = rootGroup.subgroups();
+        Iterator<ContactGroup> contactGroups = rootGroup.subgroups();
 
         while(contactGroups.hasNext())
         {
-            ContactGroupMsnImpl contactGroup = contactGroups.next();
+            ContactGroupMsnImpl contactGroup
+                = (ContactGroupMsnImpl)contactGroups.next();
 
             if (contactGroup.getSourceGroup().getGroupId().equals(id))
                 return contactGroup;

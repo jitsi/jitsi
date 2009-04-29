@@ -26,11 +26,12 @@ import ymsg.network.*;
  * source group is changed.
  *
  * @author Damian Minkov
+ * @author Emil Ivov
  */
 public class ContactGroupYahooImpl
     extends AbstractContactGroupYahooImpl
 {
-    private List buddies = new LinkedList();
+    private Map<String, Contact> buddies = new Hashtable<String, Contact>();
     private boolean isResolved = false;
 
     /**
@@ -42,7 +43,7 @@ public class ContactGroupYahooImpl
      * a list that would always remain empty. We only use it so that we're able
      * to extract empty iterators
      */
-    private List dummyGroupsList = new LinkedList();
+    private List<ContactGroup> dummyGroupsList = new LinkedList<ContactGroup>();
 
     private String tempId = null;
 
@@ -66,7 +67,7 @@ public class ContactGroupYahooImpl
      */
     ContactGroupYahooImpl(
                         YahooGroup yahooGroup,
-                        Vector groupMembers,
+                        Vector<YahooUser> groupMembers,
                         ServerStoredContactListYahooImpl ssclCallback,
                         boolean isResolved)
     {
@@ -74,19 +75,30 @@ public class ContactGroupYahooImpl
         this.isResolved = isResolved;
         this.ssclCallback = ssclCallback;
 
-        Iterator iter = groupMembers.iterator();
+        Iterator<YahooUser> iter = groupMembers.iterator();
         while(iter.hasNext())
         {
+            YahooUser yahooUser = iter.next();
+
+            //only add the contact if it doesn't already exist in some other
+            //group. this would be necessary if Yahoo! one day start allowing
+            //the  same contact in more than one group, which is not quite
+            //unlikely since most of the other protocols do it.
+            if(ssclCallback.findContactByYahooUser(yahooUser) != null)
+            {
+                continue;
+            }
+
+
             addContact(
                 new ContactYahooImpl(
-                (YahooUser)iter.next(),
+                yahooUser,
                 ssclCallback, true, true) );
         }
     }
 
-    ContactGroupYahooImpl(
-        String id,
-        ServerStoredContactListYahooImpl ssclCallback)
+    ContactGroupYahooImpl( String id,
+                           ServerStoredContactListYahooImpl ssclCallback)
     {
         this.tempId = id;
         this.isResolved = false;
@@ -117,22 +129,12 @@ public class ContactGroupYahooImpl
     }
 
     /**
-     * Adds the specified contact at the specified position.
-     * @param contact the new contact to add to this group
-     * @param index the position where the new contact should be added.
-     */
-    void addContact(int index, ContactYahooImpl contact)
-    {
-        buddies.add(index, contact);
-    }
-
-    /**
      * Adds the specified contact to the end of this group.
      * @param contact the new contact to add to this group
      */
     void addContact(ContactYahooImpl contact)
     {
-        addContact(countContacts(), contact);
+        buddies.put(contact.getAddress().toLowerCase(), contact);
     }
 
 
@@ -142,31 +144,7 @@ public class ContactGroupYahooImpl
      */
     void removeContact(ContactYahooImpl contact)
     {
-        removeContact(buddies.indexOf(contact));
-    }
-
-    /**
-     * Removes the contact with the specified index.
-     * @param index the index of the cntact to remove
-     */
-    void removeContact(int index)
-    {
-        buddies.remove(index);
-    }
-
-    /**
-     * Removes all buddies in this group and reinsterts them as specified
-     * by the <tt>newOrder</tt> param. Contacts not contained in the
-     * newOrder list are left at the end of this group.
-     *
-     * @param newOrder a list containing all contacts in the order that is
-     * to be applied.
-     *
-     */
-    void reorderContacts(List newOrder)
-    {
-        buddies.removeAll(newOrder);
-        buddies.addAll(0, newOrder);
+        buddies.remove(contact.getAddress().toLowerCase());
     }
 
     /**
@@ -177,9 +155,9 @@ public class ContactGroupYahooImpl
      *   <tt>ContactGroup</tt>. In case the group doesn't contain any
      * memebers it will return an empty iterator.
      */
-    public Iterator contacts()
+    public Iterator<Contact> contacts()
     {
-        return buddies.iterator();
+        return buddies.values().iterator();
     }
 
     /**
@@ -244,7 +222,7 @@ public class ContactGroupYahooImpl
      *
      * @return an empty iterator
      */
-    public Iterator subgroups()
+    public Iterator<ContactGroup> subgroups()
     {
         return dummyGroupsList.iterator();
     }
@@ -317,10 +295,10 @@ public class ContactGroupYahooImpl
         buff.append(getGroupName());
         buff.append(", childContacts="+countContacts()+":[");
 
-        Iterator contacts = contacts();
+        Iterator<Contact> contacts = contacts();
         while (contacts.hasNext())
         {
-            ContactYahooImpl contact = (ContactYahooImpl) contacts.next();
+            Contact contact = contacts.next();
             buff.append(contact.toString());
             if(contacts.hasNext())
                 buff.append(", ");
@@ -338,15 +316,9 @@ public class ContactGroupYahooImpl
      */
     ContactYahooImpl findContact(String id)
     {
-        Iterator contacts = contacts();
-        while (contacts.hasNext())
-        {
-            ContactYahooImpl item = (ContactYahooImpl) contacts.next();
-
-            if(item.getID().equals(YahooSession.getYahooUserID(id)))
-                return item;
-        }
-        return null;
+        if(id == null)
+            return null;
+        return (ContactYahooImpl)buddies.get(id.toLowerCase());
     }
 
     /**
@@ -399,11 +371,11 @@ public class ContactGroupYahooImpl
 
         this.yahooGroup = yahooGroup;
 
-        Vector contacts = yahooGroup.getMembers();
-        Iterator iter = contacts.iterator();
+        Vector<YahooUser> contacts = yahooGroup.getMembers();
+        Iterator<YahooUser> iter = contacts.iterator();
         while(iter.hasNext())
         {
-            YahooUser item = (YahooUser)iter.next();
+            YahooUser item = iter.next();
 
             ContactYahooImpl contact =
                 ssclCallback.findContactById(item.getId());
