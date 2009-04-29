@@ -214,6 +214,8 @@ public class MetaContactListServiceImpl
             if(opSetPersPresence !=null)
             {
                 opSetPersPresence
+                    .removeContactPresenceStatusListener(this);
+                opSetPersPresence
                     .removeSubscriptionListener(clSubscriptionEventHandler);
                 opSetPersPresence
                     .removeServerStoredGroupChangeListener(clGroupEventHandler);
@@ -226,6 +228,8 @@ public class MetaContactListServiceImpl
 
                 if(opSetPresence != null)
                 {
+                    opSetPresence
+                        .removeContactPresenceStatusListener(this);
                     opSetPresence
                         .removeSubscriptionListener(clSubscriptionEventHandler);
                 }
@@ -644,10 +648,10 @@ public class MetaContactListServiceImpl
      *             with an appropriate code if the operation fails for some
      *             reason.
      */
-    public void createMetaContact(
-        ProtocolProviderService provider,
-        MetaContactGroup metaContactGroup, String contactID) throws
-        MetaContactListException
+    public void createMetaContact(  ProtocolProviderService provider,
+                                    MetaContactGroup metaContactGroup,
+                                    String contactID)
+        throws MetaContactListException
     {
         if (! (metaContactGroup instanceof MetaContactGroupImpl))
         {
@@ -661,9 +665,9 @@ public class MetaContactListServiceImpl
                 contactID, false);  //don't fire a PROTO_CONT_ADDED event we'll
                                     //fire our own event here.
 
-        fireMetaContactEvent(  newMetaContact
-                             , findParentMetaContactGroup(newMetaContact)
-                             , MetaContactEvent.META_CONTACT_ADDED);
+        fireMetaContactEvent(   newMetaContact,
+                                findParentMetaContactGroup(newMetaContact),
+                                MetaContactEvent.META_CONTACT_ADDED);
     }
 
     /**
@@ -1595,14 +1599,13 @@ public class MetaContactListServiceImpl
      * Otherwise it would start a process where local contacts would be added on
      * the server.
      *
-     * @param provider
-     *            the ProtocolProviderService that we've just detected.
+     * @param provider the ProtocolProviderService that we've just detected.
      */
-    private void handleProviderAdded(
-        ProtocolProviderService provider)
+    private synchronized void handleProviderAdded(
+                        ProtocolProviderService provider)
     {
         logger.debug("Adding protocol provider "
-                     + provider.getProtocolName());
+                     + provider.getAccountID().getAccountUniqueID());
 
         // check whether the provider has a persistent presence op set
         OperationSetPersistentPresence opSetPersPresence =
@@ -1623,13 +1626,14 @@ public class MetaContactListServiceImpl
             {
                 storageManager.extractContactsForAccount(
                     provider.getAccountID().getAccountUniqueID());
+                logger.debug("All contacts loaded for account "
+                                + provider.getAccountID().getAccountUniqueID());
             }
             catch (XMLException exc)
             {
                 logger.error("Failed to load contacts for account "
                              + provider.getAccountID().getAccountUniqueID(), exc);
             }
-
             synchronizeOpSetWithLocalContactList(opSetPersPresence);
         }
         else
@@ -1671,6 +1675,12 @@ public class MetaContactListServiceImpl
         //ignore if persistent presence is not supported.
         if(persPresOpSet == null)
             return;
+
+        //we don't gare about subscription and presence status events here any
+        //longer
+        persPresOpSet.removeContactPresenceStatusListener(this);
+        persPresOpSet.removeSubscriptionListener(clSubscriptionEventHandler);
+        persPresOpSet.removeServerStoredGroupChangeListener(clGroupEventHandler);
 
         ContactGroup rootGroup
             = persPresOpSet.getServerStoredContactListRoot();
@@ -1976,8 +1986,7 @@ public class MetaContactListServiceImpl
                 return;
             }
 
-            this
-                .handleProviderAdded( (ProtocolProviderService) sService);
+            this.handleProviderAdded( (ProtocolProviderService) sService);
         }
         else if (event.getType() == ServiceEvent.UNREGISTERING)
         {
@@ -2289,8 +2298,7 @@ public class MetaContactListServiceImpl
      * <tt>ServerStoredGroupListener</tt>s.
      */
     private class ContactListGroupListener
-        implements
-        ServerStoredGroupListener
+        implements ServerStoredGroupListener
     {
 
         /**

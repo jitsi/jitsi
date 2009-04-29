@@ -920,10 +920,14 @@ public class MclStorageManager
      *            field in the contact descriptors.
      * @return a java.util.List containing contact descriptors.
      */
-    private List<MclStorageManager.StoredProtoContactDescriptor> extractProtoContacts(
-        Element metaContactNode, String accountID,
-        Map<String, ContactGroup> protoGroups)
+    private List<MclStorageManager.StoredProtoContactDescriptor>
+                    extractProtoContacts(Element metaContactNode,
+                                         String accountID,
+                                         Map<String, ContactGroup> protoGroups)
     {
+        if(logger.isTraceEnabled())
+            logger.trace("Extracting proto contacts for "
+                            + XMLUtils.getAttribute( metaContactNode, "uid"));
         List<StoredProtoContactDescriptor> protoContacts =
             new LinkedList<StoredProtoContactDescriptor>();
 
@@ -933,6 +937,11 @@ public class MclStorageManager
         for (int i = 0; i < children.getLength(); i++)
         {
             Node currentNode = children.item(i);
+
+            //for some reason every now and then we would get a null nodename
+            //... go figure
+            if (currentNode.getNodeName() == null)
+                continue;
 
             if (currentNode.getNodeType() != Node.ELEMENT_NODE
                 || !currentNode.getNodeName().equals(PROTO_CONTACT_NODE_NAME))
@@ -996,6 +1005,13 @@ public class MclStorageManager
 
         protoContactElement.setAttribute(ACCOUNT_ID_ATTR_NAME, protoContact
             .getProtocolProvider().getAccountID().getAccountUniqueID());
+
+        if(logger.isTraceEnabled()
+                        && protoContact.getParentContactGroup() == null)
+        {
+            logger.trace("the following contact looks weird:" + protoContact);
+            logger.trace("group:" + protoContact.getParentContactGroup());
+        }
 
         protoContactElement.setAttribute(PARENT_PROTO_GROUP_UID_ATTR_NAME,
             protoContact.getParentContactGroup().getUID());
