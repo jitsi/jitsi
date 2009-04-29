@@ -43,6 +43,7 @@ public class SmileysSelectorBox
         = new GridBagConstraints();
 
     private final JLabel smileyTextLabel = new JLabel();
+    private final JLabel smileyDescriptionLabel = new JLabel();
 
     /**
      * Creates an instance of this <tt>SmileysSelectorBox</tt> and initializes
@@ -80,15 +81,24 @@ public class SmileysSelectorBox
         }
 
         smileyTextLabel.setPreferredSize(new Dimension(50, 25));
-        smileyTextLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
+        smileyTextLabel.setBorder(
+            BorderFactory.createEmptyBorder(0, 0, 0, 5));
+        smileyDescriptionLabel.setBorder(
+            BorderFactory.createEmptyBorder(0, 5, 0, 0));
 
         gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = gridRowCount;
         gridBagConstraints.gridwidth = gridColCount;
 
-        popupMenu.add(smileyTextLabel, gridBagConstraints);
+        popupMenu.add(smileyDescriptionLabel, gridBagConstraints);
 
+        gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.gridx = gridColCount/2;
+        gridBagConstraints.gridy = gridRowCount;
+
+        smileyTextLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        popupMenu.add(smileyTextLabel, gridBagConstraints);
 
         this.add(selectorBox);
     }
@@ -171,7 +181,7 @@ public class SmileysSelectorBox
 
         chatWritePanel.getEditorPane().requestFocus();
 
-        smileyTextLabel.setText("");
+        clearMouseOverEffects(smileyItem, smiley);
     }
 
     /**
@@ -195,6 +205,9 @@ public class SmileysSelectorBox
     {
     }
 
+    /**
+     * A custom menu item, which paints round border over selection.
+     */
     private class SmileyMenuItem extends JMenuItem
     {
         public SmileyMenuItem(Icon imageIcon)
@@ -204,19 +217,35 @@ public class SmileysSelectorBox
         }
     }
 
+    /**
+     * Changes the static image of the underlying smiley with a dynamic one.
+     * Also shows the description and smiley string in the description area.
+     */
     public void mouseEntered(MouseEvent e)
     {
         JMenuItem smileyItem = (JMenuItem) e.getSource();
 
         Smiley smiley = smileysList.get(smileyItem);
 
-        smileyTextLabel.setText(smiley.getDescription()
-                + " - " + smiley.getSmileyStrings()[0]);
+        String smileyIconHtml = "<HTML><IMG SRC=\""
+            + ImageLoader.getSmiley(smiley.getDefaultString()).getImagePath()
+            + "\"></IMG></HTML>";
+        smileyItem.setIcon(null);
+        smileyItem.setText(smileyIconHtml);
+
+        smileyDescriptionLabel.setText(smiley.getDescription());
+        smileyTextLabel.setText(smiley.getSmileyStrings()[0]);
     }
 
+    /**
+     * Clears all mouse over effects when the mouse has exited the smiley area.
+     */
     public void mouseExited(MouseEvent e)
     {
-        smileyTextLabel.setText("");
+        JMenuItem smileyItem = (JMenuItem) e.getSource();
+        Smiley smiley = smileysList.get(smileyItem);
+
+        this.clearMouseOverEffects(smileyItem, smiley);
     }
 
     public void mouseClicked(MouseEvent e)
@@ -227,4 +256,22 @@ public class SmileysSelectorBox
 
     public void mouseReleased(MouseEvent e)
     {}
+
+    /**
+     * Clears all mouse over effects for the given smiley item. This method
+     * should be invoked when the mouse has exited the smiley area or when
+     * a smiley has been selected and the popup menu is closed.
+     * 
+     * @param smileyItem the item for which we clear mouse over effects.
+     */
+    private void clearMouseOverEffects(JMenuItem smileyItem, Smiley smiley)
+    {
+        ImageIcon imageIcon =
+            new ImageIcon(ImageLoader.getImage(smiley.getImageID()));
+
+        smileyItem.setIcon(imageIcon);
+        smileyItem.setText(null);
+        smileyTextLabel.setText("");
+        smileyDescriptionLabel.setText("");
+    }
 }
