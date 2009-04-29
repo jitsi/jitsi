@@ -7,6 +7,7 @@
 package net.java.sip.communicator.util.xml;
 
 import java.io.*;
+import java.nio.charset.*;
 import java.util.*;
 
 import javax.xml.transform.*;
@@ -250,13 +251,13 @@ public class XMLUtils
         {
            DOMSource domSource = new DOMSource(document);
            TransformerFactory tf = TransformerFactory.newInstance();
-           
+
            // not working for jdk 1.4
            try
            {
                 tf.setAttribute("indent-number", 4);
            }catch(Exception e){}
-           
+
            Transformer serializer = tf.newTransformer();
            if(doctypeSystem != null)
                    serializer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM,
@@ -266,7 +267,6 @@ public class XMLUtils
                                                 doctypePublic);
            // not working for jdk 1.5
            serializer.setOutputProperty("{http://xml.apache.org/xalan}indent-amount", "4");
-           
            serializer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
            serializer.setOutputProperty(OutputKeys.INDENT, "yes");
            serializer.transform(domSource, streamResult);
@@ -295,14 +295,13 @@ public class XMLUtils
         {
             try
             {
-//                Writer wri = new OutputStreamWriter(out, "UTF-8");
+                Writer wri = new OutputStreamWriter(out, "UTF-8");
 //                wri.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"+lSep);
 //                (new DOMElementWriter()).write(rootElement, wri, 0, "  ");
 //                wri.flush();
 //                wri.close();
                 writeXML(doc
-                 , new StreamResult(
-                        out)
+                 , new StreamResult(wri)
                  , null
                  , null);
                 out.close();
@@ -392,11 +391,11 @@ public class XMLUtils
 
         return null;
     }
-    
+
     /**
      * Returns the children elements with the specified tagName for the
      * specified parent element.
-     * 
+     *
      * @param parent The parent whose children we're looking for.
      * @param tagName the name of the child to find
      * @return List of the children with the specified name
@@ -474,11 +473,11 @@ public class XMLUtils
 
         return null;
     }
-    
+
     /**
      * Looks through all child elements of the specified root (recursively) and
      * returns the elements that corresponds to all parameters.
-     * 
+     *
      * @param root the Element where the search should begin
      * @param tagName the name of the node we're looking for
      * @param keyAttributeName the name of an attribute that the node has to

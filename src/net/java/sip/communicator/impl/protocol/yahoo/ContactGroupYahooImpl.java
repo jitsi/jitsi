@@ -179,7 +179,8 @@ public class ContactGroupYahooImpl
     public String getGroupName()
     {
         if(isResolved)
-            return yahooGroup.getName();
+            return ServerStoredContactListYahooImpl
+                .replaceIllegalChars(yahooGroup.getName());
         else
             return tempId;
     }

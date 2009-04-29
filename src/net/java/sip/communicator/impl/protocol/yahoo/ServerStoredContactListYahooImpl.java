@@ -43,7 +43,8 @@ public class ServerStoredContactListYahooImpl
     /**
      * The root contagroup. The container for all yahoo buddies and groups.
      */
-    private RootContactGroupYahooImpl rootGroup = new RootContactGroupYahooImpl();
+    private RootContactGroupYahooImpl rootGroup
+        = new RootContactGroupYahooImpl();
 
     /**
      * The operation set that created us and that we could use when dispatching
@@ -120,7 +121,8 @@ public class ServerStoredContactListYahooImpl
     /**
      * Registers the specified group listener so that it would receive events
      * on group modification/creation/destruction.
-     * @param listener the ServerStoredGroupListener to register for group events
+     * @param listener the ServerStoredGroupListener to register for group
+     * events
      */
     void addGroupListener(ServerStoredGroupListener listener)
     {
@@ -251,11 +253,12 @@ public class ServerStoredContactListYahooImpl
      * group was found.
      * <p>
      * @param name the name of the group we're looking for.
-     * @return a reference to the ContactGroupYahooImpl instance we're looking for
-     * or null if no such group was found.
+     * @return a reference to the ContactGroupYahooImpl instance we're looking
+     * for or null if no such group was found.
      */
     public ContactGroupYahooImpl findContactGroup(String name)
     {
+        String nameToLookFor = replaceIllegalChars(name);
         Iterator<ContactGroup> contactGroups = rootGroup.subgroups();
 
         while(contactGroups.hasNext())
@@ -263,7 +266,7 @@ public class ServerStoredContactListYahooImpl
             ContactGroupYahooImpl contactGroup
                 = (ContactGroupYahooImpl) contactGroups.next();
 
-            if (contactGroup.getGroupName().equals(name))
+            if (contactGroup.getGroupName().equals(nameToLookFor))
                 return contactGroup;
         }
 
@@ -386,7 +389,8 @@ public class ServerStoredContactListYahooImpl
 
         try
         {
-            yahooSession.addFriend(YahooSession.getYahooUserID(id), parent.getGroupName());
+            yahooSession.addFriend(YahooSession.getYahooUserID(id),
+                                   parent.getGroupName());
         }
         catch(IOException ex)
         {
@@ -579,7 +583,8 @@ public class ServerStoredContactListYahooImpl
      */
     void removeContact(ContactYahooImpl contactToRemove)
     {
-        logger.trace("Removing yahoo contact " + contactToRemove.getSourceContact());
+        logger.trace("Removing yahoo contact "
+                        + contactToRemove.getSourceContact());
 
         if(contactToRemove.isVolatile())
         {
@@ -621,7 +626,8 @@ public class ServerStoredContactListYahooImpl
                 logger.info("Cannot rename group " + groupToRename);
             }
 
-            fireGroupEvent(groupToRename, ServerStoredGroupEvent.GROUP_RENAMED_EVENT);
+            fireGroupEvent(groupToRename,
+                           ServerStoredGroupEvent.GROUP_RENAMED_EVENT);
          */
     }
 
@@ -871,7 +877,8 @@ public class ServerStoredContactListYahooImpl
     private class ContactListModListenerImpl
         extends SessionAdapter
     {
-        private Hashtable<String, Object> waitMove = new Hashtable<String, Object>();
+        private Hashtable<String, Object> waitMove
+            = new Hashtable<String, Object>();
 
         public void waitForMove(String id, String oldParent)
         {
@@ -912,8 +919,9 @@ public class ServerStoredContactListYahooImpl
                 // as new one will be created
                 if(contactToAdd != null && contactToAdd.isVolatile())
                 {
-                    ContactGroupYahooImpl parent =
-                        (ContactGroupYahooImpl)contactToAdd.getParentContactGroup();
+                    ContactGroupYahooImpl parent
+                        = (ContactGroupYahooImpl)contactToAdd
+                            .getParentContactGroup();
 
                     parent.removeContact(contactToAdd);
                     fireContactRemoved(parent, contactToAdd);
@@ -1023,8 +1031,10 @@ public class ServerStoredContactListYahooImpl
             if(waitForMoveObj != null && waitForMoveObj instanceof YahooGroup)
             {
                 // first get the group - oldParent
-                ContactGroupYahooImpl oldParent = findContactGroup(ev.getGroup());
-                ContactYahooImpl contactToRemove = oldParent.findContact(contactID);
+                ContactGroupYahooImpl oldParent
+                    = findContactGroup(ev.getGroup());
+                ContactYahooImpl contactToRemove
+                    = oldParent.findContact(contactID);
 
                 oldParent.removeContact(contactToRemove);
                 waitMove.remove(contactID);
@@ -1043,7 +1053,8 @@ public class ServerStoredContactListYahooImpl
                 return;
 
             ContactGroupYahooImpl parentGroup =
-                    (ContactGroupYahooImpl)contactToRemove.getParentContactGroup();
+                    (ContactGroupYahooImpl)contactToRemove.
+                        getParentContactGroup();
             parentGroup.removeContact(contactToRemove);
             fireContactRemoved(parentGroup, contactToRemove);
 
@@ -1052,7 +1063,8 @@ public class ServerStoredContactListYahooImpl
             if(findGroup(ev.getGroup()) == null)
             {
                 rootGroup.removeSubGroup(parentGroup);
-                fireGroupEvent(parentGroup, ServerStoredGroupEvent.GROUP_REMOVED_EVENT);
+                fireGroupEvent(parentGroup,
+                               ServerStoredGroupEvent.GROUP_REMOVED_EVENT);
             }
         }
 
@@ -1107,7 +1119,8 @@ public class ServerStoredContactListYahooImpl
             ContactYahooImpl contact = findContactById(ev.getFrom());
 
             AuthorizationResponse resp =
-                new AuthorizationResponse(AuthorizationResponse.REJECT, ev.getMessage());
+                new AuthorizationResponse(AuthorizationResponse.REJECT,
+                                          ev.getMessage());
             handler.processAuthorizationResponse(resp, contact);
         }
 
@@ -1175,7 +1188,8 @@ public class ServerStoredContactListYahooImpl
             }
             else if(ev.isAuthorizationRequest())
             {
-                logger.trace("authorizationRequestReceived from " + ev.getFrom());
+                logger.trace("authorizationRequestReceived from "
+                             + ev.getFrom());
                 processAuthorizationRequest(ev);
             }
         }
@@ -1191,5 +1205,21 @@ public class ServerStoredContactListYahooImpl
         this.yahooSession = session;
         session.addSessionListener(contactListModListenerImpl);
         initList();
+    }
+
+    /**
+     * It seems that ymsg (or the Yahoo! service itself as the problem also
+     * appears with libpurple) would return illegal chars for names that were
+     * entered in cyrillic. We use this method to translate their names into
+     * something that we could actually display and store here.
+     *
+     * @param ymsgString the <tt>String</tt> containing illegal chars.
+     *
+     * @return a String where all illegal chars are converted into human
+     * readable ones
+     */
+    static String replaceIllegalChars(String ymsgString)
+    {
+        return ymsgString.replace((char)26, '?');
     }
 }
