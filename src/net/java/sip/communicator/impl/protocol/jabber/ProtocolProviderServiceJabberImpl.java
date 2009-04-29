@@ -236,7 +236,8 @@ public class ProtocolProviderServiceJabberImpl
      * @throws  OperationFailedException if login parameters
      *          as server port are not correct
      */
-    private void connectAndLogin(SecurityAuthority authority, int reasonCode)
+    private synchronized void connectAndLogin(SecurityAuthority authority,
+                                              int reasonCode)
         throws XMPPException, OperationFailedException
     {
         synchronized(initializationLock)
@@ -623,7 +624,7 @@ public class ProtocolProviderServiceJabberImpl
             //initialize the telephony opset
             String enableJingle = (String)JabberActivator
                 .getConfigurationService().getProperty(PNAME_ENABLE_JINGLE);
-            if( Boolean.getBoolean(enableJingle)    
+            if( Boolean.getBoolean(enableJingle)
                 && JabberActivator.getMediaService() != null)
             {
                 OperationSetBasicTelephony opSetBasicTelephony

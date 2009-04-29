@@ -60,7 +60,8 @@ public class ServerStoredContactListJabberImpl
      * Listeners that would receive event notifications for changes in group
      * names or other properties, removal or creation of groups.
      */
-    private Vector serverStoredGroupListeners = new Vector();
+    private Vector<ServerStoredGroupListener> serverStoredGroupListeners
+        = new Vector<ServerStoredGroupListener>();
 
     /**
      *  Thread retreiving images for contacts
@@ -146,10 +147,11 @@ public class ServerStoredContactListJabberImpl
 
         logger.trace("Will dispatch the following grp event: " + evt);
 
-        Iterator listeners = null;
+        Iterator<ServerStoredGroupListener> listeners = null;
         synchronized (serverStoredGroupListeners)
         {
-            listeners = new ArrayList(serverStoredGroupListeners).iterator();
+            listeners = new ArrayList<ServerStoredGroupListener>(
+                                serverStoredGroupListeners).iterator();
         }
 
         while (listeners.hasNext())
@@ -182,6 +184,8 @@ public class ServerStoredContactListJabberImpl
             logger.debug("No presence op. set available. Bailing out.");
             return;
         }
+        logger.trace("Removing " + contact.getAddress()
+                        + " from " + parentGroup.getGroupName());
 
         // dispatch
         parentOperationSet.fireSubscriptionEvent(contact, parentGroup,
@@ -230,7 +234,7 @@ public class ServerStoredContactListJabberImpl
      */
     public ContactGroupJabberImpl findContactGroup(String name)
     {
-        Iterator contactGroups = rootGroup.subgroups();
+        Iterator<ContactGroup> contactGroups = rootGroup.subgroups();
 
         while(contactGroups.hasNext())
         {
@@ -253,7 +257,7 @@ public class ServerStoredContactListJabberImpl
      */
     private ContactGroupJabberImpl findContactGroupByNameCopy(String name)
     {
-        Iterator contactGroups = rootGroup.subgroups();
+        Iterator<ContactGroup> contactGroups = rootGroup.subgroups();
 
         while(contactGroups.hasNext())
         {
@@ -277,12 +281,13 @@ public class ServerStoredContactListJabberImpl
      */
     public ContactJabberImpl findContactById(String id)
     {
-        Iterator<ContactGroupJabberImpl> contactGroups = rootGroup.subgroups();
+        Iterator<ContactGroup> contactGroups = rootGroup.subgroups();
         ContactJabberImpl result = null;
 
         while(contactGroups.hasNext())
         {
-            ContactGroupJabberImpl contactGroup = contactGroups.next();
+            ContactGroupJabberImpl contactGroup
+                = (ContactGroupJabberImpl)contactGroups.next();
 
             result = contactGroup.findContact(id);
 
@@ -306,26 +311,20 @@ public class ServerStoredContactListJabberImpl
      */
     public ContactGroup findContactGroup(ContactJabberImpl child)
     {
-        Iterator contactGroups = rootGroup.subgroups();
+        Iterator<ContactGroup> contactGroups = rootGroup.subgroups();
+        String contactAddress = child.getAddress();
 
         while(contactGroups.hasNext())
         {
             ContactGroupJabberImpl contactGroup
-                = (ContactGroupJabberImpl) contactGroups.next();
+                = (ContactGroupJabberImpl)contactGroups.next();
 
-            if( contactGroup.findContact(child.getAddress())!= null)
+            if( contactGroup.findContact(contactAddress)!= null)
                 return contactGroup;
         }
 
-        Iterator contacts = rootGroup.contacts();
-
-        while(contacts.hasNext())
-        {
-            ContactJabberImpl contact = (ContactJabberImpl) contacts.next();
-
-            if( contact.equals(child))
-                return rootGroup;
-        }
+        if ( rootGroup.findContact(contactAddress) != null)
+            return rootGroup;
 
         return null;
     }
@@ -361,7 +360,10 @@ public class ServerStoredContactListJabberImpl
         if( existingContact != null
             && existingContact.isPersistent() )
         {
-            logger.debug("Contact " + id + " already exists.");
+            if(logger.isDebugEnabled())
+                logger.debug("Contact " + id
+                                + " already exists in group "
+                                + findContactGroup(existingContact));
             throw new OperationFailedException(
                 "Contact " + id + " already exists.",
                 OperationFailedException.SUBSCRIPTION_ALREADY_EXISTS);
@@ -502,7 +504,7 @@ public class ServerStoredContactListJabberImpl
 
         ContactGroupJabberImpl newGroup =
             new ContactGroupJabberImpl(newRosterGroup,
-                                       new Vector().iterator(),
+                                       new Vector<RosterEntry>().iterator(),
                                        this,
                                        true);
         rootGroup.addSubGroup(newGroup);
@@ -523,8 +525,8 @@ public class ServerStoredContactListJabberImpl
             // first copy the item that will be removed
             // when iterating over group contacts and removing them
             // concurrent exception occures
-            Vector localCopy = new Vector();
-            Iterator iter = groupToRemove.contacts();
+            Vector<Contact> localCopy = new Vector<Contact>();
+            Iterator<Contact> iter = groupToRemove.contacts();
 
             while (iter.hasNext())
             {
@@ -583,7 +585,8 @@ public class ServerStoredContactListJabberImpl
     public void moveContact(ContactJabberImpl contact,
                             ContactGroupJabberImpl newParent)
     {
-        List contactsToMove = new ArrayList();
+        List<ContactJabberImpl> contactsToMove
+            = new ArrayList<ContactJabberImpl>();
         contactsToMove.add(contact);
 
         newParent.addContact(contact);
@@ -780,7 +783,7 @@ public class ServerStoredContactListJabberImpl
         {
             logger.trace("entriesAdded " + addresses);
 
-            Iterator iter = addresses.iterator();
+            Iterator<String> iter = addresses.iterator();
             while (iter.hasNext())
             {
                 String id = (String) iter.next();
@@ -908,41 +911,50 @@ public class ServerStoredContactListJabberImpl
          * Event received when entry has been removed from the list
          * @param addresses Collection
          */
-        public void entriesDeleted(Collection addresses)
+        public void entriesDeleted(Collection<String> addresses)
         {
-            Iterator iter = addresses.iterator();
+            Iterator<String> iter = addresses.iterator();
             while (iter.hasNext())
             {
                 String address = (String) iter.next();
                 logger.trace("entry deleted " + address);
 
-                ContactJabberImpl contact =
-                    findContactById(address);
+                ContactJabberImpl contact = findContactById(address);
 
                 if(contact == null)
+                {
+                    logger.trace("Could not find contact for deleted entry:"
+                                    + address);
                     continue;
+                }
 
                 ContactGroup group = findContactGroup(contact);
 
                 if(group == null)
+                {
+                    logger.trace("Could not find ParentGroup for deleted entry:"
+                                    + address);
                     continue;
+                }
 
                 if(group instanceof ContactGroupJabberImpl)
                 {
-                    ContactGroupJabberImpl groupImpl = (ContactGroupJabberImpl)group;
+                    ContactGroupJabberImpl groupImpl
+                        = (ContactGroupJabberImpl)group;
 
                     // remove the contact from parrent group
                     groupImpl.removeContact(contact);
 
                     // if the group is empty remove it from
-                    // root group . This group will be removed from server if empty
+                    // root group. This group will be removed
+                    // from server if empty
                     if (groupImpl.countContacts() == 0)
                     {
                         rootGroup.removeSubGroup(groupImpl);
 
                         fireContactRemoved(groupImpl, contact);
                         fireGroupEvent(groupImpl,
-                                       ServerStoredGroupEvent.GROUP_REMOVED_EVENT);
+                                   ServerStoredGroupEvent.GROUP_REMOVED_EVENT);
                     }
                     else
                         fireContactRemoved(groupImpl, contact);

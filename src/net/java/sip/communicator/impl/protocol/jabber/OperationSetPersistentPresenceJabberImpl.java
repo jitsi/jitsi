@@ -30,7 +30,8 @@ import net.java.sip.communicator.util.*;
  * @author Lubomir Marinov
  */
 public class OperationSetPersistentPresenceJabberImpl
-    extends AbstractOperationSetPersistentPresence<ProtocolProviderServiceJabberImpl>
+    extends AbstractOperationSetPersistentPresence<
+                ProtocolProviderServiceJabberImpl>
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetPersistentPresenceJabberImpl.class);
@@ -52,19 +53,23 @@ public class OperationSetPersistentPresenceJabberImpl
      * The list of listeners interested in receiving changes in our local
      * presencestatus.
      */
-    private Vector providerPresenceStatusListeners = new Vector();
+    private Vector<ProviderPresenceStatusListener>
+        providerPresenceStatusListeners
+            = new Vector<ProviderPresenceStatusListener>();
 
     /**
      * The list of presence status listeners interested in receiving presence
      * notifications of changes in status of contacts in our contact list.
      */
-    private Vector contactPresenceStatusListeners = new Vector();
+    private Vector<ContactPresenceStatusListener> contactPresenceStatusListeners
+        = new Vector<ContactPresenceStatusListener>();
 
     /**
      * A map containing bindings between SIP Communicator's jabber presence status
      * instances and Jabber status codes
      */
-    private static Map scToJabberModesMappings = new Hashtable();
+    private static Map<String, Presence.Mode> scToJabberModesMappings
+        = new Hashtable<String, Presence.Mode>();
     static{
         scToJabberModesMappings.put(JabberStatusEnum.AWAY,
                                   Presence.Mode.away);
@@ -85,7 +90,7 @@ public class OperationSetPersistentPresenceJabberImpl
     private JabberSubscriptionListener subscribtionPacketListener = null;
 
     private int resourcePriority = 10;
-    
+
     public OperationSetPersistentPresenceJabberImpl(
         ProtocolProviderServiceJabberImpl provider)
     {
@@ -375,9 +380,9 @@ public class OperationSetPersistentPresenceJabberImpl
         JabberStatusEnum jabberStatusEnum =
             parentProvider.getJabberStatusEnum();
         boolean isValidStatus = false;
-        for (Iterator supportedStatusIter =
-            jabberStatusEnum.getSupportedStatusSet(); supportedStatusIter
-            .hasNext();)
+        for (Iterator<PresenceStatus> supportedStatusIter
+                        = jabberStatusEnum.getSupportedStatusSet();
+             supportedStatusIter.hasNext();)
         {
             if (supportedStatusIter.next().equals(status))
             {
@@ -568,9 +573,11 @@ public class OperationSetPersistentPresenceJabberImpl
 
         if(! (parent instanceof ContactGroupJabberImpl) )
             throw new IllegalArgumentException(
-                "Argument is not an jabber contact group (group=" + parent + ")");
+                "Argument is not an jabber contact group (group="
+                            + parent + ")");
 
-        ssContactList.addContact((ContactGroupJabberImpl)parent, contactIdentifier);
+        ssContactList.addContact(
+                        (ContactGroupJabberImpl)parent, contactIdentifier);
     }
 
     /**
@@ -645,7 +652,7 @@ public class OperationSetPersistentPresenceJabberImpl
             return jabberStatusEnum.getStatus(JabberStatusEnum.OFFLINE);
 
         Presence.Mode mode = presence.getMode();
-        
+
         if(mode.equals(Presence.Mode.available))
             return jabberStatusEnum.getStatus(JabberStatusEnum.AVAILABLE);
         else if(mode.equals(Presence.Mode.away))
@@ -663,7 +670,7 @@ public class OperationSetPersistentPresenceJabberImpl
                 return jabberStatusEnum.getStatus(JabberStatusEnum.AWAY);
             if(presence.isAvailable())
                 return jabberStatusEnum.getStatus(JabberStatusEnum.AVAILABLE);
-            
+
             return jabberStatusEnum.getStatus(JabberStatusEnum.OFFLINE);
         }
     }
@@ -724,16 +731,16 @@ public class OperationSetPersistentPresenceJabberImpl
                      + providerPresenceStatusListeners.size()
                      + " evt=" + evt);
 
-        Iterator listeners = null;
+        Iterator<ProviderPresenceStatusListener> listeners = null;
         synchronized (providerPresenceStatusListeners)
         {
-            listeners = new ArrayList(providerPresenceStatusListeners).iterator();
+            listeners = new ArrayList<ProviderPresenceStatusListener>(
+                            providerPresenceStatusListeners).iterator();
         }
 
         while (listeners.hasNext())
         {
-            ProviderPresenceStatusListener listener
-                = (ProviderPresenceStatusListener) listeners.next();
+            ProviderPresenceStatusListener listener = listeners.next();
 
             listener.providerStatusChanged(evt);
         }
@@ -757,10 +764,11 @@ public class OperationSetPersistentPresenceJabberImpl
                      + providerPresenceStatusListeners.size()
                      + " evt=" + evt);
 
-        Iterator listeners = null;
+        Iterator<ProviderPresenceStatusListener> listeners = null;
         synchronized (providerPresenceStatusListeners)
         {
-            listeners = new ArrayList(providerPresenceStatusListeners).iterator();
+            listeners = new ArrayList<ProviderPresenceStatusListener>(
+                                providerPresenceStatusListeners).iterator();
         }
 
         while (listeners.hasNext())
@@ -825,14 +833,13 @@ public class OperationSetPersistentPresenceJabberImpl
                 //offline. The protocol does not implement top level buddies
                 //nor subgroups for top level groups so a simple nested loop
                 //would be enough.
-                Iterator groupsIter =
+                Iterator<ContactGroup> groupsIter =
                     getServerStoredContactListRoot().subgroups();
                 while(groupsIter.hasNext())
                 {
-                    ContactGroupJabberImpl group
-                        = (ContactGroupJabberImpl)groupsIter.next();
+                    ContactGroup group = groupsIter.next();
 
-                    Iterator contactsIter = group.contacts();
+                    Iterator<Contact> contactsIter = group.contacts();
 
                     while(contactsIter.hasNext())
                     {
@@ -855,7 +862,7 @@ public class OperationSetPersistentPresenceJabberImpl
                 }
 
                 //do the same for all contacts in the root group
-                Iterator contactsIter
+                Iterator<Contact> contactsIter
                     = getServerStoredContactListRoot().contacts();
 
                 while (contactsIter.hasNext())
@@ -1011,10 +1018,10 @@ public class OperationSetPersistentPresenceJabberImpl
                     logger.warn("No source contact found for id=" + userID);
                     return;
                 }
-                
+
                 // statuses may be the same and only change in status message
                 sourceContact.setStatusMessage(currentPresence.getStatus());
-                
+
                 PresenceStatus oldStatus
                     = sourceContact.getPresenceStatus();
 
@@ -1054,51 +1061,63 @@ public class OperationSetPersistentPresenceJabberImpl
         {
             Presence presence = (Presence)packet;
 
-            if (presence != null && presence.getType() == Presence.Type.subscribe)
+            if (presence != null
+                && presence.getType() == Presence.Type.subscribe)
             {
-                logger.trace(presence.getFrom() + " wants to add you to its contact list");
+                logger.trace(presence.getFrom()
+                                + " wants to add you to its contact list");
                 // buddy want to add you to its roster
                 String fromID = presence.getFrom();
-                ContactJabberImpl srcContact = ssContactList.findContactById(fromID);
+                ContactJabberImpl srcContact
+                              = ssContactList.findContactById(fromID);
 
                 if(srcContact == null)
                     srcContact = createVolatileContact(fromID);
 
                 AuthorizationRequest req = new AuthorizationRequest();
-                AuthorizationResponse response = handler.processAuthorisationRequest(req, srcContact);
+                AuthorizationResponse response
+                    = handler.processAuthorisationRequest(req, srcContact);
 
-                if(response != null && response.getResponseCode().equals(AuthorizationResponse.ACCEPT))
+                if(response != null
+                   && response.getResponseCode()
+                           .equals(AuthorizationResponse.ACCEPT))
                 {
-                    Presence responsePacket = new Presence(Presence.Type.subscribed);
+                    Presence responsePacket
+                        = new Presence(Presence.Type.subscribed);
                     responsePacket.setTo(fromID);
                     logger.info("Sending Accepted Subscription");
                     parentProvider.getConnection().sendPacket(responsePacket);
                 }
                 else
                 {
-                    Presence responsePacket = new Presence(Presence.Type.unsubscribed);
+                    Presence responsePacket
+                        = new Presence(Presence.Type.unsubscribed);
                     responsePacket.setTo(fromID);
                     logger.info("Sending Rejected Subscription");
                     parentProvider.getConnection().sendPacket(responsePacket);
                 }
 
             }
-            else if (presence != null && presence.getType() == Presence.Type.unsubscribed)
+            else if (presence != null
+                     && presence.getType() == Presence.Type.unsubscribed)
             {
-                logger.trace(presence.getFrom() + " does not allow your subscription");
+                logger.trace(presence.getFrom()
+                                + " does not allow your subscription");
                 ContactJabberImpl contact =
                     ssContactList.findContactById(presence.getFrom());
 
                 if(contact != null)
                 {
-                    AuthorizationResponse response =
-                        new AuthorizationResponse(AuthorizationResponse.REJECT, "");
+                    AuthorizationResponse response
+                        = new AuthorizationResponse(
+                                        AuthorizationResponse.REJECT, "");
                     handler.processAuthorizationResponse(response, contact);
 
                     ssContactList.removeContact(contact);
                 }
             }
-            else if (presence != null && presence.getType() == Presence.Type.subscribed)
+            else if (presence != null
+                     && presence.getType() == Presence.Type.subscribed)
             {
                 ContactJabberImpl contact =
                     ssContactList.findContactById(presence.getFrom());
@@ -1109,10 +1128,10 @@ public class OperationSetPersistentPresenceJabberImpl
             }
         }
     }
-    
+
     /**
      * Returns the jabber account resource priority property value.
-     * 
+     *
      * @return the jabber account resource priority property value
      */
     public int getResourcePriority()
@@ -1122,7 +1141,7 @@ public class OperationSetPersistentPresenceJabberImpl
 
     /**
      * Updates the jabber account resource priority property value.
-     * 
+     *
      * @param resourcePriority the new priority to set
      */
     public void setResourcePriority(int resourcePriority)

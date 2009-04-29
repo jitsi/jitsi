@@ -37,8 +37,7 @@ public class ContactGroupJabberImpl
      * lower case  strings in the left column because JIDs in XMPP are not case
      * sensitive.
      */
-    private Map<String, ContactJabberImpl> buddies
-        = new Hashtable<String, ContactJabberImpl>();
+    private Map<String, Contact> buddies = new Hashtable<String, Contact>();
 
     private boolean isResolved = false;
 
@@ -51,8 +50,7 @@ public class ContactGroupJabberImpl
      * a list that would always remain empty. We only use it so that we're able
      * to extract empty iterators
      */
-    private List<ContactGroupJabberImpl> dummyGroupsList
-        = new LinkedList<ContactGroupJabberImpl>();
+    private List<ContactGroup> dummyGroupsList = new LinkedList<ContactGroup>();
 
     /**
      * A variable that we use as a means of detecting changes in the name
@@ -171,7 +169,7 @@ public class ContactGroupJabberImpl
      *   <tt>ContactGroup</tt>. In case the group doesn't contain any
      * memebers it will return an empty iterator.
      */
-    public Iterator contacts()
+    public Iterator<Contact> contacts()
     {
         return buddies.values().iterator();
     }
@@ -238,7 +236,7 @@ public class ContactGroupJabberImpl
      *
      * @return an empty iterator
      */
-    public Iterator subgroups()
+    public Iterator<ContactGroup> subgroups()
     {
         return dummyGroupsList.iterator();
     }
@@ -311,7 +309,7 @@ public class ContactGroupJabberImpl
         buff.append(getGroupName());
         buff.append(", childContacts="+countContacts()+":[");
 
-        Iterator contacts = contacts();
+        Iterator<Contact> contacts = contacts();
         while (contacts.hasNext())
         {
             ContactJabberImpl contact = (ContactJabberImpl) contacts.next();
@@ -334,7 +332,7 @@ public class ContactGroupJabberImpl
     {
         if(id == null)
             return null;
-        return buddies.get(id.toLowerCase());
+        return (ContactJabberImpl)buddies.get(id.toLowerCase());
     }
 
     /**

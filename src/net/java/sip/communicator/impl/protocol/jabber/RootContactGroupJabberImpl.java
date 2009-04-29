@@ -26,16 +26,14 @@ public class RootContactGroupJabberImpl
      * lower case  strings in the left column because JIDs in XMPP are not case
      * sensitive.
      */
-    private List<ContactGroupJabberImpl> subGroups
-        = new LinkedList<ContactGroupJabberImpl>();
+    private List<ContactGroup> subGroups = new LinkedList<ContactGroup>();
 
     private boolean isResolved = false;
 
     /**
      * An empty list that we use when returning an iterator.
      */
-    private Map<String, ContactJabberImpl> contacts
-        = new Hashtable<String, ContactJabberImpl>();
+    private Map<String, Contact> contacts = new Hashtable<String, Contact>();
 
     private ProtocolProviderServiceJabberImpl ownerProvider = null;
 
@@ -80,7 +78,7 @@ public class RootContactGroupJabberImpl
      */
     void removeContact(ContactJabberImpl contact)
     {
-        contacts.remove(contact);
+        contacts.remove(contact.getAddress().toLowerCase());
     }
 
 
@@ -159,10 +157,10 @@ public class RootContactGroupJabberImpl
      */
     public ContactGroup getGroup(String groupName)
     {
-        Iterator subgroups = subgroups();
+        Iterator<ContactGroup> subgroups = subgroups();
         while (subgroups.hasNext())
         {
-            ContactGroupJabberImpl grp = (ContactGroupJabberImpl)subgroups.next();
+            ContactGroup grp = subgroups.next();
 
             if (grp.getGroupName().equals(groupName))
                 return grp;
@@ -195,7 +193,7 @@ public class RootContactGroupJabberImpl
     {
         if(id == null)
             return null;
-        return contacts.get(id.toLowerCase());
+        return (ContactJabberImpl)contacts.get(id.toLowerCase());
     }
 
     /**
@@ -205,7 +203,7 @@ public class RootContactGroupJabberImpl
      * @return a java.util.Iterator over the <tt>ContactGroup</tt>
      *   children of this group (i.e. subgroups).
      */
-    public Iterator subgroups()
+    public Iterator<ContactGroup> subgroups()
     {
         return subGroups.iterator();
     }
@@ -227,7 +225,7 @@ public class RootContactGroupJabberImpl
      * @return a java.util.Iterator over all contacts inside this
      * <tt>ContactGroup</tt>
      */
-    public Iterator contacts()
+    public Iterator<Contact> contacts()
     {
         return contacts.values().iterator();
     }
@@ -243,16 +241,16 @@ public class RootContactGroupJabberImpl
         StringBuffer buff = new StringBuffer(getGroupName());
         buff.append(".subGroups="+countSubgroups()+":\n");
 
-        Iterator subGroups = subgroups();
+        Iterator<ContactGroup> subGroups = subgroups();
         while (subGroups.hasNext())
         {
-            ContactGroup group = (ContactGroup) subGroups.next();
+            ContactGroup group = subGroups.next();
             buff.append(group.toString());
             if(subGroups.hasNext())
                 buff.append("\n");
         }
         buff.append(".rootContacts="+countContacts()+":\n");
-        Iterator contactsIter = contacts();
+        Iterator<Contact> contactsIter = contacts();
         while (contactsIter.hasNext())
         {
             buff.append(contactsIter.next());
