@@ -161,7 +161,7 @@ public class ChatWindow
                                     new CopyAction());
         this.addKeybindingAction(   "plugin.keybindings.CHAT_PASTE",
                                     new PasteAction());
-        this.addKeybindingAction(   "chat-openSmilies",
+        this.addKeybindingAction(   "chat-openSmileys",
                                     new OpenSmileyAction());
         this.addKeybindingAction(   "chat-openHistory",
                                     new OpenHistoryAction());
@@ -608,7 +608,7 @@ public class ChatWindow
 
     /**
      * The <tt>OpenSmileyAction</tt> is an <tt>AbstractAction</tt> that
-     * opens the menu, containing all available smilies' icons.
+     * opens the menu, containing all available smileys' icons.
      */
     private class OpenSmileyAction
         extends AbstractAction
@@ -616,7 +616,7 @@ public class ChatWindow
         public void actionPerformed(ActionEvent e)
         {
             getCurrentChatPanel().getChatWritePanel()
-                .getEditTextToolBar().getSmiliesSelectorBox().open();
+                .getEditTextToolBar().getSmileysSelectorBox().open();
         }
     }
 

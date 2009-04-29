@@ -13,22 +13,25 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
- * The <tt>SmiliesSelectorBox</tt> is the component where user could choose a
+ * The <tt>SmileysSelectorBox</tt> is the component where user could choose a
  * smiley icon to send.
  * 
  * @author Yana Stamcheva
  */
-public class SmiliesSelectorBox
+public class SmileysSelectorBox
     extends SIPCommMenuBar
-    implements ActionListener
+    implements  ActionListener,
+                MouseListener
 {
     private final ChatWritePanel chatWritePanel;
 
-    private final Collection<Smiley> imageList;
+    private final Hashtable<JMenuItem, Smiley> smileysList
+        = new Hashtable<JMenuItem, Smiley>();
 
     private int gridRowCount = 0;
 
@@ -36,20 +39,20 @@ public class SmiliesSelectorBox
 
     private final SIPCommMenu selectorBox = new SIPCommMenu();
 
-    private final SelectorBoxRolloverListener rolloverListener =
-        new SelectorBoxRolloverListener();
+    private final GridBagConstraints gridBagConstraints
+        = new GridBagConstraints();
+
+    private final JLabel smileyTextLabel = new JLabel();
 
     /**
-     * Creates an instance of this <tt>SmiliesSelectorBox</tt> and initializes
+     * Creates an instance of this <tt>SmileysSelectorBox</tt> and initializes
      * the panel with the smiley icons given by the incoming imageList.
      * 
      * @param imageList The pack of smiley icons.
      */
-    public SmiliesSelectorBox(Collection<Smiley> imageList,
+    public SmileysSelectorBox(Collection<Smiley> imageList,
         ChatWritePanel writePanel)
     {
-        this.imageList = imageList;
-
         this.chatWritePanel = writePanel;
 
         this.setOpaque(false);
@@ -57,35 +60,35 @@ public class SmiliesSelectorBox
 
         // Should explicitly remove any border in order to align correctly the
         // icon.
-        this.selectorBox.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-
+        this.selectorBox.setBorder(BorderFactory.createEmptyBorder());
         this.selectorBox.setIcon(new ImageIcon(ImageLoader
             .getImage(ImageLoader.SMILIES_ICON)));
 
         this.calculateGridDimensions(imageList.size());
 
-        this.selectorBox.getPopupMenu().setLayout(
-            new GridLayout(this.gridRowCount, this.gridColCount, 5, 5));
+        JPopupMenu popupMenu = this.selectorBox.getPopupMenu();
 
+        popupMenu.setLayout(new GridBagLayout());
+        popupMenu.setBackground(Color.WHITE);
+
+        int count = 0;
         for (Smiley smiley : imageList)
         {
-            ImageIcon imageIcon =
-                new ImageIcon(ImageLoader.getImage(smiley.getImageID()));
+            this.addSmileyToGrid(smiley, count);
 
-            JMenuItem smileyItem = new JMenuItem(imageIcon);
-
-            // smileyItem.setPreferredSize(
-            // new Dimension( imageIcon.getIconWidth(),
-            // imageIcon.getIconHeight()));
-
-            // smileyItem.setMargin(new Insets(2, 2, 2, 2));
-
-            smileyItem.setToolTipText(smiley.getSmileyStrings()[0]);
-
-            smileyItem.addActionListener(this);
-
-            this.selectorBox.add(smileyItem);
+            count++;
         }
+
+        smileyTextLabel.setPreferredSize(new Dimension(50, 25));
+        smileyTextLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
+
+        gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = gridRowCount;
+        gridBagConstraints.gridwidth = gridColCount;
+
+        popupMenu.add(smileyTextLabel, gridBagConstraints);
+
 
         this.add(selectorBox);
     }
@@ -109,7 +112,35 @@ public class SmiliesSelectorBox
     }
 
     /**
-     * Opens the smilies selector box.
+     * Adds the given smiley to the grid of the selector box popup menu.
+     * 
+     * @param smiley the smiley to add
+     * @param smileyIndex the index of the smiley in the table
+     */
+    private void addSmileyToGrid(   Smiley smiley,
+                                    int smileyIndex)
+    {
+        ImageIcon imageIcon =
+            new ImageIcon(ImageLoader.getImage(smiley.getImageID()));
+
+        SmileyMenuItem smileyItem = new SmileyMenuItem(imageIcon);
+
+        smileyItem.setPreferredSize(new Dimension(36, 36));
+
+        smileyItem.addActionListener(this);
+        smileyItem.addMouseListener(this);
+
+        gridBagConstraints.anchor = GridBagConstraints.EAST;
+        gridBagConstraints.gridx = smileyIndex%gridColCount;
+        gridBagConstraints.gridy = smileyIndex%gridRowCount;
+
+        selectorBox.getPopupMenu().add(smileyItem, gridBagConstraints);
+
+        smileysList.put(smileyItem, smiley);
+    }
+
+    /**
+     * Opens the smileys selector box.
      */
     public void open()
     {
@@ -127,25 +158,20 @@ public class SmiliesSelectorBox
     }
 
     /**
-     * Writes the symbol corresponding to a choosen smiley icon to the write
+     * Writes the symbol corresponding to a chosen smiley icon to the write
      * message area at the end of the current text.
      */
     public void actionPerformed(ActionEvent e)
     {
         JMenuItem smileyItem = (JMenuItem) e.getSource();
-        String buttonText = smileyItem.getToolTipText();
 
-        for (Smiley smiley : imageList)
-        {
-            String smileyString = smiley.getSmileyStrings()[0];
+        Smiley smiley = smileysList.get(smileyItem);
 
-            if (buttonText.equals(smileyString))
-            {
-                chatWritePanel.appendText(smileyString);
+        chatWritePanel.appendText(smiley.getSmileyStrings()[0]);
 
-                chatWritePanel.getEditorPane().requestFocus();
-            }
-        }
+        chatWritePanel.getEditorPane().requestFocus();
+
+        smileyTextLabel.setText("");
     }
 
     /**
@@ -165,40 +191,40 @@ public class SmiliesSelectorBox
             .getColor("service.gui.CHAT_MENU_FOREGROUND")));
     }
 
-    /**
-     * Enables or disabled the roll-over effect, when user moves the mouse over
-     * this smilies selector box.
-     * 
-     * @param isRollover <code>true</code> to enable the roll-over,
-     *            <code>false</code> - otherwise.
-     */
-    public void setRollover(boolean isRollover)
-    {
-        if (isRollover)
-            selectorBox.addMouseListener(rolloverListener);
-        else
-            selectorBox.removeMouseListener(rolloverListener);
-    }
-
-    /**
-     * Handles <tt>MouseEvent</tt>s and changes the state of the contained
-     * selector box in order to make a roll-over effect.
-     */
-    private class SelectorBoxRolloverListener
-        extends MouseAdapter
-    {
-        public void mouseEntered(MouseEvent e)
-        {
-            selectorBox.setMouseOver(true);
-        }
-
-        public void mouseExited(MouseEvent e)
-        {
-            selectorBox.setMouseOver(false);
-        }
-    }
-
     public void paintComponent(Graphics g)
     {
     }
+
+    private class SmileyMenuItem extends JMenuItem
+    {
+        public SmileyMenuItem(Icon imageIcon)
+        {
+            super(imageIcon);
+            this.setUI(new SIPCommMenuItemUI());
+        }
+    }
+
+    public void mouseEntered(MouseEvent e)
+    {
+        JMenuItem smileyItem = (JMenuItem) e.getSource();
+
+        Smiley smiley = smileysList.get(smileyItem);
+
+        smileyTextLabel.setText(smiley.getDescription()
+                + " - " + smiley.getSmileyStrings()[0]);
+    }
+
+    public void mouseExited(MouseEvent e)
+    {
+        smileyTextLabel.setText("");
+    }
+
+    public void mouseClicked(MouseEvent e)
+    {}
+
+    public void mousePressed(MouseEvent e)
+    {}
+
+    public void mouseReleased(MouseEvent e)
+    {}
 }

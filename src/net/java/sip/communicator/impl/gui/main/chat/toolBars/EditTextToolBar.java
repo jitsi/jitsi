@@ -48,7 +48,7 @@ public class EditTextToolBar
         ImageLoader.getImage(ImageLoader.EDIT_TOOLBAR_BUTTON),
         ImageLoader.getImage(ImageLoader.FONT_ICON));
 
-    private SmiliesSelectorBox smiliesBox;
+    private SmileysSelectorBox smileysBox;
 
     private JToggleButton boldButton;
 
@@ -75,14 +75,14 @@ public class EditTextToolBar
 
         this.initColorLabel();
 
-        this.smiliesBox = new SmiliesSelectorBox(
-            ImageLoader.getDefaultSmiliesPack(), chatWritePanel);
+        this.smileysBox = new SmileysSelectorBox(
+            ImageLoader.getDefaultSmileysPack(), chatWritePanel);
 
-        this.smiliesBox.setName("smiley");
-        this.smiliesBox.setToolTipText(GuiActivator.getResources()
+        this.smileysBox.setName("smiley");
+        this.smileysBox.setToolTipText(GuiActivator.getResources()
             .getI18NString("service.gui.INSERT_SMILEY") + " Ctrl-M");
 
-        this.add(smiliesBox);
+        this.add(smileysBox);
 
         logger.trace("[GUI] Editor Pane font name: "
             + chatEditorPane.getFont().getName());
@@ -477,13 +477,13 @@ public class EditTextToolBar
     }
 
     /**
-     * Returns the button used to show the list of smilies.
+     * Returns the button used to show the list of smileys.
      * 
-     * @return the button used to show the list of smilies.
+     * @return the button used to show the list of smileys.
      */
-    public SmiliesSelectorBox getSmiliesSelectorBox()
+    public SmileysSelectorBox getSmileysSelectorBox()
     {
-        return smiliesBox;
+        return smileysBox;
     }
 
     /**
@@ -494,7 +494,7 @@ public class EditTextToolBar
      */
     public boolean hasSelectedMenus()
     {
-        if(smiliesBox.isMenuSelected())
+        if(smileysBox.isMenuSelected())
             return true;
 
         return false;

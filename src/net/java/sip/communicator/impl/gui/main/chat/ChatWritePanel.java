@@ -499,7 +499,7 @@ public class ChatWritePanel
 
     /**
      * Appends the given text to the end of the contained HTML document. This
-     * method is used to insert smilies when user selects a smiley from the
+     * method is used to insert smileys when user selects a smiley from the
      * menu.
      *
      * @param text the text to append.

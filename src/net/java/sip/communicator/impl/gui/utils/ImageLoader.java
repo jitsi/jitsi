@@ -1036,84 +1036,133 @@ public class ImageLoader
      */
 
     public static final ImageID SMILEY1
-        = new ImageID("service.gui.smilies.SMILEY1");
+        = new ImageID("service.gui.smileys.SMILEY1");
 
     public static final ImageID SMILEY2
-        = new ImageID("service.gui.smilies.SMILEY2");
+        = new ImageID("service.gui.smileys.SMILEY2");
 
     public static final ImageID SMILEY3
-        = new ImageID("service.gui.smilies.SMILEY3");
+        = new ImageID("service.gui.smileys.SMILEY3");
 
     public static final ImageID SMILEY4
-        = new ImageID("service.gui.smilies.SMILEY4");
+        = new ImageID("service.gui.smileys.SMILEY4");
 
     public static final ImageID SMILEY5
-        = new ImageID("service.gui.smilies.SMILEY5");
+        = new ImageID("service.gui.smileys.SMILEY5");
 
     public static final ImageID SMILEY6
-        = new ImageID("service.gui.smilies.SMILEY6");
+        = new ImageID("service.gui.smileys.SMILEY6");
 
     public static final ImageID SMILEY7
-        = new ImageID("service.gui.smilies.SMILEY7");
+        = new ImageID("service.gui.smileys.SMILEY7");
 
     public static final ImageID SMILEY8
-        = new ImageID("service.gui.smilies.SMILEY8");
+        = new ImageID("service.gui.smileys.SMILEY8");
 
     public static final ImageID SMILEY9
-        = new ImageID("service.gui.smilies.SMILEY9");
+        = new ImageID("service.gui.smileys.SMILEY9");
 
     public static final ImageID SMILEY10
-        = new ImageID("service.gui.smilies.SMILEY10");
+        = new ImageID("service.gui.smileys.SMILEY10");
 
     public static final ImageID SMILEY11
-        = new ImageID("service.gui.smilies.SMILEY11");
+        = new ImageID("service.gui.smileys.SMILEY11");
 
     public static final ImageID SMILEY12
-        = new ImageID("service.gui.smilies.SMILEY12");
+        = new ImageID("service.gui.smileys.SMILEY12");
+
+    public static final ImageID SMILEY13
+        = new ImageID("service.gui.smileys.SMILEY13");
+
+    public static final ImageID SMILEY14
+        = new ImageID("service.gui.smileys.SMILEY14");
+
+    public static final ImageID SMILEY15
+        = new ImageID("service.gui.smileys.SMILEY15");
+
+    public static final ImageID SMILEY16
+        = new ImageID("service.gui.smileys.SMILEY16");
+
+    public static final ImageID SMILEY17
+        = new ImageID("service.gui.smileys.SMILEY17");
+
+    public static final ImageID SMILEY18
+        = new ImageID("service.gui.smileys.SMILEY18");
+
+    public static final ImageID SMILEY19
+        = new ImageID("service.gui.smileys.SMILEY19");
+
+    public static final ImageID SMILEY20
+        = new ImageID("service.gui.smileys.SMILEY20");
 
     /**
-     * Load default smilies pack.
+     * Load default smileys pack.
      *
-     * @return the ArrayList of all smilies.
+     * @return the ArrayList of all smileys.
      */
-    public static Collection<Smiley> getDefaultSmiliesPack() {
+    public static Collection<Smiley> getDefaultSmileysPack() {
         List<Smiley> defaultPackList = new ArrayList<Smiley>();
 
         defaultPackList.add(new Smiley(ImageLoader.SMILEY1, new String[] {
-                ";-(", ";(", ":'(", ":'-(", ":~-(", ":~(" }));
+                ":((", ":-((", ":((", ":(", ":-(", "(sad)"}, "Sad"));
 
         defaultPackList.add(new Smiley(ImageLoader.SMILEY2, new String[] {
-                "B-)", "B)" }));
+                "(angel)" }, "Angel"));
 
         defaultPackList.add(new Smiley(ImageLoader.SMILEY3, new String[] {
-                ":-*", ":*" }));
+                ":-*", ":*", "(kiss)"}, "Kiss"));
 
         defaultPackList.add(new Smiley(ImageLoader.SMILEY4, new String[] {
-                ":-0" }));
+                ":-0", "(shocked)"}, "Shocked"));
 
         defaultPackList.add(new Smiley(ImageLoader.SMILEY5, new String[] {
-                ":-((", ":((" }));
+            ";-((", ";((", ";-(", ";(", ":'(", ":'-(",
+            ":~-(", ":~(", "(upset)" }, "Upset"));
 
         defaultPackList.add(new Smiley(ImageLoader.SMILEY6, new String[] {
-                "(L)" , "(l)"}));
+                "(L)" , "(l)", "(H)", "(h)"}, "In love"));
 
         defaultPackList.add(new Smiley(ImageLoader.SMILEY7, new String[] {
-                ":-|", ":|" }));
+                "(blush)"}, "Blushing"));
 
         defaultPackList.add(new Smiley(ImageLoader.SMILEY8, new String[] {
-                ":-P", ":P", ":-p", ":p" }));
+                ":-P", ":P", ":-p", ":p" }, "Tongue out"));
 
         defaultPackList.add(new Smiley(ImageLoader.SMILEY9, new String[] {
-                ":-))", ":))" }));
+                ":-))", ":))", ";-))", ";))", "(lol)"}, "Laughing"));
 
         defaultPackList.add(new Smiley(ImageLoader.SMILEY10, new String[] {
-                ":-(", ":(" }));
+            "(y)", "(Y)", "(ok)"}, "Ok"));
 
         defaultPackList.add(new Smiley(ImageLoader.SMILEY11, new String[] {
-                ":-)", ":)" }));
+            ";-)", ";)", ":-)", ":)"}, "Smile"));
 
         defaultPackList.add(new Smiley(ImageLoader.SMILEY12, new String[] {
-                ";-)", ";)" }));
+                "(sick)"}, "Sick"));
+
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY13, new String[] {
+            "(n)", "(N)" }, "No"));
+
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY14, new String[] {
+            "(chuckle)" }, "Chuckle"));
+
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY15, new String[] {
+            "(wave)" }, "Waving"));
+
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY16, new String[] {
+            "(clap)"}, "Clapping"));
+
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY17, new String[] {
+            "(angry)"}, "Angry"));
+
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY18, new String[] {
+            "(bomb)"}, "Explosing"));
+
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY19, new String[] {
+            "(search)"}, "Searching"));
+
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY20, new String[] {
+            "(oops)"}, "Oops"));
 
         return defaultPackList;
     }
@@ -1124,9 +1173,9 @@ public class ImageLoader
      * @return A Smiley object for a given smiley string.
      */
     public static Smiley getSmiley(String smileyString) {
-        Collection<Smiley> smilies = getDefaultSmiliesPack();
+        Collection<Smiley> smileys = getDefaultSmileysPack();
 
-        for (Smiley smiley : smilies) {
+        for (Smiley smiley : smileys) {
             String[] smileyStrings = smiley.getSmileyStrings();
 
             for (int j = 0; j < smileyStrings.length; j++) {

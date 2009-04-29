@@ -28,7 +28,7 @@ import net.java.sip.communicator.util.*;
 /**
  * The <tt>ChatConversationPanel</tt> is the panel, where all sent and received
  * messages appear. All data is stored in an HTML document. An external CSS file
- * is applied to the document to provide the look&feel. All smilies and link
+ * is applied to the document to provide the look&feel. All smileys and link
  * strings are processed and finally replaced by corresponding images and HTML
  * links.
  *
@@ -567,7 +567,7 @@ public class ChatConversationPanel
     }
 
     /**
-     * Formats the given message. Processes all smilies chars, new lines and all
+     * Formats the given message. Processes all smileys chars, new lines and all
      * the links.
      *
      * @return the formatted message
@@ -577,7 +577,7 @@ public class ChatConversationPanel
         String processedString = message;
 
         // If the message content type is HTML we won't process links and
-        // new lines, but only the smilies.
+        // new lines, but only the smileys.
         if (contentType == null || !contentType.equals(HTML_CONTENT_TYPE))
         {
             String linkProcessedString = processLinks(message);
@@ -593,7 +593,7 @@ public class ChatConversationPanel
                 contentType);
         }
 
-        return processSmilies(processedString, contentType);
+        return processSmileys(processedString, contentType);
     }
 
     /**
@@ -672,12 +672,12 @@ public class ChatConversationPanel
     }
 
     /**
-     * Formats message smilies.
+     * Formats message smileys.
      *
      * @param message The source message string.
-     * @return The message string with properly formated smilies.
+     * @return The message string with properly formated smileys.
      */
-    private String processSmilies(String message, String contentType)
+    private String processSmileys(String message, String contentType)
     {
         String startPlainTextTag;
         String endPlainTextTag;
@@ -694,13 +694,13 @@ public class ChatConversationPanel
             endPlainTextTag = "";
         }
 
-        Collection<Smiley> smilies = ImageLoader.getDefaultSmiliesPack();
+        Collection<Smiley> smileys = ImageLoader.getDefaultSmileysPack();
 
         StringBuffer regexp = new StringBuffer();
 
         regexp.append("(?<!(alt='|alt=\"))(");
 
-        for (Smiley smiley : smilies)
+        for (Smiley smiley : smileys)
         {
             for (String smileyString : smiley.getSmileyStrings())
             {

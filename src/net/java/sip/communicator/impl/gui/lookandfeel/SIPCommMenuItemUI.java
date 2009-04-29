@@ -22,6 +22,12 @@ import net.java.sip.communicator.util.swing.*;
 public class SIPCommMenuItemUI
     extends BasicMenuItemUI
 {
+    public SIPCommMenuItemUI()
+    {
+        UIManager.put("MenuItem.selectionBackground", Color.WHITE);
+        UIManager.put("MenuItem.background", Color.WHITE);
+    }
+
     /**
      * Creates a new SIPCommMenuItemUI instance.
      */
@@ -30,54 +36,41 @@ public class SIPCommMenuItemUI
         return new SIPCommMenuItemUI();
     }
 
-    /**
-     * Draws the background of the menu item.
-     * 
-     * @param g the paint graphics
-     * @param menuItem menu item to be painted
-     * @param bgColor selection background color
-     * @since 1.4
-     */    
-    protected void paintBackground(Graphics g, JMenuItem menuItem, Color bgColor)
-    {
-        super.paintBackground(g, menuItem, bgColor);
-
-        g = g.create();
-        try
-        {
-            internalPaintBackground(g, menuItem, bgColor);
-        }
-        finally
-        {
-            g.dispose();
-        }
-    }
-
-    private void internalPaintBackground(Graphics g, JMenuItem menuItem,
-        Color bgColor)
+    private void internalPaintRollover(Graphics g, JMenuItem menuItem)
     {
         AntialiasingManager.activateAntialiasing(g);
-        
+
         ButtonModel model = menuItem.getModel();
         Color oldColor = g.getColor();
-        
+
         int menuWidth = menuItem.getWidth();
         int menuHeight = menuItem.getHeight();
 
-        if (menuItem.isOpaque()) {
+        if (menuItem.isOpaque())
+        {
             if (model.isArmed()
-                || (menuItem instanceof JMenu && model.isSelected())) {
-                g.setColor(bgColor);
-                g.fillRoundRect(0, 0, menuWidth, menuHeight, 5, 5);
-                
+                || (menuItem instanceof JMenu && model.isSelected()))
+            {
                 g.setColor(SIPCommLookAndFeel.getControlDarkShadow());
-                g.drawRoundRect(0, 0, menuWidth - 1, menuHeight - 1, 5, 5);
-            }
-            else {
-                g.setColor(menuItem.getBackground());
-                g.fillRoundRect(0, 0, menuWidth, menuHeight, 5, 5);
+                g.drawRoundRect(0, 0, menuWidth - 1, menuHeight - 1, 10, 10);
             }
             g.setColor(oldColor);
         }
+    }
+
+    protected void paintMenuItem (Graphics g, JComponent c, Icon
+        checkIcon, Icon arrowIcon, Color background,
+        Color foreground, int defaultTextIconGap)
+    {
+        super.paintMenuItem(g, c, null, arrowIcon, background, foreground, 0);
+
+        this.internalPaintRollover(g, menuItem);
+    }
+
+    protected void paintText (Graphics g, JMenuItem menuItem, Rectangle
+        textRect, String text)
+    {
+        textRect.x += 6;
+        super.paintText(g, menuItem, textRect, text);
     }
 }
