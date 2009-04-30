@@ -157,7 +157,7 @@ public class ContactGroupIcqImpl
                 = buddies.entrySet().iterator();
              buddyIter.hasNext();)
         {
-            if (buddyIter.next().getKey().equals(contact))
+            if (buddyIter.next().getValue().equals(contact))
             {
                 buddyIter.remove();
                 break;
