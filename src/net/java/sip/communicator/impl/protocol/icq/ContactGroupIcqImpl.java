@@ -153,22 +153,16 @@ public class ContactGroupIcqImpl
      */
     void removeContact(ContactIcqImpl contact)
     {
-        for (Iterator<Map.Entry<String, Contact>> buddyIter
-                = buddies.entrySet().iterator();
-             buddyIter.hasNext();)
-        {
-            if (buddyIter.next().getValue().equals(contact))
-            {
-                buddyIter.remove();
-                break;
-            }
-        }
+        if (contact == null )
+            return;
+
+        buddies.remove(contact.getUIN().toLowerCase());
     }
 
     /**
      * Returns an Iterator over all contacts, member of this
      * <tt>ContactGroup</tt>.
-     * 
+     *
      * @return a java.util.Iterator over all contacts inside this
      *         <tt>ContactGroup</tt>. In case the group doesn't contain any
      *         members it will return an empty iterator.
