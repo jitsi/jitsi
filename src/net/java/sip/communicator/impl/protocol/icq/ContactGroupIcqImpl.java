@@ -12,7 +12,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.kano.joustsim.oscar.oscar.service.ssi.*;
 
 /**
- * The ICQ implementation of the ContactGroup interface. Intances of this class
+ * The ICQ implementation of the ContactGroup interface. Instances of this class
  * (contrary to <tt>RootContactGroupIcqImpl</tt>) may only contain buddies
  * and cannot have sub groups. Note that instances of this class only use the
  * corresponding joust sim source group for reading their names and only
@@ -33,7 +33,7 @@ public class ContactGroupIcqImpl
      * strings in the left column because screen names in AIM/ICQ are not case
      * sensitive.
      */
-    private Map<String, Contact> buddies
+    private final Map<String, Contact> buddies
         = new Hashtable<String, Contact>();
 
     private boolean isResolved = false;
@@ -71,7 +71,7 @@ public class ContactGroupIcqImpl
      * to directly compare ( == ) instances of buddies we've stored and others
      * that are returned by the framework.
      * <p>
-     * @param joustSimGroup the JoustSIM Group correspoinding to the group
+     * @param joustSimGroup the JoustSIM Group corresponding to the group
      * @param groupMembers the group members that we should add to the group.
      * @param ssclCallback a callback to the server stored contact list
      * we're creating.
@@ -153,16 +153,25 @@ public class ContactGroupIcqImpl
      */
     void removeContact(ContactIcqImpl contact)
     {
-        buddies.remove(contact);
+        for (Iterator<Map.Entry<String, Contact>> buddyIter
+                = buddies.entrySet().iterator();
+             buddyIter.hasNext();)
+        {
+            if (buddyIter.next().getKey().equals(contact))
+            {
+                buddyIter.remove();
+                break;
+            }
+        }
     }
 
     /**
      * Returns an Iterator over all contacts, member of this
      * <tt>ContactGroup</tt>.
-     *
+     * 
      * @return a java.util.Iterator over all contacts inside this
-     *   <tt>ContactGroup</tt>. In case the group doesn't contain any
-     * memebers it will return an empty iterator.
+     *         <tt>ContactGroup</tt>. In case the group doesn't contain any
+     *         members it will return an empty iterator.
      */
     public Iterator<Contact> contacts()
     {
@@ -368,7 +377,7 @@ public class ContactGroupIcqImpl
 
 
     /**
-     * Returns the icq contact encapsulating with the spcieified screen name or
+     * Returns the icq contact encapsulating with the specified screen name or
      * null if no such contact was found.
      *
      * @param screenName the screenName (or icq UIN) for the contact we're

@@ -14,6 +14,7 @@ package net.java.sip.communicator.plugin.sshaccregwizz;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 import javax.swing.event.*;
 
@@ -243,15 +244,15 @@ public class FirstWizardPage
 
     /**
      * Fills the Account ID, Identity File and Known Hosts File fields in this
-     * panel with the data comming from the given protocolProvider.
+     * panel with the data coming from the given protocolProvider.
      *
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to load the
      * data from.
      */
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
-        ProtocolProviderFactorySSH protocolProviderSSH =
-                (ProtocolProviderFactorySSH)protocolProvider;
+        if (!(protocolProvider instanceof ProtocolProviderServiceSSHImpl))
+            throw new ClassCastException("protocolProvider");
 
         AccountID accountID = protocolProvider.getAccountID();
 

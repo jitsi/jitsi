@@ -1657,9 +1657,16 @@ public class OperationSetPersistentPresenceIcqImpl
                  ((ContactGroupIcqImpl)parent).removeContact(srcContact);
                  theAwaitingAuthorizationGroup.addContact(srcContact);
 
-                 Object lock = new Object();
-                 synchronized(lock){
-                     try{ lock.wait(500); }catch(Exception e){}
+                 try
+                 {
+                     Thread.sleep(500);
+                 }
+                 catch (InterruptedException ex)
+                 {
+                     /*
+                      * I don't know why the exception is ignored, I just fixed
+                      * an incorrect use of Object.wait(long).
+                      */
                  }
 
                  fireSubscriptionMovedEvent(srcContact,
