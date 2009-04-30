@@ -246,7 +246,7 @@ public class SipStackProperties
         {
             jainSipTraceLevel = "ERROR";
         }
-        else if (logLevel.equals(Level.OFF))
+        else if (logLevel.equals(Level.OFF.getName()))
         {
             jainSipTraceLevel = "OFF";
         }

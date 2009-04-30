@@ -255,12 +255,9 @@ public abstract class AccountID
         if (this == obj)
             return true;
 
-        if(     obj == null
-          || ! (getClass().isInstance(obj))
-          || ! (userID.equals(((AccountID)obj).userID)))
-            return false;
-
-        return true;
+        return (obj != null)
+            && getClass().isInstance(obj)
+            && userID.equals(((AccountID)obj).userID);
     }
 
     /**

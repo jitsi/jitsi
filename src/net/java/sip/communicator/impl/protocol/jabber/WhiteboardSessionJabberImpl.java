@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
@@ -12,16 +11,15 @@ import java.util.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.version.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.whiteboard.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.whiteboardobjects.*;
+import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smackx.*;
-
-import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * A representation of a <tt>WhiteboardSession</tt>.
@@ -71,7 +69,8 @@ public class WhiteboardSessionJabberImpl
     /**
      * Stores all white board objects contained in this session.
      */
-    private Vector whiteboardObjects = new Vector();
+    private final Vector<WhiteboardObjectJabberImpl> whiteboardObjects
+        = new Vector<WhiteboardObjectJabberImpl>();
 
     /**
      * The <tt>OperationSet</tt> charged with the whiteboarding.
@@ -602,8 +601,7 @@ public class WhiteboardSessionJabberImpl
             int i = 0;
             while (i < whiteboardObjects.size())
             {
-                WhiteboardObjectJabberImpl wbObj =
-                    (WhiteboardObjectJabberImpl) whiteboardObjects.get(i);
+                WhiteboardObjectJabberImpl wbObj = whiteboardObjects.get(i);
                 if (wbObj.getID().equals(obj.getID()))
                     whiteboardObjects.remove(i);
                 else
@@ -942,8 +940,7 @@ public class WhiteboardSessionJabberImpl
                 int i = 0;
                 while (i < whiteboardObjects.size())
                 {
-                    WhiteboardObjectJabberImpl wbObj
-                        = (WhiteboardObjectJabberImpl) whiteboardObjects.get(i);
+                    WhiteboardObjectJabberImpl wbObj = whiteboardObjects.get(i);
                     if (wbObj.getID().equals(wbObjID))
                         whiteboardObjects.remove(i);
                     else
@@ -953,13 +950,13 @@ public class WhiteboardSessionJabberImpl
             }
             else if (evt instanceof WhiteboardObjectModifiedEvent)
             {
+                WhiteboardObjectModifiedEvent womevt
+                    = (WhiteboardObjectModifiedEvent) evt;
                 WhiteboardObjectJabberImpl wbObj
                     = (WhiteboardObjectJabberImpl)
-                        ((WhiteboardObjectReceivedEvent) evt)
-                            .getSourceWhiteboardObject();
+                        womevt.getSourceWhiteboardObject();
 
-                listener.whiteboardObjecModified(
-                    (WhiteboardObjectModifiedEvent) evt);
+                listener.whiteboardObjecModified(womevt);
 
                 whiteboardObjects.remove(wbObj);//remove the old id object
                 whiteboardObjects.add(wbObj); //add the new object for this id
@@ -978,8 +975,7 @@ public class WhiteboardSessionJabberImpl
         int i = 0;
         while (i < whiteboardObjects.size())
         {
-            WhiteboardObjectJabberImpl wbObjTmp =
-                (WhiteboardObjectJabberImpl) whiteboardObjects.get(i);
+            WhiteboardObjectJabberImpl wbObjTmp = whiteboardObjects.get(i);
             if (wbObjTmp.getID().equals(ws.getID()))
             {
                 wbObj = wbObjTmp;

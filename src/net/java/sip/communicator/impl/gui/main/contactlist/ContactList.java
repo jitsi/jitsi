@@ -1289,16 +1289,7 @@ public class ContactList
         // Try to set the previously selected object.
         if (selectedObject != null)
         {
-            if (selectedObject instanceof MetaContact)
-            {
-                this.setSelectedIndex(
-                    listModel.indexOf(selectedObject));
-            }
-            else
-            {
-                this.setSelectedIndex(
-                    listModel.indexOf(selectedObject));
-            }
+            this.setSelectedIndex(listModel.indexOf(selectedObject));
         }
     }
 
