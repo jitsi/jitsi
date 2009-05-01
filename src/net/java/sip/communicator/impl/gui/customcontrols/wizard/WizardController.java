@@ -18,9 +18,11 @@ import net.java.sip.communicator.service.gui.*;
  * of the three buttons, 'Next', 'Previous', and 'Cancel.' Based on what
  * button is pressed, the controller will update the model to show a new panel
  * and reset the state of the buttons as necessary.
+ * 
+ * @author Yana Stamcheva
  */
-public class WizardController implements ActionListener {
-
+public class WizardController implements ActionListener
+{
     private Wizard wizard;
 
     /**
@@ -120,7 +122,7 @@ public class WizardController implements ActionListener {
     /**
      *  Resets the buttons to support the original panel rules, including
      *  whether the next or back buttons are enabled or disabled, or if
-     *  the panel is finishable. If the panel in question has another panel
+     *  the panel is finish-able. If the panel in question has another panel
      *  behind it, enables the back button. Otherwise, disables it. If the
      *  panel in question has one or more panels in front of it, enables the
      *  next button. Otherwise, disables it.
@@ -130,22 +132,22 @@ public class WizardController implements ActionListener {
         WizardModel model = wizard.getModel();
         WizardPage page = model.getCurrentWizardPage();
 
-        model.setCancelButtonText(Wizard.CANCEL_TEXT);
+        model.setCancelButtonText(wizard.getCancelButtonDefaultText());
 
         Object backPageIdentifier = page.getBackPageIdentifier();
         model.setBackButtonEnabled(
             (backPageIdentifier != null)
                 && !WizardPage.DEFAULT_PAGE_IDENTIFIER.equals(backPageIdentifier));
 
-        model.setBackButtonText(Wizard.BACK_TEXT);
+        model.setBackButtonText(wizard.getBackButtonDefaultText());
 
         model.setNextFinishButtonEnabled(page.getNextPageIdentifier() != null);
 
         if (page.getNextPageIdentifier().equals(
                 WizardPage.FINISH_PAGE_IDENTIFIER)) {
-            model.setNextFinishButtonText(Wizard.FINISH_TEXT);
+            model.setNextFinishButtonText(wizard.getFinishButtonDefaultText());
         } else {
-            model.setNextFinishButtonText(Wizard.NEXT_TEXT);
+            model.setNextFinishButtonText(wizard.getNextButtonDefaultText());
         }
     }
 }

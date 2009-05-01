@@ -76,25 +76,19 @@ public class Wizard
     /**
      * The i18n text used for the buttons. Loaded from a property resource file.
      */
-    static String BACK_TEXT;
+    ResourceManagementService resources = GuiActivator.getResources();
 
-    static String NEXT_TEXT;
+    private String backButtonDefaultText
+        = resources.getI18NString("service.gui.PREVIOUS");
 
-    static String FINISH_TEXT;
+    private String nextButtonDefaultText
+        = resources.getI18NString("service.gui.NEXT");
 
-    static String CANCEL_TEXT;
+    private String finishButtonDefaultText
+        = resources.getI18NString("service.gui.FINISH");
 
-    /**
-     * The image icons used for the buttons. Filenames are loaded from a
-     * property resource file.
-     */
-    static Icon BACK_ICON;
-
-    static Icon NEXT_ICON;
-
-    static Icon FINISH_ICON;
-
-    static Icon CANCEL_ICON;
+    private String cancelButtonDefaultText
+        = resources.getI18NString("service.gui.CANCEL");
 
     private final WizardModel wizardModel = new WizardModel();
 
@@ -480,19 +474,9 @@ public class Wizard
      * 
      * @param e The event passed in from AWT.
      */
-
     public void windowClosing(WindowEvent e)
     {
         this.close(Wizard.CANCEL_RETURN_CODE);
-    }
-
-    static {
-        ResourceManagementService resources = GuiActivator.getResources();
-
-        BACK_TEXT = resources.getI18NString("service.gui.PREVIOUS");
-        NEXT_TEXT = resources.getI18NString("service.gui.NEXT");
-        CANCEL_TEXT = resources.getI18NString("service.gui.CANCEL");
-        FINISH_TEXT = resources.getI18NString("service.gui.FINISH");
     }
 
     public void setWizzardIcon(BufferedImage wizardIcon)
@@ -552,40 +536,41 @@ public class Wizard
         this.close(Wizard.CANCEL_RETURN_CODE);
     }
 
-    public void windowActivated(WindowEvent e)
-    {
-    }
+    public void windowActivated(WindowEvent e) {}
 
-    public void windowClosed(WindowEvent e)
-    {
-    }
+    public void windowClosed(WindowEvent e) {}
 
-    public void windowDeactivated(WindowEvent e)
-    {
-    }
+    public void windowDeactivated(WindowEvent e) {}
 
-    public void windowDeiconified(WindowEvent e)
-    {
-    }
+    public void windowDeiconified(WindowEvent e) {}
 
-    public void windowIconified(WindowEvent e)
-    {
-    }
+    public void windowIconified(WindowEvent e) {}
 
-    public void windowOpened(WindowEvent e)
-    {
-    }
+    public void windowOpened(WindowEvent e) {}
 
+    /**
+     * Returns the next wizard button.
+     * 
+     * @return the next wizard button
+     */
     public JButton getNextButton()
     {
         return this.nextButton;
     }
 
+    /**
+     * Returns the back wizard button.
+     * 
+     * @return the back wizard button
+     */
     public JButton getBackButton()
     {
         return this.backButton;
     }
 
+    /**
+     * Refreshes this wizard dialog.
+     */
     public void refresh()
     {
         this.pack();
@@ -593,10 +578,92 @@ public class Wizard
     }
 
     /**
-     * Implements the <tt>WizardContainer.setFinishButtonText()</tt> method.
+     * Returns the default text of the back wizard button.
+     * 
+     * @return the default text of the back wizard button
+     */
+    public String getBackButtonDefaultText()
+    {
+        return backButtonDefaultText;
+    }
+
+    /**
+     * Sets the back button default text.
+     * 
+     * @param backButtonDefaultText the text to set
+     */
+    void setBackButtonDefaultText(String backButtonDefaultText)
+    {
+        this.backButtonDefaultText = backButtonDefaultText;
+    }
+
+    /**
+     * Returns the default text of the next wizard button.
+     * 
+     * @return the default text of the next wizard button.
+     */
+    public String getNextButtonDefaultText()
+    {
+        return nextButtonDefaultText;
+    }
+
+    /**
+     * Sets the next button default text.
+     * 
+     * @param nextButtonDefaultText the text to set
+     */
+    void setNextButtonDefaultText(String nextButtonDefaultText)
+    {
+        this.nextButtonDefaultText = nextButtonDefaultText;
+    }
+
+    /**
+     * Returns the default text of the finish wizard button.
+     * 
+     * @return the default text of the finish wizard button.
+     */
+    public String getFinishButtonDefaultText()
+    {
+        return finishButtonDefaultText;
+    }
+
+    /**
+     * Sets the finish button default text.
+     * 
+     * @param finishButtonDefaultText the text to set
+     */
+    void setFinishButtonDefaultText(String finishButtonDefaultText)
+    {
+        this.finishButtonDefaultText = finishButtonDefaultText;
+    }
+
+    /**
+     * Returns the default text of the cancel wizard button.
+     * 
+     * @return the default text of the cancel wizard button.
+     */
+    public String getCancelButtonDefaultText()
+    {
+        return cancelButtonDefaultText;
+    }
+
+    /**
+     * Sets the cancel button default text.
+     * 
+     * @param cancelButtonDefaultText the text to set
+     */
+    void setCancelButtonDefaultText(String cancelButtonDefaultText)
+    {
+        this.cancelButtonDefaultText = cancelButtonDefaultText;
+    }
+
+    /**
+     * Sets the text label of the "Finish" wizard button.
+     * 
+     * @param text the new label of the button
      */
     public void setFinishButtonText(String text)
     {
-        FINISH_TEXT = text;
+        this.setFinishButtonDefaultText(text);
     }
 }

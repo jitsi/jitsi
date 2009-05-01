@@ -103,20 +103,21 @@ public class AddContactWizard
     {
         this(mainFrame);
         newContact.addProtocolProvider(protocolProvider);
-        
+
         this.setCurrentPage(AddContactWizardPage2.IDENTIFIER);
-        
+
         page3.setUIN(newContactAddress);
     }
     
     /**
      * Creates a new meta contact in a separate thread.
      */
-    private class CreateContact extends Thread {
+    private class CreateContact extends Thread
+    {
         ProtocolProviderService pps;
         MetaContactGroup group;
         NewContact newContact;
-        
+
         CreateContact(ProtocolProviderService pps,
                 NewContact newContact)
         {
@@ -181,12 +182,13 @@ public class AddContactWizard
 
     public void wizardFinished(WizardEvent e)
     {
-        if(e.getEventCode() == WizardEvent.SUCCESS) {
-            
+        if(e.getEventCode() == WizardEvent.SUCCESS)
+        {
             ArrayList<ProtocolProviderService> ppList 
                 = newContact.getProtocolProviders();
-                
-            for(int i = 0; i < ppList.size(); i ++) {
+
+            for(int i = 0; i < ppList.size(); i ++)
+            {
                 ProtocolProviderService pps = ppList.get(i);
 
                 new CreateContact(pps, newContact).start();
