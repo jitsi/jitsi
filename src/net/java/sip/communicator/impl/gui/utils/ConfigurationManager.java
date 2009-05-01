@@ -31,7 +31,7 @@ public class ConfigurationManager
     private static boolean isShowOffline = true;
     
     private static boolean isApplicationVisible = true;
-
+    
     private static boolean isQuitWarningShown = true;
     
     private static boolean isSendTypingNotifications;
@@ -45,6 +45,8 @@ public class ConfigurationManager
     private static boolean isHistoryShown;
     
     private static int chatHistorySize;
+    
+    private static int chatWriteAreaSize;
     
     private static int windowTransparency;
     
@@ -231,6 +233,24 @@ public class ConfigurationManager
             chatHistorySize
                 = new Integer(chatHistorySizeString)
                 .intValue();
+        }
+
+        // Load the "CHAT_WRITE_AREA_SIZE" property.
+        String chatWriteAreaSizeStringProperty =
+            "net.java.sip.communicator.impl.gui.CHAT_WRITE_AREA_SIZE";
+        String chatWriteAreaSizeString
+            = configService.getString(chatWriteAreaSizeStringProperty);
+
+        if(chatWriteAreaSizeString == null)
+            chatWriteAreaSizeString = 
+                GuiActivator.getResources().
+                    getSettingsString(chatWriteAreaSizeStringProperty);
+
+        if(chatWriteAreaSizeString != null
+            && chatWriteAreaSizeString.length() > 0)
+        {
+            chatWriteAreaSize
+                = new Integer(chatWriteAreaSizeString).intValue();
         }
 
         // Load the "isTransparentWindowEnabled" property.
@@ -495,6 +515,16 @@ public class ConfigurationManager
     }
 
     /**
+     * Returns the preferred height of the chat write area.
+     * 
+     * @return the preferred height of the chat write area.
+     */
+    public static int getChatWriteAreaSize()
+    {
+        return chatWriteAreaSize;
+    }
+
+    /**
      * Returns <code>true</code> if transparent windows are enabled,
      * <code>false</code> otherwise.
      * 
@@ -667,6 +697,21 @@ public class ConfigurationManager
         configService.setProperty(
                 "net.java.sip.communicator.impl.gui.chat.ChatWindow.showStylebar",
                 Boolean.toString(isChatStylebarVisible));
+    }
+
+    /**
+     * Updates the "net.java.sip.communicator.impl.gui.CHAT_WRITE_AREA_SIZE"
+     * property through the <tt>ConfigurationService</tt>.
+     * 
+     * @param size the new size to set
+     */
+    public static void setChatWriteAreaSize(int size)
+    {
+        chatWriteAreaSize = size;
+
+        configService.setProperty(
+                "net.java.sip.communicator.impl.gui.CHAT_WRITE_AREA_SIZE",
+                Integer.toString(chatWriteAreaSize));
     }
 
     /**
@@ -996,9 +1041,17 @@ public class ConfigurationManager
                 "service.gui.MESSAGE_HISTORY_SIZE"))
             {
                 String chatHistorySizeString = (String) evt.getNewValue();
-                
+
                 chatHistorySize
                     = new Integer(chatHistorySizeString).intValue();
+            }
+            else if (evt.getPropertyName().equals(
+                "net.java.sip.communicator.impl.gui.CHAT_WRITE_AREA_SIZE"))
+            {
+                String chatWriteAreaSizeString = (String) evt.getNewValue();
+
+                chatWriteAreaSize
+                    = new Integer(chatWriteAreaSizeString).intValue();
             }
             else if (evt.getPropertyName().equals(
                 "impl.gui.IS_TRANSPARENT_WINDOW_ENABLED"))

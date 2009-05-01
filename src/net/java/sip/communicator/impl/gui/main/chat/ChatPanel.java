@@ -9,6 +9,8 @@ package net.java.sip.communicator.impl.gui.main.chat;
 import java.awt.*;
 import java.awt.Container;
 import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.util.*;
 
@@ -113,12 +115,24 @@ public class ChatPanel
         this.sendPanel = new ChatSendPanel(this);
 
         this.writeMessagePanel = new ChatWritePanel(this);
-        Dimension writeMessagePanelSize = new Dimension(500, 100);
-        this.writeMessagePanel.setMinimumSize(writeMessagePanelSize);
-        this.writeMessagePanel.setPreferredSize(writeMessagePanelSize);
+
+        int chatAreaSize = ConfigurationManager.getChatWriteAreaSize();
+
+        Dimension writeMessagePanelDefaultSize;
+        if (chatAreaSize > 0)
+            writeMessagePanelDefaultSize = new Dimension(500, chatAreaSize);
+        else
+            writeMessagePanelDefaultSize = new Dimension(500, 100);
+
+        Dimension writeMessagePanelMinSize = new Dimension(500, 45);
+        this.writeMessagePanel.setMinimumSize(writeMessagePanelMinSize);
+        this.writeMessagePanel.setPreferredSize(writeMessagePanelDefaultSize);
 
         this.messagePane.setBorder(null);
         this.messagePane.setOpaque(false);
+        this.messagePane.addPropertyChangeListener(
+            new DividerLocationListener());
+
         this.messagePane.setResizeWeight(1.0D);
         this.messagePane.setBottomComponent(writeMessagePanel);
 
@@ -143,7 +157,7 @@ public class ChatPanel
             this.chatContactListPanel.setPreferredSize(chatContactPanelSize);
             this.chatContactListPanel.setOpaque(false);
 
-            topSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);            
+            topSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
             topSplitPane.setBorder(null); // remove default borders
             topSplitPane.setOneTouchExpandable(true);
             topSplitPane.setOpaque(false);
@@ -1560,5 +1574,25 @@ public class ChatPanel
     public int getUnreadMessageNumber()
     {
         return unreadMessageNumber;
+    }
+
+    /**
+     * Stores the current divider position.
+     */
+    private class DividerLocationListener implements PropertyChangeListener
+    {
+        public void propertyChange(PropertyChangeEvent evt)
+        {
+            if (evt.getPropertyName()
+                    .equals(JSplitPane.DIVIDER_LOCATION_PROPERTY))
+            {
+                int dividerLocation = (Integer) evt.getNewValue();
+                int writeAreaSize = messagePane.getHeight() - dividerLocation
+                                    - messagePane.getDividerSize();
+
+                ConfigurationManager
+                    .setChatWriteAreaSize(writeAreaSize);
+            }
+        }
     }
 }
