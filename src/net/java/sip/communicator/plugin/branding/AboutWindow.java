@@ -110,7 +110,7 @@ public class AboutWindow
             logoArea.getFont().deriveFont(Font.BOLD, logoAreaFontSize));
         logoArea.setForeground(Constants.TITLE_COLOR);
         logoArea.setOpaque(false);
-        logoArea.setLineWrap(false);
+        logoArea.setLineWrap(true);
         logoArea.setWrapStyleWord(true);
         logoArea.setEditable(false);
         logoArea.setPreferredSize(new Dimension(100, 20));
