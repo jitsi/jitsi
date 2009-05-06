@@ -633,7 +633,7 @@ public class ProtocolProviderServiceSipImpl
         }
 
         Request request = transaction.getRequest();
-        logger.debug("Transaction terminated for req=" + request);
+        logger.debug("Transaction terminated for req=\n" + request);
 
         //find the object that is supposed to take care of responses with the
         //corresponding method

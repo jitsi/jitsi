@@ -411,7 +411,7 @@ public class SipRegistrarConnection
         try
         {
             regTrans.sendRequest();
-            logger.debug("sent request= " + request);
+            logger.debug("sent request=\n" + request);
         }
         //we sometimes get a null pointer exception here so catch them all
         catch (Exception ex)
@@ -442,11 +442,6 @@ public class SipRegistrarConnection
     public void processOK(ClientTransaction clientTransatcion,
                         Response          response)
     {
-        FromHeader fromHeader =
-            ( (FromHeader) response.getHeader(FromHeader.NAME));
-
-
-
         //first extract the expires value that we requested
         int requestedExpiration = 0;
         Request register = clientTransatcion.getRequest();
@@ -673,7 +668,7 @@ public class SipRegistrarConnection
 
 
             unregisterTransaction.sendRequest();
-            logger.info("sent request: " + unregisterRequest);
+            logger.info("sent request:\n" + unregisterRequest);
 
             //if we're currently registered or in a process of unregistering
             //we'll wait for an ok response before changing the status.
@@ -910,11 +905,6 @@ public class SipRegistrarConnection
             .getClientTransaction();
 
         Response response = responseEvent.getResponse();
-        Dialog dialog = clientTransaction.getDialog();
-        String method = ( (CSeqHeader) response.getHeader(CSeqHeader.NAME)).
-                                                                getMethod();
-
-        Response responseClone = (Response) response.clone();
 
         SipProvider sourceProvider = (SipProvider)responseEvent.getSource();
         boolean processed = false;

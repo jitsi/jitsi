@@ -302,7 +302,7 @@ public class OperationSetBasicTelephonySipImpl
         {
             inviteTransaction.sendRequest();
             if (logger.isDebugEnabled())
-                logger.debug("sent request: " + invite);
+                logger.debug("sent request:\n" + invite);
         }
         catch (SipException ex)
         {
@@ -3162,10 +3162,10 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
-     * Returns <code>true</code> to indicate that the call associated with the 
+     * Returns <code>true</code> to indicate that the call associated with the
      * given participant is secured, otherwise returns <code>false</code>.
-     * 
-     * @return <code>true</code> to indicate that the call associated with the 
+     *
+     * @return <code>true</code> to indicate that the call associated with the
      * given participant is secured, otherwise returns <code>false</code>.
      */
     public boolean isSecure(CallParticipant participant)
@@ -3178,8 +3178,8 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Sets the SAS verification property value for the given call participant.
-     * 
-     * @param participant the call participant, for which we set the 
+     *
+     * @param participant the call participant, for which we set the
      * @param isVerified indicates whether the SAS string is verified or not
      * for the given participant.
      */
