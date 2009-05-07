@@ -310,7 +310,7 @@ public class ChatPanel
      */
     public void setStatusMessage(String statusMessage)
     {
-        this.sendPanel.setStatusMessage(statusMessage);
+        this.sendPanel.getStatusPanel().setStatusMessage(statusMessage);
     }
 
     /**
