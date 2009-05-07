@@ -479,8 +479,11 @@ public class ConfigurationManager
 
     public static void setLanguage(Locale locale)
     {
+        String language = locale.getLanguage();
+        String country = locale.getCountry();
+
         configService.setProperty(
             ResourceManagementService.DEFAULT_LOCALE_CONFIG,
-            locale.getLanguage());
+            (country.length() > 0) ? (language + '_' + country) : language);
     }
 }
