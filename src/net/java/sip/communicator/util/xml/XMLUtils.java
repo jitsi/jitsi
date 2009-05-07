@@ -7,7 +7,6 @@
 package net.java.sip.communicator.util.xml;
 
 import java.io.*;
-import java.nio.charset.*;
 import java.util.*;
 
 import javax.xml.transform.*;
@@ -26,7 +25,7 @@ import net.java.sip.communicator.util.*;
  */
 public class XMLUtils
 {
-    private static Logger logger = Logger.getLogger(XMLUtils.class);
+    private static final Logger logger = Logger.getLogger(XMLUtils.class);
 
     /**
      * Extracts from node the attribute with the specified name.

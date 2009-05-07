@@ -11,7 +11,6 @@ import java.util.*;
 import net.java.sip.communicator.service.resources.*;
 
 /**
- *
  * @author Damian Minkov
  */
 public class DefaultLanguagePackImpl
@@ -44,17 +43,17 @@ public class DefaultLanguagePackImpl
         while (fsEnum.hasMoreElements())
         {
             String fileName = ((URL)fsEnum.nextElement()).getFile();
-
             int localeIndex = fileName.indexOf('_');
 
             if(localeIndex != -1)
             {
-                String localeName =
+                String localeId =
                     fileName.substring(
                         localeIndex + 1,
                         fileName.indexOf('.', localeIndex));
 
-                availableLocales.add(new Locale(localeName));
+                availableLocales.add(
+                    ResourceManagementServiceUtils.getLocale(localeId));
             }
         }
     }

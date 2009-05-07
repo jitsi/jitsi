@@ -6,9 +6,10 @@
  */
 package net.java.sip.communicator.plugin.generalconfig;
 
-import java.util.Locale;
+import java.util.*;
+
 import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.resources.ResourceManagementService;
+import net.java.sip.communicator.service.resources.*;
 
 public class ConfigurationManager
 {
@@ -466,13 +467,14 @@ public class ConfigurationManager
 
     public static Locale getCurrentLanguage()
     {
-        String locale = (String)configService.
-            getProperty(ResourceManagementService.DEFAULT_LOCALE_CONFIG);
+        String localeId
+            = configService.getString(
+                    ResourceManagementService.DEFAULT_LOCALE_CONFIG);
 
-        if(locale != null)
-            return new Locale(locale);
-        else
-           return Locale.getDefault();
+        return
+            (localeId != null)
+                ? ResourceManagementServiceUtils.getLocale(localeId)
+                : Locale.getDefault();
     }
 
     public static void setLanguage(Locale locale)

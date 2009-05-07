@@ -79,9 +79,8 @@ public class ResourceManagementServiceImpl
         String defaultLocale = (String)ResourceManagementActivator.
                 getConfigurationService().getProperty(DEFAULT_LOCALE_CONFIG);
         if(defaultLocale != null)
-        {
-            Locale.setDefault(new Locale(defaultLocale));
-        }
+            Locale.setDefault(
+                ResourceManagementServiceUtils.getLocale(defaultLocale));
 
         languagePack =
             (LanguagePack) getDefaultResourcePack(LanguagePack.class.getName(),

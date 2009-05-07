@@ -9,13 +9,13 @@ package net.java.sip.communicator.service.resources;
 import java.util.*;
 
 /**
- *
  * @author Damian Minkov
  */
 public interface LanguagePack
     extends ResourcePack
 {
-    public String RESOURCE_NAME_DEFAULT_VALUE = "DefaultLanguagePack";
+    public static final String RESOURCE_NAME_DEFAULT_VALUE
+        = "DefaultLanguagePack";
 
     /**
      * Returns a <tt>Map</tt>, containing all [key, value] pairs for the given
