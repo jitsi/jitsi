@@ -53,7 +53,8 @@
             classname="net.charabia.jsmoothgen.ant.JSmoothGen"
             classpath="${inst.resrc}/windows/jsmoothgen-ant.jar"/>
     </target>
-    <target name="windows-generate-exe" depends="define-jsmooth-task">
+    <target name="windows-generate-exe" depends="define-jsmooth-task"
+            if="application.home.dirname">
 
         <copy file="${inst.resrc}/windows/run.exe.jsmooth"
             tofile="${inst.resrc}/windows/tmp.run.exe.jsmooth"/>
