@@ -15,7 +15,6 @@ import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smack.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.geolocation.*;
-
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -41,17 +40,18 @@ public class OperationSetGeolocationJabberImpl
      * The list of Geolocation status listeners interested in receiving presence
      * notifications of changes in geolocation of contacts in our contact list.
      */
-    private Vector geolocationContactsListeners = new Vector();
+    private final List<GeolocationListener> geolocationContactsListeners
+        = new Vector<GeolocationListener>();
 
     /**
      * A callback to the provider
      */
-    private ProtocolProviderServiceJabberImpl jabberProvider;
+    private final ProtocolProviderServiceJabberImpl jabberProvider;
 
     /**
      * A callback to the persistent presence operation set.
      */
-    private OperationSetPersistentPresence opsetprez = null;
+    private final OperationSetPersistentPresence opsetprez;
 
     /**
      * Constuctor
@@ -61,7 +61,6 @@ public class OperationSetGeolocationJabberImpl
     public OperationSetGeolocationJabberImpl(
         ProtocolProviderServiceJabberImpl provider)
     {
-
         this.jabberProvider = provider;
 
         this.opsetprez = (OperationSetPersistentPresence)
@@ -87,7 +86,6 @@ public class OperationSetGeolocationJabberImpl
      */
     public void publishGeolocation(Map geolocation)
     {
-
         GeolocationPresence myGeolocPrez = new GeolocationPresence(opsetprez);
 
         GeolocationPacketExtension geolocExt = GeolocationJabberUtils
@@ -97,7 +95,6 @@ public class OperationSetGeolocationJabberImpl
 
         this.jabberProvider.getConnection()
             .sendPacket(myGeolocPrez.getGeolocPresence());
-
     }
 
     /**
@@ -266,24 +263,20 @@ public class OperationSetGeolocationJabberImpl
                          + geolocationContactsListeners.size()
                          + " evt=" + evt);
 
-            Iterator listeners = null;
+            GeolocationListener[] listeners = null;
 
             synchronized (geolocationContactsListeners)
             {
-                listeners = new ArrayList
-                    (geolocationContactsListeners).iterator();
+                listeners
+                    = geolocationContactsListeners.toArray(
+                            new GeolocationListener[
+                                    geolocationContactsListeners.size()]);
             }
 
-            while (listeners.hasNext())
+            for (GeolocationListener listener : listeners)
             {
-                GeolocationListener listener =
-                    (GeolocationListener) listeners.next();
-
                 listener.contactGeolocationChanged(evt);
             }
-
         }
-
     }
-
 }

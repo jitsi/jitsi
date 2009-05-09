@@ -109,8 +109,8 @@ public class AudioMediaSession
                     " <-> " + remoteIp + ":" + remotePort);
 //        }
 
-        Hashtable mediaEncoding = MediaUtils.getAudioEncoding(
-                getPayloadType().getId());
+        Map<String, List<String>> mediaEncoding
+            = MediaUtils.getAudioEncoding(getPayloadType().getId());
         try
         {
             rtpFlow = JabberActivator.getMediaService().

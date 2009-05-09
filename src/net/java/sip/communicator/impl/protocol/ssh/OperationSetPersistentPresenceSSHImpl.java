@@ -9,7 +9,6 @@
  * SSH Suport in SIP Communicator - GSoC' 07 Project
  *
  */
-
 package net.java.sip.communicator.impl.protocol.ssh;
 
 import java.util.*;
@@ -17,6 +16,7 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+
 import org.osgi.framework.*;
 
 /**
@@ -44,13 +44,7 @@ public class OperationSetPersistentPresenceSSHImpl
      *  <tt>ProviderPresenceStatusChangeEvent</tt>s.
      */
     private Vector providerPresenceStatusListeners = new Vector();
-    
-    /**
-     * A list of listeneres registered for
-     * <tt>ContactPresenceStatusChangeEvent</tt>s.
-     */
-    private Vector contactPresenceStatusListeners = new Vector();
-    
+
     /**
      * The root of the ssh contact list.
      */
@@ -102,56 +96,6 @@ public class OperationSetPersistentPresenceSSHImpl
                 , sshContact.getParentContactGroup()
                 , oldStatus);
         fireProviderStatusChangeEvent(oldStatus);
-    }
-    
-    /**
-     * SSH implementation of the corresponding ProtocolProviderService
-     * method.
-     *
-     * @param listener a dummy param.
-     */
-    public void addContactPresenceStatusListener(
-            ContactPresenceStatusListener listener)
-    {
-        synchronized(contactPresenceStatusListeners)
-        {
-            if (!contactPresenceStatusListeners.contains(listener))
-                contactPresenceStatusListeners.add(listener);
-        }
-    }
-    
-    /**
-     * Notifies all registered listeners of the new event.
-     *
-     * @param source the contact that has caused the event.
-     * @param parentGroup the group that contains the source contact.
-     * @param oldValue the status that the source contact detained before
-     * changing it.
-     */
-    public void fireContactPresenceStatusChangeEvent(
-            Contact source,
-            ContactGroup parentGroup,
-            PresenceStatus oldValue)
-    {
-        ContactPresenceStatusChangeEvent evt
-                = new ContactPresenceStatusChangeEvent(source, parentProvider
-                , parentGroup, oldValue, source.getPresenceStatus());
-        
-        Iterator listeners = null;
-        synchronized(contactPresenceStatusListeners)
-        {
-            listeners = new ArrayList(contactPresenceStatusListeners)
-                                .iterator();
-        }
-        
-        
-        while(listeners.hasNext())
-        {
-            ContactPresenceStatusListener listener
-                    = (ContactPresenceStatusListener)listeners.next();
-            
-            listener.contactPresenceStatusChanged(evt);
-        }
     }
 
     /**
@@ -582,23 +526,7 @@ public class OperationSetPersistentPresenceSSHImpl
             changePresenceStatusForAllContacts(subgroup, newStatus);
         }
     }
-    
-    
-    /**
-     * Removes the specified listener so that it won't receive any further
-     * updates on contact presence status changes
-     *
-     * @param listener the listener to remove.
-     */
-    public void removeContactPresenceStatusListener(
-            ContactPresenceStatusListener listener)
-    {
-        synchronized(contactPresenceStatusListeners)
-        {
-            contactPresenceStatusListeners.remove(listener);
-        }
-    }
-    
+
     /**
      * Unregisters the specified listener so that it does not receive further
      * events upon changes in local presence status.

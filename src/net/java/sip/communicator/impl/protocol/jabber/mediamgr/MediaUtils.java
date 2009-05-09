@@ -42,10 +42,10 @@ public abstract class MediaUtils
      * @param payloadType the payload type
      * @return an hashtable ready to be passed to media service
      */
-    public static Hashtable getAudioEncoding(int payloadType)
+    public static Map<String, List<String>> getAudioEncoding(int payloadType)
     {
-        Hashtable ht = new Hashtable();
-        List list = new ArrayList();
+        Map<String, List<String>> ht = new Hashtable<String, List<String>>();
+        List<String> list = new ArrayList<String>();
         ht.put("audio", list);
         // most of the format aren't handled by SC now
         // but itsn't a problem. it will facilitates

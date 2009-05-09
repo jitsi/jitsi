@@ -58,13 +58,6 @@ public class OperationSetPersistentPresenceJabberImpl
             = new Vector<ProviderPresenceStatusListener>();
 
     /**
-     * The list of presence status listeners interested in receiving presence
-     * notifications of changes in status of contacts in our contact list.
-     */
-    private Vector<ContactPresenceStatusListener> contactPresenceStatusListeners
-        = new Vector<ContactPresenceStatusListener>();
-
-    /**
      * A map containing bindings between SIP Communicator's jabber presence status
      * instances and Jabber status codes
      */
@@ -104,22 +97,6 @@ public class OperationSetPersistentPresenceJabberImpl
 
         parentProvider.addRegistrationStateChangeListener(
             new RegistrationStateListener());
-    }
-
-    /**
-     * Registers a listener that would receive a presence status change event
-     * every time a contact, whose status we're subscribed for, changes her
-     * status.
-     *
-     * @param listener the listener that would received presence status
-     *   updates for contacts.
-     */
-    public void addContactPresenceStatusListener(ContactPresenceStatusListener
-                                                 listener)
-    {
-        synchronized(contactPresenceStatusListeners){
-                    this.contactPresenceStatusListeners.add(listener);
-        }
     }
 
     /**
@@ -449,20 +426,6 @@ public class OperationSetPersistentPresenceJabberImpl
         else
             return parentProvider.getJabberStatusEnum().getStatus(
                 JabberStatusEnum.OFFLINE);
-    }
-
-    /**
-     * Removes the specified listener so that it won't receive any further
-     * updates on contact presence status changes
-     *
-     * @param listener the listener to remove.
-     */
-    public void removeContactPresenceStatusListener(
-        ContactPresenceStatusListener listener)
-    {
-        synchronized(contactPresenceStatusListeners){
-            contactPresenceStatusListeners.remove(listener);
-        }
     }
 
     /**
@@ -885,43 +848,6 @@ public class OperationSetPersistentPresenceJabberImpl
                 }
 
             }
-        }
-    }
-
-    /**
-     * Notify all contact presence listeners of the corresponding event change
-     * @param contact the contact that changed its status
-     * @param oldStatus the status that the specified contact had so far
-     * @param newStatus the status that the specified contact is currently in.
-     * @param parentGroup the group containing the contact which caused the event
-     */
-    private void fireContactPresenceStatusChangeEvent(
-                        Contact contact,
-                        ContactGroup parentGroup,
-                        PresenceStatus oldStatus,
-                        PresenceStatus newStatus)
-    {
-        ContactPresenceStatusChangeEvent evt =
-            new ContactPresenceStatusChangeEvent(
-                contact, parentProvider, parentGroup, oldStatus, newStatus);
-
-
-        logger.debug("Dispatching Contact Status Change. Listeners="
-                     + contactPresenceStatusListeners.size()
-                     + " evt=" + evt);
-
-        Iterator listeners = null;
-        synchronized (contactPresenceStatusListeners)
-        {
-            listeners = new ArrayList(contactPresenceStatusListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            ContactPresenceStatusListener listener
-                = (ContactPresenceStatusListener) listeners.next();
-
-            listener.contactPresenceStatusChanged(evt);
         }
     }
 

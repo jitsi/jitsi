@@ -44,13 +44,6 @@ public class OperationSetPersistentPresenceDictImpl
         new Vector<ProviderPresenceStatusListener>();
 
     /**
-     * A list of listeneres registered for
-     * <tt>ContactPresenceStatusChangeEvent</tt>s.
-     */
-    private Vector<ContactPresenceStatusListener> contactPresenceStatusListeners = 
-        new Vector<ContactPresenceStatusListener>();
-
-    /**
      * The root of the dict contact list.
      */
     private ContactGroupDictImpl contactListRoot = null;
@@ -87,55 +80,6 @@ public class OperationSetPersistentPresenceDictImpl
         //add our unregistration listener
         parentProvider.addRegistrationStateChangeListener(
             new UnregistrationListener());
-    }
-
-    /**
-     * Dict implementation of the corresponding ProtocolProviderService
-     * method.
-     *
-     * @param listener a dummy param.
-     */
-    public void addContactPresenceStatusListener(
-                        ContactPresenceStatusListener listener)
-    {
-        synchronized(contactPresenceStatusListeners)
-        {
-            if (!contactPresenceStatusListeners.contains(listener))
-                contactPresenceStatusListeners.add(listener);
-        }
-    }
-
-    /**
-     * Notifies all registered listeners of the new event.
-     *
-     * @param source the contact that has caused the event.
-     * @param parentGroup the group that contains the source contact.
-     * @param oldValue the status that the source contact detained before
-     * changing it.
-     */
-    public void fireContactPresenceStatusChangeEvent(ContactDictImpl  source,
-                                                     ContactGroup parentGroup,
-                                                     PresenceStatus oldValue)
-    {
-        ContactPresenceStatusChangeEvent evt
-            = new ContactPresenceStatusChangeEvent(source, parentProvider
-                        , parentGroup, oldValue, source.getPresenceStatus());
-
-        Iterator<ContactPresenceStatusListener> listeners = null;
-        synchronized (contactPresenceStatusListeners) 
-        {
-            listeners = new ArrayList<ContactPresenceStatusListener>(
-                    contactPresenceStatusListeners).iterator();
-        }
-
-
-        while(listeners.hasNext())
-        {
-            ContactPresenceStatusListener listener
-                = listeners.next();
-
-            listener.contactPresenceStatusChanged(evt);
-        }
     }
 
     /**
@@ -553,22 +497,6 @@ public class OperationSetPersistentPresenceDictImpl
         {
             ContactGroup subgroup = subgroups.next();
             changePresenceStatusForAllContacts(subgroup, newStatus);
-        }
-    }
-
-
-    /**
-     * Removes the specified listener so that it won't receive any further
-     * updates on contact presence status changes
-     *
-     * @param listener the listener to remove.
-     */
-    public void removeContactPresenceStatusListener(
-        ContactPresenceStatusListener listener)
-    {
-        synchronized(contactPresenceStatusListeners)
-        {
-            contactPresenceStatusListeners.remove(listener);
         }
     }
 

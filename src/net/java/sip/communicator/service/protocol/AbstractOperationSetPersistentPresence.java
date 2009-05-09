@@ -36,6 +36,13 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
         new Vector<SubscriptionListener>();
 
     /**
+     * A list of listeners registered for
+     * <tt>ContactPresenceStatusChangeEvent</tt>s.
+     */
+    private final List<ContactPresenceStatusListener> contactPresenceStatusListeners
+        = new Vector<ContactPresenceStatusListener>();
+
+    /**
      * Initializes a new <tt>AbstractOperationSetPersistentPresence</tt>
      * instance created by a specific <tt>ProtocolProviderService</tt> .
      * 
@@ -47,6 +54,22 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
         this.parentProvider = parentProvider;
     }
 
+    /**
+     * Implementation of the corresponding ProtocolProviderService
+     * method.
+     *
+     * @param listener a presence status listener.
+     */
+    public void addContactPresenceStatusListener(
+        ContactPresenceStatusListener listener)
+    {
+        synchronized (contactPresenceStatusListeners)
+        {
+            if (!contactPresenceStatusListeners.contains(listener))
+                contactPresenceStatusListeners.add(listener);
+        }
+    }
+
     public void addSubscriptionListener(SubscriptionListener listener)
     {
         synchronized (subscriptionListeners)
@@ -54,6 +77,62 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
             if (!subscriptionListeners.contains(listener))
                 subscriptionListeners.add(listener);
         }
+    }
+
+    /**
+     * Notifies all registered listeners of the new event.
+     *
+     * @param source the contact that has caused the event.
+     * @param parentGroup the group that contains the source contact.
+     * @param oldValue the status that the source contact detained before
+     * changing it.
+     */
+    protected void fireContactPresenceStatusChangeEvent(Contact source,
+                                                        ContactGroup parentGroup,
+                                                        PresenceStatus oldValue)
+    {
+        PresenceStatus newValue = source.getPresenceStatus();
+
+        if (oldValue.equals(newValue)) {
+            logger.debug("Ignored prov stat. change evt. old==new = "
+                         + oldValue);
+            return;
+        }
+
+        fireContactPresenceStatusChangeEvent(
+            source,
+            parentGroup,
+            oldValue,
+            newValue);
+    }
+
+    public void fireContactPresenceStatusChangeEvent(Contact source,
+                                                     ContactGroup parentGroup,
+                                                     PresenceStatus oldValue,
+                                                     PresenceStatus newValue)
+    {
+        ContactPresenceStatusChangeEvent evt
+            = new ContactPresenceStatusChangeEvent(
+                    source,
+                    parentProvider,
+                    parentGroup,
+                    oldValue,
+                    newValue);
+
+        List<ContactPresenceStatusListener> listeners;
+        synchronized (contactPresenceStatusListeners)
+        {
+            listeners =
+                new ArrayList<ContactPresenceStatusListener>(
+                        contactPresenceStatusListeners);
+        }
+
+        logger.debug(
+            "Dispatching Contact Status Change. Listeners=" + listeners.size()
+                + " evt=" + evt);
+
+        for (ContactPresenceStatusListener listener : listeners)
+            listener.contactPresenceStatusChanged(evt);
     }
 
     /**
@@ -120,11 +199,8 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
         logger.debug("Dispatching a Subscription Event to" + listeners.size()
             + " listeners. Evt=" + evt);
 
-        for (Iterator<SubscriptionListener> listenerIt = listeners.iterator(); listenerIt
-            .hasNext();)
+        for (SubscriptionListener listener : listeners)
         {
-            SubscriptionListener listener = listenerIt.next();
-
             switch (eventID)
             {
             case SubscriptionEvent.SUBSCRIPTION_CREATED:
@@ -168,9 +244,23 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
         logger.debug("Dispatching a Subscription Event to" + listeners.size()
             + " listeners. Evt=" + evt);
 
-        for (Iterator<SubscriptionListener> listenerIt = listeners.iterator(); listenerIt
-            .hasNext();)
-            listenerIt.next().subscriptionMoved(evt);
+        for (SubscriptionListener listener : listeners)
+            listener.subscriptionMoved(evt);
+    }
+
+    /**
+     * Removes the specified listener so that it won't receive any further
+     * updates on contact presence status changes
+     *
+     * @param listener the listener to remove.
+     */
+    public void removeContactPresenceStatusListener(
+        ContactPresenceStatusListener listener)
+    {
+        synchronized (contactPresenceStatusListeners)
+        {
+            contactPresenceStatusListeners.remove(listener);
+        }
     }
 
     /**

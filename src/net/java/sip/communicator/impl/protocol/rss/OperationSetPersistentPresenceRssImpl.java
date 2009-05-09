@@ -6,13 +6,13 @@
  */
 package net.java.sip.communicator.impl.protocol.rss;
 
+import java.io.*;
+import java.net.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import java.net.*;
-import java.io.*;
 
 /**
  * A RSS implementation of a persistent presence operation set. In order
@@ -40,12 +40,6 @@ public class OperationSetPersistentPresenceRssImpl
      *  <tt>ProviderPresenceStatusChangeEvent</tt>s.
      */
     private Vector providerPresenceStatusListeners = new Vector();
-
-    /**
-     * A list of listeners registered for
-     * <tt>ContactPresenceStatusChangeEvent</tt>s.
-     */
-    private Vector contactPresenceStatusListeners = new Vector();
 
     /**
      * The root of the RSS contact list.
@@ -93,54 +87,6 @@ public class OperationSetPersistentPresenceRssImpl
         imageRetriever = new ImageRetriever(this);
 
         imageRetriever.start();
-    }
-
-    /**
-     * RSS implementation of the corresponding ProtocolProviderService
-     * method.
-     *
-     * @param listener a dummy parameter.
-     */
-    public void addContactPresenceStatusListener(
-                        ContactPresenceStatusListener listener)
-    {
-        synchronized(contactPresenceStatusListeners)
-        {
-            if (!contactPresenceStatusListeners.contains(listener))
-                contactPresenceStatusListeners.add(listener);
-        }
-    }
-
-    /**
-     * Notifies all registered listeners of the new event.
-     *
-     * @param source the contact that has caused the event.
-     * @param parentGroup the group that contains the source contact.
-     * @param oldValue the status that the source contact detained before
-     * changing it.
-     */
-    public void fireContactPresenceStatusChangeEvent(ContactRssImpl  source,
-                                                     ContactGroup parentGroup,
-                                                     PresenceStatus oldValue)
-    {
-        ContactPresenceStatusChangeEvent evt
-            = new ContactPresenceStatusChangeEvent(source, parentProvider
-                        , parentGroup, oldValue, source.getPresenceStatus());
-
-        Iterator listeners = null;
-        synchronized(contactPresenceStatusListeners)
-        {
-            listeners = new ArrayList(contactPresenceStatusListeners).iterator();
-        }
-
-
-        while(listeners.hasNext())
-        {
-            ContactPresenceStatusListener listener
-                = (ContactPresenceStatusListener)listeners.next();
-
-            listener.contactPresenceStatusChanged(evt);
-        }
     }
 
     /**
@@ -544,22 +490,6 @@ public class OperationSetPersistentPresenceRssImpl
         {
             ContactGroup subgroup = (ContactGroup)subgroups.next();
             changePresenceStatusForAllContacts(subgroup, newStatus);
-        }
-    }
-
-
-    /**
-     * Removes the specified listener so that it won't receive any further
-     * updates on contact presence status changes
-     *
-     * @param listener the listener to remove.
-     */
-    public void removeContactPresenceStatusListener(
-        ContactPresenceStatusListener listener)
-    {
-        synchronized(contactPresenceStatusListeners)
-        {
-            contactPresenceStatusListeners.remove(listener);
         }
     }
 

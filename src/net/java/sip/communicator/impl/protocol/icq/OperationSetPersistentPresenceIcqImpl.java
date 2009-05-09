@@ -29,7 +29,6 @@ import net.kano.joustsim.oscar.oscar.service.ssi.*;
 import net.kano.joustsim.oscar.oscar.service.icon.*;
 import net.kano.joustsim.trust.*;
 
-
 /**
  * The ICQ implementation of a Persistent Presence Operation set. This class
  * manages our own presence status as well as subscriptions for the presence
@@ -43,12 +42,6 @@ public class OperationSetPersistentPresenceIcqImpl
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetPersistentPresenceIcqImpl.class);
-
-    /**
-     * The list of presence status listeners interested in receiving presence
-     * notifications of changes in status of contacts in our contact list.
-     */
-    private Vector contactPresenceStatusListeners = new Vector();
 
     /**
      * The list of listeners interested in receiving changes in our local
@@ -195,42 +188,6 @@ public class OperationSetPersistentPresenceIcqImpl
         //add a listener that'll follow the provider's state.
         parentProvider.addRegistrationStateChangeListener(
             registrationStateListener);
-    }
-
-    /**
-     * Registers a listener that would receive a presence status change event
-     * every time a contact, whose status we're subscribed for, changes her
-     * status.
-     * Note that, for reasons of simplicity and ease of implementation, there
-     * is only a means of registering such "global" listeners that would receive
-     * updates for status changes for any contact and it is not currently
-     * possible to register such contacts for a single contact or a subset of
-     * contacts.
-     *
-     * @param listener the listener that would received presence status
-     * updates for contacts.
-     */
-    public void addContactPresenceStatusListener(
-        ContactPresenceStatusListener listener)
-    {
-        synchronized(contactPresenceStatusListeners)
-        {
-            if(!contactPresenceStatusListeners.contains(listener))
-                this.contactPresenceStatusListeners.add(listener);
-        }
-    }
-
-    /**
-     * Removes the specified listener so that it won't receive any further
-     * updates on contact presence status changes
-     * @param listener the listener to remove.
-     */
-    public void removeContactPresenceStatusListener(
-        ContactPresenceStatusListener listener)
-    {
-        synchronized(contactPresenceStatusListeners){
-            contactPresenceStatusListeners.remove(listener);
-        }
     }
 
     /**
@@ -1151,42 +1108,6 @@ public class OperationSetPersistentPresenceIcqImpl
                 = (ProviderPresenceStatusListener) listeners.next();
 
             listener.providerStatusMessageChanged(evt);
-        }
-    }
-
-    /**
-     * Notify all contact presence listeners of the corresponding event change
-     * @param contact the contact that changed its status
-     * @param oldStatus the status that the specified contact had so far
-     * @param newStatus the status that the specified contact is currently in.
-     * @param parentGroup the group containing the contact which caused the event
-     */
-    private void fireContactPresenceStatusChangeEvent(
-                        Contact contact,
-                        ContactGroup parentGroup,
-                        PresenceStatus oldStatus,
-                        PresenceStatus newStatus)
-    {
-        ContactPresenceStatusChangeEvent evt =
-            new ContactPresenceStatusChangeEvent(
-                contact, parentProvider, parentGroup, oldStatus, newStatus);
-
-        logger.debug("Dispatching Contact Status Change. Listeners="
-                     + contactPresenceStatusListeners.size()
-                     + " evt=" + evt);
-
-        Iterator listeners = null;
-        synchronized (contactPresenceStatusListeners)
-        {
-            listeners = new ArrayList(contactPresenceStatusListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            ContactPresenceStatusListener listener
-                = (ContactPresenceStatusListener) listeners.next();
-
-            listener.contactPresenceStatusChanged(evt);
         }
     }
 

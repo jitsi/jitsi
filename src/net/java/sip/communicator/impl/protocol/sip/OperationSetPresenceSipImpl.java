@@ -59,13 +59,6 @@ public class OperationSetPresenceSipImpl
                                     = new Vector<ServerStoredGroupListener>();
 
     /**
-     * A list of listeners registered for
-     * <tt>ContactPresenceStatusChangeEvent</tt>s.
-     */
-    private Vector<ContactPresenceStatusListener> contactPresenceStatusListeners
-        = new Vector<ContactPresenceStatusListener>();
-
-    /**
      * The root of the SIP contact list.
      */
     private ContactGroupSipImpl contactListRoot = null;
@@ -3277,45 +3270,6 @@ public class OperationSetPresenceSipImpl
     }
 
     /**
-     * Notifies all registered listeners of the new event.
-     *
-     * @param source the contact that has caused the event.
-     * @param parentGroup the group that contains the source contact.
-     * @param oldValue the status that the source contact detained before
-     * changing it.
-     */
-    public void fireContactPresenceStatusChangeEvent(ContactSipImpl  source,
-                                                     ContactGroup parentGroup,
-                                                     PresenceStatus oldValue)
-    {
-        if(oldValue.equals(source.getPresenceStatus())){
-            logger.debug("Ignored prov stat. change evt. old==new = "
-                         + oldValue);
-            return;
-        }
-
-        ContactPresenceStatusChangeEvent evt
-            = new ContactPresenceStatusChangeEvent(source, this.parentProvider,
-                        parentGroup, oldValue, source.getPresenceStatus());
-
-        Iterator listeners = null;
-        synchronized(this.contactPresenceStatusListeners)
-        {
-            listeners = new ArrayList(this.contactPresenceStatusListeners)
-                .iterator();
-        }
-
-
-        while(listeners.hasNext())
-        {
-            ContactPresenceStatusListener listener
-                = (ContactPresenceStatusListener) listeners.next();
-
-            listener.contactPresenceStatusChanged(evt);
-        }
-    }
-
-    /**
      * Sets the presence status of <tt>contact</tt> to <tt>newStatus</tt>.
      *
      * @param contact the <tt>ContactSipImpl</tt> whose status we'd like
@@ -3423,37 +3377,6 @@ public class OperationSetPresenceSipImpl
         synchronized(this.providerPresenceStatusListeners)
         {
             this.providerPresenceStatusListeners.remove(listener);
-        }
-    }
-
-    /**
-     * SIP implementation of the corresponding ProtocolProviderService
-     * method.
-     *
-     * @param listener a presence status listener.
-     */
-    public void addContactPresenceStatusListener(
-        ContactPresenceStatusListener listener)
-    {
-        synchronized(this.contactPresenceStatusListeners)
-        {
-            if (!this.contactPresenceStatusListeners.contains(listener))
-                this.contactPresenceStatusListeners.add(listener);
-        }
-    }
-
-    /**
-     * Removes the specified listener so that it won't receive any further
-     * updates on contact presence status changes
-     *
-     * @param listener the listener to remove.
-     */
-    public void removeContactPresenceStatusListener(
-        ContactPresenceStatusListener listener)
-    {
-        synchronized(this.contactPresenceStatusListeners)
-        {
-            this.contactPresenceStatusListeners.remove(listener);
         }
     }
 
