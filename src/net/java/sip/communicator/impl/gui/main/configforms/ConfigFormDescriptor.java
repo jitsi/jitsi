@@ -57,8 +57,7 @@ public class ConfigFormDescriptor
         }
         
         if(icon != null)
-            configFormIcon
-                = new ImageIcon(ImageLoader.getBytesInImage(icon));
+            configFormIcon = new ImageIcon(icon);
     }
 
     /**

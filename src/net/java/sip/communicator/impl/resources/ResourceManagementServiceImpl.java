@@ -669,22 +669,8 @@ public class ResourceManagementServiceImpl
      */
     public ImageIcon getImage(String imageID)
     {
-        BufferedImage image = null;
+        URL imageURL = getImageURL(imageID);
 
-        InputStream in = getImageInputStream(imageID);
-
-        if(in == null)
-            return null;
-
-        try
-        {
-            image = ImageIO.read(in);
-        }
-        catch (IOException e)
-        {
-            logger.error("Failed to load image:" + imageID, e);
-        }
-
-        return new ImageIcon(image);
+        return new ImageIcon(imageURL);
     }
 }

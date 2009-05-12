@@ -227,11 +227,9 @@ public class SmileysSelectorBox
 
         Smiley smiley = smileysList.get(smileyItem);
 
-        String smileyIconHtml = "<HTML><IMG SRC=\""
-            + ImageLoader.getSmiley(smiley.getDefaultString()).getImagePath()
-            + "\"></IMG></HTML>";
-        smileyItem.setIcon(null);
-        smileyItem.setText(smileyIconHtml);
+        ImageIcon imageIcon
+            = GuiActivator.getResources().getImage(smiley.getImageID().getId());
+        smileyItem.setIcon(imageIcon);
 
         smileyDescriptionLabel.setText(smiley.getDescription());
         smileyTextLabel.setText(smiley.getSmileyStrings()[0]);
@@ -270,7 +268,6 @@ public class SmileysSelectorBox
             new ImageIcon(ImageLoader.getImage(smiley.getImageID()));
 
         smileyItem.setIcon(imageIcon);
-        smileyItem.setText(null);
         smileyTextLabel.setText("");
         smileyDescriptionLabel.setText("");
     }

@@ -126,15 +126,14 @@ public class DefaultContactList
             {
                 Contact protocolContact = i.next();
 
-                Image protocolStatusIcon
-                    = ImageLoader.getBytesInImage(
-                            protocolContact.getPresenceStatus().getStatusIcon());
+                ImageIcon protocolStatusIcon
+                    = new ImageIcon(
+                        protocolContact.getPresenceStatus().getStatusIcon());
 
                 String contactAddress = protocolContact.getAddress();
                 //String statusMessage = protocolContact.getStatusMessage();
 
-                tip.addLine(new ImageIcon(protocolStatusIcon),
-                                        contactAddress);
+                tip.addLine(protocolStatusIcon, contactAddress);
             }
         }
         else if (element instanceof MetaContactGroup)

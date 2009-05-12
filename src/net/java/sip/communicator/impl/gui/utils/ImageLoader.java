@@ -14,7 +14,6 @@ import java.util.*;
 import java.util.List;
 
 import javax.imageio.*;
-import javax.imageio.stream.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -136,8 +135,11 @@ public class ImageLoader
     public static final ImageID DELETE_TEXT_ROLLOVER_ICON
         = new ImageID("service.gui.lookandfeel.DELETE_TEXT_ROLLOVER_ICON");
 
-    /////////////////////// OptionPane icons /////////////////////////////
-
+    /*
+     * =======================================================================
+     * ------------------------ OPTION PANE ICONS ----------------------------
+     * =======================================================================
+     */
     /**
      * The icon used in the <tt>SIPCommLookAndFeel</tt> to paint the icon
      * of an option pane warning message.
@@ -444,7 +446,8 @@ public class ImageLoader
         new ImageID("service.gui.buttons.SECURE_VIDEO_OFF");
 
     /**
-     * The security button: encryted and SAS verified, encrypted only, security off.
+     * The security button: encrypted and SAS verified, encrypted only,
+     * security off.
      */
     public static final ImageID ENCR_VERIFIED = new ImageID(
             "service.gui.buttons.ENCR_VERIFIED");
@@ -726,15 +729,16 @@ public class ImageLoader
     public static final ImageID HIDE_ACTIONS_ROLLOVER_BUTTON
         = new ImageID("service.gui.buttons.HIDE_ACTIONS_ROLLOVER_BUTTON");
 
-    // ///////////////////// Edit Text Toolbar icons //////////////////////////
-
+    /*
+     * =======================================================================
+     * ------------------------ EDIT TOOLBAR ICONS ---------------------------
+     * =======================================================================
+     */
     /**
      * Add not in contact list contact icon.
      */
     public static final ImageID ADD_CONTACT_CHAT_ICON
         = new ImageID("service.gui.icons.ADD_CONTACT_CHAT_ICON");
-
-    /////////////////////// Edit Text Toolbar icons /////////////////////////
 
     /**
      * "Bold" button image in the <tt>EditTextToolBar</tt> in the
@@ -775,8 +779,11 @@ public class ImageLoader
     public static final ImageID INVITE_DIALOG_ICON
         = new ImageID("service.gui.icons.INVITE_DIALOG_ICON");
 
-    // ///////////////////////// Main Toolbar icons ////////////////////////////
-
+    /*
+     * =======================================================================
+     * ------------------------ MAIN TOOLBAR ICONS ---------------------------
+     * =======================================================================
+     */
     /**
      * The background image of a button in one of the <tt>ChatWindow</tt>
      * toolbars.
@@ -863,8 +870,11 @@ public class ImageLoader
     public static final ImageID FONT_ICON
         = new ImageID("service.gui.icons.FONT_ICON");
 
-    // ///////////////////// Chat contact icons ////////////////////////////////
-
+    /*
+     * =======================================================================
+     * ------------------------ CHAT CONTACT ICONS ---------------------------
+     * =======================================================================
+     */
     /**
      * A special "info" icon used in the <tt>ChatContactPanel</tt>.
      */
@@ -905,7 +915,11 @@ public class ImageLoader
     public static final ImageID CHAT_CONFIGURE_ICON
         = new ImageID("service.gui.icons.CHAT_CONFIGURE_ICON");
 
-    ////////////////////////////// 16x16 icons ////////////////////////////////
+    /*
+     * =======================================================================
+     * ------------------------- 16x16 ICONS ---------------------------------
+     * =======================================================================
+     */
     /**
      * Send message 16x16 image.
      */
@@ -954,8 +968,6 @@ public class ImageLoader
      */
     public static final ImageID RENAME_16x16_ICON
         = new ImageID("service.gui.icons.RENAME_16x16_ICON");
-
-    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * Toolbar drag area icon.
@@ -1100,69 +1112,70 @@ public class ImageLoader
      *
      * @return the ArrayList of all smileys.
      */
-    public static Collection<Smiley> getDefaultSmileysPack() {
+    public static Collection<Smiley> getDefaultSmileysPack()
+    {
         List<Smiley> defaultPackList = new ArrayList<Smiley>();
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY1, new String[] {
-                ":((", ":-((", ":((", ":(", ":-(", "(sad)"}, "Sad"));
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY1,
+            new String[] {":((", ":-((", ":((", ":(", ":-(", "(sad)"}, "Sad"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY2, new String[] {
-                "(angel)" }, "Angel"));
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY2,
+            new String[] {"(angel)" }, "Angel"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY3, new String[] {
-                ":-*", ":*", "(kiss)"}, "Kiss"));
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY3,
+            new String[] {":-*", ":*", "(kiss)"}, "Kiss"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY4, new String[] {
-                ":-0", "(shocked)"}, "Shocked"));
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY4,
+            new String[] {":-0", "(shocked)"}, "Shocked"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY5, new String[] {
-            ";-((", ";((", ";-(", ";(", ":'(", ":'-(",
-            ":~-(", ":~(", "(upset)" }, "Upset"));
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY5,
+            new String[] {  ";-((", ";((", ";-(", ";(", ":'(", ":'-(",
+                            ":~-(", ":~(", "(upset)" }, "Upset"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY6, new String[] {
-                "(L)" , "(l)", "(H)", "(h)"}, "In love"));
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY6,
+            new String[] {"(L)" , "(l)", "(H)", "(h)"}, "In love"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY7, new String[] {
-                "(blush)"}, "Blushing"));
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY7,
+            new String[] {"(blush)"}, "Blushing"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY8, new String[] {
-                ":-P", ":P", ":-p", ":p" }, "Tongue out"));
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY8,
+            new String[] {":-P", ":P", ":-p", ":p" }, "Tongue out"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY9, new String[] {
-                ":-))", ":))", ";-))", ";))", "(lol)"}, "Laughing"));
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY9,
+            new String[] {":-))", ":))", ";-))", ";))", "(lol)"}, "Laughing"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY10, new String[] {
-            "(y)", "(Y)", "(ok)"}, "Ok"));
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY10,
+            new String[] {"(y)", "(Y)", "(ok)"}, "Ok"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY11, new String[] {
-            ";-)", ";)", ":-)", ":)"}, "Smile"));
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY11,
+            new String[] {";-)", ";)", ":-)", ":)"}, "Smile"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY12, new String[] {
-                "(sick)"}, "Sick"));
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY12,
+            new String[] {"(sick)"}, "Sick"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY13, new String[] {
-            "(n)", "(N)" }, "No"));
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY13,
+            new String[] {"(n)", "(N)" }, "No"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY14, new String[] {
-            "(chuckle)" }, "Chuckle"));
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY14,
+            new String[] {"(chuckle)" }, "Chuckle"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY15, new String[] {
-            "(wave)" }, "Waving"));
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY15,
+            new String[] {"(wave)" }, "Waving"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY16, new String[] {
-            "(clap)"}, "Clapping"));
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY16,
+            new String[] {"(clap)"}, "Clapping"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY17, new String[] {
-            "(angry)"}, "Angry"));
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY17,
+            new String[] {"(angry)"}, "Angry"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY18, new String[] {
-            "(bomb)"}, "Explosing"));
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY18,
+            new String[] {"(bomb)"}, "Explosing"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY19, new String[] {
-            "(search)"}, "Searching"));
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY19,
+            new String[] {"(search)"}, "Searching"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY20, new String[] {
-            "(oops)"}, "Oops"));
+        defaultPackList.add(new Smiley(ImageLoader.SMILEY20,
+            new String[] {"(oops)"}, "Oops"));
 
         return defaultPackList;
     }
@@ -1172,13 +1185,16 @@ public class ImageLoader
      * @param smileyString One of :-), ;-), etc.
      * @return A Smiley object for a given smiley string.
      */
-    public static Smiley getSmiley(String smileyString) {
+    public static Smiley getSmiley(String smileyString)
+    {
         Collection<Smiley> smileys = getDefaultSmileysPack();
 
-        for (Smiley smiley : smileys) {
+        for (Smiley smiley : smileys)
+        {
             String[] smileyStrings = smiley.getSmileyStrings();
 
-            for (int j = 0; j < smileyStrings.length; j++) {
+            for (int j = 0; j < smileyStrings.length; j++)
+            {
                 String srcString = smileyStrings[j];
 
                 if (srcString.equals(smileyString))
@@ -1227,56 +1243,6 @@ public class ImageLoader
     }
 
     /**
-     * Loads an image from a given path.
-     *
-     * @param path The path url of the image.
-     * @return The image for the given identifier.
-     */
-    public static BufferedImage getImageFromUrl(String path)
-    {
-        BufferedImage image = null;
-
-        try
-        {
-            URL imgUrl = new URL(path);
-
-            image = ImageIO.read(imgUrl.openStream());
-        }
-        catch (Exception exc)
-        {
-            log.error("Failed to load image:" + path, exc);
-        }
-
-        return image;
-    }
-
-    /**
-     * Loads an image from a given image identifier.
-     * @param imageID The identifier of the image.
-     * @return The image for the given identifier.
-     */
-    public static byte[] getImageInBytes(ImageID imageID)
-    {
-        InputStream in =
-            GuiActivator.getResources().getImageInputStream(imageID.getId());
-
-        if (in == null)
-            return null;
-        byte[] image = null;
-        try
-        {
-            image = new byte[in.available()];
-
-            in.read(image);
-        } catch (IOException e)
-        {
-            log.error("Failed to load image:" + imageID.getId(), e);
-        }
-
-        return image;
-    }
-
-    /**
      * Loads an image from a given bytes array.
      * @param imageBytes The bytes array to load the image from.
      * @return The image for the given bytes array.
@@ -1298,67 +1264,25 @@ public class ImageLoader
     }
 
     /**
-     * Loads an animated gif image.
-     * @param animatedImage the animated image buffer
-     * @return a <tt>BufferedImage</tt> array containing the animated image.
+     * Returns the URI corresponding to the image with the given image
+     * identifier.
+     * 
+     * @param imageID the identifier of the image
+     * @return the URI corresponding to the image with the given image
+     * identifier
      */
-    public static BufferedImage[] getAnimatedImage(byte[] animatedImage)
+    public static String getImageUri(ImageID imageID)
     {
-        ImageReader reader = ImageIO.getImageReadersBySuffix("gif").next();
+        URL imageURL = GuiActivator.getResources().getImageURL(imageID.getId());
 
-        ImageInputStream iis;
-
-        BufferedImage[] images = null;
-
-        try {
-            iis = ImageIO.createImageInputStream(
-                new ByteArrayInputStream(animatedImage));
-
-            reader.setInput(iis);
-
-            int numImages = reader.getNumImages(true);
-
-            if(numImages == 0)
-                return null;
-
-            images = new BufferedImage[numImages];
-
-            for (int i = 0; i < numImages; ++i) {
-                images[i] = reader.read(i);
-            }
-
-        } catch (IOException e) {
-            log.error("Failed to load image.", e);
-        } finally {
-            log.logExit();
+        try
+        {
+            if (imageURL != null)
+                return imageURL.toURI().toString();
         }
-        return images;
-    }
-
-    /**
-     * Returns the path string of an already loaded image, otherwise null.
-     *
-     * @param image
-     *            The image wich path to return.
-     * @return The path string of an already loaded image, otherwise null.
-     */
-    public static String getImagePath(Image image)
-    {
-        for (Map.Entry<ImageID, BufferedImage> entry : loadedImages.entrySet()) {
-            if (entry.getValue().equals(image))
-            {
-                String imageID = entry.getKey().getId();
-
-                try
-                {
-                    return GuiActivator.getResources().getImageURL(imageID)
-                        .toURI().toString();
-                }
-                catch(URISyntaxException ex)
-                {
-                    log.error("Failed to create path for image " + imageID);
-                }
-            }
+        catch (URISyntaxException e)
+        {
+            log.debug("Unable to parse image URL to URI.", e);
         }
 
         return null;
@@ -1400,6 +1324,16 @@ public class ImageLoader
         return badgeImageWithProtocolIndex(statusImage, pps);
     }
 
+    /**
+     * Badges the given protocol image with an index allowing to distinguish
+     * different accounts from the same protocol.
+     * 
+     * @param image the initial image to badge with an index
+     * @param pps the protocol provider service corresponding to the account,
+     * containing the index.
+     * @return the given protocol image with an index allowing to distinguish
+     * different accounts from the same protocol.
+     */
     public static Image badgeImageWithProtocolIndex(
             Image image, ProtocolProviderService pps)
     {

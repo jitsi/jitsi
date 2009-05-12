@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.io.*;
+import java.net.*;
 import java.util.*;
 import java.util.regex.*;
 
@@ -319,8 +320,8 @@ public class ChatConversationPanel
             endHeaderTag = "</h6>";
 
             String errorIcon = "<IMG SRC='"
-                + ImageLoader.getImagePath(ImageLoader
-                    .getImage(ImageLoader.EXCLAMATION_MARK)) + "' </IMG>";
+                + ImageLoader.getImageUri(ImageLoader.EXCLAMATION_MARK)
+                + "' </IMG>";
 
             chatString += errorIcon
                 + GuiActivator.getResources()

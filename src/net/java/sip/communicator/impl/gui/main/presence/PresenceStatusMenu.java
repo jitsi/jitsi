@@ -106,8 +106,7 @@ public class PresenceStatusMenu
             }
 
             this.addItem(status.getStatusName(),
-                new ImageIcon(
-                    ImageLoader.getBytesInImage(status.getStatusIcon())),
+                new ImageIcon(status.getStatusIcon()),
                 new ItemActionListener());
         }
 

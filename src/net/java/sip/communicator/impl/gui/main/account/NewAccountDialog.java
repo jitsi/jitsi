@@ -245,8 +245,7 @@ public class NewAccountDialog
 
             if( icon != null && icon.length > 0)
             {
-                this.setIcon(new ImageIcon(
-                                ImageLoader.getBytesInImage(icon)));
+                this.setIcon(new ImageIcon(icon));
             }
             else
             {
