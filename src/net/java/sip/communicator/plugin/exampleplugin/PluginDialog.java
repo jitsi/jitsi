@@ -29,6 +29,12 @@ public class PluginDialog
     private JLabel contactLabel = new JLabel();
     private JLabel nameLabel = new JLabel();
     
+    /**
+     * Creates an instance of this <tt>PluginDialog</tt> by specifying the
+     * current <tt>MetaContact</tt>.
+     * 
+     * @param metaContact the <tt>MetaContact</tt> we're going to treat.
+     */
     public PluginDialog(MetaContact metaContact)
     {
         this.setTitle("Example plugin");
@@ -48,13 +54,17 @@ public class PluginDialog
         
         this.getContentPane().add(mainPanel);
         
-        this.setStyles();
+        this.initStyles();
         
         this.setResizable(false);
         this.pack();
     }
     
-    private void setStyles()
+    /**
+     * Initializes needed layouts, alignments, borders and different text area
+     * style constants.
+     */
+    private void initStyles()
     {
         this.mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         
@@ -72,9 +82,13 @@ public class PluginDialog
         
         this.contactLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
         this.contactLabel.setAlignmentY(JLabel.TOP_ALIGNMENT);
-        this.contactLabel.setFont(contactLabel.getFont().deriveFont(Font.BOLD));        
+        this.contactLabel.setFont(contactLabel.getFont().deriveFont(Font.BOLD));
     }
 
+    /**
+     * No special operations when the dialog is closed.
+     * @see SIPCommDialog#close(boolean).
+     */
     protected void close(boolean isEscaped)
     {
     }
