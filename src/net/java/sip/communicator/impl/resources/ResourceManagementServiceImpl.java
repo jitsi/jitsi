@@ -6,16 +6,16 @@
  */
 package net.java.sip.communicator.impl.resources;
 
-import java.awt.image.*;
 import java.io.*;
 import java.net.*;
 import java.text.*;
 import java.util.*;
 
-import javax.imageio.*;
 import javax.swing.*;
+
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+
 import org.osgi.framework.*;
 
 /**
