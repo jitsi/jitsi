@@ -1133,7 +1133,13 @@ javax.swing.event, javax.swing.border"/>
                 <type type="file" />
             </zipfileset>
             <zipfileset dir="${resources}/images"
-                prefix="resources/images"/>
+                prefix="resources/images">
+                <include name="protocol/icq/**/*"/>
+                <include name="protocol/googletalk/**/*"/>
+                <include name="protocol/jabber/**/*"/>
+                <include name="protocol/msn/**/*"/>
+                <include name="protocol/yahoo/**/*"/>
+            </zipfileset> 
         </jar>
     </target>
 
@@ -1387,8 +1393,6 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/googletalkaccregwizz/googletalkaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/googletalkaccregwizz"
                 prefix="net/java/sip/communicator/plugin/googletalkaccregwizz"/>
-            <zipfileset dir="${resources}/images/protocol/googletalk"
-                prefix="resources/images/protocol/googletalk"/>
         </jar>
     </target>
 
