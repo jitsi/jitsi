@@ -11,8 +11,8 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * Reperesents the Dict protocol icon. Implements the <tt>ProtocolIcon</tt>
- * interface in order to provide a dict logo image in two different sizes.
+ * Represents the Dict protocol icon. Implements the <tt>ProtocolIcon</tt>
+ * interface in order to provide a Dict logo image in two different sizes.
  * 
  * @author ROTH Damien
  * @author LITZELMANN Cedric
@@ -25,20 +25,29 @@ public class ProtocolIconDictImpl
      */
     private static Hashtable<String,byte[]> iconsTable
         = new Hashtable<String,byte[]>();
-    static {
+    static
+    {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,
             DictActivator.getResources()
-                .getImageInBytes("service.protocol.dict.PROTOCOL_ICON"));
+                .getImageInBytes("service.protocol.dict.DICT_16x16"));
+
+        iconsTable.put(ProtocolIcon.ICON_SIZE_32x32,
+            DictActivator.getResources()
+                .getImageInBytes("service.protocol.dict.DICT_32x32"));
+
+        iconsTable.put(ProtocolIcon.ICON_SIZE_48x48,
+            DictActivator.getResources()
+                .getImageInBytes("service.protocol.dict.DICT_48x48"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-                DictActivator.getResources()
-                    .getImageInBytes("service.protocol.dict.PROTOCOL_LARGE_ICON"));
+            DictActivator.getResources()
+                .getImageInBytes("service.protocol.dict.DICT_64x64"));
     }
 
     /**
      * Implements the <tt>ProtocolIcon.getSupportedSizes()</tt> method. Returns
      * an iterator to a set containing the supported icon sizes.
-     * @return          Returns an iterator to a set containing the supported icon sizes
+     * @return Returns an iterator to a set containing the supported icon sizes
      */
     public Iterator<String> getSupportedSizes()
     {
@@ -59,7 +68,7 @@ public class ProtocolIconDictImpl
     /**
      * Returns the icon image in the given size.
      * @param iconSize  The icon size one of ICON_SIZE_XXX constants
-     * @return          Returns a byte[] containing the pixels of the icon for the given
+     * @return Returns a byte[] containing the pixels of the icon for the given
      * size.
      */
     public byte[] getIcon(String iconSize)
@@ -69,7 +78,8 @@ public class ProtocolIconDictImpl
     
     /**
      * Returns the icon image used to represent the protocol connecting state.
-     * @return          Returns the icon image used to represent the protocol connecting state.
+     * @return Returns the icon image used to represent the protocol connecting
+     * state.
      */
     public byte[] getConnectingIcon()
     {

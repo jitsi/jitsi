@@ -13,8 +13,8 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * Reperesents the Msn protocol icon. Implements the <tt>ProtocolIcon</tt>
- * interface in order to provide a msn icon image in two different sizes.
+ * Represents the MSN protocol icon. Implements the <tt>ProtocolIcon</tt>
+ * interface in order to provide a MSN icon image in two different sizes.
  * 
  * @author Yana Stamcheva
  */
@@ -26,13 +26,21 @@ public class ProtocolIconMsnImpl
     /**
      * A hash table containing the protocol icon in different sizes.
      */
-    private static Hashtable iconsTable = new Hashtable();
-    static {
+    private static Hashtable<String, byte[]> iconsTable
+        = new Hashtable<String, byte[]>();
+    static
+    {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,
-            getImageInBytes("service.protocol.msn.PROTOCOL_ICON"));
+            getImageInBytes("service.protocol.msn.MSN_16x16"));
+
+        iconsTable.put(ProtocolIcon.ICON_SIZE_32x32,
+            getImageInBytes("service.protocol.msn.MSN_32x32"));
+
+        iconsTable.put(ProtocolIcon.ICON_SIZE_48x48,
+            getImageInBytes("service.protocol.msn.MSN_48x48"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            getImageInBytes("service.protocol.msn.PROTOCOL_LARGE_ICON"));
+            getImageInBytes("service.protocol.msn.MSN_64x64"));
     }
  
     /**

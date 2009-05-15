@@ -14,6 +14,7 @@ import java.util.*;
 import java.util.List;
 
 import javax.imageio.*;
+import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -1295,19 +1296,19 @@ public class ImageLoader
      * 
      * @return the indexed status image
      */
-    public static Image getAccountStatusImage(ProtocolProviderService pps)
+    public static ImageIcon getAccountStatusImage(ProtocolProviderService pps)
     {
-        Image statusImage;
+        ImageIcon statusIcon;
 
         OperationSetPresence presence
             = (OperationSetPresence) pps
                 .getOperationSet(OperationSetPresence.class);
 
+        Image statusImage;
         if (presence != null)
         {
-            statusImage
-                = ImageLoader.getBytesInImage(presence.getPresenceStatus()
-                    .getStatusIcon());
+            statusImage = ImageLoader.getBytesInImage(
+                presence.getPresenceStatus().getStatusIcon());
         }
         else
         {
@@ -1317,11 +1318,15 @@ public class ImageLoader
 
             if (!pps.isRegistered())
             {
-                statusImage = LightGrayFilter.createDisabledImage(statusImage);
+                statusImage
+                    = LightGrayFilter.createDisabledImage(statusImage);
             }
         }
 
-        return badgeImageWithProtocolIndex(statusImage, pps);
+        statusIcon = new ImageIcon(
+            badgeImageWithProtocolIndex(statusImage, pps));
+
+        return statusIcon;
     }
 
     /**

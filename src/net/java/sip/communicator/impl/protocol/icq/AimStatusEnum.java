@@ -29,7 +29,7 @@ public class AimStatusEnum
      */
     public static final AimStatusEnum ONLINE
         = new AimStatusEnum(65, "Online",
-                getImageInBytes("service.protocol.aim.PROTOCOL_ICON"));
+                getImageInBytes("service.protocol.aim.AIM_16x16"));
 
     /**
      * The Invisible AIM status. Indicates that the user has connectivity even

@@ -22,13 +22,13 @@ public class Resources
      * A constant pointing to the RSS protocol logo image.
      */
     public static ImageID RSS_LOGO
-        = new ImageID("service.protocol.rss.PROTOCOL_ICON");
+        = new ImageID("service.protocol.rss.RSS_16x16");
 
     /**
      * A constant pointing to the RSS protocol wizard page image.
      */
     public static ImageID PAGE_IMAGE
-        = new ImageID("service.protocol.rss.PROTOCOL_LARGE_ICON");
+        = new ImageID("service.protocol.rss.RSS_64x64");
 
     /**
      * Returns an internationalized string corresponding to the given key.

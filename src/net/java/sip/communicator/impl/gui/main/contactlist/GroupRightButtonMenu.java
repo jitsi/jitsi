@@ -86,8 +86,9 @@ public class GroupRightButtonMenu
 
             String protocolName = pps.getProtocolName();
 
-            AccountMenuItem menuItem = new AccountMenuItem(pps,
-                    new ImageIcon(ImageLoader.getAccountStatusImage(pps)));
+            AccountMenuItem menuItem
+                = new AccountMenuItem(  pps,
+                                        ImageLoader.getAccountStatusImage(pps));
 
             menuItem.setName(protocolName);
             menuItem.addActionListener(this);

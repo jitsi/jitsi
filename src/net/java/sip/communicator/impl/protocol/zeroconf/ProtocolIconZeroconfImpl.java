@@ -16,8 +16,8 @@ import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 
 /**
- * Reperesents the zeroconf protocol icon. Implements the <tt>ProtocolIcon</tt>
- * interface in order to provide a zeroconf logo image in two different sizes.
+ * Represents the Zeroconf protocol icon. Implements the <tt>ProtocolIcon</tt>
+ * interface in order to provide a Zeroconf logo image in two different sizes.
  * 
  * @author Christian Vincenot
  * @author Jonathan Martin
@@ -27,20 +27,27 @@ public class ProtocolIconZeroconfImpl
 {
     private static Logger logger
         = Logger.getLogger(ProtocolIconZeroconfImpl.class); 
-    
+
     private static ResourceManagementService resourcesService;
-    
+
     /**
      * A hash table containing the protocol icon in different sizes.
      */
-    private static Hashtable iconsTable = new Hashtable();
+    private static Hashtable<String, byte[]> iconsTable
+        = new Hashtable<String, byte[]>();
     static 
     {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,
-            getImageInBytes("service.protocol.zeroconf.PROTOCOL_ICON"));
+            getImageInBytes("service.protocol.zeroconf.ZEROCONF_16x16"));
+
+        iconsTable.put(ProtocolIcon.ICON_SIZE_32x32,
+            getImageInBytes("service.protocol.zeroconf.ZEROCONF_32x32"));
+
+        iconsTable.put(ProtocolIcon.ICON_SIZE_48x48,
+            getImageInBytes("service.protocol.zeroconf.ZEROCONF_48x48"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            getImageInBytes("service.protocol.zeroconf.PROTOCOL_LARGE_ICON"));
+            getImageInBytes("service.protocol.zeroconf.ZEROCONF_64x64"));
     }
         
     /**
@@ -48,13 +55,13 @@ public class ProtocolIconZeroconfImpl
      * an iterator to a set containing the supported icon sizes.
      * @return an iterator to a set containing the supported icon sizes
      */
-    public Iterator getSupportedSizes()
+    public Iterator<String> getSupportedSizes()
     {
         return iconsTable.keySet().iterator();
     }
 
     /**
-     * Returne TRUE if a icon with the given size is supported, FALSE-otherwise.
+     * Returns TRUE if a icon with the given size is supported, FALSE-otherwise.
      * @param iconSize Icon size
      * @return True if this size is supported, false otherwise
      */
@@ -122,8 +129,9 @@ public class ProtocolIconZeroconfImpl
             if(serviceReference == null)
                 return null;
 
-            resourcesService = (ResourceManagementService)ZeroconfActivator.bundleContext
-                .getService(serviceReference);
+            resourcesService
+                = (ResourceManagementService)ZeroconfActivator.bundleContext
+                    .getService(serviceReference);
         }
 
         return resourcesService;

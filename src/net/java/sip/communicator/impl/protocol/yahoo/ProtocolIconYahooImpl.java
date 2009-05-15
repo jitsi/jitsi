@@ -16,28 +16,36 @@ import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * Reperesents the Yahoo protocol icon. Implements the <tt>ProtocolIcon</tt>
- * interface in order to provide an yahoo icon image in two different sizes.
+ * Represents the Yahoo protocol icon. Implements the <tt>ProtocolIcon</tt>
+ * interface in order to provide an Yahoo icon image in two different sizes.
  * 
  * @author Yana Stamcheva
  */
 public class ProtocolIconYahooImpl
     implements ProtocolIcon
-{    
+{
     private static Logger logger = Logger.getLogger(ProtocolIconYahooImpl.class); 
-    
+
     private static ResourceManagementService resourcesService;
 
     /**
      * A hash table containing the protocol icon in different sizes.
      */
-    private static Hashtable iconsTable = new Hashtable();
-    static {
+    private static Hashtable<String, byte[]> iconsTable
+        = new Hashtable<String, byte[]>();
+    static
+    {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,
-            getImageInBytes("service.protocol.yahoo.PROTOCOL_ICON"));
+            getImageInBytes("service.protocol.yahoo.YAHOO_16x16"));
+
+        iconsTable.put(ProtocolIcon.ICON_SIZE_32x32,
+            getImageInBytes("service.protocol.yahoo.YAHOO_32x32"));
+
+        iconsTable.put(ProtocolIcon.ICON_SIZE_48x48,
+            getImageInBytes("service.protocol.yahoo.YAHOO_48x48"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            getImageInBytes("service.protocol.yahoo.PROTOCOL_LARGE_IMAGE"));
+            getImageInBytes("service.protocol.yahoo.YAHOO_64x64"));
     }
  
     /**
@@ -45,13 +53,13 @@ public class ProtocolIconYahooImpl
      * an iterator to a set containing the supported icon sizes.
      * @return an iterator to a set containing the supported icon sizes
      */
-    public Iterator getSupportedSizes()
+    public Iterator<String> getSupportedSizes()
     {
         return iconsTable.keySet().iterator();
     }
 
     /**
-     * Returne TRUE if a icon with the given size is supported, FALSE-otherwise.
+     * Returns TRUE if a icon with the given size is supported, FALSE-otherwise.
      */
     public boolean isSizeSupported(String iconSize)
     {
@@ -86,8 +94,7 @@ public class ProtocolIconYahooImpl
      */
     public static byte[] getImageInBytes(String imageID) 
     {
-        InputStream in = getResources().
-            getImageInputStream(imageID);
+        InputStream in = getResources().getImageInputStream(imageID);
 
         if (in == null)
             return null;

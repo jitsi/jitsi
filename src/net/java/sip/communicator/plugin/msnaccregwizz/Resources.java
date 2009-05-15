@@ -22,13 +22,13 @@ public class Resources
      * A constant pointing to the MSN protocol logo image.
      */
     public static ImageID MSN_LOGO
-        = new ImageID("service.protocol.msn.PROTOCOL_ICON");
+        = new ImageID("service.protocol.msn.MSN_16x16");
 
     /**
      * A constant pointing to the Aim protocol wizard page image.
      */
     public static ImageID PAGE_IMAGE
-        = new ImageID("service.protocol.msn.PROTOCOL_LARGE_ICON");
+        = new ImageID("service.protocol.msn.MSN_64x64");
 
     /**
      * Returns an internationalized string corresponding to the given key.

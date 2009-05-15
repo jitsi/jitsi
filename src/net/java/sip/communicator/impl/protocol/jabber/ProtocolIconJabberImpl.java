@@ -17,8 +17,8 @@ import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 
 /**
- * Reperesents the Jabber protocol icon. Implements the <tt>ProtocolIcon</tt>
- * interface in order to provide a jabber icon image in two different sizes.
+ * Represents the Jabber protocol icon. Implements the <tt>ProtocolIcon</tt>
+ * interface in order to provide a Jabber icon image in two different sizes.
  * 
  * @author Yana Stamcheva
  * @author Lubomir Marinov
@@ -26,7 +26,8 @@ import org.osgi.framework.*;
 public class ProtocolIconJabberImpl
     implements ProtocolIcon
 {    
-    private static Logger logger = Logger.getLogger(ProtocolIconJabberImpl.class); 
+    private static Logger logger
+        = Logger.getLogger(ProtocolIconJabberImpl.class); 
 
     /**
      * The path where all protocol icons are placed.
@@ -38,7 +39,8 @@ public class ProtocolIconJabberImpl
     /**
      * A hash table containing the protocol icon in different sizes.
      */
-    private final Hashtable iconsTable = new Hashtable();
+    private final Hashtable<String, byte[]> iconsTable
+        = new Hashtable<String, byte[]>();
 
     /**
      * Creates an instance of this class by passing to it the path, where all
@@ -53,6 +55,9 @@ public class ProtocolIconJabberImpl
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16, loadIcon(iconPath
             + "/status16x16-online.png"));
 
+        iconsTable.put(ProtocolIcon.ICON_SIZE_32x32, loadIcon(iconPath
+            + "/logo32x32.png"));
+
         iconsTable.put(ProtocolIcon.ICON_SIZE_48x48, loadIcon(iconPath
             + "/logo48x48.png"));
     }
@@ -62,13 +67,15 @@ public class ProtocolIconJabberImpl
      * an iterator to a set containing the supported icon sizes.
      * @return an iterator to a set containing the supported icon sizes
      */
-    public Iterator getSupportedSizes()
+    public Iterator<String> getSupportedSizes()
     {
         return iconsTable.keySet().iterator();
     }
 
     /**
-     * Returne TRUE if a icon with the given size is supported, FALSE-otherwise.
+     * Returns TRUE if a icon with the given size is supported, FALSE-otherwise.
+     * 
+     * @return TRUE if a icon with the given size is supported, FALSE-otherwise.
      */
     public boolean isSizeSupported(String iconSize)
     {
@@ -133,8 +140,9 @@ public class ProtocolIconJabberImpl
             if(serviceReference == null)
                 return null;
 
-            resourcesService = (ResourceManagementService)JabberActivator.bundleContext
-                .getService(serviceReference);
+            resourcesService
+                = (ResourceManagementService)JabberActivator.bundleContext
+                    .getService(serviceReference);
         }
 
         return resourcesService;

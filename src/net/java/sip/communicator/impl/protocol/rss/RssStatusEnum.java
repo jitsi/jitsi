@@ -41,7 +41,7 @@ public class RssStatusEnum
         = new RssStatusEnum(
             65,
             "Online",
-            getImageInBytes("service.protocol.rss.PROTOCOL_ICON"));
+            getImageInBytes("service.protocol.rss.RSS_16x16"));
 
     /**
      * Initialize the list of supported status states.

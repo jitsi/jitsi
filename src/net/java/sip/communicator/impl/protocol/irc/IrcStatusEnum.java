@@ -53,12 +53,13 @@ public class IrcStatusEnum
         = new IrcStatusEnum(
             65,
             "Online",
-            getImageInBytes("service.protocol.irc.PROTOCOL_ICON"));
+            getImageInBytes("service.protocol.irc.IRC_16x16"));
 
     /**
      * Initialize the list of supported status states.
      */
-    private static List supportedStatusSet = new LinkedList();
+    private static List<IrcStatusEnum> supportedStatusSet
+        = new LinkedList<IrcStatusEnum>();
     static
     {
         supportedStatusSet.add(OFFLINE);
@@ -84,9 +85,9 @@ public class IrcStatusEnum
      * Returns an iterator over all status instances supported by the irc
      * provider.
      * @return an <tt>Iterator</tt> over all status instances supported by the
-     * irc provider.
+     * IRC provider.
      */
-    static Iterator supportedStatusSet()
+    static Iterator<IrcStatusEnum> supportedStatusSet()
     {
         return supportedStatusSet.iterator();
     }

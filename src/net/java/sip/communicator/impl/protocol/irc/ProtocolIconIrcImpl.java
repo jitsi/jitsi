@@ -32,13 +32,21 @@ public class ProtocolIconIrcImpl
     /**
      * A hash table containing the protocol icon in different sizes.
      */
-    private static Hashtable iconsTable = new Hashtable();
-    static {
-        iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,    
-            getImageInBytes("service.protocol.irc.PROTOCOL_ICON"));
+    private static Hashtable<String, byte[]> iconsTable
+        = new Hashtable<String, byte[]>();
+    static
+    {
+        iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,
+            getImageInBytes("service.protocol.irc.IRC_16x16"));
+
+        iconsTable.put(ProtocolIcon.ICON_SIZE_32x32,
+            getImageInBytes("service.protocol.irc.IRC_32x32"));
+
+        iconsTable.put(ProtocolIcon.ICON_SIZE_48x48,
+            getImageInBytes("service.protocol.irc.IRC_48x48"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            getImageInBytes("service.protocol.irc.PROTOCOL_LARGE_ICON"));
+            getImageInBytes("service.protocol.irc.IRC_64x64"));
     }
  
     /**
@@ -46,7 +54,7 @@ public class ProtocolIconIrcImpl
      * an iterator to a set containing the supported icon sizes.
      * @return an iterator to a set containing the supported icon sizes
      */
-    public Iterator getSupportedSizes()
+    public Iterator<String> getSupportedSizes()
     {
         return iconsTable.keySet().iterator();
     }
@@ -117,8 +125,9 @@ public class ProtocolIconIrcImpl
             if(serviceReference == null)
                 return null;
 
-            resourcesService = (ResourceManagementService)IrcActivator.bundleContext
-                .getService(serviceReference);
+            resourcesService
+                = (ResourceManagementService)IrcActivator.bundleContext
+                    .getService(serviceReference);
         }
 
         return resourcesService;

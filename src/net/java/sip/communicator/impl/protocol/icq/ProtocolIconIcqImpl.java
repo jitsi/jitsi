@@ -15,8 +15,8 @@ import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 
 /**
- * Reperesents the Icq protocol icon. Implements the <tt>ProtocolIcon</tt>
- * interface in order to provide an icq icon image in two different sizes.
+ * Represents the ICQ protocol icon. Implements the <tt>ProtocolIcon</tt>
+ * interface in order to provide an ICQ icon image in two different sizes.
  * 
  * @author Yana Stamcheva
  */
@@ -30,13 +30,21 @@ public class ProtocolIconIcqImpl
     /**
      * A hash table containing the protocol icon in different sizes.
      */
-    private static Hashtable iconsTable = new Hashtable();
-    static {
-        iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,    
-            getImageInBytes("service.protocol.icq.PROTOCOL_ICON"));
+    private static Hashtable<String, byte[]> iconsTable
+        = new Hashtable<String, byte[]>();
+    static
+    {
+        iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,
+            getImageInBytes("service.protocol.icq.ICQ_16x16"));
+
+        iconsTable.put(ProtocolIcon.ICON_SIZE_32x32,
+            getImageInBytes("service.protocol.icq.ICQ_32x32"));
+
+        iconsTable.put(ProtocolIcon.ICON_SIZE_48x48,
+            getImageInBytes("service.protocol.icq.ICQ_48x48"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            getImageInBytes("service.protocol.icq.PROTOCOL_LARGE_ICON"));
+            getImageInBytes("service.protocol.icq.ICQ_64x64"));
     }
  
     /**
@@ -44,13 +52,15 @@ public class ProtocolIconIcqImpl
      * an iterator to a set containing the supported icon sizes.
      * @return an iterator to a set containing the supported icon sizes
      */
-    public Iterator getSupportedSizes()
+    public Iterator<String> getSupportedSizes()
     {
         return iconsTable.keySet().iterator();
     }
 
     /**
-     * Returne TRUE if a icon with the given size is supported, FALSE-otherwise.
+     * Returns TRUE if a icon with the given size is supported, FALSE-otherwise.
+     * 
+     * @return TRUE if a icon with the given size is supported, FALSE-otherwise.
      */
     public boolean isSizeSupported(String iconSize)
     {
@@ -72,7 +82,7 @@ public class ProtocolIconIcqImpl
      */
     public byte[] getConnectingIcon()
     {
-        return getImageInBytes("icqConnectingIcon");
+        return getImageInBytes("service.protocol.icq.CONNECTING");
     }
 
     /**
@@ -115,8 +125,9 @@ public class ProtocolIconIcqImpl
             if(serviceReference == null)
                 return null;
 
-            resourcesService = (ResourceManagementService)IcqActivator.bundleContext
-                .getService(serviceReference);
+            resourcesService
+                = (ResourceManagementService)IcqActivator.bundleContext
+                    .getService(serviceReference);
         }
 
         return resourcesService;

@@ -38,7 +38,7 @@ public class DictStatusEnum
         = new DictStatusEnum(
             65, "Online",
             DictActivator.getResources()
-                .getImageInBytes("service.protocol.dict.PROTOCOL_ICON"));
+                .getImageInBytes("service.protocol.dict.DICT_16x16"));
 
     /**
      * Initialize the list of supported status states.

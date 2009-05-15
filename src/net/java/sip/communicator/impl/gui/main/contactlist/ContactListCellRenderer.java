@@ -238,16 +238,6 @@ public class ContactListCellRenderer
 
             g2.fillRoundRect(1, 1, width - 2, this.getHeight() - 1, 10, 10);
         }
-        else if (index%2 > 0)
-        {
-            Color bgColor = new Color(GuiActivator.getResources()
-                    .getColor("service.gui.CONTACT_LIST_ROW"), true);
-
-            g2.setColor(new Color(  bgColor.getRed(),
-                                    bgColor.getGreen(),
-                                    bgColor.getBlue(),
-                                    rowTransparency));
-        }
 
         if (this.isSelected)
         {

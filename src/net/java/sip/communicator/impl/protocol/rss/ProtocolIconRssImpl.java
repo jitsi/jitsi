@@ -16,8 +16,8 @@ import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 
 /**
- * Reperesents the Rss protocol icon. Implements the <tt>ProtocolIcon</tt>
- * interface in order to provide a rss logo image in two different sizes.
+ * Represents the Rss protocol icon. Implements the <tt>ProtocolIcon</tt>
+ * interface in order to provide a Rss logo image in two different sizes.
  * 
  * @author Yana Stamcheva
  */
@@ -32,14 +32,21 @@ public class ProtocolIconRssImpl
     /**
      * A hash table containing the protocol icon in different sizes.
      */
-    private static Hashtable iconsTable = new Hashtable();
+    private static Hashtable<String, byte[]> iconsTable
+        = new Hashtable<String, byte[]>();
     static 
     {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,
-            getImageInBytes("service.protocol.rss.PROTOCOL_ICON"));
+            getImageInBytes("service.protocol.rss.RSS_16x16"));
+
+        iconsTable.put(ProtocolIcon.ICON_SIZE_32x32,
+            getImageInBytes("service.protocol.rss.RSS_32x32"));
+
+        iconsTable.put(ProtocolIcon.ICON_SIZE_48x48,
+            getImageInBytes("service.protocol.rss.RSS_48x48"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            getImageInBytes("service.protocol.rss.PROTOCOL_LARGE_ICON"));
+            getImageInBytes("service.protocol.rss.RSS_64x64"));
     }
         
     /**
@@ -47,13 +54,13 @@ public class ProtocolIconRssImpl
      * an iterator to a set containing the supported icon sizes.
      * @return an iterator to a set containing the supported icon sizes
      */
-    public Iterator getSupportedSizes()
+    public Iterator<String> getSupportedSizes()
     {
         return iconsTable.keySet().iterator();
     }
 
     /**
-     * Returne TRUE if a icon with the given size is supported, FALSE-otherwise.
+     * Returns TRUE if a icon with the given size is supported, FALSE-otherwise.
      */
     public boolean isSizeSupported(String iconSize)
     {
@@ -118,8 +125,9 @@ public class ProtocolIconRssImpl
             if(serviceReference == null)
                 return null;
 
-            resourcesService = (ResourceManagementService)RssActivator.bundleContext
-                .getService(serviceReference);
+            resourcesService
+                = (ResourceManagementService)RssActivator.bundleContext
+                    .getService(serviceReference);
         }
 
         return resourcesService;

@@ -19,8 +19,8 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * Reperesents the SSH protocol icon. Implements the <tt>ProtocolIcon</tt>
- * interface in order to provide a ssh logo image in two different sizes.
+ * Represents the SSH protocol icon. Implements the <tt>ProtocolIcon</tt>
+ * interface in order to provide a SSH logo image in two different sizes.
  * 
  * @author Shobhit Jindal
  */
@@ -33,13 +33,20 @@ public class ProtocolIconSSHImpl
     /**
      * A hash table containing the protocol icon in different sizes.
      */
-    private static Hashtable iconsTable = new Hashtable();
+    private static Hashtable<String, byte[]> iconsTable
+        = new Hashtable<String, byte[]>();
     static {
-        iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,    
-            getImageInBytes("service.protocol.ssh.PROTOCOL_ICON"));
+        iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,
+            getImageInBytes("service.protocol.ssh.SSH_16x16"));
+
+        iconsTable.put(ProtocolIcon.ICON_SIZE_32x32,
+            getImageInBytes("service.protocol.ssh.SSH_32x32"));
+
+        iconsTable.put(ProtocolIcon.ICON_SIZE_48x48,
+            getImageInBytes("service.protocol.ssh.SSH_48x48"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            getImageInBytes("service.protocol.ssh.PROTOCOL_LARGE_ICON"));
+            getImageInBytes("service.protocol.ssh.SSH_64x64"));
     }
         
     /**
@@ -47,13 +54,13 @@ public class ProtocolIconSSHImpl
      * an iterator to a set containing the supported icon sizes.
      * @return an iterator to a set containing the supported icon sizes
      */
-    public Iterator getSupportedSizes()
+    public Iterator<String> getSupportedSizes()
     {
         return iconsTable.keySet().iterator();
     }
 
     /**
-     * Returne TRUE if a icon with the given size is supported, FALSE-otherwise.
+     * Returns TRUE if a icon with the given size is supported, FALSE-otherwise.
      * 
      * @return TRUE if a icon with the given size is supported, FALSE otherwise
      */

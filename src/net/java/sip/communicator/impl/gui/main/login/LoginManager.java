@@ -180,7 +180,8 @@ public class LoginManager
 
                 new ErrorDialog(
                     null,
-                    GuiActivator.getResources().getI18NString("service.gui.ERROR"),
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.ERROR"),
                     msgText).showDialog();
             }
 

@@ -67,10 +67,10 @@ public class AccountSelectorBox
      */
     public void addAccount(ProtocolProviderService pps)
     {
-        Image img = ImageLoader.getAccountStatusImage(pps);
+        Icon icon= ImageLoader.getAccountStatusImage(pps);
 
         JMenuItem menuItem = new JMenuItem(pps.getAccountID().getDisplayName(),
-                        new ImageIcon(img));
+                                            icon);
 
         menuItem.addActionListener(this);
         this.accountsTable.put(pps, menuItem);
@@ -136,7 +136,7 @@ public class AccountSelectorBox
     {
         JMenuItem menuItem = accountsTable.get(pps);
 
-        Icon icon = new ImageIcon(ImageLoader.getAccountStatusImage(pps));
+        Icon icon = ImageLoader.getAccountStatusImage(pps);
 
         ProtocolProviderService selectedPPS =
             (ProtocolProviderService) menu.getSelectedObject();
@@ -187,8 +187,7 @@ public class AccountSelectorBox
      */
     public void setSelected(ProtocolProviderService pps)
     {
-        this.setSelected(pps,
-            new ImageIcon(ImageLoader.getAccountStatusImage(pps)));
+        this.setSelected(pps, ImageLoader.getAccountStatusImage(pps));
     }
 
     /**

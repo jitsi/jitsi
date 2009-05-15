@@ -146,12 +146,13 @@ public class SimpleStatusMenu
 
         tooltip = tooltip.substring(0, tooltip.lastIndexOf("<br>"));
 
-        Image statusImage = ImageLoader.getAccountStatusImage(protocolProvider);
+        ImageIcon statusImage
+            = ImageLoader.getAccountStatusImage(protocolProvider);
 
         if (protocolProvider.isRegistered())
         {
             setSelected(
-                new SelectedObject(new ImageIcon(statusImage), onlineItem));
+                new SelectedObject(statusImage, onlineItem));
 
             // TODO Technically, we're not closing the html element.
             this.setToolTipText(tooltip.concat("<br>" + onlineItem.getText()));
@@ -159,7 +160,7 @@ public class SimpleStatusMenu
         else
         {
             setSelected(
-                new SelectedObject(new ImageIcon(statusImage), offlineItem));
+                new SelectedObject(statusImage, offlineItem));
 
             this.setToolTipText(tooltip.concat("<br>" + offlineItem.getText()));
         }

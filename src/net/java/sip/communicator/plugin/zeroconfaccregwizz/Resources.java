@@ -20,10 +20,10 @@ public class Resources
     private static ResourceManagementService resourcesService;
 
     public static ImageID ZEROCONF_LOGO
-        = new ImageID("service.protocol.zeroconf.PROTOCOL_ICON");
+        = new ImageID("service.protocol.zeroconf.ZEROCONF_16x16");
 
     public static ImageID PAGE_IMAGE
-        = new ImageID("service.protocol.zeroconf.PROTOCOL_LARGE_ICON");
+        = new ImageID("service.protocol.zeroconf.ZEROCONF_64x64");
 
     /**
      * Returns an internationalized string corresponding to the given key.

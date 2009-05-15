@@ -22,13 +22,13 @@ public class Resources
      * A constant pointing to the IRC protocol logo image.
      */
     public static ImageID IRC_LOGO
-        = new ImageID("service.protocol.irc.PROTOCOL_ICON");
+        = new ImageID("service.protocol.irc.IRC_16x16");
 
     /**
      * A constant pointing to the IRC protocol wizard page image.
      */
     public static ImageID PAGE_IMAGE
-        = new ImageID("service.protocol.irc.PROTOCOL_LARGE_ICON");
+        = new ImageID("service.protocol.irc.IRC_64x64");
 
     /**
      * Returns an internationalized string corresponding to the given key.

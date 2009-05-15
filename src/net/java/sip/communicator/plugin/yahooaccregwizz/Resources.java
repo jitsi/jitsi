@@ -19,10 +19,10 @@ public class Resources
     private static ResourceManagementService resourcesService;
 
     public static ImageID YAHOO_LOGO
-        = new ImageID("service.protocol.yahoo.PROTOCOL_ICON");
+        = new ImageID("service.protocol.yahoo.YAHOO_16x16");
 
     public static ImageID PAGE_IMAGE
-        = new ImageID("service.protocol.yahoo.PROTOCOL_LARGE_IMAGE");
+        = new ImageID("service.protocol.yahoo.YAHOO_64x64");
 
     /**
      * Returns an internationalized string corresponding to the given key.

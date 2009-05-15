@@ -31,7 +31,8 @@ public class ProtocolIconSipImpl
     /**
      * A hash table containing the protocol icon in different sizes.
      */
-    private Hashtable iconsTable = new Hashtable();
+    private Hashtable<String, byte[]> iconsTable
+        = new Hashtable<String, byte[]>();
     
     private static ResourceManagementService resourcesService;
 
@@ -48,8 +49,15 @@ public class ProtocolIconSipImpl
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,
             loadIcon(iconPath + "/sip16x16.png"));
 
+        iconsTable.put(ProtocolIcon.ICON_SIZE_32x32,
+            loadIcon(iconPath + "/sip32x32.png"));
+
+        iconsTable.put(ProtocolIcon.ICON_SIZE_48x48,
+            loadIcon(iconPath + "/sip48x48.png"));
+
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
             loadIcon(iconPath + "/sip64x64.png"));
+
     }
 
     /**
@@ -57,7 +65,7 @@ public class ProtocolIconSipImpl
      * an iterator to a set containing the supported icon sizes.
      * @return an iterator to a set containing the supported icon sizes
      */
-    public Iterator getSupportedSizes()
+    public Iterator<String> getSupportedSizes()
     {
         return iconsTable.keySet().iterator();
     }
@@ -131,8 +139,9 @@ public class ProtocolIconSipImpl
             if(serviceReference == null)
                 return null;
 
-            resourcesService = (ResourceManagementService)SipActivator.bundleContext
-                .getService(serviceReference);
+            resourcesService
+                = (ResourceManagementService)SipActivator.bundleContext
+                    .getService(serviceReference);
         }
 
         return resourcesService;

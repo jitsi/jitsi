@@ -16,7 +16,7 @@ import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 
 /**
- * Reperesents the Gibberish protocol icon. Implements the <tt>ProtocolIcon</tt>
+ * Represents the Gibberish protocol icon. Implements the <tt>ProtocolIcon</tt>
  * interface in order to provide a gibberish logo image in two different sizes.
  * 
  * @author Yana Stamcheva
@@ -32,13 +32,21 @@ public class ProtocolIconGibberishImpl
     /**
      * A hash table containing the protocol icon in different sizes.
      */
-    private static Hashtable iconsTable = new Hashtable();
-    static {
+    private static Hashtable<String, byte[]> iconsTable
+        = new Hashtable<String, byte[]>();
+    static
+    {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,
-            getImageInBytes("service.protocol.gibberish.PROTOCOL_ICON"));
+            getImageInBytes("service.protocol.gibberish.GIBBERISH_16x16"));
+
+        iconsTable.put(ProtocolIcon.ICON_SIZE_32x32,
+            getImageInBytes("service.protocol.gibberish.GIBBERISH_32x32"));
+
+        iconsTable.put(ProtocolIcon.ICON_SIZE_48x48,
+            getImageInBytes("service.protocol.gibberish.GIBBERISH_48x48"));
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            getImageInBytes("service.protocol.gibberish.PROTOCOL_LARGE_ICON"));
+            getImageInBytes("service.protocol.gibberish.GIBBERISH_64x64"));
     }
         
     /**

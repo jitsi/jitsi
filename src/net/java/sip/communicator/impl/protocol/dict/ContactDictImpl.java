@@ -25,7 +25,7 @@ public class ContactDictImpl
      * Icon
      */
     private static byte[] icon = DictActivator.getResources()
-        .getImageInBytes("service.protocol.dict.PROTOCOL_LARGE_ICON");
+        .getImageInBytes("service.protocol.dict.DICT_64x64");
     
     /**
      * The id of the contact.

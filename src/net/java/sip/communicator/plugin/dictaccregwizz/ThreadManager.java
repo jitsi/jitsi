@@ -115,7 +115,7 @@ public class ThreadManager
                 Resources.getString(
                     "plugin.dictaccregwizz.POPULATE_LIST"),
                 Resources.getString(
-                    "dict.plugin.dictaccregwizz.CLOSING_CONNECTION")
+                    "plugin.dictaccregwizz.CLOSING_CONNECTION")
         };
         
         /**

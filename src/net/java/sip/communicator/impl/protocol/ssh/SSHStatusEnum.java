@@ -67,7 +67,7 @@ public class SSHStatusEnum
             65,
             "Online",
             ProtocolIconSSHImpl
-                .getImageInBytes("service.protocol.ssh.PROTOCOL_ICON"));
+                .getImageInBytes("service.protocol.ssh.SSH_16x16"));
 
 
     /**

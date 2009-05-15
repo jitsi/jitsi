@@ -212,7 +212,7 @@ public class ContactRightButtonMenu
             ProviderAwareMenuItem menuItem 
                 = new ProviderAwareMenuItem(pps, 
                     pps.getAccountID().getDisplayName(),
-                    new ImageIcon(ImageLoader.getAccountStatusImage(pps)));
+                    ImageLoader.getAccountStatusImage(pps));
 
             menuItem.setName(addSubcontactPrefix + protocolName);
             menuItem.addActionListener(this);

@@ -19,7 +19,10 @@ import net.java.sip.communicator.util.swing.*;
 import org.osgi.framework.*;
 
 /**
- * The implementation of the <tt>ConfigurationManager</tt> interface.
+ * The <tt>ConfigurationFrame</tt> is the dialog opened when the "Options" menu
+ * is selected. It contains different basic configuration forms, like General,
+ * Accounts, Notifications, etc. and also allows plugin configuration forms to
+ * be added.
  *
  * @author Yana Stamcheva
  */
@@ -47,12 +50,15 @@ public class ConfigurationFrame
 
         this.configList = new ConfigFormList(this);
 
-        SCScrollPane configScrollList = new SCScrollPane();
+        JScrollPane configScrollList = new JScrollPane();
 
         configScrollList.setHorizontalScrollBarPolicy(
             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
-        configScrollList.setViewportView(configList);
+        configScrollList.setBorder(BorderFactory.createEmptyBorder());
+        configScrollList.setOpaque(false);
+        configScrollList.getViewport().setOpaque(false);
+        configScrollList.getViewport().add(configList);
 
         this.setTitle(GuiActivator.getResources()
                 .getI18NString("service.gui.SETTINGS"));
@@ -61,7 +67,8 @@ public class ConfigurationFrame
 
         this.addDefaultForms();
 
-        JPanel mainPanel = new TransparentPanel(new BorderLayout(5, 5));
+        TransparentPanel mainPanel
+            = new TransparentPanel(new BorderLayout(5, 5));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         mainPanel.add(centerPanel, BorderLayout.CENTER);
         mainPanel.add(configScrollList, BorderLayout.WEST);

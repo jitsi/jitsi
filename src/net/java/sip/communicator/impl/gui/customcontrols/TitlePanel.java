@@ -63,9 +63,10 @@ public class TitlePanel
      */
     public void paintComponent(Graphics g)
     {
-        super.paintComponent(g);
-
         Graphics2D g2 = (Graphics2D) g;
+
+        AntialiasingManager.activateAntialiasing(g2);
+
         int width = getWidth();
         int height = getHeight();
         GradientPaint p =
@@ -78,6 +79,8 @@ public class TitlePanel
 
         g2.setPaint(p);
         g2.fillRoundRect(0, 0, width, height, 10, 10);
+
+        super.paintComponent(g2);
     }
 
     /**
