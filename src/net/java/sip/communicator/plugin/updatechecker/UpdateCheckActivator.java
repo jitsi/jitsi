@@ -86,116 +86,9 @@ public class UpdateCheckActivator
             logger.logExit();
         }
 
-        String osName = System.getProperty("os.name");
-
-        if (osName.startsWith("Windows"))
-        {
-            // register update button
-            Hashtable<String, String> toolsMenuFilter
-                = new Hashtable<String, String>();
-            toolsMenuFilter.put( Container.CONTAINER_ID,
-                                 Container.CONTAINER_HELP_MENU.getID());
-
-            bundleContext.registerService(
-                PluginComponent.class.getName(),
-                new UpdateMenuButtonComponent(
-                    Container.CONTAINER_HELP_MENU),
-                toolsMenuFilter);
-        }
-
-        if(isNewestVersion())
-            return;
-
-        if (osName.startsWith("Windows"))
-        {
-            windowsUpdaterShow();
-            return;
-        }
-
-        final JDialog dialog = new SIPCommDialog()
-        {
-            protected void close(boolean isEscaped)
-            {
-            }
-        };
-        dialog.setTitle(
-            getResources().getI18NString("plugin.updatechecker.DIALOG_TITLE"));
-
-        JEditorPane contentMessage = new JEditorPane();
-        contentMessage.setContentType("text/html");
-        contentMessage.setOpaque(false);
-        contentMessage.setEditable(false);
-
-        String dialogMsg =
-            getResources().getI18NString("plugin.updatechecker.DIALOG_MESSAGE",
-            new String[]{getResources()
-                .getSettingsString("service.gui.APPLICATION_NAME")});
-
-        if(lastVersion != null)
-            dialogMsg +=
-                getResources().getI18NString(
-                "plugin.updatechecker.DIALOG_MESSAGE_2",
-                new String[]{
-                    getResources().getSettingsString(
-                        "service.gui.APPLICATION_NAME"),
-                    lastVersion});
-
-        contentMessage.setText(dialogMsg);
-
-        JPanel contentPane = new TransparentPanel(new BorderLayout(5,5));
-        contentPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        contentPane.add(contentMessage, BorderLayout.CENTER);
-
-        JPanel buttonPanel
-            = new TransparentPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        JButton closeButton = new JButton(
-            getResources().getI18NString("plugin.updatechecker.BUTTON_CLOSE"));
-
-        closeButton.addActionListener(new ActionListener() {
-
-            public void actionPerformed(ActionEvent e)
-            {
-                dialog.setVisible(false);
-            }
-        });
-
-        if(downloadLink != null)
-        {
-            JButton downloadButton = new JButton(getResources().getI18NString(
-                "plugin.updatechecker.BUTTON_DOWNLOAD"));
-
-            downloadButton.addActionListener(new ActionListener() {
-
-                public void actionPerformed(ActionEvent e)
-                {
-                    if(isLinux64())
-                    {
-                        downloadLink = downloadLink.replace("i386", "amd64");
-                    }
-
-                    getBrowserLauncher().openURL(downloadLink);
-                    dialog.dispose();
-                }
-            });
-
-            buttonPanel.add(downloadButton);
-        }
-
-        buttonPanel.add(closeButton);
-
-        contentPane.add(buttonPanel, BorderLayout.SOUTH);
-
-        dialog.setContentPane(contentPane);
-
-        dialog.pack();
-
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        dialog.setLocation(
-            screenSize.width/2 - dialog.getWidth()/2,
-            screenSize.height/2 - dialog.getHeight()/2
-        );
-
-        dialog.setVisible(true);
+        Thread updateThread = new Thread(new UpdateCheckThread());
+        updateThread.setDaemon(true);
+        updateThread.start();
     }
 
     /**
@@ -313,9 +206,12 @@ public class UpdateCheckActivator
             }
 
             URL url = new URL(configString);
+            URLConnection conn = url.openConnection();
+            conn.setConnectTimeout(10000);
+            conn.setReadTimeout(10000);
 
             Properties props = new Properties();
-            props.load(url.openStream());
+            props.load(conn.getInputStream());
 
             lastVersion = props.getProperty("last_version");
             downloadLink = props.getProperty("download_link");
@@ -766,6 +662,124 @@ public class UpdateCheckActivator
         public X509Certificate[] getAcceptedIssuers()
         {
             return null;
+        }
+    }
+
+    private class UpdateCheckThread
+        implements Runnable
+    {
+        public void run()
+        {
+            String osName = System.getProperty("os.name");
+
+            if (osName.startsWith("Windows"))
+            {
+                // register update button
+                Hashtable<String, String> toolsMenuFilter
+                    = new Hashtable<String, String>();
+                toolsMenuFilter.put( Container.CONTAINER_ID,
+                                     Container.CONTAINER_HELP_MENU.getID());
+
+                bundleContext.registerService(
+                    PluginComponent.class.getName(),
+                    new UpdateMenuButtonComponent(
+                        Container.CONTAINER_HELP_MENU),
+                    toolsMenuFilter);
+            }
+
+            if(isNewestVersion())
+                return;
+
+            if (osName.startsWith("Windows"))
+            {
+                windowsUpdaterShow();
+                return;
+            }
+
+            final JDialog dialog = new SIPCommDialog()
+            {
+                protected void close(boolean isEscaped)
+                {
+                }
+            };
+            dialog.setTitle(
+                getResources().getI18NString("plugin.updatechecker.DIALOG_TITLE"));
+
+            JEditorPane contentMessage = new JEditorPane();
+            contentMessage.setContentType("text/html");
+            contentMessage.setOpaque(false);
+            contentMessage.setEditable(false);
+
+            String dialogMsg =
+                getResources().getI18NString("plugin.updatechecker.DIALOG_MESSAGE",
+                new String[]{getResources()
+                    .getSettingsString("service.gui.APPLICATION_NAME")});
+
+            if(lastVersion != null)
+                dialogMsg +=
+                    getResources().getI18NString(
+                    "plugin.updatechecker.DIALOG_MESSAGE_2",
+                    new String[]{
+                        getResources().getSettingsString(
+                            "service.gui.APPLICATION_NAME"),
+                        lastVersion});
+
+            contentMessage.setText(dialogMsg);
+
+            JPanel contentPane = new TransparentPanel(new BorderLayout(5,5));
+            contentPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            contentPane.add(contentMessage, BorderLayout.CENTER);
+
+            JPanel buttonPanel
+                = new TransparentPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+            JButton closeButton = new JButton(
+                getResources().getI18NString("plugin.updatechecker.BUTTON_CLOSE"));
+
+            closeButton.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e)
+                {
+                    dialog.setVisible(false);
+                }
+            });
+
+            if(downloadLink != null)
+            {
+                JButton downloadButton = new JButton(getResources().getI18NString(
+                    "plugin.updatechecker.BUTTON_DOWNLOAD"));
+
+                downloadButton.addActionListener(new ActionListener() {
+
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        if(isLinux64())
+                        {
+                            downloadLink = downloadLink.replace("i386", "amd64");
+                        }
+
+                        getBrowserLauncher().openURL(downloadLink);
+                        dialog.dispose();
+                    }
+                });
+
+                buttonPanel.add(downloadButton);
+            }
+
+            buttonPanel.add(closeButton);
+
+            contentPane.add(buttonPanel, BorderLayout.SOUTH);
+
+            dialog.setContentPane(contentPane);
+
+            dialog.pack();
+
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            dialog.setLocation(
+                screenSize.width/2 - dialog.getWidth()/2,
+                screenSize.height/2 - dialog.getHeight()/2
+            );
+
+            dialog.setVisible(true);
         }
     }
 }
