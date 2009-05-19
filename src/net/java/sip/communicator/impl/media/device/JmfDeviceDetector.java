@@ -84,7 +84,7 @@ public class JmfDeviceDetector
         if (FMJConditionals.USE_JMF_INTERNAL_REGISTRY)
         {
             // This uses JMF internals:
-            // see if the registry has already been "tagged" by us, skip auto-detection if 
+            // see if the registry has already been "tagged" by us, skip auto-detection if
             // it has.
             // This was probably done because JMF auto-detection is very slow, especially
             // for video devices.  FMJ does this quickly, so there is no need for this
@@ -101,7 +101,7 @@ public class JmfDeviceDetector
             Registry.set(PROP_ALLOW_SAVE_FILE_FROM_APPLETS, new Boolean(true));
 
             Registry.set(PROP_REGISTRY_AUTHOR, PROP_REGISTRY_AUTHOR_VALUE);
-	
+
             try
             {
                 Registry.commit();
@@ -126,7 +126,7 @@ public class JmfDeviceDetector
     private void detectCaptureDevices()
     {
         logger.info("Looking for Audio capturer");
-        
+
         //First check if DirectSound capture is available
         try
         {
@@ -146,7 +146,7 @@ public class JmfDeviceDetector
         {
             logger.debug("No JMF javasound detected: " + exc.getMessage());
         }
-        
+
         // check if we have FMJJavaSoundAuto capture is available
         try
         {
@@ -157,7 +157,7 @@ public class JmfDeviceDetector
             logger.debug("No FMJ javasound detected: " + exc.getMessage());
         }
 
-        // video is enabled by default        
+        // video is enabled by default
         // if video is disabled skip device detection
         if(MediaActivator.
             getConfigurationService().getBoolean(
@@ -226,17 +226,36 @@ public class JmfDeviceDetector
             logger.debug("No V4l video detected: " + exc.getMessage());
         }
 */
-  
-        
+
+
         //FMJ
         try
         {
-            new FMJCivilVideoAuto();
+            if(isFMJVideoAvailable())
+                new FMJCivilVideoAuto();
         }
         catch (Throwable exc)
         {
             logger.debug("No FMJ CIVIL video detected: " + exc.getMessage(), exc);
         }
+    }
+
+    /**
+     * Currently fmj video under macosx using java version 1.6 is not supported.
+     * As macosx video support is using libQTJNative.jnilib which supports
+     * only java 1.5 and is deprecated.
+     * @return is fmj video supported under current OS and environment.
+     */
+    private boolean isFMJVideoAvailable()
+    {
+        String osName = System.getProperty("os.name");
+        if (osName.startsWith("Mac") &&
+            System.getProperty("java.version").startsWith("1.6"))
+        {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -394,7 +413,7 @@ public class JmfDeviceDetector
         {
             Vector<String> renderers =
                 PlugInManager.getPlugInList(null, null, PlugInManager.RENDERER);
-            
+
             if (renderers.contains("com.sun.media.renderer.video.LightWeightRenderer") ||
                 renderers.contains("com.sun.media.renderer.video.AWTRenderer"))
             {
