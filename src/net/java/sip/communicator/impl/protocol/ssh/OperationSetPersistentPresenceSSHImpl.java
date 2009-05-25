@@ -665,11 +665,12 @@ public class OperationSetPersistentPresenceSSHImpl
         
 /*        ProtocolProviderServiceSSHImpl.getUIService().getConfigurationWindow()
                                                         .setVisible(true);
-*/       
+*/
+        sshContact.setParentGroup((ContactGroupSSHImpl)parent);
         sshContact.getSSHConfigurationForm().setVisible(true);
         
         
-        
+
 /*        Gets the domain name or IP address of the sshContact machine via the 
  *        UI Service Interface
           sshContact.setPersistentData(ProtocolProviderServiceSSHImpl
@@ -682,8 +683,6 @@ public class OperationSetPersistentPresenceSSHImpl
          
         // addContactToList method is called
 */        
-        //add contact to contact list
-        addContactToList(parent, sshContact);
     }
     
     /**
@@ -815,7 +814,7 @@ public class OperationSetPersistentPresenceSSHImpl
         ContactSSH contact = new ContactSSHImpl(
                 address,
                 parentProvider);
-        
+
         contact.setPersistentData(persistentData);
         contact.startTimerTask();
         

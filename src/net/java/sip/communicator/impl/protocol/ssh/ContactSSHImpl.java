@@ -176,7 +176,7 @@ public class ContactSSHImpl
         
         this.sshConfigurationForm =
                 new SSHContactInfo(this);
-        
+
         this.savePersistentDetails();
     }
     
@@ -313,74 +313,81 @@ public class ContactSSHImpl
     
     /**
      * Saves the details of contact in persistentData seperated by
-     * "service.gui.JANUARY"
+     * separator
      * Passowrd is saved unsecurely using Base64 encoding
      */
     public void savePersistentDetails()
     {
         persistentData =
                 this.sshConfigurationForm.getHostName() +
-                "service.gui.JANUARY" +
+                separator +
                 this.sshConfigurationForm.getUserName() +
-                "service.gui.JANUARY" +
+                separator +
                 new String(Base64.encode(this.sshConfigurationForm.getPassword()
                         .getBytes())) +
-                "service.gui.JANUARY" + sshConfigurationForm.getPort() +
-                "service.gui.JANUARY" +
+                separator + sshConfigurationForm.getPort() +
+                separator +
                 sshConfigurationForm.getTerminalType() +
-                "service.gui.JANUARY" +
+                separator +
                 sshConfigurationForm.getUpdateInterval();
     }
     
     /**
      * Stores persistent data in fields of the contact seperated by
-     * "service.gui.JANUARY".
+     * separator.
      *
      * @param persistentData of the contact
      */
     public void setPersistentData(String persistentData)
     {
-        this.persistentData = persistentData;
-        int firstCommaIndex = this.persistentData.indexOf("service.gui.JANUARY");
-        int secondCommaIndex = this.persistentData.indexOf("service.gui.JANUARY",
-                firstCommaIndex +1);
-        int thirdCommaIndex = this.persistentData.indexOf("service.gui.JANUARY",
-                secondCommaIndex +1);
-        int fourthCommaIndex = this.persistentData.indexOf("service.gui.JANUARY",
-                thirdCommaIndex +1);
-        int fifthCommaIndex = this.persistentData.indexOf("service.gui.JANUARY",
-                fourthCommaIndex +1);
-        
-        logger.debug("Commas: " + firstCommaIndex + " " + secondCommaIndex + " "
-                + thirdCommaIndex + " " +fourthCommaIndex + " "
-                +fifthCommaIndex);
-        
-        this.sshConfigurationForm.setHostNameField(
-                this.persistentData.substring(0,firstCommaIndex));
-        
-        this.sshConfigurationForm.setUserNameField(
-                this.persistentData.substring(firstCommaIndex+1,
-                        secondCommaIndex));
-        
-        if( (thirdCommaIndex - secondCommaIndex) > 1)
+        try
         {
-            if(this.persistentData.substring(secondCommaIndex+1).length()>0)
-                this.sshConfigurationForm.setPasswordField(
-                        new String(Base64.decode(this.persistentData
-                        .substring(secondCommaIndex+1, thirdCommaIndex))));
+            this.persistentData = persistentData;
+            int firstCommaIndex = this.persistentData.indexOf(separator);
+            int secondCommaIndex = this.persistentData.indexOf(separator,
+                    firstCommaIndex +1);
+            int thirdCommaIndex = this.persistentData.indexOf(separator,
+                    secondCommaIndex +1);
+            int fourthCommaIndex = this.persistentData.indexOf(separator,
+                    thirdCommaIndex +1);
+            int fifthCommaIndex = this.persistentData.indexOf(separator,
+                    fourthCommaIndex +1);
+
+            logger.debug("Commas: " + firstCommaIndex + " " + secondCommaIndex + " "
+                    + thirdCommaIndex + " " +fourthCommaIndex + " "
+                    +fifthCommaIndex);
+
+            this.sshConfigurationForm.setHostNameField(
+                    this.persistentData.substring(0,firstCommaIndex));
+
+            this.sshConfigurationForm.setUserNameField(
+                    this.persistentData.substring(firstCommaIndex+1,
+                            secondCommaIndex));
+
+            if( (thirdCommaIndex - secondCommaIndex) > 1)
+            {
+                if(this.persistentData.substring(secondCommaIndex+1).length()>0)
+                    this.sshConfigurationForm.setPasswordField(
+                            new String(Base64.decode(this.persistentData
+                            .substring(secondCommaIndex+1, thirdCommaIndex))));
+            }
+
+
+            this.sshConfigurationForm.setPort(
+                    this.persistentData.substring(thirdCommaIndex + 1,
+                            fourthCommaIndex));
+
+            this.sshConfigurationForm.setTerminalType(
+                    this.persistentData.substring(fourthCommaIndex + 1,
+                            fifthCommaIndex));
+
+            this.sshConfigurationForm.setUpdateInterval(
+                Integer.parseInt(this.persistentData.substring(fifthCommaIndex+1)));
         }
-        
-        
-        this.sshConfigurationForm.setPort(
-                this.persistentData.substring(thirdCommaIndex + 1,
-                        fourthCommaIndex));
-        
-        this.sshConfigurationForm.setTerminalType(
-                this.persistentData.substring(fourthCommaIndex + 1,
-                        fifthCommaIndex));
-        
-        this.sshConfigurationForm.setUpdateInterval(
-            Integer.parseInt(this.persistentData.substring(fifthCommaIndex+1)));
+        catch(Exception ex)
+        {
+            logger.error("Error setting persistent data!", ex);
+        }
     }
     
     /**
@@ -885,6 +892,7 @@ public class ContactSSHImpl
     public void setPassword(String password)
     {
         this.sshConfigurationForm.setPasswordField(password);
+        System.out.println("22222222222222222");
         savePersistentDetails();
     }
     

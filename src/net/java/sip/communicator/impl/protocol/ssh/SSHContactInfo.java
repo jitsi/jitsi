@@ -191,9 +191,14 @@ class SSHContactInfo extends SIPCommDialog {
                 }
                 
                 sshContact.savePersistentDetails();
-//                ((OperationSetPersistentPresenceSSHImpl)sshContact
-//                    .getParentPresenceOperationSet())
-//                    .addContactToList(contactGroup, sshContact);
+
+                //add contact to contact list
+                ((OperationSetPersistentPresenceSSHImpl)sshContact
+                    .getParentPresenceOperationSet())
+                        .addContactToList(
+                            sshContact.getParentContactGroup(),
+                            sshContact);
+
                 setVisible(false);
             }        
         });
