@@ -892,7 +892,6 @@ public class ContactSSHImpl
     public void setPassword(String password)
     {
         this.sshConfigurationForm.setPasswordField(password);
-        System.out.println("22222222222222222");
         savePersistentDetails();
     }
     

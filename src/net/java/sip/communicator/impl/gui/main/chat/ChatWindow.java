@@ -153,13 +153,13 @@ public class ChatWindow
         this.initPluginComponents();
 
         this.setKeybindingInput(KeybindingSet.Category.CHAT);
-        this.addKeybindingAction(   "plugin.keybindings.CHAT_NEXT_TAB",
+        this.addKeybindingAction(   "chat-nextTab",
                                     new ForwardTabAction());
-        this.addKeybindingAction(   "plugin.keybindings.CHAT_PREVIOUS_TAB",
+        this.addKeybindingAction(   "chat-previousTab",
                                     new BackwordTabAction());
-        this.addKeybindingAction(   "plugin.keybindings.CHAT_COPY",
+        this.addKeybindingAction(   "chat-copy",
                                     new CopyAction());
-        this.addKeybindingAction(   "plugin.keybindings.CHAT_PASTE",
+        this.addKeybindingAction(   "chat-paste",
                                     new PasteAction());
         this.addKeybindingAction(   "chat-openSmileys",
                                     new OpenSmileyAction());

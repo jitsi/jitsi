@@ -168,7 +168,7 @@ public class MainFrame
             this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
         this.setKeybindingInput(KeybindingSet.Category.MAIN);
-        this.addKeybindingAction("plugin.keybindings.MAIN_RENAME",
+        this.addKeybindingAction("main-rename",
                                 new RenameAction());
 
         TransparentPanel northPanel = new TransparentPanel(new BorderLayout());
