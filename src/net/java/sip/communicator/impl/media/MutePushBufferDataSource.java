@@ -8,8 +8,8 @@ package net.java.sip.communicator.impl.media;
 
 import java.io.*;
 import java.util.*;
+
 import javax.media.*;
-import javax.media.control.*;
 import javax.media.protocol.*;
 
 /**
@@ -24,8 +24,7 @@ import javax.media.protocol.*;
  * @author Lubomir Marinov
  */
 public class MutePushBufferDataSource
-    extends PushBufferDataSource
-    implements CaptureDevice
+    extends CaptureDeviceDelegatePushBufferDataSource
 {
 
     /**
@@ -47,62 +46,73 @@ public class MutePushBufferDataSource
      */
     public MutePushBufferDataSource(PushBufferDataSource dataSource)
     {
+        super(
+            (dataSource instanceof CaptureDevice)
+                ? (CaptureDevice) dataSource
+                : null);
+
         this.dataSource = dataSource;
     }
 
+    /*
+     * Implements DataSource#connect(). Delegates to the wrapped
+     * PushBufferDataSource.
+     */
     public void connect() throws IOException
     {
         dataSource.connect();
     }
 
+    /*
+     * Implements DataSource#disconnect(). Delegates to the wrapped
+     * PushBufferDataSource.
+     */
     public void disconnect()
     {
         dataSource.disconnect();
     }
 
-    public CaptureDeviceInfo getCaptureDeviceInfo()
-    {
-        CaptureDeviceInfo captureDeviceInfo;
-
-        if (dataSource instanceof CaptureDevice)
-            captureDeviceInfo =
-                ((CaptureDevice) dataSource).getCaptureDeviceInfo();
-        else
-            captureDeviceInfo = null;
-        return captureDeviceInfo;
-    }
-
+    /*
+     * Implements DataSource#getContentType(). Delegates to the wrapped
+     * PushBufferDataSource.
+     */
     public String getContentType()
     {
         return dataSource.getContentType();
     }
 
+    /*
+     * Implements DataSource#getControl(String). Delegates to the wrapped
+     * PushBufferDataSource.
+     */
     public Object getControl(String controlType)
     {
         return dataSource.getControl(controlType);
     }
 
+    /*
+     * Implements DataSource#getControls(). Delegates to the wrapped
+     * PushBufferDataSource.
+     */
     public Object[] getControls()
     {
         return dataSource.getControls();
     }
 
+    /*
+     * Implements DataSource#getDuration(). Delegates to the wrapped
+     * PushBufferDataSource.
+     */
     public Time getDuration()
     {
         return dataSource.getDuration();
     }
 
-    public FormatControl[] getFormatControls()
-    {
-        FormatControl[] formatControls;
-
-        if (dataSource instanceof CaptureDevice)
-            formatControls = ((CaptureDevice) dataSource).getFormatControls();
-        else
-            formatControls = new FormatControl[0];
-        return formatControls;
-    }
-
+    /*
+     * Implements PushBufferDataSource#getStreams(). Wraps the streams of the
+     * wrapped PushBufferDataSource into MutePushBufferStream instances in order
+     * to provide mute support to them. 
+     */
     public PushBufferStream[] getStreams()
     {
         PushBufferStream[] streams = dataSource.getStreams();
@@ -136,11 +146,19 @@ public class MutePushBufferDataSource
         this.mute = mute;
     }
 
+    /*
+     * Implements DataSource#start(). Delegates to the wrapped
+     * PushBufferDataSource.
+     */
     public void start() throws IOException
     {
         dataSource.start();
     }
 
+    /*
+     * Implements DataSource#stop(). Delegates to the wrapped
+     * PushBufferDataSource.
+     */
     public void stop() throws IOException
     {
         dataSource.stop();
@@ -171,36 +189,65 @@ public class MutePushBufferDataSource
             this.stream = stream;
         }
 
+        /*
+         * Implements SourceStream#getContentDescriptor(). Delegates to the
+         * wrapped PushBufferStream.
+         */
         public ContentDescriptor getContentDescriptor()
         {
             return stream.getContentDescriptor();
         }
 
+        /*
+         * Implements SourceStream#getContentLength(). Delegates to the wrapped
+         * PushBufferStream.
+         */
         public long getContentLength()
         {
             return stream.getContentLength();
         }
 
+        /*
+         * Implements Controls#getControl(String). Delegates to the wrapped
+         * PushBufferStream.
+         */
         public Object getControl(String controlType)
         {
             return stream.getControl(controlType);
         }
 
+        /*
+         * Implements Controls#getControls(). Delegates to the wrapped
+         * PushBufferStream.
+         */
         public Object[] getControls()
         {
             return stream.getControls();
         }
 
+        /*
+         * Implements PushBufferStream#getFormat(). Delegates to the wrapped
+         * PushBufferStream.
+         */
         public Format getFormat()
         {
             return stream.getFormat();
         }
 
+        /*
+         * Implements SourceStream#endOfStream(). Delegates to the wrapped
+         * PushBufferStream.
+         */
         public boolean endOfStream()
         {
             return stream.endOfStream();
         }
 
+        /*
+         * Implements PushBufferStream#read(Buffer). If this instance is muted
+         * (through its owning MutePushBufferDataSource), overwrites the data
+         * read from the wrapped PushBufferStream with silence data.
+         */
         public void read(Buffer buffer) throws IOException
         {
             stream.read(buffer);
@@ -229,47 +276,22 @@ public class MutePushBufferDataSource
             }
         }
 
+        /*
+         * Implements PushBufferStream#setTransferHandler(BufferTransferHandler).
+         * Sets up the hiding of the wrapped PushBufferStream from the specified
+         * transferHandler and thus gives this MutePushBufferStream full control
+         * when the transferHandler in question starts calling to the stream
+         * given to it in BufferTransferHandler#transferData(PushBufferStream). 
+         */
         public void setTransferHandler(BufferTransferHandler transferHandler)
         {
-            stream.setTransferHandler((transferHandler == null) ? null
-                : new MuteBufferTransferHandler(transferHandler));
-        }
-
-        /**
-         * Implements a <tt>BufferTransferHandler</tt> wrapper which doesn't
-         * expose a wrapped <tt>PushBufferStream</tt> but rather its wrapper in
-         * order to give full control to the
-         * {@link PushBufferStream#read(Buffer)} method of the wrapper.
-         */
-        public class MuteBufferTransferHandler
-            implements BufferTransferHandler
-        {
-
-            /**
-             * The wrapped <tt>BufferTransferHandler</tt> which receives the
-             * actual events from the wrapped <tt>PushBufferStream</tt>.
-             */
-            private final BufferTransferHandler transferHandler;
-
-            /**
-             * Initializes a new <tt>MuteBufferTransferHandler</tt> instance
-             * which is to overwrite the source <tt>PushBufferStream</tt> of a
-             * specific <tt>BufferTransferHandler</tt>.
-             * 
-             * @param transferHandler the <tt>BufferTransferHandler</tt> the new
-             *            instance is to overwrite the source
-             *            <tt>PushBufferStream</tt> of
-             */
-            public MuteBufferTransferHandler(
-                BufferTransferHandler transferHandler)
-            {
-                this.transferHandler = transferHandler;
-            }
-
-            public void transferData(PushBufferStream stream)
-            {
-                transferHandler.transferData(MutePushBufferStream.this);
-            }
+            stream.setTransferHandler(
+                (transferHandler == null)
+                    ? null
+                    : new StreamSubstituteBufferTransferHandler(
+                            transferHandler,
+                            stream,
+                            this));
         }
     }
 }
