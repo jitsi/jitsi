@@ -1256,7 +1256,8 @@ public class TestOperationSetPresence
      * Used to wait till buddy is removed from our contact list.
      * Used in the authorization process tests
      */
-    private class UnsubscribeWait implements SubscriptionListener
+    private static class UnsubscribeWait
+        extends SubscriptionAdapter
     {
         public void waitForUnsubscribre(long waitFor)
         {
@@ -1281,17 +1282,6 @@ public class TestOperationSetPresence
                 notifyAll();
             }
         }
-
-        public void subscriptionCreated(SubscriptionEvent evt)
-        {}
-        public void subscriptionFailed(SubscriptionEvent evt)
-        {}
-        public void subscriptionMoved(SubscriptionMovedEvent evt)
-        {}
-        public void subscriptionResolved(SubscriptionEvent evt)
-        {}
-        public void contactModified(ContactPropertyChangeEvent evt)
-        {}
     }
 
     /**

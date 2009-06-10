@@ -56,10 +56,12 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * The timer executing tasks on specified intervals
      */
     private Timer keepAliveTimer = new Timer();
+
     /**
      * The queue holding the received packets
      */
-    private LinkedList receivedKeepAlivePackets = new LinkedList();
+    private final LinkedList<KeepAliveEvent> receivedKeepAlivePackets
+        = new LinkedList<KeepAliveEvent>();
 
     private int failedKeepalivePackets = 0;
 
@@ -523,8 +525,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
         boolean checkFirstPacket()
             throws NoSuchElementException
         {
-            KeepAliveEvent receivedEvent =
-                    (KeepAliveEvent)receivedKeepAlivePackets.removeLast();
+            KeepAliveEvent receivedEvent = receivedKeepAlivePackets.removeLast();
 
             if(jabberProvider.hashCode() != receivedEvent.getSrcProviderHash() ||
                     OperationSetBasicInstantMessagingJabberImpl.this.hashCode() !=
@@ -546,8 +547,9 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 RegistrationState.CONNECTION_FAILED,
                 RegistrationStateChangeEvent.REASON_INTERNAL_ERROR, null);
 
-            opSetPersPresence.fireProviderPresenceStatusChangeEvent(
-                opSetPersPresence.getPresenceStatus(), jabberProvider
+            opSetPersPresence.fireProviderStatusChangeEvent(
+                opSetPersPresence.getPresenceStatus(),
+                jabberProvider
                     .getJabberStatusEnum().getStatus(JabberStatusEnum.OFFLINE));
         }
     }

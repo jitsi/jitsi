@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
-import java.beans.PropertyChangeEvent;
 import java.io.*;
 import java.text.*;
 import java.util.*;
@@ -42,21 +41,6 @@ public class OperationSetPresenceSipImpl
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetPresenceSipImpl.class);
-
-    /**
-     * A list of listeners registered for
-     *  <tt>ProviderPresenceStatusChangeEvent</tt>s.
-     */
-    private Vector<ProviderPresenceStatusListener>
-        providerPresenceStatusListeners
-            = new Vector<ProviderPresenceStatusListener>();
-
-    /**
-     * A list of listeners registered for
-     * <tt>ServerStoredGroupChangeEvent</tt>s.
-     */
-    private Vector<ServerStoredGroupListener> serverStoredGroupListeners
-                                    = new Vector<ServerStoredGroupListener>();
 
     /**
      * The root of the SIP contact list.
@@ -319,46 +303,6 @@ public class OperationSetPresenceSipImpl
     public void setDistantPA(boolean useDistPA)
     {
         this.useDistantPA = useDistPA;
-    }
-
-    /**
-     * Notifies all registered listeners of the new event.
-     *
-     * @param source the contact that has caused the event.
-     * @param eventID an identifier of the event to dispatch.
-     */
-    public void fireServerStoredGroupEvent(ContactGroupSipImpl source,
-                                           int eventID)
-    {
-        ServerStoredGroupEvent evt  = new ServerStoredGroupEvent(
-            source, eventID, source.getParentContactGroup(),
-            this.parentProvider, this);
-
-        Iterator listeners = null;
-        synchronized (this.serverStoredGroupListeners)
-        {
-            listeners = new ArrayList(this.serverStoredGroupListeners)
-                .iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            ServerStoredGroupListener listener
-                = (ServerStoredGroupListener) listeners.next();
-
-            if(eventID == ServerStoredGroupEvent.GROUP_CREATED_EVENT)
-            {
-                listener.groupCreated(evt);
-            }
-            else if(eventID == ServerStoredGroupEvent.GROUP_RENAMED_EVENT)
-            {
-                listener.groupNameChanged(evt);
-            }
-            else if(eventID == ServerStoredGroupEvent.GROUP_REMOVED_EVENT)
-            {
-                listener.groupRemoved(evt);
-            }
-        }
     }
 
     /**
@@ -676,65 +620,9 @@ public class OperationSetPresenceSipImpl
      *
      * @param oldValue the presence status we were in before the change.
      */
-    private void fireProviderStatusChangeEvent(PresenceStatus oldValue)
-    {
-        ProviderPresenceStatusChangeEvent evt
-            = new ProviderPresenceStatusChangeEvent(this.parentProvider,
-                                        oldValue, this.getPresenceStatus());
-
-        logger.debug("Dispatching Provider Status Change. Listeners="
-                + this.providerPresenceStatusListeners.size()
-                + " evt=" + evt);
-
-        Iterator listeners = null;
-        synchronized (this.providerPresenceStatusListeners)
-        {
-            listeners = new ArrayList(this.providerPresenceStatusListeners)
-                .iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            ProviderPresenceStatusListener listener
-                = (ProviderPresenceStatusListener) listeners.next();
-
-            listener.providerStatusChanged(evt);
-        }
-        logger.debug("status dispatching done.");
-    }
-
-    /**
-     * Notifies all registered listeners of the new event.
-     *
-     * @param oldValue the presence status we were in before the change.
-     */
     public void fireProviderMsgStatusChangeEvent(String oldValue)
     {
-        PropertyChangeEvent evt = new PropertyChangeEvent(
-                this.parentProvider,
-                ProviderPresenceStatusListener.STATUS_MESSAGE,
-                oldValue,
-                this.statusMessage);
-
-        logger.debug("Dispatching  stat. msg change. Listeners="
-                     + this.providerPresenceStatusListeners.size()
-                     + " evt=" + evt);
-
-        Iterator<ProviderPresenceStatusListener> listeners = null;
-        synchronized (this.providerPresenceStatusListeners)
-        {
-            listeners = new ArrayList<ProviderPresenceStatusListener>(
-                 this.providerPresenceStatusListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            ProviderPresenceStatusListener listener =
-                (ProviderPresenceStatusListener) listeners.next();
-
-            listener.providerStatusMessageChanged(evt);
-        }
-        logger.debug("status dispatching done.");
+        fireProviderStatusMessageChangeEvent(oldValue, this.statusMessage);
     }
 
     /**
@@ -3346,70 +3234,6 @@ public class OperationSetPresenceSipImpl
     public void setAuthorizationHandler(AuthorizationHandler handler)
     {
         // authorizations aren't supported by this implementation
-    }
-
-    /**
-     * Adds a listener that would receive events upon changes of the provider
-     * presence status.
-     *
-     * @param listener the listener to register for changes in our
-     * PresenceStatus.
-     */
-    public void addProviderPresenceStatusListener(
-        ProviderPresenceStatusListener listener)
-    {
-        synchronized(this.providerPresenceStatusListeners)
-        {
-            if (!this.providerPresenceStatusListeners.contains(listener))
-                this.providerPresenceStatusListeners.add(listener);
-        }
-    }
-
-    /**
-     * Unregisters the specified listener so that it does not receive further
-     * events upon changes in local presence status.
-     *
-     * @param listener ProviderPresenceStatusListener
-     */
-    public void removeProviderPresenceStatusListener(
-        ProviderPresenceStatusListener listener)
-    {
-        synchronized(this.providerPresenceStatusListeners)
-        {
-            this.providerPresenceStatusListeners.remove(listener);
-        }
-    }
-
-    /**
-     * Registers a listener that would receive events upon changes in server
-     * stored groups.
-     *
-     * @param listener a ServerStoredGroupChangeListener impl that would
-     *   receive events upon group changes.
-     */
-    public void addServerStoredGroupChangeListener(ServerStoredGroupListener
-                                                        listener)
-    {
-        synchronized(this.serverStoredGroupListeners)
-        {
-            if (!this.serverStoredGroupListeners.contains(listener))
-                this.serverStoredGroupListeners.add(listener);
-        }
-    }
-
-    /**
-     * Removes the specified group change listener so that it won't receive
-     * any further events.
-     *
-     * @param listener the ServerStoredGroupChangeListener to remove
-     */
-    public void removeServerStoredGroupChangeListener(ServerStoredGroupListener
-        listener)
-    {
-        synchronized(this.serverStoredGroupListeners)
-        {
-            this.serverStoredGroupListeners.remove(listener);
-        }
     }
 
     /**

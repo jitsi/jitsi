@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.yahoo;
 
-import java.beans.PropertyChangeEvent;
 import java.io.*;
 import java.util.*;
 
@@ -14,7 +13,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.yahooconstants.*;
 import net.java.sip.communicator.util.*;
-
 import ymsg.network.*;
 import ymsg.network.event.*;
 
@@ -44,12 +42,6 @@ public class OperationSetPersistentPresenceYahooImpl
      * The initial one is OFFLINE
      */
     private PresenceStatus currentStatus = YahooStatusEnum.OFFLINE;
-
-    /**
-     * The list of listeners interested in receiving changes in our local
-     * presencestatus.
-     */
-    private Vector providerPresenceStatusListeners = new Vector();
 
     /**
      * Sometimes status changes are received before the contact list is inited
@@ -141,21 +133,6 @@ public class OperationSetPersistentPresenceYahooImpl
 
         parentProvider.addRegistrationStateChangeListener(
             new RegistrationStateListener());
-    }
-
-    /**
-     * Adds a listener that would receive events upon changes of the provider
-     * presence status.
-     *
-     * @param listener the listener to register for changes in our
-     *   PresenceStatus.
-     */
-    public void addProviderPresenceStatusListener(
-        ProviderPresenceStatusListener listener)
-    {
-        synchronized(providerPresenceStatusListeners){
-            providerPresenceStatusListeners.add(listener);
-        }
     }
 
     /**
@@ -425,7 +402,7 @@ public class OperationSetPersistentPresenceYahooImpl
             parentProvider.getYahooSession().setStatus(
                 scToYahooModesMappings.get(status).longValue());
 
-            fireProviderPresenceStatusChangeEvent(currentStatus, status);
+            fireProviderStatusChangeEvent(currentStatus, status);
         }
         catch(IOException ex)
         {
@@ -462,20 +439,6 @@ public class OperationSetPersistentPresenceYahooImpl
         }
         else
             return yahooStatusToPresenceStatus(contact.getSourceContact().getStatus());
-    }
-
-    /**
-     * Unregisters the specified listener so that it does not receive further
-     * events upon changes in local presence status.
-     *
-     * @param listener ProviderPresenceStatusListener
-     */
-    public void removeProviderPresenceStatusListener(
-        ProviderPresenceStatusListener listener)
-    {
-        synchronized(providerPresenceStatusListeners){
-            providerPresenceStatusListeners.remove(listener);
-        }
     }
 
     /**
@@ -687,74 +650,21 @@ public class OperationSetPersistentPresenceYahooImpl
 
     /**
      * Notify all provider presence listeners of the corresponding event change
-     * @param oldStatus the status our stack had so far
-     * @param newStatus the status we have from now on
+     * 
+     * @param oldStatus
+     *            the status our stack had so far
+     * @param newStatus
+     *            the status we have from now on
      */
-    void fireProviderPresenceStatusChangeEvent(
-        PresenceStatus oldStatus, PresenceStatus newStatus)
+    protected void fireProviderStatusChangeEvent(
+        PresenceStatus oldStatus,
+        PresenceStatus newStatus)
     {
-        if(oldStatus.equals(newStatus)){
-            logger.debug("Ignored prov stat. change evt. old==new = "
-                         + oldStatus);
-            return;
-        }
-
-        ProviderPresenceStatusChangeEvent evt =
-            new ProviderPresenceStatusChangeEvent(
-                parentProvider, oldStatus, newStatus);
-
-        currentStatus = newStatus;
-
-
-        logger.debug("Dispatching Provider Status Change. Listeners="
-                     + providerPresenceStatusListeners.size()
-                     + " evt=" + evt);
-
-        Iterator listeners = null;
-        synchronized (providerPresenceStatusListeners)
+        if (!oldStatus.equals(newStatus))
         {
-            listeners = new ArrayList(providerPresenceStatusListeners).iterator();
-        }
+            currentStatus = newStatus;
 
-        while (listeners.hasNext())
-        {
-            ProviderPresenceStatusListener listener
-                = (ProviderPresenceStatusListener) listeners.next();
-
-            listener.providerStatusChanged(evt);
-        }
-    }
-
-    /**
-     * Notify all provider presence listeners that a new status message has
-     * been set.
-     * @param oldStatusMessage the status message our stack had so far
-     * @param newStatusMessage the status message we have from now on
-     */
-    private void fireProviderStatusMessageChangeEvent(
-                        String oldStatusMessage, String newStatusMessage)
-    {
-
-        PropertyChangeEvent evt = new PropertyChangeEvent(
-            parentProvider, ProviderPresenceStatusListener.STATUS_MESSAGE,
-                oldStatusMessage, newStatusMessage);
-
-        logger.debug("Dispatching  stat. msg change. Listeners="
-                     + providerPresenceStatusListeners.size()
-                     + " evt=" + evt);
-
-        Iterator listeners = null;
-        synchronized (providerPresenceStatusListeners)
-        {
-            listeners = new ArrayList(providerPresenceStatusListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            ProviderPresenceStatusListener listener =
-                (ProviderPresenceStatusListener) listeners.next();
-
-            listener.providerStatusMessageChanged(evt);
+            super.fireProviderStatusChangeEvent(oldStatus, newStatus);
         }
     }
 
@@ -837,8 +747,7 @@ public class OperationSetPersistentPresenceYahooImpl
                 PresenceStatus oldStatus = currentStatus;
                 currentStatus = YahooStatusEnum.OFFLINE;
 
-                fireProviderPresenceStatusChangeEvent(oldStatus,
-                    currentStatus);
+                fireProviderStatusChangeEvent(oldStatus, currentStatus);
 
                 removeSubscriptionListener(statusUpdater);
 
@@ -900,7 +809,7 @@ public class OperationSetPersistentPresenceYahooImpl
                 PresenceStatus oldStatus = currentStatus;
                 currentStatus =
                     yahooStatusToPresenceStatus(yFriend.getStatus());
-                fireProviderPresenceStatusChangeEvent(oldStatus, currentStatus);
+                fireProviderStatusChangeEvent(oldStatus, currentStatus);
 
                 return;
             }
@@ -962,7 +871,8 @@ public class OperationSetPersistentPresenceYahooImpl
     /**
      * Updates the statuses of newly created persistent contacts
      */
-    private class StatusUpdater implements SubscriptionListener
+    private class StatusUpdater
+        extends SubscriptionAdapter
     {
         public void subscriptionCreated(SubscriptionEvent evt)
         {
@@ -974,12 +884,6 @@ public class OperationSetPersistentPresenceYahooImpl
 
             handleContactStatusChange(contact, contact.getSourceContact());
         }
-
-        public void subscriptionFailed(SubscriptionEvent evt) {}
-        public void subscriptionRemoved(SubscriptionEvent evt) {}
-        public void subscriptionMoved(SubscriptionMovedEvent evt) {}
-        public void subscriptionResolved(SubscriptionEvent evt) {}
-        public void contactModified(ContactPropertyChangeEvent evt) {}
     }
 
     private class EarlyEventListener

@@ -6,19 +6,18 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import java.beans.PropertyChangeEvent;
 import java.util.*;
-
-import org.jivesoftware.smack.*;
-import org.jivesoftware.smack.filter.*;
-import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smack.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.version.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
+
+import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.filter.*;
+import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.util.*;
 
 /**
  * The Jabber implementation of a Persistent Presence Operation set. This class
@@ -48,14 +47,6 @@ public class OperationSetPersistentPresenceJabberImpl
      * The initial one is OFFLINE
      */
     private PresenceStatus currentStatus;
-
-    /**
-     * The list of listeners interested in receiving changes in our local
-     * presencestatus.
-     */
-    private Vector<ProviderPresenceStatusListener>
-        providerPresenceStatusListeners
-            = new Vector<ProviderPresenceStatusListener>();
 
     /**
      * A map containing bindings between SIP Communicator's jabber presence status
@@ -97,21 +88,6 @@ public class OperationSetPersistentPresenceJabberImpl
 
         parentProvider.addRegistrationStateChangeListener(
             new RegistrationStateListener());
-    }
-
-    /**
-     * Adds a listener that would receive events upon changes of the provider
-     * presence status.
-     *
-     * @param listener the listener to register for changes in our
-     *   PresenceStatus.
-     */
-    public void addProviderPresenceStatusListener(
-        ProviderPresenceStatusListener listener)
-    {
-        synchronized(providerPresenceStatusListeners){
-            providerPresenceStatusListeners.add(listener);
-        }
     }
 
     /**
@@ -371,15 +347,13 @@ public class OperationSetPersistentPresenceJabberImpl
             throw new IllegalArgumentException(status
                 + " is not a valid Jabber status");
 
-        Presence presence = null;
         if (status.equals(jabberStatusEnum.getStatus(JabberStatusEnum.OFFLINE)))
         {
-            presence = new Presence(Presence.Type.unavailable);
             parentProvider.unregister();
         }
         else
         {
-            presence = new Presence(Presence.Type.available);
+            Presence presence = new Presence(Presence.Type.available);
             presence.setMode(presenceStatusToJabberMode(status));
             presence.setPriority(resourcePriority);
             presence.setStatus(statusMessage);
@@ -388,7 +362,7 @@ public class OperationSetPersistentPresenceJabberImpl
             parentProvider.getConnection().sendPacket(presence);
         }
 
-        fireProviderPresenceStatusChangeEvent(currentStatus, status);
+        fireProviderStatusChangeEvent(currentStatus, status);
 
         if(!getCurrentStatusMessage().equals(statusMessage))
         {
@@ -426,20 +400,6 @@ public class OperationSetPersistentPresenceJabberImpl
         else
             return parentProvider.getJabberStatusEnum().getStatus(
                 JabberStatusEnum.OFFLINE);
-    }
-
-    /**
-     * Unregisters the specified listener so that it does not receive further
-     * events upon changes in local presence status.
-     *
-     * @param listener ProviderPresenceStatusListener
-     */
-    public void removeProviderPresenceStatusListener(
-        ProviderPresenceStatusListener listener)
-    {
-        synchronized(providerPresenceStatusListeners){
-            providerPresenceStatusListeners.remove(listener);
-        }
     }
 
     /**
@@ -669,77 +629,15 @@ public class OperationSetPersistentPresenceJabberImpl
                 +"being able to communicate.");
     }
 
-    /**
-     * Notify all provider presence listeners of the corresponding event change
-     * @param oldStatus the status our stack had so far
-     * @param newStatus the status we have from now on
-     */
-    void fireProviderPresenceStatusChangeEvent(
-        PresenceStatus oldStatus, PresenceStatus newStatus)
+    public void fireProviderStatusChangeEvent(
+        PresenceStatus oldStatus,
+        PresenceStatus newStatus)
     {
-        if(oldStatus.equals(newStatus)){
-            logger.debug("Ignored prov stat. change evt. old==new = "
-                         + oldStatus);
-            return;
-        }
-
-        ProviderPresenceStatusChangeEvent evt =
-            new ProviderPresenceStatusChangeEvent(
-                parentProvider, oldStatus, newStatus);
-
-        currentStatus = newStatus;
-
-
-        logger.debug("Dispatching Provider Status Change. Listeners="
-                     + providerPresenceStatusListeners.size()
-                     + " evt=" + evt);
-
-        Iterator<ProviderPresenceStatusListener> listeners = null;
-        synchronized (providerPresenceStatusListeners)
+        if (!oldStatus.equals(newStatus))
         {
-            listeners = new ArrayList<ProviderPresenceStatusListener>(
-                            providerPresenceStatusListeners).iterator();
-        }
+            currentStatus = newStatus;
 
-        while (listeners.hasNext())
-        {
-            ProviderPresenceStatusListener listener = listeners.next();
-
-            listener.providerStatusChanged(evt);
-        }
-    }
-
-    /**
-     * Notify all provider presence listeners that a new status message has
-     * been set.
-     * @param oldStatusMessage the status message our stack had so far
-     * @param newStatusMessage the status message we have from now on
-     */
-    private void fireProviderStatusMessageChangeEvent(
-                        String oldStatusMessage, String newStatusMessage)
-    {
-
-        PropertyChangeEvent evt = new PropertyChangeEvent(
-            parentProvider, ProviderPresenceStatusListener.STATUS_MESSAGE,
-                oldStatusMessage, newStatusMessage);
-
-        logger.debug("Dispatching  stat. msg change. Listeners="
-                     + providerPresenceStatusListeners.size()
-                     + " evt=" + evt);
-
-        Iterator<ProviderPresenceStatusListener> listeners = null;
-        synchronized (providerPresenceStatusListeners)
-        {
-            listeners = new ArrayList<ProviderPresenceStatusListener>(
-                                providerPresenceStatusListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            ProviderPresenceStatusListener listener =
-                (ProviderPresenceStatusListener) listeners.next();
-
-            listener.providerStatusMessageChanged(evt);
+            super.fireProviderStatusChangeEvent(oldStatus, newStatus);
         }
     }
 
@@ -768,9 +666,11 @@ public class OperationSetPersistentPresenceJabberImpl
                 parentProvider.getConnection().getRoster().addRosterListener(
                     new ContactChangesListener());
 
-                fireProviderPresenceStatusChangeEvent(currentStatus,
-                    parentProvider.getJabberStatusEnum().getStatus(
-                        JabberStatusEnum.AVAILABLE));
+                fireProviderStatusChangeEvent(
+                    currentStatus,
+                    parentProvider
+                        .getJabberStatusEnum()
+                            .getStatus(JabberStatusEnum.AVAILABLE));
 
                 // init ssList
                 ssContactList.init();
@@ -789,8 +689,7 @@ public class OperationSetPersistentPresenceJabberImpl
                         JabberStatusEnum.OFFLINE);
                 currentStatus = offlineStatus;
 
-                fireProviderPresenceStatusChangeEvent(oldStatus,
-                    currentStatus);
+                fireProviderStatusChangeEvent(oldStatus, currentStatus);
 
                 //send event notifications saying that all our buddies are
                 //offline. The protocol does not implement top level buddies

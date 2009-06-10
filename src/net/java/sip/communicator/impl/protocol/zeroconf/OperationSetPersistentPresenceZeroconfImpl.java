@@ -33,17 +33,6 @@ public class OperationSetPersistentPresenceZeroconfImpl
         Logger.getLogger(OperationSetPersistentPresenceZeroconfImpl.class);
 
     /**
-     * A list of listeners registered for <tt>ServerStoredGroupChangeEvent</tt>s.
-     */
-    private Vector serverStoredGroupListeners = new Vector();
-
-    /**
-     * A list of listeners registered for
-     *  <tt>ProviderPresenceStatusChangeEvent</tt>s.
-     */
-    private Vector providerPresenceStatusListeners = new Vector();
-
-    /**
      * The root of the zeroconf contact list.
      */
     private ContactGroupZeroconfImpl contactListRoot = null;
@@ -80,106 +69,6 @@ public class OperationSetPersistentPresenceZeroconfImpl
         //add our unregistration listener
         parentProvider.addRegistrationStateChangeListener(
             new UnregistrationListener());
-    }
-
-    /**
-     * Notifies all registered listeners of the new event.
-     *
-     * @param source the contact that has caused the event.
-     * @param eventID an identifier of the event to dispatch.
-     */
-    public void fireServerStoredGroupEvent(ContactGroupZeroconfImpl  source,
-                                           int                        eventID)
-    {
-        ServerStoredGroupEvent evt  = new ServerStoredGroupEvent(
-            source, eventID,  (ContactGroupZeroconfImpl)
-            source.getParentContactGroup()
-           , this.parentProvider, this);
-
-        Iterator listeners = null;
-        synchronized (serverStoredGroupListeners)
-        {
-            listeners = new ArrayList(serverStoredGroupListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            ServerStoredGroupListener listener
-                = (ServerStoredGroupListener) listeners.next();
-
-            if(eventID == ServerStoredGroupEvent.GROUP_CREATED_EVENT)
-            {
-                listener.groupCreated(evt);
-            }
-            else if(eventID == ServerStoredGroupEvent.GROUP_RENAMED_EVENT)
-            {
-                listener.groupNameChanged(evt);
-            }
-            else if(eventID == ServerStoredGroupEvent.GROUP_REMOVED_EVENT)
-            {
-                listener.groupRemoved(evt);
-            }
-        }
-    }
-
-    /**
-     * Notifies all registered listeners of the new event.
-     *
-     * @param oldValue the presence status we were in before the change.
-     */
-    public void fireProviderStatusChangeEvent(PresenceStatus oldValue)
-    {
-        ProviderPresenceStatusChangeEvent evt
-            = new ProviderPresenceStatusChangeEvent(this.parentProvider,
-                                        oldValue, this.getPresenceStatus());
-
-        Iterator listeners = null;
-        synchronized (providerPresenceStatusListeners)
-        {
-            listeners = 
-                new ArrayList(providerPresenceStatusListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            ProviderPresenceStatusListener listener
-                = (ProviderPresenceStatusListener) listeners.next();
-
-            listener.providerStatusChanged(evt);
-        }
-    }
-
-    /**
-     * Zeroconf implementation of the corresponding ProtocolProviderService
-     * method.
-     *
-     * @param listener a dummy param.
-     */
-    public void addProviderPresenceStatusListener(
-        ProviderPresenceStatusListener listener)
-    {
-        synchronized(providerPresenceStatusListeners)
-        {
-            if (!providerPresenceStatusListeners.contains(listener))
-                this.providerPresenceStatusListeners.add(listener);
-        }
-    }
-
-    /**
-     * Registers a listener that would receive events upon changes in server
-     * stored groups.
-     *
-     * @param listener a ServerStoredGroupChangeListener impl that would
-     *   receive events upong group changes.
-     */
-    public void addServerStoredGroupChangeListener(ServerStoredGroupListener
-                                                        listener)
-    {
-        synchronized(serverStoredGroupListeners)
-        {
-            if (!serverStoredGroupListeners.contains(listener))
-                serverStoredGroupListeners.add(listener);
-        }
     }
 
     /**
@@ -471,21 +360,6 @@ public class OperationSetPersistentPresenceZeroconfImpl
     }
 
     /**
-     * Unregisters the specified listener so that it does not receive further
-     * events upon changes in local presence status.
-     *
-     * @param listener ProviderPresenceStatusListener
-     */
-    public void removeProviderPresenceStatusListener(
-        ProviderPresenceStatusListener listener)
-    {
-        synchronized(providerPresenceStatusListeners)
-        {
-            this.providerPresenceStatusListeners.remove(listener);
-        }
-    }
-
-    /**
      * Returns the group that is parent of the specified zeroconfGroup  or null
      * if no parent was found.
      * @param zeroconfGroup the group whose parent we're looking for.
@@ -539,22 +413,6 @@ public class OperationSetPersistentPresenceZeroconfImpl
 
         this.fireServerStoredGroupEvent(
             zeroconfGroup, ServerStoredGroupEvent.GROUP_REMOVED_EVENT);
-    }
-
-
-    /**
-     * Removes the specified group change listener so that it won't receive
-     * any further events.
-     *
-     * @param listener the ServerStoredGroupChangeListener to remove
-     */
-    public void removeServerStoredGroupChangeListener(ServerStoredGroupListener
-        listener)
-    {
-        synchronized(serverStoredGroupListeners)
-        {
-            serverStoredGroupListeners.remove(listener);
-        }
     }
 
     /**

@@ -24,9 +24,9 @@ import net.kano.joustsim.*;
 import net.kano.joustsim.oscar.*;
 import net.kano.joustsim.oscar.oscar.service.bos.*;
 import net.kano.joustsim.oscar.oscar.service.buddy.*;
+import net.kano.joustsim.oscar.oscar.service.icon.*;
 import net.kano.joustsim.oscar.oscar.service.info.*;
 import net.kano.joustsim.oscar.oscar.service.ssi.*;
-import net.kano.joustsim.oscar.oscar.service.icon.*;
 import net.kano.joustsim.trust.*;
 
 /**
@@ -42,18 +42,6 @@ public class OperationSetPersistentPresenceIcqImpl
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetPersistentPresenceIcqImpl.class);
-
-    /**
-     * The list of listeners interested in receiving changes in our local
-     * presencestatus.
-     */
-    private Vector providerPresenceStatusListeners = new Vector();
-
-    /**
-     * Listeners notified upon changes occurring with server stored contact
-     * groups.
-     */
-    private Vector serverStoredGroupChangeListeners = new Vector();
 
     /**
      * This one should actually be in joscar. But since it isn't we might as
@@ -975,35 +963,6 @@ public class OperationSetPersistentPresenceIcqImpl
     }
 
     /**
-     * Adds a listener that would receive events upon changes of the provider
-     * presence status.
-     * @param listener the listener to register for changes in our PresenceStatus.
-     */
-    public void addProviderPresenceStatusListener(
-        ProviderPresenceStatusListener listener)
-    {
-        synchronized(providerPresenceStatusListeners)
-        {
-            if(!providerPresenceStatusListeners.contains(listener))
-                providerPresenceStatusListeners.add(listener);
-        }
-    }
-
-    /**
-     * Unregisters the specified listener so that it does not receive further
-     * events upon changes in local presence status.
-     * @param listener ProviderPresenceStatusListener
-     */
-    public void removeProviderPresenceStatusListener(
-        ProviderPresenceStatusListener listener)
-    {
-        synchronized(providerPresenceStatusListeners)
-        {
-            providerPresenceStatusListeners.remove(listener);
-        }
-    }
-
-    /**
      * Returns the root group of the server stored contact list. Most often this
      * would be a dummy group that user interface implementations may better not
      * show.
@@ -1040,75 +999,23 @@ public class OperationSetPersistentPresenceIcqImpl
 
     /**
      * Notify all provider presence listeners of the corresponding event change
-     * @param oldStatusL the status our icq stack had so far
-     * @param newStatusL the status we have from now on
+     * 
+     * @param oldStatusL
+     *            the status our icq stack had so far
+     * @param newStatusL
+     *            the status we have from now on
      */
-    void fireProviderPresenceStatusChangeEvent(
-                        long oldStatusL, long newStatusL)
+    void fireProviderPresenceStatusChangeEvent(long oldStatusL, long newStatusL)
     {
         PresenceStatus oldStatus = statusLongToPresenceStatus(oldStatusL);
         PresenceStatus newStatus = statusLongToPresenceStatus(newStatusL);
 
-        if(oldStatus.equals(newStatus)){
-            logger.debug("Ignored prov stat. change evt. old==new = "
-                         + oldStatus);
-            return;
-        }
-
-        ProviderPresenceStatusChangeEvent evt =
-            new ProviderPresenceStatusChangeEvent(
-                parentProvider, oldStatus, newStatus);
-
-        logger.debug("Dispatching Provider Status Change. Listeners="
-                     + providerPresenceStatusListeners.size()
-                     + " evt=" + evt);
-
-        Iterator listeners = null;
-        synchronized (providerPresenceStatusListeners)
-        {
-            listeners = new ArrayList(providerPresenceStatusListeners)
-                .iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            ProviderPresenceStatusListener listener
-                = (ProviderPresenceStatusListener) listeners.next();
-
-            listener.providerStatusChanged(evt);
-        }
-    }
-    /**
-     * Notify all provider presence listeners that a new status message has
-     * been set.
-     * @param oldStatusMessage the status message our icq stack had so far
-     * @param newStatusMessage the status message we have from now on
-     */
-    private void fireProviderStatusMessageChangeEvent(
-                        String oldStatusMessage, String newStatusMessage)
-    {
-
-        PropertyChangeEvent evt = new PropertyChangeEvent(
-            parentProvider, ProviderPresenceStatusListener.STATUS_MESSAGE,
-                oldStatusMessage, newStatusMessage);
-
-        logger.debug("Dispatching  stat. msg change. Listeners="
-                     + providerPresenceStatusListeners.size()
-                     + " evt=" + evt);
-
-        Iterator listeners = null;
-        synchronized (providerPresenceStatusListeners)
-        {
-            listeners = new ArrayList(providerPresenceStatusListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            ProviderPresenceStatusListener listener
-                = (ProviderPresenceStatusListener) listeners.next();
-
-            listener.providerStatusMessageChanged(evt);
-        }
+        if (oldStatus.equals(newStatus))
+            logger.debug(
+                "Ignored prov stat. change evt. old==new = "
+                    + oldStatus);
+        else
+            fireProviderStatusChangeEvent(oldStatus, newStatus);
     }
 
     /**

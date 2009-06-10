@@ -972,46 +972,4 @@ public class TestOperationSetPresence
             }
         }
     }
-
-    /**
-     * Used to wait till buddy is removed from our contact list.
-     * Used in the authorization process tests
-     */
-    private class UnsubscribeWait implements SubscriptionListener
-    {
-        public void waitForUnsubscribre(long waitFor)
-        {
-            synchronized(this)
-            {
-                try{
-                    wait(waitFor);
-                }
-                catch (InterruptedException ex)
-                {
-                    logger.debug(
-                        "Interrupted while waiting for a subscription evt", ex);
-                }
-            }
-        }
-
-        public void subscriptionRemoved(SubscriptionEvent evt)
-        {
-            synchronized(this)
-            {
-                logger.debug("Got subscriptionRemoved " + evt);
-                notifyAll();
-            }
-        }
-
-        public void subscriptionCreated(SubscriptionEvent evt)
-        {}
-        public void subscriptionFailed(SubscriptionEvent evt)
-        {}
-        public void subscriptionMoved(SubscriptionMovedEvent evt)
-        {}
-        public void subscriptionResolved(SubscriptionEvent evt)
-        {}
-        public void contactModified(ContactPropertyChangeEvent evt)
-        {}
-    }
 }

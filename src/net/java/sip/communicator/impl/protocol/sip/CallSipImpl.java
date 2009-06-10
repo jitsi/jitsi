@@ -7,12 +7,13 @@
 package net.java.sip.communicator.impl.protocol.sip;
 
 import java.util.*;
+
 import javax.sip.*;
 
+import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.service.media.*;
 
 /**
  * A SIP implementation of the Call abstract class encapsulating SIP dialogs.
@@ -28,7 +29,7 @@ public class CallSipImpl
     /**
      * A list containing all <tt>CallParticipant</tt>s of this call.
      */
-    private Vector<CallParticipantSipImpl> callParticipants =
+    private final List<CallParticipantSipImpl> callParticipants =
         new Vector<CallParticipantSipImpl>();
 
     /**
@@ -212,7 +213,7 @@ public class CallSipImpl
      */
     public CallParticipantSipImpl findCallParticipant(Dialog dialog)
     {
-        Iterator callParticipants = this.getCallParticipants();
+        Iterator<CallParticipant> callParticipants = this.getCallParticipants();
 
         if (logger.isTraceEnabled())
         {

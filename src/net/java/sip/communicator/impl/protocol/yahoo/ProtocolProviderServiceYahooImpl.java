@@ -165,7 +165,7 @@ public class ProtocolProviderServiceYahooImpl
 
                 if(yahooSession.getSessionStatus()==StatusConstants.MESSAGING)
                 {
-                    persistentPresence.fireProviderPresenceStatusChangeEvent(
+                    persistentPresence.fireProviderStatusChangeEvent(
                         persistentPresence.getPresenceStatus(),
                         persistentPresence.yahooStatusToPresenceStatus(
                             yahooSession.getStatus()));

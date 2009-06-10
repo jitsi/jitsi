@@ -719,9 +719,9 @@ public class ProtocolProviderServiceJabberImpl
             OperationSetPersistentPresenceJabberImpl opSetPersPresence =
                 (OperationSetPersistentPresenceJabberImpl) getOperationSet(OperationSetPersistentPresence.class);
 
-            opSetPersPresence.fireProviderPresenceStatusChangeEvent(
-                opSetPersPresence.getPresenceStatus(), getJabberStatusEnum()
-                    .getStatus(JabberStatusEnum.OFFLINE));
+            opSetPersPresence.fireProviderStatusChangeEvent(
+                opSetPersPresence.getPresenceStatus(),
+                getJabberStatusEnum().getStatus(JabberStatusEnum.OFFLINE));
         }
 
         /**

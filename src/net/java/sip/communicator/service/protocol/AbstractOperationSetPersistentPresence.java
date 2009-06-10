@@ -5,6 +5,7 @@
  */
 package net.java.sip.communicator.service.protocol;
 
+import java.beans.PropertyChangeEvent;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
@@ -25,22 +26,35 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
         Logger.getLogger(AbstractOperationSetPersistentPresence.class);
 
     /**
-     * The provider that created us.
-     */
-    protected final T parentProvider;
-
-    /**
-     * The list of listeners interested in <tt>SubscriptionEvent</tt>s.
-     */
-    private final List<SubscriptionListener> subscriptionListeners =
-        new Vector<SubscriptionListener>();
-
-    /**
      * A list of listeners registered for
      * <tt>ContactPresenceStatusChangeEvent</tt>s.
      */
     private final List<ContactPresenceStatusListener> contactPresenceStatusListeners
         = new Vector<ContactPresenceStatusListener>();
+
+    /**
+     * The provider that created us.
+     */
+    protected final T parentProvider;
+
+    /**
+     * A list of listeners registered for
+     *  <tt>ProviderPresenceStatusChangeEvent</tt>s.
+     */
+    private final List<ProviderPresenceStatusListener> providerPresenceStatusListeners
+        = new Vector<ProviderPresenceStatusListener>();
+
+    /**
+     * A list of listeners registered for <tt>ServerStoredGroupChangeEvent</tt>s.
+     */
+    private final List<ServerStoredGroupListener> serverStoredGroupListeners
+        = new Vector<ServerStoredGroupListener>();
+
+    /**
+     * The list of listeners interested in <tt>SubscriptionEvent</tt>s.
+     */
+    private final List<SubscriptionListener> subscriptionListeners
+        = new Vector<SubscriptionListener>();
 
     /**
      * Initializes a new <tt>AbstractOperationSetPersistentPresence</tt>
@@ -67,6 +81,41 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
         {
             if (!contactPresenceStatusListeners.contains(listener))
                 contactPresenceStatusListeners.add(listener);
+        }
+    }
+
+    /**
+     * Adds a listener that would receive events upon changes of the provider
+     * presence status.
+     * 
+     * @param listener
+     *            the listener to register for changes in our PresenceStatus.
+     */
+    public void addProviderPresenceStatusListener(
+        ProviderPresenceStatusListener listener)
+    {
+        synchronized (providerPresenceStatusListeners)
+        {
+            if (!providerPresenceStatusListeners.contains(listener))
+                providerPresenceStatusListeners.add(listener);
+        }
+    }
+
+    /**
+     * Registers a listener that would receive events upon changes in server
+     * stored groups.
+     * 
+     * @param listener
+     *            a ServerStoredGroupChangeListener impl that would receive
+     *            events upon group changes.
+     */
+    public void addServerStoredGroupChangeListener(
+        ServerStoredGroupListener listener)
+    {
+        synchronized (serverStoredGroupListeners)
+        {
+            if (!serverStoredGroupListeners.contains(listener))
+                serverStoredGroupListeners.add(listener);
         }
     }
 
@@ -119,7 +168,7 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
                     oldValue,
                     newValue);
 
-        List<ContactPresenceStatusListener> listeners;
+        Collection<ContactPresenceStatusListener> listeners;
         synchronized (contactPresenceStatusListeners)
         {
             listeners =
@@ -150,22 +199,151 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
     public void fireContactPropertyChangeEvent(String eventID, Contact source,
         Object oldValue, Object newValue)
     {
-        ContactPropertyChangeEvent evt =
-            new ContactPropertyChangeEvent(source, eventID, oldValue, newValue);
+        ContactPropertyChangeEvent evt
+            = new ContactPropertyChangeEvent(
+                    source,
+                    eventID,
+                    oldValue,
+                    newValue);
 
-        List<SubscriptionListener> listeners;
+        Collection<SubscriptionListener> listeners;
         synchronized (subscriptionListeners)
         {
-            listeners =
-                new ArrayList<SubscriptionListener>(subscriptionListeners);
+            listeners
+                = new ArrayList<SubscriptionListener>(subscriptionListeners);
         }
 
         logger.debug("Dispatching a Contact Property Change Event to"
             + listeners.size() + " listeners. Evt=" + evt);
 
-        for (Iterator<SubscriptionListener> listenerIt = listeners.iterator(); listenerIt
-            .hasNext();)
-            listenerIt.next().contactModified(evt);
+        for (SubscriptionListener listener : listeners)
+            listener.contactModified(evt);
+    }
+
+    /**
+     * Notifies all registered listeners of the new event.
+     * 
+     * @param oldValue
+     *            the presence status we were in before the change.
+     */
+    protected void fireProviderStatusChangeEvent(PresenceStatus oldValue)
+    {
+        fireProviderStatusChangeEvent(oldValue, getPresenceStatus());
+    }
+
+    /**
+     * Notify all provider presence listeners of the corresponding event change
+     * 
+     * @param oldStatus
+     *            the status our stack had so far
+     * @param newStatus
+     *            the status we have from now on
+     */
+    protected void fireProviderStatusChangeEvent(
+        PresenceStatus oldValue,
+        PresenceStatus newValue)
+    {
+        ProviderPresenceStatusChangeEvent evt
+            = new ProviderPresenceStatusChangeEvent(
+                    parentProvider,
+                    oldValue,
+                    newValue);
+
+        Collection<ProviderPresenceStatusListener> listeners;
+        synchronized (providerPresenceStatusListeners)
+        {
+            listeners
+                = new ArrayList<ProviderPresenceStatusListener>(
+                        providerPresenceStatusListeners);
+        }
+
+        logger.debug(
+            "Dispatching Provider Status Change. Listeners="
+                + listeners.size()
+                + " evt=" + evt);
+
+        for (ProviderPresenceStatusListener listener : listeners)
+            listener.providerStatusChanged(evt);
+
+        logger.debug("status dispatching done.");
+    }
+
+    /**
+     * Notify all provider presence listeners that a new status message has been
+     * set.
+     * 
+     * @param oldStatusMessage
+     *            the status message our stack had so far
+     * @param newStatusMessage
+     *            the status message we have from now on
+     */
+    protected void fireProviderStatusMessageChangeEvent(
+        String oldStatusMessage,
+        String newStatusMessage)
+    {
+        PropertyChangeEvent evt
+            = new PropertyChangeEvent(
+                    parentProvider,
+                    ProviderPresenceStatusListener.STATUS_MESSAGE,
+                    oldStatusMessage,
+                    newStatusMessage);
+
+        Collection<ProviderPresenceStatusListener> listeners;
+        synchronized (providerPresenceStatusListeners)
+        {
+            listeners
+                = new ArrayList<ProviderPresenceStatusListener>(
+                        providerPresenceStatusListeners);
+        }
+
+        logger.debug(
+            "Dispatching  stat. msg change. Listeners="
+                + listeners.size()
+                + " evt=" + evt);
+
+        for (ProviderPresenceStatusListener listener : listeners)
+            listener.providerStatusMessageChanged(evt);
+    }
+
+    /**
+     * Notifies all registered listeners of the new event.
+     *
+     * @param source the contact that has caused the event.
+     * @param eventID an identifier of the event to dispatch.
+     */
+    protected void fireServerStoredGroupEvent(
+        ContactGroup source,
+        int eventID)
+    {
+        ServerStoredGroupEvent evt
+            = new ServerStoredGroupEvent(
+                    source,
+                    eventID,
+                    source.getParentContactGroup(),
+                    parentProvider,
+                    this);
+
+        Iterable<ServerStoredGroupListener> listeners;
+        synchronized (serverStoredGroupListeners)
+        {
+            listeners
+                = new ArrayList<ServerStoredGroupListener>(
+                        serverStoredGroupListeners);
+        }
+
+        for (ServerStoredGroupListener listener : listeners)
+            switch (eventID)
+            {
+            case ServerStoredGroupEvent.GROUP_CREATED_EVENT:
+                listener.groupCreated(evt);
+                break;
+            case ServerStoredGroupEvent.GROUP_RENAMED_EVENT:
+                listener.groupNameChanged(evt);
+                break;
+            case ServerStoredGroupEvent.GROUP_REMOVED_EVENT:
+                listener.groupRemoved(evt);
+                break;
+            }
     }
 
     /**
@@ -185,11 +363,16 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
     public void fireSubscriptionEvent(Contact source, ContactGroup parentGroup,
         int eventID, int errorCode, String errorReason)
     {
-        SubscriptionEvent evt =
-            new SubscriptionEvent(source, parentProvider, parentGroup, eventID,
-                errorCode, errorReason);
+        SubscriptionEvent evt
+            = new SubscriptionEvent(
+                    source,
+                    parentProvider,
+                    parentGroup,
+                    eventID,
+                    errorCode,
+                    errorReason);
 
-        List<SubscriptionListener> listeners;
+        Collection<SubscriptionListener> listeners;
         synchronized (subscriptionListeners)
         {
             listeners =
@@ -200,7 +383,6 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
             + " listeners. Evt=" + evt);
 
         for (SubscriptionListener listener : listeners)
-        {
             switch (eventID)
             {
             case SubscriptionEvent.SUBSCRIPTION_CREATED:
@@ -216,7 +398,6 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
                 listener.subscriptionResolved(evt);
                 break;
             }
-        }
     }
 
     /**
@@ -234,11 +415,11 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
             new SubscriptionMovedEvent(source, parentProvider, oldParent,
                 newParent);
 
-        List<SubscriptionListener> listeners;
+        Collection<SubscriptionListener> listeners;
         synchronized (subscriptionListeners)
         {
-            listeners =
-                new ArrayList<SubscriptionListener>(subscriptionListeners);
+            listeners
+                = new ArrayList<SubscriptionListener>(subscriptionListeners);
         }
 
         logger.debug("Dispatching a Subscription Event to" + listeners.size()
@@ -260,6 +441,37 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
         synchronized (contactPresenceStatusListeners)
         {
             contactPresenceStatusListeners.remove(listener);
+        }
+    }
+
+    /**
+     * Unregisters the specified listener so that it does not receive further
+     * events upon changes in local presence status.
+     * 
+     * @param listener
+     *            ProviderPresenceStatusListener
+     */
+    public void removeProviderPresenceStatusListener(
+        ProviderPresenceStatusListener listener)
+    {
+        synchronized (providerPresenceStatusListeners)
+        {
+            providerPresenceStatusListeners.remove(listener);
+        }
+    }
+
+    /**
+     * Removes the specified group change listener so that it won't receive
+     * any further events.
+     *
+     * @param listener the ServerStoredGroupChangeListener to remove
+     */
+    public void removeServerStoredGroupChangeListener(
+        ServerStoredGroupListener listener)
+    {
+        synchronized (serverStoredGroupListeners)
+        {
+            serverStoredGroupListeners.remove(listener);
         }
     }
 

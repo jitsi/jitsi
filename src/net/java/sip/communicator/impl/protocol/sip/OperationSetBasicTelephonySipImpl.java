@@ -1503,7 +1503,7 @@ public class OperationSetBasicTelephonySipImpl
 
             if (replacesHeaderValue != null)
             {
-                for (Iterator<String> headerNameIter = sipURI.getHeaderNames();
+                for (Iterator<?> headerNameIter = sipURI.getHeaderNames();
                         headerNameIter.hasNext();)
                 {
                     if (ReplacesHeader.NAME.equals(headerNameIter.next()))

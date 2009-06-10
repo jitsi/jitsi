@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.msn;
 
-import java.beans.PropertyChangeEvent;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
@@ -42,14 +41,6 @@ public class OperationSetPersistentPresenceMsnImpl
      * The initial one is OFFLINE
      */
     private PresenceStatus currentStatus = MsnStatusEnum.OFFLINE;
-
-    /**
-     * The list of listeners interested in receiving changes in our local
-     * presence status.
-     */
-    private Vector<ProviderPresenceStatusListener>
-        providerPresenceStatusListeners
-            = new Vector<ProviderPresenceStatusListener>();
 
     /**
      * Sometimes status changes are received before the contact list is inited
@@ -120,21 +111,6 @@ public class OperationSetPersistentPresenceMsnImpl
 
         parentProvider.addRegistrationStateChangeListener(
             new RegistrationStateListener());
-    }
-
-    /**
-     * Adds a listener that would receive events upon changes of the provider
-     * presence status.
-     *
-     * @param listener the listener to register for changes in our
-     *   PresenceStatus.
-     */
-    public void addProviderPresenceStatusListener(
-        ProviderPresenceStatusListener listener)
-    {
-        synchronized(providerPresenceStatusListeners){
-            providerPresenceStatusListeners.add(listener);
-        }
     }
 
     /**
@@ -428,20 +404,6 @@ public class OperationSetPersistentPresenceMsnImpl
     }
 
     /**
-     * Unregisters the specified listener so that it does not receive further
-     * events upon changes in local presence status.
-     *
-     * @param listener ProviderPresenceStatusListener
-     */
-    public void removeProviderPresenceStatusListener(
-        ProviderPresenceStatusListener listener)
-    {
-        synchronized(providerPresenceStatusListeners){
-            providerPresenceStatusListeners.remove(listener);
-        }
-    }
-
-    /**
      * Removes the specified group from the server stored contact list.
      *
      * @param group the group to remove.
@@ -638,74 +600,20 @@ public class OperationSetPersistentPresenceMsnImpl
 
     /**
      * Notify all provider presence listeners of the corresponding event change
-     * @param oldStatus the status our stack had so far
-     * @param newStatus the status we have from now on
+     * 
+     * @param oldStatus
+     *            the status our stack had so far
+     * @param newStatus
+     *            the status we have from now on
      */
-    void fireProviderPresenceStatusChangeEvent(
-        PresenceStatus oldStatus, PresenceStatus newStatus)
+    protected void fireProviderStatusChangeEvent(
+        PresenceStatus oldStatus,
+        PresenceStatus newStatus)
     {
-        if(oldStatus.equals(newStatus)){
-            logger.debug("Ignored prov stat. change evt. old==new = "
-                         + oldStatus);
-            return;
-        }
+        if (!oldStatus.equals(newStatus)) {
+            currentStatus = newStatus;
 
-        ProviderPresenceStatusChangeEvent evt =
-            new ProviderPresenceStatusChangeEvent(
-                parentProvider, oldStatus, newStatus);
-
-        currentStatus = newStatus;
-
-
-        logger.debug("Dispatching Provider Status Change. Listeners="
-                     + providerPresenceStatusListeners.size()
-                     + " evt=" + evt);
-
-        Iterator<ProviderPresenceStatusListener> listeners = null;
-        synchronized (providerPresenceStatusListeners)
-        {
-            listeners = new ArrayList<ProviderPresenceStatusListener>(
-                                providerPresenceStatusListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            ProviderPresenceStatusListener listener = listeners.next();
-
-            listener.providerStatusChanged(evt);
-        }
-    }
-
-    /**
-     * Notify all provider presence listeners that a new status message has
-     * been set.
-     * @param oldStatusMessage the status message our stack had so far
-     * @param newStatusMessage the status message we have from now on
-     */
-    private void fireProviderStatusMessageChangeEvent(
-                        String oldStatusMessage, String newStatusMessage)
-    {
-
-        PropertyChangeEvent evt = new PropertyChangeEvent(
-            parentProvider, ProviderPresenceStatusListener.STATUS_MESSAGE,
-                oldStatusMessage, newStatusMessage);
-
-        logger.debug("Dispatching  stat. msg change. Listeners="
-                     + providerPresenceStatusListeners.size()
-                     + " evt=" + evt);
-
-        Iterator<ProviderPresenceStatusListener> listeners = null;
-        synchronized (providerPresenceStatusListeners)
-        {
-            listeners = new ArrayList<ProviderPresenceStatusListener>(
-                                providerPresenceStatusListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            ProviderPresenceStatusListener listener = listeners.next();
-
-            listener.providerStatusMessageChanged(evt);
+            super.fireProviderStatusChangeEvent(oldStatus, newStatus);
         }
     }
 
@@ -745,8 +653,7 @@ public class OperationSetPersistentPresenceMsnImpl
                 PresenceStatus oldStatus = currentStatus;
                 currentStatus = MsnStatusEnum.OFFLINE;
 
-                fireProviderPresenceStatusChangeEvent(oldStatus,
-                    currentStatus);
+                fireProviderStatusChangeEvent(oldStatus, currentStatus);
 
                 //send event notifications saying that all our buddies are
                 //offline.
@@ -873,7 +780,7 @@ public class OperationSetPersistentPresenceMsnImpl
             PresenceStatus oldStatus = currentStatus;
             currentStatus =
                 msnStatusToPresenceStatus(messenger.getOwner().getStatus());
-            fireProviderPresenceStatusChangeEvent(oldStatus, currentStatus);
+            fireProviderStatusChangeEvent(oldStatus, currentStatus);
         }
 
         /**

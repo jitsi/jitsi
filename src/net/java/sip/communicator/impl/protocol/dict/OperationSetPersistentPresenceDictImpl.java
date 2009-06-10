@@ -31,19 +31,6 @@ public class OperationSetPersistentPresenceDictImpl
         Logger.getLogger(OperationSetPersistentPresenceDictImpl.class);
 
     /**
-     * A list of listeners registered for <tt>ServerStoredGroupChangeEvent</tt>s.
-     */
-    private Vector<ServerStoredGroupListener> serverStoredGroupListeners = 
-        new Vector<ServerStoredGroupListener>();
-
-    /**
-     * A list of listeners registered for
-     *  <tt>ProviderPresenceStatusChangeEvent</tt>s.
-     */
-    private Vector<ProviderPresenceStatusListener> providerPresenceStatusListeners = 
-        new Vector<ProviderPresenceStatusListener>();
-
-    /**
      * The root of the dict contact list.
      */
     private ContactGroupDictImpl contactListRoot = null;
@@ -80,102 +67,6 @@ public class OperationSetPersistentPresenceDictImpl
         //add our unregistration listener
         parentProvider.addRegistrationStateChangeListener(
             new UnregistrationListener());
-    }
-
-    /**
-     * Notifies all registered listeners of the new event.
-     *
-     * @param source the contact that has caused the event.
-     * @param eventID an identifier of the event to dispatch.
-     */
-    public void fireServerStoredGroupEvent(ContactGroupDictImpl  source,
-                                           int                        eventID)
-    {
-        ServerStoredGroupEvent evt  = new ServerStoredGroupEvent(
-            source, eventID,  source.getParentContactGroup()
-           , this.parentProvider, this);
-
-        Iterator<ServerStoredGroupListener> listeners = null;
-        synchronized (serverStoredGroupListeners)
-        {
-            listeners = new ArrayList<ServerStoredGroupListener>(serverStoredGroupListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            ServerStoredGroupListener listener = listeners.next();
-
-            if(eventID == ServerStoredGroupEvent.GROUP_CREATED_EVENT)
-            {
-                listener.groupCreated(evt);
-            }
-            else if(eventID == ServerStoredGroupEvent.GROUP_RENAMED_EVENT)
-            {
-                listener.groupNameChanged(evt);
-            }
-            else if(eventID == ServerStoredGroupEvent.GROUP_REMOVED_EVENT)
-            {
-                listener.groupRemoved(evt);
-            }
-        }
-    }
-
-    /**
-     * Notifies all registered listeners of the new event.
-     *
-     * @param oldValue the presence status we were in before the change.
-     */
-    public void fireProviderStatusChangeEvent(PresenceStatus oldValue)
-    {
-        ProviderPresenceStatusChangeEvent evt
-            = new ProviderPresenceStatusChangeEvent(this.parentProvider,
-                                        oldValue, this.getPresenceStatus());
-
-        Iterator<ProviderPresenceStatusListener> listeners = null;
-        synchronized (providerPresenceStatusListeners)
-        {
-            listeners = new ArrayList<ProviderPresenceStatusListener>(providerPresenceStatusListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            ProviderPresenceStatusListener listener = listeners.next();
-
-            listener.providerStatusChanged(evt);
-        }
-    }
-
-    /**
-     * Dict implementation of the corresponding ProtocolProviderService
-     * method.
-     *
-     * @param listener a dummy param.
-     */
-    public void addProviderPresenceStatusListener(
-        ProviderPresenceStatusListener listener)
-    {
-        synchronized(providerPresenceStatusListeners)
-        {
-            if (!providerPresenceStatusListeners.contains(listener))
-                this.providerPresenceStatusListeners.add(listener);
-        }
-    }
-
-    /**
-     * Registers a listener that would receive events upon changes in server
-     * stored groups.
-     *
-     * @param listener a ServerStoredGroupChangeListener impl that would
-     *   receive events upong group changes.
-     */
-    public void addServerStoredGroupChangeListener(ServerStoredGroupListener
-                                                        listener)
-    {
-        synchronized(serverStoredGroupListeners)
-        {
-            if (!serverStoredGroupListeners.contains(listener))
-                serverStoredGroupListeners.add(listener);
-        }
     }
 
     /**
@@ -501,21 +392,6 @@ public class OperationSetPersistentPresenceDictImpl
     }
 
     /**
-     * Unregisters the specified listener so that it does not receive further
-     * events upon changes in local presence status.
-     *
-     * @param listener ProviderPresenceStatusListener
-     */
-    public void removeProviderPresenceStatusListener(
-        ProviderPresenceStatusListener listener)
-    {
-        synchronized(providerPresenceStatusListeners)
-        {
-            this.providerPresenceStatusListeners.remove(listener);
-        }
-    }
-
-    /**
      * Returns the group that is parent of the specified dictGroup  or null
      * if no parent was found.
      * @param dictGroup the group whose parent we're looking for.
@@ -569,22 +445,6 @@ public class OperationSetPersistentPresenceDictImpl
 
         this.fireServerStoredGroupEvent(
             dictGroup, ServerStoredGroupEvent.GROUP_REMOVED_EVENT);
-    }
-
-
-    /**
-     * Removes the specified group change listener so that it won't receive
-     * any further events.
-     *
-     * @param listener the ServerStoredGroupChangeListener to remove
-     */
-    public void removeServerStoredGroupChangeListener(ServerStoredGroupListener
-        listener)
-    {
-        synchronized(serverStoredGroupListeners)
-        {
-            serverStoredGroupListeners.remove(listener);
-        }
     }
 
     /**

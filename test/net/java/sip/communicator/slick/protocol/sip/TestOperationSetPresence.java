@@ -10,6 +10,7 @@ import java.beans.PropertyChangeEvent;
 import java.util.*;
 
 import junit.framework.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -97,7 +98,6 @@ public class TestOperationSetPresence
                 + "implementation of at least the one of the Presence "
                 + "Operation Sets");
         }
-
     }
 
     protected void tearDown() throws Exception
@@ -154,13 +154,12 @@ public class TestOperationSetPresence
     {
         //first create a local list containing the presence status instances
         //supported by the underlying implementation.
-        Iterator supportedStatusSetIter =
+        Iterator<PresenceStatus> supportedStatusSetIter =
             this.operationSetPresence1.getSupportedStatusSet();
 
         while (supportedStatusSetIter.hasNext())
         {
-            PresenceStatus supportedStatus =
-                (PresenceStatus) supportedStatusSetIter.next();
+            PresenceStatus supportedStatus = supportedStatusSetIter.next();
 
             logger.trace("Will test a transition to "
                          + supportedStatus.getStatusName());
@@ -291,25 +290,22 @@ public class TestOperationSetPresence
      * @throws java.lang.Exception if one of the transitions fails
      */
     public void testQueryContactStatus()
-    throws Exception
+        throws Exception
     {
         //first create a local list containing the presence status instances
         //supported by the underlying implementation.
-        Iterator supportedStatusSetIter =
+        Iterator<PresenceStatus> supportedStatusSetIter =
             operationSetPresence1.getSupportedStatusSet();
     
         while (supportedStatusSetIter.hasNext())
         {
-            PresenceStatus supportedStatus
-                = (PresenceStatus)supportedStatusSetIter.next();
-    
-    
+            PresenceStatus supportedStatus = supportedStatusSetIter.next();
+
             logger.trace("Will test a transition to "
                          + supportedStatus.getStatusName());
-    
+
             subtestQueryContactStatus(supportedStatus);
         }
-    
     }
 
     /**
@@ -365,8 +361,8 @@ public class TestOperationSetPresence
             = new SubscriptionEventCollector();
         this.operationSetPresence1.addSubscriptionListener(subEvtCollector);
 
-
-        synchronized (subEvtCollector){
+        synchronized (subEvtCollector)
+        {
             this.operationSetPresence1.subscribe(this.fixture.userID2);
             //we may already have the event, but it won't hurt to check.
             subEvtCollector.waitForEvent(10000);
@@ -390,7 +386,8 @@ public class TestOperationSetPresence
         subEvtCollector.collectedEvents.clear();
         
         // wait the resolution of the contact before continuing
-        synchronized (subEvtCollector){
+        synchronized (subEvtCollector)
+        {
             subEvtCollector.waitForEvent(10000);
             this.operationSetPresence1
                 .removeSubscriptionListener(subEvtCollector);
@@ -513,13 +510,12 @@ public class TestOperationSetPresence
         PresenceStatus mostConnectedPresenceStatus = null;
         int mostConnectedPresenceStatusInt = Integer.MIN_VALUE;
 
-        Iterator supportedStatusSetIter =
+        Iterator<PresenceStatus> supportedStatusSetIter =
             this.operationSetPresence1.getSupportedStatusSet();
 
         while (supportedStatusSetIter.hasNext())
         {
-            PresenceStatus supportedStatus
-                = (PresenceStatus)supportedStatusSetIter.next();
+            PresenceStatus supportedStatus = supportedStatusSetIter.next();
 
             if(supportedStatus.getStatus() > mostConnectedPresenceStatusInt)
             {
@@ -546,13 +542,12 @@ public class TestOperationSetPresence
         PresenceStatus secondMostConnectedPresenceStatus = null;
         int secondMostConnectedPresenceStatusInt = Integer.MIN_VALUE;
 
-        Iterator supportedStatusSetIter =
+        Iterator<PresenceStatus> supportedStatusSetIter =
             this.operationSetPresence1.getSupportedStatusSet();
 
         while (supportedStatusSetIter.hasNext())
         {
-            PresenceStatus supportedStatus
-                = (PresenceStatus)supportedStatusSetIter.next();
+            PresenceStatus supportedStatus = supportedStatusSetIter.next();
 
             if(supportedStatus.getStatus() > mostConnectedPresenceStatusInt)
             {
@@ -969,47 +964,5 @@ public class TestOperationSetPresence
                 notifyAll();
             }
         }
-    }
-
-     /**
-     * Used to wait till buddy is removed from our contact list.
-     * Used in the authorization process tests
-     */
-    private class UnsubscribeWait implements SubscriptionListener
-    {
-        public void waitForUnsubscribre(long waitFor)
-        {
-            synchronized(this)
-            {
-                try{
-                    wait(waitFor);
-                }
-                catch (InterruptedException ex)
-                {
-                    logger.debug(
-                        "Interrupted while waiting for a subscription evt", ex);
-                }
-            }
-        }
-
-        public void subscriptionRemoved(SubscriptionEvent evt)
-        {
-            synchronized(this)
-            {
-                logger.debug("Got subscriptionRemoved " + evt);
-                notifyAll();
-            }
-        }
-
-        public void subscriptionCreated(SubscriptionEvent evt)
-        {}
-        public void subscriptionFailed(SubscriptionEvent evt)
-        {}
-        public void subscriptionMoved(SubscriptionMovedEvent evt)
-        {}
-        public void subscriptionResolved(SubscriptionEvent evt)
-        {}
-        public void contactModified(ContactPropertyChangeEvent evt)
-        {}
     }
 }
