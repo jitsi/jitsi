@@ -11,6 +11,7 @@
  */
 package net.java.sip.communicator.impl.protocol.ssh;
 
+import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
@@ -31,7 +32,8 @@ public class OperationSetFileTransferSSHImpl
     /**
      * Currently registered message listeners.
      */
-    private Vector fileTransferListeners = new Vector();
+    private Vector<FileTransferRequestListener> fileTransferListeners
+        = new Vector<FileTransferRequestListener>();
     
     /**
      * The protocol provider that created us.
@@ -52,12 +54,43 @@ public class OperationSetFileTransferSSHImpl
      *
      * @param listener the <tt>FileListener</tt> to register.
      */
-    public void addFileListener(FileListener listener)
+    public void addFileTransferRequestListener(
+        FileTransferRequestListener listener)
     {
-        if(!fileTransferListeners.contains(listener))
-            fileTransferListeners.add(listener);
+        synchronized (fileTransferListeners)
+        {
+            if(!fileTransferListeners.contains(listener))
+                fileTransferListeners.add(listener);
+        }
     }
-    
+
+    public void removeFileTransferRequestListener(
+        FileTransferRequestListener listener)
+    {
+        synchronized (fileTransferListeners)
+        {
+            fileTransferListeners.remove(listener);
+        }
+    }
+
+    /**
+     * Sends a file transfer request to the given <tt>toContact</tt> by
+     * specifying the local and remote file path and the <tt>fromContact</tt>,
+     * sending the file.
+     * 
+     * @param toContact the contact that should receive the file
+     * @param fromContact the contact sending the file
+     * @param file the file to send
+     */
+    public FileTransfer sendFile(   Contact toContact,
+                            File file)
+    {
+        return this.sendFile(   toContact,
+                                null,
+                                file.getAbsolutePath(),
+                                file.getAbsolutePath());
+    }
+
     /**
      * The file transfer method to/from the remote machine
      * either toContact is null(we are downloading file from remote machine
@@ -68,7 +101,7 @@ public class OperationSetFileTransferSSHImpl
      * @param remotePath - the identifier for the remote file
      * @param localPath - the identifier for the local file
      */
-    public void sendFile(
+    public FileTransfer sendFile(
             Contact toContact,
             Contact fromContact,
             String remotePath,
@@ -80,16 +113,16 @@ public class OperationSetFileTransferSSHImpl
                     = new SSHFileTransferDaemon(
                     (ContactSSH)fromContact,
                     parentProvider);
-            
+
             if(localPath.endsWith(System.getProperty("file.separator")))
                 localPath += remotePath.substring(remotePath.lastIndexOf(
                         System.getProperty("file.separator")) + 1);
-                
+
                 fileTransferDaemon.downloadFile(
                     remotePath,
                     localPath);
-            
-            return;
+
+            return new FileTransferSSHImpl(fileTransferDaemon);
         }
         else if(fromContact == null)
         {
@@ -97,17 +130,17 @@ public class OperationSetFileTransferSSHImpl
                     = new SSHFileTransferDaemon(
                     (ContactSSH) toContact,
                     parentProvider);
-            
+
             fileTransferDaemon.uploadFile(
                     remotePath,
                     localPath);
-            
-            return;
+
+            return new FileTransferSSHImpl(fileTransferDaemon);
         }
-        
+
         // code should not reach here
         // assert false;
         logger.error("we should not be here !");
+        return null;
     }
-
 }

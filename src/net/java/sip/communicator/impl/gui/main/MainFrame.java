@@ -314,8 +314,8 @@ public class MainFrame
 
         // Obtain the presence operation set.
         if (supportedOperationSets.containsKey(ppOpSetClassName)
-                || supportedOperationSets.containsKey(pOpSetClassName)) {
-
+                || supportedOperationSets.containsKey(pOpSetClassName))
+        {
             OperationSetPresence presence = (OperationSetPresence)
                 supportedOperationSets.get(ppOpSetClassName);
 
@@ -334,8 +334,8 @@ public class MainFrame
         String imOpSetClassName = OperationSetBasicInstantMessaging
                                     .class.getName();
 
-        if (supportedOperationSets.containsKey(imOpSetClassName)) {
-
+        if (supportedOperationSets.containsKey(imOpSetClassName))
+        {
             OperationSetBasicInstantMessaging im
                 = (OperationSetBasicInstantMessaging)
                     supportedOperationSets.get(imOpSetClassName);
@@ -350,8 +350,8 @@ public class MainFrame
         String tnOpSetClassName = OperationSetTypingNotifications
                                     .class.getName();
 
-        if (supportedOperationSets.containsKey(tnOpSetClassName)) {
-
+        if (supportedOperationSets.containsKey(tnOpSetClassName))
+        {
             OperationSetTypingNotifications tn
                 = (OperationSetTypingNotifications)
                     supportedOperationSets.get(tnOpSetClassName);
@@ -365,8 +365,8 @@ public class MainFrame
         // Obtain the basic telephony operation set.
         String telOpSetClassName = OperationSetBasicTelephony.class.getName();
 
-        if (supportedOperationSets.containsKey(telOpSetClassName)) {
-
+        if (supportedOperationSets.containsKey(telOpSetClassName))
+        {
             OperationSetBasicTelephony telephony
                 = (OperationSetBasicTelephony)
                     supportedOperationSets.get(telOpSetClassName);
@@ -389,6 +389,17 @@ public class MainFrame
             multiUserChat.addInvitationListener(conferenceManager);
             multiUserChat.addInvitationRejectionListener(conferenceManager);
             multiUserChat.addPresenceListener(conferenceManager);
+        }
+
+        // Obtain file transfer operation set.
+        OperationSetFileTransfer fileTransferOpSet
+            = (OperationSetFileTransfer) protocolProvider
+                .getOperationSet(OperationSetFileTransfer.class);
+
+        if (fileTransferOpSet != null)
+        {
+            fileTransferOpSet.addFileTransferRequestListener(
+                getContactListPanel());
         }
     }
 
@@ -531,7 +542,8 @@ public class MainFrame
         OperationSet opSet
             = protocolProvider.getOperationSet(OperationSetPresence.class);
 
-        return (opSet instanceof OperationSetPresence) ? (OperationSetPresence) opSet
+        return (opSet instanceof OperationSetPresence)
+            ? (OperationSetPresence) opSet
             : null;
     }
 
@@ -588,7 +600,8 @@ public class MainFrame
         OperationSet opSet
             = protocolProvider.getOperationSet(OperationSetMultiUserChat.class);
 
-        return (opSet instanceof OperationSetMultiUserChat) ? (OperationSetMultiUserChat) opSet
+        return (opSet instanceof OperationSetMultiUserChat)
+            ? (OperationSetMultiUserChat) opSet
             : null;
     }
 

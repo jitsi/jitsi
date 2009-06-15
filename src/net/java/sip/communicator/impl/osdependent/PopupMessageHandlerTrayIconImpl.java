@@ -4,19 +4,18 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.systray;
+package net.java.sip.communicator.impl.osdependent;
 
 import java.awt.event.*;
 import java.util.*;
-import java.util.List;
 
-import net.java.sip.communicator.impl.systray.jdic.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * An implementation  of the <tt>PopupMsystrayessageHandler</tt> using the tray icon.
+ * An implementation  of the <tt>PopupMsystrayessageHandler</tt> using the
+ * tray icon.
  */
 public class PopupMessageHandlerTrayIconImpl implements PopupMessageHandler
 {
@@ -125,7 +124,7 @@ public class PopupMessageHandlerTrayIconImpl implements PopupMessageHandler
      */
     public String toString()
     {
-        return SystrayActivator.getResources()
+        return OsDependentActivator.getResources()
             .getI18NString("impl.systray.POPUP_MESSAGE_HANDLER");
     }
 }

@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.systray.jdic;
+package net.java.sip.communicator.impl.osdependent;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -13,7 +13,7 @@ import java.lang.reflect.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.impl.systray.jdic.SystemTray.*;
+import net.java.sip.communicator.impl.osdependent.SystemTray.*;
 
 /**
  * @author Lubomir Marinov
@@ -165,12 +165,14 @@ public class TrayIcon
             {
                 if (popup instanceof JPopupMenu)
                 {
-                    impl = constructor.newInstance(new Object[] { image, tooltip });
+                    impl = constructor.newInstance(
+                        new Object[] { image, tooltip });
                     addMouseListener(new AWTMouseAdapter((JPopupMenu) popup));
                 }
                 else
                 {
-                    impl = constructor.newInstance(new Object[] { image, tooltip, popup });
+                    impl = constructor.newInstance(
+                        new Object[] { image, tooltip, popup });
                 }
             }
             catch (IllegalAccessException ex)

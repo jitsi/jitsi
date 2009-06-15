@@ -1,13 +1,15 @@
-Bundle-Activator: net.java.sip.communicator.impl.systray.SystrayActivator
-Bundle-Name: Systray
-Bundle-Description: Systray.
+Bundle-Activator: net.java.sip.communicator.impl.osdependent.OsDependentActivator
+Bundle-Name: OS dependent
+Bundle-Description: OS dependent.
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Export-Package: net.java.sip.communicator.service.systray,
- net.java.sip.communicator.service.systray.event
+ net.java.sip.communicator.service.systray.event,
+ net.java.sip.communicator.service.desktop
 Import-Package: org.osgi.framework,
  org.jdesktop.jdic.tray,
+ org.jdesktop.jdic.desktop,
  com.apple.cocoa.application,
  com.apple.cocoa.foundation,
  net.java.sip.communicator.service.configuration,

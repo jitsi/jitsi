@@ -1,0 +1,50 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+package net.java.sip.communicator.impl.protocol.ssh;
+
+import net.java.sip.communicator.service.protocol.*;
+
+/**
+ * SSH implementation of the <tt>AbstractFileTransfer</tt>.
+ * 
+ * @author Yana Stamcheva
+ */
+public class FileTransferSSHImpl
+    extends AbstractFileTransfer
+{
+    private final SSHFileTransferDaemon fileTransfer;
+
+    /**
+     * Creates an SSH implementation of the file transfer interface.
+     * 
+     * @param fileTransfer the SSH file transfer
+     */
+    public FileTransferSSHImpl(SSHFileTransferDaemon fileTransfer)
+    {
+        this.fileTransfer = fileTransfer;
+    }
+
+    /**
+     * Cancels this file transfer. When this method is called transfer should
+     * be interrupted.
+     */
+    public void cancel()
+    {
+        // TODO: Implement cancel() for SSH file transfer.
+    }
+
+    /**
+     * Returns the number of bytes already transfered through this file transfer.
+     * 
+     * @return the number of bytes already transfered through this file transfer
+     */
+    public long getTransferedBytes()
+    {
+        // TODO: Implement getTransferedBytes() for SSH file transfer.
+        return 0;
+    }
+}

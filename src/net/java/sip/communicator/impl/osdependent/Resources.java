@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.systray;
+package net.java.sip.communicator.impl.osdependent;
 
 import java.net.*;
 
@@ -82,7 +82,7 @@ public class Resources
         if (resourcesService == null)
             resourcesService =
                 ResourceManagementServiceUtils
-                    .getService(SystrayActivator.bundleContext);
+                    .getService(OsDependentActivator.bundleContext);
         return resourcesService;
     }
 }

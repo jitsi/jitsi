@@ -7,11 +7,15 @@
 
 package net.java.sip.communicator.impl.gui.main.chat;
 
+import java.io.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
+ * The single chat implementation of the <tt>ChatTransport</tt> interface that
+ * provides abstraction to protocol provider access.
  * 
  * @author Yana Stamcheva
  */
@@ -19,13 +23,14 @@ public class MetaContactChatTransport
     implements  ChatTransport,
                 ContactPresenceStatusListener
 {
-    private Logger logger = Logger.getLogger(MetaContactChatTransport.class);
+    private static final Logger logger
+        = Logger.getLogger(MetaContactChatTransport.class);
 
-    private ChatSession parentChatSession;
+    private final ChatSession parentChatSession;
 
-    private Contact contact;
+    private final Contact contact;
 
-    private OperationSetPresence presenceOpSet;
+    private final OperationSetPresence presenceOpSet;
 
     public MetaContactChatTransport(ChatSession chatSession,
                                     Contact contact)
@@ -37,7 +42,8 @@ public class MetaContactChatTransport
             (OperationSetPresence) contact.getProtocolProvider()
                 .getOperationSet(OperationSetPresence.class);
 
-        presenceOpSet.addContactPresenceStatusListener(this);
+        if (presenceOpSet != null)
+            presenceOpSet.addContactPresenceStatusListener(this);
     }
 
     public Contact getContact()
@@ -142,6 +148,24 @@ public class MetaContactChatTransport
     }
 
     /**
+     * Returns <code>true</code> if this chat transport supports file transfer,
+     * otherwise returns <code>false</code>.
+     * 
+     * @return <code>true</code> if this chat transport supports file transfer,
+     * otherwise returns <code>false</code>.
+     */
+    public boolean allowsFileTransfer()
+    {
+        Object ftOpSet = contact.getProtocolProvider()
+            .getOperationSet(OperationSetFileTransfer.class);
+
+        if (ftOpSet != null)
+            return true;
+        else
+            return false;
+    }
+
+    /**
      * Sends the given instant message trough this chat transport, by specifying
      * the mime type (html or plain text).
      * 
@@ -239,9 +263,29 @@ public class MetaContactChatTransport
         return ChatPanel.TYPING_NOTIFICATION_SEND_FAILED;
     }
 
+    /**
+     * Sends the given file through this chat transport file transfer operation
+     * set.
+     * @param file the file to send
+     * @throws Exception if anything goes wrong
+     */
+    public FileTransfer sendFile(File file)
+        throws Exception
+    {
+        // If this chat transport does not support instant messaging we do
+        // nothing here.
+        if (!allowsFileTransfer())
+            return null;
+
+        OperationSetFileTransfer ftOpSet
+            = (OperationSetFileTransfer) contact.getProtocolProvider()
+                .getOperationSet(OperationSetFileTransfer.class);
+
+        return ftOpSet.sendFile(contact, file);
+    }
+
     public void inviteChatContact(String contactAddress, String reason)
     {
-        
     }
 
     /**
@@ -369,9 +413,15 @@ public class MetaContactChatTransport
      */
     public void dispose()
     {
-        presenceOpSet.removeContactPresenceStatusListener(this);
+        if (presenceOpSet != null)
+            presenceOpSet.removeContactPresenceStatusListener(this);
     }
 
+    /**
+     * Returns the descriptor of this chat transport.
+     * 
+     * @return the descriptor of this chat transport
+     */
     public Object getDescriptor()
     {
         return contact;

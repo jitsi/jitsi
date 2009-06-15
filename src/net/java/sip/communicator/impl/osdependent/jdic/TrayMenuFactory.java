@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.systray.jdic;
+package net.java.sip.communicator.impl.osdependent.jdic;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -12,7 +12,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.impl.systray.*;
+import net.java.sip.communicator.impl.osdependent.*;
 import net.java.sip.communicator.service.gui.*;
 
 /**
@@ -47,22 +47,22 @@ public final class TrayMenuFactory
 
         if (itemName.equals("settings"))
         {
-            SystrayActivator.getUIService().setConfigurationWindowVisible(true);
+            OsDependentActivator.getUIService().setConfigurationWindowVisible(true);
         }
         else if (itemName.equals("service.gui.CLOSE"))
         {
-            SystrayActivator.getUIService().beginShutdown();
+            OsDependentActivator.getUIService().beginShutdown();
         }
         else if (itemName.equals("addContact"))
         {
             ExportedWindow dialog =
-                SystrayActivator.getUIService().getExportedWindow(
+                OsDependentActivator.getUIService().getExportedWindow(
                     ExportedWindow.ADD_CONTACT_WINDOW);
 
             if (dialog != null)
                 dialog.setVisible(true);
             else
-                SystrayActivator.getUIService().getPopupDialog()
+                OsDependentActivator.getUIService().getPopupDialog()
                     .showMessagePopupDialog(Resources.getString(
                         "impl.systray.FAILED_TO_OPEN_ADD_CONTACT_DIALOG"));
         }

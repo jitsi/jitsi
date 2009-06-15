@@ -7,11 +7,15 @@
 
 package net.java.sip.communicator.impl.gui.main.chat.conference;
 
+import java.io.*;
+
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
 /**
+ * The conference implementation of the <tt>ChatTransport</tt> interface that
+ * provides abstraction to access to protocol providers.
  * 
  * @author Yana Stamcheva
  */
@@ -165,7 +169,17 @@ public class ConferenceChatTransport
     }
 
     /**
-     * Invites the given contact in this chat conferenece.
+     * Sending files through a chat room is not yet supported by this chat
+     * transport implementation.
+     */
+    public FileTransfer sendFile(File file)
+        throws Exception
+    { 
+        return null;
+    }
+
+    /**
+     * Invites the given contact in this chat conference.
      * 
      * @param contactAddress the address of the contact to invite
      * @param reason the reason for the invitation

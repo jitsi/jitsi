@@ -141,7 +141,7 @@ public class ConferenceChatManager
 
         if(chatPanel != null)
         {
-            chatPanel.processMessage(sourceChatRoom.getParentProvider()
+            chatPanel.addMessage(sourceChatRoom.getParentProvider()
                 .getAccountID().getUserID(),
                 evt.getTimestamp(),
                 messageType,
@@ -205,7 +205,7 @@ public class ConferenceChatManager
 
         String messageContent = message.getContent();
 
-        chatPanel.processMessage(
+        chatPanel.addMessage(
             sourceMember.getName(),
             evt.getTimestamp(),
             messageType,
@@ -333,18 +333,16 @@ public class ConferenceChatManager
         ChatPanel chatPanel
             = chatWindowManager.getMultiChat(sourceChatRoom);
 
-        chatPanel.processMessage(
+        chatPanel.addMessage(
                 destMember.getName(),
                 System.currentTimeMillis(),
                 Constants.OUTGOING_MESSAGE,
                 sourceMessage.getContent(),
                 sourceMessage.getContentType());
 
-        chatPanel.processMessage(
+        chatPanel.addErrorMessage(
                 destMember.getName(),
-                System.currentTimeMillis(),
-                Constants.ERROR_MESSAGE,
-                errorMsg, "text");
+                errorMsg);
 
         chatWindowManager.openChat(chatPanel, false);
     }

@@ -10,8 +10,10 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
 import java.io.*;
+import java.util.*;
 
 import javax.swing.*;
+import javax.swing.text.*;
 import javax.swing.text.html.*;
 
 import net.java.sip.communicator.impl.gui.*;
@@ -415,7 +417,7 @@ public class Constants
      * Temporary method to load the css style used in the chat window.
      * @param style
      */
-    public static void loadSimpleStyle(StyleSheet style, Font defaultFont)
+    public static void loadSimpleStyle(StyleSheet styleSheet, Font defaultFont)
     {
         Reader r =
             new BufferedReader(
@@ -424,7 +426,7 @@ public class Constants
                         "service.gui.HTML_TEXT_STYLE")));
 
         if (defaultFont != null)
-            style.addRule(
+            styleSheet.addRule(
                 "body, div, h1, h2, h3, h4, h5, h6, h7, p, td, th { "
                     + "font-family: "
                     + defaultFont.getName()
@@ -434,7 +436,7 @@ public class Constants
 
         try
         {
-            style.loadRules(r, null);
+            styleSheet.loadRules(r, null);
         }
         catch (IOException ex)
         {

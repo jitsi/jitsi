@@ -20,7 +20,6 @@ import javax.swing.text.html.ParagraphView;
  */
 public class SIPCommHTMLEditorKit extends HTMLEditorKit
 {
-
     /**
      * Returns the extended <tt>HTMLFactory</tt> defined here.
      */
@@ -66,7 +65,7 @@ public class SIPCommHTMLEditorKit extends HTMLEditorKit
         }
 
         /**
-         * Calculate equirements along the minor axis.  This
+         * Calculate requirements along the minor axis.  This
          * is implemented to forward the request to the logical
          * view by calling getMinimumSpan, getPreferredSpan, and
          * getMaximumSpan on it.
@@ -90,27 +89,5 @@ public class SIPCommHTMLEditorKit extends HTMLEditorKit
             sizeRequirements.alignment = 0.5f;
             return sizeRequirements;
         }
-    }
-
-
-    /**
-     * Create an uninitialized text storage model
-     * that is appropriate for this type of editor.
-     *
-     * @return the model.
-     */
-    public Document createDefaultDocument()
-    {
-        StyleSheet styles = getStyleSheet();
-        StyleSheet ss = new StyleSheet();
-
-        ss.addStyleSheet(styles);
-
-        HTMLDocument doc = new HTMLDocument(ss);
-        doc.setParser(getParser());
-        doc.setAsynchronousLoadPriority(4);
-        doc.setTokenThreshold(100);
-
-        return doc;
     }
 }

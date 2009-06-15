@@ -5,7 +5,7 @@
  * See terms of license at gnu.org.
  */
 
-package net.java.sip.communicator.impl.systray.jdic;
+package net.java.sip.communicator.impl.osdependent.jdic;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;

@@ -106,7 +106,14 @@ public interface FileAccessService {
      *             directory.
      */
     File getPrivatePersistentDirectory(String[] dirNames) throws Exception;
-    
+
+    /**
+     * Returns the default download directory depending on the operating system.
+     * 
+     * @return the default download directory depending on the operating system
+     */
+    File getDefaultDownloadDirectory() throws IOException;
+
     /**
      * Creates a failsafe transaction which can be used to safely store
      * informations into a file.

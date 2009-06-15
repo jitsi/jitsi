@@ -14,6 +14,8 @@ import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.desktop.*;
+import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.service.msghistory.*;
@@ -59,8 +61,12 @@ public class GuiActivator implements BundleActivator
 
     private static KeybindingsService keybindingsService;
 
-    private static final Map<Object, ProtocolProviderFactory> providerFactoriesMap =
-        new Hashtable<Object, ProtocolProviderFactory>();
+    private static FileAccessService fileAccessService;
+
+    private static DesktopService desktopService;
+
+    private static final Map<Object, ProtocolProviderFactory>
+        providerFactoriesMap = new Hashtable<Object, ProtocolProviderFactory>();
 
     public  static boolean isStarted = false;
 
@@ -157,7 +163,8 @@ public class GuiActivator implements BundleActivator
             for (int i = 0; i < serRefs.length; i++) 
             {
 
-                ProtocolProviderFactory providerFactory = (ProtocolProviderFactory) bundleContext
+                ProtocolProviderFactory providerFactory
+                    = (ProtocolProviderFactory) bundleContext
                         .getService(serRefs[i]);
 
                 providerFactoriesMap.put(serRefs[i]
@@ -399,9 +406,47 @@ public class GuiActivator implements BundleActivator
     }
 
     /**
+     * Returns the <tt>FileAccessService</tt> obtained from the bundle context.
+     *
+     * @return the <tt>FileAccessService</tt> obtained from the bundle context
+     */
+    public static FileAccessService getFileAccessService()
+    {
+        if (fileAccessService == null)
+        {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(FileAccessService.class.getName());
+
+            fileAccessService = (FileAccessService) bundleContext
+                .getService(serviceReference);
+        }
+
+        return fileAccessService;
+    }
+
+    /**
+     * Returns the <tt>DesktopService</tt> obtained from the bundle context.
+     *
+     * @return the <tt>DesktopService</tt> obtained from the bundle context
+     */
+    public static DesktopService getDesktopService()
+    {
+        if (desktopService == null)
+        {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(DesktopService.class.getName());
+
+            desktopService = (DesktopService) bundleContext
+                .getService(serviceReference);
+        }
+
+        return desktopService;
+    }
+
+    /**
      * Implements the <tt>ServiceListener</tt>. Verifies whether the
      * passed event concerns a <tt>NotificationService</tt> and if so
-     * intiates the gui NotificationManager.
+     * initiates the user interface NotificationManager.
      */
     private static class NotificationServiceListener implements ServiceListener
     {

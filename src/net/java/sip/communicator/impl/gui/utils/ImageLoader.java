@@ -730,6 +730,12 @@ public class ImageLoader
     public static final ImageID HIDE_ACTIONS_ROLLOVER_BUTTON
         = new ImageID("service.gui.buttons.HIDE_ACTIONS_ROLLOVER_BUTTON");
 
+    /**
+     * The default icon used in file transfer ui.
+     */
+    public static final ImageID DEFAULT_FILE_ICON
+        = new ImageID("service.gui.icons.DEFAULT_FILE_ICON");
+
     /*
      * =======================================================================
      * ------------------------ EDIT TOOLBAR ICONS ---------------------------

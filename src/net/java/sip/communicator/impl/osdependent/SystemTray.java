@@ -4,14 +4,14 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.systray.jdic;
+package net.java.sip.communicator.impl.osdependent;
 
 import java.awt.*;
 import java.lang.reflect.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.systray.jdic.TrayIcon.*;
+import net.java.sip.communicator.impl.osdependent.TrayIcon.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -48,10 +48,9 @@ public class SystemTray
             }
             catch (Exception ex)
             {
-                logger
-                    .error(
-                        "Failed to initialize the java.awt.SystemTray implementation.",
-                        ex);
+                logger.error(
+                "Failed to initialize the java.awt.SystemTray implementation.",
+                ex);
 
                 // We'll try org.jdesktop.jdic.tray then.
             }
@@ -62,10 +61,9 @@ public class SystemTray
             }
             catch (Exception ex)
             {
-                logger
-                    .error(
-                        "Failed to initialize the org.jdesktop.jdic.tray implementation.",
-                        ex);
+                logger.error(
+                "Failed to initialize the org.jdesktop.jdic.tray implementation.",
+                ex);
             }
         return (defaultSystemTray = new SystemTray(peer));
     }
@@ -103,7 +101,9 @@ public class SystemTray
             throws NullPointerException,
             IllegalArgumentException;
 
-        TrayIconPeer createTrayIcon(ImageIcon icon, String tooltip, Object popup)
+        TrayIconPeer createTrayIcon(ImageIcon icon,
+                                    String tooltip,
+                                    Object popup)
             throws IllegalArgumentException,
             UnsupportedOperationException,
             HeadlessException,

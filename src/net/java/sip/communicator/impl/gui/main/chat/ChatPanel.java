@@ -20,6 +20,7 @@ import javax.swing.text.html.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
+import net.java.sip.communicator.impl.gui.main.chat.filetransfer.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
@@ -50,7 +51,8 @@ public class ChatPanel
 {
     private static final Logger logger = Logger.getLogger(ChatPanel.class);
 
-    private final JSplitPane messagePane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+    private final JSplitPane messagePane
+        = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 
     private final JCheckBox sendSmsCheckBox = new SIPCommCheckBox(
         GuiActivator.getResources().getI18NString("service.gui.SEND_AS_SMS"));
@@ -98,6 +100,10 @@ public class ChatPanel
     private final java.util.List<ChatFocusListener> focusListeners =
         new Vector<ChatFocusListener>();
 
+    private final Vector<Object> incomingEventBuffer = new Vector<Object>();
+
+    private boolean isHistoryLoaded;
+
     /**
      * Creates a <tt>ChatPanel</tt> which is added to the given chat window.
      *
@@ -111,6 +117,8 @@ public class ChatPanel
 
         this.conversationPanel = new ChatConversationPanel(this);
         this.conversationPanel.setPreferredSize(new Dimension(400, 200));
+        this.conversationPanel.getChatEditorPane()
+            .setTransferHandler(new ChatTransferHandler(this));
 
         this.sendPanel = new ChatSendPanel(this);
 
@@ -299,7 +307,8 @@ public class ChatPanel
      * @return ChatWindow The chat window, where this
      * chat panel is located.
      */
-    public Window getConversationContainerWindow() {
+    public Window getConversationContainerWindow()
+    {
         return chatWindow;
     }
 
@@ -444,7 +453,7 @@ public class ChatPanel
      * @param escapedMessageID The incoming message needed to be ignored if
      * contained in history.
      */
-    public void processHistory( Collection<EventObject> historyList,
+    private void processHistory( Collection<EventObject> historyList,
                                 String escapedMessageID)
     {
         Iterator<EventObject> iterator = historyList.iterator();
@@ -532,10 +541,10 @@ public class ChatPanel
                             evt.getMessage().getContentType());
                 }
             }
-
             conversationPanel.appendMessageToEnd(historyString);
         }
 
+        isHistoryLoaded = true;
 
         getChatWindow().getMainToolBar()
             .changeHistoryButtonsState(this);
@@ -552,16 +561,53 @@ public class ChatPanel
      * or INCOMING_MESSAGE.
      * @param message The message text.
      */
-    public void processMessage(String contactName, long date,
+    public void addMessage(String contactName, long date,
             String messageType, String message, String contentType)
     {
-        String processedMessage
-            = this.conversationPanel.processMessage(contactName, date,
-                                            messageType, message, contentType);
-        this.conversationPanel.appendMessageToEnd(processedMessage);
+        ChatMessage chatMessage = new ChatMessage(contactName, date,
+            messageType, message, contentType);
+
+        if (!isHistoryLoaded)
+        {
+            synchronized (incomingEventBuffer)
+            {
+                incomingEventBuffer.add(chatMessage);
+            }
+        }
+        else
+        {
+            appendChatMessage(chatMessage);
+        }
 
         // change the last history message timestamp after we add one.
         this.lastHistoryMsgTimestamp = date;
+    }
+
+    /**
+     * Adds the given error message to the chat window conversation area.
+     * 
+     * @param contactName the name of the contact, for which the error occured
+     * @param message the error message
+     */
+    public void addErrorMessage(String contactName, String message)
+    {
+        this.addMessage(contactName,  System.currentTimeMillis(),
+                Constants.ERROR_MESSAGE, message, "text");
+    }
+
+    /**
+     * Passes the message to the contained <code>ChatConversationPanel</code>
+     * for processing and appends it at the end of the conversationPanel
+     * document.
+     * 
+     * @param chatMessage the message to append
+     */
+    private void appendChatMessage(ChatMessage chatMessage)
+    {
+        String processedMessage
+            = this.conversationPanel.processMessage(chatMessage);
+
+        this.conversationPanel.appendMessageToEnd(processedMessage);
     }
 
     /**
@@ -577,14 +623,16 @@ public class ChatPanel
      *
      * @return a string containing the processed message.
      */
-    public String processHistoryMessage(String contactName,
+    private String processHistoryMessage(String contactName,
                                         long date,
                                         String messageType,
                                         String message,
                                         String contentType)
     {
-        return this.conversationPanel.processMessage(contactName, date,
-                                            messageType, message, contentType);
+        ChatMessage chatMessage = new ChatMessage(contactName, date,
+            messageType, message, contentType);
+
+        return this.conversationPanel.processMessage(chatMessage);
     }
 
     /**
@@ -803,6 +851,91 @@ public class ChatPanel
         return isProtocolHidden && isGreyHistoryDisabled;
     }
 
+    /**
+     * Sends the given file through the currently selected chat transport by
+     * using the given fileComponent to visualize the transfer process in the
+     * chat conversation panel.
+     * 
+     * @param file the file to send
+     * @param fileComponent the file component to use for visualization
+     */
+    public void sendFile(   final File file,
+                            final SendFileConversationComponent fileComponent)
+    {
+        final ChatTransport currentChatTransport
+            = chatSession.getCurrentChatTransport();
+
+        SwingWorker worker = new SwingWorker()
+        {
+            public Object construct()
+                throws Exception
+            {
+                final FileTransfer fileTransfer
+                    = currentChatTransport.sendFile(file);
+
+                SwingUtilities.invokeLater(new Runnable()
+                {
+                    public void run()
+                    {
+                        fileComponent.setProtocolFileTransfer(fileTransfer);
+                    }
+                });
+
+                return "";
+            }
+
+            public void catchException(Throwable ex)
+            {
+                logger.error("Failed to send message.", ex);
+
+                refreshWriteArea();
+
+                if (ex instanceof IllegalStateException)
+                {
+                    addErrorMessage(
+                        chatSession.getCurrentChatTransport().getName(),
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.MSG_SEND_CONNECTION_PROBLEM"));
+                }
+                else
+                {
+                    addErrorMessage(
+                        chatSession.getCurrentChatTransport().getName(),
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.MSG_DELIVERY_UNKNOWN_ERROR",
+                            new String[]{ex.getMessage()}));
+                }
+            }
+        };
+
+        worker.start();
+    }
+
+    /**
+     * Sends the given file through the currently selected chat transport.
+     * 
+     * @param file the file to send
+     */
+    public void sendFile(final File file)
+    {
+        final ChatTransport fileTransferTransport
+            = findFileTransferChatTransport();
+
+        final SendFileConversationComponent fileComponent
+            = new SendFileConversationComponent(
+                this,
+                fileTransferTransport.getDisplayName(),
+                file);
+
+        getChatConversationPanel().addComponent(fileComponent);
+
+        this.sendFile(file, fileComponent);
+    }
+
+    /**
+     * Sends the text contained in the write area as an SMS message or an
+     * instance message depending on the "send SMS" check box.
+     */
     protected void sendMessage()
     {
         if (sendSmsCheckBox.isSelected())
@@ -815,6 +948,9 @@ public class ChatPanel
         }
     }
 
+    /**
+     * Sends the text contained in the write area as an SMS message.
+     */
     public void sendSmsMessage()
     {
         String messageText = getTextFromWriteArea(
@@ -846,20 +982,17 @@ public class ChatPanel
 
             this.refreshWriteArea();
 
-            this.processMessage(
+            this.addMessage(
                 smsChatTransport.getName(),
                 System.currentTimeMillis(),
                 Constants.OUTGOING_MESSAGE,
                 messageText,
                 "plain/text");
 
-            this.processMessage(
+            this.addErrorMessage(
                 smsChatTransport.getName(),
-                System.currentTimeMillis(),
-                Constants.ERROR_MESSAGE,
                 GuiActivator.getResources().getI18NString(
-                    "service.gui.SEND_SMS_NOT_SUPPORTED"),
-                "plain/text");
+                    "service.gui.SEND_SMS_NOT_SUPPORTED"));
 
             return;
         }
@@ -911,20 +1044,17 @@ public class ChatPanel
         {
             logger.error("Failed to send message.", ex);
 
-            this.processMessage(
+            this.addMessage(
                 chatSession.getCurrentChatTransport().getName(),
                 System.currentTimeMillis(),
                 Constants.OUTGOING_MESSAGE,
                 messageText,
                 mimeType);
 
-            this.processMessage(
+            this.addErrorMessage(
                 chatSession.getCurrentChatTransport().getName(),
-                System.currentTimeMillis(),
-                Constants.ERROR_MESSAGE,
                 GuiActivator.getResources().getI18NString(
-                    "service.gui.MSG_SEND_CONNECTION_PROBLEM"),
-                "text");
+                    "service.gui.MSG_SEND_CONNECTION_PROBLEM"));
         }
         catch (Exception ex)
         {
@@ -932,21 +1062,18 @@ public class ChatPanel
 
             this.refreshWriteArea();
 
-            this.processMessage(
+            this.addMessage(
                 chatSession.getCurrentChatTransport().getName(),
                 System.currentTimeMillis(),
                 Constants.OUTGOING_MESSAGE,
                 messageText,
                 mimeType);
 
-            this.processMessage(
+            this.addErrorMessage(
                 chatSession.getCurrentChatTransport().getName(),
-                System.currentTimeMillis(),
-                Constants.ERROR_MESSAGE,
                 GuiActivator.getResources().getI18NString(
                     "service.gui.MSG_DELIVERY_UNKNOWN_ERROR",
-                    new String[]{ex.getMessage()}),
-                "text");
+                    new String[]{ex.getMessage()}));
         }
 
         if (chatSession.getCurrentChatTransport().allowsTypingNotifications())
@@ -1014,9 +1141,11 @@ public class ChatPanel
         this.repaint();
     }
 
+    /**
+     * Listens for SMS messages and shows them in the chat.
+     */
     private class SmsMessageListener implements MessageListener
     {
-
         /**
          * @param chatTransport Currently unused 
          */
@@ -1030,13 +1159,13 @@ public class ChatPanel
 
             Contact contact = evt.getDestinationContact();
 
-            processMessage(
+            addMessage(
                 contact.getDisplayName(),
                 System.currentTimeMillis(),
                 Constants.OUTGOING_MESSAGE,
                 msg.getContent(), msg.getContentType());
 
-            processMessage(
+            addMessage(
                     contact.getDisplayName(),
                     System.currentTimeMillis(),
                     Constants.ACTION_MESSAGE,
@@ -1087,19 +1216,16 @@ public class ChatPanel
                     "service.gui.MSG_DELIVERY_UNKNOWN_ERROR");
             }
 
-            processMessage(
+            addMessage(
                     metaContact.getDisplayName(),
                     System.currentTimeMillis(),
                     Constants.OUTGOING_MESSAGE,
                     sourceMessage.getContent(),
                     sourceMessage.getContentType());
 
-            processMessage(
+            addErrorMessage(
                     metaContact.getDisplayName(),
-                    System.currentTimeMillis(),
-                    Constants.ERROR_MESSAGE,
-                    errorMsg,
-                    "text");
+                    errorMsg);
         }
 
         public void messageReceived(MessageReceivedEvent evt)
@@ -1127,14 +1253,19 @@ public class ChatPanel
     }
 
     /**
-     * Loads history for the chat meta contact in a separate thread. Implements
-     * the <tt>ChatPanel.loadHistory</tt> method.
+     * Loads history messages ignoring the message given by the
+     * escapedMessageID. Implements the
+     * <tt>ChatPanel.loadHistory(String)</tt> method.
+     * 
+     * @param escapedMessageID The id of the message that should be ignored.
      */
-    public void loadHistory()
+    public void loadHistory(final String escapedMessageID)
     {
-        new Thread()
+        SwingWorker historyWorker = new SwingWorker()
         {
-            public void run()
+            private Collection<EventObject> historyList;
+
+            public Object construct() throws Exception
             {
                 // Load the history period, which initializes the
                 // firstMessageTimestamp and the lastMessageTimeStamp variables.
@@ -1143,49 +1274,39 @@ public class ChatPanel
                 loadHistoryPeriod();
 
                 // Load the last N=CHAT_HISTORY_SIZE messages from history.
-                Collection<EventObject> historyList = chatSession.getHistory(
+                historyList = chatSession.getHistory(
                     ConfigurationManager.getChatHistorySize());
 
-                if(historyList.size() > 0) {
-                    class ProcessHistory implements Runnable
-                    {
-                        Collection<EventObject> historyList;
-
-                        ProcessHistory(Collection<EventObject> historyList)
-                        {
-                            this.historyList = historyList;
-                        }
-
-                        public void run()
-                        {
-                            processHistory(historyList, null);
-                        }
-                    }
-                    SwingUtilities.invokeLater(new ProcessHistory(historyList));
-                }
+                return historyList;
             }
-        }.start();
+
+            /**
+             * Called on the event dispatching thread (not on the worker thread)
+             * after the <code>construct</code> method has returned.
+             */
+            public void finished()
+            {
+                if(historyList != null && historyList.size() > 0)
+                {
+                    processHistory(historyList, escapedMessageID);
+                }
+
+                // Add incoming events accumulated while the history was loading
+                // at the end of the chat.
+                addIncomingEvents();
+            }
+        };
+
+        historyWorker.start();
     }
 
     /**
-     * Loads history messages ignoring the message given by the
-     * escapedMessageID. Implements the
-     * <tt>ChatPanel.loadHistory(String)</tt> method.
-     *
-     * @param escapedMessageID The id of the message that should be ignored.
+     * Loads history for the chat meta contact in a separate thread. Implements
+     * the <tt>ChatPanel.loadHistory</tt> method.
      */
-    public void loadHistory(final String escapedMessageID)
+    public void loadHistory()
     {
-        // Load the history period, which initializes the
-        // firstMessageTimestamp and the lastMessageTimeStamp variables.
-        // Used to disable/enable history flash buttons in the chat
-        // window tool bar.
-        loadHistoryPeriod();
-
-        Collection<EventObject> historyList = chatSession.getHistory(
-                ConfigurationManager.getChatHistorySize());
-
-        processHistory(historyList, escapedMessageID);
+        this.loadHistory(null);
     }
 
     /**
@@ -1265,7 +1386,7 @@ public class ChatPanel
         transportSelectorBox.updateTransportStatus(chatTransport);
 
         // Show a status message to the user.
-        String message = getChatConversationPanel().processMessage(
+        this.addMessage(
             chatTransport.getName(),
             System.currentTimeMillis(),
             Constants.STATUS_MESSAGE,
@@ -1273,8 +1394,6 @@ public class ChatPanel
                 "service.gui.STATUS_CHANGED_CHAT_MESSAGE",
                 new String[]{chatTransport.getStatus().getStatusName()}),
                 "text/plain");
-
-        getChatConversationPanel().appendMessageToEnd(message);
 
         if(ConfigurationManager.isMultiChatWindowEnabled())
         {
@@ -1402,7 +1521,7 @@ public class ChatPanel
     public void updateChatContactStatus(ChatContact chatContact,
         String statusMessage)
     {
-        this.processMessage(
+        this.addMessage(
             chatContact.getName(),
             System.currentTimeMillis(),
             Constants.STATUS_MESSAGE,
@@ -1416,7 +1535,7 @@ public class ChatPanel
         {
             subjectPanel.setSubject(subject);
 
-            this.processMessage(
+            this.addMessage(
                 chatSession.getChatName(),
                 System.currentTimeMillis(),
                 Constants.STATUS_MESSAGE,
@@ -1426,6 +1545,29 @@ public class ChatPanel
                                     subject}),
                 ChatConversationPanel.TEXT_CONTENT_TYPE);
         }
+    }
+
+    /**
+     * Adds the given <tt>IncomingFileTransferRequest</tt> to the conversation
+     * panel in order to notify the user of the incoming file.
+     * 
+     * @param request the request to display in the conversation panel
+     */
+    public void addIncomingFileTransferRequest(
+        IncomingFileTransferRequest request)
+    {
+        ReceiveFileConversationComponent component
+            = new ReceiveFileConversationComponent(request);
+
+        if (!isHistoryLoaded)
+        {
+            synchronized (incomingEventBuffer)
+            {
+                incomingEventBuffer.add(component);
+            }
+        }
+        else
+            this.getChatConversationPanel().addComponent(component);
     }
 
     /**
@@ -1455,6 +1597,44 @@ public class ChatPanel
         {
             focusListeners.remove(listener);
         }
+    }
+
+    /**
+     * Returns the first chat transport for the current chat session that
+     * supports file transfer.
+     *
+     * @return the first chat transport for the current chat session that
+     * supports file transfer.
+     */
+    public ChatTransport findFileTransferChatTransport()
+    {
+        ChatTransport currentChatTransport
+            = chatSession.getCurrentChatTransport();
+
+        if (currentChatTransport.getProtocolProvider()
+                .getOperationSet(OperationSetFileTransfer.class) != null)
+        {
+            return currentChatTransport;
+        }
+        else
+        {
+            Iterator<ChatTransport> chatTransportsIter
+                = chatSession.getChatTransports();
+
+            while (chatTransportsIter.hasNext())
+            {
+                ChatTransport chatTransport = chatTransportsIter.next();
+
+                Object fileTransferOpSet
+                    = chatTransport.getProtocolProvider()
+                        .getOperationSet(OperationSetFileTransfer.class);
+
+                if (fileTransferOpSet != null)
+                    return chatTransport;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -1595,4 +1775,32 @@ public class ChatPanel
             }
         }
     }
+
+    /**
+     * Adds all events accumulated in the incoming event buffer to the
+     * chat conversation panel.
+     */
+    private void addIncomingEvents()
+    {
+        synchronized (incomingEventBuffer)
+        {
+            Iterator<Object> eventBufferIter = incomingEventBuffer.iterator();
+
+            while(eventBufferIter.hasNext())
+            {
+                Object incomingEvent = eventBufferIter.next();
+
+                if (incomingEvent instanceof ChatMessage)
+                {
+                    this.appendChatMessage((ChatMessage) incomingEvent);
+                }
+                else if (incomingEvent instanceof Component)
+                {
+                    this.getChatConversationPanel()
+                        .addComponent((Component) incomingEvent);
+                }
+            }
+        }
+    }
+
 }

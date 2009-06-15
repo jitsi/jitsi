@@ -131,20 +131,17 @@ public class SendSmsDialog
 
             chatPanel.refreshWriteArea();
 
-            chatPanel.processMessage(
+            chatPanel.addMessage(
                 phoneNumber,
                 System.currentTimeMillis(),
                 Constants.OUTGOING_MESSAGE,
                 message,
                 "text/plain");
 
-            chatPanel.processMessage(
+            chatPanel.addErrorMessage(
                 phoneNumber,
-                System.currentTimeMillis(),
-                Constants.ERROR_MESSAGE,
                 GuiActivator.getResources()
-                    .getI18NString("service.gui.SMS_SEND_CONNECTION_PROBLEM"),
-                "text");
+                    .getI18NString("service.gui.SMS_SEND_CONNECTION_PROBLEM"));
         }
         catch (Exception ex)
         {
@@ -152,21 +149,18 @@ public class SendSmsDialog
 
             chatPanel.refreshWriteArea();
 
-            chatPanel.processMessage(
+            chatPanel.addMessage(
                 phoneNumber,
                 System.currentTimeMillis(),
                 Constants.OUTGOING_MESSAGE,
                 message,
                 "text/plain");
 
-            chatPanel.processMessage(
+            chatPanel.addErrorMessage(
                 phoneNumber,
-                System.currentTimeMillis(),
-                Constants.ERROR_MESSAGE,
                 GuiActivator.getResources()
                     .getI18NString("service.gui.MSG_DELIVERY_UNKNOWN_ERROR",
-                    new String[]{ex.getMessage()}),
-                "text");
+                    new String[]{ex.getMessage()}));
         }
         
         this.dispose();

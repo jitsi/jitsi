@@ -316,5 +316,5 @@ public class OperationSetBasicInstantMessagingMsnImpl
                                                       MsnContact contact)
         {
         }
-    }    
+    }
 }

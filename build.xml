@@ -791,7 +791,7 @@
         bundle-version,bundle-version-impl,bundle-shutdown,
         bundle-growlnotification,bundle-swingnotification,bundle-sparkle,
         bundle-audionotifier,bundle-plugin-branding,
-        bundle-systray,bundle-browserlauncher,bundle-gibberish,
+        bundle-osdependent,bundle-browserlauncher,bundle-gibberish,
         bundle-gibberish-slick,bundle-plugin-gibberishaccregwizz,
       bundle-plugin-call-history-form,
         bundle-rss, bundle-rss-slick,bundle-plugin-rssaccregwizz,
@@ -1548,16 +1548,18 @@ javax.swing.event, javax.swing.border"/>
             </jar>
         </target>
 
-    <!--BUNDLE-SYSTRAY-->
-    <target name="bundle-systray">
-        <!-- Creates a bundle for the Systray plugin."-->
+    <!--BUNDLE-OSDEPENDENT-->
+    <target name="bundle-osdependent">
+        <!-- Creates a bundle for the OS dependent packages like systray and desktop."-->
         <jar
-            compress="false" destfile="${bundles.dest}/systray.jar"
-            manifest="${src}/net/java/sip/communicator/impl/systray/systray.manifest.mf">
+            compress="false" destfile="${bundles.dest}/osdependent.jar"
+            manifest="${src}/net/java/sip/communicator/impl/osdependent/osdependent.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/systray"
                 prefix="net/java/sip/communicator/service/systray"/>
-            <zipfileset dir="${dest}/net/java/sip/communicator/impl/systray"
-                prefix="net/java/sip/communicator/impl/systray"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/desktop"
+                prefix="net/java/sip/communicator/service/desktop"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/osdependent"
+                prefix="net/java/sip/communicator/impl/osdependent"/>
             <zipfileset src="${lib.mac.noinst}/dock.jar" prefix=""/>
         </jar>
     </target>

@@ -42,6 +42,7 @@ public class ContactListPane
     extends SCScrollPane
     implements  MessageListener,
                 TypingNotificationsListener,
+                FileTransferRequestListener,
                 ContactListListener,
                 PluginComponentListener
 {
@@ -346,7 +347,7 @@ public class ContactListPane
                 messageType = Constants.SMS_MESSAGE;
             }
 
-            chatPanel.processMessage(
+            chatPanel.addMessage(
                 protocolContact.getDisplayName(),
                 evt.getTimestamp(),
                 messageType,
@@ -419,11 +420,12 @@ public class ContactListPane
             ProtocolProviderService protocolProvider = evt
                     .getDestinationContact().getProtocolProvider();
 
-            logger.trace("MESSAGE DELIVERED: process message to chat for contact: "
-                    + evt.getDestinationContact().getAddress()
-                    + " MESSAGE: " + msg.getContent());
+            logger.trace(
+                "MESSAGE DELIVERED: process message to chat for contact: "
+                + evt.getDestinationContact().getAddress()
+                + " MESSAGE: " + msg.getContent());
 
-            chatPanel.processMessage(
+            chatPanel.addMessage(
                 this.mainFrame.getAccount(protocolProvider),
                 evt.getTimestamp(),
                 Constants.OUTGOING_MESSAGE,
@@ -485,19 +487,16 @@ public class ContactListPane
         ChatPanel chatPanel = chatWindowManager
             .getContactChat(metaContact, sourceContact);
 
-        chatPanel.processMessage(
+        chatPanel.addMessage(
                 metaContact.getDisplayName(),
                 System.currentTimeMillis(),
                 Constants.OUTGOING_MESSAGE,
                 sourceMessage.getContent(),
                 sourceMessage.getContentType());
 
-        chatPanel.processMessage(
+        chatPanel.addErrorMessage(
                 metaContact.getDisplayName(),
-                System.currentTimeMillis(),
-                Constants.ERROR_MESSAGE,
-                errorMsg,
-                "text");
+                errorMsg);
 
         chatWindowManager.openChat(chatPanel, false);
     }
@@ -566,6 +565,30 @@ public class ContactListPane
             // TODO: Implement state unknown
         }
         this.setChatNotificationMsg(metaContact, notificationMsg);
+    }
+
+    /**
+     * When a request has been received we show it to the user through the
+     * chat session renderer.
+     * 
+     * @see FileTransferRequestListener#incomingRequestReceived(
+     * FileTransferRequestEvent)
+     */
+    public void incomingRequestReceived(FileTransferRequestEvent event)
+    {
+        IncomingFileTransferRequest request = event.getRequest();
+
+        Contact sourceContact = request.getSender();
+
+        MetaContact metaContact = mainFrame.getContactList()
+            .findMetaContactByContact(sourceContact);
+
+        ChatPanel chatPanel = chatWindowManager
+            .getContactChat(metaContact, sourceContact);
+
+        chatPanel.addIncomingFileTransferRequest(request);
+
+        chatWindowManager.openChat(chatPanel, false);
     }
 
     /**
@@ -733,9 +756,9 @@ public class ContactListPane
                 Object constraints = null;
 
                 if (pluginConstraints != null)
-                    constraints =
-                        UIServiceImpl
-                            .getBorderLayoutConstraintsFromContainer(pluginConstraints);
+                    constraints = UIServiceImpl
+                        .getBorderLayoutConstraintsFromContainer(
+                            pluginConstraints);
                 else
                     constraints = BorderLayout.SOUTH;
 

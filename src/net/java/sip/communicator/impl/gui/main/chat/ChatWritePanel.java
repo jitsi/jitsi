@@ -82,12 +82,12 @@ public class ChatWritePanel
         this.editorPane.addMouseListener(this);
         this.editorPane.setCursor(
             Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
-
-        //set our own transfer (i.e. copy/paste) handler
-        this.editorPane.setTransferHandler(new ChatWritePanelTransferHandler());
+        this.editorPane.setDragEnabled(true);
+        this.editorPane.setTransferHandler(new ChatTransferHandler(chatPanel));
 
         this.editTextToolBar = new EditTextToolBar(this);
-        this.editTextToolBar.setVisible(ConfigurationManager.isChatStylebarVisible());
+        this.editTextToolBar.setVisible(
+            ConfigurationManager.isChatStylebarVisible());
 
         this.add(editTextToolBar, BorderLayout.NORTH);
         this.add(scrollPane, BorderLayout.CENTER);

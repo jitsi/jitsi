@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.systray.jdic;
+package net.java.sip.communicator.impl.osdependent.jdic;
 
 import org.osgi.framework.*;
 
@@ -15,7 +15,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.impl.systray.*;
+import net.java.sip.communicator.impl.osdependent.*;
 import net.java.sip.communicator.impl.systray.mac.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
@@ -67,7 +67,7 @@ public class SystrayServiceJdicImpl
      * A reference of the <tt>ConfigurationService</tt> obtained from the
      * <tt>SystrayServiceActivator</tt>
      */
-    private final ConfigurationService configService = SystrayActivator.
+    private final ConfigurationService configService = OsDependentActivator.
         getConfigurationService();
 
     /**
@@ -129,7 +129,7 @@ public class SystrayServiceJdicImpl
         {
             this.initSystray();
 
-            UIService ui = SystrayActivator.getUIService();
+            UIService ui = OsDependentActivator.getUIService();
             if (ui != null)
                 ui.setExitOnMainWindowClose(false);
         }
@@ -209,7 +209,7 @@ public class SystrayServiceJdicImpl
         {
             public void actionPerformed(ActionEvent e)
             {
-                UIService uiService = SystrayActivator.getUIService();
+                UIService uiService = OsDependentActivator.getUIService();
                 ExportedWindow win =
                     uiService.getExportedWindow(ExportedWindow.MAIN_WINDOW);
                 boolean setIsVisible = !win.isVisible();
@@ -271,13 +271,13 @@ public class SystrayServiceJdicImpl
         {
             pph = new PopupMessageHandlerTrayIconImpl(trayIcon);
             popupHandlerSet.put(pph.getClass().getName(), pph);
-            SystrayActivator.bundleContext.registerService(
+            OsDependentActivator.bundleContext.registerService(
                 PopupMessageHandler.class.getName(),
                 pph, null);
         }
         try
         {
-            SystrayActivator.bundleContext.addServiceListener(
+            OsDependentActivator.bundleContext.addServiceListener(
                 new ServiceListenerImpl(),
                 "(objectclass=" + PopupMessageHandler.class.getName() + ")");
         } catch (Exception e)
@@ -290,7 +290,7 @@ public class SystrayServiceJdicImpl
         ServiceReference[] handlerRefs = null;
         try
         {
-            handlerRefs = SystrayActivator.bundleContext.getServiceReferences(
+            handlerRefs = OsDependentActivator.bundleContext.getServiceReferences(
                 PopupMessageHandler.class.getName(),
                 null);
         } catch (InvalidSyntaxException ex)
@@ -304,7 +304,7 @@ public class SystrayServiceJdicImpl
             for (int i = 0; i < handlerRefs.length; i++)
             {
                 PopupMessageHandler handler =
-                    (PopupMessageHandler) SystrayActivator.bundleContext.
+                    (PopupMessageHandler) OsDependentActivator.bundleContext.
                     getService(handlerRefs[i]);
                 String handlerName = handler.getClass().getName();
                 if (!popupHandlerSet.containsKey(handlerName))
@@ -600,7 +600,7 @@ public class SystrayServiceJdicImpl
             Object o = evt.getTag();
 
             if (o instanceof Contact)
-                SystrayActivator.getUIService().
+                OsDependentActivator.getUIService().
                     getChat((Contact) o).setChatVisible(true);
         }
     }
@@ -615,7 +615,7 @@ public class SystrayServiceJdicImpl
             try
             {
                 PopupMessageHandler handler =
-                    (PopupMessageHandler) SystrayActivator.bundleContext.
+                    (PopupMessageHandler) OsDependentActivator.bundleContext.
                     getService(serviceEvent.getServiceReference());
 
                 if (serviceEvent.getType() == ServiceEvent.REGISTERED)

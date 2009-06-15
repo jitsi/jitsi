@@ -354,7 +354,37 @@ public class FileAccessServiceImpl implements FileAccessService {
 
         return file;
     }
-    
+
+    /**
+     * Returns the default download directory.
+     * 
+     * @return the default download directory
+     */
+    public File getDefaultDownloadDirectory()
+        throws IOException
+    {
+        String defaultLocation = getSystemProperty("user.home")
+            + File.separatorChar + "Downloads";
+
+        File downloadDir = new File(defaultLocation);
+
+        if (!downloadDir.exists())
+        {
+            if (!downloadDir.mkdirs())
+            {
+                String message = "Could not create the download directory : "
+                        + downloadDir.getAbsolutePath();
+
+                logger.debug(message);
+                throw new IOException(message);
+            }
+            logger.debug("Download directory created : "
+                    + downloadDir.getAbsolutePath());
+        }
+
+        return downloadDir;
+    }
+
     /**
      * Creates a failsafe transaction which can be used to safely store
      * informations into a file.
@@ -363,11 +393,13 @@ public class FileAccessServiceImpl implements FileAccessService {
      * 
      * @return A new failsafe transaction related to the given file.
      */
-    public FailSafeTransaction createFailSafeTransaction(File file) {
-        if (file == null) {
+    public FailSafeTransaction createFailSafeTransaction(File file)
+    {
+        if (file == null)
+        {
             return null;
         }
-        
+
         return new FailSafeTransactionImpl(file);
     }
 

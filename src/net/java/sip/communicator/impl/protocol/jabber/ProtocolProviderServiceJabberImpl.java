@@ -611,6 +611,14 @@ public class ProtocolProviderServiceJabberImpl
                 OperationSetServerStoredAccountInfo.class.getName(),
                 accountInfo);
 
+            // initialize the file transfer operation set
+            OperationSetFileTransfer fileTransfer
+                = new OperationSetFileTransferJabberImpl(this);
+
+            supportedOperationSets.put(
+                OperationSetFileTransfer.class.getName(),
+                fileTransfer);
+
             // TODO: this is the "main" feature to advertise when a client
             // support muc. We have to add some features for
             // specific functionnality we support in muc.

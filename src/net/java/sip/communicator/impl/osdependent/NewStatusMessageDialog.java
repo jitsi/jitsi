@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.systray;
+package net.java.sip.communicator.impl.osdependent;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -30,7 +30,7 @@ public class NewStatusMessageDialog
     private final JTextField messageTextField = new JTextField();
 
     private final JButton cancelButton = new JButton(
-        SystrayActivator.getResources().getI18NString("service.gui.CANCEL"));
+        OsDependentActivator.getResources().getI18NString("service.gui.CANCEL"));
 
     private final ProtocolProviderService protocolProvider;
 
@@ -53,17 +53,18 @@ public class NewStatusMessageDialog
      */
     private void init()
     {
-        this.setTitle(SystrayActivator.getResources()
+        this.setTitle(OsDependentActivator.getResources()
                 .getI18NString("service.gui.NEW_STATUS_MESSAGE"));
 
         JButton okButton =
-            new JButton(SystrayActivator.getResources().getI18NString("service.gui.OK"));
+            new JButton(OsDependentActivator.getResources()
+                    .getI18NString("service.gui.OK"));
         this.getRootPane().setDefaultButton(okButton);
 
         this.setPreferredSize(new Dimension(500, 200));
 
         JTextArea infoArea = new JTextArea(
-                SystrayActivator.getResources().getI18NString(
+                OsDependentActivator.getResources().getI18NString(
                     "service.gui.STATUS_MESSAGE_INFO"));
         infoArea.setEditable(false);
         infoArea.setLineWrap(true);
@@ -71,7 +72,7 @@ public class NewStatusMessageDialog
         infoArea.setOpaque(false);
 
         JLabel messageLabel = new JLabel(
-                SystrayActivator.getResources().getI18NString(
+                OsDependentActivator.getResources().getI18NString(
                     "service.gui.NEW_STATUS_MESSAGE"));
 
         JPanel dataPanel = new TransparentPanel(new BorderLayout(5, 5));
@@ -79,7 +80,7 @@ public class NewStatusMessageDialog
         dataPanel.add(messageTextField, BorderLayout.CENTER);
 
         JLabel infoTitleLabel = new JLabel(
-                SystrayActivator.getResources().getI18NString(
+                OsDependentActivator.getResources().getI18NString(
                     "service.gui.NEW_STATUS_MESSAGE"));
         infoTitleLabel.setHorizontalAlignment(JLabel.CENTER);
         infoTitleLabel.setFont(
@@ -114,9 +115,11 @@ public class NewStatusMessageDialog
         this.cancelButton.setName("cancel");
 
         okButton.setMnemonic(
-            SystrayActivator.getResources().getI18nMnemonic("service.gui.OK"));
+            OsDependentActivator.getResources()
+                .getI18nMnemonic("service.gui.OK"));
         this.cancelButton.setMnemonic(
-            SystrayActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
+            OsDependentActivator.getResources()
+                .getI18nMnemonic("service.gui.CANCEL"));
 
         okButton.addActionListener(this);
         this.cancelButton.addActionListener(this);

@@ -7,6 +7,8 @@
 
 package net.java.sip.communicator.impl.gui.main.chat;
 
+import java.io.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
@@ -115,6 +117,14 @@ public interface ChatTransport
      * constants defined in this class
      */
     public int sendTypingNotification(int typingState);
+
+    /**
+     * Sends the given file trough this chat transport.
+     * 
+     * @param file the file to send
+     */
+    public FileTransfer sendFile(File file)
+        throws Exception;
 
     /**
      * Invites a contact to join this chat.

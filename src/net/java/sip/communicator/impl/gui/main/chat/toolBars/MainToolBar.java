@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.chat.toolBars;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 
 import java.util.*;
 import javax.swing.*;
@@ -87,9 +88,27 @@ public class MainToolBar
         this.add(inviteButton);
         this.add(historyButton);
         this.add(optionsButton);
+        this.add(sendFileButton);
 
         this.add(previousButton);
         this.add(nextButton);
+
+        this.inviteButton.setName("invite");
+        this.inviteButton.setToolTipText(
+            GuiActivator.getResources().getI18NString("service.gui.INVITE"));
+
+        this.historyButton.setName("history");
+        this.historyButton.setToolTipText(
+            GuiActivator.getResources().getI18NString("service.gui.HISTORY")
+            + " Ctrl-H");
+
+        this.optionsButton.setName("options");
+        this.optionsButton.setToolTipText(
+            GuiActivator.getResources().getI18NString("service.gui.OPTIONS"));
+
+        this.sendFileButton.setName("sendFile");
+        this.sendFileButton.setToolTipText(
+            GuiActivator.getResources().getI18NString("service.gui.SEND_FILE"));
 
         this.previousButton.setName("previous");
         this.previousButton.setToolTipText(
@@ -99,29 +118,12 @@ public class MainToolBar
         this.nextButton.setToolTipText(
             GuiActivator.getResources().getI18NString("service.gui.NEXT"));
 
-        this.sendFileButton.setName("sendFile");
-        this.sendFileButton.setToolTipText(
-            GuiActivator.getResources().getI18NString("service.gui.SEND_FILE"));
-
-        this.historyButton.setName("history");
-        this.historyButton.setToolTipText(
-            GuiActivator.getResources().getI18NString("service.gui.HISTORY")
-            + " Ctrl-H");
-
-        this.inviteButton.setName("invite");
-        this.inviteButton.setToolTipText(
-            GuiActivator.getResources().getI18NString("service.gui.INVITE"));
-
-        this.optionsButton.setName("options");
-        this.optionsButton.setToolTipText(
-            GuiActivator.getResources().getI18NString("service.gui.OPTIONS"));
-
+        this.inviteButton.addActionListener(this);
+        this.historyButton.addActionListener(this);
+        this.optionsButton.addActionListener(this);
+        this.sendFileButton.addActionListener(this);
         this.previousButton.addActionListener(this);
         this.nextButton.addActionListener(this);
-        this.sendFileButton.addActionListener(this);
-        this.historyButton.addActionListener(this);
-        this.inviteButton.addActionListener(this);
-        this.optionsButton.addActionListener(this);
 
         this.initPluginComponents();
     }
@@ -155,8 +157,18 @@ public class MainToolBar
         {
             chatPanel.loadNextPageFromHistory();
         }
-        else if (buttonText.equals("sendFile")) {
+        else if (buttonText.equals("sendFile"))
+        {
+            JFileChooser fileChooser = new JFileChooser();
 
+            int result = fileChooser.showOpenDialog(this);
+
+            if (result == JFileChooser.APPROVE_OPTION)
+            {
+                File selectedFile = fileChooser.getSelectedFile();
+
+                messageWindow.getCurrentChatPanel().sendFile(selectedFile);
+            }
         }
         else if (buttonText.equals("history"))
         {
@@ -327,8 +339,22 @@ public class MainToolBar
     public void enableInviteButton(boolean isEnabled)
     {
         if (isEnabled)
-            this.add(inviteButton, 0);
+            inviteButton.setVisible(true);
         else
-            this.remove(inviteButton);
+            inviteButton.setVisible(false);
+    }
+
+    /**
+     * Enables or disables the send file button in this tool bar.
+     *
+     * @param isEnabled <code>true</code> if the send file button should be
+     * enabled, <code>false</code> - otherwise.
+     */
+    public void enableSendFileButton(boolean isEnabled)
+    {
+        if (isEnabled)
+            sendFileButton.setVisible(true);
+        else
+            sendFileButton.setVisible(false);
     }
 }

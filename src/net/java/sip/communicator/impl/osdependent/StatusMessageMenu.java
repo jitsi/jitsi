@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.systray;
+package net.java.sip.communicator.impl.osdependent;
 
 import java.awt.*;
 import java.awt.event.*;

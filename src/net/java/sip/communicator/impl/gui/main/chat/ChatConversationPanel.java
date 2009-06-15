@@ -43,7 +43,7 @@ public class ChatConversationPanel
     private static final Logger logger =
         Logger.getLogger(ChatConversationPanel.class);
 
-    private final JEditorPane chatEditorPane = new MyEditorPane();
+    private final JTextPane chatTextPane = new MyTextPane();
 
     private final HTMLEditorKit editorKit = new SIPCommHTMLEditorKit();
 
@@ -84,33 +84,30 @@ public class ChatConversationPanel
 
         this.document = (HTMLDocument) editorKit.createDefaultDocument();
 
-        this.chatEditorPane.setContentType("text/html");
+        this.chatTextPane.setEditorKitForContentType("text/html", editorKit);
+        this.chatTextPane.setEditorKit(editorKit);
+        this.chatTextPane.setEditable(false);
+        this.chatTextPane.setDocument(document);
+        this.chatTextPane.setDragEnabled(true);
 
-        this.chatEditorPane.setEditable(false);
-
-        this.chatEditorPane.setEditorKitForContentType("text/html", editorKit);
-        this.chatEditorPane.setEditorKit(editorKit);
-
-        this.chatEditorPane.setDocument(document);
-
-        chatEditorPane.putClientProperty(
+        chatTextPane.putClientProperty(
             JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
         Constants.loadSimpleStyle(
-            document.getStyleSheet(), chatEditorPane.getFont());
+            document.getStyleSheet(), chatTextPane.getFont());
 
-        this.chatEditorPane.addHyperlinkListener(this);
-        this.chatEditorPane.addMouseListener(this);
-        this.chatEditorPane.setCursor(
+        this.chatTextPane.addHyperlinkListener(this);
+        this.chatTextPane.addMouseListener(this);
+        this.chatTextPane.setCursor(
             Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
 
         this.setWheelScrollingEnabled(true);
 
-        this.setViewportView(chatEditorPane);
+        this.setViewportView(chatTextPane);
 
         this.setHorizontalScrollBarPolicy(
             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
-        ToolTipManager.sharedInstance().registerComponent(chatEditorPane);
+        ToolTipManager.sharedInstance().registerComponent(chatTextPane);
 
         String copyLinkString
             = GuiActivator.getResources().getI18NString("service.gui.COPY_LINK");
@@ -194,9 +191,14 @@ public class ChatConversationPanel
      * @param message The message text.
      * @return the formatted message
      */
-    public String processMessage(String contactName, long date,
-        String messageType, String message, String contentType)
+    public String processMessage(ChatMessage chatMessage)
     {
+        String contactName = chatMessage.getContactName();
+        String contentType = chatMessage.getContentType();
+        long date = chatMessage.getDate();
+        String messageType = chatMessage.getMessageType();
+        String message = chatMessage.getMessage();
+
         String msgID = "message";
         String msgHeaderID = "messageHeader";
         String chatString = "";
@@ -371,17 +373,20 @@ public class ChatConversationPanel
      *            INCOMING_MESSAGE.
      * @param message The message text.
      */
-    public String processMessage(String contactName, long date,
-        String messageType, String message, String contentType, String keyword)
+    public String processMessage(ChatMessage chatMessage, String keyword)
     {
-        String formattedMessage = message;
+        String formattedMessage = chatMessage.getMessage();
 
         if (keyword != null && keyword.length() != 0)
         {
-            formattedMessage = processKeyword(message, contentType, keyword);
+            formattedMessage = processKeyword(  chatMessage.getMessage(),
+                                                chatMessage.getContentType(),
+                                                keyword);
         }
-        return this.processMessage(contactName, date, messageType,
-            formattedMessage, contentType);
+
+        chatMessage.setMessage(formattedMessage);
+
+        return this.processMessage(chatMessage);
     }
 
     /**
@@ -761,7 +766,7 @@ public class ChatConversationPanel
      */
     public JEditorPane getChatEditorPane()
     {
-        return chatEditorPane;
+        return chatTextPane;
     }
 
     /**
@@ -779,10 +784,10 @@ public class ChatConversationPanel
      */
     public void setCarretToEnd()
     {
-        if (this.chatEditorPane.getDocument().getLength()
+        if (this.chatTextPane.getDocument().getLength()
                 == this.document.getLength())
         {
-            this.chatEditorPane.setCaretPosition(this.document.getLength());
+            this.chatTextPane.setCaretPosition(this.document.getLength());
         }
     }
 
@@ -830,7 +835,7 @@ public class ChatConversationPanel
             rightButtonMenu.remove(copyLinkSeparator);
         }
 
-        if (chatEditorPane.getSelectedText() != null)
+        if (chatTextPane.getSelectedText() != null)
         {
             rightButtonMenu.enableCopy();
         }
@@ -838,7 +843,7 @@ public class ChatConversationPanel
         {
             rightButtonMenu.disableCopy();
         }
-        rightButtonMenu.setInvoker(chatEditorPane);
+        rightButtonMenu.setInvoker(chatTextPane);
         rightButtonMenu.setLocation(p.x, p.y);
         rightButtonMenu.setVisible(true);
     }
@@ -878,7 +883,7 @@ public class ChatConversationPanel
      */
     public void copyConversation()
     {
-        this.chatEditorPane.copy();
+        this.chatTextPane.copy();
     }
 
     /**
@@ -889,7 +894,7 @@ public class ChatConversationPanel
     {
         this.document = (HTMLDocument) editorKit.createDefaultDocument();
         Constants.loadSimpleStyle(
-            document.getStyleSheet(), chatEditorPane.getFont());
+            document.getStyleSheet(), chatTextPane.getFont());
     }
 
     /**
@@ -900,7 +905,7 @@ public class ChatConversationPanel
     public void setContent(HTMLDocument doc)
     {
         this.document = doc;
-        this.chatEditorPane.setDocument(doc);
+        this.chatTextPane.setDocument(doc);
     }
 
     /**
@@ -909,7 +914,7 @@ public class ChatConversationPanel
      */
     public void setDefaultContent()
     {
-        this.chatEditorPane.setDocument(document);
+        this.chatTextPane.setDocument(document);
     }
 
     /**
@@ -919,7 +924,7 @@ public class ChatConversationPanel
      */
     public HTMLDocument getContent()
     {
-        return (HTMLDocument) this.chatEditorPane.getDocument();
+        return (HTMLDocument) this.chatTextPane.getDocument();
     }
 
     /**
@@ -1105,8 +1110,8 @@ public class ChatConversationPanel
     /**
      * Extend Editor pane to add url tooltips.
      */
-    private class MyEditorPane
-        extends JEditorPane
+    private class MyTextPane
+        extends JTextPane
     {
         /**
          * Returns the string to be used as the tooltip for <i>event</i>. 
@@ -1120,5 +1125,41 @@ public class ChatConversationPanel
             else
                 return null;
         }
+    }
+
+    /**
+     * Adds a custom component at the end of the conversation.
+     * 
+     * @param component the component to add at the end of the conversation.
+     */
+    public void addComponent(Component component)
+    {
+        Style style = document.getStyleSheet().addStyle(
+            StyleConstants.ComponentElementName,
+            document.getStyleSheet().getStyle("body"));
+
+        // The image must first be wrapped in a style
+        style.addAttribute(
+            AbstractDocument.ElementNameAttribute,
+            StyleConstants.ComponentElementName);
+
+        style.addAttribute(
+            StyleConstants.ComponentAttribute,
+            component);
+
+        // Insert the component style at the end of the text
+        try
+        {
+            document.insertString(  document.getLength(),
+                                    "ignored text", style);
+            document.insertString(document.getLength(),
+                                    "\n", document.getStyle("body"));
+        }
+        catch (BadLocationException e)
+        {
+            logger.error("Insert in the HTMLDocument failed.", e);
+        }
+
+        this.setCarretToEnd();
     }
 }

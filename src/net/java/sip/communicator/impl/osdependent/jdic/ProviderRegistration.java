@@ -5,9 +5,9 @@
  * See terms of license at gnu.org.
  */
 
-package net.java.sip.communicator.impl.systray.jdic;
+package net.java.sip.communicator.impl.osdependent.jdic;
 
-import net.java.sip.communicator.impl.systray.*;
+import net.java.sip.communicator.impl.osdependent.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -52,7 +52,7 @@ public class ProviderRegistration
     {
         try
         {
-            protocolProvider.register(SystrayActivator.getUIService()
+            protocolProvider.register(OsDependentActivator.getUIService()
                             .getDefaultSecurityAuthority(protocolProvider));
         }
         catch (OperationFailedException ex)

@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -434,10 +435,12 @@ public class ChatWindow
 
         ChatTransport inviteChatTransport = chatPanel.findInviteChatTransport();
 
-        if (inviteChatTransport != null)
-            mainToolBar.enableInviteButton(true);
-        else
-            mainToolBar.enableInviteButton(false);
+        mainToolBar.enableInviteButton(inviteChatTransport != null);
+
+        ChatTransport sendFileTransport
+            = chatPanel.findFileTransferChatTransport();
+
+        mainToolBar.enableSendFileButton(sendFileTransport != null);
 
         mainToolBar.changeHistoryButtonsState(chatPanel);
 
@@ -1212,5 +1215,23 @@ public class ChatWindow
                     (this.getWidth() - logoBgImage.getWidth(null))/2, 0, null);
             }
         }
+    }
+
+    /**
+     * 
+     */
+    public void directoryDropped(File file, Point point)
+    {
+        
+    }
+
+    /**
+     * 
+     */
+    public void fileDropped(File file, Point point)
+    {
+        ChatPanel chatPanel = getCurrentChatPanel();
+
+        chatPanel.sendFile(file);
     }
 }

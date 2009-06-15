@@ -42,7 +42,6 @@ public class HistoryWindow
                 MessageListener,
                 ChatRoomMessageListener
 {
-
     private static final Logger logger = Logger
         .getLogger(HistoryWindow.class.getName());
 
@@ -66,7 +65,8 @@ public class HistoryWindow
 
     private MessageHistoryService msgHistory;
 
-    private Hashtable<Date, HTMLDocument> dateHistoryTable = new Hashtable<Date, HTMLDocument>();
+    private Hashtable<Date, HTMLDocument> dateHistoryTable
+        = new Hashtable<Date, HTMLDocument>();
     
     private JLabel readyLabel = new JLabel(
         GuiActivator.getResources().getI18NString("service.gui.READY"));
@@ -219,9 +219,11 @@ public class HistoryWindow
             
             Iterator<EventObject> i = historyRecords.iterator();
             String processedMessage = "";
-            while (i.hasNext()) {
-
+            while (i.hasNext())
+            {
                 Object o = i.next();
+
+                ChatMessage chatMessage = null;
 
                 if(o instanceof MessageDeliveredEvent)
                 {
@@ -230,55 +232,60 @@ public class HistoryWindow
                     ProtocolProviderService protocolProvider = evt
                         .getDestinationContact().getProtocolProvider();
 
-                    processedMessage = chatConvPanel.processMessage(
+                    chatMessage = new ChatMessage(
                             GuiActivator.getUIService().getMainFrame()
-                                .getAccount(protocolProvider),
-                            evt.getTimestamp(), Constants.OUTGOING_MESSAGE,
+                            .getAccount(protocolProvider),
+                            evt.getTimestamp(),
+                            Constants.OUTGOING_MESSAGE,
                             evt.getSourceMessage().getContent(),
-                            evt.getSourceMessage().getContentType(),
-                            searchKeyword);
+                            evt.getSourceMessage().getContentType());
                 }
                 else if(o instanceof MessageReceivedEvent)
                 {
                     MessageReceivedEvent evt = (MessageReceivedEvent) o;
 
-                    processedMessage = chatConvPanel.processMessage(
-                            evt.getSourceContact().getDisplayName(),
-                            evt.getTimestamp(), Constants.INCOMING_MESSAGE,
-                            evt.getSourceMessage().getContent(),
-                            evt.getSourceMessage().getContentType(),
-                            searchKeyword);
+                    chatMessage = new ChatMessage(
+                        evt.getSourceContact().getDisplayName(),
+                        evt.getTimestamp(),
+                        Constants.INCOMING_MESSAGE,
+                        evt.getSourceMessage().getContent(),
+                        evt.getSourceMessage().getContentType());
                 }
                 else if(o instanceof ChatRoomMessageReceivedEvent)
                 {
                     ChatRoomMessageReceivedEvent evt
                         = (ChatRoomMessageReceivedEvent) o;
 
-                    processedMessage = chatConvPanel.processMessage(
-                            evt.getSourceChatRoomMember().getName(),
-                            evt.getTimestamp(), Constants.INCOMING_MESSAGE,
-                            evt.getMessage().getContent(),
-                            evt.getMessage().getContentType(),
-                            searchKeyword);
+                    chatMessage = new ChatMessage(
+                        evt.getSourceChatRoomMember().getName(),
+                        evt.getTimestamp(), Constants.INCOMING_MESSAGE,
+                        evt.getMessage().getContent(),
+                        evt.getMessage().getContentType());
                 }
                 else if(o instanceof ChatRoomMessageDeliveredEvent)
                 {
                     ChatRoomMessageDeliveredEvent evt
                         = (ChatRoomMessageDeliveredEvent) o;
 
-                    processedMessage = chatConvPanel.processMessage(
-                            evt.getSourceChatRoom().getParentProvider()
-                                .getAccountID().getUserID(),
-                            evt.getTimestamp(), Constants.INCOMING_MESSAGE,
-                            evt.getMessage().getContent(),
-                            evt.getMessage().getContentType(),
-                            searchKeyword);
+                    chatMessage = new ChatMessage(
+                        evt.getSourceChatRoom().getParentProvider()
+                        .getAccountID().getUserID(),
+                        evt.getTimestamp(), Constants.INCOMING_MESSAGE,
+                        evt.getMessage().getContent(),
+                        evt.getMessage().getContentType());
                 }
-                chatConvPanel.appendMessageToEnd(processedMessage);
+
+                if (chatMessage != null)
+                {
+                    processedMessage = chatConvPanel.processMessage(
+                            chatMessage, searchKeyword);
+
+                    chatConvPanel.appendMessageToEnd(processedMessage);
+                }
             }
         }
         this.chatConvPanel.setDefaultContent();
-        
+
         return this.chatConvPanel.getContent();
     }
 
@@ -457,8 +464,8 @@ public class HistoryWindow
                         if(date != null) {
                             ignoreProgressDate = date;
                         }
-                        //Initializes the conversation panel with the data of the
-                        //last conversation.
+                        //Initializes the conversation panel with the data of
+                        //the last conversation.
                         int lastDateIndex = datesPanel.getDatesNumber() - 1;
                         datesPanel.setSelected(lastDateIndex);
                     }
@@ -531,7 +538,8 @@ public class HistoryWindow
     /**
      * Loads dates found for keyword.
      */
-    private class KeywordDatesLoader extends Thread {
+    private class KeywordDatesLoader extends Thread
+    {
         private Vector<Date> keywordDatesVector = new Vector<Date>();
         private final String keyword;
 
@@ -568,37 +576,46 @@ public class HistoryWindow
             }
 
             if (msgList != null)
-            for (Object o : msgList) {
+            for (Object o : msgList)
+            {
                 long date = 0;
-                        
-                if (o instanceof MessageDeliveredEvent) {
+
+                if (o instanceof MessageDeliveredEvent)
+                {
                     MessageDeliveredEvent evt = (MessageDeliveredEvent)o;
                     date = evt.getTimestamp();
                 }
-                else if (o instanceof MessageReceivedEvent) {
+                else if (o instanceof MessageReceivedEvent)
+                {
                     MessageReceivedEvent evt = (MessageReceivedEvent)o;
                     date = evt.getTimestamp();
                 }
-                
+
                 long milisecondsPerDay = 24*60*60*1000;
-                for(int j = 0; j < datesVector.size(); j ++) {
+                for(int j = 0; j < datesVector.size(); j ++)
+                {
                     Date date1 = datesVector.get(j);
-                    
+
                     if(Math.floor(date1.getTime()/milisecondsPerDay)
                         == Math.floor(date/milisecondsPerDay)
-                        && !keywordDatesVector.contains(date1)) {
-                        
+                        && !keywordDatesVector.contains(date1))
+                    {
+
                         keywordDatesVector.add(date1);
-                    }     
-                }                
+                    }
+                }
             }
             
-            Runnable updateDatesPanel = new Runnable() {
-                public void run() {
+            Runnable updateDatesPanel = new Runnable()
+            {
+                public void run()
+                {
                     datesPanel.removeAllDates();
-                    if(keywordDatesVector.size() > 0) {
+                    if(keywordDatesVector.size() > 0)
+                    {
                         Date date = null;
-                        for(int i = 0; i < keywordDatesVector.size(); i++) {
+                        for(int i = 0; i < keywordDatesVector.size(); i++)
+                        {
                             date = keywordDatesVector.get(i);
                             
                             /* I have tried to remove and add dates in the
@@ -608,7 +625,7 @@ public class HistoryWindow
                              * that a problem occured when one and the same
                              * selection was done twice.
                              *  
-                             * if(!keywordDatesVector.contains(date)) {                            
+                             * if(!keywordDatesVector.contains(date)) {
                              *    datesPanel.removeDate(date);
                              * }
                              * else {
@@ -618,12 +635,14 @@ public class HistoryWindow
                             }*/
                             datesPanel.addDate(date);
                         }
-                        if(date != null) {
+                        if(date != null)
+                        {
                             ignoreProgressDate = date;
                         }
                         datesPanel.setSelected(datesPanel.getDatesNumber() - 1);
                     }
-                    else {
+                    else
+                    {
                         chatConvPanel.setDefaultContent();
                     }
                 }
@@ -729,27 +748,29 @@ public class HistoryWindow
         if(containedContact != null)
         {
             int lastDateIndex = datesPanel.getDatesNumber() - 1;
-            
+
             // If dates aren't yet loaded we don't process the message.
             if(lastDateIndex < 0)
                 return;
-            
+
             Date lastDate = datesPanel.getDate(lastDateIndex);
-            
+
             if(lastDate != null
                 && GuiUtils.compareDates(lastDate.getTime(), timestamp) == 0)
             {
                 HTMLDocument document = dateHistoryTable.get(lastDate);
-                
+
                 if(document != null)
                 {
-                    String processedMessage = chatConvPanel.processMessage(
+                    ChatMessage chatMessage = new ChatMessage(
                         contact.getDisplayName(),
                         timestamp, messageType,
                         messageContent,
-                        messageContentType,
-                        searchKeyword);
-            
+                        messageContentType);
+
+                    String processedMessage = chatConvPanel.processMessage(
+                        chatMessage, searchKeyword);
+
                     this.appendMessageToDocument(document, processedMessage);
                 }
             }
@@ -757,9 +778,9 @@ public class HistoryWindow
                 || GuiUtils.compareDates(lastDate.getTime(), timestamp) < 0)
             {
                 long milisecondsPerDay = 24*60*60*1000;
-                                
+
                 Date date = new Date(timestamp - timestamp % milisecondsPerDay);
-                
+
                 datesVector.add(date);
                 datesPanel.addDate(date);
             }
@@ -775,31 +796,27 @@ public class HistoryWindow
     {
         Element root = doc.getDefaultRootElement();
 
-        try {
+        try
+        {
             doc.insertAfterEnd(root
                     .getElement(root.getElementCount() - 1), chatString);
-        } catch (BadLocationException e) {
+        }
+        catch (BadLocationException e)
+        {
             logger.error("Insert in the HTMLDocument failed.", e);
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             logger.error("Insert in the HTMLDocument failed.", e);
         }
     }
 
     public void messageDelivered(ChatRoomMessageDeliveredEvent evt)
-    {
-        // TODO Auto-generated method stub
-        
-    }
+    {}
 
     public void messageDeliveryFailed(ChatRoomMessageDeliveryFailedEvent evt)
-    {
-        // TODO Auto-generated method stub
-        
-    }
+    {}
 
     public void messageReceived(ChatRoomMessageReceivedEvent evt)
-    {
-        // TODO Auto-generated method stub
-        
-    }
+    {}
 }

@@ -4,10 +4,11 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.systray;
+package net.java.sip.communicator.impl.osdependent;
 
-import net.java.sip.communicator.impl.systray.jdic.*;
+import net.java.sip.communicator.impl.osdependent.jdic.*;
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.desktop.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.systray.*;
@@ -20,7 +21,7 @@ import org.osgi.framework.*;
  *
  * @author Nicolas Chamouard
  */
-public class SystrayActivator
+public class OsDependentActivator
     implements BundleActivator
 {
     /**
@@ -35,7 +36,7 @@ public class SystrayActivator
     private static ResourceManagementService resourcesService;
 
     private static final Logger logger =
-        Logger.getLogger(SystrayActivator.class);
+        Logger.getLogger(OsDependentActivator.class);
 
     /**
      * Called when this bundle is started.
@@ -58,9 +59,21 @@ public class SystrayActivator
                     SystrayService.class.getName(),
                     systrayService,
                     null);
-            
+
             logger.info("Systray Service ...[REGISTERED]");
-            
+
+            // Create the desktop service implementation
+            DesktopService desktopService = new DesktopServiceImpl();
+
+            logger.info("Desktop Service...[  STARTED ]");
+
+            bundleContext.registerService(
+                    DesktopService.class.getName(),
+                    desktopService,
+                    null);
+
+            logger.info("Desktop Service ...[REGISTERED]");
+
             logger.logEntry();
         }
         finally {
