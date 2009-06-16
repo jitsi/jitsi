@@ -167,7 +167,7 @@ public class Desktop
                 open = clazz.getMethod("open", new Class<?>[]{ File.class });
                 print = clazz.getMethod("print", new Class<?>[]{ File.class });
                 edit = clazz.getMethod("edit", new Class<?>[]{ File.class });
-                browse = clazz.getMethod("edit", new Class<?>[]{ URI.class });
+                browse = clazz.getMethod("browse", new Class<?>[]{ URI.class });
             }
             catch (NoSuchMethodException ex)
             {
