@@ -545,8 +545,6 @@ public class ChatPanel
             conversationPanel.appendMessageToEnd(historyString);
         }
 
-        isHistoryLoaded = true;
-
         getChatWindow().getMainToolBar()
             .changeHistoryButtonsState(this);
     }
@@ -1291,6 +1289,8 @@ public class ChatPanel
                 {
                     processHistory(historyList, escapedMessageID);
                 }
+
+                isHistoryLoaded = true;
 
                 // Add incoming events accumulated while the history was loading
                 // at the end of the chat.
