@@ -30,7 +30,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
-import net.java.sip.communicator.util.swing.SwingWorker;
 
 /**
  * The <tt>ChatPanel</tt> is the panel, where users can write and send messages,
@@ -566,7 +565,7 @@ public class ChatPanel
         ChatMessage chatMessage = new ChatMessage(contactName, date,
             messageType, message, contentType);
 
-        if (!isHistoryLoaded)
+        if (ConfigurationManager.isHistoryShown() && !isHistoryLoaded)
         {
             synchronized (incomingEventBuffer)
             {
@@ -1560,7 +1559,7 @@ public class ChatPanel
         ReceiveFileConversationComponent component
             = new ReceiveFileConversationComponent(request);
 
-        if (!isHistoryLoaded)
+        if (ConfigurationManager.isHistoryShown() && !isHistoryLoaded)
         {
             synchronized (incomingEventBuffer)
             {
