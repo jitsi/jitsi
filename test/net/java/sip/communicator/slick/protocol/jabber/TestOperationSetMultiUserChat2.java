@@ -798,8 +798,8 @@ public class TestOperationSetMultiUserChat2
 
         opSet1Room.setSubject(newSubjet);
 
-        opSet1RoomCollector.waitForEvent(10000);
-        opSet2RoomCollector.waitForEvent(10000);
+        opSet1RoomCollector.waitForEvent(20000);
+        opSet2RoomCollector.waitForEvent(20000);
 
         assertEquals("user1 didnt received an event for room subject change"
             , 1, opSet1RoomCollector.collectedEvents.size());
