@@ -346,7 +346,8 @@ public class Desktop
                 else
                 {
                     if (!file.isDirectory())
-                        org.jdesktop.jdic.desktop.Desktop.browse(file.toURL());
+                        org.jdesktop.jdic.desktop.Desktop.browse(
+                            file.toURI().toURL());
                     else
                         Runtime.getRuntime().exec("open "
                             + file.getCanonicalPath());
