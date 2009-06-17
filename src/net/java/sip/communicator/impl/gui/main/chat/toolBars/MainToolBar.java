@@ -338,10 +338,7 @@ public class MainToolBar
      */
     public void enableInviteButton(boolean isEnabled)
     {
-        if (isEnabled)
-            inviteButton.setVisible(true);
-        else
-            inviteButton.setVisible(false);
+        inviteButton.setEnabled(isEnabled);
     }
 
     /**
@@ -352,9 +349,6 @@ public class MainToolBar
      */
     public void enableSendFileButton(boolean isEnabled)
     {
-        if (isEnabled)
-            sendFileButton.setVisible(true);
-        else
-            sendFileButton.setVisible(false);
+        sendFileButton.setEnabled(isEnabled);
     }
 }

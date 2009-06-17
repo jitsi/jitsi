@@ -583,12 +583,25 @@ public class ContactListPane
         MetaContact metaContact = mainFrame.getContactList()
             .findMetaContactByContact(sourceContact);
 
-        ChatPanel chatPanel = chatWindowManager
+        final ChatPanel chatPanel = chatWindowManager
             .getContactChat(metaContact, sourceContact);
 
         chatPanel.addIncomingFileTransferRequest(request);
 
-        chatWindowManager.openChat(chatPanel, false);
+        ChatTransport chatTransport
+            = chatPanel.getChatSession()
+                .findChatTransportForDescriptor(sourceContact);
+
+        chatPanel.setSelectedChatTransport(chatTransport);
+
+        // Opens the chat panel with the new message in the UI thread.
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                chatWindowManager.openChat(chatPanel, false);
+            }
+        });
     }
 
     /**

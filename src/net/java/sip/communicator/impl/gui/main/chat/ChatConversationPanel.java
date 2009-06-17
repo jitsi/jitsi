@@ -1152,8 +1152,6 @@ public class ChatConversationPanel
         {
             document.insertString(  document.getLength(),
                                     "ignored text", style);
-            document.insertString(document.getLength(),
-                                    "\n", document.getStyle("body"));
         }
         catch (BadLocationException e)
         {

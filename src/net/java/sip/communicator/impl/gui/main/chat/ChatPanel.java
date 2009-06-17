@@ -860,8 +860,10 @@ public class ChatPanel
     public void sendFile(   final File file,
                             final SendFileConversationComponent fileComponent)
     {
-        final ChatTransport currentChatTransport
-            = chatSession.getCurrentChatTransport();
+        final ChatTransport sendFileTransport
+            = this.findFileTransferChatTransport();
+
+        this.setSelectedChatTransport(sendFileTransport);
 
         SwingWorker worker = new SwingWorker()
         {
@@ -869,7 +871,7 @@ public class ChatPanel
                 throws Exception
             {
                 final FileTransfer fileTransfer
-                    = currentChatTransport.sendFile(file);
+                    = sendFileTransport.sendFile(file);
 
                 SwingUtilities.invokeLater(new Runnable()
                 {
@@ -1348,6 +1350,13 @@ public class ChatPanel
         }
     }
 
+    /**
+     * Renames all occurrences of the given <tt>chatContact</tt> in this chat
+     * panel.
+     * 
+     * @param chatContact the contact to rename
+     * @param name the new name
+     */
     public void setContactName(ChatContact chatContact, String name)
     {
         if (chatContactListPanel != null)
@@ -1364,26 +1373,49 @@ public class ChatPanel
         }
     }
 
+    /**
+     * Adds the given chatTransport to the given send via selector box.
+     * 
+     * @param chatTransport the transport to add
+     */
     public void addChatTransport(ChatTransport chatTransport)
     {
-        transportSelectorBox.addChatTransport(chatTransport);
+        if (transportSelectorBox != null)
+            transportSelectorBox.addChatTransport(chatTransport);
         updateSendButtonStatus();
     }
 
+    /**
+     * Removes the given chat status state from the send via selector box.
+     * 
+     * @param chatTransport the transport to remove
+     */
     public void removeChatTransport(ChatTransport chatTransport)
     {
-        transportSelectorBox.removeChatTransport(chatTransport);
+        if (transportSelectorBox != null)
+            transportSelectorBox.removeChatTransport(chatTransport);
         updateSendButtonStatus();
     }
 
+    /**
+     * Selects the given chat transport in the send via box.
+     * 
+     * @param chatTransport the chat transport to be selected
+     */
     public void setSelectedChatTransport(ChatTransport chatTransport)
     {
-        transportSelectorBox.setSelected(chatTransport);
+        if (transportSelectorBox != null)
+            transportSelectorBox.setSelected(chatTransport);
     }
 
+    /**
+     * Updates the status of the given chat transport in the send via selector
+     * box and notifies the user for the status change.
+     */
     public void updateChatTransportStatus(ChatTransport chatTransport)
     {
-        transportSelectorBox.updateTransportStatus(chatTransport);
+        if (transportSelectorBox != null)
+            transportSelectorBox.updateTransportStatus(chatTransport);
 
         // Show a status message to the user.
         this.addMessage(
