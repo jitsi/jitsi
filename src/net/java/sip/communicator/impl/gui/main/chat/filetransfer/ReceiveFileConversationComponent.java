@@ -21,6 +21,8 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
+// Disambiguates SwingWorker on Java 6 in the presence of javax.swing.*
+import net.java.sip.communicator.util.swing.SwingWorker;
 
 /**
  * The <tt>ReceiveFileConversationComponent</tt> is the component shown in the
