@@ -8,6 +8,8 @@ package net.java.sip.communicator.impl.fileaccess;
 
 import java.io.*;
 
+import javax.swing.filechooser.*;
+
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.util.*;
@@ -363,23 +365,30 @@ public class FileAccessServiceImpl implements FileAccessService {
     public File getDefaultDownloadDirectory()
         throws IOException
     {
-        String defaultLocation = getSystemProperty("user.home")
-            + File.separatorChar + "Downloads";
+        File downloadDir;
 
-        File downloadDir = new File(defaultLocation);
+        String osName = System.getProperty("os.name");
+        String osVersion = System.getProperty("os.version");
 
-        if (!downloadDir.exists())
+        String majorVersionString
+            = osVersion.substring(0, osVersion.indexOf("."));
+
+        // For Windows versions previous to Vista, the default download location
+        // would be the home directory (i.e. the Desktop folder).
+        if (osName.startsWith("Windows")
+            && Integer.parseInt(majorVersionString) <= 5)
         {
-            if (!downloadDir.mkdirs())
-            {
-                String message = "Could not create the download directory : "
-                        + downloadDir.getAbsolutePath();
+            FileSystemView fsv = FileSystemView.getFileSystemView(); 
 
-                logger.debug(message);
-                throw new IOException(message);
-            }
-            logger.debug("Download directory created : "
-                    + downloadDir.getAbsolutePath());
+            downloadDir = fsv.getHomeDirectory();
+        }
+        // For all other operating systems we return the Downloads folder.
+        else
+        {
+            String defaultLocation = getSystemProperty("user.home")
+                + File.separatorChar + "Downloads";
+
+            downloadDir = new File(defaultLocation);
         }
 
         return downloadDir;

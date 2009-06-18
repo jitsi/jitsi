@@ -21,7 +21,6 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
-import net.java.sip.communicator.util.swing.SwingWorker;
 
 /**
  * The <tt>ReceiveFileConversationComponent</tt> is the component shown in the
@@ -325,19 +324,45 @@ public class ReceiveFileConversationComponent
     {
         File downloadFile = null;
         File downloadDir = null;
+
+        String incomingFileName = fileTransferRequest.getFileName();
         try
         {
             downloadDir = GuiActivator.getFileAccessService()
                 .getDefaultDownloadDirectory();
+
+            if (!downloadDir.exists())
+            {
+                if (!downloadDir.mkdirs())
+                {
+                    logger.error("Could not create the download directory : "
+                        + downloadDir.getAbsolutePath());
+                }
+                logger.debug("Download directory created : "
+                        + downloadDir.getAbsolutePath());
+            }
         }
         catch (IOException e)
         {
-            logger.debug("Unable to find download directory.");
+            logger.debug("Unable to find download directory.", e);
         }
- 
-        if (downloadDir != null)
-            downloadFile = new File(downloadDir,
-                fileTransferRequest.getFileName());
+
+        downloadFile = new File(downloadDir, incomingFileName);
+
+        // If a file with the given name already exists, add an index to the
+        // file name.
+        int index = 0;
+        while (downloadFile.exists())
+        {
+            String newFileName
+             = incomingFileName.substring(0, incomingFileName.lastIndexOf("."))
+                 + "-" + ++index
+                 + incomingFileName.substring(incomingFileName.lastIndexOf("."));
+
+            downloadFile = new File(downloadDir, newFileName);
+        }
+
+        fileLabel.setText(downloadFile.getName());
 
         return downloadFile;
     }
@@ -395,7 +420,6 @@ public class ReceiveFileConversationComponent
             titleLabel.setText(resources.getI18NString(
                 "service.gui.FILE_RECEIVE_COMPLETED",
                 new String[]{fromContactName}));
-            fileLabel.setText(fileTransferRequest.getFileName());
 
             imageLabel.setToolTipText(
                 resources.getI18NString("service.gui.OPEN_FILE_FROM_IMAGE"));
@@ -494,10 +518,13 @@ public class ReceiveFileConversationComponent
 
         public void finished()
         {
-            fileTransfer.addStatusListener(
-                ReceiveFileConversationComponent.this);
-            fileTransfer.addProgressListener(
-                ReceiveFileConversationComponent.this);
+            if (fileTransfer != null)
+            {
+                fileTransfer.addStatusListener(
+                    ReceiveFileConversationComponent.this);
+                fileTransfer.addProgressListener(
+                    ReceiveFileConversationComponent.this);
+            }
         }
     }
 
