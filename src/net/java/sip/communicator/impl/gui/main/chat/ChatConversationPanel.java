@@ -760,11 +760,11 @@ public class ChatConversationPanel
     }
 
     /**
-     * Returns the editor of this conversation panel.
+     * Returns the text pane of this conversation panel.
      *
-     * @return The editor of this conversation panel.
+     * @return The text pane of this conversation panel.
      */
-    public JEditorPane getChatEditorPane()
+    public JTextPane getChatTextPane()
     {
         return chatTextPane;
     }

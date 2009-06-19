@@ -118,7 +118,7 @@ public class ChatPanel
 
         this.conversationPanel = new ChatConversationPanel(this);
         this.conversationPanel.setPreferredSize(new Dimension(400, 200));
-        this.conversationPanel.getChatEditorPane()
+        this.conversationPanel.getChatTextPane()
             .setTransferHandler(new ChatTransferHandler(this));
 
         this.sendPanel = new ChatSendPanel(this);
@@ -397,7 +397,7 @@ public class ChatPanel
             = getChatConversationPanel();
 
         HTMLDocument doc = (HTMLDocument) chatConversationPanel
-            .getChatEditorPane().getDocument();
+            .getChatTextPane().getDocument();
 
         Element root = doc.getDefaultRootElement();
 
@@ -683,14 +683,14 @@ public class ChatPanel
      * conversation panel content to the clipboard.
      */
     public void copy(){
-        JEditorPane editorPane = this.conversationPanel.getChatEditorPane();
+        JTextComponent textPane = this.conversationPanel.getChatTextPane();
 
-        if (editorPane.getSelectedText() == null)
+        if (textPane.getSelectedText() == null)
         {
-            editorPane = this.writeMessagePanel.getEditorPane();
+            textPane = this.writeMessagePanel.getEditorPane();
         }
 
-        editorPane.copy();
+        textPane.copy();
     }
 
     /**

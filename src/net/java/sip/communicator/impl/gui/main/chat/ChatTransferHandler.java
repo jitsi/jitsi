@@ -87,17 +87,20 @@ public class ChatTransferHandler
     {
         JTextComponent c = (JTextComponent)comp;
 
-        if (!(c.isEditable() && c.isEnabled()))
-        {
-            return false;
-        }
-
         for (int i = 0, n = flavor.length; i < n; i++)
         {
-            if (flavor[i].equals(DataFlavor.javaFileListFlavor)
-                || flavor[i].equals(DataFlavor.stringFlavor))
+            if (flavor[i].equals(DataFlavor.javaFileListFlavor))
             {
                 return true;
+            }
+            else if (flavor[i].equals(DataFlavor.stringFlavor))
+            {
+                if (c.isEditable() && c.isEnabled())
+                {
+                    return true;
+                }
+
+                return false;
             }
         }
 
