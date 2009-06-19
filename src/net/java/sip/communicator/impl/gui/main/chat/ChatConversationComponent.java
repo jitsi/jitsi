@@ -8,10 +8,13 @@ package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -21,9 +24,12 @@ import net.java.sip.communicator.util.swing.*;
  * 
  * @author Yana Stamcheva
  */
-public class ChatConversationComponent
+public abstract class ChatConversationComponent
     extends JPanel
 {
+    private static final Logger logger
+        = Logger.getLogger(ChatConversationComponent.class);
+
     protected final GridBagConstraints constraints = new GridBagConstraints();
 
     private static final Color defaultColor
@@ -36,6 +42,9 @@ public class ChatConversationComponent
 
     private Color backgroundColor = defaultColor;
 
+    protected static final ResourceManagementService resources
+        = GuiActivator.getResources();
+
     /**
      * Creates a <tt>ChatConversationComponent</tt>.
      */
@@ -43,6 +52,7 @@ public class ChatConversationComponent
     {
         this.setLayout(new GridBagLayout());
         this.setOpaque(false);
+        this.setCursor(Cursor.getDefaultCursor());
     }
 
     /**
@@ -147,4 +157,74 @@ public class ChatConversationComponent
         g2.fillRoundRect(
             1, 1, this.getWidth() - 1, this.getHeight() -1, 15, 15);
     }
+
+    /**
+     * Opens the given file through the <tt>DesktopService</tt>.
+     * 
+     * @param downloadFile the file to open
+     */
+    protected void openFile(File downloadFile)
+    {
+        try
+        {
+            GuiActivator.getDesktopService().open(downloadFile);
+        }
+        catch (IllegalArgumentException e)
+        {
+            logger.debug("Unable to open file.", e);
+
+            this.showErrorMessage(
+                resources.getI18NString(
+                    "service.gui.FILE_DOES_NOT_EXIST"));
+        }
+        catch (NullPointerException e)
+        {
+            logger.debug("Unable to open file.", e);
+
+            this.showErrorMessage(
+                resources.getI18NString(
+                    "service.gui.FILE_DOES_NOT_EXIST"));
+        }
+        catch (UnsupportedOperationException e)
+        {
+            logger.debug("Unable to open file.", e);
+
+            this.showErrorMessage(
+                resources.getI18NString(
+                    "service.gui.FILE_OPEN_NOT_SUPPORTED"));
+        }
+        catch (SecurityException e)
+        {
+            logger.debug("Unable to open file.", e);
+
+            this.showErrorMessage(
+                resources.getI18NString(
+                    "service.gui.FILE_OPEN_NO_PERMISSION"));
+        }
+        catch (IOException e)
+        {
+            logger.debug("Unable to open file.", e);
+
+            this.showErrorMessage(
+                resources.getI18NString(
+                    "service.gui.FILE_OPEN_NO_APPLICATION"));
+        }
+        catch (Exception e)
+        {
+            logger.debug("Unable to open file.", e);
+
+            this.showErrorMessage(
+                resources.getI18NString(
+                    "service.gui.FILE_OPEN_FAILED"));
+        }
+    }
+
+    /**
+     * Shows the given error message to the user. This method is made abstract
+     * in order to allow extension classes to provide custom implementations
+     * of how errors are shown to the users.
+     * 
+     * @param errorMessage the error message to show
+     */
+    protected abstract void showErrorMessage(String errorMessage);
 }

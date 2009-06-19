@@ -602,6 +602,18 @@ public class ContactListPane
                 chatWindowManager.openChat(chatPanel, false);
             }
         });
+
+        // Fire notification
+        String title = GuiActivator.getResources().getI18NString(
+            "service.gui.FILE_RECEIVING_FROM",
+            new String[]{sourceContact.getDisplayName()});
+
+        NotificationManager.fireChatNotification(
+                                        sourceContact,
+                                        NotificationManager.INCOMING_FILE,
+                                        title,
+                                        request.getFileName());
+
     }
 
     /**

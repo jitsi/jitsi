@@ -18,6 +18,8 @@ public final class SoundProperties
 {
     public static final String INCOMING_MESSAGE;
 
+    public static final String INCOMING_FILE;
+
     public static final String OUTGOING_CALL;
 
     public static final String INCOMING_CALL;
@@ -66,6 +68,7 @@ public final class SoundProperties
         ResourceManagementService resources = GuiActivator.getResources();
 
         INCOMING_MESSAGE = resources.getSoundPath("INCOMING_MESSAGE");
+        INCOMING_FILE = resources.getSoundPath("INCOMING_FILE");
         OUTGOING_CALL = resources.getSoundPath("OUTGOING_CALL");
         INCOMING_CALL = resources.getSoundPath("INCOMING_CALL");
         DIAL_ZERO = resources.getSoundPath("DIAL_ZERO");

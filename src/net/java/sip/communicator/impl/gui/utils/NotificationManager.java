@@ -28,6 +28,8 @@ public class NotificationManager
     public static final String CALL_SECURITY_ON = "CallSecurityOn";
     
     public static final String CALL_SECURITY_ERROR = "CallSecurityError";
+    
+    public static final String INCOMING_FILE = "IncomingFile";
 
     public static void registerGuiNotifications()
     {
@@ -114,6 +116,19 @@ public class NotificationManager
                 CALL_SECURITY_ERROR,
                 NotificationService.ACTION_SOUND,
                 SoundProperties.CALL_SECURITY_ERROR,
+                null);
+
+        // Register sound notification for incoming files.
+        notificationService.registerDefaultNotificationForEvent(
+                INCOMING_FILE,
+                NotificationService.ACTION_POPUP_MESSAGE,
+                null,
+                null);
+
+        notificationService.registerDefaultNotificationForEvent(
+                INCOMING_FILE,
+                NotificationService.ACTION_SOUND,
+                SoundProperties.INCOMING_FILE,
                 null);
 
     }

@@ -18,7 +18,6 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -39,14 +38,14 @@ public class SendFileConversationComponent
     private final JLabel imageLabel = new JLabel();
     private final JLabel titleLabel = new JLabel();
     private final JLabel fileLabel = new JLabel();
+    private final JTextArea errorArea = new JTextArea();
+    private final JLabel errorIconLabel = new JLabel(
+        new ImageIcon(ImageLoader.getImage(ImageLoader.EXCLAMATION_MARK)));
 
     private ChatConversationButton cancelButton = new ChatConversationButton();
     private ChatConversationButton retryButton = new ChatConversationButton();
 
     private JProgressBar progressBar = new JProgressBar();
-
-    private static final ResourceManagementService resources
-        = GuiActivator.getResources();
 
     private final String toContactName;
 
@@ -67,7 +66,7 @@ public class SendFileConversationComponent
      */
     public SendFileConversationComponent(   ChatPanel chatPanel,
                                             String toContactName,
-                                            File file)
+                                            final File file)
     {
         this.parentChatPanel = chatPanel;
         this.toContactName = toContactName;
@@ -82,6 +81,18 @@ public class SendFileConversationComponent
 
         add(imageLabel, constraints);
         this.setFileIcon(file);
+        imageLabel.setToolTipText(
+            resources.getI18NString("service.gui.OPEN_FILE_FROM_IMAGE"));
+        imageLabel.addMouseListener(new MouseAdapter()
+        {
+            public void mouseClicked(MouseEvent e)
+            {
+                if (e.getClickCount() > 1)
+                {
+                    openFile(file);
+                }
+            }
+        });
 
         constraints.gridx = 1;
         constraints.gridy = 0;
@@ -104,6 +115,21 @@ public class SendFileConversationComponent
 
         add(fileLabel, constraints);
         fileLabel.setText(getFileName(file));
+
+        constraints.gridx = 1;
+        constraints.gridy = 2;
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.insets = new Insets(0, 5, 0, 5);
+        constraints.fill = GridBagConstraints.NONE;
+
+        add(errorIconLabel, constraints);
+        errorIconLabel.setVisible(false);
+
+        constraints.gridx = 2;
+        constraints.gridy = 2;
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.insets = new Insets(0, 5, 0, 5);
+        constraints.fill = GridBagConstraints.HORIZONTAL;
 
         constraints.gridx = 1;
         constraints.gridy = 3;
@@ -313,5 +339,17 @@ public class SendFileConversationComponent
         {
             parentChatPanel.sendFile(file, this);
         }
+    }
+
+    /**
+     * Shows the given error message in the error area of this component.
+     * 
+     * @param message the message to show
+     */
+    protected void showErrorMessage(String message)
+    {
+        errorArea.setText(message);
+        errorIconLabel.setVisible(true);
+        errorArea.setVisible(true);
     }
 }

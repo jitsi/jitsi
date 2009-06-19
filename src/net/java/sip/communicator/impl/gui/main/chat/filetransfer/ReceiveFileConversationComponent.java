@@ -18,7 +18,6 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 // Disambiguates SwingWorker on Java 6 in the presence of javax.swing.*
@@ -56,9 +55,6 @@ public class ReceiveFileConversationComponent
         = new ChatConversationButton();
 
     private JProgressBar progressBar = new JProgressBar();
-
-    private static final ResourceManagementService resources
-        = GuiActivator.getResources();
 
     private IncomingFileTransferRequest fileTransferRequest;
 
@@ -535,7 +531,7 @@ public class ReceiveFileConversationComponent
      * 
      * @param message the message to show
      */
-    private void showErrorMessage(String message)
+    protected void showErrorMessage(String message)
     {
         errorArea.setText(message);
         errorIconLabel.setVisible(true);
@@ -552,66 +548,5 @@ public class ReceiveFileConversationComponent
         textArea.setOpaque(false);
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
-    }
-
-    /**
-     * Opens the given file through the <tt>DesktopService</tt>.
-     * 
-     * @param downloadFile the file to open
-     */
-    private void openFile(File downloadFile)
-    {
-        try
-        {
-            GuiActivator.getDesktopService().open(downloadFile);
-        }
-        catch (IllegalArgumentException e)
-        {
-            logger.debug("Unable to open file.", e);
-
-            this.showErrorMessage(
-                resources.getI18NString(
-                    "service.gui.FILE_DOES_NOT_EXIST"));
-        }
-        catch (NullPointerException e)
-        {
-            logger.debug("Unable to open file.", e);
-
-            this.showErrorMessage(
-                resources.getI18NString(
-                    "service.gui.FILE_DOES_NOT_EXIST"));
-        }
-        catch (UnsupportedOperationException e)
-        {
-            logger.debug("Unable to open file.", e);
-
-            this.showErrorMessage(
-                resources.getI18NString(
-                    "service.gui.FILE_OPEN_NOT_SUPPORTED"));
-        }
-        catch (SecurityException e)
-        {
-            logger.debug("Unable to open file.", e);
-
-            this.showErrorMessage(
-                resources.getI18NString(
-                    "service.gui.FILE_OPEN_NO_PERMISSION"));
-        }
-        catch (IOException e)
-        {
-            logger.debug("Unable to open file.", e);
-
-            this.showErrorMessage(
-                resources.getI18NString(
-                    "service.gui.FILE_OPEN_NO_APPLICATION"));
-        }
-        catch (Exception e)
-        {
-            logger.debug("Unable to open file.", e);
-
-            this.showErrorMessage(
-                resources.getI18NString(
-                    "service.gui.FILE_OPEN_FAILED"));
-        }
     }
 }
