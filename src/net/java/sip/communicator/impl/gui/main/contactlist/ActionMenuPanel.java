@@ -178,7 +178,7 @@ public class ActionMenuPanel
         {
             boolean isShowOffline = ConfigurationManager.isShowOffline();
 
-            updateShowOfflineButton(button, isShowOffline);
+            updateShowOfflineButton(button, !isShowOffline);
 
             GuiActivator.getUIService().getMainFrame().getContactListPanel()
                 .getContactList().setShowOffline(!isShowOffline);
@@ -187,7 +187,7 @@ public class ActionMenuPanel
         {
             boolean isMute = GuiActivator.getAudioNotifier().isMute();
 
-            updateMuteButton(button, isMute);
+            updateMuteButton(button, !isMute);
             GuiActivator.getAudioNotifier().setMute(!isMute);
         }
         else if (buttonName.equals("chatRooms"))
@@ -214,10 +214,10 @@ public class ActionMenuPanel
     {
         if(!isShowOffline)
             showOfflineButton.setBackgroundImage(
-                ImageLoader.getImage(ImageLoader.QUICK_MENU_SHOW_OFFLINE_ICON));
+                ImageLoader.getImage(ImageLoader.QUICK_MENU_HIDE_OFFLINE_ICON));
         else
             showOfflineButton.setBackgroundImage(
-                ImageLoader.getImage(ImageLoader.QUICK_MENU_HIDE_OFFLINE_ICON));
+                ImageLoader.getImage(ImageLoader.QUICK_MENU_SHOW_OFFLINE_ICON));
 
         showOfflineButton.repaint();
         this.getParent().repaint();
