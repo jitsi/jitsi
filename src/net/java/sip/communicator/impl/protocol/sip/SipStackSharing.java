@@ -74,20 +74,6 @@ public class SipStackSharing
         = new HashSet<ProtocolProviderServiceSipImpl>();
 
     /**
-     * The property indicating the preferred UDP and TCP
-     * port to bind to for clear communications.
-     */
-    private static final String PREFERRED_CLEAR_PORT_PROPERTY_NAME
-        = "net.java.sip.communicator.SIP_PREFERRED_CLEAR_PORT";
-
-    /**
-     * The property indicating the preferred TLS (TCP)
-     * port to bind to for secure communications.
-     */
-    private static final String PREFERRED_SECURE_PORT_PROPERTY_NAME
-        = "net.java.sip.communicator.SIP_PREFERRED_SECURE_PORT";
-
-    /**
      * Constructor for this class. Creates the JAIN-SIP stack.
      */
     SipStackSharing()
@@ -395,7 +381,8 @@ public class SipStackSharing
     private int getPreferredClearPort()
     {
         return SipActivator.getConfigurationService().getInt(
-            PREFERRED_CLEAR_PORT_PROPERTY_NAME, ListeningPoint.PORT_5060);
+            ProtocolProviderFactory.PREFERRED_CLEAR_PORT_PROPERTY_NAME,
+            ListeningPoint.PORT_5060);
     }
 
     /**
@@ -407,7 +394,8 @@ public class SipStackSharing
     private int getPreferredSecurePort()
     {
         return SipActivator.getConfigurationService().getInt(
-            PREFERRED_SECURE_PORT_PROPERTY_NAME, ListeningPoint.PORT_5061);
+            ProtocolProviderFactory.PREFERRED_CLEAR_PORT_PROPERTY_NAME,
+            ListeningPoint.PORT_5061);
     }
 
     /**

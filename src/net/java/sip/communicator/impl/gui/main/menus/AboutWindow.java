@@ -66,7 +66,7 @@ public class AboutWindow
         amap.put("close", new CloseAction());
 
         InputMap imap = this.getRootPane().getInputMap(
-                JComponent.WHEN_IN_FOCUSED_WINDOW);
+                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
     }
@@ -79,7 +79,7 @@ public class AboutWindow
     /**
      * The action invoked when user presses Escape key.
      */
-    private class CloseAction extends AbstractAction
+    private class CloseAction extends UIAction
     {
         public void actionPerformed(ActionEvent e)
         {

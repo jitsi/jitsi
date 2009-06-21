@@ -496,7 +496,13 @@ public class SipSecurityManager
         CredentialsCacheEntry ccEntry = new CredentialsCacheEntry();
 
         UserCredentials defaultCredentials = new UserCredentials();
-        defaultCredentials.setUserName(accountID.getUserID());
+
+        String authName = accountID.getAccountPropertyString(
+                                    ProtocolProviderFactory.AUTHORIZATION_NAME);
+        if(authName != null && authName.length() > 0)
+            ccEntry.userCredentials.setUserName(authName);
+        else
+            ccEntry.userCredentials.setUserName(accountID.getUserID());
 
         UserCredentials newCredentials = 
             getSecurityAuthority().obtainCredentials(
@@ -538,7 +544,13 @@ public class SipSecurityManager
         CredentialsCacheEntry ccEntry = new CredentialsCacheEntry();
 
         ccEntry.userCredentials = new UserCredentials();
-        ccEntry.userCredentials.setUserName(accountID.getUserID());
+
+        String authName = accountID.getAccountPropertyString(
+                                    ProtocolProviderFactory.AUTHORIZATION_NAME);
+        if(authName != null && authName.length() > 0)
+            ccEntry.userCredentials.setUserName(authName);
+        else
+            ccEntry.userCredentials.setUserName(accountID.getUserID());
 
         ccEntry.userCredentials.setPassword(password.toCharArray());
 

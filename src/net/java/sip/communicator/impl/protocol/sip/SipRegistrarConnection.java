@@ -117,6 +117,12 @@ public class SipRegistrarConnection
     private Address ourSipAddressOfRecord = null;
 
     /**
+     * callId must be unique from first register to last one, till we
+     * unregister.
+     */
+    private CallIdHeader callIdHeader = null;
+
+    /**
     * Creates a new instance of this class.
     *
     * @param registrarAddress the ip address or FQDN of the registrar we will
@@ -208,8 +214,8 @@ public class SipRegistrarConnection
         }
 
         //Call ID Header
-        CallIdHeader callIdHeader
-            = this.getJainSipProvider().getNewCallId();
+        if(callIdHeader == null)
+            callIdHeader = this.getJainSipProvider().getNewCallId();
 
         //CSeq Header
         CSeqHeader cSeqHeader = null;
@@ -666,6 +672,9 @@ public class SipRegistrarConnection
             if(authorization != null)
                 unregisterRequest.addHeader(authorization);
 
+            // remove current call-id header
+            // on next register we will create new one
+            callIdHeader = null;
 
             unregisterTransaction.sendRequest();
             logger.info("sent request:\n" + unregisterRequest);

@@ -105,7 +105,7 @@ public interface UIService
     public void minimize();
 
     /**
-     * Mawimizes the main application window.
+     * Maximizes the main application window.
      */
     public void maximize();
 
@@ -234,7 +234,6 @@ public interface UIService
      * 
      * @param phoneNumber the phone number to enter.
      */
-
     public void setCurrentPhoneNumber(String phoneNumber);
 
     /**
@@ -340,9 +339,44 @@ public interface UIService
      */
     public boolean isContainerSupported(Container containderID);
 
+    /**
+     * Determines whether the Mac OS X screen menu bar is being used by the UI
+     * for its main menu instead of the Windows-like menu bars at the top of the
+     * windows.
+     * <p>
+     * A common use of the returned indicator is for the purposes of
+     * platform-sensitive UI since Mac OS X employs a single screen menu bar,
+     * Windows and Linux/GTK+ use per-window menu bars and it is inconsistent on
+     * Mac OS X to have the Window-like menu bars.
+     * </p>
+     * 
+     * @return <tt>true</tt> if the Mac OS X screen menu bar is being used by
+     *         the UI for its main menu instead of the Windows-like menu bars at
+     *         the top of the windows; otherwise, <tt>false</tt>
+     */
     public boolean useMacOSXScreenMenuBar();
 
+    /**
+     * Invokes the UI action commonly associated with the "File &gt; Quit" menu
+     * item which begins the application shutdown procedure.
+     * <p>
+     * The method avoids duplication since the "File &gt; Quit" functionality
+     * may be invoked not only from the main application menu but also from the
+     * systray, for example.
+     * </p>
+     */
     public void beginShutdown();
 
+    /**
+     * Shows or hides the "Tools &gt; Settings" configuration window.
+     * <p>
+     * The method hides the implementation-specific details of the configuration
+     * window from its clients and allows the UI to completely control, for
+     * example, how many instances of it are visible at one and the same time.
+     * <p>
+     *
+     * @param visible <tt>true</tt> to show the "Tools &gt; Settings"
+     *            configuration window; <tt>false</tt> to hide it
+     */
     public void setConfigurationWindowVisible(boolean visible);
 }

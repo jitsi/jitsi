@@ -80,6 +80,9 @@ public class FirstWizardPage
     private JLabel proxyLabel
         = new JLabel(Resources.getString("plugin.sipaccregwizz.PROXY"));
 
+    private JLabel authNameLabel =
+        new JLabel(Resources.getString("plugin.sipaccregwizz.AUTH_NAME"));
+
     private JLabel serverPortLabel =
         new JLabel(Resources.getString("plugin.sipaccregwizz.SERVER_PORT"));
 
@@ -93,6 +96,8 @@ public class FirstWizardPage
     private JTextField serverField = new JTextField();
 
     private JTextField proxyField = new JTextField();
+
+    private JTextField authNameField = new JTextField();
 
     private JTextField serverPortField
         = new JTextField(SIPAccountRegistration.DEFAULT_PORT);
@@ -242,12 +247,14 @@ public class FirstWizardPage
             .setSelectedItem(SIPAccountRegistration.DEFAULT_TRANSPORT);
 
         labelsAdvOpPanel.add(serverLabel);
+        labelsAdvOpPanel.add(authNameLabel);
         labelsAdvOpPanel.add(serverPortLabel);
         labelsAdvOpPanel.add(proxyLabel);
         labelsAdvOpPanel.add(proxyPortLabel);
         labelsAdvOpPanel.add(transportLabel);
 
         valuesAdvOpPanel.add(serverField);
+        valuesAdvOpPanel.add(authNameField);
         valuesAdvOpPanel.add(serverPortField);
         valuesAdvOpPanel.add(proxyField);
         valuesAdvOpPanel.add(proxyPortField);
@@ -255,7 +262,7 @@ public class FirstWizardPage
 
         advancedOpPanel.add(labelsAdvOpPanel, BorderLayout.WEST);
         advancedOpPanel.add(valuesAdvOpPanel, BorderLayout.CENTER);
-        
+
         JPanel encryptionPanel = new TransparentPanel(new GridLayout(1, 2, 2, 2));
         encryptionPanel.add(enableDefaultEncryption, BorderLayout.WEST);
         encryptionPanel.add(enableSipZrtpAttribute, BorderLayout.EAST);
@@ -419,6 +426,11 @@ public class FirstWizardPage
         registration.setRememberPassword(rememberPassBox.isSelected());
 
         registration.setServerAddress(serverField.getText());
+
+        String authName = authNameField.getText();
+        if(authName != null && authName.length() > 0)
+            registration.setAuthorizationName(authName);
+
         registration.setServerPort(serverPortField.getText());
         registration.setProxy(proxyField.getText());
         registration.setProxyPort(proxyPortField.getText());
@@ -513,6 +525,9 @@ public class FirstWizardPage
         String serverAddress = accountID.getAccountPropertyString(
                             ProtocolProviderFactory.SERVER_ADDRESS);
 
+        String authName = accountID.getAccountPropertyString(
+                            ProtocolProviderFactory.AUTHORIZATION_NAME);
+
         String serverPort = accountID.getAccountPropertyString(
                             ProtocolProviderFactory.SERVER_PORT);
 
@@ -565,6 +580,10 @@ public class FirstWizardPage
 
         serverField.setText(serverAddress);
         serverField.setEnabled(false);
+
+        if(authName != null && authName.length() > 0)
+            authNameField.setText(authName);
+
         serverPortField.setText(serverPort);
         proxyField.setText(proxyAddress);
 
@@ -575,7 +594,7 @@ public class FirstWizardPage
 
         enablePresOpButton.setSelected(enablePresence);
         forceP2PPresOpButton.setSelected(forceP2P);
-        
+
         enableDefaultEncryption.setSelected(enabledDefaultEncryption);
         enableSipZrtpAttribute.setSelected(enabledSipZrtpAttribute);
         enableSipZrtpAttribute.setEnabled(enabledDefaultEncryption);

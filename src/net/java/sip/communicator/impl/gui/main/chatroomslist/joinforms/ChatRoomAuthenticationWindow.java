@@ -237,7 +237,7 @@ public class ChatRoomAuthenticationWindow
      */
     private void enableKeyActions() {
 
-        AbstractAction act = new AbstractAction() {
+        UIAction act = new UIAction() {
             public void actionPerformed(ActionEvent e) {
                 ChatRoomAuthenticationWindow.this.setVisible(false);
             }

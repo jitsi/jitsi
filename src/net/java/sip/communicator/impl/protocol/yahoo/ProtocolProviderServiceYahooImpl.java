@@ -185,14 +185,38 @@ public class ProtocolProviderServiceYahooImpl
             }
             catch (LoginRefusedException ex)
             {
-                fireRegistrationStateChanged(
-                    getRegistrationState(),
-                    RegistrationState.AUTHENTICATION_FAILED,
-                    RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED,
-                    null);
+                if(ex.getStatus() == StatusConstants.STATUS_BADUSERNAME)
+                {
+                    fireRegistrationStateChanged(
+                        getRegistrationState(),
+                        RegistrationState.AUTHENTICATION_FAILED,
+                        RegistrationStateChangeEvent.REASON_NON_EXISTING_USER_ID,
+                        null);
 
-                // Try to re-register and ask the user to retype the password.
-                reregister(SecurityAuthority.WRONG_PASSWORD);
+                    reregister(SecurityAuthority.WRONG_USERNAME);
+                }
+                else if(ex.getStatus() == StatusConstants.STATUS_BAD)
+                {
+                    YahooActivator.getProtocolProviderFactory()
+                        .storePassword(getAccountID(), null);
+
+                    fireRegistrationStateChanged(
+                        getRegistrationState(),
+                        RegistrationState.AUTHENTICATION_FAILED,
+                        RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED,
+                        null);
+
+                    // Try to re-register and ask the user to retype the password.
+                    reregister(SecurityAuthority.WRONG_PASSWORD);
+                }
+                else if(ex.getStatus() == StatusConstants.STATUS_LOCKED)
+                {
+                    fireRegistrationStateChanged(
+                        getRegistrationState(),
+                        RegistrationState.AUTHENTICATION_FAILED,
+                        RegistrationStateChangeEvent.REASON_RECONNECTION_RATE_LIMIT_EXCEEDED,
+                        null);
+                }
             }
             catch (IOException ex)
             {
@@ -436,7 +460,7 @@ public class ProtocolProviderServiceYahooImpl
                     ((YMSG9BadFormatException)ev.getException().getCause()));
             }
             else
-                logger.error("Yahoo protocol exception occured", ev.getException());
+                    logger.error("Yahoo protocol exception occured", ev.getException());
 
             unregister(false);
             if(isRegistered())

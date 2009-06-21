@@ -64,7 +64,7 @@ public abstract class SIPCommFrame
      * The action invoked when user presses Escape key.
      */
     private class CloseAction
-        extends AbstractAction
+        extends UIAction
     {
         public void actionPerformed(ActionEvent e)
         {

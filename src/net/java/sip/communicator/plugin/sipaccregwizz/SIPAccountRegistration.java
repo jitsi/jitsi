@@ -35,6 +35,8 @@ public class SIPAccountRegistration
 
     private String serverAddress;
 
+    private String authorizationName;
+
     private String serverPort = DEFAULT_PORT;
 
     private String proxyPort = DEFAULT_PORT;
@@ -46,9 +48,9 @@ public class SIPAccountRegistration
     private boolean enablePresence = true;
 
     private boolean forceP2PMode = true;
-    
+
     private boolean defaultEncryption = false;
-    
+
     private boolean sipZrtpAttribute = false;
 
     private String pollingPeriod = DEFAULT_POLL_PERIOD;
@@ -151,6 +153,16 @@ public class SIPAccountRegistration
     }
 
     /**
+     * The authorization name
+     *
+     * @return String auth name
+     */
+    public String getAuthorizationName()
+    {
+        return authorizationName;
+    }
+
+    /**
      * The port on the specified proxy
      *
      * @return int
@@ -188,6 +200,16 @@ public class SIPAccountRegistration
     public void setServerPort(String port)
     {
         this.serverPort = port;
+    }
+
+    /**
+     * Sets authorization name.
+     *
+     * @param authName String
+     */
+    public void setAuthorizationName(String authName)
+    {
+        this.authorizationName = authName;
     }
 
     /**

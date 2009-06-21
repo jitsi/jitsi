@@ -92,7 +92,7 @@ public abstract class SIPCommDialog extends JDialog
     /**
      * The action invoked when user presses Escape key.
      */
-    private class CloseAction extends AbstractAction
+    private class CloseAction extends UIAction
     {
         public void actionPerformed(ActionEvent e)
         {

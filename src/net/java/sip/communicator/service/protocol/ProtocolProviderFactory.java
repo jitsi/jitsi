@@ -96,6 +96,20 @@ public abstract class ProtocolProviderFactory
     public static final String PROXY_PORT = "PROXY_PORT";
 
     /**
+     * The property indicating the preferred UDP and TCP
+     * port to bind to for clear communications.
+     */
+    public static final String PREFERRED_CLEAR_PORT_PROPERTY_NAME
+        = "net.java.sip.communicator.SIP_PREFERRED_CLEAR_PORT";
+
+    /**
+     * The property indicating the preferred TLS (TCP)
+     * port to bind to for secure communications.
+     */
+    public static final String PREFERRED_SECURE_PORT_PROPERTY_NAME
+        = "net.java.sip.communicator.SIP_PREFERRED_SECURE_PORT";
+
+    /**
      * The name of the property under which we store the the type of the proxy
      * stored against the PROXY_ADDRESS property. Exact type values depend on
      * protocols and among them are socks4, socks5, http and possibly others.
@@ -107,6 +121,12 @@ public abstract class ProtocolProviderFactory
     * stored against the PROXY_ADDRESS property.
     */
    public static final String PROXY_USERNAME = "PROXY_USERNAME";
+
+   /**
+    * The name of the property under which we store the the authorization name
+    * for the proxy stored against the PROXY_ADDRESS property.
+    */
+   public static final String AUTHORIZATION_NAME = "AUTHORIZATION_NAME";
 
    /**
     * The name of the property under which we store the password for the proxy

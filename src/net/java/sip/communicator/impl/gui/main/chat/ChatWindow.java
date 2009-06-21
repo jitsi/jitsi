@@ -169,6 +169,17 @@ public class ChatWindow
         this.addKeybindingAction(   "chat-close",
                                     new CloseAction());
 
+        // simple fix adding meta+w on macosx
+        String osName = System.getProperty("os.name");
+        if (osName.startsWith("Mac"))
+        {
+            this.getRootPane().getInputMap(
+                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
+                    KeyStroke.getKeyStroke(
+                        KeyEvent.VK_W, InputEvent.META_DOWN_MASK),
+                        "chat-close");
+        }
+
         this.addWindowListener(new ChatWindowAdapter());
 
         int width = GuiActivator.getResources()
@@ -545,7 +556,7 @@ public class ChatWindow
      * last tab index is reached the first one is selected.
      */
     private class ForwardTabAction
-        extends AbstractAction
+        extends UIAction
     {
         public void actionPerformed(ActionEvent e)
         {
@@ -567,7 +578,7 @@ public class ChatWindow
      * the first tab index is reached the last one is selected.
      */
     private class BackwordTabAction
-        extends AbstractAction
+        extends UIAction
     {
         public void actionPerformed(ActionEvent e)
         {
@@ -588,7 +599,7 @@ public class ChatWindow
      * text currently selected.
      */
     private class CopyAction
-        extends AbstractAction
+        extends UIAction
     {
         public void actionPerformed(ActionEvent e)
         {
@@ -601,7 +612,7 @@ public class ChatWindow
      * the text contained in the clipboard in the current <tt>ChatPanel</tt>.
      */
     private class PasteAction
-        extends AbstractAction
+        extends UIAction
     {
         public void actionPerformed(ActionEvent e)
         {
@@ -614,7 +625,7 @@ public class ChatWindow
      * opens the menu, containing all available smileys' icons.
      */
     private class OpenSmileyAction
-        extends AbstractAction
+        extends UIAction
     {
         public void actionPerformed(ActionEvent e)
         {
@@ -628,7 +639,7 @@ public class ChatWindow
      * opens the history window for the currently selected contact.
      */
     private class OpenHistoryAction
-        extends AbstractAction
+        extends UIAction
     {
         public void actionPerformed(ActionEvent e)
         {
@@ -642,7 +653,7 @@ public class ChatWindow
      * closes a tab in the chat window.
      */
     private class CloseAction
-        extends AbstractAction
+        extends UIAction
     {
         public void actionPerformed(ActionEvent e)
         {

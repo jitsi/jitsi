@@ -9,6 +9,7 @@ package net.java.sip.communicator.plugin.generalconfig;
 import java.util.*;
 
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 
 public class ConfigurationManager
@@ -485,5 +486,33 @@ public class ConfigurationManager
         configService.setProperty(
             ResourceManagementService.DEFAULT_LOCALE_CONFIG,
             (country.length() > 0) ? (language + '_' + country) : language);
+    }
+
+    public static void setClientPort(int port)
+    {
+        configService.setProperty(
+            ProtocolProviderFactory.PREFERRED_CLEAR_PORT_PROPERTY_NAME,
+            port);
+    }
+
+    public static void setClientSecurePort(int port)
+    {
+        configService.setProperty(
+            ProtocolProviderFactory.PREFERRED_SECURE_PORT_PROPERTY_NAME,
+            port);
+    }
+
+    public static int getClientPort()
+    {
+        return configService.getInt(
+            ProtocolProviderFactory.PREFERRED_CLEAR_PORT_PROPERTY_NAME,
+            5060);
+    }
+
+    public static int getClientSecurePort()
+    {
+        return configService.getInt(
+            ProtocolProviderFactory.PREFERRED_SECURE_PORT_PROPERTY_NAME,
+            5061);
     }
 }

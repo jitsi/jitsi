@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.gui;
 
 import java.awt.*;
+import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 
@@ -30,6 +31,7 @@ import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
 
@@ -149,6 +151,11 @@ public class UIServiceImpl
         SwingUtilities.invokeLater(new RunLoginGui());
 
         this.initExportedWindows();
+
+        KeyboardFocusManager focusManager =
+            KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        focusManager.
+            addKeyEventDispatcher(new KeyBindingsDispatching(focusManager));
     }
 
     /**
@@ -1027,6 +1034,11 @@ public class UIServiceImpl
         }
     }
 
+    /*
+     * Implements UIService#useMacOSXScreenMenuBar(). Indicates that the Mac OS
+     * X screen menu bar is to be used on Mac OS X and the Windows-like
+     * per-window menu bars are to be used on non-Mac OS X operating systems.
+     */
     public boolean useMacOSXScreenMenuBar()
     {
         String osName = System.getProperty("os.name");
@@ -1035,6 +1047,11 @@ public class UIServiceImpl
                             || (osName.indexOf("Darwin") != -1));
     }
 
+    /*
+     * Implements UIService#beginShutdown(). Disposes of the mainFrame (if it
+     * exists) and then instructs Felix to start shutting down the bundles so
+     * that the application can gracefully quit.
+     */
     public void beginShutdown()
     {
         try
@@ -1056,10 +1073,68 @@ public class UIServiceImpl
         }
     }
 
+    /*
+     * Implements UIService#setConfigurationWindowVisible(boolean). Makes sure
+     * there is only one ConfigurationFrame instance visible at one and the same
+     * time.
+     */
     public void setConfigurationWindowVisible(boolean visible)
     {
         if (configurationFrame == null)
             configurationFrame = new ConfigurationFrame(mainFrame);
         configurationFrame.setVisible(visible);
+    }
+
+    /**
+     * Dispatcher which ensures that our custom keybindings will
+     * be executed before any other focused(or not focused) component
+     * will consume our key event. This way we override some components
+     * keybindings.
+     */
+    private static class KeyBindingsDispatching
+        implements KeyEventDispatcher
+    {
+        KeyboardFocusManager focusManager = null;
+
+        KeyBindingsDispatching(KeyboardFocusManager focusManager)
+        {
+            this.focusManager = focusManager;
+        }
+
+        public boolean dispatchKeyEvent(KeyEvent e)
+        {
+            if(e.getID() == KeyEvent.KEY_PRESSED)
+            {
+                Window w = focusManager.getActiveWindow();
+                JRootPane rpane = null;
+
+                if(w instanceof JFrame)
+                    rpane = ((JFrame)w).getRootPane();
+
+                if(w instanceof JDialog)
+                    rpane = ((JDialog)w).getRootPane();
+
+                if(rpane == null)
+                    return false;
+
+                Object binding = rpane.
+                    getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).
+                        get(KeyStroke.getKeyStrokeForEvent(e));
+
+                if(binding == null)
+                    return false;
+
+                Object actObj = rpane.getActionMap().get(binding);
+
+                if(actObj != null && actObj instanceof UIAction)
+                {
+                    ((UIAction)actObj).actionPerformed(
+                        new ActionEvent(w, -1, (String)binding));
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }

@@ -125,6 +125,9 @@ public class SIPAccountRegistrationWizard
             Resources.getString("plugin.sipaccregwizz.REGISTRAR"),
             registration.getServerAddress()));
         summaryTable.add(new  SimpleEntry<String, String>(
+            Resources.getString("plugin.sipaccregwizz.AUTH_NAME"),
+            registration.getAuthorizationName()));
+        summaryTable.add(new  SimpleEntry<String, String>(
             Resources.getString("plugin.sipaccregwizz.SERVER_PORT"),
             registration.getServerPort()));
         summaryTable.add(new  SimpleEntry<String, String>(
@@ -277,6 +280,10 @@ public class SIPAccountRegistrationWizard
                     ProtocolProviderFactory.IS_SERVER_OVERRIDDEN,
                     Boolean.toString(true));
         }
+
+        if(registration.getAuthorizationName() != null)
+            accountProperties.put(ProtocolProviderFactory.AUTHORIZATION_NAME,
+                registration.getAuthorizationName());
 
         accountProperties.put(ProtocolProviderFactory.SERVER_PORT,
                 registration.getServerPort());

@@ -77,6 +77,7 @@ public class GeneralConfigurationPanel
             {
                 autoStartCheckBox = new SIPCommCheckBox();
                 mainPanel.add(autoStartCheckBox);
+                mainPanel.add(new JSeparator());
                 mainPanel.add(Box.createVerticalStrut(10));
 
                 autoStartCheckBox.setText(
@@ -218,6 +219,7 @@ public class GeneralConfigurationPanel
             {
                 bringToFrontCheckBox = new SIPCommCheckBox();
                 mainPanel.add(bringToFrontCheckBox);
+                mainPanel.add(new JSeparator());
                 mainPanel.add(Box.createVerticalStrut(10));
                 bringToFrontCheckBox.setText(
                     Resources.getString("plugin.generalconfig.BRING_WINDOW_TO_FRONT"));
@@ -245,6 +247,8 @@ public class GeneralConfigurationPanel
                     notifConfigPanel.setPreferredSize(new Dimension(380, 22));
 
                     mainPanel.add(notifConfigPanel);
+                    mainPanel.add(Box.createVerticalStrut(4));
+                    mainPanel.add(new JSeparator());
                     mainPanel.add(Box.createVerticalStrut(10));
                     {
                         notifConfigLabel = new JLabel(
@@ -300,6 +304,8 @@ public class GeneralConfigurationPanel
                 localeConfigPanel.setPreferredSize(new Dimension(380, 22));
 
                 mainPanel.add(localeConfigPanel);
+                mainPanel.add(Box.createVerticalStrut(4));
+                mainPanel.add(new JSeparator());
                 mainPanel.add(Box.createVerticalStrut(10));
                 {
                     localeConfigPanel.add(
@@ -346,6 +352,135 @@ public class GeneralConfigurationPanel
                     });
                     localeConfigPanel.add(
                         localesConfigComboBox, BorderLayout.CENTER);
+                }
+            }
+            {
+                JPanel sipClientPortConfigPanel = new JPanel();
+                sipClientPortConfigPanel.setOpaque(false);
+                sipClientPortConfigPanel.setLayout(new BorderLayout(10, 10));
+                sipClientPortConfigPanel.setAlignmentX(0.0f);
+                sipClientPortConfigPanel.setPreferredSize(new Dimension(380, 72));
+
+                JPanel labelPanel = new JPanel(new GridLayout(0, 1, 2, 2));
+                labelPanel.setOpaque(false);
+                JPanel valuePanel = new JPanel(new GridLayout(0, 1, 2, 2));
+                valuePanel.setOpaque(false);
+
+                mainPanel.add(sipClientPortConfigPanel);
+                mainPanel.add(new JSeparator());
+                mainPanel.add(Box.createVerticalStrut(10));
+
+                mainPanel.add(Box.createVerticalStrut(10));
+                {
+                    sipClientPortConfigPanel.add(labelPanel,
+                        BorderLayout.WEST);
+                    sipClientPortConfigPanel.add(valuePanel,
+                        BorderLayout.CENTER);
+                }
+                {
+                    labelPanel.add(new JLabel(
+                        Resources.getString(
+                            "plugin.generalconfig.SIP_CLIENT_PORT")));
+                    labelPanel.add(new JLabel(
+                        Resources.getString(
+                            "plugin.generalconfig.SIP_CLIENT_SECURE_PORT")));
+
+                    JPanel emptyPanel = new JPanel();
+                    emptyPanel.setOpaque(false);
+                    emptyPanel.setMaximumSize(new Dimension(40, 35));
+                    labelPanel.add(emptyPanel);
+                    
+                    final JTextField clientPortField = new JTextField(6);
+                    clientPortField.setText(
+                        String.valueOf(ConfigurationManager.getClientPort()));
+                    valuePanel.add(clientPortField);
+                    clientPortField.addFocusListener(new FocusListener()
+                    {
+                        private String oldValue = null;
+
+                        public void focusLost(FocusEvent e)
+                        {
+                            try
+                            {
+                                int port =
+                                    Integer.valueOf(clientPortField.getText());
+
+                                if(port <= 0 || port > 65535)
+                                    throw new NumberFormatException(
+                                        "Not a port number");
+
+                                ConfigurationManager.setClientPort(port);
+                            }
+                            catch (NumberFormatException ex)
+                            {
+                                // not a number for port
+                                String error =
+                                    Resources.getString(
+                                        "plugin.generalconfig.ERROR_PORT_NUMBER");
+                                GeneralConfigPluginActivator.getUIService().
+                                getPopupDialog().showMessagePopupDialog(
+                                    error,
+                                    error,
+                                    PopupDialog.ERROR_MESSAGE);
+                                clientPortField.setText(oldValue);
+                            }
+
+
+                        }
+
+                        public void focusGained(FocusEvent e)
+                        {
+                            oldValue = clientPortField.getText();
+                        }
+                    });
+                    final JTextField clientSecurePortField = new JTextField(6);
+                    clientSecurePortField.setText(
+                        String.valueOf(ConfigurationManager.getClientSecurePort()));
+                    valuePanel.add(clientSecurePortField);
+                    clientSecurePortField.addFocusListener(new FocusListener()
+                    {
+                        private String oldValue = null;
+
+                        public void focusLost(FocusEvent e)
+                        {
+                            try
+                            {
+                                int port =
+                                    Integer.valueOf(clientSecurePortField.getText());
+
+                                if(port <= 0 || port > 65535)
+                                    throw new NumberFormatException(
+                                        "Not a port number");
+
+                                ConfigurationManager.setClientSecurePort(port);
+                            }
+                            catch (NumberFormatException ex)
+                            {
+                                // not a number for port
+                                String error =
+                                    Resources.getString(
+                                        "plugin.generalconfig.ERROR_PORT_NUMBER");
+                                GeneralConfigPluginActivator.getUIService().
+                                getPopupDialog().showMessagePopupDialog(
+                                    error,
+                                    error,
+                                    PopupDialog.ERROR_MESSAGE); 
+                                clientSecurePortField.setText(oldValue);
+                            }
+                        }
+
+                        public void focusGained(FocusEvent e)
+                        {
+                            oldValue = clientSecurePortField.getText();
+                        }
+                    });
+                    JLabel warnLabel = new JLabel("* " + 
+                        Resources.getString(
+                            "plugin.generalconfig.DEFAULT_LANGUAGE_RESTART_WARN"));
+                    warnLabel.setForeground(Color.GRAY);
+                    warnLabel.setFont(warnLabel.getFont().deriveFont(8));
+                    warnLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
+                    valuePanel.add(warnLabel);
                 }
             }
 //            {
