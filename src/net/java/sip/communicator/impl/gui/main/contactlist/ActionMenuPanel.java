@@ -73,15 +73,15 @@ public class ActionMenuPanel
         addMoreActionsButton(
             ImageLoader.getImage(
                 ConfigurationManager.isShowOffline()
-                    ? ImageLoader.QUICK_MENU_HIDE_OFFLINE_ICON
-                    : ImageLoader.QUICK_MENU_SHOW_OFFLINE_ICON),
+                    ? ImageLoader.QUICK_MENU_SHOW_OFFLINE_ICON
+                    : ImageLoader.QUICK_MENU_HIDE_OFFLINE_ICON),
             "Show/Hide",
             "showOffline");
         addMoreActionsButton(
             ImageLoader.getImage(
                 GuiActivator.getAudioNotifier().isMute()
-                    ? ImageLoader.QUICK_MENU_SOUND_ON_ICON
-                    : ImageLoader.QUICK_MENU_SOUND_OFF_ICON),
+                    ? ImageLoader.QUICK_MENU_SOUND_OFF_ICON
+                    : ImageLoader.QUICK_MENU_SOUND_ON_ICON),
             "Sound",
             "sound");
         addMoreActionsButton(
