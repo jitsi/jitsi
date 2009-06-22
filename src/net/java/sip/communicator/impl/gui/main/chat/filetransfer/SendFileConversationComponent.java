@@ -35,7 +35,7 @@ public class SendFileConversationComponent
     private final Logger logger
         = Logger.getLogger(SendFileConversationComponent.class);
 
-    private final JLabel imageLabel = new JLabel();
+    private final FileImageLabel imageLabel = new FileImageLabel();
     private final JLabel titleLabel = new JLabel();
     private final JLabel fileLabel = new JLabel();
     private final JTextArea errorArea = new JTextArea();
@@ -216,6 +216,8 @@ public class SendFileConversationComponent
             try
             {
                 ImageIcon image = new ImageIcon(file.toURI().toURL());
+                imageLabel.setToolTipImage(image);
+
                 image = ImageUtils
                     .getScaledRoundedIcon(image.getImage(), 64, 64);
                 imageLabel.setIcon(image);

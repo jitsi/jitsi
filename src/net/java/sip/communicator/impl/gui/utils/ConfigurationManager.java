@@ -58,6 +58,8 @@ public class ConfigurationManager
     
     private static boolean isChatStylebarVisible;
     
+    private static String sendFileLastDir;
+    
     private static ConfigurationService configService
         = GuiActivator.getConfigurationService();
     
@@ -324,14 +326,18 @@ public class ConfigurationManager
         // Load the "lastContactParent" property.
         lastContactParent = configService.getString(
             "net.java.sip.communicator.impl.gui.addcontact.lastContactParent");
+
+        // Load the "sendFileLastDir" property.
+        sendFileLastDir = configService.getString(
+            "net.java.sip.communicator.impl.gui.chat.filetransfer.SEND_FILE_LAST_DIR");
     }
 
     /**
      * Return TRUE if "autoPopupNewMessage" property is true, otherwise - return
      * FALSE. Indicates to the user interface whether new messages should be
      * opened and bring to front.
-     * @return TRUE if "autoPopupNewMessage" property is true, otherwise - return
-     * FALSE.
+     * @return TRUE if "autoPopupNewMessage" property is true, otherwise
+     * - return FALSE.
      */
     public static boolean isAutoPopupNewMessage()
     {
@@ -547,6 +553,16 @@ public class ConfigurationManager
     }
 
     /**
+     * Returns the last opened directory of the send file file chooser.
+     * 
+     * @return the last opened directory of the send file file chooser
+     */
+    public static String getSendFileLastDir()
+    {
+        return sendFileLastDir;
+    }
+
+    /**
      * Sets the transparency value for all transparent windows.
      * 
      * @param the transparency value for all transparent windows.
@@ -712,6 +728,21 @@ public class ConfigurationManager
         configService.setProperty(
                 "net.java.sip.communicator.impl.gui.CHAT_WRITE_AREA_SIZE",
                 Integer.toString(chatWriteAreaSize));
+    }
+
+    /**
+     * Updates the "SEND_FILE_LAST_DIR"
+     * property through the <tt>ConfigurationService</tt>.
+     * 
+     * @param size the new size to set
+     */
+    public static void setSendFileLastDir(String lastDir)
+    {
+        sendFileLastDir = lastDir;
+
+        configService.setProperty(
+            "net.java.sip.communicator.impl.gui.chat.filetransfer.SEND_FILE_LAST_DIR",
+            lastDir);
     }
 
     /**

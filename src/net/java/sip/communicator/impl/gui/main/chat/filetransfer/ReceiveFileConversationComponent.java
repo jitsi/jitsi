@@ -19,7 +19,6 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.*;
 // Disambiguates SwingWorker on Java 6 in the presence of javax.swing.*
 import net.java.sip.communicator.util.swing.SwingWorker;
 
@@ -38,7 +37,7 @@ public class ReceiveFileConversationComponent
     private final Logger logger
         = Logger.getLogger(SendFileConversationComponent.class);
 
-    private final FileDragLabel imageLabel = new FileDragLabel();
+    private final FileImageLabel imageLabel = new FileImageLabel();
     private final JLabel titleLabel = new JLabel();
     private final JLabel fileLabel = new JLabel();
     private final JTextArea errorArea = new JTextArea();
@@ -421,6 +420,7 @@ public class ReceiveFileConversationComponent
 
             imageLabel.setToolTipText(
                 resources.getI18NString("service.gui.OPEN_FILE_FROM_IMAGE"));
+
             imageLabel.addMouseListener(new MouseAdapter()
             {
                 public void mouseClicked(MouseEvent e)
@@ -479,6 +479,8 @@ public class ReceiveFileConversationComponent
             try
             {
                 ImageIcon image = new ImageIcon(file.toURI().toURL());
+                imageLabel.setToolTipImage(image);
+
                 image = ImageUtils
                     .getScaledRoundedIcon(image.getImage(), 64, 64);
                 imageLabel.setIcon(image);

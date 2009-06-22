@@ -34,7 +34,7 @@ public class SecurityStatusLabel
      */
     public JToolTip createToolTip()
     {
-        ExtendedTooltip tip = new ExtendedTooltip();
+        ExtendedTooltip tip = new ExtendedTooltip(true);
 
         tip.setTitle("Security status");
 

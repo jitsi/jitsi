@@ -1109,7 +1109,7 @@ public class ChatWindow
          */
         public JToolTip createToolTip()
         {
-            ExtendedTooltip tip = new ExtendedTooltip();
+            ExtendedTooltip tip = new ExtendedTooltip(true);
 
             if (tooltipIcon != null)
                 tip.setImage(tooltipIcon);

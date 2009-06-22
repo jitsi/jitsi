@@ -159,7 +159,8 @@ public class MainToolBar
         }
         else if (buttonText.equals("sendFile"))
         {
-            JFileChooser fileChooser = new JFileChooser();
+            JFileChooser fileChooser = new JFileChooser(
+                ConfigurationManager.getSendFileLastDir());
 
             int result = fileChooser.showOpenDialog(this);
 
@@ -167,6 +168,8 @@ public class MainToolBar
             {
                 File selectedFile = fileChooser.getSelectedFile();
 
+                ConfigurationManager
+                    .setSendFileLastDir(selectedFile.getParent());
                 messageWindow.getCurrentChatPanel().sendFile(selectedFile);
             }
         }

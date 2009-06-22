@@ -108,7 +108,7 @@ public class DefaultContactList
 
         Object element = getModel().getElementAt(index);
 
-        ExtendedTooltip tip = new ExtendedTooltip();
+        ExtendedTooltip tip = new ExtendedTooltip(true);
         if (element instanceof MetaContact)
         {
             MetaContact metaContact = (MetaContact) element;

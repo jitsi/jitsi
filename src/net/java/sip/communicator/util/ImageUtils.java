@@ -39,6 +39,9 @@ public class ImageUtils
     public static Image scaleImageWithinBounds(Image image, int width,
         int height)
     {
+        if (image.getWidth(null) <= width && image.getHeight(null) <= height)
+            return image;
+
         Image scaledImage;
         int scaleHint = Image.SCALE_SMOOTH;
         double originalRatio =

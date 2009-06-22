@@ -29,15 +29,19 @@ public class ExtendedTooltip
 
     private final JPanel linesPanel = new JPanel();
 
-    private int textWidth;
+    private int textWidth = 0;
 
-    private int textHeight;
+    private int textHeight = 0;
+
+    private boolean isListViewEnabled;
 
     /**
      * Created a <tt>MetaContactTooltip</tt>.
      */
-    public ExtendedTooltip()
+    public ExtendedTooltip(boolean isListViewEnabled)
     {
+        this.isListViewEnabled = isListViewEnabled;
+
         this.setUI(new ImageToolTipUI());
 
         this.setLayout(new BorderLayout());
@@ -49,16 +53,25 @@ public class ExtendedTooltip
         centerPanel.setOpaque(false);
         linesPanel.setOpaque(false);
 
-        mainPanel.add(imageLabel, BorderLayout.WEST);
-        mainPanel.add(centerPanel, BorderLayout.CENTER);
-
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD));
 
-        centerPanel.add(titleLabel, BorderLayout.NORTH);
-        centerPanel.add(linesPanel, BorderLayout.CENTER);
+        if (isListViewEnabled)
+        {
+            linesPanel.setLayout(
+                new BoxLayout(linesPanel, BoxLayout.Y_AXIS));
 
-        linesPanel.setLayout(
-            new BoxLayout(linesPanel, BoxLayout.Y_AXIS));
+            mainPanel.add(imageLabel, BorderLayout.WEST);
+            mainPanel.add(centerPanel, BorderLayout.CENTER);
+
+            centerPanel.add(titleLabel, BorderLayout.NORTH);
+            centerPanel.add(linesPanel, BorderLayout.CENTER);
+        }
+        else
+        {
+            titleLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+            mainPanel.add(imageLabel, BorderLayout.CENTER);
+            mainPanel.add(titleLabel, BorderLayout.NORTH);
+        }
 
         this.add(mainPanel); 
     }
@@ -92,10 +105,11 @@ public class ExtendedTooltip
     }
 
     /**
-     * Adds a protocol contact icon and name to this tooltip.
+     * Adds an icon-string list, which would appear on the right of the image
+     * panel.
      * 
-     * @param protocolContactIcon The icon for the protocol contact to add.
-     * @param protocolContactName The name of the protocol contact to add.
+     * @param icon the icon to show
+     * @param text the name to show
      */
     public void addLine(ImageIcon icon,
                         String text)
@@ -144,16 +158,22 @@ public class ExtendedTooltip
             if (icon != null)
                 width += icon.getIconWidth();
 
-            width += textWidth;
+            if (isListViewEnabled)
+                width += textWidth + 15;
+            else
+                width = textWidth > width ? textWidth : width;
 
             int imageHeight = 0;
             if (icon != null)
                 imageHeight = icon.getIconHeight();
 
-            int height = imageHeight > textHeight ?
-                imageHeight : textHeight;
+            int height = 0;
+            if (isListViewEnabled)
+                height = imageHeight > textHeight ? imageHeight : textHeight;
+            else
+                height = imageHeight + textHeight;
 
-            return new Dimension(width + 15, height);
+            return new Dimension(width, height);
         }
     }
 }
