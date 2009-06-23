@@ -398,7 +398,7 @@ public class MainFrame
 
         if (fileTransferOpSet != null)
         {
-            fileTransferOpSet.addFileTransferRequestListener(
+            fileTransferOpSet.addFileTransferListener(
                 getContactListPanel());
         }
     }

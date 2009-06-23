@@ -146,13 +146,12 @@ public class OperationSetFileTransferJabberImpl
     }
 
     /**
-     * Adds the given <tt>listener</tt> that would listen for
-     * <tt>FileTransferRequestEvent</tt>-s and that should be notified every
-     * time a file transfer request has been received.
+     * Adds the given <tt>FileTransferListener</tt> that would listen for
+     * file transfer requests and created file transfers.
      * 
-     * @param listener the <tt>FileTransferRequestListener</tt> to add
+     * @param listener the <tt>FileTransferListener</tt> to add
      */
-    public void addFileTransferRequestListener(
+    public void addFileTransferListener(
         FileTransferListener listener)
     {
         synchronized(fileTransferListeners)
@@ -165,13 +164,12 @@ public class OperationSetFileTransferJabberImpl
     }
 
     /**
-     * Removes the given <tt>listener</tt> that listens for
-     * <tt>FileTransferRequestEvent</tt>-s and is notified every time a file
-     * transfer request has been received.
+     * Removes the given <tt>FileTransferListener</tt> that listens for
+     * file transfer requests and created file transfers.
      * 
-     * @param listener the <tt>FileTransferRequestListener</tt> to remove
+     * @param listener the <tt>FileTransferListener</tt> to remove
      */
-    public void removeFileTransferRequestListener(
+    public void removeFileTransferListener(
         FileTransferListener listener)
     {
         synchronized(fileTransferListeners)

@@ -54,7 +54,7 @@ public class OperationSetFileTransferSSHImpl
      *
      * @param listener the <tt>FileListener</tt> to register.
      */
-    public void addFileTransferRequestListener(
+    public void addFileTransferListener(
         FileTransferListener listener)
     {
         synchronized (fileTransferListeners)
@@ -64,7 +64,7 @@ public class OperationSetFileTransferSSHImpl
         }
     }
 
-    public void removeFileTransferRequestListener(
+    public void removeFileTransferListener(
         FileTransferListener listener)
     {
         synchronized (fileTransferListeners)
