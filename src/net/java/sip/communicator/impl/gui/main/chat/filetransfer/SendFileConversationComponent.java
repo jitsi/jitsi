@@ -249,7 +249,7 @@ public class SendFileConversationComponent
     {
         int status = event.getNewStatus();
 
-        if (status == FileTransfer.PREPARING)
+        if (status == FileTransferStatusChangeEvent.PREPARING)
         {
             progressBar.setVisible(false);
             titleLabel.setText(resources.getI18NString(
@@ -258,7 +258,7 @@ public class SendFileConversationComponent
             cancelButton.setVisible(true);
             retryButton.setVisible(false);
         }
-        else if (status == FileTransfer.FAILED)
+        else if (status == FileTransferStatusChangeEvent.FAILED)
         {
             progressBar.setVisible(false);
             titleLabel.setText(resources.getI18NString(
@@ -268,7 +268,7 @@ public class SendFileConversationComponent
             retryButton.setVisible(true);
             setWarningStyle(true);
         }
-        else if (status == FileTransfer.IN_PROGRESS)
+        else if (status == FileTransferStatusChangeEvent.IN_PROGRESS)
         {
             titleLabel.setText(resources.getI18NString(
                 "service.gui.FILE_SENDING_TO",
@@ -280,7 +280,7 @@ public class SendFileConversationComponent
                 progressBar.setVisible(true);
             }
         }
-        else if (status == FileTransfer.COMPLETED)
+        else if (status == FileTransferStatusChangeEvent.COMPLETED)
         {
             progressBar.setVisible(false);
             titleLabel.setText(resources.getI18NString(
@@ -289,7 +289,7 @@ public class SendFileConversationComponent
             cancelButton.setVisible(false);
             retryButton.setVisible(false);
         }
-        else if (status == FileTransfer.CANCELED)
+        else if (status == FileTransferStatusChangeEvent.CANCELED)
         {
             progressBar.setVisible(false);
             titleLabel.setText(resources.getI18NString(
@@ -298,7 +298,7 @@ public class SendFileConversationComponent
             retryButton.setVisible(true);
             setWarningStyle(true);
         }
-        else if (status == FileTransfer.REFUSED)
+        else if (status == FileTransferStatusChangeEvent.REFUSED)
         {
             progressBar.setVisible(false);
             titleLabel.setText(resources.getI18NString(

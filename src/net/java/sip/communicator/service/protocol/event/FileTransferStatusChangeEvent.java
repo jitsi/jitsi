@@ -20,6 +20,42 @@ public class FileTransferStatusChangeEvent
     extends EventObject
 {
     /**
+     * Indicates that the file transfer has been completed.
+     */
+    public static final int COMPLETED = 0;
+
+    /**
+     * Indicates that the file transfer has been canceled.
+     */
+    public static final int CANCELED = 1;
+
+    /**
+     * Indicates that the file transfer has failed.
+     */
+    public static final int FAILED = 2;
+
+    /**
+     * Indicates that the file transfer has been refused.
+     */
+    public static final int REFUSED = 3;
+
+    /**
+     * Indicates that the file transfer is in progress.
+     */
+    public static final int IN_PROGRESS = 4;
+
+    /**
+     * Indicates that the file transfer waits for the recipient to accept the
+     * file.
+     */
+    public static final int WAITING = 5;
+
+    /**
+     * Indicates that the file transfer is in negotiation.
+     */
+    public static final int PREPARING = 6;
+
+    /**
      * The state of the file transfer before this event occured.
      */
     private final int oldStatus;

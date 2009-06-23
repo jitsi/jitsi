@@ -808,7 +808,7 @@
         bundle-dict,bundle-plugin-dictaccregwizz,
         bundle-plugin-simpleaccreg,bundle-plugin-generalconfig,
         bundle-plugin-googletalkaccregwizz,bundle-argdelegation-service,
-        bundle-argdelegation,bundle-zrtp4j"/>
+        bundle-argdelegation,bundle-zrtp4j,bundle-filehistory"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -1964,4 +1964,17 @@ javax.swing.event, javax.swing.border"/>
             </manifest>
         </jar>
     </target>
+
+    <!--BUNDLE-FILEHISTORY-->
+    <target name="bundle-filehistory">
+        <jar compress="false" destfile="${bundles.dest}/filehistory.jar"
+            manifest="${src}/net/java/sip/communicator/impl/filehistory/filehistory.manifest.mf">
+
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/filehistory"
+                prefix="net/java/sip/communicator/service/filehistory"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/filehistory"
+                prefix="net/java/sip/communicator/impl/filehistory" />
+        </jar>
+    </target>
+
 </project>

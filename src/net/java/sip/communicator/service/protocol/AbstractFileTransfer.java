@@ -127,6 +127,10 @@ public abstract class AbstractFileTransfer
      */
     public void fireStatusChangeEvent(int newStatus)
     {
+        // ignore if status is the same
+        if(this.status == newStatus)
+            return;
+
         Collection<FileTransferStatusListener> listeners = null;
         synchronized (statusListeners)
         {

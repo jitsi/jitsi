@@ -102,7 +102,7 @@ public class OperationSetFileTransferJabberImpl
                 = manager.createOutgoingFileTransfer(presence.getFrom());
 
             outgoingTransfer
-                = new OutgoingFileTransferJabberImpl(transfer);
+                = new OutgoingFileTransferJabberImpl(toContact, file, transfer);
 
             // Notify all interested listeners that a file transfer has been
             // created.
@@ -363,10 +363,10 @@ public class OperationSetFileTransferJabberImpl
                     status = parseJabberStatus(jabberTransfer.getStatus());
                     progress = fileTransfer.getTransferedBytes();
 
-                    if (status == FileTransfer.FAILED
-                        || status == FileTransfer.COMPLETED
-                        || status == FileTransfer.CANCELED
-                        || status == FileTransfer.REFUSED)
+                    if (status == FileTransferStatusChangeEvent.FAILED
+                        || status == FileTransferStatusChangeEvent.COMPLETED
+                        || status == FileTransferStatusChangeEvent.CANCELED
+                        || status == FileTransferStatusChangeEvent.REFUSED)
                     {
                         break;
                     }
@@ -381,10 +381,10 @@ public class OperationSetFileTransferJabberImpl
             }
 
             if (initialFileSize > 0
-                && status == FileTransfer.COMPLETED
+                && status == FileTransferStatusChangeEvent.COMPLETED
                 && fileTransfer.getTransferedBytes() < initialFileSize)
             {
-                status = FileTransfer.CANCELED;
+                status = FileTransferStatusChangeEvent.CANCELED;
             }
 
             fileTransfer.fireStatusChangeEvent(status);
@@ -402,21 +402,21 @@ public class OperationSetFileTransferJabberImpl
     private static int parseJabberStatus(Status jabberStatus)
     {
         if (jabberStatus.equals(Status.complete))
-            return FileTransfer.COMPLETED;
+            return FileTransferStatusChangeEvent.COMPLETED;
         else if (jabberStatus.equals(Status.cancelled))
-            return FileTransfer.CANCELED;
+            return FileTransferStatusChangeEvent.CANCELED;
         else if (jabberStatus.equals(Status.in_progress)
                 || jabberStatus.equals(Status.negotiated))
-            return FileTransfer.IN_PROGRESS;
+            return FileTransferStatusChangeEvent.IN_PROGRESS;
         else if (jabberStatus.equals(Status.error))
-            return FileTransfer.FAILED;
+            return FileTransferStatusChangeEvent.FAILED;
         else if (jabberStatus.equals(Status.refused))
-            return FileTransfer.REFUSED;
+            return FileTransferStatusChangeEvent.REFUSED;
         else if (jabberStatus.equals(Status.negotiating_transfer)
                 || jabberStatus.equals(Status.negotiating_stream))
-            return FileTransfer.PREPARING;
+            return FileTransferStatusChangeEvent.PREPARING;
         else
              // FileTransfer.Status.initial
-            return FileTransfer.WAITING;
+            return FileTransferStatusChangeEvent.WAITING;
     }
 }

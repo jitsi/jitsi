@@ -373,14 +373,14 @@ public class ReceiveFileConversationComponent
         String fromContactName
             = fileTransferRequest.getSender().getDisplayName();
 
-        if (status == FileTransfer.PREPARING)
+        if (status == FileTransferStatusChangeEvent.PREPARING)
         {
             progressBar.setVisible(false);
             titleLabel.setText(resources.getI18NString(
                 "service.gui.FILE_TRANSFER_PREPARING",
                 new String[]{fromContactName}));
         }
-        else if (status == FileTransfer.FAILED)
+        else if (status == FileTransferStatusChangeEvent.FAILED)
         {
             progressBar.setVisible(false);
             titleLabel.setText(resources.getI18NString(
@@ -389,7 +389,7 @@ public class ReceiveFileConversationComponent
 
             setWarningStyle(true);
         }
-        else if (status == FileTransfer.IN_PROGRESS)
+        else if (status == FileTransferStatusChangeEvent.IN_PROGRESS)
         {
             titleLabel.setText(resources.getI18NString(
                 "service.gui.FILE_RECEIVING_FROM",
@@ -401,7 +401,7 @@ public class ReceiveFileConversationComponent
                 progressBar.setVisible(true);
             }
         }
-        else if (status == FileTransfer.COMPLETED)
+        else if (status == FileTransferStatusChangeEvent.COMPLETED)
         {
             if (downloadFile != null)
             {
@@ -432,7 +432,7 @@ public class ReceiveFileConversationComponent
                 }
             });
         }
-        else if (status == FileTransfer.CANCELED)
+        else if (status == FileTransferStatusChangeEvent.CANCELED)
         {
             progressBar.setVisible(false);
             cancelButton.setVisible(false);
@@ -441,7 +441,7 @@ public class ReceiveFileConversationComponent
                 "service.gui.FILE_TRANSFER_CANCELED"));
             setWarningStyle(true);
         }
-        else if (status == FileTransfer.REFUSED)
+        else if (status == FileTransferStatusChangeEvent.REFUSED)
         {
             progressBar.setVisible(false);
             titleLabel.setText(resources.getI18NString(

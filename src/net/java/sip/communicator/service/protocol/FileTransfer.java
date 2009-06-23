@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.service.protocol;
 
+import java.io.*;
+
 import net.java.sip.communicator.service.protocol.event.*;
 
 /**
@@ -18,46 +20,39 @@ import net.java.sip.communicator.service.protocol.event.*;
 public interface FileTransfer
 {
     /**
-     * Indicates that the file transfer has been completed.
+     * File transfer is incoming.
      */
-    public static final int COMPLETED = 0;
+    public static final int IN = 1;
 
     /**
-     * Indicates that the file transfer has been canceled.
+     * File transfer is outgoing.
      */
-    public static final int CANCELED = 1;
-
-    /**
-     * Indicates that the file transfer has failed.
-     */
-    public static final int FAILED = 2;
-
-    /**
-     * Indicates that the file transfer has been refused.
-     */
-    public static final int REFUSED = 3;
-
-    /**
-     * Indicates that the file transfer is in progress.
-     */
-    public static final int IN_PROGRESS = 4;
-
-    /**
-     * Indicates that the file transfer waits for the recipient to accept the
-     * file.
-     */
-    public static final int WAITING = 5;
-
-    /**
-     * Indicates that the file transfer is in negotiation.
-     */
-    public static final int PREPARING = 6;
+    public static final int OUT = 2;
 
     /**
      * Cancels this file transfer. When this method is called transfer should
      * be interrupted.
      */
     public void cancel();
+
+    /**
+     * The file transfer direction.
+     * @return returns the direction of the file transfer : IN or OUT.
+     */
+    public int getDirection();
+
+    /**
+     * Returns the file that is transfered.
+     *
+     * @return the file
+     */
+    public File getFile();
+
+    /**
+     * Returns the contact that we are transfering files with.
+     * @return the contact.
+     */
+    public Contact getContact();
 
     /**
      * Returns the current status of the transfer. This information could be
@@ -72,7 +67,7 @@ public interface FileTransfer
 
     /**
      * Returns the number of bytes already transfered through this file transfer.
-     * 
+     *
      * @return the number of bytes already transfered through this file transfer
      */
     public long getTransferedBytes();
@@ -80,14 +75,14 @@ public interface FileTransfer
     /**
      * Adds the given <tt>FileTransferStatusListener</tt> to listen for
      * status changes on this file transfer.
-     * 
+     *
      * @param listener the listener to add
      */
     public void addStatusListener(FileTransferStatusListener listener);
 
     /**
      * Removes the given <tt>FileTransferStatusListener</tt>.
-     * 
+     *
      * @param listener the listener to remove
      */
     public void removeStatusListener(FileTransferStatusListener listener);
@@ -95,14 +90,14 @@ public interface FileTransfer
     /**
      * Adds the given <tt>FileTransferProgressListener</tt> to listen for
      * status changes on this file transfer.
-     * 
+     *
      * @param listener the listener to add
      */
     public void addProgressListener(FileTransferProgressListener listener);
 
     /**
      * Removes the given <tt>FileTransferProgressListener</tt>.
-     * 
+     *
      * @param listener the listener to remove
      */
     public void removeProgressListener(FileTransferProgressListener listener);

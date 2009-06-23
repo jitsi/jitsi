@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.ssh;
 
+import java.io.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -46,5 +47,20 @@ public class FileTransferSSHImpl
     {
         // TODO: Implement getTransferedBytes() for SSH file transfer.
         return 0;
+    }
+
+    public int getDirection()
+    {
+        return IN;
+    }
+
+    public File getFile()
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public Contact getContact()
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

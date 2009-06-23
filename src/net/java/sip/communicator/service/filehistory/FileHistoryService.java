@@ -25,7 +25,8 @@ public interface FileHistoryService
      * @return Collection of FileRecords
      * @throws RuntimeException
      */
-    public Collection<FileRecord> findByStartDate(MetaContact contact, Date startDate)
+    public Collection<FileRecord> findByStartDate(
+            MetaContact contact, Date startDate)
         throws RuntimeException;
 
     /**
@@ -36,7 +37,8 @@ public interface FileHistoryService
      * @return Collection of FileRecords
      * @throws RuntimeException
      */
-    public Collection<FileRecord> findByEndDate(MetaContact contact, Date endDate)
+    public Collection<FileRecord> findByEndDate(
+            MetaContact contact, Date endDate)
         throws RuntimeException;
 
     /**
@@ -48,7 +50,8 @@ public interface FileHistoryService
      * @return Collection of FileRecords
      * @throws RuntimeException
      */
-    public Collection<FileRecord> findByPeriod(MetaContact contact, Date startDate, Date endDate)
+    public Collection<FileRecord> findByPeriod(
+            MetaContact contact, Date startDate, Date endDate)
         throws RuntimeException;
 
     /**
@@ -103,7 +106,8 @@ public interface FileHistoryService
      * @return Collection of FileRecords
      * @throws RuntimeException
      */
-    public Collection<FileRecord> findByKeyword(MetaContact contact, String keyword)
+    public Collection<FileRecord> findByKeyword(
+            MetaContact contact, String keyword)
         throws RuntimeException;
 
     /**
@@ -127,7 +131,8 @@ public interface FileHistoryService
      * @return Collection of FileRecords
      * @throws RuntimeException
      */
-    public Collection<FileRecord> findByKeywords(MetaContact contact, String[] keywords)
+    public Collection<FileRecord> findByKeywords(
+            MetaContact contact, String[] keywords)
         throws RuntimeException;
 
     /**

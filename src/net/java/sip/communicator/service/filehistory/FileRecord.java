@@ -7,7 +7,6 @@
 package net.java.sip.communicator.service.filehistory;
 
 import java.io.*;
-import java.util.*;
 
 /**
  * Structure used for encapsulating data when writing or reading
@@ -45,7 +44,7 @@ public class FileRecord
 
     private String direction = null;
 
-    private Date date = null;
+    private long date;
 
     private File file = null;
     private String status;
@@ -60,7 +59,7 @@ public class FileRecord
      */
     public FileRecord(
         String direction,
-        Date date,
+        long date,
         File file,
         String status)
     {
@@ -83,7 +82,7 @@ public class FileRecord
      * The date of the record.
      * @return the date
      */
-    public Date getDate()
+    public long getDate()
     {
         return date;
     }

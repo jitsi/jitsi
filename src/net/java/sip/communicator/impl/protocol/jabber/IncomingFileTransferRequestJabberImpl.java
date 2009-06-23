@@ -121,7 +121,8 @@ public class IncomingFileTransferRequestJabberImpl
         try
         {
             incomingTransfer
-                = new IncomingFileTransferJabberImpl(jabberTransfer);
+                = new IncomingFileTransferJabberImpl(
+                        sender, file, jabberTransfer);
 
             fileTransferOpSet.fireFileTransferCreated(incomingTransfer);
 

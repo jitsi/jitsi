@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import java.io.*;
+
 import org.jivesoftware.smackx.filetransfer.*;
 
 import net.java.sip.communicator.service.protocol.*;
@@ -18,14 +20,21 @@ import net.java.sip.communicator.service.protocol.*;
 public class IncomingFileTransferJabberImpl
     extends AbstractFileTransfer
 {
+    private Contact sender = null;
+    private File file = null;
+
     /**
      * The jabber incoming file transfer.
      */
     private IncomingFileTransfer jabberTransfer;
 
-    public IncomingFileTransferJabberImpl(IncomingFileTransfer jabberTransfer)
+    public IncomingFileTransferJabberImpl(Contact sender,
+        File file,
+        IncomingFileTransfer jabberTransfer)
     {
         this.jabberTransfer = jabberTransfer;
+        this.sender = sender;
+        this.file = file;
     }
 
     /**
@@ -44,5 +53,28 @@ public class IncomingFileTransferJabberImpl
     public long getTransferedBytes()
     {
         return jabberTransfer.getAmountWritten();
+    }
+
+    /**
+     * The direction is incoming.
+     * @return IN.
+     */
+    public int getDirection()
+    {
+        return IN;
+    }
+
+    /**
+     * The file we are receiving.
+     * @return the file.
+     */
+    public File getFile()
+    {
+        return file;
+    }
+
+    public Contact getContact()
+    {
+        return sender;
     }
 }
