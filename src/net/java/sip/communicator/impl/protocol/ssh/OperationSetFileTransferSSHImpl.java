@@ -32,8 +32,8 @@ public class OperationSetFileTransferSSHImpl
     /**
      * Currently registered message listeners.
      */
-    private Vector<FileTransferRequestListener> fileTransferListeners
-        = new Vector<FileTransferRequestListener>();
+    private Vector<FileTransferListener> fileTransferListeners
+        = new Vector<FileTransferListener>();
     
     /**
      * The protocol provider that created us.
@@ -55,7 +55,7 @@ public class OperationSetFileTransferSSHImpl
      * @param listener the <tt>FileListener</tt> to register.
      */
     public void addFileTransferRequestListener(
-        FileTransferRequestListener listener)
+        FileTransferListener listener)
     {
         synchronized (fileTransferListeners)
         {
@@ -65,7 +65,7 @@ public class OperationSetFileTransferSSHImpl
     }
 
     public void removeFileTransferRequestListener(
-        FileTransferRequestListener listener)
+        FileTransferListener listener)
     {
         synchronized (fileTransferListeners)
         {

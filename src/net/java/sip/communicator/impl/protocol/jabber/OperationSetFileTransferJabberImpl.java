@@ -13,6 +13,7 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.FileTransfer;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.event.FileTransferListener;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
@@ -53,10 +54,10 @@ public class OperationSetFileTransferJabberImpl
     private JabberFileTransferListener jabberFileTransferListener;
 
     /**
-     * A list of listeners registered for message events.
+     * A list of listeners registered for file transfer events.
      */
-    private Vector<FileTransferRequestListener> fileTransferListeners
-        = new Vector<FileTransferRequestListener>();
+    private Vector<FileTransferListener> fileTransferListeners
+        = new Vector<FileTransferListener>();
 
     /**
      * Constructor
@@ -103,8 +104,14 @@ public class OperationSetFileTransferJabberImpl
             outgoingTransfer
                 = new OutgoingFileTransferJabberImpl(transfer);
 
+            // Notify all interested listeners that a file transfer has been
+            // created.
+            fireFileTransferCreated(outgoingTransfer);
+
+            // Send the file through the Jabber file transfer.
             transfer.sendFile(file, "Sending file.");
 
+            // Start the status and progress thread.
             new FileTransferProgressThread(
                 transfer, outgoingTransfer).start();
         }
@@ -146,7 +153,7 @@ public class OperationSetFileTransferJabberImpl
      * @param listener the <tt>FileTransferRequestListener</tt> to add
      */
     public void addFileTransferRequestListener(
-        FileTransferRequestListener listener)
+        FileTransferListener listener)
     {
         synchronized(fileTransferListeners)
         {
@@ -165,7 +172,7 @@ public class OperationSetFileTransferJabberImpl
      * @param listener the <tt>FileTransferRequestListener</tt> to remove
      */
     public void removeFileTransferRequestListener(
-        FileTransferRequestListener listener)
+        FileTransferListener listener)
     {
         synchronized(fileTransferListeners)
         {
@@ -242,7 +249,7 @@ public class OperationSetFileTransferJabberImpl
      * Listener for Jabber incoming file transfer requests.
      */
     private class JabberFileTransferListener
-        implements FileTransferListener
+        implements org.jivesoftware.smackx.filetransfer.FileTransferListener
     {
         /**
          * Function called when a jabber file transfer request arrive.
@@ -254,7 +261,9 @@ public class OperationSetFileTransferJabberImpl
             // Create a global incoming file transfer request.
             IncomingFileTransferRequest incomingFileTransferRequest
                 = new IncomingFileTransferRequestJabberImpl(
-                        jabberProvider, request);
+                        jabberProvider,
+                        OperationSetFileTransferJabberImpl.this,
+                        request);
 
             // Create an event associated to this global request.
             FileTransferRequestEvent fileTransferRequestEvent
@@ -274,18 +283,41 @@ public class OperationSetFileTransferJabberImpl
      */
     private void fireFileTransferRequest(FileTransferRequestEvent event)
     {
-        Iterator<FileTransferRequestListener> listeners = null;
+        Iterator<FileTransferListener> listeners = null;
         synchronized (fileTransferListeners)
         {
-            listeners = new ArrayList<FileTransferRequestListener>
+            listeners = new ArrayList<FileTransferListener>
                             (fileTransferListeners).iterator();
         }
 
         while (listeners.hasNext())
         {
-            FileTransferRequestListener listener = listeners.next();
+            FileTransferListener listener = listeners.next();
 
-            listener.incomingRequestReceived(event);
+            listener.fileTransferRequestReceived(event);
+        }
+    }
+
+    /**
+     * Delivers the file transfer to all registered listeners.
+     * 
+     * @param fileTransfer the <tt>FileTransfer</tt> that we'd like delivered to
+     * all registered file transfer listeners.
+     */
+    void fireFileTransferCreated(FileTransfer fileTransfer)
+    {
+        Iterator<FileTransferListener> listeners = null;
+        synchronized (fileTransferListeners)
+        {
+            listeners = new ArrayList<FileTransferListener>
+                            (fileTransferListeners).iterator();
+        }
+
+        while (listeners.hasNext())
+        {
+            FileTransferListener listener = listeners.next();
+
+            listener.fileTransferCreated(fileTransfer);
         }
     }
 

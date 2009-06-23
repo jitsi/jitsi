@@ -72,7 +72,7 @@ public interface OperationSetFileTransfer
      * @param listener the <tt>FileTransferRequestListener</tt> to add
      */
     public void addFileTransferRequestListener(
-        FileTransferRequestListener listener);
+        FileTransferListener listener);
 
     /**
      * Removes the given <tt>FileTransferRequestListener</tt> that listens for
@@ -82,5 +82,5 @@ public interface OperationSetFileTransfer
      * @param listener the <tt>FileTransferRequestListener</tt> to remove
      */
     public void removeFileTransferRequestListener(
-        FileTransferRequestListener listener);
+        FileTransferListener listener);
 }

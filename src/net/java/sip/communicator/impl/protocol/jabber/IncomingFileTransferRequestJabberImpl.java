@@ -36,6 +36,8 @@ public class IncomingFileTransferRequestJabberImpl
      */
     private final FileTransferRequest fileTransferRequest;
 
+    private final OperationSetFileTransferJabberImpl fileTransferOpSet;
+
     private Contact sender;
 
     /**
@@ -43,12 +45,15 @@ public class IncomingFileTransferRequestJabberImpl
      * given <tt>fileTransferRequest</tt>, coming from the Jabber protocol.
      * 
      * @param jabberProvider the protocol provider
+     * @param fileTransferOpSet file transfer operation set
      * @param fileTransferRequest the request coming from the Jabber protocol
      */
     public IncomingFileTransferRequestJabberImpl(
         ProtocolProviderServiceJabberImpl jabberProvider,
+        OperationSetFileTransferJabberImpl fileTransferOpSet,
         FileTransferRequest fileTransferRequest)
     {
+        this.fileTransferOpSet = fileTransferOpSet;
         this.fileTransferRequest = fileTransferRequest;
 
         String fromUserID
@@ -118,12 +123,13 @@ public class IncomingFileTransferRequestJabberImpl
             incomingTransfer
                 = new IncomingFileTransferJabberImpl(jabberTransfer);
 
+            fileTransferOpSet.fireFileTransferCreated(incomingTransfer);
+
             jabberTransfer.recieveFile(file);
 
             new OperationSetFileTransferJabberImpl
                 .FileTransferProgressThread(
                 jabberTransfer, incomingTransfer, getFileSize()).start();
-
         }
         catch (XMPPException e)
         {

@@ -42,7 +42,7 @@ public class ContactListPane
     extends SCScrollPane
     implements  MessageListener,
                 TypingNotificationsListener,
-                FileTransferRequestListener,
+                FileTransferListener,
                 ContactListListener,
                 PluginComponentListener
 {
@@ -571,10 +571,10 @@ public class ContactListPane
      * When a request has been received we show it to the user through the
      * chat session renderer.
      * 
-     * @see FileTransferRequestListener#incomingRequestReceived(
+     * @see FileTransferListener#incomingRequestReceived(
      * FileTransferRequestEvent)
      */
-    public void incomingRequestReceived(FileTransferRequestEvent event)
+    public void fileTransferRequestReceived(FileTransferRequestEvent event)
     {
         IncomingFileTransferRequest request = event.getRequest();
 
@@ -613,8 +613,14 @@ public class ContactListPane
                                         NotificationManager.INCOMING_FILE,
                                         title,
                                         request.getFileName());
-
     }
+
+    /**
+     * Nothing to do here, because we already know when a file transfer is
+     * created.
+     */
+    public void fileTransferCreated(FileTransfer fileTransfer)
+    {}
 
     /**
      * Send a proactive notification according to the proactive timer.
