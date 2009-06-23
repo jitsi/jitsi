@@ -1,0 +1,108 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+package net.java.sip.communicator.service.filehistory;
+
+import java.io.*;
+import java.util.*;
+
+/**
+ * Structure used for encapsulating data when writing or reading
+ * File History Data.
+ *
+ * @author Damian Minkov
+ */
+public class FileRecord
+{
+    /**
+     * Possible directions of the transfer
+     */
+    public final static String OUT = "out";
+    public final static String IN = "in";
+
+    /**
+     * Status indicating that the file transfer has been completed.
+     */
+    public static final String COMPLETED = "completed";
+
+    /**
+     * Status indicating that the file transfer has been canceled.
+     */
+    public static final String CANCELED = "canceled";
+
+    /**
+     * Status indicating that the file transfer has failed.
+     */
+    public static final String FAILED = "failed";
+
+    /**
+     * Status indicating that the file transfer has been refused.
+     */
+    public static final String REFUSED = "refused";
+
+    private String direction = null;
+
+    private Date date = null;
+
+    private File file = null;
+    private String status;
+
+    /**
+     * Constructs new FileRecord
+     *
+     * @param direction
+     * @param date
+     * @param file
+     * @param status
+     */
+    public FileRecord(
+        String direction,
+        Date date,
+        File file,
+        String status)
+    {
+        this.direction = direction;
+        this.date = date;
+        this.file = file;
+        this.status = status;
+    }
+
+    /**
+     * The direction of the transfer.
+     * @return the direction
+     */
+    public String getDirection()
+    {
+        return direction;
+    }
+
+    /**
+     * The date of the record.
+     * @return the date
+     */
+    public Date getDate()
+    {
+        return date;
+    }
+
+    /**
+     * The file that was transfered.
+     * @return the file
+     */
+    public File getFile()
+    {
+        return file;
+    }
+
+    /**
+     * The status of the transfer.
+     * @return the status
+     */
+    public String getStatus()
+    {
+        return status;
+    }
+}
