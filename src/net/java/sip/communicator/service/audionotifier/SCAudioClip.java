@@ -7,9 +7,8 @@
 package net.java.sip.communicator.service.audionotifier;
 
 /**
- * The SCAudioClip represents an audio clip created using the
- * AudioNotifierService. Like any audio it could be played, stopped or played in
- * loop.
+ * SCAudioClip represents an audio clip created using the AudioNotifierService.
+ * Like any audio it could be played, stopped or played in loop.
  * 
  * @author Yana Stamcheva
  */
