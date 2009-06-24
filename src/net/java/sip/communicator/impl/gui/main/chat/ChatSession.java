@@ -10,12 +10,19 @@ import java.util.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.service.filehistory.*;
+import net.java.sip.communicator.service.msghistory.*;
+
 /**
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  */
 public interface ChatSession
 {
+    final String[] chatHistoryFilter
+        = new String[]{ MessageHistoryService.class.getName(),
+                        FileHistoryService.class.getName()};
+
     /**
      * Returns the descriptor of this chat session.
      * 
@@ -84,30 +91,33 @@ public interface ChatSession
     public String getChatName();
 
     /**
-     * Returns a collection of the last N number of messages given by count.
+     * Returns a collection of the last N number of history messages given by
+     * count.
      * 
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
      */
-    public Collection<EventObject> getHistory(int count);
+    public Collection<Object> getHistory(int count);
 
     /**
-     * Returns a collection of the last N number of messages given by count.
+     * Returns a collection of the last N number of history messages given by
+     * count.
      * 
      * @param date The date up to which we're looking for messages.
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
      */
-    public Collection<EventObject> getHistoryBeforeDate(Date date, int count);
+    public Collection<Object> getHistoryBeforeDate(Date date, int count);
 
     /**
-     * Returns a collection of the last N number of messages given by count.
+     * Returns a collection of the last N number of history messages given by
+     * count.
      * 
      * @param date The date from which we're looking for messages.
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
      */
-    public Collection<EventObject> getHistoryAfterDate(Date date, int count);
+    public Collection<Object> getHistoryAfterDate(Date date, int count);
 
     /**
      * Returns the start date of the history of this chat session.

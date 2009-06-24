@@ -23,9 +23,10 @@ import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.filetransfer.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.filehistory.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
-import net.java.sip.communicator.service.msghistory.*;
+import net.java.sip.communicator.service.metahistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -454,10 +455,10 @@ public class ChatPanel
      * @param escapedMessageID The incoming message needed to be ignored if
      * contained in history.
      */
-    private void processHistory( Collection<EventObject> historyList,
+    private void processHistory( Collection<Object> historyList,
                                 String escapedMessageID)
     {
-        Iterator<EventObject> iterator = historyList.iterator();
+        Iterator<Object> iterator = historyList.iterator();
 
         String messageType;
 
@@ -542,7 +543,18 @@ public class ChatPanel
                             evt.getMessage().getContentType());
                 }
             }
-            conversationPanel.appendMessageToEnd(historyString);
+            else if (o instanceof FileRecord)
+            {
+                FileRecord fileRecord = (FileRecord) o;
+
+                FileHistoryConversationComponent component
+                    = new FileHistoryConversationComponent(fileRecord);
+
+                conversationPanel.addComponent(component);
+            }
+
+            if (historyString != null)
+                conversationPanel.appendMessageToEnd(historyString);
         }
 
         getChatWindow().getMainToolBar()
@@ -1264,7 +1276,7 @@ public class ChatPanel
     {
         SwingWorker historyWorker = new SwingWorker()
         {
-            private Collection<EventObject> historyList;
+            private Collection<Object> historyList;
 
             public Object construct() throws Exception
             {
@@ -1291,7 +1303,6 @@ public class ChatPanel
                 {
                     processHistory(historyList, escapedMessageID);
                 }
-
                 isHistoryLoaded = true;
 
                 // Add incoming events accumulated while the history was loading
@@ -1444,16 +1455,17 @@ public class ChatPanel
      */
     public void loadPreviousPageFromHistory()
     {
-        final MessageHistoryService msgHistory
-            = GuiActivator.getMsgHistoryService();
+        final MetaHistoryService chatHistory
+            = GuiActivator.getMetaHistoryService();
 
-        // If the MessageHistoryService is not registered we have nothing to do
-        // here. The MessageHistoryService could be "disabled" from the user
+        // If the MetaHistoryService is not registered we have nothing to do
+        // here. The history service could be "disabled" from the user
         // through one of the configuration forms.
-        if (msgHistory == null)
+        if (chatHistory == null)
             return;
 
-        new Thread() {
+        new Thread()
+        {
             public void run()
             {
                 ChatConversationPanel conversationPanel
@@ -1462,7 +1474,7 @@ public class ChatPanel
                 Date firstMsgDate
                     = conversationPanel.getPageFirstMsgTimestamp();
 
-                Collection<EventObject> c = null;
+                Collection<Object> c = null;
 
                 if(firstMsgDate != null)
                 {
@@ -1486,13 +1498,13 @@ public class ChatPanel
      */
     public void loadNextPageFromHistory()
     {
-        final MessageHistoryService msgHistory
-            = GuiActivator.getMsgHistoryService();
+        final MetaHistoryService chatHistory
+            = GuiActivator.getMetaHistoryService();
 
-        // If the MessageHistoryService is not registered we have nothing to do
-        // here. The MessageHistoryService could be "disabled" from the user
+        // If the MetaHistoryService is not registered we have nothing to do
+        // here. The history could be "disabled" from the user
         // through one of the configuration forms.
-        if (msgHistory == null)
+        if (chatHistory == null)
             return;
 
         new Thread()
@@ -1502,7 +1514,7 @@ public class ChatPanel
                 Date lastMsgDate
                     = getChatConversationPanel().getPageLastMsgTimestamp();
 
-                Collection<EventObject> c = null;
+                Collection<Object> c = null;
                 if(lastMsgDate != null)
                 {
                     c = chatSession.getHistoryAfterDate(
@@ -1522,18 +1534,18 @@ public class ChatPanel
      */
     private class HistoryMessagesLoader implements Runnable
     {
-        private final Collection<EventObject> msgHistory;
+        private final Collection<Object> chatHistory;
 
-        public HistoryMessagesLoader(Collection<EventObject> msgHistory)
+        public HistoryMessagesLoader(Collection<Object> history)
         {
-            this.msgHistory = msgHistory;
+            this.chatHistory = history;
         }
 
         public void run()
         {
             getChatConversationPanel().clear();
 
-            processHistory(msgHistory, "");
+            processHistory(chatHistory, "");
 
             getChatConversationPanel().setDefaultContent();
         }

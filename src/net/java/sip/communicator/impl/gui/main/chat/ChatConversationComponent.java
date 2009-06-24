@@ -122,6 +122,8 @@ public abstract class ChatConversationComponent
             backgroundColor = warningColor;
         else
             backgroundColor = defaultColor;
+
+        this.repaint();
     }
 
     /**

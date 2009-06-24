@@ -13,7 +13,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.msghistory.*;
+import net.java.sip.communicator.service.metahistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
@@ -172,18 +172,19 @@ public class ConferenceChatSession
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
      */
-    public Collection<EventObject> getHistory(int count)
+    public Collection<Object> getHistory(int count)
     {
-        final MessageHistoryService msgHistory
-            = GuiActivator.getMsgHistoryService();
+        final MetaHistoryService metaHistory
+            = GuiActivator.getMetaHistoryService();
 
-        // If the MessageHistoryService is not registered we have nothing to do
-        // here. The MessageHistoryService could be "disabled" from the user
+        // If the MetaHistoryService is not registered we have nothing to do
+        // here. The history could be "disabled" from the user
         // through one of the configuration forms.
-        if (msgHistory == null)
+        if (metaHistory == null)
             return null;
 
-        return msgHistory.findLast(
+        return metaHistory.findLast(
+            chatHistoryFilter,
             chatRoomWrapper.getChatRoom(),
             ConfigurationManager.getChatHistorySize());
     }
@@ -195,18 +196,19 @@ public class ConferenceChatSession
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
      */
-    public Collection<EventObject> getHistoryBeforeDate(Date date, int count)
+    public Collection<Object> getHistoryBeforeDate(Date date, int count)
     {
-        final MessageHistoryService msgHistory
-            = GuiActivator.getMsgHistoryService();
+        final MetaHistoryService metaHistory
+            = GuiActivator.getMetaHistoryService();
 
-        // If the MessageHistoryService is not registered we have nothing to do
-        // here. The MessageHistoryService could be "disabled" from the user
+        // If the MetaHistoryService is not registered we have nothing to do
+        // here. The history could be "disabled" from the user
         // through one of the configuration forms.
-        if (msgHistory == null)
+        if (metaHistory == null)
             return null;
 
-        return msgHistory.findLastMessagesBefore(
+        return metaHistory.findLastMessagesBefore(
+            chatHistoryFilter,
             chatRoomWrapper.getChatRoom(),
             date,
             ConfigurationManager.getChatHistorySize());
@@ -219,18 +221,19 @@ public class ConferenceChatSession
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
      */
-    public Collection<EventObject> getHistoryAfterDate(Date date, int count)
+    public Collection<Object> getHistoryAfterDate(Date date, int count)
     {
-        final MessageHistoryService msgHistory
-            = GuiActivator.getMsgHistoryService();
+        final MetaHistoryService metaHistory
+            = GuiActivator.getMetaHistoryService();
 
-        // If the MessageHistoryService is not registered we have nothing to do
-        // here. The MessageHistoryService could be "disabled" from the user
+        // If the MetaHistoryService is not registered we have nothing to do
+        // here. The history could be "disabled" from the user
         // through one of the configuration forms.
-        if (msgHistory == null)
+        if (metaHistory == null)
             return null;
 
-        return msgHistory.findFirstMessagesAfter(
+        return metaHistory.findFirstMessagesAfter(
+            chatHistoryFilter,
             chatRoomWrapper.getChatRoom(),
             date,
             ConfigurationManager.getChatHistorySize());
@@ -243,25 +246,27 @@ public class ConferenceChatSession
      */
     public long getHistoryStartDate()
     {
-        MessageHistoryService msgHistory
-            = GuiActivator.getMsgHistoryService();
+        MetaHistoryService metaHistory
+            = GuiActivator.getMetaHistoryService();
 
-        // If the MessageHistoryService is not registered we have nothing to do
-        // here. The MessageHistoryService could be "disabled" from the user
+        // If the MetaHistoryService is not registered we have nothing to do
+        // here. The history could be "disabled" from the user
         // through one of the configuration forms.
-        if (msgHistory == null)
+        if (metaHistory == null)
             return 0;
 
         long startHistoryDate = 0;
 
-        Collection<EventObject> firstMessage = msgHistory
-            .findFirstMessagesAfter(chatRoomWrapper.getChatRoom(),
-                                    new Date(0),
-                                    1);
+        Collection<Object> firstMessage = metaHistory
+            .findFirstMessagesAfter(
+                chatHistoryFilter,
+                chatRoomWrapper.getChatRoom(),
+                new Date(0),
+                1);
 
         if(firstMessage.size() > 0)
         {
-            Iterator<EventObject> i = firstMessage.iterator();
+            Iterator<Object> i = firstMessage.iterator();
 
             Object o = i.next();
 
@@ -290,24 +295,26 @@ public class ConferenceChatSession
      */
     public long getHistoryEndDate()
     {
-        MessageHistoryService msgHistory
-            = GuiActivator.getMsgHistoryService();
+        MetaHistoryService metaHistory
+            = GuiActivator.getMetaHistoryService();
 
-        // If the MessageHistoryService is not registered we have nothing to do
-        // here. The MessageHistoryService could be "disabled" from the user
+        // If the MetaHistoryService is not registered we have nothing to do
+        // here. The history could be "disabled" from the user
         // through one of the configuration forms.
-        if (msgHistory == null)
+        if (metaHistory == null)
             return 0;
 
         long endHistoryDate = 0;
 
-        Collection<EventObject> lastMessage = msgHistory
-            .findLastMessagesBefore(chatRoomWrapper.getChatRoom(),
-                                    new Date(Long.MAX_VALUE), 1);
+        Collection<Object> lastMessage = metaHistory
+            .findLastMessagesBefore(
+                chatHistoryFilter,
+                chatRoomWrapper.getChatRoom(),
+                new Date(Long.MAX_VALUE), 1);
 
         if(lastMessage.size() > 0)
         {
-            Iterator<EventObject> i1 = lastMessage.iterator();
+            Iterator<Object> i1 = lastMessage.iterator();
 
             Object o1 = i1.next();
 

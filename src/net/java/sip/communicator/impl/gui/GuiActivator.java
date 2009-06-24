@@ -18,6 +18,7 @@ import net.java.sip.communicator.service.desktop.*;
 import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.keybindings.*;
+import net.java.sip.communicator.service.metahistory.*;
 import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -42,7 +43,7 @@ public class GuiActivator implements BundleActivator
 
     private static ConfigurationService configService;
 
-    private static MessageHistoryService msgHistoryService;
+    private static MetaHistoryService metaHistoryService;
 
     private static MetaContactListService metaCListService;
 
@@ -221,23 +222,23 @@ public class GuiActivator implements BundleActivator
     }
 
     /**
-     * Returns the <tt>MessageHistoryService</tt> obtained from the bundle
+     * Returns the <tt>MetaHistoryService</tt> obtained from the bundle
      * context.
-     * @return the <tt>MessageHistoryService</tt> obtained from the bundle
+     * @return the <tt>MetaHistoryService</tt> obtained from the bundle
      * context
      */
-    public static MessageHistoryService getMsgHistoryService() {
-        if (msgHistoryService == null)
+    public static MetaHistoryService getMetaHistoryService() {
+        if (metaHistoryService == null)
         {
             ServiceReference serviceReference = bundleContext
-                .getServiceReference(MessageHistoryService.class.getName());
+                .getServiceReference(MetaHistoryService.class.getName());
 
             if (serviceReference != null)
-                msgHistoryService = (MessageHistoryService) bundleContext
+                metaHistoryService = (MetaHistoryService) bundleContext
                     .getService(serviceReference);
         }
 
-        return msgHistoryService;
+        return metaHistoryService;
     }
 
     /**

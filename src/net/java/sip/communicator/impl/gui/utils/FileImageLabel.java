@@ -8,6 +8,8 @@ package net.java.sip.communicator.impl.gui.utils;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
+import java.net.*;
 
 import javax.swing.*;
 
@@ -24,6 +26,8 @@ import net.java.sip.communicator.util.swing.*;
 public class FileImageLabel
     extends FileDragLabel
 {
+    private static final Logger logger = Logger.getLogger(FileImageLabel.class);
+
     private ImageIcon tooltipIcon;
 
     private String tooltipTitle;
@@ -72,6 +76,18 @@ public class FileImageLabel
     }
 
     /**
+     * Sets the file associated with this file drag label.
+     * 
+     * @param file the file associated with this file drag label
+     */
+    public void setFile(File file)
+    {
+        super.setFile(file);
+
+        setFileIcon(file);
+    }
+
+    /**
      * Returns the string to be used as the tooltip for <i>event</i>. We
      * don't really use this string, but we need to return different string
      * each time in order to make the TooltipManager change the tooltip over
@@ -85,5 +101,42 @@ public class FileImageLabel
             return tooltipIcon.toString();
 
         return "";
+    }
+
+    /**
+     * Sets the icon for the given file.
+     * 
+     * @param file the file to set an icon for
+     */
+    private void setFileIcon(File file)
+    {
+        if (FileUtils.isImage(file.getName()))
+        {
+            try
+            {
+                ImageIcon image = new ImageIcon(file.toURI().toURL());
+                this.setToolTipImage(image);
+
+                image = ImageUtils
+                    .getScaledRoundedIcon(image.getImage(), 64, 64);
+                this.setIcon(image);
+            }
+            catch (MalformedURLException e)
+            {
+                logger.debug("Could not locate image.", e);
+                this.setIcon(new ImageIcon(
+                    ImageLoader.getImage(ImageLoader.DEFAULT_FILE_ICON)));
+            }
+        }
+        else
+        {
+            Icon icon = FileUtils.getIcon(file);
+
+            if (icon == null)
+                icon = new ImageIcon(
+                    ImageLoader.getImage(ImageLoader.DEFAULT_FILE_ICON));
+
+            this.setIcon(icon);
+        }
     }
 }

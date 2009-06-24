@@ -8,11 +8,14 @@ package net.java.sip.communicator.util.swing;
 
 import java.awt.datatransfer.*;
 import java.awt.dnd.*;
+import java.awt.event.*;
 import java.io.*;
+import java.net.*;
 import java.util.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.*;
 
 /**

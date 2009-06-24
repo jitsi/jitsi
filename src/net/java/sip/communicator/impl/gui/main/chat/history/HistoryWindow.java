@@ -19,10 +19,13 @@ import javax.swing.text.html.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
+import net.java.sip.communicator.impl.gui.main.chat.filetransfer.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.filehistory.*;
+import net.java.sip.communicator.service.history.event.*;
+import net.java.sip.communicator.service.metahistory.*;
 import net.java.sip.communicator.service.msghistory.*;
-import net.java.sip.communicator.service.msghistory.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -38,7 +41,7 @@ import net.java.sip.communicator.util.swing.*;
 public class HistoryWindow
     extends SIPCommFrame
     implements  ChatConversationContainer,
-                MessageHistorySearchProgressListener,
+                HistorySearchProgressListener,
                 MessageListener,
                 ChatRoomMessageListener
 {
@@ -63,22 +66,26 @@ public class HistoryWindow
 
     private Object historyContact;
 
-    private MessageHistoryService msgHistory;
+    private MetaHistoryService history;
 
     private Hashtable<Date, HTMLDocument> dateHistoryTable
         = new Hashtable<Date, HTMLDocument>();
-    
+
     private JLabel readyLabel = new JLabel(
         GuiActivator.getResources().getI18NString("service.gui.READY"));
-    
+
     private String searchKeyword;
-    
+
     private Vector<Date> datesVector = new Vector<Date>();
-    
+
+    private static final String[] historyFilter
+        = new String[]{ MessageHistoryService.class.getName(),
+                        FileHistoryService.class.getName()};
+
     private Date ignoreProgressDate;
-    
+
     private int lastProgress = 0;
-    
+
     /**
      * Creates an instance of the <tt>HistoryWindow</tt>.
      * @param mainFrame the main application window
@@ -91,14 +98,14 @@ public class HistoryWindow
         chatConvPanel = new ChatConversationPanel(this);
 
         this.progressBar = new JProgressBar(
-            MessageHistorySearchProgressListener.PROGRESS_MINIMUM_VALUE,
-            MessageHistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE);
+            HistorySearchProgressListener.PROGRESS_MINIMUM_VALUE,
+            HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE);
 
         this.progressBar.setValue(0);
         this.progressBar.setStringPainted(true);
 
-        this.msgHistory = GuiActivator.getMsgHistoryService();
-        this.msgHistory.addSearchProgressListener(this);
+        this.history = GuiActivator.getMetaHistoryService();
+        this.history.addSearchProgressListener(this);
 
         this.datesPanel = new DatesPanel(this);
         this.historyMenu = new HistoryMenu(this);
@@ -121,11 +128,11 @@ public class HistoryWindow
                     new String[]{metaContact.getDisplayName()}));
 
             Iterator<Contact> protoContacts = metaContact.getContacts();
-            
+
             while(protoContacts.hasNext())
             {
                 Contact protoContact = protoContacts.next();
-                
+
                 ((OperationSetBasicInstantMessaging) protoContact
                     .getProtocolProvider().getOperationSet(
                         OperationSetBasicInstantMessaging.class))
@@ -165,7 +172,7 @@ public class HistoryWindow
      * with the given contact is availabled.
      */
     private void initDates()
-    {   
+    {
         this.initProgressBar(null);
         new DatesLoader().start();
     }
@@ -176,19 +183,20 @@ public class HistoryWindow
      * @param endDate the end date of the period
      */
     public void showHistoryByPeriod(Date startDate, Date endDate)
-    {   
+    {
         if((searchKeyword == null || searchKeyword == "")
-                && dateHistoryTable.containsKey(startDate)) {
-            
+                && dateHistoryTable.containsKey(startDate))
+        {
             HTMLDocument document = dateHistoryTable.get(startDate);
-                        
+
             this.chatConvPanel.setContent(document);
         }
-        else {
+        else
+        {
             this.chatConvPanel.clear();
             //init progress bar by precising the date that will be loaded.
             this.initProgressBar(startDate);
-            
+
             new MessagesLoader(startDate, endDate).start();
         }
     }
@@ -200,12 +208,12 @@ public class HistoryWindow
     public void showHistoryByKeyword(String keyword)
     {
         this.initProgressBar(null);
-        
-        chatConvPanel.clear();        
+
+        chatConvPanel.clear();
         datesPanel.setLastSelectedIndex(-1);
 
         new KeywordDatesLoader(keyword).start();
-        
+
         searchKeyword = keyword;
     }
 
@@ -213,11 +221,11 @@ public class HistoryWindow
      * Shows the history given by the collection into a ChatConversationPanel.
      * @param historyRecords a collection of history records
      */
-    private HTMLDocument createHistory(Collection<EventObject> historyRecords)
+    private HTMLDocument createHistory(Collection<Object> historyRecords)
     {
-        if((historyRecords != null) && (historyRecords.size() > 0)) {
-            
-            Iterator<EventObject> i = historyRecords.iterator();
+        if((historyRecords != null) && (historyRecords.size() > 0))
+        {
+            Iterator<Object> i = historyRecords.iterator();
             String processedMessage = "";
             while (i.hasNext())
             {
@@ -274,6 +282,15 @@ public class HistoryWindow
                         evt.getMessage().getContent(),
                         evt.getMessage().getContentType());
                 }
+                else if (o instanceof FileRecord)
+                {
+                    FileRecord fileRecord = (FileRecord) o;
+
+                    FileHistoryConversationComponent component
+                        = new FileHistoryConversationComponent(fileRecord);
+
+                    chatConvPanel.addComponent(component);
+                }
 
                 if (chatMessage != null)
                 {
@@ -284,6 +301,7 @@ public class HistoryWindow
                 }
             }
         }
+
         this.chatConvPanel.setDefaultContent();
 
         return this.chatConvPanel.getContent();
@@ -311,11 +329,12 @@ public class HistoryWindow
      */
     public class HistoryWindowAdapter extends WindowAdapter
     {
-        public void windowClosing(WindowEvent e) {
-            msgHistory.removeSearchProgressListener(HistoryWindow.this);
+        public void windowClosing(WindowEvent e)
+        {
+            history.removeSearchProgressListener(HistoryWindow.this);
         }
     }
-    
+
     /**
      * Returns the next date from the history.
      * 
@@ -338,21 +357,22 @@ public class HistoryWindow
     public void progressChanged(ProgressEvent evt)
     {
         int progress = evt.getProgress();
-        
+
         if((lastProgress != progress)
                 && evt.getStartDate() == null
-                || evt.getStartDate() != ignoreProgressDate) {
-                
+                || evt.getStartDate() != ignoreProgressDate)
+        {
             this.progressBar.setValue(progress);
-            
-            if(progressBar.getPercentComplete() == 1.0) {
+
+            if(progressBar.getPercentComplete() == 1.0)
+            {
                 new ProgressBarTimer().start();
             }
-            
+
             lastProgress = progress;
         }
     }
-    
+
     /**
      * Waits 1 second and removes the progress bar from the main panel.
      */
@@ -387,11 +407,12 @@ public class HistoryWindow
     {
         public void run()
         {
-            Collection<EventObject> msgList = null;
+            Collection<Object> msgList = null;
 
             if (historyContact instanceof MetaContact)
             {
-                msgList = msgHistory.findByEndDate(
+                msgList = history.findByEndDate(
+                    historyFilter,
                     (MetaContact) historyContact,
                     new Date(System.currentTimeMillis()));
             }
@@ -403,13 +424,14 @@ public class HistoryWindow
                 if(chatRoomWrapper.getChatRoom() == null)
                     return;
 
-                msgList = msgHistory.findByEndDate(
+                msgList = history.findByEndDate(
+                    historyFilter,
                     chatRoomWrapper.getChatRoom(),
                     new Date(System.currentTimeMillis()));
             }
 
             if (msgList != null)
-            for (EventObject o : msgList)
+            for (Object o : msgList)
             {
                 long date = 0;
 
@@ -435,13 +457,18 @@ public class HistoryWindow
                         evt = (ChatRoomMessageDeliveredEvent) o;
                     date = evt.getTimestamp();
                 }
+                else if (o instanceof FileRecord)
+                {
+                    FileRecord fileRecord = (FileRecord) o;
+                    date = fileRecord.getDate();
+                }
 
                 boolean containsDate = false;
                 long milisecondsPerDay = 24*60*60*1000;
                 for(int j = 0; !containsDate && j < datesVector.size(); j ++)
                 {
                     Date date1 = datesVector.get(j);
-                    
+
                     containsDate = Math.floor(date1.getTime()/milisecondsPerDay)
                         == Math.floor(date/milisecondsPerDay);
                 }
@@ -451,7 +478,7 @@ public class HistoryWindow
                     datesVector.add(new Date(date - date % milisecondsPerDay));
                 }
             }
-            
+
             if((msgList != null) && (msgList.size() > 0))
             {
                 Runnable updateDatesPanel = new Runnable() {
@@ -498,12 +525,14 @@ public class HistoryWindow
         
         public void run()
         {
-            final Collection<EventObject> msgList;
+            final Collection<Object> msgList;
 
             if(historyContact instanceof MetaContact)
             {
-                msgList = msgHistory.findByPeriod(
-                    (MetaContact) historyContact, startDate, endDate);
+                msgList = history.findByPeriod(
+                    historyFilter,
+                    (MetaContact) historyContact,
+                    startDate, endDate);
             }
             else if (historyContact instanceof ChatRoomWrapper)
             {
@@ -513,8 +542,10 @@ public class HistoryWindow
                 if(chatRoomWrapper.getChatRoom() == null)
                     return;
 
-                msgList = msgHistory.findByPeriod(
-                    chatRoomWrapper.getChatRoom(), startDate, endDate);
+                msgList = history.findByPeriod(
+                    historyFilter,
+                    chatRoomWrapper.getChatRoom(),
+                    startDate, endDate);
             }
             else
                 msgList = null;
@@ -556,11 +587,12 @@ public class HistoryWindow
         
         public void run()
         {
-            Collection<EventObject> msgList = null;
+            Collection<Object> msgList = null;
 
             if (historyContact instanceof MetaContact)
             {
-                msgList = msgHistory.findByKeyword(
+                msgList = history.findByKeyword(
+                    historyFilter,
                     (MetaContact) historyContact, keyword);
             }
             else if (historyContact instanceof ChatRoomWrapper)
@@ -571,7 +603,8 @@ public class HistoryWindow
                 if (chatRoomWrapper.getChatRoom() == null)
                     return;
 
-                msgList = msgHistory.findByKeyword(
+                msgList = history.findByKeyword(
+                    historyFilter,
                     chatRoomWrapper.getChatRoom(), keyword);
             }
 

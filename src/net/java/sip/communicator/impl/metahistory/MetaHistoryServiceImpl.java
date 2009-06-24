@@ -13,7 +13,6 @@ import org.osgi.framework.*;
 import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.filehistory.*;
-import net.java.sip.communicator.service.history.HistoryReader;
 import net.java.sip.communicator.service.metahistory.*;
 import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.history.event.*;
