@@ -7,6 +7,7 @@
 package net.java.sip.communicator.service.filehistory;
 
 import java.io.*;
+import net.java.sip.communicator.service.protocol.Contact;
 
 /**
  * Structure used for encapsulating data when writing or reading
@@ -49,6 +50,8 @@ public class FileRecord
     private File file = null;
     private String status;
 
+    private Contact contact;
+
     /**
      * Constructs new FileRecord
      *
@@ -58,11 +61,13 @@ public class FileRecord
      * @param status
      */
     public FileRecord(
+        Contact contact,
         String direction,
         long date,
         File file,
         String status)
     {
+        this.contact = contact;
         this.direction = direction;
         this.date = date;
         this.file = file;
@@ -103,5 +108,14 @@ public class FileRecord
     public String getStatus()
     {
         return status;
+    }
+
+    /**
+     * The contact.
+     * @return the contact
+     */
+    public Contact getContact()
+    {
+        return contact;
     }
 }

@@ -213,7 +213,8 @@ public class FileHistoryServiceImpl
         return readers;
     }
 
-    private FileRecord createFileRecordFromHistoryRecord(HistoryRecord hr)
+    private FileRecord createFileRecordFromHistoryRecord(
+        HistoryRecord hr, Contact contact)
     {
         String file = null;
         String dir = null;
@@ -243,7 +244,7 @@ public class FileHistoryServiceImpl
                 status = hr.getPropertyValues()[i];
         }
 
-        return new FileRecord(dir, date, new File(file), status);
+        return new FileRecord(contact, dir, date, new File(file), status);
     }
 
     /**
@@ -265,13 +266,14 @@ public class FileHistoryServiceImpl
 
         for (Map.Entry<Contact, HistoryReader> readerEntry : readers.entrySet())
         {
+            Contact c = readerEntry.getKey();
             HistoryReader reader = readerEntry.getValue();
 
             // add the progress listeners
             Iterator<HistoryRecord> recs = reader.findByStartDate(startDate);
             while (recs.hasNext())
             {
-                result.add(createFileRecordFromHistoryRecord(recs.next()));
+                result.add(createFileRecordFromHistoryRecord(recs.next(), c));
             }
         }
 
@@ -296,13 +298,14 @@ public class FileHistoryServiceImpl
 
         for (Map.Entry<Contact, HistoryReader> readerEntry : readers.entrySet())
         {
+            Contact c = readerEntry.getKey();
             HistoryReader reader = readerEntry.getValue();
 
             // add the progress listeners
             Iterator<HistoryRecord> recs = reader.findByEndDate(endDate);
             while (recs.hasNext())
             {
-                result.add(createFileRecordFromHistoryRecord(recs.next()));
+                result.add(createFileRecordFromHistoryRecord(recs.next(), c));
             }
         }
 
@@ -350,6 +353,7 @@ public class FileHistoryServiceImpl
 
         for (Map.Entry<Contact, HistoryReader> readerEntry : readers.entrySet())
         {
+            Contact c = readerEntry.getKey();
             HistoryReader reader = readerEntry.getValue();
 
             // add the progress listeners
@@ -357,7 +361,7 @@ public class FileHistoryServiceImpl
                 startDate, endDate, keywords, SEARCH_FIELD, caseSensitive);
             while (recs.hasNext())
             {
-                result.add(createFileRecordFromHistoryRecord(recs.next()));
+                result.add(createFileRecordFromHistoryRecord(recs.next(), c));
             }
         }
 
@@ -384,13 +388,14 @@ public class FileHistoryServiceImpl
 
         for (Map.Entry<Contact, HistoryReader> readerEntry : readers.entrySet())
         {
+            Contact c = readerEntry.getKey();
             HistoryReader reader = readerEntry.getValue();
 
             // add the progress listeners
             Iterator<HistoryRecord> recs = reader.findByPeriod(startDate, endDate);
             while (recs.hasNext())
             {
-                result.add(createFileRecordFromHistoryRecord(recs.next()));
+                result.add(createFileRecordFromHistoryRecord(recs.next(), c));
             }
         }
 
@@ -415,13 +420,14 @@ public class FileHistoryServiceImpl
 
         for (Map.Entry<Contact, HistoryReader> readerEntry : readers.entrySet())
         {
+            Contact c = readerEntry.getKey();
             HistoryReader reader = readerEntry.getValue();
 
             // add the progress listeners
             Iterator<HistoryRecord> recs = reader.findLast(count);
             while (recs.hasNext())
             {
-                result.add(createFileRecordFromHistoryRecord(recs.next()));
+                result.add(createFileRecordFromHistoryRecord(recs.next(), c));
             }
         }
 
@@ -494,6 +500,7 @@ public class FileHistoryServiceImpl
 
         for (Map.Entry<Contact, HistoryReader> readerEntry : readers.entrySet())
         {
+            Contact c = readerEntry.getKey();
             HistoryReader reader = readerEntry.getValue();
 
             // add the progress listeners
@@ -501,7 +508,7 @@ public class FileHistoryServiceImpl
                 reader.findByKeywords(keywords, SEARCH_FIELD, caseSensitive);
             while (recs.hasNext())
             {
-                result.add(createFileRecordFromHistoryRecord(recs.next()));
+                result.add(createFileRecordFromHistoryRecord(recs.next(), c));
             }
         }
 
@@ -528,6 +535,7 @@ public class FileHistoryServiceImpl
 
         for (Map.Entry<Contact, HistoryReader> readerEntry : readers.entrySet())
         {
+            Contact c = readerEntry.getKey();
             HistoryReader reader = readerEntry.getValue();
 
             // add the progress listeners
@@ -535,7 +543,7 @@ public class FileHistoryServiceImpl
                 reader.findFirstRecordsAfter(date, count);
             while (recs.hasNext())
             {
-                result.add(createFileRecordFromHistoryRecord(recs.next()));
+                result.add(createFileRecordFromHistoryRecord(recs.next(), c));
             }
         }
 
@@ -568,6 +576,7 @@ public class FileHistoryServiceImpl
 
         for (Map.Entry<Contact, HistoryReader> readerEntry : readers.entrySet())
         {
+            Contact c = readerEntry.getKey();
             HistoryReader reader = readerEntry.getValue();
 
             // add the progress listeners
@@ -575,7 +584,7 @@ public class FileHistoryServiceImpl
                 reader.findLastRecordsBefore(date, count);
             while (recs.hasNext())
             {
-                result.add(createFileRecordFromHistoryRecord(recs.next()));
+                result.add(createFileRecordFromHistoryRecord(recs.next(), c));
             }
         }
 

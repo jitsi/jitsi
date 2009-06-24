@@ -61,7 +61,7 @@ public interface MetaHistoryService
      * @throws RuntimeException
      */
     public Collection<Object> findByPeriod(String[] services,
-            Object contact, Date startDate, Date endDate)
+            Object descriptor, Date startDate, Date endDate)
         throws RuntimeException;
 
     /**
@@ -79,7 +79,7 @@ public interface MetaHistoryService
      * @throws RuntimeException
      */
     public Collection<Object> findByPeriod(String[] services,
-            Object contact, Date startDate, Date endDate, String[] keywords)
+            Object descriptor, Date startDate, Date endDate, String[] keywords)
         throws RuntimeException;
 
     /**
@@ -98,7 +98,7 @@ public interface MetaHistoryService
      * @throws RuntimeException
      */
     public Collection<Object> findByPeriod(String[] services,
-            Object contact, Date startDate, Date endDate,
+            Object descriptor, Date startDate, Date endDate,
             String[] keywords, boolean caseSensitive)
         throws RuntimeException;
 
@@ -114,7 +114,7 @@ public interface MetaHistoryService
      * @throws RuntimeException
      */
     public Collection<Object> findByKeyword(String[] services,
-            Object contact, String keyword)
+            Object descriptor, String keyword)
         throws RuntimeException;
 
     /**
@@ -129,8 +129,8 @@ public interface MetaHistoryService
      *  the services we wrap
      * @throws RuntimeException
      */
-    Collection<Object> findByKeyword(String[] services,
-            Object contact, String keyword, boolean caseSensitive)
+    public Collection<Object> findByKeyword(String[] services,
+            Object descriptor, String keyword, boolean caseSensitive)
         throws RuntimeException;
 
     /**
@@ -145,7 +145,7 @@ public interface MetaHistoryService
      * @throws RuntimeException
      */
     public Collection<Object> findByKeywords(String[] services,
-            Object contact, String[] keywords)
+            Object descriptor, String[] keywords)
         throws RuntimeException;
 
     /**
@@ -161,7 +161,7 @@ public interface MetaHistoryService
      * @throws RuntimeException
      */
     public Collection<Object> findByKeywords(String[] services,
-            Object contact, String[] keywords, boolean caseSensitive)
+            Object descriptor, String[] keywords, boolean caseSensitive)
         throws RuntimeException;
 
     /**
@@ -176,7 +176,7 @@ public interface MetaHistoryService
      * @throws RuntimeException
      */
     public Collection<Object> findLast(String[] services,
-            Object contact, int count)
+            Object descriptor, int count)
         throws RuntimeException;
 
     /**
@@ -192,7 +192,7 @@ public interface MetaHistoryService
      * @throws RuntimeException
      */
     public Collection<Object> findFirstMessagesAfter(String[] services,
-            Object contact, Date date, int count)
+            Object descriptor, Date date, int count)
         throws RuntimeException;
 
     /**
@@ -208,7 +208,7 @@ public interface MetaHistoryService
      * @throws RuntimeException
      */
     public Collection<Object> findLastMessagesBefore(String[] services,
-            Object contact, Date date, int count)
+            Object descriptor, Date date, int count)
         throws RuntimeException;
 
     /**

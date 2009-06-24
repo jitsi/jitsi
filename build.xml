@@ -808,7 +808,8 @@
         bundle-dict,bundle-plugin-dictaccregwizz,
         bundle-plugin-simpleaccreg,bundle-plugin-generalconfig,
         bundle-plugin-googletalkaccregwizz,bundle-argdelegation-service,
-        bundle-argdelegation,bundle-zrtp4j,bundle-filehistory"/>
+        bundle-argdelegation,bundle-zrtp4j,
+        bundle-filehistory,bundle-metahistory"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -1974,6 +1975,17 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/service/filehistory"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/filehistory"
                 prefix="net/java/sip/communicator/impl/filehistory" />
+        </jar>
+    </target>
+    <!--BUNDLE-METAHISTORY-->
+    <target name="bundle-metahistory">
+        <jar compress="false" destfile="${bundles.dest}/metahistory.jar"
+            manifest="${src}/net/java/sip/communicator/impl/metahistory/metahistory.manifest.mf">
+
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/metahistory"
+                prefix="net/java/sip/communicator/service/metahistory"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/metahistory"
+                prefix="net/java/sip/communicator/impl/metahistory" />
         </jar>
     </target>
 
