@@ -1147,14 +1147,6 @@ public class ChatConversationPanel
             "date",
             component.getDate().getTime());
 
-        style.addAttribute(
-            "identifier",
-            "messageHeader");
-
-        style.addAttribute(
-            "date",
-            component.getDate().getTime());
-
         // Insert the component style at the end of the text
         try
         {
