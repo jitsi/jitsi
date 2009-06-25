@@ -36,21 +36,22 @@ public class ImageUtils
      * @param height maximum height of the scaled image
      * @return the scaled image
      */
-    public static Image scaleImageWithinBounds(Image image, int width,
-        int height)
+    public static Image scaleImageWithinBounds( Image image,
+                                                int width,
+                                                int height)
     {
-        if (image.getWidth(null) <= width && image.getHeight(null) <= height)
-            return image;
+        int initialWidth = image.getWidth(null);
+        int initialHeight = image.getHeight(null);
 
         Image scaledImage;
         int scaleHint = Image.SCALE_SMOOTH;
         double originalRatio =
-            (double) image.getWidth(null) / image.getHeight(null);
+            (double) initialWidth / initialHeight;
         double areaRatio = (double) width / height;
 
         if(originalRatio > areaRatio)
         {
-            scaledImage = image.getScaledInstance(width, -1,scaleHint);
+            scaledImage = image.getScaledInstance(width, -1, scaleHint);
         }
         else
         {

@@ -39,10 +39,7 @@ public class FileImageLabel
      */
     public void setToolTipImage(ImageIcon icon)
     {
-        Image image = ImageUtils
-            .scaleImageWithinBounds(icon.getImage(), 640, 480);
-
-        this.tooltipIcon = new ImageIcon(image);
+        this.tooltipIcon = scaleFileIcon(icon, 640, 480);
     }
 
     /**
@@ -114,11 +111,11 @@ public class FileImageLabel
         {
             try
             {
-                ImageIcon image = new ImageIcon(file.toURI().toURL());
-                this.setToolTipImage(image);
+                ImageIcon icon = new ImageIcon(file.toURI().toURL());
+                this.setToolTipImage(icon);
 
-                image = ImageUtils
-                    .getScaledRoundedIcon(image.getImage(), 64, 64);
+                ImageIcon image = scaleFileIcon(icon, 64, 64);
+
                 this.setIcon(image);
             }
             catch (MalformedURLException e)
@@ -138,5 +135,26 @@ public class FileImageLabel
 
             this.setIcon(icon);
         }
+    }
+
+    /**
+     * Returns a scaled instance of the given icon if it exceeds the given
+     * bounds.
+     * @param icon the icon to scale
+     * @param width the scale width
+     * @param height the scale height
+     * @return  a scaled instance of the given icon if it exceeds the given
+     * bounds
+     */
+    private ImageIcon scaleFileIcon(ImageIcon icon, int width, int height)
+    {
+        ImageIcon image = null;
+        if (icon.getIconWidth() <= width && icon.getIconHeight() <= height)
+            image = icon;
+        else
+            image = ImageUtils
+                .getScaledRoundedIcon(icon.getImage(), width, height);
+
+        return image;
     }
 }
