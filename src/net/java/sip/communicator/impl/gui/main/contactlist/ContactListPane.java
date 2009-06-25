@@ -586,7 +586,7 @@ public class ContactListPane
         final ChatPanel chatPanel = chatWindowManager
             .getContactChat(metaContact, sourceContact);
 
-        chatPanel.addIncomingFileTransferRequest(request);
+        chatPanel.addIncomingFileTransferRequest(request, event.getTimestamp());
 
         ChatTransport chatTransport
             = chatPanel.getChatSession()
@@ -619,7 +619,7 @@ public class ContactListPane
      * Nothing to do here, because we already know when a file transfer is
      * created.
      */
-    public void fileTransferCreated(FileTransfer fileTransfer)
+    public void fileTransferCreated(FileTransferCreatedEvent event)
     {}
 
     /**

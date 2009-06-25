@@ -7,6 +7,8 @@
 package net.java.sip.communicator.impl.protocol.ssh;
 
 import java.io.*;
+import java.util.*;
+
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -19,14 +21,19 @@ public class FileTransferSSHImpl
 {
     private final SSHFileTransferDaemon fileTransfer;
 
+    private final Date initialDate;
+
     /**
      * Creates an SSH implementation of the file transfer interface.
      * 
      * @param fileTransfer the SSH file transfer
+     * @param date the initial date of the transfer
      */
-    public FileTransferSSHImpl(SSHFileTransferDaemon fileTransfer)
+    public FileTransferSSHImpl( SSHFileTransferDaemon fileTransfer,
+                                Date date)
     {
         this.fileTransfer = fileTransfer;
+        this.initialDate = date;
     }
 
     /**
@@ -56,11 +63,21 @@ public class FileTransferSSHImpl
 
     public File getFile()
     {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return null;
     }
 
     public Contact getContact()
     {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return null;
+    }
+
+    public String getID()
+    {
+        return null;
+    }
+
+    public Date getInitialDate()
+    {
+        return initialDate;
     }
 }

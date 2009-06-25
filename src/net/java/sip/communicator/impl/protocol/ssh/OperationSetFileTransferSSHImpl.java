@@ -122,7 +122,7 @@ public class OperationSetFileTransferSSHImpl
                     remotePath,
                     localPath);
 
-            return new FileTransferSSHImpl(fileTransferDaemon);
+            return new FileTransferSSHImpl(fileTransferDaemon, new Date());
         }
         else if(fromContact == null)
         {
@@ -135,7 +135,7 @@ public class OperationSetFileTransferSSHImpl
                     remotePath,
                     localPath);
 
-            return new FileTransferSSHImpl(fileTransferDaemon);
+            return new FileTransferSSHImpl(fileTransferDaemon, new Date());
         }
 
         // code should not reach here

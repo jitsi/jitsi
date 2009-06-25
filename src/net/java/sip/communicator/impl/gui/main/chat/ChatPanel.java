@@ -31,7 +31,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
-import net.java.sip.communicator.util.swing.SwingWorker;
 
 /**
  * The <tt>ChatPanel</tt> is the panel, where users can write and send messages,
@@ -49,7 +48,8 @@ public class ChatPanel
     extends TransparentPanel
     implements  ChatSessionRenderer,
                 Chat,
-                ChatConversationContainer
+                ChatConversationContainer,
+                FileTransferStatusListener
 {
     private static final Logger logger = Logger.getLogger(ChatPanel.class);
 
@@ -105,6 +105,9 @@ public class ChatPanel
     private final Vector<Object> incomingEventBuffer = new Vector<Object>();
 
     private boolean isHistoryLoaded;
+
+    private final ArrayList<String> activeFileTransfers
+        = new ArrayList<String>();
 
     /**
      * Creates a <tt>ChatPanel</tt> which is added to the given chat window.
@@ -886,6 +889,13 @@ public class ChatPanel
                 final FileTransfer fileTransfer
                     = sendFileTransport.sendFile(file);
 
+                addActiveFileTransfer(fileTransfer.getID());
+
+                // Add the status listener that would notify us when the file
+                // transfer has been completed and should be removed from
+                // active components.
+                fileTransfer.addStatusListener(ChatPanel.this);
+
                 SwingUtilities.invokeLater(new Runnable()
                 {
                     public void run()
@@ -1597,12 +1607,16 @@ public class ChatPanel
      * panel in order to notify the user of the incoming file.
      * 
      * @param request the request to display in the conversation panel
+     * @param date the date on which the request has been received
      */
     public void addIncomingFileTransferRequest(
-        IncomingFileTransferRequest request)
+        IncomingFileTransferRequest request,
+        Date date)
     {
+        this.addActiveFileTransfer(request.getID());
+
         ReceiveFileConversationComponent component
-            = new ReceiveFileConversationComponent(request);
+            = new ReceiveFileConversationComponent(this, request, date);
 
         if (ConfigurationManager.isHistoryShown() && !isHistoryLoaded)
         {
@@ -1792,6 +1806,36 @@ public class ChatPanel
     }
 
     /**
+     * Handles file transfer status changed in order to remove completed file
+     * transfers from the list of active transfers.
+     */
+    public void statusChanged(FileTransferStatusChangeEvent event)
+    {
+        FileTransfer fileTransfer = event.getFileTransfer();
+
+        int newStatus = event.getNewStatus();
+
+        if (newStatus == FileTransferStatusChangeEvent.COMPLETED
+            || newStatus == FileTransferStatusChangeEvent.CANCELED
+            || newStatus == FileTransferStatusChangeEvent.FAILED
+            || newStatus == FileTransferStatusChangeEvent.REFUSED)
+        {
+            removeActiveFileTransfer(fileTransfer.getID());
+        }
+    }
+
+    /**
+     * Returns <code>true</code> if there are active file transfers, otherwise
+     * returns <code>false</code>.
+     * @return <code>true</code> if there are active file transfers, otherwise
+     * returns <code>false</code>
+     */
+    public boolean containsActiveFileTransfers()
+    {
+        return !activeFileTransfers.isEmpty();
+    }
+
+    /**
      * Returns the number of messages received but not yet read from the user.
      * 
      * @return the number of messages received but not yet read from the user.
@@ -1839,13 +1883,39 @@ public class ChatPanel
                 {
                     this.appendChatMessage((ChatMessage) incomingEvent);
                 }
-                else if (incomingEvent instanceof Component)
+                else if (incomingEvent instanceof ChatConversationComponent)
                 {
                     this.getChatConversationPanel()
-                        .addComponent((Component) incomingEvent);
+                        .addComponent((ChatConversationComponent)incomingEvent);
                 }
             }
         }
     }
 
+    /**
+     * Adds the given file transfer <tt>id</tt> to the list of active file
+     * transfers.
+     * 
+     * @param id the identifier of the file transfer to add
+     */
+    private void addActiveFileTransfer(String id)
+    {
+        synchronized (activeFileTransfers)
+        {
+            activeFileTransfers.add(id);
+        }
+    }
+
+    /**
+     * Removes the given file transfer <tt>id</tt> from the list of active
+     * file transfers.
+     * @param id the identifier of the file transfer to remove
+     */
+    private void removeActiveFileTransfer(String id)
+    {
+        synchronized (activeFileTransfers)
+        {
+            activeFileTransfers.remove(id);
+        }
+    }
 }

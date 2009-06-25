@@ -166,7 +166,8 @@ public class ChatWindowManager
                     ChatRoomWrapper chatRoomWrapper
                         = (ChatRoomWrapper) descriptor;
 
-                    if(chatRoomWrapper.getChatRoomID().equals(chatRoom.getIdentifier())
+                    if(chatRoomWrapper.getChatRoomID()
+                            .equals(chatRoom.getIdentifier())
                         && getChat(chatSession).isShown())
                     {
                         return true;
@@ -229,7 +230,26 @@ public class ChatWindowManager
                     if (answer == JOptionPane.OK_OPTION)
                         closeChatPanel(chatPanel);
                 }
-                else {
+                else if (chatPanel.containsActiveFileTransfers())
+                {
+                    SIPCommMsgTextArea msgText
+                        = new SIPCommMsgTextArea(GuiActivator.getResources()
+                            .getI18NString(
+                                "service.gui.CLOSE_CHAT_ACTIVE_FILE_TRANSFER"));
+
+                    int answer = JOptionPane.showConfirmDialog(
+                        chatWindow,
+                        msgText,
+                        GuiActivator.getResources()
+                            .getI18NString("service.gui.WARNING"),
+                        JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.WARNING_MESSAGE);
+
+                    if (answer == JOptionPane.OK_OPTION)
+                        closeChatPanel(chatPanel);
+                }
+                else
+                {
                     closeChatPanel(chatPanel);
                 }
             }
@@ -244,9 +264,27 @@ public class ChatWindowManager
     {
         synchronized (syncChat)
         {
-            ChatPanel chatPanel = chatWindow.getCurrentChatPanel();
+            ChatPanel activePanel = null;
 
-            if (!chatPanel.isWriteAreaEmpty())
+            for (ChatPanel chatPanel : chatPanels)
+            {
+                if (!chatPanel.isWriteAreaEmpty()
+                    || chatPanel.containsActiveFileTransfers()
+                    || System.currentTimeMillis() - chatWindow
+                    .getLastIncomingMsgTimestamp(chatPanel) < 2 * 1000)
+                {
+                    activePanel = chatPanel;
+                    break;
+                }
+            }
+
+            if (activePanel == null)
+            {
+                this.disposeChatWindow(chatWindow);
+                return;
+            }
+
+            if (!activePanel.isWriteAreaEmpty())
             {
                 SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(
                     GuiActivator.getResources().getI18NString(
@@ -265,7 +303,7 @@ public class ChatWindowManager
                 }
             }
             else if (System.currentTimeMillis() - chatWindow
-                .getLastIncomingMsgTimestamp(chatPanel) < 2 * 1000)
+                .getLastIncomingMsgTimestamp(activePanel) < 2 * 1000)
             {
                 SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(
                     GuiActivator.getResources()
@@ -283,9 +321,23 @@ public class ChatWindowManager
                     this.disposeChatWindow(chatWindow);
                 }
             }
-            else
+            else if (activePanel.containsActiveFileTransfers())
             {
-                this.disposeChatWindow(chatWindow);
+                SIPCommMsgTextArea msgText
+                    = new SIPCommMsgTextArea(GuiActivator.getResources()
+                        .getI18NString(
+                            "service.gui.CLOSE_CHAT_ACTIVE_FILE_TRANSFER"));
+
+                int answer = JOptionPane.showConfirmDialog(
+                    chatWindow,
+                    msgText,
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.WARNING"),
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.WARNING_MESSAGE);
+
+                if (answer == JOptionPane.OK_OPTION)
+                    this.disposeChatWindow(chatWindow);
             }
         }
     }

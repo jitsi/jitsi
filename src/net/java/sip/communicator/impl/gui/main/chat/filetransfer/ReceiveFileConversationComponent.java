@@ -8,8 +8,10 @@ package net.java.sip.communicator.impl.gui.main.chat.filetransfer;
 
 import java.awt.event.*;
 import java.io.*;
+import java.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -32,6 +34,12 @@ public class ReceiveFileConversationComponent
 
     private final IncomingFileTransferRequest fileTransferRequest;
 
+    private final ChatPanel chatPanel;
+
+    private final Date date;
+
+    private final String dateString;
+
     /**
      * Creates a <tt>ReceiveFileConversationComponent</tt>.
      * 
@@ -39,11 +47,18 @@ public class ReceiveFileConversationComponent
      * associated with this component
      */
     public ReceiveFileConversationComponent(
-        final IncomingFileTransferRequest request)
+        ChatPanel chatPanel,
+        final IncomingFileTransferRequest request,
+        final Date date)
     {
+        this.chatPanel = chatPanel;
         this.fileTransferRequest = request;
+        this.date = date;
+        this.dateString = getDateString(date);
 
-        titleLabel.setText(resources.getI18NString(
+        titleLabel.setText(
+            dateString
+            + resources.getI18NString(
             "service.gui.FILE_TRANSFER_REQUEST_RECIEVED",
             new String[]{fileTransferRequest.getSender().getDisplayName()}));
 
@@ -54,7 +69,9 @@ public class ReceiveFileConversationComponent
         {
             public void actionPerformed(ActionEvent e)
             {
-                titleLabel.setText(resources
+                titleLabel.setText(
+                    dateString
+                    + resources
                     .getI18NString("service.gui.FILE_TRANSFER_PREPARING",
                                     new String[]{fileTransferRequest.getSender()
                                                 .getDisplayName()}));
@@ -80,7 +97,8 @@ public class ReceiveFileConversationComponent
                 rejectButton.setVisible(false);
                 fileLabel.setText("");
                 titleLabel.setText(
-                    resources.getI18NString(
+                    dateString
+                    + resources.getI18NString(
                         "service.gui.FILE_TRANSFER_CANCELED"));
             }
         });
@@ -154,14 +172,18 @@ public class ReceiveFileConversationComponent
         if (status == FileTransferStatusChangeEvent.PREPARING)
         {
             progressBar.setVisible(false);
-            titleLabel.setText(resources.getI18NString(
+            titleLabel.setText(
+                dateString
+                + resources.getI18NString(
                 "service.gui.FILE_TRANSFER_PREPARING",
                 new String[]{fromContactName}));
         }
         else if (status == FileTransferStatusChangeEvent.FAILED)
         {
             progressBar.setVisible(false);
-            titleLabel.setText(resources.getI18NString(
+            titleLabel.setText(
+                dateString
+                + resources.getI18NString(
                 "service.gui.FILE_RECEIVE_FAILED",
                 new String[]{fromContactName}));
 
@@ -169,7 +191,9 @@ public class ReceiveFileConversationComponent
         }
         else if (status == FileTransferStatusChangeEvent.IN_PROGRESS)
         {
-            titleLabel.setText(resources.getI18NString(
+            titleLabel.setText(
+                dateString
+                + resources.getI18NString(
                 "service.gui.FILE_RECEIVING_FROM",
                 new String[]{fromContactName}));
             setWarningStyle(false);
@@ -188,7 +212,9 @@ public class ReceiveFileConversationComponent
             openFileButton.setVisible(true);
             openFolderButton.setVisible(true);
 
-            titleLabel.setText(resources.getI18NString(
+            titleLabel.setText(
+                dateString
+                + resources.getI18NString(
                 "service.gui.FILE_RECEIVE_COMPLETED",
                 new String[]{fromContactName}));
         }
@@ -197,19 +223,33 @@ public class ReceiveFileConversationComponent
             progressBar.setVisible(false);
             cancelButton.setVisible(false);
 
-            titleLabel.setText(resources.getI18NString(
+            titleLabel.setText(
+                dateString
+                + resources.getI18NString(
                 "service.gui.FILE_TRANSFER_CANCELED"));
             setWarningStyle(true);
         }
         else if (status == FileTransferStatusChangeEvent.REFUSED)
         {
             progressBar.setVisible(false);
-            titleLabel.setText(resources.getI18NString(
+            titleLabel.setText(
+                dateString
+                + resources.getI18NString(
                 "service.gui.FILE_TRANSFER_REFUSED",
                 new String[]{fromContactName}));
             cancelButton.setVisible(false);
             setWarningStyle(true);
         }
+    }
+
+    /**
+     * Returns the date of the component event.
+     * 
+     * @return the date of the component event
+     */
+    public Date getDate()
+    {
+        return date;
     }
 
     /**
@@ -230,6 +270,14 @@ public class ReceiveFileConversationComponent
         {
             fileTransfer = fileTransferRequest.acceptFile(downloadFile);
 
+            // Add the status listener that would notify us when the file
+            // transfer has been completed and should be removed from
+            // active components.
+            fileTransfer.addStatusListener(chatPanel);
+
+            fileTransfer.addStatusListener(
+                ReceiveFileConversationComponent.this);
+
             return "";
         }
 
@@ -238,9 +286,6 @@ public class ReceiveFileConversationComponent
             if (fileTransfer != null)
             {
                 setFileTransfer(fileTransfer);
-
-                fileTransfer.addStatusListener(
-                    ReceiveFileConversationComponent.this);
             }
         }
     }

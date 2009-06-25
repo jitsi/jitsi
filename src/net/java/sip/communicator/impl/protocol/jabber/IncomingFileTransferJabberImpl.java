@@ -20,19 +20,31 @@ import net.java.sip.communicator.service.protocol.*;
 public class IncomingFileTransferJabberImpl
     extends AbstractFileTransfer
 {
+    private String id = null;
+
     private Contact sender = null;
     private File file = null;
 
     /**
-     * The jabber incoming file transfer.
+     * The Jabber incoming file transfer.
      */
     private IncomingFileTransfer jabberTransfer;
 
-    public IncomingFileTransferJabberImpl(Contact sender,
-        File file,
-        IncomingFileTransfer jabberTransfer)
+    /**
+     * Creates an <tt>IncomingFileTransferJabberImpl</tt>.
+     * 
+     * @param sender the sender of the file
+     * @param file the file
+     * @param date the date on which the request was received
+     * @param jabberTransfer the Jabber file transfer object
+     */
+    public IncomingFileTransferJabberImpl(  String id,
+                                            Contact sender,
+                                            File file,
+                                            IncomingFileTransfer jabberTransfer)
     {
         this.jabberTransfer = jabberTransfer;
+        this.id = id;
         this.sender = sender;
         this.file = file;
     }
@@ -48,7 +60,7 @@ public class IncomingFileTransferJabberImpl
     /**
      * Returns the number of bytes already received from the recipient.
      * 
-     * @return the number of bytes already received from the recipient.
+     * @return the number of bytes already received from the recipient
      */
     public long getTransferedBytes()
     {
@@ -57,7 +69,8 @@ public class IncomingFileTransferJabberImpl
 
     /**
      * The direction is incoming.
-     * @return IN.
+     * 
+     * @return IN
      */
     public int getDirection()
     {
@@ -66,15 +79,31 @@ public class IncomingFileTransferJabberImpl
 
     /**
      * The file we are receiving.
-     * @return the file.
+     * 
+     * @return file we are receiving
      */
     public File getFile()
     {
         return file;
     }
 
+    /**
+     * Returns the sender of the file.
+     * 
+     * @return the sender of the file
+     */
     public Contact getContact()
     {
         return sender;
+    }
+
+    /**
+     * Returns the identifier of this file transfer.
+     * 
+     * @return the identifier of this file transfer
+     */
+    public String getID()
+    {
+        return id;
     }
 }

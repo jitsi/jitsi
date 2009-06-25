@@ -7,6 +7,7 @@
 package net.java.sip.communicator.service.protocol;
 
 import java.io.*;
+import java.util.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
 
@@ -28,6 +29,14 @@ public interface FileTransfer
      * File transfer is outgoing.
      */
     public static final int OUT = 2;
+
+    /**
+     * Uniquie ID that is identifying the FileTransfer
+     * if the request has been accepted.
+     *
+     * @return the id.
+     */
+    public String getID();
 
     /**
      * Cancels this file transfer. When this method is called transfer should
@@ -60,7 +69,7 @@ public interface FileTransfer
      * The status is returned as an <tt>int</tt> and could be equal to one of
      * the static constants declared in this interface (i.e. COMPLETED,
      * CANCELED, FAILED, etc.).
-     * 
+     *
      * @return the current status of the transfer
      */
     public int getStatus();

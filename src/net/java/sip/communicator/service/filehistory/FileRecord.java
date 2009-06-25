@@ -52,6 +52,8 @@ public class FileRecord
 
     private Contact contact;
 
+    private String id = null;
+
     /**
      * Constructs new FileRecord
      *
@@ -61,6 +63,7 @@ public class FileRecord
      * @param status
      */
     public FileRecord(
+        String id,
         Contact contact,
         String direction,
         long date,
@@ -72,6 +75,7 @@ public class FileRecord
         this.date = date;
         this.file = file;
         this.status = status;
+        this.id = id;
     }
 
     /**
@@ -117,5 +121,14 @@ public class FileRecord
     public Contact getContact()
     {
         return contact;
+    }
+
+    /**
+     * The id.
+     * @return id.
+     */
+    public String getID()
+    {
+        return id;
     }
 }

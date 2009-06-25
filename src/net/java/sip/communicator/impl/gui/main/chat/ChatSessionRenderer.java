@@ -6,6 +6,10 @@
  */
 package net.java.sip.communicator.impl.gui.main.chat;
 
+import java.util.*;
+
+import java.util.*;
+
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -81,7 +85,9 @@ public interface ChatSessionRenderer
      * panel in order to notify the user of the incoming file.
      * 
      * @param request the request to display in the conversation panel
+     * @param date the date on which the request has been received
      */
     public void addIncomingFileTransferRequest(
-        IncomingFileTransferRequest request);
+        IncomingFileTransferRequest request,
+        Date date);
 }

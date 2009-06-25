@@ -11,14 +11,17 @@ import java.security.*;
 import java.util.*;
 
 import org.w3c.dom.*;
+
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.records.*;
+import net.java.sip.communicator.util.xml.*;
 
 /**
  * @author Alexander Pelov
  */
-public class HistoryWriterImpl implements HistoryWriter {
-
+public class HistoryWriterImpl
+    implements HistoryWriter
+{
     public static final int MAX_RECORDS_PER_FILE = 150;
     private static final String CDATA_SUFFIX = "_CDATA";
 
@@ -204,4 +207,91 @@ public class HistoryWriterImpl implements HistoryWriter {
                 .getChildNodes().getLength();
     }
 
+    /**
+     * Updates a record by searching for record with idProperty which have idValue
+     * and updating/creating the property with newValue.
+     *
+     * @param idProperty name of the id property
+     * @param idValue value of the id property
+     * @param property the property to change
+     * @param newValue the value of the changed property.
+     */
+    public void updateRecord(String idProperty, String idValue,
+            String property, String newValue)
+        throws IOException
+    {
+        Iterator<String> fileIterator = this.historyImpl.getFileList();
+
+        while (fileIterator.hasNext())
+        {
+            String filename = fileIterator.next();
+
+            Document doc = this.historyImpl.getDocumentForFile(filename);
+
+            if(doc == null)
+                continue;
+
+            NodeList nodes = doc.getElementsByTagName("record");
+
+            boolean changed = false;
+
+            Node node;
+            for (int i = 0; i < nodes.getLength(); i++)
+            {
+                node = nodes.item(i);
+
+                Element idNode = XMLUtils.findChild((Element)node, idProperty);
+                if(idNode == null)
+                    continue;
+
+                Node nestedNode = idNode.getFirstChild();
+                if(nestedNode == null)
+                    continue;
+
+                // Get nested TEXT node's value
+                String nodeValue = nestedNode.getNodeValue();
+
+                if(!nodeValue.equals(idValue))
+                    continue;
+
+                Element changedNode =
+                    XMLUtils.findChild((Element)node, property);
+
+                if(changedNode != null)
+                {
+                    Node changedNestedNode = changedNode.getFirstChild();
+
+                    changedNestedNode.setNodeValue(newValue);
+                }
+                else
+                {
+                    Element propertyElement = this.currentDoc
+                        .createElement(property);
+
+                    Text value = this.currentDoc
+                        .createTextNode(newValue.replaceAll("\0", " "));
+                    propertyElement.appendChild(value);
+
+                    node.appendChild(propertyElement);
+                }
+
+                changed = true;
+                break;
+            }
+
+            if(changed)
+            {
+                // write changes
+                synchronized (this.docWriteLock)
+                {
+                    if(historyImpl.getHistoryServiceImpl().isCacheEnabled())
+                        this.historyImpl.writeFile(filename);
+                    else
+                        this.historyImpl.writeFile(filename, doc);
+                }
+
+                break;
+            }
+        }
+    }
 }

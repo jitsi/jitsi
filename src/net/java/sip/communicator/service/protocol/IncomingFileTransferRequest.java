@@ -18,6 +18,14 @@ import java.io.*;
 public interface IncomingFileTransferRequest
 {
     /**
+     * Uniquie ID that is identifying the request and then the FileTransfer
+     * if the request has been accepted.
+     *
+     * @return the id.
+     */
+    public String getID();
+
+    /**
      * Returns a String that represents the name of the file that is being
      * received.
      * If there is no name, returns null. 

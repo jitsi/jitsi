@@ -102,11 +102,15 @@ public class OperationSetFileTransferJabberImpl
                 = manager.createOutgoingFileTransfer(presence.getFrom());
 
             outgoingTransfer
-                = new OutgoingFileTransferJabberImpl(toContact, file, transfer);
+                = new OutgoingFileTransferJabberImpl(
+                    toContact, file, transfer);
 
             // Notify all interested listeners that a file transfer has been
             // created.
-            fireFileTransferCreated(outgoingTransfer);
+            FileTransferCreatedEvent event
+                = new FileTransferCreatedEvent(outgoingTransfer, new Date());
+
+            fireFileTransferCreated(event);
 
             // Send the file through the Jabber file transfer.
             transfer.sendFile(file, "Sending file.");
@@ -256,17 +260,21 @@ public class OperationSetFileTransferJabberImpl
         {
             logger.debug("Incoming Jabber file transfer request."); 
 
+            // Create the date on which the request was received.
+            Date requestDate = new Date();
+
             // Create a global incoming file transfer request.
             IncomingFileTransferRequest incomingFileTransferRequest
                 = new IncomingFileTransferRequestJabberImpl(
                         jabberProvider,
                         OperationSetFileTransferJabberImpl.this,
-                        request);
+                        request,
+                        requestDate);
 
             // Create an event associated to this global request.
             FileTransferRequestEvent fileTransferRequestEvent
                 = new FileTransferRequestEvent( incomingFileTransferRequest,
-                                                new Date());
+                                                requestDate);
 
             // Notify the global listener that a request has arrived.
             fireFileTransferRequest(fileTransferRequestEvent);
@@ -302,7 +310,7 @@ public class OperationSetFileTransferJabberImpl
      * @param fileTransfer the <tt>FileTransfer</tt> that we'd like delivered to
      * all registered file transfer listeners.
      */
-    void fireFileTransferCreated(FileTransfer fileTransfer)
+    void fireFileTransferCreated(FileTransferCreatedEvent event)
     {
         Iterator<FileTransferListener> listeners = null;
         synchronized (fileTransferListeners)
@@ -315,7 +323,7 @@ public class OperationSetFileTransferJabberImpl
         {
             FileTransferListener listener = listeners.next();
 
-            listener.fileTransferCreated(fileTransfer);
+            listener.fileTransferCreated(event);
         }
     }
 

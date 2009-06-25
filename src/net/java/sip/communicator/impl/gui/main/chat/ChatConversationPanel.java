@@ -203,7 +203,7 @@ public class ChatConversationPanel
         String msgHeaderID = "messageHeader";
         String chatString = "";
         String endHeaderTag = "";
-        String timeString = "";
+        String dateString = getDateString(date);
 
         String startDivTag = "<DIV identifier=\"" + msgID + "\">";
         String startHistoryDivTag
@@ -226,14 +226,6 @@ public class ChatConversationPanel
             endPlainTextTag = "</PLAINTEXT>";
         }
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(date);
-
-        if (GuiUtils.compareDates(date, System.currentTimeMillis()) < 0)
-        {
-            timeString = GuiUtils.formatDate(date) + " ";
-        }
-
         if (messageType.equals(Constants.INCOMING_MESSAGE))
         {
             this.lastIncomingMsgTimestamp = System.currentTimeMillis();
@@ -245,7 +237,7 @@ public class ChatConversationPanel
 
             endHeaderTag = "</h2>";
 
-            chatString += timeString + contactName + " at "
+            chatString += dateString + contactName + " at "
                 + GuiUtils.formatTime(date) + endHeaderTag + startDivTag
                 + startPlainTextTag + formatMessage(message, contentType)
                 + endPlainTextTag + endDivTag;
@@ -259,7 +251,7 @@ public class ChatConversationPanel
 
             endHeaderTag = "</h2>";
 
-            chatString += "SMS: " + timeString + contactName + " at "
+            chatString += "SMS: " + dateString + contactName + " at "
                 + GuiUtils.formatTime(date) + endHeaderTag + startDivTag
                 + startPlainTextTag + formatMessage(message, contentType)
                 + endPlainTextTag + endDivTag;
@@ -273,7 +265,7 @@ public class ChatConversationPanel
 
             endHeaderTag = "</h3>";
 
-            chatString += timeString
+            chatString += dateString
                 + GuiActivator.getResources()
                     .getI18NString("service.gui.ME")
                 + " at " + GuiUtils.formatTime(date) + endHeaderTag
@@ -338,7 +330,7 @@ public class ChatConversationPanel
 
             endHeaderTag = "</h2>";
 
-            chatString += timeString + contactName + " at "
+            chatString += dateString + contactName + " at "
                 + GuiUtils.formatTime(date) + endHeaderTag + startHistoryDivTag
                 + startPlainTextTag + formatMessage(message, contentType)
                 + endPlainTextTag + endDivTag;
@@ -352,7 +344,7 @@ public class ChatConversationPanel
 
             endHeaderTag = "</h3>";
 
-            chatString += timeString
+            chatString += dateString
                 + GuiActivator.getResources()
                     .getI18NString("service.gui.ME")
                 + " at " + GuiUtils.formatTime(date) + endHeaderTag
@@ -963,8 +955,8 @@ public class ChatConversationPanel
         if(firstMessageElement == null)
             return new Date(Long.MAX_VALUE);
 
-        String dateString = (String)firstMessageElement
-            .getAttributes().getAttribute("date");
+        String dateString = firstMessageElement
+            .getAttributes().getAttribute("date").toString();
 
         return new Date(Long.parseLong(dateString));
     }
@@ -1132,7 +1124,7 @@ public class ChatConversationPanel
      * 
      * @param component the component to add at the end of the conversation.
      */
-    public void addComponent(Component component)
+    public void addComponent(ChatConversationComponent component)
     {
         Style style = document.getStyleSheet().addStyle(
             StyleConstants.ComponentElementName,
@@ -1147,6 +1139,22 @@ public class ChatConversationPanel
             StyleConstants.ComponentAttribute,
             component);
 
+        style.addAttribute(
+            "identifier",
+            "messageHeader");
+
+        style.addAttribute(
+            "date",
+            component.getDate().getTime());
+
+        style.addAttribute(
+            "identifier",
+            "messageHeader");
+
+        style.addAttribute(
+            "date",
+            component.getDate().getTime());
+
         // Insert the component style at the end of the text
         try
         {
@@ -1159,5 +1167,21 @@ public class ChatConversationPanel
         }
 
         this.setCarretToEnd();
+    }
+
+    /**
+     * Returns the date string to show for the given date.
+     * 
+     * @param date the date to format
+     * @return the date string to show for the given date
+     */
+    public static String getDateString(long date)
+    {
+        if (GuiUtils.compareDates(date, System.currentTimeMillis()) < 0)
+        {
+            return GuiUtils.formatDate(date) + " ";
+        }
+
+        return "";
     }
 }

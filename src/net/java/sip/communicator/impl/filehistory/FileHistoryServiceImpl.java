@@ -36,7 +36,9 @@ public class FileHistoryServiceImpl
         Logger.getLogger(FileHistoryServiceImpl.class);
 
     private static String[] STRUCTURE_NAMES =
-        new String[] { "file", "dir", "date", "status"};
+        new String[] { "file", "dir", "date", "status", "id"};
+
+    private static final String FILE_TRANSFER_ACTIVE = "active";
 
     private static HistoryRecordStructure recordStructure =
         new HistoryRecordStructure(STRUCTURE_NAMES);
@@ -220,6 +222,7 @@ public class FileHistoryServiceImpl
         String dir = null;
         long date = 0;
         String status = null;
+        String id = null;
 
         for (int i = 0; i < hr.getPropertyNames().length; i++)
         {
@@ -242,9 +245,11 @@ public class FileHistoryServiceImpl
             }
             else if (propName.equals(STRUCTURE_NAMES[3]))
                 status = hr.getPropertyValues()[i];
+            else if (propName.equals(STRUCTURE_NAMES[4]))
+                id = hr.getPropertyValues()[i];
         }
 
-        return new FileRecord(contact, dir, date, new File(file), status);
+        return new FileRecord(id, contact, dir, date, new File(file), status);
     }
 
     /**
@@ -671,7 +676,7 @@ public class FileHistoryServiceImpl
     }
 
     /**
-     * Listens for changes in filetransfers.
+     * Listens for changes in file transfers.
      * @param event
      */
     public void statusChanged(FileTransferStatusChangeEvent event)
@@ -688,16 +693,14 @@ public class FileHistoryServiceImpl
             History history = getHistory(null, ft.getContact());
             HistoryWriter historyWriter = history.getWriter();
 
-            historyWriter.addRecord(new String[]{
-                ft.getFile().getCanonicalPath(),
-                getDirection(ft.getDirection()),
-                String.valueOf(new Date().getTime()),
-                status
-            });
-
-        } catch (IOException e)
+            historyWriter.updateRecord( STRUCTURE_NAMES[4],
+                                        ft.getID(),
+                                        STRUCTURE_NAMES[3],
+                                        status);
+        }
+        catch (IOException e)
         {
-            logger.error("Could not add file transfer log to history", e);
+            logger.error("Could not update file transfer log to history", e);
         }
     }
 
@@ -740,15 +743,58 @@ public class FileHistoryServiceImpl
      */
     public void fileTransferRequestReceived(FileTransferRequestEvent event)
     {
+        try
+        {
+            IncomingFileTransferRequest req = event.getRequest();
+
+            History history = getHistory(null, req.getSender());
+            HistoryWriter historyWriter = history.getWriter();
+
+            historyWriter.addRecord(new String[]{
+                req.getFileName(),
+               getDirection(FileTransfer.IN),
+                String.valueOf(event.getTimestamp().getTime()),
+                FILE_TRANSFER_ACTIVE,
+                req.getID()
+            });
+        }
+        catch (IOException e)
+        {
+            logger.error("Could not add file transfer log to history", e);
+        }
     }
 
     /**
-     * New filetransfer was created.
+     * New file transfer was created.
      * @param fileTransfer
      */
-    public void fileTransferCreated(FileTransfer fileTransfer)
+    public void fileTransferCreated(FileTransferCreatedEvent event)
     {
+        FileTransfer fileTransfer = event.getFileTransfer();
+
         fileTransfer.addStatusListener(this);
+
+        if(fileTransfer.getDirection() == FileTransfer.IN)
+            return;
+
+        try
+        {
+            History history = getHistory(null, fileTransfer.getContact());
+            HistoryWriter historyWriter = history.getWriter();
+
+            historyWriter.addRecord(new String[]{
+                fileTransfer.getFile().getCanonicalPath(),
+                getDirection(FileTransfer.OUT),
+                String.valueOf(event.getTimestamp().getTime()),
+                FILE_TRANSFER_ACTIVE,
+                fileTransfer.getID()
+            });
+        }
+        catch (IOException e)
+        {
+            logger.error("Could not add file transfer log to history", e);
+        }
+
     }
 
     /**

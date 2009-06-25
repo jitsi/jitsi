@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.gui.main.chat.filetransfer;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.filehistory.*;
 
 /**
@@ -17,8 +19,12 @@ import net.java.sip.communicator.service.filehistory.*;
 public class FileHistoryConversationComponent
     extends FileTransferConversationComponent
 {
+    private final FileRecord fileRecord;
+
     public FileHistoryConversationComponent(FileRecord fileRecord)
     {
+        this.fileRecord = fileRecord;
+
         String contactName = fileRecord.getContact().getDisplayName();
 
         String titleString = "";
@@ -92,9 +98,22 @@ public class FileHistoryConversationComponent
 
         this.setCompletedDownloadFile(fileRecord.getFile());
 
-        titleLabel.setText(titleString);
+        long date = fileRecord.getDate();
+
+        titleLabel.setText(
+            getDateString(new Date(date)) + titleString);
         fileLabel.setText(getFileName(fileRecord.getFile()));
         openFileButton.setVisible(true);
         openFolderButton.setVisible(true);
+    }
+
+    /**
+     * Returns the date of the component event.
+     * 
+     * @return the date of the component event
+     */
+    public Date getDate()
+    {
+        return new Date(fileRecord.getDate());
     }
 }

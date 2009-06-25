@@ -8,8 +8,6 @@ package net.java.sip.communicator.service.protocol.event;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.protocol.*;
-
 /**
  * A listener that would gather events notifying of incoming file transfer
  * requests.
@@ -29,9 +27,10 @@ public interface FileTransferListener
     public void fileTransferRequestReceived(FileTransferRequestEvent event);
 
     /**
-     * Called when an incoming or outgoing <tt>FileTransfer</tt> has been
-     * created.
-     * @param fileTransfer the file transfer object that has been created
+     * Called when a <tt>FileTransferCreatedEvent</tt> has been received.
+     * 
+     * @param event the <tt>FileTransferCreatedEvent</tt> containing the newly
+     * received file transfer and other details.
      */
-    public void fileTransferCreated(FileTransfer fileTransfer);
+    public void fileTransferCreated(FileTransferCreatedEvent event);
 }

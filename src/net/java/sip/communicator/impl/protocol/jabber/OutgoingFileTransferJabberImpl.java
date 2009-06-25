@@ -20,9 +20,12 @@ import org.jivesoftware.smackx.filetransfer.*;
 public class OutgoingFileTransferJabberImpl
     extends AbstractFileTransfer
 {
+    private String id;
+
     private Contact receiver;
 
     private File file;
+
     /**
      * The jabber outgoing file transfer.
      */
@@ -35,13 +38,16 @@ public class OutgoingFileTransferJabberImpl
      * @param jabberTransfer the Jabber transfer object, containing all transfer
      * information
      */
-    public OutgoingFileTransferJabberImpl(Contact receiver,
-        File file,
-        OutgoingFileTransfer jabberTransfer)
+    public OutgoingFileTransferJabberImpl(  Contact receiver,
+                                            File file,
+                                            OutgoingFileTransfer jabberTransfer)
     {
         this.jabberTransfer = jabberTransfer;
         this.receiver = receiver;
         this.file = file;
+
+        this.id = String.valueOf( System.currentTimeMillis())
+            + String.valueOf(hashCode());
     }
 
     /**
@@ -87,5 +93,14 @@ public class OutgoingFileTransferJabberImpl
     public Contact getContact()
     {
         return receiver;
+    }
+
+    /**
+     * The unique id.
+     * @return the id.
+     */
+    public String getID()
+    {
+        return id;
     }
 }

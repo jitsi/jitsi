@@ -50,4 +50,15 @@ public interface HistoryWriter {
      */
     void addRecord(String[] propertyValues, Date timestamp) throws IOException;
 
+    /**
+     * Updates a record by searching for record with idProperty which have idValue
+     * and updating/creating the property with newValue.
+     *
+     * @param idProperty name of the id property
+     * @param idValue value of the id property
+     * @param property the property to change
+     * @param newValue the value of the changed property.
+     */
+    public void updateRecord(String idProperty, String idValue,
+        String property, String newValue) throws IOException;
 }

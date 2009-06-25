@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.chat;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.util.*;
 
 import javax.swing.*;
 
@@ -44,6 +45,8 @@ public abstract class ChatConversationComponent
 
     protected static final ResourceManagementService resources
         = GuiActivator.getResources();
+
+    private Date date;
 
     /**
      * Creates a <tt>ChatConversationComponent</tt>.
@@ -220,6 +223,27 @@ public abstract class ChatConversationComponent
                     "service.gui.FILE_OPEN_FAILED"));
         }
     }
+
+    /**
+     * Returns the date string to be used in order to show date and time in the
+     * chat conversation component.
+     * @param date the date to format
+     * @return the date string to be used in order to show date and time in the
+     * chat conversation component
+     */
+    public String getDateString(Date date)
+    {
+        return ChatConversationPanel.getDateString(date.getTime())
+                + GuiUtils.formatTime(date)
+                + " ";
+    }
+
+    /**
+     * Returns the date of the component event.
+     * 
+     * @return the date of the component event
+     */
+    public abstract Date getDate();
 
     /**
      * Shows the given error message to the user. This method is made abstract

@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.io.File;
+import java.util.*;
 
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.util.*;
@@ -14,6 +15,7 @@ import org.jivesoftware.smackx.filetransfer.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.FileTransfer;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.Logger;
 
 /**
@@ -31,6 +33,8 @@ public class IncomingFileTransferRequestJabberImpl
     private static final Logger logger =
         Logger.getLogger(IncomingFileTransferRequestJabberImpl.class);
 
+    private String id;
+
     /**
      * The Jabber file transfer request.
      */
@@ -47,11 +51,13 @@ public class IncomingFileTransferRequestJabberImpl
      * @param jabberProvider the protocol provider
      * @param fileTransferOpSet file transfer operation set
      * @param fileTransferRequest the request coming from the Jabber protocol
+     * @param date the date on which this request was received
      */
     public IncomingFileTransferRequestJabberImpl(
         ProtocolProviderServiceJabberImpl jabberProvider,
         OperationSetFileTransferJabberImpl fileTransferOpSet,
-        FileTransferRequest fileTransferRequest)
+        FileTransferRequest fileTransferRequest,
+        Date date)
     {
         this.fileTransferOpSet = fileTransferOpSet;
         this.fileTransferRequest = fileTransferRequest;
@@ -65,6 +71,9 @@ public class IncomingFileTransferRequestJabberImpl
                     OperationSetPersistentPresence.class);
 
         sender = opSetPersPresence.findContactByID(fromUserID);
+
+        this.id = String.valueOf( System.currentTimeMillis())
+                    + String.valueOf(hashCode());
     }
 
     /**
@@ -122,9 +131,12 @@ public class IncomingFileTransferRequestJabberImpl
         {
             incomingTransfer
                 = new IncomingFileTransferJabberImpl(
-                        sender, file, jabberTransfer);
+                        id, sender, file, jabberTransfer);
 
-            fileTransferOpSet.fireFileTransferCreated(incomingTransfer);
+            FileTransferCreatedEvent event
+                = new FileTransferCreatedEvent(incomingTransfer, new Date());
+
+            fileTransferOpSet.fireFileTransferCreated(event);
 
             jabberTransfer.recieveFile(file);
 
@@ -146,5 +158,14 @@ public class IncomingFileTransferRequestJabberImpl
     public void rejectFile()
     {
         fileTransferRequest.reject();
+    }
+
+    /**
+     * The unique id.
+     * @return the id.
+     */
+    public String getID()
+    {
+        return id;
     }
 }

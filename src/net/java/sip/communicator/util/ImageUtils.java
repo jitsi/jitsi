@@ -109,7 +109,12 @@ public class ImageUtils
     public static ImageIcon getScaledRoundedIcon(Image image, int width,
         int height)
     {
-        return new ImageIcon(getScaledRoundedImage(image, width, height));
+        Image scaledImage = getScaledRoundedImage(image, width, height);
+
+        if (scaledImage != null)
+            return new ImageIcon(scaledImage);
+
+        return null;
     }
 
     /**

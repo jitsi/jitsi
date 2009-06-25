@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
+import net.java.sip.communicator.service.filehistory.*;
 import net.java.sip.communicator.service.metahistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -218,15 +219,21 @@ public class MetaContactChatSession
             if(o instanceof MessageDeliveredEvent)
             {
                 MessageDeliveredEvent evt
-                    = (MessageDeliveredEvent)o;
+                    = (MessageDeliveredEvent) o;
 
                 startHistoryDate = evt.getTimestamp();
             }
             else if(o instanceof MessageReceivedEvent)
             {
-                MessageReceivedEvent evt = (MessageReceivedEvent)o;
+                MessageReceivedEvent evt = (MessageReceivedEvent) o;
 
                 startHistoryDate = evt.getTimestamp();
+            }
+            else if (o instanceof FileRecord)
+            {
+                FileRecord fileRecord = (FileRecord) o;
+
+                startHistoryDate = fileRecord.getDate();
             }
         }
 
@@ -264,15 +271,21 @@ public class MetaContactChatSession
             if(o1 instanceof MessageDeliveredEvent)
             {
                 MessageDeliveredEvent evt
-                    = (MessageDeliveredEvent)o1;
+                    = (MessageDeliveredEvent) o1;
 
                 endHistoryDate = evt.getTimestamp();
             }
             else if(o1 instanceof MessageReceivedEvent)
             {
-                MessageReceivedEvent evt = (MessageReceivedEvent)o1;
+                MessageReceivedEvent evt = (MessageReceivedEvent) o1;
 
                 endHistoryDate = evt.getTimestamp();
+            }
+            else if (o1 instanceof FileRecord)
+            {
+                FileRecord fileRecord = (FileRecord) o1;
+
+                endHistoryDate = fileRecord.getDate();
             }
         }
 

@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.chat.filetransfer;
 
 import java.awt.event.*;
 import java.io.*;
+import java.util.*;
 
 import javax.swing.*;
 
@@ -29,6 +30,10 @@ public class SendFileConversationComponent
 
     private final ChatPanel parentChatPanel;
 
+    private final Date date;
+
+    private final String dateString;
+
     /**
      * Creates a <tt>SendFileConversationComponent</tt> by specifying the parent
      * chat panel, where this component is added, the destination contact of
@@ -45,11 +50,17 @@ public class SendFileConversationComponent
         this.parentChatPanel = chatPanel;
         this.toContactName = toContactName;
 
+        // Create the date that would be shown in the component.
+        this.date = new Date();
+        this.dateString = getDateString(date);
+
         this.setCompletedDownloadFile(file);
 
-        titleLabel.setText(resources.getI18NString(
-            "service.gui.FILE_WAITING_TO_ACCEPT",
-            new String[]{toContactName}));
+        titleLabel.setText(
+            dateString
+            + resources.getI18NString(
+                "service.gui.FILE_WAITING_TO_ACCEPT",
+                    new String[]{toContactName}));
 
         fileLabel.setText(getFileName(file));
 
@@ -98,7 +109,9 @@ public class SendFileConversationComponent
         if (status == FileTransferStatusChangeEvent.PREPARING)
         {
             progressBar.setVisible(false);
-            titleLabel.setText(resources.getI18NString(
+            titleLabel.setText(
+                dateString
+                + resources.getI18NString(
                 "service.gui.FILE_TRANSFER_PREPARING",
                 new String[]{toContactName}));
             cancelButton.setVisible(true);
@@ -107,7 +120,9 @@ public class SendFileConversationComponent
         else if (status == FileTransferStatusChangeEvent.FAILED)
         {
             progressBar.setVisible(false);
-            titleLabel.setText(resources.getI18NString(
+            titleLabel.setText(
+                dateString
+                + resources.getI18NString(
                 "service.gui.FILE_UNABLE_TO_SEND",
                 new String[]{toContactName}));
             cancelButton.setVisible(false);
@@ -116,7 +131,9 @@ public class SendFileConversationComponent
         }
         else if (status == FileTransferStatusChangeEvent.IN_PROGRESS)
         {
-            titleLabel.setText(resources.getI18NString(
+            titleLabel.setText(
+                dateString
+                + resources.getI18NString(
                 "service.gui.FILE_SENDING_TO",
                 new String[]{toContactName}));
             setWarningStyle(false);
@@ -129,7 +146,9 @@ public class SendFileConversationComponent
         else if (status == FileTransferStatusChangeEvent.COMPLETED)
         {
             progressBar.setVisible(false);
-            titleLabel.setText(resources.getI18NString(
+            titleLabel.setText(
+                dateString
+                + resources.getI18NString(
                 "service.gui.FILE_SEND_COMPLETED",
                 new String[]{toContactName}));
             cancelButton.setVisible(false);
@@ -138,7 +157,9 @@ public class SendFileConversationComponent
         else if (status == FileTransferStatusChangeEvent.CANCELED)
         {
             progressBar.setVisible(false);
-            titleLabel.setText(resources.getI18NString(
+            titleLabel.setText(
+                dateString
+                + resources.getI18NString(
                 "service.gui.FILE_TRANSFER_CANCELED"));
             cancelButton.setVisible(false);
             retryButton.setVisible(true);
@@ -147,12 +168,24 @@ public class SendFileConversationComponent
         else if (status == FileTransferStatusChangeEvent.REFUSED)
         {
             progressBar.setVisible(false);
-            titleLabel.setText(resources.getI18NString(
+            titleLabel.setText(
+                dateString
+                + resources.getI18NString(
                 "service.gui.FILE_SEND_REFUSED",
                 new String[]{toContactName}));
             cancelButton.setVisible(false);
             retryButton.setVisible(true);
             setWarningStyle(true);
         }
+    }
+
+    /**
+     * Returns the date of the component event.
+     * 
+     * @return the date of the component event
+     */
+    public Date getDate()
+    {
+        return date;
     }
 }
