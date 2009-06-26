@@ -107,8 +107,12 @@ public class ChatPanel
 
     private boolean isHistoryLoaded;
 
-    private final ArrayList<String> activeFileTransfers
-        = new ArrayList<String>();
+    /**
+     * Stores all active  file transfer requests and effective transfers with
+     * the identifier of the transfer.
+     */
+    private final Hashtable<String, Object> activeFileTransfers
+        = new Hashtable<String, Object>();
 
     /**
      * Creates a <tt>ChatPanel</tt> which is added to the given chat window.
@@ -890,7 +894,7 @@ public class ChatPanel
                 final FileTransfer fileTransfer
                     = sendFileTransport.sendFile(file);
 
-                addActiveFileTransfer(fileTransfer.getID());
+                addActiveFileTransfer(fileTransfer.getID(), fileTransfer);
 
                 // Add the status listener that would notify us when the file
                 // transfer has been completed and should be removed from
@@ -1614,7 +1618,7 @@ public class ChatPanel
         IncomingFileTransferRequest request,
         Date date)
     {
-        this.addActiveFileTransfer(request.getID());
+        this.addActiveFileTransfer(request.getID(), request);
 
         ReceiveFileConversationComponent component
             = new ReceiveFileConversationComponent(this, request, date);
@@ -1847,6 +1851,29 @@ public class ChatPanel
     }
 
     /**
+     * Cancels all active file transfers.
+     */
+    public void cancelActiveFileTransfers()
+    {
+        Enumeration<String> activeKeys = activeFileTransfers.keys();
+
+        while (activeKeys.hasMoreElements())
+        {
+            String key = activeKeys.nextElement();
+            Object descriptor = activeFileTransfers.get(key);
+
+            if (descriptor instanceof IncomingFileTransferRequest)
+            {
+                ((IncomingFileTransferRequest) descriptor).rejectFile();
+            }
+            else if (descriptor instanceof FileTransfer)
+            {
+                ((FileTransfer) descriptor).cancel();
+            }
+        }
+    }
+
+    /**
      * Stores the current divider position.
      */
     private class DividerLocationListener implements PropertyChangeListener
@@ -1899,11 +1926,11 @@ public class ChatPanel
      * 
      * @param id the identifier of the file transfer to add
      */
-    private void addActiveFileTransfer(String id)
+    public void addActiveFileTransfer(String id, Object descriptor)
     {
         synchronized (activeFileTransfers)
         {
-            activeFileTransfers.add(id);
+            activeFileTransfers.put(id, descriptor);
         }
     }
 

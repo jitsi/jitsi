@@ -246,7 +246,11 @@ public class ChatWindowManager
                         JOptionPane.WARNING_MESSAGE);
 
                     if (answer == JOptionPane.OK_OPTION)
+                    {
+                        chatPanel.cancelActiveFileTransfers();
+
                         closeChatPanel(chatPanel);
+                    }
                 }
                 else
                 {
@@ -337,7 +341,14 @@ public class ChatWindowManager
                     JOptionPane.WARNING_MESSAGE);
 
                 if (answer == JOptionPane.OK_OPTION)
+                {
+                    for (ChatPanel chatPanel : chatPanels)
+                    {
+                        chatPanel.cancelActiveFileTransfers();
+                    }
+
                     this.disposeChatWindow(chatWindow);
+                }
             }
         }
     }

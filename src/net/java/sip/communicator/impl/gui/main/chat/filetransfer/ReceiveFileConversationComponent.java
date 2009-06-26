@@ -270,6 +270,8 @@ public class ReceiveFileConversationComponent
         {
             fileTransfer = fileTransferRequest.acceptFile(downloadFile);
 
+            chatPanel.addActiveFileTransfer(fileTransfer.getID(), fileTransfer);
+
             // Add the status listener that would notify us when the file
             // transfer has been completed and should be removed from
             // active components.
