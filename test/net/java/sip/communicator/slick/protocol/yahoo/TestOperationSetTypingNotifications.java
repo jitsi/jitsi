@@ -219,6 +219,9 @@ public class TestOperationSetTypingNotifications
         opSetBasicIM2.sendInstantMessage(contactToNotify,
                                          opSetBasicIM2.createMessage("pong"));
 
+        Object w = new Object();
+        synchronized(w){try {w.wait(500);}catch (Exception e) {}}
+
         opSetTypingNotifs2.sendTypingNotification(
             contactToNotify, OperationSetTypingNotifications.STATE_TYPING);
 

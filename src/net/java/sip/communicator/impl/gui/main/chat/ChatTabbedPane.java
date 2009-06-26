@@ -37,16 +37,15 @@ public class ChatTabbedPane
         if (tabIndex < 0)
             return;
 
-        String tabTitle = this.getTitleAt(tabIndex);
-        int bracketIndex = tabTitle.indexOf(")");
-
-        if (bracketIndex > - 1)
-            // We count the extra space after the bracket. 
-            tabTitle = tabTitle.substring(bracketIndex + 2);
-
-        this.setTitleAt(tabIndex, tabTitle);
-
         ChatPanel chatPanel = (ChatPanel) this.getComponentAt(tabIndex);
+        int unreadMessageNumber = chatPanel.unreadMessageNumber;
+
+        if (unreadMessageNumber > 0)
+        {
+            String tabTitle = chatPanel.getChatSession().getChatName();
+            this.setTitleAt(tabIndex, tabTitle);
+        }
+
         chatPanel.unreadMessageNumber = 0;
 
         super.setSelectedIndex(tabIndex);
@@ -60,13 +59,10 @@ public class ChatTabbedPane
      */
     public void highlightTab(int tabIndex, int unreadMessageNumber)
     {
-        String tabTitle = this.getTitleAt(tabIndex);
-        int bracketIndex = tabTitle.indexOf(")");
+        ChatPanel chatPanel = (ChatPanel) this.getComponentAt(tabIndex);
+        String tabTitle = chatPanel.getChatSession().getChatName();
 
-        if (bracketIndex > - 1)
-            tabTitle = "(" + unreadMessageNumber + ")"
-                        + tabTitle.substring(bracketIndex + 1);
-        else
+        if (unreadMessageNumber > 0)
             tabTitle = "(" + unreadMessageNumber + ") " + tabTitle;
 
         this.setTitleAt(tabIndex, tabTitle);
