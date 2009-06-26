@@ -14,6 +14,7 @@ Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.msghistory,
  net.java.sip.communicator.service.msghistory.event,
  net.java.sip.communicator.service.callhistory,
+ net.java.sip.communicator.service.callhistory.event,
  net.java.sip.communicator.service.filehistory,
  net.java.sip.communicator.service.contactlist
 Export-Package: net.java.sip.communicator.service.metahistory

@@ -16,10 +16,11 @@ import net.java.sip.communicator.service.filehistory.*;
 import net.java.sip.communicator.service.metahistory.*;
 import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.history.event.*;
-import net.java.sip.communicator.service.msghistory.event.MessageHistorySearchProgressListener;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.service.msghistory.event.MessageHistorySearchProgressListener;
+import net.java.sip.communicator.service.callhistory.event.CallHistorySearchProgressListener;
 
 /**
  * The Meta History Service is wrapper around the other known
@@ -66,6 +67,9 @@ public class MetaHistoryServiceImpl
             Object descriptor, Date startDate)
         throws RuntimeException
     {
+        MessageProgressWrapper listenWrapper =
+            new MessageProgressWrapper(progressListeners, services.length);
+
         TreeSet result = new TreeSet(new RecordsComparator());
         for (int i = 0; i < services.length; i++)
         {
@@ -75,7 +79,9 @@ public class MetaHistoryServiceImpl
             {
                 MessageHistoryService mhs =
                     (MessageHistoryService)serv;
-//                mhs.addSearchProgressListener(listener);
+                listenWrapper.setIx(i);
+                mhs.addSearchProgressListener(listenWrapper);
+
                 if(descriptor instanceof MetaContact)
                 {
                     result.addAll(
@@ -86,7 +92,7 @@ public class MetaHistoryServiceImpl
                     result.addAll(
                         mhs.findByStartDate((ChatRoom)descriptor, startDate));
                 }
-//                mhs.removeSearchProgressListener(listener);
+                mhs.removeSearchProgressListener(listenWrapper);
             }
             else if(serv instanceof FileHistoryService
                     && descriptor instanceof MetaContact)
@@ -98,11 +104,13 @@ public class MetaHistoryServiceImpl
             else if(serv instanceof CallHistoryService)
             {
                 CallHistoryService chs = (CallHistoryService)serv;
-//                chs.addSearchProgressListener(listener)
+                listenWrapper.setIx(i);
+                chs.addSearchProgressListener(listenWrapper);
                 result.addAll(chs.findByStartDate(startDate));
-//                chs.removeSearchProgressListener(listener)
+                chs.removeSearchProgressListener(listenWrapper);
             }
         }
+        listenWrapper.fireLastProgress(startDate, null, null);
 
         return result;
     }
@@ -122,6 +130,9 @@ public class MetaHistoryServiceImpl
             Object descriptor, Date endDate)
         throws RuntimeException
     {
+        MessageProgressWrapper listenWrapper =
+            new MessageProgressWrapper(progressListeners, services.length);
+
         TreeSet result = new TreeSet(new RecordsComparator());
         for (int i = 0; i < services.length; i++)
         {
@@ -131,6 +142,8 @@ public class MetaHistoryServiceImpl
             {
                 MessageHistoryService mhs =
                     (MessageHistoryService)serv;
+                listenWrapper.setIx(i);
+                mhs.addSearchProgressListener(listenWrapper);
 
                 if(descriptor instanceof MetaContact)
                 {
@@ -142,6 +155,7 @@ public class MetaHistoryServiceImpl
                     result.addAll(
                         mhs.findByEndDate((ChatRoom)descriptor, endDate));
                 }
+                mhs.removeSearchProgressListener(listenWrapper);
             }
             else if(serv instanceof FileHistoryService
                     && descriptor instanceof MetaContact)
@@ -152,10 +166,15 @@ public class MetaHistoryServiceImpl
             }
             else if(serv instanceof CallHistoryService)
             {
+                CallHistoryService chs = (CallHistoryService)serv;
+                listenWrapper.setIx(i);
+                chs.addSearchProgressListener(listenWrapper);
                 result.addAll(
-                    ((CallHistoryService)serv).findByEndDate(endDate));
+                    chs.findByEndDate(endDate));
+                chs.removeSearchProgressListener(listenWrapper);
             }
         }
+        listenWrapper.fireLastProgress(null, endDate, null);
 
         return result;
     }
@@ -176,6 +195,9 @@ public class MetaHistoryServiceImpl
             Object descriptor, Date startDate, Date endDate)
         throws RuntimeException
     {
+        MessageProgressWrapper listenWrapper =
+            new MessageProgressWrapper(progressListeners, services.length);
+
         TreeSet result = new TreeSet(new RecordsComparator());
         for (int i = 0; i < services.length; i++)
         {
@@ -185,6 +207,8 @@ public class MetaHistoryServiceImpl
             {
                 MessageHistoryService mhs =
                     (MessageHistoryService)serv;
+                listenWrapper.setIx(i);
+                mhs.addSearchProgressListener(listenWrapper);
 
                 if(descriptor instanceof MetaContact)
                 {
@@ -198,6 +222,7 @@ public class MetaHistoryServiceImpl
                         mhs.findByPeriod(
                             (ChatRoom)descriptor, startDate, endDate));
                 }
+                mhs.removeSearchProgressListener(listenWrapper);
             }
             else if(serv instanceof FileHistoryService
                     && descriptor instanceof MetaContact)
@@ -208,10 +233,15 @@ public class MetaHistoryServiceImpl
             }
             else if(serv instanceof CallHistoryService)
             {
+                CallHistoryService chs = (CallHistoryService)serv;
+                listenWrapper.setIx(i);
+                chs.addSearchProgressListener(listenWrapper);
                 result.addAll(
-                    ((CallHistoryService)serv).findByPeriod(startDate, endDate));
+                    chs.findByPeriod(startDate, endDate));
+                chs.removeSearchProgressListener(listenWrapper);
             }
         }
+        listenWrapper.fireLastProgress(startDate, endDate, null);
 
         return result;
     }
@@ -257,6 +287,9 @@ public class MetaHistoryServiceImpl
             String[] keywords, boolean caseSensitive)
         throws RuntimeException
     {
+        MessageProgressWrapper listenWrapper =
+            new MessageProgressWrapper(progressListeners, services.length);
+
         TreeSet result = new TreeSet(new RecordsComparator());
         for (int i = 0; i < services.length; i++)
         {
@@ -266,6 +299,8 @@ public class MetaHistoryServiceImpl
             {
                 MessageHistoryService mhs =
                     (MessageHistoryService)serv;
+                listenWrapper.setIx(i);
+                mhs.addSearchProgressListener(listenWrapper);
 
                 if(descriptor instanceof MetaContact)
                 {
@@ -283,6 +318,7 @@ public class MetaHistoryServiceImpl
                             startDate, endDate,
                             keywords, caseSensitive));
                 }
+                mhs.removeSearchProgressListener(listenWrapper);
             }
             else if(serv instanceof FileHistoryService
                     && descriptor instanceof MetaContact)
@@ -295,8 +331,11 @@ public class MetaHistoryServiceImpl
             }
             else if(serv instanceof CallHistoryService)
             {
+                CallHistoryService chs = (CallHistoryService)serv;
+                listenWrapper.setIx(i);
+                chs.addSearchProgressListener(listenWrapper);
                 Collection<CallRecord> cs =
-                    ((CallHistoryService)serv).findByPeriod(startDate, endDate);
+                    chs.findByPeriod(startDate, endDate);
 
                 Iterator<CallRecord> iter = cs.iterator();
                 while (iter.hasNext())
@@ -307,8 +346,10 @@ public class MetaHistoryServiceImpl
                             callRecord.getParticipantRecords(), keywords, caseSensitive))
                         result.add(callRecord);
                 }
+                chs.removeSearchProgressListener(listenWrapper);
             }
         }
+        listenWrapper.fireLastProgress(startDate, endDate, keywords);
 
         return result;
     }
@@ -385,6 +426,9 @@ public class MetaHistoryServiceImpl
             Object descriptor, String[] keywords, boolean caseSensitive)
         throws RuntimeException
     {
+        MessageProgressWrapper listenWrapper =
+            new MessageProgressWrapper(progressListeners, services.length);
+
         TreeSet result = new TreeSet(new RecordsComparator());
         for (int i = 0; i < services.length; i++)
         {
@@ -394,6 +438,8 @@ public class MetaHistoryServiceImpl
             {
                 MessageHistoryService mhs =
                     (MessageHistoryService)serv;
+                listenWrapper.setIx(i);
+                mhs.addSearchProgressListener(listenWrapper);
 
                 if(descriptor instanceof MetaContact)
                 {
@@ -408,6 +454,7 @@ public class MetaHistoryServiceImpl
                             (ChatRoom)descriptor,
                             keywords, caseSensitive));
                 }
+                mhs.removeSearchProgressListener(listenWrapper);
             }
             else if(serv instanceof FileHistoryService
                     && descriptor instanceof MetaContact)
@@ -419,9 +466,13 @@ public class MetaHistoryServiceImpl
             }
             else if(serv instanceof CallHistoryService)
             {
+                CallHistoryService chs = (CallHistoryService)serv;
+                listenWrapper.setIx(i);
+                chs.addSearchProgressListener(listenWrapper);
+
                 // this will get all call records
                 Collection<CallRecord> cs =
-                    ((CallHistoryService)serv).findByEndDate(new Date());
+                    chs.findByEndDate(new Date());
 
                 Iterator<CallRecord> iter = cs.iterator();
                 while (iter.hasNext())
@@ -432,8 +483,10 @@ public class MetaHistoryServiceImpl
                             callRecord.getParticipantRecords(), keywords, caseSensitive))
                         result.add(callRecord);
                 }
+                chs.removeSearchProgressListener(listenWrapper);
             }
         }
+        listenWrapper.fireLastProgress(null, null, keywords);
 
         return result;
     }
@@ -453,6 +506,9 @@ public class MetaHistoryServiceImpl
             Object descriptor, int count)
         throws RuntimeException
     {
+        MessageProgressWrapper listenWrapper =
+            new MessageProgressWrapper(progressListeners, services.length);
+
         TreeSet result = new TreeSet(new RecordsComparator());
         for (int i = 0; i < services.length; i++)
         {
@@ -462,6 +518,8 @@ public class MetaHistoryServiceImpl
             {
                 MessageHistoryService mhs =
                     (MessageHistoryService)serv;
+                listenWrapper.setIx(i);
+                mhs.addSearchProgressListener(listenWrapper);
 
                 if(descriptor instanceof MetaContact)
                 {
@@ -477,6 +535,7 @@ public class MetaHistoryServiceImpl
                             (ChatRoom)descriptor,
                             count));
                 }
+                mhs.removeSearchProgressListener(listenWrapper);
             }
             else if(serv instanceof FileHistoryService
                     && descriptor instanceof MetaContact)
@@ -488,10 +547,15 @@ public class MetaHistoryServiceImpl
             }
             else if(serv instanceof CallHistoryService)
             {
+                CallHistoryService chs = (CallHistoryService)serv;
+                listenWrapper.setIx(i);
+                chs.addSearchProgressListener(listenWrapper);
                 result.addAll(
-                    ((CallHistoryService)serv).findLast(count));
+                    chs.findLast(count));
+                chs.removeSearchProgressListener(listenWrapper);
             }
         }
+        listenWrapper.fireLastProgress(null, null, null);
 
         return result;
     }
@@ -512,6 +576,9 @@ public class MetaHistoryServiceImpl
             Object descriptor, Date date, int count)
         throws RuntimeException
     {
+        MessageProgressWrapper listenWrapper =
+            new MessageProgressWrapper(progressListeners, services.length);
+
         TreeSet result = new TreeSet(new RecordsComparator());
         for (int i = 0; i < services.length; i++)
         {
@@ -521,6 +588,8 @@ public class MetaHistoryServiceImpl
             {
                 MessageHistoryService mhs =
                     (MessageHistoryService)serv;
+                listenWrapper.setIx(i);
+                mhs.addSearchProgressListener(listenWrapper);
 
                 if(descriptor instanceof MetaContact)
                 {
@@ -538,6 +607,7 @@ public class MetaHistoryServiceImpl
                             date,
                             count));
                 }
+                mhs.removeSearchProgressListener(listenWrapper);
             }
             else if(serv instanceof FileHistoryService
                     && descriptor instanceof MetaContact)
@@ -550,7 +620,11 @@ public class MetaHistoryServiceImpl
             }
             else if(serv instanceof CallHistoryService)
             {
-                Collection col = ((CallHistoryService)serv).findByStartDate(date);
+                CallHistoryService chs = (CallHistoryService)serv;
+                listenWrapper.setIx(i);
+                chs.addSearchProgressListener(listenWrapper);
+
+                Collection col = chs.findByStartDate(date);
                 if(col.size() > count)
                 {
                     List l = new LinkedList(col);
@@ -558,8 +632,10 @@ public class MetaHistoryServiceImpl
                 }
                 else
                     result.addAll(col);
+                chs.removeSearchProgressListener(listenWrapper);
             }
         }
+        listenWrapper.fireLastProgress(date, null, null);
 
         return result;
     }
@@ -580,6 +656,9 @@ public class MetaHistoryServiceImpl
             Object descriptor, Date date, int count)
         throws RuntimeException
     {
+        MessageProgressWrapper listenWrapper =
+            new MessageProgressWrapper(progressListeners, services.length);
+
         TreeSet result = new TreeSet(new RecordsComparator());
         for (int i = 0; i < services.length; i++)
         {
@@ -589,6 +668,8 @@ public class MetaHistoryServiceImpl
             {
                 MessageHistoryService mhs =
                     (MessageHistoryService)serv;
+                listenWrapper.setIx(i);
+                mhs.addSearchProgressListener(listenWrapper);
 
                 if(descriptor instanceof MetaContact)
                 {
@@ -606,6 +687,7 @@ public class MetaHistoryServiceImpl
                             date,
                             count));
                 }
+                mhs.removeSearchProgressListener(listenWrapper);
             }
             else if(serv instanceof FileHistoryService
                     && descriptor instanceof MetaContact)
@@ -618,7 +700,11 @@ public class MetaHistoryServiceImpl
             }
             else if(serv instanceof CallHistoryService)
             {
-                Collection col = ((CallHistoryService)serv).findByEndDate(date);
+                CallHistoryService chs = (CallHistoryService)serv;
+                listenWrapper.setIx(i);
+                chs.addSearchProgressListener(listenWrapper);
+
+                Collection col = chs.findByEndDate(date);
                 if(col.size() > count)
                 {
                     List l = new LinkedList(col);
@@ -626,8 +712,10 @@ public class MetaHistoryServiceImpl
                 }
                 else
                     result.addAll(col);
+                chs.removeSearchProgressListener(listenWrapper);
             }
         }
+        listenWrapper.fireLastProgress(date, null, null);
 
         return result;
     }
@@ -767,7 +855,8 @@ public class MetaHistoryServiceImpl
     }
 
     private class MessageProgressWrapper
-        implements MessageHistorySearchProgressListener
+        implements MessageHistorySearchProgressListener,
+        CallHistorySearchProgressListener
     {
         ArrayList<HistorySearchProgressListener> pListeners;
         int ix;
@@ -775,24 +864,83 @@ public class MetaHistoryServiceImpl
 
         MessageProgressWrapper(
             ArrayList<HistorySearchProgressListener> progressListeners,
-            int ix, int count)
+            int count)
         {
             this.pListeners = progressListeners;
-            this.ix = ix;
             this.count = count;
+        }
+
+        public void setIx(int ix)
+        {
+            this.ix = ix;
+        }
+
+        private void fireProgress(int origProgress, int maxVal,
+            Date startDate, Date endDate, String[] keywords)
+        {
+            ProgressEvent ev = new ProgressEvent(
+                MetaHistoryServiceImpl.this,
+                startDate,
+                endDate,
+                keywords);
+
+            double part1 = (double)origProgress/
+                ((double)maxVal*count);
+            double convProgress =
+                part1*HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE +
+                ix*HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE/count;
+
+            ev.setProgress((int)convProgress);
+
+            fireEvent(ev);
+        }
+
+        private void fireEvent(ProgressEvent ev)
+        {
+            Iterator<HistorySearchProgressListener> iter = null;
+            synchronized(progressListeners)
+            {
+                iter = new ArrayList(progressListeners).iterator();
+            }
+            while (iter.hasNext())
+            {
+                HistorySearchProgressListener hSearchProgListener = iter.next();
+                hSearchProgListener.progressChanged(ev);
+            }
+        }
+
+        public void fireLastProgress(
+            Date startDate, Date endDate, String[] keywords)
+        {
+            ProgressEvent ev = new ProgressEvent(
+                MetaHistoryServiceImpl.this,
+                startDate,
+                endDate,
+                keywords);
+            ev.setProgress(HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE);
+
+            fireEvent(ev);
         }
 
         public void progressChanged(
             net.java.sip.communicator.service.msghistory.event.ProgressEvent evt)
         {
-            ProgressEvent ev = new ProgressEvent(
-                MetaHistoryServiceImpl.this,
+            fireProgress(
+                evt.getProgress(),
+                MessageHistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE,
                 evt.getStartDate(),
                 evt.getEndDate(),
                 evt.getKeywords());
+        }
 
-//            ev.setProgress(count);
+        public void progressChanged(net.java.sip.communicator.service.callhistory.event.ProgressEvent evt)
+        {
+            fireProgress(
+                evt.getProgress(),
+                CallHistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE,
+                evt.getStartDate(),
+                evt.getEndDate(),
+                null);
         }
     }
-
 }
