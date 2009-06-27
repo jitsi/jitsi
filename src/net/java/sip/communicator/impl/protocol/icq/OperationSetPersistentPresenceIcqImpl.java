@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.icq;
 
-import java.beans.PropertyChangeEvent;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
