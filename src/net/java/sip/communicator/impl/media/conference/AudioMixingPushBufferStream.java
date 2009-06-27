@@ -12,6 +12,8 @@ import javax.media.*;
 import javax.media.format.*;
 import javax.media.protocol.*;
 
+import net.java.sip.communicator.impl.media.*;
+
 /**
  * Represents a <code>PushBufferStream</code> containing the result of the audio
  * mixing of <code>DataSource</code>s.
@@ -274,7 +276,7 @@ public class AudioMixingPushBufferStream
             case 16:
                 outputData = new byte[outputSamples.length * 2];
                 for (int i = 0; i < outputSamples.length; i++)
-                    writeShort(outputSamples[i], outputData, i * 2);
+                    ArrayIOUtils.writeInt16(outputSamples[i], outputData, i * 2);
                 break;
             case 32:
                 outputData = new byte[outputSamples.length * 4];
@@ -360,25 +362,5 @@ public class AudioMixingPushBufferStream
         output[outputOffset + 1] = (byte) ((input >>> 8) & 0xFF);
         output[outputOffset + 2] = (byte) ((input >>> 16) & 0xFF);
         output[outputOffset + 3] = (byte) (input >> 24);
-    }
-
-    /**
-     * Converts a short integer to a series of bytes and writes the result into
-     * a specific output array of bytes starting the writing at a specific
-     * offset in it.
-     * 
-     * @param input the short integer to be written out as a series of bytes
-     *            specified as an integer i.e. the value to be converted is
-     *            contained in only two of the four bytes made available by the
-     *            integer
-     * @param output the output to receive the conversion of the specified
-     *            short integer to a series of bytes
-     * @param outputOffset the offset in <code>output</code> at which the
-     *            writing of the result of the conversion is to be started
-     */
-    private static void writeShort(int input, byte[] output, int outputOffset)
-    {
-        output[outputOffset] = (byte) (input & 0xFF);
-        output[outputOffset + 1] = (byte) (input >> 8);
     }
 }

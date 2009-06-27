@@ -63,10 +63,9 @@ public class EncodingConfiguration
         Integer.toString(SdpConstants.PCMA),
         Integer.toString(110),
         // javax.media.format.AudioFormat.G728_RTP;
-        Integer.toString(SdpConstants.G728)
+        Integer.toString(SdpConstants.G728),
         // javax.media.format.AudioFormat.G729_RTP
-        // g729 is not suppported by JMF
-        // Integer.toString(SdpConstants.G729)
+        Integer.toString(SdpConstants.G729)
     };
 
     private final Set<String> supportedVideoEncodings =
@@ -85,16 +84,28 @@ public class EncodingConfiguration
     private final Map<String, Integer> encodingPreferences =
         new Hashtable<String, Integer>();
 
+    /**
+     * The indicator which determines whether the G.729 codec is enabled.
+     * 
+     * WARNING: The use of G.729 may require a license fee and/or royalty fee in
+     * some countries and is licensed by
+     * <a href="http://www.sipro.com">SIPRO Lab Telecom</a>.
+     */
+    private static final boolean G729 = false;
+
     private static final String[] CUSTOM_CODECS =
-        new String[]
         {
-            FMJConditionals.FMJ_CODECS ? "net.sf.fmj.media.codec.audio.alaw.Encoder"
+            FMJConditionals.FMJ_CODECS
+                ? "net.sf.fmj.media.codec.audio.alaw.Encoder"
                 : "net.java.sip.communicator.impl.media.codec.audio.alaw.JavaEncoder",
-            FMJConditionals.FMJ_CODECS ? "net.sf.fmj.media.codec.audio.alaw.DePacketizer"
+            FMJConditionals.FMJ_CODECS
+                ? "net.sf.fmj.media.codec.audio.alaw.DePacketizer"
                 : "net.java.sip.communicator.impl.media.codec.audio.alaw.DePacketizer",
-            FMJConditionals.FMJ_CODECS ? "net.sf.fmj.media.codec.audio.alaw.Packetizer"
+            FMJConditionals.FMJ_CODECS
+                ? "net.sf.fmj.media.codec.audio.alaw.Packetizer"
                 : "net.java.sip.communicator.impl.media.codec.audio.alaw.Packetizer",
-            FMJConditionals.FMJ_CODECS ? "net.sf.fmj.media.codec.audio.ulaw.Packetizer"
+            FMJConditionals.FMJ_CODECS
+                ? "net.sf.fmj.media.codec.audio.ulaw.Packetizer"
                 : "net.java.sip.communicator.impl.media.codec.audio.ulaw.Packetizer",
             "net.java.sip.communicator.impl.media.codec.video.h264.JNIEncoder",
             "net.java.sip.communicator.impl.media.codec.video.h264.Packetizer",
@@ -103,12 +114,19 @@ public class EncodingConfiguration
             "net.java.sip.communicator.impl.media.codec.audio.speex.JavaEncoder",
             "net.java.sip.communicator.impl.media.codec.audio.speex.JavaDecoder",
             "net.java.sip.communicator.impl.media.codec.audio.ilbc.JavaEncoder",
-            "net.java.sip.communicator.impl.media.codec.audio.ilbc.JavaDecoder" };
+            "net.java.sip.communicator.impl.media.codec.audio.ilbc.JavaDecoder",
+            G729
+                ? "net.java.sip.communicator.impl.media.codec.audio.g729.JavaEncoder"
+                : null,
+            G729
+                ? "net.java.sip.communicator.impl.media.codec.audio.g729.JavaDecoder"
+                : null
+        };
 
     /**
      * Custom Packages provided by Sip-Communicator
      */
-    private static final String[] customPackages = new String[]
+    private static final String[] CUSTOM_PACKAGES = new String[]
     { // datasource for low latency ALSA input
         "net.java.sip.communicator.impl", "net.sf.fmj" };
 
@@ -143,6 +161,8 @@ public class EncodingConfiguration
         setEncodingPreference(SdpConstants.DVI4_16000, 250);
         setEncodingPreference(SdpConstants.G723, 150);
         setEncodingPreference(SdpConstants.G728, 100);
+        if (G729)
+            setEncodingPreference(SdpConstants.G729, 50);
 
         // now override with those that are specified by the user.
         ConfigurationService confService =
@@ -264,7 +284,15 @@ public class EncodingConfiguration
 
     public int getPriority(String encoding)
     {
-        return encodingPreferences.get(encoding);
+
+        /*
+         * Directly returning encodingPreference.get(encoding) will throw a
+         * NullPointerException if encodingPreferences does not contain a
+         * mapping for encoding.
+         */
+        Integer priority = encodingPreferences.get(encoding);
+
+        return (priority == null) ? 0 : priority;
     }
 
     /**
@@ -279,6 +307,14 @@ public class EncodingConfiguration
 
         for (String className : CUSTOM_CODECS)
         {
+
+            /*
+             * A codec with a className of null is configured at compile time to
+             * not be registered.
+             */
+            if (className == null)
+                continue;
+
             if (registeredPlugins.contains(className))
             {
                 logger.debug("Codec : " + className + " is already registered");
@@ -352,7 +388,7 @@ public class EncodingConfiguration
         Vector<String> currentPackagePrefix =
             PackageManager.getProtocolPrefixList();
 
-        for (String className : customPackages)
+        for (String className : CUSTOM_PACKAGES)
         {
             // linear search in a loop, but it doesn't have to scale since the
             // list is always short

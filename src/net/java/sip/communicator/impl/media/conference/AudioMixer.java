@@ -618,26 +618,6 @@ public class AudioMixer
     }
 
     /**
-     * Reads a short integer from a specific series of bytes starting the
-     * reading at a specific offset in it.
-     * 
-     * @param input
-     *            the series of bytes to read the short integer from
-     * @param inputOffset
-     *            the offset in <code>input</code> at which the reading of the
-     *            short integer is to start
-     * @return a short integer in the form of
-     *         <tt>int</code> read from the specified series of bytes starting at the specified offset in it
-     */
-    private static int readShort(byte[] input, int inputOffset)
-    {
-        return
-            (short)
-                ((input[inputOffset + 1] << 8)
-                    | (input[inputOffset] & 0x00FF));
-    }
-
-    /**
      * Sets a specific <code>AudioFormat</code>, if possible, as the output
      * format of the input <code>DataSource</code>s of this
      * <code>AudioMixer</code> in an attempt to not have to perform explicit
@@ -991,7 +971,7 @@ public class AudioMixer
                     outputSamples = new int[inputSamples.length / 2];
                     for (int i = 0; i < outputSamples.length; i++)
                     {
-                        int sample = readShort(inputSamples, i * 2);
+                        int sample = ArrayIOUtils.readInt16(inputSamples, i * 2);
         
                         switch (outputSampleSizeInBits)
                         {
