@@ -1234,10 +1234,26 @@ public class CallSessionImpl
                                     , MediaException.INTERNAL_ERROR
                                     , exc);
         }
-
         //add the RTP targets
         initStreamTargets(sdp.getConnection(), mediaDescriptions);
 
+
+        /*
+         * The media descriptions of the offer may list encodings which are not
+         * in our answer i.e. we may end up streaming in an encoding disabled by
+         * the user in the Media configuration form.
+         */
+        try
+        {
+            mediaDescriptions = sdpAnswer.getMediaDescriptions(true);
+        }
+        catch (SdpException exc)
+        {
+            logger.error("failed to extract media descriptions", exc);
+            throw new MediaException("failed to extract media descriptions"
+                                    , MediaException.INTERNAL_ERROR
+                                    , exc);
+        }
         //create and init the streams (don't start streaming just yet but wait
         //for the call to enter the connected state).
         createSendStreams(mediaDescriptions);
