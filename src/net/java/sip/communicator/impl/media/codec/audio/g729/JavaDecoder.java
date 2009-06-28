@@ -131,13 +131,12 @@ public class JavaDecoder
 
         decoder.process(serial, sp16);
 
-        int outputOffset = outputBuffer.getOffset();
         byte[] output
             = validateByteArraySize(
                     outputBuffer,
-                    outputOffset + OUTPUT_FRAME_SIZE_IN_BYTES);
+                    outputBuffer.getOffset() + OUTPUT_FRAME_SIZE_IN_BYTES);
 
-        writeShorts(sp16, output, outputOffset);
+        writeShorts(sp16, output, outputBuffer.getOffset());
         outputBuffer.setLength(OUTPUT_FRAME_SIZE_IN_BYTES);
 
         int processResult = BUFFER_PROCESSED_OK;
@@ -152,7 +151,7 @@ public class JavaDecoder
         byte[] output,
         int outputOffset)
     {
-        for (int i = 0; i < input.length; i++)
-            ArrayIOUtils.writeShort(input[i], output, outputOffset + i * 2);
+        for (int i=0, o=outputOffset; i<input.length; i++, o+=2)
+            ArrayIOUtils.writeShort(input[i], output, o);
     }
 }

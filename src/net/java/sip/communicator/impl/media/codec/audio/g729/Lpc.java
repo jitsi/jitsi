@@ -179,9 +179,11 @@ static void az_lsp(
 
  f1[0] = 1.0f;
  f2[0] = 1.0f;
- for (i=1, j=M; i<=NC; i++, j--){
-    f1[i] = a[a_offset + i]+a[a_offset + j]-f1[i-1];
-    f2[i] = a[a_offset + i]-a[a_offset + j]+f2[i-1];
+ for (i=1, j=a_offset+M; i<=NC; i++, j--){
+    float ai = a[a_offset + i];
+    float aj = a[j];
+    f1[i] = ai+aj-f1[i-1];
+    f2[i] = ai-aj+f2[i-1];
  }
 
  /*---------------------------------------------------------------------*

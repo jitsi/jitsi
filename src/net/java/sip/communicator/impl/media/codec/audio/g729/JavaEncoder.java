@@ -34,8 +34,18 @@ public class JavaEncoder
 
     private int outputFrameCount;
 
+    /**
+     * The previous input if it was less than the input frame size and which is
+     * to be prepended to the next input in order to form a complete input
+     * frame.
+     */
     private byte[] prevInput;
 
+    /**
+     * The length of the previous input if it was less than the input frame size
+     * and which is to be prepended to the next input in order to form a
+     * complete input frame.
+     */
     private int prevInputLength;
 
     private short[] serial;
@@ -155,16 +165,16 @@ public class JavaEncoder
 
         coder.process(sp16, serial);
 
-        int outputOffset = outputBuffer.getOffset();
         byte[] output
             = validateByteArraySize(
                     outputBuffer,
-                    outputOffset + 2 * OUTPUT_FRAME_SIZE_IN_BYTES);
+                    outputBuffer.getOffset() + 2 * OUTPUT_FRAME_SIZE_IN_BYTES);
 
         packetize(
             serial,
             output,
-            outputOffset + OUTPUT_FRAME_SIZE_IN_BYTES * outputFrameCount);
+            outputBuffer.getOffset()
+                + OUTPUT_FRAME_SIZE_IN_BYTES * outputFrameCount);
         outputBuffer.setLength(
             outputBuffer.getLength() + OUTPUT_FRAME_SIZE_IN_BYTES);
 
@@ -213,8 +223,8 @@ public class JavaEncoder
         int outputOffset,
         int outputLength)
     {
-        for (int i = 0; i < outputLength; i++)
-            output[outputOffset + i] = ArrayIOUtils.readShort(input, inputOffset + i * 2);
+        for (int o=outputOffset, i=inputOffset; o<outputLength; o++, i+=2)
+            output[o] = ArrayIOUtils.readShort(input, i);
         return outputLength;
     }
 }
