@@ -46,19 +46,8 @@ public class AutoAwayConfigurationPanel
      */
     private Component init()
     {
-        JPanel autoStatusPanel = new TransparentPanel(new BorderLayout());
-
-        // Title : automatic status
-        JLabel autoStatusLabel 
-            = new JLabel(AutoAwayActivator.getResources()
-                    .getI18NString("plugin.autoaway.AUTO_STATUS"));
-
-
-        Font bold = autoStatusLabel.getFont().deriveFont(Font.BOLD);
-        autoStatusLabel.setFont(bold);
-
         JPanel fieldsPanel = new TransparentPanel(new BorderLayout(5, 5));
-        fieldsPanel.setBorder(BorderFactory.createEmptyBorder(10, 30, 0, 0));
+        fieldsPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         enable = new SIPCommCheckBox(AutoAwayActivator.getResources()
                 .getI18NString("plugin.autoaway.ENABLE_CHANGE_STATUS"));
@@ -74,10 +63,9 @@ public class AutoAwayConfigurationPanel
             }
         });
 
-
         JPanel timerPanel =
             new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
-        // Texte
+        // Text
         timerPanel.add(new JLabel(
                 AutoAwayActivator.getResources()
                     .getI18NString("plugin.autoaway.AWAY_MINUTES")));
@@ -94,11 +82,9 @@ public class AutoAwayConfigurationPanel
         });
 
         fieldsPanel.add(timerPanel, BorderLayout.WEST);
-        autoStatusPanel.add(autoStatusLabel, BorderLayout.NORTH);
-        autoStatusPanel.add(fieldsPanel, BorderLayout.CENTER);
 
         Container mainPanel = new TransparentPanel(new BorderLayout());
-        mainPanel.add(autoStatusPanel, BorderLayout.NORTH);
+        mainPanel.add(fieldsPanel, BorderLayout.NORTH);
         return mainPanel;
     }
 

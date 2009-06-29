@@ -79,6 +79,12 @@ public class ManageButtonsPanel
         this.showSysBundlesCheckBox
             .addChangeListener(new ShowSystemBundlesChangeListener());
 
+        this.newButton.setOpaque(false);
+        this.activateButton.setOpaque(false);
+        this.deactivateButton.setOpaque(false);
+        this.uninstallButton.setOpaque(false);
+        this.updateButton.setOpaque(false);
+        
         this.buttonsPanel.add(newButton);
         this.buttonsPanel.add(activateButton);
         this.buttonsPanel.add(deactivateButton);

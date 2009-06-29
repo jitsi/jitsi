@@ -60,6 +60,7 @@ public class NewBundleDialog
         this.installButton.addActionListener(this);
         this.cancelButton.addActionListener(this);
         this.fileChooserButton.addActionListener(this);
+        this.fileChooserButton.setOpaque(false);
 
         this.dataPanel.add(bundlePathLabel, BorderLayout.WEST);
 

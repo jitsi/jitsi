@@ -52,7 +52,7 @@ public class NotificationConfigurationPanel
             "Description of event" };
 
     private JButton activate;
-    private JButton desactivate;
+    private JButton deactivate;
     private JCheckBox playSoundCheckBox;
     private JButton playSoundButton;
     private JTextField soundFileTextField;
@@ -134,12 +134,14 @@ public class NotificationConfigurationPanel
         activate = new JButton(Resources.getString("service.gui.ACTIVATE"));
         activate.setMinimumSize(new Dimension(150,30));
         activate.setPreferredSize(new Dimension(150,30));
+        activate.setOpaque(false);
         activate.addActionListener(this);
-        desactivate = new JButton(
+        deactivate = new JButton(
             Resources.getString("service.gui.DEACTIVATE"));
-        desactivate.setMinimumSize(new Dimension(150,30));
-        desactivate.setPreferredSize(new Dimension(150,30));
-        desactivate.addActionListener(this);
+        deactivate.setMinimumSize(new Dimension(150,30));
+        deactivate.setPreferredSize(new Dimension(150,30));
+        deactivate.setOpaque(false);
+        deactivate.addActionListener(this);
 
         playSoundCheckBox = new SIPCommCheckBox(
             Resources.getString("plugin.notificationconfig.PLAY_SOUND"));
@@ -150,6 +152,7 @@ public class NotificationConfigurationPanel
                     "plugin.notificationconfig.PLAY_ICON")));
         playSoundButton.setMinimumSize(new Dimension(50,30));
         playSoundButton.setPreferredSize(new Dimension(50,30));
+        playSoundButton.setOpaque(false);
         playSoundButton.addActionListener(this);
         soundFileTextField = new JTextField();
         soundFileTextField.setMinimumSize(new Dimension(250,30));
@@ -192,7 +195,7 @@ public class NotificationConfigurationPanel
         constraints.insets = new Insets(0,0,10,0);
 
         activateDescactivatePanel.add(activate);
-        activateDescactivatePanel.add(desactivate);
+        activateDescactivatePanel.add(deactivate);
         actionsLayout.setConstraints(activateDescactivatePanel, constraints);
         actions.add(activateDescactivatePanel);
 
@@ -371,7 +374,7 @@ public class NotificationConfigurationPanel
     {
         noListener = true;
         activate.setEnabled(!tmpNTE.getEnabled());
-        desactivate.setEnabled(tmpNTE.getEnabled());
+        deactivate.setEnabled(tmpNTE.getEnabled());
         programCheckBox.setSelected(tmpNTE.getProgram());
         programFileChooser.setEnabled(tmpNTE.getProgram());
         programFileTextField.setEnabled(tmpNTE.getProgram());
@@ -394,17 +397,17 @@ public class NotificationConfigurationPanel
             tmpNTE.setEnabled(true);
             this.updateTableRow(tmpNTE, index);
             activate.setEnabled(false);
-            desactivate.setEnabled(true);
+            deactivate.setEnabled(true);
             tmpNTE.setModify(true);
         }
-        else if(e.getSource() == desactivate)
+        else if(e.getSource() == deactivate)
         {
             NotificationsTableEntry tmpNTE
                     = (NotificationsTableEntry) dataVector.elementAt(index);
             tmpNTE.setEnabled(false);
             this.updateTableRow(tmpNTE, index);
             activate.setEnabled(true);
-            desactivate.setEnabled(false);
+            deactivate.setEnabled(false);
             tmpNTE.setModify(true);
         }
         else if(e.getSource() == soundFileChooser)
@@ -1039,7 +1042,7 @@ public class NotificationConfigurationPanel
         if(!it.hasNext())
         {
             activate.setEnabled(false);
-            desactivate.setEnabled(false);
+            deactivate.setEnabled(false);
             programCheckBox.setSelected(false);
             programFileChooser.setEnabled(false);
             programFileTextField.setEnabled(false);
@@ -1160,7 +1163,7 @@ public class NotificationConfigurationPanel
                 NotificationsTableEntry tmpNTE
                         = (NotificationsTableEntry) dataVector.elementAt(index);
                 activate.setEnabled(!tmpNTE.getEnabled());
-                desactivate.setEnabled(tmpNTE.getEnabled());
+                deactivate.setEnabled(tmpNTE.getEnabled());
                 if(tmpNTE.getProgram()
                     && tmpNTE.getProgramFile().trim().length() > 0)
                 {

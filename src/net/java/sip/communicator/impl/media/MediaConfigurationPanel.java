@@ -150,10 +150,12 @@ public class MediaConfigurationPanel
         key = "impl.media.configform.UP";
         final JButton upButton = new JButton(resources.getI18NString(key));
         upButton.setMnemonic(resources.getI18nMnemonic(key));
+        upButton.setOpaque(false);
 
         key = "impl.media.configform.DOWN";
         final JButton downButton = new JButton(resources.getI18NString(key));
         downButton.setMnemonic(resources.getI18nMnemonic(key));
+        downButton.setOpaque(false);
 
         Container buttonBar = new TransparentPanel(new GridLayout(0, 1));
         buttonBar.add(upButton);
