@@ -774,21 +774,29 @@ public class FileHistoryServiceImpl
 
         fileTransfer.addStatusListener(this);
 
-        if(fileTransfer.getDirection() == FileTransfer.IN)
-            return;
-
         try
         {
             History history = getHistory(null, fileTransfer.getContact());
             HistoryWriter historyWriter = history.getWriter();
 
-            historyWriter.addRecord(new String[]{
-                fileTransfer.getFile().getCanonicalPath(),
-                getDirection(FileTransfer.OUT),
-                String.valueOf(event.getTimestamp().getTime()),
-                FILE_TRANSFER_ACTIVE,
-                fileTransfer.getID()
-            });
+            if (fileTransfer.getDirection() == FileTransfer.IN)
+            {
+                historyWriter.updateRecord(
+                    STRUCTURE_NAMES[4],
+                    fileTransfer.getID(),
+                    STRUCTURE_NAMES[0],
+                    fileTransfer.getFile().getCanonicalPath());
+            }
+            else if (fileTransfer.getDirection() == FileTransfer.OUT)
+            {
+                historyWriter.addRecord(new String[]{
+                    fileTransfer.getFile().getCanonicalPath(),
+                    getDirection(FileTransfer.OUT),
+                    String.valueOf(event.getTimestamp().getTime()),
+                    FILE_TRANSFER_ACTIVE,
+                    fileTransfer.getID()
+                });
+            }
         }
         catch (IOException e)
         {
