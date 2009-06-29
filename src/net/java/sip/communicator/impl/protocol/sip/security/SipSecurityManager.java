@@ -500,9 +500,9 @@ public class SipSecurityManager
         String authName = accountID.getAccountPropertyString(
                                     ProtocolProviderFactory.AUTHORIZATION_NAME);
         if(authName != null && authName.length() > 0)
-            ccEntry.userCredentials.setUserName(authName);
+            defaultCredentials.setUserName(authName);
         else
-            ccEntry.userCredentials.setUserName(accountID.getUserID());
+            defaultCredentials.setUserName(accountID.getUserID());
 
         UserCredentials newCredentials = 
             getSecurityAuthority().obtainCredentials(

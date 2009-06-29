@@ -951,7 +951,7 @@ public class SipRegistrarConnection
             processed = true;
         }
         //errors
-        else if ( response.getStatusCode() / 100 == 4 )
+        else if ( response.getStatusCode() >= 400 )
         {
             logger.error("Received an error response.");
 
