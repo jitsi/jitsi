@@ -24,6 +24,7 @@ import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>ChatConversationPanel</tt> is the panel, where all sent and received
@@ -955,10 +956,10 @@ public class ChatConversationPanel
         if(firstMessageElement == null)
             return new Date(Long.MAX_VALUE);
 
-        String dateString = firstMessageElement
-            .getAttributes().getAttribute("date").toString();
+        Long dateObject = (Long) firstMessageElement
+            .getAttributes().getAttribute("date");
 
-        return new Date(Long.parseLong(dateString));
+        return new Date(dateObject);
     }
 
     /**
@@ -987,10 +988,10 @@ public class ChatConversationPanel
         if(lastMessageElement == null)
             return new Date(0);
 
-        String dateString = (String) lastMessageElement
+        Long dateObject = (Long) lastMessageElement
             .getAttributes().getAttribute("date");
 
-        return new Date(Long.parseLong(dateString));
+        return new Date(dateObject);
     }
 
     /**
@@ -1135,9 +1136,13 @@ public class ChatConversationPanel
             AbstractDocument.ElementNameAttribute,
             StyleConstants.ComponentElementName);
 
+        TransparentPanel wrapPanel = new TransparentPanel(new BorderLayout());
+
+        wrapPanel.add(component, BorderLayout.NORTH);
+
         style.addAttribute(
             StyleConstants.ComponentAttribute,
-            component);
+            wrapPanel);
 
         style.addAttribute(
             "identifier",
@@ -1152,6 +1157,13 @@ public class ChatConversationPanel
         {
             document.insertString(  document.getLength(),
                                     "ignored text", style);
+
+            // Add an enter after the component in order to fix incorrect layout
+            // of components.
+            String processedMessage
+                = this.processBrTags(" \n ", TEXT_CONTENT_TYPE);
+
+            this.appendMessageToEnd(processedMessage);
         }
         catch (BadLocationException e)
         {
