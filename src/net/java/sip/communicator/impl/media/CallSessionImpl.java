@@ -451,7 +451,7 @@ public class CallSessionImpl
 
         if(!startedAtLeastOneAudioStream
                 && !startedAtLeastOneVideoStream
-                && sendStreams != null 
+                && sendStreams != null
                 && (sendStreams.size() > 0))
         {
             stopStreaming();
@@ -1616,14 +1616,10 @@ public class CallSessionImpl
             {
                 allocateMediaPorts = true;
             }
-            else if ((intendedDestination != null)
-                        && !intendedDestination.equals(lastIntendedDestination))
+            else if ((intendedDestination != null))
             {
+                //we already have ongoing streams so we kill them
                 stopStreaming(false);
-                //audioRtpManager = RTPManager.newInstance();
-                //videoRtpManager = RTPManager.newInstance();
-
-                //allocateMediaPorts = true;
             }
             if (allocateMediaPorts)
             {
