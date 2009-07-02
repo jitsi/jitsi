@@ -59,7 +59,7 @@ public class GuiUtils
      */
     public static int compareDates(Date date1, Date date2)
     {
-        return compareDates(date1.getTime(), date2.getTime());
+        return date1.compareTo(date2);
     }
 
     /**
@@ -75,33 +75,7 @@ public class GuiUtils
      */
     public static int compareDates(long date1, long date2)
     {
-        c1.setTimeInMillis(date1);
-        c2.setTimeInMillis(date2);
-        
-        int day1 = c1.get(Calendar.DAY_OF_MONTH);
-        int month1 = c1.get(Calendar.MONTH);
-        int year1 = c1.get(Calendar.YEAR);
-        
-        int day2 = c2.get(Calendar.DAY_OF_MONTH);
-        int month2 = c2.get(Calendar.MONTH);
-        int year2 = c2.get(Calendar.YEAR);
-        
-        if((day1 == day2)
-                && (month1 == month2)
-                && (year1 == year2))
-        {
-            return 0;
-        }
-        else if((day1 < day2)
-                && (month1 <= month2)
-                && (year1 <= year2))
-        {
-            return -1;
-        }
-        else
-        {
-            return 1;
-        }
+        return (date1 < date2 ? -1 : (date1 == date2 ? 0 : 1));
     }
 
     /**
