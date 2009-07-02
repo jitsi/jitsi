@@ -93,7 +93,8 @@ public class CallPanel
 
         if (participantPanel == null)
         {
-            participantPanel = new CallParticipantPanel(participant);
+            participantPanel
+                = new CallParticipantPanel(callDialog, participant);
 
             this.mainPanel.add(participantPanel);
 

@@ -81,13 +81,17 @@ public class CallParticipantPanel
 
     private SecurityPanel securityPanel = null;
 
+    private final CallDialog callDialog;
+
     /**
      * Creates a <tt>CallParticipantPanel</tt> for the given call participant.
      *
      * @param callParticipant a call participant
      */
-    public CallParticipantPanel(CallParticipant callParticipant)
+    public CallParticipantPanel(CallDialog callDialog,
+                                CallParticipant callParticipant)
     {
+        this.callDialog = callDialog;
         this.callParticipant = callParticipant;
         this.participantName = callParticipant.getDisplayName();
 
@@ -560,7 +564,9 @@ public class CallParticipantPanel
 
                 case VideoEvent.VIDEO_REMOVED:
                     if (this.localVideo == localVideo)
+                    {
                         this.localVideo = null;
+                    }
                     break;
                 }
             }
@@ -593,14 +599,23 @@ public class CallParticipantPanel
 
                 // LOCAL
                 if (localVideo != null)
+                {
                     videoContainer.add(localVideo, VideoLayout.LOCAL, zOrder++);
+
+                    // If the local video is turned on, we ensure that the
+                    // button is selected.
+                    if (!callDialog.isVideoButtonSelected())
+                        callDialog.setVideoButtonSelected(true);
+                }
 
                 // REMOTE
                 Component[] videos =
                     videoTelephony.getVisualComponents(callParticipant);
+
                 Component video =
                     ((videos == null) || (videos.length < 1)) ? null
                         : videos[0];
+
                 if (video != null)
                     videoContainer
                         .add(video, VideoLayout.CENTER_REMOTE, zOrder++);

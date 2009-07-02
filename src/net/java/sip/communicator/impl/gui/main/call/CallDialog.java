@@ -41,6 +41,8 @@ public class CallDialog
 
     private final MuteButton muteButton;
 
+    private final LocalVideoButton videoButton;
+
     /**
      * Creates a <tt>CallDialog</tt> by specifying the underlying call panel.
      */
@@ -69,6 +71,7 @@ public class CallDialog
 
         holdButton = new HoldButton(call);
         muteButton = new MuteButton(call);
+        videoButton = new LocalVideoButton(call);
 
         dialButton.setName(DIAL_BUTTON);
         dialButton.setToolTipText(
@@ -88,7 +91,7 @@ public class CallDialog
         settingsPanel.add(dialButton);
         settingsPanel.add(holdButton);
         settingsPanel.add(muteButton);
-        settingsPanel.add(new LocalVideoButton(getCall()));
+        settingsPanel.add(videoButton);
 
         buttonsPanel.add(settingsPanel, BorderLayout.WEST);
         buttonsPanel.add(hangupButton, BorderLayout.EAST);
@@ -247,5 +250,27 @@ public class CallDialog
     public void setMuteButtonSelected(boolean isSelected)
     {
         this.muteButton.setSelected(true);
+    }
+
+    /**
+     * Returns <code>true</code> if the video button is selected,
+     * <code>false</code> - otherwise.
+     * 
+     * @return  <code>true</code> if the video button is selected,
+     * <code>false</code> - otherwise.
+     */
+    public boolean isVideoButtonSelected()
+    {
+        return videoButton.isSelected();
+    }
+
+    /**
+     * Selects or unselects the video button in this call dialog.
+     * 
+     * @param isSelected indicates if the video button should be selected or not
+     */
+    public void setVideoButtonSelected(boolean isSelected)
+    {
+        this.videoButton.setSelected(true);
     }
 }

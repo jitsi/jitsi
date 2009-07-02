@@ -55,11 +55,6 @@ public class LocalVideoButton
             addActionListener(this);
         }
 
-        public boolean isSelected()
-        {
-            return false;
-        }
-
         public synchronized void actionPerformed(ActionEvent event)
         {
             if (runner == null)

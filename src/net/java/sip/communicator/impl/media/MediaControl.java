@@ -117,7 +117,7 @@ public class MediaControl
      * expresses the desire of the user to have the local video streamed in the
      * case the system is actually able to do so.
      */
-    private boolean localVideoAllowed = true;
+    private boolean localVideoAllowed = false;
 
     /**
      * The default constructor.
