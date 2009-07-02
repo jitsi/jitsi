@@ -658,8 +658,7 @@ public class TestMetaHistoryService
         assertTrue("Filetransfers not found",
                     fr.getFile().getName().
                     equals(files[4].getName()));
-        System.out.println("--------- " + fr.getFile().getName());
-        System.out.println("--------- " + fr.getStatus());
+
         assertTrue("Filetransfers status wrong",
                     fr.getStatus().
                     equals("refused"));
@@ -842,7 +841,7 @@ public class TestMetaHistoryService
                 CallHistoryService.class.getName()},
             testMetaContact,
             "T1");
-        assertTrue("Records must be atleast 2", rs.size() > 2);
+        assertTrue("Records must be atleast 2", rs.size() >= 2);
 
         rs = metaHistoryService.findByKeyword(
             new String[]{
@@ -860,7 +859,7 @@ public class TestMetaHistoryService
                 CallHistoryService.class.getName()},
             testMetaContact,
             new String[]{"t4", "participant_address_4", "word4"});
-        assertTrue("Records must be atleast 1", rs.size() > 1);
+        assertTrue("Records must be atleast 1", rs.size() >= 1);
 
         rs = metaHistoryService.findByKeywords(
             new String[]{
