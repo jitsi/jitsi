@@ -342,7 +342,7 @@ public class MetaHistoryServiceImpl
                 {
                     CallRecord callRecord = iter.next();
 
-                    if(matchAnyCallParticipant(
+                    if(matchCallParticipant(
                             callRecord.getParticipantRecords(), keywords, caseSensitive))
                         result.add(callRecord);
                 }
@@ -479,7 +479,7 @@ public class MetaHistoryServiceImpl
                 {
                     CallRecord callRecord = iter.next();
 
-                    if(matchAnyCallParticipant(
+                    if(matchCallParticipant(
                             callRecord.getParticipantRecords(), keywords, caseSensitive))
                         result.add(callRecord);
                 }
@@ -557,7 +557,13 @@ public class MetaHistoryServiceImpl
         }
         listenWrapper.fireLastProgress(null, null, null);
 
-        return result;
+        LinkedList resultAsList = new LinkedList(result);
+        int startIndex = resultAsList.size() - count;
+
+        if(startIndex < 0)
+            startIndex = 0;
+
+        return resultAsList.subList(startIndex, resultAsList.size());
     }
 
     /**
@@ -627,7 +633,10 @@ public class MetaHistoryServiceImpl
                 Collection col = chs.findByStartDate(date);
                 if(col.size() > count)
                 {
+                    // before we make a sublist make sure there are sorted in the
+                    // right order
                     List l = new LinkedList(col);
+                    Collections.sort(l, new RecordsComparator());
                     result.addAll(l.subList(0, count));
                 }
                 else
@@ -636,8 +645,13 @@ public class MetaHistoryServiceImpl
             }
         }
         listenWrapper.fireLastProgress(date, null, null);
+        LinkedList resultAsList = new LinkedList(result);
 
-        return result;
+        int toIndex = count;
+        if(toIndex > resultAsList.size())
+            toIndex = resultAsList.size();
+
+        return resultAsList.subList(0, toIndex);
     }
 
     /**
@@ -717,7 +731,13 @@ public class MetaHistoryServiceImpl
         }
         listenWrapper.fireLastProgress(date, null, null);
 
-        return result;
+        LinkedList resultAsList = new LinkedList(result);
+        int startIndex = resultAsList.size() - count;
+
+        if(startIndex < 0)
+            startIndex = 0;
+
+        return resultAsList.subList(startIndex, resultAsList.size());
     }
 
     /**
@@ -776,6 +796,50 @@ public class MetaHistoryServiceImpl
                             contains(k.toLowerCase()))
                     return true;
            }
+       }
+
+       return false;
+   }
+
+   private boolean matchCallParticipant(
+       List<CallParticipantRecord> cps, String[] keywords, boolean caseSensitive)
+   {
+       Iterator<CallParticipantRecord> iter = cps.iterator();
+       while (iter.hasNext())
+       {
+           boolean match = false;
+           CallParticipantRecord callParticipant = iter.next();
+           for (int i = 0; i < keywords.length; i++)
+           {
+               String k = keywords[i];
+
+               if(caseSensitive)
+               {
+                    if(callParticipant.getParticipantAddress().contains(k))
+                    {
+                        match = true;
+                    }
+                    else
+                    {
+                        match = false;
+                        break;
+                    }
+
+                    continue;
+               }
+               else if(callParticipant.getParticipantAddress().toLowerCase().
+                            contains(k.toLowerCase()))
+               {
+                   match = true;
+               }
+               else
+               {
+                   match = false;
+                   break;
+               }
+           }
+
+           if(match) return true;
        }
 
        return false;

@@ -78,6 +78,13 @@ public class MockProvider
         this.supportedOperationSets.put(
                 OperationSetBasicTelephony.class.getName(),
                 mockTelphonyOpSet);
+
+        MockOperationSetFileTransfer mockFileTransferOpSet =
+            new MockOperationSetFileTransfer(this);
+
+        this.supportedOperationSets.put(
+                OperationSetFileTransfer.class.getName(),
+                mockFileTransferOpSet);
     }
 
     /**

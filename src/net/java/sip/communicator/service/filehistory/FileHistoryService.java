@@ -119,7 +119,7 @@ public interface FileHistoryService
      * @return Collection of FileRecords
      * @throws RuntimeException
      */
-    Collection<FileRecord> findByKeyword(
+    public Collection<FileRecord> findByKeyword(
             MetaContact contact, String keyword, boolean caseSensitive)
         throws RuntimeException;
 

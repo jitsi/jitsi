@@ -221,10 +221,10 @@ public class HistoryWriterImpl
         throws IOException
     {
         Iterator<String> fileIterator = this.historyImpl.getFileList();
-
+        String filename = null;
         while (fileIterator.hasNext())
         {
-            String filename = fileIterator.next();
+            filename = fileIterator.next();
 
             Document doc = this.historyImpl.getDocumentForFile(filename);
 
@@ -284,10 +284,15 @@ public class HistoryWriterImpl
                 // write changes
                 synchronized (this.docWriteLock)
                 {
-                    if(historyImpl.getHistoryServiceImpl().isCacheEnabled())
-                        this.historyImpl.writeFile(filename);
-                    else
-                        this.historyImpl.writeFile(filename, doc);
+                    this.historyImpl.writeFile(filename, doc);
+                }
+
+                // this prevents that the current writer, which holds
+                // instance for the last document he is editing will not
+                // override our last changes to the document
+                if(filename.equals(this.currentFile))
+                {
+                    this.currentDoc = doc;
                 }
 
                 break;

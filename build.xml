@@ -809,7 +809,7 @@
         bundle-plugin-simpleaccreg,bundle-plugin-generalconfig,
         bundle-plugin-googletalkaccregwizz,bundle-argdelegation-service,
         bundle-argdelegation,bundle-zrtp4j,
-        bundle-filehistory,bundle-metahistory"/>
+        bundle-filehistory,bundle-metahistory,bundle-metahistory-slick"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -1988,5 +1988,14 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/impl/metahistory" />
         </jar>
     </target>
+    <!--BUNDLE-METAHISTORY-SLICK-->
+    <target name="bundle-metahistory-slick">
+        <jar compress="false" destfile="${bundles.dest}/metahistory-slick.jar"
+            manifest="${testsrc}/net/java/sip/communicator/slick/metahistory/metahistory.slick.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/metahistory"
+                prefix="net/java/sip/communicator/slick/metahistory"/>
+        </jar>
+    </target>
+
 
 </project>
