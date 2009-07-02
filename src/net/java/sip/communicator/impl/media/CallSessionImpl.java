@@ -1487,10 +1487,12 @@ public class CallSessionImpl
                         TransformConnector transConnector =
                             this.transConnectors.get(rtpManager);
 
+                        transConnector.removeTargets();
                         transConnector.addTarget(target);
                     }
                     else
                     {
+                        rtpManager.removeTargets("Session ended.");
                         rtpManager.addTarget(target);
                     }
 
@@ -1616,7 +1618,8 @@ public class CallSessionImpl
             {
                 allocateMediaPorts = true;
             }
-            else if ((intendedDestination != null))
+            else if ((intendedDestination != null)
+                        && !intendedDestination.equals(lastIntendedDestination))
             {
                 //we already have ongoing streams so we kill them
                 stopStreaming(false);
