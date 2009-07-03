@@ -305,6 +305,29 @@ public class OperationSetFileTransferJabberImpl
     }
 
     /**
+     * Delivers the specified event to all registered file transfer listeners.
+     *
+     * @param event the <tt>EventObject</tt> that we'd like delivered to all
+     * registered file transfer listeners.
+     */
+    void fireFileTransferRequestRejected(FileTransferRequestEvent event)
+    {
+        Iterator<FileTransferListener> listeners = null;
+        synchronized (fileTransferListeners)
+        {
+            listeners = new ArrayList<FileTransferListener>
+                            (fileTransferListeners).iterator();
+        }
+
+        while (listeners.hasNext())
+        {
+            FileTransferListener listener = listeners.next();
+
+            listener.fileTransferRequestRejected(event);
+        }
+    }
+
+    /**
      * Delivers the file transfer to all registered listeners.
      * 
      * @param fileTransfer the <tt>FileTransfer</tt> that we'd like delivered to

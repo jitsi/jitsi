@@ -27,6 +27,9 @@ public class FileHistoryConversationComponent
 
         String contactName = fileRecord.getContact().getDisplayName();
 
+        openFileButton.setVisible(true);
+        openFolderButton.setVisible(true);
+
         String titleString = "";
         if (fileRecord.getDirection().equals(FileRecord.IN))
         {
@@ -58,6 +61,9 @@ public class FileHistoryConversationComponent
                 titleString = resources.getI18NString(
                     "service.gui.FILE_TRANSFER_REFUSED",
                     new String[]{contactName});
+
+                openFileButton.setVisible(false);
+                openFolderButton.setVisible(false);
 
                 setWarningStyle(true);
             }
@@ -103,8 +109,6 @@ public class FileHistoryConversationComponent
         titleLabel.setText(
             getDateString(new Date(date)) + titleString);
         fileLabel.setText(getFileName(fileRecord.getFile()));
-        openFileButton.setVisible(true);
-        openFolderButton.setVisible(true);
     }
 
     /**

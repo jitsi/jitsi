@@ -806,6 +806,34 @@ public class FileHistoryServiceImpl
     }
 
     /**
+     * Called when a new <tt>IncomingFileTransferRequest</tt> has been rejected.
+     *
+     * @param event the <tt>FileTransferRequestEvent</tt> containing the
+     * received request which was rejected.
+     */
+    public void fileTransferRequestRejected(FileTransferRequestEvent event)
+    {
+        try
+        {
+            IncomingFileTransferRequest req = event.getRequest();
+
+            History history = getHistory(null, req.getSender());
+            HistoryWriter historyWriter = history.getWriter();
+
+            historyWriter.updateRecord(
+                STRUCTURE_NAMES[4],
+                req.getID(),
+                STRUCTURE_NAMES[3],
+                FileRecord.REFUSED
+            );
+        }
+        catch (IOException e)
+        {
+            logger.error("Could not add file transfer log to history", e);
+        }
+    }
+
+    /**
      * Used to compare FileRecords
      * and to be ordered in TreeSet according their timestamp
      */

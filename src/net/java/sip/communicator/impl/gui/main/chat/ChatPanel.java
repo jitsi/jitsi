@@ -1939,7 +1939,7 @@ public class ChatPanel
      * file transfers.
      * @param id the identifier of the file transfer to remove
      */
-    private void removeActiveFileTransfer(String id)
+    public void removeActiveFileTransfer(String id)
     {
         synchronized (activeFileTransfers)
         {

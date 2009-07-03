@@ -44,6 +44,8 @@ public class IncomingFileTransferRequestJabberImpl
 
     private Contact sender;
 
+    private Date date;
+
     /**
      * Creates an <tt>IncomingFileTransferRequestJabberImpl</tt> based on the
      * given <tt>fileTransferRequest</tt>, coming from the Jabber protocol.
@@ -61,6 +63,7 @@ public class IncomingFileTransferRequestJabberImpl
     {
         this.fileTransferOpSet = fileTransferOpSet;
         this.fileTransferRequest = fileTransferRequest;
+        this.date = date;
 
         String fromUserID
             = StringUtils.parseBareAddress(fileTransferRequest.getRequestor());
@@ -158,6 +161,9 @@ public class IncomingFileTransferRequestJabberImpl
     public void rejectFile()
     {
         fileTransferRequest.reject();
+
+        fileTransferOpSet.fireFileTransferRequestRejected(
+            new FileTransferRequestEvent(this, this.date));
     }
 
     /**

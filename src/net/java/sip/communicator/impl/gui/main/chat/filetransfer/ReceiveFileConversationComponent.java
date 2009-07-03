@@ -95,11 +95,14 @@ public class ReceiveFileConversationComponent
 
                 acceptButton.setVisible(false);
                 rejectButton.setVisible(false);
+                setWarningStyle(true);
                 fileLabel.setText("");
                 titleLabel.setText(
                     dateString
                     + resources.getI18NString(
-                        "service.gui.FILE_TRANSFER_CANCELED"));
+                        "service.gui.FILE_TRANSFER_REFUSED"));
+                ReceiveFileConversationComponent.this.chatPanel
+                    .removeActiveFileTransfer(fileTransferRequest.getID());
             }
         });
 
@@ -238,6 +241,8 @@ public class ReceiveFileConversationComponent
                 "service.gui.FILE_TRANSFER_REFUSED",
                 new String[]{fromContactName}));
             cancelButton.setVisible(false);
+            openFileButton.setVisible(false);
+            openFolderButton.setVisible(false);
             setWarningStyle(true);
         }
     }

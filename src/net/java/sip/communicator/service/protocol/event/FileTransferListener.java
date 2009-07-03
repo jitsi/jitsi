@@ -33,4 +33,12 @@ public interface FileTransferListener
      * received file transfer and other details.
      */
     public void fileTransferCreated(FileTransferCreatedEvent event);
+
+    /**
+     * Called when a new <tt>IncomingFileTransferRequest</tt> has been rejected.
+     *
+     * @param event the <tt>FileTransferRequestEvent</tt> containing the 
+     * received request which was rejected.
+     */
+    public void fileTransferRequestRejected(FileTransferRequestEvent event);
 }

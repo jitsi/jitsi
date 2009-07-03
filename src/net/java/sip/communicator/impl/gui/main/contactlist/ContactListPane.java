@@ -217,6 +217,16 @@ public class ContactListPane
     }
 
     /**
+     * Called when a new <tt>IncomingFileTransferRequest</tt> has been rejected.
+     *
+     * @param event the <tt>FileTransferRequestEvent</tt> containing the
+     * received request which was rejected.
+     */
+    public void fileTransferRequestRejected(FileTransferRequestEvent event)
+    {
+    }
+
+    /**
      * Runs the chat window for the specified contact. We examine different
      * cases here, depending on the chat window mode.
      *
