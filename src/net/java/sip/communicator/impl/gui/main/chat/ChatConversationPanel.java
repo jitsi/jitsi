@@ -46,7 +46,7 @@ public class ChatConversationPanel
 
     private final JTextPane chatTextPane = new MyTextPane();
 
-    private final HTMLEditorKit editorKit = new SIPCommHTMLEditorKit();
+    private final HTMLEditorKit editorKit;
 
     private HTMLDocument document;
 
@@ -77,6 +77,8 @@ public class ChatConversationPanel
      */
     public ChatConversationPanel(ChatConversationContainer chatContainer)
     {
+        editorKit = new SIPCommHTMLEditorKit(this);
+
         this.chatContainer = chatContainer;
 
         isHistory = (chatContainer instanceof HistoryWindow);
@@ -1157,13 +1159,6 @@ public class ChatConversationPanel
         {
             document.insertString(  document.getLength(),
                                     "ignored text", style);
-
-            // Add an enter after the component in order to fix incorrect layout
-            // of components.
-            String processedMessage
-                = this.processBrTags(" \n ", TEXT_CONTENT_TYPE);
-
-            this.appendMessageToEnd(processedMessage);
         }
         catch (BadLocationException e)
         {

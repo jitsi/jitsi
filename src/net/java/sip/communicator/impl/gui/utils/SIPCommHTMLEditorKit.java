@@ -7,6 +7,8 @@
 
 package net.java.sip.communicator.impl.gui.utils;
 
+import java.awt.*;
+
 import javax.swing.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
@@ -20,6 +22,13 @@ import javax.swing.text.html.ParagraphView;
  */
 public class SIPCommHTMLEditorKit extends HTMLEditorKit
 {
+    private final JComponent container;
+
+    public SIPCommHTMLEditorKit(JComponent container)
+    {
+        this.container = container;
+    }
+
     /**
      * Returns the extended <tt>HTMLFactory</tt> defined here.
      */
@@ -33,7 +42,7 @@ public class SIPCommHTMLEditorKit extends HTMLEditorKit
      * to represent images and the <tt>ParagraphViewX</tt> to represent
      * paragraphs.
      */
-    static class HTMLFactoryX extends HTMLFactory
+    private class HTMLFactoryX extends HTMLFactory
         implements ViewFactory
     {
         public View create(Element elem)
@@ -44,11 +53,96 @@ public class SIPCommHTMLEditorKit extends HTMLEditorKit
             {
                 return new ParagraphViewX(elem);
             }
+            else if (view instanceof ComponentView)
+            {
+                return new MyComponentView(elem);
+            }
 
             return view;
         }
     }
-    
+
+    private class MyComponentView extends ComponentView
+    {
+        /**
+         * Creates a new ComponentView object.
+         *
+         * @param elem the element to decorate
+         */
+        public MyComponentView(Element elem)
+        {
+            super(elem);
+        }
+
+        /**
+         * Determines the preferred span for this view along an
+         * axis.  This is implemented to return the value
+         * returned by Component.getPreferredSize along the
+         * axis of interest.
+         *
+         * @param axis may be either View.X_AXIS or View.Y_AXIS
+         * @return   the span the view would like to be rendered into >= 0.
+         *           Typically the view is told to render into the span
+         *           that is returned, although there is no guarantee.
+         *           The parent may choose to resize or break the view.
+         * @exception IllegalArgumentException for an invalid axis
+         */
+        public float getPreferredSpan(int axis)
+        {
+            if ((axis != X_AXIS) && (axis != Y_AXIS))
+            {
+                throw new IllegalArgumentException("Invalid axis: " + axis);
+            }
+            if (getComponent() != null)
+            {
+                Dimension size = getComponent().getPreferredSize();
+                if (axis == View.X_AXIS)
+                {
+                    return container.getWidth();
+                }
+                else
+                {
+                    return size.height;
+                }
+            }
+            return 0;
+        }
+
+        /**
+         * Determines the maximum span for this view along an
+         * axis.  This is implemented to return the value
+         * returned by Component.getMaximumSize along the
+         * axis of interest.
+         *
+         * @param axis may be either View.X_AXIS or View.Y_AXIS
+         * @return   the span the view would like to be rendered into >= 0.
+         *           Typically the view is told to render into the span
+         *           that is returned, although there is no guarantee.  
+         *           The parent may choose to resize or break the view.
+         * @exception IllegalArgumentException for an invalid axis
+         */
+        public float getMaximumSpan(int axis)
+        {
+            if ((axis != X_AXIS) && (axis != Y_AXIS))
+            {
+                throw new IllegalArgumentException("Invalid axis: " + axis);
+            }
+            if (getComponent() != null)
+            {
+                Dimension size = getComponent().getMaximumSize();
+                if (axis == View.X_AXIS)
+                {
+                    return container.getWidth();
+                }
+                else
+                {
+                    return size.height;
+                }
+            }
+            return 0;
+        }
+    }
+
     /**
      * The <tt>ParagraphViewX</tt> is created in order to solve the following
      * problem (Bug ID: 4855207):

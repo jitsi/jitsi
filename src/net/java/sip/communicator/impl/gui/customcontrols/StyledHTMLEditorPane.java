@@ -22,14 +22,16 @@ public class StyledHTMLEditorPane
 
     private final Logger logger = Logger.getLogger(StyledHTMLEditorPane.class);
     
-    private final HTMLEditorKit editorKit = new SIPCommHTMLEditorKit();
+    private final HTMLEditorKit editorKit;
     
     private final HTMLDocument document;
     
     public StyledHTMLEditorPane()
     {
+        editorKit = new SIPCommHTMLEditorKit(this);
+
         this.document = (HTMLDocument) editorKit.createDefaultDocument();
-        
+
         this.setContentType("text/html");
         this.setEditorKitForContentType("text/html", editorKit);
         this.setEditorKit(editorKit);

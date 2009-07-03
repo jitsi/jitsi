@@ -76,7 +76,7 @@ public class ChatWritePanel
             JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
 
         this.editorPane.setCaretPosition(0);
-        this.editorPane.setEditorKit(new SIPCommHTMLEditorKit());
+        this.editorPane.setEditorKit(new SIPCommHTMLEditorKit(this));
         this.editorPane.getDocument().addUndoableEditListener(this);
         this.editorPane.addKeyListener(this);
         this.editorPane.addMouseListener(this);

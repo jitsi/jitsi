@@ -46,8 +46,6 @@ public abstract class ChatConversationComponent
     protected static final ResourceManagementService resources
         = GuiActivator.getResources();
 
-    private Date date;
-
     /**
      * Creates a <tt>ChatConversationComponent</tt>.
      */
