@@ -36,6 +36,7 @@ public class DefaultContactList
         this.getSelectionModel().setSelectionMode(
                 ListSelectionModel.SINGLE_SELECTION);
 
+        this.setTransferHandler(new ContactListTransferHandler(this));
         this.setCellRenderer(new ContactListCellRenderer());
     }
 

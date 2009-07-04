@@ -30,6 +30,12 @@ public class ChatMessage
     private final String messageType;
 
     /**
+     * The title of the message. This property is optional and could be used
+     * to show a title for error messages.
+     */
+    private String messageTitle;
+
+    /**
      * The content of the message.
      */
     private String message;
@@ -62,6 +68,30 @@ public class ChatMessage
     }
 
     /**
+     * Creates a <tt>ChatMessage</tt> by specifying all parameters of the
+     * message.
+     * @param contactName the name of the contact
+     * @param date the date and time
+     * @param messageType the type (INCOMING or OUTGOING)
+     * @param message the content
+     * @param contentType the content type (e.g. "text", "text/html", etc.)
+     */
+    public ChatMessage( String contactName,
+                        long date,
+                        String messageType,
+                        String messageTitle,
+                        String message,
+                        String contentType)
+    {
+        this.contactName = contactName;
+        this.date = date;
+        this.messageType = messageType;
+        this.messageTitle = messageTitle;
+        this.message = message;
+        this.contentType = contentType;
+    }
+
+    /**
      * Returns the name of the contact sending the message.
      * 
      * @return the name of the contact sending the message.
@@ -89,6 +119,16 @@ public class ChatMessage
     public String getMessageType()
     {
         return messageType;
+    }
+
+    /**
+     * Returns the title of the message.
+     * 
+     * @return the title of the message.
+     */
+    public String getMessageTitle()
+    {
+        return messageTitle;
     }
 
     /**

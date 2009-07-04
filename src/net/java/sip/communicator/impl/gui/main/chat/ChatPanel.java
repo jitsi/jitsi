@@ -574,11 +574,12 @@ public class ChatPanel
      * for processing and appends it at the end of the conversationPanel
      * document.
      *
-     * @param contactName The name of the contact sending the message.
-     * @param date The time at which the message is sent or received.
-     * @param messageType The type of the message. One of OUTGOING_MESSAGE
-     * or INCOMING_MESSAGE.
-     * @param message The message text.
+     * @param contactName the name of the contact sending the message
+     * @param date the time at which the message is sent or received
+     * @param messageType the type of the message. One of OUTGOING_MESSAGE
+     * or INCOMING_MESSAGE
+     * @param message the message text
+     * @param contentType the content type
      */
     public void addMessage(String contactName, long date,
             String messageType, String message, String contentType)
@@ -586,6 +587,40 @@ public class ChatPanel
         ChatMessage chatMessage = new ChatMessage(contactName, date,
             messageType, message, contentType);
 
+        this.addChatMessage(chatMessage);
+    }
+
+    /**
+     * Passes the message to the contained <code>ChatConversationPanel</code>
+     * for processing and appends it at the end of the conversationPanel
+     * document.
+     *
+     * @param contactName the name of the contact sending the message
+     * @param date the time at which the message is sent or received
+     * @param messageType the type of the message. One of OUTGOING_MESSAGE
+     * or INCOMING_MESSAGE
+     * @param title the title of the message
+     * @param message the message text
+     * @param contentType the content type
+     */
+    public void addMessage(String contactName, long date,
+            String messageType, String title, String message, String contentType)
+    {
+        ChatMessage chatMessage = new ChatMessage(contactName, date,
+            messageType, title, message, contentType);
+
+        this.addChatMessage(chatMessage);
+    }
+
+    /**
+     * Passes the message to the contained <code>ChatConversationPanel</code>
+     * for processing and appends it at the end of the conversationPanel
+     * document.
+     * 
+     * @param chatMessage the chat message to add
+     */
+    private void addChatMessage(ChatMessage chatMessage)
+    {
         if (ConfigurationManager.isHistoryShown() && !isHistoryLoaded)
         {
             synchronized (incomingEventBuffer)
@@ -599,7 +634,7 @@ public class ChatPanel
         }
 
         // change the last history message timestamp after we add one.
-        this.lastHistoryMsgTimestamp = date;
+        this.lastHistoryMsgTimestamp = chatMessage.getDate();
     }
 
     /**
@@ -608,10 +643,30 @@ public class ChatPanel
      * @param contactName the name of the contact, for which the error occured
      * @param message the error message
      */
-    public void addErrorMessage(String contactName, String message)
+    public void addErrorMessage(String contactName,
+                                String message)
     {
         this.addMessage(contactName,  System.currentTimeMillis(),
-                Constants.ERROR_MESSAGE, message, "text");
+                Constants.ERROR_MESSAGE, 
+                GuiActivator.getResources()
+                    .getI18NString("service.gui.MSG_DELIVERY_FAILURE"),
+                message, "text");
+    }
+
+    /**
+     * Adds the given error message to the chat window conversation area.
+     * 
+     * @param contactName the name of the contact, for which the error occured
+     * @param message the error message
+     */
+    public void addErrorMessage(String contactName,
+                                String title,
+                                String message)
+    {
+        this.addMessage(contactName,  System.currentTimeMillis(),
+                Constants.ERROR_MESSAGE, 
+                title,
+                message, "text");
     }
 
     /**
@@ -914,9 +969,7 @@ public class ChatPanel
 
             public void catchException(Throwable ex)
             {
-                logger.error("Failed to send message.", ex);
-
-                refreshWriteArea();
+                logger.error("Failed to send file.", ex);
 
                 if (ex instanceof IllegalStateException)
                 {
@@ -949,13 +1002,38 @@ public class ChatPanel
         final ChatTransport fileTransferTransport
             = findFileTransferChatTransport();
 
+        // If there's no operation set we show some "not supported" messages
+        // and we return.
+        if (fileTransferTransport == null)
+        {
+            logger.error("Failed to send file.");
+
+            this.addErrorMessage(
+                chatSession.getChatName(),
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.FILE_SEND_FAILED",
+                    new String[]{file.getName()}),
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.FILE_TRANSFER_NOT_SUPPORTED"));
+
+            return;
+        }
+
         final SendFileConversationComponent fileComponent
             = new SendFileConversationComponent(
                 this,
                 fileTransferTransport.getDisplayName(),
                 file);
 
-        getChatConversationPanel().addComponent(fileComponent);
+        if (ConfigurationManager.isHistoryShown() && !isHistoryLoaded)
+        {
+            synchronized (incomingEventBuffer)
+            {
+                incomingEventBuffer.add(fileComponent);
+            }
+        }
+        else
+            getChatConversationPanel().addComponent(fileComponent);
 
         this.sendFile(file, fileComponent);
     }

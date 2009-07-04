@@ -200,6 +200,7 @@ public class ChatConversationPanel
         String contentType = chatMessage.getContentType();
         long date = chatMessage.getDate();
         String messageType = chatMessage.getMessageType();
+        String messageTitle = chatMessage.getMessageTitle();
         String message = chatMessage.getMessage();
 
         String msgID = "message";
@@ -320,8 +321,7 @@ public class ChatConversationPanel
                 + "' </IMG>";
 
             chatString += errorIcon
-                + GuiActivator.getResources()
-                    .getI18NString("service.gui.MSG_DELIVERY_FAILURE")
+                + messageTitle
                 + endHeaderTag + "<h5>" + message + "</h5>";
         }
         else if (messageType.equals(Constants.HISTORY_INCOMING_MESSAGE))
