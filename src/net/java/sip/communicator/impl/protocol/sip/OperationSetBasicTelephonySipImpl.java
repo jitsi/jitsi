@@ -2570,17 +2570,20 @@ public class OperationSetBasicTelephonySipImpl
                 + " request.", OperationFailedException.INTERNAL_ERROR, ex);
         }
 
-        //override the via header as jain-sip is generating one from the
-        //listening point which is 0.0.0.0 or ::0
+        //override the via and contact headers as jain-sip is generating one
+        //from the listening point which is 0.0.0.0 or ::0
         ArrayList<ViaHeader> viaHeaders
             = protocolProvider.getLocalViaHeaders(dialog.getRemoteParty());
         request.setHeader(viaHeaders.get(0));
+
+        request.setHeader(protocolProvider
+                        .getContactHeader(dialog.getRemoteParty()));
 
         // User Agent
         UserAgentHeader userAgentHeader =
             protocolProvider.getSipCommUserAgentHeader();
         if (userAgentHeader != null)
-            request.addHeader(userAgentHeader);
+            request.setHeader(userAgentHeader);
 
         /*
          * The authorization-related headers are the responsibility of the
