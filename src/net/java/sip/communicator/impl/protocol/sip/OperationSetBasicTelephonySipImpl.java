@@ -1555,10 +1555,12 @@ public class OperationSetBasicTelephonySipImpl
 
             if (replacesHeader == null)
             {
+                //this is not a transfered call so start ringing
                 statusCode = Response.RINGING;
             }
             else
             {
+                //this is a transfered call
                 List<CallParticipantSipImpl> callParticipantsToReplace =
                     activeCallsRepository.findCallParticipants(
                         replacesHeader.getCallId(), replacesHeader.getToTag(),
@@ -1582,6 +1584,7 @@ public class OperationSetBasicTelephonySipImpl
         }
         else
         {
+            //this is a reINVITE - so we'll OK it without ringing
             statusCode = Response.OK;
         }
 
@@ -1662,9 +1665,8 @@ public class OperationSetBasicTelephonySipImpl
         logger.debug("Invite seems ok, we'll say " + statusCodeString + ".");
         try
         {
-            response =
-                protocolProvider.getMessageFactory().createResponse(statusCode,
-                    invite);
+            response =  protocolProvider.getMessageFactory()
+                .createResponse(statusCode, invite);
             protocolProvider.attachToTag(response, dialog);
             response.setHeader(protocolProvider.getSipCommUserAgentHeader());
 
@@ -2567,6 +2569,18 @@ public class OperationSetBasicTelephonySipImpl
             throwOperationFailedException("Failed to create " + method
                 + " request.", OperationFailedException.INTERNAL_ERROR, ex);
         }
+
+        //override the via header as jain-sip is generating one from the
+        //listening point which is 0.0.0.0 or ::0
+        ArrayList<ViaHeader> viaHeaders
+            = protocolProvider.getLocalViaHeaders(dialog.getRemoteParty());
+        request.setHeader(viaHeaders.get(0));
+
+        // User Agent
+        UserAgentHeader userAgentHeader =
+            protocolProvider.getSipCommUserAgentHeader();
+        if (userAgentHeader != null)
+            request.addHeader(userAgentHeader);
 
         /*
          * The authorization-related headers are the responsibility of the

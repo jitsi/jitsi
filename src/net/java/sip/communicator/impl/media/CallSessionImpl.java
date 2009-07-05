@@ -73,14 +73,12 @@ import gnu.java.zrtp.*;
  */
 public class CallSessionImpl
     extends PropertyChangeNotifier
-    implements CallSession
-               , CallParticipantListener
-               , CallChangeListener
-               , ReceiveStreamListener
-               , SendStreamListener
-               , SessionListener
-               , ControllerListener
-//             , SecureEventListener
+    implements CallSession,
+               CallChangeListener,
+               ReceiveStreamListener,
+               SendStreamListener,
+               SessionListener,
+               ControllerListener
 {
     private static final Logger logger
         = Logger.getLogger(CallSessionImpl.class);
@@ -1207,18 +1205,24 @@ public class CallSessionImpl
         }
         else
         {
-            //create an sdp answer.
+            //create the SDP answer.
             CallParticipantState participantState = participant.getState();
 
             if (CallParticipantState.CONNECTED.equals(participantState)
                     || CallParticipantState.isOnHold(participantState))
+            {
+                //if the call is already connected then this is a
+                //reinitialization (e.g. placing the call on/off hold)
                 sdpAnswer =
                     createSessionDescriptionForHold(
                         sdpStr,
                         (getSdpOfferMediaFlags(sdpStr)
                             & CallSession.ON_HOLD_REMOTELY) != 0);
+            }
             else
+            {
                 sdpAnswer = createSessionDescription(sdp, null);
+            }
         }
 
         //extract media descriptions
@@ -1236,7 +1240,6 @@ public class CallSessionImpl
         }
         //add the RTP targets
         initStreamTargets(sdp.getConnection(), mediaDescriptions);
-
 
         /*
          * The media descriptions of the offer may list encodings which are not
@@ -1609,7 +1612,7 @@ public class CallSessionImpl
 
             /*
              * Only allocate ports if this is a call establishing event. The
-             * opposite could happen for example, when issuing a Request.INVITE
+             * opposite could happen for example, when issuing a reINVITE
              * that would put a CallParticipant on hold.
              */
             boolean allocateMediaPorts = false;
@@ -2597,27 +2600,12 @@ public class CallSessionImpl
     }
 
     /**
-     * Indicates that a change has occurred in the status of the source
-     * CallParticipant.
-     *
-     * @param evt The <tt>CallParticipantChangeEvent</tt> instance containing
-     * the source event as well as its previous and its new status.
-     */
-    public void participantStateChanged(CallParticipantChangeEvent evt)
-    {
-        /** @todo implement participantStateChanged() */
-        /** @todo remove target for participant. */
-    }
-
-    /**
      * Indicates that a new call participant has joined the source call.
      * @param evt the <tt>CallParticipantEvent</tt> containing the source call
      * and call participant.
      */
     public synchronized void callParticipantAdded(CallParticipantEvent evt)
     {
-        CallParticipant sourceParticipant = evt.getSourceCallParticipant();
-        sourceParticipant.addCallParticipantListener(this);
     }
 
     /**
@@ -2628,45 +2616,6 @@ public class CallSessionImpl
     public void callParticipantRemoved(CallParticipantEvent evt)
     {
 
-    }
-
-    //-------- dummy implementations of listener methods that we don't need
-    /**
-     * Ignore - we're not concerned by this event inside a call session.
-     *
-     * @param evt ignore.
-     */
-    public void participantImageChanged(CallParticipantChangeEvent evt)
-    {
-    }
-
-    /**
-     * Ignore - we're not concerned by this event inside a call session.
-     *
-     * @param evt ignore.
-     */
-    public void participantDisplayNameChanged(CallParticipantChangeEvent evt)
-    {
-    }
-
-    /**
-     * Ignore - we're not concerned by this event inside a call session.
-     *
-     * @param evt ignore.
-     */
-    public void participantTransportAddressChanged(
-                                CallParticipantChangeEvent evt)
-    {
-        /** @todo i am not sure we should be ignoring this one ... */
-    }
-
-    /**
-     * Ignore - we're not concerned by this event inside a call session.
-     *
-     * @param evt ignore.
-     */
-    public void participantAddressChanged(CallParticipantChangeEvent evt)
-    {
     }
 
     //implementation of jmf listener methods

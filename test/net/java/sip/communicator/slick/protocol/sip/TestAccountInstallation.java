@@ -78,9 +78,9 @@ public class TestAccountInstallation
 
         //Prepare the properties of the first sip account.
 
-        Hashtable sipAccount1Properties = getAccountProperties(
+        Hashtable<String,String> sipAccount1Properties = getAccountProperties(
             SipProtocolProviderServiceLick.ACCOUNT_1_PREFIX);
-        Hashtable sipAccount2Properties = getAccountProperties(
+        Hashtable<String, String> sipAccount2Properties = getAccountProperties(
             SipProtocolProviderServiceLick.ACCOUNT_2_PREFIX);
 
         //try to install an account with a null account id
@@ -166,9 +166,9 @@ public class TestAccountInstallation
      * @return a Hashtable that can be used when creating the account in a
      * protocol provider factory.
      */
-    private Hashtable getAccountProperties(String accountPrefix)
+    private Hashtable<String, String> getAccountProperties(String accountPrefix)
     {
-        Hashtable table = new Hashtable();
+        Hashtable<String, String> table = new Hashtable<String, String>();
 
         String userID = System.getProperty(
             accountPrefix + ProtocolProviderFactory.USER_ID, null);

@@ -114,8 +114,11 @@ public class JmfDeviceDetector
             }
         }
 
-        detectDirectAudio();
-        detectS8DirectAudio();
+        // Issues #693 and #524:
+        // Disable DirectSound since it fails on multiple installations
+        //
+        // detectDirectAudio();
+        // detectS8DirectAudio();
         detectCaptureDevices();
     }
 
@@ -127,15 +130,19 @@ public class JmfDeviceDetector
     {
         logger.info("Looking for Audio capturer");
 
-        //First check if DirectSound capture is available
-        try
-        {
-            new DirectSoundAuto();
-        }
-        catch (Throwable exc)
-        {
-            logger.debug("No direct sound detected: " + exc.getMessage());
-        }
+        // Issues #693 and #524:
+        // Disable DirectSound since it fails on multiple installations
+        //
+        // //First check if DirectSound capture is available
+        // try
+        // {
+        //
+        //    new DirectSoundAuto();
+        // }
+        // catch (Throwable exc)
+        // {
+        //     logger.debug("No direct sound detected: " + exc.getMessage());
+        // }
 
         // check if JavaSound capture is available
         try
