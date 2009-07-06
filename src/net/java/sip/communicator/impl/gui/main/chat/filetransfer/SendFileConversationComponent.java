@@ -62,7 +62,7 @@ public class SendFileConversationComponent
                 "service.gui.FILE_WAITING_TO_ACCEPT",
                     new String[]{toContactName}));
 
-        fileLabel.setText(getFileName(file));
+        fileLabel.setText(getFileLabel(file));
 
         progressBar.setMaximum((int) file.length());
         cancelButton.setVisible(true);

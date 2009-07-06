@@ -410,15 +410,31 @@ public abstract class FileTransferConversationComponent
     }
 
     /**
-     * Returns the name of the given file.
+     * Returns the string, showing information for the given file.
      * 
      * @param file the file
      * @return the name of the given file
      */
-    protected String getFileName(File file)
+    protected String getFileLabel(File file)
     {
         String fileName = file.getName();
         long fileSize = file.length();
+
+        ByteFormat format = new ByteFormat();
+        String text = format.format(fileSize);
+
+        return fileName + " (" + text + ")";
+    }
+
+    /**
+     * Returns the string, showing information for the given file.
+     * 
+     * @param fileName the name of the file
+     * @param fileSize the size of the file
+     * @return the name of the given file
+     */
+    protected String getFileLabel(String fileName, long fileSize)
+    {
         ByteFormat format = new ByteFormat();
         String text = format.format(fileSize);
 

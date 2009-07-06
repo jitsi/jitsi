@@ -62,7 +62,9 @@ public class ReceiveFileConversationComponent
             "service.gui.FILE_TRANSFER_REQUEST_RECIEVED",
             new String[]{fileTransferRequest.getSender().getDisplayName()}));
 
-        fileLabel.setText(fileTransferRequest.getFileName());
+        String fileName
+            = getFileLabel(request.getFileName(), request.getFileSize());
+        fileLabel.setText(fileName);
 
         acceptButton.setVisible(true);
         acceptButton.addActionListener(new ActionListener()

@@ -108,7 +108,7 @@ public class FileHistoryConversationComponent
 
         titleLabel.setText(
             getDateString(new Date(date)) + titleString);
-        fileLabel.setText(getFileName(fileRecord.getFile()));
+        fileLabel.setText(getFileLabel(fileRecord.getFile()));
     }
 
     /**
