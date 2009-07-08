@@ -26,7 +26,7 @@ import net.java.sip.communicator.util.*;
  * <code>OperationSetVideoTelephony</code> is the provider because other
  * implementation may not provider their video through the
  * <code>CallSession</code>.
- * 
+ *
  * @author Lubomir Marinov
  */
 public class OperationSetVideoTelephonySipImpl
@@ -288,7 +288,7 @@ public class OperationSetVideoTelephonySipImpl
          * <code>OperationSetVideoTelephony</code> for a specific
          * <code>VideoListener</code> interested in the videos of a specific
          * <code>CallParticipant</code>.
-         * 
+         *
          * @param telephony the <code>OperationSetVideoTelephony</code> which is
          *            to be stated as the source of the <code>VideoEvent</code>
          *            sent to the specified delegate <code>VideoListener</code>

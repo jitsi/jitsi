@@ -140,7 +140,7 @@ public interface CallSession
      * {@link #getSdpOfferMediaFlags(String)}. For example, if
      * <code>RECEIVE_VIDEO</code> isn't present and video is currently being
      * received and played, stops its receiving and playback.
-     *   
+     *
      * @param mediaFlags an <code>int</code> bit mask containing any of the
      *            media-related flags such as <code>RECEIVE_AUDIO</code> and
      *            <code>RECEIVE_VIDEO</code> and thus specifying which media
@@ -280,7 +280,7 @@ public interface CallSession
     /**
      * Sets the SAS verification
      *
-     * @return True if SAS functions were called in ZrtpEngine  
+     * @return True if SAS functions were called in ZrtpEngine
      */
     public boolean setZrtpSASVerification(boolean verified);
 
@@ -295,7 +295,7 @@ public interface CallSession
      * Adds a specific <code>VideoListener</code> to this
      * <code>CallSession</code> in order to receive notifications when
      * visual/video <code>Component</code>s are being added and removed.
-     * 
+     *
      * @param listener the <code>VideoListener</code> to be notified when
      *            visual/video <code>Component</code>s are being added or
      *            removed in this <code>CallSession</code>
@@ -335,7 +335,7 @@ public interface CallSession
     /**
      * Gets the visual/video <code>Component</code>s available in this
      * <code>CallSession</code>.
-     * 
+     *
      * @return an array of the visual <code>Component</code>s available in this
      *         <code>CallSession</code>
      */
@@ -346,7 +346,7 @@ public interface CallSession
      * <code>CallSession</code> in order to no longer have it receive
      * notifications when visual/video <code>Component</code>s are being added
      * and removed.
-     * 
+     *
      * @param listener the <code>VideoListener</code> to no longer be notified
      *            when visual/video <code>Component</code>s are being added or
      *            removed in this <code>CallSession</code>
@@ -381,7 +381,7 @@ public interface CallSession
     /**
      * Sets a <tt>SessionCreatorCallback</tt> that will listen for
      * security events.
-     * 
+     *
      * @param sessionCreatorCallBack the <tt>SessionCreatorCallback</tt> to
      * set
      */
@@ -391,7 +391,7 @@ public interface CallSession
     /**
      * Returns the <tt>SessionCreatorCallback</tt> which listens for
      * security events.
-     * 
+     *
      * @return the <tt>SessionCreatorCallback</tt> which listens for
      * security events
      */

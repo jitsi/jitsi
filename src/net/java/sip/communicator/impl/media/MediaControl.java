@@ -650,88 +650,61 @@ public class MediaControl
                 "Couldn't find any tracks in sourceProcessor"
                 , MediaException.INTERNAL_ERROR);
         }
-        if (logger.isDebugEnabled()
-                && (sourceProcessor.getState() > Processor.Configured))
+        if (    logger.isDebugEnabled()
+             && (sourceProcessor.getState() > Processor.Configured))
             logger.debug(
                 "sourceProcessor is in state "
                     + sourceProcessor.getState()
                     + " which is > Processor.Configured"
                     + " and then TrackControl.setFormat(Format) may not work.");
         boolean atLeastOneTrack = false;
-        // Program the tracks.
+        // Go through all the tracks in our device processor (we would normally
+        // have one per device or in other words one for video and another one
+        // for audio) processor and set them to transmit in whatever format we
+        // promised via sdp.
         for (int i = 0; i < tracks.length; i++)
         {
-            if (tracks[i].isEnabled())
+            if (!tracks[i].isEnabled())
             {
-                Format[] supported = tracks[i].getSupportedFormats();
-                if (logger.isDebugEnabled())
+                tracks[i].setEnabled(false);//is this really necessary?
+                continue;
+            }
+            Format[] supported = tracks[i].getSupportedFormats();
+            if (supported.length == 0)
+            {
+                logger.debug("No available encodings.");
+                tracks[i].setEnabled(false);
+                continue;
+            }
+
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("Available encodings are:");
+                for (int j = 0; j < supported.length; j++)
                 {
-                    logger.debug("Available encodings are:");
-                    for (int j = 0; j < supported.length; j++)
-                    {
-                        logger.debug("track[" + i + "] format[" + j + "]="
-                                     + supported[j].getEncoding());
-                    }
+                    logger.debug("track[" + i + "] format[" + j + "]="
+                                 + supported[j].getEncoding());
                 }
+            }
 
-                // We've set the output content to the RAW_RTP.
-                // So all the supported formats should work with RTP.
-                // We'll pick one that matches those specified by the
-                // constructor.
-                if (supported.length > 0)
+            // We've set the output content to the RAW_RTP.
+            // So all the supported formats should work with RTP.
+            // We'll pick one that matches those specified by the
+            // constructor.
+            if (supported[0] instanceof VideoFormat)
+            {
+                // For video formats, we should double check the
+                // sizes since not all formats work in all sizes.
+                int index = findFirstMatchingFormat(supported,encodingSets);
+                if (index != -1)
                 {
-                    if (supported[0] instanceof VideoFormat)
-                    {
-                        // For video formats, we should double check the
-                        // sizes since not all formats work in all sizes.
-                        int index = findFirstMatchingFormat(supported,
-                            encodingSets);
-                        if (index != -1)
-                        {
-                            Format chosenFormat = assertSize(
-                                (VideoFormat)supported[index]);
+                    Format chosenFormat = assertSize(
+                        (VideoFormat)supported[index]);
 
-                            tracks[i].setFormat(chosenFormat);
-                            logger.debug("Track " + i + " is set to transmit "
-                                         + "as: " + chosenFormat);
-                            atLeastOneTrack = true;
-                        }
-                        else
-                        {
-                            tracks[i].setEnabled(false);
-                        }
-                    }
-                    else
-                    {
-                        if (FMJConditionals.FORCE_AUDIO_FORMAT != null)
-                        {
-                            tracks[i].setFormat(FMJConditionals.FORCE_AUDIO_FORMAT);
-                            atLeastOneTrack = true;
-                        }
-                        else
-                        {
-                            int index = findFirstMatchingFormat(supported,
-                                encodingSets);
-                            if (index != -1)
-                            {
-                                Format setFormat
-                                    = tracks[i].setFormat(supported[index]);
-                                if (logger.isDebugEnabled())
-                                {
-                                    logger.debug(
-                                            "Track "
-                                            + i
-                                            + " is set to transmit as: "
-                                            + setFormat);
-                                }
-                                atLeastOneTrack = true;
-                            }
-                            else
-                            {
-                                tracks[i].setEnabled(false);
-                            }
-                        }
-                    }
+                    tracks[i].setFormat(chosenFormat);
+                    logger.debug("Track " + i + " is set to transmit "
+                                 + "as: " + chosenFormat);
+                    atLeastOneTrack = true;
                 }
                 else
                 {
@@ -740,7 +713,30 @@ public class MediaControl
             }
             else
             {
-                tracks[i].setEnabled(false);
+                if (FMJConditionals.FORCE_AUDIO_FORMAT != null)
+                {
+                    tracks[i].setFormat(FMJConditionals.FORCE_AUDIO_FORMAT);
+                    atLeastOneTrack = true;
+                }
+                else
+                {
+                    int index = findFirstMatchingFormat(supported,encodingSets);
+                    if (index != -1)
+                    {
+                        Format setFormat
+                            = tracks[i].setFormat(supported[index]);
+                        if (logger.isDebugEnabled())
+                        {
+                            logger.debug( "Track " + i
+                                 + " is set to transmit as: " + setFormat);
+                        }
+                        atLeastOneTrack = true;
+                    }
+                    else
+                    {
+                        tracks[i].setEnabled(false);
+                    }
+                }
             }
         }
         if (!atLeastOneTrack)
@@ -1116,7 +1112,7 @@ public class MediaControl
      * audio. If the setting changes the state of this instance, registered
      * <code>PropertyChangeListener</code>s are notified about the change of the
      * value of the property {@link #VIDEO_DATA_SOURCE}.
-     * 
+     *
      * @param videoDataSource a <code>SourceCloneable</code> representing the
      *            <code>DataSource</code> to be used by this instance to capture
      *            video.
@@ -1133,7 +1129,7 @@ public class MediaControl
     /**
      * Creates a <code>DataSource</code> which gives access to the local video
      * this instance captures and controls.
-     * 
+     *
      * @return a <code>DataSource</code> which gives access to the local video
      *         this instance captures and controls; <tt>null</tt> if video is
      *         not utilized by this instance

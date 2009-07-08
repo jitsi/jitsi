@@ -133,11 +133,13 @@ public class SipSecurityManager
         if (challenge.getStatusCode() == Response.UNAUTHORIZED)
         {
             authHeaders = challenge.getHeaders(WWWAuthenticateHeader.NAME);
+            reoriginatedRequest.removeHeader(AuthorizationHeader.NAME);
         }
         else if (challenge.getStatusCode()
                  == Response.PROXY_AUTHENTICATION_REQUIRED)
         {
             authHeaders = challenge.getHeaders(ProxyAuthenticateHeader.NAME);
+            reoriginatedRequest.removeHeader(ProxyAuthorizationHeader.NAME);
         }
 
         if (authHeaders == null)
@@ -148,8 +150,7 @@ public class SipSecurityManager
 
         //Remove all authorization headers from the request (we'll re-add them
         //from cache)
-        reoriginatedRequest.removeHeader(AuthorizationHeader.NAME);
-        reoriginatedRequest.removeHeader(ProxyAuthorizationHeader.NAME);
+
 
         //rfc 3261 says that the cseq header should be augmented for the new
         //request. do it here so that the new dialog (created together with
@@ -359,7 +360,7 @@ public class SipSecurityManager
     {
         String response = null;
 
-        // JvB: authHeader.getQop() is a quoted _list_ of qop values 
+        // JvB: authHeader.getQop() is a quoted _list_ of qop values
         // (e.g. "auth,auth-int") Client is supposed to pick one
         String qopList = authHeader.getQop();
         String qop = (qopList != null) ? "auth" : null;
@@ -419,7 +420,7 @@ public class SipSecurityManager
             }
 
             // jvb added
-            if (qop!=null) 
+            if (qop!=null)
             {
                 authorization.setQop(qop);
                 authorization.setCNonce(cnonce);
@@ -504,7 +505,7 @@ public class SipSecurityManager
         else
             defaultCredentials.setUserName(accountID.getUserID());
 
-        UserCredentials newCredentials = 
+        UserCredentials newCredentials =
             getSecurityAuthority().obtainCredentials(
                 realm,
                 defaultCredentials,
