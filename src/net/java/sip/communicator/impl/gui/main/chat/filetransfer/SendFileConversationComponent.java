@@ -188,4 +188,16 @@ public class SendFileConversationComponent
     {
         return date;
     }
+
+    /**
+     * Returns the label to show on the progress bar.
+     * 
+     * @param bytesString the bytes that have been transfered
+     * @return the label to show on the progress bar
+     */
+    protected String getProgressLabel(String bytesString)
+    {
+        return bytesString
+            + " " + resources.getI18NString("service.gui.SENT");
+    }
 }

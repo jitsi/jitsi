@@ -403,10 +403,9 @@ public abstract class FileTransferConversationComponent
         progressBar.setValue((int) event.getProgress());
 
         ByteFormat format = new ByteFormat();
-        String bytesSent = format.format(
+        String bytesString = format.format(
             event.getFileTransfer().getTransferedBytes());
-        progressBar.setString(bytesSent
-            + " " + resources.getI18NString("service.gui.SENT"));
+        progressBar.setString(getProgressLabel(bytesString));
     }
 
     /**
@@ -440,4 +439,12 @@ public abstract class FileTransferConversationComponent
 
         return fileName + " (" + text + ")";
     }
+
+    /**
+     * Returns the label to show on the progress bar.
+     * 
+     * @param bytesString the bytes that have been transfered
+     * @return the label to show on the progress bar
+     */
+    protected abstract String getProgressLabel(String bytesString);
 }

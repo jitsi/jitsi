@@ -120,4 +120,14 @@ public class FileHistoryConversationComponent
     {
         return new Date(fileRecord.getDate());
     }
+
+    /**
+     * We don't have progress label in history.
+     * 
+     * @return empty string
+     */
+    protected String getProgressLabel(String bytesString)
+    {
+        return "";
+    }
 }
