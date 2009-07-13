@@ -237,8 +237,9 @@ public class TestOperationSetMultiUserChat2
         suite.addTest(
             new TestOperationSetMultiUserChat2("testLeave"));
 
-        suite.addTest(
-            new TestOperationSetMultiUserChat2("testNickName"));
+        //@todo must be tested, it regulary fails, so it was disabled.
+//        suite.addTest(
+//            new TestOperationSetMultiUserChat2("testNickName"));
 
         suite.addTest(
             new TestOperationSetMultiUserChat2("testRoomSubject"));
@@ -688,10 +689,8 @@ public class TestOperationSetMultiUserChat2
      * In <tt>testNickName</tt>, user nicknames will be changed
      * and we will check if changes are well reflected on both user
      * sides.
-     *
-     * @todo must be tested, it regulary fails, so it was disabled.
      */
-    public void disable_testNickName()
+    public void testNickName()
         throws OperationFailedException,
                OperationNotSupportedException
     {
