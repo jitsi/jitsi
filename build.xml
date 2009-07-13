@@ -1210,6 +1210,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="${testsrc}/net/java/sip/communicator/slick/protocol/jabber/jabber.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/jabber"
                 prefix="net/java/sip/communicator/slick/protocol/jabber"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/generic"
+                prefix="net/java/sip/communicator/slick/protocol/generic"/>
         </jar>
     </target>
 
@@ -1279,6 +1281,8 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/yahoo"
                 prefix="net/java/sip/communicator/slick/protocol/yahoo"/>
             <zipfileset src="${lib.noinst}/ymsg_network_v0_63.jar" prefix=""/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/generic"
+                prefix="net/java/sip/communicator/slick/protocol/generic"/>
         </jar>
     </target>
 

@@ -13,4 +13,5 @@ Import-Package: net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.util,
  net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.jabberconstants,
- net.java.sip.communicator.service.protocol.event
+ net.java.sip.communicator.service.protocol.event,
+ net.java.sip.communicator.service.fileaccess

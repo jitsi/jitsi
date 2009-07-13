@@ -352,6 +352,12 @@ public class ProtocolProviderServiceYahooImpl
                 OperationSetTypingNotifications.class.getName(),
                 typingNotifications);
 
+            OperationSetFileTransferYahooImpl fileTransferOpSet =
+               new OperationSetFileTransferYahooImpl(this);
+
+            supportedOperationSets.put(OperationSetFileTransfer.class.getName(),
+                   fileTransferOpSet);
+
             isInitialized = true;
         }
     }
