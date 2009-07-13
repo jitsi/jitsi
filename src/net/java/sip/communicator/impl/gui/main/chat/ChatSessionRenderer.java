@@ -8,8 +8,6 @@ package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.util.*;
 
-import java.util.*;
-
 import net.java.sip.communicator.service.protocol.*;
 
 /**
