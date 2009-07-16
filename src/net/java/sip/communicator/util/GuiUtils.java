@@ -122,17 +122,25 @@ public class GuiUtils
         int month2 = c2.get(Calendar.MONTH);
         int year2 = c2.get(Calendar.YEAR);
 
-        if((day1 == day2)
-                && (month1 == month2)
-                && (year1 == year2))
-        {
-            return 0;
-        }
-        else if((day1 < day2)
-                && (month1 <= month2)
-                && (year1 <= year2))
+        if (year1 < year2)
         {
             return -1;
+        }
+        else if (year1 == year2)
+        {
+            if (month1 < month2)
+                return -1;
+            else if (month1 == month2)
+            {
+                if (day1 < day2)
+                    return -1;
+                else if (day1 == day2)
+                    return 0;
+                else
+                    return 1;
+            }
+            else
+                return 1;
         }
         else
         {
