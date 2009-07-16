@@ -6,10 +6,6 @@
  */
 package net.java.sip.communicator.impl.gui.main.chat;
 
-import java.util.*;
-
-import net.java.sip.communicator.service.protocol.*;
-
 /**
  * The <tt>ChatSessionRenderer</tt> is the connector between the
  * <tt>ChatSession</tt> and the <tt>ChatPanel</tt>, which represents the UI
