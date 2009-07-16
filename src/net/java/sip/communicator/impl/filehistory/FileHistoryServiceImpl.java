@@ -752,7 +752,7 @@ public class FileHistoryServiceImpl
 
             historyWriter.addRecord(new String[]{
                 req.getFileName(),
-               getDirection(FileTransfer.IN),
+                getDirection(FileTransfer.IN),
                 String.valueOf(event.getTimestamp().getTime()),
                 FILE_TRANSFER_ACTIVE,
                 req.getID()
@@ -835,6 +835,24 @@ public class FileHistoryServiceImpl
 
     public void fileTransferRequestCanceled(FileTransferRequestEvent event)
     {
+        try
+        {
+            IncomingFileTransferRequest req = event.getRequest();
+
+            History history = getHistory(null, req.getSender());
+            HistoryWriter historyWriter = history.getWriter();
+
+            historyWriter.updateRecord(
+                STRUCTURE_NAMES[4],
+                req.getID(),
+                STRUCTURE_NAMES[3],
+                FileRecord.CANCELED
+            );
+        }
+        catch (IOException e)
+        {
+            logger.error("Could not add file transfer log to history", e);
+        }
     }
 
     /**

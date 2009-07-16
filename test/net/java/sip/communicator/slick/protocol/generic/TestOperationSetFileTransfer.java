@@ -302,8 +302,8 @@ public abstract class TestOperationSetFileTransfer
             fileTransferRequestEvent
                 = (FileTransferRequestEvent)receiverFTListerner.collectedEvents.get(0);
 
-            assertTrue("FileTransfer must be rejected"
-                         ,receiverFTListerner.isRejected());
+            assertTrue("FileTransfer must be canceled"
+                         ,receiverFTListerner.isCanceled());
         }
         finally
         {
@@ -730,6 +730,7 @@ public abstract class TestOperationSetFileTransfer
     {
         public ArrayList collectedEvents = new ArrayList();
         private boolean rejected = false;
+        private boolean canceled = false;
         private FileTransferStatusEventCollector statusCollector = null;
         private String name = null;
 
@@ -844,6 +845,15 @@ public abstract class TestOperationSetFileTransfer
 
         public void fileTransferRequestCanceled(FileTransferRequestEvent event)
         {
+            synchronized(this)
+            {
+                logger.debug(
+                    name + " Collected evt("+collectedEvents.size()+")= "+event);
+
+                canceled = true;
+                this.collectedEvents.add(event);
+                notifyAll();
+            }
         }
 
         public void clear()
@@ -858,6 +868,14 @@ public abstract class TestOperationSetFileTransfer
         public boolean isRejected()
         {
             return rejected;
+        }
+
+        /**
+         * @return the rejected
+         */
+        public boolean isCanceled()
+        {
+            return canceled;
         }
     }
 

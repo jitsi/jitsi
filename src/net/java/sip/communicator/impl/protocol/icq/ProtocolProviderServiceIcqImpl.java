@@ -528,6 +528,12 @@ public class ProtocolProviderServiceIcqImpl
                 supportedOperationSets.put(
                     OperationSetExtendedAuthorizations.class.getName(),
                     extendedAuth);
+
+                OperationSetFileTransferIcqImpl fileTransferOpSet =
+                    new OperationSetFileTransferIcqImpl(this);
+                supportedOperationSets.put(
+                    OperationSetFileTransfer.class.getName(),
+                    fileTransferOpSet);
             }
 
             isInitialized = true;

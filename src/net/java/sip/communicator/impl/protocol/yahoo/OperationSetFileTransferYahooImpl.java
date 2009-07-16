@@ -262,6 +262,29 @@ public class OperationSetFileTransferYahooImpl
         }
     }
 
+    /**
+     * Delivers the specified event to all registered file transfer listeners.
+     *
+     * @param event the <tt>EventObject</tt> that we'd like delivered to all
+     * registered file transfer listeners.
+     */
+    void fireFileTransferRequestCanceled(FileTransferRequestEvent event)
+    {
+        Iterator<FileTransferListener> listeners = null;
+        synchronized (fileTransferListeners)
+        {
+            listeners = new ArrayList<FileTransferListener>
+                            (fileTransferListeners).iterator();
+        }
+
+        while (listeners.hasNext())
+        {
+            FileTransferListener listener = listeners.next();
+
+            listener.fileTransferRequestCanceled(event);
+        }
+    }
+
     private int getStateMapping(int s)
     {
         switch(s)
@@ -336,13 +359,23 @@ public class OperationSetFileTransferYahooImpl
 
         int newState = ev.getState();
 
+        if(newState == SessionFileTransferEvent.CANCEL
+            || newState == SessionFileTransferEvent.FAILED
+            || newState == SessionFileTransferEvent.RECEIVED
+            || newState == SessionFileTransferEvent.REFUSED
+            || newState == SessionFileTransferEvent.SENT)
+        {
+            // this is an final state so remove it from active filetransfers
+            activeFileTransfers.remove(ev.getId());
+        }
+
         if(ftObj instanceof IncomingFileTransferRequest)
         {
             if(newState == SessionFileTransferEvent.REFUSED)
             {
                 IncomingFileTransferRequestYahooImpl req =
                     (IncomingFileTransferRequestYahooImpl)ftObj;
-                fireFileTransferRequestRejected(
+                fireFileTransferRequestCanceled(
                     new FileTransferRequestEvent(this, req, req.getDate()));
                 return;
             }
