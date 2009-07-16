@@ -1006,5 +1006,8 @@ public class TestMetaHistoryService
         {
         }
 
+        public void fileTransferRequestCanceled(FileTransferRequestEvent event)
+        {
+        }
     }
 }

@@ -21,6 +21,11 @@ public class FileTransferRequestEvent
     extends EventObject
 {
     /**
+     * The request that triggered this event.
+     */
+    private final IncomingFileTransferRequest request;
+
+    /**
      * The timestamp indicating the exact date when the event occurred.
      */
     private final Date timestamp;
@@ -29,17 +34,32 @@ public class FileTransferRequestEvent
      * Creates a <tt>FileTransferRequestEvent</tt> representing reception
      * of an incoming file transfer request.
      *
+     * @param the operation set, where this event initially occurred
      * @param request the <tt>IncomingFileTranferRequest</tt> whose reception
      * this event represents.
      * @param timestamp the timestamp indicating the exact date when the event
      * occurred
      */
-    public FileTransferRequestEvent(IncomingFileTransferRequest request,
+    public FileTransferRequestEvent(OperationSetFileTransfer fileTransferOpSet,
+                                    IncomingFileTransferRequest request,
                                     Date timestamp)
     {
-        super(request);
+        super(fileTransferOpSet);
 
+        this.request = request;
         this.timestamp = timestamp;
+    }
+
+    /**
+     * Returns the <tt>OperationSetFileTransfer</tt>, where this event initially
+     * occurred.
+     * 
+     * @return the <tt>OperationSetFileTransfer</tt>, where this event initially
+     * occurred
+     */
+    public OperationSetFileTransfer getFileTransferOperationSet()
+    {
+        return (OperationSetFileTransfer) getSource();
     }
 
      /**
@@ -50,7 +70,7 @@ public class FileTransferRequestEvent
      */
     public IncomingFileTransferRequest getRequest()
     {
-        return (IncomingFileTransferRequest) getSource();
+        return request;
     }
 
     /**

@@ -19,6 +19,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>FileTransferConversationComponent</tt> is the parent of all file
@@ -58,9 +59,26 @@ public abstract class FileTransferConversationComponent
 
     protected final JProgressBar progressBar = new JProgressBar();
 
+    private final TransparentPanel progressPropertiesPanel
+        = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
+
+    private final JLabel progressSpeedLabel = new JLabel();
+
+    private final JLabel estimatedTimeLabel = new JLabel();
+
     private File downloadFile;
 
     private FileTransfer fileTransfer;
+
+    private long lastSpeedTimestamp = 0;
+
+    private long lastEstimatedTimeTimestamp = 0;
+
+    private long lastTransferredBytes = 0;
+
+    private long lastProgressSpeed;
+
+    private long lastEstimatedTime;
 
     /**
      * Creates a file conversation component.
@@ -80,7 +98,7 @@ public abstract class FileTransferConversationComponent
 
         constraints.gridx = 1;
         constraints.gridy = 0;
-        constraints.gridwidth = 2;
+        constraints.gridwidth = 3;
         constraints.gridheight = 1;
         constraints.fill=GridBagConstraints.HORIZONTAL;
         constraints.weightx = 1.0;
@@ -99,6 +117,7 @@ public abstract class FileTransferConversationComponent
 
         constraints.gridx = 1;
         constraints.gridy = 2;
+        constraints.gridwidth = 1;
         constraints.anchor = GridBagConstraints.WEST;
         constraints.insets = new Insets(0, 5, 0, 5);
         constraints.fill = GridBagConstraints.NONE;
@@ -108,6 +127,7 @@ public abstract class FileTransferConversationComponent
 
         constraints.gridx = 2;
         constraints.gridy = 2;
+        constraints.gridwidth = 2;
         constraints.anchor = GridBagConstraints.WEST;
         constraints.insets = new Insets(0, 5, 0, 5);
         constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -144,6 +164,36 @@ public abstract class FileTransferConversationComponent
             GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
         cancelButton.addActionListener(this);
         cancelButton.setVisible(false);
+
+        constraints.gridx = 2;
+        constraints.gridy = 3;
+        constraints.gridwidth = GridBagConstraints.RELATIVE;
+        constraints.gridheight = 1;
+        constraints.weightx = 0.0;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.insets = new Insets(0, 5, 0, 5);
+
+        constraints.gridx = 3;
+        constraints.gridy = 3;
+        constraints.gridwidth = 1;
+        constraints.gridheight = 1;
+        constraints.weightx = 0.0;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.anchor = GridBagConstraints.LINE_END;
+        constraints.insets = new Insets(0, 5, 0, 5);
+
+        add(progressPropertiesPanel, constraints);
+
+        estimatedTimeLabel.setFont(
+            estimatedTimeLabel.getFont().deriveFont(11f));
+        estimatedTimeLabel.setVisible(false);
+        progressSpeedLabel.setFont(
+            progressSpeedLabel.getFont().deriveFont(11f));
+        progressSpeedLabel.setVisible(false);
+
+        progressPropertiesPanel.add(progressSpeedLabel);
+        progressPropertiesPanel.add(estimatedTimeLabel);
 
         constraints.gridx = 1;
         constraints.gridy = 3;
@@ -206,7 +256,7 @@ public abstract class FileTransferConversationComponent
 
         constraints.gridx = 1;
         constraints.gridy = 2;
-        constraints.gridwidth = 2;
+        constraints.gridwidth = 3;
         constraints.gridheight = 1;
         constraints.weightx = 1.0;
         constraints.anchor = GridBagConstraints.WEST;
@@ -402,10 +452,48 @@ public abstract class FileTransferConversationComponent
     {
         progressBar.setValue((int) event.getProgress());
 
+        long transferredBytes = event.getFileTransfer().getTransferedBytes();
+        long progressTimestamp = event.getTimestamp();
+
         ByteFormat format = new ByteFormat();
-        String bytesString = format.format(
-            event.getFileTransfer().getTransferedBytes());
+        String bytesString = format.format(transferredBytes);
+
+        if ((progressTimestamp - lastSpeedTimestamp) >= 5000)
+        {
+            lastProgressSpeed
+                = Math.round(calculateProgressSpeed(transferredBytes));
+
+            this.lastSpeedTimestamp = progressTimestamp;
+            this.lastTransferredBytes = transferredBytes;
+        }
+
+        if ((progressTimestamp - lastEstimatedTimeTimestamp) >= 5000
+            && lastProgressSpeed > 0)
+        {
+            lastEstimatedTime = Math.round(calculateEstimatedTransferTime(
+                lastProgressSpeed,
+                event.getFileTransfer().getFile().length() - transferredBytes));
+
+            lastEstimatedTimeTimestamp = progressTimestamp;
+        }
+
         progressBar.setString(getProgressLabel(bytesString));
+
+        if (lastProgressSpeed > 0)
+        {
+            progressSpeedLabel.setText(
+                resources.getI18NString("service.gui.SPEED")
+                + format.format(lastProgressSpeed));
+            progressSpeedLabel.setVisible(true);
+        }
+
+        if (lastEstimatedTime > 0)
+        {
+            estimatedTimeLabel.setText(
+                resources.getI18NString("service.gui.ESTIMATED_TIME")
+                + GuiUtils.formatSeconds(lastEstimatedTime*1000));
+            estimatedTimeLabel.setVisible(true);
+        }
     }
 
     /**
@@ -441,10 +529,45 @@ public abstract class FileTransferConversationComponent
     }
 
     /**
+     * Hides all progress related components.
+     */
+    protected void hideProgressRelatedComponents()
+    {
+        progressBar.setVisible(false);
+        progressSpeedLabel.setVisible(false);
+        estimatedTimeLabel.setVisible(false);
+    }
+
+    /**
      * Returns the label to show on the progress bar.
      * 
      * @param bytesString the bytes that have been transfered
      * @return the label to show on the progress bar
      */
     protected abstract String getProgressLabel(String bytesString);
+
+    /**
+     * Returns the speed of the transfer.
+     * 
+     * @param progressTimestamp the time indicating when the progress event
+     * occured.
+     * @param transferredBytes the number of bytes that have been transferred
+     * @return the speed of the transfer
+     */
+    private double calculateProgressSpeed(long transferredBytes)
+    {
+        // Bytes per second = bytes per 5000 miliseconds * 1000.
+        return (transferredBytes - lastTransferredBytes) / 5;
+    }
+
+    /**
+     * 
+     * @param speed
+     * @param fileSize
+     * @return
+     */
+    private double calculateEstimatedTransferTime(double speed, long bytesLeft)
+    {
+        return bytesLeft / speed;
+    }
 }

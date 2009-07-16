@@ -159,7 +159,7 @@ public abstract class AbstractFileTransfer
      * Notifies all status listeners that a new
      * <tt>FileTransferProgressEvent</tt> occured.
      */
-    public void fireProgressChangeEvent(int progress)
+    public void fireProgressChangeEvent(long timestamp, int progress)
     {
         Collection<FileTransferProgressListener> listeners = null;
         synchronized (progressListeners)
@@ -169,7 +169,7 @@ public abstract class AbstractFileTransfer
         }
 
         FileTransferProgressEvent progressEvent
-            = new FileTransferProgressEvent(this, progress);
+            = new FileTransferProgressEvent(this, timestamp, progress);
 
         Iterator<FileTransferProgressListener> listenersIter
             = listeners.iterator();

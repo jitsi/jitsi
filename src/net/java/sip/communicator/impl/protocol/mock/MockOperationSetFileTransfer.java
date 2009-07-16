@@ -84,56 +84,57 @@ public class MockOperationSetFileTransfer
 
         fireFileTransferRequest(
             new FileTransferRequestEvent(
+                this,
                 new IncomingFileTransferRequest()
-        {
-            public String getID()
-            {
-                return id;
-            }
+                {
+                    public String getID()
+                    {
+                        return id;
+                    }
 
-            public String getFileName()
-            {
-                return file.getName();
-            }
+                    public String getFileName()
+                    {
+                        return file.getName();
+                    }
 
-            public String getFileDescription()
-            {
-                return file.toString();
-            }
+                    public String getFileDescription()
+                    {
+                        return file.toString();
+                    }
 
-            public long getFileSize()
-            {
-                return file.length();
-            }
+                    public long getFileSize()
+                    {
+                        return file.length();
+                    }
 
-            public Contact getSender()
-            {
-                return from;
-            }
+                    public Contact getSender()
+                    {
+                        return from;
+                    }
 
-            public FileTransfer acceptFile(File file)
-            {
-                MockFileTransferImpl fileTrans =
-                    new MockFileTransferImpl(
-                            from,
-                            file,
-                            id,
-                            FileTransfer.IN);
+                    public FileTransfer acceptFile(File file)
+                    {
+                        MockFileTransferImpl fileTrans =
+                            new MockFileTransferImpl(
+                                    from,
+                                    file,
+                                    id,
+                                    FileTransfer.IN);
 
-                fireFileTransferCreated(
-                    new FileTransferCreatedEvent(fileTrans, requestDate));
+                        fireFileTransferCreated(
+                            new FileTransferCreatedEvent(fileTrans, requestDate));
 
-                changeFileTransferStatus(fileTrans,
-                    FileTransferStatusChangeEvent.PREPARING);
+                        changeFileTransferStatus(fileTrans,
+                            FileTransferStatusChangeEvent.PREPARING);
 
-                return fileTrans;
-            }
+                        return fileTrans;
+                    }
 
-            public void rejectFile()
-            {
-                
-            }
-        }, requestDate));
+                    public void rejectFile()
+                    {
+
+                    }
+                }, requestDate));
     }
 
     /**

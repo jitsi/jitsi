@@ -163,7 +163,7 @@ public class IncomingFileTransferRequestJabberImpl
         fileTransferRequest.reject();
 
         fileTransferOpSet.fireFileTransferRequestRejected(
-            new FileTransferRequestEvent(this, this.date));
+            new FileTransferRequestEvent(fileTransferOpSet, this, this.date));
     }
 
     /**

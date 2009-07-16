@@ -61,22 +61,26 @@ public class ByteFormat extends Format
         if (obj instanceof Long)
         {
             long numBytes = (Long) obj;
-            if (numBytes < 1024) {
+            if (numBytes < 1024)
+            {
                 DecimalFormat formatter = new DecimalFormat("#,##0");
                 buf.append(formatter.format((double)numBytes)).append(" bytes");
             }
-            else if (numBytes < 1024 * 1024) {
+            else if (numBytes < 1024 * 1024)
+            {
                 DecimalFormat formatter = new DecimalFormat("#,##0.0");
                 buf.append(
                     formatter.format((double)numBytes / 1024.0)).append(" K");
             }
-            else if (numBytes < 1024 * 1024 * 1024) {
+            else if (numBytes < 1024 * 1024 * 1024)
+            {
                 DecimalFormat formatter = new DecimalFormat("#,##0.0");
                 buf.append(
                     formatter.format((double)numBytes / (1024.0 * 1024.0)))
                         .append(" MB");
             }
-            else {
+            else
+            {
                 DecimalFormat formatter = new DecimalFormat("#,##0.0");
                 buf.append(
                     formatter.format(

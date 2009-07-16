@@ -1693,13 +1693,15 @@ public class ChatPanel
      * @param date the date on which the request has been received
      */
     public void addIncomingFileTransferRequest(
+        OperationSetFileTransfer fileTransferOpSet,
         IncomingFileTransferRequest request,
         Date date)
     {
         this.addActiveFileTransfer(request.getID(), request);
 
         ReceiveFileConversationComponent component
-            = new ReceiveFileConversationComponent(this, request, date);
+            = new ReceiveFileConversationComponent(
+                this, fileTransferOpSet, request, date);
 
         if (ConfigurationManager.isHistoryShown() && !isHistoryLoaded)
         {

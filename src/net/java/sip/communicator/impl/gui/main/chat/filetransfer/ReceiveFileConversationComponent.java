@@ -27,12 +27,15 @@ import net.java.sip.communicator.util.swing.SwingWorker;
 public class ReceiveFileConversationComponent
     extends FileTransferConversationComponent
     implements  ActionListener,
-                FileTransferStatusListener
+                FileTransferStatusListener,
+                FileTransferListener
 {
     private final Logger logger
         = Logger.getLogger(ReceiveFileConversationComponent.class);
 
     private final IncomingFileTransferRequest fileTransferRequest;
+
+    private final OperationSetFileTransfer fileTransferOpSet;
 
     private final ChatPanel chatPanel;
 
@@ -48,13 +51,17 @@ public class ReceiveFileConversationComponent
      */
     public ReceiveFileConversationComponent(
         ChatPanel chatPanel,
+        final OperationSetFileTransfer opSet,
         final IncomingFileTransferRequest request,
         final Date date)
     {
         this.chatPanel = chatPanel;
+        this.fileTransferOpSet = opSet;
         this.fileTransferRequest = request;
         this.date = date;
         this.dateString = getDateString(date);
+
+        fileTransferOpSet.addFileTransferListener(this);
 
         titleLabel.setText(
             dateString
@@ -176,7 +183,8 @@ public class ReceiveFileConversationComponent
 
         if (status == FileTransferStatusChangeEvent.PREPARING)
         {
-            progressBar.setVisible(false);
+            hideProgressRelatedComponents();
+
             titleLabel.setText(
                 dateString
                 + resources.getI18NString(
@@ -185,7 +193,8 @@ public class ReceiveFileConversationComponent
         }
         else if (status == FileTransferStatusChangeEvent.FAILED)
         {
-            progressBar.setVisible(false);
+            hideProgressRelatedComponents();
+
             titleLabel.setText(
                 dateString
                 + resources.getI18NString(
@@ -212,8 +221,9 @@ public class ReceiveFileConversationComponent
         {
             this.setCompletedDownloadFile(fileTransfer.getFile());
 
-            progressBar.setVisible(false);
+            hideProgressRelatedComponents();
             cancelButton.setVisible(false);
+
             openFileButton.setVisible(true);
             openFolderButton.setVisible(true);
 
@@ -225,7 +235,8 @@ public class ReceiveFileConversationComponent
         }
         else if (status == FileTransferStatusChangeEvent.CANCELED)
         {
-            progressBar.setVisible(false);
+            hideProgressRelatedComponents();
+
             cancelButton.setVisible(false);
 
             titleLabel.setText(
@@ -236,7 +247,8 @@ public class ReceiveFileConversationComponent
         }
         else if (status == FileTransferStatusChangeEvent.REFUSED)
         {
-            progressBar.setVisible(false);
+            hideProgressRelatedComponents();
+
             titleLabel.setText(
                 dateString
                 + resources.getI18NString(
@@ -245,6 +257,7 @@ public class ReceiveFileConversationComponent
             cancelButton.setVisible(false);
             openFileButton.setVisible(false);
             openFolderButton.setVisible(false);
+
             setWarningStyle(true);
         }
     }
@@ -279,6 +292,11 @@ public class ReceiveFileConversationComponent
 
             chatPanel.addActiveFileTransfer(fileTransfer.getID(), fileTransfer);
 
+            // Remove previously added listener, that notified us for request
+            // cancellations.
+            fileTransferOpSet.removeFileTransferListener(
+                ReceiveFileConversationComponent.this);
+
             // Add the status listener that would notify us when the file
             // transfer has been completed and should be removed from
             // active components.
@@ -310,4 +328,31 @@ public class ReceiveFileConversationComponent
         return bytesString
             + " " + resources.getI18NString("service.gui.RECEIVED");
     }
+
+    public void fileTransferCreated(FileTransferCreatedEvent event)
+    {}
+
+    public void fileTransferRequestCanceled(FileTransferRequestEvent event)
+    {
+        IncomingFileTransferRequest request = event.getRequest();
+
+        if (request.equals(fileTransferRequest))
+        {
+            acceptButton.setVisible(false);
+            rejectButton.setVisible(false);
+
+            titleLabel.setText(
+                dateString
+                + resources.getI18NString(
+                "service.gui.FILE_TRANSFER_CANCELED"));
+
+            setWarningStyle(true);
+        }
+    }
+
+    public void fileTransferRequestReceived(FileTransferRequestEvent event)
+    {}
+
+    public void fileTransferRequestRejected(FileTransferRequestEvent event)
+    {}
 }

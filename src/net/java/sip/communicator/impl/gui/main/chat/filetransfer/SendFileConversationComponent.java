@@ -108,7 +108,7 @@ public class SendFileConversationComponent
 
         if (status == FileTransferStatusChangeEvent.PREPARING)
         {
-            progressBar.setVisible(false);
+            hideProgressRelatedComponents();
             titleLabel.setText(
                 dateString
                 + resources.getI18NString(
@@ -119,7 +119,8 @@ public class SendFileConversationComponent
         }
         else if (status == FileTransferStatusChangeEvent.FAILED)
         {
-            progressBar.setVisible(false);
+            hideProgressRelatedComponents();
+
             titleLabel.setText(
                 dateString
                 + resources.getI18NString(
@@ -145,7 +146,8 @@ public class SendFileConversationComponent
         }
         else if (status == FileTransferStatusChangeEvent.COMPLETED)
         {
-            progressBar.setVisible(false);
+            hideProgressRelatedComponents();
+
             titleLabel.setText(
                 dateString
                 + resources.getI18NString(
@@ -156,7 +158,8 @@ public class SendFileConversationComponent
         }
         else if (status == FileTransferStatusChangeEvent.CANCELED)
         {
-            progressBar.setVisible(false);
+            hideProgressRelatedComponents();
+
             titleLabel.setText(
                 dateString
                 + resources.getI18NString(
@@ -167,7 +170,8 @@ public class SendFileConversationComponent
         }
         else if (status == FileTransferStatusChangeEvent.REFUSED)
         {
-            progressBar.setVisible(false);
+            hideProgressRelatedComponents();
+
             titleLabel.setText(
                 dateString
                 + resources.getI18NString(

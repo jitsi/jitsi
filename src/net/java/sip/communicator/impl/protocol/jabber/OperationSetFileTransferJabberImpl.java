@@ -273,8 +273,10 @@ public class OperationSetFileTransferJabberImpl
 
             // Create an event associated to this global request.
             FileTransferRequestEvent fileTransferRequestEvent
-                = new FileTransferRequestEvent( incomingFileTransferRequest,
-                                                requestDate);
+                = new FileTransferRequestEvent(
+                    OperationSetFileTransferJabberImpl.this,
+                    incomingFileTransferRequest,
+                    requestDate);
 
             // Notify the global listener that a request has arrived.
             fireFileTransferRequest(fileTransferRequestEvent);
@@ -403,7 +405,8 @@ public class OperationSetFileTransferJabberImpl
                     }
 
                     fileTransfer.fireStatusChangeEvent(status);
-                    fileTransfer.fireProgressChangeEvent((int)progress);
+                    fileTransfer.fireProgressChangeEvent(
+                        System.currentTimeMillis(), (int) progress);
                 }
                 catch (InterruptedException e)
                 {
@@ -419,7 +422,8 @@ public class OperationSetFileTransferJabberImpl
             }
 
             fileTransfer.fireStatusChangeEvent(status);
-            fileTransfer.fireProgressChangeEvent((int)progress);
+            fileTransfer.fireProgressChangeEvent(
+                System.currentTimeMillis(), (int) progress);
         }
     }
 

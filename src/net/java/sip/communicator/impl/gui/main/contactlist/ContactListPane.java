@@ -217,16 +217,6 @@ public class ContactListPane
     }
 
     /**
-     * Called when a new <tt>IncomingFileTransferRequest</tt> has been rejected.
-     *
-     * @param event the <tt>FileTransferRequestEvent</tt> containing the
-     * received request which was rejected.
-     */
-    public void fileTransferRequestRejected(FileTransferRequestEvent event)
-    {
-    }
-
-    /**
      * Runs the chat window for the specified contact. We examine different
      * cases here, depending on the chat window mode.
      *
@@ -463,32 +453,33 @@ public class ContactListPane
             .findMetaContactByContact(sourceContact);
 
         if (evt.getErrorCode()
-                == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED) {
-
+                == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED)
+        {
             errorMsg = GuiActivator.getResources().getI18NString(
                     "service.gui.MSG_DELIVERY_NOT_SUPPORTED");
         }
         else if (evt.getErrorCode()
-                == MessageDeliveryFailedEvent.NETWORK_FAILURE) {
-
+                == MessageDeliveryFailedEvent.NETWORK_FAILURE)
+        {
             errorMsg = GuiActivator.getResources().getI18NString(
                     "service.gui.MSG_NOT_DELIVERED",
                     new String[]{evt.getReason()});
         }
         else if (evt.getErrorCode()
-                == MessageDeliveryFailedEvent.PROVIDER_NOT_REGISTERED) {
-
+                == MessageDeliveryFailedEvent.PROVIDER_NOT_REGISTERED)
+        {
             errorMsg = GuiActivator.getResources().getI18NString(
                     "service.gui.MSG_SEND_CONNECTION_PROBLEM");
         }
         else if (evt.getErrorCode()
-                == MessageDeliveryFailedEvent.INTERNAL_ERROR) {
-
+                == MessageDeliveryFailedEvent.INTERNAL_ERROR)
+        {
             errorMsg = GuiActivator.getResources().getI18NString(
                     "service.gui.MSG_DELIVERY_INTERNAL_ERROR",
                     new String[]{evt.getReason()});
         }
-        else {
+        else
+        {
             errorMsg = GuiActivator.getResources().getI18NString(
                     "service.gui.MSG_DELIVERY_UNKNOWN_ERROR",
                     new String[]{evt.getReason()});
@@ -596,7 +587,8 @@ public class ContactListPane
         final ChatPanel chatPanel = chatWindowManager
             .getContactChat(metaContact, sourceContact);
 
-        chatPanel.addIncomingFileTransferRequest(request, event.getTimestamp());
+        chatPanel.addIncomingFileTransferRequest(
+            event.getFileTransferOperationSet(), request, event.getTimestamp());
 
         ChatTransport chatTransport
             = chatPanel.getChatSession()
@@ -631,6 +623,28 @@ public class ContactListPane
      */
     public void fileTransferCreated(FileTransferCreatedEvent event)
     {}
+
+    /**
+     * Called when a new <tt>IncomingFileTransferRequest</tt> has been rejected.
+     * Nothing to do here, because we are the one who rejects the request.
+     *
+     * @param event the <tt>FileTransferRequestEvent</tt> containing the
+     * received request which was rejected.
+     */
+    public void fileTransferRequestRejected(FileTransferRequestEvent event)
+    {
+    }
+
+    /**
+     * Called when an <tt>IncomingFileTransferRequest</tt> has been canceled
+     * from the contact who sent it.
+     *
+     * @param event the <tt>FileTransferRequestEvent</tt> containing the 
+     * request which was canceled.
+     */
+    public void fileTransferRequestCanceled(FileTransferRequestEvent event)
+    {
+    }
 
     /**
      * Send a proactive notification according to the proactive timer.
@@ -742,7 +756,8 @@ public class ContactListPane
         {
             Object selectedValue = contactList.getSelectedValue();
 
-            if (selectedValue instanceof MetaContact) {
+            if (selectedValue instanceof MetaContact)
+            {
                 MetaContact contact = (MetaContact) selectedValue;
 
                 SwingUtilities.invokeLater(new RunMessageWindow(contact));

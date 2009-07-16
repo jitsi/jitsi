@@ -21,9 +21,27 @@ import javax.swing.*;
 public class GuiUtils
 {
     private static Calendar c1 = Calendar.getInstance();
-    
-    private static Calendar c2 = Calendar.getInstance();
-    
+
+    /**
+     * Number of milliseconds in a second.
+     */
+    public static final long MILLIS_PER_SECOND = 1000;
+
+    /**
+     * Number of milliseconds in a standard minute.
+     */
+    public static final long MILLIS_PER_MINUTE = 60 * MILLIS_PER_SECOND;
+
+    /**
+     * Number of milliseconds in a standard hour.
+     */
+    public static final long MILLIS_PER_HOUR = 60 * MILLIS_PER_MINUTE;
+
+    /**
+     * Number of milliseconds in a standard day.
+     */
+    public static final long MILLIS_PER_DAY = 24 * MILLIS_PER_HOUR;
+
     /**
      * Replaces some chars that are special in a regular expression.
      * @param text The initial text.
@@ -95,7 +113,7 @@ public class GuiUtils
      * @param date the date to format
      * @return the formatted date string
      */
-    public static String formatDate(long date)
+    public static String formatDate(final long date)
     {
         c1.setTimeInMillis(date);
 
@@ -248,5 +266,49 @@ public class GuiUtils
         String timeString = Integer.toString(time);
 
         return (timeString.length() < 2) ? "0".concat(timeString) : timeString;
+    }
+
+    /**
+     * Formats the given long to X hour, Y min, Z sec.
+     */
+    public static String formatSeconds(long millis)
+    {
+        long[] values = new long[4];
+        values[0] = millis / MILLIS_PER_DAY;
+        values[1] = (millis / MILLIS_PER_HOUR) % 24;
+        values[2] = (millis / MILLIS_PER_MINUTE) % 60;
+        values[3] = (millis / MILLIS_PER_SECOND) % 60;
+
+        String[] fields = { " d ", " h ", " min ", " sec" };
+
+        StringBuffer buf = new StringBuffer(64);
+        boolean valueOutput = false;
+
+        for (int i = 0; i < 4; i++)
+        {
+            long value = values[i];
+            if (value == 0)
+            {
+                // handle zero
+                if (valueOutput)
+                {
+                    buf.append('0').append(fields[i]);
+                }
+            }
+            else if (value == 1)
+            {
+                // one
+                valueOutput = true;
+                buf.append('1').append(fields[i]);
+            }
+            else
+            {
+                // other
+                valueOutput = true;
+                buf.append(value).append(fields[i]);
+            }
+        }
+
+        return buf.toString().trim();
     }
 }

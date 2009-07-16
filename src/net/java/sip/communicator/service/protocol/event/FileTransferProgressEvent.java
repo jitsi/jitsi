@@ -25,19 +25,27 @@ public class FileTransferProgressEvent
     private int progress;
 
     /**
+     * Indicates when this event occured.
+     */
+    private long timestamp;
+
+    /**
      * Creates a <tt>FileTransferProgressEvent</tt> by specifying the source
      * file transfer object, that triggered the event and the new progress
      * value.
      * 
      * @param fileTransfer the source file transfer object, that triggered the
      * event
+     * @param timestamp when this event occured
      * @param progress the new progress value
      */
     public FileTransferProgressEvent(   FileTransfer fileTransfer,
+                                        long timestamp,
                                         int progress)
     {
         super(fileTransfer);
 
+        this.timestamp = timestamp;
         this.progress = progress;
     }
 
@@ -59,5 +67,15 @@ public class FileTransferProgressEvent
     public int getProgress()
     {
         return progress;
+    }
+
+    /**
+     * Returns the timestamp when this event initially occured.
+     * 
+     * @return the timestamp when this event initially occured
+     */
+    public long getTimestamp()
+    {
+        return timestamp;
     }
 }

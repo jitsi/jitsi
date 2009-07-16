@@ -833,6 +833,10 @@ public class FileHistoryServiceImpl
         }
     }
 
+    public void fileTransferRequestCanceled(FileTransferRequestEvent event)
+    {
+    }
+
     /**
      * Used to compare FileRecords
      * and to be ordered in TreeSet according their timestamp

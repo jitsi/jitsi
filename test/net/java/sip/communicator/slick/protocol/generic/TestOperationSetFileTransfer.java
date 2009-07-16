@@ -842,6 +842,10 @@ public abstract class TestOperationSetFileTransfer
             }
         }
 
+        public void fileTransferRequestCanceled(FileTransferRequestEvent event)
+        {
+        }
+
         public void clear()
         {
             collectedEvents.clear();

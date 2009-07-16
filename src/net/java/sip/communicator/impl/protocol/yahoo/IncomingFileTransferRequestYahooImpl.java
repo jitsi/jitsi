@@ -163,7 +163,8 @@ public class IncomingFileTransferRequestYahooImpl
         yahooProvider.getYahooSession().fileTransferReject(id);
 
         fileTransferOpSet.fireFileTransferRequestRejected(
-            new FileTransferRequestEvent(this, this.getDate()));
+            new FileTransferRequestEvent(
+                fileTransferOpSet, this, this.getDate()));
     }
 
     /**

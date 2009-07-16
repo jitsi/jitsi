@@ -77,15 +77,4 @@ public interface ChatSessionRenderer
      * @param subject the new subject to set.
      */
     public void setChatSubject(String subject);
-
-    /**
-     * Adds the given <tt>IncomingFileTransferRequest</tt> to the conversation
-     * panel in order to notify the user of the incoming file.
-     * 
-     * @param request the request to display in the conversation panel
-     * @param date the date on which the request has been received
-     */
-    public void addIncomingFileTransferRequest(
-        IncomingFileTransferRequest request,
-        Date date);
 }

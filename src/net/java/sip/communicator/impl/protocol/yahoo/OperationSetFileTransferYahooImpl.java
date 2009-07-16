@@ -313,8 +313,7 @@ public class OperationSetFileTransferYahooImpl
 
             activeFileTransfers.put(ev.getId(), req);
             fireFileTransferRequest(
-                new FileTransferRequestEvent(req, recvDate));
-            
+                new FileTransferRequestEvent(this, req, recvDate));
         }
     }
 
@@ -344,7 +343,7 @@ public class OperationSetFileTransferYahooImpl
                 IncomingFileTransferRequestYahooImpl req =
                     (IncomingFileTransferRequestYahooImpl)ftObj;
                 fireFileTransferRequestRejected(
-                    new FileTransferRequestEvent(req, req.getDate()));
+                    new FileTransferRequestEvent(this, req, req.getDate()));
                 return;
             }
         }
@@ -365,7 +364,8 @@ public class OperationSetFileTransferYahooImpl
                     FileTransferStatusChangeEvent.IN_PROGRESS);
 
             ft.setTransferedBytes(ev.getProgress());
-            ft.fireProgressChangeEvent((int)ev.getProgress());
+            ft.fireProgressChangeEvent(
+                System.currentTimeMillis(), (int)ev.getProgress());
         }
         else
             ft.fireStatusChangeEvent(getStateMapping(newState));
