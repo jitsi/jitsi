@@ -22,6 +22,8 @@ public class GuiUtils
 {
     private static Calendar c1 = Calendar.getInstance();
 
+    private static Calendar c2 = Calendar.getInstance();
+
     /**
      * Number of milliseconds in a second.
      */
@@ -94,6 +96,48 @@ public class GuiUtils
     public static int compareDates(long date1, long date2)
     {
         return (date1 < date2 ? -1 : (date1 == date2 ? 0 : 1));
+    }
+
+    /**
+     * Compares the two dates. The comparison is based only on the day, month
+     * and year values. Returns 0 if the two dates are equals, a value < 0 if
+     * the first date is before the second one and > 0 if the first date is
+     * after the second one.
+     * @param date1 the first date to compare
+     * @param date2 the second date to compare with 
+     * @return Returns 0 if the two dates are equals, a value < 0 if
+     * the first date is before the second one and > 0 if the first date is
+     * after the second one
+     */
+    public static int compareDatesOnly(long date1, long date2)
+    {
+        c1.setTimeInMillis(date1);
+        c2.setTimeInMillis(date2);
+
+        int day1 = c1.get(Calendar.DAY_OF_MONTH);
+        int month1 = c1.get(Calendar.MONTH);
+        int year1 = c1.get(Calendar.YEAR);
+
+        int day2 = c2.get(Calendar.DAY_OF_MONTH);
+        int month2 = c2.get(Calendar.MONTH);
+        int year2 = c2.get(Calendar.YEAR);
+
+        if((day1 == day2)
+                && (month1 == month2)
+                && (year1 == year2))
+        {
+            return 0;
+        }
+        else if((day1 < day2)
+                && (month1 <= month2)
+                && (year1 <= year2))
+        {
+            return -1;
+        }
+        else
+        {
+            return 1;
+        }
     }
 
     /**
@@ -173,12 +217,12 @@ public class GuiUtils
         int sec
             = (int)(( difMil - days*milPerDay - hour*milPerHour - min*milPerMin)
                     / milPerSec);
-        
+
         c1.clear();
         c1.set(Calendar.HOUR, hour);
         c1.set(Calendar.MINUTE, min);
         c1.set(Calendar.SECOND, sec);
-        
+
         return c1.getTime();
     }
 

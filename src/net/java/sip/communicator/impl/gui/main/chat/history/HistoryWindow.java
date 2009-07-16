@@ -733,7 +733,7 @@ public class HistoryWindow
     public void messageReceived(MessageReceivedEvent evt)
     {
         Contact sourceContact = evt.getSourceContact();
-        
+
         this.processMessage(sourceContact, evt.getTimestamp(),
             Constants.INCOMING_MESSAGE,
             evt.getSourceMessage().getContent(),
@@ -789,7 +789,8 @@ public class HistoryWindow
             Date lastDate = datesPanel.getDate(lastDateIndex);
 
             if(lastDate != null
-                && GuiUtils.compareDates(lastDate.getTime(), timestamp) == 0)
+                && GuiUtils.compareDatesOnly(
+                    lastDate.getTime(), timestamp) == 0)
             {
                 HTMLDocument document = dateHistoryTable.get(lastDate);
 
@@ -797,7 +798,8 @@ public class HistoryWindow
                 {
                     ChatMessage chatMessage = new ChatMessage(
                         contact.getDisplayName(),
-                        timestamp, messageType,
+                        timestamp,
+                        messageType,
                         messageContent,
                         messageContentType);
 
@@ -808,7 +810,7 @@ public class HistoryWindow
                 }
             }
             else if (lastDate == null
-                || GuiUtils.compareDates(lastDate.getTime(), timestamp) < 0)
+                || GuiUtils.compareDatesOnly(lastDate.getTime(), timestamp) < 0)
             {
                 long milisecondsPerDay = 24*60*60*1000;
 
