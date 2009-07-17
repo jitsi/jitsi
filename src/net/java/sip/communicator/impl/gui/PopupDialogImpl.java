@@ -21,7 +21,7 @@ public class PopupDialogImpl
 {
     private static final long serialVersionUID = 0L;
 
-	/**
+    /**
      * Creates an instance of <tt>PopupDialogImpl</tt>.
      */
     public PopupDialogImpl()

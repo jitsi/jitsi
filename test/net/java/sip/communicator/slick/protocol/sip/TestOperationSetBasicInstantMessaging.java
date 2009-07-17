@@ -286,7 +286,7 @@ public class TestOperationSetBasicInstantMessaging
         assertEquals("message content type"
                 , OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE
                 , evt.getSourceMessage().getContentType());
-        
+
         // ensure that we received every messages event
         try {
             synchronized (this) {
@@ -356,7 +356,7 @@ public class TestOperationSetBasicInstantMessaging
             ((MessageReceivedEvent)imEvtCollector2.collectedEvents
                                .get(0)).getSourceMessage().getContent();
         assertEquals("received message body", msg.getContent(), receivedBody);
-        
+
         // ensure that we received every messages event
         try {
             synchronized (this) {
@@ -423,7 +423,7 @@ public class TestOperationSetBasicInstantMessaging
             assertEquals("message length", body.getBytes(encoding).length,
                     msg.getSize());
         } catch (UnsupportedEncodingException e) {
-        	logger.warn("The current content encoding isn't supported", e);
+            logger.warn("The current content encoding isn't supported", e);
             assertTrue("message body bytes"
                     , Arrays.equals(body.getBytes(), msg.getRawData()));
             assertEquals("message length", body.getBytes().length,

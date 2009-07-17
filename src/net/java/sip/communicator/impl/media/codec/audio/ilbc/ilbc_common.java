@@ -17,9 +17,9 @@ class ilbc_common {
 
     public static int LSF_check(    /* (o) 1 for stable lsf vectors and 0 for
                               nonstable ones */
-			 float lsf[],     /* (i) a table of lsf vectors */
-			 int dim,    /* (i) the dimension of each lsf vector */
-			 int NoAn)    /* (i) the number of lsf vectors in the
+             float lsf[],     /* (i) a table of lsf vectors */
+             int dim,    /* (i) the dimension of each lsf vector */
+             int NoAn)    /* (i) the number of lsf vectors in the
                               table */
     {
        int k,n,m, Nit=2, change=0,pos;
@@ -99,15 +99,15 @@ class ilbc_common {
        /* initialization of buffers and coefficients */
 
        for (int li = 0; li < ilbc_constants.LPC_FILTERORDER; li++) {
-	   tmpbuf[li] = 0.0f;
-	   foutbuf[li] = 0.0f;
+       tmpbuf[li] = 0.0f;
+       foutbuf[li] = 0.0f;
        }
        //       memset(tmpbuf, 0, LPC_FILTERORDER*sizeof(float));
        //       memset(foutbuf, 0, LPC_FILTERORDER*sizeof(float));
 
        for (k=0; k < ilbc_constants.LPC_FILTERORDER; k++) {
            numerator[k]=syntDenum[syntDenum_idx + ilbc_constants.LPC_FILTERORDER - k];
-	   //System.out.println("numerator-" + k + " = " + numerator[k] + " (( " + syntDenum[syntDenum_idx + ilbc_constants.LPC_FILTERORDER - k]);
+       //System.out.println("numerator-" + k + " = " + numerator[k] + " (( " + syntDenum[syntDenum_idx + ilbc_constants.LPC_FILTERORDER - k]);
        }
 
        numerator[ilbc_constants.LPC_FILTERORDER]=syntDenum[syntDenum_idx];
@@ -119,27 +119,27 @@ class ilbc_common {
        /* decoding of the sample values */
 
        //       for (int li = 0; li < idxVec.length; li++)
-	 //System.out.println("idxVec["+li+"] = " + idxVec[li]);
+     //System.out.println("idxVec["+li+"] = " + idxVec[li]);
 
        for (k=0; k<len; k++) {
            tmpi = len-1-k;
            /* maxVal = 1/scal */
            tmpbuf[tmp+k] = maxVal*ilbc_constants.state_sq3Tbl[idxVec[tmpi]];
-	   //System.out.println("index " + k + ", valeur " + tmpbuf[tmp+k]);
+       //System.out.println("index " + k + ", valeur " + tmpbuf[tmp+k]);
        }
 
        /* circular convolution with all-pass filter */
 
        for (int li = 0; li < len; li++)
-	   tmpbuf[tmp+len+li] = 0.0f;
+       tmpbuf[tmp+len+li] = 0.0f;
        //       memset(tmp+len, 0, len*sizeof(float));
        ilbc_common.ZeroPoleFilter(tmpbuf, tmp, numerator, syntDenum, syntDenum_idx,
-				  2*len, ilbc_constants.LPC_FILTERORDER,
-				  foutbuf, fout);
+                  2*len, ilbc_constants.LPC_FILTERORDER,
+                  foutbuf, fout);
        for (k=0;k<len;k++) {
            out[out_idx+k] = foutbuf[fout+len-1-k]+foutbuf[fout+2*len-1-k];
-	   //System.out.println("MEM -- index " + out_idx + " + " + k + " initialise a " + out[out_idx+k]);
-	   //System.out.println("       calcul : " + foutbuf[fout+len-1-k] + " + " + foutbuf[fout+2*len-1-k]);
+       //System.out.println("MEM -- index " + out_idx + " + " + k + " initialise a " + out[out_idx+k]);
+       //System.out.println("       calcul : " + foutbuf[fout+len-1-k] + " + " + foutbuf[fout+2*len-1-k]);
        }
    }
 
@@ -164,13 +164,13 @@ class ilbc_common {
        int lengthInOut,/* (i) number of input/output samples */
        int orderCoef)   /* (i) number of filter coefficients */
     {
-	int n, k;
+    int n, k;
 
-	for(n = 0; n < lengthInOut; n++) {
-	    for(k = 1; k <= orderCoef; k++) {
-		InOut[n+InOut_idx] -= Coef[Coef_idx + k] * InOut[n-k+InOut_idx];
-	    }
-	}
+    for(n = 0; n < lengthInOut; n++) {
+        for(k = 1; k <= orderCoef; k++) {
+        InOut[n+InOut_idx] -= Coef[Coef_idx + k] * InOut[n-k+InOut_idx];
+        }
+    }
     }
 
    /*----------------------------------------------------------------*
@@ -227,8 +227,8 @@ class ilbc_common {
                               contain filtered samples */
        int Out_idx)
     {
-	AllZeroFilter(In, In_idx, ZeroCoef, lengthInOut, orderCoef, Out, Out_idx);
-	AllPoleFilter(Out, Out_idx, PoleCoef, PoleCoef_idx, lengthInOut, orderCoef);
+    AllZeroFilter(In, In_idx, ZeroCoef, lengthInOut, orderCoef, Out, Out_idx);
+    AllPoleFilter(Out, Out_idx, PoleCoef, PoleCoef_idx, lengthInOut, orderCoef);
     }
 
    /*----------------------------------------------------------------*
@@ -237,22 +237,22 @@ class ilbc_common {
 
     public static void lsf2a(float a_coef[], float freq[])
     {
-	int i, j;
-	float hlp;
-	float [] p = new float[ilbc_constants.LPC_HALFORDER];
-	float [] q = new float[ilbc_constants.LPC_HALFORDER];
-	float [] a = new float[ilbc_constants.LPC_HALFORDER + 1];
-	float [] a1 = new float[ilbc_constants.LPC_HALFORDER];
-	float [] a2 = new float[ilbc_constants.LPC_HALFORDER];
-	float [] b = new float[ilbc_constants.LPC_HALFORDER + 1];
-	float [] b1 = new float[ilbc_constants.LPC_HALFORDER];
-	float [] b2 = new float[ilbc_constants.LPC_HALFORDER];
+    int i, j;
+    float hlp;
+    float [] p = new float[ilbc_constants.LPC_HALFORDER];
+    float [] q = new float[ilbc_constants.LPC_HALFORDER];
+    float [] a = new float[ilbc_constants.LPC_HALFORDER + 1];
+    float [] a1 = new float[ilbc_constants.LPC_HALFORDER];
+    float [] a2 = new float[ilbc_constants.LPC_HALFORDER];
+    float [] b = new float[ilbc_constants.LPC_HALFORDER + 1];
+    float [] b1 = new float[ilbc_constants.LPC_HALFORDER];
+    float [] b2 = new float[ilbc_constants.LPC_HALFORDER];
 
-	//System.out.println("debut de lsf2a");
+    //System.out.println("debut de lsf2a");
 
-	for (i=0; i < ilbc_constants.LPC_FILTERORDER; i++) {
-	    freq[i] = freq[i] * ilbc_constants.PI2;
-	}
+    for (i=0; i < ilbc_constants.LPC_FILTERORDER; i++) {
+        freq[i] = freq[i] * ilbc_constants.PI2;
+    }
 
        /* Check input for ill-conditioned cases.  This part is not
        found in the TIA standard.  It involves the following 2 IF
@@ -282,18 +282,18 @@ class ilbc_common {
        }
 
        for (int li = 0; li < ilbc_constants.LPC_HALFORDER; li++) {
-	   a1[li] = 0.0f;
-	   a2[li] = 0.0f;
-	   b1[li] = 0.0f;
-	   b2[li] = 0.0f;
+       a1[li] = 0.0f;
+       a2[li] = 0.0f;
+       b1[li] = 0.0f;
+       b2[li] = 0.0f;
        }
 //        memset(a1, 0, LPC_HALFORDER*sizeof(float));
 //        memset(a2, 0, LPC_HALFORDER*sizeof(float));
 //        memset(b1, 0, LPC_HALFORDER*sizeof(float));
 //        memset(b2, 0, LPC_HALFORDER*sizeof(float));
        for (int li = 0; li < ilbc_constants.LPC_HALFORDER + 1; li++) {
-	   a[li] = 0.0f;
-	   b[li] = 0.0f;
+       a[li] = 0.0f;
+       b[li] = 0.0f;
        }
 //        memset(a, 0, (LPC_HALFORDER+1)*sizeof(float));
 //        memset(b, 0, (LPC_HALFORDER+1)*sizeof(float));
@@ -340,7 +340,7 @@ class ilbc_common {
            }
 
            a_coef[j + 1] = 2 * (a[ilbc_constants.LPC_HALFORDER] +
-				b[ilbc_constants.LPC_HALFORDER]);
+                b[ilbc_constants.LPC_HALFORDER]);
        }
 
        a_coef[0] = 1.0f;
@@ -370,8 +370,8 @@ class ilbc_common {
        invcoef = 1.0f - coef;
        for (i = 0; i < length; i++) {
            out[i] = coef * in1[i] + invcoef * in2[i + in2_idx];
-	   //	   System.out.println("out["+i+"] devient " + out[i] + ", par " +
-	   //			      coef + " * " + in1[i] + " + " + invcoef + " * " + in2[i + in2_idx]);
+       //       System.out.println("out["+i+"] devient " + out[i] + ", par " +
+       //                  coef + " * " + in1[i] + " + " + invcoef + " * " + in2[i + in2_idx]);
        }
    }
 
@@ -380,39 +380,39 @@ class ilbc_common {
     *---------------------------------------------------------------*/
 
     public static void bwexpand(
-		 float out[],      /* (o) the bandwidth expanded lpc
+         float out[],      /* (o) the bandwidth expanded lpc
                               coefficients */
-		 int out_idx,
-		 float in[],      /* (i) the lpc coefficients before bandwidth
+         int out_idx,
+         float in[],      /* (i) the lpc coefficients before bandwidth
                               expansion */
-		 float coef,     /* (i) the bandwidth expansion factor */
-		 int length)      /* (i) the length of lpc coefficient vectors */
+         float coef,     /* (i) the bandwidth expansion factor */
+         int length)      /* (i) the length of lpc coefficient vectors */
     {
-	int i;
-	float  chirp;
+    int i;
+    float  chirp;
 
-	chirp = coef;
+    chirp = coef;
 
-	out[out_idx] = in[0];
-	for (i = 1; i < length; i++) {
-	    out[i + out_idx] = chirp * in[i];
-	    chirp *= coef;
-	}
+    out[out_idx] = in[0];
+    for (i = 1; i < length; i++) {
+        out[i + out_idx] = chirp * in[i];
+        chirp *= coef;
+    }
     }
 
     public static void getCBvec(
-		  float cbvec[],  /* (o) Constructed codebook vector */
-		  float mem[],    /* (i) Codebook buffer */
-		  int mem_idx,
-		  int index,      /* (i) Codebook index */
-		  int lMem,       /* (i) Length of codebook buffer */
-		  int cbveclen)   /* (i) Codebook vector length */
+          float cbvec[],  /* (o) Constructed codebook vector */
+          float mem[],    /* (i) Codebook buffer */
+          int mem_idx,
+          int index,      /* (i) Codebook index */
+          int lMem,       /* (i) Length of codebook buffer */
+          int cbveclen)   /* (i) Codebook vector length */
     {
-	int j, k, n, memInd, sFilt;
-	float [] tmpbuf = new float[ilbc_constants.CB_MEML];
-	int base_size;
-	int ilow, ihigh;
-	float alfa, alfa1;
+    int j, k, n, memInd, sFilt;
+    float [] tmpbuf = new float[ilbc_constants.CB_MEML];
+    int base_size;
+    int ilow, ihigh;
+    float alfa, alfa1;
 
        /* Determine size of codebook sections */
 
@@ -430,8 +430,8 @@ class ilbc_common {
 
            k=index+cbveclen;
            /* get vector */
-	   System.arraycopy(mem, mem_idx + lMem - k, cbvec, 0, cbveclen);
-	   //           memcpy(cbvec, mem+lMem-k, cbveclen*sizeof(float));
+       System.arraycopy(mem, mem_idx + lMem - k, cbvec, 0, cbveclen);
+       //           memcpy(cbvec, mem+lMem-k, cbveclen*sizeof(float));
 
        } else if (index < base_size) {
 
@@ -442,8 +442,8 @@ class ilbc_common {
 
            /* Copy first noninterpolated part */
 
-	   System.arraycopy(mem, mem_idx + lMem - k / 2, cbvec, 0, ilow);
-	   //           memcpy(cbvec, mem+lMem-k/2, ilow*sizeof(float));
+       System.arraycopy(mem, mem_idx + lMem - k / 2, cbvec, 0, ilow);
+       //           memcpy(cbvec, mem+lMem-k/2, ilow*sizeof(float));
 
            /* interpolation */
 
@@ -457,7 +457,7 @@ class ilbc_common {
 
            /* Copy second noninterpolated part */
 
-	   System.arraycopy(mem, mem_idx+lMem-k+ihigh, cbvec, ihigh, (cbveclen-ihigh));
+       System.arraycopy(mem, mem_idx+lMem-k+ihigh, cbvec, ihigh, (cbveclen-ihigh));
 //            memcpy(cbvec+ihigh, mem+lMem-k+ihigh,
 //                (cbveclen-ihigh)*sizeof(float));
 
@@ -473,17 +473,17 @@ class ilbc_common {
                float [] tempbuff2 = new float[ilbc_constants.CB_MEML+ilbc_constants.CB_FILTERLEN+1];
 //                float *pos;
 //                float *pp, *pp1;
-	       int pos, pp, pp1;
+           int pos, pp, pp1;
 
-	       for (int li = 0; li < ilbc_constants.CB_HALFFILTERLEN; li++)
-		   tempbuff2[li] = 0.0f;
+           for (int li = 0; li < ilbc_constants.CB_HALFFILTERLEN; li++)
+           tempbuff2[li] = 0.0f;
 //                memset(tempbuff2, 0,
 //                    CB_HALFFILTERLEN*sizeof(float));
-	       System.arraycopy(mem, mem_idx, tempbuff2, ilbc_constants.CB_HALFFILTERLEN, lMem);
+           System.arraycopy(mem, mem_idx, tempbuff2, ilbc_constants.CB_HALFFILTERLEN, lMem);
 //                memcpy(&tempbuff2[CB_HALFFILTERLEN], mem,
 //                    lMem*sizeof(float));
-	       for (int li = 0; li < ilbc_constants.CB_HALFFILTERLEN + 1; li++)
-		   tempbuff2[lMem + ilbc_constants.CB_HALFFILTERLEN + li] = 0.0f;
+           for (int li = 0; li < ilbc_constants.CB_HALFFILTERLEN + 1; li++)
+           tempbuff2[lMem + ilbc_constants.CB_HALFFILTERLEN + li] = 0.0f;
 //                memset(&tempbuff2[lMem+CB_HALFFILTERLEN], 0,
 //                    (CB_HALFFILTERLEN+1)*sizeof(float));
 
@@ -492,21 +492,21 @@ class ilbc_common {
                memInd=sFilt+1-ilbc_constants.CB_HALFFILTERLEN;
 
                /* do filtering */
-	       //               pos=cbvec;
-	       pos = 0;
-	       for (int li = 0; li < cbveclen; li++)
-		   cbvec[li] = 0;
+           //               pos=cbvec;
+           pos = 0;
+           for (int li = 0; li < cbveclen; li++)
+           cbvec[li] = 0;
 //                memset(pos, 0, cbveclen*sizeof(float));
                for (n=0; n<cbveclen; n++) {
-		   pp = memInd + n + ilbc_constants.CB_HALFFILTERLEN;
+           pp = memInd + n + ilbc_constants.CB_HALFFILTERLEN;
 //                    pp=&tempbuff2[memInd+n+CB_HALFFILTERLEN];
-		   pp1 = ilbc_constants.CB_FILTERLEN - 1;
+           pp1 = ilbc_constants.CB_FILTERLEN - 1;
 //                    pp1=&cbfiltersTbl[CB_FILTERLEN-1];
                    for (j=0; j < ilbc_constants.CB_FILTERLEN; j++) {
 //                        (*pos)+=(*pp++)*(*pp1--);
-		       cbvec[pos] += tempbuff2[pp] * ilbc_constants.cbfiltersTbl[pp1];
-		       pp++;
-		       pp1--;
+               cbvec[pos] += tempbuff2[pp] * ilbc_constants.cbfiltersTbl[pp1];
+               pp++;
+               pp1--;
                    }
                    pos++;
                }
@@ -519,43 +519,43 @@ class ilbc_common {
 
 //                float *pos;
 //                float *pp, *pp1;
-	       int pos, pp, pp1;
+           int pos, pp, pp1;
                int i;
 
-	       for (int li = 0; li < ilbc_constants.CB_HALFFILTERLEN; li++)
-		   tempbuff2[li] = 0.0f;
+           for (int li = 0; li < ilbc_constants.CB_HALFFILTERLEN; li++)
+           tempbuff2[li] = 0.0f;
 //                memset(tempbuff2, 0,
 //                    CB_HALFFILTERLEN*sizeof(float));
-	       System.arraycopy(mem, mem_idx, tempbuff2, ilbc_constants.CB_HALFFILTERLEN, lMem);
+           System.arraycopy(mem, mem_idx, tempbuff2, ilbc_constants.CB_HALFFILTERLEN, lMem);
 //                memcpy(&tempbuff2[CB_HALFFILTERLEN], mem,
 //                    lMem*sizeof(float));
-	       for (int li = 0; li < ilbc_constants.CB_HALFFILTERLEN; li++)
-		   tempbuff2[lMem+ilbc_constants.CB_HALFFILTERLEN+li] = 0.0f;
+           for (int li = 0; li < ilbc_constants.CB_HALFFILTERLEN; li++)
+           tempbuff2[lMem+ilbc_constants.CB_HALFFILTERLEN+li] = 0.0f;
 //                memset(&tempbuff2[lMem+CB_HALFFILTERLEN], 0,
 //                    (CB_HALFFILTERLEN+1)*sizeof(float));
 
                k=2*(index-base_size-
-		    (lMem-cbveclen+1))+cbveclen;
+            (lMem-cbveclen+1))+cbveclen;
                sFilt=lMem-k;
                memInd=sFilt+1 - ilbc_constants.CB_HALFFILTERLEN;
 
                /* do filtering */
-	       //               pos=&tmpbuf[sFilt];
-	       pos = sFilt;
-	       //               memset(pos, 0, k*sizeof(float));
-	       for (int li = 0; li < k; li++)
-		   tmpbuf[pos+li] = 0.0f;
+           //               pos=&tmpbuf[sFilt];
+           pos = sFilt;
+           //               memset(pos, 0, k*sizeof(float));
+           for (int li = 0; li < k; li++)
+           tmpbuf[pos+li] = 0.0f;
 
                for (i=0; i<k; i++) {
-		   pp = memInd + i + ilbc_constants.CB_HALFFILTERLEN;
+           pp = memInd + i + ilbc_constants.CB_HALFFILTERLEN;
 //                    pp=&tempbuff2[memInd+i+CB_HALFFILTERLEN];
-		   pp1 = ilbc_constants.CB_FILTERLEN-1;
+           pp1 = ilbc_constants.CB_FILTERLEN-1;
 //                    pp1=&cbfiltersTbl[CB_FILTERLEN-1];
                    for (j=0; j < ilbc_constants.CB_FILTERLEN; j++) {
-		       //                       (*pos)+=(*pp++)*(*pp1--);
-		       tmpbuf[pos] += tempbuff2[pp] * ilbc_constants.cbfiltersTbl[pp1];
-		       pp++;
-		       pp1--;
+               //                       (*pos)+=(*pp++)*(*pp1--);
+               tmpbuf[pos] += tempbuff2[pp] * ilbc_constants.cbfiltersTbl[pp1];
+               pp++;
+               pp1--;
                    }
                    pos++;
                }
@@ -565,7 +565,7 @@ class ilbc_common {
 
                /* Copy first noninterpolated part */
 
-	       System.arraycopy(tmpbuf, lMem - k / 2, cbvec, 0, ilow);
+           System.arraycopy(tmpbuf, lMem - k / 2, cbvec, 0, ilow);
 //                memcpy(cbvec, tmpbuf+lMem-k/2,
 //                    ilow*sizeof(float));
 
@@ -581,7 +581,7 @@ class ilbc_common {
 
                /* Copy second noninterpolated part */
 
-	       System.arraycopy(tmpbuf, lMem-k+ihigh, cbvec, ihigh, cbveclen - ihigh);
+           System.arraycopy(tmpbuf, lMem-k+ihigh, cbvec, ihigh, cbveclen - ihigh);
 //                memcpy(cbvec+ihigh, tmpbuf+lMem-k+ihigh,
 //                    (cbveclen-ihigh)*sizeof(float));
            }
@@ -591,50 +591,50 @@ class ilbc_common {
 
 
     public static float gainquant(/* (o) quantized gain value */
-		    float in,       /* (i) gain value */
-		    float maxIn,/* (i) maximum of gain value */
-		    int cblen,      /* (i) number of quantization indices */
-		    int index[],      /* (o) quantization index */
-		    int index_idx)
+            float in,       /* (i) gain value */
+            float maxIn,/* (i) maximum of gain value */
+            int cblen,      /* (i) number of quantization indices */
+            int index[],      /* (o) quantization index */
+            int index_idx)
     {
-	int i, tindex;
-	float minmeasure,measure, cb[], scale;
+    int i, tindex;
+    float minmeasure,measure, cb[], scale;
 
-	/* ensure a lower bound on the scaling factor */
+    /* ensure a lower bound on the scaling factor */
 
-	scale = maxIn;
+    scale = maxIn;
 
-	if (scale < 0.1) {
-	    scale = (float)0.1;
-	}
+    if (scale < 0.1) {
+        scale = (float)0.1;
+    }
 
-	/* select the quantization table */
+    /* select the quantization table */
 
-	if (cblen == 8) {
-	    cb = ilbc_constants.gain_sq3Tbl;
-	} else if (cblen == 16) {
-	    cb = ilbc_constants.gain_sq4Tbl;
-	} else  {
-	    cb = ilbc_constants.gain_sq5Tbl;
-	}
+    if (cblen == 8) {
+        cb = ilbc_constants.gain_sq3Tbl;
+    } else if (cblen == 16) {
+        cb = ilbc_constants.gain_sq4Tbl;
+    } else  {
+        cb = ilbc_constants.gain_sq5Tbl;
+    }
 
-	/* select the best index in the quantization table */
+    /* select the best index in the quantization table */
 
-	minmeasure=10000000.0f;
-	tindex=0;
-	for (i=0; i<cblen; i++) {
-	    measure = (in - scale*cb[i])*(in-scale*cb[i]);
+    minmeasure=10000000.0f;
+    tindex=0;
+    for (i=0; i<cblen; i++) {
+        measure = (in - scale*cb[i])*(in-scale*cb[i]);
 
-	    if (measure<minmeasure) {
-		tindex=i;
-		minmeasure=measure;
-	    }
-	}
-	index[index_idx] = tindex;
+        if (measure<minmeasure) {
+        tindex=i;
+        minmeasure=measure;
+        }
+    }
+    index[index_idx] = tindex;
 
-	/* return the quantized value */
+    /* return the quantized value */
 
-	return scale*cb[tindex];
+    return scale*cb[tindex];
     }
 
     /*----------------------------------------------------------------*
@@ -643,47 +643,47 @@ class ilbc_common {
      *---------------------------------------------------------------*/
 
     public static float gaindequant(  /* (o) quantized gain value */
-		      int index,      /* (i) quantization index */
-		      float maxIn,/* (i) maximum of unquantized gain */
-		      int cblen)       /* (i) number of quantization indices */
+              int index,      /* (i) quantization index */
+              float maxIn,/* (i) maximum of unquantized gain */
+              int cblen)       /* (i) number of quantization indices */
     {
-	float scale;
+    float scale;
 
-	/* obtain correct scale factor */
+    /* obtain correct scale factor */
 
-	scale=Math.abs(maxIn);
+    scale=Math.abs(maxIn);
 
-	if (scale < 0.1) {
-	    scale=(float)0.1;
-	}
+    if (scale < 0.1) {
+        scale=(float)0.1;
+    }
 
-	/* select the quantization table and return the decoded value */
+    /* select the quantization table and return the decoded value */
 
-	if (cblen==8) {
-	    return scale*ilbc_constants.gain_sq3Tbl[index];
-	} else if (cblen==16) {
-	    return scale*ilbc_constants.gain_sq4Tbl[index];
-	}
-	else if (cblen==32) {
-	    return scale*ilbc_constants.gain_sq5Tbl[index];
-	}
+    if (cblen==8) {
+        return scale*ilbc_constants.gain_sq3Tbl[index];
+    } else if (cblen==16) {
+        return scale*ilbc_constants.gain_sq4Tbl[index];
+    }
+    else if (cblen==32) {
+        return scale*ilbc_constants.gain_sq5Tbl[index];
+    }
 
-	return 0.0f;
+    return 0.0f;
     }
 
 
     public static void iCBConstruct(
-		     float decvector[],   /* (o) Decoded vector */
-		     int decvector_idx,
-		     int index[],         /* (i) Codebook indices */
-		     int index_idx,
-		     int gain_index[],/* (i) Gain quantization indices */
-		     int gain_index_idx,
-		     float mem[],         /* (i) Buffer for codevector construction */
-		     int mem_idx,
-		     int lMem,           /* (i) Length of buffer */
-		     int veclen,         /* (i) Length of vector */
-		     int nStages         /* (i) Number of codebook stages */
+             float decvector[],   /* (o) Decoded vector */
+             int decvector_idx,
+             int index[],         /* (i) Codebook indices */
+             int index_idx,
+             int gain_index[],/* (i) Gain quantization indices */
+             int gain_index_idx,
+             float mem[],         /* (i) Buffer for codevector construction */
+             int mem_idx,
+             int lMem,           /* (i) Length of buffer */
+             int veclen,         /* (i) Length of vector */
+             int nStages         /* (i) Number of codebook stages */
    ){
        int j,k;
 

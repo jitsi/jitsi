@@ -38,14 +38,14 @@ class MyRenderer implements TableCellRenderer
 {
     // Create a JLabel for use as a renderer and pre-load this label
     // with an icon image.
-    
+
     private JLabel l;
-    
+
     MyRenderer(JLabel JLIcon)
     {
         this.l = JLIcon;
     }
-    
+
     public Component getTableCellRendererComponent (
             JTable table,
             Object value,
@@ -55,11 +55,11 @@ class MyRenderer implements TableCellRenderer
             int column)
     {
         // Extract the original header renderer for this column.
-        
+
         TableCellRenderer tcr = table.getTableHeader().getDefaultRenderer ();
-        
+
         // Extract the component used to render the column header.
-        
+
         Component c = tcr.getTableCellRendererComponent (
                 table,
                 value,
@@ -67,22 +67,22 @@ class MyRenderer implements TableCellRenderer
                 hasFocus,
                 row,
                 column);
-        
+
         // Establish the font, foreground color, and border for the
         // JLabel so that the rendered header will look the same as the
         // other rendered headers.
-        
+
         l.setFont (c.getFont ());
         l.setForeground (c.getForeground ());
         l.setBorder (((JComponent) c).getBorder ());
-        
+
         // Establish the column name.
-        
+
         l.setText ((String) value);
-        
+
         // Return the cached JLabel a the renderer for this column
         // header.
-        
+
         return l;
     }
 }
@@ -193,9 +193,9 @@ public class ListMulti extends JPanel
         String strTmp = new String();
 
         model = new ListModel(columns, 0);
-        
+
         listMulti = new MyJTable(model);
-        
+
         listMulti.setRowSelectionAllowed(true);
         listMulti.getTableHeader().setReorderingAllowed(false);
         listMulti.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -212,7 +212,7 @@ public class ListMulti extends JPanel
             {
                 tmp.setHeaderValue((String)columns[i]);
             }
-            
+
             if(i == 0)
             {
                 tmp.setMaxWidth(67);
@@ -226,7 +226,7 @@ public class ListMulti extends JPanel
                 tmp.setPreferredWidth(25);
             }
         }
-        
+
         /* for headers */
         JScrollPane scrollPane = new JScrollPane(listMulti);
         this.add(scrollPane);
@@ -236,9 +236,9 @@ public class ListMulti extends JPanel
     public void addLine(NotificationsTableEntry dataNTE)
     {
         Object row[] = new Object[5];
-        
-        row[0] = dataNTE.getEnabled() 
-                ? new String("enable") 
+
+        row[0] = dataNTE.getEnabled()
+                ? new String("enable")
                 : new String("disable");
         row[1] = (dataNTE.getProgram()
                 && (dataNTE.getProgramFile().trim().length() > 0))
@@ -250,10 +250,10 @@ public class ListMulti extends JPanel
                 ? new String("Yes")
                 : new String("No");
         row[4] = dataNTE.getEvent();
-        
+
         this.addLine(row);
     }
-    
+
     public void addLine(Object data[])
     {
         if(data.length != model.getColumnCount())
@@ -264,7 +264,7 @@ public class ListMulti extends JPanel
         model.addRow(data);
 
     }
-    
+
     public int removeLine(int num)
     {
         model.removeRow(num);
@@ -285,25 +285,25 @@ public class ListMulti extends JPanel
     {
         return (String)listMulti.getValueAt(line, column);
     }
-    
+
     public void setValue(String value, int line, int column)
     {
         listMulti.setValueAt(value, line, column);
     }
-    
+
     /*
-     * 	Gives the number of lines of the Table.
+     * Gives the number of lines of the Table.
      */
     public int getRowCount()
     {
         return listMulti.getRowCount();
 
     }
-    
+
     public void setLine(NotificationsTableEntry dataNTE, int line)
     {
         Object row[] = new Object[5];
-        
+
         row[0] = dataNTE.getEnabled()
                 ? new String("enable")
                 : new String("disable");
@@ -317,10 +317,10 @@ public class ListMulti extends JPanel
                 ? new String("Yes")
                 : new String("No");
         row[4] = dataNTE.getEvent();
-        
+
         this.setLine(row,line);
     }
-    
+
     public void setLine(Object data[], int line)
     {
         int i;
@@ -329,16 +329,16 @@ public class ListMulti extends JPanel
             setValue((String)data[i], line, i);
         }
     }
-    
+
     /*
      * Adding a mouse listener on the table.
      */
     public void addMouseListener(MouseListener mL)
     {
- 
+
        listMulti.addMouseListener(mL);
     }
-    
+
     /*
      * Allows selection of a line or a group of lines.
      */
@@ -346,7 +346,7 @@ public class ListMulti extends JPanel
     {
         listMulti.setRowSelectionInterval(row,col);
     }
-    
+
     /*
      * Returne the current line number
      */
@@ -354,8 +354,8 @@ public class ListMulti extends JPanel
     {
         return listMulti.rowAtPoint(p);
     }
-    
-    
+
+
     /*
      * Extends the JTable to make easier to use whith the pluggin
      */
@@ -365,7 +365,7 @@ public class ListMulti extends JPanel
         {
             super(model);
         }
-        
+
         protected JTableHeader createDefaultTableHeader()
         {
             return new JTableHeader(columnModel)
@@ -374,7 +374,7 @@ public class ListMulti extends JPanel
                 {
                     java.awt.Point p = e.getPoint();
                     int index = columnModel.getColumnIndexAtX(p.x);
-                    int realIndex = 
+                    int realIndex =
                             columnModel.getColumn(index).getModelIndex();
                     return NotificationConfigurationPanel.columnToolTips[
                             realIndex];

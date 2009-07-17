@@ -10,10 +10,10 @@ import java.io.*;
 import ymsg.network.*;
 
 /**
- * Extends The Yahoo session to have access to some 
+ * Extends The Yahoo session to have access to some
  * protected functionality
  * Not working for now.
- * 
+ *
  * @author Damian Minkov
  */
 public class YahooSession
@@ -22,12 +22,12 @@ public class YahooSession
     /**
      * Renames a group. Not working for now
      */
-    public void renameGroup(String oldName, String newName) 
-        throws IOException    
+    public void renameGroup(String oldName, String newName)
+        throws IOException
     {
         transmitGroupRename(oldName, newName);
     }
-    
+
     /**
      * Removes the server part from the given id
      */
@@ -37,7 +37,7 @@ public class YahooSession
                     ? id.substring(0, id.indexOf("@"))
                     : id;
     }
-    
+
     /**
      * Sending typing notifications
      * @param to user we are notifing
@@ -45,20 +45,20 @@ public class YahooSession
      */
     void keyTyped(String to, String from)
     {
-        try { 
-            transmitNotify(to, from, true, " ", NOTIFY_TYPING); 
+        try {
+            transmitNotify(to, from, true, " ", NOTIFY_TYPING);
         }catch(IOException e){}
     }
-    
+
     /**
      * Sending stop typing notifications
      * @param to user we are notifing
      * @param from our user id
      */
     void stopTyping(String to, String from)
-    {	
-        try { 
-            transmitNotify(to, from, false, " ", NOTIFY_TYPING); 
+    {
+        try {
+            transmitNotify(to, from, false, " ", NOTIFY_TYPING);
         }catch(IOException e){}
     }
 }

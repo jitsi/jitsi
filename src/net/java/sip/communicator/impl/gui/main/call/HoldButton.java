@@ -17,7 +17,7 @@ import net.java.sip.communicator.util.swing.*;
 /**
  * Represents an UI means to put an associated <tt>CallPariticant</tt> on/off
  * hold.
- * 
+ *
  * @author Lubomir Marinov
  */
 public class HoldButton
@@ -25,10 +25,10 @@ public class HoldButton
 {
     private static final long serialVersionUID = 0L;
 
-	/**
+    /**
      * Initializes a new <tt>HoldButton</tt> instance which is to put a specific
      * <tt>CallParticipant</tt> on/off hold.
-     * 
+     *
      * @param call the <tt>Call</tt> to be associated with
      *            the new instance and to be put on/off hold upon performing its
      *            action
@@ -41,7 +41,7 @@ public class HoldButton
     /**
      * Initializes a new <tt>HoldButton</tt> instance which is to put a specific
      * <tt>CallParticipant</tt> on/off hold.
-     * 
+     *
      * @param call  the <tt>Call</tt> to be associated with
      *              the new instance and to be put on/off hold upon performing
      *              its action.
@@ -102,7 +102,7 @@ public class HoldButton
          * Initializes a new <tt>HoldButtonModel</tt> instance to represent
          * the state of a specific <tt>CallParticipant</tt> as a toggle
          * button.
-         * 
+         *
          * @param call
          *            the <tt>Call</tt> whose state is to be
          *            represented as a toggle button

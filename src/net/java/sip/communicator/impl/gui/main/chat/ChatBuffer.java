@@ -13,13 +13,13 @@ import net.java.sip.communicator.impl.gui.utils.*;
 /**
  * Should be used to limit the number of messages shown in the chat conversation
  * area. NOT USED FOR NOW.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ChatBuffer<E> extends ArrayList<E> {
-	private static final long serialVersionUID = 0L;
+    private static final long serialVersionUID = 0L;
 
-	/**
+    /**
      * Creates an instance of <tt>ChatBuffer</tt>. The buffer
      * is initialized with the CHAT_BUFFER_SIZE constant in the
      * <tt>Constants</tt> class.

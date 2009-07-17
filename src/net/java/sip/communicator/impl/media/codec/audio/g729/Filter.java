@@ -104,7 +104,7 @@ static void syn_filt(
    for (i = 0; i < l; i++)
      {
         py=yy;
-		pa=0; //index instead of pointer
+        pa=0; //index instead of pointer
         s = x[x_offset ++];
         for (j = 0; j <M; j++)  s -= (a[a_offset + ++pa]) * (yy_b[--py]);
         yy_b[yy++] = s;

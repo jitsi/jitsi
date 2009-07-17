@@ -28,7 +28,7 @@ public class LabelTableCellRenderer
 {
     private static final long serialVersionUID = 0L;
 
-	public LabelTableCellRenderer()
+    public LabelTableCellRenderer()
     {
         this.setHorizontalAlignment(JLabel.LEFT);
         this.setOpaque(true);

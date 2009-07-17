@@ -21,7 +21,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * out of the container, where it is added and show it in a separate window.
  * The separator is a line that could be added between two buttons. This way
  * the developer could visually group buttons with similar functionality.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SIPCommToolBar
@@ -29,7 +29,7 @@ public class SIPCommToolBar
 {
     private static final long serialVersionUID = 0L;
 
-	/**
+    /**
      * Creates an instance of <tt>SIPCommToolBar</tt>.
      */
     public SIPCommToolBar() {

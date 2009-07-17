@@ -17,7 +17,7 @@ public class OperationNotSupportedException
 {
     private static final long serialVersionUID = 0L;
 
-	/**
+    /**
      * Creates an OperationNotSupportedException instance with the specified
      * reason phrase.
      * @param message a detailed message explaining any particular details as

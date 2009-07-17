@@ -23,36 +23,36 @@ public class TestAccountUninstallation
     extends TestCase
 {
     private RssSlickFixture fixture = new RssSlickFixture();
-    
+
     /**
      * Constructs a test instance
      * @param name The name of the test.
      */
     public TestAccountUninstallation(String name)
     {
-    	super(name);
+        super(name);
     }
-    
+
     /**
      * JUnit setup method.
      * @throws Exception in case anything goes wrong.
      */
     public void setUp() throws Exception
     {
-    	super.setUp();
-    	fixture.setUp();
+        super.setUp();
+        fixture.setUp();
     }
-    
+
     /**
      * JUnit teardown method.
      * @throws Exception in case anything goes wrong.
      */
     public void tearDown() throws Exception
     {
-    	fixture.tearDown();
-    	super.tearDown();
+        fixture.tearDown();
+        super.tearDown();
     }
-    
+
     /**
      * Returns a suite containing tests in this class in the order that we'd
      * like them executed.
@@ -61,16 +61,16 @@ public class TestAccountUninstallation
      */
     public static Test suite()
     {
-    	TestSuite suite = new TestSuite();
-    	
-    	suite.addTest(
-    		new TestAccountUninstallation("testInstallationPersistence"));
-    	suite.addTest(
-    		new TestAccountUninstallation("testUninstallAccount"));
-    	
-    	return suite;
+        TestSuite suite = new TestSuite();
+
+        suite.addTest(
+            new TestAccountUninstallation("testInstallationPersistence"));
+        suite.addTest(
+            new TestAccountUninstallation("testUninstallAccount"));
+
+        return suite;
     }
-    
+
     /**
      * Stops and removes the tested bundle, verifies that it has unregistered
      * its provider, then reloads and restarts the bundle and verifies that
@@ -80,95 +80,95 @@ public class TestAccountUninstallation
      */
     public void testInstallationPersistence() throws Exception
     {
-    	Bundle providerBundle =
-    	    fixture.findProtocolProviderBundle(fixture.provider);
-    	
-    	//set the global providerBundle reference that we will be using
+        Bundle providerBundle =
+            fixture.findProtocolProviderBundle(fixture.provider);
+
+        //set the global providerBundle reference that we will be using
             //in the last series of tests (Account uninstallation persistency)
-    	RssSlickFixture.providerBundle = providerBundle;
-    	
-    	assertNotNull("Couldn't find a bundle for the protocol provider",
-    		providerBundle);
-    	
-    	providerBundle.stop();
-    	assertTrue("Couldn't stop protocol provider bundle. State was "
-    		+ providerBundle.getSymbolicName(),
-    		providerBundle.getState() != Bundle.ACTIVE
-    		&& providerBundle.getState() != Bundle.STOPPING);
-    	
-    	providerBundle.uninstall();
-    	assertEquals("Couldn't uninstall protocol provider bundle.",
-    		providerBundle.getState(), Bundle.UNINSTALLED);
-    	
-    	//verify that the provider is no longer available
-    	ServiceReference providerRefs[] = null;
-    	try {
-    	    providerRefs = fixture.bc.getServiceReferences(
-    		    ProtocolProviderService.class.getName(),
-    		    "(&(" + ProtocolProviderFactory.PROTOCOL + "=" 
+        RssSlickFixture.providerBundle = providerBundle;
+
+        assertNotNull("Couldn't find a bundle for the protocol provider",
+            providerBundle);
+
+        providerBundle.stop();
+        assertTrue("Couldn't stop protocol provider bundle. State was "
+            + providerBundle.getSymbolicName(),
+            providerBundle.getState() != Bundle.ACTIVE
+            && providerBundle.getState() != Bundle.STOPPING);
+
+        providerBundle.uninstall();
+        assertEquals("Couldn't uninstall protocol provider bundle.",
+            providerBundle.getState(), Bundle.UNINSTALLED);
+
+        //verify that the provider is no longer available
+        ServiceReference providerRefs[] = null;
+        try {
+            providerRefs = fixture.bc.getServiceReferences(
+                ProtocolProviderService.class.getName(),
+                "(&(" + ProtocolProviderFactory.PROTOCOL + "="
                     + ProtocolNames.RSS + "))");
-    	} catch (InvalidSyntaxException ise)
-    	{
-    	    fail("Invalid OSGi filter. Exception was" + ise.getMessage());
-    	}
-    	
-    	//verify the provider really uninstalled
-    	assertTrue("Protocol provider still present after being explicitly" +
+        } catch (InvalidSyntaxException ise)
+        {
+            fail("Invalid OSGi filter. Exception was" + ise.getMessage());
+        }
+
+        //verify the provider really uninstalled
+        assertTrue("Protocol provider still present after being explicitly" +
                 " uninstalled",
-    		providerRefs == null || providerRefs.length == 0);
-    	assertTrue("The RSS protocol provider factory didn't completely "
-    		+ "uninstalled the provider service",
-    		fixture.providerFactory.getRegisteredAccounts().size() == 0 &&
-    		fixture.providerFactory.getProviderForAccount(
-    			fixture.provider.getAccountID()) == null);
-    	
-    	//reinstall provider
-    	providerBundle = fixture.bc.installBundle(providerBundle.getLocation());
-    	RssSlickFixture.providerBundle = providerBundle;
-    	
-    	assertTrue("Couldn't reinstall provider bundle",
-    		providerBundle.getState() == Bundle.INSTALLED);
-    	
+            providerRefs == null || providerRefs.length == 0);
+        assertTrue("The RSS protocol provider factory didn't completely "
+            + "uninstalled the provider service",
+            fixture.providerFactory.getRegisteredAccounts().size() == 0 &&
+            fixture.providerFactory.getProviderForAccount(
+                fixture.provider.getAccountID()) == null);
+
+        //reinstall provider
+        providerBundle = fixture.bc.installBundle(providerBundle.getLocation());
+        RssSlickFixture.providerBundle = providerBundle;
+
+        assertTrue("Couldn't reinstall provider bundle",
+            providerBundle.getState() == Bundle.INSTALLED);
+
 
         AccountManagerUtils.startBundleAndWaitStoredAccountsLoaded(fixture.bc,
             providerBundle, ProtocolNames.RSS);
-    	assertTrue("Couldn't start provider",
-    		providerBundle.getState() == Bundle.ACTIVE);
-    	
-    	providerRefs = null;
-    	try {
-    	    providerRefs = fixture.bc.getServiceReferences(
-    		    ProtocolProviderService.class.getName(),
-    		    "(&(" + ProtocolProviderFactory.PROTOCOL + "="
+        assertTrue("Couldn't start provider",
+            providerBundle.getState() == Bundle.ACTIVE);
+
+        providerRefs = null;
+        try {
+            providerRefs = fixture.bc.getServiceReferences(
+                ProtocolProviderService.class.getName(),
+                "(&(" + ProtocolProviderFactory.PROTOCOL + "="
                     + ProtocolNames.RSS + "))");
-    	} catch (InvalidSyntaxException ise)
-    	{
-    	    fail("Invalid OSGi filter. Exception was" + ise.getMessage());
-    	}
-    	assertTrue("The protocol provider hasn't been restored after being "
+        } catch (InvalidSyntaxException ise)
+        {
+            fail("Invalid OSGi filter. Exception was" + ise.getMessage());
+        }
+        assertTrue("The protocol provider hasn't been restored after being "
                 + "reinstalled",
-    		providerRefs != null && providerRefs.length > 0);
-    	
-    	ServiceReference factoryRefs[] = null;
-    	try {
-    	    factoryRefs = fixture.bc.getServiceReferences(
-    		    ProtocolProviderFactory.class.getName(),
-    		    "(" + ProtocolProviderFactory.PROTOCOL + "=RSS)");
-    	} catch (InvalidSyntaxException ise)
-    	{
-    	    fail("Invalid OSGi filter. Exception was " + ise.getMessage());
-    	}
-    	
-    	fixture.providerFactory = 
-    	    (ProtocolProviderFactory) fixture.bc.getService(factoryRefs[0]);
-    	fixture.provider = 
-    	    (ProtocolProviderService) fixture.bc.getService(providerRefs[0]);
-    	
-    	assertFalse("RSS provider did not restore its own reference to the"
-    		+ " provider that we just reinstalled.",
-    		fixture.providerFactory.getRegisteredAccounts().isEmpty()
-    		&& fixture.providerFactory.getProviderForAccount(
-    			fixture.provider.getAccountID()) == null);
+            providerRefs != null && providerRefs.length > 0);
+
+        ServiceReference factoryRefs[] = null;
+        try {
+            factoryRefs = fixture.bc.getServiceReferences(
+                ProtocolProviderFactory.class.getName(),
+                "(" + ProtocolProviderFactory.PROTOCOL + "=RSS)");
+        } catch (InvalidSyntaxException ise)
+        {
+            fail("Invalid OSGi filter. Exception was " + ise.getMessage());
+        }
+
+        fixture.providerFactory =
+            (ProtocolProviderFactory) fixture.bc.getService(factoryRefs[0]);
+        fixture.provider =
+            (ProtocolProviderService) fixture.bc.getService(providerRefs[0]);
+
+        assertFalse("RSS provider did not restore its own reference to the"
+            + " provider that we just reinstalled.",
+            fixture.providerFactory.getRegisteredAccounts().isEmpty()
+            && fixture.providerFactory.getProviderForAccount(
+                fixture.provider.getAccountID()) == null);
     }
 
     /**
@@ -176,35 +176,35 @@ public class TestAccountUninstallation
      */
     public void testUninstallAccount() throws Exception
     {
-    	assertTrue("No accounts found.",
-    		! fixture.providerFactory.getRegisteredAccounts().isEmpty());
-        
-    	assertNotNull("Found no provider corresponding to RSS",
-    		fixture.providerFactory.getProviderForAccount(
-    			fixture.provider.getAccountID()));
-        
-    	assertTrue("Failed to remove provider",
-    		fixture.providerFactory.uninstallAccount(
-    			fixture.provider.getAccountID()));
-    	
-    	ServiceReference[] providerRefs = null;
-    	try {
-    	    providerRefs = fixture.bc.getServiceReferences(
-    		    ProtocolProviderService.class.getName(),
-    		    "(" + ProtocolProviderFactory.PROTOCOL + "=" + ProtocolNames.RSS
+        assertTrue("No accounts found.",
+            ! fixture.providerFactory.getRegisteredAccounts().isEmpty());
+
+        assertNotNull("Found no provider corresponding to RSS",
+            fixture.providerFactory.getProviderForAccount(
+                fixture.provider.getAccountID()));
+
+        assertTrue("Failed to remove provider",
+            fixture.providerFactory.uninstallAccount(
+                fixture.provider.getAccountID()));
+
+        ServiceReference[] providerRefs = null;
+        try {
+            providerRefs = fixture.bc.getServiceReferences(
+                ProtocolProviderService.class.getName(),
+                "(" + ProtocolProviderFactory.PROTOCOL + "=" + ProtocolNames.RSS
                     + ")");
-    	} catch (InvalidSyntaxException ise)
-    	{
-    	    fail("Invalid OSGi filter.Exception was: " + ise.getMessage());
-    	}
-    	
-    	assertTrue("Protocol provider service still registered as OSGi service",
-    		providerRefs == null || providerRefs.length == 0);
-        
-    	assertTrue("Provider factory didn't properly uninstalled the provider"
-    		+ "service we just uninstalled",
-    		fixture.providerFactory.getRegisteredAccounts().isEmpty()
-    		&& fixture.providerFactory.getProviderForAccount(
-    			fixture.provider.getAccountID()) == null);
+        } catch (InvalidSyntaxException ise)
+        {
+            fail("Invalid OSGi filter.Exception was: " + ise.getMessage());
+        }
+
+        assertTrue("Protocol provider service still registered as OSGi service",
+            providerRefs == null || providerRefs.length == 0);
+
+        assertTrue("Provider factory didn't properly uninstalled the provider"
+            + "service we just uninstalled",
+            fixture.providerFactory.getRegisteredAccounts().isEmpty()
+            && fixture.providerFactory.getProviderForAccount(
+                fixture.provider.getAccountID()) == null);
     }
 }

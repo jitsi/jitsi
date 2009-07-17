@@ -13,7 +13,7 @@ import net.java.sip.communicator.util.swing.*;
 
 /**
  * The default SIP-Communicator look&feel.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SIPCommLookAndFeel
@@ -21,7 +21,7 @@ public class SIPCommLookAndFeel
 {
     private static final long serialVersionUID = 0L;
 
-	public boolean isNativeLookAndFeel() {
+    public boolean isNativeLookAndFeel() {
         return false;
     }
 
@@ -41,10 +41,10 @@ public class SIPCommLookAndFeel
         return "SIPCommLookAndFeel";
     }
 
-  
+
     protected void initClassDefaults(UIDefaults table) {
         super.initClassDefaults(table);
-        
+
         String lfPackageName = "net.java.sip.communicator.impl.gui.lookandfeel.";
 
         Object[] uiDefaults = {
@@ -73,7 +73,7 @@ public class SIPCommLookAndFeel
         };
         table.putDefaults(uiDefaults);
     }
-    
+
     public Icon getDisabledIcon(JComponent component, Icon icon) {
         if (icon instanceof ImageIcon) {
             return new IconUIResource(new ImageIcon(LightGrayFilter.

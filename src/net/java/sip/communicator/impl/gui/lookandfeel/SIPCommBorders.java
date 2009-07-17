@@ -1,6 +1,6 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.gui.lookandfeel;
@@ -15,7 +15,7 @@ import javax.swing.text.*;
 /**
  * SIPCommBorders is where all component borders used in the SIPComm L&F are
  * drawn.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SIPCommBorders
@@ -30,7 +30,7 @@ public class SIPCommBorders
     {
         private static final long serialVersionUID = 0L;
 
-		private static final Insets insets = new Insets(2, 2, 2, 2);
+        private static final Insets insets = new Insets(2, 2, 2, 2);
 
         public void paintBorder(Component c, Graphics g, int x, int y, int w,
             int h)
@@ -86,7 +86,7 @@ public class SIPCommBorders
     {
         private static final long serialVersionUID = 0L;
 
-		private static final Insets insets = new Insets(2, 2, 2, 2);
+        private static final Insets insets = new Insets(2, 2, 2, 2);
 
         public void paintBorder(Component c, Graphics g, int x, int y, int w,
             int h)
@@ -151,7 +151,7 @@ public class SIPCommBorders
     {
         private static final long serialVersionUID = 0L;
 
-		public void paintBorder(Component c,
+        public void paintBorder(Component c,
                                 Graphics g,
                                 int x,
                                 int y,

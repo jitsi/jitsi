@@ -18,45 +18,45 @@ import org.osgi.framework.*;
  * @author Mihai Balan
  */
 public class RssProtocolProviderServiceLick
-    extends 	TestSuite
-    implements 	BundleActivator
+    extends     TestSuite
+    implements     BundleActivator
 {
     /**
-     * Initializes and registers all tests that we'll run as a part of this 
+     * Initializes and registers all tests that we'll run as a part of this
      * SLICK.
-     * 
+     *
      * @param bundleContext a currently valid bundle context.
      */
     public void start(BundleContext bundleContext)
     {
-    	Logger logger =
-    	        Logger.getLogger(RssProtocolProviderServiceLick.class);
-    	logger.setLevelAll();
-    	logger.debug("***Start() called on RSS slick***");
-    	
-    	setName("RssProtocolProviderServiceLick");
-    	
-    	Hashtable properties = new Hashtable();
-    	properties.put("service.pid", getName());
-    	
-    	RssSlickFixture.bc = bundleContext;
-    	
-    	//test account installation
-    	addTestSuite(TestAccountInstallation.class);
-    	
-    	//test Protocol Provider Service implementation
-    	addTestSuite(TestProtocolProviderServiceRssImpl.class);
-    	
-    	//test account uninstallation
-    	addTest(TestAccountUninstallation.suite());
-    	addTestSuite(TestAccountUninstallationPersistence.class);
-    	
-    	bundleContext.registerService(getClass().getName(), this, properties);
+        Logger logger =
+                Logger.getLogger(RssProtocolProviderServiceLick.class);
+        logger.setLevelAll();
+        logger.debug("***Start() called on RSS slick***");
+
+        setName("RssProtocolProviderServiceLick");
+
+        Hashtable properties = new Hashtable();
+        properties.put("service.pid", getName());
+
+        RssSlickFixture.bc = bundleContext;
+
+        //test account installation
+        addTestSuite(TestAccountInstallation.class);
+
+        //test Protocol Provider Service implementation
+        addTestSuite(TestProtocolProviderServiceRssImpl.class);
+
+        //test account uninstallation
+        addTest(TestAccountUninstallation.suite());
+        addTestSuite(TestAccountUninstallationPersistence.class);
+
+        bundleContext.registerService(getClass().getName(), this, properties);
     }
 
     /**
      * Prepares the slick for shutdown.
-     * 
+     *
      * @param context a currently valid bundle context.
      */
     public void stop(BundleContext context)

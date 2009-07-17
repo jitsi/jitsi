@@ -15,8 +15,8 @@ import java.io.IOException;
  *
  * @author Jean Lorchat
  */
-public class DataSource 
-    extends PushBufferDataSource 
+public class DataSource
+    extends PushBufferDataSource
 {
     protected Object [] controls = new Object[0];
     protected boolean started = false;
@@ -28,38 +28,38 @@ public class DataSource
 
     public DataSource() {
     }
-    
+
     /**
      * Tell we are a raw datasource
      *
      * @return "raw"
      */
     public String getContentType() {
-	if (!connected){
+    if (!connected){
             System.err.println("Error: DataSource not connected");
             return null;
         }
-	return contentType;
+    return contentType;
     }
 
     /**
      * Connect the datasource
      */
     public void connect() throws IOException {
-	 if (connected)
+     if (connected)
             return;
-	 connected = true;
+     connected = true;
     }
 
     /**
      * Disconnect the datasource
      */
     public void disconnect() {
-	try {
+    try {
             if (started)
                 stop();
         } catch (IOException e) {}
-	connected = false;
+    connected = false;
     }
 
     /**
@@ -72,8 +72,8 @@ public class DataSource
         if (started)
             return;
 
-	started = true;
-	stream.start(true);
+    started = true;
+    stream.start(true);
     }
 
     /**
@@ -81,20 +81,20 @@ public class DataSource
      */
     public void stop() throws IOException {
 
-	if ((!connected) || (!started))
-	    return;
+    if ((!connected) || (!started))
+        return;
 
-	started = false;
-	stream.start(false);
+    started = false;
+    stream.start(false);
 
     }
 
     /**
      * Gives control information to the caller
      *
-     */    
+     */
     public Object [] getControls() {
-	return controls;
+    return controls;
     }
 
     /**
@@ -124,7 +124,7 @@ public class DataSource
      * @return DURATION_UNKNOWN
      */
     public Time getDuration() {
-	return duration;
+    return duration;
     }
 
     /**
@@ -136,11 +136,11 @@ public class DataSource
      * @return Array of one stream
      */
     public PushBufferStream [] getStreams() {
-	if (streams == null) {
-	    streams = new AlsaStream[1];
-	    stream = streams[0] = new AlsaStream();
-	}
-	return streams;
+    if (streams == null) {
+        streams = new AlsaStream[1];
+        stream = streams[0] = new AlsaStream();
     }
-    
+    return streams;
+    }
+
 }

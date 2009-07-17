@@ -27,7 +27,7 @@ public final class TrayMenuFactory
 
     /**
      * Handles the <tt>ActionEvent</tt> when one of the menu items is selected.
-     * 
+     *
      * @param evt the event containing the menu item name
      */
     private static void actionPerformed(ActionEvent evt)
@@ -94,11 +94,11 @@ public final class TrayMenuFactory
     public static Object createTrayMenu(SystrayServiceJdicImpl tray,
                                         boolean swing)
     {
-    	// Enable swing for java 1.6 except for the mac version
+        // Enable swing for java 1.6 except for the mac version
         if (!swing && !System.getProperty("os.name").startsWith("Mac"))
             swing = true;
-        
-    	Object trayMenu = swing ? new JPopupMenu() : new PopupMenu();
+
+        Object trayMenu = swing ? new JPopupMenu() : new PopupMenu();
         ActionListener listener = new ActionListener()
         {
             public void actionPerformed(ActionEvent event)

@@ -25,9 +25,9 @@ import net.java.sip.communicator.impl.gui.lookandfeel.*;
 public class SIPCommSmartComboBox
     extends JComboBox
 {
-	private static final long serialVersionUID = 0L;
+    private static final long serialVersionUID = 0L;
 
-	/**
+    /**
      * Creates an instance of <tt>SIPCommSmartComboBox</tt>.
      */
     public SIPCommSmartComboBox()

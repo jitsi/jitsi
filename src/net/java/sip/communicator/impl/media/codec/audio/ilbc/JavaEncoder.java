@@ -121,7 +121,7 @@ public class JavaEncoder
             return OUTPUT_BUFFER_NOT_FILLED;
         }
 
-		short[] encoded_data = new short[ILBC_NO_OF_BYTES / 2];
+        short[] encoded_data = new short[ILBC_NO_OF_BYTES / 2];
 
         int outLength = ILBC_NO_OF_BYTES;
         byte[] outdata = validateByteArraySize(outputBuffer, outLength);

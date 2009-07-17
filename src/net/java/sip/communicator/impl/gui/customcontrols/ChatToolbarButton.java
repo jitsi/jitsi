@@ -13,14 +13,14 @@ import net.java.sip.communicator.util.swing.*;
  * The <tt>MsgToolbarButton</tt> is a <tt>SIPCommButton</tt> that has
  * specific background and rollover images. It is used in the chat window
  * toolbar.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ChatToolbarButton extends SIPCommButton
 {
     private static final long serialVersionUID = 0L;
 
-	/**
+    /**
      * Creates an instance of <tt>MsgToolbarButton</tt>.
      * @param iconImage The icon to display on this button.
      */

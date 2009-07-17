@@ -31,17 +31,17 @@ public class ContactTimerSSHImpl
 {
     private static final Logger logger
             = Logger.getLogger(OperationSetFileTransferSSHImpl.class);
-    
+
     /**
      * The contact ID of the remote machine
      */
     private ContactSSH sshContact;
-    
+
     /**
      * PersistentPresence Identifer assoiciated with SSH Contact
      */
     private OperationSetPersistentPresenceSSHImpl persistentPresence;
-    
+
     /**
      * The method which is called at regular intervals to update the status
      * of remote machines
@@ -54,7 +54,7 @@ public class ContactTimerSSHImpl
         {
             InetAddress remoteMachine = InetAddress.getByName(
                     sshContact.getSSHConfigurationForm().getHostName());
-            
+
             //check if machine is reachable
             if(remoteMachine.isReachable(
                     sshContact.getSSHConfigurationForm().getUpdateInterval()))
@@ -66,14 +66,14 @@ public class ContactTimerSSHImpl
                     // change status to online
                     persistentPresence.changeContactPresenceStatus(
                             sshContact, SSHStatusEnum.ONLINE);
-                    
+
                     logger.debug("SSH Host " + sshContact
-                		.getSSHConfigurationForm().getHostName() + ": Online");
+                        .getSSHConfigurationForm().getHostName() + ": Online");
                 }
-            
+
             }
             else throw new IOException();
-            
+
         }
         catch (IOException ex)
         {
@@ -83,7 +83,7 @@ public class ContactTimerSSHImpl
             {
                 persistentPresence.changeContactPresenceStatus(
                         sshContact, SSHStatusEnum.OFFLINE);
-                
+
                 logger.debug("SSH Host " + sshContact.getSSHConfigurationForm()
                 .getHostName() + ": Offline");
             }
@@ -99,5 +99,5 @@ public class ContactTimerSSHImpl
         this.persistentPresence = (OperationSetPersistentPresenceSSHImpl)
             sshContact.getParentPresenceOperationSet();
     }
-    
+
 }

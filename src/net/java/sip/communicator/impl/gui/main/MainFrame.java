@@ -859,7 +859,7 @@ public class MainFrame
     {
         private static final long serialVersionUID = 0L;
 
-		public void actionPerformed(ActionEvent e)
+        public void actionPerformed(ActionEvent e)
         {
             Object selectedObject
                 = getContactListPanel().getContactList().getSelectedValue();
@@ -1393,7 +1393,7 @@ public class MainFrame
     public void setParams(Object[] windowParams) {}
 
     /**
-     * @param event Currently not used 
+     * @param event Currently not used
      */
     protected void windowClosed(WindowEvent event)
     {
@@ -1418,7 +1418,7 @@ public class MainFrame
     }
 
     /**
-     * @param event Currently not used 
+     * @param event Currently not used
      */
     protected void windowClosing(WindowEvent event)
     {

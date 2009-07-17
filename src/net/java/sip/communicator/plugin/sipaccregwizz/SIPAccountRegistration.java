@@ -341,43 +341,43 @@ public class SIPAccountRegistration
     {
         this.keepAliveInterval = keepAliveInterval;
     }
-    
+
     /**
      * If default call encryption is enabled
-     * 
+     *
      * @return If default call encryption is enabled
      */
     public boolean isDefaultEncryption()
     {
-    	return defaultEncryption;
+        return defaultEncryption;
     }
-    
+
     /**
      * Sets default call encryption
-     * 
+     *
      * @param defaultEncryption if we want to set call encryption on as default
      */
     public void setDefaultEncryption(boolean defaultEncryption)
     {
-    	this.defaultEncryption = defaultEncryption;
+        this.defaultEncryption = defaultEncryption;
     }
 
     /**
      * Sets SIP ZRTP attribute support
-     * 
+     *
      * @param sipZrtpAttribute include the ZRTP attribute to SIP/SDP
      */
     public void setSipZrtpAttribute(boolean sipZrtpAttribute) {
         this.sipZrtpAttribute = sipZrtpAttribute;
     }
 
-    
+
     /**
      * Check if to include the ZRTP attribute to SIP/SDP
-     * 
+     *
      * @return include the ZRTP attribute to SIP/SDP
      */
     public boolean isSipZrtpAttribute() {
         return sipZrtpAttribute;
-    } 
+    }
 }

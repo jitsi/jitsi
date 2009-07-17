@@ -20,7 +20,7 @@ import net.java.sip.communicator.util.swing.*;
  * set an image as a background. Depending on the
  * "impl.gui.IS_CONTACT_LIST_TEXTURE_BG_ENABLED" property we'll be setting a
  * single image or a texture of images.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SCScrollPane
@@ -28,9 +28,9 @@ public class SCScrollPane
 {
     private static final long serialVersionUID = 0L;
 
-	public SCScrollPane()
+    public SCScrollPane()
     {
-	    this.setBorder(BorderFactory.createMatteBorder(
+        this.setBorder(BorderFactory.createMatteBorder(
             1, 0, 1, 0, Color.GRAY));
 
         this.setViewport(new SCViewport());
@@ -40,7 +40,7 @@ public class SCScrollPane
 
     /**
      * Sets the view of this JViewport.
-     * 
+     *
      * @param view the view to set.
      */
     public void setViewportView(JComponent view)

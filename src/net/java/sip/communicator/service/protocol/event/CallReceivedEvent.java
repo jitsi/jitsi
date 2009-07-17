@@ -12,7 +12,7 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * A class representing the event of a call reception.
- * 
+ *
  * @author Emil Ivov
  */
 public class CallReceivedEvent
@@ -20,7 +20,7 @@ public class CallReceivedEvent
 {
     private static final long serialVersionUID = 0L;
 
-	public CallReceivedEvent(Call call)
+    public CallReceivedEvent(Call call)
     {
         super(call);
     }

@@ -18,7 +18,7 @@ public class XMLException
 {
     private static final long serialVersionUID = 0L;
 
-	/**
+    /**
      * Constructs a new XMLException with the specified detail message and cause.
      *
      * @param message a message specifying the reason that caused the

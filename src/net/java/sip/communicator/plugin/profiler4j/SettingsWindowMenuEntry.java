@@ -8,7 +8,7 @@ package net.java.sip.communicator.plugin.profiler4j;
 
 /**
  * Menu entry for the profiler plug-in
- * 
+ *
  * @author Vladimir Skarupelov
  */
 import java.awt.event.*;
@@ -32,9 +32,9 @@ public class SettingsWindowMenuEntry implements PluginComponent
             {
                 Prefs prefs = new Prefs();
 
-                System.setProperty("swing.aatext", 
-                		String.valueOf(prefs.isAntialiasing()));
-                
+                System.setProperty("swing.aatext",
+                        String.valueOf(prefs.isAntialiasing()));
+
                 final Console app = new Console(prefs);
                 app.connect();
                 MainFrame f = new MainFrame(app);
@@ -79,7 +79,7 @@ public class SettingsWindowMenuEntry implements PluginComponent
         return -1;
     }
 
-	public boolean isNativeComponent() {
-		return false;
-	}
+    public boolean isNativeComponent() {
+        return false;
+    }
 }

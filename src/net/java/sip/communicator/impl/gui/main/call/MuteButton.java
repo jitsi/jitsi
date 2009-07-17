@@ -17,7 +17,7 @@ import net.java.sip.communicator.util.swing.*;
 /**
  * Represents an UI means to mute the audio stream sent to an associated
  * <tt>CallPariticant</tt>.
- * 
+ *
  * @author Lubomir Marinov
  */
 public class MuteButton
@@ -25,10 +25,10 @@ public class MuteButton
 {
     private static final long serialVersionUID = 0L;
 
-	/**
+    /**
      * Initializes a new <tt>MuteButton</tt> instance which is to mute the audio
      * stream to a specific <tt>CallParticipant</tt>.
-     * 
+     *
      * @param call the <tt>Call</tt> to be associated with
      *            the new instance and to have the audio stream sent to muted
      */
@@ -40,7 +40,7 @@ public class MuteButton
     /**
      * Initializes a new <tt>MuteButton</tt> instance which is to mute the audio
      * stream to a specific <tt>CallParticipant</tt>.
-     * 
+     *
      * @param call  the <tt>Call</tt> to be associated with
      *              the new instance and to be put on/off hold upon performing
      *              its action.
@@ -97,7 +97,7 @@ public class MuteButton
         /**
          * Initializes a new <tt>MuteButtonModel</tt> instance to represent the
          * state of a specific <tt>CallParticipant</tt> as a toggle button.
-         * 
+         *
          * @param call the <tt>Call</tt> whose state is to
          *            be represented as a toggle button
          */

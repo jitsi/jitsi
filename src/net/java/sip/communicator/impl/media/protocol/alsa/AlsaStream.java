@@ -16,8 +16,8 @@ import java.io.IOException;
  *
  * @author Jean Lorchat
  */
-public class AlsaStream 
-    implements PushBufferStream, Runnable 
+public class AlsaStream
+    implements PushBufferStream, Runnable
 {
     protected ContentDescriptor cd = new ContentDescriptor(ContentDescriptor.RAW);
     protected int maxDataLength;
@@ -32,13 +32,13 @@ public class AlsaStream
     private native void jni_alsa_delete();
 
     int seqNo = 0;
-    
+
     /**
-     * Dynamically loads JNI object. Will fail if non-Linux 
+     * Dynamically loads JNI object. Will fail if non-Linux
      * or when libjmf_alsa.so is outside of the LD_LIBRARY_PATH
-     */    
+     */
     static {
-	System.loadLibrary("jmf_alsa");
+    System.loadLibrary("jmf_alsa");
     }
 
     /**
@@ -49,33 +49,33 @@ public class AlsaStream
      */
     public AlsaStream() {
 
-	audioFormat = new AudioFormat(AudioFormat.LINEAR,
-				      8000.0,
-				      16,
-				      1,
-				      AudioFormat.LITTLE_ENDIAN,
-				      AudioFormat.SIGNED,
-				      16,
-				      Format.NOT_SPECIFIED,
-				      Format.byteArray);
+    audioFormat = new AudioFormat(AudioFormat.LINEAR,
+                      8000.0,
+                      16,
+                      1,
+                      AudioFormat.LITTLE_ENDIAN,
+                      AudioFormat.SIGNED,
+                      16,
+                      Format.NOT_SPECIFIED,
+                      Format.byteArray);
 
-	maxDataLength = 160;
-	
-	jni_alsa_init();
-	thread = new Thread(this);
+    maxDataLength = 160;
+
+    jni_alsa_init();
+    thread = new Thread(this);
     }
 
     /**
      * Methods required for SourceStream interface
      *
      */
-    
+
     /**
      * We are providing access to raw data
      *
      */
     public ContentDescriptor getContentDescriptor() {
-	return cd;
+    return cd;
     }
 
     /**
@@ -83,7 +83,7 @@ public class AlsaStream
      *
      */
     public long getContentLength() {
-	return LENGTH_UNKNOWN;
+    return LENGTH_UNKNOWN;
     }
 
     /**
@@ -91,15 +91,15 @@ public class AlsaStream
      *
      */
     public boolean endOfStream() {
-	return false;
+    return false;
     }
 
     /**
-     * Tell whoever has interest how we are going to send the data 
+     * Tell whoever has interest how we are going to send the data
      *
      */
     public Format getFormat() {
-	    return audioFormat;
+        return audioFormat;
     }
 
     /**
@@ -114,36 +114,36 @@ public class AlsaStream
      *   implemented, but we love to be future-proof, isn't it ?
      */
     public void read(Buffer buffer) throws IOException {
-	synchronized (this) {
-	    Object outdata = buffer.getData();
+    synchronized (this) {
+        Object outdata = buffer.getData();
 
-	    if (outdata == null || 
-		!(outdata.getClass() == Format.byteArray) ||
-		((byte[])outdata).length < maxDataLength) {
-		  outdata = new byte[maxDataLength];
-		  buffer.setData(outdata);
-	    }
+        if (outdata == null ||
+        !(outdata.getClass() == Format.byteArray) ||
+        ((byte[])outdata).length < maxDataLength) {
+          outdata = new byte[maxDataLength];
+          buffer.setData(outdata);
+        }
 
-	    buffer.setFormat(audioFormat);
-	    buffer.setTimeStamp(1000000000 / 8);
-	    jni_alsa_read((byte[])outdata);
-	    buffer.setSequenceNumber(seqNo);
-	    buffer.setLength(maxDataLength);
-	    buffer.setFlags(0);
-	    buffer.setHeader(null);
-	    seqNo++;
-	}
+        buffer.setFormat(audioFormat);
+        buffer.setTimeStamp(1000000000 / 8);
+        jni_alsa_read((byte[])outdata);
+        buffer.setSequenceNumber(seqNo);
+        buffer.setLength(maxDataLength);
+        buffer.setFlags(0);
+        buffer.setHeader(null);
+        seqNo++;
     }
-    
+    }
+
     /**
      * Dunno about that piece yet...
      *
      */
     public void setTransferHandler(BufferTransferHandler transferHandler) {
-	synchronized (this) {
-	    this.transferHandler = transferHandler;
-	    notifyAll();
-	}
+    synchronized (this) {
+        this.transferHandler = transferHandler;
+        notifyAll();
+    }
     }
 
     /**
@@ -151,14 +151,14 @@ public class AlsaStream
      *
      */
     void start(boolean started) {
-	synchronized (this) {
-	    this.started = started;
-	    if (started && !thread.isAlive()) {
-		thread = new Thread(this);
-		thread.start();
-	    }
-	    notifyAll();
-	}
+    synchronized (this) {
+        this.started = started;
+        if (started && !thread.isAlive()) {
+        thread = new Thread(this);
+        thread.start();
+        }
+        notifyAll();
+    }
     }
 
     /**
@@ -167,35 +167,35 @@ public class AlsaStream
      *
      */
     public void run() {
-	while (started) {
+    while (started) {
 
-	    synchronized (this) {
-		while (transferHandler == null && started) {
-		    try {
-			wait(1000);
-		    } catch (InterruptedException ie) {
-		    }
-		}
-	    }
+        synchronized (this) {
+        while (transferHandler == null && started) {
+            try {
+            wait(1000);
+            } catch (InterruptedException ie) {
+            }
+        }
+        }
 
-	    if (started && transferHandler != null) {
-		transferHandler.transferData(this);
-		try {
-		    Thread.currentThread().sleep(1);
-		} catch (InterruptedException ise) {
-		}
-	    }
+        if (started && transferHandler != null) {
+        transferHandler.transferData(this);
+        try {
+            Thread.currentThread().sleep(1);
+        } catch (InterruptedException ise) {
+        }
+        }
 
-	}
+    }
     }
 
 
     /**
      * Gives control information to the caller
      *
-     */    
+     */
     public Object [] getControls() {
-	return controls;
+    return controls;
     }
 
     /**

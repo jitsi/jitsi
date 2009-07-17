@@ -16,7 +16,7 @@ public class SIPCommCheckBox
 {
     private static final long serialVersionUID = 0L;
 
-	private static final boolean setContentAreaFilled = isWindows();
+    private static final boolean setContentAreaFilled = isWindows();
 
     private static boolean isWindows()
     {
