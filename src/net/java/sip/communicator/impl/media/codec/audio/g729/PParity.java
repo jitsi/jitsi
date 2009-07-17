@@ -51,11 +51,11 @@ static int parity_pitch(     /* output: parity bit (XOR of 6 MSB bits)     */
 {
     int temp, sum, i, bit;
 
-    temp = pitch_index >>> 1;
+    temp = pitch_index >> 1;
 
     sum = 1;
     for (i = 0; i <= 5; i++) {
-        temp >>>= 1;
+        temp >>= 1;
         bit = temp & 1;
         sum = sum + bit;
     }
@@ -73,11 +73,11 @@ static int check_parity_pitch(  /* output: 0 = no error, 1= error */
 )
 {
     int temp, sum, i, bit;
-    temp = pitch_index >>> 1;
+    temp = pitch_index >> 1;
 
     sum = 1;
     for (i = 0; i <= 5; i++) {
-        temp >>>= 1;
+        temp >>= 1;
         bit = temp & 1;
         sum = sum + bit;
     }
