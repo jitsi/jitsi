@@ -220,12 +220,12 @@ public class ZRTPTransformEngine
                         }
                         catch (InterruptedException e)
                         {
-                            e.printStackTrace();
+                            // e.printStackTrace();
                         }
                     }
                 }
-                long endTime = System.currentTimeMillis() + nextDelay;
                 long currentTime = System.currentTimeMillis();
+                long endTime = currentTime + nextDelay;
                 synchronized (sync) {
                     while ((currentTime < endTime) && newTask && !stop)
                     {
@@ -235,7 +235,7 @@ public class ZRTPTransformEngine
                         }
                         catch (InterruptedException e)
                         {
-                            e.printStackTrace();
+                            //e.printStackTrace();
                         }
                         currentTime = System.currentTimeMillis();
                     }
@@ -318,12 +318,6 @@ public class ZRTPTransformEngine
      * The current condition of the ZRTP engine
      */
     private boolean started = false;
-
-    /**
-     * Only multi-stream session may be started as one-way communication
-     * channels.
-     */
-    private boolean multiStream = false;
 
     /**
      * Construct a ZRTPTransformEngine.
@@ -536,6 +530,12 @@ public class ZRTPTransformEngine
      */
     public RawPacket reverseTransform(RawPacket pkt)
     {
+
+        // Check if we need to start ZRTP
+        if (!started && enableZrtp)
+        {
+            startZrtp();
+        }
         /*
          * Check if incoming packt is a ZRTP packet, if not treat
          * it as normal RTP packet and handle it accordingly.
@@ -544,10 +544,6 @@ public class ZRTPTransformEngine
         int offset = pkt.getOffset();
         if ((buffer[offset] & 0x10) != 0x10) 
         {
-            if (!started && enableZrtp && (multiStream || (sendPacketCount >= 1)))
-            {
-                startZrtp();
-            }
             if (srtpInTransformer == null)
             {
                 return pkt;
@@ -588,10 +584,6 @@ public class ZRTPTransformEngine
             if (!zPkt.hasMagic() || zrtpEngine == null)
             {
                 return null;
-            }
-            if (!started && (multiStream || (sendPacketCount >= 1)))
-            {
-                startZrtp();
             }
             byte[] extHeader = zPkt.getMessagePart();
             zrtpEngine.processZrtpMessage(extHeader, zPkt.getSSRC());
@@ -666,11 +658,11 @@ public class ZRTPTransformEngine
                         secrets.getInitSaltLen() / 8    // salt length
                 );
 
-                    SRTPTransformEngine engine = new SRTPTransformEngine(secrets
-                            .getKeyInitiator(), secrets.getSaltInitiator(),
-                            srtpPolicy, srtpPolicy);
+                SRTPTransformEngine engine = new SRTPTransformEngine(secrets
+                        .getKeyInitiator(), secrets.getSaltInitiator(),
+                        srtpPolicy, srtpPolicy);
 
-                    srtpOutTransformer = engine.getRTPTransformer();
+                srtpOutTransformer = engine.getRTPTransformer();
             }
             else
             {
@@ -1021,7 +1013,6 @@ public class ZRTPTransformEngine
     {
         if (zrtpEngine != null) {
             zrtpEngine.setMultiStrParams(parameters);
-            multiStream = true;
         }
     }
 
