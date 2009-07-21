@@ -24,7 +24,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  * @author Emil Ivov
  */
 public class ClientCapabilities
-    implements MethodProcessor
+    extends MethodProcessorAdapter
 {
     private static Logger logger = Logger.getLogger(ClientCapabilities.class);
 
@@ -134,54 +134,6 @@ public class ClientCapabilities
         }
 
         return true;
-    }
-
-    /**
-     * ignore. don't needed.
-     * @param dialogTerminatedEvent unused
-     */
-    public boolean processDialogTerminated(
-                            DialogTerminatedEvent dialogTerminatedEvent)
-    {
-        return false;
-    }
-
-    /**
-     * ignore. don't needed.
-     * @param exceptionEvent unused
-     */
-    public boolean processIOException(IOExceptionEvent exceptionEvent)
-    {
-        return false;
-    }
-
-    /**
-     * ignore for the time being
-     * @param responseEvent unused
-     */
-    public boolean processResponse(ResponseEvent responseEvent)
-    {
-        return false;
-    }
-
-    /**
-     * ignore for the time being.
-     * @param timeoutEvent unused
-     */
-    public boolean processTimeout(TimeoutEvent timeoutEvent)
-    {
-        disconnect();
-        return true;
-    }
-
-    /**
-     * ignore for the time being.
-     * @param transactionTerminatedEvent unused
-     */
-    public boolean processTransactionTerminated(
-        TransactionTerminatedEvent transactionTerminatedEvent)
-    {
-        return false;
     }
 
     /**

@@ -29,19 +29,19 @@ import net.java.sip.communicator.util.*;
 public class OperationSetBasicInstantMessagingSipImpl
     extends AbstractOperationSetBasicInstantMessaging
 {
-    private static final Logger logger =
-        Logger.getLogger(OperationSetBasicInstantMessagingSipImpl.class);
+    private static final Logger logger
+        = Logger.getLogger(OperationSetBasicInstantMessagingSipImpl.class);
 
     /**
      * A list of processors registered for incoming sip messages.
      */
-    private Vector<SipMessageProcessor> messageProcessors
-                                        = new Vector<SipMessageProcessor>();
+    private final List<SipMessageProcessor> messageProcessors
+        = new Vector<SipMessageProcessor>();
 
     /**
      * The provider that created us.
      */
-    private ProtocolProviderServiceSipImpl sipProvider = null;
+    private final ProtocolProviderServiceSipImpl sipProvider;
 
     /**
      * A reference to the persistent presence operation set that we use
@@ -57,7 +57,8 @@ public class OperationSetBasicInstantMessagingSipImpl
     /**
      * Hashtable containing the message sent
      */
-    private Hashtable sentMsg = null;
+    private final Map<String, Message> sentMsg
+        = new Hashtable<String, Message>(3);
 
     /**
      * It can be implemented in some servers.
@@ -67,7 +68,7 @@ public class OperationSetBasicInstantMessagingSipImpl
     /**
      * Gives access to presence states for the Sip protocol.
      */
-    private SipStatusEnum sipStatusEnum;
+    private final SipStatusEnum sipStatusEnum;
 
     /**
      * Creates an instance of this operation set.
@@ -79,7 +80,7 @@ public class OperationSetBasicInstantMessagingSipImpl
         ProtocolProviderServiceSipImpl provider)
     {
         this.sipProvider = provider;
-        this.sentMsg = new Hashtable(3);
+
         provider.addRegistrationStateChangeListener(new
             RegistrationStateListener());
 
@@ -556,45 +557,15 @@ public class OperationSetBasicInstantMessagingSipImpl
      * Class for listening incoming packets.
      */
     private class BasicInstantMessagingMethodProcessor
-        implements MethodProcessor
+        extends MethodProcessorAdapter
     {
-        public boolean processDialogTerminated(
-            DialogTerminatedEvent dialogTerminatedEvent)
-        {
-            // never fired
-            return false;
-        }
-
-        public boolean processIOException(IOExceptionEvent exceptionEvent)
-        {
-            // never fired
-            return false;
-        }
-
-        public boolean processTransactionTerminated(
-            TransactionTerminatedEvent transactionTerminatedEvent)
-        {
-            // nothing to do
-            return false;
-        }
-
-        /**
-         *
-         * @param timeoutEvent TimeoutEvent
-         */
         public boolean processTimeout(TimeoutEvent timeoutEvent)
         {
             synchronized (messageProcessors)
             {
-                Iterator iter = messageProcessors.iterator();
-                while (iter.hasNext())
-                {
-                    SipMessageProcessor listener
-                        = (SipMessageProcessor)iter.next();
-
+                for (SipMessageProcessor listener : messageProcessors)
                     if(!listener.processTimeout(timeoutEvent, sentMsg))
                         return true;
-                }
             }
 
             // this is normaly handled by the SIP stack
@@ -647,7 +618,7 @@ public class OperationSetBasicInstantMessagingSipImpl
                 // try to retrieve the original message
                 String key = ((CallIdHeader)req.getHeader(CallIdHeader.NAME))
                     .getCallId();
-                failedMessage = (Message) sentMsg.get(key);
+                failedMessage = sentMsg.get(key);
 
                 if (failedMessage == null)
                 {
@@ -686,15 +657,9 @@ public class OperationSetBasicInstantMessagingSipImpl
         {
             synchronized (messageProcessors)
             {
-                Iterator iter = messageProcessors.iterator();
-                while (iter.hasNext())
-                {
-                    SipMessageProcessor listener
-                        = (SipMessageProcessor)iter.next();
-
+                for (SipMessageProcessor listener : messageProcessors)
                     if(!listener.processMessage(requestEvent))
                         return true;
-                }
             }
 
             // get the content
@@ -801,15 +766,9 @@ public class OperationSetBasicInstantMessagingSipImpl
         {
             synchronized (messageProcessors)
             {
-                Iterator iter = messageProcessors.iterator();
-                while (iter.hasNext())
-                {
-                    SipMessageProcessor listener
-                        = (SipMessageProcessor)iter.next();
-
+                for (SipMessageProcessor listener : messageProcessors)
                     if(!listener.processResponse(responseEvent, sentMsg))
                         return true;
-                }
             }
 
             Request req = responseEvent.getClientTransaction().getRequest();
@@ -867,7 +826,7 @@ public class OperationSetBasicInstantMessagingSipImpl
             String key = ((CallIdHeader)req.getHeader(CallIdHeader.NAME))
                 .getCallId();
 
-            Message newMessage = (Message) sentMsg.get(key);
+            Message newMessage = sentMsg.get(key);
 
             if (newMessage == null)
             {
@@ -1036,4 +995,3 @@ public class OperationSetBasicInstantMessagingSipImpl
         }
     }
 }
-

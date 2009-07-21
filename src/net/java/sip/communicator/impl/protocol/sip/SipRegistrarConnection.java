@@ -25,7 +25,7 @@ import net.java.sip.communicator.util.*;
  * @author Emil Ivov
  */
 public class SipRegistrarConnection
-    implements MethodProcessor
+    extends MethodProcessorAdapter
 {
     private static final Logger logger =
         Logger.getLogger(SipRegistrarConnection.class);
@@ -1069,26 +1069,6 @@ public class SipRegistrarConnection
                 + response.getReasonPhrase());
     }
 
-
-    /**
-    * Process an asynchronously reported DialogTerminatedEvent. When a dialog
-    * transitions to the Terminated state, the stack keeps no further records
-    * of the dialog. This notification can be used by applications to clean up
-    * any auxiliary data that is being maintained for the given dialog.
-    *
-    * @param dialogTerminatedEvent -- an event that indicates that the dialog
-    *            has transitioned into the terminated state.
-    * @return <tt>true</tt> if the specified event has been handled by this
-    *         processor and shouldn't be offered to other processors registered
-    *         for the same method; <tt>false</tt>, otherwise
-    * @since v1.2
-    */
-    public boolean processDialogTerminated(DialogTerminatedEvent
-                                        dialogTerminatedEvent)
-    {
-        return false;
-    }
-
     /**
     * Processes a Request received on a SipProvider upon which this SipListener
     * is registered.
@@ -1126,24 +1106,6 @@ public class SipRegistrarConnection
                 "A timeout occurred while trying to connect to the server.");
         }
         return true;
-    }
-
-    /**
-    * Process an asynchronously reported TransactionTerminatedEvent. When a
-    * transaction transitions to the Terminated state, the stack keeps no
-    * further records of the transaction.
-    *
-    * @param transactionTerminatedEvent an event that indicates that the
-    *            transaction has transitioned into the terminated state.
-    * @return <tt>true</tt> if the specified event has been handled by this
-    *         processor and shouldn't be offered to other processors registered
-    *         for the same method; <tt>false</tt>, otherwise
-    */
-    public boolean processTransactionTerminated(TransactionTerminatedEvent
-                                            transactionTerminatedEvent)
-    {
-        //doesn't mean anything. we do failure handling in processTimeout
-        return false;
     }
 
     /**
