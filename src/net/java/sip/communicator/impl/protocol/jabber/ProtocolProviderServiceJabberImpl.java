@@ -642,10 +642,12 @@ public class ProtocolProviderServiceJabberImpl
                     OperationSetBasicTelephony.class.getName(),
                     opSetBasicTelephony);
 
-                supportedFeatures.add(
-                    "http://www.xmpp.org/extensions/xep-0166.html#ns");
-                supportedFeatures.add(
-                    "http://www.xmpp.org/extensions/xep-0167.html#ns");
+                supportedFeatures.add("urn:xmpp:jingle:1");
+                supportedFeatures.add("urn:xmpp:jingle:apps:rtp:1");
+                supportedFeatures.add("urn:xmpp:jingle:apps:rtp:audio");
+
+                //one day:
+                //supportedFeatures.add("urn:xmpp:jingle:apps:rtp:video");
             }
 
             isInitialized = true;
