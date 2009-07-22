@@ -69,7 +69,7 @@ public interface OperationSetMultiUserChat
      * local user will not have joined it and thus will not receive messages on
      * it until the <tt>ChatRoom.join()</tt> method is called.
      * <p>
-     * 
+     *
      * @param roomName
      *            the name of the <tt>ChatRoom</tt> to create.
      * @param roomProperties
@@ -82,10 +82,10 @@ public interface OperationSetMultiUserChat
      *             user has no permissions to create a chat room).
      * @throws OperationNotSupportedException
      *             if chat room creation is not supported by this server
-     * 
+     *
      * @return the newly created <tt>ChatRoom</tt> named <tt>roomName</tt>.
      */
-    public ChatRoom createChatRoom(String roomName, 
+    public ChatRoom createChatRoom(String roomName,
                                    Map<String, Object> roomProperties)
         throws OperationFailedException,
                OperationNotSupportedException;
@@ -157,7 +157,7 @@ public interface OperationSetMultiUserChat
      * @return a boolean indicating whether <tt>contact</tt> supports chat rooms.
      */
     public boolean isMultiChatSupportedByContact(Contact contact);
-    
+
     /**
      * Adds a listener that will be notified of changes in our participation in
      * a chat room such as us being kicked, joined, left.
@@ -170,7 +170,7 @@ public interface OperationSetMultiUserChat
     /**
      * Removes a listener that was being notified of changes in our
      * participation in a room such as us being kicked, joined, left.
-     * 
+     *
      * @param listener a local user participation listener.
      */
     public void removePresenceListener(
