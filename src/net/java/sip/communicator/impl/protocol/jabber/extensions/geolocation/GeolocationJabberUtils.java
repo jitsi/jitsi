@@ -31,10 +31,10 @@ public class GeolocationJabberUtils
      * @param geolocExt the GeolocationExtension XML message
      * @return a Map with geolocation information
      */
-    public static Map convertExtensionToMap(
+    public static Map<String, String> convertExtensionToMap(
                                         GeolocationPacketExtension geolocExt)
     {
-        Map geolocMap = new Hashtable();
+        Map<String, String> geolocMap = new Hashtable<String, String>();
 
         addFloatToMap(  geolocMap
                       , OperationSetGeolocation.ALT
@@ -119,7 +119,9 @@ public class GeolocationJabberUtils
      * @param value the float var that we're adding to <tt>map</tt> against the
      * <tt>key</tt> key.
      */
-    private static void addFloatToMap(Map map, String key, float value)
+    private static void addFloatToMap(Map<String, String> map,
+                                      String key,
+                                      float value)
     {
         if (value != -1)
         {
@@ -134,7 +136,9 @@ public class GeolocationJabberUtils
      * @param key String
      * @param value String
      */
-    private static void addStringToMap(Map map, String key, String value)
+    private static void addStringToMap(Map<String, String> map,
+                                       String key,
+                                       String value)
     {
         if (value != null)
         {
@@ -150,20 +154,20 @@ public class GeolocationJabberUtils
      * message
      */
     public static GeolocationPacketExtension convertMapToExtension(
-                                                            Map geolocation)
+                                               Map<String, String> geolocation)
     {
         GeolocationPacketExtension geolocExt = new GeolocationPacketExtension();
 
-        Set entries = geolocation.entrySet();
-        Iterator itLine = entries.iterator();
+        Set<Entry<String, String>> entries = geolocation.entrySet();
+        Iterator<Entry<String, String>> itLine = entries.iterator();
 
         while (itLine.hasNext())
         {
 
-            Map.Entry line = (Entry) itLine.next();
+            Entry<String, String> line = itLine.next();
 
-            String curParam = (String) line.getKey();
-            String curValue = (String) line.getValue();
+            String curParam = line.getKey();
+            String curValue = line.getValue();
 
             String prototype = Character.toUpperCase(curParam.charAt(0))
                 + curParam.substring(1);
