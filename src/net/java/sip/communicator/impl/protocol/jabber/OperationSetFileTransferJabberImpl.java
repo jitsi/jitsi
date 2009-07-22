@@ -385,7 +385,7 @@ public class OperationSetFileTransferJabberImpl
         public void run()
         {
             int status;
-            double progress;
+            long progress;
 
             while (true)
             {
@@ -406,7 +406,7 @@ public class OperationSetFileTransferJabberImpl
 
                     fileTransfer.fireStatusChangeEvent(status);
                     fileTransfer.fireProgressChangeEvent(
-                        System.currentTimeMillis(), (int) progress);
+                        System.currentTimeMillis(), progress);
                 }
                 catch (InterruptedException e)
                 {
@@ -423,7 +423,7 @@ public class OperationSetFileTransferJabberImpl
 
             fileTransfer.fireStatusChangeEvent(status);
             fileTransfer.fireProgressChangeEvent(
-                System.currentTimeMillis(), (int) progress);
+                System.currentTimeMillis(), progress);
         }
     }
 

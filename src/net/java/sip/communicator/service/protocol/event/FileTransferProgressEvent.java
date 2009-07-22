@@ -22,7 +22,7 @@ public class FileTransferProgressEvent
     /**
      * Indicates the progress of a file transfer in bytes.
      */
-    private int progress;
+    private long progress;
 
     /**
      * Indicates when this event occured.
@@ -41,7 +41,7 @@ public class FileTransferProgressEvent
      */
     public FileTransferProgressEvent(   FileTransfer fileTransfer,
                                         long timestamp,
-                                        int progress)
+                                        long progress)
     {
         super(fileTransfer);
 
@@ -60,11 +60,11 @@ public class FileTransferProgressEvent
     }
 
     /**
-     * Returns the progress of the file transfer.
+     * Returns the progress of the file transfer in transferred bytes.
      * 
      * @return the progress of the file transfer
      */
-    public int getProgress()
+    public long getProgress()
     {
         return progress;
     }

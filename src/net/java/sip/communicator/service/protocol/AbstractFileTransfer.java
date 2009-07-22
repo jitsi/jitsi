@@ -158,8 +158,10 @@ public abstract class AbstractFileTransfer
     /**
      * Notifies all status listeners that a new
      * <tt>FileTransferProgressEvent</tt> occured.
+     * @param timestamp the date on which the event occured
+     * @param progress the bytes representing the progress of the transfer
      */
-    public void fireProgressChangeEvent(long timestamp, int progress)
+    public void fireProgressChangeEvent(long timestamp, long progress)
     {
         Collection<FileTransferProgressListener> listeners = null;
         synchronized (progressListeners)

@@ -398,7 +398,7 @@ public class OperationSetFileTransferYahooImpl
 
             ft.setTransferedBytes(ev.getProgress());
             ft.fireProgressChangeEvent(
-                System.currentTimeMillis(), (int)ev.getProgress());
+                System.currentTimeMillis(), ev.getProgress());
         }
         else
             ft.fireStatusChangeEvent(getStateMapping(newState));

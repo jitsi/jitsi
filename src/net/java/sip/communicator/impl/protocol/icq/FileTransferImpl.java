@@ -221,7 +221,7 @@ public class FileTransferImpl
 
                                 setTransferedBytes(transfered);
                                 fireProgressChangeEvent(
-                                    System.currentTimeMillis(), (int)transfered);
+                                    System.currentTimeMillis(), transfered);
 
                                 try {
                                     Thread.sleep(100);
