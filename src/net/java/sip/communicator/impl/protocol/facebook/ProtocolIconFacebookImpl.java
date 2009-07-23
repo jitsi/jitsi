@@ -37,13 +37,10 @@ public class ProtocolIconFacebookImpl
     {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,
             getImageInBytes("service.protocol.facebook.FACEBOOK_16x16"));
-
+        iconsTable.put(ProtocolIcon.ICON_SIZE_32x32,
+            getImageInBytes("service.protocol.facebook.FACEBOOK_32x32"));
         iconsTable.put(ProtocolIcon.ICON_SIZE_48x48,
             getImageInBytes("service.protocol.facebook.FACEBOOK_48x48"));
-        /*
-         * iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-         * getImageInBytes("facebook64x64Icon"));
-         */
     }
 
     /**

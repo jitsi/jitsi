@@ -295,8 +295,11 @@ public class ContactFacebookImpl
      */
     public static byte[] getDefaultAvatar()
     {
-        return ProtocolIconFacebookImpl.getResources().getImageInBytes(
-            "defaultAvatarFacebook");
+        return
+            ProtocolIconFacebookImpl
+                .getResources()
+                    .getImageInBytes(
+                        "service.protocol.facebook.DEFAULT_AVATAR");
     }
 
     /**
