@@ -624,8 +624,8 @@ public abstract class ProtocolProviderFactory
      * @return a new <code>AccountID</code> instance with the specified user ID
      *         representing the given set of account properties
      */
-    protected abstract AccountID createAccountID(String userID,
-        Map<String, String> accountProperties);
+    protected abstract AccountID createAccountID(
+        String userID, Map<String, String> accountProperties);
 
     /**
      * Gets the name of the protocol this factory registers its

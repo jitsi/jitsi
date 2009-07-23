@@ -195,13 +195,10 @@ public class OperationSetBasicInstantMessagingSipImpl
             && !offlineMessageSupported)
         {
             logger.debug("trying to send a message to an offline contact");
-            MessageDeliveryFailedEvent evt =
-                new MessageDeliveryFailedEvent(
-                    message,
-                    to,
-                    MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED,
-                    new Date());
-            fireMessageEvent(evt);
+            fireMessageDeliveryFailed(
+                message,
+                to,
+                MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED);
             return;
         }
 
@@ -217,13 +214,10 @@ public class OperationSetBasicInstantMessagingSipImpl
                 "Failed to create the message."
                 , ex);
 
-            MessageDeliveryFailedEvent evt =
-                new MessageDeliveryFailedEvent(
-                    message,
-                    to,
-                    MessageDeliveryFailedEvent.INTERNAL_ERROR,
-                    new Date());
-            fireMessageEvent(evt);
+            fireMessageDeliveryFailed(
+                message,
+                to,
+                MessageDeliveryFailedEvent.INTERNAL_ERROR);
             return;
         }
 
@@ -238,13 +232,10 @@ public class OperationSetBasicInstantMessagingSipImpl
                 + "This is most probably a network connection error."
                 , ex);
 
-            MessageDeliveryFailedEvent evt =
-                new MessageDeliveryFailedEvent(
-                    message,
-                    to,
-                    MessageDeliveryFailedEvent.NETWORK_FAILURE,
-                    new Date());
-            fireMessageEvent(evt);
+            fireMessageDeliveryFailed(
+                message,
+                to,
+                MessageDeliveryFailedEvent.NETWORK_FAILURE);
             return;
         }
         catch(SipException ex)
@@ -253,13 +244,10 @@ public class OperationSetBasicInstantMessagingSipImpl
                 "Failed to send the message."
                 , ex);
 
-            MessageDeliveryFailedEvent evt =
-                new MessageDeliveryFailedEvent(
-                    message,
-                    to,
-                    MessageDeliveryFailedEvent.INTERNAL_ERROR,
-                    new Date());
-            fireMessageEvent(evt);
+            fireMessageDeliveryFailed(
+                message,
+                to,
+                MessageDeliveryFailedEvent.INTERNAL_ERROR);
             return;
         }
     }
@@ -632,15 +620,11 @@ public class OperationSetBasicInstantMessagingSipImpl
             }
 
             // error for delivering the message
-            MessageDeliveryFailedEvent evt =
-                new MessageDeliveryFailedEvent(
-                    // we don't know what message it concerns
-                    failedMessage,
-                    to,
-                    MessageDeliveryFailedEvent.INTERNAL_ERROR,
-                    new Date());
-            fireMessageEvent(evt);
-
+            fireMessageDeliveryFailed(
+                // we don't know what message it concerns
+                failedMessage,
+                to,
+                MessageDeliveryFailedEvent.INTERNAL_ERROR);
             return true;
         }
 
@@ -810,15 +794,11 @@ public class OperationSetBasicInstantMessagingSipImpl
                         + responseEvent.getResponse().getReasonPhrase());
 
                 // error for delivering the message
-                MessageDeliveryFailedEvent evt =
-                    new MessageDeliveryFailedEvent(
-                        // we don't know what message it concerns
-                        createMessage(content),
-                        to,
-                        MessageDeliveryFailedEvent.INTERNAL_ERROR,
-                        new Date());
-                fireMessageEvent(evt);
-
+                fireMessageDeliveryFailed(
+                    // we don't know what message it concerns
+                    createMessage(content),
+                    to,
+                    MessageDeliveryFailedEvent.INTERNAL_ERROR);
                 return false;
             }
 
@@ -834,15 +814,11 @@ public class OperationSetBasicInstantMessagingSipImpl
                 logger.error("Couldn't find the message sent");
 
                 // error for delivering the message
-                MessageDeliveryFailedEvent evt =
-                    new MessageDeliveryFailedEvent(
-                        // we don't know what message it is
-                        createMessage(content),
-                        to,
-                        MessageDeliveryFailedEvent.INTERNAL_ERROR,
-                        new Date());
-                fireMessageEvent(evt);
-
+                fireMessageDeliveryFailed(
+                    // we don't know what message it is
+                    createMessage(content),
+                    to,
+                    MessageDeliveryFailedEvent.INTERNAL_ERROR);
                 return true;
             }
 
@@ -857,13 +833,13 @@ public class OperationSetBasicInstantMessagingSipImpl
                 // error for delivering the message
                 MessageDeliveryFailedEvent evt =
                     new MessageDeliveryFailedEvent(
-                        newMessage,
-                        to,
-                        MessageDeliveryFailedEvent.NETWORK_FAILURE,
-                        new Date(),
-                        responseEvent.getResponse().getStatusCode()
-                        + " "
-                        + responseEvent.getResponse().getReasonPhrase());
+                            newMessage,
+                            to,
+                            MessageDeliveryFailedEvent.NETWORK_FAILURE,
+                            System.currentTimeMillis(),
+                            responseEvent.getResponse().getStatusCode()
+                                + " "
+                                + responseEvent.getResponse().getReasonPhrase());
                 fireMessageEvent(evt);
                 sentMsg.remove(key);
             }
@@ -894,11 +870,11 @@ public class OperationSetBasicInstantMessagingSipImpl
                     // error for delivering the message
                     MessageDeliveryFailedEvent evt =
                         new MessageDeliveryFailedEvent(
-                            newMessage,
-                            to,
-                            MessageDeliveryFailedEvent.NETWORK_FAILURE,
-                            new Date(),
-                            ex.getMessage());
+                                newMessage,
+                                to,
+                                MessageDeliveryFailedEvent.NETWORK_FAILURE,
+                                System.currentTimeMillis(),
+                                ex.getMessage());
                     fireMessageEvent(evt);
                     sentMsg.remove(key);
                 }

@@ -102,8 +102,8 @@ public abstract class AbstractOperationSetBasicInstantMessaging
             DEFAULT_MIME_ENCODING, null);
     }
 
-    public abstract Message createMessage(String content, String contentType,
-        String encoding, String subject);
+    public abstract Message createMessage(
+        String content, String contentType, String encoding, String subject);
 
     /**
      * Notifies all registered message listeners that a message has been
@@ -116,6 +116,15 @@ public abstract class AbstractOperationSetBasicInstantMessaging
     {
         fireMessageEvent(
             new MessageDeliveredEvent(message, to, System.currentTimeMillis()));
+    }
+
+    protected void fireMessageDeliveryFailed(
+        Message message,
+        Contact to,
+        int errorCode)
+    {
+        fireMessageEvent(
+            new MessageDeliveryFailedEvent(message, to, errorCode));
     }
 
     /**

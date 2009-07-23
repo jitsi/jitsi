@@ -8,11 +8,13 @@
     <classpathentry kind="lib" path="lib/bundle/junit.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/apache-ant-1.7.0.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/aclibico-2.1.jar"/>
-    <classpathentry kind="lib" path="lib/installer-exclude/commons-logging.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/commons-logging-1.1.1.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/concurrent.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/dict4j.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/dnsjava-2.0.3.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/fmj.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/httpclient-4.0-beta2.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/httpcore-4.0.1.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/izpack-shortcut-link.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/jain-sip-api.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/jain-sip-ri.jar"/>
@@ -28,6 +30,7 @@
     <classpathentry kind="lib" path="lib/installer-exclude/joscar-protocol.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/jsch-0.1.36.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/jsocks-klea.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/json-20090723.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/jspeex.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/junit.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/KeybindingUtil.jar"/>

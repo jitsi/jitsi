@@ -187,8 +187,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
                 new MessageDeliveryFailedEvent(
                     message,
                     to,
-                    MessageDeliveryFailedEvent.NETWORK_FAILURE,
-                    new Date());
+                    MessageDeliveryFailedEvent.NETWORK_FAILURE);
             fireMessageEvent(evt);
             return;
         }

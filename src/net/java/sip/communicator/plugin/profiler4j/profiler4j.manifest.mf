@@ -4,19 +4,20 @@ Bundle-Description: A bundle that provides profile cpu and memory of the running
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
-Import-Package: org.osgi.framework,
-  net.java.sip.communicator.util,
+Import-Package: org.apache.commons.logging,
+  org.osgi.framework,
+  org.xml.sax,
+  org.xml.sax.ext,
+  org.xml.sax.helpers,
   net.java.sip.communicator.service.contactlist,
   net.java.sip.communicator.service.gui,
   net.java.sip.communicator.service.resources,
+  net.java.sip.communicator.util,
   javax.swing,
-  javax.swing.filechooser,
-  javax.swing.tree,
-  javax.swing.event,
   javax.swing.border,
+  javax.swing.event,
+  javax.swing.filechooser,
   javax.swing.table,
   javax.swing.text,
-  javax.xml.parsers,
-  org.xml.sax,
-  org.xml.sax.ext,
-  org.xml.sax.helpers
+  javax.swing.tree,
+  javax.xml.parsers

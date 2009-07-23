@@ -658,7 +658,7 @@
             <!-- Setting properties necessary for dependencies on native libs.-->
             <sysproperty key="java.library.path"
                 path="${ld.library.path}:${path}:${dyld.library.path}"/>
-          <sysproperty key="jna.library.path"
+            <sysproperty key="jna.library.path"
                 path="${ld.library.path}:${path}:${dyld.library.path}"/>
 
             <!-- pass l10n properties from ant call for
@@ -793,7 +793,7 @@
         bundle-audionotifier,bundle-plugin-branding,
         bundle-osdependent,bundle-browserlauncher,bundle-gibberish,
         bundle-gibberish-slick,bundle-plugin-gibberishaccregwizz,
-      bundle-plugin-call-history-form,
+        bundle-plugin-call-history-form,
         bundle-rss, bundle-rss-slick,bundle-plugin-rssaccregwizz,
         bundle-zeroconf,bundle-plugin-zeroconfaccregwizz,bundle-plugin-whiteboard,
         bundle-irc,bundle-plugin-ircaccregwizz,
@@ -809,7 +809,8 @@
         bundle-plugin-simpleaccreg,bundle-plugin-generalconfig,
         bundle-plugin-googletalkaccregwizz,bundle-argdelegation-service,
         bundle-argdelegation,bundle-zrtp4j,
-        bundle-filehistory,bundle-metahistory,bundle-metahistory-slick"/>
+        bundle-filehistory,bundle-metahistory,bundle-metahistory-slick,
+        bundle-facebook,bundle-plugin-facebookaccregwizz"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -1107,7 +1108,6 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib.noinst}/jain-sip-ri.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jain-sip-api.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/concurrent.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/log4j-1.2.8.jar" prefix=""/>
         </jar>
     </target>
 
@@ -1223,21 +1223,17 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/msn"
                 prefix="net/java/sip/communicator/impl/protocol/msn"/>
             <zipfileset src="${lib.noinst}/jml-1.0b2.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/commons-logging.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/httpcore-4.0-beta2.jar" prefix=""/>
         </jar>
     </target>
 
     <!-- BUNDLE-MSN-SLICK -->
     <!-- Creates a bundle containing the slick for the Msn protocol provider.-->
     <target name="bundle-msn-slick">
-
         <jar compress="false" destfile="${bundles.dest}/protocol-msn-slick.jar"
             manifest="${testsrc}/net/java/sip/communicator/slick/protocol/msn/msn.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/msn"
                 prefix="net/java/sip/communicator/slick/protocol/msn"/>
             <zipfileset src="${lib.noinst}/jml-1.0b2.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/commons-logging.jar" prefix=""/>
         </jar>
     </target>
 
@@ -1305,6 +1301,21 @@ javax.swing.event, javax.swing.border"/>
             manifest="${testsrc}/net/java/sip/communicator/slick/protocol/gibberish/gibberish.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/gibberish"
                 prefix="net/java/sip/communicator/slick/protocol/gibberish"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-FACEBOOK -->
+    <target name="bundle-facebook">
+        <!-- Creates a bundle containing the Facebook impl of the protocol provider.-->
+        <jar compress="false" destfile="${bundles.dest}/protocol-facebook.jar"
+                manifest="${src}/net/java/sip/communicator/impl/protocol/facebook/facebook.provider.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/facebook"
+                    prefix="net/java/sip/communicator/impl/protocol/facebook"/>
+            <zipfileset dir="${resources}/images/protocol/facebook"
+                    prefix="resources/images/protocol/facebook" />
+            <zipfileset src="${lib.noinst}/commons-codec-1.3.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/httpclient-4.0-beta2.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/json-20090723.jar" prefix=""/>
         </jar>
     </target>
 
@@ -1439,6 +1450,17 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/gibberishaccregwizz/gibberishaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/gibberishaccregwizz"
                 prefix="net/java/sip/communicator/plugin/gibberishaccregwizz"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-PLUGIN-FACEBOOKACCREGWIZZ -->
+    <target name="bundle-plugin-facebookaccregwizz">
+        <!-- Creates a bundle for the plugin Facebook Account Registration
+             Wizard.-->
+        <jar compress="false" destfile="${bundles.dest}/facebookaccregwizz.jar"
+                manifest="${src}/net/java/sip/communicator/plugin/facebookaccregwizz/facebookaccregwizz.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/facebookaccregwizz" 
+                    prefix="net/java/sip/communicator/plugin/facebookaccregwizz" />
         </jar>
     </target>
 
@@ -1613,7 +1635,6 @@ javax.swing.event, javax.swing.border"/>
         <!-- LIBRARIES FOR RSS PROTOCOL, INCLUDING JDOM-1.0 AND ROME-0.9/-->
         <zipfileset src="${lib.noinst}/jdom.jar" prefix=""/>
         <zipfileset src="${lib.noinst}/rome-0.9.jar" prefix=""/>
-        <zipfileset src="${lib.noinst}/log4j-1.2.8.jar" prefix=""/>
 
         <!-- LIBRARY FOR FAVICON SUPPORT -->
         <zipfileset src="${lib.noinst}/aclibico-2.1.jar" prefix=""/>
@@ -1694,6 +1715,52 @@ javax.swing.event, javax.swing.border"/>
                 <attribute name="Export-Package" value="org.apache.log4j"/>
                 <attribute name="Bundle-Name" value="Apache log4j logging system"/>
                 <attribute name="Bundle-Description" value="Logging system."/>
+                <attribute name="System-Bundle" value="yes"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <!--BUNDLE-COMMONS-LOGGING -->
+    <target name="bundle-commons-logging">
+        <jar compress="true" destfile="lib/bundle/commons-logging.jar"
+                filesetmanifest="merge">
+            <zipfileset src="${lib.noinst}/commons-logging-1.1.1.jar"
+                prefix=""/>
+            <manifest>
+                <attribute name="Export-Package"
+                    value="org.apache.commons.logging"/>
+                <attribute name="Bundle-Name"
+                    value="Apache Commons Logging"/>
+                <attribute name="Bundle-Description"
+                    value="An ultra-thin bridge between different logging implementations."/>
+                <attribute name="System-Bundle" value="yes"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <!--BUNDLE-HTTPCORE -->
+    <target name="bundle-httpcore">
+        <jar compress="true" destfile="lib/bundle/httpcore.jar"
+                filesetmanifest="merge">
+            <zipfileset src="${lib.noinst}/httpcore-4.0.1.jar" prefix=""/>
+            <manifest>
+                <attribute name="Export-Package"
+                    value="org.apache.http,
+org.apache.http.entity,
+org.apache.http.impl,
+org.apache.http.impl.entity,
+org.apache.http.impl.io,
+org.apache.http.io,
+org.apache.http.message,
+org.apache.http.params,
+org.apache.http.protocol,
+org.apache.http.util"/>
+                <attribute name="Import-Package"
+                    value="org.apache.commons.logging"/>
+                <attribute name="Bundle-Name"
+                    value="Apache HttpComponents Core"/>
+                <attribute name="Bundle-Description"
+                    value="A set of low level HTTP transport components."/>
                 <attribute name="System-Bundle" value="yes"/>
             </manifest>
         </jar>
@@ -1819,7 +1886,6 @@ javax.swing.event, javax.swing.border"/>
                 prefix=""/>
             <zipfileset src="${lib.noinst}/jdom.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jcommon-1.0.0.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/commons-logging.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jfreechart-1.0.1.jar" prefix=""/>
             <fileset file="${lib.noinst}/p4j-exclusions.txt"/>
         </jar>

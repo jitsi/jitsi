@@ -294,8 +294,7 @@ public class OperationSetBasicInstantMessagingRssImpl
                 new MessageDeliveryFailedEvent(
                     message,
                     to,
-                    MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED,
-                    new Date());
+                    MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED);
             fireMessageEvent(evt);
             return;
         }

@@ -391,8 +391,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 MessageDeliveryFailedEvent ev =
                     new MessageDeliveryFailedEvent(newMessage,
                                                    sourceContact,
-                                                   errorResultCode,
-                                                   new Date());
+                                                   errorResultCode);
                 fireMessageEvent(ev);
                 return;
             }

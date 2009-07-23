@@ -85,8 +85,13 @@ public interface ProtocolNames
      */
     public static final String GIBBERISH = "Gibberish";
 
-     /**
-      * The Dict protocol.
-      */
-     public static final String DICT = "Dict";
+    /**
+     * The Dict protocol.
+     */
+    public static final String DICT = "Dict";
+     
+    /**
+     * The Facebook protocol.
+     */
+    public static final String FACEBOOK = "Facebook";
 }

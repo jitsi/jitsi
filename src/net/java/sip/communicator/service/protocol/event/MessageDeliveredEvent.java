@@ -29,6 +29,11 @@ public class MessageDeliveredEvent
       */
      private final long timestamp;
 
+     public MessageDeliveredEvent(Message source, Contact to)
+     {
+         this(source, to, System.currentTimeMillis());
+     }
+
      /**
       * Creates a <tt>MessageDeliveredEvent</tt> representing delivery of the
       * <tt>source</tt> message to the specified <tt>to</tt> contact.

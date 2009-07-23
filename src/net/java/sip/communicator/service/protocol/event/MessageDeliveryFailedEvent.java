@@ -67,25 +67,13 @@ public class MessageDeliveryFailedEvent
      /**
       * A timestamp indicating the exact date when the event occurred.
       */
-     private Date timestamp = null;
+     private final long timestamp;
 
-     /**
-      * Creates a <tt>MessageDeliveryFailedEvent</tt> indicating failure of
-      * delivery of the <tt>source</tt> message to the specified <tt>to</tt>
-      * contact.
-      *
-      * @param source the <tt>Message</tt> whose delivery this event represents.
-      * @param to the <tt>Contact</tt> that this message was sent to.
-      * @param errorCode an errorCode indicating the reason of the failure.
-      * @param timestamp the exacte Date when it was determined that delivery
-      * had failed.
-      */
      public MessageDeliveryFailedEvent(Message source,
                                        Contact to,
-                                       int errorCode,
-                                       Date timestamp )
+                                       int errorCode)
      {
-         this(source, to, errorCode, timestamp, null);
+         this(source, to, errorCode, System.currentTimeMillis(), null);
      }
 
      /**
@@ -98,14 +86,33 @@ public class MessageDeliveryFailedEvent
       * @param errorCode an errorCode indicating the reason of the failure.
       * @param timestamp the exacte Date when it was determined that delivery
       * had failed.
+      */
+     public MessageDeliveryFailedEvent(Message source,
+                                       Contact to,
+                                       int errorCode,
+                                       long timestamp)
+     {
+         this(source, to, errorCode, timestamp, null);
+     }
+
+     /**
+      * Creates a <tt>MessageDeliveryFailedEvent</tt> indicating failure of
+      * delivery of the <tt>source</tt> message to the specified <tt>to</tt>
+      * contact.
+      *
+      * @param source the <tt>Message</tt> whose delivery this event represents.
+      * @param to the <tt>Contact</tt> that this message was sent to.
+      * @param errorCode an errorCode indicating the reason of the failure.
+      * @param timestamp the exact timestamp when it was determined that delivery
+      * had failed.
       * @param reason a human readable message indicating the reason for the
       * failure or null if the reason is unknown.
       */
      public MessageDeliveryFailedEvent(Message source,
                                        Contact to,
                                        int errorCode,
-                                       Date timestamp,
-                                       String reason )
+                                       long timestamp,
+                                       String reason)
      {
          super(source);
 
@@ -138,14 +145,15 @@ public class MessageDeliveryFailedEvent
         return errorCode;
      }
 
-
-     /**
-      * A timestamp indicating the exact date when the event ocurred (in this
-      * case it is the moment when it was determined that message delivery
-      * has failed).
-      * @return a Date indicating when the event ocurred.
-      */
-    public Date getTimestamp()
+    /**
+     * A timestamp indicating the exact date when the event ocurred (in this
+     * case it is the moment when it was determined that message delivery has
+     * failed).
+     * 
+     * @return a long indicating when the event ocurred in the form of
+     *         date timestamp.
+     */
+    public long getTimestamp()
     {
         return timestamp;
     }
