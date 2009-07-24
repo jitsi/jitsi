@@ -40,6 +40,9 @@ public class AccountsConfigurationPanel
         new JButton(GuiActivator.getResources().getI18NString(
             "service.gui.DELETE"));
 
+    /**
+     * Creates and initializes this account configuration panel.
+     */
     public AccountsConfigurationPanel()
     {
         super(new BorderLayout());
@@ -94,8 +97,10 @@ public class AccountsConfigurationPanel
         }
         else if (sourceButton.equals(removeButton))
         {
+            Account account = accountList.getSelectedAccount();
+
             ProtocolProviderService protocolProvider
-                = (ProtocolProviderService) accountList.getSelectedValue();
+                = account.getProtocolProvider();
 
             ProtocolProviderFactory providerFactory =
                 GuiActivator.getProtocolProviderFactory(protocolProvider);
@@ -142,8 +147,7 @@ public class AccountsConfigurationPanel
         }
         else if (sourceButton.equals(editButton))
         {
-            ProtocolProviderService protocolProvider
-                = (ProtocolProviderService) accountList.getSelectedValue();
+            Account account = accountList.getSelectedAccount();
 
             AccountRegWizardContainerImpl wizard =
                 (AccountRegWizardContainerImpl) GuiActivator.getUIService()
@@ -152,7 +156,7 @@ public class AccountsConfigurationPanel
             wizard.setTitle(GuiActivator.getResources().getI18NString(
                 "service.gui.ACCOUNT_REGISTRATION_WIZARD"));
 
-            wizard.modifyAccount(protocolProvider);
+            wizard.modifyAccount(account.getProtocolProvider());
             wizard.showDialog(false);
         }
     }

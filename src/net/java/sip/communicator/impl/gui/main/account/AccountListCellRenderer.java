@@ -11,7 +11,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -53,25 +52,21 @@ public class AccountListCellRenderer
     public Component getListCellRendererComponent(JList list, Object value,
         int index, boolean isSelected, boolean cellHasFocus)
     {
-        ProtocolProviderService protocolProvider
-            = (ProtocolProviderService) value;
+        Account account = (Account) value;
 
-        Image protocolImage =
-            ImageLoader.getBytesInImage(protocolProvider.getProtocolIcon()
-                .getIcon(ProtocolIcon.ICON_SIZE_32x32));
+        ImageIcon accountIcon = account.getIcon();
 
-        accountLabel.setIcon(new ImageIcon(protocolImage));
+        if (accountIcon != null)
+            accountLabel.setIcon(accountIcon);
 
-        accountLabel.setText(protocolProvider.getAccountID()
-            .getDisplayName());
+        accountLabel.setText(account.getName());
 
-        ImageIcon statusImage
-            = ImageLoader.getAccountStatusImage(protocolProvider);
+        ImageIcon statusIcon = account.getStatusIcon();
 
-        if (statusImage != null)
-            statusLabel.setIcon(statusImage);
+        if (statusIcon != null)
+            statusLabel.setIcon(statusIcon);
 
-        String statusName = getAccountStatus(protocolProvider);
+        String statusName = account.getStatusName();
 
         if (statusName != null)
             statusLabel.setText(statusName);
@@ -125,41 +120,5 @@ public class AccountListCellRenderer
             g2.setColor(Constants.SELECTED_COLOR);
             g2.fillRect(0, 0, this.getWidth(), this.getHeight());
         }
-    }
-
-    /**
-     * Returns the current presence status of the given protocol provider.
-     * 
-     * @param protocolProvider the protocol provider which status we're looking
-     * for.
-     * @return the current presence status of the given protocol provider.
-     */
-    private String getAccountStatus(ProtocolProviderService protocolProvider)
-    {
-        String status;
-
-        OperationSetPresence presence
-            = (OperationSetPresence) protocolProvider
-                .getOperationSet(OperationSetPresence.class);
-
-        if (presence != null)
-        {
-            status = presence.getPresenceStatus().getStatusName();
-        }
-        else
-        {
-            if (protocolProvider.isRegistered())
-            {
-                status = GuiActivator.getResources()
-                    .getI18NString("service.gui.ONLINE");
-            }
-            else
-            {
-                status = GuiActivator.getResources()
-                    .getI18NString("service.gui.OFFLINE");
-            }
-        }
-
-        return status;
     }
 }

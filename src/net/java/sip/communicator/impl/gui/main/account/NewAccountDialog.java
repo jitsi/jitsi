@@ -20,6 +20,12 @@ import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
 
+/**
+ * The <tt>NewAccountDialog</tt> is the dialog containing the form used to
+ * create a new account.
+ * 
+ * @author Yana Stamcheva
+ */
 public class NewAccountDialog
     extends SIPCommDialog
     implements  ActionListener
@@ -209,6 +215,9 @@ public class NewAccountDialog
         }
     }
 
+    /**
+     * A custom cell renderer for the network combobox.
+     */
     private static class NetworkListCellRenderer
         extends JLabel
         implements ListCellRenderer
@@ -251,11 +260,15 @@ public class NewAccountDialog
                 this.setIcon(null);
             }
 
-
             return this;
         }
     }
 
+    /**
+     * Loads the given wizard in the user interface.
+     *
+     * @param wizard the wizard to load
+     */
     private void loadSelectedWizard(AccountRegistrationWizard wizard)
     {
         accountPanel.removeAll();
@@ -271,13 +284,13 @@ public class NewAccountDialog
         simpleWizardForm.setOpaque(false);
 
         accountPanel.add(simpleWizardForm);
-        
+
         //enable the add and advanced buttons if this is a real protocol
         addAccountButton.setEnabled(
                         !(wizard instanceof EmptyAccountRegistrationWizard));
         advancedButton.setEnabled(
                         !(wizard instanceof EmptyAccountRegistrationWizard));
-        
+
         accountPanel.revalidate();
         accountPanel.repaint();
 
@@ -313,6 +326,9 @@ public class NewAccountDialog
         this.setSize(getWidth(), getHeight()+errorMessagePane.getHeight());
     }
 
+    /**
+     * Handles button actions.
+     */
     public void actionPerformed(ActionEvent event)
     {
         JButton sourceButton = (JButton) event.getSource();

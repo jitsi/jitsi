@@ -7,6 +7,7 @@ package net.java.sip.communicator.impl.gui.main.account;
 
 import java.awt.event.*;
 import java.beans.*;
+import java.util.*;
 
 import javax.swing.*;
 
@@ -90,9 +91,14 @@ public class AccountList
                     presence.addProviderPresenceStatusListener(this);
                 }
 
-                accountListModel.addElement(protocolProvider);
+                accountListModel.addElement(new Account(protocolProvider));
             }
         }
+    }
+
+    public Account getSelectedAccount()
+    {
+        return (Account) this.getSelectedValue();
     }
 
     /**
@@ -102,7 +108,17 @@ public class AccountList
     {
         ProtocolProviderService protocolProvider = evt.getProvider();
 
-        accountListModel.contentChanged(protocolProvider);
+        Enumeration<Account> accounts
+            = (Enumeration<Account>) accountListModel.elements();
+        while (accounts.hasMoreElements())
+        {
+            Account account = accounts.nextElement();
+
+            if (account.getProtocolProvider().equals(protocolProvider))
+            {
+                accountListModel.contentChanged(account);
+            }
+        }
     }
 
     public void providerStatusMessageChanged(PropertyChangeEvent evt) {}
@@ -158,11 +174,21 @@ public class AccountList
                 presence.addProviderPresenceStatusListener(this);
             }
 
-            accountListModel.addElement(protocolProvider);
+            accountListModel.addElement(new Account(protocolProvider));
         }
         else if (event.getType() == ServiceEvent.UNREGISTERING)
         {
-            accountListModel.removeElement(protocolProvider);
+            Enumeration<Account> accounts
+                = (Enumeration<Account>) accountListModel.elements();
+            while (accounts.hasMoreElements())
+            {
+                Account account = accounts.nextElement();
+
+                if (account.getProtocolProvider().equals(protocolProvider))
+                {
+                    accountListModel.removeElement(account);
+                }
+            }
         }
     }
 
@@ -196,7 +222,17 @@ public class AccountList
     {
         ProtocolProviderService protocolProvider = evt.getProvider();
 
-        accountListModel.contentChanged(protocolProvider);
+        Enumeration<Account> accounts
+            = (Enumeration<Account>) accountListModel.elements();
+        while (accounts.hasMoreElements())
+        {
+            Account account = accounts.nextElement();
+
+            if (account.getProtocolProvider().equals(protocolProvider))
+            {
+                accountListModel.contentChanged(account);
+            }
+        }
     }
 
     /**
@@ -205,9 +241,9 @@ public class AccountList
      */
     private class AccountListModel extends DefaultListModel
     {
-        public void contentChanged(ProtocolProviderService protocolProvider)
+        public void contentChanged(Account account)
         {
-            int index = this.indexOf(protocolProvider);
+            int index = this.indexOf(account);
             this.fireContentsChanged(this, index, index);
         }
     }
