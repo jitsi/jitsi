@@ -14,14 +14,12 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.apache.http.*;
-import org.apache.http.auth.*;
 import org.apache.http.client.*;
 import org.apache.http.client.entity.*;
 import org.apache.http.client.methods.*;
 import org.apache.http.client.params.*;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.conn.*;
-import org.apache.http.conn.params.*;
 import org.apache.http.conn.scheme.*;
 import org.apache.http.conn.ssl.*;
 import org.apache.http.cookie.Cookie;
@@ -41,26 +39,33 @@ import org.json.*;
  * @author Lubomir Marinov
  */
 public class FacebookAdapter {
-	private static Logger logger = Logger.getLogger(FacebookAdapter.class);
-	/**
-	 * The url of the host
-	 */
-	private static String hostUrl = "http://www.facebook.com";
-	private static String hostUrlNew = "http://www.new.facebook.com";
-	
-	/**
+    private static Logger logger = Logger.getLogger(FacebookAdapter.class);
+
+    /**
+     * The url of the host
+     */
+    private static String hostUrl = "http://www.facebook.com";
+    private static String hostUrlNew = "http://www.new.facebook.com";
+
+    /**
      * The url of the login page
      */
     private static String loginPageUrl = "http://www.facebook.com/login.php";
+
     /**
      * The url of the home page
      */
     private static String homePageUrl = "http://www.facebook.com/home.php";
-	/**
-	 * The http client we use to simulate a browser.
-	 */
-	private HttpClient httpClient;
-	/**
+
+    private static final String RECONNECT_URL
+        = "/ajax/presence/reconnect.php?reason=3&post_form_id=";
+
+    /**
+     * The http client we use to simulate a browser.
+     */
+    private HttpClient httpClient;
+
+    /**
      * The default parameters.
      * Instantiated in {@link #setup setup}.
      */
@@ -71,93 +76,93 @@ public class FacebookAdapter {
      * Instantiated in {@link #setup setup}.
      */
     private static SchemeRegistry supportedSchemes;
-	/**
-	 * Timeout until connection established
-	 * 0 means infinite waiting
-	 */
-	//private int connectionTimeout = 20 * 1000;
-	/**
-	 * Timeout until data received<br>
-	 * 0 means infinite waiting for data
-	 */
-	//private int socketTimeout = 60 * 1000;
-	/**
-	 * The UID of this account
-	 */
-	private String uid = null;
-	/**
-	 * The channel this account is using
-	 */
-	private String channel = "15";
-	/**
-	 * The post form id
-	 */
-	private String post_form_id = null;
-	/**
-	 * The current seq number
-	 */
-	private int seq = -1;
 
-	/**
-	 * IDs of the messages we receive,<br>
-	 * We can know if the incoming message has been handled before via looking up this collection.
-	 */
-	private HashSet<String> msgIDCollection;
-	
-	/**
-	 * The buddy list of this account
-	 */
-	private FacebookBuddyList buddyList;
-	/**
-	 * Parent service provider
-	 */
-	ProtocolProviderServiceFacebookImpl parentprovider;
+    /**
+     * Timeout until connection established
+     * 0 means infinite waiting
+     */
+    //private int connectionTimeout = 20 * 1000;
 
-	/**
-	 * true, we keep requesting new message and buddy list from server;
-	 * false, we exit the separate thread.
-	 */
-	private boolean isClientRunning = true;
-	
-	/**
-	 * The thread which keeps requesting new messages.
-	 */
-	private Thread msgRequester;
-	
-	/**
-	 * The thread which requests buddy list every 90 seconds.
-	 */
-	private Thread buddyListRequester;
-	/**
-	 * The proxy settings
-	 */
-	private String Proxy_Host = "ISASRV";
-	private int Proxy_Port = 80;
-	private String Proxy_Username = "daizw";
-	private String Proxy_Password = "xxxxxx";
+    /**
+     * Timeout until data received<br>
+     * 0 means infinite waiting for data
+     */
+    //private int socketTimeout = 60 * 1000;
 
-	/**
-	 * Adapter for each Facebook Chat account.  
-	 * @param pprovider the parent service provider
-	 */
-	public FacebookAdapter(ProtocolProviderServiceFacebookImpl pprovider){
-		//initialize the http client
-	    setup();
-	    httpClient = createHttpClient();
-	    
-		msgIDCollection = new HashSet<String>();
-		msgIDCollection.clear();
-		buddyList = new FacebookBuddyList(FacebookAdapter.this);
-		parentprovider = pprovider;
-		isClientRunning = true;
-		logger.trace("FacebookAdapter() begin");
-	}
-	/**
+    /**
+     * The UID of this account
+     */
+    private String uid = null;
+
+    /**
+     * The channel this account is using
+     */
+    private String channel = "15";
+
+    /**
+     * The post form id
+     */
+    private String post_form_id = null;
+
+    /**
+     * The current seq number
+     */
+    private int seq = -1;
+
+    /**
+     * IDs of the messages we receive,<br>
+     * We can know if the incoming message has been handled before via looking up this collection.
+     */
+    private HashSet<String> msgIDCollection;
+
+    /**
+     * The buddy list of this account
+     */
+    private FacebookBuddyList buddyList;
+
+    /**
+     * Parent service provider
+     */
+    private final ProtocolProviderServiceFacebookImpl parentprovider;
+
+    /**
+     * true, we keep requesting new message and buddy list from server;
+     * false, we exit the separate thread.
+     */
+    private boolean isClientRunning = true;
+
+    /**
+     * The thread which keeps requesting new messages.
+     */
+    private Thread msgRequester;
+
+    /**
+     * The thread which requests buddy list every 90 seconds.
+     */
+    private Thread buddyListRequester;
+
+    /**
+     * Adapter for each Facebook Chat account.
+     * @param pprovider the parent service provider
+     */
+    public FacebookAdapter(ProtocolProviderServiceFacebookImpl pprovider){
+        //initialize the http client
+        setup();
+        httpClient = createHttpClient();
+
+        msgIDCollection = new HashSet<String>();
+        msgIDCollection.clear();
+        buddyList = new FacebookBuddyList(FacebookAdapter.this);
+        parentprovider = pprovider;
+        isClientRunning = true;
+        logger.trace("FacebookAdapter() begin");
+    }
+
+    /**
      * Performs general setup.
      * This should be called only once.
      */
     private final static void setup() {
-
         supportedSchemes = new SchemeRegistry();
 
         // Register the "http" and "https" protocol schemes, they are
@@ -176,6 +181,7 @@ public class FacebookAdapter {
         HttpProtocolParams.setUserAgent(params, "Mozilla/5.0 (Windows; U; Windows NT 5.1; zh-CN; rv:1.9) Gecko/2008052906 Firefox/3.0");
         defaultParameters = params;
     } // setup
+
     /**
      * Get default http client parameters
      * @return default http client parameters
@@ -183,12 +189,12 @@ public class FacebookAdapter {
     private final static HttpParams getParams() {
         return defaultParameters;
     }
+
     /**
      * Creat a http client with default settings
      * @return a http client with default settings
      */
     private final HttpClient createHttpClient() {
-
         ClientConnectionManager ccm =
             new ThreadSafeClientConnManager(getParams(), supportedSchemes);
 
@@ -207,176 +213,164 @@ public class FacebookAdapter {
         
         return dhc;
     }
+
     /**
-     * Set up proxy according to the proxy setting consts
-     * @param dhc the http client we're setting up.
+     * Update the buddy list from the given data(JSON Object)
+     * @param buddyListJO the JSON Object that contains the buddy list
      */
-    private void setUpProxy(DefaultHttpClient dhc){
-        final HttpHost proxy =
-            new HttpHost(Proxy_Host, Proxy_Port, "http");
-        
-        dhc.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-        AuthState authState = new AuthState();
-        authState.setAuthScope(new AuthScope(proxy.getHostName(), 
-            proxy.getPort()));
-        AuthScope authScope = authState.getAuthScope();
-        
-        Credentials creds = new UsernamePasswordCredentials(Proxy_Username, Proxy_Password);
-        dhc.getCredentialsProvider().setCredentials(authScope, creds);
-        logger.trace("executing request via " + proxy);
+    public void updateBuddyList(JSONObject buddyListJO){
+        try {
+            this.buddyList.updateBuddyList(buddyListJO);
+        } catch (JSONException e) {
+            logger.warn(e.getMessage());
+        }
     }
-	/**
-	 * Update the buddy list from the given data(JSON Object)
-	 * @param buddyListJO the JSON Object that contains the buddy list
-	 */
-	public void updateBuddyList(JSONObject buddyListJO){
-		try {
-			this.buddyList.updateBuddyList(buddyListJO);
-		} catch (JSONException e) {
-		    logger.warn(e.getMessage());
-		}
-	}
-	/**
-	 * Get the facebook id of this account
-	 * @return the facebook id of this account
-	 */
-	public String getUID(){
-		return uid;
-	}
-	/**
-	 * Get the parent service provider
-	 * @return parent service provider
-	 */
-	public ProtocolProviderServiceFacebookImpl getParentProvider(){
-		return parentprovider;
-	}
-	/**
-	 * Whether this message id already exists in our collection.
-	 * If do, we already handle it, so we just omit it. 
-	 * @param msgID the id of current message
-	 * @return if this id already exists in our collection
-	 */
-	public boolean isMessageHandledBefore(String msgID){
-		if(msgIDCollection.contains(msgID)){
-			logger.debug("Omitting a already handled message: msgIDCollection.contains(msgID)");
-			return true;
-		}
-		return false;
-	}
-	/**
-	 * Add the given message id to our collection,
-	 * that means this message has been handled.
-	 * @param msgID the id of current message
-	 */
-	public void addMessageToCollection(String msgID){
-		msgIDCollection.add(msgID);
-	}
-	
-	/**
-	 * Initialize the connection,<br>
-	 * Initialize the variables, e.g. uid, channel, etc.
-	 * 
-	 * @param email our facebook "username"
-	 * @param pass the password
-	 * @return the error code
-	 */
-	public int initialize(final String email, final String pass){
-		logger.trace("initialize() [begin]");
-		isClientRunning = true;
 
-		boolean[] doParseHomePageIsSuccessful = new boolean[1];
-		int loginErrorCode
-		    = connectAndLogin(email, pass, doParseHomePageIsSuccessful);
-		if(loginErrorCode == FacebookErrorCode.Error_Global_NoError){
-			//login successfully, let's do some parsing
-			int hpParsingErrorCode
-			    = doParseHomePageIsSuccessful[0]
-			        ? FacebookErrorCode.Error_Global_NoError
-			        : doParseHomePage();
-			if(hpParsingErrorCode == FacebookErrorCode.Error_Global_NoError){
-			    //now we log in successfully,
-			    //so start two threads to request new messages and buddy list.
-			    
-				//keep requesting message from the server
-				msgRequester = new Thread(new Runnable(){
-					public void run() {
-						logger.info("Keep requesting...");
-						while(isClientRunning){
-							try{
-								keepRequesting();
-							} catch (Exception e){
-							    logger.warn(e.getMessage());
-							}
-						}
-					}
-				});
-				msgRequester.start();
-				
-				//requests buddy list every 60 seconds
-				buddyListRequester = new Thread(new Runnable(){
-					public void run() {
-						logger.info("Keep requesting buddylist...");
-						while(isClientRunning){
-							try{
-								int errorCode = getBuddyList();
-								if(errorCode == FacebookErrorCode.kError_Async_NotLoggedIn){
-									//not logged in. try to log in again.
-									//TODO will this cause infinate loop?
-									initialize(email, pass);
-								}
-							} catch (Exception e){
-							    logger.warn(e.getMessage());
-							}
-							// it's said that the buddy list is updated every 3 minutes at the server end.
-							// we refresh the buddy list every 1 minute
-							try {
-								Thread.sleep(60 * 1000);
-							} catch (InterruptedException e) {
-								logger.warn(e.getMessage());
-							}
-						}
-					}
-				});
-				buddyListRequester.start();
-				
-				logger.trace("initialize() [END]");
-				return FacebookErrorCode.Error_Global_NoError;
-			} else {
-			    //log in successfully but can't get home page
-			    logger.trace("initialize() [Home Page Parsing Error]");
-			    return hpParsingErrorCode;
-			}
-		} else if(loginErrorCode == FacebookErrorCode.kError_Login_GenericError){
-			//handle the error derived from this login
-			logger.error("Not logged in, please check your input or the internet connection!");
-		} else {
-			//handle the error derived from this login
-			logger.error("Not logged in, please check your internet connection!");
-		}
-		logger.trace("initialize() [Login Error]");
-		return loginErrorCode;
-	}
-	/**
-	 * Connect and login with the email and password
-	 * @param email the account email
-	 * @param pass the password
-	 * @return the error code
-	 * @throws URISyntaxException 
-	 * @throws UnsupportedEncodingException 
-	 */
-	private int connectAndLogin(
-	    String email,
-	    String pass,
-	    boolean[] doParseHomePageIsSuccessful)
-	{
-	    doParseHomePageIsSuccessful[0] = false;
+    /**
+     * Get the facebook id of this account
+     * @return the facebook id of this account
+     */
+    public String getUID(){
+        return uid;
+    }
 
-		logger.trace("=========connectAndLogin begin===========");
+    /**
+     * Get the parent service provider
+     * @return parent service provider
+     */
+    public ProtocolProviderServiceFacebookImpl getParentProvider(){
+        return parentprovider;
+    }
 
-		String httpResponseBody = facebookGetMethod(loginPageUrl);
-		if(httpResponseBody == null){
-		    //Why don't we try again?
-		    try
+    /**
+     * Whether this message id already exists in our collection.
+     * If do, we already handle it, so we just omit it.
+     * @param msgID the id of current message
+     * @return if this id already exists in our collection
+     */
+    public boolean isMessageHandledBefore(String msgID){
+        if(msgIDCollection.contains(msgID)){
+            logger.debug("Omitting a already handled message: msgIDCollection.contains(msgID)");
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Add the given message id to our collection,
+     * that means this message has been handled.
+     * @param msgID the id of current message
+     */
+    public void addMessageToCollection(String msgID){
+        msgIDCollection.add(msgID);
+    }
+
+    /**
+     * Initialize the connection,<br>
+     * Initialize the variables, e.g. uid, channel, etc.
+     *
+     * @param email our facebook "username"
+     * @param pass the password
+     * @return the error code
+     */
+    public int initialize(final String email, final String pass){
+        logger.trace("initialize() [begin]");
+        isClientRunning = true;
+
+        boolean[] doParseHomePageIsSuccessful = new boolean[1];
+        int loginErrorCode
+            = connectAndLogin(email, pass, doParseHomePageIsSuccessful);
+        if(loginErrorCode == FacebookErrorCode.Error_Global_NoError){
+            //login successfully, let's do some parsing
+            int hpParsingErrorCode
+                = doParseHomePageIsSuccessful[0]
+                    ? FacebookErrorCode.Error_Global_NoError
+                    : doParseHomePage();
+            if(hpParsingErrorCode == FacebookErrorCode.Error_Global_NoError){
+                //now we log in successfully,
+                //so start two threads to request new messages and buddy list.
+
+                //keep requesting message from the server
+                msgRequester = new Thread(new Runnable(){
+                    public void run() {
+                        logger.info("Keep requesting...");
+                        while(isClientRunning){
+                            try{
+                                keepRequesting();
+                            } catch (Exception e){
+                                logger.warn(e.getMessage());
+                            }
+                        }
+                    }
+                });
+                msgRequester.start();
+
+                //requests buddy list every 60 seconds
+                buddyListRequester = new Thread(new Runnable(){
+                    public void run() {
+                        logger.info("Keep requesting buddylist...");
+                        while(isClientRunning){
+                            try{
+                                int errorCode = getBuddyList();
+                                if(errorCode == FacebookErrorCode.kError_Async_NotLoggedIn){
+                                    //not logged in. try to log in again.
+                                    //TODO will this cause infinate loop?
+                                    initialize(email, pass);
+                                }
+                            } catch (Exception e){
+                                logger.warn(e.getMessage());
+                            }
+                            // it's said that the buddy list is updated every 3 minutes at the server end.
+                            // we refresh the buddy list every 1 minute
+                            try {
+                                Thread.sleep(60 * 1000);
+                            } catch (InterruptedException e) {
+                                logger.warn(e.getMessage());
+                            }
+                        }
+                    }
+                });
+                buddyListRequester.start();
+
+                logger.trace("initialize() [END]");
+                return FacebookErrorCode.Error_Global_NoError;
+            } else {
+                //log in successfully but can't get home page
+                logger.trace("initialize() [Home Page Parsing Error]");
+                return hpParsingErrorCode;
+            }
+        } else if(loginErrorCode == FacebookErrorCode.kError_Login_GenericError){
+            //handle the error derived from this login
+            logger.error("Not logged in, please check your input or the internet connection!");
+        } else {
+            //handle the error derived from this login
+            logger.error("Not logged in, please check your internet connection!");
+        }
+        logger.trace("initialize() [Login Error]");
+        return loginErrorCode;
+    }
+
+    /**
+     * Connect and login with the email and password
+     * @param email the account email
+     * @param pass the password
+     * @return the error code
+     * @throws URISyntaxException
+     * @throws UnsupportedEncodingException
+     */
+    private int connectAndLogin(
+        String email,
+        String pass,
+        boolean[] doParseHomePageIsSuccessful)
+    {
+        doParseHomePageIsSuccessful[0] = false;
+
+        logger.trace("=========connectAndLogin begin===========");
+
+        String httpResponseBody = facebookGetMethod(loginPageUrl);
+        if(httpResponseBody == null){
+            //Why don't we try again?
+            try
             {
                 Thread.sleep(1000);
             }
@@ -384,14 +378,14 @@ public class FacebookAdapter {
             {
                 logger.trace(e.getMessage());
             }
-		    httpResponseBody = facebookGetMethod(loginPageUrl);
-		}
-		logger.trace("========= get login page ResponseBody begin===========");
-		logger.trace(httpResponseBody);
-		logger.trace("+++++++++ get login page ResponseBody end+++++++++");
+            httpResponseBody = facebookGetMethod(loginPageUrl);
+        }
+        logger.trace("========= get login page ResponseBody begin===========");
+        logger.trace(httpResponseBody);
+        logger.trace("+++++++++ get login page ResponseBody end+++++++++");
 
-		logger.trace("Initial cookies: ");
-		List<Cookie> cookies = ((DefaultHttpClient) httpClient).getCookieStore().getCookies();
+        logger.trace("Initial cookies: ");
+        List<Cookie> cookies = ((DefaultHttpClient) httpClient).getCookieStore().getCookies();
         if (cookies.isEmpty()) {
             logger.trace("None");
         } else {
@@ -483,26 +477,27 @@ public class FacebookAdapter {
             return FacebookErrorCode.kError_Global_ValidationError;
         }
         
-		logger.trace("=========connectAndLogin end==========");
-		return FacebookErrorCode.Error_Global_NoError;
-	}
-	/**
-	 * Get the home page, and get the information we need,
-	 * e.g.:<br>
-	 * <ol>
-	 * <li>our uid</li>
-	 * <li>the channel we're using</li>
-	 * <li>the post form id</li>
-	 * </ol>
-	 * 
-	 * @return
-	 */
-	private int doParseHomePage()
+        logger.trace("=========connectAndLogin end==========");
+        return FacebookErrorCode.Error_Global_NoError;
+    }
+
+    /**
+     * Get the home page, and get the information we need,
+     * e.g.:<br>
+     * <ol>
+     * <li>our uid</li>
+     * <li>the channel we're using</li>
+     * <li>the post form id</li>
+     * </ol>
+     *
+     * @return
+     */
+    private int doParseHomePage()
     {
-		String getMethodResponseBody = facebookGetMethod(homePageUrl);
-		if(getMethodResponseBody == null){
+        String getMethodResponseBody = facebookGetMethod(homePageUrl);
+        if(getMethodResponseBody == null){
             //Why don't we try again?
-		    try
+            try
             {
                 Thread.sleep(1000);
             }
@@ -510,7 +505,7 @@ public class FacebookAdapter {
             {
                 logger.trace(e.getMessage());
             }
-		    getMethodResponseBody = facebookGetMethod(homePageUrl);
+            getMethodResponseBody = facebookGetMethod(homePageUrl);
         }
 
         return doParseHomePage(getMethodResponseBody);
@@ -518,13 +513,13 @@ public class FacebookAdapter {
 
     private int doParseHomePage(String getMethodResponseBody)
     {
-		logger.trace("=========HomePage: getMethodResponseBody begin=========");
-		logger.trace(getMethodResponseBody);
-		logger.trace("+++++++++HomePage: getMethodResponseBody end+++++++++");
+        logger.trace("=========HomePage: getMethodResponseBody begin=========");
+        logger.trace(getMethodResponseBody);
+        logger.trace("+++++++++HomePage: getMethodResponseBody end+++++++++");
 
-		//deal with the cookies
-		logger.trace("The final cookies:");
-		List<Cookie> finalCookies = ((DefaultHttpClient) httpClient).getCookieStore().getCookies();
+        //deal with the cookies
+        logger.trace("The final cookies:");
+        List<Cookie> finalCookies = ((DefaultHttpClient) httpClient).getCookieStore().getCookies();
         if (finalCookies.isEmpty()) {
             logger.trace("None");
         } else {
@@ -536,74 +531,74 @@ public class FacebookAdapter {
             }
         }
         
-		if(getMethodResponseBody == null){
-			logger.fatal("Can't get the home page! Exit.");
-			return FacebookErrorCode.Error_Async_UnexpectedNullResponse;
-		}
-		
-		if(uid == null){
-		    logger.fatal("Can't get the user's id! Exit.");
+        if(getMethodResponseBody == null){
+            logger.fatal("Can't get the home page! Exit.");
+            return FacebookErrorCode.Error_Async_UnexpectedNullResponse;
+        }
+
+        if(uid == null){
+            logger.fatal("Can't get the user's id! Exit.");
             return FacebookErrorCode.Error_System_UIDNotFound;
-		}
-		//<a href="http://www.facebook.com/profile.php?id=xxxxxxxxx" class="profile_nav_link">
-		/*String uidPrefix = "<a href=\"http://www.facebook.com/profile.php?id=";
-		String uidPostfix = "\" class=\"profile_nav_link\">";
-		//getMethodResponseBody.lastIndexOf(str, fromIndex)
-		int uidPostFixPos = getMethodResponseBody.indexOf(uidPostfix);
-		if(uidPostFixPos >= 0){
-			int uidBeginPos = getMethodResponseBody.lastIndexOf(uidPrefix, uidPostFixPos) + uidPrefix.length();
-			if(uidBeginPos < uidPrefix.length()){
-				logger.error("Can't get the user's id! Exit.");
-				return FacebookErrorCode.Error_System_UIDNotFound;
-			}
-			uid = getMethodResponseBody.substring(uidBeginPos, uidPostFixPos);
-			logger.info("UID: " + uid);
-		}else{
-			logger.error("Can't get the user's id! Exit.");
-			return FacebookErrorCode.Error_System_UIDNotFound;
-		}*/
-		
-		//find the channel
-		String channelPrefix = " \"channel";
-		int channelBeginPos = getMethodResponseBody.indexOf(channelPrefix)
-				+ channelPrefix.length();
-		if (channelBeginPos < channelPrefix.length()){
-			logger.fatal("Error: Can't find channel!");
-			return FacebookErrorCode.Error_System_ChannelNotFound;
-		}
-		else {
-			channel = getMethodResponseBody.substring(channelBeginPos,
-					channelBeginPos + 2);
-			logger.info("Channel: " + channel);
-		}
+        }
+        //<a href="http://www.facebook.com/profile.php?id=xxxxxxxxx" class="profile_nav_link">
+        /*String uidPrefix = "<a href=\"http://www.facebook.com/profile.php?id=";
+        String uidPostfix = "\" class=\"profile_nav_link\">";
+        //getMethodResponseBody.lastIndexOf(str, fromIndex)
+        int uidPostFixPos = getMethodResponseBody.indexOf(uidPostfix);
+        if(uidPostFixPos >= 0){
+            int uidBeginPos = getMethodResponseBody.lastIndexOf(uidPrefix, uidPostFixPos) + uidPrefix.length();
+            if(uidBeginPos < uidPrefix.length()){
+                logger.error("Can't get the user's id! Exit.");
+                return FacebookErrorCode.Error_System_UIDNotFound;
+            }
+            uid = getMethodResponseBody.substring(uidBeginPos, uidPostFixPos);
+            logger.info("UID: " + uid);
+        }else{
+            logger.error("Can't get the user's id! Exit.");
+            return FacebookErrorCode.Error_System_UIDNotFound;
+        }*/
 
-		//find the post form id
-		// <input type="hidden" id="post_form_id" name="post_form_id"
-		// value="3414c0f2db19233221ad8c2374398ed6" />
-		String postFormIDPrefix = "<input type=\"hidden\" id=\"post_form_id\" name=\"post_form_id\" value=\"";
-		int formIdBeginPos = getMethodResponseBody.indexOf(postFormIDPrefix)
-				+ postFormIDPrefix.length();
-		if (formIdBeginPos < postFormIDPrefix.length()){
-			logger.fatal("Error: Can't find post form ID!");
-			return FacebookErrorCode.Error_System_PostFormIDNotFound;
-		}
-		else {
-			post_form_id = getMethodResponseBody.substring(formIdBeginPos,
-					formIdBeginPos + 32);
-			logger.info("post_form_id: " + post_form_id);
-		}
-		
-		return FacebookErrorCode.Error_Global_NoError;
-	}
+        //find the channel
+        String channelPrefix = " \"channel";
+        int channelBeginPos = getMethodResponseBody.indexOf(channelPrefix)
+                + channelPrefix.length();
+        if (channelBeginPos < channelPrefix.length()){
+            logger.fatal("Error: Can't find channel!");
+            return FacebookErrorCode.Error_System_ChannelNotFound;
+        }
+        else {
+            channel = getMethodResponseBody.substring(channelBeginPos,
+                    channelBeginPos + 2);
+            logger.info("Channel: " + channel);
+        }
 
-	/**
-	 * Post a buddy list request to the facebook server, get and parse the response.
-	 * @return the error code
-	 */
-	private int getBuddyList(){
-		logger.trace("====== getBuddyList begin======");
+        //find the post form id
+        // <input type="hidden" id="post_form_id" name="post_form_id"
+        // value="3414c0f2db19233221ad8c2374398ed6" />
+        String postFormIDPrefix = "<input type=\"hidden\" id=\"post_form_id\" name=\"post_form_id\" value=\"";
+        int formIdBeginPos = getMethodResponseBody.indexOf(postFormIDPrefix)
+                + postFormIDPrefix.length();
+        if (formIdBeginPos < postFormIDPrefix.length()){
+            logger.fatal("Error: Can't find post form ID!");
+            return FacebookErrorCode.Error_System_PostFormIDNotFound;
+        }
+        else {
+            post_form_id = getMethodResponseBody.substring(formIdBeginPos,
+                    formIdBeginPos + 32);
+            logger.info("post_form_id: " + post_form_id);
+        }
 
-		List <NameValuePair> nvps = new ArrayList <NameValuePair>();
+        return FacebookErrorCode.Error_Global_NoError;
+    }
+
+    /**
+     * Post a buddy list request to the facebook server, get and parse the response.
+     * @return the error code
+     */
+    private int getBuddyList(){
+        logger.trace("====== getBuddyList begin======");
+
+        List <NameValuePair> nvps = new ArrayList <NameValuePair>();
         nvps.add(new BasicNameValuePair("buddy_list", "1"));
         nvps.add(new BasicNameValuePair("notifications", "1"));
         nvps.add(new BasicNameValuePair("force_render", "true"));
@@ -611,62 +606,63 @@ public class FacebookAdapter {
         nvps.add(new BasicNameValuePair("post_form_id", post_form_id));
         nvps.add(new BasicNameValuePair("user", uid));
         
-		try{
-			String responseStr = facebookPostMethod(hostUrl, "/ajax/presence/update.php", nvps);
-			
-			//for (;;);{"error":0,"errorSummary":"","errorDescription":"No error.","payload":{"buddy_list":{"listChanged":true,"availableCount":1,"nowAvailableList":{"UID1":{"i":false}},"wasAvailableIDs":[],"userInfos":{"UID1":{"name":"Buddy 1","firstName":"Buddy","thumbSrc":"http:\/\/static.ak.fbcdn.net\/pics\/q_default.gif","status":null,"statusTime":0,"statusTimeRel":""},"UID2":{"name":"Buddi 2","firstName":"Buddi","thumbSrc":"http:\/\/static.ak.fbcdn.net\/pics\/q_default.gif","status":null,"statusTime":0,"statusTimeRel":""}},"forcedRender":true},"time":1209560380000}}  
-			//for (;;);{"error":0,"errorSummary":"","errorDescription":"No error.","payload":{"time":1214626375000,"buddy_list":{"listChanged":true,"availableCount":1,"nowAvailableList":{},"wasAvailableIDs":[],"userInfos":{"1386786477":{"name":"\u5341\u4e00","firstName":"\u4e00","thumbSrc":"http:\/\/static.ak.fbcdn.net\/pics\/q_silhouette.gif","status":null,"statusTime":0,"statusTimeRel":""}},"forcedRender":null,"flMode":false,"flData":{}},"notifications":{"countNew":0,"count":1,"app_names":{"2356318349":"\u670b\u53cb"},"latest_notif":1214502420,"latest_read_notif":1214502420,"markup":"<div id=\"presence_no_notifications\" style=\"display:none\" class=\"no_notifications\">\u65e0\u65b0\u901a\u77e5\u3002<\/div><div class=\"notification clearfix notif_2356318349\" onmouseover=\"CSS.addClass(this, 'hover');\" onmouseout=\"CSS.removeClass(this, 'hover');\"><div class=\"icon\"><img src=\"http:\/\/static.ak.fbcdn.net\/images\/icons\/friend.gif?0:41046\" alt=\"\" \/><\/div><div class=\"notif_del\" onclick=\"return presenceNotifications.showHideDialog(this, 2356318349)\"><\/div><div class=\"body\"><a href=\"http:\/\/www.facebook.com\/profile.php?id=1190346972\"   >David Willer<\/a>\u63a5\u53d7\u4e86\u60a8\u7684\u670b\u53cb\u8bf7\u6c42\u3002 <span class=\"time\">\u661f\u671f\u56db<\/span><\/div><\/div>","inboxCount":"0"}},"bootload":[{"name":"js\/common.js.pkg.php","type":"js","src":"http:\/\/static.ak.fbcdn.net\/rsrc.php\/pkg\/60\/106715\/js\/common.js.pkg.php"}]}
-			logger.trace("+++++++++ getBuddyList end +++++++++");
-			// testHttpClient("http://www.facebook.com/home.php?");
-			int errorCode = FacebookResponseParser.buddylistParser(FacebookAdapter.this, responseStr);
+        try{
+            String responseStr = facebookPostMethod(hostUrl, "/ajax/presence/update.php", nvps);
 
-			return errorCode;
-		} catch (JSONException e) {
-			logger.warn(e.getMessage());
-		}
-		return FacebookErrorCode.Error_Global_JSONError;
-	}
-	/**
-	 * Post a Facebook Chat message to our contact "to", get and parse the response
-	 * @param msg the message to be sent
-	 * @param to the buddy to send our message to
-	 * @return MessageDeliveryFailedEvent(null if no error)
-	 * @throws JSONException json parsing JSONException
-	 */
-	public MessageDeliveryFailedEvent postFacebookChatMessage(Message msg, Contact to) throws JSONException{
-		if(to.getAddress().equals(this.uid))
-			return null;
-		
-		logger.trace("====== Post Facebook Chat Message begin======");
+            //for (;;);{"error":0,"errorSummary":"","errorDescription":"No error.","payload":{"buddy_list":{"listChanged":true,"availableCount":1,"nowAvailableList":{"UID1":{"i":false}},"wasAvailableIDs":[],"userInfos":{"UID1":{"name":"Buddy 1","firstName":"Buddy","thumbSrc":"http:\/\/static.ak.fbcdn.net\/pics\/q_default.gif","status":null,"statusTime":0,"statusTimeRel":""},"UID2":{"name":"Buddi 2","firstName":"Buddi","thumbSrc":"http:\/\/static.ak.fbcdn.net\/pics\/q_default.gif","status":null,"statusTime":0,"statusTimeRel":""}},"forcedRender":true},"time":1209560380000}}
+            //for (;;);{"error":0,"errorSummary":"","errorDescription":"No error.","payload":{"time":1214626375000,"buddy_list":{"listChanged":true,"availableCount":1,"nowAvailableList":{},"wasAvailableIDs":[],"userInfos":{"1386786477":{"name":"\u5341\u4e00","firstName":"\u4e00","thumbSrc":"http:\/\/static.ak.fbcdn.net\/pics\/q_silhouette.gif","status":null,"statusTime":0,"statusTimeRel":""}},"forcedRender":null,"flMode":false,"flData":{}},"notifications":{"countNew":0,"count":1,"app_names":{"2356318349":"\u670b\u53cb"},"latest_notif":1214502420,"latest_read_notif":1214502420,"markup":"<div id=\"presence_no_notifications\" style=\"display:none\" class=\"no_notifications\">\u65e0\u65b0\u901a\u77e5\u3002<\/div><div class=\"notification clearfix notif_2356318349\" onmouseover=\"CSS.addClass(this, 'hover');\" onmouseout=\"CSS.removeClass(this, 'hover');\"><div class=\"icon\"><img src=\"http:\/\/static.ak.fbcdn.net\/images\/icons\/friend.gif?0:41046\" alt=\"\" \/><\/div><div class=\"notif_del\" onclick=\"return presenceNotifications.showHideDialog(this, 2356318349)\"><\/div><div class=\"body\"><a href=\"http:\/\/www.facebook.com\/profile.php?id=1190346972\"   >David Willer<\/a>\u63a5\u53d7\u4e86\u60a8\u7684\u670b\u53cb\u8bf7\u6c42\u3002 <span class=\"time\">\u661f\u671f\u56db<\/span><\/div><\/div>","inboxCount":"0"}},"bootload":[{"name":"js\/common.js.pkg.php","type":"js","src":"http:\/\/static.ak.fbcdn.net\/rsrc.php\/pkg\/60\/106715\/js\/common.js.pkg.php"}]}
+            logger.trace("+++++++++ getBuddyList end +++++++++");
+            // testHttpClient("http://www.facebook.com/home.php?");
+            int errorCode = FacebookResponseParser.buddylistParser(FacebookAdapter.this, responseStr);
 
-		logger.trace("PostMessage(): to:"+to.getAddress());
-		logger.trace("PostMessage(): msg:"+msg.getContent());
+            return errorCode;
+        } catch (JSONException e) {
+            logger.warn(e.getMessage());
+        }
+        return FacebookErrorCode.Error_Global_JSONError;
+    }
 
-		List <NameValuePair> nvps = new ArrayList <NameValuePair>();
+    /**
+     * Post a Facebook Chat message to our contact "to", get and parse the response
+     * @param msg the message to be sent
+     * @param to the buddy to send our message to
+     * @return MessageDeliveryFailedEvent(null if no error)
+     * @throws JSONException json parsing JSONException
+     */
+    public MessageDeliveryFailedEvent postFacebookChatMessage(Message msg, Contact to) throws JSONException{
+        if(to.getAddress().equals(this.uid))
+            return null;
+
+        logger.trace("====== Post Facebook Chat Message begin======");
+
+        logger.trace("PostMessage(): to:"+to.getAddress());
+        logger.trace("PostMessage(): msg:"+msg.getContent());
+
+        List <NameValuePair> nvps = new ArrayList <NameValuePair>();
         nvps.add(new BasicNameValuePair("msg_text", (msg.getContent() == null)? "":msg.getContent()));
         nvps.add(new BasicNameValuePair("msg_id", msg.getMessageUID()));
         nvps.add(new BasicNameValuePair("client_time", new Date().getTime() + ""));
         nvps.add(new BasicNameValuePair("to", to.getAddress()));
         nvps.add(new BasicNameValuePair("post_form_id", post_form_id));
 
-		logger.info("@executeMethod PostMessage() ing... : posting facebook chat message to " + to.getAddress());
-		// execute postMethod
-		String responseStr = facebookPostMethod(hostUrl, "/ajax/chat/send.php", nvps);
-		//TODO process the respons string
-		//if statusCode == 200: no error;(responsStr contains "errorDescription":"No error.")
-		//else retry?
+        logger.info("@executeMethod PostMessage() ing... : posting facebook chat message to " + to.getAddress());
+        // execute postMethod
+        String responseStr = facebookPostMethod(hostUrl, "/ajax/chat/send.php", nvps);
+        //TODO process the respons string
+        //if statusCode == 200: no error;(responsStr contains "errorDescription":"No error.")
+        //else retry?
 
-		//for (;;);{"t":"continue"}
-		//for (;;);{"t":"refresh"}
-		//for (;;);{"t":"refresh", "seq":0}
-		//for (;;);{"error":0,"errorSummary":"","errorDescription":"No error.","payload":[],"bootload":[{"name":"js\/common.js.pkg.php","type":"js","src":"http:\/\/static.ak.fbcdn.net\/rsrc.php\/pkg\/60\/106715\/js\/common.js.pkg.php"}]}
-		//for (;;);{"error":1356003,"errorSummary":"Send destination not online","errorDescription":"This person is no longer online.","payload":null,"bootload":[{"name":"js\/common.js.pkg.php","type":"js","src":"http:\/\/static.ak.fbcdn.net\/rsrc.php\/pkg\/60\/106715\/js\/common.js.pkg.php"}]}
-		logger.trace("+++++++++ Post Facebook Chat Message end +++++++++");
+        //for (;;);{"t":"continue"}
+        //for (;;);{"t":"refresh"}
+        //for (;;);{"t":"refresh", "seq":0}
+        //for (;;);{"error":0,"errorSummary":"","errorDescription":"No error.","payload":[],"bootload":[{"name":"js\/common.js.pkg.php","type":"js","src":"http:\/\/static.ak.fbcdn.net\/rsrc.php\/pkg\/60\/106715\/js\/common.js.pkg.php"}]}
+        //for (;;);{"error":1356003,"errorSummary":"Send destination not online","errorDescription":"This person is no longer online.","payload":null,"bootload":[{"name":"js\/common.js.pkg.php","type":"js","src":"http:\/\/static.ak.fbcdn.net\/rsrc.php\/pkg\/60\/106715\/js\/common.js.pkg.php"}]}
+        logger.trace("+++++++++ Post Facebook Chat Message end +++++++++");
 
-		return FacebookResponseParser.messagePostingResultParser(msg, to, responseStr);
-	}
-	
-	/**
+        return FacebookResponseParser.messagePostingResultParser(msg, to, responseStr);
+    }
+
+    /**
      * Post a message(NOT facebook chat message) to our contact "to",
      *  get and parse the response.
      * He/She will find this message in his/her inbox.
@@ -703,77 +699,75 @@ public class FacebookAdapter {
         return FacebookResponseParser.messagePostingResultParser(msg, to, responseStr);
     }
     
-	/**
-	 * Keep requesting new messages from the server.
-	 * If we've got one, parse it, do something to promote the message, and request the next message.
-	 * If there's no new message yet, this "thread" just wait for it.
-	 * If time out, we try again.
-	 * @throws Exception
-	 */
-	private void keepRequesting() throws Exception
+    /**
+     * Keep requesting new messages from the server.
+     * If we've got one, parse it, do something to promote the message, and request the next message.
+     * If there's no new message yet, this "thread" just wait for it.
+     * If time out, we try again.
+     * @throws Exception
+     */
+    private void keepRequesting() throws Exception
     {
-        seq = getSeq();
+        int latestSeq = getSeq();
+        logger.trace("My seq:" + seq + " | Latest/current seq:" + latestSeq);
+        if (seq < 0)
+            seq = latestSeq;
+        else if (seq > latestSeq)
+            seq = latestSeq;
 
-        // go seq
         while (isClientRunning)
         {
-            // PostMessage("1190346972", "SEQ:"+seq);
-            int currentSeq = getSeq();
-            logger.trace("My seq:" + seq + " | Current seq:" + currentSeq
-                + '\n');
-            if (seq > currentSeq)
-                seq = currentSeq;
+            // get the old message between oldseq and seq
+            String msgResponseBody =
+                facebookGetMethod(getMessageRequestingUrl(seq));
 
-            while (seq <= currentSeq)
-            {
-                // get the old message between oldseq and seq
-                String msgResponseBody =
-                    facebookGetMethod(getMessageRequestingUrl(seq));
+            logger.trace("=========msgResponseBody begin=========");
+            logger.trace(msgResponseBody);
+            logger.trace("+++++++++msgResponseBody end+++++++++");
 
-                logger.trace("=========msgResponseBody begin=========");
-                logger.trace(msgResponseBody);
-                logger.trace("+++++++++msgResponseBody end+++++++++");
-
-                try
-                {
-                    FacebookResponseParser.messageRequestResultParser(
-                        FacebookAdapter.this, msgResponseBody);
-                }
-                catch (JSONException e)
-                {
-                    logger.warn(e.getMessage());
-                }
+            latestSeq
+                = FacebookResponseParser
+                    .messageRequestResultParser(
+                        FacebookAdapter.this,
+                        msgResponseBody,
+                        seq);
+            if (latestSeq > seq)
                 seq++;
-            }
+            else if (latestSeq < seq)
+                seq = latestSeq;
         }
     }
-	/**
-	 * Get the current seq number from the server via requesting a message with seq=-1<br>
-	 * Because -1 is a invalid seq number, the server will return the current seq number.<br>  
-	 * @return the current(newest) seq number
-	 */
-	private int getSeq()
+
+    /**
+     * Get the current seq number from the server via requesting a message with seq=-1<br>
+     * Because -1 is a invalid seq number, the server will return the current seq number.<br>
+     * @return the current(newest) seq number
+     */
+    private int getSeq()
     {
         int tempSeq = -1;
         while (tempSeq == -1)
         {
             // for (;;);{"t":"refresh", "seq":0}
-            String seqResponseBody;
+            String seqResponseBody = null;
             try
             {
                 seqResponseBody =
                     facebookGetMethod(getMessageRequestingUrl(-1));
-                tempSeq = parseSeq(seqResponseBody);
+                tempSeq
+                    = FacebookResponseParser
+                        .messageRequestResultParser(
+                            this,
+                            seqResponseBody,
+                            -1);
                 logger.trace("getSeq(): SEQ: " + tempSeq);
 
                 if (tempSeq >= 0)
-                {
                     return tempSeq;
-                }
             }
             catch (JSONException e)
             {
-                logger.warn(e.getMessage());
+                logger.warn(e.getMessage() + ": response= " + seqResponseBody);
             }
             try
             {
@@ -788,34 +782,13 @@ public class FacebookAdapter {
         }
         return tempSeq;
     }
-	/**
-	 * Parse the seq number from the string.
-	 * 
-	 * @param msgResponseBody the respon we got from the get method
-	 * @return if can't parse a seq number successfully, return -1.
-	 * @throws JSONException parsing exception
-	 */
-	private int parseSeq(String msgResponseBody) throws JSONException
-    {
-        if (msgResponseBody == null)
-            return -1;
-        String prefix = "for (;;);";
-        if (msgResponseBody.startsWith(prefix))
-            msgResponseBody = msgResponseBody.substring(prefix.length());
 
-        // JSONObject body =(JSONObject) JSONValue.parse(msgResponseBody);
-        JSONObject body = new JSONObject(msgResponseBody);
-        if (body != null)
-            return body.getInt("seq");
-        else
-            return -1;
-    }
-	/**
-	 * A util to make a message requesting URL.
-	 * @param seq the seq number
-	 * @return the message requesting URL
-	 */
-	private String getMessageRequestingUrl(long seq)
+    /**
+     * A util to make a message requesting URL.
+     * @param seq the seq number
+     * @return the message requesting URL
+     */
+    private String getMessageRequestingUrl(long seq)
     {
         // http://0.channel06.facebook.com/x/0/false/p_MYID=-1
         String url =
@@ -825,12 +798,12 @@ public class FacebookAdapter {
         return url;
     }
 
-	/**
-	 * We got a message that should be put into the GUI,
-	 *  so pass this message to the opration set. 
-	 * @param fm facebook message we got
-	 */
-	public void promoteMessage(FacebookMessage fm)
+    /**
+     * We got a message that should be put into the GUI,
+     *  so pass this message to the opration set.
+     * @param fm facebook message we got
+     */
+    public void promoteMessage(FacebookMessage fm)
     {
         // promote the incoming message
         logger.trace("in promoteMessage(): Got a message: " + fm.text);
@@ -851,58 +824,59 @@ public class FacebookAdapter {
         operationSetIM.receivedInstantMessage(fm);
     }
 
-	/**
-	 * Get the buddy who has the given ID from our "buddy cache". 
-	 * @param contactID the facebook user ID
-	 * @return the buddy, if we can't find him/her, return null.
-	 */
-	public FacebookUser getBuddyFromCacheByID(String contactID)
+    /**
+     * Get the buddy who has the given ID from our "buddy cache".
+     * @param contactID the facebook user ID
+     * @return the buddy, if we can't find him/her, return null.
+     */
+    public FacebookUser getBuddyFromCacheByID(String contactID)
     {
         return buddyList.getBuddyFromCacheByID(contactID);
     }
-	
-	/**
+
+    /**
      * Get meta info of this account
      * 
      * @return meta info of this account
      */
-	public FacebookUser getMyMetaInfo()
-	{
-	    return buddyList.getMyMetaInfo();
-	}
-	
-	/**
-	 * Set the visibility.
-	 * 
-	 * @param isVisible true(visible) or false(invisible)
-	 */
-	public void setVisibility(boolean isVisible)
-	{
-	    //post("apps.facebook.com", "/ajax/chat/settings.php", "visibility=false");
-	    List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+    public FacebookUser getMyMetaInfo()
+    {
+        return buddyList.getMyMetaInfo();
+    }
+
+    /**
+     * Set the visibility.
+     *
+     * @param isVisible true(visible) or false(invisible)
+     */
+    public void setVisibility(boolean isVisible)
+    {
+        //post("apps.facebook.com", "/ajax/chat/settings.php", "visibility=false");
+        List<NameValuePair> nvps = new ArrayList<NameValuePair>();
         nvps.add(new BasicNameValuePair("visibility", isVisible + ""));
         nvps.add(new BasicNameValuePair("post_form_id", post_form_id));
         logger.info("@executeMethod setVisibility() ing ...");
         // we don't care the response string now
         facebookPostMethod(hostUrl, "/ajax/chat/settings.php", nvps);
-	}
-	/**
-	 * Set status message
-	 * 
-	 * @param statusMsg status message
-	 */
-	public void setStatusMessage(String statusMsg)
+    }
+
+    /**
+     * Set status message
+     *
+     * @param statusMsg status message
+     */
+    public void setStatusMessage(String statusMsg)
     {
         //post("www.facebook.com", "/updatestatus.php", "status=%s&post_form_id=%s");
-	    //post("www.facebook.com", "/updatestatus.php", "clear=1&post_form_id=%s");
-		//new format:
-    	//profile_id=1190346972
-    	//&status=is%20hacking%20again
-    	//&home_tab_id=1
-    	//&test_name=INLINE_STATUS_EDITOR
-    	//&action=HOME_UPDATE
-    	//&post_form_id=3f1ee64144470cd29f28fb8b0354ef65
-    	//&_ecdc=false
+        //post("www.facebook.com", "/updatestatus.php", "clear=1&post_form_id=%s");
+        //new format:
+        //profile_id=1190346972
+        //&status=is%20hacking%20again
+        //&home_tab_id=1
+        //&test_name=INLINE_STATUS_EDITOR
+        //&action=HOME_UPDATE
+        //&post_form_id=3f1ee64144470cd29f28fb8b0354ef65
+        //&_ecdc=false
         List<NameValuePair> nvps = new ArrayList<NameValuePair>();
         if(statusMsg.length() < 1)
             nvps.add(new BasicNameValuePair("clear", "1"));
@@ -919,26 +893,27 @@ public class FacebookAdapter {
         facebookPostMethod(hostUrl, "/updatestatus.php", nvps);
     }
 
-	/**
-	 * Pause the client.<br>
-	 * Ensure that initialize() can resume httpclient
-	 * 
-	 * @fixme logout first
-	 */
-	public void pause()
+    /**
+     * Pause the client.<br>
+     * Ensure that initialize() can resume httpclient
+     *
+     * @fixme logout first
+     */
+    public void pause()
     {
         // TODO pause the client
         // maybe we should log out first
         isClientRunning = false;
         Logout();
     }
-	/**
-	 * Log out
-	 */
-	private void Logout()
+
+    /**
+     * Log out
+     */
+    private void Logout()
     {
-		Map<String, OperationSet> supportedOperationSets
-		    = getParentProvider().getSupportedOperationSets();
+        Map<String, OperationSet> supportedOperationSets
+            = getParentProvider().getSupportedOperationSets();
 
         if (supportedOperationSets == null || supportedOperationSets.size() < 1)
             throw new NullPointerException(
@@ -959,11 +934,11 @@ public class FacebookAdapter {
         // we don't care the response string now
         facebookPostMethod(hostUrl, "/logout.php", nvps);
     }
-	
-	/**
-	 * Shut down the client.
-	 */
-	public void shutdown()
+
+    /**
+     * Shut down the client.
+     */
+    public void shutdown()
     {
         // If every http client has its own ConnectionManager, then shut it
         // down.
@@ -973,16 +948,16 @@ public class FacebookAdapter {
         this.buddyList.clear();
     }
 
-	/**
-	 * Post typing notification to the given contact.
-	 * @param notifiedContact the contact we want to notify
-	 * @param typingState our current typing state(SC)
-	 * @throws HttpException the http exception
-	 * @throws IOException IO exception
-	 * @throws JSONException JSON parsing exception
-	 * @throws Exception the general exception
-	 */
-	public void postTypingNotification(Contact notifiedContact, int typingState)
+    /**
+     * Post typing notification to the given contact.
+     * @param notifiedContact the contact we want to notify
+     * @param typingState our current typing state(SC)
+     * @throws HttpException the http exception
+     * @throws IOException IO exception
+     * @throws JSONException JSON parsing exception
+     * @throws Exception the general exception
+     */
+    public void postTypingNotification(Contact notifiedContact, int typingState)
         throws HttpException,
         IOException,
         JSONException,
@@ -1039,13 +1014,13 @@ public class FacebookAdapter {
         // testHttpClient("http://www.facebook.com/home.php?");
     }
 
-	/**
-	 * We got a typing notification from the facebook server,
-	 * we pass it to the GUI.
-	 * @param fromID where the typing notification from
-	 * @param facebookTypingState facebook typing state: 1: typing; 0: stop typing.
-	 */
-	public void promoteTypingNotification(String fromID, int facebookTypingState)
+    /**
+     * We got a typing notification from the facebook server,
+     * we pass it to the GUI.
+     * @param fromID where the typing notification from
+     * @param facebookTypingState facebook typing state: 1: typing; 0: stop typing.
+     */
+    public void promoteTypingNotification(String fromID, int facebookTypingState)
     {
         // promote the incoming message
         logger
@@ -1089,30 +1064,32 @@ public class FacebookAdapter {
                 .get(OperationSetTypingNotifications.class.getName());
         operationSetTN.receivedTypingNotification(fromContact, typingState);
     }
-	/**
-	 * Get the profile page for parsing. It's invoked when user opens contact info box.
-	 * @param contactAddress the contact address
-	 * @return profile page string
-	 */
-	public String getProfilePage(String contactAddress)
+
+    /**
+     * Get the profile page for parsing. It's invoked when user opens contact info box.
+     * @param contactAddress the contact address
+     * @return profile page string
+     */
+    public String getProfilePage(String contactAddress)
     {
-	    //TODO if homePageUrl.contains("new.facebook.com") return;
-	    // because if we try to get the "new" page, the account's layout would be set to new style.
-	    //Someone may not like this.
-	    
-	    //http://www.new.facebook.com/profile.php?id=1190346972&v=info&viewas=1190346972
+        //TODO if homePageUrl.contains("new.facebook.com") return;
+        // because if we try to get the "new" page, the account's layout would be set to new style.
+        //Someone may not like this.
+
+        //http://www.new.facebook.com/profile.php?id=1190346972&v=info&viewas=1190346972
         // http://www.new.facebook.com/profile.php?id=1386786477&v=info
         return facebookGetMethod(hostUrlNew + "/profile.php?id="
             + contactAddress + "&v=info");
     }
-	/**
-	 * The general facebook post method.
-	 * @param host the host
-	 * @param urlPostfix the post fix of the URL
-	 * @param data the parameter
-	 * @return the response string
-	 */
-	private String facebookPostMethod(String host, String urlPostfix,
+
+    /**
+     * The general facebook post method.
+     * @param host the host
+     * @param urlPostfix the post fix of the URL
+     * @param data the parameter
+     * @return the response string
+     */
+    private String facebookPostMethod(String host, String urlPostfix,
         List<NameValuePair> nvps)
     {
         logger.info("@executing facebookPostMethod():" + host + urlPostfix);
@@ -1147,12 +1124,13 @@ public class FacebookAdapter {
         //else retry?
         return responseStr;
     }
-	/**
-	 * The general facebook get method.
-	 * @param url the URL of the page we wanna get
-	 * @return the response string
-	 */
-	private String facebookGetMethod(String url)
+
+    /**
+     * The general facebook get method.
+     * @param url the URL of the page we wanna get
+     * @return the response string
+     */
+    private String facebookGetMethod(String url)
     {
         logger.info("@executing facebookGetMethod():" + url);
         String responseStr = null;
@@ -1192,5 +1170,23 @@ public class FacebookAdapter {
         }
 
         return responseStr;
+    }
+
+    int reconnect()
+        throws JSONException
+    {
+        String responseStr
+            = facebookGetMethod(hostUrl + RECONNECT_URL + post_form_id);
+        String prefix = "for (;;);";
+        if (responseStr.startsWith(prefix))
+            responseStr = responseStr.substring(prefix.length());
+
+        JSONObject response = new JSONObject(responseStr);
+        JSONObject payload = response.getJSONObject("payload");
+
+        String host = payload.getString("host");
+        channel = host.substring("channel".length());
+
+        return payload.getInt("seq");
     }
 }

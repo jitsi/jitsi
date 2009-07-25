@@ -15,6 +15,7 @@ import org.json.*;
  * A toolkit to parse Facebook responses.
  * 
  * @author Dai Zhiwei
+ * @author Lubomir Marinov
  */
 public class FacebookResponseParser
 {
@@ -55,7 +56,7 @@ public class FacebookResponseParser
              * kError_Platform_ApplicationResponseInvalid = 1349008;
              */
 
-        	int errorCode = respObjs.getInt("error");
+            int errorCode = respObjs.getInt("error");
             if (errorCode == 0)
             {
                 // no error
@@ -105,23 +106,6 @@ public class FacebookResponseParser
             return errorCode;
         }
         return FacebookErrorCode.Error_Global_JSONError;
-    }
-
-    /**
-     * Parse the buddylist, get the notifications,
-     *  store them in to FacebookNotifications object.
-     *  
-     * @fixme unused for now
-     * @deprecated
-     * @param response
-     */
-    public static void notificationParser(String response)
-    {
-        if (response == null)
-            return;
-        String prefix = "for (;;);";
-        if (response.startsWith(prefix))
-            response = response.substring(prefix.length());
     }
 
     /**
@@ -202,101 +186,104 @@ public class FacebookResponseParser
      * @param response
      * @throws JSONException
      */
-    public static void messageRequestResultParser(FacebookAdapter adapter,
-        String response) throws JSONException
+    public static int messageRequestResultParser(
+            FacebookAdapter adapter,
+            String response,
+            int seq)
+        throws JSONException
     {
         if (response == null)
-            return;
+            return seq;
         String prefix = "for (;;);";
         if (response.startsWith(prefix))
             response = response.substring(prefix.length());
 
         JSONObject respObjs = new JSONObject(response);
-        logger.info("t: " + (String) respObjs.get("t"));
-        if (respObjs.get("t") != null)
+        String t = (String) respObjs.get("t");
+        logger.info("t: " + t);
+        if (t == null)
+            return seq;
+
+        if (t.equals("msg"))
         {
-            if (((String) respObjs.get("t")).equals("msg"))
+            JSONArray ms = (JSONArray) respObjs.get("ms");
+            logger.info("NO of msgs: " + ms.length());
+            // Iterator<JSONObject> it = ms..iterator();
+            int index = 0;
+            while (index < ms.length())
             {
-                JSONArray ms = (JSONArray) respObjs.get("ms");
-                logger.info("NO of msges: " + ms.length());
-                // Iterator<JSONObject> it = ms..iterator();
-                int index = 0;
-                while (index < ms.length())
+                JSONObject msg = ms.getJSONObject(index);
+                index++;
+                if (msg.get("type").equals("typ"))
                 {
-                    JSONObject msg = ms.getJSONObject(index);
-                    index++;
-                    if (msg.get("type").equals("typ"))
+                    // got a typing notification
+                    // for (;;);{"t":"msg","c":"p_1386786477","ms":[{"type":"typ","st":0,"from":1190346972,"to":1386786477}]}
+                    int facebookTypingState = msg.getInt("st");
+                    Long from = msg.getLong("from");
+                    if (!from.toString().equals(adapter.getUID()))
+                        adapter.promoteTypingNotification(from.toString(),
+                            facebookTypingState);
+                }
+                else if (msg.get("type").equals("msg"))
+                {
+                    // the message itself
+                    JSONObject realmsg = (JSONObject) msg.get("msg");
+                    /*
+                     * {"text":"FINE", "time":1214614165139,
+                     * "clientTime":1214614163774, "msgID":"1809311570"},
+                     * "from":1190346972, "to":1386786477,
+                     * "from_name":"David Willer", "to_name":"\u5341\u4e00",
+                     * "from_first_name":"David", "to_first_name":"\u4e00"}
+                     */
+                    FacebookMessage fm = new FacebookMessage();
+                    fm.text = (String) realmsg.get("text");
+                    fm.time = (Number) realmsg.get("time");
+                    fm.clientTime = (Number) realmsg.get("clientTime");
+                    fm.msgID = (String) realmsg.get("msgID");
+
+                    // the attributes of the message
+                    fm.from = (Number) msg.get("from");
+                    fm.to = (Number) msg.get("to");
+                    fm.fromName = (String) msg.get("from_name");
+                    fm.toName = (String) msg.get("to_name");
+                    fm.fromFirstName = (String) msg.get("from_first_name");
+                    fm.toFirstName = (String) msg.get("to_first_name");
+
+                    if (adapter.isMessageHandledBefore(fm.msgID))
                     {
-                        // got a typing notification
-                        // for
-                        // (;;);{"t":"msg","c":"p_1386786477","ms":[{"type":"typ","st":0,"from":1190346972,"to":1386786477}]}
-                        int facebookTypingState = msg.getInt("st");
-                        Long from = msg.getLong("from");
-                        if (!from.toString().equals(adapter.getUID()))
-                            adapter.promoteTypingNotification(from.toString(),
-                                facebookTypingState);
+                        System.out
+                            .println("Omitting a already handled message: msgIDCollection.contains(msgID)");
+                        continue;
                     }
-                    else if (msg.get("type").equals("msg"))
-                    {
-                        // the message itself
-                        JSONObject realmsg = (JSONObject) msg.get("msg");
-                        /*
-                         * {"text":"FINE", "time":1214614165139,
-                         * "clientTime":1214614163774, "msgID":"1809311570"},
-                         * "from":1190346972, "to":1386786477,
-                         * "from_name":"David Willer", "to_name":"\u5341\u4e00",
-                         * "from_first_name":"David", "to_first_name":"\u4e00"}
-                         */
-                        FacebookMessage fm = new FacebookMessage();
-                        fm.text = (String) realmsg.get("text");
-                        fm.time = (Number) realmsg.get("time");
-                        fm.clientTime = (Number) realmsg.get("clientTime");
-                        fm.msgID = (String) realmsg.get("msgID");
+                    adapter.addMessageToCollection(fm.msgID);
 
-                        // the attributes of the message
-                        fm.from = (Number) msg.get("from");
-                        fm.to = (Number) msg.get("to");
-                        fm.fromName = (String) msg.get("from_name");
-                        fm.toName = (String) msg.get("to_name");
-                        fm.fromFirstName = (String) msg.get("from_first_name");
-                        fm.toFirstName = (String) msg.get("to_first_name");
+                    printMessage(fm);
 
-                        if (adapter.isMessageHandledBefore(fm.msgID))
-                        {
-                            System.out
-                                .println("Omitting a already handled message: msgIDCollection.contains(msgID)");
-                            continue;
-                        }
-                        adapter.addMessageToCollection(fm.msgID);
-
-                        printMessage(fm);
-
-                        if (!fm.from.toString().equals(adapter.getUID()))
-                            adapter.promoteMessage(fm);
-                    }
+                    if (!fm.from.toString().equals(adapter.getUID()))
+                        adapter.promoteMessage(fm);
                 }
             }
-            //refresh means that the session or post_form_id is invalid
-            else if (((String) respObjs.get("t")).equals("refresh"))
-            {
-                logger.trace("Refresh");// do nothing
-                if (((String) respObjs.get("seq")) != null)
-                {
-                    logger.trace("refresh seq: "
-                        + (String) respObjs.get("seq"));
-                }
-            }
-            //continue means that the server wants us to remake the connection
-            else if (((String) respObjs.get("t")).equals("continue"))
-            {
-                logger.trace("Time out? reconcect...");// do nothing
-            }
-            else
-            {
-                logger.warn("Unrecognized response type: "
-                    + (String) respObjs.get("t"));
-            }
+            seq++;
         }
+        //refresh means that the session or post_form_id is invalid
+        else if (t.equals("refresh"))
+        {
+            logger.trace("Refresh");// do nothing
+
+            if (respObjs.has("seq"))
+            {
+                seq = respObjs.getInt("seq");
+                logger.trace("refresh seq: " + seq);
+            }
+
+            seq = adapter.reconnect();
+        }
+        //continue means that the server wants us to remake the connection
+        else if (t.equals("continue"))
+            logger.trace("Time out? reconnect..."); // do nothing
+        else
+            logger.warn("Unrecognized response type: " + t);
+        return seq;
     }
 
     /**
