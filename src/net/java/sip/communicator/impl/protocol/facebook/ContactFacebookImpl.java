@@ -24,8 +24,8 @@ import net.java.sip.communicator.util.*;
 public class ContactFacebookImpl
     implements Contact
 {
-    private static final Logger logger =
-        Logger.getLogger(ContactFacebookImpl.class);
+    private static final Logger logger
+        = Logger.getLogger(ContactFacebookImpl.class);
 
     /**
      * The facebook contact.
@@ -36,7 +36,7 @@ public class ContactFacebookImpl
      * The UNIQUE identifier of this contact, it should be the facebook user
      * number.
      */
-    private String contactID = null;
+    private final String contactID;
 
     /**
      * The facebook profile image
@@ -46,7 +46,7 @@ public class ContactFacebookImpl
     /**
      * The provider that created us.
      */
-    private ProtocolProviderServiceFacebookImpl parentProvider = null;
+    private final ProtocolProviderServiceFacebookImpl parentProvider;
 
     /**
      * The group that belong to.
@@ -74,16 +74,18 @@ public class ContactFacebookImpl
      * Creates an instance of a meta contact with the specified string used as a
      * name and identifier.
      * 
-     * @param id the identifier of this contact (also used as a name).
+     * @param contactID the identifier of this contact (also used as a name).
      * @param parentProvider the provider that created us.
      */
-    public ContactFacebookImpl(String contactID,
+    public ContactFacebookImpl(
+        String contactID,
         ProtocolProviderServiceFacebookImpl parentProvider)
     {
         this.contactID = contactID;
         this.parentProvider = parentProvider;
-        //Updating contact info must be AFTER "this.parentProvider = parentProvider"
+
         updateContactInfo();
+
         logger.trace("init contactID: " + contactID);
     }
 
@@ -101,7 +103,7 @@ public class ContactFacebookImpl
     }
 
     /**
-     * Returns a String that can be used for identifying the contact uniquely.<br>
+     * Returns a String that can be used for uniquely identifying the contact.
      * It should be the unique number of the facebook user.
      * 
      * @return a String id representing and uniquely identifying the contact.
@@ -145,10 +147,11 @@ public class ContactFacebookImpl
     private void updateContactInfo()
     {
         FacebookUser newInfo = parentProvider.getContactMetaInfoByID(contactID);
-        if(newInfo == null)
-            return;
-        this.contactMetaInfo = newInfo;
+
+        if(newInfo != null)
+            this.contactMetaInfo = newInfo;
     }
+
     /**
      * update the user information we just got from the server. so this data
      * shouldn't be modified manually.
@@ -193,8 +196,8 @@ public class ContactFacebookImpl
         ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
         try
         {
-            URL url = new URL(contactMetaInfo.thumbSrc);
-            BufferedImage newAvatar = ImageIO.read(url);
+            BufferedImage newAvatar
+                = ImageIO.read(new URL(contactMetaInfo.thumbSrc));
 
             javax.imageio.ImageIO.write(newAvatar, "PNG", byteArrayOS);
         }
@@ -223,6 +226,7 @@ public class ContactFacebookImpl
 
         return image;
     }
+
     /**
      * get big version avatar.<br>
      * small avatar at  http://profile.ak.facebook.com/profile6/1845/74/q800753867_2878.jpg<br>
@@ -242,7 +246,8 @@ public class ContactFacebookImpl
         
         String avatarSrcStr;
         
-        if(!contactMetaInfo.thumbSrc.equalsIgnoreCase(FacebookUser.defaultThumbSrc)){
+        if(!contactMetaInfo.thumbSrc.equalsIgnoreCase(FacebookUser.defaultThumbSrc))
+        {
             StringBuffer avatarSrcStrBuff = new StringBuffer(contactMetaInfo.thumbSrc);
             
             int tempPos = avatarSrcStrBuff.lastIndexOf("/q");
@@ -250,16 +255,15 @@ public class ContactFacebookImpl
                 avatarSrcStrBuff.replace(tempPos, tempPos + 2, "/n");
             
             avatarSrcStr = avatarSrcStrBuff.toString();
-        } else {
-            avatarSrcStr = FacebookUser.defaultAvatarSrc;
         }
+        else
+            avatarSrcStr = FacebookUser.defaultAvatarSrc;
         
         logger.trace("fetch the avatar from the server");
         ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
         try
         {
-            URL url = new URL(avatarSrcStr);
-            BufferedImage newAvatar = ImageIO.read(url);
+            BufferedImage newAvatar = ImageIO.read(new URL(avatarSrcStr));
 
             javax.imageio.ImageIO.write(newAvatar, "PNG", byteArrayOS);
         }
@@ -293,7 +297,7 @@ public class ContactFacebookImpl
      * 
      * @return the default avatar
      */
-    public static byte[] getDefaultAvatar()
+    private static byte[] getDefaultAvatar()
     {
         return
             ProtocolIconFacebookImpl
@@ -374,9 +378,10 @@ public class ContactFacebookImpl
      */
     public String toString()
     {
-        StringBuffer buff =
-            new StringBuffer("ContactFacebookImpl[ DisplayName=").append(
-                getDisplayName()).append("]");
+        StringBuffer buff
+            = new StringBuffer("ContactFacebookImpl[ DisplayName=")
+                    .append(getDisplayName())
+                        .append("]");
 
         return buff.toString();
     }
@@ -451,10 +456,12 @@ public class ContactFacebookImpl
     public String getStatusMessage()
     {
         updateContactInfo();
-    	if (contactMetaInfo != null
-    	    && contactMetaInfo.status != null
-    	    && !contactMetaInfo.status.trim().equals(""))
-    	    return contactMetaInfo.status + "[" + contactMetaInfo.statusTimeRel + "]";
+        if ((contactMetaInfo != null)
+                && (contactMetaInfo.status != null)
+                && !contactMetaInfo.status.trim().equals(""))
+            return
+                contactMetaInfo.status
+                    + "[" + contactMetaInfo.statusTimeRel + "]";
         else
             return null;
     }

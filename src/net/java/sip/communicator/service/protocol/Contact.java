@@ -6,15 +6,12 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-
-
 /**
  * This class represents the notion of a Contact or Buddy, that is widely used
  * in instant messaging today. From a protocol point of view, a contact is
  * generally considered to be another user of the service that proposes the
  * protocol. Instances of Contact could be used for delivery of presence
  * notifications or when addressing instant messages.
- *
  *
  * @author Emil Ivov
  */
@@ -60,17 +57,17 @@ public interface Contact
 
     /**
      * Returns a reference to the contact group that this contact is currently
-     * a child of or null if the underlying protocol does not suppord persistent
+     * a child of or null if the underlying protocol does not support persistent
      * presence.
      * @return a reference to the contact group that this contact is currently
-     * a child of or null if the underlying protocol does not suppord persistent
+     * a child of or null if the underlying protocol does not support persistent
      * presence.
      */
     public ContactGroup getParentContactGroup();
 
     /**
      * Returns a reference to the protocol provider that created the contact.
-     * @return a refererence to an instance of the ProtocolProviderService
+     * @return a reference to an instance of the ProtocolProviderService
      */
     public ProtocolProviderService getProtocolProvider();
 
