@@ -10,7 +10,7 @@ import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * 
+ *
  * @author Symphorien Wanko
  */
 public class MediaEvent
@@ -22,7 +22,7 @@ public class MediaEvent
      * Remote user involved in the event.
      */
     String from;
-    
+
     public MediaEvent(Object source)
     {
         super(source);
