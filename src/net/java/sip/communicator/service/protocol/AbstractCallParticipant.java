@@ -18,12 +18,22 @@ import net.java.sip.communicator.util.*;
  * protocol development to clients using the PhoneUI service.
  *
  * @author Emil Ivov
+ * @author Lubomir Marinov
  */
 public abstract class AbstractCallParticipant
+    extends PropertyChangeNotifier
     implements CallParticipant
 {
     private static final Logger logger
         = Logger.getLogger(AbstractCallParticipant.class);
+
+    /**
+     * The constant which describes an empty set of
+     * <code>ConferenceMember</code>s (and which can be used to reduce
+     * allocations).
+     */
+    protected static final ConferenceMember[] NO_CONFERENCE_MEMBERS
+        = new ConferenceMember[0];
 
     /**
      * All the CallParticipant listeners registered with this CallParticipant.
@@ -40,10 +50,29 @@ public abstract class AbstractCallParticipant
             = new ArrayList<CallParticipantSecurityListener>();
 
     /**
-     * All the PropertyChangeListener-s registered with this CallParticipant.
+     * The indicator which determines whether this participant is acting as a
+     * conference focus and thus may provide information about
+     * <code>ConferenceMember</code> such as {@link #getConferenceMembers()} and
+     * {@link #getConferenceMemberCount()}.
      */
-    protected final List<PropertyChangeListener> propertyChangeListeners
-        = new ArrayList<PropertyChangeListener>();
+    private boolean conferenceFocus;
+
+    /**
+     * The list of <code>ConferenceMember</code>s currently known to and managed
+     * in a conference by this participant.
+     */
+    private final List<ConferenceMember> conferenceMembers
+        = new ArrayList<ConferenceMember>();
+
+    /**
+     * The list of <code>CallParticipantConferenceListener</code>s interested in
+     * and to be notified about changes in conference-related information such
+     * as this participant acting or not acting as a conference focus and
+     * conference membership details.
+     */
+    protected final List<CallParticipantConferenceListener>
+        callParticipantConferenceListeners
+            = new ArrayList<CallParticipantConferenceListener>();
 
     /**
      * The state of the call participant.
@@ -115,38 +144,6 @@ public abstract class AbstractCallParticipant
         synchronized(callParticipantSecurityListeners)
         {
             callParticipantSecurityListeners.remove(listener);
-        }
-    }
-
-    /**
-     * Allows the user interface to register a listener interested in property
-     * changes.
-     * @param listener a property change listener instance to register with this
-     * participant.
-     */
-    public void addPropertyChangeListener(PropertyChangeListener listener)
-    {
-        if (listener == null)
-            return;
-        synchronized(propertyChangeListeners)
-        {
-            if (!propertyChangeListeners.contains(listener))
-                propertyChangeListeners.add(listener);
-        }
-    }
-
-    /**
-     * Unregisters the specified property change listener.
-     * 
-     * @param listener the property change listener to unregister.
-     */
-    public void removePropertyChangeListener(PropertyChangeListener listener)
-    {
-        if (listener == null)
-            return;
-        synchronized(propertyChangeListeners)
-        {
-            propertyChangeListeners.remove(listener);
         }
     }
 
@@ -340,42 +337,6 @@ public abstract class AbstractCallParticipant
     }
 
     /**
-     * Constructs a <tt>PropertyChangeEvent</tt> using this call
-     * participant as source, setting the corresponding <tt>oldValue</tt> and
-     * <tt>newValue</tt>.
-     *
-     * @param eventType the type of the event to create and dispatch.
-     * @param oldValue the value of the source property before it changed.
-     * @param newValue the current value of the source property.
-     */
-    protected void firePropertyChangeEvent( String propertyName,
-                                            Object oldValue,
-                                            Object newValue)
-    {
-        PropertyChangeEvent event
-            = new PropertyChangeEvent(this, propertyName, oldValue, newValue);
-
-        logger.debug("Dispatching a PropertyChangeEvent event to "
-                     + propertyChangeListeners.size()
-                     + " listeners. event is: " + event.toString());
-
-        Iterator<PropertyChangeListener> listeners = null;
-        synchronized (propertyChangeListeners)
-        {
-            listeners = new ArrayList<PropertyChangeListener>(
-                                propertyChangeListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            PropertyChangeListener listener
-                = (PropertyChangeListener) listeners.next();
-
-            listener.propertyChange(event);
-        }
-    }
-
-    /**
      * Returns a string representation of the participant in the form of
      * <br/>
      * Display Name &lt;address&gt;;status=CallParticipantStatus
@@ -495,8 +456,194 @@ public abstract class AbstractCallParticipant
      */
     public void setMute(boolean newMuteValue)
     {
-        firePropertyChangeEvent(MUTE_PROPERTY_NAME, isMute, newMuteValue);
+        firePropertyChange(MUTE_PROPERTY_NAME, isMute, newMuteValue);
 
         this.isMute = newMuteValue;
+    }
+
+    /*
+     * Implements CallParticipant#isConferenceFocus().
+     */
+    public boolean isConferenceFocus()
+    {
+        return conferenceFocus;
+    }
+
+    public void setConferenceFocus(boolean conferenceFocus)
+    {
+        if (this.conferenceFocus != conferenceFocus)
+        {
+            this.conferenceFocus = conferenceFocus;
+
+            fireCallParticipantConferenceEvent(
+                new CallParticipantConferenceEvent(
+                        this,
+                        CallParticipantConferenceEvent.CONFERENCE_FOCUS_CHANGED));
+        }
+    }
+
+    /*
+     * Implements CallParticipant#getConferenceMembers(). In order to reduce
+     * allocations, returns #NO_CONFERENCE_MEMBERS if #conferenceMembers
+     * contains no ConferenceMember instances.
+     */
+    public ConferenceMember[] getConferenceMembers()
+    {
+        ConferenceMember[] conferenceMembers;
+
+        synchronized (this.conferenceMembers)
+        {
+            int conferenceMemberCount = this.conferenceMembers.size();
+
+            if (conferenceMemberCount <= 0)
+                conferenceMembers = NO_CONFERENCE_MEMBERS;
+            else
+                conferenceMembers
+                    = this.conferenceMembers
+                            .toArray(
+                                new ConferenceMember[conferenceMemberCount]);
+        }
+        return conferenceMembers;
+    }
+
+    /*
+     * Implements CallParticipant#getConferenceMemberCount().
+     */
+    public int getConferenceMemberCount()
+    {
+        return conferenceMembers.size();
+    }
+
+    /**
+     * Adds a specific <code>ConferenceMember</code> to the list of
+     * <code>ConferenceMember</code>s reported by this participant through
+     * {@link #getConferenceMembers()} and {@link #getConferenceMemberCount()}
+     * and fires
+     * <code>CallParticipantConferenceEvent#CONFERENCE_MEMBER_ADDED</code> to
+     * the currently registered <code>CallParticipantConferenceListener</code>s.
+     * 
+     * @param conferenceMember
+     *            a <code>ConferenceMember</code> to be added to the list of
+     *            <code>ConferenceMember</code> reported by this participant. If
+     *            the specified <code>ConferenceMember</code> is already
+     *            contained in the list, it is not added again and no event is
+     *            fired.
+     */
+    public void addConferenceMember(ConferenceMember conferenceMember)
+    {
+        if (conferenceMember == null)
+            throw new NullPointerException("conferenceMember");
+        synchronized (conferenceMembers)
+        {
+            if (conferenceMembers.contains(conferenceMember))
+                return;
+            conferenceMembers.add(conferenceMember);
+        }
+        fireCallParticipantConferenceEvent(
+            new CallParticipantConferenceEvent(
+                    this,
+                    CallParticipantConferenceEvent.CONFERENCE_MEMBER_ADDED,
+                    conferenceMember));
+    }
+
+    /**
+     * Removes a specific <code>ConferenceMember</code> from the list of
+     * <code>ConferenceMember</code>s reported by this participant through
+     * {@link #getConferenceMembers()} and {@link #getConferenceMemberCount()}
+     * if it is contained and fires
+     * <code>CallParticipantConferenceEvent#CONFERENCE_MEMBER_REMOVED</code> to
+     * the currently registered <code>CallParticipantConferenceListener</code>s.
+     * 
+     * @param conferenceMember
+     *            a <code>ConferenceMember</code> to be removed from the list of
+     *            <code>ConferenceMember</code> reported by this participant. If
+     *            the specified <code>ConferenceMember</code> is no contained in
+     *            the list, no event is fired.
+     */
+    public void removeConferenceMember(ConferenceMember conferenceMember)
+    {
+        if (conferenceMember == null)
+            throw new NullPointerException("conferenceMember");
+        synchronized (conferenceMembers)
+        {
+            if (!conferenceMembers.remove(conferenceMember))
+                return;
+        }
+        fireCallParticipantConferenceEvent(
+            new CallParticipantConferenceEvent(
+                    this,
+                    CallParticipantConferenceEvent.CONFERENCE_MEMBER_REMOVED,
+                    conferenceMember));
+    }
+
+    /*
+     * ImplementsCallParticipant#addCallParticipantConferenceListener(
+     * CallParticipantConferenceListener). In the fashion of the addition of the
+     * other listeners, does not throw an exception on attempting to add a null
+     * listeners and just ignores the call.
+     */
+    public void addCallParticipantConferenceListener(
+        CallParticipantConferenceListener listener)
+    {
+        if (listener != null)
+            synchronized (callParticipantConferenceListeners)
+            {
+                if (!callParticipantConferenceListeners.contains(listener))
+                    callParticipantConferenceListeners.add(listener);
+            }
+    }
+
+    /*
+     * Implements CallParticipant#removeCallParticipantConferenceListener(
+     * CallParticipantConferenceListener).
+     */
+    public void removeCallParticipantConferenceListener(
+        CallParticipantConferenceListener listener)
+    {
+        if (listener != null)
+            synchronized (callParticipantConferenceListeners)
+            {
+                callParticipantConferenceListeners.remove(listener);
+            }
+    }
+
+    /**
+     * Fires a specific <code>CallParticipantConferenceEvent</code> to the
+     * <code>CallParticipantConferenceListener</code>s interested in changes in
+     * the conference-related information provided by this participant.
+     * 
+     * @param conferenceEvent
+     *            a <code>CallParticipantConferenceEvent</code> to be fired and
+     *            carrying the event data
+     */
+    protected void fireCallParticipantConferenceEvent(
+        CallParticipantConferenceEvent conferenceEvent)
+    {
+        CallParticipantConferenceListener[] listeners;
+
+        synchronized (callParticipantConferenceListeners)
+        {
+            listeners
+                = callParticipantConferenceListeners
+                    .toArray(
+                        new CallParticipantConferenceListener[
+                                callParticipantConferenceListeners.size()]);
+        }
+
+        int eventID = conferenceEvent.getEventID();
+
+        for (CallParticipantConferenceListener listener : listeners)
+            switch (eventID)
+            {
+            case CallParticipantConferenceEvent.CONFERENCE_FOCUS_CHANGED:
+                listener.conferenceFocusChanged(conferenceEvent);
+                break;
+            case CallParticipantConferenceEvent.CONFERENCE_MEMBER_ADDED:
+                listener.conferenceMemberAdded(conferenceEvent);
+                break;
+            case CallParticipantConferenceEvent.CONFERENCE_MEMBER_REMOVED:
+                listener.conferenceMemberRemoved(conferenceEvent);
+                break;
+            }
     }
 }

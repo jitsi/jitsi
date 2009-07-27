@@ -23,6 +23,7 @@ import net.java.sip.communicator.util.*;
  * URI).
  *
  * @author Emil Ivov
+ * @author Lubomir Marinov
  */
 public interface CallParticipant
 {
@@ -190,4 +191,67 @@ public interface CallParticipant
      *         participant and it is currently mute; <tt>false</tt>, otherwise
      */
     public boolean isMute();
+
+    /**
+     * Determines whether this participant is acting as a conference focus and
+     * thus may provide information about <code>ConferenceMember</code> such as
+     * {@link #getConferenceMembers()} and {@link #getConferenceMemberCount()}.
+     * 
+     * @return <tt>true</tt> if this participant is acting as a conference
+     *         focus; <tt>false</tt>, otherwise
+     */
+    public boolean isConferenceFocus();
+
+    /**
+     * Gets the <code>ConferenceMember</code>s currently known to this
+     * participant if it is acting as a conference focus.
+     * 
+     * @return an array of <code>ConferenceMember</code>s describing the members
+     *         of a conference managed by this participant if it is acting as a
+     *         conference focus. If this participant is not acting as a
+     *         conference focus or it does but there are currently no members in
+     *         the conference it manages, an empty array is returned.
+     */
+    public ConferenceMember[] getConferenceMembers();
+
+    /**
+     * Gets the number of <code>ConferenceMember</code>s currently known to this
+     * participant if it is acting as a conference focus.
+     * 
+     * @return the number of <code>ConferenceMember</code>s currently known to
+     *         this participant if it is acting as a conference focus. If this
+     *         participant is not acting as a conference focus or it does but
+     *         there are currently no members in the conference it manages, a
+     *         value of zero is returned.
+     */
+    public int getConferenceMemberCount();
+
+    /**
+     * Adds a specific <code>CallParticipantConferenceListener</code> to the
+     * list of listeners interested in and notified about changes in
+     * conference-related information such as this participant acting or not
+     * acting as a conference focus and conference membership details.
+     * 
+     * @param listener
+     *            a <code>CallParticipantConferenceListener</code> to be
+     *            notified about changes in conference-related information. If
+     *            the specified listener is already in the list of interested
+     *            listeners (i.e. it has been previously added), it is not added
+     *            again.
+     */
+    public void addCallParticipantConferenceListener(
+        CallParticipantConferenceListener listener);
+
+    /**
+     * Removes a specific <code>CallParticipantConferenceListener</code> from
+     * the list of listeners interested in and notified about changes in
+     * conference-related information such as this participant acting or not
+     * acting as a conference focus and conference membership details.
+     * 
+     * @param listener
+     *            a <code>CallParticipantConferenceListener</code> to no longer
+     *            be notified about changes in conference-related information
+     */
+    public void removeCallParticipantConferenceListener(
+        CallParticipantConferenceListener listener);
 }
