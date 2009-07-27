@@ -884,18 +884,21 @@ public class SipStackSharing
      * @throws javax.sip.TransactionAlreadyExistsException if transaction exists
      * @throws javax.sip.TransactionUnavailableException if unavailable
      */
-    public static ServerTransaction getOrCreateServerTransaction(RequestEvent event)
+    public static ServerTransaction getOrCreateServerTransaction(
+            RequestEvent event)
         throws TransactionAlreadyExistsException,
-                TransactionUnavailableException
+               TransactionUnavailableException
     {
-        if(event.getServerTransaction() != null)
-            return event.getServerTransaction();
-        else
+        ServerTransaction serverTransaction = event.getServerTransaction();
+
+        if(serverTransaction == null)
         {
             SipProvider jainSipProvider = (SipProvider) event.getSource();
 
-            return jainSipProvider.getNewServerTransaction(
-                    event.getRequest());
+            serverTransaction
+                = jainSipProvider
+                    .getNewServerTransaction(event.getRequest());
         }
+        return serverTransaction;
     }
 }

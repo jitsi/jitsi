@@ -67,10 +67,8 @@ public class AddContactWizardPage1
      */
     private void setNextButtonAccordingToCheckBox()
     {
-        if (selectAccountPanel.isAccountSelected())
-            this.wizard.setNextFinishButtonEnabled(true);
-        else
-            this.wizard.setNextFinishButtonEnabled(false);
+        wizard
+            .setNextFinishButtonEnabled(selectAccountPanel.isAccountSelected());
     }
 
     /**
