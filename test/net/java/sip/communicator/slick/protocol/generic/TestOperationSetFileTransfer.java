@@ -119,7 +119,7 @@ public abstract class TestOperationSetFileTransfer
                 = (FileTransferCreatedEvent)senderFTListerner.collectedEvents.get(0);
 
             assertEquals("FileTransfer file"
-                         ,fileTransferCreatedEvent.getFileTransfer().getFile()
+                         ,fileTransferCreatedEvent.getFileTransfer().getLocalFile()
                          ,fileToTransfer);
 
             assertEquals("A file transfer status changed - preparing received on send side"
@@ -169,7 +169,7 @@ public abstract class TestOperationSetFileTransfer
                 = (FileTransferCreatedEvent)receiverFTListerner.collectedEvents.get(0);
 
             assertEquals("FileTransfer file"
-                         ,fileTransferCreatedEvent.getFileTransfer().getFile()
+                         ,fileTransferCreatedEvent.getFileTransfer().getLocalFile()
                          ,receiveFile);
 
             receiverStatusListener.waitForEvent(30000, 3);
@@ -251,7 +251,7 @@ public abstract class TestOperationSetFileTransfer
                 = (FileTransferCreatedEvent)senderFTListerner.collectedEvents.get(0);
 
             assertEquals("FileTransfer file"
-                         ,fileTransferCreatedEvent.getFileTransfer().getFile()
+                         ,fileTransferCreatedEvent.getFileTransfer().getLocalFile()
                          ,fileToTransfer);
 
             assertEquals("A file transfer status changed - preparing received on send side"
@@ -361,7 +361,7 @@ public abstract class TestOperationSetFileTransfer
                 = (FileTransferCreatedEvent)senderFTListerner.collectedEvents.get(0);
 
             assertEquals("FileTransfer file"
-                         ,fileTransferCreatedEvent.getFileTransfer().getFile()
+                         ,fileTransferCreatedEvent.getFileTransfer().getLocalFile()
                          ,fileToTransfer);
 
             assertEquals("A file transfer status changed - preparing received on send side"
@@ -475,7 +475,7 @@ public abstract class TestOperationSetFileTransfer
                 = (FileTransferCreatedEvent)senderFTListerner.collectedEvents.get(0);
 
             assertEquals("FileTransfer file"
-                         ,fileTransferCreatedEvent.getFileTransfer().getFile()
+                         ,fileTransferCreatedEvent.getFileTransfer().getLocalFile()
                          ,fileToTransfer);
 
             assertEquals("A file transfer status changed - preparing received on send side"
@@ -562,7 +562,7 @@ public abstract class TestOperationSetFileTransfer
                 = (FileTransferCreatedEvent)receiverFTListerner.collectedEvents.get(0);
 
             assertEquals("FileTransfer file"
-                         ,fileTransferCreatedEvent.getFileTransfer().getFile()
+                         ,fileTransferCreatedEvent.getFileTransfer().getLocalFile()
                          ,receiveFile);
 
             // sender
@@ -618,7 +618,7 @@ public abstract class TestOperationSetFileTransfer
                 = (FileTransferCreatedEvent)senderFTListerner.collectedEvents.get(0);
 
             assertEquals("FileTransfer file"
-                         ,fileTransferCreatedEvent.getFileTransfer().getFile()
+                         ,fileTransferCreatedEvent.getFileTransfer().getLocalFile()
                          ,fileToTransfer);
 
             assertEquals("A file transfer status changed - preparing received on send side"
@@ -691,7 +691,7 @@ public abstract class TestOperationSetFileTransfer
                 = (FileTransferCreatedEvent)receiverFTListerner.collectedEvents.get(0);
 
             assertEquals("FileTransfer file"
-                         ,fileTransferCreatedEvent.getFileTransfer().getFile()
+                         ,fileTransferCreatedEvent.getFileTransfer().getLocalFile()
                          ,receiveFile);
 
             receiverStatusListener.waitForEvent(4000, 3);
@@ -920,17 +920,20 @@ public abstract class TestOperationSetFileTransfer
 
             synchronized(this)
             {
-                if(collectedEvents.size() > (eventsNum - 1)){
+                if(collectedEvents.size() > (eventsNum - 1))
+                {
                     logger.trace("Event already received. " + collectedEvents);
                     return;
                 }
 
-                try{
+                try
+                {
                     wait(waitFor);
                     if(collectedEvents.size() > (eventsNum - 1))
                         logger.trace("Received a FileTransferEvent.");
                     else
-                        logger.trace("No FileTransferEvent received for "+waitFor+"ms.");
+                        logger.trace("No FileTransferEvent received for "
+                            + waitFor + "ms.");
                 }
                 catch (InterruptedException ex)
                 {

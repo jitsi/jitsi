@@ -62,7 +62,7 @@ public interface IncomingFileTransferRequest
 
     /**
      * Function called to accept and receive the file.
-     * 
+     *
      * @param file the file to accept
      * @return the <tt>FileTransfer</tt> object managing the transfer
      */
@@ -72,4 +72,11 @@ public interface IncomingFileTransferRequest
      * Function called to refuse the file.
      */
     public void rejectFile();
+
+    /**
+     * Returns the thumbnail contained in this request.
+     *
+     * @return the thumbnail contained in this request
+     */
+    public byte[] getThumbnail();
 }

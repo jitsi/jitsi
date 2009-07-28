@@ -6,23 +6,26 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import java.io.File;
+import java.io.*;
 import java.util.*;
 
-import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.util.*;
-import org.jivesoftware.smackx.filetransfer.*;
-
+import net.java.sip.communicator.impl.protocol.jabber.extensions.thumbnail.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.FileTransfer;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.*;
+
+import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.filter.*;
+import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.util.*;
+import org.jivesoftware.smackx.filetransfer.*;
 
 /**
  * Jabber implementation of the incoming file transfer request
  * 
  * @author Nicolas Riegel
- *
+ * @author Yana Stamcheva
  */
 public class IncomingFileTransferRequestJabberImpl
     implements IncomingFileTransferRequest
@@ -42,9 +45,13 @@ public class IncomingFileTransferRequestJabberImpl
 
     private final OperationSetFileTransferJabberImpl fileTransferOpSet;
 
+    private final ProtocolProviderServiceJabberImpl jabberProvider;
+
     private Contact sender;
 
-    private Date date;
+    private String thumbnailCid;
+
+    private byte[] thumbnail;
 
     /**
      * Creates an <tt>IncomingFileTransferRequestJabberImpl</tt> based on the
@@ -53,17 +60,17 @@ public class IncomingFileTransferRequestJabberImpl
      * @param jabberProvider the protocol provider
      * @param fileTransferOpSet file transfer operation set
      * @param fileTransferRequest the request coming from the Jabber protocol
-     * @param date the date on which this request was received
+     * @param thumbnailCid the content-ID used to match the thumbnail that
+     * would be send after this request is created.
      */
     public IncomingFileTransferRequestJabberImpl(
         ProtocolProviderServiceJabberImpl jabberProvider,
         OperationSetFileTransferJabberImpl fileTransferOpSet,
-        FileTransferRequest fileTransferRequest,
-        Date date)
+        FileTransferRequest fileTransferRequest)
     {
+        this.jabberProvider = jabberProvider;
         this.fileTransferOpSet = fileTransferOpSet;
         this.fileTransferRequest = fileTransferRequest;
-        this.date = date;
 
         String fromUserID
             = StringUtils.parseBareAddress(fileTransferRequest.getRequestor());
@@ -163,7 +170,7 @@ public class IncomingFileTransferRequestJabberImpl
         fileTransferRequest.reject();
 
         fileTransferOpSet.fireFileTransferRequestRejected(
-            new FileTransferRequestEvent(fileTransferOpSet, this, this.date));
+            new FileTransferRequestEvent(fileTransferOpSet, this, new Date()));
     }
 
     /**
@@ -173,5 +180,79 @@ public class IncomingFileTransferRequestJabberImpl
     public String getID()
     {
         return id;
+    }
+
+    /**
+     * Returns the thumbnail contained in this request.
+     *
+     * @return the thumbnail contained in this request
+     */
+    public byte[] getThumbnail()
+    {
+        return thumbnail;
+    }
+
+    /**
+     * Sets the thumbnail content-ID.
+     * @param cid the thumbnail content-ID
+     */
+    public void createThumbnailListeners(String cid)
+    {
+        this.thumbnailCid = cid;
+
+        if (jabberProvider.getConnection() != null)
+        {
+            jabberProvider.getConnection().addPacketListener(
+                new ThumbnailResponseListener(),
+                new AndFilter(  new PacketTypeFilter(IQ.class),
+                                new IQTypeFilter(IQ.Type.RESULT)));
+        }
+    }
+
+    /**
+     * The <tt>ThumbnailResponseListener</tt> listens for events triggered by
+     * the reception of a <tt>ThumbnailIQ</tt> packet. The packet is examined
+     * and a file transfer request event is fired when the thumbnail is
+     * extracted.
+     */
+    private class ThumbnailResponseListener implements PacketListener
+    {
+        public void processPacket(Packet packet)
+        {
+            // If this is not an IQ packet, we're not interested.
+            if (!(packet instanceof ThumbnailIQ))
+                return;
+
+            logger.debug("Thumbnail response received.");
+
+            ThumbnailIQ thumbnailResponse = (ThumbnailIQ) packet;
+
+            if (thumbnailResponse.getCid() != null
+                && thumbnailResponse.getCid().equals(thumbnailCid))
+            {
+                thumbnail = thumbnailResponse.getData();
+
+                // Create an event associated to this global request.
+                FileTransferRequestEvent fileTransferRequestEvent
+                    = new FileTransferRequestEvent(
+                        fileTransferOpSet,
+                        IncomingFileTransferRequestJabberImpl.this,
+                        new Date());
+
+                // Notify the global listener that a request has arrived.
+                fileTransferOpSet.fireFileTransferRequest(
+                    fileTransferRequestEvent);
+            }
+            else
+            {
+                //TODO: RETURN <item-not-found/>
+            }
+
+            if (jabberProvider.getConnection() != null)
+            {
+                jabberProvider.getConnection()
+                    .removePacketListener(this);
+            }
+        }
     }
 }

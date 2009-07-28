@@ -66,6 +66,11 @@ public class FileTransferStatusChangeEvent
     private final int newStatus;
 
     /**
+     * The reason of this status change.
+     */
+    private String reason;
+
+    /**
      * Creates a <tt>FileTransferStatusChangeEvent</tt> by specifying the
      * source <tt>fileTransfer</tt>, the old transfer status and the new status.
      * 
@@ -73,15 +78,18 @@ public class FileTransferStatusChangeEvent
      * change occured
      * @param oldStatus the old status
      * @param newStatus the new status
+     * @param reason the reason of this status change
      */
     public FileTransferStatusChangeEvent(   FileTransfer fileTransfer,
                                             int oldStatus,
-                                            int newStatus)
+                                            int newStatus,
+                                            String reason)
     {
         super(fileTransfer);
 
         this.oldStatus = oldStatus;
         this.newStatus = newStatus;
+        this.reason = reason;
     }
 
     /**
@@ -112,5 +120,14 @@ public class FileTransferStatusChangeEvent
     public int getNewStatus()
     {
         return newStatus;
+    }
+
+    /**
+     * Returns the reason of the status change.
+     * @return the reason of the status change
+     */
+    public String getReason()
+    {
+        return reason;
     }
 }

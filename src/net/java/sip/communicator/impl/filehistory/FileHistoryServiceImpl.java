@@ -785,12 +785,12 @@ public class FileHistoryServiceImpl
                     STRUCTURE_NAMES[4],
                     fileTransfer.getID(),
                     STRUCTURE_NAMES[0],
-                    fileTransfer.getFile().getCanonicalPath());
+                    fileTransfer.getLocalFile().getCanonicalPath());
             }
             else if (fileTransfer.getDirection() == FileTransfer.OUT)
             {
                 historyWriter.addRecord(new String[]{
-                    fileTransfer.getFile().getCanonicalPath(),
+                    fileTransfer.getLocalFile().getCanonicalPath(),
                     getDirection(FileTransfer.OUT),
                     String.valueOf(event.getTimestamp().getTime()),
                     FILE_TRANSFER_ACTIVE,

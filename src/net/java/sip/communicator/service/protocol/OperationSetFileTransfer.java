@@ -34,11 +34,14 @@ public interface OperationSetFileTransfer
      * or connected
      * @throws IllegalArgumentException if some of the arguments doesn't fit the
      * protocol requirements
+     * @throws OperationNotSupportedException if the given contact client or
+     * server does not support file transfers
      */
     public FileTransfer sendFile(   Contact toContact,
                                     File file)
         throws  IllegalStateException,
-                IllegalArgumentException;
+                IllegalArgumentException,
+                OperationNotSupportedException;
 
     /**
      * Sends a file transfer request to the given <tt>toContact</tt> by
@@ -56,13 +59,16 @@ public interface OperationSetFileTransfer
      * or connected
      * @throws IllegalArgumentException if some of the arguments doesn't fit the
      * protocol requirements
+     * @throws OperationNotSupportedException if the given contact client or
+     * server does not support file transfers.
      */
     public FileTransfer sendFile(   Contact toContact, 
                                     Contact fromContact,
                                     String remotePath,
                                     String localPath)
         throws  IllegalStateException,
-                IllegalArgumentException;
+                IllegalArgumentException,
+                OperationNotSupportedException;
 
     /**
      * Adds the given <tt>FileTransferListener</tt> that would listen for

@@ -124,8 +124,20 @@ public abstract class AbstractFileTransfer
     /**
      * Notifies all status listeners that a new
      * <tt>FileTransferStatusChangeEvent</tt> occured.
+     * @param newStatus the new status
      */
     public void fireStatusChangeEvent(int newStatus)
+    {
+        this.fireStatusChangeEvent(newStatus, null);
+    }
+
+    /**
+     * Notifies all status listeners that a new
+     * <tt>FileTransferStatusChangeEvent</tt> occured.
+     * @param newStatus the new status
+     * @param reason the reason of the status change
+     */
+    public void fireStatusChangeEvent(int newStatus, String reason)
     {
         // ignore if status is the same
         if(this.status == newStatus)
@@ -139,7 +151,8 @@ public abstract class AbstractFileTransfer
         }
 
         FileTransferStatusChangeEvent statusEvent
-            = new FileTransferStatusChangeEvent(this, status, newStatus);
+            = new FileTransferStatusChangeEvent(
+                this, status, newStatus, reason);
 
         // Updates the status.
         this.status = newStatus;

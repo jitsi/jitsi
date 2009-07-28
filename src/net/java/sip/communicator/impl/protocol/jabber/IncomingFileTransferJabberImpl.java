@@ -20,10 +20,11 @@ import net.java.sip.communicator.service.protocol.*;
 public class IncomingFileTransferJabberImpl
     extends AbstractFileTransfer
 {
-    private String id = null;
+    private final String id;
 
-    private Contact sender = null;
-    private File file = null;
+    private final Contact sender;
+
+    private final File file;
 
     /**
      * The Jabber incoming file transfer.
@@ -33,9 +34,9 @@ public class IncomingFileTransferJabberImpl
     /**
      * Creates an <tt>IncomingFileTransferJabberImpl</tt>.
      * 
+     * @param id the identifier of this transfer
      * @param sender the sender of the file
      * @param file the file
-     * @param date the date on which the request was received
      * @param jabberTransfer the Jabber file transfer object
      */
     public IncomingFileTransferJabberImpl(  String id,
@@ -43,10 +44,10 @@ public class IncomingFileTransferJabberImpl
                                             File file,
                                             IncomingFileTransfer jabberTransfer)
     {
-        this.jabberTransfer = jabberTransfer;
         this.id = id;
         this.sender = sender;
         this.file = file;
+        this.jabberTransfer = jabberTransfer;
     }
 
     /**
@@ -78,16 +79,6 @@ public class IncomingFileTransferJabberImpl
     }
 
     /**
-     * The file we are receiving.
-     * 
-     * @return file we are receiving
-     */
-    public File getFile()
-    {
-        return file;
-    }
-
-    /**
      * Returns the sender of the file.
      * 
      * @return the sender of the file
@@ -105,5 +96,15 @@ public class IncomingFileTransferJabberImpl
     public String getID()
     {
         return id;
+    }
+
+    /**
+     * Returns the local file that is being transferred or to which we transfer.
+     *
+     * @return the file
+     */
+    public File getLocalFile()
+    {
+        return file;
     }
 }

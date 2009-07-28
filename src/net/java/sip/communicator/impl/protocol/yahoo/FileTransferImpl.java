@@ -79,7 +79,7 @@ public class FileTransferImpl
      *
      * @return the file
      */
-    public File getFile()
+    public File getLocalFile()
     {
         return file;
     }

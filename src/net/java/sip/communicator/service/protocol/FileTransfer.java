@@ -50,11 +50,11 @@ public interface FileTransfer
     public int getDirection();
 
     /**
-     * Returns the file that is transfered.
+     * Returns the local file that is being transferred or to which we transfer.
      *
      * @return the file
      */
-    public File getFile();
+    public File getLocalFile();
 
     /**
      * Returns the contact that we are transfering files with.

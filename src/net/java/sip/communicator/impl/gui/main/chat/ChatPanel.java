@@ -1906,6 +1906,7 @@ public class ChatPanel
             || newStatus == FileTransferStatusChangeEvent.REFUSED)
         {
             removeActiveFileTransfer(fileTransfer.getID());
+            fileTransfer.removeStatusListener(this);
         }
     }
 

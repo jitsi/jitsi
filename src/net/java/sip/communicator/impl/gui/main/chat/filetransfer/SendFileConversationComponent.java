@@ -34,6 +34,8 @@ public class SendFileConversationComponent
 
     private final String dateString;
 
+    private final File file;
+
     /**
      * Creates a <tt>SendFileConversationComponent</tt> by specifying the parent
      * chat panel, where this component is added, the destination contact of
@@ -49,6 +51,7 @@ public class SendFileConversationComponent
     {
         this.parentChatPanel = chatPanel;
         this.toContactName = toContactName;
+        this.file = file;
 
         // Create the date that would be shown in the component.
         this.date = new Date();
@@ -93,7 +96,7 @@ public class SendFileConversationComponent
      */
     public void setProtocolFileTransfer(FileTransfer fileTransfer)
     {
-        this.setFileTransfer(fileTransfer);
+        this.setFileTransfer(fileTransfer, file.length());
 
         fileTransfer.addStatusListener(this);
     }
@@ -104,7 +107,17 @@ public class SendFileConversationComponent
      */
     public void statusChanged(FileTransferStatusChangeEvent event)
     {
+        FileTransfer fileTransfer = event.getFileTransfer();
         int status = event.getNewStatus();
+
+        if (status == FileTransferStatusChangeEvent.COMPLETED
+            || status == FileTransferStatusChangeEvent.CANCELED
+            || status == FileTransferStatusChangeEvent.FAILED
+            || status == FileTransferStatusChangeEvent.REFUSED)
+        {
+            parentChatPanel.removeActiveFileTransfer(fileTransfer.getID());
+            fileTransfer.removeStatusListener(this);
+        }
 
         if (status == FileTransferStatusChangeEvent.PREPARING)
         {
@@ -153,8 +166,12 @@ public class SendFileConversationComponent
                 + resources.getI18NString(
                 "service.gui.FILE_SEND_COMPLETED",
                 new String[]{toContactName}));
+
             cancelButton.setVisible(false);
             retryButton.setVisible(false);
+
+            openFileButton.setVisible(true);
+            openFolderButton.setVisible(true);
         }
         else if (status == FileTransferStatusChangeEvent.CANCELED)
         {

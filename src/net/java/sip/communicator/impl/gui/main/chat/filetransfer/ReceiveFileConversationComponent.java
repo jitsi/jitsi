@@ -10,6 +10,8 @@ import java.awt.event.*;
 import java.io.*;
 import java.util.*;
 
+import javax.swing.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -43,6 +45,8 @@ public class ReceiveFileConversationComponent
 
     private final String dateString;
 
+    private File downloadFile;
+
     /**
      * Creates a <tt>ReceiveFileConversationComponent</tt>.
      * 
@@ -62,6 +66,23 @@ public class ReceiveFileConversationComponent
         this.dateString = getDateString(date);
 
         fileTransferOpSet.addFileTransferListener(this);
+
+        byte[] thumbnail = request.getThumbnail();
+
+        if (thumbnail != null && thumbnail.length > 0)
+        {
+            ImageIcon thumbnailIcon = new ImageIcon(thumbnail);
+
+            if (thumbnailIcon.getIconWidth() > IMAGE_WIDTH
+                || thumbnailIcon.getIconHeight() > IMAGE_HEIGHT)
+            {
+                thumbnailIcon
+                    = ImageUtils.getScaledRoundedIcon(
+                        thumbnail, IMAGE_WIDTH, IMAGE_WIDTH);
+            }
+
+            imageLabel.setIcon(thumbnailIcon);
+        }
 
         titleLabel.setText(
             dateString
@@ -89,7 +110,7 @@ public class ReceiveFileConversationComponent
                 cancelButton.setVisible(true);
                 progressBar.setVisible(true);
 
-                File downloadFile = createFile(fileTransferRequest);
+                downloadFile = createFile(fileTransferRequest);
 
                 new AcceptFile(downloadFile).start();
             }
@@ -175,11 +196,19 @@ public class ReceiveFileConversationComponent
      */
     public void statusChanged(FileTransferStatusChangeEvent event)
     {
-        int status = event.getNewStatus();
         FileTransfer fileTransfer = event.getFileTransfer();
+        int status = event.getNewStatus();
 
         String fromContactName
             = fileTransferRequest.getSender().getDisplayName();
+
+        if (status == FileTransferStatusChangeEvent.COMPLETED
+            || status == FileTransferStatusChangeEvent.CANCELED
+            || status == FileTransferStatusChangeEvent.FAILED
+            || status == FileTransferStatusChangeEvent.REFUSED)
+        {
+            fileTransfer.removeStatusListener(this);
+        }
 
         if (status == FileTransferStatusChangeEvent.PREPARING)
         {
@@ -219,7 +248,7 @@ public class ReceiveFileConversationComponent
         }
         else if (status == FileTransferStatusChangeEvent.COMPLETED)
         {
-            this.setCompletedDownloadFile(fileTransfer.getFile());
+            this.setCompletedDownloadFile(downloadFile);
 
             hideProgressRelatedComponents();
             cancelButton.setVisible(false);
@@ -312,7 +341,7 @@ public class ReceiveFileConversationComponent
         {
             if (fileTransfer != null)
             {
-                setFileTransfer(fileTransfer);
+                setFileTransfer(fileTransfer, fileTransferRequest.getFileSize());
             }
         }
     }

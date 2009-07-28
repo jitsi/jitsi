@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.gui.main.chat.filetransfer;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.net.*;
 
 import javax.swing.*;
 
@@ -35,7 +34,11 @@ public abstract class FileTransferConversationComponent
     private final Logger logger
         = Logger.getLogger(FileTransferConversationComponent.class);
 
-    private final FileImageLabel imageLabel = new FileImageLabel();
+    protected static final int IMAGE_WIDTH = 64;
+
+    protected static final int IMAGE_HEIGHT = 64;
+
+    protected final FileImageLabel imageLabel = new FileImageLabel();
     protected final JLabel titleLabel = new JLabel();
     protected final JLabel fileLabel = new JLabel();
     private final JTextArea errorArea = new JTextArea();
@@ -69,6 +72,10 @@ public abstract class FileTransferConversationComponent
     private File downloadFile;
 
     private FileTransfer fileTransfer;
+
+    private final static int SPEED_CALCULATE_DELAY = 5000;
+
+    private long transferredFileSize = 0;
 
     private long lastSpeedTimestamp = 0;
 
@@ -294,43 +301,6 @@ public abstract class FileTransferConversationComponent
     }
 
     /**
-     * Sets the icon for the given file.
-     * 
-     * @param file the file to set an icon for
-     */
-    protected void setFileIcon(File file)
-    {
-        if (FileUtils.isImage(file.getName()))
-        {
-            try
-            {
-                ImageIcon image = new ImageIcon(file.toURI().toURL());
-                imageLabel.setToolTipImage(image);
-
-                image = ImageUtils
-                    .getScaledRoundedIcon(image.getImage(), 64, 64);
-                imageLabel.setIcon(image);
-            }
-            catch (MalformedURLException e)
-            {
-                logger.debug("Could not locate image.", e);
-                imageLabel.setIcon(new ImageIcon(
-                    ImageLoader.getImage(ImageLoader.DEFAULT_FILE_ICON)));
-            }
-        }
-        else
-        {
-            Icon icon = FileUtils.getIcon(file);
-
-            if (icon == null)
-                icon = new ImageIcon(
-                    ImageLoader.getImage(ImageLoader.DEFAULT_FILE_ICON));
-
-            imageLabel.setIcon(icon);
-        }
-    }
-
-    /**
      * Sets the download file.
      * 
      * @param file the file that has been downloaded or sent
@@ -361,9 +331,11 @@ public abstract class FileTransferConversationComponent
      * 
      * @param fileTransfer the file transfer
      */
-    protected void setFileTransfer(FileTransfer fileTransfer)
+    protected void setFileTransfer( FileTransfer fileTransfer,
+                                    long transferredFileSize)
     {
         this.fileTransfer = fileTransfer;
+        this.transferredFileSize = transferredFileSize;
 
         fileTransfer.addProgressListener(this);
     }
@@ -450,7 +422,7 @@ public abstract class FileTransferConversationComponent
      */
     public void progressChanged(FileTransferProgressEvent event)
     {
-        progressBar.setValue((int) event.getProgress());
+        progressBar.setValue((int)event.getProgress());
 
         long transferredBytes = event.getFileTransfer().getTransferedBytes();
         long progressTimestamp = event.getTimestamp();
@@ -458,7 +430,8 @@ public abstract class FileTransferConversationComponent
         ByteFormat format = new ByteFormat();
         String bytesString = format.format(transferredBytes);
 
-        if ((progressTimestamp - lastSpeedTimestamp) >= 5000)
+        if ((progressTimestamp - lastSpeedTimestamp)
+                >= SPEED_CALCULATE_DELAY)
         {
             lastProgressSpeed
                 = Math.round(calculateProgressSpeed(transferredBytes));
@@ -467,12 +440,13 @@ public abstract class FileTransferConversationComponent
             this.lastTransferredBytes = transferredBytes;
         }
 
-        if ((progressTimestamp - lastEstimatedTimeTimestamp) >= 5000
+        if ((progressTimestamp - lastEstimatedTimeTimestamp)
+                >= SPEED_CALCULATE_DELAY
             && lastProgressSpeed > 0)
         {
             lastEstimatedTime = Math.round(calculateEstimatedTransferTime(
                 lastProgressSpeed,
-                event.getFileTransfer().getFile().length() - transferredBytes));
+                transferredFileSize - transferredBytes));
 
             lastEstimatedTimeTimestamp = progressTimestamp;
         }
@@ -483,7 +457,7 @@ public abstract class FileTransferConversationComponent
         {
             progressSpeedLabel.setText(
                 resources.getI18NString("service.gui.SPEED")
-                + format.format(lastProgressSpeed));
+                + format.format(lastProgressSpeed) + "/sec");
             progressSpeedLabel.setVisible(true);
         }
 
@@ -499,6 +473,7 @@ public abstract class FileTransferConversationComponent
     /**
      * Returns the string, showing information for the given file.
      * 
+     *
      * @param file the file
      * @return the name of the given file
      */
@@ -556,15 +531,17 @@ public abstract class FileTransferConversationComponent
      */
     private double calculateProgressSpeed(long transferredBytes)
     {
-        // Bytes per second = bytes per 5000 miliseconds * 1000.
-        return (transferredBytes - lastTransferredBytes) / 5;
+        // Bytes per second = bytes / SPEED_CALCULATE_DELAY miliseconds * 1000.
+        return (transferredBytes - lastTransferredBytes)
+                / SPEED_CALCULATE_DELAY * 1000;
     }
 
     /**
+     * Returns the estimated transfer time left.
      * 
-     * @param speed
-     * @param fileSize
-     * @return
+     * @param speed the speed of the transfer
+     * @param fileSize the size of the file
+     * @return the estimated transfer time left
      */
     private double calculateEstimatedTransferTime(double speed, long bytesLeft)
     {

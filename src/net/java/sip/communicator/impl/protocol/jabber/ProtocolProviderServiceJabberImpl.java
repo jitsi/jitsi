@@ -16,8 +16,10 @@ import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smackx.*;
+import org.jivesoftware.smackx.packet.*;
 
 /**
  * An implementation of the protocol provider service over the Jabber protocol
@@ -25,6 +27,7 @@ import org.jivesoftware.smackx.*;
  * @author Damian Minkov
  * @author Symphorien Wanko
  * @author Lubomir Marinov
+ * @author Yana Stamcheva
  */
 public class ProtocolProviderServiceJabberImpl
     extends AbstractProtocolProviderService
@@ -427,15 +430,37 @@ public class ProtocolProviderServiceJabberImpl
         }
 
         // we setup supported features
+        // List of features that smack already supports:
+        // http://jabber.org/protocol/xhtml-im
+        // http://jabber.org/protocol/muc
+        // http://jabber.org/protocol/commands
+        // http://jabber.org/protocol/chatstates
+        // http://jabber.org/protocol/si/profile/file-transfer
+        // http://jabber.org/protocol/si
+        // http://jabber.org/protocol/bytestreams
+        // http://jabber.org/protocol/ibb
         if (getRegistrationState() == RegistrationState.REGISTERED)
         {
             discoveryManager = ServiceDiscoveryManager.
                     getInstanceFor(connection);
+
             ServiceDiscoveryManager.setIdentityName("sip-comm");
-            ServiceDiscoveryManager.setIdentityType("registered");
+            ServiceDiscoveryManager.setIdentityType("pc");
             Iterator<String> it = supportedFeatures.iterator();
+
+            // Remove features supported by smack, but not supported in
+            // SIP Communicator.
+            discoveryManager.removeFeature(
+                "http://jabber.org/protocol/commands");
+
+            // Add features the SIP Communicator supports in plus of smack.
             while (it.hasNext())
-                discoveryManager.addFeature(it.next());
+            {
+                String feature = it.next();
+
+                if (!discoveryManager.includesFeature(feature))
+                    discoveryManager.addFeature(feature);
+            }
         }
 
     }
@@ -547,7 +572,6 @@ public class ProtocolProviderServiceJabberImpl
             // presence, if someone knows
             // supportedFeatures.add(_PRESENCE_);
 
-
             //register it once again for those that simply need presence
             supportedOperationSets.put( OperationSetPresence.class.getName(),
                                         persistentPresence);
@@ -564,11 +588,8 @@ public class ProtocolProviderServiceJabberImpl
                 OperationSetBasicInstantMessaging.class.getName(),
                 basicInstantMessaging);
 
-            // TODO: add the feature, if any, corresponding to IM if someone
-            // knows
-            // supportedFeatures.add(_IM_);
-            //XHTML-IM
-            supportedFeatures.add("http://jabber.org/protocol/xhtml-im");
+            // The http://jabber.org/protocol/xhtml-im feature is included
+            // already in smack.
 
             //initialize the Whiteboard operation set
             OperationSetWhiteboardingJabberImpl whiteboard =
@@ -584,7 +605,9 @@ public class ProtocolProviderServiceJabberImpl
             supportedOperationSets.put(
                 OperationSetTypingNotifications.class.getName(),
                 typingNotifications);
-            supportedFeatures.add("http://jabber.org/protocol/chatstates");
+
+            // The http://jabber.org/protocol/chatstates feature implemented in
+            // OperationSetTypingNotifications is included already in smack.
 
             //initialize the multi user chat operation set
             OperationSetMultiUserChat multiUserChat =
@@ -619,11 +642,30 @@ public class ProtocolProviderServiceJabberImpl
                 OperationSetFileTransfer.class.getName(),
                 fileTransfer);
 
+            // Include features we're supporting in plus of the four that
+            // included by smack itself:
+            // http://jabber.org/protocol/si/profile/file-transfer
+            // http://jabber.org/protocol/si
+            // http://jabber.org/protocol/bytestreams
+            // http://jabber.org/protocol/ibb
+            supportedFeatures.add("urn:xmpp:thumbs:0");
+            supportedFeatures.add("urn:xmpp:bob");
+
+            // initialize the thumbnailed file factory operation set
+            OperationSetThumbnailedFileFactory thumbnailFactory
+                = new OperationSetThumbnailedFileFactoryImpl();
+
+            supportedOperationSets.put(
+                OperationSetThumbnailedFileFactory.class.getName(),
+                thumbnailFactory);
+
             // TODO: this is the "main" feature to advertise when a client
             // support muc. We have to add some features for
-            // specific functionnality we support in muc.
+            // specific functionality we support in muc.
             // see http://www.xmpp.org/extensions/xep-0045.html
-            supportedFeatures.add("http://jabber.org/protocol/muc");
+
+            // The http://jabber.org/protocol/muc feature is already included in
+            // smack.
             supportedFeatures.add("http://jabber.org/protocol/muc#rooms");
             supportedFeatures.add("http://jabber.org/protocol/muc#traffic");
 
@@ -642,6 +684,7 @@ public class ProtocolProviderServiceJabberImpl
                     OperationSetBasicTelephony.class.getName(),
                     opSetBasicTelephony);
 
+                // Add Jingle features to supported features.
                 supportedFeatures.add("urn:xmpp:jingle:1");
                 supportedFeatures.add("urn:xmpp:jingle:apps:rtp:1");
                 supportedFeatures.add("urn:xmpp:jingle:apps:rtp:audio");
@@ -727,7 +770,8 @@ public class ProtocolProviderServiceJabberImpl
         public void connectionClosed()
         {
             OperationSetPersistentPresenceJabberImpl opSetPersPresence =
-                (OperationSetPersistentPresenceJabberImpl) getOperationSet(OperationSetPersistentPresence.class);
+                (OperationSetPersistentPresenceJabberImpl)
+                    getOperationSet(OperationSetPersistentPresence.class);
 
             opSetPersPresence.fireProviderStatusChangeEvent(
                 opSetPersPresence.getPresenceStatus(),
@@ -798,5 +842,55 @@ public class ProtocolProviderServiceJabberImpl
     JabberStatusEnum getJabberStatusEnum()
     {
         return jabberStatusEnum;
+    }
+
+    /**
+     * Checks if the given list of <tt>features</tt> is supported by the given
+     * jabber id.
+     * @param jid the jabber id for which to check
+     * @param features the list of features to check for
+     * @return <code>true</code> if the list of features is supported, otherwise
+     * returns <code>false</code>
+     */
+    boolean isFeatureListSupported(String jid, String[] features)
+    {
+        boolean isFeatureListSupported = true;
+
+        ServiceDiscoveryManager disco = ServiceDiscoveryManager
+            .getInstanceFor(getConnection());
+        try
+        {
+            DiscoverInfo featureInfo = disco.discoverInfo(jid);
+
+            for (String feature : features)
+            {
+                if (!featureInfo.containsFeature(feature))
+                {
+                    // If one is not supported we return false and don't check
+                    // the others.
+                    isFeatureListSupported = false;
+                    break;
+                }
+            }
+        }
+        catch (XMPPException e)
+        {
+            logger.debug("Failed to discover info.", e);
+        }
+
+        return isFeatureListSupported;
+    }
+
+    /**
+     * Returns the full jabber id (jid) corresponding to the given contact.
+     * @param contact the contact, for which we're looking for a jid
+     * @return the jid
+     */
+    String getFullJid(Contact contact)
+    {
+        Roster roster = getConnection().getRoster();
+        Presence presence = roster.getPresence(contact.getAddress());
+
+        return presence.getFrom();
     }
 }

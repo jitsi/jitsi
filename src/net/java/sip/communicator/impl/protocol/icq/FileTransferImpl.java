@@ -18,7 +18,7 @@ import net.kano.joustsim.oscar.oscar.service.icbm.ft.events.*;
 import net.kano.joustsim.oscar.oscar.service.icbm.ft.state.*;
 
 /**
- * The Filetransfer imeplementation for icq.
+ * The Filetransfer imeplementation for ICQ.
  * @author Damian Minkov
  */
 public class FileTransferImpl
@@ -90,22 +90,22 @@ public class FileTransferImpl
     }
 
     /**
-     * Returns the file that is transfered.
-     *
-     * @return the file
-     */
-    public File getFile()
-    {
-        return file;
-    }
-
-    /**
-     * Returns the contact that we are transfering files with.
+     * Returns the contact that we are transferring files with.
      * @return the contact.
      */
     public Contact getContact()
     {
         return contact;
+    }
+
+    /**
+     * Returns the local file that is being transferred or to which we transfer.
+     *
+     * @return the file
+     */
+    public File getLocalFile()
+    {
+        return file;
     }
 
     /**

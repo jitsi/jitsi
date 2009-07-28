@@ -61,7 +61,7 @@ public class FileTransferSSHImpl
         return IN;
     }
 
-    public File getFile()
+    public File getLocalFile()
     {
         return null;
     }

@@ -107,6 +107,41 @@ public class ImageUtils
         return destImage;
     }
 
+    public static byte[] getScaledInstanceInBytes(
+        Image image, int width, int height)
+    {
+        byte[] scaledBytes = null;
+
+        BufferedImage scaledImage
+            = (BufferedImage) getScaledRoundedImage(image, width, height);
+
+        if (scaledImage != null)
+        {
+            ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+
+            try
+            {
+                ImageIO.write(scaledImage, "png", outStream);
+                scaledBytes = outStream.toByteArray();
+            }
+            catch (IOException e)
+            {
+                logger.debug("Could not scale image in bytes.", e);
+            }
+
+        }
+
+        return scaledBytes;
+    }
+
+    /**
+     * Returns a scaled rounded icon from the given <tt>image</tt>, scaled
+     * within the given <tt>width</tt> and <tt>height</tt>.
+     * @param image the image to scale
+     * @param width the maximum width of the scaled icon
+     * @param height the maximum height of the scaled icon
+     * @return a scaled rounded icon
+     */
     public static ImageIcon getScaledRoundedIcon(Image image, int width,
         int height)
     {

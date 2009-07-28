@@ -8,6 +8,9 @@
 package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.io.*;
+import java.net.*;
+
+import javax.swing.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -31,6 +34,10 @@ public class MetaContactChatTransport
     private final Contact contact;
 
     private final OperationSetPresence presenceOpSet;
+
+    private static final int THUMBNAIL_WIDTH = 64;
+
+    private static final int THUMBNAIL_HEIGHT = 64;
 
     public MetaContactChatTransport(ChatSession chatSession,
                                     Contact contact)
@@ -281,6 +288,27 @@ public class MetaContactChatTransport
             = (OperationSetFileTransfer) contact.getProtocolProvider()
                 .getOperationSet(OperationSetFileTransfer.class);
 
+        if (FileUtils.isImage(file.getName()))
+        {
+            // Create a thumbnailed file if possible.
+            OperationSetThumbnailedFileFactory tfOpSet
+                = (OperationSetThumbnailedFileFactory)
+                    contact.getProtocolProvider()
+                    .getOperationSet(OperationSetThumbnailedFileFactory.class);
+
+            if (tfOpSet != null)
+            {
+                byte[] thumbnail = getFileThumbnail(file);
+
+                if (thumbnail != null && thumbnail.length > 0)
+                {
+                    file = tfOpSet.createFileWithThumbnail(
+                        file, THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT,
+                        "image/png", thumbnail);
+                }
+            }
+        }
+
         return ftOpSet.sendFile(contact, file);
     }
 
@@ -425,5 +453,43 @@ public class MetaContactChatTransport
     public Object getDescriptor()
     {
         return contact;
+    }
+
+    /**
+     * Sets the icon for the given file.
+     * 
+     * @param file the file to set an icon for
+     */
+    private byte[] getFileThumbnail(File file)
+    {
+        byte[] bytes = null;
+        if (FileUtils.isImage(file.getName()))
+        {
+            try
+            {
+                ImageIcon image = new ImageIcon(file.toURI().toURL());
+
+                if (image != null)
+                {
+                    int width = image.getIconWidth();
+                    int height = image.getIconHeight();
+
+                    if (width > THUMBNAIL_WIDTH)
+                        width = THUMBNAIL_WIDTH;
+                    if (height > THUMBNAIL_HEIGHT)
+                        height = THUMBNAIL_HEIGHT;
+
+                    bytes = ImageUtils
+                        .getScaledInstanceInBytes(image.getImage(),
+                            width, height);
+                }
+            }
+            catch (MalformedURLException e)
+            {
+                logger.debug("Could not locate image.", e);
+            }
+        }
+
+        return bytes;
     }
 }

@@ -132,7 +132,11 @@ public class MockOperationSetFileTransfer
 
                     public void rejectFile()
                     {
+                    }
 
+                    public byte[] getThumbnail()
+                    {
+                        return null;
                     }
                 }, requestDate));
     }

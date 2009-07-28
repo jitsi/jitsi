@@ -18,8 +18,8 @@ public class MockFileTransferImpl
     extends AbstractFileTransfer
 {
     private String id = null;
-    private int direction;
-    private File file = null;
+    private final int direction;
+    private final File file;
     private Contact contact = null;
 
     public MockFileTransferImpl(Contact c, File file, String id, int direction)
@@ -61,7 +61,7 @@ public class MockFileTransferImpl
         return direction;
     }
 
-    public File getFile()
+    public File getLocalFile()
     {
         return file;
     }

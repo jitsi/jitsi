@@ -155,36 +155,49 @@ public class OperationSetBasicInstantMessagingSSHImpl
             String message,
             ContactSSH sshContact)
     {
-        
         if(message.startsWith("/upload"))
         {
             int firstSpace = message.indexOf(' ');
-            sshContact.getFileTransferOperationSet().sendFile(
-                    sshContact,
-                    null,
-                    message.substring(message.indexOf(' ', firstSpace+1) + 1),
-                    message.substring(
-                        firstSpace+1, 
-                        message.indexOf(' ', firstSpace+1)));
-            
+
+            try
+            {
+                sshContact.getFileTransferOperationSet().sendFile(
+                        sshContact,
+                        null,
+                        message.substring(message.indexOf(' ', firstSpace+1) + 1),
+                        message.substring(
+                            firstSpace+1, 
+                            message.indexOf(' ', firstSpace+1)));
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+
             return true;
         }
         else if(message.startsWith("/download"))
         {
             int firstSpace = message.indexOf(' ');
-            sshContact.getFileTransferOperationSet().sendFile(
+
+            try
+            {
+                sshContact.getFileTransferOperationSet().sendFile(
                     null,
                     sshContact,
                     message.substring(firstSpace+1, message.indexOf(' ', 
                                                                 firstSpace+1)),
                     message.substring(message.indexOf(' ', firstSpace+1) + 1));
-            
+            }
+            catch(Exception e)
+            {
+                e.printStackTrace();
+            }
             return true;
         }
-        
         return false;
     }
-    
+
     /**
      * In case the <tt>to</tt> Contact corresponds to another ssh
      * protocol provider registered with SIP Communicator, we deliver

@@ -212,5 +212,14 @@ public class IncomingFileTransferRequestIcqImpl
             return file;
         }
     }
-    
+
+    /**
+     * Returns the thumbnail contained in this request.
+     *
+     * @return the thumbnail contained in this request
+     */
+    public byte[] getThumbnail()
+    {
+        return null;
+    }
 }

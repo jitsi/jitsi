@@ -14,6 +14,8 @@ package net.java.sip.communicator.impl.protocol.ssh;
 import java.io.*;
 import java.util.*;
 
+import javax.management.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;

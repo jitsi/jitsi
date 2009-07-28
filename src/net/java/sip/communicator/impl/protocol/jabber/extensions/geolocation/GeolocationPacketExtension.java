@@ -241,7 +241,7 @@ public class GeolocationPacketExtension
     private String timestamp = null;
 
     /**
-     * Returns the XML reppresentation of the PacketExtension.
+     * Returns the XML representation of the PacketExtension.
      *
      * @return the packet extension as XML.
      * @todo Implement this org.jivesoftware.smack.packet.PacketExtension
