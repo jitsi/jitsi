@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.protocol.facebook;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
