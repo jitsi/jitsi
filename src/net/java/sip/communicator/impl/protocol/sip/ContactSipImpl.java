@@ -23,6 +23,7 @@ import java.util.*;
  *
  * @author Emil Ivov
  * @author Benoit Pradelle
+ * @author Lubomir Marinov
  */
 public class ContactSipImpl
     implements Contact
@@ -72,11 +73,6 @@ public class ContactSipImpl
     private boolean isResolvable = true;
 
     /**
-     * Stores the dialog used for receiving the contact status
-     */
-    private Dialog clientDialog = null;
-
-    /**
      * Stores the dialog used for communicate our status to this contact
      */
     private Dialog serverDialog = null;
@@ -87,12 +83,6 @@ public class ContactSipImpl
      * this will remain null.
      */
     private TimerTask timeoutTask = null;
-
-    /**
-     * The task which will refresh the subscription we've made with this
-     * contact. If we didn't subscribe to this contact, it will remain null.
-     */
-    private TimerTask resfreshTask = null;
 
     /**
      * Creates an instance of a meta contact with the specified string used
@@ -319,46 +309,6 @@ public class ContactSipImpl
      */
     public void setTimeoutTask(TimerTask timeoutTask) {
         this.timeoutTask = timeoutTask;
-    }
-
-    /**
-     * Returns the current refresh task associated with this contact.
-     *
-     * @return The resfresh task
-     */
-    public TimerTask getResfreshTask() {
-        return this.resfreshTask;
-    }
-
-    /**
-     * Changes the current refresh task of this contact.
-     *
-     * @param resfreshTask The resfresh task to set
-     */
-    public void setResfreshTask(TimerTask resfreshTask) {
-        this.resfreshTask = resfreshTask;
-    }
-
-    /**
-     * Sets the client dialog associated with this contact.
-     * The client dialog is the dialog we use to retrieve the presence
-     * state of this contact.
-     *
-     * @param clientDialog the new clientDialog to use
-     */
-    public void setClientDialog(Dialog clientDialog) {
-        this.clientDialog = clientDialog;
-    }
-
-    /**
-     * Returns the client dialog associated with this contact.
-     * The client dialog is the dialog we use to retrieve the presence
-     * state of this contact.
-     *
-     * @return the clientDialog associated with the contact
-     */
-    public Dialog getClientDialog() {
-        return this.clientDialog;
     }
 
     /**
