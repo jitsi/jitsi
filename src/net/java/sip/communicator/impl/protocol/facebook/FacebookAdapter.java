@@ -567,7 +567,10 @@ public class FacebookAdapter {
             return FacebookErrorCode.Error_System_ChannelNotFound;
         }
         else {
-            channel = getMethodResponseBody.substring(channelBeginPos,
+            channel
+                = substring(
+                    getMethodResponseBody,
+                    channelBeginPos,
                     channelBeginPos + 2);
             logger.info("Channel: " + channel);
         }
@@ -583,8 +586,9 @@ public class FacebookAdapter {
             return FacebookErrorCode.Error_System_PostFormIDNotFound;
         }
         else {
-            post_form_id = getMethodResponseBody.substring(formIdBeginPos,
-                    formIdBeginPos + 32);
+            post_form_id
+                = substring(
+                    getMethodResponseBody, formIdBeginPos, formIdBeginPos + 32);
             logger.info("post_form_id: " + post_form_id);
         }
 
@@ -1188,5 +1192,36 @@ public class FacebookAdapter {
         channel = host.substring("channel".length());
 
         return payload.getInt("seq");
+    }
+
+    /**
+     * Returns a new string that is a substring of a specific string
+     * <code>s</code> but does not share its internal char buffer and thus does
+     * not retain it. This prevents unnecessary and undesired retaining of
+     * memory when all references to <code>s</code> are broken. The substring
+     * begins at the specified <code>beginIndex</code> and extends to the
+     * character at index <code>endIndex-1</code>. Thus the length of the
+     * substring is <code>endIndex-beginIndex</code>.
+     * 
+     * @param s
+     *            the string to extract the specified substring from
+     * @param beginIndex
+     *            the beginning index, inclusive
+     * @param endIndex
+     *            the ending index, exclusive
+     * @return the specified substring which, unlike
+     *         <code>String#substring(int, int)</code>, does not share the same
+     *         internal char buffer and thus does not retain the char buffer of
+     *         <code>s</code>
+     */
+    private static String substring(String s, int beginIndex, int endIndex)
+    {
+
+        /*
+         * XXX The use of the String constructor bellow is explicit because it
+         * does not share the internal char buffer between the two String
+         * instances.
+         */
+        return new String(s.substring(beginIndex, endIndex));
     }
 }
