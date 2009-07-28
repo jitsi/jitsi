@@ -196,7 +196,7 @@ public class FileTransferImpl
                 }
                 else if(event instanceof BuddyCancelledEvent)
                 {
-                    fireStatusChangeEvent(FileTransferStatusChangeEvent.REFUSED);
+                    fireStatusChangeEvent(FileTransferStatusChangeEvent.CANCELED);
                 }
                 else
                     fireStatusChangeEvent(FileTransferStatusChangeEvent.FAILED);

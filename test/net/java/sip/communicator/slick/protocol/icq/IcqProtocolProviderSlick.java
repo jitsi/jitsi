@@ -151,6 +151,8 @@ public class IcqProtocolProviderSlick
                     addTest(TestOperationSetTypingNotifications.suite());
 
 //                    addTest(TestOperationSetServerStoredInfo.suite());
+
+                    addTest(TestOperationSetFileTransferImpl.suite());
                 }
 
                 //This must remain after all other tests using the accounts

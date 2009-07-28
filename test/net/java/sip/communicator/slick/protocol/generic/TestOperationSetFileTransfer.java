@@ -28,6 +28,15 @@ public abstract class TestOperationSetFileTransfer
 
     private FileAccessService fileAccessService = null;
 
+    public TestOperationSetFileTransfer(String name)
+    {
+        super(name);
+    }
+
+    public TestOperationSetFileTransfer()
+    {
+    }
+
     protected void setUp()
         throws Exception
     {
@@ -410,7 +419,7 @@ public abstract class TestOperationSetFileTransfer
             fileTransferStatusEvent
                 = (FileTransferStatusChangeEvent)senderStatusListener.collectedEvents.get(0);
 
-            assertEquals("Event must be preparing"
+            assertEquals("Event must be refused"
                          ,FileTransferStatusChangeEvent.REFUSED
                          ,fileTransferStatusEvent.getNewStatus());
         }
@@ -523,16 +532,19 @@ public abstract class TestOperationSetFileTransfer
             // now wait if some protocol filres inProgress
             // jabber doesn't fire inProgress here
             // yahoo fires it
-            receiverStatusListener.waitForEvent(4000);
-
-            receiverStatusListener.collectedEvents.clear();
+            receiverStatusListener.waitForEvent(14000);
 
             // wait in_progress
-            senderStatusListener.waitForEvent(4000);
+            senderStatusListener.waitForEvent(14000);
+
+            receiverStatusListener.collectedEvents.clear();
+            senderStatusListener.clear();
 
             ft2.cancel();
+
             // now wait for cancel
-            receiverStatusListener.waitForEvent(4000);
+            receiverStatusListener.waitForEvent(14000);
+
             FileTransferStatusChangeEvent stat3 =
                 receiverStatusListener.collectedEvents.get(0);
 
@@ -540,7 +552,7 @@ public abstract class TestOperationSetFileTransfer
                          ,FileTransferStatusChangeEvent.CANCELED
                          ,stat3.getNewStatus());
 
-            receiverFTListerner.waitForEvent(4000);
+            receiverFTListerner.waitForEvent(14000);
 
             //receiver
             assertEquals("A file transfer created must be received on receiver side"
@@ -554,7 +566,7 @@ public abstract class TestOperationSetFileTransfer
                          ,receiveFile);
 
             // sender
-            senderStatusListener.waitForEvent(4000, 2);
+            senderStatusListener.waitForEvent(14000, 2);
 
             assertTrue("Must contain canceled event",
                 senderStatusListener.contains(FileTransferStatusChangeEvent.CANCELED));

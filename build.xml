@@ -1175,6 +1175,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="${testsrc}/net/java/sip/communicator/slick/protocol/icq/icq.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/icq"
                 prefix="net/java/sip/communicator/slick/protocol/icq"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/generic"
+                prefix="net/java/sip/communicator/slick/protocol/generic"/>
             <zipfileset src="${lib.noinst}/joscar-client.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/joscar-common.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/joscar-protocol.jar" prefix=""/>
