@@ -1189,7 +1189,7 @@ public class FacebookAdapter {
         JSONObject payload = response.getJSONObject("payload");
 
         String host = payload.getString("host");
-        channel = host.substring("channel".length());
+        channel = substring(host, "channel".length(), host.length());
 
         return payload.getInt("seq");
     }
