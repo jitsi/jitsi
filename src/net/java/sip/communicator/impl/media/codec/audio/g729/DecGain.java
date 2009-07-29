@@ -41,17 +41,23 @@ class DecGain
 */
 private final float[/* 4 */] past_qua_en={-14.0f,-14.0f,-14.0f,-14.0f};
 
-/*----------------------------------------------------------------------------
- * dec_gain - decode the adaptive and fixed codebook gains
- *----------------------------------------------------------------------------
+/**
+ * Decode the adaptive and fixed codebook gains.
+ *
+ * @param index         input : quantizer index
+ * @param code          input : fixed code book vector
+ * @param l_subfr       input : subframe size
+ * @param bfi           input : bad frame indicator good = 0
+ * @param gain_pit      output: quantized acb gain
+ * @param gain_code     output: quantized fcb gain
  */
 void dec_gain(
- int index,             /* input : quantizer index              */
- float code[],          /* input : fixed code book vector       */
- int l_subfr,           /* input : subframe size                */
- int bfi,               /* input : bad frame indicator good = 0 */
- FloatReference gain_pit,       /* output: quantized acb gain           */
- FloatReference gain_code       /* output: quantized fcb gain           */
+ int index,        
+ float code[],        
+ int l_subfr,           
+ int bfi,              
+ FloatReference gain_pit,    
+ FloatReference gain_code      
 )
 {
    int NCODE2 = Ld8k.NCODE2;

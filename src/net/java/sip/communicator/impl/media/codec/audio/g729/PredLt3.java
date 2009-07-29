@@ -41,23 +41,25 @@ class PredLt3
  G.729 main body and G.729A
 */
 
-/*-------------------------------------------------------------------*
- * Function  Pred_lt_3()                                             *
- *           ~~~~~~~~~~~                                             *
- *-------------------------------------------------------------------*
- * Compute the result of long term prediction with fractional        *
- * interpolation of resolution 1/3.                                  *
- *                                                                   *
- * On return exc[0..L_subfr-1] contains the interpolated signal      *
- *   (adaptive codebook excitation)                                  *
- *-------------------------------------------------------------------*/
-
-static void pred_lt_3(         /* Compute adaptive codebook                       */
-  float[] exc,          /* in/out: excitation vector, exc[0:l_sub-1] = out */
+/**
+ * Compute the result of long term prediction with fractional
+ * interpolation of resolution 1/3.
+ *
+ * On return exc[0..L_subfr-1] contains the interpolated signal
+ *   (adaptive codebook excitation)
+ *
+ * @param exc            in/out: excitation vector, exc[0:l_sub-1] = out
+ * @param exc_offset     input: excitation vector offset
+ * @param t0             input : pitch lag
+ * @param frac           input : Fraction of pitch lag (-1, 0, 1)  / 3
+ * @param l_subfr        input : length of subframe.  
+ */
+static void pred_lt_3(         
+  float[] exc,          
   int exc_offset,
-  int t0,               /* input : pitch lag                               */
-  int frac,             /* input : Fraction of pitch lag (-1, 0, 1)  / 3   */
-  int l_subfr           /* input : length of subframe.                     */
+  int t0,               
+  int frac,             
+  int l_subfr           
 )
 {
   int L_INTER10 = Ld8k.L_INTER10;

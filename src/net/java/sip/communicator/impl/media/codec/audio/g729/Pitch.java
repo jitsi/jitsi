@@ -12,6 +12,8 @@
 package net.java.sip.communicator.impl.media.codec.audio.g729;
 
 /**
+ * Long Term Prediction Routines
+ *
  * @author Lubomir Marinov (translation of ITU-T C source code to Java)
  */
 class Pitch
@@ -41,21 +43,24 @@ class Pitch
  (not for G.729A)
 */
 
-/*****************************************************************************/
-/*           Long Term Prediction Routines                                   */
-/*****************************************************************************/
-
-/*----------------------------------------------------------------------------
- * pitch_ol -  compute the open loop pitch lag
- *----------------------------------------------------------------------------
+/**
+ * Compute the open loop pitch lag.
+ *
+ * @param signal            input : signal to compute pitch
+ *                          s[-PIT_MAX : l_frame-1]
+ * @param signal_offset     input : signal offset
+ * @param pit_min           input : minimum pitch lag
+ * @param pit_max           input : maximum pitch lag 
+ * @param l_frame           input : error minimization window
+ * @return                  open-loop pitch lag
  */
-static int pitch_ol(           /* output: open-loop pitch lag */
-   float[] signal,        /* input : signal to compute pitch  */
-                        /*         s[-PIT_MAX : l_frame-1]  */
+static int pitch_ol(           
+   float[] signal,     
+                        
    int signal_offset,
-   int pit_min,         /* input : minimum pitch lag                          */
-   int pit_max,         /* input : maximum pitch lag                          */
-   int l_frame          /* input : error minimization window */
+   int pit_min,         
+   int pit_max,         
+   int l_frame          
 )
 {
     float THRESHPIT = Ld8k.THRESHPIT;
@@ -95,18 +100,26 @@ static int pitch_ol(           /* output: open-loop pitch lag */
 
     return (p_max1);
 }
-/*----------------------------------------------------------------------------
- * lag_max - Find the lag that has maximum correlation
- *----------------------------------------------------------------------------
+
+/**
+ * Find the lag that has maximum correlation
+ *
+ * @param signal            input : Signal to compute the open loop pitch
+ *                          signal[-142:-1] should be known.
+ * @param signal_offset     input : signal offset
+ * @param l_frame           input : Length of frame to compute pitch
+ * @param lagmax            input : maximum lag
+ * @param lagmin            input : minimum lag
+ * @param cor_max           input : normalized correlation of selected lag
+ * @return lag found
  */
-private static int lag_max(     /* output: lag found */
-  float[] signal,       /* input : Signal to compute the open loop pitch
-                                   signal[-142:-1] should be known.       */
+private static int lag_max(  
+  float[] signal,       
   int signal_offset,
-  int l_frame,          /* input : Length of frame to compute pitch       */
-  int lagmax,           /* input : maximum lag                            */
-  int lagmin,           /* input : minimum lag                            */
-  FloatReference cor_max        /* input : normalized correlation of selected lag */
+  int l_frame,         
+  int lagmax,       
+  int lagmin,      
+  FloatReference cor_max    
 )
 {
     float FLT_MIN_G729 = Ld8k.FLT_MIN_G729;
@@ -147,21 +160,30 @@ private static int lag_max(     /* output: lag found */
     return(p_max);
 }
 
-
-/*----------------------------------------------------------------------------
- * pitch_fr3 - find the pitch period  with 1/3 subsample resolution
- *----------------------------------------------------------------------------
+/**
+ * Find the pitch period  with 1/3 subsample resolution
+ *
+ * @param exc           input : excitation buffer
+ * @param exc_offset    input : excitation buffer offset
+ * @param xn            input : target vector
+ * @param h             input : impulse response of filters. 
+ * @param l_subfr       input : Length of frame to compute pitch
+ * @param t0_min        input : minimum value in the searched range
+ * @param t0_max        input : maximum value in the searched range
+ * @param i_subfr       input : indicator for first subframe
+ * @param pit_frac      output: chosen fraction
+ * @return          integer part of pitch period  
  */
-static int pitch_fr3(          /* output: integer part of pitch period        */
- float[] exc,           /* input : excitation buffer                   */
+static int pitch_fr3(    
+ float[] exc,           /*                  */
  int exc_offset,
- float xn[],            /* input : target vector                       */
- float h[],             /* input : impulse response of filters.        */
- int l_subfr,           /* input : Length of frame to compute pitch    */
- int t0_min,            /* input : minimum value in the searched range */
- int t0_max,            /* input : maximum value in the searched range */
- int i_subfr,           /* input : indicator for first subframe        */
- IntReference pit_frac          /* output: chosen fraction                     */
+ float xn[],            /*                        */
+ float h[],             /*        */
+ int l_subfr,           /*     */
+ int t0_min,            /*  */
+ int t0_max,            /*  */
+ int i_subfr,           /*         */
+ IntReference pit_frac          /*                      */
 )
 {
   int L_INTER4 = Ld8k.L_INTER4;
@@ -242,23 +264,32 @@ static int pitch_fr3(          /* output: integer part of pitch period        */
   return lag;
 }
 
-/*----------------------------------------------------------------------------
- * norm_corr - Find the normalized correlation between the target vector and
- *             the filtered past excitation.
- *----------------------------------------------------------------------------
+/**
+ * Find the normalized correlation between the target vector and
+ * the filtered past excitation.
+ *
+ * @param exc                   input : excitation buffer
+ * @param exc_offset            input : excitation buffer offset
+ * @param xn                    input : target vector
+ * @param h                     input : imp response of synth and weighting flt
+ * @param l_subfr               input : Length of frame to compute pitch
+ * @param t_min                 input : minimum value of searched range
+ * @param t_max                 input : maximum value of search range
+ * @param corr_norm             output: normalized correlation (correlation
+ *                              between target and filtered excitation divided
+ *                              by the square root of energy of filtered
+ *                              excitation)
+ * @param corr_norm_offset      input: normalized correlation offset
  */
 private static void norm_corr(
- float[] exc,           /* input : excitation buffer */
+ float[] exc,          
  int exc_offset,
- float xn[],            /* input : target vector */
- float h[],             /* input : imp response of synth and weighting flt */
- int l_subfr,           /* input : Length of frame to compute pitch */
- int t_min,             /* input : minimum value of searched range */
- int t_max,             /* input : maximum value of search range */
- float corr_norm[],     /* output: normalized correlation (correlation between
-                                   target and filtered excitation divided by
-                                   the square root of energy of filtered
-                                    excitation) */
+ float xn[],          
+ float h[],             
+ int l_subfr,          
+ int t_min,             
+ int t_max,            
+ float corr_norm[], 
  int corr_norm_offset
 )
 {
@@ -308,16 +339,21 @@ private static void norm_corr(
    }
  }
 }
-/*----------------------------------------------------------------------------
- * g_pitch - compute adaptive codebook gain and compute <y1,y1> , -2<xn,y1>
- *----------------------------------------------------------------------------
- */
 
-static float g_pitch(          /* output: pitch gain */
- float xn[],            /* input : target vector */
- float y1[],            /* input : filtered adaptive codebook vector */
- float g_coeff[],       /* output: <y1,y1> and -2<xn,y1> */
- int l_subfr            /* input : vector dimension */
+/**
+ * Compute adaptive codebook gain and compute <y1,y1> , -2<xn,y1>
+ *
+ * @param xn        input : target vector
+ * @param y1        input : filtered adaptive codebook vector
+ * @param g_coeff   output: <y1,y1> and -2<xn,y1>
+ * @param l_subfr   input : vector dimension
+ * @return          pitch gain
+ */
+static float g_pitch(        
+ float xn[],           
+ float y1[],           
+ float g_coeff[],       
+ int l_subfr            
 )
 {
     float GAIN_PIT_MAX = Ld8k.GAIN_PIT_MAX;
@@ -346,38 +382,47 @@ static float g_pitch(          /* output: pitch gain */
     return gain;
 }
 
-/*----------------------------------------------------------------------*
- *    Function enc_lag3()                                               *
- *             ~~~~~~~~~~                                               *
- *   Encoding of fractional pitch lag with 1/3 resolution.              *
- *----------------------------------------------------------------------*
- * The pitch range for the first subframe is divided as follows:        *
- *   19 1/3  to   84 2/3   resolution 1/3                               *
- *   85      to   143      resolution 1                                 *
- *                                                                      *
- * The period in the first subframe is encoded with 8 bits.             *
- * For the range with fractions:                                        *
- *   index = (T-19)*3 + frac - 1;   where T=[19..85] and frac=[-1,0,1]  *
- * and for the integer only range                                       *
- *   index = (T - 85) + 197;        where T=[86..143]                   *
- *----------------------------------------------------------------------*
- * For the second subframe a resolution of 1/3 is always used, and the  *
- * search range is relative to the lag in the first subframe.           *
- * If t0 is the lag in the first subframe then                          *
- *  t_min=t0-5   and  t_max=t0+4   and  the range is given by           *
- *       t_min - 2/3   to  t_max + 2/3                                  *
- *                                                                      *
- * The period in the 2nd subframe is encoded with 5 bits:               *
- *   index = (T-(t_min-1))*3 + frac - 1;    where T[t_min-1 .. t_max+1] *
- *----------------------------------------------------------------------*/
-static int  enc_lag3(     /* output: Return index of encoding */
-  int  T0,         /* input : Pitch delay              */
-  int  T0_frac,    /* input : Fractional pitch delay   */
-  IntReference  T0_min,    /* in/out: Minimum search delay     */
-  IntReference  T0_max,    /* in/out: Maximum search delay     */
-  int pit_min,     /* input : Minimum pitch delay      */
-  int pit_max,     /* input : Maximum pitch delay      */
-  int  pit_flag    /* input : Flag for 1st subframe    */
+/**
+ * Function enc_lag3()
+ * Encoding of fractional pitch lag with 1/3 resolution.
+ * <pre>
+ * The pitch range for the first subframe is divided as follows:
+ *   19 1/3  to   84 2/3   resolution 1/3
+ *   85      to   143      resolution 1
+ *
+ * The period in the first subframe is encoded with 8 bits.
+ * For the range with fractions:
+ *   index = (T-19)*3 + frac - 1;   where T=[19..85] and frac=[-1,0,1]
+ * and for the integer only range
+ *   index = (T - 85) + 197;        where T=[86..143]
+ *----------------------------------------------------------------------
+ * For the second subframe a resolution of 1/3 is always used, and the
+ * search range is relative to the lag in the first subframe.
+ * If t0 is the lag in the first subframe then
+ *  t_min=t0-5   and  t_max=t0+4   and  the range is given by
+ *       t_min - 2/3   to  t_max + 2/3
+ *
+ * The period in the 2nd subframe is encoded with 5 bits:
+ *   index = (T-(t_min-1))*3 + frac - 1;    where T[t_min-1 .. t_max+1]
+ * </pre>
+ *
+ * @param T0            input : Pitch delay
+ * @param T0_frac       input : Fractional pitch delay
+ * @param T0_min        in/out: Minimum search delay 
+ * @param T0_max        in/out: Maximum search delay
+ * @param pit_min       input : Minimum pitch delay
+ * @param pit_max       input : Maximum pitch delay
+ * @param pit_flag      input : Flag for 1st subframe
+ * @return              Return index of encoding
+ */
+static int  enc_lag3(     
+  int  T0,        
+  int  T0_frac,   
+  IntReference  T0_min,  
+  IntReference  T0_max,   
+  int pit_min,   
+  int pit_max,  
+  int  pit_flag 
 )
 {
   int index;
@@ -414,14 +459,18 @@ static int  enc_lag3(     /* output: Return index of encoding */
   return index;
 }
 
-/*----------------------------------------------------------------------------
- * interpol_3 - For interpolating the normalized correlation
- *----------------------------------------------------------------------------
+/**
+ * For interpolating the normalized correlation
+ *
+ * @param x          input : function to be interpolated
+ * @param x_offset   input : function offset
+ * @param frac       input : fraction value to evaluate
+ * @return           interpolated value
  */
-private static float interpol_3(   /* output: interpolated value */
- float[] x,              /* input : function to be interpolated */
+private static float interpol_3(  
+ float[] x,              
  int x_offset,
- int frac               /* input : fraction value to evaluate */
+ int frac               
 )
 {
   int L_INTER4 = Ld8k.L_INTER4;
@@ -452,12 +501,14 @@ private static float interpol_3(   /* output: interpolated value */
   return s;
 }
 
-/*----------------------------------------------------------------------------
- * inv_sqrt - compute y = 1 / sqrt(x)
- *----------------------------------------------------------------------------
+/**
+ * Compute y = 1 / sqrt(x)
+ *
+ * @param x input : value of x
+ * @return output: 1/sqrt(x)
  */
-private static float inv_sqrt(         /* output: 1/sqrt(x) */
- float x                /* input : value of x */
+private static float inv_sqrt(
+ float x
 )
 {
    return (1.0f / (float)Math.sqrt((double)x) );

@@ -12,6 +12,8 @@
 package net.java.sip.communicator.impl.media.codec.audio.g729;
 
 /**
+ * Taming functions.
+ *
  * @author Lubomir Marinov (translation of ITU-T C source code to Java)
  */
 class Taming
@@ -41,10 +43,6 @@ class Taming
  G.729 main body and G.729A
 */
 
-/**************************************************************************
- * Taming functions.                                                      *
- **************************************************************************/
-
 private final float[] exc_err = new float[4];
 
 void init_exc_err()
@@ -53,13 +51,17 @@ void init_exc_err()
   for(i=0; i<4; i++) exc_err[i] = 1.0f;
 }
 
-/**************************************************************************
- * routine test_err - computes the accumulated potential error in the     *
- * adaptive codebook contribution                                         *
- **************************************************************************/
-int test_err( /* (o) flag set to 1 if taming is necessary  */
-int t0,       /* (i) integer part of pitch delay           */
-int t0_frac   /* (i) fractional part of pitch delay        */
+/**
+ * Computes the accumulated potential error in the     
+ * adaptive codebook contribution
+ *
+ * @param t0        (i) integer part of pitch delay
+ * @param t0_frac   (i) fractional part of pitch delay
+ * @return          flag set to 1 if taming is necessary
+ */
+int test_err( 
+int t0,    
+int t0_frac  
 )
 {
     float INV_L_SUBFR = Ld8k.INV_L_SUBFR;
@@ -90,15 +92,17 @@ int t0_frac   /* (i) fractional part of pitch delay        */
     return(flag);
 }
 
-/**************************************************************************
- *routine update_exc_err - maintains the memory used to compute the error *
- * function due to an adaptive codebook mismatch between encoder and      *
- * decoder                                                                *
- **************************************************************************/
-
+/**
+ * Maintains the memory used to compute the error
+ * function due to an adaptive codebook mismatch between encoder and
+ * decoder
+ *
+ * @param gain_pit      (i) pitch gain
+ * @param t0            (i) integer part of pitch delay
+ */
 void update_exc_err(
- float gain_pit,      /* (i) pitch gain */
- int t0             /* (i) integer part of pitch delay */
+ float gain_pit, 
+ int t0
 )
 {
     float INV_L_SUBFR = Ld8k.INV_L_SUBFR;

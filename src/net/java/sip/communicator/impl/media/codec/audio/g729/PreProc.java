@@ -12,6 +12,21 @@
 package net.java.sip.communicator.impl.media.codec.audio.g729;
 
 /**
+ * Preprocessing of input speech.
+ *   - 2nd order high pass filter with cut off frequency at 140 Hz.
+ *
+ * 2nd order high pass filter with cut off frequency at 140 Hz.
+ * Designed with SPPACK efi command -40 dB att, 0.25 ri.
+ *
+ * Algorithm:
+ * <pre>
+ *  y[i] = b[0]*x[i] + b[1]*x[i-1] + b[2]*x[i-2]
+ *                   + a[1]*y[i-1] + a[2]*y[i-2];
+ *
+ *     b[3] = {0.92727435E+00, -0.18544941E+01, 0.92727435E+00};
+ *     a[3] = {0.10000000E+01, 0.19059465E+01, -0.91140240E+00};
+ * </pre>
+ *
  * @author Lubomir Marinov (translation of ITU-T C source code to Java)
  */
 class PreProc
@@ -41,41 +56,36 @@ class PreProc
  G.729 main body and G.729A
 */
 
+/**
+ * High-pass fir memory
+ */
+private float x0, x1; 
 
-/*------------------------------------------------------------------------*
- * Function pre_process()                                                 *
- *                                                                        *
- * Preprocessing of input speech.                                         *
- *   - 2nd order high pass filter with cut off frequency at 140 Hz.       *
- *-----------------------------------------------------------------------*/
+/**
+ * High-pass iir memory
+ */
+private float y1, y2;         
 
-/*------------------------------------------------------------------------*
- * 2nd order high pass filter with cut off frequency at 140 Hz.           *
- * Designed with SPPACK efi command -40 dB att, 0.25 ri.                  *
- *                                                                        *
- * Algorithm:                                                             *
- *                                                                        *
- *  y[i] = b[0]*x[i] + b[1]*x[i-1] + b[2]*x[i-2]                          *
- *                   + a[1]*y[i-1] + a[2]*y[i-2];                         *
- *                                                                        *
- *     b[3] = {0.92727435E+00, -0.18544941E+01, 0.92727435E+00};          *
- *     a[3] = {0.10000000E+01, 0.19059465E+01, -0.91140240E+00};          *
- *-----------------------------------------------------------------------*/
-
-
-private float x0, x1;         /* high-pass fir memory          */
-private float y1, y2;         /* high-pass iir memory          */
-
+/**
+ * Init Pre Process
+ */
 void init_pre_process()
 {
   x0 = x1 = 0.0f;
   y2 = y1 = 0.0f;
 }
 
+/**
+ * Pre Process
+ *
+ * @param signal            (i/o)  : signal   
+ * @param signal_offset     (input)  : signal offset
+ * @param lg                (i)    : length of signal
+ */
 void pre_process(
-   float[] signal,      /* (i/o)  : signal                     */
+   float[] signal,      
    int signal_offset,
-   int lg               /* (i)    : length of signal           */
+   int lg               
 )
 {
   float[] a140 = TabLd8k.a140;

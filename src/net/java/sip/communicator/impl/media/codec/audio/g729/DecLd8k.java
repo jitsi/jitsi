@@ -12,6 +12,19 @@
 package net.java.sip.communicator.impl.media.codec.audio.g729;
 
 /**
+ * Functions init_decod_ld8k  and decod_ld8k.
+ * <pre>
+ * Decoder constant parameters (defined in "ld8k.h")
+ *   L_FRAME     : Frame size.
+ *   L_SUBFR     : Sub-frame size.
+ *   M           : LPC order.
+ *   MP1         : LPC order+1
+ *   PIT_MIN     : Minimum pitch lag.
+ *   PIT_MAX     : Maximum pitch lag.
+ *   L_INTERPOL  : Length of filter for interpolation
+ *   PRM_SIZE    : Size of vector containing analysis parameters
+ * </pre>
+ *
  * @author Lubomir Marinov (translation of ITU-T C source code to Java)
  */
 class DecLd8k
@@ -42,55 +55,62 @@ class DecLd8k
  (not for G.729A)
 */
 
-
-/*-----------------------------------------------------------------*
- *   Functions init_decod_ld8k  and decod_ld8k                     *
- *-----------------------------------------------------------------*/
-
-
-/*---------------------------------------------------------------*
- *   Decoder constant parameters (defined in "ld8k.h")           *
- *---------------------------------------------------------------*
- *   L_FRAME     : Frame size.                                   *
- *   L_SUBFR     : Sub-frame size.                               *
- *   M           : LPC order.                                    *
- *   MP1         : LPC order+1                                   *
- *   PIT_MIN     : Minimum pitch lag.                            *
- *   PIT_MAX     : Maximum pitch lag.                            *
- *   L_INTERPOL  : Length of filter for interpolation            *
- *   PRM_SIZE    : Size of vector containing analysis parameters *
- *---------------------------------------------------------------*/
-
 /*--------------------------------------------------------*
  *         Static memory allocation.                      *
  *--------------------------------------------------------*/
 
-        /* Excitation vector */
-
+/**
+ * Excitation vector
+ */
 private final float[] old_exc = new float[L_FRAME+PIT_MAX+L_INTERPOL];
+
+/**
+ * Excitation vector
+ */
 private float[] exc;
+
+/**
+ * Excitation vector offset
+ */
 private int exc_offset;
 
-        /* Lsp (Line spectral pairs) */
-
+/**
+ * Lsp (Line spectral pairs)
+ */
 private final float[/* M */] lsp_old={
        0.9595f,  0.8413f,  0.6549f,  0.4154f,  0.1423f,
       -0.1423f, -0.4154f, -0.6549f, -0.8413f, -0.9595f};
 
-        /* Filter's memory */
-private final float[] mem_syn = new float[M];        /* Filter's memory */
+/** 
+ * Filter's memory
+ */
+private final float[] mem_syn = new float[M];      
 
-private float sharp ;            /* pitch sharpening of previous fr */
-private int old_t0;              /* integer delay of previous frame */
-private final FloatReference gain_code = new FloatReference();         /* fixed codebook gain */
-private final FloatReference gain_pitch = new FloatReference();       /* adaptive codebook gain */
+/**
+ * pitch sharpening of previous fr
+ */
+private float sharp ; 
+
+/** 
+* integer delay of previous frame
+*/
+private int old_t0;   
+
+/**
+ * fixed codebook gain
+ */
+private final FloatReference gain_code = new FloatReference();  
+
+/**
+ * adaptive codebook gain
+ */
+private final FloatReference gain_pitch = new FloatReference();       
 
 private final DecGain decGain = new DecGain();
 private final Lspdec lspdec = new Lspdec();
 
-/*--------------------------------------------------------------------------
- * init_decod_ld8k - Initialization of variables for the decoder section.
- *--------------------------------------------------------------------------
+/**
+ * Initialization of variables for the decoder section.
  */
 void init_decod_ld8k()
 {
@@ -110,16 +130,22 @@ void init_decod_ld8k()
     lspdec.lsp_decw_reset();
 }
 
-/*--------------------------------------------------------------------------
- * decod_ld8k - decoder
- *--------------------------------------------------------------------------
+/**
+ * Decoder
+ *
+ * @param parm          input : synthesis parameters (parm[0] = bfi)
+ * @param voicing       input : voicing decision from previous frame
+ * @param synth         output: synthesized speech
+ * @param synth_offset  input : synthesized speech offset
+ * @param A_t           output: two sets of A(z) coefficients length=2*MP1
+ * @return              output: integer delay of first subframe
  */
 int decod_ld8k(
- int parm[],            /* input : synthesis parameters (parm[0] = bfi)       */
- int voicing,           /* input : voicing decision from previous frame       */
- float synth[],         /* output: synthesized speech                         */
+ int parm[],        
+ int voicing,          
+ float synth[],         
  int synth_offset,
- float A_t[]           /* output: two sets of A(z) coefficients length=2*MP1 */
+ float A_t[]          
 )
 {
    int parm_offset = 0;

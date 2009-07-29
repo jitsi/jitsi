@@ -12,6 +12,10 @@
 package net.java.sip.communicator.impl.media.codec.audio.g729;
 
 /**
+ * Lpc analysis routines.
+ * NOTE: these routines are assuming that the order is defined as M
+ * and that NC is defined as M/2. M has to be even
+ *
  * @author Lubomir Marinov (translation of ITU-T C source code to Java)
  */
 class Lpc
@@ -41,23 +45,21 @@ class Lpc
  (not for G.729A)
 */
 
-/*****************************************************************************/
-/* lpc analysis routines                                                     */
-/*****************************************************************************/
 
 
-/* NOTE: these routines are assuming that the order is defined as M */
-/*       and that NC is defined as M/2. M has to be even           */
-
-/*----------------------------------------------------------------------------
- * autocorr - compute the auto-correlations of windowed speech signal
- *----------------------------------------------------------------------------
+/**
+ * Compute the auto-correlations of windowed speech signal
+ *
+ * @param x         (i) input signal x[0:L_WINDOW]
+ * @param x_offset  (i) input signal offset
+ * @param m         (i) LPC order
+ * @param r         (o) auto-correlation vector r[0:M]
  */
 static void autocorr(
-     float[] x,              /* input : input signal x[0:L_WINDOW] */
+     float[] x,             
      int x_offset,
-     int m,                 /* input : LPC order                  */
-     float[] r               /* output: auto-correlation vector r[0:M]*/
+     int m,              
+     float[] r            
 )
 {
    int L_WINDOW = Ld8k.L_WINDOW;
@@ -81,15 +83,15 @@ static void autocorr(
    if (r[0]<1.0f) r[0]=1.0f;
 }
 
-/*-------------------------------------------------------------*
- * procedure lag_window:                                       *
- *           ~~~~~~~~~                                         *
- * lag windowing of the autocorrelations                       *
- *-------------------------------------------------------------*/
-
+/**
+ * Lag windowing of the autocorrelations
+ *
+ * @param m (i) LPC order
+ * @param r (i/o) correlation
+ */
 static void lag_window(
-     int m,                 /* input : LPC order                  */
-     float   r[]            /* in/out: correlation */
+     int m,
+     float   r[] 
 )
 {
    float[] lwindow = TabLd8k.lwindow;
@@ -100,16 +102,20 @@ static void lag_window(
      r[i] *= lwindow[i-1];
 }
 
-
-/*----------------------------------------------------------------------------
- * levinson - levinson-durbin recursion to compute LPC parameters
- *----------------------------------------------------------------------------
+/**
+ * Levinson-Durbin recursion to compute LPC parameters.
+ *
+ * @param r         (i) auto correlation coefficients r[0:M]
+ * @param a         (o) lpc coefficients a[0] = 1
+ * @param a_offset  (i) lpc coefficients offset
+ * @param rc        (o) reflection coefficients rc[0:M-1]
+ * @return          prediction error (energy)
  */
-static float levinson(         /* output: prediction error (energy) */
- float[] r,              /* input : auto correlation coefficients r[0:M] */
- float[] a,              /* output: lpc coefficients a[0] = 1 */
+static float levinson(        
+ float[] r,            
+ float[] a,            
  int a_offset,
- float[] rc              /* output: reflection coefficients rc[0:M-1]    */
+ float[] rc             
 )
 {
    int M = Ld8k.M;
@@ -142,22 +148,24 @@ static float levinson(         /* output: prediction error (energy) */
    return (err);
 }
 
-/*------------------------------------------------------------------*
- *  procedure az_lsp:                                               *
- *            ~~~~~~                                                *
- *   Compute the LSPs from  the LP coefficients a[] using Chebyshev *
- * polynomials. The found LSPs are in the cosine domain with values *
- * in the range from 1 down to -1.                                  *
- * The table grid[] contains the points (in the cosine domain) at   *
- * which the polynomials are evaluated. The table corresponds to    *
- * NO_POINTS frequencies uniformly spaced between 0 and pi.         *
- *------------------------------------------------------------------*/
-
+/**                                                                                         *
+ * Compute the LSPs from  the LP coefficients a[] using Chebyshev   
+ * polynomials. The found LSPs are in the cosine domain with values 
+ * in the range from 1 down to -1.                                  
+ * The table grid[] contains the points (in the cosine domain) at   
+ * which the polynomials are evaluated. The table corresponds to    
+ * NO_POINTS frequencies uniformly spaced between 0 and pi.
+ *
+ * @param a         (i) LP filter coefficients
+ * @param a_offset  (i) LP filter coefficients offset
+ * @param lsp       (o) Line spectral pairs (in the cosine domain)
+ * @param old_lsp   (i) LSP vector from past frame
+ */
 static void az_lsp(
-  float[] a,         /* input : LP filter coefficients                     */
+  float[] a,  
   int a_offset,
-  float[] lsp,       /* output: Line spectral pairs (in the cosine domain) */
-  float[] old_lsp    /* input : LSP vector from past frame                 */
+  float[] lsp,   
+  float[] old_lsp   
 )
 {
  int GRID_POINTS = Ld8k.GRID_POINTS;
@@ -258,25 +266,24 @@ static void az_lsp(
  if ( nf < M)
     for(i=0; i<M; i++)  lsp[i] = old_lsp[i];
 }
-/*------------------------------------------------------------------*
- *            End procedure az_lsp()                                *
- *------------------------------------------------------------------*/
 
-/*--------------------------------------------------------------*
- * function  chebyshev:                                         *
- *           ~~~~~~~~~~                                         *
- *    Evaluates the Chebyshev polynomial series                 *
- *--------------------------------------------------------------*
- *  The polynomial order is                                     *
- *     n = m/2   (m is the prediction order)                    *
- *  The polynomial is given by                                  *
- *    C(x) = T_n(x) + f(1)T_n-1(x) + ... +f(n-1)T_1(x) + f(n)/2 *
- *--------------------------------------------------------------*/
-
-private static float chebyshev(/* output: the value of the polynomial C(x)   */
-  float x,         /* input : value of evaluation; x=cos(freq)       */
-  float[] f,        /* input : coefficients of sum or diff polynomial */
-  int n            /* input : order of polynomial                    */
+/**
+ * Evaluates the Chebyshev polynomial series.
+ *
+ *  The polynomial order is
+ *     n = m/2   (m is the prediction order)
+ *  The polynomial is given by
+ *    C(x) = T_n(x) + f(1)T_n-1(x) + ... +f(n-1)T_1(x) + f(n)/2
+ *
+ * @param x     (i) value of evaluation; x=cos(freq)
+ * @param f     (i) coefficients of sum or diff polynomial
+ * @param n     (i) order of polynomial
+ * @return      the value of the polynomial C(x)
+ */
+private static float chebyshev(
+  float x,       
+  float[] f,       
+  int n            
 )
 {
   float b1, b2, b0, x2;

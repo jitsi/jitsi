@@ -40,17 +40,20 @@ class Gainpred
  Used for the floating point version of both
  G.729 main body and G.729A
 */
-
-/*---------------------------------------------------------------------------*
- * Function  Gain_predict                                                    *
- * ~~~~~~~~~~~~~~~~~~~~~~                                                    *
- * MA prediction is performed on the innovation energy (in dB with mean      *
- * removed).                                                                 *
- *---------------------------------------------------------------------------*/
+    
+/**
+ * MA prediction is performed on the innovation energy (in dB with mean
+ * removed).
+ *
+ * @param past_qua_en       (i)     :Past quantized energies
+ * @param code              (i)     :Innovative vector.
+ * @param l_subfr           (i)     :Subframe length.
+ * @return                  Predicted codebook gain
+ */
 static float gain_predict(
-   float past_qua_en[], /* (i)     :Past quantized energies        */
-   float code[],        /* (i)     :Innovative vector.             */
-   int l_subfr         /* (i)     :Subframe length.               */
+   float past_qua_en[],
+   float code[],      
+   int l_subfr       
 )
 {
    float MEAN_ENER = Ld8k.MEAN_ENER;
@@ -81,14 +84,15 @@ static float gain_predict(
 }
 
 
-/*---------------------------------------------------------------------------*
- * Function  gain_update                                                     *
- * ~~~~~~~~~~~~~~~~~~~~~~                                                    *
- * update table of past quantized energies                                   *
- *---------------------------------------------------------------------------*/
+/**
+ * Update table of past quantized energies.
+ *
+ * @param past_qua_en        input/output :Past quantized energies
+ * @param g_code             input: gbk1[indice1][1]+gbk2[indice2][1]
+ */
 static void gain_update(
-   float past_qua_en[],   /* input/output :Past quantized energies     */
-   float g_code           /*  input: gbk1[indice1][1]+gbk2[indice2][1] */
+   float past_qua_en[],  
+   float g_code  
 )
 {
    int i;
@@ -99,19 +103,20 @@ static void gain_update(
    past_qua_en[0] = 20.0f*(float)Math.log10((double)g_code);
 }
 
-/*---------------------------------------------------------------------------*
- * Function  gain_update_erasure                                             *
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                                             *
- * update table of past quantized energies (frame erasure)                   *
- *---------------------------------------------------------------------------*
- *     av_pred_en = 0.0;                                                     *
- *     for (i = 0; i < 4; i++)                                               *
- *        av_pred_en += past_qua_en[i];                                      *
- *     av_pred_en = av_pred_en*0.25 - 4.0;                                   *
- *     if (av_pred_en < -14.0) av_pred_en = -14.0;                           *
- *---------------------------------------------------------------------------*/
+/**
+ * Update table of past quantized energies (frame erasure).
+ * <pre>
+ *     av_pred_en = 0.0;                                                     
+ *     for (i = 0; i < 4; i++)                                               
+ *        av_pred_en += past_qua_en[i];                                      
+ *     av_pred_en = av_pred_en*0.25 - 4.0;                                   
+ *     if (av_pred_en < -14.0) av_pred_en = -14.0; 
+ * </pre>
+ *
+ * @param past_qua_en   input/output:Past quantized energies
+ */
 static void gain_update_erasure(
-   float past_qua_en[]     /* input/output:Past quantized energies        */
+   float past_qua_en[]    
 )
 {
    int i;

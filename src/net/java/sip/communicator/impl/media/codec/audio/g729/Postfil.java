@@ -12,6 +12,29 @@
 package net.java.sip.communicator.impl.media.codec.audio.g729;
 
 /**
+ * Post - filtering : short term + long term.
+ * Floating point computation.
+ * <pre>
+ *      Short term postfilter :
+ *      Hst(z) = Hst0(z) Hst1(z)
+ *      Hst0(z) = 1/g0 A(gamma2)(z) / A(gamma1)(z)
+ *      if {hi} = i.r. filter A(gamma2)/A(gamma1) (truncated)
+ *      g0 = SUM(|hi|) if > 1
+ *      g0 = 1. else
+ *      Hst1(z) = 1/(1+ |mu|) (1 + mu z-1)
+ *      with mu = 1st parcor calculated on {hi}
+
+ *      Long term postfilter :
+ *      harmonic postfilter :   H0(z) = gl * (1 + b * z-p)
+ *      b = gamma_g * gain_ltp
+ *      gl = 1 / 1 + b
+ *      copmuation of delay on A(gamma2)(z) s(z)
+ *      sub optimal research
+ *      1. search best integer delay
+ *      2. search around integer sub multiples (3 val. / sub mult)
+ *      3. search around integer with fractionnal delays (1/8)
+ * </pre>
+ *
  * @author Lubomir Marinov (translation of ITU-T C source code to Java)
  */
 class Postfil
@@ -42,48 +65,39 @@ class Postfil
  (not for G.729A)
 */
 
-
-/************************************************************************/
-/*      Post - filtering : short term + long term                       */
-/*      Floating point computation                                      */
-/************************************************************************/
-
 /* Static arrays and variables */
-private final float[] apond2 = new float[LONG_H_ST];           /* s.t. numerator coeff.        */
-private final float[] mem_stp = new float[M];            /* s.t. postfilter memory       */
-private final float[] mem_zero = new float[M];          /* null memory to compute h_st  */
-private final float[] res2 = new float[SIZ_RES2];        /* A(gamma2) residual           */
+/** 
+ * s.t. numerator coeff.
+ */
+private final float[] apond2 = new float[LONG_H_ST];
+
+/** 
+ * s.t. postfilter memory
+ */
+private final float[] mem_stp = new float[M];           
+
+/** 
+ * null memory to compute h_st
+ */
+private final float[] mem_zero = new float[M];          
+
+/** 
+ * A(gamma2) residual
+ */
+private final float[] res2 = new float[SIZ_RES2];       
 
 /* Static pointers */
 private int res2_ptr;
 private float[] ptr_mem_stp;
 private int ptr_mem_stp_offset;
 
-/* Variables */
-private float gain_prec;             /* for gain adjustment          */
+/**
+ * for gain adjustment
+ */
+private float gain_prec;        
 
-/****   Short term postfilter :                                     *****/
-/*      Hst(z) = Hst0(z) Hst1(z)                                        */
-/*      Hst0(z) = 1/g0 A(gamma2)(z) / A(gamma1)(z)                      */
-/*      if {hi} = i.r. filter A(gamma2)/A(gamma1) (truncated)           */
-/*      g0 = SUM(|hi|) if > 1                                           */
-/*      g0 = 1. else                                                    */
-/*      Hst1(z) = 1/(1+ |mu|) (1 + mu z-1)                              */
-/*      with mu = 1st parcor calculated on {hi}                         */
-/****   Long term postfilter :                                      *****/
-/*      harmonic postfilter :   H0(z) = gl * (1 + b * z-p)              */
-/*      b = gamma_g * gain_ltp                                          */
-/*      gl = 1 / 1 + b                                                  */
-/*      copmuation of delay on A(gamma2)(z) s(z)                        */
-/*      sub optimal research                                            */
-/*      1. search best integer delay                                    */
-/*      2. search around integer sub multiples (3 val. / sub mult)      */
-/*      3. search around integer with fractionnal delays (1/8)          */
-/************************************************************************/
-
-/*----------------------------------------------------------------------------
- * init_pst -  Initialize postfilter functions
- *----------------------------------------------------------------------------
+/**
+ * Initialize postfilter functions
  */
 void init_post_filter()
 {
@@ -110,17 +124,25 @@ void init_post_filter()
     gain_prec =1.f;
 }
 
-/*----------------------------------------------------------------------------
- * post - adaptive postfilter main function
- *----------------------------------------------------------------------------
+/**
+ * Adaptive postfilter main function
+ *
+ * @param t0                input : pitch delay given by coder
+ * @param signal_ptr        input : input signal (pointer to current subframe)
+ * @param signal_ptr_offset input : input signal offset
+ * @param coeff             input : LPC coefficients for current subframe
+ * @param coeff_offset      input : LPC coefficients offset
+ * @param sig_out           output: postfiltered output
+ * @param sig_out_offset    input: postfiltered output offset
+ * @return                  voicing decision 0 = uv,  > 0 delay
  */
 int post(
- int t0,                /* input : pitch delay given by coder */
- float[] signal_ptr,     /* input : input signal (pointer to current subframe */
+ int t0,                
+ float[] signal_ptr,     
  int signal_ptr_offset,
- float[] coeff,          /* input : LPC coefficients for current subframe */
+ float[] coeff,          
  int coeff_offset,
- float[] sig_out,        /* output: postfiltered output */
+ float[] sig_out,       
  int sig_out_offset
 )
 {
@@ -158,27 +180,33 @@ int post(
     /* gain control */
     gain_prec = scale_st(signal_ptr, signal_ptr_offset, sig_out, sig_out_offset, gain_prec);
 
-    /**** Update for next frame */
+    /* Update for next frame */
     Util.copy(res2, L_SUBFR, res2, MEM_RES2);
 
     return vo;
 }
 
-/*----------------------------------------------------------------------------
- *  pst_ltp - harmonic postfilter
- *----------------------------------------------------------------------------
+/**
+ * Harmonic postfilter
+ *
+ * @param t0                    input : pitch delay given by coder
+ * @param ptr_sig_in            input : postfilter input filter (residu2)
+ * @param ptr_sig_in_offset     input : postfilter input filter offset
+ * @param ptr_sig_pst0          output: harmonic postfilter output
+ * @param ptr_sig_pst0_offset   input: harmonic postfilter offset
+ * @return                      voicing decision 0 = uv,  > 0 delay
  */
 private int pst_ltp(
- int t0,                /* input : pitch delay given by coder */
- float[] ptr_sig_in,     /* input : postfilter input filter (residu2) */
+ int t0,                
+ float[] ptr_sig_in,    
  int ptr_sig_in_offset,
- float[] ptr_sig_pst0,   /* output: harmonic postfilter output */
+ float[] ptr_sig_pst0,   
  int ptr_sig_pst0_offset
 )
 {
-    int vo;                /* output: voicing decision 0 = uv,  > 0 delay */
+    int vo;               
 
-/**** Declare variables                                 */
+/* Declare variables                                 */
     int ltpdel, phase;
     float num_gltp, den_gltp;
     float num2_gltp, den2_gltp;
@@ -246,26 +274,35 @@ private int pst_ltp(
             gain_plt = den_gltp / (den_gltp + GAMMA_G * num_gltp);
         }
 
-        /** filtering by H0(z) (harmonic filter) **/
+        /* filtering by H0(z) (harmonic filter) */
         filt_plt(ptr_sig_in, ptr_sig_in_offset, ptr_y_up, ptr_y_up_offset, ptr_sig_pst0, ptr_sig_pst0_offset, gain_plt);
     }
     return vo;
 }
 
-/*----------------------------------------------------------------------------
- *  search_del: computes best (shortest) integer LTP delay + fine search
- *----------------------------------------------------------------------------
+/**
+ * Computes best (shortest) integer LTP delay + fine search
+ *
+ * @param t0                input : pitch delay given by coder
+ * @param ptr_sig_in        input : input signal (with delay line)
+ * @param ptr_sig_in_offset input : input signal offset
+ * @param ltpdel            output: delay = *ltpdel - *phase / f_up
+ * @param phase             output: phase
+ * @param num_gltp          output: numerator of LTP gain
+ * @param den_gltp          output: denominator of LTP gain
+ * @param y_up
+ * @param off_yup           
  */
 private void search_del(
- int t0,                /* input : pitch delay given by coder */
- float[] ptr_sig_in,     /* input : input signal (with delay line) */
+ int t0,                
+ float[] ptr_sig_in,     
  int ptr_sig_in_offset,
- IntReference ltpdel,           /* output: delay = *ltpdel - *phase / f_up */
- IntReference phase,            /* output: phase */
- FloatReference num_gltp,       /* output: numerator of LTP gain */
- FloatReference den_gltp,       /* output: denominator of LTP gain */
- float[] y_up,           /*       : */
- IntReference off_yup           /*       : */
+ IntReference ltpdel,           
+ IntReference phase,            
+ FloatReference num_gltp,      
+ FloatReference den_gltp,       
+ float[] y_up,           
+ IntReference off_yup         
 )
 {
     float[] tab_hup_s = TabLd8k.tab_hup_s;
@@ -288,10 +325,8 @@ private void search_del(
     float temp0, temp1;
     int ptr_y_up;
 
-    /*****************************************/
-    /* Compute current signal energy         */
-    /*****************************************/
 
+    /* Compute current signal energy         */
     ener = 0.f;
     for(i=0; i<L_SUBFR; i++) {
         ener += ptr_sig_in[ptr_sig_in_offset+i] * ptr_sig_in[ptr_sig_in_offset+i];
@@ -304,11 +339,10 @@ private void search_del(
         return;
     }
 
-    /*************************************/
+    
     /* Selects best of 3 integer delays  */
     /* Maximum of 3 numerators around t0 */
     /* coder LTP delay                   */
-    /*************************************/
 
     lambda = t0-1;
 
@@ -351,12 +385,9 @@ private void search_del(
         phase.value    = 0;
         return;
     }
-    /***********************************/
     /* Select best phase around lambda */
-    /***********************************/
 
     /* Compute y_up & denominators */
-    /*******************************/
     ptr_y_up = 0;
     den_max = den_int;
     ptr_den0 = 0;
@@ -486,9 +517,7 @@ private void search_del(
         ptr_y_up += L_SUBFR;
     }
 
-    /***************************************************/
-    /*** test if normalised crit0[iopt] > THRESCRIT  ***/
-    /***************************************************/
+    /* test if normalised crit0[iopt] > THRESCRIT  */
 
     if((num_max == 0.f) || (den_max <= 0.1f)) {
         num_gltp.value = 0.f;
@@ -516,18 +545,25 @@ private void search_del(
     }
 }
 
-/*----------------------------------------------------------------------------
- *  filt_plt -  ltp  postfilter
- *----------------------------------------------------------------------------
+/**
+ * Ltp  postfilter
+ *
+ * @param s_in          input : input signal with past
+ * @param s_in_offset   input : input signal offset
+ * @param s_ltp         input : filtered signal with gain 1
+ * @param s_ltp_offset  input : filtered signal offset
+ * @param s_out         output: output signal
+ * @param s_out_offset  input: output signal offset
+ * @param gain_plt      input : filter gain
  */
 private void filt_plt(
- float[] s_in,       /* input : input signal with past*/
+ float[] s_in,      
  int s_in_offset,
- float[] s_ltp,      /* input : filtered signal with gain 1 */
+ float[] s_ltp,    
  int s_ltp_offset,
- float[] s_out,      /* output: output signal */
+ float[] s_out,    
  int s_out_offset,
- float gain_plt     /* input : filter gain  */
+ float gain_plt  
 )
 {
 
@@ -546,21 +582,29 @@ private void filt_plt(
     }
 }
 
-/*----------------------------------------------------------------------------
- *  compute_ltp_l : compute delayed signal,
-                    num & den of gain for fractional delay
- *                  with long interpolation filter
- *----------------------------------------------------------------------------
+/**
+ * Compute delayed signal,
+ * num & den of gain for fractional delay
+ * with long interpolation filter
+ *
+ * @param s_in           input signal with past
+ * @param s_in_offset    input signal with past
+ * @param ltpdel         delay factor
+ * @param phase          phase factor
+ * @param y_up           delayed signal
+ * @param y_up_offset    delayed signal offset
+ * @param num            numerator of LTP gain
+ * @param den            denominator of LTP gain
  */
 private void compute_ltp_l(
- float[] s_in,       /* input signal with past*/
+ float[] s_in,      
  int s_in_offset,
- int ltpdel,      /* delay factor */
- int phase,       /* phase factor */
- float[] y_up,       /* delayed signal */
+ int ltpdel,      
+ int phase,      
+ float[] y_up,       
  int y_up_offset,
- FloatReference num,        /* numerator of LTP gain */
- FloatReference den        /* denominator of LTP gain */
+ FloatReference num,        
+ FloatReference den        
 )
 {
     float[] tab_hup_l = TabLd8k.tab_hup_l;
@@ -603,17 +647,23 @@ private void compute_ltp_l(
     }
     den.value = _den;
 }
-/*----------------------------------------------------------------------------
- *  select_ltp : selects best of (gain1, gain2)
- *  with gain1 = num1 / den1
- *  and  gain2 = num2 / den2
- *----------------------------------------------------------------------------
+
+/**
+ * Selects best of (gain1, gain2)
+ * with gain1 = num1 / den1
+ * and  gain2 = num2 / den2
+ *
+ * @param num1  input : numerator of gain1
+ * @param den1  input : denominator of gain1
+ * @param num2  input : numerator of gain2
+ * @param den2  input : denominator of gain2
+ * @return      1 = 1st gain, 2 = 2nd gain
  */
-private int select_ltp(  /* output : 1 = 1st gain, 2 = 2nd gain */
- float num1,       /* input : numerator of gain1 */
- float den1,       /* input : denominator of gain1 */
- float num2,       /* input : numerator of gain2 */
- float den2        /* input : denominator of gain2 */
+private int select_ltp( 
+ float num1,       
+ float den1,       
+ float num2,       
+ float den2        
 )
 {
     if(den2 == 0.f) {
@@ -627,18 +677,21 @@ private int select_ltp(  /* output : 1 = 1st gain, 2 = 2nd gain */
     }
 }
 
-
-
-/*----------------------------------------------------------------------------
- *   calc_st_filt -  computes impulse response of A(gamma2) / A(gamma1)
- *   controls gain : computation of energy impulse response as
+/**
+ * Computes impulse response of A(gamma2) / A(gamma1).
+ * controls gain : computation of energy impulse response as
  *                    SUMn  (abs (h[n])) and computes parcor0
- *----------------------------------------------------------------------------
+ *
+ * @param apond2                input : coefficients of numerator
+ * @param apond1                input : coefficients of denominator
+ * @param sig_ltp_ptr           in/out: input of 1/A(gamma1) : scaled by 1/g0
+ * @param sig_ltp_ptr_offset    input : input of 1/A(gamma1) ... offset
+ * @return  1st parcor calcul. on composed filter 
  */
 private float calc_st_filt(
- float[] apond2,     /* input : coefficients of numerator */
- float[] apond1,     /* input : coefficients of denominator */
- float[] sig_ltp_ptr,    /* in/out: input of 1/A(gamma1) : scaled by 1/g0 */
+ float[] apond2,    
+ float[] apond1,     
+ float[] sig_ltp_ptr,  
  int sig_ltp_ptr_offset
 )
 {
@@ -669,12 +722,14 @@ private float calc_st_filt(
     return parcor0;
 }
 
-/*----------------------------------------------------------------------------
- * calc_rc0_h - computes 1st parcor from composed filter impulse response
- *----------------------------------------------------------------------------
+/**
+ * Computes 1st parcor from composed filter impulse response.
+ *
+ * @param h     input : impulse response of composed filter
+ * @return      1st parcor
  */
 private float calc_rc0_h(
- float[] h      /* input : impulse response of composed filter */
+ float[] h     
 )
 {
     float acf0, acf1;
@@ -704,23 +759,26 @@ private float calc_rc0_h(
     }
 
     /* Compute 1st parcor */
-    /**********************/
     if(acf0 < Math.abs(acf1) ) {
         return 0.0f; /* output: 1st parcor */
     }
     return - acf1 / acf0; /* output: 1st parcor */
 }
 
-/*----------------------------------------------------------------------------
- * filt_mu - tilt filtering with : (1 + mu z-1) * (1/1-|mu|)
- *   computes y[n] = (1/1-|mu|) (x[n]+mu*x[n-1])
- *----------------------------------------------------------------------------
+/**
+ * Tilt filtering with : (1 + mu z-1) * (1/1-|mu|).
+ * computes y[n] = (1/1-|mu|) (x[n]+mu*x[n-1])
+ *
+ * @param sig_in            input : input signal (beginning at sample -1)
+ * @param sig_out           output: output signal
+ * @param sig_out_offset    input: output signal offset
+ * @param parcor0           input : parcor0 (mu = parcor0 * gamma3)
  */
 private void filt_mu(
- float[] sig_in,     /* input : input signal (beginning at sample -1) */
- float[] sig_out,    /* output: output signal */
+ float[] sig_in,    
+ float[] sig_out,    
  int sig_out_offset,
- float parcor0      /* input : parcor0 (mu = parcor0 * gamma3) */
+ float parcor0      
 )
 {
     int n;
@@ -744,17 +802,23 @@ private void filt_mu(
     }
 }
 
-/*----------------------------------------------------------------------------
- *   scale_st  - control of the subframe gain
- *   gain[n] = AGC_FAC * gain[n-1] + (1 - AGC_FAC) g_in/g_out
- *----------------------------------------------------------------------------
+/**
+ * Control of the subframe gain.
+ * gain[n] = AGC_FAC * gain[n-1] + (1 - AGC_FAC) g_in/g_out
+ *
+ * @param sig_in            input : postfilter input signal
+ * @param sig_in_offset     input : postfilter input signal offset
+ * @param sig_out           in/out: postfilter output signal
+ * @param sig_out_offset    input: postfilter output signal offset
+ * @param gain_prec         input : last value of gain for subframe
+ * @return gain_prec        last value of gain for subframe
  */
 private float scale_st(
- float[] sig_in,     /* input : postfilter input signal */
+ float[] sig_in,     
  int sig_in_offset,
- float[] sig_out,    /* in/out: postfilter output signal */
+ float[] sig_out,    
  int sig_out_offset,
- float gain_prec   /* in/out: last value of gain for subframe */
+ float gain_prec   
 )
 {
     float gain_in, gain_out;

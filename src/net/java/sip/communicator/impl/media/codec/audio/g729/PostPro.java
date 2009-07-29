@@ -12,6 +12,19 @@
 package net.java.sip.communicator.impl.media.codec.audio.g729;
 
 /**
+ * Post-processing of output speech.
+ * 2nd order high pass filter with cut off frequency at 100 Hz.
+ * Designed with SPPACK efi command -40 dB att, 0.25 ri.
+ *
+ * Algorithm:
+ * <pre>
+ *  y[i] = b[0]*x[i] + b[1]*x[i-1] + b[2]*x[i-2]
+ *                   + a[1]*y[i-1] + a[2]*y[i-2];
+ *
+ *     b[3] = {0.93980581E+00, -0.18795834E+01,  0.93980581E+00};
+ *     a[3] = {0.10000000E+01, +0.19330735E+01, -0.93589199E+00};
+ * </pre>
+ *
  * @author Lubomir Marinov (translation of ITU-T C source code to Java)
  */
 class PostPro
@@ -41,38 +54,34 @@ class PostPro
  G.729 main body and G.729A
 */
 
-/*------------------------------------------------------------------------*
- * Function post_process()                                                 *
- *                                                                        *
- * Post-processing of output speech.                                      *
- *   - 2nd order high pass filter with cut off frequency at 100 Hz.       *
- *-----------------------------------------------------------------------*/
+/**
+ * High-pass fir memory
+ */
+private float x0, x1;
 
-/*------------------------------------------------------------------------*
- * 2nd order high pass filter with cut off frequency at 100 Hz.           *
- * Designed with SPPACK efi command -40 dB att, 0.25 ri.                  *
- *                                                                        *
- * Algorithm:                                                             *
- *                                                                        *
- *  y[i] = b[0]*x[i] + b[1]*x[i-1] + b[2]*x[i-2]                          *
- *                   + a[1]*y[i-1] + a[2]*y[i-2];                         *
- *                                                                        *
- *     b[3] = {0.93980581E+00, -0.18795834E+01,  0.93980581E+00};         *
- *     a[3] = {0.10000000E+01, +0.19330735E+01, -0.93589199E+00};         *
- *-----------------------------------------------------------------------*/
+/**
+ * High-pass iir memory
+ */
+private float y1, y2;         
 
-private float x0, x1;         /* high-pass fir memory          */
-private float y1, y2;         /* high-pass iir memory          */
-
+/**
+ * Init Post Process.
+ */
 void init_post_process()
 {
   x0 = x1 = 0.0f;
   y2 = y1 = 0.0f;
 }
 
+/**
+ * Post Process
+ *
+ * @param signal        (i/o)  : signal
+ * @param lg            (i)    : lenght of signal
+ */
 void post_process(
-   float signal[],      /* (i/o)  : signal                     */
-   int lg               /* (i)    : lenght of signal           */
+   float signal[],     
+   int lg             
 )
 {
   float[] a100 = TabLd8k.a100;

@@ -12,6 +12,21 @@
 package net.java.sip.communicator.impl.media.codec.audio.g729;
 
 /**
+ * Functions coder_ld8k and init_coder_ld8k
+ *    Coder constant parameters (defined in "ld8k.h")
+ * <pre>
+ *   L_WINDOW    : LPC analysis window size.
+ *   L_NEXT      : Samples of next frame needed for autocor.
+ *   L_FRAME     : Frame size.
+ *   L_SUBFR     : Sub-frame size.
+ *   M           : LPC order.
+ *   MP1         : LPC order+1
+ *   L_TOTAL     : Total size of speech buffer.
+ *   PIT_MIN     : Minimum pitch lag.
+ *   PIT_MAX     : Maximum pitch lag.
+ *   L_INTERPOL  : Length of filter for interpolation
+ * </pre>
+ *
  * @author Lubomir Marinov (translation of ITU-T C source code to Java)
  */
 class CodLd8k
@@ -42,26 +57,7 @@ class CodLd8k
  (not for G.729A)
 */
 
-/*-----------------------------------------------------------------*
- *   Functions coder_ld8k and init_coder_ld8k                      *
- *             ~~~~~~~~~~     ~~~~~~~~~~~~~~~                      *
- *-----------------------------------------------------------------*/
 
-
-/*-----------------------------------------------------------*
- *    Coder constant parameters (defined in "ld8k.h")        *
- *-----------------------------------------------------------*
- *   L_WINDOW    : LPC analysis window size.                 *
- *   L_NEXT      : Samples of next frame needed for autocor. *
- *   L_FRAME     : Frame size.                               *
- *   L_SUBFR     : Sub-frame size.                           *
- *   M           : LPC order.                                *
- *   MP1         : LPC order+1                               *
- *   L_TOTAL     : Total size of speech buffer.              *
- *   PIT_MIN     : Minimum pitch lag.                        *
- *   PIT_MAX     : Maximum pitch lag.                        *
- *   L_INTERPOL  : Length of filter for interpolation        *
- *-----------------------------------------------------------*/
 
 
  /*--------------------------------------------------------*
@@ -69,7 +65,6 @@ class CodLd8k
   *--------------------------------------------------------*/
 
         /* Speech vector */
-
 private final float[] old_speech = new float[L_TOTAL];
 float[] new_speech;
 int new_speech_offset;
@@ -120,27 +115,24 @@ private final QuaGain quaGain = new QuaGain();
 private final QuaLsp quaLsp = new QuaLsp();
 private final Taming taming = new Taming();
 
-/*----------------------------------------------------------------------------
- * init_coder_ld8k - initialization of variables for the encoder
- *----------------------------------------------------------------------------
+/**
+ * Initialization of variables for the encoder.
+ * Initialize pointers to speech vector.
+ *<pre>
+ *   |--------------------|-------------|-------------|------------|
+ *     previous speech           sf1           sf2         L_NEXT
+ *
+ *   <----------------  Total speech vector (L_TOTAL)   ----------->
+ *   |   <------------  LPC analysis window (L_WINDOW)  ----------->
+ *   |   |               <-- present frame (L_FRAME) -->
+ * old_speech            |              <-- new speech (L_FRAME) -->
+ *     p_wind            |              |
+ *                     speech           |
+ *                             new_speech
+ * </pre>
  */
 void init_coder_ld8k()
 {
-  /*-----------------------------------------------------------------------*
-   *      Initialize pointers to speech vector.                            *
-   *                                                                       *
-   *                                                                       *
-   *   |--------------------|-------------|-------------|------------|     *
-   *     previous speech           sf1           sf2         L_NEXT        *
-   *                                                                       *
-   *   <----------------  Total speech vector (L_TOTAL)   ----------->     *
-   *   |   <------------  LPC analysis window (L_WINDOW)  ----------->     *
-   *   |   |               <-- present frame (L_FRAME) -->                 *
-   * old_speech            |              <-- new speech (L_FRAME) -->     *
-   *     p_wind            |              |                                *
-   *                     speech           |                                *
-   *                             new_speech                                *
-   *-----------------------------------------------------------------------*/
 
   new_speech = old_speech;
   new_speech_offset = L_TOTAL - L_FRAME;         /* New speech     */
@@ -161,7 +153,6 @@ void init_coder_ld8k()
   error_offset = M;
 
   /* Static vectors to zero */
-
   Util.set_zero(old_speech, L_TOTAL);
   Util.set_zero(old_exc, PIT_MAX+L_INTERPOL);
   Util.set_zero(old_wsp, PIT_MAX);
@@ -179,12 +170,13 @@ void init_coder_ld8k()
   taming.init_exc_err();
 }
 
-/*----------------------------------------------------------------------------
- * coder_ld8k - encoder routine ( speech data should be in new_speech )
- *----------------------------------------------------------------------------
+/**
+ * Encoder routine ( speech data should be in new_speech ).
+ *
+ * @param ana   output: analysis parameters
  */
 void coder_ld8k(
- int ana[]             /* output: analysis parameters */
+ int ana[]  
 )
 {
   /* LPC coefficients */

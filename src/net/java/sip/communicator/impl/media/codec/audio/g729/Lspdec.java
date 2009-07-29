@@ -45,20 +45,31 @@ private static final int M = Ld8k.M;
 private static final int MA_NP = Ld8k.MA_NP;
 
 /* static memory */
-private final float[][] freq_prev = new float[MA_NP][M];    /* previous LSP vector       */
-private static final float[/* M */] FREQ_PREV_RESET = {  /* previous LSP vector(init) */
+/**
+ * Previous LSP vector
+ */
+private final float[][] freq_prev = new float[MA_NP][M];
+/**
+ * Previous LSP vector(init)
+ */
+private static final float[/* M */] FREQ_PREV_RESET = { 
  0.285599f,  0.571199f,  0.856798f,  1.142397f,  1.427997f,
  1.713596f,  1.999195f,  2.284795f,  2.570394f,  2.855993f
 };     /* PI*(float)(j+1)/(float)(M+1) */
 
 /* static memory for frame erase operation */
-private int prev_ma;                  /* previous MA prediction coef.*/
-private final float[] prev_lsp = new float[M];            /* previous LSP vector         */
+/**
+ * Previous MA prediction coef
+ */
+private int prev_ma;
+/**
+ * Previous LSP vector
+ */
+private final float[] prev_lsp = new float[M]; 
 
 
-/*----------------------------------------------------------------------------
- * Lsp_decw_reset -   set the previous LSP vectors
- *----------------------------------------------------------------------------
+/**
+ * Set the previous LSP vectors.
  */
 void lsp_decw_reset()
 {
@@ -72,16 +83,19 @@ void lsp_decw_reset()
    Util.copy (FREQ_PREV_RESET, prev_lsp, M );
 }
 
-
-/*----------------------------------------------------------------------------
- * lsp_iqua_cs -  LSP main quantization routine
- *----------------------------------------------------------------------------
+/**
+ * LSP main quantization routine
+ *
+ * @param prm           input : codes of the selected LSP
+ * @param prm_offset    input : codes offset
+ * @param lsp_q         output: Quantized LSP parameters
+ * @param erase         input : frame erase information
  */
 private void lsp_iqua_cs(
- int    prm[],          /* input : codes of the selected LSP */
+ int    prm[],        
  int prm_offset,
- float  lsp_q[],        /* output: Quantized LSP parameters  */
- int    erase           /* input : frame erase information   */
+ float  lsp_q[],       
+ int    erase           
 )
 {
    int NC0 = Ld8k.NC0;
@@ -124,15 +138,20 @@ private void lsp_iqua_cs(
        Lspgetq.lsp_prev_update(buf, freq_prev);
      }
 }
-/*----------------------------------------------------------------------------
- * d_lsp - decode lsp parameters
- *----------------------------------------------------------------------------
+
+/**
+ * Decode lsp parameters
+ *
+ * @param index          input : indexes
+ * @param index_offset   input : indexes offset
+ * @param lsp_q          output: decoded lsp
+ * @param bfi            input : frame erase information
  */
 void d_lsp(
-    int     index[],    /* input : indexes                 */
+    int     index[],  
     int index_offset,
-    float   lsp_q[],    /* output: decoded lsp             */
-    int     bfi         /* input : frame erase information */
+    float   lsp_q[],  
+    int     bfi         
 )
 {
    int i;

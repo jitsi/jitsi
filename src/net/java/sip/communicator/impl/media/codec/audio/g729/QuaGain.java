@@ -41,23 +41,29 @@ class QuaGain
  G.729 main body and G.729A
 */
 
-/*****************************************************************************/
+
 /* gain quantizer routines                                                   */
-/*****************************************************************************/
 
 private final float[/* 4 */] past_qua_en={-14.0f,-14.0f,-14.0f,-14.0f};
 
-/*----------------------------------------------------------------------------
- * qua_gain - Quantization of pitch and codebook gains
- *----------------------------------------------------------------------------
+/**
+ * Quantization of pitch and codebook gains
+ *
+ * @param code          input : fixed codebook vector
+ * @param g_coeff       input : correlation factors
+ * @param l_subfr       input : fcb vector length
+ * @param gain_pit      output: quantized acb gain
+ * @param gain_code     output: quantized fcb gain
+ * @param tameflag      input : flag set to 1 if taming is needed
+ * @return              quantizer index
  */
-int qua_gain(           /* output: quantizer index                   */
-  float code[],         /* input : fixed codebook vector             */
-  float[] g_coeff,       /* input : correlation factors               */
-  int l_subfr,          /* input : fcb vector length                 */
-  FloatReference gain_pit,      /* output: quantized acb gain                */
-  FloatReference gain_code,     /* output: quantized fcb gain                */
-  int tameflag          /* input : flag set to 1 if taming is needed */
+int qua_gain(           
+  float code[],        
+  float[] g_coeff,      
+  int l_subfr,          
+  FloatReference gain_pit,      
+  FloatReference gain_code,    
+  int tameflag          
 )
 {
    float FLT_MAX_G729 = Ld8k.FLT_MAX_G729;
@@ -165,15 +171,20 @@ int qua_gain(           /* output: quantizer index                   */
    return (map1[index1]*NCODE2+map2[index2]);
 }
 
-/*----------------------------------------------------------------------------
- * gbk_presel - presearch for gain codebook
+/**
+ * Presearch for gain codebook
+ *
+ * @param best_gain     input : [0] unquantized pitch gain
+ *                              [1] unquantized code gain
+ * @param cand1         output: index of best 1st stage vector
+ * @param cand2         output: index of best 2nd stage vector
+ * @param gcode0        input : presearch for gain codebook
  */
 private void   gbk_presel(
- float best_gain[],     /* input : [0] unquantized pitch gain
-                                   [1] unquantized code gain      */
- IntReference cand1,            /* output: index of best 1st stage vector */
- IntReference cand2,            /* output: index of best 2nd stage vector */
- float gcode0           /* input : presearch for gain codebook    */
+ float best_gain[],     
+ IntReference cand1,          
+ IntReference cand2,          
+ float gcode0           
 )
 {
    float INV_COEF = Ld8k.INV_COEF;

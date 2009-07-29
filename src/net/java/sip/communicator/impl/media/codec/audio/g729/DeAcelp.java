@@ -41,16 +41,18 @@ class DeAcelp
  G.729 main body and G.729A
 */
 
-/*-----------------------------------------------------------*
- *  Function  decod_ACELP()                                  *
- *  ~~~~~~~~~~~~~~~~~~~~~~~                                  *
- *   Algebraic codebook decoder.                             *
- *----------------------------------------------------------*/
 
+/**
+ * Algebraic codebook decoder.
+ *
+ * @param sign      input : signs of 4 pulses
+ * @param index     input : positions of 4 pulses
+ * @param cod       output: innovative codevector
+ */
 static void decod_ACELP(
- int sign,              /* input : signs of 4 pulses     */
- int index,             /* input : positions of 4 pulses */
- float cod[]            /* output: innovative codevector */
+ int sign,             
+ int index,            
+ float cod[]            
 )
 {
    int L_SUBFR = Ld8k.L_SUBFR;

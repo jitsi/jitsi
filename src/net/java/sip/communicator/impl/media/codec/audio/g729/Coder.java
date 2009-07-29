@@ -14,6 +14,9 @@ package net.java.sip.communicator.impl.media.codec.audio.g729;
 import java.io.*;
 
 /**
+ * Main program of the ITU-T G.729   8 kbit/s encoder.
+ * Usage : coder speech_file  bitstream_file
+ *
  * @author Lubomir Marinov (translation of ITU-T C source code to Java)
  */
 class Coder
@@ -44,28 +47,43 @@ class Coder
  (not for G.729A)
 */
 
-/*-------------------------------------------------------------------*
- * Main program of the ITU-T G.729   8 kbit/s encoder.               *
- *                                                                   *
- *    Usage : coder speech_file  bitstream_file                      *
- *-------------------------------------------------------------------*/
-
+    /**
+     * Init the PreProc
+     */
     private final PreProc preProc = new PreProc();
+
+    /**
+     * Init the Ld8k Coder
+     */
     private final CodLd8k codLd8k = new CodLd8k();
-
-    private final int[] prm = new int[PRM_SIZE];           /* Transmitted parameters        */
-
+   
+    /**
+     *  Transmitted parameters
+     */
+    private final int[] prm = new int[PRM_SIZE];
+    
+    /**
+     * Initialization of the coder.
+     */
     Coder()
     {
-
-        /*-------------------------------------------------*
-         * Initialization of the coder.                    *
-         *-------------------------------------------------*/
-
          preProc.init_pre_process();
          codLd8k.init_coder_ld8k();           /* Initialize the coder             */
     }
-
+/**
+ * Usage : coder  speech_file  bitstream_file
+ *
+ * Format for speech_file:
+ *  Speech is read form a binary file of 16 bits data.
+ *
+ * Format for bitstream_file:
+ *   One word (2-bytes) to indicate erasure.
+ *   One word (2 bytes) to indicate bit rate
+ *   80 words (2-bytes) containing 80 bits.
+ *
+ * @param args speech_file  bitstream_file
+ * @throws java.io.IOException
+ */
 public static void main(String[] args)
    throws IOException
 {
@@ -159,6 +177,12 @@ public static void main(String[] args)
    f_speech.close();
 } /* end of main() */
 
+    /**
+     * Process <code>L_FRAME</code> short of speech.
+     *
+     * @param sp16      input : speach short array
+     * @param serial    output : serial array encoded in bits_ld8k
+     */
     void process(short[] sp16, short[] serial)
     {
         float[] new_speech = codLd8k.new_speech;           /* Pointer to new speech data   */

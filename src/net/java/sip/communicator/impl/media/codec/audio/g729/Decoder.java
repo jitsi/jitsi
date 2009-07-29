@@ -14,6 +14,9 @@ package net.java.sip.communicator.impl.media.codec.audio.g729;
 import java.io.*;
 
 /**
+ * Main program of the G.729  8.0 kbit/s decoder.
+ * Usage : decoder  bitstream_file  synth_file.
+ *
  * @author Lubomir Marinov (translation of ITU-T C source code to Java)
  */
 class Decoder
@@ -44,30 +47,61 @@ class Decoder
  (not for G.729A)
 */
 
-/*-----------------------------------------------------------------*
- * Main program of the G.729  8.0 kbit/s decoder.                  *
- *                                                                 *
- *    Usage : decoder  bitstream_file  synth_file                  *
- *                                                                 *
- *-----------------------------------------------------------------*/
-
+    /**
+     * DecLd8k reference
+     */
     private final DecLd8k decLd8k = new DecLd8k();
+
+    /**
+     * Postfil reference
+     */
     private final Postfil postfil = new Postfil();
+
+    /**
+     * PostPro reference
+     */
     private final PostPro postPro = new PostPro();
+    /**
+     * Synthesis
+     */
+    private final float[] synth_buf = new float[L_FRAME+M];
 
-    private final float[] synth_buf = new float[L_FRAME+M];            /* Synthesis                  */
+    /**
+     * Synthesis
+     */
     private final float[] synth;
-    private int synth_offset;
-    private final int[] parm = new int[PRM_SIZE+1];                /* Synthesis parameters + BFI */
-    private final float[] Az_dec = new float[2*MP1];
-    private final float[]  pst_out = new float[L_FRAME];                /* postfilter output          */
-    private int voicing;                    /* voicing for previous subframe */
 
+
+    /**
+     * Synthesis
+     */
+    private int synth_offset;
+
+    /**
+     * Synthesis parameters + BFI
+     */
+    private final int[] parm = new int[PRM_SIZE+1];
+
+    /**
+     * Synthesis parameters + BFI
+     */
+    private final float[] Az_dec = new float[2*MP1];
+
+    /**
+     *  postfilter output
+     */
+    private final float[]  pst_out = new float[L_FRAME];
+    
+    /**
+     * voicing for previous subframe
+     */
+    private int voicing;
+    
+    /**
+     * Initialization of decoder
+     */
     Decoder()
     {
-        /*-----------------------------------------------------------------*
-         *           Initialization of decoder                             *
-         *-----------------------------------------------------------------*/
 
         synth = synth_buf;
         synth_offset = M;
@@ -79,6 +113,12 @@ class Decoder
         voicing = 60;
     }
 
+    /**
+     * Converts floats array into shorts array.
+     *
+     * @param floats
+     * @param shorts
+     */
     private static void floats2shorts(float[] floats, short[] shorts)
     {
         for (int i = 0; i < floats.length; i++)
@@ -97,10 +137,21 @@ class Decoder
         }
     }
 
-/*-----------------------------------------------------------------*
- *            Main decoder routine                                 *
- *-----------------------------------------------------------------*/
-
+/**
+ * Main decoder routine
+ * Usage :Decoder bitstream_file  outputspeech_file
+ *
+ * Format for bitstream_file:
+ * One (2-byte) synchronization word
+ *   One (2-byte) size word,
+ *   80 words (2-byte) containing 80 bits.
+ *
+ * Format for outputspeech_file:
+ *   Synthesis is written to a binary file of 16 bits data.
+ *
+ * @param args bitstream_file  outputspeech_file
+ * @throws java.io.IOException
+ */
 public static void main(String[] args)
    throws IOException
 {
@@ -188,6 +239,12 @@ public static void main(String[] args)
    f_serial.close();
 }
 
+    /**
+     * Process <code>SERIAL_SIZE</code> short of speech.
+     *
+     * @param serial    input : serial array encoded in bits_ld8k
+     * @param sp16      output : speech short array
+     */
     void process(short[] serial, short[] sp16)
     {
         Bits.bits2prm_ld8k(serial, 2, parm, 1);

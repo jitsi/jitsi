@@ -12,6 +12,8 @@
 package net.java.sip.communicator.impl.media.codec.audio.g729;
 
 /**
+ * Fixed codebook encoding routines.
+ *
  * @author Lubomir Marinov (translation of ITU-T C source code to Java)
  */
 class AcelpCo
@@ -41,19 +43,28 @@ class AcelpCo
  (not for G.729A)
 */
 
-/*****************************************************************************/
-/* fixed codebook encoding routines                                          */
-/*****************************************************************************/
 
-int ACELP_codebook(     /* (o)     :index of pulses positions    */
-  float x[],            /* (i)     :Target vector                */
-  float h[],            /* (i)     :Impulse response of filters  */
-  int   t0,             /* (i)     :Pitch lag                    */
-  float pitch_sharp,    /* (i)     :Last quantized pitch gain    */
-  int i_subfr,          /* (i)     :Indicator of 1st subframe,   */
-  float code[],         /* (o)     :Innovative codebook          */
-  float y[],            /* (o)     :Filtered innovative codebook */
-  IntReference sign             /* (o)     :Signs of 4 pulses            */
+/**
+ *
+ * @param x             (i)     :Target vector
+ * @param h             (i)     :Impulse response of filters
+ * @param t0            (i)     :Pitch lag   
+ * @param pitch_sharp   (i)     :Last quantized pitch gain
+ * @param i_subfr       (i)     :Indicator of 1st subframe,
+ * @param code          (o)     :Innovative codebook
+ * @param y             (o)     :Filtered innovative codebook
+ * @param sign          (o)     :Signs of 4 pulses
+ * @return              index of pulses positions
+ */
+int ACELP_codebook(    
+  float x[],            
+  float h[],          
+  int   t0,          
+  float pitch_sharp,    
+  int i_subfr,         
+  float code[],       
+  float y[],            
+  IntReference sign             
 )
 {
   int DIM_RR = Ld8k.DIM_RR;
@@ -97,15 +108,15 @@ int ACELP_codebook(     /* (o)     :index of pulses positions    */
     return index;
 }
 
-/*--------------------------------------------------------------------------*
- *  Function  cor_h()                                                       *
- *  ~~~~~~~~~~~~~~~~~                                                       *
- * Compute  correlations of h[]  needed for the codebook search.            *
- *--------------------------------------------------------------------------*/
-
+/**                                          
+ * Compute  correlations of h[]  needed for the codebook search.
+ *
+ * @param h     (i) :Impulse response of filters
+ * @param rr    (o) :Correlations of H[] 
+ */
 private void cor_h(
-  float[] h,      /* (i) :Impulse response of filters */
-  float[] rr      /* (o) :Correlations of H[]         */
+  float[] h,     
+  float[] rr   
 )
 {
   int MSIZE = Ld8k.MSIZE;
@@ -383,18 +394,26 @@ private void cor_h(
 
 private int extra;
 
-/*----------------------------------------------------------------------------
- * d4i40_17 - algebraic codebook search 17 bits; 4 pulses 40 sampleframe
- *----------------------------------------------------------------------------
+/**
+ * Algebraic codebook search 17 bits; 4 pulses 40 sampleframe
+ *
+ * @param dn        (i) : backward filtered target vector
+ * @param rr        (i) : autocorrelations of impulse response h[]
+ * @param h         (i) : impulse response of filters
+ * @param cod       (o) : selected algebraic codeword
+ * @param y         (o) : output: selected algebraic codeword 
+ * @param signs     (o) : signs of 4 pulses
+ * @param i_subfr   (i) subframe flag
+ * @return          pulse positions
  */
-private int d4i40_17(    /* output: pulse positions                          */
-  float dn[],           /* input : backward filtered target vector          */
-  float rr[],           /* input : autocorrelations of impulse response h[] */
-  float h[],            /* input : impulse response of filters              */
-  float cod[],          /* output: selected algebraic codeword              */
-  float y[],            /* output: filtered algebraic codeword              */
-  IntReference   signs,         /* output: signs of 4 pulses                        */
-  int   i_subfr         /* input : subframe flag                            */
+private int d4i40_17(    
+  float dn[],         
+  float rr[],          
+  float h[],         
+  float cod[],         
+  float y[],           
+  IntReference   signs,        
+  int   i_subfr         
 )
 {
     int L_SUBFR = Ld8k.L_SUBFR;

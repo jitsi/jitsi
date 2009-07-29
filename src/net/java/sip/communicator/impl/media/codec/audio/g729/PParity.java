@@ -41,12 +41,14 @@ class PParity
  G.729 main body and G.729A
 */
 
-/*-----------------------------------------------------*
- * parity_pitch - compute parity bit for first 6 MSBs  *
- *-----------------------------------------------------*/
-
-static int parity_pitch(     /* output: parity bit (XOR of 6 MSB bits)     */
-  int pitch_index     /* input : index for which parity is computed */
+/**
+ * Compute parity bit for first 6 MSBs
+ *
+ * @param pitch_index   input : index for which parity is computed
+ * @return              parity bit (XOR of 6 MSB bits)
+ */
+static int parity_pitch(   
+  int pitch_index     
 )
 {
     int temp, sum, i, bit;
@@ -63,13 +65,16 @@ static int parity_pitch(     /* output: parity bit (XOR of 6 MSB bits)     */
     return (sum);
 }
 
-/*--------------------------------------------------------------------*
- * check_parity_pitch - check parity of index with transmitted parity *
- *--------------------------------------------------------------------*/
-
-static int check_parity_pitch(  /* output: 0 = no error, 1= error */
-  int pitch_index,       /* input : index of parameter     */
-  int parity             /* input : parity bit             */
+/**
+ * Check parity of index with transmitted parity
+ *
+ * @param pitch_index   input : index of parameter
+ * @param parity        input : parity bit
+ * @return              0 = no error, 1= error
+ */
+static int check_parity_pitch(  
+  int pitch_index,      
+  int parity            
 )
 {
     int temp, sum, i, bit;

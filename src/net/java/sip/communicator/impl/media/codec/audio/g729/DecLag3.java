@@ -41,20 +41,24 @@ class DecLag3
  G.729 main body and G.729A
 */
 
-/*------------------------------------------------------------------------*
- *    Function dec_lag3                                                   *
- *             ~~~~~~~~                                                   *
- *   Decoding of fractional pitch lag with 1/3 resolution.                *
- * See "enc_lag3.c" for more details about the encoding procedure.        *
- *------------------------------------------------------------------------*/
-
-static void dec_lag3(     /* Decode the pitch lag                   */
-  int index,       /* input : received pitch index           */
-  int pit_min,     /* input : minimum pitch lag              */
-  int pit_max,     /* input : maximum pitch lag              */
-  int i_subfr,     /* input : subframe flag                  */
-  IntReference T0,         /* output: integer part of pitch lag      */
-  IntReference T0_frac     /* output: fractional part of pitch lag   */
+/**
+ * Decoding of fractional pitch lag with 1/3 resolution.
+ * See the source for more details about the encoding procedure.
+ *
+ * @param index      input : received pitch index
+ * @param pit_min    input : minimum pitch lag
+ * @param pit_max    input : maximum pitch lag
+ * @param i_subfr    input : subframe flag
+ * @param T0         output: integer part of pitch lag
+ * @param T0_frac    output: fractional part of pitch lag
+ */
+static void dec_lag3(     
+  int index,       
+  int pit_min,
+  int pit_max,    
+  int i_subfr, 
+  IntReference T0,         
+  IntReference T0_frac  
 )
 {
   int i;

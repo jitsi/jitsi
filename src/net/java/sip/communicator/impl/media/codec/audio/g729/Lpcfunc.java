@@ -42,13 +42,16 @@ class Lpcfunc
  (not for G.729A)
 */
 
-/*-----------------------------------------------------------------------------
- * lsp_az - convert LSPs to predictor coefficients a[]
- *-----------------------------------------------------------------------------
+/**
+ * Convert LSPs to predictor coefficients a[]
+ *
+ * @param lsp       input : lsp[0:M-1]
+ * @param a         output: predictor coeffs a[0:M], a[0] = 1.
+ * @param a_offset  input: predictor coeffs a offset.
  */
 private static void lsp_az(
- float[] lsp,            /* input : lsp[0:M-1] */
- float[] a,               /* output: predictor coeffs a[0:M], a[0] = 1. */
+ float[] lsp,            
+ float[] a,        
  int a_offset
 )
 {
@@ -76,14 +79,17 @@ private static void lsp_az(
 }
 
 
-/*----------------------------------------------------------------------------
- * get_lsp_pol - find the polynomial F1(z) or F2(z) from the LSFs
- *----------------------------------------------------------------------------
+/**
+ * Find the polynomial F1(z) or F2(z) from the LSFs
+ *
+ * @param lsp           input : line spectral freq. (cosine domain)
+ * @param lsp_offset    input : line spectral freq offset
+ * @param f             output: the coefficients of F1 or F2
  */
 private static void get_lsp_pol(
-   float lsp[],           /* input : line spectral freq. (cosine domain)  */
+   float lsp[],       
    int lsp_offset,
-   float f[]              /* output: the coefficients of F1 or F2 */
+   float f[]              
 )
 {
   int NC = Ld8k.NC;
@@ -104,13 +110,16 @@ private static void get_lsp_pol(
   }
 }
 
-/*----------------------------------------------------------------------------
- * lsf_lsp - convert from lsf[0..M-1 to lsp[0..M-1]
- *----------------------------------------------------------------------------
+/**
+ * Convert from lsf[0..M-1 to lsp[0..M-1]
+ *
+ * @param lsf   input :  lsf
+ * @param lsp   output: lsp
+ * @param m     input : length
  */
 static void lsf_lsp(
- float lsf[],          /* input :  lsf */
- float lsp[],          /* output: lsp */
+ float lsf[],     
+ float lsp[],      
  int m
 )
 {
@@ -119,13 +128,16 @@ static void lsf_lsp(
         lsp[i] = (float)Math.cos((double)lsf[i]);
 }
 
-/*----------------------------------------------------------------------------
- * lsp_lsf - convert from lsp[0..M-1 to lsf[0..M-1]
- *----------------------------------------------------------------------------
+/**
+ * Convert from lsp[0..M-1 to lsf[0..M-1]
+ *
+ * @param lsp   input :  lsp coefficients
+ * @param lsf   output:  lsf (normalized frequencies
+ * @param m     input: length
  */
 static void lsp_lsf(
- float lsp[],          /* input :  lsp coefficients */
- float lsf[],          /* output:  lsf (normalized frequencies */
+ float lsp[],      
+ float lsf[],     
  int m
 )
 {
@@ -136,16 +148,21 @@ static void lsp_lsf(
 }
 
 
-/*---------------------------------------------------------------------------
- * weigh_az:  Weighting of LPC coefficients  ap[i]  =  a[i] * (gamma ** i)
- *---------------------------------------------------------------------------
+/**
+ * Weighting of LPC coefficients  ap[i]  =  a[i] * (gamma ** i)
+ *
+ * @param a          input : lpc coefficients a[0:m]
+ * @param a_offset   input : lpc coefficients  offset
+ * @param gamma      input : weighting factor
+ * @param m          input : filter order
+ * @param ap         output: weighted coefficients ap[0:m]
  */
 static void weight_az(
- float[] a,              /* input : lpc coefficients a[0:m] */
+ float[] a,              
  int a_offset,
- float gamma,           /* input : weighting factor */
- int m,                  /* input : filter order */
- float[] ap             /* output: weighted coefficients ap[0:m] */
+ float gamma,           
+ int m,                 
+ float[] ap           
 )
 {
     float fac;
@@ -160,16 +177,17 @@ static void weight_az(
     ap[m] = fac * a[a_offset + m];
 }
 
-
-
-/*-----------------------------------------------------------------------------
- * int_qlpc -  interpolated M LSP parameters and convert to M+1 LPC coeffs
- *-----------------------------------------------------------------------------
+/**
+ * Interpolated M LSP parameters and convert to M+1 LPC coeffs
+ *
+ * @param lsp_old    input : LSPs for past frame (0:M-1)
+ * @param lsp_new    input : LSPs for present frame (0:M-1)
+ * @param az         output: filter parameters in 2 subfr (dim 2(m+1))
  */
 static void int_qlpc(
- float lsp_old[],       /* input : LSPs for past frame (0:M-1) */
- float lsp_new[],       /* input : LSPs for present frame (0:M-1) */
- float az[]             /* output: filter parameters in 2 subfr (dim 2(m+1)) */
+ float lsp_old[],       
+ float lsp_new[],       
+ float az[]            
 )
 {
   int M = Ld8k.M;
@@ -183,16 +201,21 @@ static void int_qlpc(
   lsp_az(lsp, az, 0);
   lsp_az(lsp_new, az, M+1);
 }
-/*-----------------------------------------------------------------------------
- * int_lpc -  interpolated M LSP parameters and convert to M+1 LPC coeffs
- *-----------------------------------------------------------------------------
+/**
+ * Interpolated M LSP parameters and convert to M+1 LPC coeffs
+ *
+ * @param lsp_old   input : LSPs for past frame (0:M-1)
+ * @param lsp_new   input : LSPs for present frame (0:M-1)
+ * @param lsf_int   output: interpolated lsf coefficients
+ * @param lsf_new   input : LSFs for present frame (0:M-1)
+ * @param az        output: filter parameters in 2 subfr (dim 2(m+1))
  */
 static void int_lpc(
- float lsp_old[],       /* input : LSPs for past frame (0:M-1) */
- float lsp_new[],       /* input : LSPs for present frame (0:M-1) */
- float lsf_int[],        /* output: interpolated lsf coefficients */
- float lsf_new[],       /* input : LSFs for present frame (0:M-1) */
- float az[]             /* output: filter parameters in 2 subfr (dim 2(m+1)) */
+ float lsp_old[],    
+ float lsp_new[],    
+ float lsf_int[],      
+ float lsf_new[],       
+ float az[]           
 )
 {
     int M = Ld8k.M;

@@ -45,16 +45,21 @@ class Pwf
 private int     smooth = 1;
 private final float[/* 2 */]   lar_old = {0.0f, 0.0f};
 
-/*----------------------------------------------------------------------------
- * perc_var -adaptive bandwidth expansion for perceptual weighting filter
- *----------------------------------------------------------------------------
+/**
+ * Adaptive bandwidth expansion for perceptual weighting filter
+ *
+ * @param gamma1        output: gamma1 value
+ * @param gamma2        output: gamma2 value
+ * @param lsfint        input : Interpolated lsf vector : 1st subframe
+ * @param lsfnew        input : lsf vector : 2nd subframe
+ * @param r_c           input : Reflection coefficients
  */
 void perc_var(
- float[] gamma1,         /* output: gamma1 value */
- float[] gamma2,         /* output: gamma2 value */
- float[] lsfint,         /* input : Interpolated lsf vector : 1st subframe */
- float[] lsfnew,         /* input : lsf vector : 2nd subframe */
- float[] r_c             /* input : Reflection coefficients */
+ float[] gamma1,         
+ float[] gamma2,        
+ float[] lsfint,         
+ float[] lsfnew,        
+ float[] r_c             
 )
 {
     float ALPHA = Ld8k.ALPHA;

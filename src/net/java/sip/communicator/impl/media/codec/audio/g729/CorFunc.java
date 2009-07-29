@@ -12,6 +12,8 @@
 package net.java.sip.communicator.impl.media.codec.audio.g729;
 
 /**
+ * Functions corr_xy2() and cor_h_x().
+ *
  * @author Lubomir Marinov (translation of ITU-T C source code to Java)
  */
 class CorFunc
@@ -41,17 +43,19 @@ class CorFunc
  G.729 main body and G.729A
 */
 
-/* Functions corr_xy2() and cor_h_x()   */
-
-/*----------------------------------------------------------------------------
- * corr_xy2 - compute the correlation products needed for gain computation
- *----------------------------------------------------------------------------
+/**
+ * Compute the correlation products needed for gain computation.
+ *
+ * @param xn        input : target vector x[0:l_subfr]
+ * @param y1        input : filtered adaptive codebook vector
+ * @param y2        input : filtered 1st codebook innovation
+ * @param g_coeff   output: <y2,y2> , -2<xn,y2> , and 2<y1,y2>
  */
 static void corr_xy2(
- float xn[],            /* input : target vector x[0:l_subfr] */
- float y1[],            /* input : filtered adaptive codebook vector */
- float y2[],            /* input : filtered 1st codebook innovation */
- float g_coeff[]        /* output: <y2,y2> , -2<xn,y2> , and 2<y1,y2>*/
+ float xn[],
+ float y1[],
+ float y2[],
+ float g_coeff[]
 )
 {
    int L_SUBFR = Ld8k.L_SUBFR;
@@ -72,16 +76,17 @@ static void corr_xy2(
    g_coeff[4] = 2.0f * y1y2 ;
 }
 
-/*--------------------------------------------------------------------------*
- *  Function  cor_h_x()                                                     *
- *  ~~~~~~~~~~~~~~~~~~~~                                                    *
- * Compute  correlations of input response h[] with the target vector X[].  *
- *--------------------------------------------------------------------------*/
-
+/**
+ * Compute  correlations of input response h[] with the target vector X[].
+ *
+ * @param h     (i) :Impulse response of filters
+ * @param x     (i) :Target vector
+ * @param d     (o) :Correlations between h[] and x[]
+ */
 static void cor_h_x(
-     float h[],        /* (i) :Impulse response of filters      */
-     float x[],        /* (i) :Target vector                    */
-     float d[]         /* (o) :Correlations between h[] and x[] */
+     float h[], 
+     float x[],     
+     float d[]      
 )
 {
    int L_SUBFR = Ld8k.L_SUBFR;

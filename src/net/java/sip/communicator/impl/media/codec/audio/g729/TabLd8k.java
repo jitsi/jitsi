@@ -2617,12 +2617,10 @@ static final int[/* PRM_SIZE */] bitsno = {1+Ld8k.NC0_B, /* MA + 1st stage */
                                  5,    13,4, 7}; /* second subframe */
 
 /* filter coefficients (fc = 140 Hz)  */
-
 static final float[/* 3 */] b140 = {0.92727435E+00f, -0.18544941E+01f, 0.92727435E+00f};
 static final float[/* 3 */] a140 = {1.00000000E+00f, 0.19059465E+01f, -0.91140240E+00f};
 
 /* filter coefficients (fc = 100 Hz ) */
-
 static final float[/* 3 */] b100 = {0.93980581E+00f, -0.18795834E+01f,  0.93980581E+00f};
 static final float[/* 3 */] a100 = {1.00000000E+00f,  0.19330735E+01f, -0.93589199E+00f};
 }

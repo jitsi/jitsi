@@ -12,6 +12,8 @@
 package net.java.sip.communicator.impl.media.codec.audio.g729;
 
 /**
+ * Functions related to the quantization of LSP's.
+ *
  * @author Lubomir Marinov (translation of ITU-T C source code to Java)
  */
 class QuaLsp
@@ -41,24 +43,29 @@ class QuaLsp
  G.729 main body and G.729A
 */
 
-/*----------------------------------------------------------*
- *  qua_lsp.c                                               *
- *  ~~~~~~~~                                                *
- * Functions related to the quantization of LSP's           *
- *----------------------------------------------------------*/
-
 /* static memory */
-private final float[][] freq_prev = new float[Ld8k.MA_NP][Ld8k.M];    /* previous LSP vector       */
-private static final float[/* M */] FREQ_PREV_RESET = {  /* previous LSP vector(init) */
+/** 
+ * previous LSP vector
+ */
+private final float[][] freq_prev = new float[Ld8k.MA_NP][Ld8k.M];   
+
+/** 
+ * previous LSP vector(init)
+ */
+private static final float[/* M */] FREQ_PREV_RESET = { 
  0.285599f,  0.571199f,  0.856798f,  1.142397f,  1.427997f,
  1.713596f,  1.999195f,  2.284795f,  2.570394f,  2.855993f
 };     /* PI*(float)(j+1)/(float)(M+1) */
 
-
+/**
+ * @param lsp       (i) : Unquantized LSP
+ * @param lsp_q     (o) : Quantized LSP
+ * @param ana       (o) : indexes
+ */
 void qua_lsp(
-  float lsp[],       /* (i) : Unquantized LSP            */
-  float lsp_q[],     /* (o) : Quantized LSP              */
-  int ana[]          /* (o) : indexes                    */
+  float lsp[],  
+  float lsp_q[],
+  int ana[]
 )
 {
   int M = Ld8k.M;
@@ -79,9 +86,8 @@ void qua_lsp(
      lsp_q[i] = (float)Math.cos(lsf_q[i]);
 }
 
-/*----------------------------------------------------------------------------
- * lsp_encw_reset - set the previous LSP vector
- *----------------------------------------------------------------------------
+/**
+ * Set the previous LSP vector
  */
 void lsp_encw_reset()
 {
@@ -92,14 +98,18 @@ void lsp_encw_reset()
    for(i=0; i<MA_NP; i++)
      Util.copy (FREQ_PREV_RESET, freq_prev[i], M );
 }
-/*----------------------------------------------------------------------------
- * lsp_qua_cs - lsp quantizer
- *----------------------------------------------------------------------------
+
+/**
+ * Lsp quantizer
+ *
+ * @param flsp_in       input : Original LSP parameters
+ * @param lspq_out      output: Quantized LSP parameters
+ * @param code          output: codes of the selected LSP 
  */
 private void lsp_qua_cs(
- float[]  flsp_in,       /*  input : Original LSP parameters      */
- float[]  lspq_out,       /*  output: Quantized LSP parameters     */
- int[]  code             /*  output: codes of the selected LSP    */
+ float[]  flsp_in,      
+ float[]  lspq_out,     
+ int[]  code            
 )
 {
    int M = Ld8k.M;
@@ -116,21 +126,31 @@ private void lsp_qua_cs(
    relspwed( flsp_in, wegt, lspq_out, lspcb1, lspcb2, fg,
             freq_prev, fg_sum, fg_sum_inv, code);
 }
-/*----------------------------------------------------------------------------
- * relspwed -
- *----------------------------------------------------------------------------
+
+/**
+ *
+ * @param lsp            input: unquantized LSP parameters
+ * @param wegt           input: weight coef.
+ * @param lspq           output:quantized LSP parameters
+ * @param lspcb1         input : first stage LSP codebook
+ * @param lspcb2         input: Second stage LSP codebook
+ * @param fg             input: MA prediction coef.
+ * @param freq_prev      input: previous LSP vector
+ * @param fg_sum         input: present MA prediction coef.
+ * @param fg_sum_inv     input: inverse coef.
+ * @param code_ana       output:codes of the selected LSP
  */
 private void relspwed(
- float  lsp[],                  /*input: unquantized LSP parameters  */
- float  wegt[],                 /*input: weight coef.                */
- float  lspq[],                 /*output:quantized LSP parameters    */
- float  lspcb1[][/* M */],            /*input: first stage LSP codebook    */
- float  lspcb2[][/* M */],            /*input: Second stage LSP codebook   */
- float  fg[/* MODE */][/* MA_NP */][/* M */],     /*input: MA prediction coef.         */
- float  freq_prev[/* MA_NP */][/* M */],    /*input: previous LSP vector         */
- float  fg_sum[/* MODE */][/* M */],        /*input: present MA prediction coef. */
- float  fg_sum_inv[/* MODE */][/* M */],    /*input: inverse coef.               */
- int    code_ana[]              /*output:codes of the selected LSP   */
+ float  lsp[],                 
+ float  wegt[],                
+ float  lspq[],                
+ float  lspcb1[][/* M */],            
+ float  lspcb2[][/* M */],           
+ float  fg[/* MODE */][/* MA_NP */][/* M */],     
+ float  freq_prev[/* MA_NP */][/* M */],   
+ float  fg_sum[/* MODE */][/* M */],        
+ float  fg_sum_inv[/* MODE */][/* M */],   
+ int    code_ana[]             
 )
 {
    float GAP1 = Ld8k.GAP1;
@@ -199,13 +219,17 @@ private void relspwed(
                  freq_prev,
                  lspq, fg_sum[mode_index]);
 }
-/*----------------------------------------------------------------------------
- * lsp_pre_select - select the code of first stage lsp codebook
- *----------------------------------------------------------------------------
+
+/**
+ * Select the code of first stage lsp codebook
+ *
+ * @param rbuf      input : target vetor
+ * @param lspcb1    input : first stage lsp codebook
+ * @return          selected code
  */
 private int lsp_pre_select(
- float  rbuf[],         /*input : target vetor             */
- float  lspcb1[][/* M */]    /*input : first stage lsp codebook */
+ float  rbuf[],         
+ float  lspcb1[][/* M */]   
 )
 {
    float FLT_MAX_G729 = Ld8k.FLT_MAX_G729;
@@ -235,15 +259,20 @@ private int lsp_pre_select(
    return cand;
 }
 
-/*----------------------------------------------------------------------------
- * lsp_pre_select_1 - select the code of second stage lsp codebook (lower 0-4)
- *----------------------------------------------------------------------------
+/**
+ * Select the code of second stage lsp codebook (lower 0-4)
+ *
+ * @param rbuf      input : target vector
+ * @param lspcb1    input : first stage lsp codebook
+ * @param wegt      input : weight coef.
+ * @param lspcb2    input : second stage lsp codebook
+ * @return          selected codebook index
  */
 private int lsp_select_1(
- float  rbuf[],         /*input : target vector            */
- float  lspcb1[],       /*input : first stage lsp codebook */
- float  wegt[],         /*input : weight coef.             */
- float  lspcb2[][/* M */]    /*input : second stage lsp codebook*/
+ float  rbuf[],        
+ float  lspcb1[],      
+ float  wegt[],         
+ float  lspcb2[][/* M */]   
 )
 {
    float FLT_MAX_G729 = Ld8k.FLT_MAX_G729;
@@ -276,15 +305,20 @@ private int lsp_select_1(
    return index;
 }
 
-/*----------------------------------------------------------------------------
- * lsp_pre_select_2 - select the code of second stage lsp codebook (higher 5-9)
- *----------------------------------------------------------------------------
+/**
+ * Select the code of second stage lsp codebook (higher 5-9)
+ *
+ * @param rbuf      input : target vector
+ * @param lspcb1    input : first stage lsp codebook
+ * @param wegt      input : weighting coef.
+ * @param lspcb2    input : second stage lsp codebook
+ * @return          selected codebook index
  */
 private int lsp_select_2(
- float  rbuf[],         /*input : target vector            */
- float  lspcb1[],       /*input : first stage lsp codebook */
- float  wegt[],         /*input : weighting coef.             */
- float  lspcb2[][/* M */]    /*input : second stage lsp codebook*/
+ float  rbuf[],         
+ float  lspcb1[],      
+ float  wegt[],         
+ float  lspcb2[][/* M */]    
 )
 {
    float FLT_MAX_G729 = Ld8k.FLT_MAX_G729;
@@ -316,15 +350,21 @@ private int lsp_select_2(
    }
    return index;
 }
-/*----------------------------------------------------------------------------
- * lsp_get_tdist - calculate the distortion
- *----------------------------------------------------------------------------
+
+/**
+ * Calculate the distortion
+ *
+ * @param wegt      input : weight coef.
+ * @param buf       input : candidate LSP vector
+ * @param rbuf      input : target vector
+ * @param fg_sum    input : present MA prediction coef.
+ * @return          distortion
  */
 private float lsp_get_tdist(
- float  wegt[],         /*input : weight coef.          */
- float  buf[],          /*input : candidate LSP vector  */
- float  rbuf[],         /*input : target vector         */
- float  fg_sum[]        /*input : present MA prediction coef.  */
+ float  wegt[],        
+ float  buf[],        
+ float  rbuf[],     
+ float  fg_sum[]      
 )
 {
    int M = Ld8k.M;
@@ -340,25 +380,30 @@ private float lsp_get_tdist(
    return tdist;
 }
 
-/*----------------------------------------------------------------------------
- * lsp_last_select - select the mode
- *----------------------------------------------------------------------------
+/**
+ * Select the mode
+ *
+ * @param tdist     distortion
+ * @return          the selected mode
  */
 private int lsp_last_select(
- float  tdist[]        /*input : distortion         */
+ float  tdist[]   
 )
 {
    int mode_index = 0;     /*output: the selected mode  */
    if( tdist[1] < tdist[0] ) mode_index = 1;
    return mode_index;
 }
-/*----------------------------------------------------------------------------
- * get_wegt - compute lsp weights
- *----------------------------------------------------------------------------
+
+/**
+ * Compute lsp weights
+ *
+ * @param flsp      input : M LSP parameters
+ * @param wegt      output: M weighting coefficients
  */
 private void get_wegt(
- float  flsp[],         /* input : M LSP parameters */
- float  wegt[]          /* output: M weighting coefficients */
+ float  flsp[],        
+ float  wegt[]        
 )
 {
    float CONST12 = Ld8k.CONST12;
