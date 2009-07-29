@@ -448,6 +448,16 @@ public class MediaConfigurationPanel
 
                     disposePlayer(player);
                     videoDeviceInPreview = null;
+
+                    /*
+                     * We've just disposed the player which created the preview
+                     * component so the preview component is of no use
+                     * regardless of whether the Media configuration form will
+                     * be redisplayed or not. And since the preview component
+                     * appears to be a huge object even after its player is
+                     * disposed, make sure to not reference it.
+                     */
+                    previewContainer.remove(preview);
                 }
 
                 public void hierarchyChanged(HierarchyEvent event)
