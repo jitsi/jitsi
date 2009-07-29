@@ -113,7 +113,7 @@ public class ZeroconfStatusEnum
      */
     static ZeroconfStatusEnum statusOf(String status)
     {
-        Iterator statusIter = supportedStatusSet();
+        Iterator<PresenceStatus> statusIter = supportedStatusSet();
         while (statusIter.hasNext())
         {
             ZeroconfStatusEnum state = (ZeroconfStatusEnum)statusIter.next();
