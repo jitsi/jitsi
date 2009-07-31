@@ -481,29 +481,58 @@ public class SipStackSharing
     {
         try
         {
-            logger.trace("received request: " + event.getRequest().getMethod());
             Request request = event.getRequest();
+            logger.trace("received request: " + request.getMethod());
 
-            // Create the transaction if it doesn't exist yet. If it is a
-            // dialog-creating request, the dialog will also be automatically
-            // created by the stack.
+            /*
+             * Create the transaction if it doesn't exist yet. If it is a
+             * dialog-creating request, the dialog will also be automatically
+             * created by the stack.
+             */
             if (event.getServerTransaction() == null)
             {
                 try
                 {
+
+                    /*
+                     * Max-Forwards is required, yet there are UAs which do not
+                     * place it. SipProvider#getNewServerTransaction(Request)
+                     * will throw an exception in the case of a missing
+                     * Max-Forwards header and this method will eventually just
+                     * log it thus ignoring the whole event. Since these
+                     * requests come often in some cases (e.g. ippi.fr),
+                     * performance-wise it makes sense to just prevent the
+                     * exceptions and ignore the event early.
+                     */
+                    if (request.getHeader(MaxForwardsHeader.NAME) == null)
+                    {
+                        logger.trace(
+                            "Ignoring request without Max-Forwards header: "
+                                + event);
+                        return;
+                    }
+
                     SipProvider source = (SipProvider) event.getSource();
                     ServerTransaction transaction
                         = source.getNewServerTransaction(request);
-                    // Update the event, otherwise getServerTransaction() and
-                    // getDialog() will still return their previous value.
-                    event = new RequestEvent(source, transaction,
-                                transaction.getDialog(), request);
+
+                    /*
+                     * Update the event, otherwise getServerTransaction() and
+                     * getDialog() will still return their previous value.
+                     */
+                    event
+                        = new RequestEvent(
+                                source,
+                                transaction,
+                                transaction.getDialog(),
+                                request);
                 }
                 catch (SipException ex)
                 {
-                    logger.error("couldn't create transaction, please report "
-                                 + "this to dev@sip-communicator.dev.java.net",
-                                 ex);
+                    logger.error(
+                        "couldn't create transaction, please report "
+                            + "this to dev@sip-communicator.dev.java.net",
+                        ex);
                 }
             }
 
@@ -518,34 +547,44 @@ public class SipStackSharing
                 service = findTargetFor(request);
                 if (service == null)
                 {
-                    logger.error("couldn't find a ProtocolProviderServiceSipImpl "
-                                +"to dispatch to");
+                    logger.error(
+                        "couldn't find a ProtocolProviderServiceSipImpl "
+                            + "to dispatch to");
                 }
                 else
                 {
-                // Mark the dialog for the dispatching of later in-dialog
-                // requests. If there is no dialog, we need to mark the request
-                // to dispatch a possible timeout when sending the response.
-                    if (event.getDialog() != null)
-                    {
-                        SipApplicationData.setApplicationData(event.getDialog(),
-                                    SipApplicationData.KEY_SERVICE, service);
-                    }
-                    else
-                    {
-                        SipApplicationData.setApplicationData(request,
-                                    SipApplicationData.KEY_SERVICE, service);
-                    }
+
+                    /*
+                     * Mark the dialog for the dispatching of later in-dialog
+                     * requests. If there is no dialog, we need to mark the
+                     * request to dispatch a possible timeout when sending the
+                     * response.
+                     */
+                    Object container = event.getDialog();
+                    if (container == null)
+                        container = request;
+                    SipApplicationData.setApplicationData(
+                        container,
+                        SipApplicationData.KEY_SERVICE,
+                        service);
+
                     service.processRequest(event);
                 }
             }
         }
         catch(Throwable exc)
         {
-            //any exception thrown within our code should be caught here
-            //so that we could log it rather than interrupt stack activity with
-            //it.
+
+            /*
+             * Any exception thrown within our code should be caught here so
+             * that we could log it rather than interrupt stack activity with
+             * it.
+             */
             this.logApplicationException(DialogTerminatedEvent.class, exc);
+
+            // Unfortunately, death can hardly be ignored.
+            if (exc instanceof ThreadDeath)
+                throw (ThreadDeath) exc;
         }
     }
 
@@ -867,16 +906,20 @@ public class SipStackSharing
      * when the exception was thrown.
      * @param exc the exception that we need to log.
      */
-    private void logApplicationException(Class eventClass, Throwable exc)
+    private void logApplicationException(
+        Class<DialogTerminatedEvent> eventClass,
+        Throwable exc)
     {
-        logger.error("An error occurred while processing event of type: "
-                        + eventClass.getName());
-        logger.debug("An error occurred while processing event of type: "
-                        + eventClass.getName(), exc);
+        String message
+            = "An error occurred while processing event of type: "
+                + eventClass.getName();
+
+        logger.error(message);
+        logger.debug(message, exc);
     }
 
     /**
-     * Safly returns the transaction from the event if already exists.
+     * Safely returns the transaction from the event if already exists.
      * If not a new transaction is created.
      *
      * @param event the request event
