@@ -87,4 +87,13 @@ public class ConferenceChatContact
     {
         return chatRoomMember.getRole();
     }
+
+    /*
+     * Implements ChatContact#getUID(). Delegates to
+     * ChatRoomMember#getContactAddress() because it's supposed to be unique.
+     */
+    public String getUID()
+    {
+        return chatRoomMember.getContactAddress();
+    }
 }

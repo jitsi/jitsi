@@ -181,29 +181,35 @@ public class DefaultContactList
 
         Object element = getModel().getElementAt(index);
 
+        /*
+         * As stated above, the returned tooltip isn't actually displayed and we
+         * just have to be sure to return different string values for the
+         * different list elements. But the displayName property value doesn't
+         * cut it because it isn't unique across the elements.
+         */
         if (element instanceof MetaContact)
         {
             MetaContact metaContact = (MetaContact) element;
 
-            return metaContact.getDisplayName();
+            return metaContact.getMetaUID();
         }
         else if (element instanceof MetaContactGroup)
         {
             MetaContactGroup metaGroup = (MetaContactGroup) element;
 
-            return metaGroup.getGroupName();
+            return metaGroup.getMetaUID();
         }
         else if (element instanceof ChatContact)
         {
             ChatContact chatContact = (ChatContact) element;
 
-            return chatContact.getName();
+            return chatContact.getUID();
         }
 
         return null;
     }
 
-        /**
+    /**
      * Returns the next list element that starts with a prefix.
      *
      * @param prefix the string to test for a match

@@ -83,4 +83,13 @@ public class MetaContactChatContact
         else
             return null;
     }
+
+    /*
+     * Implements ChatContact#getUID(). Delegates to MetaContact#getMetaUID()
+     * because it's known to be unique.
+     */
+    public String getUID()
+    {
+        return metaContact.getMetaUID();
+    }
 }

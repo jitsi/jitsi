@@ -48,6 +48,14 @@ public abstract class ChatContact
     public abstract ImageIcon getAvatar();
 
     /**
+     * Gets the implementation-specific identifier which uniquely specifies this
+     * contact.
+     * 
+     * @return an identifier which uniquely specifies this contact
+     */
+    public abstract String getUID();
+
+    /**
      * Returns <code>true</code> if this is the currently selected contact in
      * the list of contacts for the chat, otherwise returns <code>false</code>.
      * @return <code>true</code> if this is the currently selected contact in
