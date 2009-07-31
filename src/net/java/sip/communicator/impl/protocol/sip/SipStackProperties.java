@@ -36,29 +36,38 @@ public class SipStackProperties
 
     /**
      * The name of the property under which the jain-sip-ri would expect to find
-     * the name of the server log file.
-     */
-    //private static final String NSPNAME_SERVER_LOG
-    //    = "gov.nist.javax.sip.SERVER_LOG";
-
-    /**
-     * The default name of a server log file for the jain-sip RI.
-     * (not final on purpose, see constructor)
-     */
-    private static String NSPVALUE_SERVER_LOG  = "log/sc-jainsipserver.log";
-
-    /**
-     * The name of the property under which the jain-sip-ri would expect to find
      * if the content of the messages (eg SDP) has to be logged
      */
-    //private static final String NSPNAME_LOG_MESSAGE_CONTENT
-    //    = "gov.nist.javax.sip.LOG_MESSAGE_CONTENT";
+    private static final String NSPNAME_LOG_MESSAGE_CONTENT
+        = "gov.nist.javax.sip.LOG_MESSAGE_CONTENT";
 
     /**
      * A string indicating to jain-sip-ri if the content of the messages (eg
      * SDP) has to be logged
      */
-    //private static final String NSPVALUE_LOG_MESSAGE_CONTENT = "true";
+    private static final String NSPVALUE_LOG_MESSAGE_CONTENT = "true";
+
+    /**
+     * The name of the property indicating a custom logger class for the stack
+     */
+    private static final String NSPNAME_STACK_LOGGER = "gov.nist.javax.sip.STACK_LOGGER";
+
+    /**
+     * The value of the property indicating a custom logger class for the stack
+     */
+    private static final String NSPVALUE_STACK_LOGGER = "net.java.sip.communicator.impl.protocol.sip.SipLogger";
+
+    /**
+     * The name of the property indicating a custom logger class
+     * for the server messages
+     */
+    private static final String NSPNAME_SERVER_LOGGER = "gov.nist.javax.sip.SERVER_LOGGER";
+
+    /**
+     * The value of the property indicating a custom logger class
+     * for the server messages
+     */
+    private static final String NSPVALUE_SERVER_LOGGER = "net.java.sip.communicator.impl.protocol.sip.SipLogger";
 
     /**
      * The name of the property under which the jain-sip-ri would expect to find
@@ -176,18 +185,13 @@ public class SipStackProperties
         if (!NSPVALUE_DEBUG_LOG.startsWith(logDir))
             NSPVALUE_DEBUG_LOG = logDir + NSPVALUE_DEBUG_LOG;
 
-        if (!NSPVALUE_SERVER_LOG.startsWith(logDir))
-            NSPVALUE_SERVER_LOG = logDir + NSPVALUE_SERVER_LOG;
-
         this.setProperty(JSPNAME_STACK_NAME, "Sip Communicator");
 
         // NIST SIP specific properties
         this.setProperty(NSPNAME_DEBUG_LOG, NSPVALUE_DEBUG_LOG);
 
-        // uncomment the following lines to capture messages in the server log
-        //this.setProperty(NSPNAME_SERVER_LOG, NSPVALUE_SERVER_LOG);
-        //this.setProperty(NSPNAME_LOG_MESSAGE_CONTENT,
-        //        NSPVALUE_LOG_MESSAGE_CONTENT);
+        this.setProperty(NSPNAME_LOG_MESSAGE_CONTENT,
+                NSPVALUE_LOG_MESSAGE_CONTENT);
 
         this.setProperty(NSPNAME_DEBUG_LOG_OVERWRITE,
                          NSPVALUE_DEBUG_LOG_OVERWRITE);
@@ -258,5 +262,8 @@ public class SipStackProperties
         }
 
         this.setProperty(NSPNAME_TRACE_LEVEL, jainSipTraceLevel);
+
+        this.setProperty(NSPNAME_STACK_LOGGER, NSPVALUE_STACK_LOGGER);
+        this.setProperty(NSPNAME_SERVER_LOGGER, NSPVALUE_SERVER_LOGGER);
     }
 }
