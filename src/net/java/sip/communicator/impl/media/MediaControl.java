@@ -91,7 +91,7 @@ public class MediaControl
      * The processor that will be handling content coming from our capture data
      * sources.
      */
-    public Processor sourceProcessor = null;
+    private Processor sourceProcessor = null;
 
     /**
      * The list of readers currently using our processor.
@@ -200,8 +200,7 @@ public class MediaControl
     private void initCaptureDevices()
         throws MediaException
     {
-        if (avDataSource != null)
-            avDataSource.disconnect();
+        disposeBeforeInitCaptureDevices();
 
         // Init audio device
         CaptureDeviceInfo audioDeviceInfo
@@ -284,6 +283,33 @@ public class MediaControl
             initProcessor(avDataSource);
         else
             sourceProcessor = null;
+    }
+
+    /**
+     * Allows this instance to dispose of any state which is to reinitialized by
+     * {@link #initCaptureDevices()}. For example, a vital requirement is to
+     * invoke {@link Controller#close()} on <code>sourceProcessor</code>
+     * regardless of the fact that it is soon to not be referenced at all or it
+     * will keep unnecessary threads alive and they will in turn keep just about
+     * anything created to an associated <code>Call</code>.
+     */
+    private void disposeBeforeInitCaptureDevices()
+    {
+        if (avDataSource != null)
+            avDataSource.disconnect();
+        if (sourceProcessor != null)
+        {
+            sourceProcessor.stop();
+            if (sourceProcessor.getState() == Processor.Realized)
+            {
+                DataSource dataOutput = sourceProcessor.getDataOutput();
+
+                if (dataOutput != null)
+                    dataOutput.disconnect();
+            }
+            sourceProcessor.deallocate();
+            sourceProcessor.close();
+        }
     }
 
     /**
@@ -973,9 +999,6 @@ public class MediaControl
 
         if( sourceProcessor.getState() ==  Processor.Started )
         {
-            avDataSource.disconnect();
-            sourceProcessor.stop();
-
             try
             {
                 initCaptureDevices();
@@ -1158,19 +1181,6 @@ public class MediaControl
         {
             localVideoAllowed = allowed;
 
-            if (sourceProcessor != null)
-            {
-                sourceProcessor.stop();
-                if (sourceProcessor.getState() == Processor.Realized)
-                {
-                    DataSource dataOutput = sourceProcessor.getDataOutput();
-
-                    if (dataOutput != null)
-                        dataOutput.disconnect();
-                }
-                sourceProcessor.deallocate();
-                sourceProcessor.close();
-            }
             initCaptureDevices();
         }
     }
