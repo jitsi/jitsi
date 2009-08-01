@@ -19,7 +19,7 @@ public class OtrActivator
 
     private static Logger logger = Logger.getLogger(OtrActivator.class);
 
-    @Override
+//    @Override
     public void start(BundleContext bc) throws Exception
     {
         this.bundleContext = bc;
@@ -79,7 +79,7 @@ public class OtrActivator
 
     }
 
-    @Override
+//    @Override
     public void stop(BundleContext bc) throws Exception
     {
         // start listening for newly register or removed protocol providers
@@ -127,7 +127,7 @@ public class OtrActivator
         }
     }
 
-    @Override
+//    @Override
     public void serviceChanged(ServiceEvent serviceEvent)
     {
         Object sService =

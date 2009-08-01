@@ -16,19 +16,19 @@ public class OtrTransformLayer
 
     private UserState us = new UserState(new OTR4jListener()
     {
-        @Override
+//        @Override
         public void showWarning(String warn)
         {
             logger.warn(warn);
         }
 
-        @Override
+//        @Override
         public void showError(String err)
         {
             logger.error(err);
         }
 
-        @Override
+//        @Override
         public void injectMessage(String messageText, String account,
             String user, String protocol)
         {
@@ -42,13 +42,13 @@ public class OtrTransformLayer
             imOpSet.sendInstantMessage(contact, message);
         }
 
-        @Override
+//        @Override
         public int getPolicy(ConnContext arg0)
         {
             return PolicyConstants.ALLOW_V2;
         }
 
-        @Override
+//        @Override
         public KeyPair getKeyPair(String arg0, String arg1)
             throws NoSuchAlgorithmException
         {
@@ -106,7 +106,7 @@ public class OtrTransformLayer
         contacts.add(contact);
     }
 
-    @Override
+//    @Override
     public MessageDeliveredEvent messageDelivered(MessageDeliveredEvent evt)
     {
         if (evt.getSourceMessage().getContent().contains(MessageConstants.BASE_HEAD))
@@ -115,14 +115,14 @@ public class OtrTransformLayer
             return evt;
     }
 
-    @Override
+//    @Override
     public MessageDeliveryFailedEvent messageDeliveryFailed(
         MessageDeliveryFailedEvent evt)
     {
         return evt;
     }
 
-    @Override
+//    @Override
     public MessageDeliveredEvent messageDeliveryPending(
         MessageDeliveredEvent evt)
     {   
@@ -161,7 +161,7 @@ public class OtrTransformLayer
         return processedEvent;
     }
 
-    @Override
+//    @Override
     public MessageReceivedEvent messageReceived(MessageReceivedEvent evt)
     {
         Contact contact = evt.getSourceContact();

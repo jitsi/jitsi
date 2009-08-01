@@ -11,13 +11,13 @@ public class OperationSetInstantMessageTransformYahooImpl
 
     private final int defaultPriority = 1;
 
-    @Override
+//    @Override
     public void addTransformLayer(TransformLayer transformLayer)
     {
         this.addTransformLayer(defaultPriority, transformLayer);
     }
 
-    @Override
+//    @Override
     public void addTransformLayer(int priority, TransformLayer transformLayer)
     {
         synchronized (transformLayers)
@@ -30,7 +30,7 @@ public class OperationSetInstantMessageTransformYahooImpl
         }
     }
 
-    @Override
+//    @Override
     public boolean containsLayer(TransformLayer layer)
     {
         synchronized (transformLayers)
@@ -46,7 +46,7 @@ public class OperationSetInstantMessageTransformYahooImpl
         return false;
     }
 
-    @Override
+//    @Override
     public void removeTransformLayer(TransformLayer transformLayer)
     {
         synchronized (transformLayers)

@@ -43,7 +43,7 @@ public class OtrMenu
         this.add(mitmWhatsThis);
     }
 
-    @Override
+//    @Override
     public String getConstraints()
     {
         return null;
@@ -54,19 +54,19 @@ public class OtrMenu
         return this;
     }
 
-    @Override
+//    @Override
     public Container getContainer()
     {
         return Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU;
     }
 
-    @Override
+//    @Override
     public int getPositionIndex()
     {
         return -1;
     }
 
-    @Override
+//    @Override
     public boolean isNativeComponent()
     {
         return false;
@@ -74,18 +74,18 @@ public class OtrMenu
 
     private MetaContact metaContact;
 
-    @Override
+//    @Override
     public void setCurrentContact(MetaContact metaContact)
     {
         this.metaContact = metaContact;
     }
 
-    @Override
+//    @Override
     public void setCurrentContactGroup(MetaContactGroup metaGroup)
     {
     }
 
-    @Override
+//    @Override
     public void actionPerformed(ActionEvent e)
     {
     }
