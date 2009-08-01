@@ -195,7 +195,29 @@ public class OperationSetBasicInstantMessagingJabberImpl
             org.jivesoftware.smack.packet.Message msg = 
                 new org.jivesoftware.smack.packet.Message();
             
-            String content = message.getContent();
+            MessageDeliveredEvent msgDeliveryPendingEvt
+            = new MessageDeliveredEvent(
+                    message, to, System.currentTimeMillis());
+
+            OperationSetInstantMessageTransformJabberImpl messageTransform = 
+                (OperationSetInstantMessageTransformJabberImpl)jabberProvider.getOperationSet(OperationSetInstantMessageTransform.class);
+    
+            for (Map.Entry<Integer, Vector<TransformLayer>> entry : messageTransform.transformLayers
+                .entrySet())
+            {
+                for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
+                    .hasNext();)
+                {
+                    TransformLayer transformLayer = (TransformLayer) iterator.next();
+                    if (msgDeliveryPendingEvt != null)
+                        msgDeliveryPendingEvt = transformLayer.messageDeliveryPending(msgDeliveryPendingEvt);
+                }
+            }
+            
+            if (msgDeliveryPendingEvt == null)
+                return;
+            
+            String content = msgDeliveryPendingEvt.getSourceMessage().getContent();
             
             if(message.getContentType().equals(HTML_MIME_TYPE))
             {
@@ -220,14 +242,27 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
             MessageEventManager.
                 addNotificationsRequests(msg, true, false, false, true);
-
+            
             chat.sendMessage(msg);
-
+            
             MessageDeliveredEvent msgDeliveredEvt
                 = new MessageDeliveredEvent(
                         message, to, System.currentTimeMillis());
 
-            fireMessageEvent(msgDeliveredEvt);
+            for (Map.Entry<Integer, Vector<TransformLayer>> entry : messageTransform.transformLayers
+                .entrySet())
+            {
+                for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
+                    .hasNext();)
+                {
+                    TransformLayer transformLayer = (TransformLayer) iterator.next();
+                    if (msgDeliveredEvt != null)
+                        msgDeliveredEvt = transformLayer.messageDelivered(msgDeliveredEvt);
+                }
+            }
+            
+            if (msgDeliveredEvt != null)
+                fireMessageEvent(msgDeliveredEvt);
         }
         catch (XMPPException ex)
         {
@@ -392,7 +427,24 @@ public class OperationSetBasicInstantMessagingJabberImpl
                     new MessageDeliveryFailedEvent(newMessage,
                                                    sourceContact,
                                                    errorResultCode);
-                fireMessageEvent(ev);
+                
+                OperationSetInstantMessageTransformJabberImpl messageTransform = 
+                    (OperationSetInstantMessageTransformJabberImpl)jabberProvider.getOperationSet(OperationSetInstantMessageTransform.class);
+                
+                for (Map.Entry<Integer, Vector<TransformLayer>> entry : messageTransform.transformLayers
+                    .entrySet())
+                {
+                    for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
+                        .hasNext();)
+                    {
+                        TransformLayer transformLayer = (TransformLayer) iterator.next();
+                        if (ev != null)
+                            ev = transformLayer.messageDeliveryFailed(ev);
+                    }
+                }
+                
+                if (ev != null)
+                    fireMessageEvent(ev);
                 return;
             }
 
@@ -411,7 +463,23 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 = new MessageReceivedEvent(
                     newMessage, sourceContact , System.currentTimeMillis() );
 
-            fireMessageEvent(msgReceivedEvt);
+            OperationSetInstantMessageTransformJabberImpl messageTransform = 
+                (OperationSetInstantMessageTransformJabberImpl)jabberProvider.getOperationSet(OperationSetInstantMessageTransform.class);
+            
+            for (Map.Entry<Integer, Vector<TransformLayer>> entry : messageTransform.transformLayers
+                .entrySet())
+            {
+                for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
+                    .hasNext();)
+                {
+                    TransformLayer transformLayer = (TransformLayer) iterator.next();
+                    if (msgReceivedEvt != null)
+                        msgReceivedEvt = transformLayer.messageReceived(msgReceivedEvt);
+                }
+            }
+            
+            if (msgReceivedEvt != null)
+                fireMessageEvent(msgReceivedEvt);
         }
     }
     

@@ -318,6 +318,10 @@ public class ProtocolProviderServiceYahooImpl
         {
             this.accountID = accountID;
 
+            supportedOperationSets.put(
+                OperationSetInstantMessageTransform.class.getName(), 
+                new OperationSetInstantMessageTransformYahooImpl());
+            
             //initialize the presence operationset
             persistentPresence = new OperationSetPersistentPresenceYahooImpl(this);
 

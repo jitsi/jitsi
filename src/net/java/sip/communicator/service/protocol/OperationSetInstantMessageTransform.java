@@ -23,6 +23,7 @@ package net.java.sip.communicator.service.protocol;
  *
  */
 public interface OperationSetInstantMessageTransform
+    extends OperationSet
 {
     /**
      * Adds a transformation layer to this protocol provider using a default

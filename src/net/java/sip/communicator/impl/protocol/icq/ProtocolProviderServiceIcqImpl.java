@@ -455,6 +455,9 @@ public class ProtocolProviderServiceIcqImpl
             if(IcqAccountID.isAIM(accountID.getAccountProperties()))
                     USING_ICQ = false;
 
+            supportedOperationSets.put(OperationSetInstantMessageTransform.class.getName(), 
+                new OperationSetInstantMessageTransformIcqImpl());
+            
             //initialize the presence operationset
             OperationSetPersistentPresence persistentPresence =
                 new OperationSetPersistentPresenceIcqImpl(this, screenname);

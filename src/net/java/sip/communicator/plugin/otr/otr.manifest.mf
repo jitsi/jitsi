@@ -1,0 +1,25 @@
+Bundle-Activator: net.java.sip.communicator.plugin.otr.OtrActivator
+Bundle-Name: OTR (Off-the-Record) Messaging
+Bundle-Description: Support for secure, Off The Record messaging in SIP Communicator
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+System-Bundle: yes
+Import-Package: org.osgi.framework,
+ net.java.sip.communicator.util,
+ net.java.sip.communicator.service.gui,
+ net.java.sip.communicator.service.protocol,
+ net.java.sip.communicator.service.protocol.event,
+ net.java.sip.communicator.service.contactlist,
+ net.java.sip.communicator.service.resources,
+ javax.swing,
+ javax.crypto,
+ javax.crypto.interfaces,
+ javax.crypto.spec,
+ org.bouncycastle.crypto,
+ org.bouncycastle.crypto.generators,
+ org.bouncycastle.crypto.params,
+ org.bouncycastle.crypto.signers,
+ org.bouncycastle.crypto.engines,
+ org.bouncycastle.crypto.modes,
+ org.bouncycastle.util,
+ org.bouncycastle.util.encoders

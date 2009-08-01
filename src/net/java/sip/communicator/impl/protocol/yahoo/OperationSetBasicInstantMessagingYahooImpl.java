@@ -142,7 +142,30 @@ public class OperationSetBasicInstantMessagingYahooImpl
         {
             String toUserID = ((ContactYahooImpl) to).getID();
 
-            byte[] msgBytesToBeSent = message.getContent().trim().getBytes();
+            MessageDeliveredEvent msgDeliveryPendingEvt
+            = new MessageDeliveredEvent(
+                    message, to, System.currentTimeMillis());
+
+            OperationSetInstantMessageTransformYahooImpl messageTransform = 
+                (OperationSetInstantMessageTransformYahooImpl)yahooProvider.getOperationSet(OperationSetInstantMessageTransform.class);
+            
+            for (Map.Entry<Integer, Vector<TransformLayer>> entry : messageTransform.transformLayers
+                .entrySet())
+            {
+                for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
+                    .hasNext();)
+                {
+                    TransformLayer transformLayer = (TransformLayer) iterator.next();
+                    if (msgDeliveryPendingEvt != null)
+                        msgDeliveryPendingEvt = transformLayer.messageDeliveryPending(msgDeliveryPendingEvt);
+                }
+            }
+            
+            if (msgDeliveryPendingEvt == null)
+                return;
+            
+            byte[] msgBytesToBeSent = msgDeliveryPendingEvt.getSourceMessage().
+                getContent().trim().getBytes();
 
             // split the message in parts with max allowed length
             // and send them all
@@ -173,10 +196,23 @@ public class OperationSetBasicInstantMessagingYahooImpl
                 }
                 
                 MessageDeliveredEvent msgDeliveredEvt
-                    = new MessageDeliveredEvent(
-                            message, to, System.currentTimeMillis());
-
-                fireMessageEvent(msgDeliveredEvt);
+                = new MessageDeliveredEvent(
+                        message, to, System.currentTimeMillis());
+                
+                for (Map.Entry<Integer, Vector<TransformLayer>> entry : messageTransform.transformLayers
+                    .entrySet())
+                {
+                    for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
+                        .hasNext();)
+                    {
+                        TransformLayer transformLayer = (TransformLayer) iterator.next();
+                        if (msgDeliveredEvt != null)
+                            msgDeliveredEvt = transformLayer.messageDelivered(msgDeliveredEvt);
+                    }
+                }
+                
+                if (msgDeliveredEvt != null)
+                    fireMessageEvent(msgDeliveredEvt);
             }
             while(msgBytesToBeSent.length > MAX_MESSAGE_LENGTH);
         }
@@ -188,7 +224,24 @@ public class OperationSetBasicInstantMessagingYahooImpl
                     message,
                     to,
                     MessageDeliveryFailedEvent.NETWORK_FAILURE);
-            fireMessageEvent(evt);
+            
+            OperationSetInstantMessageTransformYahooImpl messageTransform = 
+                (OperationSetInstantMessageTransformYahooImpl)yahooProvider.getOperationSet(OperationSetInstantMessageTransform.class);
+            
+            for (Map.Entry<Integer, Vector<TransformLayer>> entry : messageTransform.transformLayers
+                .entrySet())
+            {
+                for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
+                    .hasNext();)
+                {
+                    TransformLayer transformLayer = (TransformLayer) iterator.next();
+                    if (evt != null)
+                        evt = transformLayer.messageDeliveryFailed(evt);
+                }
+            }
+            
+            if (evt != null)
+                fireMessageEvent(evt);
             return;
         }
     }
@@ -430,11 +483,27 @@ public class OperationSetBasicInstantMessagingYahooImpl
                     .createVolatileContact(ev.getFrom());
             }
 
-            MessageReceivedEvent msgReceivedEvt
-                = new MessageReceivedEvent(
-                    newMessage, sourceContact , System.currentTimeMillis() );
+             MessageReceivedEvent msgReceivedEvt
+             = new MessageReceivedEvent(
+                 newMessage, sourceContact , System.currentTimeMillis() );
 
-            fireMessageEvent(msgReceivedEvt);
+             OperationSetInstantMessageTransformYahooImpl messageTransform = 
+                 (OperationSetInstantMessageTransformYahooImpl)yahooProvider.getOperationSet(OperationSetInstantMessageTransform.class);
+             
+             for (Map.Entry<Integer, Vector<TransformLayer>> entry : messageTransform.transformLayers
+                 .entrySet())
+             {
+                 for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
+                     .hasNext();)
+                 {
+                     TransformLayer transformLayer = (TransformLayer) iterator.next();
+                     if (msgReceivedEvt != null)
+                         msgReceivedEvt = transformLayer.messageReceived(msgReceivedEvt);
+                 }
+             }
+             
+             if (msgReceivedEvt != null)
+                 fireMessageEvent(msgReceivedEvt);
         }
     }
 

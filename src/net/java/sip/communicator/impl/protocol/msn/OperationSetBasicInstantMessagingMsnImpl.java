@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.msn;
 
 import java.text.*;
+import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -116,15 +117,51 @@ public class OperationSetBasicInstantMessagingMsnImpl
                "The specified contact is not an MSN contact."
                + to);
 
+        MessageDeliveredEvent msgDeliveryPendingEvt
+        = new MessageDeliveredEvent(
+                message, to, System.currentTimeMillis());
+
+        OperationSetInstantMessageTransformMsnImpl messageTransform = 
+            (OperationSetInstantMessageTransformMsnImpl)msnProvider.getOperationSet(OperationSetInstantMessageTransform.class);
+
+        for (Map.Entry<Integer, Vector<TransformLayer>> entry : messageTransform.transformLayers
+            .entrySet())
+        {
+            for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
+                .hasNext();)
+            {
+                TransformLayer transformLayer = (TransformLayer) iterator.next();
+                if (msgDeliveryPendingEvt != null)
+                    msgDeliveryPendingEvt = transformLayer.messageDeliveryPending(msgDeliveryPendingEvt);
+            }
+        }
+        
+        if (msgDeliveryPendingEvt == null)
+            return;
+        
         msnProvider.getMessenger().
             sendText(
                 ((ContactMsnImpl)to).getSourceContact().getEmail(),
-                message.getContent()
+                msgDeliveryPendingEvt.getSourceMessage().getContent()
             );
         MessageDeliveredEvent msgDeliveredEvt
             = new MessageDeliveredEvent(message, to, System.currentTimeMillis());
 
-        fireMessageEvent(msgDeliveredEvt);
+
+        for (Map.Entry<Integer, Vector<TransformLayer>> entry : messageTransform.transformLayers
+            .entrySet())
+        {
+            for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
+                .hasNext();)
+            {
+                TransformLayer transformLayer = (TransformLayer) iterator.next();
+                if (msgDeliveredEvt != null)
+                    msgDeliveredEvt = transformLayer.messageDelivered(msgDeliveredEvt);
+            }
+        }
+        
+        if (msgDeliveredEvt != null)
+            fireMessageEvent(msgDeliveredEvt);
     }
 
     /**
@@ -206,8 +243,24 @@ public class OperationSetBasicInstantMessagingMsnImpl
             MessageReceivedEvent msgReceivedEvt
                 = new MessageReceivedEvent(
                     newMessage, sourceContact , System.currentTimeMillis() );
-
-            fireMessageEvent(msgReceivedEvt);
+    
+            OperationSetInstantMessageTransformMsnImpl messageTransform = 
+                (OperationSetInstantMessageTransformMsnImpl)msnProvider.getOperationSet(OperationSetInstantMessageTransform.class);
+            
+            for (Map.Entry<Integer, Vector<TransformLayer>> entry : messageTransform.transformLayers
+                .entrySet())
+            {
+                for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
+                    .hasNext();)
+                {
+                    TransformLayer transformLayer = (TransformLayer) iterator.next();
+                    if (msgReceivedEvt != null)
+                        msgReceivedEvt = transformLayer.messageReceived(msgReceivedEvt);
+                }
+            }
+            
+            if (msgReceivedEvt != null)
+                fireMessageEvent(msgReceivedEvt);
         }
         
         /**

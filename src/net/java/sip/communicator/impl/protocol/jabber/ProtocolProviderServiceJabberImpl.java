@@ -642,6 +642,13 @@ public class ProtocolProviderServiceJabberImpl
                 OperationSetFileTransfer.class.getName(),
                 fileTransfer);
 
+            OperationSetInstantMessageTransform messageTransform
+                = new OperationSetInstantMessageTransformJabberImpl();
+            
+            supportedOperationSets.put(
+                OperationSetInstantMessageTransform.class.getName(),
+                messageTransform);
+            
             // Include features we're supporting in plus of the four that
             // included by smack itself:
             // http://jabber.org/protocol/si/profile/file-transfer

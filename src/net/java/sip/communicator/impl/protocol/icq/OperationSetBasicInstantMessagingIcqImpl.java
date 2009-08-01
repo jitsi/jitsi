@@ -169,6 +169,27 @@ public class OperationSetBasicInstantMessagingIcqImpl
         else
             messageContent = message.getContent();
 
+        MessageDeliveredEvent msgDeliveryPendingEvt = new MessageDeliveredEvent(
+                message, to, System.currentTimeMillis());
+        
+        OperationSetInstantMessageTransformIcqImpl messageTransform = 
+            (OperationSetInstantMessageTransformIcqImpl)icqProvider.getOperationSet(OperationSetInstantMessageTransform.class);
+
+        for (Map.Entry<Integer, Vector<TransformLayer>> entry : messageTransform.transformLayers
+            .entrySet())
+        {
+            for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
+                .hasNext();)
+            {
+                TransformLayer transformLayer = (TransformLayer) iterator.next();
+                if (msgDeliveryPendingEvt != null)
+                    msgDeliveryPendingEvt = transformLayer.messageDeliveryPending(msgDeliveryPendingEvt);
+            }
+        }
+        
+        if (msgDeliveryPendingEvt == null)
+            return;
+        
         if (to.getPresenceStatus().isOnline())
         {
             //do not add the conversation listener in here. we'll add it
@@ -178,10 +199,23 @@ public class OperationSetBasicInstantMessagingIcqImpl
         else
             imConversation.sendMessage(new SimpleMessage(messageContent), true);
 
-        MessageDeliveredEvent msgDeliveredEvt
-            = new MessageDeliveredEvent(message, to, System.currentTimeMillis());
+        MessageDeliveredEvent msgDeliveredEvt = new MessageDeliveredEvent(
+                message, to, System.currentTimeMillis());
 
-        fireMessageEvent(msgDeliveredEvt);
+        for (Map.Entry<Integer, Vector<TransformLayer>> entry : messageTransform.transformLayers
+            .entrySet())
+        {
+            for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
+                .hasNext();)
+            {
+                TransformLayer transformLayer = (TransformLayer) iterator.next();
+                if (msgDeliveredEvt != null)
+                    msgDeliveredEvt = transformLayer.messageDelivered(msgDeliveredEvt);
+            }
+        }
+        
+        if (msgDeliveredEvt != null)
+            fireMessageEvent(msgDeliveredEvt);
     }
 
 
@@ -258,9 +292,28 @@ public class OperationSetBasicInstantMessagingIcqImpl
                         createMessage(offlineMsgCmd.getContents()),
                         sourceContact,
                         msgDate);
-                logger.debug("fire msg received for : " +
-                             offlineMsgCmd.getContents());
-                fireMessageEvent(msgReceivedEvt);
+
+                OperationSetInstantMessageTransformIcqImpl messageTransform = 
+                    (OperationSetInstantMessageTransformIcqImpl)icqProvider.getOperationSet(OperationSetInstantMessageTransform.class);
+                
+                for (Map.Entry<Integer, Vector<TransformLayer>> entry : messageTransform.transformLayers
+                    .entrySet())
+                {
+                    for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
+                        .hasNext();)
+                    {
+                        TransformLayer transformLayer = (TransformLayer) iterator.next();
+                        if (msgReceivedEvt != null)
+                            msgReceivedEvt = transformLayer.messageReceived(msgReceivedEvt);
+                    }
+                }
+                
+                if (msgReceivedEvt != null)
+                {
+                    logger.debug("fire msg received for : " +
+                                 offlineMsgCmd.getContents());
+                    fireMessageEvent(msgReceivedEvt);
+                }
             }
             else if (snac instanceof OfflineMsgDoneCmd)
             {
@@ -527,11 +580,30 @@ public class OperationSetBasicInstantMessagingIcqImpl
                 msgDate = current;
 
 
-            MessageReceivedEvent msgReceivedEvt
-                = new MessageReceivedEvent(
-                    newMessage, sourceContact , msgDate );
+            MessageReceivedEvent msgReceivedEvt = 
+                new MessageReceivedEvent(newMessage, sourceContact, msgDate);
 
-            fireMessageEvent(msgReceivedEvt);
+            OperationSetInstantMessageTransformIcqImpl messageTransform = 
+                (OperationSetInstantMessageTransformIcqImpl)icqProvider.getOperationSet(OperationSetInstantMessageTransform.class);
+            
+            for (Map.Entry<Integer, Vector<TransformLayer>> entry : messageTransform.transformLayers
+                .entrySet())
+            {
+                for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
+                    .hasNext();)
+                {
+                    TransformLayer transformLayer = (TransformLayer) iterator.next();
+                    if (msgReceivedEvt != null)
+                        msgReceivedEvt = transformLayer.messageReceived(msgReceivedEvt);
+                }
+            }
+            
+            if (msgReceivedEvt != null)
+            {
+                logger.debug("fire msg received for : " +
+                    newMessage);
+                fireMessageEvent(msgReceivedEvt);
+            }
         }
 
         public void sentOtherEvent(Conversation conversation,
