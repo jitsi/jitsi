@@ -1137,4 +1137,39 @@ public class UIServiceImpl
             return false;
         }
     }
+
+    /**
+     * Returns a list containing all open Chats
+     *
+     * @return  A list of all open Chats.
+     */
+    public List<Chat> getChats()
+    {
+        List<Chat> chats = new ArrayList<Chat>();
+        for (ChatPanel chat : chatWindowManager.getChatPanels())
+        {
+            chats.add(chat);
+        }
+        return chats;
+    }
+
+    /**
+     * Get the MetaContact corresponding to the chat.
+     * The chat must correspond to a one on one conversation, otherwise this
+     * method will return null.
+     *
+     * @param chat  The chat to get the MetaContact from
+     * @return      The MetaContact corresponding to the chat or null in case
+     *              it is a chat with more then one person.
+     */
+    public MetaContact getChatContact(Chat chat)
+    {
+        Object contact = ((ChatPanel) chat).getChatSession().getDescriptor();
+        // If it is a one on one conversation this would be a MetaContact
+        if (contact instanceof MetaContact)
+            return (MetaContact) contact;
+        // If not, we are talking to more then one person and we return null
+        else
+            return null;
+    }
 }

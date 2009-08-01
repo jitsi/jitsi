@@ -543,6 +543,16 @@ public class ChatWindowManager
     }
 
     /**
+     * Returns all open ChatPanel´s
+     *
+     * @return  A list of ChatPanels
+     */
+    public List<ChatPanel> getChatPanels()
+    {
+        return chatPanels;
+    }
+
+    /**
      * Closes the selected chat tab or the window if there are no tabs.
      *
      * @param chatPanel the chat panel to close.

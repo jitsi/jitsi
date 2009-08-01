@@ -8,8 +8,10 @@ package net.java.sip.communicator.service.gui;
 
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.contactlist.*;
 
 /**
  * The <tt>UIService</tt> offers generic access to the graphical user interface
@@ -210,6 +212,23 @@ public interface UIService
      * @return the <tt>Chat</tt> corresponding to the given <tt>ChatRoom</tt>.
      */
     public Chat getChat(ChatRoom chatRoom);
+
+    /**
+     * Returns a list of all open Chats
+     *
+     * @return A list of all open Chats
+     */
+    public List<Chat> getChats();
+
+    /**
+     * Get the MetaContact corresponding to the chat.
+     * The chat must correspond to a one on one conversation. If it is a
+     * group chat an exception will be thrown.
+     *
+     * @param chat  The chat to get the MetaContact from
+     * @return      The MetaContact corresponding to the chat.
+     */
+    public MetaContact getChatContact(Chat chat);
 
     /**
      * Returns the selected <tt>Chat</tt>.
