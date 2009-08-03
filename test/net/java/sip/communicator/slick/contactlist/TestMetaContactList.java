@@ -202,12 +202,12 @@ public class TestMetaContactList
     public void assertContactsOrder(MetaContactGroup group)
     {
         //first check order of contacts in this group
-        Iterator contacts = group.getChildContacts();
+        Iterator<MetaContact> contacts = group.getChildContacts();
 
         MetaContact previousContact = null;
         while(contacts.hasNext())
         {
-            MetaContact currentContact  = (MetaContact)contacts.next();
+            MetaContact currentContact  = contacts.next();
 
             if (previousContact != null)
             {
@@ -220,11 +220,11 @@ public class TestMetaContactList
         }
 
         //now go over the subgroups
-        Iterator subgroups = group.getSubgroups();
+        Iterator<MetaContactGroup> subgroups = group.getSubgroups();
 
         while(subgroups.hasNext())
         {
-            assertContactsOrder((MetaContactGroup)subgroups.next());
+            assertContactsOrder(subgroups.next());
         }
     }
 
