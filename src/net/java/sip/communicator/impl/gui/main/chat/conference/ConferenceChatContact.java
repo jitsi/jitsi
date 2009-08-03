@@ -3,26 +3,23 @@
  * 
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.chat.conference;
-
-import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>ConferenceChatContact</tt> represents a <tt>ChatContact</tt> in a
  * conference chat.
  * 
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class ConferenceChatContact
     extends ChatContact
 {
-    private ChatRoomMember chatRoomMember;
+    private final ChatRoomMember chatRoomMember;
 
     /**
      * Creates an instance of <tt>ChatContact</tt> by passing to it the
@@ -61,26 +58,12 @@ public class ConferenceChatContact
         return name;
     }
 
-    /**
-     * Returns the current presence status for single user chat contacts and
-     * null for multi user chat contacts.
-     *
-     * @return the current presence status for single user chat contacts and
-     * null for multi user chat contacts
+    /*
+     * Implements ChatContact#getAvatarBytes(). Delegates to chatRoomMember.
      */
-    public ImageIcon getAvatar()
+    public byte[] getAvatarBytes()
     {
-        byte[] avatarBytes = chatRoomMember.getAvatar();
-
-        if (avatarBytes != null && avatarBytes.length > 0)
-        {
-            return ImageUtils.getScaledRoundedIcon(avatarBytes,
-                                                    AVATAR_ICON_WIDTH,
-                                                    AVATAR_ICON_HEIGHT
-                                                    );
-        }
-        else
-            return null;
+        return chatRoomMember.getAvatar();
     }
 
     public ChatRoomMemberRole getRole()

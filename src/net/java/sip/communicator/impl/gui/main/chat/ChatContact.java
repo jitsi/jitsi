@@ -8,11 +8,14 @@ package net.java.sip.communicator.impl.gui.main.chat;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.util.*;
+
 /**
  * The <tt>ChatContact</tt> is a wrapping class for the <tt>Contact</tt> and
  * <tt>ChatRoomMember</tt> interface.
  *
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public abstract class ChatContact
 {
@@ -21,6 +24,18 @@ public abstract class ChatContact
     public static final int AVATAR_ICON_WIDTH = 25;
 
     private boolean isSelected;
+
+    /**
+     * The avatar image corresponding to the source contact in the form of an
+     * <code>ImageIcon</code>.
+     */
+    private ImageIcon avatar;
+
+    /**
+     * The avatar image corresponding to the source contact in the form of an
+     * array of bytes.
+     */
+    private byte[] avatarBytes;
 
     /**
      * Returns the descriptor object corresponding to this chat contact. In the
@@ -45,7 +60,33 @@ public abstract class ChatContact
      * @return the avatar image corresponding to the source contact. In the case
      * of multi user chat contact returns null
      */
-    public abstract ImageIcon getAvatar();
+    public ImageIcon getAvatar()
+    {
+        byte[] avatarBytes = getAvatarBytes();
+
+        if (this.avatarBytes != avatarBytes)
+        {
+            this.avatarBytes = avatarBytes;
+            this.avatar = null;
+        }
+        if ((this.avatar == null)
+                && (this.avatarBytes != null) && (this.avatarBytes.length > 0))
+            this.avatar
+                    = ImageUtils.getScaledRoundedIcon(
+                            this.avatarBytes,
+                            AVATAR_ICON_WIDTH,
+                            AVATAR_ICON_HEIGHT);
+        return this.avatar;
+    }
+
+    /**
+     * Gets the avatar image corresponding to the source contact in the form of
+     * an array of bytes.
+     * 
+     * @return an array of bytes which represents the avatar image corresponding
+     *         to the source contact
+     */
+    protected abstract byte[] getAvatarBytes();
 
     /**
      * Gets the implementation-specific identifier which uniquely specifies this

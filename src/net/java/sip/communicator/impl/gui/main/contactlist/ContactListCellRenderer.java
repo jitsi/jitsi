@@ -23,6 +23,7 @@ import net.java.sip.communicator.util.swing.*;
  * The cell border and background are repainted. 
  * 
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class ContactListCellRenderer
     extends JPanel
@@ -31,6 +32,13 @@ public class ContactListCellRenderer
     private static final int AVATAR_HEIGHT = 30;
 
     private static final int AVATAR_WIDTH = 30;
+
+    /**
+     * The key of the user data in <code>MetaContact</code> which specifies
+     * the avatar cached from previous invocations.
+     */
+    private static final String AVATAR_DATA_KEY
+        = ContactListCellRenderer.class.getName() + ".avatar";
 
     private final ImageIcon openedGroupIcon =
         new ImageIcon(ImageLoader.getImage(ImageLoader.DOWN_ARROW_ICON));
@@ -46,9 +54,9 @@ public class ContactListCellRenderer
 
     protected final JLabel photoLabel = new JLabel();
 
-    private final int rowTransparency =
-        GuiActivator.getResources()
-            .getSettingsInt("impl.gui.CONTACT_LIST_TRANSPARENCY");
+//    private final int rowTransparency
+//        = GuiActivator.getResources()
+//            .getSettingsInt("impl.gui.CONTACT_LIST_TRANSPARENCY");
 
     private final Image msgReceivedImage =
         ImageLoader.getImage(ImageLoader.MESSAGE_RECEIVED_ICON);
@@ -143,17 +151,9 @@ public class ContactListCellRenderer
 
             this.setBorder(BorderFactory.createEmptyBorder(1, 5, 1, 3));
 
-            byte[] avatar = metaContact.getAvatar(true);
-            if (avatar != null && avatar.length > 0)
-            {
-                ImageIcon roundedAvatar
-                    = ImageUtils.getScaledRoundedIcon( avatar,
-                                                        AVATAR_WIDTH,
-                                                        AVATAR_HEIGHT);
-
-                if (roundedAvatar != null)
-                    this.photoLabel.setIcon(roundedAvatar);
-            }
+            ImageIcon avatar = getAvatar(metaContact);
+            if (avatar != null)
+                this.photoLabel.setIcon(avatar);
 
             // We should set the bounds of the cell explicitly in order to
             // make getComponentAt work properly.
@@ -185,10 +185,10 @@ public class ContactListCellRenderer
             // make getComponentAt work properly.
             this.setBounds(0, 0, list.getWidth() - 2, 20);
 
-            if(contactList.isGroupClosed(groupItem))
-                this.nameLabel.setIcon(closedGroupIcon);
-            else
-                this.nameLabel.setIcon(openedGroupIcon);
+            this.nameLabel.setIcon(
+                    contactList.isGroupClosed(groupItem)
+                        ? closedGroupIcon
+                        : openedGroupIcon);
 
             // We have no photo icon for groups.
             this.photoLabel.setIcon(null);
@@ -199,6 +199,51 @@ public class ContactListCellRenderer
         this.isSelected = isSelected;
 
         return this;
+    }
+
+    /**
+     * Gets the avatar of a specific <code>MetaContact</code> in the form of an
+     * <code>ImageIcon</code> value.
+     * 
+     * @param metaContact
+     *            the <code>MetaContact</code> to retrieve the avatar of
+     * @return an <code>ImageIcon</code> which represents the avatar of the
+     *         specified <code>MetaContact</code>
+     */
+    private ImageIcon getAvatar(MetaContact metaContact)
+    {
+        byte[] avatarBytes = metaContact.getAvatar(true);
+        ImageIcon avatar = null;
+
+        // Try to get the avatar from the cache.
+        Object[] avatarCache = (Object[]) metaContact.getData(AVATAR_DATA_KEY);
+        if ((avatarCache != null) && (avatarCache[0] == avatarBytes)) 
+            avatar = (ImageIcon) avatarCache[1];
+
+        // If the avatar isn't available or it's not up-to-date, create it.
+        if ((avatar == null)
+                && (avatarBytes != null) && (avatarBytes.length > 0))
+            avatar
+                = ImageUtils.getScaledRoundedIcon(
+                        avatarBytes,
+                        AVATAR_WIDTH,
+                        AVATAR_HEIGHT);
+
+        // Cache the avatar in case it has changed.
+        if (avatarCache == null)
+        {
+            if (avatar != null)
+                metaContact.setData(
+                    AVATAR_DATA_KEY,
+                    new Object[] { avatarBytes, avatar });
+        }
+        else
+        {
+            avatarCache[0] = avatarBytes;
+            avatarCache[1] = avatar;
+        }
+
+        return avatar;
     }
 
     /**

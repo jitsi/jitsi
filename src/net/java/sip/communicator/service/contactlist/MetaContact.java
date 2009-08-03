@@ -14,12 +14,15 @@ import net.java.sip.communicator.service.protocol.*;
  * A MetaContact is an abstraction used for merging mutltiple Contacts (most
  * often) belonging to different <tt>ProtocolProvider</tt>s.
  * <p>
- * Instances of a MetaContact are readonly objects that cannot be modified
+ * Instances of a MetaContact are read-only objects that cannot be modified
  * directly but only through the corresponding MetaContactListService.
- * <p>
+ * </p>
+ * 
  * @author Emil Ivov
+ * @author Lubomir Marinov
  */
-public interface MetaContact extends Comparable
+public interface MetaContact
+    extends Comparable<MetaContact>
 {
     /**
      * Returns the default protocol specific <tt>Contact</tt> to use when
@@ -173,4 +176,40 @@ public interface MetaContact extends Comparable
      * @return list of string values for the details with the given name.
      */
     public List<String> getDetails(String name);
+
+    /**
+     * Gets the user data associated with this instance and a specific key.
+     * 
+     * @param key
+     *            the key of the user data associated with this instance to be
+     *            retrieved
+     * @return an <code>Object</code> which represents the value associated with
+     *         this instance and the specified <code>key</code>; <tt>null</tt>
+     *         if no association with the specified <code>key</code> exists in
+     *         this instance
+     */
+    public Object getData(Object key);
+
+    /**
+     * Sets a user-specific association in this instance in the form of a
+     * key-value pair. If the specified <code>key</code> is already associated
+     * in this instance with a value, the existing value is overwritten with the
+     * specified <code>value</code>.
+     * <p>
+     * The user-defined association created by this method and stored in this
+     * instance is not serialized by this instance and is thus only meant for
+     * runtime use.
+     * </p>
+     * <p>
+     * The storage of the user data is implementation-specific and is thus not
+     * guaranteed to be optimized for execution time and memory use.
+     * </p>
+     * 
+     * @param key
+     *            the key to associate in this instance with the specified value
+     * @param value
+     *            the value to be associated in this instance with the specified
+     *            <code>key</code>
+     */
+    public void setData(Object key, Object value);
 }

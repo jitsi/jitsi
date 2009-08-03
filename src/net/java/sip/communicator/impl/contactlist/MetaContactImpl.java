@@ -15,8 +15,10 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * A default implementation of the MetaContact interface.
+ * A default implementation of the <code>MetaContact</code> interface.
+ * 
  * @author Emil Ivov
+ * @author Lubomir Marinov
  */
 public class MetaContactImpl
     implements MetaContact
@@ -30,9 +32,8 @@ public class MetaContactImpl
     /**
      * A vector containing all protocol specific contacts merged in this
      * MetaContact.
-     *
      */
-    private Vector<Contact> protoContacts = new Vector<Contact>();
+    private final List<Contact> protoContacts = new Vector<Contact>();
 
     /**
      * The number of contacts online in this meta contact.
@@ -42,7 +43,7 @@ public class MetaContactImpl
     /**
      * An id uniquely identifying the meta contact in this contact list.
      */
-    private String uid = null;
+    private final String uid;
 
     /**
      * Returns a human readable string used by the UI to display the contact.
@@ -91,7 +92,7 @@ public class MetaContactImpl
     /**
      * The service that is creating the contact.
      */
-    private MetaContactListServiceImpl mclServiceImpl  = null;
+    private final MetaContactListServiceImpl mclServiceImpl;
 
     private final static String AVATAR_DIR = "avatarcache";
 
@@ -111,6 +112,22 @@ public class MetaContactImpl
         {">", "&_gt"},
         {"\\|", "&_pp"}     // the char |
     };
+
+    /**
+     * The user-specific key-value associations stored in this instance.
+     * <p>
+     * Like the Widget implementation of Eclipse SWT, the storage type takes
+     * into account that there are likely to be many
+     * <code>MetaContactImpl</code> instances and <code>Map</code>s are thus
+     * likely to impose increased memory use. While an array may very well
+     * perform worse than a <code>Map</code> with respect to search, the
+     * mechanism of user-defined key-value associations explicitly states that
+     * it is not guaranteed to be optimized for any particular use and only
+     * covers the most basic cases and performance-savvy code will likely
+     * implement a more optimized solution anyway.
+     * </p>
+     */
+    private Object[] data;
 
     /**
      * Creates new meta contact with a newly generated meta contact UID.
@@ -312,7 +329,7 @@ public class MetaContactImpl
 
     /**
      * Returns a default contact for a specific operation (call,
-     * file transfert, IM ...)
+     * file transfer, IM ...)
      *
      * @param operationSet the operation for which the default contact is needed
      * @return the default contact for the specified operation.
@@ -394,14 +411,14 @@ public class MetaContactImpl
      * presence status, then display name, and finally (in order to avoid
      * equalities) be the fairly random meta contact metaUID.
      * <p>
-     * @param   o the Object to be compared.
+     * @param   o the <code>MetaContact</code> to be compared.
      * @return  a negative integer, zero, or a positive integer as this object
      *      is less than, equal to, or greater than the specified object.
      *
      * @throws ClassCastException if the specified object is not
      *          a MetaContactListImpl
      */
-    public int compareTo(Object o)
+    public int compareTo(MetaContact o)
     {
         MetaContactImpl target = (MetaContactImpl) o;
 
@@ -1052,5 +1069,87 @@ public class MetaContactImpl
         }
 
         return resultId;
+    }
+
+    /*
+     * Implements MetaContact#getData(Object).
+     */
+    public Object getData(Object key)
+    {
+        if (key == null)
+            throw new NullPointerException("key");
+
+        int index = dataIndexOf(key);
+
+        return (index == -1) ? null : data[index + 1];
+    }
+
+    /*
+     * Implements MetaContact#setData(Object, Object).
+     */
+    public void setData(Object key, Object value)
+    {
+        if (key == null)
+            throw new NullPointerException("key");
+
+        int index = dataIndexOf(key);
+
+        if (index == -1)
+        {
+
+            /*
+             * If value is null, remove the association with key (or just don't
+             * add it).
+             */
+            if (data == null)
+                if (value != null)
+                    data = new Object[] { key, value };
+            else if (value == null)
+            {
+                int length = data.length - 2;
+
+                if (length > 0)
+                {
+                    Object[] newData = new Object[length];
+
+                    System.arraycopy(data, 0, newData, 0, index);
+                    System.arraycopy(
+                        data, index + 2, newData, index, length - index);
+                    data = newData;
+                }
+                else
+                    data = null;
+            }
+            else
+            {
+                int length = data.length;
+                Object[] newData = new Object[length + 2];
+
+                System.arraycopy(data, 0, newData, 0, length);
+                data[length++] = key;
+                data[length++] = value;
+                data = newData;
+            }
+        }
+        else
+            data[index + 1] = value;
+    }
+
+    /**
+     * Determines the index in <code>#data</code> of a specific key.
+     * 
+     * @param key
+     *            the key to retrieve the index in <code>#data</code> of
+     * @return the index in <code>#data</code> of the specified <code>key</code>
+     *         if it is contained; <tt>-1</tt> if <code>key</code> is not
+     *         contained in <code>#data</code>
+     */
+    private int dataIndexOf(Object key)
+    {
+        if (data != null)
+            for (int index = 0; index < data.length; index += 2)
+                if (key.equals(data[index]))
+                    return index;
+        return -1;
     }
 }

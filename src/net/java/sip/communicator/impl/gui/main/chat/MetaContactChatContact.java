@@ -5,22 +5,20 @@
  */
 package net.java.sip.communicator.impl.gui.main.chat;
 
-import javax.swing.*;
-
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>MetaContactChatContact</tt> represents a <tt>ChatContact</tt> in a
  * user-to-user chat.
  * 
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class MetaContactChatContact
     extends ChatContact
 {
-    private MetaContact metaContact;
+    private final MetaContact metaContact;
 
     /**
      * Creates an instance of <tt>ChatContact</tt> by passing to it the
@@ -61,27 +59,12 @@ public class MetaContactChatContact
         return name;
     }
 
-    /**
-     * Returns the avatar image corresponding to the source contact. In the case
-     * of multi user chat contact returns null.
-     *
-     * @return the avatar image corresponding to the source contact. In the case
-     * of multi user chat contact returns null
+    /*
+     * Implements ChatContact#getAvatarBytes(). Delegates to metaContact.
      */
-    public ImageIcon getAvatar()
+    public byte[] getAvatarBytes()
     {
-        byte[] contactImage = metaContact.getAvatar();
-
-        if(contactImage != null && contactImage.length > 0)
-        {
-            return ImageUtils.getScaledRoundedIcon(
-                        contactImage,
-                        AVATAR_ICON_WIDTH,
-                        AVATAR_ICON_HEIGHT
-                        );
-        }
-        else
-            return null;
+        return metaContact.getAvatar();
     }
 
     /*
