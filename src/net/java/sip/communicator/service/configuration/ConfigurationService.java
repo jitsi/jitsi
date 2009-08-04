@@ -39,6 +39,12 @@ public interface ConfigurationService
     public static final String PNAME_SC_HOME_DIR_LOCATION
         = "net.java.sip.communicator.SC_HOME_DIR_LOCATION";
 
+    /**
+     * The name of the system property that stores the name of the configuration
+     * file.
+     */
+    public static final String PNAME_CONFIGURATION_FILE_NAME
+        = "net.java.sip.communicator.CONFIGURATION_FILE_NAME";
 
     /**
      * Sets the property with the specified name to the specified value. Calling

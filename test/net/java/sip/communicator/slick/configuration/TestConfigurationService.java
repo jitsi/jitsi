@@ -8,11 +8,12 @@ package net.java.sip.communicator.slick.configuration;
 
 import java.util.*;
 
-import org.osgi.framework.*;
 import junit.framework.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.configuration.event.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * Tests basic ConfiguratioService behaviour.
@@ -35,23 +36,23 @@ public class TestConfigurationService extends TestCase
     /**
      * The name of a property that we will be using for testing.
      */
-    private String propertyName = new String("my.test.property");
+    private final String propertyName = "my.test.property";
 
     /**
      * The name of a property that we will be using for testing custom event
      * notification.
      */
-    private String listenedPropertyName = new String("a.property.i.listen.to");
+    private final String listenedPropertyName = "a.property.i.listen.to";
 
     /**
      * The value of the property with name propertyName.
      */
-    private Integer propertyValue = new Integer(19200);
+    private final String propertyValue = "19200";
 
     /**
      * A new value for the property with name propertyName
      */
-    private Integer propertyNewValue = new Integer(19201);
+    private final String propertyNewValue = "19201";
 
     /**
      * A PropertyChange listener impl that registers the last received event.
@@ -364,8 +365,8 @@ public class TestConfigurationService extends TestCase
      */
     public void testMulticastEventNotificationToVetoableListeners()
     {
-        Integer propertyValue = new Integer(19200);
-        Integer propertyNewValue = new Integer(19201);
+        String propertyValue = "19200";
+        String propertyNewValue = "19201";
         propertyChangeEvent = null;
 
         configurationService.addVetoableChangeListener(gentleVetoListener);
@@ -507,8 +508,8 @@ public class TestConfigurationService extends TestCase
     public void testSinglePropertyEventNotification()
         throws PropertyVetoException
     {
-        Double listenedPropertyValue = new Double(19.2598);
-        Double listenedPropertyNewValue = new Double(19.29581);
+        String listenedPropertyValue = "19.2598";
+        String listenedPropertyNewValue = "19.29581";
 
         //test basic selective event dispatch
         configurationService.addPropertyChangeListener(
@@ -582,8 +583,8 @@ public class TestConfigurationService extends TestCase
     public void testSinglePropertyVetoEventNotification()
         throws PropertyVetoException
     {
-        Double listenedPropertyValue = new Double(19.2598);
-        Double listenedPropertyNewValue = new Double(19.29581);
+        String listenedPropertyValue = "19.2598";
+        String listenedPropertyNewValue = "19.29581";
         VetoableChangeListener vetoListener = new VetoableChangeListener()
         {
             public void vetoableChange(PropertyChangeEvent event)

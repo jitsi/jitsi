@@ -33,13 +33,6 @@ public class ConfigurationServiceImpl
 {
     private final Logger logger = Logger.getLogger(ConfigurationServiceImpl.class);
 
-    /**
-     * The name of the system property that stores the name of the configuration
-     * file.
-     */
-    private static final String FILE_NAME_PROPERTY
-        = "net.java.sip.communicator.CONFIGURATION_FILE_NAME";
-
     private static final String SYS_PROPS_FILE_NAME_PROPERTY
         = "net.java.sip.communicator.SYS_PROPS_FILE_NAME";
 
@@ -729,7 +722,7 @@ public class ConfigurationServiceImpl
         throws IOException
     {
         //see whether we have a user specified name for the conf file
-        String pFileName = getSystemProperty(FILE_NAME_PROPERTY);
+        String pFileName = getSystemProperty(PNAME_CONFIGURATION_FILE_NAME);
         if (pFileName == null)
             pFileName = "sip-communicator." + extension;
 

@@ -122,10 +122,12 @@ public class TestConfigurationServicePersistency extends TestCase
                             + ourConfFileName);
 
         configurationService.purgeStoredConfiguration();
-        originalConfFileName = System.getProperty(
-            "net.java.sip.communicator.CONFIGURATION_FILE_NAME");
-        System.setProperty("net.java.sip.communicator.CONFIGURATION_FILE_NAME",
-                            ourConfFileName);
+        originalConfFileName
+            = System.getProperty(
+                    ConfigurationService.PNAME_CONFIGURATION_FILE_NAME);
+        System.setProperty(
+            ConfigurationService.PNAME_CONFIGURATION_FILE_NAME,
+            ourConfFileName);
 
         confFile.createNewFile();
 

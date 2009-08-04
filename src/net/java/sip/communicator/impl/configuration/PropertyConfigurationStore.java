@@ -19,7 +19,9 @@ public class PropertyConfigurationStore
 
     public Object getProperty(String name)
     {
-        return properties.get(name);
+        Object value = properties.get(name);
+
+        return (value != null) ? value : System.getProperty(name);
     }
 
     public String[] getPropertyNames()
