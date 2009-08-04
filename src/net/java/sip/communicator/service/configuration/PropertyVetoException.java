@@ -21,18 +21,19 @@ public class PropertyVetoException
      * A PropertyChangeEvent describing the vetoed change.
      * @serial
      */
-    private PropertyChangeEvent evt;
+    private final PropertyChangeEvent evt;
 
     /**
      * Constructs a <tt>PropertyVetoException</tt> with a
      * detailed message.
      *
-     * @param mess Descriptive message
+     * @param message Descriptive message
      * @param evt A PropertyChangeEvent describing the vetoed change.
      */
-    public PropertyVetoException(String mess, PropertyChangeEvent evt)
+    public PropertyVetoException(String message, PropertyChangeEvent evt)
     {
-        super(mess);
+        super(message);
+
         this.evt = evt;
     }
 

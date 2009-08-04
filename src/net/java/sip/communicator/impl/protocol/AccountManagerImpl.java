@@ -517,6 +517,9 @@ public class AccountManagerImpl
             }
         }
 
+        Map<String, Object> configurationProperties
+            = new HashMap<String, Object>();
+
         // Create a unique node name of the properties node that will contain
         // this account's properties.
         if (accountNodeName == null)
@@ -525,13 +528,13 @@ public class AccountManagerImpl
 
             // set a value for the persistent node so that we could later
             // retrieve it as a property
-            configurationService.setProperty(factoryPackage // prefix
+            configurationProperties.put(factoryPackage // prefix
                 + "." + accountNodeName, accountNodeName);
 
             // register the account in the configuration service.
             // we register all the properties in the following hierarchy
             //net.java.sip.communicator.impl.protocol.PROTO_NAME.ACC_ID.PROP_NAME
-            configurationService.setProperty(factoryPackage// prefix
+            configurationProperties.put(factoryPackage// prefix
                 + "." + accountNodeName // node name for the account id
                 + "." + ProtocolProviderFactory.ACCOUNT_UID, // propname
                 accountID.getAccountUniqueID()); // value
@@ -549,11 +552,14 @@ public class AccountManagerImpl
             if (property.equals(ProtocolProviderFactory.PASSWORD))
                 value = new String(Base64.encode(value.getBytes()));
 
-            configurationService.setProperty(factoryPackage // prefix
-                + "." + accountNodeName // a uniew node name for the account id
+            configurationProperties.put(factoryPackage // prefix
+                + "." + accountNodeName // a unique node name for the account id
                 + "." + property, // propname
                 value); // value
         }
+
+        if (configurationProperties.size() > 0)
+            configurationService.setProperties(configurationProperties);
 
         logger.debug("Stored account for id " + accountID.getAccountUniqueID()
             + " for package " + factoryPackage);

@@ -77,6 +77,9 @@ public interface ConfigurationService
                             boolean isSystem)
         throws PropertyVetoException;
 
+    public void setProperties(Map<String, Object> properties)
+        throws PropertyVetoException;
+
     /**
      * Returns the value of the property with the specified name or null if no
      * such property exists.

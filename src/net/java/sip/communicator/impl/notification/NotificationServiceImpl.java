@@ -491,7 +491,6 @@ public class NotificationServiceImpl
             configService.setProperty(
                 eventTypeNodeName + ".active",
                 Boolean.toString(isActive));
-            
             return;
         }
         
@@ -510,6 +509,8 @@ public class NotificationServiceImpl
                 actionTypeNodeName = actionTypeRootPropName;
         }
 
+        Map<String, Object> configProperties = new HashMap<String, Object>();
+
         // If we didn't find the given actionType in the configuration we save
         // it here.
         if(actionTypeNodeName == null)
@@ -518,7 +519,7 @@ public class NotificationServiceImpl
                                     + ".actionType"
                                     + Long.toString(System.currentTimeMillis());
         
-            configService.setProperty(actionTypeNodeName, actionType);        
+            configProperties.put(actionTypeNodeName, actionType);        
         }
         
         if(actionHandler instanceof SoundNotificationHandler)
@@ -526,19 +527,19 @@ public class NotificationServiceImpl
             SoundNotificationHandler soundHandler
                 = (SoundNotificationHandler) actionHandler;
             
-            configService.setProperty(
+            configProperties.put(
                 actionTypeNodeName + ".soundFileDescriptor",
                 soundHandler.getDescriptor());
             
-            configService.setProperty(
+            configProperties.put(
                 actionTypeNodeName + ".loopInterval",
                 soundHandler.getLoopInterval());
             
-            configService.setProperty(
+            configProperties.put(
                 actionTypeNodeName + ".enabled",
                 Boolean.toString(isActive));
             
-            configService.setProperty(
+            configProperties.put(
                 actionTypeNodeName + ".default",
                 Boolean.toString(isDefault));
         }
@@ -547,15 +548,15 @@ public class NotificationServiceImpl
             PopupMessageNotificationHandler messageHandler
                 = (PopupMessageNotificationHandler) actionHandler;
         
-            configService.setProperty(
+            configProperties.put(
                 actionTypeNodeName + ".defaultMessage",
                 messageHandler.getDefaultMessage());      
             
-            configService.setProperty(
+            configProperties.put(
                 actionTypeNodeName + ".enabled",
                 Boolean.toString(isActive));
             
-            configService.setProperty(
+            configProperties.put(
                 actionTypeNodeName + ".default",
                 Boolean.toString(isDefault));
         }
@@ -564,15 +565,15 @@ public class NotificationServiceImpl
             LogMessageNotificationHandler logMessageHandler
                 = (LogMessageNotificationHandler) actionHandler;
     
-            configService.setProperty(
+            configProperties.put(
                 actionTypeNodeName + ".logType",
                 logMessageHandler.getLogType());
             
-            configService.setProperty(
+            configProperties.put(
                 actionTypeNodeName + ".enabled",
                 Boolean.toString(isActive));
             
-            configService.setProperty(
+            configProperties.put(
                 actionTypeNodeName + ".default",
                 Boolean.toString(isDefault));
         }
@@ -581,18 +582,21 @@ public class NotificationServiceImpl
             CommandNotificationHandler commandHandler
                 = (CommandNotificationHandler) actionHandler;
     
-            configService.setProperty(
+            configProperties.put(
                 actionTypeNodeName + ".commandDescriptor",
                 commandHandler.getDescriptor());
             
-            configService.setProperty(
+            configProperties.put(
                 actionTypeNodeName + ".enabled",
                 Boolean.toString(isActive));
             
-            configService.setProperty(
+            configProperties.put(
                 actionTypeNodeName + ".default",
                 Boolean.toString(isDefault));
         }
+
+        if (configProperties.size() > 0)
+            configService.setProperties(configProperties);
     }
     
     /**

@@ -9,8 +9,6 @@ package net.java.sip.communicator.impl.configuration;
 import java.io.*;
 import java.util.*;
 
-import javax.xml.parsers.*;
-
 import net.java.sip.communicator.impl.configuration.xml.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.configuration.event.*;
@@ -19,8 +17,6 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.xml.*;
 
 import org.osgi.framework.*;
-import org.w3c.dom.*;
-import org.xml.sax.*;
 
 /**
  * A straight forward implementation of the ConfigurationService using an xml
@@ -36,23 +32,6 @@ public class ConfigurationServiceImpl
     implements ConfigurationService
 {
     private final Logger logger = Logger.getLogger(ConfigurationServiceImpl.class);
-
-    /**
-     * The XML Document containing the configuration file this service loaded.
-     */
-    private Document propertiesDocument = null;
-
-    /** Name of the xml attribute containing property values */
-    private static final String ATTRIBUTE_VALUE = "value";
-
-    /**
-     * Name of the xml attribute indicating that a property is to be resolved
-     * in the system properties
-     */
-    private static final String SYSTEM_ATTRIBUTE_NAME = "system";
-
-    /** The value of the Name of the xml attribute containing property values */
-    private static final String SYSTEM_ATTRIBUTE_TRUE = "true";
 
     /**
      * The name of the system property that stores the name of the configuration
@@ -76,21 +55,6 @@ public class ConfigurationServiceImpl
         new ChangeEventDispatcher(this);
 
     /**
-     * The list of properties currently registered in the configuration service.
-     */
-    private Map<String, Object> properties = new Hashtable<String, Object>();
-
-    /**
-     * Contains the properties that were initially loaded from the configuration
-     * file or (if the properties have been modified and saved since initially
-     * loaded) those that were last written to the file.We use the property so
-     * that we could determine which properties are new and do not have a
-     * corresponding node in the XMLDocument object.
-     */
-    private Map<String, Object> fileExtractedProperties =
-        new Hashtable<String, Object>();
-
-    /**
      * Indicates whether the service is started or stopped.
      */
     private boolean started = false;
@@ -99,6 +63,8 @@ public class ConfigurationServiceImpl
      * a reference to the FileAccessService
      */
     private FileAccessService faService = null;
+
+    private ConfigurationStore store;
 
     /**
      * Sets the property with the specified name to the specified value. Calling
@@ -132,7 +98,7 @@ public class ConfigurationServiceImpl
      * @param isSystem specifies whether or not the property being is a System
      *                 property and should be resolved against the system
      *                 property set. If the property has previously been
-     *                 specified as system then this value is inteernally forced
+     *                 specified as system then this value is internally forced
      *                 to true.
      * @throws PropertyVetoException in case the changed has been refused by
      * at least one propertychange listener.
@@ -142,6 +108,7 @@ public class ConfigurationServiceImpl
         throws PropertyVetoException
     {
         Object oldValue = getProperty(propertyName);
+
         //first check whether the change is ok with everyone
         if (changeEventDispatcher.hasVetoableChangeListeners(propertyName))
             changeEventDispatcher.fireVetoableChange(
@@ -153,7 +120,74 @@ public class ConfigurationServiceImpl
         logger.trace(propertyName + "( oldValue=" + oldValue
                      + ", newValue=" + property + ".");
 
-        //once set system, a property remains system event if the user
+        doSetProperty(propertyName, property, isSystem);
+
+        try
+        {
+            storeConfiguration();
+        }
+        catch (IOException ex)
+        {
+            logger.error(
+                "Failed to store configuration after a property change");
+        }
+
+        if (changeEventDispatcher.hasPropertyChangeListeners(propertyName))
+            changeEventDispatcher.firePropertyChange(
+                propertyName, oldValue, property);
+    }
+
+    public void setProperties(Map<String, Object> properties)
+        throws PropertyVetoException
+    {
+        //first check whether the changes are ok with everyone
+        Map<String, Object> oldValues
+            = new HashMap<String, Object>(properties.size());
+        for (Map.Entry<String, Object> property : properties.entrySet())
+        {
+            String propertyName = property.getKey();
+            Object oldValue = getProperty(propertyName);
+
+            oldValues.put(propertyName, oldValue);
+
+            if (changeEventDispatcher.hasVetoableChangeListeners(propertyName))
+                changeEventDispatcher
+                    .fireVetoableChange(
+                        propertyName,
+                        oldValue,
+                        property.getValue());
+        }
+
+        for (Map.Entry<String, Object> property : properties.entrySet())
+            doSetProperty(property.getKey(), property.getValue(), false);
+
+        try
+        {
+            storeConfiguration();
+        }
+        catch (IOException ex)
+        {
+            logger.error(
+                "Failed to store configuration after property changes");
+        }
+
+        for (Map.Entry<String, Object> property : properties.entrySet())
+        {
+            String propertyName = property.getKey();
+
+            if (changeEventDispatcher.hasPropertyChangeListeners(propertyName))
+                changeEventDispatcher
+                    .firePropertyChange(
+                        propertyName,
+                        oldValues.get(propertyName),
+                        property.getValue());
+        }
+    }
+
+    private void doSetProperty(
+        String propertyName, Object property, boolean isSystem)
+    {
+        //once set system, a property remains system even if the user
         //specified sth else
 
         if (isSystem(propertyName))
@@ -161,9 +195,7 @@ public class ConfigurationServiceImpl
 
         if (property == null)
         {
-            properties.remove(propertyName);
-
-            fileExtractedProperties.remove(propertyName);
+            store.removeProperty(propertyName);
 
             if (isSystem)
             {
@@ -178,29 +210,15 @@ public class ConfigurationServiceImpl
                 //in case this is a system property, we must only store it
                 //in the System property set and keep only a ref locally.
                 System.setProperty(propertyName, property.toString());
-                properties.put(propertyName,
-                               new PropertyReference(propertyName));
+                store.setSystemProperty(propertyName);
             }
             else
             {
-                properties.put(propertyName, property);
+                store.setNonSystemProperty(propertyName, property);
             }
         }
-        if (changeEventDispatcher.hasPropertyChangeListeners(propertyName))
-            changeEventDispatcher.firePropertyChange(
-                propertyName, oldValue, property);
-
-        try
-        {
-            storeConfiguration();
-        }
-        catch (IOException ex)
-        {
-            logger.error("Failed to store configuration after "
-                         + "a property change");
-        }
     }
-    
+
     /**
      * Removes the property with the specified name. Calling
      * this method would first trigger a PropertyChangeEvent that will
@@ -210,7 +228,6 @@ public class ConfigurationServiceImpl
      * All properties with prefix propertyName will also be removed.
      * <p>
      * @param propertyName the name of the property to change.
-     * @param property the new value of the specified property.
      * @throws PropertyVetoException in case the changed has been refused by
      * at least one propertychange listener.
      */
@@ -237,9 +254,7 @@ public class ConfigurationServiceImpl
 
         logger.trace("Will remove prop: " + propertyName + ".");
 
-        properties.remove(propertyName);
-
-        fileExtractedProperties.remove(propertyName);
+        store.removeProperty(propertyName);
         
         if (changeEventDispatcher.hasPropertyChangeListeners(propertyName))
             changeEventDispatcher.firePropertyChange(
@@ -259,19 +274,13 @@ public class ConfigurationServiceImpl
     /**
      * Returns the value of the property with the specified name or null if no
      * such property exists.
+     * 
      * @param propertyName the name of the property that is being queried.
      * @return the value of the property with the specified name.
      */
     public Object getProperty(String propertyName)
     {
-        Object value = properties.get(propertyName);
-
-        //if this is a property reference make sure we return the referenced
-        //value and not the reference itself
-        if(value instanceof PropertyReference)
-            return ((PropertyReference)value).getValue();
-        else
-            return value;
+        return store.getProperty(propertyName);
     }
 
     /**
@@ -308,7 +317,7 @@ public class ConfigurationServiceImpl
     {
         List<String> resultKeySet = new LinkedList<String>();
 
-        for (String key : properties.keySet())
+        for (String key : store.getPropertyNames())
         {
             int ix = key.lastIndexOf('.');
             
@@ -438,13 +447,14 @@ public class ConfigurationServiceImpl
     /**
      * Initializes the configuration service impl and makes it load an initial
      * configuration from the conf file.
+     * 
+     * @param bc
      */
-    void start()
+    void start(BundleContext bc)
     {
         this.started = true;
         
         // retrieve a reference to the FileAccessService
-        BundleContext bc = ConfigurationActivator.bundleContext;
         ServiceReference faServiceReference = bc.getServiceReference(
                 FileAccessService.class.getName());
         this.faService = (FileAccessService) bc.getService(faServiceReference);
@@ -468,27 +478,10 @@ public class ConfigurationServiceImpl
     public void reloadConfiguration()
         throws IOException, XMLException
     {
-        properties = new Hashtable<String, Object>();
         this.configurationFile = null;
 
-        fileExtractedProperties =
-                loadConfiguration(getConfigurationFile());
-        this.properties.putAll(fileExtractedProperties);
-    }
+        File file = getConfigurationFile();
 
-    /**
-     * Loads the contents of the specified configuration file into the local
-     * properties object.
-     * @param file a reference to the configuration file to load.
-     * @return a hashtable containing all properties extracted from the
-     * specified file.
-     *
-     * @throws IOException if the specified file does not exist
-     * @throws XMLException if there is a problem with the file syntax.
-     */
-    Map<String, Object> loadConfiguration(File file)
-        throws IOException, XMLException
-    {
         // restore the file if needed
         FailSafeTransaction trans = this.faService
             .createFailSafeTransaction(file);
@@ -498,51 +491,8 @@ public class ConfigurationServiceImpl
             logger.error("can't restore the configuration file before loading" +
                     " it", e);
         }
-        
-        try
-        {
-            DocumentBuilderFactory factory =
-                DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Map<String, Object> props = new Hashtable<String, Object>();
 
-            //if the file is empyt (or contains only sth insignificant)
-            //ifnore it and create a new document.
-            if(file.length() < "<sip-communicator>".length()*2)
-                propertiesDocument = createPropertiesDocument();
-            else
-                propertiesDocument = builder.parse(file);
-
-            Node root = propertiesDocument.getFirstChild();
-
-            Node currentNode = null;
-            NodeList children = root.getChildNodes();
-            for(int i = 0; i < children.getLength(); i++)
-            {
-                currentNode = children.item(i);
-
-                if(currentNode.getNodeType() == Node.ELEMENT_NODE)
-                {
-                    StringBuffer propertyNameBuff = new StringBuffer();
-                    propertyNameBuff.append(currentNode.getNodeName());
-                    loadNode(currentNode, propertyNameBuff, props);
-                }
-            }
-
-            return props;
-        }
-        catch(SAXException ex)
-        {
-            logger.error("Error parsing configuration file", ex);
-            throw new XMLException(ex.getMessage(), ex);
-        }
-        catch(ParserConfigurationException ex)
-        {
-            //it is not highly probable that this might happen - so lets just
-            //log it.
-            logger.error("Error finding configuration for default parsers", ex);
-            return new Hashtable<String, Object>();
-        }
+        store.reloadConfiguration(file);
     }
 
     public synchronized void storeConfiguration()
@@ -551,214 +501,38 @@ public class ConfigurationServiceImpl
         storeConfiguration(getConfigurationFile());
     }
 
-    private Document createPropertiesDocument()
-    {
-        if(propertiesDocument == null)
-        {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = null;
-            try
-            {
-                builder = factory.newDocumentBuilder();
-            }
-            catch (ParserConfigurationException ex)
-            {
-                logger.error("Failed to create a DocumentBuilder", ex);
-                return null;
-            }
-            propertiesDocument = builder.newDocument();
-            propertiesDocument.appendChild(
-                propertiesDocument.createElement("sip-communicator"));
-        }
-        return propertiesDocument;
-    }
-
     /**
      * Stores local properties in the specified configuration file.
+     * 
      * @param file a reference to the configuration file where properties should
-     *  be stored.
+     *            be stored.
      * @throws IOException if there was a problem writing to the specified file.
      */
     private void storeConfiguration(File file)
         throws IOException
     {
-        if(!started)
-            throw new IllegalStateException("Service is stopped or has not been started");
-        
-        //resolve the properties that were initially in the file - back to
-        //the document.
+        if (!started)
+            throw new IllegalStateException(
+                "Service is stopped or has not been started");
 
-        if (propertiesDocument == null)
-            propertiesDocument = createPropertiesDocument();
-
-        Node root = propertiesDocument.getFirstChild();
-
-        Node currentNode = null;
-        NodeList children = root.getChildNodes();
-        for (int i = 0; i < children.getLength(); i++)
-        {
-            currentNode = children.item(i);
-
-            if (currentNode.getNodeType() == Node.ELEMENT_NODE)
-            {
-                StringBuffer propertyNameBuff = new StringBuffer();
-                propertyNameBuff.append(currentNode.getNodeName());
-                updateNode(currentNode, propertyNameBuff, properties);
-            }
-        }
-
-        //create in the document the properties that were added by other
-        //bundles after the initial property load.
-
-        Map<String, Object> newlyAddedProperties = cloneProperties();
-
-        //remove those that were originally there;
-        for (String propName : fileExtractedProperties.keySet())
-            newlyAddedProperties.remove(propName);
-
-        this.processNewProperties(propertiesDocument,
-                                  newlyAddedProperties);
-
-        //write the file.
+        // write the file.
         File config = getConfigurationFile();
-        FailSafeTransaction trans = this.faService
-                                        .createFailSafeTransaction(config);
-        try {
+        FailSafeTransaction trans =
+            this.faService.createFailSafeTransaction(config);
+        try
+        {
             trans.beginTransaction();
             OutputStream stream = new FileOutputStream(config);
-            XMLUtils.indentedWriteXML(
-                    propertiesDocument, stream);
+
+            store.storeConfiguration(stream);
+
             stream.close();
             trans.commit();
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             logger.error("can't write data in the configuration file", e);
             trans.rollback();
-        }
-    }
-
-    /**
-     * Loads the contents of the specified node and its children into the local
-     * properties. Any nodes marked as "system" will also be resolved in the
-     * system properties.
-     * @param node the root node that we shold load together with its children
-     * @param propertyNameBuff a StringBuffer containing the prefix describing
-     * the route to the specified node including its one name
-     * @param properties the dictionary object where all properties extracted
-     * from this node and its children should be recorded.
-     */
-    private void loadNode(Node node,
-                          StringBuffer propertyNameBuff,
-                          Map<String, Object> props)
-    {
-        Node currentNode = null;
-        NodeList children = node.getChildNodes();
-        for(int i = 0; i < children.getLength(); i++)
-        {
-            currentNode = children.item(i);
-
-            if(currentNode.getNodeType() == Node.ELEMENT_NODE)
-            {
-                StringBuffer newPropBuff =
-                    new StringBuffer(propertyNameBuff
-                                     + "." +currentNode.getNodeName());
-                String value = XMLConfUtils.getAttribute(
-                    currentNode, ATTRIBUTE_VALUE);
-
-                String propertyType =
-                    XMLConfUtils.getAttribute(currentNode, SYSTEM_ATTRIBUTE_NAME);
-
-                // the value attr is present we must handle the desired property
-                if(value != null)
-                {
-
-                    //if the property is marked as "system", we should resolve
-                    //it against the system properties and only store a
-                    //reference locally. this is normally done for properties
-                    //that are supposed to configure underlying libraries.
-                    if(propertyType != null
-                       && propertyType.equals(SYSTEM_ATTRIBUTE_TRUE))
-                    {
-                        props.put(
-                            newPropBuff.toString(),
-                            new PropertyReference(newPropBuff.toString()));
-                        System.setProperty(newPropBuff.toString(), value);
-                    }
-                    else
-                    {
-                        props.put(newPropBuff.toString(), value);
-                    }
-                }
-
-                //load child nodes
-                loadNode(currentNode, newPropBuff, props);
-            }
-        }
-    }
-
-    /**
-     * Updates the value of the specified node and its children to reflect those
-     * in the properties file. Nodes marked as "system" will be updated from
-     * the specified properties object and not from the system properties since
-     * if any intentional change (through a configuration form) has occurred
-     * it will have been made there.
-     *
-     * @param node the root node that we shold update together with its children
-     * @param propertyNameBuff a StringBuffer containing the prefix describing
-     * the dot separated route to the specified node including its one name
-     * @param properties the dictionary object where the up to date values of
-     * the node should be queried.
-     */
-    private void updateNode(Node node,
-                            StringBuffer propertyNameBuff,
-                            Map<String, Object> props)
-    {
-        Node currentNode = null;
-        NodeList children = node.getChildNodes();
-        for(int i = 0; i < children.getLength(); i++)
-        {
-            currentNode = children.item(i);
-
-            if(currentNode.getNodeType() == Node.ELEMENT_NODE)
-            {
-                StringBuffer newPropBuff =
-                    new StringBuffer(propertyNameBuff.toString()).append(".")
-                                     .append(currentNode.getNodeName());
-
-                Attr attr =
-                    ((Element)currentNode).getAttributeNode(ATTRIBUTE_VALUE);
-
-                if(attr != null)
-                {
-                    //update the corresponding node
-                    Object value = props.get(newPropBuff.toString());
-
-                    if(value == null)
-                    {
-                        node.removeChild(currentNode);
-                        continue;
-                    }
-
-                    boolean isSystem = value instanceof PropertyReference;
-                    String prop = isSystem
-                        ?((PropertyReference)value).getValue().toString()
-                        :value.toString();
-
-                    attr.setNodeValue(prop);
-
-                    //in case the property has changed to system since the last
-                    //load - update the conf file accordingly.
-                    if(isSystem)
-                        ((Element)currentNode).setAttribute(
-                                SYSTEM_ATTRIBUTE_NAME, SYSTEM_ATTRIBUTE_TRUE);
-                    else
-                        ((Element)currentNode).removeAttribute(
-                                SYSTEM_ATTRIBUTE_NAME);
-
-                }
-
-                //update child nodes
-                updateNode(currentNode, newPropBuff, props);
-            }
         }
     }
 
@@ -769,11 +543,78 @@ public class ConfigurationServiceImpl
      * @return the configuration File currently used by the implementation.
      */
     private File getConfigurationFile()
+        throws IOException
     {
-        if ( configurationFile == null )
-            configurationFile = createConfigurationFile();
+        if (this.configurationFile == null)
+        {
+            File configurationFile = getConfigurationFile("xml", false);
 
-        return configurationFile;
+            if (configurationFile == null)
+            {
+                /*
+                 * Quite strange but let it play out as it did when the
+                 * configuration file was in XML format.
+                 */
+                this.configurationFile = getConfigurationFile("xml", true);
+                if (!(this.store instanceof XMLConfigurationStore))
+                    this.store = new XMLConfigurationStore();
+            }
+            else if (configurationFile.exists())
+            {
+                String name = configurationFile.getName();
+                int extensionBeginIndex = name.lastIndexOf('.');
+                String extension
+                    = (extensionBeginIndex > -1)
+                            ? name.substring(extensionBeginIndex)
+                            : null;
+
+                if (".properties".equalsIgnoreCase(extension))
+                {
+                    this.configurationFile = configurationFile;
+                    if (!(this.store instanceof PropertyConfigurationStore))
+                        this.store = new PropertyConfigurationStore();
+                }
+                else
+                {
+                    File newConfigurationFile
+                        = new File(
+                                configurationFile.getParentFile(),
+                                ((extensionBeginIndex > -1)
+                                        ? name.substring(0, extensionBeginIndex)
+                                        : name)
+                                    + ".properties");
+
+                    if (newConfigurationFile.exists())
+                    {
+                        this.configurationFile = newConfigurationFile;
+                        if (!(this.store instanceof PropertyConfigurationStore))
+                            this.store = new PropertyConfigurationStore();
+                    }
+                    else
+                    {
+                        this.configurationFile = configurationFile;
+                        if (!(this.store instanceof XMLConfigurationStore))
+                            this.store = new XMLConfigurationStore();
+                    }
+                }
+            }
+            else
+            {
+                this.configurationFile
+                        = getConfigurationFile("properties", true);
+                if (!(this.store instanceof PropertyConfigurationStore))
+                    this.store = new PropertyConfigurationStore();
+            }
+
+            /*
+             * Make sure that the properties SC_HOME_DIR_LOCATION and
+             * SC_HOME_DIR_NAME are available in the store of this instance so
+             * that users don't have to ask the system properties again.
+             */
+            getScHomeDirLocation();
+            getScHomeDirName();
+        }
+        return this.configurationFile;
     }
 
     /**
@@ -789,7 +630,10 @@ public class ConfigurationServiceImpl
     {
         //first let's check whether we already have the name of the directory
         //set as a configuration property
-        String scHomeDirLocation = getString(PNAME_SC_HOME_DIR_LOCATION);
+        String scHomeDirLocation = null;
+
+        if (store != null)
+            scHomeDirLocation = getString(PNAME_SC_HOME_DIR_LOCATION);
 
         if (scHomeDirLocation == null)
         {
@@ -799,14 +643,16 @@ public class ConfigurationServiceImpl
                 = getSystemProperty(PNAME_SC_HOME_DIR_LOCATION);
 
             if (scHomeDirLocation == null)
-            {
                 scHomeDirLocation = getSystemProperty("user.home");
-            }
 
             //now save all this as a configuration property so that we don't
             //have to look for it in the sys props next time and so that it is
             //available for other bundles to consult.
-            properties.put(PNAME_SC_HOME_DIR_LOCATION, scHomeDirLocation);
+            if (store != null)
+                store
+                    .setNonSystemProperty(
+                        PNAME_SC_HOME_DIR_LOCATION,
+                        scHomeDirLocation);
         }
 
         return scHomeDirLocation;
@@ -825,7 +671,10 @@ public class ConfigurationServiceImpl
     {
         //first let's check whether we already have the name of the directory
         //set as a configuration property
-        String scHomeDirName = getString(PNAME_SC_HOME_DIR_NAME);
+        String scHomeDirName = null;
+
+        if (store != null)
+            scHomeDirName = getString(PNAME_SC_HOME_DIR_NAME);
 
         if (scHomeDirName == null)
         {
@@ -835,14 +684,16 @@ public class ConfigurationServiceImpl
                 = getSystemProperty(PNAME_SC_HOME_DIR_NAME);
 
             if (scHomeDirName == null)
-            {
                 scHomeDirName = ".sip-communicator";
-            }
 
             //now save all this as a configuration property so that we don't
             //have to look for it in the sys props next time and so that it is
-            //available for other bundles to consult.
-            properties.put(PNAME_SC_HOME_DIR_NAME, scHomeDirName);
+            // available for other bundles to consult.
+            if (store != null)
+                store
+                    .setNonSystemProperty(
+                        PNAME_SC_HOME_DIR_NAME,
+                        scHomeDirName);
         }
 
         return scHomeDirName;
@@ -859,161 +710,119 @@ public class ConfigurationServiceImpl
      * we'll look for it in all locations currently present in the $CLASSPATH.
      * In case we find it in there we will copy it to the
      * $HOME/.sip-communicator directory in case it was in a jar archive and
-     * return the reference to the newly created file. In case the file is
-     * to be found noweher - a new empty file in the user home directory and
-     * returns a link to that one.
-     *
-     *
+     * return the reference to the newly created file. In case the file is to be
+     * found nowhere - a new empty file in the user home directory and returns a
+     * link to that one.
+     * 
+     * @param extension
+     *            the extension of the file name of the configuration file. The
+     *            specified extension may not be taken into account if the the
+     *            configuration file name is forced through a system property.
+     * @param create
+     *            <tt>true</tt> to create the configuration file with the
+     *            determined file name if it does not exist; <tt>false</tt> to
+     *            only figure out the file name of the configuration file
+     *            without creating it
      * @return the configuration file currently used by the implementation.
      */
-    File createConfigurationFile()
+    private File getConfigurationFile(String extension, boolean create)
+        throws IOException
     {
-        try
+        //see whether we have a user specified name for the conf file
+        String pFileName = getSystemProperty(FILE_NAME_PROPERTY);
+        if (pFileName == null)
+            pFileName = "sip-communicator." + extension;
+
+        // try to open the file in current directory
+        File configFileInCurrentDir = new File(pFileName);
+        if (configFileInCurrentDir.exists())
         {
-            //see whether we have a user specified name for the conf file
-            String pFileName = getSystemProperty(
-                FILE_NAME_PROPERTY);
-            if (pFileName == null)
-            {
-                pFileName = "sip-communicator.xml";
-            }
+            logger.debug(
+                "Using config file in current dir: "
+                    + configFileInCurrentDir.getAbsolutePath());
+            return configFileInCurrentDir;
+        }
 
-            // try to open the file in current directory
-            File configFileInCurrentDir = new File(pFileName);
-            if (configFileInCurrentDir.exists())
-            {
-                logger.debug("Using config file in current dir: "
-                             + configFileInCurrentDir.getCanonicalPath());
-                return configFileInCurrentDir;
-            }
+        // we didn't find it in ".", try the SIP Communicator home directory
+        // first check whether a custom SC home directory is specified
 
-            // we didn't find it in ".", try the SIP Communicator home directory
-            // first check whether a custom SC home directory is specified
+        File configDir
+            = new File(
+                    getScHomeDirLocation()
+                        + File.separator
+                        + getScHomeDirName());
+        File configFileInUserHomeDir = new File(configDir, pFileName);
 
-            //name of the sip-communicator home directory
-            String scHomeDirName = getScHomeDirName();
-
-            //location of the sip-communicator home directory
-            String scHomeDirLocation = getScHomeDirLocation();
-
-            File configDir = new File( scHomeDirLocation
-                                       + File.separator + scHomeDirName);
-
-            File configFileInUserHomeDir =
-                new File(configDir, pFileName);
-
-            if (configFileInUserHomeDir.exists())
-            {
-                logger.debug("Using config file in $HOME/.sip-communicator: "
-                             + configFileInCurrentDir.getCanonicalPath());
-                return configFileInUserHomeDir;
-            }
-
-            // If we are in a jar - copy config file from jar to user home.
-            logger.trace("Copying config file.");
-
-            configDir.mkdirs();
-            InputStream in = getClass().getClassLoader().
-                getResourceAsStream(pFileName);
-
-            //Return an empty file if there wasn't any in the jar
-            //null check report from John J. Barton - IBM
-            if (in == null)
-            {
-                configFileInUserHomeDir.createNewFile();
-                logger.debug("Created an empty file in $HOME: "
-                             + configFileInCurrentDir.getCanonicalPath());
-                return configFileInUserHomeDir;
-            }
-            BufferedReader reader =
-                new BufferedReader(new InputStreamReader(in));
-
-            PrintWriter writer = new PrintWriter(new FileWriter(
-                configFileInUserHomeDir));
-
-            String line = null;
-            logger.debug("Copying properties file:");
-            while ( (line = reader.readLine()) != null)
-            {
-                writer.println(line);
-                logger.debug(line);
-            }
-            writer.flush();
+        if (configFileInUserHomeDir.exists())
+        {
+            logger.debug(
+                "Using config file in $HOME/.sip-communicator: "
+                    + configFileInUserHomeDir.getAbsolutePath());
             return configFileInUserHomeDir;
         }
-        catch (IOException ex)
+
+        // If we are in a jar - copy config file from jar to user home.
+        InputStream in
+            = getClass().getClassLoader().getResourceAsStream(pFileName);
+
+        //Return an empty file if there wasn't any in the jar
+        //null check report from John J. Barton - IBM
+        if (in == null)
         {
-            logger.error("Error creating config file", ex);
-            return null;
+            if (create)
+            {
+                configDir.mkdirs();
+                configFileInUserHomeDir.createNewFile();
+            }
+            logger.debug(
+                "Created an empty file in $HOME: "
+                    + configFileInUserHomeDir.getAbsolutePath());
+            return configFileInUserHomeDir;
         }
+
+        logger.trace(
+            "Copying config file from JAR into "
+                + configFileInUserHomeDir.getAbsolutePath());
+        configDir.mkdirs();
+        try
+        {
+            copy(in, configFileInUserHomeDir);
+        }
+        finally
+        {
+            try
+            {
+                in.close();
+            }
+            catch (IOException ioex)
+            {
+                /*
+                 * Ignore it because it doesn't matter and, most importantly, it
+                 * shouldn't prevent us from using the configuration file.
+                 */
+            }
+        }
+        return configFileInUserHomeDir;
     }
 
-    /**
-     * Creates new entries in the XML <tt>doc</tt> for every element in the
-     * <tt>newProperties</tt> table.
-     * 
-     * @param doc the XML <tt>Document</tt> where the new entries should be
-     *            created
-     * @param newProperties the table containing the properties that are to be
-     *            introduced in the document.
-     */
-    private void processNewProperties(Document doc,
-                                      Map<String, Object>      newProperties)
+    private static void copy(InputStream inputStream, File outputFile)
+        throws IOException
     {
-        for (Map.Entry<String, Object> entry : newProperties.entrySet())
+        OutputStream outputStream = new FileOutputStream(outputFile);
+
+        try
         {
-            String key = entry.getKey();
-            Object value = entry.getValue();
-            boolean isSystem = value instanceof PropertyReference;
-            value = isSystem
-                        ?((PropertyReference)value).getValue()
-                        :value;
-            processNewProperty(doc, key, value.toString(), isSystem);
+            byte[] bytes = new byte[4 * 1024];
+            int bytesRead;
+
+            while ((bytesRead = inputStream.read(bytes)) != -1)
+                outputStream.write(bytes, 0, bytesRead);
+        }
+        finally
+        {
+            outputStream.close();
         }
     }
-
-    /**
-     * Creates an entry in the xml <tt>doc</tt> for the specified key value
-     * pair.
-     * @param doc the XML <tt>document</tt> to update.
-     * @param key the value of the <tt>name</tt> attribute for the new entry
-     * @param value the value of the <tt>value</tt> attribue for the new
-     * @param isSystem specifies whether this is a system property (system
-     *                 attribute will be set to true).
-     * entry.
-     */
-    private void processNewProperty(Document doc,
-                                    String key,
-                                    String value,
-                                    boolean isSystem)
-    {
-        StringTokenizer tokenizer = new StringTokenizer(key, ".");
-        String[] toks = new String[tokenizer.countTokens()];
-        int i = 0;
-        while(tokenizer.hasMoreTokens())
-            toks[i++] = tokenizer.nextToken();
-
-        String[] chain = new String[toks.length - 1];
-        for (int j = 0; j < chain.length; j++)
-        {
-            chain[j] = toks[j];
-        }
-
-        String nodeName = toks[toks.length - 1];
-
-        Element parent = XMLConfUtils.createLastPathComponent(doc, chain);
-        Element newNode = XMLConfUtils.findChild(parent, nodeName);
-        if (newNode == null)
-        {
-            newNode = doc.createElement(nodeName);
-            parent.appendChild(newNode);
-        }
-        newNode.setAttribute("value", value);
-
-        if(isSystem)
-            newNode.setAttribute(SYSTEM_ATTRIBUTE_NAME, SYSTEM_ATTRIBUTE_TRUE);
-    }
-
 
     /**
      * Returns the value of the specified java system property. In case the
@@ -1028,13 +837,8 @@ public class ConfigurationServiceImpl
     private static String getSystemProperty(String propertyName)
     {
         String retval = System.getProperty(propertyName);
-        if (retval == null){
-            return retval;
-        }
-
-        if (retval.trim().length() == 0){
-            return null;
-        }
+        if ((retval != null) && (retval.trim().length() == 0))
+            retval = null;
         return retval;
     }
 
@@ -1093,59 +897,6 @@ public class ConfigurationServiceImpl
     }
 
     /**
-     * We use property references when we'd like to store system properties.
-     * Simply storing System properties in our properties Map would not be
-     * enough since it will lead to mismatching values for the same property in
-     * the System property set and in our local set of properties. Storing them
-     * only in the System property set OTOH is a bit clumsy since it obliges
-     * bundles to use to different configuration property sources. For that
-     * reason, every time we get handed a property labeled as System, in stead
-     * of storing its actual value in the local property set we store a
-     * PropertyReference instance that will retrive it from the system
-     * properties when necessary.
-     */
-    private static class PropertyReference
-    {
-        private final String propertyName;
-
-        PropertyReference(String propertyName)
-        {
-            this.propertyName = propertyName;
-        }
-
-        /**
-         * Return the actual value of the property as recorded in the System
-         * properties.
-         * @return the valued of the property as recorded in the System props.
-         */
-        public Object getValue()
-        {
-            return System.getProperty(propertyName);
-        }
-    }
-
-    /**
-     * Returns a copy of the Map containing all configuration properties
-     * @return a Map clone of the current configuration property set.
-     */
-    private Map<String, Object> cloneProperties()
-    {
-        // at the time I'm writing this method we're implementing the
-        // configuration service through the use of a hashtable. this may very
-        // well change one day so let's not be presumptuous
-        if (properties instanceof Hashtable)
-            return (Map<String, Object>) ((Hashtable) properties).clone();
-        if (properties instanceof HashMap)
-            return (Map<String, Object>) ((HashMap) properties).clone();
-        if (properties instanceof TreeMap)
-            return (Map<String, Object>) ((TreeMap) properties).clone();
-
-        // well you can't say that I didn't try!!!
-
-        return new Hashtable<String, Object>(properties);
-    }
-
-    /**
      * Determines whether the property with the specified
      * <tt>propertyName</tt> has been previously declared as System
      *
@@ -1157,8 +908,7 @@ public class ConfigurationServiceImpl
      */
     private boolean isSystem(String propertyName)
     {
-        return properties.containsKey(propertyName)
-               && properties.get(propertyName) instanceof PropertyReference;
+        return store.isSystem(propertyName);
     }
 
     /**
@@ -1166,7 +916,7 @@ public class ConfigurationServiceImpl
      */
     public void purgeStoredConfiguration()
     {
-        if (this.configurationFile != null)
+        if (configurationFile != null)
         {
             configurationFile.delete();
             configurationFile = null;
@@ -1182,8 +932,8 @@ public class ConfigurationServiceImpl
     {
         if (logger.isDebugEnabled())
         {
-            Properties pValues = System.getProperties();
-            for (Map.Entry<Object, Object> entry : pValues.entrySet())
+            for (Map.Entry<Object, Object> entry
+                    : System.getProperties().entrySet())
                 logger.debug(entry.getKey() + "=" + entry.getValue());
         }
     }
@@ -1195,7 +945,7 @@ public class ConfigurationServiceImpl
      * loads their contents as system properties. All such files have to be in
      * a location that's in the classpath.
      */
-    public void preloadSystemPropertyFiles()
+    private void preloadSystemPropertyFiles()
     {
         String propertyFilesListStr
             = System.getProperty( SYS_PROPS_FILE_NAME_PROPERTY );

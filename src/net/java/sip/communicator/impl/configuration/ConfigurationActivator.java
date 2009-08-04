@@ -13,31 +13,31 @@ import net.java.sip.communicator.util.*;
 
 /**
  * @author Emil Ivov
+ * @author Lubomir Marinov
  */
 public class ConfigurationActivator
     implements BundleActivator
 {
-    /**
-     * The current bundle context
-     */
-    public static BundleContext bundleContext;
-    
-    private final Logger logger = Logger.getLogger(ConfigurationServiceImpl.class);
-    private ConfigurationServiceImpl impl = new ConfigurationServiceImpl();
+    private final Logger logger
+        = Logger.getLogger(ConfigurationServiceImpl.class);
+
+    private final ConfigurationServiceImpl impl
+        = new ConfigurationServiceImpl();
 
     /**
      * Starts the configuration service
-     *
-     * @param bundleContext the BundleContext as provided from the osgi
-     * framework.
-     * @throws Exception if anything goes wrong
+     * 
+     * @param bundleContext
+     *            the BundleContext as provided from the OSGi framework.
+     * @throws Exception
+     *             if anything goes wrong
      */
-    public void start(BundleContext bContext) throws Exception
+    public void start(BundleContext bundleContext)
+        throws Exception
     {
         logger.debug("Service Impl: " + getClass().getName() + " [  STARTED ]");
-        
-        ConfigurationActivator.bundleContext = bContext;
-        impl.start();
+
+        impl.start(bundleContext);
 
         bundleContext.registerService(ConfigurationService.class.getName(),
                                       impl,
@@ -48,12 +48,13 @@ public class ConfigurationActivator
 
     /**
      * Causes the configuration service to store the properties object and
-     * unregisters the configuration servcice.
+     * unregisters the configuration service.
      *
-     * @param bundlecontext BundleContext
+     * @param bundleContext BundleContext
      * @throws Exception
      */
-    public void stop(BundleContext bundlecontext) throws Exception
+    public void stop(BundleContext bundleContext)
+        throws Exception
     {
         logger.logEntry();
         impl.stop();
