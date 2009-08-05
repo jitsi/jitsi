@@ -552,7 +552,7 @@ public class ConfigurationServiceImpl
                 if (!(this.store instanceof XMLConfigurationStore))
                     this.store = new XMLConfigurationStore();
             }
-            else if (configurationFile.exists())
+            else
             {
                 String name = configurationFile.getName();
                 int extensionBeginIndex = name.lastIndexOf('.');
@@ -583,20 +583,25 @@ public class ConfigurationServiceImpl
                         if (!(this.store instanceof PropertyConfigurationStore))
                             this.store = new PropertyConfigurationStore();
                     }
+                    else if (!configurationFile.exists()
+                            && (getSystemProperty(PNAME_CONFIGURATION_FILE_NAME)
+                                    == null))
+                    {
+                        this.configurationFile
+                                = getConfigurationFile("properties", true);
+                        if (!(this.store instanceof PropertyConfigurationStore))
+                            this.store = new PropertyConfigurationStore();
+                    }
                     else
                     {
-                        this.configurationFile = configurationFile;
+                        this.configurationFile =
+                                configurationFile.exists()
+                                    ? configurationFile
+                                    : getConfigurationFile("xml", true);
                         if (!(this.store instanceof XMLConfigurationStore))
                             this.store = new XMLConfigurationStore();
                     }
                 }
-            }
-            else
-            {
-                this.configurationFile
-                        = getConfigurationFile("properties", true);
-                if (!(this.store instanceof PropertyConfigurationStore))
-                    this.store = new PropertyConfigurationStore();
             }
 
             /*
@@ -914,6 +919,9 @@ public class ConfigurationServiceImpl
             configurationFile.delete();
             configurationFile = null;
         }
+        if (store != null)
+            for (String name : store.getPropertyNames())
+                store.removeProperty(name);
     }
 
     /**

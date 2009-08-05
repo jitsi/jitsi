@@ -6,9 +6,12 @@
  */
 package net.java.sip.communicator.slick.configuration;
 
-import org.osgi.framework.*;
+import java.util.*;
+
 import junit.framework.*;
 import net.java.sip.communicator.service.configuration.*;
+
+import org.osgi.framework.*;
 
 /**
  * Performs finalization tasks (such as removing the configuration file) at the
@@ -42,5 +45,11 @@ public class TestConfigurationSlickFinalizer
 
         configurationService.purgeStoredConfiguration();
 
+        List<String> propertyNames
+            = configurationService.getPropertyNamesByPrefix("", false);
+
+        assertTrue(
+            "The configuration service contains properties after purging.",
+            (propertyNames == null) || (propertyNames.size() <= 0));
     }
 }
