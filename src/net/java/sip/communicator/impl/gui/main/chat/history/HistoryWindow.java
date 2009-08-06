@@ -37,6 +37,7 @@ import net.java.sip.communicator.util.swing.*;
  * for one or a group of <tt>MetaContact</tt>s.
  *
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class HistoryWindow
     extends SIPCommFrame
@@ -45,8 +46,7 @@ public class HistoryWindow
                 MessageListener,
                 ChatRoomMessageListener
 {
-    private static final Logger logger = Logger
-        .getLogger(HistoryWindow.class.getName());
+    private static final Logger logger = Logger.getLogger(HistoryWindow.class);
 
     private ChatConversationPanel chatConvPanel;
 
@@ -87,6 +87,22 @@ public class HistoryWindow
     private int lastProgress = 0;
 
     /**
+     * If the <code>historyContact</code> is a <code>MetaContact</code>,
+     * contains the <code>OperationSetBasicInstantMessaging</code> instances to
+     * which this <code>HistoryWindow</code> has added itself as a
+     * <code>MessageListener</code>.
+     */
+    private java.util.List<OperationSetBasicInstantMessaging> basicInstantMessagings;
+
+    /**
+     * If the <code>historyContact</code> is a <code>ChatRoomWrapper</code>,
+     * specifies the <code>ChatRoom</code> to which this
+     * <code>HistoryWindow</code> has added itself as a
+     * <code>ChatRoomMessageListener</code>.
+     */
+    private ChatRoom chatRoom;
+
+    /**
      * Creates an instance of the <tt>HistoryWindow</tt>.
      * @param mainFrame the main application window
      * @param historyContact the <tt>MetaContact</tt> or the <tt>ChatRoom</tt>
@@ -117,8 +133,6 @@ public class HistoryWindow
 
         this.pack();
 
-        this.addWindowListener(new HistoryWindowAdapter());
-
         if (historyContact instanceof MetaContact)
         {
             MetaContact metaContact = (MetaContact) historyContact;
@@ -129,21 +143,30 @@ public class HistoryWindow
 
             Iterator<Contact> protoContacts = metaContact.getContacts();
 
+            basicInstantMessagings
+                = new ArrayList<OperationSetBasicInstantMessaging>();
             while(protoContacts.hasNext())
             {
                 Contact protoContact = protoContacts.next();
 
-                ((OperationSetBasicInstantMessaging) protoContact
-                    .getProtocolProvider().getOperationSet(
-                        OperationSetBasicInstantMessaging.class))
-                            .addMessageListener(this);
+                OperationSetBasicInstantMessaging basicInstantMessaging
+                    = (OperationSetBasicInstantMessaging)
+                        protoContact
+                            .getProtocolProvider()
+                                .getOperationSet(
+                                    OperationSetBasicInstantMessaging.class);
+
+                if (basicInstantMessaging != null)
+                {
+                    basicInstantMessaging.addMessageListener(this);
+                    basicInstantMessagings.add(basicInstantMessaging);
+                }
             }
         }
         else if (historyContact instanceof ChatRoomWrapper)
         {
-            ChatRoomWrapper chatRoomWrapper = (ChatRoomWrapper) historyContact;
-
-            chatRoomWrapper.getChatRoom().addMessageListener(this);
+            chatRoom = ((ChatRoomWrapper) historyContact).getChatRoom();
+            chatRoom.addMessageListener(this);
         }
     }
     
@@ -323,15 +346,28 @@ public class HistoryWindow
         return this;
     }
 
-    /**
-     * Before closing the history window saves the current size and position
-     * through the <tt>ConfigurationService</tt>.
-     */
-    public class HistoryWindowAdapter extends WindowAdapter
+    protected void windowClosing(WindowEvent e)
     {
-        public void windowClosing(WindowEvent e)
+        super.windowClosing(e);
+
+        /*
+         * Remove all listeners in order to have this instance ready for garbage
+         * collection.
+         */
+
+        history.removeSearchProgressListener(this);
+
+        if (basicInstantMessagings != null)
         {
-            history.removeSearchProgressListener(HistoryWindow.this);
+            for (OperationSetBasicInstantMessaging basicInstantMessaging
+                    : basicInstantMessagings)
+                basicInstantMessaging.removeMessageListener(this);
+            basicInstantMessagings = null;
+        }
+        if (chatRoom != null)
+        {
+            chatRoom.removeMessageListener(this);
+            chatRoom = null;
         }
     }
 
@@ -366,40 +402,27 @@ public class HistoryWindow
 
             if(progressBar.getPercentComplete() == 1.0)
             {
-                new ProgressBarTimer().start();
+                // Wait 1 sec and remove the progress bar from the main panel.
+                Timer progressBarTimer = new Timer(1 * 1000, null);
+
+                progressBarTimer.setRepeats(false);
+                progressBarTimer.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        mainPanel.remove(progressBar);
+                        mainPanel.add(readyLabel, BorderLayout.SOUTH);
+                        mainPanel.revalidate();
+                        mainPanel.repaint();
+                        progressBar.setValue(0);
+                    }
+                });
+                progressBarTimer.start();
             }
 
             lastProgress = progress;
         }
     }
 
-    /**
-     * Waits 1 second and removes the progress bar from the main panel.
-     */
-    private class ProgressBarTimer extends Timer
-    {
-        public ProgressBarTimer()
-        {
-            //Set delay
-            super(1 * 1000, null);
-            this.setRepeats(false);
-            this.addActionListener(new TimerActionListener());
-        }
-
-        private class TimerActionListener implements ActionListener
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                mainPanel.remove(progressBar);
-                mainPanel.add(readyLabel, BorderLayout.SOUTH);
-                mainPanel.revalidate();
-                mainPanel.repaint();
-                progressBar.setValue(0);
-            }
-        }
-    }
-    
-        
     /**
      * Loads history dates.
      */
@@ -698,9 +721,7 @@ public class HistoryWindow
         }
         else if(historyMenu.isPopupMenuVisible())
         {
-            MenuSelectionManager menuSelectionManager
-                = MenuSelectionManager.defaultManager();
-            menuSelectionManager.clearSelectedPath();
+            MenuSelectionManager.defaultManager().clearSelectedPath();
         }
         else
         {

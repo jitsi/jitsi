@@ -24,6 +24,7 @@ import net.java.sip.communicator.util.*;
  * transparent background.
  * 
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public abstract class SIPCommFrame
     extends JFrame
@@ -115,19 +116,30 @@ public abstract class SIPCommFrame
         amap.put(binding, action);
     }
 
-    /**
-     * Before closing the application window saves the current size and position
-     * through the <tt>ConfigurationService</tt>.
-     */
-    public class FrameWindowAdapter
+    private static class FrameWindowAdapter
         extends WindowAdapter
     {
         public void windowClosing(WindowEvent e)
         {
-            saveSizeAndLocation();
-
-            close(false);
+            ((SIPCommFrame) e.getWindow()).windowClosing(e);
         }
+    }
+
+    /**
+     * Invoked when this window is in the process of being closed. The close
+     * operation can be overridden at this point.
+     * 
+     * @param e
+     */
+    protected void windowClosing(WindowEvent e)
+    {
+        /*
+         * Before closing the application window save the current size and
+         * position through the ConfigurationService.
+         */
+        saveSizeAndLocation();
+
+        close(false);
     }
 
     /**
