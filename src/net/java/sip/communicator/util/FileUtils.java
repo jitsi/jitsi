@@ -75,7 +75,7 @@ public class FileUtils
             }
             catch (Exception e1)
             {
-                logger.debug("Failed to obtain file icon from JFileChooser.", e);
+                logger.debug("Failed to obtain file icon from JFileChooser.", e1);
             }
         }
 
