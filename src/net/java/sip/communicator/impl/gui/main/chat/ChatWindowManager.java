@@ -543,9 +543,9 @@ public class ChatWindowManager
     }
 
     /**
-     * Returns all open ChatPanel´s
+     * Returns all open <code>ChatPanel</code>s.
      *
-     * @return  A list of ChatPanels
+     * @return  A list of <code>ChatPanel</code>s
      */
     public List<ChatPanel> getChatPanels()
     {
