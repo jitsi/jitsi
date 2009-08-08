@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol;
 
 import org.osgi.framework.*;
 
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -30,12 +31,46 @@ public class ProtocolProviderActivator
     private ServiceRegistration accountManagerServiceRegistration;
 
     /**
+     * The <code>BundleContext</code> of the one and only
+     * <code>ProtocolProviderActivator</code> instance which is currently
+     * started.
+     */
+    private static BundleContext bundleContext;
+
+    /**
+     * The <code>ConfigurationService</code> used by the classes in the bundle
+     * represented by <code>ProtocolProviderActivator</code>.
+     */
+    private static ConfigurationService configurationService;
+
+    /**
      * The <code>SingleCallInProgressPolicy</code> making sure that the
      * <code>Call</code>s accessible in the <code>BundleContext</code> of this
      * activator will obey to the rule that a new <code>Call</code> should put
      * the other existing <code>Call</code>s on hold.
      */
     private SingleCallInProgressPolicy singleCallInProgressPolicy;
+
+    /**
+     * Gets the <code>ConfigurationService</code> to be used by the classes in
+     * the bundle represented by <code>ProtocolProviderActivator</code>.
+     * 
+     * @return the <code>ConfigurationService</code> to be used by the classes
+     *         in the bundle represented by
+     *         <code>ProtocolProviderActivator</code>
+     */
+    static ConfigurationService getConfigurationService()
+    {
+        if (configurationService == null)
+        {
+            configurationService
+                = (ConfigurationService)
+                    bundleContext.getService(
+                        bundleContext.getServiceReference(
+                            ConfigurationService.class.getName()));
+        }
+        return configurationService;
+    }
 
     /**
      * Registers a new <code>AccountManagerImpl</code> instance as an
@@ -51,6 +86,8 @@ public class ProtocolProviderActivator
      */
     public void start(BundleContext bundleContext)
     {
+        ProtocolProviderActivator.bundleContext = bundleContext;
+
         accountManagerServiceRegistration =
             bundleContext.registerService(AccountManager.class.getName(),
                 new AccountManagerImpl(bundleContext), null);
@@ -81,5 +118,8 @@ public class ProtocolProviderActivator
             singleCallInProgressPolicy.dispose();
             singleCallInProgressPolicy = null;
         }
+
+        if (bundleContext.equals(ProtocolProviderActivator.bundleContext))
+            ProtocolProviderActivator.bundleContext = null;
     }
 }

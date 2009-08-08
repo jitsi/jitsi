@@ -15,6 +15,12 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
+/**
+ * Represents an implementation of <code>AccountManager</code> which loads the
+ * accounts in a separate thread.
+ * 
+ * @author Lubomir Marinov
+ */
 public class AccountManagerImpl
     implements AccountManager
 {
@@ -30,12 +36,6 @@ public class AccountManagerImpl
      * The <code>BundleContext</code> this service is registered in.
      */
     private final BundleContext bundleContext;
-
-    /**
-     * The <code>ConfigurationService</code> storing the accounts managed by
-     * this instance.
-     */
-    private ConfigurationService configurationService;
 
     /**
      * The <code>AccountManagerListener</code>s currently interested in the
@@ -82,14 +82,15 @@ public class AccountManagerImpl
         });
     }
 
+    /*
+     * Implements AccountManager#addListener(AccountManagerListener).
+     */
     public void addListener(AccountManagerListener listener)
     {
         synchronized (listeners)
         {
             if (!listeners.contains(listener))
-            {
                 listeners.add(listener);
-            }
         }
     }
 
@@ -102,7 +103,8 @@ public class AccountManagerImpl
      */
     private void doLoadStoredAccounts(ProtocolProviderFactory factory)
     {
-        ConfigurationService configService = getConfigurationService();
+        ConfigurationService configService
+            = ProtocolProviderActivator.getConfigurationService();
         String factoryPackage = getFactoryImplPackageName(factory);
         List<String> storedAccounts =
             configService.getPropertyNamesByPrefix(factoryPackage, true);
@@ -202,17 +204,6 @@ public class AccountManagerImpl
         }
     }
 
-    private ConfigurationService getConfigurationService()
-    {
-        if (configurationService == null)
-        {
-            configurationService =
-                (ConfigurationService) bundleContext.getService(bundleContext
-                    .getServiceReference(ConfigurationService.class.getName()));
-        }
-        return configurationService;
-    }
-
     private String getFactoryImplPackageName(ProtocolProviderFactory factory) {
         String className = factory.getClass().getName();
 
@@ -239,13 +230,14 @@ public class AccountManagerImpl
 
         if ((factoryRefs != null) && (factoryRefs.length > 0))
         {
-            ConfigurationService configService = getConfigurationService();
+            ConfigurationService configService
+                = ProtocolProviderActivator.getConfigurationService();
 
-            for (int factoryRefI = 0; factoryRefI < factoryRefs.length; factoryRefI++)
+            for (ServiceReference factoryRef : factoryRefs)
             {
-                ProtocolProviderFactory factory =
-                    (ProtocolProviderFactory) bundleContext
-                        .getService(factoryRefs[factoryRefI]);
+                ProtocolProviderFactory factory
+                    = (ProtocolProviderFactory)
+                        bundleContext.getService(factoryRef);
 
                 if ((protocolName != null)
                     && !protocolName.equals(factory.getProtocolName()))
@@ -366,6 +358,9 @@ public class AccountManagerImpl
         }
     }
 
+    /*
+     * Implements AccountManager#removeListener(AccountManagerListener).
+     */
     public void removeListener(AccountManagerListener listener)
     {
         synchronized (listeners)
@@ -495,10 +490,11 @@ public class AccountManagerImpl
     public void storeAccount(ProtocolProviderFactory factory,
         AccountID accountID)
     {
-        ConfigurationService configurationService = getConfigurationService();
+        ConfigurationService configurationService
+            = ProtocolProviderActivator.getConfigurationService();
         String factoryPackage = getFactoryImplPackageName(factory);
 
-        // First check if such accountID already exist in the configuration.
+        // First check if such accountID already exists in the configuration.
         List<String> storedAccounts =
             configurationService.getPropertyNamesByPrefix(factoryPackage, true);
         String accountUID = accountID.getAccountUniqueID();

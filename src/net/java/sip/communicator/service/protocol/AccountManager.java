@@ -10,8 +10,8 @@ import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * Represents a manager of accounts which contains the details about the format
- * in which the accounts in question are stored (i.e. knows how to store and load
- * them) and takes care of loading them on start-up.
+ * in which the accounts in question are stored (i.e. knows how to store and
+ * load them) and takes care of loading them on start-up.
  * 
  * @author Lubomir Marinov
  */
@@ -23,8 +23,9 @@ public interface AccountManager
      * <code>AccountManager</code>. If the <code>listener</code> is already
      * registered, it will not be registered again.
      * 
-     * @param listener the listener to be registered for notification events
-     *            fired by this <code>AccountManager</code>
+     * @param listener
+     *            the listener to be registered for notification events fired by
+     *            this <code>AccountManager</code>
      */
     void addListener(AccountManagerListener listener);
 
@@ -32,10 +33,12 @@ public interface AccountManager
      * Determines whether the account store represented by this manager contains
      * stored accounts.
      * 
-     * @param protocolName the name of the protocol for which the stored
-     *            accounts are to be checked or <tt>null</tt> for all protocols
-     * @param includeHidden <tt>true</tt> to take into account both non-hidden
-     *            and hidden stored accounts; <tt>false</tt> for non-hidden only
+     * @param protocolName
+     *            the name of the protocol for which the stored accounts are to
+     *            be checked or <tt>null</tt> for all protocols
+     * @param includeHidden
+     *            <tt>true</tt> to take into account both non-hidden and hidden
+     *            stored accounts; <tt>false</tt> for non-hidden only
      * @return <tt>true</tt> if the account store represented by this manager
      *         contains stored accounts; <tt>false</tt>, otherwise
      */
@@ -46,7 +49,8 @@ public interface AccountManager
      * that it no longer received notifications about events fired by this
      * manager.
      * 
-     * @param listener the listener to be unregistered from this
+     * @param listener
+     *            the listener to be unregistered from this
      *            <code>AccountManager</code> so that it no longer receives
      *            notifications about events fired by this manager
      */
@@ -56,10 +60,11 @@ public interface AccountManager
      * Stores an account represented in the form of an <code>AccountID</code>
      * created by a specific <code>ProtocolProviderFactory</code>.
      * 
-     * @param factory the <code>ProtocolProviderFactory</code> which created the
+     * @param factory
+     *            the <code>ProtocolProviderFactory</code> which created the
      *            account to be stored
-     * @param accountID the account in the form of <code>AccountID</code> to be
-     *            stored
+     * @param accountID
+     *            the account in the form of <code>AccountID</code> to be stored
      */
     void storeAccount(ProtocolProviderFactory factory, AccountID accountID);
 }
