@@ -83,6 +83,26 @@ public interface ConfigurationService
                             boolean isSystem)
         throws PropertyVetoException;
 
+    /**
+     * Sets a set of specific properties to specific values as a batch operation
+     * meaning that first <code>VetoableChangeListener</code>s are asked to
+     * approve the modifications of the specified properties to the specified
+     * values, then the modifications are performed if no complaints have been
+     * raised in the form of <code>PropetyVetoException</code> and finally
+     * <code>PropertyChangeListener</code>s are notified about the changes of
+     * each of the specified properties. The batch operations allows the
+     * <code>ConfigurationService</code> implementations to optimize, for
+     * example, the saving of the configuration which in this case can be
+     * performed only once for the setting of multiple properties.
+     * 
+     * @param properties
+     *            a <code>Map</code> of property names to their new values to be
+     *            set
+     * @throws PropertyVetoException
+     *             if a change in at least one of the properties has been
+     *             refused by at least one of the
+     *             <code>VetoableChangeListener</code>s
+     */
     public void setProperties(Map<String, Object> properties)
         throws PropertyVetoException;
 
@@ -151,15 +171,59 @@ public interface ConfigurationService
      *
      * @param propertyName the name of the property that is being queried.
      * @return the result of calling the property's toString method and null in
-     * case there was no vlaue mapped against the specified
+     * case there was no value mapped against the specified
      * <tt>propertyName</tt>, or the returned string had zero length or
      * contained whitespaces only.
      */
     public String getString(String propertyName);
 
-    boolean getBoolean(String propertyName, boolean defaultValue);
+    /**
+     * Gets the value of a specific property as a boolean. If the specified
+     * property name is associated with a value in this
+     * <code>ConfigurationService</code>, the string representation of the value
+     * is parsed into a boolean according to the rules of
+     * {@link Boolean#parseBoolean(String)} . Otherwise,
+     * <code>defaultValue</code> is returned.
+     * 
+     * @param propertyName
+     *            the name of the property to get the value of as a boolean
+     * @param defaultValue
+     *            the value to be returned if the specified property name is not
+     *            associated with a value in this
+     *            <code>ConfigurationService</code>
+     * @return the value of the property with the specified name in this
+     *         <code>ConfigurationService</code> as a boolean;
+     *         <code>defaultValue</code> if the property with the specified name
+     *         is not associated with a value in this
+     *         <code>ConfigurationService</code>
+     */
+    public boolean getBoolean(String propertyName, boolean defaultValue);
 
-    int getInt(String propertyName, int defaultValue);
+    /**
+     * Gets the value of a specific property as a signed decimal integer. If the
+     * specified property name is associated with a value in this
+     * <code>ConfigurationService</code>, the string representation of the value
+     * is parsed into a signed decimal integer according to the rules of
+     * {@link Integer#parseInt(String)} . If parsing the value as a signed
+     * decimal integer fails or there is no value associated with the specified
+     * property name, <code>defaultValue</code> is returned.
+     * 
+     * @param propertyName
+     *            the name of the property to get the value of as a signed
+     *            decimal integer
+     * @param defaultValue
+     *            the value to be returned if parsing the value of the specified
+     *            property name as a signed decimal integer fails or there is no
+     *            value associated with the specified property name in this
+     *            <code>ConfigurationService</code>
+     * @return the value of the property with the specified name in this
+     *         <code>ConfigurationService</code> as a signed decimal integer;
+     *         <code>defaultValue</code> if parsing the value of the specified
+     *         property name fails or no value is associated in this
+     *         <code>ConfigurationService</code> with the specified property
+     *         name
+     */
+    public int getInt(String propertyName, int defaultValue);
 
     /**
      * Adds a PropertyChangeListener to the listener list. The listener is
@@ -309,5 +373,4 @@ public interface ConfigurationService
      * as well as is bundle repository.
      */
     public String getScHomeDirLocation();
-
 }

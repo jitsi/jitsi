@@ -57,6 +57,12 @@ public class ConfigurationServiceImpl
      */
     private FileAccessService faService = null;
 
+    /**
+     * The <code>ConfigurationStore</code> implementation which contains the
+     * property name-value associations of this
+     * <code>ConfigurationService</code> and performs their actual storing in
+     * <code>configurationFile</code>.
+     */
     private ConfigurationStore store;
 
     /**
@@ -130,6 +136,13 @@ public class ConfigurationServiceImpl
                 propertyName, oldValue, property);
     }
 
+    /*
+     * Implements ConfigurationService#setProperties(Map). Optimizes the setting
+     * of properties by performing a single saving of the property store to the
+     * configuration file which is known to be slow because it involves
+     * converting the whole store to a string representation and writing a file
+     * to the disk.
+     */
     public void setProperties(Map<String, Object> properties)
         throws PropertyVetoException
     {
@@ -177,6 +190,22 @@ public class ConfigurationServiceImpl
         }
     }
 
+    /**
+     * Performs the actual setting of a property with a specific name to a
+     * specific new value without asking <code>VetoableChangeListener</code>,
+     * storing into the configuration file and notifying
+     * <code>PrpoertyChangeListener</code>s.
+     * 
+     * @param propertyName
+     *            the name of the property which is to be set to a specific
+     *            value
+     * @param property
+     *            the value to be assigned to the property with the specified
+     *            name
+     * @param isSystem
+     *            <tt>true</tt> if the property with the specified name is to be
+     *            set as a system property; <tt>false</tt>, otherwise
+     */
     private void doSetProperty(
         String propertyName, Object property, boolean isSystem)
     {
@@ -468,6 +497,9 @@ public class ConfigurationServiceImpl
         }
     }
 
+    /*
+     * Implements ConfigurationService#reloadConfiguration().
+     */
     public void reloadConfiguration()
         throws IOException, XMLException
     {
@@ -488,6 +520,9 @@ public class ConfigurationServiceImpl
         store.reloadConfiguration(file);
     }
 
+    /*
+     * Implements ConfigurationService#storeConfiguration().
+     */
     public synchronized void storeConfiguration()
         throws IOException
     {
@@ -803,6 +838,18 @@ public class ConfigurationServiceImpl
         return configFileInUserHomeDir;
     }
 
+    /**
+     * Copies the contents of a specific <code>InputStream</code> as bytes into
+     * a specific output <code>File</code>.
+     * 
+     * @param inputStream
+     *            the <code>InputStream</code> the contents of which is to be
+     *            output in the specified <code>File</code>
+     * @param outputFile
+     *            the <code>File</code> to write the contents of the specified
+     *            <code>InputStream</code> into
+     * @throws IOException
+     */
     private static void copy(InputStream inputStream, File outputFile)
         throws IOException
     {
@@ -865,6 +912,9 @@ public class ConfigurationServiceImpl
                     : null;
     }
 
+    /*
+     * Implements ConfigurationService#getBoolean(String, boolean).
+     */
     public boolean getBoolean(String propertyName, boolean defaultValue)
     {
         String stringValue = getString(propertyName);
@@ -873,6 +923,9 @@ public class ConfigurationServiceImpl
             .parseBoolean(stringValue);
     }
 
+    /*
+     * Implements ConfigurationService#getInt(String, int).
+     */
     public int getInt(String propertyName, int defaultValue)
     {
         String stringValue = getString(propertyName);
