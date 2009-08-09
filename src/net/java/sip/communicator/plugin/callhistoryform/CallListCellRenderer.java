@@ -99,26 +99,26 @@ public class CallListCellRenderer
         if (value instanceof GuiCallPeerRecord)
         {
 
-            GuiCallPeerRecord participant = (GuiCallPeerRecord) value;
+            GuiCallPeerRecord peer = (GuiCallPeerRecord) value;
 
-            this.direction = participant.getDirection();
+            this.direction = peer.getDirection();
 
             if (direction.equals(GuiCallPeerRecord.INCOMING_CALL))
                 iconLabel.setIcon(incomingIcon);
             else
                 iconLabel.setIcon(outgoingIcon);
 
-            this.nameLabel.setText(participant.getPeerName());
+            this.nameLabel.setText(peer.getPeerName());
  
             this.timeLabel.setText(
                 ExtendedCallHistorySearchActivator.getResources()
                     .getI18NString("service.gui.AT") + " "
-                + GuiUtils.formatTime(participant.getStartTime()));
+                + GuiUtils.formatTime(peer.getStartTime()));
 
             this.durationLabel.setText(
                 ExtendedCallHistorySearchActivator.getResources()
                     .getI18NString("service.gui.DURATION") + " "
-                + GuiUtils.formatTime(participant.getCallTime()));
+                + GuiUtils.formatTime(peer.getCallTime()));
 
             // this.nameLabel.setIcon(listModel
             // .getMetaContactStatusIcon(contactItem));
