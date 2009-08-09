@@ -34,7 +34,7 @@ public class MockCallPeer
         this.participantAddress = address;
         this.call = owningCall;
 
-        call.addCallParticipant(this);
+        call.addCallPeer(this);
 
         //create the uid
         this.participantID = String.valueOf( System.currentTimeMillis())

@@ -22,9 +22,9 @@ public class MockCall
     private static final Logger logger = Logger.getLogger(MockCall.class);
 
     /**
-     * A list containing all <tt>CallParticipant</tt>s of this call.
+     * A list containing all <tt>CallPeer</tt>s of this call.
      */
-    private Vector callParticipants = new Vector();
+    private Vector<CallPeer> callPeers = new Vector<CallPeer>();
 
 
     public MockCall(MockProvider sourceProvider)
@@ -33,68 +33,68 @@ public class MockCall
     }
 
     /**
-     * Returns an iterator over all call participants.
+     * Returns an iterator over all call peers.
      *
-     * @return an Iterator over all participants currently involved in the
+     * @return an Iterator over all peers currently involved in the
      *   call.
      */
-    public Iterator getCallPeers()
+    public Iterator<CallPeer> getCallPeers()
     {
-        return callParticipants.iterator();
+        return callPeers.iterator();
     }
 
     /**
-     * Returns the number of participants currently associated with this call.
+     * Returns the number of peers currently associated with this call.
      *
-     * @return an <tt>int</tt> indicating the number of participants
+     * @return an <tt>int</tt> indicating the number of peers
      *   currently associated with this call.
      */
     public int getCallPeerCount()
     {
-        return callParticipants.size();
+        return callPeers.size();
     }
 
     /**
-     * Adds <tt>callParticipant</tt> to the list of participants in this call.
-     * If the call participant is already included in the call, the method has
+     * Adds <tt>callPeer</tt> to the list of peers in this call.
+     * If the call peer is already included in the call, the method has
      * no effect.
      *
-     * @param callParticipant the new <tt>CallParticipant</tt>
+     * @param callPeer the new <tt>CallPeer</tt>
      */
-    public void addCallParticipant(MockCallPeer callParticipant)
+    public void addCallPeer(MockCallPeer callPeer)
     {
-        if(callParticipants.contains(callParticipant))
+        if(callPeers.contains(callPeer))
             return;
 
-        callParticipant.addCallPeerListener(this);
+        callPeer.addCallPeerListener(this);
 
-        this.callParticipants.add(callParticipant);
+        this.callPeers.add(callPeer);
 
-        logger.info("Will fire participant added");
+        logger.info("Will fire peer added");
 
         fireCallPeerEvent(
-            callParticipant, CallPeerEvent.CALL_PEER_ADDED);
+            callPeer, CallPeerEvent.CALL_PEER_ADDED);
     }
 
     /**
-     * Removes <tt>callParticipant</tt> from the list of participants in this
-     * call. The method has no effect if there was no such participant in the
+     * Removes <tt>callPeer</tt> from the list of peers in this
+     * call. The method has no effect if there was no such peer in the
      * call.
      *
-     * @param callParticipant the <tt>CallParticipant</tt> leaving the call;
+     * @param callPeer the <tt>CallPeer</tt> leaving the call;
      */
-    public void removeCallParticipant(MockCallPeer callParticipant)
+    public void removeCallPeer(MockCallPeer callPeer)
     {
-        if(!callParticipants.contains(callParticipant))
+        if(!callPeers.contains(callPeer))
             return;
 
-        this.callParticipants.remove(callParticipant);
-        callParticipant.removeCallPeerListener(this);
+        this.callPeers.remove(callPeer);
+        callPeer.removeCallPeerListener(this);
 
         fireCallPeerEvent(
-            callParticipant, CallPeerEvent.CALL_PEER_REMVOVED);
+            callPeer, CallPeerEvent.CALL_PEER_REMVOVED);
 
-        if(callParticipants.size() == 0)
+        if(callPeers.size() == 0)
             setCallState(CallState.CALL_ENDED);
     }
 
@@ -105,7 +105,7 @@ public class MockCall
             || ( (CallPeerState) evt.getNewValue())
             == CallPeerState.FAILED)
         {
-            removeCallParticipant(
+            removeCallPeer(
                 (MockCallPeer) evt.getSourceCallPeer());
         }
         else if ( ( (CallPeerState) evt.getNewValue())
