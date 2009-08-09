@@ -197,19 +197,16 @@ public class CallComboBox
 
             for (CallRecord call : historyCalls)
             {
-                List<CallPeerRecord> callPeerRecords
-                    = call.getPeerRecords();
+                List<CallPeerRecord> callPeerRecords = call.getPeerRecords();
 
-                //extract all call participants for that call.
-                for (CallPeerRecord cpRecord
-                                : callPeerRecords)
+                //extract all call peers for that call.
+                for (CallPeerRecord cpRecord : callPeerRecords)
                 {
-                    String participant = cpRecord.getPeerAddress();
+                    String peer = cpRecord.getPeerAddress();
 
-                    if(!callComboModel.contains(participant))
+                    if(!callComboModel.contains(peer))
                     {
-                        callComboModel
-                            .addElement(participant);
+                        callComboModel.addElement(peer);
                     }
                 }
             }
