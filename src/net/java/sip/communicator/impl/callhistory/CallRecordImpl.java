@@ -62,8 +62,8 @@ public class CallRecordImpl
 
         for (CallPeerRecord item : participantRecords)
         {
-            CallParticipantRecordImpl itemImpl =
-                (CallParticipantRecordImpl) item;
+            CallPeerRecordImpl itemImpl =
+                (CallPeerRecordImpl) item;
             if (item.getEndTime() == null)
                 itemImpl.setEndTime(endTime);
         }

@@ -380,8 +380,8 @@ public class CallHistoryServiceImpl
         final int callParticipantCount = callParticipantIDs == null ? 0 : callParticipantIDs.size();
         for (int i = 0; i < callParticipantCount; i++)
         {
-            CallParticipantRecordImpl cpr =
-                new CallParticipantRecordImpl(callParticipantIDs.get(i),
+            CallPeerRecordImpl cpr =
+                new CallPeerRecordImpl(callParticipantIDs.get(i),
                     new Date(Long.parseLong(callParticipantStart.get(i))),
                     new Date(Long.parseLong(callParticipantEnd.get(i))));
 
@@ -862,7 +862,7 @@ public class CallHistoryServiceImpl
                     return;
                 else
                 {
-                    CallParticipantRecordImpl participantRecord =
+                    CallPeerRecordImpl participantRecord =
                         findParticipantRecord(evt.getSourceCallParticipant());
 
                     if(participantRecord == null)
@@ -886,7 +886,7 @@ public class CallHistoryServiceImpl
         });
 
         Date startDate = new Date();
-        CallParticipantRecordImpl newRec = new CallParticipantRecordImpl(
+        CallPeerRecordImpl newRec = new CallPeerRecordImpl(
             callParticipant.getAddress(),
             startDate,
             startDate);
@@ -905,8 +905,8 @@ public class CallHistoryServiceImpl
         CallRecord callRecord = findCallRecord(srcCall);
         String pAddress = callParticipant.getAddress();
 
-        CallParticipantRecordImpl cpRecord =
-            (CallParticipantRecordImpl)callRecord.findParticipantRecord(pAddress);
+        CallPeerRecordImpl cpRecord =
+            (CallPeerRecordImpl)callRecord.findParticipantRecord(pAddress);
 
         // no such participant
         if(cpRecord == null)
@@ -946,7 +946,7 @@ public class CallHistoryServiceImpl
      * @param callParticipant CallParticipant participant
      * @return CallParticipantRecordImpl the corresponding record
      */
-    private CallParticipantRecordImpl findParticipantRecord(
+    private CallPeerRecordImpl findParticipantRecord(
         CallPeer callParticipant)
     {
         CallRecord record = findCallRecord(callParticipant.getCall());
@@ -954,7 +954,7 @@ public class CallHistoryServiceImpl
         if (record == null)
             return null;
 
-        return (CallParticipantRecordImpl) record.findParticipantRecord(
+        return (CallPeerRecordImpl) record.findParticipantRecord(
                 callParticipant.getAddress());
     }
 
