@@ -99,17 +99,17 @@ public abstract class AbstractOperationSetBasicTelephony
 
     /**
      * Sets the mute state of the audio stream being sent to a specific
-     * <tt>CallParticipant</tt>.
+     * <tt>CallPeer</tt>.
      * <p>
      * The default implementation does nothing.
      * </p>
      *
-     * @param participant the <tt>CallParticipant</tt> who receives the audio
+     * @param peer the <tt>CallPeer</tt> who receives the audio
      *            stream to have its mute state set
      * @param mute <tt>true</tt> to mute the audio stream being sent to
-     *            <tt>participant</tt>; otherwise, <tt>false</tt>
+     *            <tt>peer</tt>; otherwise, <tt>false</tt>
      */
-    public void setMute(CallPeer participant, boolean mute)
+    public void setMute(CallPeer peer, boolean mute)
     {
 
         /*
