@@ -62,7 +62,7 @@ public class OperationSetDTMFSipImpl
      * @param dtmftone DTMF tone to send
      * @throws OperationFailedException
      */
-    private void sayInfo(CallParticipantSipImpl callParticipant,
+    private void sayInfo(CallPeerSipImpl callParticipant,
                          String dtmftone)
         throws OperationFailedException
     {
@@ -283,12 +283,12 @@ public class OperationSetDTMFSipImpl
         {
             throw new NullPointerException();
         }
-        if (! (callParticipant instanceof CallParticipantSipImpl))
+        if (! (callParticipant instanceof CallPeerSipImpl))
         {
             throw new IllegalArgumentException();
         }
 
-        CallParticipantSipImpl cp = (CallParticipantSipImpl) (callParticipant);
+        CallPeerSipImpl cp = (CallPeerSipImpl) (callParticipant);
         this.sayInfo(cp, tone.getValue());
     }
 }

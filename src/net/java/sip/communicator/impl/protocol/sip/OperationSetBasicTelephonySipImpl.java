@@ -247,7 +247,7 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         // create the call participant
-        CallParticipantSipImpl callParticipant =
+        CallPeerSipImpl callParticipant =
             createCallParticipantFor(inviteTransaction, jainSipProvider);
 
         // invite content
@@ -398,8 +398,8 @@ public class OperationSetBasicTelephonySipImpl
     {
         CallSession callSession =
             ((CallSipImpl) participant.getCall()).getMediaCallSession();
-        CallParticipantSipImpl sipParticipant =
-            (CallParticipantSipImpl) participant;
+        CallPeerSipImpl sipParticipant =
+            (CallPeerSipImpl) participant;
 
         try
         {
@@ -453,7 +453,7 @@ public class OperationSetBasicTelephonySipImpl
      *            specified call participant with the sent invite
      * @throws OperationFailedException
      */
-    void sendInviteRequest(CallParticipantSipImpl sipParticipant,
+    void sendInviteRequest(CallPeerSipImpl sipParticipant,
         String sdpOffer) throws OperationFailedException
     {
         Dialog dialog = sipParticipant.getDialog();
@@ -748,7 +748,7 @@ public class OperationSetBasicTelephonySipImpl
                 || (responseStatusCode / 100 == 5)
                 || (responseStatusCode / 100 == 6))
             {
-                CallParticipantSipImpl callParticipant =
+                CallPeerSipImpl callParticipant =
                     activeCallsRepository.findCallParticipant(clientTransaction
                         .getDialog());
 
@@ -802,7 +802,7 @@ public class OperationSetBasicTelephonySipImpl
     {
         Dialog dialog = clientTransaction.getDialog();
         // find the call participant
-        CallParticipantSipImpl callParticipant =
+        CallPeerSipImpl callParticipant =
             activeCallsRepository.findCallParticipant(dialog);
 
         if (callParticipant == null)
@@ -832,7 +832,7 @@ public class OperationSetBasicTelephonySipImpl
     {
         Dialog dialog = clientTransaction.getDialog();
         // find the call participant
-        CallParticipantSipImpl callParticipant =
+        CallPeerSipImpl callParticipant =
             activeCallsRepository.findCallParticipant(dialog);
 
         if (callParticipant == null)
@@ -876,7 +876,7 @@ public class OperationSetBasicTelephonySipImpl
 
         Dialog dialog = clientTransaction.getDialog();
         // find the call
-        CallParticipantSipImpl callParticipant =
+        CallPeerSipImpl callParticipant =
             activeCallsRepository.findCallParticipant(dialog);
 
         if (callParticipant.getState()
@@ -971,7 +971,7 @@ public class OperationSetBasicTelephonySipImpl
     {
         Dialog dialog = clientTransaction.getDialog();
         // find the call
-        CallParticipantSipImpl callParticipant =
+        CallPeerSipImpl callParticipant =
             activeCallsRepository.findCallParticipant(dialog);
 
         if (callParticipant == null)
@@ -994,8 +994,8 @@ public class OperationSetBasicTelephonySipImpl
                     activeCall.getCallParticipants();
                 while (callParticipantsIter.hasNext())
                 {
-                    CallParticipantSipImpl cp =
-                        (CallParticipantSipImpl) callParticipantsIter.next();
+                    CallPeerSipImpl cp =
+                        (CallPeerSipImpl) callParticipantsIter.next();
                     Dialog callPartDialog = cp.getDialog();
                     // check if participant in same call
                     // and has the same transaction
@@ -1182,7 +1182,7 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     private void logErrorAndFailCallParticipant(String message,
-        Throwable throwable, CallParticipantSipImpl participant)
+        Throwable throwable, CallPeerSipImpl participant)
     {
         logger.error(message, throwable);
         participant.setState(CallParticipantState.FAILED, message);
@@ -1200,7 +1200,7 @@ public class OperationSetBasicTelephonySipImpl
     {
         Dialog dialog = clientTransaction.getDialog();
         // find the call
-        CallParticipantSipImpl callParticipant =
+        CallPeerSipImpl callParticipant =
             activeCallsRepository.findCallParticipant(dialog);
 
         if (callParticipant == null)
@@ -1227,7 +1227,7 @@ public class OperationSetBasicTelephonySipImpl
     {
         // First find the call and the call participant that this authentication
         // request concerns.
-        CallParticipantSipImpl callParticipant =
+        CallPeerSipImpl callParticipant =
             activeCallsRepository.findCallParticipant(clientTransaction
                 .getDialog());
 
@@ -1303,7 +1303,7 @@ public class OperationSetBasicTelephonySipImpl
             transaction = timeoutEvent.getClientTransaction();
         }
 
-        CallParticipantSipImpl callParticipant =
+        CallPeerSipImpl callParticipant =
             activeCallsRepository.findCallParticipant(transaction.getDialog());
 
         if (callParticipant == null)
@@ -1352,7 +1352,7 @@ public class OperationSetBasicTelephonySipImpl
     public boolean processDialogTerminated(
         DialogTerminatedEvent dialogTerminatedEvent)
     {
-        CallParticipantSipImpl callParticipant =
+        CallPeerSipImpl callParticipant =
             activeCallsRepository.findCallParticipant(dialogTerminatedEvent
                 .getDialog());
 
@@ -1543,10 +1543,10 @@ public class OperationSetBasicTelephonySipImpl
                                Request invite)
     {
         Dialog dialog = serverTransaction.getDialog();
-        CallParticipantSipImpl callParticipant =
+        CallPeerSipImpl callParticipant =
             activeCallsRepository.findCallParticipant(dialog);
         int statusCode;
-        CallParticipantSipImpl callParticipantToReplace = null;
+        CallPeerSipImpl callParticipantToReplace = null;
 
         if (callParticipant == null)
         {
@@ -1561,7 +1561,7 @@ public class OperationSetBasicTelephonySipImpl
             else
             {
                 //this is a transfered call
-                List<CallParticipantSipImpl> callParticipantsToReplace =
+                List<CallPeerSipImpl> callParticipantsToReplace =
                     activeCallsRepository.findCallParticipants(
                         replacesHeader.getCallId(), replacesHeader.getToTag(),
                         replacesHeader.getFromTag());
@@ -1800,7 +1800,7 @@ public class OperationSetBasicTelephonySipImpl
             sdpAnswer
                 = callSession.processSdpOffer(
                         participant,
-                        ((CallParticipantSipImpl) participant)
+                        ((CallPeerSipImpl) participant)
                             .getSdpDescription());
         }
         catch (MediaException ex)
@@ -1839,8 +1839,8 @@ public class OperationSetBasicTelephonySipImpl
 
         CallSession callSession =
             ((CallSipImpl) participant.getCall()).getMediaCallSession();
-        CallParticipantSipImpl sipParticipant =
-            (CallParticipantSipImpl) participant;
+        CallPeerSipImpl sipParticipant =
+            (CallPeerSipImpl) participant;
 
         int mediaFlags = 0;
         try
@@ -1905,7 +1905,7 @@ public class OperationSetBasicTelephonySipImpl
     {
         // find the call
         Dialog dialog = serverTransaction.getDialog();
-        CallParticipantSipImpl callParticipant =
+        CallPeerSipImpl callParticipant =
             activeCallsRepository.findCallParticipant(dialog);
 
         if (callParticipant == null)
@@ -1978,7 +1978,7 @@ public class OperationSetBasicTelephonySipImpl
                             Request ackRequest)
     {
         // find the call
-        CallParticipantSipImpl participant
+        CallPeerSipImpl participant
             = activeCallsRepository.findCallParticipant(
                     serverTransaction.getDialog());
 
@@ -2031,7 +2031,7 @@ public class OperationSetBasicTelephonySipImpl
                                Request cancelRequest)
     {
         // find the call
-        CallParticipantSipImpl callParticipant =
+        CallPeerSipImpl callParticipant =
             activeCallsRepository.findCallParticipant(serverTransaction
                 .getDialog());
 
@@ -2316,7 +2316,7 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         Dialog dialog = serverTransaction.getDialog();
-        CallParticipantSipImpl participant
+        CallPeerSipImpl participant
             = activeCallsRepository.findCallParticipant(dialog);
 
         if (participant == null)
@@ -2453,7 +2453,7 @@ public class OperationSetBasicTelephonySipImpl
         if (!DialogUtils.removeSubscriptionThenIsDialogAlive(dialog,
             subscription))
         {
-            CallParticipantSipImpl callParticipant =
+            CallPeerSipImpl callParticipant =
                 activeCallsRepository.findCallParticipant(dialog);
             if (callParticipant != null)
             {
@@ -2625,8 +2625,8 @@ public class OperationSetBasicTelephonySipImpl
             return;
         }
 
-        CallParticipantSipImpl callParticipant =
-            (CallParticipantSipImpl) participant;
+        CallPeerSipImpl callParticipant =
+            (CallPeerSipImpl) participant;
 
         CallParticipantState participantState = callParticipant.getState();
         if (participantState.equals(CallParticipantState.CONNECTED)
@@ -2679,7 +2679,7 @@ public class OperationSetBasicTelephonySipImpl
      * @throws OperationFailedException if we failed constructing or sending a
      *             SIP Message.
      */
-    public void sayInternalError(CallParticipantSipImpl callParticipant)
+    public void sayInternalError(CallPeerSipImpl callParticipant)
         throws OperationFailedException
     {
         sayError(callParticipant, Response.SERVER_INTERNAL_ERROR);
@@ -2695,7 +2695,7 @@ public class OperationSetBasicTelephonySipImpl
      * @throws OperationFailedException if we failed constructing or sending a
      *             SIP Message.
      */
-    public void sayError(CallParticipantSipImpl callParticipant,
+    public void sayError(CallPeerSipImpl callParticipant,
                          int errorCode)
         throws OperationFailedException
     {
@@ -2763,7 +2763,7 @@ public class OperationSetBasicTelephonySipImpl
      * @throws OperationFailedException if we failed constructing or sending a
      *             SIP Message.
      */
-    private boolean sayBye(CallParticipantSipImpl callParticipant)
+    private boolean sayBye(CallPeerSipImpl callParticipant)
         throws OperationFailedException
     {
         Dialog dialog = callParticipant.getDialog();
@@ -2816,7 +2816,7 @@ public class OperationSetBasicTelephonySipImpl
      * @throws OperationFailedException we failed to construct or send the
      *             CANCEL request.
      */
-    private void sayCancel(CallParticipantSipImpl callParticipant)
+    private void sayCancel(CallPeerSipImpl callParticipant)
         throws OperationFailedException
     {
         if (callParticipant.getDialog().isServer())
@@ -2853,7 +2853,7 @@ public class OperationSetBasicTelephonySipImpl
      * @throws OperationFailedException if we fail to create or send the
      *             response
      */
-    private void sayBusyHere(CallParticipantSipImpl callParticipant)
+    private void sayBusyHere(CallPeerSipImpl callParticipant)
         throws OperationFailedException
     {
         Request request = callParticipant.getFirstTransaction().getRequest();
@@ -2910,8 +2910,8 @@ public class OperationSetBasicTelephonySipImpl
     public synchronized void answerCallParticipant(CallPeer participant)
         throws OperationFailedException
     {
-        CallParticipantSipImpl callParticipant =
-            (CallParticipantSipImpl) participant;
+        CallPeerSipImpl callParticipant =
+            (CallPeerSipImpl) participant;
         Transaction transaction = callParticipant.getFirstTransaction();
         Dialog dialog = callParticipant.getDialog();
 
@@ -3009,7 +3009,7 @@ public class OperationSetBasicTelephonySipImpl
                 "Failed to create an SDP description for an OK response "
                     + "to an INVITE request!",
                 ex);
-            this.sayError((CallParticipantSipImpl) participant,
+            this.sayError((CallPeerSipImpl) participant,
                           Response.NOT_ACCEPTABLE_HERE);
         }
         catch (ParseException ex)
@@ -3020,7 +3020,7 @@ public class OperationSetBasicTelephonySipImpl
             logger.error(
                 "Failed to parse sdp data while creating invite request!",
                 ex);
-            this.sayError((CallParticipantSipImpl) participant,
+            this.sayError((CallPeerSipImpl) participant,
                           Response.NOT_ACCEPTABLE_HERE);
         }
 
@@ -3076,12 +3076,12 @@ public class OperationSetBasicTelephonySipImpl
      * @return a new instance of a <tt>CallParticipantSipImpl</tt> corresponding
      *         to the <tt>containingTransaction</tt>.
      */
-    private CallParticipantSipImpl createCallParticipantFor(
+    private CallPeerSipImpl createCallParticipantFor(
         Transaction containingTransaction, SipProvider sourceProvider)
     {
         CallSipImpl call = new CallSipImpl(protocolProvider);
-        CallParticipantSipImpl callParticipant =
-            new CallParticipantSipImpl(
+        CallPeerSipImpl callParticipant =
+            new CallPeerSipImpl(
                 containingTransaction.getDialog().getRemoteParty(),
                 call);
         boolean incomingCall =
@@ -3169,8 +3169,8 @@ public class OperationSetBasicTelephonySipImpl
      */
     public void setMute(CallPeer participant, boolean mute)
     {
-        CallParticipantSipImpl sipParticipant
-            = (CallParticipantSipImpl) participant;
+        CallPeerSipImpl sipParticipant
+            = (CallPeerSipImpl) participant;
 
         ((CallSipImpl) sipParticipant.getCall())
             .getMediaCallSession().setMute(mute);
@@ -3223,8 +3223,8 @@ public class OperationSetBasicTelephonySipImpl
     private void transfer(CallPeer participant, Address target)
         throws OperationFailedException
     {
-        CallParticipantSipImpl sipParticipant =
-            (CallParticipantSipImpl) participant;
+        CallPeerSipImpl sipParticipant =
+            (CallPeerSipImpl) participant;
         Dialog dialog = sipParticipant.getDialog();
         Request refer = createRequest(dialog, Request.REFER);
         HeaderFactory headerFactory = protocolProvider.getHeaderFactory();
@@ -3256,7 +3256,7 @@ public class OperationSetBasicTelephonySipImpl
     {
         Address targetAddress = parseAddressString(target.getAddress());
 
-        Dialog targetDialog = ((CallParticipantSipImpl) target).getDialog();
+        Dialog targetDialog = ((CallPeerSipImpl) target).getDialog();
         String remoteTag = targetDialog.getRemoteTag();
         String localTag = targetDialog.getLocalTag();
         Replaces replacesHeader = null;

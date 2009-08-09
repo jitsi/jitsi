@@ -29,8 +29,8 @@ public class CallSipImpl
     /**
      * A list containing all <tt>CallParticipant</tt>s of this call.
      */
-    private final List<CallParticipantSipImpl> callParticipants =
-        new Vector<CallParticipantSipImpl>();
+    private final List<CallPeerSipImpl> callParticipants =
+        new Vector<CallPeerSipImpl>();
 
     /**
      * The <tt>CallSession</tt> that the media service has created for this
@@ -57,7 +57,7 @@ public class CallSipImpl
      *
      * @param callParticipant the new <tt>CallParticipant</tt>
      */
-    public void addCallParticipant(CallParticipantSipImpl callParticipant)
+    public void addCallPeer(CallPeerSipImpl callParticipant)
     {
         if (callParticipants.contains(callParticipant))
             return;
@@ -76,7 +76,7 @@ public class CallSipImpl
      *
      * @param callParticipant the <tt>CallParticipant</tt> leaving the call;
      */
-    public void removeCallParticipant(CallParticipantSipImpl callParticipant)
+    public void removeCallParticipant(CallPeerSipImpl callParticipant)
     {
         if (!callParticipants.contains(callParticipant))
             return;
@@ -178,7 +178,7 @@ public class CallSipImpl
         if (newState == CallParticipantState.DISCONNECTED
             || newState == CallParticipantState.FAILED)
         {
-            removeCallParticipant((CallParticipantSipImpl) evt
+            removeCallParticipant((CallPeerSipImpl) evt
                 .getSourceCallParticipant());
         }
         else if ((newState == CallParticipantState.CONNECTED
@@ -211,7 +211,7 @@ public class CallSipImpl
      * @return the call participant whose jain sip dialog is the same as the
      *         specified or null if no such call participant was found.
      */
-    public CallParticipantSipImpl findCallParticipant(Dialog dialog)
+    public CallPeerSipImpl findCallParticipant(Dialog dialog)
     {
         Iterator<CallPeer> callParticipants = this.getCallParticipants();
 
@@ -223,8 +223,8 @@ public class CallSipImpl
 
         while (callParticipants.hasNext())
         {
-            CallParticipantSipImpl cp =
-                (CallParticipantSipImpl) callParticipants.next();
+            CallPeerSipImpl cp =
+                (CallPeerSipImpl) callParticipants.next();
 
             if (cp.getDialog() == dialog)
             {

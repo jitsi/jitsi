@@ -131,7 +131,7 @@ public class ActiveCallsRepository
      * @return the call participant whose jain sip dialog is the same as the
      * specified or null if no such call participant was found.
      */
-    public CallParticipantSipImpl findCallParticipant(Dialog dialog)
+    public CallPeerSipImpl findCallParticipant(Dialog dialog)
     {
         if(dialog == null)
         {
@@ -150,7 +150,7 @@ public class ActiveCallsRepository
                  activeCalls.hasNext();)
         {
             CallSipImpl call = activeCalls.next();
-            CallParticipantSipImpl callParticipant
+            CallPeerSipImpl callParticipant
                 = call.findCallParticipant(dialog);
             if(callParticipant != null)
             {
@@ -173,7 +173,7 @@ public class ActiveCallsRepository
      *         instances with <code>Dialog</code>s matching the specified
      *         CallID, local and remote tags
      */
-    public List<CallParticipantSipImpl> findCallParticipants(String callID,
+    public List<CallPeerSipImpl> findCallParticipants(String callID,
             String localTag, String remoteTag)
     {
         if (logger.isTraceEnabled())
@@ -183,8 +183,8 @@ public class ActiveCallsRepository
                 + " among " + this.activeCalls.size() + " calls.");
         }
 
-        List<CallParticipantSipImpl> callParticipants =
-            new ArrayList<CallParticipantSipImpl>();
+        List<CallPeerSipImpl> callParticipants =
+            new ArrayList<CallPeerSipImpl>();
 
         for (Iterator<CallSipImpl> activeCalls = getActiveCalls();
                 activeCalls.hasNext();)
@@ -197,8 +197,8 @@ public class ActiveCallsRepository
             for (Iterator<CallPeer> callParticipantIter = call.getCallParticipants();
                     callParticipantIter.hasNext();)
             {
-                CallParticipantSipImpl callParticipant =
-                    (CallParticipantSipImpl) callParticipantIter.next();
+                CallPeerSipImpl callParticipant =
+                    (CallPeerSipImpl) callParticipantIter.next();
                 Dialog dialog = callParticipant.getDialog();
 
                 if (dialog != null)

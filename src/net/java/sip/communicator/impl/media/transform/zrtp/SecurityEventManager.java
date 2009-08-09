@@ -108,9 +108,9 @@ public class SecurityEventManager extends ZrtpUserCallback
     public void setSessionType(String type)
     {
         if (type.equals(CallSessionImpl.AUDIO_SESSION))
-            sessionType = CallParticipantSecurityStatusEvent.AUDIO_SESSION;
+            sessionType = CallPeerSecurityStatusEvent.AUDIO_SESSION;
         else if (type.equals(CallSessionImpl.VIDEO_SESSION))
-            sessionType = CallParticipantSecurityStatusEvent.VIDEO_SESSION;
+            sessionType = CallPeerSecurityStatusEvent.VIDEO_SESSION;
     }
 
     /**
@@ -360,9 +360,9 @@ public class SecurityEventManager extends ZrtpUserCallback
     {
         switch (sessionType)
         {
-        case CallParticipantSecurityStatusEvent.AUDIO_SESSION:
+        case CallPeerSecurityStatusEvent.AUDIO_SESSION:
             return "AUDIO_SESSION";
-        case CallParticipantSecurityStatusEvent.VIDEO_SESSION:
+        case CallPeerSecurityStatusEvent.VIDEO_SESSION:
             return "VIDEO_SESSION";
         default:
             throw new IllegalArgumentException("sessionType");

@@ -183,8 +183,8 @@ public class OperationSetVideoTelephonySipImpl
         Iterator<CallPeer> participants = call.getCallParticipants();
         while (participants.hasNext())
         {
-            CallParticipantSipImpl participant
-                = (CallParticipantSipImpl) participants.next();
+            CallPeerSipImpl participant
+                = (CallPeerSipImpl) participants.next();
             String sdpOffer = null;
 
             try
