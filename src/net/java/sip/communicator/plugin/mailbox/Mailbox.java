@@ -530,7 +530,7 @@ public class Mailbox
         }
 
         /**
-         * Waits for <tt>call</tt> to enter in the 
+         * Waits for <tt>call</tt> to enter in the
          * {@link #net.java.sip.communicator.protocol.CallState.CALL_ENDED}
          * state.
          *
@@ -566,8 +566,8 @@ public class Mailbox
         }
 
         /**
-         * Goes through all participants in <tt>call</tt> and calls 
-         * <tt>telephony.aswerCallParticipant()</tt> for every one of them.
+         * Goes through all peers in <tt>call</tt> and calls
+         * <tt>telephony.aswerCallPeer()</tt> for every one of them.
          *
          * @param call the <tt>Call</tt> that we'd like to answer.
          */
@@ -577,21 +577,20 @@ public class Mailbox
                 = (OperationSetBasicTelephony)call
                                 .getProtocolProvider().getOperationSet(
                                 OperationSetBasicTelephony.class);
-            Iterator participants = call.getCallPeers();
+            Iterator peers = call.getCallPeers();
 
-            while(participants.hasNext())
+            while(peers.hasNext())
             {
-                CallPeer participant
-                    = (CallPeer)participants.next();
+                CallPeer peer = (CallPeer)peers.next();
 
                 try
                 {
-                    telephony.answerCallPeer(participant);
+                    telephony.answerCallPeer(peer);
                 }
                 catch (OperationFailedException exc)
                 {
                     logger.error("Could not answer to : "
-                                 + participant
+                                 + peer
                                     + " caused by the following exception: "
                                     + exc.getMessage(),
                                     exc);
@@ -600,8 +599,8 @@ public class Mailbox
         }
 
         /**
-         * Goes through all participants in <tt>call</tt> and calls 
-         * <tt>telephony.hangupCallParticipant()</tt> for every one of them.
+         * Goes through all peers in <tt>call</tt> and calls
+         * <tt>telephony.hangupCallPeer()</tt> for every one of them.
          *
          * @param call the <tt>Call</tt> that we'd like to answer.
          */
@@ -613,21 +612,20 @@ public class Mailbox
                                 OperationSetBasicTelephony.class);
             logger.info("Max Message Length Reached, Mailbox is"
                         +" disconnecting the call");
-            Iterator callParticipants = call.getCallPeers();
+            Iterator<CallPeer> callPeers = call.getCallPeers();
 
-            while(callParticipants.hasNext())
+            while(callPeers.hasNext())
             {
-                CallPeer participant
-                    = (CallPeer)callParticipants.next();
+                CallPeer peer = callPeers.next();
 
                 try
                 {
-                    telephony.hangupCallPeer(participant);
+                    telephony.hangupCallPeer(peer);
                 }
                 catch (OperationFailedException exc)
                 {
                     logger.error("Could not Hang up on : "
-                            + participant
+                            + peer
                             + " caused by the following exception: "
                             + exc,
                             exc);
