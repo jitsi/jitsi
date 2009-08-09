@@ -30,9 +30,9 @@ public class SecurityPanel
 
     private final JLabel securityStringLabel = new JLabel();
 
-    public SecurityPanel(CallPeer participant)
+    public SecurityPanel(CallPeer peer)
     {
-        this.peer = participant;
+        this.peer = peer;
 
         this.setLayout(new GridLayout(1, 0, 5, 5));
 
