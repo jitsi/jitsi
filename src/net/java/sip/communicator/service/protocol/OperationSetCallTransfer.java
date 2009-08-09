@@ -18,10 +18,10 @@ public interface OperationSetCallTransfer
     /**
      * Indicates a user request to transfer the specified call particiapant to a
      * new (target) uri.
-     * @param participant the call participant we'd like to transfer
-     * @param targetURI the uri that we'd like this call participant to be
+     * @param peer the call peer we'd like to transfer
+     * @param targetURI the uri that we'd like this call peer to be
      * transferred to.
      */
-    public void transferCallParticipant(CallPeer participant,
-                                        String targetURI);
+    public void transferCallPeer(CallPeer peer,
+                                 String   targetURI);
 }
