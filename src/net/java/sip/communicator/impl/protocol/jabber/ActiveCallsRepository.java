@@ -15,7 +15,7 @@ import org.jivesoftware.smackx.jingle.*;
 
 /**
  * Keeps a list of all calls currently active and maintained by this protocol
- * provider. Offers methods for finding a call by its ID, participant session
+ * provider. Offers methods for finding a call by its ID, peer session
  * and others.
  *
  * @author Emil Ivov
@@ -39,11 +39,12 @@ public class ActiveCallsRepository
     /**
      * A table mapping call ids against call instances.
      */
-    private Hashtable activeCalls = new Hashtable();
+    private Hashtable<String, CallJabberImpl> activeCalls
+                                     = new Hashtable<String, CallJabberImpl>();
 
     /**
      * It's where we store all active calls
-     * @param opSet the <tt>OperationSetBasicTelphony</tt> instance which has 
+     * @param opSet the <tt>OperationSetBasicTelphony</tt> instance which has
      * been used to create calls in this repository
      */
     public ActiveCallsRepository(OperationSetBasicTelephonyJabberImpl opSet)
@@ -88,14 +89,14 @@ public class ActiveCallsRepository
      *
      * @return an iterator over all currently active (non-ended) calls.
      */
-    public Iterator getActiveCalls()
+    public Iterator<CallJabberImpl> getActiveCalls()
     {
-        return new LinkedList(activeCalls.values()).iterator();
+        return new LinkedList<CallJabberImpl>(activeCalls.values()).iterator();
     }
 
     /**
      * Returns the call that contains the specified session (i.e. it is
-     * established  between us and one of the other call participants).
+     * established  between us and one of the other call peers).
      * <p>
      * @param session the <tt>jingleSession</tt> whose containing call we're
      * looking for.
@@ -104,25 +105,25 @@ public class ActiveCallsRepository
      */
     public CallJabberImpl findCall(JingleSession session)
     {
-        Iterator activeCalls = getActiveCalls();
+        Iterator<CallJabberImpl> activeCalls = getActiveCalls();
 
         if(session == null)
         {
-            logger.debug("Cannot find a participant with a null session. "
+            logger.debug("Cannot find a peer with a null session. "
                          +"Returning null");
             return null;
         }
 
         if(logger.isTraceEnabled())
         {
-            logger.trace("Looking for participant with session: " + session
+            logger.trace("Looking for peer with session: " + session
                          + " among " + this.activeCalls.size() + " calls");
         }
 
 
         while(activeCalls.hasNext())
         {
-            CallJabberImpl call = (CallJabberImpl)activeCalls.next();
+            CallJabberImpl call = activeCalls.next();
             if(call.contains(session))
                 return call;
         }
@@ -131,40 +132,40 @@ public class ActiveCallsRepository
     }
 
     /**
-     * Returns the call participant whose associated jingle session matches
+     * Returns the call peer whose associated jingle session matches
      * <tt>session</tt>.
      *
-     * @param session the jingle session whose corresponding participant we're
+     * @param session the jingle session whose corresponding peer we're
      * looking for.
-     * @return the call participant whose jingle session is the same as the
-     * specified or null if no such call participant was found.
+     * @return the call peer whose jingle session is the same as the
+     * specified or null if no such call peer was found.
      */
     public CallPeerJabberImpl findCallPeer(JingleSession session)
     {
-        Iterator activeCalls = getActiveCalls();
+        Iterator<CallJabberImpl> activeCalls = getActiveCalls();
 
         if(session == null)
         {
-            logger.debug("Cannot find a participant with a null session. "
+            logger.debug("Cannot find a peer with a null session. "
                          + "Returning null");
             return null;
         }
 
         if(logger.isTraceEnabled())
         {
-            logger.trace("Looking for participant with session: " + session
+            logger.trace("Looking for peer with session: " + session
                          + " among " + this.activeCalls.size() + " calls");
         }
 
         while(activeCalls.hasNext())
         {
-            CallJabberImpl call = (CallJabberImpl)activeCalls.next();
-            CallPeerJabberImpl callParticipant
-                = call.findCallPeer(session);
-            if(callParticipant != null)
+            CallJabberImpl call = activeCalls.next();
+            CallPeerJabberImpl callPeer = call.findCallPeer(session);
+
+            if(callPeer != null)
             {
-                logger.trace("Returning participant " + callParticipant);
-                return callParticipant;
+                logger.trace("Returning peer " + callPeer);
+                return callPeer;
             }
         }
 
