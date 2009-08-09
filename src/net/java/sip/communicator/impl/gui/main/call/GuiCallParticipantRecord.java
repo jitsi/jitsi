@@ -46,12 +46,12 @@ public class GuiCallParticipantRecord
         this.callDuration = callDuration;
     }
 
-    public GuiCallParticipantRecord(CallParticipantRecord participantRecord,
+    public GuiCallParticipantRecord(CallPeerRecord participantRecord,
             String direction)
     {
         this.direction = direction;
 
-        this.participantName = participantRecord.getParticipantAddress();
+        this.participantName = participantRecord.getPeerAddress();
 
         this.startTime = participantRecord.getStartTime();
 

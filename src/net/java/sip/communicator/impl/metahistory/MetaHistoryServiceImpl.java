@@ -781,18 +781,18 @@ public class MetaHistoryServiceImpl
    }
 
    private boolean matchAnyCallParticipant(
-       List<CallParticipantRecord> cps, String[] keywords, boolean caseSensitive)
+       List<CallPeerRecord> cps, String[] keywords, boolean caseSensitive)
    {
-       Iterator<CallParticipantRecord> iter = cps.iterator();
+       Iterator<CallPeerRecord> iter = cps.iterator();
        while (iter.hasNext())
        {
-           CallParticipantRecord callParticipant = iter.next();
+           CallPeerRecord callParticipant = iter.next();
            for (int i = 0; i < keywords.length; i++)
            {
                String k = keywords[i];
-               if(caseSensitive && callParticipant.getParticipantAddress().contains(k))
+               if(caseSensitive && callParticipant.getPeerAddress().contains(k))
                     return true;
-                else if(callParticipant.getParticipantAddress().toLowerCase().
+                else if(callParticipant.getPeerAddress().toLowerCase().
                             contains(k.toLowerCase()))
                     return true;
            }
@@ -802,20 +802,20 @@ public class MetaHistoryServiceImpl
    }
 
    private boolean matchCallParticipant(
-       List<CallParticipantRecord> cps, String[] keywords, boolean caseSensitive)
+       List<CallPeerRecord> cps, String[] keywords, boolean caseSensitive)
    {
-       Iterator<CallParticipantRecord> iter = cps.iterator();
+       Iterator<CallPeerRecord> iter = cps.iterator();
        while (iter.hasNext())
        {
            boolean match = false;
-           CallParticipantRecord callParticipant = iter.next();
+           CallPeerRecord callParticipant = iter.next();
            for (int i = 0; i < keywords.length; i++)
            {
                String k = keywords[i];
 
                if(caseSensitive)
                {
-                    if(callParticipant.getParticipantAddress().contains(k))
+                    if(callParticipant.getPeerAddress().contains(k))
                     {
                         match = true;
                     }
@@ -827,7 +827,7 @@ public class MetaHistoryServiceImpl
 
                     continue;
                }
-               else if(callParticipant.getParticipantAddress().toLowerCase().
+               else if(callParticipant.getPeerAddress().toLowerCase().
                             contains(k.toLowerCase()))
                {
                    match = true;

@@ -443,16 +443,16 @@ public class ExtendedCallHistorySearchDialog
             /* PARTICIPANTS Checking */
             if (addMe)
             {
-                Iterator<CallParticipantRecord> participants =
+                Iterator<CallPeerRecord> participants =
                     callRecord.getParticipantRecords().iterator();
 
                 while (participants.hasNext() && addMe)
                 {
-                    CallParticipantRecord participantRecord =
+                    CallPeerRecord participantRecord =
                         participants.next();
 
                     String participantName = participantRecord
-                        .getParticipantAddress();
+                        .getPeerAddress();
 
                     if (participantName.matches(
                         "(?i).*" + contactNameField.getText() + ".*"))

@@ -13,7 +13,7 @@ import org.osgi.framework.*;
 import junit.framework.*;
 import net.java.sip.communicator.impl.protocol.mock.*;
 import net.java.sip.communicator.service.callhistory.CallHistoryService;
-import net.java.sip.communicator.service.callhistory.CallParticipantRecord;
+import net.java.sip.communicator.service.callhistory.CallPeerRecord;
 import net.java.sip.communicator.service.callhistory.CallRecord;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.filehistory.FileHistoryService;
@@ -523,18 +523,18 @@ public class TestMetaHistoryService
         assertEquals("Calls must be 2", rs.size(), 2);
 
         CallRecord rec = (CallRecord)resultIter.next();
-        CallParticipantRecord participant =
-            (CallParticipantRecord)rec.getParticipantRecords().get(0);
+        CallPeerRecord participant =
+            (CallPeerRecord)rec.getParticipantRecords().get(0);
 
         assertTrue("Participant incorrect ",
-                   participant.getParticipantAddress().
+                   participant.getPeerAddress().
                    equals(participantAddresses.get(2)));
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallParticipantRecord)rec.getParticipantRecords().get(0);
+        participant = (CallPeerRecord)rec.getParticipantRecords().get(0);
 
         assertTrue("Participant incorrect ",
-                   participant.getParticipantAddress().
+                   participant.getPeerAddress().
                    equals(participantAddresses.get(3)));
 
         /**
@@ -549,17 +549,17 @@ public class TestMetaHistoryService
         assertEquals("Calls must be 2", rs.size(), 2);
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallParticipantRecord)rec.getParticipantRecords().get(0);
+        participant = (CallPeerRecord)rec.getParticipantRecords().get(0);
 
         assertTrue("Participant incorrect ",
-                   participant.getParticipantAddress().
+                   participant.getPeerAddress().
                    equals(participantAddresses.get(4)));
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallParticipantRecord)rec.getParticipantRecords().get(0);
+        participant = (CallPeerRecord)rec.getParticipantRecords().get(0);
 
         assertTrue("Participant incorrect ",
-                   participant.getParticipantAddress().
+                   participant.getPeerAddress().
                    equals(participantAddresses.get(5)));
 
         /**
@@ -574,24 +574,24 @@ public class TestMetaHistoryService
         assertEquals("Calls must be 3", rs.size(), 3);
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallParticipantRecord) rec.getParticipantRecords().get(0);
+        participant = (CallPeerRecord) rec.getParticipantRecords().get(0);
 
         assertTrue("Participant incorrect ",
-                   participant.getParticipantAddress().
+                   participant.getPeerAddress().
                    equals(participantAddresses.get(3)));
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallParticipantRecord) rec.getParticipantRecords().get(0);
+        participant = (CallPeerRecord) rec.getParticipantRecords().get(0);
 
         assertTrue("Participant incorrect ",
-                   participant.getParticipantAddress().
+                   participant.getPeerAddress().
                    equals(participantAddresses.get(4)));
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallParticipantRecord) rec.getParticipantRecords().get(0);
+        participant = (CallPeerRecord) rec.getParticipantRecords().get(0);
 
         assertTrue("Participant incorrect ",
-                   participant.getParticipantAddress().
+                   participant.getPeerAddress().
                    equals(participantAddresses.get(5)));
     }
 

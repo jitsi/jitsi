@@ -19,8 +19,8 @@ public class CallRecord
 
     protected String direction = null;
 
-    protected final List<CallParticipantRecord> participantRecords =
-        new Vector<CallParticipantRecord>();
+    protected final List<CallPeerRecord> participantRecords =
+        new Vector<CallPeerRecord>();
 
     protected Date startTime = null;
     protected Date endTime = null;
@@ -54,11 +54,11 @@ public class CallRecord
      * @param address String
      * @return CallParticipantRecord
      */
-    public CallParticipantRecord findParticipantRecord(String address)
+    public CallPeerRecord findParticipantRecord(String address)
     {
-        for (CallParticipantRecord item : participantRecords)
+        for (CallPeerRecord item : participantRecords)
         {
-            if (item.getParticipantAddress().equals(address))
+            if (item.getPeerAddress().equals(address))
                 return item;
         }
 
@@ -88,7 +88,7 @@ public class CallRecord
      * Return Vector of CallParticipantRecords
      * @return Vector
      */
-    public List<CallParticipantRecord> getParticipantRecords()
+    public List<CallPeerRecord> getParticipantRecords()
     {
         return participantRecords;
     }

@@ -566,7 +566,7 @@ public class CallHistoryServiceImpl
             StringBuffer callParticipantEndTime = new StringBuffer();
             StringBuffer callParticipantStates = new StringBuffer();
 
-            for (CallParticipantRecord item : callRecord
+            for (CallPeerRecord item : callRecord
                 .getParticipantRecords())
             {
                 if (callParticipantIDs.length() > 0)
@@ -577,7 +577,7 @@ public class CallHistoryServiceImpl
                     callParticipantStates.append(DELIM);
                 }
 
-                callParticipantIDs.append(item.getParticipantAddress());
+                callParticipantIDs.append(item.getPeerAddress());
                 callParticipantStartTime.append(String.valueOf(item
                     .getStartTime().getTime()));
                 callParticipantEndTime.append(String.valueOf(item.getEndTime()

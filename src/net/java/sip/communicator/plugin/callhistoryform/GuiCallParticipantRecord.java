@@ -65,12 +65,12 @@ public class GuiCallParticipantRecord
      * @param participantRecord the corresponding <tt>CallParticipantRecord</tt>
      * @param direction the call direction - INCOMING_CALL or OUTGOING_CALL
      */
-    public GuiCallParticipantRecord(CallParticipantRecord participantRecord,
+    public GuiCallParticipantRecord(CallPeerRecord participantRecord,
             String direction)
     {   
         this.direction = direction;
         
-        this.participantName = participantRecord.getParticipantAddress();
+        this.participantName = participantRecord.getPeerAddress();
         
         this.startTime = participantRecord.getStartTime();
         

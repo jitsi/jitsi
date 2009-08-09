@@ -212,18 +212,18 @@ public class TestCallHistoryService
         assertEquals("Calls must be 2", rs.size(), 2);
 
         CallRecord rec = (CallRecord)resultIter.next();
-        CallParticipantRecord participant =
-            (CallParticipantRecord)rec.getParticipantRecords().get(0);
+        CallPeerRecord participant =
+            (CallPeerRecord)rec.getParticipantRecords().get(0);
 
         assertTrue("Participant incorrect ",
-                   participant.getParticipantAddress().
+                   participant.getPeerAddress().
                    equals(participantAddresses.get(2)));
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallParticipantRecord)rec.getParticipantRecords().get(0);
+        participant = (CallPeerRecord)rec.getParticipantRecords().get(0);
 
         assertTrue("Participant incorrect ",
-                   participant.getParticipantAddress().
+                   participant.getPeerAddress().
                    equals(participantAddresses.get(1)));
 
         /**
@@ -235,10 +235,10 @@ public class TestCallHistoryService
         assertEquals("Calls must be 1", rs.size(), 1);
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallParticipantRecord)rec.getParticipantRecords().get(0);
+        participant = (CallPeerRecord)rec.getParticipantRecords().get(0);
 
         assertTrue("Participant incorrect ",
-                   participant.getParticipantAddress().
+                   participant.getPeerAddress().
                    equals(participantAddresses.get(3)));
 
         /**
@@ -250,24 +250,24 @@ public class TestCallHistoryService
         assertEquals("Calls must be 3", rs.size(), 3);
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallParticipantRecord) rec.getParticipantRecords().get(0);
+        participant = (CallPeerRecord) rec.getParticipantRecords().get(0);
 
         assertTrue("Participant incorrect ",
-                   participant.getParticipantAddress().
+                   participant.getPeerAddress().
                    equals(participantAddresses.get(3)));
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallParticipantRecord) rec.getParticipantRecords().get(0);
+        participant = (CallPeerRecord) rec.getParticipantRecords().get(0);
 
         assertTrue("Participant incorrect ",
-                   participant.getParticipantAddress().
+                   participant.getPeerAddress().
                    equals(participantAddresses.get(2)));
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallParticipantRecord) rec.getParticipantRecords().get(0);
+        participant = (CallPeerRecord) rec.getParticipantRecords().get(0);
 
         assertTrue("Participant incorrect ",
-                   participant.getParticipantAddress().
+                   participant.getPeerAddress().
                    equals(participantAddresses.get(1)));
     }
 
@@ -324,9 +324,9 @@ public class TestCallHistoryService
         assertEquals("There must be 2 participants in the call",
                      callRecord.getParticipantRecords().size(), 2);
 
-        CallParticipantRecord callP1 =
+        CallPeerRecord callP1 =
             callRecord.findParticipantRecord(partAddresses[0]);
-        CallParticipantRecord callP2 =
+        CallPeerRecord callP2 =
             callRecord.findParticipantRecord(partAddresses[1]);
 
         assertTrue("Second participant added after first one",

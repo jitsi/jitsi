@@ -57,10 +57,10 @@ public class GuiCallRecord
         
         this.participants = new Vector<GuiCallParticipantRecord>();
         
-        Iterator<CallParticipantRecord> records = callRecord.getParticipantRecords().iterator();
+        Iterator<CallPeerRecord> records = callRecord.getParticipantRecords().iterator();
         
         while(records.hasNext()) {
-            CallParticipantRecord record
+            CallPeerRecord record
                 = records.next();
             
             GuiCallParticipantRecord newRecord

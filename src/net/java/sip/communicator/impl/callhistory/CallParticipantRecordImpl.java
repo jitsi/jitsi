@@ -16,7 +16,7 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Damian Minkov
  */
 public class CallParticipantRecordImpl
-    extends CallParticipantRecord
+    extends CallPeerRecord
 {
     /**
      * Creates CallParticipantRecord
@@ -47,7 +47,7 @@ public class CallParticipantRecordImpl
      */
     public void setParticipantAddress(String participantAddress)
     {
-        this.participantAddress = participantAddress;
+        this.peerAddress = participantAddress;
     }
 
     /**
