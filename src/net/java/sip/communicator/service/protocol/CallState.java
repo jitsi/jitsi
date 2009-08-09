@@ -8,18 +8,18 @@ package net.java.sip.communicator.service.protocol;
 
 /**
  * The CallState class reflects the current state of a call. Compared to the
- * state of a single call participant, a call itself has a more limited amount
+ * state of a single call peer, a call itself has a more limited amount
  * of sets which follow the following cycle:
  * <p>
  * CALL_INITIALIZATION -> CALL_IN_PROGRESS -> CALL_ENDED
  * <p>
  * When you start calling someone or receive a call alert, the call that is
  * automatically created is in the CALL_INITIALIZATION_PHASE. As soon as one of
- * the participants passes into a CONNECTED call participant state, the call
- * would enter the CALL_IN_PROGRESS state. When the last call participant enters
+ * the peers passes into a CONNECTED call peer state, the call
+ * would enter the CALL_IN_PROGRESS state. When the last call peer enters
  * a DISCONNECTED state the call itself would go into the CALL_ENDED state and
  * will be ready for garbage collection.
- * 
+ *
  * @author Emil Ivov
  */
 public class CallState
@@ -76,7 +76,7 @@ public class CallState
     /**
      * Create a call state object with a value corresponding to the specified
      * string.
-     * 
+     *
      * @param callState a string representation of the state.
      */
     private CallState(String callState)
@@ -86,7 +86,7 @@ public class CallState
 
     /**
      * Returns a String representation of this CallState.
-     * 
+     *
      * @return a string value (one of the _CALL_XXX constants) representing this
      *         call state).
      */
@@ -99,7 +99,7 @@ public class CallState
      * Returns a string representation of this call state. Strings returned by
      * this method have the following format: "CallState:<STATE_STRING>" and are
      * meant to be used for logging/debugging purposes.
-     * 
+     *
      * @return a string representation of this object.
      */
     public String toString()
