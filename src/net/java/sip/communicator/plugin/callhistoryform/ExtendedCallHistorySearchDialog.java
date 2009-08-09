@@ -20,9 +20,9 @@ import com.toedter.calendar.*;
 
 /**
  * The <tt>ExtendedCallHistorySearchDialog</tt> allows to search in call
- * history records, by specifying a period, or a call participant name, or type
+ * history records, by specifying a period, or a call peer name, or type
  * of the call (incoming or outgoing).
- * 
+ *
  * @author Maxime Bourdon & Thomas Meyer
  */
 public class ExtendedCallHistorySearchDialog
@@ -78,8 +78,6 @@ public class ExtendedCallHistorySearchDialog
     /* contraint grid */
     private GridBagConstraints constraintsGRbag = new GridBagConstraints();
 
-    Collection participants = null;
-
     private CallList callList = new CallList();
 
     /* Service */
@@ -87,7 +85,7 @@ public class ExtendedCallHistorySearchDialog
 
     private Date lastDateFromHistory = null;
 
-    private Collection callListCollection;
+    private Collection<CallRecord> callListCollection;
 
     private JDateChooser untilDC
         = new JDateChooser("dd/MM/yyyy", "##/##/####", ' ');
@@ -96,7 +94,7 @@ public class ExtendedCallHistorySearchDialog
         = new JDateChooser("dd/MM/yyyy", "##/##/####", ' ');
 
     private int direction;
-    
+
     /**
      * Creates a new instance of <tt>ExtendedCallHistorySearchDialog</tt>.
      */
@@ -126,7 +124,7 @@ public class ExtendedCallHistorySearchDialog
         searchButton.addActionListener(this);
         inCheckBox.addItemListener(this);
         outCheckBox.addItemListener(this);
-        
+
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     }
 
@@ -142,12 +140,12 @@ public class ExtendedCallHistorySearchDialog
         loadTableRecords(
             callListCollection, Constants.INOUT_CALL, null, new Date());
     }
-    
+
     /**
      * Initialize the "until" date field to the current date.
      */
     private void initDateChooser()
-    {        
+    {
         untilDC.getJCalendar().setWeekOfYearVisible(false);
         untilDC.getJCalendar().setDate(new Date());
         sinceDC.getJCalendar().setWeekOfYearVisible(false);
@@ -159,7 +157,7 @@ public class ExtendedCallHistorySearchDialog
     private void initPanels()
     {
         this.getRootPane().setDefaultButton(searchButton);
-        
+
         this.mainSearchPanel.add(searchPanel, BorderLayout.NORTH);
         this.mainSearchPanel.add(callTypePanel, BorderLayout.CENTER);
 
@@ -232,15 +230,15 @@ public class ExtendedCallHistorySearchDialog
         JButton sourceButton = (JButton) e.getSource();
 
         if (sourceButton.equals(searchButton))
-        {   
+        {
             /* update the callList */
             new Thread()
             {
                 public void run()
-                {   
+                {
                     callListCollection = callAccessService
                         .findByEndDate(new Date());
-                    
+
                     if (inCheckBox.isSelected() && outCheckBox.isSelected())
                     {
                         direction = Constants.INOUT_CALL;
@@ -344,7 +342,7 @@ public class ExtendedCallHistorySearchDialog
 
     /**
      * Check if the callRecord direction equals the direction wanted by the user
-     * 
+     *
      * @param callType integer value (incoming = 1, outgoing = 2, in/out = 3)
      * @param callrecord A Callrecord
      * @return A string containing the callRecord direction if it equals the
@@ -370,7 +368,7 @@ public class ExtendedCallHistorySearchDialog
 
     /**
      * Check if sinceDate <= callStartDate <= beforeDate
-     * 
+     *
      * @param callStartDate
      * @param sinceDate
      * @param beforeDate
@@ -394,20 +392,20 @@ public class ExtendedCallHistorySearchDialog
 
     /**
      * Loads the collection of call records in the table.
-     * 
+     *
      * @param historyCalls the collection of call records
      * @param calltype the type of the call - could be incoming or outgoing
      * @param since the start date of the search
      * @param before the end date of the search
      */
-    private void loadTableRecords(Collection historyCalls, int calltype,
-        Date since, Date before)
+    private void loadTableRecords(Collection<CallRecord> historyCalls,
+                    int calltype, Date since, Date before)
     {
         boolean addMe = true;
         lastDateFromHistory = null;
         callList.removeAll();
         // callList = new CallList();
-        Iterator lastCalls = historyCalls.iterator();
+        Iterator<CallRecord> lastCalls = historyCalls.iterator();
 
         while (lastCalls.hasNext())
         {
@@ -440,21 +438,21 @@ public class ExtendedCallHistorySearchDialog
             else
                 addMe = false;
 
-            /* PARTICIPANTS Checking */
+            /* PEERS Checking */
             if (addMe)
             {
-                Iterator<CallPeerRecord> participants =
+                Iterator<CallPeerRecord> peers =
                     callRecord.getPeerRecords().iterator();
 
-                while (participants.hasNext() && addMe)
+                while (peers.hasNext() && addMe)
                 {
-                    CallPeerRecord participantRecord =
-                        participants.next();
+                    CallPeerRecord peerRecord =
+                        peers.next();
 
-                    String participantName = participantRecord
+                    String peerName = peerRecord
                         .getPeerAddress();
 
-                    if (participantName.matches(
+                    if (peerName.matches(
                         "(?i).*" + contactNameField.getText() + ".*"))
                     {
                         /* DIRECTION Checking */
@@ -463,7 +461,7 @@ public class ExtendedCallHistorySearchDialog
 
                         if (direction != null)
                             callList.addItem(new GuiCallPeerRecord(
-                                participantRecord, direction));
+                                peerRecord, direction));
                         else
                             addMe = false;
                     }
