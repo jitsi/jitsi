@@ -16,44 +16,43 @@ package net.java.sip.communicator.service.protocol.event;
  * methods in it. This abstract class defines null methods for them all, so you
  * only have to define methods for events you care about.)
  * </p>
- * 
+ *
  * @see CallChangeEvent
  * @see CallChangeListener
- * 
+ *
  * @author Lubomir Marinov
  */
 public abstract class CallChangeAdapter
     implements CallChangeListener
 {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seenet.java.sip.communicator.service.protocol.event.CallChangeListener#
-     * callParticipantAdded
-     * (net.java.sip.communicator.service.protocol.event.CallParticipantEvent)
+    /**
+     * A dummy implementation of this listener's callPeerAdded() method.
+     *
+     * @param evt the <tt>CallPeerEvent</tt> containing the source call
+     * and call peer.
      */
     public void callPeerAdded(CallPeerEvent evt)
     {
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seenet.java.sip.communicator.service.protocol.event.CallChangeListener#
-     * callParticipantRemoved
-     * (net.java.sip.communicator.service.protocol.event.CallParticipantEvent)
+
+    /**
+     * A dummy implementation of this listener's callPeerRemoved() method.
+     *
+     * @param evt the <tt>CallPeerEvent</tt> containing the source call
+     * and call peer.
      */
     public void callPeerRemoved(CallPeerEvent evt)
     {
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seenet.java.sip.communicator.service.protocol.event.CallChangeListener#
-     * callStateChanged
-     * (net.java.sip.communicator.service.protocol.event.CallChangeEvent)
+
+    /**
+     * A dummy implementation of this listener's callStateChanged() method.
+     *
+     * @param evt the <tt>CallChangeEvent</tt> instance containing the source
+     * calls and its old and new state.
      */
     public void callStateChanged(CallChangeEvent evt)
     {
