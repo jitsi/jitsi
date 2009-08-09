@@ -26,7 +26,7 @@ public interface CallHistoryService
      * @param contact MetaContact which contacts participate in
      *      the returned calls
      * @param startDate Date the start date of the calls
-     * @return Collection of CallRecords with CallParticipantRecord
+     * @return Collection of CallRecords with CallPeerRecord
      * @throws RuntimeException
      */
     public Collection<CallRecord> findByStartDate(MetaContact contact, Date startDate)
@@ -39,7 +39,7 @@ public interface CallHistoryService
      * @param contact MetaContact which contacts participate in
      *      the returned calls
      * @param endDate Date the end date of the calls
-     * @return Collection of CallRecords with CallParticipantRecord
+     * @return Collection of CallRecords with CallPeerRecord
      * @throws RuntimeException
      */
     public Collection<CallRecord> findByEndDate(MetaContact contact, Date endDate)
@@ -53,7 +53,7 @@ public interface CallHistoryService
      *      the returned calls
      * @param startDate Date the start date of the calls
      * @param endDate Date the end date of the calls
-     * @return Collection of CallRecords with CallParticipantRecord
+     * @return Collection of CallRecords with CallPeerRecord
      * @throws RuntimeException
      */
     public Collection<CallRecord> findByPeriod(MetaContact contact, Date startDate, Date endDate)
@@ -64,7 +64,7 @@ public interface CallHistoryService
      * Returns all the calls made after the given date
      *
      * @param startDate Date the start date of the calls
-     * @return Collection of CallRecords with CallParticipantRecord
+     * @return Collection of CallRecords with CallPeerRecord
      * @throws RuntimeException
      */
     public Collection<CallRecord> findByStartDate(Date startDate)
@@ -74,7 +74,7 @@ public interface CallHistoryService
      * Returns all the calls made before the given date
      *
      * @param endDate Date the end date of the calls
-     * @return Collection of CallRecords with CallParticipantRecord
+     * @return Collection of CallRecords with CallPeerRecord
      * @throws RuntimeException
      */
     public Collection<CallRecord> findByEndDate(Date endDate)
@@ -85,7 +85,7 @@ public interface CallHistoryService
      *
      * @param startDate Date the start date of the calls
      * @param endDate Date the end date of the calls
-     * @return Collection of CallRecords with CallParticipantRecord
+     * @return Collection of CallRecords with CallPeerRecord
      * @throws RuntimeException
      */
     public Collection<CallRecord> findByPeriod(Date startDate, Date endDate)
@@ -98,7 +98,7 @@ public interface CallHistoryService
      * @param contact MetaContact which contacts participate in
      *      the returned calls
      * @param count calls count
-     * @return Collection of CallRecords with CallParticipantRecord
+     * @return Collection of CallRecords with CallPeerRecord
      * @throws RuntimeException
      */
     public Collection<CallRecord> findLast(MetaContact contact, int count)
@@ -109,16 +109,16 @@ public interface CallHistoryService
      * in the supplied metacontact
      *
      * @param count calls count
-     * @return Collection of CallRecords with CallParticipantRecord
+     * @return Collection of CallRecords with CallPeerRecord
      * @throws RuntimeException
      */
     public Collection<CallRecord> findLast(int count)
         throws RuntimeException;
 
     /**
-     * Find the calls made by the supplied participant address
-     * @param address String the address of the participant
-     * @return Collection of CallRecords with CallParticipantRecord
+     * Find the calls made by the supplied peer address
+     * @param address String the address of the peer
+     * @return Collection of CallRecords with CallPeerRecord
      * @throws RuntimeException
      */
     public Collection<CallRecord> findByPeer(String address)
