@@ -444,7 +444,7 @@ public class CallParticipantPanel
              * to the Call, starts listening for changes in the video in order
              * to display it.
              */
-            public synchronized void callParticipantAdded(
+            public synchronized void callPeerAdded(
                 CallPeerEvent event)
             {
                 if (callParticipant.equals(event.getSourceCallPeer())
@@ -464,7 +464,7 @@ public class CallParticipantPanel
              * Call, stops listening for changes in the video because it should
              * no longer be updated anyway.
              */
-            public synchronized void callParticipantRemoved(
+            public synchronized void callPeerRemoved(
                 CallPeerEvent event)
             {
                 if (callParticipant.equals(event.getSourceCallPeer())

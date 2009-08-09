@@ -201,9 +201,9 @@ public abstract class Call
             CallChangeListener listener = listeners.next();
 
             if(eventID == CallPeerEvent.CALL_PEER_ADDED)
-                listener.callParticipantAdded(cpEvent);
+                listener.callPeerAdded(cpEvent);
             else if (eventID == CallPeerEvent.CALL_PEER_REMVOVED)
-                listener.callParticipantRemoved(cpEvent);
+                listener.callPeerRemoved(cpEvent);
 
         }
     }

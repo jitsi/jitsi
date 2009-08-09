@@ -179,7 +179,7 @@ public class CallSipImpl
             || newState == CallPeerState.FAILED)
         {
             removeCallParticipant((CallPeerSipImpl) evt
-                .getSourceCallParticipant());
+                .getSourceCallPeer());
         }
         else if ((newState == CallPeerState.CONNECTED
                || newState == CallPeerState.CONNECTING_WITH_EARLY_MEDIA))

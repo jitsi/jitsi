@@ -106,7 +106,7 @@ public class MockCall
             == CallPeerState.FAILED)
         {
             removeCallParticipant(
-                (MockCallParticipant) evt.getSourceCallParticipant());
+                (MockCallParticipant) evt.getSourceCallPeer());
         }
         else if ( ( (CallPeerState) evt.getNewValue())
                  == CallPeerState.CONNECTED

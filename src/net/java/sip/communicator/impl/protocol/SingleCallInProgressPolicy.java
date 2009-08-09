@@ -57,9 +57,9 @@ public class SingleCallInProgressPolicy
          * on hold when a new call becomes in-progress and just implements
          * <code>CallChangeListener</code>.
          * 
-         * @see CallChangeListener#callParticipantAdded(CallPeerEvent)
+         * @see CallChangeListener#callPeerAdded(CallPeerEvent)
          */
-        public void callParticipantAdded(
+        public void callPeerAdded(
             CallPeerEvent callParticipantEvent)
         {
 
@@ -75,9 +75,9 @@ public class SingleCallInProgressPolicy
          * on hold when a new call becomes in-progress and just implements
          * <code>CallChangeListener</code>.
          * 
-         * @see CallChangeListener#callParticipantRemoved(CallPeerEvent)
+         * @see CallChangeListener#callPeerRemoved(CallPeerEvent)
          */
-        public void callParticipantRemoved(
+        public void callPeerRemoved(
             CallPeerEvent callParticipantEvent)
         {
 

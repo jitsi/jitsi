@@ -413,7 +413,7 @@ public class CallHistoryServiceImpl
     }
 
     /**
-     * Get the delimited strings and converts them to CallParticipantState
+     * Get the delimited strings and converts them to CallPeerState
      *
      * @param str String delimited string states
      * @return LinkedList the converted values list
@@ -435,7 +435,7 @@ public class CallHistoryServiceImpl
     /**
      * Converts the state string to state
      * @param state String the string
-     * @return CallParticipantState the state
+     * @return CallPeerState the state
      */
     private CallPeerState convertStateStringToState(String state)
     {
@@ -561,38 +561,38 @@ public class CallHistoryServiceImpl
             History history = this.getHistory(source, destination);
             HistoryWriter historyWriter = history.getWriter();
 
-            StringBuffer callParticipantIDs = new StringBuffer();
-            StringBuffer callParticipantStartTime = new StringBuffer();
-            StringBuffer callParticipantEndTime = new StringBuffer();
-            StringBuffer callParticipantStates = new StringBuffer();
+            StringBuffer callPeerIDs = new StringBuffer();
+            StringBuffer callPeerStartTime = new StringBuffer();
+            StringBuffer callPeerEndTime = new StringBuffer();
+            StringBuffer callPeerStates = new StringBuffer();
 
             for (CallPeerRecord item : callRecord
                 .getPeerRecords())
             {
-                if (callParticipantIDs.length() > 0)
+                if (callPeerIDs.length() > 0)
                 {
-                    callParticipantIDs.append(DELIM);
-                    callParticipantStartTime.append(DELIM);
-                    callParticipantEndTime.append(DELIM);
-                    callParticipantStates.append(DELIM);
+                    callPeerIDs.append(DELIM);
+                    callPeerStartTime.append(DELIM);
+                    callPeerEndTime.append(DELIM);
+                    callPeerStates.append(DELIM);
                 }
 
-                callParticipantIDs.append(item.getPeerAddress());
-                callParticipantStartTime.append(String.valueOf(item
+                callPeerIDs.append(item.getPeerAddress());
+                callPeerStartTime.append(String.valueOf(item
                     .getStartTime().getTime()));
-                callParticipantEndTime.append(String.valueOf(item.getEndTime()
+                callPeerEndTime.append(String.valueOf(item.getEndTime()
                     .getTime()));
-                callParticipantStates.append(item.getState().getStateString());
+                callPeerStates.append(item.getState().getStateString());
             }
 
             historyWriter.addRecord(new String[] {
                     String.valueOf(callRecord.getStartTime().getTime()),
                     String.valueOf(callRecord.getEndTime().getTime()),
                     callRecord.getDirection(),
-                    callParticipantIDs.toString(),
-                    callParticipantStartTime.toString(),
-                    callParticipantEndTime.toString(),
-                    callParticipantStates.toString()},
+                    callPeerIDs.toString(),
+                    callPeerStartTime.toString(),
+                    callPeerEndTime.toString(),
+                    callPeerStates.toString()},
                     new Date()); // this date is when the history record is written
         } catch (IOException e)
         {
@@ -843,18 +843,18 @@ public class CallHistoryServiceImpl
     }
 
     /**
-     * Adding a record for joining participant
-     * @param callParticipant CallParticipant
+     * Adding a record for joining peer
+     * @param callPeer CallParticipant
      */
-    private void handleParticipantAdded(CallPeer callParticipant)
+    private void handlePeerAdded(CallPeer callPeer)
     {
-        CallRecord callRecord = findCallRecord(callParticipant.getCall());
+        CallRecord callRecord = findCallRecord(callPeer.getCall());
 
         // no such call
         if(callRecord == null)
             return;
 
-        callParticipant.addCallPeerListener(new CallPeerAdapter()
+        callPeer.addCallPeerListener(new CallPeerAdapter()
         {
             public void peerStateChanged(CallPeerChangeEvent evt)
             {
@@ -862,10 +862,10 @@ public class CallHistoryServiceImpl
                     return;
                 else
                 {
-                    CallPeerRecordImpl participantRecord =
-                        findParticipantRecord(evt.getSourceCallParticipant());
+                    CallPeerRecordImpl peerRecord =
+                        findPeerRecord(evt.getSourceCallPeer());
 
-                    if(participantRecord == null)
+                    if(peerRecord == null)
                         return;
 
                     CallPeerState newState =
@@ -874,9 +874,9 @@ public class CallHistoryServiceImpl
                     if (newState.equals(CallPeerState.CONNECTED)
                         && !CallPeerState.isOnHold((CallPeerState)
                                 evt.getOldValue()))
-                        participantRecord.setStartTime(new Date());
+                        peerRecord.setStartTime(new Date());
 
-                    participantRecord.setState(newState);
+                    peerRecord.setState(newState);
 
                     //Disconnected / Busy
                     //Disconnected / Connecting - fail
@@ -887,7 +887,7 @@ public class CallHistoryServiceImpl
 
         Date startDate = new Date();
         CallPeerRecordImpl newRec = new CallPeerRecordImpl(
-            callParticipant.getAddress(),
+            callPeer.getAddress(),
             startDate,
             startDate);
 
@@ -895,25 +895,25 @@ public class CallHistoryServiceImpl
     }
 
     /**
-     * Adding a record for removing participant from call
-     * @param callParticipant CallParticipant
+     * Adding a record for removing peer from call
+     * @param callPeer CallPeer
      * @param srcCall Call
      */
-    private void handleParticipantRemoved(CallPeer callParticipant,
+    private void handlePeerRemoved(CallPeer callPeer,
         Call srcCall)
     {
         CallRecord callRecord = findCallRecord(srcCall);
-        String pAddress = callParticipant.getAddress();
+        String pAddress = callPeer.getAddress();
 
         CallPeerRecordImpl cpRecord =
             (CallPeerRecordImpl)callRecord.findPeerRecord(pAddress);
 
-        // no such participant
+        // no such peer
         if(cpRecord == null)
             return;
 
-        if(!callParticipant.getState().equals(CallPeerState.DISCONNECTED))
-            cpRecord.setState(callParticipant.getState());
+        if(!callPeer.getState().equals(CallPeerState.DISCONNECTED))
+            cpRecord.setState(callPeer.getState());
 
         CallPeerState cpRecordState = cpRecord.getState();
 
@@ -942,20 +942,20 @@ public class CallHistoryServiceImpl
     }
 
     /**
-     * Returns the participant record for the given participant
-     * @param callParticipant CallParticipant participant
-     * @return CallParticipantRecordImpl the corresponding record
+     * Returns the peer record for the given peer
+     * @param callPeer CallPeer peer
+     * @return CallPeerRecordImpl the corresponding record
      */
-    private CallPeerRecordImpl findParticipantRecord(
-        CallPeer callParticipant)
+    private CallPeerRecordImpl findPeerRecord(
+        CallPeer callPeer)
     {
-        CallRecord record = findCallRecord(callParticipant.getCall());
+        CallRecord record = findCallRecord(callPeer.getCall());
 
         if (record == null)
             return null;
 
         return (CallPeerRecordImpl) record.findPeerRecord(
-                callParticipant.getAddress());
+                callPeer.getAddress());
     }
 
     /**
@@ -983,7 +983,7 @@ public class CallHistoryServiceImpl
         Iterator<CallPeer> iter = sourceCall.getCallPeers();
         while (iter.hasNext())
         {
-            handleParticipantAdded(iter.next());
+            handlePeerAdded(iter.next());
         }
     }
 
@@ -1067,19 +1067,19 @@ public class CallHistoryServiceImpl
     }
 
     /**
-     * Receive events for adding or removing participants from a call
+     * Receive events for adding or removing peers from a call
      */
     private class HistoryCallChangeListener
         extends CallChangeAdapter
     {
-        public void callParticipantAdded(CallPeerEvent evt)
+        public void callPeerAdded(CallPeerEvent evt)
         {
-            handleParticipantAdded(evt.getSourceCallPeer());
+            handlePeerAdded(evt.getSourceCallPeer());
         }
 
-        public void callParticipantRemoved(CallPeerEvent evt)
+        public void callPeerRemoved(CallPeerEvent evt)
         {
-            handleParticipantRemoved(evt.getSourceCallPeer(),
+            handlePeerRemoved(evt.getSourceCallPeer(),
                                      evt.getSourceCall());
         }
     }

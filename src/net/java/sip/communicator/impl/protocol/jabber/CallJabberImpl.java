@@ -166,7 +166,7 @@ public class CallJabberImpl
                      == CallPeerState.FAILED)
         {
             removeCallParticipant(
-                (CallPeerJabberImpl)evt.getSourceCallParticipant());
+                (CallPeerJabberImpl)evt.getSourceCallPeer());
         }
         else if (((CallPeerState)evt.getNewValue())
                      == CallPeerState.CONNECTED
