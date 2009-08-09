@@ -19,7 +19,7 @@ import net.java.sip.communicator.util.swing.*;
 public class SecurityPanel
     extends TransparentPanel
 {
-    private final CallPeer participant;
+    private final CallPeer peer;
 
     private final Image iconEncr;
     private final Image iconEncrVerified;
@@ -32,7 +32,7 @@ public class SecurityPanel
 
     public SecurityPanel(CallPeer participant)
     {
-        this.participant = participant;
+        this.peer = participant;
 
         this.setLayout(new GridLayout(1, 0, 5, 5));
 
@@ -60,7 +60,7 @@ public class SecurityPanel
             public void actionPerformed(ActionEvent e)
             {
                 boolean sucess = false;
-                Call call = participant.getCall();
+                Call call = peer.getCall();
 
                 if (call != null)
                 {
@@ -71,7 +71,7 @@ public class SecurityPanel
 
                     if (secure != null)
                     {
-                        sucess = secure.setSasVerified( participant,
+                        sucess = secure.setSasVerified( peer,
                                                         !sasVerified);
                     }
 

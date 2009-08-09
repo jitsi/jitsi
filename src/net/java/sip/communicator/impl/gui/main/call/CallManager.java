@@ -280,7 +280,7 @@ public class CallManager
 
 
     /**
-     * Answers all call participants in the given call.
+     * Answers all call peers in the given call.
      */
     private static class AnswerCallThread
         extends Thread
@@ -295,22 +295,22 @@ public class CallManager
         public void run()
         {
             ProtocolProviderService pps = call.getProtocolProvider();
-            Iterator<CallPeer> participants = call.getCallPeers();
+            Iterator<CallPeer> peers = call.getCallPeers();
 
-            while (participants.hasNext())
+            while (peers.hasNext())
             {
-                CallPeer participant = participants.next();
+                CallPeer peer = peers.next();
                 OperationSetBasicTelephony telephony =
                     (OperationSetBasicTelephony) pps
                         .getOperationSet(OperationSetBasicTelephony.class);
 
                 try
                 {
-                    telephony.answerCallPeer(participant);
+                    telephony.answerCallPeer(peer);
                 }
                 catch (OperationFailedException e)
                 {
-                    logger.error("Could not answer to : " + participant
+                    logger.error("Could not answer to : " + peer
                         + " caused by the following exception: " + e);
                 }
             }
@@ -318,7 +318,7 @@ public class CallManager
     }
 
     /**
-     * Hangups all call participants in the given call.
+     * Hangups all call peers in the given call.
      */
     private static class HangupCallThread
         extends Thread
@@ -333,11 +333,11 @@ public class CallManager
         public void run()
         {
             ProtocolProviderService pps = call.getProtocolProvider();
-            Iterator<CallPeer> participants = call.getCallPeers();
+            Iterator<CallPeer> peers = call.getCallPeers();
 
-            while (participants.hasNext())
+            while (peers.hasNext())
             {
-                CallPeer participant = participants.next();
+                CallPeer participant = peers.next();
                 OperationSetBasicTelephony telephony =
                     (OperationSetBasicTelephony) pps
                         .getOperationSet(OperationSetBasicTelephony.class);

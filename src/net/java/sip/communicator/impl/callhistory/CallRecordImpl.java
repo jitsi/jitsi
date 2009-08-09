@@ -53,7 +53,7 @@ public class CallRecordImpl
 
     /**
      * Set the time when the call finishes
-     * If some participant has no end Time set we set it also
+     * If some peer has no end Time set we set it also
      * @param endTime Date
      */
     public void setEndTime(Date endTime)

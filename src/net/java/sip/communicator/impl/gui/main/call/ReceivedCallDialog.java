@@ -121,41 +121,40 @@ public class ReceivedCallDialog
      */
     private void initCallLabel(JLabel callLabel)
     {
-        Iterator<CallPeer> participantsIter
-            = incomingCall.getCallPeers();
+        Iterator<CallPeer> peersIter = incomingCall.getCallPeers();
 
-        boolean hasMoreParticipants = false;
+        boolean hasMorePeers = false;
         String text = "";
 
         ImageIcon imageIcon =
             ImageUtils.getScaledRoundedIcon(ImageLoader
                 .getImage(ImageLoader.DEFAULT_USER_PHOTO), 40, 45);
 
-        while (participantsIter.hasNext())
+        while (peersIter.hasNext())
         {
-            CallPeer participant = participantsIter.next();
+            CallPeer peer = peersIter.next();
 
-            // More participants.
-            if (participantsIter.hasNext())
+            // More peers.
+            if (peersIter.hasNext())
             {
                 text = callLabel.getText()
-                    + participant.getDisplayName() + ", ";
+                    + peer.getDisplayName() + ", ";
 
-                hasMoreParticipants = true;
+                hasMorePeers = true;
             }
-            // Only one participant.
+            // Only one peer.
             else
             {
                 text = callLabel.getText()
-                    + participant.getDisplayName()
+                    + peer.getDisplayName()
                     + " "
                     + GuiActivator.getResources().getI18NString("service.gui.IS_CALLING");
 
-                imageIcon = getParticipantImage(participant);
+                imageIcon = getPeerImage(peer);
             }
         }
 
-        if (hasMoreParticipants)
+        if (hasMorePeers)
             text += GuiActivator.getResources()
                 .getI18NString("service.gui.ARE_CALLING");
 
@@ -186,21 +185,21 @@ public class ReceivedCallDialog
     }
 
     /**
-     * Returns the participant image.
+     * Returns the peer image.
      *
-     * @param participant The call participant, for which we're returning an
+     * @param peer The call peer, for which we're returning an
      * image.
-     * @return the participant image.
+     * @return the peer image.
      */
-    private ImageIcon getParticipantImage(CallPeer participant)
+    private ImageIcon getPeerImage(CallPeer peer)
     {
         ImageIcon icon = null;
-        // We search for a contact corresponding to this call participant and
+        // We search for a contact corresponding to this call peer and
         // try to get its image.
-        if (participant.getContact() != null)
+        if (peer.getContact() != null)
         {
             MetaContact metaContact = GuiActivator.getMetaContactListService()
-                .findMetaContactByContact(participant.getContact());
+                .findMetaContactByContact(peer.getContact());
 
             byte[] avatar = metaContact.getAvatar();
 
@@ -209,9 +208,9 @@ public class ReceivedCallDialog
         }
 
         // If the icon is still null we try to get an image from the call
-        // participant.
-        if (icon == null && participant.getImage() != null)
-            icon = new ImageIcon(participant.getImage());
+        // peer.
+        if (icon == null && peer.getImage() != null)
+            icon = new ImageIcon(peer.getImage());
 
         return icon;
     }

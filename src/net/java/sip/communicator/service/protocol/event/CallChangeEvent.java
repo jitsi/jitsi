@@ -30,7 +30,7 @@ public class CallChangeEvent
     /**
      * Creates a CallChangeEvent with the specified source, type, oldValue and
      * newValue.
-     * @param source the participant that produced the event.
+     * @param source the peer that produced the event.
      * @param type the type of the event (the name of the property that has
      * changed).
      * @param oldValue the value of the changed property before the event
