@@ -262,7 +262,7 @@ public class OperationSetBasicTelephonyJabberImpl
                 new CallPeerJabberImpl(calleeAddress, call);
 
         callParticipant.setJingleSession(outJS);
-        callParticipant.setState(CallParticipantState.INITIATING_CALL);
+        callParticipant.setState(CallPeerState.INITIATING_CALL);
 
         fireCallEvent(CallEvent.CALL_INITIATED, call);
 
@@ -335,7 +335,7 @@ public class OperationSetBasicTelephonyJabberImpl
         }
         finally
         {
-            callParticipant.setState(CallParticipantState.DISCONNECTED);
+            callParticipant.setState(CallPeerState.DISCONNECTED);
         }
     }
 
@@ -436,7 +436,7 @@ public class OperationSetBasicTelephonyJabberImpl
                 = new CallPeerJabberImpl(from, call);
 
         callParticipant.setJingleSession(inJS);
-        callParticipant.setState(CallParticipantState.INCOMING_CALL);
+        callParticipant.setState(CallPeerState.INCOMING_CALL);
 
         activeCallsRepository.addCall(call);
 
@@ -536,7 +536,7 @@ public class OperationSetBasicTelephonyJabberImpl
             {
                 return;
             }
-            callParticipant.setState(CallParticipantState.CONNECTED);
+            callParticipant.setState(CallPeerState.CONNECTED);
         }
         else if (newState instanceof OutgoingJingleSession.Inviting)
         {
@@ -548,7 +548,7 @@ public class OperationSetBasicTelephonyJabberImpl
             {
                 return;
             }
-            callParticipant.setState(CallParticipantState.CONNECTING);
+            callParticipant.setState(CallPeerState.CONNECTING);
         }
         else if (newState instanceof OutgoingJingleSession.Pending)
         {
@@ -560,7 +560,7 @@ public class OperationSetBasicTelephonyJabberImpl
             {
                 return;
             }
-            callParticipant.setState(CallParticipantState.ALERTING_REMOTE_SIDE);
+            callParticipant.setState(CallPeerState.ALERTING_REMOTE_SIDE);
         }
         else if (newState instanceof OutgoingJingleSession.Active)
         {
@@ -572,7 +572,7 @@ public class OperationSetBasicTelephonyJabberImpl
             {
                 return;
             }
-            callParticipant.setState(CallParticipantState.CONNECTED);
+            callParticipant.setState(CallPeerState.CONNECTED);
         }
 
         if ((newState == null) && (oldState != null))

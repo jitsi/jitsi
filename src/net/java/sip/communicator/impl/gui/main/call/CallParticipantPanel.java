@@ -913,14 +913,14 @@ public class CallParticipantPanel
 
     private Component createFullScreenButtonBar()
     {
-        CallParticipantState participantState
+        CallPeerState participantState
             = callParticipant.getState();
 
         Component[] buttons =
             new Component[]
             {   new HoldButton( callParticipant.getCall(),
                                 true,
-                                CallParticipantState.isOnHold(participantState)),
+                                CallPeerState.isOnHold(participantState)),
                 new MuteButton( callParticipant.getCall(),
                                 true,
                                 callParticipant.isMute()),

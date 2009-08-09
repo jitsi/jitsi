@@ -173,16 +173,16 @@ public class CallSipImpl
      */
     public void participantStateChanged(CallPeerChangeEvent evt)
     {
-        CallParticipantState newState =
-            (CallParticipantState) evt.getNewValue();
-        if (newState == CallParticipantState.DISCONNECTED
-            || newState == CallParticipantState.FAILED)
+        CallPeerState newState =
+            (CallPeerState) evt.getNewValue();
+        if (newState == CallPeerState.DISCONNECTED
+            || newState == CallPeerState.FAILED)
         {
             removeCallParticipant((CallPeerSipImpl) evt
                 .getSourceCallParticipant());
         }
-        else if ((newState == CallParticipantState.CONNECTED
-               || newState == CallParticipantState.CONNECTING_WITH_EARLY_MEDIA))
+        else if ((newState == CallPeerState.CONNECTED
+               || newState == CallPeerState.CONNECTING_WITH_EARLY_MEDIA))
         {
             setCallState(CallState.CALL_IN_PROGRESS);
         }

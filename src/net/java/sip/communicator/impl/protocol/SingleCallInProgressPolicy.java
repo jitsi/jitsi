@@ -318,11 +318,11 @@ public class SingleCallInProgressPolicy
                 call.getCallParticipants(); participantIter.hasNext();)
             {
                 CallPeer participant = participantIter.next();
-                CallParticipantState participantState = participant.getState();
+                CallPeerState participantState = participant.getState();
 
-                if (!CallParticipantState.DISCONNECTED.equals(participantState)
-                    && !CallParticipantState.FAILED.equals(participantState)
-                    && !CallParticipantState.isOnHold(participantState))
+                if (!CallPeerState.DISCONNECTED.equals(participantState)
+                    && !CallPeerState.FAILED.equals(participantState)
+                    && !CallPeerState.isOnHold(participantState))
                 {
                     try
                     {

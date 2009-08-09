@@ -132,10 +132,10 @@ public class TestOperationSetBasicTelephonyJabberImpl
         //check states for call participants at both parties
         CallParticipantStateEventCollector stateCollectorForPp1
             = new CallParticipantStateEventCollector(
-                participantAtP1, CallParticipantState.ALERTING_REMOTE_SIDE);
+                participantAtP1, CallPeerState.ALERTING_REMOTE_SIDE);
         CallParticipantStateEventCollector stateCollectorForPp2
             = new CallParticipantStateEventCollector(
-                participantAtP2, CallParticipantState.INCOMING_CALL);
+                participantAtP2, CallPeerState.INCOMING_CALL);
 
         stateCollectorForPp1.waitForEvent(10000, true);
         stateCollectorForPp2.waitForEvent(10000, true);
@@ -148,11 +148,11 @@ public class TestOperationSetBasicTelephonyJabberImpl
         //make sure that the participants are in the proper state
         assertEquals("The participant at provider one was not in the "
                      +"right state."
-                    , CallParticipantState.ALERTING_REMOTE_SIDE
+                    , CallPeerState.ALERTING_REMOTE_SIDE
                     , participantAtP1.getState());
         assertEquals("The participant at provider two was not in the "
                      +"right state."
-                    , CallParticipantState.INCOMING_CALL
+                    , CallPeerState.INCOMING_CALL
                     , participantAtP2.getState());
 
 
@@ -209,9 +209,9 @@ public class TestOperationSetBasicTelephonyJabberImpl
 
         //listeners monitoring state change of the participant
         stateCollectorForPp1 = new CallParticipantStateEventCollector(
-                participantAtP1, CallParticipantState.DISCONNECTED);
+                participantAtP1, CallPeerState.DISCONNECTED);
         stateCollectorForPp2 = new CallParticipantStateEventCollector(
-                participantAtP2, CallParticipantState.DISCONNECTED);
+                participantAtP2, CallPeerState.DISCONNECTED);
 
         //listeners waiting for the op set to announce the end of the call
         call1Listener = new CallEventCollector(basicTelephonyP1);
@@ -238,7 +238,7 @@ public class TestOperationSetBasicTelephonyJabberImpl
         //make sure that the participant is disconnected
         assertEquals("The participant at provider one was not in the "
                      +"right state."
-                    , CallParticipantState.DISCONNECTED
+                    , CallPeerState.DISCONNECTED
                     , participantAtP1.getState());
 
         //make sure the telephony operation set distributed an event for the end
@@ -261,7 +261,7 @@ public class TestOperationSetBasicTelephonyJabberImpl
         //make sure that the participant is disconnected
         assertEquals("The participant at provider one was not in the "
                      +"right state."
-                    , CallParticipantState.DISCONNECTED
+                    , CallPeerState.DISCONNECTED
                     , participantAtP2.getState());
 
         //make sure the telephony operation set distributed an event for the end
@@ -362,10 +362,10 @@ public class TestOperationSetBasicTelephonyJabberImpl
         //check states for call participants at both parties
         CallParticipantStateEventCollector stateCollectorForPp1
             = new CallParticipantStateEventCollector(
-                participantAtP1, CallParticipantState.ALERTING_REMOTE_SIDE);
+                participantAtP1, CallPeerState.ALERTING_REMOTE_SIDE);
         CallParticipantStateEventCollector stateCollectorForPp2
             = new CallParticipantStateEventCollector(
-                participantAtP2, CallParticipantState.INCOMING_CALL);
+                participantAtP2, CallPeerState.INCOMING_CALL);
 
         stateCollectorForPp1.waitForEvent(10000, true);
         stateCollectorForPp2.waitForEvent(10000, true);
@@ -378,11 +378,11 @@ public class TestOperationSetBasicTelephonyJabberImpl
         //make sure that the participants are in the proper state
         assertEquals("The participant at provider one was not in the "
                      +"right state."
-                    , CallParticipantState.ALERTING_REMOTE_SIDE
+                    , CallPeerState.ALERTING_REMOTE_SIDE
                     , participantAtP1.getState());
         assertEquals("The participant at provider two was not in the "
                      +"right state."
-                    , CallParticipantState.INCOMING_CALL
+                    , CallPeerState.INCOMING_CALL
                     , participantAtP2.getState());
 
 
@@ -440,11 +440,11 @@ public class TestOperationSetBasicTelephonyJabberImpl
         //listeners monitoring state change of the participant
         CallParticipantStateEventCollector busyStateCollectorForPp1
             = new CallParticipantStateEventCollector(
-                participantAtP1, CallParticipantState.BUSY);
+                participantAtP1, CallPeerState.BUSY);
         stateCollectorForPp1 = new CallParticipantStateEventCollector(
-                participantAtP1, CallParticipantState.DISCONNECTED);
+                participantAtP1, CallPeerState.DISCONNECTED);
         stateCollectorForPp2 = new CallParticipantStateEventCollector(
-                participantAtP2, CallParticipantState.DISCONNECTED);
+                participantAtP2, CallPeerState.DISCONNECTED);
 
         //listeners waiting for the op set to announce the end of the call
         call1Listener = new CallEventCollector(basicTelephonyP1);
@@ -473,7 +473,7 @@ public class TestOperationSetBasicTelephonyJabberImpl
         //make sure that the participant is disconnected
         assertEquals("The participant at provider one was not in the "
                      +"right state."
-                    , CallParticipantState.DISCONNECTED
+                    , CallPeerState.DISCONNECTED
                     , participantAtP1.getState());
 
 
@@ -498,7 +498,7 @@ public class TestOperationSetBasicTelephonyJabberImpl
         //make sure that the participant is disconnected
         assertEquals("The participant at provider one was not in the "
                      +"right state."
-                    , CallParticipantState.DISCONNECTED
+                    , CallPeerState.DISCONNECTED
                     , participantAtP2.getState());
 
         //make sure the telephony operation set distributed an event for the end
@@ -599,10 +599,10 @@ public class TestOperationSetBasicTelephonyJabberImpl
         //check states for call participants at both parties
         CallParticipantStateEventCollector stateCollectorForPp1
             = new CallParticipantStateEventCollector(
-                participantAtP1, CallParticipantState.ALERTING_REMOTE_SIDE);
+                participantAtP1, CallPeerState.ALERTING_REMOTE_SIDE);
         CallParticipantStateEventCollector stateCollectorForPp2
             = new CallParticipantStateEventCollector(
-                participantAtP2, CallParticipantState.INCOMING_CALL);
+                participantAtP2, CallPeerState.INCOMING_CALL);
 
         stateCollectorForPp1.waitForEvent(10000, true);
         stateCollectorForPp2.waitForEvent(10000, true);
@@ -615,11 +615,11 @@ public class TestOperationSetBasicTelephonyJabberImpl
         //make sure that the participants are in the proper state
         assertEquals("The participant at provider one was not in the "
                      +"right state."
-                    , CallParticipantState.ALERTING_REMOTE_SIDE
+                    , CallPeerState.ALERTING_REMOTE_SIDE
                     , participantAtP1.getState());
         assertEquals("The participant at provider two was not in the "
                      +"right state."
-                    , CallParticipantState.INCOMING_CALL
+                    , CallPeerState.INCOMING_CALL
                     , participantAtP2.getState());
 
 
@@ -676,10 +676,10 @@ public class TestOperationSetBasicTelephonyJabberImpl
         //a connected state after we answer
         stateCollectorForPp1
             = new CallParticipantStateEventCollector(
-                participantAtP1, CallParticipantState.CONNECTED);
+                participantAtP1, CallPeerState.CONNECTED);
         stateCollectorForPp2
             = new CallParticipantStateEventCollector(
-                participantAtP2, CallParticipantState.CONNECTED);
+                participantAtP2, CallPeerState.CONNECTED);
 
         //we will now anser the call and verify that both parties change states
         //accordingly.
@@ -691,11 +691,11 @@ public class TestOperationSetBasicTelephonyJabberImpl
         //make sure that the participants are in the proper state
         assertEquals("The participant at provider one was not in the "
                      +"right state."
-                    , CallParticipantState.CONNECTED
+                    , CallPeerState.CONNECTED
                     , participantAtP1.getState());
         assertEquals("The participant at provider two was not in the "
                      +"right state."
-                    , CallParticipantState.CONNECTED
+                    , CallPeerState.CONNECTED
                     , participantAtP2.getState());
 
         //make sure that events have been distributed when states were changed.
@@ -712,10 +712,10 @@ public class TestOperationSetBasicTelephonyJabberImpl
         //the states they are expected to.
         stateCollectorForPp1
             = new CallParticipantStateEventCollector(
-                participantAtP1, CallParticipantState.DISCONNECTED);
+                participantAtP1, CallPeerState.DISCONNECTED);
         stateCollectorForPp2
             = new CallParticipantStateEventCollector(
-                participantAtP2, CallParticipantState.DISCONNECTED);
+                participantAtP2, CallPeerState.DISCONNECTED);
 
         //we will now end the call and verify that both parties change states
         //accordingly.
@@ -727,11 +727,11 @@ public class TestOperationSetBasicTelephonyJabberImpl
         //make sure that the participants are in the proper state
         assertEquals("The participant at provider one was not in the "
                      +"right state."
-                    , CallParticipantState.DISCONNECTED
+                    , CallPeerState.DISCONNECTED
                     , participantAtP1.getState());
         assertEquals("The participant at provider two was not in the "
                      +"right state."
-                    , CallParticipantState.DISCONNECTED
+                    , CallPeerState.DISCONNECTED
                     , participantAtP2.getState());
 
         //make sure that the corresponding events were delivered.
@@ -862,7 +862,7 @@ public class TestOperationSetBasicTelephonyJabberImpl
     {
         public ArrayList collectedEvents = new ArrayList();
         private CallPeer listenedCallParticipant = null;
-        public CallParticipantState awaitedState = null;
+        public CallPeerState awaitedState = null;
 
         /**
          * Creates an instance of this collector and adds it as a listener
@@ -874,7 +874,7 @@ public class TestOperationSetBasicTelephonyJabberImpl
          */
         public CallParticipantStateEventCollector(
                                             CallPeer      callParticipant,
-                                            CallParticipantState awaitedState)
+                                            CallPeerState awaitedState)
         {
             this.listenedCallParticipant = callParticipant;
             this.listenedCallParticipant.addCallParticipantListener(this);
@@ -893,7 +893,7 @@ public class TestOperationSetBasicTelephonyJabberImpl
                 logger.debug(
                     "Collected evt("+collectedEvents.size()+")= "+event);
 
-                if(((CallParticipantState)event.getNewValue())
+                if(((CallPeerState)event.getNewValue())
                     .equals(awaitedState))
                 {
                     this.collectedEvents.add(event);

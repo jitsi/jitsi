@@ -159,7 +159,7 @@ public class CallPanel
 
             if (participantPanel != null)
             {
-                CallParticipantState state = participant.getState();
+                CallPeerState state = participant.getState();
 
                 participantPanel.setState(state.getStateString(), null);
 
@@ -204,20 +204,20 @@ public class CallPanel
         String newStateString = sourceParticipant.getState().getStateString();
         Icon newStateIcon = null;
 
-        if (newState == CallParticipantState.ALERTING_REMOTE_SIDE)
+        if (newState == CallPeerState.ALERTING_REMOTE_SIDE)
         {
             NotificationManager
                 .fireNotification(NotificationManager.OUTGOING_CALL);
         }
-        else if (newState == CallParticipantState.BUSY)
+        else if (newState == CallPeerState.BUSY)
         {
             NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);
 
             NotificationManager.fireNotification(NotificationManager.BUSY_CALL);
         }
-        else if (newState == CallParticipantState.CONNECTED)
+        else if (newState == CallPeerState.CONNECTED)
         {
-            if (!CallParticipantState.isOnHold((CallParticipantState) evt
+            if (!CallPeerState.isOnHold((CallPeerState) evt
                 .getOldValue()))
             {
                 // start the timer that takes care of refreshing the time label
@@ -230,25 +230,25 @@ public class CallPanel
                 participantPanel.startCallTimer();
             }
         }
-        else if (newState == CallParticipantState.DISCONNECTED)
+        else if (newState == CallPeerState.DISCONNECTED)
         {
             // The call participant should be already removed from the call
             // see callParticipantRemoved
         }
-        else if (newState == CallParticipantState.FAILED)
+        else if (newState == CallPeerState.FAILED)
         {
             // The call participant should be already removed from the call
             // see callParticipantRemoved
         }
-        else if (CallParticipantState.isOnHold((CallParticipantState) newState))
+        else if (CallPeerState.isOnHold((CallPeerState) newState))
         {
             newStateIcon = new ImageIcon(
                 ImageLoader.getImage(ImageLoader.HOLD_STATUS_ICON));
 
             // If we have clicked the hold button in a full screen mode
             // we need to update the state of the call dialog hold button.
-            if ((newState.equals(CallParticipantState.ON_HOLD_LOCALLY)
-                || newState.equals(CallParticipantState.ON_HOLD_MUTUALLY))
+            if ((newState.equals(CallPeerState.ON_HOLD_LOCALLY)
+                || newState.equals(CallPeerState.ON_HOLD_MUTUALLY))
                 && !callDialog.isHoldButtonSelected())
             {
                 callDialog.setHoldButtonSelected(true);

@@ -63,7 +63,7 @@ public class CallParticipantRecordImpl
      * Sets the participant state
      * @param state CallParticipantState
      */
-    public void setState(CallParticipantState state)
+    public void setState(CallPeerState state)
     {
         this.state = state;
     }

@@ -49,14 +49,14 @@ public class MockOperationSetBasicTelephony
     {
         MockCallParticipant callParticipant
             = (MockCallParticipant)participant;
-        if(participant.getState().equals(CallParticipantState.CONNECTED))
+        if(participant.getState().equals(CallPeerState.CONNECTED))
         {
             logger.info("Ignoring user request to answer a CallParticipant "
                         + "that is already connected. CP:" + participant);
             return;
         }
 
-        callParticipant.setState(CallParticipantState.CONNECTED, null);
+        callParticipant.setState(CallPeerState.CONNECTED, null);
     }
 
     /**
@@ -132,7 +132,7 @@ public class MockOperationSetBasicTelephony
         OperationFailedException
     {
         //do nothing if the call is already ended
-        if (participant.getState().equals(CallParticipantState.DISCONNECTED))
+        if (participant.getState().equals(CallPeerState.DISCONNECTED))
         {
             logger.debug("Ignoring a request to hangup a call participant "
                          +"that is already DISCONNECTED");
@@ -143,7 +143,7 @@ public class MockOperationSetBasicTelephony
             = (MockCallParticipant)participant;
 
         logger.info("hangupCallParticipant");
-        callParticipant.setState(CallParticipantState.DISCONNECTED, null);
+        callParticipant.setState(CallPeerState.DISCONNECTED, null);
     }
 
     /**
@@ -193,8 +193,8 @@ public class MockOperationSetBasicTelephony
         MockCallParticipant callPArt =
             (MockCallParticipant)newCall.getCallParticipants().next();
 
-        callPArt.setState(CallParticipantState.ALERTING_REMOTE_SIDE, "no reason");
-        callPArt.setState(CallParticipantState.CONNECTED, "no reason");
+        callPArt.setState(CallPeerState.ALERTING_REMOTE_SIDE, "no reason");
+        callPArt.setState(CallPeerState.CONNECTED, "no reason");
 
         return newCall;
     }
@@ -203,8 +203,8 @@ public class MockOperationSetBasicTelephony
     {
         MockCallParticipant callPArt = new MockCallParticipant(address, (MockCall)call);
 
-        callPArt.setState(CallParticipantState.ALERTING_REMOTE_SIDE, "no reason");
-        callPArt.setState(CallParticipantState.CONNECTED, "no reason");
+        callPArt.setState(CallPeerState.ALERTING_REMOTE_SIDE, "no reason");
+        callPArt.setState(CallPeerState.CONNECTED, "no reason");
 
         return callPArt;
     }

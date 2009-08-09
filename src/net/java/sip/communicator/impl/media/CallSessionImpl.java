@@ -1206,10 +1206,10 @@ public class CallSessionImpl
         else
         {
             //create the SDP answer.
-            CallParticipantState participantState = participant.getState();
+            CallPeerState participantState = participant.getState();
 
-            if (CallParticipantState.CONNECTED.equals(participantState)
-                    || CallParticipantState.isOnHold(participantState))
+            if (CallPeerState.CONNECTED.equals(participantState)
+                    || CallPeerState.isOnHold(participantState))
             {
                 //if the call is already connected then this is a
                 //reinitialization (e.g. placing the call on/off hold)
@@ -1263,10 +1263,10 @@ public class CallSessionImpl
 
         if (answer)
         {
-            CallParticipantState participantState = participant.getState();
+            CallPeerState participantState = participant.getState();
 
-            if (CallParticipantState.CONNECTED.equals(participantState)
-                    || CallParticipantState.isOnHold(participantState))
+            if (CallPeerState.CONNECTED.equals(participantState)
+                    || CallPeerState.isOnHold(participantState))
                 startStreamingAndProcessingMedia();
         }
 

@@ -16,7 +16,7 @@ public class CallParticipantRecord
     protected String participantAddress = null;
     protected Date startTime = null;
     protected Date endTime = null;
-    protected CallParticipantState state = CallParticipantState.UNKNOWN;
+    protected CallPeerState state = CallPeerState.UNKNOWN;
 
     /**
      * Creates CallParticipantRecord
@@ -66,7 +66,7 @@ public class CallParticipantRecord
      * Returns the actual state of the participant
      * @return CallParticipantState
      */
-    public CallParticipantState getState()
+    public CallPeerState getState()
     {
         return state;
     }

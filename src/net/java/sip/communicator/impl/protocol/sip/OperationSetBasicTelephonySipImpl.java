@@ -421,25 +421,25 @@ public class OperationSetBasicTelephonySipImpl
          */
         callSession.putOnHold(on, true);
 
-        CallParticipantState state = sipParticipant.getState();
-        if (CallParticipantState.ON_HOLD_LOCALLY.equals(state))
+        CallPeerState state = sipParticipant.getState();
+        if (CallPeerState.ON_HOLD_LOCALLY.equals(state))
         {
             if (!on)
-                sipParticipant.setState(CallParticipantState.CONNECTED);
+                sipParticipant.setState(CallPeerState.CONNECTED);
         }
-        else if (CallParticipantState.ON_HOLD_MUTUALLY.equals(state))
+        else if (CallPeerState.ON_HOLD_MUTUALLY.equals(state))
         {
             if (!on)
-                sipParticipant.setState(CallParticipantState.ON_HOLD_REMOTELY);
+                sipParticipant.setState(CallPeerState.ON_HOLD_REMOTELY);
         }
-        else if (CallParticipantState.ON_HOLD_REMOTELY.equals(state))
+        else if (CallPeerState.ON_HOLD_REMOTELY.equals(state))
         {
             if (on)
-                sipParticipant.setState(CallParticipantState.ON_HOLD_MUTUALLY);
+                sipParticipant.setState(CallPeerState.ON_HOLD_MUTUALLY);
         }
         else if (on)
         {
-            sipParticipant.setState(CallParticipantState.ON_HOLD_LOCALLY);
+            sipParticipant.setState(CallPeerState.ON_HOLD_LOCALLY);
         }
     }
 
@@ -756,7 +756,7 @@ public class OperationSetBasicTelephonySipImpl
                     + " " + response.getReasonPhrase());
 
                 if (callParticipant != null)
-                    callParticipant.setState(CallParticipantState.FAILED);
+                    callParticipant.setState(CallPeerState.FAILED);
 
                 processed = true;
             }
@@ -812,10 +812,10 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         // change status
-        CallParticipantState callParticipantState = callParticipant.getState();
-        if (!CallParticipantState.CONNECTED.equals(callParticipantState)
-            && !CallParticipantState.isOnHold(callParticipantState))
-            callParticipant.setState(CallParticipantState.CONNECTING);
+        CallPeerState callParticipantState = callParticipant.getState();
+        if (!CallPeerState.CONNECTED.equals(callParticipantState)
+            && !CallPeerState.isOnHold(callParticipantState))
+            callParticipant.setState(CallPeerState.CONNECTING);
     }
 
     /**
@@ -858,7 +858,7 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         // change status.
-        callParticipant.setState(CallParticipantState.ALERTING_REMOTE_SIDE);
+        callParticipant.setState(CallPeerState.ALERTING_REMOTE_SIDE);
     }
 
     /**
@@ -880,7 +880,7 @@ public class OperationSetBasicTelephonySipImpl
             activeCallsRepository.findCallParticipant(dialog);
 
         if (callParticipant.getState()
-                == CallParticipantState.CONNECTING_WITH_EARLY_MEDIA)
+                == CallPeerState.CONNECTING_WITH_EARLY_MEDIA)
         {
             // This can happen if we are receiving early media for a second time.
             logger.warn("Ignoring invite 183 since call participant is "
@@ -955,7 +955,7 @@ public class OperationSetBasicTelephonySipImpl
 
         // change status
         callParticipant
-            .setState(CallParticipantState.CONNECTING_WITH_EARLY_MEDIA);
+            .setState(CallPeerState.CONNECTING_WITH_EARLY_MEDIA);
     }
 
     /**
@@ -1071,7 +1071,7 @@ public class OperationSetBasicTelephonySipImpl
         // !!! set sdp content before setting call state as that is where
         // listeners get alerted and they need the sdp
         // ignore sdp if we have already received one in early media
-        if(!CallParticipantState.CONNECTING_WITH_EARLY_MEDIA
+        if(!CallPeerState.CONNECTING_WITH_EARLY_MEDIA
                .equals(callParticipant.getState()))
             callParticipant.setSdpDescription(new String(ok.getRawContent()));
 
@@ -1134,9 +1134,9 @@ public class OperationSetBasicTelephonySipImpl
              * the SDP (e.g. because of re-negotiating the media after toggling
              * the streaming of local video).
              */
-            CallParticipantState callParticipantState =
+            CallPeerState callParticipantState =
                 callParticipant.getState();
-            if (!CallParticipantState.CONNECTING_WITH_EARLY_MEDIA
+            if (!CallPeerState.CONNECTING_WITH_EARLY_MEDIA
                     .equals(callParticipantState))
             {
                 callSession.processSdpAnswer(
@@ -1163,29 +1163,29 @@ public class OperationSetBasicTelephonySipImpl
                 //we are connected from a SIP point of view (cause we sent our
                 //ack) so make sure we set the state accordingly or the hangup
                 //method won't know how to end the call.
-                callParticipant.setState(CallParticipantState.CONNECTED);
+                callParticipant.setState(CallPeerState.CONNECTED);
                 hangupCallParticipant(callParticipant);
             }
             catch (Exception e)
             {
                 //I don't see what more we could do.
                 logger.error(e);
-                callParticipant.setState(CallParticipantState.FAILED,
+                callParticipant.setState(CallPeerState.FAILED,
                                          e.getMessage());
             }
             return;
         }
 
         // change status
-        if (!CallParticipantState.isOnHold(callParticipant.getState()))
-            callParticipant.setState(CallParticipantState.CONNECTED);
+        if (!CallPeerState.isOnHold(callParticipant.getState()))
+            callParticipant.setState(CallPeerState.CONNECTED);
     }
 
     private void logErrorAndFailCallParticipant(String message,
         Throwable throwable, CallPeerSipImpl participant)
     {
         logger.error(message, throwable);
-        participant.setState(CallParticipantState.FAILED, message);
+        participant.setState(CallPeerState.FAILED, message);
     }
 
     /**
@@ -1210,7 +1210,7 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         // change status
-        callParticipant.setState(CallParticipantState.BUSY);
+        callParticipant.setState(CallPeerState.BUSY);
     }
 
     /**
@@ -1313,7 +1313,7 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         // change status
-        callParticipant.setState(CallParticipantState.FAILED,
+        callParticipant.setState(CallPeerState.FAILED,
             "The remote party has not replied!"
                 + "The call will be disconnected");
         return true;
@@ -1362,7 +1362,7 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         // change status
-        callParticipant.setState(CallParticipantState.DISCONNECTED);
+        callParticipant.setState(CallPeerState.DISCONNECTED);
         return true;
     }
 
@@ -1598,7 +1598,7 @@ public class OperationSetBasicTelephonySipImpl
 
         if (!isInviteProperlyAddressed(dialog))
         {
-            callParticipant.setState(CallParticipantState.FAILED,
+            callParticipant.setState(CallPeerState.FAILED,
                 "A call was received here while it appeared "
                     + "destined to someone else. The call was rejected.");
 
@@ -1636,7 +1636,7 @@ public class OperationSetBasicTelephonySipImpl
                     logger.error("Failed to hangup the referer "
                         + callParticipantToReplace, ex);
                     callParticipantToReplace.setState(
-                        CallParticipantState.FAILED, "Internal Error: " + ex);
+                        CallPeerState.FAILED, "Internal Error: " + ex);
                 }
             }
             // Even if there was a failure, we cannot just send Response.OK.
@@ -1693,7 +1693,7 @@ public class OperationSetBasicTelephonySipImpl
                     {
                         logger.error("Error while trying to send response "
                             + response, ex);
-                        callParticipant.setState(CallParticipantState.FAILED,
+                        callParticipant.setState(CallPeerState.FAILED,
                             "Internal Error: " + ex.getMessage());
                         return;
                     }
@@ -1703,7 +1703,7 @@ public class OperationSetBasicTelephonySipImpl
         catch (ParseException ex)
         {
             logger.error("Error while trying to send a response", ex);
-            callParticipant.setState(CallParticipantState.FAILED,
+            callParticipant.setState(CallPeerState.FAILED,
                 "Internal Error: " + ex.getMessage());
             return;
         }
@@ -1717,7 +1717,7 @@ public class OperationSetBasicTelephonySipImpl
         catch (Exception ex)
         {
             logger.error("Error while trying to send a request", ex);
-            callParticipant.setState(CallParticipantState.FAILED,
+            callParticipant.setState(CallPeerState.FAILED,
                 "Internal Error: " + ex.getMessage());
             return;
         }
@@ -1864,25 +1864,25 @@ public class OperationSetBasicTelephonySipImpl
 
         callSession.putOnHold(on, false);
 
-        CallParticipantState state = sipParticipant.getState();
-        if (CallParticipantState.ON_HOLD_LOCALLY.equals(state))
+        CallPeerState state = sipParticipant.getState();
+        if (CallPeerState.ON_HOLD_LOCALLY.equals(state))
         {
             if (on)
-                sipParticipant.setState(CallParticipantState.ON_HOLD_MUTUALLY);
+                sipParticipant.setState(CallPeerState.ON_HOLD_MUTUALLY);
         }
-        else if (CallParticipantState.ON_HOLD_MUTUALLY.equals(state))
+        else if (CallPeerState.ON_HOLD_MUTUALLY.equals(state))
         {
             if (!on)
-                sipParticipant.setState(CallParticipantState.ON_HOLD_LOCALLY);
+                sipParticipant.setState(CallPeerState.ON_HOLD_LOCALLY);
         }
-        else if (CallParticipantState.ON_HOLD_REMOTELY.equals(state))
+        else if (CallPeerState.ON_HOLD_REMOTELY.equals(state))
         {
             if (!on)
-                sipParticipant.setState(CallParticipantState.CONNECTED);
+                sipParticipant.setState(CallPeerState.CONNECTED);
         }
         else if (on)
         {
-            sipParticipant.setState(CallParticipantState.ON_HOLD_REMOTELY);
+            sipParticipant.setState(CallPeerState.ON_HOLD_REMOTELY);
         }
 
         /*
@@ -1963,7 +1963,7 @@ public class OperationSetBasicTelephonySipImpl
         }
         else
         {
-            callParticipant.setState(CallParticipantState.DISCONNECTED);
+            callParticipant.setState(CallPeerState.DISCONNECTED);
         }
     }
 
@@ -1997,10 +1997,10 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         // change status
-        CallParticipantState participantState = participant.getState();
-        if (!CallParticipantState.isOnHold(participantState))
+        CallPeerState participantState = participant.getState();
+        if (!CallPeerState.isOnHold(participantState))
         {
-            if (CallParticipantState.CONNECTED.equals(participantState))
+            if (CallPeerState.CONNECTED.equals(participantState))
             {
                 try
                 {
@@ -2017,7 +2017,7 @@ public class OperationSetBasicTelephonySipImpl
                 }
             }
             else
-                participant.setState(CallParticipantState.CONNECTED);
+                participant.setState(CallPeerState.CONNECTED);
         }
     }
 
@@ -2103,7 +2103,7 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         // change status
-        callParticipant.setState(CallParticipantState.DISCONNECTED);
+        callParticipant.setState(CallPeerState.DISCONNECTED);
     }
 
     /**
@@ -2337,7 +2337,7 @@ public class OperationSetBasicTelephonySipImpl
                 "Failed to create OK response to refer NOTIFY request.";
 
             logger.error(message, ex);
-            participant.setState(CallParticipantState.DISCONNECTED, message);
+            participant.setState(CallPeerState.DISCONNECTED, message);
             return false;
         }
         try
@@ -2350,7 +2350,7 @@ public class OperationSetBasicTelephonySipImpl
                 "Failed to send OK response to refer NOTIFY request.";
 
             logger.error(message, ex);
-            participant.setState(CallParticipantState.DISCONNECTED, message);
+            participant.setState(CallPeerState.DISCONNECTED, message);
             return false;
         }
 
@@ -2358,10 +2358,10 @@ public class OperationSetBasicTelephonySipImpl
             && !DialogUtils
                 .removeSubscriptionThenIsDialogAlive(dialog, "refer"))
         {
-            participant.setState(CallParticipantState.DISCONNECTED);
+            participant.setState(CallPeerState.DISCONNECTED);
         }
 
-        if (!CallParticipantState.DISCONNECTED.equals(participant.getState())
+        if (!CallPeerState.DISCONNECTED.equals(participant.getState())
             && !DialogUtils.isByeProcessed(dialog))
         {
             boolean dialogIsAlive;
@@ -2378,7 +2378,7 @@ public class OperationSetBasicTelephonySipImpl
             }
             if (!dialogIsAlive)
             {
-                participant.setState(CallParticipantState.DISCONNECTED);
+                participant.setState(CallPeerState.DISCONNECTED);
             }
         }
 
@@ -2457,7 +2457,7 @@ public class OperationSetBasicTelephonySipImpl
                 activeCallsRepository.findCallParticipant(dialog);
             if (callParticipant != null)
             {
-                callParticipant.setState(CallParticipantState.DISCONNECTED);
+                callParticipant.setState(CallPeerState.DISCONNECTED);
             }
         }
         return true;
@@ -2617,8 +2617,8 @@ public class OperationSetBasicTelephonySipImpl
         OperationFailedException
     {
         // do nothing if the call is already ended
-        if (participant.getState().equals(CallParticipantState.DISCONNECTED)
-            || participant.getState().equals(CallParticipantState.FAILED))
+        if (participant.getState().equals(CallPeerState.DISCONNECTED)
+            || participant.getState().equals(CallPeerState.FAILED))
         {
             logger.debug("Ignoring a request to hangup a call participant "
                 + "that is already DISCONNECTED");
@@ -2628,19 +2628,19 @@ public class OperationSetBasicTelephonySipImpl
         CallPeerSipImpl callParticipant =
             (CallPeerSipImpl) participant;
 
-        CallParticipantState participantState = callParticipant.getState();
-        if (participantState.equals(CallParticipantState.CONNECTED)
-            || CallParticipantState.isOnHold(participantState))
+        CallPeerState participantState = callParticipant.getState();
+        if (participantState.equals(CallPeerState.CONNECTED)
+            || CallPeerState.isOnHold(participantState))
         {
             sayBye(callParticipant);
-            callParticipant.setState(CallParticipantState.DISCONNECTED);
+            callParticipant.setState(CallPeerState.DISCONNECTED);
         }
         else if (callParticipant.getState().equals(
-            CallParticipantState.CONNECTING)
+            CallPeerState.CONNECTING)
             || callParticipant.getState().equals(
-                CallParticipantState.CONNECTING_WITH_EARLY_MEDIA)
+                CallPeerState.CONNECTING_WITH_EARLY_MEDIA)
             || callParticipant.getState().equals(
-                CallParticipantState.ALERTING_REMOTE_SIDE))
+                CallPeerState.ALERTING_REMOTE_SIDE))
         {
             if (callParticipant.getFirstTransaction() != null)
             {
@@ -2648,25 +2648,25 @@ public class OperationSetBasicTelephonySipImpl
                 // leaving
                 sayCancel(callParticipant);
             }
-            callParticipant.setState(CallParticipantState.DISCONNECTED);
+            callParticipant.setState(CallPeerState.DISCONNECTED);
         }
-        else if (participantState.equals(CallParticipantState.INCOMING_CALL))
+        else if (participantState.equals(CallPeerState.INCOMING_CALL))
         {
-            callParticipant.setState(CallParticipantState.DISCONNECTED);
+            callParticipant.setState(CallPeerState.DISCONNECTED);
             sayBusyHere(callParticipant);
         }
         // For FAILE and BUSY we only need to update CALL_STATUS
-        else if (participantState.equals(CallParticipantState.BUSY))
+        else if (participantState.equals(CallPeerState.BUSY))
         {
-            callParticipant.setState(CallParticipantState.DISCONNECTED);
+            callParticipant.setState(CallPeerState.DISCONNECTED);
         }
-        else if (participantState.equals(CallParticipantState.FAILED))
+        else if (participantState.equals(CallPeerState.FAILED))
         {
-            callParticipant.setState(CallParticipantState.DISCONNECTED);
+            callParticipant.setState(CallPeerState.DISCONNECTED);
         }
         else
         {
-            callParticipant.setState(CallParticipantState.DISCONNECTED);
+            callParticipant.setState(CallPeerState.DISCONNECTED);
             logger.error("Could not determine call participant state!");
         }
     } // end call
@@ -2700,7 +2700,7 @@ public class OperationSetBasicTelephonySipImpl
         throws OperationFailedException
     {
         Dialog dialog = callParticipant.getDialog();
-        callParticipant.setState(CallParticipantState.FAILED);
+        callParticipant.setState(CallPeerState.FAILED);
         if (dialog == null)
         {
             logger.error("Failed to extract participant's associated dialog! "
@@ -2917,17 +2917,17 @@ public class OperationSetBasicTelephonySipImpl
 
         if (transaction == null || !dialog.isServer())
         {
-            callParticipant.setState(CallParticipantState.DISCONNECTED);
+            callParticipant.setState(CallPeerState.DISCONNECTED);
             throw new OperationFailedException(
                 "Failed to extract a ServerTransaction "
                     + "from the call's associated dialog!",
                 OperationFailedException.INTERNAL_ERROR);
         }
 
-        CallParticipantState participantState = participant.getState();
+        CallPeerState participantState = participant.getState();
 
-        if (participantState.equals(CallParticipantState.CONNECTED)
-            || CallParticipantState.isOnHold(participantState))
+        if (participantState.equals(CallPeerState.CONNECTED)
+            || CallPeerState.isOnHold(participantState))
         {
             logger.info("Ignoring user request to answer a CallParticipant "
                 + "that is already connected. CP:" + participant);
@@ -2944,7 +2944,7 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (ParseException ex)
         {
-            callParticipant.setState(CallParticipantState.DISCONNECTED);
+            callParticipant.setState(CallPeerState.DISCONNECTED);
             throwOperationFailedException(
                 "Failed to construct an OK response to an INVITE request",
                 OperationFailedException.INTERNAL_ERROR, ex);
@@ -2963,7 +2963,7 @@ public class OperationSetBasicTelephonySipImpl
         catch (ParseException ex)
         {
             // Shouldn't happen
-            callParticipant.setState(CallParticipantState.DISCONNECTED);
+            callParticipant.setState(CallPeerState.DISCONNECTED);
             throwOperationFailedException(
                 "Failed to create a content type header for the OK response",
                 OperationFailedException.INTERNAL_ERROR, ex);
@@ -3035,7 +3035,7 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (Exception ex)
         {
-            callParticipant.setState(CallParticipantState.DISCONNECTED);
+            callParticipant.setState(CallPeerState.DISCONNECTED);
             throwOperationFailedException(
                 "Failed to send an OK response to an INVITE request",
                 OperationFailedException.NETWORK_FAILURE,
@@ -3089,8 +3089,8 @@ public class OperationSetBasicTelephonySipImpl
 
         callParticipant.setState(
              incomingCall ?
-                 CallParticipantState.INCOMING_CALL :
-                 CallParticipantState.INITIATING_CALL);
+                 CallPeerState.INCOMING_CALL :
+                 CallPeerState.INITIATING_CALL);
 
         callParticipant.setDialog(containingTransaction.getDialog());
         callParticipant.setFirstTransaction(containingTransaction);

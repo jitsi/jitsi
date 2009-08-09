@@ -346,7 +346,7 @@ public class CallHistoryServiceImpl
         List<String> callParticipantIDs = null;
         List<String> callParticipantStart = null;
         List<String> callParticipantEnd = null;
-        List<CallParticipantState> callParticipantStates = null;
+        List<CallPeerState> callParticipantStates = null;
 
         // History structure
         // 0 - callStart
@@ -418,10 +418,10 @@ public class CallHistoryServiceImpl
      * @param str String delimited string states
      * @return LinkedList the converted values list
      */
-    private List<CallParticipantState> getStates(String str)
+    private List<CallPeerState> getStates(String str)
     {
-        List<CallParticipantState> result =
-            new LinkedList<CallParticipantState>();
+        List<CallPeerState> result =
+            new LinkedList<CallPeerState>();
         Collection<String> stateStrs = getCSVs(str);
 
         for (String item : stateStrs)
@@ -437,31 +437,31 @@ public class CallHistoryServiceImpl
      * @param state String the string
      * @return CallParticipantState the state
      */
-    private CallParticipantState convertStateStringToState(String state)
+    private CallPeerState convertStateStringToState(String state)
     {
-        if(state.equals(CallParticipantState._CONNECTED))
-            return CallParticipantState.CONNECTED;
-        else if(state.equals(CallParticipantState._BUSY))
-            return CallParticipantState.BUSY;
-        else if(state.equals(CallParticipantState._FAILED))
-            return CallParticipantState.FAILED;
-        else if(state.equals(CallParticipantState._DISCONNECTED))
-            return CallParticipantState.DISCONNECTED;
-        else if(state.equals(CallParticipantState._ALERTING_REMOTE_SIDE))
-            return CallParticipantState.ALERTING_REMOTE_SIDE;
-        else if(state.equals(CallParticipantState._CONNECTING))
-            return CallParticipantState.CONNECTING;
-        else if(state.equals(CallParticipantState._ON_HOLD_LOCALLY))
-            return CallParticipantState.ON_HOLD_LOCALLY;
-        else if(state.equals(CallParticipantState._ON_HOLD_MUTUALLY))
-            return CallParticipantState.ON_HOLD_MUTUALLY;
-        else if(state.equals(CallParticipantState._ON_HOLD_REMOTELY))
-            return CallParticipantState.ON_HOLD_REMOTELY;
-        else if(state.equals(CallParticipantState._INITIATING_CALL))
-            return CallParticipantState.INITIATING_CALL;
-        else if(state.equals(CallParticipantState._INCOMING_CALL))
-            return CallParticipantState.INCOMING_CALL;
-        else return CallParticipantState.UNKNOWN;
+        if(state.equals(CallPeerState._CONNECTED))
+            return CallPeerState.CONNECTED;
+        else if(state.equals(CallPeerState._BUSY))
+            return CallPeerState.BUSY;
+        else if(state.equals(CallPeerState._FAILED))
+            return CallPeerState.FAILED;
+        else if(state.equals(CallPeerState._DISCONNECTED))
+            return CallPeerState.DISCONNECTED;
+        else if(state.equals(CallPeerState._ALERTING_REMOTE_SIDE))
+            return CallPeerState.ALERTING_REMOTE_SIDE;
+        else if(state.equals(CallPeerState._CONNECTING))
+            return CallPeerState.CONNECTING;
+        else if(state.equals(CallPeerState._ON_HOLD_LOCALLY))
+            return CallPeerState.ON_HOLD_LOCALLY;
+        else if(state.equals(CallPeerState._ON_HOLD_MUTUALLY))
+            return CallPeerState.ON_HOLD_MUTUALLY;
+        else if(state.equals(CallPeerState._ON_HOLD_REMOTELY))
+            return CallPeerState.ON_HOLD_REMOTELY;
+        else if(state.equals(CallPeerState._INITIATING_CALL))
+            return CallPeerState.INITIATING_CALL;
+        else if(state.equals(CallPeerState._INCOMING_CALL))
+            return CallPeerState.INCOMING_CALL;
+        else return CallPeerState.UNKNOWN;
     }
 
     /**
@@ -858,7 +858,7 @@ public class CallHistoryServiceImpl
         {
             public void participantStateChanged(CallPeerChangeEvent evt)
             {
-                if(evt.getNewValue().equals(CallParticipantState.DISCONNECTED))
+                if(evt.getNewValue().equals(CallPeerState.DISCONNECTED))
                     return;
                 else
                 {
@@ -868,11 +868,11 @@ public class CallHistoryServiceImpl
                     if(participantRecord == null)
                         return;
 
-                    CallParticipantState newState =
-                        (CallParticipantState) evt.getNewValue();
+                    CallPeerState newState =
+                        (CallPeerState) evt.getNewValue();
 
-                    if (newState.equals(CallParticipantState.CONNECTED)
-                        && !CallParticipantState.isOnHold((CallParticipantState)
+                    if (newState.equals(CallPeerState.CONNECTED)
+                        && !CallPeerState.isOnHold((CallPeerState)
                                 evt.getOldValue()))
                         participantRecord.setStartTime(new Date());
 
@@ -912,13 +912,13 @@ public class CallHistoryServiceImpl
         if(cpRecord == null)
             return;
 
-        if(!callParticipant.getState().equals(CallParticipantState.DISCONNECTED))
+        if(!callParticipant.getState().equals(CallPeerState.DISCONNECTED))
             cpRecord.setState(callParticipant.getState());
 
-        CallParticipantState cpRecordState = cpRecord.getState();
+        CallPeerState cpRecordState = cpRecord.getState();
 
-        if (cpRecordState.equals(CallParticipantState.CONNECTED)
-            || CallParticipantState.isOnHold(cpRecordState))
+        if (cpRecordState.equals(CallPeerState.CONNECTED)
+            || CallPeerState.isOnHold(cpRecordState))
         {
             cpRecord.setEndTime(new Date());
         }

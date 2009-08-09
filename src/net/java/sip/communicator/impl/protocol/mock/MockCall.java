@@ -100,16 +100,16 @@ public class MockCall
 
     public void participantStateChanged(CallPeerChangeEvent evt)
     {
-        if ( ( (CallParticipantState) evt.getNewValue())
-            == CallParticipantState.DISCONNECTED
-            || ( (CallParticipantState) evt.getNewValue())
-            == CallParticipantState.FAILED)
+        if ( ( (CallPeerState) evt.getNewValue())
+            == CallPeerState.DISCONNECTED
+            || ( (CallPeerState) evt.getNewValue())
+            == CallPeerState.FAILED)
         {
             removeCallParticipant(
                 (MockCallParticipant) evt.getSourceCallParticipant());
         }
-        else if ( ( (CallParticipantState) evt.getNewValue())
-                 == CallParticipantState.CONNECTED
+        else if ( ( (CallPeerState) evt.getNewValue())
+                 == CallPeerState.CONNECTED
                  && getCallState().equals(CallState.CALL_INITIALIZATION))
         {
             setCallState(CallState.CALL_IN_PROGRESS);
