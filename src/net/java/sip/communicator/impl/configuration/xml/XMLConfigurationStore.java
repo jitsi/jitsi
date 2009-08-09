@@ -18,6 +18,14 @@ import net.java.sip.communicator.impl.configuration.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.xml.*;
 
+/**
+ * Implements a <code>ConfigurationStore</code> which serializes property
+ * name-value associations in XML format.
+ *
+ * @author Emil Ivov
+ * @author Damian Minkov
+ * @author Lubomir Marinov
+ */
 public class XMLConfigurationStore
     implements ConfigurationStore
 {
@@ -100,6 +108,9 @@ public class XMLConfigurationStore
         return propertiesDocument;
     }
 
+    /*
+     * Implements ConfigurationStore#getProperty(String).
+     */
     public Object getProperty(String propertyName)
     {
         Object value = properties.get(propertyName);
@@ -112,13 +123,19 @@ public class XMLConfigurationStore
             return value;
     }
 
+    /*
+     * Implements ConfigurationStore#getPropertyNames().
+     */
     public String[] getPropertyNames()
     {
         Set<String> propertyNames = properties.keySet();
         return propertyNames.toArray(new String[propertyNames.size()]);
     }
 
-    public boolean isSystem(String propertyName)
+    /*
+     * Implements ConfigurationStore#isSystemProperty(String).
+     */
+    public boolean isSystemProperty(String propertyName)
     {
         return properties.get(propertyName) instanceof PropertyReference;
     }
@@ -308,7 +325,12 @@ public class XMLConfigurationStore
             newNode.setAttribute(SYSTEM_ATTRIBUTE_NAME, SYSTEM_ATTRIBUTE_TRUE);
     }
 
-    public void reloadConfiguration(File file) throws IOException, XMLException
+    /*
+     * Implements ConfigurationStore#reloadConfiguration(File).
+     */
+    public void reloadConfiguration(File file)
+        throws IOException,
+               XMLException
     {
         properties = new Hashtable<String, Object>();
 
@@ -316,6 +338,9 @@ public class XMLConfigurationStore
         properties.putAll(fileExtractedProperties);
     }
 
+    /*
+     * Implements ConfigurationStore#removeProperty(String).
+     */
     public void removeProperty(String propertyName)
     {
         properties.remove(propertyName);
@@ -323,16 +348,25 @@ public class XMLConfigurationStore
         fileExtractedProperties.remove(propertyName);
     }
 
+    /*
+     * Implements ConfigurationStore#setNonSystemProperty(String, Object).
+     */
     public void setNonSystemProperty(String propertyName, Object property)
     {
         properties.put(propertyName, property);
     }
 
+    /*
+     * Implements ConfigurationStore#setSystemProperty(String).
+     */
     public void setSystemProperty(String propertyName)
     {
         setNonSystemProperty(propertyName, new PropertyReference(propertyName));
     }
 
+    /*
+     * Implements ConfigurationStore#storeConfiguration(OutputStream).
+     */
     public void storeConfiguration(OutputStream out)
     {
         // resolve the properties that were initially in the file - back to

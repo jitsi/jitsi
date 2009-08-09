@@ -212,7 +212,7 @@ public class ConfigurationServiceImpl
         //once set system, a property remains system even if the user
         //specified sth else
 
-        if (isSystem(propertyName))
+        if (isSystemProperty(propertyName))
             isSystem = true;
 
         if (property == null)
@@ -957,9 +957,9 @@ public class ConfigurationServiceImpl
      * setProperty(string, true)) or by setting the system attribute in the
      * xml conf file to true.
      */
-    private boolean isSystem(String propertyName)
+    private boolean isSystemProperty(String propertyName)
     {
-        return store.isSystem(propertyName);
+        return store.isSystemProperty(propertyName);
     }
 
     /**
