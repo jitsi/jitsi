@@ -37,9 +37,9 @@ public class CallPanel
 {
     private final TransparentPanel mainPanel = new TransparentPanel();
 
-    private final Hashtable<CallPeer, CallParticipantPanel>
+    private final Hashtable<CallPeer, CallPeerPanel>
         participantsPanels =
-            new Hashtable<CallPeer, CallParticipantPanel>();
+            new Hashtable<CallPeer, CallPeerPanel>();
 
     private String title;
 
@@ -85,16 +85,16 @@ public class CallPanel
      * @param participant the call participant
      * @param callType the type of call - INCOMING of OUTGOING
      */
-    private CallParticipantPanel addCallParticipant(
+    private CallPeerPanel addCallParticipant(
         CallPeer participant, String callType)
     {
-        CallParticipantPanel participantPanel =
+        CallPeerPanel participantPanel =
             getParticipantPanel(participant);
 
         if (participantPanel == null)
         {
             participantPanel
-                = new CallParticipantPanel(callDialog, participant);
+                = new CallPeerPanel(callDialog, participant);
 
             this.mainPanel.add(participantPanel);
 
@@ -154,7 +154,7 @@ public class CallPanel
         {
             CallPeer participant = evt.getSourceCallPeer();
 
-            CallParticipantPanel participantPanel =
+            CallPeerPanel participantPanel =
                 getParticipantPanel(participant);
 
             if (participantPanel != null)
@@ -196,7 +196,7 @@ public class CallPanel
         if (sourceParticipant.getCall() != call)
             return;
 
-        CallParticipantPanel participantPanel =
+        CallPeerPanel participantPanel =
             getParticipantPanel(sourceParticipant);
 
         Object newState = evt.getNewValue();
@@ -274,7 +274,7 @@ public class CallPanel
     {
         CallPeer participant =
             (CallPeer) securityEvent.getSource();
-        CallParticipantPanel participantPanel =
+        CallPeerPanel participantPanel =
             getParticipantPanel(participant);
 
         participantPanel.setSecured(true);
@@ -300,7 +300,7 @@ public class CallPanel
     {
         CallPeer participant =
             (CallPeer) securityEvent.getSource();
-        CallParticipantPanel participantPanel =
+        CallPeerPanel participantPanel =
             getParticipantPanel(participant);
 
         participantPanel.setSecured(false);
@@ -386,7 +386,7 @@ public class CallPanel
 
         public void actionPerformed(ActionEvent e)
         {
-            CallParticipantPanel participantPanel =
+            CallPeerPanel participantPanel =
                 participantsPanels.get(participant);
 
             mainPanel.remove(participantPanel);
@@ -402,7 +402,7 @@ public class CallPanel
      * @return an <tt>Iterator</tt> over a list of all participant panels
      *         contained in this call panel
      */
-    public Iterator<CallParticipantPanel> getParticipantPanels()
+    public Iterator<CallPeerPanel> getParticipantPanels()
     {
         return participantsPanels.values().iterator();
     }
@@ -425,9 +425,9 @@ public class CallPanel
      * @return the <tt>CallParticipantPanel</tt>, which correspond to the given
      *         participant
      */
-    public CallParticipantPanel getParticipantPanel(CallPeer participant)
+    public CallPeerPanel getParticipantPanel(CallPeer participant)
     {
-        for (Map.Entry<CallPeer, CallParticipantPanel> participantEntry :
+        for (Map.Entry<CallPeer, CallPeerPanel> participantEntry :
                 participantsPanels.entrySet())
         {
             CallPeer entryParticipant = participantEntry.getKey();
@@ -494,7 +494,7 @@ public class CallPanel
             if (sourceParticipant.getCall() != call)
                 return;
 
-            CallParticipantPanel participantPanel =
+            CallPeerPanel participantPanel =
                 getParticipantPanel(sourceParticipant);
 
             if (isMute)

@@ -28,11 +28,11 @@ import net.java.sip.communicator.util.swing.*;
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  */
-public class CallParticipantPanel
+public class CallPeerPanel
     extends TransparentPanel
 {
     private static final Logger logger =
-        Logger.getLogger(CallParticipantPanel.class);
+        Logger.getLogger(CallPeerPanel.class);
 
     private final JLabel callStatusLabel = new JLabel();
 
@@ -88,7 +88,7 @@ public class CallParticipantPanel
      *
      * @param callParticipant a call participant
      */
-    public CallParticipantPanel(CallDialog callDialog,
+    public CallPeerPanel(CallDialog callDialog,
                                 CallPeer callParticipant)
     {
         this.callDialog = callDialog;

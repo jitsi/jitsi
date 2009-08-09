@@ -16,9 +16,9 @@ import net.java.sip.communicator.impl.gui.utils.*;
 public class SecurityStatusLabel
     extends JLabel
 {
-    private final CallParticipantPanel callParticipantPanel;
+    private final CallPeerPanel callParticipantPanel;
 
-    public SecurityStatusLabel( CallParticipantPanel callParticipantPanel,
+    public SecurityStatusLabel( CallPeerPanel callParticipantPanel,
                                 Icon icon,
                                 int alignment)
     {
