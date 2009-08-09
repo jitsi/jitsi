@@ -38,13 +38,13 @@ public interface OperationSetBasicTelephony
     public void removeCallListener(CallListener listener);
 
     /**
-     * Create a new call and invite the specified CallParticipant to it.
+     * Create a new call and invite the specified CallPeer to it.
      *
      * @param uri the address of the callee that we should invite to a new
      * call.
-     * @return CallParticipant the CallParticipant that will represented by the
+     * @return CallPeer the CallPeer that will represented by the
      * specified uri. All following state change events will be delivered
-     * through that call participant. The Call that this participant is a member
+     * through that call peer. The Call that this peer is a member
      * of could be retrieved from the CallParticipatn instance with the use
      * of the corresponding method.
      * @throws OperationFailedException with the corresponding code if we fail
@@ -57,13 +57,13 @@ public interface OperationSetBasicTelephony
         , ParseException;
 
     /**
-     * Create a new call and invite the specified CallParticipant to it.
+     * Create a new call and invite the specified CallPeer to it.
      *
      * @param callee the address of the callee that we should invite to a new
      * call.
-     * @return CallParticipant the CallParticipant that will represented by the
+     * @return CallPeer the CallPeer that will represented by the
      * specified uri. All following state change events will be delivered
-     * through that call participant. The Call that this participant is a member
+     * through that call peer. The Call that this peer is a member
      * of could be retrieved from the CallParticipatn instance with the use
      * of the corresponding method.
      * @throws OperationFailedException with the corresponding code if we fail
@@ -74,45 +74,45 @@ public interface OperationSetBasicTelephony
 
     /**
      * Indicates a user request to answer an incoming call from the specified
-     * CallParticipant.
-     * @param participant the call participant that we'd like to answer.
+     * CallPeer.
+     * @param peer the call peer that we'd like to answer.
      * @throws OperationFailedException with the corresponding code if we
      * encounter an error while performing this operation.
      */
-    public void answerCallPeer(CallPeer participant)
+    public void answerCallPeer(CallPeer peer)
         throws OperationFailedException;
 
     /**
-     * Puts the specified CallParticipant "on hold". In other words incoming
+     * Puts the specified CallPeer "on hold". In other words incoming
      * media flows are not played and outgoing media flows are either muted or
      * stopped, without actually interrupting the session.
-     * @param participant the participant that we'd like to put on hold.
+     * @param peer the peer that we'd like to put on hold.
      * @throws OperationFailedException with the corresponding code if we
      * encounter an error while performing this operation.
      */
-    public void putOnHold(CallPeer participant)
+    public void putOnHold(CallPeer peer)
         throws OperationFailedException;
 
     /**
-     * Resumes communication with a call participant previously put on hold. If
-     * the specified participant is not "On Hold" at the time putOffHold is
+     * Resumes communication with a call peer previously put on hold. If
+     * the specified peer is not "On Hold" at the time putOffHold is
      * called, the method has no effect.
-     * 
-     * @param participant the call participant to put on hold.
+     *
+     * @param peer the call peer to put on hold.
      * @throws OperationFailedException with the corresponding code if we
      *             encounter an error while performing this operation
      */
-    public void putOffHold(CallPeer participant)
+    public void putOffHold(CallPeer peer)
         throws OperationFailedException;
 
     /**
      * Indicates a user request to end a call with the specified call
-     * participant.
-     * @param participant the participant that we'd like to hang up on.
+     * peer.
+     * @param peer the peer that we'd like to hang up on.
      * @throws OperationFailedException with the corresponding code if we
      * encounter an error while performing this operation.
      */
-    public void hangupCallPeer(CallPeer participant)
+    public void hangupCallPeer(CallPeer peer)
         throws OperationFailedException;
 
     /**
@@ -123,16 +123,16 @@ public interface OperationSetBasicTelephony
 
     /**
      * Sets the mute state of the audio stream being sent to a specific
-     * <tt>CallParticipant</tt>.
+     * <tt>CallPeer</tt>.
      * <p>
      * Muting an audio stream is implementation specific and one of the possible
      * approaches to it is sending silence.
      * </p>
-     * 
-     * @param participant the <tt>CallParticipant</tt> who receives the audio
+     *
+     * @param peer the <tt>CallPeer</tt> who receives the audio
      *            stream to have its mute state set
      * @param mute <tt>true</tt> to mute the audio stream being sent to
-     *            <tt>participant</tt>; otherwise, <tt>false</tt>
+     *            <tt>peer</tt>; otherwise, <tt>false</tt>
      */
-    public void setMute(CallPeer participant, boolean mute);
+    public void setMute(CallPeer peer, boolean mute);
 }
