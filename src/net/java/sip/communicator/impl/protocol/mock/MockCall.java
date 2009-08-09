@@ -116,15 +116,15 @@ public class MockCall
         }
     }
 
-    public void participantDisplayNameChanged(CallPeerChangeEvent evt)
+    public void peerDisplayNameChanged(CallPeerChangeEvent evt)
     {
     }
 
-    public void participantAddressChanged(CallPeerChangeEvent evt)
+    public void peerAddressChanged(CallPeerChangeEvent evt)
     {
     }
 
-    public void participantImageChanged(CallPeerChangeEvent evt)
+    public void peerImageChanged(CallPeerChangeEvent evt)
     {
     }
 

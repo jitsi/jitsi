@@ -130,7 +130,7 @@ public class CallSipImpl
      *
      * @param evt unused.
      */
-    public void participantImageChanged(CallPeerChangeEvent evt)
+    public void peerImageChanged(CallPeerChangeEvent evt)
     {
     }
 
@@ -140,7 +140,7 @@ public class CallSipImpl
      *
      * @param evt unused.
      */
-    public void participantAddressChanged(CallPeerChangeEvent evt)
+    public void peerAddressChanged(CallPeerChangeEvent evt)
     {
     }
 
@@ -161,7 +161,7 @@ public class CallSipImpl
      *
      * @param evt unused.
      */
-    public void participantDisplayNameChanged(CallPeerChangeEvent evt)
+    public void peerDisplayNameChanged(CallPeerChangeEvent evt)
     {
     }
 

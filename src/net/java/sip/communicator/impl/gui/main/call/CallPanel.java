@@ -258,15 +258,15 @@ public class CallPanel
         participantPanel.setState(newStateString, newStateIcon);
     }
 
-    public void participantDisplayNameChanged(CallPeerChangeEvent evt)
+    public void peerDisplayNameChanged(CallPeerChangeEvent evt)
     {
     }
 
-    public void participantAddressChanged(CallPeerChangeEvent evt)
+    public void peerAddressChanged(CallPeerChangeEvent evt)
     {
     }
 
-    public void participantImageChanged(CallPeerChangeEvent evt)
+    public void peerImageChanged(CallPeerChangeEvent evt)
     {
     }
 
@@ -350,7 +350,7 @@ public class CallPanel
             CallPeer participant = participants.next();
 
             participant.addCallPeerListener(this);
-            participant.addCallParticipantSecurityListener(this);
+            participant.addCallPeerSecurityListener(this);
             participant.addPropertyChangeListener(this);
 
             this.addCallParticipant(participant, callType);
