@@ -21,8 +21,8 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
- * The <tt>CallParticipantPanel</tt> is the panel containing data for a call
- * participant in a given call. It contains information like call participant
+ * The <tt>CallPeerPanel</tt> is the panel containing data for a call
+ * peer in a given call. It contains information like call peer
  * name, photo, call duration, etc.
  *
  * @author Yana Stamcheva
@@ -43,7 +43,7 @@ public class CallPeerPanel
     private final JLabel timeLabel = new JLabel("00:00:00", JLabel.CENTER);
 
     /**
-     * This date is meant to be used in the GuiCallParticipantRecord, which is
+     * This date is meant to be used in the GuiCallPeerRecord, which is
      * added to the CallList after a call.
      */
     private final Date callStartTime = new Date(System.currentTimeMillis());
@@ -54,9 +54,9 @@ public class CallPeerPanel
 
     private String callType;
 
-    private final String participantName;
+    private final String peerName;
 
-    private final CallPeer callParticipant;
+    private final CallPeer callPeer;
 
     private final java.util.List<Container> videoContainers =
         new ArrayList<Container>();
@@ -84,16 +84,16 @@ public class CallPeerPanel
     private final CallDialog callDialog;
 
     /**
-     * Creates a <tt>CallParticipantPanel</tt> for the given call participant.
+     * Creates a <tt>CallPeerPanel</tt> for the given call peer.
      *
-     * @param callParticipant a call participant
+     * @param callPeer a call peer
      */
     public CallPeerPanel(CallDialog callDialog,
-                                CallPeer callParticipant)
+                                CallPeer callPeer)
     {
         this.callDialog = callDialog;
-        this.callParticipant = callParticipant;
-        this.participantName = callParticipant.getDisplayName();
+        this.callPeer = callPeer;
+        this.peerName = callPeer.getDisplayName();
 
         this.securityStatusLabel = new SecurityStatusLabel(
             this,
@@ -179,12 +179,12 @@ public class CallPeerPanel
 
     /**
      * Creates the <code>Component</code> hierarchy of the central area of this
-     * <code>CallParticipantPanel</code> which displays the photo of the
-     * <code>CallParticipant</code> or the video if any.
+     * <code>CallPeerPanel</code> which displays the photo of the
+     * <code>CallPeer</code> or the video if any.
      *
      * @return the root of the <code>Component</code> hierarchy of the central
-     *         area of this <code>CallParticipantPanel</code> which displays the
-     *         photo of the <code>CallParticipant</code> or the video if any
+     *         area of this <code>CallPeerPanel</code> which displays the
+     *         photo of the <code>CallPeer</code> or the video if any
      */
     private Component createCenter()
     {
@@ -249,7 +249,7 @@ public class CallPeerPanel
     {
         // nameLabel
         JLabel nameLabel = new JLabel("", JLabel.CENTER);
-        nameLabel.setText(participantName);
+        nameLabel.setText(peerName);
         nameLabel.setAlignmentX(JLabel.CENTER);
 
         return nameLabel;
@@ -257,21 +257,20 @@ public class CallPeerPanel
 
     /**
      * Creates the <code>Component</code> hierarchy of the area of
-     * status-related information such as <code>CallParticipant</code> display
+     * status-related information such as <code>CallPeer</code> display
      * name, call duration, security status.
      *
      * @return the root of the <code>Component</code> hierarchy of the area of
-     *         status-related information such as <code>CallParticipant</code>
+     *         status-related information such as <code>CallPeer</code>
      *         display name, call duration, security status
      */
     private Component createStatusBar()
     {
         // stateLabel
         callStatusLabel.setForeground(Color.WHITE);
-        callStatusLabel.setText(callParticipant.getState().getStateString());
+        callStatusLabel.setText(callPeer.getState().getStateString());
 
-        ParticipantStatusPanel statusPanel
-            = new ParticipantStatusPanel(
+        PeerStatusPanel statusPanel = new PeerStatusPanel(
                 new FlowLayout(FlowLayout.CENTER, 10, 0));
 
         TransparentPanel statusIconsPanel
@@ -303,16 +302,16 @@ public class CallPeerPanel
 
     /**
      * Creates a new <code>Component</code> representing a UI means to transfer
-     * the <code>Call</code> of the associated <code>callParticipant</code> or
+     * the <code>Call</code> of the associated <code>callPeer</code> or
      * <tt>null</tt> if call-transfer is unsupported.
      *
      * @return a new <code>Component</code> representing the UI means to
-     *         transfer the <code>Call</code> of <code>callParticipant</code> or
+     *         transfer the <code>Call</code> of <code>callPeer</code> or
      *         <tt>null</tt> if call-transfer is unsupported
      */
     private Component createTransferCallButton()
     {
-        Call call = callParticipant.getCall();
+        Call call = callPeer.getCall();
 
         if (call != null)
         {
@@ -321,7 +320,7 @@ public class CallPeerPanel
                     .getOperationSet(OperationSetAdvancedTelephony.class);
 
             if (telephony != null)
-                return new TransferCallButton(callParticipant);
+                return new TransferCallButton(callPeer);
         }
         return null;
     }
@@ -329,7 +328,7 @@ public class CallPeerPanel
     public void createSecurityPanel(
         CallPeerSecurityOnEvent event)
     {
-        Call call = callParticipant.getCall();
+        Call call = callPeer.getCall();
 
         if (call != null)
         {
@@ -342,7 +341,7 @@ public class CallPeerPanel
             {
                 if (securityPanel == null)
                 {
-                    securityPanel = new SecurityPanel(callParticipant);
+                    securityPanel = new SecurityPanel(callPeer);
 
                     GridBagConstraints constraints = new GridBagConstraints();
 
@@ -390,7 +389,7 @@ public class CallPeerPanel
 
     /**
      * Sets up listening to notifications about adding or removing video for the
-     * <code>CallParticipant</code> this panel depicts and displays the video in
+     * <code>CallPeer</code> this panel depicts and displays the video in
      * question in the last-known of {@link #videoContainers} (because the video
      * is represented by a <code>Component</code> and it cannot be displayed in
      * multiple <code>Container</code>s at one and the same time) as soon as it
@@ -398,7 +397,7 @@ public class CallPeerPanel
      */
     private OperationSetVideoTelephony addVideoListener()
     {
-        final Call call = callParticipant.getCall();
+        final Call call = callPeer.getCall();
         if (call == null)
             return null;
 
@@ -412,7 +411,7 @@ public class CallPeerPanel
             = new VideoTelephonyListener();
 
         /*
-         * The video is only available while the #callParticipant is in a Call
+         * The video is only available while the #callPeer is in a Call
          * and that call is in progress so only listen to VideoEvents during
          * that time.
          */
@@ -423,7 +422,7 @@ public class CallPeerPanel
             private void addVideoListener()
             {
                 telephony.addVideoListener(
-                        callParticipant, videoTelephonyListener);
+                        callPeer, videoTelephonyListener);
                 telephony.addPropertyChangeListener(
                         call, videoTelephonyListener);
                 videoListenerIsAdded = true;
@@ -440,17 +439,17 @@ public class CallPeerPanel
             }
 
             /*
-             * When the #callParticipant of this CallParticipantPanel gets added
+             * When the #callPeer of this CallPeerPanel gets added
              * to the Call, starts listening for changes in the video in order
              * to display it.
              */
             public synchronized void callPeerAdded(
                 CallPeerEvent event)
             {
-                if (callParticipant.equals(event.getSourceCallPeer())
+                if (callPeer.equals(event.getSourceCallPeer())
                         && !videoListenerIsAdded)
                 {
-                    Call call = callParticipant.getCall();
+                    Call call = callPeer.getCall();
 
                     if ((call != null)
                             && CallState.CALL_IN_PROGRESS.equals(
@@ -460,17 +459,17 @@ public class CallPeerPanel
             }
 
             /*
-             * When the #callParticipant of this CallParticipantPanel leaves the
+             * When the #callPeer of this CallPeerPanel leaves the
              * Call, stops listening for changes in the video because it should
              * no longer be updated anyway.
              */
             public synchronized void callPeerRemoved(
                 CallPeerEvent event)
             {
-                if (callParticipant.equals(event.getSourceCallPeer())
+                if (callPeer.equals(event.getSourceCallPeer())
                     && videoListenerIsAdded)
                 {
-                    Call call = callParticipant.getCall();
+                    Call call = callPeer.getCall();
 
                     if (call != null)
                         removeVideoListener();
@@ -478,11 +477,11 @@ public class CallPeerPanel
             }
 
             /*
-             * When the Call of #callParticipant ends, stops tracking the
+             * When the Call of #callPeer ends, stops tracking the
              * updates in the video because there should no longer be any video
              * anyway. When the Call in question starts, starts tracking any
              * changes to the video because it's negotiated and it should be
-             * displayed in this CallParticipantPanel.
+             * displayed in this CallPeerPanel.
              */
             public synchronized void callStateChanged(CallChangeEvent event)
             {
@@ -504,7 +503,7 @@ public class CallPeerPanel
             private void removeVideoListener()
             {
                 telephony.removeVideoListener(
-                        callParticipant, videoTelephonyListener);
+                        callPeer, videoTelephonyListener);
                 telephony.removePropertyChangeListener(
                         call, videoTelephonyListener);
                 videoListenerIsAdded = false;
@@ -512,7 +511,7 @@ public class CallPeerPanel
                 if (localVideo != null)
                 {
                     telephony.disposeLocalVisualComponent(
-                            callParticipant, localVideo);
+                            callPeer, localVideo);
                     localVideo = null;
                 }
 
@@ -533,7 +532,7 @@ public class CallPeerPanel
     }
 
     /**
-     * When a video is added or removed for the <code>callParticipant</code>,
+     * When a video is added or removed for the <code>callPeer</code>,
      * makes sure to display or hide it respectively.
      *
      * @param event a <code>VideoEvent</code> describing the added visual
@@ -610,7 +609,7 @@ public class CallPeerPanel
 
                 // REMOTE
                 Component[] videos =
-                    videoTelephony.getVisualComponents(callParticipant);
+                    videoTelephony.getVisualComponents(callPeer);
 
                 Component video =
                     ((videos == null) || (videos.length < 1)) ? null
@@ -641,12 +640,12 @@ public class CallPeerPanel
             if (videoTelephony == null)
                 return;
 
-            if (videoTelephony.isLocalVideoStreaming(callParticipant.getCall()))
+            if (videoTelephony.isLocalVideoStreaming(callPeer.getCall()))
             {
                 try
                 {
                     videoTelephony.createLocalVisualComponent(
-                            callParticipant, listener);
+                            callPeer, listener);
                 }
                 catch (OperationFailedException ex)
                 {
@@ -658,17 +657,17 @@ public class CallPeerPanel
             else if (localVideo != null)
             {
                 videoTelephony.disposeLocalVisualComponent(
-                        callParticipant, localVideo);
+                        callPeer, localVideo);
                 localVideo = null;
             }
         }
     }
 
     /**
-     * Sets the state of the contained call participant by specifying the
+     * Sets the state of the contained call peer by specifying the
      * state name and icon.
      *
-     * @param state the state of the contained call participant
+     * @param state the state of the contained call peer
      * @param icon the icon of the state
      */
     public void setState(String state, Icon icon)
@@ -680,7 +679,7 @@ public class CallPeerPanel
     /**
      * Sets the secured status icon to the status panel.
      *
-     * @param isSecured indicates if the call with this participant is
+     * @param isSecured indicates if the call with this peer is
      * secured
      */
     public void setSecured(boolean isSecured)
@@ -696,7 +695,7 @@ public class CallPeerPanel
     /**
      * Sets the mute status icon to the status panel.
      *
-     * @param isMute indicates if the call with this participant is
+     * @param isMute indicates if the call with this peer is
      * muted
      */
     public void setMute(boolean isMute)
@@ -710,7 +709,7 @@ public class CallPeerPanel
 
     /**
      * Sets the audio security on or off.
-     * 
+     *
      * @param isAudioSecurityOn indicates if the audio security is turned on or
      * off.
      */
@@ -721,7 +720,7 @@ public class CallPeerPanel
 
     /**
      * Sets the video security on or off.
-     * 
+     *
      * @param isVideoSecurityOn indicates if the video security is turned on or
      * off.
      */
@@ -732,7 +731,7 @@ public class CallPeerPanel
 
     /**
      * Indicates if the audio security is turned on or off.
-     * 
+     *
      * @return <code>true</code> if the audio security is on, otherwise -
      * <code>false</code>.
      */
@@ -743,7 +742,7 @@ public class CallPeerPanel
 
     /**
      * Indicates if the video security is turned on or off.
-     * 
+     *
      * @return <code>true</code> if the video security is on, otherwise -
      * <code>false</code>.
      */
@@ -754,7 +753,7 @@ public class CallPeerPanel
 
     /**
      * Returns the cipher used for the encryption of the current call.
-     * 
+     *
      * @return the cipher used for the encryption of the current call.
      */
     public String getEncryptionCipher()
@@ -764,7 +763,7 @@ public class CallPeerPanel
 
     /**
      * Sets the cipher used for the encryption of the current call.
-     * 
+     *
      * @param encryptionCipher the cipher used for the encryption of the
      * current call.
      */
@@ -801,7 +800,7 @@ public class CallPeerPanel
         {
             Date time =
                 GuiUtils.substractDates(new Date(System.currentTimeMillis()),
-                    new Date(callParticipant.getCallDurationStartTime()));
+                    new Date(callPeer.getCallDurationStartTime()));
 
             callDuration.setTime(time.getTime());
 
@@ -810,13 +809,13 @@ public class CallPeerPanel
     }
 
     /**
-     * Returns the start time of the contained participant call. Note that the
+     * Returns the start time of the contained peer call. Note that the
      * start time of the call is different from the conversation start time. For
      * example if we receive a call, the call start time is when the call is
      * received and the conversation start time would be when we accept the
      * call.
      *
-     * @return the start time of the contained participant call
+     * @return the start time of the contained peer call
      */
     public Date getCallStartTime()
     {
@@ -824,9 +823,9 @@ public class CallPeerPanel
     }
 
     /**
-     * Returns the duration of the contained participant call.
+     * Returns the duration of the contained peer call.
      *
-     * @return the duration of the contained participant call
+     * @return the duration of the contained peer call
      */
     public Date getCallDuration()
     {
@@ -834,7 +833,7 @@ public class CallPeerPanel
     }
 
     /**
-     * Returns this call type - GuiCallParticipantRecord: INCOMING_CALL or
+     * Returns this call type - GuiCallPeerRecord: INCOMING_CALL or
      * OUTGOING_CALL
      *
      * @return Returns this call type : INCOMING_CALL or OUTGOING_CALL
@@ -849,8 +848,8 @@ public class CallPeerPanel
 
     /**
      * Sets the type of the call. Call type could be
-     * <tt>GuiCallParticipantRecord.INCOMING_CALL</tt> or
-     * <tt>GuiCallParticipantRecord.INCOMING_CALL</tt>.
+     * <tt>GuiCallPeerRecord.INCOMING_CALL</tt> or
+     * <tt>GuiCallPeerRecord.INCOMING_CALL</tt>.
      *
      * @param callType the type of call to set
      */
@@ -860,13 +859,13 @@ public class CallPeerPanel
     }
 
     /**
-     * Returns the name of the participant, contained in this panel.
+     * Returns the name of the peer, contained in this panel.
      *
-     * @return the name of the participant, contained in this panel
+     * @return the name of the peer, contained in this panel
      */
-    public String getParticipantName()
+    public String getPeerName()
     {
-        return participantName;
+        return peerName;
     }
 
     private Component createEnterFullScreenButton()
@@ -913,17 +912,17 @@ public class CallPeerPanel
 
     private Component createFullScreenButtonBar()
     {
-        CallPeerState participantState
-            = callParticipant.getState();
+        CallPeerState peerState
+            = callPeer.getState();
 
         Component[] buttons =
             new Component[]
-            {   new HoldButton( callParticipant.getCall(),
+            {   new HoldButton( callPeer.getCall(),
                                 true,
-                                CallPeerState.isOnHold(participantState)),
-                new MuteButton( callParticipant.getCall(),
+                                CallPeerState.isOnHold(peerState)),
+                new MuteButton( callPeer.getCall(),
                                 true,
-                                callParticipant.isMute()),
+                                callPeer.isMute()),
                 createExitFullScreenButton() };
 
         Component fullScreenButtonBar = createButtonBar(true, buttons);
@@ -936,7 +935,7 @@ public class CallPeerPanel
         // Create the main Components of the UI.
         final JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        frame.setTitle(getParticipantName());
+        frame.setTitle(getPeerName());
         frame.setUndecorated(true);
 
         Component center = createCenter();
@@ -1056,7 +1055,7 @@ public class CallPeerPanel
         }
     }
 
-    private static class ParticipantStatusPanel
+    private static class PeerStatusPanel
         extends TransparentPanel
     {
 
@@ -1067,7 +1066,7 @@ public class CallPeerPanel
          */
         private static final long serialVersionUID = 0L;
 
-        public ParticipantStatusPanel(LayoutManager layout)
+        public PeerStatusPanel(LayoutManager layout)
         {
             super(layout);
             this.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
