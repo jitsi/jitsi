@@ -53,7 +53,7 @@ public interface CallSession
      * parameter, may contain the address that the offer is to be sent to. In
      * case it is null we'll try our best to determine a default local address.
      *
-     * @param intendedDestination the address of the call participant that the
+     * @param intendedDestination the address of the call peer that the
      * descriptions is to be sent to.
      * @return a new SDP description String advertising all params of
      * <tt>callSession</tt>.
@@ -66,18 +66,18 @@ public interface CallSession
 
     /**
      * Creates a SDP description including the current state of the local media
-     * setup and in accord with a specific SDP description of a call participant
+     * setup and in accord with a specific SDP description of a call peer
      * (who is to be offered the created SDP description, for example, as part
      * of a re-INVITE).
      *
-     * @param participantSdpDescription the SDP description (of a call
-     *            participant) to have the created SDP description in accord
+     * @param peerSdpDescription the SDP description (of a call
+     *            peer) to have the created SDP description in accord
      *            with
      * @return a SDP description including the current state of the local media
      *         setup and in accord with the specified SDP description of a call
-     *         participant
+     *         peer
      */
-    public String createSdpOffer(String participantSdpDescription)
+    public String createSdpOffer(String peerSdpDescription)
         throws MediaException;
 
     /**
@@ -85,7 +85,7 @@ public interface CallSession
      * willing to send an in-dialog invitation to a remote callee to put her
      * on/off hold or to send an answer to an offer to be put on/off hold.
      *
-     * @param participantSdpDescription the last SDP description of the remote
+     * @param peerSdpDescription the last SDP description of the remote
      *            callee
      * @param on <tt>true</tt> if the SDP description should offer the remote
      *            callee to be put on hold or answer an offer from the remote
@@ -96,7 +96,7 @@ public interface CallSession
      *         remote callee to be put on/off hold
      * @throws MediaException
      */
-    public String createSdpDescriptionForHold(String participantSdpDescription,
+    public String createSdpDescriptionForHold(String peerSdpDescription,
         boolean onHold) throws MediaException;
 
     /**
@@ -172,7 +172,7 @@ public interface CallSession
      * details
      *
      * @param sdpOffer the SDP offer that we'd like to create an answer for.
-     * @param offerer the participant that has sent the offer.
+     * @param offerer the peer that has sent the offer.
      *
      * @return a String containing an SDP answer describing parameters of the
      * <tt>Call</tt> associated with this session and matching those advertised
@@ -191,7 +191,7 @@ public interface CallSession
      * reception of an SDP answer in response to an offer sent by us earlier.
      *
      * @param sdpAnswer the SDP answer that we'd like to handle.
-     * @param responder the participant that has sent the answer.
+     * @param responder the peer that has sent the answer.
      *
      * @throws MediaException code SERVICE_NOT_STARTED if this method is called
      * before the service was started.
@@ -224,7 +224,7 @@ public interface CallSession
      * this call or <tt>null</tt> if no such URL is available.
      *
      * @return a URL link to a location with call information or a call control
-     * web interface for the specified participant or <tt>null</tt> if no such
+     * web interface for the specified peer or <tt>null</tt> if no such
      * URL is available.
      */
     public URL getCallInfoURL();
