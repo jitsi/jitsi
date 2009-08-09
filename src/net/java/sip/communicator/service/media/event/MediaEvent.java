@@ -7,7 +7,6 @@
 package net.java.sip.communicator.service.media.event;
 
 import net.java.sip.communicator.service.media.*;
-import net.java.sip.communicator.service.protocol.*;
 
 /**
  *
@@ -16,8 +15,6 @@ import net.java.sip.communicator.service.protocol.*;
 public class MediaEvent
     extends java.util.EventObject
 {
-    CallPeer callParticipant;
-
     /**
      * Remote user involved in the event.
      */
