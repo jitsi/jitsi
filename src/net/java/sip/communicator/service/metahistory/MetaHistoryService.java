@@ -22,7 +22,7 @@ public interface MetaHistoryService
      * Returns all the records for the descriptor after the given date.
      *
      * @param services the services classnames we will query
-     * @param descriptor CallParticipant address(String),
+     * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param startDate Date the date of the first record to return
      * @return Collection sorted result that conists of records returned from
@@ -37,7 +37,7 @@ public interface MetaHistoryService
      * Returns all the records before the given date
      *
      * @param services the services classnames we will query
-     * @param descriptor CallParticipant address(String),
+     * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param endDate Date the date of the last record to return
      * @return Collection sorted result that conists of records returned from
@@ -52,7 +52,7 @@ public interface MetaHistoryService
      * Returns all the records between the given dates
      *
      * @param services the services classnames we will query
-     * @param descriptor CallParticipant address(String),
+     * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param startDate Date the date of the first record to return
      * @param endDate Date the date of the last record to return
@@ -69,7 +69,7 @@ public interface MetaHistoryService
      * keywords
      *
      * @param services the services classnames we will query
-     * @param descriptor CallParticipant address(String),
+     * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param startDate Date the date of the first record to return
      * @param endDate Date the date of the last record to return
@@ -87,7 +87,7 @@ public interface MetaHistoryService
      * keywords
      *
      * @param services the services classnames we will query
-     * @param descriptor CallParticipant address(String),
+     * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param startDate Date the date of the first record to return
      * @param endDate Date the date of the last record to return
@@ -106,7 +106,7 @@ public interface MetaHistoryService
      * Returns all the records having the given keyword
      *
      * @param services the services classnames we will query
-     * @param descriptor CallParticipant address(String),
+     * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param keyword keyword
      * @return Collection sorted result that conists of records returned from
@@ -121,7 +121,7 @@ public interface MetaHistoryService
      * Returns all the records having the given keyword
      *
      * @param services the services classnames we will query
-     * @param descriptor CallParticipant address(String),
+     * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param keyword keyword
      * @param caseSensitive is keywords search case sensitive
@@ -137,7 +137,7 @@ public interface MetaHistoryService
      * Returns all the records having the given keywords
      *
      * @param services the services classnames we will query
-     * @param contact CallParticipant address(String),
+     * @param contact CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param keywords keyword
      * @return Collection sorted result that conists of records returned from
@@ -152,7 +152,7 @@ public interface MetaHistoryService
      * Returns all the records having the given keywords
      *
      * @param services the services classnames we will query
-     * @param descriptor CallParticipant address(String),
+     * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param keywords keyword
      * @param caseSensitive is keywords search case sensitive
@@ -168,7 +168,7 @@ public interface MetaHistoryService
      * Returns the supplied number of recent records.
      *
      * @param services the services classnames we will query
-     * @param descriptor CallParticipant address(String),
+     * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param count messages count
      * @return Collection sorted result that conists of records returned from
@@ -183,7 +183,7 @@ public interface MetaHistoryService
      * Returns the supplied number of recent records after the given date
      *
      * @param services the services classnames we will query
-     * @param descriptor CallParticipant address(String),
+     * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param date messages after date
      * @param count messages count
@@ -199,7 +199,7 @@ public interface MetaHistoryService
      * Returns the supplied number of recent records before the given date
      *
      * @param services the services classnames we will query
-     * @param descriptor CallParticipant address(String),
+     * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param date messages before date
      * @param count messages count
