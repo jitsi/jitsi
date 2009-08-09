@@ -19,11 +19,11 @@ import net.java.sip.communicator.util.*;
 
 /**
  * The user callback class for ZRTP4J.
- * 
+ *
  * This class constructs and sends events to the ZRTP GUI implementation. The
- * <code>showMessage()<code> function implements a specific check to start 
+ * <code>showMessage()<code> function implements a specific check to start
  * associated ZRTP multi-stream sessions.
- * 
+ *
  * Coordinate this callback class with the associated GUI implementation class
  * net.java.sip.communicator.impl.gui.main.call.ZrtpPanel
  *
@@ -46,11 +46,11 @@ public class SecurityEventManager extends ZrtpUserCallback
             .getResources().getI18NString(
                     "impl.media.security.WARNING_NO_EXPECTED_RS_MATCH");
 
-    private CallPeer callParticipant;
+    private CallPeer callPeer;
 
     private final CallSession callSession;
 
-    private final SessionCreatorCallback participantSecurityCallback;
+    private final SessionCreatorCallback peerSecurityCallback;
 
     /**
      * Is this a ZRTP DH (Master) session?
@@ -84,24 +84,24 @@ public class SecurityEventManager extends ZrtpUserCallback
     {
         this.callSession = callSession;
 
-        this.participantSecurityCallback
+        this.peerSecurityCallback
             = callSession.getSessionCreatorCallback();
 
         // At this moment we're supporting a security call between only two
-        // participants. In the future the call participant would be passed
+        // peers. In the future the call peer would be passed
         // as a parameter to the SecurityEventManager.
-        Iterator<CallPeer> callParticipants
+        Iterator<CallPeer> callPeers
             = callSession.getCall().getCallPeers();
 
-        while (callParticipants.hasNext())
+        while (callPeers.hasNext())
         {
-            this.callParticipant = callParticipants.next();
+            this.callPeer = callPeers.next();
         }
     }
 
     /**
      * Set the type of this session.
-     * 
+     *
      * @param type the session type. The session type could be either
      * CallSessionImpl.AUDIO_SESSION or CallSessionImpl.VIDEO_SESSION.
      */
@@ -115,7 +115,7 @@ public class SecurityEventManager extends ZrtpUserCallback
 
     /**
      * Set the DH session flag.
-     * 
+     *
      * @param isDHSession the DH session flag.
      */
     public void setDHSession(boolean isDHSession)
@@ -129,7 +129,7 @@ public class SecurityEventManager extends ZrtpUserCallback
 
     /**
      * Reports the security algorithm that the ZRTP protocol negotiated.
-     * 
+     *
      * @see gnu.java.zrtp.ZrtpUserCallback#secureOn(java.lang.String)
      */
     public void secureOn(String cipher)
@@ -144,7 +144,7 @@ public class SecurityEventManager extends ZrtpUserCallback
     /**
      * ZRTP computes the SAS string after nearly all the negotiation
      * and computations are done internally.
-     * 
+     *
      * @see gnu.java.zrtp.ZrtpUserCallback#showSAS(java.lang.String, boolean)
      */
     public void showSAS(String sas, boolean isVerified)
@@ -180,8 +180,8 @@ public class SecurityEventManager extends ZrtpUserCallback
 
             // Use the following fields if INFORMATION type messages shall be
             // shown to the user via SecurityMessageEvent, i.e. if
-            // sendEvent is set to true 
-            // severity = CallParticipantSecurityMessageEvent.INFORMATION;
+            // sendEvent is set to true
+            // severity = CallPeerSecurityMessageEvent.INFORMATION;
 
             // Don't spam user with info messages, only internal processing
             // or logging.
@@ -198,12 +198,12 @@ public class SecurityEventManager extends ZrtpUserCallback
                     multiStreams = ((CallSessionImpl) callSession)
                             .startZrtpMultiStreams();
 
-                    participantSecurityCallback.securityOn( sessionType, cipher,
+                    peerSecurityCallback.securityOn( sessionType, cipher,
                                                 sas, isSasVerified);
                 }
                 else
                 {
-                    participantSecurityCallback.securityOn(sessionType, cipher,
+                    peerSecurityCallback.securityOn(sessionType, cipher,
                                                 null, false);
                 }
             }
@@ -231,7 +231,7 @@ public class SecurityEventManager extends ZrtpUserCallback
                 i18nMessage = MediaActivator.getResources().getI18NString(
                     "impl.media.security.CHECKSUM_MISMATCH");
             }
-            else 
+            else
             {
                 // Other warnings are  internal only, no user action required
                 sendEvent = false;
@@ -283,14 +283,14 @@ public class SecurityEventManager extends ZrtpUserCallback
                 "impl.media.security.ZRTP_GENERIC_MSG",
                 new String[]{msgCode.toString()});
         }
-        else 
+        else
         {
             // Other warnings are  internal only, no user action required
             sendEvent = false;
         }
 
         if (sendEvent)
-            participantSecurityCallback
+            peerSecurityCallback
                 .securityMessage(message, i18nMessage, severity);
 
         if (logger.isInfoEnabled())
@@ -327,11 +327,11 @@ public class SecurityEventManager extends ZrtpUserCallback
         // If this event has been triggered because of a call end event and the
         // call is already ended we don't need to alert the user for
         // security off.
-        if (callParticipant.getCall() != null
-            && !callParticipant.getCall().getCallState()
+        if (callPeer.getCall() != null
+            && !callPeer.getCall().getCallState()
                 .equals(CallState.CALL_ENDED))
         {
-            participantSecurityCallback.securityOff(sessionType);
+            peerSecurityCallback.securityOff(sessionType);
         }
     }
 
