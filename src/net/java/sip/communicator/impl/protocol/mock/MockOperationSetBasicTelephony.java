@@ -28,7 +28,7 @@ public class MockOperationSetBasicTelephony
     /**
      * A table mapping call ids against call instances.
      */
-    private Hashtable activeCalls = new Hashtable();
+    private Hashtable<String, Call> activeCalls = new Hashtable<String, Call>();
 
 
     public MockOperationSetBasicTelephony(MockProvider protocolProvider)
@@ -38,36 +38,36 @@ public class MockOperationSetBasicTelephony
 
     /**
      * Indicates a user request to answer an incoming call from the specified
-     * CallParticipant.
+     * CallPeer.
      *
-     * @param participant the call participant that we'd like to anwer.
+     * @param peer the call peer that we'd like to answer.
      * @throws OperationFailedException with the corresponding code if we
      *   encounter an error while performing this operation.
      */
-    public void answerCallPeer(CallPeer participant) throws
+    public void answerCallPeer(CallPeer peer) throws
         OperationFailedException
     {
-        MockCallParticipant callParticipant
-            = (MockCallParticipant)participant;
-        if(participant.getState().equals(CallPeerState.CONNECTED))
+        MockCallPeer callPeer
+            = (MockCallPeer)peer;
+        if(peer.getState().equals(CallPeerState.CONNECTED))
         {
-            logger.info("Ignoring user request to answer a CallParticipant "
-                        + "that is already connected. CP:" + participant);
+            logger.info("Ignoring user request to answer a CallPeer "
+                        + "that is already connected. CP:" + peer);
             return;
         }
 
-        callParticipant.setState(CallPeerState.CONNECTED, null);
+        callPeer.setState(CallPeerState.CONNECTED, null);
     }
 
     /**
-     * Create a new call and invite the specified CallParticipant to it.
+     * Create a new call and invite the specified CallPeer to it.
      *
      * @param uri the address of the callee that we should invite to a new
      *   call.
-     * @return CallParticipant the CallParticipant that will represented by
+     * @return CallPeer the CallPeer that will represented by
      *   the specified uri. All following state change events will be
-     *   delivered through that call participant. The Call that this
-     *   participant is a member of could be retrieved from the
+     *   delivered through that call peer. The Call that this
+     *   peer is a member of could be retrieved from the
      *   CallParticipatn instance with the use of the corresponding method.
      * @throws OperationFailedException with the corresponding code if we
      *   fail to create the call.
@@ -81,14 +81,14 @@ public class MockOperationSetBasicTelephony
     }
 
     /**
-     * Create a new call and invite the specified CallParticipant to it.
+     * Create a new call and invite the specified CallPeer to it.
      *
      * @param callee the address of the callee that we should invite to a
      *   new call.
-     * @return CallParticipant the CallParticipant that will represented by
+     * @return CallPeer the CallPeer that will represented by
      *   the specified uri. All following state change events will be
-     *   delivered through that call participant. The Call that this
-     *   participant is a member of could be retrieved from the
+     *   delivered through that call peer. The Call that this
+     *   peer is a member of could be retrieved from the
      *   CallParticipatn instance with the use of the corresponding method.
      * @throws OperationFailedException with the corresponding code if we
      *   fail to create the call.
@@ -105,7 +105,7 @@ public class MockOperationSetBasicTelephony
         newCall.addCallChangeListener(this);
         activeCalls.put(newCall.getCallID(), newCall);
 
-        new MockCallParticipant(address, newCall);
+        new MockCallPeer(address, newCall);
 
         return newCall;
     }
@@ -115,7 +115,7 @@ public class MockOperationSetBasicTelephony
      *
      * @return Iterator
      */
-    public Iterator getActiveCalls()
+    public Iterator<Call> getActiveCalls()
     {
         return activeCalls.values().iterator();
     }
@@ -124,52 +124,52 @@ public class MockOperationSetBasicTelephony
      * Indicates a user request to end a call with the specified call
      * particiapnt.
      *
-     * @param participant the participant that we'd like to hang up on.
+     * @param peer the peer that we'd like to hang up on.
      * @throws OperationFailedException with the corresponding code if we
      *   encounter an error while performing this operation.
      */
-    public void hangupCallPeer(CallPeer participant) throws
+    public void hangupCallPeer(CallPeer peer) throws
         OperationFailedException
     {
         //do nothing if the call is already ended
-        if (participant.getState().equals(CallPeerState.DISCONNECTED))
+        if (peer.getState().equals(CallPeerState.DISCONNECTED))
         {
-            logger.debug("Ignoring a request to hangup a call participant "
+            logger.debug("Ignoring a request to hangup a call peer "
                          +"that is already DISCONNECTED");
             return;
         }
 
-        MockCallParticipant callParticipant
-            = (MockCallParticipant)participant;
+        MockCallPeer callPeer
+            = (MockCallPeer)peer;
 
-        logger.info("hangupCallParticipant");
-        callParticipant.setState(CallPeerState.DISCONNECTED, null);
+        logger.info("hangupCallPeer");
+        callPeer.setState(CallPeerState.DISCONNECTED, null);
     }
 
     /**
-     * Resumes communication with a call participant previously put on hold.
+     * Resumes communication with a call peer previously put on hold.
      *
-     * @param participant the call participant to put on hold.
+     * @param peer the call peer to put on hold.
      * @todo Implement this
      *   net.java.sip.communicator.service.protocol.OperationSetBasicTelephony
      *   method
      */
-    public void putOffHold(CallPeer participant)
+    public void putOffHold(CallPeer peer)
     {
 
     }
 
     /**
-     * Puts the specified CallParticipant "on hold".
+     * Puts the specified CallPeer "on hold".
      *
-     * @param participant the participant that we'd like to put on hold.
+     * @param peer the peer that we'd like to put on hold.
      * @throws OperationFailedException with the corresponding code if we
      *   encounter an error while performing this operation.
      * @todo Implement this
      *   net.java.sip.communicator.service.protocol.OperationSetBasicTelephony
      *   method
      */
-    public void putOnHold(CallPeer participant) throws
+    public void putOnHold(CallPeer peer) throws
         OperationFailedException
     {
     }
@@ -189,9 +189,9 @@ public class MockOperationSetBasicTelephony
         Call newCall = createCall(toAddress);
         fireCallEvent(CallEvent.CALL_INITIATED, newCall);
 
-        // must have one participant
-        MockCallParticipant callPArt =
-            (MockCallParticipant)newCall.getCallPeers().next();
+        // must have one peer
+        MockCallPeer callPArt =
+            (MockCallPeer)newCall.getCallPeers().next();
 
         callPArt.setState(CallPeerState.ALERTING_REMOTE_SIDE, "no reason");
         callPArt.setState(CallPeerState.CONNECTED, "no reason");
@@ -199,9 +199,9 @@ public class MockOperationSetBasicTelephony
         return newCall;
     }
 
-    public CallPeer addNewCallParticipant(Call call, String address)
+    public CallPeer addNewCallPeer(Call call, String address)
     {
-        MockCallParticipant callPArt = new MockCallParticipant(address, (MockCall)call);
+        MockCallPeer callPArt = new MockCallPeer(address, (MockCall)call);
 
         callPArt.setState(CallPeerState.ALERTING_REMOTE_SIDE, "no reason");
         callPArt.setState(CallPeerState.CONNECTED, "no reason");

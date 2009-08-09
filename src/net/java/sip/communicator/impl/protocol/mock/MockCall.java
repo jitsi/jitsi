@@ -61,7 +61,7 @@ public class MockCall
      *
      * @param callParticipant the new <tt>CallParticipant</tt>
      */
-    public void addCallParticipant(MockCallParticipant callParticipant)
+    public void addCallParticipant(MockCallPeer callParticipant)
     {
         if(callParticipants.contains(callParticipant))
             return;
@@ -83,7 +83,7 @@ public class MockCall
      *
      * @param callParticipant the <tt>CallParticipant</tt> leaving the call;
      */
-    public void removeCallParticipant(MockCallParticipant callParticipant)
+    public void removeCallParticipant(MockCallPeer callParticipant)
     {
         if(!callParticipants.contains(callParticipant))
             return;
@@ -106,7 +106,7 @@ public class MockCall
             == CallPeerState.FAILED)
         {
             removeCallParticipant(
-                (MockCallParticipant) evt.getSourceCallPeer());
+                (MockCallPeer) evt.getSourceCallPeer());
         }
         else if ( ( (CallPeerState) evt.getNewValue())
                  == CallPeerState.CONNECTED

@@ -294,7 +294,7 @@ public class TestCallHistoryService
             waitSeconds(2000);
 
             CallPeer newParticipant =
-                mockBTelphonyOpSet.addNewCallParticipant(newCall,
+                mockBTelphonyOpSet.addNewCallPeer(newCall,
                 partAddresses[1]);
 
             mockBTelphonyOpSet.hangupCallPeer(newParticipant);
