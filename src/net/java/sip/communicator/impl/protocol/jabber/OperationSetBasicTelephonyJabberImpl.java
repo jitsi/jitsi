@@ -258,8 +258,8 @@ public class OperationSetBasicTelephonyJabberImpl
 
         CallJabberImpl call = new CallJabberImpl(protocolProvider);
 
-        CallParticipantJabberImpl callParticipant =
-                new CallParticipantJabberImpl(calleeAddress, call);
+        CallPeerJabberImpl callParticipant =
+                new CallPeerJabberImpl(calleeAddress, call);
 
         callParticipant.setJingleSession(outJS);
         callParticipant.setState(CallParticipantState.INITIATING_CALL);
@@ -291,7 +291,7 @@ public class OperationSetBasicTelephonyJabberImpl
     public void putOffHold(CallPeer participant)
     {
         /** @todo implement putOffHold() */
-        ((CallParticipantJabberImpl) participant).getJingleSession().
+        ((CallPeerJabberImpl) participant).getJingleSession().
                 getJingleMediaSession().setTrasmit(true);
     }
 
@@ -303,7 +303,7 @@ public class OperationSetBasicTelephonyJabberImpl
     public void putOnHold(CallPeer participant)
     {
         /** @todo implement putOnHold() */
-        ((CallParticipantJabberImpl) participant).getJingleSession().
+        ((CallPeerJabberImpl) participant).getJingleSession().
                 getJingleMediaSession().setTrasmit(false);
     }
 
@@ -323,8 +323,8 @@ public class OperationSetBasicTelephonyJabberImpl
     public void hangupCallParticipant(CallPeer participant)
             throws ClassCastException, OperationFailedException
     {
-        CallParticipantJabberImpl callParticipant
-                = (CallParticipantJabberImpl)participant;
+        CallPeerJabberImpl callParticipant
+                = (CallPeerJabberImpl)participant;
         try
         {
             callParticipant.getJingleSession().terminate();
@@ -351,8 +351,8 @@ public class OperationSetBasicTelephonyJabberImpl
     public void answerCallParticipant(CallPeer participant)
             throws OperationFailedException
     {
-        CallParticipantJabberImpl callParticipant
-                = (CallParticipantJabberImpl)participant;
+        CallPeerJabberImpl callParticipant
+                = (CallPeerJabberImpl)participant;
         try
         {
             ((IncomingJingleSession)callParticipant.getJingleSession()).
@@ -432,8 +432,8 @@ public class OperationSetBasicTelephonyJabberImpl
         {
             from = from.substring(0, from.indexOf("/"));
         }
-        CallParticipantJabberImpl callParticipant
-                = new CallParticipantJabberImpl(from, call);
+        CallPeerJabberImpl callParticipant
+                = new CallPeerJabberImpl(from, call);
 
         callParticipant.setJingleSession(inJS);
         callParticipant.setState(CallParticipantState.INCOMING_CALL);
@@ -530,7 +530,7 @@ public class OperationSetBasicTelephonyJabberImpl
         {
             JingleSession session = (JingleSession) newState.getNegotiator();
 
-            CallParticipantJabberImpl callParticipant =
+            CallPeerJabberImpl callParticipant =
                     activeCallsRepository.findCallParticipant(session);
             if (callParticipant == null)
             {
@@ -542,7 +542,7 @@ public class OperationSetBasicTelephonyJabberImpl
         {
             JingleSession session = (JingleSession) newState.getNegotiator();
 
-            CallParticipantJabberImpl callParticipant =
+            CallPeerJabberImpl callParticipant =
                     activeCallsRepository.findCallParticipant(session);
             if (callParticipant == null)
             {
@@ -554,7 +554,7 @@ public class OperationSetBasicTelephonyJabberImpl
         {
             JingleSession session = (JingleSession) newState.getNegotiator();
 
-            CallParticipantJabberImpl callParticipant =
+            CallPeerJabberImpl callParticipant =
                     activeCallsRepository.findCallParticipant(session);
             if (callParticipant == null)
             {
@@ -566,7 +566,7 @@ public class OperationSetBasicTelephonyJabberImpl
         {
             JingleSession session = (JingleSession) newState.getNegotiator();
 
-            CallParticipantJabberImpl callParticipant =
+            CallPeerJabberImpl callParticipant =
                     activeCallsRepository.findCallParticipant(session);
             if (callParticipant == null)
             {
@@ -579,7 +579,7 @@ public class OperationSetBasicTelephonyJabberImpl
         { //hanging
             JingleSession session = (JingleSession) oldState.getNegotiator();
 
-            CallParticipantJabberImpl callParticipant =
+            CallPeerJabberImpl callParticipant =
                     activeCallsRepository.findCallParticipant(session);
             if (callParticipant == null)
             {

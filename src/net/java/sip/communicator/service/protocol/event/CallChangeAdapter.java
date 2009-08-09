@@ -33,7 +33,7 @@ public abstract class CallChangeAdapter
      * callParticipantAdded
      * (net.java.sip.communicator.service.protocol.event.CallParticipantEvent)
      */
-    public void callParticipantAdded(CallParticipantEvent evt)
+    public void callParticipantAdded(CallPeerEvent evt)
     {
     }
 
@@ -44,7 +44,7 @@ public abstract class CallChangeAdapter
      * callParticipantRemoved
      * (net.java.sip.communicator.service.protocol.event.CallParticipantEvent)
      */
-    public void callParticipantRemoved(CallParticipantEvent evt)
+    public void callParticipantRemoved(CallPeerEvent evt)
     {
     }
 

@@ -133,11 +133,11 @@ public class CallPanel
      * Implements the CallChangeListener.callParticipantAdded method. When a new
      * participant is added to our call add it to the call panel.
      */
-    public void callParticipantAdded(CallParticipantEvent evt)
+    public void callParticipantAdded(CallPeerEvent evt)
     {
         if (evt.getSourceCall() == call)
         {
-            this.addCallParticipant(evt.getSourceCallParticipant(), null);
+            this.addCallParticipant(evt.getSourceCallPeer(), null);
 
             this.revalidate();
             this.repaint();
@@ -148,11 +148,11 @@ public class CallPanel
      * Implements the CallChangeListener.callParticipantRemoved method. When a
      * call participant is removed from our call remove it from the call panel.
      */
-    public void callParticipantRemoved(CallParticipantEvent evt)
+    public void callParticipantRemoved(CallPeerEvent evt)
     {
         if (evt.getSourceCall() == call)
         {
-            CallPeer participant = evt.getSourceCallParticipant();
+            CallPeer participant = evt.getSourceCallPeer();
 
             CallParticipantPanel participantPanel =
                 getParticipantPanel(participant);

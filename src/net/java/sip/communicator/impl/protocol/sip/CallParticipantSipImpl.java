@@ -23,7 +23,7 @@ import net.java.sip.communicator.util.*;
  * @author Emil Ivov
  */
 public class CallParticipantSipImpl
-    extends AbstractCallParticipant
+    extends AbstractCallPeer
     implements SessionCreatorCallback
 {
     private static final Logger logger
@@ -132,8 +132,8 @@ public class CallParticipantSipImpl
 
         this.participantAddress = address;
         //Fire the Event
-        fireCallParticipantChangeEvent(
-                CallPeerChangeEvent.CALL_PARTICIPANT_ADDRESS_CHANGE,
+        fireCallPeerChangeEvent(
+                CallPeerChangeEvent.CALL_PEER_ADDRESS_CHANGE,
                 oldAddress,
                 address.toString());
     }
@@ -171,7 +171,7 @@ public class CallParticipantSipImpl
         }
 
         //Fire the Event
-        fireCallParticipantChangeEvent(
+        fireCallPeerChangeEvent(
                 CallPeerChangeEvent.CALL_PARTICIPANT_DISPLAY_NAME_CHANGE,
                 oldName,
                 displayName);
@@ -201,8 +201,8 @@ public class CallParticipantSipImpl
         this.image = image;
 
         //Fire the Event
-        fireCallParticipantChangeEvent(
-                CallPeerChangeEvent.CALL_PARTICIPANT_IMAGE_CHANGE,
+        fireCallPeerChangeEvent(
+                CallPeerChangeEvent.CALL_PEER_IMAGE_CHANGE,
                 oldImage,
                 image);
     }
@@ -212,7 +212,7 @@ public class CallParticipantSipImpl
      *
      * @return an identifier representing this call participant.
      */
-    public String getParticipantID()
+    public String getPeerID()
     {
         return participantID;
     }
@@ -360,7 +360,7 @@ public class CallParticipantSipImpl
         InetSocketAddress oldTransportAddress = this.transportAddress;
         this.transportAddress = transportAddress;
 
-        this.fireCallParticipantChangeEvent(
+        this.fireCallPeerChangeEvent(
             CallPeerChangeEvent
                 .CALL_PARTICIPANT_TRANSPORT_ADDRESS_CHANGE,
                 oldTransportAddress,

@@ -22,14 +22,14 @@ public interface CallChangeListener
      * @param evt the <tt>CallParticipantEvent</tt> containing the source call
      * and call participant.
      */
-    public void callParticipantAdded(CallParticipantEvent evt);
+    public void callParticipantAdded(CallPeerEvent evt);
 
     /**
      * Indicates that a call participant has left the source call.
      * @param evt the <tt>CallParticipantEvent</tt> containing the source call
      * and call participant.
      */
-    public void callParticipantRemoved(CallParticipantEvent evt);
+    public void callParticipantRemoved(CallPeerEvent evt);
 
     /**
      * Indicates that a change has occurred in the state of the source call.

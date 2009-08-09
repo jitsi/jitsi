@@ -1072,14 +1072,14 @@ public class CallHistoryServiceImpl
     private class HistoryCallChangeListener
         extends CallChangeAdapter
     {
-        public void callParticipantAdded(CallParticipantEvent evt)
+        public void callParticipantAdded(CallPeerEvent evt)
         {
-            handleParticipantAdded(evt.getSourceCallParticipant());
+            handleParticipantAdded(evt.getSourceCallPeer());
         }
 
-        public void callParticipantRemoved(CallParticipantEvent evt)
+        public void callParticipantRemoved(CallPeerEvent evt)
         {
-            handleParticipantRemoved(evt.getSourceCallParticipant(),
+            handleParticipantRemoved(evt.getSourceCallPeer(),
                                      evt.getSourceCall());
         }
     }

@@ -73,7 +73,7 @@ public class MockCall
         logger.info("Will fire participant added");
 
         fireCallParticipantEvent(
-            callParticipant, CallParticipantEvent.CALL_PARTICIPANT_ADDED);
+            callParticipant, CallPeerEvent.CALL_PEER_ADDED);
     }
 
     /**
@@ -92,7 +92,7 @@ public class MockCall
         callParticipant.removeCallParticipantListener(this);
 
         fireCallParticipantEvent(
-            callParticipant, CallParticipantEvent.CALL_PARTICIPANT_REMVOVED);
+            callParticipant, CallPeerEvent.CALL_PEER_REMVOVED);
 
         if(callParticipants.size() == 0)
             setCallState(CallState.CALL_ENDED);

@@ -183,7 +183,7 @@ public abstract class Call
     protected void fireCallParticipantEvent(CallPeer sourceCallParticipant,
                                             int             eventID)
     {
-        CallParticipantEvent cpEvent = new CallParticipantEvent(
+        CallPeerEvent cpEvent = new CallPeerEvent(
             sourceCallParticipant, this, eventID);
 
         logger.debug("Dispatching a CallParticipant event to "
@@ -200,9 +200,9 @@ public abstract class Call
         {
             CallChangeListener listener = listeners.next();
 
-            if(eventID == CallParticipantEvent.CALL_PARTICIPANT_ADDED)
+            if(eventID == CallPeerEvent.CALL_PEER_ADDED)
                 listener.callParticipantAdded(cpEvent);
-            else if (eventID == CallParticipantEvent.CALL_PARTICIPANT_REMVOVED)
+            else if (eventID == CallPeerEvent.CALL_PEER_REMVOVED)
                 listener.callParticipantRemoved(cpEvent);
 
         }

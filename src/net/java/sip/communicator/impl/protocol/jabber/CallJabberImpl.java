@@ -60,7 +60,7 @@ public class CallJabberImpl
      *
      * @param callParticipant the new <tt>CallParticipant</tt>
      */
-    public void addCallParticipant(CallParticipantJabberImpl callParticipant)
+    public void addCallPeer(CallPeerJabberImpl callParticipant)
     {
         if(callParticipants.contains(callParticipant))
             return;
@@ -69,7 +69,7 @@ public class CallJabberImpl
 
         this.callParticipants.add(callParticipant);
         fireCallParticipantEvent(
-            callParticipant, CallParticipantEvent.CALL_PARTICIPANT_ADDED);
+            callParticipant, CallPeerEvent.CALL_PEER_ADDED);
     }
 
     /**
@@ -79,7 +79,7 @@ public class CallJabberImpl
      *
      * @param callParticipant the <tt>CallParticipant</tt> leaving the call;
      */
-    public void removeCallParticipant(CallParticipantJabberImpl callParticipant)
+    public void removeCallParticipant(CallPeerJabberImpl callParticipant)
     {
         if(!callParticipants.contains(callParticipant))
             return;
@@ -89,7 +89,7 @@ public class CallJabberImpl
         callParticipant.removeCallParticipantListener(this);
 
         fireCallParticipantEvent(
-            callParticipant, CallParticipantEvent.CALL_PARTICIPANT_REMVOVED);
+            callParticipant, CallPeerEvent.CALL_PEER_REMVOVED);
 
         if(callParticipants.size() == 0)
             setCallState(CallState.CALL_ENDED);
@@ -166,7 +166,7 @@ public class CallJabberImpl
                      == CallParticipantState.FAILED)
         {
             removeCallParticipant(
-                (CallParticipantJabberImpl)evt.getSourceCallParticipant());
+                (CallPeerJabberImpl)evt.getSourceCallParticipant());
         }
         else if (((CallParticipantState)evt.getNewValue())
                      == CallParticipantState.CONNECTED
@@ -199,7 +199,7 @@ public class CallJabberImpl
      * @return the call participant whose jingle session is the same as the
      * specified or null if no such call participant was found.
      */
-    public CallParticipantJabberImpl findCallParticipant(JingleSession session)
+    public CallPeerJabberImpl findCallParticipant(JingleSession session)
     {
         Iterator callParticipants = this.getCallParticipants();
 
@@ -212,8 +212,8 @@ public class CallJabberImpl
 
         while (callParticipants.hasNext())
         {
-            CallParticipantJabberImpl cp
-                = (CallParticipantJabberImpl)callParticipants.next();
+            CallPeerJabberImpl cp
+                = (CallPeerJabberImpl)callParticipants.next();
 
             if( cp.getJingleSession() == session)
             {

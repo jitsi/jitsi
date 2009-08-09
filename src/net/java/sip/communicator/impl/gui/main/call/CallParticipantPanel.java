@@ -445,9 +445,9 @@ public class CallParticipantPanel
              * to display it.
              */
             public synchronized void callParticipantAdded(
-                CallParticipantEvent event)
+                CallPeerEvent event)
             {
-                if (callParticipant.equals(event.getSourceCallParticipant())
+                if (callParticipant.equals(event.getSourceCallPeer())
                         && !videoListenerIsAdded)
                 {
                     Call call = callParticipant.getCall();
@@ -465,9 +465,9 @@ public class CallParticipantPanel
              * no longer be updated anyway.
              */
             public synchronized void callParticipantRemoved(
-                CallParticipantEvent event)
+                CallPeerEvent event)
             {
-                if (callParticipant.equals(event.getSourceCallParticipant())
+                if (callParticipant.equals(event.getSourceCallPeer())
                     && videoListenerIsAdded)
                 {
                     Call call = callParticipant.getCall();

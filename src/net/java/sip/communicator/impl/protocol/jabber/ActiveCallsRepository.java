@@ -139,7 +139,7 @@ public class ActiveCallsRepository
      * @return the call participant whose jingle session is the same as the
      * specified or null if no such call participant was found.
      */
-    public CallParticipantJabberImpl findCallParticipant(JingleSession session)
+    public CallPeerJabberImpl findCallParticipant(JingleSession session)
     {
         Iterator activeCalls = getActiveCalls();
 
@@ -159,7 +159,7 @@ public class ActiveCallsRepository
         while(activeCalls.hasNext())
         {
             CallJabberImpl call = (CallJabberImpl)activeCalls.next();
-            CallParticipantJabberImpl callParticipant
+            CallPeerJabberImpl callParticipant
                 = call.findCallParticipant(session);
             if(callParticipant != null)
             {

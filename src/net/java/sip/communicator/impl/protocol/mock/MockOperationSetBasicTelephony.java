@@ -209,11 +209,11 @@ public class MockOperationSetBasicTelephony
         return callPArt;
     }
 
-    public void callParticipantAdded(CallParticipantEvent evt)
+    public void callParticipantAdded(CallPeerEvent evt)
     {
     }
 
-    public void callParticipantRemoved(CallParticipantEvent evt)
+    public void callParticipantRemoved(CallPeerEvent evt)
     {
     }
 

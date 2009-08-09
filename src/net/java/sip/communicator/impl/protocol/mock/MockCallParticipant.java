@@ -12,7 +12,7 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Damian Minkov
  */
 public class MockCallParticipant
-    extends AbstractCallParticipant
+    extends AbstractCallPeer
 {
     /**
      * The sip address of this participant
@@ -88,7 +88,7 @@ public class MockCallParticipant
      *
      * @return an identifier representing this call participant.
      */
-    public String getParticipantID()
+    public String getPeerID()
     {
         return participantID;
     }

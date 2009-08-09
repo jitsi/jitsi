@@ -2604,7 +2604,7 @@ public class CallSessionImpl
      * @param evt the <tt>CallParticipantEvent</tt> containing the source call
      * and call participant.
      */
-    public synchronized void callParticipantAdded(CallParticipantEvent evt)
+    public synchronized void callParticipantAdded(CallPeerEvent evt)
     {
     }
 
@@ -2613,7 +2613,7 @@ public class CallSessionImpl
      * @param evt the <tt>CallParticipantEvent</tt> containing the source call
      * and call participant.
      */
-    public void callParticipantRemoved(CallParticipantEvent evt)
+    public void callParticipantRemoved(CallPeerEvent evt)
     {
 
     }
