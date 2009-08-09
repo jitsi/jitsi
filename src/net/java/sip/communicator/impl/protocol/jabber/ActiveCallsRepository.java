@@ -160,7 +160,7 @@ public class ActiveCallsRepository
         {
             CallJabberImpl call = (CallJabberImpl)activeCalls.next();
             CallPeerJabberImpl callParticipant
-                = call.findCallParticipant(session);
+                = call.findCallPeer(session);
             if(callParticipant != null)
             {
                 logger.trace("Returning participant " + callParticipant);

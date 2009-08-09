@@ -105,8 +105,8 @@ public class CallJabberImpl
     }
 
     /**
-     * Returns the number of participants currently associated with this call.
-     * @return an <tt>int</tt> indicating the number of participants currently
+     * Returns the number of peers currently associated with this call.
+     * @return an <tt>int</tt> indicating the number of peers currently
      * associated with this call.
      */
     public int getCallPeerCount()
@@ -115,7 +115,7 @@ public class CallJabberImpl
     }
 
     /**
-     * Dummy implementation of a method (inherited from CallParticipantListener)
+     * Dummy implementation of a method (inherited from CallPeerListener)
      * that we don't need.
      *
      * @param evt unused.
@@ -124,7 +124,7 @@ public class CallJabberImpl
     {}
 
     /**
-     * Dummy implementation of a method (inherited from CallParticipantListener)
+     * Dummy implementation of a method (inherited from CallPeerListener)
      * that we don't need.
      *
      * @param evt unused.
@@ -133,7 +133,7 @@ public class CallJabberImpl
     {}
 
     /**
-     * Dummy implementation of a method (inherited from CallParticipantListener)
+     * Dummy implementation of a method (inherited from CallPeerListener)
      * that we don't need.
      *
      * @param evt unused.
@@ -144,7 +144,7 @@ public class CallJabberImpl
 
 
     /**
-     * Dummy implementation of a method (inherited from CallParticipantListener)
+     * Dummy implementation of a method (inherited from CallPeerListener)
      * that we don't need.
      *
      * @param evt unused.
@@ -153,9 +153,9 @@ public class CallJabberImpl
     {}
 
     /**
-     * Verifies whether the call participant has entered a state.
+     * Verifies whether the call peer has entered a state.
      *
-     * @param evt The <tt>CallParticipantChangeEvent</tt> instance containing
+     * @param evt The <tt>CallPeerChangeEvent</tt> instance containing
      * the source event as well as its previous and its new status.
      */
     public void peerStateChanged(CallPeerChangeEvent evt)
@@ -178,42 +178,42 @@ public class CallJabberImpl
 
     /**
      * Returns <tt>true</tt> if <tt>session</tt> matches the jingle session
-     * established with one of the participants in this call.
+     * established with one of the peers in this call.
      *
-     * @param session the session whose corresponding participant we're looking
+     * @param session the session whose corresponding peer we're looking
      * for.
-     * @return true if this call contains a call participant whose jingleSession
+     * @return true if this call contains a call peer whose jingleSession
      * session is the same as the specified and false otherwise.
      */
     public boolean contains(JingleSession session)
     {
-        return findCallParticipant(session) != null;
+        return findCallPeer(session) != null;
     }
 
     /**
-     * Returns the call participant whose associated jingle session matches
+     * Returns the call peer whose associated jingle session matches
      * <tt>session</tt>.
      *
-     * @param session the jingle session whose corresponding participant we're
+     * @param session the jingle session whose corresponding peer we're
      * looking for.
-     * @return the call participant whose jingle session is the same as the
-     * specified or null if no such call participant was found.
+     * @return the call peer whose jingle session is the same as the
+     * specified or null if no such call peer was found.
      */
-    public CallPeerJabberImpl findCallParticipant(JingleSession session)
+    public CallPeerJabberImpl findCallPeer(JingleSession session)
     {
-        Iterator<CallPeer> callParticipants = this.getCallPeers();
+        Iterator<CallPeer> callPeers = this.getCallPeers();
 
         if(logger.isTraceEnabled())
         {
-            logger.trace("Looking for participant with session: " + session
+            logger.trace("Looking for peer with session: " + session
                          + "among " + this.callPeers.size() + " calls");
         }
 
 
-        while (callParticipants.hasNext())
+        while (callPeers.hasNext())
         {
             CallPeerJabberImpl cp
-                = (CallPeerJabberImpl)callParticipants.next();
+                = (CallPeerJabberImpl)callPeers.next();
 
             if( cp.getJingleSession() == session)
             {
