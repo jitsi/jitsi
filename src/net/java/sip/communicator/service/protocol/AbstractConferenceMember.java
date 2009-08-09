@@ -11,7 +11,7 @@ import net.java.sip.communicator.util.*;
 /**
  * Provides the default implementation of the <code>ConferenceMember</code>
  * interface.
- * 
+ *
  * @author Lubomir Marinov
  */
 public class AbstractConferenceMember
@@ -20,10 +20,10 @@ public class AbstractConferenceMember
 {
 
     /**
-     * The <code>CallParticipant</code> which is the conference focus of this
+     * The <code>CallPeer</code> which is the conference focus of this
      * <code>ConferenceMember</code>.
      */
-    private final CallPeer conferenceFocusCallParticipant;
+    private final CallPeer conferenceFocusCallPeer;
 
     /**
      * The user-friendly display name of this <code>ConferenceMember</code> in
@@ -38,17 +38,17 @@ public class AbstractConferenceMember
     private ConferenceMemberState state = ConferenceMemberState.UNKNOWN;
 
     public AbstractConferenceMember(
-        CallPeer conferenceFocusCallParticipant)
+        CallPeer conferenceFocusCallPeer)
     {
-        this.conferenceFocusCallParticipant = conferenceFocusCallParticipant;
+        this.conferenceFocusCallPeer = conferenceFocusCallPeer;
     }
 
     /*
-     * Implements ConferenceMember#getConferenceFocusCallParticipant().
+     * Implements ConferenceMember#getConferenceFocusCallPeer().
      */
-    public CallPeer getConferenceFocusCallParticipant()
+    public CallPeer getConferenceFocusCallPeer()
     {
-        return conferenceFocusCallParticipant;
+        return conferenceFocusCallPeer;
     }
 
     /*
@@ -71,7 +71,7 @@ public class AbstractConferenceMember
      * Sets the user-friendly display name of this <code>ConferenceMember</code>
      * in the conference and fires a new <code>PropertyChangeEvent</code> for
      * the property <code>#DISPLAY_NAME_PROPERTY_NAME</code>.
-     * 
+     *
      * @param displayName
      *            the user-friendly display name of this
      *            <code>ConferenceMember</code> in the conference
@@ -98,7 +98,7 @@ public class AbstractConferenceMember
      * <code>ConferenceMember</code> in the conference and fires a new
      * <code>PropertyChangeEvent</code> for the property
      * <code>#STATE_PROPERTY_NAME</code>.
-     * 
+     *
      * @param state
      *            the state of the device and signaling session of this
      *            <code>ConferenceMember</code> in the conference
