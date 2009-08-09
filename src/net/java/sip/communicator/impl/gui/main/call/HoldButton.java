@@ -27,7 +27,7 @@ public class HoldButton
 
     /**
      * Initializes a new <tt>HoldButton</tt> instance which is to put a specific
-     * <tt>CallParticipant</tt> on/off hold.
+     * <tt>CallPeer</tt> on/off hold.
      *
      * @param call the <tt>Call</tt> to be associated with
      *            the new instance and to be put on/off hold upon performing its
@@ -40,7 +40,7 @@ public class HoldButton
 
     /**
      * Initializes a new <tt>HoldButton</tt> instance which is to put a specific
-     * <tt>CallParticipant</tt> on/off hold.
+     * <tt>CallPeer</tt> on/off hold.
      *
      * @param call  the <tt>Call</tt> to be associated with
      *              the new instance and to be put on/off hold upon performing
@@ -85,7 +85,7 @@ public class HoldButton
 
     /**
      * Represents the model of a toggle button that puts an associated
-     * <tt>CallParticipant</tt> on/off hold.
+     * <tt>CallPeer</tt> on/off hold.
      */
     private static class HoldButtonModel
         extends ToggleButtonModel
@@ -93,14 +93,14 @@ public class HoldButton
     {
 
         /**
-         * The <tt>CallParticipant</tt> whose state is being adapted for the
+         * The <tt>CallPeer</tt> whose state is being adapted for the
          * purposes of depicting as a toggle button.
          */
         private final Call call;
 
         /**
          * Initializes a new <tt>HoldButtonModel</tt> instance to represent
-         * the state of a specific <tt>CallParticipant</tt> as a toggle
+         * the state of a specific <tt>CallPeer</tt> as a toggle
          * button.
          *
          * @param call
@@ -122,19 +122,18 @@ public class HoldButton
                     (OperationSetBasicTelephony) call.getProtocolProvider()
                         .getOperationSet(OperationSetBasicTelephony.class);
 
-                Iterator<CallPeer> participants
-                    = call.getCallPeers();
+                Iterator<CallPeer> peers = call.getCallPeers();
 
-                while (participants.hasNext())
+                while (peers.hasNext())
                 {
-                    CallPeer callParticipant = participants.next();
+                    CallPeer callPeer = peers.next();
 
                     try
                     {
                         if (isSelected())
-                            telephony.putOnHold(callParticipant);
+                            telephony.putOnHold(callPeer);
                         else
-                            telephony.putOffHold(callParticipant);
+                            telephony.putOffHold(callPeer);
                     }
                     catch (OperationFailedException ex)
                     {

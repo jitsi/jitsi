@@ -49,7 +49,7 @@ public class DialPanel
             GuiActivator.getResources()
                 .getSettingsInt("impl.gui.DIAL_PAD_VERTICAL_GAP")));
 
-    private final java.util.List<CallPeer> callParticipantsList =
+    private final java.util.List<CallPeer> callPeersList =
         new LinkedList<CallPeer>();
 
     private MainCallPanel parentCallPanel;
@@ -80,7 +80,7 @@ public class DialPanel
         // presses a dial button, so we put the iterator into a list.
         while (callParticipants.hasNext())
         {
-            this.callParticipantsList.add(callParticipants.next());
+            this.callPeersList.add(callParticipants.next());
         }
 
         this.init();
@@ -410,7 +410,7 @@ public class DialPanel
     private void sendDtmfTone(DTMFTone dtmfTone)
     {
         Iterator<CallPeer> callParticipants
-            = this.callParticipantsList.iterator();
+            = this.callPeersList.iterator();
 
         try
         {
