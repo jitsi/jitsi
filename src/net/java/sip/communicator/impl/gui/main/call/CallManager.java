@@ -337,18 +337,18 @@ public class CallManager
 
             while (peers.hasNext())
             {
-                CallPeer participant = peers.next();
+                CallPeer peer = peers.next();
                 OperationSetBasicTelephony telephony =
                     (OperationSetBasicTelephony) pps
                         .getOperationSet(OperationSetBasicTelephony.class);
 
                 try
                 {
-                    telephony.hangupCallPeer(participant);
+                    telephony.hangupCallPeer(peer);
                 }
                 catch (OperationFailedException e)
                 {
-                    logger.error("Could not answer to : " + participant
+                    logger.error("Could not answer to : " + peer
                         + " caused by the following exception: " + e);
                 }
             }
