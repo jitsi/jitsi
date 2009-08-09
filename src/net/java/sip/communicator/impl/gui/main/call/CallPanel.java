@@ -33,7 +33,7 @@ public class CallPanel
     implements  CallChangeListener,
                 CallPeerListener,
                 PropertyChangeListener,
-                CallParticipantSecurityListener
+                CallPeerSecurityListener
 {
     private final TransparentPanel mainPanel = new TransparentPanel();
 
@@ -270,7 +270,7 @@ public class CallPanel
     {
     }
 
-    public void securityOn(CallParticipantSecurityOnEvent securityEvent)
+    public void securityOn(CallPeerSecurityOnEvent securityEvent)
     {
         CallPeer participant =
             (CallPeer) securityEvent.getSource();
@@ -282,10 +282,10 @@ public class CallPanel
         participantPanel.setEncryptionCipher(securityEvent.getCipher());
 
         switch (securityEvent.getSessionType()) {
-        case CallParticipantSecurityOnEvent.AUDIO_SESSION:
+        case CallPeerSecurityOnEvent.AUDIO_SESSION:
             participantPanel.setAudioSecurityOn(true);
             break;
-        case CallParticipantSecurityOnEvent.VIDEO_SESSION:
+        case CallPeerSecurityOnEvent.VIDEO_SESSION:
             participantPanel.setVideoSecurityOn(true);
             break;
         }
@@ -296,7 +296,7 @@ public class CallPanel
             NotificationManager.CALL_SECURITY_ON);
     }
 
-    public void securityOff(CallParticipantSecurityOffEvent securityEvent)
+    public void securityOff(CallPeerSecurityOffEvent securityEvent)
     {
         CallPeer participant =
             (CallPeer) securityEvent.getSource();
@@ -307,10 +307,10 @@ public class CallPanel
 
         switch (securityEvent.getSessionType())
         {
-        case CallParticipantSecurityOnEvent.AUDIO_SESSION:
+        case CallPeerSecurityOnEvent.AUDIO_SESSION:
             participantPanel.setAudioSecurityOn(false);
             break;
-        case CallParticipantSecurityOnEvent.VIDEO_SESSION:
+        case CallPeerSecurityOnEvent.VIDEO_SESSION:
             participantPanel.setVideoSecurityOn(false);
             break;
         }
@@ -442,7 +442,7 @@ public class CallPanel
     }
 
     public void securityMessageRecieved(
-        CallParticipantSecurityMessageEvent event)
+        CallPeerSecurityMessageEvent event)
     {
         int severity = event.getEventSeverity();
 
@@ -451,21 +451,21 @@ public class CallPanel
         switch (severity)
         {
             // Don't play alert sound for Info or warning.
-            case CallParticipantSecurityMessageEvent.INFORMATION:
+            case CallPeerSecurityMessageEvent.INFORMATION:
             {
                 messageTitle = GuiActivator.getResources().getI18NString(
                     "service.gui.SECURITY_INFO");
                 break;
             }
-            case CallParticipantSecurityMessageEvent.WARNING:
+            case CallPeerSecurityMessageEvent.WARNING:
             {
                 messageTitle = GuiActivator.getResources().getI18NString(
                     "service.gui.SECURITY_WARNING");
                 break;
             }
             // Alert sound indicates: security cannot established
-            case CallParticipantSecurityMessageEvent.SEVERE:
-            case CallParticipantSecurityMessageEvent.ERROR:
+            case CallPeerSecurityMessageEvent.SEVERE:
+            case CallPeerSecurityMessageEvent.ERROR:
             {
                 messageTitle = GuiActivator.getResources().getI18NString(
                     "service.gui.SECURITY_ERROR");

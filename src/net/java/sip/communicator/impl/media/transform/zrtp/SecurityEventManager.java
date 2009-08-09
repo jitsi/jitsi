@@ -213,7 +213,7 @@ public class SecurityEventManager extends ZrtpUserCallback
             // Warning codes usually do not affect encryption or security. Only
             // in few cases inform the user and ask to verify SAS.
             ZrtpCodes.WarningCodes warn = (ZrtpCodes.WarningCodes) msgCode;
-            severity = CallParticipantSecurityMessageEvent.WARNING;
+            severity = CallPeerSecurityMessageEvent.WARNING;
 
             if (warn == ZrtpCodes.WarningCodes.WarningNoRSMatch)
             {
@@ -240,7 +240,7 @@ public class SecurityEventManager extends ZrtpUserCallback
         else if (msgCode instanceof ZrtpCodes.SevereCodes)
         {
             ZrtpCodes.SevereCodes severe = (ZrtpCodes.SevereCodes) msgCode;
-            severity = CallParticipantSecurityMessageEvent.SEVERE;
+            severity = CallPeerSecurityMessageEvent.SEVERE;
 
             if (severe == ZrtpCodes.SevereCodes.SevereCannotSend)
             {
@@ -274,7 +274,7 @@ public class SecurityEventManager extends ZrtpUserCallback
         }
         else if (msgCode instanceof ZrtpCodes.ZrtpErrorCodes)
         {
-            severity = CallParticipantSecurityMessageEvent.ERROR;
+            severity = CallPeerSecurityMessageEvent.ERROR;
 
             message =   "Indicates compatibility problems like for example:"
                         + "unsupported protocol version, unsupported hash type,"

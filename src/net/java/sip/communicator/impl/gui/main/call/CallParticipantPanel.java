@@ -327,7 +327,7 @@ public class CallParticipantPanel
     }
 
     public void createSecurityPanel(
-        CallParticipantSecurityOnEvent event)
+        CallPeerSecurityOnEvent event)
     {
         Call call = callParticipant.getCall();
 

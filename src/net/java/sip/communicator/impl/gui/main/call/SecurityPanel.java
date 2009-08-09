@@ -94,7 +94,7 @@ public class SecurityPanel
         });
     }
 
-    public void refreshStates(CallParticipantSecurityOnEvent event)
+    public void refreshStates(CallPeerSecurityOnEvent event)
     {
         String securityString = event.getSecurityString();
 
