@@ -87,14 +87,14 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
-     * Create a new call and invite the specified CallParticipant to it.
+     * Create a new call and invite the specified CallPeer to it.
      *
      * @param callee the sip address of the callee that we should invite to a
      *            new call.
-     * @return CallParticipant the CallParticipant that will represented by the
+     * @return CallPeer the CallPeer that will represented by the
      *         specified uri. All following state change events will be
-     *         delivered through that call participant. The Call that this
-     *         participant is a member of could be retrieved from the
+     *         delivered through that call peer. The Call that this
+     *         peer is a member of could be retrieved from the
      *         CallParticipatn instance with the use of the corresponding
      *         method.
      * @throws OperationFailedException with the corresponding code if we fail
@@ -112,14 +112,14 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
-     * Create a new call and invite the specified CallParticipant to it.
+     * Create a new call and invite the specified CallPeer to it.
      *
      * @param callee the address of the callee that we should invite to a new
      *            call.
-     * @return CallParticipant the CallParticipant that will represented by the
+     * @return CallPeer the CallPeer that will represented by the
      *         specified uri. All following state change events will be
-     *         delivered through that call participant. The Call that this
-     *         participant is a member of could be retrieved from the
+     *         delivered through that call peer. The Call that this
+     *         peer is a member of could be retrieved from the
      *         CallParticipatn instance with the use of the corresponding
      *         method.
      * @throws OperationFailedException with the corresponding code if we fail
@@ -152,10 +152,10 @@ public class OperationSetBasicTelephonySipImpl
      *            outgoing call to be placed and which carries additional
      *            information to be included in the call initiation (e.g. a
      *            Referred-To header and token)
-     * @return CallParticipant the CallParticipant that will represented by the
+     * @return CallPeer the CallPeer that will represented by the
      *         specified uri. All following state change events will be
-     *         delivered through that call participant. The Call that this
-     *         participant is a member of could be retrieved from the
+     *         delivered through that call peer. The Call that this
+     *         peer is a member of could be retrieved from the
      *         CallParticipatn instance with the use of the corresponding
      *         method.
      *
@@ -246,20 +246,20 @@ public class OperationSetBasicTelephonySipImpl
                 OperationFailedException.INTERNAL_ERROR, ex);
         }
 
-        // create the call participant
-        CallPeerSipImpl callParticipant =
-            createCallParticipantFor(inviteTransaction, jainSipProvider);
+        // create the call peer
+        CallPeerSipImpl callPeer =
+            createCallPeerFor(inviteTransaction, jainSipProvider);
 
         // invite content
         try
         {
             CallSession callSession =
                 SipActivator.getMediaService().createCallSession(
-                    callParticipant.getCall());
-            ((CallSipImpl) callParticipant.getCall())
+                    callPeer.getCall());
+            ((CallSipImpl) callPeer.getCall())
                 .setMediaCallSession(callSession);
 
-            callSession.setSessionCreatorCallback(callParticipant);
+            callSession.setSessionCreatorCallback(callPeer);
 
             // if possible try to indicate the address of the callee so
             // that the media service can choose the most proper local
@@ -311,7 +311,7 @@ public class OperationSetBasicTelephonySipImpl
                 OperationFailedException.NETWORK_FAILURE, ex);
         }
 
-        return (CallSipImpl) callParticipant.getCall();
+        return (CallSipImpl) callPeer.getCall();
     }
 
     /**
@@ -362,50 +362,50 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
-     * Resumes communication with a call participant previously put on hold.
+     * Resumes communication with a call peer previously put on hold.
      *
-     * @param participant the call participant to put on hold.
+     * @param peer the call peer to put on hold.
      * @throws OperationFailedException
      */
-    public synchronized void putOffHold(CallPeer participant)
+    public synchronized void putOffHold(CallPeer peer)
         throws OperationFailedException
     {
-        putOnHold(participant, false);
+        putOnHold(peer, false);
     }
 
     /**
-     * Puts the specified CallParticipant "on hold".
+     * Puts the specified CallPeer "on hold".
      *
-     * @param participant the participant that we'd like to put on hold.
+     * @param peer the peer that we'd like to put on hold.
      * @throws OperationFailedException
      */
-    public synchronized void putOnHold(CallPeer participant)
+    public synchronized void putOnHold(CallPeer peer)
         throws OperationFailedException
     {
-        putOnHold(participant, true);
+        putOnHold(peer, true);
     }
 
     /**
-     * Puts the specified <tt>CallParticipant</tt> on or off hold.
+     * Puts the specified <tt>CallPeer</tt> on or off hold.
      *
-     * @param participant the <tt>CallParticipant</tt> to be put on or off hold
-     * @param on <tt>true</tt> to have the specified <tt>CallParticipant</tt>
+     * @param peer the <tt>CallPeer</tt> to be put on or off hold
+     * @param on <tt>true</tt> to have the specified <tt>CallPeer</tt>
      *            put on hold; <tt>false</tt>, otherwise
      * @throws OperationFailedException
      */
-    private void putOnHold(CallPeer participant, boolean on)
+    private void putOnHold(CallPeer peer, boolean on)
         throws OperationFailedException
     {
         CallSession callSession =
-            ((CallSipImpl) participant.getCall()).getMediaCallSession();
-        CallPeerSipImpl sipParticipant =
-            (CallPeerSipImpl) participant;
+            ((CallSipImpl) peer.getCall()).getMediaCallSession();
+        CallPeerSipImpl sipPeer =
+            (CallPeerSipImpl) peer;
 
         try
         {
-            sendInviteRequest(sipParticipant, callSession
+            sendInviteRequest(sipPeer, callSession
                 .createSdpDescriptionForHold(
-                    sipParticipant.getSdpDescription(), on));
+                    sipPeer.getSdpDescription(), on));
         }
         catch (MediaException ex)
         {
@@ -417,46 +417,46 @@ public class OperationSetBasicTelephonySipImpl
         /*
          * Putting on hold isn't a negotiation (i.e. the issuing side takes the
          * decision and executes it) so we're muting now regardless of the
-         * desire of the participant to accept the offer.
+         * desire of the peer to accept the offer.
          */
         callSession.putOnHold(on, true);
 
-        CallPeerState state = sipParticipant.getState();
+        CallPeerState state = sipPeer.getState();
         if (CallPeerState.ON_HOLD_LOCALLY.equals(state))
         {
             if (!on)
-                sipParticipant.setState(CallPeerState.CONNECTED);
+                sipPeer.setState(CallPeerState.CONNECTED);
         }
         else if (CallPeerState.ON_HOLD_MUTUALLY.equals(state))
         {
             if (!on)
-                sipParticipant.setState(CallPeerState.ON_HOLD_REMOTELY);
+                sipPeer.setState(CallPeerState.ON_HOLD_REMOTELY);
         }
         else if (CallPeerState.ON_HOLD_REMOTELY.equals(state))
         {
             if (on)
-                sipParticipant.setState(CallPeerState.ON_HOLD_MUTUALLY);
+                sipPeer.setState(CallPeerState.ON_HOLD_MUTUALLY);
         }
         else if (on)
         {
-            sipParticipant.setState(CallPeerState.ON_HOLD_LOCALLY);
+            sipPeer.setState(CallPeerState.ON_HOLD_LOCALLY);
         }
     }
 
     /**
      * Sends an invite request with a specific SDP offer (description) within
-     * the current <tt>Dialog</tt> with a specific call participant.
+     * the current <tt>Dialog</tt> with a specific call peer.
      *
-     * @param sipParticipant the SIP-specific call participant to send the
+     * @param sipPeer the SIP-specific call peer to send the
      *            invite to within the current <tt>Dialog</tt>
      * @param sdpOffer the description of the SDP offer to be made to the
-     *            specified call participant with the sent invite
+     *            specified call peer with the sent invite
      * @throws OperationFailedException
      */
-    void sendInviteRequest(CallPeerSipImpl sipParticipant,
+    void sendInviteRequest(CallPeerSipImpl sipPeer,
         String sdpOffer) throws OperationFailedException
     {
-        Dialog dialog = sipParticipant.getDialog();
+        Dialog dialog = sipPeer.getDialog();
         Request invite = createRequest(dialog, Request.INVITE);
 
         try
@@ -471,7 +471,7 @@ public class OperationSetBasicTelephonySipImpl
                 OperationFailedException.INTERNAL_ERROR, ex);
         }
 
-        sendRequest(sipParticipant.getJainSipProvider(), invite, dialog);
+        sendRequest(sipPeer.getJainSipProvider(), invite, dialog);
     }
 
     /**
@@ -748,15 +748,15 @@ public class OperationSetBasicTelephonySipImpl
                 || (responseStatusCode / 100 == 5)
                 || (responseStatusCode / 100 == 6))
             {
-                CallPeerSipImpl callParticipant =
-                    activeCallsRepository.findCallParticipant(clientTransaction
+                CallPeerSipImpl callPeer =
+                    activeCallsRepository.findCallPeer(clientTransaction
                         .getDialog());
 
                 logger.error("Received error: " + response.getStatusCode()
                     + " " + response.getReasonPhrase());
 
-                if (callParticipant != null)
-                    callParticipant.setState(CallPeerState.FAILED);
+                if (callPeer != null)
+                    callPeer.setState(CallPeerState.FAILED);
 
                 processed = true;
             }
@@ -791,7 +791,7 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
-     * Updates the call state of the corresponding call participant.
+     * Updates the call state of the corresponding call peer.
      *
      * @param clientTransaction the transaction in which the response was
      *            received.
@@ -801,26 +801,26 @@ public class OperationSetBasicTelephonySipImpl
         Response response)
     {
         Dialog dialog = clientTransaction.getDialog();
-        // find the call participant
-        CallPeerSipImpl callParticipant =
-            activeCallsRepository.findCallParticipant(dialog);
+        // find the call peer
+        CallPeerSipImpl callPeer =
+            activeCallsRepository.findCallPeer(dialog);
 
-        if (callParticipant == null)
+        if (callPeer == null)
         {
             logger.debug("Received a stray trying response.");
             return;
         }
 
         // change status
-        CallPeerState callParticipantState = callParticipant.getState();
-        if (!CallPeerState.CONNECTED.equals(callParticipantState)
-            && !CallPeerState.isOnHold(callParticipantState))
-            callParticipant.setState(CallPeerState.CONNECTING);
+        CallPeerState callPeerState = callPeer.getState();
+        if (!CallPeerState.CONNECTED.equals(callPeerState)
+            && !CallPeerState.isOnHold(callPeerState))
+            callPeer.setState(CallPeerState.CONNECTING);
     }
 
     /**
-     * Updates the call state of the corresponding call participant. We'll also
-     * try to extract any details here that might be of use for call participant
+     * Updates the call state of the corresponding call peer. We'll also
+     * try to extract any details here that might be of use for call peer
      * presentation and that we didn't have when establishing the call.
      *
      * @param clientTransaction the transaction in which the response was
@@ -831,11 +831,11 @@ public class OperationSetBasicTelephonySipImpl
         Response response)
     {
         Dialog dialog = clientTransaction.getDialog();
-        // find the call participant
-        CallPeerSipImpl callParticipant =
-            activeCallsRepository.findCallParticipant(dialog);
+        // find the call peer
+        CallPeerSipImpl callPeer =
+            activeCallsRepository.findCallPeer(dialog);
 
-        if (callParticipant == null)
+        if (callPeer == null)
         {
             logger.debug("Received a stray trying response.");
             return;
@@ -853,12 +853,12 @@ public class OperationSetBasicTelephonySipImpl
 
             if (displayName != null && displayName.trim().length() > 0)
             {
-                callParticipant.setDisplayName(displayName);
+                callPeer.setDisplayName(displayName);
             }
         }
 
         // change status.
-        callParticipant.setState(CallPeerState.ALERTING_REMOTE_SIDE);
+        callPeer.setState(CallPeerState.ALERTING_REMOTE_SIDE);
     }
 
     /**
@@ -876,14 +876,14 @@ public class OperationSetBasicTelephonySipImpl
 
         Dialog dialog = clientTransaction.getDialog();
         // find the call
-        CallPeerSipImpl callParticipant =
-            activeCallsRepository.findCallParticipant(dialog);
+        CallPeerSipImpl callPeer =
+            activeCallsRepository.findCallPeer(dialog);
 
-        if (callParticipant.getState()
+        if (callPeer.getState()
                 == CallPeerState.CONNECTING_WITH_EARLY_MEDIA)
         {
             // This can happen if we are receiving early media for a second time.
-            logger.warn("Ignoring invite 183 since call participant is "
+            logger.warn("Ignoring invite 183 since call peer is "
                 + "already exchanging early media.");
             return;
         }
@@ -902,19 +902,19 @@ public class OperationSetBasicTelephonySipImpl
             || !contentTypeHeader.getContentSubType().equalsIgnoreCase("sdp"))
         {
             // This can happen if we are receiving early media for a second time.
-            logger.warn("Ignoring invite 183 since call participant is "
+            logger.warn("Ignoring invite 183 since call peer is "
                 + "already exchanging early media.");
             return;
         }
 
         // set sdp content before setting call state as that is where
         // listeners get alerted and they need the sdp
-        callParticipant.setSdpDescription(new String(sessionProgress
+        callPeer.setSdpDescription(new String(sessionProgress
             .getRawContent()));
 
         // notify the media manager of the sdp content
         CallSession callSession =
-            ((CallSipImpl) callParticipant.getCall()).getMediaCallSession();
+            ((CallSipImpl) callPeer.getCall()).getMediaCallSession();
 
         if (callSession == null)
         {
@@ -926,24 +926,24 @@ public class OperationSetBasicTelephonySipImpl
 
         try
         {
-            callSession.processSdpAnswer(callParticipant, new String(
+            callSession.processSdpAnswer(callPeer, new String(
                 sessionProgress.getRawContent()));
         }
         catch (ParseException exc)
         {
-            logErrorAndFailCallParticipant(
+            logErrorAndFailCallPeer(
                 "There was an error parsing the SDP description of "
-                    + callParticipant.getDisplayName() + "("
-                    + callParticipant.getAddress() + ")", exc, callParticipant);
+                    + callPeer.getDisplayName() + "("
+                    + callPeer.getAddress() + ")", exc, callPeer);
             return;
         }
         catch (MediaException exc)
         {
-            logErrorAndFailCallParticipant(
+            logErrorAndFailCallPeer(
                 "We failed to process the SDP description of "
-                    + callParticipant.getDisplayName() + "("
-                    + callParticipant.getAddress() + ")" + ". Error was: "
-                    + exc.getMessage(), exc, callParticipant);
+                    + callPeer.getDisplayName() + "("
+                    + callPeer.getAddress() + ")" + ". Error was: "
+                    + exc.getMessage(), exc, callPeer);
             return;
         }
 
@@ -951,15 +951,15 @@ public class OperationSetBasicTelephonySipImpl
         /**
          * @todo this should be done in CallSession, once we move it here.
          */
-        callParticipant.setCallInfoURL(callSession.getCallInfoURL());
+        callPeer.setCallInfoURL(callSession.getCallInfoURL());
 
         // change status
-        callParticipant
+        callPeer
             .setState(CallPeerState.CONNECTING_WITH_EARLY_MEDIA);
     }
 
     /**
-     * Sets to CONNECTED that state of the corresponding call participant and
+     * Sets to CONNECTED that state of the corresponding call peer and
      * sends an ACK.
      *
      * @param clientTransaction the <tt>ClientTransaction</tt> that the response
@@ -971,10 +971,10 @@ public class OperationSetBasicTelephonySipImpl
     {
         Dialog dialog = clientTransaction.getDialog();
         // find the call
-        CallPeerSipImpl callParticipant =
-            activeCallsRepository.findCallParticipant(dialog);
+        CallPeerSipImpl callPeer =
+            activeCallsRepository.findCallPeer(dialog);
 
-        if (callParticipant == null)
+        if (callPeer == null)
         {
 
             /*
@@ -990,14 +990,14 @@ public class OperationSetBasicTelephonySipImpl
             while (activeCallsIter.hasNext())
             {
                 CallSipImpl activeCall = activeCallsIter.next();
-                Iterator<CallPeer> callParticipantsIter =
+                Iterator<CallPeer> callPeersIter =
                     activeCall.getCallPeers();
-                while (callParticipantsIter.hasNext())
+                while (callPeersIter.hasNext())
                 {
                     CallPeerSipImpl cp =
-                        (CallPeerSipImpl) callParticipantsIter.next();
+                        (CallPeerSipImpl) callPeersIter.next();
                     Dialog callPartDialog = cp.getDialog();
-                    // check if participant in same call
+                    // check if peer in same call
                     // and has the same transaction
                     if (callPartDialog != null
                         && callPartDialog.getCallId() != null
@@ -1008,13 +1008,13 @@ public class OperationSetBasicTelephonySipImpl
                             cp.getFirstTransaction().getBranchId()))
                     {
                         // change to the forked dialog
-                        callParticipant = cp;
+                        callPeer = cp;
                         cp.setDialog(dialog);
                     }
                 }
             }
 
-            if (callParticipant == null)
+            if (callPeer == null)
             {
                 logger.debug("Received a stray ok response.");
                 return;
@@ -1022,7 +1022,7 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         /*
-         * Receiving an Invite OK is allowed even when the participant is
+         * Receiving an Invite OK is allowed even when the peer is
          * already connected. Examples include call hold, enabling/disabling the
          * streaming of local video while in a call.
          */
@@ -1048,23 +1048,23 @@ public class OperationSetBasicTelephonySipImpl
         catch (ParseException ex)
         {
             // Shouldn't happen
-            logErrorAndFailCallParticipant(
+            logErrorAndFailCallPeer(
                 "Failed to create a content type header for the ACK request",
-                ex, callParticipant);
+                ex, callPeer);
             return;
         }
         catch (InvalidArgumentException ex)
         {
             // Shouldn't happen
-            logErrorAndFailCallParticipant(
+            logErrorAndFailCallPeer(
                 "Failed ACK request, problem with the supplied cseq", ex,
-                callParticipant);
+                callPeer);
             return;
         }
         catch (SipException ex)
         {
-            logErrorAndFailCallParticipant("Failed to create ACK request!", ex,
-                callParticipant);
+            logErrorAndFailCallPeer("Failed to create ACK request!", ex,
+                callPeer);
             return;
         }
 
@@ -1072,12 +1072,12 @@ public class OperationSetBasicTelephonySipImpl
         // listeners get alerted and they need the sdp
         // ignore sdp if we have already received one in early media
         if(!CallPeerState.CONNECTING_WITH_EARLY_MEDIA
-               .equals(callParticipant.getState()))
-            callParticipant.setSdpDescription(new String(ok.getRawContent()));
+               .equals(callPeer.getState()))
+            callPeer.setSdpDescription(new String(ok.getRawContent()));
 
         // notify the media manager of the sdp content
         CallSession callSession =
-            ((CallSipImpl) callParticipant.getCall()).getMediaCallSession();
+            ((CallSipImpl) callPeer.getCall()).getMediaCallSession();
 
         try
         {
@@ -1090,15 +1090,15 @@ public class OperationSetBasicTelephonySipImpl
                     // the answer.
                     callSession =
                         SipActivator.getMediaService().createCallSession(
-                            callParticipant.getCall());
+                            callPeer.getCall());
 
                     callSession
-                        .setSessionCreatorCallback(callParticipant);
+                        .setSessionCreatorCallback(callPeer);
 
                     String sdp
                         = callSession.processSdpOffer(
-                                callParticipant,
-                                callParticipant.getSdpDescription());
+                                callPeer,
+                                callPeer.getSdpDescription());
                     ack.setContent(sdp, contentTypeHeader);
 
                     // set the call url in case there was one
@@ -1106,7 +1106,7 @@ public class OperationSetBasicTelephonySipImpl
                      * @todo this should be done in CallSession, once we move it
                      *       here.
                      */
-                    callParticipant
+                    callPeer
                         .setCallInfoURL(callSession.getCallInfoURL());
                 }
             }
@@ -1121,8 +1121,8 @@ public class OperationSetBasicTelephonySipImpl
                 }
                 catch (SipException ex)
                 {
-                    logErrorAndFailCallParticipant(
-                        "Failed to acknowledge call!", ex, callParticipant);
+                    logErrorAndFailCallPeer(
+                        "Failed to acknowledge call!", ex, callPeer);
                     return;
                 }
             }
@@ -1134,62 +1134,62 @@ public class OperationSetBasicTelephonySipImpl
              * the SDP (e.g. because of re-negotiating the media after toggling
              * the streaming of local video).
              */
-            CallPeerState callParticipantState =
-                callParticipant.getState();
+            CallPeerState callPeerState =
+                callPeer.getState();
             if (!CallPeerState.CONNECTING_WITH_EARLY_MEDIA
-                    .equals(callParticipantState))
+                    .equals(callPeerState))
             {
                 callSession.processSdpAnswer(
-                    callParticipant,
-                    callParticipant.getSdpDescription());
+                    callPeer,
+                    callPeer.getSdpDescription());
             }
 
             // set the call url in case there was one
             /**
              * @todo this should be done in CallSession, once we move it here.
              */
-            callParticipant.setCallInfoURL(callSession.getCallInfoURL());
+            callPeer.setCallInfoURL(callSession.getCallInfoURL());
         }
         //at this point we have already sent our ack so in addition to logging
-        //an error we also need to hangup the call participant.
+        //an error we also need to hangup the call peer.
         catch (Exception exc)//Media or parse exception.
         {
             logger.error("There was an error parsing the SDP description of "
-                             + callParticipant.getDisplayName()
-                             + "(" + callParticipant.getAddress() + ")",
+                             + callPeer.getDisplayName()
+                             + "(" + callPeer.getAddress() + ")",
                          exc);
             try
             {
                 //we are connected from a SIP point of view (cause we sent our
                 //ack) so make sure we set the state accordingly or the hangup
                 //method won't know how to end the call.
-                callParticipant.setState(CallPeerState.CONNECTED);
-                hangupCallPeer(callParticipant);
+                callPeer.setState(CallPeerState.CONNECTED);
+                hangupCallPeer(callPeer);
             }
             catch (Exception e)
             {
                 //I don't see what more we could do.
                 logger.error(e);
-                callParticipant.setState(CallPeerState.FAILED,
+                callPeer.setState(CallPeerState.FAILED,
                                          e.getMessage());
             }
             return;
         }
 
         // change status
-        if (!CallPeerState.isOnHold(callParticipant.getState()))
-            callParticipant.setState(CallPeerState.CONNECTED);
+        if (!CallPeerState.isOnHold(callPeer.getState()))
+            callPeer.setState(CallPeerState.CONNECTED);
     }
 
-    private void logErrorAndFailCallParticipant(String message,
-        Throwable throwable, CallPeerSipImpl participant)
+    private void logErrorAndFailCallPeer(String message,
+        Throwable throwable, CallPeerSipImpl peer)
     {
         logger.error(message, throwable);
-        participant.setState(CallPeerState.FAILED, message);
+        peer.setState(CallPeerState.FAILED, message);
     }
 
     /**
-     * Sets corresponding state to the call participant associated with this
+     * Sets corresponding state to the call peer associated with this
      * transaction.
      *
      * @param clientTransaction the transaction in which
@@ -1200,17 +1200,17 @@ public class OperationSetBasicTelephonySipImpl
     {
         Dialog dialog = clientTransaction.getDialog();
         // find the call
-        CallPeerSipImpl callParticipant =
-            activeCallsRepository.findCallParticipant(dialog);
+        CallPeerSipImpl callPeer =
+            activeCallsRepository.findCallPeer(dialog);
 
-        if (callParticipant == null)
+        if (callPeer == null)
         {
             logger.debug("Received a stray busyHere response.");
             return;
         }
 
         // change status
-        callParticipant.setState(CallPeerState.BUSY);
+        callPeer.setState(CallPeerState.BUSY);
     }
 
     /**
@@ -1225,16 +1225,16 @@ public class OperationSetBasicTelephonySipImpl
         ClientTransaction clientTransaction, Response response,
         SipProvider jainSipProvider)
     {
-        // First find the call and the call participant that this authentication
+        // First find the call and the call peer that this authentication
         // request concerns.
-        CallPeerSipImpl callParticipant =
-            activeCallsRepository.findCallParticipant(clientTransaction
+        CallPeerSipImpl callPeer =
+            activeCallsRepository.findCallPeer(clientTransaction
                 .getDialog());
 
-        if (callParticipant == null)
+        if (callPeer == null)
         {
             logger.debug("Received an authorization challenge for no "
-                + "participant. authorizing anyway.");
+                + "peer. authorizing anyway.");
         }
 
         try
@@ -1255,21 +1255,21 @@ public class OperationSetBasicTelephonySipImpl
             // that dialog and record it into the Call objet for later use (by
             // Bye-s for example).
             // if the request was BYE then we need to authorize it anyway even
-            // if the call and the call participant are no longer there
-            if (callParticipant != null)
+            // if the call and the call peer are no longer there
+            if (callPeer != null)
             {
-                callParticipant.setDialog(retryTran.getDialog());
-                callParticipant.setFirstTransaction(retryTran);
-                callParticipant.setJainSipProvider(jainSipProvider);
+                callPeer.setDialog(retryTran.getDialog());
+                callPeer.setFirstTransaction(retryTran);
+                callPeer.setJainSipProvider(jainSipProvider);
             }
             retryTran.sendRequest();
         }
         catch (Exception exc)
         {
             // tell the others we couldn't register
-            logErrorAndFailCallParticipant(
+            logErrorAndFailCallPeer(
                 "We failed to authenticate an INVITE request.", exc,
-                callParticipant);
+                callPeer);
             return;
         }
     }
@@ -1303,17 +1303,17 @@ public class OperationSetBasicTelephonySipImpl
             transaction = timeoutEvent.getClientTransaction();
         }
 
-        CallPeerSipImpl callParticipant =
-            activeCallsRepository.findCallParticipant(transaction.getDialog());
+        CallPeerSipImpl callPeer =
+            activeCallsRepository.findCallPeer(transaction.getDialog());
 
-        if (callParticipant == null)
+        if (callPeer == null)
         {
             logger.debug("Got a headless timeout event." + timeoutEvent);
             return false;
         }
 
         // change status
-        callParticipant.setState(CallPeerState.FAILED,
+        callPeer.setState(CallPeerState.FAILED,
             "The remote party has not replied!"
                 + "The call will be disconnected");
         return true;
@@ -1352,17 +1352,17 @@ public class OperationSetBasicTelephonySipImpl
     public boolean processDialogTerminated(
         DialogTerminatedEvent dialogTerminatedEvent)
     {
-        CallPeerSipImpl callParticipant =
-            activeCallsRepository.findCallParticipant(dialogTerminatedEvent
+        CallPeerSipImpl callPeer =
+            activeCallsRepository.findCallPeer(dialogTerminatedEvent
                 .getDialog());
 
-        if (callParticipant == null)
+        if (callPeer == null)
         {
             return false;
         }
 
         // change status
-        callParticipant.setState(CallPeerState.DISCONNECTED);
+        callPeer.setState(CallPeerState.DISCONNECTED);
         return true;
     }
 
@@ -1543,12 +1543,12 @@ public class OperationSetBasicTelephonySipImpl
                                Request invite)
     {
         Dialog dialog = serverTransaction.getDialog();
-        CallPeerSipImpl callParticipant =
-            activeCallsRepository.findCallParticipant(dialog);
+        CallPeerSipImpl callPeer =
+            activeCallsRepository.findCallPeer(dialog);
         int statusCode;
-        CallPeerSipImpl callParticipantToReplace = null;
+        CallPeerSipImpl callPeerToReplace = null;
 
-        if (callParticipant == null)
+        if (callPeer == null)
         {
             ReplacesHeader replacesHeader =
                 (ReplacesHeader) invite.getHeader(ReplacesHeader.NAME);
@@ -1561,15 +1561,15 @@ public class OperationSetBasicTelephonySipImpl
             else
             {
                 //this is a transfered call
-                List<CallPeerSipImpl> callParticipantsToReplace =
-                    activeCallsRepository.findCallParticipants(
+                List<CallPeerSipImpl> callPeersToReplace =
+                    activeCallsRepository.findCallPeers(
                         replacesHeader.getCallId(), replacesHeader.getToTag(),
                         replacesHeader.getFromTag());
 
-                if (callParticipantsToReplace.size() == 1)
+                if (callPeersToReplace.size() == 1)
                 {
                     statusCode = Response.OK;
-                    callParticipantToReplace = callParticipantsToReplace.get(0);
+                    callPeerToReplace = callPeersToReplace.get(0);
                 }
                 else
                 {
@@ -1577,10 +1577,10 @@ public class OperationSetBasicTelephonySipImpl
                 }
             }
 
-            logger.trace("Creating call participant.");
-            callParticipant =
-                createCallParticipantFor(serverTransaction, sourceProvider);
-            logger.trace("call participant created = " + callParticipant);
+            logger.trace("Creating call peer.");
+            callPeer =
+                createCallPeerFor(serverTransaction, sourceProvider);
+            logger.trace("call peer created = " + callPeer);
         }
         else
         {
@@ -1592,13 +1592,13 @@ public class OperationSetBasicTelephonySipImpl
         ContentLengthHeader cl = invite.getContentLength();
         if (cl != null && cl.getContentLength() > 0)
         {
-            callParticipant
+            callPeer
                 .setSdpDescription(new String(invite.getRawContent()));
         }
 
         if (!isInviteProperlyAddressed(dialog))
         {
-            callParticipant.setState(CallPeerState.FAILED,
+            callPeer.setState(CallPeerState.FAILED,
                 "A call was received here while it appeared "
                     + "destined to someone else. The call was rejected.");
 
@@ -1606,36 +1606,36 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         // INVITE w/ Replaces
-        if ((statusCode == Response.OK) && (callParticipantToReplace != null))
+        if ((statusCode == Response.OK) && (callPeerToReplace != null))
         {
             boolean sayBye = false;
 
             try
             {
-                answerCallPeer(callParticipant);
+                answerCallPeer(callPeer);
                 sayBye = true;
             }
             catch (OperationFailedException ex)
             {
                 logger.error(
-                    "Failed to auto-answer the referred call participant "
-                        + callParticipant, ex);
+                    "Failed to auto-answer the referred call peer "
+                        + callPeer, ex);
                 /*
                  * RFC 3891 says an appropriate error response MUST be returned
-                 * and callParticipantToReplace must be left unchanged.
+                 * and callPeerToReplace must be left unchanged.
                  */
             }
             if (sayBye)
             {
                 try
                 {
-                    hangupCallPeer(callParticipantToReplace);
+                    hangupCallPeer(callPeerToReplace);
                 }
                 catch (OperationFailedException ex)
                 {
                     logger.error("Failed to hangup the referer "
-                        + callParticipantToReplace, ex);
-                    callParticipantToReplace.setState(
+                        + callPeerToReplace, ex);
+                    callPeerToReplace.setState(
                         CallPeerState.FAILED, "Internal Error: " + ex);
                 }
             }
@@ -1687,13 +1687,13 @@ public class OperationSetBasicTelephonySipImpl
                 {
                     try
                     {
-                        processInviteSendingResponse(callParticipant, response);
+                        processInviteSendingResponse(callPeer, response);
                     }
                     catch (OperationFailedException ex)
                     {
                         logger.error("Error while trying to send response "
                             + response, ex);
-                        callParticipant.setState(CallPeerState.FAILED,
+                        callPeer.setState(CallPeerState.FAILED,
                             "Internal Error: " + ex.getMessage());
                         return;
                     }
@@ -1703,7 +1703,7 @@ public class OperationSetBasicTelephonySipImpl
         catch (ParseException ex)
         {
             logger.error("Error while trying to send a response", ex);
-            callParticipant.setState(CallPeerState.FAILED,
+            callPeer.setState(CallPeerState.FAILED,
                 "Internal Error: " + ex.getMessage());
             return;
         }
@@ -1717,7 +1717,7 @@ public class OperationSetBasicTelephonySipImpl
         catch (Exception ex)
         {
             logger.error("Error while trying to send a request", ex);
-            callParticipant.setState(CallPeerState.FAILED,
+            callPeer.setState(CallPeerState.FAILED,
                 "Internal Error: " + ex.getMessage());
             return;
         }
@@ -1726,7 +1726,7 @@ public class OperationSetBasicTelephonySipImpl
         {
             try
             {
-                processInviteSentResponse(callParticipant, response);
+                processInviteSentResponse(callPeer, response);
             }
             catch (OperationFailedException ex)
             {
@@ -1773,17 +1773,17 @@ public class OperationSetBasicTelephonySipImpl
     /**
      * Provides a hook for this instance to take last configuration steps on a
      * specific <tt>Response</tt> before it is sent to a specific
-     * <tt>CallParticipant</tt> as part of the execution of
+     * <tt>CallPeer</tt> as part of the execution of
      * {@link #processInvite(SipProvider, ServerTransaction, Request)}.
      *
-     * @param participant the <tt>CallParticipant</tt> to receive a specific
+     * @param peer the <tt>CallPeer</tt> to receive a specific
      *            <tt>Response</tt>
      * @param response the <tt>Response</tt> to be sent to the
-     *            <tt>participant</tt>
+     *            <tt>peer</tt>
      * @throws OperationFailedException
      * @throws ParseException
      */
-    private void processInviteSendingResponse(CallPeer participant,
+    private void processInviteSendingResponse(CallPeer peer,
         Response response) throws OperationFailedException, ParseException
     {
         /*
@@ -1792,15 +1792,15 @@ public class OperationSetBasicTelephonySipImpl
          */
 
         CallSession callSession =
-            ((CallSipImpl) participant.getCall()).getMediaCallSession();
+            ((CallSipImpl) peer.getCall()).getMediaCallSession();
 
         String sdpAnswer = null;
         try
         {
             sdpAnswer
                 = callSession.processSdpOffer(
-                        participant,
-                        ((CallPeerSipImpl) participant)
+                        peer,
+                        ((CallPeerSipImpl) peer)
                             .getSdpDescription());
         }
         catch (MediaException ex)
@@ -1819,17 +1819,17 @@ public class OperationSetBasicTelephonySipImpl
     /**
      * Provides a hook for this instance to take immediate steps after a
      * specific <tt>Response</tt> has been sent to a specific
-     * <tt>CallParticipant</tt> as part of the execution of
+     * <tt>CallPeer</tt> as part of the execution of
      * {@link #processInvite(SipProvider, ServerTransaction, Request)}.
      *
-     * @param participant the <tt>CallParticipant</tt> who was sent a specific
+     * @param peer the <tt>CallPeer</tt> who was sent a specific
      *            <tt>Response</tt>
      * @param response the <tt>Response</tt> that has just been sent to the
-     *            <tt>participant</tt>
+     *            <tt>peer</tt>
      * @throws OperationFailedException
      * @throws ParseException
      */
-    private void processInviteSentResponse(CallPeer participant,
+    private void processInviteSentResponse(CallPeer peer,
         Response response) throws OperationFailedException
     {
         /*
@@ -1838,16 +1838,16 @@ public class OperationSetBasicTelephonySipImpl
          */
 
         CallSession callSession =
-            ((CallSipImpl) participant.getCall()).getMediaCallSession();
-        CallPeerSipImpl sipParticipant =
-            (CallPeerSipImpl) participant;
+            ((CallSipImpl) peer.getCall()).getMediaCallSession();
+        CallPeerSipImpl sipPeer =
+            (CallPeerSipImpl) peer;
 
         int mediaFlags = 0;
         try
         {
             mediaFlags =
                 callSession
-                    .getSdpOfferMediaFlags(sipParticipant.getSdpDescription());
+                    .getSdpOfferMediaFlags(sipPeer.getSdpDescription());
         }
         catch (MediaException ex)
         {
@@ -1864,25 +1864,25 @@ public class OperationSetBasicTelephonySipImpl
 
         callSession.putOnHold(on, false);
 
-        CallPeerState state = sipParticipant.getState();
+        CallPeerState state = sipPeer.getState();
         if (CallPeerState.ON_HOLD_LOCALLY.equals(state))
         {
             if (on)
-                sipParticipant.setState(CallPeerState.ON_HOLD_MUTUALLY);
+                sipPeer.setState(CallPeerState.ON_HOLD_MUTUALLY);
         }
         else if (CallPeerState.ON_HOLD_MUTUALLY.equals(state))
         {
             if (!on)
-                sipParticipant.setState(CallPeerState.ON_HOLD_LOCALLY);
+                sipPeer.setState(CallPeerState.ON_HOLD_LOCALLY);
         }
         else if (CallPeerState.ON_HOLD_REMOTELY.equals(state))
         {
             if (!on)
-                sipParticipant.setState(CallPeerState.CONNECTED);
+                sipPeer.setState(CallPeerState.CONNECTED);
         }
         else if (on)
         {
-            sipParticipant.setState(CallPeerState.ON_HOLD_REMOTELY);
+            sipPeer.setState(CallPeerState.ON_HOLD_REMOTELY);
         }
 
         /*
@@ -1893,7 +1893,7 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
-     * Sets the state of the corresponding call participant to DISCONNECTED and
+     * Sets the state of the corresponding call peer to DISCONNECTED and
      * sends an OK response.
      *
      * @param serverTransaction the ServerTransaction the the BYE request
@@ -1905,10 +1905,10 @@ public class OperationSetBasicTelephonySipImpl
     {
         // find the call
         Dialog dialog = serverTransaction.getDialog();
-        CallPeerSipImpl callParticipant =
-            activeCallsRepository.findCallParticipant(dialog);
+        CallPeerSipImpl callPeer =
+            activeCallsRepository.findCallPeer(dialog);
 
-        if (callParticipant == null)
+        if (callPeer == null)
         {
             logger.debug("Received a stray bye request.");
             return;
@@ -1958,18 +1958,18 @@ public class OperationSetBasicTelephonySipImpl
         }
         if (dialogIsAlive)
         {
-            ((CallSipImpl) callParticipant.getCall()).getMediaCallSession()
+            ((CallSipImpl) callPeer.getCall()).getMediaCallSession()
                 .stopStreaming();
         }
         else
         {
-            callParticipant.setState(CallPeerState.DISCONNECTED);
+            callPeer.setState(CallPeerState.DISCONNECTED);
         }
     }
 
     /**
      * Updates the session description and sends the state of the corresponding
-     * call participant to CONNECTED.
+     * call peer to CONNECTED.
      *
      * @param serverTransaction the transaction that the Ack was received in.
      * @param ackRequest Request
@@ -1978,11 +1978,11 @@ public class OperationSetBasicTelephonySipImpl
                             Request ackRequest)
     {
         // find the call
-        CallPeerSipImpl participant
-            = activeCallsRepository.findCallParticipant(
+        CallPeerSipImpl peer
+            = activeCallsRepository.findCallPeer(
                     serverTransaction.getDialog());
 
-        if (participant == null)
+        if (peer == null)
         {
             // this is most probably the ack for a killed call - don't signal it
             logger.debug("didn't find an ack's call, returning");
@@ -1992,19 +1992,19 @@ public class OperationSetBasicTelephonySipImpl
         ContentLengthHeader contentLength = ackRequest.getContentLength();
         if ((contentLength != null) && (contentLength.getContentLength() > 0))
         {
-            participant.setSdpDescription(
+            peer.setSdpDescription(
                 new String(ackRequest.getRawContent()));
         }
 
         // change status
-        CallPeerState participantState = participant.getState();
-        if (!CallPeerState.isOnHold(participantState))
+        CallPeerState peerState = peer.getState();
+        if (!CallPeerState.isOnHold(peerState))
         {
-            if (CallPeerState.CONNECTED.equals(participantState))
+            if (CallPeerState.CONNECTED.equals(peerState))
             {
                 try
                 {
-                    ((CallSipImpl) participant.getCall())
+                    ((CallSipImpl) peer.getCall())
                         .getMediaCallSession()
                             .startStreamingAndProcessingMedia();
                 }
@@ -2017,12 +2017,12 @@ public class OperationSetBasicTelephonySipImpl
                 }
             }
             else
-                participant.setState(CallPeerState.CONNECTED);
+                peer.setState(CallPeerState.CONNECTED);
         }
     }
 
     /**
-     * Sets the state of the specifies call participant as DISCONNECTED.
+     * Sets the state of the specifies call peer as DISCONNECTED.
      *
      * @param serverTransaction the transaction that the cancel was received in.
      * @param cancelRequest the Request that we've just received.
@@ -2031,11 +2031,11 @@ public class OperationSetBasicTelephonySipImpl
                                Request cancelRequest)
     {
         // find the call
-        CallPeerSipImpl callParticipant =
-            activeCallsRepository.findCallParticipant(serverTransaction
+        CallPeerSipImpl callPeer =
+            activeCallsRepository.findCallPeer(serverTransaction
                 .getDialog());
 
-        if (callParticipant == null)
+        if (callPeer == null)
         {
             logger.debug("received a stray CANCEL req. ignoring");
             return;
@@ -2053,22 +2053,22 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (ParseException ex)
         {
-            logErrorAndFailCallParticipant(
+            logErrorAndFailCallPeer(
                 "Failed to create an OK Response to an CANCEL request.", ex,
-                callParticipant);
+                callPeer);
             return;
         }
         catch (Exception ex)
         {
-            logErrorAndFailCallParticipant(
+            logErrorAndFailCallPeer(
                 "Failed to send an OK Response to an CANCEL request.", ex,
-                callParticipant);
+                callPeer);
             return;
         }
         try
         {
             // stop the invite transaction as well
-            Transaction tran = callParticipant.getFirstTransaction();
+            Transaction tran = callPeer.getFirstTransaction();
             // should be server transaction and misplaced cancels should be
             // filtered by the stack but it doesn't hurt checking anyway
             if (!(tran instanceof ServerTransaction))
@@ -2078,13 +2078,13 @@ public class OperationSetBasicTelephonySipImpl
             }
 
             ServerTransaction inviteTran = (ServerTransaction) tran;
-            Request invite = callParticipant.getFirstTransaction().getRequest();
+            Request invite = callPeer.getFirstTransaction().getRequest();
             Response requestTerminated =
                 protocolProvider.getMessageFactory().createResponse(
                     Response.REQUEST_TERMINATED, invite);
             requestTerminated.setHeader(protocolProvider
                 .getSipCommUserAgentHeader());
-            protocolProvider.attachToTag(requestTerminated, callParticipant
+            protocolProvider.attachToTag(requestTerminated, callPeer
                 .getDialog());
             inviteTran.sendResponse(requestTerminated);
             if (logger.isDebugEnabled())
@@ -2103,12 +2103,12 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         // change status
-        callParticipant.setState(CallPeerState.DISCONNECTED);
+        callPeer.setState(CallPeerState.DISCONNECTED);
     }
 
     /**
      * Processes a specific REFER request i.e. attempts to transfer the
-     * call/call participant receiving the request to a specific transfer
+     * call/call peer receiving the request to a specific transfer
      * target.
      *
      * @param serverTransaction the <code>ServerTransaction</code> containing
@@ -2316,10 +2316,10 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         Dialog dialog = serverTransaction.getDialog();
-        CallPeerSipImpl participant
-            = activeCallsRepository.findCallParticipant(dialog);
+        CallPeerSipImpl peer
+            = activeCallsRepository.findCallPeer(dialog);
 
-        if (participant == null)
+        if (peer == null)
         {
             logger.debug("Received a stray refer NOTIFY request.");
             return false;
@@ -2337,7 +2337,7 @@ public class OperationSetBasicTelephonySipImpl
                 "Failed to create OK response to refer NOTIFY request.";
 
             logger.error(message, ex);
-            participant.setState(CallPeerState.DISCONNECTED, message);
+            peer.setState(CallPeerState.DISCONNECTED, message);
             return false;
         }
         try
@@ -2350,7 +2350,7 @@ public class OperationSetBasicTelephonySipImpl
                 "Failed to send OK response to refer NOTIFY request.";
 
             logger.error(message, ex);
-            participant.setState(CallPeerState.DISCONNECTED, message);
+            peer.setState(CallPeerState.DISCONNECTED, message);
             return false;
         }
 
@@ -2358,16 +2358,16 @@ public class OperationSetBasicTelephonySipImpl
             && !DialogUtils
                 .removeSubscriptionThenIsDialogAlive(dialog, "refer"))
         {
-            participant.setState(CallPeerState.DISCONNECTED);
+            peer.setState(CallPeerState.DISCONNECTED);
         }
 
-        if (!CallPeerState.DISCONNECTED.equals(participant.getState())
+        if (!CallPeerState.DISCONNECTED.equals(peer.getState())
             && !DialogUtils.isByeProcessed(dialog))
         {
             boolean dialogIsAlive;
             try
             {
-                dialogIsAlive = sayBye(participant);
+                dialogIsAlive = sayBye(peer);
             }
             catch (OperationFailedException ex)
             {
@@ -2378,7 +2378,7 @@ public class OperationSetBasicTelephonySipImpl
             }
             if (!dialogIsAlive)
             {
-                participant.setState(CallPeerState.DISCONNECTED);
+                peer.setState(CallPeerState.DISCONNECTED);
             }
         }
 
@@ -2453,11 +2453,11 @@ public class OperationSetBasicTelephonySipImpl
         if (!DialogUtils.removeSubscriptionThenIsDialogAlive(dialog,
             subscription))
         {
-            CallPeerSipImpl callParticipant =
-                activeCallsRepository.findCallParticipant(dialog);
-            if (callParticipant != null)
+            CallPeerSipImpl callPeer =
+                activeCallsRepository.findCallPeer(dialog);
+            if (callPeer != null)
             {
-                callParticipant.setState(CallPeerState.DISCONNECTED);
+                callPeer.setState(CallPeerState.DISCONNECTED);
             }
         }
         return true;
@@ -2604,118 +2604,118 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Indicates a user request to end a call with the specified call
-     * participant. Depending on the state of the call the method would send a
+     * peer. Depending on the state of the call the method would send a
      * CANCEL, BYE, or BUSY_HERE and set the new state to DISCONNECTED.
      *
-     * @param participant the participant that we'd like to hang up on.
-     * @throws ClassCastException if participant is not an instance of this
-     *             CallParticipantSipImpl.
+     * @param peer the peer that we'd like to hang up on.
+     * @throws ClassCastException if peer is not an instance of this
+     *             CallPeerSipImpl.
      * @throws OperationFailedException if we fail to terminate the call.
      */
-    public synchronized void hangupCallPeer(CallPeer participant)
+    public synchronized void hangupCallPeer(CallPeer peer)
         throws ClassCastException,
         OperationFailedException
     {
         // do nothing if the call is already ended
-        if (participant.getState().equals(CallPeerState.DISCONNECTED)
-            || participant.getState().equals(CallPeerState.FAILED))
+        if (peer.getState().equals(CallPeerState.DISCONNECTED)
+            || peer.getState().equals(CallPeerState.FAILED))
         {
-            logger.debug("Ignoring a request to hangup a call participant "
+            logger.debug("Ignoring a request to hangup a call peer "
                 + "that is already DISCONNECTED");
             return;
         }
 
-        CallPeerSipImpl callParticipant =
-            (CallPeerSipImpl) participant;
+        CallPeerSipImpl callPeer =
+            (CallPeerSipImpl) peer;
 
-        CallPeerState participantState = callParticipant.getState();
-        if (participantState.equals(CallPeerState.CONNECTED)
-            || CallPeerState.isOnHold(participantState))
+        CallPeerState peerState = callPeer.getState();
+        if (peerState.equals(CallPeerState.CONNECTED)
+            || CallPeerState.isOnHold(peerState))
         {
-            sayBye(callParticipant);
-            callParticipant.setState(CallPeerState.DISCONNECTED);
+            sayBye(callPeer);
+            callPeer.setState(CallPeerState.DISCONNECTED);
         }
-        else if (callParticipant.getState().equals(
+        else if (callPeer.getState().equals(
             CallPeerState.CONNECTING)
-            || callParticipant.getState().equals(
+            || callPeer.getState().equals(
                 CallPeerState.CONNECTING_WITH_EARLY_MEDIA)
-            || callParticipant.getState().equals(
+            || callPeer.getState().equals(
                 CallPeerState.ALERTING_REMOTE_SIDE))
         {
-            if (callParticipant.getFirstTransaction() != null)
+            if (callPeer.getFirstTransaction() != null)
             {
                 // Someone knows about us. Let's be polite and say we are
                 // leaving
-                sayCancel(callParticipant);
+                sayCancel(callPeer);
             }
-            callParticipant.setState(CallPeerState.DISCONNECTED);
+            callPeer.setState(CallPeerState.DISCONNECTED);
         }
-        else if (participantState.equals(CallPeerState.INCOMING_CALL))
+        else if (peerState.equals(CallPeerState.INCOMING_CALL))
         {
-            callParticipant.setState(CallPeerState.DISCONNECTED);
-            sayBusyHere(callParticipant);
+            callPeer.setState(CallPeerState.DISCONNECTED);
+            sayBusyHere(callPeer);
         }
         // For FAILE and BUSY we only need to update CALL_STATUS
-        else if (participantState.equals(CallPeerState.BUSY))
+        else if (peerState.equals(CallPeerState.BUSY))
         {
-            callParticipant.setState(CallPeerState.DISCONNECTED);
+            callPeer.setState(CallPeerState.DISCONNECTED);
         }
-        else if (participantState.equals(CallPeerState.FAILED))
+        else if (peerState.equals(CallPeerState.FAILED))
         {
-            callParticipant.setState(CallPeerState.DISCONNECTED);
+            callPeer.setState(CallPeerState.DISCONNECTED);
         }
         else
         {
-            callParticipant.setState(CallPeerState.DISCONNECTED);
-            logger.error("Could not determine call participant state!");
+            callPeer.setState(CallPeerState.DISCONNECTED);
+            logger.error("Could not determine call peer state!");
         }
     } // end call
 
     /**
-     * Sends an Internal Error response to <tt>callParticipant</tt>.
+     * Sends an Internal Error response to <tt>callPeer</tt>.
      *
-     * @param callParticipant the call participant that we need to say bye to.
+     * @param callPeer the call peer that we need to say bye to.
      *
      * @throws OperationFailedException if we failed constructing or sending a
      *             SIP Message.
      */
-    public void sayInternalError(CallPeerSipImpl callParticipant)
+    public void sayInternalError(CallPeerSipImpl callPeer)
         throws OperationFailedException
     {
-        sayError(callParticipant, Response.SERVER_INTERNAL_ERROR);
+        sayError(callPeer, Response.SERVER_INTERNAL_ERROR);
     }
 
     /**
      * Send an error response with the <tt>errorCode</tt> code to
-     * <tt>callParticipant</tt>.
+     * <tt>callPeer</tt>.
      *
-     * @param callParticipant the call participant that we need to say bye to.
+     * @param callPeer the call peer that we need to say bye to.
      * @param errorCode the code that the response should have.
      *
      * @throws OperationFailedException if we failed constructing or sending a
      *             SIP Message.
      */
-    public void sayError(CallPeerSipImpl callParticipant,
+    public void sayError(CallPeerSipImpl callPeer,
                          int errorCode)
         throws OperationFailedException
     {
-        Dialog dialog = callParticipant.getDialog();
-        callParticipant.setState(CallPeerState.FAILED);
+        Dialog dialog = callPeer.getDialog();
+        callPeer.setState(CallPeerState.FAILED);
         if (dialog == null)
         {
-            logger.error("Failed to extract participant's associated dialog! "
+            logger.error("Failed to extract peer's associated dialog! "
                 + "Ending Call!");
             throw new OperationFailedException(
-                "Failed to extract participant's associated dialog! "
+                "Failed to extract peer's associated dialog! "
                     + "Ending Call!", OperationFailedException.INTERNAL_ERROR);
         }
-        Transaction transaction = callParticipant.getFirstTransaction();
+        Transaction transaction = callPeer.getFirstTransaction();
         if (transaction == null || !dialog.isServer())
         {
             logger.error("Failed to extract a transaction"
                 + " from the call's associated dialog!");
             throw new OperationFailedException(
-                "Failed to extract a transaction from the participant's "
+                "Failed to extract a transaction from the peer's "
                     + "associated dialog!",
                 OperationFailedException.INTERNAL_ERROR);
         }
@@ -2726,7 +2726,7 @@ public class OperationSetBasicTelephonySipImpl
         {
             errorResponse =
                 protocolProvider.getMessageFactory().createResponse(errorCode,
-                    callParticipant.getFirstTransaction().getRequest());
+                    callPeer.getFirstTransaction().getRequest());
             protocolProvider.attachToTag(errorResponse, dialog);
         }
         catch (ParseException ex)
@@ -2754,19 +2754,19 @@ public class OperationSetBasicTelephonySipImpl
     } // internal error
 
     /**
-     * Sends a BYE request to <tt>callParticipant</tt>.
+     * Sends a BYE request to <tt>callPeer</tt>.
      *
-     * @param callParticipant the call participant that we need to say bye to.
+     * @param callPeer the call peer that we need to say bye to.
      * @return <tt>true</tt> if the <code>Dialog</code> should be considered
      *         alive after sending the BYE request (e.g. when there're still
      *         active subscriptions); <tt>false</tt>, otherwise
      * @throws OperationFailedException if we failed constructing or sending a
      *             SIP Message.
      */
-    private boolean sayBye(CallPeerSipImpl callParticipant)
+    private boolean sayBye(CallPeerSipImpl callPeer)
         throws OperationFailedException
     {
-        Dialog dialog = callParticipant.getDialog();
+        Dialog dialog = callPeer.getDialog();
 
         Request bye = null;
         try
@@ -2788,7 +2788,7 @@ public class OperationSetBasicTelephonySipImpl
                 OperationFailedException.INTERNAL_ERROR, ex);
         }
 
-        sendRequest(callParticipant.getJainSipProvider(), bye, dialog);
+        sendRequest(callPeer.getJainSipProvider(), bye, dialog);
 
         /*
          * Let subscriptions such as the ones associated with REFER requests
@@ -2809,17 +2809,17 @@ public class OperationSetBasicTelephonySipImpl
     } // bye
 
     /**
-     * Sends a Cancel request to <tt>callParticipant</tt>.
+     * Sends a Cancel request to <tt>callPeer</tt>.
      *
-     * @param callParticipant the call participant that we need to cancel.
+     * @param callPeer the call peer that we need to cancel.
      *
      * @throws OperationFailedException we failed to construct or send the
      *             CANCEL request.
      */
-    private void sayCancel(CallPeerSipImpl callParticipant)
+    private void sayCancel(CallPeerSipImpl callPeer)
         throws OperationFailedException
     {
-        if (callParticipant.getDialog().isServer())
+        if (callPeer.getDialog().isServer())
         {
             logger.error("Cannot cancel a server transaction");
             throw new OperationFailedException(
@@ -2828,12 +2828,12 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         ClientTransaction clientTransaction =
-            (ClientTransaction) callParticipant.getFirstTransaction();
+            (ClientTransaction) callPeer.getFirstTransaction();
         try
         {
             Request cancel = clientTransaction.createCancel();
             ClientTransaction cancelTransaction =
-                callParticipant.getJainSipProvider().getNewClientTransaction(
+                callPeer.getJainSipProvider().getNewClientTransaction(
                     cancel);
             cancelTransaction.sendRequest();
             logger.debug("sent request:\n" + cancel);
@@ -2846,17 +2846,17 @@ public class OperationSetBasicTelephonySipImpl
     } // cancel
 
     /**
-     * Sends a BUSY_HERE response to <tt>callParticipant</tt>.
+     * Sends a BUSY_HERE response to <tt>callPeer</tt>.
      *
-     * @param callParticipant the call participant that we need to send busy
+     * @param callPeer the call peer that we need to send busy
      *            tone to.
      * @throws OperationFailedException if we fail to create or send the
      *             response
      */
-    private void sayBusyHere(CallPeerSipImpl callParticipant)
+    private void sayBusyHere(CallPeerSipImpl callPeer)
         throws OperationFailedException
     {
-        Request request = callParticipant.getFirstTransaction().getRequest();
+        Request request = callPeer.getFirstTransaction().getRequest();
         Response busyHere = null;
         try
         {
@@ -2864,7 +2864,7 @@ public class OperationSetBasicTelephonySipImpl
                 protocolProvider.getMessageFactory().createResponse(
                     Response.BUSY_HERE, request);
             busyHere.setHeader(protocolProvider.getSipCommUserAgentHeader());
-            protocolProvider.attachToTag(busyHere, callParticipant.getDialog());
+            protocolProvider.attachToTag(busyHere, callPeer.getDialog());
         }
         catch (ParseException ex)
         {
@@ -2873,7 +2873,7 @@ public class OperationSetBasicTelephonySipImpl
                 OperationFailedException.INTERNAL_ERROR, ex);
         }
 
-        if (!callParticipant.getDialog().isServer())
+        if (!callPeer.getDialog().isServer())
         {
             logger.error("Cannot send BUSY_HERE in a client transaction");
             throw new OperationFailedException(
@@ -2881,7 +2881,7 @@ public class OperationSetBasicTelephonySipImpl
                 OperationFailedException.INTERNAL_ERROR);
         }
         ServerTransaction serverTransaction =
-            (ServerTransaction) callParticipant.getFirstTransaction();
+            (ServerTransaction) callPeer.getFirstTransaction();
 
         try
         {
@@ -2898,39 +2898,39 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Indicates a user request to answer an incoming call from the specified
-     * CallParticipant.
+     * CallPeer.
      *
-     * Sends an OK response to <tt>callParticipant</tt>. Make sure that the call
-     * participant contains an sdp description when you call this method.
+     * Sends an OK response to <tt>callPeer</tt>. Make sure that the call
+     * peer contains an sdp description when you call this method.
      *
-     * @param participant the call participant that we need to send the ok to.
+     * @param peer the call peer that we need to send the ok to.
      * @throws OperationFailedException if we fail to create or send the
      *             response.
      */
-    public synchronized void answerCallPeer(CallPeer participant)
+    public synchronized void answerCallPeer(CallPeer peer)
         throws OperationFailedException
     {
-        CallPeerSipImpl callParticipant =
-            (CallPeerSipImpl) participant;
-        Transaction transaction = callParticipant.getFirstTransaction();
-        Dialog dialog = callParticipant.getDialog();
+        CallPeerSipImpl callPeer =
+            (CallPeerSipImpl) peer;
+        Transaction transaction = callPeer.getFirstTransaction();
+        Dialog dialog = callPeer.getDialog();
 
         if (transaction == null || !dialog.isServer())
         {
-            callParticipant.setState(CallPeerState.DISCONNECTED);
+            callPeer.setState(CallPeerState.DISCONNECTED);
             throw new OperationFailedException(
                 "Failed to extract a ServerTransaction "
                     + "from the call's associated dialog!",
                 OperationFailedException.INTERNAL_ERROR);
         }
 
-        CallPeerState participantState = participant.getState();
+        CallPeerState peerState = peer.getState();
 
-        if (participantState.equals(CallPeerState.CONNECTED)
-            || CallPeerState.isOnHold(participantState))
+        if (peerState.equals(CallPeerState.CONNECTED)
+            || CallPeerState.isOnHold(peerState))
         {
-            logger.info("Ignoring user request to answer a CallParticipant "
-                + "that is already connected. CP:" + participant);
+            logger.info("Ignoring user request to answer a CallPeer "
+                + "that is already connected. CP:" + peer);
             return;
         }
 
@@ -2939,12 +2939,12 @@ public class OperationSetBasicTelephonySipImpl
         try
         {
             ok =
-                createOKResponse(callParticipant.getFirstTransaction()
+                createOKResponse(callPeer.getFirstTransaction()
                     .getRequest(), dialog);
         }
         catch (ParseException ex)
         {
-            callParticipant.setState(CallPeerState.DISCONNECTED);
+            callPeer.setState(CallPeerState.DISCONNECTED);
             throwOperationFailedException(
                 "Failed to construct an OK response to an INVITE request",
                 OperationFailedException.INTERNAL_ERROR, ex);
@@ -2963,7 +2963,7 @@ public class OperationSetBasicTelephonySipImpl
         catch (ParseException ex)
         {
             // Shouldn't happen
-            callParticipant.setState(CallPeerState.DISCONNECTED);
+            callPeer.setState(CallPeerState.DISCONNECTED);
             throwOperationFailedException(
                 "Failed to create a content type header for the OK response",
                 OperationFailedException.INTERNAL_ERROR, ex);
@@ -2973,25 +2973,25 @@ public class OperationSetBasicTelephonySipImpl
         {
             CallSession callSession =
                 SipActivator.getMediaService().createCallSession(
-                    callParticipant.getCall());
-            ((CallSipImpl) callParticipant.getCall())
+                    callPeer.getCall());
+            ((CallSipImpl) callPeer.getCall())
                 .setMediaCallSession(callSession);
 
-            callSession.setSessionCreatorCallback(callParticipant);
+            callSession.setSessionCreatorCallback(callPeer);
 
-            String sdpOffer = callParticipant.getSdpDescription();
+            String sdpOffer = callPeer.getSdpDescription();
             String sdp;
             // if the offer was in the invite create an sdp answer
             if ((sdpOffer != null) && (sdpOffer.length() > 0))
             {
-                sdp = callSession.processSdpOffer(callParticipant, sdpOffer);
+                sdp = callSession.processSdpOffer(callPeer, sdpOffer);
 
                 // set the call url in case there was one
                 /**
                  * @todo this should be done in CallSession, once we move it
                  *       here.
                  */
-                callParticipant.setCallInfoURL(callSession.getCallInfoURL());
+                callPeer.setCallInfoURL(callSession.getCallInfoURL());
             }
             // if there was no offer in the invite - create an offer
             else
@@ -3009,7 +3009,7 @@ public class OperationSetBasicTelephonySipImpl
                 "Failed to create an SDP description for an OK response "
                     + "to an INVITE request!",
                 ex);
-            this.sayError((CallPeerSipImpl) participant,
+            this.sayError((CallPeerSipImpl) peer,
                           Response.NOT_ACCEPTABLE_HERE);
         }
         catch (ParseException ex)
@@ -3020,7 +3020,7 @@ public class OperationSetBasicTelephonySipImpl
             logger.error(
                 "Failed to parse sdp data while creating invite request!",
                 ex);
-            this.sayError((CallPeerSipImpl) participant,
+            this.sayError((CallPeerSipImpl) peer,
                           Response.NOT_ACCEPTABLE_HERE);
         }
 
@@ -3035,7 +3035,7 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (Exception ex)
         {
-            callParticipant.setState(CallPeerState.DISCONNECTED);
+            callPeer.setState(CallPeerState.DISCONNECTED);
             throwOperationFailedException(
                 "Failed to send an OK response to an INVITE request",
                 OperationFailedException.NETWORK_FAILURE,
@@ -3066,35 +3066,35 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
-     * Creates a new call and call participant associated with
+     * Creates a new call and call peer associated with
      * <tt>containingTransaction</tt>
      *
      * @param containingTransaction the transaction that created the call.
      * @param sourceProvider the provider that the containingTransaction belongs
      *            to.
      *
-     * @return a new instance of a <tt>CallParticipantSipImpl</tt> corresponding
+     * @return a new instance of a <tt>CallPeerSipImpl</tt> corresponding
      *         to the <tt>containingTransaction</tt>.
      */
-    private CallPeerSipImpl createCallParticipantFor(
+    private CallPeerSipImpl createCallPeerFor(
         Transaction containingTransaction, SipProvider sourceProvider)
     {
         CallSipImpl call = new CallSipImpl(protocolProvider);
-        CallPeerSipImpl callParticipant =
+        CallPeerSipImpl callPeer =
             new CallPeerSipImpl(
                 containingTransaction.getDialog().getRemoteParty(),
                 call);
         boolean incomingCall =
             (containingTransaction instanceof ServerTransaction);
 
-        callParticipant.setState(
+        callPeer.setState(
              incomingCall ?
                  CallPeerState.INCOMING_CALL :
                  CallPeerState.INITIATING_CALL);
 
-        callParticipant.setDialog(containingTransaction.getDialog());
-        callParticipant.setFirstTransaction(containingTransaction);
-        callParticipant.setJainSipProvider(sourceProvider);
+        callPeer.setDialog(containingTransaction.getDialog());
+        callPeer.setFirstTransaction(containingTransaction);
+        callPeer.setJainSipProvider(sourceProvider);
 
         activeCallsRepository.addCall(call);
 
@@ -3103,7 +3103,7 @@ public class OperationSetBasicTelephonySipImpl
             incomingCall ? CallEvent.CALL_RECEIVED : CallEvent.CALL_INITIATED,
             call);
 
-        return callParticipant;
+        return callPeer;
     }
 
     /**
@@ -3135,21 +3135,20 @@ public class OperationSetBasicTelephonySipImpl
         {
             CallSipImpl call = activeCalls.next();
 
-            Iterator<CallPeer> callParticipants
-                                            = call.getCallPeers();
+            Iterator<CallPeer> callPeers  = call.getCallPeers();
 
-            // go through all call participants and say bye to every one.
-            while (callParticipants.hasNext())
+            // go through all call peers and say bye to every one.
+            while (callPeers.hasNext())
             {
-                CallPeer participant = callParticipants.next();
+                CallPeer peer = callPeers.next();
                 try
                 {
-                    this.hangupCallPeer(participant);
+                    this.hangupCallPeer(peer);
                 }
                 catch (Exception ex)
                 {
                     logger.warn("Failed to properly hangup particpant "
-                        + participant, ex);
+                        + peer, ex);
                 }
             }
         }
@@ -3157,54 +3156,53 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Sets the mute state of the audio stream being sent to a specific
-     * <tt>CallParticipant</tt>.
+     * <tt>CallPeer</tt>.
      * <p>
      * The implementation sends silence through the audio stream.
      * </p>
      *
-     * @param participant the <tt>CallParticipant</tt> who receives the audio
+     * @param peer the <tt>CallPeer</tt> who receives the audio
      *            stream to have its mute state set
      * @param mute <tt>true</tt> to mute the audio stream being sent to
-     *            <tt>participant</tt>; otherwise, <tt>false</tt>
+     *            <tt>peer</tt>; otherwise, <tt>false</tt>
      */
-    public void setMute(CallPeer participant, boolean mute)
+    public void setMute(CallPeer peer, boolean mute)
     {
-        CallPeerSipImpl sipParticipant
-            = (CallPeerSipImpl) participant;
+        CallPeerSipImpl sipPeer = (CallPeerSipImpl) peer;
 
-        ((CallSipImpl) sipParticipant.getCall())
+        ((CallSipImpl) sipPeer.getCall())
             .getMediaCallSession().setMute(mute);
 
-        sipParticipant.setMute(mute);
+        sipPeer.setMute(mute);
     }
 
     /**
      * Returns <code>true</code> to indicate that the call associated with the
-     * given participant is secured, otherwise returns <code>false</code>.
+     * given peer is secured, otherwise returns <code>false</code>.
      *
      * @return <code>true</code> to indicate that the call associated with the
-     * given participant is secured, otherwise returns <code>false</code>.
+     * given peer is secured, otherwise returns <code>false</code>.
      */
-    public boolean isSecure(CallPeer participant)
+    public boolean isSecure(CallPeer peer)
     {
         CallSession cs
-            = ((CallSipImpl) participant.getCall()).getMediaCallSession();
+            = ((CallSipImpl) peer.getCall()).getMediaCallSession();
 
         return (cs != null) && cs.getSecureCommunicationStatus();
     }
 
     /**
-     * Sets the SAS verification property value for the given call participant.
+     * Sets the SAS verification property value for the given call peer.
      *
-     * @param participant the call participant, for which we set the
+     * @param peer the call peer, for which we set the
      * @param isVerified indicates whether the SAS string is verified or not
-     * for the given participant.
+     * for the given peer.
      */
-    public boolean setSasVerified(  CallPeer participant,
+    public boolean setSasVerified(  CallPeer peer,
                                     boolean isVerified)
     {
         CallSession cs
-            = ((CallSipImpl) participant.getCall()).getMediaCallSession();
+            = ((CallSipImpl) peer.getCall()).getMediaCallSession();
 
         return (cs != null) && cs.setZrtpSASVerification(isVerified);
     }
@@ -3212,20 +3210,20 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Transfers (in the sense of call transfer) a specific
-     * <code>CallParticipant</code> to a specific callee address.
+     * <code>CallPeer</code> to a specific callee address.
      *
-     * @param participant the <code>CallParticipant</code> to be transfered to
+     * @param peer the <code>CallPeer</code> to be transfered to
      *            the specified callee address
      * @param target the <code>Address</code> the callee to transfer
-     *            <code>participant</code> to
+     *            <code>peer</code> to
      * @throws OperationFailedException
      */
-    private void transfer(CallPeer participant, Address target)
+    private void transfer(CallPeer peer, Address target)
         throws OperationFailedException
     {
-        CallPeerSipImpl sipParticipant =
-            (CallPeerSipImpl) participant;
-        Dialog dialog = sipParticipant.getDialog();
+        CallPeerSipImpl sipPeer =
+            (CallPeerSipImpl) peer;
+        Dialog dialog = sipPeer.getDialog();
         Request refer = createRequest(dialog, Request.REFER);
         HeaderFactory headerFactory = protocolProvider.getHeaderFactory();
 
@@ -3238,9 +3236,9 @@ public class OperationSetBasicTelephonySipImpl
          */
         refer.addHeader(
             ((HeaderFactoryImpl) headerFactory)
-                .createReferredByHeader(sipParticipant.getJainSipAddress()));
+                .createReferredByHeader(sipPeer.getJainSipAddress()));
 
-        sendRequest(sipParticipant.getJainSipProvider(), refer, dialog);
+        sendRequest(sipPeer.getJainSipProvider(), refer, dialog);
     }
 
     /*
@@ -3248,10 +3246,10 @@ public class OperationSetBasicTelephonySipImpl
      *
      * @see
      * net.java.sip.communicator.service.protocol.OperationSetAdvancedTelephony
-     * #transfer(net.java.sip.communicator.service.protocol.CallParticipant,
-     * net.java.sip.communicator.service.protocol.CallParticipant)
+     * #transfer(net.java.sip.communicator.service.protocol.CallPeer,
+     * net.java.sip.communicator.service.protocol.CallPeer)
      */
-    public void transfer(CallPeer participant, CallPeer target)
+    public void transfer(CallPeer peer, CallPeer target)
         throws OperationFailedException
     {
         Address targetAddress = parseAddressString(target.getAddress());
@@ -3289,24 +3287,31 @@ public class OperationSetBasicTelephonySipImpl
                 OperationFailedException.INTERNAL_ERROR, ex);
         }
 
-        putOnHold(participant);
+        putOnHold(peer);
         putOnHold(target);
 
-        transfer(participant, targetAddress);
+        transfer(peer, targetAddress);
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * Transfers (in the sense of call transfer) a specific
+     * <code>CallPeer</code> to a specific callee address which already
+     * participates in an active <code>Call</code>.
+     * <p>
+     * The method is suitable for providing the implementation of attended call
+     * transfer (though no such requirement is imposed).
+     * </p>
      *
-     * @see
-     * net.java.sip.communicator.service.protocol.OperationSetAdvancedTelephony
-     * #transfer(net.java.sip.communicator.service.protocol.CallParticipant,
-     * String)
+     * @param peer the <code>CallPeer</code> to be transfered to
+     *            the specified callee address
+     * @param target the address in the form of <code>CallPeer</code> of
+     *            the callee to transfer <code>peer</code> to
+     * @throws OperationFailedException
      */
-    public void transfer(CallPeer participant, String target)
+    public void transfer(CallPeer peer, String target)
         throws OperationFailedException
     {
-        transfer(participant, parseAddressString(target));
+        transfer(peer, parseAddressString(target));
     }
 
     /**

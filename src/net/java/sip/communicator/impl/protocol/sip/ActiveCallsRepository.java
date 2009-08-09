@@ -131,7 +131,7 @@ public class ActiveCallsRepository
      * @return the call participant whose jain sip dialog is the same as the
      * specified or null if no such call participant was found.
      */
-    public CallPeerSipImpl findCallParticipant(Dialog dialog)
+    public CallPeerSipImpl findCallPeer(Dialog dialog)
     {
         if(dialog == null)
         {
@@ -173,7 +173,7 @@ public class ActiveCallsRepository
      *         instances with <code>Dialog</code>s matching the specified
      *         CallID, local and remote tags
      */
-    public List<CallPeerSipImpl> findCallParticipants(String callID,
+    public List<CallPeerSipImpl> findCallPeers(String callID,
             String localTag, String remoteTag)
     {
         if (logger.isTraceEnabled())
