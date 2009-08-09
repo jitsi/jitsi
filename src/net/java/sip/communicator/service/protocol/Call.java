@@ -123,14 +123,14 @@ public abstract class Call
      * Returns an iterator over all call participants.
      * @return an Iterator over all participants currently involved in the call.
      */
-    public abstract Iterator<CallPeer> getCallParticipants();
+    public abstract Iterator<CallPeer> getCallPeers();
 
     /**
      * Returns the number of participants currently associated with this call.
      * @return an <tt>int</tt> indicating the number of participants currently
      * associated with this call.
      */
-    public abstract int getCallParticipantsCount();
+    public abstract int getCallPeerCount();
 
     /**
      * Adds a call change listener to this call so that it could receive events
@@ -216,7 +216,7 @@ public abstract class Call
     public String toString()
     {
         return "Call: id=" + getCallID() + " participants="
-                           + getCallParticipantsCount();
+                           + getCallPeerCount();
     }
 
     /**

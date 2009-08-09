@@ -117,14 +117,14 @@ public class TestOperationSetBasicTelephonySipImpl
 
         //verify that call participants are properly created
         assertEquals("callAtP1.getCallParticipantsCount()"
-                     , 1, callAtP1.getCallParticipantsCount());
+                     , 1, callAtP1.getCallPeerCount());
         assertEquals("callAtP2.getCallParticipantsCount()"
-                     , 1, callAtP2.getCallParticipantsCount());
+                     , 1, callAtP2.getCallPeerCount());
 
         CallPeer participantAtP1
-            = (CallPeer)callAtP1.getCallParticipants().next();
+            = (CallPeer)callAtP1.getCallPeers().next();
         CallPeer participantAtP2
-            = (CallPeer)callAtP2.getCallParticipants().next();
+            = (CallPeer)callAtP2.getCallPeers().next();
 
         //now add listeners to the participants and make sure they have entered
         //the states they were expected to.
@@ -223,7 +223,7 @@ public class TestOperationSetBasicTelephonySipImpl
             = new CallStateEventCollector(callAtP2, CallState.CALL_ENDED);
 
         //Now make the caller CANCEL the call.
-        basicTelephonyP1.hangupCallParticipant(participantAtP1);
+        basicTelephonyP1.hangupCallPeer(participantAtP1);
 
         //wait for everything to happen
         call1Listener.waitForEvent(10000);
@@ -347,14 +347,14 @@ public class TestOperationSetBasicTelephonySipImpl
 
         //verify that call participants are properly created
         assertEquals("callAtP1.getCallParticipantsCount()"
-                     , 1, callAtP1.getCallParticipantsCount());
+                     , 1, callAtP1.getCallPeerCount());
         assertEquals("callAtP2.getCallParticipantsCount()"
-                     , 1, callAtP2.getCallParticipantsCount());
+                     , 1, callAtP2.getCallPeerCount());
 
         CallPeer participantAtP1
-            = (CallPeer)callAtP1.getCallParticipants().next();
+            = (CallPeer)callAtP1.getCallPeers().next();
         CallPeer participantAtP2
-            = (CallPeer)callAtP2.getCallParticipants().next();
+            = (CallPeer)callAtP2.getCallPeers().next();
 
         //now add listeners to the participants and make sure they have entered
         //the states they were expected to.
@@ -456,9 +456,9 @@ public class TestOperationSetBasicTelephonySipImpl
             = new CallStateEventCollector(callAtP2, CallState.CALL_ENDED);
 
         //Now make the caller CANCEL the call.
-        basicTelephonyP2.hangupCallParticipant(participantAtP2);
+        basicTelephonyP2.hangupCallPeer(participantAtP2);
         busyStateCollectorForPp1.waitForEvent(10000);
-        basicTelephonyP1.hangupCallParticipant(participantAtP1);
+        basicTelephonyP1.hangupCallPeer(participantAtP1);
 
         //wait for everything to happen
         call1Listener.waitForEvent(10000);
@@ -584,14 +584,14 @@ public class TestOperationSetBasicTelephonySipImpl
 
         //verify that call participants are properly created
         assertEquals("callAtP1.getCallParticipantsCount()"
-                     , 1, callAtP1.getCallParticipantsCount());
+                     , 1, callAtP1.getCallPeerCount());
         assertEquals("callAtP2.getCallParticipantsCount()"
-                     , 1, callAtP2.getCallParticipantsCount());
+                     , 1, callAtP2.getCallPeerCount());
 
         CallPeer participantAtP1
-            = (CallPeer)callAtP1.getCallParticipants().next();
+            = (CallPeer)callAtP1.getCallPeers().next();
         CallPeer participantAtP2
-            = (CallPeer)callAtP2.getCallParticipants().next();
+            = (CallPeer)callAtP2.getCallPeers().next();
 
         //now add listeners to the participants and make sure they have entered
         //the states they were expected to.
@@ -682,7 +682,7 @@ public class TestOperationSetBasicTelephonySipImpl
 
         //we will now anser the call and verify that both parties change states
         //accordingly.
-        basicTelephonyP2.answerCallParticipant(participantAtP2);
+        basicTelephonyP2.answerCallPeer(participantAtP2);
 
         stateCollectorForPp1.waitForEvent(10000);
         stateCollectorForPp2.waitForEvent(10000);
@@ -718,7 +718,7 @@ public class TestOperationSetBasicTelephonySipImpl
 
         //we will now end the call and verify that both parties change states
         //accordingly.
-        basicTelephonyP2.hangupCallParticipant(participantAtP2);
+        basicTelephonyP2.hangupCallPeer(participantAtP2);
 
         stateCollectorForPp1.waitForEvent(10000);
         stateCollectorForPp2.waitForEvent(10000);
@@ -876,7 +876,7 @@ public class TestOperationSetBasicTelephonySipImpl
                                             CallPeerState awaitedState)
         {
             this.listenedCallParticipant = callParticipant;
-            this.listenedCallParticipant.addCallParticipantListener(this);
+            this.listenedCallParticipant.addCallPeerListener(this);
             this.awaitedState = awaitedState;
         }
 
@@ -885,7 +885,7 @@ public class TestOperationSetBasicTelephonySipImpl
          *
          * @param event the event containing the source call.
          */
-        public void participantStateChanged(CallPeerChangeEvent event)
+        public void peerStateChanged(CallPeerChangeEvent event)
         {
             synchronized(this)
             {
@@ -936,7 +936,7 @@ public class TestOperationSetBasicTelephonySipImpl
                     logger.trace("Src participant is already in the awaited "
                                  + "state."
                                  + collectedEvents);
-                    listenedCallParticipant.removeCallParticipantListener(this);
+                    listenedCallParticipant.removeCallPeerListener(this);
                     return;
                 }
                 if(collectedEvents.size() > 0)
@@ -950,7 +950,7 @@ public class TestOperationSetBasicTelephonySipImpl
                         logger.trace("Event already received. " +
                                      collectedEvents);
                         listenedCallParticipant
-                            .removeCallParticipantListener(this);
+                            .removeCallPeerListener(this);
                         return;
                     }
                 }
@@ -965,7 +965,7 @@ public class TestOperationSetBasicTelephonySipImpl
                                      + waitFor + "ms.");
 
                     listenedCallParticipant
-                        .removeCallParticipantListener(this);
+                        .removeCallPeerListener(this);
                 }
                 catch (InterruptedException ex)
                 {

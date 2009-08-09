@@ -854,9 +854,9 @@ public class CallHistoryServiceImpl
         if(callRecord == null)
             return;
 
-        callParticipant.addCallParticipantListener(new CallPeerAdapter()
+        callParticipant.addCallPeerListener(new CallPeerAdapter()
         {
-            public void participantStateChanged(CallPeerChangeEvent evt)
+            public void peerStateChanged(CallPeerChangeEvent evt)
             {
                 if(evt.getNewValue().equals(CallPeerState.DISCONNECTED))
                     return;
@@ -980,7 +980,7 @@ public class CallHistoryServiceImpl
         currentCallRecords.add(newRecord);
 
         // if has already perticipants Dispatch them
-        Iterator<CallPeer> iter = sourceCall.getCallParticipants();
+        Iterator<CallPeer> iter = sourceCall.getCallPeers();
         while (iter.hasNext())
         {
             handleParticipantAdded(iter.next());

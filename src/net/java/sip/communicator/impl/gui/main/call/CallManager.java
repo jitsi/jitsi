@@ -59,7 +59,7 @@ public class CallManager
                 NotificationManager.INCOMING_CALL,
                 "",
                 "Incoming call received from: "
-                    + sourceCall.getCallParticipants().next());
+                    + sourceCall.getCallPeers().next());
         }
 
         /**
@@ -295,7 +295,7 @@ public class CallManager
         public void run()
         {
             ProtocolProviderService pps = call.getProtocolProvider();
-            Iterator<CallPeer> participants = call.getCallParticipants();
+            Iterator<CallPeer> participants = call.getCallPeers();
 
             while (participants.hasNext())
             {
@@ -306,7 +306,7 @@ public class CallManager
 
                 try
                 {
-                    telephony.answerCallParticipant(participant);
+                    telephony.answerCallPeer(participant);
                 }
                 catch (OperationFailedException e)
                 {
@@ -333,7 +333,7 @@ public class CallManager
         public void run()
         {
             ProtocolProviderService pps = call.getProtocolProvider();
-            Iterator<CallPeer> participants = call.getCallParticipants();
+            Iterator<CallPeer> participants = call.getCallPeers();
 
             while (participants.hasNext())
             {
@@ -344,7 +344,7 @@ public class CallManager
 
                 try
                 {
-                    telephony.hangupCallParticipant(participant);
+                    telephony.hangupCallPeer(participant);
                 }
                 catch (OperationFailedException e)
                 {

@@ -38,7 +38,7 @@ public class MockCall
      * @return an Iterator over all participants currently involved in the
      *   call.
      */
-    public Iterator getCallParticipants()
+    public Iterator getCallPeers()
     {
         return callParticipants.iterator();
     }
@@ -49,7 +49,7 @@ public class MockCall
      * @return an <tt>int</tt> indicating the number of participants
      *   currently associated with this call.
      */
-    public int getCallParticipantsCount()
+    public int getCallPeerCount()
     {
         return callParticipants.size();
     }
@@ -66,7 +66,7 @@ public class MockCall
         if(callParticipants.contains(callParticipant))
             return;
 
-        callParticipant.addCallParticipantListener(this);
+        callParticipant.addCallPeerListener(this);
 
         this.callParticipants.add(callParticipant);
 
@@ -89,7 +89,7 @@ public class MockCall
             return;
 
         this.callParticipants.remove(callParticipant);
-        callParticipant.removeCallParticipantListener(this);
+        callParticipant.removeCallPeerListener(this);
 
         fireCallParticipantEvent(
             callParticipant, CallPeerEvent.CALL_PEER_REMVOVED);
@@ -98,7 +98,7 @@ public class MockCall
             setCallState(CallState.CALL_ENDED);
     }
 
-    public void participantStateChanged(CallPeerChangeEvent evt)
+    public void peerStateChanged(CallPeerChangeEvent evt)
     {
         if ( ( (CallPeerState) evt.getNewValue())
             == CallPeerState.DISCONNECTED

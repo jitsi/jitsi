@@ -577,7 +577,7 @@ public class Mailbox
                 = (OperationSetBasicTelephony)call
                                 .getProtocolProvider().getOperationSet(
                                 OperationSetBasicTelephony.class);
-            Iterator participants = call.getCallParticipants();
+            Iterator participants = call.getCallPeers();
 
             while(participants.hasNext())
             {
@@ -586,7 +586,7 @@ public class Mailbox
 
                 try
                 {
-                    telephony.answerCallParticipant(participant);
+                    telephony.answerCallPeer(participant);
                 }
                 catch (OperationFailedException exc)
                 {
@@ -613,7 +613,7 @@ public class Mailbox
                                 OperationSetBasicTelephony.class);
             logger.info("Max Message Length Reached, Mailbox is"
                         +" disconnecting the call");
-            Iterator callParticipants = call.getCallParticipants();
+            Iterator callParticipants = call.getCallPeers();
 
             while(callParticipants.hasNext())
             {
@@ -622,7 +622,7 @@ public class Mailbox
 
                 try
                 {
-                    telephony.hangupCallParticipant(participant);
+                    telephony.hangupCallPeer(participant);
                 }
                 catch (OperationFailedException exc)
                 {

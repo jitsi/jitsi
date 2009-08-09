@@ -180,7 +180,7 @@ public class OperationSetVideoTelephonySipImpl
          * Once the local state has been modified, re-invite all
          * CallParticipants to re-negotiate the modified media setup.
          */
-        Iterator<CallPeer> participants = call.getCallParticipants();
+        Iterator<CallPeer> participants = call.getCallPeers();
         while (participants.hasNext())
         {
             CallPeerSipImpl participant

@@ -123,7 +123,7 @@ public class HoldButton
                         .getOperationSet(OperationSetBasicTelephony.class);
 
                 Iterator<CallPeer> participants
-                    = call.getCallParticipants();
+                    = call.getCallPeers();
 
                 while (participants.hasNext())
                 {

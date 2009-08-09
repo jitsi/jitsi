@@ -194,7 +194,7 @@ public class ActiveCallsRepository
             if (!callID.equals(call.getCallID()))
                 continue;
 
-            for (Iterator<CallPeer> callParticipantIter = call.getCallParticipants();
+            for (Iterator<CallPeer> callParticipantIter = call.getCallPeers();
                     callParticipantIter.hasNext();)
             {
                 CallPeerSipImpl callParticipant =

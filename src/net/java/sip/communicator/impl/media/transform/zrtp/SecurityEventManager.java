@@ -91,7 +91,7 @@ public class SecurityEventManager extends ZrtpUserCallback
         // participants. In the future the call participant would be passed
         // as a parameter to the SecurityEventManager.
         Iterator<CallPeer> callParticipants
-            = callSession.getCall().getCallParticipants();
+            = callSession.getCall().getCallPeers();
 
         while (callParticipants.hasNext())
         {

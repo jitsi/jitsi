@@ -288,7 +288,7 @@ public class TestMetaHistoryService
 
             Vector v = new Vector();
 
-            Iterator iter = newCall.getCallParticipants();
+            Iterator iter = newCall.getCallPeers();
             while (iter.hasNext())
             {
                 CallPeer item = (CallPeer) iter.next();
@@ -301,7 +301,7 @@ public class TestMetaHistoryService
             while (iter.hasNext())
             {
                 CallPeer item = (CallPeer) iter.next();
-                mockBTelphonyOpSet.hangupCallParticipant(item);
+                mockBTelphonyOpSet.hangupCallPeer(item);
             }
         }
         catch (Exception ex1)

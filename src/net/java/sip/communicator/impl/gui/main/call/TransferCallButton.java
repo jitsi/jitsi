@@ -178,7 +178,7 @@ public class TransferCallButton
             Call call = callIter.next();
 
             for (Iterator<CallPeer> participantIter =
-                call.getCallParticipants(); participantIter.hasNext();)
+                call.getCallPeers(); participantIter.hasNext();)
             {
                 CallPeer participant = participantIter.next();
 

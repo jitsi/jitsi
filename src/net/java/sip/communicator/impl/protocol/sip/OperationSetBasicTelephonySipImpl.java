@@ -991,7 +991,7 @@ public class OperationSetBasicTelephonySipImpl
             {
                 CallSipImpl activeCall = activeCallsIter.next();
                 Iterator<CallPeer> callParticipantsIter =
-                    activeCall.getCallParticipants();
+                    activeCall.getCallPeers();
                 while (callParticipantsIter.hasNext())
                 {
                     CallPeerSipImpl cp =
@@ -1164,7 +1164,7 @@ public class OperationSetBasicTelephonySipImpl
                 //ack) so make sure we set the state accordingly or the hangup
                 //method won't know how to end the call.
                 callParticipant.setState(CallPeerState.CONNECTED);
-                hangupCallParticipant(callParticipant);
+                hangupCallPeer(callParticipant);
             }
             catch (Exception e)
             {
@@ -1612,7 +1612,7 @@ public class OperationSetBasicTelephonySipImpl
 
             try
             {
-                answerCallParticipant(callParticipant);
+                answerCallPeer(callParticipant);
                 sayBye = true;
             }
             catch (OperationFailedException ex)
@@ -1629,7 +1629,7 @@ public class OperationSetBasicTelephonySipImpl
             {
                 try
                 {
-                    hangupCallParticipant(callParticipantToReplace);
+                    hangupCallPeer(callParticipantToReplace);
                 }
                 catch (OperationFailedException ex)
                 {
@@ -2612,7 +2612,7 @@ public class OperationSetBasicTelephonySipImpl
      *             CallParticipantSipImpl.
      * @throws OperationFailedException if we fail to terminate the call.
      */
-    public synchronized void hangupCallParticipant(CallPeer participant)
+    public synchronized void hangupCallPeer(CallPeer participant)
         throws ClassCastException,
         OperationFailedException
     {
@@ -2907,7 +2907,7 @@ public class OperationSetBasicTelephonySipImpl
      * @throws OperationFailedException if we fail to create or send the
      *             response.
      */
-    public synchronized void answerCallParticipant(CallPeer participant)
+    public synchronized void answerCallPeer(CallPeer participant)
         throws OperationFailedException
     {
         CallPeerSipImpl callParticipant =
@@ -3136,7 +3136,7 @@ public class OperationSetBasicTelephonySipImpl
             CallSipImpl call = activeCalls.next();
 
             Iterator<CallPeer> callParticipants
-                                            = call.getCallParticipants();
+                                            = call.getCallPeers();
 
             // go through all call participants and say bye to every one.
             while (callParticipants.hasNext())
@@ -3144,7 +3144,7 @@ public class OperationSetBasicTelephonySipImpl
                 CallPeer participant = callParticipants.next();
                 try
                 {
-                    this.hangupCallParticipant(participant);
+                    this.hangupCallPeer(participant);
                 }
                 catch (Exception ex)
                 {

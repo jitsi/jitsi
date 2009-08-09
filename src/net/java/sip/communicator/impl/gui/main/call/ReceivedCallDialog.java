@@ -122,7 +122,7 @@ public class ReceivedCallDialog
     private void initCallLabel(JLabel callLabel)
     {
         Iterator<CallPeer> participantsIter
-            = incomingCall.getCallParticipants();
+            = incomingCall.getCallPeers();
 
         boolean hasMoreParticipants = false;
         String text = "";

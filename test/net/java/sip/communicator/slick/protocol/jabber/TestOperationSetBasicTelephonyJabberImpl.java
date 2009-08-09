@@ -116,55 +116,55 @@ public class TestOperationSetBasicTelephonyJabberImpl
                      ,CallEvent.CALL_RECEIVED, callReceivedEvent.getEventID());
         assertNotNull("CallEvent.getSource()", callAtP2);
 
-        //verify that call participants are properly created
-        assertEquals("callAtP1.getCallParticipantsCount()"
-                     , 1, callAtP1.getCallParticipantsCount());
-        assertEquals("callAtP2.getCallParticipantsCount()"
-                     , 1, callAtP2.getCallParticipantsCount());
+        //verify that call peers are properly created
+        assertEquals("callAtP1.getCallPeerCount()"
+                     , 1, callAtP1.getCallPeerCount());
+        assertEquals("callAtP2.getCallPeerCount()"
+                     , 1, callAtP2.getCallPeerCount());
 
-        CallPeer participantAtP1
-            = (CallPeer)callAtP1.getCallParticipants().next();
-        CallPeer participantAtP2
-            = (CallPeer)callAtP2.getCallParticipants().next();
+        CallPeer peerAtP1
+            = (CallPeer)callAtP1.getCallPeers().next();
+        CallPeer peerAtP2
+            = (CallPeer)callAtP2.getCallPeers().next();
 
-        //now add listeners to the participants and make sure they have entered
+        //now add listeners to the peers and make sure they have entered
         //the states they were expected to.
-        //check states for call participants at both parties
-        CallParticipantStateEventCollector stateCollectorForPp1
-            = new CallParticipantStateEventCollector(
-                participantAtP1, CallPeerState.ALERTING_REMOTE_SIDE);
-        CallParticipantStateEventCollector stateCollectorForPp2
-            = new CallParticipantStateEventCollector(
-                participantAtP2, CallPeerState.INCOMING_CALL);
+        //check states for call peers at both parties
+        CallPeerStateEventCollector stateCollectorForPp1
+            = new CallPeerStateEventCollector(
+                peerAtP1, CallPeerState.ALERTING_REMOTE_SIDE);
+        CallPeerStateEventCollector stateCollectorForPp2
+            = new CallPeerStateEventCollector(
+                peerAtP2, CallPeerState.INCOMING_CALL);
 
         stateCollectorForPp1.waitForEvent(10000, true);
         stateCollectorForPp2.waitForEvent(10000, true);
 
-        assertSame("participantAtP1.getCall"
-                   , participantAtP1.getCall(), callAtP1);
-        assertSame("participantAtP2.getCall"
-                   , participantAtP2.getCall(), callAtP2);
+        assertSame("peerAtP1.getCall"
+                   , peerAtP1.getCall(), callAtP1);
+        assertSame("peerAtP2.getCall"
+                   , peerAtP2.getCall(), callAtP2);
 
-        //make sure that the participants are in the proper state
-        assertEquals("The participant at provider one was not in the "
+        //make sure that the peers are in the proper state
+        assertEquals("The peer at provider one was not in the "
                      +"right state."
                     , CallPeerState.ALERTING_REMOTE_SIDE
-                    , participantAtP1.getState());
-        assertEquals("The participant at provider two was not in the "
+                    , peerAtP1.getState());
+        assertEquals("The peer at provider two was not in the "
                      +"right state."
                     , CallPeerState.INCOMING_CALL
-                    , participantAtP2.getState());
+                    , peerAtP2.getState());
 
 
         //test whether caller/callee info is properly distributed in case
         //the server is said to support it.
-        if(Boolean.getBoolean("accounts.jabber.PRESERVE_PARTICIPANT_INFO"))
+        if(Boolean.getBoolean("accounts.jabber.PRESERVE_PEER_INFO"))
         {
-            //check properties on the remote call participant for the party that
+            //check properties on the remote call peer for the party that
             //initiated the call.
-            String expectedParticipant1Address
+            String expectedPeer1Address
                 = fixture.provider2.getAccountID().getAccountAddress();
-            String expectedParticipant1DisplayName
+            String expectedPeer1DisplayName
                 = System.getProperty(
                     JabberProtocolProviderServiceLick.ACCOUNT_2_PREFIX
                     + ProtocolProviderFactory.DISPLAY_NAME);
@@ -173,20 +173,20 @@ public class TestOperationSetBasicTelephonyJabberImpl
             //display name or something of the kind
             assertTrue("Provider 2 did not advertise their "
                        + "accountID.getAccoutAddress() address."
-                       , expectedParticipant1Address.indexOf(
-                           participantAtP1.getAddress()) != -1
-                       || participantAtP1.getAddress().indexOf(
-                           expectedParticipant1Address) != -1);
+                       , expectedPeer1Address.indexOf(
+                           peerAtP1.getAddress()) != -1
+                       || peerAtP1.getAddress().indexOf(
+                           expectedPeer1Address) != -1);
             assertEquals("Provider 2 did not properly advertise their "
                          + "display name."
-                         , expectedParticipant1DisplayName
-                         , participantAtP1.getDisplayName());
+                         , expectedPeer1DisplayName
+                         , peerAtP1.getDisplayName());
 
-            //check properties on the remote call participant for the party that
+            //check properties on the remote call peer for the party that
             //receives the call.
-            String expectedParticipant2Address
+            String expectedPeer2Address
                 = fixture.provider1.getAccountID().getAccountAddress();
-            String expectedParticipant2DisplayName
+            String expectedPeer2DisplayName
                 = System.getProperty(
                     JabberProtocolProviderServiceLick.ACCOUNT_1_PREFIX
                     + ProtocolProviderFactory.DISPLAY_NAME);
@@ -195,23 +195,23 @@ public class TestOperationSetBasicTelephonyJabberImpl
             //display name or something of the kind
             assertTrue("Provider 1 did not advertise their "
                        + "accountID.getAccoutAddress() address."
-                       , expectedParticipant2Address.indexOf(
-                           participantAtP2.getAddress()) != -1
-                       || participantAtP2.getAddress().indexOf(
-                           expectedParticipant2Address) != -1);
+                       , expectedPeer2Address.indexOf(
+                           peerAtP2.getAddress()) != -1
+                       || peerAtP2.getAddress().indexOf(
+                           expectedPeer2Address) != -1);
             assertEquals("Provider 1 did not properly advertise their "
                          + "display name."
-                         , expectedParticipant2DisplayName
-                         , participantAtP2.getDisplayName());
+                         , expectedPeer2DisplayName
+                         , peerAtP2.getDisplayName());
         }
 
         //we'll now try to cancel the call
 
-        //listeners monitoring state change of the participant
-        stateCollectorForPp1 = new CallParticipantStateEventCollector(
-                participantAtP1, CallPeerState.DISCONNECTED);
-        stateCollectorForPp2 = new CallParticipantStateEventCollector(
-                participantAtP2, CallPeerState.DISCONNECTED);
+        //listeners monitoring state change of the peer
+        stateCollectorForPp1 = new CallPeerStateEventCollector(
+                peerAtP1, CallPeerState.DISCONNECTED);
+        stateCollectorForPp2 = new CallPeerStateEventCollector(
+                peerAtP2, CallPeerState.DISCONNECTED);
 
         //listeners waiting for the op set to announce the end of the call
         call1Listener = new CallEventCollector(basicTelephonyP1);
@@ -224,7 +224,7 @@ public class TestOperationSetBasicTelephonyJabberImpl
             = new CallStateEventCollector(callAtP2, CallState.CALL_ENDED);
 
         //Now make the caller CANCEL the call.
-        basicTelephonyP1.hangupCallParticipant(participantAtP1);
+        basicTelephonyP1.hangupCallPeer(peerAtP1);
 
         //wait for everything to happen
         call1Listener.waitForEvent(10000);
@@ -235,11 +235,11 @@ public class TestOperationSetBasicTelephonyJabberImpl
         call2StateCollector.waitForEvent(10000);
 
 
-        //make sure that the participant is disconnected
-        assertEquals("The participant at provider one was not in the "
+        //make sure that the peer is disconnected
+        assertEquals("The peer at provider one was not in the "
                      +"right state."
                     , CallPeerState.DISCONNECTED
-                    , participantAtP1.getState());
+                    , peerAtP1.getState());
 
         //make sure the telephony operation set distributed an event for the end
         //of the call
@@ -258,11 +258,11 @@ public class TestOperationSetBasicTelephonyJabberImpl
 
         //same for provider 2
 
-        //make sure that the participant is disconnected
-        assertEquals("The participant at provider one was not in the "
+        //make sure that the peer is disconnected
+        assertEquals("The peer at provider one was not in the "
                      +"right state."
                     , CallPeerState.DISCONNECTED
-                    , participantAtP2.getState());
+                    , peerAtP2.getState());
 
         //make sure the telephony operation set distributed an event for the end
         //of the call
@@ -346,55 +346,55 @@ public class TestOperationSetBasicTelephonyJabberImpl
                      ,CallEvent.CALL_RECEIVED, callReceivedEvent.getEventID());
         assertNotNull("CallEvent.getSource()", callAtP2);
 
-        //verify that call participants are properly created
-        assertEquals("callAtP1.getCallParticipantsCount()"
-                     , 1, callAtP1.getCallParticipantsCount());
-        assertEquals("callAtP2.getCallParticipantsCount()"
-                     , 1, callAtP2.getCallParticipantsCount());
+        //verify that call peers are properly created
+        assertEquals("callAtP1.getCallPeerCount()"
+                     , 1, callAtP1.getCallPeerCount());
+        assertEquals("callAtP2.getCallPeerCount()"
+                     , 1, callAtP2.getCallPeerCount());
 
-        CallPeer participantAtP1
-            = (CallPeer)callAtP1.getCallParticipants().next();
-        CallPeer participantAtP2
-            = (CallPeer)callAtP2.getCallParticipants().next();
+        CallPeer peerAtP1
+            = (CallPeer)callAtP1.getCallPeers().next();
+        CallPeer peerAtP2
+            = (CallPeer)callAtP2.getCallPeers().next();
 
-        //now add listeners to the participants and make sure they have entered
+        //now add listeners to the peers and make sure they have entered
         //the states they were expected to.
-        //check states for call participants at both parties
-        CallParticipantStateEventCollector stateCollectorForPp1
-            = new CallParticipantStateEventCollector(
-                participantAtP1, CallPeerState.ALERTING_REMOTE_SIDE);
-        CallParticipantStateEventCollector stateCollectorForPp2
-            = new CallParticipantStateEventCollector(
-                participantAtP2, CallPeerState.INCOMING_CALL);
+        //check states for call peers at both parties
+        CallPeerStateEventCollector stateCollectorForPp1
+            = new CallPeerStateEventCollector(
+                peerAtP1, CallPeerState.ALERTING_REMOTE_SIDE);
+        CallPeerStateEventCollector stateCollectorForPp2
+            = new CallPeerStateEventCollector(
+                peerAtP2, CallPeerState.INCOMING_CALL);
 
         stateCollectorForPp1.waitForEvent(10000, true);
         stateCollectorForPp2.waitForEvent(10000, true);
 
-        assertSame("participantAtP1.getCall"
-                   , participantAtP1.getCall(), callAtP1);
-        assertSame("participantAtP2.getCall"
-                   , participantAtP2.getCall(), callAtP2);
+        assertSame("peerAtP1.getCall"
+                   , peerAtP1.getCall(), callAtP1);
+        assertSame("peerAtP2.getCall"
+                   , peerAtP2.getCall(), callAtP2);
 
-        //make sure that the participants are in the proper state
-        assertEquals("The participant at provider one was not in the "
+        //make sure that the peers are in the proper state
+        assertEquals("The peer at provider one was not in the "
                      +"right state."
                     , CallPeerState.ALERTING_REMOTE_SIDE
-                    , participantAtP1.getState());
-        assertEquals("The participant at provider two was not in the "
+                    , peerAtP1.getState());
+        assertEquals("The peer at provider two was not in the "
                      +"right state."
                     , CallPeerState.INCOMING_CALL
-                    , participantAtP2.getState());
+                    , peerAtP2.getState());
 
 
         //test whether caller/callee info is properly distributed in case
         //the server is said to support it.
-        if(Boolean.getBoolean("accounts.jabber.PRESERVE_PARTICIPANT_INFO"))
+        if(Boolean.getBoolean("accounts.jabber.PRESERVE_PEER_INFO"))
         {
-            //check properties on the remote call participant for the party that
+            //check properties on the remote call peer for the party that
             //initiated the call.
-            String expectedParticipant1Address
+            String expectedPeer1Address
                 = fixture.provider2.getAccountID().getAccountAddress();
-            String expectedParticipant1DisplayName
+            String expectedPeer1DisplayName
                 = System.getProperty(
                     JabberProtocolProviderServiceLick.ACCOUNT_2_PREFIX
                     + ProtocolProviderFactory.DISPLAY_NAME);
@@ -403,20 +403,20 @@ public class TestOperationSetBasicTelephonyJabberImpl
             //display name or something of the kind
             assertTrue("Provider 2 did not advertise their "
                        + "accountID.getAccoutAddress() address."
-                       , expectedParticipant1Address.indexOf(
-                           participantAtP1.getAddress()) != -1
-                       || participantAtP1.getAddress().indexOf(
-                           expectedParticipant1Address) != -1);
+                       , expectedPeer1Address.indexOf(
+                           peerAtP1.getAddress()) != -1
+                       || peerAtP1.getAddress().indexOf(
+                           expectedPeer1Address) != -1);
             assertEquals("Provider 2 did not properly advertise their "
                          + "display name."
-                         , expectedParticipant1DisplayName
-                         , participantAtP1.getDisplayName());
+                         , expectedPeer1DisplayName
+                         , peerAtP1.getDisplayName());
 
-            //check properties on the remote call participant for the party that
+            //check properties on the remote call peer for the party that
             //receives the call.
-            String expectedParticipant2Address
+            String expectedPeer2Address
                 = fixture.provider1.getAccountID().getAccountAddress();
-            String expectedParticipant2DisplayName
+            String expectedPeer2DisplayName
                 = System.getProperty(
                     JabberProtocolProviderServiceLick.ACCOUNT_1_PREFIX
                     + ProtocolProviderFactory.DISPLAY_NAME);
@@ -425,26 +425,26 @@ public class TestOperationSetBasicTelephonyJabberImpl
             //display name or something of the kind
             assertTrue("Provider 1 did not advertise their "
                        + "accountID.getAccoutAddress() address."
-                       , expectedParticipant2Address.indexOf(
-                           participantAtP2.getAddress()) != -1
-                       || participantAtP2.getAddress().indexOf(
-                           expectedParticipant2Address) != -1);
+                       , expectedPeer2Address.indexOf(
+                           peerAtP2.getAddress()) != -1
+                       || peerAtP2.getAddress().indexOf(
+                           expectedPeer2Address) != -1);
             assertEquals("Provider 1 did not properly advertise their "
                          + "display name."
-                         , expectedParticipant2DisplayName
-                         , participantAtP2.getDisplayName());
+                         , expectedPeer2DisplayName
+                         , peerAtP2.getDisplayName());
         }
 
         //we'll now try to send busy tone.
 
-        //listeners monitoring state change of the participant
-        CallParticipantStateEventCollector busyStateCollectorForPp1
-            = new CallParticipantStateEventCollector(
-                participantAtP1, CallPeerState.BUSY);
-        stateCollectorForPp1 = new CallParticipantStateEventCollector(
-                participantAtP1, CallPeerState.DISCONNECTED);
-        stateCollectorForPp2 = new CallParticipantStateEventCollector(
-                participantAtP2, CallPeerState.DISCONNECTED);
+        //listeners monitoring state change of the peer
+        CallPeerStateEventCollector busyStateCollectorForPp1
+            = new CallPeerStateEventCollector(
+                peerAtP1, CallPeerState.BUSY);
+        stateCollectorForPp1 = new CallPeerStateEventCollector(
+                peerAtP1, CallPeerState.DISCONNECTED);
+        stateCollectorForPp2 = new CallPeerStateEventCollector(
+                peerAtP2, CallPeerState.DISCONNECTED);
 
         //listeners waiting for the op set to announce the end of the call
         call1Listener = new CallEventCollector(basicTelephonyP1);
@@ -457,9 +457,9 @@ public class TestOperationSetBasicTelephonyJabberImpl
             = new CallStateEventCollector(callAtP2, CallState.CALL_ENDED);
 
         //Now make the caller CANCEL the call.
-        basicTelephonyP2.hangupCallParticipant(participantAtP2);
+        basicTelephonyP2.hangupCallPeer(peerAtP2);
         busyStateCollectorForPp1.waitForEvent(10000);
-        basicTelephonyP1.hangupCallParticipant(participantAtP1);
+        basicTelephonyP1.hangupCallPeer(peerAtP1);
 
         //wait for everything to happen
         call1Listener.waitForEvent(10000);
@@ -470,11 +470,11 @@ public class TestOperationSetBasicTelephonyJabberImpl
         call2StateCollector.waitForEvent(10000);
 
 
-        //make sure that the participant is disconnected
-        assertEquals("The participant at provider one was not in the "
+        //make sure that the peer is disconnected
+        assertEquals("The peer at provider one was not in the "
                      +"right state."
                     , CallPeerState.DISCONNECTED
-                    , participantAtP1.getState());
+                    , peerAtP1.getState());
 
 
 
@@ -495,11 +495,11 @@ public class TestOperationSetBasicTelephonyJabberImpl
 
         //same for provider 2
 
-        //make sure that the participant is disconnected
-        assertEquals("The participant at provider one was not in the "
+        //make sure that the peer is disconnected
+        assertEquals("The peer at provider one was not in the "
                      +"right state."
                     , CallPeerState.DISCONNECTED
-                    , participantAtP2.getState());
+                    , peerAtP2.getState());
 
         //make sure the telephony operation set distributed an event for the end
         //of the call
@@ -583,77 +583,77 @@ public class TestOperationSetBasicTelephonyJabberImpl
                      ,CallEvent.CALL_RECEIVED, callReceivedEvent.getEventID());
         assertNotNull("CallEvent.getSource()", callAtP2);
 
-        //verify that call participants are properly created
-        assertEquals("callAtP1.getCallParticipantsCount()"
-                     , 1, callAtP1.getCallParticipantsCount());
-        assertEquals("callAtP2.getCallParticipantsCount()"
-                     , 1, callAtP2.getCallParticipantsCount());
+        //verify that call peers are properly created
+        assertEquals("callAtP1.getCallPeerCount()"
+                     , 1, callAtP1.getCallPeerCount());
+        assertEquals("callAtP2.getCallPeerCount()"
+                     , 1, callAtP2.getCallPeerCount());
 
-        CallPeer participantAtP1
-            = (CallPeer)callAtP1.getCallParticipants().next();
-        CallPeer participantAtP2
-            = (CallPeer)callAtP2.getCallParticipants().next();
+        CallPeer peerAtP1
+            = (CallPeer)callAtP1.getCallPeers().next();
+        CallPeer peerAtP2
+            = (CallPeer)callAtP2.getCallPeers().next();
 
-        //now add listeners to the participants and make sure they have entered
+        //now add listeners to the peers and make sure they have entered
         //the states they were expected to.
-        //check states for call participants at both parties
-        CallParticipantStateEventCollector stateCollectorForPp1
-            = new CallParticipantStateEventCollector(
-                participantAtP1, CallPeerState.ALERTING_REMOTE_SIDE);
-        CallParticipantStateEventCollector stateCollectorForPp2
-            = new CallParticipantStateEventCollector(
-                participantAtP2, CallPeerState.INCOMING_CALL);
+        //check states for call peers at both parties
+        CallPeerStateEventCollector stateCollectorForPp1
+            = new CallPeerStateEventCollector(
+                peerAtP1, CallPeerState.ALERTING_REMOTE_SIDE);
+        CallPeerStateEventCollector stateCollectorForPp2
+            = new CallPeerStateEventCollector(
+                peerAtP2, CallPeerState.INCOMING_CALL);
 
         stateCollectorForPp1.waitForEvent(10000, true);
         stateCollectorForPp2.waitForEvent(10000, true);
 
-        assertSame("participantAtP1.getCall"
-                   , participantAtP1.getCall(), callAtP1);
-        assertSame("participantAtP2.getCall"
-                   , participantAtP2.getCall(), callAtP2);
+        assertSame("peerAtP1.getCall"
+                   , peerAtP1.getCall(), callAtP1);
+        assertSame("peerAtP2.getCall"
+                   , peerAtP2.getCall(), callAtP2);
 
-        //make sure that the participants are in the proper state
-        assertEquals("The participant at provider one was not in the "
+        //make sure that the peers are in the proper state
+        assertEquals("The peer at provider one was not in the "
                      +"right state."
                     , CallPeerState.ALERTING_REMOTE_SIDE
-                    , participantAtP1.getState());
-        assertEquals("The participant at provider two was not in the "
+                    , peerAtP1.getState());
+        assertEquals("The peer at provider two was not in the "
                      +"right state."
                     , CallPeerState.INCOMING_CALL
-                    , participantAtP2.getState());
+                    , peerAtP2.getState());
 
 
         //test whether caller/callee info is properly distributed in case
         //the server is said to support it.
-        if(Boolean.getBoolean("accounts.jabber.PRESERVE_PARTICIPANT_INFO"))
+        if(Boolean.getBoolean("accounts.jabber.PRESERVE_PEER_INFO"))
         {
-            //check properties on the remote call participant for the party that
+            //check properties on the remote call peer for the party that
             //initiated the call.
-            String expectedParticipant1Address
+            String expectedPeer1Address
                 = fixture.provider2.getAccountID().getAccountAddress();
-            String expectedParticipant1DisplayName
+            String expectedPeer1DisplayName
                 = System.getProperty(
                     JabberProtocolProviderServiceLick.ACCOUNT_2_PREFIX
                     + ProtocolProviderFactory.DISPLAY_NAME);
 
-            //do not asser equals here since one of the addresses may contain a
+            //do not assert equals here since one of the addresses may contain a
             //display name or something of the kind
             assertTrue("Provider 2 did not advertise their "
                        + "accountID.getAccoutAddress() address."
-                       , expectedParticipant1Address.indexOf(
-                           participantAtP1.getAddress()) != -1
-                       || participantAtP1.getAddress().indexOf(
-                           expectedParticipant1Address) != -1);
+                       , expectedPeer1Address.indexOf(
+                           peerAtP1.getAddress()) != -1
+                       || peerAtP1.getAddress().indexOf(
+                           expectedPeer1Address) != -1);
             assertEquals("Provider 2 did not properly advertise their "
                          + "display name."
-                         , expectedParticipant1DisplayName
-                         , participantAtP1.getDisplayName());
+                         , expectedPeer1DisplayName
+                         , peerAtP1.getDisplayName());
 
-            //check properties on the remote call participant for the party that
+            //check properties on the remote call peer for the party that
             //receives the call.
-            String expectedParticipant2Address
+            String expectedPeer2Address
                 = fixture.provider1.getAccountID().getAccountAddress();
-            String expectedParticipant2DisplayName
+            String expectedPeer2DisplayName
                 = System.getProperty(
                     JabberProtocolProviderServiceLick.ACCOUNT_1_PREFIX
                     + ProtocolProviderFactory.DISPLAY_NAME);
@@ -662,85 +662,85 @@ public class TestOperationSetBasicTelephonyJabberImpl
             //display name or something of the kind
             assertTrue("Provider 1 did not advertise their "
                        + "accountID.getAccoutAddress() address."
-                       , expectedParticipant2Address.indexOf(
-                           participantAtP2.getAddress()) != -1
-                       || participantAtP2.getAddress().indexOf(
-                           expectedParticipant2Address) != -1);
+                       , expectedPeer2Address.indexOf(
+                           peerAtP2.getAddress()) != -1
+                       || peerAtP2.getAddress().indexOf(
+                           expectedPeer2Address) != -1);
             assertEquals("Provider 1 did not properly advertise their "
                          + "display name."
-                         , expectedParticipant2DisplayName
-                         , participantAtP2.getDisplayName());
+                         , expectedPeer2DisplayName
+                         , peerAtP2.getDisplayName());
         }
 
-        //add listeners to the participants and make sure enter
+        //add listeners to the peers and make sure enter
         //a connected state after we answer
         stateCollectorForPp1
-            = new CallParticipantStateEventCollector(
-                participantAtP1, CallPeerState.CONNECTED);
+            = new CallPeerStateEventCollector(
+                peerAtP1, CallPeerState.CONNECTED);
         stateCollectorForPp2
-            = new CallParticipantStateEventCollector(
-                participantAtP2, CallPeerState.CONNECTED);
+            = new CallPeerStateEventCollector(
+                peerAtP2, CallPeerState.CONNECTED);
 
         //we will now anser the call and verify that both parties change states
         //accordingly.
-        basicTelephonyP2.answerCallParticipant(participantAtP2);
+        basicTelephonyP2.answerCallPeer(peerAtP2);
 
         stateCollectorForPp1.waitForEvent(10000);
         stateCollectorForPp2.waitForEvent(10000);
 
-        //make sure that the participants are in the proper state
-        assertEquals("The participant at provider one was not in the "
+        //make sure that the peers are in the proper state
+        assertEquals("The peer at provider one was not in the "
                      +"right state."
                     , CallPeerState.CONNECTED
-                    , participantAtP1.getState());
-        assertEquals("The participant at provider two was not in the "
+                    , peerAtP1.getState());
+        assertEquals("The peer at provider two was not in the "
                      +"right state."
                     , CallPeerState.CONNECTED
-                    , participantAtP2.getState());
+                    , peerAtP2.getState());
 
         //make sure that events have been distributed when states were changed.
-        assertEquals("No event was dispatched when a call participant changed "
+        assertEquals("No event was dispatched when a call peer changed "
                      +"its state."
                     , 1
                     , stateCollectorForPp1.collectedEvents.size());
-        assertEquals("No event was dispatched when a call participant changed "
+        assertEquals("No event was dispatched when a call peer changed "
                      +"its state."
                      , 1
                      , stateCollectorForPp2.collectedEvents.size());
 
-        //add listeners to the participants and make sure they have entered
+        //add listeners to the peers and make sure they have entered
         //the states they are expected to.
         stateCollectorForPp1
-            = new CallParticipantStateEventCollector(
-                participantAtP1, CallPeerState.DISCONNECTED);
+            = new CallPeerStateEventCollector(
+                peerAtP1, CallPeerState.DISCONNECTED);
         stateCollectorForPp2
-            = new CallParticipantStateEventCollector(
-                participantAtP2, CallPeerState.DISCONNECTED);
+            = new CallPeerStateEventCollector(
+                peerAtP2, CallPeerState.DISCONNECTED);
 
         //we will now end the call and verify that both parties change states
         //accordingly.
-        basicTelephonyP2.hangupCallParticipant(participantAtP2);
+        basicTelephonyP2.hangupCallPeer(peerAtP2);
 
         stateCollectorForPp1.waitForEvent(10000);
         stateCollectorForPp2.waitForEvent(10000);
 
-        //make sure that the participants are in the proper state
-        assertEquals("The participant at provider one was not in the "
+        //make sure that the peers are in the proper state
+        assertEquals("The peer at provider one was not in the "
                      +"right state."
                     , CallPeerState.DISCONNECTED
-                    , participantAtP1.getState());
-        assertEquals("The participant at provider two was not in the "
+                    , peerAtP1.getState());
+        assertEquals("The peer at provider two was not in the "
                      +"right state."
                     , CallPeerState.DISCONNECTED
-                    , participantAtP2.getState());
+                    , peerAtP2.getState());
 
         //make sure that the corresponding events were delivered.
         assertEquals("a provider did not distribute an event when a call "
-                     +"participant changed states."
+                     +"peer changed states."
                     , 1
                     , stateCollectorForPp1.collectedEvents.size());
         assertEquals("a provider did not distribute an event when a call "
-                     +"participant changed states."
+                     +"peer changed states."
                     , 1
                     , stateCollectorForPp2.collectedEvents.size());
 
@@ -854,30 +854,30 @@ public class TestOperationSetBasicTelephonyJabberImpl
     }
 
     /**
-     * Allows tests to wait for and collect events issued upon call participant
+     * Allows tests to wait for and collect events issued upon call peer
      * status changes.
      */
-    public class CallParticipantStateEventCollector
+    public class CallPeerStateEventCollector
         extends CallPeerAdapter
     {
         public ArrayList collectedEvents = new ArrayList();
-        private CallPeer listenedCallParticipant = null;
+        private CallPeer listenedCallPeer = null;
         public CallPeerState awaitedState = null;
 
         /**
          * Creates an instance of this collector and adds it as a listener
-         * to <tt>callParticipant</tt>.
-         * @param callParticipant the CallParticipant that we will be listening
+         * to <tt>callPeer</tt>.
+         * @param callPeer the CallPeer that we will be listening
          * to.
          * @param awaitedState the state that we will be waiting for inside
          * this collector.
          */
-        public CallParticipantStateEventCollector(
-                                            CallPeer      callParticipant,
+        public CallPeerStateEventCollector(
+                                            CallPeer      callPeer,
                                             CallPeerState awaitedState)
         {
-            this.listenedCallParticipant = callParticipant;
-            this.listenedCallParticipant.addCallParticipantListener(this);
+            this.listenedCallPeer = callPeer;
+            this.listenedCallPeer.addCallPeerListener(this);
             this.awaitedState = awaitedState;
         }
 
@@ -886,7 +886,7 @@ public class TestOperationSetBasicTelephonyJabberImpl
          *
          * @param event the event containing the source call.
          */
-        public void participantStateChanged(CallPeerChangeEvent event)
+        public void peerStateChanged(CallPeerChangeEvent event)
         {
             synchronized(this)
             {
@@ -921,23 +921,23 @@ public class TestOperationSetBasicTelephonyJabberImpl
          * @param waitFor the number of miliseconds that we should be waiting
          * for an event before simply bailing out.
          * @param exitIfAlreadyInState specifies whether the method is to return
-         * if the call participant is already in such a state even if no event
+         * if the call peer is already in such a state even if no event
          * has been received for the sate change.
          */
         public void waitForEvent(long waitFor, boolean exitIfAlreadyInState)
         {
-            logger.trace("Waiting for a CallParticipantEvent with newState="
-                            + awaitedState + " for participant "
-                            + this.listenedCallParticipant);
+            logger.trace("Waiting for a CallPeerEvent with newState="
+                            + awaitedState + " for peer "
+                            + this.listenedCallPeer);
             synchronized (this)
             {
                 if(exitIfAlreadyInState
-                   && listenedCallParticipant.getState().equals(awaitedState))
+                   && listenedCallPeer.getState().equals(awaitedState))
                 {
-                    logger.trace("Src participant is already in the awaited "
+                    logger.trace("Src peer is already in the awaited "
                                  + "state."
                                  + collectedEvents);
-                    listenedCallParticipant.removeCallParticipantListener(this);
+                    listenedCallPeer.removeCallPeerListener(this);
                     return;
                 }
                 if(collectedEvents.size() > 0)
@@ -950,8 +950,8 @@ public class TestOperationSetBasicTelephonyJabberImpl
                     {
                         logger.trace("Event already received. " +
                                      collectedEvents);
-                        listenedCallParticipant
-                            .removeCallParticipantListener(this);
+                        listenedCallPeer
+                            .removeCallPeerListener(this);
                         return;
                     }
                 }
@@ -965,8 +965,8 @@ public class TestOperationSetBasicTelephonyJabberImpl
                         logger.trace("No CallParticpantStateEvent received for "
                                      + waitFor + "ms.");
 
-                    listenedCallParticipant
-                        .removeCallParticipantListener(this);
+                    listenedCallPeer
+                        .removeCallPeerListener(this);
                 }
                 catch (InterruptedException ex)
                 {

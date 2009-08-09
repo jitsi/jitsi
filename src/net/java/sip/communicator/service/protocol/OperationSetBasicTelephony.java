@@ -79,7 +79,7 @@ public interface OperationSetBasicTelephony
      * @throws OperationFailedException with the corresponding code if we
      * encounter an error while performing this operation.
      */
-    public void answerCallParticipant(CallPeer participant)
+    public void answerCallPeer(CallPeer participant)
         throws OperationFailedException;
 
     /**
@@ -112,7 +112,7 @@ public interface OperationSetBasicTelephony
      * @throws OperationFailedException with the corresponding code if we
      * encounter an error while performing this operation.
      */
-    public void hangupCallParticipant(CallPeer participant)
+    public void hangupCallPeer(CallPeer participant)
         throws OperationFailedException;
 
     /**

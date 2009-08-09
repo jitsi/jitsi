@@ -320,7 +320,7 @@ public class OperationSetBasicTelephonyJabberImpl
      * // TODO: ask for suppression of OperationFailedException from the interface.
      * // what happens if hangup fails ? are we forced to continue to talk ? :o)
      */
-    public void hangupCallParticipant(CallPeer participant)
+    public void hangupCallPeer(CallPeer participant)
             throws ClassCastException, OperationFailedException
     {
         CallPeerJabberImpl callParticipant
@@ -348,7 +348,7 @@ public class OperationSetBasicTelephonyJabberImpl
      * @param participant the call participant that we want to answer
      * @throws OperationFailedException if we fails to answer
      */
-    public void answerCallParticipant(CallPeer participant)
+    public void answerCallPeer(CallPeer participant)
             throws OperationFailedException
     {
         CallPeerJabberImpl callParticipant
@@ -382,7 +382,7 @@ public class OperationSetBasicTelephonyJabberImpl
         {
             CallJabberImpl call = (CallJabberImpl) activeCalls.next();
 
-            Iterator callParticipants = call.getCallParticipants();
+            Iterator callParticipants = call.getCallPeers();
 
             //go through all call participants and say bye to every one.
             while (callParticipants.hasNext())
@@ -391,7 +391,7 @@ public class OperationSetBasicTelephonyJabberImpl
                         = (CallPeer) callParticipants.next();
                 try
                 {
-                    this.hangupCallParticipant(participant);
+                    this.hangupCallPeer(participant);
                 }
                 catch (Exception ex)
                 {
@@ -588,7 +588,7 @@ public class OperationSetBasicTelephonyJabberImpl
             }
             try
             {
-                hangupCallParticipant(callParticipant);
+                hangupCallPeer(callParticipant);
             }
             catch (Exception ex)
             {

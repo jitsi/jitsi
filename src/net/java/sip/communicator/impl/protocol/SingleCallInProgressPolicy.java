@@ -315,7 +315,7 @@ public class SingleCallInProgressPolicy
         if (telephony != null)
         {
             for (Iterator<CallPeer> participantIter =
-                call.getCallParticipants(); participantIter.hasNext();)
+                call.getCallPeers(); participantIter.hasNext();)
             {
                 CallPeer participant = participantIter.next();
                 CallPeerState participantState = participant.getState();

@@ -65,7 +65,7 @@ public class CallJabberImpl
         if(callParticipants.contains(callParticipant))
             return;
 
-        callParticipant.addCallParticipantListener(this);
+        callParticipant.addCallPeerListener(this);
 
         this.callParticipants.add(callParticipant);
         fireCallParticipantEvent(
@@ -86,7 +86,7 @@ public class CallJabberImpl
 
         this.callParticipants.remove(callParticipant);
         callParticipant.setCall(null);
-        callParticipant.removeCallParticipantListener(this);
+        callParticipant.removeCallPeerListener(this);
 
         fireCallParticipantEvent(
             callParticipant, CallPeerEvent.CALL_PEER_REMVOVED);
@@ -99,7 +99,7 @@ public class CallJabberImpl
      * Returns an iterator over all call participants.
      * @return an Iterator over all participants currently involved in the call.
      */
-    public Iterator getCallParticipants()
+    public Iterator getCallPeers()
     {
         return new LinkedList(callParticipants).iterator();
     }
@@ -109,7 +109,7 @@ public class CallJabberImpl
      * @return an <tt>int</tt> indicating the number of participants currently
      * associated with this call.
      */
-    public int getCallParticipantsCount()
+    public int getCallPeerCount()
     {
         return callParticipants.size();
     }
@@ -158,7 +158,7 @@ public class CallJabberImpl
      * @param evt The <tt>CallParticipantChangeEvent</tt> instance containing
      * the source event as well as its previous and its new status.
      */
-    public void participantStateChanged(CallPeerChangeEvent evt)
+    public void peerStateChanged(CallPeerChangeEvent evt)
     {
         if(((CallPeerState)evt.getNewValue())
                      == CallPeerState.DISCONNECTED
@@ -201,7 +201,7 @@ public class CallJabberImpl
      */
     public CallPeerJabberImpl findCallParticipant(JingleSession session)
     {
-        Iterator callParticipants = this.getCallParticipants();
+        Iterator callParticipants = this.getCallPeers();
 
         if(logger.isTraceEnabled())
         {

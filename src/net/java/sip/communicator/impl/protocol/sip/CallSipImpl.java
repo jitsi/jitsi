@@ -62,7 +62,7 @@ public class CallSipImpl
         if (callParticipants.contains(callParticipant))
             return;
 
-        callParticipant.addCallParticipantListener(this);
+        callParticipant.addCallPeerListener(this);
 
         this.callParticipants.add(callParticipant);
         fireCallParticipantEvent(callParticipant,
@@ -82,7 +82,7 @@ public class CallSipImpl
             return;
 
         this.callParticipants.remove(callParticipant);
-        callParticipant.removeCallParticipantListener(this);
+        callParticipant.removeCallPeerListener(this);
 
         try
         {
@@ -108,7 +108,7 @@ public class CallSipImpl
      *
      * @return an Iterator over all participants currently involved in the call.
      */
-    public Iterator<CallPeer> getCallParticipants()
+    public Iterator<CallPeer> getCallPeers()
     {
         return new LinkedList<CallPeer>(callParticipants).iterator();
     }
@@ -119,7 +119,7 @@ public class CallSipImpl
      * @return an <tt>int</tt> indicating the number of participants currently
      *         associated with this call.
      */
-    public int getCallParticipantsCount()
+    public int getCallPeerCount()
     {
         return callParticipants.size();
     }
@@ -171,7 +171,7 @@ public class CallSipImpl
      * @param evt The <tt>CallParticipantChangeEvent</tt> instance containing
      *            the source event as well as its previous and its new status.
      */
-    public void participantStateChanged(CallPeerChangeEvent evt)
+    public void peerStateChanged(CallPeerChangeEvent evt)
     {
         CallPeerState newState =
             (CallPeerState) evt.getNewValue();
@@ -213,7 +213,7 @@ public class CallSipImpl
      */
     public CallPeerSipImpl findCallParticipant(Dialog dialog)
     {
-        Iterator<CallPeer> callParticipants = this.getCallParticipants();
+        Iterator<CallPeer> callParticipants = this.getCallPeers();
 
         if (logger.isTraceEnabled())
         {

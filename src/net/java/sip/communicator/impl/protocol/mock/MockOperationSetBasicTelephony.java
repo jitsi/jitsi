@@ -44,7 +44,7 @@ public class MockOperationSetBasicTelephony
      * @throws OperationFailedException with the corresponding code if we
      *   encounter an error while performing this operation.
      */
-    public void answerCallParticipant(CallPeer participant) throws
+    public void answerCallPeer(CallPeer participant) throws
         OperationFailedException
     {
         MockCallParticipant callParticipant
@@ -128,7 +128,7 @@ public class MockOperationSetBasicTelephony
      * @throws OperationFailedException with the corresponding code if we
      *   encounter an error while performing this operation.
      */
-    public void hangupCallParticipant(CallPeer participant) throws
+    public void hangupCallPeer(CallPeer participant) throws
         OperationFailedException
     {
         //do nothing if the call is already ended
@@ -191,7 +191,7 @@ public class MockOperationSetBasicTelephony
 
         // must have one participant
         MockCallParticipant callPArt =
-            (MockCallParticipant)newCall.getCallParticipants().next();
+            (MockCallParticipant)newCall.getCallPeers().next();
 
         callPArt.setState(CallPeerState.ALERTING_REMOTE_SIDE, "no reason");
         callPArt.setState(CallPeerState.CONNECTED, "no reason");

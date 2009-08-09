@@ -64,14 +64,14 @@ public class CallPanel
         this.mainPanel.setBorder(BorderFactory
             .createEmptyBorder(5, 5, 5, 5));
 
-        int contactsCount = call.getCallParticipantsCount();
+        int contactsCount = call.getCallPeerCount();
 
         mainPanel.setLayout(new GridLayout(0, (contactsCount < 2) ? 1 : 2));
 
         if (contactsCount > 0)
         {
             CallPeer participant =
-                call.getCallParticipants().next();
+                call.getCallPeers().next();
 
             this.title = participant.getDisplayName();
         }
@@ -189,7 +189,7 @@ public class CallPanel
      * Implements the CallParicipantChangeListener.participantStateChanged
      * method.
      */
-    public void participantStateChanged(CallPeerChangeEvent evt)
+    public void peerStateChanged(CallPeerChangeEvent evt)
     {
         CallPeer sourceParticipant = evt.getSourceCallParticipant();
 
@@ -343,13 +343,13 @@ public class CallPanel
         this.mainPanel.removeAll();
         this.participantsPanels.clear();
 
-        Iterator<CallPeer> participants = call.getCallParticipants();
+        Iterator<CallPeer> participants = call.getCallPeers();
 
         while (participants.hasNext())
         {
             CallPeer participant = participants.next();
 
-            participant.addCallParticipantListener(this);
+            participant.addCallPeerListener(this);
             participant.addCallParticipantSecurityListener(this);
             participant.addPropertyChangeListener(this);
 
