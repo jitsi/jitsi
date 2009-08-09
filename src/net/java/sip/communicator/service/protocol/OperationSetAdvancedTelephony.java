@@ -31,7 +31,7 @@ public interface OperationSetAdvancedTelephony
      *            the callee to transfer <code>participant</code> to
      * @throws OperationFailedException
      */
-    void transfer(CallParticipant participant, CallParticipant target)
+    void transfer(CallPeer participant, CallPeer target)
         throws OperationFailedException;
 
     /**
@@ -49,6 +49,6 @@ public interface OperationSetAdvancedTelephony
      *            <code>participant</code> to
      * @throws OperationFailedException
      */
-    void transfer(CallParticipant participant, String target)
+    void transfer(CallPeer participant, String target)
         throws OperationFailedException;
 }

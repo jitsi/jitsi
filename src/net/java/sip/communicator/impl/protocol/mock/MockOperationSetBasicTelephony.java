@@ -44,7 +44,7 @@ public class MockOperationSetBasicTelephony
      * @throws OperationFailedException with the corresponding code if we
      *   encounter an error while performing this operation.
      */
-    public void answerCallParticipant(CallParticipant participant) throws
+    public void answerCallParticipant(CallPeer participant) throws
         OperationFailedException
     {
         MockCallParticipant callParticipant
@@ -128,7 +128,7 @@ public class MockOperationSetBasicTelephony
      * @throws OperationFailedException with the corresponding code if we
      *   encounter an error while performing this operation.
      */
-    public void hangupCallParticipant(CallParticipant participant) throws
+    public void hangupCallParticipant(CallPeer participant) throws
         OperationFailedException
     {
         //do nothing if the call is already ended
@@ -154,7 +154,7 @@ public class MockOperationSetBasicTelephony
      *   net.java.sip.communicator.service.protocol.OperationSetBasicTelephony
      *   method
      */
-    public void putOffHold(CallParticipant participant)
+    public void putOffHold(CallPeer participant)
     {
 
     }
@@ -169,7 +169,7 @@ public class MockOperationSetBasicTelephony
      *   net.java.sip.communicator.service.protocol.OperationSetBasicTelephony
      *   method
      */
-    public void putOnHold(CallParticipant participant) throws
+    public void putOnHold(CallPeer participant) throws
         OperationFailedException
     {
     }
@@ -199,7 +199,7 @@ public class MockOperationSetBasicTelephony
         return newCall;
     }
 
-    public CallParticipant addNewCallParticipant(Call call, String address)
+    public CallPeer addNewCallParticipant(Call call, String address)
     {
         MockCallParticipant callPArt = new MockCallParticipant(address, (MockCall)call);
 

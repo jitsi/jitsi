@@ -122,12 +122,12 @@ public class HoldButton
                     (OperationSetBasicTelephony) call.getProtocolProvider()
                         .getOperationSet(OperationSetBasicTelephony.class);
 
-                Iterator<CallParticipant> participants
+                Iterator<CallPeer> participants
                     = call.getCallParticipants();
 
                 while (participants.hasNext())
                 {
-                    CallParticipant callParticipant = participants.next();
+                    CallPeer callParticipant = participants.next();
 
                     try
                     {

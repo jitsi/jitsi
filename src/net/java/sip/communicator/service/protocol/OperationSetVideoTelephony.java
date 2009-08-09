@@ -35,13 +35,13 @@ public interface OperationSetVideoTelephony
      *            removed for <code>participant</code>
      */
     public void addVideoListener(
-            CallParticipant participant, VideoListener listener);
+            CallPeer participant, VideoListener listener);
 
     /**
      * Creates a visual <code>Component</code> which depicts the local video
      * being streamed to a specific <code>CallParticipant</code>. The returned
      * visual <code>Component</code> should be disposed when it is no longer
-     * required through {@link #disposeLocalVisualComponent(CallParticipant, Component) disposeLocalVisualComponent}.
+     * required through {@link #disposeLocalVisualComponent(CallPeer, Component) disposeLocalVisualComponent}.
      *
      * @param participant the <code>CallParticipant</code> to whom the local
      *            video which is to be depicted by the returned visual
@@ -58,7 +58,7 @@ public interface OperationSetVideoTelephony
      *         visual <code>Component</code> asynchronously.
      */
     public Component createLocalVisualComponent(
-            CallParticipant participant, VideoListener listener)
+            CallPeer participant, VideoListener listener)
         throws OperationFailedException;
 
     /**
@@ -75,7 +75,7 @@ public interface OperationSetVideoTelephony
      *            video to be disposed
      */
     public void disposeLocalVisualComponent(
-            CallParticipant participant, Component component);
+            CallPeer participant, Component component);
 
     /**
      * Gets the visual/video <code>Component</code>s available in this telephony
@@ -86,7 +86,7 @@ public interface OperationSetVideoTelephony
      * @return an array of the visual <code>Component</code>s available in this
      *         telephony for the specified <code>participant</code>
      */
-    public Component[] getVisualComponents(CallParticipant participant);
+    public Component[] getVisualComponents(CallPeer participant);
 
     /**
      * Removes a specific <code>VideoListener</code> from this telephony in
@@ -101,7 +101,7 @@ public interface OperationSetVideoTelephony
      *            removed for <code>participant</code>
      */
     public void removeVideoListener(
-            CallParticipant participant, VideoListener listener);
+            CallPeer participant, VideoListener listener);
 
     /**
      * Sets the indicator which determines whether the streaming of local video

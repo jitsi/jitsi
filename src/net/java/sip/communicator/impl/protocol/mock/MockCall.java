@@ -17,7 +17,7 @@ import net.java.sip.communicator.util.*;
  */
 public class MockCall
     extends Call
-    implements CallParticipantListener
+    implements CallPeerListener
 {
     private static final Logger logger = Logger.getLogger(MockCall.class);
 
@@ -98,7 +98,7 @@ public class MockCall
             setCallState(CallState.CALL_ENDED);
     }
 
-    public void participantStateChanged(CallParticipantChangeEvent evt)
+    public void participantStateChanged(CallPeerChangeEvent evt)
     {
         if ( ( (CallParticipantState) evt.getNewValue())
             == CallParticipantState.DISCONNECTED
@@ -116,19 +116,19 @@ public class MockCall
         }
     }
 
-    public void participantDisplayNameChanged(CallParticipantChangeEvent evt)
+    public void participantDisplayNameChanged(CallPeerChangeEvent evt)
     {
     }
 
-    public void participantAddressChanged(CallParticipantChangeEvent evt)
+    public void participantAddressChanged(CallPeerChangeEvent evt)
     {
     }
 
-    public void participantImageChanged(CallParticipantChangeEvent evt)
+    public void participantImageChanged(CallPeerChangeEvent evt)
     {
     }
 
-    public void participantTransportAddressChanged(CallParticipantChangeEvent
+    public void participantTransportAddressChanged(CallPeerChangeEvent
         evt)
     {
     }

@@ -60,7 +60,7 @@ public class OperationSetVideoTelephonySipImpl
      * promotes itself as the provider of the video by replacing the CallSession
      * in the VideoEvents it fires.
      */
-    public void addVideoListener(CallParticipant participant,
+    public void addVideoListener(CallPeer participant,
         VideoListener listener)
     {
         if (listener == null)
@@ -77,7 +77,7 @@ public class OperationSetVideoTelephonySipImpl
      * VideoListener) of the Call of the specified CallParticipant because the
      * CallSession manages the visual components which represent local video.
      */
-    public Component createLocalVisualComponent(CallParticipant participant,
+    public Component createLocalVisualComponent(CallPeer participant,
         VideoListener listener) throws OperationFailedException
     {
         CallSession callSession =
@@ -105,7 +105,7 @@ public class OperationSetVideoTelephonySipImpl
      * Component) of the Call of the specified CallParticipant because the
      * CallSession manages the visual components which represent local video.
      */
-    public void disposeLocalVisualComponent(CallParticipant participant,
+    public void disposeLocalVisualComponent(CallPeer participant,
         Component component)
     {
         CallSession callSession =
@@ -120,7 +120,7 @@ public class OperationSetVideoTelephonySipImpl
      * because the video is provided by the CallSession in the SIP protocol
      * implementation.
      */
-    public Component[] getVisualComponents(CallParticipant participant)
+    public Component[] getVisualComponents(CallPeer participant)
     {
         CallSession callSession =
             ((CallSipImpl) participant.getCall()).getMediaCallSession();
@@ -137,7 +137,7 @@ public class OperationSetVideoTelephonySipImpl
      * promotes itself as the provider of the video by replacing the CallSession
      * in the VideoEvents it fires.
      */
-    public void removeVideoListener(CallParticipant participant,
+    public void removeVideoListener(CallPeer participant,
         VideoListener listener)
     {
         if (listener != null)
@@ -180,7 +180,7 @@ public class OperationSetVideoTelephonySipImpl
          * Once the local state has been modified, re-invite all
          * CallParticipants to re-negotiate the modified media setup.
          */
-        Iterator<CallParticipant> participants = call.getCallParticipants();
+        Iterator<CallPeer> participants = call.getCallParticipants();
         while (participants.hasNext())
         {
             CallParticipantSipImpl participant
@@ -273,7 +273,7 @@ public class OperationSetVideoTelephonySipImpl
          * The <code>CallParticipant</code> whose videos {@link #delegate} is
          * interested in.
          */
-        private final CallParticipant participant;
+        private final CallPeer participant;
 
         /**
          * The <code>OperationSetVideoTelephony</code> which is to be presented
@@ -301,7 +301,7 @@ public class OperationSetVideoTelephonySipImpl
          *            <code>telephony</code>
          */
         public InternalVideoListener(OperationSetVideoTelephony telephony,
-            CallParticipant participant, VideoListener delegate)
+            CallPeer participant, VideoListener delegate)
         {
             if (participant == null)
                 throw new NullPointerException("participant");

@@ -121,7 +121,7 @@ public class ReceivedCallDialog
      */
     private void initCallLabel(JLabel callLabel)
     {
-        Iterator<CallParticipant> participantsIter
+        Iterator<CallPeer> participantsIter
             = incomingCall.getCallParticipants();
 
         boolean hasMoreParticipants = false;
@@ -133,7 +133,7 @@ public class ReceivedCallDialog
 
         while (participantsIter.hasNext())
         {
-            CallParticipant participant = participantsIter.next();
+            CallPeer participant = participantsIter.next();
 
             // More participants.
             if (participantsIter.hasNext())
@@ -192,7 +192,7 @@ public class ReceivedCallDialog
      * image.
      * @return the participant image.
      */
-    private ImageIcon getParticipantImage(CallParticipant participant)
+    private ImageIcon getParticipantImage(CallPeer participant)
     {
         ImageIcon icon = null;
         // We search for a contact corresponding to this call participant and

@@ -35,7 +35,7 @@ public class TransferCallButton
      * The <code>CallParticipant</code> (whose <code>Call</code> is) to be
      * transfered.
      */
-    private final CallParticipant callParticipant;
+    private final CallPeer callParticipant;
 
     /**
      * Initializes a new <code>TransferCallButton</code> instance which is to
@@ -45,7 +45,7 @@ public class TransferCallButton
      * @param callParticipant the <code>CallParticipant</code> to be associated
      *            with the new instance and to be transfered
      */
-    public TransferCallButton(CallParticipant callParticipant)
+    public TransferCallButton(CallPeer callParticipant)
     {
         super(ImageLoader.getImage(ImageLoader.TRANSFER_CALL_BUTTON));
 
@@ -137,7 +137,7 @@ public class TransferCallButton
                 {
                     try
                     {
-                        CallParticipant targetParticipant =
+                        CallPeer targetParticipant =
                             findCallParticipant(target);
 
                         if (targetParticipant == null)
@@ -170,17 +170,17 @@ public class TransferCallButton
      * @param address the address to locate the associated
      *            <code>CallParticipant</code> of
      */
-    private CallParticipant findCallParticipant(
+    private CallPeer findCallParticipant(
         OperationSetBasicTelephony telephony, String address)
     {
         for (Iterator<Call> callIter = telephony.getActiveCalls(); callIter.hasNext();)
         {
             Call call = callIter.next();
 
-            for (Iterator<CallParticipant> participantIter =
+            for (Iterator<CallPeer> participantIter =
                 call.getCallParticipants(); participantIter.hasNext();)
             {
-                CallParticipant participant = participantIter.next();
+                CallPeer participant = participantIter.next();
 
                 if (address.equals(participant.getAddress()))
                 {
@@ -200,7 +200,7 @@ public class TransferCallButton
      * @return the first <code>CallParticipant</code> among all existing ones
      *         who has the specified <code>address</code>
      */
-    private CallParticipant findCallParticipant(String address)
+    private CallPeer findCallParticipant(String address)
         throws OperationFailedException
     {
         BundleContext bundleContext = GuiActivator.bundleContext;
@@ -221,7 +221,7 @@ public class TransferCallButton
 
         Class<OperationSetBasicTelephony> telephonyClass
             = OperationSetBasicTelephony.class;
-        CallParticipant participant = null;
+        CallPeer participant = null;
 
         for (ServiceReference serviceReference : serviceReferences)
         {

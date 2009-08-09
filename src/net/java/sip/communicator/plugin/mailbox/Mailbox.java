@@ -581,8 +581,8 @@ public class Mailbox
 
             while(participants.hasNext())
             {
-                CallParticipant participant
-                    = (CallParticipant)participants.next();
+                CallPeer participant
+                    = (CallPeer)participants.next();
 
                 try
                 {
@@ -617,8 +617,8 @@ public class Mailbox
 
             while(callParticipants.hasNext())
             {
-                CallParticipant participant
-                    = (CallParticipant)callParticipants.next();
+                CallPeer participant
+                    = (CallPeer)callParticipants.next();
 
                 try
                 {

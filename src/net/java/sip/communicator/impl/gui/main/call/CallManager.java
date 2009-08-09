@@ -295,11 +295,11 @@ public class CallManager
         public void run()
         {
             ProtocolProviderService pps = call.getProtocolProvider();
-            Iterator<CallParticipant> participants = call.getCallParticipants();
+            Iterator<CallPeer> participants = call.getCallParticipants();
 
             while (participants.hasNext())
             {
-                CallParticipant participant = participants.next();
+                CallPeer participant = participants.next();
                 OperationSetBasicTelephony telephony =
                     (OperationSetBasicTelephony) pps
                         .getOperationSet(OperationSetBasicTelephony.class);
@@ -333,11 +333,11 @@ public class CallManager
         public void run()
         {
             ProtocolProviderService pps = call.getProtocolProvider();
-            Iterator<CallParticipant> participants = call.getCallParticipants();
+            Iterator<CallPeer> participants = call.getCallParticipants();
 
             while (participants.hasNext())
             {
-                CallParticipant participant = participants.next();
+                CallPeer participant = participants.next();
                 OperationSetBasicTelephony telephony =
                     (OperationSetBasicTelephony) pps
                         .getOperationSet(OperationSetBasicTelephony.class);

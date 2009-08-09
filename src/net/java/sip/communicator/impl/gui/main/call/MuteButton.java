@@ -112,12 +112,12 @@ public class MuteButton
         {
             if (call != null)
             {
-                Iterator<CallParticipant> participants
+                Iterator<CallPeer> participants
                     = call.getCallParticipants();
 
                 while (participants.hasNext())
                 {
-                    CallParticipant callParticipant = participants.next();
+                    CallPeer callParticipant = participants.next();
 
                     OperationSetBasicTelephony telephony
                         = (OperationSetBasicTelephony) call.getProtocolProvider()

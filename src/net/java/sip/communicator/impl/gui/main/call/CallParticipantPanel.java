@@ -56,7 +56,7 @@ public class CallParticipantPanel
 
     private final String participantName;
 
-    private final CallParticipant callParticipant;
+    private final CallPeer callParticipant;
 
     private final java.util.List<Container> videoContainers =
         new ArrayList<Container>();
@@ -89,7 +89,7 @@ public class CallParticipantPanel
      * @param callParticipant a call participant
      */
     public CallParticipantPanel(CallDialog callDialog,
-                                CallParticipant callParticipant)
+                                CallPeer callParticipant)
     {
         this.callDialog = callDialog;
         this.callParticipant = callParticipant;

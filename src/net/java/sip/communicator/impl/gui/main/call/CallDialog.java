@@ -201,8 +201,8 @@ public class CallDialog
     private DialpadDialog getDialpadDialog()
     {
         Call call = callPanel.getCall();
-        Iterator<CallParticipant> callParticipants =
-            (call == null) ? new Vector<CallParticipant>().iterator()
+        Iterator<CallPeer> callParticipants =
+            (call == null) ? new Vector<CallPeer>().iterator()
                 : callPanel.getCall().getCallParticipants();
 
         return new DialpadDialog(callParticipants);

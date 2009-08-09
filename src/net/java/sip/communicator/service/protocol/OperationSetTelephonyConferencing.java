@@ -44,6 +44,6 @@ public interface OperationSetTelephonyConferencing
      *             if allowing additional callees to a pre-established call is
      *             not supported.
      */
-    public CallParticipant inviteCalleeToCall(String uri, Call existingCall)
+    public CallPeer inviteCalleeToCall(String uri, Call existingCall)
         throws OperationNotSupportedException;
 }

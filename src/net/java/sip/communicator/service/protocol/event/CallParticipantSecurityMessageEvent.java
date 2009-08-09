@@ -66,7 +66,7 @@ public class CallParticipantSecurityMessageEvent
      * @param i18nMessage the internationalized message associated with this
      * event that could be shown to the user.
      */
-    public CallParticipantSecurityMessageEvent( CallParticipant callParticipant,
+    public CallParticipantSecurityMessageEvent( CallPeer callParticipant,
                                                 String eventMessage,
                                                 String i18nMessage,
                                                 int eventSeverity)

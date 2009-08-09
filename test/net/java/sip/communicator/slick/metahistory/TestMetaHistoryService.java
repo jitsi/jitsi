@@ -291,7 +291,7 @@ public class TestMetaHistoryService
             Iterator iter = newCall.getCallParticipants();
             while (iter.hasNext())
             {
-                CallParticipant item = (CallParticipant) iter.next();
+                CallPeer item = (CallPeer) iter.next();
                 v.add(item);
             }
 
@@ -300,7 +300,7 @@ public class TestMetaHistoryService
             iter = v.iterator();
             while (iter.hasNext())
             {
-                CallParticipant item = (CallParticipant) iter.next();
+                CallPeer item = (CallPeer) iter.next();
                 mockBTelphonyOpSet.hangupCallParticipant(item);
             }
         }

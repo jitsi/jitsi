@@ -109,7 +109,7 @@ public abstract class AbstractOperationSetBasicTelephony
      * @param mute <tt>true</tt> to mute the audio stream being sent to
      *            <tt>participant</tt>; otherwise, <tt>false</tt>
      */
-    public void setMute(CallParticipant participant, boolean mute)
+    public void setMute(CallPeer participant, boolean mute)
     {
 
         /*

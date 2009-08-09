@@ -367,7 +367,7 @@ public class OperationSetBasicTelephonySipImpl
      * @param participant the call participant to put on hold.
      * @throws OperationFailedException
      */
-    public synchronized void putOffHold(CallParticipant participant)
+    public synchronized void putOffHold(CallPeer participant)
         throws OperationFailedException
     {
         putOnHold(participant, false);
@@ -379,7 +379,7 @@ public class OperationSetBasicTelephonySipImpl
      * @param participant the participant that we'd like to put on hold.
      * @throws OperationFailedException
      */
-    public synchronized void putOnHold(CallParticipant participant)
+    public synchronized void putOnHold(CallPeer participant)
         throws OperationFailedException
     {
         putOnHold(participant, true);
@@ -393,7 +393,7 @@ public class OperationSetBasicTelephonySipImpl
      *            put on hold; <tt>false</tt>, otherwise
      * @throws OperationFailedException
      */
-    private void putOnHold(CallParticipant participant, boolean on)
+    private void putOnHold(CallPeer participant, boolean on)
         throws OperationFailedException
     {
         CallSession callSession =
@@ -990,7 +990,7 @@ public class OperationSetBasicTelephonySipImpl
             while (activeCallsIter.hasNext())
             {
                 CallSipImpl activeCall = activeCallsIter.next();
-                Iterator<CallParticipant> callParticipantsIter =
+                Iterator<CallPeer> callParticipantsIter =
                     activeCall.getCallParticipants();
                 while (callParticipantsIter.hasNext())
                 {
@@ -1783,7 +1783,7 @@ public class OperationSetBasicTelephonySipImpl
      * @throws OperationFailedException
      * @throws ParseException
      */
-    private void processInviteSendingResponse(CallParticipant participant,
+    private void processInviteSendingResponse(CallPeer participant,
         Response response) throws OperationFailedException, ParseException
     {
         /*
@@ -1829,7 +1829,7 @@ public class OperationSetBasicTelephonySipImpl
      * @throws OperationFailedException
      * @throws ParseException
      */
-    private void processInviteSentResponse(CallParticipant participant,
+    private void processInviteSentResponse(CallPeer participant,
         Response response) throws OperationFailedException
     {
         /*
@@ -2612,7 +2612,7 @@ public class OperationSetBasicTelephonySipImpl
      *             CallParticipantSipImpl.
      * @throws OperationFailedException if we fail to terminate the call.
      */
-    public synchronized void hangupCallParticipant(CallParticipant participant)
+    public synchronized void hangupCallParticipant(CallPeer participant)
         throws ClassCastException,
         OperationFailedException
     {
@@ -2907,7 +2907,7 @@ public class OperationSetBasicTelephonySipImpl
      * @throws OperationFailedException if we fail to create or send the
      *             response.
      */
-    public synchronized void answerCallParticipant(CallParticipant participant)
+    public synchronized void answerCallParticipant(CallPeer participant)
         throws OperationFailedException
     {
         CallParticipantSipImpl callParticipant =
@@ -3135,13 +3135,13 @@ public class OperationSetBasicTelephonySipImpl
         {
             CallSipImpl call = activeCalls.next();
 
-            Iterator<CallParticipant> callParticipants
+            Iterator<CallPeer> callParticipants
                                             = call.getCallParticipants();
 
             // go through all call participants and say bye to every one.
             while (callParticipants.hasNext())
             {
-                CallParticipant participant = callParticipants.next();
+                CallPeer participant = callParticipants.next();
                 try
                 {
                     this.hangupCallParticipant(participant);
@@ -3167,7 +3167,7 @@ public class OperationSetBasicTelephonySipImpl
      * @param mute <tt>true</tt> to mute the audio stream being sent to
      *            <tt>participant</tt>; otherwise, <tt>false</tt>
      */
-    public void setMute(CallParticipant participant, boolean mute)
+    public void setMute(CallPeer participant, boolean mute)
     {
         CallParticipantSipImpl sipParticipant
             = (CallParticipantSipImpl) participant;
@@ -3185,7 +3185,7 @@ public class OperationSetBasicTelephonySipImpl
      * @return <code>true</code> to indicate that the call associated with the
      * given participant is secured, otherwise returns <code>false</code>.
      */
-    public boolean isSecure(CallParticipant participant)
+    public boolean isSecure(CallPeer participant)
     {
         CallSession cs
             = ((CallSipImpl) participant.getCall()).getMediaCallSession();
@@ -3200,7 +3200,7 @@ public class OperationSetBasicTelephonySipImpl
      * @param isVerified indicates whether the SAS string is verified or not
      * for the given participant.
      */
-    public boolean setSasVerified(  CallParticipant participant,
+    public boolean setSasVerified(  CallPeer participant,
                                     boolean isVerified)
     {
         CallSession cs
@@ -3220,7 +3220,7 @@ public class OperationSetBasicTelephonySipImpl
      *            <code>participant</code> to
      * @throws OperationFailedException
      */
-    private void transfer(CallParticipant participant, Address target)
+    private void transfer(CallPeer participant, Address target)
         throws OperationFailedException
     {
         CallParticipantSipImpl sipParticipant =
@@ -3251,7 +3251,7 @@ public class OperationSetBasicTelephonySipImpl
      * #transfer(net.java.sip.communicator.service.protocol.CallParticipant,
      * net.java.sip.communicator.service.protocol.CallParticipant)
      */
-    public void transfer(CallParticipant participant, CallParticipant target)
+    public void transfer(CallPeer participant, CallPeer target)
         throws OperationFailedException
     {
         Address targetAddress = parseAddressString(target.getAddress());
@@ -3303,7 +3303,7 @@ public class OperationSetBasicTelephonySipImpl
      * #transfer(net.java.sip.communicator.service.protocol.CallParticipant,
      * String)
      */
-    public void transfer(CallParticipant participant, String target)
+    public void transfer(CallPeer participant, String target)
         throws OperationFailedException
     {
         transfer(participant, parseAddressString(target));

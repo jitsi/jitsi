@@ -46,7 +46,7 @@ public class SecurityEventManager extends ZrtpUserCallback
             .getResources().getI18NString(
                     "impl.media.security.WARNING_NO_EXPECTED_RS_MATCH");
 
-    private CallParticipant callParticipant;
+    private CallPeer callParticipant;
 
     private final CallSession callSession;
 
@@ -90,7 +90,7 @@ public class SecurityEventManager extends ZrtpUserCallback
         // At this moment we're supporting a security call between only two
         // participants. In the future the call participant would be passed
         // as a parameter to the SecurityEventManager.
-        Iterator<CallParticipant> callParticipants
+        Iterator<CallPeer> callParticipants
             = callSession.getCall().getCallParticipants();
 
         while (callParticipants.hasNext())

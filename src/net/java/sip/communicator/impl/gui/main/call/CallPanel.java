@@ -31,15 +31,15 @@ import net.java.sip.communicator.util.swing.*;
 public class CallPanel
     extends TransparentPanel
     implements  CallChangeListener,
-                CallParticipantListener,
+                CallPeerListener,
                 PropertyChangeListener,
                 CallParticipantSecurityListener
 {
     private final TransparentPanel mainPanel = new TransparentPanel();
 
-    private final Hashtable<CallParticipant, CallParticipantPanel>
+    private final Hashtable<CallPeer, CallParticipantPanel>
         participantsPanels =
-            new Hashtable<CallParticipant, CallParticipantPanel>();
+            new Hashtable<CallPeer, CallParticipantPanel>();
 
     private String title;
 
@@ -70,7 +70,7 @@ public class CallPanel
 
         if (contactsCount > 0)
         {
-            CallParticipant participant =
+            CallPeer participant =
                 call.getCallParticipants().next();
 
             this.title = participant.getDisplayName();
@@ -86,7 +86,7 @@ public class CallPanel
      * @param callType the type of call - INCOMING of OUTGOING
      */
     private CallParticipantPanel addCallParticipant(
-        CallParticipant participant, String callType)
+        CallPeer participant, String callType)
     {
         CallParticipantPanel participantPanel =
             getParticipantPanel(participant);
@@ -152,7 +152,7 @@ public class CallPanel
     {
         if (evt.getSourceCall() == call)
         {
-            CallParticipant participant = evt.getSourceCallParticipant();
+            CallPeer participant = evt.getSourceCallParticipant();
 
             CallParticipantPanel participantPanel =
                 getParticipantPanel(participant);
@@ -189,9 +189,9 @@ public class CallPanel
      * Implements the CallParicipantChangeListener.participantStateChanged
      * method.
      */
-    public void participantStateChanged(CallParticipantChangeEvent evt)
+    public void participantStateChanged(CallPeerChangeEvent evt)
     {
-        CallParticipant sourceParticipant = evt.getSourceCallParticipant();
+        CallPeer sourceParticipant = evt.getSourceCallParticipant();
 
         if (sourceParticipant.getCall() != call)
             return;
@@ -258,22 +258,22 @@ public class CallPanel
         participantPanel.setState(newStateString, newStateIcon);
     }
 
-    public void participantDisplayNameChanged(CallParticipantChangeEvent evt)
+    public void participantDisplayNameChanged(CallPeerChangeEvent evt)
     {
     }
 
-    public void participantAddressChanged(CallParticipantChangeEvent evt)
+    public void participantAddressChanged(CallPeerChangeEvent evt)
     {
     }
 
-    public void participantImageChanged(CallParticipantChangeEvent evt)
+    public void participantImageChanged(CallPeerChangeEvent evt)
     {
     }
 
     public void securityOn(CallParticipantSecurityOnEvent securityEvent)
     {
-        CallParticipant participant =
-            (CallParticipant) securityEvent.getSource();
+        CallPeer participant =
+            (CallPeer) securityEvent.getSource();
         CallParticipantPanel participantPanel =
             getParticipantPanel(participant);
 
@@ -298,8 +298,8 @@ public class CallPanel
 
     public void securityOff(CallParticipantSecurityOffEvent securityEvent)
     {
-        CallParticipant participant =
-            (CallParticipant) securityEvent.getSource();
+        CallPeer participant =
+            (CallPeer) securityEvent.getSource();
         CallParticipantPanel participantPanel =
             getParticipantPanel(participant);
 
@@ -343,11 +343,11 @@ public class CallPanel
         this.mainPanel.removeAll();
         this.participantsPanels.clear();
 
-        Iterator<CallParticipant> participants = call.getCallParticipants();
+        Iterator<CallPeer> participants = call.getCallParticipants();
 
         while (participants.hasNext())
         {
-            CallParticipant participant = participants.next();
+            CallPeer participant = participants.next();
 
             participant.addCallParticipantListener(this);
             participant.addCallParticipantSecurityListener(this);
@@ -366,7 +366,7 @@ public class CallPanel
      *            address.
      */
     public void participantTransportAddressChanged(
-        CallParticipantChangeEvent evt)
+        CallPeerChangeEvent evt)
     {
         /** @todo implement participantTransportAddressChanged() */
     }
@@ -377,9 +377,9 @@ public class CallPanel
     private class RemoveParticipantPanelListener
         implements ActionListener
     {
-        private CallParticipant participant;
+        private CallPeer participant;
 
-        public RemoveParticipantPanelListener(CallParticipant participant)
+        public RemoveParticipantPanelListener(CallPeer participant)
         {
             this.participant = participant;
         }
@@ -425,12 +425,12 @@ public class CallPanel
      * @return the <tt>CallParticipantPanel</tt>, which correspond to the given
      *         participant
      */
-    public CallParticipantPanel getParticipantPanel(CallParticipant participant)
+    public CallParticipantPanel getParticipantPanel(CallPeer participant)
     {
-        for (Map.Entry<CallParticipant, CallParticipantPanel> participantEntry :
+        for (Map.Entry<CallPeer, CallParticipantPanel> participantEntry :
                 participantsPanels.entrySet())
         {
-            CallParticipant entryParticipant = participantEntry.getKey();
+            CallPeer entryParticipant = participantEntry.getKey();
 
             if ((entryParticipant != null)
                 && entryParticipant.equals(participant))
@@ -484,12 +484,12 @@ public class CallPanel
     {
         String propertyName = evt.getPropertyName();
 
-        if (propertyName.equals(CallParticipant.MUTE_PROPERTY_NAME))
+        if (propertyName.equals(CallPeer.MUTE_PROPERTY_NAME))
         {
             boolean isMute = (Boolean) evt.getNewValue();
 
-            CallParticipant sourceParticipant
-                = (CallParticipant) evt.getSource();
+            CallPeer sourceParticipant
+                = (CallPeer) evt.getSource();
 
             if (sourceParticipant.getCall() != call)
                 return;

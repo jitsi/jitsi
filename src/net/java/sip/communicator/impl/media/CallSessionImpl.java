@@ -1148,14 +1148,14 @@ public class CallSessionImpl
      * @throws ParseException if sdpAnswerStr does not contain a valid sdp
      * String.
      */
-    public void processSdpAnswer(CallParticipant responder,
+    public void processSdpAnswer(CallPeer responder,
                                  String sdpAnswerStr)
         throws MediaException, ParseException
     {
         processSdpStr(responder, sdpAnswerStr, true);
     }
 
-    private String processSdpStr(CallParticipant participant,
+    private String processSdpStr(CallPeer participant,
                                  String sdpStr,
                                  boolean answer)
         throws MediaException, ParseException
@@ -1291,7 +1291,7 @@ public class CallSessionImpl
      * @throws ParseException if <tt>sdpOfferStr</tt> does not contain a valid
      * sdp string.
      */
-    public String processSdpOffer(CallParticipant offerer, String sdpOfferStr)
+    public String processSdpOffer(CallPeer offerer, String sdpOfferStr)
         throws MediaException, ParseException
     {
         return processSdpStr(offerer, sdpOfferStr, false);

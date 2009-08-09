@@ -49,8 +49,8 @@ public class DialPanel
             GuiActivator.getResources()
                 .getSettingsInt("impl.gui.DIAL_PAD_VERTICAL_GAP")));
 
-    private final java.util.List<CallParticipant> callParticipantsList =
-        new LinkedList<CallParticipant>();
+    private final java.util.List<CallPeer> callParticipantsList =
+        new LinkedList<CallPeer>();
 
     private MainCallPanel parentCallPanel;
 
@@ -74,7 +74,7 @@ public class DialPanel
      * @param callParticipants the <tt>CallParticipant</tt>s, for which the
      * dialpad will be opened.
      */
-    public DialPanel(Iterator<CallParticipant> callParticipants)
+    public DialPanel(Iterator<CallPeer> callParticipants)
     {
         // We need to send DTMF tones to all participants each time the user
         // presses a dial button, so we put the iterator into a list.
@@ -409,14 +409,14 @@ public class DialPanel
      */
     private void sendDtmfTone(DTMFTone dtmfTone)
     {
-        Iterator<CallParticipant> callParticipants
+        Iterator<CallPeer> callParticipants
             = this.callParticipantsList.iterator();
 
         try
         {
             while (callParticipants.hasNext())
             {
-                CallParticipant participant
+                CallPeer participant
                     = callParticipants.next();
 
                 if (participant.getProtocolProvider()

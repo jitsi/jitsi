@@ -26,7 +26,7 @@ public class CallParticipantSecurityOffEvent
      * @param sessionType
      *              the type of the session: audio or video
      */
-    public CallParticipantSecurityOffEvent( CallParticipant callParticipant,
+    public CallParticipantSecurityOffEvent( CallPeer callParticipant,
                                             int sessionType)
     {
         super(callParticipant, sessionType);

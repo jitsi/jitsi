@@ -19,7 +19,7 @@ import net.java.sip.communicator.util.swing.*;
 public class SecurityPanel
     extends TransparentPanel
 {
-    private final CallParticipant participant;
+    private final CallPeer participant;
 
     private final Image iconEncr;
     private final Image iconEncrVerified;
@@ -30,7 +30,7 @@ public class SecurityPanel
 
     private final JLabel securityStringLabel = new JLabel();
 
-    public SecurityPanel(CallParticipant participant)
+    public SecurityPanel(CallPeer participant)
     {
         this.participant = participant;
 

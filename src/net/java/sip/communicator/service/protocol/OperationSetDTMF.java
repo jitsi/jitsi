@@ -30,7 +30,7 @@ public interface OperationSetDTMF
      * @throws IllegalArgumentException in case the call participant does not
      * belong to the underlying implementation.
      */
-    public void sendDTMF(CallParticipant callParticipant, DTMFTone tone)
+    public void sendDTMF(CallPeer callParticipant, DTMFTone tone)
         throws OperationFailedException,
                NullPointerException,
                ClassCastException;

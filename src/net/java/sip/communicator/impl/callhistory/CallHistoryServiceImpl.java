@@ -846,7 +846,7 @@ public class CallHistoryServiceImpl
      * Adding a record for joining participant
      * @param callParticipant CallParticipant
      */
-    private void handleParticipantAdded(CallParticipant callParticipant)
+    private void handleParticipantAdded(CallPeer callParticipant)
     {
         CallRecord callRecord = findCallRecord(callParticipant.getCall());
 
@@ -854,9 +854,9 @@ public class CallHistoryServiceImpl
         if(callRecord == null)
             return;
 
-        callParticipant.addCallParticipantListener(new CallParticipantAdapter()
+        callParticipant.addCallParticipantListener(new CallPeerAdapter()
         {
-            public void participantStateChanged(CallParticipantChangeEvent evt)
+            public void participantStateChanged(CallPeerChangeEvent evt)
             {
                 if(evt.getNewValue().equals(CallParticipantState.DISCONNECTED))
                     return;
@@ -899,7 +899,7 @@ public class CallHistoryServiceImpl
      * @param callParticipant CallParticipant
      * @param srcCall Call
      */
-    private void handleParticipantRemoved(CallParticipant callParticipant,
+    private void handleParticipantRemoved(CallPeer callParticipant,
         Call srcCall)
     {
         CallRecord callRecord = findCallRecord(srcCall);
@@ -947,7 +947,7 @@ public class CallHistoryServiceImpl
      * @return CallParticipantRecordImpl the corresponding record
      */
     private CallParticipantRecordImpl findParticipantRecord(
-        CallParticipant callParticipant)
+        CallPeer callParticipant)
     {
         CallRecord record = findCallRecord(callParticipant.getCall());
 
@@ -980,7 +980,7 @@ public class CallHistoryServiceImpl
         currentCallRecords.add(newRecord);
 
         // if has already perticipants Dispatch them
-        Iterator<CallParticipant> iter = sourceCall.getCallParticipants();
+        Iterator<CallPeer> iter = sourceCall.getCallParticipants();
         while (iter.hasNext())
         {
             handleParticipantAdded(iter.next());

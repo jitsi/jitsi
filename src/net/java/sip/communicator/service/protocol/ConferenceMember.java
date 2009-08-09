@@ -63,7 +63,7 @@ public interface ConferenceMember
      * @return the <code>CallParticipant</code> which is the conference focus of
      *         this <code>ConferenceMember</code>
      */
-    public CallParticipant getConferenceFocusCallParticipant();
+    public CallPeer getConferenceFocusCallParticipant();
 
     /**
      * Gets the state of the device and signaling session of this

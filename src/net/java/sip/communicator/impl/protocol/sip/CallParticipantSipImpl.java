@@ -133,7 +133,7 @@ public class CallParticipantSipImpl
         this.participantAddress = address;
         //Fire the Event
         fireCallParticipantChangeEvent(
-                CallParticipantChangeEvent.CALL_PARTICIPANT_ADDRESS_CHANGE,
+                CallPeerChangeEvent.CALL_PARTICIPANT_ADDRESS_CHANGE,
                 oldAddress,
                 address.toString());
     }
@@ -172,7 +172,7 @@ public class CallParticipantSipImpl
 
         //Fire the Event
         fireCallParticipantChangeEvent(
-                CallParticipantChangeEvent.CALL_PARTICIPANT_DISPLAY_NAME_CHANGE,
+                CallPeerChangeEvent.CALL_PARTICIPANT_DISPLAY_NAME_CHANGE,
                 oldName,
                 displayName);
     }
@@ -202,7 +202,7 @@ public class CallParticipantSipImpl
 
         //Fire the Event
         fireCallParticipantChangeEvent(
-                CallParticipantChangeEvent.CALL_PARTICIPANT_IMAGE_CHANGE,
+                CallPeerChangeEvent.CALL_PARTICIPANT_IMAGE_CHANGE,
                 oldImage,
                 image);
     }
@@ -361,7 +361,7 @@ public class CallParticipantSipImpl
         this.transportAddress = transportAddress;
 
         this.fireCallParticipantChangeEvent(
-            CallParticipantChangeEvent
+            CallPeerChangeEvent
                 .CALL_PARTICIPANT_TRANSPORT_ADDRESS_CHANGE,
                 oldTransportAddress,
                 transportAddress);

@@ -122,10 +122,10 @@ public class TestOperationSetBasicTelephonyJabberImpl
         assertEquals("callAtP2.getCallParticipantsCount()"
                      , 1, callAtP2.getCallParticipantsCount());
 
-        CallParticipant participantAtP1
-            = (CallParticipant)callAtP1.getCallParticipants().next();
-        CallParticipant participantAtP2
-            = (CallParticipant)callAtP2.getCallParticipants().next();
+        CallPeer participantAtP1
+            = (CallPeer)callAtP1.getCallParticipants().next();
+        CallPeer participantAtP2
+            = (CallPeer)callAtP2.getCallParticipants().next();
 
         //now add listeners to the participants and make sure they have entered
         //the states they were expected to.
@@ -352,10 +352,10 @@ public class TestOperationSetBasicTelephonyJabberImpl
         assertEquals("callAtP2.getCallParticipantsCount()"
                      , 1, callAtP2.getCallParticipantsCount());
 
-        CallParticipant participantAtP1
-            = (CallParticipant)callAtP1.getCallParticipants().next();
-        CallParticipant participantAtP2
-            = (CallParticipant)callAtP2.getCallParticipants().next();
+        CallPeer participantAtP1
+            = (CallPeer)callAtP1.getCallParticipants().next();
+        CallPeer participantAtP2
+            = (CallPeer)callAtP2.getCallParticipants().next();
 
         //now add listeners to the participants and make sure they have entered
         //the states they were expected to.
@@ -589,10 +589,10 @@ public class TestOperationSetBasicTelephonyJabberImpl
         assertEquals("callAtP2.getCallParticipantsCount()"
                      , 1, callAtP2.getCallParticipantsCount());
 
-        CallParticipant participantAtP1
-            = (CallParticipant)callAtP1.getCallParticipants().next();
-        CallParticipant participantAtP2
-            = (CallParticipant)callAtP2.getCallParticipants().next();
+        CallPeer participantAtP1
+            = (CallPeer)callAtP1.getCallParticipants().next();
+        CallPeer participantAtP2
+            = (CallPeer)callAtP2.getCallParticipants().next();
 
         //now add listeners to the participants and make sure they have entered
         //the states they were expected to.
@@ -858,10 +858,10 @@ public class TestOperationSetBasicTelephonyJabberImpl
      * status changes.
      */
     public class CallParticipantStateEventCollector
-        extends CallParticipantAdapter
+        extends CallPeerAdapter
     {
         public ArrayList collectedEvents = new ArrayList();
-        private CallParticipant listenedCallParticipant = null;
+        private CallPeer listenedCallParticipant = null;
         public CallParticipantState awaitedState = null;
 
         /**
@@ -873,7 +873,7 @@ public class TestOperationSetBasicTelephonyJabberImpl
          * this collector.
          */
         public CallParticipantStateEventCollector(
-                                            CallParticipant      callParticipant,
+                                            CallPeer      callParticipant,
                                             CallParticipantState awaitedState)
         {
             this.listenedCallParticipant = callParticipant;
@@ -886,7 +886,7 @@ public class TestOperationSetBasicTelephonyJabberImpl
          *
          * @param event the event containing the source call.
          */
-        public void participantStateChanged(CallParticipantChangeEvent event)
+        public void participantStateChanged(CallPeerChangeEvent event)
         {
             synchronized(this)
             {
@@ -942,8 +942,8 @@ public class TestOperationSetBasicTelephonyJabberImpl
                 }
                 if(collectedEvents.size() > 0)
                 {
-                    CallParticipantChangeEvent lastEvent
-                        = (CallParticipantChangeEvent) collectedEvents
+                    CallPeerChangeEvent lastEvent
+                        = (CallPeerChangeEvent) collectedEvents
                         .get(collectedEvents.size() - 1);
 
                     if (lastEvent.getNewValue().equals(awaitedState))

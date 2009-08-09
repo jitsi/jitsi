@@ -92,7 +92,7 @@ public class CallParticipantJabberImpl
         this.participantAddress = address;
         //Fire the Event
         fireCallParticipantChangeEvent(
-                CallParticipantChangeEvent.CALL_PARTICIPANT_ADDRESS_CHANGE,
+                CallPeerChangeEvent.CALL_PARTICIPANT_ADDRESS_CHANGE,
                 oldAddress,
                 address.toString());
     }
@@ -144,7 +144,7 @@ public class CallParticipantJabberImpl
 
         //Fire the Event
         fireCallParticipantChangeEvent(
-                CallParticipantChangeEvent.CALL_PARTICIPANT_IMAGE_CHANGE,
+                CallPeerChangeEvent.CALL_PARTICIPANT_IMAGE_CHANGE,
                 oldImage,
                 image);
     }

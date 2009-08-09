@@ -23,7 +23,7 @@ public interface OperationSetSecureTelephony
      * @param participant the participant for who the call state is required
      * @return the call state
      */
-    public boolean isSecure(CallParticipant participant);
+    public boolean isSecure(CallPeer participant);
 
     /**
      * Sets the SAS verifications state of the call session in which a specific participant
@@ -34,5 +34,5 @@ public interface OperationSetSecureTelephony
      * @param verified the new SAS verification status
      * @param source the source who generated the call change
      */
-    public boolean setSasVerified(CallParticipant participant, boolean verified);
+    public boolean setSasVerified(CallPeer participant, boolean verified);
 }

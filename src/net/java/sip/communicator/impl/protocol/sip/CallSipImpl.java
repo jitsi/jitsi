@@ -22,7 +22,7 @@ import net.java.sip.communicator.util.*;
  */
 public class CallSipImpl
     extends Call
-    implements CallParticipantListener
+    implements CallPeerListener
 {
     private static final Logger logger = Logger.getLogger(CallSipImpl.class);
 
@@ -108,9 +108,9 @@ public class CallSipImpl
      *
      * @return an Iterator over all participants currently involved in the call.
      */
-    public Iterator<CallParticipant> getCallParticipants()
+    public Iterator<CallPeer> getCallParticipants()
     {
-        return new LinkedList<CallParticipant>(callParticipants).iterator();
+        return new LinkedList<CallPeer>(callParticipants).iterator();
     }
 
     /**
@@ -130,7 +130,7 @@ public class CallSipImpl
      *
      * @param evt unused.
      */
-    public void participantImageChanged(CallParticipantChangeEvent evt)
+    public void participantImageChanged(CallPeerChangeEvent evt)
     {
     }
 
@@ -140,7 +140,7 @@ public class CallSipImpl
      *
      * @param evt unused.
      */
-    public void participantAddressChanged(CallParticipantChangeEvent evt)
+    public void participantAddressChanged(CallPeerChangeEvent evt)
     {
     }
 
@@ -151,7 +151,7 @@ public class CallSipImpl
      * @param evt unused.
      */
     public void participantTransportAddressChanged(
-        CallParticipantChangeEvent evt)
+        CallPeerChangeEvent evt)
     {
     }
 
@@ -161,7 +161,7 @@ public class CallSipImpl
      *
      * @param evt unused.
      */
-    public void participantDisplayNameChanged(CallParticipantChangeEvent evt)
+    public void participantDisplayNameChanged(CallPeerChangeEvent evt)
     {
     }
 
@@ -171,7 +171,7 @@ public class CallSipImpl
      * @param evt The <tt>CallParticipantChangeEvent</tt> instance containing
      *            the source event as well as its previous and its new status.
      */
-    public void participantStateChanged(CallParticipantChangeEvent evt)
+    public void participantStateChanged(CallPeerChangeEvent evt)
     {
         CallParticipantState newState =
             (CallParticipantState) evt.getNewValue();
@@ -213,7 +213,7 @@ public class CallSipImpl
      */
     public CallParticipantSipImpl findCallParticipant(Dialog dialog)
     {
-        Iterator<CallParticipant> callParticipants = this.getCallParticipants();
+        Iterator<CallPeer> callParticipants = this.getCallParticipants();
 
         if (logger.isTraceEnabled())
         {

@@ -29,7 +29,7 @@ public interface CallParticipantConferenceListener
      *            and no associated <code>ConferenceMember</code>
      */
     public void conferenceFocusChanged(
-        CallParticipantConferenceEvent conferenceEvent);
+        CallPeerConferenceEvent conferenceEvent);
 
     /**
      * Notifies this listener about the addition of a specific
@@ -44,7 +44,7 @@ public interface CallParticipantConferenceListener
      *            <code>ConferenceMember</code> which was added
      */
     public void conferenceMemberAdded(
-        CallParticipantConferenceEvent conferenceEvent);
+        CallPeerConferenceEvent conferenceEvent);
 
     /**
      * Notifies this listener about the removal of a specific
@@ -59,5 +59,5 @@ public interface CallParticipantConferenceListener
      *            <code>ConferenceMember</code> which was removed
      */
     public void conferenceMemberRemoved(
-        CallParticipantConferenceEvent conferenceEvent);
+        CallPeerConferenceEvent conferenceEvent);
 }

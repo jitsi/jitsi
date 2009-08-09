@@ -22,6 +22,6 @@ public interface OperationSetCallTransfer
      * @param targetURI the uri that we'd like this call participant to be
      * transferred to.
      */
-    public void transferCallParticipant(CallParticipant participant,
+    public void transferCallParticipant(CallPeer participant,
                                         String targetURI);
 }

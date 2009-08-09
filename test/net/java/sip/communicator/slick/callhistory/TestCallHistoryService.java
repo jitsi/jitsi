@@ -156,7 +156,7 @@ public class TestCallHistoryService
             Iterator iter = newCall.getCallParticipants();
             while (iter.hasNext())
             {
-                CallParticipant item = (CallParticipant) iter.next();
+                CallPeer item = (CallPeer) iter.next();
                 v.add(item);
             }
 
@@ -165,7 +165,7 @@ public class TestCallHistoryService
             iter = v.iterator();
             while (iter.hasNext())
             {
-                CallParticipant item = (CallParticipant) iter.next();
+                CallPeer item = (CallPeer) iter.next();
                 mockBTelphonyOpSet.hangupCallParticipant(item);
             }
         }
@@ -287,13 +287,13 @@ public class TestCallHistoryService
             Iterator iter = newCall.getCallParticipants();
             while (iter.hasNext())
             {
-                CallParticipant item = (CallParticipant) iter.next();
+                CallPeer item = (CallPeer) iter.next();
                 v.add(item);
             }
 
             waitSeconds(2000);
 
-            CallParticipant newParticipant =
+            CallPeer newParticipant =
                 mockBTelphonyOpSet.addNewCallParticipant(newCall,
                 partAddresses[1]);
 
@@ -304,7 +304,7 @@ public class TestCallHistoryService
             iter = v.iterator();
             while (iter.hasNext())
             {
-                CallParticipant item = (CallParticipant) iter.next();
+                CallPeer item = (CallPeer) iter.next();
                 mockBTelphonyOpSet.hangupCallParticipant(item);
             }
         }

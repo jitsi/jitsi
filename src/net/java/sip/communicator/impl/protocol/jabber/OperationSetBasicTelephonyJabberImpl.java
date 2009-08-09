@@ -288,7 +288,7 @@ public class OperationSetBasicTelephonyJabberImpl
      *
      * @param participant the call participant to put on hold.
      */
-    public void putOffHold(CallParticipant participant)
+    public void putOffHold(CallPeer participant)
     {
         /** @todo implement putOffHold() */
         ((CallParticipantJabberImpl) participant).getJingleSession().
@@ -300,7 +300,7 @@ public class OperationSetBasicTelephonyJabberImpl
      *
      * @param participant the participant that we'd like to put on hold.
      */
-    public void putOnHold(CallParticipant participant)
+    public void putOnHold(CallPeer participant)
     {
         /** @todo implement putOnHold() */
         ((CallParticipantJabberImpl) participant).getJingleSession().
@@ -320,7 +320,7 @@ public class OperationSetBasicTelephonyJabberImpl
      * // TODO: ask for suppression of OperationFailedException from the interface.
      * // what happens if hangup fails ? are we forced to continue to talk ? :o)
      */
-    public void hangupCallParticipant(CallParticipant participant)
+    public void hangupCallParticipant(CallPeer participant)
             throws ClassCastException, OperationFailedException
     {
         CallParticipantJabberImpl callParticipant
@@ -348,7 +348,7 @@ public class OperationSetBasicTelephonyJabberImpl
      * @param participant the call participant that we want to answer
      * @throws OperationFailedException if we fails to answer
      */
-    public void answerCallParticipant(CallParticipant participant)
+    public void answerCallParticipant(CallPeer participant)
             throws OperationFailedException
     {
         CallParticipantJabberImpl callParticipant
@@ -387,8 +387,8 @@ public class OperationSetBasicTelephonyJabberImpl
             //go through all call participants and say bye to every one.
             while (callParticipants.hasNext())
             {
-                CallParticipant participant
-                        = (CallParticipant) callParticipants.next();
+                CallPeer participant
+                        = (CallPeer) callParticipants.next();
                 try
                 {
                     this.hangupCallParticipant(participant);

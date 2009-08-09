@@ -35,7 +35,7 @@ public class CallParticipantControlEvent
      * @param targetURI the URI to transfer to if this is a "Transfer" event
      * or null otherwise.
      */
-    public CallParticipantControlEvent(CallParticipant source, String targetURI)
+    public CallParticipantControlEvent(CallPeer source, String targetURI)
     {
         super(source);
         this.targetURI = targetURI;
@@ -45,9 +45,9 @@ public class CallParticipantControlEvent
      * Returns the CallParticipant that this event is pertaining to.
      * @return the CallParticipant that this event is pertaining to.
      */
-    public CallParticipant getAssociatedCallparticipant()
+    public CallPeer getAssociatedCallparticipant()
     {
-        return (CallParticipant) source;
+        return (CallPeer) source;
     }
 
     /**

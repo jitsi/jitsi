@@ -79,7 +79,7 @@ public interface OperationSetBasicTelephony
      * @throws OperationFailedException with the corresponding code if we
      * encounter an error while performing this operation.
      */
-    public void answerCallParticipant(CallParticipant participant)
+    public void answerCallParticipant(CallPeer participant)
         throws OperationFailedException;
 
     /**
@@ -90,7 +90,7 @@ public interface OperationSetBasicTelephony
      * @throws OperationFailedException with the corresponding code if we
      * encounter an error while performing this operation.
      */
-    public void putOnHold(CallParticipant participant)
+    public void putOnHold(CallPeer participant)
         throws OperationFailedException;
 
     /**
@@ -102,7 +102,7 @@ public interface OperationSetBasicTelephony
      * @throws OperationFailedException with the corresponding code if we
      *             encounter an error while performing this operation
      */
-    public void putOffHold(CallParticipant participant)
+    public void putOffHold(CallPeer participant)
         throws OperationFailedException;
 
     /**
@@ -112,7 +112,7 @@ public interface OperationSetBasicTelephony
      * @throws OperationFailedException with the corresponding code if we
      * encounter an error while performing this operation.
      */
-    public void hangupCallParticipant(CallParticipant participant)
+    public void hangupCallParticipant(CallPeer participant)
         throws OperationFailedException;
 
     /**
@@ -134,5 +134,5 @@ public interface OperationSetBasicTelephony
      * @param mute <tt>true</tt> to mute the audio stream being sent to
      *            <tt>participant</tt>; otherwise, <tt>false</tt>
      */
-    public void setMute(CallParticipant participant, boolean mute);
+    public void setMute(CallPeer participant, boolean mute);
 }

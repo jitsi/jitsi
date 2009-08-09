@@ -23,7 +23,7 @@ public class AbstractConferenceMember
      * The <code>CallParticipant</code> which is the conference focus of this
      * <code>ConferenceMember</code>.
      */
-    private final CallParticipant conferenceFocusCallParticipant;
+    private final CallPeer conferenceFocusCallParticipant;
 
     /**
      * The user-friendly display name of this <code>ConferenceMember</code> in
@@ -38,7 +38,7 @@ public class AbstractConferenceMember
     private ConferenceMemberState state = ConferenceMemberState.UNKNOWN;
 
     public AbstractConferenceMember(
-        CallParticipant conferenceFocusCallParticipant)
+        CallPeer conferenceFocusCallParticipant)
     {
         this.conferenceFocusCallParticipant = conferenceFocusCallParticipant;
     }
@@ -46,7 +46,7 @@ public class AbstractConferenceMember
     /*
      * Implements ConferenceMember#getConferenceFocusCallParticipant().
      */
-    public CallParticipant getConferenceFocusCallParticipant()
+    public CallPeer getConferenceFocusCallParticipant()
     {
         return conferenceFocusCallParticipant;
     }

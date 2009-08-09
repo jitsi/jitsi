@@ -314,10 +314,10 @@ public class SingleCallInProgressPolicy
 
         if (telephony != null)
         {
-            for (Iterator<CallParticipant> participantIter =
+            for (Iterator<CallPeer> participantIter =
                 call.getCallParticipants(); participantIter.hasNext();)
             {
-                CallParticipant participant = participantIter.next();
+                CallPeer participant = participantIter.next();
                 CallParticipantState participantState = participant.getState();
 
                 if (!CallParticipantState.DISCONNECTED.equals(participantState)

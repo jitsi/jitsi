@@ -123,7 +123,7 @@ public abstract class Call
      * Returns an iterator over all call participants.
      * @return an Iterator over all participants currently involved in the call.
      */
-    public abstract Iterator<CallParticipant> getCallParticipants();
+    public abstract Iterator<CallPeer> getCallParticipants();
 
     /**
      * Returns the number of participants currently associated with this call.
@@ -180,7 +180,7 @@ public abstract class Call
      * newly created event.
      * @param eventID the ID of the event to create (see CPE member ints)
      */
-    protected void fireCallParticipantEvent(CallParticipant sourceCallParticipant,
+    protected void fireCallParticipantEvent(CallPeer sourceCallParticipant,
                                             int             eventID)
     {
         CallParticipantEvent cpEvent = new CallParticipantEvent(

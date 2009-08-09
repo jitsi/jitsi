@@ -183,7 +183,7 @@ public interface CallSession
      * @throws ParseException if <tt>sdpOfferStr</tt> does not contain a valid
      * sdp string.
      */
-    public String processSdpOffer(CallParticipant offerer, String sdpOffer)
+    public String processSdpOffer(CallPeer offerer, String sdpOffer)
         throws MediaException, ParseException;
 
     /**
@@ -198,7 +198,7 @@ public interface CallSession
      * @throws ParseException if <tt>sdpAnswerStr</tt> does not contain a valid
      * sdp string.
      */
-    public void processSdpAnswer(CallParticipant responder, String sdpAnswer)
+    public void processSdpAnswer(CallPeer responder, String sdpAnswer)
         throws MediaException, ParseException;
 
     /**

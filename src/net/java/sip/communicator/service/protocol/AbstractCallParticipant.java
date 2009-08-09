@@ -22,7 +22,7 @@ import net.java.sip.communicator.util.*;
  */
 public abstract class AbstractCallParticipant
     extends PropertyChangeNotifier
-    implements CallParticipant
+    implements CallPeer
 {
     private static final Logger logger
         = Logger.getLogger(AbstractCallParticipant.class);
@@ -38,8 +38,8 @@ public abstract class AbstractCallParticipant
     /**
      * All the CallParticipant listeners registered with this CallParticipant.
      */
-    protected final List<CallParticipantListener> callParticipantListeners
-                            = new ArrayList<CallParticipantListener>();
+    protected final List<CallPeerListener> callParticipantListeners
+                            = new ArrayList<CallPeerListener>();
 
     /**
      * All the CallParticipantSecurityListener-s registered with this
@@ -88,7 +88,7 @@ public abstract class AbstractCallParticipant
      * receiving CallParticipantEvents
      * @param listener a listener instance to register with this participant.
      */
-    public void addCallParticipantListener(CallParticipantListener listener)
+    public void addCallParticipantListener(CallPeerListener listener)
     {
         if (listener == null)
             return;
@@ -103,7 +103,7 @@ public abstract class AbstractCallParticipant
      * Unregisters the specified listener.
      * @param listener the listener to unregister.
      */
-    public void removeCallParticipantListener(CallParticipantListener listener)
+    public void removeCallParticipantListener(CallPeerListener listener)
     {
         if (listener == null)
             return;
@@ -182,38 +182,38 @@ public abstract class AbstractCallParticipant
                                                   Object newValue,
                                                   String reason)
     {
-        CallParticipantChangeEvent evt = new CallParticipantChangeEvent(
+        CallPeerChangeEvent evt = new CallPeerChangeEvent(
             this, eventType, oldValue, newValue, reason);
 
         logger.debug("Dispatching a CallParticipantChangeEvent event to "
                      + callParticipantListeners.size()
                      +" listeners. event is: " + evt.toString());
 
-        Iterator<CallParticipantListener> listeners = null;
+        Iterator<CallPeerListener> listeners = null;
         synchronized (callParticipantListeners)
         {
-            listeners = new ArrayList<CallParticipantListener>(
+            listeners = new ArrayList<CallPeerListener>(
                                 callParticipantListeners).iterator();
         }
 
         while (listeners.hasNext())
         {
-            CallParticipantListener listener
-                = (CallParticipantListener) listeners.next();
+            CallPeerListener listener
+                = (CallPeerListener) listeners.next();
 
-            if(eventType.equals(CallParticipantChangeEvent
+            if(eventType.equals(CallPeerChangeEvent
                                 .CALL_PARTICIPANT_ADDRESS_CHANGE))
             {
                 listener.participantAddressChanged(evt);
-            } else if(eventType.equals(CallParticipantChangeEvent
+            } else if(eventType.equals(CallPeerChangeEvent
                                 .CALL_PARTICIPANT_DISPLAY_NAME_CHANGE))
             {
                 listener.participantDisplayNameChanged(evt);
-            } else if(eventType.equals(CallParticipantChangeEvent
+            } else if(eventType.equals(CallPeerChangeEvent
                                 .CALL_PARTICIPANT_IMAGE_CHANGE))
             {
                 listener.participantImageChanged(evt);
-            } else if(eventType.equals(CallParticipantChangeEvent
+            } else if(eventType.equals(CallPeerChangeEvent
                                 .CALL_PARTICIPANT_STATE_CHANGE))
             {
                 listener.participantStateChanged(evt);
@@ -401,7 +401,7 @@ public abstract class AbstractCallParticipant
         }
 
         fireCallParticipantChangeEvent(
-                CallParticipantChangeEvent.CALL_PARTICIPANT_STATE_CHANGE,
+                CallPeerChangeEvent.CALL_PARTICIPANT_STATE_CHANGE,
                 oldState,
                 newState);
     }
@@ -426,7 +426,7 @@ public abstract class AbstractCallParticipant
      * @return the time at which this <code>CallParticipant</code> transitioned
      *         into a state marking the start of the duration of the
      *         participation in a <code>Call</code> or
-     *         {@link CallParticipant#CALL_DURATION_START_TIME_UNKNOWN} if such
+     *         {@link CallPeer#CALL_DURATION_START_TIME_UNKNOWN} if such
      *         a transition has not been performed
      */
     public long getCallDurationStartTime()
@@ -476,9 +476,9 @@ public abstract class AbstractCallParticipant
             this.conferenceFocus = conferenceFocus;
 
             fireCallParticipantConferenceEvent(
-                new CallParticipantConferenceEvent(
+                new CallPeerConferenceEvent(
                         this,
-                        CallParticipantConferenceEvent.CONFERENCE_FOCUS_CHANGED));
+                        CallPeerConferenceEvent.CONFERENCE_FOCUS_CHANGED));
         }
     }
 
@@ -540,9 +540,9 @@ public abstract class AbstractCallParticipant
             conferenceMembers.add(conferenceMember);
         }
         fireCallParticipantConferenceEvent(
-            new CallParticipantConferenceEvent(
+            new CallPeerConferenceEvent(
                     this,
-                    CallParticipantConferenceEvent.CONFERENCE_MEMBER_ADDED,
+                    CallPeerConferenceEvent.CONFERENCE_MEMBER_ADDED,
                     conferenceMember));
     }
 
@@ -570,9 +570,9 @@ public abstract class AbstractCallParticipant
                 return;
         }
         fireCallParticipantConferenceEvent(
-            new CallParticipantConferenceEvent(
+            new CallPeerConferenceEvent(
                     this,
-                    CallParticipantConferenceEvent.CONFERENCE_MEMBER_REMOVED,
+                    CallPeerConferenceEvent.CONFERENCE_MEMBER_REMOVED,
                     conferenceMember));
     }
 
@@ -617,7 +617,7 @@ public abstract class AbstractCallParticipant
      *            carrying the event data
      */
     protected void fireCallParticipantConferenceEvent(
-        CallParticipantConferenceEvent conferenceEvent)
+        CallPeerConferenceEvent conferenceEvent)
     {
         CallParticipantConferenceListener[] listeners;
 
@@ -635,13 +635,13 @@ public abstract class AbstractCallParticipant
         for (CallParticipantConferenceListener listener : listeners)
             switch (eventID)
             {
-            case CallParticipantConferenceEvent.CONFERENCE_FOCUS_CHANGED:
+            case CallPeerConferenceEvent.CONFERENCE_FOCUS_CHANGED:
                 listener.conferenceFocusChanged(conferenceEvent);
                 break;
-            case CallParticipantConferenceEvent.CONFERENCE_MEMBER_ADDED:
+            case CallPeerConferenceEvent.CONFERENCE_MEMBER_ADDED:
                 listener.conferenceMemberAdded(conferenceEvent);
                 break;
-            case CallParticipantConferenceEvent.CONFERENCE_MEMBER_REMOVED:
+            case CallPeerConferenceEvent.CONFERENCE_MEMBER_REMOVED:
                 listener.conferenceMemberRemoved(conferenceEvent);
                 break;
             }

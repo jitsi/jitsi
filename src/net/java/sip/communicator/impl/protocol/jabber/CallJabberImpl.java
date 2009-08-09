@@ -24,7 +24,7 @@ import org.jivesoftware.smackx.jingle.*;
  */
 public class CallJabberImpl
     extends Call
-    implements CallParticipantListener
+    implements CallPeerListener
 {
     /**
      * Logger of this class
@@ -120,7 +120,7 @@ public class CallJabberImpl
      *
      * @param evt unused.
      */
-    public void participantImageChanged(CallParticipantChangeEvent evt)
+    public void participantImageChanged(CallPeerChangeEvent evt)
     {}
 
     /**
@@ -129,7 +129,7 @@ public class CallJabberImpl
      *
      * @param evt unused.
      */
-    public void participantAddressChanged(CallParticipantChangeEvent evt)
+    public void participantAddressChanged(CallPeerChangeEvent evt)
     {}
 
     /**
@@ -139,7 +139,7 @@ public class CallJabberImpl
      * @param evt unused.
      */
     public void participantTransportAddressChanged(
-                                    CallParticipantChangeEvent evt)
+                                    CallPeerChangeEvent evt)
     {}
 
 
@@ -149,7 +149,7 @@ public class CallJabberImpl
      *
      * @param evt unused.
      */
-    public void participantDisplayNameChanged(CallParticipantChangeEvent evt)
+    public void participantDisplayNameChanged(CallPeerChangeEvent evt)
     {}
 
     /**
@@ -158,7 +158,7 @@ public class CallJabberImpl
      * @param evt The <tt>CallParticipantChangeEvent</tt> instance containing
      * the source event as well as its previous and its new status.
      */
-    public void participantStateChanged(CallParticipantChangeEvent evt)
+    public void participantStateChanged(CallPeerChangeEvent evt)
     {
         if(((CallParticipantState)evt.getNewValue())
                      == CallParticipantState.DISCONNECTED

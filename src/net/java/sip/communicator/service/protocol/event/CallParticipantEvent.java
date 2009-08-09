@@ -50,7 +50,7 @@ public class CallParticipantEvent
      * @param eventID one of the CALL_PARTICIPANT_XXX member ints indicating
      * the type of this event.
      */
-    public CallParticipantEvent(CallParticipant sourceCallParticipant,
+    public CallParticipantEvent(CallPeer sourceCallParticipant,
                                 Call            sourceCall,
                                 int             eventID)
     {
@@ -86,9 +86,9 @@ public class CallParticipantEvent
      *
      * @return a reference to the source <tt>CallParticipant</tt> instance.
      */
-    public CallParticipant getSourceCallParticipant()
+    public CallPeer getSourceCallParticipant()
     {
-        return (CallParticipant)getSource();
+        return (CallPeer)getSource();
     }
 
     /**

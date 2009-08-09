@@ -39,7 +39,7 @@ public class CallParticipantSecurityOnEvent
      *            indicates if the security string has already been verified
      */
     public CallParticipantSecurityOnEvent(
-                                        CallParticipant callParticipant,
+                                        CallPeer callParticipant,
                                         int sessionType,
                                         String cipher,
                                         String securityString,
@@ -57,9 +57,9 @@ public class CallParticipantSecurityOnEvent
      * 
      * @return the <tt>CallParticipant</tt> for which this event occurred.
      */
-    public CallParticipant getCallParticipant()
+    public CallPeer getCallParticipant()
     {
-        return (CallParticipant) getSource();
+        return (CallPeer) getSource();
     }
 
     /**

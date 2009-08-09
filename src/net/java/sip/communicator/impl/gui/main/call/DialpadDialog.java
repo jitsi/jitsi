@@ -31,7 +31,7 @@ public class DialpadDialog
      * 
      * @param callParticipants The corresponding call participants.
      */
-    public DialpadDialog(Iterator<CallParticipant> callParticipants)
+    public DialpadDialog(Iterator<CallPeer> callParticipants)
     {
         this.setModal(false);
 
