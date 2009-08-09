@@ -19,6 +19,12 @@ public class ScStdOut extends PrintStream
 {
     private static boolean stdOutPrintingEnabled = false;
 
+    /**
+     * This PrintStream contains System.out when the class were initiated.
+     * Normally that would be the system default System.out
+     */
+    private PrintStream systemOut;
+
     public static void setStdOutPrintingEnabled(boolean enabled)
     {
         stdOutPrintingEnabled = enabled;
@@ -27,20 +33,36 @@ public class ScStdOut extends PrintStream
     public ScStdOut(PrintStream printStream)
     {
         super(printStream);
+        systemOut = System.out;
     }
 
-    /* (non-Javadoc)
-     * @see java.io.PrintStream#print(java.lang.String)
+    /**
+     * Returns the default System.out <tt>PrintStream</tt> that was in use
+     * before this class was instantiated.
+     *
+     * @return the original System.out PrintStream
+     */
+    public PrintStream getSystemOut()
+    {
+        return systemOut;
+    }
+
+    /**
+     * Prints <tt>string</tt> if <tt>stdOutPrintingEnabled</tt> is enabled.
+     *
+     * @param string the <tt>String</tt> to print.
      */
     @Override
-    public void print(String s)
+    public void print(String string)
     {
         if(stdOutPrintingEnabled)
-            super.print(s);
+            super.print(string);
     }
 
-    /* (non-Javadoc)
-     * @see java.io.PrintStream#println(boolean)
+    /**
+     * Prints <tt>x</tt> if <tt>stdOutPrintingEnabled</tt> is enabled.
+     *
+     * @param x the <tt>boolean</tt> to print.
      */
     @Override
     public void println(boolean x)
@@ -49,8 +71,10 @@ public class ScStdOut extends PrintStream
             super.println(x);
     }
 
-    /* (non-Javadoc)
-     * @see java.io.PrintStream#println(char)
+    /**
+     * Prints <tt>x</tt> if <tt>stdOutPrintingEnabled</tt> is enabled.
+     *
+     * @param x the <tt>char</tt> to print.
      */
     @Override
     public void println(char x)
@@ -59,8 +83,10 @@ public class ScStdOut extends PrintStream
             super.println(x);
     }
 
-    /* (non-Javadoc)
-     * @see java.io.PrintStream#println(char[])
+    /**
+     * Prints <tt>x</tt> if <tt>stdOutPrintingEnabled</tt> is enabled.
+     *
+     * @param x the <tt>char[]</tt> to print.
      */
     @Override
     public void println(char[] x)
@@ -69,8 +95,10 @@ public class ScStdOut extends PrintStream
             super.println(x);
     }
 
-    /* (non-Javadoc)
-     * @see java.io.PrintStream#println(double)
+    /**
+     * Prints <tt>x</tt> if <tt>stdOutPrintingEnabled</tt> is enabled.
+     *
+     * @param x the <tt>double</tt> to print.
      */
     @Override
     public void println(double x)
@@ -79,8 +107,10 @@ public class ScStdOut extends PrintStream
             super.println(x);
     }
 
-    /* (non-Javadoc)
-     * @see java.io.PrintStream#println(float)
+    /**
+     * Prints <tt>x</tt> if <tt>stdOutPrintingEnabled</tt> is enabled.
+     *
+     * @param x the <tt>float</tt> to print.
      */
     @Override
     public void println(float x)
@@ -89,8 +119,10 @@ public class ScStdOut extends PrintStream
             super.println(x);
     }
 
-    /* (non-Javadoc)
-     * @see java.io.PrintStream#println(int)
+    /**
+     * Prints <tt>x</tt> if <tt>stdOutPrintingEnabled</tt> is enabled.
+     *
+     * @param x the <tt>int</tt> to print.
      */
     @Override
     public void println(int x)
@@ -99,8 +131,10 @@ public class ScStdOut extends PrintStream
             super.println(x);
     }
 
-    /* (non-Javadoc)
-     * @see java.io.PrintStream#println(long)
+    /**
+     * Prints <tt>x</tt> if <tt>stdOutPrintingEnabled</tt> is enabled.
+     *
+     * @param x the <tt>long</tt> to print.
      */
     @Override
     public void println(long x)
@@ -109,8 +143,10 @@ public class ScStdOut extends PrintStream
             super.println(x);
     }
 
-    /* (non-Javadoc)
-     * @see java.io.PrintStream#println(java.lang.Object)
+    /**
+     * Prints <tt>x</tt> if <tt>stdOutPrintingEnabled</tt> is enabled.
+     *
+     * @param x the <tt>Object</tt> to print.
      */
     @Override
     public void println(Object x)
@@ -119,8 +155,10 @@ public class ScStdOut extends PrintStream
             super.println(x);
     }
 
-    /* (non-Javadoc)
-     * @see java.io.PrintStream#println(java.lang.String)
+    /**
+     * Prints <tt>x</tt> if <tt>stdOutPrintingEnabled</tt> is enabled.
+     *
+     * @param x the <tt>String</tt> to print.
      */
     @Override
     public void println(String x)
@@ -129,8 +167,10 @@ public class ScStdOut extends PrintStream
             super.println(x);
     }
 
-    /* (non-Javadoc)
-     * @see java.io.PrintStream#print(boolean)
+    /**
+     * Prints <tt>b</tt> if <tt>stdOutPrintingEnabled</tt> is enabled.
+     *
+     * @param b the <tt>boolean</tt> to print.
      */
     @Override
     public void print(boolean b)
@@ -139,8 +179,10 @@ public class ScStdOut extends PrintStream
             super.print(b);
     }
 
-    /* (non-Javadoc)
-     * @see java.io.PrintStream#print(char)
+    /**
+     * Prints <tt>c</tt> if <tt>stdOutPrintingEnabled</tt> is enabled.
+     *
+     * @param c the <tt>char</tt> to print.
      */
     @Override
     public void print(char c)
@@ -149,8 +191,10 @@ public class ScStdOut extends PrintStream
             super.print(c);
     }
 
-    /* (non-Javadoc)
-     * @see java.io.PrintStream#print(char[])
+    /**
+     * Prints <tt>s</tt> if <tt>stdOutPrintingEnabled</tt> is enabled.
+     *
+     * @param s the <tt>char[]</tt> to print.
      */
     @Override
     public void print(char[] s)
@@ -159,8 +203,10 @@ public class ScStdOut extends PrintStream
             super.print(s);
     }
 
-    /* (non-Javadoc)
-     * @see java.io.PrintStream#print(double)
+    /**
+     * Prints <tt>d</tt> if <tt>stdOutPrintingEnabled</tt> is enabled.
+     *
+     * @param d the <tt>double</tt> to print.
      */
     @Override
     public void print(double d)
@@ -169,8 +215,10 @@ public class ScStdOut extends PrintStream
             super.print(d);
     }
 
-    /* (non-Javadoc)
-     * @see java.io.PrintStream#print(float)
+    /**
+     * Prints <tt>f</tt> if <tt>stdOutPrintingEnabled</tt> is enabled.
+     *
+     * @param f the <tt>float</tt> to print.
      */
     @Override
     public void print(float f)
@@ -179,8 +227,10 @@ public class ScStdOut extends PrintStream
             super.print(f);
     }
 
-    /* (non-Javadoc)
-     * @see java.io.PrintStream#print(int)
+    /**
+     * Prints <tt>i</tt> if <tt>stdOutPrintingEnabled</tt> is enabled.
+     *
+     * @param i the <tt>int</tt> to print.
      */
     @Override
     public void print(int i)
@@ -189,8 +239,10 @@ public class ScStdOut extends PrintStream
             super.print(i);
     }
 
-    /* (non-Javadoc)
-     * @see java.io.PrintStream#print(long)
+    /**
+     * Prints <tt>l</tt> if <tt>stdOutPrintingEnabled</tt> is enabled.
+     *
+     * @param l the <tt>long</tt> to print.
      */
     @Override
     public void print(long l)
@@ -199,8 +251,10 @@ public class ScStdOut extends PrintStream
             super.print(l);
     }
 
-    /* (non-Javadoc)
-     * @see java.io.PrintStream#print(java.lang.Object)
+    /**
+     * Prints <tt>obj</tt> if <tt>stdOutPrintingEnabled</tt> is enabled.
+     *
+     * @param obj the <tt>Object</tt> to print.
      */
     @Override
     public void print(Object obj)
@@ -209,8 +263,8 @@ public class ScStdOut extends PrintStream
             super.print(obj);
     }
 
-    /* (non-Javadoc)
-     * @see java.io.PrintStream#println()
+    /**
+     * Prints an empty line <tt>stdOutPrintingEnabled</tt> is enabled.
      */
     @Override
     public void println()
