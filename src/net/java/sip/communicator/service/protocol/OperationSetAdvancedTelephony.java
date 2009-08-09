@@ -9,7 +9,7 @@ package net.java.sip.communicator.service.protocol;
 /**
  * Extends <code>OperationSetBasicTelephony</code> with advanced telephony
  * operations such as call transfer.
- * 
+ *
  * @author Lubomir Marinov
  */
 public interface OperationSetAdvancedTelephony
@@ -18,37 +18,36 @@ public interface OperationSetAdvancedTelephony
 
     /**
      * Transfers (in the sense of call transfer) a specific
-     * <code>CallParticipant</code> to a specific callee address which already
+     * <code>CallPeer</code> to a specific callee address which already
      * participates in an active <code>Call</code>.
      * <p>
      * The method is suitable for providing the implementation of attended call
      * transfer (though no such requirement is imposed).
      * </p>
      *
-     * @param participant the <code>CallParticipant</code> to be transfered to
+     * @param peer the <code>CallPeer</code> to be transfered to
      *            the specified callee address
-     * @param target the address in the form of <code>CallParticipant</code> of
-     *            the callee to transfer <code>participant</code> to
+     * @param target the address in the form of <code>CallPeer</code> of
+     *            the callee to transfer <code>peer</code> to
      * @throws OperationFailedException
      */
-    void transfer(CallPeer participant, CallPeer target)
+    void transfer(CallPeer peer, CallPeer target)
         throws OperationFailedException;
 
     /**
      * Transfers (in the sense of call transfer) a specific
-     * <code>CallParticipant</code> to a specific callee address which may or
+     * <code>CallPeer</code> to a specific callee address which may or
      * may not already be participating in an active <code>Call</code>.
      * <p>
      * The method is suitable for providing the implementation of unattended
      * call transfer (though no such requirement is imposed).
      * </p>
-     * 
-     * @param participant the <code>CallParticipant</code> to be transfered to
+     *
+     * @param peer the <code>CallPeer</code> to be transfered to
      *            the specified callee address
-     * @param target the address of the callee to transfer
-     *            <code>participant</code> to
+     * @param target the address of the callee to transfer <code>peer</code> to
      * @throws OperationFailedException
      */
-    void transfer(CallPeer participant, String target)
+    void transfer(CallPeer peer, String target)
         throws OperationFailedException;
 }
