@@ -56,7 +56,7 @@ public class MetaHistoryServiceImpl
      * Returns all the records for the descriptor after the given date.
      *
      * @param services the services classnames we will query
-     * @param descriptor CallParticipant address(String),
+     * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param startDate Date the date of the first record to return
      * @return Collection sorted result that conists of records returned from
@@ -119,7 +119,7 @@ public class MetaHistoryServiceImpl
      * Returns all the records before the given date
      *
      * @param services the services classnames we will query
-     * @param descriptor CallParticipant address(String),
+     * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param endDate Date the date of the last record to return
      * @return Collection sorted result that conists of records returned from
@@ -183,7 +183,7 @@ public class MetaHistoryServiceImpl
      * Returns all the records between the given dates
      *
      * @param services the services classnames we will query
-     * @param descriptor CallParticipant address(String),
+     * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param startDate Date the date of the first record to return
      * @param endDate Date the date of the last record to return
@@ -251,7 +251,7 @@ public class MetaHistoryServiceImpl
      * keywords
      *
      * @param services the services classnames we will query
-     * @param descriptor CallParticipant address(String),
+     * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param startDate Date the date of the first record to return
      * @param endDate Date the date of the last record to return
@@ -272,7 +272,7 @@ public class MetaHistoryServiceImpl
      * keywords
      *
      * @param services the services classnames we will query
-     * @param descriptor CallParticipant address(String),
+     * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param startDate Date the date of the first record to return
      * @param endDate Date the date of the last record to return
@@ -342,7 +342,7 @@ public class MetaHistoryServiceImpl
                 {
                     CallRecord callRecord = iter.next();
 
-                    if(matchCallParticipant(
+                    if(matchCallPeer(
                             callRecord.getPeerRecords(), keywords, caseSensitive))
                         result.add(callRecord);
                 }
@@ -358,7 +358,7 @@ public class MetaHistoryServiceImpl
      * Returns all the records having the given keyword
      *
      * @param services the services classnames we will query
-     * @param descriptor CallParticipant address(String),
+     * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param keyword keyword
      * @return Collection sorted result that conists of records returned from
@@ -376,7 +376,7 @@ public class MetaHistoryServiceImpl
      * Returns all the records having the given keyword
      *
      * @param services the services classnames we will query
-     * @param descriptor CallParticipant address(String),
+     * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param keyword keyword
      * @param caseSensitive is keywords search case sensitive
@@ -396,7 +396,7 @@ public class MetaHistoryServiceImpl
      * Returns all the records having the given keywords
      *
      * @param services the services classnames we will query
-     * @param contact CallParticipant address(String),
+     * @param contact CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param keywords keyword
      * @return Collection sorted result that conists of records returned from
@@ -414,7 +414,7 @@ public class MetaHistoryServiceImpl
      * Returns all the records having the given keywords
      *
      * @param services the services classnames we will query
-     * @param descriptor CallParticipant address(String),
+     * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param keywords keyword
      * @param caseSensitive is keywords search case sensitive
@@ -479,7 +479,7 @@ public class MetaHistoryServiceImpl
                 {
                     CallRecord callRecord = iter.next();
 
-                    if(matchCallParticipant(
+                    if(matchCallPeer(
                             callRecord.getPeerRecords(), keywords, caseSensitive))
                         result.add(callRecord);
                 }
@@ -495,7 +495,7 @@ public class MetaHistoryServiceImpl
      * Returns the supplied number of recent records.
      *
      * @param services the services classnames we will query
-     * @param descriptor CallParticipant address(String),
+     * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param count messages count
      * @return Collection sorted result that conists of records returned from
@@ -570,7 +570,7 @@ public class MetaHistoryServiceImpl
      * Returns the supplied number of recent records after the given date
      *
      * @param services the services classnames we will query
-     * @param descriptor CallParticipant address(String),
+     * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param date messages after date
      * @param count messages count
@@ -658,7 +658,7 @@ public class MetaHistoryServiceImpl
      * Returns the supplied number of recent records before the given date
      *
      * @param services the services classnames we will query
-     * @param descriptor CallParticipant address(String),
+     * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param date messages before date
      * @param count messages count
@@ -780,19 +780,19 @@ public class MetaHistoryServiceImpl
        return serv;
    }
 
-   private boolean matchAnyCallParticipant(
+   private boolean matchAnyCallPeer(
        List<CallPeerRecord> cps, String[] keywords, boolean caseSensitive)
    {
        Iterator<CallPeerRecord> iter = cps.iterator();
        while (iter.hasNext())
        {
-           CallPeerRecord callParticipant = iter.next();
+           CallPeerRecord callPeer = iter.next();
            for (int i = 0; i < keywords.length; i++)
            {
                String k = keywords[i];
-               if(caseSensitive && callParticipant.getPeerAddress().contains(k))
+               if(caseSensitive && callPeer.getPeerAddress().contains(k))
                     return true;
-                else if(callParticipant.getPeerAddress().toLowerCase().
+                else if(callPeer.getPeerAddress().toLowerCase().
                             contains(k.toLowerCase()))
                     return true;
            }
@@ -801,21 +801,21 @@ public class MetaHistoryServiceImpl
        return false;
    }
 
-   private boolean matchCallParticipant(
+   private boolean matchCallPeer(
        List<CallPeerRecord> cps, String[] keywords, boolean caseSensitive)
    {
        Iterator<CallPeerRecord> iter = cps.iterator();
        while (iter.hasNext())
        {
            boolean match = false;
-           CallPeerRecord callParticipant = iter.next();
+           CallPeerRecord callPeer = iter.next();
            for (int i = 0; i < keywords.length; i++)
            {
                String k = keywords[i];
 
                if(caseSensitive)
                {
-                    if(callParticipant.getPeerAddress().contains(k))
+                    if(callPeer.getPeerAddress().contains(k))
                     {
                         match = true;
                     }
@@ -827,7 +827,7 @@ public class MetaHistoryServiceImpl
 
                     continue;
                }
-               else if(callParticipant.getPeerAddress().toLowerCase().
+               else if(callPeer.getPeerAddress().toLowerCase().
                             contains(k.toLowerCase()))
                {
                    match = true;

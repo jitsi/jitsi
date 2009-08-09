@@ -15,7 +15,7 @@ import net.java.sip.communicator.util.*;
 
 /**
  * Keeps a list of all calls currently active and maintained by this protocol
- * povider. Offers methods for finding a call by its ID, participant dialog
+ * povider. Offers methods for finding a call by its ID, peer dialog
  * and others.
  *
  * @author Emil Ivov
@@ -87,7 +87,7 @@ public class ActiveCallsRepository
 
     /**
      * Returns the call that contains the specified dialog (i.e. it is
-     * established  between us and one of the other call participants).
+     * established  between us and one of the other call peers).
      * <p>
      * @param dialog the jain sip <tt>Dialog</tt> whose containing call we're
      * looking for.
@@ -100,14 +100,14 @@ public class ActiveCallsRepository
 
         if(dialog == null)
         {
-            logger.debug("Cannot find a participant with a null dialog. "
+            logger.debug("Cannot find a peer with a null dialog. "
                          +"Returning null");
             return null;
         }
 
         if(logger.isTraceEnabled())
         {
-            logger.trace("Looking for participant with dialog: " + dialog
+            logger.trace("Looking for peer with dialog: " + dialog
                          + " among " + this.activeCalls.size() + " calls");
         }
 
@@ -123,26 +123,26 @@ public class ActiveCallsRepository
     }
 
     /**
-     * Returns the call participant whose associated jain sip dialog matches
+     * Returns the call peer whose associated jain sip dialog matches
      * <tt>dialog</tt>.
      *
-     * @param dialog the jain sip dialog whose corresponding participant we're
+     * @param dialog the jain sip dialog whose corresponding peer we're
      * looking for.
-     * @return the call participant whose jain sip dialog is the same as the
-     * specified or null if no such call participant was found.
+     * @return the call peer whose jain sip dialog is the same as the
+     * specified or null if no such call peer was found.
      */
     public CallPeerSipImpl findCallPeer(Dialog dialog)
     {
         if(dialog == null)
         {
-            logger.debug("Cannot find a participant with a null dialog. "
+            logger.debug("Cannot find a peer with a null dialog. "
                          +"Returning null");
             return null;
         }
 
         if(logger.isTraceEnabled())
         {
-            logger.trace("Looking for participant with dialog: " + dialog
+            logger.trace("Looking for peer with dialog: " + dialog
                          + " among " + this.activeCalls.size() + " calls");
         }
 
@@ -150,12 +150,12 @@ public class ActiveCallsRepository
                  activeCalls.hasNext();)
         {
             CallSipImpl call = activeCalls.next();
-            CallPeerSipImpl callParticipant
+            CallPeerSipImpl callPeer
                 = call.findCallPeer(dialog);
-            if(callParticipant != null)
+            if(callPeer != null)
             {
-                logger.trace("Returning participant " + callParticipant);
-                return callParticipant;
+                logger.trace("Returning peer " + callPeer);
+                return callPeer;
             }
         }
 
@@ -163,13 +163,13 @@ public class ActiveCallsRepository
     }
 
     /**
-     * Returns the <code>CallParticipantSipImpl</code> instances with
+     * Returns the <code>CallPeerSipImpl</code> instances with
      * <code>Dialog</code>s matching CallID, local and remote tags.
      *
      * @param callID
      * @param localTag
      * @param remoteTag
-     * @return the <code>List</code> of <code>CallParticipantSipImpl</code>
+     * @return the <code>List</code> of <code>CallPeerSipImpl</code>
      *         instances with <code>Dialog</code>s matching the specified
      *         CallID, local and remote tags
      */
@@ -178,12 +178,12 @@ public class ActiveCallsRepository
     {
         if (logger.isTraceEnabled())
         {
-            logger.trace("Looking for call participant with callID " + callID
+            logger.trace("Looking for call peer with callID " + callID
                 + ", localTag " + localTag + ", and remoteTag " + remoteTag
                 + " among " + this.activeCalls.size() + " calls.");
         }
 
-        List<CallPeerSipImpl> callParticipants =
+        List<CallPeerSipImpl> callPeers =
             new ArrayList<CallPeerSipImpl>();
 
         for (Iterator<CallSipImpl> activeCalls = getActiveCalls();
@@ -194,12 +194,12 @@ public class ActiveCallsRepository
             if (!callID.equals(call.getCallID()))
                 continue;
 
-            for (Iterator<CallPeer> callParticipantIter = call.getCallPeers();
-                    callParticipantIter.hasNext();)
+            for (Iterator<CallPeer> callPeerIter = call.getCallPeers();
+                    callPeerIter.hasNext();)
             {
-                CallPeerSipImpl callParticipant =
-                    (CallPeerSipImpl) callParticipantIter.next();
-                Dialog dialog = callParticipant.getDialog();
+                CallPeerSipImpl callPeer =
+                    (CallPeerSipImpl) callPeerIter.next();
+                Dialog dialog = callPeer.getDialog();
 
                 if (dialog != null)
                 {
@@ -215,12 +215,12 @@ public class ActiveCallsRepository
                                 ((dialogRemoteTag == null) || "0".equals(dialogRemoteTag)) :
                                 remoteTag.equals(dialogRemoteTag))
                         {
-                            callParticipants.add(callParticipant);
+                            callPeers.add(callPeer);
                         }
                     }
                 }
             }
         }
-        return callParticipants;
+        return callPeers;
     }
 }
