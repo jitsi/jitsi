@@ -31,9 +31,10 @@ public class CallJabberImpl
      */
     private static final Logger logger = Logger.getLogger(CallJabberImpl.class);
     /**
-     * A list containing all <tt>CallParticipant</tt>s of this call.
+     * A list containing all <tt>CallPeer</tt>s of this call.
      */
-    private Vector callParticipants = new Vector();
+    private Vector<CallPeerJabberImpl> callPeers
+                                            = new Vector<CallPeerJabberImpl>();
 
     /**
      * The <tt>CallSession</tt> that the media service has created for this
@@ -54,54 +55,53 @@ public class CallJabberImpl
     }
 
     /**
-     * Adds <tt>callParticipant</tt> to the list of participants in this call.
-     * If the call participant is already included in the call, the method has
+     * Adds <tt>callPeer</tt> to the list of peers in this call.
+     * If the call peer is already included in the call, the method has
      * no effect.
      *
-     * @param callParticipant the new <tt>CallParticipant</tt>
+     * @param callPeer the new <tt>CallPeer</tt>
      */
-    public void addCallPeer(CallPeerJabberImpl callParticipant)
+    public void addCallPeer(CallPeerJabberImpl callPeer)
     {
-        if(callParticipants.contains(callParticipant))
+        if(callPeers.contains(callPeer))
             return;
 
-        callParticipant.addCallPeerListener(this);
+        callPeer.addCallPeerListener(this);
 
-        this.callParticipants.add(callParticipant);
-        fireCallPeerEvent(
-            callParticipant, CallPeerEvent.CALL_PEER_ADDED);
+        this.callPeers.add(callPeer);
+        fireCallPeerEvent( callPeer, CallPeerEvent.CALL_PEER_ADDED);
     }
 
     /**
-     * Removes <tt>callParticipant</tt> from the list of participants in this
-     * call. The method has no effect if there was no such participant in the
+     * Removes <tt>callPeer</tt> from the list of peers in this
+     * call. The method has no effect if there was no such peer in the
      * call.
      *
-     * @param callParticipant the <tt>CallParticipant</tt> leaving the call;
+     * @param callPeer the <tt>CallPeer</tt> leaving the call;
      */
-    public void removeCallParticipant(CallPeerJabberImpl callParticipant)
+    public void removeCallPeer(CallPeerJabberImpl callPeer)
     {
-        if(!callParticipants.contains(callParticipant))
+        if(!callPeers.contains(callPeer))
             return;
 
-        this.callParticipants.remove(callParticipant);
-        callParticipant.setCall(null);
-        callParticipant.removeCallPeerListener(this);
+        this.callPeers.remove(callPeer);
+        callPeer.setCall(null);
+        callPeer.removeCallPeerListener(this);
 
         fireCallPeerEvent(
-            callParticipant, CallPeerEvent.CALL_PEER_REMVOVED);
+            callPeer, CallPeerEvent.CALL_PEER_REMVOVED);
 
-        if(callParticipants.size() == 0)
+        if(callPeers.size() == 0)
             setCallState(CallState.CALL_ENDED);
     }
 
     /**
-     * Returns an iterator over all call participants.
-     * @return an Iterator over all participants currently involved in the call.
+     * Returns an iterator over all call peers.
+     * @return an Iterator over all peers currently involved in the call.
      */
-    public Iterator getCallPeers()
+    public Iterator<CallPeer> getCallPeers()
     {
-        return new LinkedList(callParticipants).iterator();
+        return new LinkedList<CallPeer>(callPeers).iterator();
     }
 
     /**
@@ -111,7 +111,7 @@ public class CallJabberImpl
      */
     public int getCallPeerCount()
     {
-        return callParticipants.size();
+        return callPeers.size();
     }
 
     /**
@@ -165,7 +165,7 @@ public class CallJabberImpl
             || ((CallPeerState)evt.getNewValue())
                      == CallPeerState.FAILED)
         {
-            removeCallParticipant(
+            removeCallPeer(
                 (CallPeerJabberImpl)evt.getSourceCallPeer());
         }
         else if (((CallPeerState)evt.getNewValue())
@@ -179,7 +179,7 @@ public class CallJabberImpl
     /**
      * Returns <tt>true</tt> if <tt>session</tt> matches the jingle session
      * established with one of the participants in this call.
-     * 
+     *
      * @param session the session whose corresponding participant we're looking
      * for.
      * @return true if this call contains a call participant whose jingleSession
@@ -201,12 +201,12 @@ public class CallJabberImpl
      */
     public CallPeerJabberImpl findCallParticipant(JingleSession session)
     {
-        Iterator callParticipants = this.getCallPeers();
+        Iterator<CallPeer> callParticipants = this.getCallPeers();
 
         if(logger.isTraceEnabled())
         {
             logger.trace("Looking for participant with session: " + session
-                         + "among " + this.callParticipants.size() + " calls");
+                         + "among " + this.callPeers.size() + " calls");
         }
 
 
