@@ -108,7 +108,7 @@ public class CallListCellRenderer
             else
                 iconLabel.setIcon(outgoingIcon);
 
-            this.nameLabel.setText(participant.getParticipantName());
+            this.nameLabel.setText(participant.getPeerName());
  
             this.timeLabel.setText(
                 ExtendedCallHistorySearchActivator.getResources()
