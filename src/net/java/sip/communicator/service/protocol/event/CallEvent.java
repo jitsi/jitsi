@@ -33,7 +33,7 @@ public class CallEvent
 
     /**
      * An event id value indicating that this event has been triggered as a
-     * result of a call being ended (all its participants have left).
+     * result of a call being ended (all its peers have left).
      */
     public static final int CALL_ENDED  = 3;
 
