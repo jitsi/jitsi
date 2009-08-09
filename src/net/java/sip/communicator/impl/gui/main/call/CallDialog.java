@@ -201,11 +201,11 @@ public class CallDialog
     private DialpadDialog getDialpadDialog()
     {
         Call call = callPanel.getCall();
-        Iterator<CallPeer> callParticipants =
+        Iterator<CallPeer> callPeers =
             (call == null) ? new Vector<CallPeer>().iterator()
                 : callPanel.getCall().getCallPeers();
 
-        return new DialpadDialog(callParticipants);
+        return new DialpadDialog(callPeers);
     }
 
     /**
