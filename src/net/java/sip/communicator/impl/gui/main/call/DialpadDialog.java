@@ -17,7 +17,7 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>DialpadDialog</tt> is a popup dialog containing a dialpad.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class DialpadDialog
@@ -28,14 +28,14 @@ public class DialpadDialog
 
     /**
      * Creates an instance of the <tt>DialpadDialog</tt>.
-     * 
-     * @param callParticipants The corresponding call participants.
+     *
+     * @param callPeers The corresponding call peers.
      */
-    public DialpadDialog(Iterator<CallPeer> callParticipants)
+    public DialpadDialog(Iterator<CallPeer> callPeers)
     {
         this.setModal(false);
 
-        dialPanel = new DialPanel(callParticipants);
+        dialPanel = new DialPanel(callPeers);
 
         this.init();
 
@@ -44,7 +44,7 @@ public class DialpadDialog
 
     /**
      * Creates an instance of the <tt>DialpadDialog</tt>.
-     * 
+     *
      * @param mainCallPanel The call panel.
      */
     public DialpadDialog(MainCallPanel mainCallPanel)
