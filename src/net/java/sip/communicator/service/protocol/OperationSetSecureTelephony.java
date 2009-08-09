@@ -17,22 +17,22 @@ public interface OperationSetSecureTelephony
     extends OperationSet
 {
     /**
-     * Gets the secure state of the call session in which a specific participant
+     * Gets the secure state of the call session in which a specific peer
      * is involved
      *
-     * @param participant the participant for who the call state is required
+     * @param peer the peer for who the call state is required
      * @return the call state
      */
-    public boolean isSecure(CallPeer participant);
+    public boolean isSecure(CallPeer peer);
 
     /**
-     * Sets the SAS verifications state of the call session in which a specific participant
-     * is involved
+     * Sets the SAS verifications state of the call session in which a specific
+     * peer is involved
      *
-     * @param participant the participant who toggled (or for whom is remotely
-     *        toggled) the SAS verfied flag
+     * @param peer the peer who toggled (or for whom is remotely
+     *        toggled) the SAS verified flag
      * @param verified the new SAS verification status
      * @param source the source who generated the call change
      */
-    public boolean setSasVerified(CallPeer participant, boolean verified);
+    public boolean setSasVerified(CallPeer peer, boolean verified);
 }
