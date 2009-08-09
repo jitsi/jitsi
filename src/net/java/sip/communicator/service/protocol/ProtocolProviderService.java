@@ -15,7 +15,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  * Instant Messaging and telephony protocol stacks. It gives the user interface
  * a way to plug into these stacks and receive notifications on status change
  * and incoming calls, as well as deliver user requests for establishing or
- * ending calls, putting participants on hold and etc.
+ * ending calls, putting peers on hold and etc.
  * <p>
  * An instance of a ProtocolProviderService corresponds to a particular user
  * account and all operations performed through a provider (sending messages,
