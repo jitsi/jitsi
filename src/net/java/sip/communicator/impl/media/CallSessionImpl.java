@@ -711,11 +711,11 @@ public class CallSessionImpl
     /**
      * The method is meant for use by protocol service implementations when
      * willing to send an invitation to a remote callee. The
-     * resources (address and port) allocated for the <tt>callParticipant</tt>
+     * resources (address and port) allocated for the <tt>callPeer</tt>
      * should be kept by the media service implementation until the originating
-     * <tt>callParticipant</tt> enters the DISCONNECTED state. Subsequent sdp
+     * <tt>callPeer</tt> enters the DISCONNECTED state. Subsequent sdp
      * offers/answers requested for the <tt>Call</tt> that the original
-     * <tt>callParticipant</tt> belonged to MUST receive the same IP/port couple
+     * <tt>callPeer</tt> belonged to MUST receive the same IP/port couple
      * as the first one in order to allow for conferencing. The associated port
      * will be released once the call has ended.
      *
@@ -739,7 +739,7 @@ public class CallSessionImpl
      * parameter, may contain the address that the offer is to be sent to. In
      * case it is null we'll try our best to determine a default local address.
      *
-     * @param intendedDestination the address of the call participant that the
+     * @param intendedDestination the address of the call peer that the
      * descriptions is to be sent to.
      * @return a new SDP description String advertising all params of
      * <tt>callSession</tt>.
@@ -753,24 +753,24 @@ public class CallSessionImpl
         return createSessionDescription(null, intendedDestination).toString();
     }
 
-    public String createSdpOffer(String participantSdpDescription)
+    public String createSdpOffer(String peerSdpDescription)
         throws MediaException
     {
-        SessionDescription participantDescription = null;
+        SessionDescription peerDescription = null;
         try
         {
-            participantDescription =
+            peerDescription =
                 mediaServCallback.getSdpFactory().createSessionDescription(
-                    participantSdpDescription);
+                    peerSdpDescription);
         }
         catch (SdpParseException ex)
         {
             throw new MediaException(
-                "Failed to parse the SDP description of the participant.",
+                "Failed to parse the SDP description of the peer.",
                 MediaException.INTERNAL_ERROR, ex);
         }
 
-        return createSessionDescription(participantDescription, null).toString();
+        return createSessionDescription(peerDescription, null).toString();
     }
 
     /**
@@ -778,7 +778,7 @@ public class CallSessionImpl
      * willing to send an in-dialog invitation to a remote callee to put her
      * on/off hold or to send an answer to an offer to be put on/off hold.
      *
-     * @param participantSdpDescription the last SDP description of the remote
+     * @param peerSdpDescription the last SDP description of the remote
      *            callee
      * @param on <tt>true</tt> if the SDP description should offer the remote
      *            callee to be put on hold or answer an offer from the remote
@@ -789,12 +789,12 @@ public class CallSessionImpl
      *         remote callee to be put on/off hold
      * @throws MediaException
      */
-    public String createSdpDescriptionForHold(String participantSdpDescription,
+    public String createSdpDescriptionForHold(String peerSdpDescription,
                                               boolean on)
         throws MediaException
     {
         return
-            createSessionDescriptionForHold(participantSdpDescription, on)
+            createSessionDescriptionForHold(peerSdpDescription, on)
                 .toString();
     }
 
@@ -803,7 +803,7 @@ public class CallSessionImpl
      * willing to send an in-dialog invitation to a remote callee to put her
      * on/off hold or to send an answer to an offer to be put on/off hold.
      *
-     * @param participantSdpDescription the last SDP description of the remote
+     * @param peerSdpDescription the last SDP description of the remote
      *            callee
      * @param on <tt>true</tt> if the SDP description should offer the remote
      *            callee to be put on hold or answer an offer from the remote
@@ -815,26 +815,26 @@ public class CallSessionImpl
      * @throws MediaException
      */
     private SessionDescription createSessionDescriptionForHold(
-            String participantSdpDescription,
+            String peerSdpDescription,
             boolean on)
         throws MediaException
     {
-        SessionDescription participantDescription = null;
+        SessionDescription peerDescription = null;
         try
         {
-            participantDescription =
+            peerDescription =
                 mediaServCallback.getSdpFactory().createSessionDescription(
-                    participantSdpDescription);
+                    peerSdpDescription);
         }
         catch (SdpParseException ex)
         {
             throw new MediaException(
-                "Failed to parse the SDP description of the participant.",
+                "Failed to parse the SDP description of the peer.",
                 MediaException.INTERNAL_ERROR, ex);
         }
 
         SessionDescription sdpOffer =
-            createSessionDescription(participantDescription, null);
+            createSessionDescription(peerDescription, null);
 
         Vector<MediaDescription> mediaDescriptions;
         try
@@ -1141,7 +1141,7 @@ public class CallSessionImpl
      * reception of an SDP answer in response to an offer sent by us earlier.
      *
      * @param sdpAnswerStr the SDP answer that we'd like to handle.
-     * @param responder the participant that has sent the answer.
+     * @param responder the peer that has sent the answer.
      *
      * @throws MediaException code SERVICE_NOT_STARTED if this method is called
      * before the service was started.
@@ -1155,7 +1155,7 @@ public class CallSessionImpl
         processSdpStr(responder, sdpAnswerStr, true);
     }
 
-    private String processSdpStr(CallPeer participant,
+    private String processSdpStr(CallPeer peer,
                                  String sdpStr,
                                  boolean answer)
         throws MediaException, ParseException
@@ -1206,10 +1206,10 @@ public class CallSessionImpl
         else
         {
             //create the SDP answer.
-            CallPeerState participantState = participant.getState();
+            CallPeerState peerState = peer.getState();
 
-            if (CallPeerState.CONNECTED.equals(participantState)
-                    || CallPeerState.isOnHold(participantState))
+            if (CallPeerState.CONNECTED.equals(peerState)
+                    || CallPeerState.isOnHold(peerState))
             {
                 //if the call is already connected then this is a
                 //reinitialization (e.g. placing the call on/off hold)
@@ -1263,10 +1263,10 @@ public class CallSessionImpl
 
         if (answer)
         {
-            CallPeerState participantState = participant.getState();
+            CallPeerState peerState = peer.getState();
 
-            if (CallPeerState.CONNECTED.equals(participantState)
-                    || CallPeerState.isOnHold(participantState))
+            if (CallPeerState.CONNECTED.equals(peerState)
+                    || CallPeerState.isOnHold(peerState))
                 startStreamingAndProcessingMedia();
         }
 
@@ -1280,7 +1280,7 @@ public class CallSessionImpl
      * details
      *
      * @param sdpOfferStr the SDP offer that we'd like to create an answer for.
-     * @param offerer the participant that has sent the offer.
+     * @param offerer the peer that has sent the offer.
      *
      * @return a String containing an SDP answer describing parameters of the
      * <tt>Call</tt> associated with this session and matching those advertised
@@ -1346,7 +1346,7 @@ public class CallSessionImpl
      * @throws MediaException if we fail to create our data source with the
      * proper encodings and/or fail to initialize the RTP managers with the
      * necessary streams and/or don't find encodings supported by both the
-     * remote participant and the local controller.
+     * remote peer and the local controller.
      */
     private void createSendStreams(Vector<MediaDescription> mediaDescriptions)
         throws MediaException
@@ -1527,9 +1527,9 @@ public class CallSessionImpl
      * opposite case we are using the address provided in the connection param
      * as an intended destination.
      *
-     * @param offer the call participant meant to receive the offer or null if
+     * @param offer the call peer meant to receive the offer or null if
      * we are to construct our own offer.
-     * @param intendedDestination the address of the call participant that the
+     * @param intendedDestination the address of the call peer that the
      * descriptions is to be sent to.
      * @return a SessionDescription of this CallSession.
      *
@@ -1613,7 +1613,7 @@ public class CallSessionImpl
             /*
              * Only allocate ports if this is a call establishing event. The
              * opposite could happen for example, when issuing a reINVITE
-             * that would put a CallParticipant on hold.
+             * that would put a CallPeer on hold.
              */
             boolean allocateMediaPorts = false;
 
@@ -1715,7 +1715,7 @@ public class CallSessionImpl
      *
      * @return a <tt>Vector</tt> containing media descriptions that we support
      * and (if this is an answer to an offer) that the offering
-     * <tt>CallParticipant</tt> supports as well.
+     * <tt>CallPeer</tt> supports as well.
      *
      * @throws SdpException we fail creating the media descriptions
      * @throws MediaException with code UNSUPPORTED_FORMAT_SET_ERROR if we don't
@@ -1886,7 +1886,7 @@ public class CallSessionImpl
 
 
 
-        /** @todo record formats for participant. */
+        /** @todo record formats for peer. */
 
         return mediaDescs;
     }
@@ -2277,7 +2277,7 @@ public class CallSessionImpl
                 rtpManager.initialize(transConnector);
                 this.transConnectors.put(rtpManager, transConnector);
 
-                // Create security user callback for each participant.
+                // Create security user callback for each peer.
                 SecurityEventManager securityEventManager
                     = new SecurityEventManager(this);
 
@@ -2600,18 +2600,18 @@ public class CallSessionImpl
     }
 
     /**
-     * Indicates that a new call participant has joined the source call.
-     * @param evt the <tt>CallParticipantEvent</tt> containing the source call
-     * and call participant.
+     * Indicates that a new call peer has joined the source call.
+     * @param evt the <tt>CallPeerEvent</tt> containing the source call
+     * and call peer.
      */
     public synchronized void callPeerAdded(CallPeerEvent evt)
     {
     }
 
     /**
-     * Indicates that a call participant has left the source call.
-     * @param evt the <tt>CallParticipantEvent</tt> containing the source call
-     * and call participant.
+     * Indicates that a call peer has left the source call.
+     * @param evt the <tt>CallPeerEvent</tt> containing the source call
+     * and call peer.
      */
     public void callPeerRemoved(CallPeerEvent evt)
     {
