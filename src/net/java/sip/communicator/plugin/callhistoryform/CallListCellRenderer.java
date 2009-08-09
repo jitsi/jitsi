@@ -96,14 +96,14 @@ public class CallListCellRenderer
         this.dataPanel.remove(durationLabel);
         this.remove(iconLabel);
 
-        if (value instanceof GuiCallParticipantRecord)
+        if (value instanceof GuiCallPeerRecord)
         {
 
-            GuiCallParticipantRecord participant = (GuiCallParticipantRecord) value;
+            GuiCallPeerRecord participant = (GuiCallPeerRecord) value;
 
             this.direction = participant.getDirection();
 
-            if (direction.equals(GuiCallParticipantRecord.INCOMING_CALL))
+            if (direction.equals(GuiCallPeerRecord.INCOMING_CALL))
                 iconLabel.setIcon(incomingIcon);
             else
                 iconLabel.setIcon(outgoingIcon);
@@ -195,7 +195,7 @@ public class CallListCellRenderer
         }
         else
         {
-            if (direction.equals(GuiCallParticipantRecord.INCOMING_CALL))
+            if (direction.equals(GuiCallPeerRecord.INCOMING_CALL))
             {
 
                 GradientPaint p = new GradientPaint(0, 0,
@@ -206,7 +206,7 @@ public class CallListCellRenderer
                 g2.fillRoundRect(1, 1, this.getWidth(), this.getHeight() - 1,
                     7, 7);
             }
-            else if (direction.equals(GuiCallParticipantRecord.OUTGOING_CALL))
+            else if (direction.equals(GuiCallPeerRecord.OUTGOING_CALL))
             {
 
                 GradientPaint p = new GradientPaint(0, 0,

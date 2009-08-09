@@ -358,12 +358,12 @@ public class ExtendedCallHistorySearchDialog
         if (callRecord.getDirection().equals(CallRecord.IN)
             && ((callType == Constants.INCOMING_CALL)
                 || callType == Constants.INOUT_CALL))
-            direction = GuiCallParticipantRecord.INCOMING_CALL;
+            direction = GuiCallPeerRecord.INCOMING_CALL;
         // out
         else if (callRecord.getDirection().equals(CallRecord.OUT)
             && (callType == Constants.OUTGOING_CALL
                 || callType == Constants.INOUT_CALL))
-            direction = GuiCallParticipantRecord.OUTGOING_CALL;
+            direction = GuiCallPeerRecord.OUTGOING_CALL;
 
         return direction;
     }
@@ -462,7 +462,7 @@ public class ExtendedCallHistorySearchDialog
                         direction = checkCallType(calltype, callRecord);
 
                         if (direction != null)
-                            callList.addItem(new GuiCallParticipantRecord(
+                            callList.addItem(new GuiCallPeerRecord(
                                 participantRecord, direction));
                         else
                             addMe = false;

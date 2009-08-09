@@ -25,7 +25,7 @@ import net.java.sip.communicator.util.swing.*;
 /**
  * The <tt>DialPanel</tt> is the panel that contains the buttons to dial a
  * phone number.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class DialPanel
@@ -69,18 +69,18 @@ public class DialPanel
     /**
      * Creates an instance of <tt>DialPanel</tt> for a specific call, by
      * specifying the parent <tt>CallManager</tt> and the
-     * <tt>CallParticipant</tt>.
-     * 
-     * @param callParticipants the <tt>CallParticipant</tt>s, for which the
+     * <tt>CallPeer</tt>.
+     *
+     * @param callPeers the <tt>CallPeer</tt>s, for which the
      * dialpad will be opened.
      */
-    public DialPanel(Iterator<CallPeer> callParticipants)
+    public DialPanel(Iterator<CallPeer> callPeers)
     {
-        // We need to send DTMF tones to all participants each time the user
+        // We need to send DTMF tones to all peers each time the user
         // presses a dial button, so we put the iterator into a list.
-        while (callParticipants.hasNext())
+        while (callPeers.hasNext())
         {
-            this.callPeersList.add(callParticipants.next());
+            this.callPeersList.add(callPeers.next());
         }
 
         this.init();
@@ -404,29 +404,27 @@ public class DialPanel
 
     /**
      * Sends a DTMF tone to the current DTMF operation set.
-     * 
+     *
      * @param dtmfTone The DTMF tone to send.
      */
     private void sendDtmfTone(DTMFTone dtmfTone)
     {
-        Iterator<CallPeer> callParticipants
-            = this.callPeersList.iterator();
+        Iterator<CallPeer> callPeers = this.callPeersList.iterator();
 
         try
         {
-            while (callParticipants.hasNext())
+            while (callPeers.hasNext())
             {
-                CallPeer participant
-                    = callParticipants.next();
+                CallPeer peer = callPeers.next();
 
-                if (participant.getProtocolProvider()
+                if (peer.getProtocolProvider()
                     .getOperationSet(OperationSetDTMF.class) != null)
                 {
                     OperationSetDTMF dtmfOpSet
-                        = (OperationSetDTMF) participant.getProtocolProvider()
+                        = (OperationSetDTMF) peer.getProtocolProvider()
                             .getOperationSet(OperationSetDTMF.class);
 
-                    dtmfOpSet.sendDTMF(participant, dtmfTone);
+                    dtmfOpSet.sendDTMF(peer, dtmfTone);
                 }
             }
         }

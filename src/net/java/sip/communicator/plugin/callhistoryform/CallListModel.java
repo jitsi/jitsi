@@ -36,7 +36,7 @@ public class CallListModel extends AbstractListModel
         for(int i = startIndex + 1; i < currentSize; i ++) {
             Object o = this.getElementAt(i);
             
-            if(o instanceof GuiCallParticipantRecord) {
+            if(o instanceof GuiCallPeerRecord) {
                 this.closedDates.put(o, date);
                 c.add(o);
                 endIndex++;
