@@ -15,46 +15,46 @@ public class MockCallPeer
     extends AbstractCallPeer
 {
     /**
-     * The sip address of this participant
+     * The sip address of this peer
      */
-    private String participantAddress = null;
+    private String peerAddress = null;
 
     /**
-     * The call participant belongs to.
+     * The call peer belongs to.
      */
     private MockCall call;
 
     /**
-     * A string uniquely identifying the participant.
+     * A string uniquely identifying the peer.
      */
-    private String participantID;
+    private String peerID;
 
     public MockCallPeer(String address, MockCall owningCall)
     {
-        this.participantAddress = address;
+        this.peerAddress = address;
         this.call = owningCall;
 
         call.addCallPeer(this);
 
         //create the uid
-        this.participantID = String.valueOf( System.currentTimeMillis())
+        this.peerID = String.valueOf( System.currentTimeMillis())
                              + String.valueOf(hashCode());
     }
 
     /**
-     * Returns a String locator for that participant.
+     * Returns a String locator for that peer.
      *
-     * @return the participant's address or phone number.
+     * @return the peer's address or phone number.
      */
     public String getAddress()
     {
-        return participantAddress;
+        return peerAddress;
     }
 
     /**
-     * Returns a reference to the call that this participant belongs to.
+     * Returns a reference to the call that this peer belongs to.
      *
-     * @return a reference to the call containing this participant.
+     * @return a reference to the call containing this peer.
      */
     public Call getCall()
     {
@@ -62,17 +62,17 @@ public class MockCallPeer
     }
 
     /**
-     * Returns a human readable name representing this participant.
+     * Returns a human readable name representing this peer.
      *
-     * @return a String containing a name for that participant.
+     * @return a String containing a name for that peer.
      */
     public String getDisplayName()
     {
-        return participantAddress;
+        return peerAddress;
     }
 
     /**
-     * The method returns an image representation of the call participant
+     * The method returns an image representation of the call peer
      * (e.g.
      *
      * @return byte[] a byte array containing the image or null if no image
@@ -84,20 +84,20 @@ public class MockCallPeer
     }
 
     /**
-     * Returns a unique identifier representing this participant.
+     * Returns a unique identifier representing this peer.
      *
-     * @return an identifier representing this call participant.
+     * @return an identifier representing this call peer.
      */
     public String getPeerID()
     {
-        return participantID;
+        return peerID;
     }
 
     /**
-     * Returns the contact corresponding to this participant or null if no
+     * Returns the contact corresponding to this peer or null if no
      * particular contact has been associated.
      * <p>
-     * @return the <tt>Contact</tt> corresponding to this participant or null
+     * @return the <tt>Contact</tt> corresponding to this peer or null
      * if no particular contact has been associated.
      */
     public Contact getContact()
@@ -107,8 +107,8 @@ public class MockCallPeer
     }
 
     /**
-     * Returns the protocol provider that this participant belongs to.
-     * @return a reference to the ProtocolProviderService that this participant
+     * Returns the protocol provider that this peer belongs to.
+     * @return a reference to the ProtocolProviderService that this peer
      * belongs to.
      */
     public ProtocolProviderService getProtocolProvider()
