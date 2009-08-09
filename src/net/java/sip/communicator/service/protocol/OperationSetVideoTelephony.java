@@ -16,7 +16,7 @@ import net.java.sip.communicator.util.*;
  * Represents an <code>OperationSet</code> giving access to video-specific
  * functionality in telephony such as visual <code>Component</code>s displaying
  * video and listening to dynamic availability of such <code>Component</code>s.
- * 
+ *
  * @author Lubomir Marinov
  */
 public interface OperationSetVideoTelephony
@@ -26,24 +26,23 @@ public interface OperationSetVideoTelephony
     /**
      * Adds a specific <code>VideoListener</code> to this telephony in order to
      * receive notifications when visual/video <code>Component</code>s are being
-     * added and removed for a specific <code>CallParticipant</code>.
-     * 
-     * @param participant the <code>CallParticipant</code> whose video the
+     * added and removed for a specific <code>CallPeer</code>.
+     *
+     * @param peer the <code>CallPeer</code> whose video the
      *            specified listener is to be notified about
      * @param listener the <code>VideoListener</code> to be notified when
      *            visual/video <code>Component</code>s are being added or
-     *            removed for <code>participant</code>
+     *            removed for <code>peer</code>
      */
-    public void addVideoListener(
-            CallPeer participant, VideoListener listener);
+    public void addVideoListener( CallPeer peer, VideoListener listener);
 
     /**
      * Creates a visual <code>Component</code> which depicts the local video
-     * being streamed to a specific <code>CallParticipant</code>. The returned
+     * being streamed to a specific <code>CallPeer</code>. The returned
      * visual <code>Component</code> should be disposed when it is no longer
      * required through {@link #disposeLocalVisualComponent(CallPeer, Component) disposeLocalVisualComponent}.
      *
-     * @param participant the <code>CallParticipant</code> to whom the local
+     * @param peer the <code>CallPeer</code> to whom the local
      *            video which is to be depicted by the returned visual
      *            <code>Component</code> is being streamed
      * @param listener if not <tt>null</tt>, a <code>VideoListener</code> to
@@ -52,56 +51,56 @@ public interface OperationSetVideoTelephony
      *            created visual <code>Component</code> immediately/as the
      *            result of this method call
      * @return a visual <code>Component</code> which depicts the local video
-     *         being streamed to the specified <code>CallParticipant</code> if
+     *         being streamed to the specified <code>CallPeer</code> if
      *         this telephony chooses to carry out the creation synchronously;
      *         <tt>null</tt> if this telephony chooses to create the requested
      *         visual <code>Component</code> asynchronously.
      */
     public Component createLocalVisualComponent(
-            CallPeer participant, VideoListener listener)
+            CallPeer peer, VideoListener listener)
         throws OperationFailedException;
 
     /**
      * Disposes of a visual <code>Component</code> depicting the local video for
-     * a specific <code>CallParticipant</code> (previously obtained through
-     * {@link createLocalVisualComponent(CallParticipant, VideoListener) createLocalVisualComponent}).
+     * a specific <code>CallPeer</code> (previously obtained through
+     * {@link createLocalVisualComponent(CallPeer, VideoListener) createLocalVisualComponent}).
      * The disposal may include, but is not limited to, releasing the
      * <code>Player</code> which provides the <code>component</code> and renders
      * the local video into it, disconnecting from the video capture device.
      *
-     * @param participant the <code>CallParticipant</code> for whom the visual
+     * @param peer the <code>CallPeer</code> for whom the visual
      *            <code>Component</code> depicts the local video
      * @param component the visual <code>Component</code> depicting the local
      *            video to be disposed
      */
     public void disposeLocalVisualComponent(
-            CallPeer participant, Component component);
+            CallPeer peer, Component component);
 
     /**
      * Gets the visual/video <code>Component</code>s available in this telephony
-     * for a specific <code>CallParticipant</code>.
-     * 
-     * @param participant the <code>CallParticipant</code> whose videos are to
+     * for a specific <code>CallPeer</code>.
+     *
+     * @param peer the <code>CallPeer</code> whose videos are to
      *            be retrieved
      * @return an array of the visual <code>Component</code>s available in this
-     *         telephony for the specified <code>participant</code>
+     *         telephony for the specified <code>peer</code>
      */
-    public Component[] getVisualComponents(CallPeer participant);
+    public Component[] getVisualComponents(CallPeer peer);
 
     /**
      * Removes a specific <code>VideoListener</code> from this telephony in
      * order to no longer have it receive notifications when visual/video
      * <code>Component</code>s are being added and removed for a specific
-     * <code>CallParticipant</code>.
-     * 
-     * @param participant the <code>CallParticipant</code> whose video the
+     * <code>CallPeer</code>.
+     *
+     * @param peer the <code>CallPeer</code> whose video the
      *            specified listener is to no longer be notified about
      * @param listener the <code>VideoListener</code> to no longer be notified
      *            when visual/video <code>Component</code>s are being added or
-     *            removed for <code>participant</code>
+     *            removed for <code>peer</code>
      */
     public void removeVideoListener(
-            CallPeer participant, VideoListener listener);
+            CallPeer peer, VideoListener listener);
 
     /**
      * Sets the indicator which determines whether the streaming of local video
