@@ -128,14 +128,14 @@ public class OperationSetBasicTelephonyJabberImpl
     }
 
     /**
-     * Create a new call and invite the specified CallParticipant to it.
+     * Create a new call and invite the specified CallPeer to it.
      *
      * @param callee the jabber address of the callee that we should invite to a
      * new call.
-     * @return CallParticipant the CallParticipant that will represented by
+     * @return CallPeer the CallPeer that will represented by
      *   the specified uri. All following state change events will be
-     *   delivered through that call participant. The Call that this
-     *   participant is a member of could be retrieved from the
+     *   delivered through that call peer. The Call that this
+     *   peer is a member of could be retrieved from the
      *   CallParticipatn instance with the use of the corresponding method.
      * @throws OperationFailedException with the corresponding code if we fail
      * to create the call.
@@ -148,14 +148,14 @@ public class OperationSetBasicTelephonyJabberImpl
     }
 
     /**
-     * Create a new call and invite the specified CallParticipant to it.
+     * Create a new call and invite the specified CallPeer to it.
      *
      * @param callee the address of the callee that we should invite to a
      *   new call.
-     * @return CallParticipant the CallParticipant that will represented by
+     * @return CallPeer the CallPeer that will represented by
      *   the specified uri. All following state change events will be
-     *   delivered through that call participant. The Call that this
-     *   participant is a member of could be retrieved from the
+     *   delivered through that call peer. The Call that this
+     *   peer is a member of could be retrieved from the
      *   CallParticipatn instance with the use of the corresponding method.
      * @throws OperationFailedException with the corresponding code if we fail
      * to create the call.
@@ -173,10 +173,10 @@ public class OperationSetBasicTelephonyJabberImpl
      * @param calleeAddress the address of the callee that we'd like to connect
      * with.
      *
-     * @return CallParticipant the CallParticipant that represented by
+     * @return CallPeer the CallPeer that represented by
      *   the specified uri. All following state change events will be
-     *   delivered through that call participant. The Call that this
-     *   participant is a member of could be retrieved from the
+     *   delivered through that call peer. The Call that this
+     *   peer is a member of could be retrieved from the
      *   CallParticipatn instance with the use of the corresponding method.
      *
      * @throws OperationFailedException with the corresponding code if we fail
@@ -258,11 +258,11 @@ public class OperationSetBasicTelephonyJabberImpl
 
         CallJabberImpl call = new CallJabberImpl(protocolProvider);
 
-        CallPeerJabberImpl callParticipant =
+        CallPeerJabberImpl callPeer =
                 new CallPeerJabberImpl(calleeAddress, call);
 
-        callParticipant.setJingleSession(outJS);
-        callParticipant.setState(CallPeerState.INITIATING_CALL);
+        callPeer.setJingleSession(outJS);
+        callPeer.setState(CallPeerState.INITIATING_CALL);
 
         fireCallEvent(CallEvent.CALL_INITIATED, call);
 
@@ -270,7 +270,7 @@ public class OperationSetBasicTelephonyJabberImpl
 
         outJS.start();
 
-        return (CallJabberImpl) callParticipant.getCall();
+        return (CallJabberImpl) callPeer.getCall();
     }
 
     /**
@@ -284,50 +284,50 @@ public class OperationSetBasicTelephonyJabberImpl
     }
 
     /**
-     * Resumes communication with a call participant previously put on hold.
+     * Resumes communication with a call peer previously put on hold.
      *
-     * @param participant the call participant to put on hold.
+     * @param peer the call peer to put on hold.
      */
-    public void putOffHold(CallPeer participant)
+    public void putOffHold(CallPeer peer)
     {
         /** @todo implement putOffHold() */
-        ((CallPeerJabberImpl) participant).getJingleSession().
+        ((CallPeerJabberImpl) peer).getJingleSession().
                 getJingleMediaSession().setTrasmit(true);
     }
 
     /**
-     * Puts the specified CallParticipant "on hold".
+     * Puts the specified CallPeer "on hold".
      *
-     * @param participant the participant that we'd like to put on hold.
+     * @param peer the peer that we'd like to put on hold.
      */
-    public void putOnHold(CallPeer participant)
+    public void putOnHold(CallPeer peer)
     {
         /** @todo implement putOnHold() */
-        ((CallPeerJabberImpl) participant).getJingleSession().
+        ((CallPeerJabberImpl) peer).getJingleSession().
                 getJingleMediaSession().setTrasmit(false);
     }
 
     /**
-     * Implements method <tt>hangupCallParticipant</tt>
+     * Implements method <tt>hangupCallPeer</tt>
      * from <tt>OperationSetBasicTelephony</tt>.
      *
-     * @param participant the participant that we'd like to hang up on.
-     * @throws ClassCastException if participant is not an instance of
-     * CallParticipantJabberImpl.
+     * @param peer the peer that we'd like to hang up on.
+     * @throws ClassCastException if peer is not an instance of
+     * CallPeerJabberImpl.
      *
      * @throws OperationFailedException if we fail to terminate the call.
      *
      * // TODO: ask for suppression of OperationFailedException from the interface.
      * // what happens if hangup fails ? are we forced to continue to talk ? :o)
      */
-    public void hangupCallPeer(CallPeer participant)
+    public void hangupCallPeer(CallPeer peer)
             throws ClassCastException, OperationFailedException
     {
-        CallPeerJabberImpl callParticipant
-                = (CallPeerJabberImpl)participant;
+        CallPeerJabberImpl callPeer
+                = (CallPeerJabberImpl)peer;
         try
         {
-            callParticipant.getJingleSession().terminate();
+            callPeer.getJingleSession().terminate();
         }
         catch (XMPPException ex)
         {
@@ -335,27 +335,27 @@ public class OperationSetBasicTelephonyJabberImpl
         }
         finally
         {
-            callParticipant.setState(CallPeerState.DISCONNECTED);
+            callPeer.setState(CallPeerState.DISCONNECTED);
         }
     }
 
 
 
     /**
-     * Implements method <tt>answerCallParticipant</tt>
+     * Implements method <tt>answerCallPeer</tt>
      * from <tt>OperationSetBasicTelephony</tt>.
      *
-     * @param participant the call participant that we want to answer
+     * @param peer the call peer that we want to answer
      * @throws OperationFailedException if we fails to answer
      */
-    public void answerCallPeer(CallPeer participant)
+    public void answerCallPeer(CallPeer peer)
             throws OperationFailedException
     {
-        CallPeerJabberImpl callParticipant
-                = (CallPeerJabberImpl)participant;
+        CallPeerJabberImpl callPeer
+                = (CallPeerJabberImpl)peer;
         try
         {
-            ((IncomingJingleSession)callParticipant.getJingleSession()).
+            ((IncomingJingleSession)callPeer.getJingleSession()).
                     start();
         }
         catch (XMPPException ex)
@@ -382,21 +382,21 @@ public class OperationSetBasicTelephonyJabberImpl
         {
             CallJabberImpl call = (CallJabberImpl) activeCalls.next();
 
-            Iterator callParticipants = call.getCallPeers();
+            Iterator callPeers = call.getCallPeers();
 
-            //go through all call participants and say bye to every one.
-            while (callParticipants.hasNext())
+            //go through all call peers and say bye to every one.
+            while (callPeers.hasNext())
             {
-                CallPeer participant
-                        = (CallPeer) callParticipants.next();
+                CallPeer peer
+                        = (CallPeer) callPeers.next();
                 try
                 {
-                    this.hangupCallPeer(participant);
+                    this.hangupCallPeer(peer);
                 }
                 catch (Exception ex)
                 {
-                    logger.warn("Failed to properly hangup participant "
-                            + participant
+                    logger.warn("Failed to properly hangup peer "
+                            + peer
                             , ex);
                 }
             }
@@ -432,11 +432,11 @@ public class OperationSetBasicTelephonyJabberImpl
         {
             from = from.substring(0, from.indexOf("/"));
         }
-        CallPeerJabberImpl callParticipant
+        CallPeerJabberImpl callPeer
                 = new CallPeerJabberImpl(from, call);
 
-        callParticipant.setJingleSession(inJS);
-        callParticipant.setState(CallPeerState.INCOMING_CALL);
+        callPeer.setJingleSession(inJS);
+        callPeer.setState(CallPeerState.INCOMING_CALL);
 
         activeCallsRepository.addCall(call);
 
@@ -530,65 +530,65 @@ public class OperationSetBasicTelephonyJabberImpl
         {
             JingleSession session = (JingleSession) newState.getNegotiator();
 
-            CallPeerJabberImpl callParticipant =
-                    activeCallsRepository.findCallParticipant(session);
-            if (callParticipant == null)
+            CallPeerJabberImpl callPeer =
+                    activeCallsRepository.findCallPeer(session);
+            if (callPeer == null)
             {
                 return;
             }
-            callParticipant.setState(CallPeerState.CONNECTED);
+            callPeer.setState(CallPeerState.CONNECTED);
         }
         else if (newState instanceof OutgoingJingleSession.Inviting)
         {
             JingleSession session = (JingleSession) newState.getNegotiator();
 
-            CallPeerJabberImpl callParticipant =
-                    activeCallsRepository.findCallParticipant(session);
-            if (callParticipant == null)
+            CallPeerJabberImpl callPeer =
+                    activeCallsRepository.findCallPeer(session);
+            if (callPeer == null)
             {
                 return;
             }
-            callParticipant.setState(CallPeerState.CONNECTING);
+            callPeer.setState(CallPeerState.CONNECTING);
         }
         else if (newState instanceof OutgoingJingleSession.Pending)
         {
             JingleSession session = (JingleSession) newState.getNegotiator();
 
-            CallPeerJabberImpl callParticipant =
-                    activeCallsRepository.findCallParticipant(session);
-            if (callParticipant == null)
+            CallPeerJabberImpl callPeer =
+                    activeCallsRepository.findCallPeer(session);
+            if (callPeer == null)
             {
                 return;
             }
-            callParticipant.setState(CallPeerState.ALERTING_REMOTE_SIDE);
+            callPeer.setState(CallPeerState.ALERTING_REMOTE_SIDE);
         }
         else if (newState instanceof OutgoingJingleSession.Active)
         {
             JingleSession session = (JingleSession) newState.getNegotiator();
 
-            CallPeerJabberImpl callParticipant =
-                    activeCallsRepository.findCallParticipant(session);
-            if (callParticipant == null)
+            CallPeerJabberImpl callPeer =
+                    activeCallsRepository.findCallPeer(session);
+            if (callPeer == null)
             {
                 return;
             }
-            callParticipant.setState(CallPeerState.CONNECTED);
+            callPeer.setState(CallPeerState.CONNECTED);
         }
 
         if ((newState == null) && (oldState != null))
         { //hanging
             JingleSession session = (JingleSession) oldState.getNegotiator();
 
-            CallPeerJabberImpl callParticipant =
-                    activeCallsRepository.findCallParticipant(session);
-            if (callParticipant == null)
+            CallPeerJabberImpl callPeer =
+                    activeCallsRepository.findCallPeer(session);
+            if (callPeer == null)
             {
                 logger.debug("Received a stray trying response.");
                 return;
             }
             try
             {
-                hangupCallPeer(callParticipant);
+                hangupCallPeer(callPeer);
             }
             catch (Exception ex)
             {
@@ -677,10 +677,9 @@ public class OperationSetBasicTelephonyJabberImpl
      * Implements <tt>sessionMediaReceived</tt> from <tt>JingleSessionListener</tt>
      *
      * @param jingleSession the session where the media is established
-     * @param participant the participant for this media session
+     * @param peer the peer for this media session
      */
-    public void sessionMediaReceived(JingleSession jingleSession,
-            String participant)
+    public void sessionMediaReceived(JingleSession jingleSession, String peer)
     {
         logger.info("session media received ");
     }
