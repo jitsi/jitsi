@@ -138,7 +138,7 @@ public class CallJabberImpl
      *
      * @param evt unused.
      */
-    public void participantTransportAddressChanged(
+    public void peerTransportAddressChanged(
                                     CallPeerChangeEvent evt)
     {}
 

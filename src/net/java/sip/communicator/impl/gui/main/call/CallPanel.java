@@ -365,7 +365,7 @@ public class CallPanel
      *            the source event as well as its previous and its new transport
      *            address.
      */
-    public void participantTransportAddressChanged(
+    public void peerTransportAddressChanged(
         CallPeerChangeEvent evt)
     {
         /** @todo implement participantTransportAddressChanged() */

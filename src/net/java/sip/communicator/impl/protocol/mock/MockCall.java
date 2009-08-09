@@ -128,7 +128,7 @@ public class MockCall
     {
     }
 
-    public void participantTransportAddressChanged(CallPeerChangeEvent
+    public void peerTransportAddressChanged(CallPeerChangeEvent
         evt)
     {
     }

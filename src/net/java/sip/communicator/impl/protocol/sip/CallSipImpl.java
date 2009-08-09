@@ -150,7 +150,7 @@ public class CallSipImpl
      *
      * @param evt unused.
      */
-    public void participantTransportAddressChanged(
+    public void peerTransportAddressChanged(
         CallPeerChangeEvent evt)
     {
     }
