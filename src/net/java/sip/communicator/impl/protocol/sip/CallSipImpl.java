@@ -27,9 +27,9 @@ public class CallSipImpl
     private static final Logger logger = Logger.getLogger(CallSipImpl.class);
 
     /**
-     * A list containing all <tt>CallParticipant</tt>s of this call.
+     * A list containing all <tt>CallPeer</tt>s of this call.
      */
-    private final List<CallPeerSipImpl> callParticipants =
+    private final List<CallPeerSipImpl> callPeers =
         new Vector<CallPeerSipImpl>();
 
     /**
@@ -51,81 +51,81 @@ public class CallSipImpl
     }
 
     /**
-     * Adds <tt>callParticipant</tt> to the list of participants in this call.
-     * If the call participant is already included in the call, the method has
+     * Adds <tt>callPeer</tt> to the list of peers in this call.
+     * If the call peer is already included in the call, the method has
      * no effect.
      *
-     * @param callParticipant the new <tt>CallParticipant</tt>
+     * @param callPeer the new <tt>CallPeer</tt>
      */
-    public void addCallPeer(CallPeerSipImpl callParticipant)
+    public void addCallPeer(CallPeerSipImpl callPeer)
     {
-        if (callParticipants.contains(callParticipant))
+        if (callPeers.contains(callPeer))
             return;
 
-        callParticipant.addCallPeerListener(this);
+        callPeer.addCallPeerListener(this);
 
-        this.callParticipants.add(callParticipant);
-        fireCallPeerEvent(callParticipant,
+        this.callPeers.add(callPeer);
+        fireCallPeerEvent(callPeer,
             CallPeerEvent.CALL_PEER_ADDED);
     }
 
     /**
-     * Removes <tt>callParticipant</tt> from the list of participants in this
-     * call. The method has no effect if there was no such participant in the
+     * Removes <tt>callPeer</tt> from the list of peers in this
+     * call. The method has no effect if there was no such peer in the
      * call.
      *
-     * @param callParticipant the <tt>CallParticipant</tt> leaving the call;
+     * @param callPeer the <tt>CallPeer</tt> leaving the call;
      */
-    public void removeCallParticipant(CallPeerSipImpl callParticipant)
+    public void removeCallPeer(CallPeerSipImpl callPeer)
     {
-        if (!callParticipants.contains(callParticipant))
+        if (!callPeers.contains(callPeer))
             return;
 
-        this.callParticipants.remove(callParticipant);
-        callParticipant.removeCallPeerListener(this);
+        this.callPeers.remove(callPeer);
+        callPeer.removeCallPeerListener(this);
 
         try
         {
-            fireCallPeerEvent(callParticipant,
+            fireCallPeerEvent(callPeer,
                 CallPeerEvent.CALL_PEER_REMVOVED);
         }
         finally
         {
 
             /*
-             * The participant should loose its state once it has finished
+             * The peer should loose its state once it has finished
              * firing its events in order to allow the listeners to undo.
              */
-            callParticipant.setCall(null);
+            callPeer.setCall(null);
         }
 
-        if (callParticipants.size() == 0)
+        if (callPeers.size() == 0)
             setCallState(CallState.CALL_ENDED);
     }
 
     /**
-     * Returns an iterator over all call participants.
+     * Returns an iterator over all call peers.
      *
-     * @return an Iterator over all participants currently involved in the call.
+     * @return an Iterator over all peers currently involved in the call.
      */
     public Iterator<CallPeer> getCallPeers()
     {
-        return new LinkedList<CallPeer>(callParticipants).iterator();
+        return new LinkedList<CallPeer>(callPeers).iterator();
     }
 
     /**
-     * Returns the number of participants currently associated with this call.
+     * Returns the number of peers currently associated with this call.
      *
-     * @return an <tt>int</tt> indicating the number of participants currently
+     * @return an <tt>int</tt> indicating the number of peers currently
      *         associated with this call.
      */
     public int getCallPeerCount()
     {
-        return callParticipants.size();
+        return callPeers.size();
     }
 
     /**
-     * Dummy implementation of a method (inherited from CallParticipantListener)
+     * Dummy implementation of a method (inherited from CallPeerListener)
      * that we don't need.
      *
      * @param evt unused.
@@ -135,7 +135,7 @@ public class CallSipImpl
     }
 
     /**
-     * Dummy implementation of a method (inherited from CallParticipantListener)
+     * Dummy implementation of a method (inherited from CallPeerListener)
      * that we don't need.
      *
      * @param evt unused.
@@ -145,7 +145,7 @@ public class CallSipImpl
     }
 
     /**
-     * Dummy implementation of a method (inherited from CallParticipantListener)
+     * Dummy implementation of a method (inherited from CallPeerListener)
      * that we don't need.
      *
      * @param evt unused.
@@ -156,7 +156,7 @@ public class CallSipImpl
     }
 
     /**
-     * Dummy implementation of a method (inherited from CallParticipantListener)
+     * Dummy implementation of a method (inherited from CallPeerListener)
      * that we don't need.
      *
      * @param evt unused.
@@ -166,9 +166,9 @@ public class CallSipImpl
     }
 
     /**
-     * Verifies whether the call participant has entered a state.
+     * Verifies whether the call peer has entered a state.
      *
-     * @param evt The <tt>CallParticipantChangeEvent</tt> instance containing
+     * @param evt The <tt>CallPeerChangeEvent</tt> instance containing
      *            the source event as well as its previous and its new status.
      */
     public void peerStateChanged(CallPeerChangeEvent evt)
@@ -178,7 +178,7 @@ public class CallSipImpl
         if (newState == CallPeerState.DISCONNECTED
             || newState == CallPeerState.FAILED)
         {
-            removeCallParticipant((CallPeerSipImpl) evt
+            removeCallPeer((CallPeerSipImpl) evt
                 .getSourceCallPeer());
         }
         else if ((newState == CallPeerState.CONNECTED
@@ -190,41 +190,41 @@ public class CallSipImpl
 
     /**
      * Returns <tt>true</tt> if <tt>dialog</tt> matches the jain sip dialog
-     * established with one of the participants in this call.
+     * established with one of the peers in this call.
      *
-     * @param dialog the dialog whose corresponding participant we're looking
+     * @param dialog the dialog whose corresponding peer we're looking
      *            for.
-     * @return true if this call contains a call participant whose jain sip
+     * @return true if this call contains a call peer whose jain sip
      *         dialog is the same as the specified and false otherwise.
      */
     public boolean contains(Dialog dialog)
     {
-        return findCallParticipant(dialog) != null;
+        return findCallPeer(dialog) != null;
     }
 
     /**
-     * Returns the call participant whose associated jain sip dialog matches
+     * Returns the call peer whose associated jain sip dialog matches
      * <tt>dialog</tt>.
      *
-     * @param dialog the jain sip dialog whose corresponding participant we're
+     * @param dialog the jain sip dialog whose corresponding peer we're
      *            looking for.
-     * @return the call participant whose jain sip dialog is the same as the
-     *         specified or null if no such call participant was found.
+     * @return the call peer whose jain sip dialog is the same as the
+     *         specified or null if no such call peer was found.
      */
-    public CallPeerSipImpl findCallParticipant(Dialog dialog)
+    public CallPeerSipImpl findCallPeer(Dialog dialog)
     {
-        Iterator<CallPeer> callParticipants = this.getCallPeers();
+        Iterator<CallPeer> callPeers = this.getCallPeers();
 
         if (logger.isTraceEnabled())
         {
-            logger.trace("Looking for participant with dialog: " + dialog
-                + "among " + this.callParticipants.size() + " calls");
+            logger.trace("Looking for peer with dialog: " + dialog
+                + "among " + this.callPeers.size() + " calls");
         }
 
-        while (callParticipants.hasNext())
+        while (callPeers.hasNext())
         {
             CallPeerSipImpl cp =
-                (CallPeerSipImpl) callParticipants.next();
+                (CallPeerSipImpl) callPeers.next();
 
             if (cp.getDialog() == dialog)
             {

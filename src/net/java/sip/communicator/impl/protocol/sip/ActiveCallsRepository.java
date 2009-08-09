@@ -151,7 +151,7 @@ public class ActiveCallsRepository
         {
             CallSipImpl call = activeCalls.next();
             CallPeerSipImpl callParticipant
-                = call.findCallParticipant(dialog);
+                = call.findCallPeer(dialog);
             if(callParticipant != null)
             {
                 logger.trace("Returning participant " + callParticipant);
