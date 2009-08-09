@@ -121,7 +121,7 @@ public interface CallHistoryService
      * @return Collection of CallRecords with CallParticipantRecord
      * @throws RuntimeException
      */
-    public Collection<CallRecord> findByParticipant(String address)
+    public Collection<CallRecord> findByPeer(String address)
         throws RuntimeException;
 
     /**

@@ -60,7 +60,7 @@ public class CallRecordImpl
     {
         this.endTime = endTime;
 
-        for (CallPeerRecord item : participantRecords)
+        for (CallPeerRecord item : peerRecords)
         {
             CallPeerRecordImpl itemImpl =
                 (CallPeerRecordImpl) item;

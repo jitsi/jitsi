@@ -343,7 +343,7 @@ public class MetaHistoryServiceImpl
                     CallRecord callRecord = iter.next();
 
                     if(matchCallParticipant(
-                            callRecord.getParticipantRecords(), keywords, caseSensitive))
+                            callRecord.getPeerRecords(), keywords, caseSensitive))
                         result.add(callRecord);
                 }
                 chs.removeSearchProgressListener(listenWrapper);
@@ -480,7 +480,7 @@ public class MetaHistoryServiceImpl
                     CallRecord callRecord = iter.next();
 
                     if(matchCallParticipant(
-                            callRecord.getParticipantRecords(), keywords, caseSensitive))
+                            callRecord.getPeerRecords(), keywords, caseSensitive))
                         result.add(callRecord);
                 }
                 chs.removeSearchProgressListener(listenWrapper);

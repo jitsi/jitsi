@@ -198,7 +198,7 @@ public class CallComboBox
             for (CallRecord call : historyCalls)
             {
                 List<CallPeerRecord> callParticipantRecords
-                    = call.getParticipantRecords();
+                    = call.getPeerRecords();
 
                 //extract all call participants for that call.
                 for (CallPeerRecord cpRecord

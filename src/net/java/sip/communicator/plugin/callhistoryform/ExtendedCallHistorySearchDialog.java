@@ -444,7 +444,7 @@ public class ExtendedCallHistorySearchDialog
             if (addMe)
             {
                 Iterator<CallPeerRecord> participants =
-                    callRecord.getParticipantRecords().iterator();
+                    callRecord.getPeerRecords().iterator();
 
                 while (participants.hasNext() && addMe)
                 {

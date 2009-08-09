@@ -80,7 +80,7 @@ public class CallHistoryServiceImpl
      * @param contact MetaContact which contacts participate in
      *      the returned calls
      * @param startDate Date the start date of the calls
-     * @return Collection of CallRecords with CallParticipantRecord
+     * @return Collection of CallRecords with CallPeerRecord
      * @throws RuntimeException
      */
     public Collection<CallRecord> findByStartDate(MetaContact contact, Date startDate)
@@ -93,7 +93,7 @@ public class CallHistoryServiceImpl
      * Returns all the calls made after the given date
      *
      * @param startDate Date the start date of the calls
-     * @return Collection of CallRecords with CallParticipantRecord
+     * @return Collection of CallRecords with CallPeerRecord
      * @throws RuntimeException
      */
     public Collection<CallRecord> findByStartDate(Date startDate)
@@ -129,7 +129,7 @@ public class CallHistoryServiceImpl
      * @param contact MetaContact which contacts participate in
      *      the returned calls
      * @param endDate Date the end date of the calls
-     * @return Collection of CallRecords with CallParticipantRecord
+     * @return Collection of CallRecords with CallPeerRecord
      * @throws RuntimeException
      */
     public Collection<CallRecord> findByEndDate(MetaContact contact, Date endDate)
@@ -142,7 +142,7 @@ public class CallHistoryServiceImpl
      * Returns all the calls made before the given date
      *
      * @param endDate Date the end date of the calls
-     * @return Collection of CallRecords with CallParticipantRecord
+     * @return Collection of CallRecords with CallPeerRecord
      * @throws RuntimeException
      */
     public Collection<CallRecord> findByEndDate(Date endDate) throws RuntimeException
@@ -177,7 +177,7 @@ public class CallHistoryServiceImpl
      * @param contact MetaContact
      * @param startDate Date the start date of the calls
      * @param endDate Date the end date of the conversations
-     * @return Collection of CallRecords with CallParticipantRecord
+     * @return Collection of CallRecords with CallPeerRecord
      * @throws RuntimeException
      */
     public Collection<CallRecord> findByPeriod(MetaContact contact, Date startDate, Date endDate)
@@ -191,7 +191,7 @@ public class CallHistoryServiceImpl
      *
      * @param startDate Date the start date of the calls
      * @param endDate Date the end date of the conversations
-     * @return Collection of CallRecords with CallParticipantRecord
+     * @return Collection of CallRecords with CallPeerRecord
      * @throws RuntimeException
      */
     public Collection<CallRecord> findByPeriod(Date startDate, Date endDate) throws
@@ -227,7 +227,7 @@ public class CallHistoryServiceImpl
      * @param contact MetaContact which contacts participate in
      *      the returned calls
      * @param count calls count
-     * @return Collection of CallRecords with CallParticipantRecord
+     * @return Collection of CallRecords with CallPeerRecord
      * @throws RuntimeException
      */
     public Collection<CallRecord> findLast(MetaContact contact, int count)
@@ -240,7 +240,7 @@ public class CallHistoryServiceImpl
      * Returns the supplied number of calls made
      *
      * @param count calls count
-     * @return Collection of CallRecords with CallParticipantRecord
+     * @return Collection of CallRecords with CallPeerRecord
      * @throws RuntimeException
      */
     public Collection<CallRecord> findLast(int count) throws RuntimeException
@@ -266,12 +266,12 @@ public class CallHistoryServiceImpl
     }
 
     /**
-     * Find the calls made by the supplied participant address
-     * @param address String the address of the participant
-     * @return Collection of CallRecords with CallParticipantRecord
+     * Find the calls made by the supplied peer address
+     * @param address String the address of the peer
+     * @return Collection of CallRecords with CallPeerRecord
      * @throws RuntimeException
      */
-    public Collection<CallRecord> findByParticipant(String address)
+    public Collection<CallRecord> findByPeer(String address)
         throws RuntimeException
     {
         TreeSet<CallRecord> result = new TreeSet<CallRecord>(new CallRecordComparator());
@@ -333,7 +333,7 @@ public class CallHistoryServiceImpl
     }
 
     /**
-     * Used to convert HistoryRecord in CallReord and CallParticipantRecord
+     * Used to convert HistoryRecord in CallReord and CallPeerRecord
      * which are returned by the finder methods
      *
      * @param hr HistoryRecord
@@ -343,10 +343,10 @@ public class CallHistoryServiceImpl
     {
         CallRecordImpl result = new CallRecordImpl();
 
-        List<String> callParticipantIDs = null;
-        List<String> callParticipantStart = null;
-        List<String> callParticipantEnd = null;
-        List<CallPeerState> callParticipantStates = null;
+        List<String> callPeerIDs = null;
+        List<String> callPeerStart = null;
+        List<String> callPeerEnd = null;
+        List<CallPeerState> callPeerStates = null;
 
         // History structure
         // 0 - callStart
@@ -368,28 +368,28 @@ public class CallHistoryServiceImpl
             else if(propName.equals(STRUCTURE_NAMES[2]))
                 result.setDirection(value);
             else if(propName.equals(STRUCTURE_NAMES[3]))
-                callParticipantIDs = getCSVs(value);
+                callPeerIDs = getCSVs(value);
             else if(propName.equals(STRUCTURE_NAMES[4]))
-                callParticipantStart = getCSVs(value);
+                callPeerStart = getCSVs(value);
             else if(propName.equals(STRUCTURE_NAMES[5]))
-                callParticipantEnd = getCSVs(value);
+                callPeerEnd = getCSVs(value);
             else if(propName.equals(STRUCTURE_NAMES[6]))
-                callParticipantStates = getStates(value);
+                callPeerStates = getStates(value);
         }
 
-        final int callParticipantCount = callParticipantIDs == null ? 0 : callParticipantIDs.size();
-        for (int i = 0; i < callParticipantCount; i++)
+        final int callPeerCount = callPeerIDs == null ? 0 : callPeerIDs.size();
+        for (int i = 0; i < callPeerCount; i++)
         {
             CallPeerRecordImpl cpr =
-                new CallPeerRecordImpl(callParticipantIDs.get(i),
-                    new Date(Long.parseLong(callParticipantStart.get(i))),
-                    new Date(Long.parseLong(callParticipantEnd.get(i))));
+                new CallPeerRecordImpl(callPeerIDs.get(i),
+                    new Date(Long.parseLong(callPeerStart.get(i))),
+                    new Date(Long.parseLong(callPeerEnd.get(i))));
 
             // if there is no record about the states (backward compability)
-            if (callParticipantStates != null)
-                cpr.setState(callParticipantStates.get(i));
+            if (callPeerStates != null)
+                cpr.setState(callPeerStates.get(i));
 
-            result.getParticipantRecords().add(cpr);
+            result.getPeerRecords().add(cpr);
         }
 
         return result;
@@ -414,7 +414,7 @@ public class CallHistoryServiceImpl
 
     /**
      * Get the delimited strings and converts them to CallParticipantState
-     * 
+     *
      * @param str String delimited string states
      * @return LinkedList the converted values list
      */
@@ -567,7 +567,7 @@ public class CallHistoryServiceImpl
             StringBuffer callParticipantStates = new StringBuffer();
 
             for (CallPeerRecord item : callRecord
-                .getParticipantRecords())
+                .getPeerRecords())
             {
                 if (callParticipantIDs.length() > 0)
                 {
@@ -742,7 +742,7 @@ public class CallHistoryServiceImpl
     /**
      * Add the registered CallHistorySearchProgressListeners to the given
      * HistoryReader
-     * 
+     *
      * @param reader HistoryReader
      * @param countContacts number of contacts will search
      */
@@ -762,7 +762,7 @@ public class CallHistoryServiceImpl
     /**
      * Removes the registered CallHistorySearchProgressListeners from the given
      * HistoryReader
-     * 
+     *
      * @param reader HistoryReader
      */
     private void removeHistorySearchProgressListeners(HistoryReader reader)
@@ -779,7 +779,7 @@ public class CallHistoryServiceImpl
 
     /**
      * Gets all the history readers for the contacts in the given MetaContact
-     * 
+     *
      * @param contact MetaContact
      * @return Hashtable
      */
@@ -891,7 +891,7 @@ public class CallHistoryServiceImpl
             startDate,
             startDate);
 
-        callRecord.getParticipantRecords().add(newRec);
+        callRecord.getPeerRecords().add(newRec);
     }
 
     /**
@@ -906,7 +906,7 @@ public class CallHistoryServiceImpl
         String pAddress = callParticipant.getAddress();
 
         CallPeerRecordImpl cpRecord =
-            (CallPeerRecordImpl)callRecord.findParticipantRecord(pAddress);
+            (CallPeerRecordImpl)callRecord.findPeerRecord(pAddress);
 
         // no such participant
         if(cpRecord == null)
@@ -926,7 +926,7 @@ public class CallHistoryServiceImpl
 
     /**
      * Finding a CallRecord for the given call
-     * 
+     *
      * @param call Call
      * @return CallRecord
      */
@@ -954,7 +954,7 @@ public class CallHistoryServiceImpl
         if (record == null)
             return null;
 
-        return (CallPeerRecordImpl) record.findParticipantRecord(
+        return (CallPeerRecordImpl) record.findPeerRecord(
                 callParticipant.getAddress());
     }
 

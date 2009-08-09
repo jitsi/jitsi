@@ -524,14 +524,14 @@ public class TestMetaHistoryService
 
         CallRecord rec = (CallRecord)resultIter.next();
         CallPeerRecord participant =
-            (CallPeerRecord)rec.getParticipantRecords().get(0);
+            (CallPeerRecord)rec.getPeerRecords().get(0);
 
         assertTrue("Participant incorrect ",
                    participant.getPeerAddress().
                    equals(participantAddresses.get(2)));
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallPeerRecord)rec.getParticipantRecords().get(0);
+        participant = (CallPeerRecord)rec.getPeerRecords().get(0);
 
         assertTrue("Participant incorrect ",
                    participant.getPeerAddress().
@@ -549,14 +549,14 @@ public class TestMetaHistoryService
         assertEquals("Calls must be 2", rs.size(), 2);
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallPeerRecord)rec.getParticipantRecords().get(0);
+        participant = (CallPeerRecord)rec.getPeerRecords().get(0);
 
         assertTrue("Participant incorrect ",
                    participant.getPeerAddress().
                    equals(participantAddresses.get(4)));
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallPeerRecord)rec.getParticipantRecords().get(0);
+        participant = (CallPeerRecord)rec.getPeerRecords().get(0);
 
         assertTrue("Participant incorrect ",
                    participant.getPeerAddress().
@@ -574,21 +574,21 @@ public class TestMetaHistoryService
         assertEquals("Calls must be 3", rs.size(), 3);
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallPeerRecord) rec.getParticipantRecords().get(0);
+        participant = (CallPeerRecord) rec.getPeerRecords().get(0);
 
         assertTrue("Participant incorrect ",
                    participant.getPeerAddress().
                    equals(participantAddresses.get(3)));
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallPeerRecord) rec.getParticipantRecords().get(0);
+        participant = (CallPeerRecord) rec.getPeerRecords().get(0);
 
         assertTrue("Participant incorrect ",
                    participant.getPeerAddress().
                    equals(participantAddresses.get(4)));
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallPeerRecord) rec.getParticipantRecords().get(0);
+        participant = (CallPeerRecord) rec.getPeerRecords().get(0);
 
         assertTrue("Participant incorrect ",
                    participant.getPeerAddress().
