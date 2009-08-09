@@ -21,6 +21,7 @@ import net.java.sip.communicator.util.swing.*;
  * and the password of the account.
  *
  * @author Dai Zhiwei
+ * @author Lubomir Marinov
  */
 public class FirstWizardPage
     extends TransparentPanel
@@ -115,6 +116,14 @@ public class FirstWizardPage
         valuesPanel.add(emailExampleLabel);
         valuesPanel.add(passField);
 
+        JLabel experimentalWarningLabel
+            = new JLabel(
+                    Resources.getString(
+                        "plugin.facebookaccregwizz.EXPERIMENTAL_WARNING"));
+        experimentalWarningLabel.setForeground(Color.RED);
+        setPreferredWidthInCharCount(experimentalWarningLabel, 50);
+
+        userPassPanel.add(experimentalWarningLabel, BorderLayout.NORTH);
         userPassPanel.add(labelsPanel, BorderLayout.WEST);
         userPassPanel.add(valuesPanel, BorderLayout.CENTER);
         userPassPanel.add(rememberPassBox, BorderLayout.SOUTH);
@@ -125,6 +134,34 @@ public class FirstWizardPage
                     "plugin.facebookaccregwizz.USERNAME_AND_PASSWORD")));
 
         this.add(userPassPanel, BorderLayout.NORTH);
+    }
+
+    /**
+     * Sets the preferred width of a specific <code>JLabel</code> to a value
+     * which is likely to cause it to display a specific number of characters
+     * per line. Because setting the preferred width requires also setting the
+     * preferred height, the preferred height is set to a value which is likely
+     * to cause the specified <code>JLabel</code> to display its whole text.
+     * 
+     * @param label
+     *            the <code>JLabel</code> to set the preferred width of
+     * @param charCount
+     *            the number of characters per line to be displayed after
+     *            setting the preferred width
+     */
+    private void setPreferredWidthInCharCount(JLabel label, int charCount)
+    {
+        FontMetrics fontMetrics = label.getFontMetrics(label.getFont());
+        String text = label.getText();
+        int textWidth = fontMetrics.stringWidth(text);
+        int labelWidth = charCount * textWidth / text.length();
+
+        label.setPreferredSize(
+            new Dimension(
+                    labelWidth,
+                    fontMetrics.getHeight()
+                        * (textWidth / labelWidth
+                                + (textWidth % labelWidth > 0 ? 1 : 0))));
     }
 
     /**
@@ -317,7 +354,7 @@ public class FirstWizardPage
         return false;
     }
 
-	public Object getSimpleForm()
+    public Object getSimpleForm()
     {
         return userPassPanel;
     }
