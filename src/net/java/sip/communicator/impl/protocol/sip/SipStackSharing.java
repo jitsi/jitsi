@@ -6,8 +6,10 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import gov.nist.javax.sip.*;
 import gov.nist.javax.sip.stack.*;
 
+import java.io.*;
 import java.util.*;
 
 import javax.sip.*;
@@ -72,6 +74,20 @@ public class SipStackSharing
      */
     private final Set<ProtocolProviderServiceSipImpl> listeners
         = new HashSet<ProtocolProviderServiceSipImpl>();
+
+    /**
+     * The property indicating the preferred UDP and TCP
+     * port to bind to for clear communications.
+     */
+    private static final String PREFERRED_CLEAR_PORT_PROPERTY_NAME
+        = "net.java.sip.communicator.SIP_PREFERRED_CLEAR_PORT";
+
+    /**
+     * The property indicating the preferred TLS (TCP)
+     * port to bind to for secure communications.
+     */
+    private static final String PREFERRED_SECURE_PORT_PROPERTY_NAME
+        = "net.java.sip.communicator.SIP_PREFERRED_SECURE_PORT";
 
     /**
      * Constructor for this class. Creates the JAIN-SIP stack.
@@ -381,8 +397,7 @@ public class SipStackSharing
     private int getPreferredClearPort()
     {
         return SipActivator.getConfigurationService().getInt(
-            ProtocolProviderFactory.PREFERRED_CLEAR_PORT_PROPERTY_NAME,
-            ListeningPoint.PORT_5060);
+            PREFERRED_CLEAR_PORT_PROPERTY_NAME, ListeningPoint.PORT_5060);
     }
 
     /**
@@ -394,8 +409,7 @@ public class SipStackSharing
     private int getPreferredSecurePort()
     {
         return SipActivator.getConfigurationService().getInt(
-            ProtocolProviderFactory.PREFERRED_CLEAR_PORT_PROPERTY_NAME,
-            ListeningPoint.PORT_5061);
+            PREFERRED_SECURE_PORT_PROPERTY_NAME, ListeningPoint.PORT_5061);
     }
 
     /**
@@ -928,7 +942,7 @@ public class SipStackSharing
      * @throws javax.sip.TransactionUnavailableException if unavailable
      */
     public static ServerTransaction getOrCreateServerTransaction(
-            RequestEvent event)
+                                                            RequestEvent event)
         throws TransactionAlreadyExistsException,
                TransactionUnavailableException
     {
@@ -943,5 +957,36 @@ public class SipStackSharing
                     .getNewServerTransaction(event.getRequest());
         }
         return serverTransaction;
+    }
+
+    /**
+     * Returns a local address to use with the specified TCP destination.
+     * The method forces the JAIN-SIP stack to creates and binds (if necessary)
+     * and return a socket connected to the specified destination address and
+     * port and then return its local address.
+     *
+     * @param dst the destination address that the socket would need to connect
+     *            to.
+     * @param dstPort the port number that the connection would be established
+     * with.
+     * @param localAddress the address that we would like to bind on
+     * (null for the "any" address).
+     * @param localPort the port that we'd like our socket to bind to (0 for a
+     * random port).
+     *
+     * @return the SocketAddress that this handler would use when connecting to
+     * the specified destination address and port.
+     *
+     * @throws IOException !!!!!!!!!!!!!!!!!!!!!!! FILL IN !!!!!!!!!!!!!!
+     */
+    public java.net.InetSocketAddress obtainLocalAddress(
+                    java.net.InetAddress dst,
+                    int                  dstPort,
+                    java.net.InetAddress localAddress)
+        throws IOException
+    {
+        return (java.net.InetSocketAddress)(((SipStackImpl)this.stack)
+                        .obtainLocalAddress( dst, dstPort, localAddress, 0));
+
     }
 }

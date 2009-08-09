@@ -906,11 +906,28 @@ public class ProtocolProviderServiceSipImpl
             InetAddress localAddress = SipActivator
                 .getNetworkAddressManagerService().getLocalHost(
                                 getIntendedDestination(intendedDestination));
+            int localPort = srcListeningPoint.getPort();
+            String transport = srcListeningPoint.getTransport();
+            if (ListeningPoint.TCP.equalsIgnoreCase(transport))
+            {
+                int dstPort = intendedDestination.getPort();
+                if (dstPort == -1)
+                    dstPort = 5060;
+
+                InetSocketAddress localSockAddr
+                    = sipStackSharing.obtainLocalAddress(
+                                    NetworkUtils.getInetAddress(
+                                                intendedDestination.getHost()),
+                                    dstPort,
+                                    localAddress);
+                localPort = localSockAddr.getPort();
+            }
+
             ViaHeader viaHeader = headerFactory.createViaHeader(
-                localAddress.getHostAddress()
-                , srcListeningPoint.getPort()
-                , srcListeningPoint.getTransport()
-                , null
+                localAddress.getHostAddress(),
+                localPort,
+                transport,
+                null
                 );
             viaHeaders.add(viaHeader);
             logger.debug("generated via headers:" + viaHeader);
@@ -926,6 +943,18 @@ public class ProtocolProviderServiceSipImpl
                 ,ex);
         }
         catch (InvalidArgumentException ex)
+        {
+            logger.error(
+                "Unable to create a via header for port "
+                + sipStackSharing.getLP(ListeningPoint.UDP).getPort(),
+                ex);
+            throw new OperationFailedException(
+                "Unable to create a via header for port "
+                + sipStackSharing.getLP(ListeningPoint.UDP).getPort()
+                ,OperationFailedException.INTERNAL_ERROR
+                ,ex);
+        }
+        catch (java.io.IOException ex)
         {
             logger.error(
                 "Unable to create a via header for port "
@@ -1017,8 +1046,29 @@ public class ProtocolProviderServiceSipImpl
                 getAccountID().getUserID()
                 , localAddress.getHostAddress() );
 
-            contactURI.setTransportParam(srcListeningPoint.getTransport());
-            contactURI.setPort(srcListeningPoint.getPort());
+            String transport = srcListeningPoint.getTransport();
+            contactURI.setTransportParam(transport);
+
+            int localPort = srcListeningPoint.getPort();
+
+            //if we are using tcp, make sure that we include the port of the
+            //socket that we are actually using and not that of LP
+            if (ListeningPoint.TCP.equalsIgnoreCase(transport))
+            {
+                int dstPort = intendedDestination.getPort();
+                if (dstPort == -1)
+                    dstPort = 5060;
+
+                InetSocketAddress localSockAddr
+                    = sipStackSharing.obtainLocalAddress(
+                                    NetworkUtils.getInetAddress(
+                                                intendedDestination.getHost()),
+                                    dstPort,
+                                    localAddress);
+                localPort = localSockAddr.getPort();
+            }
+
+            contactURI.setPort(localPort);
 
             // set a custom param to ease incoming requests dispatching in case
             // we have several registrar accounts with the same username
@@ -1027,8 +1077,7 @@ public class ProtocolProviderServiceSipImpl
             {
                 contactURI.setParameter(
                         SipStackSharing.CONTACT_ADDRESS_CUSTOM_PARAM_NAME,
-                        paramValue
-                        );
+                        paramValue);
             }
 
             Address contactAddress = addressFactory.createAddress( contactURI );
@@ -1043,6 +1092,14 @@ public class ProtocolProviderServiceSipImpl
                          + registrationContactHeader);
         }
         catch (ParseException ex)
+        {
+            logger.error(
+                "A ParseException occurred while creating From Header!", ex);
+            throw new IllegalArgumentException(
+                "A ParseException occurred while creating From Header!"
+                , ex);
+        }
+        catch (java.io.IOException ex)
         {
             logger.error(
                 "A ParseException occurred while creating From Header!", ex);
