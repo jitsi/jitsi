@@ -1,6 +1,6 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.gui.main.call;
@@ -23,8 +23,8 @@ import net.java.sip.communicator.util.swing.*;
 /**
  * The <tt>CallPanel</tt> is the panel containing call information. It's created
  * and added to the main tabbed pane when user makes or receives calls. It shows
- * information about call participants, call duration, etc.
- * 
+ * information about call peers, call duration, etc.
+ *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  */
@@ -38,19 +38,18 @@ public class CallPanel
     private final TransparentPanel mainPanel = new TransparentPanel();
 
     private final Hashtable<CallPeer, CallPeerPanel>
-        participantsPanels =
-            new Hashtable<CallPeer, CallPeerPanel>();
+        peersPanels = new Hashtable<CallPeer, CallPeerPanel>();
 
     private String title;
 
     private Call call;
-    
+
     private final CallDialog callDialog;
 
     /**
-     * Creates a call panel for the corresponding call, by specifying the 
+     * Creates a call panel for the corresponding call, by specifying the
      * call type (incoming or outgoing) and the parent dialog.
-     * 
+     *
      * @param callDialog    the dialog containing this panel
      * @param call          the call corresponding to this panel
      * @param callType      the type of the call
@@ -70,40 +69,38 @@ public class CallPanel
 
         if (contactsCount > 0)
         {
-            CallPeer participant =
-                call.getCallPeers().next();
+            CallPeer peer = call.getCallPeers().next();
 
-            this.title = participant.getDisplayName();
+            this.title = peer.getDisplayName();
         }
 
         this.setCall(call, callType);
     }
 
     /**
-     * Creates and adds a panel for a call participant.
-     * 
-     * @param participant the call participant
+     * Creates and adds a panel for a call peer.
+     *
+     * @param peer the call peer
      * @param callType the type of call - INCOMING of OUTGOING
      */
-    private CallPeerPanel addCallParticipant(
-        CallPeer participant, String callType)
+    private CallPeerPanel addCallPeer(
+        CallPeer peer, String callType)
     {
-        CallPeerPanel participantPanel =
-            getParticipantPanel(participant);
+        CallPeerPanel peerPanel = getPeerPanel(peer);
 
-        if (participantPanel == null)
+        if (peerPanel == null)
         {
-            participantPanel
-                = new CallPeerPanel(callDialog, participant);
+            peerPanel
+                = new CallPeerPanel(callDialog, peer);
 
-            this.mainPanel.add(participantPanel);
+            this.mainPanel.add(peerPanel);
 
-            participantPanel.setCallType(callType);
+            peerPanel.setCallType(callType);
 
-            this.participantsPanels.put(participant, participantPanel);
+            this.peersPanels.put(peer, peerPanel);
         }
 
-        if (participantsPanels.size() > 1)
+        if (peersPanels.size() > 1)
         {
             SCScrollPane scrollPane = new SCScrollPane();
             scrollPane.setViewportView(mainPanel);
@@ -114,14 +111,14 @@ public class CallPanel
             this.add(mainPanel);
         }
 
-        return participantPanel;
+        return peerPanel;
     }
 
     /**
      * Returns the title of this call panel. The title is now the name of the
-     * first participant in the list of the call participants. Should be
+     * first peer in the list of the call peers. Should be
      * improved in the future.
-     * 
+     *
      * @return the title of this call panel
      */
     public String getTitle()
@@ -130,14 +127,14 @@ public class CallPanel
     }
 
     /**
-     * Implements the CallChangeListener.callParticipantAdded method. When a new
-     * participant is added to our call add it to the call panel.
+     * Implements the CallChangeListener.callPeerAdded method. When a new
+     * peer is added to our call add it to the call panel.
      */
     public void callPeerAdded(CallPeerEvent evt)
     {
         if (evt.getSourceCall() == call)
         {
-            this.addCallParticipant(evt.getSourceCallPeer(), null);
+            this.addCallPeer(evt.getSourceCallPeer(), null);
 
             this.revalidate();
             this.repaint();
@@ -145,31 +142,31 @@ public class CallPanel
     }
 
     /**
-     * Implements the CallChangeListener.callParticipantRemoved method. When a
-     * call participant is removed from our call remove it from the call panel.
+     * Implements the CallChangeListener.callPeerRemoved method. When a
+     * call peer is removed from our call remove it from the call panel.
      */
     public void callPeerRemoved(CallPeerEvent evt)
     {
         if (evt.getSourceCall() == call)
         {
-            CallPeer participant = evt.getSourceCallPeer();
+            CallPeer peer = evt.getSourceCallPeer();
 
-            CallPeerPanel participantPanel =
-                getParticipantPanel(participant);
+            CallPeerPanel peerPanel =
+                getPeerPanel(peer);
 
-            if (participantPanel != null)
+            if (peerPanel != null)
             {
-                CallPeerState state = participant.getState();
+                CallPeerState state = peer.getState();
 
-                participantPanel.setState(state.getStateString(), null);
+                peerPanel.setState(state.getStateString(), null);
 
-                participantPanel.stopCallTimer();
+                peerPanel.stopCallTimer();
 
-                if (participantsPanels.size() != 0)
+                if (peersPanels.size() != 0)
                 {
                     Timer timer =
-                        new Timer(5000, new RemoveParticipantPanelListener(
-                            participant));
+                        new Timer(5000, new RemovePeerPanelListener(
+                            peer));
 
                     timer.setRepeats(false);
                     timer.start();
@@ -186,22 +183,22 @@ public class CallPanel
     }
 
     /**
-     * Implements the CallParicipantChangeListener.participantStateChanged
+     * Implements the CallParicipantChangeListener.peerStateChanged
      * method.
      */
     public void peerStateChanged(CallPeerChangeEvent evt)
     {
-        CallPeer sourceParticipant = evt.getSourceCallPeer();
+        CallPeer sourcePeer = evt.getSourceCallPeer();
 
-        if (sourceParticipant.getCall() != call)
+        if (sourcePeer.getCall() != call)
             return;
 
-        CallPeerPanel participantPanel =
-            getParticipantPanel(sourceParticipant);
+        CallPeerPanel peerPanel =
+            getPeerPanel(sourcePeer);
 
         Object newState = evt.getNewValue();
 
-        String newStateString = sourceParticipant.getState().getStateString();
+        String newStateString = sourcePeer.getState().getStateString();
         Icon newStateIcon = null;
 
         if (newState == CallPeerState.ALERTING_REMOTE_SIDE)
@@ -227,18 +224,18 @@ public class CallPanel
                 NotificationManager
                     .stopSound(NotificationManager.INCOMING_CALL);
 
-                participantPanel.startCallTimer();
+                peerPanel.startCallTimer();
             }
         }
         else if (newState == CallPeerState.DISCONNECTED)
         {
-            // The call participant should be already removed from the call
-            // see callParticipantRemoved
+            // The call peer should be already removed from the call
+            // see callPeerRemoved
         }
         else if (newState == CallPeerState.FAILED)
         {
-            // The call participant should be already removed from the call
-            // see callParticipantRemoved
+            // The call peer should be already removed from the call
+            // see callPeerRemoved
         }
         else if (CallPeerState.isOnHold((CallPeerState) newState))
         {
@@ -255,7 +252,7 @@ public class CallPanel
             }
         }
 
-        participantPanel.setState(newStateString, newStateIcon);
+        peerPanel.setState(newStateString, newStateIcon);
     }
 
     public void peerDisplayNameChanged(CallPeerChangeEvent evt)
@@ -272,25 +269,23 @@ public class CallPanel
 
     public void securityOn(CallPeerSecurityOnEvent securityEvent)
     {
-        CallPeer participant =
-            (CallPeer) securityEvent.getSource();
-        CallPeerPanel participantPanel =
-            getParticipantPanel(participant);
+        CallPeer peer = (CallPeer) securityEvent.getSource();
+        CallPeerPanel peerPanel = getPeerPanel(peer);
 
-        participantPanel.setSecured(true);
+        peerPanel.setSecured(true);
 
-        participantPanel.setEncryptionCipher(securityEvent.getCipher());
+        peerPanel.setEncryptionCipher(securityEvent.getCipher());
 
         switch (securityEvent.getSessionType()) {
         case CallPeerSecurityOnEvent.AUDIO_SESSION:
-            participantPanel.setAudioSecurityOn(true);
+            peerPanel.setAudioSecurityOn(true);
             break;
         case CallPeerSecurityOnEvent.VIDEO_SESSION:
-            participantPanel.setVideoSecurityOn(true);
+            peerPanel.setVideoSecurityOn(true);
             break;
         }
 
-        participantPanel.createSecurityPanel(securityEvent);
+        peerPanel.createSecurityPanel(securityEvent);
 
         NotificationManager.fireNotification(
             NotificationManager.CALL_SECURITY_ON);
@@ -298,27 +293,25 @@ public class CallPanel
 
     public void securityOff(CallPeerSecurityOffEvent securityEvent)
     {
-        CallPeer participant =
-            (CallPeer) securityEvent.getSource();
-        CallPeerPanel participantPanel =
-            getParticipantPanel(participant);
+        CallPeer peer = (CallPeer) securityEvent.getSource();
+        CallPeerPanel peerPanel = getPeerPanel(peer);
 
-        participantPanel.setSecured(false);
+        peerPanel.setSecured(false);
 
         switch (securityEvent.getSessionType())
         {
         case CallPeerSecurityOnEvent.AUDIO_SESSION:
-            participantPanel.setAudioSecurityOn(false);
+            peerPanel.setAudioSecurityOn(false);
             break;
         case CallPeerSecurityOnEvent.VIDEO_SESSION:
-            participantPanel.setVideoSecurityOn(false);
+            peerPanel.setVideoSecurityOn(false);
             break;
         }
     }
 
     /**
      * Returns the call for this call panel.
-     * 
+     *
      * @return the call for this call panel
      */
     public Call getCall()
@@ -328,7 +321,7 @@ public class CallPanel
 
     /**
      * Sets the <tt>Call</tt> corresponding to this <tt>CallPanel</tt>.
-     * 
+     *
      * @param call the <tt>Call</tt> corresponding to this <tt>CallPanel</tt>
      * @param callType the call type - INCOMING or OUTGOING
      */
@@ -338,104 +331,104 @@ public class CallPanel
 
         this.call.addCallChangeListener(this);
 
-        // Remove all previously added participant panels, because they do not
-        // correspond to real participants.
+        // Remove all previously added peer panels, because they do not
+        // correspond to real peers.
         this.mainPanel.removeAll();
-        this.participantsPanels.clear();
+        this.peersPanels.clear();
 
-        Iterator<CallPeer> participants = call.getCallPeers();
+        Iterator<CallPeer> peers = call.getCallPeers();
 
-        while (participants.hasNext())
+        while (peers.hasNext())
         {
-            CallPeer participant = participants.next();
+            CallPeer peer = peers.next();
 
-            participant.addCallPeerListener(this);
-            participant.addCallPeerSecurityListener(this);
-            participant.addPropertyChangeListener(this);
+            peer.addCallPeerListener(this);
+            peer.addCallPeerSecurityListener(this);
+            peer.addPropertyChangeListener(this);
 
-            this.addCallParticipant(participant, callType);
+            this.addCallPeer(peer, callType);
         }
     }
 
     /**
      * Indicates that a change has occurred in the transport address that we use
-     * to communicate with the participant.
-     * 
-     * @param evt The <tt>CallParticipantChangeEvent</tt> instance containing
+     * to communicate with the peer.
+     *
+     * @param evt The <tt>CallPeerChangeEvent</tt> instance containing
      *            the source event as well as its previous and its new transport
      *            address.
      */
     public void peerTransportAddressChanged(
         CallPeerChangeEvent evt)
     {
-        /** @todo implement participantTransportAddressChanged() */
+        /** @todo implement peerTransportAddressChanged() */
     }
 
     /**
-     * Removes the given CallParticipant panel from this CallPanel.
+     * Removes the given CallPeer panel from this CallPanel.
      */
-    private class RemoveParticipantPanelListener
+    private class RemovePeerPanelListener
         implements ActionListener
     {
-        private CallPeer participant;
+        private CallPeer peer;
 
-        public RemoveParticipantPanelListener(CallPeer participant)
+        public RemovePeerPanelListener(CallPeer peer)
         {
-            this.participant = participant;
+            this.peer = peer;
         }
 
         public void actionPerformed(ActionEvent e)
         {
-            CallPeerPanel participantPanel =
-                participantsPanels.get(participant);
+            CallPeerPanel peerPanel =
+                peersPanels.get(peer);
 
-            mainPanel.remove(participantPanel);
+            mainPanel.remove(peerPanel);
 
-            // remove the participant panel from the list of panels
-            participantsPanels.remove(participant);
+            // remove the peer panel from the list of panels
+            peersPanels.remove(peer);
         }
     }
 
     /**
-     * Returns all participant panels contained in this call panel.
-     * 
-     * @return an <tt>Iterator</tt> over a list of all participant panels
+     * Returns all peer panels contained in this call panel.
+     *
+     * @return an <tt>Iterator</tt> over a list of all peer panels
      *         contained in this call panel
      */
-    public Iterator<CallPeerPanel> getParticipantPanels()
+    public Iterator<CallPeerPanel> getPeerPanels()
     {
-        return participantsPanels.values().iterator();
+        return peersPanels.values().iterator();
     }
 
     /**
-     * Returns the number of participants for this call.
-     * 
-     * @return the number of participants for this call.
+     * Returns the number of peers for this call.
+     *
+     * @return the number of peers for this call.
      */
-    public int getParticipantCount()
+    public int getPeerCount()
     {
-        return participantsPanels.size();
+        return peersPanels.size();
     }
 
     /**
-     * Returns the <tt>CallParticipantPanel</tt>, which correspond to the given
-     * participant.
-     * 
-     * @param participant the <tt>CallParticipant</tt> we're looking for
-     * @return the <tt>CallParticipantPanel</tt>, which correspond to the given
-     *         participant
+     * Returns the <tt>CallPeerPanel</tt>, which correspond to the given
+     * peer.
+     *
+     * @param peer the <tt>CallPeer</tt> we're looking for
+     * @return the <tt>CallPeerPanel</tt>, which correspond to the given
+     *         peer
      */
-    public CallPeerPanel getParticipantPanel(CallPeer participant)
+    public CallPeerPanel getPeerPanel(CallPeer peer)
     {
-        for (Map.Entry<CallPeer, CallPeerPanel> participantEntry :
-                participantsPanels.entrySet())
+        for (Map.Entry<CallPeer, CallPeerPanel> peerEntry :
+                peersPanels.entrySet())
         {
-            CallPeer entryParticipant = participantEntry.getKey();
+            CallPeer entryPeer = peerEntry.getKey();
 
-            if ((entryParticipant != null)
-                && entryParticipant.equals(participant))
+            if ((entryPeer != null)
+                && entryPeer.equals(peer))
             {
-                return participantEntry.getValue();
+                return peerEntry.getValue();
             }
         }
         return null;
@@ -488,14 +481,13 @@ public class CallPanel
         {
             boolean isMute = (Boolean) evt.getNewValue();
 
-            CallPeer sourceParticipant
+            CallPeer sourcePeer
                 = (CallPeer) evt.getSource();
 
-            if (sourceParticipant.getCall() != call)
+            if (sourcePeer.getCall() != call)
                 return;
 
-            CallPeerPanel participantPanel =
-                getParticipantPanel(sourceParticipant);
+            CallPeerPanel peerPanel = getPeerPanel(sourcePeer);
 
             if (isMute)
             {
@@ -507,7 +499,7 @@ public class CallPanel
                 }
             }
 
-            participantPanel.setMute(isMute);
+            peerPanel.setMute(isMute);
         }
     }
 }
