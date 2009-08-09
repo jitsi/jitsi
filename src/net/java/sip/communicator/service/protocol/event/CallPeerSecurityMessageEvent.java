@@ -11,7 +11,7 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * The <tt>CallParticipantSecurityFailedEvent</tt> is triggered whenever
+ * The <tt>CallPeerSecurityFailedEvent</tt> is triggered whenever
  * a problem has occurred during call security process.
  *
  * @author Yana Stamcheva

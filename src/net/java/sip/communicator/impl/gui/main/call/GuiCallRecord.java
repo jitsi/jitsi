@@ -14,78 +14,78 @@ import net.java.sip.communicator.service.callhistory.*;
  * The <tt>GuiCallRecord</tt> is meant to be used in the call history to
  * represent a history call record. It wraps a <tt>Call</tt> or a
  * <tt>CallRecord</tt> object.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class GuiCallRecord
 {
-    private Vector<GuiCallPeerRecord> participants; 
-    
+    private Vector<GuiCallPeerRecord> peers;
+
     private Date startTime;
-    
+
     private Date endTime;
-    
+
     /**
      * Creates an instance of <tt>GuiCallRecord<tt>.
-     * @param guiParticipantRecords participant records contained in this call
+     * @param guiPeerRecords peer records contained in this call
      * record
      * @param startTime call start time
      * @param endTime call end time
      */
-    public GuiCallRecord(Vector<GuiCallPeerRecord> guiParticipantRecords,
+    public GuiCallRecord(Vector<GuiCallPeerRecord> guiPeerRecords,
             Date startTime,
             Date endTime)
-    {   
+    {
         this.startTime = startTime;
-        
+
         this.endTime = endTime;
-        
-        participants = guiParticipantRecords;
+
+        peers = guiPeerRecords;
     }
-    
+
     /**
      * Creates a <tt>GuiCallRecord</tt> from a <tt>CallRecord</tt>. The
      * <tt>GuiCallRecord</tt> will be used in the call history.
-     * 
-     * @param callRecord the <tt>CallParticipantRecord</tt>
+     *
+     * @param callRecord the <tt>CallPeerRecord</tt>
      */
     public GuiCallRecord(CallRecord callRecord)
-    {   
+    {
         this.startTime = callRecord.getStartTime();
-        
+
         this.endTime = callRecord.getEndTime();
-        
-        this.participants = new Vector<GuiCallPeerRecord>();
-        
+
+        this.peers = new Vector<GuiCallPeerRecord>();
+
         Iterator<CallPeerRecord> records = callRecord.getPeerRecords().iterator();
-        
+
         while(records.hasNext()) {
             CallPeerRecord record
                 = records.next();
-            
+
             GuiCallPeerRecord newRecord
                 = new GuiCallPeerRecord(
                         record, callRecord.getDirection());
-            
-            this.participants.add(newRecord);
+
+            this.peers.add(newRecord);
         }
     }
-    
+
     public Date getEndTime()
     {
         return endTime;
     }
 
-    public Iterator<GuiCallPeerRecord> getParticipants()
+    public Iterator<GuiCallPeerRecord> getPeers()
     {
-        return participants.iterator();
+        return peers.iterator();
     }
 
-    public int getParticipantsCount()
+    public int getPeersCount()
     {
-        return participants.size();
+        return peers.size();
     }
-    
+
     public Date getStartTime()
     {
         return startTime;
