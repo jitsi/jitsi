@@ -72,7 +72,7 @@ public class MockCall
 
         logger.info("Will fire participant added");
 
-        fireCallParticipantEvent(
+        fireCallPeerEvent(
             callParticipant, CallPeerEvent.CALL_PEER_ADDED);
     }
 
@@ -91,7 +91,7 @@ public class MockCall
         this.callParticipants.remove(callParticipant);
         callParticipant.removeCallPeerListener(this);
 
-        fireCallParticipantEvent(
+        fireCallPeerEvent(
             callParticipant, CallPeerEvent.CALL_PEER_REMVOVED);
 
         if(callParticipants.size() == 0)

@@ -120,21 +120,21 @@ public abstract class Call
     }
 
     /**
-     * Returns an iterator over all call participants.
-     * @return an Iterator over all participants currently involved in the call.
+     * Returns an iterator over all call peers.
+     * @return an Iterator over all peers currently involved in the call.
      */
     public abstract Iterator<CallPeer> getCallPeers();
 
     /**
-     * Returns the number of participants currently associated with this call.
-     * @return an <tt>int</tt> indicating the number of participants currently
+     * Returns the number of peers currently associated with this call.
+     * @return an <tt>int</tt> indicating the number of peers currently
      * associated with this call.
      */
     public abstract int getCallPeerCount();
 
     /**
      * Adds a call change listener to this call so that it could receive events
-     * on new call participants, theme changes and others.
+     * on new call peers, theme changes and others.
      *
      * @param listener the listener to register
      */
@@ -172,21 +172,21 @@ public abstract class Call
     }
 
     /**
-     * Creates a <tt>CallParticipantEvent</tt> with
-     * <tt>sourceCallParticipant</tt> and <tt>eventID</tt> and dispatches it on
+     * Creates a <tt>CallPeerEvent</tt> with
+     * <tt>sourceCallPeer</tt> and <tt>eventID</tt> and dispatches it on
      * all currently registered listeners.
      *
-     * @param sourceCallParticipant the source <tt>CallParticipant</tt> for the
+     * @param sourceCallPeer the source <tt>CallPeer</tt> for the
      * newly created event.
      * @param eventID the ID of the event to create (see CPE member ints)
      */
-    protected void fireCallParticipantEvent(CallPeer sourceCallParticipant,
-                                            int             eventID)
+    protected void fireCallPeerEvent(CallPeer sourceCallPeer,
+                                     int      eventID)
     {
         CallPeerEvent cpEvent = new CallPeerEvent(
-            sourceCallParticipant, this, eventID);
+            sourceCallPeer, this, eventID);
 
-        logger.debug("Dispatching a CallParticipant event to "
+        logger.debug("Dispatching a CallPeer event to "
                      + callListeners.size()
                      +" listeners. event is: " + cpEvent.toString());
 
@@ -215,7 +215,7 @@ public abstract class Call
      */
     public String toString()
     {
-        return "Call: id=" + getCallID() + " participants="
+        return "Call: id=" + getCallID() + " peers="
                            + getCallPeerCount();
     }
 
@@ -300,7 +300,7 @@ public abstract class Call
 
     /**
      * Check if to include the ZRTP attribute to SIP/SDP
-     * 
+     *
      * @return include the ZRTP attribute to SIP/SDP
      */
     public boolean isSipZrtpAttribute() {

@@ -65,7 +65,7 @@ public class CallSipImpl
         callParticipant.addCallPeerListener(this);
 
         this.callParticipants.add(callParticipant);
-        fireCallParticipantEvent(callParticipant,
+        fireCallPeerEvent(callParticipant,
             CallPeerEvent.CALL_PEER_ADDED);
     }
 
@@ -86,7 +86,7 @@ public class CallSipImpl
 
         try
         {
-            fireCallParticipantEvent(callParticipant,
+            fireCallPeerEvent(callParticipant,
                 CallPeerEvent.CALL_PEER_REMVOVED);
         }
         finally

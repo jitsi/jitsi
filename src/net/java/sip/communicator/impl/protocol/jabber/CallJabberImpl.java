@@ -68,7 +68,7 @@ public class CallJabberImpl
         callParticipant.addCallPeerListener(this);
 
         this.callParticipants.add(callParticipant);
-        fireCallParticipantEvent(
+        fireCallPeerEvent(
             callParticipant, CallPeerEvent.CALL_PEER_ADDED);
     }
 
@@ -88,7 +88,7 @@ public class CallJabberImpl
         callParticipant.setCall(null);
         callParticipant.removeCallPeerListener(this);
 
-        fireCallParticipantEvent(
+        fireCallPeerEvent(
             callParticipant, CallPeerEvent.CALL_PEER_REMVOVED);
 
         if(callParticipants.size() == 0)
