@@ -27,7 +27,7 @@ public class MuteButton
 
     /**
      * Initializes a new <tt>MuteButton</tt> instance which is to mute the audio
-     * stream to a specific <tt>CallParticipant</tt>.
+     * stream to a specific <tt>CallPeer</tt>.
      *
      * @param call the <tt>Call</tt> to be associated with
      *            the new instance and to have the audio stream sent to muted
@@ -39,7 +39,7 @@ public class MuteButton
 
     /**
      * Initializes a new <tt>MuteButton</tt> instance which is to mute the audio
-     * stream to a specific <tt>CallParticipant</tt>.
+     * stream to a specific <tt>CallPeer</tt>.
      *
      * @param call  the <tt>Call</tt> to be associated with
      *              the new instance and to be put on/off hold upon performing
@@ -81,7 +81,7 @@ public class MuteButton
     }
     /**
      * Represents the model of a toggle button that mutes the audio stream sent
-     * to a specific <tt>CallParticipant</tt>.
+     * to a specific <tt>CallPeer</tt>.
      */
     private static class MuteButtonModel
         extends ToggleButtonModel
@@ -89,14 +89,14 @@ public class MuteButton
     {
 
         /**
-         * The <tt>CallParticipant</tt> whose state is being adapted for the
+         * The <tt>CallPeer</tt> whose state is being adapted for the
          * purposes of depicting as a toggle button.
          */
         private final Call call;
 
         /**
          * Initializes a new <tt>MuteButtonModel</tt> instance to represent the
-         * state of a specific <tt>CallParticipant</tt> as a toggle button.
+         * state of a specific <tt>CallPeer</tt> as a toggle button.
          *
          * @param call the <tt>Call</tt> whose state is to
          *            be represented as a toggle button
@@ -112,19 +112,19 @@ public class MuteButton
         {
             if (call != null)
             {
-                Iterator<CallPeer> participants
+                Iterator<CallPeer> peers
                     = call.getCallPeers();
 
-                while (participants.hasNext())
+                while (peers.hasNext())
                 {
-                    CallPeer callParticipant = participants.next();
+                    CallPeer callPeer = peers.next();
 
                     OperationSetBasicTelephony telephony
                         = (OperationSetBasicTelephony) call.getProtocolProvider()
                             .getOperationSet(OperationSetBasicTelephony.class);
 
-                    telephony.setMute(  callParticipant,
-                                        !callParticipant.isMute());
+                    telephony.setMute(  callPeer,
+                                        !callPeer.isMute());
 
                     fireItemStateChanged(
                         new ItemEvent(this,
