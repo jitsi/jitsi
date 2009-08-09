@@ -17,7 +17,7 @@ import net.java.sip.communicator.util.*;
 /**
  * Imposes the policy to have one call in progress i.e. to put existing calls on
  * hold when a new call enters in progress.
- * 
+ *
  * @author Lubomir Marinov
  */
 public class SingleCallInProgressPolicy
@@ -42,7 +42,7 @@ public class SingleCallInProgressPolicy
         /**
          * Stops tracking the state of a specific <code>Call</code> and no
          * longer tries to put it on hold when it ends.
-         * 
+         *
          * @see CallListener#callEnded(CallEvent)
          */
         public void callEnded(CallEvent callEvent)
@@ -52,15 +52,14 @@ public class SingleCallInProgressPolicy
         }
 
         /**
-         * Does nothing because adding <code>CallParticipant<code>s to
+         * Does nothing because adding <code>CallPeer<code>s to
          * <code>Call</code>s isn't related to the policy to put existing calls
          * on hold when a new call becomes in-progress and just implements
          * <code>CallChangeListener</code>.
-         * 
+         *
          * @see CallChangeListener#callPeerAdded(CallPeerEvent)
          */
-        public void callPeerAdded(
-            CallPeerEvent callParticipantEvent)
+        public void callPeerAdded( CallPeerEvent callPeerEvent)
         {
 
             /*
@@ -70,15 +69,14 @@ public class SingleCallInProgressPolicy
         }
 
         /**
-         * Does nothing because removing <code>CallParticipant<code>s to
+         * Does nothing because removing <code>CallPeer<code>s to
          * <code>Call</code>s isn't related to the policy to put existing calls
          * on hold when a new call becomes in-progress and just implements
          * <code>CallChangeListener</code>.
-         * 
+         *
          * @see CallChangeListener#callPeerRemoved(CallPeerEvent)
          */
-        public void callPeerRemoved(
-            CallPeerEvent callParticipantEvent)
+        public void callPeerRemoved( CallPeerEvent callPeerEvent)
         {
 
             /*
@@ -91,7 +89,7 @@ public class SingleCallInProgressPolicy
          * Upon a <code>Call</code> changing its state to
          * <code>CallState.CALL_IN_PROGRESS</code>, puts the other existing
          * <code>Call</code>s on hold.
-         * 
+         *
          * @see .CallChangeListener#callStateChanged(CallChangeEvent)
          */
         public void callStateChanged(CallChangeEvent callChangeEvent)
@@ -103,7 +101,7 @@ public class SingleCallInProgressPolicy
          * Remembers an incoming <code>Call</code> so that it can put the other
          * existing <code>Call</code>s on hold when it changes its state to
          * <code>CallState.CALL_IN_PROGRESS</code>.
-         * 
+         *
          * @see CallListener#incomingCallReceived(CallEvent)
          */
         public void incomingCallReceived(CallEvent callEvent)
@@ -116,7 +114,7 @@ public class SingleCallInProgressPolicy
          * Remembers an outgoing <code>Call</code> so that it can put the other
          * existing <code>Call</code>s on hold when it changes its state to
          * <code>CallState.CALL_IN_PROGRESS</code>.
-         * 
+         *
          * @see CallListener#outgoingCallCreated(CallEvent)
          */
         public void outgoingCallCreated(CallEvent callEvent)
@@ -131,7 +129,7 @@ public class SingleCallInProgressPolicy
          * registers/unregisters in order to take them into account when putting
          * existing calls on hold upon a new call entering its in-progress
          * state.
-         * 
+         *
          * @param serviceEvent
          *            the <code>ServiceEvent</code> event describing a change in
          *            the state of a service registration which may be a
@@ -170,7 +168,7 @@ public class SingleCallInProgressPolicy
      * Initializes a new <code>SingleCallInProgressPolicy</code> instance which
      * will apply to the <code>Call</code>s of a specific
      * <code>BundleContext</code>.
-     * 
+     *
      * @param bundleContext
      *            the <code>BundleContext</code> to the
      *            <code>Call<code>s of which the new policy should apply
@@ -185,7 +183,7 @@ public class SingleCallInProgressPolicy
     /**
      * Registers a specific <code>Call</code> with this policy in order to have
      * the rules of the latter apply to the former.
-     * 
+     *
      * @param call
      *            the <code>Call</code> to register with this policy in order to
      *            have the rules of the latter apply to the former
@@ -213,7 +211,7 @@ public class SingleCallInProgressPolicy
      * Registers a specific <code>OperationSetBasicTelephony</code> with this
      * policy in order to have the rules of the latter apply to the
      * <code>Call</code>s created by the former.
-     * 
+     *
      * @param telephony
      *            the <code>OperationSetBasicTelephony</code> to register with
      *            this policy in order to have the rules of the latter apply to
@@ -229,7 +227,7 @@ public class SingleCallInProgressPolicy
      * Handles changes in the state of a <code>Call</code> this policy applies
      * to in order to detect when new calls become in-progress and when the
      * other calls should be put on hold.
-     * 
+     *
      * @param callChangeEvent
      *            a <code>CallChangeEvent</code> value which describes the
      *            <code>Call</code> and the change in its state
@@ -271,7 +269,7 @@ public class SingleCallInProgressPolicy
      * to in order to have them or stop having them put the other existing calls
      * on hold when the former change their states to
      * <code>CallState.CALL_IN_PROGRESS</code>.
-     * 
+     *
      * @param type
      *            one of {@link CallEvent#CALL_ENDED},
      *            {@link CallEvent#CALL_INITIATED} and
@@ -299,11 +297,11 @@ public class SingleCallInProgressPolicy
     }
 
     /**
-     * Puts the <code>CallParticipant</code>s of a specific <code>Call</code> on
+     * Puts the <code>CallPeer</code>s of a specific <code>Call</code> on
      * hold.
-     * 
+     *
      * @param call
-     *            the <code>Call</code> the <code>CallParticipant</code>s of
+     *            the <code>Call</code> the <code>CallPeer</code>s of
      *            which are to be put on hold
      */
     private void putOnHold(Call call)
@@ -314,23 +312,23 @@ public class SingleCallInProgressPolicy
 
         if (telephony != null)
         {
-            for (Iterator<CallPeer> participantIter =
-                call.getCallPeers(); participantIter.hasNext();)
+            for (Iterator<CallPeer> peerIter =
+                call.getCallPeers(); peerIter.hasNext();)
             {
-                CallPeer participant = participantIter.next();
-                CallPeerState participantState = participant.getState();
+                CallPeer peer = peerIter.next();
+                CallPeerState peerState = peer.getState();
 
-                if (!CallPeerState.DISCONNECTED.equals(participantState)
-                    && !CallPeerState.FAILED.equals(participantState)
-                    && !CallPeerState.isOnHold(participantState))
+                if (!CallPeerState.DISCONNECTED.equals(peerState)
+                    && !CallPeerState.FAILED.equals(peerState)
+                    && !CallPeerState.isOnHold(peerState))
                 {
                     try
                     {
-                        telephony.putOnHold(participant);
+                        telephony.putOnHold(peer);
                     }
                     catch (OperationFailedException ex)
                     {
-                        logger.error("Failed to put " + participant
+                        logger.error("Failed to put " + peer
                             + " on hold.", ex);
                     }
                 }
@@ -341,7 +339,7 @@ public class SingleCallInProgressPolicy
     /**
      * Unregisters a specific <code>Call</code> from this policy in order to
      * have the rules of the latter no longer applied to the former.
-     * 
+     *
      * @param call
      *            the <code>Call</code> to unregister from this policy in order
      *            to have the rules of the latter no longer apply to the former
@@ -360,7 +358,7 @@ public class SingleCallInProgressPolicy
      * Unregisters a specific <code>OperationSetBasicTelephony</code> from this
      * policy in order to have the rules of the latter no longer apply to the
      * <code>Call</code>s created by the former.
-     * 
+     *
      * @param telephony
      *            the <code>OperationSetBasicTelephony</code> to unregister from
      *            this policy in order to have the rules of the latter apply to
@@ -377,7 +375,7 @@ public class SingleCallInProgressPolicy
      * <code>OperationSetBasicTelephony</code> instances in order to apply or
      * unapply the rules of this policy to the <code>Call</code>s originating
      * from them.
-     * 
+     *
      * @param serviceEvent
      *            a <code>ServiceEvent</code> value which described a change in
      *            a OSGi service and which is to be examined for the registering

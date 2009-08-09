@@ -368,13 +368,13 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.DIEZ_DIAL_BUTTON");
 
     /**
-     * A dial button icon. The icon shown in the CallParticipant panel.
+     * A dial button icon. The icon shown in the CallPeer panel.
      */
     public static final ImageID DIAL_BUTTON
         = new ImageID("service.gui.buttons.DIAL_BUTTON");
 
     /**
-     * A put-on/off-hold button icon. The icon shown in the CallParticipant
+     * A put-on/off-hold button icon. The icon shown in the CallPeer
      * panel.
      */
     public static final ImageID HOLD_BUTTON
@@ -393,55 +393,55 @@ public class ImageLoader
         = new ImageID("service.gui.icons.MUTE_STATUS_ICON");
 
     /**
-     * A mute button icon. The icon shown in the CallParticipant panel.
+     * A mute button icon. The icon shown in the CallPeer panel.
      */
     public static final ImageID MUTE_BUTTON
         = new ImageID("service.gui.buttons.MUTE_BUTTON");
 
     /**
-     * A local video button icon. The icon shown in the CallParticipant panel.
+     * A local video button icon. The icon shown in the CallPeer panel.
      */
     public static final ImageID LOCAL_VIDEO_BUTTON
         = new ImageID("service.gui.buttons.LOCAL_VIDEO_BUTTON");
 
     /**
-     * A call-transfer button icon. The icon shown in the CallParticipant panel.
+     * A call-transfer button icon. The icon shown in the CallPeer panel.
      */
     public static final ImageID TRANSFER_CALL_BUTTON =
         new ImageID("service.gui.buttons.TRANSFER_CALL_BUTTON");
 
     /**
-     * The secure button on icon. The icon shown in the CallParticipant panel.
+     * The secure button on icon. The icon shown in the CallPeer panel.
      */
     public static final ImageID SECURE_BUTTON_ON =
         new ImageID("service.gui.buttons.SECURE_BUTTON_ON");
 
     /**
-     * The secure button off icon. The icon shown in the CallParticipant panel.
+     * The secure button off icon. The icon shown in the CallPeer panel.
      */
     public static final ImageID SECURE_BUTTON_OFF =
         new ImageID("service.gui.buttons.SECURE_BUTTON_OFF");
 
     /**
-     * The secure button on icon. The icon shown in the CallParticipant panel.
+     * The secure button on icon. The icon shown in the CallPeer panel.
      */
     public static final ImageID SECURE_AUDIO_ON =
         new ImageID("service.gui.buttons.SECURE_AUDIO_ON");
 
     /**
-     * The secure button off icon. The icon shown in the CallParticipant panel.
+     * The secure button off icon. The icon shown in the CallPeer panel.
      */
     public static final ImageID SECURE_AUDIO_OFF =
         new ImageID("service.gui.buttons.SECURE_AUDIO_OFF");
 
     /**
-     * The secure button on icon. The icon shown in the CallParticipant panel.
+     * The secure button on icon. The icon shown in the CallPeer panel.
      */
     public static final ImageID SECURE_VIDEO_ON =
         new ImageID("service.gui.buttons.SECURE_VIDEO_ON");
 
     /**
-     * The secure button off icon. The icon shown in the CallParticipant panel.
+     * The secure button off icon. The icon shown in the CallPeer panel.
      */
     public static final ImageID SECURE_VIDEO_OFF =
         new ImageID("service.gui.buttons.SECURE_VIDEO_OFF");
@@ -460,14 +460,14 @@ public class ImageLoader
 
     /**
      * The button icon of the Enter Full Screen command. The icon shown in the
-     * CallParticipant panel.
+     * CallPeer panel.
      */
     public static final ImageID ENTER_FULL_SCREEN_BUTTON =
         new ImageID("service.gui.buttons.ENTER_FULL_SCREEN_BUTTON");
 
     /**
      * The button icon of the Exit Full Screen command. The icon shown in the
-     * CallParticipant panel.
+     * CallPeer panel.
      */
     public static final ImageID EXIT_FULL_SCREEN_BUTTON =
         new ImageID("service.gui.buttons.EXIT_FULL_SCREEN_BUTTON");
@@ -1273,7 +1273,7 @@ public class ImageLoader
     /**
      * Returns the URI corresponding to the image with the given image
      * identifier.
-     * 
+     *
      * @param imageID the identifier of the image
      * @return the URI corresponding to the image with the given image
      * identifier
@@ -1299,7 +1299,7 @@ public class ImageLoader
      * Obtains the indexed status image for the given protocol provider.
      *
      * @param pps the protocol provider for which to create the image
-     * 
+     *
      * @return the indexed status image
      */
     public static ImageIcon getAccountStatusImage(ProtocolProviderService pps)
@@ -1338,7 +1338,7 @@ public class ImageLoader
     /**
      * Badges the given protocol image with an index allowing to distinguish
      * different accounts from the same protocol.
-     * 
+     *
      * @param image the initial image to badge with an index
      * @param pps the protocol provider service corresponding to the account,
      * containing the index.
