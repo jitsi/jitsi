@@ -19,7 +19,7 @@ import net.java.sip.communicator.service.callhistory.*;
  */
 public class GuiCallRecord
 {
-    private Vector<GuiCallParticipantRecord> participants; 
+    private Vector<GuiCallPeerRecord> participants; 
     
     private Date startTime;
     
@@ -32,7 +32,7 @@ public class GuiCallRecord
      * @param startTime call start time
      * @param endTime call end time
      */
-    public GuiCallRecord(Vector<GuiCallParticipantRecord> guiParticipantRecords,
+    public GuiCallRecord(Vector<GuiCallPeerRecord> guiParticipantRecords,
             Date startTime,
             Date endTime)
     {   
@@ -55,7 +55,7 @@ public class GuiCallRecord
         
         this.endTime = callRecord.getEndTime();
         
-        this.participants = new Vector<GuiCallParticipantRecord>();
+        this.participants = new Vector<GuiCallPeerRecord>();
         
         Iterator<CallPeerRecord> records = callRecord.getPeerRecords().iterator();
         
@@ -63,8 +63,8 @@ public class GuiCallRecord
             CallPeerRecord record
                 = records.next();
             
-            GuiCallParticipantRecord newRecord
-                = new GuiCallParticipantRecord(
+            GuiCallPeerRecord newRecord
+                = new GuiCallPeerRecord(
                         record, callRecord.getDirection());
             
             this.participants.add(newRecord);
@@ -76,7 +76,7 @@ public class GuiCallRecord
         return endTime;
     }
 
-    public Iterator<GuiCallParticipantRecord> getParticipants()
+    public Iterator<GuiCallPeerRecord> getParticipants()
     {
         return participants.iterator();
     }

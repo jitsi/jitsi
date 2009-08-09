@@ -844,7 +844,7 @@ public class CallParticipantPanel
         if (callDuration != null)
             return callType;
         else
-            return GuiCallParticipantRecord.INCOMING_CALL;
+            return GuiCallPeerRecord.INCOMING_CALL;
     }
 
     /**

@@ -52,7 +52,7 @@ public class CallDialog
             GuiActivator.getResources().getI18NString("service.gui.CALL"));
 
         this.callPanel
-            = new CallPanel(this, call, GuiCallParticipantRecord.INCOMING_CALL);
+            = new CallPanel(this, call, GuiCallPeerRecord.INCOMING_CALL);
 
         this.setPreferredSize(new Dimension(500, 400));
 

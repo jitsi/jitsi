@@ -93,7 +93,7 @@ public class CallManager
 
             CallDialog callDialog
                 = CallManager.openCallDialog(sourceCall,
-                    GuiCallParticipantRecord.OUTGOING_CALL);
+                    GuiCallPeerRecord.OUTGOING_CALL);
 
             activeCalls.put(sourceCall, callDialog);
         }
@@ -147,7 +147,7 @@ public class CallManager
     public static void answerCall(final Call call)
     {
         CallManager.openCallDialog(call,
-            GuiCallParticipantRecord.INCOMING_CALL);
+            GuiCallPeerRecord.INCOMING_CALL);
 
         new AnswerCallThread(call).start();
     }
