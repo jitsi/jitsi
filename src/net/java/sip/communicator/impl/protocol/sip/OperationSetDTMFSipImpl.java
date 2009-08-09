@@ -58,18 +58,18 @@ public class OperationSetDTMFSipImpl
      * This is just a copy of the bye method from the OpSetBasicTelephony,
      * which was enhanced with a body in order to send the DTMF tone
      *
-     * @param callParticipant destination of the DTMF tone
+     * @param callPeer destination of the DTMF tone
      * @param dtmftone DTMF tone to send
      * @throws OperationFailedException
      */
-    private void sayInfo(CallPeerSipImpl callParticipant,
+    private void sayInfo(CallPeerSipImpl callPeer,
                          String dtmftone)
         throws OperationFailedException
     {
         Request info = null;
         try
         {
-            info = callParticipant.getDialog().createRequest(Request.INFO);
+            info = callPeer.getDialog().createRequest(Request.INFO);
         }
         catch (SipException ex)
         {
@@ -103,7 +103,7 @@ public class OperationSetDTMFSipImpl
         ClientTransaction clientTransaction = null;
         try
         {
-            clientTransaction = callParticipant.getJainSipProvider()
+            clientTransaction = callPeer.getJainSipProvider()
                 .getNewClientTransaction(info);
         }
         catch (TransactionUnavailableException ex)
@@ -119,7 +119,7 @@ public class OperationSetDTMFSipImpl
 
         try
         {
-            if (callParticipant.getDialog().getState()
+            if (callPeer.getDialog().getState()
                 == DialogState.TERMINATED)
             {
                 //this is probably because the call has just ended, so don't
@@ -129,7 +129,7 @@ public class OperationSetDTMFSipImpl
                 return;
             }
 
-            callParticipant.getDialog().sendRequest(clientTransaction);
+            callPeer.getDialog().sendRequest(clientTransaction);
             logger.debug("sent request:\n" + info);
         }
         catch (SipException ex)
@@ -143,7 +143,7 @@ public class OperationSetDTMFSipImpl
 
     /**
      * Does nothing
-     * 
+     *
      * @param requestEvent the event request
      * @return <tt>true</tt> if the specified event has been handled by this
      *         processor and shouldn't be offered to other processors registered
@@ -161,7 +161,7 @@ public class OperationSetDTMFSipImpl
 
     /**
      * Just look if the DTMF signal was well received, and log it
-     * 
+     *
      * @param responseEvent the response event
      * @return <tt>true</tt> if the specified event has been handled by this
      *         processor and shouldn't be offered to other processors registered
@@ -195,7 +195,7 @@ public class OperationSetDTMFSipImpl
 
     /**
      * In case of timeout, just terminate the transaction
-     * 
+     *
      * @param timeoutEvent the timeout event
      * @return <tt>true</tt> if the specified event has been handled by this
      *         processor and shouldn't be offered to other processors registered
@@ -210,7 +210,7 @@ public class OperationSetDTMFSipImpl
 
     /**
      * Just log the exception
-     * 
+     *
      * @param exceptionEvent the event we have to handle
      * @return <tt>true</tt> if the specified event has been handled by this
      *         processor and shouldn't be offered to other processors registered
@@ -230,7 +230,7 @@ public class OperationSetDTMFSipImpl
 
     /**
      * Just log the end of the transaction
-     * 
+     *
      * @param transactionTerminatedEvent the event we have to handle
      * @return <tt>true</tt> if the specified event has been handled by this
      *         processor and shouldn't be offered to other processors registered
@@ -246,7 +246,7 @@ public class OperationSetDTMFSipImpl
 
     /**
      * Just log the end of the dialog
-     * 
+     *
      * @param dialogTerminatedEvent the event we have to handle
      * @return <tt>true</tt> if the specified event has been handled by this
      *         processor and shouldn't be offered to other processors registered
@@ -261,34 +261,34 @@ public class OperationSetDTMFSipImpl
     }
 
     /**
-     * Sends the <tt>DTMFTone</tt> <tt>tone</tt> to <tt>callParticipant</tt>.
+     * Sends the <tt>DTMFTone</tt> <tt>tone</tt> to <tt>callPeer</tt>.
      *
-     * @param callParticipant the  call participant to send <tt>tone</tt> to.
-     * @param tone the DTMF tone to send to <tt>callParticipant</tt>.
+     * @param callPeer the  call peer to send <tt>tone</tt> to.
+     * @param tone the DTMF tone to send to <tt>callPeer</tt>.
      *
      * @throws OperationFailedException with code OPERATION_NOT_SUPPORTED if
-     * DTMF tones are not supported for <tt>callParticipant</tt>.
+     * DTMF tones are not supported for <tt>callPeer</tt>.
      *
      * @throws NullPointerException if one of the arguments is null.
      *
-     * @throws IllegalArgumentException in case the call participant does not
+     * @throws IllegalArgumentException in case the call peer does not
      * belong to the underlying implementation.
      */
-    public void sendDTMF(CallPeer callParticipant, DTMFTone tone)
+    public void sendDTMF(CallPeer callPeer, DTMFTone tone)
         throws OperationFailedException,
                 NullPointerException,
                 IllegalArgumentException
     {
-        if (callParticipant == null || tone == null)
+        if (callPeer == null || tone == null)
         {
             throw new NullPointerException();
         }
-        if (! (callParticipant instanceof CallPeerSipImpl))
+        if (! (callPeer instanceof CallPeerSipImpl))
         {
             throw new IllegalArgumentException();
         }
 
-        CallPeerSipImpl cp = (CallPeerSipImpl) (callParticipant);
+        CallPeerSipImpl cp = (CallPeerSipImpl) (callPeer);
         this.sayInfo(cp, tone.getValue());
     }
 }
