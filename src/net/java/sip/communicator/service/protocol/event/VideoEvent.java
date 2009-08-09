@@ -13,7 +13,7 @@ import java.util.*;
  * Represents an event fired by providers of visual <code>Component</code>s
  * depicting video to notify about changes in the availability of such
  * <code>Component</code>s.
- * 
+ *
  * @author Lubomir Marinov
  */
 public class VideoEvent
@@ -29,7 +29,7 @@ public class VideoEvent
     /**
      * The video origin of a <code>VideoEvent</code> which is remote to the
      * executing client such as a video being remotely streamed from a
-     * <code>CallParticipant</code>.
+     * <code>CallPeer</code>.
      */
     public static final int REMOTE = 2;
 
@@ -80,7 +80,7 @@ public class VideoEvent
      * specific change in the availability of a specific visual
      * <code>Component</code> depicting video and being provided by a specific
      * source.
-     * 
+     *
      * @param source the source of the new <code>VideoEvent</code> and the
      *            provider of the visual <code>Component</code> depicting video
      * @param type the type of the availability change which has caused the new
@@ -129,7 +129,7 @@ public class VideoEvent
      * Gets the type of availability change this <code>VideoEvent</code>
      * notifies about which is one of {@link #VIDEO_ADDED} and
      * {@link #VIDEO_REMOVED}.
-     * 
+     *
      * @return one of {@link #VIDEO_ADDED} and {@link #VIDEO_REMOVED} which
      *         describes the type of availability change this
      *         <code>VideoEvent</code> notifies about
@@ -143,7 +143,7 @@ public class VideoEvent
      * Gets the visual <code>Component</code> depicting video which had its
      * availability changed and which this <code>VideoEvent</code> notifies
      * about.
-     * 
+     *
      * @return the visual <code>Component</code> depicting video which had its
      *         availability changed and which this <code>VideoEvent</code>
      *         notifies about
@@ -159,7 +159,7 @@ public class VideoEvent
      * considered owned, referenced (which is important because
      * <code>Component</code>s belong to a single <code>Container</code> at a
      * time).
-     * 
+     *
      * @return <tt>true</tt> if this event and, more specifically, the visual
      *         <code>Component</code> it describes have been consumed and should
      *         be considered owned, referenced (which is important because
