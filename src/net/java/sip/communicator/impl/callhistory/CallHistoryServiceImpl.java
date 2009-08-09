@@ -844,7 +844,7 @@ public class CallHistoryServiceImpl
 
     /**
      * Adding a record for joining peer
-     * @param callPeer CallParticipant
+     * @param callPeer CallPeer
      */
     private void handlePeerAdded(CallPeer callPeer)
     {
