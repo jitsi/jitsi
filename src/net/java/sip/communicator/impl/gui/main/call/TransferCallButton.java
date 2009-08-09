@@ -22,7 +22,7 @@ import net.java.sip.communicator.util.swing.*;
 /**
  * Represents an UI means to transfer (the <code>Call</code> of) an associated
  * <code>CallPariticant</code>.
- * 
+ *
  * @author Lubomir Marinov
  */
 public class TransferCallButton
@@ -32,24 +32,24 @@ public class TransferCallButton
         Logger.getLogger(TransferCallButton.class);
 
     /**
-     * The <code>CallParticipant</code> (whose <code>Call</code> is) to be
+     * The <code>CallPeer</code> (whose <code>Call</code> is) to be
      * transfered.
      */
-    private final CallPeer callParticipant;
+    private final CallPeer callPeer;
 
     /**
      * Initializes a new <code>TransferCallButton</code> instance which is to
      * transfer (the <code>Call</code> of) a specific
-     * <code>CallParticipant</code>.
-     * 
-     * @param callParticipant the <code>CallParticipant</code> to be associated
+     * <code>CallPeer</code>.
+     *
+     * @param callPeer the <code>CallPeer</code> to be associated
      *            with the new instance and to be transfered
      */
-    public TransferCallButton(CallPeer callParticipant)
+    public TransferCallButton(CallPeer callPeer)
     {
         super(ImageLoader.getImage(ImageLoader.TRANSFER_CALL_BUTTON));
 
-        this.callParticipant = callParticipant;
+        this.callPeer = callPeer;
 
         setToolTipText(GuiActivator.getResources().getI18NString(
             "service.gui.TRANSFER_BUTTON_TOOL_TIP"));
@@ -58,7 +58,7 @@ public class TransferCallButton
 
             /**
              * Invoked when an action occurs.
-             * 
+             *
              * @param evt the <code>ActionEvent</code> instance containing the
              *            data associated with the action and the act of its
              *            performing
@@ -73,7 +73,7 @@ public class TransferCallButton
     /**
      * Handles actions performed on this button on behalf of a specific
      * <code>ActionListener</code>.
-     * 
+     *
      * @param listener the <code>ActionListener</code> notified about the
      *            performing of the action
      * @param evt the <code>ActionEvent</code> containing the data associated
@@ -81,7 +81,7 @@ public class TransferCallButton
      */
     private void actionPerformed(ActionListener listener, ActionEvent evt)
     {
-        final Call call = callParticipant.getCall();
+        final Call call = callPeer.getCall();
 
         if (call != null)
         {
@@ -104,7 +104,7 @@ public class TransferCallButton
 
                     /*
                      * (non-Javadoc)
-                     * 
+                     *
                      * @see net.java.sip.communicator.service.protocol.event.
                      * CallChangeAdapter
                      * #callStateChanged(net.java.sip.communicator
@@ -137,17 +137,17 @@ public class TransferCallButton
                 {
                     try
                     {
-                        CallPeer targetParticipant =
-                            findCallParticipant(target);
+                        CallPeer targetPeer =
+                            findCallPeer(target);
 
-                        if (targetParticipant == null)
+                        if (targetPeer == null)
                         {
-                            telephony.transfer(callParticipant, target);
+                            telephony.transfer(callPeer, target);
                         }
                         else
                         {
-                            telephony.transfer(callParticipant,
-                                targetParticipant);
+                            telephony.transfer(callPeer,
+                                targetPeer);
                         }
                     }
                     catch (OperationFailedException ex)
@@ -161,30 +161,30 @@ public class TransferCallButton
     }
 
     /**
-     * Returns the first <code>CallParticipant</code> known to a specific
+     * Returns the first <code>CallPeer</code> known to a specific
      * <code>OperationSetBasicTelephony</code> to have a specific address.
      *
      * @param telephony the <code>OperationSetBasicTelephony</code> to have its
-     *            <code>CallParticipant</code>s examined in search for one which
+     *            <code>CallPeer</code>s examined in search for one which
      *            has a specific address
      * @param address the address to locate the associated
-     *            <code>CallParticipant</code> of
+     *            <code>CallPeer</code> of
      */
-    private CallPeer findCallParticipant(
+    private CallPeer findCallPeer(
         OperationSetBasicTelephony telephony, String address)
     {
         for (Iterator<Call> callIter = telephony.getActiveCalls(); callIter.hasNext();)
         {
             Call call = callIter.next();
 
-            for (Iterator<CallPeer> participantIter =
-                call.getCallPeers(); participantIter.hasNext();)
+            for (Iterator<CallPeer> peerIter =
+                call.getCallPeers(); peerIter.hasNext();)
             {
-                CallPeer participant = participantIter.next();
+                CallPeer peer = peerIter.next();
 
-                if (address.equals(participant.getAddress()))
+                if (address.equals(peer.getAddress()))
                 {
-                    return participant;
+                    return peer;
                 }
             }
         }
@@ -192,15 +192,15 @@ public class TransferCallButton
     }
 
     /**
-     * Returns the first <code>CallParticipant</code> among all existing ones 
+     * Returns the first <code>CallPeer</code> among all existing ones
      * who has a specific address.
      *
-     * @param address the address of the <code>CallParticipant</code> to be
+     * @param address the address of the <code>CallPeer</code> to be
      *            located
-     * @return the first <code>CallParticipant</code> among all existing ones
+     * @return the first <code>CallPeer</code> among all existing ones
      *         who has the specified <code>address</code>
      */
-    private CallPeer findCallParticipant(String address)
+    private CallPeer findCallPeer(String address)
         throws OperationFailedException
     {
         BundleContext bundleContext = GuiActivator.bundleContext;
@@ -221,7 +221,7 @@ public class TransferCallButton
 
         Class<OperationSetBasicTelephony> telephonyClass
             = OperationSetBasicTelephony.class;
-        CallPeer participant = null;
+        CallPeer peer = null;
 
         for (ServiceReference serviceReference : serviceReferences)
         {
@@ -232,14 +232,14 @@ public class TransferCallButton
 
             if (telephony != null)
             {
-                participant = findCallParticipant(telephony, address);
-                if (participant != null)
+                peer = findCallPeer(telephony, address);
+                if (peer != null)
                 {
                     break;
                 }
             }
         }
-        return participant;
+        return peer;
     }
 
     /**
@@ -250,7 +250,7 @@ public class TransferCallButton
      * <code>Dialog</code>s opened by the specified <code>Component</code> in
      * order to provide natural <code>Frame</code> ownership.
      * </p>
-     * 
+     *
      * @return the first <code>Frame</code> in the ancestor
      *         <code>Component</code> hierarchy of the specified
      *         <code>Component</code>; <tt>null</tt>, if no such
