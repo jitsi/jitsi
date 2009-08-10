@@ -484,9 +484,13 @@ public class ProtocolProviderServiceSipImpl
                 new OperationSetVideoTelephonySipImpl(opSetBasicTelephonySipImpl));
 
             // init DTMF (from JM Heitz)
-            OperationSetDTMF opSetDTMF = new OperationSetDTMFSipImpl(this);
-            this.supportedOperationSets.put(
-                OperationSetDTMF.class.getName(), opSetDTMF);
+            supportedOperationSets.put(
+                OperationSetDTMF.class.getName(),
+                new OperationSetDTMFSipImpl(this));
+
+            supportedOperationSets.put(
+                OperationSetTelephonyConferencing.class.getName(),
+                new OperationSetTelephonyConferencingSipImpl(this));
 
             //initialize our OPTIONS handler
             new ClientCapabilities(this);
@@ -703,8 +707,6 @@ public class ProtocolProviderServiceSipImpl
                 // send a 489 / Bad Event response
                 ServerTransaction serverTransaction = requestEvent
                     .getServerTransaction();
-                SipProvider jainSipProvider = (SipProvider)
-                    requestEvent.getSource();
 
                 if (serverTransaction == null)
                 {
