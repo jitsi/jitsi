@@ -107,7 +107,7 @@ public class JNIEncoder
 
         // mismatch input format
         if (!(in instanceof VideoFormat)
-            || null == JNIDecoder.matches(in, inputFormats))
+                || (null == JNIDecoder.matches(in, inputFormats)))
             return new Format[0];
 
         return getMatchingOutputFormats(in);

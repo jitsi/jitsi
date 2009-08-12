@@ -1084,13 +1084,15 @@ public class MediaControl
 
                     int width = size.width;
                     double xScale =
-                        (width == preferredWidth) ? 1
+                        (width == preferredWidth)
+                            ? 1
                             : (preferredWidth / (double) width);
 
                     int height = size.height;
                     double yScale =
-                        (height == preferredHeight) ? 1 : preferredHeight
-                            / (double) height;
+                        (height == preferredHeight)
+                            ? 1
+                            : (preferredHeight / (double) height);
 
                     difference = Math.abs(1 - Math.min(xScale, yScale));
                 }

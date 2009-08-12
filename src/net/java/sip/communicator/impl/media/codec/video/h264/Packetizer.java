@@ -27,9 +27,6 @@ public class Packetizer
 {
     private final static String PLUGIN_NAME = "H264 Packetizer";
 
-    private static int DEF_WIDTH = 352;
-    private static int DEF_HEIGHT = 288;
-
     // without the headers
     private final static int MAX_PAYLOAD_SIZE = 512;
 
@@ -50,9 +47,6 @@ public class Packetizer
      */
     public Packetizer()
     {
-        DEF_WIDTH = Constants.VIDEO_WIDTH;
-        DEF_HEIGHT = Constants.VIDEO_HEIGHT;
-
         inputFormats = new Format[]{
             new VideoFormat(Constants.H264)
         };
@@ -85,7 +79,7 @@ public class Packetizer
 
         // mismatch input format
         if (!(in instanceof VideoFormat)
-                || null == JNIDecoder.matches(in, inputFormats))
+                || (null == JNIDecoder.matches(in, inputFormats)))
             return new Format[0];
 
         return getMatchingOutputFormats(in);
@@ -116,10 +110,13 @@ public class Packetizer
         if (outSize == null)
         {
             Dimension inSize = ((VideoFormat) inputFormat).getSize();
-            if (inSize == null)
-                outSize = new Dimension(DEF_WIDTH, DEF_HEIGHT);
-            else
-                outSize = inSize;
+
+            outSize
+                = (inSize == null)
+                    ? new Dimension(
+                            Constants.VIDEO_WIDTH,
+                            Constants.VIDEO_HEIGHT)
+                    : inSize;
         }
 
         outputFormat =
