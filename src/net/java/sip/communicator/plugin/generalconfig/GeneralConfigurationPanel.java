@@ -260,8 +260,9 @@ public class GeneralConfigurationPanel
                     {
                         notifConfigComboBox = new JComboBox();
 
-                        String currentConfig =
-                                ConfigurationManager.getPopupHandlerConfig();
+                        String configuredHandler = (String) GeneralConfigPluginActivator
+                            .getConfigurationService().getProperty("systray.POPUP_HANDLER");
+                        
                         for (ServiceReference ref : handlerRefs)
                         {
                             PopupMessageHandler handler =
@@ -269,25 +270,48 @@ public class GeneralConfigurationPanel
 
                             notifConfigComboBox.addItem(handler);
 
-                            String handlerName = handler.getClass().getName();
-
-                            if (handlerName.equals(currentConfig))
+                            if (configuredHandler != null && 
+                                configuredHandler.equals(handler.getClass().getName()))
+                            {
                                 notifConfigComboBox.setSelectedItem(handler);
+                            }
+                        }
+                        
+                        // We need an entry in combo box that represents automatic
+                        // popup handler selection in systray service. It is selected
+                        // only if there is no user preference regarding which popup 
+                        // handler to use.
+                        String auto = "Auto";
+                        notifConfigComboBox.addItem(auto);
+                        if (configuredHandler == null)
+                        {
+                            notifConfigComboBox.setSelectedItem(auto);
                         }
 
                         notifConfigComboBox.addItemListener(new ItemListener()
                         {
                             public void itemStateChanged(ItemEvent evt)
                             {
-                                PopupMessageHandler handler =
-                                    (PopupMessageHandler)
-                                    notifConfigComboBox.getSelectedItem();
+                                if (notifConfigComboBox.getSelectedItem() instanceof String)
+                                {
+                                    // "Auto" selected. Delete the user's preference and
+                                    // select the best available handler.
+                                    ConfigurationManager.setPopupHandlerConfig(null);
+                                    GeneralConfigPluginActivator.getSystrayService()
+                                        .selectBestPopupMessageHandler();
+                                    
+                                } else
+                                {
+                                    PopupMessageHandler handler =
+                                        (PopupMessageHandler)
+                                        notifConfigComboBox.getSelectedItem();
 
-                                ConfigurationManager.setPopupHandlerConfig(
-                                    handler.getClass().getName());
+                                    ConfigurationManager.setPopupHandlerConfig(
+                                        handler.getClass().getName());
 
-                                GeneralConfigPluginActivator.getSystrayService()
-                                    .setActivePopupMessageHandler(handler);
+                                    GeneralConfigPluginActivator.getSystrayService()
+                                        .setActivePopupMessageHandler(handler);
+                                }
                             }
                         });
                         notifConfigPanel.add(
