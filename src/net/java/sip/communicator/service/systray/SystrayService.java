@@ -103,4 +103,9 @@ public interface SystrayService
      * @param imageType the type of the image to set
      */
     public void setSystrayIcon(int imageType);
+
+    /**
+     * Selects the best available popup message handler
+     */
+    public void selectBestPopupMessageHandler();
 }

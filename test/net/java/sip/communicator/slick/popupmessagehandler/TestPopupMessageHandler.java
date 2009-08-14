@@ -161,5 +161,13 @@ public class TestPopupMessageHandler
             // is it the expected handler which is handling it ?
             assertEquals(handler2, this);
         }
+        
+        /**
+         * implements <tt>getPreferenceIndex</tt> from <tt>PopupMessageHandler</tt>
+         */
+        public int getPreferenceIndex()
+        {
+            return 0;
+        }
     }
 }

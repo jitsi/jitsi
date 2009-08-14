@@ -43,6 +43,20 @@ public interface PopupMessageHandler
      * @param popupMessage the message to show
      */
     public void showPopupMessage(PopupMessage popupMessage);
+    
+    /**
+     * Returns a preference index, which indicates how many features the handler 
+     * implements. Implementer should calculate preference index by adding "1" 
+     * for each of the the following features that the implementation supports: 
+     * 
+     * 1) showing images
+     * 2) detecting clicks
+     * 3) being able to match a click to a message
+     * 4) using a native popup mechanism
+     * 
+     * @returns an integer representing preference index of this popup handler
+     */
+    public int getPreferenceIndex();
 
     /**
      * Returns a readable description of this popup handler. It is expected
