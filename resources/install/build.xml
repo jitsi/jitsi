@@ -637,7 +637,14 @@
             overwrite="true"/>
       <replace file="${macosx.resrc.dir}/felix.client.run.properties"
             token="org.osgi.framework.system.packages.extra="
-            value="org.osgi.framework.system.packages.extra= com.growl;"/>
+            value="org.osgi.framework.system.packages.extra= org.growl4j;"/>
+
+      <replace file="${macosx.resrc.dir}/felix.client.run.properties"
+            token="reference:file:sc-bundles/swingnotification.jar \">
+      <replacevalue><![CDATA[reference:file:sc-bundles/growlnotification.jar \
+ reference:file:sc-bundles/swingnotification.jar \]]></replacevalue>
+       </replace>
+
       <!-- Remove the reference to the updatechecker bundle -->
       <replace file="${macosx.resrc.dir}/felix.client.run.properties"
                token="reference:file:sc-bundles/updatechecker.jar"
@@ -646,9 +653,6 @@
                 match="^org.osgi.framework.storage=\$\{user.home\}/.sip-communicator/sip-communicator.bin"
                 replace="org.osgi.framework.storage=$\{user.home\}/Library/Application Support/${application.name}/sip-communicator.bin"
                 flags="m"/>
-      <echo file="${macosx.resrc.dir}/felix.client.run.properties"
-            append="true">felix.auto.start.80= reference:file:sc-bundles/growlnotification.jar
-      </echo>
 
       <!-- We copy macosx-specific bundles from
            sc-bundles/os-specific/macosx to sc-bundles -->
@@ -724,6 +728,20 @@
         <javafilelist dir="${macosx.resrc.dir}"
                       files="felix.client.run.properties"/>
       </jarbundler>
+
+      <!-- Install the Growl Framework in the application package -->
+      <mkdir dir="${macosx.app.dir}/${application.name}.app/Contents/Frameworks"/>
+      <unzip src="${macosx.resrc.dir}/Growl.framework.zip"
+             dest="${macosx.app.dir}/${application.name}.app/Contents/Frameworks"/>
+      <!-- Ant unzip tasks does not preserve symlinks, so we recreate them -->
+      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Growl.framework/Versions/Current"
+               resource="./A"/>
+      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Growl.framework/Headers"
+               resource="./Versions/Current/Headers"/>
+      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Growl.framework/Resources"
+               resource="./Versions/Current/Resources"/>
+      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Growl.framework/Growl"
+               resource="./Versions/Current/Growl"/>   
 
       <!-- Add the url types in the Info.plist file -->
       <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
