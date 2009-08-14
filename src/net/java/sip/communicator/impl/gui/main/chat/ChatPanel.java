@@ -427,7 +427,7 @@ public class ChatPanel
      */
     public void requestFocusInWriteArea()
     {
-        getChatWritePanel().getEditorPane().requestFocus();
+        getChatWritePanel().getEditorPane().requestFocusInWindow();
     }
 
     /**
