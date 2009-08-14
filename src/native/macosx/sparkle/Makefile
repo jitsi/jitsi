@@ -2,7 +2,7 @@
 # Requires the Sparkle.framework installed in /Library/Frameworks
 # The Framework is available at http://sparkle.andymatuschak.org/
 
-CC=gcc
+CC=gcc -arch x86_64 -arch i386
 TARGET=libsparkle_init.dylib
 JNI_INCLUDE_PATH=/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Headers/
 CFLAGS=-I$(JNI_INCLUDE_PATH)

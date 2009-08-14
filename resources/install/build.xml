@@ -780,15 +780,23 @@
       <copy file="lib/native/mac/libsparkle_init.dylib"
             todir="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/lib/native/mac/"/>
 
+      <!-- Add public key file to the application bundle -->
+      <copy file="${macosx.resrc.dir}/sparkle_dsa_pub.pem"
+            todir="${macosx.app.dir}/${application.name}.app/Contents/Resources/"/>
+
       <!-- Add the Sparkle properties in the Info.plist file -->
       <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
         <replacetoken><![CDATA[<key>CFBundleName</key>]]></replacetoken>
         <replacevalue><![CDATA[<key>SUCheckAtStartup</key>
-    <string>false</string>
+    <string>YES</string>
+    <key>SUScheduledCheckInterval</key>
+    <string>86400</string>
+    <key>SUPublicDSAKeyFile</key>
+    <string>sparkle_dsa_pub.pem</string>
     <key>SUFeedURL</key>
     <string>http://download.sip-communicator.org/nightly/macosx/sparkle/updates.xml</string>
     <key>SUShowReleaseNotes</key>
-    <string>true</string>
+    <string>YES</string>
     <key>CFBundleName</key>]]></replacevalue>
       </replace>
 
@@ -805,6 +813,8 @@
             resource="./Versions/Current/Resources"/>
       <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Sparkle"
             resource="./Versions/Current/Sparkle"/>
+      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Resources/fr_CA.lproj"
+            resource="./fr.lproj"/>
     </target>
 
     <!-- Create the DMG - This only works on MacOSX (need hdiutil) -->
