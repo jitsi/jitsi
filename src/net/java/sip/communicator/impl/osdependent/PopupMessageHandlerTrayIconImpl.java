@@ -127,4 +127,14 @@ public class PopupMessageHandlerTrayIconImpl implements PopupMessageHandler
         return OsDependentActivator.getResources()
             .getI18NString("impl.systray.POPUP_MESSAGE_HANDLER");
     }
+
+    /**
+     * Implements <tt>getPreferenceIndex</tt> from <tt>PopupMessageHandler</tt>.
+     * This handler is able to detect clicks, thus the index is 1.
+     * @return a preference index.
+     */
+    public int getPreferenceIndex()
+    {
+        return 1;
+    }
 }

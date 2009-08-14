@@ -340,4 +340,15 @@ public class PopupMessageHandlerSwingImpl implements PopupMessageHandler
 
         return fontMetrics.getHeight()*numberOfRows;
     }
+
+    /**
+     * Implements <tt>getPreferenceIndex</tt> from <tt>PopupMessageHandler</tt>. 
+     * This handler is able to show images, detect clicks, match a click to a 
+     * message, thus the preference index is 3.
+     * @return a preference index
+     */
+    public int getPreferenceIndex()
+    {
+        return 3;
+    }
 }

@@ -312,19 +312,24 @@ public class SystrayServiceJdicImpl
                     popupHandlerSet.put(handlerName, handler);
                     logger.info("added the following popup handler : " +
                         handler);
-                    if (configuredHandler.equals(handler.getClass().getName()))
+                    if (configuredHandler != null && 
+                        configuredHandler.equals(handler.getClass().getName()))
                     {
                         setActivePopupMessageHandler(handler);
                     }
                 }
-
+            }
+            
+            if (configuredHandler == null)
+            {
+                selectBestPopupMessageHandler();
             }
         }
 
         // either we have an incorrect config value or the default popup handler
         // is not yet available. we use the available popup handler and will
         // auto switch to the configured one when it will be available.
-        // we will be aware of it since we listen for new registerred
+        // we will be aware of it since we listen for new registered
         // service in the bundle context.
         if (activePopupHandler == null)
         {
@@ -567,6 +572,8 @@ public class SystrayServiceJdicImpl
         {
             newHandler.addPopupMessageListener(popupMessageListener);
         }
+        logger.info(
+            "setting the following popup handler as active : " + newHandler);
         activePopupHandler = newHandler;
 
         return oldHandler;
@@ -579,6 +586,30 @@ public class SystrayServiceJdicImpl
     public PopupMessageHandler getActivePopupMessageHandler()
     {
         return activePopupHandler;
+    }
+    
+    /**
+     * Sets activePopupHandler to be the one with the highest preference index.
+     */
+    public void selectBestPopupMessageHandler()
+    {
+        PopupMessageHandler preferedHandler = null;
+        int highestPrefIndex = 0;
+        if (!popupHandlerSet.isEmpty())
+        {
+            Enumeration<String> keys = popupHandlerSet.keys();
+            while (keys.hasMoreElements())
+            {
+                String handlerName = keys.nextElement();
+                PopupMessageHandler h = popupHandlerSet.get(handlerName);
+                if (h.getPreferenceIndex() > highestPrefIndex)
+                {
+                    highestPrefIndex = h.getPreferenceIndex();
+                    preferedHandler = h;
+                }
+            }
+            setActivePopupMessageHandler(preferedHandler);
+        }
     }
 
     /** our listener for popup message click */
@@ -634,22 +665,35 @@ public class SystrayServiceJdicImpl
                     String configuredHandler = (String) configService.
                         getProperty("systray.POPUP_HANDLER");
                     
-                    if (configuredHandler.equals(handler.getClass().getName()))
+                    if (configuredHandler == null && 
+                        (handler.getPreferenceIndex() > activePopupHandler.getPreferenceIndex()))
+                    {
+                        // The user doesn't have a preferred handler set and new 
+                        // handler with better preference index has arrived, 
+                        // thus setting it as active.
                         setActivePopupMessageHandler(handler);
+                    }
+                    if (configuredHandler != null &&
+                        configuredHandler.equals(handler.getClass().getName()))
+                    {
+                        // The user has a preferred handler set and it just
+                        // became available, thus setting it as active
+                        setActivePopupMessageHandler(handler);
+                    }
                 } else if (serviceEvent.getType() == ServiceEvent.UNREGISTERING)
                 {
+                    logger.info(
+                        "removing the following popup handler : " + handler);
                     popupHandlerSet.remove(handler.getClass().getName());
                     if (activePopupHandler == handler)
                     {
                         activePopupHandler.removePopupMessageListener(
                             popupMessageListener);
                         activePopupHandler = null;
-                        //we just lost our default handler, we replace it
-                        //with the first one we find
-                        if (!popupHandlerSet.isEmpty())
-                            setActivePopupMessageHandler(
-                                popupHandlerSet.get(
-                                popupHandlerSet.keys().nextElement()));
+                        
+                        // We just lost our default handler, so we replace it
+                        // with the one that has the highest preference index.
+                        selectBestPopupMessageHandler();
                     }
                 }
             } catch (IllegalStateException e)

@@ -41,8 +41,7 @@ public class SwingNotificationActivator implements BundleActivator
     private static ResourceManagementService resourcesService;
 
     /**
-     * start the swing notification service and set the swing popup handler as
-     * the default if there is no default popup handler.
+     * Start the swing notification service
      * @param bc
      * @throws java.lang.Exception
      */
@@ -56,14 +55,7 @@ public class SwingNotificationActivator implements BundleActivator
         handler = new PopupMessageHandlerSwingImpl();
 
         getConfigurationService();
-
-        String defaultHandler =
-                (String) configService.getProperty("systray.POPUP_HANDLER");
-        if (defaultHandler == null)
-        {
-            configService.setProperty(
-                    "systray.POPUP_HANDLER", handler.getClass().getName());
-        }
+        
         bc.registerService(
                 PopupMessageHandler.class.getName()
                 , handler
