@@ -6,7 +6,10 @@
  */
 package net.java.sip.communicator.impl.growlnotification;
 
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.service.systray.*;
+
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.util.*;
@@ -15,6 +18,7 @@ import net.java.sip.communicator.util.*;
  * Activates the GrowlNotificationService
  *
  * @author Romain Kuntz
+ * @author Egidijus Jankauskas
  */
 public class GrowlNotificationActivator
     implements BundleActivator
@@ -28,10 +32,20 @@ public class GrowlNotificationActivator
         Logger.getLogger(GrowlNotificationActivator.class);
 
     /**
+     * A reference to the configuration service.
+     */
+    private static ConfigurationService configService;
+    
+    /**
      * A reference to the resource management service.
      */
     private static ResourceManagementService resourcesService;
 
+    /**
+     * A reference to the Growl notification service
+     */
+    private static GrowlNotificationServiceImpl handler;
+    
     /**
      * Initialize and start Growl Notifications Service
      *
@@ -40,32 +54,51 @@ public class GrowlNotificationActivator
      */
     public void start(BundleContext bc) throws Exception
     {
-        /* Check Java version: do not start if Java 6 */
-        /* Actually, this plugin uses the Growl Java bindings which 
-         * in turn uses the Cocoa Java bridge. Java 6 on Mac OS X is 
-         * 64-bit only (as of 01/2008), and the Cocoa-Java bridge 
-         * will certainly never get any 64-bit support (it has been
-         * deprecated). 
-         */
-        String version = System.getProperty("java.version");
-        char minor = version.charAt(2);
-        if(minor > '5') {
-            logger.info("Growl Notification Plugin cannot be started " +
-                        "on JDK version " + version);
-        } else {
-            bundleContext  = bc;
-            /* Create and start the Growl Notification service. */
-            new GrowlNotificationServiceImpl().start(bc);
+        logger.info("Growl Notification ...[Starting]");
+        bundleContext  = bc;
+        
+        getConfigurationService();
 
-            logger.info("Growl Notification Plugin ...[Started]");
+        handler = new GrowlNotificationServiceImpl();
+        
+        if (handler.isGrowlInstalled())
+        {
+            handler.start(bc);
+            bc.registerService(PopupMessageHandler.class.getName(), handler, null);
+        } else 
+        {
+            logger.info("Growl Notification ...[Aborted]");
+            return;
         }
+        
+        logger.info("Growl Notification ...[Started]");
     }
 
     public void stop(BundleContext bContext) throws Exception
     {
+        handler.stop(bContext);
         logger.info("Growl Notification Service ...[Stopped]");
     }
 
+    /**
+     * Returns the <tt>ConfigurationService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>ConfigurationService</tt> obtained from the bundle
+     * context
+     */
+    public static ConfigurationService getConfigurationService()
+    {
+        if(configService == null) {
+            ServiceReference configReference = bundleContext
+                .getServiceReference(ConfigurationService.class.getName());
+
+            configService = (ConfigurationService) bundleContext
+                .getService(configReference);
+        }
+
+        return configService;
+    }
+    
     /**
      * Returns the <tt>ResourceManagementService</tt> obtained from the bundle
      * context.
@@ -78,6 +111,5 @@ public class GrowlNotificationActivator
             resourcesService =
                 ResourceManagementServiceUtils.getService(bundleContext);
         return resourcesService;
-
     }
 }

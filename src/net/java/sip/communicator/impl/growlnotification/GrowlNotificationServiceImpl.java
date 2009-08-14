@@ -6,182 +6,104 @@
  */
 package net.java.sip.communicator.impl.growlnotification;
 
-import java.lang.reflect.*;
 import java.util.*;
-
 import org.osgi.framework.*;
-
-import com.growl.*;
 
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
 import net.java.sip.communicator.util.*;
+import org.growl4j.*;
+
+// TO-DO: use a better icon in registration.
 
 /**
  * The Growl Notification Service displays on-screen information such as
  * messages or call received, etc.
  *
  * @author Romain Kuntz
+ * @author Egidijus Jankauskas
  */
 public class GrowlNotificationServiceImpl
-    implements PopupMessageHandler
+    implements PopupMessageHandler,
+                GrowlCallbacksListener
 {
     /**
      * The logger for this class.
      */
     private static Logger logger =
         Logger.getLogger(GrowlNotificationServiceImpl.class);
-
+    
     /**
-     * The Growl notifier
+     * A variable that acts as a buffer to temporarily keep all PopupMessages 
+     * that were sent to Growl Daemon.
      */
-    private Growl notifier;
+    private static final HashMap<Long, PopupMessage> shownPopups =  
+                                        new HashMap<Long, PopupMessage>(10);
+    
+    private Growl growl = null;
 
-    /**
-     * The notifyGrowlOf/setAllowedNotifications/setDefaultNotifications 
-     * methods of the growl class. We use reflection to access them
-     * in order to avoid compilation errors on non mac platforms.
-     */
-    private Method notifyMethod = null;
-    private Method setAllowedNotifMethod = null;
-    private Method setDefaultNotifMethod = null;
-
-    /* All Growl Notifications and the default ones */
-    private String [] allNotif =
-        new String[] { "SIP Communicator Started",
-                       "Protocol events",
-                       "Message Received",
-                       "Message Sent"};
-
-    private String [] defaultNotif =
-        new String[] { "SIP Communicator Started",
-                       "Message Received" };
-
-    /** 
-     * The path to the SIP Communicator icon used in Growl's configuration 
-     * menu and protocol events messages
-     */
-    private String sipIconPath = "resources/images/logo/sc_logo_128x128.icns";
 
     /** The list of all added popup listeners */
     private final List<SystrayPopupMessageListener> popupMessageListeners =
             new Vector<SystrayPopupMessageListener>();
 
+    
     /**
-     * starts the service. Creates a Growl notifier, and check the current
-     * registerd protocol providers which supports BasicIM and adds message
+     * Starts the service. Creates a Growl notifier, and check the current
+     * registered protocol providers which supports BasicIM and adds message
      * listener to them.
      *
      * @param bc a currently valid bundle context
      * @throws java.lang.Exception if we fail initializing the growl notifier.
      */
     public void start(BundleContext bc)
-        throws Exception
     {
         logger.debug("Starting the Growl Notification implementation.");
-
-        /* Register to Growl */
-        try
+        
+        if(Growl.isGrowlRunning())
         {
-            Constructor<Growl> constructor = Growl.class.getConstructor(
-                    new Class[] { String.class, String.class });
-            notifier = constructor.newInstance(
-                    new Object[]{"SIP Communicator", sipIconPath});
+            String[] dict = { "Default", "Welcome message" };
+            byte[] sipIcon = GrowlNotificationActivator.getResources().
+                                    getImageInBytes("service.gui.SIP_COMMUNICATOR_LOGO_45x45");
+            growl = new Growl ("SIP Communicator", "net.sip-communicator", sipIcon, dict, dict);
+            growl.addClickedNotificationsListener(this);
 
-            //init the setAllowedNotifications method
-            setAllowedNotifMethod = Growl.class.getMethod(
-                    "setAllowedNotifications"
-                    , new Class[]{String[].class});
-
-            //init the setDefaultNotifications method
-            setDefaultNotifMethod = Growl.class.getMethod(
-                    "setDefaultNotifications"
-                    , new Class[]{String[].class});
-
-            //init the notifyGrowlOf method
-            notifyMethod = Growl.class.getMethod(
-                    "notifyGrowlOf"
-                    , new Class[]{String.class, String.class, 
-                                  String.class, String.class});
-
-            setAllowedNotifications(allNotif);
-            setDefaultNotifications(defaultNotif);
-            notifier.register();
-
-            notifyGrowlOf("SIP Communicator Started"
-                          , sipIconPath
-                          , "Welcome to SIP Communicator"
-                          , "http://www.sip-communicator.org");
-        }
-        catch (Exception ex)
-        {
-            logger.error("Could not send the message to Growl", ex);
-            throw ex;
-        }
-
-        bc.registerService(PopupMessageHandler.class.getName(), this, null);
+            growl.notifyGrowlOf("SIP Communicator", 
+                                "http://www.sip-communicator.org/", 
+                                "Welcome message", 
+                                null, null);
+        } 
     }
 
     /**
-     * stops the service.
+     * Stops the service.
      *
      * @param bc BundleContext
      */
     public void stop(BundleContext bc)
     {
-    }
-
-    /**
-     * Convenience method that defers to notifier.notifyGrowlOf() using
-     * reflection without referencing it directly. The purpose of this method
-     * is to allow the class to compile on non-mac systems.
-     *
-     * @param inNotificationName The name of one of the notifications we told
-     * growl about.
-     * @param inTitle The Title of our Notification as Growl will show it
-     * @param inDescription The Description of our Notification as Growl will
-     * display it
-     *
-     * @throws Exception When a notification is not known
-     */
-    public void notifyGrowlOf(String inNotificationName,
-                              String inImagePath,
-                              String inTitle,
-                              String inDescription)
-        throws Exception
-    {
-        // remove eventual html code before showing the popup message
-        inDescription = inDescription.replaceAll("</?\\w++[^>]*+>", "");
-        
-        notifyMethod.invoke(
-            notifier, new Object[]{inNotificationName, inImagePath, 
-                                   inTitle, inDescription});
+        if (growl != null)
+        {
+            growl.doFinalCleanUp();
+        }
     }
     
     /**
-     * Convenience method that defers to notifier.setAllowedNotifications() 
-     * using reflection without referencing it directly. The purpose of this 
-     * method is to allow the class to compile on non-mac systems.
-     *
-     * @param inAllNotes The list of allowed Notifications
+     * Checks if Growl is present on the system
+     * @return <code>true</code> if Growl is installed and <code>false</code> otherwise
      */
-    public void setAllowedNotifications(String [] inAllNotes)
-        throws Exception
+    public boolean isGrowlInstalled()
     {
-        setAllowedNotifMethod.invoke(notifier, new Object[]{inAllNotes});
+        return Growl.isGrowlInstalled();
     }
-
+    
     /**
-     * Convenience method that defers to notifier.setDefaultNotifications() 
-     * using reflection without referencing it directly. The purpose of this 
-     * method is to allow the class to compile on non-mac systems.
-     *
-     * @param inDefNotes The list of default Notifications
+     * Checks if Growl is running
+     * @return <code>true</code> if Growl is running and <code>false</code> otherwise
      */
-    public void setDefaultNotifications(String [] inDefNotes)
-        throws Exception
+    public boolean isGrowlRunning()
     {
-        setDefaultNotifMethod.invoke(notifier, new Object[]{inDefNotes});
+        return Growl.isGrowlRunning();
     }
 
     public void addPopupMessageListener(SystrayPopupMessageListener listener)
@@ -208,19 +130,82 @@ public class GrowlNotificationServiceImpl
      */
     public void showPopupMessage(PopupMessage popupMessage)
     {
-        try
-        {
-            notifyGrowlOf("Message Received"
-                          , sipIconPath
-                          , popupMessage.getMessageTitle()
-                          , popupMessage.getMessage());
+        long timestamp = System.currentTimeMillis();
+        synchronized(shownPopups) {
+            shownPopups.put(timestamp, popupMessage);
         }
-        catch (Exception ex)
-        {
-            logger.error("Could not notify the received message to Growl", ex);
-        }
+
+        String messageBody = popupMessage.getMessage();
+        String messageTitle = popupMessage.getMessageTitle();
+        
+        // remove eventual HTML code before showing the pop-up message
+        messageBody = messageBody.replaceAll("</?\\w++[^>]*+>", "");
+        messageTitle = messageTitle.replaceAll("</?\\w++[^>]*+>", "");
+        
+        growl.notifyGrowlOf(messageTitle, 
+                            messageBody, 
+                            "Default", 
+                            popupMessage.getIcon(), 
+                            timestamp);
     }
 
+    /**
+     * Notifies all interested listeners that a <tt>SystrayPopupMessageEvent</tt>
+     * occured.
+     *
+     * @param SystrayPopupMessageEvent the evt to send to listener.
+     */
+    private void firePopupMessageClicked(SystrayPopupMessageEvent evt)
+    {
+        logger.trace("Will dispatch the following popup event: " + evt);
+
+        List<SystrayPopupMessageListener> listeners;
+        synchronized (popupMessageListeners)
+        {
+            listeners =
+                new ArrayList<SystrayPopupMessageListener>(
+                popupMessageListeners);
+        }
+
+        for (SystrayPopupMessageListener listener : listeners)
+            listener.popupMessageClicked(evt);
+    }
+
+    /**
+     * This method is called by Growl when the Growl notification is not clicked
+     * @param context is an object that is used to identify sent notification
+     */
+    public void growlNotificationTimedOut(Object context)
+    {
+        PopupMessage m = (PopupMessage)shownPopups.get(context);
+        if (m != null) {
+            synchronized(shownPopups) {
+                shownPopups.remove(context);
+            }
+            logger.trace("Growl notification timed-out :" + 
+                m.getMessageTitle() + ": " + m.getMessage());
+        }
+        
+    }
+
+    /**
+     * This method is called by Growl when the Growl notification is clicked
+     * @param context is an object that is used to identify sent notification
+     */
+    public void growlNotificationWasClicked(Object context)
+    {
+        PopupMessage m = (PopupMessage)shownPopups.get(context);
+        if (m != null) {
+            synchronized(shownPopups) {
+                shownPopups.remove(context);
+            }
+            
+            firePopupMessageClicked(new SystrayPopupMessageEvent(this, m.getTag()));
+            logger.trace("Growl message clicked :" + 
+                m.getMessageTitle() + ": " + m.getMessage());
+        }
+    }
+    
     /**
      * Implements <tt>toString</tt> from <tt>PopupMessageHandler</tt>
      * @return a description of this handler
@@ -229,5 +214,16 @@ public class GrowlNotificationServiceImpl
     {
         return GrowlNotificationActivator.getResources()
             .getI18NString("impl.growlnotification.POPUP_MESSAGE_HANDLER");
+    }
+
+    /**
+     * Implements <tt>getPreferenceIndex</tt> from <tt>PopupMessageHandler</tt>. 
+     * This handler is able to show images, detect clicks, match a click to a 
+     * message, and use a native popup mechanism, thus the index is 4.
+     * @return a preference index
+     */
+    public int getPreferenceIndex()
+    {
+        return 4;
     }
 }
