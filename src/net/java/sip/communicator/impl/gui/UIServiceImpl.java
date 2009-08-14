@@ -30,6 +30,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.service.shutdown.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -45,9 +46,10 @@ import com.sun.jna.examples.*;
  * @author Lubomir Marinov
  */
 public class UIServiceImpl
-    implements  UIService,
-                ServiceListener,
-                PropertyChangeListener
+    implements UIService,
+               ShutdownService,
+               ServiceListener,
+               PropertyChangeListener
 {
     private static final Logger logger = Logger.getLogger(UIServiceImpl.class);
 
@@ -1048,8 +1050,8 @@ public class UIServiceImpl
     }
 
     /*
-     * Implements UIService#beginShutdown(). Disposes of the mainFrame (if it
-     * exists) and then instructs Felix to start shutting down the bundles so
+     * Implements ShutdownService#beginShutdown(). Disposes of the mainFrame (if
+     * it exists) and then instructs Felix to start shutting down the bundles so
      * that the application can gracefully quit.
      */
     public void beginShutdown()

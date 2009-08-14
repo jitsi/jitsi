@@ -788,7 +788,7 @@
         bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz,
         bundle-plugin-msnaccregwizz,bundle-plugin-sipaccregwizz,
         bundle-plugin-yahooaccregwizz,bundle-plugin-aimaccregwizz,
-        bundle-version,bundle-version-impl,bundle-shutdown,
+        bundle-version,bundle-version-impl,bundle-shutdown-timeout,
         bundle-growlnotification,bundle-swingnotification,bundle-sparkle,
         bundle-audionotifier,bundle-plugin-branding,
         bundle-osdependent,bundle-browserlauncher,bundle-gibberish,
@@ -1329,6 +1329,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/service/gui/gui.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/gui"
                 prefix="net/java/sip/communicator/service/gui"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/shutdown"
+                prefix="net/java/sip/communicator/service/shutdown"/>
         </jar>
     </target>
 
@@ -1497,13 +1499,13 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
-    <!-- BUNDLE-SHUTDOWN -->
-    <target name="bundle-shutdown">
-        <!-- Creates a bundle for the shutdown plugin.-->
-        <jar compress="false" destfile="${bundles.dest}/shutdown.jar"
-            manifest="${src}/net/java/sip/communicator/impl/shutdown/shutdown.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/impl/shutdown"
-                prefix="net/java/sip/communicator/impl/shutdown"/>
+    <!-- BUNDLE-SHUTDOWN-TIMEOUT -->
+    <target name="bundle-shutdown-timeout">
+        <!-- Creates a bundle for the shutdown-timeout plugin.-->
+        <jar compress="false" destfile="${bundles.dest}/shutdown-timeout.jar"
+            manifest="${src}/net/java/sip/communicator/impl/shutdowntimeout/shutdown.timeout.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/shutdowntimeout"
+                prefix="net/java/sip/communicator/impl/shutdowntimeout"/>
         </jar>
     </target>
 

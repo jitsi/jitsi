@@ -6,10 +6,7 @@
  */
 package net.java.sip.communicator.plugin.updatechecker;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.*;
@@ -23,8 +20,10 @@ import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.service.shutdown.*;
 import net.java.sip.communicator.service.version.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
@@ -35,6 +34,7 @@ import org.osgi.framework.*;
  * Activates the UpdateCheck plugin
  * 
  * @author Damian Minkov
+ * @authod Lubomir Marinov
  */
 public class UpdateCheckActivator
     implements BundleActivator
@@ -139,6 +139,28 @@ public class UpdateCheckActivator
         }
 
         return configService;
+    }
+
+    /**
+     * Gets a reference to a <code>ShutdownService</code> implementation
+     * currently registered in the bundle context of the active
+     * <code>UpdateCheckActivator</code> instance.
+     * <p>
+     * The returned reference to <code>ShutdownService</code> is not being
+     * cached.
+     * </p>
+     * 
+     * @return reference to a <code>ShutdownService</code> implementation
+     *         currently registered in the bundle context of the active
+     *         <code>UpdateCheckActivator</code> instance
+     */
+    private static ShutdownService getShutdownService()
+    {
+        return
+            (ShutdownService)
+                bundleContext.getService(
+                    bundleContext.getServiceReference(
+                        ShutdownService.class.getName()));
     }
 
     /**
@@ -455,7 +477,7 @@ public class UpdateCheckActivator
                                 });
                         processBuilder.start();
 
-                        getUIService().beginShutdown();
+                        getShutdownService().beginShutdown();
 
                     } catch (Exception e)
                     {

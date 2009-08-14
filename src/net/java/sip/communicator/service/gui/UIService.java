@@ -376,17 +376,6 @@ public interface UIService
     public boolean useMacOSXScreenMenuBar();
 
     /**
-     * Invokes the UI action commonly associated with the "File &gt; Quit" menu
-     * item which begins the application shutdown procedure.
-     * <p>
-     * The method avoids duplication since the "File &gt; Quit" functionality
-     * may be invoked not only from the main application menu but also from the
-     * systray, for example.
-     * </p>
-     */
-    public void beginShutdown();
-
-    /**
      * Shows or hides the "Tools &gt; Settings" configuration window.
      * <p>
      * The method hides the implementation-specific details of the configuration

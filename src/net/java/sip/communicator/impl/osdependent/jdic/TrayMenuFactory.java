@@ -51,7 +51,7 @@ public final class TrayMenuFactory
         }
         else if (itemName.equals("service.gui.CLOSE"))
         {
-            OsDependentActivator.getUIService().beginShutdown();
+            OsDependentActivator.getShutdownService().beginShutdown();
         }
         else if (itemName.equals("addContact"))
         {

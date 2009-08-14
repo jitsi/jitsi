@@ -4,10 +4,11 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.shutdown;
+package net.java.sip.communicator.impl.shutdowntimeout;
+
+import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * In order to shut down SIP Communicator we kill the Felix system bundle.

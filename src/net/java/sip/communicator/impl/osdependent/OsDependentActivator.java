@@ -11,6 +11,7 @@ import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.desktop.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.service.shutdown.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 
@@ -20,6 +21,7 @@ import org.osgi.framework.*;
  * Registers the <tt>Systray</tt> in the UI Service.
  *
  * @author Nicolas Chamouard
+ * @author Lubomir Marinov
  */
 public class OsDependentActivator
     implements BundleActivator
@@ -114,6 +116,28 @@ public class OsDependentActivator
         }
 
         return configService;
+    }
+
+    /**
+     * Gets a reference to a <code>ShutdownService</code> implementation
+     * currently registered in the bundle context of the active
+     * <code>OsDependentActivator</code> instance.
+     * <p>
+     * The returned reference to <code>ShutdownService</code> is not being
+     * cached.
+     * </p>
+     * 
+     * @return reference to a <code>ShutdownService</code> implementation
+     *         currently registered in the bundle context of the active
+     *         <code>OsDependentActivator</code> instance
+     */
+    public static ShutdownService getShutdownService()
+    {
+        return
+            (ShutdownService)
+                bundleContext.getService(
+                    bundleContext.getServiceReference(
+                        ShutdownService.class.getName()));
     }
     
     /**

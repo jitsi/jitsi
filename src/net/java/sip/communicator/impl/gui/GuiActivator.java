@@ -22,6 +22,7 @@ import net.java.sip.communicator.service.metahistory.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.service.shutdown.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 
@@ -93,10 +94,15 @@ public class GuiActivator implements BundleActivator
 
             logger.info("UI Service...[  STARTED ]");
 
-            bundleContext.registerService(  UIService.class.getName(),
-                                            uiService, null);
-
+            bundleContext.registerService(UIService.class.getName(),
+                                          uiService,
+                                          null);
             logger.info("UI Service ...[REGISTERED]");
+
+            // UIServiceImpl also implements ShutdownService.
+            bundleContext.registerService(ShutdownService.class.getName(),
+                                          (ShutdownService) uiService,
+                                          null);
 
             uiService.loadApplicationGui();
 
