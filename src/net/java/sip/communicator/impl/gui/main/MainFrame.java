@@ -114,19 +114,14 @@ public class MainFrame
         menu = new MainMenu(this);
 
         /*
-         * Before closing the application window saves the current size and
-         * position through the ConfigurationService.
+         * If the application is configured to quit when this frame is closed,
+         * do so.
          */
         this.addWindowListener(new WindowAdapter()
         {
             public void windowClosed(WindowEvent event)
             {
                 MainFrame.this.windowClosed(event);
-            }
-
-            public void windowClosing(WindowEvent event)
-            {
-                MainFrame.this.windowClosing(event);
             }
         });
 
@@ -1417,11 +1412,16 @@ public class MainFrame
         }
     }
 
-    /**
-     * @param event Currently not used
+    /*
+     * Overrides SIPCommFrame#windowClosing(WindowEvent). Reflects the closed
+     * state of this MainFrame in the configuration in order to make it
+     * accessible to interested parties, displays the warning that the
+     * application will not quit.
      */
     protected void windowClosing(WindowEvent event)
     {
+        super.windowClosing(event);
+
         if (!GuiActivator.getUIService().getExitOnMainWindowClose())
         {
             SwingUtilities.invokeLater(new Runnable()
