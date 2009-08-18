@@ -250,7 +250,7 @@
     </target>
 
     <!-- clean -->
-    <target name="clean" depends="clean-bundle-repositories,clean-test-reports"
+    <target name="clean" depends="clean-bundle-repositories,clean-test-reports,clean-macosx"
         description="Remove all generated files and prepare for a clean build.">
         <delete failonerror="false" includeemptydirs="true">
             <fileset dir="${dest}"/>

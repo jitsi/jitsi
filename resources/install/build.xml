@@ -605,6 +605,32 @@
     </target>
 
     <!-- - - - - - - - - - - BUILDING RELEASE PACKAGES - - - - - - - - - - - -->
+    <!-- Internal target called by the "clean target" - removes the macosx-specific file -->
+    <target name="clean-macosx" if="is.running.macos">
+        <delete failonerror="false" file="${macosx.resrc.dir}/logging.properties"/>
+        <delete failonerror="false" file="${macosx.resrc.dir}/felix.client.run.properties"/>
+        <symlink action="delete" failonerror="false" 
+                 link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libAEGetURLEventHandlerAgent.jnilib"/>
+        <symlink action="delete" failonerror="false" 
+                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Growl.framework/Headers"/>
+        <symlink action="delete" failonerror="false" 
+                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Growl.framework/Resources"/>
+        <symlink action="delete" failonerror="false" 
+                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Growl.framework/Growl"/>
+        <symlink action="delete" failonerror="false" 
+                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Growl.framework/Versions/Current"/>
+        <symlink action="delete" failonerror="false" 
+                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Headers"/>
+        <symlink action="delete" failonerror="false" 
+                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Resources/fr_CA.lproj"/>
+        <symlink action="delete" failonerror="false" 
+                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Resources"/>
+        <symlink action="delete" failonerror="false" 
+                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Sparkle"/>
+        <symlink action="delete" failonerror="false" 
+                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Versions/Current"/>
+    </target>
+
     <target name="macosx" depends="version"
             description="Create an .app package for MACOSX">
 
@@ -759,7 +785,8 @@
       </array>
       <key>CFBundleName</key>]]></replacevalue>
       </replace>
-      <symlink resource="lib/native/mac/libAEGetURLEventHandlerAgent.jnilib" link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libAEGetURLEventHandlerAgent.jnilib"/>
+      <symlink resource="lib/native/mac/libAEGetURLEventHandlerAgent.jnilib" 
+               link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libAEGetURLEventHandlerAgent.jnilib"/>
     </target>
 
     <!-- Create a MacOSX application package with Sparkle support.
