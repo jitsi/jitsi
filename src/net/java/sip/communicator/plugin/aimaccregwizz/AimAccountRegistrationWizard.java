@@ -29,7 +29,8 @@ public class AimAccountRegistrationWizard
 
     private FirstWizardPage firstWizardPage;
 
-    private AimAccountRegistration registration = new AimAccountRegistration();
+    private final AimAccountRegistration registration
+        = new AimAccountRegistration();
 
     private WizardContainer wizardContainer;
 

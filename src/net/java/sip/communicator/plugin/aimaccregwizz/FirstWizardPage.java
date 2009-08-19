@@ -108,7 +108,7 @@ public class FirstWizardPage
 
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
 
-    private AimAccountRegistrationWizard wizard;
+    private final AimAccountRegistrationWizard wizard;
 
     private boolean isCommitted = false;
 
@@ -152,7 +152,8 @@ public class FirstWizardPage
 
         this.registerButton.addActionListener(this);
         this.uinField.getDocument().addDocumentListener(this);
-        this.rememberPassBox.setSelected(true);
+        this.rememberPassBox.setSelected(
+                wizard.getRegistration().isRememberPassword());
 
         this.uinExampleLabel.setForeground(Color.GRAY);
         this.uinExampleLabel.setFont(uinExampleLabel.getFont().deriveFont(8));
@@ -348,7 +349,7 @@ public class FirstWizardPage
     }
 
     /**
-     * Fills the UIN and Password fields in this panel with the data comming
+     * Fills the UIN and Password fields in this panel with the data coming
      * from the given protocolProvider.
      *
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to load
@@ -368,7 +369,8 @@ public class FirstWizardPage
         {
             this.passField.setText(password);
 
-            this.rememberPassBox.setSelected(true);
+            this.rememberPassBox.setSelected(
+                    wizard.getRegistration().isRememberPassword());
         }
 
         String proxyAddress =
