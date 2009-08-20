@@ -286,7 +286,7 @@ public class MediaControl
     }
 
     /**
-     * Allows this instance to dispose of any state which is to reinitialized by
+     * Allows this instance to dispose of any state which is reinitialized by
      * {@link #initCaptureDevices()}. For example, a vital requirement is to
      * invoke {@link Controller#close()} on <code>sourceProcessor</code>
      * regardless of the fact that it is soon to not be referenced at all or it
@@ -296,7 +296,27 @@ public class MediaControl
     private void disposeBeforeInitCaptureDevices()
     {
         if (avDataSource != null)
+        {
+            /*
+             * As reported by Carlos Alexandre, stopping before disconnecting
+             * resolves a slow disconnect on Linux.
+             */
+            try
+            {
+                avDataSource.stop();
+            }
+            catch (IOException ex)
+            {
+                /*
+                 * We cannot do much about the exception because we're not
+                 * really interested in the stopping but rather in calling
+                 * DataSource#disconnect() anyway.
+                 */
+                logger.error("Failed to properly stop avDataSource.", ex);
+            }
+
             avDataSource.disconnect();
+        }
         if (sourceProcessor != null)
         {
             sourceProcessor.stop();
@@ -587,8 +607,8 @@ public class MediaControl
             if(avDataSource != null)
                 avDataSource.stop();
         } catch (IOException exc) {
-            logger.error("Failed to close a capture date source.", exc);
-            throw new MediaException("Failed to close a capture date source."
+            logger.error("Failed to close a capture data source.", exc);
+            throw new MediaException("Failed to close a capture data source."
                                      , MediaException.INTERNAL_ERROR
                                      , exc);
         }
