@@ -2,11 +2,10 @@
 # Requires the Sparkle.framework installed in /Library/Frameworks
 # The Framework is available at http://sparkle.andymatuschak.org/
 
-CC=gcc -arch x86_64 -arch i386
-INST_TOOL=/usr/bin/install_name_tool
+CC=gcc -arch x86_64 -arch i386 -arch ppc
 TARGET=libsparkle_init.dylib
 JNI_INCLUDE_PATH=/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Headers/
-CFLAGS=-I$(JNI_INCLUDE_PATH) -headerpad_max_install_names
+CFLAGS=-I$(JNI_INCLUDE_PATH) 
 LIBS=-framework AppKit -framework Foundation -framework Sparkle
 OBJS=net_java_sip_communicator_impl_sparkle_SparkleActivator.o
 
@@ -20,6 +19,4 @@ install:$(TARGET)
 
 libsparkle_init.dylib:$(OBJS)
 	$(CC) -dynamiclib -o $(TARGET) $(LIBS) $(CFLAGS) $<
-	$(INST_TOOL) -change "@loader_path/../Frameworks/Sparkle.framework/Versions/A/Sparkle" \
-                             "@executable_path/../Frameworks/Sparkle.Framework/Versions/A/Sparkle" \
-                              $(TARGET)
+
