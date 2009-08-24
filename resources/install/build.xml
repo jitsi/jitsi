@@ -842,6 +842,11 @@
             resource="./Versions/Current/Sparkle"/>
       <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Resources/fr_CA.lproj"
             resource="./fr.lproj"/>
+    
+      <!-- Restore the file permissions to the Sparke relaunch tool -->
+      <chmod file="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Resources/relaunch" 
+      	     perm="ugo+rx">
+      </chmod>
     </target>
 
     <!-- Create the DMG - This only works on MacOSX (need hdiutil) -->
