@@ -98,6 +98,7 @@ public class FirstWizardPage
     {
         this.emailField.getDocument().addDocumentListener(this);
         this.rememberPassBox.setSelected(true);
+        this.rememberPassBox.setOpaque(false);
 
         this.existingAccountLabel.setForeground(Color.RED);
 
