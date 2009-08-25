@@ -383,25 +383,25 @@ public class TrayIcon
     }
     
     /**
-     * Extended mouse adapter to show the JpopupMenu in java 6
+     * Extended mouse adapter to show the JPopupMenu in Java 6
      * Based on : http://weblogs.java.net/blog/ixmal/archive/2006/05/using_jpopupmen.html
+     * And : http://weblogs.java.net/blog/alexfromsun/archive/2008/02/jtrayicon_updat.html
      * 
-     * Use a JWindow as a parent to manage the JPopupMenu
+     * Use a hidden JWindow (JDialog for Windows) to manage the JPopupMenu.
      * 
      * @author Damien Roth
      */
     private static class AWTMouseAdapter
         extends MouseAdapter
     {
-        private final JPopupMenu popup;
-        private static boolean popupVisible = false;
-        private static JWindow hiddenWindow;
+        private final static boolean IS_WINDOWS =
+            System.getProperty("os.name").toLowerCase().contains("windows");
+        
+        private JPopupMenu popup = null;
+        private Window hiddenWindow = null;
     
         public AWTMouseAdapter(JPopupMenu p)
         {
-            hiddenWindow = new JWindow();
-            hiddenWindow.setAlwaysOnTop(true);
-            
             this.popup = p;
             this.popup.addPopupMenuListener(new PopupMenuListener()
             {
@@ -409,36 +409,65 @@ public class TrayIcon
                 }
 
                 public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-                    hiddenWindow.setVisible(false);
-                    popupVisible = false;
+                    if (hiddenWindow != null)
+                    {
+                        hiddenWindow.dispose();
+                        hiddenWindow = null;
+                    }
                 }
 
                 public void popupMenuCanceled(PopupMenuEvent e) {
-                    hiddenWindow.setVisible(false);
-                    popupVisible = false;
+                    if (hiddenWindow != null)
+                    {
+                        hiddenWindow.dispose();
+                        hiddenWindow = null;
+                    }
                 }
             });
         }
         
+        @Override
         public void mouseReleased(MouseEvent e)
         {
-            // Trick used here, the isVisible function always return false
-            // So we manage this manually
-            if (e.getButton() == MouseEvent.BUTTON3 && !popupVisible)
+            showPopupMenu(e);
+        }
+        
+        @Override
+        public void mousePressed(MouseEvent e)
+        {
+            showPopupMenu(e);
+        }
+        
+        private void showPopupMenu(MouseEvent e)
+        {
+            if (e.isPopupTrigger() && popup != null)
             {
-                int x = e.getX(), y = e.getY();
-                
-                hiddenWindow.setLocation(x, y);
-                hiddenWindow.setVisible(true);
-                this.popup.show(hiddenWindow, 0, 0);
-                hiddenWindow.toFront();
-                
-                popupVisible = true;
-            }
-            else
-            {
-                popup.setVisible(false);
-                popupVisible = false;
+                if (hiddenWindow == null)
+                {
+                    if (IS_WINDOWS)
+                    {
+                        hiddenWindow = new JDialog((Frame) null);
+                        ((JDialog) hiddenWindow).setUndecorated(true);
+                    }
+                    else
+                        hiddenWindow = new JWindow((Frame) null);
+                    
+                    hiddenWindow.setAlwaysOnTop(true);
+                    Dimension size = popup.getPreferredSize();
+
+                    Point centerPoint = GraphicsEnvironment.getLocalGraphicsEnvironment().getCenterPoint();
+                    if(e.getY() > centerPoint.getY())
+                        hiddenWindow.setLocation(e.getX(), e.getY() - size.height);
+                    else
+                        hiddenWindow.setLocation(e.getX(), e.getY());
+
+                    hiddenWindow.setVisible(true);
+                    
+                    popup.show(((RootPaneContainer)hiddenWindow).getContentPane(), 0, 0);
+
+                    // popup works only for focused windows
+                    hiddenWindow.toFront();
+                }
             }
         }
     }
