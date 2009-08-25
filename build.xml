@@ -1237,6 +1237,8 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/msn"
                 prefix="net/java/sip/communicator/slick/protocol/msn"/>
             <zipfileset src="${lib.noinst}/jml-1.0b2.jar" prefix=""/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/generic"
+                prefix="net/java/sip/communicator/slick/protocol/generic"/>
         </jar>
     </target>
 

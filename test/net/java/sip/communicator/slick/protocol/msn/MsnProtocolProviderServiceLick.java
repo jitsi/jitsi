@@ -85,6 +85,8 @@ public class MsnProtocolProviderServiceLick
             addTest(TestOperationSetBasicInstantMessaging.suite());
 
             addTest(TestOperationSetTypingNotifications.suite());
+
+            addTestSuite(TestOperationSetFileTransferImpl.class);
         }
 
         addTest(TestAccountUninstallation.suite());

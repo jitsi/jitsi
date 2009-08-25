@@ -297,6 +297,12 @@ public class ProtocolProviderServiceMsnImpl
                 OperationSetTypingNotifications.class.getName(),
                 typingNotifications);
 
+            OperationSetFileTransferMsnImpl fileTransferOpSet =
+                new OperationSetFileTransferMsnImpl(this);
+            supportedOperationSets.put(
+                OperationSetFileTransfer.class.getName(),
+                fileTransferOpSet);
+
             isInitialized = true;
         }
     }

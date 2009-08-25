@@ -796,6 +796,21 @@ public class ProtocolProviderServiceJabberImpl
             logger.error("connectionClosedOnError " +
                          exception.getLocalizedMessage());
 
+            if(exception instanceof XMPPException)
+            {
+                StreamError err = ((XMPPException)exception).getStreamError();
+
+                if(err != null && err.getCode().equals(
+                    XMPPError.Condition.conflict.toString()))
+                {
+                    fireRegistrationStateChanged(getRegistrationState(),
+                        RegistrationState.CONNECTION_FAILED,
+                        RegistrationStateChangeEvent.REASON_MULTIPLE_LOGINS,
+                        "Connecting multiple times with the same resource");
+                    return;
+                }
+            }
+
             if(!reconnecting)
                 reregister(SecurityAuthority.CONNECTION_FAILED);
             else

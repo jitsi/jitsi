@@ -85,7 +85,7 @@ public abstract class TestOperationSetFileTransfer
 
         logger.trace("Start test : send and receive ok.");
 
-        File fileToTransfer = getTempFileToTransfer(1234567);
+        File fileToTransfer = getTempFileToTransfer(123456);
 
         OperationSetFileTransfer ftOpSet1 = getOpSetFilTransfer1();
         OperationSetFileTransfer ftOpSet2 = getOpSetFilTransfer2();
@@ -108,7 +108,7 @@ public abstract class TestOperationSetFileTransfer
             ftOpSet1.sendFile(getContact1(), fileToTransfer);
 
             senderFTListerner.waitForEvent(2000);
-            receiverFTListerner.waitForEvent(2000);
+            receiverFTListerner.waitForEvent(8000);
             senderStatusListener.waitForEvent(2000);
 
             // sender
@@ -305,7 +305,7 @@ public abstract class TestOperationSetFileTransfer
                          ,fileTransferStatusEvent.getNewStatus());
 
             // the receiver must receive event refused
-            assertEquals("A file transfer rejected must be received on receiver side"
+            assertEquals("A file transfer cancel must be received on receiver side"
                          , 1, receiverFTListerner.collectedEvents.size());
 
             fileTransferRequestEvent
@@ -350,7 +350,7 @@ public abstract class TestOperationSetFileTransfer
             ftOpSet1.sendFile(getContact1(), fileToTransfer);
 
             senderFTListerner.waitForEvent(2000);
-            receiverFTListerner.waitForEvent(2000);
+            receiverFTListerner.waitForEvent(6000);
             senderStatusListener.waitForEvent(2000);
 
             // sender
@@ -581,7 +581,7 @@ public abstract class TestOperationSetFileTransfer
     public void testSenderCancelsWhileTransfering()
         throws Exception
     {
-        if(!enableTestReceiverCancelsWhileTransfering())
+        if(!enableTestSenderCancelsWhileTransfering())
             return;
 
         logger.trace("Start test : Sender will cancel fileTransfer while transfering.");

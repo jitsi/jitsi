@@ -4,39 +4,32 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.protocol.icq;
+package net.java.sip.communicator.impl.protocol.msn;
 
 import java.io.*;
 import java.util.*;
 
-import net.java.sip.communicator.service.protocol.FileTransfer;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-
-import net.kano.joscar.rvcmd.*;
-import net.kano.joustsim.*;
-import net.kano.joustsim.oscar.*;
-import net.kano.joustsim.oscar.oscar.service.icbm.ft.*;
-import net.kano.joustsim.oscar.oscar.service.icbm.ft.events.*;
+import net.sf.jml.*;
+import net.sf.jml.event.*;
 
 /**
- * The ICQ protocol filetransfer OperationSet.
+ * The Msn protocol filetransfer OperationSet.
  *
- * @author Anthony Schmitt
  * @author Damian Minkov
  */
-public class OperationSetFileTransferIcqImpl
-    implements  OperationSetFileTransfer,
-                RvConnectionManagerListener
+public class OperationSetFileTransferMsnImpl
+    implements  OperationSetFileTransfer
 {
     private static final Logger logger =
-        Logger.getLogger(OperationSetFileTransferIcqImpl.class);
+        Logger.getLogger(OperationSetFileTransferMsnImpl.class);
 
     /**
-     * A call back to the ICQ provider that created us.
+     * A call back to the Msn provider that created us.
      */
-    private ProtocolProviderServiceIcqImpl icqProvider = null;
+    private ProtocolProviderServiceMsnImpl msnProvider = null;
 
     /**
      * A list of listeners registered for file transfer events.
@@ -45,15 +38,21 @@ public class OperationSetFileTransferIcqImpl
         = new ArrayList<FileTransferListener>();
 
     /**
-     * Create a new FileTransfer OperationSet over the specified Icq provider
+     * A list of active fileTransfers.
+     */
+    private Hashtable<String, Object> activeFileTransfers
+        = new Hashtable<String, Object>();
+
+    /**
+     * Create a new FileTransfer OperationSet over the specified Msn provider
      * @param provider
      */
-    public OperationSetFileTransferIcqImpl(
-        ProtocolProviderServiceIcqImpl icqProvider)
+    public OperationSetFileTransferMsnImpl(
+        ProtocolProviderServiceMsnImpl msnProvider)
     {
-        this.icqProvider = icqProvider;
+        this.msnProvider = msnProvider;
 
-        icqProvider.addRegistrationStateChangeListener(
+        msnProvider.addRegistrationStateChangeListener(
             new RegistrationStateListener());
     }
 
@@ -80,31 +79,23 @@ public class OperationSetFileTransferIcqImpl
     {
         assertConnected();
 
-        // Get the aim connection
-        AimConnection aimConnection = icqProvider.getAimConnection();
+        if( !(toContact instanceof ContactMsnImpl) )
+            throw new IllegalArgumentException(
+                "The specified contact is not an msn contact." + toContact);
 
-        // Create an outgoing file transfer instance
-        OutgoingFileTransfer outgoingFileTransfer =
-            aimConnection.getIcbmService().getRvConnectionManager().
-            createOutgoingFileTransfer(new Screenname(toContact.getAddress()));
+        MsnFileTransfer ft = msnProvider.getMessenger().
+            getFileTransferManager().
+                sendFile(
+                    ((ContactMsnImpl)toContact).getSourceContact().getEmail(),
+                    file);
 
-        String id = String.valueOf(outgoingFileTransfer.getRvSessionInfo()
-                .getRvSession().getRvSessionId());
+        if(ft == null)
+            new IllegalStateException(
+                "A problem occured sending file, contact not found or offline");
 
         FileTransferImpl outFileTransfer = new FileTransferImpl(
-            outgoingFileTransfer,
-            id, toContact, file, FileTransfer.OUT);
+            ft, toContact, file, FileTransfer.OUT);
 
-        // Adding the file to the outgoing file transfer
-        try
-        {
-            outgoingFileTransfer.setSingleFile(new File(file.getPath()));
-        }
-        catch (IOException e)
-        {
-            logger.debug("Error sending file",e);
-            return null;
-        }
 
         // Notify all interested listeners that a file transfer has been
         // created.
@@ -112,10 +103,6 @@ public class OperationSetFileTransferIcqImpl
             = new FileTransferCreatedEvent(outFileTransfer, new Date());
 
         fireFileTransferCreated(event);
-
-        // Sending the file
-        outgoingFileTransfer.sendRequest(
-            new InvitationMessage(""));
 
         outFileTransfer.fireStatusChangeEvent(
             FileTransferStatusChangeEvent.PREPARING);
@@ -192,79 +179,14 @@ public class OperationSetFileTransferIcqImpl
     private void assertConnected()
         throws  IllegalStateException
     {
-        if (icqProvider == null)
+        if (msnProvider == null)
             throw new IllegalStateException(
                 "The provider must be non-null and signed on the "
                 +"service before being able to send a file.");
-        else if (!icqProvider.isRegistered())
+        else if (!msnProvider.isRegistered())
             throw new IllegalStateException(
                 "The provider must be signed on the service before "
                 +"being able to send a file.");
-    }
-
-    /**
-     * Function called when a icq file transfer request arrive
-     * @param manager the joustsim manager
-     * @param transfer the incoming transfer
-     */
-    public void handleNewIncomingConnection(
-        RvConnectionManager manager, IncomingRvConnection transfer)
-    {
-        if (transfer instanceof IncomingFileTransfer)
-        {
-            logger.trace("Incoming Icq file transfer request " + transfer.getClass());
-
-            if(!(transfer instanceof IncomingFileTransfer))
-            {
-                logger.warn("Wrong file transfer.");
-                return;
-            }
-
-            OperationSetPersistentPresenceIcqImpl opSetPersPresence
-                = (OperationSetPersistentPresenceIcqImpl)
-                    icqProvider.getOperationSet(
-                        OperationSetPersistentPresence.class);
-
-            Contact sender = 
-                opSetPersPresence.findContactByID(
-                    transfer.getBuddyScreenname().getFormatted());
-
-            IncomingFileTransfer incomingFileTransfer =
-                (IncomingFileTransfer)transfer;
-
-            final Date newDate = new Date();
-            final IncomingFileTransferRequest req =
-                new IncomingFileTransferRequestIcqImpl(
-                        icqProvider,
-                        this,
-                        incomingFileTransfer, sender, newDate);
-
-            // this handels when we receive request and before accept or decline
-            // it we receive cancel
-            transfer.addEventListener(new RvConnectionEventListener() {
-                public void handleEventWithStateChange(
-                    RvConnection transfer,
-                    RvConnectionState state,
-                    RvConnectionEvent event)
-                {
-                    if (state==FileTransferState.FAILED
-                        && event instanceof BuddyCancelledEvent)
-                    {
-                        fireFileTransferRequestCanceled(
-                            new FileTransferRequestEvent(
-                                OperationSetFileTransferIcqImpl.this,
-                                req,
-                                newDate));
-                    }
-                }
-
-                public void handleEvent(RvConnection arg0, RvConnectionEvent arg1)
-                {}
-            });
-
-            fireFileTransferRequest(
-                new FileTransferRequestEvent(this, req, newDate));
-        }
     }
 
     /**
@@ -344,6 +266,9 @@ public class OperationSetFileTransferIcqImpl
      */
     void fireFileTransferCreated(FileTransferCreatedEvent event)
     {
+        activeFileTransfers.put(
+            event.getFileTransfer().getID(), event.getFileTransfer());
+
         Iterator<FileTransferListener> listeners = null;
         synchronized (fileTransferListeners)
         {
@@ -379,10 +304,109 @@ public class OperationSetFileTransferIcqImpl
 
             if (evt.getNewState() == RegistrationState.REGISTERED)
             {
-                AimConnection aimConnection = icqProvider.getAimConnection();
-                aimConnection.getIcbmService().getRvConnectionManager().
-                    addConnectionManagerListener(OperationSetFileTransferIcqImpl.this);
+                msnProvider.getMessenger().addFileTransferListener(
+                    new FileTransferProtocolListener());
             }
+        }
+    }
+
+    /**
+     * Receives notifications from the slick about new filetransfers
+     * and filetransfer changes.
+     */
+    private class FileTransferProtocolListener
+        implements MsnFileTransferListener
+    {
+        public void fileTransferRequestReceived(MsnFileTransfer ft)
+        {
+            OperationSetPersistentPresenceMsnImpl opSetPersPresence
+            = (OperationSetPersistentPresenceMsnImpl)
+                msnProvider.getOperationSet(
+                    OperationSetPersistentPresence.class);
+
+            Contact sender = opSetPersPresence.findContactByID(
+                ft.getContact().getEmail().getEmailAddress());
+
+            if(sender == null)
+                return;
+
+            Date recvDate = new Date();
+
+            IncomingFileTransferRequest req =
+                new IncomingFileTransferRequestMsnImpl(
+                        OperationSetFileTransferMsnImpl.this,
+                        ft, sender, recvDate);
+
+            activeFileTransfers.put(ft.getID(), req);
+
+            fireFileTransferRequest(
+                    new FileTransferRequestEvent(
+                            OperationSetFileTransferMsnImpl.this, req, recvDate));
+        }
+
+        public void fileTransferStarted(MsnFileTransfer ft)
+        {
+            Object ftObj = activeFileTransfers.get(ft.getID());
+
+            if(ftObj != null && ftObj instanceof FileTransferImpl)
+            {
+                FileTransferImpl fileTransfer = (FileTransferImpl)ftObj;
+
+                fileTransfer.fireStatusChangeEvent(
+                    FileTransferStatusChangeEvent.IN_PROGRESS);
+            }
+        }
+
+        public void fileTransferProcess(MsnFileTransfer ft)
+        {
+            Object ftObj = activeFileTransfers.get(ft.getID());
+
+            if(ftObj != null && ftObj instanceof FileTransferImpl)
+            {
+                FileTransferImpl fileTransfer = (FileTransferImpl)ftObj;
+
+                fileTransfer.setTransferedBytes(ft.getTransferredSize());
+                fileTransfer.fireProgressChangeEvent(
+                    System.currentTimeMillis(), ft.getTransferredSize());
+            }
+        }
+
+        public void fileTransferFinished(MsnFileTransfer ft)
+        {
+            Object ftObj = activeFileTransfers.get(ft.getID());
+
+            if(ftObj == null)
+                return;
+
+            if(ftObj instanceof FileTransferImpl)
+            {
+                FileTransferImpl fileTransfer = (FileTransferImpl)ftObj;
+
+                if(ft.getState() == MsnFileTransferState.COMPLETED)
+                    fileTransfer.fireStatusChangeEvent(
+                        FileTransferStatusChangeEvent.COMPLETED);
+                else if(ft.getState() == MsnFileTransferState.CANCELED)
+                    fileTransfer.fireStatusChangeEvent(
+                        FileTransferStatusChangeEvent.CANCELED);
+                else if(ft.getState() == MsnFileTransferState.REFUSED)
+                    fileTransfer.fireStatusChangeEvent(
+                        FileTransferStatusChangeEvent.REFUSED);
+            }
+            else if(ftObj instanceof IncomingFileTransferRequest)
+            {
+                IncomingFileTransferRequestMsnImpl inReq =
+                    (IncomingFileTransferRequestMsnImpl)ftObj;
+
+                if(!inReq.isRejected()
+                    && ft.getState() == MsnFileTransferState.CANCELED)
+                        fireFileTransferRequestCanceled(
+                            new FileTransferRequestEvent(
+                                OperationSetFileTransferMsnImpl.this,
+                                inReq,
+                                inReq.getDate()));
+            }
+
+            activeFileTransfers.remove(ft.getID());
         }
     }
 }
