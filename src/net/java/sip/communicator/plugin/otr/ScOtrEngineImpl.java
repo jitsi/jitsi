@@ -1,6 +1,6 @@
 package net.java.sip.communicator.plugin.otr;
 
-import java.awt.Desktop;
+// import java.awt.Desktop;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -287,32 +287,32 @@ public class ScOtrEngineImpl
 
     public void launchHelp()
     {
-        boolean fallback = false;
-        if (!Desktop.isDesktopSupported())
-        {
-            fallback = true;
-        }
-        else
-        {
-            try
-            {
-                Desktop.getDesktop().browse(
-                    new URI(OtrActivator.resourceService
-                        .getI18NString("plugin.otr.authbuddydialog.HELP_URI")));
-            }
-            catch (Exception ex)
-            {
-                // not possible.
-                fallback = true;
-            }
-        }
-
-        if (fallback)
-        {
-            // TODO Either find another way to launch the URI or display
-            // a
-            // dialog, we need to discuss this first.
-        }
+//        boolean fallback = false;
+//        if (!Desktop.isDesktopSupported())
+//        {
+//            fallback = true;
+//        }
+//        else
+//        {
+//            try
+//            {
+//                Desktop.getDesktop().browse(
+//                    new URI(OtrActivator.resourceService
+//                        .getI18NString("plugin.otr.authbuddydialog.HELP_URI")));
+//            }
+//            catch (Exception ex)
+//            {
+//                // not possible.
+//                fallback = true;
+//            }
+//        }
+//
+//        if (fallback)
+//        {
+//            // TODO Either find another way to launch the URI or display
+//            // a
+//            // dialog, we need to discuss this first.
+//        }
     }
 
     public OtrPolicy getContactPolicy(Contact contact)
