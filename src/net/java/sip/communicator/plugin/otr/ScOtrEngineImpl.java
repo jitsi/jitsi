@@ -1,8 +1,6 @@
 package net.java.sip.communicator.plugin.otr;
 
-// import java.awt.Desktop;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URLEncoder;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -17,6 +15,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.bouncycastle.util.encoders.Base64;
+import org.osgi.framework.ServiceReference;
 
 import net.java.otr4j.OtrEngine;
 import net.java.otr4j.OtrEngineImpl;
@@ -28,6 +27,7 @@ import net.java.otr4j.crypto.OtrCryptoEngineImpl;
 import net.java.otr4j.crypto.OtrCryptoException;
 import net.java.otr4j.session.SessionID;
 import net.java.otr4j.session.SessionStatus;
+import net.java.sip.communicator.service.browserlauncher.BrowserLauncherService;
 import net.java.sip.communicator.service.gui.PopupDialog;
 import net.java.sip.communicator.service.protocol.AccountID;
 import net.java.sip.communicator.service.protocol.Contact;
@@ -287,32 +287,17 @@ public class ScOtrEngineImpl
 
     public void launchHelp()
     {
-//        boolean fallback = false;
-//        if (!Desktop.isDesktopSupported())
-//        {
-//            fallback = true;
-//        }
-//        else
-//        {
-//            try
-//            {
-//                Desktop.getDesktop().browse(
-//                    new URI(OtrActivator.resourceService
-//                        .getI18NString("plugin.otr.authbuddydialog.HELP_URI")));
-//            }
-//            catch (Exception ex)
-//            {
-//                // not possible.
-//                fallback = true;
-//            }
-//        }
-//
-//        if (fallback)
-//        {
-//            // TODO Either find another way to launch the URI or display
-//            // a
-//            // dialog, we need to discuss this first.
-//        }
+    	ServiceReference ref = OtrActivator.bundleContext
+        	.getServiceReference(BrowserLauncherService.class.getName());
+
+		if (ref == null)
+			return;
+		
+		BrowserLauncherService service = (BrowserLauncherService)
+		OtrActivator.bundleContext.getService(ref);
+		
+		service.openURL(OtrActivator.resourceService
+		        .getI18NString("plugin.otr.authbuddydialog.HELP_URI"));
     }
 
     public OtrPolicy getContactPolicy(Contact contact)
