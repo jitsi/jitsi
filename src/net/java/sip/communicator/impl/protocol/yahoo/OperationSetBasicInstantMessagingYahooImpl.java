@@ -146,20 +146,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
             = new MessageDeliveredEvent(
                     message, to, System.currentTimeMillis());
 
-            OperationSetInstantMessageTransformYahooImpl messageTransform = 
-                (OperationSetInstantMessageTransformYahooImpl)yahooProvider.getOperationSet(OperationSetInstantMessageTransform.class);
-            
-            for (Map.Entry<Integer, Vector<TransformLayer>> entry : messageTransform.transformLayers
-                .entrySet())
-            {
-                for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
-                    .hasNext();)
-                {
-                    TransformLayer transformLayer = (TransformLayer) iterator.next();
-                    if (msgDeliveryPendingEvt != null)
-                        msgDeliveryPendingEvt = transformLayer.messageDeliveryPending(msgDeliveryPendingEvt);
-                }
-            }
+            msgDeliveryPendingEvt = messageDeliveryPendingTransform(msgDeliveryPendingEvt);
             
             if (msgDeliveryPendingEvt == null)
                 return;
@@ -199,17 +186,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
                 = new MessageDeliveredEvent(
                         message, to, System.currentTimeMillis());
                 
-                for (Map.Entry<Integer, Vector<TransformLayer>> entry : messageTransform.transformLayers
-                    .entrySet())
-                {
-                    for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
-                        .hasNext();)
-                    {
-                        TransformLayer transformLayer = (TransformLayer) iterator.next();
-                        if (msgDeliveredEvt != null)
-                            msgDeliveredEvt = transformLayer.messageDelivered(msgDeliveredEvt);
-                    }
-                }
+                // msgDeliveredEvt = messageDeliveredTransform(msgDeliveredEvt);
                 
                 if (msgDeliveredEvt != null)
                     fireMessageEvent(msgDeliveredEvt);
@@ -225,20 +202,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
                     to,
                     MessageDeliveryFailedEvent.NETWORK_FAILURE);
             
-            OperationSetInstantMessageTransformYahooImpl messageTransform = 
-                (OperationSetInstantMessageTransformYahooImpl)yahooProvider.getOperationSet(OperationSetInstantMessageTransform.class);
-            
-            for (Map.Entry<Integer, Vector<TransformLayer>> entry : messageTransform.transformLayers
-                .entrySet())
-            {
-                for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
-                    .hasNext();)
-                {
-                    TransformLayer transformLayer = (TransformLayer) iterator.next();
-                    if (evt != null)
-                        evt = transformLayer.messageDeliveryFailed(evt);
-                }
-            }
+            // evt = messageDeliveryFailedTransform(evt);
             
             if (evt != null)
                 fireMessageEvent(evt);
@@ -487,20 +451,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
              = new MessageReceivedEvent(
                  newMessage, sourceContact , System.currentTimeMillis() );
 
-             OperationSetInstantMessageTransformYahooImpl messageTransform = 
-                 (OperationSetInstantMessageTransformYahooImpl)yahooProvider.getOperationSet(OperationSetInstantMessageTransform.class);
-             
-             for (Map.Entry<Integer, Vector<TransformLayer>> entry : messageTransform.transformLayers
-                 .entrySet())
-             {
-                 for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
-                     .hasNext();)
-                 {
-                     TransformLayer transformLayer = (TransformLayer) iterator.next();
-                     if (msgReceivedEvt != null)
-                         msgReceivedEvt = transformLayer.messageReceived(msgReceivedEvt);
-                 }
-             }
+             // msgReceivedEvt = messageReceivedTransform(msgReceivedEvt);
              
              if (msgReceivedEvt != null)
                  fireMessageEvent(msgReceivedEvt);

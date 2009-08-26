@@ -20,6 +20,7 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.util.*;
@@ -126,6 +127,23 @@ public class MainToolBar
         this.nextButton.addActionListener(this);
 
         this.initPluginComponents();
+        
+        this.messageWindow.addChatChangeListener(new ChatChangeListener()
+        {
+            public void chatChanged(ChatPanel panel)
+            {
+                MetaContact contact =
+                    GuiActivator.getUIService().getChatContact(panel);
+
+                for (Component c : getComponents())
+                {
+                    if (!(c instanceof PluginComponent))
+                        continue;
+                    
+                    ((PluginComponent)c).setCurrentContact(contact);
+                }
+            }
+        });
     }
 
     /**

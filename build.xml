@@ -2093,12 +2093,10 @@ org.apache.http.util"/>
     	</jar>
     </target>
 	<!--BUNDLE-PLUGIN-OTR -->
-	<!--<property name="otr4j_classes" value="../otr4j/bin/classes"/>-->
     <target name="bundle-plugin-otr">
         <jar compress="false" destfile="${bundles.dest}/otr.jar" manifest="${src}/net/java/sip/communicator/plugin/otr/otr.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/otr"
                 prefix="net/java/sip/communicator/plugin/otr"/>
-        	<!--<fileset dir="${otr4j_classes}" excludes="**/*Test.class"/>-->
         	<zipfileset src="${lib.noinst}/otr4j.jar"/>
         </jar>
     </target>

@@ -643,7 +643,7 @@ public class ProtocolProviderServiceJabberImpl
                 fileTransfer);
 
             OperationSetInstantMessageTransform messageTransform
-                = new OperationSetInstantMessageTransformJabberImpl();
+                = new OperationSetInstantMessageTransformImpl();
             
             supportedOperationSets.put(
                 OperationSetInstantMessageTransform.class.getName(),

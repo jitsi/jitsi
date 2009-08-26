@@ -284,6 +284,11 @@ public class ChatWindow
         chatCount ++;
 
         chatPanel.setShown(true);
+        
+        for (ChatChangeListener l : this.chatChangeListeners)
+        {
+            l.chatChanged(chatPanel);
+        }
     }
 
     /**
@@ -456,6 +461,11 @@ public class ChatWindow
         mainToolBar.changeHistoryButtonsState(chatPanel);
 
         chatPanel.requestFocusInWriteArea();
+        
+        for (ChatChangeListener l : this.chatChangeListeners)
+        {
+            l.chatChanged(chatPanel);
+        }
     }
 
     /**

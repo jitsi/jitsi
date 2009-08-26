@@ -172,20 +172,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
         MessageDeliveredEvent msgDeliveryPendingEvt = new MessageDeliveredEvent(
                 message, to, System.currentTimeMillis());
         
-        OperationSetInstantMessageTransformIcqImpl messageTransform = 
-            (OperationSetInstantMessageTransformIcqImpl)icqProvider.getOperationSet(OperationSetInstantMessageTransform.class);
-
-        for (Map.Entry<Integer, Vector<TransformLayer>> entry : messageTransform.transformLayers
-            .entrySet())
-        {
-            for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
-                .hasNext();)
-            {
-                TransformLayer transformLayer = (TransformLayer) iterator.next();
-                if (msgDeliveryPendingEvt != null)
-                    msgDeliveryPendingEvt = transformLayer.messageDeliveryPending(msgDeliveryPendingEvt);
-            }
-        }
+        msgDeliveryPendingEvt = this.messageDeliveryPendingTransform(msgDeliveryPendingEvt);
         
         if (msgDeliveryPendingEvt == null)
             return;
@@ -202,17 +189,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
         MessageDeliveredEvent msgDeliveredEvt = new MessageDeliveredEvent(
                 message, to, System.currentTimeMillis());
 
-        for (Map.Entry<Integer, Vector<TransformLayer>> entry : messageTransform.transformLayers
-            .entrySet())
-        {
-            for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
-                .hasNext();)
-            {
-                TransformLayer transformLayer = (TransformLayer) iterator.next();
-                if (msgDeliveredEvt != null)
-                    msgDeliveredEvt = transformLayer.messageDelivered(msgDeliveredEvt);
-            }
-        }
+        // msgDeliveredEvt = this.messageDeliveredTransform(msgDeliveredEvt);
         
         if (msgDeliveredEvt != null)
             fireMessageEvent(msgDeliveredEvt);
@@ -293,20 +270,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
                         sourceContact,
                         msgDate);
 
-                OperationSetInstantMessageTransformIcqImpl messageTransform = 
-                    (OperationSetInstantMessageTransformIcqImpl)icqProvider.getOperationSet(OperationSetInstantMessageTransform.class);
-                
-                for (Map.Entry<Integer, Vector<TransformLayer>> entry : messageTransform.transformLayers
-                    .entrySet())
-                {
-                    for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
-                        .hasNext();)
-                    {
-                        TransformLayer transformLayer = (TransformLayer) iterator.next();
-                        if (msgReceivedEvt != null)
-                            msgReceivedEvt = transformLayer.messageReceived(msgReceivedEvt);
-                    }
-                }
+                // msgReceivedEvt = messageReceivedTransform(msgReceivedEvt);
                 
                 if (msgReceivedEvt != null)
                 {
@@ -583,20 +547,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
             MessageReceivedEvent msgReceivedEvt = 
                 new MessageReceivedEvent(newMessage, sourceContact, msgDate);
 
-            OperationSetInstantMessageTransformIcqImpl messageTransform = 
-                (OperationSetInstantMessageTransformIcqImpl)icqProvider.getOperationSet(OperationSetInstantMessageTransform.class);
-            
-            for (Map.Entry<Integer, Vector<TransformLayer>> entry : messageTransform.transformLayers
-                .entrySet())
-            {
-                for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
-                    .hasNext();)
-                {
-                    TransformLayer transformLayer = (TransformLayer) iterator.next();
-                    if (msgReceivedEvt != null)
-                        msgReceivedEvt = transformLayer.messageReceived(msgReceivedEvt);
-                }
-            }
+            // msgReceivedEvt = messageReceivedTransform(msgReceivedEvt);
             
             if (msgReceivedEvt != null)
             {

@@ -456,7 +456,7 @@ public class ProtocolProviderServiceIcqImpl
                     USING_ICQ = false;
 
             supportedOperationSets.put(OperationSetInstantMessageTransform.class.getName(), 
-                new OperationSetInstantMessageTransformIcqImpl());
+                new OperationSetInstantMessageTransformImpl());
             
             //initialize the presence operationset
             OperationSetPersistentPresence persistentPresence =

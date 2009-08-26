@@ -135,6 +135,15 @@ public class MessageDeliveryFailedEvent
      }
 
      /**
+      * Returns the message that triggered this event
+      * @return the <tt>Message</tt> that triggered this event.
+      */
+     public Message getSourceMessage()
+     {
+         return (Message) getSource();
+     }
+     
+     /**
       * Returns an error code descibing the reason for the failure of the
       * message delivery.
       * @return an error code descibing the reason for the failure of the

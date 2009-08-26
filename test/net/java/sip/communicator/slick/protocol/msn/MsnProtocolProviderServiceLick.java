@@ -83,6 +83,8 @@ public class MsnProtocolProviderServiceLick
             addTest(TestOperationSetPersistentPresence.suite());
 
             addTest(TestOperationSetBasicInstantMessaging.suite());
+            
+            addTest(TestOperationSetInstantMessageTransformMsnImpl.suite());
 
             addTest(TestOperationSetTypingNotifications.suite());
 

@@ -16,6 +16,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.util.*;
@@ -72,6 +73,23 @@ public class MessageWindowMenuBar
         this.init();
 
         this.initPluginComponents();
+        
+        this.parentWindow.addChatChangeListener(new ChatChangeListener()
+        {
+            public void chatChanged(ChatPanel panel)
+            {
+                MetaContact contact =
+                    GuiActivator.getUIService().getChatContact(panel);
+
+                for (Component c : getComponents())
+                {
+                    if (!(c instanceof PluginComponent))
+                        continue;
+                    
+                    ((PluginComponent)c).setCurrentContact(contact);
+                }
+            }
+        });
     }
 
     /**

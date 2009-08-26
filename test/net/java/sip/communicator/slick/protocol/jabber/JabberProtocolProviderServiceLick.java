@@ -92,6 +92,8 @@ public class JabberProtocolProviderServiceLick
 
             addTest(TestOperationSetBasicInstantMessaging.suite());
 
+            addTest(TestOperationSetInstantMessageTransformJabberImpl.suite());
+            
             addTest(TestOperationSetTypingNotifications.suite());
 
             //tests currently fails due to jingle lib bugs.

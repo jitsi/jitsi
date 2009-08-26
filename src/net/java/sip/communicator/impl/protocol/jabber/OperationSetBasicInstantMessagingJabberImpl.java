@@ -199,20 +199,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
             = new MessageDeliveredEvent(
                     message, to, System.currentTimeMillis());
 
-            OperationSetInstantMessageTransformJabberImpl messageTransform = 
-                (OperationSetInstantMessageTransformJabberImpl)jabberProvider.getOperationSet(OperationSetInstantMessageTransform.class);
-    
-            for (Map.Entry<Integer, Vector<TransformLayer>> entry : messageTransform.transformLayers
-                .entrySet())
-            {
-                for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
-                    .hasNext();)
-                {
-                    TransformLayer transformLayer = (TransformLayer) iterator.next();
-                    if (msgDeliveryPendingEvt != null)
-                        msgDeliveryPendingEvt = transformLayer.messageDeliveryPending(msgDeliveryPendingEvt);
-                }
-            }
+            msgDeliveryPendingEvt = messageDeliveryPendingTransform(msgDeliveryPendingEvt);
             
             if (msgDeliveryPendingEvt == null)
                 return;
@@ -249,17 +236,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 = new MessageDeliveredEvent(
                         message, to, System.currentTimeMillis());
 
-            for (Map.Entry<Integer, Vector<TransformLayer>> entry : messageTransform.transformLayers
-                .entrySet())
-            {
-                for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
-                    .hasNext();)
-                {
-                    TransformLayer transformLayer = (TransformLayer) iterator.next();
-                    if (msgDeliveredEvt != null)
-                        msgDeliveredEvt = transformLayer.messageDelivered(msgDeliveredEvt);
-                }
-            }
+            // msgDeliveredEvt = messageDeliveredTransform(msgDeliveredEvt);
             
             if (msgDeliveredEvt != null)
                 fireMessageEvent(msgDeliveredEvt);
@@ -428,20 +405,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                                                    sourceContact,
                                                    errorResultCode);
                 
-                OperationSetInstantMessageTransformJabberImpl messageTransform = 
-                    (OperationSetInstantMessageTransformJabberImpl)jabberProvider.getOperationSet(OperationSetInstantMessageTransform.class);
-                
-                for (Map.Entry<Integer, Vector<TransformLayer>> entry : messageTransform.transformLayers
-                    .entrySet())
-                {
-                    for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
-                        .hasNext();)
-                    {
-                        TransformLayer transformLayer = (TransformLayer) iterator.next();
-                        if (ev != null)
-                            ev = transformLayer.messageDeliveryFailed(ev);
-                    }
-                }
+                // ev = messageDeliveryFailedTransform(ev);
                 
                 if (ev != null)
                     fireMessageEvent(ev);
@@ -463,20 +427,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 = new MessageReceivedEvent(
                     newMessage, sourceContact , System.currentTimeMillis() );
 
-            OperationSetInstantMessageTransformJabberImpl messageTransform = 
-                (OperationSetInstantMessageTransformJabberImpl)jabberProvider.getOperationSet(OperationSetInstantMessageTransform.class);
-            
-            for (Map.Entry<Integer, Vector<TransformLayer>> entry : messageTransform.transformLayers
-                .entrySet())
-            {
-                for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
-                    .hasNext();)
-                {
-                    TransformLayer transformLayer = (TransformLayer) iterator.next();
-                    if (msgReceivedEvt != null)
-                        msgReceivedEvt = transformLayer.messageReceived(msgReceivedEvt);
-                }
-            }
+            // msgReceivedEvt = messageReceivedTransform(msgReceivedEvt);
             
             if (msgReceivedEvt != null)
                 fireMessageEvent(msgReceivedEvt);

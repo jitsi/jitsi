@@ -320,7 +320,7 @@ public class ProtocolProviderServiceYahooImpl
 
             supportedOperationSets.put(
                 OperationSetInstantMessageTransform.class.getName(), 
-                new OperationSetInstantMessageTransformYahooImpl());
+                new OperationSetInstantMessageTransformImpl());
             
             //initialize the presence operationset
             persistentPresence = new OperationSetPersistentPresenceYahooImpl(this);

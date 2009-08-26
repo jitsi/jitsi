@@ -262,7 +262,7 @@ public class ProtocolProviderServiceMsnImpl
             this.accountID = accountID;
 
             supportedOperationSets.put(OperationSetInstantMessageTransform.class.getName(), 
-                new OperationSetInstantMessageTransformMsnImpl());
+                new OperationSetInstantMessageTransformImpl());
             
             //initialize the presence operationset
             persistentPresence = new OperationSetPersistentPresenceMsnImpl(this);
