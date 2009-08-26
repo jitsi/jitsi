@@ -694,7 +694,7 @@ public abstract class TestOperationSetFileTransfer
                          ,fileTransferCreatedEvent.getFileTransfer().getLocalFile()
                          ,receiveFile);
 
-            receiverStatusListener.waitForEvent(4000, 3);
+            receiverStatusListener.waitForEvent(8000, 3);
             assertTrue("Cancel event must be received",
                 receiverStatusListener.contains(FileTransferStatusChangeEvent.CANCELED));
         }
@@ -979,12 +979,19 @@ public abstract class TestOperationSetFileTransfer
             {
                 Iterator<FileTransferStatusChangeEvent>
                     iter = collectedEvents.iterator();
+                String statuses = "";
                 while (iter.hasNext())
                 {
                     FileTransferStatusChangeEvent e = iter.next();
                     if(e.getNewStatus() == status)
                         return true;
+
+                    statuses += e.getNewStatus() + " ";
                 }
+
+                
+                logger.warn("Status not found : " + status +
+                    " between statuses : " + statuses);
 
                 return false;
             }
