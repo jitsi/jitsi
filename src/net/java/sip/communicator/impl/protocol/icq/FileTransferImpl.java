@@ -132,32 +132,7 @@ public class FileTransferImpl
                 // this both are hacks that detects cancels while transfering
                 // as only connection is closed from other side
                 // we detect it by receiving ConnectionTimedOutEvent
-                if(transfer instanceof IncomingFileTransferImpl)
-                {
-                    ((IncomingFileTransferImpl)transfer).getStateController().
-                        addControllerListener(new ControllerListener()
-                    {
-
-                        public void handleControllerSucceeded(
-                            StateController controller, SuccessfulStateInfo info)
-                        {
-                        }
-
-                        public void handleControllerFailed(
-                            StateController controller, FailedStateInfo info)
-                        {
-                            if(info instanceof FailureEventInfo
-                                && ((FailureEventInfo)info).getEvent()
-                                    instanceof ConnectionTimedOutEvent)
-                            {
-                                FileTransferImpl.this.fireStatusChangeEvent(
-                                    FileTransferStatusChangeEvent.CANCELED);
-                                fileTransfer.close();
-                            }
-                        }
-                    });
-                }
-                else if(transfer instanceof OutgoingFileTransferImpl)
+                if(transfer instanceof OutgoingFileTransferImpl)
                 {
                     ((OutgoingFileTransferImpl)transfer).getStateController().
                         addControllerListener(new ControllerListener()
@@ -198,8 +173,14 @@ public class FileTransferImpl
                 {
                     fireStatusChangeEvent(FileTransferStatusChangeEvent.CANCELED);
                 }
+                else if(event instanceof UnknownErrorEvent)
+                {
+                    fireStatusChangeEvent(FileTransferStatusChangeEvent.CANCELED);
+                }
                 else
+                {
                     fireStatusChangeEvent(FileTransferStatusChangeEvent.FAILED);
+                }
             }
             else if (state==FileTransferState.TRANSFERRING)
             {
