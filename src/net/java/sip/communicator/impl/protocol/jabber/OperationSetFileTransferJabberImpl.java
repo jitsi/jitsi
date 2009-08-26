@@ -480,6 +480,22 @@ public class OperationSetFileTransferJabberImpl
                                 .removeThumbnailRequestListener();
                         }
 
+                        // sometimes a filetransfer can be preparing
+                        // and than completed :
+                        // transfered in one iteration of current thread
+                        // so it won't go through intermediate state - inProgress
+                        // make sure this won't happen
+                        if(status == FileTransferStatusChangeEvent.COMPLETED
+                            && fileTransfer.getStatus() 
+                                == FileTransferStatusChangeEvent.PREPARING)
+                        {
+                            fileTransfer.fireStatusChangeEvent(
+                                FileTransferStatusChangeEvent.IN_PROGRESS,
+                                "Status changed");
+                            fileTransfer.fireProgressChangeEvent(
+                                System.currentTimeMillis(), progress);
+                        }
+
                         break;
                     }
 
