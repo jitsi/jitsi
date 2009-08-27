@@ -79,6 +79,10 @@ public class OperationSetFileTransferMsnImpl
     {
         assertConnected();
 
+        if(file.length() > getMaximumFileLength())
+                throw new IllegalArgumentException(
+                    "File length exceeds the allowed one for this protocol");
+
         if( !(toContact instanceof ContactMsnImpl) )
             throw new IllegalArgumentException(
                 "The specified contact is not an msn contact." + toContact);
@@ -281,6 +285,17 @@ public class OperationSetFileTransferMsnImpl
             FileTransferListener listener = listeners.next();
             listener.fileTransferCreated(event);
         }
+    }
+
+    /**
+     * Returns the maximum file length supported by the protocol in bytes.
+     * Supports up to 2GB.
+     *
+     * @return the file length that is supported.
+     */
+    public long getMaximumFileLength()
+    {
+        return 2147483648l;// = 2048*1024*1024;
     }
 
     /**

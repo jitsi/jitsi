@@ -121,13 +121,13 @@ public class MessageWindowMenuBar
     /**
      * Returns the currently selected menu.
      */
-    public SIPCommMenu getSelectedMenu()
+    public JMenu getSelectedMenu()
     {
         int menuCount = this.getMenuCount();
 
         for (int i = 0; i < menuCount; i++)
         {
-            SIPCommMenu menu = (SIPCommMenu) this.getMenu(i);
+            JMenu menu = this.getMenu(i);
 
             if (menu.isSelected())
             {

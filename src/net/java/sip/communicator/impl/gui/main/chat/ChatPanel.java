@@ -946,6 +946,24 @@ public class ChatPanel
             public Object construct()
                 throws Exception
             {
+                if(file.length() > sendFileTransport.getMaximumFileLength())
+                {
+                    addMessage(
+                        chatSession.getCurrentChatTransport().getName(),
+                        System.currentTimeMillis(),
+                        Constants.ERROR_MESSAGE,
+                        GuiActivator.getResources()
+                            .getI18NString("service.gui.FILE_TOO_BIG",
+                            new String[]{
+                                sendFileTransport.getMaximumFileLength()/1024/1024
+                                + " MB"}),
+                        "",
+                        "text");
+                    fileComponent.setFailed();
+
+                    return "";
+                }
+
                 final FileTransfer fileTransfer
                     = sendFileTransport.sendFile(file);
 

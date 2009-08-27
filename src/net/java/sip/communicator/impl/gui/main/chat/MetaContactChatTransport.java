@@ -312,6 +312,19 @@ public class MetaContactChatTransport
         return ftOpSet.sendFile(contact, file);
     }
 
+    /**
+     * Returns the maximum file length supported by the protocol in bytes.
+     * @return the file length that is supported.
+     */
+    public long getMaximumFileLength()
+    {
+        OperationSetFileTransfer ftOpSet
+            = (OperationSetFileTransfer) contact.getProtocolProvider()
+                .getOperationSet(OperationSetFileTransfer.class);
+
+        return ftOpSet.getMaximumFileLength();
+    }
+
     public void inviteChatContact(String contactAddress, String reason)
     {
     }

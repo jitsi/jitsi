@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import java.io.*;
 
 import javax.swing.*;
 
@@ -514,7 +515,35 @@ public class ContactRightButtonMenu
         }
         else if (itemName.equalsIgnoreCase("sendFile"))
         {
-            // disabled
+            ContactListPane clistPanel = mainFrame.getContactListPanel();
+            SwingUtilities.invokeLater(
+                clistPanel.new RunMessageWindow(
+                    contactItem)
+                    {
+                        public void run()
+                        {
+                            super.run();
+
+                            JFileChooser fileChooser = new JFileChooser(
+                                ConfigurationManager.getSendFileLastDir());
+
+                            int result = fileChooser.showOpenDialog(
+                                GuiActivator.getUIService().
+                                    getChatWindowManager().getSelectedChat().
+                                        getChatWindow());
+
+                            if (result == JFileChooser.APPROVE_OPTION)
+                            {
+                                File selectedFile = fileChooser.getSelectedFile();
+
+                                ConfigurationManager
+                                    .setSendFileLastDir(selectedFile.getParent());
+
+                                GuiActivator.getUIService().
+                                    getChatWindowManager().getSelectedChat().
+                                        sendFile(selectedFile);
+                            }
+                        } });
         }
         else if (itemName.equalsIgnoreCase("renameContact"))
         {

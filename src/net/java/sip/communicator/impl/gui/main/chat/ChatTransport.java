@@ -127,6 +127,12 @@ public interface ChatTransport
         throws Exception;
 
     /**
+     * Returns the maximum file length supported by the protocol in bytes.
+     * @return the file length that is supported.
+     */
+    public long getMaximumFileLength();
+
+    /**
      * Invites a contact to join this chat.
      * 
      * @param contactAddress the address of the contact we invite

@@ -100,6 +100,10 @@ public class OperationSetFileTransferJabberImpl
         {
             assertConnected();
 
+            if(file.length() > getMaximumFileLength())
+                throw new IllegalArgumentException(
+                    "File length exceeds the allowed one for this protocol");
+
             String fullJid = jabberProvider.getFullJid(toContact);
 
             // First we check if file transfer is at all supported for this
@@ -214,6 +218,17 @@ public class OperationSetFileTransferJabberImpl
             throw new IllegalStateException(
                 "The provider must be signed on the service before "
                 +"being able to send a file.");
+    }
+
+    /**
+     * Returns the maximum file length supported by the protocol in bytes.
+     * Supports up to 2GB.
+     *
+     * @return the file length that is supported.
+     */
+    public long getMaximumFileLength()
+    {
+        return 2147483648l;// = 2048*1024*1024;
     }
 
     /**

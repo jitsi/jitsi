@@ -80,6 +80,10 @@ public class OperationSetFileTransferIcqImpl
     {
         assertConnected();
 
+        if(file.length() > getMaximumFileLength())
+                throw new IllegalArgumentException(
+                    "File length exceeds the allowed one for this protocol");
+
         // Get the aim connection
         AimConnection aimConnection = icqProvider.getAimConnection();
 
@@ -356,6 +360,17 @@ public class OperationSetFileTransferIcqImpl
             FileTransferListener listener = listeners.next();
             listener.fileTransferCreated(event);
         }
+    }
+
+    /**
+     * Returns the maximum file length supported by the protocol in bytes.
+     * Supports up to 2GB.
+     *
+     * @return the file length that is supported.
+     */
+    public long getMaximumFileLength()
+    {
+        return 2147483648l;// = 2048*1024*1024;
     }
 
     /**

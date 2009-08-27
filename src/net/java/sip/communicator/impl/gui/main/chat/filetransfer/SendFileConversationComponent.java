@@ -132,16 +132,8 @@ public class SendFileConversationComponent
         }
         else if (status == FileTransferStatusChangeEvent.FAILED)
         {
-            hideProgressRelatedComponents();
-
-            titleLabel.setText(
-                dateString
-                + resources.getI18NString(
-                "service.gui.FILE_UNABLE_TO_SEND",
-                new String[]{toContactName}));
-            cancelButton.setVisible(false);
+            setFailed();
             retryButton.setVisible(true);
-            setWarningStyle(true);
         }
         else if (status == FileTransferStatusChangeEvent.IN_PROGRESS)
         {
@@ -198,6 +190,22 @@ public class SendFileConversationComponent
             retryButton.setVisible(true);
             setWarningStyle(true);
         }
+    }
+
+    /**
+     * Change the style of the component to be failed.
+     */
+    public void setFailed()
+    {
+        hideProgressRelatedComponents();
+
+        titleLabel.setText(
+            dateString
+            + resources.getI18NString(
+            "service.gui.FILE_UNABLE_TO_SEND",
+            new String[]{toContactName}));
+        cancelButton.setVisible(false);
+        setWarningStyle(true);
     }
 
     /**

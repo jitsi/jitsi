@@ -84,6 +84,10 @@ public class OperationSetFileTransferYahooImpl
         {
             assertConnected();
 
+            if(file.length() > getMaximumFileLength())
+                throw new IllegalArgumentException(
+                    "File length exceeds the allowed one for this protocol");
+
             ArrayList<String> filesToSend = new ArrayList<String>();
             filesToSend.add(file.getCanonicalPath());
             Date sentDate = new Date();
@@ -402,6 +406,17 @@ public class OperationSetFileTransferYahooImpl
         }
         else
             ft.fireStatusChangeEvent(getStateMapping(newState));
+    }
+
+    /**
+     * Returns the maximum file length supported by the protocol in bytes.
+     * Supports up to 256MB.
+     *
+     * @return the file length that is supported.
+     */
+    public long getMaximumFileLength()
+    {
+        return 268435456l;// = 256*1024*1024;
     }
 
     /**

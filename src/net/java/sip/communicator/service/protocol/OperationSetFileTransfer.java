@@ -87,4 +87,10 @@ public interface OperationSetFileTransfer
      */
     public void removeFileTransferListener(
         FileTransferListener listener);
+
+    /**
+     * Returns the maximum file length supported by the protocol in bytes.
+     * @return the file length that is supported.
+     */
+    public long getMaximumFileLength();
 }
