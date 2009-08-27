@@ -81,8 +81,8 @@ public class OperationSetFileTransferIcqImpl
         assertConnected();
 
         if(file.length() > getMaximumFileLength())
-                throw new IllegalArgumentException(
-                    "File length exceeds the allowed one for this protocol");
+            throw new IllegalArgumentException(
+                "File length exceeds the allowed one for this protocol");
 
         // Get the aim connection
         AimConnection aimConnection = icqProvider.getAimConnection();

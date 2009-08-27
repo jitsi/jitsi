@@ -80,8 +80,8 @@ public class OperationSetFileTransferMsnImpl
         assertConnected();
 
         if(file.length() > getMaximumFileLength())
-                throw new IllegalArgumentException(
-                    "File length exceeds the allowed one for this protocol");
+            throw new IllegalArgumentException(
+                "File length exceeds the allowed one for this protocol");
 
         if( !(toContact instanceof ContactMsnImpl) )
             throw new IllegalArgumentException(

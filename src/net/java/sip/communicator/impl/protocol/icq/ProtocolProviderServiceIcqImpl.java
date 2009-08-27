@@ -478,12 +478,13 @@ public class ProtocolProviderServiceIcqImpl
                 OperationSetBasicInstantMessaging.class.getName(),
                 basicInstantMessaging);
             
-          //initialize the multi chat operation set
-           OperationSetMultiUserChatIcqImpl multiUserOpSet = new OperationSetMultiUserChatIcqImpl(
-                   this);
+            //initialize the multi chat operation set
+            OperationSetMultiUserChatIcqImpl multiUserOpSet
+                = new OperationSetMultiUserChatIcqImpl(this);
 
-           supportedOperationSets.put(OperationSetMultiUserChat.class
-                   .getName(), multiUserOpSet);
+            supportedOperationSets.put(
+                OperationSetMultiUserChat.class.getName(),
+                multiUserOpSet);
 
             //initialize the typing notifications operation set
             OperationSetTypingNotifications typingNotifications =
@@ -534,11 +535,11 @@ public class ProtocolProviderServiceIcqImpl
 
             }
 
-            OperationSetFileTransferIcqImpl fileTransferOpSet =
-                    new OperationSetFileTransferIcqImpl(this);
-                supportedOperationSets.put(
-                    OperationSetFileTransfer.class.getName(),
-                    fileTransferOpSet);
+            OperationSetFileTransferIcqImpl fileTransferOpSet
+                = new OperationSetFileTransferIcqImpl(this);
+            supportedOperationSets.put(
+                OperationSetFileTransfer.class.getName(),
+                fileTransferOpSet);
 
             isInitialized = true;
         }
