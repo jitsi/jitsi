@@ -386,7 +386,7 @@ public class TrayIcon
      * Extended mouse adapter to show the JPopupMenu in Java 6
      * Based on : http://weblogs.java.net/blog/ixmal/archive/2006/05/using_jpopupmen.html
      * And : http://weblogs.java.net/blog/alexfromsun/archive/2008/02/jtrayicon_updat.html
-     * 
+     *
      * Use a hidden JWindow (JDialog for Windows) to manage the JPopupMenu.
      * 
      * @author Damien Roth
@@ -396,7 +396,7 @@ public class TrayIcon
     {
         private final static boolean IS_WINDOWS =
             System.getProperty("os.name").toLowerCase().contains("windows");
-        
+
         private JPopupMenu popup = null;
         private Window hiddenWindow = null;
     
@@ -405,10 +405,11 @@ public class TrayIcon
             this.popup = p;
             this.popup.addPopupMenuListener(new PopupMenuListener()
             {
-                public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-                }
+                public void popupMenuWillBecomeVisible(PopupMenuEvent e)
+                {}
 
-                public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+                public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
+                {
                     if (hiddenWindow != null)
                     {
                         hiddenWindow.dispose();
@@ -416,7 +417,8 @@ public class TrayIcon
                     }
                 }
 
-                public void popupMenuCanceled(PopupMenuEvent e) {
+                public void popupMenuCanceled(PopupMenuEvent e)
+                {
                     if (hiddenWindow != null)
                     {
                         hiddenWindow.dispose();
@@ -455,15 +457,22 @@ public class TrayIcon
                     hiddenWindow.setAlwaysOnTop(true);
                     Dimension size = popup.getPreferredSize();
 
-                    Point centerPoint = GraphicsEnvironment.getLocalGraphicsEnvironment().getCenterPoint();
+                    Point centerPoint = GraphicsEnvironment
+                                            .getLocalGraphicsEnvironment()
+                                                .getCenterPoint();
+
                     if(e.getY() > centerPoint.getY())
-                        hiddenWindow.setLocation(e.getX(), e.getY() - size.height);
+                        hiddenWindow
+                            .setLocation(e.getX(), e.getY() - size.height);
                     else
-                        hiddenWindow.setLocation(e.getX(), e.getY());
+                        hiddenWindow
+                            .setLocation(e.getX(), e.getY());
 
                     hiddenWindow.setVisible(true);
-                    
-                    popup.show(((RootPaneContainer)hiddenWindow).getContentPane(), 0, 0);
+
+                    popup.show(
+                            ((RootPaneContainer)hiddenWindow).getContentPane(),
+                            0, 0);
 
                     // popup works only for focused windows
                     hiddenWindow.toFront();
