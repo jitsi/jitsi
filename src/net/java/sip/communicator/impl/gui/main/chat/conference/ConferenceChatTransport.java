@@ -179,6 +179,15 @@ public class ConferenceChatTransport
     }
 
     /**
+     * Returns the maximum file length supported by the protocol in bytes.
+     * @return the file length that is supported.
+     */
+    public long getMaximumFileLength()
+    {
+        return -1;
+    }
+
+    /**
      * Invites the given contact in this chat conference.
      * 
      * @param contactAddress the address of the contact to invite

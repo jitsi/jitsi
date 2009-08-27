@@ -236,4 +236,13 @@ public class MockOperationSetFileTransfer
             listener.fileTransferCreated(event);
         }
     }
+
+    /**
+     * Returns the maximum file length supported by the protocol in bytes.
+     * @return the file length that is supported.
+     */
+    public long getMaximumFileLength()
+    {
+        return 2048*1024*1024;
+    }
 }
