@@ -9,6 +9,7 @@ package net.java.sip.communicator.service.protocol;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * An abstract implementation of the <tt>FileTransfer</tt> interface providing
@@ -22,6 +23,9 @@ import net.java.sip.communicator.service.protocol.event.*;
 public abstract class AbstractFileTransfer
     implements FileTransfer
 {
+    private static final Logger logger = 
+        Logger.getLogger(AbstractFileTransfer.class);
+
     /**
      * A list of listeners registered for file transfer status events.
      */
@@ -149,6 +153,9 @@ public abstract class AbstractFileTransfer
             listeners
                 = new ArrayList<FileTransferStatusListener>(statusListeners);
         }
+
+        logger.debug("Dispatching a FileTransfer Event to" + listeners.size()
+            + " listeners. Status=" + status);
 
         FileTransferStatusChangeEvent statusEvent
             = new FileTransferStatusChangeEvent(
