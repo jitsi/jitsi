@@ -171,7 +171,14 @@ public class FileTransferImpl
                 }
                 else if(event instanceof BuddyCancelledEvent)
                 {
-                    fireStatusChangeEvent(FileTransferStatusChangeEvent.CANCELED);
+                    // we receive this event for both when the other party
+                    // rejects and when it accepts but cancels the transfer
+                    if(getTransferedBytes() > 0)
+                        fireStatusChangeEvent(
+                            FileTransferStatusChangeEvent.CANCELED);
+                    else
+                        fireStatusChangeEvent(
+                            FileTransferStatusChangeEvent.REFUSED);
                 }
                 else if(event instanceof UnknownErrorEvent)
                 {
