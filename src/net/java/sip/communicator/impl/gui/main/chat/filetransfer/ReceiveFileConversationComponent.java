@@ -186,7 +186,16 @@ public class ReceiveFileConversationComponent
             downloadFile = new File(downloadDir, newFileName);
         }
 
-        fileLabel.setText(downloadFile.getName());
+        // Change the file name to the name we would use on the local file
+        // system.
+        if (!downloadFile.getName().equals(fileTransferRequest.getFileName()))
+        {
+            String fileName
+                = getFileLabel( downloadFile.getName(),
+                                fileTransferRequest.getFileSize());
+
+            fileLabel.setText(fileName);
+        }
 
         return downloadFile;
     }
