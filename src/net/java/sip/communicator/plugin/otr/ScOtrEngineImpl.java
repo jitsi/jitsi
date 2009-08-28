@@ -1,7 +1,5 @@
 package net.java.sip.communicator.plugin.otr;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -138,11 +136,7 @@ public class ScOtrEngineImpl
 
     public boolean isContactVerified(Contact contact)
     {
-        String id = getSessionNS(getSessionID(contact), "publicKey.verified");
-        if (id == null || id.length() < 1)
-            return false;
-
-        return OtrActivator.configService.getBoolean(id, false);
+        return this.configurator.getPropertyBoolean(getSessionID(contact) + "publicKey.verified", false);
     }
 
     Map<SessionID, Contact> contactsMap = new Hashtable<SessionID, Contact>();
@@ -224,31 +218,65 @@ public class ScOtrEngineImpl
         }
     }
 
-    private String getSessionNS(SessionID sessionID, String function)
-    {
-        try
-        {
-            return "net.java.sip.comunicator.plugin.otr."
-                + URLEncoder.encode(sessionID.toString(), "UTF-8") + "."
-                + function;
-        }
-        catch (UnsupportedEncodingException e1)
-        {
-            e1.printStackTrace();
-            return null;
-        }
-    }
+    private Configurator configurator = new Configurator();
+    
+    class Configurator { 
+	    
+    	private String getXmlFriendlyString(String s){
+    		char[] cId = new char[s.length()];
+	    	for (int i = 0; i < cId.length; i++) {
+	    		char c = s.charAt(i);
+	    		cId[i] = (Character.isLetterOrDigit(c)) ? c : '_';
+			}
+	    	
+	    	return new String(cId);
+    	}
+    	
+	    private String getID(String id){
+	    	return "net.java.sip.communicator.plugin.otr." + getXmlFriendlyString(id);
+	    }
+	    
+	    public byte[] getPropertyBytes(String id){
+	    	String value = (String)OtrActivator.configService.getProperty(this.getID(id));
+	    	if (value == null)
+	    		return null;
+	    	
+	    	return Base64.decode(value.getBytes());
+	    }
+	    
+	    public Boolean getPropertyBoolean(String id, boolean defaultValue){
+	    	return OtrActivator.configService.getBoolean(this.getID(id), defaultValue);
+	    }
+	    
+	    public void setProperty(String id, byte[] value){
+	    	String valueToStore = new String(Base64.encode(value));
+	    	
+	    	OtrActivator.configService.setProperty(this.getID(id), valueToStore);
+	    }
+	    
+	    public void setProperty(String id, boolean value){	    	
+	    	OtrActivator.configService.setProperty(this.getID(id), value);
+	    }
+	    
+	    public void setProperty(String id, Integer value){
+	    	OtrActivator.configService.setProperty(this.getID(id), value);
+	    }
+	    
+	    public void removeProperty(String id){
+	    	OtrActivator.configService.removeProperty(this.getID(id));
+	    }
 
+		public int getPropertyInt(String id, int defaultValue) {
+			return OtrActivator.configService.getInt(getID(id), defaultValue);
+		}
+    }
+    
     public void verifyContactFingerprint(Contact contact)
     {
         if (contact == null)
             return;
-
-        String id = getSessionNS(getSessionID(contact), "publicKey.verified");
-        if (id == null || id.length() < 1)
-            return; // TODO provide error handling.
-
-        OtrActivator.configService.setProperty(id, true);
+        
+        this.configurator.setProperty(getSessionID(contact) + "publicKey.verified", true);
     }
 
     public void forgetContactFingerprint(Contact contact)
@@ -256,30 +284,22 @@ public class ScOtrEngineImpl
         if (contact == null)
             return;
 
-        String id = getSessionNS(getSessionID(contact), "publicKey.verified");
-        if (id == null || id.length() < 1)
-            return; // TODO provide error handling.
-
-        OtrActivator.configService.removeProperty(id);
+        this.configurator.removeProperty(getSessionID(contact) + "publicKey.verified");
 
     }
 
     public OtrPolicy getGlobalPolicy()
     {
-        return new OtrPolicyImpl(OtrActivator.configService.getInt(
-            "net.java.sip.comunicator.plugin.otr.POLICY",
-            OtrPolicy.OTRL_POLICY_DEFAULT));
+        return new OtrPolicyImpl(this.configurator
+        		.getPropertyInt("POLICY", OtrPolicy.OTRL_POLICY_DEFAULT));
     }
 
     public void setGlobalPolicy(OtrPolicy policy)
     {
         if (policy == null)
-            OtrActivator.configService
-                .removeProperty("net.java.sip.comunicator.plugin.otr.POLICY");
+            this.configurator.removeProperty("POLICY");
         else
-            OtrActivator.configService.setProperty(
-                "net.java.sip.comunicator.plugin.otr.POLICY", policy
-                    .getPolicy());
+            this.configurator.setProperty("POLICY", policy.getPolicy());
 
         for (ScOtrEngineListener l : listeners)
             l.globalPolicyChanged();
@@ -302,11 +322,7 @@ public class ScOtrEngineImpl
 
     public OtrPolicy getContactPolicy(Contact contact)
     {
-        String id = getSessionNS(getSessionID(contact), "policy");
-        if (id == null || id.length() < 1)
-            return getGlobalPolicy();
-
-        int policy = OtrActivator.configService.getInt(id, -1);
+        int policy = this.configurator.getPropertyInt(getSessionID(contact) + "policy", -1);
         if (policy < 0)
             return getGlobalPolicy();
         else
@@ -315,14 +331,11 @@ public class ScOtrEngineImpl
 
     public void setContactPolicy(Contact contact, OtrPolicy policy)
     {
-        String id = getSessionNS(getSessionID(contact), "policy");
-        if (id == null || id.length() < 1)
-            return;
-
+    	String propertyID = getSessionID(contact) + "policy";
         if (policy == null)
-            OtrActivator.configService.removeProperty(id);
+        	this.configurator.removeProperty(propertyID);
         else
-            OtrActivator.configService.setProperty(id, policy.getPolicy());
+        	this.configurator.setProperty(propertyID, policy.getPolicy());
 
         for (ScOtrEngineListener l : listeners)
             l.contactPolicyChanged(contact);
@@ -332,44 +345,18 @@ public class ScOtrEngineImpl
     private KeyPair loadKeyPair(String accountID)
     {
         // Load Private Key.
-        String idPrivKey;
-        try
-        {
-            idPrivKey =
-                "net.java.sip.comunicator.plugin.otr."
-                    + URLEncoder.encode(accountID, "UTF-8") + ".privateKey";
-        }
-        catch (UnsupportedEncodingException e1)
-        {
-            e1.printStackTrace();
-            return null;
-        }
-        Object b64PrivKey = OtrActivator.configService.getProperty(idPrivKey);
+        byte[] b64PrivKey = this.configurator.getPropertyBytes(accountID + ".privateKey");
         if (b64PrivKey == null)
             return null;
 
-        PKCS8EncodedKeySpec privateKeySpec =
-            new PKCS8EncodedKeySpec(Base64.decode((String) b64PrivKey));
+        PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(b64PrivKey);
 
         // Load Public Key.
-        String idPubKey;
-        try
-        {
-            idPubKey =
-                "net.java.sip.comunicator.plugin.otr."
-                    + URLEncoder.encode(accountID, "UTF-8") + ".publicKey";
-        }
-        catch (UnsupportedEncodingException e1)
-        {
-            e1.printStackTrace();
-            return null;
-        }
-        Object b64PubKey = OtrActivator.configService.getProperty(idPubKey);
+        byte[] b64PubKey = this.configurator.getPropertyBytes(accountID + ".publicKey");
         if (b64PubKey == null)
             return null;
 
-        X509EncodedKeySpec publicKeySpec =
-            new X509EncodedKeySpec(Base64.decode((String) b64PubKey));
+        X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(b64PubKey);
 
         PublicKey publicKey;
         PrivateKey privateKey;
@@ -410,89 +397,37 @@ public class ScOtrEngineImpl
         }
 
         // Store Public Key.
-        String idPubKey;
-        try
-        {
-            idPubKey =
-                "net.java.sip.comunicator.plugin.otr."
-                    + URLEncoder.encode(accountID, "UTF-8") + ".publicKey";
-        }
-        catch (UnsupportedEncodingException e1)
-        {
-            e1.printStackTrace();
-            return;
-        }
         PublicKey pubKey = keyPair.getPublic();
         X509EncodedKeySpec x509EncodedKeySpec =
             new X509EncodedKeySpec(pubKey.getEncoded());
-        OtrActivator.configService.setProperty(idPubKey, new String(Base64
-            .encode(x509EncodedKeySpec.getEncoded())));
+        
+        this.configurator.setProperty(accountID + ".publicKey", x509EncodedKeySpec.getEncoded());
 
         // Store Private Key.
-        String idPrivKey;
-        try
-        {
-            idPrivKey =
-                "net.java.sip.comunicator.plugin.otr."
-                    + URLEncoder.encode(accountID, "UTF-8") + ".privateKey";
-        }
-        catch (UnsupportedEncodingException e1)
-        {
-            e1.printStackTrace();
-            return;
-        }
-
         PrivateKey privKey = keyPair.getPrivate();
         PKCS8EncodedKeySpec pkcs8EncodedKeySpec =
             new PKCS8EncodedKeySpec(privKey.getEncoded());
-        OtrActivator.configService.setProperty(idPrivKey, new String(Base64
-            .encode(pkcs8EncodedKeySpec.getEncoded())));
+        
+        this.configurator.setProperty(accountID + ".privateKey", pkcs8EncodedKeySpec.getEncoded());
     }
 
     private void savePublicKey(String userID, PublicKey pubKey)
     {
-        String idPubKey;
-        try
-        {
-            idPubKey =
-                "net.java.sip.comunicator.plugin.otr."
-                    + URLEncoder.encode(userID, "UTF-8") + ".publicKey";
-        }
-        catch (UnsupportedEncodingException e)
-        {
-            e.printStackTrace();
-            return;
-        }
         X509EncodedKeySpec x509EncodedKeySpec =
             new X509EncodedKeySpec(pubKey.getEncoded());
 
-        OtrActivator.configService.setProperty(idPubKey, new String(Base64
-            .encode(x509EncodedKeySpec.getEncoded())));
+        this.configurator.setProperty(userID + ".publicKey", x509EncodedKeySpec.getEncoded());
 
-        OtrActivator.configService.removeProperty(idPubKey + ".verified");
+        this.configurator.removeProperty(userID + ".publicKey.verified");
     }
 
     private PublicKey loadPublicKey(String userID)
     {
-        String idPubKey;
-        try
-        {
-            idPubKey =
-                "net.java.sip.comunicator.plugin.otr."
-                    + URLEncoder.encode(userID, "UTF-8") + ".publicKey";
-        }
-        catch (UnsupportedEncodingException e)
-        {
-            e.printStackTrace();
-            return null;
-        }
-
-        Object b64PubKey = OtrActivator.configService.getProperty(idPubKey);
+        byte[] b64PubKey = this.configurator.getPropertyBytes(userID + ".publicKey");
         if (b64PubKey == null)
             return null;
 
-        X509EncodedKeySpec publicKeySpec =
-            new X509EncodedKeySpec(Base64.decode((String) b64PubKey));
+        X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(b64PubKey);
 
         // Generate KeyPair.
         KeyFactory keyFactory;
