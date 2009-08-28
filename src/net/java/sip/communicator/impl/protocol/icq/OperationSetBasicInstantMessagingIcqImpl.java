@@ -177,14 +177,16 @@ public class OperationSetBasicInstantMessagingIcqImpl
         if (msgDeliveryPendingEvt == null)
             return;
         
+        String transformedContent = msgDeliveryPendingEvt.getSourceMessage().getContent();
+        
         if (to.getPresenceStatus().isOnline())
         {
             //do not add the conversation listener in here. we'll add it
             //inside the icbm listener
-            imConversation.sendMessage(new SimpleMessage(messageContent));
+            imConversation.sendMessage(new SimpleMessage(transformedContent));
         }
         else
-            imConversation.sendMessage(new SimpleMessage(messageContent), true);
+            imConversation.sendMessage(new SimpleMessage(transformedContent), true);
 
         MessageDeliveredEvent msgDeliveredEvt = new MessageDeliveredEvent(
                 message, to, System.currentTimeMillis());

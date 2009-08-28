@@ -223,6 +223,14 @@ public class ScOtrEngineImpl
     class Configurator { 
 	    
     	private String getXmlFriendlyString(String s){
+    		if (s == null || s.length() < 1)
+    			return s;
+    		
+    		// XML Tags are not allowed to start with digits, 
+    		// insert a dummy "p" char.
+    		if (Character.isDigit(s.charAt(0)))
+    			s = "p" + s;
+    		
     		char[] cId = new char[s.length()];
 	    	for (int i = 0; i < cId.length; i++) {
 	    		char c = s.charAt(i);
