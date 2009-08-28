@@ -1,37 +1,29 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ * 
+ * Distributable under LGPL license. See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.plugin.otr;
 
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.*;
 import java.security.spec.*;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 
-import org.bouncycastle.util.encoders.Base64;
-import org.osgi.framework.ServiceReference;
+import org.bouncycastle.util.encoders.*;
+import org.osgi.framework.*;
 
-import net.java.otr4j.OtrEngine;
-import net.java.otr4j.OtrEngineImpl;
-import net.java.otr4j.OtrEngineHost;
-import net.java.otr4j.OtrKeyManager;
-import net.java.otr4j.OtrPolicy;
-import net.java.otr4j.OtrPolicyImpl;
-import net.java.otr4j.crypto.OtrCryptoEngineImpl;
-import net.java.otr4j.crypto.OtrCryptoException;
-import net.java.otr4j.session.SessionID;
-import net.java.otr4j.session.SessionStatus;
-import net.java.sip.communicator.service.browserlauncher.BrowserLauncherService;
-import net.java.sip.communicator.service.gui.PopupDialog;
-import net.java.sip.communicator.service.protocol.AccountID;
-import net.java.sip.communicator.service.protocol.Contact;
-import net.java.sip.communicator.service.protocol.Message;
-import net.java.sip.communicator.service.protocol.OperationSetBasicInstantMessaging;
+import net.java.otr4j.*;
+import net.java.otr4j.crypto.*;
+import net.java.otr4j.session.*;
+import net.java.sip.communicator.service.browserlauncher.*;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.*;
 
+/**
+ * 
+ * @author George Politis
+ * 
+ */
 public class ScOtrEngineImpl
     implements ScOtrEngine
 {
@@ -136,7 +128,8 @@ public class ScOtrEngineImpl
 
     public boolean isContactVerified(Contact contact)
     {
-        return this.configurator.getPropertyBoolean(getSessionID(contact) + "publicKey.verified", false);
+        return this.configurator.getPropertyBoolean(getSessionID(contact)
+            + "publicKey.verified", false);
     }
 
     Map<SessionID, Contact> contactsMap = new Hashtable<SessionID, Contact>();
@@ -219,72 +212,88 @@ public class ScOtrEngineImpl
     }
 
     private Configurator configurator = new Configurator();
-    
-    class Configurator { 
-	    
-    	private String getXmlFriendlyString(String s){
-    		if (s == null || s.length() < 1)
-    			return s;
-    		
-    		// XML Tags are not allowed to start with digits, 
-    		// insert a dummy "p" char.
-    		if (Character.isDigit(s.charAt(0)))
-    			s = "p" + s;
-    		
-    		char[] cId = new char[s.length()];
-	    	for (int i = 0; i < cId.length; i++) {
-	    		char c = s.charAt(i);
-	    		cId[i] = (Character.isLetterOrDigit(c)) ? c : '_';
-			}
-	    	
-	    	return new String(cId);
-    	}
-    	
-	    private String getID(String id){
-	    	return "net.java.sip.communicator.plugin.otr." + getXmlFriendlyString(id);
-	    }
-	    
-	    public byte[] getPropertyBytes(String id){
-	    	String value = (String)OtrActivator.configService.getProperty(this.getID(id));
-	    	if (value == null)
-	    		return null;
-	    	
-	    	return Base64.decode(value.getBytes());
-	    }
-	    
-	    public Boolean getPropertyBoolean(String id, boolean defaultValue){
-	    	return OtrActivator.configService.getBoolean(this.getID(id), defaultValue);
-	    }
-	    
-	    public void setProperty(String id, byte[] value){
-	    	String valueToStore = new String(Base64.encode(value));
-	    	
-	    	OtrActivator.configService.setProperty(this.getID(id), valueToStore);
-	    }
-	    
-	    public void setProperty(String id, boolean value){	    	
-	    	OtrActivator.configService.setProperty(this.getID(id), value);
-	    }
-	    
-	    public void setProperty(String id, Integer value){
-	    	OtrActivator.configService.setProperty(this.getID(id), value);
-	    }
-	    
-	    public void removeProperty(String id){
-	    	OtrActivator.configService.removeProperty(this.getID(id));
-	    }
 
-		public int getPropertyInt(String id, int defaultValue) {
-			return OtrActivator.configService.getInt(getID(id), defaultValue);
-		}
+    class Configurator
+    {
+
+        private String getXmlFriendlyString(String s)
+        {
+            if (s == null || s.length() < 1)
+                return s;
+
+            // XML Tags are not allowed to start with digits,
+            // insert a dummy "p" char.
+            if (Character.isDigit(s.charAt(0)))
+                s = "p" + s;
+
+            char[] cId = new char[s.length()];
+            for (int i = 0; i < cId.length; i++)
+            {
+                char c = s.charAt(i);
+                cId[i] = (Character.isLetterOrDigit(c)) ? c : '_';
+            }
+
+            return new String(cId);
+        }
+
+        private String getID(String id)
+        {
+            return "net.java.sip.communicator.plugin.otr."
+                + getXmlFriendlyString(id);
+        }
+
+        public byte[] getPropertyBytes(String id)
+        {
+            String value =
+                (String) OtrActivator.configService.getProperty(this.getID(id));
+            if (value == null)
+                return null;
+
+            return Base64.decode(value.getBytes());
+        }
+
+        public Boolean getPropertyBoolean(String id, boolean defaultValue)
+        {
+            return OtrActivator.configService.getBoolean(this.getID(id),
+                defaultValue);
+        }
+
+        public void setProperty(String id, byte[] value)
+        {
+            String valueToStore = new String(Base64.encode(value));
+
+            OtrActivator.configService
+                .setProperty(this.getID(id), valueToStore);
+        }
+
+        public void setProperty(String id, boolean value)
+        {
+            OtrActivator.configService.setProperty(this.getID(id), value);
+        }
+
+        public void setProperty(String id, Integer value)
+        {
+            OtrActivator.configService.setProperty(this.getID(id), value);
+        }
+
+        public void removeProperty(String id)
+        {
+            OtrActivator.configService.removeProperty(this.getID(id));
+        }
+
+        public int getPropertyInt(String id, int defaultValue)
+        {
+            return OtrActivator.configService.getInt(getID(id), defaultValue);
+        }
     }
-    
+
     public void verifyContactFingerprint(Contact contact)
     {
         if (contact == null)
             return;
-        
-        this.configurator.setProperty(getSessionID(contact) + "publicKey.verified", true);
+
+        this.configurator.setProperty(getSessionID(contact)
+            + "publicKey.verified", true);
     }
 
     public void forgetContactFingerprint(Contact contact)
@@ -292,14 +301,15 @@ public class ScOtrEngineImpl
         if (contact == null)
             return;
 
-        this.configurator.removeProperty(getSessionID(contact) + "publicKey.verified");
+        this.configurator.removeProperty(getSessionID(contact)
+            + "publicKey.verified");
 
     }
 
     public OtrPolicy getGlobalPolicy()
     {
-        return new OtrPolicyImpl(this.configurator
-        		.getPropertyInt("POLICY", OtrPolicy.OTRL_POLICY_DEFAULT));
+        return new OtrPolicyImpl(this.configurator.getPropertyInt("POLICY",
+            OtrPolicy.OTRL_POLICY_DEFAULT));
     }
 
     public void setGlobalPolicy(OtrPolicy policy)
@@ -315,22 +325,25 @@ public class ScOtrEngineImpl
 
     public void launchHelp()
     {
-    	ServiceReference ref = OtrActivator.bundleContext
-        	.getServiceReference(BrowserLauncherService.class.getName());
+        ServiceReference ref =
+            OtrActivator.bundleContext
+                .getServiceReference(BrowserLauncherService.class.getName());
 
-		if (ref == null)
-			return;
-		
-		BrowserLauncherService service = (BrowserLauncherService)
-		OtrActivator.bundleContext.getService(ref);
-		
-		service.openURL(OtrActivator.resourceService
-		        .getI18NString("plugin.otr.authbuddydialog.HELP_URI"));
+        if (ref == null)
+            return;
+
+        BrowserLauncherService service =
+            (BrowserLauncherService) OtrActivator.bundleContext.getService(ref);
+
+        service.openURL(OtrActivator.resourceService
+            .getI18NString("plugin.otr.authbuddydialog.HELP_URI"));
     }
 
     public OtrPolicy getContactPolicy(Contact contact)
     {
-        int policy = this.configurator.getPropertyInt(getSessionID(contact) + "policy", -1);
+        int policy =
+            this.configurator.getPropertyInt(getSessionID(contact) + "policy",
+                -1);
         if (policy < 0)
             return getGlobalPolicy();
         else
@@ -339,11 +352,11 @@ public class ScOtrEngineImpl
 
     public void setContactPolicy(Contact contact, OtrPolicy policy)
     {
-    	String propertyID = getSessionID(contact) + "policy";
+        String propertyID = getSessionID(contact) + "policy";
         if (policy == null)
-        	this.configurator.removeProperty(propertyID);
+            this.configurator.removeProperty(propertyID);
         else
-        	this.configurator.setProperty(propertyID, policy.getPolicy());
+            this.configurator.setProperty(propertyID, policy.getPolicy());
 
         for (ScOtrEngineListener l : listeners)
             l.contactPolicyChanged(contact);
@@ -353,14 +366,17 @@ public class ScOtrEngineImpl
     private KeyPair loadKeyPair(String accountID)
     {
         // Load Private Key.
-        byte[] b64PrivKey = this.configurator.getPropertyBytes(accountID + ".privateKey");
+        byte[] b64PrivKey =
+            this.configurator.getPropertyBytes(accountID + ".privateKey");
         if (b64PrivKey == null)
             return null;
 
-        PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(b64PrivKey);
+        PKCS8EncodedKeySpec privateKeySpec =
+            new PKCS8EncodedKeySpec(b64PrivKey);
 
         // Load Public Key.
-        byte[] b64PubKey = this.configurator.getPropertyBytes(accountID + ".publicKey");
+        byte[] b64PubKey =
+            this.configurator.getPropertyBytes(accountID + ".publicKey");
         if (b64PubKey == null)
             return null;
 
@@ -408,15 +424,17 @@ public class ScOtrEngineImpl
         PublicKey pubKey = keyPair.getPublic();
         X509EncodedKeySpec x509EncodedKeySpec =
             new X509EncodedKeySpec(pubKey.getEncoded());
-        
-        this.configurator.setProperty(accountID + ".publicKey", x509EncodedKeySpec.getEncoded());
+
+        this.configurator.setProperty(accountID + ".publicKey",
+            x509EncodedKeySpec.getEncoded());
 
         // Store Private Key.
         PrivateKey privKey = keyPair.getPrivate();
         PKCS8EncodedKeySpec pkcs8EncodedKeySpec =
             new PKCS8EncodedKeySpec(privKey.getEncoded());
-        
-        this.configurator.setProperty(accountID + ".privateKey", pkcs8EncodedKeySpec.getEncoded());
+
+        this.configurator.setProperty(accountID + ".privateKey",
+            pkcs8EncodedKeySpec.getEncoded());
     }
 
     private void savePublicKey(String userID, PublicKey pubKey)
@@ -424,14 +442,16 @@ public class ScOtrEngineImpl
         X509EncodedKeySpec x509EncodedKeySpec =
             new X509EncodedKeySpec(pubKey.getEncoded());
 
-        this.configurator.setProperty(userID + ".publicKey", x509EncodedKeySpec.getEncoded());
+        this.configurator.setProperty(userID + ".publicKey", x509EncodedKeySpec
+            .getEncoded());
 
         this.configurator.removeProperty(userID + ".publicKey.verified");
     }
 
     private PublicKey loadPublicKey(String userID)
     {
-        byte[] b64PubKey = this.configurator.getPropertyBytes(userID + ".publicKey");
+        byte[] b64PubKey =
+            this.configurator.getPropertyBytes(userID + ".publicKey");
         if (b64PubKey == null)
             return null;
 

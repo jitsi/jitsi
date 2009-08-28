@@ -1,8 +1,18 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ * 
+ * Distributable under LGPL license. See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.plugin.otr;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
+/**
+ * 
+ * @author George Politis
+ * 
+ */
 public class OtrTransformLayer
     implements TransformLayer
 {

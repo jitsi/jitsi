@@ -1,28 +1,31 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ * 
+ * Distributable under LGPL license. See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.plugin.otr;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Iterator;
-import java.util.Vector;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.AbstractTableModel;
+import javax.swing.event.*;
+import javax.swing.table.*;
 
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
+import org.osgi.framework.*;
 
-import net.java.otr4j.OtrPolicy;
-import net.java.sip.communicator.service.contactlist.MetaContact;
-import net.java.sip.communicator.service.contactlist.MetaContactListService;
-import net.java.sip.communicator.service.protocol.AccountID;
-import net.java.sip.communicator.service.protocol.Contact;
-import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
-import net.java.sip.communicator.service.protocol.ProtocolProviderService;
+import net.java.otr4j.*;
+import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 
+/**
+ * 
+ * @author George Politis
+ * 
+ */
 @SuppressWarnings("serial")
 public class OtrConfigurationPanel
     extends TransparentPanel
@@ -309,8 +312,6 @@ public class OtrConfigurationPanel
                             .getI18NString("plugin.otr.configform.KNOWN_FINGERPRINTS")));
             this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-            
-            
             contactsTable = new JTable();
             contactsTable.setModel(new ContactsTableModel());
             contactsTable
@@ -330,10 +331,9 @@ public class OtrConfigurationPanel
 
                     }
                 });
-            
+
             JScrollPane pnlContacts = new JScrollPane(contactsTable);
             this.add(pnlContacts);
-            
 
             JPanel pnlButtons = new TransparentPanel();
             this.add(pnlButtons);
@@ -489,7 +489,8 @@ public class OtrConfigurationPanel
         this.add(pnlPolicy, c);
 
         JPanel pnlFingerprints = new KnownFingerprintsPanel();
-        pnlFingerprints.setMinimumSize(new Dimension(Short.MAX_VALUE, Short.MAX_VALUE));
+        pnlFingerprints.setMinimumSize(new Dimension(Short.MAX_VALUE,
+            Short.MAX_VALUE));
         c.weighty = 1.0;
         c.gridy = 2;
         this.add(pnlFingerprints, c);

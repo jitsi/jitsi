@@ -1,3 +1,8 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ * 
+ * Distributable under LGPL license. See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.plugin.otr;
 
 import java.awt.*;
@@ -6,7 +11,7 @@ import java.io.*;
 
 import javax.imageio.*;
 
-import net.java.otr4j.OtrPolicy;
+import net.java.otr4j.*;
 import net.java.otr4j.session.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.Container;
@@ -14,6 +19,11 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 
+/**
+ * 
+ * @author George Politis
+ * 
+ */
 @SuppressWarnings("serial")
 public class OtrMetaContactButton
     extends SIPCommButton
@@ -54,7 +64,8 @@ public class OtrMetaContactButton
             public void globalPolicyChanged()
             {
                 if (OtrMetaContactButton.this.contact != null)
-                    setPolicy(OtrActivator.scOtrEngine.getContactPolicy(contact));
+                    setPolicy(OtrActivator.scOtrEngine
+                        .getContactPolicy(contact));
             }
         });
 

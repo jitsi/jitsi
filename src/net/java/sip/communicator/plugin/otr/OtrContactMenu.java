@@ -1,17 +1,24 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ * 
+ * Distributable under LGPL license. See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.plugin.otr;
 
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
+import java.awt.event.*;
 
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
+import javax.swing.*;
 
-import net.java.otr4j.OtrPolicy;
-import net.java.otr4j.session.SessionStatus;
-import net.java.sip.communicator.service.protocol.Contact;
+import net.java.otr4j.*;
+import net.java.otr4j.session.*;
+import net.java.sip.communicator.service.protocol.*;
 
+/**
+ * 
+ * @author George Politis
+ * 
+ */
 @SuppressWarnings("serial")
 class OtrContactMenu
     extends JMenu
