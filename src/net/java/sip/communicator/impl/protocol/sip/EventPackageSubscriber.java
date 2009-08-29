@@ -23,30 +23,14 @@ import net.java.sip.communicator.util.*;
  * eases the creation of event package-specific implementations.
  * 
  * @author Lubomir Marinov
+ * @author Benoit Pradelle
+ * @author Emil Ivov
  */
 public class EventPackageSubscriber
-    extends MethodProcessorAdapter
+    extends EventPackageSupport
 {
     private static final Logger logger
         = Logger.getLogger(EventPackageSubscriber.class);
-
-    /**
-     * The sub-type of the content type of the NOTIFY bodies announced, expected
-     * and supported by the subscriptions managed by this instance.
-     */
-    private final String contentSubType;
-
-    /**
-     * The name of the event package this instance implements and carried in the
-     * Event and Allow-Events headers.
-     */
-    private final String eventPackage;
-
-    /**
-     * The SIP <code>ProtocolProviderService</code> implementation for which
-     * this instance provides subscriber support for a specific event package.
-     */
-    private final ProtocolProviderServiceSipImpl protocolProvider;
 
     /**
      * The number of seconds before a subscription managed by this instance
@@ -55,23 +39,11 @@ public class EventPackageSubscriber
     private final int refreshMargin;
 
     /**
-     * The duration of each subscription managed by this subscriber and carried
-     * in the Expires header.
-     */
-    private final int subscriptionDuration;
-
-    /**
      * The list of subscriptions managed by this instance and indexed by their
      * CallId.
      */
     private final Map<String, Subscription> subscriptions
         = new HashMap<String, Subscription>();
-
-    /**
-     * The <code>Timer</code> support which refreshes the subscriptions managed
-     * by this instance.
-     */
-    private final TimerScheduler timer;
 
     /**
      * Initializes a new <code>EventPackageSubscriber</code> instance which is
@@ -88,7 +60,7 @@ public class EventPackageSubscriber
      *            and carry in the Event and Allow-Events headers
      * @param subscriptionDuration
      *            the duration of each subscription to be managed by the new
-     *            instance and to be carried in the Expires header
+     *            instance and to be carried in the Expires headers
      * @param contentSubType
      *            the sub-type of the content type of the NOTIFY bodies to be
      *            announced, expected and supported by the subscriptions to be
@@ -109,16 +81,14 @@ public class EventPackageSubscriber
         TimerScheduler timer,
         int refreshMargin)
     {
-        this.protocolProvider = protocolProvider;
-        this.eventPackage = eventPackage;
-        this.subscriptionDuration = subscriptionDuration;
-        this.contentSubType = contentSubType;
-        this.timer = (timer != null) ? timer : new TimerScheduler();
-        this.refreshMargin = refreshMargin;
+        super(
+            protocolProvider,
+            eventPackage,
+            subscriptionDuration,
+            contentSubType,
+            timer);
 
-        this.protocolProvider.registerMethodProcessor(Request.SUBSCRIBE, this);
-        this.protocolProvider.registerMethodProcessor(Request.NOTIFY, this);
-        this.protocolProvider.registerEvent(this.eventPackage);
+        this.refreshMargin = refreshMargin;
     }
 
     /**
@@ -248,7 +218,7 @@ public class EventPackageSubscriber
             int expires)
         throws OperationFailedException
     {
-        Address toAddress = subscription.getToAddress();
+        Address toAddress = subscription.getAddress();
         HeaderFactory headerFactory = protocolProvider.getHeaderFactory();
 
         // Call ID
@@ -375,54 +345,6 @@ public class EventPackageSubscriber
     }
 
     /**
-     * Safely returns the <code>ServerTransaction</code> associated with a
-     * specific <code>RequestEvent</code> or creates a new one if the specified
-     * <code>RequestEvent</code> is not associated with one. Does not throw
-     * <code>TransactionAlreadyExistsException</code> and
-     * <code>TransactionUnavailableException</code> but rather logs these
-     * exceptions if they occur and returns <tt>null</tt>.
-     * 
-     * @param requestEvent
-     *            the <code>RequestEvent</code> to get the associated
-     *            <code>ServerTransaction</code> of
-     * @return the <code>ServerTransaction</code> carried by the specified
-     *         <code>RequestEvent</code> if the carried value in question is not
-     *         <tt>null</tt>; a new <code>ServerTransaction</code> initializes
-     *         with the <code>Request</code> carried by the specified
-     *         <code>RequestEvent</code> if the event in question carries a
-     *         <tt>null</tt> <code>ServerTransaction</code>; <tt>null</tt> in
-     *         case of an exception
-     */
-    static ServerTransaction getOrCreateServerTransaction(
-        RequestEvent requestEvent)
-    {
-        ServerTransaction serverTransaction = null;
-
-        try
-        {
-            serverTransaction
-                = SipStackSharing.getOrCreateServerTransaction(requestEvent);
-        }
-        catch (TransactionAlreadyExistsException ex)
-        {
-            //let's not scare the user and only log a message
-            logger.error("Failed to create a new server"
-                + "transaction for an incoming request\n"
-                + "(Next message contains the request)"
-                , ex);
-        }
-        catch (TransactionUnavailableException ex)
-        {
-            //let's not scare the user and only log a message
-            logger.error("Failed to create a new server"
-                + "transaction for an incoming request\n"
-                + "(Next message contains the request)"
-                , ex);
-        }
-        return serverTransaction;
-    }
-
-    /**
      * Gets the <code>Subscription</code> from the list of subscriptions managed
      * by this instance which is associated with a specific subscription
      * <code>Address</code>/Request URI and has a specific id tag in its Event
@@ -493,7 +415,7 @@ public class EventPackageSubscriber
         throws OperationFailedException
     {
         if (getSubscription(
-                    subscription.getToAddress(),
+                    subscription.getAddress(),
                     subscription.getEventId())
                 == null)
             subscribe(subscription);
@@ -553,7 +475,7 @@ public class EventPackageSubscriber
 
         // Contact
         ContactHeader contactHeader
-            = protocolProvider.getContactHeader(subscription.getToAddress());
+            = protocolProvider.getContactHeader(subscription.getAddress());
         req.setHeader(contactHeader);
 
         // Accept
@@ -609,90 +531,6 @@ public class EventPackageSubscriber
             req.addHeader(userAgentHeader);
     }
 
-    /**
-     * Attempts to re-generate a <code>Request</code> within a specific
-     * <code>ClientTransaction</code> with the proper authorization headers.
-     * 
-     * @param clientTransaction
-     *            the <code>ClientTransaction</code> which was challenged to
-     *            authenticate
-     * @param response
-     *            the challenging <code>Response</code>
-     * @param jainSipProvider
-     *            the provider which received the authentication challenge
-     * @throws OperationFailedException
-     *             if processing the authentication challenge failed
-     */
-    private void processAuthenticationChallenge(
-            ClientTransaction clientTransaction,
-            Response response,
-            SipProvider jainSipProvider)
-        throws OperationFailedException
-    {
-        processAuthenticationChallenge(
-            protocolProvider,
-            clientTransaction,
-            response,
-            jainSipProvider);
-    }
-
-    /**
-     * Attempts to re-generate a <code>Request</code> within a specific
-     * <code>ClientTransaction</code> with the proper authorization headers.
-     * 
-     * @param protocolProvider
-     *            the SIP <code>ProtocolProviderService</code> implementation
-     *            which received the authentication challenge and which is to
-     *            re-generate and send the respective <code>Request</code>
-     * @param clientTransaction
-     *            the <code>ClientTransaction</code> which was challenged to
-     *            authenticate
-     * @param response
-     *            the challenging <code>Response</code>
-     * @param jainSipProvider
-     *            the provider which received the authentication challenge
-     * @throws OperationFailedException
-     *             if processing the authentication challenge failed
-     */
-    static void processAuthenticationChallenge(
-            ProtocolProviderServiceSipImpl protocolProvider,
-            ClientTransaction clientTransaction,
-            Response response,
-            SipProvider jainSipProvider)
-        throws OperationFailedException
-    {
-        try
-        {
-            logger.debug("Authenticating a message request.");
-
-            ClientTransaction retryTran
-                = protocolProvider
-                    .getSipSecurityManager()
-                        .handleChallenge(
-                            response,
-                            clientTransaction,
-                            jainSipProvider);
-
-            if(retryTran == null)
-            {
-                logger.trace("No password supplied or error occured!");
-                return;
-            }
-
-            retryTran.sendRequest();
-        }
-        catch (Exception exc)
-        {
-            logger.error("We failed to authenticate a message request.",
-                         exc);
-            throw
-                new OperationFailedException(
-                        "Failed to authenticate a message request",
-                        OperationFailedException.INTERNAL_ERROR,
-                        exc);
-        }
-    }
-
     /*
      * Implements MethodProcessor#processRequest(RequestEvent). Handles only
      * NOTIFY requests because they are the only requests concerning event
@@ -711,8 +549,10 @@ public class EventPackageSubscriber
         if ((eventHeader == null)
                 || !eventPackage.equalsIgnoreCase(eventHeader.getEventType()))
         {
-            // We are not concerned by this request, perhaps another
-            // listener is. So don't send a 489 / Bad event answer here.
+            /*
+             * We are not concerned by this request, perhaps another listener
+             * is. So don't send a 489 / Bad event answer here.
+             */
             return false;
         }
 
@@ -905,13 +745,14 @@ public class EventPackageSubscriber
     {
         Response response = responseEvent.getResponse();
 
-        CSeqHeader cseqHeader = ((CSeqHeader)response.getHeader(CSeqHeader.NAME));
+        CSeqHeader cseqHeader
+            = (CSeqHeader) response.getHeader(CSeqHeader.NAME);
         if (cseqHeader == null)
         {
             logger.error("An incoming response did not contain a CSeq header");
             return false;
         }
-        if (!Request.SUBSCRIBE.equals( cseqHeader.getMethod()))
+        if (!Request.SUBSCRIBE.equals(cseqHeader.getMethod()))
             return false;
 
         // Find the subscription.
@@ -974,9 +815,9 @@ public class EventPackageSubscriber
                      return false;
                  }
 
-                 RefreshSubscriptionTask refreshTask
-                     = new RefreshSubscriptionTask(subscription);
-                 subscription.setRefreshTask(refreshTask);
+                 SubscriptionRefreshTask refreshTask
+                     = new SubscriptionRefreshTask(subscription);
+                 subscription.setTimerTask(refreshTask);
 
                  int refreshDelay = expHeader.getExpires();
                  // try to keep a margin
@@ -995,7 +836,7 @@ public class EventPackageSubscriber
                  && (statusCode < Response.BAD_REQUEST))
          {
              logger.info(
-                 "Response to subscribe to " + subscription.getToAddress()
+                 "Response to subscribe to " + subscription.getAddress()
                      + ": " + response.getReasonPhrase());
          }
          else if(statusCode >= Response.BAD_REQUEST)
@@ -1365,117 +1206,22 @@ public class EventPackageSubscriber
     }
 
     /**
-     * Represents a <code>TimerTask</code> which refreshes a specific
-     * <code>Subscription</code>.
-     */
-    private class RefreshSubscriptionTask
-        extends TimerTask
-    {
-
-        /**
-         * The <code>Subscription</code> to be refreshed by this
-         * <code>TimerTask</code>.
-         */
-        private final Subscription subscription;
-
-        /**
-         * Initializes a new <code>RefreshSubscriptionTask</code> which is to
-         * refresh a specific <code>Subscription</code>.
-         * 
-         * @param subscription
-         *            the <code>Subscription</code> to be refreshed by the new
-         *            instance
-         */
-        public RefreshSubscriptionTask(Subscription subscription)
-        {
-            this.subscription = subscription;
-        }
-
-        /**
-         * Refreshes the <code>Subscription</code> associated with this
-         * <code>TimerTask</code>.
-         */
-        public void run()
-        {
-            Dialog dialog = subscription.getDialog();
-
-            if (dialog == null)
-            {
-                logger.warn(
-                    "null dialog associated with "
-                        + subscription
-                        + ", can't refresh the subscription");
-                return;
-            }
-
-            ClientTransaction transac = null;
-            try
-            {
-                transac
-                    = createSubscription(
-                            subscription,
-                            dialog,
-                            subscriptionDuration);
-            }
-            catch (OperationFailedException e)
-            {
-                logger.error("Failed to create subscriptionTransaction.", e);
-                return;
-            }
-
-            try
-            {
-                dialog.sendRequest(transac);
-            }
-            catch (SipException e)
-            {
-                logger.error("Can't send the request", e);
-            }
-        }
-    }
-
-    /**
      * Represents a general event package subscription in the sense of RFC 3265
-     * "Session Initiation Protocol (SIP)-Specific Event Notification" and its
-     * signaling characteristics such as Request URI, id tag value of its Event
-     * header, the <code>Dialog</code> which has been created by the associated
-     * SUBSCRIBE request or through which it was sent. Additionally, represents
-     * the subscription-specific processing of the related <code>Request</code>s
-     * and <code>Response</code>s thus allowing implementers to tap into the
-     * general event package subscription operations and provide the event
-     * package-specific processing.
+     * "Session Initiation Protocol (SIP)-Specific Event Notification" from the
+     * point of view of the subscriber and its signaling characteristics such as
+     * Request URI, id tag value of its Event header, the <code>Dialog</code>
+     * which has been created by the associated SUBSCRIBE request or through
+     * which it was sent. Additionally, represents the subscription-specific
+     * processing of the related <code>Request</code>s and <code>Response</code>
+     * s thus allowing implementers to tap into the general event package
+     * subscription operations and provide the event package-specific
+     * processing.
      * 
      * @author Lubomir Marinov
      */
     public static abstract class Subscription
+        extends EventPackageSupport.Subscription
     {
-
-        /**
-         * The <code>Dialog</code> which was created by the SUBSCRIBE request
-         * associated with this <code>Subscription</code> or which was used to
-         * send that request in.
-         */
-        private Dialog dialog;
-
-        /**
-         * The id tag to be present in Event headers in order to have this
-         * <code>Subscription</code> associated with a specific
-         * <code>Request</code> or <code>Response</code>.
-         */
-        private final String eventId;
-
-        /**
-         * The <code>TimerTask</code> which automatically refreshes this
-         * <code>Subscription</code> when it expires.
-         */
-        private RefreshSubscriptionTask refreshTask;
-
-        /**
-         * The subscription <code>Address</code>/Request URI associated with
-         * this instance and the target of the SUBSCRIBE requests being created
-         * as descriptions of this instance.
-         */
-        private final Address toAddress;
 
         /**
          * Initializes a new <code>Subscription</code> instance with a specific
@@ -1509,92 +1255,7 @@ public class EventPackageSubscriber
          */
         public Subscription(Address toAddress, String eventId)
         {
-            if (toAddress == null)
-                throw new NullPointerException("toAddress");
-
-            this.toAddress = toAddress;
-            this.eventId = eventId;
-        }
-
-        /**
-         * Determines whether this <code>Subscription</code> is identified by a
-         * specific subscription <code>Address</code>/Request URI and a specific
-         * id tag of Event headers.
-         * 
-         * @param toAddress
-         *            the subscription <code>Address</code>/Request URI to be
-         *            compared to the respective property of this
-         *            <code>Subscription</code>
-         * @param eventId
-         *            the id tag of Event headers to be compared to the
-         *            respective property of this <code>Subscription</code>
-         * @return <tt>true</tt> if this <code>Subscription</code> has the
-         *         specified subscription <code>Address</code>/Request URI and
-         *         the specified id tag of Event headers; otherwise,
-         *         <tt>false</tt>
-         */
-        private boolean equals(
-            Address toAddress,
-            String eventId)
-        {
-            if (getToAddress().equals(toAddress))
-            {
-                String thisEventId = getEventId();
-
-                if (((thisEventId == null) && (eventId == null))
-                        || ((thisEventId != null)
-                                && thisEventId.equals(eventId)))
-                    return true;
-            }
-            return false;
-        }
-
-        /**
-         * Gets the <code>Dialog</code> which was created by the SUBSCRIBE
-         * request associated with this <code>Subscription</code> or which was
-         * used to send that request in.
-         * 
-         * @return the <code>Dialog</code> which was created by the SUBSCRIBE
-         *         request associated with this <code>Subscription</code> or
-         *         which was used to send that request in; <tt>null</tt> if the
-         *         success of the SUBSCRIBE request has not been confirmed yet
-         *         or this <code>Subscription</code> was removed from the list
-         *         of the <code>EventPackageSubscriber</code> it used to be in
-         */
-        private Dialog getDialog()
-        {
-            return dialog;
-        }
-
-        /**
-         * Gets the id tag to be present in Event headers in order to have this
-         * <code>Subscription</code> associated with a specific
-         * <code>Request</code> or <code>Response</code>. It is also being added
-         * to the Event headers when they are created during the generation of
-         * <code>Request</code>s or <code>Response</code>s describing this
-         * <code>Subscription</code> instance.
-         * 
-         * @return the id tag to be present in Event headers in order to have
-         *         this <code>Subscription</code> associated with a specific
-         *         <code>Request</code> or <code>Response</code>
-         */
-        public final String getEventId()
-        {
-            return eventId;
-        }
-
-        /**
-         * Gets the subscription <code>Address</code>/Request URI associated
-         * with this instance and the target of the SUBSCRIBE requests being
-         * created as descriptions of this instance.
-         * 
-         * @return the subscription <code>Address</code>/Request URI associated
-         *         with this instance and the target of the SUBSCRIBE requests
-         *         being created as descriptions of this instance
-         */
-        public final Address getToAddress()
-        {
-            return toAddress;
+            super(toAddress, eventId);
         }
 
         /**
@@ -1676,52 +1337,74 @@ public class EventPackageSubscriber
         protected abstract void processTerminatedRequest(
             RequestEvent requestEvent,
             String reasonCode);
+    }
+
+    /**
+     * Represents a <code>TimerTask</code> which refreshes a specific
+     * <code>Subscription</code>.
+     */
+    private class SubscriptionRefreshTask
+        extends TimerTask
+    {
 
         /**
-         * Notifies this <code>Subscription</code> that it has been removed from
-         * the list of subscriptions of the <code>EventPackageSubscriber</code>
-         * which used to contain it.
+         * The <code>Subscription</code> to be refreshed by this
+         * <code>TimerTask</code>.
          */
-        private void removed()
+        private final Subscription subscription;
+
+        /**
+         * Initializes a new <code>SubscriptionRefreshTask</code> which is to
+         * refresh a specific <code>Subscription</code>.
+         * 
+         * @param subscription
+         *            the <code>Subscription</code> to be refreshed by the new
+         *            instance
+         */
+        public SubscriptionRefreshTask(Subscription subscription)
         {
-            setDialog(null);
-            setRefreshTask(null);
+            this.subscription = subscription;
         }
 
         /**
-         * Sets the <code>Dialog</code> which was created by the SUBSCRIBE
-         * request associated with this <code>Subscription</code> or which was
-         * used to send that request in.
-         * 
-         * @param dialog
-         *            the <code>Dialog</code> which was created by the SUBSCRIBE
-         *            request associated with this <code>Subscription</code> or
-         *            which was used to send that request in
+         * Refreshes the <code>Subscription</code> associated with this
+         * <code>TimerTask</code>.
          */
-        private void setDialog(Dialog dialog)
+        public void run()
         {
-            this.dialog = dialog;
-        }
+            Dialog dialog = subscription.getDialog();
 
-        /**
-         * Sets the <code>TimerTask</code> which automatically refreshes this
-         * <code>Subscription</code> when it expires. If this
-         * <code>Subscription</code> already knows of a different
-         * <code>RefreshSubscriptionTask</code>, that different one is first
-         * canceled before remembering the specified new one.
-         * 
-         * @param refreshTask
-         *            a <code>RefreshSubscriptionTask</code> which automatically
-         *            refreshes this <code>Subscription</code> when it expires
-         */
-        private void setRefreshTask(RefreshSubscriptionTask refreshTask)
-        {
-            if (this.refreshTask != refreshTask)
+            if (dialog == null)
             {
-                if (this.refreshTask != null)
-                    this.refreshTask.cancel();
+                logger.warn(
+                    "null dialog associated with "
+                        + subscription
+                        + ", can't refresh the subscription");
+                return;
+            }
 
-                this.refreshTask = refreshTask;
+            ClientTransaction transac = null;
+            try
+            {
+                transac
+                    = createSubscription(
+                            subscription,
+                            dialog,
+                            subscriptionDuration);
+            }
+            catch (OperationFailedException e)
+            {
+                logger.error("Failed to create subscriptionTransaction.", e);
+                return;
+            }
+
+            try
+            {
+                dialog.sendRequest(transac);
+            }
+            catch (SipException e)
+            {
+                logger.error("Can't send the request", e);
             }
         }
     }

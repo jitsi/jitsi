@@ -6,21 +6,18 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
-import net.java.sip.communicator.service.protocol.*;
-
-import javax.sip.*;
 import javax.sip.address.*;
 
-import java.util.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
- * A simple, straightforward implementation of a SIP Contact. Since
- * the SIP protocol is not a real one, we simply store all contact details
- * in class fields. You should know that when implementing a real protocol,
- * the contact implementation would rather encapsulate contact objects from
- * the protocol stack and group property values should be returned after
- * consulting the encapsulated object.
- *
+ * A simple, straightforward implementation of a SIP Contact. Since the SIP
+ * protocol is not a real one, we simply store all contact details in class
+ * fields. You should know that when implementing a real protocol, the contact
+ * implementation would rather encapsulate contact objects from the protocol
+ * stack and group property values should be returned after consulting the
+ * encapsulated object.
+ * 
  * @author Emil Ivov
  * @author Benoit Pradelle
  * @author Lubomir Marinov
@@ -32,7 +29,7 @@ public class ContactSipImpl
     /**
      * The id of the contact.
      */
-    private Address sipAddress = null;
+    private final Address sipAddress;
 
     /**
      * The display name of the contact.
@@ -42,7 +39,7 @@ public class ContactSipImpl
     /**
      * The provider that created us.
      */
-    private ProtocolProviderServiceSipImpl parentProvider = null;
+    private final ProtocolProviderServiceSipImpl parentProvider;
 
     /**
      * The group that belong to.
@@ -71,18 +68,6 @@ public class ContactSipImpl
      * never resolved (for example if he doesn't support SIMPLE)
      */
     private boolean isResolvable = true;
-
-    /**
-     * Stores the dialog used for communicate our status to this contact
-     */
-    private Dialog serverDialog = null;
-
-    /**
-     * The task which will send a final NOTIFY when a timeout occur in the
-     * subscription of this contact. If the contact isn't subscribed at us,
-     * this will remain null.
-     */
-    private TimerTask timeoutTask = null;
 
     /**
      * Creates an instance of a meta contact with the specified string used
@@ -291,46 +276,6 @@ public class ContactSipImpl
     public String getPersistentData()
     {
         return null;
-    }
-
-    /**
-     * Returns the current timeout task associated with this contact.
-     *
-     * @return the current timeout task of this contact
-     */
-    public TimerTask getTimeoutTask() {
-        return this.timeoutTask;
-    }
-
-    /**
-     * Sets the timeout task associated with this contact
-     *
-     * @param timeoutTask The timeout task to set
-     */
-    public void setTimeoutTask(TimerTask timeoutTask) {
-        this.timeoutTask = timeoutTask;
-    }
-
-    /**
-     * Sets the server dialog associated with this contact.
-     * The server dialog is the dialog we use to send our presence status
-     * to this contact.
-     *
-     * @param serverDialog the new clientDialog to use
-     */
-    public void setServerDialog(Dialog serverDialog) {
-        this.serverDialog = serverDialog;
-    }
-
-    /**
-     * Returns the server dialog associated with this contact.
-     * The server dialog is the dialog we use to send our presence status
-     * to this contact.
-     *
-     * @return the clientDialog associated with the contact
-     */
-    public Dialog getServerDialog() {
-        return this.serverDialog;
     }
 
     /**
