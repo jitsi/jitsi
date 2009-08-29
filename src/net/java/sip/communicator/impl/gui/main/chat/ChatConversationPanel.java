@@ -23,6 +23,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -230,7 +231,7 @@ public class ChatConversationPanel
             endPlainTextTag = "</PLAINTEXT>";
         }
 
-        if (messageType.equals(Constants.INCOMING_MESSAGE))
+        if (messageType.equals(Chat.INCOMING_MESSAGE))
         {
             this.lastIncomingMsgTimestamp = System.currentTimeMillis();
 
@@ -246,7 +247,7 @@ public class ChatConversationPanel
                 + startPlainTextTag + formatMessage(message, contentType)
                 + endPlainTextTag + endDivTag;
         }
-        else if (messageType.equals(Constants.SMS_MESSAGE))
+        else if (messageType.equals(Chat.SMS_MESSAGE))
         {
             chatString      = "<h2 identifier=\""
                             + msgHeaderID
@@ -260,7 +261,7 @@ public class ChatConversationPanel
                 + startPlainTextTag + formatMessage(message, contentType)
                 + endPlainTextTag + endDivTag;
         }
-        else if (messageType.equals(Constants.OUTGOING_MESSAGE))
+        else if (messageType.equals(Chat.OUTGOING_MESSAGE))
         {
             chatString      = "<h3 identifier=\""
                             + msgHeaderID
@@ -277,7 +278,7 @@ public class ChatConversationPanel
                 + formatMessage(message, contentType) + endPlainTextTag
                 + endDivTag;
         }
-        else if (messageType.equals(Constants.STATUS_MESSAGE))
+        else if (messageType.equals(Chat.STATUS_MESSAGE))
         {
             chatString =    "<h4 identifier=\"statusMessage\" date=\""
                             + date + "\">";
@@ -288,7 +289,7 @@ public class ChatConversationPanel
                 + message
                 + endHeaderTag;
         }
-        else if (messageType.equals(Constants.ACTION_MESSAGE))
+        else if (messageType.equals(Chat.ACTION_MESSAGE))
         {
             chatString =    "<p identifier=\"actionMessage\" date=\""
                             + date + "\">";
@@ -299,7 +300,7 @@ public class ChatConversationPanel
                 + message
                 + endHeaderTag;
         }
-        else if (messageType.equals(Constants.SYSTEM_MESSAGE))
+        else if (messageType.equals(Chat.SYSTEM_MESSAGE))
         {
             chatString += startSystemDivTag
                 + startPlainTextTag
@@ -307,7 +308,7 @@ public class ChatConversationPanel
                 + endPlainTextTag
                 + endDivTag;
         }
-        else if (messageType.equals(Constants.ERROR_MESSAGE))
+        else if (messageType.equals(Chat.ERROR_MESSAGE))
         {
             chatString      = "<h6 identifier=\""
                             + msgHeaderID
@@ -324,7 +325,7 @@ public class ChatConversationPanel
                 + messageTitle
                 + endHeaderTag + "<h5>" + message + "</h5>";
         }
-        else if (messageType.equals(Constants.HISTORY_INCOMING_MESSAGE))
+        else if (messageType.equals(Chat.HISTORY_INCOMING_MESSAGE))
         {
             chatString      = "<h2 identifier='"
                             + msgHeaderID
@@ -338,7 +339,7 @@ public class ChatConversationPanel
                 + startPlainTextTag + formatMessage(message, contentType)
                 + endPlainTextTag + endDivTag;
         }
-        else if (messageType.equals(Constants.HISTORY_OUTGOING_MESSAGE))
+        else if (messageType.equals(Chat.HISTORY_OUTGOING_MESSAGE))
         {
             chatString      = "<h3 identifier=\""
                             + msgHeaderID
@@ -451,7 +452,7 @@ public class ChatConversationPanel
      */
     private void ensureDocumentSize()
     {
-        if (document.getLength() > Constants.CHAT_BUFFER_SIZE)
+        if (document.getLength() > Chat.CHAT_BUFFER_SIZE)
         {
             int msgElementCount = 0;
 

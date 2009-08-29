@@ -19,7 +19,6 @@ import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.contacteventhandler.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
@@ -336,15 +335,15 @@ public class ContactListPane
 
             if(eventType == MessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED)
             {
-                messageType = Constants.INCOMING_MESSAGE;
+                messageType = Chat.INCOMING_MESSAGE;
             }
             else if(eventType == MessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED)
             {
-                messageType = Constants.SYSTEM_MESSAGE;
+                messageType = Chat.SYSTEM_MESSAGE;
             }
             else if(eventType == MessageReceivedEvent.SMS_MESSAGE_RECEIVED)
             {
-                messageType = Constants.SMS_MESSAGE;
+                messageType = Chat.SMS_MESSAGE;
             }
 
             chatPanel.addMessage(
@@ -428,7 +427,7 @@ public class ContactListPane
             chatPanel.addMessage(
                 this.mainFrame.getAccount(protocolProvider),
                 evt.getTimestamp(),
-                Constants.OUTGOING_MESSAGE,
+                Chat.OUTGOING_MESSAGE,
                 msg.getContent(),
                 msg.getContentType());
         }
@@ -491,7 +490,7 @@ public class ContactListPane
         chatPanel.addMessage(
                 metaContact.getDisplayName(),
                 System.currentTimeMillis(),
-                Constants.OUTGOING_MESSAGE,
+                Chat.OUTGOING_MESSAGE,
                 sourceMessage.getContent(),
                 sourceMessage.getContentType());
 

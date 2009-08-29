@@ -13,7 +13,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 
-import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -134,7 +134,7 @@ public class SendSmsDialog
             chatPanel.addMessage(
                 phoneNumber,
                 System.currentTimeMillis(),
-                Constants.OUTGOING_MESSAGE,
+                Chat.OUTGOING_MESSAGE,
                 message,
                 "text/plain");
 
@@ -152,7 +152,7 @@ public class SendSmsDialog
             chatPanel.addMessage(
                 phoneNumber,
                 System.currentTimeMillis(),
-                Constants.OUTGOING_MESSAGE,
+                Chat.OUTGOING_MESSAGE,
                 message,
                 "text/plain");
 

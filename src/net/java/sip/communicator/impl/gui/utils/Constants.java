@@ -70,64 +70,6 @@ public class Constants
     public static boolean REMOVE_GROUP_ASK = true;
 
     /*
-     * ===================================================================
-     * ------------------------ MESSAGE TYPES ---------------------------
-     * ===================================================================
-     */
-
-    /**
-     * The message type representing outgoing messages.
-     */
-    public static final String OUTGOING_MESSAGE = "OutgoingMessage";
-
-    /**
-     * The message type representing incoming messages.
-     */
-    public static final String INCOMING_MESSAGE = "IncomingMessage";
-
-    /**
-     * The message type representing status messages.
-     */
-    public static final String STATUS_MESSAGE = "StatusMessage";
-
-    /**
-     * The message type representing action messages. These are message specific
-     * for IRC, but could be used in other protocols also.
-     */
-    public static final String ACTION_MESSAGE = "ActionMessage";
-
-    /**
-     * The message type representing system messages.
-     */
-    public static final String SYSTEM_MESSAGE = "SystemMessage";
-
-    /**
-     * The message type representing sms messages.
-     */
-    public static final String SMS_MESSAGE = "SmsMessage";
-
-    /**
-     * The message type representing error messages.
-     */
-    public static final String ERROR_MESSAGE = "ErrorMessage";
-
-    /**
-     * The history incoming message type.
-     */
-    public static final String HISTORY_INCOMING_MESSAGE = "HistoryIncomingMessage";
-
-    /**
-     * The history outgoing message type.
-     */
-    public static final String HISTORY_OUTGOING_MESSAGE = "HistoryOutgoingMessage";
-
-    /**
-     * The size of the buffer that indicates how many messages will be stored
-     * in the conversation area in the chat window.
-     */
-    public static final int CHAT_BUFFER_SIZE = 3000;
-
-    /*
      * ======================================================================
      * -------------------- FONTS AND COLOR CONSTANTS ------------------------
      * ======================================================================

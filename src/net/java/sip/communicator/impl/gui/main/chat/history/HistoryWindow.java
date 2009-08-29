@@ -20,7 +20,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.filetransfer.*;
-import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.filehistory.*;
 import net.java.sip.communicator.service.history.event.*;
@@ -267,7 +267,7 @@ public class HistoryWindow
                             GuiActivator.getUIService().getMainFrame()
                             .getAccount(protocolProvider),
                             evt.getTimestamp(),
-                            Constants.OUTGOING_MESSAGE,
+                            Chat.OUTGOING_MESSAGE,
                             evt.getSourceMessage().getContent(),
                             evt.getSourceMessage().getContentType());
                 }
@@ -278,7 +278,7 @@ public class HistoryWindow
                     chatMessage = new ChatMessage(
                         evt.getSourceContact().getDisplayName(),
                         evt.getTimestamp(),
-                        Constants.INCOMING_MESSAGE,
+                        Chat.INCOMING_MESSAGE,
                         evt.getSourceMessage().getContent(),
                         evt.getSourceMessage().getContentType());
                 }
@@ -289,7 +289,7 @@ public class HistoryWindow
 
                     chatMessage = new ChatMessage(
                         evt.getSourceChatRoomMember().getName(),
-                        evt.getTimestamp(), Constants.INCOMING_MESSAGE,
+                        evt.getTimestamp(), Chat.INCOMING_MESSAGE,
                         evt.getMessage().getContent(),
                         evt.getMessage().getContentType());
                 }
@@ -301,7 +301,7 @@ public class HistoryWindow
                     chatMessage = new ChatMessage(
                         evt.getSourceChatRoom().getParentProvider()
                         .getAccountID().getUserID(),
-                        evt.getTimestamp(), Constants.INCOMING_MESSAGE,
+                        evt.getTimestamp(), Chat.INCOMING_MESSAGE,
                         evt.getMessage().getContent(),
                         evt.getMessage().getContentType());
                 }
@@ -756,7 +756,7 @@ public class HistoryWindow
         Contact sourceContact = evt.getSourceContact();
 
         this.processMessage(sourceContact, evt.getTimestamp(),
-            Constants.INCOMING_MESSAGE,
+            Chat.INCOMING_MESSAGE,
             evt.getSourceMessage().getContent(),
             evt.getSourceMessage().getContentType());
     }
@@ -770,7 +770,7 @@ public class HistoryWindow
         Contact destContact = evt.getDestinationContact();
         
         this.processMessage(destContact, evt.getTimestamp(),
-            Constants.OUTGOING_MESSAGE,
+            Chat.OUTGOING_MESSAGE,
             evt.getSourceMessage().getContent(),
             evt.getSourceMessage().getContentType());
     }

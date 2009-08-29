@@ -67,16 +67,26 @@ public class ScOtrEngineImpl
     {
         public void showWarning(SessionID sessionID, String warn)
         {
-            // TODO Dialog usage is not that great.
-            OtrActivator.uiService.getPopupDialog().showMessagePopupDialog(
-                warn, "OTR warning", PopupDialog.WARNING_MESSAGE);
+            Contact contact = contactsMap.get(sessionID);
+            if (contact == null)
+                return;
+
+            OtrActivator.uiService.getChat(contact).addMessage(
+                contact.getDisplayName(), System.currentTimeMillis(),
+                Chat.SYSTEM_MESSAGE, warn,
+                OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
         }
 
         public void showError(SessionID sessionID, String err)
         {
-            // TODO Dialog usage is not that great.
-            OtrActivator.uiService.getPopupDialog().showMessagePopupDialog(err,
-                "OTR Error", PopupDialog.ERROR_MESSAGE);
+            Contact contact = contactsMap.get(sessionID);
+            if (contact == null)
+                return;
+
+            OtrActivator.uiService.getChat(contact).addMessage(
+                contact.getDisplayName(), System.currentTimeMillis(),
+                Chat.ERROR_MESSAGE, err,
+                OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
         }
 
         public void injectMessage(SessionID sessionID, String messageText)
@@ -103,6 +113,7 @@ public class ScOtrEngineImpl
             if (contact == null)
                 return;
 
+            String message = "";
             switch (otrEngine.getSessionStatus(sessionID))
             {
             case ENCRYPTED:
@@ -113,8 +124,48 @@ public class ScOtrEngineImpl
 
                 if (!remotePubKey.equals(storedPubKey))
                     savePublicKey(sessionID.getUserID(), remotePubKey);
+
+                if (!isContactVerified(contact))
+                {
+                    String unverifiedSessionWarning =
+                        OtrActivator.resourceService.getI18NString(
+                            "plugin.otr.activator.unverifiedsessionwarning",
+                            new String[]
+                            { contact.getDisplayName() });
+
+                    OtrActivator.uiService.getChat(contact).addMessage(
+                        contact.getDisplayName(), System.currentTimeMillis(),
+                        Chat.SYSTEM_MESSAGE, unverifiedSessionWarning,
+                        OperationSetBasicInstantMessaging.HTML_MIME_TYPE);
+
+                }
+                message =
+                    OtrActivator.resourceService
+                        .getI18NString(
+                            (isContactVerified(contact)) ? "plugin.otr.activator.sessionstared"
+                                : "plugin.otr.activator.unverifiedsessionstared",
+                            new String[]
+                            { contact.getDisplayName() });
+
+                break;
+            case FINISHED:
+                message =
+                    OtrActivator.resourceService.getI18NString(
+                        "plugin.otr.activator.sessionfinished", new String[]
+                        { contact.getDisplayName() });
+                break;
+            case PLAINTEXT:
+                message =
+                    OtrActivator.resourceService.getI18NString(
+                        "plugin.otr.activator.sessionlost", new String[]
+                        { contact.getDisplayName() });
                 break;
             }
+
+            OtrActivator.uiService.getChat(contact).addMessage(
+                contact.getDisplayName(), System.currentTimeMillis(),
+                Chat.SYSTEM_MESSAGE, message,
+                OperationSetBasicInstantMessaging.HTML_MIME_TYPE);
 
             for (ScOtrEngineListener l : listeners)
             {

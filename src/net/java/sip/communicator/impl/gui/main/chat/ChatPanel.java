@@ -31,7 +31,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
-import net.java.sip.communicator.util.swing.SwingWorker;
 
 /**
  * The <tt>ChatPanel</tt> is the panel, where users can write and send messages,
@@ -484,9 +483,9 @@ public class ChatPanel
                     .getDestinationContact().getProtocolProvider();
 
                 if (isGreyHistoryStyleDisabled(protocolProvider))
-                    messageType = Constants.OUTGOING_MESSAGE;
+                    messageType = Chat.OUTGOING_MESSAGE;
                 else
-                    messageType = Constants.HISTORY_OUTGOING_MESSAGE;
+                    messageType = Chat.HISTORY_OUTGOING_MESSAGE;
 
                 historyString = processHistoryMessage(
                             GuiActivator.getUIService().getMainFrame()
@@ -507,9 +506,9 @@ public class ChatPanel
                         .equals(escapedMessageID))
                 {
                     if (isGreyHistoryStyleDisabled(protocolProvider))
-                        messageType = Constants.INCOMING_MESSAGE;
+                        messageType = Chat.INCOMING_MESSAGE;
                     else
-                        messageType = Constants.HISTORY_INCOMING_MESSAGE;
+                        messageType = Chat.HISTORY_INCOMING_MESSAGE;
 
                     historyString = processHistoryMessage(
                                 evt.getSourceContact().getDisplayName(),
@@ -531,7 +530,7 @@ public class ChatPanel
                             GuiActivator.getUIService().getMainFrame()
                                 .getAccount(protocolProvider),
                             evt.getTimestamp(),
-                            Constants.HISTORY_OUTGOING_MESSAGE,
+                            Chat.HISTORY_OUTGOING_MESSAGE,
                             evt.getMessage().getContent(),
                             evt.getMessage().getContentType());
             }
@@ -546,7 +545,7 @@ public class ChatPanel
                     historyString = processHistoryMessage(
                             evt.getSourceChatRoomMember().getName(),
                             evt.getTimestamp(),
-                            Constants.HISTORY_INCOMING_MESSAGE,
+                            Chat.HISTORY_INCOMING_MESSAGE,
                             evt.getMessage().getContent(),
                             evt.getMessage().getContentType());
                 }
@@ -647,7 +646,7 @@ public class ChatPanel
                                 String message)
     {
         this.addMessage(contactName,  System.currentTimeMillis(),
-                Constants.ERROR_MESSAGE, 
+                Chat.ERROR_MESSAGE, 
                 GuiActivator.getResources()
                     .getI18NString("service.gui.MSG_DELIVERY_FAILURE"),
                 message, "text");
@@ -664,7 +663,7 @@ public class ChatPanel
                                 String message)
     {
         this.addMessage(contactName,  System.currentTimeMillis(),
-                Constants.ERROR_MESSAGE, 
+                Chat.ERROR_MESSAGE, 
                 title,
                 message, "text");
     }
@@ -951,7 +950,7 @@ public class ChatPanel
                     addMessage(
                         chatSession.getCurrentChatTransport().getName(),
                         System.currentTimeMillis(),
-                        Constants.ERROR_MESSAGE,
+                        Chat.ERROR_MESSAGE,
                         GuiActivator.getResources()
                             .getI18NString("service.gui.FILE_TOO_BIG",
                             new String[]{
@@ -1109,7 +1108,7 @@ public class ChatPanel
             this.addMessage(
                 smsChatTransport.getName(),
                 System.currentTimeMillis(),
-                Constants.OUTGOING_MESSAGE,
+                Chat.OUTGOING_MESSAGE,
                 messageText,
                 "plain/text");
 
@@ -1171,7 +1170,7 @@ public class ChatPanel
             this.addMessage(
                 chatSession.getCurrentChatTransport().getName(),
                 System.currentTimeMillis(),
-                Constants.OUTGOING_MESSAGE,
+                Chat.OUTGOING_MESSAGE,
                 messageText,
                 mimeType);
 
@@ -1189,7 +1188,7 @@ public class ChatPanel
             this.addMessage(
                 chatSession.getCurrentChatTransport().getName(),
                 System.currentTimeMillis(),
-                Constants.OUTGOING_MESSAGE,
+                Chat.OUTGOING_MESSAGE,
                 messageText,
                 mimeType);
 
@@ -1286,13 +1285,13 @@ public class ChatPanel
             addMessage(
                 contact.getDisplayName(),
                 System.currentTimeMillis(),
-                Constants.OUTGOING_MESSAGE,
+                Chat.OUTGOING_MESSAGE,
                 msg.getContent(), msg.getContentType());
 
             addMessage(
                     contact.getDisplayName(),
                     System.currentTimeMillis(),
-                    Constants.ACTION_MESSAGE,
+                    Chat.ACTION_MESSAGE,
                     GuiActivator.getResources().getI18NString(
                         "service.gui.SMS_SUCCESSFULLY_SENT"),
                     "text");
@@ -1343,7 +1342,7 @@ public class ChatPanel
             addMessage(
                     metaContact.getDisplayName(),
                     System.currentTimeMillis(),
-                    Constants.OUTGOING_MESSAGE,
+                    Chat.OUTGOING_MESSAGE,
                     sourceMessage.getContent(),
                     sourceMessage.getContentType());
 
@@ -1544,7 +1543,7 @@ public class ChatPanel
         this.addMessage(
             chatTransport.getName(),
             System.currentTimeMillis(),
-            Constants.STATUS_MESSAGE,
+            Chat.STATUS_MESSAGE,
             GuiActivator.getResources().getI18NString(
                 "service.gui.STATUS_CHANGED_CHAT_MESSAGE",
                 new String[]{chatTransport.getStatus().getStatusName()}),
@@ -1680,7 +1679,7 @@ public class ChatPanel
         this.addMessage(
             chatContact.getName(),
             System.currentTimeMillis(),
-            Constants.STATUS_MESSAGE,
+            Chat.STATUS_MESSAGE,
             statusMessage,
             ChatConversationPanel.TEXT_CONTENT_TYPE);
     }
@@ -1694,7 +1693,7 @@ public class ChatPanel
             this.addMessage(
                 chatSession.getChatName(),
                 System.currentTimeMillis(),
-                Constants.STATUS_MESSAGE,
+                Chat.STATUS_MESSAGE,
                 GuiActivator.getResources().getI18NString(
                     "service.gui.CHAT_ROOM_SUBJECT_CHANGED",
                     new String []{  chatSession.getChatName(),

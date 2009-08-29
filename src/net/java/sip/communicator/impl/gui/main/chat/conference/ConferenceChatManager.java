@@ -19,6 +19,7 @@ import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.impl.gui.utils.Constants;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -131,12 +132,12 @@ public class ConferenceChatManager
         if (evt.getEventType()
             == ChatRoomMessageDeliveredEvent.CONVERSATION_MESSAGE_DELIVERED)
         {
-            messageType = Constants.OUTGOING_MESSAGE;
+            messageType = Chat.OUTGOING_MESSAGE;
         }
         else if (evt.getEventType()
             == ChatRoomMessageDeliveredEvent.ACTION_MESSAGE_DELIVERED)
         {
-            messageType = Constants.ACTION_MESSAGE;
+            messageType = Chat.ACTION_MESSAGE;
         }
 
         if(chatPanel != null)
@@ -167,13 +168,13 @@ public class ConferenceChatManager
         switch (evt.getEventType())
         {
         case ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED:
-            messageType = Constants.INCOMING_MESSAGE;
+            messageType = Chat.INCOMING_MESSAGE;
             break;
         case ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED:
-            messageType = Constants.SYSTEM_MESSAGE;
+            messageType = Chat.SYSTEM_MESSAGE;
             break;
         case ChatRoomMessageReceivedEvent.ACTION_MESSAGE_RECEIVED:
-            messageType = Constants.ACTION_MESSAGE;
+            messageType = Chat.ACTION_MESSAGE;
             break;
         }
 
@@ -336,7 +337,7 @@ public class ConferenceChatManager
         chatPanel.addMessage(
                 destMember.getName(),
                 System.currentTimeMillis(),
-                Constants.OUTGOING_MESSAGE,
+                Chat.OUTGOING_MESSAGE,
                 sourceMessage.getContent(),
                 sourceMessage.getContentType());
 

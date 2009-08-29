@@ -8,7 +8,7 @@ package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.gui.*;
 
 /**
  * Should be used to limit the number of messages shown in the chat conversation
@@ -25,7 +25,7 @@ public class ChatBuffer<E> extends ArrayList<E> {
      * <tt>Constants</tt> class.
      */
     public ChatBuffer() {
-        super(Constants.CHAT_BUFFER_SIZE);
+        super(Chat.CHAT_BUFFER_SIZE);
     }
 
     /**
@@ -33,7 +33,7 @@ public class ChatBuffer<E> extends ArrayList<E> {
      * reached.
      */
     private void recalculateBuffer() {
-        if (this.size() >= Constants.CHAT_BUFFER_SIZE) {
+        if (this.size() >= Chat.CHAT_BUFFER_SIZE) {
             this.remove(0);
         }
     }
