@@ -7,15 +7,16 @@
 package net.java.sip.communicator.impl.protocol.mock;
 
 import java.util.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
 /**
- * Multiuser chat functionalites for the mock protocol.
+ * Multiuser chat functionalities for the mock protocol.
  * @author Damian Minkov
  */
 public class MockMultiUserChat
-    implements OperationSetMultiUserChat
+    extends AbstractOperationSetMultiUserChat
 {
     /**
      * The protocol provider that created us.
@@ -24,21 +25,6 @@ public class MockMultiUserChat
     
     private List existingChatRooms = new Vector();
     private List joinedChatRooms = new Vector();
-    
-    /**
-     * Currently registered invitation listeners.
-     */
-    private Vector invitationListeners = new Vector();
-    
-    /**
-     * Currently registered invitation reject listeners.
-     */
-    private Vector invitationRejectListeners = new Vector();
-    
-    /**
-     * Currently registered local user chat room presence listeners.
-     */
-    private Vector localUserChatRoomPresenceListeners = new Vector();
     
     /**
      * Creates an instance of this operation set keeping a reference to the
@@ -181,69 +167,10 @@ public class MockMultiUserChat
      */
     public void rejectInvitation(ChatRoomInvitation invitation, String reason)
     {
-        ChatRoomInvitationRejectedEvent evt = 
-            new ChatRoomInvitationRejectedEvent(
-                    this,
-                    invitation.getTargetChatRoom(),
-                    provider.getAccountID().getUserID(),
-                    invitation.getReason(),
-                    new Date());
-        
-        Iterator iter = invitationRejectListeners.iterator();
-        while(iter.hasNext())
-        {
-            ChatRoomInvitationRejectionListener elem =  
-                (ChatRoomInvitationRejectionListener)iter.next();
-            elem.invitationRejected(evt);
-        }
-    }
-    
-    /**
-     * Adds a listener to invitation notifications. The listener will be fired
-     * anytime an invitation is received.
-     *
-     * @param listener an invitation listener.
-     */
-    public void addInvitationListener(ChatRoomInvitationListener listener)
-    {
-        if(!invitationListeners.contains(listener))
-            invitationListeners.add(listener);
-    }
-    
-    /**
-     * Removes <tt>listener</tt> from the list of invitation listeners
-     * registered to receive invitation events.
-     *
-     * @param listener the invitation listener to remove.
-     */
-    public void removeInvitationListener(ChatRoomInvitationListener listener)
-    {
-        invitationListeners.remove(listener);
-    }
-    
-    /**
-     * Adds a listener to invitation notifications. The listener will be fired
-     * anytime an invitation is received.
-     *
-     * @param listener an invitation listener.
-     */
-    public void addInvitationRejectionListener(
-        ChatRoomInvitationRejectionListener listener)
-    {
-        if(!invitationRejectListeners.contains(listener))
-            invitationRejectListeners.add(listener);
-    }
-    
-    /**
-     * Removes the given listener from the list of invitation listeners
-     * registered to receive events every time an invitation has been rejected.
-     *
-     * @param listener the invitation listener to remove.
-     */
-    public void removeInvitationRejectionListener(
-        ChatRoomInvitationRejectionListener listener)
-    {
-        invitationRejectListeners.remove(listener);
+        fireInvitationRejectedEvent(
+            invitation.getTargetChatRoom(),
+            provider.getAccountID().getUserID(),
+            invitation.getReason());
     }
     
     /**
@@ -256,42 +183,5 @@ public class MockMultiUserChat
     public boolean isMultiChatSupportedByContact(Contact contact)
     {
         throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    /**
-     * Adds a listener that will be notified of changes in our participation in
-     * a chat room such as us being kicked, joined, left.
-     *
-     * @param listener a local user participation listener.
-     */
-    public void addPresenceListener(
-        LocalUserChatRoomPresenceListener listener)
-    {
-        if(!localUserChatRoomPresenceListeners.contains(listener))
-            localUserChatRoomPresenceListeners.add(listener);
-    }
-
-    /**
-     * Removes a listener that was being notified of changes in our
-     * participation in a room such as us being kicked, joined, left.
-     * 
-     * @param listener a local user participation listener.
-     */
-    public void removePresenceListener(
-        LocalUserChatRoomPresenceListener listener)
-    {
-        localUserChatRoomPresenceListeners.remove(listener);
-    }
-    
-    void fireLocalUserChatRoomPresenceChangeEvent(
-        LocalUserChatRoomPresenceChangeEvent evt)
-    {
-        Iterator iter = localUserChatRoomPresenceListeners.iterator();
-        while(iter.hasNext())
-        {
-            LocalUserChatRoomPresenceListener elem =  
-                (LocalUserChatRoomPresenceListener)iter.next();
-            elem.localUserPresenceChanged(evt);
-        }
     }
 }

@@ -32,7 +32,8 @@ public class EventNotification
      * Contains all actions which will be executed when this event notification
      * is fired.
      */
-    private final Hashtable<String, Action> actionsTable = new Hashtable<String, Action>();
+    private final Hashtable<String, Action> actionsTable
+        = new Hashtable<String, Action>();
     
     /**
      * Creates an instance of <tt>EventNotification</tt> by specifying the
@@ -55,11 +56,10 @@ public class EventNotification
      * @return the previous value of the actionHandler for the given actionType,
      * if one existed, NULL if the actionType is a new one  
      */
-    public Object addAction(  String actionType,
+    public Object addAction(String actionType,
                             NotificationActionHandler actionHandler)
     {
-        Action action
-            = new Action(actionType, actionHandler);
+        Action action = new Action(actionType, actionHandler);
         
         return actionsTable.put(actionType, action);
     }

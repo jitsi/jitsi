@@ -157,14 +157,12 @@ public class MockChatRoom
                                     null);
         
         members.add(newMember);
-        
-        LocalUserChatRoomPresenceChangeEvent evt = 
-                new LocalUserChatRoomPresenceChangeEvent(
-                        parentOpSet, 
-                        this,
-                        LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
-                        null);
-        parentOpSet.fireLocalUserChatRoomPresenceChangeEvent(evt);
+
+        parentOpSet
+            .fireLocalUserPresenceEvent(
+                this,
+                LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
+                null);
     }
 
     /**

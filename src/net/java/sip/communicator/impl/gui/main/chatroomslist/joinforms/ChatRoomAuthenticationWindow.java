@@ -201,11 +201,6 @@ public class ChatRoomAuthenticationWindow
             this.bgImage = bgImage;
         }
 
-        public LoginWindowBackground()
-        {
-            this.bgImage = null;
-        }
-
         protected void paintComponent(Graphics g)
         {
             super.paintComponent(g);

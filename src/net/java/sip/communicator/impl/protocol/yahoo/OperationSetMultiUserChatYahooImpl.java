@@ -17,31 +17,11 @@ import net.java.sip.communicator.util.*;
  * @author Rupert Burchardi
  */
 public class OperationSetMultiUserChatYahooImpl
-    implements  OperationSetMultiUserChat,
-                SubscriptionListener
+    extends AbstractOperationSetMultiUserChat
+    implements SubscriptionListener
 {
    private static final Logger logger = Logger
            .getLogger(OperationSetMultiUserChatYahooImpl.class);
-   /**
-    * A list of listeners subscribed for invitations multi user chat events.
-    */
-   private Vector<ChatRoomInvitationListener> invitationListeners 
-       = new Vector<ChatRoomInvitationListener>();
-
-   /**
-    * A list of listeners subscribed for events indicating rejection of a multi
-    * user chat invitation sent by us.
-    */
-   private Vector<ChatRoomInvitationRejectionListener> 
-       invitationRejectionListeners 
-           = new Vector<ChatRoomInvitationRejectionListener>();
-
-   /**
-    * Listeners that will be notified of changes in our status in the room such
-    * as us being kicked, banned, or granted admin permissions.
-    */
-   private Vector<LocalUserChatRoomPresenceListener> presenceListeners 
-       = new Vector<LocalUserChatRoomPresenceListener>();
 
    /**
     * A list of the rooms that are currently open by this account.
@@ -90,103 +70,6 @@ public class OperationSetMultiUserChatYahooImpl
                .getOperationSet(OperationSetPersistentPresence.class);
 
        presenceOpSet.addSubscriptionListener(this);
-   }
-
-   /**
-    * Adds a listener to invitation notifications.
-    * 
-    * @param listener
-    *            An invitation listener.
-    */
-   public void addInvitationListener(ChatRoomInvitationListener listener)
-   {
-       synchronized (invitationListeners)
-       {
-           if (!invitationListeners.contains(listener))
-               invitationListeners.add(listener);
-       }
-   }
-
-   /**
-    * Removes a listener that was being notified of changes in our status in a
-    * room such as us being kicked, banned or dropped.
-    * 
-    * @param listener
-    *            the <tt>LocalUserChatRoomPresenceListener</tt>.
-    */
-   public void removeInvitationListener(ChatRoomInvitationListener listener)
-   {
-       synchronized (invitationListeners)
-       {
-           invitationListeners.remove(listener);
-       }
-   }
-
-   /**
-    * Subscribes <tt>listener</tt> so that it would receive events indicating
-    * rejection of a multi user chat invitation that we've sent earlier.
-    * 
-    * @param listener
-    *            the listener that we'll subscribe for invitation rejection
-    *            events.
-    */
-
-   public void addInvitationRejectionListener(
-           ChatRoomInvitationRejectionListener listener)
-   {
-       synchronized (invitationRejectionListeners)
-       {
-           if (!invitationRejectionListeners.contains(listener))
-               invitationRejectionListeners.add(listener);
-       }
-   }
-
-   /**
-    * Removes <tt>listener</tt> from the list of invitation listeners
-    * registered to receive invitation rejection events.
-    * 
-    * @param listener
-    *            the invitation listener to remove.
-    */
-   public void removeInvitationRejectionListener(
-           ChatRoomInvitationRejectionListener listener)
-   {
-       synchronized (invitationRejectionListeners)
-       {
-           invitationRejectionListeners.remove(listener);
-       }
-   }
-
-   /**
-    * Adds a listener that will be notified of changes in our status in a chat
-    * room such as us being kicked, banned or dropped.
-    * 
-    * @param listener
-    *            the <tt>LocalUserChatRoomPresenceListener</tt>.
-    */
-   public void addPresenceListener(LocalUserChatRoomPresenceListener listener)
-   {
-       synchronized (presenceListeners)
-       {
-           if (!presenceListeners.contains(listener))
-               presenceListeners.add(listener);
-       }
-   }
-
-   /**
-    * Removes a listener that was being notified of changes in our status in a
-    * room such as us being kicked, banned or dropped.
-    * 
-    * @param listener
-    *            the <tt>LocalUserChatRoomPresenceListener</tt>.
-    */
-   public void removePresenceListener(
-           LocalUserChatRoomPresenceListener listener)
-   {
-       synchronized (presenceListeners)
-       {
-           presenceListeners.remove(listener);
-       }
    }
 
    /**
@@ -448,97 +331,14 @@ public class OperationSetMultiUserChatYahooImpl
    public void fireInvitationEvent(ChatRoom targetChatRoom, String inviter,
            String reason, byte[] password)
    {
-       ChatRoomInvitationYahooImpl invitation = new ChatRoomInvitationYahooImpl(
-               targetChatRoom, inviter, reason, password);
+       ChatRoomInvitationYahooImpl invitation
+           = new ChatRoomInvitationYahooImpl(
+                   targetChatRoom,
+                   inviter,
+                   reason,
+                   password);
 
-       ChatRoomInvitationReceivedEvent evt = new ChatRoomInvitationReceivedEvent(
-               this, invitation, new Date(System.currentTimeMillis()));
-
-       Iterator<ChatRoomInvitationListener> listeners = null;
-       synchronized (invitationListeners)
-       {
-           listeners = new ArrayList<ChatRoomInvitationListener>(
-                               invitationListeners).iterator();
-       }
-
-       while (listeners.hasNext())
-       {
-           ChatRoomInvitationListener listener
-               = (ChatRoomInvitationListener) listeners.next();
-
-           listener.invitationReceived(evt);
-       }
-   }
-
-   /**
-    * Delivers a <tt>ChatRoomInvitationRejectedEvent</tt> to all registered
-    * <tt>ChatRoomInvitationRejectionListener</tt>s.
-    * 
-    * @param sourceChatRoom
-    *            the room that invitation refers to
-    * @param invitee
-    *            the name of the invitee that rejected the invitation
-    * @param reason
-    *            the reason of the rejection
-    */
-   public void fireInvitationRejectedEvent(ChatRoom sourceChatRoom,
-           String invitee, String reason)
-   {
-       ChatRoomInvitationRejectedEvent evt = new ChatRoomInvitationRejectedEvent(
-               this, sourceChatRoom, invitee, reason, new Date(System
-                       .currentTimeMillis()));
-
-       Iterator<ChatRoomInvitationRejectionListener> listeners = null;
-       synchronized (invitationRejectionListeners)
-       {
-           listeners = new ArrayList<ChatRoomInvitationRejectionListener>(
-                               invitationRejectionListeners).iterator();
-       }
-
-       while (listeners.hasNext())
-       {
-           ChatRoomInvitationRejectionListener listener
-               = (ChatRoomInvitationRejectionListener) listeners.next();
-
-           listener.invitationRejected(evt);
-       }
-   }
-
-   /**
-    * Delivers a <tt>LocalUserChatRoomPresenceChangeEvent</tt> to all
-    * registered <tt>LocalUserChatRoomPresenceListener</tt>s.
-    * 
-    * @param chatRoom
-    *            the <tt>ChatRoom</tt> which has been joined, left, etc.
-    * @param eventType
-    *            the type of this event; one of LOCAL_USER_JOINED,
-    *            LOCAL_USER_LEFT, etc.
-    * @param reason
-    *            the reason
-    */
-   public void fireLocalUserPresenceEvent(ChatRoom chatRoom, String eventType,
-           String reason)
-   {
-       LocalUserChatRoomPresenceChangeEvent evt
-           = new LocalUserChatRoomPresenceChangeEvent( this,
-                                                       chatRoom,
-                                                       eventType,
-                                                       reason);
-
-       Iterator<LocalUserChatRoomPresenceListener> listeners = null;
-       synchronized (presenceListeners)
-       {
-           listeners = new ArrayList<LocalUserChatRoomPresenceListener>(
-                           presenceListeners).iterator();
-       }
-
-       while (listeners.hasNext())
-       {
-           LocalUserChatRoomPresenceListener listener
-               = (LocalUserChatRoomPresenceListener) listeners.next();
-
-           listener.localUserPresenceChanged(evt);
-       }
+       fireInvitationReceived(invitation);
    }
 
    /**

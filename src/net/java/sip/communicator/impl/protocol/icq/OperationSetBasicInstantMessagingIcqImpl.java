@@ -158,7 +158,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
                 getImConversation(
                     new Screenname(to.getAddress()));
 
-        String messageContent = null;
+        String messageContent;
         if (message.getContentType().equals(HTML_MIME_TYPE)
             && !message.getContent().startsWith(defaultHtmlStartTag))
         {
@@ -169,8 +169,8 @@ public class OperationSetBasicInstantMessagingIcqImpl
         else
             messageContent = message.getContent();
 
-        MessageDeliveredEvent msgDeliveryPendingEvt = new MessageDeliveredEvent(
-                message, to, System.currentTimeMillis());
+        MessageDeliveredEvent msgDeliveryPendingEvt
+            = new MessageDeliveredEvent(message, to);
         
         msgDeliveryPendingEvt = this.messageDeliveryPendingTransform(msgDeliveryPendingEvt);
         
@@ -188,8 +188,8 @@ public class OperationSetBasicInstantMessagingIcqImpl
         else
             imConversation.sendMessage(new SimpleMessage(transformedContent), true);
 
-        MessageDeliveredEvent msgDeliveredEvt = new MessageDeliveredEvent(
-                message, to, System.currentTimeMillis());
+        MessageDeliveredEvent msgDeliveredEvt
+            = new MessageDeliveredEvent(message, to);
 
         // msgDeliveredEvt = this.messageDeliveredTransform(msgDeliveredEvt);
         

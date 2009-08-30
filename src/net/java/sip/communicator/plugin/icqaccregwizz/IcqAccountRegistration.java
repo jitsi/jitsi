@@ -30,8 +30,6 @@ public class IcqAccountRegistration
 
     private String proxyPassword;
 
-    private boolean isAdvancedSettingsEnabled = false;
-
     /**
      * Returns the password of the icq registration account.
      * @return the password of the icq registration account.

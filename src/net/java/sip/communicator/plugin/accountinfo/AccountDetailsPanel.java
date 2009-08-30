@@ -542,12 +542,11 @@ public class AccountDetailsPanel
         public void actionPerformed(ActionEvent e)
         {
             String firstName = firstNameField.getText();
-            String middleName = middleNameField.getText();
+//            String middleName = middleNameField.getText();
             String lastName = lastNameField.getText();
             String gender = genderField.getText();
             String email = emailField.getText();
             String phoneNumber = phoneField.getText();
-            Icon avatar = avatarLabel.getIcon();
 
             Calendar birthDateCalendar = Calendar.getInstance();
 

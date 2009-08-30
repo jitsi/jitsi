@@ -79,7 +79,7 @@ public class ContactGroupIcqImpl
      * resolved against the server.
      */
     ContactGroupIcqImpl(MutableGroup joustSimGroup,
-                        List<Buddy> groupMembers,
+                        Iterable<Buddy> groupMembers,
                         ServerStoredContactListIcqImpl ssclCallback,
                         boolean isResolved)
     {
@@ -95,24 +95,29 @@ public class ContactGroupIcqImpl
         //their real addresses and we can only get a list of copies from the
         //group itself.
 
-        Iterator<Buddy> buddies = groupMembers.iterator();
-        while(buddies.hasNext())
-        {
-            Buddy buddy = buddies.next();
-            //only add the buddy if it doesn't already exist in some other group
-            //this is necessary because AIM would allow having one and the
-            //same buddy in more than one group.
-            if(ssclCallback.findContactByJoustSimBuddy(buddy) != null)
+        if (groupMembers != null)
+            for (Buddy buddy : groupMembers)
             {
-                continue;
+                /*
+                 * Only add the buddy if it doesn't already exist in some other
+                 * group this is necessary because AIM would allow having one
+                 * and the same buddy in more than one group.
+                 */
+                if(ssclCallback.findContactByJoustSimBuddy(buddy) != null)
+                {
+                    continue;
+                }
+    
+                /*
+                 * Here we are not checking for AwaitingAuthorization buddies as
+                 * we are creating group with list of buddies these checks must
+                 * have been made already.
+                 */
+                addContact( new ContactIcqImpl(buddy,
+                                               ssclCallback,
+                                               true,
+                                               true) );
             }
-
-            // here we are not checking for AwaitingAuthorization buddies
-            // as we are creating group with list of buddies
-            // these checks must have been made already
-            addContact( new ContactIcqImpl(buddy,
-                                           ssclCallback, true, true) );
-        }
     }
 
     /**

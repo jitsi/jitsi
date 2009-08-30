@@ -188,11 +188,10 @@ public class SelectGroupPanel
 
         public GroupWrapper(MetaContactGroup group)
         {
-            this.group = group;
-            this.groupName = group.getGroupName();
+            this(group, group.getGroupName());
         }
 
-        public GroupWrapper(String groupName, MetaContactGroup group)
+        public GroupWrapper(MetaContactGroup group, String groupName)
         {
             this.group = group;
             this.groupName = groupName;

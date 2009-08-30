@@ -111,7 +111,7 @@ public class OperationSetPersistentPresenceIcqImpl
     /**
      *  Buddies seen availabel
      */
-    private Vector buddiesSeenAvailable = new Vector();
+    private final List<String> buddiesSeenAvailable = new Vector<String>();
 
     /**
      * The array list we use when returning from the getSupportedStatusSet()
@@ -1109,14 +1109,13 @@ public class OperationSetPersistentPresenceIcqImpl
                 //offline. The icq protocol does not implement top level buddies
                 //nor subgroups for top level groups so a simple nested loop
                 //would be enough.
-                Iterator groupsIter = getServerStoredContactListRoot()
-                                                                .subgroups();
+                Iterator<ContactGroup> groupsIter
+                    = getServerStoredContactListRoot().subgroups();
+
                 while(groupsIter.hasNext())
                 {
-                    ContactGroupIcqImpl group
-                        = (ContactGroupIcqImpl)groupsIter.next();
-
-                    Iterator contactsIter = group.contacts();
+                    ContactGroup group = groupsIter.next();
+                    Iterator<Contact> contactsIter = group.contacts();
 
                     while(contactsIter.hasNext())
                     {
@@ -1151,7 +1150,6 @@ public class OperationSetPersistentPresenceIcqImpl
                 }
             }
         }
-
     }
 
     /**
@@ -1298,12 +1296,11 @@ public class OperationSetPersistentPresenceIcqImpl
             ContactGroupIcqImpl parent
                 = ssContactList.findContactGroup(sourceContact);
 
-            List extraInfoBlocks = info.getExtraInfoBlocks();
+            Iterable<ExtraInfoBlock> extraInfoBlocks
+                = info.getExtraInfoBlocks();
             if(extraInfoBlocks != null){
-                for (int i = 0; i < extraInfoBlocks.size(); i++)
+                for (ExtraInfoBlock block : extraInfoBlocks)
                 {
-                    ExtraInfoBlock block
-                        = ( (ExtraInfoBlock) extraInfoBlocks.get(i));
                     if (block.getType() == ExtraInfoBlock.TYPE_AVAILMSG)
                     {
                         String status = ExtraInfoData.readAvailableMessage(
@@ -1467,11 +1464,14 @@ public class OperationSetPersistentPresenceIcqImpl
 
                 if(theAwaitingAuthorizationGroup == null)
                 {
-                    List emptyBuddies = new LinkedList();
-                    theAwaitingAuthorizationGroup = new ContactGroupIcqImpl(
-                        new VolatileGroup(
-                            ServerStoredContactListIcqImpl.awaitingAuthorizationGroupName),
-                            emptyBuddies, ssContactList, false);
+                    theAwaitingAuthorizationGroup
+                        = new ContactGroupIcqImpl(
+                            new VolatileGroup(
+                                    ServerStoredContactListIcqImpl
+                                        .awaitingAuthorizationGroupName),
+                            null,
+                            ssContactList,
+                            false);
 
                     ((RootContactGroupIcqImpl)ssContactList.getRootGroup()).
                         addSubGroup(theAwaitingAuthorizationGroup);
@@ -1538,7 +1538,7 @@ public class OperationSetPersistentPresenceIcqImpl
                                      Screenname screenname,
                                      ExtraInfoData extraInfoData)
         {
-            updateBuddyyIcon(screenname, null);
+            updateBuddyIcon(screenname, null);
         }
 
         public void buddyIconUpdated(IconService iconService,
@@ -1548,7 +1548,7 @@ public class OperationSetPersistentPresenceIcqImpl
         {
             if(byteBlock != null)
             {
-                updateBuddyyIcon(screenname, byteBlock.toByteArray());
+                updateBuddyIcon(screenname, byteBlock.toByteArray());
             }
         }
 
@@ -1557,21 +1557,22 @@ public class OperationSetPersistentPresenceIcqImpl
          * @param screenname the contact screenname
          * @param icon byte array representing the image
          */
-        private void updateBuddyyIcon(Screenname screenname, byte[] icon)
+        private void updateBuddyIcon(Screenname screenname, byte[] icon)
         {
             ContactIcqImpl contact = ssContactList.findContactByScreenName(
                             screenname.getFormatted());
 
             if(contact != null)
             {
-                byte[] oldImage = contact.getImage();
+                byte[] oldIcon = contact.getImage();
 
                 contact.setImage(icon);
+
                 fireContactPropertyChangeEvent(
-                               ContactPropertyChangeEvent.PROPERTY_IMAGE,
-                               contact,
-                               null,
-                               icon);
+                    ContactPropertyChangeEvent.PROPERTY_IMAGE,
+                    contact,
+                    oldIcon,
+                    icon);
             }
         }
     }
@@ -1590,34 +1591,37 @@ public class OperationSetPersistentPresenceIcqImpl
             if(theAwaitingAuthorizationGroup == null)
                 return;
 
-            Iterator iter = theAwaitingAuthorizationGroup.contacts();
+            Iterator<Contact> iter = theAwaitingAuthorizationGroup.contacts();
             while (iter.hasNext())
             {
                 ContactIcqImpl sourceContact = (ContactIcqImpl)iter.next();
-
-                PresenceStatus newStatus = queryContactStatus(sourceContact.getAddress());
-
-                PresenceStatus oldStatus
-                    = sourceContact.getPresenceStatus();
+                String sourceContactAddress = sourceContact.getAddress();
+                PresenceStatus newStatus
+                    = queryContactStatus(sourceContactAddress);
+                PresenceStatus oldStatus = sourceContact.getPresenceStatus();
 
                 if(newStatus.equals(oldStatus))
                    continue;
 
                 sourceContact.updatePresenceStatus(newStatus);
 
-                fireContactPresenceStatusChangeEvent(sourceContact, theAwaitingAuthorizationGroup,
-                                                 oldStatus, newStatus);
+                fireContactPresenceStatusChangeEvent(
+                    sourceContact,
+                    theAwaitingAuthorizationGroup,
+                    oldStatus,
+                    newStatus);
 
-                if( !newStatus.equals(IcqStatusEnum.OFFLINE) &&
-                    !buddiesSeenAvailable.contains(sourceContact.getAddress()))
+                if (!newStatus.equals(IcqStatusEnum.OFFLINE)
+                        && !buddiesSeenAvailable.contains(sourceContactAddress))
                 {
-                    buddiesSeenAvailable.add(sourceContact.getAddress());
+                    buddiesSeenAvailable.add(sourceContactAddress);
                     try
                     {
                         AuthorizationRequest req = new AuthorizationRequest();
                         req.setReason("I'm resending my request. Please authorize me!");
 
-                        opSetExtendedAuthorizations.reRequestAuthorization(req, sourceContact);
+                        opSetExtendedAuthorizations
+                            .reRequestAuthorization(req, sourceContact);
                     } catch (OperationFailedException ex)
                     {
                         logger.error("failed to reRequestAuthorization", ex);
