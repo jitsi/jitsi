@@ -79,10 +79,10 @@ public class OtrMetaContactButton
                 switch (OtrActivator.scOtrEngine.getSessionStatus(contact))
                 {
                 case ENCRYPTED:
-                    // Default action for encrypted session is end session.
+                case FINISHED:
+                    // Default action for finished and encrypted sessions is end session.
                     OtrActivator.scOtrEngine.endSession(contact);
                     break;
-                case FINISHED:
                 case PLAINTEXT:
                     // Default action for finished and plaintext sessions is
                     // start session.
