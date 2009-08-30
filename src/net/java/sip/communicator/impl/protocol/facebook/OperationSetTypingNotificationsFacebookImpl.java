@@ -5,10 +5,7 @@
  */
 package net.java.sip.communicator.impl.protocol.facebook;
 
-import java.util.*;
-
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -20,26 +17,10 @@ import net.java.sip.communicator.util.*;
  * @author Dai Zhiwei
  */
 public class OperationSetTypingNotificationsFacebookImpl
-    implements OperationSetTypingNotifications
+    extends AbstractOperationSetTypingNotifications<ProtocolProviderServiceFacebookImpl>
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetTypingNotificationsFacebookImpl.class);
-
-    /**
-     * All currently registered TN listeners.
-     */
-    private final List<TypingNotificationsListener> typingNotificationsListeners
-        = new ArrayList<TypingNotificationsListener>();
-
-    /**
-     * The provider that created us.
-     */
-    private ProtocolProviderServiceFacebookImpl parentProvider = null;
-
-    /**
-     * The currently valid persistent presence operation set..
-     */
-    private OperationSetPersistentPresenceFacebookImpl opSetPersPresence = null;
 
     /**
      * Creates a new instance of this operation set and keeps the parent
@@ -53,84 +34,9 @@ public class OperationSetTypingNotificationsFacebookImpl
      *            instance.
      */
     OperationSetTypingNotificationsFacebookImpl(
-        ProtocolProviderServiceFacebookImpl provider,
-        OperationSetPersistentPresenceFacebookImpl opSetPersPresence)
+        ProtocolProviderServiceFacebookImpl provider)
     {
-        this.parentProvider = provider;
-        this.opSetPersPresence = opSetPersPresence;
-    }
-
-    /**
-     * Adds <tt>listener</tt> to the list of listeners registered for
-     * receiving <tt>TypingNotificationEvent</tt>s
-     * 
-     * @param listener the <tt>TypingNotificationsListener</tt> listener that
-     *            we'd like to add to the list of listeneres registered for
-     *            receiving typing notificaions.
-     */
-    public void addTypingNotificationsListener(
-        TypingNotificationsListener listener)
-    {
-        synchronized (typingNotificationsListeners)
-        {
-            typingNotificationsListeners.add(listener);
-        }
-    }
-
-    /**
-     * Removes <tt>listener</tt> from the list of listeners registered for
-     * receiving <tt>TypingNotificationEvent</tt>s
-     * 
-     * @param listener the <tt>TypingNotificationsListener</tt> listener that
-     *            we'd like to remove
-     */
-    public void removeTypingNotificationsListener(
-        TypingNotificationsListener listener)
-    {
-        synchronized (typingNotificationsListeners)
-        {
-            typingNotificationsListeners.remove(listener);
-        }
-    }
-
-    /**
-     * Delivers a <tt>TypingNotificationEvent</tt> to all registered
-     * listeners.
-     * 
-     * @param sourceContact the contact who has sent the notification.
-     * @param evtCode the code of the event to deliver.
-     */
-    private void fireTypingNotificationsEvent(Contact sourceContact, int evtCode)
-    {
-        logger.debug("Dispatching a TypingNotif. event to "
-            + typingNotificationsListeners.size() + " listeners. Contact "
-            + sourceContact.getAddress() + " has now a typing status of "
-            + evtCode);
-
-        // we got a typing notification from sourceContact,
-        // so we know he is online
-        opSetPersPresence.setPresenceStatusForContact(
-            (ContactFacebookImpl) sourceContact, FacebookStatusEnum.ONLINE);
-
-        TypingNotificationEvent evt =
-            new TypingNotificationEvent(sourceContact, evtCode);
-
-        Iterator<TypingNotificationsListener> listeners;
-        synchronized (typingNotificationsListeners)
-        {
-            listeners
-                = new ArrayList<TypingNotificationsListener>(
-                            typingNotificationsListeners)
-                        .iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            TypingNotificationsListener listener =
-                (TypingNotificationsListener) listeners.next();
-
-            listener.typingNotificationReceived(evt);
-        }
+        super(provider);
     }
 
     /**

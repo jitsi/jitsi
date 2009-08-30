@@ -6,11 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.zeroconf;
 
-import java.util.*;
-
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Implements typing notifications for the Zeroconf protocol. The operation
@@ -23,26 +19,8 @@ import net.java.sip.communicator.util.*;
  * @author Jonathan Martin
  */
 public class OperationSetTypingNotificationsZeroconfImpl
-    implements OperationSetTypingNotifications
+    extends AbstractOperationSetTypingNotifications<ProtocolProviderServiceZeroconfImpl>
 {
-    private static final Logger logger =
-        Logger.getLogger(OperationSetTypingNotificationsZeroconfImpl.class);
-
-    /**
-     * All currently registered TN listeners.
-     */
-    private List typingNotificationsListeners = new ArrayList();
-
-    /**
-     * The provider that created us.
-     */
-    private ProtocolProviderServiceZeroconfImpl parentProvider = null;
-
-    /**
-     * The currently valid persistent presence operation set..
-     */
-    private OperationSetPersistentPresenceZeroconfImpl opSetPersPresence = null;
-
 
     /**
      * Creates a new instance of this operation set and keeps the parent
@@ -51,81 +29,11 @@ public class OperationSetTypingNotificationsZeroconfImpl
      * @param provider a ref to the <tt>ProtocolProviderServiceImpl</tt>
      * that created us and that we'll use for retrieving the underlying aim
      * connection.
-     * @param opSetPersPresence the currently valid
-     * <tt>OperationSetPersistentPresenceZeroconfImpl</tt> instance.
      */
     OperationSetTypingNotificationsZeroconfImpl(
-        ProtocolProviderServiceZeroconfImpl provider,
-        OperationSetPersistentPresenceZeroconfImpl opSetPersPresence)
+        ProtocolProviderServiceZeroconfImpl provider)
     {
-        this.parentProvider = provider;
-        this.opSetPersPresence = opSetPersPresence;
-    }
-
-    /**
-     * Adds <tt>listener</tt> to the list of listeners registered for receiving
-     * <tt>TypingNotificationEvent</tt>s
-     *
-     * @param listener the <tt>TypingNotificationsListener</tt> listener that
-     * we'd like to add to the list of listeneres registered for receiving
-     * typing notificaions.
-     */
-    public void addTypingNotificationsListener(
-                                        TypingNotificationsListener listener)
-    {
-        synchronized(typingNotificationsListeners)
-        {
-            typingNotificationsListeners.add(listener);
-        }
-    }
-
-    /**
-     * Removes <tt>listener</tt> from the list of listeners registered for
-     * receiving <tt>TypingNotificationEvent</tt>s
-     *
-     * @param listener the <tt>TypingNotificationsListener</tt> listener that
-     * we'd like to remove
-     */
-    public void removeTypingNotificationsListener(
-                                        TypingNotificationsListener listener)
-    {
-        synchronized(typingNotificationsListeners)
-        {
-            typingNotificationsListeners.remove(listener);
-        }
-    }
-
-    /**
-     * Delivers a <tt>TypingNotificationEvent</tt> to all registered listeners.
-     * @param sourceContact the contact who has sent the notification.
-     * @param evtCode the code of the event to deliver.
-     */
-    public void fireTypingNotificationsEvent(Contact sourceContact
-                                              ,int evtCode)
-    {
-        logger.debug("Dispatching a TypingNotif. event to "
-            + typingNotificationsListeners.size()+" listeners. Contact "
-            + sourceContact.getAddress() + " has now a typing status of "
-            + evtCode);
-
-        TypingNotificationEvent evt = new TypingNotificationEvent(
-            sourceContact, evtCode);
-
-        Iterator listeners = null;
-        synchronized (typingNotificationsListeners)
-        {
-            listeners = new ArrayList(typingNotificationsListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            TypingNotificationsListener listener
-                = (TypingNotificationsListener) listeners.next();
-            
-            logger.debug("ZEROCONF: Sending TypingNotif to Listener " + listener);
-            
-            listener.typingNotificationReceived(evt);
-        }
+        super(provider);
     }
 
     /**

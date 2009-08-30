@@ -105,13 +105,9 @@ public class SIPCommSmartComboBox
             }
             else
             {
-                for (Iterator iterator = items.iterator(); iterator.hasNext();) {
-
-                    Object item = iterator.next();
-
+                for (Object item : items)
                     if (filter.accept(item))
                         filteredItems.add(item);
-                }
             }
             fireIntervalAdded(this, 0, filteredItems.size());
         }

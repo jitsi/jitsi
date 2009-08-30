@@ -6,11 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.gibberish;
 
-import java.util.*;
-
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Implements typing notifications for the Gibberish protocol. The operation
@@ -21,26 +17,13 @@ import net.java.sip.communicator.util.*;
  * @author Emil Ivov
  */
 public class OperationSetTypingNotificationsGibberishImpl
-    implements OperationSetTypingNotifications
+    extends AbstractOperationSetTypingNotifications<ProtocolProviderServiceGibberishImpl>
 {
-    private static final Logger logger =
-        Logger.getLogger(OperationSetTypingNotificationsGibberishImpl.class);
-
-    /**
-     * All currently registered TN listeners.
-     */
-    private List typingNotificationsListeners = new ArrayList();
-
-    /**
-     * The provider that created us.
-     */
-    private ProtocolProviderServiceGibberishImpl parentProvider = null;
 
     /**
      * The currently valid persistent presence operation set..
      */
     private OperationSetPersistentPresenceGibberishImpl opSetPersPresence = null;
-
 
     /**
      * Creates a new instance of this operation set and keeps the parent
@@ -56,72 +39,9 @@ public class OperationSetTypingNotificationsGibberishImpl
         ProtocolProviderServiceGibberishImpl provider,
         OperationSetPersistentPresenceGibberishImpl opSetPersPresence)
     {
-        this.parentProvider = provider;
+        super(provider);
+
         this.opSetPersPresence = opSetPersPresence;
-    }
-
-    /**
-     * Adds <tt>listener</tt> to the list of listeners registered for receiving
-     * <tt>TypingNotificationEvent</tt>s
-     *
-     * @param listener the <tt>TypingNotificationsListener</tt> listener that
-     * we'd like to add to the list of listeneres registered for receiving
-     * typing notificaions.
-     */
-    public void addTypingNotificationsListener(
-                                        TypingNotificationsListener listener)
-    {
-        synchronized(typingNotificationsListeners)
-        {
-            typingNotificationsListeners.add(listener);
-        }
-    }
-
-    /**
-     * Removes <tt>listener</tt> from the list of listeners registered for
-     * receiving <tt>TypingNotificationEvent</tt>s
-     *
-     * @param listener the <tt>TypingNotificationsListener</tt> listener that
-     * we'd like to remove
-     */
-    public void removeTypingNotificationsListener(
-                                        TypingNotificationsListener listener)
-    {
-        synchronized(typingNotificationsListeners)
-        {
-            typingNotificationsListeners.remove(listener);
-        }
-    }
-
-    /**
-     * Delivers a <tt>TypingNotificationEvent</tt> to all registered listeners.
-     * @param sourceContact the contact who has sent the notification.
-     * @param evtCode the code of the event to deliver.
-     */
-    private void fireTypingNotificationsEvent(Contact sourceContact
-                                              ,int evtCode)
-    {
-        logger.debug("Dispatching a TypingNotif. event to "
-            + typingNotificationsListeners.size()+" listeners. Contact "
-            + sourceContact.getAddress() + " has now a typing status of "
-            + evtCode);
-
-        TypingNotificationEvent evt = new TypingNotificationEvent(
-            sourceContact, evtCode);
-
-        Iterator listeners = null;
-        synchronized (typingNotificationsListeners)
-        {
-            listeners = new ArrayList(typingNotificationsListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            TypingNotificationsListener listener
-                = (TypingNotificationsListener) listeners.next();
-
-              listener.typingNotificationReceived(evt);
-        }
     }
 
     /**

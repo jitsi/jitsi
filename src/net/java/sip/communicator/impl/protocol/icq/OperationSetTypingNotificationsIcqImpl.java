@@ -21,20 +21,10 @@ import net.kano.joustsim.oscar.oscar.service.icbm.*;
  * @author Emil Ivov
  */
 public class OperationSetTypingNotificationsIcqImpl
-    implements OperationSetTypingNotifications
+    extends AbstractOperationSetTypingNotifications<ProtocolProviderServiceIcqImpl>
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetTypingNotificationsIcqImpl.class);
-
-    /**
-     * All currently registered TN listeners.
-     */
-    private List typingNotificationsListeners = new ArrayList();
-
-    /**
-     * The icq provider that created us.
-     */
-    private ProtocolProviderServiceIcqImpl icqProvider = null;
 
     /**
      * An active instance of the opSetPersPresence operation set. We're using
@@ -69,72 +59,9 @@ public class OperationSetTypingNotificationsIcqImpl
     OperationSetTypingNotificationsIcqImpl(
         ProtocolProviderServiceIcqImpl icqProvider)
     {
-        this.icqProvider = icqProvider;
+        super(icqProvider);
+
         icqProvider.addRegistrationStateChangeListener(providerRegListener);
-    }
-
-    /**
-     * Adds <tt>l</tt> to the list of listeners registered for receiving
-     * <tt>TypingNotificationEvent</tt>s
-     *
-     * @param listener the <tt>TypingNotificationsListener</tt> listener that
-     *  we'd like to add.
-     */
-    public void addTypingNotificationsListener(
-                                TypingNotificationsListener listener)
-    {
-        synchronized(typingNotificationsListeners)
-        {
-            if(!typingNotificationsListeners.contains(listener))
-                typingNotificationsListeners.add(listener);
-        }
-    }
-
-    /**
-     * Removes <tt>l</tt> from the list of listeners registered for receiving
-     * <tt>TypingNotificationEvent</tt>s
-     *
-     * @param listener the <tt>TypingNotificationsListener</tt> listener that
-     * we'd like to remove
-     */
-    public void removeTypingNotificationsListener(
-        TypingNotificationsListener listener)
-    {
-        synchronized(typingNotificationsListeners)
-        {
-            typingNotificationsListeners.remove(listener);
-        }
-    }
-
-    /**
-     * Delivers a <tt>TypingNotificationEvent</tt> to all registered listeners.
-     * @param sourceContact the contact who has sent the notification.
-     * @param evtCode the code of the event to deliver.
-     */
-    private void fireTypingNotificationsEvent(Contact sourceContact
-                                              ,int evtCode)
-    {
-        logger.debug("Dispatching a TypingNotif. event to "
-            + typingNotificationsListeners.size()+" listeners. Contact "
-            + sourceContact.getAddress() + " has now a typing status of "
-            + evtCode);
-
-        TypingNotificationEvent evt = new TypingNotificationEvent(
-            sourceContact, evtCode);
-
-        Iterator listeners = null;
-        synchronized (typingNotificationsListeners)
-        {
-            listeners = new ArrayList(typingNotificationsListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            TypingNotificationsListener listener
-                = (TypingNotificationsListener) listeners.next();
-
-            listener.typingNotificationReceived(evt);
-        }
     }
 
     /**
@@ -199,27 +126,12 @@ public class OperationSetTypingNotificationsIcqImpl
                + notifiedContact);
 
 
-        icqProvider.getAimConnection().getIcbmService().getImConversation(
-            new Screenname(notifiedContact.getAddress())).setTypingState(
-                intToTypingState(typingState));
-    }
-
-    /**
-     * Utility method throwing an exception if the icq stack is not properly
-     * initialized.
-     * @throws java.lang.IllegalStateException if the underlying ICQ stack is
-     * not registered and initialized.
-     */
-    private void assertConnected() throws IllegalStateException
-    {
-        if (icqProvider == null)
-            throw new IllegalStateException(
-                "The icq provider must be non-null and signed on the ICQ "
-                +"service before being able to communicate.");
-        if (!icqProvider.isRegistered())
-            throw new IllegalStateException(
-                "The icq provider must be signed on the ICQ service before "
-                +"being able to communicate.");
+        parentProvider
+            .getAimConnection()
+                .getIcbmService()
+                    .getImConversation(
+                            new Screenname(notifiedContact.getAddress()))
+                        .setTypingState(intToTypingState(typingState));
     }
 
     /**
@@ -243,11 +155,11 @@ public class OperationSetTypingNotificationsIcqImpl
                          + " to: " + evt.getNewState());
             if (evt.getNewState() == RegistrationState.FINALIZING_REGISTRATION)
             {
-                icqProvider.getAimConnection().getIcbmService()
+                parentProvider.getAimConnection().getIcbmService()
                     .addIcbmListener(joustSimIcbmListener);
 
                 opSetPersPresence =
-                    (OperationSetPersistentPresenceIcqImpl) icqProvider
+                    (OperationSetPersistentPresenceIcqImpl) parentProvider
                         .getOperationSet(OperationSetPersistentPresence.class);
             }
         }

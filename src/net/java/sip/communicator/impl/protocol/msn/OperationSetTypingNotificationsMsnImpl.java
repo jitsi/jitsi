@@ -6,14 +6,12 @@
  */
 package net.java.sip.communicator.impl.protocol.msn;
 
-import java.util.*;
-
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.sf.jml.*;
-import net.sf.jml.message.*;
 import net.sf.jml.event.*;
+import net.sf.jml.message.*;
 
 /**
  * Maps SIP Communicator typing notifications to those going and coming from
@@ -22,20 +20,10 @@ import net.sf.jml.event.*;
  * @author Damian Minkov
  */
 public class OperationSetTypingNotificationsMsnImpl
-    implements OperationSetTypingNotifications
+    extends AbstractOperationSetTypingNotifications<ProtocolProviderServiceMsnImpl>
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetTypingNotificationsMsnImpl.class);
-
-    /**
-     * All currently registered TN listeners.
-     */
-    private List typingNotificationsListeners = new ArrayList();
-
-    /**
-     * The provider that created us.
-     */
-    private ProtocolProviderServiceMsnImpl msnProvider = null;
 
     /**
      * An active instance of the opSetPersPresence operation set. We're using
@@ -53,70 +41,9 @@ public class OperationSetTypingNotificationsMsnImpl
     OperationSetTypingNotificationsMsnImpl(
         ProtocolProviderServiceMsnImpl provider)
     {
-        this.msnProvider = provider;
+        super(provider);
+
         provider.addRegistrationStateChangeListener(new ProviderRegListener());
-    }
-
-    /**
-     * Adds <tt>l</tt> to the list of listeners registered for receiving
-     * <tt>TypingNotificationEvent</tt>s
-     *
-     * @param l the <tt>TypingNotificationsListener</tt> listener that we'd
-     *   like to add
-     *   method
-     */
-    public void addTypingNotificationsListener(TypingNotificationsListener l)
-    {
-        synchronized(typingNotificationsListeners)
-        {
-            typingNotificationsListeners.add(l);
-        }
-    }
-
-    /**
-     * Removes <tt>l</tt> from the list of listeners registered for receiving
-     * <tt>TypingNotificationEvent</tt>s
-     *
-     * @param l the <tt>TypingNotificationsListener</tt> listener that we'd
-     *   like to remove
-     */
-    public void removeTypingNotificationsListener(TypingNotificationsListener l)
-    {
-        synchronized(typingNotificationsListeners)
-        {
-            typingNotificationsListeners.remove(l);
-        }
-    }
-
-    /**
-     * Delivers a <tt>TypingNotificationEvent</tt> to all registered listeners.
-     * @param sourceContact the contact who has sent the notification.
-     * @param evtCode the code of the event to deliver.
-     */
-    private void fireTypingNotificationsEvent(Contact sourceContact
-                                              ,int evtCode)
-    {
-        logger.debug("Dispatching a TypingNotif. event to "
-            + typingNotificationsListeners.size()+" listeners. Contact "
-            + sourceContact.getAddress() + " has now a typing status of "
-            + evtCode);
-
-        TypingNotificationEvent evt = new TypingNotificationEvent(
-            sourceContact, evtCode);
-
-        Iterator listeners = null;
-        synchronized (typingNotificationsListeners)
-        {
-            listeners = new ArrayList(typingNotificationsListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            TypingNotificationsListener listener
-                = (TypingNotificationsListener) listeners.next();
-
-              listener.typingNotificationReceived(evt);
-        }
     }
 
     /**
@@ -163,27 +90,11 @@ public class OperationSetTypingNotificationsMsnImpl
     }
 
     /**
-     * Utility method throwing an exception if the stack is not properly
-     * initialized.
-     * @throws java.lang.IllegalStateException if the underlying stack is
-     * not registered and initialized.
-     */
-    private void assertConnected() throws IllegalStateException
-    {
-        if (msnProvider == null)
-            throw new IllegalStateException(
-                "The msn provider must be non-null and signed on the "
-                +"service before being able to communicate.");
-        if (!msnProvider.isRegistered())
-            throw new IllegalStateException(
-                "The msn provider must be signed on the service before "
-                +"being able to communicate.");
-    }
-
-    /**
-     * Sets the messenger instance impl of the lib
-     * which comunicates with the server
-     * @param messenger MsnMessenger
+     * Sets the messenger instance impl of the lib which communicates with the
+     * server
+     * 
+     * @param messenger
+     *            MsnMessenger
      */
     void setMessenger(MsnMessenger messenger)
     {
@@ -220,7 +131,7 @@ public class OperationSetTypingNotificationsMsnImpl
         implements RegistrationStateChangeListener
     {
         /**
-         * The method is called by a ProtocolProvider implementation whenver
+         * The method is called by a ProtocolProvider implementation whenever
          * a change in the registration state of the corresponding provider had
          * occurred.
          * @param evt ProviderStatusChangeEvent the event describing the status
@@ -234,7 +145,7 @@ public class OperationSetTypingNotificationsMsnImpl
             if (evt.getNewState() == RegistrationState.REGISTERED)
             {
                 opSetPersPresence =
-                    (OperationSetPersistentPresenceMsnImpl) msnProvider
+                    (OperationSetPersistentPresenceMsnImpl) parentProvider
                         .getOperationSet(OperationSetPersistentPresence.class);
             }
         }

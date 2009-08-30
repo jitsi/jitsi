@@ -133,16 +133,11 @@ public class ProtocolProviderServiceZeroconfImpl
                 basicInstantMessaging);
 
             //initialize the typing notifications operation set
-            OperationSetTypingNotifications typingNotifications =
-                new OperationSetTypingNotificationsZeroconfImpl(
-                        this, persistentPresence);
-
             supportedOperationSets.put(
                 OperationSetTypingNotifications.class.getName(),
-                typingNotifications);
+                new OperationSetTypingNotificationsZeroconfImpl(this));
 
             isInitialized = true;
-            
         }
     }
 

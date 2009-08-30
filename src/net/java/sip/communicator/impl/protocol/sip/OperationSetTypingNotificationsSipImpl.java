@@ -13,13 +13,13 @@ import javax.sip.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
 
-import org.w3c.dom.*;
-
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.xml.*;
+
+import org.w3c.dom.*;
 
 /**
  * A implementation of the typing notification operation
@@ -30,22 +30,12 @@ import net.java.sip.communicator.util.xml.*;
  * @author Damian Minkov
  */
 public class OperationSetTypingNotificationsSipImpl
-    implements  OperationSetTypingNotifications,
-                SipMessageProcessor,
-                MessageListener
+    extends AbstractOperationSetTypingNotifications<ProtocolProviderServiceSipImpl>
+    implements SipMessageProcessor,
+               MessageListener
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetTypingNotificationsSipImpl.class);
-
-    /**
-     * A list of listeners registered for message events.
-     */
-    private Vector typingNotificationsListeners = new Vector();
-
-    /**
-     * The provider that created us.
-     */
-    private ProtocolProviderServiceSipImpl sipProvider = null;
 
     /**
      * A reference to the persistent presence operation set that we use
@@ -86,31 +76,12 @@ public class OperationSetTypingNotificationsSipImpl
         ProtocolProviderServiceSipImpl provider,
         OperationSetBasicInstantMessagingSipImpl opSetBasicIm)
     {
-        this.sipProvider = provider;
+        super(provider);
 
         provider.addRegistrationStateChangeListener(new
             RegistrationStateListener());
         this.opSetBasicIm = opSetBasicIm;
         opSetBasicIm.addMessageProcessor(this);
-    }
-
-    /**
-     * Utility method throwing an exception if the stack is not properly
-     * initialized.
-     * @throws java.lang.IllegalStateException if the underlying stack is
-     * not registered and initialized.
-     */
-    private void assertConnected()
-        throws IllegalStateException
-    {
-        if (this.sipProvider == null)
-            throw new IllegalStateException(
-                "The provider must be non-null and signed on the "
-                + "service before being able to communicate.");
-        if (!this.sipProvider.isRegistered())
-            throw new IllegalStateException(
-                "The provider must be signed on the service before "
-                + "being able to communicate.");
     }
 
     /**
@@ -135,40 +106,9 @@ public class OperationSetTypingNotificationsSipImpl
             if (evt.getNewState() == RegistrationState.REGISTERED)
             {
                 opSetPersPresence =
-                    (OperationSetPresenceSipImpl) sipProvider
+                    (OperationSetPresenceSipImpl) parentProvider
                         .getOperationSet(OperationSetPersistentPresence.class);
             }
-        }
-    }
-
-    /**
-     * Delivers a <tt>TypingNotificationEvent</tt> to all registered listeners.
-     * @param sourceContact the contact who has sent the notification.
-     * @param evtCode the code of the event to deliver.
-     */
-    private void fireTypingNotificationsEvent(Contact sourceContact
-                                              ,int evtCode)
-    {
-        logger.debug("Dispatching a TypingNotif. event to "
-            + typingNotificationsListeners.size()+" listeners. Contact "
-            + sourceContact.getAddress() + " has now a typing status of "
-            + evtCode);
-
-        TypingNotificationEvent evt = new TypingNotificationEvent(
-            sourceContact, evtCode);
-
-        Iterator listeners = null;
-        synchronized (typingNotificationsListeners)
-        {
-            listeners = new ArrayList(typingNotificationsListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            TypingNotificationsListener listener
-                = (TypingNotificationsListener) listeners.next();
-
-            listener.typingNotificationReceived(evt);
         }
     }
 
@@ -329,11 +269,7 @@ public class OperationSetTypingNotificationsSipImpl
      */
     public boolean processResponse(ResponseEvent responseEvent, Map sentMsg)
     {
-        // get the content
-        String content = null;
-
         Request req = responseEvent.getClientTransaction().getRequest();
-
         ContentTypeHeader ctheader =
             (ContentTypeHeader)req.getHeader(ContentTypeHeader.NAME);
 
@@ -384,17 +320,15 @@ public class OperationSetTypingNotificationsSipImpl
     public boolean processTimeout(TimeoutEvent timeoutEvent, Map sentMessages)
     {
         Request req = timeoutEvent.getClientTransaction().getRequest();
-
         ContentTypeHeader ctheader =
             (ContentTypeHeader)req.getHeader(ContentTypeHeader.NAME);
 
         // ignore messages which are not typing
         // notifications and continue processing
-        if (ctheader == null || !ctheader.getContentSubType()
-                .equalsIgnoreCase(CONTENT_SUBTYPE))
-            return true;
-
-        return false;
+        return
+            (ctheader == null)
+                || !CONTENT_SUBTYPE
+                        .equalsIgnoreCase(ctheader.getContentSubType());
     }
 
     private TypingTask findTypingTask(Contact contact)
@@ -405,39 +339,6 @@ public class OperationSetTypingNotificationsSipImpl
                 return typingTask;
         }
         return null;
-    }
-
-    /**
-     * Adds <tt>l</tt> to the list of listeners registered for receiving
-     * <tt>TypingNotificationEvent</tt>s
-     *
-     * @param listener the <tt>TypingNotificationsListener</tt> listener that
-     *  we'd like to add.
-     */
-    public void addTypingNotificationsListener(
-        TypingNotificationsListener listener)
-    {
-        synchronized(typingNotificationsListeners)
-        {
-            if(!typingNotificationsListeners.contains(listener))
-                typingNotificationsListeners.add(listener);
-        }
-    }
-
-    /**
-     * Removes <tt>l</tt> from the list of listeners registered for receiving
-     * <tt>TypingNotificationEvent</tt>s
-     *
-     * @param listener the <tt>TypingNotificationsListener</tt> listener that
-     * we'd like to remove
-     */
-    public void removeTypingNotificationsListener(
-        TypingNotificationsListener listener)
-    {
-        synchronized(typingNotificationsListeners)
-        {
-            typingNotificationsListeners.remove(listener);
-        }
     }
 
     public void sendTypingNotification(Contact to, int typingState)
@@ -533,7 +434,7 @@ public class OperationSetTypingNotificationsSipImpl
         // answer
         try
         {
-            Response ok = sipProvider.getMessageFactory()
+            Response ok = parentProvider.getMessageFactory()
                 .createResponse(response, requestEvent.getRequest());
             SipStackSharing.getOrCreateServerTransaction(requestEvent).
                 sendResponse(ok);

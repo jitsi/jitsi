@@ -115,12 +115,9 @@ public class ProtocolProviderServiceFacebookImpl
                 .getName(), basicMessaging);
 
             // initialize the typing notifications operation set
-            OperationSetTypingNotifications typingNotifications =
-                new OperationSetTypingNotificationsFacebookImpl(this,
-                    persistentPresence);
-
-            supportedOperationSets.put(OperationSetTypingNotifications.class
-                .getName(), typingNotifications);
+            supportedOperationSets.put(
+                OperationSetTypingNotifications.class.getName(),
+                new OperationSetTypingNotificationsFacebookImpl(this));
 
             // initialize the server stored contact info operation set
             OperationSetServerStoredContactInfo contactInfo =

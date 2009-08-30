@@ -8,12 +8,13 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
-import org.jivesoftware.smack.util.*;
-import org.jivesoftware.smackx.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.util.*;
+import org.jivesoftware.smackx.*;
 
 /**
  * Maps SIP Communicator typing notifications to those going and coming from
@@ -23,20 +24,10 @@ import org.jivesoftware.smack.*;
  * @author Emil Ivov
  */
 public class OperationSetTypingNotificationsJabberImpl
-    implements OperationSetTypingNotifications
+    extends AbstractOperationSetTypingNotifications<ProtocolProviderServiceJabberImpl>
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetTypingNotificationsJabberImpl.class);
-
-    /**
-     * All currently registered TN listeners.
-     */
-    private List typingNotificationsListeners = new ArrayList();
-
-    /**
-     * The provider that created us.
-     */
-    private ProtocolProviderServiceJabberImpl jabberProvider = null;
 
     /**
      * An active instance of the opSetPersPresence operation set. We're using
@@ -77,70 +68,9 @@ public class OperationSetTypingNotificationsJabberImpl
     OperationSetTypingNotificationsJabberImpl(
         ProtocolProviderServiceJabberImpl provider)
     {
-        this.jabberProvider = provider;
+        super(provider);
+
         provider.addRegistrationStateChangeListener(providerRegListener);
-    }
-
-    /**
-     * Adds <tt>l</tt> to the list of listeners registered for receiving
-     * <tt>TypingNotificationEvent</tt>s
-     *
-     * @param l the <tt>TypingNotificationsListener</tt> listener that we'd
-     *   like to add
-     *   method
-     */
-    public void addTypingNotificationsListener(TypingNotificationsListener l)
-    {
-        synchronized(typingNotificationsListeners)
-        {
-            typingNotificationsListeners.add(l);
-        }
-    }
-
-    /**
-     * Removes <tt>l</tt> from the list of listeners registered for receiving
-     * <tt>TypingNotificationEvent</tt>s
-     *
-     * @param l the <tt>TypingNotificationsListener</tt> listener that we'd
-     *   like to remove
-     */
-    public void removeTypingNotificationsListener(TypingNotificationsListener l)
-    {
-        synchronized(typingNotificationsListeners)
-        {
-            typingNotificationsListeners.remove(l);
-        }
-    }
-
-    /**
-     * Delivers a <tt>TypingNotificationEvent</tt> to all registered listeners.
-     * @param sourceContact the contact who has sent the notification.
-     * @param evtCode the code of the event to deliver.
-     */
-    private void fireTypingNotificationsEvent(Contact sourceContact
-                                              ,int evtCode)
-    {
-        logger.debug("Dispatching a TypingNotif. event to "
-            + typingNotificationsListeners.size()+" listeners. Contact "
-            + sourceContact.getAddress() + " has now a typing status of "
-            + evtCode);
-
-        TypingNotificationEvent evt = new TypingNotificationEvent(
-            sourceContact, evtCode);
-
-        Iterator listeners = null;
-        synchronized (typingNotificationsListeners)
-        {
-            listeners = new ArrayList(typingNotificationsListeners).iterator();
-        }
-
-        while (listeners.hasNext())
-        {
-            TypingNotificationsListener listener
-                = (TypingNotificationsListener) listeners.next();
-
-              listener.typingNotificationReceived(evt);
-        }
     }
 
     /**
@@ -210,7 +140,7 @@ public class OperationSetTypingNotificationsJabberImpl
         logger.trace("Sending XEP-0085 chat state=" + state
             + " to " + contact.getAddress());
 
-        Chat chat = jabberProvider.getConnection()
+        Chat chat = parentProvider.getConnection()
             .getChatManager().createChat(contact.getAddress(), null);
 
         ChatState chatState = null;
@@ -235,7 +165,7 @@ public class OperationSetTypingNotificationsJabberImpl
 
         try
         {
-            ChatStateManager.getInstance(jabberProvider.getConnection())
+            ChatStateManager.getInstance(parentProvider.getConnection())
                 .setCurrentState(chatState, chat);
         }
         catch(XMPPException exc)
@@ -245,24 +175,6 @@ public class OperationSetTypingNotificationsJabberImpl
             logger.warn("Failed to send state [" + state + "] to ["
                 + contact.getAddress() + "].", exc);
         }
-    }
-
-    /**
-     * Utility method throwing an exception if the stack is not properly
-     * initialised.
-     * @throws java.lang.IllegalStateException if the underlying stack is
-     * not registered and initialised.
-     */
-    private void assertConnected() throws IllegalStateException
-    {
-        if (jabberProvider == null)
-            throw new IllegalStateException(
-                "The jabber provider must be non-null and signed on the "
-                +"service before being able to communicate.");
-        if (!jabberProvider.isRegistered())
-            throw new IllegalStateException(
-                "The jabber provider must be signed on the service before "
-                +"being able to communicate.");
     }
 
     /**
@@ -287,11 +199,11 @@ public class OperationSetTypingNotificationsJabberImpl
             if (evt.getNewState() == RegistrationState.REGISTERED)
             {
                 opSetPersPresence =
-                    (OperationSetPersistentPresenceJabberImpl) jabberProvider
+                    (OperationSetPersistentPresenceJabberImpl) parentProvider
                         .getOperationSet(OperationSetPersistentPresence.class);
 
                 messageEventManager =
-                    new MessageEventManager(jabberProvider.getConnection());
+                    new MessageEventManager(parentProvider.getConnection());
 
                 messageEventManager.addMessageEventRequestListener(
                     new JabberMessageEventRequestListener());
@@ -302,12 +214,12 @@ public class OperationSetTypingNotificationsJabberImpl
                 //every time we connect in order to reinitialize the chat state
                 //manager (@see http://tinyurl.com/6j9uqs )
 
-                ChatStateManager.getInstance(jabberProvider.getConnection());
+                ChatStateManager.getInstance(parentProvider.getConnection());
 
                 if(smackChatManagerListener == null)
                     smackChatManagerListener = new SmackChatManagerListener();
 
-                jabberProvider.getConnection().getChatManager()
+                parentProvider.getConnection().getChatManager()
                     .addChatListener(smackChatManagerListener);
             }
         }
