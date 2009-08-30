@@ -101,8 +101,11 @@ class OtrContactMenu
         switch (this.getSessionStatus())
         {
         case ENCRYPTED:
-            this.setIcon(OtrActivator.resourceService
-                .getImage("plugin.otr.ENCRYPTED_ICON_15x15"));
+            this
+                .setIcon(OtrActivator.resourceService
+                    .getImage((OtrActivator.scOtrEngine
+                        .isContactVerified(contact)) ? "plugin.otr.ENCRYPTED_ICON_15x15"
+                        : "plugin.otr.ENCRYPTED_UNVERIFIED_ICON_15x15"));
 
             this.add(endOtr);
 

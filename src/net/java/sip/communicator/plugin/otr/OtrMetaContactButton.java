@@ -147,8 +147,12 @@ public class OtrMetaContactButton
         case ENCRYPTED:
             try
             {
-                this.setImage(ImageIO.read(OtrActivator.resourceService
-                    .getImageURL("plugin.otr.ENCRYPTED_ICON_25x25")));
+                this
+                    .setImage(ImageIO
+                        .read(OtrActivator.resourceService
+                            .getImageURL((OtrActivator.scOtrEngine
+                                .isContactVerified(contact)) ? "plugin.otr.ENCRYPTED_ICON_25x25"
+                                : "plugin.otr.ENCRYPTED_UNVERIFIED_ICON_25x25")));
             }
             catch (IOException e)
             {
