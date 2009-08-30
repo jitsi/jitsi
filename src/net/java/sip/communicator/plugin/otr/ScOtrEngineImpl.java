@@ -343,8 +343,14 @@ public class ScOtrEngineImpl
         if (contact == null)
             return;
 
+        if (isContactVerified(contact))
+            return;
+        
         this.configurator.setProperty(getSessionID(contact)
             + "publicKey.verified", true);
+        
+        for (ScOtrEngineListener l : listeners)
+            l.contactVerificationStatusChanged(contact);
     }
 
     public void forgetContactFingerprint(Contact contact)
@@ -352,9 +358,14 @@ public class ScOtrEngineImpl
         if (contact == null)
             return;
 
+        if (!isContactVerified(contact))
+            return;
+        
         this.configurator.removeProperty(getSessionID(contact)
             + "publicKey.verified");
 
+        for (ScOtrEngineListener l : listeners)
+            l.contactVerificationStatusChanged(contact);
     }
 
     public OtrPolicy getGlobalPolicy()

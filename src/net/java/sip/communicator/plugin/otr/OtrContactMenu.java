@@ -57,6 +57,15 @@ class OtrContactMenu
 
                 setOtrPolicy(policy);
             }
+
+            public void contactVerificationStatusChanged(Contact contact)
+            {
+                SessionStatus status =
+                    OtrActivator.scOtrEngine.getSessionStatus(contact);
+
+                if (contact.equals(OtrContactMenu.this.contact))
+                    setSessionStatus(status);
+            }
         });
 
         setSessionStatus(OtrActivator.scOtrEngine.getSessionStatus(contact));
@@ -123,30 +132,27 @@ class OtrContactMenu
             refreshOtr.setEnabled(policy.getEnableManual());
             this.add(refreshOtr);
 
-            if (!OtrActivator.scOtrEngine.isContactVerified(contact))
+            JMenuItem authBuddy = new JMenuItem();
+            authBuddy.setText(OtrActivator.resourceService
+                .getI18NString("plugin.otr.menu.AUTHENTICATE_BUDDY"));
+            authBuddy.addActionListener(new ActionListener()
             {
-                JMenuItem authBuddy = new JMenuItem();
-                authBuddy.setText(OtrActivator.resourceService
-                    .getI18NString("plugin.otr.menu.AUTHENTICATE_BUDDY"));
-                authBuddy.addActionListener(new ActionListener()
+                public void actionPerformed(ActionEvent e)
                 {
-                    public void actionPerformed(ActionEvent e)
-                    {
-                        // Launch auth buddy dialog.
-                        OtrBuddyAuthenticationDialog authenticateBuddyDialog =
-                            new OtrBuddyAuthenticationDialog(contact);
+                    // Launch auth buddy dialog.
+                    OtrBuddyAuthenticationDialog authenticateBuddyDialog =
+                        new OtrBuddyAuthenticationDialog(contact);
 
-                        authenticateBuddyDialog.setLocation(Toolkit
-                            .getDefaultToolkit().getScreenSize().width
-                            / 2 - authenticateBuddyDialog.getWidth() / 2,
-                            Toolkit.getDefaultToolkit().getScreenSize().height
-                                / 2 - authenticateBuddyDialog.getHeight() / 2);
+                    authenticateBuddyDialog.setLocation(Toolkit
+                        .getDefaultToolkit().getScreenSize().width
+                        / 2 - authenticateBuddyDialog.getWidth() / 2, Toolkit
+                        .getDefaultToolkit().getScreenSize().height
+                        / 2 - authenticateBuddyDialog.getHeight() / 2);
 
-                        authenticateBuddyDialog.setVisible(true);
-                    }
-                });
-                this.add(authBuddy);
-            }
+                    authenticateBuddyDialog.setVisible(true);
+                }
+            });
+            this.add(authBuddy);
             break;
         case FINISHED:
             this.setIcon(OtrActivator.resourceService

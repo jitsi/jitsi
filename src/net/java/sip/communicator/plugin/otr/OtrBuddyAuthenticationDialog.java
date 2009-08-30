@@ -31,9 +31,13 @@ public class OtrBuddyAuthenticationDialog
         loadContact();
     }
 
-    JTextArea txtLocalFingerprint;
+    private JTextArea txtLocalFingerprint;
 
-    JTextArea txtRemoteFingerprint;
+    private JTextArea txtRemoteFingerprint;
+
+    private JComboBox cbAction;
+
+    private JTextArea txtAction;
 
     private void loadContact()
     {
@@ -55,6 +59,59 @@ public class OtrBuddyAuthenticationDialog
             .getI18NString("plugin.otr.authbuddydialog.REMOTE_FINGERPRINT",
                 new String[]
                 { user, remoteFingerprint }));
+
+        // Action
+        txtAction.setText(OtrActivator.resourceService.getI18NString(
+            "plugin.otr.authbuddydialog.VERIFY_ACTION", new String[]
+            { user }));
+    }
+
+    class CustomTextArea
+        extends JTextArea
+    {
+        public CustomTextArea()
+        {
+            this.setBackground(new java.awt.Color(212, 208, 200));
+            this.setColumns(20);
+            this.setEditable(false);
+            this.setLineWrap(true);
+            this.setWrapStyleWord(true);
+        }
+    }
+
+    enum ActionComboBoxItemIndex
+    {
+        I_HAVE, I_HAVE_NOT
+    }
+
+    class ActionComboBoxItem
+    {
+        public ActionComboBoxItemIndex action;
+
+        private String text;
+
+        public ActionComboBoxItem(ActionComboBoxItemIndex actionIndex)
+        {
+            this.action = actionIndex;
+            switch (action)
+            {
+            case I_HAVE:
+                text =
+                    OtrActivator.resourceService
+                        .getI18NString("plugin.otr.authbuddydialog.I_HAVE");
+                break;
+            case I_HAVE_NOT:
+                text =
+                    OtrActivator.resourceService
+                        .getI18NString("plugin.otr.authbuddydialog.I_HAVE_NOT");
+                break;
+            }
+        }
+
+        public String toString()
+        {
+            return text;
+        }
     }
 
     private void initComponents()
@@ -67,35 +124,46 @@ public class OtrBuddyAuthenticationDialog
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         mainPanel.setPreferredSize(new Dimension(400, 300));
 
-        JTextArea generalInformation = new JTextArea();
-        generalInformation.setBackground(new java.awt.Color(212, 208, 200));
-        generalInformation.setColumns(20);
-        generalInformation.setEditable(false);
-        generalInformation.setLineWrap(true);
-        generalInformation.setWrapStyleWord(true);
+        JTextArea generalInformation = new CustomTextArea();
         generalInformation.setText(OtrActivator.resourceService
             .getI18NString("plugin.otr.authbuddydialog.AUTHENTICATION_INFO"));
         mainPanel.add(generalInformation);
 
-        txtLocalFingerprint = new JTextArea();
-        txtLocalFingerprint.setBackground(new java.awt.Color(212, 208, 200));
-        txtLocalFingerprint.setColumns(20);
-        txtLocalFingerprint.setEditable(false);
-        txtLocalFingerprint.setLineWrap(true);
-        generalInformation.setWrapStyleWord(true);
-
+        txtLocalFingerprint = new CustomTextArea();
         mainPanel.add(txtLocalFingerprint);
 
-        txtRemoteFingerprint = new JTextArea();
-        txtRemoteFingerprint.setBackground(new java.awt.Color(212, 208, 200));
-        txtRemoteFingerprint.setColumns(20);
-        txtRemoteFingerprint.setEditable(false);
-        txtRemoteFingerprint.setLineWrap(true);
-        generalInformation.setWrapStyleWord(true);
-
+        txtRemoteFingerprint = new CustomTextArea();
         mainPanel.add(txtRemoteFingerprint);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        // Action Panel (the panel that holds the I have/I have not dropdown)
+        JPanel pnlAction = new JPanel(new GridBagLayout());
+        pnlAction.setBorder(BorderFactory.createEtchedBorder());
+        mainPanel.add(pnlAction);
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.insets = new Insets(5, 5, 5, 5);
+        c.weightx = 0.0;
+
+        cbAction = new JComboBox();
+
+        ActionComboBoxItem iHave =
+            new ActionComboBoxItem(ActionComboBoxItemIndex.I_HAVE);
+        ActionComboBoxItem iHaveNot =
+            new ActionComboBoxItem(ActionComboBoxItemIndex.I_HAVE_NOT);
+        cbAction.addItem(iHave);
+        cbAction.addItem(iHaveNot);
+        cbAction.setSelectedItem(OtrActivator.scOtrEngine
+            .isContactVerified(contact) ? iHave : iHaveNot);
+
+        pnlAction.add(cbAction, c);
+
+        txtAction = new CustomTextArea();
+        c.weightx = 1.0;
+        pnlAction.add(txtAction, c);
+
+        // Buttons panel.
+        JPanel buttonPanel = new JPanel(new GridBagLayout());
 
         JButton helpButton =
             new JButton(OtrActivator.resourceService
@@ -107,7 +175,15 @@ public class OtrBuddyAuthenticationDialog
                 OtrActivator.scOtrEngine.launchHelp();
             }
         });
-        buttonPanel.add(helpButton);
+
+        c.weightx = 0.0;
+        buttonPanel.add(helpButton, c);
+
+        // Provide space between help and the other two button, not sure if this
+        // is optimal..
+        c.weightx = 1.0;
+        buttonPanel.add(new JLabel(), c);
+        c.weightx = 0.0;
 
         JButton cancelButton =
             new JButton(OtrActivator.resourceService
@@ -119,7 +195,7 @@ public class OtrBuddyAuthenticationDialog
                 dispose();
             }
         });
-        buttonPanel.add(cancelButton);
+        buttonPanel.add(cancelButton, c);
 
         JButton authenticateButton =
             new JButton(OtrActivator.resourceService
@@ -128,11 +204,22 @@ public class OtrBuddyAuthenticationDialog
         {
             public void actionPerformed(ActionEvent e)
             {
-                OtrActivator.scOtrEngine.verifyContactFingerprint(contact);
+                ActionComboBoxItem actionItem =
+                    (ActionComboBoxItem) cbAction.getSelectedItem();
+                switch (actionItem.action)
+                {
+                case I_HAVE:
+                    OtrActivator.scOtrEngine.verifyContactFingerprint(contact);
+                    break;
+                case I_HAVE_NOT:
+                    OtrActivator.scOtrEngine.forgetContactFingerprint(contact);
+                    break;
+                }
+
                 dispose();
             }
         });
-        buttonPanel.add(authenticateButton);
+        buttonPanel.add(authenticateButton, c);
 
         mainPanel.add(buttonPanel);
 

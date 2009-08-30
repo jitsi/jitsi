@@ -67,6 +67,17 @@ public class OtrMetaContactButton
                     setPolicy(OtrActivator.scOtrEngine
                         .getContactPolicy(contact));
             }
+
+            public void contactVerificationStatusChanged(Contact contact)
+            {
+                // OtrMetaContactButton.this.contact can be null.
+                if (contact.equals(OtrMetaContactButton.this.contact))
+                {
+                    setStatus(OtrActivator.scOtrEngine
+                        .getSessionStatus(contact));
+                }
+                
+            }
         });
 
         this.addActionListener(new ActionListener()
