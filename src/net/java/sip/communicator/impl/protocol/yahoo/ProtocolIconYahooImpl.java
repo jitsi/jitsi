@@ -72,7 +72,7 @@ public class ProtocolIconYahooImpl
      */
     public byte[] getIcon(String iconSize)
     {
-        return (byte[])iconsTable.get(iconSize);
+        return iconsTable.get(iconSize);
     }
     
     /**
