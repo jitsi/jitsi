@@ -66,7 +66,7 @@ public class IcqProtocolProviderSlick
     public void start(BundleContext bundleContext) throws Exception
     {
         setName("IcqProtocolProviderSlick");
-        Hashtable properties = new Hashtable();
+        Hashtable<String, String> properties = new Hashtable<String, String>();
         properties.put("service.pid", getName());
 
         //store the bundle cache reference for usage by other others
@@ -221,7 +221,8 @@ public class IcqProtocolProviderSlick
         logger.debug("tokens contained by the CL tokenized="
             +tokenizer.countTokens());
 
-        Hashtable contactListToCreate = new Hashtable();
+        Hashtable<String, List<String>> contactListToCreate
+            = new Hashtable<String, List<String>>();
 
         //go over all group.uin tokens
         while (tokenizer.hasMoreTokens())
@@ -247,10 +248,10 @@ public class IcqProtocolProviderSlick
             }
 
             //check if we've already seen this group and if not - add it
-            List uinInThisGroup = (List)contactListToCreate.get(groupName);
+            List<String> uinInThisGroup = contactListToCreate.get(groupName);
             if (uinInThisGroup == null)
             {
-                uinInThisGroup = new ArrayList();
+                uinInThisGroup = new ArrayList<String>();
                 contactListToCreate.put(groupName, uinInThisGroup);
             }
 

@@ -150,7 +150,7 @@ public class TestMsgHistoryService
 
        System.setProperty(MetaContactListService.PROVIDER_MASK_PROPERTY, "1");
 
-       Hashtable mockProvProperties = new Hashtable();
+       Hashtable<String, String> mockProvProperties = new Hashtable<String, String>();
        mockProvProperties.put(ProtocolProviderFactory.PROTOCOL
                               , mockProvider.getProtocolName());
        mockProvProperties.put(MetaContactListService.PROVIDER_MASK_PROPERTY,
@@ -245,12 +245,12 @@ public class TestMsgHistoryService
 
         assertTrue("Nothing found findByKeyword ", !rs.isEmpty());
 
-        Vector msgs = getMessages(rs);
+        List<String> msgs = getMessages(rs);
 
         assertTrue("Messages too few - findByKeyword", msgs.size() >= 5);
 
         /**
-         * Will test case sernsitive and insensitive search
+         * Will test case sensitive and insensitive search
          */
         rs = msgHistoryService.findByKeyword(testMetaContact, "Test", false);
 
@@ -470,12 +470,12 @@ public class TestMsgHistoryService
 
         assertTrue("Nothing found findByKeyword ", !rs.isEmpty());
 
-        Vector msgs = getChatMessages(rs);
+        List<String> msgs = getChatMessages(rs);
 
         assertTrue("Messages too few - findByKeyword", msgs.size() >= 5);
 
         /**
-         * Will test case sernsitive and insensitive search
+         * Will test case sensitive and insensitive search
          */
         rs = msgHistoryService.findByKeyword(room, "Test", false);
 
@@ -620,9 +620,9 @@ public class TestMsgHistoryService
         metaClService.purgeLocallyStoredContactListCopy();
     }
 
-    private Vector getMessages(Collection rs)
+    private List<String> getMessages(Collection rs)
     {
-        Vector result = new Vector();
+        List<String> result = new Vector<String>();
         Iterator iter = rs.iterator();
         while (iter.hasNext())
         {
@@ -637,9 +637,9 @@ public class TestMsgHistoryService
         return result;
     }
     
-    private Vector getChatMessages(Collection rs)
+    private List<String> getChatMessages(Collection rs)
     {
-        Vector result = new Vector();
+        List<String> result = new Vector<String>();
         Iterator iter = rs.iterator();
         while (iter.hasNext())
         {

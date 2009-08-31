@@ -53,7 +53,7 @@ public class TestCallHistoryService
     /**
      * The addresses will be used in the generated mock calls
      */
-    private static Vector participantAddresses = new Vector();
+    private static Vector<String> participantAddresses = new Vector<String>();
 
     public TestCallHistoryService(String name)
     {
@@ -97,7 +97,7 @@ public class TestCallHistoryService
 
        System.setProperty(MetaContactListService.PROVIDER_MASK_PROPERTY, "1");
 
-       Hashtable mockProvProperties = new Hashtable();
+       Hashtable<String, String> mockProvProperties = new Hashtable<String, String>();
        mockProvProperties.put(ProtocolProviderFactory.PROTOCOL
                               , mockProvider.getProtocolName());
        mockProvProperties.put(MetaContactListService.PROVIDER_MASK_PROPERTY,
@@ -132,17 +132,17 @@ public class TestCallHistoryService
     {
         logger.info("write records ");
 
-        generateCall((String)participantAddresses.get(0));
+        generateCall(participantAddresses.get(0));
 
         controlDate1 = new Date();
 
-        generateCall((String)participantAddresses.get(1));
+        generateCall(participantAddresses.get(1));
 
-        generateCall((String)participantAddresses.get(2));
+        generateCall(participantAddresses.get(2));
 
         controlDate2 = new Date();
 
-        generateCall((String)participantAddresses.get(3));
+        generateCall(participantAddresses.get(3));
     }
 
     private void generateCall(String participant)
@@ -151,12 +151,12 @@ public class TestCallHistoryService
         {
             Call newCall = mockBTelphonyOpSet.placeCall(participant);
 
-            Vector v = new Vector();
+            Vector<CallPeer> v = new Vector<CallPeer>();
 
-            Iterator iter = newCall.getCallPeers();
+            Iterator<CallPeer> iter = newCall.getCallPeers();
             while (iter.hasNext())
             {
-                CallPeer item = (CallPeer) iter.next();
+                CallPeer item = iter.next();
                 v.add(item);
             }
 
@@ -198,8 +198,9 @@ public class TestCallHistoryService
          * This must match also many calls, as tests are run many times
          * but the minimum is 3
          */
-        Collection rs = callHistoryService.findByEndDate(controlDate2);
-        Iterator resultIter = rs.iterator();
+        Collection<CallRecord> rs
+            = callHistoryService.findByEndDate(controlDate2);
+        Iterator<CallRecord> resultIter = rs.iterator();
 
         assertTrue("Calls too few - findByEndDate", rs.size() >= 3);
 
@@ -212,15 +213,14 @@ public class TestCallHistoryService
         assertEquals("Calls must be 2", rs.size(), 2);
 
         CallRecord rec = (CallRecord)resultIter.next();
-        CallPeerRecord participant =
-            (CallPeerRecord)rec.getPeerRecords().get(0);
+        CallPeerRecord participant = rec.getPeerRecords().get(0);
 
         assertTrue("Participant incorrect ",
                    participant.getPeerAddress().
                    equals(participantAddresses.get(2)));
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallPeerRecord)rec.getPeerRecords().get(0);
+        participant = rec.getPeerRecords().get(0);
 
         assertTrue("Participant incorrect ",
                    participant.getPeerAddress().
@@ -235,7 +235,7 @@ public class TestCallHistoryService
         assertEquals("Calls must be 1", rs.size(), 1);
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallPeerRecord)rec.getPeerRecords().get(0);
+        participant = rec.getPeerRecords().get(0);
 
         assertTrue("Participant incorrect ",
                    participant.getPeerAddress().
@@ -250,21 +250,21 @@ public class TestCallHistoryService
         assertEquals("Calls must be 3", rs.size(), 3);
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallPeerRecord) rec.getPeerRecords().get(0);
+        participant = rec.getPeerRecords().get(0);
 
         assertTrue("Participant incorrect ",
                    participant.getPeerAddress().
                    equals(participantAddresses.get(3)));
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallPeerRecord) rec.getPeerRecords().get(0);
+        participant = rec.getPeerRecords().get(0);
 
         assertTrue("Participant incorrect ",
                    participant.getPeerAddress().
                    equals(participantAddresses.get(2)));
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallPeerRecord) rec.getPeerRecords().get(0);
+        participant = rec.getPeerRecords().get(0);
 
         assertTrue("Participant incorrect ",
                    participant.getPeerAddress().
@@ -282,12 +282,12 @@ public class TestCallHistoryService
             Call newCall =
                 mockBTelphonyOpSet.placeCall(partAddresses[0]);
 
-            Vector v = new Vector();
+            Vector<CallPeer> v = new Vector<CallPeer>();
 
-            Iterator iter = newCall.getCallPeers();
+            Iterator<CallPeer> iter = newCall.getCallPeers();
             while (iter.hasNext())
             {
-                CallPeer item = (CallPeer) iter.next();
+                CallPeer item = iter.next();
                 v.add(item);
             }
 
@@ -315,11 +315,11 @@ public class TestCallHistoryService
         }
 
 
-        Collection lastCall = callHistoryService.findLast(1);
+        Collection<CallRecord> lastCall = callHistoryService.findLast(1);
 
         assertEquals("There must be 1 Call", lastCall.size(), 1);
 
-        CallRecord callRecord = (CallRecord)lastCall.iterator().next();
+        CallRecord callRecord = lastCall.iterator().next();
 
         assertEquals("There must be 2 participants in the call",
                      callRecord.getPeerRecords().size(), 2);
@@ -334,17 +334,5 @@ public class TestCallHistoryService
 
         assertTrue("Second participant hanguped before first one",
                    callP2.getEndTime().before(callP1.getEndTime()));
-    }
-
-    private void dumpResult(Collection c)
-    {
-        Iterator rs = c.iterator();
-        while (rs.hasNext())
-        {
-            CallRecord hr = (CallRecord)rs.next();
-            logger.info("----------------------");
-            logger.info(hr.getPeerRecords());
-            logger.info("----------------------");
-        }
     }
 }

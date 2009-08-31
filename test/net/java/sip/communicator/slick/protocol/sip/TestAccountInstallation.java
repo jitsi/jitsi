@@ -96,10 +96,10 @@ public class TestAccountInstallation
 
         //now really install the accounts
         sipProviderFactory.installAccount(
-            (String)sipAccount1Properties.get(ProtocolProviderFactory.USER_ID)
+            sipAccount1Properties.get(ProtocolProviderFactory.USER_ID)
             , sipAccount1Properties);
         sipProviderFactory.installAccount(
-            (String)sipAccount2Properties.get(ProtocolProviderFactory.USER_ID)
+            sipAccount2Properties.get(ProtocolProviderFactory.USER_ID)
             , sipAccount2Properties);
 
 
@@ -107,7 +107,7 @@ public class TestAccountInstallation
         //excepion is thrown.
         try{
             sipProviderFactory.installAccount(
-                (String)sipAccount1Properties.get(ProtocolProviderFactory.USER_ID)
+                sipAccount1Properties.get(ProtocolProviderFactory.USER_ID)
                 , sipAccount1Properties);
 
             fail("An IllegalStateException must be thrown when trying to "+
@@ -130,7 +130,7 @@ public class TestAccountInstallation
         osgiFilter =
             "(&("+ProtocolProviderFactory.PROTOCOL +"="+ProtocolNames.SIP+")"
              +"(" + ProtocolProviderFactory.USER_ID
-             + "=" + (String)sipAccount1Properties.get(
+             + "=" + sipAccount1Properties.get(
                             ProtocolProviderFactory.USER_ID)
              + "))";
 

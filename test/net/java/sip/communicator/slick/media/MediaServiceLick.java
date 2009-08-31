@@ -42,7 +42,7 @@ public class MediaServiceLick
     {
         MediaServiceLick.bc = bundleContext;
         setName("MediaServiceLick");
-        Hashtable properties = new Hashtable();
+        Hashtable<String, String> properties = new Hashtable<String, String>();
         properties.put("service.pid", getName());
 
         // disable video support when testing

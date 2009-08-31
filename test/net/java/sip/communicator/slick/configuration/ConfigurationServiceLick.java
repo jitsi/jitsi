@@ -31,7 +31,7 @@ public class ConfigurationServiceLick
     {
         ConfigurationServiceLick.bc = bundleContext;
         setName("ConfigurationServiceLick");
-        Hashtable properties = new Hashtable();
+        Hashtable<String, String> properties = new Hashtable<String, String>();
         properties.put("service.pid", getName());
 
         addTestSuite(TestConfigurationService.class);

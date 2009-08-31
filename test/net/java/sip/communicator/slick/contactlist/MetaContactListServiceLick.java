@@ -58,7 +58,7 @@ public class MetaContactListServiceLick
         MclSlickFixture.bundleContext = context;
 
         setName("MetaContactListServiceLick");
-        Hashtable slickServiceProperties = new Hashtable();
+        Hashtable<String, String> slickServiceProperties = new Hashtable<String, String>();
         slickServiceProperties.put("service.pid", getName());
 
         logger.debug("Service  " + getClass().getName() + " [  STARTED ]");
@@ -150,7 +150,7 @@ public class MetaContactListServiceLick
         //properties of the newly registered provider.
         System.setProperty(MetaContactListService.PROVIDER_MASK_PROPERTY, "1");
 
-        Hashtable mockProvProperties = new Hashtable();
+        Hashtable<String, String> mockProvProperties = new Hashtable<String, String>();
         mockProvProperties.put(MetaContactListService.PROVIDER_MASK_PROPERTY,
                                "1");
 

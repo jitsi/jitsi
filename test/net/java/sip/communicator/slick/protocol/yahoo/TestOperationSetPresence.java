@@ -165,17 +165,19 @@ public class TestOperationSetPresence
     {
         //first create a local list containing the presence status instances
         //supported by the underlying implementation.
-        Iterator supportedStatusSetIter =
+        Iterator<PresenceStatus> supportedStatusSetIter =
             operationSetPresence1.getSupportedStatusSet();
 
-        List supportedStatusSet = new LinkedList();
+        List<PresenceStatus> supportedStatusSet
+            = new LinkedList<PresenceStatus>();
         while (supportedStatusSetIter.hasNext()){
             supportedStatusSet.add(supportedStatusSetIter.next());
         }
 
         //create a copy of the MUST status set and remove any matching status
         //that is also present in the supported set.
-        List requiredStatusSetCopy = (List)YahooStatusEnum.yahooStatusSet.clone();
+        List<?> requiredStatusSetCopy
+            = (List<?>) YahooStatusEnum.yahooStatusSet.clone();
 
         requiredStatusSetCopy.removeAll(supportedStatusSet);
 
@@ -618,8 +620,8 @@ public class TestOperationSetPresence
     private class PresenceStatusEventCollector
         implements ProviderPresenceStatusListener
     {
-        public ArrayList collectedPresEvents = new ArrayList();
-        public ArrayList collectedStatMsgEvents = new ArrayList();
+        public ArrayList<EventObject> collectedPresEvents = new ArrayList<EventObject>();
+        public ArrayList<EventObject> collectedStatMsgEvents = new ArrayList<EventObject>();
 
         public void providerStatusChanged(ProviderPresenceStatusChangeEvent evt)
         {
@@ -713,7 +715,7 @@ public class TestOperationSetPresence
      */
     private class SubscriptionEventCollector implements SubscriptionListener
     {
-        public ArrayList collectedEvents = new ArrayList();
+        public ArrayList<EventObject> collectedEvents = new ArrayList<EventObject>();
 
         /**
          * Blocks until at least one event is received or until waitFor
@@ -843,7 +845,7 @@ public class TestOperationSetPresence
     private class ContactPresenceEventCollector
         implements ContactPresenceStatusListener
     {
-        public ArrayList collectedEvents = new ArrayList();
+        public ArrayList<EventObject> collectedEvents = new ArrayList<EventObject>();
         private String trackedScreenName = null;
         private YahooStatusEnum status = null;
 
@@ -942,7 +944,7 @@ public class TestOperationSetPresence
     
     private void dumplists()
     {
-        // just wait a liitle all modification events to be received
+        // just wait a little all modification events to be received
         Object o = new Object();
         synchronized(o)
         {
@@ -954,13 +956,13 @@ public class TestOperationSetPresence
         
         logger.info("------------ START DUMP LIST " + fixture.userID1 + " ------------");
         ContactGroup rootGroup = op1.getServerStoredContactListRoot();
-        Iterator groups = rootGroup.subgroups();
+        Iterator<ContactGroup> groups = rootGroup.subgroups();
         while (groups.hasNext() )
         {
-            ContactGroup group = (ContactGroup)groups.next();
+            ContactGroup group = groups.next();
             logger.info("group " + group.getGroupName());
             
-            Iterator contactsIter = group.contacts();
+            Iterator<Contact> contactsIter = group.contacts();
             while(contactsIter.hasNext())
             {
                 logger.info("\tcontact " + contactsIter.next());
@@ -974,10 +976,10 @@ public class TestOperationSetPresence
         groups = rootGroup.subgroups();
         while (groups.hasNext() )
         {
-            ContactGroup group = (ContactGroup)groups.next();
+            ContactGroup group = groups.next();
             logger.info("group " + group.getGroupName());
             
-            Iterator contactsIter = group.contacts();
+            Iterator<Contact> contactsIter = group.contacts();
             while(contactsIter.hasNext())
             {
                 logger.info("\tcontact " + contactsIter.next());

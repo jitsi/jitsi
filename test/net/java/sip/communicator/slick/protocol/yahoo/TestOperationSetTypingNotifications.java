@@ -251,7 +251,7 @@ public class TestOperationSetTypingNotifications
      */
     private class TypingEventCollector implements TypingNotificationsListener
     {
-        private List collectedEvents = new LinkedList();
+        private List<EventObject> collectedEvents = new LinkedList<EventObject>();
         /**
          * Called to indicate that a remote <tt>Contact</tt> has sent us a typing
          * notification. The method adds the <tt>event</tt> to the list of

@@ -1110,7 +1110,7 @@ public class TestOperationSetMultiUserChat2
                    ChatRoomMemberRoleListener,
                    ChatRoomLocalUserRoleListener
     {
-        private final ArrayList collectedEvents = new ArrayList();
+        private final ArrayList<EventObject> collectedEvents = new ArrayList<EventObject>();
 
         private int waitCount = 0;
 

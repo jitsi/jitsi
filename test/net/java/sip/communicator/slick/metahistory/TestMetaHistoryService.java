@@ -80,7 +80,7 @@ public class TestMetaHistoryService
     /**
      * The addresses will be used in the generated mock calls
      */
-    private static Vector participantAddresses = new Vector();
+    private static Vector<String> participantAddresses = new Vector<String>();
 
     /**
      * Files to receive
@@ -172,7 +172,7 @@ public class TestMetaHistoryService
 
        System.setProperty(MetaContactListService.PROVIDER_MASK_PROPERTY, "1");
 
-       Hashtable mockProvProperties = new Hashtable();
+       Hashtable<String, String> mockProvProperties = new Hashtable<String, String>();
        mockProvProperties.put(ProtocolProviderFactory.PROTOCOL
                               , mockProvider.getProtocolName());
        mockProvProperties.put(MetaContactListService.PROVIDER_MASK_PROPERTY,
@@ -241,8 +241,8 @@ public class TestMetaHistoryService
         mockFTOpSet.receiveFile(files[1], testContact);
         mockFTOpSet.removeFileTransferListener(tl);
 
-        generateCall((String)participantAddresses.get(0));
-        generateCall((String)participantAddresses.get(1));
+        generateCall(participantAddresses.get(0));
+        generateCall(participantAddresses.get(1));
         mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_1, messagesToSend[0]);
         mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_2, messagesToSend[1]);
 
@@ -250,8 +250,8 @@ public class TestMetaHistoryService
 
         waitSeconds(200);
 
-        generateCall((String)participantAddresses.get(2));
-        generateCall((String)participantAddresses.get(3));
+        generateCall(participantAddresses.get(2));
+        generateCall(participantAddresses.get(3));
         mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_1, messagesToSend[2]);
         mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_2, messagesToSend[3]);
         // finish an out file transfer
@@ -266,8 +266,8 @@ public class TestMetaHistoryService
         controlDate2 = new Date();
         waitSeconds(200);
 
-        generateCall((String)participantAddresses.get(4));
-        generateCall((String)participantAddresses.get(5));
+        generateCall(participantAddresses.get(4));
+        generateCall(participantAddresses.get(5));
         // finish an out file transfer
         ft = mockFTOpSet.sendFile(testContact, files[4]);
         mockFTOpSet.changeFileTransferStatus(ft, FileTransferStatusChangeEvent.REFUSED);
@@ -286,12 +286,12 @@ public class TestMetaHistoryService
         {
             Call newCall = mockBTelphonyOpSet.placeCall(participant);
 
-            Vector v = new Vector();
+            Vector<CallPeer> v = new Vector<CallPeer>();
 
-            Iterator iter = newCall.getCallPeers();
+            Iterator<CallPeer> iter = newCall.getCallPeers();
             while (iter.hasNext())
             {
-                CallPeer item = (CallPeer) iter.next();
+                CallPeer item = iter.next();
                 v.add(item);
             }
 
@@ -337,7 +337,7 @@ public class TestMetaHistoryService
 
         assertTrue("Nothing found findByKeyword ", !rs.isEmpty());
 
-        Vector msgs = getMessages(rs);
+        List<String> msgs = getMessages(rs);
 
         assertTrue("Messages too few - findByKeyword", msgs.size() >= 5);
 
@@ -523,15 +523,14 @@ public class TestMetaHistoryService
         assertEquals("Calls must be 2", rs.size(), 2);
 
         CallRecord rec = (CallRecord)resultIter.next();
-        CallPeerRecord participant =
-            (CallPeerRecord)rec.getPeerRecords().get(0);
+        CallPeerRecord participant = rec.getPeerRecords().get(0);
 
         assertTrue("Participant incorrect ",
                    participant.getPeerAddress().
                    equals(participantAddresses.get(2)));
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallPeerRecord)rec.getPeerRecords().get(0);
+        participant = rec.getPeerRecords().get(0);
 
         assertTrue("Participant incorrect ",
                    participant.getPeerAddress().
@@ -549,14 +548,14 @@ public class TestMetaHistoryService
         assertEquals("Calls must be 2", rs.size(), 2);
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallPeerRecord)rec.getPeerRecords().get(0);
+        participant = rec.getPeerRecords().get(0);
 
         assertTrue("Participant incorrect ",
                    participant.getPeerAddress().
                    equals(participantAddresses.get(4)));
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallPeerRecord)rec.getPeerRecords().get(0);
+        participant = rec.getPeerRecords().get(0);
 
         assertTrue("Participant incorrect ",
                    participant.getPeerAddress().
@@ -574,21 +573,21 @@ public class TestMetaHistoryService
         assertEquals("Calls must be 3", rs.size(), 3);
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallPeerRecord) rec.getPeerRecords().get(0);
+        participant = rec.getPeerRecords().get(0);
 
         assertTrue("Participant incorrect ",
                    participant.getPeerAddress().
                    equals(participantAddresses.get(3)));
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallPeerRecord) rec.getPeerRecords().get(0);
+        participant = rec.getPeerRecords().get(0);
 
         assertTrue("Participant incorrect ",
                    participant.getPeerAddress().
                    equals(participantAddresses.get(4)));
 
         rec = (CallRecord)resultIter.next();
-        participant = (CallPeerRecord) rec.getPeerRecords().get(0);
+        participant = rec.getPeerRecords().get(0);
 
         assertTrue("Participant incorrect ",
                    participant.getPeerAddress().
@@ -600,7 +599,7 @@ public class TestMetaHistoryService
         /**
          * must find 4 results.
          */
-        Collection rs =
+        Collection<FileRecord> rs =
             getFileRecords(
                 metaHistoryService.findByStartDate(
                     new String[]{FileHistoryService.class.getName()},
@@ -620,12 +619,12 @@ public class TestMetaHistoryService
                     testMetaContact, controlDate1, controlDate2));
         assertEquals("Filetransfers must be 2", rs.size(), 2);
 
-        Iterator it = rs.iterator();
+        Iterator<FileRecord> it = rs.iterator();
         assertTrue("Filetransfers not found",
-                    ((FileRecord)it.next()).getFile().getName().
+                    it.next().getFile().getName().
                         equals(files[2].getName()));
         assertTrue("Filetransfers not found",
-                    ((FileRecord)it.next()).getFile().getName().
+                    it.next().getFile().getName().
                         equals(files[3].getName()));
 
         rs = getFileRecords(
@@ -637,7 +636,7 @@ public class TestMetaHistoryService
 
         it = rs.iterator();
         assertTrue("Filetransfers not found",
-                    ((FileRecord)it.next()).getFile().getName().
+                    it.next().getFile().getName().
                         equals(files[2].getName()));
 
         rs = getFileRecords(
@@ -654,7 +653,7 @@ public class TestMetaHistoryService
         assertEquals("Filetransfers must be 2", rs.size(), 2);
 
         it = rs.iterator();
-        FileRecord fr = (FileRecord)it.next();
+        FileRecord fr = it.next();
         assertTrue("Filetransfers not found",
                     fr.getFile().getName().
                     equals(files[4].getName()));
@@ -666,7 +665,7 @@ public class TestMetaHistoryService
                     fr.getDirection().
                     equalsIgnoreCase("out"));
 
-        fr = (FileRecord)it.next();
+        fr = it.next();
         assertTrue("Filetransfers not found",
                     fr.getFile().getName().
                     equals(files[5].getName()));
@@ -686,7 +685,7 @@ public class TestMetaHistoryService
 
         it = rs.iterator();
         assertTrue("Filetransfers not found",
-                    ((FileRecord)it.next()).getFile().getName().
+                    it.next().getFile().getName().
                         equals(files[2].getName()));
 
         rs = getFileRecords(
@@ -724,7 +723,7 @@ public class TestMetaHistoryService
         assertEquals("Filetransfers must be 2", rs.size(), 2);
 
         it = rs.iterator();
-        fr = (FileRecord)it.next();
+        fr = it.next();
         assertTrue("Filetransfers not found",
                     fr.getFile().getName().
                     equals(files[2].getName()));
@@ -735,7 +734,7 @@ public class TestMetaHistoryService
                     fr.getDirection().
                     equalsIgnoreCase("out"));
 
-        fr = (FileRecord)it.next();
+        fr = it.next();
         assertTrue("Filetransfers not found",
                     fr.getFile().getName().
                     equals(files[3].getName()));
@@ -755,7 +754,7 @@ public class TestMetaHistoryService
         assertEquals("Filetransfers must be 2", rs.size(), 2);
 
         it = rs.iterator();
-        fr = (FileRecord)it.next();
+        fr = it.next();
         assertTrue("Filetransfers not found",
                     fr.getFile().getName().
                     equals(files[0].getName()));
@@ -766,7 +765,7 @@ public class TestMetaHistoryService
                     fr.getDirection().
                     equalsIgnoreCase("out"));
 
-        fr = (FileRecord)it.next();
+        fr = it.next();
         assertTrue("Filetransfers not found",
                     fr.getFile().getName().
                     equals(files[1].getName()));
@@ -919,46 +918,45 @@ public class TestMetaHistoryService
         metaClService.purgeLocallyStoredContactListCopy();
     }
 
-    private Vector getMessages(Collection rs)
+    private List<String> getMessages(Collection rs)
     {
-        Vector result = new Vector();
+        List<String> result = new Vector<String>();
         Iterator iter = rs.iterator();
         while (iter.hasNext())
         {
             Object item = iter.next();
             if(item instanceof MessageDeliveredEvent)
                 result.add(((MessageDeliveredEvent)item).getSourceMessage().getContent());
-            else
-                if(item instanceof MessageReceivedEvent)
-                    result.add(((MessageReceivedEvent)item).getSourceMessage().getContent());
+            else if(item instanceof MessageReceivedEvent)
+                result.add(((MessageReceivedEvent)item).getSourceMessage().getContent());
         }
 
         return result;
     }
 
-    private Vector getCalls(Collection rs)
+    private List<CallRecord> getCalls(Collection rs)
     {
-        Vector result = new Vector();
+        List<CallRecord> result = new Vector<CallRecord>();
         Iterator iter = rs.iterator();
         while (iter.hasNext())
         {
             Object item = iter.next();
             if(item instanceof CallRecord)
-                result.add(item);
+                result.add((CallRecord) item);
         }
 
         return result;
     }
 
-    private Collection getFileRecords(Collection rs)
+    private Collection<FileRecord> getFileRecords(Collection rs)
     {
-        Vector result = new Vector();
+        List<FileRecord> result = new Vector<FileRecord>();
         Iterator iter = rs.iterator();
         while (iter.hasNext())
         {
             Object item = iter.next();
             if(item instanceof FileRecord)
-                result.add(item);
+                result.add((FileRecord) item);
         }
 
         return result;

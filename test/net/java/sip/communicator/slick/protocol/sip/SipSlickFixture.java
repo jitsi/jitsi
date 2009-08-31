@@ -79,16 +79,16 @@ public class SipSlickFixture
      * screen names. This is a snapshot of the server stored buddy list for
      * the account that is going to be used by the tested implementation.
      * It is filled in by the tester agent who'd login with that account
-     * and initialise the ss contact list before the tested implementation has
+     * and initialize the ss contact list before the tested implementation has
      * actually done so.
      */
-    public static Hashtable preInstalledBuddyList  = null;
+    public static Hashtable<String, List<String>> preInstalledBuddyList  = null;
 
     /**
      * Initializes protocol provider references and whatever else there is to
      * initialize.
      *
-     * @throws java.lang.Exception in case we meet problems while retriving
+     * @throws java.lang.Exception in case we meet problems while retrieving
      * protocol providers through OSGI
      */
     public void setUp()
@@ -267,20 +267,20 @@ public class SipSlickFixture
             = opSetPersPresence1.getServerStoredContactListRoot();
 
         // first delete the groups
-        Iterator iter = rootGroup1.subgroups();
-        while (iter.hasNext())
+        Iterator<ContactGroup> cgiter = rootGroup1.subgroups();
+        while (cgiter.hasNext())
         {
-            ContactGroup item = (ContactGroup) iter.next();
+            ContactGroup item = cgiter.next();
             opSetPersPresence1.removeServerStoredContactGroup(item);
-            iter = rootGroup1.subgroups();
+            cgiter = rootGroup1.subgroups();
         }
 
         //then delete contacts if any in root list
-        iter = rootGroup1.contacts();
-        while (iter.hasNext())
+        Iterator<Contact> citer = rootGroup1.contacts();
+        while (citer.hasNext())
         {
-            opSetPersPresence1.unsubscribe((Contact)iter.next());
-            iter = rootGroup1.contacts();
+            opSetPersPresence1.unsubscribe(citer.next());
+            citer = rootGroup1.contacts();
         }
 
         ContactGroup rootGroup2
@@ -288,19 +288,19 @@ public class SipSlickFixture
 
         // delete groups
 
-        iter = rootGroup2.subgroups();
-        while (iter.hasNext())
+        cgiter = rootGroup2.subgroups();
+        while (cgiter.hasNext())
         {
-            ContactGroup item = (ContactGroup) iter.next();
+            ContactGroup item = cgiter.next();
             opSetPersPresence2.removeServerStoredContactGroup(item);
         }
 
         //then delete contacts if any in root list
-        iter = rootGroup2.contacts();
-        while (iter.hasNext())
+        citer = rootGroup2.contacts();
+        while (citer.hasNext())
         {
-            opSetPersPresence2.unsubscribe( (Contact) iter.next());
-            iter = rootGroup2.contacts();
+            opSetPersPresence2.unsubscribe(citer.next());
+            citer = rootGroup2.contacts();
         }
     }
 }

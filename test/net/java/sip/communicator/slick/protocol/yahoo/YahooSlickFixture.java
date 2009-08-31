@@ -81,17 +81,17 @@ public class YahooSlickFixture
      * screen names. This is a snapshot of the server stored buddy list for
      * the account that is going to be used by the tested implementation.
      * It is filled in by the tester agent who'd login with that account
-     * and initialise the ss contact list before the tested implementation has
+     * and initialize the ss contact list before the tested implementation has
      * actually done so.
      */
-    public static Hashtable preInstalledBuddyList  = null;
+    public static Hashtable<String, List<String>> preInstalledBuddyList  = null;
 
 
     /**
      * Initializes protocol provider references and whatever else there is to
      * initialize.
      *
-     * @throws java.lang.Exception in case we meet problems while retriving
+     * @throws java.lang.Exception in case we meet problems while retrieving
      * protocol providers through OSGI
      */
     public void setUp()
@@ -262,8 +262,8 @@ public class YahooSlickFixture
         ContactGroup rootGroup1 = opSetPersPresence1.getServerStoredContactListRoot();
 
         // first delete the groups
-        Vector groupsToRemove = new Vector();
-        Iterator iter = rootGroup1.subgroups();
+        Vector<ContactGroup> groupsToRemove = new Vector<ContactGroup>();
+        Iterator<ContactGroup> iter = rootGroup1.subgroups();
         while (iter.hasNext())
         {
             groupsToRemove.add(iter.next());
@@ -272,14 +272,14 @@ public class YahooSlickFixture
         iter = groupsToRemove.iterator();
         while (iter.hasNext())
         {
-            ContactGroup item = (ContactGroup) iter.next();
+            ContactGroup item = iter.next();
             opSetPersPresence1.removeServerStoredContactGroup(item);
         }
 
         ContactGroup rootGroup2 = opSetPersPresence2.getServerStoredContactListRoot();
 
         // delete groups
-        groupsToRemove = new Vector();
+        groupsToRemove = new Vector<ContactGroup>();
         iter = rootGroup2.subgroups();
         while (iter.hasNext())
         {
@@ -289,7 +289,7 @@ public class YahooSlickFixture
         iter = groupsToRemove.iterator();
         while (iter.hasNext())
         {
-            ContactGroup item = (ContactGroup) iter.next();
+            ContactGroup item = iter.next();
             opSetPersPresence2.removeServerStoredContactGroup(item);
         }
 

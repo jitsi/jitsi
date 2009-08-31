@@ -190,8 +190,8 @@ public class TestOperationSetPresence
         List<String> supportedStatusNames = new LinkedList<String>();
         while (supportedStatusSetIter.hasNext())
         {
-            supportedStatusNames.add(((PresenceStatus) supportedStatusSetIter
-                .next()).getStatusName());
+            supportedStatusNames.add(supportedStatusSetIter
+                .next().getStatusName());
         }
 
         //create a copy of the MUST status set and remove any matching status
@@ -321,13 +321,11 @@ public class TestOperationSetPresence
                      1, statusEventCollector.collectedStatMsgEvents.size());
         assertEquals("A status message event contained wrong old value.",
                      oldStatusMessage,
-                     ((PropertyChangeEvent)
-                        statusEventCollector.collectedStatMsgEvents.get(0))
+                        statusEventCollector.collectedStatMsgEvents.get(0)
                             .getOldValue());
         assertEquals("A status message event contained wrong new value.",
                      newStatusMessage,
-                     ((PropertyChangeEvent)
-                        statusEventCollector.collectedStatMsgEvents.get(0))
+                        statusEventCollector.collectedStatMsgEvents.get(0)
                             .getNewValue());
 
         // verify that the operation set itself is aware of the new status msg.
@@ -569,9 +567,7 @@ public class TestOperationSetPresence
 
         assertEquals("Presence Notif. event dispatching failed."
                      , 1, contactPresEvtCollector.collectedEvents.size());
-        ContactPresenceStatusChangeEvent presEvt =
-            (ContactPresenceStatusChangeEvent)
-                contactPresEvtCollector.collectedEvents.get(0);
+        ContactPresenceStatusChangeEvent presEvt = contactPresEvtCollector.collectedEvents.get(0);
 
         assertEquals("Presence Notif. event  Source:",
                      fixture.userID2,

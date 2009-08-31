@@ -78,9 +78,9 @@ public class TestAccountInstallation
 
         //Prepare the properties of the first yahoo account.
 
-        Hashtable yahooAccount1Properties = getAccountProperties(
+        Hashtable<String, String> yahooAccount1Properties = getAccountProperties(
             YahooProtocolProviderServiceLick.ACCOUNT_1_PREFIX);
-        Hashtable yahooAccount2Properties = getAccountProperties(
+        Hashtable<String, String> yahooAccount2Properties = getAccountProperties(
             YahooProtocolProviderServiceLick.ACCOUNT_2_PREFIX);
 
         //try to install an account with a null account id
@@ -96,10 +96,10 @@ public class TestAccountInstallation
 
         //now really install the accounts
         yahooProviderFactory.installAccount(
-            (String)yahooAccount1Properties.get(ProtocolProviderFactory.USER_ID)
+            yahooAccount1Properties.get(ProtocolProviderFactory.USER_ID)
             , yahooAccount1Properties);
         yahooProviderFactory.installAccount(
-            (String)yahooAccount2Properties.get(ProtocolProviderFactory.USER_ID)
+            yahooAccount2Properties.get(ProtocolProviderFactory.USER_ID)
             , yahooAccount2Properties);
 
 
@@ -107,7 +107,7 @@ public class TestAccountInstallation
         //excepion is thrown.
         try{
             yahooProviderFactory.installAccount(
-                (String)yahooAccount1Properties.get(ProtocolProviderFactory.USER_ID)
+                yahooAccount1Properties.get(ProtocolProviderFactory.USER_ID)
                 , yahooAccount1Properties);
 
             fail("An IllegalStateException must be thrown when trying to "+
@@ -130,7 +130,7 @@ public class TestAccountInstallation
         osgiFilter =
             "(&("+ProtocolProviderFactory.PROTOCOL +"="+ProtocolNames.YAHOO+")"
              +"(" + ProtocolProviderFactory.USER_ID
-             + "=" + (String)yahooAccount1Properties.get(
+             + "=" + yahooAccount1Properties.get(
                             ProtocolProviderFactory.USER_ID)
              + "))";
 
@@ -166,9 +166,9 @@ public class TestAccountInstallation
      * @return a Hashtable that can be used when creating the account in a
      * protocol provider factory.
      */
-    private Hashtable getAccountProperties(String accountPrefix)
+    private Hashtable<String, String> getAccountProperties(String accountPrefix)
     {
-        Hashtable table = new Hashtable();
+        Hashtable<String, String> table = new Hashtable<String, String>();
 
         String userID = System.getProperty(
             accountPrefix + ProtocolProviderFactory.USER_ID, null);

@@ -127,17 +127,19 @@ public class TestOperationSetPresence
     {
         //first create a local list containing the presence status instances
         //supported by the underlying implementation.
-        Iterator supportedStatusSetIter =
+        Iterator<PresenceStatus> supportedStatusSetIter =
             operationSetPresence.getSupportedStatusSet();
 
-        List supportedStatusSet = new LinkedList();
+        List<PresenceStatus> supportedStatusSet
+            = new LinkedList<PresenceStatus>();
         while (supportedStatusSetIter.hasNext()){
             supportedStatusSet.add(supportedStatusSetIter.next());
         }
 
         //create a copy of the MUST status set and remove any matching status
         //that is also present in the supported set.
-        List requiredStatusSetCopy = (List)IcqStatusEnum.icqStatusSet.clone();
+        List<?> requiredStatusSetCopy
+            = (List<?>) IcqStatusEnum.icqStatusSet.clone();
 
         requiredStatusSetCopy.removeAll(supportedStatusSet);
 
@@ -331,7 +333,7 @@ public class TestOperationSetPresence
     {
         try
         {
-            Thread.currentThread().sleep(5000);
+            Thread.sleep(5000);
         }
         catch (InterruptedException ex)
         {
@@ -585,10 +587,11 @@ public class TestOperationSetPresence
 
         EventObject evt = null;
         
-        Iterator events = subEvtCollector.collectedEvents.iterator();
+        Iterator<EventObject> events
+            = subEvtCollector.collectedEvents.iterator();
         while (events.hasNext())
         {
-            Object elem = events.next();
+            EventObject elem = events.next();
             if(elem instanceof SubscriptionEvent)
             {
                 if(((SubscriptionEvent)elem).getEventID() 
@@ -845,8 +848,8 @@ public class TestOperationSetPresence
     private class PresenceStatusEventCollector
         implements ProviderPresenceStatusListener
     {
-        public ArrayList collectedPresEvents = new ArrayList();
-        public ArrayList collectedStatMsgEvents = new ArrayList();
+        public ArrayList<EventObject> collectedPresEvents = new ArrayList<EventObject>();
+        public ArrayList<EventObject> collectedStatMsgEvents = new ArrayList<EventObject>();
 
         public void providerStatusChanged(ProviderPresenceStatusChangeEvent evt)
         {
@@ -871,9 +874,9 @@ public class TestOperationSetPresence
 
         /**
          * Blocks until at least one event is received or until waitFor
-         * miliseconds pass (whicever happens first).
+         * milliseconds pass (whichever happens first).
          *
-         * @param waitFor the number of miliseconds that we should be waiting
+         * @param waitFor the number of milliseconds that we should be waiting
          * for an event before simply bailing out.
          */
         public void waitForPresEvent(long waitFor)
@@ -901,10 +904,10 @@ public class TestOperationSetPresence
         }
 
         /**
-         * Blocks until at least one staus message event is received or until
-         * waitFor miliseconds pass (whichever happens first).
+         * Blocks until at least one status message event is received or until
+         * waitFor milliseconds pass (whichever happens first).
          *
-         * @param waitFor the number of miliseconds that we should be waiting
+         * @param waitFor the number of milliseconds that we should be waiting
          * for a status message event before simply bailing out.
          */
         public void waitForStatMsgEvent(long waitFor)
@@ -940,13 +943,13 @@ public class TestOperationSetPresence
      */
     private class SubscriptionEventCollector implements SubscriptionListener
     {
-        public ArrayList collectedEvents = new ArrayList();
+        public ArrayList<EventObject> collectedEvents = new ArrayList<EventObject>();
 
         /**
          * Blocks until at least one event is received or until waitFor
-         * miliseconds pass (whicever happens first).
+         * milliseconds pass (whichever happens first).
          *
-         * @param waitFor the number of miliseconds that we should be waiting
+         * @param waitFor the number of milliseconds that we should be waiting
          * for an event before simply bailing out.
          */
         public void waitForEvent(long waitFor)
@@ -968,7 +971,7 @@ public class TestOperationSetPresence
         }
 
         /**
-         * Stores the received subsctiption and notifies all waiting on this
+         * Stores the received subscription and notifies all waiting on this
          * object
          * @param evt the SubscriptionEvent containing the corresponding contact
          */
@@ -983,7 +986,7 @@ public class TestOperationSetPresence
         }
 
         /**
-         * Stores the received subsctiption and notifies all waiting on this
+         * Stores the received subscription and notifies all waiting on this
          * object
          * @param evt the SubscriptionEvent containing the corresponding contact
          */
@@ -998,7 +1001,7 @@ public class TestOperationSetPresence
         }
 
         /**
-         * Stores the received subsctiption and notifies all waiting on this
+         * Stores the received subscription and notifies all waiting on this
          * object
          * @param evt the SubscriptionEvent containing the corresponding contact
          */
@@ -1014,7 +1017,7 @@ public class TestOperationSetPresence
 
 
         /**
-         * Stores the received subsctiption and notifies all waiting on this
+         * Stores the received subscription and notifies all waiting on this
          * object
          * @param evt the SubscriptionEvent containing the corresponding contact
          */
@@ -1029,7 +1032,7 @@ public class TestOperationSetPresence
         }
 
         /**
-         * Stores the received subsctiption and notifies all waiting on this
+         * Stores the received subscription and notifies all waiting on this
          * object
          * @param evt the SubscriptionEvent containing the corresponding contact
          */
@@ -1044,7 +1047,7 @@ public class TestOperationSetPresence
         }
 
         /**
-         * Stores the received subsctiption and notifies all waiting on this
+         * Stores the received subscription and notifies all waiting on this
          * object
          * @param evt the SubscriptionEvent containing the corresponding contact
          */
@@ -1067,7 +1070,7 @@ public class TestOperationSetPresence
     private class ContactPresenceEventCollector
         implements ContactPresenceStatusListener
     {
-        public ArrayList collectedEvents = new ArrayList();
+        public ArrayList<EventObject> collectedEvents = new ArrayList<EventObject>();
         private String trackedScreenName = null;
         private IcqStatusEnum status = null;
 
@@ -1080,9 +1083,9 @@ public class TestOperationSetPresence
 
         /**
          * Blocks until at least one event is received or until waitFor
-         * miliseconds pass (whicever happens first).
+         * milliseconds pass (whichever happens first).
          *
-         * @param waitFor the number of miliseconds that we should be waiting
+         * @param waitFor the number of milliseconds that we should be waiting
          * for an event before simply bailing out.
          */
         public void waitForEvent(long waitFor)

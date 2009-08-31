@@ -34,7 +34,7 @@ public class MsgHistoryServiceLick extends TestSuite implements BundleActivator 
         MsgHistoryServiceLick.bc = bundleContext;
 
         setName("MsgHistoryServiceLick");
-        Hashtable properties = new Hashtable();
+        Hashtable<String, String> properties = new Hashtable<String, String>();
         properties.put("service.pid", getName());
 
         addTest(TestMsgHistoryService.suite());

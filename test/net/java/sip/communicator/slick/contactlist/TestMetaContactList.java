@@ -127,10 +127,9 @@ public class TestMetaContactList
         //change a status
         fixture.metaClService.addMetaContactListListener(evtCollector);
 
-        ((MockPersistentPresenceOperationSet)fixture.mockPresOpSet)
-            .changePresenceStatusForContact(MetaContactListServiceLick
-              .mockContactToReorder
-            , MockStatusEnum.MOCK_STATUS_100);
+        fixture.mockPresOpSet.changePresenceStatusForContact(
+            MetaContactListServiceLick.mockContactToReorder,
+            MockStatusEnum.MOCK_STATUS_100);
 
         fixture.metaClService.removeMetaContactListListener(evtCollector);
 
@@ -153,10 +152,9 @@ public class TestMetaContactList
         assertContactsOrder(fixture.metaClService.getRoot());
 
         //restore the contacts original status
-        ((MockPersistentPresenceOperationSet)fixture.mockPresOpSet)
-            .changePresenceStatusForContact(MetaContactListServiceLick
-              .mockContactToReorder
-            , MockStatusEnum.MOCK_STATUS_00);
+        fixture.mockPresOpSet.changePresenceStatusForContact(
+            MetaContactListServiceLick.mockContactToReorder,
+            MockStatusEnum.MOCK_STATUS_00);
 
 
         //repeat order tests but this time after changing the display name of a
@@ -241,13 +239,13 @@ public class TestMetaContactList
 
         //get a top level contact and then try to find it through the tested
         //findMetaContactByMetaUID method.
-        Iterator contactsIter = root.getChildContacts();
+        Iterator<MetaContact> contactsIter = root.getChildContacts();
 
         assertTrue(
             "No contacts were found in the meta contact list"
             , contactsIter.hasNext());
 
-        MetaContact expectedContact = (MetaContact)contactsIter.next();
+        MetaContact expectedContact = contactsIter.next();
 
         MetaContact actualResult = fixture.metaClService
             .findMetaContactByMetaUID(expectedContact.getMetaUID());
@@ -257,13 +255,13 @@ public class TestMetaContactList
 
         // get one of the subgroups, extract one of its child contacts and
         // repeat the same test.
-        Iterator subgroupsIter = root.getSubgroups();
+        Iterator<MetaContactGroup> subgroupsIter = root.getSubgroups();
 
         assertTrue(
             "No sub groups were found in the meta contact list"
             , subgroupsIter.hasNext());
 
-        MetaContactGroup subgroup = (MetaContactGroup)subgroupsIter.next();
+        MetaContactGroup subgroup = subgroupsIter.next();
 
         contactsIter = subgroup.getChildContacts();
 
@@ -272,7 +270,7 @@ public class TestMetaContactList
             + subgroup.getGroupName()
             , contactsIter.hasNext());
 
-        expectedContact = (MetaContact)contactsIter.next();
+        expectedContact = contactsIter.next();
 
         actualResult = fixture.metaClService
             .findMetaContactByMetaUID(expectedContact.getMetaUID());
@@ -294,13 +292,13 @@ public class TestMetaContactList
 
         //get a top level contact and then try to find it through the tested
         //findMetaContactByContact method.
-        Iterator contactsIter = root.getChildContacts();
+        Iterator<MetaContact> contactsIter = root.getChildContacts();
 
         assertTrue(
             "No contacts were found in the meta contact list"
             , contactsIter.hasNext());
 
-        MetaContact expectedMetaContact = (MetaContact)contactsIter.next();
+        MetaContact expectedMetaContact = contactsIter.next();
 
         assertTrue(
             "No contacts are encapsulated by MetaContact: "
@@ -308,7 +306,7 @@ public class TestMetaContactList
             , expectedMetaContact.getContacts().hasNext());
 
 
-        Contact mockContact = (Contact)expectedMetaContact.getContacts().next();
+        Contact mockContact = expectedMetaContact.getContacts().next();
 
         MetaContact actualResult = fixture.metaClService
                                 .findMetaContactByContact(mockContact);
@@ -318,13 +316,13 @@ public class TestMetaContactList
 
         // get one of the subgroups, extract one of its child contacts and
         // repeat the same test.
-        Iterator subgroupsIter = root.getSubgroups();
+        Iterator<MetaContactGroup> subgroupsIter = root.getSubgroups();
 
         assertTrue(
             "No sub groups were found in the meta contact list"
             , subgroupsIter.hasNext());
 
-        MetaContactGroup subgroup = (MetaContactGroup)subgroupsIter.next();
+        MetaContactGroup subgroup = subgroupsIter.next();
 
         contactsIter = subgroup.getChildContacts();
 
@@ -334,7 +332,7 @@ public class TestMetaContactList
             , contactsIter.hasNext());
 
 
-        expectedMetaContact = (MetaContact)contactsIter.next();
+        expectedMetaContact = contactsIter.next();
 
         assertTrue(
             "No contacts were encapsulated by meta contact: "
@@ -342,7 +340,7 @@ public class TestMetaContactList
             , expectedMetaContact.getContacts().hasNext());
 
 
-        mockContact = (Contact)expectedMetaContact.getContacts().next();
+        mockContact = expectedMetaContact.getContacts().next();
 
         actualResult = fixture.metaClService
             .findMetaContactByContact(mockContact);
@@ -367,14 +365,13 @@ public class TestMetaContactList
 
         //get a group, extract its proto group and then try to obtain a
         //reference through the tested find method.
-        Iterator groupsIter = root.getSubgroups();
+        Iterator<MetaContactGroup> groupsIter = root.getSubgroups();
 
         assertTrue(
             "No sub groups were found in the meta contact list"
             , groupsIter.hasNext());
 
-        MetaContactGroup expectedMetaContactGroup
-                                    = (MetaContactGroup)groupsIter.next();
+        MetaContactGroup expectedMetaContactGroup = groupsIter.next();
 
         assertTrue(
             "There were no contact groups encapsulated in MetaContactGroup: "
@@ -386,7 +383,7 @@ public class TestMetaContactList
             + expectedMetaContactGroup
             , expectedMetaContactGroup.getContactGroups().hasNext());
 
-        ContactGroup mockContactGroup = (ContactGroup)expectedMetaContactGroup
+        ContactGroup mockContactGroup = expectedMetaContactGroup
                                                     .getContactGroups().next();
         MetaContactGroup actualMetaContactGroup = fixture.metaClService
             .findMetaContactGroupByContactGroup(mockContactGroup);
@@ -502,11 +499,10 @@ public class TestMetaContactList
         newContactGroup.addSubgroup(newInnerContactGroup);
 
         fixture.metaClService.addMetaContactListListener(mclEvtCollector);
-        ((MockPersistentPresenceOperationSet)fixture.mockPresOpSet)
-            .addMockGroupAndFireEvent(
-                (MockContactGroup)fixture.mockPresOpSet
-                                        .getServerStoredContactListRoot()
-                , newContactGroup);
+        fixture.mockPresOpSet.addMockGroupAndFireEvent(
+            (MockContactGroup)
+                fixture.mockPresOpSet.getServerStoredContactListRoot(),
+            newContactGroup);
 
         fixture.metaClService.removeMetaContactListListener(mclEvtCollector);
 
@@ -585,7 +581,7 @@ public class TestMetaContactList
                      , fixture.mockProvider, evt.getSourceProvider());
 
         //check whether the group was indeed renamed.
-        Iterator groupsIter = evt.getSourceMetaContactGroup()
+        Iterator<ContactGroup> groupsIter = evt.getSourceMetaContactGroup()
             .getContactGroupsForProvider(fixture.mockProvider);
 
         assertTrue("A proto group was unexplicably removed after renaming.",
@@ -593,7 +589,7 @@ public class TestMetaContactList
 
         assertEquals("The name of a protocol group after renaming."
                      , renamedGroupName
-                     , ((MockContactGroup)groupsIter.next()).getGroupName());
+                     , groupsIter.next().getGroupName());
 
         //remove the group and check for the event.
         fixture.metaClService.addMetaContactListListener(mclEvtCollector);
@@ -765,8 +761,6 @@ public class TestMetaContactList
         assertEquals ( "Event ID in ProtoContactEvent gen. upon remove."
                        , ProtoContactEvent.PROTO_CONTACT_REMOVED
                        , event.getPropertyName());
-
-
     }
 
     /**
@@ -904,7 +898,6 @@ public class TestMetaContactList
         assertEquals ( "Event ID in MetaContactEvent gen. upon remove."
                        , MetaContactEvent.META_CONTACT_REMOVED
                        , event.getEventID());
-
     }
 
     /**
@@ -1104,8 +1097,8 @@ public class TestMetaContactList
 
     private class MclEventCollector implements MetaContactListListener
     {
-        public Vector collectedMetaContactEvents = new Vector();
-        public Vector collectedMetaContactGroupEvents = new Vector();
+        public Vector<EventObject> collectedMetaContactEvents = new Vector<EventObject>();
+        public Vector<EventObject> collectedMetaContactGroupEvents = new Vector<EventObject>();
 
         /**
          * Indicates that a MetaContact has been successfully added

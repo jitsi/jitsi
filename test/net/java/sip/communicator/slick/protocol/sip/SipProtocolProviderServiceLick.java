@@ -59,7 +59,7 @@ public class SipProtocolProviderServiceLick
     {
         setName("SipProtocolProviderServiceLick");
 
-        Hashtable properties = new Hashtable();
+        Hashtable<String, String> properties = new Hashtable<String, String>();
         properties.put("service.pid", getName());
 
         SipSlickFixture.bc = context;

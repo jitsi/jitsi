@@ -153,7 +153,7 @@ public class TestProtocolProviderServiceRssImpl
          * We store all the received events in this list. It's made public to
          * ease later inspection by unit tests.
          */
-        public List collectedStates = new LinkedList();
+        public List<RegistrationState> collectedStates = new LinkedList<RegistrationState>();
 
         /**
          * This method simply records all received events in a <code>List</code>

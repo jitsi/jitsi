@@ -122,10 +122,8 @@ public class TestOperationSetBasicTelephonyJabberImpl
         assertEquals("callAtP2.getCallPeerCount()"
                      , 1, callAtP2.getCallPeerCount());
 
-        CallPeer peerAtP1
-            = (CallPeer)callAtP1.getCallPeers().next();
-        CallPeer peerAtP2
-            = (CallPeer)callAtP2.getCallPeers().next();
+        CallPeer peerAtP1 = callAtP1.getCallPeers().next();
+        CallPeer peerAtP2 = callAtP2.getCallPeers().next();
 
         //now add listeners to the peers and make sure they have entered
         //the states they were expected to.
@@ -352,10 +350,8 @@ public class TestOperationSetBasicTelephonyJabberImpl
         assertEquals("callAtP2.getCallPeerCount()"
                      , 1, callAtP2.getCallPeerCount());
 
-        CallPeer peerAtP1
-            = (CallPeer)callAtP1.getCallPeers().next();
-        CallPeer peerAtP2
-            = (CallPeer)callAtP2.getCallPeers().next();
+        CallPeer peerAtP1 = callAtP1.getCallPeers().next();
+        CallPeer peerAtP2 = callAtP2.getCallPeers().next();
 
         //now add listeners to the peers and make sure they have entered
         //the states they were expected to.
@@ -589,10 +585,8 @@ public class TestOperationSetBasicTelephonyJabberImpl
         assertEquals("callAtP2.getCallPeerCount()"
                      , 1, callAtP2.getCallPeerCount());
 
-        CallPeer peerAtP1
-            = (CallPeer)callAtP1.getCallPeers().next();
-        CallPeer peerAtP2
-            = (CallPeer)callAtP2.getCallPeers().next();
+        CallPeer peerAtP1 = callAtP1.getCallPeers().next();
+        CallPeer peerAtP2 = callAtP2.getCallPeers().next();
 
         //now add listeners to the peers and make sure they have entered
         //the states they were expected to.
@@ -752,7 +746,7 @@ public class TestOperationSetBasicTelephonyJabberImpl
      */
     public class CallEventCollector implements CallListener
     {
-        public ArrayList collectedEvents = new ArrayList();
+        public ArrayList<EventObject> collectedEvents = new ArrayList<EventObject>();
         public OperationSetBasicTelephony listenedOpSet = null;
 
         /**
@@ -860,7 +854,7 @@ public class TestOperationSetBasicTelephonyJabberImpl
     public class CallPeerStateEventCollector
         extends CallPeerAdapter
     {
-        public ArrayList collectedEvents = new ArrayList();
+        public ArrayList<EventObject> collectedEvents = new ArrayList<EventObject>();
         private CallPeer listenedCallPeer = null;
         public CallPeerState awaitedState = null;
 
@@ -985,7 +979,7 @@ public class TestOperationSetBasicTelephonyJabberImpl
     public class CallStateEventCollector
         extends CallChangeAdapter
     {
-        public ArrayList collectedEvents = new ArrayList();
+        public ArrayList<EventObject> collectedEvents = new ArrayList<EventObject>();
         private Call listenedCall = null;
         public CallState awaitedState = null;
 

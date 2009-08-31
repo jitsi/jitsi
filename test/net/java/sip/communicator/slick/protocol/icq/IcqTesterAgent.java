@@ -152,32 +152,32 @@ public class IcqTesterAgent
      * lists of contact identifiers
      * (screennames).
      */
-    public void initializeBuddyList(Hashtable listContents)
+    public void initializeBuddyList(Hashtable<String, List<String>> listContents)
     {
         logger.debug("Will Create the following contact list:\n"+ listContents);
         MutableBuddyList joustSimBuddyList
-            = (MutableBuddyList)conn.getSsiService().getBuddyList();
+            = conn.getSsiService().getBuddyList();
 
         //First empty the existing contact list.
-        List groups = joustSimBuddyList.getGroups();
+        List<? extends Group> groups = joustSimBuddyList.getGroups();
 
-        Iterator groupsIter = groups.iterator();
+        Iterator<? extends Group> groupsIter = groups.iterator();
         while (groupsIter.hasNext())
         {
-            Group group = (Group)groupsIter.next();
+            Group group = groupsIter.next();
             joustSimBuddyList.deleteGroupAndBuddies(group);
         }
 
         //Now insert all items from the listContents hashtable if they're not
         //already there.
-        Enumeration newGroupsEnum = listContents.keys();
+        Enumeration<String> newGroupsEnum = listContents.keys();
 
         LayoutEventCollector evtCollector = new LayoutEventCollector();
 
         //go over all groups in the contactsToAdd table
         while (newGroupsEnum.hasMoreElements())
         {
-            String groupName = (String) newGroupsEnum.nextElement();
+            String groupName = newGroupsEnum.nextElement();
             logger.debug("Will add group " + groupName);
 
             //first clear any previously registered groups and then add the
@@ -203,11 +203,11 @@ public class IcqTesterAgent
                 throw new NullPointerException(
                     "Couldn't create group " + groupName);
 
-            Iterator contactsToAddToThisGroup
-                = ( (List) listContents.get(groupName)).iterator();
+            Iterator<String> contactsToAddToThisGroup
+                = listContents.get(groupName).iterator();
             while (contactsToAddToThisGroup.hasNext())
             {
-                String screenname = (String) contactsToAddToThisGroup.next();
+                String screenname = contactsToAddToThisGroup.next();
 
                 //remove all buddies captured by the event collector so far
                 //then register it as a listener
@@ -340,15 +340,13 @@ public class IcqTesterAgent
      */
     private Buddy findBuddyInBuddyList(BuddyList list, String screenname)
     {
-        Iterator groups = list.getGroups().iterator();
+        Iterator<? extends Group> groups = list.getGroups().iterator();
 
         while (groups.hasNext())
         {
-            Group group = (Group) groups.next();
-            List buddies = group.getBuddiesCopy();
-            for (int i = 0; i < buddies.size(); i++)
+            Group group = groups.next();
+            for (Buddy buddy : group.getBuddiesCopy())
             {
-                Buddy buddy = (Buddy)buddies.get(i);
                 if(buddy.getScreenname().getFormatted().equals(screenname))
                     return buddy;
             }
@@ -526,7 +524,6 @@ public class IcqTesterAgent
                     ran = true;
                 }
 
-                Object value = null;
                 if (snac instanceof UserInfoCmd)
                 {
                     UserInfoCmd uic = (UserInfoCmd) snac;
@@ -544,18 +541,16 @@ public class IcqTesterAgent
                         logger.debug("status is " + status +"="
                                      + userInfo.getIcqStatus());
 
-                        List eInfoBlocks = userInfo.getExtraInfoBlocks();
+                        List<ExtraInfoBlock> eInfoBlocks
+                            = userInfo.getExtraInfoBlocks();
                         if(eInfoBlocks != null){
                             System.out.println("printing extra info blocks ("
                                                + eInfoBlocks.size() + ")");
 
-                            for (int i = 0; i < eInfoBlocks.size(); i++)
+                            for (ExtraInfoBlock block : eInfoBlocks)
                             {
-                                ExtraInfoBlock block
-                                    = (ExtraInfoBlock) eInfoBlocks.get(i);
-                                System.out.println("block.toString()="
-                                    + block.toString()); ;
-
+                                System.out.println(
+                                    "block.toString()=" + block.toString());
                             }
                         }
                         else
@@ -700,8 +695,8 @@ public class IcqTesterAgent
     private class LayoutEventCollector
         implements BuddyListLayoutListener
     {
-        public Vector addedGroups  = new Vector();
-        public Vector addedBuddies = new Vector();
+        public Vector<Group> addedGroups  = new Vector<Group>();
+        public Vector<Buddy> addedBuddies = new Vector<Buddy>();
         public Vector removedBuddies = new Vector();
 
         /**
@@ -775,9 +770,11 @@ public class IcqTesterAgent
          * @param group a reference to the Group that has just been created.
          * @param buddies a List of the buddies created by this group (unused).
          */
-        public void groupAdded(BuddyList list, List oldItems,
-                               List newItems,
-                               Group group, List buddies)
+        public void groupAdded(BuddyList list,
+                               List<? extends Group> oldItems,
+                               List<? extends Group> newItems,
+                               Group group,
+                               List<? extends Buddy> buddies)
         {
             logger.debug("A group was added gname is=" + group.getName());
             synchronized(this.addedGroups){
@@ -795,8 +792,11 @@ public class IcqTesterAgent
          * @param newItems List (unused)
          * @param buddy a reference to the newly added Buddy.
          */
-        public void buddyAdded(BuddyList list, Group group, List oldItems,
-            List newItems, Buddy buddy)
+        public void buddyAdded(BuddyList list,
+                               Group group,
+                               List<? extends Buddy> oldItems,
+                               List<? extends Buddy> newItems,
+                               Buddy buddy)
         {
             logger.debug("A buddy ("+buddy.getScreenname()
                          +")was added to group " + group.getName());
@@ -1069,12 +1069,11 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
                 dupeGroup = group;
             if (group.getName().equals("grp"))
                 grpGroup = group;
-            List buddies = group.getBuddiesCopy();
+            List<? extends Buddy> buddies = group.getBuddiesCopy();
             System.out.println("Printing buddies for group " + group.getName());
             Thread.sleep(1000);
-            for (int i = 0; i < buddies.size(); i++)
+            for (Buddy buddy : buddies)
             {
-                Buddy buddy = (Buddy) buddies.get(i);
                 System.out.println(buddy.getScreenname());
                 if (buddy.getScreenname().getFormatted().equals("201345337"))
                     buddyToMove = buddy;
@@ -1084,7 +1083,7 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
         System.out.println();System.out.println();System.out.println();System.out.println();System.out.println();System.out.println();System.out.println();System.out.println();System.out.println();
         System.out.println("will move buddyyyyyyyyyy");
         Thread.sleep(5000);
-        List listToMove = new ArrayList();
+        List<Buddy> listToMove = new ArrayList<Buddy>();
         listToMove.add(buddyToMove);
         list.moveBuddies(listToMove, grpGroup);
         System.out.println("MOved i sega triabva da doidat eventi ");
@@ -1096,10 +1095,9 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
         while(groupsIter.hasNext())
         {
             MutableGroup group = (MutableGroup)groupsIter.next();
-            List buddies = group.getBuddiesCopy();
-            for (int i = 0; i < buddies.size(); i++)
+            List<? extends Buddy> buddies = group.getBuddiesCopy();
+            for (Buddy buddy : buddies)
             {
-                Buddy buddy = (Buddy) buddies.get(i);
                 if (buddy.getScreenname().getFormatted().equals("201345337"))
                     movedBuddy = buddy;
             }
@@ -1128,7 +1126,6 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
          */
         public void writeData(OutputStream out) throws IOException
         {
-
         }
     }
 
@@ -1136,23 +1133,23 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
     {
         logger.debug("Will delete buddy : " + screenname);
         MutableBuddyList joustSimBuddyList
-            = (MutableBuddyList)conn.getSsiService().getBuddyList();
+            = conn.getSsiService().getBuddyList();
 
         LayoutEventCollector evtCollector = new LayoutEventCollector();
         joustSimBuddyList.addLayoutListener(evtCollector);
 
-        List grList = joustSimBuddyList.getGroups();
+        List<? extends Group> grList = joustSimBuddyList.getGroups();
         boolean isDeleted = false;
-        Iterator iter = grList.iterator();
+        Iterator<? extends Group> iter = grList.iterator();
         while (iter.hasNext())
         {
             MutableGroup item = (MutableGroup) iter.next();
 
-            List bs = item.getBuddiesCopy();
-            Iterator iter1 = bs.iterator();
+            List<? extends Buddy> bs = item.getBuddiesCopy();
+            Iterator<? extends Buddy> iter1 = bs.iterator();
             while (iter1.hasNext())
             {
-                Buddy b = (Buddy) iter1.next();
+                Buddy b = iter1.next();
                 if(b.getScreenname().getFormatted().equals(screenname))
                 {
                     item.deleteBuddy(b);
@@ -1174,20 +1171,20 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
     {
         logger.debug("Will add buddy : " + screenname);
         MutableBuddyList joustSimBuddyList
-            = (MutableBuddyList)conn.getSsiService().getBuddyList();
+            = conn.getSsiService().getBuddyList();
 
-        List grList = joustSimBuddyList.getGroups();
+        List<? extends Group> grList = joustSimBuddyList.getGroups();
 
-        Iterator iter = grList.iterator();
+        Iterator<? extends Group> iter = grList.iterator();
         while (iter.hasNext())
         {
             MutableGroup item = (MutableGroup) iter.next();
             logger.debug("group : " + item);
-            List bs = item.getBuddiesCopy();
-            Iterator iter1 = bs.iterator();
+            List<? extends Buddy> bs = item.getBuddiesCopy();
+            Iterator<? extends Buddy> iter1 = bs.iterator();
             while (iter1.hasNext())
             {
-                Object b = (Object) iter1.next();
+                Object b = iter1.next();
                 logger.debug("buddy : " + b);
             }
         }
@@ -1433,7 +1430,7 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
                         logger.trace("Adding buddy as awaiting authorization " + uinToAskForAuth);
 
                         MutableBuddyList joustSimBuddyList
-                            = (MutableBuddyList)conn.getSsiService().getBuddyList();
+                            = conn.getSsiService().getBuddyList();
 
                         LayoutEventCollector evtCollector = new LayoutEventCollector();
                         joustSimBuddyList.addLayoutListener(evtCollector);
@@ -1517,7 +1514,7 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
         conn.getSsiService().getOscarConnection().sendSnac(cmd);
     }
 
-    public Hashtable getUserInfo(String uin)
+    public Hashtable<String, Object> getUserInfo(String uin)
     {
         UserInfoResponse response = new UserInfoResponse();
 
@@ -1565,7 +1562,7 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
     private class UserInfoResponse
         extends SnacRequestAdapter
     {
-        Hashtable info = null;
+        Hashtable<String, Object> info = null;
 
         public void handleResponse(SnacResponseEvent e)
         {

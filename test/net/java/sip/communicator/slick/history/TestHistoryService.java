@@ -82,12 +82,12 @@ public class TestHistoryService extends TestCase {
 
     public void testCreateDB()
     {
-        ArrayList al = new ArrayList();
+        ArrayList<String> al = new ArrayList<String>();
 
-        Iterator i = this.historyService.getExistingIDs();
+        Iterator<HistoryID> i = this.historyService.getExistingIDs();
         while (i.hasNext())
         {
-            HistoryID id = (HistoryID) i.next();
+            HistoryID id = i.next();
             String[] components = id.getID();
 
             if (components.length == 2 && "test".equals(components[0]))

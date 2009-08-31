@@ -329,7 +329,7 @@ public class TestAccountUninstallation
     public class UnregistrationEventCollector
         implements RegistrationStateChangeListener
     {
-        public List collectedNewStates = new LinkedList();
+        public List<RegistrationState> collectedNewStates = new LinkedList<RegistrationState>();
 
         /**
          * The method would simply register all received events so that they

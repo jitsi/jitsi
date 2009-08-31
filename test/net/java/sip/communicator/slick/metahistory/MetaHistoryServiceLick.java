@@ -37,7 +37,7 @@ public class MetaHistoryServiceLick
         MetaHistoryServiceLick.bc = bundleContext;
 
         setName("MetaHistoryServiceSLick");
-        Hashtable properties = new Hashtable();
+        Hashtable<String, String> properties = new Hashtable<String, String>();
         properties.put("service.pid", getName());
 
         addTest(TestMetaHistoryService.suite());

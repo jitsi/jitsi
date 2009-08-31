@@ -424,7 +424,7 @@ public class TestOperationSetPersistentPresence
      */
     private class GroupChangeCollector implements ServerStoredGroupListener
     {
-        public ArrayList collectedEvents = new ArrayList();
+        public ArrayList<EventObject> collectedEvents = new ArrayList<EventObject>();
 
         /**
          * Blocks until at least one event is received or until waitFor
@@ -525,7 +525,7 @@ public class TestOperationSetPersistentPresence
      */
     private class SubscriptionEventCollector implements SubscriptionListener
     {
-        public ArrayList collectedEvents = new ArrayList();
+        public ArrayList<EventObject> collectedEvents = new ArrayList<EventObject>();
 
         /**
          * Blocks until at least one event is received or until waitFor

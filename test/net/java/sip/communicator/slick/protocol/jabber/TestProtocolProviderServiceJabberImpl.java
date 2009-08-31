@@ -170,12 +170,12 @@ public class TestProtocolProviderServiceJabberImpl
     public class RegistrationEventCollector
         implements RegistrationStateChangeListener
     {
-        public List collectedNewStates = new LinkedList();
+        public List<RegistrationState> collectedNewStates = new LinkedList<RegistrationState>();
 
         /**
          * The method would simply register all received events so that they
          * could be available for later inspection by the unit tests. In the
-         * case where a registraiton event notifying us of a completed
+         * case where a registration event notifying us of a completed
          * registration is seen, the method would call notifyAll().
          *
          * @param evt ProviderStatusChangeEvent the event describing the status

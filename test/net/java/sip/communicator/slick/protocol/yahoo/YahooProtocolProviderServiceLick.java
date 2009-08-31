@@ -59,7 +59,7 @@ public class YahooProtocolProviderServiceLick
     {
         setName("YahooProtocolProviderSlick");
 
-        Hashtable properties = new Hashtable();
+        Hashtable<String, String> properties = new Hashtable<String, String>();
         properties.put("service.pid", getName());
 
         YahooSlickFixture.bc = context;

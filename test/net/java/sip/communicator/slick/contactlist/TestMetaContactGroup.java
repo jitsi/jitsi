@@ -98,7 +98,7 @@ public class TestMetaContactGroup extends TestCase
      */
     public void testGetChildContacts()
     {
-        Iterator childContactsIter = metaGroup.getChildContacts();
+        Iterator<MetaContact> childContactsIter = metaGroup.getChildContacts();
 
         assertNotNull("getChildContacts() returned a null iterator."
                       , childContactsIter);
@@ -129,15 +129,14 @@ public class TestMetaContactGroup extends TestCase
      */
     public void testGetContactGroups()
     {
-        Iterator contactGroups = metaGroup.getContactGroups();
+        Iterator<ContactGroup> contactGroups = metaGroup.getContactGroups();
 
         assertNotNull("contact groups iterator", contactGroups);
 
         assertTrue("The contact groups iterator was empty."
                    , contactGroups.hasNext());
 
-        MockContactGroup actualMockGroup
-            = (MockContactGroup)contactGroups.next();
+        ContactGroup actualMockGroup = contactGroups.next();
 
         assertSame("Iterator did not contain the right contact group"
                    , mockGroup
@@ -149,15 +148,14 @@ public class TestMetaContactGroup extends TestCase
      */
     public void testGetContactGroupsForProvider()
     {
-        Iterator contactGroups = metaGroup.getContactGroups();
+        Iterator<ContactGroup> contactGroups = metaGroup.getContactGroups();
 
         assertNotNull("contact groups for provider iterator", contactGroups);
 
         assertTrue("The contact groups iterator was empty for a mock provider."
                    , contactGroups.hasNext());
 
-        MockContactGroup actualMockGroup
-            = (MockContactGroup)contactGroups.next();
+        ContactGroup actualMockGroup = contactGroups.next();
 
         assertSame("A prov. iterator did not contain the right contact group"
                    , mockGroup
@@ -203,7 +201,7 @@ public class TestMetaContactGroup extends TestCase
     public void testGetMetaContact2()
     {
         //firt obtain a reference to a contact through iteration.
-        Iterator childContactsIter = metaGroup.getChildContacts();
+        Iterator<MetaContact> childContactsIter = metaGroup.getChildContacts();
 
         //make sure the returned ref is ok.
         assertNotNull("getChildContacts() returned a null iterator."
@@ -212,7 +210,7 @@ public class TestMetaContactGroup extends TestCase
         assertTrue("getChildContacts() returned an empty iterator."
                    , childContactsIter.hasNext());
 
-        MetaContact expectedChild = (MetaContact)childContactsIter.next();
+        MetaContact expectedChild = childContactsIter.next();
 
         MetaContact actualChild = metaGroup.getMetaContact(
                                                 expectedChild.getMetaUID());
@@ -266,8 +264,8 @@ public class TestMetaContactGroup extends TestCase
         assertNotNull("The returned group does not appear to really exist"
                      ,mockGroup.getGroup(actualGroup.getGroupName()));
         assertNotNull("Group encapsulated in the returned group did not match"
-                    , mockGroup.getGroup(((MockContactGroup)actualGroup
-                        .getContactGroups().next()).getGroupName()));
+                    , mockGroup.getGroup(actualGroup
+                        .getContactGroups().next().getGroupName()));
     }
 
     /**
@@ -277,7 +275,7 @@ public class TestMetaContactGroup extends TestCase
     {
         //firt obtain references to a group.
         MetaContactGroup actualGroup = metaGroup.getMetaContactSubgroup(
-            ((MetaContactGroup)metaGroup.getSubgroups().next()).getGroupName());
+            (metaGroup.getSubgroups().next()).getGroupName());
 
         //make sure that what we just got is not null.
         assertNotNull("getMetaContact(String) returned null for group 0"
@@ -321,7 +319,7 @@ public class TestMetaContactGroup extends TestCase
      */
     public void testGetSubgroups()
     {
-        Iterator subgroupsIter = metaGroup.getSubgroups();
+        Iterator<MetaContactGroup> subgroupsIter = metaGroup.getSubgroups();
 
         assertNotNull("getSubgroup() returned a null iterator."
                       , subgroupsIter);

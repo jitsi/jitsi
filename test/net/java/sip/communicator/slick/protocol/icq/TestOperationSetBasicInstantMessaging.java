@@ -217,8 +217,8 @@ public class TestOperationSetBasicInstantMessaging
         //verify that the message has successfully arived at the destination
         assertTrue( "No messages received by the tester agent"
                     , jsEvtCollector.collectedMessageInfo.size() > 0);
-        String receivedBody = ((MessageInfo)jsEvtCollector.collectedMessageInfo
-                               .get(0)).getMessage().getMessageBody();
+        String receivedBody = jsEvtCollector.collectedMessageInfo
+                               .get(0).getMessage().getMessageBody();
 
         assertEquals("received message body", msg.getContent(), receivedBody);
     }
@@ -289,7 +289,8 @@ public class TestOperationSetBasicInstantMessaging
      */
     private class ImEventCollector implements MessageListener
     {
-        private List collectedEvents = new LinkedList();
+        private List<EventObject> collectedEvents = new LinkedList<EventObject>();
+
         /**
          * Called when a new incoming <tt>Message</tt> has been received.
          * @param evt the <tt>MessageReceivedEvent</tt> containing the newly
@@ -375,7 +376,7 @@ public class TestOperationSetBasicInstantMessaging
     private class JoustSimMessageEventCollector
         implements ConversationListener
     {
-        private List collectedMessageInfo = new LinkedList();
+        private List<MessageInfo> collectedMessageInfo = new LinkedList<MessageInfo>();
 
         /**
          * Adds <tt>minfo</tt> into the list of collected messages.

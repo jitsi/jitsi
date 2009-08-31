@@ -379,7 +379,7 @@ public class TestOperationSetBasicInstantMessaging
      */
     private class ImEventCollector implements MessageListener
     {
-        private List collectedEvents = new LinkedList();
+        private List<EventObject> collectedEvents = new LinkedList<EventObject>();
         /**
          * Called when a new incoming <tt>Message</tt> has been received.
          * @param evt the <tt>MessageReceivedEvent</tt> containing the newly

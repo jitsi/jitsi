@@ -126,7 +126,7 @@ public abstract class TestOperationSetFileTransfer
                          , 1, senderStatusListener.collectedEvents.size());
 
             FileTransferStatusChangeEvent fileTransferStatusEvent
-                = (FileTransferStatusChangeEvent)senderStatusListener.collectedEvents.get(0);
+                = senderStatusListener.collectedEvents.get(0);
 
             assertEquals("Event must be preparing"
                 ,FileTransferStatusChangeEvent.PREPARING
@@ -178,21 +178,21 @@ public abstract class TestOperationSetFileTransfer
                          , 3, receiverStatusListener.collectedEvents.size());
 
             fileTransferStatusEvent
-                = (FileTransferStatusChangeEvent)receiverStatusListener.collectedEvents.get(0);
+                = receiverStatusListener.collectedEvents.get(0);
 
             assertEquals("Event must be preparing"
                          ,FileTransferStatusChangeEvent.PREPARING
                          ,fileTransferStatusEvent.getNewStatus());
 
             fileTransferStatusEvent
-                = (FileTransferStatusChangeEvent)receiverStatusListener.collectedEvents.get(1);
+                = receiverStatusListener.collectedEvents.get(1);
 
             assertEquals("Event must be completed"
                          ,FileTransferStatusChangeEvent.IN_PROGRESS
                          ,fileTransferStatusEvent.getNewStatus());
 
             fileTransferStatusEvent
-                = (FileTransferStatusChangeEvent)receiverStatusListener.collectedEvents.get(2);
+                = receiverStatusListener.collectedEvents.get(2);
 
             assertEquals("Event must be completed"
                          ,FileTransferStatusChangeEvent.COMPLETED
@@ -258,7 +258,7 @@ public abstract class TestOperationSetFileTransfer
                          , 1, senderStatusListener.collectedEvents.size());
 
             FileTransferStatusChangeEvent fileTransferStatusEvent
-                = (FileTransferStatusChangeEvent)senderStatusListener.collectedEvents.get(0);
+                = senderStatusListener.collectedEvents.get(0);
 
             assertEquals("Event must be preparing"
                          ,FileTransferStatusChangeEvent.PREPARING
@@ -298,7 +298,7 @@ public abstract class TestOperationSetFileTransfer
                          , 1, senderStatusListener.collectedEvents.size());
 
             fileTransferStatusEvent
-                = (FileTransferStatusChangeEvent)senderStatusListener.collectedEvents.get(0);
+                = senderStatusListener.collectedEvents.get(0);
 
             assertEquals("Event must be canceled"
                          ,FileTransferStatusChangeEvent.CANCELED
@@ -368,7 +368,7 @@ public abstract class TestOperationSetFileTransfer
                          , 1, senderStatusListener.collectedEvents.size());
 
             FileTransferStatusChangeEvent fileTransferStatusEvent
-                = (FileTransferStatusChangeEvent)senderStatusListener.collectedEvents.get(0);
+                = senderStatusListener.collectedEvents.get(0);
 
             assertEquals("Event must be preparing"
                          ,FileTransferStatusChangeEvent.PREPARING
@@ -417,7 +417,7 @@ public abstract class TestOperationSetFileTransfer
                          , 1, senderStatusListener.collectedEvents.size());
 
             fileTransferStatusEvent
-                = (FileTransferStatusChangeEvent)senderStatusListener.collectedEvents.get(0);
+                = senderStatusListener.collectedEvents.get(0);
 
             assertEquals("Event must be refused"
                          ,FileTransferStatusChangeEvent.REFUSED
@@ -482,7 +482,7 @@ public abstract class TestOperationSetFileTransfer
                          , 1, senderStatusListener.collectedEvents.size());
 
             FileTransferStatusChangeEvent fileTransferStatusEvent
-                = (FileTransferStatusChangeEvent)senderStatusListener.collectedEvents.get(0);
+                = senderStatusListener.collectedEvents.get(0);
 
             assertEquals("Event must be preparing"
                          ,FileTransferStatusChangeEvent.PREPARING
@@ -625,7 +625,7 @@ public abstract class TestOperationSetFileTransfer
                          , 1, senderStatusListener.collectedEvents.size());
 
             FileTransferStatusChangeEvent fileTransferStatusEvent
-                = (FileTransferStatusChangeEvent)senderStatusListener.collectedEvents.get(0);
+                = senderStatusListener.collectedEvents.get(0);
 
             assertEquals("Event must be preparing"
                          ,FileTransferStatusChangeEvent.PREPARING
@@ -740,7 +740,9 @@ public abstract class TestOperationSetFileTransfer
     public class FileTransferEventCollector
         implements FileTransferListener
     {
-        public ArrayList collectedEvents = new ArrayList();
+        public final List<EventObject> collectedEvents
+            = new ArrayList<EventObject>();
+
         private boolean rejected = false;
         private boolean canceled = false;
         private FileTransferStatusEventCollector statusCollector = null;

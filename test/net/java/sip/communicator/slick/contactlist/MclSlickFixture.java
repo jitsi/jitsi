@@ -238,7 +238,7 @@ public class MclSlickFixture
                 , actualMetaContact.getContacts().hasNext());
 
             Contact actualProtoContact
-                = (Contact)actualMetaContact.getContacts().next();
+                = actualMetaContact.getContacts().next();
 
             assertNotNull("getContactForProvider returned null for MockProvider"
                           , actualProtoContact);

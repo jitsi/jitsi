@@ -35,7 +35,7 @@ public class NetworkAddressManagerServiceLick
     {
         this.bc = bundleContext;
         setName("NetworkAddressManagerServiceLick");
-        Hashtable properties = new Hashtable();
+        Hashtable<String, String> properties = new Hashtable<String, String>();
         properties.put("service.pid", getName());
 
 //        addTestSuite(TestNetworkAddressManagerService.class);

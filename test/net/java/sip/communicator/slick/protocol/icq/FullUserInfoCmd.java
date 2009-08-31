@@ -35,7 +35,8 @@ public class FullUserInfoCmd
 
     boolean lastOfSequences = false;
 
-    private static Hashtable retreivedInfo = new Hashtable();
+    private static Hashtable<Integer, Hashtable<String, Object>> retreivedInfo
+        = new Hashtable<Integer, Hashtable<String, Object>>();
 
     // properties for the retreived info
     final static String LAST_NAME = "LastName";
@@ -162,9 +163,11 @@ public class FullUserInfoCmd
      * @param requestID int
      * @return Hashtable
      */
-    private Hashtable getInfoForRequest(int requestID)
+    private Hashtable<String, Object> getInfoForRequest(int requestID)
     {
-        Hashtable res = (Hashtable) retreivedInfo.get(new Integer(requestID));
+        Hashtable<String, Object> res
+            = (Hashtable<String, Object>)
+                retreivedInfo.get(new Integer(requestID));
 
         if (res == null)
         {
@@ -172,7 +175,7 @@ public class FullUserInfoCmd
             // doesn't exists, so this is the first packet
             // from the sequence (basic info)
 
-            res = new Hashtable();
+            res = new Hashtable<String, Object>();
             retreivedInfo.put(new Integer(requestID), res);
         }
 
@@ -183,7 +186,7 @@ public class FullUserInfoCmd
      * Return the retreived info from the last received request
      * @return Hashtable
      */
-    public Hashtable getInfo()
+    public Hashtable<String, Object> getInfo()
     {
         return getInfoForRequest(requestID);
     }
@@ -196,7 +199,7 @@ public class FullUserInfoCmd
      */
     private void readBasicUserInfo(ByteBlock block, int requestID)
     {
-        Hashtable infoData = getInfoForRequest(requestID);
+        Hashtable<String, Object> infoData = getInfoForRequest(requestID);
 
         // sequence of 11 String fields
         String bscInfo[] = new String[11];
@@ -247,7 +250,7 @@ public class FullUserInfoCmd
      */
     private void readMoreUserInfo(ByteBlock block, int requestID)
     {
-        Hashtable infoData = getInfoForRequest(requestID);
+        Hashtable<String, Object> infoData = getInfoForRequest(requestID);
 
         int offset = 1;
         String[] tmp = new String[1];

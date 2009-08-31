@@ -37,7 +37,6 @@ public class TestOperationSetPresence
     private MsnSlickFixture fixture = new MsnSlickFixture();
     private OperationSetPresence operationSetPresence1 = null;
     private OperationSetPresence operationSetPresence2 = null;
-    private String statusMessageRoot = new String("Our status is now: ");
 
     public TestOperationSetPresence(String name)
     {
@@ -151,17 +150,18 @@ public class TestOperationSetPresence
     {
         //first create a local list containing the presence status instances
         //supported by the underlying implementation.
-        Iterator supportedStatusSetIter =
+        Iterator<PresenceStatus> supportedStatusSetIter =
             operationSetPresence1.getSupportedStatusSet();
 
-        List supportedStatusSet = new LinkedList();
+        List<PresenceStatus> supportedStatusSet = new LinkedList<PresenceStatus>();
         while (supportedStatusSetIter.hasNext()){
             supportedStatusSet.add(supportedStatusSetIter.next());
         }
 
         //create a copy of the MUST status set and remove any matching status
         //that is also present in the supported set.
-        List requiredStatusSetCopy = (List)MsnStatusEnum.msnStatusSet.clone();
+        List<?> requiredStatusSetCopy
+            = (List<?>) MsnStatusEnum.msnStatusSet.clone();
 
         requiredStatusSetCopy.removeAll(supportedStatusSet);
 
@@ -333,7 +333,7 @@ public class TestOperationSetPresence
     {
         try
         {
-            Thread.currentThread().sleep(3000);
+            Thread.sleep(3000);
         }
         catch (InterruptedException ex)
         {
@@ -409,12 +409,6 @@ public class TestOperationSetPresence
         {
             logger.info("subtestQueryContactStatus for " + status + 
                 " Failed - trying again!");
-            
-            PresenceStatus tempStatus;
-            if(status.equals(MsnStatusEnum.ONLINE))
-                tempStatus = MsnStatusEnum.AWAY;
-            else
-                tempStatus = MsnStatusEnum.ONLINE;
             
             // reset the status so we can change it once again
             operationSetPresence2.publishPresenceStatus(status, "status message");
@@ -685,8 +679,8 @@ public class TestOperationSetPresence
     private class PresenceStatusEventCollector
         implements ProviderPresenceStatusListener
     {
-        public ArrayList collectedPresEvents = new ArrayList();
-        public ArrayList collectedStatMsgEvents = new ArrayList();
+        public ArrayList<EventObject> collectedPresEvents = new ArrayList<EventObject>();
+        public ArrayList<EventObject> collectedStatMsgEvents = new ArrayList<EventObject>();
 
         public void providerStatusChanged(ProviderPresenceStatusChangeEvent evt)
         {
@@ -780,7 +774,7 @@ public class TestOperationSetPresence
      */
     private class SubscriptionEventCollector implements SubscriptionListener
     {
-        public ArrayList collectedEvents = new ArrayList();
+        public ArrayList<EventObject> collectedEvents = new ArrayList<EventObject>();
 
         /**
          * Blocks until at least one event is received or until waitFor
@@ -910,7 +904,7 @@ public class TestOperationSetPresence
     private class ContactPresenceEventCollector
         implements ContactPresenceStatusListener
     {
-        public ArrayList collectedEvents = new ArrayList();
+        public ArrayList<EventObject> collectedEvents = new ArrayList<EventObject>();
         private String trackedScreenName = null;
         private MsnStatusEnum status = null;
 

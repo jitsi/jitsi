@@ -84,9 +84,9 @@ public class TestAccountInstallation
 
         //Prepare the properties of the first gibberish account.
 
-        Hashtable gibberishAccount1Properties = getAccountProperties(
+        Hashtable<String, String> gibberishAccount1Properties = getAccountProperties(
             GibberishProtocolProviderServiceLick.ACCOUNT_1_PREFIX);
-        Hashtable gibberishAccount2Properties = getAccountProperties(
+        Hashtable<String, String> gibberishAccount2Properties = getAccountProperties(
             GibberishProtocolProviderServiceLick.ACCOUNT_2_PREFIX);
 
         //try to install an account with a null account id
@@ -102,10 +102,10 @@ public class TestAccountInstallation
 
         //now really install the accounts
         gibberishProviderFactory.installAccount(
-            (String)gibberishAccount1Properties.get(ProtocolProviderFactory.USER_ID)
+            gibberishAccount1Properties.get(ProtocolProviderFactory.USER_ID)
             , gibberishAccount1Properties);
         gibberishProviderFactory.installAccount(
-            (String)gibberishAccount2Properties.get(ProtocolProviderFactory.USER_ID)
+            gibberishAccount2Properties.get(ProtocolProviderFactory.USER_ID)
             , gibberishAccount2Properties);
 
 
@@ -113,7 +113,7 @@ public class TestAccountInstallation
         //excepion is thrown.
         try{
             gibberishProviderFactory.installAccount(
-                (String)gibberishAccount1Properties.get(ProtocolProviderFactory.USER_ID)
+                gibberishAccount1Properties.get(ProtocolProviderFactory.USER_ID)
                 , gibberishAccount1Properties);
 
             fail("An IllegalStateException must be thrown when trying to "+
@@ -136,7 +136,7 @@ public class TestAccountInstallation
         osgiFilter =
             "(&("+ProtocolProviderFactory.PROTOCOL +"=Gibberish)"
              +"(" + ProtocolProviderFactory.USER_ID
-             + "=" + (String)gibberishAccount1Properties.get(
+             + "=" + gibberishAccount1Properties.get(
                             ProtocolProviderFactory.USER_ID)
              + "))";
 
@@ -172,9 +172,9 @@ public class TestAccountInstallation
      * @return a Hashtable that can be used when creating the account in a
      * protocol provider factory.
      */
-    private Hashtable getAccountProperties(String accountPrefix)
+    private Hashtable<String, String> getAccountProperties(String accountPrefix)
     {
-        Hashtable table = new Hashtable();
+        Hashtable<String, String> table = new Hashtable<String, String>();
 
         String userID = System.getProperty(
             accountPrefix + ProtocolProviderFactory.USER_ID, null);

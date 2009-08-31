@@ -153,14 +153,12 @@ public class TestOperationSetPresence
     {
         //first create a local list containing the presence status instances
         //supported by the underlying implementation.
-        Iterator supportedStatusSetIter =
+        Iterator<PresenceStatus> supportedStatusSetIter =
             operationSetPresence1.getSupportedStatusSet();
 
         while (supportedStatusSetIter.hasNext())
         {
-            PresenceStatus supportedStatus
-                = (PresenceStatus)supportedStatusSetIter.next();
-
+            PresenceStatus supportedStatus = supportedStatusSetIter.next();
 
             logger.trace("Will test a transition to "
                          + supportedStatus.getStatusName());
@@ -261,7 +259,7 @@ public class TestOperationSetPresence
     {
         try
         {
-            Thread.currentThread().sleep(1500);
+            Thread.sleep(1500);
         }
         catch (InterruptedException ex)
         {
@@ -280,14 +278,11 @@ public class TestOperationSetPresence
     {
         //first create a local list containing the presence status instances
         //supported by the underlying implementation.
-        Iterator supportedStatusSetIter =
-            operationSetPresence1.getSupportedStatusSet();
+        Iterator<PresenceStatus> supportedStatusSetIter = operationSetPresence1.getSupportedStatusSet();
 
         while (supportedStatusSetIter.hasNext())
         {
-            PresenceStatus supportedStatus
-                = (PresenceStatus)supportedStatusSetIter.next();
-
+            PresenceStatus supportedStatus = supportedStatusSetIter.next();
 
             logger.trace("Will test a transition to "
                          + supportedStatus.getStatusName());
@@ -601,13 +596,12 @@ public class TestOperationSetPresence
         PresenceStatus mostConnectedPresenceStatus = null;
         int mostConnectedPresenceStatusInt = Integer.MIN_VALUE;
 
-        Iterator supportedStatusSetIter =
+        Iterator<PresenceStatus> supportedStatusSetIter =
             operationSetPresence1.getSupportedStatusSet();
 
         while (supportedStatusSetIter.hasNext())
         {
-            PresenceStatus supportedStatus
-                = (PresenceStatus)supportedStatusSetIter.next();
+            PresenceStatus supportedStatus = supportedStatusSetIter.next();
 
             if(supportedStatus.getStatus() > mostConnectedPresenceStatusInt)
             {
@@ -632,13 +626,12 @@ public class TestOperationSetPresence
         PresenceStatus leastConnectedPresenceStatus = null;
         int leastConnectedPresenceStatusInt = Integer.MAX_VALUE;
 
-        Iterator supportedStatusSetIter =
+        Iterator<PresenceStatus> supportedStatusSetIter =
             operationSetPresence1.getSupportedStatusSet();
 
         while (supportedStatusSetIter.hasNext())
         {
-            PresenceStatus supportedStatus
-                = (PresenceStatus)supportedStatusSetIter.next();
+            PresenceStatus supportedStatus = supportedStatusSetIter.next();
 
             if(supportedStatus.getStatus() < leastConnectedPresenceStatusInt
                 && leastConnectedPresenceStatusInt
@@ -660,8 +653,8 @@ public class TestOperationSetPresence
     private class PresenceStatusEventCollector
         implements ProviderPresenceStatusListener
     {
-        public ArrayList collectedPresEvents = new ArrayList();
-        public ArrayList collectedStatMsgEvents = new ArrayList();
+        public ArrayList<EventObject> collectedPresEvents = new ArrayList<EventObject>();
+        public ArrayList<EventObject> collectedStatMsgEvents = new ArrayList<EventObject>();
 
         public void providerStatusChanged(ProviderPresenceStatusChangeEvent evt)
         {
@@ -755,7 +748,7 @@ public class TestOperationSetPresence
      */
     private class SubscriptionEventCollector implements SubscriptionListener
     {
-        public ArrayList collectedEvents = new ArrayList();
+        public ArrayList<EventObject> collectedEvents = new ArrayList<EventObject>();
 
         /**
          * Blocks until at least one event is received or until waitFor
@@ -882,7 +875,7 @@ public class TestOperationSetPresence
     private class ContactPresenceEventCollector
         implements ContactPresenceStatusListener
     {
-        public ArrayList collectedEvents = new ArrayList();
+        public ArrayList<EventObject> collectedEvents = new ArrayList<EventObject>();
         private String trackedScreenName = null;
         private PresenceStatus status = null;
 

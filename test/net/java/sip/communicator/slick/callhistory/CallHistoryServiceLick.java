@@ -34,7 +34,7 @@ public class CallHistoryServiceLick extends TestSuite implements BundleActivator
         CallHistoryServiceLick.bc = bundleContext;
 
         setName("CallHistoryServiceLick");
-        Hashtable properties = new Hashtable();
+        Hashtable<String, String> properties = new Hashtable<String, String>();
         properties.put("service.pid", getName());
 
         addTest(TestCallHistoryService.suite());

@@ -143,7 +143,8 @@ public class TestOperationSetPersistentPresence
                      + "rootGroup.childGroups="+rootGroup.countSubgroups()
                      + "Printing rootGroupContents=\n"+rootGroup.toString());
 
-        Hashtable expectedContactList = fixture.preInstalledBuddyList;
+        Hashtable<String, List<String>> expectedContactList
+            = fixture.preInstalledBuddyList;
 
         logger.debug("============== Expected Contact List ===================");
         logger.debug(expectedContactList);
@@ -151,17 +152,17 @@ public class TestOperationSetPersistentPresence
         //Go through the contact list retrieved by the persistence presence set
         //and remove the name of every contact and group that we find there from
         //the expected contct list hashtable.
-        Iterator groups = rootGroup.subgroups();
+        Iterator<ContactGroup> groups = rootGroup.subgroups();
         while (groups.hasNext() )
         {
-            ContactGroup group = (ContactGroup)groups.next();
+            ContactGroup group = groups.next();
 
-            List expectedContactsInGroup
-                = (List)expectedContactList.get(group.getGroupName());
+            List<String> expectedContactsInGroup
+                = expectedContactList.get(group.getGroupName());
 
             // When sending the offline message
             // the sever creates a group NotInContactList,
-            // beacuse the buddy we are sending message to is not in
+            // because the buddy we are sending message to is not in
             // the contactlist. So this group must be ignored
             if(!group.getGroupName().equals("NotInContactList"))
             {
@@ -171,11 +172,10 @@ public class TestOperationSetPersistentPresence
                     "the server but was not in the expected contact list."
                               , expectedContactsInGroup);
 
-                Iterator contactsIter = group.contacts();
+                Iterator<Contact> contactsIter = group.contacts();
                 while(contactsIter.hasNext())
                 {
-                    String contactID = ((Contact)contactsIter.next()).
-                        getAddress();
+                    String contactID = contactsIter.next().getAddress();
                     expectedContactsInGroup.remove(contactID);
                 }
 
@@ -390,7 +390,8 @@ public class TestOperationSetPersistentPresence
         logger.debug("tokens contained by the CL tokenized="
             +tokenizer.countTokens());
 
-        Hashtable contactListToCreate = new Hashtable();
+        Hashtable<String, List<String>> contactListToCreate
+            = new Hashtable<String, List<String>>();
 
         //go over all group.uin tokens
         while (tokenizer.hasMoreTokens())
@@ -416,10 +417,10 @@ public class TestOperationSetPersistentPresence
             }
 
             //check if we've already seen this group and if not - add it
-            List uinInThisGroup = (List)contactListToCreate.get(groupName);
+            List<String> uinInThisGroup = contactListToCreate.get(groupName);
             if (uinInThisGroup == null)
             {
-                uinInThisGroup = new ArrayList();
+                uinInThisGroup = new ArrayList<String>();
                 contactListToCreate.put(groupName, uinInThisGroup);
             }
 
@@ -427,12 +428,12 @@ public class TestOperationSetPersistentPresence
         }
 
         // now init the list
-        Enumeration newGroupsEnum = contactListToCreate.keys();
+        Enumeration<String> newGroupsEnum = contactListToCreate.keys();
 
         //go over all groups in the contactsToAdd table
         while (newGroupsEnum.hasMoreElements())
         {
-            String groupName = (String) newGroupsEnum.nextElement();
+            String groupName = newGroupsEnum.nextElement();
             logger.debug("Will add group " + groupName);
 
             opSetPersPresence1.createServerStoredContactGroup(
@@ -441,11 +442,11 @@ public class TestOperationSetPersistentPresence
             ContactGroup newlyCreatedGroup =
                 opSetPersPresence1.getServerStoredContactListRoot().getGroup(groupName);
 
-            Iterator contactsToAddToThisGroup
-                = ( (List) contactListToCreate.get(groupName)).iterator();
+            Iterator<String> contactsToAddToThisGroup
+                = contactListToCreate.get(groupName).iterator();
             while (contactsToAddToThisGroup.hasNext())
             {
-                String id = (String) contactsToAddToThisGroup.next();
+                String id = contactsToAddToThisGroup.next();
 
                 logger.debug("Will add buddy " + id);
                 opSetPersPresence1.subscribe(newlyCreatedGroup, id);
@@ -462,7 +463,7 @@ public class TestOperationSetPersistentPresence
      */
     private class GroupChangeCollector implements ServerStoredGroupListener
     {
-        public ArrayList collectedEvents = new ArrayList();
+        public ArrayList<EventObject> collectedEvents = new ArrayList<EventObject>();
 
         /**
          * Blocks until at least one event is received or until waitFor
@@ -560,7 +561,7 @@ public class TestOperationSetPersistentPresence
      */
     private class SubscriptionEventCollector implements SubscriptionListener
     {
-        public ArrayList collectedEvents = new ArrayList();
+        public ArrayList<EventObject> collectedEvents = new ArrayList<EventObject>();
 
         /**
          * Blocks until at least one event is received or until waitFor
@@ -686,6 +687,5 @@ public class TestOperationSetPersistentPresence
                 notifyAll();
             }
         }
-
     }
 }

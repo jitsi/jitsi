@@ -122,9 +122,9 @@ public class TestOperationSetBasicTelephonySipImpl
                      , 1, callAtP2.getCallPeerCount());
 
         CallPeer peerAtP1
-            = (CallPeer)callAtP1.getCallPeers().next();
+            = callAtP1.getCallPeers().next();
         CallPeer peerAtP2
-            = (CallPeer)callAtP2.getCallPeers().next();
+            = callAtP2.getCallPeers().next();
 
         //now add listeners to the peers and make sure they have entered
         //the states they were expected to.
@@ -352,9 +352,9 @@ public class TestOperationSetBasicTelephonySipImpl
                      , 1, callAtP2.getCallPeerCount());
 
         CallPeer peerAtP1
-            = (CallPeer)callAtP1.getCallPeers().next();
+            = callAtP1.getCallPeers().next();
         CallPeer peerAtP2
-            = (CallPeer)callAtP2.getCallPeers().next();
+            = callAtP2.getCallPeers().next();
 
         //now add listeners to the peers and make sure they have entered
         //the states they were expected to.
@@ -589,9 +589,9 @@ public class TestOperationSetBasicTelephonySipImpl
                      , 1, callAtP2.getCallPeerCount());
 
         CallPeer peerAtP1
-            = (CallPeer)callAtP1.getCallPeers().next();
+            = callAtP1.getCallPeers().next();
         CallPeer peerAtP2
-            = (CallPeer)callAtP2.getCallPeers().next();
+            = callAtP2.getCallPeers().next();
 
         //now add listeners to the peers and make sure they have entered
         //the states they were expected to.
@@ -751,7 +751,7 @@ public class TestOperationSetBasicTelephonySipImpl
      */
     public class CallEventCollector implements CallListener
     {
-        public ArrayList collectedEvents = new ArrayList();
+        public ArrayList<EventObject> collectedEvents = new ArrayList<EventObject>();
         public OperationSetBasicTelephony listenedOpSet = null;
 
         /**
@@ -859,7 +859,7 @@ public class TestOperationSetBasicTelephonySipImpl
     public class CallPeerStateEventCollector
         extends CallPeerAdapter
     {
-        public ArrayList collectedEvents = new ArrayList();
+        public ArrayList<EventObject> collectedEvents = new ArrayList<EventObject>();
         private CallPeer listenedCallPeer = null;
         public CallPeerState awaitedState = null;
 
@@ -984,7 +984,7 @@ public class TestOperationSetBasicTelephonySipImpl
     public class CallStateEventCollector
         extends CallChangeAdapter
     {
-        public ArrayList collectedEvents = new ArrayList();
+        public ArrayList<EventObject> collectedEvents = new ArrayList<EventObject>();
         private Call listenedCall = null;
         public CallState awaitedState = null;
 

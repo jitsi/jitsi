@@ -67,7 +67,7 @@ public class JabberProtocolProviderServiceLick
     {
         setName("JabberProtocolProviderSlick");
 
-        Hashtable properties = new Hashtable();
+        Hashtable<String, String> properties = new Hashtable<String, String>();
         properties.put("service.pid", getName());
 
         JabberSlickFixture.bc = context;

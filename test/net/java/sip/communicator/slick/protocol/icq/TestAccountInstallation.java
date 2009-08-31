@@ -118,7 +118,7 @@ public class TestAccountInstallation extends TestCase
         uin = uin + "1234";
 
 
-        Hashtable icqAccountProperties = new Hashtable();
+        Hashtable<String, String> icqAccountProperties = new Hashtable<String, String>();
         icqAccountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
 
         AccountID icqAccountID = icqProviderFactory.installAccount(
@@ -247,7 +247,7 @@ public class TestAccountInstallation extends TestCase
 
         passwd = "dam1234";
 
-        Hashtable icqAccountProperties = new Hashtable();
+        Hashtable<String, String> icqAccountProperties = new Hashtable<String, String>();
         icqAccountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
 
         AccountID icqAccountID = icqProviderFactory.installAccount(
@@ -384,7 +384,7 @@ public class TestAccountInstallation extends TestCase
             passwd);
 
 
-        Hashtable icqAccountProperties = new Hashtable();
+        Hashtable<String, String> icqAccountProperties = new Hashtable<String, String>();
         icqAccountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
 
         //try to install an account with a null account id
@@ -460,7 +460,7 @@ public class TestAccountInstallation extends TestCase
     public class RegistrationFailedEventCollector
         implements RegistrationStateChangeListener
     {
-        public List collectedNewStates = new LinkedList();
+        public List<RegistrationState> collectedNewStates = new LinkedList<RegistrationState>();
 
         public int failedCode;
         public String failedReason = null;

@@ -171,7 +171,7 @@ public class TestProtocolProviderServiceMsnImpl
     public class RegistrationEventCollector
         implements RegistrationStateChangeListener
     {
-        public List collectedNewStates = new LinkedList();
+        public List<RegistrationState> collectedNewStates = new LinkedList<RegistrationState>();
 
         /**
          * The method would simply register all received events so that they

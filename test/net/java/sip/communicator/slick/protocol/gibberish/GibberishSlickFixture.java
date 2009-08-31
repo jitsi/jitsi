@@ -84,7 +84,7 @@ public class GibberishSlickFixture
      * and initialise the ss contact list before the tested implementation has
      * actually done so.
      */
-    public static Hashtable preInstalledBuddyList  = null;
+    public static Hashtable<String, List<String>> preInstalledBuddyList  = null;
 
 
     /**
@@ -264,8 +264,8 @@ public class GibberishSlickFixture
         ContactGroup rootGroup1 = opSetPersPresence1.getServerStoredContactListRoot();
 
         // first delete the groups
-        Vector groupsToRemove = new Vector();
-        Iterator iter = rootGroup1.subgroups();
+        Vector<ContactGroup> groupsToRemove = new Vector<ContactGroup>();
+        Iterator<ContactGroup> iter = rootGroup1.subgroups();
         while (iter.hasNext())
         {
             groupsToRemove.add(iter.next());
@@ -274,27 +274,27 @@ public class GibberishSlickFixture
         iter = groupsToRemove.iterator();
         while (iter.hasNext())
         {
-            ContactGroup item = (ContactGroup) iter.next();
+            ContactGroup item = iter.next();
             opSetPersPresence1.removeServerStoredContactGroup(item);
         }
 
         //then delete contacts if any in root list
-        Vector contactsToRemove = new Vector();
-        iter = rootGroup1.contacts();
-        while (iter.hasNext())
+        Vector<Contact> contactsToRemove = new Vector<Contact>();
+        Iterator<Contact> iter2 = rootGroup1.contacts();
+        while (iter2.hasNext())
         {
-            contactsToRemove.add(iter.next());
+            contactsToRemove.add(iter2.next());
         }
-        iter = contactsToRemove.iterator();
-        while (iter.hasNext())
+        iter2 = contactsToRemove.iterator();
+        while (iter2.hasNext())
         {
-            opSetPersPresence1.unsubscribe((Contact)iter.next());
+            opSetPersPresence1.unsubscribe(iter2.next());
         }
 
         ContactGroup rootGroup2 = opSetPersPresence2.getServerStoredContactListRoot();
 
         // delete groups
-        groupsToRemove = new Vector();
+        groupsToRemove = new Vector<ContactGroup>();
         iter = rootGroup2.subgroups();
         while (iter.hasNext())
         {
@@ -304,21 +304,21 @@ public class GibberishSlickFixture
         iter = groupsToRemove.iterator();
         while (iter.hasNext())
         {
-            ContactGroup item = (ContactGroup) iter.next();
+            ContactGroup item = iter.next();
             opSetPersPresence2.removeServerStoredContactGroup(item);
         }
 
         //then delete contacts if any in root list
-        contactsToRemove = new Vector();
-        iter = rootGroup2.contacts();
-        while (iter.hasNext())
+        contactsToRemove = new Vector<Contact>();
+        iter2 = rootGroup2.contacts();
+        while (iter2.hasNext())
         {
-            contactsToRemove.add(iter.next());
+            contactsToRemove.add(iter2.next());
         }
-        iter = contactsToRemove.iterator();
-        while (iter.hasNext())
+        iter2 = contactsToRemove.iterator();
+        while (iter2.hasNext())
         {
-            opSetPersPresence2.unsubscribe( (Contact) iter.next());
+            opSetPersPresence2.unsubscribe(iter2.next());
         }
     }
 }

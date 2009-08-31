@@ -36,7 +36,7 @@ public class RssProtocolProviderServiceLick
 
         setName("RssProtocolProviderServiceLick");
 
-        Hashtable properties = new Hashtable();
+        Hashtable<String, String> properties = new Hashtable<String, String>();
         properties.put("service.pid", getName());
 
         RssSlickFixture.bc = bundleContext;

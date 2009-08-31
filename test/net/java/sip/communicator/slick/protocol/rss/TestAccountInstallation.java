@@ -50,7 +50,7 @@ public class TestAccountInstallation
      */
     public void testInstallAccount()
     {
-        Hashtable accountProperties = new Hashtable();
+        Hashtable<String, String> accountProperties = new Hashtable<String, String>();
 
         ServiceReference[] serRefs = null;
         String osgiFilter = "(" + ProtocolProviderFactory.PROTOCOL + "="

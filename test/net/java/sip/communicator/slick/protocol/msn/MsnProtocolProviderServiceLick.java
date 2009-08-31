@@ -59,7 +59,7 @@ public class MsnProtocolProviderServiceLick
     {
         setName("MsnProtocolProviderSlick");
 
-        Hashtable properties = new Hashtable();
+        Hashtable<String, String> properties = new Hashtable<String, String>();
         properties.put("service.pid", getName());
 
         MsnSlickFixture.bc = context;

@@ -45,7 +45,7 @@ public class SlicklessTests
     {
         bc = bundleContext;
         setName("SlicklessTests");
-        Hashtable properties = new Hashtable();
+        Hashtable<String, String> properties = new Hashtable<String, String>();
         properties.put("service.pid", getName());
 
         addTest(createSuite());
@@ -107,9 +107,9 @@ public class SlicklessTests
             {
                 try
                 {
-                    Class testClass = Class.forName(testName);
+                    Class<?> testClass = Class.forName(testName);
                     if ((bc == null)
-                            && (BundleActivator.class.isAssignableFrom(testClass)))
+                            && BundleActivator.class.isAssignableFrom(testClass))
                     {
                         logger.error("test " + testName
                                 + " skipped - it must run under felix");
@@ -126,5 +126,5 @@ public class SlicklessTests
             }
         }
         return suite;
-}
+    }
 }

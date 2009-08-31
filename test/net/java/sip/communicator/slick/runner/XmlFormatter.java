@@ -63,15 +63,15 @@ public class XmlFormatter extends ResultPrinter implements XMLConstants {
     /**
      * Element for the current test.
      */
-    private Hashtable testElements = new Hashtable();
+    private Hashtable<Test, Element> testElements = new Hashtable<Test, Element>();
     /**
      * tests that failed.
      */
-    private Hashtable failedTests = new Hashtable();
+    private Hashtable<Test, Test> failedTests = new Hashtable<Test, Test>();
     /**
      * Timing helper.
      */
-    private Hashtable testStarts = new Hashtable();
+    private Hashtable<Test, Long> testStarts = new Hashtable<Test, Long>();
     /**
      * Where to write the log to.
      */
@@ -113,7 +113,7 @@ public class XmlFormatter extends ResultPrinter implements XMLConstants {
 
         if (props != null)
         {
-            Enumeration e = props.propertyNames();
+            Enumeration<?> e = props.propertyNames();
             while (e.hasMoreElements())
             {
                 String name = (String) e.nextElement();
@@ -214,10 +214,10 @@ public class XmlFormatter extends ResultPrinter implements XMLConstants {
             rootElement.appendChild(currentTest);
             testElements.put(test, currentTest);
         } else {
-            currentTest = (Element) testElements.get(test);
+            currentTest = testElements.get(test);
         }
 
-        Long l = (Long) testStarts.get(test);
+        Long l = testStarts.get(test);
         currentTest.setAttribute(ATTR_TIME,
             "" + ((System.currentTimeMillis() - l.longValue()) / 1000.0));
     }
@@ -264,7 +264,7 @@ public class XmlFormatter extends ResultPrinter implements XMLConstants {
         Element currentTest = null;
         if (test != null)
         {
-            currentTest = (Element) testElements.get(test);
+            currentTest = testElements.get(test);
         } else {
             currentTest = rootElement;
         }

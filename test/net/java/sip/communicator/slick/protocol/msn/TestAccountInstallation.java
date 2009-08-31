@@ -78,9 +78,9 @@ public class TestAccountInstallation
 
         //Prepare the properties of the first msn account.
 
-        Hashtable msnAccount1Properties = getAccountProperties(
+        Hashtable<String, String> msnAccount1Properties = getAccountProperties(
             MsnProtocolProviderServiceLick.ACCOUNT_1_PREFIX);
-        Hashtable msnAccount2Properties = getAccountProperties(
+        Hashtable<String, String> msnAccount2Properties = getAccountProperties(
             MsnProtocolProviderServiceLick.ACCOUNT_2_PREFIX);
 
         //try to install an account with a null account id
@@ -96,10 +96,10 @@ public class TestAccountInstallation
 
         //now really install the accounts
         msnProviderFactory.installAccount(
-            (String)msnAccount1Properties.get(ProtocolProviderFactory.USER_ID)
+            msnAccount1Properties.get(ProtocolProviderFactory.USER_ID)
             , msnAccount1Properties);
         msnProviderFactory.installAccount(
-            (String)msnAccount2Properties.get(ProtocolProviderFactory.USER_ID)
+            msnAccount2Properties.get(ProtocolProviderFactory.USER_ID)
             , msnAccount2Properties);
 
 
@@ -107,7 +107,7 @@ public class TestAccountInstallation
         //excepion is thrown.
         try{
             msnProviderFactory.installAccount(
-                (String)msnAccount1Properties.get(ProtocolProviderFactory.USER_ID)
+                msnAccount1Properties.get(ProtocolProviderFactory.USER_ID)
                 , msnAccount1Properties);
 
             fail("An IllegalStateException must be thrown when trying to "+
@@ -130,7 +130,7 @@ public class TestAccountInstallation
         osgiFilter =
             "(&("+ProtocolProviderFactory.PROTOCOL +"="+ProtocolNames.MSN+")"
              +"(" + ProtocolProviderFactory.USER_ID
-             + "=" + (String)msnAccount1Properties.get(
+             + "=" + msnAccount1Properties.get(
                             ProtocolProviderFactory.USER_ID)
              + "))";
 
@@ -166,9 +166,9 @@ public class TestAccountInstallation
      * @return a Hashtable that can be used when creating the account in a
      * protocol provider factory.
      */
-    private Hashtable getAccountProperties(String accountPrefix)
+    private Hashtable<String, String> getAccountProperties(String accountPrefix)
     {
-        Hashtable table = new Hashtable();
+        Hashtable<String, String> table = new Hashtable<String, String>();
 
         String userID = System.getProperty(
             accountPrefix + ProtocolProviderFactory.USER_ID, null);

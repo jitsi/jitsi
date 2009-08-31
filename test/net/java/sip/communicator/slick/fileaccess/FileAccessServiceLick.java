@@ -35,7 +35,7 @@ public class FileAccessServiceLick extends TestSuite implements BundleActivator 
     {
         FileAccessServiceLick.bc = bundleContext;
         setName("FileAccessServiceLick");
-        Hashtable properties = new Hashtable();
+        Hashtable<String, String> properties = new Hashtable<String, String>();
         properties.put("service.pid", getName());
 
         addTestSuite(TestFileAccessService.class);

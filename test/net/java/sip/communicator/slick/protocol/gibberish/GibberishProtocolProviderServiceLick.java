@@ -61,7 +61,7 @@ public class GibberishProtocolProviderServiceLick
     {
         setName("GibberishProtocolProviderServiceLick");
 
-        Hashtable properties = new Hashtable();
+        Hashtable<String, String> properties = new Hashtable<String, String>();
         properties.put("service.pid", getName());
 
         GibberishSlickFixture.bc = context;

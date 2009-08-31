@@ -274,7 +274,7 @@ public class TestOperationSetPresence
     {
         try
         {
-            Thread.currentThread().sleep(2000);
+            Thread.sleep(2000);
         }
         catch (InterruptedException ex)
         {
@@ -537,7 +537,6 @@ public class TestOperationSetPresence
     {
         //iterate through all supported statuses and return the one with the
         //highest connectivity index.
-        PresenceStatus mostConnectedPresenceStatus = null;
         int mostConnectedPresenceStatusInt = Integer.MIN_VALUE;
         PresenceStatus secondMostConnectedPresenceStatus = null;
         int secondMostConnectedPresenceStatusInt = Integer.MIN_VALUE;
@@ -552,7 +551,6 @@ public class TestOperationSetPresence
             if(supportedStatus.getStatus() > mostConnectedPresenceStatusInt)
             {
                 mostConnectedPresenceStatusInt = supportedStatus.getStatus();
-                mostConnectedPresenceStatus = supportedStatus;
             } else if(supportedStatus.getStatus() >
                                         secondMostConnectedPresenceStatusInt)
             {
@@ -671,8 +669,8 @@ public class TestOperationSetPresence
     private class PresenceStatusEventCollector
         implements ProviderPresenceStatusListener
     {
-        public ArrayList collectedPresEvents = new ArrayList();
-        public ArrayList collectedStatMsgEvents = new ArrayList();
+        public ArrayList<EventObject> collectedPresEvents = new ArrayList<EventObject>();
+        public ArrayList<EventObject> collectedStatMsgEvents = new ArrayList<EventObject>();
 
         public void providerStatusChanged(ProviderPresenceStatusChangeEvent evt)
         {
@@ -769,7 +767,7 @@ public class TestOperationSetPresence
      */
     private class SubscriptionEventCollector implements SubscriptionListener
     {
-        public ArrayList collectedEvents = new ArrayList();
+        public ArrayList<EventObject> collectedEvents = new ArrayList<EventObject>();
 
         /**
          * Blocks until at least one event is received or until waitFor
@@ -902,7 +900,7 @@ public class TestOperationSetPresence
     private class ContactPresenceEventCollector
         implements ContactPresenceStatusListener
     {
-        public ArrayList collectedEvents = new ArrayList();
+        public ArrayList<EventObject> collectedEvents = new ArrayList<EventObject>();
         private String trackedScreenName = null;
         private PresenceStatus status = null;
 
