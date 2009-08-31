@@ -162,8 +162,9 @@ public class OtrMetaContactButton
                     .setImage(ImageIO
                         .read(OtrActivator.resourceService
                             .getImageURL((OtrActivator.scOtrEngine
-                                .isContactVerified(contact)) ? "plugin.otr.ENCRYPTED_ICON_25x25"
-                                : "plugin.otr.ENCRYPTED_UNVERIFIED_ICON_25x25")));
+                                .isContactVerified(contact))
+                                ? "plugin.otr.ENCRYPTED_ICON_22x22"
+                                : "plugin.otr.ENCRYPTED_UNVERIFIED_ICON_22x22")));
             }
             catch (IOException e)
             {
@@ -174,7 +175,7 @@ public class OtrMetaContactButton
             try
             {
                 this.setImage(ImageIO.read(OtrActivator.resourceService
-                    .getImageURL("plugin.otr.FINISHED_ICON_25x25")));
+                    .getImageURL("plugin.otr.FINISHED_ICON_22x22")));
             }
             catch (IOException e)
             {
@@ -185,7 +186,7 @@ public class OtrMetaContactButton
             try
             {
                 this.setImage(ImageIO.read(OtrActivator.resourceService
-                    .getImageURL("plugin.otr.PLAINTEXT_ICON_25x25")));
+                    .getImageURL("plugin.otr.PLAINTEXT_ICON_22x22")));
             }
             catch (IOException e)
             {

@@ -113,8 +113,9 @@ class OtrContactMenu
             this
                 .setIcon(OtrActivator.resourceService
                     .getImage((OtrActivator.scOtrEngine
-                        .isContactVerified(contact)) ? "plugin.otr.ENCRYPTED_ICON_15x15"
-                        : "plugin.otr.ENCRYPTED_UNVERIFIED_ICON_15x15"));
+                        .isContactVerified(contact))
+                        ? "plugin.otr.ENCRYPTED_ICON_16x16"
+                        : "plugin.otr.ENCRYPTED_UNVERIFIED_ICON_16x16"));
 
             this.add(endOtr);
 
@@ -156,14 +157,14 @@ class OtrContactMenu
             break;
         case FINISHED:
             this.setIcon(OtrActivator.resourceService
-                .getImage("plugin.otr.FINISHED_ICON_15x15"));
+                .getImage("plugin.otr.FINISHED_ICON_16x16"));
 
             this.add(endOtr);
             this.add(startOtr);
             break;
         case PLAINTEXT:
             this.setIcon(OtrActivator.resourceService
-                .getImage("plugin.otr.PLAINTEXT_ICON_15x15"));
+                .getImage("plugin.otr.PLAINTEXT_ICON_16x16"));
 
             this.add(startOtr);
             break;
