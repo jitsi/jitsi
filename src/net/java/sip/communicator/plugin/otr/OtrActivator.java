@@ -118,7 +118,8 @@ public class OtrActivator
         bundleContext.registerService(ConfigurationForm.class.getName(),
             new LazyConfigurationForm(
                 "net.java.sip.communicator.plugin.otr.OtrConfigurationPanel",
-                getClass().getClassLoader(), "plugin.otr.configform.ICON",
+                getClass().getClassLoader(),
+                "plugin.otr.configform.ICON",
                 "plugin.otr.configform.TITLE", 30), null);
     }
 

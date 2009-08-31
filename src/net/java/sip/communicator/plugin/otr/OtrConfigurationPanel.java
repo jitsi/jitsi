@@ -240,7 +240,8 @@ public class OtrConfigurationPanel
                 case CONTACTNAME_INDEX:
                     return contact.getDisplayName();
                 case VERIFIED_INDEX:
-                    return (OtrActivator.scOtrEngine.isContactVerified(contact)) ? "Yes"
+                    return (OtrActivator.scOtrEngine.isContactVerified(contact))
+                        ? "Yes"
                         : "No";
                 case FINGERPRINT_INDEX:
                     return OtrActivator.scOtrEngine
@@ -304,18 +305,16 @@ public class OtrConfigurationPanel
 
         private void initComponents()
         {
-            this
-                .setBorder(BorderFactory
-                    .createTitledBorder(
-                        BorderFactory.createEtchedBorder(EtchedBorder.LOWERED),
-                        OtrActivator.resourceService
-                            .getI18NString("plugin.otr.configform.KNOWN_FINGERPRINTS")));
+            this.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEtchedBorder(EtchedBorder.LOWERED),
+                OtrActivator.resourceService
+                    .getI18NString("plugin.otr.configform.KNOWN_FINGERPRINTS")));
             this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
             contactsTable = new JTable();
             contactsTable.setModel(new ContactsTableModel());
-            contactsTable
-                .setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+            contactsTable.setSelectionMode(
+                javax.swing.ListSelectionModel.SINGLE_SELECTION);
             contactsTable.setCellSelectionEnabled(false);
             contactsTable.setColumnSelectionAllowed(false);
             contactsTable.setRowSelectionAllowed(true);

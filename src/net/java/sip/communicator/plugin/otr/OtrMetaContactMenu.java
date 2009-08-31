@@ -30,6 +30,9 @@ public class OtrMetaContactMenu
 
     public OtrMetaContactMenu(Container container)
     {
+        this.setIcon(OtrActivator.resourceService
+            .getImage("plugin.otr.MENU_ITEM_ICON_16x16"));
+
         this.container = container;
         this.setText(OtrActivator.resourceService
             .getI18NString("plugin.otr.menu.TITLE"));
