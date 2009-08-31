@@ -1450,9 +1450,9 @@ public class OperationSetPersistentPresenceIcqImpl
                 ContactGroupIcqImpl parent =
                     ssContactList.findContactGroup(parentGroup);
                 srcContact = ssContactList.
-                    createUnresolvedContact((ContactGroupIcqImpl)parent, screenname);
+                    createUnresolvedContact(parent, screenname);
 
-                Buddy buddy = ((ContactIcqImpl)srcContact).getJoustSimBuddy();
+                Buddy buddy = srcContact.getJoustSimBuddy();
 
                 if(buddy instanceof VolatileBuddy)
                     ((VolatileBuddy)buddy).setAwaitingAuthorization(true);
@@ -1481,7 +1481,7 @@ public class OperationSetPersistentPresenceIcqImpl
                 }
 
 
-                 ((ContactGroupIcqImpl)parent).removeContact(srcContact);
+                 parent.removeContact(srcContact);
                  theAwaitingAuthorizationGroup.addContact(srcContact);
 
                  try

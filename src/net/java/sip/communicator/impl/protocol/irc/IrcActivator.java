@@ -55,7 +55,7 @@ public class IrcActivator
     {
         bundleContext = context;
 
-        Hashtable hashtable = new Hashtable();
+        Hashtable<String, String> hashtable = new Hashtable<String, String>();
         hashtable.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.IRC);
 
         ircProviderFactory = new ProtocolProviderFactoryIrcImpl();

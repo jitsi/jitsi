@@ -39,11 +39,11 @@ public class SipAccountID
      * @param accountProperties any other properties necessary for the account.
      * @param serverName the name of the server that the user belongs to.
      */
-    protected SipAccountID(String userID, Map accountProperties,
+    protected SipAccountID(String userID, Map<String, String> accountProperties,
         String serverName)
     {
         super(stripServerNameFromUserID(userID), accountProperties,
-            (String) accountProperties.get(ProtocolProviderFactory.PROTOCOL),
+            accountProperties.get(ProtocolProviderFactory.PROTOCOL),
             serverName);
     }
 

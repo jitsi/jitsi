@@ -99,8 +99,7 @@ public class ProtocolProviderServiceFacebookImpl
             // initialize the IM operation set
             OperationSetBasicInstantMessagingFacebookImpl basicInstantMessaging =
                 new OperationSetBasicInstantMessagingFacebookImpl(
-                    this,
-                    (OperationSetPersistentPresenceFacebookImpl) persistentPresence);
+                    this, persistentPresence);
 
             supportedOperationSets.put(OperationSetBasicInstantMessaging.class
                 .getName(), basicInstantMessaging);
@@ -108,8 +107,7 @@ public class ProtocolProviderServiceFacebookImpl
             // initialize the message operation set
             OperationSetSmsMessagingFacebookImpl basicMessaging =
                 new OperationSetSmsMessagingFacebookImpl(
-                    this,
-                    (OperationSetPersistentPresenceFacebookImpl) persistentPresence);
+                    this, persistentPresence);
 
             supportedOperationSets.put(OperationSetSmsMessaging.class
                 .getName(), basicMessaging);

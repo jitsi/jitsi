@@ -103,7 +103,8 @@ public class MsnStatusEnum
     /**
      * The minimal set of states that any implementation must support.
      */
-    public static final ArrayList msnStatusSet =new ArrayList();
+    public static final ArrayList<MsnStatusEnum> msnStatusSet
+        = new ArrayList<MsnStatusEnum>();
     static{
             msnStatusSet.add(OUT_TO_LUNCH);
             msnStatusSet.add(ON_THE_PHONE);

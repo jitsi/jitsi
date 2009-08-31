@@ -151,8 +151,7 @@ public class MockProvider
      */
     public OperationSet getOperationSet(Class<? extends OperationSet> opsetClass)
     {
-        return (OperationSet) getSupportedOperationSets()
-            .get(opsetClass.getName());
+        return getSupportedOperationSets().get(opsetClass.getName());
     }
 
     /**

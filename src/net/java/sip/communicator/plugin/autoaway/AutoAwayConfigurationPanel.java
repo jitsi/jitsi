@@ -114,7 +114,7 @@ public class AutoAwayConfigurationPanel
             this.timer.setEnabled(false);
         }
 
-        String t = (String) configService.getString(Preferences.TIMER);
+        String t = configService.getString(Preferences.TIMER);
         if (t != null)
         {
             try

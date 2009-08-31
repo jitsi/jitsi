@@ -815,8 +815,7 @@ public class ChatRoomMsnImpl
 
         while (listeners.hasNext())
         {
-            ChatRoomMessageListener listener =
-                (ChatRoomMessageListener) listeners.next();
+            ChatRoomMessageListener listener = listeners.next();
 
             if (evt instanceof ChatRoomMessageDeliveredEvent)
             {
@@ -901,8 +900,7 @@ public class ChatRoomMsnImpl
 
         while (listeners.hasNext())
         {
-            ChatRoomMemberPresenceListener listener =
-                (ChatRoomMemberPresenceListener) listeners.next();
+            ChatRoomMemberPresenceListener listener = listeners.next();
 
             listener.memberPresenceChanged(evt);
         }

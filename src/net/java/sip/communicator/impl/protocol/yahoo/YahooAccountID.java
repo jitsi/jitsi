@@ -23,7 +23,7 @@ public class YahooAccountID
      * @param id the id identifying this account
      * @param accountProperties any other properties necessary for the account.
      */
-    YahooAccountID(String id, Map accountProperties )
+    YahooAccountID(String id, Map<String, String> accountProperties )
     {
         super(YahooSession.getYahooUserID(id), 
               accountProperties, ProtocolNames.YAHOO, "yahoo.com");

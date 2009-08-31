@@ -34,12 +34,12 @@ public class ContactGroupZeroconfImpl
     /**
      * The list of this group's members.
      */
-    private Vector contacts = new Vector();
+    private Vector<Contact> contacts = new Vector<Contact>();
 
     /**
      * The list of sub groups belonging to this group.
      */
-    private Vector subGroups = new Vector();
+    private Vector<ContactGroup> subGroups = new Vector<ContactGroup>();
 
     /**
      * The group that this group belongs to (or null if this is the root group).
@@ -117,7 +117,7 @@ public class ContactGroupZeroconfImpl
      * @return a java.util.Iterator over all contacts inside this
      *   <tt>ContactGroup</tt>
      */
-    public Iterator contacts()
+    public Iterator<Contact> contacts()
     {
         return contacts.iterator();
     }
@@ -209,7 +209,7 @@ public class ContactGroupZeroconfImpl
         if ( subGroups.contains(zeroconfGroup) )
             return this;
 
-        Iterator subGroupsIter = subgroups();
+        Iterator<ContactGroup> subGroupsIter = subgroups();
         while (subGroupsIter.hasNext())
         {
             ContactGroupZeroconfImpl subgroup
@@ -238,7 +238,7 @@ public class ContactGroupZeroconfImpl
         if ( contacts.contains(zeroconfContact) )
             return this;
 
-        Iterator subGroupsIter = subgroups();
+        Iterator<ContactGroup> subGroupsIter = subgroups();
         while (subGroupsIter.hasNext())
         {
             ContactGroupZeroconfImpl subgroup
@@ -264,7 +264,7 @@ public class ContactGroupZeroconfImpl
      */
     public Contact getContact(String id)
     {
-        Iterator contactsIter = contacts();
+        Iterator<Contact> contactsIter = contacts();
         while (contactsIter.hasNext())
         {
             ContactZeroconfImpl contact =
@@ -285,7 +285,7 @@ public class ContactGroupZeroconfImpl
      */
     public ContactGroup getGroup(int index)
     {
-        return (ContactGroup)subGroups.get(index);
+        return subGroups.get(index);
     }
 
     /**
@@ -296,7 +296,7 @@ public class ContactGroupZeroconfImpl
      */
     public ContactGroup getGroup(String groupName)
     {
-        Iterator groupsIter = subgroups();
+        Iterator<ContactGroup> groupsIter = subgroups();
         while (groupsIter.hasNext())
         {
             ContactGroupZeroconfImpl contactGroup
@@ -335,7 +335,7 @@ public class ContactGroupZeroconfImpl
      * @return a java.util.Iterator over the <tt>ContactGroup</tt> children
      *   of this group (i.e. subgroups).
      */
-    public Iterator subgroups()
+    public Iterator<ContactGroup> subgroups()
     {
         return subGroups.iterator();
     }
@@ -358,7 +358,7 @@ public class ContactGroupZeroconfImpl
     public ContactZeroconfImpl findContactByID(String id)
     {
         //first go through the contacts that are direct children.
-        Iterator contactsIter = contacts();
+        Iterator<Contact> contactsIter = contacts();
 
         while(contactsIter.hasNext())
         {
@@ -370,7 +370,7 @@ public class ContactGroupZeroconfImpl
         }
 
         //if we didn't find it here, let's try in the subougroups
-        Iterator groupsIter = subgroups();
+        Iterator<ContactGroup> groupsIter = subgroups();
 
         while( groupsIter.hasNext() )
         {
@@ -398,7 +398,7 @@ public class ContactGroupZeroconfImpl
         StringBuffer buff = new StringBuffer(getGroupName());
         buff.append(".subGroups=" + countSubgroups() + ":\n");
 
-        Iterator subGroups = subgroups();
+        Iterator<ContactGroup> subGroups = subgroups();
         while (subGroups.hasNext())
         {
             ContactGroupZeroconfImpl group =
@@ -410,7 +410,7 @@ public class ContactGroupZeroconfImpl
 
         buff.append("\nChildContacts="+countContacts()+":[");
 
-        Iterator contacts = contacts();
+        Iterator<Contact> contacts = contacts();
         while (contacts.hasNext())
         {
             ContactZeroconfImpl contact = (ContactZeroconfImpl) contacts.next();
@@ -545,7 +545,7 @@ public class ContactGroupZeroconfImpl
             return false;
 
         //traverse child contacts
-        Iterator theirContacts = zeroconfGroup.contacts();
+        Iterator<Contact> theirContacts = zeroconfGroup.contacts();
 
         while(theirContacts.hasNext())
         {
@@ -561,7 +561,7 @@ public class ContactGroupZeroconfImpl
         }
 
         //traverse subgroups
-        Iterator theirSubgroups = zeroconfGroup.subgroups();
+        Iterator<ContactGroup> theirSubgroups = zeroconfGroup.subgroups();
 
         while(theirSubgroups.hasNext())
         {

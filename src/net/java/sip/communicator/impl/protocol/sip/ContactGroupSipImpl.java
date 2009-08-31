@@ -285,7 +285,7 @@ public class ContactGroupSipImpl
      */
     public ContactGroup getGroup(int index)
     {
-        return (ContactGroup)subGroups.get(index);
+        return subGroups.get(index);
     }
 
     /**

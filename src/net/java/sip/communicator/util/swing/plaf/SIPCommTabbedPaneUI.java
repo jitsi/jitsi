@@ -50,7 +50,7 @@ public class SIPCommTabbedPaneUI
     // Instance variables initialized at installation
     private ContainerListener containerListener;
 
-    private Vector htmlViews;
+    private Vector<View> htmlViews;
 
     private Map<Integer, Integer> mnemonicToIndexMap;
 
@@ -1600,9 +1600,9 @@ public class SIPCommTabbedPaneUI
         }
     }
 
-    private Vector createHTMLVector()
+    private Vector<View> createHTMLVector()
     {
-        Vector htmlViews = new Vector();
+        Vector<View> htmlViews = new Vector<View>();
         int count = tabPane.getTabCount();
         if (count > 0) {
             for (int i = 0; i < count; i++)

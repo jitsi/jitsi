@@ -21,8 +21,8 @@ public class MockContactGroup
 {
     private String groupName = null;
 
-    private Vector contacts = new Vector();
-    private Vector subGroups = new Vector();
+    private final List<Contact> contacts = new Vector<Contact>();
+    private final List<ContactGroup> subGroups = new Vector<ContactGroup>();
     private MockContactGroup parentGroup = null;
     private boolean isPersistent = true;
     private MockProvider parentProvider = null;
@@ -69,7 +69,7 @@ public class MockContactGroup
      * @return a java.util.Iterator over all contacts inside this
      *   <tt>ContactGroup</tt>
      */
-    public Iterator contacts()
+    public Iterator<Contact> contacts()
     {
         return contacts.iterator();
     }
@@ -159,7 +159,7 @@ public class MockContactGroup
         if ( subGroups.contains(mockGroup) )
             return this;
 
-        Iterator subGroupsIter = subgroups();
+        Iterator<ContactGroup> subGroupsIter = subgroups();
         while (subGroupsIter.hasNext())
         {
             MockContactGroup subgroup = (MockContactGroup) subGroupsIter.next();
@@ -183,7 +183,7 @@ public class MockContactGroup
         if ( contacts.contains(mockContact) )
             return this;
 
-        Iterator subGroupsIter = subgroups();
+        Iterator<ContactGroup> subGroupsIter = subgroups();
         while (subGroupsIter.hasNext())
         {
             MockContactGroup subgroup = (MockContactGroup) subGroupsIter.next();
@@ -206,10 +206,10 @@ public class MockContactGroup
      */
     public Contact getContact(String id)
     {
-        Iterator contactsIter = contacts();
+        Iterator<Contact> contactsIter = contacts();
         while (contactsIter.hasNext())
         {
-            MockContact contact = (MockContact) contactsIter.next();
+            Contact contact = contactsIter.next();
             if (contact.getAddress().equals(id))
                 return contact;
 
@@ -225,7 +225,7 @@ public class MockContactGroup
      */
     public ContactGroup getGroup(int index)
     {
-        return (ContactGroup)subGroups.get(index);
+        return subGroups.get(index);
     }
 
     /**
@@ -236,11 +236,11 @@ public class MockContactGroup
      */
     public ContactGroup getGroup(String groupName)
     {
-        Iterator groupsIter = subgroups();
+        Iterator<ContactGroup> groupsIter = subgroups();
         while (groupsIter.hasNext())
         {
-            MockContactGroup contactGroup
-                = (MockContactGroup) groupsIter.next();
+            ContactGroup contactGroup = groupsIter.next();
+
             if (contactGroup.getGroupName().equals(groupName))
                 return contactGroup;
 
@@ -275,7 +275,7 @@ public class MockContactGroup
      * @return a java.util.Iterator over the <tt>ContactGroup</tt> children
      *   of this group (i.e. subgroups).
      */
-    public Iterator subgroups()
+    public Iterator<ContactGroup> subgroups()
     {
         return subGroups.iterator();
     }
@@ -298,7 +298,7 @@ public class MockContactGroup
     public MockContact findContactByID(String id)
     {
         //first go through the contacts that are direct children.
-        Iterator contactsIter = contacts();
+        Iterator<Contact> contactsIter = contacts();
 
         while(contactsIter.hasNext())
         {
@@ -309,12 +309,11 @@ public class MockContactGroup
         }
 
         //if we didn't find it here, let's try in the subougroups
-        Iterator groupsIter = subgroups();
+        Iterator<ContactGroup> groupsIter = subgroups();
 
         while( groupsIter.hasNext() )
         {
             MockContactGroup mGroup = (MockContactGroup)groupsIter.next();
-
             MockContact mContact = mGroup.findContactByID(id);
 
             if (mContact != null)
@@ -332,14 +331,13 @@ public class MockContactGroup
      */
      public String toString()
      {
-
         StringBuffer buff = new StringBuffer(getGroupName());
         buff.append(".subGroups=" + countSubgroups() + ":\n");
 
-        Iterator subGroups = subgroups();
+        Iterator<ContactGroup> subGroups = subgroups();
         while (subGroups.hasNext())
         {
-            MockContactGroup group = (MockContactGroup)subGroups.next();
+            ContactGroup group = subGroups.next();
             buff.append(group.toString());
             if (subGroups.hasNext())
                 buff.append("\n");
@@ -347,10 +345,10 @@ public class MockContactGroup
 
         buff.append("\nChildContacts="+countContacts()+":[");
 
-        Iterator contacts = contacts();
+        Iterator<Contact> contacts = contacts();
         while (contacts.hasNext())
         {
-            MockContact contact = (MockContact) contacts.next();
+            Contact contact = contacts.next();
             buff.append(contact.toString());
             if(contacts.hasNext())
                 buff.append(", ");
@@ -462,7 +460,7 @@ public class MockContactGroup
             return false;
 
         //traverse child contacts
-        Iterator theirContacts = mockGroup.contacts();
+        Iterator<Contact> theirContacts = mockGroup.contacts();
 
         while(theirContacts.hasNext())
         {
@@ -477,7 +475,7 @@ public class MockContactGroup
         }
 
         //traverse subgroups
-        Iterator theirSubgroups = mockGroup.subgroups();
+        Iterator<ContactGroup> theirSubgroups = mockGroup.subgroups();
 
         while(theirSubgroups.hasNext())
         {

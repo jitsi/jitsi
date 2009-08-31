@@ -42,7 +42,7 @@ public class ProtocolProviderFactoryJabberImpl
      * @return the AccountID of the newly created account
      */
     public AccountID installAccount( String userIDStr,
-                                     Map accountProperties)
+                                     Map<String, String> accountProperties)
     {
         BundleContext context
             = JabberActivator.getBundleContext();
@@ -89,7 +89,7 @@ public class ProtocolProviderFactoryJabberImpl
         return accountID;
     }
 
-    protected AccountID createAccountID(String userID, Map accountProperties)
+    protected AccountID createAccountID(String userID, Map<String, String> accountProperties)
     {
         return new JabberAccountID(userID, accountProperties);
     }
@@ -106,7 +106,7 @@ public class ProtocolProviderFactoryJabberImpl
 
     @Override
     public void modifyAccount(  ProtocolProviderService protocolProvider,
-                                Map accountProperties)
+                                Map<String, String> accountProperties)
         throws NullPointerException
     {
         BundleContext context
@@ -128,8 +128,7 @@ public class ProtocolProviderFactoryJabberImpl
         if(!registeredAccounts.containsKey(accountID))
             return;
 
-        ServiceRegistration registration
-            = (ServiceRegistration) registeredAccounts.get(accountID);
+        ServiceRegistration registration = registeredAccounts.get(accountID);
 
         // kill the service
         if (registration != null)
@@ -141,7 +140,7 @@ public class ProtocolProviderFactoryJabberImpl
 
         accountProperties.put(USER_ID, accountID.getUserID());
 
-        String serverAddress = (String) accountProperties.get(SERVER_ADDRESS);
+        String serverAddress = accountProperties.get(SERVER_ADDRESS);
 
         if(serverAddress == null)
             throw new NullPointerException("null is not a valid ServerAddress");
@@ -164,7 +163,7 @@ public class ProtocolProviderFactoryJabberImpl
         // and check for a password.
         this.storeAccount(accountID);
 
-        Hashtable properties = new Hashtable();
+        Hashtable<String, String> properties = new Hashtable<String, String>();
         properties.put(PROTOCOL, ProtocolNames.JABBER);
         properties.put(USER_ID, accountID.getUserID());
 

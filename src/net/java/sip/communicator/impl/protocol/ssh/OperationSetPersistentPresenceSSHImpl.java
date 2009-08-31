@@ -745,7 +745,7 @@ public class OperationSetPersistentPresenceSSHImpl
      */
     public List findContactsPointingToUs()
     {
-        List contacts = new LinkedList();
+        List<Contact> contacts = new LinkedList<Contact>();
         BundleContext bc = SSHActivator.getBundleContext();
         
         String osgiQuery =

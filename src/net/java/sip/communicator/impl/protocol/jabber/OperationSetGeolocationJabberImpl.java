@@ -84,7 +84,7 @@ public class OperationSetGeolocationJabberImpl
      *
      * @param geolocation our current Geolocation ready to be sent
      */
-    public void publishGeolocation(Map geolocation)
+    public void publishGeolocation(Map<String, String> geolocation)
     {
         GeolocationPresence myGeolocPrez = new GeolocationPresence(opsetprez);
 
@@ -107,7 +107,7 @@ public class OperationSetGeolocationJabberImpl
      * geolocation by its identifier.
      * @return the <tt>Geolocation</tt> of the contact.
      */
-    public Map queryContactGeolocation(String contactIdentifier)
+    public Map<String, String> queryContactGeolocation(String contactIdentifier)
     {
         /** @todo implement queryContactGeolocation() */
         return null;

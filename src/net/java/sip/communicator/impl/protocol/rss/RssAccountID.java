@@ -7,7 +7,7 @@
 package net.java.sip.communicator.impl.protocol.rss;
 
 import net.java.sip.communicator.service.protocol.*;
-import java.util.Map;
+import java.util.*;
 
 /**
  * The Rss implementation of a sip-communicator account id.
@@ -22,7 +22,7 @@ public class RssAccountID
      * @param userID the user identifier correspnding to the account
      * @param accountProperties any other properties necessary for the account.
      */
-    RssAccountID(String userID, Map accountProperties)
+    RssAccountID(String userID, Map<String, String> accountProperties)
     {
         super(  userID,
                 accountProperties,

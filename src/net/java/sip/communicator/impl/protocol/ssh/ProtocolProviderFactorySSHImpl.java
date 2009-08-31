@@ -48,7 +48,7 @@ public class ProtocolProviderFactorySSHImpl
      */
     public AccountID installAccount( 
             String userIDStr,
-            Map accountProperties)
+            Map<String, String> accountProperties)
     {
         BundleContext context = SSHActivator.getBundleContext();
         if (context == null)
@@ -104,7 +104,7 @@ public class ProtocolProviderFactorySSHImpl
         return accountID;
     }
 
-    protected AccountID createAccountID(String userID, Map accountProperties)
+    protected AccountID createAccountID(String userID, Map<String, String> accountProperties)
     {
         return new SSHAccountID(userID, accountProperties);
     }
@@ -160,7 +160,7 @@ public class ProtocolProviderFactorySSHImpl
 
     @Override
     public void modifyAccount(  ProtocolProviderService protocolProvider,
-                                Map accountProperties)
+                                Map<String, String> accountProperties)
         throws NullPointerException
     {
         // TODO Auto-generated method stub

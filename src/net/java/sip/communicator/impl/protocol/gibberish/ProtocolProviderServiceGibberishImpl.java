@@ -101,9 +101,7 @@ public class ProtocolProviderServiceGibberishImpl
             //initialize the IM operation set
             OperationSetBasicInstantMessagingGibberishImpl basicInstantMessaging
                 = new OperationSetBasicInstantMessagingGibberishImpl(
-                    this
-                    , (OperationSetPersistentPresenceGibberishImpl)
-                            persistentPresence);
+                    this, persistentPresence);
 
             supportedOperationSets.put(
                 OperationSetBasicInstantMessaging.class.getName(),

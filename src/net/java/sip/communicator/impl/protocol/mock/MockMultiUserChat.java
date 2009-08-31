@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.protocol.mock;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * Multiuser chat functionalities for the mock protocol.
@@ -23,8 +22,8 @@ public class MockMultiUserChat
      */
     private MockProvider provider = null;
     
-    private List existingChatRooms = new Vector();
-    private List joinedChatRooms = new Vector();
+    private final List<ChatRoom> existingChatRooms = new Vector<ChatRoom>();
+    private final List<ChatRoom> joinedChatRooms = new Vector<ChatRoom>();
     
     /**
      * Creates an instance of this operation set keeping a reference to the
@@ -46,16 +45,21 @@ public class MockMultiUserChat
      * rooms that are currently available on the server that this protocol
      * provider is connected to.
      *
-     * @throws OperationFailedException if we faile retrieving this list from
+     * @throws OperationFailedException if we failed retrieving this list from
      * the server.
      * @throws OperationNotSupportedException if the server does not support
      * multi user chat
      */
-    public List getExistingChatRooms() 
+    public List<String> getExistingChatRooms() 
         throws OperationFailedException, 
                OperationNotSupportedException
     {
-        return existingChatRooms;
+        List<String> existingChatRoomNames
+            = new ArrayList<String>(existingChatRooms.size());
+
+        for (ChatRoom existingChatRoom : existingChatRooms)
+            existingChatRoomNames.add(existingChatRoom.getName());
+        return existingChatRoomNames;
     }
     
     /**
@@ -65,7 +69,7 @@ public class MockMultiUserChat
      * @return a <tt>List</tt> of the rooms where the user has joined using a
      * given connection.
      */
-    public List getCurrentlyJoinedChatRooms()
+    public List<ChatRoom> getCurrentlyJoinedChatRooms()
     {
         return joinedChatRooms;
     }
@@ -84,21 +88,15 @@ public class MockMultiUserChat
      * @throws OperationNotSupportedException if the server does not support
      * multi user chat
      */
-    public List getCurrentlyJoinedChatRooms(ChatRoomMember chatRoomMember) 
+    public List<String> getCurrentlyJoinedChatRooms(ChatRoomMember chatRoomMember) 
         throws OperationFailedException, 
                OperationNotSupportedException
     {
-        List result = new Vector();
-        
-        Iterator iter = joinedChatRooms.iterator();
-        
-        while(iter.hasNext())
-        {
-            ChatRoom elem = (ChatRoom)iter.next();
-            if(elem.getMembers().contains(chatRoomMember))
-                result.add(elem);
-        }
+        List<String> result = new Vector<String>();
 
+        for (ChatRoom elem : joinedChatRooms)
+            if (elem.getMembers().contains(chatRoomMember))
+                result.add(elem.getName());
         return result;
     }
     
@@ -148,14 +146,9 @@ public class MockMultiUserChat
         throws OperationFailedException, 
                OperationNotSupportedException
     {
-        Iterator iter = existingChatRooms.iterator();
-        while(iter.hasNext())
-        {
-            ChatRoom elem =  (ChatRoom)iter.next();
+        for (ChatRoom elem : existingChatRooms)
             if(elem.getName().equals(roomName))
                 return elem;
-        }
-        
         return null;
     }
     

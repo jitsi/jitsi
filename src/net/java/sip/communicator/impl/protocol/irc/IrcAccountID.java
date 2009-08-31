@@ -25,7 +25,7 @@ public class IrcAccountID
      * @param userID the user identifier corresponding to this account
      * @param accountProperties any other properties necessary for the account.
      */
-    IrcAccountID(String userID, Map accountProperties)
+    IrcAccountID(String userID, Map<String, String> accountProperties)
     {
         super(  userID,
                 accountProperties,

@@ -98,12 +98,12 @@ public class ChatRoomJabberImpl
     /**
      * The list of members of this chat room.
      */
-    private final Hashtable<String, ChatRoomMember> members = new Hashtable();
+    private final Hashtable<String, ChatRoomMember> members = new Hashtable<String, ChatRoomMember>();
 
     /**
      * The list of banned members of this chat room.
      */
-    private final Hashtable<String, ChatRoomMember> banList = new Hashtable();
+    private final Hashtable<String, ChatRoomMember> banList = new Hashtable<String, ChatRoomMember>();
     
     /**
      * The nickname of this chat room local user participant.
@@ -715,10 +715,9 @@ public class ChatRoomJabberImpl
         
         while(membersSet.hasNext())
         {
-            Map.Entry<String, ChatRoomMember> memberEntry 
-                = (Map.Entry<String, ChatRoomMember>) membersSet.next();
+            Map.Entry<String, ChatRoomMember> memberEntry = membersSet.next();
             
-            ChatRoomMember member = (ChatRoomMember) memberEntry.getValue();
+            ChatRoomMember member = memberEntry.getValue();
             
             fireMemberPresenceEvent(member,
                 ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT,
@@ -1383,8 +1382,7 @@ public class ChatRoomJabberImpl
     
         while (listeners.hasNext())
         {
-            ChatRoomMemberPresenceListener listener
-                = (ChatRoomMemberPresenceListener) listeners.next();
+            ChatRoomMemberPresenceListener listener = listeners.next();
     
             listener.memberPresenceChanged(evt);
         }
@@ -1411,20 +1409,16 @@ public class ChatRoomJabberImpl
         
         logger.trace("Will dispatch the following ChatRoom event: " + evt);
     
-        Iterator<ChatRoomMemberPresenceListener> listeners = null;
+        Iterable<ChatRoomMemberPresenceListener> listeners;
         synchronized (memberListeners)
         {
-            listeners = new ArrayList<ChatRoomMemberPresenceListener>(
-                            memberListeners).iterator();
+            listeners
+                = new ArrayList<ChatRoomMemberPresenceListener>(
+                        memberListeners);
         }
     
-        while (listeners.hasNext())
-        {
-            ChatRoomMemberPresenceListener listener
-                = (ChatRoomMemberPresenceListener) listeners.next();
-    
+        for (ChatRoomMemberPresenceListener listener : listeners)
             listener.memberPresenceChanged(evt);
-        }
     }
     
     /**
@@ -1445,41 +1439,34 @@ public class ChatRoomJabberImpl
         
         logger.trace("Will dispatch the following ChatRoom event: " + evt);
     
-        Iterator<ChatRoomMemberRoleListener> listeners = null;
+        Iterable<ChatRoomMemberRoleListener> listeners;
         synchronized (memberRoleListeners)
         {
-            listeners = new ArrayList<ChatRoomMemberRoleListener>(
-                                memberRoleListeners).iterator();
+            listeners
+                = new ArrayList<ChatRoomMemberRoleListener>(
+                        memberRoleListeners);
         }
     
-        while (listeners.hasNext())
-        {
-            ChatRoomMemberRoleListener listener
-                = (ChatRoomMemberRoleListener) listeners.next();
-    
+        for (ChatRoomMemberRoleListener listener : listeners)
             listener.memberRoleChanged(evt);
-        }
     }
     
     /**
      * Delivers the specified event to all registered message listeners.
      * @param evt the <tt>EventObject</tt> that we'd like delivered to all
-     * registered message listerners.
+     * registered message listeners.
      */
     private void fireMessageEvent(EventObject evt)
     {
-        Iterator<ChatRoomMessageListener> listeners = null;
+        Iterable<ChatRoomMessageListener> listeners;
         synchronized (messageListeners)
         {
-            listeners = new ArrayList<ChatRoomMessageListener>(messageListeners)
-                .iterator();
+            listeners
+                = new ArrayList<ChatRoomMessageListener>(messageListeners);
         }
 
-        while (listeners.hasNext())
+        for (ChatRoomMessageListener listener : listeners)
         {
-            ChatRoomMessageListener listener
-                = (ChatRoomMessageListener) listeners.next();
-
             if (evt instanceof ChatRoomMessageDeliveredEvent)
             {
                 listener.messageDelivered( (ChatRoomMessageDeliveredEvent) evt);
@@ -1605,18 +1592,16 @@ public class ChatRoomJabberImpl
      */
     private void firePropertyChangeEvent(PropertyChangeEvent evt)
     {
-        Iterator<ChatRoomPropertyChangeListener> listeners = null;
+        Iterable<ChatRoomPropertyChangeListener> listeners;
         synchronized (propertyChangeListeners)
         {
-            listeners = new ArrayList<ChatRoomPropertyChangeListener>(
-                            propertyChangeListeners).iterator();
+            listeners
+                = new ArrayList<ChatRoomPropertyChangeListener>(
+                        propertyChangeListeners);
         }
 
-        while (listeners.hasNext())
+        for (ChatRoomPropertyChangeListener listener : listeners)
         {
-            ChatRoomPropertyChangeListener listener
-                = (ChatRoomPropertyChangeListener) listeners.next();
-
             if (evt instanceof ChatRoomPropertyChangeEvent)
             {
                 listener.chatRoomPropertyChanged(
@@ -1639,20 +1624,16 @@ public class ChatRoomJabberImpl
     public void fireMemberPropertyChangeEvent(
         ChatRoomMemberPropertyChangeEvent evt)
     {
-        Iterator<ChatRoomMemberPropertyChangeListener> listeners = null;
+        Iterable<ChatRoomMemberPropertyChangeListener> listeners;
         synchronized (memberPropChangeListeners)
         {
-            listeners = new ArrayList<ChatRoomMemberPropertyChangeListener>(
-                                memberPropChangeListeners).iterator();
+            listeners
+                = new ArrayList<ChatRoomMemberPropertyChangeListener>(
+                        memberPropChangeListeners);
         }
 
-        while (listeners.hasNext())
-        {
-            ChatRoomMemberPropertyChangeListener listener
-                = (ChatRoomMemberPropertyChangeListener) listeners.next();
-
+        for (ChatRoomMemberPropertyChangeListener listener : listeners)
             listener.chatRoomPropertyChanged(evt);
-        }
     }
 
     /**

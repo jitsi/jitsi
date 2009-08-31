@@ -99,12 +99,6 @@ public class ServerStoredContactListIcqImpl
         = new String("Awaiting authorization");
 
     /**
-     * A map containing all contacts currently
-     */
-    private Map<String, String> contactParentsMap
-        = new Hashtable<String, String>();
-
-    /**
      * Creates a ServerStoredContactList wrapper for the specified BuddyList.
      *
      * @param parentOperationSet the operation set that created us and that
@@ -199,18 +193,16 @@ public class ServerStoredContactListIcqImpl
 
         logger.trace("Will dispatch the following grp event: " + evt);
 
-        Iterator<ServerStoredGroupListener> listeners = null;
+        Iterable<ServerStoredGroupListener> listeners;
         synchronized (serverStoredGroupListeners)
         {
-            listeners = new ArrayList<ServerStoredGroupListener>(
-                                serverStoredGroupListeners).iterator();
+            listeners
+                = new ArrayList<ServerStoredGroupListener>(
+                        serverStoredGroupListeners);
         }
 
-        while (listeners.hasNext())
+        for (ServerStoredGroupListener listener : listeners)
         {
-            ServerStoredGroupListener listener
-                = (ServerStoredGroupListener) listeners.next();
-
             if (eventID == ServerStoredGroupEvent.GROUP_REMOVED_EVENT)
                 listener.groupRemoved(evt);
             else if (eventID == ServerStoredGroupEvent.GROUP_RENAMED_EVENT)
@@ -235,8 +227,8 @@ public class ServerStoredContactListIcqImpl
      * @param contact the contact that was added
      * @param index the index at which it was added.
      */
-    private void fireContactAdded( ContactGroupIcqImpl parentGroup,
-                                   ContactIcqImpl contact)
+    private void fireContactAdded( ContactGroup parentGroup,
+                                   Contact contact)
     {
         //bail out if no one's listening
         if(parentOperationSet == null){
@@ -255,8 +247,8 @@ public class ServerStoredContactListIcqImpl
      * @param parentGroup the group that the resolved contact belongs to.
      * @param contact the contact that was resolved
      */
-    private void fireContactResolved( ContactGroupIcqImpl parentGroup,
-                                      ContactIcqImpl contact)
+    private void fireContactResolved( ContactGroup parentGroup,
+                                      Contact contact)
     {
         //bail out if no one's listening
         if(parentOperationSet == null){
@@ -279,9 +271,9 @@ public class ServerStoredContactListIcqImpl
      * @param contact the contact that was added
      * @param index the index at which it was added.
      */
-    private void fireContactMoved( ContactGroupIcqImpl oldParentGroup,
-                                   ContactGroupIcqImpl newParentGroup,
-                                   ContactIcqImpl contact,
+    private void fireContactMoved( ContactGroup oldParentGroup,
+                                   ContactGroup newParentGroup,
+                                   Contact contact,
                                    int index)
     {
         //bail out if no one's listening
@@ -302,8 +294,8 @@ public class ServerStoredContactListIcqImpl
      * @param parentGroup the group where that the removed contact belonged to.
      * @param contact the contact that was removed.
      */
-    private void fireContactRemoved( ContactGroupIcqImpl parentGroup,
-                                     ContactIcqImpl contact)
+    private void fireContactRemoved( ContactGroup parentGroup,
+                                     Contact contact)
     {
         //bail out if no one's listening
         if(parentOperationSet == null){
@@ -856,11 +848,8 @@ public class ServerStoredContactListIcqImpl
             if(!elem.isPersistent() || !elem.isResolved())
                 continue;
 
-            Iterator bs = elem.getJoustSimSourceGroup().getBuddiesCopy()
-                .iterator();
-            while (bs.hasNext())
+            for (Buddy b : elem.getJoustSimSourceGroup().getBuddiesCopy())
             {
-                Buddy b = (Buddy) bs.next();
                 if(b == buddy)
                     return elem;
             }
@@ -927,8 +916,7 @@ public class ServerStoredContactListIcqImpl
                     = deletedContacts.iterator();
                 while(deletedContactsIter.hasNext())
                 {
-                    ContactIcqImpl contact
-                        = (ContactIcqImpl)deletedContactsIter.next();
+                    ContactIcqImpl contact = deletedContactsIter.next();
                     fireContactRemoved(newGroup, contact);
                 }
 
@@ -936,8 +924,7 @@ public class ServerStoredContactListIcqImpl
                 Iterator<Contact> contactsIter = newGroup.contacts();
                 while(contactsIter.hasNext())
                 {
-                    ContactIcqImpl contact
-                        = (ContactIcqImpl)contactsIter.next();
+                    Contact contact = contactsIter.next();
 
                     if(newContacts.contains(contact))
                         fireContactAdded(newGroup, contact);
@@ -1384,7 +1371,7 @@ public class ServerStoredContactListIcqImpl
                         = copyContactsForUpdate.iterator();
                     while (iter.hasNext())
                     {
-                        ContactIcqImpl contact = (ContactIcqImpl) iter.next();
+                        ContactIcqImpl contact = iter.next();
 
                         String oldNickname = contact.getUIN();
 

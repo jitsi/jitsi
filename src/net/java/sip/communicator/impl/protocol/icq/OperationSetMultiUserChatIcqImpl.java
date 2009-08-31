@@ -36,13 +36,14 @@ public class OperationSetMultiUserChatIcqImpl
     * we have not necessarily joined these rooms, we might have simply been
     * searching through them.
     */
-   private Hashtable chatRoomCache = new Hashtable();
+   private final Map<String, ChatRoom> chatRoomCache
+       = new Hashtable<String, ChatRoom>();
 
    /**
    * The registration listener that would get notified when the underlying
    * ICQ provider gets registered.
    */
-   private RegistrationStateListener providerRegListener
+   private final RegistrationStateListener providerRegListener
        = new RegistrationStateListener();
 
    /**
@@ -55,7 +56,8 @@ public class OperationSetMultiUserChatIcqImpl
     * Hash table that contains all invitations, this is needed if the user wants
     * to reject an invitation.
     */
-   private Hashtable invitations = new Hashtable();
+   private final Map<ChatRoom, ChatInvitation> invitations
+       = new Hashtable<ChatRoom, ChatInvitation>();
    
    /**
     * Default Invitation message.
@@ -96,7 +98,7 @@ public class OperationSetMultiUserChatIcqImpl
    public ChatRoom findRoom(ChatInvitation chatInvitation)
            throws OperationFailedException, OperationNotSupportedException
    {
-       ChatRoom chatRoom = (ChatRoom) chatRoomCache.get(chatInvitation
+       ChatRoom chatRoom = chatRoomCache.get(chatInvitation
                .getRoomName());
 
        if (chatRoom == null)
@@ -186,7 +188,7 @@ public class OperationSetMultiUserChatIcqImpl
    public ChatRoom findRoom(String roomName) throws OperationFailedException,
            OperationNotSupportedException
    {
-       ChatRoom room = (ChatRoom) chatRoomCache.get(roomName);
+       ChatRoom room = chatRoomCache.get(roomName);
 
        return room;
    }
@@ -198,17 +200,17 @@ public class OperationSetMultiUserChatIcqImpl
     * @return a <tt>List</tt> of the rooms where the user has joined using
     *   a given connection.
     */
-   public List getCurrentlyJoinedChatRooms()
+   public List<ChatRoom> getCurrentlyJoinedChatRooms()
    {
        synchronized (chatRoomCache)
        {
-           List joinedRooms = new LinkedList(this.chatRoomCache.values());
+           List<ChatRoom> joinedRooms = new LinkedList<ChatRoom>(this.chatRoomCache.values());
 
-           Iterator joinedRoomsIter = joinedRooms.iterator();
+           Iterator<ChatRoom> joinedRoomsIter = joinedRooms.iterator();
 
            while (joinedRoomsIter.hasNext())
            {
-               if (!((ChatRoom) joinedRoomsIter.next()).isJoined())
+               if (!joinedRoomsIter.next().isJoined())
                    joinedRoomsIter.remove();
            }
 
@@ -230,21 +232,20 @@ public class OperationSetMultiUserChatIcqImpl
     * @throws OperationNotSupportedException if the server does not support
     * multi user chat
     */
-   public List getCurrentlyJoinedChatRooms(ChatRoomMember chatRoomMember)
-           throws OperationFailedException, OperationNotSupportedException
+   public List<String> getCurrentlyJoinedChatRooms(
+           ChatRoomMember chatRoomMember)
+       throws OperationFailedException,
+              OperationNotSupportedException
    {
        synchronized (chatRoomCache)
        {
-           List joinedRooms = new LinkedList(this.chatRoomCache.values());
+           List<String> joinedRooms
+               = new LinkedList<String>();
 
-           Iterator joinedRoomsIter = joinedRooms.iterator();
-
-           while (joinedRoomsIter.hasNext())
-           {
-               if (!((ChatRoom) joinedRoomsIter.next()).isJoined())
-                   joinedRoomsIter.remove();
-           }
-
+           for (Map.Entry<String, ChatRoom> chatRoomEntry
+                   : chatRoomCache.entrySet())
+               if (chatRoomEntry.getValue().isJoined())
+                   joinedRooms.add(chatRoomEntry.getKey());
            return joinedRooms;
        }
    }
@@ -264,10 +265,10 @@ public class OperationSetMultiUserChatIcqImpl
     * @throws OperationNotSupportedException if the server does not support
     * multi user chat
     */
-   public List getExistingChatRooms() throws OperationFailedException,
+   public List<String> getExistingChatRooms() throws OperationFailedException,
            OperationNotSupportedException
    {
-       return new LinkedList();
+       return new LinkedList<String>();
    }
 
    /**
@@ -296,7 +297,7 @@ public class OperationSetMultiUserChatIcqImpl
    public void rejectInvitation(ChatRoomInvitation invitation,
            String rejectReason)
    {
-       ChatInvitation inv = (ChatInvitation) invitations.get(invitation
+       ChatInvitation inv = invitations.get(invitation
                .getTargetChatRoom());
 
        if (inv != null)
@@ -458,14 +459,11 @@ public class OperationSetMultiUserChatIcqImpl
      */
     private void updateChatRoomMembers(Contact contact)
     {
-        Enumeration<ChatRoomIcqImpl> chatRooms = chatRoomCache.elements();
-
-        while (chatRooms.hasMoreElements())
+        for (ChatRoom chatRoom : chatRoomCache.values())
         {
-            ChatRoomIcqImpl chatRoom = chatRooms.nextElement();
-
             ChatRoomMemberIcqImpl member
-                = chatRoom.findMemberForNickName(contact.getAddress());
+                = ((ChatRoomIcqImpl) chatRoom)
+                    .findMemberForNickName(contact.getAddress());
 
             if (member != null)
             {

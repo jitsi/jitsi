@@ -47,7 +47,7 @@ public class ProtocolProviderFactoryDictImpl
      * @return the AccountID of the newly created account.
      */
     public AccountID installAccount( String userIDStr,
-                                     Map accountProperties)
+                                     Map<String, String> accountProperties)
     {
         BundleContext context = DictActivator.getBundleContext();
         if (context == null)
@@ -89,7 +89,7 @@ public class ProtocolProviderFactoryDictImpl
         return accountID;
     }
 
-    protected AccountID createAccountID(String userID, Map accountProperties)
+    protected AccountID createAccountID(String userID, Map<String, String> accountProperties)
     {
         return new DictAccountID(userID, accountProperties);
     }

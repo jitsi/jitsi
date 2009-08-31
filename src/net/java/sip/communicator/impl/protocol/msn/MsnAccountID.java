@@ -17,7 +17,7 @@ public class MsnAccountID
      * @param id the id identifying this account
      * @param accountProperties any other properties necessary for the account.
      */
-    MsnAccountID(String id, Map accountProperties )
+    MsnAccountID(String id, Map<String, String> accountProperties )
     {
         super(id, accountProperties, ProtocolNames.MSN, "msn.com");
     }

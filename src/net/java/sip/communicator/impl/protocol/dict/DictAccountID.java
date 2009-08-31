@@ -24,7 +24,7 @@ public class DictAccountID
      * @param userID the user identifier correspnding to the account
      * @param accountProperties any other properties necessary for the account.
      */
-    DictAccountID(String userID, Map accountProperties)
+    DictAccountID(String userID, Map<String, String> accountProperties)
     {
         super(userID, accountProperties, ProtocolNames.DICT, "dict.org");
     }

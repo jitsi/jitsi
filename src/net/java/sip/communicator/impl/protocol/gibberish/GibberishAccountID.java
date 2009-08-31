@@ -22,7 +22,7 @@ public class GibberishAccountID
      * @param userID the user identifier correspnding to thi account
      * @param accountProperties any other properties necessary for the account.
      */
-    GibberishAccountID(String userID, Map accountProperties)
+    GibberishAccountID(String userID, Map<String, String> accountProperties)
     {
         super(userID
               , accountProperties

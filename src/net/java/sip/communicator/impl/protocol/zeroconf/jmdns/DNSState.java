@@ -69,7 +69,7 @@ public class DNSState
     public final DNSState advance()
     {
         return (isProbing() || isAnnouncing()) ? 
-            (DNSState) sequence.get(ordinal + 1) : 
+            sequence.get(ordinal + 1) : 
             this;
     }
 

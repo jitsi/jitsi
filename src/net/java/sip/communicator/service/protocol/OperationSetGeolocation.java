@@ -145,7 +145,7 @@ public interface OperationSetGeolocation
      * @param geolocation a <tt>java.uil.Map</tt> containing the geolocation
      * details of the position we'd like to publish.
      */
-    public void publishGeolocation(Map geolocation);
+    public void publishGeolocation(Map<String, String> geolocation);
 
     /**
      * Retrieve the geolocation of the contact corresponding to
@@ -157,7 +157,7 @@ public interface OperationSetGeolocation
      * @return a <tt>java.util.Map</tt> containing the geolocation details of
      * the contact with address <tt>contactIdentifier</tt>.
      */
-    public Map queryContactGeolocation(String contactIdentifier);
+    public Map<String, String> queryContactGeolocation(String contactIdentifier);
 
     /**
      * Registers a listener that would get notifications any time a contact

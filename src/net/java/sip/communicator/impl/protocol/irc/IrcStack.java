@@ -222,7 +222,7 @@ public class IrcStack
         ChatRoomIrcImpl chatRoom = ircMUCOpSet.getChatRoom(channel);
 
         if (chatRoom == null)
-            chatRoom = (ChatRoomIrcImpl) ircMUCOpSet.findSystemRoom();
+            chatRoom = ircMUCOpSet.findSystemRoom();
 
         if(chatRoom == null || !chatRoom.isJoined())
             return;
@@ -322,7 +322,7 @@ public class IrcStack
         ChatRoomIrcImpl chatRoom = ircMUCOpSet.getChatRoom(target);
 
         if (chatRoom == null)
-            chatRoom = (ChatRoomIrcImpl) ircMUCOpSet.findSystemRoom();
+            chatRoom = ircMUCOpSet.findSystemRoom();
 
         if(chatRoom == null || !chatRoom.isJoined())
             return;
@@ -527,8 +527,7 @@ public class IrcStack
                     + ": Received from " + kickerNick
                     + " " + kickerLogin + "@" + kickerHostname);
 
-        ChatRoomIrcImpl chatRoom
-            = (ChatRoomIrcImpl) ircMUCOpSet.getChatRoom(channel);
+        ChatRoomIrcImpl chatRoom = ircMUCOpSet.getChatRoom(channel);
 
         if (chatRoom == null || !chatRoom.isJoined())
             return;
@@ -643,7 +642,7 @@ public class IrcStack
 
         if(chatRoom == null || !chatRoom.isJoined())
         {
-            chatRoom = (ChatRoomIrcImpl) ircMUCOpSet.findSystemRoom();
+            chatRoom = ircMUCOpSet.findSystemRoom();
 
             sourceMember = ircMUCOpSet.findSystemMember();
         }
@@ -1237,8 +1236,7 @@ public class IrcStack
                     MessageIrcImpl.DEFAULT_MIME_ENCODING,
                     null);
 
-            ChatRoomIrcImpl serverRoom
-                = (ChatRoomIrcImpl) ircMUCOpSet.findSystemRoom();
+            ChatRoomIrcImpl serverRoom = ircMUCOpSet.findSystemRoom();
 
             ChatRoomMember serverMember = ircMUCOpSet.findSystemMember();
 
@@ -1817,8 +1815,7 @@ public class IrcStack
                                     MessageIrcImpl.DEFAULT_MIME_ENCODING,
                                     null);
 
-        ChatRoomIrcImpl chatRoom
-            = (ChatRoomIrcImpl) ircMUCOpSet.findSystemRoom();
+        ChatRoomIrcImpl chatRoom = ircMUCOpSet.findSystemRoom();
 
         if(chatRoom == null || !chatRoom.isJoined())
             return;

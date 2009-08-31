@@ -19,7 +19,7 @@ public class MockAccountID
     protected MockAccountID(String userName)
     {
         super(  userName
-              , new java.util.Hashtable()
+              , new java.util.Hashtable<String, String>()
               , ProtocolNames.SIP_COMMUNICATOR_MOCK
               , MOCK_SERVICE_NAME);
     }

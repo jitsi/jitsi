@@ -56,10 +56,10 @@ public abstract class AccountID
      * @return
      */
     private static final String getOverriddenProtocolName(
-            Map accountProperties, String defaultProtocolName)
+            Map<String, String> accountProperties, String defaultProtocolName)
     {
         String key = ProtocolProviderFactory.PROTOCOL;
-        String protocolName = (String) accountProperties.get(key);
+        String protocolName = accountProperties.get(key);
         if ((protocolName == null) && (defaultProtocolName != null))
         {
             protocolName = defaultProtocolName;
@@ -76,7 +76,7 @@ public abstract class AccountID
      * If you need something else, please consider converting it through custom
      * accessors (get/set) in your implementation.
      */
-    protected Map accountProperties = null;
+    protected Map<String, String> accountProperties = null;
 
     /**
      * A String uniquely identifying the user for this particular account.
@@ -106,7 +106,7 @@ public abstract class AccountID
      * icq.com) that this account is registered with.
      */
     protected AccountID( String userID,
-                         Map accountProperties,
+                         Map<String, String> accountProperties,
                          String protocolName,
                          String serviceName)
     {
@@ -120,7 +120,7 @@ public abstract class AccountID
         protocolName = getOverriddenProtocolName(accountProperties, protocolName);
 
         this.userID = userID;
-        this.accountProperties = new Hashtable(accountProperties);
+        this.accountProperties = new Hashtable<String, String>(accountProperties);
         this.serviceName = serviceName;
 
         //create a unique identifier string
@@ -173,9 +173,9 @@ public abstract class AccountID
      * @return a Map containing protocol and implementation account
      * initialization properties.
      */
-    public Map getAccountProperties()
+    public Map<String, String> getAccountProperties()
     {
-        return new Hashtable(accountProperties);
+        return new Hashtable<String, String>(accountProperties);
     }
 
     public Object getAccountProperty(Object key)
@@ -221,7 +221,7 @@ public abstract class AccountID
      * @param key the key of the property
      * @param value the property value
      */
-    public void putAccountProperty(Object key, Object value)
+    public void putAccountProperty(String key, String value)
     {
         accountProperties.put(key, value);
     }
@@ -308,7 +308,7 @@ public abstract class AccountID
      *
      * @param accountProperties the properties of the account
      */
-    public void setAccountProperties(Map accountProperties)
+    public void setAccountProperties(Map<String, String> accountProperties)
     {
         this.accountProperties = accountProperties;
     }

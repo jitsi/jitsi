@@ -29,37 +29,37 @@ public class MockChatRoom
 
     private boolean joined = false;
 
-    private List members = new Vector();
+    private List<ChatRoomMember> members = new Vector<ChatRoomMember>();
 
     /**
      * Currently registered member presence listeners.
      */
-    private Vector memberPresenceListeners = new Vector();
+    private final List<ChatRoomMemberPresenceListener> memberPresenceListeners
+        = new Vector<ChatRoomMemberPresenceListener>();
     
     /**
      * Currently registered local user role listeners.
      */
-    private Vector localUserRoleListeners = new Vector();
+    private final List<ChatRoomLocalUserRoleListener> localUserRoleListeners
+        = new Vector<ChatRoomLocalUserRoleListener>();
     
     /**
      * Currently registered member role listeners.
      */
-    private Vector memberRoleListeners = new Vector();
+    private final List<ChatRoomMemberRoleListener> memberRoleListeners
+        = new Vector<ChatRoomMemberRoleListener>();
     
     /**
      * Currently registered property change listeners.
      */
-    private Vector propertyChangeListeners = new Vector();
-
-    /**
-     * Currently registered property change listeners.
-     */
-    private Vector memberPropChangeListeners = new Vector();
+    private final List<ChatRoomPropertyChangeListener> propertyChangeListeners
+        = new Vector<ChatRoomPropertyChangeListener>();
 
     /**
      * Currently registered message listeners.
      */
-    private Vector messageListeners = new Vector();
+    private final List<ChatRoomMessageListener> messageListeners
+        = new Vector<ChatRoomMessageListener>();
     
     public MockChatRoom(
         MockProvider provider, 
@@ -373,7 +373,7 @@ public class MockChatRoom
      * @return a <tt>List</tt> of <tt>ChatRoomMember</tt> instances
      * corresponding to all room members.
      */
-    public List getMembers()
+    public List<ChatRoomMember> getMembers()
     {
         return members;
     }
@@ -456,14 +456,8 @@ public class MockChatRoom
                     ChatRoomMessageDeliveredEvent
                         .CONVERSATION_MESSAGE_DELIVERED);
         
-        Iterator iter = messageListeners.iterator();
-        while(iter.hasNext())
-        {
-            ChatRoomMessageListener elem = 
-                (ChatRoomMessageListener)iter.next();
-            
+        for (ChatRoomMessageListener elem : messageListeners)
             elem.messageDelivered(evt);
-        }
     }
 
     /**
@@ -484,9 +478,9 @@ public class MockChatRoom
      * 
      * @return an Iterator over a set of ban masks for this chat room
      */
-    public Iterator getBanList()
+    public Iterator<ChatRoomMember> getBanList()
     {
-        return new Vector().iterator();
+        return new Vector<ChatRoomMember>().iterator();
     }
     
     /**
@@ -499,10 +493,8 @@ public class MockChatRoom
     public void deliverMessage(Message msg, String from)
     {
         ChatRoomMember fromMember = null;
-        Iterator iter = members.iterator();
-        while(iter.hasNext())
+        for (ChatRoomMember elem : members)
         {
-            ChatRoomMember elem = (ChatRoomMember)iter.next();
             if(elem.getName().equals(from))
             {
                 fromMember = elem;
@@ -521,15 +513,9 @@ public class MockChatRoom
                     msg,
                     ChatRoomMessageReceivedEvent
                         .CONVERSATION_MESSAGE_RECEIVED);
-        
-        iter = messageListeners.iterator();
-        while(iter.hasNext())
-        {
-            ChatRoomMessageListener elem = 
-                (ChatRoomMessageListener)iter.next();
-            
-            elem.messageReceived(evt);      
-        }
+
+        for (ChatRoomMessageListener elem : messageListeners)
+            elem.messageReceived(evt);
     }
 
     /**

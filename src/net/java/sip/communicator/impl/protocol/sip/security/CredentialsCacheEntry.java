@@ -28,7 +28,7 @@ class CredentialsCacheEntry
      * has not reached this class). The transactionHistory's elements are Strings
      * corresponding to branch ids.
      */
-    private Vector transactionHistory = new Vector();
+    private Vector<String> transactionHistory = new Vector<String>();
 
     /**
      * Adds the specified branch id to the transaction history list so that we

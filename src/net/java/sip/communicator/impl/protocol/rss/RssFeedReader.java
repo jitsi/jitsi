@@ -278,7 +278,7 @@ public class RssFeedReader
         return rssURL.toString();
     }
 
-    private static class SyndEntryComparator implements Comparator
+    private static class SyndEntryComparator implements Comparator<SyndEntry>
     {
         /**
          * Compares its two items for order.  Returns a negative integer,
@@ -293,10 +293,10 @@ public class RssFeedReader
          * @throws ClassCastException if one of the objects is not a
          *         SyndEntry instance.
          */
-        public int compare(Object o1, Object o2)
+        public int compare(SyndEntry o1, SyndEntry o2)
         {
-            Date date1 = ( (SyndEntry) o1).getPublishedDate();
-            Date date2 = ( (SyndEntry) o2).getPublishedDate();
+            Date date1 = o1.getPublishedDate();
+            Date date2 = o2.getPublishedDate();
 
             if (date1 == null || date2 == null)
             {

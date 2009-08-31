@@ -315,7 +315,7 @@ public class ContactGroupFacebookImpl
      */
     public ContactGroup getGroup(int index)
     {
-        return (ContactGroup)subGroups.get(index);
+        return subGroups.get(index);
     }
 
     /**

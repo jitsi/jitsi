@@ -316,7 +316,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
                     Iterator i = getDetails(SpokenLanguageDetail.class);
                     while (i.hasNext())
                     {
-                        Object item = (Object) i.next();
+                        Object item = i.next();
                         langs[count++] = getLanguageCode(((SpokenLanguageDetail)item).getLocale());
                     }
                     langs[count] = getLanguageCode(((SpokenLanguageDetail)detail).getLocale());
@@ -642,7 +642,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
                     Iterator i = getDetails(SpokenLanguageDetail.class);
                     while (i.hasNext())
                     {
-                        Object item = (Object) i.next();
+                        Object item = i.next();
                         if(item.equals(currentDetailValue))
                             langs[count++] = getLanguageCode(((SpokenLanguageDetail)newDetailValue).getLocale());
                         else

@@ -411,7 +411,7 @@ public class ExtendedCallHistorySearchDialog
         {
             addMe = true;
 
-            CallRecord callRecord = (CallRecord) lastCalls.next();
+            CallRecord callRecord = lastCalls.next();
 
             /* DATE Checking */
             Date callStartDate = callRecord.getStartTime();

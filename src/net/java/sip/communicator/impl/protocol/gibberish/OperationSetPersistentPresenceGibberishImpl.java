@@ -286,13 +286,12 @@ public class OperationSetPersistentPresenceGibberishImpl
 
         //now check whether we are in someone else's contact list and modify
         //our status there
-        List contacts = findContactsPointingToUs();
+        List<Contact> contacts = findContactsPointingToUs();
 
-        Iterator contactsIter = contacts.iterator();
+        Iterator<Contact> contactsIter = contacts.iterator();
         while (contactsIter.hasNext())
         {
-            ContactGibberishImpl contact
-                = (ContactGibberishImpl) contactsIter.next();
+            ContactGibberishImpl contact = (ContactGibberishImpl)contactsIter.next();
 
             PresenceStatus oldStatus = contact.getPresenceStatus();
             contact.setPresenceStatus(status);
@@ -360,7 +359,7 @@ public class OperationSetPersistentPresenceGibberishImpl
                                                     PresenceStatus newStatus)
     {
         //first set the status for contacts in this group
-        Iterator childContacts = parent.contacts();
+        Iterator<Contact> childContacts = parent.contacts();
 
         while(childContacts.hasNext())
         {
@@ -381,11 +380,11 @@ public class OperationSetPersistentPresenceGibberishImpl
         }
 
         //now call this method recursively for all subgroups
-        Iterator subgroups = parent.subgroups();
+        Iterator<ContactGroup> subgroups = parent.subgroups();
 
         while(subgroups.hasNext())
         {
-            ContactGroup subgroup = (ContactGroup)subgroups.next();
+            ContactGroup subgroup = subgroups.next();
             changePresenceStatusForAllContacts(subgroup, newStatus);
         }
     }
@@ -798,9 +797,9 @@ public class OperationSetPersistentPresenceGibberishImpl
      * @return a list of all contacts in other providers' contact lists that
      * point to us.
      */
-    public List findContactsPointingToUs()
+    public List<Contact> findContactsPointingToUs()
     {
-        List contacts = new LinkedList();
+        List<Contact> contacts = new LinkedList<Contact>();
         BundleContext bc = GibberishActivator.getBundleContext();
 
         String osgiQuery =
@@ -906,20 +905,17 @@ public class OperationSetPersistentPresenceGibberishImpl
             //offline. The icq protocol does not implement top level buddies
             //nor subgroups for top level groups so a simple nested loop
             //would be enough.
-            Iterator groupsIter = getServerStoredContactListRoot()
-                .subgroups();
+            Iterator<ContactGroup> groupsIter
+                = getServerStoredContactListRoot().subgroups();
             while (groupsIter.hasNext())
             {
-                ContactGroupGibberishImpl group
-                    = (ContactGroupGibberishImpl) groupsIter.next();
-
-                Iterator contactsIter = group.contacts();
+                ContactGroup group = groupsIter.next();
+                Iterator<Contact> contactsIter = group.contacts();
 
                 while (contactsIter.hasNext())
                 {
                     ContactGibberishImpl contact
                         = (ContactGibberishImpl) contactsIter.next();
-
                     PresenceStatus oldContactStatus
                         = contact.getPresenceStatus();
 

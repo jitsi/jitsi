@@ -40,7 +40,7 @@ public class OperationSetMultiUserChatJabberImpl
      * we have not necessarily joined these rooms, we might have simply been
      * searching through them.
      */
-    private final Hashtable<String, ChatRoom> chatRoomCache = new Hashtable();
+    private final Hashtable<String, ChatRoom> chatRoomCache = new Hashtable<String, ChatRoom>();
 
     /**
      * The registration listener that would get notified when the underlying
@@ -204,17 +204,13 @@ public class OperationSetMultiUserChatJabberImpl
     {
         synchronized(chatRoomCache)
         {
-            List joinedRooms
-                = new LinkedList(this.chatRoomCache.values());
-
-            Iterator joinedRoomsIter = joinedRooms.iterator();
+            List<ChatRoom> joinedRooms
+                = new LinkedList<ChatRoom>(this.chatRoomCache.values());
+            Iterator<ChatRoom> joinedRoomsIter = joinedRooms.iterator();
 
             while (joinedRoomsIter.hasNext())
-            {
-                if ( !( (ChatRoom) joinedRoomsIter.next()).isJoined())
+                if (!joinedRoomsIter.next().isJoined())
                     joinedRoomsIter.remove();
-            }
-
             return joinedRooms;
         }
     }
@@ -275,7 +271,7 @@ public class OperationSetMultiUserChatJabberImpl
     {
         assertSupportedAndConnected();
 
-        List list = new LinkedList();
+        List<String> list = new LinkedList<String>();
 
         //first retrieve all conference service names available on this server
         Iterator<String> serviceNames = null;
@@ -296,7 +292,7 @@ public class OperationSetMultiUserChatJabberImpl
         while(serviceNames.hasNext())
         {
             String serviceName = serviceNames.next();
-            List<HostedRoom> roomsOnThisService = new LinkedList();
+            List<HostedRoom> roomsOnThisService = new LinkedList<HostedRoom>();
 
             try
             {
@@ -506,8 +502,11 @@ public class OperationSetMultiUserChatJabberImpl
 
         Iterator<String> joinedRoomsIter = MultiUserChat.getJoinedRooms(
             getXmppConnection(), chatRoomMember.getContactAddress());
+        List<String> joinedRooms = new ArrayList<String>();
 
-        return (List) joinedRoomsIter;
+        while (joinedRoomsIter.hasNext())
+            joinedRooms.add(joinedRoomsIter.next());
+        return joinedRooms;
     }
 
     /**

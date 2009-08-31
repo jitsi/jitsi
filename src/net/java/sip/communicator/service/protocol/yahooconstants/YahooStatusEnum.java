@@ -133,7 +133,8 @@ public class YahooStatusEnum
     /**
      * The minimal set of states that any implementation must support.
      */
-    public static final ArrayList yahooStatusSet =new ArrayList();
+    public static final ArrayList<YahooStatusEnum> yahooStatusSet
+        = new ArrayList<YahooStatusEnum>();
     static{
             yahooStatusSet.add(AVAILABLE);
             yahooStatusSet.add(BE_RIGHT_BACK);

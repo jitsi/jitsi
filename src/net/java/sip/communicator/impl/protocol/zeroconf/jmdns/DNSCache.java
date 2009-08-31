@@ -69,7 +69,7 @@ class DNSCache
      * name.
      * Values are linked lists of CacheNode instances.
      */
-    private HashMap hashtable;
+    private HashMap<String, CacheNode> hashtable;
 
     /**
      * Cache nodes are used to implement storage of multiple DNSEntry's of the
@@ -86,7 +86,7 @@ class DNSCache
             this.value = value;
             String SLevel = System.getProperty("jmdns.debug");
             if (SLevel == null) SLevel = "INFO";
-            this.logger.setLevel(Level.parse(SLevel));
+            logger.setLevel(Level.parse(SLevel));
         }
 
         public CacheNode next()
@@ -107,7 +107,7 @@ class DNSCache
      */
     public DNSCache(final int size)
     {
-        hashtable = new HashMap(size);
+        hashtable = new HashMap<String, CacheNode>(size);
 
         String SLevel = System.getProperty("jmdns.debug");
         if (SLevel == null) SLevel = "INFO";
@@ -131,7 +131,7 @@ class DNSCache
     {
         //logger.log("DNSCache.add("+entry.getName()+")");
         CacheNode newValue = new CacheNode(entry);
-        CacheNode node = (CacheNode) hashtable.get(entry.getName());
+        CacheNode node = hashtable.get(entry.getName());
         if (node == null)
         {
             hashtable.put(entry.getName(), newValue);
@@ -151,7 +151,7 @@ class DNSCache
      */
     public synchronized boolean remove(DNSEntry entry)
     {
-        CacheNode node = (CacheNode) hashtable.get(entry.getName());
+        CacheNode node = hashtable.get(entry.getName());
         if (node != null)
         {
             if (node.value == entry)
@@ -244,7 +244,7 @@ class DNSCache
      */
     public synchronized CacheNode find(String name)
     {
-        return (CacheNode) hashtable.get(name);
+        return hashtable.get(name);
     }
 
     /**
@@ -252,9 +252,9 @@ class DNSCache
      */
     public synchronized void print()
     {
-        for (Iterator i = iterator(); i.hasNext();)
+        for (Iterator<CacheNode> i = iterator(); i.hasNext();)
         {
-            for (CacheNode n = (CacheNode) i.next(); n != null; n = n.next)
+            for (CacheNode n = i.next(); n != null; n = n.next)
             {
                 logger.info(n.value.toString());
             }
@@ -265,9 +265,9 @@ class DNSCache
     {
         StringBuffer aLog = new StringBuffer();
         aLog.append("\t---- cache ----");
-        for (Iterator i = iterator(); i.hasNext();)
+        for (Iterator<CacheNode> i = iterator(); i.hasNext();)
         {
-            for (CacheNode n = (CacheNode) i.next(); n != null; n = n.next)
+            for (CacheNode n = i.next(); n != null; n = n.next)
             {
                 aLog.append("\n\t\t" + n.value);
             }

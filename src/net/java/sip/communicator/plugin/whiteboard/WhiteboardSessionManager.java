@@ -462,7 +462,7 @@ public class WhiteboardSessionManager
 
         for(int i =0; i < wbFrames.size (); i++)
         {
-            whiteboardFrame = (WhiteboardFrame) wbFrames.get (i);
+            whiteboardFrame = wbFrames.get (i);
 
             if (whiteboardFrame.getContact() != null
                 && whiteboardFrame.getContact().equals (contact))

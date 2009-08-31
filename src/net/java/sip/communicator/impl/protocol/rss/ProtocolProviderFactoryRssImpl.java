@@ -43,7 +43,7 @@ public class ProtocolProviderFactoryRssImpl
      * @return the AccountID of the newly created account.
      */
     public AccountID installAccount( String userIDStr,
-                                     Map accountProperties)
+                                     Map<String, String> accountProperties)
     {
         BundleContext context
             = RssActivator.getBundleContext();
@@ -76,7 +76,7 @@ public class ProtocolProviderFactoryRssImpl
         return accountID;
     }
 
-    protected AccountID createAccountID(String userID, Map accountProperties)
+    protected AccountID createAccountID(String userID, Map<String, String> accountProperties)
     {
         return new RssAccountID(userID, accountProperties);
     }
@@ -93,7 +93,7 @@ public class ProtocolProviderFactoryRssImpl
 
     @Override
     public void modifyAccount(  ProtocolProviderService protocolProvider,
-                                Map accountProperties)
+                                Map<String, String> accountProperties)
         throws NullPointerException
     {
         // TODO Auto-generated method stub

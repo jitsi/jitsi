@@ -23,7 +23,7 @@ public class JabberAccountID
      * @param id the id identifying this account
      * @param accountProperties any other properties necessary for the account.
      */
-    JabberAccountID(String id, Map accountProperties )
+    JabberAccountID(String id, Map<String, String> accountProperties )
     {
         super(id, accountProperties, ProtocolNames.JABBER,
               getServiceName(accountProperties));

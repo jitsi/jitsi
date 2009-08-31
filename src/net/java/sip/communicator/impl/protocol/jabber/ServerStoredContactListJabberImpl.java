@@ -148,18 +148,16 @@ public class ServerStoredContactListJabberImpl
 
         logger.trace("Will dispatch the following grp event: " + evt);
 
-        Iterator<ServerStoredGroupListener> listeners = null;
+        Iterable<ServerStoredGroupListener> listeners;
         synchronized (serverStoredGroupListeners)
         {
-            listeners = new ArrayList<ServerStoredGroupListener>(
-                                serverStoredGroupListeners).iterator();
+            listeners
+                = new ArrayList<ServerStoredGroupListener>(
+                        serverStoredGroupListeners);
         }
 
-        while (listeners.hasNext())
+        for (ServerStoredGroupListener listener : listeners)
         {
-            ServerStoredGroupListener listener
-                = (ServerStoredGroupListener) listeners.next();
-
             if (eventID == ServerStoredGroupEvent.GROUP_REMOVED_EVENT)
                 listener.groupRemoved(evt);
             else if (eventID == ServerStoredGroupEvent.GROUP_RENAMED_EVENT)
@@ -631,12 +629,8 @@ public class ServerStoredContactListJabberImpl
         // first if unfiled exntries will move them in a group
         if(roster.getUnfiledEntryCount() > 0)
         {
-            Iterator iter = roster.getUnfiledEntries().iterator();
-
-            while (iter.hasNext())
+            for (RosterEntry item : roster.getUnfiledEntries())
             {
-                RosterEntry item = (RosterEntry) iter.next();
-
                 ContactJabberImpl contact =
                     findContactById(item.getUser());
 
@@ -661,11 +655,8 @@ public class ServerStoredContactListJabberImpl
         }
 
         // fill in root group
-        Iterator iter = roster.getGroups().iterator();
-        while (iter.hasNext())
+        for (RosterGroup item : roster.getGroups())
         {
-            RosterGroup item = (RosterGroup) iter.next();
-
             ContactGroupJabberImpl group =
                 findContactGroup(item.getName());
 
@@ -780,15 +771,12 @@ public class ServerStoredContactListJabberImpl
          * Received event when entry is added to the serverstored list
          * @param addresses Collection
          */
-        public void entriesAdded(Collection addresses)
+        public void entriesAdded(Collection<String> addresses)
         {
             logger.trace("entriesAdded " + addresses);
 
-            Iterator<String> iter = addresses.iterator();
-            while (iter.hasNext())
+            for (String id : addresses)
             {
-                String id = (String) iter.next();
-
                 RosterEntry entry = roster.getEntry(id);
 
                 ContactJabberImpl contact =
@@ -806,11 +794,8 @@ public class ServerStoredContactListJabberImpl
                                           true);
 
                 boolean isUnfiledEntry = true;
-                Iterator groupIter = entry.getGroups().iterator();
-                while (groupIter.hasNext())
+                for (RosterGroup group : entry.getGroups())
                 {
-                    RosterGroup group = (RosterGroup) groupIter.next();
-
                     ContactGroupJabberImpl parentGroup =
                         findContactGroup(group.getName());
                     if(parentGroup != null)
@@ -838,23 +823,17 @@ public class ServerStoredContactListJabberImpl
          * or have been added to a new group or removed from one
          * @param addresses Collection
          */
-        public void entriesUpdated(Collection addresses)
+        public void entriesUpdated(Collection<String> addresses)
         {
             logger.trace("entriesUpdated  " + addresses);
 
             // will search for group renamed
-
-            Iterator iter = addresses.iterator();
-            while (iter.hasNext())
+            for (String contactID : addresses)
             {
-                String contactID = (String) iter.next();
                 RosterEntry entry = roster.getEntry(contactID);
 
-                Iterator iter1 = entry.getGroups().iterator();
-                while (iter1.hasNext())
+                for (RosterGroup gr : entry.getGroups())
                 {
-                    RosterGroup gr = (RosterGroup) iter1.next();
-
                     if(findContactGroup(gr.getName()) == null)
                     {
                         // such group does not exist. so it must be
@@ -917,7 +896,7 @@ public class ServerStoredContactListJabberImpl
             Iterator<String> iter = addresses.iterator();
             while (iter.hasNext())
             {
-                String address = (String) iter.next();
+                String address = iter.next();
                 logger.trace("entry deleted " + address);
 
                 ContactJabberImpl contact = findContactById(address);

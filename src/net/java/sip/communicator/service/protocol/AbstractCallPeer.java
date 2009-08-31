@@ -197,8 +197,7 @@ public abstract class AbstractCallPeer
 
         while (listeners.hasNext())
         {
-            CallPeerListener listener
-                = (CallPeerListener) listeners.next();
+            CallPeerListener listener = listeners.next();
 
             if(eventType.equals(CallPeerChangeEvent
                                 .CALL_PEER_ADDRESS_CHANGE))
@@ -254,8 +253,7 @@ public abstract class AbstractCallPeer
 
         while (listeners.hasNext())
         {
-            CallPeerSecurityListener listener
-                = (CallPeerSecurityListener) listeners.next();
+            CallPeerSecurityListener listener = listeners.next();
 
             listener.securityOn(evt);
         }
@@ -288,8 +286,7 @@ public abstract class AbstractCallPeer
 
         while (listeners.hasNext())
         {
-            CallPeerSecurityListener listener
-                = (CallPeerSecurityListener) listeners.next();
+            CallPeerSecurityListener listener = listeners.next();
 
             listener.securityOff(event);
         }
@@ -327,8 +324,7 @@ public abstract class AbstractCallPeer
 
         while (listeners.hasNext())
         {
-            CallPeerSecurityListener listener
-                = (CallPeerSecurityListener) listeners.next();
+            CallPeerSecurityListener listener = listeners.next();
 
             listener.securityMessageRecieved(evt);
         }

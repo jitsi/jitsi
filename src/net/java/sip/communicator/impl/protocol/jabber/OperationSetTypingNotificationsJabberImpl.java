@@ -46,7 +46,8 @@ public class OperationSetTypingNotificationsJabberImpl
      */
     private MessageEventManager messageEventManager = null;
 
-    private Hashtable packetIDsTable = new Hashtable();
+    private final Map<String, String> packetIDsTable
+        = new Hashtable<String, String>();
 
     /**
      * The listener instance that we use to track chat states according to

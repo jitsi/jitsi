@@ -41,7 +41,7 @@ public class ProtocolProviderFactoryYahooImpl
      * @return the AccountID of the newly created account
      */
     public AccountID installAccount( String userIDStr,
-                                     Map accountProperties)
+                                     Map<String, String> accountProperties)
     {
         BundleContext context
             = YahooActivator.getBundleContext();
@@ -74,7 +74,7 @@ public class ProtocolProviderFactoryYahooImpl
         return accountID;
     }
 
-    protected AccountID createAccountID(String userID, Map accountProperties)
+    protected AccountID createAccountID(String userID, Map<String, String> accountProperties)
     {
         return new YahooAccountID(userID, accountProperties);
     }
@@ -91,7 +91,7 @@ public class ProtocolProviderFactoryYahooImpl
 
     @Override
     public void modifyAccount(  ProtocolProviderService protocolProvider,
-                                Map accountProperties)
+                                Map<String, String> accountProperties)
         throws NullPointerException
     {
         BundleContext context
@@ -113,8 +113,7 @@ public class ProtocolProviderFactoryYahooImpl
         if(!registeredAccounts.containsKey(accountID))
             return;
 
-        ServiceRegistration registration
-            = (ServiceRegistration) registeredAccounts.get(accountID);
+        ServiceRegistration registration = registeredAccounts.get(accountID);
 
         // kill the service
         if (registration != null)
@@ -137,7 +136,7 @@ public class ProtocolProviderFactoryYahooImpl
         // and check for a password.
         this.storeAccount(accountID);
 
-        Hashtable properties = new Hashtable();
+        Hashtable<String, String> properties = new Hashtable<String, String>();
         properties.put(PROTOCOL, ProtocolNames.YAHOO);
         properties.put(USER_ID, accountID.getUserID());
 

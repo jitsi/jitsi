@@ -26,7 +26,7 @@ public class FacebookAccountID
      * @param accountProperties
      *            any other properties necessary for the account.
      */
-    protected FacebookAccountID(String userID, Map accountProperties)
+    protected FacebookAccountID(String userID, Map<String, String> accountProperties)
     {
         super(
             userID,

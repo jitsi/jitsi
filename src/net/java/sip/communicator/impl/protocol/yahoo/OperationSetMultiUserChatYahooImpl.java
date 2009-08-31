@@ -206,7 +206,7 @@ public class OperationSetMultiUserChatYahooImpl
 
            while (joinedRoomsIter.hasNext())
            {
-               if (!((ChatRoom) joinedRoomsIter.next()).isJoined())
+               if (!joinedRoomsIter.next().isJoined())
                    joinedRoomsIter.remove();
            }
 

@@ -73,7 +73,7 @@ public class ActiveCallsRepository
         if(evt.getEventType().equals(CallChangeEvent.CALL_STATE_CHANGE)
            && ((CallState)evt.getNewValue()).equals(CallState.CALL_ENDED))
         {
-            CallJabberImpl sourceCall = (CallJabberImpl)this.activeCalls
+            CallJabberImpl sourceCall = this.activeCalls
                 .remove(evt.getSourceCall().getCallID());
 
             logger.trace(  "Removing call " + sourceCall + " from the list of "

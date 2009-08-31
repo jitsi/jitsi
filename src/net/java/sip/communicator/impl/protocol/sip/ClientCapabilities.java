@@ -72,7 +72,7 @@ public class ClientCapabilities
             //add to the allows header all methods that we support
             while(supportedMethods.hasNext())
             {
-                String method = (String)supportedMethods.next();
+                String method = supportedMethods.next();
 
                 //don't support REGISTERs
                 if(method.equals(Request.REGISTER))
@@ -282,7 +282,7 @@ public class ClientCapabilities
                 //add to the allows header all methods that we support
                 while(supportedMethods.hasNext())
                 {
-                    String method = (String)supportedMethods.next();
+                    String method = supportedMethods.next();
 
                     //don't support REGISTERs
                     if(method.equals(Request.REGISTER))
@@ -299,7 +299,7 @@ public class ClientCapabilities
                 {
                     while (events.hasNext())
                     {
-                        String event = (String) events.next();
+                        String event = events.next();
 
                         request.addHeader(provider.getHeaderFactory()
                                 .createAllowEventsHeader(event));

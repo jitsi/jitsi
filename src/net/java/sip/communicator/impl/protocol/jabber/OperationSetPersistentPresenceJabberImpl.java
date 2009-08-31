@@ -607,7 +607,7 @@ public class OperationSetPersistentPresenceJabberImpl
      */
     public static Presence.Mode presenceStatusToJabberMode(PresenceStatus status)
     {
-        return (Presence.Mode) scToJabberModesMappings.get(status
+        return scToJabberModesMappings.get(status
             .getStatusName());
     }
 

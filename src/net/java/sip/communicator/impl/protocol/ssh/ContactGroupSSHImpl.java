@@ -36,12 +36,12 @@ public class ContactGroupSSHImpl
     /**
      * The list of this group's members.
      */
-    private Vector contacts = new Vector();
+    private Vector<Contact> contacts = new Vector<Contact>();
 
     /**
      * The list of sub groups belonging to this group.
      */
-    private Vector subGroups = new Vector();
+    private Vector<ContactGroup> subGroups = new Vector<ContactGroup>();
 
     /**
      * The group that this group belongs to (or null if this is the root group).
@@ -119,7 +119,7 @@ public class ContactGroupSSHImpl
      * @return a java.util.Iterator over all contacts inside this
      *   <tt>ContactGroup</tt>
      */
-    public Iterator contacts()
+    public Iterator<Contact> contacts()
     {
         return contacts.iterator();
     }
@@ -211,7 +211,7 @@ public class ContactGroupSSHImpl
         if ( subGroups.contains(sshGroup) )
             return this;
 
-        Iterator subGroupsIter = subgroups();
+        Iterator<ContactGroup> subGroupsIter = subgroups();
         while (subGroupsIter.hasNext())
         {
             ContactGroupSSHImpl subgroup
@@ -240,7 +240,7 @@ public class ContactGroupSSHImpl
         if ( contacts.contains(sshContact) )
             return this;
 
-        Iterator subGroupsIter = subgroups();
+        Iterator<ContactGroup> subGroupsIter = subgroups();
         while (subGroupsIter.hasNext())
         {
             ContactGroupSSHImpl subgroup
@@ -266,7 +266,7 @@ public class ContactGroupSSHImpl
      */
     public Contact getContact(String id)
     {
-        Iterator contactsIter = contacts();
+        Iterator<Contact> contactsIter = contacts();
         while (contactsIter.hasNext())
         {
             ContactSSHImpl contact = (ContactSSHImpl) contactsIter.next();
@@ -285,7 +285,7 @@ public class ContactGroupSSHImpl
      */
     public ContactGroup getGroup(int index)
     {
-        return (ContactGroup)subGroups.get(index);
+        return subGroups.get(index);
     }
 
     /**
@@ -296,7 +296,7 @@ public class ContactGroupSSHImpl
      */
     public ContactGroup getGroup(String groupName)
     {
-        Iterator groupsIter = subgroups();
+        Iterator<ContactGroup> groupsIter = subgroups();
         while (groupsIter.hasNext())
         {
             ContactGroupSSHImpl contactGroup
@@ -335,7 +335,7 @@ public class ContactGroupSSHImpl
      * @return a java.util.Iterator over the <tt>ContactGroup</tt> children
      *   of this group (i.e. subgroups).
      */
-    public Iterator subgroups()
+    public Iterator<ContactGroup> subgroups()
     {
         return subGroups.iterator();
     }

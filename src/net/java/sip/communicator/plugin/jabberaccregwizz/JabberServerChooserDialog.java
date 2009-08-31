@@ -67,7 +67,7 @@ public class JabberServerChooserDialog
     private JButton cancelButton = new JButton(Resources
         .getString("cancelLabel"));
 
-    private Vector servers = new Vector();
+    private Vector<String> servers = new Vector<String>();
     
     private FileAccessService faService = null;
 

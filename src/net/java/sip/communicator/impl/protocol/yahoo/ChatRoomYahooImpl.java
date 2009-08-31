@@ -84,8 +84,8 @@ public class ChatRoomYahooImpl implements ChatRoom
    /**
     * The list of members of this chat room.
     */
-   private Hashtable<String, ChatRoomMemberYahooImpl> members 
-       = new Hashtable<String, ChatRoomMemberYahooImpl>();
+   private Hashtable<String, ChatRoomMember> members 
+       = new Hashtable<String, ChatRoomMember>();
 
    /**
     * The list of members of this chat room.
@@ -302,9 +302,9 @@ public class ChatRoomYahooImpl implements ChatRoom
     * @return a <tt>List</tt> of <tt>Member</tt> corresponding to all room
     *         members.
     */
-   public List getMembers()
+   public List<ChatRoomMember> getMembers()
    {
-       return new LinkedList(members.values());
+       return new LinkedList<ChatRoomMember>(members.values());
    }
 
    /**
@@ -652,16 +652,15 @@ public class ChatRoomYahooImpl implements ChatRoom
        {
            provider.getYahooSession().leaveConference(yahooConference);
            
-           Iterator< Map.Entry<String, ChatRoomMemberYahooImpl>> membersSet 
+           Iterator< Map.Entry<String, ChatRoomMember>> membersSet 
                = members.entrySet().iterator();
 
            while (membersSet.hasNext())
            {
-               Map.Entry<String, ChatRoomMemberYahooImpl> memberEntry 
-                   = (Map.Entry<String, ChatRoomMemberYahooImpl>) membersSet
-                       .next();
+               Map.Entry<String, ChatRoomMember> memberEntry 
+                   = membersSet.next();
 
-               ChatRoomMember member = (ChatRoomMember) memberEntry.getValue();
+               ChatRoomMember member = memberEntry.getValue();
 
                fireMemberPresenceEvent(member,
                        ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT,
@@ -785,7 +784,7 @@ public class ChatRoomYahooImpl implements ChatRoom
     */
    public ChatRoomMemberYahooImpl getChatRoomMember(String userAddress)
    {
-       Iterator<ChatRoomMemberYahooImpl> it = members.values().iterator();
+       Iterator<ChatRoomMember> it = members.values().iterator();
 
        while (it.hasNext())
        {
@@ -818,8 +817,7 @@ public class ChatRoomYahooImpl implements ChatRoom
 
        while (listeners.hasNext())
        {
-           ChatRoomMessageListener listener
-               = (ChatRoomMessageListener) listeners.next();
+           ChatRoomMessageListener listener = listeners.next();
 
            if (evt instanceof ChatRoomMessageDeliveredEvent)
            {
@@ -864,8 +862,7 @@ public class ChatRoomYahooImpl implements ChatRoom
 
        while (listeners.hasNext())
        {
-           ChatRoomMemberPresenceListener listener
-               = (ChatRoomMemberPresenceListener) listeners.next();
+           ChatRoomMemberPresenceListener listener = listeners.next();
 
            listener.memberPresenceChanged(evt);
        }

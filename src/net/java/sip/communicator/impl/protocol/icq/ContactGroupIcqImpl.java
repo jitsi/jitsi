@@ -474,19 +474,19 @@ public class ContactGroupIcqImpl
      * @param removedContacts contacts assumed deleted because they were in the
      * local group but were not in the serverBuddies list.
      */
-     void updateGroup(MutableGroup  joustSimGroup,
-                      List          serverBuddies,
-                      List          newContacts,
-                      List          removedContacts)
+     void updateGroup(MutableGroup joustSimGroup,
+                      List<Buddy> serverBuddies,
+                      List<Contact> newContacts,
+                      List<ContactIcqImpl> removedContacts)
     {
         setResolved(true);
         this.joustSimSourceGroup = joustSimGroup;
 
-        Iterator serverBuddiesIter = serverBuddies.iterator();
+        Iterator<Buddy> serverBuddiesIter = serverBuddies.iterator();
 
         while(serverBuddiesIter.hasNext())
         {
-            Buddy buddy = (Buddy)serverBuddiesIter.next();
+            Buddy buddy = serverBuddiesIter.next();
 
             if(buddy.isAwaitingAuthorization())
             {

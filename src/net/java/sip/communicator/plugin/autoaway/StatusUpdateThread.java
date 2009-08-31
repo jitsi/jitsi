@@ -194,7 +194,7 @@ public class StatusUpdateThread
             return 0;
         }
 
-        String t = (String) configService.getString(Preferences.TIMER);
+        String t = configService.getString(Preferences.TIMER);
         int timer = 0;
         try
         {

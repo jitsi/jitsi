@@ -50,7 +50,7 @@ public class ProtocolProviderFactoryIcqImpl
      * @return the AccountID of the newly created account
      */
     public AccountID installAccount( String userIDStr,
-                                     Map accountProperties)
+                                     Map<String, String> accountProperties)
     {
         BundleContext context = IcqActivator.getBundleContext();
         if (context == null)
@@ -94,7 +94,7 @@ public class ProtocolProviderFactoryIcqImpl
      *            properties defining the new account.
      * @return the AccountID of the newly created account
      */
-    public AccountID loadAccount(Map accountProperties)
+    public AccountID loadAccount(Map<String, String> accountProperties)
     {
         // there are two factories - one for icq accounts and one for aim ones.
         // if we are trying to load an icq account in aim factory - skip it
@@ -109,7 +109,7 @@ public class ProtocolProviderFactoryIcqImpl
         return super.loadAccount(accountProperties);
     }
 
-    protected AccountID createAccountID(String userID, Map accountProperties)
+    protected AccountID createAccountID(String userID, Map<String, String> accountProperties)
     {
         return new IcqAccountID(userID, accountProperties);
     }
@@ -126,7 +126,7 @@ public class ProtocolProviderFactoryIcqImpl
 
     @Override
     public void modifyAccount(  ProtocolProviderService protocolProvider,
-                                Map accountProperties)
+                                Map<String, String> accountProperties)
         throws NullPointerException
     {
         // Make sure the specified arguments are valid.
@@ -151,8 +151,7 @@ public class ProtocolProviderFactoryIcqImpl
         if(!registeredAccounts.containsKey(accountID))
             return;
 
-        ServiceRegistration registration
-            = (ServiceRegistration) registeredAccounts.get(accountID);
+        ServiceRegistration registration = registeredAccounts.get(accountID);
 
         // kill the service
         if (registration != null)
@@ -171,7 +170,7 @@ public class ProtocolProviderFactoryIcqImpl
         // and check for a password.
         this.storeAccount(accountID);
 
-        Hashtable properties = new Hashtable();
+        Hashtable<String, String> properties = new Hashtable<String, String>();
         properties.put(PROTOCOL, ProtocolNames.ICQ);
         properties.put(USER_ID, accountID.getUserID());
 

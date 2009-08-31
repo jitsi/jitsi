@@ -41,7 +41,7 @@ public class ProtocolProviderFactoryGibberishImpl
      * @return the AccountID of the newly created account.
      */
     public AccountID installAccount( String userIDStr,
-                                     Map accountProperties)
+                                     Map<String, String> accountProperties)
     {
         BundleContext context
             = GibberishActivator.getBundleContext();
@@ -88,7 +88,7 @@ public class ProtocolProviderFactoryGibberishImpl
      * @throws java.lang.NullPointerException if any of the arguments is null.
      */
     public void modifyAccount(  ProtocolProviderService protocolProvider,
-                                Map accountProperties)
+                                Map<String, String> accountProperties)
     {
         // Make sure the specified arguments are valid.
         if (protocolProvider == null)
@@ -113,8 +113,7 @@ public class ProtocolProviderFactoryGibberishImpl
         if(!registeredAccounts.containsKey(accountID))
             return;
 
-        ServiceRegistration registration
-            = (ServiceRegistration) registeredAccounts.get(accountID);
+        ServiceRegistration registration = registeredAccounts.get(accountID);
 
         // kill the service
         if (registration != null)
@@ -133,7 +132,7 @@ public class ProtocolProviderFactoryGibberishImpl
         // and check for a password.
         this.storeAccount(accountID);
 
-        Hashtable properties = new Hashtable();
+        Hashtable<String, String> properties = new Hashtable<String, String>();
         properties.put(PROTOCOL, ProtocolNames.GIBBERISH);
         properties.put(USER_ID, accountID.getUserID());
 
@@ -154,7 +153,7 @@ public class ProtocolProviderFactoryGibberishImpl
         registeredAccounts.put(accountID, registration);
     }
 
-    protected AccountID createAccountID(String userID, Map accountProperties)
+    protected AccountID createAccountID(String userID, Map<String, String> accountProperties)
     {
         return new GibberishAccountID(userID, accountProperties);
     }

@@ -134,8 +134,7 @@ public class ProtocolProviderFactorySipImpl
         if(!registeredAccounts.containsKey(accountID))
             return;
 
-        ServiceRegistration registration
-            = (ServiceRegistration) registeredAccounts.get(accountID);
+        ServiceRegistration registration = registeredAccounts.get(accountID);
 
         // kill the service
         if (registration != null)

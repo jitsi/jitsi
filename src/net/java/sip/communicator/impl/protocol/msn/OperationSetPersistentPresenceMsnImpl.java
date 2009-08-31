@@ -368,10 +368,10 @@ public class OperationSetPersistentPresenceMsnImpl
         // any status information about the contacts in our list)
         if(ssContactList.isInitialized())
             parentProvider.getMessenger().getOwner().
-                setStatus((MsnUserStatus)scToMsnModesMappings.get(status));
+                setStatus(scToMsnModesMappings.get(status));
         else
             parentProvider.getMessenger().getOwner().
-                setInitStatus((MsnUserStatus)scToMsnModesMappings.get(status));
+                setInitStatus(scToMsnModesMappings.get(status));
     }
 
     /**
@@ -729,7 +729,7 @@ public class OperationSetPersistentPresenceMsnImpl
         Iterator<String> iter = earlyStatusChange.keySet().iterator();
         while (iter.hasNext())
         {
-            String contactEmail = (String)iter.next();
+            String contactEmail = iter.next();
 
             ContactMsnImpl sourceContact
                 = ssContactList.findContactById(contactEmail);
@@ -743,8 +743,7 @@ public class OperationSetPersistentPresenceMsnImpl
                 = sourceContact.getPresenceStatus();
 
             PresenceStatus newStatus
-                = msnStatusToPresenceStatus((MsnUserStatus)
-                                            earlyStatusChange.get(contactEmail));
+                = msnStatusToPresenceStatus(earlyStatusChange.get(contactEmail));
 
             // when old and new status are the same do nothing
             // no change

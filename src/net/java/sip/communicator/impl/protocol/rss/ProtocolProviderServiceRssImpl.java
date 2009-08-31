@@ -108,9 +108,7 @@ public class ProtocolProviderServiceRssImpl
             //OperationSetBasicInstantMessagingRssImpl
                     basicInstantMessaging
                 = new OperationSetBasicInstantMessagingRssImpl(
-                    this
-                    , (OperationSetPersistentPresenceRssImpl)
-                            persistentPresence);
+                    this, persistentPresence);
 
             supportedOperationSets.put(
                 OperationSetBasicInstantMessaging.class.getName(),

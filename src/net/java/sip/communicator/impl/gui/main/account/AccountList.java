@@ -106,19 +106,7 @@ public class AccountList
      */
     public void providerStatusChanged(ProviderPresenceStatusChangeEvent evt)
     {
-        ProtocolProviderService protocolProvider = evt.getProvider();
-
-        Enumeration<Account> accounts
-            = (Enumeration<Account>) accountListModel.elements();
-        while (accounts.hasMoreElements())
-        {
-            Account account = accounts.nextElement();
-
-            if (account.getProtocolProvider().equals(protocolProvider))
-            {
-                accountListModel.contentChanged(account);
-            }
-        }
+        accountListModelContentChanged(evt.getProvider());
     }
 
     public void providerStatusMessageChanged(PropertyChangeEvent evt) {}
@@ -178,16 +166,14 @@ public class AccountList
         }
         else if (event.getType() == ServiceEvent.UNREGISTERING)
         {
-            Enumeration<Account> accounts
-                = (Enumeration<Account>) accountListModel.elements();
-            while (accounts.hasMoreElements())
+            Object[] accountListModelElements = accountListModel.toArray();
+
+            for (Object accountListModelElement : accountListModelElements)
             {
-                Account account = accounts.nextElement();
+                Account account = (Account) accountListModelElement;
 
                 if (account.getProtocolProvider().equals(protocolProvider))
-                {
                     accountListModel.removeElement(account);
-                }
             }
         }
     }
@@ -220,18 +206,28 @@ public class AccountList
      */
     public void registrationStateChanged(RegistrationStateChangeEvent evt)
     {
-        ProtocolProviderService protocolProvider = evt.getProvider();
+        accountListModelContentChanged(evt.getProvider());
+    }
 
-        Enumeration<Account> accounts
-            = (Enumeration<Account>) accountListModel.elements();
+    /**
+     * Notifies <code>accountListModel</code> that the <code>Account</code>s of
+     * a specific <code>ProtocolProviderService</code> have changed.
+     * 
+     * @param protocolProvider
+     *            the <code>ProtocolProviderService</code> which had its
+     *            <code>Account</code>s changed
+     */
+    private void accountListModelContentChanged(
+        ProtocolProviderService protocolProvider)
+    {
+        Enumeration<?> accounts = accountListModel.elements();
+
         while (accounts.hasMoreElements())
         {
-            Account account = accounts.nextElement();
+            Account account = (Account) accounts.nextElement();
 
             if (account.getProtocolProvider().equals(protocolProvider))
-            {
                 accountListModel.contentChanged(account);
-            }
         }
     }
 
@@ -239,7 +235,8 @@ public class AccountList
      * A custom list model that allows us to refresh the content of a single
      * row.
      */
-    private class AccountListModel extends DefaultListModel
+    private class AccountListModel
+        extends DefaultListModel
     {
         public void contentChanged(Account account)
         {

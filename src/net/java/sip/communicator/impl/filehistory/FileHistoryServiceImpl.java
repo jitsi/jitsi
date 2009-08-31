@@ -860,12 +860,12 @@ public class FileHistoryServiceImpl
      * and to be ordered in TreeSet according their timestamp
      */
     private static class FileRecordComparator
-        implements Comparator
+        implements Comparator<FileRecord>
     {
-        public int compare(Object o1, Object o2)
+        public int compare(FileRecord o1, FileRecord o2)
         {
-            long date1 = ((FileRecord)o1).getDate();
-            long date2 = ((FileRecord)o2).getDate();
+            long date1 = o1.getDate();
+            long date2 = o2.getDate();
 
             return (date1 < date2) ? -1 : ((date1 == date2) ? 0 : 1);
         }

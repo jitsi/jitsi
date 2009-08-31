@@ -79,7 +79,7 @@ public class RssActivator
     {
         this.bundleContext = context;
 
-        Hashtable hashtable = new Hashtable();
+        Hashtable<String, String> hashtable = new Hashtable<String, String>();
         hashtable.put(ProtocolProviderFactory.PROTOCOL, "RSS");
 
         rssProviderFactory = new ProtocolProviderFactoryRssImpl();

@@ -281,7 +281,8 @@ public class WhiteboardParticipantJabberImpl
      * All the WhiteboardParticipant listeners registered with this
      * WhiteboardParticipant.
      */
-    protected ArrayList whiteboardParticipantListeners = new ArrayList();
+    protected final List<WhiteboardParticipantListener> whiteboardParticipantListeners
+        = new ArrayList<WhiteboardParticipantListener>();
 
     /**
      * Allows the user interface to register a listener interested in changes
@@ -356,18 +357,16 @@ public class WhiteboardParticipantJabberImpl
             + whiteboardParticipantListeners.size() + " listeners. event is: "
             + evt.toString());
 
-        Iterator listeners = null;
+        Iterable<WhiteboardParticipantListener> listeners;
         synchronized (whiteboardParticipantListeners)
         {
-            listeners =
-                new ArrayList(whiteboardParticipantListeners).iterator();
+            listeners
+                = new ArrayList<WhiteboardParticipantListener>(
+                        whiteboardParticipantListeners);
         }
 
-        while (listeners.hasNext())
+        for (WhiteboardParticipantListener listener : listeners)
         {
-            WhiteboardParticipantListener listener =
-                (WhiteboardParticipantListener) listeners.next();
-
             if (eventType
                 .equals(WhiteboardParticipantChangeEvent.WHITEBOARD_PARTICIPANT_DISPLAY_NAME_CHANGE))
             {

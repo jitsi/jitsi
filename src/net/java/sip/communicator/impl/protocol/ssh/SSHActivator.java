@@ -65,7 +65,7 @@ public class SSHActivator
     {
         this.bundleContext = context;
         
-        Hashtable hashtable = new Hashtable();
+        Hashtable<String, String> hashtable = new Hashtable<String, String>();
         hashtable.put(ProtocolProviderFactory.PROTOCOL, "SSH");
 
         sshProviderFactory = new ProtocolProviderFactorySSHImpl();

@@ -68,17 +68,24 @@ public class XMLConfigurationStore
      * Returns a copy of the Map containing all configuration properties
      * @return a Map clone of the current configuration property set.
      */
+    @SuppressWarnings("unchecked")
     private Map<String, Object> cloneProperties()
     {
         // at the time I'm writing this method we're implementing the
         // configuration service through the use of a hashtable. this may very
         // well change one day so let's not be presumptuous
         if (properties instanceof Hashtable)
-            return (Map<String, Object>) ((Hashtable) properties).clone();
+            return
+                (Map<String, Object>)
+                    ((Hashtable<String, Object>) properties).clone();
         if (properties instanceof HashMap)
-            return (Map<String, Object>) ((HashMap) properties).clone();
+            return
+                (Map<String, Object>)
+                    ((HashMap<String, Object>) properties).clone();
         if (properties instanceof TreeMap)
-            return (Map<String, Object>) ((TreeMap) properties).clone();
+            return
+                (Map<String, Object>)
+                    ((TreeMap<String, Object>) properties).clone();
 
         // well you can't say that I didn't try!!!
 

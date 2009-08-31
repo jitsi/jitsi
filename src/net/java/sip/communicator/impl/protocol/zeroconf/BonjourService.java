@@ -27,11 +27,11 @@ public class BonjourService extends Thread
         Logger.getLogger(BonjourService.class);
 
     private int port = 5298;
-    private ServerSocket sock=null;
-    private String id;
+    private ServerSocket sock = null;
+    private String id = null;
     private JmDNS jmdns=null;
-    private Hashtable props;
-    private ServiceInfo service;
+    private final Map<String, Object> props = new Hashtable<String, Object>();
+    private ServiceInfo service = null;
     private boolean dead = false;
 
     private final List<ContactZeroconfImpl> contacts
@@ -80,8 +80,6 @@ public class BonjourService extends Thread
         opSetPersPresence =
             (OperationSetPersistentPresenceZeroconfImpl) pps
                 .getOperationSet(OperationSetPersistentPresence.class);
-
-        props = new Hashtable();
 
         // Gaim
         props.put("1st", acc.getFirst());
@@ -456,10 +454,10 @@ public class BonjourService extends Thread
             logger.debug("            Address=>"+info.getAddress()
                           +":"+info.getPort());
 
-            for (Enumeration names = info.getPropertyNames() ;
-                names.hasMoreElements() ; )
+            for (Iterator<String> names = info.getPropertyNames();
+                    names.hasNext();)
             {
-                String prop = (String)names.nextElement();
+                String prop = names.next();
                 logger.debug("            "+prop+"=>"
                               +info.getPropertyString(prop));
             }

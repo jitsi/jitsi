@@ -41,10 +41,10 @@ public class IcqActivator
     {
         IcqActivator.bundleContext = context;
 
-        Hashtable icqHashtable = new Hashtable();
+        Hashtable<String, String> icqHashtable = new Hashtable<String, String>();
         icqHashtable.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.ICQ);
         
-        Hashtable aimHashtable = new Hashtable();
+        Hashtable<String, String> aimHashtable = new Hashtable<String, String>();
         aimHashtable.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.AIM);
 
         icqProviderFactory = new ProtocolProviderFactoryIcqImpl(false);

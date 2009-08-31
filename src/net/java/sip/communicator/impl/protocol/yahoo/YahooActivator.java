@@ -43,7 +43,7 @@ public class YahooActivator
     public void start(BundleContext context) throws Exception
     {
         this.bundleContext = context;
-        Hashtable hashtable = new Hashtable();
+        Hashtable<String, String> hashtable = new Hashtable<String, String>();
         hashtable.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.YAHOO);
 
         yahooProviderFactory = new ProtocolProviderFactoryYahooImpl();

@@ -218,19 +218,14 @@ public class OperationSetSmsMessagingFacebookImpl
         MessageDeliveredEvent evt =
             new MessageDeliveredEvent(message, to);
 
-        Iterator<MessageListener> listeners = null;
+        Iterable<MessageListener> listeners;
         synchronized (messageListeners)
         {
-            listeners
-                = new ArrayList<MessageListener>(messageListeners).iterator();
+            listeners = new ArrayList<MessageListener>(messageListeners);
         }
 
-        while (listeners.hasNext())
-        {
-            MessageListener listener = (MessageListener) listeners.next();
-
+        for (MessageListener listener : listeners)
             listener.messageDelivered(evt);
-        }
     }
 
     /**
@@ -244,18 +239,13 @@ public class OperationSetSmsMessagingFacebookImpl
     private void fireMessageDeliveryFailed(Message message, Contact to,
         MessageDeliveryFailedEvent event)
     {
-        Iterator<MessageListener> listeners = null;
+        Iterable<MessageListener> listeners;
         synchronized (messageListeners)
         {
-            listeners
-                = new ArrayList<MessageListener>(messageListeners).iterator();
+            listeners = new ArrayList<MessageListener>(messageListeners);
         }
 
-        while (listeners.hasNext())
-        {
-            MessageListener listener = (MessageListener) listeners.next();
-
+        for (MessageListener listener : listeners)
             listener.messageDeliveryFailed(event);
-        }
     }
 }

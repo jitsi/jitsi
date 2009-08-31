@@ -80,7 +80,7 @@ public class ImageRetriever extends Thread
                                 .iterator();
                 while (iter.hasNext())
                 {
-                    ContactRssImpl contact = (ContactRssImpl) iter.next();
+                    ContactRssImpl contact = iter.next();
 
                     byte[] imgBytes = getAvatar(contact);
 

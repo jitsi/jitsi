@@ -32,12 +32,12 @@ public class ContactGroupGibberishImpl
     /**
      * The list of this group's members.
      */
-    private Vector contacts = new Vector();
+    private final List<Contact> contacts = new Vector<Contact>();
 
     /**
      * The list of sub groups belonging to this group.
      */
-    private Vector subGroups = new Vector();
+    private final List<ContactGroup> subGroups = new Vector<ContactGroup>();
 
     /**
      * The group that this group belongs to (or null if this is the root group).
@@ -115,9 +115,9 @@ public class ContactGroupGibberishImpl
      * @return a java.util.Iterator over all contacts inside this
      *   <tt>ContactGroup</tt>
      */
-    public Iterator contacts()
+    public Iterator<Contact> contacts()
     {
-        return contacts.iterator();
+        return this.contacts.iterator();
     }
 
     /**
@@ -206,7 +206,7 @@ public class ContactGroupGibberishImpl
         if ( subGroups.contains(gibberishGroup) )
             return this;
 
-        Iterator subGroupsIter = subgroups();
+        Iterator<ContactGroup> subGroupsIter = subgroups();
         while (subGroupsIter.hasNext())
         {
             ContactGroupGibberishImpl subgroup
@@ -235,7 +235,7 @@ public class ContactGroupGibberishImpl
         if ( contacts.contains(gibberishContact) )
             return this;
 
-        Iterator subGroupsIter = subgroups();
+        Iterator<ContactGroup> subGroupsIter = subgroups();
         while (subGroupsIter.hasNext())
         {
             ContactGroupGibberishImpl subgroup
@@ -255,16 +255,16 @@ public class ContactGroupGibberishImpl
     /**
      * Returns the <tt>Contact</tt> with the specified address or identifier.
      *
-     * @param id the addres or identifier of the <tt>Contact</tt> we are
+     * @param id the address or identifier of the <tt>Contact</tt> we are
      *   looking for.
      * @return the <tt>Contact</tt> with the specified id or address.
      */
     public Contact getContact(String id)
     {
-        Iterator contactsIter = contacts();
+        Iterator<Contact> contactsIter = contacts();
         while (contactsIter.hasNext())
         {
-            ContactGibberishImpl contact = (ContactGibberishImpl) contactsIter.next();
+            Contact contact = contactsIter.next();
             if (contact.getAddress().equals(id))
                 return contact;
 
@@ -280,7 +280,7 @@ public class ContactGroupGibberishImpl
      */
     public ContactGroup getGroup(int index)
     {
-        return (ContactGroup)subGroups.get(index);
+        return subGroups.get(index);
     }
 
     /**
@@ -291,11 +291,10 @@ public class ContactGroupGibberishImpl
      */
     public ContactGroup getGroup(String groupName)
     {
-        Iterator groupsIter = subgroups();
+        Iterator<ContactGroup> groupsIter = subgroups();
         while (groupsIter.hasNext())
         {
-            ContactGroupGibberishImpl contactGroup
-                = (ContactGroupGibberishImpl) groupsIter.next();
+            ContactGroup contactGroup = groupsIter.next();
             if (contactGroup.getGroupName().equals(groupName))
                 return contactGroup;
 
@@ -330,7 +329,7 @@ public class ContactGroupGibberishImpl
      * @return a java.util.Iterator over the <tt>ContactGroup</tt> children
      *   of this group (i.e. subgroups).
      */
-    public Iterator subgroups()
+    public Iterator<ContactGroup> subgroups()
     {
         return subGroups.iterator();
     }
@@ -353,23 +352,24 @@ public class ContactGroupGibberishImpl
     public ContactGibberishImpl findContactByID(String id)
     {
         //first go through the contacts that are direct children.
-        Iterator contactsIter = contacts();
+        Iterator<Contact> contactsIter = contacts();
 
         while(contactsIter.hasNext())
         {
-            ContactGibberishImpl mContact = (ContactGibberishImpl)contactsIter.next();
+            ContactGibberishImpl mContact
+                = (ContactGibberishImpl) contactsIter.next();
 
             if( mContact.getAddress().equals(id) )
                 return mContact;
         }
 
         //if we didn't find it here, let's try in the subougroups
-        Iterator groupsIter = subgroups();
+        Iterator<ContactGroup> groupsIter = subgroups();
 
         while( groupsIter.hasNext() )
         {
-            ContactGroupGibberishImpl mGroup = (ContactGroupGibberishImpl)groupsIter.next();
-
+            ContactGroupGibberishImpl mGroup
+                = (ContactGroupGibberishImpl)groupsIter.next();
             ContactGibberishImpl mContact = mGroup.findContactByID(id);
 
             if (mContact != null)
@@ -391,10 +391,10 @@ public class ContactGroupGibberishImpl
         StringBuffer buff = new StringBuffer(getGroupName());
         buff.append(".subGroups=" + countSubgroups() + ":\n");
 
-        Iterator subGroups = subgroups();
+        Iterator<ContactGroup> subGroups = subgroups();
         while (subGroups.hasNext())
         {
-            ContactGroupGibberishImpl group = (ContactGroupGibberishImpl)subGroups.next();
+            ContactGroup group = subGroups.next();
             buff.append(group.toString());
             if (subGroups.hasNext())
                 buff.append("\n");
@@ -402,10 +402,10 @@ public class ContactGroupGibberishImpl
 
         buff.append("\nChildContacts="+countContacts()+":[");
 
-        Iterator contacts = contacts();
+        Iterator<Contact> contacts = contacts();
         while (contacts.hasNext())
         {
-            ContactGibberishImpl contact = (ContactGibberishImpl) contacts.next();
+            Contact contact = contacts.next();
             buff.append(contact.toString());
             if(contacts.hasNext())
                 buff.append(", ");
@@ -537,15 +537,12 @@ public class ContactGroupGibberishImpl
             return false;
 
         //traverse child contacts
-        Iterator theirContacts = gibberishGroup.contacts();
+        Iterator<Contact> theirContacts = gibberishGroup.contacts();
 
         while(theirContacts.hasNext())
         {
-            ContactGibberishImpl theirContact
-                = (ContactGibberishImpl)theirContacts.next();
-
-            ContactGibberishImpl ourContact
-                = (ContactGibberishImpl)getContact(theirContact.getAddress());
+            Contact theirContact = theirContacts.next();
+            Contact ourContact = getContact(theirContact.getAddress());
 
             if(ourContact == null
                 || !ourContact.equals(theirContact))
@@ -553,16 +550,12 @@ public class ContactGroupGibberishImpl
         }
 
         //traverse subgroups
-        Iterator theirSubgroups = gibberishGroup.subgroups();
+        Iterator<ContactGroup> theirSubgroups = gibberishGroup.subgroups();
 
         while(theirSubgroups.hasNext())
         {
-            ContactGroupGibberishImpl theirSubgroup
-                = (ContactGroupGibberishImpl)theirSubgroups.next();
-
-            ContactGroupGibberishImpl ourSubgroup
-                = (ContactGroupGibberishImpl)getGroup(
-                        theirSubgroup.getGroupName());
+            ContactGroup theirSubgroup = theirSubgroups.next();
+            ContactGroup ourSubgroup = getGroup(theirSubgroup.getGroupName());
 
             if(ourSubgroup == null
                 || !ourSubgroup.equals(theirSubgroup))
@@ -572,4 +565,3 @@ public class ContactGroupGibberishImpl
         return true;
     }
 }
-

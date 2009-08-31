@@ -46,7 +46,7 @@ public class ServiceInfo implements DNSListener
     int weight;
     int priority;
     byte text[];
-    Hashtable props;
+    private Map<String, Object> props;
     InetAddress addr;
     
     
@@ -107,7 +107,7 @@ public class ServiceInfo implements DNSListener
      */
     public ServiceInfo(String type, String name, 
                        int port, int weight, 
-                       int priority, Hashtable props)
+                       int priority, Map<String, Object> props)
     {
         this(type, name, port, weight, priority, new byte[0]);
         if (props != null)
@@ -115,10 +115,10 @@ public class ServiceInfo implements DNSListener
             try
             {
                 ByteArrayOutputStream out = new ByteArrayOutputStream(256);
-                for (Enumeration e = props.keys(); e.hasMoreElements();)
+                for (Map.Entry<String, Object> prop : props.entrySet())
                 {
-                    String key = (String) e.nextElement();
-                    Object val = props.get(key);
+                    String key = prop.getKey();
+                    Object val = prop.getValue();
                     ByteArrayOutputStream out2 = new ByteArrayOutputStream(100);
                     writeUTF(out2, key);
                     if (val instanceof String)
@@ -413,13 +413,15 @@ public class ServiceInfo implements DNSListener
     }
     
     /**
-     * Enumeration of the property names.
-     * @return Enumeration of the property names.
+     * Iterator<String> of the property names.
+     * @return Iterator<String> of the property names.
      */
-    public Enumeration getPropertyNames()
+    public Iterator<String> getPropertyNames()
     {
-        Hashtable props = getProperties();
-        return (props != null) ? props.keys() : new Vector().elements();
+        Map<String, Object> properties = getProperties();
+        Iterable<String> propertyNames
+            = (properties != null) ? properties.keySet() : new Vector<String>();
+        return propertyNames.iterator();
     }
     
     /**
@@ -505,11 +507,11 @@ public class ServiceInfo implements DNSListener
         return buf.toString();
     }
     
-    synchronized Hashtable getProperties()
+    synchronized Map<String, Object> getProperties()
     {
         if ((props == null) && (text != null))
         {
-            Hashtable props = new Hashtable();
+            Map<String, Object> props = new Hashtable<String, Object>();
             int off = 0;
             while (off < text.length)
             {
@@ -715,17 +717,17 @@ public class ServiceInfo implements DNSListener
      * (for example in case of a status change).
      * @param props Hashtable containing all the new properties to set
      */
-    public void setProps(Hashtable props)
+    public void setProps(Map<String, Object> props)
     {
         if (props != null)
         {
             try
             {
                 ByteArrayOutputStream out = new ByteArrayOutputStream(256);
-                for (Enumeration e = props.keys(); e.hasMoreElements();)
+                for (Map.Entry<String, Object> prop : props.entrySet())
                 {
-                    String key = (String) e.nextElement();
-                    Object val = props.get(key);
+                    String key = prop.getKey();
+                    Object val = prop.getValue();
                    
                     ByteArrayOutputStream out2 = new ByteArrayOutputStream(100);
                     writeUTF(out2, key);

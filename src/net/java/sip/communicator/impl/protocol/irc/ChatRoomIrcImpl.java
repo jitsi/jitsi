@@ -612,7 +612,7 @@ public class ChatRoomIrcImpl
      */
     protected ChatRoomMember getChatRoomMember(String memberID)
     {
-        return (ChatRoomMember) chatRoomMembers.get(memberID);
+        return chatRoomMembers.get(memberID);
     }
 
     /**
@@ -806,20 +806,15 @@ public class ChatRoomIrcImpl
                                                 msg,
                                                 eventType);
 
-        Iterator<ChatRoomMessageListener> listeners = null;
+        Iterable<ChatRoomMessageListener> listeners;
         synchronized (messageListeners)
         {
-            listeners = new ArrayList<ChatRoomMessageListener>(messageListeners)
-                .iterator();
+            listeners
+                = new ArrayList<ChatRoomMessageListener>(messageListeners);
         }
     
-        while (listeners.hasNext())
-        {
-            ChatRoomMessageListener listener
-                = (ChatRoomMessageListener) listeners.next();
-    
+        for (ChatRoomMessageListener listener : listeners)
             listener.messageDelivered(msgDeliveredEvt);
-        }
     }
     
     /**
@@ -846,20 +841,15 @@ public class ChatRoomIrcImpl
                                                 message,
                                                 eventType);
 
-        Iterator<ChatRoomMessageListener> listeners = null;
+        Iterable<ChatRoomMessageListener> listeners;
         synchronized (messageListeners)
         {
-            listeners = new ArrayList<ChatRoomMessageListener>(
-                            messageListeners).iterator();
+            listeners
+                = new ArrayList<ChatRoomMessageListener>(messageListeners);
         }
 
-        while (listeners.hasNext())
-        {
-            ChatRoomMessageListener listener
-                = (ChatRoomMessageListener) listeners.next();
-
+        for (ChatRoomMessageListener listener : listeners)
             listener.messageReceived(event);
-        }
     }
     
     /**
@@ -870,18 +860,16 @@ public class ChatRoomIrcImpl
      */
     public void firePropertyChangeEvent(PropertyChangeEvent evt)
     {
-        Iterator<ChatRoomPropertyChangeListener> listeners = null;
+        Iterable<ChatRoomPropertyChangeListener> listeners;
         synchronized (propertyChangeListeners)
         {
-            listeners = new ArrayList<ChatRoomPropertyChangeListener>(
-                                propertyChangeListeners).iterator();
+            listeners
+                = new ArrayList<ChatRoomPropertyChangeListener>(
+                        propertyChangeListeners);
         }
 
-        while (listeners.hasNext())
+        for (ChatRoomPropertyChangeListener listener : listeners)
         {
-            ChatRoomPropertyChangeListener listener
-                = (ChatRoomPropertyChangeListener) listeners.next();
-
             if (evt instanceof ChatRoomPropertyChangeEvent)
             {
                 listener.chatRoomPropertyChanged(
@@ -904,20 +892,16 @@ public class ChatRoomIrcImpl
     public void fireMemberPropertyChangeEvent(
         ChatRoomMemberPropertyChangeEvent evt)
     {
-        Iterator<ChatRoomMemberPropertyChangeListener> listeners = null;
+        Iterable<ChatRoomMemberPropertyChangeListener> listeners;
         synchronized (memberPropChangeListeners)
         {
-            listeners = new ArrayList<ChatRoomMemberPropertyChangeListener>(
-                            memberPropChangeListeners).iterator();
+            listeners
+                = new ArrayList<ChatRoomMemberPropertyChangeListener>(
+                        memberPropChangeListeners);
         }
 
-        while (listeners.hasNext())
-        {
-            ChatRoomMemberPropertyChangeListener listener
-                = (ChatRoomMemberPropertyChangeListener) listeners.next();
-
+        for (ChatRoomMemberPropertyChangeListener listener : listeners)
             listener.chatRoomPropertyChanged(evt);
-        }
     }
 
     /**
@@ -946,11 +930,12 @@ public class ChatRoomIrcImpl
 
         logger.trace("Will dispatch the following ChatRoom event: " + evt);
 
-        List<ChatRoomMemberPresenceListener> listeners;
+        Iterable<ChatRoomMemberPresenceListener> listeners;
         synchronized (memberListeners)
         {
-            listeners = new ArrayList<ChatRoomMemberPresenceListener>(
-                            memberListeners);
+            listeners
+                = new ArrayList<ChatRoomMemberPresenceListener>(
+                        memberListeners);
         }
         for (ChatRoomMemberPresenceListener listener : listeners)
             listener.memberPresenceChanged(evt);
@@ -977,20 +962,16 @@ public class ChatRoomIrcImpl
         
         logger.trace("Will dispatch the following ChatRoom event: " + evt);
     
-        Iterator<ChatRoomMemberRoleListener> listeners = null;
+        Iterable<ChatRoomMemberRoleListener> listeners;
         synchronized (memberRoleListeners)
         {
-            listeners = new ArrayList<ChatRoomMemberRoleListener>(
-                            memberRoleListeners).iterator();
+            listeners
+                = new ArrayList<ChatRoomMemberRoleListener>(
+                        memberRoleListeners);
         }
     
-        while (listeners.hasNext())
-        {
-            ChatRoomMemberRoleListener listener
-                = (ChatRoomMemberRoleListener) listeners.next();
-    
+        for (ChatRoomMemberRoleListener listener : listeners)
             listener.memberRoleChanged(evt);
-        }
     }
 
     /**

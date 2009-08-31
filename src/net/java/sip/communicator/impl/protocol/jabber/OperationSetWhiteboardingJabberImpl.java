@@ -40,21 +40,21 @@ public class OperationSetWhiteboardingJabberImpl
     /**
      * A list of listeners subscribed for invitations multi user chat events.
      */
-    private Vector invitationListeners = new Vector();
+    private Vector<WhiteboardInvitationListener> invitationListeners = new Vector<WhiteboardInvitationListener>();
 
     /**
      * A list of listeners subscribed for events indicating rejection of a
      * multi user chat invitation sent by us.
      */
-    private Vector invitationRejectionListeners = new Vector();
+    private Vector<WhiteboardInvitationRejectionListener> invitationRejectionListeners = new Vector<WhiteboardInvitationRejectionListener>();
 
     /**
      * Listeners that will be notified of changes in our status in the
      * room such as us being kicked, banned, or granted admin permissions.
      */
-    private Vector presenceListeners = new Vector();
+    private Vector<WhiteboardSessionPresenceListener> presenceListeners = new Vector<WhiteboardSessionPresenceListener>();
 
-    private Vector whiteboardSessions = new Vector();
+    private Vector<WhiteboardSession> whiteboardSessions = new Vector<WhiteboardSession>();
 
     private OperationSetPersistentPresenceJabberImpl presenceOpSet;
 
@@ -233,19 +233,18 @@ public class OperationSetWhiteboardingJabberImpl
      * @return a <tt>List</tt> of the white-board sessions where the user has
      * joined using a given connection.
      */
-    public List getCurrentlyJoinedWhiteboards()
+    public List<WhiteboardSession> getCurrentlyJoinedWhiteboards()
     {
         synchronized(whiteboardSessions)
         {
-            List joinedWhiteboards
-                = new LinkedList(whiteboardSessions);
-
-            Iterator joinedWhiteboardsIter = whiteboardSessions.iterator();
+            List<WhiteboardSession> joinedWhiteboards
+                = new LinkedList<WhiteboardSession>(whiteboardSessions);
+            Iterator<WhiteboardSession> joinedWhiteboardsIter
+                = whiteboardSessions.iterator();
 
             while (joinedWhiteboardsIter.hasNext())
             {
-                if (!((WhiteboardSession) joinedWhiteboardsIter.next())
-                        .isJoined())
+                if (!joinedWhiteboardsIter.next().isJoined())
                     joinedWhiteboardsIter.remove();
             }
 
@@ -447,19 +446,16 @@ public class OperationSetWhiteboardingJabberImpl
             + invitationListeners.size() + " listeners. event is: "
             + evt.toString());
 
-        Iterator listeners = null;
+        Iterable<WhiteboardInvitationListener> listeners;
         synchronized (invitationListeners)
         {
-            listeners = new ArrayList(invitationListeners).iterator();
+            listeners
+                = new ArrayList<WhiteboardInvitationListener>(
+                        invitationListeners);
         }
 
-        while (listeners.hasNext())
-        {
-            WhiteboardInvitationListener listener
-                = (WhiteboardInvitationListener) listeners.next();
-
+        for (WhiteboardInvitationListener listener : listeners)
             listener.invitationReceived(evt);
-        }
     }
 
     /**
@@ -482,18 +478,15 @@ public class OperationSetWhiteboardingJabberImpl
                                                         eventType,
                                                         reason);
 
-        Iterator listeners = null;
+        Iterable<WhiteboardSessionPresenceListener> listeners;
         synchronized (presenceListeners)
         {
-            listeners = new ArrayList(presenceListeners).iterator();
+            listeners
+                = new ArrayList<WhiteboardSessionPresenceListener>(
+                        presenceListeners);
         }
 
-        while (listeners.hasNext())
-        {
-            WhiteboardSessionPresenceListener listener
-                = (WhiteboardSessionPresenceListener) listeners.next();
-
+        for (WhiteboardSessionPresenceListener listener : listeners)
             listener.whiteboardSessionPresenceChanged(evt);
-        }
     }
 }

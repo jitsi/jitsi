@@ -177,7 +177,7 @@ public class GrowlNotificationServiceImpl
      */
     public void growlNotificationTimedOut(Object context)
     {
-        PopupMessage m = (PopupMessage)shownPopups.get(context);
+        PopupMessage m = shownPopups.get(context);
         if (m != null) {
             synchronized(shownPopups) {
                 shownPopups.remove(context);
@@ -194,7 +194,7 @@ public class GrowlNotificationServiceImpl
      */
     public void growlNotificationWasClicked(Object context)
     {
-        PopupMessage m = (PopupMessage)shownPopups.get(context);
+        PopupMessage m = shownPopups.get(context);
         if (m != null) {
             synchronized(shownPopups) {
                 shownPopups.remove(context);

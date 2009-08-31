@@ -41,7 +41,7 @@ public class ProtocolProviderFactoryMsnImpl
      * @return the AccountID of the newly created account
      */
     public AccountID installAccount( String userIDStr,
-                                     Map accountProperties)
+                                     Map<String, String> accountProperties)
     {
         BundleContext context
             = MsnActivator.getBundleContext();
@@ -74,7 +74,7 @@ public class ProtocolProviderFactoryMsnImpl
         return accountID;
     }
 
-    protected AccountID createAccountID(String userID, Map accountProperties)
+    protected AccountID createAccountID(String userID, Map<String, String> accountProperties)
     {
         return new MsnAccountID(userID, accountProperties);
     }
@@ -91,7 +91,7 @@ public class ProtocolProviderFactoryMsnImpl
 
     @Override
     public void modifyAccount(  ProtocolProviderService protocolProvider,
-                                Map accountProperties)
+                                Map<String, String> accountProperties)
         throws NullPointerException
     {
         BundleContext context
@@ -112,8 +112,7 @@ public class ProtocolProviderFactoryMsnImpl
         if(!registeredAccounts.containsKey(accountID))
             return;
 
-        ServiceRegistration registration
-            = (ServiceRegistration) registeredAccounts.get(accountID);
+        ServiceRegistration registration = registeredAccounts.get(accountID);
 
         // kill the service
         if (registration != null)
@@ -136,7 +135,7 @@ public class ProtocolProviderFactoryMsnImpl
         // and check for a password.
         this.storeAccount(accountID);
 
-        Hashtable properties = new Hashtable();
+        Hashtable<String, String> properties = new Hashtable<String, String>();
         properties.put(PROTOCOL, ProtocolNames.MSN);
         properties.put(USER_ID, accountID.getUserID());
 

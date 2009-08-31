@@ -5,7 +5,6 @@ package net.java.sip.communicator.impl.protocol.zeroconf.jmdns;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
 import java.util.logging.*;
 
 /**
@@ -97,7 +96,7 @@ public abstract class DNSRecord extends DNSEntry
         {
             for (int i = msg.numAnswers; i-- > 0;)
             {
-                if (suppressedBy((DNSRecord) msg.answers.get(i)))
+                if (suppressedBy(msg.answers.get(i)))
                 {
                     return true;
                 }
@@ -355,12 +354,8 @@ public abstract class DNSRecord extends DNSEntry
                         // We lost the tie-break. We have to choose a different name.
                         dns.getLocalHost().incrementHostName();
                         dns.getCache().clear();
-                        for (Iterator i = dns.services.values().iterator(); 
-                            i.hasNext();)
-                        {
-                            ServiceInfo info = (ServiceInfo) i.next();
+                        for (ServiceInfo info : dns.services.values())
                             info.revertState();
-                        }
                     }
                     dns.revertState();
                     return true;
@@ -388,12 +383,8 @@ public abstract class DNSRecord extends DNSEntry
                     {
                         dns.getLocalHost().incrementHostName();
                         dns.getCache().clear();
-                        for (Iterator i = dns.services.values().iterator(); 
-                            i.hasNext();)
-                        {
-                            ServiceInfo info = (ServiceInfo) i.next();
+                        for (ServiceInfo info : dns.services.values())
                             info.revertState();
-                        }
                     }
                     dns.revertState();
                     return true;
@@ -663,7 +654,7 @@ public abstract class DNSRecord extends DNSEntry
 
         boolean handleQuery(JmDNS dns, long expirationTime)
         {
-            ServiceInfo info = (ServiceInfo) dns.services.get(name.toLowerCase());
+            ServiceInfo info = dns.services.get(name.toLowerCase());
             if (info != null && 
                 (port != info.port || 
                 !server.equalsIgnoreCase(dns.getLocalHost().getName())))
@@ -700,7 +691,7 @@ public abstract class DNSRecord extends DNSEntry
 
         boolean handleResponse(JmDNS dns)
         {
-            ServiceInfo info = (ServiceInfo) dns.services.get(name.toLowerCase());
+            ServiceInfo info = dns.services.get(name.toLowerCase());
             if (info != null && 
                 (port != info.port || !server.equalsIgnoreCase(dns.getLocalHost().getName())))
             {
@@ -729,7 +720,7 @@ public abstract class DNSRecord extends DNSEntry
                               DNSOutgoing out) 
             throws IOException
         {
-            ServiceInfo info = (ServiceInfo) dns.services.get(name.toLowerCase());
+            ServiceInfo info = dns.services.get(name.toLowerCase());
             if (info != null)
             {
                 if (this.port == info.port != server.equals(dns.getLocalHost().getName()))

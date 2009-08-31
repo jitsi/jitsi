@@ -30,19 +30,19 @@ public class ZeroconfAccountID
      * @param userID id identifying this account
      * @param accountProperties any other properties necessary for the account.
      */
-    ZeroconfAccountID(String userID, Map accountProperties)
+    ZeroconfAccountID(String userID, Map<String, String> accountProperties)
     {
         super(userID, 
               accountProperties, 
               ProtocolNames.ZEROCONF,
               "zeroconf.org");
         
-        first = (String)accountProperties.get("first");
-        last = (String)accountProperties.get("last");
-        mail = (String)accountProperties.get("mail");
+        first = accountProperties.get("first");
+        last = accountProperties.get("last");
+        mail = accountProperties.get("mail");
         
         rememberContacts = 
-            new Boolean((String)accountProperties.get("rememberContacts"))
+            new Boolean(accountProperties.get("rememberContacts"))
                 .booleanValue();
     }
 

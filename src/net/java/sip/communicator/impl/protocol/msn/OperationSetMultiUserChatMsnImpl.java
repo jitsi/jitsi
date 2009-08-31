@@ -31,12 +31,12 @@ public class OperationSetMultiUserChatMsnImpl
      * A list of the rooms that are currently open by this account. Note that
      * this list only contains chat rooms where the user is not the initiator.
      */
-    private Hashtable chatRoomCache = new Hashtable();
+    private Hashtable<String, ChatRoom> chatRoomCache = new Hashtable<String, ChatRoom>();
 
     /**
      * A list of the rooms that are currently open and created by this account.
      */
-    private Hashtable userCreatedChatRoomList = new Hashtable();
+    private Hashtable<Object, ChatRoom> userCreatedChatRoomList = new Hashtable<Object, ChatRoom>();
 
     /**
      * The currently valid MSN protocol provider service implementation.
@@ -129,7 +129,7 @@ public class OperationSetMultiUserChatMsnImpl
     {
         assertConnected();
 
-        ChatRoom room = (ChatRoom) chatRoomCache.get(roomName);
+        ChatRoom room = chatRoomCache.get(roomName);
 
         if (room == null)
         { // when the room hasn't been created, we create it.
@@ -259,17 +259,17 @@ public class OperationSetMultiUserChatMsnImpl
      * @return a <tt>List</tt> of the rooms where the user has joined using a
      *         given connection.
      */
-    public List getCurrentlyJoinedChatRooms()
+    public List<ChatRoom> getCurrentlyJoinedChatRooms()
     {
         synchronized (chatRoomCache)
         {
-            List joinedRooms = new LinkedList(this.chatRoomCache.values());
+            List<ChatRoom> joinedRooms = new LinkedList<ChatRoom>(this.chatRoomCache.values());
 
-            Iterator joinedRoomsIter = joinedRooms.iterator();
+            Iterator<ChatRoom> joinedRoomsIter = joinedRooms.iterator();
 
             while (joinedRoomsIter.hasNext())
             {
-                if (!((ChatRoom) joinedRoomsIter.next()).isJoined())
+                if (!joinedRoomsIter.next().isJoined())
                     joinedRoomsIter.remove();
             }
 
@@ -290,22 +290,19 @@ public class OperationSetMultiUserChatMsnImpl
      * @throws OperationNotSupportedException if the server does not support
      *             multi user chat
      */
-    public List getCurrentlyJoinedChatRooms(ChatRoomMember chatRoomMember)
+    public List<String> getCurrentlyJoinedChatRooms(
+            ChatRoomMember chatRoomMember)
         throws OperationFailedException,
-        OperationNotSupportedException
+               OperationNotSupportedException
     {
         synchronized (chatRoomCache)
         {
-            List joinedRooms = new LinkedList(this.chatRoomCache.values());
+            List<String> joinedRooms = new LinkedList<String>();
 
-            Iterator joinedRoomsIter = joinedRooms.iterator();
-
-            while (joinedRoomsIter.hasNext())
-            {
-                if (!((ChatRoom) joinedRoomsIter.next()).isJoined())
-                    joinedRoomsIter.remove();
-            }
-
+            for (Map.Entry<String, ChatRoom> chatRoomEntry
+                    : chatRoomCache.entrySet())
+                if (chatRoomEntry.getValue().isJoined())
+                    joinedRooms.add(chatRoomEntry.getKey());
             return joinedRooms;
         }
     }
@@ -314,13 +311,12 @@ public class OperationSetMultiUserChatMsnImpl
      * Note: This is not supported inside the MSN, so we just return an empty
      * list.
      */
-    public List getExistingChatRooms()
+    public List<String> getExistingChatRooms()
         throws OperationFailedException,
         OperationNotSupportedException
     {
         // we dont have any available chat rooms on the server.
-
-        return new LinkedList();
+        return new LinkedList<String>();
     }
 
     /**
@@ -730,11 +726,11 @@ public class OperationSetMultiUserChatMsnImpl
       */
      private void updateChatRoomMembers(Contact contact)
      {
-         Enumeration<ChatRoomMsnImpl> chatRooms = chatRoomCache.elements();
+         Enumeration<ChatRoom> chatRooms = chatRoomCache.elements();
 
          while (chatRooms.hasMoreElements())
          {
-             ChatRoomMsnImpl chatRoom = chatRooms.nextElement();
+             ChatRoomMsnImpl chatRoom = (ChatRoomMsnImpl)chatRooms.nextElement();
 
              ChatRoomMemberMsnImpl member
                  = chatRoom.findMemberForAddress(contact.getAddress());

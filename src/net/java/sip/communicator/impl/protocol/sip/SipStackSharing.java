@@ -775,7 +775,7 @@ public class SipStackSharing
             // one of ours usernames
             for(ProtocolProviderServiceSipImpl listener : currentListeners)
             {
-                String ourUserID = (String) listener.getAccountID().getUserID();
+                String ourUserID = listener.getAccountID().getUserID();
                 //logger.trace(ourUserID + " *** " + requestUser);
                 if(ourUserID.equals(requestUser))
                 {

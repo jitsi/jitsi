@@ -40,7 +40,7 @@ public class NotificationConfigurationPanel
             = Logger.getLogger(NotificationConfigurationPanel.class);
 
     // Declaration of variables on the table notifications
-    private Vector dataVector = null;
+    private Vector<NotificationsTableEntry> dataVector = null;
 
     private ListMulti notificationList;
 
@@ -113,10 +113,7 @@ public class NotificationConfigurationPanel
             { "Status", icon1, icon2, icon3, "Event" };
         notificationList = new ListMulti(column, columnToolTips);
 
-        dataVector = new Vector();
-        //dataVector.add(row1);
-        //dataVector.add(row2);
-        //dataVector.add(row3);
+        dataVector = new Vector<NotificationsTableEntry>();
 
         gridLayoutGlobal.setConstraints(notificationList, constraints);
         this.add(notificationList);
@@ -361,8 +358,7 @@ public class NotificationConfigurationPanel
 
         if(dataVector.size() > 0)
         {
-            NotificationsTableEntry tmpNTE
-                    = (NotificationsTableEntry) dataVector.elementAt(0);
+            NotificationsTableEntry tmpNTE = dataVector.elementAt(0);
 
             updatePanel(tmpNTE);
             notificationList.setRowSelectionInterval(0,0);
@@ -392,8 +388,7 @@ public class NotificationConfigurationPanel
     {
         if(e.getSource() == activate)
         {
-            NotificationsTableEntry tmpNTE
-                    = (NotificationsTableEntry) dataVector.elementAt(index);
+            NotificationsTableEntry tmpNTE = dataVector.elementAt(index);
             tmpNTE.setEnabled(true);
             this.updateTableRow(tmpNTE, index);
             activate.setEnabled(false);
@@ -402,8 +397,7 @@ public class NotificationConfigurationPanel
         }
         else if(e.getSource() == deactivate)
         {
-            NotificationsTableEntry tmpNTE
-                    = (NotificationsTableEntry) dataVector.elementAt(index);
+            NotificationsTableEntry tmpNTE = dataVector.elementAt(index);
             tmpNTE.setEnabled(false);
             this.updateTableRow(tmpNTE, index);
             activate.setEnabled(true);
@@ -419,8 +413,7 @@ public class NotificationConfigurationPanel
             {
                 try
                 {
-                    NotificationsTableEntry tmpNTE
-                        = (NotificationsTableEntry) dataVector.elementAt(index);
+                    NotificationsTableEntry tmpNTE = dataVector.elementAt(index);
                     File file = fileChooserSound.getSelectedFile();
                     //This is where a real application would open the file.
                     logger.debug("Opening: "
@@ -451,8 +444,7 @@ public class NotificationConfigurationPanel
 
             if (returnVal == JFileChooser.APPROVE_OPTION)
             {
-                NotificationsTableEntry tmpNTE
-                        = (NotificationsTableEntry)dataVector.elementAt(index);
+                NotificationsTableEntry tmpNTE = dataVector.elementAt(index);
                 File file = fileChooserProgram.getSelectedFile();
                 //This is where a real application would open the file.
                 logger.debug("Opening: " +file.getAbsolutePath());
@@ -497,7 +489,7 @@ public class NotificationConfigurationPanel
         }
         else if(e.getSource() == turnOnAll)
         {
-            Iterator it = dataVector.iterator();
+            Iterator<NotificationsTableEntry> it = dataVector.iterator();
             NotificationsTableEntry tmpNTE = null;
             int cpt = 0;
 
@@ -507,7 +499,7 @@ public class NotificationConfigurationPanel
             turnAll = true;
             while(it.hasNext())
             {
-                tmpNTE = (NotificationsTableEntry)it.next();
+                tmpNTE = it.next();
                 if(((String)comboBoxTurnOn.getSelectedItem()).equals("Sounds"))
                 {
                     if(tmpNTE.getSoundFile().trim().length() != 0)
@@ -535,7 +527,7 @@ public class NotificationConfigurationPanel
                 cpt ++;
             }
             notificationList.setRowSelectionInterval(index, index);
-            tmpNTE = (NotificationsTableEntry) dataVector.elementAt(index);
+            tmpNTE = dataVector.elementAt(index);
             if(((String)comboBoxTurnOn.getSelectedItem()).equals("Sounds"))
             {
                 playSoundCheckBox.setSelected(tmpNTE.getSound());
@@ -554,7 +546,7 @@ public class NotificationConfigurationPanel
         }
         else if(e.getSource() == turnOffAll)
         {
-            Iterator it = dataVector.iterator();
+            Iterator<NotificationsTableEntry> it = dataVector.iterator();
             NotificationsTableEntry tmpNTE = null;
             int cpt = 0;
 
@@ -564,7 +556,7 @@ public class NotificationConfigurationPanel
             turnAll = true;
             while(it.hasNext())
             {
-                tmpNTE = (NotificationsTableEntry)it.next();
+                tmpNTE = it.next();
                 if(((String)comboBoxTurnOff.getSelectedItem()).equals("Sounds"))
                 {
                     tmpNTE.setSound(false);
@@ -586,7 +578,7 @@ public class NotificationConfigurationPanel
                 cpt ++;
             }
             notificationList.setRowSelectionInterval(index, index);
-            tmpNTE = (NotificationsTableEntry) dataVector.elementAt(index);
+            tmpNTE = dataVector.elementAt(index);
             if(((String)comboBoxTurnOn.getSelectedItem()).equals("Sounds"))
             {
                 playSoundCheckBox.setSelected(tmpNTE.getSound());
@@ -605,11 +597,11 @@ public class NotificationConfigurationPanel
         }
         else if(e.getSource() == apply)
         {
-            Iterator it = dataVector.iterator();
+            Iterator<NotificationsTableEntry> it = dataVector.iterator();
             NotificationsTableEntry tmpNTE = null;
             while(it.hasNext())
             {
-                tmpNTE = (NotificationsTableEntry) it.next();
+                tmpNTE = it.next();
 
                 if(tmpNTE.isModified())
                 {
@@ -679,8 +671,7 @@ public class NotificationConfigurationPanel
 
             if(ix >= 0)
             {
-                NotificationsTableEntry tmpNTE
-                        = (NotificationsTableEntry) dataVector.elementAt(ix);
+                NotificationsTableEntry tmpNTE = dataVector.elementAt(ix);
                 updatePanel(tmpNTE);
             }
         }
@@ -693,8 +684,7 @@ public class NotificationConfigurationPanel
     {
         if(index == -1 || noListener == true)
             return;
-        NotificationsTableEntry tmpNTE
-                = (NotificationsTableEntry) dataVector.elementAt(index);
+        NotificationsTableEntry tmpNTE = dataVector.elementAt(index);
         if(itev.getSource() == playSoundCheckBox)
         {
             if(playSoundCheckBox.isSelected())
@@ -752,8 +742,7 @@ public class NotificationConfigurationPanel
         {
             if(index != -1 && noListener == false)
             {
-                NotificationsTableEntry tmpNTE
-                        = (NotificationsTableEntry) dataVector.elementAt(index);
+                NotificationsTableEntry tmpNTE = dataVector.elementAt(index);
                 if(de.getDocument().equals(programFileTextField.getDocument()))
                 {
                     tmpNTE.setProgramFile(programFileTextField.getText());
@@ -774,8 +763,7 @@ public class NotificationConfigurationPanel
         {
             if(index != -1 && noListener == false)
             {
-                NotificationsTableEntry tmpNTE
-                        = (NotificationsTableEntry) dataVector.elementAt(index);
+                NotificationsTableEntry tmpNTE = dataVector.elementAt(index);
                 if(de.getDocument().equals(programFileTextField.getDocument()))
                 {
                     tmpNTE.setProgramFile(programFileTextField.getText());
@@ -797,8 +785,8 @@ public class NotificationConfigurationPanel
     public void actionAdded(NotificationActionTypeEvent event)
     {
         logger.debug("Start action added");
-        String eventName = (String) event.getSourceEventType();
-        Iterator it = null;
+        String eventName = event.getSourceEventType();
+        Iterator<NotificationsTableEntry> it = null;
         int row = 0;
         NotificationsTableEntry tmpNTE = null;
 
@@ -845,7 +833,7 @@ public class NotificationConfigurationPanel
         it = dataVector.iterator();
         while(it.hasNext())
         {
-            tmpNTE = (NotificationsTableEntry)it.next();
+            tmpNTE = it.next();
             if(tmpNTE.getEvent().equals(eventName))
             {
                 if(event.getSourceActionType()
@@ -916,8 +904,8 @@ public class NotificationConfigurationPanel
     public void actionRemoved(NotificationActionTypeEvent event)
     {
         logger.debug("Start action remove");
-        String eventName = (String) event.getSourceEventType();
-        Iterator it = null;
+        String eventName = event.getSourceEventType();
+        Iterator<NotificationsTableEntry> it = null;
         NotificationsTableEntry tmpNTE = null;
         if(dataVector.size() == 0)
             return;
@@ -925,7 +913,7 @@ public class NotificationConfigurationPanel
         it = dataVector.iterator();
         while(it.hasNext())
         {
-            tmpNTE = (NotificationsTableEntry) it.next();
+            tmpNTE = it.next();
             if(tmpNTE.getEvent().equals(eventName))
             {
                 if(event.getSourceActionType()
@@ -954,15 +942,15 @@ public class NotificationConfigurationPanel
     public void actionChanged(NotificationActionTypeEvent event)
     {
         logger.debug("Start action changed");
-        String eventName = (String) event.getSourceEventType();
-        Iterator it = null;
+        String eventName = event.getSourceEventType();
+        Iterator<NotificationsTableEntry> it = null;
         int row = 0;
         NotificationsTableEntry tmpNTE = null;
 
         it = dataVector.iterator();
         while(it.hasNext())
         {
-            tmpNTE = (NotificationsTableEntry)it.next();
+            tmpNTE = it.next();
             if(tmpNTE.getEvent().equals(eventName))
             {
                 if(event.getSourceActionType()
@@ -987,12 +975,12 @@ public class NotificationConfigurationPanel
 
     public void eventTypeAdded(NotificationEventTypeEvent event)
     {
-        String eventAdded = (String) event.getSourceEventType();
-        Iterator it = dataVector.iterator();
+        String eventAdded = event.getSourceEventType();
+        Iterator<NotificationsTableEntry> it = dataVector.iterator();
         NotificationsTableEntry tmpNTE = null;
         while(it.hasNext())
         {
-            tmpNTE = (NotificationsTableEntry) it.next();
+            tmpNTE = it.next();
             if(tmpNTE.getEvent().equals(eventAdded))
                 return;
         }
@@ -1004,7 +992,7 @@ public class NotificationConfigurationPanel
 
     public void eventTypeRemoved(NotificationEventTypeEvent event)
     {
-        Iterator it = null;
+        Iterator<NotificationsTableEntry> it = null;
         NotificationsTableEntry tmpNTE = null;
         int row = 0;
 
@@ -1013,7 +1001,7 @@ public class NotificationConfigurationPanel
         it = dataVector.iterator();
         while(it.hasNext())
         {
-            tmpNTE = (NotificationsTableEntry) it.next();
+            tmpNTE = it.next();
             if(tmpNTE.getEvent().equals(event.getSourceEventType()))
             {
                 dataVector.remove(row);
@@ -1027,7 +1015,7 @@ public class NotificationConfigurationPanel
 
     public void updateTable()
     {
-        Iterator it = dataVector.iterator();
+        Iterator<NotificationsTableEntry> it = dataVector.iterator();
         NotificationsTableEntry tmpNTE = null;
         int i = 0;
         int cpt = notificationList.getRowCount();
@@ -1062,7 +1050,7 @@ public class NotificationConfigurationPanel
 
         while(it.hasNext())
         {
-            tmpNTE = (NotificationsTableEntry) it.next();
+            tmpNTE = it.next();
             notificationList.addLine(tmpNTE);
         }
     }
@@ -1160,8 +1148,7 @@ public class NotificationConfigurationPanel
 
             if(index != -1)
             {
-                NotificationsTableEntry tmpNTE
-                        = (NotificationsTableEntry) dataVector.elementAt(index);
+                NotificationsTableEntry tmpNTE = dataVector.elementAt(index);
                 activate.setEnabled(!tmpNTE.getEnabled());
                 deactivate.setEnabled(tmpNTE.getEnabled());
                 if(tmpNTE.getProgram()

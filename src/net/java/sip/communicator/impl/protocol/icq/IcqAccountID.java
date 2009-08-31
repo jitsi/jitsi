@@ -24,7 +24,7 @@ public class IcqAccountID
      * @param uin the uin identifying this account
      * @param accountProperties any other properties necessary for the account.
      */
-    IcqAccountID(String uin, Map accountProperties )
+    IcqAccountID(String uin, Map<String, String> accountProperties )
     {
         super(uin, accountProperties, 
             isAIM(accountProperties) ? ProtocolNames.AIM : ProtocolNames.ICQ, 

@@ -315,7 +315,7 @@ public class FirstWizardPage
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
         AccountID accountID = protocolProvider.getAccountID();
-        String password = (String) accountID.getAccountProperties()
+        String password = accountID.getAccountProperties()
             .get(ProtocolProviderFactory.PASSWORD);
 
         this.emailField.setEnabled(false);

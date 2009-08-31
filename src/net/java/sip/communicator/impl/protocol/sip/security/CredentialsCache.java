@@ -27,12 +27,12 @@ class CredentialsCache
     /**
      * Contains call->realms mappings
      */
-    private Hashtable authenticatedRealms = new Hashtable();
+    private Hashtable<String, CredentialsCacheEntry> authenticatedRealms = new Hashtable<String, CredentialsCacheEntry>();
 
     /**
      * Contains callid->authorization header mappings
      */
-    private Hashtable authenticatedCalls =  new Hashtable();
+    private Hashtable<String, AuthorizationHeader> authenticatedCalls =  new Hashtable<String, AuthorizationHeader>();
 
     /**
      * Cache credentials for the specified call and realm
@@ -55,7 +55,7 @@ class CredentialsCache
      */
     CredentialsCacheEntry get(String realm)
     {
-        return (CredentialsCacheEntry)this.authenticatedRealms.get(realm);
+        return this.authenticatedRealms.get(realm);
     }
 
     /**
@@ -68,7 +68,7 @@ class CredentialsCache
      */
     CredentialsCacheEntry remove(String realm)
     {
-        return (CredentialsCacheEntry)this.authenticatedRealms.remove(realm);
+        return this.authenticatedRealms.remove(realm);
     }
 
     /**
@@ -104,7 +104,7 @@ class CredentialsCache
      */
     AuthorizationHeader getCachedAuthorizationHeader(String callid)
     {
-        return (AuthorizationHeader)this.authenticatedCalls.get(callid);
+        return this.authenticatedCalls.get(callid);
     }
 
 }

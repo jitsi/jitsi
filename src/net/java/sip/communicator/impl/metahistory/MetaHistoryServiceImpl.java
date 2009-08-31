@@ -49,8 +49,8 @@ public class MetaHistoryServiceImpl
      */
     private Hashtable<String, Object> services = new Hashtable<String, Object>();
 
-    private ArrayList<HistorySearchProgressListener>
-            progressListeners = new ArrayList<HistorySearchProgressListener>();
+    private final List<HistorySearchProgressListener> progressListeners
+        = new ArrayList<HistorySearchProgressListener>();
 
     /**
      * Returns all the records for the descriptor after the given date.
@@ -59,7 +59,7 @@ public class MetaHistoryServiceImpl
      * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param startDate Date the date of the first record to return
-     * @return Collection sorted result that conists of records returned from
+     * @return Collection sorted result that consists of records returned from
      *  the services we wrap
      * @throws RuntimeException
      */
@@ -67,10 +67,10 @@ public class MetaHistoryServiceImpl
             Object descriptor, Date startDate)
         throws RuntimeException
     {
-        MessageProgressWrapper listenWrapper =
-            new MessageProgressWrapper(progressListeners, services.length);
+        MessageProgressWrapper listenWrapper
+            = new MessageProgressWrapper(services.length);
 
-        TreeSet result = new TreeSet(new RecordsComparator());
+        TreeSet<Object> result = new TreeSet<Object>(new RecordsComparator());
         for (int i = 0; i < services.length; i++)
         {
             String name = services[i];
@@ -130,10 +130,10 @@ public class MetaHistoryServiceImpl
             Object descriptor, Date endDate)
         throws RuntimeException
     {
-        MessageProgressWrapper listenWrapper =
-            new MessageProgressWrapper(progressListeners, services.length);
+        MessageProgressWrapper listenWrapper
+            = new MessageProgressWrapper(services.length);
 
-        TreeSet result = new TreeSet(new RecordsComparator());
+        TreeSet<Object> result = new TreeSet<Object>(new RecordsComparator());
         for (int i = 0; i < services.length; i++)
         {
             String name = services[i];
@@ -195,10 +195,10 @@ public class MetaHistoryServiceImpl
             Object descriptor, Date startDate, Date endDate)
         throws RuntimeException
     {
-        MessageProgressWrapper listenWrapper =
-            new MessageProgressWrapper(progressListeners, services.length);
+        MessageProgressWrapper listenWrapper
+            = new MessageProgressWrapper(services.length);
 
-        TreeSet result = new TreeSet(new RecordsComparator());
+        TreeSet<Object> result = new TreeSet<Object>(new RecordsComparator());
         for (int i = 0; i < services.length; i++)
         {
             String name = services[i];
@@ -287,10 +287,10 @@ public class MetaHistoryServiceImpl
             String[] keywords, boolean caseSensitive)
         throws RuntimeException
     {
-        MessageProgressWrapper listenWrapper =
-            new MessageProgressWrapper(progressListeners, services.length);
+        MessageProgressWrapper listenWrapper
+            = new MessageProgressWrapper(services.length);
 
-        TreeSet result = new TreeSet(new RecordsComparator());
+        TreeSet<Object> result = new TreeSet<Object>(new RecordsComparator());
         for (int i = 0; i < services.length; i++)
         {
             String name = services[i];
@@ -426,10 +426,10 @@ public class MetaHistoryServiceImpl
             Object descriptor, String[] keywords, boolean caseSensitive)
         throws RuntimeException
     {
-        MessageProgressWrapper listenWrapper =
-            new MessageProgressWrapper(progressListeners, services.length);
+        MessageProgressWrapper listenWrapper
+            = new MessageProgressWrapper(services.length);
 
-        TreeSet result = new TreeSet(new RecordsComparator());
+        TreeSet<Object> result = new TreeSet<Object>(new RecordsComparator());
         for (int i = 0; i < services.length; i++)
         {
             String name = services[i];
@@ -506,10 +506,10 @@ public class MetaHistoryServiceImpl
             Object descriptor, int count)
         throws RuntimeException
     {
-        MessageProgressWrapper listenWrapper =
-            new MessageProgressWrapper(progressListeners, services.length);
+        MessageProgressWrapper listenWrapper
+            = new MessageProgressWrapper(services.length);
 
-        TreeSet result = new TreeSet(new RecordsComparator());
+        TreeSet<Object> result = new TreeSet<Object>(new RecordsComparator());
         for (int i = 0; i < services.length; i++)
         {
             String name = services[i];
@@ -557,7 +557,7 @@ public class MetaHistoryServiceImpl
         }
         listenWrapper.fireLastProgress(null, null, null);
 
-        LinkedList resultAsList = new LinkedList(result);
+        LinkedList<Object> resultAsList = new LinkedList<Object>(result);
         int startIndex = resultAsList.size() - count;
 
         if(startIndex < 0)
@@ -582,10 +582,10 @@ public class MetaHistoryServiceImpl
             Object descriptor, Date date, int count)
         throws RuntimeException
     {
-        MessageProgressWrapper listenWrapper =
-            new MessageProgressWrapper(progressListeners, services.length);
+        MessageProgressWrapper listenWrapper
+            = new MessageProgressWrapper(services.length);
 
-        TreeSet result = new TreeSet(new RecordsComparator());
+        TreeSet<Object> result = new TreeSet<Object>(new RecordsComparator());
         for (int i = 0; i < services.length; i++)
         {
             String name = services[i];
@@ -630,12 +630,12 @@ public class MetaHistoryServiceImpl
                 listenWrapper.setIx(i);
                 chs.addSearchProgressListener(listenWrapper);
 
-                Collection col = chs.findByStartDate(date);
+                Collection<CallRecord> col = chs.findByStartDate(date);
                 if(col.size() > count)
                 {
                     // before we make a sublist make sure there are sorted in the
                     // right order
-                    List l = new LinkedList(col);
+                    List<CallRecord> l = new LinkedList<CallRecord>(col);
                     Collections.sort(l, new RecordsComparator());
                     result.addAll(l.subList(0, count));
                 }
@@ -645,7 +645,7 @@ public class MetaHistoryServiceImpl
             }
         }
         listenWrapper.fireLastProgress(date, null, null);
-        LinkedList resultAsList = new LinkedList(result);
+        LinkedList<Object> resultAsList = new LinkedList<Object>(result);
 
         int toIndex = count;
         if(toIndex > resultAsList.size())
@@ -670,10 +670,10 @@ public class MetaHistoryServiceImpl
             Object descriptor, Date date, int count)
         throws RuntimeException
     {
-        MessageProgressWrapper listenWrapper =
-            new MessageProgressWrapper(progressListeners, services.length);
+        MessageProgressWrapper listenWrapper
+            = new MessageProgressWrapper(services.length);
 
-        TreeSet result = new TreeSet(new RecordsComparator());
+        TreeSet<Object> result = new TreeSet<Object>(new RecordsComparator());
         for (int i = 0; i < services.length; i++)
         {
             String name = services[i];
@@ -718,10 +718,10 @@ public class MetaHistoryServiceImpl
                 listenWrapper.setIx(i);
                 chs.addSearchProgressListener(listenWrapper);
 
-                Collection col = chs.findByEndDate(date);
+                Collection<CallRecord> col = chs.findByEndDate(date);
                 if(col.size() > count)
                 {
-                    List l = new LinkedList(col);
+                    List<CallRecord> l = new LinkedList<CallRecord>(col);
                     result.addAll(l.subList(l.size() - count, l.size()));
                 }
                 else
@@ -731,7 +731,7 @@ public class MetaHistoryServiceImpl
         }
         listenWrapper.fireLastProgress(date, null, null);
 
-        LinkedList resultAsList = new LinkedList(result);
+        LinkedList<Object> resultAsList = new LinkedList<Object>(result);
         int startIndex = resultAsList.size() - count;
 
         if(startIndex < 0)
@@ -783,13 +783,10 @@ public class MetaHistoryServiceImpl
    private boolean matchAnyCallPeer(
        List<CallPeerRecord> cps, String[] keywords, boolean caseSensitive)
    {
-       Iterator<CallPeerRecord> iter = cps.iterator();
-       while (iter.hasNext())
+       for (CallPeerRecord callPeer : cps)
        {
-           CallPeerRecord callPeer = iter.next();
-           for (int i = 0; i < keywords.length; i++)
+           for (String k : keywords)
            {
-               String k = keywords[i];
                if(caseSensitive && callPeer.getPeerAddress().contains(k))
                     return true;
                 else if(callPeer.getPeerAddress().toLowerCase().
@@ -797,7 +794,6 @@ public class MetaHistoryServiceImpl
                     return true;
            }
        }
-
        return false;
    }
 
@@ -889,7 +885,7 @@ public class MetaHistoryServiceImpl
      * to be ordered in TreeSet according their timestamp.
      */
     private static class RecordsComparator
-        implements Comparator
+        implements Comparator<Object>
     {
         private long getDate(Object o)
         {
@@ -922,15 +918,12 @@ public class MetaHistoryServiceImpl
         implements MessageHistorySearchProgressListener,
         CallHistorySearchProgressListener
     {
-        ArrayList<HistorySearchProgressListener> pListeners;
-        int ix;
-        int count;
+        private final int count;
 
-        MessageProgressWrapper(
-            ArrayList<HistorySearchProgressListener> progressListeners,
-            int count)
+        private int ix;
+
+        public MessageProgressWrapper(int count)
         {
-            this.pListeners = progressListeners;
             this.count = count;
         }
 
@@ -961,16 +954,15 @@ public class MetaHistoryServiceImpl
 
         private void fireEvent(ProgressEvent ev)
         {
-            Iterator<HistorySearchProgressListener> iter = null;
+            Iterable<HistorySearchProgressListener> listeners;
             synchronized(progressListeners)
             {
-                iter = new ArrayList(progressListeners).iterator();
+                listeners
+                    = new ArrayList<HistorySearchProgressListener>(
+                            progressListeners);
             }
-            while (iter.hasNext())
-            {
-                HistorySearchProgressListener hSearchProgListener = iter.next();
-                hSearchProgListener.progressChanged(ev);
-            }
+            for (HistorySearchProgressListener listener : listeners)
+                listener.progressChanged(ev);
         }
 
         public void fireLastProgress(

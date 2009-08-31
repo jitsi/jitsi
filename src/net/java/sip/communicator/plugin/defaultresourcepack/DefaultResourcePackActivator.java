@@ -37,7 +37,7 @@ public class DefaultResourcePackActivator
         DefaultColorPackImpl colPackImpl =
             new DefaultColorPackImpl();
 
-        Hashtable props = new Hashtable();
+        Hashtable<String, String> props = new Hashtable<String, String>();
         props.put(ResourcePack.RESOURCE_NAME,
                   ColorPack.RESOURCE_NAME_DEFAULT_VALUE);
 
@@ -48,7 +48,7 @@ public class DefaultResourcePackActivator
         DefaultImagePackImpl imgPackImpl =
             new DefaultImagePackImpl();
 
-        Hashtable imgProps = new Hashtable();
+        Hashtable<String, String> imgProps = new Hashtable<String, String>();
         imgProps.put(ResourcePack.RESOURCE_NAME,
                     ImagePack.RESOURCE_NAME_DEFAULT_VALUE);
 
@@ -59,7 +59,7 @@ public class DefaultResourcePackActivator
         DefaultLanguagePackImpl langPackImpl =
             new DefaultLanguagePackImpl();
 
-        Hashtable langProps = new Hashtable();
+        Hashtable<String, String> langProps = new Hashtable<String, String>();
         langProps.put(ResourcePack.RESOURCE_NAME,
                     LanguagePack.RESOURCE_NAME_DEFAULT_VALUE);
 
@@ -70,7 +70,7 @@ public class DefaultResourcePackActivator
         DefaultSettingsPackImpl setPackImpl =
             new DefaultSettingsPackImpl();
 
-        Hashtable setProps = new Hashtable();
+        Hashtable<String, String> setProps = new Hashtable<String, String>();
         langProps.put(ResourcePack.RESOURCE_NAME,
                       SettingsPack.RESOURCE_NAME_DEFAULT_VALUE);
 
@@ -81,7 +81,7 @@ public class DefaultResourcePackActivator
         DefaultSoundPackImpl sndPackImpl =
             new DefaultSoundPackImpl();
 
-        Hashtable sndProps = new Hashtable();
+        Hashtable<String, String> sndProps = new Hashtable<String, String>();
         langProps.put(ResourcePack.RESOURCE_NAME,
                       SoundPack.RESOURCE_NAME_DEFAULT_VALUE);
 

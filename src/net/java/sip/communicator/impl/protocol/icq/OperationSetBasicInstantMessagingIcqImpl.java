@@ -104,7 +104,8 @@ public class OperationSetBasicInstantMessagingIcqImpl
     /**
      * The queue holding the received packets
      */
-    private LinkedList receivedKeepAlivePackets = new LinkedList();
+    private final LinkedList<String> receivedKeepAlivePackets
+        = new LinkedList<String>();
 
     /**
      * The ping message prefix that we use in our keep alive thread.
@@ -674,8 +675,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
         boolean checkFirstPacket()
             throws Exception
         {
-            String receivedStr =
-                    (String)receivedKeepAlivePackets.removeLast();
+            String receivedStr = receivedKeepAlivePackets.removeLast();
 
             logger.trace("Last keep alive message is: " + receivedStr);
 

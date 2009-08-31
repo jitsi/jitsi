@@ -446,7 +446,7 @@ public class OperationSetPersistentPresenceFacebookImpl
 
         while (subgroups.hasNext())
         {
-            ContactGroup subgroup = (ContactGroup) subgroups.next();
+            ContactGroup subgroup = subgroups.next();
             changePresenceStatusForAllContacts(subgroup, newStatus);
         }
     }

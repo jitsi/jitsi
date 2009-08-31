@@ -84,7 +84,7 @@ public class WhiteboardActivator implements BundleActivator
      */
     public static List getWhiteboardOperationSets()
     {
-        List whiteboardOpSets = new ArrayList();
+        List<OperationSet> whiteboardOpSets = new ArrayList<OperationSet>();
 
         ServiceReference[] serRefs = null;
         try

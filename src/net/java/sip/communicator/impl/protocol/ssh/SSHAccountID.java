@@ -28,7 +28,7 @@ public class SSHAccountID
      * @param userID the user identifier correspnding to thi account
      * @param accountProperties any other properties necessary for the account.
      */
-    SSHAccountID(String userID, Map accountProperties)
+    SSHAccountID(String userID, Map<String, String> accountProperties)
     {
         super(userID
               , accountProperties

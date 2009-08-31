@@ -32,12 +32,12 @@ public class ContactGroupRssImpl
     /**
      * The list of this group's members.
      */
-    private Vector contacts = new Vector();
+    private Vector<Contact> contacts = new Vector<Contact>();
 
     /**
      * The list of sub groups belonging to this group.
      */
-    private Vector subGroups = new Vector();
+    private Vector<ContactGroup> subGroups = new Vector<ContactGroup>();
 
     /**
      * The group that this group belongs to (or null if this is the root group).
@@ -115,7 +115,7 @@ public class ContactGroupRssImpl
      * @return a java.util.Iterator over all contacts inside this
      *   <tt>ContactGroup</tt>
      */
-    public Iterator contacts()
+    public Iterator<Contact> contacts()
     {
         return contacts.iterator();
     }
@@ -206,7 +206,7 @@ public class ContactGroupRssImpl
         if ( subGroups.contains(rssGroup) )
             return this;
 
-        Iterator subGroupsIter = subgroups();
+        Iterator<ContactGroup> subGroupsIter = subgroups();
         while (subGroupsIter.hasNext())
         {
             ContactGroupRssImpl subgroup
@@ -235,7 +235,7 @@ public class ContactGroupRssImpl
         if ( contacts.contains(rssContact) )
             return this;
 
-        Iterator subGroupsIter = subgroups();
+        Iterator<ContactGroup> subGroupsIter = subgroups();
         while (subGroupsIter.hasNext())
         {
             ContactGroupRssImpl subgroup
@@ -261,7 +261,7 @@ public class ContactGroupRssImpl
      */
     public Contact getContact(String id)
     {
-        Iterator contactsIter = contacts();
+        Iterator<Contact> contactsIter = contacts();
         while (contactsIter.hasNext())
         {
             ContactRssImpl contact = (ContactRssImpl) contactsIter.next();
@@ -280,7 +280,7 @@ public class ContactGroupRssImpl
      */
     public ContactGroup getGroup(int index)
     {
-        return (ContactGroup)subGroups.get(index);
+        return subGroups.get(index);
     }
 
     /**
@@ -291,7 +291,7 @@ public class ContactGroupRssImpl
      */
     public ContactGroup getGroup(String groupName)
     {
-        Iterator groupsIter = subgroups();
+        Iterator<ContactGroup> groupsIter = subgroups();
         while (groupsIter.hasNext())
         {
             ContactGroupRssImpl contactGroup
@@ -330,7 +330,7 @@ public class ContactGroupRssImpl
      * @return a java.util.Iterator over the <tt>ContactGroup</tt> children
      *   of this group (i.e. subgroups).
      */
-    public Iterator subgroups()
+    public Iterator<ContactGroup> subgroups()
     {
         return subGroups.iterator();
     }
@@ -353,7 +353,7 @@ public class ContactGroupRssImpl
     public ContactRssImpl findContactByID(String id)
     {
         //first go through the contacts that are direct children.
-        Iterator contactsIter = contacts();
+        Iterator<Contact> contactsIter = contacts();
 
         while(contactsIter.hasNext())
         {
@@ -364,7 +364,7 @@ public class ContactGroupRssImpl
         }
 
         //if we didn't find it here, let's try in the subougroups
-        Iterator groupsIter = subgroups();
+        Iterator<ContactGroup> groupsIter = subgroups();
 
         while( groupsIter.hasNext() )
         {
@@ -391,7 +391,7 @@ public class ContactGroupRssImpl
         StringBuffer buff = new StringBuffer(getGroupName());
         buff.append(".subGroups=" + countSubgroups() + ":\n");
 
-        Iterator subGroups = subgroups();
+        Iterator<ContactGroup> subGroups = subgroups();
         while (subGroups.hasNext())
         {
             ContactGroupRssImpl group = (ContactGroupRssImpl)subGroups.next();
@@ -402,7 +402,7 @@ public class ContactGroupRssImpl
 
         buff.append("\nChildContacts="+countContacts()+":[");
 
-        Iterator contacts = contacts();
+        Iterator<Contact> contacts = contacts();
         while (contacts.hasNext())
         {
             ContactRssImpl contact = (ContactRssImpl) contacts.next();
@@ -418,7 +418,7 @@ public class ContactGroupRssImpl
          //StringBuffer buff = new StringBuffer(getGroupName());
         //buff.append(".subGroups=" + countSubgroups() + ":\n");
 
-        Iterator subGroups = subgroups();
+        Iterator<ContactGroup> subGroups = subgroups();
         while (subGroups.hasNext())
         {
             ContactGroupRssImpl group = (ContactGroupRssImpl)subGroups.next();
@@ -430,7 +430,7 @@ public class ContactGroupRssImpl
 
         //buff.append("\nChildContacts="+countContacts()+":[");
 
-        Iterator contacts = contacts();
+        Iterator<Contact> contacts = contacts();
         while (contacts.hasNext())
         {
             ContactRssImpl contact = (ContactRssImpl) contacts.next();
@@ -567,7 +567,7 @@ public class ContactGroupRssImpl
             return false;
 
         //traverse child contacts
-        Iterator theirContacts = rssGroup.contacts();
+        Iterator<Contact> theirContacts = rssGroup.contacts();
 
         while(theirContacts.hasNext())
         {
@@ -583,7 +583,7 @@ public class ContactGroupRssImpl
         }
 
         //traverse subgroups
-        Iterator theirSubgroups = rssGroup.subgroups();
+        Iterator<ContactGroup> theirSubgroups = rssGroup.subgroups();
 
         while(theirSubgroups.hasNext())
         {

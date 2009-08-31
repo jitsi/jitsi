@@ -35,7 +35,7 @@ public class UserInfo
     /**
      * A list of the chat rooms this user is in.
      */
-    private List joinedChatRoom = new LinkedList();
+    private List<String> joinedChatRoom = new LinkedList<String>();
     
     /**
      * Information about the server.
@@ -127,7 +127,7 @@ public class UserInfo
      * 
      * @return a list of the joined chat rooms of this user
      */
-    public List getJoinedChatRooms()
+    public List<String> getJoinedChatRooms()
     {
         return joinedChatRoom;
     }

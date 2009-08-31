@@ -250,28 +250,36 @@ public abstract class AbstractOperationSetBasicInstantMessaging
     	if (opSetMessageTransform == null)
     		return evt;
     	
-        for (Map.Entry<Integer, Vector<TransformLayer>> entry : opSetMessageTransform.transformLayers
-            .entrySet())
+        for (Map.Entry<Integer, Vector<TransformLayer>> entry
+                : opSetMessageTransform.transformLayers.entrySet())
         {
-            for (Iterator<TransformLayer> iterator = entry.getValue().iterator(); iterator
-                .hasNext();)
+            for (TransformLayer transformLayer : entry.getValue())
             {
-                TransformLayer transformLayer = (TransformLayer) iterator.next();
                 if (evt != null){
-                	switch (eventType){
-                	case MessageDelivered:
-                		evt = transformLayer.messageDelivered((MessageDeliveredEvent)evt);
-                		break;
-                	case MessageDeliveryPending:
-                		evt = transformLayer.messageDeliveryPending((MessageDeliveredEvent)evt);
-                		break;
-                	case MessageDeliveryFailed:
-                		evt = transformLayer.messageDeliveryFailed((MessageDeliveryFailedEvent)evt);
-                		break;
-                	case MessageReceived:
-                		evt = transformLayer.messageReceived((MessageReceivedEvent)evt);
-                		break;
-                	}
+                    switch (eventType){
+                    case MessageDelivered:
+                        evt
+                            = transformLayer
+                                .messageDelivered((MessageDeliveredEvent)evt);
+                        break;
+                    case MessageDeliveryPending:
+                        evt
+                            = transformLayer
+                                .messageDeliveryPending(
+                                    (MessageDeliveredEvent)evt);
+                        break;
+                    case MessageDeliveryFailed:
+                        evt
+                            = transformLayer
+                                .messageDeliveryFailed(
+                                    (MessageDeliveryFailedEvent)evt);
+                        break;
+                    case MessageReceived:
+                        evt
+                            = transformLayer
+                                .messageReceived((MessageReceivedEvent)evt);
+                        break;
+                    }
                 }
             }
         }
