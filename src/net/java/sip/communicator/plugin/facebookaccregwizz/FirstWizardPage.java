@@ -7,7 +7,6 @@
 package net.java.sip.communicator.plugin.facebookaccregwizz;
 
 import java.awt.*;
-import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -341,17 +340,11 @@ public class FirstWizardPage
         ProtocolProviderFactory factory
             = FacebookAccRegWizzActivator.getFacebookProtocolProviderFactory();
 
-        ArrayList registeredAccounts = factory.getRegisteredAccounts();
+        Iterable<AccountID> registeredAccounts = factory.getRegisteredAccounts();
 
-        for (int i = 0; i < registeredAccounts.size(); i++)
-        {
-            AccountID accountID = (AccountID) registeredAccounts.get(i);
-
+        for (AccountID accountID : registeredAccounts)
             if (email.equalsIgnoreCase(accountID.getUserID()))
-            {
                 return true;
-            }
-        }
         return false;
     }
 

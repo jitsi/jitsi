@@ -6,11 +6,10 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+
 import net.java.sip.communicator.service.protocol.ServerStoredDetails;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.util.Logger;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smackx.packet.VCard;
@@ -30,15 +29,16 @@ public class InfoRetreiver
      */
     private ProtocolProviderServiceJabberImpl jabberProvider = null;
 
-    // here is kept all the details retreived so far
-    private Hashtable retreivedDetails = new Hashtable();
+    // here is kept all the details retrieved so far
+    private final Map<String, List<GenericDetail>> retreivedDetails
+        = new Hashtable<String, List<GenericDetail>>();
 
     private static final String TAG_FN_OPEN = "<FN>";
     private static final String TAG_FN_CLOSE = "</FN>";
 
     // the uin of the account using us,
     // used when sending commands for user info to the server
-    private String ownerUin = null;
+    private final String ownerUin;
 
     protected InfoRetreiver
         (ProtocolProviderServiceJabberImpl jabberProvider, String ownerUin)
@@ -57,18 +57,16 @@ public class InfoRetreiver
      * @param detailClass Class
      * @return Iterator
      */
-    Iterator getDetailsAndDescendants(String uin, Class detailClass)
+    Iterator<GenericDetail> getDetailsAndDescendants(
+        String uin,
+        Class<? extends GenericDetail> detailClass)
     {
-        List details = getContactDetails(uin);
-        List result = new LinkedList();
+        List<GenericDetail> details = getContactDetails(uin);
+        List<GenericDetail> result = new LinkedList<GenericDetail>();
 
-        Iterator iter = details.iterator();
-        while (iter.hasNext())
-        {
-            Object item = iter.next();
+        for (GenericDetail item : details)
             if(detailClass.isInstance(item))
                 result.add(item);
-        }
 
         return result.iterator();
     }
@@ -81,18 +79,16 @@ public class InfoRetreiver
      * @param detailClass Class
      * @return Iterator
      */
-    Iterator getDetails(String uin, Class detailClass)
+    Iterator<GenericDetail> getDetails(
+        String uin,
+        Class<? extends GenericDetail> detailClass)
     {
-        List details = getContactDetails(uin);
-        List result = new LinkedList();
+        List<GenericDetail> details = getContactDetails(uin);
+        List<GenericDetail> result = new LinkedList<GenericDetail>();
 
-        Iterator iter = details.iterator();
-        while (iter.hasNext())
-        {
-            Object item = iter.next();
+        for (GenericDetail item : details)
             if(detailClass.equals(item.getClass()))
                 result.add(item);
-        }
 
         return result.iterator();
     }
@@ -104,13 +100,13 @@ public class InfoRetreiver
      * @param contactAddress String
      * @return Vector the details
      */
-    List getContactDetails(String contactAddress)
+    List<GenericDetail> getContactDetails(String contactAddress)
     {
-        List result = (List)retreivedDetails.get(contactAddress);
+        List<GenericDetail> result = retreivedDetails.get(contactAddress);
 
         if(result == null)
         {
-            result = new LinkedList();
+            result = new LinkedList<GenericDetail>();
             try
             {
                 XMPPConnection connection = jabberProvider.getConnection();
@@ -261,7 +257,7 @@ public class InfoRetreiver
 
         retreivedDetails.put(contactAddress, result);
 
-        return new LinkedList(result);
+        return new LinkedList<GenericDetail>(result);
     }
 
     private String checkForFullName(VCard card)

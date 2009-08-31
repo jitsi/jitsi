@@ -8,6 +8,8 @@ package net.java.sip.communicator.service.protocol;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
+
 /**
  * The User Info Operation set is a means of accessing detailed information of
  * Contacts that have made it available on-line (on a protocol server, p2p net
@@ -46,13 +48,15 @@ public interface OperationSetServerStoredContactInfo
      * @return a java.util.Iterator over all details that are instances or
      * descendants of the specified class.
      */
-    public Iterator getDetailsAndDescendants(Contact contact, Class detailClass);
+    public Iterator<GenericDetail> getDetailsAndDescendants(
+        Contact contact,
+        Class<? extends GenericDetail> detailClass);
 
     /**
      * Returns an iterator over all details that are instances of exactly the
      * same class as the one specified. Not that, contrary to the
      * getDetailsAndDescendants() method this one would only return details
-     * that are instances of the specified class and not only its desendants.
+     * that are instances of the specified class and not only its descendants.
      * If for example an existing contact has both a workaddress
      * and an address detail, a call to this method with AddressDetail.class
      * would return only the AddressDetail instance and not the
@@ -65,13 +69,15 @@ public interface OperationSetServerStoredContactInfo
      * <p>
      * @return a java.util.Iterator over all details of specified class.
      */
-    public Iterator getDetails(Contact contact, Class detailClass);
+    public Iterator<GenericDetail> getDetails(
+        Contact contact,
+        Class<? extends GenericDetail> detailClass);
 
     /**
-     * Returns all details existing for the specified cotact.
-     * @param contact the specified cotact
+     * Returns all details existing for the specified contact.
+     * @param contact the specified contact
      * @return a java.util.Iterator over all details existing for the specified
      * contact.
      */
-    public Iterator getAllDetailsForContact(Contact contact);
+    public Iterator<GenericDetail> getAllDetailsForContact(Contact contact);
 }

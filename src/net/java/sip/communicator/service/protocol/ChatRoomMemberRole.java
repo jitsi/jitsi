@@ -12,7 +12,7 @@ package net.java.sip.communicator.service.protocol;
  * @author Emil Ivov
  */
 public class ChatRoomMemberRole
-        implements Comparable
+    implements Comparable<ChatRoomMemberRole>
 {
     /**
      * A role implying the full set of chat room permissions
@@ -178,10 +178,9 @@ public class ChatRoomMemberRole
      * @throws ClassCastException if the specified object's type is not an
      * instance of ChatRoomMemberRole.
      */
-    public int compareTo(Object obj)
+    public int compareTo(ChatRoomMemberRole obj)
         throws ClassCastException
     {
-        return getRoleIndex() - ((ChatRoomMemberRole) obj).getRoleIndex();
+        return getRoleIndex() - obj.getRoleIndex();
     }
-
 }

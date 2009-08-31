@@ -358,7 +358,7 @@ public class ContactGroupSSHImpl
     public ContactSSHImpl findContactByID(String id)
     {
         //first go through the contacts that are direct children.
-        Iterator contactsIter = contacts();
+        Iterator<Contact> contactsIter = contacts();
 
         while(contactsIter.hasNext())
         {
@@ -369,7 +369,7 @@ public class ContactGroupSSHImpl
         }
 
         //if we didn't find it here, let's try in the subougroups
-        Iterator groupsIter = subgroups();
+        Iterator<ContactGroup> groupsIter = subgroups();
 
         while( groupsIter.hasNext() )
         {
@@ -391,14 +391,13 @@ public class ContactGroupSSHImpl
      */
      public String toString()
      {
-
         StringBuffer buff = new StringBuffer(getGroupName());
         buff.append(".subGroups=" + countSubgroups() + ":\n");
 
-        Iterator subGroups = subgroups();
+        Iterator<ContactGroup> subGroups = subgroups();
         while (subGroups.hasNext())
         {
-            ContactGroupSSHImpl group = (ContactGroupSSHImpl)subGroups.next();
+            ContactGroup group = subGroups.next();
             buff.append(group.toString());
             if (subGroups.hasNext())
                 buff.append("\n");
@@ -406,10 +405,10 @@ public class ContactGroupSSHImpl
 
         buff.append("\nChildContacts="+countContacts()+":[");
 
-        Iterator contacts = contacts();
+        Iterator<Contact> contacts = contacts();
         while (contacts.hasNext())
         {
-            ContactSSHImpl contact = (ContactSSHImpl) contacts.next();
+            Contact contact = contacts.next();
             buff.append(contact.toString());
             if(contacts.hasNext())
                 buff.append(", ");
@@ -542,15 +541,12 @@ public class ContactGroupSSHImpl
             return false;
 
         //traverse child contacts
-        Iterator theirContacts = sshGroup.contacts();
+        Iterator<Contact> theirContacts = sshGroup.contacts();
 
         while(theirContacts.hasNext())
         {
-            ContactSSHImpl theirContact
-                = (ContactSSHImpl)theirContacts.next();
-
-            ContactSSHImpl ourContact
-                = (ContactSSHImpl)getContact(theirContact.getAddress());
+            Contact theirContact = theirContacts.next();
+            Contact ourContact = getContact(theirContact.getAddress());
 
             if(ourContact == null
                 || !ourContact.equals(theirContact))
@@ -558,16 +554,12 @@ public class ContactGroupSSHImpl
         }
 
         //traverse subgroups
-        Iterator theirSubgroups = sshGroup.subgroups();
+        Iterator<ContactGroup> theirSubgroups = sshGroup.subgroups();
 
         while(theirSubgroups.hasNext())
         {
-            ContactGroupSSHImpl theirSubgroup
-                = (ContactGroupSSHImpl)theirSubgroups.next();
-
-            ContactGroupSSHImpl ourSubgroup
-                = (ContactGroupSSHImpl)getGroup(
-                        theirSubgroup.getGroupName());
+            ContactGroup theirSubgroup = theirSubgroups.next();
+            ContactGroup ourSubgroup = getGroup(theirSubgroup.getGroupName());
 
             if(ourSubgroup == null
                 || !ourSubgroup.equals(theirSubgroup))

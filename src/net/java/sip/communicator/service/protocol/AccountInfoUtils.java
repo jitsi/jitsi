@@ -32,14 +32,11 @@ public class AccountInfoUtils
             OperationSetServerStoredAccountInfo accountInfoOpSet)
     {
         FirstNameDetail firstName = null;
-        Iterator<FirstNameDetail> firstNameDetails
-            =  accountInfoOpSet.getDetails(
-                    ServerStoredDetails.FirstNameDetail.class);
+        Iterator<GenericDetail> firstNameDetails
+            =  accountInfoOpSet.getDetails(FirstNameDetail.class);
 
         if (firstNameDetails.hasNext())
-        {
-            firstName = firstNameDetails.next();
-        }
+            firstName = (FirstNameDetail) firstNameDetails.next();
 
         if(firstName == null)
             return null;
@@ -60,14 +57,11 @@ public class AccountInfoUtils
             OperationSetServerStoredAccountInfo accountInfoOpSet)
     {
         LastNameDetail lastName = null;
-        Iterator<LastNameDetail> lastNameDetails
-            =  accountInfoOpSet.getDetails(
-                    ServerStoredDetails.LastNameDetail.class);
+        Iterator<GenericDetail> lastNameDetails
+            =  accountInfoOpSet.getDetails(LastNameDetail.class);
 
         if (lastNameDetails.hasNext())
-        {
-            lastName = lastNameDetails.next();
-        }
+            lastName = (LastNameDetail) lastNameDetails.next();
 
         if(lastName == null)
             return null;
@@ -88,14 +82,11 @@ public class AccountInfoUtils
             OperationSetServerStoredAccountInfo accountInfoOpSet)
     {
         DisplayNameDetail displayName = null;
-        Iterator<DisplayNameDetail> displayNameDetails
-            =  accountInfoOpSet.getDetails(
-                    ServerStoredDetails.DisplayNameDetail.class);
+        Iterator<GenericDetail> displayNameDetails
+            =  accountInfoOpSet.getDetails(DisplayNameDetail.class);
 
         if (displayNameDetails.hasNext())
-        {
-            displayName = displayNameDetails.next();
-        }
+            displayName = (DisplayNameDetail) displayNameDetails.next();
 
         if(displayName == null)
             return null;
@@ -116,14 +107,11 @@ public class AccountInfoUtils
             OperationSetServerStoredAccountInfo accountInfoOpSet)
     {
         ImageDetail image = null;
-        Iterator<ImageDetail> imageDetails
-            =  accountInfoOpSet.getDetails(
-                    ServerStoredDetails.ImageDetail.class);
+        Iterator<GenericDetail> imageDetails
+            =  accountInfoOpSet.getDetails(ImageDetail.class);
 
         if (imageDetails.hasNext())
-        {
-            image = imageDetails.next();
-        }
+            image = (ImageDetail) imageDetails.next();
 
         return (image != null)
             ? image.getBytes()
@@ -143,14 +131,11 @@ public class AccountInfoUtils
             OperationSetServerStoredAccountInfo accountInfoOpSet)
     {
         BirthDateDetail date = null;
-        Iterator<BirthDateDetail> dateDetails
-            =  accountInfoOpSet.getDetails(
-                    ServerStoredDetails.BirthDateDetail.class);
+        Iterator<GenericDetail> dateDetails
+            =  accountInfoOpSet.getDetails(BirthDateDetail.class);
 
         if (dateDetails.hasNext())
-        {
-            date = dateDetails.next();
-        }
+            date = (BirthDateDetail) dateDetails.next();
 
         if(date == null)
             return null;
@@ -171,14 +156,11 @@ public class AccountInfoUtils
             OperationSetServerStoredAccountInfo accountInfoOpSet)
     {
         GenderDetail gender = null;
-        Iterator<GenderDetail> genderDetails
-            =  accountInfoOpSet.getDetails(
-                    ServerStoredDetails.GenderDetail.class);
+        Iterator<GenericDetail> genderDetails
+            =  accountInfoOpSet.getDetails(GenderDetail.class);
 
         if (genderDetails.hasNext())
-        {
-            gender = genderDetails.next();
-        }
+            gender = (GenderDetail) genderDetails.next();
 
         if(gender == null)
             return null;
@@ -199,14 +181,11 @@ public class AccountInfoUtils
             OperationSetServerStoredAccountInfo accountInfoOpSet)
     {
         AddressDetail address = null;
-        Iterator<AddressDetail> addressDetails
-            =  accountInfoOpSet.getDetails(
-                    ServerStoredDetails.AddressDetail.class);
+        Iterator<GenericDetail> addressDetails
+            =  accountInfoOpSet.getDetails(AddressDetail.class);
 
         if (addressDetails.hasNext())
-        {
-            address = addressDetails.next();
-        }
+            address = (AddressDetail) addressDetails.next();
 
         if(address == null)
             return null;
@@ -227,14 +206,11 @@ public class AccountInfoUtils
             OperationSetServerStoredAccountInfo accountInfoOpSet)
     {
         WorkAddressDetail address = null;
-        Iterator<WorkAddressDetail> addressDetails
-            =  accountInfoOpSet.getDetails(
-                    ServerStoredDetails.WorkAddressDetail.class);
+        Iterator<GenericDetail> addressDetails
+            =  accountInfoOpSet.getDetails(WorkAddressDetail.class);
 
         if (addressDetails.hasNext())
-        {
-            address = addressDetails.next();
-        }
+            address = (WorkAddressDetail) addressDetails.next();
 
         if(address == null)
             return null;
@@ -255,14 +231,11 @@ public class AccountInfoUtils
             OperationSetServerStoredAccountInfo accountInfoOpSet)
     {
         EmailAddressDetail address = null;
-        Iterator<EmailAddressDetail> addressDetails
-            =  accountInfoOpSet.getDetails(
-                    ServerStoredDetails.EmailAddressDetail.class);
+        Iterator<GenericDetail> addressDetails
+            =  accountInfoOpSet.getDetails(EmailAddressDetail.class);
 
         if (addressDetails.hasNext())
-        {
-            address = addressDetails.next();
-        }
+            address = (EmailAddressDetail) addressDetails.next();
 
         if(address == null)
             return null;

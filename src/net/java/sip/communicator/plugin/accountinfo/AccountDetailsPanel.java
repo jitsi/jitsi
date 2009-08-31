@@ -259,7 +259,7 @@ public class AccountDetailsPanel
      */
     private void loadSummaryDetails()
     {
-        Iterator contactDetails;
+        Iterator<GenericDetail> contactDetails;
 
         // Avatar details.
         contactDetails
@@ -414,7 +414,7 @@ public class AccountDetailsPanel
             BorderFactory.createEmptyBorder(0, 5, 5, 5)));
 
         // Obtain all the details for a contact.
-        Iterator iter = accountInfoOpSet.getAllAvailableDetails();
+        Iterator<GenericDetail> iter = accountInfoOpSet.getAllAvailableDetails();
 
         GenericDetail detail;
         JLabel detailLabel;
@@ -423,7 +423,7 @@ public class AccountDetailsPanel
 
         while (iter.hasNext())
         {
-            detail = (GenericDetail) iter.next();
+            detail = iter.next();
 
             if (detail.getDetailValue().toString().equals(""))
                 continue;

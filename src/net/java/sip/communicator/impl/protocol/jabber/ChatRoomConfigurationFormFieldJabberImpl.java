@@ -25,13 +25,13 @@ public class ChatRoomConfigurationFormFieldJabberImpl
     /**
      * The smack library for field.
      */
-    private FormField smackFormField;
+    private final FormField smackFormField;
     
     /**
      * The smack library submit form field. It's the one that will care all
      * values set by user, before submitting the form.
      */
-    private FormField smackSubmitFormField;
+    private final FormField smackSubmitFormField;
     
     /**
      * Creates an instance of <tt>ChatRoomConfigurationFormFieldJabberImpl</tt>
@@ -50,6 +50,8 @@ public class ChatRoomConfigurationFormFieldJabberImpl
         if(!formField.getType().equals(FormField.TYPE_FIXED))
             this.smackSubmitFormField
                 = submitForm.getField(formField.getVariable());
+        else
+            this.smackSubmitFormField = null;
     }
     
     /**
@@ -157,17 +159,18 @@ public class ChatRoomConfigurationFormFieldJabberImpl
             while(smackValues.hasNext())
             {
                 String smackValue = smackValues.next();
-                
-                if(smackValue.equals("1") || smackValue.equals("true"))
-                    values.add(new Boolean(true));
-                else
-                    values.add(new Boolean(false));
+
+                values
+                    .add(
+                        (smackValue.equals("1") || smackValue.equals("true"))
+                            ? Boolean.TRUE
+                            : Boolean.FALSE);
             }
             
             valuesIter = values.iterator();
         }
         else
-            valuesIter = (Iterator)smackValues;
+            valuesIter = (Iterator) smackValues;
         
         return valuesIter;
     }
@@ -197,21 +200,18 @@ public class ChatRoomConfigurationFormFieldJabberImpl
      */
     public void setValues(Object[] newValues)
     {
-        ArrayList list = new ArrayList();
+        List<String> list = new ArrayList<String>();
         
-        for(int i = 0; i < newValues.length; i ++)
+        for(Object value : newValues)
         {
-            Object value = newValues[i];
-            
-            if(value instanceof Boolean)
-            {
-                if(((Boolean)value).booleanValue())
-                    value = "1";
-                else
-                    value = "0";
-            }
-            
-            list.add(value);
+            String stringValue;
+
+            if (value instanceof Boolean)
+                stringValue = ((Boolean) value).booleanValue() ? "1" : "0";
+            else
+                stringValue = (value == null) ? null : value.toString();
+
+            list.add(stringValue);
         }
         
         smackSubmitFormField.addValues(list);

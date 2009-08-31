@@ -14,6 +14,7 @@ import java.util.*;
 import javax.imageio.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -33,10 +34,10 @@ public class OperationSetServerStoredContactInfoFacebookImpl
     private final ProtocolProviderServiceFacebookImpl parentProvider;
     
     /**
-     * All the details retreived so far is kept here
+     * All the details retrieved so far is kept here
      */
-    private final Map<String, List> retreivedDetails
-        = new Hashtable<String, List>();
+    private final Map<String, List<GenericDetail>> retreivedDetails
+        = new Hashtable<String, List<GenericDetail>>();
     
     /**
      * Details retreived addresses
@@ -63,18 +64,18 @@ public class OperationSetServerStoredContactInfoFacebookImpl
      * @param detailClass Class
      * @return Iterator
      */
-    public Iterator getDetailsAndDescendants(Contact contact, Class detailClass)
+    public Iterator<GenericDetail> getDetailsAndDescendants(
+        Contact contact,
+        Class<? extends GenericDetail> detailClass)
     {
-        List details = getContactDetails(contact.getAddress());
-        List result = new LinkedList();
+        List<GenericDetail> details = getContactDetails(contact.getAddress());
+        List<GenericDetail> result = new LinkedList<GenericDetail>();
         
         if(details == null)
             return result.iterator();
 
-        Iterator iter = details.iterator();
-        while (iter.hasNext())
+        for (GenericDetail item : details)
         {
-            Object item = iter.next();
             //the class AND its descendants
             if(detailClass.isInstance(item))
                 result.add(item);
@@ -91,18 +92,18 @@ public class OperationSetServerStoredContactInfoFacebookImpl
      * @param detailClass Class
      * @return Iterator
      */
-    public Iterator getDetails(Contact contact, Class detailClass)
+    public Iterator<GenericDetail> getDetails(
+        Contact contact,
+        Class<? extends GenericDetail> detailClass)
     {
-        List details = getContactDetails(contact.getAddress());
-        List result = new LinkedList();
+        List<GenericDetail> details = getContactDetails(contact.getAddress());
+        List<GenericDetail> result = new LinkedList<GenericDetail>();
         
         if(details == null)
             return result.iterator();
         
-        Iterator iter = details.iterator();
-        while (iter.hasNext())
+        for (GenericDetail item : details)
         {
-            Object item = iter.next();
             //exactly that class not its descendants
             if(detailClass.equals(item.getClass()))
                 result.add(item);
@@ -118,14 +119,14 @@ public class OperationSetServerStoredContactInfoFacebookImpl
      * @param contact Contact
      * @return Iterator
      */
-    public Iterator getAllDetailsForContact(Contact contact)
+    public Iterator<GenericDetail> getAllDetailsForContact(Contact contact)
     {
-        List details = getContactDetails(contact.getAddress());
+        List<GenericDetail> details = getContactDetails(contact.getAddress());
         
         if(details == null)
-            return new LinkedList().iterator();
+            return new LinkedList<GenericDetail>().iterator();
         else
-            return new LinkedList(details).iterator();
+            return new LinkedList<GenericDetail>(details).iterator();
     }
     
     /**
@@ -135,13 +136,14 @@ public class OperationSetServerStoredContactInfoFacebookImpl
      * @param contactAddress String
      * @return Vector the details
      */
-    private List getContactDetails(String contactAddress)
+    private List<GenericDetail> getContactDetails(String contactAddress)
     {
-        List result = retreivedDetails.get(contactAddress);
+        List<GenericDetail> result = retreivedDetails.get(contactAddress);
 
-        if(result == null || (!detailsRetreivedAddresses.contains(contactAddress)))
+        if((result == null)
+                || !detailsRetreivedAddresses.contains(contactAddress))
         {
-            result = new LinkedList();
+            result = new LinkedList<GenericDetail>();
             try
             {
                 /**
@@ -309,7 +311,7 @@ public class OperationSetServerStoredContactInfoFacebookImpl
 
         retreivedDetails.put(contactAddress, result);
         
-        return new LinkedList(result);
+        return new LinkedList<GenericDetail>(result);
     }
     
     /**

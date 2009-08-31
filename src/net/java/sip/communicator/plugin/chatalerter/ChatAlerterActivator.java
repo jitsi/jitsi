@@ -6,9 +6,7 @@
  */
 package net.java.sip.communicator.plugin.chatalerter;
 
-import java.util.*;
 import javax.swing.*;
-import org.osgi.framework.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -16,6 +14,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.jdesktop.jdic.misc.*;
+import org.osgi.framework.*;
 
 /**
  * Chat Alerter plugin.
@@ -188,14 +187,8 @@ public class ChatAlerterActivator
 
         if (opSetMultiUChat != null)
         {
-            Iterator iter = 
-                opSetMultiUChat.getCurrentlyJoinedChatRooms().iterator();
-
-            while(iter.hasNext())
-            {
-                ChatRoom room =  (ChatRoom)iter.next();
+            for (ChatRoom room : opSetMultiUChat.getCurrentlyJoinedChatRooms())
                 room.addMessageListener(this);
-            }
             
             opSetMultiUChat.addPresenceListener(this);
         }
@@ -228,14 +221,8 @@ public class ChatAlerterActivator
 
         if (opSetMultiUChat != null)
         {
-            Iterator iter = 
-                opSetMultiUChat.getCurrentlyJoinedChatRooms().iterator();
-            
-            while(iter.hasNext())
-            {
-                ChatRoom room =  (ChatRoom)iter.next();
+            for (ChatRoom room : opSetMultiUChat.getCurrentlyJoinedChatRooms())
                 room.removeMessageListener(this);
-            }
         }
     }
 

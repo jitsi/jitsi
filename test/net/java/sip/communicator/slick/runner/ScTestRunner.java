@@ -29,7 +29,7 @@ public class ScTestRunner extends BaseTestRunner {
      */
     public ScTestRunner(XmlFormatter printer)
     {
-        this.testPrinter = printer;
+        testPrinter = printer;
     }
 
     /**

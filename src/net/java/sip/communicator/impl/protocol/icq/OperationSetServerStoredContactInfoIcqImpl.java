@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.icq;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 
 /**
  * @author Damian Minkov
@@ -39,19 +40,25 @@ public class OperationSetServerStoredContactInfoIcqImpl
      * @param detailClass Class
      * @return Iterator
      */
-    public Iterator getDetailsAndDescendants(Contact contact, Class detailClass)
+    public Iterator<GenericDetail> getDetailsAndDescendants(
+        Contact contact,
+        Class<? extends GenericDetail> detailClass)
     {
         assertConnected();
         
         if(detailClass.equals(ServerStoredDetails.ImageDetail.class) && 
             contact.getImage() != null)
         {
-            Vector res = new Vector();
-            res.add(new ServerStoredDetails.ImageDetail(
-                "Image", contact.getImage()));
+            List<GenericDetail> res = new Vector<GenericDetail>();
+            res.add(
+                new ServerStoredDetails.ImageDetail(
+                        "Image",
+                        contact.getImage()));
             return res.iterator();    
         }
-        return infoRetreiver.getDetailsAndDescendants(contact.getAddress(), detailClass);
+        return
+            infoRetreiver
+                .getDetailsAndDescendants(contact.getAddress(), detailClass);
     }
 
     /**
@@ -62,14 +69,16 @@ public class OperationSetServerStoredContactInfoIcqImpl
      * @param detailClass Class
      * @return Iterator
      */
-    public Iterator getDetails(Contact contact, Class detailClass)
+    public Iterator<GenericDetail> getDetails(
+        Contact contact,
+        Class<? extends GenericDetail> detailClass)
     {
         assertConnected();
         
         if(detailClass.equals(ServerStoredDetails.ImageDetail.class) && 
             contact.getImage() != null)
         {
-            Vector res = new Vector();
+            List<GenericDetail> res = new Vector<GenericDetail>();
             res.add(new ServerStoredDetails.ImageDetail(
                 "Image", contact.getImage()));
             return res.iterator();    
@@ -84,11 +93,12 @@ public class OperationSetServerStoredContactInfoIcqImpl
      * @param contact Contact
      * @return Iterator
      */
-    public Iterator getAllDetailsForContact(Contact contact)
+    public Iterator<GenericDetail> getAllDetailsForContact(Contact contact)
     {
         assertConnected();
         
-        List res = infoRetreiver.getContactDetails(contact.getAddress());
+        List<GenericDetail> res
+            = infoRetreiver.getContactDetails(contact.getAddress());
         
         if(contact.getImage() != null)
         {

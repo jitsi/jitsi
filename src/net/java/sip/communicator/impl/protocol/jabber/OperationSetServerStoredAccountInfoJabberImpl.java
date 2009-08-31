@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 
 /**
  *
@@ -53,7 +54,8 @@ public class OperationSetServerStoredAccountInfoJabberImpl
      * @return a java.util.Iterator over all details that are instances or
      * descendants of the specified class.
      */
-    public Iterator getDetailsAndDescendants(Class detailClass)
+    public Iterator<GenericDetail> getDetailsAndDescendants(
+        Class<? extends GenericDetail> detailClass)
     {
         assertConnected();
 
@@ -75,7 +77,8 @@ public class OperationSetServerStoredAccountInfoJabberImpl
      * <p>
      * @return a java.util.Iterator over all details of specified class.
      */
-    public Iterator getDetails(Class detailClass)
+    public Iterator<GenericDetail> getDetails(
+        Class<? extends GenericDetail> detailClass)
     {
         assertConnected();
 
@@ -87,7 +90,7 @@ public class OperationSetServerStoredAccountInfoJabberImpl
      * <p>
      * @return a java.util.Iterator over all details currently set our account.
      */
-    public Iterator getAllAvailableDetails()
+    public Iterator<GenericDetail> getAllAvailableDetails()
     {
         assertConnected();
 
@@ -103,17 +106,14 @@ public class OperationSetServerStoredAccountInfoJabberImpl
      * @return a java.util.Iterator over all detail classes supported by the
      * implementation.
      */
-    public Iterator getSupportedDetailTypes()
+    public Iterator<Class<? extends GenericDetail>> getSupportedDetailTypes()
     {
-        List details = infoRetreiver.getContactDetails(uin);
-        Vector result = new Vector();
+        List<GenericDetail> details = infoRetreiver.getContactDetails(uin);
+        List<Class<? extends GenericDetail>> result
+            = new Vector<Class<? extends GenericDetail>>();
 
-        Iterator iter = details.iterator();
-        while (iter.hasNext())
-        {
-            Object obj = iter.next();
+        for (GenericDetail obj : details)
             result.add(obj.getClass());
-        }
 
         return result.iterator();
     }
@@ -131,16 +131,14 @@ public class OperationSetServerStoredAccountInfoJabberImpl
      * @return true if the underlying implementation supports setting details of
      * this type and false otherwise.
      */
-    public boolean isDetailClassSupported(Class detailClass)
+    public boolean isDetailClassSupported(
+        Class<? extends GenericDetail> detailClass)
     {
-        List details = infoRetreiver.getContactDetails(uin);
-        Iterator iter = details.iterator();
-        while (iter.hasNext())
-        {
-            Object obj = iter.next();
+        List<GenericDetail> details = infoRetreiver.getContactDetails(uin);
+
+        for (GenericDetail obj : details)
             if(detailClass.isAssignableFrom(obj.getClass()))
                 return true;
-        }
         return false;
     }
 
@@ -153,7 +151,7 @@ public class OperationSetServerStoredAccountInfoJabberImpl
      * <p>
      * @return int the maximum number of detail instances.
      */
-    public int getMaxDetailInstances(Class detailClass)
+    public int getMaxDetailInstances(Class<? extends GenericDetail> detailClass)
     {
         return 1;
     }

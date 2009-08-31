@@ -8,6 +8,8 @@ package net.java.sip.communicator.service.protocol;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
+
 /**
  * The Account Info Operation set is a means of accessing and modifying detailed
  * information on the user/account that is currently logged in through this
@@ -25,7 +27,7 @@ import java.util.*;
  * define their own details by extending or instantiating the
  * ServerStoredDetails.GenericDetail class. Yet, they are encouraged to use
  * existing detail types as fully as possible. Defining your own detail type
- * may lead to limited visualisation of its value.
+ * may lead to limited visualization of its value.
  * <p>
  * As mentioned earlier the operation set supports adding, removing or replaing
  * various details. The exact set of details that can be manipulated through
@@ -57,13 +59,14 @@ public interface OperationSetServerStoredAccountInfo
      * @return a java.util.Iterator over all details that are instances or
      * descendants of the specified class.
      */
-    public Iterator getDetailsAndDescendants(Class detailClass);
+    public Iterator<GenericDetail> getDetailsAndDescendants(
+        Class<? extends GenericDetail> detailClass);
 
     /**
      * Returns an iterator over all details that are instances of exactly the
      * same class as the one specified. Not that, contrary to the
      * getDetailsAndDescendants() method this one would only return details
-     * that are instances of the specified class and not only its desendants.
+     * that are instances of the specified class and not only its descendants.
      * If for example our account has both a workaddress and an address detail,
      * a call to this method with AddressDetail.class would return only the
      * AddressDetail instance and not the WorkAddressDetail instance.
@@ -74,14 +77,15 @@ public interface OperationSetServerStoredAccountInfo
      * <p>
      * @return a java.util.Iterator over all details of specified class.
      */
-    public Iterator getDetails(Class detailClass);
+    public Iterator<GenericDetail> getDetails(
+        Class<? extends GenericDetail> detailClass);
 
     /**
      * Returns all details currently available and set for our account.
      * <p>
      * @return a java.util.Iterator over all details currently set our account.
      */
-    public Iterator getAllAvailableDetails();
+    public Iterator<GenericDetail> getAllAvailableDetails();
 
     /**
      * Returns all detail Class-es that the underlying implementation supports
@@ -92,10 +96,10 @@ public interface OperationSetServerStoredAccountInfo
      * @return a java.util.Iterator over all detail classes supported by the
      * implementation.
      */
-    public Iterator getSupportedDetailTypes();
+    public Iterator<Class<? extends GenericDetail>> getSupportedDetailTypes();
 
     /**
-     * Determines wheter a detail class represents a detail supported by the
+     * Determines whether a detail class represents a detail supported by the
      * underlying implementation or not. Note that if you call one of the
      * modification methods (add remove or replace) with a detail that this
      * method has determined to be unsupported (returned false) this would lead
@@ -107,7 +111,8 @@ public interface OperationSetServerStoredAccountInfo
      * @return true if the underlying implementation supports setting details of
      * this type and false otherwise.
      */
-    public boolean isDetailClassSupported(Class detailClass);
+    public boolean isDetailClassSupported(
+        Class<? extends GenericDetail> detailClass);
 
     /**
      * The method returns the number of instances supported for a particular
@@ -118,7 +123,8 @@ public interface OperationSetServerStoredAccountInfo
      * <p>
      * @return int the maximum number of detail instances.
      */
-    public int getMaxDetailInstances(Class detailClass);
+    public int getMaxDetailInstances(
+        Class<? extends GenericDetail> detailClass);
 
     /**
      * Adds the specified detail to the list of details registered on-line

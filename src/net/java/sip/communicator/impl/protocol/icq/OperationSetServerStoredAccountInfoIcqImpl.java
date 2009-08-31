@@ -1,5 +1,3 @@
-
-
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
  *
@@ -8,16 +6,16 @@
  */
 package net.java.sip.communicator.impl.protocol.icq;
 
+import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.util.*;
-import net.kano.joscar.snac.*;
-import net.kano.joscar.snaccmd.icq.*;
 import net.kano.joscar.*;
-import java.io.*;
+import net.kano.joscar.snac.*;
 import net.kano.joscar.snaccmd.*;
+import net.kano.joscar.snaccmd.icq.*;
 import net.kano.joustsim.*;
 import net.kano.joustsim.oscar.oscar.service.icon.*;
 
@@ -45,7 +43,8 @@ public class OperationSetServerStoredAccountInfoIcqImpl
     // the value is int[]
     // int[0] - the max count of this detail
     // the Tlv type for this detail
-    public static Hashtable supportedTypes = new Hashtable();
+    public static final Map<Class<? extends GenericDetail>, int[]> supportedTypes
+        = new Hashtable<Class<? extends GenericDetail>, int[]>();
     static {
         supportedTypes.put(ServerStoredDetails.CountryDetail.class,     new int[]{1, 0x01A4});
         supportedTypes.put(ServerStoredDetails.NicknameDetail.class,    new int[]{1, 0x0154});
@@ -115,12 +114,12 @@ public class OperationSetServerStoredAccountInfoIcqImpl
      * @return a java.util.Iterator over all details currently set our
      *   account.
      */
-    public Iterator getAllAvailableDetails()
+    public Iterator<GenericDetail> getAllAvailableDetails()
     {
         assertConnected();
 
-        List ds = infoRetreiver.getContactDetails(uin);
-        Object img = getImage();
+        List<GenericDetail> ds = infoRetreiver.getContactDetails(uin);
+        GenericDetail img = getImage();
         if(img != null)
             ds.add(img);
         
@@ -136,13 +135,14 @@ public class OperationSetServerStoredAccountInfoIcqImpl
      *   interested in. <p>
      * @return a java.util.Iterator over all details of specified class.
      */
-    public Iterator getDetails(Class detailClass)
+    public Iterator<GenericDetail> getDetails(
+        Class<? extends GenericDetail> detailClass)
     {
         assertConnected();
         
         if(detailClass.equals(ImageDetail.class))
         {
-            Vector res = new Vector();
+            List<GenericDetail> res = new Vector<GenericDetail>();
             res.add(getImage());
             return res.iterator();
         }
@@ -160,13 +160,14 @@ public class OperationSetServerStoredAccountInfoIcqImpl
      * @return a java.util.Iterator over all details that are instances or
      *   descendants of the specified class.
      */
-    public Iterator getDetailsAndDescendants(Class detailClass)
+    public Iterator<GenericDetail> getDetailsAndDescendants(
+        Class<? extends GenericDetail> detailClass)
     {
         assertConnected();
 
         if(ImageDetail.class.isAssignableFrom(detailClass))
         {
-            Vector res = new Vector();
+            List<GenericDetail> res = new Vector<GenericDetail>();
             res.add(getImage());
             return res.iterator();
         }
@@ -182,9 +183,9 @@ public class OperationSetServerStoredAccountInfoIcqImpl
      *   find out. <p>
      * @return int the maximum number of detail instances.
      */
-    public int getMaxDetailInstances(Class detailClass)
+    public int getMaxDetailInstances(Class<? extends GenericDetail> detailClass)
     {
-        return ((int[])supportedTypes.get(detailClass))[0];
+        return supportedTypes.get(detailClass)[0];
     }
 
     /**
@@ -194,13 +195,13 @@ public class OperationSetServerStoredAccountInfoIcqImpl
      * @return a java.util.Iterator over all detail classes supported by the
      *   implementation.
      */
-    public Iterator getSupportedDetailTypes()
+    public Iterator<Class<? extends GenericDetail>> getSupportedDetailTypes()
     {
         return supportedTypes.keySet().iterator();
     }
 
     /**
-     * Determines wheter a detail class represents a detail supported by the
+     * Determines whether a detail class represents a detail supported by the
      * underlying implementation or not.
      *
      * @param detailClass the class the support for which we'd like to
@@ -208,7 +209,8 @@ public class OperationSetServerStoredAccountInfoIcqImpl
      * @return true if the underlying implementation supports setting
      *   details of this type and false otherwise.
      */
-    public boolean isDetailClassSupported(Class detailClass)
+    public boolean isDetailClassSupported(
+        Class<? extends GenericDetail> detailClass)
     {
         return supportedTypes.get(detailClass) != null;
     }
@@ -262,8 +264,8 @@ public class OperationSetServerStoredAccountInfoIcqImpl
                 "implementation does not support such details " +
                 detail.getClass());
 
-        Vector alreadySetDetails = new Vector();
-        Iterator iter = getDetails(detail.getClass());
+        List<GenericDetail> alreadySetDetails = new Vector<GenericDetail>();
+        Iterator<GenericDetail> iter = getDetails(detail.getClass());
         while (iter.hasNext())
         {
             alreadySetDetails.add(iter.next());
@@ -282,7 +284,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
                     new MetaFullInfoSetCmd(Integer.parseInt(uin), reqID++);
 
         int typeOfDetail =
-            ((int[])supportedTypes.get(detail.getClass()))[1];
+            supportedTypes.get(detail.getClass())[1];
 
         try
         {
@@ -313,11 +315,14 @@ public class OperationSetServerStoredAccountInfoIcqImpl
                     int[] langs = new int[3];
                     Arrays.fill(langs, -1);
                     int count = 0;
-                    Iterator i = getDetails(SpokenLanguageDetail.class);
+                    Iterator<GenericDetail> i
+                        = getDetails(SpokenLanguageDetail.class);
                     while (i.hasNext())
                     {
-                        Object item = i.next();
-                        langs[count++] = getLanguageCode(((SpokenLanguageDetail)item).getLocale());
+                        GenericDetail item = i.next();
+                        langs[count++]
+                            = getLanguageCode(
+                                ((SpokenLanguageDetail)item).getLocale());
                     }
                     langs[count] = getLanguageCode(((SpokenLanguageDetail)detail).getLocale());
                     cmd.setLanguages(langs[0], langs[1], langs[2]);
@@ -341,7 +346,8 @@ public class OperationSetServerStoredAccountInfoIcqImpl
                 case 0x0258 : cmd.setNotes(((StringDetail)detail).getString()); break;
                 case 0x01EA :
                     List<InterestDetail> interests = new ArrayList<InterestDetail>();
-                    Iterator intIter = getDetails(InterestDetail.class);
+                    Iterator<GenericDetail> intIter
+                        = getDetails(InterestDetail.class);
                     while (intIter.hasNext())
                     {
                         InterestDetail item = (InterestDetail) intIter.next();
@@ -410,10 +416,10 @@ public class OperationSetServerStoredAccountInfoIcqImpl
         // set it with empty or default value
 
         boolean isFound = false;
-        // as there is items like langusge, which must be changed all the values
+        // as there is items like language, which must be changed all the values
         // we write not only the changed one but and the other found
-        ArrayList foundValues = new ArrayList();
-        Iterator iter = infoRetreiver.getDetails(uin, detail.getClass());
+        List<GenericDetail> foundValues = new ArrayList<GenericDetail>();
+        Iterator<?> iter = infoRetreiver.getDetails(uin, detail.getClass());
         while (iter.hasNext())
         {
             GenericDetail item = (GenericDetail) iter.next();
@@ -429,16 +435,13 @@ public class OperationSetServerStoredAccountInfoIcqImpl
         if(!isFound)
             return false;
 
-        List removeValues = new ArrayList();
-        removeValues.add(detail);
-
         SuccessResponseListener responseListener = new SuccessResponseListener();
 
         MetaFullInfoSetCmd cmd =
                            new MetaFullInfoSetCmd(Integer.parseInt(uin), reqID++);
 
        int typeOfDetail =
-           ((int[])supportedTypes.get(detail.getClass()))[1];
+           supportedTypes.get(detail.getClass())[1];
 
        try
        {
@@ -538,11 +541,12 @@ public class OperationSetServerStoredAccountInfoIcqImpl
             return true;
 
         boolean isFound = false;
-        Vector alreadySetDetails = new Vector();
-        Iterator iter = infoRetreiver.getDetails(uin, currentDetailValue.getClass());
+        List<GenericDetail> alreadySetDetails = new Vector<GenericDetail>();
+        Iterator<GenericDetail> iter
+            = infoRetreiver.getDetails(uin, currentDetailValue.getClass());
         while (iter.hasNext())
         {
-            GenericDetail item = (GenericDetail) iter.next();
+            GenericDetail item = iter.next();
             if(item.equals(currentDetailValue))
             {
                 isFound = true;
@@ -607,7 +611,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
             new MetaFullInfoSetCmd(Integer.parseInt(uin), reqID++);
 
         int typeOfDetail =
-            ((int[])supportedTypes.get(newDetailValue.getClass()))[1];
+            supportedTypes.get(newDetailValue.getClass())[1];
 
         try
         {
@@ -639,10 +643,10 @@ public class OperationSetServerStoredAccountInfoIcqImpl
                     int[] langs = new int[3];
                     Arrays.fill(langs, -1);
                     int count = 0;
-                    Iterator i = getDetails(SpokenLanguageDetail.class);
+                    Iterator<GenericDetail> i = getDetails(SpokenLanguageDetail.class);
                     while (i.hasNext())
                     {
-                        Object item = i.next();
+                        GenericDetail item = i.next();
                         if(item.equals(currentDetailValue))
                             langs[count++] = getLanguageCode(((SpokenLanguageDetail)newDetailValue).getLocale());
                         else
@@ -668,8 +672,10 @@ public class OperationSetServerStoredAccountInfoIcqImpl
                 case 0x02DA : cmd.setWorkWebPage(((StringDetail)newDetailValue).getString()); break;
                 case 0x0258 : cmd.setNotes(((StringDetail)newDetailValue).getString()); break;
                 case 0x01EA :
-                    List<InterestDetail> interests = new ArrayList<InterestDetail>();
-                    Iterator intIter = getDetails(InterestDetail.class);
+                    List<InterestDetail> interests
+                        = new ArrayList<InterestDetail>();
+                    Iterator<GenericDetail> intIter
+                        = getDetails(InterestDetail.class);
                     while (intIter.hasNext())
                     {
                         InterestDetail item = (InterestDetail) intIter.next();
@@ -1603,10 +1609,9 @@ public class OperationSetServerStoredAccountInfoIcqImpl
 //         */
 //        private DetailTlv getClearTlv(ServerStoredDetails.GenericDetail detail)
 //        {
-//            int typeOfDetail = ( (int[]) supportedTypes.get(detail.getClass()))[1];
+//            int typeOfDetail = supportedTypes.get(detail.getClass())[1];
 //
-//            DetailTlv result = new DetailTlv( ( (int[]) supportedTypes.get(detail.
-//                getClass()))[1]);
+//            DetailTlv result = new DetailTlv(supportedTypes.get(detail.getClass())[1]);
 //
 //            switch (typeOfDetail)
 //            {
@@ -1647,7 +1652,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
 //         */
 //        private DetailTlv getTlvForChange(ServerStoredDetails.GenericDetail detail)
 //        {
-//            int typeOfDetail = ( (int[]) supportedTypes.get(detail.getClass()))[1];
+//            int typeOfDetail = supportedTypes.get(detail.getClass())[1];
 //
 //            DetailTlv result = new DetailTlv(typeOfDetail);
 //

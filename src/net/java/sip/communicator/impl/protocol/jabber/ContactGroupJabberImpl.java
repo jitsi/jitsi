@@ -406,11 +406,8 @@ public class ContactGroupJabberImpl
 
         this.rosterGroup = source;
 
-        Iterator iter = source.getEntries().iterator();
-        while (iter.hasNext())
+        for (RosterEntry item : source.getEntries())
         {
-            RosterEntry item = (RosterEntry) iter.next();
-
             ContactJabberImpl contact =
                 ssclCallback.findContactById(item.getUser());
             if(contact != null)
@@ -466,13 +463,8 @@ public class ContactGroupJabberImpl
         // clear current buddies . new entries will be added
         buddies.clear();
 
-        Iterator iter = newGroup.getEntries().iterator();
-        while (iter.hasNext())
-        {
-            RosterEntry item = (RosterEntry) iter.next();
-
+        for (RosterEntry item : newGroup.getEntries())
             addContact( new ContactJabberImpl(item, ssclCallback, true, true) );
-        }
     }
 
 }

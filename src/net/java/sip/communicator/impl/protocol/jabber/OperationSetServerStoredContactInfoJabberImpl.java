@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 
 /**
  * @author Damian Minkov
@@ -34,21 +35,20 @@ public class OperationSetServerStoredContactInfoJabberImpl
      * @param detailClass Class
      * @return Iterator
      */
-    public Iterator getDetailsAndDescendants(Contact contact, Class detailClass)
+    public Iterator<GenericDetail> getDetailsAndDescendants(
+        Contact contact,
+        Class<? extends GenericDetail> detailClass)
     {
-        List details = infoRetreiver.getContactDetails(contact.getAddress());
-        List result = new LinkedList();
+        List<GenericDetail> details
+            = infoRetreiver.getContactDetails(contact.getAddress());
+        List<GenericDetail> result = new LinkedList<GenericDetail>();
 
         if(details == null)
             return result.iterator();
 
-        Iterator iter = details.iterator();
-        while (iter.hasNext())
-        {
-            Object item = iter.next();
+        for (GenericDetail item : details)
             if(detailClass.isInstance(item))
                 result.add(item);
-        }
 
         return result.iterator();
     }
@@ -61,21 +61,20 @@ public class OperationSetServerStoredContactInfoJabberImpl
      * @param detailClass Class
      * @return Iterator
      */
-    public Iterator getDetails(Contact contact, Class detailClass)
+    public Iterator<GenericDetail> getDetails(
+        Contact contact,
+        Class<? extends GenericDetail> detailClass)
     {
-        List details = infoRetreiver.getContactDetails(contact.getAddress());
-        List result = new LinkedList();
+        List<GenericDetail> details
+            = infoRetreiver.getContactDetails(contact.getAddress());
+        List<GenericDetail> result = new LinkedList<GenericDetail>();
 
         if(details == null)
             return result.iterator();
 
-        Iterator iter = details.iterator();
-        while (iter.hasNext())
-        {
-            Object item = iter.next();
+        for (GenericDetail item : details)
             if(detailClass.equals(item.getClass()))
                 result.add(item);
-        }
 
         return result.iterator();
     }
@@ -87,13 +86,14 @@ public class OperationSetServerStoredContactInfoJabberImpl
      * @param contact Contact
      * @return Iterator
      */
-    public Iterator getAllDetailsForContact(Contact contact)
+    public Iterator<GenericDetail> getAllDetailsForContact(Contact contact)
     {
-        List details = infoRetreiver.getContactDetails(contact.getAddress());
+        List<GenericDetail> details
+            = infoRetreiver.getContactDetails(contact.getAddress());
 
         if(details == null)
-            return new LinkedList().iterator();
+            return new LinkedList<GenericDetail>().iterator();
         else
-            return new LinkedList(details).iterator();
+            return new LinkedList<GenericDetail>(details).iterator();
     }
 }

@@ -181,7 +181,7 @@ public class AlsaStream
         if (started && transferHandler != null) {
         transferHandler.transferData(this);
         try {
-            Thread.currentThread().sleep(1);
+            Thread.sleep(1);
         } catch (InterruptedException ise) {
         }
         }
@@ -204,7 +204,7 @@ public class AlsaStream
      */
     public Object getControl(String controlType) {
        try {
-          Class  cls = Class.forName(controlType);
+          Class<?>  cls = Class.forName(controlType);
           Object cs[] = getControls();
           for (int i = 0; i < cs.length; i++) {
              if (cls.isInstance(cs[i]))

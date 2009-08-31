@@ -10,6 +10,7 @@ import java.net.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.util.*;
 import net.kano.joscar.flapcmd.*;
 import net.kano.joscar.snac.*;
@@ -32,10 +33,11 @@ public class InfoRetreiver
     // used when sending commands for user info to the server
     private String ownerUin = null;
 
-    // here is kept all the details retreived so far
-    private Hashtable retreivedDetails = new Hashtable();
+    // here is kept all the details retrieved so far
+    private final Map<String, List<GenericDetail>> retreivedDetails
+        = new Hashtable<String, List<GenericDetail>>();
 
-    // used to generate request id when sending commands for retreiving user info
+    // used to generate request id when sending commands for retrieving user info
     private static int requestID = 0;
 
     /**
@@ -43,7 +45,8 @@ public class InfoRetreiver
      * sequences of 8 packets according to the
      * requestID we keep the stored Info so far.
      */
-    private static Hashtable retreivedInfo = new Hashtable();
+    private static final Map<Integer, List<GenericDetail>> retreivedInfo
+        = new Hashtable<Integer, List<GenericDetail>>();
 
 
     protected InfoRetreiver
@@ -63,18 +66,16 @@ public class InfoRetreiver
      * @param detailClass Class
      * @return Iterator
      */
-    public Iterator getDetailsAndDescendants(String uin, Class detailClass)
+    public Iterator<GenericDetail> getDetailsAndDescendants(
+        String uin,
+        Class<? extends GenericDetail> detailClass)
     {
-        List details = getContactDetails(uin);
-        List result = new LinkedList();
+        List<GenericDetail> details = getContactDetails(uin);
+        List<GenericDetail> result = new LinkedList<GenericDetail>();
 
-        Iterator iter = details.iterator();
-        while (iter.hasNext())
-        {
-            Object item = iter.next();
-            if(detailClass.isInstance(item))
+        for (GenericDetail item : details)
+            if (detailClass.isInstance(item))
                 result.add(item);
-        }
 
         return result.iterator();
     }
@@ -87,15 +88,15 @@ public class InfoRetreiver
      * @param detailClass Class
      * @return Iterator
      */
-    public Iterator getDetails(String uin, Class detailClass)
+    public Iterator<GenericDetail> getDetails(
+        String uin,
+        Class<? extends GenericDetail> detailClass)
     {
-        List details = getContactDetails(uin);
-        List result = new LinkedList();
+        List<GenericDetail> details = getContactDetails(uin);
+        List<GenericDetail> result = new LinkedList<GenericDetail>();
 
-        Iterator iter = details.iterator();
-        while (iter.hasNext())
+        for (GenericDetail item : details)
         {
-            Object item = iter.next();
             if(detailClass.equals(item.getClass()))
                 result.add(item);
         }
@@ -110,15 +111,15 @@ public class InfoRetreiver
      * @param uin String
      * @return Vector
      */
-    protected List getContactDetails(String uin)
+    protected List<GenericDetail> getContactDetails(String uin)
     {
-        List result = (List)retreivedDetails.get(uin);
+        List<GenericDetail> result = retreivedDetails.get(uin);
 
         if(result == null)
         {
             int reqID = requestID++;
 
-            //retreive the details
+            //retrieve the details
             long toICQUin = Long.parseLong(uin);
             MetaFullInfoRequest infoRequest =
                 new MetaFullInfoRequest(
@@ -136,13 +137,13 @@ public class InfoRetreiver
 
             result = responseRetriever.result;
 
-            if(result == null)
-                result = new LinkedList();
+            if (result == null)
+                result = new LinkedList<GenericDetail>();
 
             retreivedDetails.put(uin, result);
         }
 
-        return new LinkedList(result);
+        return new LinkedList<GenericDetail>(result);
     }
 
     /**
@@ -151,7 +152,7 @@ public class InfoRetreiver
     private class UserInfoResponseRetriever extends SnacRequestAdapter
     {
         int requestID;
-        List result = null;
+        List<GenericDetail> result = null;
 
         UserInfoResponseRetriever(int requestID)
         {
@@ -213,7 +214,8 @@ public class InfoRetreiver
         {
             synchronized(this)
             {
-                try{
+                try
+                {
                     wait(waitFor);
                 }
                 catch (InterruptedException ex)
@@ -223,7 +225,6 @@ public class InfoRetreiver
                 }
             }
         }
-
     }
 
     /**
@@ -301,9 +302,9 @@ public class InfoRetreiver
      * @param requestID int
      * @return List
      */
-    private List getInfoForRequest(int requestID)
+    private List<GenericDetail> getInfoForRequest(int requestID)
     {
-        List res = (List) retreivedInfo.get(requestID);
+        List<GenericDetail> res = retreivedInfo.get(requestID);
 
         if (res == null)
         {
@@ -311,7 +312,7 @@ public class InfoRetreiver
             // doesn't exists, so this is the first packet
             // from the sequence (basic info)
 
-            res = new LinkedList();
+            res = new LinkedList<GenericDetail>();
             retreivedInfo.put(requestID, res);
         }
 
@@ -325,7 +326,7 @@ public class InfoRetreiver
     */
     private void readBasicUserInfo(MetaBasicInfoCmd cmd)
     {
-        List infoData = getInfoForRequest(cmd.getId());
+        List<GenericDetail> infoData = getInfoForRequest(cmd.getId());
 
         Locale countryCodeLocale =
             OperationSetServerStoredAccountInfoIcqImpl.getCountry(cmd.getCountryCode());
@@ -372,7 +373,7 @@ public class InfoRetreiver
      */
     private void readMoreUserInfo(MetaMoreInfoCmd cmd)
     {
-        List infoData = getInfoForRequest(cmd.getId());
+        List<GenericDetail> infoData = getInfoForRequest(cmd.getId());
 
         ServerStoredDetails.GenderDetail gender =
             OperationSetServerStoredAccountInfoIcqImpl.genders[cmd.getGender()];
@@ -447,16 +448,15 @@ public class InfoRetreiver
      */
     private void readEmailUserInfo(MetaEmailInfoCmd cmd)
     {
-        List infoData = getInfoForRequest(cmd.getId());
-
+        List<GenericDetail> infoData = getInfoForRequest(cmd.getId());
         String emails[] = cmd.getEmails();
 
-        if(emails == null)
+        if (emails == null)
             return;
 
-        for (int i = 0; i < emails.length; i++)
+        for (String email : emails)
         {
-            infoData.add(new ServerStoredDetails.EmailAddressDetail(emails[i]));
+            infoData.add(new ServerStoredDetails.EmailAddressDetail(email));
         }
     }
 
@@ -467,8 +467,7 @@ public class InfoRetreiver
      */
     private void readHomePageUserInfo(MetaHomepageCategoryInfoCmd cmd)
     {
-        List infoData = getInfoForRequest(cmd.getId());
-
+        List<GenericDetail> infoData = getInfoForRequest(cmd.getId());
         String tmp = null;
 
         try
@@ -487,7 +486,7 @@ public class InfoRetreiver
      */
     private void readWorkUserInfo(MetaWorkInfoCmd cmd)
     {
-        List infoData = getInfoForRequest(cmd.getId());
+        List<GenericDetail> infoData = getInfoForRequest(cmd.getId());
 
         String tmp = null;
         if ((tmp = cmd.getWorkCity()) != null)
@@ -546,7 +545,7 @@ public class InfoRetreiver
      */
     private void readUserAboutInfo(MetaNotesInfoCmd cmd)
     {
-        List infoData = getInfoForRequest(cmd.getId());
+        List<GenericDetail> infoData = getInfoForRequest(cmd.getId());
 
         if (cmd.getNotes() != null)
             infoData.add(
@@ -560,7 +559,7 @@ public class InfoRetreiver
      */
     private void readInterestsUserInfo(MetaInterestsInfoCmd cmd)
     {
-        List infoData = getInfoForRequest(cmd.getId());
+        List<GenericDetail> infoData = getInfoForRequest(cmd.getId());
 
         int[] categories = cmd.getCategories();
         String[] interests = cmd.getInterests();

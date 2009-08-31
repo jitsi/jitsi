@@ -48,7 +48,7 @@ public class IcqSlickFixture extends TestCase
      * and initialise the ss contact list before the tested implementation has
      * actually done so.
      */
-    public static Hashtable preInstalledBuddyList  = null;
+    public static Hashtable<String, List<String>> preInstalledBuddyList  = null;
 
     public ServiceReference        icqServiceRef   = null;
     public ProtocolProviderService provider        = null;
@@ -57,7 +57,7 @@ public class IcqSlickFixture extends TestCase
 
     /**
      * A reference to the bundle containing the tested pp implementation. This
-     * reference is set during the accoung uninstallation testing and used during
+     * reference is set during the account uninstallation testing and used during
      * the account uninstallation persistence testing.
      */
     public static Bundle           providerBundle  = null;

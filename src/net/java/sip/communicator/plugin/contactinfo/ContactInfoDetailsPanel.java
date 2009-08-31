@@ -239,7 +239,7 @@ public class ContactInfoDetailsPanel
 
         detailsPanel.add(valuesPanel, BorderLayout.CENTER);
 
-        Iterator contactDetails;
+        Iterator<GenericDetail> contactDetails;
         GenericDetail genericDetail;
 
         // First name details.
@@ -414,7 +414,8 @@ public class ContactInfoDetailsPanel
             BorderFactory.createEmptyBorder(0, 5, 5, 5)));
 
         // Obtain all the details for a contact.
-        Iterator iter = contactInfoOpSet.getAllDetailsForContact(contact);
+        Iterator<GenericDetail> iter
+            = contactInfoOpSet.getAllDetailsForContact(contact);
 
         GenericDetail detail;
         JLabel detailLabel;
@@ -423,7 +424,7 @@ public class ContactInfoDetailsPanel
 
         while (iter.hasNext())
         {
-            detail = (GenericDetail) iter.next();
+            detail = iter.next();
 
             if (detail.getDetailValue().toString().equals(""))
                 continue;
