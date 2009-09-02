@@ -24,13 +24,10 @@ import net.kano.joscar.snaccmd.ssi.*;
 import net.kano.joscar.tlv.*;
 import net.kano.joustsim.*;
 import net.kano.joustsim.oscar.*;
-import net.kano.joustsim.oscar.State;
 import net.kano.joustsim.oscar.oscar.service.bos.*;
 import net.kano.joustsim.oscar.oscar.service.buddy.*;
 import net.kano.joustsim.oscar.oscar.service.icbm.*;
-import net.kano.joustsim.oscar.oscar.service.info.*;
 import net.kano.joustsim.oscar.oscar.service.ssi.*;
-import net.kano.joustsim.trust.*;
 
 /**
  * An utility that we use to test AIM/ICQ implementations of the
@@ -656,18 +653,16 @@ public class IcqTesterAgent
         public Object extraInfoLock = new Object();
         public Object infoLock = new Object();
 
-        public List lastExtraInfos = null;
         public FullUserInfo lastUserInfo = null;
 
         /**
          * Saves the extraInfos list and calls a notifyAll on the extraInfoLock
          * @param extraInfos the list of extraInfos that the AIM server sent
          */
-        public void handleYourExtraInfo(List extraInfos)
+        public void handleYourExtraInfo(List<ExtraInfoBlock> extraInfos)
         {
             logger.debug("Bosiat.extrainfo=" + extraInfos);
             synchronized(extraInfoLock){
-                lastExtraInfos = extraInfos;
                 extraInfoLock.notifyAll();
             }
         }
@@ -697,7 +692,7 @@ public class IcqTesterAgent
     {
         public Vector<Group> addedGroups  = new Vector<Group>();
         public Vector<Buddy> addedBuddies = new Vector<Buddy>();
-        public Vector removedBuddies = new Vector();
+        public Vector<Buddy> removedBuddies = new Vector<Buddy>();
 
         /**
          * The method would wait until at least one new buddy is collected by
@@ -807,22 +802,28 @@ public class IcqTesterAgent
         }
 
         //we don't use this one so far.
-        public void groupsReordered(BuddyList list, List oldOrder, List newOrder)
+        public void groupsReordered(
+            BuddyList list,
+            List<? extends Group> oldOrder,
+            List<? extends Group> newOrder)
         {
             logger.debug("groupsReordered");
         }
 
         //we don't use this one so far.
-        public void groupRemoved(BuddyList list,
-            List oldItems, List newItems, Group group)
+        public void groupRemoved(
+            BuddyList list,
+            List<? extends Group> oldItems,
+            List<? extends Group> newItems,
+            Group group)
         {
             logger.debug("removedGroup="+group.getName());
         }
 
         // we don't use this one so far.
         public void buddyRemoved(BuddyList list, Group group,
-                                 List oldItems,
-                                 List newItems,
+                                 List<? extends Buddy> oldItems,
+                                 List<? extends Buddy> newItems,
                                  Buddy buddy)
         {
             logger.debug("removed buddy=" + buddy);
@@ -830,8 +831,8 @@ public class IcqTesterAgent
 
         //we don't use this one
         public void buddiesReordered(BuddyList list, Group group,
-                                     List oldBuddies,
-                                     List newBuddies)
+                                     List<? extends Buddy> oldBuddies,
+                                     List<? extends Buddy> newBuddies)
         {
             logger.debug("buddiesReordered in group " + group.getName());
         }
@@ -844,7 +845,7 @@ public class IcqTesterAgent
         {
             System.out.println("BuddyListener.gotBuddyStatus " + buddy.toString()
                                +" and status is : " + info.getIcqStatus());
-            List eInfoBlocks = info.getExtraInfoBlocks();
+            List<ExtraInfoBlock> eInfoBlocks = info.getExtraInfoBlocks();
             if (eInfoBlocks != null)
             {
                 System.out.println("printing extra info blocks ("
@@ -907,71 +908,36 @@ public class IcqTesterAgent
 
     }
 
-    private class ServiceListener implements OpenedServiceListener
-    {
-
-        public void closedServices(AimConnection conn, Collection services)
-        {
-
-        }
-
-        public void openedServices(AimConnection conn, Collection services)
-        {
-            conn.getBuddyInfoManager().addGlobalBuddyInfoListener(new GlobalBuddyListener());
-            conn.getBuddyService().addBuddyListener(new BuddyListener());
-        }
-
-    }
-
-    private static class InfoRespListener  implements InfoResponseListener{
-
-            public void handleAwayMessage(InfoService service, Screenname buddy,
-                                          String awayMessage)
-            {
-                System.out.println("InfoResponseListener.handleAwayMessage " + awayMessage);
-            }
-
-            public void handleCertificateInfo(InfoService service,
-                                              Screenname buddy,
-                                              BuddyCertificateInfo certInfo)
-            {
-                System.out.println("InfoResponseListener.handleCertificateInfo " + certInfo);
-            }
-
-            public void handleDirectoryInfo(InfoService service,
-                                            Screenname buddy, DirInfo dirInfo)
-            {
-                System.out.println("InfoResponseListener.handleDirectoryInfo " + dirInfo);
-            }
-
-            public void handleUserProfile(InfoService service, Screenname buddy,
-                                          String userInfo)
-            {
-                System.out.println("InfoResponseListener.handleUserProfile " + userInfo);
-            }
-
-            public void handleInvalidCertificates(InfoService service,
-                                                  Screenname buddy,
-                                                  CertificateInfo origCertInfo,
-                                                  Throwable ex)
-            {
-                System.out.println("InfoResponseListener.handleInvalidCertificates " + origCertInfo);
-            }
-
-        }
+//    private class ServiceListener
+//        implements OpenedServiceListener
+//    {
+//        public void closedServices(AimConnection conn, Collection services)
+//        {
+//        }
+//
+//        public void openedServices(AimConnection conn, Collection services)
+//        {
+//            conn.getBuddyInfoManager()
+//                .addGlobalBuddyInfoListener(new GlobalBuddyListener());
+//            conn.getBuddyService().addBuddyListener(new BuddyListener());
+//        }
+//    }
 
     private class RetroListener
         implements BuddyListLayoutListener, GroupListener
     {
-        public void groupsReordered(BuddyList list, List oldOrder,
-                             List newOrder)
+        public void groupsReordered(BuddyList list,
+                                    List<? extends Group> oldOrder,
+                                    List<? extends Group> newOrder)
         {
             System.out.println("        RetroListener.groupReordered");
         }
 
-        public void groupAdded(BuddyList list, List oldItems,
-                        List newItems,
-                        Group group, List buddies)
+        public void groupAdded(BuddyList list,
+                               List<? extends Group> oldItems,
+                               List<? extends Group> newItems,
+                               Group group,
+                               List<? extends Buddy> buddies)
         {
             System.out.println("RetroListener.groupAdded");
             System.out.println("    group.name is="+group.getName());
@@ -989,36 +955,42 @@ public class IcqTesterAgent
             group.addGroupListener(this);
         }
 
-        public void groupRemoved(BuddyList list, List oldItems,
-                          List newItems,
-                          Group group)
+        public void groupRemoved(BuddyList list,
+                                 List<? extends Group> oldItems,
+                                 List<? extends Group> newItems,
+                                 Group group)
         {
             System.out.println("        RetroListener.groupRemoved");
         }
 
-        public void buddyAdded(BuddyList list, Group group, List oldItems,
-                        List newItems,
-                        Buddy buddy)
+        public void buddyAdded(BuddyList list,
+                               Group group,
+                               List<? extends Buddy> oldItems,
+                               List<? extends Buddy> newItems,
+                               Buddy buddy)
         {
             System.out.println("        RetroListener.buddyAdded="+buddy);
         }
 
-        public void buddyRemoved(BuddyList list, Group group,
-                          List oldItems,
-                          List newItems,
-                          Buddy buddy)
+        public void buddyRemoved(BuddyList list,
+                                 Group group,
+                                 List<? extends Buddy> oldItems,
+                                 List<? extends Buddy> newItems,
+                                 Buddy buddy)
         {
             System.out.println("        RetroListener.buddyRemoved"+buddy);
         }
 
-        public void buddiesReordered(BuddyList list, Group group,
-                              List oldBuddies,
-                              List newBuddies)
+        public void buddiesReordered(BuddyList list,
+                                     Group group,
+                                     List<? extends Buddy> oldBuddies,
+                                     List<? extends Buddy> newBuddies)
         {
             System.out.println("        RetroListener.buddiesReordered");
         }
 
-        public void groupNameChanged(Group group, String oldName,
+        public void groupNameChanged(Group group,
+                                     String oldName,
                                      String newName)
         {
             System.out.println(
@@ -1028,23 +1000,22 @@ public class IcqTesterAgent
                 + newName
                 + " group is="+group.getName());
             System.out.println("GroupContains="+group.getBuddiesCopy());
-
         }
-
     }
 
 ////////////////////////// ugly unused testing code //////////////////////////
     private RetroListener rl = new RetroListener();
     public static void main(String[] args) throws Throwable
     {
-java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.FINEST);
+        java.util.logging.Logger.getLogger("net.kano")
+            .setLevel(java.util.logging.Level.FINEST);
+
         IcqTesterAgent icqtests = new IcqTesterAgent("319305099");
         if (!icqtests.register("6pC0mmtt"))
         {
             System.out.println("registration failed"); ;
             return;
         }
-        MainBosService bos =  icqtests.conn.getBosService();
         Thread.sleep(1000);
         icqtests.conn.getSsiService()
             .getBuddyList().addRetroactiveLayoutListener(icqtests.rl);
@@ -1056,19 +1027,13 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
 
         MutableBuddyList list = icqtests.conn.getSsiService().getBuddyList();
 
-        MutableGroup dupeGroup = null;
         MutableGroup grpGroup = null;
         Buddy buddyToMove = null;
 
-        List groups = list.getGroups();
-        Iterator groupsIter = groups.iterator();
-        while(groupsIter.hasNext())
+        for (Group group : list.getGroups())
         {
-            MutableGroup group = (MutableGroup)groupsIter.next();
-            if (group.getName().equals("dupe"))
-                dupeGroup = group;
             if (group.getName().equals("grp"))
-                grpGroup = group;
+                grpGroup = (MutableGroup) group;
             List<? extends Buddy> buddies = group.getBuddiesCopy();
             System.out.println("Printing buddies for group " + group.getName());
             Thread.sleep(1000);
@@ -1091,10 +1056,8 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
 
         //find the buddy again.
         Buddy movedBuddy = null;
-        groupsIter = list.getGroups().iterator();
-        while(groupsIter.hasNext())
+        for (Group group : list.getGroups())
         {
-            MutableGroup group = (MutableGroup)groupsIter.next();
             List<? extends Buddy> buddies = group.getBuddiesCopy();
             for (Buddy buddy : buddies)
             {
@@ -1105,28 +1068,6 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
 
         if (buddyToMove == movedBuddy)
             System.out.println("hahaha");
-
-    }
-
-    private class TestSnacCmd  extends SnacCommand
-    {
-        /** The SNAC family code for the location family. */
-        public static final int FAMILY_ICQ = 0x0015;
-
-        protected TestSnacCmd(int command) {
-            super(FAMILY_ICQ, command);
-        }
-
-        /**
-         * Writes this command's SNAC data block to the given stream. The SNAC data
-         * block is the data after the first ten bytes of a SNAC packet.
-         *
-         * @param out the stream to which to write the SNAC data
-         * @throws IOException if an I/O error occurs
-         */
-        public void writeData(OutputStream out) throws IOException
-        {
-        }
     }
 
     public void deleteBuddy(String screenname)
@@ -1331,7 +1272,7 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
         extends ServerSsiCmdFactory
         implements SnacResponseListener
     {
-        List SUPPORTED_TYPES = null;
+        List<CmdType> SUPPORTED_TYPES = null;
 
         public String responseReasonStr = null;
         public String requestReasonStr = null;
@@ -1342,15 +1283,15 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
 
         public AuthCmdFactory()
         {
-            List types = super.getSupportedTypes();
-            ArrayList tempTypes = new ArrayList(types);
+            List<CmdType> types = super.getSupportedTypes();
+            ArrayList<CmdType> tempTypes = new ArrayList<CmdType>(types);
             tempTypes.add(new CmdType(SsiCommand.FAMILY_SSI, 0x001b)); // 1b auth request reply
             tempTypes.add(new CmdType(SsiCommand.FAMILY_SSI, 0x0019)); // 19 auth request
 
             this.SUPPORTED_TYPES = DefensiveTools.getUnmodifiable(tempTypes);
         }
 
-        public List getSupportedTypes()
+        public List<CmdType> getSupportedTypes()
         {return SUPPORTED_TYPES;}
 
         public SnacCommand genSnacCommand(SnacPacket packet)
@@ -1402,9 +1343,9 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
                     (SsiDataModResponse) e.getSnacCommand();
 
                 int[] results = dataModResponse.getResults();
-                List items = ( (ItemsCmd) e.getRequest().getCommand()).
+                List<SsiItem> items = ( (ItemsCmd) e.getRequest().getCommand()).
                     getItems();
-                items = new LinkedList(items);
+                items = new LinkedList<SsiItem>(items);
 
                 for (int i = 0; i < results.length; i++)
                 {
@@ -1415,11 +1356,11 @@ java.util.logging.Logger.getLogger("net.kano").setLevel(java.util.logging.Level.
                         isErrorAddingReceived = true;
 
                         // authorisation required for user
-                        SsiItem buddyItem = (SsiItem) items.get(i);
+                        SsiItem buddyItem = items.get(i);
 
                         String uinToAskForAuth = buddyItem.getName();
 
-                        Vector buddiesToBeAdded = new Vector();
+                        Vector<SsiItem> buddiesToBeAdded = new Vector<SsiItem>();
 
                         BuddyAwaitingAuth newBuddy = new BuddyAwaitingAuth(
                             buddyItem);

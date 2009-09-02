@@ -10,6 +10,7 @@ import java.util.*;
 
 import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -192,14 +193,15 @@ public class TestOperationSetServerStoredInfo
             = opSetPresence.findContactByID(fixture.testerAgent.getIcqUIN());
 
         // Get the last name info
-        Iterator iter =
+        Iterator<GenericDetail> iter =
             opSetServerStoredContactInfo.
                 getDetails(testerAgentContact,
                            ServerStoredDetails.LastNameDetail.class);
 
         while (iter.hasNext())
         {
-            ServerStoredDetails.LastNameDetail item = (ServerStoredDetails.LastNameDetail) iter.next();
+            ServerStoredDetails.LastNameDetail item
+                = (ServerStoredDetails.LastNameDetail) iter.next();
 
             assertEquals("The LastName we set is not set or not read properly"
                      , item.getName()
@@ -227,10 +229,11 @@ public class TestOperationSetServerStoredInfo
             opSetServerStoredContactInfo.
                 getDetails(testerAgentContact,
                            ServerStoredDetails.SpokenLanguageDetail.class);
-        ArrayList spokenLanguagesServer = new ArrayList();
+        List<Locale> spokenLanguagesServer = new ArrayList<Locale>();
         while (iter.hasNext())
         {
-            ServerStoredDetails.SpokenLanguageDetail item = (ServerStoredDetails.SpokenLanguageDetail)iter.next();
+            ServerStoredDetails.SpokenLanguageDetail item
+                = (ServerStoredDetails.SpokenLanguageDetail)iter.next();
             spokenLanguagesServer.add(item.getLocale());
         }
 
@@ -254,7 +257,8 @@ public class TestOperationSetServerStoredInfo
                            ServerStoredDetails.CountryDetail.class);
         while (iter.hasNext())
         {
-            ServerStoredDetails.CountryDetail item = (ServerStoredDetails.CountryDetail) iter.next();
+            ServerStoredDetails.CountryDetail item
+                = (ServerStoredDetails.CountryDetail) iter.next();
 
             logger.info("read item value: " + item.getLocale().getDisplayCountry());
 
@@ -282,7 +286,7 @@ public class TestOperationSetServerStoredInfo
         ServerStoredDetails.CountryDetail homeCountryDetail = null;
 
         // Get Last name info detail
-        Iterator iter =
+        Iterator<GenericDetail> iter =
             opSetServerStoredAccountInfo.
             getDetails(ServerStoredDetails.LastNameDetail.class);
         if (iter.hasNext())
@@ -485,7 +489,7 @@ public class TestOperationSetServerStoredInfo
         logger.trace("Proceeding to Testing values!");
         // make the tests here
 
-        Hashtable userInfo = fixture.testerAgent.getUserInfo(fixture.ourUserID);
+        Hashtable<String, Object> userInfo = fixture.testerAgent.getUserInfo(fixture.ourUserID);
 
         assertEquals("The LastName we set is not set or not read properly"
                      , newLastName
@@ -495,13 +499,17 @@ public class TestOperationSetServerStoredInfo
                      , newPhoneNumber
                      , userInfo.get(FullUserInfoCmd.PHONE_NUMBER));
 
-        ArrayList languageCodes = (ArrayList)userInfo.get(FullUserInfoCmd.SPEAK_LANG);
-        ArrayList languages = new ArrayList();
+        List<?> languageCodes
+            = (ArrayList<?>) userInfo.get(FullUserInfoCmd.SPEAK_LANG);
+        ArrayList<Locale> languages = new ArrayList<Locale>();
         // convert language codes to locales in the list
-        iter = languageCodes.iterator();
-        while (iter.hasNext())
+        Iterator<?> languageCodeIter = languageCodes.iterator();
+        while (languageCodeIter.hasNext())
         {
-            languages.add(spokenLanguages[((Integer)iter.next()).intValue()]);
+            languages
+                .add(
+                    spokenLanguages[
+                        ((Integer) languageCodeIter.next()).intValue()]);
         }
 //        assertEquals("The number of spoken languages dowsn't match",
 //            newLanguages.length,
@@ -525,15 +533,14 @@ public class TestOperationSetServerStoredInfo
      */
     public void errorHandling()
     {
-        Iterator iter =
+        Iterator<GenericDetail> iter =
             opSetServerStoredAccountInfo.
                 getDetails(ServerStoredDetails.SpokenLanguageDetail.class);
 
-        ArrayList initialLanguages = new ArrayList();
+        ArrayList<GenericDetail> initialLanguages
+            = new ArrayList<GenericDetail>();
         while (iter.hasNext())
-        {
             initialLanguages.add(iter.next());
-        }
 
         assertEquals("There must be 3 language details!", 3, initialLanguages.size());
 
@@ -607,23 +614,22 @@ public class TestOperationSetServerStoredInfo
 
         try
         {
-            Iterator iter =
+            Iterator<GenericDetail> iter =
                 opSetServerStoredAccountInfo.
                     getDetails(ServerStoredDetails.SpokenLanguageDetail.class);
 
-            ArrayList initialLanguages = new ArrayList();
+            List<GenericDetail> initialLanguages
+                = new ArrayList<GenericDetail>();
             while (iter.hasNext())
-            {
                 initialLanguages.add(iter.next());
-            }
 
             // now remove those languages
             iter = initialLanguages.iterator();
             while (iter.hasNext())
             {
-                assertTrue("Error removing language!",
-                           opSetServerStoredAccountInfo.removeDetail(
-                               (ServerStoredDetails.SpokenLanguageDetail)iter.next()));
+                assertTrue(
+                    "Error removing language!",
+                    opSetServerStoredAccountInfo.removeDetail(iter.next()));
                 synchronized (lock)
                 {
                 try{
@@ -648,14 +654,12 @@ public class TestOperationSetServerStoredInfo
                 opSetServerStoredAccountInfo.
                     getDetails(ServerStoredDetails.SpokenLanguageDetail.class);
 
-            ArrayList languages = new ArrayList();
+            List<GenericDetail> languages = new ArrayList<GenericDetail>();
             while (iter.hasNext())
-            {
                 languages.add(iter.next());
-            }
             logger.trace("languages " + languages.size());
 
-            // there must be no languages after the last retreive
+            // there must be no languages after the last retrieve
             assertEquals("There must be no language details!", 0, languages.size());
         }
         catch (OperationFailedException ex)

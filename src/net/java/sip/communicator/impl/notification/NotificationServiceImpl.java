@@ -288,24 +288,21 @@ public class NotificationServiceImpl
      * an event with the specified name has occurred, or null if no actions
      * have been defined for <tt>eventType</tt>.
      */
-    public Map getEventNotifications(String eventType)
+    public Map<String, NotificationActionHandler> getEventNotifications(String eventType)
     {
         EventNotification notification = notificationsTable.get(eventType);
 
         if(notification == null)
             return null;
 
-        // TODO: cleanup mixed usage of different classes/objects in hashtable
-        // Cleanup together with NotificationService and NotificationConfigurationPanel
-        Hashtable actions = new Hashtable();
+        Hashtable<String, NotificationActionHandler> actions = new Hashtable<String, NotificationActionHandler>();
 
         for (Object value : notification.getActions().values())
         {
             Action action = (Action) value;
             NotificationActionHandler handler = action.getActionHandler();
 
-            actions.put(action.getActionType(), (handler == null) ? ""
-                : handler);
+            actions.put(action.getActionType(), handler);
         }
         
         return actions;
@@ -1059,41 +1056,28 @@ public class NotificationServiceImpl
      */
     public void restoreDefaults()
     {
-        Set<String> eventTypes =
-            ((Hashtable<String, EventNotification>) notificationsTable.clone())
-                .keySet();
-
-        for (String eventType : eventTypes)
+        for (String eventType : new Vector<String>(notificationsTable.keySet()))
         {
             EventNotification notification = notificationsTable.get(eventType);
 
-            Vector<String> actionsToRemove = new Vector<String>(notification.getActions().keySet());
-            Iterator<String> actionIter = actionsToRemove.iterator();
-            while (actionIter.hasNext())
-            {
-                String actionType = actionIter.next();
-                
+            for (String actionType
+                    : new Vector<String>(notification.getActions().keySet()))
                 removeEventNotificationAction(eventType, actionType);
-            }
             
             removeEventNotification(eventType);
         }
 
-        for (Map.Entry<String, EventNotification> entry : defaultNotificationsTable.entrySet())
+        for (Map.Entry<String, EventNotification> entry
+                : defaultNotificationsTable.entrySet())
         {
             String eventType = entry.getKey();
             EventNotification notification = entry.getValue();
 
-            Iterator<String> actionIter = notification.getActions().keySet().iterator();
-            while (actionIter.hasNext())
-            {
-                String actionType = actionIter.next();
-                
+            for (String actionType : notification.getActions().keySet())                
                 registerNotificationForEvent(
                     eventType, 
                     actionType, 
                     notification.getAction(actionType).getActionHandler());
-            }
         }
     }
 }

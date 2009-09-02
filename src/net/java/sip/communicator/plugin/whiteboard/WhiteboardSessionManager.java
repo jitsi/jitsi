@@ -8,6 +8,7 @@ package net.java.sip.communicator.plugin.whiteboard;
 
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import net.java.sip.communicator.plugin.whiteboard.gui.*;
 import net.java.sip.communicator.plugin.whiteboard.gui.whiteboardshapes.*;
@@ -38,18 +39,14 @@ public class WhiteboardSessionManager
 
     public WhiteboardSessionManager()
     {
-        if (WhiteboardActivator
-            .getWhiteboardOperationSets() == null)
+        List<OperationSetWhiteboarding> whiteboardOpSets
+            = WhiteboardActivator.getWhiteboardOperationSets();
+
+        if (whiteboardOpSets == null)
             return;
 
-        Iterator opSets = WhiteboardActivator
-            .getWhiteboardOperationSets().iterator();
-
-        while (opSets.hasNext())
+        for (OperationSetWhiteboarding whiteboardOpSet : whiteboardOpSets)
         {
-            OperationSetWhiteboarding whiteboardOpSet
-                = (OperationSetWhiteboarding) opSets.next();
-
             whiteboardOpSet.addInvitationListener(new InvitationListener());
             whiteboardOpSet.addPresenceListener(new PresenceListener());
         }
@@ -130,7 +127,7 @@ public class WhiteboardSessionManager
                                                     WhiteboardShape ws)
         throws OperationFailedException
     {
-        Vector supportedWBO =  new Vector (
+        Vector<String> supportedWBO =  new Vector<String>(
           Arrays.asList (wbSession.getSupportedWhiteboardObjects ()));
 
         if(ws instanceof WhiteboardObjectPath)

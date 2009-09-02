@@ -17,9 +17,9 @@ import javax.swing.*;
  */
 public class CallListModel extends AbstractListModel
 {
-    private LinkedList callList = new LinkedList();
+    private final LinkedList<Object> callList = new LinkedList<Object>();
     
-    private Hashtable closedDates = new Hashtable();
+    private final Map<Object, Object> closedDates = new Hashtable<Object, Object>();
     
     /**
      * Closes the given date by hiding all containing calls.
@@ -31,7 +31,7 @@ public class CallListModel extends AbstractListModel
         int startIndex = this.indexOf(date);
         int endIndex = startIndex;
         int currentSize = getSize();
-        Collection c = new ArrayList();
+        Collection<Object> c = new ArrayList<Object>();
         
         for(int i = startIndex + 1; i < currentSize; i ++) {
             Object o = this.getElementAt(i);
@@ -57,19 +57,22 @@ public class CallListModel extends AbstractListModel
     {
         int startIndex = this.indexOf(date);
         int endIndex = startIndex;
-        Hashtable closedDatesCopy = (Hashtable)closedDates.clone();
-        
-        if(closedDatesCopy.containsValue(date)) {            
-            Iterator dates = closedDatesCopy.entrySet().iterator();
+
+        if (closedDates.containsValue(date))
+        {            
+            Iterator<Map.Entry<Object, Object>> dates
+                = closedDates.entrySet().iterator();
             
-            while(dates.hasNext()) {
-                Map.Entry entry = (Map.Entry)dates.next();
+            while (dates.hasNext())
+            {
+                Map.Entry<Object, Object> entry = dates.next();
                 Object callRecord = entry.getKey();
                 Object callDate = entry.getValue();
                 
-                if(callDate.equals(date)) {
+                if (callDate.equals(date))
+                {
                     endIndex++;
-                    closedDates.remove(callRecord);
+                    dates.remove();
                     this.addElement(endIndex, callRecord);
                 }
             }            
@@ -84,10 +87,7 @@ public class CallListModel extends AbstractListModel
      * @return True if the date is closed, false - otherwise.
      */
     public boolean isDateClosed(Object date) {        
-        if (this.closedDates.containsValue(date))
-            return true;
-        else
-            return false;
+        return this.closedDates.containsValue(date);
     }
 
     public int getSize()
@@ -128,7 +128,7 @@ public class CallListModel extends AbstractListModel
         }
     }
     
-    public void removeAll(Collection c)
+    public void removeAll(Collection<Object> c)
     {
         synchronized (callList) {
             callList.removeAll(c);

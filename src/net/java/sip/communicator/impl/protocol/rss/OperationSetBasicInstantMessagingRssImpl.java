@@ -203,13 +203,11 @@ public class OperationSetBasicInstantMessagingRssImpl
      */
     public void refreshAllRssFeeds()
     {
-         Vector rssContactList = new Vector();
-         rssContactList = opSetPersPresence.getContactListRoot().
-             getRssURLList(rssContactList);
-         Iterator rssContact = rssContactList.iterator();
-         while(rssContact.hasNext())
+         Vector<ContactRssImpl> rssContactList = new Vector<ContactRssImpl>();
+         opSetPersPresence.getContactListRoot().getRssURLList(rssContactList);
+
+         for (ContactRssImpl contact : rssContactList)
          {
-             ContactRssImpl contact = (ContactRssImpl)rssContact.next();
              try
              {
                  submitRssQuery(contact, false);

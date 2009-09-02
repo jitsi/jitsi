@@ -413,34 +413,21 @@ public class ContactGroupRssImpl
         return buff.append("]").toString();
     }
 
-     public Vector getRssURLList(Vector rssURLList){
-         //private Vector rssURLList;
-         //StringBuffer buff = new StringBuffer(getGroupName());
-        //buff.append(".subGroups=" + countSubgroups() + ":\n");
-
+     public void getRssURLList(List<ContactRssImpl> rssURLList)
+     {
         Iterator<ContactGroup> subGroups = subgroups();
         while (subGroups.hasNext())
         {
             ContactGroupRssImpl group = (ContactGroupRssImpl)subGroups.next();
-            //buff.append(
-                    group.getRssURLList(rssURLList);
-           // if (subGroups.hasNext())
-             //   buff.append("\n");
+            group.getRssURLList(rssURLList);
         }
-
-        //buff.append("\nChildContacts="+countContacts()+":[");
 
         Iterator<Contact> contacts = contacts();
         while (contacts.hasNext())
         {
             ContactRssImpl contact = (ContactRssImpl) contacts.next();
-            //buff.append(contact.getDisplayName());
-            rssURLList.addElement(contact);
-            //if(contacts.hasNext())
-              //  buff.append(", ");
+            rssURLList.add(contact);
         }
-        //return buff.append("]").toString();
-        return rssURLList;
      }
 
     /**

@@ -8,6 +8,10 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.protocol.*;
+
+import org.jivesoftware.smack.*;
+
 /**
  * The Jabber implementation of the Volatile ContactGroup interface.
  *
@@ -19,7 +23,7 @@ public class VolatileContactGroupJabberImpl
     /**
      * This contact group name
      */
-    private String contactGroupName = null;
+    private final String contactGroupName;
 
     /**
      * Creates an Jabber group using the specified group name
@@ -31,7 +35,8 @@ public class VolatileContactGroupJabberImpl
                         String groupName,
                         ServerStoredContactListJabberImpl ssclCallback)
     {
-        super(null, new Vector().iterator(), ssclCallback, false);
+        super(null, new Vector<RosterEntry>().iterator(), ssclCallback, false);
+
         this.contactGroupName = groupName;
     }
 
@@ -55,10 +60,10 @@ public class VolatileContactGroupJabberImpl
         buff.append(getGroupName());
         buff.append(", childContacts="+countContacts()+":[");
 
-        Iterator contacts = contacts();
+        Iterator<Contact> contacts = contacts();
         while (contacts.hasNext())
         {
-            ContactJabberImpl contact = (ContactJabberImpl) contacts.next();
+            Contact contact = contacts.next();
             buff.append(contact.toString());
             if(contacts.hasNext())
                 buff.append(", ");

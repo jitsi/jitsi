@@ -4,17 +4,20 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.protocol.jabber.extensions.whiteboard;
 
-import net.java.sip.communicator.util.*;
-import java.awt.Color;
+import java.awt.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
+
 import javax.xml.parsers.*;
-import net.java.sip.communicator.service.protocol.WhiteboardPoint;
-import org.w3c.dom.*;
+
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.whiteboardobjects.*;
+import net.java.sip.communicator.util.*;
+
+import org.w3c.dom.*;
 
 /**
  *  WhiteboardObjectPolyLineJabberImpl
@@ -35,7 +38,8 @@ public class WhiteboardObjectPolyLineJabberImpl
     /**
      * list of WhiteboardPoint
      */
-    private LinkedList listPoints = new LinkedList ();
+    private List<WhiteboardPoint> listPoints
+        = new LinkedList<WhiteboardPoint>();
     
     /**
      * Default WhiteboardObjectPolyLineJabberImpl constructor.
@@ -99,9 +103,9 @@ public class WhiteboardObjectPolyLineJabberImpl
      * @param points the list of <tt>WhiteboardPoint</tt> instances that this
      * <tt>WhiteboardObject</tt> is composed of.
      */
-    public void setPoints (List points)
+    public void setPoints (List<WhiteboardPoint> points)
     {
-        this.listPoints =  new LinkedList (points);
+        this.listPoints =  new LinkedList<WhiteboardPoint>(points);
     }
     
     /**
@@ -110,7 +114,7 @@ public class WhiteboardObjectPolyLineJabberImpl
      *
      * @return the list of <tt>WhiteboardPoint</tt>s composing this object.
      */
-    public List getPoints ()
+    public List<WhiteboardPoint> getPoints ()
     {
         return this.listPoints;
     }
@@ -124,9 +128,9 @@ public class WhiteboardObjectPolyLineJabberImpl
      *
      * @return a List of the String points parameter
      */
-    private List getPolyPoints (String points)
+    private List<WhiteboardPoint> getPolyPoints (String points)
     {
-        List list = new LinkedList ();
+        List<WhiteboardPoint> list = new LinkedList<WhiteboardPoint>();
         if (points == null)
         {
             return list;
@@ -167,7 +171,7 @@ public class WhiteboardObjectPolyLineJabberImpl
         
         for (int i = 0; i < listPoints.size (); i++)
         {
-            WhiteboardPoint point = (WhiteboardPoint) listPoints.get (i);
+            WhiteboardPoint point = listPoints.get (i);
             sb.append (point.getX ());
             sb.append (",");
             sb.append (point.getY ());

@@ -300,7 +300,7 @@ public class TestMetaHistoryService
             iter = v.iterator();
             while (iter.hasNext())
             {
-                CallPeer item = (CallPeer) iter.next();
+                CallPeer item = iter.next();
                 mockBTelphonyOpSet.hangupCallPeer(item);
             }
         }
@@ -704,7 +704,7 @@ public class TestMetaHistoryService
 
         it = rs.iterator();
         assertTrue("Filetransfers not found",
-                    ((FileRecord)it.next()).getFile().getName().
+                    it.next().getFile().getName().
                         equals(files[2].getName()));
 
         rs = getFileRecords(

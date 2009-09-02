@@ -4,15 +4,14 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.plugin.whiteboard.gui.whiteboardshapes;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.geom.*;
 import java.util.*;
-import net.java.sip.communicator.service.protocol.WhiteboardPoint;
+import java.util.List;
+
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.whiteboardobjects.*;
 
 /**
@@ -28,7 +27,7 @@ public class WhiteboardShapePath
     /**
      * List of WhiteboardPoint
      */
-    private ArrayList points;
+    private ArrayList<WhiteboardPoint> points;
 
     /**
      * WhiteboardShapePath constructor.
@@ -39,12 +38,12 @@ public class WhiteboardShapePath
      * @param c WhiteboardShapePath's color (or rather it's border)
      * @param points list of WhiteboardPoint.
      */
-    public WhiteboardShapePath (String id, int t, Color c, List points)
+    public WhiteboardShapePath (String id, int t, Color c, List<WhiteboardPoint> points)
     {
         super (id);
         this.setThickness (t);
         setColor (c.getRGB ());
-        this.points = new ArrayList (points);
+        this.points = new ArrayList<WhiteboardPoint>(points);
     }
     
     /**
@@ -57,17 +56,15 @@ public class WhiteboardShapePath
      * @param v2w 2D affine transform
      */
     public WhiteboardShapePath (String id, int t, Color c,
-      List points, AffineTransform v2w)
+      List<WhiteboardPoint> points, AffineTransform v2w)
     {
         super (id);
         this.setThickness (t);
         setColor (c.getRGB ());
         
-        this.points = new ArrayList ();
-        WhiteboardPoint p = null;
-        for (int i = 0; i < points.size ();i++)
+        this.points = new ArrayList<WhiteboardPoint>();
+        for (WhiteboardPoint p : points)
         {
-            p = (WhiteboardPoint) points.get (i);
             Point2D w = v2w.transform (
               new Point2D.Double (p.getX (), p.getY ()), null);
             this.points.add (new WhiteboardPoint (w.getX (), w.getY ()));
@@ -80,7 +77,7 @@ public class WhiteboardShapePath
      *
      * @return the list of <tt>WhiteboardPoint</tt>s composing this object.
      */
-    public List getPoints ()
+    public List<WhiteboardPoint> getPoints ()
     {
         return points;
     }
@@ -90,15 +87,12 @@ public class WhiteboardShapePath
      *
      * @return list of selected points
      */
-    public List getSelectionPoints ()
+    public List<WhiteboardPoint> getSelectionPoints ()
     {
-        List list = new ArrayList ();
-        WhiteboardPoint p ;
-        for(int i =0; i< points.size (); i++)
-        {
-            p = (WhiteboardPoint) points.get (i);
+        List<WhiteboardPoint> list = new ArrayList<WhiteboardPoint>();
+
+        for(WhiteboardPoint p : points)
             list.add (new WhiteboardPoint (p.getX (), p.getY ()));
-        }
         return list;
     }
     
@@ -116,7 +110,7 @@ public class WhiteboardShapePath
         int size = points.size ();
         for (int i = 0; i < size; i++)
         {
-            WhiteboardPoint point = (WhiteboardPoint) points.get (i);
+            WhiteboardPoint point = points.get (i);
             Point2D p0 = t.transform (
               new Point2D.Double (startX, startY), null);
             Point2D p1 = t.transform (
@@ -151,7 +145,7 @@ public class WhiteboardShapePath
         int size = points.size ();
         for (int i = 0; i < size; i++)
         {
-            WhiteboardPoint point = (WhiteboardPoint) points.get (i);
+            WhiteboardPoint point = points.get (i);
             
             if (i > 0)
             {
@@ -177,9 +171,9 @@ public class WhiteboardShapePath
      * @param points the list of <tt>WhiteboardPoint</tt> instances that this
      * <tt>WhiteboardObject</tt> is composed of.
      */
-    public void setPoints (List points)
+    public void setPoints (List<WhiteboardPoint> points)
     {
-        this.points = new ArrayList (points);
+        this.points = new ArrayList<WhiteboardPoint>(points);
     }
     
     /**
@@ -193,7 +187,7 @@ public class WhiteboardShapePath
         WhiteboardPoint point;
         for (int i = 0; i< points.size ();i++)
         {
-            point = (WhiteboardPoint) points.get (i);
+            point = points.get (i);
 
             points.set (i, new WhiteboardPoint (
               point.getX () + deltaX, point.getY () + deltaY));
@@ -216,7 +210,7 @@ public class WhiteboardShapePath
 
         for (int i = 0; i < points.size (); i++)
         {
-            point = (WhiteboardPoint) points.get (i);
+            point = points.get (i);
 
             if(getModifyPoint().equals(point))
             {
@@ -239,17 +233,10 @@ public class WhiteboardShapePath
      */
     public WhiteboardPoint getSelectionPoint (Point2D p)
     {
-        WhiteboardPoint point;
-        for (int i = 0; i < points.size (); i++)
-        {
-            point = (WhiteboardPoint) points.get (i);
-
-            if((new Point2D.Double (
-              point.getX (),  point.getY ())).distance (p) < 18)
-            {
+        for (WhiteboardPoint point : points)
+            if((new Point2D.Double (point.getX (),  point.getY ())).distance (p)
+                    < 18)
                 return point;
-            }
-        }
         return null;
     }
 }

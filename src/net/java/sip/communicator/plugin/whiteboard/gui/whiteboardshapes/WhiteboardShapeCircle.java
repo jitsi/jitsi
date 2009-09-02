@@ -4,17 +4,14 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.plugin.whiteboard.gui.whiteboardshapes;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Point2D;
+import java.awt.geom.*;
 import java.util.*;
 import java.util.List;
-import net.java.sip.communicator.service.protocol.WhiteboardPoint;
 
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.whiteboardobjects.*;
 
 /**
@@ -49,7 +46,7 @@ public class WhiteboardShapeCircle
     /**
      * Stores all selection points for this shape.
      */
-    private ArrayList selectionPoints = new ArrayList();
+    private ArrayList<WhiteboardPoint> selectionPoints = new ArrayList<WhiteboardPoint>();
     
     /**
      * WhiteboardShapeCircle constructor
@@ -207,14 +204,9 @@ public class WhiteboardShapeCircle
     {
         WhiteboardPoint givenPoint = new WhiteboardPoint(p.getX(), p.getY());
 
-        for (int i = 0; i < selectionPoints.size(); i ++)
-        {
-            WhiteboardPoint point = (WhiteboardPoint) selectionPoints.get(i);
-
+        for (WhiteboardPoint point : selectionPoints)
             if (point.distance(givenPoint) < 10)
                 return point;
-        }
-
         return null;
     }
     /**
@@ -222,7 +214,7 @@ public class WhiteboardShapeCircle
      *
      * @return list of selected points
      */
-    public List getSelectionPoints ()
+    public List<WhiteboardPoint> getSelectionPoints ()
     {
         return selectionPoints;
     }

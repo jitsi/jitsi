@@ -4,20 +4,21 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.protocol.jabber.extensions.whiteboard;
 
-import net.java.sip.communicator.service.protocol.WhiteboardPoint;
-import net.java.sip.communicator.util.*;
-import java.awt.Color;
+import java.awt.*;
 import java.io.*;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
 import java.util.regex.*;
-import javax.xml.parsers.*;
-import org.w3c.dom.*;
 
+import javax.xml.parsers.*;
+
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.whiteboardobjects.*;
+import net.java.sip.communicator.util.*;
+
+import org.w3c.dom.*;
 
 /**
  *  WhiteboardObjectPathJabberImpl
@@ -38,7 +39,8 @@ public class WhiteboardObjectPathJabberImpl
     /**
      * List of WhiteboardPoint
      */
-    private LinkedList listPoints = new LinkedList ();
+    private List<WhiteboardPoint> listPoints
+        = new LinkedList<WhiteboardPoint>();
 
     /**
      * Default WhiteboardObjectPathJabberImpl constructor.
@@ -101,9 +103,9 @@ public class WhiteboardObjectPathJabberImpl
      * @param points the list of <tt>WhiteboardPoint</tt> instances that this
      * <tt>WhiteboardObject</tt> is composed of.
      */
-    public void setPoints (List points)
+    public void setPoints (List<WhiteboardPoint> points)
     {
-        this.listPoints =  new LinkedList (points);
+        this.listPoints = new LinkedList<WhiteboardPoint>(points);
     }
 
     /**
@@ -112,7 +114,7 @@ public class WhiteboardObjectPathJabberImpl
      *
      * @return the list of <tt>WhiteboardPoint</tt>s composing this object.
      */
-    public List getPoints ()
+    public List<WhiteboardPoint> getPoints ()
     {
         return this.listPoints;
     }
@@ -125,9 +127,9 @@ public class WhiteboardObjectPathJabberImpl
      * of WhiteboardPoint.
      * @return a LinkedList (WhiteboardPoint) of the String points parameter
      */
-    private List getPathPoints (String points)
+    private List<WhiteboardPoint> getPathPoints (String points)
     {
-        List list = new LinkedList ();
+        List<WhiteboardPoint> list = new LinkedList<WhiteboardPoint>();
         if (points == null)
         {
             return list;
@@ -149,7 +151,7 @@ public class WhiteboardObjectPathJabberImpl
     }
 
     /**
-     * Returns the XML reppresentation of the PacketExtension.
+     * Returns the XML representation of the PacketExtension.
      *
      * @return the packet extension as XML.
      * @todo Implement this org.jivesoftware.smack.packet.PacketExtension
@@ -169,7 +171,7 @@ public class WhiteboardObjectPathJabberImpl
         int size = listPoints.size ();
         for (int i = 0; i < size; i++)
         {
-            WhiteboardPoint point = (WhiteboardPoint) listPoints.get (i);
+            WhiteboardPoint point = listPoints.get (i);
             sb.append ((i == 0) ? "M" : "L");
             sb.append (point.getX ());
             sb.append (" ");

@@ -37,12 +37,14 @@ public class WhiteboardSessionJabberImpl
     /**
      * A list of listeners registered for message events.
      */
-    private Vector messageListeners = new Vector();
+    private Vector<WhiteboardObjectListener> messageListeners 
+        = new Vector<WhiteboardObjectListener>();
 
     /**
      * A list containing all <tt>WhiteboardParticipant</tt>s of this session.
      */
-    private Hashtable wbParticipants = new Hashtable();
+    private Hashtable<String, WhiteboardParticipant> wbParticipants 
+        = new Hashtable<String, WhiteboardParticipant>();
 
     /**
      * The state that this white-board is currently in.
@@ -64,13 +66,14 @@ public class WhiteboardSessionJabberImpl
      * A list of all listeners currently registered for
      * <tt>WhiteboardChangeEvent</tt>s
      */
-    private Vector whiteboardListeners = new Vector();
+    private Vector<WhiteboardChangeListener> whiteboardListeners 
+        = new Vector<WhiteboardChangeListener>();
 
     /**
      * Stores all white board objects contained in this session.
      */
-    private final Vector<WhiteboardObjectJabberImpl> whiteboardObjects
-        = new Vector<WhiteboardObjectJabberImpl>();
+    private final Vector<WhiteboardObject> whiteboardObjects
+        = new Vector<WhiteboardObject>();
 
     /**
      * The <tt>OperationSet</tt> charged with the whiteboarding.
@@ -107,9 +110,11 @@ public class WhiteboardSessionJabberImpl
      * @return an Iterator over all participants currently involved in the
      * white-board.
      */
-    public Iterator getWhiteboardParticipants()
+    public Iterator<WhiteboardParticipant> getWhiteboardParticipants()
     {
-        return new LinkedList(wbParticipants.values()).iterator();
+        return
+            new LinkedList<WhiteboardParticipant>(wbParticipants.values())
+                    .iterator();
     }
 
     /**
@@ -279,10 +284,9 @@ public class WhiteboardSessionJabberImpl
      */
     public void participantStateChanged(WhiteboardParticipantChangeEvent evt)
     {
-        if (((WhiteboardParticipantState) evt.getNewValue())
-                == WhiteboardParticipantState.DISCONNECTED
-            || ((WhiteboardParticipantState) evt.getNewValue())
-                == WhiteboardParticipantState.FAILED)
+        Object newValue = evt.getNewValue();
+        if ((newValue== WhiteboardParticipantState.DISCONNECTED)
+                || (newValue == WhiteboardParticipantState.FAILED))
         {
             removeWhiteboardParticipant((WhiteboardParticipantJabberImpl) evt
                 .getSourceWhiteboardParticipant());
@@ -564,13 +568,13 @@ public class WhiteboardSessionJabberImpl
     public void deleteWhiteboardObject(WhiteboardObject obj)
         throws OperationFailedException
     {
-        Iterator participants = getWhiteboardParticipants();
+        Iterator<WhiteboardParticipant> participants
+            = getWhiteboardParticipants();
         if (!participants.hasNext())
             return;
 
         WhiteboardParticipantJabberImpl participant
             = (WhiteboardParticipantJabberImpl) participants.next();
-
         Contact contact = participant.getContact();
 
         try
@@ -601,7 +605,7 @@ public class WhiteboardSessionJabberImpl
             int i = 0;
             while (i < whiteboardObjects.size())
             {
-                WhiteboardObjectJabberImpl wbObj = whiteboardObjects.get(i);
+                WhiteboardObjectJabberImpl wbObj = (WhiteboardObjectJabberImpl)whiteboardObjects.get(i);
                 if (wbObj.getID().equals(obj.getID()))
                     whiteboardObjects.remove(i);
                 else
@@ -629,14 +633,14 @@ public class WhiteboardSessionJabberImpl
     public void sendWhiteboardObject(WhiteboardObject message)
         throws OperationFailedException
     {
-        Iterator participants = getWhiteboardParticipants();
+        Iterator<WhiteboardParticipant> participants
+            = getWhiteboardParticipants();
 
         if (!participants.hasNext())
             return;
 
         WhiteboardParticipantJabberImpl participant
             = (WhiteboardParticipantJabberImpl) participants.next();
-
         Contact contact = participant.getContact();
 
         try
@@ -786,7 +790,6 @@ public class WhiteboardSessionJabberImpl
     public void fireWhiteboardParticipantEvent(
         WhiteboardParticipant sourceWhiteboardParticipant, int eventID)
     {
-
         WhiteboardParticipantEvent cpEvent =
             new WhiteboardParticipantEvent(this, sourceWhiteboardParticipant,
                 eventID);
@@ -795,17 +798,15 @@ public class WhiteboardSessionJabberImpl
             + whiteboardListeners.size() + " listeners. event is: "
             + cpEvent.toString());
 
-        Iterator listeners = null;
+        Iterable<WhiteboardChangeListener> listeners;
         synchronized (whiteboardListeners)
         {
-            listeners = new ArrayList(whiteboardListeners).iterator();
+            listeners
+                = new ArrayList<WhiteboardChangeListener>(whiteboardListeners);
         }
 
-        while (listeners.hasNext())
+        for (WhiteboardChangeListener listener : listeners)
         {
-            WhiteboardChangeListener listener =
-                (WhiteboardChangeListener) listeners.next();
-
             if (eventID
                     == WhiteboardParticipantEvent
                         .WHITEBOARD_PARTICIPANT_ADDED)
@@ -818,7 +819,6 @@ public class WhiteboardSessionJabberImpl
             {
                 listener.whiteboardParticipantRemoved(cpEvent);
             }
-
         }
     }
 
@@ -844,17 +844,15 @@ public class WhiteboardSessionJabberImpl
             + whiteboardListeners.size() + " listeners. event is: "
             + ccEvent.toString());
 
-        Iterator listeners = null;
+        Iterable<WhiteboardChangeListener> listeners;
         synchronized (whiteboardListeners)
         {
-            listeners = new ArrayList(whiteboardListeners).iterator();
+            listeners
+                = new ArrayList<WhiteboardChangeListener>(whiteboardListeners);
         }
 
-        while (listeners.hasNext())
+        for (WhiteboardChangeListener listener : listeners)
         {
-            WhiteboardChangeListener listener =
-                (WhiteboardChangeListener) listeners.next();
-
             if (type.equals(WhiteboardChangeEvent.WHITEBOARD_STATE_CHANGE))
                 listener.whiteboardStateChanged(ccEvent);
         }
@@ -865,7 +863,7 @@ public class WhiteboardSessionJabberImpl
      * @return an <tt>Vector</tt> of WhiteboardObjects associated
      * with this whiteboard.
      */
-    public Vector getWhiteboardObjects()
+    public Vector<WhiteboardObject> getWhiteboardObjects()
     {
         return whiteboardObjects;
     }
@@ -903,17 +901,15 @@ public class WhiteboardSessionJabberImpl
             + messageListeners.size() + " listeners. event is: "
             + evt.toString());
 
-        Iterator listeners = null;
+        Iterable<WhiteboardObjectListener> listeners;
         synchronized (messageListeners)
         {
-            listeners = new ArrayList(messageListeners).iterator();
+            listeners
+                = new ArrayList<WhiteboardObjectListener>(messageListeners);
         }
 
-        while (listeners.hasNext())
+        for (WhiteboardObjectListener listener : listeners)
         {
-            WhiteboardObjectListener listener =
-                (WhiteboardObjectListener) listeners.next();
-
             if (evt instanceof WhiteboardObjectDeliveredEvent)
             {
                 listener.whiteboardObjectDelivered(
@@ -940,7 +936,7 @@ public class WhiteboardSessionJabberImpl
                 int i = 0;
                 while (i < whiteboardObjects.size())
                 {
-                    WhiteboardObjectJabberImpl wbObj = whiteboardObjects.get(i);
+                    WhiteboardObjectJabberImpl wbObj = (WhiteboardObjectJabberImpl)whiteboardObjects.get(i);
                     if (wbObj.getID().equals(wbObjID))
                         whiteboardObjects.remove(i);
                     else
@@ -975,7 +971,7 @@ public class WhiteboardSessionJabberImpl
         int i = 0;
         while (i < whiteboardObjects.size())
         {
-            WhiteboardObjectJabberImpl wbObjTmp = whiteboardObjects.get(i);
+            WhiteboardObjectJabberImpl wbObjTmp = (WhiteboardObjectJabberImpl)whiteboardObjects.get(i);
             if (wbObjTmp.getID().equals(ws.getID()))
             {
                 wbObj = wbObjTmp;
@@ -1259,17 +1255,9 @@ public class WhiteboardSessionJabberImpl
     private WhiteboardParticipant findWhiteboardParticipantFromContactAddress(
         String contactAddress)
     {
-        Enumeration participants = wbParticipants.elements();
-
-        while(participants.hasMoreElements())
-        {
-            WhiteboardParticipant participant
-                = (WhiteboardParticipant) participants.nextElement();
-
+        for (WhiteboardParticipant participant : wbParticipants.values())
             if (participant.getContactAddress().equals(contactAddress))
                 return participant;
-        }
-
         return null;
     }
 }

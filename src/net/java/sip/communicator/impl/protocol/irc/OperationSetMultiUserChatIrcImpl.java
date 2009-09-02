@@ -10,7 +10,6 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Allows creating, configuring, joining and administering of individual
@@ -24,9 +23,6 @@ import net.java.sip.communicator.util.*;
 public class OperationSetMultiUserChatIrcImpl
     extends AbstractOperationSetMultiUserChat
 {
-    private static final Logger logger
-        = Logger.getLogger(OperationSetMultiUserChatIrcImpl.class);
-
     /**
      * A call back to the IRC provider that created us.
      */
@@ -90,18 +86,18 @@ public class OperationSetMultiUserChatIrcImpl
      * @return a <tt>List</tt> of the rooms where the user has joined using a
      * given connection.
      */
-    public List getCurrentlyJoinedChatRooms()
+    public List<ChatRoom> getCurrentlyJoinedChatRooms()
     {
         synchronized(chatRoomCache)
         {
-            List joinedRooms
-                = new LinkedList(this.chatRoomCache.values());
+            List<ChatRoom> joinedRooms
+                = new LinkedList<ChatRoom>(this.chatRoomCache.values());
 
-            Iterator joinedRoomsIter = joinedRooms.iterator();
+            Iterator<ChatRoom> joinedRoomsIter = joinedRooms.iterator();
 
             while (joinedRoomsIter.hasNext())
             {
-                if ( !( (ChatRoom) joinedRoomsIter.next()).isJoined())
+                if (!joinedRoomsIter.next().isJoined())
                     joinedRoomsIter.remove();
             }
 
@@ -118,7 +114,7 @@ public class OperationSetMultiUserChatIrcImpl
      * @return a list of the chat rooms that <tt>chatRoomMember</tt> has joined
      * and is currently active in.
      */
-    public List getCurrentlyJoinedChatRooms(ChatRoomMember chatRoomMember)
+    public List<String> getCurrentlyJoinedChatRooms(ChatRoomMember chatRoomMember)
     {
         //TODO: Implement "who is" for the IRC stack.
         return null;

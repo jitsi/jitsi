@@ -157,11 +157,6 @@ public class WhiteboardFrame
     private WhiteboardShape selectedShape = null;
 
     /**
-     * The current selected point (null if nothing is seleted)
-     */
-    private Point2D selectedPoint = null;
-
-    /**
      * The current preselected shape (null if nothing is preseleted) A shape is
      * preselected when the mouse move on.
      */
@@ -220,12 +215,12 @@ public class WhiteboardFrame
     /**
      * List of WhiteboardShape
      */
-    private List displayList = new CopyOnWriteArrayList();
+    private List<WhiteboardShape> displayList = new CopyOnWriteArrayList<WhiteboardShape>();
 
     /**
      * Aarray of WhiteboardPoint
      */
-    private List pathList = new ArrayList();
+    private List<WhiteboardPoint> pathList = new ArrayList<WhiteboardPoint>();
 
     /**
      * WhiteboardPanel where the shapes are drawn
@@ -462,8 +457,7 @@ public class WhiteboardFrame
                     deselect();
                     for (int i = displayList.size() - 1; i >= 0; i--)
                     {
-                        WhiteboardShape shape =
-                            (WhiteboardShape) displayList.get(i);
+                        WhiteboardShape shape = displayList.get(i);
 
                         if (shape.contains(s2w.transform(e.getPoint(), null)))
                         {
@@ -482,8 +476,7 @@ public class WhiteboardFrame
                     deselect();
                     for (int i = displayList.size() - 1; i >= 0; i--)
                     {
-                        WhiteboardShape shape =
-                            (WhiteboardShape) displayList.get(i);
+                        WhiteboardShape shape = displayList.get(i);
 
                         WhiteboardPoint point = shape.getSelectionPoint(
                             s2w.transform(e.getPoint(), null));
@@ -661,7 +654,7 @@ public class WhiteboardFrame
                     WhiteboardShape shape;
                     for (int i = 0; i < displayList.size(); i++)
                     {
-                        shape = (WhiteboardShape) displayList.get(i);
+                        shape = displayList.get(i);
                         if (shape.contains(s2w.transform(e.getPoint(), null)))
                         {
 
@@ -811,7 +804,6 @@ public class WhiteboardFrame
         newMenuItem = new JMenuItem();
         openMenuItem = new JMenuItem();
         saveMenuItem = new JMenuItem();
-        sendMenuItem = new JMenuItem();
         printMenuItem = new JMenuItem();
         exitMenuItem = new JMenuItem();
         editMenu = new JMenu();
@@ -831,7 +823,7 @@ public class WhiteboardFrame
 
         if (session != null)
         {
-            Iterator participants = session.getWhiteboardParticipants();
+            Iterator<?> participants = session.getWhiteboardParticipants();
 
             while (participants.hasNext())
             {
@@ -1531,8 +1523,6 @@ public class WhiteboardFrame
 
     private javax.swing.JToggleButton selectionButton;
 
-    private javax.swing.JMenuItem sendMenuItem;
-
     private javax.swing.JToggleButton textButton;
 
     private JPanel toolBar;
@@ -2215,7 +2205,7 @@ public class WhiteboardFrame
         WhiteboardShape shape;
         for (int i = 0; i < displayList.size(); i++)
         {
-            shape = (WhiteboardShape) displayList.get(i);
+            shape = displayList.get(i);
             shape.setSelected(false);
             shape.setModifyPoint(null);
         }
@@ -2287,7 +2277,7 @@ public class WhiteboardFrame
         WhiteboardShape ws = createWhiteboardShape(wbo);
         for (int i = 0; i < displayList.size(); i++)
         {
-            WhiteboardShape wbs = (WhiteboardShape) displayList.get(i);
+            WhiteboardShape wbs = displayList.get(i);
             if (wbs.getID().equals(wbo.getID()))
             {
                 displayList.set(i, ws);
@@ -2310,7 +2300,7 @@ public class WhiteboardFrame
         int i = 0;
         while (i < displayList.size())
         {
-            WhiteboardShape wbs = (WhiteboardShape) displayList.get(i);
+            WhiteboardShape wbs = displayList.get(i);
             if (id.equals(wbs.getID()))
                 displayList.remove(i);
             else
@@ -2339,7 +2329,7 @@ public class WhiteboardFrame
             WhiteboardObjectPath path = (WhiteboardObjectPath) wbo;
             logger.debug("[log] : WB_PATH");
             Color c = Color.getColor("", color);
-            List points = path.getPoints();
+            List<WhiteboardPoint> points = path.getPoints();
             wShape = new WhiteboardShapePath(id, t, c, points);
         }
         else if (wbo instanceof WhiteboardObjectPolyLine)
@@ -2347,7 +2337,7 @@ public class WhiteboardFrame
             WhiteboardObjectPolyLine pLine = (WhiteboardObjectPolyLine) wbo;
             logger.debug("[log] : WB_POLYLINE");
             Color c = Color.getColor("", color);
-            List points = pLine.getPoints();
+            List<WhiteboardPoint> points = pLine.getPoints();
             wShape = new WhiteboardShapePolyLine(id, t, c, points, false);
 
         }
@@ -2356,7 +2346,7 @@ public class WhiteboardFrame
             WhiteboardObjectPolygon polygon = (WhiteboardObjectPolygon) wbo;
             logger.debug("[log] : WB_POLYGON");
             Color c = Color.getColor("", color);
-            List points = polygon.getPoints();
+            List<WhiteboardPoint> points = polygon.getPoints();
             boolean fill = polygon.isFill();
             wShape = new WhiteboardShapePolygon(id, t, c, points, fill);
 
@@ -2401,11 +2391,8 @@ public class WhiteboardFrame
             logger.debug("[log] : WB_TEXT");
             Color c = Color.getColor("", color);
             WhiteboardPoint p = text.getWhiteboardPoint();
-            int size;
-            String txt, fontFamily;
-            size = text.getFontSize();
-            txt = text.getText();
-            fontFamily = text.getFontName();
+            int size = text.getFontSize();
+            String txt = text.getText();
             wShape = new WhiteboardShapeText(id, c, p, size, txt);
 
         }
@@ -2413,7 +2400,6 @@ public class WhiteboardFrame
         {
             WhiteboardObjectImage img = (WhiteboardObjectImage) wbo;
             logger.debug("[log] : WB_IMAGE");
-            Color c = Color.getColor("", color);
             double height, width;
             WhiteboardPoint p = img.getWhiteboardPoint();
             width = img.getWidth();
@@ -2433,7 +2419,7 @@ public class WhiteboardFrame
         int i = 0;
         while (i < displayList.size())
         {
-            s = (WhiteboardShape) displayList.get(i);
+            s = displayList.get(i);
             if (s.isSelected())
             {
                 this.sendDeleteShape(s);

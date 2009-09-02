@@ -165,7 +165,7 @@ public class TestCallHistoryService
             iter = v.iterator();
             while (iter.hasNext())
             {
-                CallPeer item = (CallPeer) iter.next();
+                CallPeer item = iter.next();
                 mockBTelphonyOpSet.hangupCallPeer(item);
             }
         }
@@ -212,14 +212,14 @@ public class TestCallHistoryService
 
         assertEquals("Calls must be 2", rs.size(), 2);
 
-        CallRecord rec = (CallRecord)resultIter.next();
+        CallRecord rec = resultIter.next();
         CallPeerRecord participant = rec.getPeerRecords().get(0);
 
         assertTrue("Participant incorrect ",
                    participant.getPeerAddress().
                    equals(participantAddresses.get(2)));
 
-        rec = (CallRecord)resultIter.next();
+        rec = resultIter.next();
         participant = rec.getPeerRecords().get(0);
 
         assertTrue("Participant incorrect ",
@@ -234,7 +234,7 @@ public class TestCallHistoryService
 
         assertEquals("Calls must be 1", rs.size(), 1);
 
-        rec = (CallRecord)resultIter.next();
+        rec = resultIter.next();
         participant = rec.getPeerRecords().get(0);
 
         assertTrue("Participant incorrect ",
@@ -249,21 +249,21 @@ public class TestCallHistoryService
 
         assertEquals("Calls must be 3", rs.size(), 3);
 
-        rec = (CallRecord)resultIter.next();
+        rec = resultIter.next();
         participant = rec.getPeerRecords().get(0);
 
         assertTrue("Participant incorrect ",
                    participant.getPeerAddress().
                    equals(participantAddresses.get(3)));
 
-        rec = (CallRecord)resultIter.next();
+        rec = resultIter.next();
         participant = rec.getPeerRecords().get(0);
 
         assertTrue("Participant incorrect ",
                    participant.getPeerAddress().
                    equals(participantAddresses.get(2)));
 
-        rec = (CallRecord)resultIter.next();
+        rec = resultIter.next();
         participant = rec.getPeerRecords().get(0);
 
         assertTrue("Participant incorrect ",
@@ -304,7 +304,7 @@ public class TestCallHistoryService
             iter = v.iterator();
             while (iter.hasNext())
             {
-                CallPeer item = (CallPeer) iter.next();
+                CallPeer item = iter.next();
                 mockBTelphonyOpSet.hangupCallPeer(item);
             }
         }

@@ -613,7 +613,7 @@ public class NotificationConfigurationPanel
                     {
                         notificationService.registerNotificationForEvent(
                                 tmpNTE.getEvent(),
-                                notificationService.ACTION_SOUND,
+                                NotificationService.ACTION_SOUND,
                                 tmpNTE.getSoundFile(),
                                 "");
                         logger.debug("Adding Sound");
@@ -622,7 +622,7 @@ public class NotificationConfigurationPanel
                     {
                         notificationService.removeEventNotificationAction(
                                 tmpNTE.getEvent(),
-                                notificationService.ACTION_SOUND);
+                                NotificationService.ACTION_SOUND);
                         logger.debug("Deleting Sound");
                     }
 
@@ -630,7 +630,7 @@ public class NotificationConfigurationPanel
                     {
                         notificationService.registerNotificationForEvent(
                                 tmpNTE.getEvent(),
-                                notificationService.ACTION_COMMAND,
+                                NotificationService.ACTION_COMMAND,
                                 tmpNTE.getProgramFile(),
                                 "");
                         logger.debug("Program");
@@ -639,7 +639,7 @@ public class NotificationConfigurationPanel
                     {
                         notificationService.removeEventNotificationAction(
                                 tmpNTE.getEvent(),
-                                notificationService.ACTION_COMMAND);
+                                NotificationService.ACTION_COMMAND);
                         logger.debug("Deleting Program");
                     }
 
@@ -647,7 +647,7 @@ public class NotificationConfigurationPanel
                     {
                         notificationService.registerNotificationForEvent(
                                 tmpNTE.getEvent(),
-                                notificationService.ACTION_POPUP_MESSAGE,
+                                NotificationService.ACTION_POPUP_MESSAGE,
                                 "",
                                 "");
                         logger.debug("Popup");
@@ -656,7 +656,7 @@ public class NotificationConfigurationPanel
                     {
                         notificationService.removeEventNotificationAction(
                                 tmpNTE.getEvent(),
-                                notificationService.ACTION_POPUP_MESSAGE);
+                                NotificationService.ACTION_POPUP_MESSAGE);
                         logger.debug("Deleting Popup");
                     }
                     tmpNTE.setModify(false);
@@ -804,7 +804,7 @@ public class NotificationConfigurationPanel
                 tmpNTE.setPopup(isActionEnabled);
             }
             else if(event.getSourceActionType()
-                    .equals(notificationService.ACTION_COMMAND))
+                    .equals(NotificationService.ACTION_COMMAND))
             {
                 tmpNTE.setProgram(isActionEnabled);
 
@@ -843,7 +843,7 @@ public class NotificationConfigurationPanel
 
                 }
                 else if(event.getSourceActionType()
-                        .equals(notificationService.ACTION_COMMAND))
+                        .equals(NotificationService.ACTION_COMMAND))
                 {
                     tmpNTE.setProgram(isActionEnabled);
                     tmpNTE.setProgramFile(((CommandNotificationHandler)event
@@ -877,7 +877,7 @@ public class NotificationConfigurationPanel
             tmpNTE.setPopup(isActionEnabled);
         }
         else if(event.getSourceActionType()
-                .equals(notificationService.ACTION_COMMAND))
+                .equals(NotificationService.ACTION_COMMAND))
         {
             tmpNTE.setProgram(isActionEnabled);
             tmpNTE.setProgramFile(((CommandNotificationHandler)event
@@ -954,7 +954,7 @@ public class NotificationConfigurationPanel
             if(tmpNTE.getEvent().equals(eventName))
             {
                 if(event.getSourceActionType()
-                        .equals(notificationService.ACTION_COMMAND))
+                        .equals(NotificationService.ACTION_COMMAND))
                 {
                     tmpNTE.setProgramFile(((CommandNotificationHandler)event
                             .getActionHandler()).getDescriptor());
@@ -1060,8 +1060,6 @@ public class NotificationConfigurationPanel
         Iterator<String> it = notificationService.getRegisteredEvents();
         NotificationsTableEntry tmpNTE = null;
         String event = null;
-        Map actionsMap = null;
-
         dataVector.removeAllElements();
 
         while(it.hasNext())
@@ -1078,34 +1076,24 @@ public class NotificationConfigurationPanel
                     event,
                     false);
 
-            actionsMap = notificationService.getEventNotifications(event);
+            Map<String, NotificationActionHandler> actionsMap
+                = notificationService.getEventNotifications(event);
             if(actionsMap != null)
             {
-                Set entry = actionsMap.entrySet();
-                Iterator itEntry = entry.iterator();
-
-                while(itEntry.hasNext())
+                for (Map.Entry<String, NotificationActionHandler> mEntry
+                        : actionsMap.entrySet())
                 {
-                    Map.Entry mEntry = (Map.Entry) itEntry.next();
-                    String actionType = (String) mEntry.getKey();
-
-                    NotificationActionHandler handler = null;
-
-                    boolean isActionEnabled = false;
-
-                    if(mEntry.getValue() instanceof NotificationActionHandler)
-                    {
-                        handler = (NotificationActionHandler)mEntry.getValue();
-                        isActionEnabled = handler.isEnabled();
-                    }
+                    String actionType = mEntry.getKey();
+                    NotificationActionHandler handler = mEntry.getValue();
+                    boolean isActionEnabled = (handler == null) ? false : handler.isEnabled();
 
                     if(actionType
-                            .equals(notificationService.ACTION_POPUP_MESSAGE))
+                            .equals(NotificationService.ACTION_POPUP_MESSAGE))
                     {
                         tmpNTE.setPopup(isActionEnabled);
                     }
                     else if(actionType
-                            .equals(notificationService.ACTION_SOUND) &&
+                            .equals(NotificationService.ACTION_SOUND) &&
                             handler != null)
                     {
                         tmpNTE.setSound(isActionEnabled);
@@ -1113,7 +1101,7 @@ public class NotificationConfigurationPanel
                             ((SoundNotificationHandler) handler).getDescriptor());
                     }
                     else if(actionType
-                            .equals(notificationService.ACTION_COMMAND) &&
+                            .equals(NotificationService.ACTION_COMMAND) &&
                             handler != null)
                     {
                         tmpNTE.setProgram(isActionEnabled);

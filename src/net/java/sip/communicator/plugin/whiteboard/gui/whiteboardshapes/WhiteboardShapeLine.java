@@ -131,9 +131,9 @@ public class WhiteboardShapeLine
      *
      * @return list of selected points
      */
-    public List getSelectionPoints ()
+    public List<WhiteboardPoint> getSelectionPoints ()
     {
-        ArrayList selectionPoints = new ArrayList();
+        ArrayList<WhiteboardPoint> selectionPoints = new ArrayList<WhiteboardPoint>();
 
         selectionPoints.add (startPoint);
         selectionPoints.add (endPoint);

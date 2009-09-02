@@ -31,7 +31,7 @@ public class WhiteboardShapePolyLine
     /**
      * list of WhiteboardPoint
      */
-    private List points;
+    private List<WhiteboardPoint> points;
     /**
      * True is filled, false is unfilled.
      */
@@ -50,7 +50,7 @@ public class WhiteboardShapePolyLine
     public WhiteboardShapePolyLine (String id,
                                     int thickness,
                                     Color color,
-                                    List points,
+                                    List<WhiteboardPoint> points,
                                     boolean fill)
     {
         super (id);
@@ -72,18 +72,18 @@ public class WhiteboardShapePolyLine
     public WhiteboardShapePolyLine (String id,
                                     int thickness,
                                     Color color,
-                                    List m_points,
+                                    List<WhiteboardPoint> m_points,
                                     boolean fill,
                                     AffineTransform at)
     {
         super (id);
 
-        ArrayList pointsList = new ArrayList ();
+        ArrayList<WhiteboardPoint> pointsList = new ArrayList<WhiteboardPoint>();
 
         WhiteboardPoint p;
         for (int i = 0; i<m_points.size ();i++)
         {
-            p = (WhiteboardPoint) m_points.get (i);
+            p = m_points.get (i);
             Point2D w = at.transform (
               new Point2D.Double (p.getX (), p.getY ()), null);
             pointsList.add (new WhiteboardPoint (w.getX (), w.getY ()));
@@ -103,14 +103,14 @@ public class WhiteboardShapePolyLine
      */
     private void initShape (int thickness,
                             Color color,
-                            List points,
+                            List<WhiteboardPoint> points,
                             boolean fill)
     {
         this.setThickness (thickness);
         this.setColor (color);
 
         // need to clone because passed by reference
-        this.points = new ArrayList (points);
+        this.points = new ArrayList<WhiteboardPoint>(points);
         this.fill = fill;
     }
 
@@ -160,13 +160,13 @@ public class WhiteboardShapePolyLine
      *
      * @return list of selected WhiteboardPoints
      */
-    public List getSelectionPoints ()
+    public List<WhiteboardPoint> getSelectionPoints ()
     {
-        List list = new ArrayList ();
-        WhiteboardPoint p ;
+        List<WhiteboardPoint> list = new ArrayList<WhiteboardPoint>();
+        WhiteboardPoint p;
         for(int i =0; i< points.size (); i++)
         {
-            p = (WhiteboardPoint) points.get (i);
+            p = points.get (i);
             list.add (new WhiteboardPoint (p.getX (), p.getY ()));
         }
         return list;
@@ -196,14 +196,14 @@ public class WhiteboardShapePolyLine
           GeneralPath.WIND_EVEN_ODD, points.size ());
         if(points.size ()<=0)
             return polyline;
-        WhiteboardPoint start = (WhiteboardPoint) points.get (0);
+        WhiteboardPoint start = points.get (0);
         Point2D w = new Point2D.Double (start.getX (), start.getY ());
         Point2D v = w2v.transform (w, null);
         polyline.moveTo ((int) v.getX (), (int) v.getY ());
         WhiteboardPoint p;
         for (int i =0; i<points.size ();i++)
         {
-            p = (WhiteboardPoint) points.get (i);
+            p = points.get (i);
             w = new Point2D.Double (p.getX (), p.getY ());
             v = w2v.transform (w, null);
             polyline.lineTo ((int) v.getX (), (int) v.getY ());
@@ -224,13 +224,13 @@ public class WhiteboardShapePolyLine
           GeneralPath.WIND_EVEN_ODD, points.size ());
         if(points.size ()<=0)
             return polyline;
-        WhiteboardPoint start = (WhiteboardPoint) points.get (0);
+        WhiteboardPoint start = points.get (0);
         polyline.moveTo ((float) start.getX (), (float) start.getY ());
         
         WhiteboardPoint p;
         for (int i =0; i<points.size ();i++)
         {
-            p = (WhiteboardPoint) points.get (i);
+            p = points.get (i);
             polyline.lineTo ((float) p.getX (), (float) p.getY ());
         }
         
@@ -243,7 +243,7 @@ public class WhiteboardShapePolyLine
      *
      * @return the list of <tt>WhiteboardPoint</tt>s composing this object.
      */
-    public List getPoints ()
+    public List<WhiteboardPoint> getPoints ()
     {
         return points;
     }
@@ -255,9 +255,9 @@ public class WhiteboardShapePolyLine
      * @param points the list of <tt>WhiteboardPoint</tt> instances that this
      * <tt>WhiteboardObject</tt> is composed of.
      */
-    public void setPoints (List points)
+    public void setPoints (List<WhiteboardPoint> points)
     {
-        this.points = new ArrayList (points);
+        this.points = new ArrayList<WhiteboardPoint> (points);
     }
     
     /**
@@ -271,7 +271,7 @@ public class WhiteboardShapePolyLine
         WhiteboardPoint point ;
         for (int i =0; i<points.size ();i++)
         {
-            point = (WhiteboardPoint) points.get (i);
+            point = points.get (i);
             points.set (i, 
               new WhiteboardPoint(point.getX () + deltaX, 
               point.getY () + deltaY));
@@ -292,7 +292,7 @@ public class WhiteboardShapePolyLine
         WhiteboardPoint point;
         for (int i = 0; i < points.size (); i++)
         {
-            point = (WhiteboardPoint) points.get (i);
+            point = points.get (i);
 
             if(getModifyPoint().equals(point))
             {
@@ -318,7 +318,7 @@ public class WhiteboardShapePolyLine
         WhiteboardPoint point;
         for (int i = 0; i < points.size (); i++)
         {
-            point = (WhiteboardPoint) points.get (i);
+            point = points.get (i);
             if(( new Point2D.Double (
               point.getX (),  point.getY ())).distance (p) < 18)
             {

@@ -82,9 +82,10 @@ public class WhiteboardActivator implements BundleActivator
      * @return all <tt>OperationSetWhiteboarding</tt>s obtained from the bundle
      * context
      */
-    public static List getWhiteboardOperationSets()
+    public static List<OperationSetWhiteboarding> getWhiteboardOperationSets()
     {
-        List<OperationSet> whiteboardOpSets = new ArrayList<OperationSet>();
+        List<OperationSetWhiteboarding> whiteboardOpSets
+            = new ArrayList<OperationSetWhiteboarding>();
 
         ServiceReference[] serRefs = null;
         try
@@ -102,15 +103,15 @@ public class WhiteboardActivator implements BundleActivator
         if (serRefs == null)
             return null;
 
-        for (int i = 0; i < serRefs.length; i++)
+        for (ServiceReference serRef : serRefs)
         {
             ProtocolProviderService protocolProvider
-                = (ProtocolProviderService) bundleContext
-                    .getService(serRefs[i]);
+                = (ProtocolProviderService) bundleContext.getService(serRef);
 
-            OperationSet opSet
-                = protocolProvider.getOperationSet(
-                        OperationSetWhiteboarding.class);
+            OperationSetWhiteboarding opSet
+                = (OperationSetWhiteboarding)
+                    protocolProvider
+                        .getOperationSet(OperationSetWhiteboarding.class);
 
             if(opSet != null)
                 whiteboardOpSets.add(opSet);

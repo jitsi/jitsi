@@ -20,7 +20,6 @@ import net.kano.joustsim.oscar.oscar.service.chatrooms.*;
  * 
  * @author Rupert Burchardi
  */
-@SuppressWarnings("unchecked")
 public class ChatRoomIcqImpl implements ChatRoom
 {
    private static final Logger logger = Logger
@@ -30,45 +29,52 @@ public class ChatRoomIcqImpl implements ChatRoom
     * Listeners that will be notified of changes in member status in the
     * room such as member joined, left or being kicked or dropped.
     */
-   private Vector memberListeners = new Vector();
+   private final List<ChatRoomMemberPresenceListener> memberListeners
+       = new Vector<ChatRoomMemberPresenceListener>();
 
    /**
     * Listeners that will be notified of changes in member role in the
     * room such as member being granted admin permissions, or revoked admin
     * permissions.
     */
-   private Vector memberRoleListeners = new Vector();
+   private final List<ChatRoomMemberRoleListener> memberRoleListeners 
+       = new Vector<ChatRoomMemberRoleListener>();
 
    /**
     * Listeners that will be notified of changes in local user role in the
     * room such as member being granted admin permissions, or revoked admin
     * permissions.
     */
-   private Vector localUserRoleListeners = new Vector();
+   private final List<ChatRoomLocalUserRoleListener> localUserRoleListeners 
+       = new Vector<ChatRoomLocalUserRoleListener>();
 
    /**
     * Listeners that will be notified every time
     * a new message is received on this chat room.
     */
-   private Vector messageListeners = new Vector();
+   private final List<ChatRoomMessageListener> messageListeners 
+       = new Vector<ChatRoomMessageListener>();
 
    /**
     * Listeners that will be notified every time
     * a chat room property has been changed.
     */
-   private Vector propertyChangeListeners = new Vector();
+   private Vector<ChatRoomPropertyChangeListener> propertyChangeListeners 
+       = new Vector<ChatRoomPropertyChangeListener>();
 
    /**
     * Listeners that will be notified every time
     * a chat room member property has been changed.
     */
-   private Vector memberPropChangeListeners = new Vector();
+   private final List<ChatRoomMemberPropertyChangeListener> memberPropChangeListeners 
+       = new Vector<ChatRoomMemberPropertyChangeListener>();
 
    /**
     * Chat room invitation from the icq provider, needed for joining a
     * chat room. 
     */
    private ChatInvitation chatInvitation = null;
+   
    /**
     * Chat room session from the icq provider, we get this after joining a
     * chat room. 
@@ -79,7 +85,7 @@ public class ChatRoomIcqImpl implements ChatRoom
    /**
     * The list of members of this chat room.
     */
-   private Hashtable members = new Hashtable();
+   private Hashtable<String, ChatRoomMember> members = new Hashtable<String, ChatRoomMember>();
 
    /**
     * The operation set that created us.
@@ -90,12 +96,11 @@ public class ChatRoomIcqImpl implements ChatRoom
     * The protocol provider that created us
     */
    private ProtocolProviderServiceIcqImpl provider = null;
-
    
    /**
     * List with invitations.
     */
-   private Hashtable<String, String> inviteUserList = new Hashtable();
+   private Hashtable<String, String> inviteUserList = new Hashtable<String, String>();
    
    /**
     * Invitation message text.
@@ -175,10 +180,10 @@ public class ChatRoomIcqImpl implements ChatRoom
     */
    public void addLocalUserRoleListener(ChatRoomLocalUserRoleListener listener)
    {
-       synchronized (propertyChangeListeners)
+       synchronized (localUserRoleListeners)
        {
-           if (!propertyChangeListeners.contains(listener))
-               propertyChangeListeners.add(listener);
+           if (!localUserRoleListeners.contains(listener))
+               localUserRoleListeners.add(listener);
        }
    }
 
@@ -218,7 +223,7 @@ public class ChatRoomIcqImpl implements ChatRoom
 
    /**
     * Adds a listener that will be notified of changes of a member role in the
-    * room such as being granded operator.
+    * room such as being granted operator.
     * 
     * @param listener a member role listener.
     */
@@ -310,17 +315,18 @@ public class ChatRoomIcqImpl implements ChatRoom
     */
    public Message createMessage(String messageText)
    {
-       Message msg = new MessageIcqImpl(messageText,
-               OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE,
-               OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING, null);
-
-       return msg;
+       return
+           new MessageIcqImpl(
+                   messageText,
+                   OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE,
+                   OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING,
+                   null);
    }
 
    /**
    * Returns the list of banned users.
    */
-   public Iterator getBanList() throws OperationFailedException
+   public Iterator<ChatRoomMember> getBanList() throws OperationFailedException
    {
        throw new OperationFailedException(
                "This operation cannot be performed in the ICQ network.",
@@ -363,9 +369,9 @@ public class ChatRoomIcqImpl implements ChatRoom
     * @return a <tt>List</tt> of <tt>Contact</tt> corresponding to all room
     * members.
     */
-   public List getMembers()
+   public List<ChatRoomMember> getMembers()
    {
-       return new LinkedList(members.values());
+       return new LinkedList<ChatRoomMember>(members.values());
    }
 
    /**
@@ -522,7 +528,7 @@ public class ChatRoomIcqImpl implements ChatRoom
    public void joinAs(String nickname, byte[] password)
            throws OperationFailedException
    {
-
+       // TODO Auto-generated method stub
    }
 
    /**
@@ -592,18 +598,11 @@ public class ChatRoomIcqImpl implements ChatRoom
            chatRoomSession = null;
        }
 
-       Iterator membersSet = members.entrySet().iterator();
-
-       while (membersSet.hasNext())
-       {
-           Map.Entry memberEntry = (Map.Entry) membersSet.next();
-
-           ChatRoomMember member = (ChatRoomMember) memberEntry.getValue();
-
-           fireMemberPresenceEvent(member,
-                   ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT,
-                   "Local user has left the chat room.");
-       }
+       for (ChatRoomMember member : members.values())
+           fireMemberPresenceEvent(
+               member,
+               ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT,
+               "Local user has left the chat room.");
 
        // Delete the list of members
        members.clear();
@@ -777,17 +776,14 @@ public class ChatRoomIcqImpl implements ChatRoom
     */
    public void fireMessageEvent(EventObject evt)
    {
-       Iterator listeners = null;
+       Iterable<ChatRoomMessageListener> listeners;
        synchronized (messageListeners)
        {
-           listeners = new ArrayList(messageListeners).iterator();
+           listeners = new ArrayList<ChatRoomMessageListener>(messageListeners);
        }
 
-       while (listeners.hasNext())
+       for (ChatRoomMessageListener listener : listeners)
        {
-           ChatRoomMessageListener listener
-               = (ChatRoomMessageListener) listeners.next();
-
            if (evt instanceof ChatRoomMessageDeliveredEvent)
            {
                listener.messageDelivered((ChatRoomMessageDeliveredEvent) evt);
@@ -824,19 +820,15 @@ public class ChatRoomIcqImpl implements ChatRoom
 
        logger.trace("Will dispatch the following ChatRoom event: " + evt);
 
-       Iterator listeners = null;
+       Iterable<ChatRoomMemberPresenceListener> listeners;
        synchronized (memberListeners)
        {
-           listeners = new ArrayList(memberListeners).iterator();
+           listeners
+               = new ArrayList<ChatRoomMemberPresenceListener>(memberListeners);
        }
 
-       while (listeners.hasNext())
-       {
-           ChatRoomMemberPresenceListener listener
-               = (ChatRoomMemberPresenceListener) listeners.next();
-
+       for (ChatRoomMemberPresenceListener listener : listeners)
            listener.memberPresenceChanged(evt);
-       }
    }
 
    /**
@@ -844,14 +836,13 @@ public class ChatRoomIcqImpl implements ChatRoom
     * users that leave or join the chat room.
     *
     */
-
-   private class ChatRoomSessionListenerImpl implements
-           ChatRoomSessionListener
+   private class ChatRoomSessionListenerImpl
+       implements ChatRoomSessionListener
    {
        /**
         * The chat room this listener is for.
         */
-       private ChatRoomIcqImpl chatRoom = null;
+       private final ChatRoomIcqImpl chatRoom;
 
        /**
         * Constructor for this listener, needed to set the chatRoom.
@@ -987,11 +978,8 @@ public class ChatRoomIcqImpl implements ChatRoom
    private void updateMemberList(  Set<ChatRoomUser> chatRoomUserSet,
                                    boolean removeMember)
    {
-       Iterator it = chatRoomUserSet.iterator();
-
-       while (it.hasNext())
+       for (ChatRoomUser user : chatRoomUserSet)
        {
-           ChatRoomUser user = (ChatRoomUser) it.next();
            String uid = user.getScreenname().getFormatted();
 
            //we want to add a member and he/she is not in our member list

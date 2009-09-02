@@ -9,8 +9,7 @@ package net.java.sip.communicator.service.protocol;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
-
-import net.java.sip.communicator.service.protocol.whiteboardobjects.WhiteboardObject;
+import net.java.sip.communicator.service.protocol.whiteboardobjects.*;
 
 /**
  * A represenation of a <tt>WhiteboardSession</tt>.
@@ -34,7 +33,7 @@ public interface WhiteboardSession
      * @return an Iterator over all participants currently involved in the
      * whiteboard.
      */
-    public Iterator getWhiteboardParticipants ();
+    public Iterator<WhiteboardParticipant> getWhiteboardParticipants ();
 
     /**
      * Returns the number of participants currently associated
@@ -224,7 +223,7 @@ public interface WhiteboardSession
      * @return an <tt>Vector</tt> of WhiteboardObjects associated
      * with this whiteboard.
      */
-    public Vector getWhiteboardObjects ();
+    public Vector<WhiteboardObject> getWhiteboardObjects ();
 
     /**
      * Sets the state of this whiteboard

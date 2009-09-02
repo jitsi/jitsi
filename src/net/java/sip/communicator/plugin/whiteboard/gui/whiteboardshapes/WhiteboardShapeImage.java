@@ -55,7 +55,7 @@ public class WhiteboardShapeImage
     /**
      * Stores all selection points for this shape.
      */
-    private ArrayList selectionPoints = new ArrayList();
+    private ArrayList<WhiteboardPoint> selectionPoints = new ArrayList<WhiteboardPoint>();
     
     /**
      * WhiteboardShapImage constructor
@@ -117,7 +117,7 @@ public class WhiteboardShapeImage
      *
      * @return list of selected points
      */
-    public List getSelectionPoints ()
+    public List<WhiteboardPoint> getSelectionPoints ()
     {
         return selectionPoints;
     }
@@ -262,14 +262,9 @@ public class WhiteboardShapeImage
     {
         WhiteboardPoint givenPoint = new WhiteboardPoint(p.getX(), p.getY());
 
-        for (int i = 0; i < selectionPoints.size(); i ++)
-        {
-            WhiteboardPoint point = (WhiteboardPoint) selectionPoints.get(i);
-
+        for (WhiteboardPoint point : selectionPoints)
             if (point.distance(givenPoint) < 18)
                 return point;
-        }
-
         return null;
     }
     

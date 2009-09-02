@@ -153,9 +153,9 @@ public class WhiteboardShapeText
      *
      * @return list of selected points
      */
-    public List getSelectionPoints ()
+    public List<WhiteboardPoint> getSelectionPoints ()
     {
-        List list = new ArrayList ();
+        List<WhiteboardPoint> list = new ArrayList<WhiteboardPoint>();
         list.add (point);
 
         return list;

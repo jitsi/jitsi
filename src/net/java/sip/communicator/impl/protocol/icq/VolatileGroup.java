@@ -17,9 +17,12 @@ import net.kano.joustsim.oscar.oscar.service.ssi.*;
 class VolatileGroup
     implements MutableGroup
 {
-    private String groupName = new String("NotInContactList");
+    private final String groupName;
 
-    VolatileGroup(){}
+    VolatileGroup()
+    {
+        this("NotInContactList");
+    }
 
     VolatileGroup(String groupName)
     {
@@ -38,12 +41,11 @@ class VolatileGroup
 
 
     public void addGroupListener(GroupListener listener){}
-    public List getBuddiesCopy(){return null;}
+    public List<Buddy> getBuddiesCopy(){return null;}
     public void removeGroupListener(GroupListener listener){}
-    public void copyBuddies(List buddies){}
-    public void deleteBuddies(List ingroup){}
+    public void deleteBuddies(List<Buddy> ingroup){}
     public void addBuddy(String screenname){}
-    public void copyBuddies(Collection buddies){}
+    public void copyBuddies(Collection<? extends Buddy> buddies){}
     public void deleteBuddy(Buddy buddy){}
     public void rename(String newName){}
 }

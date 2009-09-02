@@ -32,7 +32,7 @@ public class SIPCommSmartComboBox
      */
     public SIPCommSmartComboBox()
     {
-        setModel(new FilterableComboBoxModel(new ArrayList()));
+        setModel(new FilterableComboBoxModel());
         setEditor(new CallComboEditor());
         setEditable(true);
         setFocusable(true);
@@ -46,16 +46,16 @@ public class SIPCommSmartComboBox
         extends AbstractListModel
         implements MutableComboBoxModel
     {
-
-        private List items;
+        private final List<Object> items;
         private Filter filter;
-        private List filteredItems;
+        private final List<Object> filteredItems;
         private Object selectedItem;
 
-        public FilterableComboBoxModel(List items)
+        public FilterableComboBoxModel()
         {
-            this.items = new ArrayList(items);
-            filteredItems = new ArrayList(items.size());
+            this.items = new ArrayList<Object>();
+            this.filteredItems = new ArrayList<Object>(this.items.size());
+
             updateFilteredItems();
         }
 

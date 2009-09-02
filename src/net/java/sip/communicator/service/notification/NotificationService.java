@@ -280,7 +280,8 @@ public interface NotificationService
      * an event with the specified name has occurred, or null if no actions
      * have been defined for <tt>eventType</tt>.
      */
-    public Map getEventNotifications(String eventType);
+    public Map<String, NotificationActionHandler> getEventNotifications(
+        String eventType);
 
     /**
      * Returns the <tt>NotificationActionHandler</tt> corresponding to the given

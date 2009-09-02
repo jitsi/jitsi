@@ -32,7 +32,7 @@ public class WhiteboardShapePolygon
     /**
      * list of WhiteboardPoint
      */
-    private List points;
+    private List<WhiteboardPoint> points;
     /**
      * True is filled, false is unfilled.
      */
@@ -55,7 +55,7 @@ public class WhiteboardShapePolygon
     public WhiteboardShapePolygon ( String id,
                                     int thickness,
                                     Color color,
-                                    List points,
+                                    List<WhiteboardPoint> points,
                                     boolean fill)
     {
         super (id);
@@ -77,17 +77,17 @@ public class WhiteboardShapePolygon
     public WhiteboardShapePolygon ( String id,
                                     int t,
                                     Color c,
-                                    List m_points,
+                                    List<WhiteboardPoint> m_points,
                                     boolean fill,
                                     AffineTransform at)
     {
         super (id);
 
-        ArrayList pointsList = new ArrayList ();
+        ArrayList<WhiteboardPoint> pointsList = new ArrayList<WhiteboardPoint>();
         WhiteboardPoint p;
         for (int i = 0; i < m_points.size (); i++)
         {
-            p = (WhiteboardPoint) m_points.get (i);
+            p = m_points.get (i);
             Point2D w = at.transform (
               new Point2D.Double (p.getX (), p.getY ()), null);
             pointsList.add (new WhiteboardPoint (w.getX (), w.getY ()));
@@ -107,13 +107,13 @@ public class WhiteboardShapePolygon
      */
     private void initShape (int thickness,
                             Color color,
-                            List points,
+                            List<WhiteboardPoint> points,
                             boolean fill)
     {
         this.setThickness (thickness);
         setColor (color);
         this.backgroundColor = color;
-        this.points = new ArrayList (points);
+        this.points = new ArrayList<WhiteboardPoint>(points);
         this.fill = fill;
     }
 
@@ -163,7 +163,7 @@ public class WhiteboardShapePolygon
      *
      * @return list of selected WhiteboardPoints
      */
-    public List getSelectionPoints ()
+    public List<WhiteboardPoint> getSelectionPoints ()
     {
         return points;
     }
@@ -193,7 +193,7 @@ public class WhiteboardShapePolygon
         if(points.size ()<=0)
             return polygon;
         
-        WhiteboardPoint start = (WhiteboardPoint) points.get (0);
+        WhiteboardPoint start = points.get (0);
         Point2D w = new Point2D.Double (start.getX (), start.getY ());
         Point2D v = w2v.transform (w, null);
         polygon.moveTo ((int) v.getX (), (int) v.getY ());
@@ -201,7 +201,7 @@ public class WhiteboardShapePolygon
         WhiteboardPoint p;
         for (int i =0; i<points.size ();i++)
         {
-            p = (WhiteboardPoint) points.get (i);
+            p = points.get (i);
             w = new Point2D.Double (p.getX (), p.getY ());
             v = w2v.transform (w, null);
             polygon.lineTo ((int) v.getX (), (int) v.getY ());
@@ -224,13 +224,13 @@ public class WhiteboardShapePolygon
         if(points.size ()<=0)
             return polygon;
         
-        WhiteboardPoint start = (WhiteboardPoint) points.get (0);
+        WhiteboardPoint start = points.get (0);
         polygon.moveTo ((float) start.getX (), (float) start.getY ());
         
         WhiteboardPoint p;
         for (int i =0; i<points.size ();i++)
         {
-            p = (WhiteboardPoint) points.get (i);
+            p = points.get (i);
             polygon.lineTo ((float) p.getX (), (float) p.getY ());
         }
         
@@ -244,7 +244,7 @@ public class WhiteboardShapePolygon
      *
      * @return the list of <tt>WhiteboardPoint</tt>s composing this object.
      */
-    public List getPoints ()
+    public List<WhiteboardPoint> getPoints ()
     {
         return points;
     }
@@ -256,9 +256,9 @@ public class WhiteboardShapePolygon
      * @param points the list of <tt>WhiteboardPoint</tt> instances that this
      * <tt>WhiteboardObject</tt> is composed of.
      */
-    public void setPoints (List points)
+    public void setPoints (List<WhiteboardPoint> points)
     {
-        this.points = new ArrayList (points);
+        this.points = new ArrayList<WhiteboardPoint>(points);
     }
     
     /**
@@ -272,7 +272,7 @@ public class WhiteboardShapePolygon
         WhiteboardPoint point ;
         for (int i =0; i<points.size ();i++)
         {
-            point = (WhiteboardPoint) points.get (i);
+            point = points.get (i);
             points.set (i,
               new WhiteboardPoint (point.getX () + deltaX,
               point.getY () + deltaY));
@@ -294,7 +294,7 @@ public class WhiteboardShapePolygon
         WhiteboardPoint point;
         for (int i = 0; i < points.size (); i++)
         {
-            point = (WhiteboardPoint) points.get (i);
+            point = points.get (i);
             if(getModifyPoint().equals(point))
             {
                 WhiteboardPoint newPoint
@@ -320,7 +320,7 @@ public class WhiteboardShapePolygon
         WhiteboardPoint point;
         for (int i = 0; i< points.size ();i++)
         {
-            point = (WhiteboardPoint) points.get (i);
+            point = points.get (i);
 
             if(( new Point2D.Double (
               point.getX (),  point.getY ())).distance (p) < 18)

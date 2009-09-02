@@ -151,7 +151,7 @@ public class InfoRetreiver
      */
     private class UserInfoResponseRetriever extends SnacRequestAdapter
     {
-        int requestID;
+        private final int requestID;
         List<GenericDetail> result = null;
 
         UserInfoResponseRetriever(int requestID)
@@ -588,6 +588,6 @@ public class InfoRetreiver
      */
     private void readAffilationsUserInfo(MetaAffiliationsInfoCmd cmd)
     {
-//        Vector infoData = getInfoForRequest(cmd.getId());
+//        Vector<GenericDetail> infoData = getInfoForRequest(cmd.getId());
     }
 }

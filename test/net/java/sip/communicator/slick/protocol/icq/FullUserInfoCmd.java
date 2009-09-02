@@ -166,8 +166,7 @@ public class FullUserInfoCmd
     private Hashtable<String, Object> getInfoForRequest(int requestID)
     {
         Hashtable<String, Object> res
-            = (Hashtable<String, Object>)
-                retreivedInfo.get(new Integer(requestID));
+            = retreivedInfo.get(new Integer(requestID));
 
         if (res == null)
         {
