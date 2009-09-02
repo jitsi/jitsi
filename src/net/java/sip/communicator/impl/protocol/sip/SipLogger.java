@@ -50,7 +50,7 @@ public class SipLogger
 	/**
      * Get the line count in the log stream.
      *
-     * @return
+     * @return line count
      */
 	public int getLineCount()
     {

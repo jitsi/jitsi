@@ -55,8 +55,6 @@ public class PresenceStatusMenu
      *
      * @param mainFrame The main application window.
      * @param protocolProvider The protocol provider.
-     * @param accountIndex If we have more than one account for a protocol, each
-     *            account has an index.
      */
     public PresenceStatusMenu(  MainFrame mainFrame,
                                 ProtocolProviderService protocolProvider)

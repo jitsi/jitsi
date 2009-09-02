@@ -225,7 +225,6 @@ public class WhiteboardShapeText
     /**
      * Translates a point from the shape.
      *
-     * @param p point position
      * @param deltaX x coordinate
      * @param deltaY y coordinate
      */

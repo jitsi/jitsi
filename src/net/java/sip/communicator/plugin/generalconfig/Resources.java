@@ -50,7 +50,7 @@ public class Resources
 
     /**
      * Loads an image from a given image identifier.
-     * @param imageID The identifier of the image.
+     * @param imageId The identifier of the image.
      * @return The image for the given identifier.
      */
     public static byte[] getImage(String imageId)

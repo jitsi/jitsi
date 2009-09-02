@@ -474,7 +474,8 @@ public class CallPeerSipImpl
      * information coming from the encryption protocol.
      *
      * @param messageType the type of the message.
-     * @param message the message
+     * @param i18nMessage the message
+     * @param severity severity level
      */
     public void securityMessage( String messageType,
                                     String i18nMessage,

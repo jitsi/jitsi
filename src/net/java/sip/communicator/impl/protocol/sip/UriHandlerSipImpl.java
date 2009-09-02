@@ -77,7 +77,7 @@ public class UriHandlerSipImpl
      * URIs by passing them to the providers registered by <tt>protoFactory</tt>
      * .
      * 
-     * @param parentProvider the provider that created us.
+     * @param protoFactory the provider that created us.
      * 
      * @throws NullPointerException if <tt>protoFactory</tt> is <tt>null</tt>.
      */

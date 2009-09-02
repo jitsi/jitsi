@@ -363,7 +363,7 @@ public class MetaContactGroupImpl
      * Returns a contact group encapsulated by this meta contact group, having
      * the specified groupName and coming from the indicated ownerProvider.
      *
-     * @param grpName1 the name of the contact group who we're looking for.
+     * @param grpName the name of the contact group who we're looking for.
      * @param ownerProvider a reference to the ProtocolProviderService that
      * the contact we're looking for belongs to.
      * @return a reference to a <tt>ContactGroup</tt>, encapsulated by this

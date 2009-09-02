@@ -28,7 +28,7 @@ public class FileTransferCreatedEvent
      * Creates a <tt>FileTransferCreatedEvent</tt> representing creation of a
      * file transfer.
      *
-     * @param request the <tt>FileTransfer</tt> whose creation this event
+     * @param fileTransfer the <tt>FileTransfer</tt> whose creation this event
      * represents.
      * @param timestamp the timestamp indicating the exact date when the event
      * occurred

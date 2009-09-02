@@ -162,7 +162,7 @@ public class NotificationManager
      * Fires a chat message notification for the given event type through the
      * <tt>NotificationService</tt>.
      * 
-     * @param contact the chat contact to which the chat message corresponds;
+     * @param chatContact the chat contact to which the chat message corresponds;
      * the chat contact could be a Contact or a ChatRoom.
      * @param eventType the event type for which we fire a notification
      * @param messageTitle the title of the message

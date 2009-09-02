@@ -60,8 +60,6 @@ public class SelectGroupPanel
      * @param wizard the wizard where this panel is contained
      * @param newContact An object that collects all user choices through the
      * wizard.
-     * @param groupsList The list of all <tt>MetaContactGroup</tt>s, from which
-     * the user could select.
      */
     public SelectGroupPanel(AddContactWizard wizard,
                             NewContact newContact)

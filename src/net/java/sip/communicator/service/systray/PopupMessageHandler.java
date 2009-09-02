@@ -54,7 +54,7 @@ public interface PopupMessageHandler
      * 3) being able to match a click to a message
      * 4) using a native popup mechanism
      * 
-     * @returns an integer representing preference index of this popup handler
+     * @return an integer representing preference index of this popup handler
      */
     public int getPreferenceIndex();
 
@@ -62,7 +62,7 @@ public interface PopupMessageHandler
      * Returns a readable description of this popup handler. It is expected
      * to be a localized string.
      *
-     * @returns a string describing this popup handler
+     * @return a string describing this popup handler
      */
     @Override
     public String toString();

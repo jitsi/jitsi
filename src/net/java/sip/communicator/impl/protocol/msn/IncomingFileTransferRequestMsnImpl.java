@@ -46,7 +46,7 @@ public class IncomingFileTransferRequestMsnImpl
     /**
      * Constructor
      *
-     * @param fileTransfer msn file transfer request that was received
+     * @param incomingFileTransfer MSN file transfer request that was received
      */
     public IncomingFileTransferRequestMsnImpl(
         OperationSetFileTransferMsnImpl fileTransferOpSet,

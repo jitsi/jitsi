@@ -62,7 +62,6 @@ public class ChatRoomAuthenticationWindow
 
     /**
      * Creates an instance of the <tt>LoginWindow</tt>.
-     * @param mainFrame the parent <tt>MainFrame</tt> window.
      * @param chatRoom the chat room for which we're authenticating
      */
     public ChatRoomAuthenticationWindow(ChatRoomWrapper chatRoom)

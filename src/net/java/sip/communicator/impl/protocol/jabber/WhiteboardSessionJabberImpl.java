@@ -621,9 +621,7 @@ public class WhiteboardSessionJabberImpl
     }
 
     /**
-     * Sends the <tt>message</tt> to the destination indicated by the
-     * <tt>to</tt> contact.
-     * @param to the <tt>Contact</tt> to send <tt>message</tt> to
+     * Sends the <tt>message</tt> to the destination.
      * @param message the <tt>Message</tt> to send.
      * @throws java.lang.IllegalStateException if the underlying stack is
      * not registered and initialized.

@@ -29,9 +29,6 @@ public class OperationSetTypingNotificationsFacebookImpl
      * @param provider a ref to the <tt>ProtocolProviderServiceImpl</tt> that
      *            created us and that we'll use for retrieving the underlying
      *            aim connection.
-     * @param opSetPersPresence the currently valid
-     *            <tt>OperationSetPersistentPresenceFacebookImpl</tt>
-     *            instance.
      */
     OperationSetTypingNotificationsFacebookImpl(
         ProtocolProviderServiceFacebookImpl provider)

@@ -162,7 +162,7 @@ public class SRTPCryptoContext
      * Construct an empty SRTPCryptoContext using ssrc.
      * The other parameters are set to default null value.
      * 
-     * @param ssrc SSRC of this SRTPCryptoContext
+     * @param ssrcIn SSRC of this SRTPCryptoContext
      */
     public SRTPCryptoContext(long ssrcIn)
     {
@@ -185,25 +185,25 @@ public class SRTPCryptoContext
     /**
      * Construct a normal SRTPCryptoContext based on the given parameters.
      * 
-     * @param ssrc
+     * @param ssrcIn
      *            the RTP SSRC that this SRTP cryptographic context protects.
-     * @param roc
+     * @param rocIn
      *            the initial Roll-Over-Counter according to RFC 3711. These are
      *            the upper 32 bit of the overall 48 bit SRTP packet index.
      *            Refer to chapter 3.2.1 of the RFC.
-     * @param keyDerivationRate
+     * @param kdr
      *            the key derivation rate defines when to recompute the SRTP
      *            session keys. Refer to chapter 4.3.1 in the RFC.
-     * @param masterKey
+     * @param masterK
      *            byte array holding the master key for this SRTP cryptographic
      *            context. Refer to chapter 3.2.1 of the RFC about the role of
      *            the master key.
-     * @param masterSalt
+     * @param masterS
      *            byte array holding the master salt for this SRTP cryptographic
      *            context. It is used to computer the initialization vector that
      *            in turn is input to compute the session key, session
      *            authentication key and the session salt.
-     * @param policy
+     * @param policyIn
      *            SRTP policy for this SRTP cryptographic context, defined the
      *            encryption algorithm, the authentication algorithm, etc
      */
@@ -305,7 +305,7 @@ public class SRTPCryptoContext
     /**
      * Set the Roll-Over-Counter of this SRTP cryptographic context
      *
-     * @param roc the Roll-Over-Counter of this SRTP cryptographic context
+     * @param rocIn the Roll-Over-Counter of this SRTP cryptographic context
      */
     public void setROC(int rocIn) {
         roc = rocIn;

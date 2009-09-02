@@ -87,7 +87,7 @@ public interface CallSession
      *
      * @param peerSdpDescription the last SDP description of the remote
      *            callee
-     * @param on <tt>true</tt> if the SDP description should offer the remote
+     * @param onHold <tt>true</tt> if the SDP description should offer the remote
      *            callee to be put on hold or answer an offer from the remote
      *            callee to be put on hold; <tt>false</tt> to work in the
      *            context of a put-off-hold offer
@@ -252,7 +252,7 @@ public interface CallSession
         throws MediaException;
 
     /**
-     * Calls {@link #startStreaming() in order to start the streaming of the
+     * Calls {@link #startStreaming()} in order to start the streaming of the
      * local media and then begins processing the received and sent media
      * streams.
      */

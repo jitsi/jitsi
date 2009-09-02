@@ -189,7 +189,7 @@ public class GuiUtils
     /**
      * Formats the time for the given date. The result format is the following:
      * [Hour]:[Minute]:[Second]. For example: 12:25:30. 
-     * @param date the date to format
+     * @param time the date to format
      * @return the formatted hour string
      */
     public static String formatTime(long time)

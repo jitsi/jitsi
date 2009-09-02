@@ -11,7 +11,7 @@ import net.java.sip.communicator.service.protocol.*;
  * Very simple message implementation for the Rss protocol.
  * 
  * @author Emil Ivov
- * @authro Lubomir Marinov
+ * @author Lubomir Marinov
  */
 public class MessageRssImpl
     extends AbstractMessage

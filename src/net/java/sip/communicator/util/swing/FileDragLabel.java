@@ -58,7 +58,7 @@ public class FileDragLabel
      * the operable part of the drop site for the <code>DropTarget</code>
      * registered with this listener.
      * 
-     * @param dtde the <code>DropTargetDragEvent</code> 
+     * @param dropTargetDragEvent the <code>DropTargetDragEvent</code> 
      */
     public void dragEnter(DropTargetDragEvent dropTargetDragEvent)
     {
@@ -99,7 +99,7 @@ public class FileDragLabel
      * is notifying this listener
      * in order for it to initiate the action for the user.
      * <P>
-     * @param dge the <code>DragGestureEvent</code> describing 
+     * @param dragGestureEvent the <code>DragGestureEvent</code> describing 
      * the gesture that has just occurred
      */
     public void dragGestureRecognized(DragGestureEvent dragGestureEvent)

@@ -47,8 +47,7 @@ public class CreateChatRoomDialog
      * Creates an instance of <tt>CreateChatRoomDialog</tt> that represents a dialog
      * that adds a new chat room to an already existing server.
      * 
-     * @param mainFrame The <tt>MainFrame</tt> parent window.
-     * @param pps The <tt>ProtocolProviderService</tt>.
+     * @param provider The <tt>ChatRoomProviderWrapper</tt>.
      */
     public CreateChatRoomDialog(ChatRoomProviderWrapper provider)
     {

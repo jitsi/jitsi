@@ -3399,7 +3399,7 @@ public class CallSessionImpl
      * Sets a <tt>SessionCreatorCallback</tt> that will listen for
      * security events.
      *
-     * @param securityCallBack the <tt>SessionCreatorCallback</tt> to
+     * @param securityCallback the <tt>SessionCreatorCallback</tt> to
      * set
      */
     public void setSessionCreatorCallback(

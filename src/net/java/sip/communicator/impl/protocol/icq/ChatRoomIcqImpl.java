@@ -532,12 +532,10 @@ public class ChatRoomIcqImpl implements ChatRoom
    }
 
    /**
-    * Joins this chat room with the specified nickname and password so that
+    * Joins this chat room with the specified nickname so that
     * the user would start receiving events and messages for it.
     *
     * @param nickname the nickname to use.
-    * @param password a password necessary to authenticate when joining the
-    *   room.
     * @throws OperationFailedException with the corresponding code if an
     *   error occurs while joining the room.
     */
@@ -567,7 +565,7 @@ public class ChatRoomIcqImpl implements ChatRoom
     * Kicks a participant from the room. The ICQ protocol does not support
     * this.
     * 
-    * @param member the <tt>ChatRoomMember</tt> to kick from the room
+    * @param chatRoomMember the <tt>ChatRoomMember</tt> to kick from the room
     * @param reason the reason why the participant is being kicked from the
     * room
     * @throws OperationFailedException Always throws an
@@ -754,7 +752,7 @@ public class ChatRoomIcqImpl implements ChatRoom
    /**
     * Sets the nickName for this chat room.
     * 
-    * @param nickName the nick name to set
+    * @param nickname the nick name to set
     * @throws OperationFailedException If called, an OpFailedException is
     * called, because icq does not support nickname inside chat rooms.
     * 

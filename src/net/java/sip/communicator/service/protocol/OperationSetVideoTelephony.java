@@ -63,7 +63,7 @@ public interface OperationSetVideoTelephony
     /**
      * Disposes of a visual <code>Component</code> depicting the local video for
      * a specific <code>CallPeer</code> (previously obtained through
-     * {@link createLocalVisualComponent(CallPeer, VideoListener) createLocalVisualComponent}).
+     * {@link #createLocalVisualComponent(CallPeer, VideoListener) createLocalVisualComponent}).
      * The disposal may include, but is not limited to, releasing the
      * <code>Player</code> which provides the <code>component</code> and renders
      * the local video into it, disconnecting from the video capture device.

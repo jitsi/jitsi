@@ -565,7 +565,7 @@ public class ConfigurationManager
     /**
      * Sets the transparency value for all transparent windows.
      * 
-     * @param the transparency value for all transparent windows.
+     * @param transparency the transparency value for all transparent windows.
      */
     public static void setWindowTransparency(int transparency)
     {
@@ -734,7 +734,7 @@ public class ConfigurationManager
      * Updates the "SEND_FILE_LAST_DIR"
      * property through the <tt>ConfigurationService</tt>.
      * 
-     * @param size the new size to set
+     * @param lastDir last download directory
      */
     public static void setSendFileLastDir(String lastDir)
     {

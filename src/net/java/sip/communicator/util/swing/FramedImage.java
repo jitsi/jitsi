@@ -80,7 +80,7 @@ public class FramedImage
     /**
      * Paints the contained image in a frame.
      *
-     * @overrides {@link JComponent#paintComponent(Graphics)}.
+     * Overrides {@link JComponent#paintComponent(Graphics)}.
      */
     public void paintComponent(Graphics g)
     {

@@ -50,9 +50,8 @@ public class ExtendedTransferHandler
      * <tt>true</tt> to indicate that the transfer with at least one of the
      * given flavors would work and <tt>false</tt> to reject the transfer.
      * <p>
-     * @param support the object containing the details of the transfer, not
-     * <code>null</code>.
-     * @param transferFlavors the data formats available
+     * @param comp component
+     * @param flavor the data formats available
      * @return  true if the data can be inserted into the component, false
      * otherwise
      * @throws NullPointerException if <code>support</code> is {@code null}
@@ -105,7 +104,7 @@ public class ExtendedTransferHandler
      * <p>
      * @param comp  the component holding the data to be transferred;
      *              provided to enable sharing of <code>TransferHandler</code>s
-     * @param clip  the clipboard to transfer the data into
+     * @param clipboard the clipboard to transfer the data into
      * @param action the transfer action requested; this should
      *  be a value of either <code>COPY</code> or <code>MOVE</code>;
      *  the operation performed is the intersection  of the transfer

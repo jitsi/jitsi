@@ -48,7 +48,7 @@ public class ChatRoomSubjectPanel
      * Creates the panel containing the chat room subject.
      * 
      * @param chatWindow the chat window, where this panel is added
-     * @param chatRoomWrapper the chat room wrapper, from which we obtain the
+     * @param chatSession the chat session
      * chat room subject and the configuration information.
      */
     public ChatRoomSubjectPanel(ChatWindow chatWindow,

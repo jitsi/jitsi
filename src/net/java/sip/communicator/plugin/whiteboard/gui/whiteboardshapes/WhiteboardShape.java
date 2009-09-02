@@ -268,7 +268,6 @@ public abstract class WhiteboardShape implements WhiteboardObject
     /**
      * Translates the shape point at p
      *
-     * @param p point position
      * @param deltaX x coord
      * @param deltaY y coord
      */

@@ -80,8 +80,6 @@ public class ProtocolProviderFactoryGibberishImpl
      * accounts. Note that if the given accountID doesn't correspond to any
      * registered account this method would do nothing.
      *
-     * @param accountID the user identifier uniquely representing the newly
-     * created account within the protocol namespace.
      * @param accountProperties a set of protocol (or implementation) specific
      * properties defining the new account.
      * 

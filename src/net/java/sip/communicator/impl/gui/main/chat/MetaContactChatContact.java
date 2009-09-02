@@ -26,8 +26,6 @@ public class MetaContactChatContact
      *
      * @param metaContact the <tt>MetaContact</tt> encapsulating the given
      * <tt>Contact</tt>
-     * @param contact the <tt>Contact</tt> for which this <tt>ChatContact</tt>
-     * is created
      */
     public MetaContactChatContact(MetaContact metaContact)
     {

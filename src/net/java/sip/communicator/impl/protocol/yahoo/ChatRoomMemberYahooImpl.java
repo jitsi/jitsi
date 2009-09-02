@@ -50,7 +50,7 @@ public class ChatRoomMemberYahooImpl implements ChatRoomMember
     * Creates a yahoo chat room member with the specified containing chat room
     * parent.
     * 
-    * @param containingChatRoom
+    * @param chatRoom
     *            the room that this <tt>ChatRoomMemberYahooImpl</tt> is a
     *            member of.
     * @param nickName

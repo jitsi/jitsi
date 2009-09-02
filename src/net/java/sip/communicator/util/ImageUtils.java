@@ -69,7 +69,7 @@ public class ImageUtils
     /**
      * Creates a rounded avatar image.
      *
-     * @param avatarBytes The bytes of the initial avatar image.
+     * @param image image of the initial avatar image.
      *
      * @return The rounded corner image.
      */

@@ -172,7 +172,7 @@ public class NotificationsTableEntry
     
     /**
      * Method which assigns the notification state.
-     * @param true if the notification is enabled.
+     * @param _enabled true if the notification is enabled.
      */
     public void setEnabled(boolean _enabled)
     {
@@ -182,7 +182,7 @@ public class NotificationsTableEntry
     /**
      * Method which set a boolean to true if a program is executed for the 
      * notification.
-     * @param boolean for the program's presence.
+     * @param _program boolean for the program's presence.
      */
     public void setProgram(boolean _program)
     {
@@ -191,7 +191,7 @@ public class NotificationsTableEntry
     
     /**
      * Method which assigns the program filename for the notification.
-     * @param String representing the program file name.
+     * @param _programFile String representing the program file name.
      */
     public void setProgramFile(String _programFile)
     {
@@ -201,7 +201,7 @@ public class NotificationsTableEntry
     /**
      * Method which set a boolean to true if a systray popup is executed for the 
      * notification.
-     * @param boolean for the presence of popup.
+     * @param _popup boolean for the presence of popup.
      */
     public void setPopup(boolean _popup)
     {
@@ -211,7 +211,7 @@ public class NotificationsTableEntry
     /**
      * Method which set a boolean to true a sound is playing for the 
      * notification.
-     * @param boolean for the presence of a sound.
+     * @param _sound boolean for the presence of a sound.
      */
     public void setSound(boolean _sound)
     {
@@ -220,7 +220,7 @@ public class NotificationsTableEntry
     
     /**
      * Method which assigns the sound file name for the notification.
-     * @param String for the sound file name.
+     * @param _soundFile String for the sound file name.
      */
     public void setSoundFile(String _soundFile)
     {
@@ -229,7 +229,7 @@ public class NotificationsTableEntry
     
     /**
      * Method which assigns the notification's description.
-     * @param String to assigns a description of a notification.
+     * @param _event String to assigns a description of a notification.
      */
     public void setEvent(String _event)
     {
@@ -238,7 +238,7 @@ public class NotificationsTableEntry
     
     /**
      * Method which defines that the notification has been modified
-     * @param boolean true if the notification is modified
+     * @param _isModify boolean true if the notification is modified
      */
     public void setModify(boolean _isModify)
     {

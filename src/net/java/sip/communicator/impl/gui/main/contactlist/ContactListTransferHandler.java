@@ -43,7 +43,7 @@ public class ContactListTransferHandler
      * data that needs to be imported.
      * <p>
      * @param comp  the component to receive the transfer;
-     * @param transferable     the data to import
+     * @param t the data to import
      * @return  true if the data was inserted into the component and false
      * otherwise
      * @see #importData(TransferHandler.TransferSupport)

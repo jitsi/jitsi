@@ -123,7 +123,6 @@ public interface ConfigurationService
      * All properties with prefix propertyName will also be removed.
      * <p>
      * @param propertyName the name of the property to change.
-     * @param property the new value of the specified property.
      * @throws PropertyVetoException in case the changed has been refused by
      * at least one propertychange listener.
      */

@@ -129,7 +129,7 @@ public class ContactJabberImpl
     /**
      *  Set the image of the contact
      *
-     *  @param the bytes of the image that we'd like to set.
+     *  @param imgBytes the bytes of the image that we'd like to set.
      */
     void setImage(byte[] imgBytes)
     {

@@ -54,10 +54,7 @@ public class ConferenceChatManager
         = new Vector<ChatRoomListChangeListener>();
 
     /**
-     * Creates an instance of <tt>ConferenceChatManager</tt>, by passing to it
-     * the main application window object.
-     *
-     * @param mainFrame the main application window
+     * Creates an instance of <tt>ConferenceChatManager</tt>.
      */
     public ConferenceChatManager()
     {
@@ -491,7 +488,7 @@ public class ConferenceChatManager
      * exceptions that could occur during the join process.
      *
      * @param chatRoomWrapper the chat room to join.
-     * @param nickMame the nickname we choose for the given chat room.
+     * @param nickName the nickname we choose for the given chat room.
      * @param password the password.
      */
     public void joinChatRoom(   ChatRoomWrapper chatRoomWrapper,
@@ -585,9 +582,8 @@ public class ConferenceChatManager
     }
 
     /**
-     *
+     * Join chat room.
      * @param chatRoomWrapper
-     * @param chatRoom
      */
     public void joinChatRoom(ChatRoomWrapper chatRoomWrapper)
     {
@@ -736,7 +732,7 @@ public class ConferenceChatManager
     /**
      * Leaves the given <tt>ChatRoom</tt>.
      *
-     * @param chatRoom the <tt>ChatRoom</tt> to leave.
+     * @param chatRoomWrapper the <tt>ChatRoom</tt> to leave.
      */
     public void leaveChatRoom(ChatRoomWrapper chatRoomWrapper)
     {

@@ -32,7 +32,7 @@ public class PopupDialogImpl
      * Implements the <tt>PopupDialog.showInputPopupDialog(Object)</tt> method.
      * Invokes the corresponding <tt>JOptionPane.showInputDialog</tt> method.
      *
-     * @param message the object to display
+     * @param mesg the object to display
      */
     public String showInputPopupDialog(Object mesg)
     {
@@ -44,8 +44,8 @@ public class PopupDialogImpl
      * method. Invokes the corresponding <tt>JOptionPane.showInputDialog</tt>
      * method.
      *
-     * @param message the message to display
-     * @param initialSelectionValue the value used to initialize the input
+     * @param mesg the message to display
+     * @param initialSelectionVal the value used to initialize the input
      * field.
      */
     public String showInputPopupDialog(Object mesg,
@@ -59,8 +59,8 @@ public class PopupDialogImpl
      * <tt>PopupDialog.showInputPopupDialog(Object, String, int)</tt> method.
      * Invokes the corresponding <tt>JOptionPane.showInputDialog</tt> method.
      *
-     * @param message the message to display
-     * @param messageType the type of message to be displayed: ERROR_MESSAGE,
+     * @param mesg the message to display
+     * @param mesgType the type of message to be displayed: ERROR_MESSAGE,
      * INFORMATION_MESSAGE, WARNING_MESSAGE, QUESTION_MESSAGE, or PLAIN_MESSAGE
      * @param title the String to display in the dialog title bar
      */
@@ -93,13 +93,13 @@ public class PopupDialogImpl
      * Object)</tt> method. Invokes the corresponding
      * <tt>JOptionPane.showInputDialog</tt> method.
      *
-     * @param message the message to display
-     * @param messageType the type of message to be displayed: ERROR_MESSAGE,
+     * @param mesg the message to display
+     * @param mesgType the type of message to be displayed: ERROR_MESSAGE,
      * INFORMATION_MESSAGE, WARNING_MESSAGE, QUESTION_MESSAGE, or PLAIN_MESSAGE
      * @param title the String to display in the dialog title bar
-     * @param selectionValues an array of Objects that gives the possible
+     * @param selectionVal an array of Objects that gives the possible
      * selections
-     * @param initialSelectionValue the value used to initialize the input field
+     * @param initialSelectionVal the value used to initialize the input field
      */
     public Object showInputPopupDialog(Object mesg, String title,
         int mesgType, Object[] selectionVal, Object initialSelectionVal)
@@ -115,22 +115,22 @@ public class PopupDialogImpl
      * Object)</tt> method. Invokes the corresponding
      * <tt>JOptionPane.showInputDialog</tt> method.
      *
-     * @param message the message to display
-     * @param messageType the type of message to be displayed: ERROR_MESSAGE,
+     * @param mesg the message to display
+     * @param mesgType the type of message to be displayed: ERROR_MESSAGE,
      * INFORMATION_MESSAGE, WARNING_MESSAGE, QUESTION_MESSAGE, or PLAIN_MESSAGE
      * @param title the String to display in the dialog title bar
-     * @param selectionValues an array of Objects that gives the possible
+     * @param selectionVal an array of Objects that gives the possible
      * selections
-     * @param initialSelectionValue the value used to initialize the input field
+     * @param initialSelectionVal the value used to initialize the input field
      * @param icon the icon to show in the input window.
      */
     public Object showInputPopupDialog(Object mesg, String title,
         int mesgType, Object[] selectionVal,
-        Object initialSelectionVal, byte[] icn)
+        Object initialSelectionVal, byte[] icon)
     {
         return showInputDialog(null, mesg, title,
             popupDialog2JOptionPaneMessageType(mesgType),
-            createImageIcon(icn), selectionVal, initialSelectionVal);
+            createImageIcon(icon), selectionVal, initialSelectionVal);
     }
 
     private static ImageIcon createImageIcon(byte[] icon)
@@ -143,7 +143,7 @@ public class PopupDialogImpl
      * method. Invokes the corresponding
      * <tt>JOptionPane.showMessageDialog</tt> method.
      *
-     * @param message the Object to display
+     * @param mesg the Object to display
      */
     public void showMessagePopupDialog(Object mesg)
     {
@@ -155,9 +155,9 @@ public class PopupDialogImpl
      * int)</tt> method. Invokes the corresponding
      * <tt>JOptionPane.showMessageDialog</tt> method.
      *
-     * @param message the Object to display
+     * @param mesg the Object to display
      * @param title the title string for the dialog
-     * @param messageType the type of message to be displayed: ERROR_MESSAGE,
+     * @param mesgType the type of message to be displayed: ERROR_MESSAGE,
      * INFORMATION_MESSAGE, WARNING_MESSAGE, QUESTION_MESSAGE, or PLAIN_MESSAGE
      */
     public void showMessagePopupDialog(Object mesg, String title,
@@ -172,18 +172,18 @@ public class PopupDialogImpl
      * int)</tt> method. Invokes the corresponding
      * <tt>JOptionPane.showMessageDialog</tt> method.
      *
-     * @param message the Object to display
+     * @param mesg the Object to display
      * @param title the title string for the dialog
-     * @param messageType the type of message to be displayed: ERROR_MESSAGE,
+     * @param mesgType the type of message to be displayed: ERROR_MESSAGE,
      * INFORMATION_MESSAGE, WARNING_MESSAGE, QUESTION_MESSAGE, or PLAIN_MESSAGE
      * @param icon the image to display in the message dialog.
      */
     public void showMessagePopupDialog(Object mesg, String title,
-        int mesgType, byte[] icn)
+        int mesgType, byte[] icon)
     {
         showMessageDialog(null, mesg, title,
             popupDialog2JOptionPaneMessageType(mesgType),
-            createImageIcon(icn));
+            createImageIcon(icon));
     }
 
     /**
@@ -191,7 +191,7 @@ public class PopupDialogImpl
      * method. Invokes the corresponding
      * <tt>JOptionPane.showConfirmDialog</tt> method.
      *
-     * @param message the message to display
+     * @param mesg the message to display
      */
     public int showConfirmPopupDialog(Object mesg)
     {
@@ -203,9 +203,9 @@ public class PopupDialogImpl
      * int)</tt> method. Invokes the corresponding
      * <tt>JOptionPane.showConfirmDialog</tt> method.
      *
-     * @param message the Object to display
+     * @param mesg the Object to display
      * @param title the title string for the dialog
-     * @param optionType an integer designating the options available on the
+     * @param optType an integer designating the options available on the
      * dialog: YES_NO_OPTION, or YES_NO_CANCEL_OPTION
      */
     public int showConfirmPopupDialog(Object mesg, String title,
@@ -234,11 +234,11 @@ public class PopupDialogImpl
      * int, int)</tt> method. Invokes the corresponding
      * <tt>JOptionPane.showConfirmDialog</tt> method.
      *
-     * @param message the Object to display
+     * @param mesg the Object to display
      * @param title the title string for the dialog
-     * @param optionType an integer designating the options available on the
+     * @param optType an integer designating the options available on the
      * dialog: YES_NO_OPTION, or YES_NO_CANCEL_OPTION
-     * @param messageType an integer designating the kind of message this is;
+     * @param mesgType an integer designating the kind of message this is;
      * primarily used to determine the icon from the pluggable Look and Feel:
      * ERROR_MESSAGE, INFORMATION_MESSAGE, WARNING_MESSAGE, QUESTION_MESSAGE,
      * or PLAIN_MESSAGE
@@ -256,23 +256,23 @@ public class PopupDialogImpl
      * int, int)</tt> method. Invokes the corresponding
      * <tt>JOptionPane.showConfirmDialog</tt> method.
      *
-     * @param message the Object to display
+     * @param mesg the Object to display
      * @param title the title string for the dialog
-     * @param optionType an integer designating the options available on the
+     * @param optType an integer designating the options available on the
      * dialog: YES_NO_OPTION, or YES_NO_CANCEL_OPTION
-     * @param messageType an integer designating the kind of message this is;
+     * @param mesgType an integer designating the kind of message this is;
      * primarily used to determine the icon from the pluggable Look and Feel:
      * ERROR_MESSAGE, INFORMATION_MESSAGE, WARNING_MESSAGE, QUESTION_MESSAGE,
      * or PLAIN_MESSAGE
      * @param icon the icon to display in the dialog
      */
     public int showConfirmPopupDialog(Object mesg, String title,
-        int optType, int mesgType, byte[] icn)
+        int optType, int mesgType, byte[] icon)
     {
         return showConfirmDialog(null, mesg, title,
             popupDialog2JOptionPaneOptionType(optType),
             popupDialog2JOptionPaneMessageType(mesgType),
-            createImageIcon(icn));
+            createImageIcon(icon));
     }
 
     /**

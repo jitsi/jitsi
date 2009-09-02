@@ -61,8 +61,7 @@ public class SearchChatRoomPanel
     /**
      * Creates an instance of <tt>SearchChatRoomPanel</tt>.
      * 
-     * @param parentWindow the window containing this panel
-     * @param protocolProvider the protocol provider corresponding to the
+     * @param provider the chat room provider wrapper corresponding to the
      * account for which the search panel is created
      */
     public SearchChatRoomPanel(ChatRoomProviderWrapper provider)
@@ -209,7 +208,7 @@ public class SearchChatRoomPanel
      * Sets the protocol provider that have been chosen by user on the first
      * page of the join chat room wizard.
      * 
-     * @param protocolProvider the protocol provider for which we'd search a
+     * @param provider the chat room provider wrapper for which we'd search a
      * chat room
      */
     public void setChatRoomProvider(ChatRoomProviderWrapper provider)

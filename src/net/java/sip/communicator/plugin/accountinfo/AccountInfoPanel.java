@@ -38,8 +38,6 @@ public class AccountInfoPanel
      * Constructs a frame with an AccuontInfoAccountPanel to display all
      * registered accounts on the left, and an information interface,
      * AccountDetailsPanel, on the right.
-     * 
-     * @param metaContact
      */
     public AccountInfoPanel()
     {

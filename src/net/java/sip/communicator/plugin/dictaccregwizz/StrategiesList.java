@@ -122,7 +122,7 @@ public class StrategiesList
         
         /**
          * Stores the strategies into this model
-         * @param data the strategies list
+         * @param strategies the strategies list
          */
         public void setStrategies(List<Strategy> strategies)
         {

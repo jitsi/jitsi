@@ -766,7 +766,7 @@ public class FileHistoryServiceImpl
 
     /**
      * New file transfer was created.
-     * @param fileTransfer
+     * @param event fileTransfer
      */
     public void fileTransferCreated(FileTransferCreatedEvent event)
     {

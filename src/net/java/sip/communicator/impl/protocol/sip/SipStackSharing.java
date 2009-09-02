@@ -606,7 +606,7 @@ public class SipStackSharing
      * Dispatches the event received from a JAIN-SIP <tt>SipProvider</tt> to one
      * of our "candidate recipient" listeners.
      *
-     * @param responseEvent the event received for a <tt>SipProvider</tt>.
+     * @param event the event received for a <tt>SipProvider</tt>.
      */
     public void processResponse(ResponseEvent event)
     {
@@ -655,7 +655,7 @@ public class SipStackSharing
      * Dispatches the event received from a JAIN-SIP <tt>SipProvider</tt> to one
      * of our "candidate recipient" listeners.
      *
-     * @param timeoutEvent the event received for a <tt>SipProvider</tt>.
+     * @param event the event received for a <tt>SipProvider</tt>.
      */
     public void processTimeout(TimeoutEvent event)
     {
@@ -971,8 +971,6 @@ public class SipStackSharing
      * with.
      * @param localAddress the address that we would like to bind on
      * (null for the "any" address).
-     * @param localPort the port that we'd like our socket to bind to (0 for a
-     * random port).
      *
      * @return the SocketAddress that this handler would use when connecting to
      * the specified destination address and port.

@@ -41,8 +41,7 @@ public class ChatRoomServerRightButtonMenu
     /**
      * Creates an instance of <tt>ChatRoomsListRightButtonMenu</tt>.
      * 
-     * @param mainFrame the main application window
-     * @param protocolProvider the protocol provider corresponding to the multi
+     * @param chatRoomProvider the wrapper protocol provider corresponding to the multi
      * user chat server
      */
     public ChatRoomServerRightButtonMenu(

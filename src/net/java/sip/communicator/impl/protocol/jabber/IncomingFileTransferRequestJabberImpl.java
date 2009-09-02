@@ -60,8 +60,6 @@ public class IncomingFileTransferRequestJabberImpl
      * @param jabberProvider the protocol provider
      * @param fileTransferOpSet file transfer operation set
      * @param fileTransferRequest the request coming from the Jabber protocol
-     * @param thumbnailCid the content-ID used to match the thumbnail that
-     * would be send after this request is created.
      */
     public IncomingFileTransferRequestJabberImpl(
         ProtocolProviderServiceJabberImpl jabberProvider,

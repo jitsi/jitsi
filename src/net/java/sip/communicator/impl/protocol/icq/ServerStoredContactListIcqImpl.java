@@ -418,7 +418,7 @@ public class ServerStoredContactListIcqImpl
      * Returns the Contact with the specified screenname (or icq UIN) or null if
      * no such screenname was found.
      *
-     * @param screenName the screen name (or ICQ UIN) of the contact to find.
+     * @param buddy the buddy (or ICQ UIN) of the contact to find.
      * @return the <tt>Contact</tt> carrying the specified
      * <tt>screenName</tt> or <tt>null</tt> if no such contact exits.
      */

@@ -62,8 +62,6 @@ public class FirstWizardPage
 
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
-     * @param registration the <tt>GibberishAccountRegistration</tt>, where
-     * all data through the wizard are stored
      * @param wizard the parent wizard
      */
     public FirstWizardPage(GibberishAccountRegistrationWizard wizard)

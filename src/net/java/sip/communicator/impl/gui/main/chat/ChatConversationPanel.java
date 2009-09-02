@@ -188,11 +188,7 @@ public class ChatConversationPanel
     /**
      * Processes the message given by the parameters.
      *
-     * @param contactName The name of the contact sending the message.
-     * @param date The time at which the message is sent or received.
-     * @param messageType The type of the message. One of OUTGOING_MESSAGE or
-     *            INCOMING_MESSAGE.
-     * @param message The message text.
+     * @param chatMessage the message.
      * @return the formatted message
      */
     public String processMessage(ChatMessage chatMessage)
@@ -363,11 +359,7 @@ public class ChatConversationPanel
     /**
      * Processes the message given by the parameters.
      *
-     * @param contactName The name of the contact sending the message.
-     * @param date The time at which the message is sent or received.
-     * @param messageType The type of the message. One of OUTGOING_MESSAGE or
-     *            INCOMING_MESSAGE.
-     * @param message The message text.
+     * @param chatMessage The message.
      */
     public String processMessage(ChatMessage chatMessage, String keyword)
     {

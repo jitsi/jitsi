@@ -800,7 +800,7 @@ public class ServerStoredContactListYahooImpl
 
     /**
      * Process incoming authorization requests.
-     * @param e the event to process.
+     * @param ev the event to process.
      */
     void processAuthorizationRequest(SessionAuthorizationEvent ev)
     {

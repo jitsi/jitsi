@@ -379,7 +379,7 @@ public class ChatRoomMsnImpl
      * Kicks a participant from the room. The MSN protocol does not support
      * this.
      * 
-     * @param member the <tt>ChatRoomMember</tt> to kick from the room
+     * @param chatRoomMember the <tt>ChatRoomMember</tt> to kick from the room
      * @param reason the reason why the participant is being kicked from the
      *            room
      * @throws OperationFailedException Always throws an
@@ -656,7 +656,7 @@ public class ChatRoomMsnImpl
      * messages for it. Note: Secured chat rooms are not supported inside the
      * msn protocol,
      * 
-     * @see join()
+     * @see #join()
      * 
      * @param password the password to use when authenticating on the chat room.
      * @throws OperationFailedException with the corresponding code if an error
@@ -671,7 +671,7 @@ public class ChatRoomMsnImpl
      * Joins this chat room with the specified nickname so that the user would
      * start receiving events and messages for it.
      * 
-     * @param nickname the nickname to use.
+     * @param nickName the nickname to use.
      * @param password Not support inside the msn protocol
      * @throws OperationFailedException with the corresponding code if an error
      *             occurs while joining the room.
@@ -686,7 +686,7 @@ public class ChatRoomMsnImpl
      * Joins this chat room with the specified nickname so that the user would
      * start receiving events and messages for it.
      * 
-     * @param nickname the nickname to use.
+     * @param nickName the nickname to use.
      * @throws OperationFailedException with the corresponding code if an error
      *             occurs while joining the room.
      */
@@ -738,7 +738,7 @@ public class ChatRoomMsnImpl
     /**
      * Sets the nickName for this chat room.
      * 
-     * @param nickName the nick name to set
+     * @param nickname the nick name to set
      * @throws OperationFailedException If called, an OpFailedException is
      *             called, because MSN does not support nickname inside chat
      *             rooms.
@@ -860,7 +860,7 @@ public class ChatRoomMsnImpl
      * Removes a chat room member from the and fires a member presence change
      * event, so that the user gets the leaving information.
      * 
-     * @param member The member to remove.
+     * @param id The member ID to remove.
      */
     public void removeChatRoomMember(String id)
     {
@@ -927,7 +927,7 @@ public class ChatRoomMsnImpl
     /**
      * Finds the member of this chat room corresponding to the given nick name.
      * 
-     * @param nickName the nick name to search for.
+     * @param userAddress the nick name to search for.
      * @return the member of this chat room corresponding to the given nick name.
      */
     public ChatRoomMemberMsnImpl findMemberForAddress(String userAddress)

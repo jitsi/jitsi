@@ -174,7 +174,7 @@ public class WhiteboardObjectCircleJabberImpl
      * must be encoded with standard RGB encoding: bits 24-31 are alpha, 16-23
      * are red, 8-15 are green, 0-7 are blue.
      *
-     * @param bgColor the color that we'd like to set for the background of this
+     * @param backColor the color that we'd like to set for the background of this
      * <tt>WhiteboardObject</tt> (using standard RGB encoding).
      */
     public void setBackgroundColor (int backColor)

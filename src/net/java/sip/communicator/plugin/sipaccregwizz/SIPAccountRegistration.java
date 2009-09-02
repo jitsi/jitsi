@@ -175,7 +175,7 @@ public class SIPAccountRegistration
     /**
      * Sets the identifier of the sip registration account.
      *
-     * @param uin the identifier of the sip registration account.
+     * @param id the identifier of the sip registration account.
      */
     public void setUserID(String id)
     {

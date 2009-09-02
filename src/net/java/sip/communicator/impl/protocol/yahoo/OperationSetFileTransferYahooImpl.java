@@ -198,7 +198,7 @@ public class OperationSetFileTransferYahooImpl
     /**
      * Delivers the file transfer to all registered listeners.
      *
-     * @param fileTransfer the <tt>FileTransfer</tt> that we'd like delivered to
+     * @param event the <tt>FileTransferEvent</tt> that we'd like delivered to
      * all registered file transfer listeners.
      */
     void fireFileTransferCreated(FileTransferCreatedEvent event)

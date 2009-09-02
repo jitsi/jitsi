@@ -74,7 +74,7 @@ public class WhiteboardPoint implements Cloneable
     /**
      * Sets a new value to the x coordinate.
      * 
-     * @param y the new value of the x coordinate
+     * @param x the new value of the x coordinate
      */
     public void setX(double x)
     {

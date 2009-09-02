@@ -189,7 +189,7 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
      * change event.
      * 
      * @param eventID the String ID of the event to dispatch
-     * @param sourceContact the ContactJabberImpl instance that this event is
+     * @param source the ContactJabberImpl instance that this event is
      *            pertaining to.
      * @param oldValue the value that the changed property had before the change
      *            occurred.
@@ -234,9 +234,9 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
     /**
      * Notify all provider presence listeners of the corresponding event change
      * 
-     * @param oldStatus
+     * @param oldValue
      *            the status our stack had so far
-     * @param newStatus
+     * @param newValue
      *            the status we have from now on
      */
     protected void fireProviderStatusChangeEvent(

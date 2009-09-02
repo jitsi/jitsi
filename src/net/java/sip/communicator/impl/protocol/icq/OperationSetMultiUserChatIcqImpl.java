@@ -222,7 +222,7 @@ public class OperationSetMultiUserChatIcqImpl
     * Returns a list of the names of all chat rooms that <tt>contact</tt> is
     * currently a  member of.
     *
-    * @param contact the contact whose current ChatRooms we will be
+    * @param chatRoomMember the contact whose current ChatRooms we will be
     *   querying.
     * @return a list of <tt>String</tt> indicating the names of  the chat rooms
     * that <tt>contact</tt> has joined and is currently active in.

@@ -61,9 +61,9 @@ public class SendSmsDialog
      * <tt>OperationSetSmsMessaging</tt> to be used for sending the message.
      * 
      * @param chatPanel the chat sending the message
-     * @param message the SMS message
-     * @param opSet the <tt>OperationSetSmsMessaging</tt> that will be used to
+     * @param chatTransport the <tt>ChatTransport> that will be used to 
      * send the message
+     * @param message the SMS message
      */
     public SendSmsDialog(   ChatPanel chatPanel,
                             ChatTransport chatTransport,

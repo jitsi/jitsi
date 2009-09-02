@@ -121,7 +121,8 @@ public interface ResourceManagementService
      * Returns an internationalized string corresponding to the given key.
      *
      * @param key The identifier of the string in the resources properties file.
-     * @param locale The locale.
+     * @param params An array of parameters to be replaced in the returned
+     * string.
      * @return An internationalized string corresponding to the given key and
      * given locale.
      */
@@ -142,7 +143,6 @@ public interface ResourceManagementService
      * Returns an internationalized string corresponding to the given key.
      *
      * @param key The identifier of the string in the resources properties file.
-     * @param locale The locale that we'd like to receive the result in.
      * @return An internationalized string corresponding to the given key.
      */
     public char getI18nMnemonic(String key);

@@ -36,8 +36,7 @@ public class AutoAwayActivator
     /**
      * Starts this bundle
      * 
-     * @param bundleContext
-     *                BundleContext
+     * @param bc BundleContext
      * @throws Exception
      */
     public void start(BundleContext bc) throws Exception
@@ -172,7 +171,7 @@ public class AutoAwayActivator
     /**
      * Gets the ConfigurationService
      * 
-     * @return
+     * @return configuration service
      */
     static ConfigurationService getConfigService()
     {

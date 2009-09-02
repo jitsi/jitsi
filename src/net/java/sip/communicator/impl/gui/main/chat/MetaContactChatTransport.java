@@ -212,7 +212,8 @@ public class MetaContactChatTransport
     /**
      * Sends the given sms message trough this chat transport.
      * 
-     * @param message The message to send.
+     * @param phoneNumber phone number of the destination
+     * @param messageText The message to send.
      */
     public void sendSmsMessage(String phoneNumber, String messageText)
         throws Exception

@@ -396,7 +396,7 @@ public class MetaHistoryServiceImpl
      * Returns all the records having the given keywords
      *
      * @param services the services classnames we will query
-     * @param contact CallPeer address(String),
+     * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param keywords keyword
      * @return Collection sorted result that conists of records returned from

@@ -34,7 +34,7 @@ import org.osgi.framework.*;
  * Activates the UpdateCheck plugin
  * 
  * @author Damian Minkov
- * @authod Lubomir Marinov
+ * @author Lubomir Marinov
  */
 public class UpdateCheckActivator
     implements BundleActivator

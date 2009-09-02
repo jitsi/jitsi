@@ -135,7 +135,6 @@ public class RssFeedReader
      * Returns the textual representation of the feed's items with regard to the
      * key of the last item shown to the user. The items are sorted in reverse
      * chronological order, if possible.
-     * @param itemKey key identifying the last item retrieved.
      * @return textual representation of the feed items.
      */
     public synchronized String getNewFeeds()

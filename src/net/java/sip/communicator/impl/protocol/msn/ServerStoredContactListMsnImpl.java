@@ -400,7 +400,7 @@ public class ServerStoredContactListMsnImpl
      * also create (if necessary) a group for volatile contacts that would not
      * be added to the server stored contact list. This method would have no
      * effect on the server stored contact list.
-     * @param id the address of the contact to create.
+     * @param contact the address of the contact to create.
      * @return the newly created volatile <tt>ContactImpl</tt>
      */
     ContactMsnImpl createVolatileContact(MsnContact contact)

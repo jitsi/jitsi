@@ -103,7 +103,7 @@ public class MimeUtility
   /**
    * Decodes the specified string using the RFC 2047 rules for parsing an
    * "encoded-word".
-   * @param eword the possibly encoded value
+   * @param text the possibly encoded value
    * @exception Exception if the string is not an encoded-word
    * @exception UnsupportedEncodingException if the decoding failed
    */

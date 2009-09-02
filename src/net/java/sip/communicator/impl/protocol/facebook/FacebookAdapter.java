@@ -901,7 +901,7 @@ public class FacebookAdapter {
      * Pause the client.<br>
      * Ensure that initialize() can resume httpclient
      *
-     * @fixme logout first
+     * FIXME logout first
      */
     public void pause()
     {

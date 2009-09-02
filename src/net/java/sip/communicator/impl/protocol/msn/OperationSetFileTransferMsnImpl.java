@@ -45,7 +45,7 @@ public class OperationSetFileTransferMsnImpl
 
     /**
      * Create a new FileTransfer OperationSet over the specified Msn provider
-     * @param provider
+     * @param msnProvider MSN protocol provider service
      */
     public OperationSetFileTransferMsnImpl(
         ProtocolProviderServiceMsnImpl msnProvider)
@@ -265,7 +265,7 @@ public class OperationSetFileTransferMsnImpl
     /**
      * Delivers the file transfer to all registered listeners.
      *
-     * @param fileTransfer the <tt>FileTransfer</tt> that we'd like delivered to
+     * @param event the <tt>FileTransferEvent</tt> that we'd like delivered to
      * all registered file transfer listeners.
      */
     void fireFileTransferCreated(FileTransferCreatedEvent event)

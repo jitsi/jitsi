@@ -555,7 +555,7 @@ public class ChatRoomYahooImpl implements ChatRoom
     * Joins this chat room so that the user would start receiving events and
     * messages for it. Note: Secured chat rooms are not supported inside the
     * yahoo protocol.
-    * @see join()
+    * @see #join()
     * 
     * @param password the password to use when authenticating on the chat room.
     * @throws OperationFailedException with the corresponding code if an error
@@ -570,13 +570,12 @@ public class ChatRoomYahooImpl implements ChatRoom
    /**
     * Joins this chat room so that the user would start receiving events and
     * messages for it. Note: Not needed for the yahoo protocol.
-    * @see join()
+    * @see #join()
     * @param nickname the nickname to use.
     * @param password the password to use when authenticating on the chat room.
     * @throws OperationFailedException with the corresponding code if an error
     * occurs while joining the room.
     */
-   
    public void joinAs(String nickname, byte[] password)
            throws OperationFailedException
    {
@@ -626,7 +625,7 @@ public class ChatRoomYahooImpl implements ChatRoom
    /**
     * Kicks a participant from the room. 
     * 
-    * @param member the <tt>ChatRoomMember</tt> to kick from the room
+    * @param chatRoomMember the <tt>ChatRoomMember</tt> to kick from the room
     * @param reason the reason why the participant is being kicked from the
     * room
     * @throws OperationFailedException 
@@ -762,7 +761,7 @@ public class ChatRoomYahooImpl implements ChatRoom
    /**
     * Sets the nickName for this chat room.
     * 
-    * @param nickName the nick name to set
+    * @param nickname the nick name to set
     * @throws OperationFailedException If called, an OpFailedException is
     * called, because yahoo does not support nickname inside chat rooms.
     * 

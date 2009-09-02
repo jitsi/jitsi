@@ -34,8 +34,6 @@ public class TransformManager
      * @param masterSalt master salt of this SRTP session
      * @param srtpPolicy SRTP policy for this SRTP session
      * @param srtcpPolicy SRTCP policy for this SRTP session
-     * @param cryptoProvider the cryptography services provider selection string
-     *        should be obtained from a resource file or by querying 
      * @return the TransformConnector used for SRTP encyption/decryption
      * @throws InvalidSessionAddressException if the local RTP session address
      * is invalid
@@ -63,8 +61,6 @@ public class TransformManager
      * Creates a connector specific for use in case of ZRTP key management
      * 
      * @param addr local RTP session listen address
-     * @param cryptoProvider the cryptography services provider selection string
- *                       should be obtained from a resource file or by querying 
      * @return the TransformConnector used for ZRTP processing
      * @throws InvalidSessionAddressException
      */

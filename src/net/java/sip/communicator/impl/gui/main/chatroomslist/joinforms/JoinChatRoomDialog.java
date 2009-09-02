@@ -45,8 +45,7 @@ public class JoinChatRoomDialog
     /**
      * Creates an instance of <tt>JoinChatRoomDialog</tt>.
      * 
-     * @param mainFrame the <tt>MainFrame</tt> parent window
-     * @param pps the <tt>ProtocolProviderService</tt>, which will be the chat
+     * @param provider the <tt>ChatRoomProviderWrapper</tt>, which will be the chat
      * server for the newly created chat room
      */
     public JoinChatRoomDialog(ChatRoomProviderWrapper provider)

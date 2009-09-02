@@ -67,7 +67,7 @@ public class ThreadManager
     
     /**
      * Wait for the searching thread to stop
-     * @return
+     * @return true if success, false otherwise
      */
     public boolean waitThread()
     {

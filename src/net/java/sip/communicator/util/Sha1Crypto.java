@@ -30,7 +30,7 @@ public class Sha1Crypto
     /**
      * Encodes the given text with the SHA-1 algorithm.
      * 
-     * @param byteArreay the byte array to encode
+     * @param byteArray the byte array to encode
      * @return the encoded text
      * @throws NoSuchAlgorithmException
      * @throws UnsupportedEncodingException

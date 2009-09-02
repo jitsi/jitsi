@@ -104,7 +104,6 @@ public class HistoryWindow
 
     /**
      * Creates an instance of the <tt>HistoryWindow</tt>.
-     * @param mainFrame the main application window
      * @param historyContact the <tt>MetaContact</tt> or the <tt>ChatRoom</tt>
      */
     public HistoryWindow(Object historyContact)

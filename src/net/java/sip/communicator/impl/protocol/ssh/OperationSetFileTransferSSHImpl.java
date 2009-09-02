@@ -74,12 +74,8 @@ public class OperationSetFileTransferSSHImpl
     }
 
     /**
-     * Sends a file transfer request to the given <tt>toContact</tt> by
-     * specifying the local and remote file path and the <tt>fromContact</tt>,
-     * sending the file.
-     * 
+     * Sends a file transfer request to the given <tt>toContact</tt>. 
      * @param toContact the contact that should receive the file
-     * @param fromContact the contact sending the file
      * @param file the file to send
      */
     public FileTransfer sendFile(   Contact toContact,

@@ -186,7 +186,7 @@ public class GoogleTalkAccountRegistrationWizard
      * 
      * @param providerFactory the ProtocolProviderFactory which will create
      * the account
-     * @param user the user identifier
+     * @param userName the user identifier
      * @param passwd the password
      * @return the <tt>ProtocolProviderService</tt> for the new account.
      */

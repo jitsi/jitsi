@@ -63,11 +63,11 @@ public class SIPCommMenu
      * @param actionListener The <tt>ActionListener</tt>, which handles the
      * case, when the item is selected.
      */
-    public void addItem(String text, Icon icon, ActionListener actionLstner)
+    public void addItem(String text, Icon icon, ActionListener actionListener)
     {
         JMenuItem item = new JMenuItem(text, icon);
 
-        item.addActionListener(actionLstner);
+        item.addActionListener(actionListener);
 
         this.add(item);
     }
@@ -76,7 +76,6 @@ public class SIPCommMenu
      * Selects the given item.
      * 
      * @param selectedObject The object to select.
-     * @param icon The icon to select.
      */
     public void setSelected(SelectedObject selectedObject)
     {

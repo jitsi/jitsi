@@ -180,8 +180,7 @@ public class OperationSetBasicInstantMessagingFacebookImpl
     /**
      * Invoked by the facebook adapter when we got messages from the server.
      * 
-     * @param message
-     * @param from
+     * @param fbmsg message received
      */
     public void receivedInstantMessage(FacebookMessage fbmsg)
     {

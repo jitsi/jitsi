@@ -77,16 +77,11 @@ public class OperationSetFileTransferJabberImpl
     }
 
     /**
-     * Sends a file transfer request to the given <tt>toContact</tt> by
-     * specifying the local and remote file path and the <tt>fromContact</tt>,
-     * sending the file.
-     * 
+     * Sends a file transfer request to the given <tt>toContact</tt>.
      * @return the transfer object
      * 
      * @param toContact the contact that should receive the file
-     * @param fromContact the contact sending the file
-     * @param remotePath the remote file path
-     * @param localPath the local file path
+     * @param file file to send
      */
     public FileTransfer sendFile(   Contact toContact,
                                     File file)
@@ -418,7 +413,7 @@ public class OperationSetFileTransferJabberImpl
     /**
      * Delivers the file transfer to all registered listeners.
      * 
-     * @param fileTransfer the <tt>FileTransfer</tt> that we'd like delivered to
+     * @param event the <tt>FileTransferEvent</tt> that we'd like delivered to
      * all registered file transfer listeners.
      */
     void fireFileTransferCreated(FileTransferCreatedEvent event)

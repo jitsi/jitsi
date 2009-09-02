@@ -95,11 +95,11 @@ public class OperationSetBasicInstantMessagingSipImpl
     }
 
     /**
-     * Registers a SipMessageListener with this operation set so that it gets
+     * Registers a SipMessageProcessor with this operation set so that it gets
      * notifications of successful message delivery, failure or reception of
      * incoming messages..
      *
-     * @param listener the <tt>SipMessageListener</tt> to register.
+     * @param processor the <tt>SipMessageProcessor</tt> to register.
      */
     void addMessageProcessor(SipMessageProcessor processor)
     {
@@ -113,11 +113,11 @@ public class OperationSetBasicInstantMessagingSipImpl
     }
 
     /**
-     * Unregisters <tt>listener</tt> so that it won't receive any further
+     * Unregisters <tt>processor</tt> so that it won't receive any further
      * notifications upon successful message delivery, failure or reception of
      * incoming messages..
      *
-     * @param listener the <tt>SipMessageListener</tt> to unregister.
+     * @param processor the <tt>SipMessageProcessor</tt> to unregister.
      */
     void removeMessageProcessor(SipMessageProcessor processor)
     {

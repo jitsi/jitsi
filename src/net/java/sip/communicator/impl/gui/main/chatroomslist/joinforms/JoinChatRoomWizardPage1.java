@@ -41,8 +41,8 @@ public class JoinChatRoomWizardPage1
      * @param wizard the parent wizard container
      * @param joinChatRoom the object that will collect the information through
      * the wizard 
-     * @param protocolProvidersList The list of available installed 
-     * <tt>ProtocolProviderServices</tt>, from which the user could select.
+     * @param chatRoomProviders The list of available installed 
+     * <tt>ChatRoomProviderWrapper</tt>, from which the user could select.
      */
     public JoinChatRoomWizardPage1(
         WizardContainer wizard,

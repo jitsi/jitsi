@@ -12,7 +12,7 @@ import net.java.sip.communicator.service.protocol.*;
  * message only supports test contents and no binary data.
  * 
  * @author Damian Minkov
- * @authro Lubomir Marinov
+ * @author Lubomir Marinov
  */
 public class MessageYahooImpl
     extends AbstractMessage

@@ -49,9 +49,11 @@ public class ReceiveFileConversationComponent
 
     /**
      * Creates a <tt>ReceiveFileConversationComponent</tt>.
-     * 
-     * @param fileTransferRequest the <tt>IncomingFileTransferRequest</tt>
+     * @param chatPanel the chat panel
+     * @param opSet the <tt>OperationSetFileTransfer</tt>
+     * @param request the <tt>IncomingFileTransferRequest</tt>
      * associated with this component
+     * @param date the date
      */
     public ReceiveFileConversationComponent(
         ChatPanel chatPanel,

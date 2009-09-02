@@ -282,7 +282,6 @@ public class WhiteboardShapePolygon
     /**
      * Translates a point from the shape.
      *
-     * @param p point position
      * @param deltaX x coord
      * @param deltaY y coord
      */

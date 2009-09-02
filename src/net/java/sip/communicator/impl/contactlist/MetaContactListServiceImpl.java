@@ -794,9 +794,9 @@ public class MetaContactListServiceImpl
     /**
      * Sets the avatar for <tt>metaContact</tt> to be <tt>newAvatar</tt>.
      * <p>
-     * @param metaContact the <tt>MetaContact</tt> that we are renaming
-     * @param newDisplayName a <tt>String</tt> containing the new display name
-     * for <tt>metaContact</tt>.
+     * @param metaContact the <tt>MetaContact</tt> that change avatar 
+     * @param protoContact the <tt>Contact> that change avatar
+     * @param newAvatar avatar image bytes
      * @throws IllegalArgumentException if <tt>metaContact</tt> is not an
      * instance that belongs to the underlying implementation.
      */

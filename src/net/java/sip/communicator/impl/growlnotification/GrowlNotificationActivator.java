@@ -49,7 +49,7 @@ public class GrowlNotificationActivator
     /**
      * Initialize and start Growl Notifications Service
      *
-     * @param bundleContext BundleContext
+     * @param bc BundleContext
      * @throws Exception
      */
     public void start(BundleContext bc) throws Exception

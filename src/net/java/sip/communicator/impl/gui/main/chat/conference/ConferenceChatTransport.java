@@ -134,7 +134,7 @@ public class ConferenceChatTransport
      * Sends the given instant message trough this chat transport, by specifying
      * the mime type (html or plain text).
      * 
-     * @param message The message to send.
+     * @param messageText The message to send.
      * @param mimeType The mime type of the message to send: text/html or
      * text/plain.
      */

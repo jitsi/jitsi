@@ -54,7 +54,6 @@ public class SRTPTransformEngine
      * @param masterSalt the master salt key
      * @param srtpPolicy SRTP policy
      * @param srtcpPolicy SRTCP policy
-     * @param cryptoProvider cryptography services provider
      */
     public SRTPTransformEngine(byte[] masterKey, byte[] masterSalt,
                                SRTPPolicy srtpPolicy, SRTPPolicy srtcpPolicy)

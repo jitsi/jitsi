@@ -119,7 +119,7 @@ public class ContactFacebookImpl
      * 
      * @return a String that can be used for referring to this contact when
      *         interacting with the user.
-     * @Fixme should be facebook "name"
+     * FIXME should be facebook "name"
      */
     public String getDisplayName()
     {
@@ -155,8 +155,6 @@ public class ContactFacebookImpl
     /**
      * update the user information we just got from the server. so this data
      * shouldn't be modified manually.
-     * 
-     * @param newInfo
      */
     public FacebookUser getContactInfo()
     {

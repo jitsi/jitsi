@@ -120,7 +120,6 @@ public class WhiteboardSessionManager
      * @param wbSession the white-board session, to which the object would be
      * send
      * @param ws WhiteboardShape to convert and send
-     * @param c contact
      * @return WhiteboardObject sent
      */
     public WhiteboardObject sendWhiteboardObject (  WhiteboardSession wbSession,

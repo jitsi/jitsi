@@ -181,7 +181,7 @@ static void fwrite(short[] data, int length, OutputStream fp)
  * @param data
  * @param length
  * @param fp
- * @return
+ * @return length of resulting data array
  * @throws java.io.IOException
  */
 static int fread(short[] data, int length, InputStream fp)

@@ -46,7 +46,6 @@ public class ChatRoomRightButtonMenu
 
     /**
      * Creates an instance of <tt>ChatRoomsListRightButtonMenu</tt>.
-     * @param mainFrame the main application window
      * @param chatRoomWrapper the chat room wrapper, corresponding to the
      * selected chat room
      */

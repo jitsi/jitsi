@@ -20,7 +20,7 @@ public class SoundFilter
     /**
      * Method which describes differents permits extensions and defines which file or
      * directory will be displayed in the filechoser.
-     * @param File file for the test
+     * @param f file for the test
      * @return boolean true if the File is a Directory or a sound file. And
      * return false in the other cases.
      */

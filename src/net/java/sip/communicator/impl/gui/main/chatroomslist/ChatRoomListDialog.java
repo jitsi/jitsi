@@ -23,7 +23,7 @@ import net.java.sip.communicator.util.swing.*;
  * chat rooms, etc.
  * 
  * @author Yana Stamcheva
- * @authro Lubomir Marinov
+ * @author Lubomir Marinov
  */
 public class ChatRoomListDialog
     extends SIPCommDialog

@@ -39,8 +39,9 @@ public interface SessionCreatorCallback
      * Indicates that a security message has occurred associated with a
      * failure/warning or information coming from the encryption protocol.
      * 
-     * @param messageType the type of the message.
-     * @param message the message
+     * @param message the message.
+     * @param i18nMessage the internationalized message
+     * @param severity severity level 
      */
     public void securityMessage(String message,
                                 String i18nMessage,

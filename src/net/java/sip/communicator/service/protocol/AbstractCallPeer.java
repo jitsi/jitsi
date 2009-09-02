@@ -225,7 +225,6 @@ public abstract class AbstractCallPeer
      * the corresponding <tt>oldValue</tt> and <tt>newValue</tt>,
      *
      * @param sessionType the type of the session - audio or video
-     * @param eventID the identifier of the event
      */
     protected void fireCallPeerSecurityOnEvent(
         int sessionType,
@@ -265,7 +264,6 @@ public abstract class AbstractCallPeer
      * the corresponding <tt>oldValue</tt> and <tt>newValue</tt>,
      *
      * @param sessionType the type of the session - audio or video
-     * @param eventID the identifier of the event
      */
     protected void fireCallPeerSecurityOffEvent(int sessionType)
     {
@@ -297,8 +295,9 @@ public abstract class AbstractCallPeer
      * peer as source, setting it to be of type <tt>eventType</tt> and
      * the corresponding <tt>oldValue</tt> and <tt>newValue</tt>,
      *
-     * @param sessionType the type of the session - audio or video
-     * @param eventID the identifier of the event
+     * @param messageType the type of the message
+     * @param i18nMessage message
+     * @param severity severity level
      */
     protected void fireCallPeerSecurityMessageEvent(
         String messageType,
@@ -445,7 +444,7 @@ public abstract class AbstractCallPeer
     /**
      * Sets the mute property for this call peer.
      *
-     * @param mute the new value of the mute property for this call peer
+     * @param newMuteValue the new value of the mute property for this call peer
      */
     public void setMute(boolean newMuteValue)
     {

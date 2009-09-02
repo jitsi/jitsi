@@ -435,11 +435,11 @@ public class ConfigurationManager
     }
     
     /**
-     * Updates the "isHistoryLoggingEnabled" property through the
+     * Updates the "isHistoryShown" property through the
      * <tt>ConfigurationService</tt>.
      * 
-     * @param isHistoryLoggingEnabled indicates if the history logging is
-     * enabled.
+     * @param isHistoryShown indicates if the message history is
+     * shown
      */
     public static void setHistoryShown(boolean isHistoryShown)
     {

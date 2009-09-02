@@ -46,7 +46,7 @@ public class OperationSetFileTransferIcqImpl
 
     /**
      * Create a new FileTransfer OperationSet over the specified Icq provider
-     * @param provider
+     * @param icqProvider ICQ protocol provider service
      */
     public OperationSetFileTransferIcqImpl(
         ProtocolProviderServiceIcqImpl icqProvider)
@@ -343,7 +343,7 @@ public class OperationSetFileTransferIcqImpl
     /**
      * Delivers the file transfer to all registered listeners.
      *
-     * @param fileTransfer the <tt>FileTransfer</tt> that we'd like delivered to
+     * @param event the <tt>FileTransferEvent</tt> that we'd like delivered to
      * all registered file transfer listeners.
      */
     void fireFileTransferCreated(FileTransferCreatedEvent event)

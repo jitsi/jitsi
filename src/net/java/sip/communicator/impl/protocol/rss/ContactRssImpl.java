@@ -84,8 +84,6 @@ public class ContactRssImpl
      * as a name and identifier.
      *
      * @param rssURL the URL of the rss feed that this contact will be wrapping.
-     * @param rssFeedReader the feed reader that we'll be using to retrieve
-     * the rss flow associated with this contact.
      * @param parentProvider the provider that created us.
      */
     public ContactRssImpl(String contactID,
@@ -236,7 +234,7 @@ public class ContactRssImpl
     /**
      *  Set the image of the contact.
      *
-     * @param the bytes of the image that we'd like to set.
+     * @param imgBytes the bytes of the image that we'd like to set.
      */
     void setImage(byte[] imgBytes)
     {

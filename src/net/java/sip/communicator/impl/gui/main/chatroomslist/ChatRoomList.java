@@ -75,8 +75,6 @@ public class ChatRoomList
      *
      * @param pps the <tt>ProtocolProviderService</tt> corresponding to the chat
      * server
-     * @param multiUserChatOperationSet the <tt>OperationSetMultiUserChat</tt>
-     * from which we manage chat rooms
      */
     public void addChatProvider(ProtocolProviderService pps)
     {

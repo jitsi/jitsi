@@ -32,8 +32,6 @@ public class AddContactWizardPage2
      * @param wizard the parent wizard, where this page is contained
      * @param newContact An object that collects all user choices through the
      * wizard.
-     * @param groupsList The list of all <tt>MetaContactGroup</tt>s, from which
-     * the user could select.
      */
     public AddContactWizardPage2(   AddContactWizard wizard, 
                                     NewContact newContact)

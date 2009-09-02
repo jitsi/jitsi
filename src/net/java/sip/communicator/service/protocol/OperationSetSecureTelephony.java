@@ -32,7 +32,6 @@ public interface OperationSetSecureTelephony
      * @param peer the peer who toggled (or for whom is remotely
      *        toggled) the SAS verified flag
      * @param verified the new SAS verification status
-     * @param source the source who generated the call change
      */
     public boolean setSasVerified(CallPeer peer, boolean verified);
 }

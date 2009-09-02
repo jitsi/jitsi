@@ -34,7 +34,7 @@ public class FileTransferRequestEvent
      * Creates a <tt>FileTransferRequestEvent</tt> representing reception
      * of an incoming file transfer request.
      *
-     * @param the operation set, where this event initially occurred
+     * @param fileTransferOpSet the operation set, where this event initially occurred
      * @param request the <tt>IncomingFileTranferRequest</tt> whose reception
      * this event represents.
      * @param timestamp the timestamp indicating the exact date when the event

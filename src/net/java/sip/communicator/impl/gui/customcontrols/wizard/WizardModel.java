@@ -318,7 +318,7 @@ public class WizardModel
 
     /**
      * Enables or disables the Back button.
-     * @param newValue <code>true</code> to enable the Back button,
+     * @param enabled <code>true</code> to enable the Back button,
      * <code>false</code> to disable it.
      */
     void setBackButtonEnabled(boolean enabled)
@@ -345,7 +345,7 @@ public class WizardModel
 
     /**
      * Enables or disables the Next/Finish button.
-     * @param newValue <code>true</code> to enable the Next/Finish button,
+     * @param enabled <code>true</code> to enable the Next/Finish button,
      * <code>false</code> to disable it.
      */
     void setNextFinishButtonEnabled(boolean enabled)
@@ -373,7 +373,7 @@ public class WizardModel
 
     /**
      * Enables or disables the Cancel button.
-     * @param newValue <code>true</code> to enable the Cancel button,
+     * @param enabled <code>true</code> to enable the Cancel button,
      * <code>false</code> to disable it.
      */
     void setCancelButtonEnabled(boolean enabled)

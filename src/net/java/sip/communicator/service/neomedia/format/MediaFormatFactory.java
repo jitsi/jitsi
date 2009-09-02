@@ -107,11 +107,6 @@ public interface MediaFormatFactory
      *
      * @param encoding the encoding of the format to create.
      * @param clockRate the the frame rate
-     * @param channels thu number of availabel channels (1 for mono,
-     *        2 for stereo)
-     * @param formatParams any codec specific params that have being received
-     * via SIP/SDP or XMPP/Jingle.
-     *
      * @return a newly created <tt>AudioMediaFormat</tt> with the specified
      * parameters.
      */

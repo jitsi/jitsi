@@ -74,7 +74,7 @@ public class GuiActivator implements BundleActivator
     /**
      * Called when this bundle is started.
      *
-     * @param bundleContext The execution context of the bundle being started.
+     * @param bContext The execution context of the bundle being started.
      */
     public void start(BundleContext bContext)
         throws Exception

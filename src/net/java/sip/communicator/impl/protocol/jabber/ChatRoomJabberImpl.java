@@ -1741,7 +1741,7 @@ public class ChatRoomJabberImpl
     /**
      * Finds the member of this chat room corresponding to the given nick name.
      * 
-     * @param nickName the nick name to search for.
+     * @param jabberID the nick name to search for.
      * @return the member of this chat room corresponding to the given nick name.
      */
     public ChatRoomMemberJabberImpl findMemberForNickName(String jabberID)

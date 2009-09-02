@@ -345,8 +345,6 @@ public class ProtocolProviderServiceSipImpl
      * about to create
      * @param accountID the identifier of the account that this protocol
      * provider represents.
-     * @param isInstall indicates if this initialization is made due to a new
-     * account installation or just an existing account loading
      *
      * @throws OperationFailedException with code INTERNAL_ERROR if we fail
      * initializing the SIP Stack.

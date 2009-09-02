@@ -60,11 +60,10 @@ public class CallPeerSecurityMessageEvent
      * call peer, event type and message associated with this event.
      *
      * @param callPeer the call peer implied in this event.
-     * @param eventType the type of the event. One of the constants defined in
-     * this class.
      * @param eventMessage the message associated with this event.
      * @param i18nMessage the internationalized message associated with this
      * event that could be shown to the user.
+     * @param eventSeverity severity level.
      */
     public CallPeerSecurityMessageEvent( CallPeer callPeer,
                                                 String eventMessage,

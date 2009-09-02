@@ -620,7 +620,7 @@ public class CallHistoryServiceImpl
     /**
      * Remove a configuration service.
      *
-     * @param historyService HistoryService
+     * @param hService HistoryService
      */
     public void unsetHistoryService(HistoryService hService)
     {
