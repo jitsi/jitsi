@@ -25,7 +25,8 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class CreateGroupDialog
     extends SIPCommDialog
-    implements ActionListener {
+    implements ActionListener, WindowFocusListener
+{
     
     private final Logger logger = Logger.getLogger(CreateGroupDialog.class.getName());
     
@@ -68,7 +69,7 @@ public class CreateGroupDialog
     private void init()
     {
         this.setTitle(
-            GuiActivator.getResources().getI18NString("service.gui.ADD_GROUP"));
+            GuiActivator.getResources().getI18NString("service.gui.CREATE_GROUP"));
         
         this.getRootPane().setDefaultButton(addButton);
         this.addButton.setName("create");
@@ -91,6 +92,7 @@ public class CreateGroupDialog
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
         
         this.getContentPane().add(mainPanel);
+        this.addWindowFocusListener(this);
     }
     
     public void actionPerformed(ActionEvent e)
@@ -107,6 +109,13 @@ public class CreateGroupDialog
             dispose();
         }
     }
+    
+    public void windowGainedFocus(WindowEvent e)
+    {
+        this.groupPanel.requestFocusInField();
+    }
+
+    public void windowLostFocus(WindowEvent e) {;}
     
     /**
      * Creates a new meta contact group in a separate thread.
