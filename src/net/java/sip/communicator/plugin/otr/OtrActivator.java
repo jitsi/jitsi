@@ -92,7 +92,9 @@ public class OtrActivator
 
         OtrMetaContactMenu rightClickMenu =
             new OtrMetaContactMenu(
-                Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU);
+                Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU,
+                OtrActivator.resourceService
+                .getImage("plugin.otr.MENU_ITEM_ICON_16x16"));
         containerFilter.put(Container.CONTAINER_ID,
             Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU.getID());
 
@@ -100,7 +102,8 @@ public class OtrActivator
             rightClickMenu, containerFilter);
 
         OtrMetaContactMenu chatMenuBarMenu =
-            new OtrMetaContactMenu(Container.CONTAINER_CHAT_MENU_BAR);
+                new OtrMetaContactMenu(Container.CONTAINER_CHAT_MENU_BAR,
+                null);
         containerFilter.put(Container.CONTAINER_ID,
             Container.CONTAINER_CHAT_MENU_BAR.getID());
 

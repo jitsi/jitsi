@@ -28,10 +28,10 @@ public class OtrMetaContactMenu
 
     private Container container;
 
-    public OtrMetaContactMenu(Container container)
+    public OtrMetaContactMenu(Container container, Icon icon)
     {
-        this.setIcon(OtrActivator.resourceService
-            .getImage("plugin.otr.MENU_ITEM_ICON_16x16"));
+        if (icon != null)
+            this.setIcon(icon);
 
         this.container = container;
         this.setText(OtrActivator.resourceService
