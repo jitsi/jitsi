@@ -532,6 +532,7 @@ public class ServerStoredContactListYahooImpl
      * Removes the specified group from the buddy list.
      * @param groupToRemove the group that we'd like removed.
      */
+    @SuppressWarnings("unchecked") //jymsg legacy code
     public void removeGroup(ContactGroupYahooImpl groupToRemove)
     {
         // to remove group just remove all the contacts in it
@@ -740,6 +741,7 @@ public class ServerStoredContactListYahooImpl
      * When the protocol is online this method is used to fill or resolve
      * the current contact list
      */
+    @SuppressWarnings("unchecked") //jymsg legacy code
     private void initList()
     {
         logger.trace("Start init list of "

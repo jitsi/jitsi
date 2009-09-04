@@ -54,9 +54,11 @@ public class SunVideoAuto
      *
      * @return the number of devices detected.
      */
+    @SuppressWarnings("unchecked") //legacy JMF code.
     public int autoDetectDevices()
     {
-        Vector<CaptureDeviceInfo> devices = (Vector) CaptureDeviceManager.getDeviceList(null).clone();
+        Vector<CaptureDeviceInfo> devices
+            = (Vector) CaptureDeviceManager.getDeviceList(null).clone();
         Enumeration<CaptureDeviceInfo> enumeration = devices.elements();
         while (enumeration.hasMoreElements()) {
             CaptureDeviceInfo cdi = enumeration.nextElement();

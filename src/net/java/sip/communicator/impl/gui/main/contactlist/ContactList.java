@@ -178,7 +178,9 @@ public class ContactList
      * @param evt the MetaContactModifiedEvent containing the corresponding contact
      */
     public void metaContactModified(MetaContactModifiedEvent evt)
-    {}
+    {
+        //dummy impl
+    }
 
     /**
      * Handles the <tt>ProtoContactEvent</tt>. Refreshes the list when a
@@ -619,10 +621,12 @@ public class ContactList
 
     public void mouseEntered(MouseEvent e)
     {
+        //dummy impl
     }
 
     public void mouseExited(MouseEvent e)
     {
+        //dummy impl
     }
 
     /**
@@ -1307,6 +1311,7 @@ public class ContactList
      * Moves the given <tt>Contact</tt> to the given <tt>MetaContact</tt> and
      * asks user for confirmation.
      */
+    @SuppressWarnings("fallthrough")
     private class MoveContactToMetaContactThread extends Thread
     {
         private final Contact srcContact;
@@ -1362,6 +1367,7 @@ public class ContactList
      * Moves the given <tt>Contact</tt> to the given <tt>MetaContactGroup</tt>
      * and asks user for confirmation.
      */
+    @SuppressWarnings("fallthrough")
     private class MoveContactToGroupThread extends Thread
     {
         private final Contact srcContact;

@@ -151,6 +151,7 @@ public class JMFInit
         }
     }
 
+    @SuppressWarnings("unchecked") //legacy JMF code.
     private void detectDirectAudio() {
         Class<?> cls;
         int plType = PlugInManager.RENDERER;

@@ -170,10 +170,15 @@ public class TransferCallButton
      * @param address the address to locate the associated
      *            <code>CallPeer</code> of
      */
+    @SuppressWarnings("unchecked") //pfff ... well we can't make OpSetTelephony
+    //return a non-raw type iterator as it would break descendants that are using
+    //it with Call extensions. Someone would have to explain to me one day
+    //why java complains in such cases.
     private CallPeer findCallPeer(
         OperationSetBasicTelephony telephony, String address)
     {
-        for (Iterator<Call> callIter = telephony.getActiveCalls(); callIter.hasNext();)
+        for (Iterator<Call> callIter = telephony.getActiveCalls();
+             callIter.hasNext();)
         {
             Call call = callIter.next();
 

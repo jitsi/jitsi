@@ -28,6 +28,7 @@ public class JavaSoundAuto {
         System.exit(0);
     }
 
+    @SuppressWarnings("unchecked") //legacy JMF code.
     public JavaSoundAuto() {
         boolean supported = false;
         // instance JavaSoundDetector to check is javasound's capture is availabe
@@ -44,7 +45,8 @@ public class JavaSoundAuto {
 
         if (supported) {
             // It's there, start to register JavaSound with CaptureDeviceManager
-            Vector<CaptureDeviceInfo> devices = (Vector) CaptureDeviceManager.getDeviceList(null).clone();
+            Vector<CaptureDeviceInfo> devices
+                = (Vector) CaptureDeviceManager.getDeviceList(null).clone();
 
             // remove the old javasound capturers
             String name;

@@ -24,7 +24,7 @@ import net.java.sip.communicator.util.swing.*;
  * we only accept pasting of plain text. We do this in order to avoid html
  * support problems that appear when pasting formatted text into our editable
  * area.
- * 
+ *
  * @author Emil Ivov
  * @author Yana Stamcheva
  */
@@ -45,7 +45,7 @@ public class ChatTransferHandler
     /**
      * Constructs the <tt>ChatTransferHandler</tt> by specifying the
      * <tt>ChatPanel</tt> we're currently dealing with.
-     * 
+     *
      * @param chatPanel the <tt>ChatPanel</tt> we're currently dealing with
      */
     public ChatTransferHandler(ChatPanel chatPanel)
@@ -64,6 +64,7 @@ public class ChatTransferHandler
      * otherwise
      * @see #importData(TransferHandler.TransferSupport)
      */
+    @SuppressWarnings("unchecked") //the case is taken care of
     public boolean importData(JComponent comp, Transferable t)
     {
         if (t.isDataFlavorSupported(DataFlavor.javaFileListFlavor))

@@ -25,19 +25,13 @@ public class VFWAuto
         = Logger.getLogger(VFWAuto.class);
 
     /**
-     * Default constructor. Does nothing.
-     */
-    public VFWAuto()
-    {
-    }
-
-    /**
      * Removes from the CaptureDeviceManager all currently detected vfw devices
      * and  runs a new detection loop to rediscover those that are currently
      * available.
      *
      * @return the number of devices detected.
      */
+    @SuppressWarnings("unchecked") // jmf legacy code
     public int autoDetectDevices()
     {
         Vector<CaptureDeviceInfo> devices

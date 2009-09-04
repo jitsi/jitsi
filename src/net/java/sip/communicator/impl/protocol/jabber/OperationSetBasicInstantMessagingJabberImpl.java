@@ -691,6 +691,24 @@ public class OperationSetBasicInstantMessagingJabberImpl
         jabberProvider.getConnection().sendPacket(mailnotification);
     }
 
+    private String createMailThreadDescription(MailThreadInfo thread)
+    {
+        StringBuffer threadBuff = new StringBuffer();
+
+        return threadBuff.toString();
+    }
+
+    private String createMailboxDescription(MailboxIQ mailboxIQ)
+    {
+        String description = JabberActivator.getResources().getI18NString(
+                        "service.gui.NEW_MAIL",
+                        new String[]{"///sender",
+                        "&lt;" + "///sender" + "&gt",
+                        "///subject",
+                        "&nbsp;&nbsp;&nbsp;&nbsp;<a href=\""
+                            + "///mailbox url" + "\">" +"///mailbox url"+ "</a>"}) ;
+        return description;
+    }
     /**
      * Receives incoming MailNotification Packets
      */
@@ -702,24 +720,21 @@ public class OperationSetBasicInstantMessagingJabberImpl
             if(packet != null &&  !(packet instanceof MailboxIQ))
                 return;
 
-            MailboxIQ mailbox = (MailboxIQ) packet;
+            MailboxIQ mailboxIQ = (MailboxIQ) packet;
 
-            String fromUserID
-                = StringUtils.parseBareAddress(mailbox.getSender());
+            if(mailboxIQ.getTotalMatched() < 1)
+                return;
 
-            //create the volatile contact
-            Contact sourceContact = opSetPersPresence
-                .createVolatileContact(fromUserID);
+            //Get a reference to a dummy volatile contact
+            Contact sourceContact = opSetPersPresence.findContactByID("GMail");
 
-            lastReceivedMailboxResultTime = mailbox.getResultTime();
+            if(sourceContact == null)
+                sourceContact = opSetPersPresence
+                    .createVolatileContact("GMail");
 
-            String newMail = JabberActivator.getResources().getI18NString(
-                "service.gui.NEW_MAIL",
-                new String[]{mailbox.getSender(),
-                "&lt;" + mailbox.getSender() + "&gt",
-                mailbox.getSubject(),
-                "&nbsp;&nbsp;&nbsp;&nbsp;<a href=\""
-                    + mailbox.getUrl() + "\">" +mailbox.getUrl()+ "</a>"}) ;
+            lastReceivedMailboxResultTime = mailboxIQ.getResultTime();
+
+            String newMail = createMailboxDescription(mailboxIQ);
 
             Message newMailMessage = new MessageJabberImpl(
                 newMail, HTML_MIME_TYPE, DEFAULT_MIME_ENCODING, null);

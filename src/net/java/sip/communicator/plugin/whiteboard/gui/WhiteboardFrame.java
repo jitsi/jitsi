@@ -1,6 +1,6 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.whiteboard.gui;
@@ -27,7 +27,7 @@ import net.java.sip.communicator.util.swing.*;
 
 /**
  * The frame for the Whiteboard
- * 
+ *
  * @author Julien Waechter
  */
 public class WhiteboardFrame
@@ -279,7 +279,7 @@ public class WhiteboardFrame
 
     /**
      * Constructor for WhiteboardFrame.
-     * 
+     *
      * @param wps WhiteboardSessionManager
      * @param session WhiteboardSession associated with this frame
      */
@@ -550,12 +550,15 @@ public class WhiteboardFrame
 
                 case POLYLINE:
                     polyOperation(e);
+                    break;
 
                 case POLYGON:
                     polyOperation(e);
+                    break;
 
                 case FILL_POLYGON:
                     polyOperation(e);
+                    break;
                 }
             }
 
@@ -582,7 +585,7 @@ public class WhiteboardFrame
                 /**
                  * Invoked when a mouse button is pressed on a component and
                  * then dragged.
-                 * 
+                 *
                  * @param e
                  */
                 public void mouseDragged(MouseEvent e)
@@ -646,7 +649,7 @@ public class WhiteboardFrame
                 /**
                  * Invoked when the mouse cursor has been moved onto a component
                  * but no buttons have been pushed.
-                 * 
+                 *
                  * @param e
                  */
                 public void mouseMoved(MouseEvent e)
@@ -1183,7 +1186,7 @@ public class WhiteboardFrame
 
     /**
      * Invoked when an action occurs on the modifButton.
-     * 
+     *
      * @param evt
      */
     private void modifButtonActionPerformed(java.awt.event.ActionEvent evt)
@@ -1194,7 +1197,7 @@ public class WhiteboardFrame
 
     /**
      * Invoked when an action occurs on the jButtonSave.
-     * 
+     *
      * @param evt
      */
     private void jButtonSaveActionPerformed(java.awt.event.ActionEvent evt)
@@ -1241,7 +1244,7 @@ public class WhiteboardFrame
 
     /**
      * Invoked when an action occurs on the delete menu.
-     * 
+     *
      * @param evt
      */
     private void deleteMenuItemActionPerformed(java.awt.event.ActionEvent evt)
@@ -1251,7 +1254,7 @@ public class WhiteboardFrame
 
     /**
      * Invoked when an action occurs on the deselect menu.
-     * 
+     *
      * @param evt
      */
     private void deselectMenuItemActionPerformed(java.awt.event.ActionEvent evt)
@@ -1261,7 +1264,7 @@ public class WhiteboardFrame
 
     /**
      * Invoked when the jSpinnerThickness has changed its state.
-     * 
+     *
      * @param evt
      */
     private void jSpinnerThicknessStateChanged(javax.swing.event.ChangeEvent evt)
@@ -1276,7 +1279,7 @@ public class WhiteboardFrame
 
     /**
      * Invoked when an action occurs on the fillCircleButton.
-     * 
+     *
      * @param evt
      */
     private void fillCircleButtonActionPerformed(java.awt.event.ActionEvent evt)
@@ -1287,7 +1290,7 @@ public class WhiteboardFrame
 
     /**
      * Invoked when an action occurs on the circleButton.
-     * 
+     *
      * @param evt
      */
     private void circleButtonActionPerformed(java.awt.event.ActionEvent evt)
@@ -1298,7 +1301,7 @@ public class WhiteboardFrame
 
     /**
      * Invoked when an action occurs on the polylineButton.
-     * 
+     *
      * @param evt
      */
     private void polylineButtonActionPerformed(java.awt.event.ActionEvent evt)
@@ -1309,7 +1312,7 @@ public class WhiteboardFrame
 
     /**
      * Invoked when an action occurs on the fillPolygonButton.
-     * 
+     *
      * @param evt
      */
     private void fillPolygonButtonActionPerformed(java.awt.event.ActionEvent evt)
@@ -1320,7 +1323,7 @@ public class WhiteboardFrame
 
     /**
      * Invoked when an action occurs on the polygonButton.
-     * 
+     *
      * @param evt
      */
     private void polygonButtonActionPerformed(java.awt.event.ActionEvent evt)
@@ -1331,7 +1334,7 @@ public class WhiteboardFrame
 
     /**
      * Invoked when an action occurs on the imageButton.
-     * 
+     *
      * @param evt
      */
     private void imageButtonActionPerformed(java.awt.event.ActionEvent evt)
@@ -1342,7 +1345,7 @@ public class WhiteboardFrame
 
     /**
      * Invoked when an action occurs on the rectangleButton.
-     * 
+     *
      * @param evt
      */
     private void rectangleButtonActionPerformed(java.awt.event.ActionEvent evt)
@@ -1353,7 +1356,7 @@ public class WhiteboardFrame
 
     /**
      * Invoked when an action occurs on the lineButton.
-     * 
+     *
      * @param evt
      */
     private void lineButtonActionPerformed(java.awt.event.ActionEvent evt)
@@ -1364,7 +1367,7 @@ public class WhiteboardFrame
 
     /**
      * Invoked when an action occurs on the fillRectangleButton.
-     * 
+     *
      * @param evt
      */
     private void fillRectangleButtonActionPerformed(
@@ -1376,7 +1379,7 @@ public class WhiteboardFrame
 
     /**
      * Invoked when an action occurs on the textButto.
-     * 
+     *
      * @param evt
      */
     private void textButtonActionPerformed(java.awt.event.ActionEvent evt)
@@ -1387,7 +1390,7 @@ public class WhiteboardFrame
 
     /**
      * Invoked when an action occurs on the penButton.
-     * 
+     *
      * @param evt
      */
     private void penButtonActionPerformed(java.awt.event.ActionEvent evt)
@@ -1398,7 +1401,7 @@ public class WhiteboardFrame
 
     /**
      * Invoked when an action occurs on the selectionButton.
-     * 
+     *
      * @param evt
      */
     private void selectionButtonActionPerformed(java.awt.event.ActionEvent evt)
@@ -1411,7 +1414,7 @@ public class WhiteboardFrame
 
     /**
      * Invoked when an action occurs on the gridMenuItem.
-     * 
+     *
      * @param evt
      */
     private void gridMenuItemActionPerformed(java.awt.event.ActionEvent evt)
@@ -1422,7 +1425,7 @@ public class WhiteboardFrame
 
     /**
      * Invoked when an action occurs on the colorChooserButton.
-     * 
+     *
      * @param evt
      */
     private void colorChooserButtonActionPerformed(
@@ -1531,7 +1534,7 @@ public class WhiteboardFrame
 
     /**
      * Action when the shape is drawn.
-     * 
+     *
      * @param e
      */
     private void penOperation(MouseEvent e)
@@ -1561,7 +1564,7 @@ public class WhiteboardFrame
 
     /**
      * Action when the shape is drawn.
-     * 
+     *
      * @param e
      */
     private void lineOperation(MouseEvent e)
@@ -1591,7 +1594,7 @@ public class WhiteboardFrame
 
     /**
      * Action when the shape is drawn.
-     * 
+     *
      * @param e
      */
     private void rectangleOperation(MouseEvent e)
@@ -1619,11 +1622,13 @@ public class WhiteboardFrame
         }
     }
 
-    /**
+    /*
      * Action when the shape is drawn.
-     * 
+     *
      * @param e
      */
+    /* not sure why this is here but it's never used. i am not deleting it though
+     * in case we decide to revive the whiteboard one day. and this appears necessary
     private void ellipseOperation(MouseEvent e)
     {
         Graphics g = drawCanvas.getGraphics();
@@ -1648,10 +1653,11 @@ public class WhiteboardFrame
             g.drawOval(drawX, drawY, originWidth, originHeight);
         }
     }
+    */
 
     /**
      * Action when the shape is drawn.
-     * 
+     *
      * @param e
      */
     private void circleOperation(MouseEvent e)
@@ -1698,7 +1704,7 @@ public class WhiteboardFrame
 
     /**
      * Action when the shape is drawn.
-     * 
+     *
      * @param e
      */
     private void polyOperation(MouseEvent e)
@@ -1726,7 +1732,7 @@ public class WhiteboardFrame
 
     /**
      * Action when the shape is drawn.
-     * 
+     *
      * @param e
      */
     private void imageOperation(MouseEvent e)
@@ -1756,7 +1762,7 @@ public class WhiteboardFrame
 
     /**
      * Action when the shape modified
-     * 
+     *
      * @param e
      */
     private void modifOperation(MouseEvent e)
@@ -1796,7 +1802,7 @@ public class WhiteboardFrame
 
     /**
      * Action when the shape is moved.
-     * 
+     *
      * @param e
      */
     private void moveOperation(MouseEvent e)
@@ -1834,7 +1840,7 @@ public class WhiteboardFrame
 
     /**
      * Action when the shape is translated.
-     * 
+     *
      * @param e
      */
     private void panOperation(MouseEvent e)
@@ -1854,7 +1860,7 @@ public class WhiteboardFrame
 
     /**
      * Returns the X coordinate on the grid.
-     * 
+     *
      * @param x current x mouse coordinate
      * @return X coordinate on the grid
      */
@@ -1865,7 +1871,7 @@ public class WhiteboardFrame
 
     /**
      * Returns the Y coordinate on the grid.
-     * 
+     *
      * @param y current y mouse coordinate
      * @return Y coordinate on the grid
      */
@@ -1876,7 +1882,7 @@ public class WhiteboardFrame
 
     /**
      * Rounds off the position to the grid.
-     * 
+     *
      * @param i an approximate value
      * @return a value on the grid
      */
@@ -1892,7 +1898,7 @@ public class WhiteboardFrame
 
     /**
      * Returns true if mouse has moved since last test.
-     * 
+     *
      * @param e
      * @return true if mouse has moved
      */
@@ -1903,7 +1909,7 @@ public class WhiteboardFrame
 
     /**
      * Returns the current selected WhiteboardShape.
-     * 
+     *
      * @return selected shape
      */
     public WhiteboardShape getSelectedShape()
@@ -1913,7 +1919,7 @@ public class WhiteboardFrame
 
     /**
      * Returns the current copied WhiteboardShape
-     * 
+     *
      * @return the copied shape
      */
     public WhiteboardShape getCopiedShape()
@@ -1963,7 +1969,7 @@ public class WhiteboardFrame
     /**
      * Set drawing variables to the current position of the cursor. Height and
      * width varibles are zeroed off.
-     * 
+     *
      * @param e MouseEvent
      */
     private void reInitMouse(MouseEvent e)
@@ -1995,7 +2001,7 @@ public class WhiteboardFrame
 
     /**
      * Method to create-add-send a WhiteboardShapeRect when mouse released.
-     * 
+     *
      * @param fill true if is fill
      */
     private void releasedRectangle(boolean fill)
@@ -2056,7 +2062,7 @@ public class WhiteboardFrame
 
     /**
      * Method to create-add-send a WhiteboardShapeCircle when mouse released.
-     * 
+     *
      * @param fill true if is fill
      */
     private void releasedCircle(boolean fill)
@@ -2074,7 +2080,7 @@ public class WhiteboardFrame
 
     /**
      * Method to create-add-send a WhiteboardShapePolyLine when mouse released.
-     * 
+     *
      * @param fill true if is fill
      */
     private void releasedPolyline(boolean fill)
@@ -2088,7 +2094,7 @@ public class WhiteboardFrame
 
     /**
      * Method to create-add-send a WhiteboardShapePolygon when mouse released.
-     * 
+     *
      * @param fill true if is fill
      */
     private void releasedPolygon(boolean fill)
@@ -2101,7 +2107,7 @@ public class WhiteboardFrame
 
     /**
      * Method to create-add-send a WhiteboardShapeText when mouse released.
-     * 
+     *
      * @param x x coord
      * @param y y coord
      */
@@ -2165,7 +2171,7 @@ public class WhiteboardFrame
 
     /**
      * Returns a String uniquely identifying this WhiteboardFrame
-     * 
+     *
      * @return identifier of this WhiteboardFrame
      */
     private String id()
@@ -2176,7 +2182,7 @@ public class WhiteboardFrame
 
     /**
      * Translates current frame
-     * 
+     *
      * @param xTrans x coord
      * @param yTrans y coord
      */
@@ -2214,7 +2220,7 @@ public class WhiteboardFrame
 
     /**
      * Appends a Shape in the shape list and send it
-     * 
+     *
      * @param s shape to send and append
      */
     private void appendAndSend(WhiteboardShape s)
@@ -2226,7 +2232,7 @@ public class WhiteboardFrame
 
     /**
      * Method to send a shape.
-     * 
+     *
      * @param shape the white-board shape to send
      */
     private void sendShape(WhiteboardShape shape)
@@ -2248,7 +2254,7 @@ public class WhiteboardFrame
 
     /**
      * Method to send an existing shape (to move/modify it).
-     * 
+     *
      * @param shape the white-board shape to send
      */
     private void sendMoveShape(WhiteboardShape shape)
@@ -2258,7 +2264,7 @@ public class WhiteboardFrame
 
     /**
      * Method to delete a shape at the contact.
-     * 
+     *
      * @param shape the white-board shape to delete
      */
     private void sendDeleteShape(WhiteboardShape shape)
@@ -2268,7 +2274,7 @@ public class WhiteboardFrame
 
     /**
      * Method for add a WhiteboardObject into this frame.
-     * 
+     *
      * @param wbo WhiteboardObject to add
      */
     public void receiveWhiteboardObject(WhiteboardObject wbo)
@@ -2291,7 +2297,7 @@ public class WhiteboardFrame
 
     /**
      * Method for delete a WhiteboardObject in this frame.
-     * 
+     *
      * @param id WhiteboardObject's identifier to delete
      */
     public void receiveDeleteWhiteboardObject(String id)
@@ -2312,7 +2318,7 @@ public class WhiteboardFrame
 
     /**
      * Method to create/convert a WhiteboardShape with a WhiteboardObject.
-     * 
+     *
      * @param wbo WhiteboardObject to convert
      * @return WhiteboardShape
      */
@@ -2478,7 +2484,7 @@ public class WhiteboardFrame
 
     /**
      * Sets the current contact. (temporary) -> WhiteboardParticipant
-     * 
+     *
      * @param c Contact to use in the WhiteboardFrame
      */
     public void setContact(Contact c)
@@ -2489,7 +2495,7 @@ public class WhiteboardFrame
 
     /**
      * Returns contact used in this WhiteboardFrame.
-     * 
+     *
      * @return used Contact in the WhiteboardFrame
      */
     public Contact getContact()
@@ -2499,7 +2505,7 @@ public class WhiteboardFrame
 
     /**
      * Current WhiteboardSession used in the WhiteboardFrame.
-     * 
+     *
      * @return current WhiteboardSession
      */
     public WhiteboardSession getWhiteboardSession()

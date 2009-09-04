@@ -363,6 +363,7 @@ public class ContactGroupYahooImpl
      * Resolve this contact group against the specified group
      * @param yahooGroup the server stored group
      */
+    @SuppressWarnings("unchecked") //jymsg legacy code
     void setResolved(YahooGroup yahooGroup)
     {
         if(isResolved)

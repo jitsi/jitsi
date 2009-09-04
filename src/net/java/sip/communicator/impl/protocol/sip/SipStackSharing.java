@@ -180,6 +180,7 @@ public class SipStackSharing
      * @param transport a string like "UDP", "TCP" or "TLS".
      * @return the LP associated to the given transport.
      */
+    @SuppressWarnings("unchecked") //jain-sip legacy code
     public ListeningPoint getLP(String transport)
     {
         ListeningPoint lp;
@@ -334,6 +335,7 @@ public class SipStackSharing
      * frees the network ports used. That is to say remove JAIN-SIP
      * <tt>ListeningPoint</tt>s and <tt>SipProvider</tt>s.
      */
+    @SuppressWarnings("unchecked") //jain-sip legacy code
     private void stopListening()
     {
         try

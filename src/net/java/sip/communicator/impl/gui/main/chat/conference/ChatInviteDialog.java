@@ -256,6 +256,7 @@ public class ChatInviteDialog
      * Handles the <tt>ActionEvent</tt> triggered when user clicks
      * on one of the buttons.
      */
+    @SuppressWarnings("unchecked") //legacy DefaultListModel code.
     public void actionPerformed(ActionEvent e)
     {
         JButton button = (JButton)e.getSource();

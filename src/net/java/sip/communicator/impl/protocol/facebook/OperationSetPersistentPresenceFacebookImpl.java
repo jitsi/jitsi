@@ -1,6 +1,6 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.protocol.facebook;
@@ -19,7 +19,7 @@ import org.osgi.framework.*;
  * unresolved contacts and resolve them immediately. A real world protocol
  * implementation would save it on a server using methods provided by the
  * protocol stack.
- * 
+ *
  * @author Dai Zhiwei
  */
 public class OperationSetPersistentPresenceFacebookImpl
@@ -52,7 +52,7 @@ public class OperationSetPersistentPresenceFacebookImpl
     /**
      * Creates an instance of this operation set keeping a reference to the
      * specified parent <tt>provider</tt>.
-     * 
+     *
      * @param provider the ProtocolProviderServiceFacebookImpl instance that
      *            created us.
      */
@@ -71,7 +71,7 @@ public class OperationSetPersistentPresenceFacebookImpl
     /**
      * Creates a group with the specified name and parent in the server stored
      * contact list.
-     * 
+     *
      * @param parent the group where the new group should be created
      * @param groupName the name of the new group to create.
      */
@@ -89,7 +89,7 @@ public class OperationSetPersistentPresenceFacebookImpl
 
     /**
      * A Facebook Provider method to use for fast filling of a contact list.
-     * 
+     *
      * @param contactGroup the group to add
      */
     public void addFacebookGroup(ContactGroupFacebookImpl contactGroup)
@@ -100,7 +100,7 @@ public class OperationSetPersistentPresenceFacebookImpl
     /**
      * A Facebook Provider method to use for fast filling of a contact list.
      * This method would add both the group and fire an event.
-     * 
+     *
      * @param parent the group where <tt>contactGroup</tt> should be added.
      * @param contactGroup the group to add
      */
@@ -116,7 +116,7 @@ public class OperationSetPersistentPresenceFacebookImpl
     /**
      * Returns a reference to the contact with the specified ID in case we have
      * a subscription for it and null otherwise/
-     * 
+     *
      * @param contactID a String identifier of the contact which we're seeking a
      *            reference of.
      * @return a reference to the Contact with the specified <tt>contactID</tt>
@@ -129,12 +129,13 @@ public class OperationSetPersistentPresenceFacebookImpl
 
     /**
      * Sets the specified status message.
-     * 
+     *
      * @deprecated I don't find any method invoke this method.
      *  We should use publishPresenceStatus() to set status message.
-     * 
+     *
      * @param statusMessage a String containing the new status message.
      */
+    @Deprecated
     public void setStatusMessage(String statusMessage)
     {
         this.statusMessage = statusMessage;
@@ -143,7 +144,7 @@ public class OperationSetPersistentPresenceFacebookImpl
     /**
      * Returns the status message that was last set through
      * setCurrentStatusMessage.
-     * 
+     *
      * @return the last status message that we have requested and the aim server
      *         has confirmed.
      */
@@ -155,7 +156,7 @@ public class OperationSetPersistentPresenceFacebookImpl
     /**
      * Returns the protocol specific contact instance representing the local
      * user.
-     * 
+     *
      * @return the Contact (address, phone number, or uin) that the Provider
      *         implementation is communicating on behalf of.
      */
@@ -167,7 +168,7 @@ public class OperationSetPersistentPresenceFacebookImpl
     /**
      * Returns a PresenceStatus instance representing the state this provider is
      * currently in.
-     * 
+     *
      * @return the PresenceStatus last published by this provider.
      */
     public PresenceStatus getPresenceStatus()
@@ -177,7 +178,7 @@ public class OperationSetPersistentPresenceFacebookImpl
 
     /**
      * Returns the root group of the server stored contact list.
-     * 
+     *
      * @return the root ContactGroup for the ContactList stored by this service.
      */
     public ContactGroup getServerStoredContactListRoot()
@@ -188,7 +189,7 @@ public class OperationSetPersistentPresenceFacebookImpl
     /**
      * Returns the set of PresenceStatus objects that a user of this service may
      * request the provider to enter.
-     * 
+     *
      * @return Iterator a PresenceStatus array containing "enterable" status
      *         instances.
      */
@@ -200,7 +201,7 @@ public class OperationSetPersistentPresenceFacebookImpl
     /**
      * Removes the specified contact from its current parent and places it under
      * <tt>newParent</tt>.
-     * 
+     *
      * @param contactToMove the <tt>Contact</tt> to move
      * @param newParent the <tt>ContactGroup</tt> where <tt>Contact</tt>
      *            would be placed.
@@ -258,7 +259,7 @@ public class OperationSetPersistentPresenceFacebookImpl
     /**
      * Requests the provider to enter into a status corresponding to the
      * specified paramters.
-     * 
+     *
      * @param status the PresenceStatus as returned by getRequestableStatusSet
      * @param statusMessage the message that should be set as the reason to
      *            enter that status
@@ -277,7 +278,7 @@ public class OperationSetPersistentPresenceFacebookImpl
     {
         PresenceStatus oldPresenceStatus = this.presenceStatus;
         this.presenceStatus = status;
-        
+
         //OK, now post the new status message!
         if(statusMessage != null && !statusMessage.equals("")){
             if(this.statusMessage == null || !this.statusMessage.equals(statusMessage))
@@ -287,11 +288,11 @@ public class OperationSetPersistentPresenceFacebookImpl
                     adapter.setStatusMessage(statusMessage);
             }
         }
-        
+
         this.statusMessage = statusMessage;
 
         this.fireProviderStatusChangeEvent(oldPresenceStatus);
-        
+
         if(this.presenceStatus == FacebookStatusEnum.OFFLINE){
             parentProvider.getAdapter().pause();
             changePresenceStatusForAllContactsWithoutFiringEvent(
@@ -333,7 +334,7 @@ public class OperationSetPersistentPresenceFacebookImpl
 
     /**
      * Get the PresenceStatus for a particular contact.
-     * 
+     *
      * @param contactIdentifier the identifier of the contact whose status we're
      *            interested in.
      * @return PresenceStatus the <tt>PresenceStatus</tt> of the specified
@@ -356,7 +357,7 @@ public class OperationSetPersistentPresenceFacebookImpl
 
     /**
      * Sets the presence status of <tt>contact</tt> to <tt>newStatus</tt>.
-     * 
+     *
      * @param contact the <tt>ContactFacebookImpl</tt> whose status we'd like
      *            to set.
      * @param newStatus the new status we'd like to set to <tt>contact</tt>.
@@ -380,25 +381,25 @@ public class OperationSetPersistentPresenceFacebookImpl
      * @param newStatus the new status we'd like to set to <tt>contact</tt>.
      */
     public void setPresenceStatusForContact(String address,
-			PresenceStatus newStatus)
+            PresenceStatus newStatus)
     {
-		ContactFacebookImpl contact = (ContactFacebookImpl) findContactByID(address);
-		if(contact == null){
-			try {
-				subscribe(address);
-				contact = (ContactFacebookImpl) findContactByID(address);
-			} catch (IllegalArgumentException e) {
-				logger.warn(e.getMessage());
-			} catch (IllegalStateException e) {
-				logger.warn(e.getMessage());
-			} catch (OperationFailedException e) {
-				logger.warn(e.getMessage());
-			}
-		}
-		changePresenceStatusForContact(contact, newStatus);
-	}
+        ContactFacebookImpl contact = (ContactFacebookImpl) findContactByID(address);
+        if(contact == null){
+            try {
+                subscribe(address);
+                contact = (ContactFacebookImpl) findContactByID(address);
+            } catch (IllegalArgumentException e) {
+                logger.warn(e.getMessage());
+            } catch (IllegalStateException e) {
+                logger.warn(e.getMessage());
+            } catch (OperationFailedException e) {
+                logger.warn(e.getMessage());
+            }
+        }
+        changePresenceStatusForContact(contact, newStatus);
+    }
     /**
-     * The same as changePresenceStatusForContact, but is public 
+     * The same as changePresenceStatusForContact, but is public
      * @param contact the <tt>ContactFacebookImpl</tt> whose status we'd like
      *            to set.
      * @param newStatus the new status we'd like to set to <tt>contact</tt>.
@@ -413,7 +414,7 @@ public class OperationSetPersistentPresenceFacebookImpl
      * Sets the presence status of all <tt>contact</tt>s in our contact list
      * (except those that correspond to the other providers registered with SC) to
      * <tt>newStatus</tt>.
-     * 
+     *
      * @param newStatus the new status we'd like to set to <tt>contact</tt>.
      * @param parent the group in which we'd have to update the status of all
      *            direct and indirect child contacts.
@@ -455,7 +456,7 @@ public class OperationSetPersistentPresenceFacebookImpl
      * Sets the presence status of all <tt>contact</tt>s in our contact list
      * (except those that correspond to another provider registered with SC) to
      * <tt>newStatus</tt>.
-     * 
+     *
      * @param newStatus the new status we'd like to set to <tt>contact</tt>.
      * @param parent the group in which we'd have to update the status of all
      *            direct and indirect child contacts.
@@ -506,7 +507,7 @@ public class OperationSetPersistentPresenceFacebookImpl
     /**
      * Returns the group that is parent of the specified facebookGroup or null
      * if no parent was found.
-     * 
+     *
      * @param facebookGroup the group whose parent we're looking for.
      * @return the ContactGroupFacebookImpl instance that facebookGroup belongs
      *         to or null if no parent was found.
@@ -520,7 +521,7 @@ public class OperationSetPersistentPresenceFacebookImpl
     /**
      * Returns the group that is parent of the specified facebookContact or null
      * if no parent was found.
-     * 
+     *
      * @param facebookContact the contact whose parent we're looking for.
      * @return the ContactGroupFacebookImpl instance that facebookContact
      *         belongs to or null if no parent was found.
@@ -534,9 +535,9 @@ public class OperationSetPersistentPresenceFacebookImpl
 
     /**
      * Removes the specified group from the server stored contact list.
-     * 
+     *
      * @param group the group to remove.
-     * 
+     *
      * @throws IllegalArgumentException if <tt>group</tt> was not found in
      *             this protocol's contact list.
      */
@@ -562,7 +563,7 @@ public class OperationSetPersistentPresenceFacebookImpl
 
     /**
      * Renames the specified group from the server stored contact list.
-     * 
+     *
      * @param group the group to rename.
      * @param newName the new name of the group.
      */
@@ -577,7 +578,7 @@ public class OperationSetPersistentPresenceFacebookImpl
 
     /**
      * Handler for incoming authorization requests.
-     * 
+     *
      * @param handler an instance of an AuthorizationHandler for authorization
      *            requests coming from other users requesting permission add us
      *            to their contact list.
@@ -591,7 +592,7 @@ public class OperationSetPersistentPresenceFacebookImpl
      * Persistently adds a subscription for the presence status of the contact
      * corresponding to the specified contactIdentifier and indicates that it
      * should be added to the specified group of the server stored contact list.
-     * 
+     *
      * @param parent the parent group of the server stored contact list where
      *            the contact should be added.
      *            <p>
@@ -649,11 +650,11 @@ public class OperationSetPersistentPresenceFacebookImpl
      * destination contact and make return a response after it has received one
      * If the destination contact matches us, then we'll ask the user to act
      * upon the request, and return the response.
-     * 
+     *
      * @param request the authorization request that we'd like to deliver to the
      *            desination <tt>contact</tt>.
      * @param contact the <tt>Contact</tt> to notify
-     * 
+     *
      * @return the <tt>AuthorizationResponse</tt> that has been given or
      *         generated in response to <tt>request</tt>.
      */
@@ -718,7 +719,7 @@ public class OperationSetPersistentPresenceFacebookImpl
     /**
      * Adds a subscription for the presence status of the contact corresponding
      * to the specified contactIdentifier.
-     * 
+     *
      * @param contactIdentifier the identifier of the contact whose status
      *            updates we are subscribing for.
      *            <p>
@@ -739,7 +740,7 @@ public class OperationSetPersistentPresenceFacebookImpl
 
     /**
      * Removes a subscription for the presence status of the specified contact.
-     * 
+     *
      * @param contact the contact whose status updates we are unsubscribing
      *            from.
      * @throws IllegalArgumentException if <tt>contact</tt> is not a contact
@@ -773,7 +774,7 @@ public class OperationSetPersistentPresenceFacebookImpl
      * Contact against the server. The protocol provider may will later try and
      * resolve the contact. When this happens the corresponding event would
      * notify interested subscription listeners.
-     * 
+     *
      * @param address an identifier of the contact that we'll be creating.
      * @param persistentData a String returned Contact's getPersistentData()
      *            method during a previous run and that has been persistently
@@ -794,14 +795,14 @@ public class OperationSetPersistentPresenceFacebookImpl
      * Contact against the server. The protocol provider may will later try and
      * resolve the contact. When this happens the corresponding event would
      * notify interested subscription listeners.
-     * 
+     *
      * @param address an identifier of the contact that we'll be creating.
      * @param persistentData a String returned Contact's getPersistentData()
      *            method during a previous run and that has been persistently
      *            stored locally.
      * @param parent the group where the unresolved contact is supposed to
      *            belong to.
-     * 
+     *
      * @return the unresolved <tt>Contact</tt> created from the specified
      *         <tt>address</tt> and <tt>persistentData</tt>
      */
@@ -843,7 +844,7 @@ public class OperationSetPersistentPresenceFacebookImpl
     /**
      * Looks for a facebook protocol provider registered for a user id matching
      * <tt>facebookUserID</tt>.
-     * 
+     *
      * @param facebookUserID the ID of the Facebook user whose corresponding
      *            protocol provider we'd like to find.
      * @return ProtocolProviderServiceFacebookImpl a facebook protocol provider
@@ -884,7 +885,7 @@ public class OperationSetPersistentPresenceFacebookImpl
     /**
      * Looks for facebook protocol providers that have added us to their contact
      * list and returns list of all contacts representing us in these providers.
-     * 
+     *
      * @return a list of all contacts in other providers' contact lists that
      *         point to us.
      */
@@ -936,7 +937,7 @@ public class OperationSetPersistentPresenceFacebookImpl
      * <tt>ContactGroup</tt> against the server or the contact itself. The
      * protocol provider will later resolve the contact group. When this happens
      * the corresponding event would notify interested subscription listeners.
-     * 
+     *
      * @param groupUID an identifier, returned by ContactGroup's getGroupUID,
      *            that the protocol provider may use in order to create the
      *            group.
@@ -977,7 +978,7 @@ public class OperationSetPersistentPresenceFacebookImpl
          * occurred. The method is particularly interested in events stating
          * that the facebook provider has unregistered so that it would fire
          * status change events for all contacts in our buddy list.
-         * 
+         *
          * @param evt ProviderStatusChangeEvent the event describing the status
          *            change.
          */
@@ -1028,7 +1029,7 @@ public class OperationSetPersistentPresenceFacebookImpl
     /**
      * Returns the volatile group or null if this group has not yet been
      * created.
-     * 
+     *
      * @return a volatile group existing in our contact list or <tt>null</tt>
      *         if such a group has not yet been created.
      */
@@ -1052,7 +1053,7 @@ public class OperationSetPersistentPresenceFacebookImpl
      * also create (if necessary) a group for volatile contacts that would not
      * be added to the server stored contact list. This method would have no
      * effect on the server stored contact list.
-     * 
+     *
      * @param contactAddress the address of the volatile contact we'd like to
      *            create.
      * @return the newly created volatile contact.

@@ -14,6 +14,7 @@ import com.sun.media.*;
  */
 public class S8DirectAudioAuto
 {
+    @SuppressWarnings("unchecked") //legacy JMF code.
     public S8DirectAudioAuto() throws Exception
     {
         Class<?> cls;

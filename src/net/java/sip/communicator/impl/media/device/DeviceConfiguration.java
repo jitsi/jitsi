@@ -19,11 +19,12 @@ import net.java.sip.communicator.util.*;
  * This class aims to provide a simple configuration interface for JMF. It
  * retrieves stored configuration when started or listens to ConfigurationEvent
  * for property changes and configures the JMF accordingly.
- * 
+ *
  * @author Martin Andre
  * @author Emil Ivov
  * @author Lubomir Marinov
  */
+@SuppressWarnings("unchecked")
 public class DeviceConfiguration
     extends PropertyChangeNotifier
 {
@@ -74,6 +75,7 @@ public class DeviceConfiguration
      */
     public DeviceConfiguration()
     {
+        //dummy ... XXX do we really need it though?
     }
 
     /**
@@ -191,7 +193,7 @@ public class DeviceConfiguration
 
     /**
      * Returns a device that we could use for audio capture.
-     * 
+     *
      * @return the CaptureDeviceInfo of a device that we could use for audio
      *         capture.
      */
@@ -205,7 +207,7 @@ public class DeviceConfiguration
      * <code>DeviceConfiguration</code>, amongst which is
      * {@link #getAudioCaptureDevice()} and represent acceptable values
      * for {@link #setAudioCaptureDevice(CaptureDeviceInfo)}
-     * 
+     *
      * @return an array of <code>CaptureDeviceInfo</code> describing the audio
      *         capture devices available through this
      *         <code>DeviceConfiguration</code>
@@ -224,7 +226,7 @@ public class DeviceConfiguration
      * <code>DeviceConfiguration</code>, amongst which is
      * {@link #getVideoCaptureDevice()} and represent acceptable values
      * for {@link #setVideoCaptureDevice(CaptureDeviceInfo)}
-     * 
+     *
      * @return an array of <code>CaptureDeviceInfo</code> describing the video
      *         capture devices available through this
      *         <code>DeviceConfiguration</code>
@@ -243,7 +245,7 @@ public class DeviceConfiguration
 
     /**
      * Returns a device that we could use for video capture.
-     * 
+     *
      * @return the CaptureDeviceInfo of a device that we could use for video
      *         capture.
      */
@@ -255,7 +257,7 @@ public class DeviceConfiguration
     /**
      * Sets the device which is to be used by this
      * <code>DeviceConfiguration</code> for video capture.
-     * 
+     *
      * @param device a <code>CaptureDeviceInfo</code> describing device to be
      *            used by this <code>DeviceConfiguration</code> for video
      *            capture
@@ -283,7 +285,7 @@ public class DeviceConfiguration
     /**
      * Sets the device which is to be used by this
      * <code>DeviceConfiguration</code> for audio capture.
-     * 
+     *
      * @param device a <code>CaptureDeviceInfo</code> describing the device to
      *            be used by this <code>DeviceConfiguration</code> for audio
      *            capture
@@ -310,7 +312,7 @@ public class DeviceConfiguration
 
     /**
      * Enable or disable Audio stream transmission.
-     * 
+     *
      * @return true if audio capture is supported and false otherwise.
      */
     public boolean isAudioCaptureSupported()
@@ -320,7 +322,7 @@ public class DeviceConfiguration
 
     /**
      * Enable or disable Video stream transmission.
-     * 
+     *
      * @return true if audio capture is supported and false otherwise.
      */
     public boolean isVideoCaptureSupported()

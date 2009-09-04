@@ -383,6 +383,7 @@ public class CallSessionImpl
      *
      * @throws MediaException if start() fails for all send streams.
      */
+    @SuppressWarnings("unchecked") //JMF legacy code
     public void startStreaming()
         throws MediaException
     {
@@ -420,6 +421,7 @@ public class CallSessionImpl
         boolean startedAtLeastOneVideoStream = false;
 
         rtpManager = getVideoRtpManager();
+
         if(mediaServCallback.getMediaControl(getCall()).isLocalVideoAllowed()
                 && ((sendStreams = rtpManager.getSendStreams()) != null)
                 && (sendStreams.size() > 0))
@@ -553,7 +555,8 @@ public class CallSessionImpl
      */
     private boolean stopSendStreaming(RTPManager rtpManager)
     {
-        Iterable<SendStream> sendStreams = rtpManager.getSendStreams();
+        @SuppressWarnings("unchecked") //JMF legacy code
+            Iterable<SendStream> sendStreams = rtpManager.getSendStreams();
         boolean stoppedAtLeastOneStream = false;
 
         for (SendStream stream : sendStreams)
@@ -581,6 +584,7 @@ public class CallSessionImpl
      *         the streaming wasn't already stopped before this request;
      *         <tt>false</tt>, otherwise
      */
+    @SuppressWarnings("unchecked") //JMF legacy code
     private boolean stopStreaming(RTPManager rtpManager, boolean dispose)
     {
         boolean stoppedAtLeastOneStream = stopSendStreaming(rtpManager);
@@ -814,6 +818,7 @@ public class CallSessionImpl
      *         remote callee to be put on/off hold
      * @throws MediaException
      */
+    @SuppressWarnings("unchecked") //javax.sdp - legacy code.
     private SessionDescription createSessionDescriptionForHold(
             String peerSdpDescription,
             boolean on)
@@ -924,6 +929,7 @@ public class CallSessionImpl
     /*
      * Implements CallSession#getSdpOfferMediaFlags(String).
      */
+    @SuppressWarnings("unchecked") //JMF legacy code
     public int getSdpOfferMediaFlags(String sdpOffer) throws MediaException
     {
         SessionDescription description = null;
@@ -1104,6 +1110,7 @@ public class CallSessionImpl
      *            <tt>rtpManager</tt> put on hold i.e. stopped; <tt>false</tt>,
      *            otherwise
      */
+    @SuppressWarnings("unchecked") //JMF legacy code
     private void putOnHold(RTPManager rtpManager, boolean on)
     {
         List<SendStream> sendStreams = rtpManager.getSendStreams();
@@ -1155,6 +1162,7 @@ public class CallSessionImpl
         processSdpStr(responder, sdpAnswerStr, true);
     }
 
+    @SuppressWarnings("unchecked") //javax.sdp legacy code
     private String processSdpStr(CallPeer peer,
                                  String sdpStr,
                                  boolean answer)
@@ -1536,6 +1544,7 @@ public class CallSessionImpl
      * @throws MediaException code INTERNAL_ERROR if we get an SDP exception
      * while creating and/or parsing the sdp description.
      */
+    @SuppressWarnings("unchecked") //javax.sdp legacy code
     private SessionDescription createSessionDescription(
                                             SessionDescription offer,
                                             InetAddress intendedDestination)
@@ -1721,6 +1730,7 @@ public class CallSessionImpl
      * @throws MediaException with code UNSUPPORTED_FORMAT_SET_ERROR if we don't
      * support any of the offered media formats.
      */
+    @SuppressWarnings("unchecked") //javax.sdp legacy code
     private Vector<MediaDescription> createMediaDescriptions(
                                       Vector<MediaDescription> offerMediaDescs,
                                       InetSocketAddress publicAudioAddress,
@@ -2022,6 +2032,7 @@ public class CallSessionImpl
      *         lists of JMF encoding strings corresponding to the SDP formats
      *         specified in the <tt>mediaDescriptions</tt> vector.
      */
+    @SuppressWarnings("unchecked") //javax.sdp legacy code
     private Hashtable<String, List<String>> extractMediaEncodings(
         Vector<MediaDescription> mediaDescriptions)
     {
@@ -2606,6 +2617,7 @@ public class CallSessionImpl
      */
     public synchronized void callPeerAdded(CallPeerEvent evt)
     {
+        //dummy implementation
     }
 
     /**
@@ -2615,7 +2627,7 @@ public class CallSessionImpl
      */
     public void callPeerRemoved(CallPeerEvent evt)
     {
-
+        //dummy implementation
     }
 
     //implementation of jmf listener methods

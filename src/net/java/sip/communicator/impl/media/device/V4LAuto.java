@@ -27,19 +27,13 @@ public class V4LAuto {
     private static final Logger logger = Logger.getLogger(V4LAuto.class);
 
     /**
-     * Default constructor. Does nothing.
-     */
-    public V4LAuto()
-    {
-    }
-
-    /**
      * Removes from the CaptureDeviceManager all currently detected devices and
      * runs a new detection loop to rediscover those that are currently
      * available.
      *
      * @return the number of devices detected.
      */
+    @SuppressWarnings("unchecked") //JMF legacy code
     public int autoDetectDevices()
     {
         Vector<CaptureDeviceInfo> devices

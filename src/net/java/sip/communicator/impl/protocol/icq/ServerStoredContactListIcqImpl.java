@@ -873,6 +873,7 @@ public class ServerStoredContactListIcqImpl
          * @param group the new Group that has been added
          * @param buddies the members of the new group.
          */
+        @SuppressWarnings("unchecked") //joscar legacy code
         public void groupAdded(BuddyList list, List oldItems, List newItems,
                                Group group, List buddies)
         {
@@ -949,6 +950,7 @@ public class ServerStoredContactListIcqImpl
          * @param newItems the list of items as it is after the group is removed.
          * @param group the group that was removed.
          */
+        @SuppressWarnings("unchecked") //joscar legacy code
         public void groupRemoved(BuddyList list, List oldItems, List newItems,
                                  Group group)
         {
@@ -981,6 +983,7 @@ public class ServerStoredContactListIcqImpl
          * @param newItems unused
          * @param buddy the newly added <tt>buddy</tt>
          */
+        @SuppressWarnings("unchecked") //joscar legacy code
         public void buddyAdded( BuddyList list,
                                 Group joustSimGroup,
                                 List oldItems,
@@ -1068,6 +1071,7 @@ public class ServerStoredContactListIcqImpl
          * @param newItems unused
          * @param buddy Buddy
          */
+        @SuppressWarnings("unchecked") //joscar legacy code
         public void buddyRemoved(BuddyList list, Group group, List oldItems,
                                  List newItems, Buddy buddy)
         {
@@ -1118,6 +1122,7 @@ public class ServerStoredContactListIcqImpl
          * @param oldBuddies unused
          * @param newBuddies the list containing the buddies in their new order.
          */
+        @SuppressWarnings("unchecked") //joscar legacy code
         public void buddiesReordered(BuddyList list, Group group,
                                      List oldBuddies, List newBuddies)
         {
@@ -1136,6 +1141,7 @@ public class ServerStoredContactListIcqImpl
          * @param newOrder the order in which groups are now stored by the
          * AIM/ICQ server.
          */
+        @SuppressWarnings("unchecked") //joscar legacy code
         public void groupsReordered(BuddyList list, List oldOrder,
                                     List newOrder)
         {

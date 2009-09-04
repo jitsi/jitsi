@@ -33,8 +33,8 @@ public class JingleScMediaManager extends JingleMediaManager
      * List of payload that this media manager supports. This list is based on
      * the one reported by the media service.
      */
-    private List<PayloadType.Audio> payloads =
-        new ArrayList<PayloadType.Audio>();
+    private List<PayloadType> payloads =
+        new ArrayList<PayloadType>();
 
     /**
      * Creates a new instance of JingleScMediaManager
@@ -64,7 +64,7 @@ public class JingleScMediaManager extends JingleMediaManager
 
     /**
      * Setup API supported Payloads
-     * 
+     *
      * http://tools.ietf.org/html/rfc3551#page-32 to view the correspondence
      * between PayloadType and codec
      */
@@ -124,7 +124,8 @@ public class JingleScMediaManager extends JingleMediaManager
      *
      * @return The Payload List
      */
-    public List getPayloads()
+
+    public List<PayloadType> getPayloads()
     {
         return payloads;
     }

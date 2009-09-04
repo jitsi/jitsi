@@ -18,8 +18,8 @@ import net.java.sip.communicator.util.*;
 
 /**
  * Wrapper class for the ROME functionality used in the RSS implementation in
- * SIP Communicator. 
- * The class provides the means for identifying feed items, formatting and 
+ * SIP Communicator.
+ * The class provides the means for identifying feed items, formatting and
  * displaying the actual feed items.
  *
  * @author Jean-Albert Vescovo
@@ -54,7 +54,7 @@ public class RssFeedReader
     private RssItemKey lastItemKey;
 
     /**
-     * An array of <tt>SyndEntry</tt> objects which will contain all the items 
+     * An array of <tt>SyndEntry</tt> objects which will contain all the items
      * retrieved from the feed.
      */
     private SyndEntry[] items = null;
@@ -87,16 +87,17 @@ public class RssFeedReader
      * @throws OperationFailedException with code ILLEGAL_ARGUMENT
      * @throws FileNotFoundException if the feed does not exist any more.
      */
+    @SuppressWarnings("unchecked") //rome legacy code
     private void retrieveFlow()
         throws OperationFailedException, FileNotFoundException
     {
 
         SyndFeedInput input = new SyndFeedInput();
-        
+
         try
         {
             this.feed = input.build(new XmlReader(rssURL));
-        } 
+        }
         catch (FileNotFoundException ex)
         {
             this.isFeedJoinable = false;
@@ -142,13 +143,13 @@ public class RssFeedReader
     {
         String newsAbstract = null;
         StringBuffer printedFeed = new StringBuffer();
-        
+
         int i;
         boolean hasSomeNews = false;
 
         // Try to retrieve the feed and to complete this instanciation.
         this.retrieveFlow();
-        
+
         for (i = items.length - 1;
                 i >= 0 &&  (new RssItemKey(items[i])).compareTo(lastItemKey) != 0;
                 --i)
@@ -181,12 +182,12 @@ public class RssFeedReader
             + " last update.</strong><br>"
             + "<em>Send anything to refresh this feed...</em><br>\n";
     }
-    
+
     /**
      * The function retrieves the abstract (textual description) of a feed item
      * or an empty string otherwise. It takes care of all format specific data
      * and returns a nicely formatted <tt>String</tt>
-     * 
+     *
      * @param syndEntry - Feed entry for which to retrieve the abstract (text)
      * @return String representation of the news abstract or an empty string if
      * no such data could be found.
@@ -195,7 +196,7 @@ public class RssFeedReader
     {
         StringBuffer newsAbstract = new StringBuffer();
         List contents;
-        
+
         // get item contents
         contents = syndEntry.getContents();
         if (!contents.isEmpty())
@@ -206,7 +207,7 @@ public class RssFeedReader
                 newsAbstract.append(((SyndContent)it.next()).getValue());
             }
         }
-        
+
         // format the contents
         if (newsAbstract.toString().length() != 0)
             return newsAbstract.toString();
@@ -223,7 +224,7 @@ public class RssFeedReader
 
     /**
      * Return the key for the last item retrieved.
-     * 
+     *
      * @return key of the last item retrieved.
      */
     public RssItemKey getLastItemKey()
@@ -303,7 +304,7 @@ public class RssFeedReader
             }
             return date1.compareTo(date2);
         }
-    }    
+    }
 
     public String serialize()
     {

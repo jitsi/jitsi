@@ -21,7 +21,7 @@ import net.java.sip.communicator.util.swing.*;
 /**
  * A TransferHandler that we use to handle DnD operations of files in our
  * <tt>ContactList</tt>.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ContactListTransferHandler
@@ -48,6 +48,7 @@ public class ContactListTransferHandler
      * otherwise
      * @see #importData(TransferHandler.TransferSupport)
      */
+    @SuppressWarnings("unchecked") //taken care of
     public boolean importData(JComponent comp, Transferable t)
     {
         if (t.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
@@ -93,7 +94,7 @@ public class ContactListTransferHandler
     /**
      * Returns the <tt>ChatPanel</tt> corresponding to the currently selected
      * contact.
-     * 
+     *
      * @return the <tt>ChatPanel</tt> corresponding to the currently selected
      * contact.
      */

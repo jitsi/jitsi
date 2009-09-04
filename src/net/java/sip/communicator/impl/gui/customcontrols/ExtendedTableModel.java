@@ -25,6 +25,7 @@ public class ExtendedTableModel extends DefaultTableModel
      * @param value the value to search for
      * @return the index of the row, in which the given value is contained.
      */
+    @SuppressWarnings("unchecked") //DefaultTableModel legacy code
     public int rowIndexOf(Object value)
     {
         Vector<Vector<Object>> dataVec = this.getDataVector();

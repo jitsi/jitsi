@@ -39,19 +39,13 @@ public class SunVideoPlusAuto
     int currentID = -1;
 
     /**
-     * Default constructor. Does nothing.
-     */
-    public SunVideoPlusAuto()
-    {
-    }
-
-    /**
      * Removes from the CaptureDeviceManager all currently detected sun video
      * devices and  runs a new detection loop to rediscover those that are
      * currently available.
      *
      * @return the number of devices detected.
      */
+    @SuppressWarnings("unchecked") //legacy JMF code.
     public int autoDetectDevices()
     {
         /*

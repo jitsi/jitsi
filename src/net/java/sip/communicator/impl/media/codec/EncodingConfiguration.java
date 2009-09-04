@@ -18,7 +18,7 @@ import net.java.sip.communicator.util.*;
 
 /**
  * Simple configuration of encoding priorities.
- * 
+ *
  * @author Damian Minkov
  */
 public class EncodingConfiguration
@@ -86,7 +86,7 @@ public class EncodingConfiguration
 
     /**
      * The indicator which determines whether the G.729 codec is enabled.
-     * 
+     *
      * WARNING: The use of G.729 may require a license fee and/or royalty fee in
      * some countries and is licensed by
      * <a href="http://www.sipro.com">SIPRO Lab Telecom</a>.
@@ -252,7 +252,7 @@ public class EncodingConfiguration
      * Use this method for both audio and video encodings and don't worry if
      * preferences are equal since we rarely need to compare prefs of video
      * encodings to those of audio encodings.
-     * 
+     *
      * @param encoding the SDP int of the encoding whose pref we're setting.
      * @param pref a positive int indicating the preference for that encoding.
      */
@@ -266,7 +266,7 @@ public class EncodingConfiguration
      * Use this method for both audio and video encodings and don't worry if
      * preferences are equal since we rarely need to compare prefs of video
      * encodings to those of audio encodings.
-     * 
+     *
      * @param encoding a string containing the SDP int of the encoding whose
      *            pref we're setting.
      * @param priority a positive int indicating the preference for that encoding.
@@ -298,9 +298,10 @@ public class EncodingConfiguration
     /**
      * Register in JMF the custom codecs we provide
      */
+    @SuppressWarnings("unchecked") //legacy JMF code.
     public void registerCustomCodecs()
     {
-        // Register the custom codec which haven't already been registered. 
+        // Register the custom codec which haven't already been registered.
         Collection<String> registeredPlugins = new HashSet<String>(
                 PlugInManager.getPlugInList(null, null, PlugInManager.CODEC));
         boolean commit = false;
@@ -383,6 +384,7 @@ public class EncodingConfiguration
     /**
      * Register in JMF the custom packages we provide
      */
+    @SuppressWarnings("unchecked") //legacy JMF code.
     public void registerCustomPackages()
     {
         Vector<String> currentPackagePrefix =
@@ -432,10 +434,10 @@ public class EncodingConfiguration
      * a positive integer as the first format has been assigned a preference
      * higher, equal to, or greater than the one of the second.
      * <p>
-     * 
+     *
      * @param enc1 the first format to compare for preference.
      * @param enc2 the second format to compare for preference.
-     * 
+     *
      * @return a negative integer, zero, or a positive integer as the first
      *         format has been assigned a preference higher, equal to, or
      *         greater than the one of the second.

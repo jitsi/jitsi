@@ -268,6 +268,7 @@ public class JmfDeviceDetector
     /**
      * Will try to detect direct audio devices.
      */
+    @SuppressWarnings("unchecked") //legacy JMF code.
     private void detectDirectAudio()
     {
         Class<?> cls;
@@ -397,6 +398,7 @@ public class JmfDeviceDetector
         setupRenderers();
     }
 
+    @SuppressWarnings("unchecked") //legacy JMF code.
     private static void setupRenderers()
     {
         if (isWindowsVista())

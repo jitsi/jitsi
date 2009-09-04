@@ -19,7 +19,7 @@ import net.java.sip.communicator.util.*;
  * The <tt>FileDragLabel</tt> extends <tt>JLabel</tt> and associates to it a
  * file. The label is made draggable and it is possible to drag it directly to
  * the file browser of the operating system.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class FileDragLabel
@@ -45,7 +45,7 @@ public class FileDragLabel
 
     /**
      * Sets the file associated with this file drag label.
-     * 
+     *
      * @param file the file associated with this file drag label
      */
     public void setFile(File file)
@@ -57,8 +57,8 @@ public class FileDragLabel
      * Called while a drag operation is ongoing, when the mouse pointer enters
      * the operable part of the drop site for the <code>DropTarget</code>
      * registered with this listener.
-     * 
-     * @param dropTargetDragEvent the <code>DropTargetDragEvent</code> 
+     *
+     * @param dropTargetDragEvent the <code>DropTargetDragEvent</code>
      */
     public void dragEnter(DropTargetDragEvent dropTargetDragEvent)
     {
@@ -94,12 +94,12 @@ public class FileDragLabel
     }
 
     /**
-     * A <code>DragGestureRecognizer</code> has detected 
-     * a platform-dependent drag initiating gesture and 
+     * A <code>DragGestureRecognizer</code> has detected
+     * a platform-dependent drag initiating gesture and
      * is notifying this listener
      * in order for it to initiate the action for the user.
      * <P>
-     * @param dragGestureEvent the <code>DragGestureEvent</code> describing 
+     * @param dragGestureEvent the <code>DragGestureEvent</code> describing
      * the gesture that has just occurred
      */
     public void dragGestureRecognized(DragGestureEvent dragGestureEvent)
@@ -137,6 +137,7 @@ public class FileDragLabel
     /**
      * File transferable.
      */
+    @SuppressWarnings("deprecation") //can't find an alternative.
     private class FileTransferable
         extends Vector<File>
         implements Transferable

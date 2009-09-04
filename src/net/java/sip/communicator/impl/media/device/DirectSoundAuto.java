@@ -17,17 +17,17 @@ import javax.media.format.*;
 import net.java.sip.communicator.util.*;
 
 public class DirectSoundAuto {
-    
+
     private static final Logger logger = Logger.getLogger(DirectSoundAuto.class);
-    
+
     private static final String detectClass = "com.sun.media.protocol.dsound.DSound";
     CaptureDeviceInfo[] devices = null;
-    
+
     public static void main(String[] args) {
         new DirectSoundAuto();
         System.exit(0);
     }
-    
+
     private boolean supports(AudioFormat af) {
         try {
             com.sun.media.protocol.dsound.DSound ds;
@@ -40,7 +40,8 @@ public class DirectSoundAuto {
         }
         return true;
     }
-    
+
+    @SuppressWarnings("unchecked") //legacy JMF code.
     public DirectSoundAuto() {
         boolean supported = false;
         // instance JavaSoundDetector to check is javasound's capture is availabe
@@ -51,18 +52,20 @@ public class DirectSoundAuto {
             supported = false;
             // t.printStackTrace();
         }
-        
+
         logger.info("DirectSound Capture Supported = " + supported);
-        
+
         if (supported) {
             // It's there, start to register JavaSound with CaptureDeviceManager
-            Vector<CaptureDeviceInfo> devices = (Vector<CaptureDeviceInfo>)CaptureDeviceManager.getDeviceList(null).clone();
-            
+            Vector<CaptureDeviceInfo> devices
+                = (Vector<CaptureDeviceInfo>)CaptureDeviceManager
+                    .getDeviceList(null).clone();
+
             // remove the old direct sound capturers
             String name;
             Enumeration<CaptureDeviceInfo> enumeration = devices.elements();
             while (enumeration.hasMoreElements()) {
-                CaptureDeviceInfo cdi = enumeration.nextElement(); 
+                CaptureDeviceInfo cdi = enumeration.nextElement();
                 name = cdi.getName();
                 if (name.startsWith(com.sun.media.protocol.dsound.DataSource.NAME))
                     CaptureDeviceManager.removeDevice(cdi);
@@ -87,11 +90,11 @@ public class DirectSoundAuto {
                 af = new AudioFormat(AudioFormat.LINEAR, rate, 8, 1, UN, US);
                 if (supports(af)) formats.addElement(af);
             }
-            
+
             AudioFormat [] formatArray = new AudioFormat[formats.size()];
             for (int fa = 0; fa < formatArray.length; fa++)
                 formatArray[fa] = formats.elementAt(fa);
-            
+
             CaptureDeviceInfo cdi = new CaptureDeviceInfo(
                     com.sun.media.protocol.dsound.DataSource.NAME,
                     new MediaLocator("dsound://"),
