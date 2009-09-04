@@ -418,11 +418,53 @@ public class MailThreadInfo
 
     /**
      * Parses a list of senders for this thread.
-     * @param parser
+     *
+     * @param parser the parser containing the sender list.
+     *
+     * @throws XmlPullParserException if something goes wrong while parsing
+     * the document.
+     * @throws NumberFormatException in case we fail to parse any of the
+     * elements that we expect to be numerical.
+     * @throws IOException in case reading the input xml fails.
      */
     private void parseSenders(XmlPullParser parser)
+        throws XmlPullParserException, NumberFormatException, IOException
     {
-        // TODO Auto-generated method stub
+        //This method parses the list of senders in google mail notifications
+        //following is an example of what such a list could look like:
+        //
+        //<senders>
+        //  <sender name='Me' address='romeo@gmail.com' originator='1' />
+        //  <sender name='Benvolio' address='benvolio@gmail.com' />
+        //  <sender name='Mercutio' address='mercutio@gmail.com' unread='1'/>
+        //</senders>
+
+        int eventType = parser.next();
+        while(eventType != XmlPullParser.END_TAG)
+        {
+            if (eventType == XmlPullParser.START_TAG)
+            {
+                String name = parser.getName();
+
+                if(Sender.ELEMENT_NAME.equals(name))
+                {
+                    Sender sender = new Sender();
+
+                    sender.address = parser.getAttributeValue("", "name");
+                    sender.name = parser.getAttributeValue("", "address");
+                    sender.originator = Integer
+                        .parseInt(parser.getAttributeValue("", "originator"))
+                        == 1;
+                    sender.unread = Integer
+                        .parseInt(parser.getAttributeValue("", "unread"))
+                        ==1;
+
+                    addSender(sender);
+                }
+            }
+
+            eventType = parser.next();
+        }
 
     }
 }
