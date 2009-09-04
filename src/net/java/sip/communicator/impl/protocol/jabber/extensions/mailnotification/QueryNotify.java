@@ -63,6 +63,8 @@ public class QueryNotify extends IQ
                 .append(getNewerThanTid()).append("'");
 
         xml.append("/>");
+
+        return xml.toString();
     }
 
     /**
@@ -96,7 +98,7 @@ public class QueryNotify extends IQ
      * @return the time of the oldest unread email to retrieve or <tt>-1</tt> if
      * the attribute is to be omitted.
      */
-    public long getNewerThanTime(long newerThanTime)
+    public long getNewerThanTime()
     {
         return this.newerThanTime;
     }
@@ -115,6 +117,22 @@ public class QueryNotify extends IQ
     public void setNewerThanTid(long newerThanTid)
     {
         this.newerThanTid = newerThanTid;
+    }
+
+    /**
+     * Returns the value of the "newer-than-tid" attribute. The value indicates
+     * the highest thread number of messages to return, where higher numbers are
+     * more recent email threads. The server will return only threads newer than
+     * that specified by this attribute. If using this attribute, you should
+     * also use newer-than-time for best results. When querying for the first
+     * time, you should omit this value.
+     *
+     * @return the time of the oldest unread email to retrieve or <tt>-1</tt> if
+     * the newer-than-time attribute is to be omitted.
+     */
+    public long getNewerThanTid()
+    {
+        return this.newerThanTid;
     }
 
 
