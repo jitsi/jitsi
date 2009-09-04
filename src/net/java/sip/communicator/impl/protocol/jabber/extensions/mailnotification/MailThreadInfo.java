@@ -6,7 +6,10 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.mailnotification;
 
+import java.io.*;
 import java.util.*;
+
+import org.xmlpull.v1.*;
 
 /**
  * This class represents the "mail-thread-info" element the Google use in their
@@ -20,6 +23,27 @@ public class MailThreadInfo
      * The name of the "mail-thread-info" element.
      */
     public static final String ELEMENT_NAME = "mail-thread-info";
+
+    /**
+     * The name of the XML tag element containing the list of all senders.
+     */
+    public static final String SENDERS_ELEMENT_NAME = "senders";
+
+    /**
+     * The name of the XML tag element containing a pipe separated list of
+     * labels assigned to this thread.
+     */
+    public static final String LABELS_ELEMENT_NAME = "labels";
+
+    /**
+     * The name of the XML tag element containing the thread subject.
+     */
+    public static final String SUBJECT_ELEMENT_NAME = "subject";
+
+    /**
+     * The name of the XML tag element containing a snippet of the thread.
+     */
+    public static final String SNIPPET_ELEMENT_NAME = "snippet";
 
     /**
      * Contains the list of senders that have participated in this thread.
@@ -91,6 +115,11 @@ public class MailThreadInfo
      */
     public class Sender
     {
+        /**
+         * The name of the XML tag element containing information for an
+         * individual sender and represented by this class.
+         */
+        public static final String ELEMENT_NAME = "sender";
         /**
          * The email address of the sender.
          */
@@ -314,5 +343,86 @@ public class MailThreadInfo
     protected void setSnippet(String snippet)
     {
         this.snippet = snippet;
+    }
+
+    /**
+     * Creates and initializes a <tt>MailThreadInfo</tt> instance according to
+     * the details that come with the parser.
+     *
+     * @param parser the parse that we are to read the <tt>MailThreadInfo</tt>
+     * from.
+     *
+     * @return the newly created <tt>MailThreadInfo</tt> instance.
+     *
+     * @throws XmlPullParserException if something goes wrong while parsing
+     * the document.
+     * @throws NumberFormatException in case we fail to parse any of the
+     * elements that we expect to be numerical.
+     * @throws IOException in case reading the input xml fails.
+     */
+    public static MailThreadInfo parse(XmlPullParser parser)
+        throws XmlPullParserException, NumberFormatException, IOException
+    {
+        MailThreadInfo info = new MailThreadInfo();
+
+        //we start by parsing the thread tag itself which should look something
+        //like this:
+        // <mail-thread-info tid='1172320964060972012' participation='1'
+        //  messages='28' date='1118012394209'
+        //  url='http://mail.google.com/mail?view=cv'>
+
+        info.setTid(parser.getAttributeValue("", "tid"));
+        info.setParticipation( Integer.parseInt(
+                        parser.getAttributeValue("", "participation")));
+        info.setMessageCount( Integer.parseInt(
+                        parser.getAttributeValue("", "messages")));
+        info.setDate( Long.parseLong(
+                        parser.getAttributeValue("", "date")));
+        info.setURL( parser.getAttributeValue("", "url"));
+
+        //now parse the rest of the message
+        int eventType = parser.next();
+        while(eventType != XmlPullParser.END_TAG)
+        {
+            if (eventType == XmlPullParser.START_TAG)
+            {
+                String name = parser.getName();
+
+                if(SENDERS_ELEMENT_NAME.equals(name))
+                {
+                    //senders
+                    info.parseSenders(parser);
+                }
+                else if( LABELS_ELEMENT_NAME.equals(name))
+                {
+                    //labels
+                    info.setLabels(parser.nextText());
+                }
+                else if( SUBJECT_ELEMENT_NAME.equals(name))
+                {
+                    //subject
+                    info.setSubject(parser.nextText());
+                }
+                else if( SNIPPET_ELEMENT_NAME.equals(name))
+                {
+                    //snippet
+                    info.setSnippet(parser.nextText());
+                }
+            }
+
+            eventType = parser.next();
+        }
+
+        return info;
+    }
+
+    /**
+     * Parses a list of senders for this thread.
+     * @param parser
+     */
+    private void parseSenders(XmlPullParser parser)
+    {
+        // TODO Auto-generated method stub
+
     }
 }

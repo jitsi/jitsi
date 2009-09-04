@@ -204,46 +204,6 @@ public class MailboxIQ extends IQ
     }
 
     /**
-     * Specifies the sender of a mail referred to by this URL.
-     *
-     * @param
-     */
-    public void setSender(String sender)
-    {
-        this.sender = sender;
-    }
-
-    /**
-     * Set the subject of the last mail
-     *
-     * @param subject the subjet of the email String
-     */
-    public void setSubject(String subject)
-    {
-        this.subject = subject;
-    }
-
-    /**
-     * Return the sender of the last mail
-     *
-     * @return the sender of the email String
-     */
-    public String getSender()
-    {
-        return this.sender;
-    }
-
-    /**
-     * Return the subject of the last mail
-     *
-     * @return the subject of the email String
-     */
-    public String getSubject()
-    {
-        return this.subject;
-    }
-
-    /**
      * Adds a thread info element to the list of threads that this
      * <tt>MailboxIQ</tt> is referring to.
      *

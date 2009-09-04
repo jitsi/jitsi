@@ -55,37 +55,32 @@ public class MailboxIQProvider
         mailboxIQ.setUrl(parser.getAttributeValue("", "url"));
 
 
-        boolean done = false;
-        while(!done)
+        int eventType = parser.next();
+        while(eventType != XmlPullParser.END_TAG)
         {
-            int eventType = parser.next();
             if (eventType == XmlPullParser.START_TAG)
             {
                 String name = parser.getName();
                 if(MailThreadInfo.ELEMENT_NAME.equals(name))
                 {
                     //parse mail thread information
-
+                    MailThreadInfo thread = MailThreadInfo.parse(parser);
+                    mailboxIQ.addThread(thread);
                 }
 
-            }
-            else if (eventType == XmlPullParser.END_TAG)
-            {
-                if (parser.getName().equals("field"))
-                {
-                    done = true;
-                }
             }
             else
             {
                 if(logger.isTraceEnabled())
                 {
                     logger.trace("xml parser returned eventType=" + eventType);
-                    logger.trace("parser="+parser);
+                    logger.trace("parser="+parser.getText());
                 }
             }
+            eventType = parser.next();
         }
-        int eventType = 1;
+
+        eventType = 1;
         String name = null;
         if (eventType == XmlPullParser.START_TAG)
         {
@@ -104,8 +99,8 @@ public class MailboxIQProvider
                             if ( "1".equals(
                                     parser.getAttributeValue("","originator")))
                             {
-                                mailboxIQ.setSender(parser.
-                                        getAttributeValue("", "address"));
+                                //mailboxIQ.setSender(parser.
+                                //        getAttributeValue("", "address"));
                             }
                         }
                     }
@@ -116,7 +111,7 @@ public class MailboxIQProvider
                         if ("subject".equals(name))
                         {
                             name = parser.nextText();
-                            mailboxIQ.setSubject(name);
+                            //mailboxIQ.setSubject(name);
                         }
                     }
                 }
