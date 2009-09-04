@@ -66,6 +66,17 @@ public class Mailbox extends IQ
     private long date;
 
     /**
+     * The name space for new mail notification packets.
+     */
+    public static final String NAMESPACE = "google:mail:notify";
+
+    /**
+     * The name of the element that Google use to transport new mail
+     * notifications.
+     */
+    public static final String ELEMENT_NAME = "mailbox";
+
+    /**
      * Sets the date of the most recent unread mail content on the mail server,
      * in milliseconds since the UNIX epoch.
      *

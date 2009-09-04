@@ -10,7 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.keepalive.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.mailnotification.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.version.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.version.Version;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -339,6 +339,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
     /**
      * The listener that we use in order to handle incoming messages.
      */
+    @SuppressWarnings("unchecked")
     private class SmackMessageListener
         implements PacketListener
     {
@@ -375,11 +376,11 @@ public class OperationSetBasicInstantMessagingJabberImpl
                     = (XHTMLExtension)ext;
 
                 //parse all bodies
-                Iterator bodies = xhtmlExt.getBodies();
+                Iterator<String> bodies = xhtmlExt.getBodies();
                 StringBuffer messageBuff = new StringBuffer();
                 while (bodies.hasNext())
                 {
-                    String body = (String)bodies.next();
+                    String body = bodies.next();
                     messageBuff.append(body);
                 }
 
@@ -602,7 +603,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
     }
 
     /**
-     * Set is keep alive sendin packets to be enabled
+     * Enable sending keep alive packets
      * @param keepAliveEnabled boolean
      */
     public void setKeepAliveEnabled(boolean keepAliveEnabled)
@@ -641,22 +642,17 @@ public class OperationSetBasicInstantMessagingJabberImpl
         //------listerner mail
         try
         {
-            // with discovered info, we can check if the remote clients
-            // supports e-mail but not if he don't, because
-            // a non conforming client can supports a feature
-            // without advertising it.
-            //So we don't rely on it (for the moment)
-            DiscoverInfo di = ServiceDiscoveryManager
+            // first check support for the notification service
+            boolean notificationsAreSupported = ServiceDiscoveryManager
                     .getInstanceFor(jabberProvider.getConnection())
-                    .discoverInfo(jabberProvider.getAccountID()
-                    .getAccountAddress());
-            if (di.containsFeature(
-                    "http://jabber.org/protocol/disco#info"))
-            {
-                ProviderManager providerManager =
-                        ProviderManager.getInstance();
+                        .includesFeature(NewMailNotification.NAMESPACE);
+
+            if (!notificationsAreSupported)
+                return;
+
+            ProviderManager providerManager = ProviderManager.getInstance();
                 providerManager.addIQProvider(
-                        "mailbox", "google:mail:notify",
+                                Mailbox.ELEMENT_NAME, Mailbox.NAMESPACE,
                         new MailboxProvider());
                 providerManager.addIQProvider(
                         "new-mail", "google:mail:notify",

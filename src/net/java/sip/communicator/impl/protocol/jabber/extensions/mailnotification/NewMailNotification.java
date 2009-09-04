@@ -17,6 +17,7 @@ import net.java.sip.communicator.util.*;
  *
  * @author Matthieu Helleringer
  * @author Alain Knaebel
+ * @author Emil Ivov
  */
 public class NewMailNotification extends IQ
 {
@@ -30,6 +31,12 @@ public class NewMailNotification extends IQ
      * The name space for new mail notification packets.
      */
     public static final String NAMESPACE = "google:mail:notify";
+
+    /**
+     * The name of the element that Google use to transport new mail
+     * notifications.
+     */
+    public static final String ELEMENT_NAME = "new-mail";
 
     /**
      * Returns the name space of the new-mail element
