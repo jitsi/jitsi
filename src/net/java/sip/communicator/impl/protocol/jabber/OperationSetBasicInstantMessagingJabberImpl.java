@@ -321,7 +321,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
                 //subscribe for Google (GMail or Google Apps) notifications
                 //for new mail messages.
-                subscribeForGmailNotifications();
+                //subscribeForGmailNotifications();
 
 
                 // run keep alive thread

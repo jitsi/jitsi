@@ -229,16 +229,8 @@ public class MailThreadInfo
      */
     public String findOriginator(boolean firstNameOnly)
     {
-        Iterator<Sender> senders = senders();
 
-        int count = 0;
-        while(senders.hasNext())
-        {
-            if(senders.next().unread)
-                count ++;
-        }
-
-        return count;
+        return null;
     }
 
     /**
