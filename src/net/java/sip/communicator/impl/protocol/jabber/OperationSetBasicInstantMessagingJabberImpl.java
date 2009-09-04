@@ -671,24 +671,22 @@ public class OperationSetBasicInstantMessagingJabberImpl
         jabberProvider.getConnection().addPacketListener(
             new MailboxIQListener(), new PacketTypeFilter( IQ.class));
 
-            jabberProvider.getConnection().addPacketListener(
-                    new NewMailNotificationListener(),
-                    new PacketTypeFilter(
-                    IQ.class));
+        jabberProvider.getConnection().addPacketListener(
+            new NewMailNotificationListener(),new PacketTypeFilter(IQ.class));
 
-            if(opSetPersPresence.getCurrentStatusMessage()
-                   .equals(JabberStatusEnum.OFFLINE))
-            {
-               return;
-            }
+        if(opSetPersPresence.getCurrentStatusMessage()
+                        .equals(JabberStatusEnum.OFFLINE))
+        {
+           return;
+        }
 
-            //create a query with -1 values for newer-than-tid and
-            //newer-than-time attributes
-            MailboxQueryIQ mailnotification = new MailboxQueryIQ();
-            logger.trace("sending mailNotification for acc: "
-                        + jabberProvider.getAccountID().getAccountUniqueID());
+        //create a query with -1 values for newer-than-tid and
+        //newer-than-time attributes
+        MailboxQueryIQ mailnotification = new MailboxQueryIQ();
+        logger.trace("sending mailNotification for acc: "
+                    + jabberProvider.getAccountID().getAccountUniqueID());
 
-            jabberProvider.getConnection().sendPacket(mailnotification);
+        jabberProvider.getConnection().sendPacket(mailnotification);
     }
 
     /**
@@ -747,13 +745,17 @@ public class OperationSetBasicInstantMessagingJabberImpl
                     .equals(JabberStatusEnum.OFFLINE))
                 return;
 
-            MailboxQueryIQ mailnotification = new MailboxQueryIQ(lastResultTime);
+            MailboxQueryIQ mailboxQueryIQ = new MailboxQueryIQ();
+
+            if(lastReceivedMailboxResultTime != -1)
+                mailboxQueryIQ.setNewerThanTime(
+                                lastReceivedMailboxResultTime);
 
             logger.trace(
                 "send mailNotification for acc: "
                 + jabberProvider.getAccountID().getAccountUniqueID());
 
-            jabberProvider.getConnection().sendPacket(mailnotification);
+            jabberProvider.getConnection().sendPacket(mailboxQueryIQ);
         }
     }
 }
