@@ -141,4 +141,25 @@ public class MailThreadInfo
     {
         return senders.iterator();
     }
+
+    /**
+     * Returns the number of messages in this thread.
+     *
+     * @return the number of messages in this thread.
+     */
+    public int getMessageCount()
+    {
+        return messages;
+    }
+
+    /**
+     * Returns the date of the most recent message in this thread.
+     *
+     * @return a timestamp of the most recent message, in milliseconds since
+     * the UNIX epoch.
+     */
+    public long getDate()
+    {
+        return date;
+    }
 }
