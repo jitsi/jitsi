@@ -372,12 +372,22 @@ public class MailThreadInfo
         //  url='http://mail.google.com/mail?view=cv'>
 
         info.setTid(parser.getAttributeValue("", "tid"));
-        info.setParticipation( Integer.parseInt(
-                        parser.getAttributeValue("", "participation")));
-        info.setMessageCount( Integer.parseInt(
-                        parser.getAttributeValue("", "messages")));
-        info.setDate( Long.parseLong(
-                        parser.getAttributeValue("", "date")));
+
+        String participationStr = parser.getAttributeValue("", "participation");
+
+        if(participationStr != null)
+            info.setParticipation( Integer.parseInt( participationStr ));
+
+        String messagesStr = parser.getAttributeValue("", "messages");
+
+        if( messagesStr != null )
+            info.setMessageCount( Integer.parseInt( messagesStr ));
+
+        String dateStr = parser.getAttributeValue("", "date");
+
+        if(dateStr != null)
+            info.setDate( Long.parseLong( dateStr ));
+
         info.setURL( parser.getAttributeValue("", "url"));
 
         //now parse the rest of the message

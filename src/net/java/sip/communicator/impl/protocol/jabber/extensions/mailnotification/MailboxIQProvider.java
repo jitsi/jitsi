@@ -43,12 +43,23 @@ public class MailboxIQProvider
     public IQ parseIQ(final XmlPullParser parser) throws Exception
     {
         MailboxIQ mailboxIQ = new MailboxIQ();
-        mailboxIQ.setResultTime(Long.parseLong(
-                parser.getAttributeValue("", "result-time")));
-        mailboxIQ.setTotalMatched(Integer.parseInt(
-                parser.getAttributeValue("", "total-matched")));
-        mailboxIQ.setTotalEstimate("1".equals(
-                parser.getAttributeValue("", "total-estimate")));
+
+        String resultTimeStr = parser.getAttributeValue("", "result-time");
+
+        if(resultTimeStr != null)
+            mailboxIQ.setResultTime(Long.parseLong( resultTimeStr ));
+
+        String totalMatchedStr = parser.getAttributeValue("", "total-matched");
+
+        if( totalMatchedStr != null )
+            mailboxIQ.setTotalMatched(Integer.parseInt( totalMatchedStr ));
+
+        String totalEstimateStr
+            = parser.getAttributeValue("", "total-estimate");
+
+        if( totalEstimateStr != null )
+            mailboxIQ.setTotalEstimate("1".equals( totalEstimateStr));
+
         mailboxIQ.setUrl(parser.getAttributeValue("", "url"));
 
 
@@ -77,43 +88,6 @@ public class MailboxIQProvider
             eventType = parser.next();
         }
 
-        eventType = 1;
-        String name = null;
-        if (eventType == XmlPullParser.START_TAG)
-        {
-            if ("mail-thread-info".equals(name))
-            {
-                mailboxIQ.setDate(Long.parseLong(
-                                parser.getAttributeValue("", "date")));
-                for (int i =0;i<10;i++)
-                {
-                    eventType = parser.next();
-                    if (eventType == XmlPullParser.START_TAG)
-                    {
-                        name = parser.getName();
-                        if ("sender".equals(name))
-                        {
-                            if ( "1".equals(
-                                    parser.getAttributeValue("","originator")))
-                            {
-                                //mailboxIQ.setSender(parser.
-                                //        getAttributeValue("", "address"));
-                            }
-                        }
-                    }
-
-                    if (eventType == XmlPullParser.START_TAG)
-                    {
-                        name = parser.getName();
-                        if ("subject".equals(name))
-                        {
-                            name = parser.nextText();
-                            //mailboxIQ.setSubject(name);
-                        }
-                    }
-                }
-            }
-        }
         return mailboxIQ;
     }
 }
