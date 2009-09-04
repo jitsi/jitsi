@@ -62,8 +62,9 @@ public class MailboxIQProvider
             if (eventType == XmlPullParser.START_TAG)
             {
                 String name = parser.getName();
-                if(parser.getName().equals("mail-thread-info"))
+                if(MailThreadInfo.ELEMENT_NAME.equals(name))
                 {
+                    //parse mail thread information
 
                 }
 

@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.mailnotification;
 
+import java.util.*;
+
 import org.jivesoftware.smack.packet.*;
 import net.java.sip.communicator.util.*;
 
@@ -28,6 +30,11 @@ public class MailboxIQ extends IQ
         Logger.getLogger(MailboxIQ.class);
 
     /**
+     * A list of threads that this mailbox IQ refers to.
+     */
+    private List<MailThreadInfo> threads = null;
+
+    /**
      * The time these results were generated, in milliseconds since the
      * UNIX epoch. This value should be cached and sent as the newer-than-time
      * attribute in the next email query.
@@ -45,16 +52,6 @@ public class MailboxIQ extends IQ
      * 1 indicates it is; 0 or omitted indicates that it is not.
      */
     private boolean totalEstimate;
-
-    /**
-     * Contains the address that a message was sent from
-     */
-    private String sender;
-
-    /**
-     * Indicates the subject of an email
-     */
-    private String subject;
 
     /**
      * Indicates the URL of the email server
@@ -244,5 +241,30 @@ public class MailboxIQ extends IQ
     public String getSubject()
     {
         return this.subject;
+    }
+
+    /**
+     * Adds a thread info element to the list of threads that this
+     * <tt>MailboxIQ</tt> is referring to.
+     *
+     * @param threadInfo the new thread info instance that we should add to the
+     * thread list.
+     */
+    public void addThread(MailThreadInfo threadInfo)
+    {
+        if(threads == null)
+            threads = new LinkedList<MailThreadInfo>();
+
+        threads.add(threadInfo);
+    }
+
+    /**
+     * Returns the list of threads that this <tt>MailboxIQ</tt> refers to.
+     *
+     * @return the list of threads that this <tt>MailboxIQ</tt> refers to.
+     */
+    public Iterator<MailThreadInfo> threads()
+    {
+        return threads.iterator();
     }
 }
