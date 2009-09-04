@@ -21,7 +21,7 @@ import org.jivesoftware.smackx.packet.*;
 
 /**
  * The Jabber protocol extension of the <tt>AbstractFileTransfer</tt>.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class OutgoingFileTransferJabberImpl
@@ -84,9 +84,9 @@ public class OutgoingFileTransferJabberImpl
              && ((ThumbnailedFile) file).getThumbnailData().length > 0)
         {
             if (protocolProvider.isFeatureListSupported(
-                protocolProvider.getFullJid(receiver),
-                new String[]{"urn:xmpp:thumbs:0",
-                            "urn:xmpp:bob"}))
+                            protocolProvider.getFullJid(receiver),
+                            new String[]{"urn:xmpp:thumbs:0",
+                                "urn:xmpp:bob"}))
             {
                 protocolProvider.getConnection().addPacketWriterInterceptor(
                     this,
@@ -105,7 +105,7 @@ public class OutgoingFileTransferJabberImpl
 
     /**
      * Returns the number of bytes already sent to the recipient.
-     * 
+     *
      * @return the number of bytes already sent to the recipient.
      */
     public long getTransferedBytes()
@@ -162,7 +162,7 @@ public class OutgoingFileTransferJabberImpl
     /**
      * Listens for all <tt>StreamInitiation</tt> packets and adds a thumbnail
      * to them if a thumbnailed file is supported.
-     * 
+     *
      * @see PacketInterceptor#interceptPacket(Packet)
      */
     public void interceptPacket(Packet packet)

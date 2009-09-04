@@ -644,11 +644,11 @@ public class ProtocolProviderServiceJabberImpl
 
             OperationSetInstantMessageTransform messageTransform
                 = new OperationSetInstantMessageTransformImpl();
-            
+
             supportedOperationSets.put(
                 OperationSetInstantMessageTransform.class.getName(),
                 messageTransform);
-            
+
             // Include features we're supporting in plus of the four that
             // included by smack itself:
             // http://jabber.org/protocol/si/profile/file-transfer
@@ -867,14 +867,16 @@ public class ProtocolProviderServiceJabberImpl
     }
 
     /**
-     * Checks if the given list of <tt>features</tt> is supported by the given
-     * jabber id.
+     * Determines if the given list of <tt>features</tt> is supported by the
+     * specified jabber id.
+     *
      * @param jid the jabber id for which to check
      * @param features the list of features to check for
+     *
      * @return <code>true</code> if the list of features is supported, otherwise
      * returns <code>false</code>
      */
-    boolean isFeatureListSupported(String jid, String[] features)
+    public boolean isFeatureListSupported(String jid, String[] features)
     {
         boolean isFeatureListSupported = true;
 
@@ -904,9 +906,25 @@ public class ProtocolProviderServiceJabberImpl
     }
 
     /**
+     * Determines if the given list of <tt>features</tt> is supported by the
+     * specified jabber id.
+     *
+     * @param jid the jabber id that we'd like to get information about
+     * @param feature the feature to check for
+     *
+     * @return <tt>true</tt> if the list of features is supported, otherwise
+     * returns <tt>false</tt>
+     */
+    public boolean isFeatureSupported(String jid, String feature)
+    {
+        return isFeatureListSupported(jid, new String[]{feature});
+    }
+
+    /**
      * Returns the full jabber id (jid) corresponding to the given contact.
+     *
      * @param contact the contact, for which we're looking for a jid
-     * @return the jid
+     * @return the jid of the specified contact;
      */
     String getFullJid(Contact contact)
     {

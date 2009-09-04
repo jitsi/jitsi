@@ -98,13 +98,6 @@ public class OperationSetBasicInstantMessagingJabberImpl
     private static final String CLOSE_BODY_TAG = "</body>";
 
     /**
-     * Contains the time of the last mail result set that we've received from
-     * the server. We use this time when sending new queries to the server so
-     * that it won't return messages that we've already shown to our user.
-     */
-    private long lastResultTime = -1;
-
-    /**
      * Creates an instance of this operation set.
      * @param provider a reference to the <tt>ProtocolProviderServiceImpl</tt>
      * that created us and that we'll use for retrieving the underlying aim
@@ -654,12 +647,21 @@ public class OperationSetBasicInstantMessagingJabberImpl
     private void subscribeForGmailNotifications()
     {
         // first check support for the notification service
-        boolean notificationsAreSupported = ServiceDiscoveryManager
-                .getInstanceFor(jabberProvider.getConnection())
-                    .includesFeature(NewMailNotificationIQ.NAMESPACE);
+        boolean notificationsAreSupported = jabberProvider.isFeatureSupported(
+                        jabberProvider.getAccountID().getService(),
+                        NewMailNotificationIQ.NAMESPACE);
 
         if (!notificationsAreSupported)
+        {
+            logger.debug(jabberProvider.getAccountID().getService()
+                        +" does not seem to provide a GMail notification "
+                        +" service so we won't be trying to subscribe for it");
             return;
+        }
+
+        logger.debug(jabberProvider.getAccountID().getService()
+                        +" seems to provide a GMail notification "
+                        +" service so we will try to subscribe for it");
 
         ProviderManager providerManager = ProviderManager.getInstance();
         providerManager.addIQProvider(

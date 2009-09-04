@@ -54,8 +54,38 @@ public class MailboxIQProvider
                 parser.getAttributeValue("", "total-estimate")));
         mailboxIQ.setUrl(parser.getAttributeValue("", "url"));
 
-        int eventType = parser.next();
-        String name = parser.getName();
+
+        boolean done = false;
+        while(!done)
+        {
+            int eventType = parser.next();
+            if (eventType == XmlPullParser.START_TAG)
+            {
+                String name = parser.getName();
+                if(parser.getName().equals("mail-thread-info"))
+                {
+
+                }
+
+            }
+            else if (eventType == XmlPullParser.END_TAG)
+            {
+                if (parser.getName().equals("field"))
+                {
+                    done = true;
+                }
+            }
+            else
+            {
+                if(logger.isTraceEnabled())
+                {
+                    logger.trace("xml parser returned eventType=" + eventType);
+                    logger.trace("parser="+parser);
+                }
+            }
+        }
+        int eventType = 1;
+        String name = null;
         if (eventType == XmlPullParser.START_TAG)
         {
             if ("mail-thread-info".equals(name))
