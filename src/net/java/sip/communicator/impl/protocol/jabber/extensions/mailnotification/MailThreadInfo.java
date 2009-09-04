@@ -131,6 +131,24 @@ public class MailThreadInfo
     }
 
     /**
+     * Specifies the participation index for this thread. The participation
+     * index  is a number indicating the local user's participation level in
+     * this thread: PARTICIPATION_NONE indicates that the user has not
+     * participated; PARTICIPATION_ONE_OF_MANY indicates that the user is one of
+     * many recipients listed in the thread; PARTICIPATION_SOLE_RECIPIENT
+     * indicates that the user is the sole recipient for messages in this
+     * thread.
+     *
+     * @param participation one of the PARTICIPATION_XXX values defines in this
+     * class and indicating whether the local is the sole, one of many or not a
+     * participant of this thread.
+     */
+    protected void setParticipation(int participation)
+    {
+        this.participation = participation;
+    }
+
+    /**
      * Returns an iterator over a list of one or more sender instances, each of
      * which describes a participant in this thread.
      *
@@ -140,6 +158,16 @@ public class MailThreadInfo
     public Iterator<Sender> senders()
     {
         return senders.iterator();
+    }
+
+    /**
+     * Adds <tt>sender</tt> to the list of senders in this thread.
+     *
+     * @param sender the sender that we are adding.
+     */
+    protected void addSender(Sender sender)
+    {
+        senders.add(sender);
     }
 
     /**
@@ -153,6 +181,16 @@ public class MailThreadInfo
     }
 
     /**
+     * Sets the number of messages in this thread.
+     *
+     * @param messageCount the number of messages in this thread.
+     */
+    protected void setMessageCount(int messageCount)
+    {
+        this.messages = messageCount;
+    }
+
+    /**
      * Returns the date of the most recent message in this thread.
      *
      * @return a timestamp of the most recent message, in milliseconds since
@@ -161,5 +199,120 @@ public class MailThreadInfo
     public long getDate()
     {
         return date;
+    }
+
+    /**
+     * Sets the date of the most recent message in this thread.
+     *
+     * @param date a timestamp of the most recent message in this thread.
+     */
+    protected void setDate(long date)
+    {
+        this.date = date;
+    }
+
+    /**
+     * Returns an URL linking to this thread. It is important to distinguish
+     * between this URL and the one returned by the <tt>MailboxIQ</tt> which
+     * points to the whole mailbox.
+     *
+     * @return the URL linking to this particular thread.
+     */
+    public String getURL()
+    {
+        return url;
+    }
+
+    /**
+     * Sets an URL linking to this thread. It is important to distinguish
+     * between this URL and the one returned by the <tt>MailboxIQ</tt> which
+     * points to the whole mailbox.
+     *
+     * @param url the URL linking to this particular thread.
+     */
+    protected void setURL(String url)
+    {
+        this.url = url;
+    }
+
+    /**
+     * Returns a pipe ('|') delimited list of labels applied to this thread.
+     *
+     * @return a pipe ('|') delimited list of labels applied to this thread.
+     */
+    public String getLabels()
+    {
+        return labels;
+    }
+
+    /**
+     * Sets a pipe ('|') delimited list of labels that apply to this thread.
+     *
+     * @param labels a pipe ('|') delimited list of labels that apply to this
+     * thread.
+     */
+    protected void setLabels(String labels)
+    {
+        this.labels = labels;
+    }
+
+    /**
+     * Returns the ID of this thread.
+     *
+     * @return the ID of this thread.
+     */
+    public String getTid()
+    {
+        return tid;
+    }
+
+    /**
+     * Specifies the ID of this thread.
+     *
+     * @param tid the ID of this thread.
+     */
+    protected void setTid(String tid)
+    {
+        this.tid = tid;
+    }
+
+    /**
+     * Returns the subject of this e-mail thread.
+     *
+     * @return the subject of this e-mail thread.
+     */
+    public String getSubject()
+    {
+        return subject;
+    }
+
+    /**
+     * Sets the subject of this e-mail thread.
+     *
+     * @param subject the subject of this e-mail thread.
+     */
+    protected void setSubject(String subject)
+    {
+        this.subject = subject;
+    }
+
+    /**
+     * Returns an html-encoded snippet from the body of the email.
+     *
+     * @return an html-encoded snippet from the body of the email.
+     */
+    public String getSnippet()
+    {
+        return snippet;
+    }
+
+    /**
+     *Sets an html-encoded snippet from the body of the email.
+     *
+     * @param snippet an html-encoded snippet from the body of the email.
+     */
+    protected void setSnippet(String snippet)
+    {
+        this.snippet = snippet;
     }
 }
