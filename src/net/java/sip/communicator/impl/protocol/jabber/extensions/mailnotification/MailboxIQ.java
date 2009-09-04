@@ -219,6 +219,17 @@ public class MailboxIQ extends IQ
     }
 
     /**
+     * Returns the number of threads that are currently in this
+     * <tt>MailboxIQ</tt>.
+     *
+     * @return the number of threads currently in this <tt>MailboxIQ</tt>.
+     */
+    public int getThreadCount()
+    {
+        return threads.size();
+    }
+
+    /**
      * Returns the list of threads that this <tt>MailboxIQ</tt> refers to.
      *
      * @return the list of threads that this <tt>MailboxIQ</tt> refers to.

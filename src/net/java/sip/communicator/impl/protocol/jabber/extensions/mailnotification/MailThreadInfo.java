@@ -190,6 +190,58 @@ public class MailThreadInfo
     }
 
     /**
+     * Returns the number of people that have been posting in this thread.
+     *
+     * @return the number of people that have been posting in this thread.
+     */
+    public int getSenderCount()
+    {
+        return senders.size();
+    }
+
+    /**
+     * Returns the number of people that have been posting in this thread and
+     * that we have unread messages from.
+     *
+     * @return the number of people that have been posting in this thread and
+     * that we have unread messages from.
+     */
+    public int getUnreadSenderCount()
+    {
+        Iterator<Sender> senders = senders();
+
+        int count = 0;
+        while(senders.hasNext())
+        {
+            if(senders.next().unread)
+                count ++;
+        }
+
+        return count;
+    }
+
+    /**
+     * Returns the sender that initiated the thread or the first sender in the
+     * list if for some reason we couldn't determine the originator.
+     *
+     * @return the sender that initiated the thread or the first sender in the
+     * list if for some reason we couldn't determine the originator.
+     */
+    public String findOriginator(boolean firstNameOnly)
+    {
+        Iterator<Sender> senders = senders();
+
+        int count = 0;
+        while(senders.hasNext())
+        {
+            if(senders.next().unread)
+                count ++;
+        }
+
+        return count;
+    }
+
+    /**
      * Adds <tt>sender</tt> to the list of senders in this thread.
      *
      * @param sender the sender that we are adding.

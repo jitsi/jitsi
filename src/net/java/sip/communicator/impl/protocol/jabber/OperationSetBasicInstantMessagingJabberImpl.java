@@ -691,23 +691,81 @@ public class OperationSetBasicInstantMessagingJabberImpl
         jabberProvider.getConnection().sendPacket(mailnotification);
     }
 
+    /**
+     * Creates an html description of all participant names in the thread.
+     * We try to do this in a GMail-like (although quite simplified) way:<br/>
+     * We print the whole name for a sole participant. <br/>
+     * We print only the first names for more than one participant. <br/>
+     * We print up to three names max. <br/>
+     * We show in bold people that we have unread messages for <br/>.
+     *
+     * @param thread the thread that we are to describe.
+     *
+     * @return an html description of <tt>thread</tt>
+     */
+    private String createParticipantNames(MailThreadInfo thread)
+    {
+        StringBuffer participantNames = new StringBuffer();
+
+        //if we have more than one sender we only show first names
+        boolean firstNamesOnly = thread.getSenderCount() > 1;
+
+        int unreadSenderCount = thread.getUnreadSenderCount();
+
+        int maximumSndrsAllowed = 3;
+        int maximumUnreadAllowed = Math.min(
+                        maximumSndrsAllowed, unreadSenderCount);
+        int maximumReadAllowed = maximumSndrsAllowed - maximumUnreadAllowed;
+
+
+        return participantNames.toString();
+    }
+
+    /**
+     * Creates an html description of the specified thread.
+     *
+     * @param thread the thread that we are to describe.
+     *
+     * @return an html description of <tt>thread</tt>
+     */
     private String createMailThreadDescription(MailThreadInfo thread)
     {
         StringBuffer threadBuff = new StringBuffer();
 
+        //first get the names of the participants
+        threadBuff.append(createParticipantNames(thread));
+
         return threadBuff.toString();
     }
 
+    /**
+     * Creates an html description of the specified mailbox.
+     *
+     * @param mailboxIQ the mailboxIQ that we are to describe.
+     *
+     * @return an html description of <tt>mailboxIQ</tt>
+     */
     private String createMailboxDescription(MailboxIQ mailboxIQ)
     {
-        String description = JabberActivator.getResources().getI18NString(
-                        "service.gui.NEW_MAIL",
-                        new String[]{"///sender",
-                        "&lt;" + "///sender" + "&gt",
-                        "///subject",
-                        "&nbsp;&nbsp;&nbsp;&nbsp;<a href=\""
-                            + "///mailbox url" + "\">" +"///mailbox url"+ "</a>"}) ;
-        return description;
+        /** @todo localize */
+        String newMailHeader
+            = "You have "+ mailboxIQ.getTotalMatched() + " new "
+                + (mailboxIQ.getTotalMatched() > 1
+                                ? "messages"
+                                : "message")
+                + " in your "
+                + jabberProvider.getAccountID().getService()
+                + " <a href='" + mailboxIQ.getUrl() +"'>inbox</a>.<br/>";
+
+        StringBuffer message = new StringBuffer(newMailHeader);
+        Iterator<MailThreadInfo> threads = mailboxIQ.threads();
+
+        while(threads.hasNext())
+        {
+            message.append(createMailThreadDescription(threads.next()));
+        }
+
+        return newMailHeader;
     }
     /**
      * Receives incoming MailNotification Packets
