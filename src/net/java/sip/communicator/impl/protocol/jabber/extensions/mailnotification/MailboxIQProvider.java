@@ -43,9 +43,6 @@ public class MailboxIQProvider
     public IQ parseIQ(final XmlPullParser parser) throws Exception
     {
         MailboxIQ mailboxIQ = new MailboxIQ();
-        mailboxIQ.setFrom(parser.getAttributeValue("", "from"));
-        mailboxIQ.setTo(parser.getAttributeValue("", "to"));
-        mailboxIQ.setPacketID(parser.getAttributeValue("", "id"));
         mailboxIQ.setResultTime(Long.parseLong(
                 parser.getAttributeValue("", "result-time")));
         mailboxIQ.setTotalMatched(Integer.parseInt(

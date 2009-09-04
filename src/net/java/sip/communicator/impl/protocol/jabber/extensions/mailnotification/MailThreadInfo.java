@@ -440,9 +440,14 @@ public class MailThreadInfo
         //</senders>
 
         int eventType = parser.next();
+
+        //looping all senders
         while(eventType != XmlPullParser.END_TAG)
         {
-            if (eventType == XmlPullParser.START_TAG)
+
+            //looping a single sender ... or in other words not really looping
+            //but just making sure that we consume the end tag.
+            while(eventType != XmlPullParser.END_TAG)
             {
                 String name = parser.getName();
 
@@ -461,6 +466,8 @@ public class MailThreadInfo
 
                     addSender(sender);
                 }
+
+                eventType = parser.next();
             }
 
             eventType = parser.next();
