@@ -42,17 +42,43 @@ public class OtrActivator
     {
         bundleContext = bc;
 
-        if (!initServices())
+        // Init static variables, don't proceed without them.
+        scOtrEngine = new ScOtrEngineImpl();
+        otrTransformLayer = new OtrTransformLayer();
+
+        ServiceReference refResourceService =
+            OtrActivator.bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+        if (refResourceService == null)
             return;
 
-        if (!registerTransformLayer())
+        resourceService =
+            (ResourceManagementService) OtrActivator.bundleContext
+                .getService(refResourceService);
+
+        ServiceReference refConfigService =
+            OtrActivator.bundleContext
+                .getServiceReference(ConfigurationService.class.getName());
+
+        if (refConfigService == null)
             return;
 
-        registerUI();
-    }
+        configService =
+            (ConfigurationService) OtrActivator.bundleContext
+                .getService(refConfigService);
 
-    private boolean registerTransformLayer()
-    {
+        ServiceReference refUIService =
+            OtrActivator.bundleContext.getServiceReference(UIService.class
+                .getName());
+
+        if (refUIService == null)
+            return;
+
+        uiService =
+            (UIService) OtrActivator.bundleContext.getService(refUIService);
+
+        // Register Transformation Layer
         bundleContext.addServiceListener(this);
 
         ServiceReference[] protocolProviderRefs = null;
@@ -65,106 +91,67 @@ public class OtrActivator
         catch (InvalidSyntaxException ex)
         {
             logger.error("Error while retrieving service refs", ex);
-            return false;
+            return;
         }
 
-        if (protocolProviderRefs == null || protocolProviderRefs.length < 1)
-            return false;
-
-        logger.debug("Found " + protocolProviderRefs.length
-            + " already installed providers.");
-        for (int i = 0; i < protocolProviderRefs.length; i++)
+        if (protocolProviderRefs != null && protocolProviderRefs.length > 0)
         {
-            ProtocolProviderService provider =
-                (ProtocolProviderService) bundleContext
-                    .getService(protocolProviderRefs[i]);
+            logger.debug("Found " + protocolProviderRefs.length
+                + " already installed providers.");
+            for (int i = 0; i < protocolProviderRefs.length; i++)
+            {
+                ProtocolProviderService provider =
+                    (ProtocolProviderService) bundleContext
+                        .getService(protocolProviderRefs[i]);
 
-            this.handleProviderAdded(provider);
+                this.handleProviderAdded(provider);
+            }
         }
 
-        return true;
-    }
-
-    private void registerUI()
-    {
         Hashtable<String, String> containerFilter =
             new Hashtable<String, String>();
 
-        OtrMetaContactMenu rightClickMenu =
-            new OtrMetaContactMenu(
-                Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU,
-                OtrActivator.resourceService
-                .getImage("plugin.otr.MENU_ITEM_ICON_16x16"));
+        // Register the right-click menu item.
         containerFilter.put(Container.CONTAINER_ID,
             Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU.getID());
 
-        bundleContext.registerService(PluginComponent.class.getName(),
-            rightClickMenu, containerFilter);
+        bundleContext
+            .registerService(PluginComponent.class.getName(),
+                new OtrMetaContactMenu(
+                    Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU),
+                containerFilter);
 
-        OtrMetaContactMenu chatMenuBarMenu =
-                new OtrMetaContactMenu(Container.CONTAINER_CHAT_MENU_BAR,
-                null);
+        // Register the chat window menu bar item.
         containerFilter.put(Container.CONTAINER_ID,
             Container.CONTAINER_CHAT_MENU_BAR.getID());
 
         bundleContext.registerService(PluginComponent.class.getName(),
-            chatMenuBarMenu, containerFilter);
+            new OtrMetaContactMenu(Container.CONTAINER_CHAT_MENU_BAR),
+            containerFilter);
 
-        OtrMetaContactButton btn =
-            new OtrMetaContactButton(Container.CONTAINER_CHAT_TOOL_BAR);
+        // Register the chat button bar default-action-button.
         containerFilter.put(Container.CONTAINER_ID,
             Container.CONTAINER_CHAT_TOOL_BAR.getID());
 
-        bundleContext.registerService(PluginComponent.class.getName(), btn,
+        bundleContext.registerService(PluginComponent.class.getName(),
+            new OtrMetaContactButton(Container.CONTAINER_CHAT_TOOL_BAR),
             containerFilter);
 
+        // Register the configuration form.
         bundleContext.registerService(ConfigurationForm.class.getName(),
             new LazyConfigurationForm(
                 "net.java.sip.communicator.plugin.otr.OtrConfigurationPanel",
-                getClass().getClassLoader(),
-                "plugin.otr.configform.ICON",
+                getClass().getClassLoader(), "plugin.otr.configform.ICON",
                 "plugin.otr.configform.TITLE", 30), null);
     }
 
-    private boolean initServices()
-    {
-        scOtrEngine = new ScOtrEngineImpl();
-        otrTransformLayer = new OtrTransformLayer();
+    private ServiceRegistration regRightClickMenu;
 
-        ServiceReference ref =
-            OtrActivator.bundleContext
-                .getServiceReference(ResourceManagementService.class.getName());
+    private ServiceRegistration regMenuBarMenu;
 
-        if (ref == null)
-            return false;
+    private ServiceRegistration regButtonBarButton;
 
-        resourceService =
-            (ResourceManagementService) OtrActivator.bundleContext
-                .getService(ref);
-
-        ServiceReference refConfigService =
-            OtrActivator.bundleContext
-                .getServiceReference(ConfigurationService.class.getName());
-
-        if (refConfigService == null)
-            return false;
-
-        configService =
-            (ConfigurationService) OtrActivator.bundleContext
-                .getService(refConfigService);
-
-        ServiceReference refUIService =
-            OtrActivator.bundleContext.getServiceReference(UIService.class
-                .getName());
-
-        if (refUIService == null)
-            return false;
-
-        uiService =
-            (UIService) OtrActivator.bundleContext.getService(refUIService);
-
-        return true;
-    }
+    private ServiceRegistration regConfigurationForm;
 
     private void handleProviderAdded(ProtocolProviderService provider)
     {
@@ -184,17 +171,7 @@ public class OtrActivator
 
     public void stop(BundleContext bc) throws Exception
     {
-        unregisterTransformLayer();
-        unregisterUI();
-    }
-
-    private void unregisterUI()
-    {
-        // TODO Auto-generated method stub
-    }
-
-    private void unregisterTransformLayer()
-    {
+        // Unregister transformation layer.
         // start listening for newly register or removed protocol providers
         bundleContext.removeServiceListener(this);
 
@@ -213,18 +190,32 @@ public class OtrActivator
             return;
         }
 
-        if (protocolProviderRefs == null || protocolProviderRefs.length < 1)
-            return;
-
-        // in case we found any
-        for (int i = 0; i < protocolProviderRefs.length; i++)
+        if (protocolProviderRefs != null && protocolProviderRefs.length > 0)
         {
-            ProtocolProviderService provider =
-                (ProtocolProviderService) bundleContext
-                    .getService(protocolProviderRefs[i]);
 
-            this.handleProviderRemoved(provider);
+            // in case we found any
+            for (int i = 0; i < protocolProviderRefs.length; i++)
+            {
+                ProtocolProviderService provider =
+                    (ProtocolProviderService) bundleContext
+                        .getService(protocolProviderRefs[i]);
+
+                this.handleProviderRemoved(provider);
+            }
         }
+
+        // Unregister UI
+        if (this.regButtonBarButton != null)
+            this.regButtonBarButton.unregister();
+
+        if (this.regConfigurationForm != null)
+            this.regConfigurationForm.unregister();
+
+        if (this.regMenuBarMenu != null)
+            this.regMenuBarMenu.unregister();
+
+        if (this.regRightClickMenu != null)
+            this.regRightClickMenu.unregister();
     }
 
     private void handleProviderRemoved(ProtocolProviderService provider)
@@ -266,12 +257,8 @@ public class OtrActivator
 
     }
 
-    private static final Map<Object, ProtocolProviderFactory> providerFactoriesMap =
-        new Hashtable<Object, ProtocolProviderFactory>();
-
     public static Map<Object, ProtocolProviderFactory> getProtocolProviderFactories()
     {
-
         ServiceReference[] serRefs = null;
         try
         {
@@ -281,11 +268,14 @@ public class OtrActivator
                     ProtocolProviderFactory.class.getName(), null);
 
         }
-        catch (InvalidSyntaxException e)
+        catch (InvalidSyntaxException ex)
         {
-            logger.error("LoginManager : " + e);
+            logger.error("Error while retrieving service refs", ex);
+            return null;
         }
 
+        Map<Object, ProtocolProviderFactory> providerFactoriesMap =
+            new Hashtable<Object, ProtocolProviderFactory>();
         if (serRefs != null)
         {
             for (int i = 0; i < serRefs.length; i++)

@@ -55,8 +55,14 @@ public class OtrConfigurationPanel
 
             public AccountsComboBox()
             {
-                for (ProtocolProviderFactory providerFactory : OtrActivator
-                    .getProtocolProviderFactories().values())
+                Map<Object, ProtocolProviderFactory> providerFactoriesMap =
+                    new Hashtable<Object, ProtocolProviderFactory>();
+                
+                if (providerFactoriesMap == null)
+                    return;
+
+                for (ProtocolProviderFactory providerFactory : providerFactoriesMap
+                    .values())
                 {
                     for (AccountID accountID : providerFactory
                         .getRegisteredAccounts())
@@ -68,7 +74,11 @@ public class OtrConfigurationPanel
 
             public AccountID getSelectedAccountID()
             {
-                return ((AccountsComboBoxItem) this.getSelectedItem()).accountID;
+                Object selectedItem = this.getSelectedItem();
+                if (selectedItem instanceof AccountsComboBox)
+                    return ((AccountsComboBoxItem) selectedItem).accountID;
+                else
+                    return null;
             }
         }
 
@@ -87,18 +97,32 @@ public class OtrConfigurationPanel
 
         private void openAccount(AccountID account)
         {
-            String fingerprint =
-                OtrActivator.scOtrEngine.getLocalFingerprint(account);
-
-            if (fingerprint == null || fingerprint.length() < 1)
+            if (account == null)
             {
+                lblFingerprint.setEnabled(false);
+                btnGenerate.setEnabled(false);
+
                 lblFingerprint.setText("No key present");
                 btnGenerate.setText("Generate");
             }
             else
             {
-                lblFingerprint.setText(fingerprint);
-                btnGenerate.setText("Re-generate");
+                lblFingerprint.setEnabled(true);
+                btnGenerate.setEnabled(true);
+
+                String fingerprint =
+                    OtrActivator.scOtrEngine.getLocalFingerprint(account);
+
+                if (fingerprint == null || fingerprint.length() < 1)
+                {
+                    lblFingerprint.setText("No key present");
+                    btnGenerate.setText("Generate");
+                }
+                else
+                {
+                    lblFingerprint.setText(fingerprint);
+                    btnGenerate.setText("Re-generate");
+                }
             }
         }
 
@@ -140,6 +164,8 @@ public class OtrConfigurationPanel
                 public void actionPerformed(ActionEvent e)
                 {
                     AccountID account = cbAccounts.getSelectedAccountID();
+                    if (account == null)
+                        return;
                     OtrActivator.scOtrEngine.generateKeyPair(account
                         .getAccountUniqueID());
                     openAccount(account);
@@ -240,8 +266,7 @@ public class OtrConfigurationPanel
                 case CONTACTNAME_INDEX:
                     return contact.getDisplayName();
                 case VERIFIED_INDEX:
-                    return (OtrActivator.scOtrEngine.isContactVerified(contact))
-                        ? "Yes"
+                    return (OtrActivator.scOtrEngine.isContactVerified(contact)) ? "Yes"
                         : "No";
                 case FINGERPRINT_INDEX:
                     return OtrActivator.scOtrEngine
@@ -305,16 +330,18 @@ public class OtrConfigurationPanel
 
         private void initComponents()
         {
-            this.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createEtchedBorder(EtchedBorder.LOWERED),
-                OtrActivator.resourceService
-                    .getI18NString("plugin.otr.configform.KNOWN_FINGERPRINTS")));
+            this
+                .setBorder(BorderFactory
+                    .createTitledBorder(
+                        BorderFactory.createEtchedBorder(EtchedBorder.LOWERED),
+                        OtrActivator.resourceService
+                            .getI18NString("plugin.otr.configform.KNOWN_FINGERPRINTS")));
             this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
             contactsTable = new JTable();
             contactsTable.setModel(new ContactsTableModel());
-            contactsTable.setSelectionMode(
-                javax.swing.ListSelectionModel.SINGLE_SELECTION);
+            contactsTable
+                .setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
             contactsTable.setCellSelectionEnabled(false);
             contactsTable.setColumnSelectionAllowed(false);
             contactsTable.setRowSelectionAllowed(true);
