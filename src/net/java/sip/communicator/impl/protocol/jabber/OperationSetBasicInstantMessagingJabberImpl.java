@@ -651,35 +651,33 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 return;
 
             ProviderManager providerManager = ProviderManager.getInstance();
-                providerManager.addIQProvider(
-                                Mailbox.ELEMENT_NAME, Mailbox.NAMESPACE,
-                        new MailboxProvider());
-                providerManager.addIQProvider(
-                        "new-mail", "google:mail:notify",
-                        new NewMailNotificationProvider());
+            providerManager.addIQProvider(
+                Mailbox.ELEMENT_NAME, Mailbox.NAMESPACE, new MailboxProvider());
+            providerManager.addIQProvider(
+                NewMailNotification.ELEMENT_NAME, NewMailNotification.NAMESPACE,
+                new NewMailNotificationProvider());
 
-                jabberProvider.getConnection().addPacketListener(
-                    new MailNotificationListener(),
-                    new PacketTypeFilter(
+            jabberProvider.getConnection().addPacketListener(
+                new MailNotificationListener(),
+                new PacketTypeFilter(
                             IQ.class));
 
-                jabberProvider.getConnection().addPacketListener(
-                        new NewMailNotificationListener(),
-                        new PacketTypeFilter(
-                        IQ.class));
+            jabberProvider.getConnection().addPacketListener(
+                    new NewMailNotificationListener(),
+                    new PacketTypeFilter(
+                    IQ.class));
 
-                if(opSetPersPresence.getCurrentStatusMessage()
-                            .equals(JabberStatusEnum.OFFLINE))
-                        return;
+            if(opSetPersPresence.getCurrentStatusMessage()
+                   .equals(JabberStatusEnum.OFFLINE))
+            {
+               return;
+            }
 
-                    QueryNotify mailnotification = new QueryNotify(lastResultTime);
-
-                    logger.trace(
-                        "send mailNotification for acc: "
+            QueryNotify mailnotification = new QueryNotify(lastResultTime);
+            logger.trace("sending mailNotification for acc: "
                         + jabberProvider.getAccountID().getAccountUniqueID());
 
-                    jabberProvider.getConnection().sendPacket(mailnotification);
-            }
+            jabberProvider.getConnection().sendPacket(mailnotification);
         }
         catch (XMPPException ex)
         {
@@ -687,7 +685,80 @@ public class OperationSetBasicInstantMessagingJabberImpl
                     jabberProvider.getAccountID().getAccountAddress(),
                     ex);
         }
-
-
     }
+
+    /**
+     * Receives incoming MailNotification Packets
+     */
+    private class MailNotificationListener
+        implements PacketListener
+    {
+        public void processPacket(Packet packet)
+        {
+            if(packet != null &&  !(packet instanceof Mailbox))
+                return;
+
+            Mailbox mailbox = (Mailbox) packet;
+
+            //check if the date of the most recent mail is the same as that
+            //of the previous packet. If the last mail is the most recent,
+            //we notify it to the user
+            if ( lastDate < mailbox.getDate())
+            {
+                lastResultTime = mailbox.getResultTime();
+                lastDate = mailbox.getDate();
+
+                String fromUserID =
+                        StringUtils.parseBareAddress(mailbox.getSender());
+
+                //create the volatile contact
+                Contact sourceContact = opSetPersPresence
+                    .createVolatileContact(fromUserID);
+
+                String newMail = JabberActivator.getResources().getI18NString(
+                            "service.gui.NEW_MAIL",
+                            new String[]{mailbox.getSender(),
+                            "&lt;" + mailbox.getSender() + "&gt",
+                            mailbox.getSubject(),
+                            "&nbsp;&nbsp;&nbsp;&nbsp;<a href=\""+
+                                    mailbox.getUrl() +"\">" +mailbox.getUrl()
+                                    + "</a>"}) ;
+
+                Message newMailMessage = new MessageJabberImpl( newMail,
+                        HTML_MIME_TYPE, DEFAULT_MIME_ENCODING, null);
+
+                MessageReceivedEvent msgReceivedEvt = new MessageReceivedEvent(
+                        newMailMessage, sourceContact, System.currentTimeMillis(),
+                        MessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
+
+                fireMessageEvent(msgReceivedEvt);
+            }
+        }
+    }
+
+    /**
+     * Receives incoming NewMailNotification Packets
+     */
+    private class NewMailNotificationListener
+        implements PacketListener
+    {
+        public void processPacket(Packet packet)
+        {
+            if(packet != null &&  !(packet instanceof NewMailNotification))
+                return;
+
+            if(opSetPersPresence.getCurrentStatusMessage()
+                    .equals(JabberStatusEnum.OFFLINE))
+                return;
+
+            QueryNotify mailnotification = new QueryNotify(lastResultTime);
+
+            logger.trace(
+                "send mailNotification for acc: "
+                + jabberProvider.getAccountID().getAccountUniqueID());
+
+            jabberProvider.getConnection().sendPacket(mailnotification);
+        }
+    }
+
 }
