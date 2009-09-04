@@ -62,6 +62,13 @@ public class OperationSetBasicInstantMessagingJabberImpl
     private Timer keepAliveTimer = new Timer();
 
     /**
+     * Indicates the time of the last Mailbox report that we received from
+     * Google (if this is a Google server we are talking to). Should be included
+     * in all following mailbox queries
+     */
+    private long lastReceivedMailboxResultTime = -1;
+
+    /**
      * The queue holding the received packets
      */
     private final LinkedList<KeepAliveEvent> receivedKeepAlivePackets
@@ -677,7 +684,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
             //create a query with -1 values for newer-than-tid and
             //newer-than-time attributes
-            QueryNotifyIQ mailnotification = new QueryNotifyIQ();
+            MailboxQueryIQ mailnotification = new MailboxQueryIQ();
             logger.trace("sending mailNotification for acc: "
                         + jabberProvider.getAccountID().getAccountUniqueID());
 
@@ -704,7 +711,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
             Contact sourceContact = opSetPersPresence
                 .createVolatileContact(fromUserID);
 
-
+            lastReceivedMailboxResultTime = mailbox.getResultTime();
 
             String newMail = JabberActivator.getResources().getI18NString(
                 "service.gui.NEW_MAIL",
@@ -740,7 +747,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                     .equals(JabberStatusEnum.OFFLINE))
                 return;
 
-            QueryNotifyIQ mailnotification = new QueryNotifyIQ(lastResultTime);
+            MailboxQueryIQ mailnotification = new MailboxQueryIQ(lastResultTime);
 
             logger.trace(
                 "send mailNotification for acc: "

@@ -39,16 +39,6 @@ public class NewMailNotificationIQ extends IQ
     public static final String ELEMENT_NAME = "new-mail";
 
     /**
-     * Returns the name space of the new-mail element
-     *
-     * @return the XML name space of the new-mail element.
-     */
-    public String getXmlsns()
-    {
-        return NAMESPACE;
-    }
-
-    /**
      * Returns the sub-element XML section of the IQ packet.
      *
      * @return the child element section of the IQ XML

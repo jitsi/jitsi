@@ -18,13 +18,13 @@ import net.java.sip.communicator.util.*;
  * @author Alain Knaebel
  * @author Emil Ivov
  */
-public class QueryNotifyIQ extends IQ
+public class MailboxQueryIQ extends IQ
 {
     /**
      * Logger for this class
      */
     private static final Logger logger =
-        Logger.getLogger(QueryNotifyIQ.class);
+        Logger.getLogger(MailboxQueryIQ.class);
 
     /**
      * The name space for new mail notification packets.
