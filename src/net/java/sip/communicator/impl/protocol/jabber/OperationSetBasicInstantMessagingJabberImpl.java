@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.keepalive.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.mailnotification.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.version.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Message;
@@ -22,7 +23,7 @@ import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smackx.*;
-import org.jivesoftware.smackx.packet.XHTMLExtension;
+import org.jivesoftware.smackx.packet.*;
 
 /**
  * A straightforward implementation of the basic instant messaging operation
@@ -286,7 +287,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
         implements RegistrationStateChangeListener
     {
         /**
-         * The method is called by a ProtocolProvider implementation whenver
+         * The method is called by a ProtocolProvider implementation whenever
          * a change in the registration state of the corresponding provider had
          * occurred.
          * @param evt ProviderStatusChangeEvent the event describing the status
@@ -311,7 +312,12 @@ public class OperationSetBasicInstantMessagingJabberImpl
                             new PacketTypeFilter(
                             org.jivesoftware.smack.packet.Message.class)}));
 
-                // run keepalive thread
+                //subscribe for Google (GMail or Google Apps) notifications
+                //for new mail messages.
+                subscribeForGmailNotifications();
+
+
+                // run keep alive thread
                 if(keepAliveSendTask == null && keepAliveEnabled)
                 {
                     jabberProvider.getConnection().addPacketListener(
@@ -624,5 +630,68 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
             return true;
         }
+    }
+
+    /**
+     * Subscribes this provider as interested in receiving notifications for
+     * new mail messages from Google mail services such as GMail or Google Apps.
+     */
+    private void subscribeForGmailNotifications()
+    {
+        //------listerner mail
+        try
+        {
+            // with discovered info, we can check if the remote clients
+            // supports e-mail but not if he don't, because
+            // a non conforming client can supports a feature
+            // without advertising it.
+            //So we don't rely on it (for the moment)
+            DiscoverInfo di = ServiceDiscoveryManager
+                    .getInstanceFor(jabberProvider.getConnection())
+                    .discoverInfo(jabberProvider.getAccountID()
+                    .getAccountAddress());
+            if (di.containsFeature(
+                    "http://jabber.org/protocol/disco#info"))
+            {
+                ProviderManager providerManager =
+                        ProviderManager.getInstance();
+                providerManager.addIQProvider(
+                        "mailbox", "google:mail:notify",
+                        new MailboxProvider());
+                providerManager.addIQProvider(
+                        "new-mail", "google:mail:notify",
+                        new NewMailNotificationProvider());
+
+                jabberProvider.getConnection().addPacketListener(
+                    new MailNotificationListener(),
+                    new PacketTypeFilter(
+                            IQ.class));
+
+                jabberProvider.getConnection().addPacketListener(
+                        new NewMailNotificationListener(),
+                        new PacketTypeFilter(
+                        IQ.class));
+
+                if(opSetPersPresence.getCurrentStatusMessage()
+                            .equals(JabberStatusEnum.OFFLINE))
+                        return;
+
+                    QueryNotify mailnotification = new QueryNotify(lastResultTime);
+
+                    logger.trace(
+                        "send mailNotification for acc: "
+                        + jabberProvider.getAccountID().getAccountUniqueID());
+
+                    jabberProvider.getConnection().sendPacket(mailnotification);
+            }
+        }
+        catch (XMPPException ex)
+        {
+            logger.warn("could not retrieve info for "+
+                    jabberProvider.getAccountID().getAccountAddress(),
+                    ex);
+        }
+
+
     }
 }

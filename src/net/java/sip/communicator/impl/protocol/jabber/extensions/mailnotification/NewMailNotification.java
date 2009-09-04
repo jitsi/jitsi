@@ -27,28 +27,18 @@ public class NewMailNotification extends IQ
         Logger.getLogger(NewMailNotification.class);
 
     /**
-     * The content of the new mail element
+     * The name space for new mail notification packets.
      */
-    private String xmls;
+    public static final String NAMESPACE = "google:mail:notify";
 
     /**
-     * Returns the xmls value of the new-mail element
+     * Returns the name space of the new-mail element
      *
-     * @return the xmls value of the new-mail element.
+     * @return the XML name space of the new-mail element.
      */
-    public String getNmnxmls()
+    public String getXmlsns()
     {
-        return xmls;
-    }
-
-    /**
-     * Sets the xmls value
-     *
-     * @param xmls the xmls String
-     */
-    public void setNmnxmls(String xmls)
-    {
-        this.xmls = xmls;
+        return NAMESPACE;
     }
 
     /**

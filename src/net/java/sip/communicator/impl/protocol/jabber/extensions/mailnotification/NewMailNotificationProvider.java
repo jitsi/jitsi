@@ -48,15 +48,6 @@ public class NewMailNotificationProvider
         iq.setTo(parser.getAttributeValue("", "to"));
         iq.setPacketID(parser.getAttributeValue("", "id"));
 
-        int eventType = parser.next();
-        String name = parser.getName();
-        if (eventType == XmlPullParser.START_TAG)
-        {
-            if ("new-mail".equals(name))
-            {
-                iq.setNmnxmls(parser.getAttributeValue("", "xmlns"));
-            }
-        }
         return iq;
     }
 }
