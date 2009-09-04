@@ -12,14 +12,16 @@ import org.osgi.framework.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.media.*;
 
 /**
- * Loads the  Jabber provider factory and registers it with  service in the OSGI
+ * Loads the Jabber provider factory and registers it with  service in the OSGI
  * bundle context.
  *
  * @author Damian Minkov
  * @author Symphorien Wanko
+ * @author Emil Ivov
  */
 public class JabberActivator
     implements BundleActivator
@@ -45,13 +47,25 @@ public class JabberActivator
     private static MediaService mediaService = null;
 
     /**
-     * The jabber protocol provider factory.
+     * The Jabber protocol provider factory.
      */
     private static ProtocolProviderFactoryJabberImpl jabberProviderFactory = null;
 
+    /**
+     * The <tt>UriHandler</tt> implementation that we use to handle "xmpp:" URIs
+     */
     private UriHandlerJabberImpl uriHandlerImpl = null;
 
-    private static UIService            uiService             = null;
+    /**
+     * A reference to the currently valid <tt>UIService</tt>.
+     */
+    private static UIService uiService = null;
+
+    /**
+     * A reference to the currently valid <tt>ResoucreManagementService</tt>
+     * instance.
+     */
+    private static ResourceManagementService resourcesService = null;
 
     /**
      * Called when this bundle is started so the Framework can perform the
@@ -79,7 +93,7 @@ public class JabberActivator
          */
         uriHandlerImpl = new UriHandlerJabberImpl(jabberProviderFactory);
 
-        //reg the jabber account man.
+        //register the jabber account man.
         jabberPpFactoryServReg =  context.registerService(
                     ProtocolProviderFactory.class.getName(),
                     jabberProviderFactory,
@@ -191,5 +205,30 @@ public class JabberActivator
                 .getService(uiServiceReference);
         }
         return uiService;
+    }
+
+    /**
+     * Returns a reference to the ResourceManagementService implementation
+     * currently registered in the bundle context or <tt>null</tt> if no such
+     * implementation was found.
+     *
+     * @return a reference to the ResourceManagementService implementation
+     * currently registered in the bundle context or <tt>null</tt> if no such
+     * implementation was found.
+     */
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+        {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+
+            resourcesService = (ResourceManagementService) bundleContext
+                .getService(serviceReference);
+        }
+        return resourcesService;
     }
 }

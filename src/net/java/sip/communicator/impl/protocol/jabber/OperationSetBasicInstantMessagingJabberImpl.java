@@ -29,6 +29,9 @@ import org.jivesoftware.smackx.packet.XHTMLExtension;
  * set.
  *
  * @author Damian Minkov
+ * @author Matthieu Helleringer
+ * @author Alain Knaebel
+ * @author Emil Ivov
  */
 public class OperationSetBasicInstantMessagingJabberImpl
     extends AbstractOperationSetBasicInstantMessaging
@@ -75,20 +78,20 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * to match incoming messages to <tt>Contact</tt>s and vice versa.
      */
     private OperationSetPersistentPresenceJabberImpl opSetPersPresence = null;
-    
+
     /**
      * The opening BODY HTML TAG: &ltbody&gt
      */
     private static final String OPEN_BODY_TAG = "<body>";
-    
+
     /**
      * The closing BODY HTML TAG: &ltbody&gt
      */
     private static final String CLOSE_BODY_TAG = "</body>";
-    
+
     /**
      * Creates an instance of this operation set.
-     * @param provider a ref to the <tt>ProtocolProviderServiceImpl</tt>
+     * @param provider a reference to the <tt>ProtocolProviderServiceImpl</tt>
      * that created us and that we'll use for retrieving the underlying aim
      * connection.
      */
@@ -96,12 +99,14 @@ public class OperationSetBasicInstantMessagingJabberImpl
         ProtocolProviderServiceJabberImpl provider)
     {
         this.jabberProvider = provider;
-        provider.addRegistrationStateChangeListener(new RegistrationStateListener());
+        provider.addRegistrationStateChangeListener(
+                        new RegistrationStateListener());
 
         // register the KeepAlive Extension in the smack library
-        ProviderManager.getInstance().addIQProvider(KeepAliveEventProvider.ELEMENT_NAME,
-                                             KeepAliveEventProvider.NAMESPACE,
-                                             new KeepAliveEventProvider());
+        ProviderManager.getInstance()
+            .addIQProvider(KeepAliveEventProvider.ELEMENT_NAME,
+                           KeepAliveEventProvider.NAMESPACE,
+                           new KeepAliveEventProvider());
     }
 
     /**
@@ -156,7 +161,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
         else
            return false;
     }
-    
+
     /**
      * Sends the <tt>message</tt> to the destination indicated by the
      * <tt>to</tt> contact.
@@ -180,42 +185,51 @@ public class OperationSetBasicInstantMessagingJabberImpl
         {
             assertConnected();
 
-            org.jivesoftware.smack.MessageListener msgListener = 
-                new org.jivesoftware.smack.MessageListener() {
+            org.jivesoftware.smack.MessageListener msgListener =
+                new org.jivesoftware.smack.MessageListener()
+                {
                     public void processMessage(
-                        Chat arg0, 
-                        org.jivesoftware.smack.packet.Message arg1) {}
-            };
+                        Chat arg0,
+                        org.jivesoftware.smack.packet.Message arg1)
+                    {
+                        //we are not supporting chat base messaging right now
+                        //so we don't listen on the chat itself.
+                        //this should be implemented once we start supporting
+                        //session oriented chats.
+                    }
+                };
 
             XMPPConnection jabberConnection = jabberProvider.getConnection();
 
             Chat chat = jabberConnection.getChatManager()
                 .createChat(to.getAddress(), msgListener);
-            
-            org.jivesoftware.smack.packet.Message msg = 
+
+            org.jivesoftware.smack.packet.Message msg =
                 new org.jivesoftware.smack.packet.Message();
-            
+
             MessageDeliveredEvent msgDeliveryPendingEvt
             = new MessageDeliveredEvent(
                     message, to, System.currentTimeMillis());
 
-            msgDeliveryPendingEvt = messageDeliveryPendingTransform(msgDeliveryPendingEvt);
-            
+            msgDeliveryPendingEvt = messageDeliveryPendingTransform(
+                            msgDeliveryPendingEvt);
+
             if (msgDeliveryPendingEvt == null)
                 return;
-            
-            String content = msgDeliveryPendingEvt.getSourceMessage().getContent();
-            
+
+            String content = msgDeliveryPendingEvt
+                                    .getSourceMessage().getContent();
+
             if(message.getContentType().equals(HTML_MIME_TYPE))
             {
                 msg.setBody(Html2Text.extractText(content));
-                
+
                 // Check if the other user supports XHTML messages
                 if (XHTMLManager.isServiceEnabled(  jabberConnection,
                                                     chat.getParticipant()))
                 {
                     // Add the XHTML text to the message
-                    XHTMLManager.addBody(msg, 
+                    XHTMLManager.addBody(msg,
                         OPEN_BODY_TAG + content + CLOSE_BODY_TAG);
                 }
             }
@@ -229,15 +243,15 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
             MessageEventManager.
                 addNotificationsRequests(msg, true, false, false, true);
-            
+
             chat.sendMessage(msg);
-            
+
             MessageDeliveredEvent msgDeliveredEvt
                 = new MessageDeliveredEvent(
                         message, to, System.currentTimeMillis());
 
             // msgDeliveredEvt = messageDeliveredTransform(msgDeliveredEvt);
-            
+
             if (msgDeliveredEvt != null)
                 fireMessageEvent(msgDeliveredEvt);
         }
@@ -304,16 +318,18 @@ public class OperationSetBasicInstantMessagingJabberImpl
                         new KeepalivePacketListener(),
                         new PacketTypeFilter(
                             KeepAliveEvent.class));
-                    
+
                     keepAliveSendTask = new KeepAliveSendTask();
 
                     keepAliveTimer.scheduleAtFixedRate(
-                        keepAliveSendTask, KEEPALIVE_INTERVAL, KEEPALIVE_INTERVAL);
+                        keepAliveSendTask,
+                        KEEPALIVE_INTERVAL,
+                        KEEPALIVE_INTERVAL);
                 }
             }
         }
     }
-    
+
     /**
      * The listener that we use in order to handle incoming messages.
      */
@@ -342,15 +358,16 @@ public class OperationSetBasicInstantMessagingJabberImpl
             }
 
             Message newMessage = createMessage(msg.getBody());
-            
+
             //check if the message is available in xhtml
-            PacketExtension ext = msg.getExtension("http://jabber.org/protocol/xhtml-im");
-            
+            PacketExtension ext = msg.getExtension(
+                            "http://jabber.org/protocol/xhtml-im");
+
             if(ext != null)
             {
-                XHTMLExtension xhtmlExt 
+                XHTMLExtension xhtmlExt
                     = (XHTMLExtension)ext;
-                
+
                 //parse all bodies
                 Iterator bodies = xhtmlExt.getBodies();
                 StringBuffer messageBuff = new StringBuffer();
@@ -380,7 +397,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
             Contact sourceContact =
                 opSetPersPresence.findContactByID(fromUserID);
 
-            if(msg.getType() == org.jivesoftware.smack.packet.Message.Type.error)
+            if(msg.getType()
+                            == org.jivesoftware.smack.packet.Message.Type.error)
             {
                 logger.info("Message error received from " + fromUserID);
 
@@ -404,9 +422,9 @@ public class OperationSetBasicInstantMessagingJabberImpl
                     new MessageDeliveryFailedEvent(newMessage,
                                                    sourceContact,
                                                    errorResultCode);
-                
+
                 // ev = messageDeliveryFailedTransform(ev);
-                
+
                 if (ev != null)
                     fireMessageEvent(ev);
                 return;
@@ -428,15 +446,15 @@ public class OperationSetBasicInstantMessagingJabberImpl
                     newMessage, sourceContact , System.currentTimeMillis() );
 
             // msgReceivedEvt = messageReceivedTransform(msgReceivedEvt);
-            
+
             if (msgReceivedEvt != null)
                 fireMessageEvent(msgReceivedEvt);
         }
     }
-    
+
     /**
      * Receives incoming KeepAlive Packets
-     */ 
+     */
     private class KeepalivePacketListener
         implements PacketListener
     {
@@ -444,9 +462,9 @@ public class OperationSetBasicInstantMessagingJabberImpl
         {
             if(packet != null &&  !(packet instanceof KeepAliveEvent))
                 return;
-            
+
             KeepAliveEvent keepAliveEvent = (KeepAliveEvent)packet;
-            
+
             if(logger.isDebugEnabled())
             {
                 logger.debug("Received keepAliveEvent from "
@@ -454,7 +472,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                              + " the message : "
                              + keepAliveEvent.toXML());
             }
-            
+
             receivedKeepAlivePackets.addLast(keepAliveEvent);
         }
     }
@@ -478,7 +496,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 return;
             }
 
-            KeepAliveEvent keepAliveEvent = 
+            KeepAliveEvent keepAliveEvent =
                 new KeepAliveEvent(jabberProvider.getConnection().getUser());
 
             keepAliveEvent.setSrcOpSetHash(
@@ -543,16 +561,21 @@ public class OperationSetBasicInstantMessagingJabberImpl
         boolean checkFirstPacket()
             throws NoSuchElementException
         {
-            KeepAliveEvent receivedEvent = receivedKeepAlivePackets.removeLast();
+            KeepAliveEvent receivedEvent
+                = receivedKeepAlivePackets.removeLast();
 
-            if(jabberProvider.hashCode() != receivedEvent.getSrcProviderHash() ||
-                    OperationSetBasicInstantMessagingJabberImpl.this.hashCode() !=
-                    receivedEvent.getSrcOpSetHash() ||
-                    !jabberProvider.getAccountID().getUserID().
+            if(jabberProvider.hashCode() != receivedEvent.getSrcProviderHash()
+               || OperationSetBasicInstantMessagingJabberImpl.this.hashCode()
+                      != receivedEvent.getSrcOpSetHash()
+               || !jabberProvider.getAccountID().getUserID().
                                         equals(receivedEvent.getFromUserID()) )
+            {
                 return false;
+            }
             else
+            {
                 return true;
+            }
         }
 
         /**
@@ -580,22 +603,26 @@ public class OperationSetBasicInstantMessagingJabberImpl
     {
         this.keepAliveEnabled = keepAliveEnabled;
     }
-    
+
+    /**
+     * A filter that prevents this operation set from handling multi user chat
+     * messages.
+     */
     private static class GroupMessagePacketFilter implements PacketFilter
-    {   
+    {
         public boolean accept(Packet packet)
-        {            
+        {
             if(!(packet instanceof org.jivesoftware.smack.packet.Message))
                 return false;
-            
+
             org.jivesoftware.smack.packet.Message msg
                 = (org.jivesoftware.smack.packet.Message) packet;
-            
+
             if(msg.getType().equals(
                 org.jivesoftware.smack.packet.Message.Type.groupchat))
                 return false;
-            
+
             return true;
-        }        
+        }
     }
 }
