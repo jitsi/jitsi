@@ -43,7 +43,7 @@ public class NewMailNotificationProvider
     public IQ parseIQ(final XmlPullParser parser) throws Exception
     {
         logger.debug("NewMailNotificationProvider.getChildElementXML usage");
-        NewMailNotification iq = new NewMailNotification();
+        NewMailNotificationIQ iq = new NewMailNotificationIQ();
         iq.setFrom(parser.getAttributeValue("", "from"));
         iq.setTo(parser.getAttributeValue("", "to"));
         iq.setPacketID(parser.getAttributeValue("", "id"));

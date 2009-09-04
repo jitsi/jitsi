@@ -91,6 +91,13 @@ public class OperationSetBasicInstantMessagingJabberImpl
     private static final String CLOSE_BODY_TAG = "</body>";
 
     /**
+     * Contains the time of the last mail result set that we've received from
+     * the server. We use this time when sending new queries to the server so
+     * that it won't return messages that we've already shown to our user.
+     */
+    private long lastResultTime = -1;
+
+    /**
      * Creates an instance of this operation set.
      * @param provider a reference to the <tt>ProtocolProviderServiceImpl</tt>
      * that created us and that we'll use for retrieving the underlying aim
@@ -639,26 +646,23 @@ public class OperationSetBasicInstantMessagingJabberImpl
      */
     private void subscribeForGmailNotifications()
     {
-        //------listerner mail
-        try
-        {
-            // first check support for the notification service
-            boolean notificationsAreSupported = ServiceDiscoveryManager
-                    .getInstanceFor(jabberProvider.getConnection())
-                        .includesFeature(NewMailNotification.NAMESPACE);
+        // first check support for the notification service
+        boolean notificationsAreSupported = ServiceDiscoveryManager
+                .getInstanceFor(jabberProvider.getConnection())
+                    .includesFeature(NewMailNotificationIQ.NAMESPACE);
 
-            if (!notificationsAreSupported)
-                return;
+        if (!notificationsAreSupported)
+            return;
 
-            ProviderManager providerManager = ProviderManager.getInstance();
+        ProviderManager providerManager = ProviderManager.getInstance();
+        providerManager.addIQProvider(
+            MailboxIQ.ELEMENT_NAME, MailboxIQ.NAMESPACE, new MailboxIQProvider());
             providerManager.addIQProvider(
-                Mailbox.ELEMENT_NAME, Mailbox.NAMESPACE, new MailboxProvider());
-            providerManager.addIQProvider(
-                NewMailNotification.ELEMENT_NAME, NewMailNotification.NAMESPACE,
+                NewMailNotificationIQ.ELEMENT_NAME, NewMailNotificationIQ.NAMESPACE,
                 new NewMailNotificationProvider());
 
             jabberProvider.getConnection().addPacketListener(
-                new MailNotificationListener(),
+                new MailboxListener(),
                 new PacketTypeFilter(
                             IQ.class));
 
@@ -678,61 +682,44 @@ public class OperationSetBasicInstantMessagingJabberImpl
                         + jabberProvider.getAccountID().getAccountUniqueID());
 
             jabberProvider.getConnection().sendPacket(mailnotification);
-        }
-        catch (XMPPException ex)
-        {
-            logger.warn("could not retrieve info for "+
-                    jabberProvider.getAccountID().getAccountAddress(),
-                    ex);
-        }
     }
 
     /**
      * Receives incoming MailNotification Packets
      */
-    private class MailNotificationListener
+    private class MailboxListener
         implements PacketListener
     {
         public void processPacket(Packet packet)
         {
-            if(packet != null &&  !(packet instanceof Mailbox))
+            if(packet != null &&  !(packet instanceof MailboxIQ))
                 return;
 
-            Mailbox mailbox = (Mailbox) packet;
+            MailboxIQ mailbox = (MailboxIQ) packet;
 
-            //check if the date of the most recent mail is the same as that
-            //of the previous packet. If the last mail is the most recent,
-            //we notify it to the user
-            if ( lastDate < mailbox.getDate())
-            {
-                lastResultTime = mailbox.getResultTime();
-                lastDate = mailbox.getDate();
+            String fromUserID
+                = StringUtils.parseBareAddress(mailbox.getSender());
 
-                String fromUserID =
-                        StringUtils.parseBareAddress(mailbox.getSender());
+            //create the volatile contact
+            Contact sourceContact = opSetPersPresence
+                .createVolatileContact(fromUserID);
 
-                //create the volatile contact
-                Contact sourceContact = opSetPersPresence
-                    .createVolatileContact(fromUserID);
+            String newMail = JabberActivator.getResources().getI18NString(
+                "service.gui.NEW_MAIL",
+                new String[]{mailbox.getSender(),
+                "&lt;" + mailbox.getSender() + "&gt",
+                mailbox.getSubject(),
+                "&nbsp;&nbsp;&nbsp;&nbsp;<a href=\""
+                    + mailbox.getUrl() + "\">" +mailbox.getUrl()+ "</a>"}) ;
 
-                String newMail = JabberActivator.getResources().getI18NString(
-                            "service.gui.NEW_MAIL",
-                            new String[]{mailbox.getSender(),
-                            "&lt;" + mailbox.getSender() + "&gt",
-                            mailbox.getSubject(),
-                            "&nbsp;&nbsp;&nbsp;&nbsp;<a href=\""+
-                                    mailbox.getUrl() +"\">" +mailbox.getUrl()
-                                    + "</a>"}) ;
+            Message newMailMessage = new MessageJabberImpl(
+                newMail, HTML_MIME_TYPE, DEFAULT_MIME_ENCODING, null);
 
-                Message newMailMessage = new MessageJabberImpl( newMail,
-                        HTML_MIME_TYPE, DEFAULT_MIME_ENCODING, null);
+            MessageReceivedEvent msgReceivedEvt = new MessageReceivedEvent(
+                newMailMessage, sourceContact, System.currentTimeMillis(),
+                MessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
 
-                MessageReceivedEvent msgReceivedEvt = new MessageReceivedEvent(
-                        newMailMessage, sourceContact, System.currentTimeMillis(),
-                        MessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
-
-                fireMessageEvent(msgReceivedEvt);
-            }
+            fireMessageEvent(msgReceivedEvt);
         }
     }
 
@@ -744,7 +731,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
     {
         public void processPacket(Packet packet)
         {
-            if(packet != null &&  !(packet instanceof NewMailNotification))
+            if(packet != null &&  !(packet instanceof NewMailNotificationIQ))
                 return;
 
             if(opSetPersPresence.getCurrentStatusMessage()
@@ -760,5 +747,4 @@ public class OperationSetBasicInstantMessagingJabberImpl
             jabberProvider.getConnection().sendPacket(mailnotification);
         }
     }
-
 }
