@@ -657,14 +657,12 @@ public class OperationSetBasicInstantMessagingJabberImpl
         ProviderManager providerManager = ProviderManager.getInstance();
         providerManager.addIQProvider(
             MailboxIQ.ELEMENT_NAME, MailboxIQ.NAMESPACE, new MailboxIQProvider());
-            providerManager.addIQProvider(
-                NewMailNotificationIQ.ELEMENT_NAME, NewMailNotificationIQ.NAMESPACE,
-                new NewMailNotificationProvider());
+        providerManager.addIQProvider(
+            NewMailNotificationIQ.ELEMENT_NAME, NewMailNotificationIQ.NAMESPACE,
+            new NewMailNotificationProvider());
 
-            jabberProvider.getConnection().addPacketListener(
-                new MailboxListener(),
-                new PacketTypeFilter(
-                            IQ.class));
+        jabberProvider.getConnection().addPacketListener(
+            new MailboxIQListener(), new PacketTypeFilter( IQ.class));
 
             jabberProvider.getConnection().addPacketListener(
                     new NewMailNotificationListener(),
@@ -677,7 +675,9 @@ public class OperationSetBasicInstantMessagingJabberImpl
                return;
             }
 
-            QueryNotify mailnotification = new QueryNotify(lastResultTime);
+            //create a query with -1 values for newer-than-tid and
+            //newer-than-time attributes
+            QueryNotifyIQ mailnotification = new QueryNotifyIQ();
             logger.trace("sending mailNotification for acc: "
                         + jabberProvider.getAccountID().getAccountUniqueID());
 
@@ -687,7 +687,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
     /**
      * Receives incoming MailNotification Packets
      */
-    private class MailboxListener
+    private class MailboxIQListener
         implements PacketListener
     {
         public void processPacket(Packet packet)
@@ -703,6 +703,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
             //create the volatile contact
             Contact sourceContact = opSetPersPresence
                 .createVolatileContact(fromUserID);
+
+
 
             String newMail = JabberActivator.getResources().getI18NString(
                 "service.gui.NEW_MAIL",
@@ -738,7 +740,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                     .equals(JabberStatusEnum.OFFLINE))
                 return;
 
-            QueryNotify mailnotification = new QueryNotify(lastResultTime);
+            QueryNotifyIQ mailnotification = new QueryNotifyIQ(lastResultTime);
 
             logger.trace(
                 "send mailNotification for acc: "
