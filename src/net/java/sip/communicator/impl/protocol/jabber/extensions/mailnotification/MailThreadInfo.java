@@ -457,12 +457,19 @@ public class MailThreadInfo
 
                     sender.address = parser.getAttributeValue("", "name");
                     sender.name = parser.getAttributeValue("", "address");
-                    sender.originator = Integer
-                        .parseInt(parser.getAttributeValue("", "originator"))
-                        == 1;
-                    sender.unread = Integer
-                        .parseInt(parser.getAttributeValue("", "unread"))
-                        ==1;
+
+                    String originatorStr
+                        = parser.getAttributeValue("", "originator");
+
+                    if(originatorStr != null)
+                        sender.originator
+                            = (Integer.parseInt(originatorStr) == 1);
+
+                    String unreadStr
+                        = parser.getAttributeValue("", "unread");
+
+                    if(unreadStr !=null)
+                        sender.unread = Integer.parseInt(unreadStr) == 1;
 
                     addSender(sender);
                 }
