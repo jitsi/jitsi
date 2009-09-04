@@ -24,7 +24,7 @@ public class MailThreadInfo
     /**
      * Contains the list of senders that have participated in this thread.
      */
-    private List<String> senders = new LinkedList<String>();
+    private List<Sender> senders = new LinkedList<Sender>();
 
     /**
      * The thread id of this thread.
@@ -128,5 +128,17 @@ public class MailThreadInfo
     public int getParticipation()
     {
         return participation;
+    }
+
+    /**
+     * Returns an iterator over a list of one or more sender instances, each of
+     * which describes a participant in this thread.
+     *
+     * @return an iterator over a list of one or more sender instances, each of
+     * which describes a participant in this thread.
+     */
+    public Iterator<Sender> senders()
+    {
+        return senders.iterator();
     }
 }
