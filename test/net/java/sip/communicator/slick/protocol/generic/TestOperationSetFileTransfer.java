@@ -694,7 +694,7 @@ public abstract class TestOperationSetFileTransfer
                          ,fileTransferCreatedEvent.getFileTransfer().getLocalFile()
                          ,receiveFile);
 
-            receiverStatusListener.waitForEvent(8000, 3);
+            receiverStatusListener.waitForEvent(12000, 3);
             assertTrue("Cancel event must be received",
                 receiverStatusListener.contains(FileTransferStatusChangeEvent.CANCELED));
         }
