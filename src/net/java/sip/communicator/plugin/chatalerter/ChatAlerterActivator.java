@@ -19,10 +19,10 @@ import org.osgi.framework.*;
 /**
  * Chat Alerter plugin.
  * 
- * Sends alerts to the user when new message arrives and the application is not in
- * the foreground. On Mac OS X this will bounce the dock icon until
- * the user selects the chat windows. On Windows, Gnome and KDE this will flash the
- * taskbar button/icon until the user selects the chat window.                                                                                                                                                   
+ * Sends alerts to the user when new message arrives and the application is not
+ * in the foreground. On Mac OS X this will bounce the dock icon until the user
+ * selects the chat windows. On Windows, Gnome and KDE this will flash the
+ * taskbar button/icon until the user selects the chat window.
  * 
  * @author Damian Minkov
  */
@@ -36,8 +36,7 @@ public class ChatAlerterActivator
     /**
      * The logger for this class.
      */
-    private static Logger logger = Logger
-            .getLogger(ChatAlerterActivator.class);
+    private static Logger logger = Logger.getLogger(ChatAlerterActivator.class);
     
     /**
      * The BundleContext that we got from the OSGI bus.
@@ -76,7 +75,7 @@ public class ChatAlerterActivator
         // start listening for newly register or removed protocol providers
         bc.addServiceListener(this);
 
-        ServiceReference[] protocolProviderRefs = null;
+        ServiceReference[] protocolProviderRefs;
         try
         {
             protocolProviderRefs = bc.getServiceReferences(
@@ -98,10 +97,11 @@ public class ChatAlerterActivator
             logger.debug("Found "
                          + protocolProviderRefs.length
                          + " already installed providers.");
-            for (int i = 0; i < protocolProviderRefs.length; i++)
+            for (ServiceReference protocolProviderRef : protocolProviderRefs)
             {
-                ProtocolProviderService provider = (ProtocolProviderService) bc
-                    .getService(protocolProviderRefs[i]);
+                ProtocolProviderService provider
+                    = (ProtocolProviderService)
+                        bc.getService(protocolProviderRef);
 
                 this.handleProviderAdded(provider);
             }
@@ -113,7 +113,7 @@ public class ChatAlerterActivator
         // start listening for newly register or removed protocol providers
         bc.removeServiceListener(this);
 
-        ServiceReference[] protocolProviderRefs = null;
+        ServiceReference[] protocolProviderRefs;
         try
         {
             protocolProviderRefs = bc.getServiceReferences(
@@ -132,10 +132,11 @@ public class ChatAlerterActivator
         // in case we found any
         if (protocolProviderRefs != null)
         {
-            for (int i = 0; i < protocolProviderRefs.length; i++)
+            for (ServiceReference protocolProviderRef : protocolProviderRefs)
             {
-                ProtocolProviderService provider = (ProtocolProviderService) bc
-                    .getService(protocolProviderRefs[i]);
+                ProtocolProviderService provider
+                    = (ProtocolProviderService)
+                        bc.getService(protocolProviderRef);
 
                 this.handleProviderRemoved(provider);
             }
@@ -249,24 +250,7 @@ public class ChatAlerterActivator
 
     public void messageReceived(MessageReceivedEvent evt)
     {
-        try
-        {
-            ExportedWindow win = 
-                uiService.getExportedWindow(ExportedWindow.CHAT_WINDOW);
-            
-            if(win == null || win.getSource() == null || 
-                !(win.getSource() instanceof JFrame))
-                return;
-            
-            JFrame fr = (JFrame)win.getSource(); 
-
-            if(fr != null)
-                Alerter.newInstance().alert(fr);
-        }
-        catch (Exception ex)
-        {
-            logger.error("Cannot alert chat window!");
-        }
+        alertChatWindow();
     }
 
     public void messageDelivered(MessageDeliveredEvent evt)
@@ -281,24 +265,7 @@ public class ChatAlerterActivator
 
     public void messageReceived(ChatRoomMessageReceivedEvent evt)
     {
-        try
-        {
-            ExportedWindow win = 
-                uiService.getExportedWindow(ExportedWindow.CHAT_WINDOW);
-            
-            if(win == null || win.getSource() == null || 
-                !(win.getSource() instanceof JFrame))
-                return;
-            
-            JFrame fr = (JFrame)win.getSource(); 
-
-            if(fr != null)
-                Alerter.newInstance().alert(fr);
-        }
-        catch (Exception ex)
-        {
-            logger.error("Cannot alert chat window!");
-        }
+        alertChatWindow();
     }
 
     public void messageDelivered(ChatRoomMessageDeliveredEvent evt)
@@ -312,6 +279,34 @@ public class ChatAlerterActivator
     }
 
     /**
+     * Alerts that a message has been received in
+     * <code>ExportedWindow.CHAT_WINDOW</code> by using a platform-dependent
+     * visual clue such as flashing it in the task bar on Windows and Linux.
+     */
+    private void alertChatWindow()
+    {
+        try
+        {
+            ExportedWindow win 
+                = uiService.getExportedWindow(ExportedWindow.CHAT_WINDOW);
+            if (win == null)
+                return;
+
+            Object winSource = win.getSource();
+            if (!(winSource instanceof JFrame))
+                return;
+
+            JFrame fr = (JFrame) winSource;
+
+            Alerter.newInstance().alert(fr);
+        }
+        catch (Exception ex)
+        {
+            logger.error("Cannot alert chat window!");
+        }
+    }
+
+    /**
      * When new protocol provider is registered we check
      * does it supports needed Op. Sets and if so add a listener to it
      *
@@ -319,28 +314,26 @@ public class ChatAlerterActivator
      */
     public void serviceChanged(ServiceEvent serviceEvent)
     {
-        Object sService = 
-            bundleContext.getService(serviceEvent.getServiceReference());
+        Object sService
+            = bundleContext.getService(serviceEvent.getServiceReference());
 
         logger.trace("Received a service event for: " + 
             sService.getClass().getName());
 
         // we don't care if the source service is not a protocol provider
-        if (! (sService instanceof ProtocolProviderService))
-        {
+        if (!(sService instanceof ProtocolProviderService))
             return;
-        }
 
         logger.debug("Service is a protocol provider.");
-        if (serviceEvent.getType() == ServiceEvent.REGISTERED)
+        switch (serviceEvent.getType())
         {
-            logger.debug("Handling registration of a new Protocol Provider.");
-
+        case ServiceEvent.REGISTERED:
             this.handleProviderAdded((ProtocolProviderService)sService);
-        }
-        else if (serviceEvent.getType() == ServiceEvent.UNREGISTERING)
-        {
+            break;
+
+        case ServiceEvent.UNREGISTERING:
             this.handleProviderRemoved( (ProtocolProviderService) sService);
+            break;
         }
     }
 }
