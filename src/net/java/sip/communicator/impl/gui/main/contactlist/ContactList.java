@@ -1311,7 +1311,6 @@ public class ContactList
      * Moves the given <tt>Contact</tt> to the given <tt>MetaContact</tt> and
      * asks user for confirmation.
      */
-    @SuppressWarnings("fallthrough")
     private class MoveContactToMetaContactThread extends Thread
     {
         private final Contact srcContact;
@@ -1324,6 +1323,7 @@ public class ContactList
             this.destMetaContact = destMetaContact;
         }
 
+        @SuppressWarnings("fallthrough") //intentional
         public void run()
         {
             if (!ConfigurationManager.isMoveContactConfirmationRequested())
