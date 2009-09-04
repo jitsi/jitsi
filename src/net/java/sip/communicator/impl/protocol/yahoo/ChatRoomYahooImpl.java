@@ -6,13 +6,13 @@
  */
 package net.java.sip.communicator.impl.protocol.yahoo;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
-import ymsg.network.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import ymsg.network.*;
 
 /**
  * Represents a yahoo chat room, where multiple chat users could communicate in
@@ -74,12 +74,12 @@ public class ChatRoomYahooImpl implements ChatRoom
    /**
     * The protocol provider that created us
     */
-   private ProtocolProviderServiceYahooImpl provider = null;
+   private final ProtocolProviderServiceYahooImpl provider;
 
    /**
     * The operation set that created us.
     */
-   private OperationSetMultiUserChatYahooImpl opSetMuc = null;
+   private final OperationSetMultiUserChatYahooImpl opSetMuc;
 
    /**
     * The list of members of this chat room.
@@ -107,7 +107,7 @@ public class ChatRoomYahooImpl implements ChatRoom
     * The yahoo conference model of this chat room, its the representation
     * of a chat room in the lib for this protocol.
     */
-   private YahooConference yahooConference = null;
+   private final YahooConference yahooConference;
 
    /**
     * Creates an instance of a chat room that has been.
@@ -148,7 +148,7 @@ public class ChatRoomYahooImpl implements ChatRoom
    }
 
    /**
-    * Removes <tt>listener</tt> from the list of listeneres current registered
+    * Removes <tt>listener</tt> from the list of listeners current registered
     * for chat room modification events.
     *
     * @param listener The <tt>ChatRoomChangeListener</tt> to remove.
@@ -288,11 +288,12 @@ public class ChatRoomYahooImpl implements ChatRoom
     */
    public Message createMessage(String messageText)
    {
-       Message msg = new MessageYahooImpl(messageText,
-               OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE,
-               OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING, null);
-
-       return msg;
+       return
+           new MessageYahooImpl(
+                   messageText,
+                   OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE,
+                   OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING,
+                   null);
    }
 
    /**
@@ -315,11 +316,9 @@ public class ChatRoomYahooImpl implements ChatRoom
    public void updateMemberList()
    {
        Vector<YahooUser> memberList = yahooConference.getMembers();
-       Iterator<YahooUser> it = memberList.iterator();
 
-       while (it.hasNext())
+       for (YahooUser user : memberList)
        {
-           YahooUser user = it.next();
            ChatRoomMemberYahooImpl member = new ChatRoomMemberYahooImpl(this,
                    user.getId(), user.getId(), ChatRoomMemberRole.MEMBER);
 
@@ -333,7 +332,7 @@ public class ChatRoomYahooImpl implements ChatRoom
 
    /**
     * Adds a listener that will be notified of changes in our role in the room
-    * such as us being granded operator.
+    * such as us being granted operator.
     *
     * @param listener a local user role listener.
     */
@@ -519,10 +518,7 @@ public class ChatRoomYahooImpl implements ChatRoom
 
    public boolean isJoined()
    {
-       if(yahooConference == null || yahooConference.isClosed())
-           return false;
-
-       return true;
+       return !(yahooConference == null || yahooConference.isClosed());
    }
 
     /**
@@ -651,16 +647,8 @@ public class ChatRoomYahooImpl implements ChatRoom
        {
            provider.getYahooSession().leaveConference(yahooConference);
 
-           Iterator< Map.Entry<String, ChatRoomMember>> membersSet
-               = members.entrySet().iterator();
-
-           while (membersSet.hasNext())
+           for (ChatRoomMember member : members.values())
            {
-               Map.Entry<String, ChatRoomMember> memberEntry
-                   = membersSet.next();
-
-               ChatRoomMember member = memberEntry.getValue();
-
                fireMemberPresenceEvent(member,
                        ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT,
                        "Local user has left the chat room.");
@@ -783,18 +771,9 @@ public class ChatRoomYahooImpl implements ChatRoom
     */
    public ChatRoomMemberYahooImpl getChatRoomMember(String userAddress)
    {
-       Iterator<ChatRoomMember> it = members.values().iterator();
-
-       while (it.hasNext())
-       {
-           ChatRoomMemberYahooImpl member = (ChatRoomMemberYahooImpl) it.next();
-
+       for (ChatRoomMember member : members.values())
            if (member.getContactAddress().equals(userAddress))
-           {
-               return member;
-           }
-       }
-
+               return (ChatRoomMemberYahooImpl) member;
        return null;
    }
 
@@ -807,17 +786,15 @@ public class ChatRoomYahooImpl implements ChatRoom
     */
    public void fireMessageEvent(EventObject evt)
    {
-       Iterator<ChatRoomMessageListener> listeners = null;
+       Iterable<ChatRoomMessageListener> listeners;
        synchronized (messageListeners)
        {
-           listeners = new ArrayList<ChatRoomMessageListener>(
-                           messageListeners).iterator();
+           listeners
+               = new ArrayList<ChatRoomMessageListener>(messageListeners);
        }
 
-       while (listeners.hasNext())
+       for (ChatRoomMessageListener listener : listeners)
        {
-           ChatRoomMessageListener listener = listeners.next();
-
            if (evt instanceof ChatRoomMessageDeliveredEvent)
            {
                listener.messageDelivered((ChatRoomMessageDeliveredEvent) evt);
@@ -852,19 +829,15 @@ public class ChatRoomYahooImpl implements ChatRoom
 
        logger.trace("Will dispatch the following ChatRoom event: " + evt);
 
-       Iterator<ChatRoomMemberPresenceListener> listeners = null;
+       Iterable<ChatRoomMemberPresenceListener> listeners;
        synchronized (memberListeners)
        {
-           listeners = new ArrayList<ChatRoomMemberPresenceListener>(
-                           memberListeners).iterator();
+           listeners
+               = new ArrayList<ChatRoomMemberPresenceListener>(memberListeners);
        }
 
-       while (listeners.hasNext())
-       {
-           ChatRoomMemberPresenceListener listener = listeners.next();
-
+       for (ChatRoomMemberPresenceListener listener : listeners)
            listener.memberPresenceChanged(evt);
-       }
    }
 
    /**

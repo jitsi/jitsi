@@ -76,7 +76,7 @@ public class RssFeedReader
     {
         this.rssURL = contactRssURL;
         this.lastItemKey  = null;
-        // Try to retrieve the feed and to complete this instanciation.
+        // Try to retrieve the feed and to complete this instantiation.
         this.retrieveFlow();
     }
 

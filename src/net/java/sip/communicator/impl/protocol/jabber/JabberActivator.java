@@ -8,12 +8,13 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
-import org.osgi.framework.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.service.media.*;
+
+import org.osgi.framework.*;
 
 /**
  * Loads the Jabber provider factory and registers it with  service in the OSGI
@@ -219,16 +220,8 @@ public class JabberActivator
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)
-        {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(ResourceManagementService.class.getName());
-
-            if(serviceReference == null)
-                return null;
-
-            resourcesService = (ResourceManagementService) bundleContext
-                .getService(serviceReference);
-        }
+            resourcesService
+                = ResourceManagementServiceUtils.getService(bundleContext);
         return resourcesService;
     }
 }

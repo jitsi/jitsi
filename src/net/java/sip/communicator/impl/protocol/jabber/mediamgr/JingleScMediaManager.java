@@ -27,14 +27,13 @@ public class JingleScMediaManager extends JingleMediaManager
     /**
      * Logger for this class
      */
-    private Logger logger = Logger.getLogger(JingleScMediaManager.class);
+    private final Logger logger = Logger.getLogger(JingleScMediaManager.class);
 
     /**
      * List of payload that this media manager supports. This list is based on
      * the one reported by the media service.
      */
-    private List<PayloadType> payloads =
-        new ArrayList<PayloadType>();
+    private final List<PayloadType> payloads = new ArrayList<PayloadType>();
 
     /**
      * Creates a new instance of JingleScMediaManager
@@ -94,10 +93,10 @@ public class JingleScMediaManager extends JingleMediaManager
 
         if (audioEnc != null)
         {
-            for (int i = 0; i < audioEnc.length; i++)
+            for (String audioEncI : audioEnc)
             {
                 int payloadType =
-                    MediaUtils.getPayloadType(Integer.parseInt(audioEnc[i]));
+                    MediaUtils.getPayloadType(Integer.parseInt(audioEncI));
                 String payloadName = MediaUtils.getPayloadName(payloadType);
 
                 if (payloadName != null)
@@ -108,7 +107,7 @@ public class JingleScMediaManager extends JingleMediaManager
                 else if (payloadType >= 0)
                 {
                     payloads
-                        .add(new PayloadType.Audio(payloadType, audioEnc[i]));
+                        .add(new PayloadType.Audio(payloadType, audioEncI));
                 }
             }
         }

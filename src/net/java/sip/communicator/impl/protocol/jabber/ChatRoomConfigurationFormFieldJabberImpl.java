@@ -96,8 +96,7 @@ public class ChatRoomConfigurationFormFieldJabberImpl
 
         while(smackOptions.hasNext())
         {
-            FormField.Option smackOption
-                = smackOptions.next();
+            FormField.Option smackOption = smackOptions.next();
 
             options.add(smackOption.getValue());
         }
@@ -183,12 +182,7 @@ public class ChatRoomConfigurationFormFieldJabberImpl
     public void addValue(Object value)
     {
         if(value instanceof Boolean)
-        {
-            if(((Boolean)value).booleanValue())
-                value = "1";
-            else
-                value = "0";
-        }
+            value = ((Boolean)value).booleanValue() ? "1" : "0";
 
         smackSubmitFormField.addValue(value.toString());
     }

@@ -79,7 +79,7 @@ public class ContactGroupIcqImpl
      * resolved against the server.
      */
     ContactGroupIcqImpl(MutableGroup joustSimGroup,
-                        Iterable<Buddy> groupMembers,
+                        Iterable<? extends Buddy> groupMembers,
                         ServerStoredContactListIcqImpl ssclCallback,
                         boolean isResolved)
     {
@@ -475,19 +475,15 @@ public class ContactGroupIcqImpl
      * local group but were not in the serverBuddies list.
      */
      void updateGroup(MutableGroup joustSimGroup,
-                      List<Buddy> serverBuddies,
+                      List<? extends Buddy> serverBuddies,
                       List<Contact> newContacts,
                       List<ContactIcqImpl> removedContacts)
     {
         setResolved(true);
         this.joustSimSourceGroup = joustSimGroup;
 
-        Iterator<Buddy> serverBuddiesIter = serverBuddies.iterator();
-
-        while(serverBuddiesIter.hasNext())
+        for (Buddy buddy : serverBuddies)
         {
-            Buddy buddy = serverBuddiesIter.next();
-
             if(buddy.isAwaitingAuthorization())
             {
                 ssclCallback.addAwaitingAuthorizationContact(buddy);
@@ -518,9 +514,9 @@ public class ContactGroupIcqImpl
     }
 
     /**
-     * Returns a <tt>String</tt> that uniquely represnets the group. In this we
+     * Returns a <tt>String</tt> that uniquely represents the group. In this we
      * use the name of the group as an identifier. This may cause problems
-     * though, in clase the name is changed by some other application between
+     * though, in case the name is changed by some other application between
      * consecutive runs of the sip-communicator.
      *
      * @return a String representing this group in a unique and persistent

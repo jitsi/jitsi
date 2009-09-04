@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.yahoo;
 
 import java.io.*;
 import java.util.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -43,19 +44,19 @@ public class ServerStoredContactListYahooImpl
     /**
      * The root contagroup. The container for all yahoo buddies and groups.
      */
-    private RootContactGroupYahooImpl rootGroup
+    private final RootContactGroupYahooImpl rootGroup
         = new RootContactGroupYahooImpl();
 
     /**
      * The operation set that created us and that we could use when dispatching
      * subscription events.
      */
-    private OperationSetPersistentPresenceYahooImpl parentOperationSet = null;
+    private final OperationSetPersistentPresenceYahooImpl parentOperationSet;
 
     /**
      * The provider that is on top of us.
      */
-    private ProtocolProviderServiceYahooImpl yahooProvider = null;
+    private final ProtocolProviderServiceYahooImpl yahooProvider;
 
     private YahooSession yahooSession = null;
 
@@ -129,7 +130,7 @@ public class ServerStoredContactListYahooImpl
         synchronized(serverStoredGroupListeners)
         {
             if(!serverStoredGroupListeners.contains(listener))
-            this.serverStoredGroupListeners.add(listener);
+                serverStoredGroupListeners.add(listener);
         }
     }
 
@@ -170,17 +171,16 @@ public class ServerStoredContactListYahooImpl
 
         logger.trace("Will dispatch the following grp event: " + evt);
 
-        Iterator<ServerStoredGroupListener> listeners = null;
+        Iterable<ServerStoredGroupListener> listeners;
         synchronized (serverStoredGroupListeners)
         {
-            listeners = new ArrayList<ServerStoredGroupListener>(
-                            serverStoredGroupListeners).iterator();
+            listeners
+                = new ArrayList<ServerStoredGroupListener>(
+                        serverStoredGroupListeners);
         }
 
-        while (listeners.hasNext())
+        for (ServerStoredGroupListener listener : listeners)
         {
-            ServerStoredGroupListener listener = listeners.next();
-
             try{
                 if (eventID == ServerStoredGroupEvent.GROUP_REMOVED_EVENT)
                     listener.groupRemoved(evt);
@@ -560,15 +560,18 @@ public class ServerStoredContactListYahooImpl
             return;
         }
 
-        Iterator<YahooUser> iter = contacts.iterator();
-        while(iter.hasNext())
-        {
-            YahooUser item =  iter.next();
+        /*
+         * ContactGroupYahooImpl#getGroupName() isn't a plain getter so
+         * performance-wise we're better off not calling it multiple times in
+         * the following loop.
+         */
+        String groupToRemoveName = groupToRemove.getGroupName();
 
+        for (YahooUser item : contacts)
+        {
             try
             {
-                yahooSession.removeFriend(item.getId(),
-                                          groupToRemove.getGroupName());
+                yahooSession.removeFriend(item.getId(), groupToRemoveName);
             }
             catch(IOException ex)
             {
@@ -747,12 +750,8 @@ public class ServerStoredContactListYahooImpl
         logger.trace("Start init list of "
                         + yahooProvider.getAccountID().getUserID());
 
-        YahooGroup[] groups = yahooSession.getGroups();
-
-        for (int i = 0; i < groups.length; i++)
+        for (YahooGroup item : yahooSession.getGroups())
         {
-            YahooGroup item = groups[i];
-
             ContactGroupYahooImpl group = findContactGroup(item.getName());
 
             if(group == null)
@@ -790,10 +789,8 @@ public class ServerStoredContactListYahooImpl
      */
     private YahooGroup findGroup(String name)
     {
-        YahooGroup[] groups = yahooSession.getGroups();
-        for (int i = 0; i < groups.length; i++)
+        for (YahooGroup elem : yahooSession.getGroups())
         {
-            YahooGroup elem = groups[i];
             if(elem.getName().equals(name))
                 return elem;
         }
@@ -833,22 +830,19 @@ public class ServerStoredContactListYahooImpl
         {
             return;
         }
-        else
+        else if (authResponse.getResponseCode() == AuthorizationResponse.REJECT)
         {
-            if (authResponse.getResponseCode() == AuthorizationResponse.REJECT)
+            removeContact((ContactYahooImpl)srcContact);
+            try
             {
-                removeContact((ContactYahooImpl)srcContact);
-                try
-                {
-                    yahooSession.rejectFriendAuthorization(
-                        ev, ev.getFrom(), authResponse.getReason());
-                }
-                catch(IOException ex)
-                {
-                    logger.error("cannot send auth deny", ex);
-                }
+                yahooSession.rejectFriendAuthorization(
+                    ev, ev.getFrom(), authResponse.getReason());
             }
-        }
+            catch(IOException ex)
+            {
+                logger.error("cannot send auth deny", ex);
+            }
+            }
 
         // else we accepted it
         try
@@ -879,7 +873,7 @@ public class ServerStoredContactListYahooImpl
     private class ContactListModListenerImpl
         extends SessionAdapter
     {
-        private Hashtable<String, Object> waitMove
+        private final Hashtable<String, Object> waitMove
             = new Hashtable<String, Object>();
 
         public void waitForMove(String id, String oldParent)

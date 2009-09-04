@@ -176,7 +176,7 @@ public class ServerStoredContactListIcqImpl
      * @param group the ContactGroup that has been created/modified/removed
      * @param eventID the id of the event to generate.
      */
-    void fireGroupEvent(ContactGroupIcqImpl group, int eventID)
+    void fireGroupEvent(ContactGroup group, int eventID)
     {
         //bail out if no one's listening
         if(parentOperationSet == null){
@@ -873,9 +873,11 @@ public class ServerStoredContactListIcqImpl
          * @param group the new Group that has been added
          * @param buddies the members of the new group.
          */
-        @SuppressWarnings("unchecked") //joscar legacy code
-        public void groupAdded(BuddyList list, List oldItems, List newItems,
-                               Group group, List buddies)
+        public void groupAdded(BuddyList list,
+                               List<? extends Group> oldItems,
+                               List<? extends Group> newItems,
+                               Group group,
+                               List<? extends Buddy> buddies)
         {
             logger.trace("Group added: " + group.getName());
             logger.trace("Buddies: " + buddies);
@@ -913,13 +915,8 @@ public class ServerStoredContactListIcqImpl
                                , ServerStoredGroupEvent.GROUP_RESOLVED_EVENT);
 
                 //fire events for contacts that have been removed;
-                Iterator<ContactIcqImpl> deletedContactsIter
-                    = deletedContacts.iterator();
-                while(deletedContactsIter.hasNext())
-                {
-                    ContactIcqImpl contact = deletedContactsIter.next();
+                for (ContactIcqImpl contact : deletedContacts)
                     fireContactRemoved(newGroup, contact);
-                }
 
                 //fire events for that contacts have been resolved or added
                 Iterator<Contact> contactsIter = newGroup.contacts();
@@ -935,8 +932,8 @@ public class ServerStoredContactListIcqImpl
             }
 
             //add a joust sim buddy listener to all of the buddies in this group
-            for(int i = 0; i < buddies.size(); i++)
-                ((Buddy)buddies.get(i)).addBuddyListener(jsimBuddyListener);
+            for (Buddy buddy : buddies)
+                buddy.addBuddyListener(jsimBuddyListener);
 
             //register a listener for name changes of this group
             group.addGroupListener(jsimGroupChangeListener);
@@ -950,20 +947,21 @@ public class ServerStoredContactListIcqImpl
          * @param newItems the list of items as it is after the group is removed.
          * @param group the group that was removed.
          */
-        @SuppressWarnings("unchecked") //joscar legacy code
-        public void groupRemoved(BuddyList list, List oldItems, List newItems,
+        public void groupRemoved(BuddyList list,
+                                 List<? extends Group> oldItems,
+                                 List<? extends Group> newItems,
                                  Group group)
         {
             logger.trace("Group Removed: " + group.getName());
             int index = findContactGroupIndex(group);
-            ContactGroupIcqImpl removedGroup
-                = (ContactGroupIcqImpl) rootGroup.getGroup(index);
 
             if (index == -1)
             {
                 logger.debug("non existing group: " + group.getName());
                 return;
             }
+
+            ContactGroup removedGroup = rootGroup.getGroup(index);
 
             group.removeGroupListener(jsimGroupChangeListener);
 
@@ -983,11 +981,10 @@ public class ServerStoredContactListIcqImpl
          * @param newItems unused
          * @param buddy the newly added <tt>buddy</tt>
          */
-        @SuppressWarnings("unchecked") //joscar legacy code
         public void buddyAdded( BuddyList list,
                                 Group joustSimGroup,
-                                List oldItems,
-                                List newItems,
+                                List<? extends Buddy> oldItems,
+                                List<? extends Buddy> newItems,
                                 Buddy buddy)
         {
             logger.trace("Received buddyAdded " + buddy);
@@ -1071,9 +1068,11 @@ public class ServerStoredContactListIcqImpl
          * @param newItems unused
          * @param buddy Buddy
          */
-        @SuppressWarnings("unchecked") //joscar legacy code
-        public void buddyRemoved(BuddyList list, Group group, List oldItems,
-                                 List newItems, Buddy buddy)
+        public void buddyRemoved(BuddyList list,
+                                 Group group,
+                                 List<? extends Buddy> oldItems,
+                                 List<? extends Buddy> newItems,
+                                 Buddy buddy)
         {
             ContactGroupIcqImpl parentGroup = findContactGroup(group);
             ContactIcqImpl contactToRemove = parentGroup.findContact(buddy);
@@ -1122,9 +1121,10 @@ public class ServerStoredContactListIcqImpl
          * @param oldBuddies unused
          * @param newBuddies the list containing the buddies in their new order.
          */
-        @SuppressWarnings("unchecked") //joscar legacy code
-        public void buddiesReordered(BuddyList list, Group group,
-                                     List oldBuddies, List newBuddies)
+        public void buddiesReordered(BuddyList list,
+                                     Group group,
+                                     List<? extends Buddy> oldBuddies,
+                                     List<? extends Buddy> newBuddies)
         {
             //we don't support this any longer. check out SVN archives if
             //you need it for some reason.
@@ -1141,16 +1141,14 @@ public class ServerStoredContactListIcqImpl
          * @param newOrder the order in which groups are now stored by the
          * AIM/ICQ server.
          */
-        @SuppressWarnings("unchecked") //joscar legacy code
-        public void groupsReordered(BuddyList list, List oldOrder,
-                                    List newOrder)
+        public void groupsReordered(BuddyList list,
+                                    List<? extends Group> oldOrder,
+                                    List<? extends Group> newOrder)
         {
             List<ContactGroupIcqImpl> reorderedGroups
                 = new ArrayList<ContactGroupIcqImpl>();
-            Iterator<Group> newOrderIter = newOrder.iterator();
-            while (newOrderIter.hasNext())
+            for (Group group : newOrder)
             {
-                Group group = newOrderIter.next();
                 ContactGroupIcqImpl contactGroup = findContactGroup(group);
 
                 //make sure that this was not an empty buddy.
@@ -1338,7 +1336,6 @@ public class ServerStoredContactListIcqImpl
             logger.debug("!!! TODO: implement handleItemModified() !!!" + item
                          + " DATA=" + item.getData().toString());
         }
-
     }
 
     /**
@@ -1351,7 +1348,7 @@ public class ServerStoredContactListIcqImpl
         /**
          * list with the accounts with missing nicknames
          */
-        private Vector<ContactIcqImpl> contactsForUpdate
+        private final Vector<ContactIcqImpl> contactsForUpdate
             = new Vector<ContactIcqImpl>();
 
         private boolean isReadyForRetreive = false;
@@ -1414,9 +1411,9 @@ public class ServerStoredContactListIcqImpl
         }
 
         /**
-         * Add contact for retreiving
-         * if the provider is register notify the retreiver to get the nicks
-         * if we are not registered add a listener to wiat for registering
+         * Add contact for retrieving
+         * if the provider is register notify the retriever to get the nicks
+         * if we are not registered add a listener to wait for registering
          *
          * @param contact ContactIcqImpl
          */
@@ -1440,7 +1437,7 @@ public class ServerStoredContactListIcqImpl
 
         /**
          * This is one of the first events after the client ready command
-         * Used to start retreiving.
+         * Used to start retrieving.
          * @param evt ContactPresenceStatusChangeEvent
          */
         public void contactPresenceStatusChanged(

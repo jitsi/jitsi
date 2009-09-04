@@ -31,7 +31,9 @@ import ymsg.network.*;
 public class ContactGroupYahooImpl
     extends AbstractContactGroupYahooImpl
 {
-    private Map<String, Contact> buddies = new Hashtable<String, Contact>();
+    private final Map<String, Contact> buddies
+        = new Hashtable<String, Contact>();
+
     private boolean isResolved = false;
 
     /**
@@ -43,11 +45,12 @@ public class ContactGroupYahooImpl
      * a list that would always remain empty. We only use it so that we're able
      * to extract empty iterators
      */
-    private List<ContactGroup> dummyGroupsList = new LinkedList<ContactGroup>();
+    private final List<ContactGroup> dummyGroupsList
+        = new LinkedList<ContactGroup>();
 
     private String tempId = null;
 
-    private ServerStoredContactListYahooImpl ssclCallback = null;
+    private final ServerStoredContactListYahooImpl ssclCallback;
 
     /**
      * Creates an Yahoo group using the specified <tt>YahooGroup</tt> as
@@ -75,11 +78,8 @@ public class ContactGroupYahooImpl
         this.isResolved = isResolved;
         this.ssclCallback = ssclCallback;
 
-        Iterator<YahooUser> iter = groupMembers.iterator();
-        while(iter.hasNext())
+        for (YahooUser yahooUser : groupMembers)
         {
-            YahooUser yahooUser = iter.next();
-
             //only add the contact if it doesn't already exist in some other
             //group. this would be necessary if Yahoo! one day start allowing
             //the  same contact in more than one group, which is not quite
@@ -91,9 +91,7 @@ public class ContactGroupYahooImpl
 
 
             addContact(
-                new ContactYahooImpl(
-                yahooUser,
-                ssclCallback, true, true) );
+                new ContactYahooImpl(yahooUser,ssclCallback, true, true));
         }
     }
 
@@ -277,7 +275,7 @@ public class ContactGroupYahooImpl
 
     /**
      * Returns the protocol provider that this group belongs to.
-     * @return a regerence to the ProtocolProviderService instance that this
+     * @return a reference to the ProtocolProviderService instance that this
      * ContactGroup belongs to.
      */
     public ProtocolProviderService getProtocolProvider()
@@ -374,11 +372,8 @@ public class ContactGroupYahooImpl
         this.yahooGroup = yahooGroup;
 
         Vector<YahooUser> contacts = yahooGroup.getMembers();
-        Iterator<YahooUser> iter = contacts.iterator();
-        while(iter.hasNext())
+        for (YahooUser item : contacts)
         {
-            YahooUser item = iter.next();
-
             ContactYahooImpl contact =
                 ssclCallback.findContactById(item.getId());
             if(contact != null)
