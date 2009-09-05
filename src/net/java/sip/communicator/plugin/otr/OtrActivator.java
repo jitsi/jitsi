@@ -16,12 +16,11 @@ import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 
 /**
- * 
  * @author George Politis
- * 
  */
 public class OtrActivator
-    implements BundleActivator, ServiceListener
+    implements BundleActivator,
+               ServiceListener
 {
 
     public static BundleContext bundleContext;
@@ -46,16 +45,11 @@ public class OtrActivator
         scOtrEngine = new ScOtrEngineImpl();
         otrTransformLayer = new OtrTransformLayer();
 
-        ServiceReference refResourceService =
-            OtrActivator.bundleContext
-                .getServiceReference(ResourceManagementService.class.getName());
-
-        if (refResourceService == null)
+        resourceService
+            = ResourceManagementServiceUtils
+                .getService(OtrActivator.bundleContext);
+        if (resourceService == null)
             return;
-
-        resourceService =
-            (ResourceManagementService) OtrActivator.bundleContext
-                .getService(refResourceService);
 
         ServiceReference refConfigService =
             OtrActivator.bundleContext
@@ -98,11 +92,11 @@ public class OtrActivator
         {
             logger.debug("Found " + protocolProviderRefs.length
                 + " already installed providers.");
-            for (int i = 0; i < protocolProviderRefs.length; i++)
+            for (ServiceReference protocolProviderRef : protocolProviderRefs)
             {
-                ProtocolProviderService provider =
-                    (ProtocolProviderService) bundleContext
-                        .getService(protocolProviderRefs[i]);
+                ProtocolProviderService provider
+                    = (ProtocolProviderService)
+                        bundleContext.getService(protocolProviderRef);
 
                 this.handleProviderAdded(provider);
             }
@@ -192,13 +186,12 @@ public class OtrActivator
 
         if (protocolProviderRefs != null && protocolProviderRefs.length > 0)
         {
-
             // in case we found any
-            for (int i = 0; i < protocolProviderRefs.length; i++)
+            for (ServiceReference protocolProviderRef : protocolProviderRefs)
             {
-                ProtocolProviderService provider =
-                    (ProtocolProviderService) bundleContext
-                        .getService(protocolProviderRefs[i]);
+                ProtocolProviderService provider
+                    = (ProtocolProviderService)
+                        bundleContext.getService(protocolProviderRef);
 
                 this.handleProviderRemoved(provider);
             }
@@ -278,15 +271,14 @@ public class OtrActivator
             new Hashtable<Object, ProtocolProviderFactory>();
         if (serRefs != null)
         {
-            for (int i = 0; i < serRefs.length; i++)
+            for (ServiceReference serRef : serRefs)
             {
+                ProtocolProviderFactory providerFactory
+                    = (ProtocolProviderFactory)
+                        bundleContext.getService(serRef);
 
-                ProtocolProviderFactory providerFactory =
-                    (ProtocolProviderFactory) bundleContext
-                        .getService(serRefs[i]);
-
-                providerFactoriesMap.put(serRefs[i]
-                    .getProperty(ProtocolProviderFactory.PROTOCOL),
+                providerFactoriesMap.put(
+                    serRef.getProperty(ProtocolProviderFactory.PROTOCOL),
                     providerFactory);
             }
         }

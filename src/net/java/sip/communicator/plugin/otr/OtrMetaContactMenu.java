@@ -26,7 +26,7 @@ public class OtrMetaContactMenu
     implements PluginComponent
 {
 
-    private Container container;
+    private final Container container;
 
     public OtrMetaContactMenu(Container container)
     {

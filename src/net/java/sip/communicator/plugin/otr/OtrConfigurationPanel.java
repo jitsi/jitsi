@@ -31,16 +31,16 @@ public class OtrConfigurationPanel
     extends TransparentPanel
 {
 
-    class PrivateKeysPanel
+    private static class PrivateKeysPanel
         extends TransparentPanel
     {
-        class AccountsComboBox
+        private static class AccountsComboBox
             extends JComboBox
         {
 
-            class AccountsComboBoxItem
+            private static class AccountsComboBoxItem
             {
-                public AccountID accountID;
+                public final AccountID accountID;
 
                 public AccountsComboBoxItem(AccountID accountID)
                 {
@@ -175,14 +175,15 @@ public class OtrConfigurationPanel
         }
     }
 
-    class KnownFingerprintsPanel
+    private static class KnownFingerprintsPanel
         extends TransparentPanel
     {
 
-        class ContactsTableModel
+        private static class ContactsTableModel
             extends AbstractTableModel
         {
-            public java.util.List<Contact> allContacts = new Vector<Contact>();
+            public final java.util.List<Contact> allContacts
+                = new Vector<Contact>();
 
             public ContactsTableModel()
             {
@@ -392,7 +393,7 @@ public class OtrConfigurationPanel
     }
 
     // TODO We should listen for configuration value changes.
-    class DefaultOtrPolicyPanel
+    private static class DefaultOtrPolicyPanel
         extends TransparentPanel
     {
         public DefaultOtrPolicyPanel()
