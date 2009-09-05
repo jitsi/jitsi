@@ -56,8 +56,8 @@ public class OtrConfigurationPanel
             public AccountsComboBox()
             {
                 Map<Object, ProtocolProviderFactory> providerFactoriesMap =
-                    new Hashtable<Object, ProtocolProviderFactory>();
-                
+                    OtrActivator.getProtocolProviderFactories();
+
                 if (providerFactoriesMap == null)
                     return;
 
@@ -182,8 +182,8 @@ public class OtrConfigurationPanel
         private static class ContactsTableModel
             extends AbstractTableModel
         {
-            public final java.util.List<Contact> allContacts
-                = new Vector<Contact>();
+            public final java.util.List<Contact> allContacts =
+                new Vector<Contact>();
 
             public ContactsTableModel()
             {
