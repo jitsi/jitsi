@@ -331,7 +331,7 @@ public class TestMetaHistoryService
         /**
          * This matches all written messages, they are minimum 5
          */
-        Collection rs = metaHistoryService.findByKeyword(
+        Collection<Object> rs = metaHistoryService.findByKeyword(
             new String[]{MessageHistoryService.class.getName()},
             testMetaContact, "test");
 
@@ -503,11 +503,11 @@ public class TestMetaHistoryService
          * This must match also many calls, as tests are run many times
          * but the minimum is 3
          */
-        Collection rs = metaHistoryService.findByEndDate(
+        Collection<Object> rs = metaHistoryService.findByEndDate(
             new String[]{CallHistoryService.class.getName()},
             null,
             controlDate2);
-        Iterator resultIter = getCalls(rs).iterator();
+        Iterator<?> resultIter = getCalls(rs).iterator();
 
         assertTrue("Calls too few - findByEndDate", rs.size() >= 3);
 
@@ -779,7 +779,7 @@ public class TestMetaHistoryService
 
     public void metaTests()
     {
-        Collection rs = metaHistoryService.findByStartDate(
+        Collection<Object> rs = metaHistoryService.findByStartDate(
             new String[]{
                 MessageHistoryService.class.getName(),
                 FileHistoryService.class.getName(),
@@ -918,46 +918,43 @@ public class TestMetaHistoryService
         metaClService.purgeLocallyStoredContactListCopy();
     }
 
-    private List<String> getMessages(Collection rs)
+    private List<String> getMessages(Collection<Object> rs)
     {
         List<String> result = new Vector<String>();
-        Iterator iter = rs.iterator();
-        while (iter.hasNext())
+
+        for (Object item : rs)
         {
-            Object item = iter.next();
             if(item instanceof MessageDeliveredEvent)
-                result.add(((MessageDeliveredEvent)item).getSourceMessage().getContent());
+                result.add(
+                        ((MessageDeliveredEvent)item)
+                            .getSourceMessage().getContent());
             else if(item instanceof MessageReceivedEvent)
-                result.add(((MessageReceivedEvent)item).getSourceMessage().getContent());
+                result.add(
+                        ((MessageReceivedEvent)item)
+                            .getSourceMessage().getContent());
         }
 
         return result;
     }
 
-    private List<CallRecord> getCalls(Collection rs)
+    private List<CallRecord> getCalls(Collection<Object> rs)
     {
         List<CallRecord> result = new Vector<CallRecord>();
-        Iterator iter = rs.iterator();
-        while (iter.hasNext())
-        {
-            Object item = iter.next();
-            if(item instanceof CallRecord)
+
+        for (Object item : rs)
+            if (item instanceof CallRecord)
                 result.add((CallRecord) item);
-        }
 
         return result;
     }
 
-    private Collection<FileRecord> getFileRecords(Collection rs)
+    private Collection<FileRecord> getFileRecords(Collection<Object> rs)
     {
         List<FileRecord> result = new Vector<FileRecord>();
-        Iterator iter = rs.iterator();
-        while (iter.hasNext())
-        {
-            Object item = iter.next();
-            if(item instanceof FileRecord)
+
+        for (Object item : rs)
+            if (item instanceof FileRecord)
                 result.add((FileRecord) item);
-        }
 
         return result;
     }

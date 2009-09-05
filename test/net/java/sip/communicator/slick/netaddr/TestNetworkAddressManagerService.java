@@ -92,15 +92,16 @@ public class TestNetworkAddressManagerService extends TestCase {
     private static boolean isLocalInterfaceAddress(InetAddress address)
     {
         try {
-            Enumeration intfs = NetworkInterface.getNetworkInterfaces();
+            Enumeration<NetworkInterface> intfs
+                = NetworkInterface.getNetworkInterfaces();
             while (intfs.hasMoreElements())
             {
-                NetworkInterface intf = (NetworkInterface) intfs.nextElement();
-                Enumeration addrs = intf.getInetAddresses();
+                NetworkInterface intf = intfs.nextElement();
+                Enumeration<InetAddress> addrs = intf.getInetAddresses();
                 while (addrs.hasMoreElements())
                 {
                     try {
-                        InetAddress addr = (InetAddress) addrs.nextElement();
+                        InetAddress addr = addrs.nextElement();
                         if(addr.equals(address))
                             return true;
                     } catch (Exception e)
@@ -610,6 +611,7 @@ public class TestNetworkAddressManagerService extends TestCase {
         return null;
 
     }
+
     private void initProperties()
     {
         try
@@ -622,8 +624,4 @@ public class TestNetworkAddressManagerService extends TestCase {
         }
         catch(Exception ex){}
     }
-
-
-
-
 }

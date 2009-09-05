@@ -38,7 +38,7 @@ public class OperationSetPersistentPresenceYahooImpl
     private String currentStatusMessage = "";
 
     /**
-     * The presence status that we were last notified of etnering.
+     * The presence status that we were last notified of entering.
      * The initial one is OFFLINE
      */
     private PresenceStatus currentStatus = YahooStatusEnum.OFFLINE;
@@ -47,7 +47,7 @@ public class OperationSetPersistentPresenceYahooImpl
      * Sometimes status changes are received before the contact list is inited
      * here we store such events so we can show them correctly
      */
-    private Hashtable earlyStatusChange = new Hashtable();
+//    private Hashtable earlyStatusChange = new Hashtable();
 
     /**
      * The array list we use when returning from the getSupportedStatusSet()
@@ -676,14 +676,11 @@ public class OperationSetPersistentPresenceYahooImpl
     {
         YahooGroup[] groups = parentProvider.getYahooSession().getGroups();
 
-        for (int i = 0; i < groups.length; i++)
+        for (YahooGroup item : groups)
         {
-            YahooGroup item = groups[i];
-            Iterator iter = item.getMembers().iterator();
-            while(iter.hasNext())
+            Iterable<YahooUser> members = item.getMembers();
+            for (YahooUser user : members)
             {
-                YahooUser user =  (YahooUser)iter.next();
-
                 ContactYahooImpl sourceContact =
                     ssContactList.findContactById(user.getId());
 
@@ -755,14 +752,12 @@ public class OperationSetPersistentPresenceYahooImpl
                 //offline. The protocol does not implement top level buddies
                 //nor subgroups for top level groups so a simple nested loop
                 //would be enough.
-                Iterator groupsIter =
+                Iterator<ContactGroup> groupsIter =
                     getServerStoredContactListRoot().subgroups();
                 while(groupsIter.hasNext())
                 {
-                    ContactGroupYahooImpl group
-                        = (ContactGroupYahooImpl)groupsIter.next();
-
-                    Iterator contactsIter = group.contacts();
+                    ContactGroup group = groupsIter.next();
+                    Iterator<Contact> contactsIter = group.contacts();
 
                     while(contactsIter.hasNext())
                     {

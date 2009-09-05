@@ -10,9 +10,9 @@ import java.awt.event.*;
 import java.awt.geom.*;
 import java.awt.print.*;
 import java.util.List;
-import java.util.concurrent.*;
 
 import javax.swing.*;
+import javax.swing.plaf.*;
 
 import net.java.sip.communicator.plugin.whiteboard.gui.whiteboardshapes.*;
 import net.java.sip.communicator.util.swing.*;
@@ -29,7 +29,7 @@ public class WhiteboardPanel
     /**
      * Shapes to display
      */
-    private List displayList = new CopyOnWriteArrayList();
+    private final List<WhiteboardShape> displayList;
 
     /**
      * Default grid space
@@ -46,7 +46,7 @@ public class WhiteboardPanel
     /**
      * Parent WhiteboardFrame
      */
-    private WhiteboardFrame wf;
+    private final WhiteboardFrame wf;
 
     /**
      * WhiteboardPanel constructor.
@@ -54,9 +54,8 @@ public class WhiteboardPanel
      * @param displayList Shapes to display
      * @param wf WhiteboardFrame
      */
-    public WhiteboardPanel(List displayList, WhiteboardFrame wf)
+    public WhiteboardPanel(List<WhiteboardShape> displayList, WhiteboardFrame wf)
     {
-        super();
         this.wf = wf;
         this.displayList = displayList;
         affineTrans = new AffineTransform();
@@ -109,12 +108,9 @@ public class WhiteboardPanel
                     }
                 }
             }
-            WhiteboardShape s;
-            for (int i = 0; i < displayList.size(); i++)
-            {
-                s = (WhiteboardShape) displayList.get(i);
+
+            for (WhiteboardShape s : displayList)
                 s.paint(g, affineTrans);
-            }
         }
         finally
         {

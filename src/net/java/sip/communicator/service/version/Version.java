@@ -12,7 +12,7 @@ package net.java.sip.communicator.service.version;
  *
  * @author Emil Ivov
  */
-public interface Version extends Comparable
+public interface Version extends Comparable<Version>
 {
     /**
      * Returns the version major of the current SIP Communicator version. In an

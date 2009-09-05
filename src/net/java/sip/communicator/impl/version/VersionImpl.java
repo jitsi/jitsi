@@ -189,25 +189,6 @@ public class VersionImpl
      * represents a version that is earlier, same, or more recent than the one
      * referenced by the <tt>version</tt> parameter.
      */
-    public int compareTo(Object version)
-    {
-        return compareTo((Version)version);
-    }
-
-
-    /**
-     * Compares another <tt>Version</tt> object to this one and returns a
-     * negative, zero or a positive integer if this version instance represents
-     * respectively an earlier, same, or later version as the one indicated
-     * by the <tt>version</tt> parameter.
-     *
-     * @param version the <tt>Version</tt> instance that we'd like to compare
-     * to this one.
-     *
-     * @return a negative integer, zero, or a positive integer as this object
-     * represents a version that is earlier, same, or more recent than the one
-     * referenced by the <tt>version</tt> parameter.
-     */
     public int compareTo(Version version)
     {
         //our versioning system is built to produce lexicographically ordered

@@ -8,16 +8,15 @@ package net.java.sip.communicator.slick.msghistory;
 
 import java.util.*;
 
-import org.osgi.framework.*;
 import junit.framework.*;
 import net.java.sip.communicator.impl.protocol.mock.*;
 import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.history.*;
-import net.java.sip.communicator.service.history.records.*;
 import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * Tests message history.
@@ -241,7 +240,8 @@ public class TestMsgHistoryService
         /**
          * This matches all written messages, they are minimum 5
          */
-        Collection rs = msgHistoryService.findByKeyword(testMetaContact, "test");
+        Collection<EventObject> rs
+            = msgHistoryService.findByKeyword(testMetaContact, "test");
 
         assertTrue("Nothing found findByKeyword ", !rs.isEmpty());
 
@@ -254,7 +254,9 @@ public class TestMsgHistoryService
          */
         rs = msgHistoryService.findByKeyword(testMetaContact, "Test", false);
 
-        assertTrue("Nothing found findByKeyword caseINsensitive search", !rs.isEmpty());
+        assertTrue(
+            "Nothing found findByKeyword caseINsensitive search",
+            !rs.isEmpty());
 
         msgs = getMessages(rs);
 
@@ -262,7 +264,9 @@ public class TestMsgHistoryService
 
         rs = msgHistoryService.findByKeyword(testMetaContact, "Test", true);
 
-        assertFalse("Something found by findByKeyword casesensitive search", !rs.isEmpty());
+        assertFalse(
+            "Something found by findByKeyword casesensitive search",
+            !rs.isEmpty());
 
         /**
          * This must match also many messages, as tests are run many times
@@ -466,7 +470,8 @@ public class TestMsgHistoryService
         /**
          * This matches all written messages, they are minimum 5
          */
-        Collection rs = msgHistoryService.findByKeyword(room, "test");
+        Collection<EventObject> rs
+            = msgHistoryService.findByKeyword(room, "test");
 
         assertTrue("Nothing found findByKeyword ", !rs.isEmpty());
 
@@ -620,30 +625,31 @@ public class TestMsgHistoryService
         metaClService.purgeLocallyStoredContactListCopy();
     }
 
-    private List<String> getMessages(Collection rs)
+    private List<String> getMessages(Collection<EventObject> rs)
     {
         List<String> result = new Vector<String>();
-        Iterator iter = rs.iterator();
-        while (iter.hasNext())
+
+        for (EventObject item : rs)
         {
-            Object item = iter.next();
             if(item instanceof MessageDeliveredEvent)
-                result.add(((MessageDeliveredEvent)item).getSourceMessage().getContent());
-            else
-                if(item instanceof MessageReceivedEvent)
-                    result.add(((MessageReceivedEvent)item).getSourceMessage().getContent());
+                result.add(
+                        ((MessageDeliveredEvent)item)
+                            .getSourceMessage().getContent());
+            else if(item instanceof MessageReceivedEvent)
+                result.add(
+                        ((MessageReceivedEvent)item)
+                            .getSourceMessage().getContent());
         }
 
         return result;
     }
     
-    private List<String> getChatMessages(Collection rs)
+    private List<String> getChatMessages(Collection<EventObject> rs)
     {
         List<String> result = new Vector<String>();
-        Iterator iter = rs.iterator();
-        while (iter.hasNext())
+
+        for (EventObject item : rs)
         {
-            Object item = iter.next();
             if(item instanceof ChatRoomMessageDeliveredEvent)
                 result.add(((ChatRoomMessageDeliveredEvent)item).
                     getMessage().getContent());
@@ -656,20 +662,19 @@ public class TestMsgHistoryService
         return result;
     }
 
-
-    private void dumpResult(QueryResultSet rs)
-    {
-        while (rs.hasNext())
-        {
-            HistoryRecord hr = (HistoryRecord)rs.next();
-            logger.info("----------------------");
-
-            for (int i = 0; i < hr.getPropertyNames().length; i++)
-            {
-                logger.info(hr.getPropertyNames()[i] + " => " + hr.getPropertyValues()[i]);
-            }
-
-            logger.info("----------------------");
-        }
-    }
+//    private void dumpResult(QueryResultSet rs)
+//    {
+//        while (rs.hasNext())
+//        {
+//            HistoryRecord hr = (HistoryRecord)rs.next();
+//            logger.info("----------------------");
+//
+//            for (int i = 0; i < hr.getPropertyNames().length; i++)
+//            {
+//                logger.info(hr.getPropertyNames()[i] + " => " + hr.getPropertyValues()[i]);
+//            }
+//
+//            logger.info("----------------------");
+//        }
+//    }
 }
