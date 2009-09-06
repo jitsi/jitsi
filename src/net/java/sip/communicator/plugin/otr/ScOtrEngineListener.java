@@ -14,8 +14,6 @@ import net.java.sip.communicator.service.protocol.*;
  */
 public interface ScOtrEngineListener
 {
-    public abstract void contactVerificationStatusChanged(Contact contact);
-
     public abstract void sessionStatusChanged(Contact contact);
 
     public abstract void contactPolicyChanged(Contact contact);

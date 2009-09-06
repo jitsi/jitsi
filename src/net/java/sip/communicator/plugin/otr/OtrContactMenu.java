@@ -27,7 +27,7 @@ class OtrContactMenu
     {
         this.contact = contact;
         this.setText(contact.getDisplayName());
-
+        
         OtrActivator.scOtrEngine.addListener(new ScOtrEngineListener()
         {
             public void sessionStatusChanged(Contact contact)
@@ -57,7 +57,10 @@ class OtrContactMenu
 
                 setOtrPolicy(policy);
             }
+        });
 
+        OtrActivator.scOtrKeyManager.addListener(new ScOtrKeyManagerListener()
+        {
             public void contactVerificationStatusChanged(Contact contact)
             {
                 SessionStatus status =
@@ -67,7 +70,7 @@ class OtrContactMenu
                     setSessionStatus(status);
             }
         });
-
+        
         setSessionStatus(OtrActivator.scOtrEngine.getSessionStatus(contact));
         setOtrPolicy(OtrActivator.scOtrEngine.getContactPolicy(contact));
     }
@@ -112,8 +115,8 @@ class OtrContactMenu
         case ENCRYPTED:
             this
                 .setIcon(OtrActivator.resourceService
-                    .getImage((OtrActivator.scOtrEngine
-                        .isContactVerified(contact))
+                    .getImage((OtrActivator.scOtrKeyManager
+                        .isVerified(contact))
                         ? "plugin.otr.ENCRYPTED_ICON_16x16"
                         : "plugin.otr.ENCRYPTED_UNVERIFIED_ICON_16x16"));
 

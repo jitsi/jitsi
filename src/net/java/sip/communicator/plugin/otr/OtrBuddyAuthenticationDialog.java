@@ -45,7 +45,7 @@ public class OtrBuddyAuthenticationDialog
         String account =
             contact.getProtocolProvider().getAccountID().getDisplayName();
         String localFingerprint =
-            OtrActivator.scOtrEngine.getLocalFingerprint(contact
+            OtrActivator.scOtrKeyManager.getLocalFingerprint(contact
                 .getProtocolProvider().getAccountID());
         txtLocalFingerprint.setText(OtrActivator.resourceService.getI18NString(
             "plugin.otr.authbuddydialog.LOCAL_FINGERPRINT", new String[]
@@ -54,7 +54,7 @@ public class OtrBuddyAuthenticationDialog
         // Remote fingerprint.
         String user = contact.getDisplayName();
         String remoteFingerprint =
-            OtrActivator.scOtrEngine.getRemoteFingerprint(contact);
+            OtrActivator.scOtrKeyManager.getRemoteFingerprint(contact);
         txtRemoteFingerprint.setText(OtrActivator.resourceService
             .getI18NString("plugin.otr.authbuddydialog.REMOTE_FINGERPRINT",
                 new String[]
@@ -153,8 +153,8 @@ public class OtrBuddyAuthenticationDialog
             new ActionComboBoxItem(ActionComboBoxItemIndex.I_HAVE_NOT);
         cbAction.addItem(iHave);
         cbAction.addItem(iHaveNot);
-        cbAction.setSelectedItem(OtrActivator.scOtrEngine
-            .isContactVerified(contact) ? iHave : iHaveNot);
+        cbAction.setSelectedItem(OtrActivator.scOtrKeyManager
+            .isVerified(contact) ? iHave : iHaveNot);
 
         pnlAction.add(cbAction, c);
 
@@ -209,10 +209,10 @@ public class OtrBuddyAuthenticationDialog
                 switch (actionItem.action)
                 {
                 case I_HAVE:
-                    OtrActivator.scOtrEngine.verifyContactFingerprint(contact);
+                    OtrActivator.scOtrKeyManager.verify(contact);
                     break;
                 case I_HAVE_NOT:
-                    OtrActivator.scOtrEngine.forgetContactFingerprint(contact);
+                    OtrActivator.scOtrKeyManager.unverify(contact);
                     break;
                 }
 

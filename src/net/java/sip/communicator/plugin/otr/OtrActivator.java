@@ -19,15 +19,15 @@ import org.osgi.framework.*;
  * @author George Politis
  */
 public class OtrActivator
-    implements BundleActivator,
-               ServiceListener
+    implements BundleActivator, ServiceListener
 {
-
     public static BundleContext bundleContext;
 
     private OtrTransformLayer otrTransformLayer;
 
     public static ScOtrEngine scOtrEngine;
+
+    public static ScOtrKeyManager scOtrKeyManager = new ScOtrKeyManagerImpl();
 
     public static ResourceManagementService resourceService;
 
@@ -45,8 +45,8 @@ public class OtrActivator
         scOtrEngine = new ScOtrEngineImpl();
         otrTransformLayer = new OtrTransformLayer();
 
-        resourceService
-            = ResourceManagementServiceUtils
+        resourceService =
+            ResourceManagementServiceUtils
                 .getService(OtrActivator.bundleContext);
         if (resourceService == null)
             return;
@@ -94,9 +94,9 @@ public class OtrActivator
                 + " already installed providers.");
             for (ServiceReference protocolProviderRef : protocolProviderRefs)
             {
-                ProtocolProviderService provider
-                    = (ProtocolProviderService)
-                        bundleContext.getService(protocolProviderRef);
+                ProtocolProviderService provider =
+                    (ProtocolProviderService) bundleContext
+                        .getService(protocolProviderRef);
 
                 this.handleProviderAdded(provider);
             }
@@ -189,9 +189,9 @@ public class OtrActivator
             // in case we found any
             for (ServiceReference protocolProviderRef : protocolProviderRefs)
             {
-                ProtocolProviderService provider
-                    = (ProtocolProviderService)
-                        bundleContext.getService(protocolProviderRef);
+                ProtocolProviderService provider =
+                    (ProtocolProviderService) bundleContext
+                        .getService(protocolProviderRef);
 
                 this.handleProviderRemoved(provider);
             }
@@ -250,7 +250,52 @@ public class OtrActivator
 
     }
 
-    public static Map<Object, ProtocolProviderFactory> getProtocolProviderFactories()
+    public static List<AccountID> getAllAccountIDs()
+    {
+        Map<Object, ProtocolProviderFactory> providerFactoriesMap =
+            OtrActivator.getProtocolProviderFactories();
+
+        if (providerFactoriesMap == null)
+            return null;
+
+        List<AccountID> accountIDs = new Vector<AccountID>();
+        for (ProtocolProviderFactory providerFactory : providerFactoriesMap
+            .values())
+        {
+            for (AccountID accountID : providerFactory.getRegisteredAccounts())
+            {
+                accountIDs.add(accountID);
+            }
+        }
+
+        return accountIDs;
+    }
+
+    public static AccountID getAccountIDByUID(String uid)
+    {
+        if (uid == null || uid.length() < 1)
+            return null;
+        
+        Map<Object, ProtocolProviderFactory> providerFactoriesMap =
+            OtrActivator.getProtocolProviderFactories();
+
+        if (providerFactoriesMap == null)
+            return null;
+
+        for (ProtocolProviderFactory providerFactory : providerFactoriesMap
+            .values())
+        {
+            for (AccountID accountID : providerFactory.getRegisteredAccounts())
+            {
+                if (accountID.getAccountUniqueID().equals(uid))
+                    return accountID;
+            }
+        }
+
+        return null;
+    }
+
+    private static Map<Object, ProtocolProviderFactory> getProtocolProviderFactories()
     {
         ServiceReference[] serRefs = null;
         try
@@ -273,12 +318,11 @@ public class OtrActivator
         {
             for (ServiceReference serRef : serRefs)
             {
-                ProtocolProviderFactory providerFactory
-                    = (ProtocolProviderFactory)
-                        bundleContext.getService(serRef);
+                ProtocolProviderFactory providerFactory =
+                    (ProtocolProviderFactory) bundleContext.getService(serRef);
 
-                providerFactoriesMap.put(
-                    serRef.getProperty(ProtocolProviderFactory.PROTOCOL),
+                providerFactoriesMap.put(serRef
+                    .getProperty(ProtocolProviderFactory.PROTOCOL),
                     providerFactory);
             }
         }

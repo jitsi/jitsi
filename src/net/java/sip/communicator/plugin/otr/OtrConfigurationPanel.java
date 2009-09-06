@@ -8,6 +8,7 @@ package net.java.sip.communicator.plugin.otr;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -55,21 +56,13 @@ public class OtrConfigurationPanel
 
             public AccountsComboBox()
             {
-                Map<Object, ProtocolProviderFactory> providerFactoriesMap =
-                    OtrActivator.getProtocolProviderFactories();
+                List<AccountID> accountIDs = OtrActivator.getAllAccountIDs();
 
-                if (providerFactoriesMap == null)
+                if (accountIDs == null)
                     return;
 
-                for (ProtocolProviderFactory providerFactory : providerFactoriesMap
-                    .values())
-                {
-                    for (AccountID accountID : providerFactory
-                        .getRegisteredAccounts())
-                    {
-                        this.addItem(new AccountsComboBoxItem(accountID));
-                    }
-                }
+                for (AccountID accountID : accountIDs)
+                    this.addItem(new AccountsComboBoxItem(accountID));
             }
 
             public AccountID getSelectedAccountID()
@@ -111,7 +104,7 @@ public class OtrConfigurationPanel
                 btnGenerate.setEnabled(true);
 
                 String fingerprint =
-                    OtrActivator.scOtrEngine.getLocalFingerprint(account);
+                    OtrActivator.scOtrKeyManager.getLocalFingerprint(account);
 
                 if (fingerprint == null || fingerprint.length() < 1)
                 {
@@ -166,8 +159,7 @@ public class OtrConfigurationPanel
                     AccountID account = cbAccounts.getSelectedAccountID();
                     if (account == null)
                         return;
-                    OtrActivator.scOtrEngine.generateKeyPair(account
-                        .getAccountUniqueID());
+                    OtrActivator.scOtrKeyManager.generateKeyPair(account);
                     openAccount(account);
                 }
             });
@@ -267,10 +259,10 @@ public class OtrConfigurationPanel
                 case CONTACTNAME_INDEX:
                     return contact.getDisplayName();
                 case VERIFIED_INDEX:
-                    return (OtrActivator.scOtrEngine.isContactVerified(contact)) ? "Yes"
+                    return (OtrActivator.scOtrKeyManager.isVerified(contact)) ? "Yes"
                         : "No";
                 case FINGERPRINT_INDEX:
-                    return OtrActivator.scOtrEngine
+                    return OtrActivator.scOtrKeyManager
                         .getRemoteFingerprint(contact);
                 default:
                     return null;
@@ -316,7 +308,7 @@ public class OtrConfigurationPanel
             else
             {
                 boolean verified =
-                    OtrActivator.scOtrEngine.isContactVerified(contact);
+                    OtrActivator.scOtrKeyManager.isVerified(contact);
 
                 btnForgetFingerprint.setEnabled(verified);
                 btnVerifyFingerprint.setEnabled(!verified);
@@ -371,8 +363,7 @@ public class OtrConfigurationPanel
             {
                 public void actionPerformed(ActionEvent arg0)
                 {
-                    OtrActivator.scOtrEngine
-                        .verifyContactFingerprint(getSelectedContact());
+                    OtrActivator.scOtrKeyManager.verify(getSelectedContact());
 
                 }
             });
@@ -384,8 +375,7 @@ public class OtrConfigurationPanel
             {
                 public void actionPerformed(ActionEvent arg0)
                 {
-                    OtrActivator.scOtrEngine
-                        .forgetContactFingerprint(getSelectedContact());
+                    OtrActivator.scOtrKeyManager.unverify(getSelectedContact());
                 }
             });
             pnlButtons.add(btnForgetFingerprint);

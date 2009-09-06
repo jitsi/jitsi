@@ -66,8 +66,11 @@ public class OtrMetaContactButton
                 if (OtrMetaContactButton.this.contact != null)
                     setPolicy(OtrActivator.scOtrEngine
                         .getContactPolicy(contact));
-            }
+            }            
+        });
 
+        OtrActivator.scOtrKeyManager.addListener(new ScOtrKeyManagerListener()
+        {
             public void contactVerificationStatusChanged(Contact contact)
             {
                 // OtrMetaContactButton.this.contact can be null.
@@ -79,7 +82,7 @@ public class OtrMetaContactButton
                 
             }
         });
-
+        
         this.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
@@ -161,8 +164,8 @@ public class OtrMetaContactButton
                 this
                     .setImage(ImageIO
                         .read(OtrActivator.resourceService
-                            .getImageURL((OtrActivator.scOtrEngine
-                                .isContactVerified(contact))
+                            .getImageURL((OtrActivator.scOtrKeyManager
+                                .isVerified(contact))
                                 ? "plugin.otr.ENCRYPTED_ICON_22x22"
                                 : "plugin.otr.ENCRYPTED_UNVERIFIED_ICON_22x22")));
             }

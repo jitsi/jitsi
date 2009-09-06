@@ -6,14 +6,11 @@
 package net.java.sip.communicator.plugin.otr;
 
 import java.security.*;
-import java.security.spec.*;
 import java.util.*;
 
-import org.bouncycastle.util.encoders.*;
 import org.osgi.framework.*;
 
 import net.java.otr4j.*;
-import net.java.otr4j.crypto.*;
 import net.java.otr4j.session.*;
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.gui.*;
@@ -33,12 +30,19 @@ public class ScOtrEngineImpl
 
     public void addListener(ScOtrEngineListener l)
     {
-        listeners.add(l);
+        synchronized (listeners)
+        {
+            if (!listeners.contains(l))
+                listeners.add(l);
+        }
     }
 
     public void removeListener(ScOtrEngineListener l)
     {
-        listeners.remove(l);
+        synchronized (listeners)
+        {
+            listeners.remove(l);
+        }
     }
 
     private List<String> injectedMessageUIDs = new Vector<String>();
@@ -48,26 +52,24 @@ public class ScOtrEngineImpl
         return injectedMessageUIDs.contains(mUID);
     }
 
-    class ScOtrKeyManager
-        implements OtrKeyManager
-    {
-        public KeyPair getKeyPair(SessionID sessionID)
-        {
-            String accountID = sessionID.getAccountID();
-            KeyPair keyPair = loadKeyPair(accountID);
-            if (keyPair == null)
-                generateKeyPair(accountID);
-
-            return loadKeyPair(accountID);
-        }
-    }
-
     class ScOtrEngineHost
         implements OtrEngineHost
     {
+        public KeyPair getKeyPair(SessionID sessionID)
+        {
+            AccountID accountID =
+                OtrActivator.getAccountIDByUID(sessionID.getAccountID());
+            KeyPair keyPair =
+                OtrActivator.scOtrKeyManager.loadKeyPair(accountID);
+            if (keyPair == null)
+                OtrActivator.scOtrKeyManager.generateKeyPair(accountID);
+
+            return OtrActivator.scOtrKeyManager.loadKeyPair(accountID);
+        }
+
         public void showWarning(SessionID sessionID, String warn)
         {
-            Contact contact = contactsMap.get(sessionID);
+            Contact contact = getContact(sessionID);
             if (contact == null)
                 return;
 
@@ -79,7 +81,7 @@ public class ScOtrEngineImpl
 
         public void showError(SessionID sessionID, String err)
         {
-            Contact contact = contactsMap.get(sessionID);
+            Contact contact = getContact(sessionID);
             if (contact == null)
                 return;
 
@@ -91,7 +93,7 @@ public class ScOtrEngineImpl
 
         public void injectMessage(SessionID sessionID, String messageText)
         {
-            Contact contact = contactsMap.get(sessionID);
+            Contact contact = getContact(sessionID);
             OperationSetBasicInstantMessaging imOpSet =
                 (OperationSetBasicInstantMessaging) contact
                     .getProtocolProvider().getOperationSet(
@@ -104,86 +106,112 @@ public class ScOtrEngineImpl
 
         public OtrPolicy getSessionPolicy(SessionID sessionID)
         {
-            return getContactPolicy(contactsMap.get(sessionID));
-        }
-
-        public void sessionStatusChanged(SessionID sessionID)
-        {
-            Contact contact = contactsMap.get(sessionID);
-            if (contact == null)
-                return;
-
-            String message = "";
-            switch (otrEngine.getSessionStatus(sessionID))
-            {
-            case ENCRYPTED:
-                PublicKey remotePubKey =
-                    otrEngine.getRemotePublicKey(sessionID);
-
-                PublicKey storedPubKey = loadPublicKey(sessionID.getUserID());
-
-                if (!remotePubKey.equals(storedPubKey))
-                    savePublicKey(sessionID.getUserID(), remotePubKey);
-
-                if (!isContactVerified(contact))
-                {
-                    String unverifiedSessionWarning =
-                        OtrActivator.resourceService.getI18NString(
-                            "plugin.otr.activator.unverifiedsessionwarning",
-                            new String[]
-                            { contact.getDisplayName() });
-
-                    OtrActivator.uiService.getChat(contact).addMessage(
-                        contact.getDisplayName(), System.currentTimeMillis(),
-                        Chat.SYSTEM_MESSAGE, unverifiedSessionWarning,
-                        OperationSetBasicInstantMessaging.HTML_MIME_TYPE);
-
-                }
-                message =
-                    OtrActivator.resourceService
-                        .getI18NString(
-                            (isContactVerified(contact)) ? "plugin.otr.activator.sessionstared"
-                                : "plugin.otr.activator.unverifiedsessionstared",
-                            new String[]
-                            { contact.getDisplayName() });
-
-                break;
-            case FINISHED:
-                message =
-                    OtrActivator.resourceService.getI18NString(
-                        "plugin.otr.activator.sessionfinished", new String[]
-                        { contact.getDisplayName() });
-                break;
-            case PLAINTEXT:
-                message =
-                    OtrActivator.resourceService.getI18NString(
-                        "plugin.otr.activator.sessionlost", new String[]
-                        { contact.getDisplayName() });
-                break;
-            }
-
-            OtrActivator.uiService.getChat(contact).addMessage(
-                contact.getDisplayName(), System.currentTimeMillis(),
-                Chat.SYSTEM_MESSAGE, message,
-                OperationSetBasicInstantMessaging.HTML_MIME_TYPE);
-
-            for (ScOtrEngineListener l : listeners)
-            {
-                l.sessionStatusChanged(contact);
-            }
+            return getContactPolicy(getContact(sessionID));
         }
     }
 
-    private OtrEngine otrEngine =
-        new OtrEngineImpl(new ScOtrEngineHost(), new ScOtrKeyManager());
-
-    public boolean isContactVerified(Contact contact)
+    public ScOtrEngineImpl()
     {
-        return this.configurator.getPropertyBoolean(getSessionID(contact)
-            + "publicKey.verified", false);
+        this.otrEngine.addOtrEngineListener(new OtrEngineListener()
+        {
+            public void sessionStatusChanged(SessionID sessionID)
+            {
+                Contact contact = getContact(sessionID);
+                if (contact == null)
+                    return;
+
+                String message = "";
+                switch (otrEngine.getSessionStatus(sessionID))
+                {
+                case ENCRYPTED:
+                    PublicKey remotePubKey =
+                        otrEngine.getRemotePublicKey(sessionID);
+
+                    PublicKey storedPubKey =
+                        OtrActivator.scOtrKeyManager.loadPublicKey(contact);
+
+                    if (!remotePubKey.equals(storedPubKey))
+                        OtrActivator.scOtrKeyManager.savePublicKey(contact,
+                            remotePubKey);
+
+                    if (!OtrActivator.scOtrKeyManager.isVerified(contact))
+                    {
+                        String unverifiedSessionWarning =
+                            OtrActivator.resourceService
+                                .getI18NString(
+                                    "plugin.otr.activator.unverifiedsessionwarning",
+                                    new String[]
+                                    { contact.getDisplayName() });
+
+                        OtrActivator.uiService.getChat(contact).addMessage(
+                            contact.getDisplayName(),
+                            System.currentTimeMillis(), Chat.SYSTEM_MESSAGE,
+                            unverifiedSessionWarning,
+                            OperationSetBasicInstantMessaging.HTML_MIME_TYPE);
+
+                    }
+                    message =
+                        OtrActivator.resourceService
+                            .getI18NString(
+                                (OtrActivator.scOtrKeyManager
+                                    .isVerified(contact)) ? "plugin.otr.activator.sessionstared"
+                                    : "plugin.otr.activator.unverifiedsessionstared",
+                                new String[]
+                                { contact.getDisplayName() });
+
+                    break;
+                case FINISHED:
+                    message =
+                        OtrActivator.resourceService.getI18NString(
+                            "plugin.otr.activator.sessionfinished",
+                            new String[]
+                            { contact.getDisplayName() });
+                    break;
+                case PLAINTEXT:
+                    message =
+                        OtrActivator.resourceService.getI18NString(
+                            "plugin.otr.activator.sessionlost", new String[]
+                            { contact.getDisplayName() });
+                    break;
+                }
+
+                OtrActivator.uiService.getChat(contact).addMessage(
+                    contact.getDisplayName(), System.currentTimeMillis(),
+                    Chat.SYSTEM_MESSAGE, message,
+                    OperationSetBasicInstantMessaging.HTML_MIME_TYPE);
+
+                for (ScOtrEngineListener l : listeners)
+                {
+                    l.sessionStatusChanged(contact);
+                }
+            }
+        });
     }
 
-    Map<SessionID, Contact> contactsMap = new Hashtable<SessionID, Contact>();
+    private OtrEngine otrEngine = new OtrEngineImpl(new ScOtrEngineHost());
+
+    private static Map<SessionID, Contact> contactsMap =
+        new Hashtable<SessionID, Contact>();
+
+    public static SessionID getSessionID(Contact contact)
+    {
+        SessionID sessionID =
+            new SessionID(contact.getProtocolProvider().getAccountID()
+                .getAccountUniqueID(), contact.getAddress(), contact
+                .getProtocolProvider().getProtocolName());
+
+        synchronized (contactsMap)
+        {
+            contactsMap.put(sessionID, contact);
+        }
+
+        return sessionID;
+    }
+
+    public static Contact getContact(SessionID sessionID)
+    {
+        return contactsMap.get(sessionID);
+    }
 
     public void endSession(Contact contact)
     {
@@ -215,158 +243,7 @@ public class ScOtrEngineImpl
         otrEngine.startSession(getSessionID(contact));
     }
 
-    private SessionID getSessionID(Contact contact)
-    {
-        SessionID sessionID =
-            new SessionID(contact.getProtocolProvider().getAccountID()
-                .getAccountUniqueID(), contact.getAddress(), contact
-                .getProtocolProvider().getProtocolName());
-
-        contactsMap.put(sessionID, contact);
-        return sessionID;
-    }
-
-    public String getRemoteFingerprint(Contact contact)
-    {
-        PublicKey remotePublicKey = loadPublicKey(contact.getAddress());
-        if (remotePublicKey == null)
-            return null;
-        try
-        {
-            return new OtrCryptoEngineImpl().getFingerprint(remotePublicKey);
-        }
-        catch (OtrCryptoException e)
-        {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public String getLocalFingerprint(AccountID account)
-    {
-        KeyPair keyPair = loadKeyPair(account.getAccountUniqueID());
-
-        if (keyPair == null)
-            return null;
-
-        PublicKey pubKey = keyPair.getPublic();
-
-        try
-        {
-            return new OtrCryptoEngineImpl().getFingerprint(pubKey);
-        }
-        catch (OtrCryptoException e)
-        {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     private Configurator configurator = new Configurator();
-
-    class Configurator
-    {
-
-        private String getXmlFriendlyString(String s)
-        {
-            if (s == null || s.length() < 1)
-                return s;
-
-            // XML Tags are not allowed to start with digits,
-            // insert a dummy "p" char.
-            if (Character.isDigit(s.charAt(0)))
-                s = "p" + s;
-
-            char[] cId = new char[s.length()];
-            for (int i = 0; i < cId.length; i++)
-            {
-                char c = s.charAt(i);
-                cId[i] = (Character.isLetterOrDigit(c)) ? c : '_';
-            }
-
-            return new String(cId);
-        }
-
-        private String getID(String id)
-        {
-            return "net.java.sip.communicator.plugin.otr."
-                + getXmlFriendlyString(id);
-        }
-
-        public byte[] getPropertyBytes(String id)
-        {
-            String value =
-                (String) OtrActivator.configService.getProperty(this.getID(id));
-            if (value == null)
-                return null;
-
-            return Base64.decode(value.getBytes());
-        }
-
-        public Boolean getPropertyBoolean(String id, boolean defaultValue)
-        {
-            return OtrActivator.configService.getBoolean(this.getID(id),
-                defaultValue);
-        }
-
-        public void setProperty(String id, byte[] value)
-        {
-            String valueToStore = new String(Base64.encode(value));
-
-            OtrActivator.configService
-                .setProperty(this.getID(id), valueToStore);
-        }
-
-        public void setProperty(String id, boolean value)
-        {
-            OtrActivator.configService.setProperty(this.getID(id), value);
-        }
-
-        public void setProperty(String id, Integer value)
-        {
-            OtrActivator.configService.setProperty(this.getID(id), value);
-        }
-
-        public void removeProperty(String id)
-        {
-            OtrActivator.configService.removeProperty(this.getID(id));
-        }
-
-        public int getPropertyInt(String id, int defaultValue)
-        {
-            return OtrActivator.configService.getInt(getID(id), defaultValue);
-        }
-    }
-
-    public void verifyContactFingerprint(Contact contact)
-    {
-        if (contact == null)
-            return;
-
-        if (isContactVerified(contact))
-            return;
-        
-        this.configurator.setProperty(getSessionID(contact)
-            + "publicKey.verified", true);
-        
-        for (ScOtrEngineListener l : listeners)
-            l.contactVerificationStatusChanged(contact);
-    }
-
-    public void forgetContactFingerprint(Contact contact)
-    {
-        if (contact == null)
-            return;
-
-        if (!isContactVerified(contact))
-            return;
-        
-        this.configurator.removeProperty(getSessionID(contact)
-            + "publicKey.verified");
-
-        for (ScOtrEngineListener l : listeners)
-            l.contactVerificationStatusChanged(contact);
-    }
 
     public OtrPolicy getGlobalPolicy()
     {
@@ -423,118 +300,5 @@ public class ScOtrEngineImpl
         for (ScOtrEngineListener l : listeners)
             l.contactPolicyChanged(contact);
 
-    }
-
-    private KeyPair loadKeyPair(String accountID)
-    {
-        // Load Private Key.
-        byte[] b64PrivKey =
-            this.configurator.getPropertyBytes(accountID + ".privateKey");
-        if (b64PrivKey == null)
-            return null;
-
-        PKCS8EncodedKeySpec privateKeySpec =
-            new PKCS8EncodedKeySpec(b64PrivKey);
-
-        // Load Public Key.
-        byte[] b64PubKey =
-            this.configurator.getPropertyBytes(accountID + ".publicKey");
-        if (b64PubKey == null)
-            return null;
-
-        X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(b64PubKey);
-
-        PublicKey publicKey;
-        PrivateKey privateKey;
-
-        // Generate KeyPair.
-        KeyFactory keyFactory;
-        try
-        {
-            keyFactory = KeyFactory.getInstance("DSA");
-            publicKey = keyFactory.generatePublic(publicKeySpec);
-            privateKey = keyFactory.generatePrivate(privateKeySpec);
-        }
-        catch (NoSuchAlgorithmException e)
-        {
-            e.printStackTrace();
-            return null;
-        }
-        catch (InvalidKeySpecException e)
-        {
-            e.printStackTrace();
-            return null;
-        }
-
-        return new KeyPair(publicKey, privateKey);
-    }
-
-    public void generateKeyPair(String accountID)
-    {
-        KeyPair keyPair;
-        try
-        {
-            keyPair = KeyPairGenerator.getInstance("DSA").genKeyPair();
-        }
-        catch (NoSuchAlgorithmException e)
-        {
-            e.printStackTrace();
-            return;
-        }
-
-        // Store Public Key.
-        PublicKey pubKey = keyPair.getPublic();
-        X509EncodedKeySpec x509EncodedKeySpec =
-            new X509EncodedKeySpec(pubKey.getEncoded());
-
-        this.configurator.setProperty(accountID + ".publicKey",
-            x509EncodedKeySpec.getEncoded());
-
-        // Store Private Key.
-        PrivateKey privKey = keyPair.getPrivate();
-        PKCS8EncodedKeySpec pkcs8EncodedKeySpec =
-            new PKCS8EncodedKeySpec(privKey.getEncoded());
-
-        this.configurator.setProperty(accountID + ".privateKey",
-            pkcs8EncodedKeySpec.getEncoded());
-    }
-
-    private void savePublicKey(String userID, PublicKey pubKey)
-    {
-        X509EncodedKeySpec x509EncodedKeySpec =
-            new X509EncodedKeySpec(pubKey.getEncoded());
-
-        this.configurator.setProperty(userID + ".publicKey", x509EncodedKeySpec
-            .getEncoded());
-
-        this.configurator.removeProperty(userID + ".publicKey.verified");
-    }
-
-    private PublicKey loadPublicKey(String userID)
-    {
-        byte[] b64PubKey =
-            this.configurator.getPropertyBytes(userID + ".publicKey");
-        if (b64PubKey == null)
-            return null;
-
-        X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(b64PubKey);
-
-        // Generate KeyPair.
-        KeyFactory keyFactory;
-        try
-        {
-            keyFactory = KeyFactory.getInstance("DSA");
-            return keyFactory.generatePublic(publicKeySpec);
-        }
-        catch (NoSuchAlgorithmException e)
-        {
-            e.printStackTrace();
-            return null;
-        }
-        catch (InvalidKeySpecException e)
-        {
-            e.printStackTrace();
-            return null;
-        }
     }
 }
