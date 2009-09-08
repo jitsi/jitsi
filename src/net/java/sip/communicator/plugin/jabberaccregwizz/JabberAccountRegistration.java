@@ -36,6 +36,8 @@ public class JabberAccountRegistration
 
     private boolean sendKeepAlive = true;
 
+    private boolean enableGmailNotification = false;
+
     /**
      * Returns the password of the jabber registration account.
      * @return the password of the jabber registration account.
@@ -101,8 +103,10 @@ public class JabberAccountRegistration
     }
 
     /**
-     * Is sending of keep alive packets is enabled
-     * @return boolean
+     * Determines whether sending of keep alive packets is enabled.
+     *
+     * @return <tt>true</tt> if keep alive packets are to be sent for this
+     * account and <tt>false</tt> otherwise.
      */
     public boolean isSendKeepAlive()
     {
@@ -110,7 +114,20 @@ public class JabberAccountRegistration
     }
 
     /**
+     * Determines whether SIP Communicator should be querying GMail servers
+     * for unread mail messages.
+     *
+     * @return <tt>true</tt> if we are to enable GMail notifications and
+     * <tt>false</tt> otherwise.
+     */
+    public boolean isGmailNotificationEnabled()
+    {
+        return enableGmailNotification;
+    }
+
+    /**
      * Sets the User ID of the jabber registration account.
+     *
      * @param userID the identifier of the jabber registration account.
      */
     public void setUserID(String userID)
@@ -119,8 +136,9 @@ public class JabberAccountRegistration
     }
 
     /**
-     * Setting the server
-     * @param serverAddress String
+     * Sets the server
+     *
+     * @param serverAddress the IP address or FQDN of the server.
      */
     public void setServerAddress(String serverAddress)
     {
@@ -128,8 +146,9 @@ public class JabberAccountRegistration
     }
 
     /**
-     * Setting the port
-     * @param port int
+     * Sets the server port number.
+     *
+     * @param port the server port number
      */
     public void setPort(int port)
     {
@@ -137,12 +156,27 @@ public class JabberAccountRegistration
     }
 
     /**
-     * Set whether to send keep alive packets
-     * @param sendKeepAlive boolean
+     * Specifies whether SIP Communicator should send send keep alive packets
+     * to keep this account registered.
+     *
+     * @param sendKeepAlive <tt>true</tt> if we are to send keep alive packets
+     * and <tt>false</tt> otherwise.
      */
     public void setSendKeepAlive(boolean sendKeepAlive)
     {
         this.sendKeepAlive = sendKeepAlive;
+    }
+
+    /**
+     * Specifies whether SIP Communicator should be querying GMail servers
+     * for unread mail messages.
+     *
+     * @param enabled <tt>true</tt> if we are to enable GMail notification and
+     * <tt>false</tt> otherwise.
+     */
+    public void setGmailNotificationEnabled(boolean enabled)
+    {
+        this.enableGmailNotification = enabled;
     }
 
     public String getResource()

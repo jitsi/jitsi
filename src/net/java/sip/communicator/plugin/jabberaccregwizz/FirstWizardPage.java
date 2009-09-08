@@ -75,6 +75,9 @@ public class FirstWizardPage
     private JCheckBox sendKeepAliveBox = new SIPCommCheckBox(Resources
         .getString("plugin.jabberaccregwizz.ENABLE_KEEP_ALIVE"));
 
+    private JCheckBox gmailNotificationsBox = new SIPCommCheckBox(Resources
+            .getString("plugin.jabberaccregwizz.ENABLE_GMAIL_NOTIFICATIONS"));
+
     private JLabel resourceLabel
         = new JLabel(Resources.getString("plugin.jabberaccregwizz.RESOURCE"));
 
@@ -228,6 +231,7 @@ public class FirstWizardPage
         JPanel checkBoxesPanel
             = new TransparentPanel(new GridLayout(0, 1, 10, 10));
         checkBoxesPanel.add(sendKeepAliveBox);
+        checkBoxesPanel.add(gmailNotificationsBox);
 
         advancedOpPanel.add(checkBoxesPanel, BorderLayout.NORTH);
         advancedOpPanel.add(labelsAdvOpPanel, BorderLayout.WEST);
@@ -352,6 +356,8 @@ public class FirstWizardPage
 
         registration.setServerAddress(serverField.getText());
         registration.setSendKeepAlive(sendKeepAliveBox.isSelected());
+        registration.setGmailNotificationEnabled(
+                        this.gmailNotificationsBox.isSelected());
         registration.setResource(resourceField.getText());
 
         if (portField.getText() != null)
@@ -468,6 +474,11 @@ public class FirstWizardPage
             .get("SEND_KEEP_ALIVE")).booleanValue();
 
         sendKeepAliveBox.setSelected(keepAlive);
+
+        boolean gmailNotificationEnabled = new Boolean((String)accountProperties
+                  .get("GMAIL_NOTIFICATIONS_ENABLED")).booleanValue();
+
+        gmailNotificationsBox.setSelected(gmailNotificationEnabled);
 
         String resource = (String) accountProperties.get(
             ProtocolProviderFactory.RESOURCE);

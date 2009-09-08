@@ -54,8 +54,7 @@ public class MailThreadInfo
     /**
      * The format that we are using to display dates when generating html.
      */
-    private static final DateFormat dateFormat = DateFormat.getDateTimeInstance(
-                                        DateFormat.SHORT, DateFormat.SHORT);
+    private String formattedDate = null;
 
     /**
      * The thread id of this thread.
@@ -302,6 +301,41 @@ public class MailThreadInfo
     public long getDate()
     {
         return date;
+    }
+
+    /**
+     * Returns a human readable date.
+     *
+     * @return a human readable date
+     */
+    private String getFormattedDate()
+    {
+        if (formattedDate != null)
+            return formattedDate;
+
+        StringBuffer dateBuff = new StringBuffer();
+
+        Calendar now = Calendar.getInstance();
+        Date threadDate = new Date(getDate());
+        Calendar threadDateCal = Calendar.getInstance();
+        threadDateCal.setTime(new Date(getDate()));
+
+
+        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.DEFAULT);
+        DateFormat timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
+
+        if (now.get(Calendar.YEAR) != threadDateCal.get(Calendar.YEAR)
+            || now.get(Calendar.MONTH) != threadDateCal.get(Calendar.MONTH)
+            || now.get(Calendar.DAY_OF_MONTH)
+                    != threadDateCal.get(Calendar.DAY_OF_MONTH))
+        {
+            //the message is not from today so include the full date.
+            dateBuff.append(dateFormat.format(threadDate));
+        }
+
+        dateBuff.append(" ").append(timeFormat.format(threadDate));
+
+        return dateBuff.toString();
     }
 
     /**
@@ -677,18 +711,21 @@ public class MailThreadInfo
         //add the subject
         threadBuff.append("<a href=\"");
         threadBuff.append(getURL()).append("\"><b>");
-        threadBuff.append(getSubject()).append("</b>");
+        threadBuff.append(getSubject()).append("</b></a>");
 
         //add mail snippet
         threadBuff.append("<font color=#7777CC> - ");
-        threadBuff.append(getSnippet()).append("</font>");
+        threadBuff.append("<a href=\"");
+        threadBuff.append(getURL());
+        threadBuff.append("\" style=\"text-decoration:none\">");
+        threadBuff.append(getSnippet()).append("</a></font>");
 
         //end thread link
-        threadBuff.append("</a></td>");
+        threadBuff.append("</td>");
 
         //time and date
         threadBuff.append("<td nowrap>");
-        threadBuff.append( dateFormat.format(new Date(getDate())));
+        threadBuff.append( getFormattedDate() );
         threadBuff.append("</td></tr>");
 
 

@@ -141,6 +141,11 @@ public class JabberAccountRegistrationWizard
             String.valueOf(registration.isSendKeepAlive()));
 
         summaryTable.put(
+            Resources.getString(
+                        "plugin.jabberaccregwizz.GMAIL_NOTIFICATIONS_ENABLED"),
+            String.valueOf(registration.isGmailNotificationEnabled()));
+
+        summaryTable.put(
             Resources.getString("plugin.jabberaccregwizz.RESOURCE"),
             registration.getResource());
 
@@ -205,6 +210,9 @@ public class JabberAccountRegistrationWizard
 
         accountProperties.put("SEND_KEEP_ALIVE",
                               String.valueOf(registration.isSendKeepAlive()));
+
+        accountProperties.put("GMAIL_NOTIFICATIONS_ENABLED",
+                    String.valueOf(registration.isGmailNotificationEnabled()));
 
         String serverName = null;
         if (registration.getServerAddress() != null)

@@ -44,9 +44,6 @@ public class NewMailNotificationProvider
     {
         logger.debug("NewMailNotificationProvider.getChildElementXML usage");
         NewMailNotificationIQ iq = new NewMailNotificationIQ();
-        iq.setFrom(parser.getAttributeValue("", "from"));
-        iq.setTo(parser.getAttributeValue("", "to"));
-        iq.setPacketID(parser.getAttributeValue("", "id"));
 
         return iq;
     }

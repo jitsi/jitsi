@@ -11,6 +11,7 @@ import java.util.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.keepalive.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.mailnotification.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.version.Version;
+import net.java.sip.communicator.impl.protocol.yahoo.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -60,10 +61,11 @@ public class OperationSetBasicInstantMessagingJabberImpl
             +"MAX_GMAIL_THREADS_PER_NOTIFICATION";
 
     /**
-     * Determines whether or not we are to deliver GMail notifications to the
-     * user.
+     * The maximum number of unread threads that we'd be notifying the user of.
      */
-    private boolean enableGmailNotifications = false;
+    private static final String PNAME_ENABLE_GMAIL_NOTIFICATIONS
+        = "net.java.sip.communicator.impl.protocol.jabber."
+            +"ENABLE_GMAIL_NOTIFICATIONS";
 
     /**
      * The task sending packets
@@ -334,6 +336,10 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
                 //subscribe for Google (GMail or Google Apps) notifications
                 //for new mail messages.
+                boolean enableGmailNotifications
+                   = Boolean.parseBoolean( jabberProvider.getAccountID()
+                     .getAccountPropertyString("GMAIL_NOTIFICATIONS_ENABLED"));
+
                 if (enableGmailNotifications)
                     subscribeForGmailNotifications();
 
@@ -685,10 +691,10 @@ public class OperationSetBasicInstantMessagingJabberImpl
             new NewMailNotificationProvider());
 
         jabberProvider.getConnection().addPacketListener(
-            new MailboxIQListener(), new PacketTypeFilter( IQ.class));
+            new MailboxIQListener(), new PacketTypeFilter( MailboxIQ.class));
 
         jabberProvider.getConnection().addPacketListener(
-            new NewMailNotificationListener(),new PacketTypeFilter(IQ.class));
+            new NewMailNotificationListener(),new PacketTypeFilter(NewMailNotificationIQ.class));
 
         if(opSetPersPresence.getCurrentStatusMessage()
                         .equals(JabberStatusEnum.OFFLINE))
@@ -698,11 +704,11 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
         //create a query with -1 values for newer-than-tid and
         //newer-than-time attributes
-        MailboxQueryIQ mailnotification = new MailboxQueryIQ();
+        MailboxQueryIQ mailboxQuery = new MailboxQueryIQ();
         logger.trace("sending mailNotification for acc: "
                     + jabberProvider.getAccountID().getAccountUniqueID());
 
-        jabberProvider.getConnection().sendPacket(mailnotification);
+        jabberProvider.getConnection().sendPacket(mailboxQuery);
     }
 
     /**
@@ -714,15 +720,25 @@ public class OperationSetBasicInstantMessagingJabberImpl
      */
     private String createMailboxDescription(MailboxIQ mailboxIQ)
     {
-        /** @todo localize */
-        String newMailHeader
-            = "You have "+ mailboxIQ.getTotalMatched() + " new "
-                + (mailboxIQ.getTotalMatched() > 1
-                                ? "messages"
-                                : "message")
-                + " in your "
-                + jabberProvider.getAccountID().getService()
-                + " <a href='" + mailboxIQ.getUrl() +"'>inbox</a>.<br/>";
+        int threadCount = mailboxIQ.getThreadCount();
+
+        String resourceHeaderKey = threadCount > 1
+            ? "service.gui.NEW_GMAIL_MANY_HEADER"
+            : "service.gui.NEW_GMAIL_HEADER";
+
+        String resourceFooterKey = threadCount > 1
+            ? "service.gui.NEW_GMAIL_MANY_FOOTER"
+            : "service.gui.NEW_GMAIL_FOOTER";
+
+        String newMailHeader = JabberActivator.getResources().getI18NString(
+            resourceHeaderKey,
+            new String[]
+                {
+                    jabberProvider.getAccountID()
+                                .getService(),     //{0} - service name
+                    mailboxIQ.getUrl(),            //{1} - inbox URI
+                    Integer.toString( threadCount )//{2} - thread count
+                });
 
         StringBuffer message = new StringBuffer(newMailHeader);
 
@@ -753,19 +769,20 @@ public class OperationSetBasicInstantMessagingJabberImpl
         {
             message.append(threads.next().createHtmlDescription());
         }
-        message.append("</table><br/><br/>");
+        message.append("</table><br/>");
 
-        int threadCount = mailboxIQ.getThreadCount();
         if(threadCount > maxThreads)
         {
-            message.append(threadCount - maxThreads
-                   + " more unread messages in your "
-                   + " <a href='" + mailboxIQ.getUrl() +"'>inbox</a>.<br/>");
+            String messageFooter = JabberActivator.getResources().getI18NString(
+                resourceFooterKey,
+                new String[]
+                {
+                    mailboxIQ.getUrl(),            //{0} - inbox URI
+                    Integer.toString(
+                         threadCount - maxThreads )//{1} - thread count
+                });
+            message.append(messageFooter);
         }
-
-
-
-        //
 
         return message.toString();
     }
@@ -786,7 +803,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 return;
 
             //Get a reference to a dummy volatile contact
-            Contact sourceContact = opSetPersPresence.findContactByID("GMail");
+            Contact sourceContact = opSetPersPresence
+                .findContactByID("GMail");
 
             if(sourceContact == null)
                 sourceContact = opSetPersPresence
@@ -816,6 +834,14 @@ public class OperationSetBasicInstantMessagingJabberImpl
         public void processPacket(Packet packet)
         {
             if(packet != null &&  !(packet instanceof NewMailNotificationIQ))
+                return;
+
+            //check whether we are still enabled.
+            boolean enableGmailNotifications
+                = Boolean.parseBoolean( jabberProvider.getAccountID()
+                    .getAccountPropertyString("GMAIL_NOTIFICATIONS_ENABLED"));
+
+            if (!enableGmailNotifications)
                 return;
 
             if(opSetPersPresence.getCurrentStatusMessage()
