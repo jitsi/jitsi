@@ -140,6 +140,27 @@ public class MailThreadInfo
          * this sender.
          */
         public boolean unread = false;
+
+        /**
+         * Tries to parse and return the first name of this sender.
+         *
+         * @return the first name of this sender.
+         */
+        public String getFirstName()
+        {
+            if(name == null || name.trim().length() == 0)
+                return "";
+
+            String[] names = name.split("\\s");
+
+            String result = names[0];
+
+            //return 14 chars max
+            if(result.length() > 15)
+                result = result.substring(0, 14);
+
+            return result;
+        }
     }
 
     /**
@@ -533,6 +554,132 @@ public class MailThreadInfo
 
             eventType = parser.next();
         }
-
     }
+
+    /**
+     * Creates an html description of all participant names in the thread.
+     * We try to do this in a GMail-like (although quite simplified) way:<br/>
+     * We print the whole name for a sole participant. <br/>
+     * We print only the first names for more than one participant. <br/>
+     * We print up to three names max. <br/>
+     * We show in bold people that we have unread messages for <br/>.
+     *
+     * @return an html description of <tt>thread</tt>
+     */
+    private String createParticipantNames()
+    {
+        StringBuffer participantNames = new StringBuffer();
+
+        //if we have more than one sender we only show first names
+        boolean firstNamesOnly = getSenderCount() > 1;
+
+        int unreadSenderCount = getUnreadSenderCount();
+
+        int maximumSndrsAllowed = 3;
+        int remainingSndrsAllowed = maximumSndrsAllowed;
+        int maximumUnreadAllowed = Math.min(
+                        remainingSndrsAllowed, unreadSenderCount);
+        int maximumReadAllowed = remainingSndrsAllowed - maximumUnreadAllowed;
+
+        //we now iterate over all senders and include as many unread and read
+        //participants as possible.
+        Iterator<MailThreadInfo.Sender> senders = senders();
+        while(senders.hasNext())
+        {
+            if(remainingSndrsAllowed == 0 )
+                break;
+
+            MailThreadInfo.Sender sender = senders.next();
+
+            String name = firstNamesOnly? sender.getFirstName() : sender.name;
+
+            if (!sender.unread && maximumReadAllowed == 0)
+                continue;
+
+            if(remainingSndrsAllowed < maximumSndrsAllowed)
+            {
+                //this is not the first name we add so add a coma
+                participantNames.append(", ");
+            }
+
+            remainingSndrsAllowed--;
+
+            if(sender.unread)
+            {
+                participantNames.append("<b>").append(name).append("</b>");
+                maximumUnreadAllowed --;
+            }
+            else
+            {
+                participantNames.append(name);
+                maximumReadAllowed--;
+            }
+        }
+
+        //if we don't show all the senders, then show total number of messages
+        participantNames.append(" (").append(getMessageCount()).append(")");
+
+        return participantNames.toString();
+    }
+
+    /**
+     * Creates an html description of the specified thread.
+     *
+     * @param thread the thread that we are to describe.
+     *
+     * @return an html description of <tt>thread</tt>
+     */
+    public String createHtmlDescription()
+    {
+        StringBuffer threadBuff = new StringBuffer();
+
+        //first get the names of the participants
+        threadBuff.append(createParticipantNames());
+
+        //start a new cell
+        threadBuff.append("<td>");
+
+        //now get the labels
+        threadBuff.append(createLabelList());
+
+        //add the subject
+        threadBuff.append("<b>").append(getSubject()).append("</b>");
+
+        //add mail snippet
+        threadBuff.append("<font color=#7777CC> - ");
+        threadBuff.append(getSnippet()).append("</font>");
+
+        //and we're done
+        return threadBuff.toString();
+    }
+
+    /**
+     * Creates a formatted list of labels.
+     *
+     * @return a <tt>String</tt> containing a formatted list of labels.
+     */
+    private String createLabelList()
+    {
+        String[] labelsArray = labels.split("|");
+        StringBuffer labelsList = new StringBuffer();
+
+        //get rid of the system labels that start with "^"
+        for (int i = 0; i < labelsArray.length; i++)
+        {
+            String label = labelsArray[i];
+
+            if(label.startsWith("^"))
+                continue;
+
+            labelsList.append("<font color=#006633>");
+            labelsList.append(label);
+            labelsList.append("</font>");
+
+            if(i < labelsArray.length -1)
+                labelsList.append(", ");
+        }
+
+        return labelsList.toString();
+    }
+
 }
