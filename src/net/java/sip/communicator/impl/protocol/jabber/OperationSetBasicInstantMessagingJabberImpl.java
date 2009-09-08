@@ -11,7 +11,6 @@ import java.util.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.keepalive.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.mailnotification.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.version.Version;
-import net.java.sip.communicator.impl.protocol.yahoo.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -71,10 +70,11 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * The task sending packets
      */
     private KeepAliveSendTask keepAliveSendTask = null;
+
     /**
      * The timer executing tasks on specified intervals
      */
-    private Timer keepAliveTimer = new Timer();
+    private final Timer keepAliveTimer = new Timer();
 
     /**
      * Indicates the time of the last Mailbox report that we received from
@@ -94,7 +94,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
     /**
      * The provider that created us.
      */
-    private ProtocolProviderServiceJabberImpl jabberProvider = null;
+    private final ProtocolProviderServiceJabberImpl jabberProvider;
 
     /**
      * A reference to the persistent presence operation set that we use
@@ -178,11 +178,9 @@ public class OperationSetBasicInstantMessagingJabberImpl
      */
     public boolean isContentTypeSupported(String contentType)
     {
-        if(contentType.equals(DEFAULT_MIME_TYPE)
-            || contentType.equals(HTML_MIME_TYPE))
-            return true;
-        else
-           return false;
+        return
+            (contentType.equals(DEFAULT_MIME_TYPE)
+                || contentType.equals(HTML_MIME_TYPE));
     }
 
     /**
@@ -231,11 +229,10 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 new org.jivesoftware.smack.packet.Message();
 
             MessageDeliveredEvent msgDeliveryPendingEvt
-            = new MessageDeliveredEvent(
-                    message, to, System.currentTimeMillis());
+                = new MessageDeliveredEvent(message, to);
 
-            msgDeliveryPendingEvt = messageDeliveryPendingTransform(
-                            msgDeliveryPendingEvt);
+            msgDeliveryPendingEvt
+                = messageDeliveryPendingTransform(msgDeliveryPendingEvt);
 
             if (msgDeliveryPendingEvt == null)
                 return;
@@ -270,8 +267,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
             chat.sendMessage(msg);
 
             MessageDeliveredEvent msgDeliveredEvt
-                = new MessageDeliveredEvent(
-                        message, to, System.currentTimeMillis());
+                = new MessageDeliveredEvent(message, to);
 
             // msgDeliveredEvt = messageDeliveredTransform(msgDeliveredEvt);
 
@@ -337,8 +333,11 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 //subscribe for Google (GMail or Google Apps) notifications
                 //for new mail messages.
                 boolean enableGmailNotifications
-                   = Boolean.parseBoolean( jabberProvider.getAccountID()
-                     .getAccountPropertyString("GMAIL_NOTIFICATIONS_ENABLED"));
+                   = jabberProvider
+                       .getAccountID()
+                           .getAccountPropertyBoolean(
+                               "GMAIL_NOTIFICATIONS_ENABLED",
+                               false);
 
                 if (enableGmailNotifications)
                     subscribeForGmailNotifications();
@@ -592,30 +591,24 @@ public class OperationSetBasicInstantMessagingJabberImpl
          * @return boolean
          * @throws NoSuchElementException
          */
-        boolean checkFirstPacket()
+        private boolean checkFirstPacket()
             throws NoSuchElementException
         {
             KeepAliveEvent receivedEvent
                 = receivedKeepAlivePackets.removeLast();
 
-            if(jabberProvider.hashCode() != receivedEvent.getSrcProviderHash()
-               || OperationSetBasicInstantMessagingJabberImpl.this.hashCode()
-                      != receivedEvent.getSrcOpSetHash()
-               || !jabberProvider.getAccountID().getUserID().
-                                        equals(receivedEvent.getFromUserID()) )
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+            return
+                (jabberProvider.hashCode() == receivedEvent.getSrcProviderHash()
+                    && OperationSetBasicInstantMessagingJabberImpl.this.hashCode()
+                            == receivedEvent.getSrcOpSetHash()
+                    && jabberProvider.getAccountID().getUserID()
+                            .equals(receivedEvent.getFromUserID()));
         }
 
         /**
          * Fire Unregistered event
          */
-        void fireUnregisterd()
+        private void fireUnregisterd()
         {
             jabberProvider.fireRegistrationStateChanged(
                 jabberProvider.getRegistrationState(),
@@ -652,11 +645,9 @@ public class OperationSetBasicInstantMessagingJabberImpl
             org.jivesoftware.smack.packet.Message msg
                 = (org.jivesoftware.smack.packet.Message) packet;
 
-            if(msg.getType().equals(
-                org.jivesoftware.smack.packet.Message.Type.groupchat))
-                return false;
-
-            return true;
+            return
+                !msg.getType().equals(
+                        org.jivesoftware.smack.packet.Message.Type.groupchat);
         }
     }
 
@@ -779,7 +770,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 {
                     mailboxIQ.getUrl(),            //{0} - inbox URI
                     Integer.toString(
-                         threadCount - maxThreads )//{1} - thread count
+                        threadCount - maxThreads )//{1} - thread count
                 });
             message.append(messageFooter);
         }
@@ -838,8 +829,11 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
             //check whether we are still enabled.
             boolean enableGmailNotifications
-                = Boolean.parseBoolean( jabberProvider.getAccountID()
-                    .getAccountPropertyString("GMAIL_NOTIFICATIONS_ENABLED"));
+                = jabberProvider
+                    .getAccountID()
+                        .getAccountPropertyBoolean(
+                            "GMAIL_NOTIFICATIONS_ENABLED",
+                            false);
 
             if (!enableGmailNotifications)
                 return;

@@ -116,7 +116,7 @@ public class FirstWizardPage
 
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
 
-    private JabberAccountRegistrationWizard wizard;
+    private final JabberAccountRegistrationWizard wizard;
 
     private boolean isCommitted = false;
 
@@ -129,7 +129,6 @@ public class FirstWizardPage
      */
     public FirstWizardPage(JabberAccountRegistrationWizard wizard)
     {
-
         super(new BorderLayout());
 
         this.wizard = wizard;
@@ -378,17 +377,21 @@ public class FirstWizardPage
      */
     private void setNextButtonAccordingToUserIDAndResource()
     {
-        if (userIDField.getText() == null
-            || userIDField.getText().equals("")
-            || resourceField.getText() == null
-            || resourceField.getText().equals(""))
+        boolean nextFinishButtonEnabled = false;
+
+        String userID = userIDField.getText();
+        if ((userID != null) && !userID.equals(""))
         {
-            wizard.getWizardContainer().setNextFinishButtonEnabled(false);
+            String resource = resourceField.getText();
+            if ((resource != null) && !resource.equals(""))
+            {
+                nextFinishButtonEnabled = true;
+            }
         }
-        else
-        {
-            wizard.getWizardContainer().setNextFinishButtonEnabled(true);
-        }
+
+        wizard
+            .getWizardContainer()
+                .setNextFinishButtonEnabled(nextFinishButtonEnabled);
     }
 
     /**
@@ -445,11 +448,11 @@ public class FirstWizardPage
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
         AccountID accountID = protocolProvider.getAccountID();
+        Map<String, String> accountProperties
+            = accountID.getAccountProperties();
 
-        Map accountProperties = accountID.getAccountProperties();
-
-        String password = (String) accountProperties.get(
-            ProtocolProviderFactory.PASSWORD);
+        String password
+            = accountProperties.get(ProtocolProviderFactory.PASSWORD);
 
         this.userIDField.setEnabled(false);
         this.userIDField.setText(accountID.getUserID());
@@ -460,38 +463,41 @@ public class FirstWizardPage
             this.rememberPassBox.setSelected(true);
         }
 
-        String serverAddress = (String) accountProperties
-            .get(ProtocolProviderFactory.SERVER_ADDRESS);
+        String serverAddress
+            = accountProperties.get(ProtocolProviderFactory.SERVER_ADDRESS);
 
         serverField.setText(serverAddress);
 
-        String serverPort = (String) accountProperties
-            .get(ProtocolProviderFactory.SERVER_PORT);
+        String serverPort
+            = accountProperties.get(ProtocolProviderFactory.SERVER_PORT);
 
         portField.setText(serverPort);
 
-        boolean keepAlive = new Boolean((String)accountProperties
-            .get("SEND_KEEP_ALIVE")).booleanValue();
+        boolean keepAlive
+            = Boolean.parseBoolean(accountProperties.get("SEND_KEEP_ALIVE"));
 
         sendKeepAliveBox.setSelected(keepAlive);
 
-        boolean gmailNotificationEnabled = new Boolean((String)accountProperties
-                  .get("GMAIL_NOTIFICATIONS_ENABLED")).booleanValue();
+        boolean gmailNotificationEnabled
+            = Boolean.parseBoolean(
+                    accountProperties.get("GMAIL_NOTIFICATIONS_ENABLED"));
 
         gmailNotificationsBox.setSelected(gmailNotificationEnabled);
 
-        String resource = (String) accountProperties.get(
-            ProtocolProviderFactory.RESOURCE);
+        String resource
+            = accountProperties.get(ProtocolProviderFactory.RESOURCE);
 
         resourceField.setText(resource);
 
-        String priority = (String) accountProperties.get(
-            ProtocolProviderFactory.RESOURCE_PRIORITY);
+        String priority
+            = accountProperties.get(ProtocolProviderFactory.RESOURCE_PRIORITY);
 
         priorityField.setText(priority);
 
-        this.isServerOverridden = accountID.getAccountPropertyBoolean(
-            ProtocolProviderFactory.IS_SERVER_OVERRIDDEN, false);
+        this.isServerOverridden
+            = accountID.getAccountPropertyBoolean(
+                    ProtocolProviderFactory.IS_SERVER_OVERRIDDEN,
+                    false);
     }
 
     /**
@@ -515,8 +521,8 @@ public class FirstWizardPage
     {
         try
         {
-            new Integer(portField.getText());
-            new Integer(priorityField.getText());
+            Integer.parseInt(portField.getText());
+            Integer.parseInt(priorityField.getText());
             wizard.getWizardContainer().setNextFinishButtonEnabled(true);
         }
         catch (NumberFormatException ex)
