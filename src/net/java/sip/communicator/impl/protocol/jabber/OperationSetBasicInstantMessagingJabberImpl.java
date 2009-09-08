@@ -321,7 +321,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
                 //subscribe for Google (GMail or Google Apps) notifications
                 //for new mail messages.
-                //subscribeForGmailNotifications();
+                subscribeForGmailNotifications();
 
 
                 // run keep alive thread
@@ -716,6 +716,16 @@ public class OperationSetBasicInstantMessagingJabberImpl
         int maximumUnreadAllowed = Math.min(
                         maximumSndrsAllowed, unreadSenderCount);
         int maximumReadAllowed = maximumSndrsAllowed - maximumUnreadAllowed;
+
+        //we now iterate over all senders and include as many unread and read
+        //participants as possible.
+        Iterator<MailThreadInfo.Sender> senders = thread.senders();
+        while(senders.hasNext())
+        {
+            MailThreadInfo.Sender sender = senders.next();
+
+
+        }
 
 
         return participantNames.toString();
