@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.jabber.extensions.mailnotification;
 
 import java.io.*;
+import java.text.*;
 import java.util.*;
 
 import org.xmlpull.v1.*;
@@ -49,6 +50,12 @@ public class MailThreadInfo
      * Contains the list of senders that have participated in this thread.
      */
     private List<Sender> senders = new LinkedList<Sender>();
+
+    /**
+     * The format that we are using to display dates when generating html.
+     */
+    private static final DateFormat dateFormat = DateFormat.getDateTimeInstance(
+                                        DateFormat.SHORT, DateFormat.SHORT);
 
     /**
      * The thread id of this thread.
@@ -149,7 +156,7 @@ public class MailThreadInfo
         public String getFirstName()
         {
             if(name == null || name.trim().length() == 0)
-                return "";
+                return null;
 
             String[] names = name.split("\\s");
 
@@ -530,8 +537,8 @@ public class MailThreadInfo
                 {
                     Sender sender = new Sender();
 
-                    sender.address = parser.getAttributeValue("", "name");
-                    sender.name = parser.getAttributeValue("", "address");
+                    sender.address = parser.getAttributeValue("", "address");
+                    sender.name = parser.getAttributeValue("", "name");
 
                     String originatorStr
                         = parser.getAttributeValue("", "originator");
@@ -593,6 +600,9 @@ public class MailThreadInfo
 
             String name = firstNamesOnly? sender.getFirstName() : sender.name;
 
+            if (name == null)
+                name = sender.address;
+
             if (!sender.unread && maximumReadAllowed == 0)
                 continue;
 
@@ -617,13 +627,15 @@ public class MailThreadInfo
         }
 
         //if we don't show all the senders, then show total number of messages
-        participantNames.append(" (").append(getMessageCount()).append(")");
+        int messageCount = getMessageCount();
+        if(messageCount > 1)
+            participantNames.append(" (").append(messageCount).append(")");
 
         return participantNames.toString();
     }
 
     /**
-     * Creates an html description of the specified thread.
+     * Creates an html description (table rows) of the specified thread.
      *
      * @param thread the thread that we are to describe.
      *
@@ -633,21 +645,36 @@ public class MailThreadInfo
     {
         StringBuffer threadBuff = new StringBuffer();
 
-        //first get the names of the participants
-        threadBuff.append(createParticipantNames());
+        threadBuff.append("<tr bgcolor=\"#ffffff\">");
 
-        //start a new cell
+        //first get the names of the participants
+        threadBuff.append("<td>");
+        threadBuff.append(createParticipantNames());
+        threadBuff.append("</td>");
+
+        //start a new cell for labels, subject, snippet and thread link
         threadBuff.append("<td>");
 
-        //now get the labels
-        threadBuff.append(createLabelList());
+        //labels
+        threadBuff.append(createLabelList()).append("&nbsp;");
 
         //add the subject
-        threadBuff.append("<b>").append(getSubject()).append("</b>");
+        threadBuff.append("<a href=\"");
+        threadBuff.append(getURL()).append("\"><b>");
+        threadBuff.append(getSubject()).append("</b>");
 
         //add mail snippet
         threadBuff.append("<font color=#7777CC> - ");
         threadBuff.append(getSnippet()).append("</font>");
+
+        //end thread link
+        threadBuff.append("</a></td>");
+
+        //time and date
+        threadBuff.append("<td nowrap>");
+        threadBuff.append( dateFormat.format(new Date(getDate())));
+        threadBuff.append("</td></tr>");
+
 
         //and we're done
         return threadBuff.toString();
@@ -660,7 +687,7 @@ public class MailThreadInfo
      */
     private String createLabelList()
     {
-        String[] labelsArray = labels.split("|");
+        String[] labelsArray = labels.split("\\|");
         StringBuffer labelsList = new StringBuffer();
 
         //get rid of the system labels that start with "^"

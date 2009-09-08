@@ -711,14 +711,20 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 + " <a href='" + mailboxIQ.getUrl() +"'>inbox</a>.<br/>";
 
         StringBuffer message = new StringBuffer(newMailHeader);
+
+        //we now start an html table for the threads.
+        message.append("<table width=100% cellpadding=2 cellspacing=0 ");
+        message.append("border=0 bgcolor=#e8eef7>");
+
         Iterator<MailThreadInfo> threads = mailboxIQ.threads();
 
         while(threads.hasNext())
         {
             message.append(threads.next().createHtmlDescription());
         }
+        message.append("</table><br/><br/>");
 
-        return newMailHeader;
+        return message.toString();
     }
     /**
      * Receives incoming MailNotification Packets
