@@ -27,20 +27,14 @@ public class RootContactGroupIcqImpl
      */
     private List<Contact> dummyContacts = new LinkedList<Contact>();
 
-    private ProtocolProviderServiceIcqImpl ownerProvider = null;
+    private final ProtocolProviderServiceIcqImpl protocolProvider;
 
     /**
      * Creates a ContactGroup instance.
      */
-    RootContactGroupIcqImpl(){}
-
-    /**
-     * Sets the currently valid provider
-     * @param ownerProvider ProtocolProviderServiceIcqImpl
-     */
-    void setOwnerProvider(ProtocolProviderServiceIcqImpl ownerProvider)
+    RootContactGroupIcqImpl(ProtocolProviderServiceIcqImpl protocolProvider)
     {
-        this.ownerProvider = ownerProvider;
+        this.protocolProvider = protocolProvider;
     }
 
     /**
@@ -245,7 +239,7 @@ public class RootContactGroupIcqImpl
      */
     public ProtocolProviderService getProtocolProvider()
     {
-        return this.ownerProvider;
+        return protocolProvider;
     }
 
     /**

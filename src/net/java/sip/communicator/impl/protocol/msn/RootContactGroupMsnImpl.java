@@ -25,20 +25,14 @@ public class RootContactGroupMsnImpl
 
     private List<Contact> contacts = new LinkedList<Contact>();
 
-    private ProtocolProviderServiceMsnImpl ownerProvider = null;
+    private final ProtocolProviderServiceMsnImpl protocolProvider;
 
     /**
      * Creates a ContactGroup instance.
      */
-    RootContactGroupMsnImpl(){}
-
-    /**
-     * Sets the currently valid provider
-     * @param ownerProvider ProtocolProviderServiceImpl
-     */
-    void setOwnerProvider(ProtocolProviderServiceMsnImpl ownerProvider)
+    RootContactGroupMsnImpl(ProtocolProviderServiceMsnImpl protocolProvider)
     {
-        this.ownerProvider = ownerProvider;
+        this.protocolProvider = protocolProvider;
     }
 
     /**
@@ -235,7 +229,7 @@ public class RootContactGroupMsnImpl
      */
     public ProtocolProviderService getProtocolProvider()
     {
-        return this.ownerProvider;
+        return protocolProvider;
     }
 
     /**

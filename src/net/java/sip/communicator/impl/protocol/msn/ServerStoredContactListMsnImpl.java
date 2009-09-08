@@ -33,7 +33,7 @@ public class ServerStoredContactListMsnImpl
     /**
      * The root group. The container for all msn buddies and groups.
      */
-    private RootContactGroupMsnImpl rootGroup = new RootContactGroupMsnImpl();
+    private final RootContactGroupMsnImpl rootGroup;
 
     /**
      * The operation set that created us and that we could use when dispatching
@@ -44,7 +44,7 @@ public class ServerStoredContactListMsnImpl
     /**
      * The provider that is on top of us.
      */
-    private ProtocolProviderServiceMsnImpl msnProvider = null;
+    private final ProtocolProviderServiceMsnImpl msnProvider;
 
     private MsnMessenger messenger = null;
 
@@ -86,7 +86,7 @@ public class ServerStoredContactListMsnImpl
         this.parentOperationSet = parentOperationSet;
 
         this.msnProvider = provider;
-        rootGroup.setOwnerProvider(provider);
+        this.rootGroup = new RootContactGroupMsnImpl(this.msnProvider);
 
         // listens for provider registered events to set the isInitialized state
         // of the contact list

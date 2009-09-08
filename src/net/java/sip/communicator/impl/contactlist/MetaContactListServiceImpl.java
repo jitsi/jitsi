@@ -1180,16 +1180,18 @@ public class MetaContactListServiceImpl
         ProtocolProviderService sourceProvider)
     {
 
+        /*
+         * Go through all meta contacts and remove all contacts that belong to
+         * the same provider and are therefore children of the group that is
+         * being removed.
+         */
+        locallyRemoveAllContactsForProvider(metaContainer, groupToRemove);
 
-        //go through all meta contacts and remove all contats that belong to the
-        //same provider and are therefore children of the group that is being
-        //removed
-        locallyRemoveAllContactsForProvider(metaContainer
-                                            , groupToRemove);
-
-        fireMetaContactGroupEvent(metaContainer, sourceProvider, groupToRemove
-            , MetaContactGroupEvent.CONTACT_GROUP_REMOVED_FROM_META_GROUP);
-
+        fireMetaContactGroupEvent(
+            metaContainer,
+            sourceProvider,
+            groupToRemove,
+            MetaContactGroupEvent.CONTACT_GROUP_REMOVED_FROM_META_GROUP);
     }
 
     /**
@@ -1267,7 +1269,8 @@ public class MetaContactListServiceImpl
         //then go through all subgroups.
         while (subgroupsIter.hasNext())
         {
-            MetaContactGroupImpl subMetaGroup = (MetaContactGroupImpl) subgroupsIter.next();
+            MetaContactGroupImpl subMetaGroup
+                = (MetaContactGroupImpl) subgroupsIter.next();
 
             Iterator<ContactGroup> contactGroups
                 = subMetaGroup.getContactGroups();
@@ -1291,7 +1294,6 @@ public class MetaContactListServiceImpl
                     , groupToRemove.getProtocolProvider()
                     , protoGroup
                     , MetaContactGroupEvent.META_CONTACT_GROUP_REMOVED);
-
             }
         }
 
@@ -1588,7 +1590,6 @@ public class MetaContactListServiceImpl
                                           metaGroup,
                                           MetaContactEvent.META_CONTACT_ADDED);
             }
-
         }
     }
 
@@ -2006,8 +2007,7 @@ public class MetaContactListServiceImpl
             logger.debug("Account uninstalled. acc.id="
                          +provider.getAccountID() +". Removing from meta "
                          +"contact list.");
-            this
-                .handleProviderRemoved( (ProtocolProviderService) sService);
+            this.handleProviderRemoved( (ProtocolProviderService) sService);
         }
     }
 

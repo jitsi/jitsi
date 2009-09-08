@@ -44,8 +44,7 @@ public class ServerStoredContactListYahooImpl
     /**
      * The root contagroup. The container for all yahoo buddies and groups.
      */
-    private final RootContactGroupYahooImpl rootGroup
-        = new RootContactGroupYahooImpl();
+    private final RootContactGroupYahooImpl rootGroup;
 
     /**
      * The operation set that created us and that we could use when dispatching
@@ -94,7 +93,7 @@ public class ServerStoredContactListYahooImpl
         this.parentOperationSet = parentOperationSet;
 
         this.yahooProvider = provider;
-        rootGroup.setOwnerProvider(provider);
+        this.rootGroup = new RootContactGroupYahooImpl(this.yahooProvider);
     }
 
     /**

@@ -27,20 +27,14 @@ public class RootContactGroupYahooImpl
      */
     private List<Contact> dummyContacts = new LinkedList<Contact>();
 
-    private ProtocolProviderServiceYahooImpl ownerProvider = null;
+    private final ProtocolProviderServiceYahooImpl protocolProvider;
 
     /**
      * Creates a ContactGroup instance.
      */
-    RootContactGroupYahooImpl(){}
-
-    /**
-     * Sets the currently valid provider
-     * @param ownerProvider ProtocolProviderServiceImpl
-     */
-    void setOwnerProvider(ProtocolProviderServiceYahooImpl ownerProvider)
+    RootContactGroupYahooImpl(ProtocolProviderServiceYahooImpl protocolProvider)
     {
-        this.ownerProvider = ownerProvider;
+        this.protocolProvider = protocolProvider;
     }
 
     /**
@@ -219,7 +213,7 @@ public class RootContactGroupYahooImpl
      */
     public ProtocolProviderService getProtocolProvider()
     {
-        return this.ownerProvider;
+        return protocolProvider;
     }
 
     /**

@@ -62,7 +62,7 @@ public class ServerStoredContactListIcqImpl
     /**
      * The root contagroup. The container for all ICQ buddies and groups.
      */
-    private RootContactGroupIcqImpl rootGroup = new RootContactGroupIcqImpl();
+    private final RootContactGroupIcqImpl rootGroup;
 
     /**
      * The joust sim service that deals with server stored information.
@@ -118,6 +118,7 @@ public class ServerStoredContactListIcqImpl
         this.parentOperationSet = parentOperationSet;
 
         this.icqProvider = icqProvider;
+        this.rootGroup = new RootContactGroupIcqImpl(this.icqProvider);
 
         // waiting for the first contact to come
         // to start retreiving the missing nicknames
@@ -688,8 +689,6 @@ public class ServerStoredContactListIcqImpl
      */
     void init(  SsiService joustSimSsiService )
     {
-        this.rootGroup.setOwnerProvider(icqProvider);
-
         this.jSimSsiService = joustSimSsiService;
         jSimSsiService.addItemChangeListener(jsimItemChangeListener);
 

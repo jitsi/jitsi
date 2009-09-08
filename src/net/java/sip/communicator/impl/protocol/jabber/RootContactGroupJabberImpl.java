@@ -36,20 +36,15 @@ public class RootContactGroupJabberImpl
      */
     private Map<String, Contact> contacts = new Hashtable<String, Contact>();
 
-    private ProtocolProviderServiceJabberImpl ownerProvider = null;
+    private final ProtocolProviderServiceJabberImpl protocolProvider;
 
     /**
      * Creates a ContactGroup instance.
      */
-    RootContactGroupJabberImpl(){}
-
-    /**
-     * Sets the currently valid provider
-     * @param ownerProvider ProtocolProviderServiceImpl
-     */
-    void setOwnerProvider(ProtocolProviderServiceJabberImpl ownerProvider)
+    RootContactGroupJabberImpl(
+        ProtocolProviderServiceJabberImpl protocolProvider)
     {
-        this.ownerProvider = ownerProvider;
+        this.protocolProvider = protocolProvider;
     }
 
     /**
@@ -250,7 +245,9 @@ public class RootContactGroupJabberImpl
             if(subGroups.hasNext())
                 buff.append("\n");
         }
+
         buff.append(".rootContacts="+countContacts()+":\n");
+
         Iterator<Contact> contactsIter = contacts();
         while (contactsIter.hasNext())
         {
@@ -264,12 +261,12 @@ public class RootContactGroupJabberImpl
 
     /**
      * Returns the protocol provider that this group belongs to.
-     * @return a regerence to the ProtocolProviderService instance that this
+     * @return a reference to the ProtocolProviderService instance that this
      * ContactGroup belongs to.
      */
     public ProtocolProviderService getProtocolProvider()
     {
-        return this.ownerProvider;
+        return protocolProvider;
     }
 
     /**
@@ -321,5 +318,4 @@ public class RootContactGroupJabberImpl
     {
         return getGroupName();
     }
-
 }

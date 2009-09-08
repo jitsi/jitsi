@@ -545,9 +545,10 @@ public class ProtocolProviderServiceJabberImpl
             String keepAliveStrValue =
                 accountID.getAccountPropertyString("SEND_KEEP_ALIVE");
 
-            String resourcePriority =
-                accountID
-                    .getAccountPropertyString(ProtocolProviderFactory.RESOURCE_PRIORITY);
+            String resourcePriority
+                = accountID
+                    .getAccountPropertyString(
+                        ProtocolProviderFactory.RESOURCE_PRIORITY);
 
             //initialize the presence operationset
             OperationSetPersistentPresenceJabberImpl persistentPresence =
@@ -555,8 +556,8 @@ public class ProtocolProviderServiceJabberImpl
 
             if(resourcePriority != null)
             {
-                persistentPresence.setResourcePriority(Integer
-                    .parseInt(resourcePriority));
+                persistentPresence
+                    .setResourcePriority(Integer.parseInt(resourcePriority));
                 // TODO : is this resource priority related to xep-0168
                 // (Resource Application Priority) ?
                 // see http://www.xmpp.org/extensions/xep-0168.html

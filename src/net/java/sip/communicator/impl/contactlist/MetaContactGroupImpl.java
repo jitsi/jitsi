@@ -834,7 +834,7 @@ public class MetaContactGroupImpl
     }
 
     /**
-     * Addes the specified group to the list of protocol specific groups
+     * Adds the specified group to the list of protocol specific groups
      * that we're encapsulating in this meta contact group.
      * @param protoGroup the root to add to the groups merged in this meta contact
      * group.

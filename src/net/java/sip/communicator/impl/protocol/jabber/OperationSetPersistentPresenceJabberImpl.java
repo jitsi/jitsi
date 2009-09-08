@@ -69,7 +69,7 @@ public class OperationSetPersistentPresenceJabberImpl
      * The server stored contact list that will be encapsulating smack's
      * buddy list.
      */
-    private ServerStoredContactListJabberImpl ssContactList = null;
+    private final ServerStoredContactListJabberImpl ssContactList;
 
     private JabberSubscriptionListener subscribtionPacketListener = null;
 
@@ -91,11 +91,11 @@ public class OperationSetPersistentPresenceJabberImpl
     }
 
     /**
-     * Registers a listener that would receive events upong changes in server
+     * Registers a listener that would receive events upon changes in server
      * stored groups.
      *
      * @param listener a ServerStoredGroupChangeListener impl that would
-     *   receive events upong group changes.
+     *   receive events upon group changes.
      */
     public void addServerStoredGroupChangeListener(ServerStoredGroupListener
         listener)

@@ -1032,10 +1032,16 @@ public class MclStorageManager
     }
 
     /**
-     * Creates a node element corresponding to <tt>protoGroup</tt>.
-     *
-     * @param protoGroup the ContactGroup whose element we'd like to create
-     * @return a XML Element corresponding to <tt>protoGroup</tt>.
+     * Creates a new XML <code>Element</code> corresponding to
+     * <tt>protoGroup</tt> or <tt>null</tt> if <tt>protoGroup</tt> is not
+     * eligible for serialization in its current state.
+     * 
+     * @param protoGroup
+     *            the <code>ContactGroup</code> which a corresponding XML
+     *            <code>Element</code> is to be created for
+     * @return a new XML <code>Element</code> corresponding to
+     *         <tt>protoGroup</tt> or <tt>null</tt> if <tt>protoGroup</tt> is
+     *         not eligible for serialization in its current state
      */
     private Element createProtoContactGroupNode(ContactGroup protoGroup)
     {
@@ -1045,8 +1051,11 @@ public class MclStorageManager
         // set attributes
         protoGroupElement.setAttribute(UID_ATTR_NAME, protoGroup.getUID());
 
-        protoGroupElement.setAttribute(ACCOUNT_ID_ATTR_NAME, protoGroup
-            .getProtocolProvider().getAccountID().getAccountUniqueID());
+        protoGroupElement
+            .setAttribute(
+                ACCOUNT_ID_ATTR_NAME,
+                protoGroup
+                    .getProtocolProvider().getAccountID().getAccountUniqueID());
 
         /*
          * The Javadoc on ContactGroup#getParentContactGroup() states null may
@@ -1082,7 +1091,7 @@ public class MclStorageManager
      * @return the XML Element containing the persistent version of
      *         <tt>metaContact</tt>
      */
-        private Element createMetaContactNode(MetaContact metaContact)
+    private Element createMetaContactNode(MetaContact metaContact)
     {
         Element metaContactElement =
             this.contactListDocument.createElement(META_CONTACT_NODE_NAME);
@@ -1146,6 +1155,7 @@ public class MclStorageManager
                 continue;
 
             Element protoGroupEl = createProtoContactGroupNode(group);
+
             protoGroupsElement.appendChild(protoGroupEl);
         }
 
@@ -1155,11 +1165,11 @@ public class MclStorageManager
             this.contactListDocument.createElement(SUBGROUPS_NODE_NAME);
         metaGroupElement.appendChild(subgroupsElement);
 
-        Iterator<MetaContactGroup> subroups = metaGroup.getSubgroups();
+        Iterator<MetaContactGroup> subgroups = metaGroup.getSubgroups();
 
-        while (subroups.hasNext())
+        while (subgroups.hasNext())
         {
-            MetaContactGroup subgroup = subroups.next();
+            MetaContactGroup subgroup = subgroups.next();
             Element subgroupEl = createMetaContactGroupNode(subgroup);
             subgroupsElement.appendChild(subgroupEl);
         }
@@ -1611,8 +1621,8 @@ public class MclStorageManager
                 List<Element> nodesToRemove = new ArrayList<Element>();
                 for (Element e : nodes)
                 {
-                    if (valuesToRemove.contains(e
-                        .getAttribute(DETAIL_VALUE_ATTR_NAME)))
+                    if (valuesToRemove
+                            .contains(e.getAttribute(DETAIL_VALUE_ATTR_NAME)))
                     {
                         nodesToRemove.add(e);
                     }
@@ -1758,20 +1768,18 @@ public class MclStorageManager
      */
     public void metaContactGroupModified(MetaContactGroupEvent evt)
     {
-        Element mcGroupNode =
-            findMetaContactGroupNode(evt.getSourceMetaContactGroup()
-                .getMetaUID());
+        MetaContactGroup mcGroup = evt.getSourceMetaContactGroup();
+        Element mcGroupNode = findMetaContactGroupNode(mcGroup.getMetaUID());
 
         // not sure what to do in case of null. we'll be logging an internal err
         // for now and that's all.
         if (mcGroupNode == null)
         {
-            logger.error("Failed to find meta contact group: "
-                + evt.getSourceMetaContactGroup());
-            if(logger.isTraceEnabled())
-                logger.trace("The above error occurred with the following "
-                                +"stack trace: ",
-                                new Exception());
+            logger.error("Failed to find meta contact group: " + mcGroup);
+            if (logger.isTraceEnabled())
+                logger.trace(
+                    "The above error occurred with the following stack trace: ",
+                    new Exception());
             return;
         }
 
@@ -1784,12 +1792,11 @@ public class MclStorageManager
             // and the layout of any possible subgroups, so
             // to make things simple, we'll remove the existing meta contact
             // group node and re-create it according to its current state.
-            Element parentNode = (Element) mcGroupNode.getParentNode();
+            Node parentNode = mcGroupNode.getParentNode();
 
             parentNode.removeChild(mcGroupNode);
 
-            Element newGroupElement =
-                createMetaContactGroupNode(evt.getSourceMetaContactGroup());
+            Element newGroupElement = createMetaContactGroupNode(mcGroup);
 
             parentNode.appendChild(newGroupElement);
 
@@ -1805,13 +1812,14 @@ public class MclStorageManager
                  * much. so ... log and @todo one day we'll have a global error
                  * dispatcher
                  */
-                logger.error("Writing CL failed after adding contact "
-                    + evt.getSourceMetaContactGroup(), ex);
+                logger.error(
+                    "Writing CL failed after adding contact " + mcGroup,
+                    ex);
             }
             break;
         case MetaContactGroupEvent.META_CONTACT_GROUP_RENAMED:
-            mcGroupNode.setAttribute(GROUP_NAME_ATTR_NAME, evt
-                .getSourceMetaContactGroup().getGroupName());
+            mcGroupNode
+                .setAttribute(GROUP_NAME_ATTR_NAME, mcGroup.getGroupName());
             break;
         case MetaContactGroupEvent.CONTACT_GROUP_RENAMED_IN_META_GROUP:
             // proto group names are not stored so ignore.
@@ -1829,8 +1837,10 @@ public class MclStorageManager
              * probably triggered by a net operation - we could not do much. so
              * ... log and @todo one day we'll have a global error dispatcher
              */
-            logger.error("Writing CL failed after removing proto group "
-                + evt.getSourceProtoGroup().getGroupName(), ex);
+            logger.error(
+                "Writing CL failed after removing proto group "
+                    + mcGroup.getGroupName(),
+                ex);
         }
 
     }

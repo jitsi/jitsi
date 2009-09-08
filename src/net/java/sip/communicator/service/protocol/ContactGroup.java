@@ -92,7 +92,7 @@ public interface ContactGroup
 
     /**
      * Returns the protocol provider that this group belongs to.
-     * @return a regerence to the ProtocolProviderService instance that this
+     * @return a reference to the ProtocolProviderService instance that this
      * ContactGroup belongs to.
      */
     public ProtocolProviderService getProtocolProvider();
@@ -114,14 +114,14 @@ public interface ContactGroup
     public boolean isPersistent();
 
     /**
-     * Returns a <tt>String</tt> that uniquely represnets the group inside
+     * Returns a <tt>String</tt> that uniquely represents the group inside
      * the current protocol. The string MUST be persistent (it must not change
      * across connections or runs of the application). In many cases (Jabber,
      * ICQ) the string may match the name of the group as these protocols
      * only allow a single level of contact groups and there is no danger of
      * having the same name twice in the same contact list. Other protocols
      * (no examples come to mind but that doesn't bother me ;) ) may be
-     * supporting mutilple levels of grooups so it might be possible for group
+     * supporting multiple levels of groups so it might be possible for group
      * A and group B to both contain groups named C. In such cases the
      * implementation must find a way to return a unique identifier in this
      * method and this UID should never change for a given group.

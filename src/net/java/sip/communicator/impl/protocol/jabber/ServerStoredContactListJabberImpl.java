@@ -41,21 +41,21 @@ public class ServerStoredContactListJabberImpl
     private Roster roster = null;
 
     /**
-     * The root contagroup. The container for all jabber buddies and groups.
+     * The root <code>ContactGroup</code>. The container for all jabber buddies
+     * and groups.
      */
-    private RootContactGroupJabberImpl rootGroup
-        = new RootContactGroupJabberImpl();
+    private final RootContactGroupJabberImpl rootGroup;
 
     /**
      * The operation set that created us and that we could use when dispatching
      * subscription events.
      */
-    private OperationSetPersistentPresenceJabberImpl parentOperationSet = null;
+    private final OperationSetPersistentPresenceJabberImpl parentOperationSet;
 
     /**
      * The provider that is on top of us.
      */
-    private ProtocolProviderServiceJabberImpl jabberProvider = null;
+    private final ProtocolProviderServiceJabberImpl jabberProvider;
 
     /**
      * Listeners that would receive event notifications for changes in group
@@ -85,6 +85,7 @@ public class ServerStoredContactListJabberImpl
         this.parentOperationSet = parentOperationSet;
 
         this.jabberProvider = provider;
+        this.rootGroup = new RootContactGroupJabberImpl(this.jabberProvider);
     }
 
     /**
@@ -611,8 +612,6 @@ public class ServerStoredContactListJabberImpl
      */
     void init()
     {
-        this.rootGroup.setOwnerProvider(jabberProvider);
-
         this.roster = jabberProvider.getConnection().getRoster();
 
         initRoster();

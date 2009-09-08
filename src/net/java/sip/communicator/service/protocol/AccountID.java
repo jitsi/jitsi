@@ -81,18 +81,18 @@ public abstract class AccountID
     /**
      * A String uniquely identifying the user for this particular account.
      */
-    protected String userID = null;
+    private final String userID;
 
     /**
      * A String uniquely identifying this account, that can also be used for
      * storing and unambiguously retrieving details concerning it.
      */
-    protected String accountUID = null;
+    private final String accountUID;
 
     /**
      * The name of the service that defines the context for this account.
      */
-    protected String serviceName = null;
+    private final String serviceName;
 
     /**
      * Creates an account id for the specified provider userid and
@@ -117,15 +117,21 @@ public abstract class AccountID
          * well-known protocol name associated with the account that is
          * different from the name of the effective protocol.
          */
-        protocolName = getOverriddenProtocolName(accountProperties, protocolName);
+        protocolName
+            = getOverriddenProtocolName(accountProperties, protocolName);
 
         this.userID = userID;
-        this.accountProperties = new Hashtable<String, String>(accountProperties);
+        this.accountProperties
+            = new Hashtable<String, String>(accountProperties);
         this.serviceName = serviceName;
 
         //create a unique identifier string
-        this.accountUID = protocolName + ":" + userID + "@"
-                          + ((serviceName == null)? "":serviceName);
+        this.accountUID
+            = protocolName
+                + ":"
+                + userID
+                + "@"
+                + ((serviceName == null) ? "" : serviceName);
     }
 
     /**

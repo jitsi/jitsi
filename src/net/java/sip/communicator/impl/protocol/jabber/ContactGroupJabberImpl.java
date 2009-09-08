@@ -61,7 +61,7 @@ public class ContactGroupJabberImpl
 
     private String tempId = null;
 
-    private ServerStoredContactListJabberImpl ssclCallback = null;
+    private final ServerStoredContactListJabberImpl ssclCallback;
 
     /**
      * Creates an Jabber group using the specified <tt>RosterGroup</tt> as
@@ -72,7 +72,7 @@ public class ContactGroupJabberImpl
      * ServerStoredContactListImpl update will only be done if source group
      * is changed.
 
-     * @param rosterGroup the Jabber Group correspoinding to the group
+     * @param rosterGroup the Jabber Group corresponding to the group
      * @param groupMembers the group members that we should add to the group.
      * @param ssclCallback a callback to the server stored contact list
      * we're creating.
@@ -168,7 +168,7 @@ public class ContactGroupJabberImpl
      *
      * @return a java.util.Iterator over all contacts inside this
      *   <tt>ContactGroup</tt>. In case the group doesn't contain any
-     * memebers it will return an empty iterator.
+     * members it will return an empty iterator.
      */
     public Iterator<Contact> contacts()
     {
@@ -178,7 +178,7 @@ public class ContactGroupJabberImpl
     /**
      * Returns the <tt>Contact</tt> with the specified address or
      * identifier.
-     * @param id the addres or identifier of the <tt>Contact</tt> we are
+     * @param id the address or identifier of the <tt>Contact</tt> we are
      * looking for.
      * @return the <tt>Contact</tt> with the specified id or address.
      */
@@ -291,7 +291,7 @@ public class ContactGroupJabberImpl
 
     /**
      * Returns the protocol provider that this group belongs to.
-     * @return a regerence to the ProtocolProviderService instance that this
+     * @return a reference to the ProtocolProviderService instance that this
      * ContactGroup belongs to.
      */
     public ProtocolProviderService getProtocolProvider()
@@ -313,7 +313,7 @@ public class ContactGroupJabberImpl
         Iterator<Contact> contacts = contacts();
         while (contacts.hasNext())
         {
-            ContactJabberImpl contact = (ContactJabberImpl) contacts.next();
+            Contact contact = contacts.next();
             buff.append(contact.toString());
             if(contacts.hasNext())
                 buff.append(", ");
@@ -337,7 +337,7 @@ public class ContactGroupJabberImpl
     }
 
     /**
-     * Sets the name copy field that we use as a means of detecing changes in
+     * Sets the name copy field that we use as a means of detecting changes in
      * the group name.
      * @param newName String
      */
@@ -428,9 +428,9 @@ public class ContactGroupJabberImpl
     }
 
     /**
-     * Returns a <tt>String</tt> that uniquely represnets the group. In this we
+     * Returns a <tt>String</tt> that uniquely represents the group. In this we
      * use the name of the group as an identifier. This may cause problems
-     * though, in clase the name is changed by some other application between
+     * though, in case the name is changed by some other application between
      * consecutive runs of the sip-communicator.
      *
      * @return a String representing this group in a unique and persistent
@@ -466,5 +466,4 @@ public class ContactGroupJabberImpl
         for (RosterEntry item : newGroup.getEntries())
             addContact( new ContactJabberImpl(item, ssclCallback, true, true) );
     }
-
 }
