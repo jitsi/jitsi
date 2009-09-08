@@ -164,7 +164,7 @@ public class MailThreadInfo
             String result = names[0];
 
             //return 14 chars max
-            if(result.length() > 15)
+            if(result.length() > 14)
                 result = result.substring(0, 14);
 
             return result;
