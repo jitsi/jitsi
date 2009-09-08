@@ -156,7 +156,9 @@ public class MailThreadInfo
         public String getFirstName()
         {
             if(name == null || name.trim().length() == 0)
+            {
                 return null;
+            }
 
             String[] names = name.split("\\s");
 
@@ -601,7 +603,21 @@ public class MailThreadInfo
             String name = firstNamesOnly? sender.getFirstName() : sender.name;
 
             if (name == null)
-                name = sender.address;
+            {
+                //if there's no name then use the user part of the address
+                if (sender.address != null)
+                {
+                    int atIndex = sender.address.indexOf("@");
+
+                    if(atIndex != -1)
+                        return sender.address.substring(0, atIndex);
+                    else
+                        name = sender.address;
+                }
+                else
+                    name = "unknown";
+            }
+
 
             if (!sender.unread && maximumReadAllowed == 0)
                 continue;

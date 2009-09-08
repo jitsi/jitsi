@@ -53,6 +53,19 @@ public class OperationSetBasicInstantMessagingJabberImpl
     private boolean keepAliveEnabled = false;
 
     /**
+     * The maximum number of unread threads that we'd be notifying the user of.
+     */
+    private static final String PNAME_MAX_GMAIL_THREADS_PER_NOTIFICATION
+        = "net.java.sip.communicator.impl.protocol.jabber."
+            +"MAX_GMAIL_THREADS_PER_NOTIFICATION";
+
+    /**
+     * Determines whether or not we are to deliver GMail notifications to the
+     * user.
+     */
+    private boolean enableGmailNotifications = false;
+
+    /**
      * The task sending packets
      */
     private KeepAliveSendTask keepAliveSendTask = null;
@@ -321,7 +334,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
                 //subscribe for Google (GMail or Google Apps) notifications
                 //for new mail messages.
-                subscribeForGmailNotifications();
+                if (enableGmailNotifications)
+                    subscribeForGmailNotifications();
 
 
                 // run keep alive thread
@@ -718,11 +732,40 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
         Iterator<MailThreadInfo> threads = mailboxIQ.threads();
 
-        while(threads.hasNext())
+        String maxThreadsStr = (String)JabberActivator.getConfigurationService()
+            .getProperty(PNAME_MAX_GMAIL_THREADS_PER_NOTIFICATION);
+
+        int maxThreads = 5;
+
+        try
+        {
+            if(maxThreadsStr != null)
+                maxThreads = Integer.parseInt(maxThreadsStr);
+        }
+        catch (NumberFormatException e)
+        {
+            logger.debug("Failed to parse max threads count: "+maxThreads
+                            +". Going for default.");
+        }
+
+        //print a maximum of MAX_THREADS
+        for (int i = 0; i < maxThreads && threads.hasNext(); i++)
         {
             message.append(threads.next().createHtmlDescription());
         }
         message.append("</table><br/><br/>");
+
+        int threadCount = mailboxIQ.getThreadCount();
+        if(threadCount > maxThreads)
+        {
+            message.append(threadCount - maxThreads
+                   + " more unread messages in your "
+                   + " <a href='" + mailboxIQ.getUrl() +"'>inbox</a>.<br/>");
+        }
+
+
+
+        //
 
         return message.toString();
     }
