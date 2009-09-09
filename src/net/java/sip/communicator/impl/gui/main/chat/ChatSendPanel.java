@@ -66,7 +66,7 @@ public class ChatSendPanel
      * @param evt The <tt>ActionEvent</tt> object.
      */
     public void actionPerformed(ActionEvent evt)
-    {   
+    {
         if (!chatPanel.isWriteAreaEmpty())
         {
             new Thread()
@@ -77,6 +77,9 @@ public class ChatSendPanel
                 }
             }.start();
         }
+
+        //make sure the focus goes back to the write area
+        chatPanel.requestFocusInWriteArea();
     }
 
     /**

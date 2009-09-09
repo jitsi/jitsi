@@ -1207,9 +1207,6 @@ public class ChatPanel
         }
 
         this.refreshWriteArea();
-
-        //make sure the focus goes back to the write area
-        this.requestFocusInWriteArea();
     }
 
     /**
