@@ -14,6 +14,7 @@ import java.io.*;
 import javax.imageio.*;
 import javax.swing.*;
 
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -25,10 +26,6 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class WelcomeWindow extends JDialog
 {
-    private static final int PREFERRED_WIDTH = 570;
-
-    private static final int PREFERRED_HEIGHT = 330;
-
     private static final String APPLICATION_NAME
         = BrandingActivator.getResources()
             .getSettingsString("service.gui.APPLICATION_NAME");
@@ -37,13 +34,11 @@ public class WelcomeWindow extends JDialog
         = BrandingActivator.getResources()
             .getSettingsInt("plugin.branding.SPLASH_SCREEN_TEXT_INDENT");
 
-    private final JLabel loadingLabel = new JLabel(
-        BrandingActivator.getResources()
-            .getI18NString("plugin.branding.LOADING") + ": ");
+    private static final int PREFERRED_HEIGHT = 330;
+
+    private static final int PREFERRED_WIDTH = 570;
 
     private final JLabel bundleLabel = new JLabel();
-
-    private final JPanel loadingPanel = new JPanel(new BorderLayout());
 
     public WelcomeWindow()
     {
@@ -87,7 +82,7 @@ public class WelcomeWindow extends JDialog
 
         this.initLicenseArea(licenseArea);
 
-        this.initLoadingPanel();
+        Component loadingPanel = initLoadingPanel();
 
         textPanel.add(titleLabel);
         textPanel.add(versionLabel);
@@ -212,29 +207,38 @@ public class WelcomeWindow extends JDialog
         licenseArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
     }
 
-    private void initLoadingPanel()
+    private JPanel initLoadingPanel()
     {
+        ResourceManagementService resources = BrandingActivator.getResources();
+        JLabel loadingLabel
+            = new JLabel(
+                    resources.getI18NString("plugin.branding.LOADING") + ": ");
+        JPanel loadingPanel = new JPanel(new BorderLayout());
+
         this.bundleLabel.setFont(loadingLabel.getFont().deriveFont(Font.PLAIN));
-        this.loadingPanel.setOpaque(false);
-        this.loadingPanel.add(loadingLabel, BorderLayout.WEST);
-        this.loadingPanel.add(bundleLabel, BorderLayout.CENTER);
+
+        loadingPanel.setOpaque(false);
+        loadingPanel.add(loadingLabel, BorderLayout.WEST);
+        loadingPanel.add(bundleLabel, BorderLayout.CENTER);
 
         int loadingPanelBorder
-            = BrandingActivator.getResources()
+            = resources
                 .getSettingsInt("plugin.branding.LOADING_BUNDLE_PANEL_BORDER");
 
-        this.loadingPanel.setBorder(
+        loadingPanel.setBorder(
             BorderFactory.createEmptyBorder(loadingPanelBorder,
                                             loadingPanelBorder,
                                             loadingPanelBorder,
                                             loadingPanelBorder));
 
         int loadingPanelHeight
-            = BrandingActivator.getResources()
+            = resources
                 .getSettingsInt("plugin.branding.LOADING_BUNDLE_PANEL_HEIGHT");
 
-        this.loadingPanel.setPreferredSize(
+        loadingPanel.setPreferredSize(
             new Dimension(PREFERRED_WIDTH, loadingPanelHeight));
+
+        return loadingPanel;
     }
 
     /**
@@ -278,10 +282,10 @@ public class WelcomeWindow extends JDialog
      */
     public void setBundle(String bundleName)
     {
-        this.bundleLabel.setText(bundleName);
+        bundleLabel.setText(bundleName);
 
-        this.loadingPanel.revalidate();
-        this.loadingPanel.repaint();
+        bundleLabel.revalidate();
+        bundleLabel.getParent().repaint();
     }
 
     /**

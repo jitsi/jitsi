@@ -9,6 +9,7 @@ package net.java.sip.communicator.plugin.branding;
 import java.lang.reflect.*;
 import java.util.*;
 
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -16,9 +17,17 @@ import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 
 public class BrandingActivator
-    implements  BundleActivator
+    implements BundleActivator
 {
     private final Logger logger = Logger.getLogger(BrandingActivator.class);
+
+    /**
+     * The name of the boolean property which indicates whether the splash
+     * screen (i.e. <code>WelcomeWindow</code>) is to be shown or to not be
+     * utilized for the sake of better memory consumption and faster startup.
+     */
+    private static final String PNAME_SHOW_SPLASH_SCREEN
+        = "net.java.sip.communicator.plugin.branding.SHOW_SPLASH_SCREEN";
 
     private static BundleContext bundleContext;
     
@@ -28,6 +37,17 @@ public class BrandingActivator
     {
         bundleContext = bc;
 
+        ConfigurationService config = getConfigurationService();
+        boolean showSplashScreen
+            = (config == null)
+                ? true /*
+                        * Having no ConfigurationService reference is not good
+                        * for the application so we are better off with the
+                        * splash screen to actually see which bundles get loaded
+                        * and maybe be able to debug the problem.
+                        */
+                : config.getBoolean(PNAME_SHOW_SPLASH_SCREEN, false);
+
         /*
          * WelcomeWindow is huge because it has a large image spread all over it
          * so, given it's only necessary before the UIService gets activated, we
@@ -35,9 +55,15 @@ public class BrandingActivator
          * as a final variable used inside a BundleListener which never gets
          * removed).
          */
-        final WelcomeWindow welcomeWindow = new WelcomeWindow();
-        welcomeWindow.pack();
-        welcomeWindow.setVisible(true);
+        final WelcomeWindow welcomeWindow;
+        if (showSplashScreen)
+        {
+            welcomeWindow = new WelcomeWindow();
+            welcomeWindow.pack();
+            welcomeWindow.setVisible(true);
+        }
+        else
+            welcomeWindow = null;
 
         bundleContext.addBundleListener(new BundleListener()
         {
@@ -62,8 +88,8 @@ public class BrandingActivator
             public void bundleChanged(BundleEvent evt)
             {
                 if (!done
-                    && !BrandingActivator.this
-                        .bundleChanged(evt, welcomeWindow))
+                        && !BrandingActivator
+                                .this.bundleChanged(evt, welcomeWindow))
                 {
 
                     /*
@@ -106,14 +132,15 @@ public class BrandingActivator
         ServiceReference uiServiceRef =
             bundleContext.getServiceReference(UIService.class.getName());
         if ((uiServiceRef != null)
-            && (Bundle.ACTIVE == uiServiceRef.getBundle().getState()))
+                && (Bundle.ACTIVE == uiServiceRef.getBundle().getState()))
         {
             // UI-Service started.
 
             // register the about dialog menu entry
             registerMenuEntry(uiServiceRef);
 
-            welcomeWindow.close();
+            if (welcomeWindow != null)
+                welcomeWindow.close();
 
             /*
              * We've just closed the WelcomeWindow so there'll be no other
@@ -128,10 +155,12 @@ public class BrandingActivator
 
     private void registerMenuEntry(ServiceReference uiServiceRef)
     {
-        UIService uiService =
-            (UIService) bundleContext.getService(uiServiceRef);
-        if ((uiService == null) || !uiService.useMacOSXScreenMenuBar()
-            || !registerMenuEntryMacOSX(uiService))
+        UIService uiService
+            = (UIService) bundleContext.getService(uiServiceRef);
+
+        if ((uiService == null)
+                || !uiService.useMacOSXScreenMenuBar()
+                || !registerMenuEntryMacOSX(uiService))
         {
             registerMenuEntryNonMacOSX(uiService);
         }
@@ -208,20 +237,22 @@ public class BrandingActivator
         return bundleContext;
     }
 
+    private static ConfigurationService getConfigurationService()
+    {
+        ServiceReference serRef
+            = bundleContext
+                .getServiceReference(ConfigurationService.class.getName());
+        return
+            (serRef == null)
+                ? null
+                : (ConfigurationService) bundleContext.getService(serRef);
+    }
+
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)
-        {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(ResourceManagementService.class.getName());
-
-            if(serviceReference == null)
-                return null;
-            
-            resourcesService = (ResourceManagementService) bundleContext
-                .getService(serviceReference);
-        }
-
+            resourcesService
+                = ResourceManagementServiceUtils.getService(bundleContext);
         return resourcesService;
     }
 }

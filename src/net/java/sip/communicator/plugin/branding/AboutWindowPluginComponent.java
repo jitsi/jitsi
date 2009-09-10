@@ -26,9 +26,7 @@ public class AboutWindowPluginComponent
         AboutWindow.showAboutWindow();
     }
 
-    private final JMenuItem aboutMenuItem
-        = new JMenuItem(BrandingActivator.getResources().
-            getI18NString("plugin.branding.ABOUT_MENU_ENTRY"));
+    private final JMenuItem aboutMenuItem;
 
     private final Container container;
 
@@ -36,9 +34,12 @@ public class AboutWindowPluginComponent
     {
         this.container = c;
 
-        aboutMenuItem.setMnemonic(
-            BrandingActivator.getResources().getI18nMnemonic(
-                "plugin.branding.ABOUT_MENU_ENTRY"));
+        aboutMenuItem = new JMenuItem(getName());
+        aboutMenuItem
+            .setMnemonic(
+                BrandingActivator
+                    .getResources()
+                        .getI18nMnemonic("plugin.branding.ABOUT_MENU_ENTRY"));
 
         aboutMenuItem.addActionListener(new ActionListener()
         {
@@ -66,7 +67,10 @@ public class AboutWindowPluginComponent
 
     public String getName()
     {
-        return BrandingActivator.getResources().getI18NString("plugin.branding.ABOUT_MENU_ENTRY");
+        return
+            BrandingActivator
+                .getResources()
+                    .getI18NString("plugin.branding.ABOUT_MENU_ENTRY");
     }
 
     public void setCurrentContact(MetaContact metaContact)
