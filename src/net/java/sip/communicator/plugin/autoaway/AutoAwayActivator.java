@@ -20,9 +20,11 @@ import org.osgi.framework.*;
  * Activator of the StatusUpdate Bundle
  * 
  * @author Thomas Hofer
+ * @author Lubomir Marinov
  */
 public class AutoAwayActivator
-    implements BundleActivator
+    implements BundleActivator,
+               ServiceListener
 {
     private static Logger logger = Logger.getLogger(AutoAwayActivator.class);
 
@@ -30,6 +32,12 @@ public class AutoAwayActivator
 
     private static Thread thread = null;
     private static StatusUpdateThread runner = null;
+
+    /**
+     * The indicator which determines whether {@link #startThread()} has been
+     * called and thus prevents calling it more than once.
+     */
+    private static boolean startThreadIsCalled = false;
 
     private static ResourceManagementService resourceService;
 
@@ -55,48 +63,60 @@ public class AutoAwayActivator
                     20),
                 null);
 
-        new Thread(new Runnable()
-        {
-
-            public void run()
-            {
-                try
-                {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e)
-                {
-                }
-                // wait a few seconds
-                startThread();
-            }
-        }).start();
+        /*
+         * Wait for the first ProtocolProviderService to register in order to
+         * start the auto-away functionality i.e. to call #startThread().
+         */
+        bundleContext.addServiceListener(this);
     }
 
-    static void startThread()
+    /*
+     * Implements ServiceListener#serviceChanged(ServiceEvent). Waits for the
+     * first ProtocolProviderService to register in order to start the auto-away
+     * functionality i.e. to call #startThread().
+     */
+    public void serviceChanged(ServiceEvent serviceEvent)
     {
-        ConfigurationService configService = getConfigService();
-        String e = (String) configService.getProperty(Preferences.ENABLE);
-        if (e == null)
+        switch (serviceEvent.getType())
         {
-            return;
-        }
-        try
-        {
-            boolean enabled = Boolean.parseBoolean(e);
-            if (!enabled)
+        case ServiceEvent.MODIFIED:
+        case ServiceEvent.REGISTERED:
+            Object service
+                = bundleContext.getService(serviceEvent.getServiceReference());
+            if (service instanceof ProtocolProviderService)
             {
-                return;
+                synchronized (AutoAwayActivator.class)
+                {
+                    if (!startThreadIsCalled)
+                    {
+                        startThread();
+                        startThreadIsCalled = true;
+                    }
+                }
+
+                bundleContext.removeServiceListener(this);
             }
-        } catch (NumberFormatException ex)
-        {
-            return;
+            break;
+
+        default:
+            break;
         }
+    }
+
+    private static void startThread()
+    {
+
+        /*
+         * FIXME Even if auto away is disabled at this point, it doesn't mean
+         * that it will not get enabled later on so this method likely has to
+         * also be called when the configuration property gets changed.
+         */
+        if (!getConfigService().getBoolean(Preferences.ENABLE, false))
+            return;
 
         if (runner == null)
-        {
             runner = new StatusUpdateThread();
-        }
-        if (thread == null || !runner.isRunning())
+        if ((thread == null) || !runner.isRunning())
         {
             thread = new Thread(runner);
             thread.setName(AutoAwayActivator.class.getName());
@@ -117,7 +137,7 @@ public class AutoAwayActivator
         stopThread();
     }
 
-    static void stopThread()
+    private static void stopThread()
     {
         if (runner != null)
         {
@@ -160,8 +180,9 @@ public class AutoAwayActivator
 
         for (ServiceReference serviceReference : serRefs)
         {
-            ProtocolProviderService protocolProvider = (ProtocolProviderService) bundleContext
-                    .getService(serviceReference);
+            ProtocolProviderService protocolProvider
+                = (ProtocolProviderService)
+                    bundleContext.getService(serviceReference);
             pps.add(protocolProvider);
         }
 
@@ -176,7 +197,8 @@ public class AutoAwayActivator
     static ConfigurationService getConfigService()
     {
         // retrieve a reference to the config access service.
-        ServiceReference confServiceRefs = bundleContext
+        ServiceReference confServiceRefs
+            = bundleContext
                 .getServiceReference(ConfigurationService.class.getName());
 
         return (ConfigurationService) bundleContext.getService(confServiceRefs);
@@ -190,15 +212,8 @@ public class AutoAwayActivator
     static ResourceManagementService getResources()
     {
         if (resourceService == null)
-        {
-            // retrieve a reference to the resource access service.
-            ServiceReference resourceServiceRefs = bundleContext
-                .getServiceReference(ResourceManagementService.class.getName());
-
-            resourceService = (ResourceManagementService) bundleContext
-                .getService(resourceServiceRefs);
-        }
-
+            resourceService
+                = ResourceManagementServiceUtils.getService(bundleContext);
         return resourceService;
     }
 }

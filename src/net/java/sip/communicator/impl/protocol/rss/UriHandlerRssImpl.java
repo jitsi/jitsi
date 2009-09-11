@@ -30,11 +30,6 @@ public class UriHandlerRssImpl
         Logger.getLogger(UriHandlerRssImpl.class);
 
     /**
-     * The protocol provider factory that created us.
-     */
-    private ProtocolProviderFactory protoFactory = null;
-
-    /**
      * A reference to the OSGi registration we create with this handler.
      */
     private ServiceRegistration ourServiceRegistration = null;
@@ -42,7 +37,7 @@ public class UriHandlerRssImpl
     /**
      * The object that we are using to synchronize our service registration.
      */
-    private Object registrationLock = new Object();
+    private final Object registrationLock = new Object();
 
     /**
      * Creates an instance of this uri handler, so that it would start handling
@@ -69,16 +64,19 @@ public class UriHandlerRssImpl
             }
 
             Hashtable<String, String> registrationProperties
-            = new Hashtable<String, String>();
+                = new Hashtable<String, String>();
 
-            registrationProperties.put(UriHandler.PROTOCOL_PROPERTY,
-                            getProtocol());
+            registrationProperties
+                .put(UriHandler.PROTOCOL_PROPERTY, getProtocol());
 
-            ourServiceRegistration = RssActivator.bundleContext
-                            .registerService(UriHandler.class.getName(), this,
-                                            registrationProperties);
+            ourServiceRegistration
+                = RssActivator
+                    .bundleContext
+                        .registerService(
+                            UriHandler.class.getName(),
+                            this,
+                            registrationProperties);
         }
-
     }
 
     /**
@@ -178,29 +176,30 @@ public class UriHandlerRssImpl
      */
     public void serviceChanged(ServiceEvent event)
     {
-        Object sourceService = RssActivator.bundleContext
-            .getService(event.getServiceReference());
+        Object sourceService
+            = RssActivator
+                .bundleContext.getService(event.getServiceReference());
 
         //ignore anything but our protocol factory.
-        if( ! (sourceService instanceof ProtocolProviderFactoryRssImpl)
-            || (sourceService != protoFactory))
-        {
+        if (!(sourceService instanceof ProtocolProviderFactoryRssImpl))
             return;
-        }
 
-        if(event.getType() == ServiceEvent.REGISTERED)
+        switch (event.getType())
         {
+        case ServiceEvent.REGISTERED:
             //our factory has just been registered as a service ...
             registerHandlerService();
-        }
-        else if(event.getType() == ServiceEvent.UNREGISTERING)
-        {
+            break;
+
+        case ServiceEvent.UNREGISTERING:
             //our factory just died - seppuku.
             unregisterHandlerService();
-        }
-        else if(event.getType() == ServiceEvent.MODIFIED)
-        {
+            break;
+
+        case ServiceEvent.MODIFIED:
+        default:
             //we don't care.
+            break;
         }
     }
 

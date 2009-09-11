@@ -23,7 +23,8 @@ public class StatusUpdateThread
 {
     private boolean run = false;
     private Point lastPosition = null;
-    private Map<ProtocolProviderService, PresenceStatus> lastStates = new HashMap<ProtocolProviderService, PresenceStatus>();
+    private final Map<ProtocolProviderService, PresenceStatus> lastStates
+        = new HashMap<ProtocolProviderService, PresenceStatus>();
 
     private static final int IDLE_TIMER = 3000;
     private static final int AWAY_DEFAULT_STATUS = 40;
@@ -39,37 +40,31 @@ public class StatusUpdateThread
                 if (MouseInfo.getPointerInfo() != null)
                 {
                     PointerInfo info = MouseInfo.getPointerInfo();
-                    Point currentPosition = null;
+                    Point currentPosition
+                        = (info != null) ? info.getLocation() : new Point(0, 0);
 
-                    if (info != null)
-                    {
-                        currentPosition = info.getLocation();
-                    } else
-                    {
-                        // mouse cannot be determined
-                        currentPosition = new Point(0, 0);
-                    }
                     if (!isNear(lastPosition, currentPosition))
                     {
                         // position has changed
                         // check, if a minor state has been automatically set
                         // and
                         // reset this state to the former state.
-                        ProtocolProviderService[] pps = AutoAwayActivator
-                                .getProtocolProviders();
-
-                        for (ProtocolProviderService protocolProviderService : pps)
+                        for (ProtocolProviderService protocolProviderService
+                                : AutoAwayActivator.getProtocolProviders())
                         {
                             if (lastStates.get(protocolProviderService) != null)
                             {
-                                PresenceStatus lastState = lastStates
-                                        .get(protocolProviderService);
-                                OperationSetPresence presence = (OperationSetPresence) protocolProviderService
-                                        .getOperationSet(OperationSetPresence.class);
+                                PresenceStatus lastState
+                                    = lastStates.get(protocolProviderService);
+                                OperationSetPresence presence
+                                    = (OperationSetPresence)
+                                        protocolProviderService
+                                            .getOperationSet(
+                                                OperationSetPresence.class);
                                 try
                                 {
-                                    presence.publishPresenceStatus(lastState,
-                                            "");
+                                    presence
+                                        .publishPresenceStatus(lastState, "");
                                 } catch (IllegalArgumentException e)
                                 {
                                 } catch (IllegalStateException e)
@@ -85,36 +80,36 @@ public class StatusUpdateThread
                     {
                         // position has not changed!
                         // get all protocols and set them to away
-
-                        ProtocolProviderService[] pps = AutoAwayActivator
-                                .getProtocolProviders();
-
-                        for (ProtocolProviderService protocolProviderService : pps)
+                        for (ProtocolProviderService protocolProviderService
+                                : AutoAwayActivator.getProtocolProviders())
                         {
-                            OperationSetPresence presence = (OperationSetPresence) protocolProviderService
-                                    .getOperationSet(OperationSetPresence.class);
+                            OperationSetPresence presence
+                                = (OperationSetPresence)
+                                    protocolProviderService
+                                        .getOperationSet(
+                                            OperationSetPresence.class);
 
                             PresenceStatus status = presence
                                     .getPresenceStatus();
 
-                            if (status.getStatus() < PresenceStatus.AVAILABLE_THRESHOLD)
+                            if (status.getStatus()
+                                    < PresenceStatus.AVAILABLE_THRESHOLD)
                             {
                                 // already (manually) set to away or lower
                                 continue;
                             }
 
-                            lastStates.put(protocolProviderService, presence
-                                    .getPresenceStatus());
+                            lastStates.put(protocolProviderService, status);
 
                             PresenceStatus newStatus = findAwayStatus(presence);
 
                             try
                             {
                                 if (newStatus != null)
-                                {
-                                    presence.publishPresenceStatus(newStatus,
+                                    presence
+                                        .publishPresenceStatus(
+                                            newStatus,
                                             newStatus.getStatusName());
-                                }
                             } catch (IllegalArgumentException e)
                             {
                             } catch (IllegalStateException e)
@@ -149,21 +144,21 @@ public class StatusUpdateThread
     private PresenceStatus findAwayStatus(OperationSetPresence presence)
     {
         Iterator<PresenceStatus> statusSet = presence.getSupportedStatusSet();
-
         PresenceStatus status = null;
 
         while (statusSet.hasNext())
         {
             PresenceStatus possibleState = statusSet.next();
+            int possibleStatus = possibleState.getStatus();
 
-            if (possibleState.getStatus() < PresenceStatus.AVAILABLE_THRESHOLD
-                    && possibleState.getStatus() >= PresenceStatus.ONLINE_THRESHOLD)
+            if ((possibleStatus < PresenceStatus.AVAILABLE_THRESHOLD)
+                    && (possibleStatus >= PresenceStatus.ONLINE_THRESHOLD))
             {
                 if (status == null
-                        || (Math.abs(possibleState.getStatus()
-                                - AWAY_DEFAULT_STATUS) < Math.abs(status
-                                .getStatus()
-                                - AWAY_DEFAULT_STATUS)))
+                        || (Math.abs(possibleStatus - AWAY_DEFAULT_STATUS)
+                                < Math.abs(
+                                        status.getStatus()
+                                            - AWAY_DEFAULT_STATUS)))
                 {
                     status = possibleState;
                 }
@@ -174,36 +169,13 @@ public class StatusUpdateThread
 
     private int getTimer()
     {
-        ConfigurationService configService = AutoAwayActivator
-                .getConfigService();
+        ConfigurationService configService
+            = AutoAwayActivator.getConfigService();
 
-        String e = (String) configService.getProperty(Preferences.ENABLE);
-        if (e == null)
-        {
-            return 0;
-        }
-        try
-        {
-            boolean enabled = Boolean.parseBoolean(e);
-            if (!enabled)
-            {
-                return 0;
-            }
-        } catch (NumberFormatException ex)
-        {
-            return 0;
-        }
-
-        String t = configService.getString(Preferences.TIMER);
-        int timer = 0;
-        try
-        {
-            timer = Integer.parseInt(t);
-        } catch (NumberFormatException ex)
-        {
-            return 0;
-        }
-        return timer;
+        return
+            configService.getBoolean(Preferences.ENABLE, false)
+                ? configService.getInt(Preferences.TIMER, 0)
+                : 0;
     }
 
     public boolean isRunning()
@@ -213,23 +185,10 @@ public class StatusUpdateThread
 
     private boolean isNear(Point p1, Point p2)
     {
-        if (p1 == null)
-        {
-            return false;
-        }
-        if (p2 == null)
-        {
-            return false;
-        }
-        if (Math.abs(p1.x - p2.x) > 10)
-        {
-            return false;
-        }
-        if (Math.abs(p1.y - p2.y) > 10)
-        {
-            return false;
-        }
-        return true;
-
+        return
+            (p1 != null)
+                && (p2 != null)
+                && (Math.abs(p1.x - p2.x) <= 10)
+                && (Math.abs(p1.y - p2.y) <= 10);
     }
 }

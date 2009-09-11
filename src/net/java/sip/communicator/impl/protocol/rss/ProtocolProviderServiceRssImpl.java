@@ -45,8 +45,7 @@ public class ProtocolProviderServiceRssImpl
     /**
      * The logo corresponding to the rss protocol.
      */
-    private ProtocolIconRssImpl rssIcon
-        = new ProtocolIconRssImpl();
+    private final ProtocolIconRssImpl rssIcon = new ProtocolIconRssImpl();
 
     /**
      * A reference to the IM operation set

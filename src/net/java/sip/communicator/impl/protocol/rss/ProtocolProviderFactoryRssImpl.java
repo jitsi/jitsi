@@ -8,19 +8,32 @@ package net.java.sip.communicator.impl.protocol.rss;
 
 import java.util.*;
 
+import javax.net.ssl.*;
+
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The Rss protocol provider factory creates instances of the Rss
  * protocol provider service. One Service instance corresponds to one account.
  *
  * @author Emil Ivov
+ * @author Lubomir Marinov
  */
 public class ProtocolProviderFactoryRssImpl
     extends ProtocolProviderFactory
 {
+    private static final Logger logger
+        = Logger.getLogger(ProtocolProviderFactoryRssImpl.class);
+
+    /**
+     * The indicator which determines whether the delayed execution of
+     * {@link #installCustomSSLTrustManager()} which has to happen only once has
+     * been performed.
+     */
+    private static boolean customSSLTrustManagerIsInstalled = false;
 
     /**
      * Creates an instance of the ProtocolProviderFactoryRssImpl.
@@ -84,11 +97,56 @@ public class ProtocolProviderFactoryRssImpl
     protected ProtocolProviderService createService(String userID,
         AccountID accountID)
     {
+        synchronized (ProtocolProviderFactoryRssImpl.class)
+        {
+            if (!customSSLTrustManagerIsInstalled)
+            {
+                System.setProperty(
+                    "http.agent",
+                    System.getProperty("sip-communicator.application.name")
+                        + "/"
+                        + System.getProperty("sip-communicator.version"));
+                logger
+                    .debug(
+                        "User-Agent set to "
+                            + System.getProperty("http.agent"));
+
+                try
+                {
+                    installCustomSSLTrustManager();
+                    customSSLTrustManagerIsInstalled = true;
+                }
+                catch (java.security.GeneralSecurityException gsex)
+                {
+                    logger.error(gsex);
+                }
+            }
+        }
+
         ProtocolProviderServiceRssImpl service =
             new ProtocolProviderServiceRssImpl();
 
         service.initialize(userID, accountID);
         return service;
+    }
+
+    /**
+     * Installs a trust manager that would accept all certificates so that
+     * we could install rss feeds from sites with expired/self-signed
+     * certificates.
+     */
+    private static void installCustomSSLTrustManager()
+        throws java.security.GeneralSecurityException
+    {
+        // Let us create the factory where we can set some parameters for the
+        // connection
+        SSLContext sc = SSLContext.getInstance("SSL");
+        sc.init(null,
+                new TrustManager[] { new TrustlessManager()},
+                new java.security.SecureRandom());
+
+        // Create the socket connection and open it to the secure remote web server
+        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
     }
 
     @Override
@@ -98,5 +156,70 @@ public class ProtocolProviderFactoryRssImpl
     {
         // TODO Auto-generated method stub
         
+    }
+
+    /**
+     * A trust manager that would accept all certificates so that we would be
+     * able to add rss feeds from sites with expired/self-signed certificates.
+     */
+    private static class TrustlessManager
+        implements X509TrustManager
+    {
+        public java.security.cert.X509Certificate[] getAcceptedIssuers()
+        {
+            return null;
+        }
+
+        /**
+         * Given the partial or complete certificate chain provided by the peer,
+         * build a certificate path to a trusted root and return if it can be
+         * validated and is trusted for client SSL authentication based on the
+         * authentication type. The authentication type is determined by the
+         * actual certificate used. For instance, if RSAPublicKey is used, the
+         * authType should be "RSA". Checking is case-sensitive.
+         *
+         * @param chain the peer certificate chain
+         * @param authType the authentication type based on the client
+         * certificate
+         *
+         * @throws IllegalArgumentException - if null or zero-length chain is
+         * passed in for the chain parameter or if null or zero-length string
+         * is passed in for the authType parameter
+         * @throws CertificateException - if the certificate chain is not
+         * trusted by this TrustManager.
+         */
+        public void checkClientTrusted(
+                        java.security.cert.X509Certificate[] certs,
+                        String authType)
+        {
+        }
+
+        /**
+         * Given the partial or complete certificate chain provided by the peer,
+         * build a certificate path to a trusted root and return if it can be
+         * validated and is trusted for server SSL authentication based on the
+         * authentication type. The authentication type is the key exchange
+         * algorithm portion of the cipher suites represented as a String, such
+         * as "RSA", "DHE_DSS". Note: for some exportable cipher suites, the
+         * key exchange algorithm is determined at run time during the
+         * handshake. For instance, for TLS_RSA_EXPORT_WITH_RC4_40_MD5, the
+         * authType should be RSA_EXPORT when an ephemeral RSA key is used for
+         * the key exchange, and RSA when the key from the server certificate
+         * is used. Checking is case-sensitive.
+         *
+         * @param chain the peer certificate chain
+         * @param authType the key exchange algorithm used
+         *
+         * @throws IllegalArgumentException if null or zero-length chain is
+         * passed in for the chain parameter or if null or zero-length string
+         * is passed in for the authType parameter
+         * @throws CertificateException if the certificate chain is not trusted
+         * by this TrustManager.
+         */
+        public void checkServerTrusted(
+                        java.security.cert.X509Certificate[] certs,
+                        String authType)
+        {
+        }
     }
 }

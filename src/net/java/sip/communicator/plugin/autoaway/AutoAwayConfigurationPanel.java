@@ -25,6 +25,13 @@ import net.java.sip.communicator.util.swing.*;
 public class AutoAwayConfigurationPanel
     extends TransparentPanel
 {
+
+    /**
+     * The default value to be displayed in {@link #timer} and to be considered
+     * for {@link Preferences#TIMER}.
+     */
+    private static final int DEFAULT_TIMER = 15;
+
     private JCheckBox enable;
     private JSpinner timer;
 
@@ -70,7 +77,7 @@ public class AutoAwayConfigurationPanel
                 AutoAwayActivator.getResources()
                     .getI18NString("plugin.autoaway.AWAY_MINUTES")));
         // Spinner
-        timer = new JSpinner(new SpinnerNumberModel(15, 1, 180, 1));
+        timer = new JSpinner(new SpinnerNumberModel(DEFAULT_TIMER, 1, 180, 1));
         timerPanel.add(timer);
         timer.addChangeListener(new ChangeListener()
         {
@@ -96,34 +103,12 @@ public class AutoAwayConfigurationPanel
         ConfigurationService configService 
             = AutoAwayActivator.getConfigService();
 
-        String e = (String) configService.getProperty(Preferences.ENABLE);
-        if (e != null)
-        {
-            try
-            {
-                this.enable.setSelected(Boolean.parseBoolean(e));
-                this.timer.setEnabled(Boolean.parseBoolean(e));
-            } catch (NumberFormatException ex)
-            {
-                this.enable.setSelected(false);
-                this.timer.setEnabled(false);
-            }
-        } else
-        {
-            this.enable.setSelected(false);
-            this.timer.setEnabled(false);
-        }
+        boolean e = configService.getBoolean(Preferences.ENABLE, false);
+        this.enable.setSelected(e);
+        this.timer.setEnabled(e);
 
-        String t = configService.getString(Preferences.TIMER);
-        if (t != null)
-        {
-            try
-            {
-                this.timer.setValue(Integer.parseInt(t));
-            } catch (NumberFormatException ex)
-            {
-            }
-        }
+        int t = configService.getInt(Preferences.TIMER, DEFAULT_TIMER);
+        this.timer.setValue(t);
     }
 
     /**
@@ -136,7 +121,7 @@ public class AutoAwayConfigurationPanel
 
         configService.setProperty(Preferences.ENABLE, 
                                   Boolean.toString(enable.isSelected()));
-        Integer interval = (Integer) timer.getValue();
-        configService.setProperty(Preferences.TIMER, interval);
+        configService.setProperty(Preferences.TIMER,
+                                  timer.getValue().toString());
     }
 }
