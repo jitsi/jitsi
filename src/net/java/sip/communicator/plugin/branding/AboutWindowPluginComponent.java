@@ -12,6 +12,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.*;
 
 public class AboutWindowPluginComponent
     implements PluginComponent
@@ -73,6 +74,10 @@ public class AboutWindowPluginComponent
                     .getI18NString("plugin.branding.ABOUT_MENU_ENTRY");
     }
 
+    public void setCurrentContact(Contact contact)
+    {
+    }
+    
     public void setCurrentContact(MetaContact metaContact)
     {
     }

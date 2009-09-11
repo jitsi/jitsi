@@ -94,7 +94,7 @@ public class ChatPanel
 
     private boolean isShown = false;
 
-    private ChatSession chatSession;
+    public ChatSession chatSession;
 
     private long firstHistoryMsgTimestamp;
 

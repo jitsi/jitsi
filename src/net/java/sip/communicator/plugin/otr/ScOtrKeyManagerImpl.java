@@ -167,6 +167,9 @@ public class ScOtrKeyManagerImpl
 
     public KeyPair loadKeyPair(AccountID account)
     {
+        if (account == null)
+            return null;
+        
         String accountID = account.getAccountUniqueID();
         // Load Private Key.
         byte[] b64PrivKey =
@@ -212,6 +215,9 @@ public class ScOtrKeyManagerImpl
 
     public void generateKeyPair(AccountID account)
     {
+        if (account == null)
+            return;
+        
         String accountID = account.getAccountUniqueID();
         KeyPair keyPair;
         try

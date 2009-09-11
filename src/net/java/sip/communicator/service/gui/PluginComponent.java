@@ -7,6 +7,7 @@
 package net.java.sip.communicator.service.gui;
 
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>PluginComponent</tt> is an interface meant to be implemented by
@@ -76,6 +77,15 @@ public interface PluginComponent
      */
     public Object getComponent();
 
+    /**
+     * Sets the current contact. Meant to be used by plugin components that
+     * are interested of the current contact. The current contact is the contact 
+     * for the currently selected chat transport.
+     * 
+     * @param contact the current contact
+     */
+    public void setCurrentContact(Contact contact);
+    
     /**
      * Sets the current meta contact. Meant to be used by plugin components that
      * are interested of the current contact. The current contact could be the

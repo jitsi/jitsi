@@ -22,7 +22,6 @@ public interface ChatSession
     final String[] chatHistoryFilter
         = new String[]{ MessageHistoryService.class.getName(),
                         FileHistoryService.class.getName()};
-
     /**
      * Returns the descriptor of this chat session.
      * 
@@ -186,4 +185,20 @@ public interface ChatSession
      *         list of (multiple) participants; otherwise, <tt>false</tt>
      */
     public boolean isContactListSupported();
+    
+    /**
+     * Adds the given {@link ChatSessionChangeListener} to this 
+     * <tt>ChatSession</tt>.
+     * 
+     * @param l the <tt>ChatSessionChangeListener</tt> to add
+     */
+    public void addChatTransportChangeListener(ChatSessionChangeListener l);
+    
+    /**
+     * Removes the given {@link ChatSessionChangeListener} to this 
+     * <tt>ChatSession</tt>.
+     * 
+     * @param l the <tt>ChatSessionChangeListener</tt> to add
+     */
+    public void removeChatTransportChangeListener(ChatSessionChangeListener l);
 }

@@ -12,9 +12,9 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JMenuItem;
 
-import net.java.sip.communicator.service.contactlist.MetaContact;
-import net.java.sip.communicator.service.contactlist.MetaContactGroup;
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>ExamplePluginMenuItem</tt> is a <tt>JMenuItem</tt> that implements
@@ -42,6 +42,9 @@ public class ExamplePluginMenuItem
         this.addActionListener(this);
     }
 
+    public void setCurrentContact(Contact contact)
+    {}
+    
     /**
      * Sets the current <tt>MetaContact</tt>. This in the case of the contact
      * right button menu container would be the underlying contact in the 

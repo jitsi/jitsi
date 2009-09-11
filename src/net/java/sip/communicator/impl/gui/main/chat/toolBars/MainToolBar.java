@@ -23,6 +23,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.MetaContact;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -132,6 +133,9 @@ public class MainToolBar
         {
             public void chatChanged(ChatPanel panel)
             {
+                if (panel == null)
+                    return;
+                
                 MetaContact contact =
                     GuiActivator.getUIService().getChatContact(panel);
 
@@ -141,6 +145,37 @@ public class MainToolBar
                         continue;
                     
                     ((PluginComponent)c).setCurrentContact(contact);
+                }
+                
+                if (panel.chatSession != null)
+                {
+                    panel.chatSession
+                        .addChatTransportChangeListener(new ChatSessionChangeListener()
+                        {
+                            public void currentChatTransportChanged(
+                                ChatSession chatSession)
+                            {
+                                if (chatSession == null)
+                                    return;
+
+                                ChatTransport currentTransport =
+                                    chatSession.getCurrentChatTransport();
+                                if (currentTransport.getDescriptor() instanceof Contact)
+                                {
+                                    Contact contact =
+                                        (Contact) currentTransport
+                                            .getDescriptor();
+                                    for (Component c : getComponents())
+                                    {
+                                        if (!(c instanceof PluginComponent))
+                                            continue;
+
+                                        ((PluginComponent) c)
+                                            .setCurrentContact(contact);
+                                    }
+                                }
+                            }
+                        });
                 }
             }
         });

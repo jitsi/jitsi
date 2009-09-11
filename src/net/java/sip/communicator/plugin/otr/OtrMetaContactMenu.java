@@ -71,6 +71,10 @@ public class OtrMetaContactMenu
         return false;
     }
 
+    public void setCurrentContact(Contact contact)
+    {
+    }
+    
     public void setCurrentContact(MetaContact metaContact)
     {
         // Rebuild menu.

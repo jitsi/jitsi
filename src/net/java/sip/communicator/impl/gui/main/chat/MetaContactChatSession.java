@@ -46,6 +46,9 @@ public class MetaContactChatSession
     private ChatTransport currentChatTransport;
 
     private final ChatSessionRenderer sessionRenderer;
+    
+    private final java.util.List<ChatSessionChangeListener> chatTransportChangeListeners =
+        new Vector<ChatSessionChangeListener>();
 
     /**
      * Creates an instance of <tt>MetaContactChatSession</tt> by specifying the
@@ -365,6 +368,10 @@ public class MetaContactChatSession
     public void setCurrentChatTransport(ChatTransport chatTransport)
     {
         this.currentChatTransport = chatTransport;
+        for (ChatSessionChangeListener l : chatTransportChangeListeners)
+        {
+            l.currentChatTransportChanged(this);
+        }
     }
 
     public void childContactsReordered(MetaContactGroupEvent evt)
@@ -620,5 +627,22 @@ public class MetaContactChatSession
     public boolean isContactListSupported()
     {
         return false;
+    }
+    
+    public void addChatTransportChangeListener(ChatSessionChangeListener l)
+    {
+        synchronized (chatTransportChangeListeners)
+        {
+            if (!chatTransportChangeListeners.contains(l))
+                chatTransportChangeListeners.add(l);
+        }
+    }
+    
+    public void removeChatTransportChangeListener(ChatSessionChangeListener l)
+    {
+        synchronized (chatTransportChangeListeners)
+        {
+            chatTransportChangeListeners.remove(l);
+        }
     }
 }

@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * @author Yana Stamcheva
@@ -76,6 +77,10 @@ public class MoreButton
         this.repaint();
     }
 
+    public void setCurrentContact(Contact contact)
+    {
+    }
+    
     public void setCurrentContact(MetaContact metaContact)
     {
     }

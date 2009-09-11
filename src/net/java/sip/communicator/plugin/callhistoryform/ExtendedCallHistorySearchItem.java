@@ -15,6 +15,7 @@ import javax.swing.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>ExtendedCallHistorySearchButton</tt> is the button that will be
@@ -86,6 +87,10 @@ public class ExtendedCallHistorySearchItem
         return historyMenuItem.getText();
     }
 
+    public void setCurrentContact(Contact contact)
+    {
+    }
+    
     public void setCurrentContact(MetaContact metaContact)
     {
     }

@@ -15,6 +15,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.sf.profiler4j.console.*;
 
 public class SettingsWindowMenuEntry implements PluginComponent
@@ -66,6 +67,10 @@ public class SettingsWindowMenuEntry implements PluginComponent
         return Resources.getString( PROFILER_NAME );
     }
 
+    public void setCurrentContact(Contact contact)
+    {
+    }
+    
     public void setCurrentContact(MetaContact metaContact)
     {
     }

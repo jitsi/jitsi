@@ -39,6 +39,9 @@ public class ConferenceChatSession
     private final ChatRoomWrapper chatRoomWrapper;
 
     private final ChatSessionRenderer sessionRenderer;
+    
+    private final java.util.List<ChatSessionChangeListener> chatTransportChangeListeners =
+        new Vector<ChatSessionChangeListener>();
 
     /**
      * Creates an instance of <tt>ConferenceChatSession</tt>, by specifying the
@@ -346,6 +349,10 @@ public class ConferenceChatSession
     public void setCurrentChatTransport(ChatTransport chatTransport)
     {
         this.currentChatTransport = chatTransport;
+        for (ChatSessionChangeListener l : chatTransportChangeListeners)
+        {
+            l.currentChatTransportChanged(this);
+        }
     }
 
     /**
@@ -559,5 +566,22 @@ public class ConferenceChatSession
         return
             !chatRoom.isSystem()
                 && !ConferenceChatManager.isPrivate(chatRoom);
+    }
+    
+    public void addChatTransportChangeListener(ChatSessionChangeListener l)
+    {
+        synchronized (chatTransportChangeListeners)
+        {
+            if (!chatTransportChangeListeners.contains(l))
+                chatTransportChangeListeners.add(l);
+        }
+    }
+    
+    public void removeChatTransportChangeListener(ChatSessionChangeListener l)
+    {
+        synchronized (chatTransportChangeListeners)
+        {
+            chatTransportChangeListeners.remove(l);
+        }
     }
 }

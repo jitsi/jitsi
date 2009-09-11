@@ -66,7 +66,7 @@ public class OtrMetaContactButton
                 if (OtrMetaContactButton.this.contact != null)
                     setPolicy(OtrActivator.scOtrEngine
                         .getContactPolicy(contact));
-            }            
+            }
         });
 
         OtrActivator.scOtrKeyManager.addListener(new ScOtrKeyManagerListener()
@@ -79,10 +79,10 @@ public class OtrMetaContactButton
                     setStatus(OtrActivator.scOtrEngine
                         .getSessionStatus(contact));
                 }
-                
+
             }
         });
-        
+
         this.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
@@ -94,7 +94,8 @@ public class OtrMetaContactButton
                 {
                 case ENCRYPTED:
                 case FINISHED:
-                    // Default action for finished and encrypted sessions is end session.
+                    // Default action for finished and encrypted sessions is end
+                    // session.
                     OtrActivator.scOtrEngine.endSession(contact);
                     break;
                 case PLAINTEXT:
@@ -132,6 +133,13 @@ public class OtrMetaContactButton
         return false;
     }
 
+    public void setCurrentContact(Contact contact)
+    {
+        this.contact = contact;
+        this.setStatus(OtrActivator.scOtrEngine.getSessionStatus(contact));
+        this.setPolicy(OtrActivator.scOtrEngine.getContactPolicy(contact));
+    }
+
     public void setCurrentContact(MetaContact metaContact)
     {
         contact = metaContact.getDefaultContact();
@@ -165,8 +173,7 @@ public class OtrMetaContactButton
                     .setImage(ImageIO
                         .read(OtrActivator.resourceService
                             .getImageURL((OtrActivator.scOtrKeyManager
-                                .isVerified(contact))
-                                ? "plugin.otr.ENCRYPTED_ICON_22x22"
+                                .isVerified(contact)) ? "plugin.otr.ENCRYPTED_ICON_22x22"
                                 : "plugin.otr.ENCRYPTED_UNVERIFIED_ICON_22x22")));
             }
             catch (IOException e)

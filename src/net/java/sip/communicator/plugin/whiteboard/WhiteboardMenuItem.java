@@ -49,6 +49,10 @@ public class WhiteboardMenuItem
             Resources.getImage ("plugin.whiteboard.MPEN_ICON"));
     }
 
+    public void setCurrentContact (Contact contact)
+    {
+    }
+    
     /**
      * Sets the current meta contact.
      *

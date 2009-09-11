@@ -14,6 +14,7 @@ import javax.swing.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * 
@@ -38,6 +39,9 @@ public class ContactInfoMenuItem
         menuItem.addActionListener(this);
     }
 
+    public void setCurrentContact(Contact contact)
+    {}
+    
     /**
      * Sets the currently selected <tt>MetaContact</tt>.
      * @param metaContact the currently selected meta contact
