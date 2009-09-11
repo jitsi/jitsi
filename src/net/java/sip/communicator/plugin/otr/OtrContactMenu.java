@@ -239,7 +239,7 @@ class OtrContactMenu
 
         this.addSeparator();
 
-        JCheckBoxMenuItem cbReset = new JCheckBoxMenuItem();
+        JMenuItem cbReset = new JMenuItem();
         cbReset.setText(OtrActivator.resourceService
             .getI18NString("plugin.otr.menu.CB_RESET"));
 
