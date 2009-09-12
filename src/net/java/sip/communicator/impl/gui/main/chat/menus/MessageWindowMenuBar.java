@@ -6,20 +6,15 @@
 package net.java.sip.communicator.impl.gui.main.chat.menus;
 
 import java.awt.*;
-import java.util.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
-import net.java.sip.communicator.util.*;
-
-import org.osgi.framework.*;
 
 /**
  * The <tt>MessageWindowMenuBar</tt> is the menu bar in the chat window where
@@ -30,10 +25,7 @@ import org.osgi.framework.*;
  */
 public class MessageWindowMenuBar
     extends JMenuBar
-    implements PluginComponentListener
 {
-    private final Logger logger = Logger.getLogger(MessageWindowMenuBar.class);
-
     private FileMenu fileMenu;
 
     private EditMenu editMenu;
@@ -44,12 +36,7 @@ public class MessageWindowMenuBar
 
     private final ChatWindow parentWindow;
 
-    /**
-     * The list of <code>PluginComponent</code> instances which have their
-     * components added to this <code>JMenuBar</code>.
-     */
-    private final java.util.List<PluginComponent> pluginComponents
-        = new LinkedList<PluginComponent>();
+    private final PluginContainer pluginContainer;
 
     /**
      * Creates an instance of <tt>MessageWindowMenuBar</tt>.
@@ -78,8 +65,23 @@ public class MessageWindowMenuBar
 
         this.init();
 
-        this.initPluginComponents();
-        
+        pluginContainer
+            = new PluginContainer(this, Container.CONTAINER_CHAT_MENU_BAR)
+                {
+
+                    /*
+                     * Overrides PluginContainer#addComponentToContainer(
+                     * Component, JComponent). Keeps the Help menu last as it is
+                     * its conventional place.
+                     */
+                    protected void addComponentToContainer(
+                        Component component,
+                        JComponent container)
+                    {
+                        container.add(component, getComponentIndex(helpMenu));
+                    }
+                };
+
         this.parentWindow.addChatChangeListener(new ChatChangeListener()
         {
             public void chatChanged(ChatPanel panel)
@@ -87,7 +89,7 @@ public class MessageWindowMenuBar
                 MetaContact contact =
                     GuiActivator.getUIService().getChatContact(panel);
 
-                for (PluginComponent c : pluginComponents)
+                for (PluginComponent c : pluginContainer.getPluginComponents())
                     c.setCurrentContact(contact);
             }
         });
@@ -100,7 +102,7 @@ public class MessageWindowMenuBar
      */
     public void dispose()
     {
-        GuiActivator.getUIService().removePluginComponentListener(this);
+        pluginContainer.dispose();
         helpMenu.dispose();
     }
 
@@ -151,98 +153,5 @@ public class MessageWindowMenuBar
             ImageLoader.getImage(ImageLoader.MENU_BACKGROUND);
 
         g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
-    }
-
-    /**
-     * Initialize plugin components already registered for this container.
-     */
-    private void initPluginComponents()
-    {
-        // Search for plugin components registered through the OSGI bundle
-        // context.
-        ServiceReference[] serRefs = null;
-
-        String osgiFilter = "("
-            + Container.CONTAINER_ID
-            + "="+Container.CONTAINER_CHAT_MENU_BAR.getID()+")";
-
-        try
-        {
-            serRefs = GuiActivator.bundleContext.getServiceReferences(
-                PluginComponent.class.getName(),
-                osgiFilter);
-        }
-        catch (InvalidSyntaxException exc)
-        {
-            logger.error("Could not obtain plugin reference.", exc);
-        }
-
-        if (serRefs != null)
-        {
-            for (ServiceReference serRef : serRefs)
-            {
-                PluginComponent component
-                    = (PluginComponent)
-                        GuiActivator.bundleContext.getService(serRef);
-
-                addPluginComponent(component);
-            }
-        }
-
-        GuiActivator.getUIService().addPluginComponentListener(this);
-    }
-
-    /**
-     * Adds the component of a specific <code>PluginComponent</code> to this
-     * <code>JMenuBar</code>.
-     * 
-     * @param c
-     *            the <code>PluginComponent</code> which is to have its
-     *            component added to this <code>JMenuBar</code>
-     */
-    private void addPluginComponent(PluginComponent c)
-    {
-        if (pluginComponents.contains(c))
-            return;
-
-        add((Component) c.getComponent(), getComponentIndex(helpMenu));
-        pluginComponents.add(c);
-    }
-
-    /**
-     * Removes the component of a specific <code>PluginComponent</code> from
-     * this <code>JMenuBar</code>.
-     * 
-     * @param c
-     *            the <code>PluginComponent</code> which is to have its
-     *            component removed from this <code>JMenuBar</code>
-     */
-    private void removePluginComponent(PluginComponent c)
-    {
-        remove((Component) c.getComponent());
-        pluginComponents.remove(c);
-    }
-
-    public void pluginComponentAdded(PluginComponentEvent event)
-    {
-        PluginComponent c = event.getPluginComponent();
-
-        if (c.getContainer().equals(Container.CONTAINER_CHAT_MENU_BAR))
-        {
-            addPluginComponent(c);
-
-            this.revalidate();
-            this.repaint();
-        }
-    }
-
-    public void pluginComponentRemoved(PluginComponentEvent event)
-    {
-        PluginComponent c = event.getPluginComponent();
-
-        if (c.getContainer().equals(Container.CONTAINER_CHAT_MENU_BAR))
-        {
-            removePluginComponent(c);
-        }
     }
 }

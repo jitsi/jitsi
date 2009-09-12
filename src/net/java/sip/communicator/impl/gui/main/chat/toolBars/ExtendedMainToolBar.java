@@ -13,19 +13,13 @@ import java.awt.image.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
-
-import org.osgi.framework.*;
 
 /**
  * The <tt>MainToolBar</tt> is a <tt>JToolBar</tt> which contains buttons
@@ -38,11 +32,8 @@ import org.osgi.framework.*;
  */
 public class ExtendedMainToolBar
     extends MainToolBar
-    implements  MouseListener,
-                PluginComponentListener
+    implements MouseListener
 {
-    private Logger logger = Logger.getLogger(ExtendedMainToolBar.class);
-
     BufferedImage backgroundImage
         = ImageLoader.getImage(ImageLoader.TOOL_BAR_BACKGROUND);
 
@@ -97,8 +88,6 @@ public class ExtendedMainToolBar
         = GuiActivator.getResources()
             .getSettingsInt("impl.gui.MAIN_TOOLBAR_BUTTON_WIDTH");
 
-    private ChatWindow messageWindow;
-
     private Contact currentChatContact = null;
 
     /**
@@ -108,8 +97,11 @@ public class ExtendedMainToolBar
      */
     public ExtendedMainToolBar(ChatWindow messageWindow)
     {
-        this.messageWindow = messageWindow;
+        super(messageWindow);
+    }        
 
+    protected void init()
+    {
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
         this.setPreferredSize(new Dimension(300, DEFAULT_BUTTON_HEIGHT + 5));
 
@@ -218,49 +210,44 @@ public class ExtendedMainToolBar
         this.printButton.setEnabled(false);
         this.sendFileButton.setEnabled(false);
         this.fontButton.setEnabled(false);
-        
-        this.initPluginComponents();
-        
-        messageWindow.addChatChangeListener(new ChatChangeListener() 
-        {
-            public void chatChanged(ChatPanel panel) 
+    }
+
+    protected void chatChanged(ChatPanel panel) 
+    {
+        if(panel.getChatSession() instanceof MetaContactChatSession)
+        { 
+            MetaContact contact = 
+                (MetaContact) panel.getChatSession().getDescriptor();
+
+            if(contact == null) return;
+
+            Contact defaultContact = contact.getDefaultContact();
+            if(defaultContact == null) return;
+
+            ContactGroup parent = defaultContact.getParentContactGroup();
+            boolean isParentPersist = true;
+            boolean isParentResolved = true;
+            if(parent != null)
             {
-                if(panel.getChatSession() instanceof MetaContactChatSession)
-                { 
-                    MetaContact contact = 
-                        (MetaContact) panel.getChatSession().getDescriptor();
-
-                    if(contact == null) return;
-
-                    Contact defaultContact = contact.getDefaultContact();
-                    if(defaultContact == null) return;
-
-                    ContactGroup parent = defaultContact.getParentContactGroup();
-                    boolean isParentPersist = true;
-                    boolean isParentResolved = true;
-                    if(parent != null)
-                    {
-                        isParentPersist = parent.isPersistent();
-                        isParentResolved = parent.isResolved();
-                    }
-                    
-                    if(!defaultContact.isPersistent() &&
-                       !defaultContact.isResolved() &&
-                       !isParentPersist &&
-                       !isParentResolved)
-                    {
-                       addButton.setVisible(true);
-                       currentChatContact = defaultContact;
-                    }
-                    else
-                    {
-                        addButton.setVisible(false);
-                        currentChatContact = null;
-                    }  
-                }
+                isParentPersist = parent.isPersistent();
+                isParentResolved = parent.isResolved();
             }
-        });
-    }        
+            
+            if(!defaultContact.isPersistent() &&
+               !defaultContact.isResolved() &&
+               !isParentPersist &&
+               !isParentResolved)
+            {
+               addButton.setVisible(true);
+               currentChatContact = defaultContact;
+            }
+            else
+            {
+                addButton.setVisible(false);
+                currentChatContact = null;
+            }  
+        }
+    }
 
     /**
      * Handles the <tt>ActionEvent</tt>, when one of the toolbar buttons is
@@ -270,44 +257,6 @@ public class ExtendedMainToolBar
     {
         ToolBarButton button = (ToolBarButton) e.getSource();
         button.setMousePressed(true);
-    }
-
-    private void initPluginComponents()
-    {
-        // Search for plugin components registered through the OSGI bundle
-        // context.
-        ServiceReference[] serRefs = null;
-
-        String osgiFilter = "("
-            + Container.CONTAINER_ID
-            + "="+Container.CONTAINER_CHAT_TOOL_BAR.getID()+")";
-
-        try
-        {
-            serRefs = GuiActivator.bundleContext.getServiceReferences(
-                PluginComponent.class.getName(),
-                osgiFilter);
-        }
-        catch (InvalidSyntaxException exc)
-        {
-            logger.error("Could not obtain plugin reference.", exc);
-        }
-
-        if (serRefs != null)
-        {
-            for (int i = 0; i < serRefs.length; i ++)
-            {
-                PluginComponent component = (PluginComponent) GuiActivator
-                    .bundleContext.getService(serRefs[i]);;
-
-                this.add((Component)component.getComponent());
-
-                this.revalidate();
-                this.repaint();
-            }
-        }
-
-        GuiActivator.getUIService().addPluginComponentListener(this);
     }
 
     private static class ToolBarButton
@@ -388,11 +337,6 @@ public class ExtendedMainToolBar
 
                 g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 2, 8, 8);
             }
-        }
-
-        public Action getAction()
-        {
-            return null;
         }
     }
 

@@ -9,25 +9,21 @@ package net.java.sip.communicator.impl.gui.main.chat.toolBars;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-
 import java.util.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.contactlist.MetaContact;
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
-
-import org.osgi.framework.*;
 
 /**
  * The <tt>MainToolBar</tt> is a <tt>JToolBar</tt> which contains buttons
@@ -41,11 +37,8 @@ import org.osgi.framework.*;
  */
 public class MainToolBar
     extends TransparentPanel
-    implements  ActionListener,
-                PluginComponentListener
+    implements ActionListener
 {
-    private Logger logger = Logger.getLogger(MainToolBar.class);
-
     private ChatToolbarButton inviteButton = new ChatToolbarButton(
                 ImageLoader.getImage(ImageLoader.ADD_TO_CHAT_ICON));
 
@@ -65,21 +58,9 @@ public class MainToolBar
     private ChatToolbarButton nextButton = new ChatToolbarButton(
         ImageLoader.getImage(ImageLoader.NEXT_ICON));
 
-    private ChatWindow messageWindow;
+    protected final ChatWindow messageWindow;
 
-    /**
-     * The list of <code>PluginComponent</code> instances which have their
-     * components added to this <code>MainToolBar</code>.
-     */
-    private final java.util.List<PluginComponent> pluginComponents
-        = new LinkedList<PluginComponent>();
-
-    /**
-     * Empty constructor to be used from inheritors.
-     */
-    public MainToolBar()
-    {
-    }
+    private final PluginContainer pluginContainer;
 
     /**
      * Creates an instance and constructs the <tt>MainToolBar</tt>.
@@ -90,6 +71,22 @@ public class MainToolBar
     {
         this.messageWindow = messageWindow;
 
+        init();
+
+        pluginContainer
+            = new PluginContainer(this, Container.CONTAINER_CHAT_TOOL_BAR);
+        
+        this.messageWindow.addChatChangeListener(new ChatChangeListener()
+        {
+            public void chatChanged(ChatPanel panel)
+            {
+                MainToolBar.this.chatChanged(panel);
+            }
+        });
+    }
+
+    protected void init()
+    {
         this.setOpaque(false);
 
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 3, 0));
@@ -133,53 +130,6 @@ public class MainToolBar
         this.sendFileButton.addActionListener(this);
         this.previousButton.addActionListener(this);
         this.nextButton.addActionListener(this);
-
-        this.initPluginComponents();
-        
-        this.messageWindow.addChatChangeListener(new ChatChangeListener()
-        {
-            public void chatChanged(ChatPanel panel)
-            {
-                if (panel == null)
-                    return;
-                
-                MetaContact contact =
-                    GuiActivator.getUIService().getChatContact(panel);
-
-                for (PluginComponent c : pluginComponents)   
-                    c.setCurrentContact(contact);
-                
-                if (panel.chatSession != null)
-                    panel
-                        .chatSession
-                            .addChatTransportChangeListener(
-                                new ChatSessionChangeListener()
-                                {
-                                    public void currentChatTransportChanged(
-                                        ChatSession chatSession)
-                                    {
-                                        if (chatSession == null)
-                                            return;
-
-                                        ChatTransport currentTransport
-                                            = chatSession
-                                                .getCurrentChatTransport();
-                                        Object currentDescriptor
-                                            = currentTransport.getDescriptor();
-
-                                        if (currentDescriptor instanceof Contact)
-                                        {
-                                            Contact contact
-                                                = (Contact) currentDescriptor;
-
-                                            for (PluginComponent c
-                                                    : pluginComponents)
-                                                c.setCurrentContact(contact);
-                                        }
-                                    }
-                                });
-            }
-        });
     }
 
     /**
@@ -189,7 +139,50 @@ public class MainToolBar
      */
     public void dispose()
     {
-        GuiActivator.getUIService().removePluginComponentListener(this);
+        pluginContainer.dispose();
+    }
+
+    protected void chatChanged(ChatPanel panel)
+    {
+        if (panel == null)
+            return;
+        
+        MetaContact contact =
+            GuiActivator.getUIService().getChatContact(panel);
+
+        for (PluginComponent c : pluginContainer.getPluginComponents())   
+            c.setCurrentContact(contact);
+        
+        if (panel.chatSession != null)
+            panel
+                .chatSession
+                    .addChatTransportChangeListener(
+                        new ChatSessionChangeListener()
+                        {
+                            public void currentChatTransportChanged(
+                                ChatSession chatSession)
+                            {
+                                if (chatSession == null)
+                                    return;
+
+                                ChatTransport currentTransport
+                                    = chatSession
+                                        .getCurrentChatTransport();
+                                Object currentDescriptor
+                                    = currentTransport.getDescriptor();
+
+                                if (currentDescriptor instanceof Contact)
+                                {
+                                    Contact contact
+                                        = (Contact) currentDescriptor;
+
+                                    for (PluginComponent c
+                                            : pluginContainer
+                                                .getPluginComponents())
+                                        c.setCurrentContact(contact);
+                                }
+                            }
+                        });
     }
 
     /**
@@ -316,100 +309,6 @@ public class MainToolBar
         {
             nextButton.setEnabled(false);
         }
-    }
-
-    private void initPluginComponents()
-    {
-        // Search for plugin components registered through the OSGI bundle
-        // context.
-        ServiceReference[] serRefs = null;
-
-        String osgiFilter = "("
-            + Container.CONTAINER_ID
-            + "="+Container.CONTAINER_CHAT_TOOL_BAR.getID()+")";
-
-        try
-        {
-            serRefs = GuiActivator.bundleContext.getServiceReferences(
-                PluginComponent.class.getName(),
-                osgiFilter);
-        }
-        catch (InvalidSyntaxException exc)
-        {
-            logger.error("Could not obtain plugin reference.", exc);
-        }
-
-        if (serRefs != null)
-        {
-            for (ServiceReference serRef : serRefs)
-            {
-                PluginComponent component
-                    = (PluginComponent)
-                        GuiActivator.bundleContext.getService(serRef);
-
-                addPluginComponent(component);
-            }
-        }
-
-        GuiActivator.getUIService().addPluginComponentListener(this);
-    }
-
-    /**
-     * Adds the component of a specific <code>PluginComponent</code> to this
-     * <code>JMenuBar</code>.
-     * 
-     * @param c
-     *            the <code>PluginComponent</code> which is to have its
-     *            component added to this <code>JMenuBar</code>
-     */
-    private void addPluginComponent(PluginComponent c)
-    {
-        if (pluginComponents.contains(c))
-            return;
-
-        add((Component) c.getComponent());
-        pluginComponents.add(c);
-
-        revalidate();
-        repaint();
-    }
-
-    /**
-     * Removes the component of a specific <code>PluginComponent</code> from
-     * this <code>JMenuBar</code>.
-     * 
-     * @param c
-     *            the <code>PluginComponent</code> which is to have its
-     *            component removed from this <code>JMenuBar</code>
-     */
-    private void removePluginComponent(PluginComponent c)
-    {
-        remove((Component) c.getComponent());
-        pluginComponents.remove(c);
-    }
-
-    /**
-     * Implements the <code>PluginComponentListener.pluginComponentAdded</code>
-     * method.
-     */
-    public void pluginComponentAdded(PluginComponentEvent event)
-    {
-        PluginComponent c = event.getPluginComponent();
-
-        if (c.getContainer().equals(Container.CONTAINER_CHAT_TOOL_BAR))
-            addPluginComponent(c);
-    }
-
-    /**
-     * Implements the <code>PluginComponentListener.pluginComponentRemoved</code>
-     * method.
-     */
-    public void pluginComponentRemoved(PluginComponentEvent event)
-    {
-        PluginComponent c = event.getPluginComponent();
-
-        if (c.getContainer().equals(Container.CONTAINER_CHAT_TOOL_BAR))
-            removePluginComponent(c);
     }
 
     /**
