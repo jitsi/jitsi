@@ -10,11 +10,10 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
-import net.java.sip.communicator.impl.gui.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -26,8 +25,7 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class AuthenticationWindow
     extends SIPCommFrame
-    implements ActionListener,
-               ExportedWindow
+    implements ActionListener
 {
     private JTextArea realmTextArea = new JTextArea();
 
@@ -383,52 +381,7 @@ public class AuthenticationWindow
         }
     }
 
-    /**
-     * Implements the <tt>ExportedWindow.getIdentifier()</tt> method.
-     *
-     * @return the <tt>WindowID</tt> of this authentication window.
-     */
-    public WindowID getIdentifier()
-    {
-         return ExportedWindow.AUTHENTICATION_WINDOW;
-    }
-
-    /**
-     * This dialog could not be minimized.
-     */
-    public void minimize()
-    {
-    }
-
-    /**
-     * This dialog could not be maximized.
-     */
-    public void maximize()
-    {
-    }
-
-    /**
-     * Implements the <tt>ExportedWindow.bringToFront()</tt> method. Brings this
-     * window to front.
-     */
-    public void bringToFront()
-    {
-        this.toFront();
-    }
-    
-    /**
-     * The source of the window
-     * @return the source of the window
-     */
-    public Object getSource()
-    {
-        return this;
-    }
-
-    /**
-     * Implementation of {@link ExportedWindow#setParams(Object[])}.
-     */
-    public void setParams(Object[] windowParams)
+    void setParams(Object[] windowParams)
     {
         if(windowParams != null && windowParams.length > 0)
         {

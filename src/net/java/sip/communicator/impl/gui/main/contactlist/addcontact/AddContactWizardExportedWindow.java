@@ -17,18 +17,13 @@ import net.java.sip.communicator.service.gui.*;
  * @author Lubomir Marinov
  */
 public class AddContactWizardExportedWindow
-    implements ExportedWindow
+    extends AbstractExportedWindow<AddContactWizard>
 {
 
     /**
      * The argument required by the <code>AddContactWizard</code> constructor.
      */
     private final MainFrame mainFrame;
-
-    /**
-     * The <code>AddContactWizard</code> adapted by this instance.
-     */
-    private AddContactWizard wizard;
 
     /**
      * Initializes a new <code>AddContactWizardExportedWindow</code> which is to
@@ -43,9 +38,12 @@ public class AddContactWizardExportedWindow
         this.mainFrame = mainFrame;
     }
 
-    public void bringToFront()
+    /*
+     * Implements AbstractExportedWindow#createWindow().
+     */
+    protected AddContactWizard createWindow()
     {
-        getWizard().toFront();
+        return new AddContactWizard(mainFrame);
     }
 
     public WindowID getIdentifier()
@@ -53,80 +51,19 @@ public class AddContactWizardExportedWindow
         return ExportedWindow.ADD_CONTACT_WINDOW;
     }
 
-    public Object getSource()
-    {
-        return getWizard();
-    }
-
     /**
-     * Gets the <code>AddContactWizard</code> being adapted by this instance and
-     * creates it if it hasn't already been created.
-     * 
-     * @return the <code>AddContactWizard</code> adapted by this instance
-     */
-    private AddContactWizard getWizard()
-    {
-        if (wizard == null)
-        {
-            wizard = new AddContactWizard(mainFrame);
-        }
-        return wizard;
-    }
-
-    public boolean isFocused()
-    {
-        return getWizard().isFocused();
-    }
-
-    public boolean isVisible()
-    {
-        return getWizard().isVisible();
-    }
-
-    /**
-     * Does nothing because the dialog associated with this instance doesn't
-     * support maximizing.
-     */
-    public void maximize()
-    {
-        // The dialog cannot be maximized.
-    }
-
-    /**
-     * Does nothing because the dialog associated with this instance doesn't
-     * support minimizing.
-     */
-    public void minimize()
-    {
-        // The dialog cannot be minimized.
-    }
-
-    public void setLocation(int x, int y)
-    {
-        getWizard().setLocation(x, y);
-    }
-
-    public void setSize(int width, int height)
-    {
-        getWizard().setSize(width, height);
-    }
-
-    public void setVisible(boolean isVisible)
-    {
-        getWizard().setVisible(isVisible);
-    }
-
-    /**
-     * Implementation of {@link ExportedWindow#setParams(Object[])}.
+     * Implements {@link ExportedWindow#setParams(Object[])}.
      */
     public void setParams(Object[] windowParams)
     {
-        if( windowParams != null
-            && windowParams.length > 0
-            && windowParams[0] instanceof String)
-            this.getWizard().setUIN((String) windowParams[0]);
+        String uin;
+        if ((windowParams != null)
+                && (windowParams.length > 0)
+                && (windowParams[0] instanceof String))
+            uin = (String) windowParams[0];
         else
-            this.getWizard().setUIN("");
-    }
+            uin = "";
 
+        getWindow().setUIN(uin);
+    }
 }

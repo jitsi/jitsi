@@ -145,8 +145,6 @@ public class ConfigurationFrame
     /**
      * Implements <code>ApplicationWindow.show</code> method.
      *
-     * @see net.java.sip.communicator.service.gui.ExportedWindow#setVisible(boolean)
-     *
      * @param isVisible specifies whether the frame is to be visible or not.
      */
     public void setVisible(boolean isVisible)

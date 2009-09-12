@@ -391,7 +391,7 @@ public class UIServiceImpl
     public void initExportedWindows()
     {
         registerExportedWindow(new AddContactWizardExportedWindow(mainFrame));
-        registerExportedWindow(new AuthenticationWindow(mainFrame));
+        registerExportedWindow(new AuthenticationExportedWindow(mainFrame));
     }
 
     /**
@@ -646,11 +646,13 @@ public class UIServiceImpl
         UserCredentials userCredentials,
         boolean isUserNameEditable)
     {
-        return new AuthenticationWindow(mainFrame,
-                                        protocolProvider,
-                                        realm,
-                                        userCredentials,
-                                        isUserNameEditable);
+        return
+            new AuthenticationExportedWindow(
+                new AuthenticationWindow(mainFrame,
+                                         protocolProvider,
+                                         realm,
+                                         userCredentials,
+                                         isUserNameEditable));
     }
 
     /**
