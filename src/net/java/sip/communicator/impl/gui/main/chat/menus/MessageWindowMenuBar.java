@@ -6,10 +6,9 @@
 package net.java.sip.communicator.impl.gui.main.chat.menus;
 
 import java.awt.*;
+import java.util.*;
 
 import javax.swing.*;
-
-import org.osgi.framework.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.event.*;
@@ -19,6 +18,8 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The <tt>MessageWindowMenuBar</tt> is the menu bar in the chat window where
@@ -44,13 +45,19 @@ public class MessageWindowMenuBar
     private final ChatWindow parentWindow;
 
     /**
+     * The list of <code>PluginComponent</code> instances which have their
+     * components added to this <code>JMenuBar</code>.
+     */
+    private final java.util.List<PluginComponent> pluginComponents
+        = new LinkedList<PluginComponent>();
+
+    /**
      * Creates an instance of <tt>MessageWindowMenuBar</tt>.
      * 
      * @param parentWindow The parent ChatWindow.
      */
     public MessageWindowMenuBar(ChatWindow parentWindow)
     {
-
         this.parentWindow = parentWindow;
 
         this.setForeground(
@@ -80,13 +87,8 @@ public class MessageWindowMenuBar
                 MetaContact contact =
                     GuiActivator.getUIService().getChatContact(panel);
 
-                for (Component c : getComponents())
-                {
-                    if (!(c instanceof PluginComponent))
-                        continue;
-                    
-                    ((PluginComponent)c).setCurrentContact(contact);
-                }
+                for (PluginComponent c : pluginComponents)
+                    c.setCurrentContact(contact);
             }
         });
     }
@@ -194,13 +196,31 @@ public class MessageWindowMenuBar
      * Adds the component of a specific <code>PluginComponent</code> to this
      * <code>JMenuBar</code>.
      * 
-     * @param component
+     * @param c
      *            the <code>PluginComponent</code> which is to have its
      *            component added to this <code>JMenuBar</code>
      */
-    private void addPluginComponent(PluginComponent component)
+    private void addPluginComponent(PluginComponent c)
     {
-        add((Component) component.getComponent(), getComponentIndex(helpMenu));
+        if (pluginComponents.contains(c))
+            return;
+
+        add((Component) c.getComponent(), getComponentIndex(helpMenu));
+        pluginComponents.add(c);
+    }
+
+    /**
+     * Removes the component of a specific <code>PluginComponent</code> from
+     * this <code>JMenuBar</code>.
+     * 
+     * @param c
+     *            the <code>PluginComponent</code> which is to have its
+     *            component removed from this <code>JMenuBar</code>
+     */
+    private void removePluginComponent(PluginComponent c)
+    {
+        remove((Component) c.getComponent());
+        pluginComponents.remove(c);
     }
 
     public void pluginComponentAdded(PluginComponentEvent event)
@@ -222,7 +242,7 @@ public class MessageWindowMenuBar
 
         if (c.getContainer().equals(Container.CONTAINER_CHAT_MENU_BAR))
         {
-            this.remove((Component) c.getComponent());
+            removePluginComponent(c);
         }
     }
 }
