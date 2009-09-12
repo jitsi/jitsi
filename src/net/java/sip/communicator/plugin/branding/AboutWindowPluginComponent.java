@@ -10,12 +10,10 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.protocol.*;
 
 public class AboutWindowPluginComponent
-    implements PluginComponent
+    extends AbstractPluginComponent
 {
 
     /**
@@ -27,43 +25,34 @@ public class AboutWindowPluginComponent
         AboutWindow.showAboutWindow();
     }
 
-    private final JMenuItem aboutMenuItem;
+    private JMenuItem aboutMenuItem;
 
-    private final Container container;
-
-    public AboutWindowPluginComponent(Container c)
+    public AboutWindowPluginComponent(Container container)
     {
-        this.container = c;
-
-        aboutMenuItem = new JMenuItem(getName());
-        aboutMenuItem
-            .setMnemonic(
-                BrandingActivator
-                    .getResources()
-                        .getI18nMnemonic("plugin.branding.ABOUT_MENU_ENTRY"));
-
-        aboutMenuItem.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                AboutWindowPluginComponent.actionPerformed();
-            }
-        });
+        super(container);
     }
 
     public Object getComponent()
     {
+        if (aboutMenuItem == null)
+        {
+            aboutMenuItem = new JMenuItem(getName());
+            aboutMenuItem
+                .setMnemonic(
+                    BrandingActivator
+                        .getResources()
+                            .getI18nMnemonic(
+                                "plugin.branding.ABOUT_MENU_ENTRY"));
+
+            aboutMenuItem.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    AboutWindowPluginComponent.actionPerformed();
+                }
+            });
+        }
         return aboutMenuItem;
-    }
-
-    public String getConstraints()
-    {
-        return null;
-    }
-
-    public Container getContainer()
-    {
-        return this.container;
     }
 
     public String getName()
@@ -72,27 +61,5 @@ public class AboutWindowPluginComponent
             BrandingActivator
                 .getResources()
                     .getI18NString("plugin.branding.ABOUT_MENU_ENTRY");
-    }
-
-    public void setCurrentContact(Contact contact)
-    {
-    }
-    
-    public void setCurrentContact(MetaContact metaContact)
-    {
-    }
-
-    public void setCurrentContactGroup(MetaContactGroup metaGroup)
-    {
-    }
-
-    public int getPositionIndex()
-    {
-        return -1;
-    }
-
-    public boolean isNativeComponent()
-    {
-        return false;
     }
 }

@@ -921,7 +921,7 @@ public class UIServiceImpl
             logger.info("Handling registration of a new Plugin Component.");
 
             Object component = pluginComponent.getComponent();
-            if (component == null || !(component instanceof Component))
+            if (!(component instanceof Component))
             {
                 logger.error("Plugin Component type is not supported."
                     + "Should provide a plugin in AWT, SWT or Swing.");

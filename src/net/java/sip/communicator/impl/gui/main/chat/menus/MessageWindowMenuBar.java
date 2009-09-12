@@ -177,16 +177,30 @@ public class MessageWindowMenuBar
 
         if (serRefs != null)
         {
-            for (int i = 0; i < serRefs.length; i ++)
+            for (ServiceReference serRef : serRefs)
             {
-                PluginComponent component = (PluginComponent) GuiActivator
-                    .bundleContext.getService(serRefs[i]);;
+                PluginComponent component
+                    = (PluginComponent)
+                        GuiActivator.bundleContext.getService(serRef);
 
-                this.add((Component)component.getComponent());
+                addPluginComponent(component);
             }
         }
 
         GuiActivator.getUIService().addPluginComponentListener(this);
+    }
+
+    /**
+     * Adds the component of a specific <code>PluginComponent</code> to this
+     * <code>JMenuBar</code>.
+     * 
+     * @param component
+     *            the <code>PluginComponent</code> which is to have its
+     *            component added to this <code>JMenuBar</code>
+     */
+    private void addPluginComponent(PluginComponent component)
+    {
+        add((Component) component.getComponent(), getComponentIndex(helpMenu));
     }
 
     public void pluginComponentAdded(PluginComponentEvent event)
@@ -195,7 +209,7 @@ public class MessageWindowMenuBar
 
         if (c.getContainer().equals(Container.CONTAINER_CHAT_MENU_BAR))
         {
-            this.add((Component) c.getComponent());
+            addPluginComponent(c);
 
             this.revalidate();
             this.repaint();

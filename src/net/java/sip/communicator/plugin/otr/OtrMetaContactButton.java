@@ -14,30 +14,24 @@ import javax.imageio.*;
 import net.java.otr4j.*;
 import net.java.otr4j.session.*;
 import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
- * 
  * @author George Politis
- * 
  */
-@SuppressWarnings("serial")
 public class OtrMetaContactButton
-    extends SIPCommButton
-    implements PluginComponent
+    extends AbstractPluginComponent
 {
+    private SIPCommButton button;
 
-    private Container container;
+    private Contact contact;
 
     public OtrMetaContactButton(Container container)
     {
-        super(null, null);
-        this.setEnabled(false);
-        this.setPreferredSize(new Dimension(25, 25));
-        this.container = container;
+        super(container);
 
         OtrActivator.scOtrEngine.addListener(new ScOtrEngineListener()
         {
@@ -79,58 +73,68 @@ public class OtrMetaContactButton
                     setStatus(OtrActivator.scOtrEngine
                         .getSessionStatus(contact));
                 }
-
-            }
-        });
-
-        this.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                if (contact == null)
-                    return;
-
-                switch (OtrActivator.scOtrEngine.getSessionStatus(contact))
-                {
-                case ENCRYPTED:
-                case FINISHED:
-                    // Default action for finished and encrypted sessions is end
-                    // session.
-                    OtrActivator.scOtrEngine.endSession(contact);
-                    break;
-                case PLAINTEXT:
-                    // Default action for finished and plaintext sessions is
-                    // start session.
-                    OtrActivator.scOtrEngine.startSession(contact);
-                    break;
-                }
             }
         });
     }
 
+    /**
+     * Gets the <code>SIPCommButton</code> which is the component of this
+     * plugin. If the button doesn't exist, it's created.
+     * 
+     * @return the <code>SIPCommButton</code> which is the component of this
+     *         plugin
+     */
+    private SIPCommButton getButton()
+    {
+        if (button == null)
+        {
+            button = new SIPCommButton(null, null);
+            button.setEnabled(false);
+            button.setPreferredSize(new Dimension(25, 25));
+
+            button.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    if (contact == null)
+                        return;
+
+                    switch (OtrActivator.scOtrEngine.getSessionStatus(contact))
+                    {
+                    case ENCRYPTED:
+                    case FINISHED:
+                        // Default action for finished and encrypted sessions is
+                        // end session.
+                        OtrActivator.scOtrEngine.endSession(contact);
+                        break;
+                    case PLAINTEXT:
+                        // Default action for finished and plaintext sessions is
+                        // start session.
+                        OtrActivator.scOtrEngine.startSession(contact);
+                        break;
+                    }
+                }
+            });
+        }
+        return button;
+    }
+
+    /*
+     * Implements PluginComponent#getComponent(). Returns the SIPCommButton
+     * which is the component of this plugin creating it first if it doesn't
+     * exist.
+     */
     public Object getComponent()
     {
-        return this;
+        return getButton();
     }
 
-    public String getConstraints()
+    /*
+     * Implements PluginComponent#getName().
+     */
+    public String getName()
     {
-        return null;
-    }
-
-    public Container getContainer()
-    {
-        return this.container;
-    }
-
-    public int getPositionIndex()
-    {
-        return -1;
-    }
-
-    public boolean isNativeComponent()
-    {
-        return false;
+        return "";
     }
 
     public void setCurrentContact(Contact contact)
@@ -142,21 +146,12 @@ public class OtrMetaContactButton
 
     public void setCurrentContact(MetaContact metaContact)
     {
-        contact = metaContact.getDefaultContact();
-        this.setStatus(OtrActivator.scOtrEngine.getSessionStatus(contact));
-        this.setPolicy(OtrActivator.scOtrEngine.getContactPolicy(contact));
+        setCurrentContact(metaContact.getDefaultContact());
     }
 
     private void setPolicy(OtrPolicy contactPolicy)
     {
-        this.setEnabled(contactPolicy.getEnableManual());
-    }
-
-    private Contact contact;
-
-    public void setCurrentContactGroup(MetaContactGroup metaGroup)
-    {
-
+        getButton().setEnabled(contactPolicy.getEnableManual());
     }
 
     private void setStatus(SessionStatus status)
@@ -164,46 +159,35 @@ public class OtrMetaContactButton
         if (contact == null)
             return;
 
+        String urlKey;
         switch (status)
         {
         case ENCRYPTED:
-            try
-            {
-                this
-                    .setImage(ImageIO
-                        .read(OtrActivator.resourceService
-                            .getImageURL((OtrActivator.scOtrKeyManager
-                                .isVerified(contact)) ? "plugin.otr.ENCRYPTED_ICON_22x22"
-                                : "plugin.otr.ENCRYPTED_UNVERIFIED_ICON_22x22")));
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
+            urlKey
+                = OtrActivator.scOtrKeyManager.isVerified(contact)
+                    ? "plugin.otr.ENCRYPTED_ICON_22x22"
+                    : "plugin.otr.ENCRYPTED_UNVERIFIED_ICON_22x22";
             break;
         case FINISHED:
-            try
-            {
-                this.setImage(ImageIO.read(OtrActivator.resourceService
-                    .getImageURL("plugin.otr.FINISHED_ICON_22x22")));
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
+            urlKey = "plugin.otr.FINISHED_ICON_22x22";
             break;
         case PLAINTEXT:
-            try
-            {
-                this.setImage(ImageIO.read(OtrActivator.resourceService
-                    .getImageURL("plugin.otr.PLAINTEXT_ICON_22x22")));
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
+            urlKey = "plugin.otr.PLAINTEXT_ICON_22x22";
             break;
+        default:
+            return;
+        }
+
+        try
+        {
+            getButton()
+                .setImage(
+                    ImageIO.read(
+                        OtrActivator.resourceService.getImageURL(urlKey)));
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
         }
     }
-
 }

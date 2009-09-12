@@ -14,79 +14,60 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
-import net.java.sip.communicator.service.protocol.*;
 
 /**
  * @author Yana Stamcheva
  */
 public class MoreButton
-    extends JLabel
-    implements  PluginComponent,
-                MouseListener,
-                FocusListener
+    extends AbstractPluginComponent
+    implements FocusListener,
+               MouseListener
 {
-    private boolean isMouseOver = false;
+    private JLabel label;
 
-    private final JPopupMenu menu = new JPopupMenu();
+    private JPopupMenu menu;
 
     private final Map<String, Component> menuItemsTable =
         new Hashtable<String, Component>();
 
     public MoreButton()
     {
-        super(new ImageIcon(ImageLoader.getImage(ImageLoader.MORE_BUTTON)),
-            JLabel.CENTER);
-
-        this.setVerticalTextPosition(SwingConstants.BOTTOM);
-        this.setHorizontalTextPosition(SwingConstants.CENTER);
-
-        this.setToolTipText(
-            GuiActivator.getResources().getI18NString("service.gui.MORE"));
-
-        this.addMouseListener(this);
-
-        this.addFocusListener(this);
+        super(Container.CONTAINER_MAIN_TOOL_BAR);
     }
 
     public Object getComponent()
     {
-        return this;
-    }
+        if (label == null)
+        {
+            label
+                = new JLabel(
+                        new ImageIcon(
+                                ImageLoader.getImage(ImageLoader.MORE_BUTTON)),
+                        JLabel.CENTER);
 
-    public String getConstraints()
-    {
-        return null;
-    }
+            label.setVerticalTextPosition(SwingConstants.BOTTOM);
+            label.setHorizontalTextPosition(SwingConstants.CENTER);
 
-    public Container getContainer()
-    {
-        return Container.CONTAINER_MAIN_TOOL_BAR;
+            label.setToolTipText(
+                GuiActivator.getResources().getI18NString("service.gui.MORE"));
+
+            label.addFocusListener(this);
+            label.addMouseListener(this);
+        }
+        return label;
     }
 
     public String getName()
     {
-        return this.getText();
+        return "";
     }
 
     public void setMouseOver(boolean isMouseOver)
     {
-        this.isMouseOver = isMouseOver;
-        this.repaint();
-    }
-
-    public void setCurrentContact(Contact contact)
-    {
-    }
-    
-    public void setCurrentContact(MetaContact metaContact)
-    {
-    }
-
-    public void setCurrentContactGroup(MetaContactGroup metaGroup)
-    {
+        if (label != null)
+            label.repaint();
     }
 
     public void mouseClicked(MouseEvent e)
@@ -105,15 +86,20 @@ public class MoreButton
 
     public void mousePressed(MouseEvent e)
     {
-        requestFocus();
+        if (label != null)
+            return;
 
+        label.requestFocus();
+
+        if (menu == null)
+            menu = createMenu();
         if (!menu.isVisible())
         {
-            Point locationOnScreen = getLocationOnScreen();
+            Point locationOnScreen = label.getLocationOnScreen();
 
             menu.setLocation(
                 locationOnScreen.x,
-                locationOnScreen.y + getHeight());
+                locationOnScreen.y + label.getHeight());
 
             menu.setVisible(true);
         }
@@ -125,23 +111,14 @@ public class MoreButton
     {
     }
 
-    /**
-     * Specifies the position of this component in the container, where it
-     * will be added.
-     * @return 0 to indicate the first position in the container.
-     */
-    public int getPositionIndex()
-    {
-        return -1;
-    }
-
     public void focusGained(FocusEvent arg0)
     {
     }
 
     public void focusLost(FocusEvent arg0)
     {
-        menu.setVisible(false);
+        if (menu != null)
+            menu.setVisible(false);
     }
 
     public void addMenuItem(final JComponent c)
@@ -171,13 +148,17 @@ public class MoreButton
                         l.mouseReleased(mouseEvent);
                         l.mouseClicked(mouseEvent);
                     }
-                    
-                    menu.setVisible(false);
+
+                    if (menu != null)
+                        menu.setVisible(false);
                 }
             });
 
-            this.menu.add(item);
-            this.menuItemsTable.put(name, item);
+            if (menu == null)
+                menu = createMenu();
+            menu.add(item);
+
+            menuItemsTable.put(name, item);
         }
     }
     
@@ -188,7 +169,8 @@ public class MoreButton
 
         if (item != null)
         {
-            this.menu.remove(item);
+            if (menu != null)
+                menu.remove(item);
             menuItemsTable.remove(name);
         }
     }
@@ -203,8 +185,8 @@ public class MoreButton
         return menuItemsTable.containsKey(name);
     }
 
-    public boolean isNativeComponent()
+    private JPopupMenu createMenu()
     {
-        return false;
+        return new JPopupMenu();
     }
 }

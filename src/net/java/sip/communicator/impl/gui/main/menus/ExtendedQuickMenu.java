@@ -338,10 +338,12 @@ public class ExtendedQuickMenu
             }
         }
 
+        Component moreButtonComponent = (Component) moreButton.getComponent();
+
         if (moreButton.getItemsCount() > 0)
-            this.add(moreButton, BorderLayout.EAST);
+            this.add(moreButtonComponent, BorderLayout.EAST);
         else
-            this.remove(moreButton);
+            this.remove(moreButtonComponent);
 
         this.revalidate();
         this.repaint();

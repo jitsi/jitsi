@@ -76,9 +76,9 @@ public class ChatWindow
 
     private final ContactPhotoPanel contactPhotoPanel = new ContactPhotoPanel();
 
-    private MessageWindowMenuBar menuBar;
+    private final MessageWindowMenuBar menuBar;
 
-    private MainToolBar mainToolBar;
+    private final MainToolBar mainToolBar;
 
     /**
      * Creates an instance of <tt>ChatWindow</tt> by passing to it an instance
@@ -830,8 +830,9 @@ public class ChatWindow
         {
             for (ServiceReference serRef : serRefs)
             {
-                PluginComponent c = (PluginComponent) GuiActivator
-                    .bundleContext.getService(serRef);
+                PluginComponent c
+                    = (PluginComponent)
+                        GuiActivator .bundleContext.getService(serRef);
 
                 Object borderLayoutConstraint = UIServiceImpl
                     .getBorderLayoutConstraintsFromContainer(c.getConstraints());

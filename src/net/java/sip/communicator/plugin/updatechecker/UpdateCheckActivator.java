@@ -18,7 +18,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
@@ -603,17 +602,15 @@ public class UpdateCheckActivator
      * The menu entry under tools menu.
      */
     private class UpdateMenuButtonComponent
-        implements PluginComponent
+        extends AbstractPluginComponent
     {
-        private final Container container;
-
         private final JMenuItem updateMenuItem
             = new JMenuItem(getResources().
                 getI18NString("plugin.updatechecker.UPDATE_MENU_ENTRY"));
 
-        UpdateMenuButtonComponent(Container c)
+        UpdateMenuButtonComponent(Container container)
         {
-            this.container = c;
+            super(container);
 
             updateMenuItem.addActionListener(new ActionListener()
             {
@@ -630,41 +627,9 @@ public class UpdateCheckActivator
                 "plugin.updatechecker.UPDATE_MENU_ENTRY");
         }
 
-        public Container getContainer()
-        {
-            return this.container;
-        }
-
-        public String getConstraints()
-        {
-            return null;
-        }
-
-        public int getPositionIndex()
-        {
-            return -1;
-        }
-
         public Object getComponent()
         {
             return updateMenuItem;
-        }
-
-        public void setCurrentContact(Contact contact)
-        {
-        }
-        
-        public void setCurrentContact(MetaContact metaContact)
-        {
-        }
-
-        public void setCurrentContactGroup(MetaContactGroup metaGroup)
-        {
-        }
-
-        public boolean isNativeComponent()
-        {
-            return false;
         }
     }
 

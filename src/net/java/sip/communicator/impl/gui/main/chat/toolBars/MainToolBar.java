@@ -340,10 +340,11 @@ public class MainToolBar
 
         if (serRefs != null)
         {
-            for (int i = 0; i < serRefs.length; i ++)
+            for (ServiceReference serRef : serRefs)
             {
-                PluginComponent component = (PluginComponent) GuiActivator
-                    .bundleContext.getService(serRefs[i]);
+                PluginComponent component
+                    = (PluginComponent)
+                        GuiActivator.bundleContext.getService(serRef);
 
                 this.add((Component)component.getComponent());
 

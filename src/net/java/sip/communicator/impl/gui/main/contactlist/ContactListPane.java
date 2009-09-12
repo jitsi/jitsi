@@ -787,11 +787,11 @@ public class ContactListPane
 
         if (serRefs != null)
         {
-            for (int i = 0; i < serRefs.length; i ++)
+            for (ServiceReference serRef : serRefs)
             {
-                PluginComponent component = (PluginComponent) GuiActivator
-                    .bundleContext
-                        .getService(serRefs[i]);
+                PluginComponent component
+                    = (PluginComponent)
+                        GuiActivator.bundleContext.getService(serRef);
 
                 Object selectedValue =
                     mainFrame.getContactListPanel().getContactList()

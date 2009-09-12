@@ -6,15 +6,14 @@
  */
 package net.java.sip.communicator.plugin.exampleplugin;
 
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
+import java.awt.event.*;
 
-import javax.swing.JMenuItem;
+import javax.swing.*;
 
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.gui.Container;
 
 /**
  * The <tt>ExamplePluginMenuItem</tt> is a <tt>JMenuItem</tt> that implements
@@ -26,10 +25,11 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Yana Stamcheva
  */
 public class ExamplePluginMenuItem
-    extends JMenuItem
-    implements  PluginComponent,
-                ActionListener
+    extends AbstractPluginComponent
+    implements ActionListener
 {
+    private JMenuItem menuItem;
+
     private MetaContact metaContact;
 
     /**
@@ -37,14 +37,47 @@ public class ExamplePluginMenuItem
      */
     public ExamplePluginMenuItem()
     {
-        super("Example plugin");
-
-        this.addActionListener(this);
+        super(Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU);
     }
 
-    public void setCurrentContact(Contact contact)
-    {}
-    
+    /**
+     * Listens for events triggered by user clicks on this menu item. Opens
+     * the <tt>PluginDialog</tt>.
+     */
+    public void actionPerformed(ActionEvent e)
+    {
+        PluginDialog pluginDialog = new PluginDialog(metaContact);
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+        pluginDialog
+            .setLocation(
+                screenSize.width/2 - pluginDialog.getWidth()/2,
+                screenSize.height/2 - pluginDialog.getHeight()/2);
+
+        pluginDialog.setVisible(true);
+    }
+
+    /*
+     * Implements PluginComponent#getComponent().
+     */
+    public Object getComponent()
+    {
+        if (menuItem == null)
+        {
+            menuItem = new JMenuItem(getName());
+            menuItem.addActionListener(this);
+        }
+        return menuItem;
+    }
+
+    /*
+     * Implements PluginComponent#getName().
+     */
+    public String getName()
+    {
+        return "Example plugin";
+    }
+
     /**
      * Sets the current <tt>MetaContact</tt>. This in the case of the contact
      * right button menu container would be the underlying contact in the 
@@ -57,74 +90,5 @@ public class ExamplePluginMenuItem
     public void setCurrentContact(MetaContact metaContact)
     {
         this.metaContact = metaContact;
-    }
-
-    /**
-     * Sets the current <tt>MetaContactGroup</tt>.
-     * 
-     * @see PluginComponent#setCurrentContactGroup(MetaContactGroup)
-     */
-    public void setCurrentContactGroup(MetaContactGroup metaGroup)
-    {}
-
-    /**
-     * Listens for events triggered by user clicks on this menu item. Opens
-     * the <tt>PluginDialog</tt>.
-     */
-    public void actionPerformed(ActionEvent e)
-    {
-        PluginDialog pluginDialog = new PluginDialog(metaContact);
-
-        pluginDialog.setLocation(
-            Toolkit.getDefaultToolkit().getScreenSize().width/2
-                - pluginDialog.getWidth()/2,
-                Toolkit.getDefaultToolkit().getScreenSize().height/2
-                - pluginDialog.getHeight()/2
-            );
-
-        pluginDialog.setVisible(true);
-    }
-
-    /**
-     * No constraints to return.
-     * 
-     * @see PluginComponent#getConstraints()
-     */
-    public String getConstraints()
-    {
-        return null;
-    }
-
-    /**
-     * Returns the container where we would like to add this menu item. In our
-     * case this is the contact right button menu.
-     * 
-     * @see PluginComponent#getContainer()
-     */
-    public Container getContainer()
-    {
-        return Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU;
-    }
-
-    /**
-     * Returns -1 as a position index, to indicate that the order in which this
-     * menu item will be added in the parent container is not important.
-     * 
-     * @see PluginComponent#getPositionIndex()
-     */
-    public int getPositionIndex()
-    {
-        return -1;
-    }
-
-    /**
-     * Returns <code>false</code> to indicate that this is not a native
-     * component.
-     * 
-     * @see PluginComponent#isNativeComponent()
-     */
-    public boolean isNativeComponent()
-    {
-        return false;
     }
 }

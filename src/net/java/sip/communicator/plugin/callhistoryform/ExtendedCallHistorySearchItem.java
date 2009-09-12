@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.plugin.callhistoryform;
 
 import java.awt.*;
@@ -12,10 +11,8 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
-import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>ExtendedCallHistorySearchButton</tt> is the button that will be
@@ -25,10 +22,10 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Bourdon Maxime & Meyer Thomas
  */
 public class ExtendedCallHistorySearchItem
-    implements  ActionListener,
-                PluginComponent
+    extends AbstractPluginComponent
+    implements ActionListener
 {
-    private JMenuItem historyMenuItem
+    private final JMenuItem historyMenuItem
         = new JMenuItem(ExtendedCallHistorySearchActivator.getResources()
                 .getI18NString("plugin.callhistoryform.TITLE"),
             ExtendedCallHistorySearchActivator.getResources()
@@ -41,6 +38,8 @@ public class ExtendedCallHistorySearchItem
      */
     public ExtendedCallHistorySearchItem()
     {
+        super(Container.CONTAINER_TOOLS_MENU);
+
         this.historyMenuItem.setMnemonic(
             ExtendedCallHistorySearchActivator.getResources()
                 .getI18nMnemonic("plugin.callhistoryform.TITLE"));
@@ -55,11 +54,14 @@ public class ExtendedCallHistorySearchItem
         if (callHistorySearchDialog == null)
         {
             callHistorySearchDialog = new ExtendedCallHistorySearchDialog();
-            callHistorySearchDialog.setLocation(Toolkit.getDefaultToolkit()
-                .getScreenSize().width
-                / 2 - callHistorySearchDialog.getWidth() / 2, Toolkit
-                .getDefaultToolkit().getScreenSize().height
-                / 2 - callHistorySearchDialog.getHeight() / 2);
+
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            callHistorySearchDialog
+                .setLocation(
+                    screenSize.width / 2
+                        - callHistorySearchDialog.getWidth() / 2,
+                    screenSize.height / 2
+                        - callHistorySearchDialog.getHeight() / 2);
         }
 
         callHistorySearchDialog.loadHistoryCalls();
@@ -72,40 +74,8 @@ public class ExtendedCallHistorySearchItem
         return historyMenuItem;
     }
 
-    public String getConstraints()
-    {
-        return null;
-    }
-
-    public Container getContainer()
-    {
-        return Container.CONTAINER_TOOLS_MENU;
-    }
-
     public String getName()
     {
         return historyMenuItem.getText();
-    }
-
-    public void setCurrentContact(Contact contact)
-    {
-    }
-    
-    public void setCurrentContact(MetaContact metaContact)
-    {
-    }
-
-    public void setCurrentContactGroup(MetaContactGroup metaGroup)
-    {
-    }
-
-    public int getPositionIndex()
-    {
-        return -1;
-    }
-
-    public boolean isNativeComponent()
-    {
-        return false;
     }
 }

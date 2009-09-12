@@ -1020,17 +1020,22 @@ public class MainFrame
         // context.
         ServiceReference[] serRefs = null;
 
-        String osgiFilter = "(|("
-            + Container.CONTAINER_ID
-            + "="+Container.CONTAINER_MAIN_WINDOW.getID()+")"
-            + "(" + Container.CONTAINER_ID
-            + "="+Container.CONTAINER_STATUS_BAR.getID()+"))";
-
         try
         {
-            serRefs = GuiActivator.bundleContext.getServiceReferences(
-                PluginComponent.class.getName(),
-                osgiFilter);
+            serRefs
+                = GuiActivator
+                    .bundleContext
+                        .getServiceReferences(
+                            PluginComponent.class.getName(),
+                            "(|("
+                                + Container.CONTAINER_ID
+                                + "="
+                                + Container.CONTAINER_MAIN_WINDOW.getID()
+                                + ")("
+                                + Container.CONTAINER_ID
+                                + "="
+                                + Container.CONTAINER_STATUS_BAR.getID()
+                                + "))");
         }
         catch (InvalidSyntaxException exc)
         {
@@ -1039,11 +1044,11 @@ public class MainFrame
 
         if (serRefs != null)
         {
-            for (int i = 0; i < serRefs.length; i++)
+            for (ServiceReference serRef : serRefs)
             {
-                PluginComponent c =
-                    (PluginComponent) GuiActivator.bundleContext
-                        .getService(serRefs[i]);
+                PluginComponent c
+                    = (PluginComponent)
+                        GuiActivator.bundleContext.getService(serRef);
 
                 if (c.isNativeComponent())
                     nativePluginsTable.put(c, new JPanel());
@@ -1053,9 +1058,10 @@ public class MainFrame
                     Object constraints;
 
                     if (pluginConstraints != null)
-                        constraints =
-                            UIServiceImpl
-                                .getBorderLayoutConstraintsFromContainer(pluginConstraints);
+                        constraints
+                            = UIServiceImpl
+                                .getBorderLayoutConstraintsFromContainer(
+                                    pluginConstraints);
                     else
                         constraints = BorderLayout.SOUTH;
 
@@ -1120,7 +1126,6 @@ public class MainFrame
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
         final PluginComponent pluginComponent = event.getPluginComponent();
-
         final Container containerID = pluginComponent.getContainer();
 
         if (containerID.equals(Container.CONTAINER_MAIN_WINDOW))
@@ -1137,7 +1142,6 @@ public class MainFrame
                 if (nativePluginsTable.containsKey(pluginComponent))
                 {
                     final Component c = nativePluginsTable.get(pluginComponent);
-
                     final Object finalConstraints = constraints;
 
                     SwingUtilities.invokeLater(new Runnable()
@@ -1167,15 +1171,14 @@ public class MainFrame
      */
     private void removeNativePlugins()
     {
-        Object constraints;
-        for (Map.Entry<PluginComponent, Component> entry : nativePluginsTable
-            .entrySet())
+        for (Map.Entry<PluginComponent, Component> entry
+                : nativePluginsTable.entrySet())
         {
             PluginComponent pluginComponent = entry.getKey();
             Component c = entry.getValue();
 
-            constraints =
-                UIServiceImpl
+            Object constraints
+                = UIServiceImpl
                     .getBorderLayoutConstraintsFromContainer(pluginComponent
                         .getConstraints());
 
@@ -1196,14 +1199,14 @@ public class MainFrame
     {
         this.removeNativePlugins();
 
-        for (Map.Entry<PluginComponent, Component> pluginEntry : nativePluginsTable
-            .entrySet())
+        for (Map.Entry<PluginComponent, Component> pluginEntry
+                : nativePluginsTable.entrySet())
         {
             PluginComponent plugin = pluginEntry.getKey();
-
-            Object constraints =
-                UIServiceImpl.getBorderLayoutConstraintsFromContainer(plugin
-                    .getConstraints());
+            Object constraints
+                = UIServiceImpl
+                    .getBorderLayoutConstraintsFromContainer(
+                        plugin.getConstraints());
 
             Component c = (Component) plugin.getComponent();
 
