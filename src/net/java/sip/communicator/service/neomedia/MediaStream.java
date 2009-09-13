@@ -10,6 +10,7 @@ import java.net.*;
 
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>MediaStream</tt> class represents a (generally) bidirectional RTP
@@ -93,18 +94,97 @@ public interface MediaStream
      */
     public MediaFormat getFormat();
 
+    /**
+     * Sets the device that this stream should be using to playback and capture
+     * media.
+     *
+     * @param device the <tt>MediaDevice</tt> that this stream should use
+     * to playback and capture media.
+     */
     public void setDevice(MediaDevice device);
 
+    /**
+     * Returns the device that this stream should be using to playback and
+     * capture media.
+     *
+     * @return the <tt>MediaDevice</tt> that this stream should use
+     * to playback and capture media.
+     */
     public MediaDevice getDevice();
 
+    /**
+     * Returns the synchronization source (SSRC) identifier of the remote
+     * participant or null if that identifier is not yet known at this point.
+     *
+     * @return  the synchronization source (SSRC) identifier of the remote
+     * participant or null if that identifier is not yet known at this point.
+     */
     public String getRemoteSourceID();
 
+    /**
+     * Returns the synchronization source (SSRC) identifier of the remote
+     * participant or <tt>null</tt> if that identifier is not yet known at this
+     * point.
+     *
+     * @return  the synchronization source (SSRC) identifier of the local
+     * participant or <tt>null</tt> if that identifier is not yet known at this
+     * point.
+     */
     public String getLocalSourceID();
 
+    /**
+     * Returns the address that this stream is sending RTCP traffic to.
+     *
+     * @return an <tt>InetSocketAddress</tt> instance indicating the address
+     * that we are sending RTCP packets to.
+     */
     public InetSocketAddress getRemoteControlAddress();
 
+    /**
+     * Returns the address that this stream is sending RTP traffic to.
+     *
+     * @return an <tt>InetSocketAddress</tt> instance indicating the address
+     * that we are sending RTP packets to.
+     */
     public InetSocketAddress getRemoteDataAddress();
+
+    /**
+     * Adds a property change listener to this stream so that it would be
+     * notified upon property change events like for example an SSRC ID which
+     * becomes known.
+     *
+     * @param listener the listener that we'd like to register for
+     * <tt>PropertyChangeEvent</tt>s
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener);
+
+    /**
+     * Removes the specified property change <tt>listener</tt> from this stream
+     * so that it won't receive further property change events.
+     *
+     * @param listener the listener that we'd like to remove.
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
