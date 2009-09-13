@@ -14,8 +14,6 @@ package net.java.sip.communicator.service.neomedia;
  * <p>
  *
  * @author Emil Ivov
- * @author Lubomir Marinov
- * @author Emanuel Onica
  */
 public interface MediaStream
 {

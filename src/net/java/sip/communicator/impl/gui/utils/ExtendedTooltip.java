@@ -15,13 +15,13 @@ import net.java.sip.communicator.util.*;
 
 /**
  * The tooltip shown over a contact in the contact list.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ExtendedTooltip
     extends JToolTip
 {
-    private static final int textRowHeight = 25;
+    private static final int textRowHeight = 15;
 
     private final JLabel imageLabel = new JLabel();
 
@@ -73,12 +73,12 @@ public class ExtendedTooltip
             mainPanel.add(titleLabel, BorderLayout.NORTH);
         }
 
-        this.add(mainPanel); 
+        this.add(mainPanel);
     }
 
     /**
      * Sets the given image to this tooltip.
-     * 
+     *
      * @param imageIcon The image icon to set.
      */
     public void setImage(ImageIcon imageIcon)
@@ -89,7 +89,7 @@ public class ExtendedTooltip
     /**
      * Sets the title of the tooltip. The text would be shown in bold on the top
      * of the tooltip panel.
-     * 
+     *
      * @param titleText The title of the tooltip.
      */
     public void setTitle(String titleText)
@@ -107,7 +107,7 @@ public class ExtendedTooltip
     /**
      * Adds an icon-string list, which would appear on the right of the image
      * panel.
-     * 
+     *
      * @param icon the icon to show
      * @param text the name to show
      */

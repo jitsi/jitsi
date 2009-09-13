@@ -42,5 +42,13 @@ public interface MediaService
      */
     public List<MediaDevice> getDevices(MediaType mediaType);
 
+    /**
+     * Creates a <tt>MediaStream</tt> that will be using the specified
+     * <tt>MediaDevice</tt> for both capture and playback of media exchanged
+     *
+     * @return
+     */
+    public MediaStream createMediaStream();
+
 
 }

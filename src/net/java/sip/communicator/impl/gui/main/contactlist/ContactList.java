@@ -1436,6 +1436,7 @@ public class ContactList
             this.destGroup = destGroup;
         }
 
+        @SuppressWarnings("fallthrough")
         public void run()
         {
             if (!ConfigurationManager.isMoveContactConfirmationRequested())
