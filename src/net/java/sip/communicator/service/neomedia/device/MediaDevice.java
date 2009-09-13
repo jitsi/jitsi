@@ -21,10 +21,6 @@ import net.java.sip.communicator.service.neomedia.format.*;
 public interface MediaDevice
 {
     /**
-     * Direction values
-     */
-    public static enum Direction{ IN, OUT, INOUT};
-    /**
      * Returns a list of <tt>MediaFormat</tt> instances representing the media
      * formats supported by this <tt>MediaDevice</tt>.
      *
@@ -60,4 +56,14 @@ public interface MediaDevice
      * provide media in.
      */
     public MediaFormat getFormat();
+
+    /**
+     * Returns the <tt>MediaDirection</tt> supported by this device.
+     *
+     * @return <tt>MediaDirection.SENDONLY</tt> if this is a read-only device,
+     * <tt>MediaDirection.RECVONLY</tt> if this is a write-only device and
+     * <tt>MediaDirection.SENDRECV</tt> if this <tt>MediaDevice</tt> can both
+     * capture and render media.
+     */
+    public MediaDirection getDirection();
 }

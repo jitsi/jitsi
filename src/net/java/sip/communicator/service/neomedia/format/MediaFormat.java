@@ -8,7 +8,6 @@ package net.java.sip.communicator.service.neomedia.format;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.neomedia.*;
 
 /**
