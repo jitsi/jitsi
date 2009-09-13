@@ -9,6 +9,7 @@ package net.java.sip.communicator.service.neomedia.format;
 import java.util.*;
 
 import net.java.sip.communicator.service.media.*;
+import net.java.sip.communicator.service.neomedia.*;
 
 /**
  * The <tt>MediaFormat</tt> interface represents a generic (i.e. audio/video or

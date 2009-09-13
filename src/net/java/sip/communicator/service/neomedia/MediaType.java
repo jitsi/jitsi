@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.service.media;
+package net.java.sip.communicator.service.neomedia;
 
 /**
  * The <tt>MediaType</tt> enumeration contains a list of media types

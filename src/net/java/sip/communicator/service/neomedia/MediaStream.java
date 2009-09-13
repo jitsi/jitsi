@@ -8,20 +8,10 @@ package net.java.sip.communicator.service.neomedia;
 
 /**
  * The <tt>MediaStream</tt> class represents a (generally) bidirectional RTP
- * stream between exactly two parties. The class
- * in RFC 3264.   one media stream, in the SDP sense of the word. It
- * consists of a generally bidirectional exchange of media
- * exchanged between two parties. Media streams are generalcontains parameters associated with a particular Call such as
- * ports used for transmitting and sending media (audio video), a reference to
- * the call itself and others. Call session instances are created through the
- * <tt>openCallSession(Call)</tt> method of the MediaService.
+ * stream between exactly two parties. The class reflects one media stream, in
+ * the SDP sense of the word. <tt>MediaStream</tt> instances are created through
+ * the <tt>openMediaStream()</tt> method of the <tt>MediaService</tt>.
  * <p>
- * One <tt>CallSession</tt> pertains to a single <tt>Call</tt> instance and a
- * single <tt>Call</tt> may only be associated one <tt>CallSession</tt>
- * instance.
- * <p>
- * A call session also allows signaling protocols to generate SDP offers and
- * construct SDP answers.
  *
  * @author Emil Ivov
  * @author Lubomir Marinov
@@ -32,7 +22,7 @@ public interface MediaStream
     /**
      * The name of the property containing the number of binds that a Media
      * Service Implementation should execute in case a port is already
-     * bound to (each retry would be on a new random port).
+     * bound to (each retry would be on a new port in the allowed boundaries).
      */
     public static final String BIND_RETRIES_PROPERTY_NAME
         = "net.java.sip.communicator.service.media.BIND_RETRIES";
