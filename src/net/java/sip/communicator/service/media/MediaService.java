@@ -55,7 +55,7 @@ public interface MediaService
      * new random port).
      */
     public static final int BIND_RETRIES_DEFAULT_VALUE = 50;
-    
+
     /**
      * With this property video support can be disabled
      * (enabled by default).
@@ -111,7 +111,7 @@ public interface MediaService
      * @param remotePort remote port of for this flow
      * @param mediaEncodings encoding used for media on this flow
      * @return a <tt>RtpFlow</tt> with the corresponding parameters
-     * @throws MediaException throw a media exception if we fail to create the 
+     * @throws MediaException throw a media exception if we fail to create the
      * flow
      */
     public RtpFlow createRtpFlow(String localIP,

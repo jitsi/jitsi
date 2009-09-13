@@ -6,28 +6,19 @@
  */
 package net.java.sip.communicator.service.neomedia;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.neomedia.device.*;
 
 /**
  * The <tt>MediaService</tt> service is meant to be a wrapper of media libraries
- * such as JMF, FMJ, FFMPEG, and others. It takes care of all media play and
+ * such as JMF, FMJ, FFMPEG, and/or others. It takes care of all media play and
  * capture as well as media transport (e.g. over RTP).
  *
  * @author Emil Ivov
  */
 public interface MediaService
 {
-    /**
-     * Returns an array of <tt>MediaType</tt> instances indicating the types
-     * that an implementation supports. A <tt>MediaType</tt> is considered
-     * supported if an implementation supports either rendering or capturing
-     * that type of media.
-     *
-     * @return an array of <tt>MediaType</tt> instances indicating the types of
-     * media that this service supports.
-     */
-    public MediaType[] getSupportedMediaTypes();
-
     /**
      * Returns the default <tt>MediaDevice</tt> for the specified media
      * <tt>type</tt>. In most cases users
@@ -39,4 +30,17 @@ public interface MediaService
      * <tt>MediaType</tt>, or <tt>null</tt> if no such device exists.
      */
     public MediaDevice getDefaultDevice(MediaType type);
+
+    /**
+     * Returns a list containing all devices known to this service
+     * implementation and handling the specified <tt>MediaType</tt>.
+     *
+     * @param mediaType the media type that
+     *
+     * @return the list of <tt>MediaDevices</tt> currently known to handle the
+     * specified <tt>mediaType</tt>.
+     */
+    public List<MediaDevice> getDevices(MediaType mediaType);
+
+
 }
