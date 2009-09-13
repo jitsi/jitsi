@@ -8,7 +8,7 @@ package net.java.sip.communicator.service.neomedia;
 
 /**
  * The <tt>MediaType</tt> enumeration contains a list of media types
- * currently known to and handled by the MediaService.
+ * currently known to and handled by the <tt>MediaService</tt>.
  *
  * @author Emil Ivov
  */
