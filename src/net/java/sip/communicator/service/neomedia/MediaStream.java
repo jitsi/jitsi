@@ -59,6 +59,8 @@ public interface MediaStream
     public static final String DISABLE_VIDEO_SUPPORT_PROPERTY_NAME
         = "net.java.sip.communicator.service.media.DISABLE_VIDEO_SUPPORT";
 
+
+
     /**
      * Starts capturing media from this stream's <tt>MediaDevice</tt> and then
      * streaming it through the local <tt>StreamConnector</tt> toward the
