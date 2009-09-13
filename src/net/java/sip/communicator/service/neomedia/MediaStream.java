@@ -6,6 +6,11 @@
  */
 package net.java.sip.communicator.service.neomedia;
 
+import java.net.*;
+
+import net.java.sip.communicator.service.neomedia.device.*;
+import net.java.sip.communicator.service.neomedia.format.*;
+
 /**
  * The <tt>MediaStream</tt> class represents a (generally) bidirectional RTP
  * stream between exactly two parties. The class reflects one media stream, in
@@ -52,4 +57,107 @@ public interface MediaStream
      */
     public static final String DISABLE_VIDEO_SUPPORT_PROPERTY_NAME
         = "net.java.sip.communicator.service.media.DISABLE_VIDEO_SUPPORT";
+
+    /**
+     * Starts capturing media from this stream's <tt>MediaDevice</tt> and then
+     * streaming it through the local <tt>StreamConnector</tt> toward the
+     * stream's target address and port. The method also puts the
+     * <tt>MediaStream</tt> in a listening state that would make it play all
+     * media received from the <tt>StreamConnector</tt> on the stream's
+     * <tt>MediaDevice</tt>.
+     */
+    public void start();
+
+    /**
+     * Stops all streaming and capturing in this <tt>MediaStream</tt> and closes
+     * and releases all open/allocated devices/resources. This method has no
+     * effect on an already closed stream and is simply ignored.
+     */
+    public void stop();
+
+    /**
+     * Sets the MediaFormat that this <tt>MediaStream</tt> should be
+     * transmitting in.
+     *
+     * @param fmt the <tt>MediaFormat</tt> that this <tt>MediaStream</tt> should
+     * be transmitting in.
+     */
+    public void setFormat(MediaFormat fmt);
+
+    /**
+     * Returns the <tt>MediaFormat</tt> that this stream is currently
+     * transmitting in.
+     *
+     * @return the <tt>MediaFormat</tt> that this stream is currently
+     * transmitting in.
+     */
+    public MediaFormat getFormat();
+
+    public void setDevice(MediaDevice device);
+
+    public MediaDevice getDevice();
+
+    public String getRemoteSourceID();
+
+    public String getLocalSourceID();
+
+    public InetSocketAddress getRemoteControlAddress();
+
+    public InetSocketAddress getRemoteDataAddress();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

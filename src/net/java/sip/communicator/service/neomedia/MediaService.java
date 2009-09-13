@@ -35,7 +35,8 @@ public interface MediaService
      * Returns a list containing all devices known to this service
      * implementation and handling the specified <tt>MediaType</tt>.
      *
-     * @param mediaType the media type that
+     * @param mediaType the media type (i.e. AUDIO or VIDEO) that we'd like
+     * to obtain the device list for.
      *
      * @return the list of <tt>MediaDevices</tt> currently known to handle the
      * specified <tt>mediaType</tt>.
@@ -45,10 +46,13 @@ public interface MediaService
     /**
      * Creates a <tt>MediaStream</tt> that will be using the specified
      * <tt>MediaDevice</tt> for both capture and playback of media exchanged
+     * via the specified <tt>connector</tt>.
      *
-     * @return
+     * @param the connector that the stream should use for sending and receiving
+     * media.
+     *
+     * @return the newly created <tt>MediaStream</tt>.
      */
-    public MediaStream createMediaStream();
-
-
+    public MediaStream createMediaStream(StreamConnector connector,
+                                         MediaDevice     device);
 }
