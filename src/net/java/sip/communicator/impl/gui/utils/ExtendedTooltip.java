@@ -21,7 +21,7 @@ import net.java.sip.communicator.util.*;
 public class ExtendedTooltip
     extends JToolTip
 {
-    private static final int textRowHeight = 15;
+    private static final int textRowHeight = 16;
 
     private final JLabel imageLabel = new JLabel();
 
@@ -169,7 +169,14 @@ public class ExtendedTooltip
 
             int height = 0;
             if (isListViewEnabled)
-                height = imageHeight > textHeight ? imageHeight : textHeight;
+            {
+                height = imageHeight > textHeight
+                    ? imageHeight
+                    //Emil: adding extra row height is a dirty trick to fix
+                    //the size but I don't have the time to look at the issue
+                    //now
+                    : (textHeight + textRowHeight/3);
+            }
             else
                 height = imageHeight + textHeight;
 
