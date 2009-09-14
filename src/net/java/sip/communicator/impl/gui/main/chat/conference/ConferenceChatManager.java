@@ -29,17 +29,22 @@ import org.jdesktop.swingworker.SwingWorker;
 import org.osgi.framework.*;
 
 /**
- * The <tt>ConferenceChatManager</tt> is the one that manages chat room
- * invitations.
+ * The <tt>ConferenceChatManager</tt> is the one that manages both chat room and
+ * ad-hoc chat rooms invitations.
  *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Valentin Martinet
  */
 public class ConferenceChatManager
     implements  ChatRoomMessageListener,
                 ChatRoomInvitationListener,
                 ChatRoomInvitationRejectionListener,
+                AdHocChatRoomMessageListener,
+                AdHocChatRoomInvitationListener,
+                AdHocChatRoomInvitationRejectionListener,
                 LocalUserChatRoomPresenceListener,
+                LocalUserAdHocChatRoomPresenceListener,
                 ServiceListener
 {
     private static final Logger logger
@@ -49,9 +54,14 @@ public class ConferenceChatManager
         new Hashtable<ChatRoomWrapper, HistoryWindow>();
 
     private final ChatRoomList chatRoomList = new ChatRoomList();
+    
+    private final AdHocChatRoomList adHocChatRoomList = new AdHocChatRoomList();
 
     private final Vector<ChatRoomListChangeListener> listChangeListeners
         = new Vector<ChatRoomListChangeListener>();
+
+    private final Vector<AdHocChatRoomListChangeListener>
+        adHoclistChangeListeners = new Vector<AdHocChatRoomListChangeListener>();
 
     /**
      * Creates an instance of <tt>ConferenceChatManager</tt>.
@@ -64,6 +74,7 @@ public class ConferenceChatManager
             public void run()
             {
                 chatRoomList.loadList();
+                adHocChatRoomList.loadList();
             }
         }.start();
 
@@ -79,6 +90,18 @@ public class ConferenceChatManager
     public ChatRoomList getChatRoomList()
     {
         return chatRoomList;
+    }
+    
+    /**
+     * Returns all chat room providers currently contained in the ad-hoc chat 
+     * room list.
+     * 
+     * @return  all chat room providers currently contained in the ad-hoc chat 
+     * room list.
+     */
+    public AdHocChatRoomList getAdHocChatRoomList()
+    {
+        return adHocChatRoomList;
     }
 
     /**
@@ -175,6 +198,9 @@ public class ConferenceChatManager
             break;
         }
 
+        logger.setLevelInfo();
+        logger.info("MESSAGE RECEIVED from "+sourceMember.getContactAddress());
+        
         logger.trace("MESSAGE RECEIVED from contact: "
             + sourceMember.getContactAddress());
 
@@ -297,30 +323,31 @@ public class ConferenceChatManager
         ChatRoomMember destMember = evt.getDestinationChatRoomMember();
 
         if (evt.getErrorCode()
-                == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED) {
-
+                == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED)
+        {
             errorMsg = GuiActivator.getResources().getI18NString(
                     "service.gui.MSG_DELIVERY_NOT_SUPPORTED");
         }
         else if (evt.getErrorCode()
-                == MessageDeliveryFailedEvent.NETWORK_FAILURE) {
-
+                == MessageDeliveryFailedEvent.NETWORK_FAILURE)
+        {
             errorMsg = GuiActivator.getResources()
                 .getI18NString("service.gui.MSG_NOT_DELIVERED");
         }
         else if (evt.getErrorCode()
-                == MessageDeliveryFailedEvent.PROVIDER_NOT_REGISTERED) {
-
+                == MessageDeliveryFailedEvent.PROVIDER_NOT_REGISTERED)
+        {
             errorMsg = GuiActivator.getResources().getI18NString(
                     "service.gui.MSG_SEND_CONNECTION_PROBLEM");
         }
         else if (evt.getErrorCode()
-                == MessageDeliveryFailedEvent.INTERNAL_ERROR) {
-
+                == MessageDeliveryFailedEvent.INTERNAL_ERROR)
+        {
             errorMsg = GuiActivator.getResources().getI18NString(
                     "service.gui.MSG_DELIVERY_INTERNAL_ERROR");
         }
-        else {
+        else
+        {
             errorMsg = GuiActivator.getResources().getI18NString(
                     "service.gui.MSG_DELIVERY_UNKNOWN_ERROR");
         }
@@ -345,6 +372,94 @@ public class ConferenceChatManager
         chatWindowManager.openChat(chatPanel, false);
     }
 
+    /**
+     * Implements the
+     * <tt>LocalUserAdHocChatRoomPresenceListener.localUserPresenceChanged</tt>
+     * method
+     * 
+     * @param evt
+     */
+    public void localUserAdHocPresenceChanged(
+            LocalUserAdHocChatRoomPresenceChangeEvent evt)
+    {
+        AdHocChatRoom sourceAdHocChatRoom = evt.getAdHocChatRoom();
+
+        AdHocChatRoomWrapper adHocChatRoomWrapper = 
+            adHocChatRoomList.findChatRoomWrapperFromAdHocChatRoom(
+                    sourceAdHocChatRoom);
+
+        if (evt.getEventType().equals(
+                LocalUserAdHocChatRoomPresenceChangeEvent.LOCAL_USER_JOINED))
+        {
+            if(adHocChatRoomWrapper != null)
+            {
+                this.fireAdHocChatRoomListChangedEvent(
+                        adHocChatRoomWrapper,
+                        AdHocChatRoomListChangeEvent.AD_HOC_CHAT_ROOM_CHANGED);
+
+                ChatWindowManager chatWindowManager
+                = GuiActivator.getUIService().getChatWindowManager();
+
+                ChatPanel chatPanel
+                = chatWindowManager.getAdHocMultiChat(adHocChatRoomWrapper);
+
+                // Check if we have already opened a chat window for this chat
+                // wrapper and load the real chat room corresponding to the
+                // wrapper.
+                if(chatWindowManager
+                        .isChatOpenedForAdHocChatRoom(adHocChatRoomWrapper))
+                {
+                    ((AdHocConferenceChatSession) chatPanel.getChatSession())
+                    .loadChatRoom(sourceAdHocChatRoom);
+                }
+                else
+                {
+                    chatWindowManager.openChat(chatPanel, true);
+                }
+            }
+
+            sourceAdHocChatRoom.addMessageListener(this);
+        }
+        else if (evt.getEventType().equals(
+            LocalUserAdHocChatRoomPresenceChangeEvent.LOCAL_USER_JOIN_FAILED))
+        {
+            new ErrorDialog(
+                GuiActivator.getUIService().getMainFrame(),
+                GuiActivator.getResources().getI18NString("service.gui.ERROR"),
+                GuiActivator.getResources().getI18NString(
+                        "service.gui.FAILED_TO_JOIN_CHAT_ROOM",
+                        new String[]{sourceAdHocChatRoom.getName()}) 
+                        + evt.getReason())
+            .showDialog();
+        }
+        else if (evt.getEventType().equals(
+            LocalUserAdHocChatRoomPresenceChangeEvent.LOCAL_USER_LEFT))
+        {
+            this.closeAdHocChatRoom(adHocChatRoomWrapper);
+
+            // Need to refresh the chat room's list in order to change
+            // the state of the chat room to offline.
+            fireAdHocChatRoomListChangedEvent(
+                    adHocChatRoomWrapper,
+                    AdHocChatRoomListChangeEvent.AD_HOC_CHAT_ROOM_CHANGED);
+
+            sourceAdHocChatRoom.removeMessageListener(this);
+        }
+        else if (evt.getEventType().equals(
+                LocalUserAdHocChatRoomPresenceChangeEvent.LOCAL_USER_DROPPED))
+        {
+            this.closeAdHocChatRoom(adHocChatRoomWrapper);
+
+            // Need to refresh the ad-hoc chat room's list in order to change
+            // the state of the ad-hoc chat room to offline.
+            fireAdHocChatRoomListChangedEvent(
+                    adHocChatRoomWrapper,
+                    AdHocChatRoomListChangeEvent.AD_HOC_CHAT_ROOM_CHANGED);
+
+            sourceAdHocChatRoom.removeMessageListener(this);
+        }
+    }
+    
     /**
      * Implements the
      * <tt>LocalUserChatRoomPresenceListener.localUserPresenceChanged</tt>
@@ -469,6 +584,24 @@ public class ConferenceChatManager
     }
 
     /**
+     * Called to accept an incoming invitation. Adds the invitation chat room
+     * to the list of chat rooms and joins it.
+     *
+     * @param invitation the invitation to accept.
+     * 
+     * @throws OperationFailedException 
+     */
+    public void acceptInvitation(
+        AdHocChatRoomInvitation invitation,
+        OperationSetAdHocMultiUserChat multiUserChatOpSet)
+        throws OperationFailedException
+    {
+        AdHocChatRoom chatRoom = invitation.getTargetAdHocChatRoom();
+
+        chatRoom.join();
+    }
+
+    /**
      * Rejects the given invitation with the specified reason.
      *
      * @param multiUserChatOpSet the operation set to use for rejecting the
@@ -476,11 +609,27 @@ public class ConferenceChatManager
      * @param invitation the invitation to reject
      * @param reason the reason for the rejection
      */
-    public void rejectInvitation(   OperationSetMultiUserChat multiUserChatOpSet,
-                                    ChatRoomInvitation invitation,
-                                    String reason)
+    public void rejectInvitation(  OperationSetMultiUserChat multiUserChatOpSet,
+                                   ChatRoomInvitation invitation,
+                                   String reason)
     {
         multiUserChatOpSet.rejectInvitation(invitation, reason);
+    }
+
+    /**
+     * Rejects the given invitation with the specified reason.
+     *
+     * @param multiUserChatOpSet the operation set to use for rejecting the
+     * invitation
+     * @param invitation the invitation to reject
+     * @param reason the reason for the rejection
+     */
+    public void rejectInvitation(  
+            OperationSetAdHocMultiUserChat     multiUserChatAdHocOpSet,
+            AdHocChatRoomInvitation         invitation,
+            String                             reason)
+    {
+         multiUserChatAdHocOpSet.rejectInvitation(invitation, reason);
     }
 
     /**
@@ -500,9 +649,9 @@ public class ConferenceChatManager
         if(chatRoom == null)
         {
             new ErrorDialog(
-                GuiActivator.getUIService().getMainFrame(),
-                GuiActivator.getResources().getI18NString("service.gui.WARNING"),
-                GuiActivator.getResources().getI18NString(
+               GuiActivator.getUIService().getMainFrame(),
+               GuiActivator.getResources().getI18NString("service.gui.WARNING"),
+               GuiActivator.getResources().getI18NString(
                     "service.gui.CHAT_ROOM_NOT_CONNECTED",
                     new String[]{chatRoomWrapper.getChatRoomName()}))
                     .showDialog();
@@ -514,14 +663,18 @@ public class ConferenceChatManager
     }
 
     /**
-     * Creates a chatroom, by specifying the chat room name and the parent
-     * protocol provider.
+     * Creates a chat room, by specifying the chat room name, the parent
+     * protocol provider and eventually, the contacts invited to participate in 
+     * this chat room.
+     * 
      * @param chatRoomName the name of the chat room to create.
      * @param protocolProvider the parent protocol provider.
+     * @param contacts the contacts invited when creating the chat room.
      */
     public ChatRoomWrapper createChatRoom(
         String chatRoomName,
-        ProtocolProviderService protocolProvider)
+        ProtocolProviderService protocolProvider,
+        Collection<String> contacts)
     {
         ChatRoomWrapper chatRoomWrapper = null;
 
@@ -536,7 +689,18 @@ public class ConferenceChatManager
         ChatRoom chatRoom = null;
         try
         {
-            chatRoom = groupChatOpSet.createChatRoom(chatRoomName, null);
+            Map<String, Object> members = new Hashtable<String, Object>();
+            OperationSetPersistentPresence opSet = 
+                (OperationSetPersistentPresence)
+                    protocolProvider.getOperationSet(
+                            OperationSetPersistentPresence.class);
+            
+            for(String contact : contacts)
+            {
+                members.put(contact, opSet.findContactByID(contact));
+            }
+            
+            chatRoom = groupChatOpSet.createChatRoom(chatRoomName, members);
         }
         catch (OperationFailedException ex)
         {
@@ -582,6 +746,90 @@ public class ConferenceChatManager
     }
 
     /**
+     * Creates an ad-hoc chat room, by specifying the ad-hoc chat room name, the
+     * parent protocol provider and eventually, the contacts invited to 
+     * participate in this ad-hoc chat room.
+     * 
+     * @param chatRoomName the name of the chat room to create.
+     * @param protocolProvider the parent protocol provider.
+     * @param contacts the contacts invited when creating the chat room.
+     */
+    public AdHocChatRoomWrapper createAdHocChatRoom(
+        String chatRoomName,
+        ProtocolProviderService protocolProvider,
+        Collection<String> contacts)
+    {
+        AdHocChatRoomWrapper chatRoomWrapper = null;
+
+        OperationSetAdHocMultiUserChat groupChatOpSet
+            = (OperationSetAdHocMultiUserChat) protocolProvider
+                .getOperationSet(OperationSetAdHocMultiUserChat.class);
+
+        // If there's no group chat operation set we have nothing to do here.
+        if (groupChatOpSet == null)
+            return null;
+        
+        AdHocChatRoom chatRoom = null;
+        
+        try
+        {
+            List<Contact> members = new LinkedList<Contact>();
+            OperationSetPersistentPresence opSet = 
+                (OperationSetPersistentPresence)
+                protocolProvider.getOperationSet(
+                        OperationSetPersistentPresence.class);
+
+            for(String contact : contacts)
+            {
+                members.add(opSet.findContactByID(contact));
+            }
+
+            chatRoom = groupChatOpSet.createAdHocChatRoom(
+                chatRoomName, members);
+        }
+        catch (OperationFailedException ex)
+        {    
+            new ErrorDialog(
+                GuiActivator.getUIService().getMainFrame(),
+                GuiActivator.getResources().getI18NString("service.gui.ERROR"),
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.CREATE_CHAT_ROOM_ERROR",
+                    new String[]{chatRoomName}),
+                    ex)
+            .showDialog();
+        }
+        catch (OperationNotSupportedException ex)
+        {
+            new ErrorDialog(
+                GuiActivator.getUIService().getMainFrame(),
+                GuiActivator.getResources().getI18NString("service.gui.ERROR"),
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.CREATE_CHAT_ROOM_ERROR",
+                    new String[]{chatRoomName}),
+                    ex)
+            .showDialog();
+        }
+
+        if(chatRoom != null)
+        {
+            AdHocChatRoomProviderWrapper parentProvider
+                = adHocChatRoomList.findServerWrapperFromProvider(
+                        protocolProvider);          
+            
+            chatRoomWrapper = new AdHocChatRoomWrapper(
+                    parentProvider, chatRoom);
+            parentProvider.addAdHocChatRoom(chatRoomWrapper);
+            adHocChatRoomList.addAdHocChatRoom(chatRoomWrapper);
+
+            fireAdHocChatRoomListChangedEvent(
+                chatRoomWrapper,
+                AdHocChatRoomListChangeEvent.AD_HOC_CHAT_ROOM_ADDED);
+        }
+
+        return chatRoomWrapper;
+    }
+
+    /**
      * Join chat room.
      * @param chatRoomWrapper
      */
@@ -592,9 +840,9 @@ public class ConferenceChatManager
         if(chatRoom == null)
         {
             new ErrorDialog(
-                GuiActivator.getUIService().getMainFrame(),
-                GuiActivator.getResources().getI18NString("service.gui.WARNING"),
-                GuiActivator.getResources().getI18NString(
+               GuiActivator.getUIService().getMainFrame(),
+               GuiActivator.getResources().getI18NString("service.gui.WARNING"),
+               GuiActivator.getResources().getI18NString(
                         "service.gui.CHAT_ROOM_NOT_CONNECTED",
                         new String[]{chatRoomWrapper.getChatRoomName()}))
                     .showDialog();
@@ -605,6 +853,31 @@ public class ConferenceChatManager
         new JoinChatRoomTask(chatRoomWrapper, null, null).execute();
     }
 
+    /**
+     * Joins the given ad-hoc chat room
+     *
+     * @param chatRoomWrapper
+     */
+    public void joinChatRoom(AdHocChatRoomWrapper chatRoomWrapper)
+    {
+        AdHocChatRoom chatRoom = chatRoomWrapper.getAdHocChatRoom();
+
+        if(chatRoom == null)
+        {
+            new ErrorDialog(
+               GuiActivator.getUIService().getMainFrame(),
+               GuiActivator.getResources().getI18NString("service.gui.WARNING"),
+               GuiActivator.getResources().getI18NString(
+                        "service.gui.CHAT_ROOM_NOT_CONNECTED",
+                        new String[]{chatRoomWrapper.getAdHocChatRoomName()}))
+                    .showDialog();
+
+            return;
+        }
+
+        new JoinAdHocChatRoomTask(chatRoomWrapper).execute();
+    }
+    
     /**
      * Removes the given chat room from the UI.
      *
@@ -655,7 +928,41 @@ public class ConferenceChatManager
         chatWindowManager.openChat(
             chatWindowManager.getMultiChat(chatRoomWrapper), true);
     }
+    
+    /**
+     * Joins the given chat room and manages all the exceptions that could
+     * occur during the join process.
+     *
+     * @param chatRoom the chat room to join
+     */
+    public void joinChatRoom(AdHocChatRoom chatRoom)
+    {
+        AdHocChatRoomWrapper chatRoomWrapper
+            = adHocChatRoomList.findChatRoomWrapperFromAdHocChatRoom(chatRoom);
 
+        if(chatRoomWrapper == null)
+        {
+            AdHocChatRoomProviderWrapper parentProvider
+            = adHocChatRoomList.findServerWrapperFromProvider(
+                chatRoom.getParentProvider());
+
+            chatRoomWrapper = 
+                new AdHocChatRoomWrapper(parentProvider, chatRoom);
+
+            adHocChatRoomList.addAdHocChatRoom(chatRoomWrapper);
+
+            fireAdHocChatRoomListChangedEvent(
+                chatRoomWrapper,
+                AdHocChatRoomListChangeEvent.AD_HOC_CHAT_ROOM_ADDED);
+        }
+
+        this.joinChatRoom(chatRoomWrapper);
+        ChatWindowManager chatWindowManager
+            = GuiActivator.getUIService().getChatWindowManager();
+        chatWindowManager.openChat(
+            chatWindowManager.getAdHocMultiChat(chatRoomWrapper), true);
+    }
+    
     /**
      * Joins the given chat room and manages all the exceptions that could
      * occur during the join process.
@@ -741,11 +1048,11 @@ public class ConferenceChatManager
         if (chatRoom == null)
         {
             new ErrorDialog(
-                GuiActivator.getUIService().getMainFrame(),
-                GuiActivator.getResources().getI18NString("service.gui.WARNING"),
-                GuiActivator.getResources().getI18NString(
-                    "service.gui.CHAT_ROOM_LEAVE_NOT_CONNECTED"))
-                    .showDialog();
+               GuiActivator.getUIService().getMainFrame(),
+               GuiActivator.getResources().getI18NString("service.gui.WARNING"),
+               GuiActivator.getResources().getI18NString(
+                   "service.gui.CHAT_ROOM_LEAVE_NOT_CONNECTED"))
+                   .showDialog();
 
             return;
         }
@@ -869,16 +1176,62 @@ public class ConferenceChatManager
     }
 
     /**
+     * Adds the given <tt>AdHocChatRoomListChangeListener</tt> that will listen
+     * for all changes of the chat room list data model.
+     *
+     * @param l the listener to add.
+     */
+    public void addAdHocChatRoomListChangeListener(
+            AdHocChatRoomListChangeListener l)
+    {
+        synchronized (adHoclistChangeListeners)
+        {
+            adHoclistChangeListeners.add(l);
+        }
+    }
+
+    /**
+     * Removes the given <tt>AdHocChatRoomListChangeListener</tt>.
+     *
+     * @param l the listener to remove.
+     */
+    public void removeAdHocChatRoomListChangeListener(
+        AdHocChatRoomListChangeListener l)
+    {
+        synchronized (adHoclistChangeListeners)
+        {
+            adHoclistChangeListeners.remove(l);
+        }
+    }
+
+    /**
      * Notifies all interested listeners that a change in the chat room list
      * model has occurred.
      */
-    private void fireChatRoomListChangedEvent(   ChatRoomWrapper chatRoomWrapper,
+    private void fireChatRoomListChangedEvent(  ChatRoomWrapper chatRoomWrapper,
                                                 int eventID)
     {
         ChatRoomListChangeEvent evt
             = new ChatRoomListChangeEvent(chatRoomWrapper, eventID);
 
         for (ChatRoomListChangeListener l : listChangeListeners)
+        {
+            l.contentChanged(evt);
+        }
+    }
+    
+    /**
+     * Notifies all interested listeners that a change in the chat room list
+     * model has occurred.
+     */
+    private void fireAdHocChatRoomListChangedEvent(  
+                                    AdHocChatRoomWrapper adHocChatRoomWrapper,
+                                    int                  eventID)
+    {
+        AdHocChatRoomListChangeEvent evt
+            = new AdHocChatRoomListChangeEvent(adHocChatRoomWrapper, eventID);
+
+        for (AdHocChatRoomListChangeListener l : adHoclistChangeListeners)
         {
             l.contentChanged(evt);
         }
@@ -900,6 +1253,34 @@ public class ConferenceChatManager
         {
             final ChatPanel chatPanel
                 = chatWindowManager.getMultiChat(chatRoomWrapper);
+
+            // We have to be sure that we close the chat in the swing thread
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    chatWindowManager.closeChat(chatPanel);
+                }
+            });
+        }
+    }
+
+    /**
+     * Closes the chat corresponding to the given ad-hoc chat room wrapper, if 
+     * such exists.
+     *
+     * @param chatRoomWrapper the ad-hoc chat room wrapper for which we search a
+     * chat to close.
+     */
+    private void closeAdHocChatRoom(AdHocChatRoomWrapper chatRoomWrapper)
+    {
+        final ChatWindowManager chatWindowManager
+            = GuiActivator.getUIService().getChatWindowManager();
+
+        if(chatWindowManager.isChatOpenedForAdHocChatRoom(chatRoomWrapper))
+        {
+            final ChatPanel chatPanel
+                = chatWindowManager.getAdHocMultiChat(chatRoomWrapper);
 
             // We have to be sure that we close the chat in the swing thread
             SwingUtilities.invokeLater(new Runnable()
@@ -944,21 +1325,39 @@ public class ConferenceChatManager
         Object multiUserChatOpSet
             = protocolProvider
                 .getOperationSet(OperationSetMultiUserChat.class);
+        
+        Object multiUserChatAdHocOpSet
+            = protocolProvider
+            .getOperationSet(OperationSetAdHocMultiUserChat.class);
 
-        // We don't care if there's no group chat operation set.
-        if (multiUserChatOpSet == null)
+        if (multiUserChatOpSet == null && multiUserChatAdHocOpSet != null)
+        {
+             if (event.getType() == ServiceEvent.REGISTERED)
+             {
+                 adHocChatRoomList.addChatProvider(protocolProvider);
+             }
+             else if (event.getType() == ServiceEvent.UNREGISTERING)
+             {
+                 adHocChatRoomList.removeChatProvider(protocolProvider);
+             }
+        }
+        else if (multiUserChatAdHocOpSet == null && multiUserChatOpSet != null)
+        {
+             if (event.getType() == ServiceEvent.REGISTERED)
+             {
+                 chatRoomList.addChatProvider(protocolProvider);
+             }
+             else if (event.getType() == ServiceEvent.UNREGISTERING)
+             {
+                 chatRoomList.removeChatProvider(protocolProvider);
+             }
+        }
+        else
         {
             return;
         }
 
-        if (event.getType() == ServiceEvent.REGISTERED)
-        {
-            chatRoomList.addChatProvider(protocolProvider);
-        }
-        else if (event.getType() == ServiceEvent.UNREGISTERING)
-        {
-            chatRoomList.removeChatProvider(protocolProvider);
-        }
+       
     }
 
     /**
@@ -1103,12 +1502,135 @@ public class ConferenceChatManager
             {
                 new ErrorDialog(
                     GuiActivator.getUIService().getMainFrame(),
-                    GuiActivator.getResources().getI18NString("service.gui.ERROR"),
-                    errorMessage).showDialog();
+                    GuiActivator.getResources().getI18NString(
+                            "service.gui.ERROR"), errorMessage).showDialog();
             }
         }
     }
+    
+    /**
+     * Joins an ad-hoc chat room in an asynchronous way.
+     */
+    private static class JoinAdHocChatRoomTask
+        extends SwingWorker<String, Object>
+    {
+        private static final String SUCCESS = "Success";
 
+        private static final String AUTHENTICATION_FAILED
+            = "AuthenticationFailed";
+
+        private static final String REGISTRATION_REQUIRED
+            = "RegistrationRequired";
+
+        private static final String PROVIDER_NOT_REGISTERED
+            = "ProviderNotRegistered";
+
+        private static final String SUBSCRIPTION_ALREADY_EXISTS
+            = "SubscriptionAlreadyExists";
+
+        private static final String UNKNOWN_ERROR
+            = "UnknownError";
+
+        private final AdHocChatRoomWrapper adHocChatRoomWrapper;
+
+        JoinAdHocChatRoomTask(AdHocChatRoomWrapper chatRoomWrapper)
+        {
+            this.adHocChatRoomWrapper = chatRoomWrapper;
+        }
+
+        /**
+         * @override {@link SwingWorker}{@link #doInBackground()} to perform
+         * all asynchronous tasks.
+         */
+        public String doInBackground()
+        {
+            AdHocChatRoom chatRoom = adHocChatRoomWrapper.getAdHocChatRoom();
+
+            try
+            {
+                chatRoom.join();
+
+                return SUCCESS;
+            }
+            catch (OperationFailedException e)
+            {
+                logger.trace("Failed to join ad-hoc chat room: "
+                    + chatRoom.getName(), e);
+
+                switch (e.getErrorCode())
+                {
+                case OperationFailedException.AUTHENTICATION_FAILED:
+                    return AUTHENTICATION_FAILED;
+                case OperationFailedException.REGISTRATION_REQUIRED:
+                    return REGISTRATION_REQUIRED;
+                case OperationFailedException.PROVIDER_NOT_REGISTERED:
+                    return PROVIDER_NOT_REGISTERED;
+                case OperationFailedException.SUBSCRIPTION_ALREADY_EXISTS:
+                    return SUBSCRIPTION_ALREADY_EXISTS;
+                default:
+                    return UNKNOWN_ERROR;
+                }
+            }
+        }
+
+        /**
+         * @override {@link SwingWorker}{@link #done()} to perform UI changes
+         * after the ad-hoc chat room join task has finished.
+         */
+        protected void done()
+        {
+            String returnCode = null;
+            try
+            {
+                returnCode = get();
+            }
+            catch (InterruptedException ignore)
+            {}
+            catch (ExecutionException ignore)
+            {}
+
+            ConfigurationManager.updateChatRoomStatus(
+                adHocChatRoomWrapper.getParentProvider().getProtocolProvider(),
+                adHocChatRoomWrapper.getAdHocChatRoomID(),
+                Constants.ONLINE_STATUS);
+
+            String errorMessage = null;
+            if(PROVIDER_NOT_REGISTERED.equals(returnCode))
+            {
+                errorMessage
+                    = GuiActivator.getResources()
+                        .getI18NString("service.gui.CHAT_ROOM_NOT_CONNECTED",
+                        new String[]{
+                            adHocChatRoomWrapper.getAdHocChatRoomName()});
+            }
+            else if(SUBSCRIPTION_ALREADY_EXISTS.equals(returnCode))
+            {
+                errorMessage
+                    = GuiActivator.getResources()
+                        .getI18NString("service.gui.CHAT_ROOM_ALREADY_JOINED",
+                            new String[]{
+                            adHocChatRoomWrapper.getAdHocChatRoomName()});
+            }
+            else
+            {
+                errorMessage
+                    = GuiActivator.getResources()
+                        .getI18NString("service.gui.FAILED_TO_JOIN_CHAT_ROOM",
+                            new String[]{
+                            adHocChatRoomWrapper.getAdHocChatRoomName()});
+            }
+
+            if (!SUCCESS.equals(returnCode)
+                    && !AUTHENTICATION_FAILED.equals(returnCode))
+            {
+                new ErrorDialog(
+                    GuiActivator.getUIService().getMainFrame(),
+                    GuiActivator.getResources().getI18NString(
+                            "service.gui.ERROR"), errorMessage).showDialog();
+            }
+        }
+    }
+    
     /**
      * Finds a chat room in asynchronous way.
      */
@@ -1198,5 +1720,219 @@ public class ConferenceChatManager
 
             return null;
         }
+    }
+
+    public void invitationReceived(AdHocChatRoomInvitationReceivedEvent evt) {
+        logger.setLevelInfo();
+        logger.info("Invitation received: "+evt.toString());
+        OperationSetAdHocMultiUserChat multiUserChatOpSet
+            = evt.getSourceOperationSet();
+
+        InvitationReceivedDialog dialog = new InvitationReceivedDialog(
+                this, multiUserChatOpSet, evt.getInvitation());
+
+        dialog.setVisible(true);
+    }
+
+     /**
+     * Implements the <tt>AdHocChatRoomMessageListener.messageDelivered</tt> 
+     * method.
+     * <br>
+     * Shows the message in the conversation area and clears the write message
+     * area.
+     */
+    public void messageDelivered(AdHocChatRoomMessageDeliveredEvent evt) {
+        AdHocChatRoom sourceChatRoom = (AdHocChatRoom) evt.getSource();
+
+        logger.setLevelInfo();
+        logger.info("MESSAGE DELIVERED to ad-hoc chat room: "
+            + sourceChatRoom.getName());
+
+        Message msg = evt.getMessage();
+
+        ChatPanel chatPanel = null;
+
+        ChatWindowManager chatWindowManager
+            = GuiActivator.getUIService().getChatWindowManager();
+        
+        if(chatWindowManager.isChatOpenedForAdHocChatRoom(sourceChatRoom))
+        {
+            chatPanel = chatWindowManager.getAdHocMultiChat(sourceChatRoom);
+        }
+
+        String messageType = null;
+
+        if (evt.getEventType() == 
+            AdHocChatRoomMessageDeliveredEvent.CONVERSATION_MESSAGE_DELIVERED)
+        {
+            messageType = Chat.OUTGOING_MESSAGE;
+        }
+        else if (evt.getEventType()
+            == AdHocChatRoomMessageDeliveredEvent.ACTION_MESSAGE_DELIVERED)
+        {
+            messageType = Chat.ACTION_MESSAGE;
+        }
+
+        if(chatPanel != null)
+        {
+            chatPanel.addMessage(sourceChatRoom.getParentProvider()
+                .getAccountID().getUserID(),
+                evt.getTimestamp(),
+                messageType,
+                msg.getContent(),
+                msg.getContentType());
+        }
+        else
+        {
+            logger.setLevelError();
+            logger.error("chat panel is null, message NOT DELIVERED !");
+        }
+    }
+
+    /**
+     * Implements <tt>AdHocChatRoomMessageListener.messageDeliveryFailed</tt>
+     * method.
+     * <br>
+     * In the conversation area shows an error message, explaining the problem.
+     */
+    public void messageDeliveryFailed(
+            AdHocChatRoomMessageDeliveryFailedEvent evt) {
+         AdHocChatRoom sourceChatRoom = (AdHocChatRoom) evt.getSource();
+
+            String errorMsg = null;
+
+            Message sourceMessage = (Message) evt.getSource();
+
+            Contact destParticipant = evt.getDestinationParticipant();
+
+            if (evt.getErrorCode()
+                    == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED)
+            {
+                errorMsg = GuiActivator.getResources().getI18NString(
+                        "service.gui.MSG_DELIVERY_NOT_SUPPORTED");
+            }
+            else if (evt.getErrorCode()
+                    == MessageDeliveryFailedEvent.NETWORK_FAILURE)
+            {
+                errorMsg = GuiActivator.getResources()
+                    .getI18NString("service.gui.MSG_NOT_DELIVERED");
+            }
+            else if (evt.getErrorCode()
+                    == MessageDeliveryFailedEvent.PROVIDER_NOT_REGISTERED)
+            {
+                errorMsg = GuiActivator.getResources().getI18NString(
+                        "service.gui.MSG_SEND_CONNECTION_PROBLEM");
+            }
+            else if (evt.getErrorCode()
+                    == MessageDeliveryFailedEvent.INTERNAL_ERROR)
+            {
+                errorMsg = GuiActivator.getResources().getI18NString(
+                        "service.gui.MSG_DELIVERY_INTERNAL_ERROR");
+            }
+            else
+            {
+                errorMsg = GuiActivator.getResources().getI18NString(
+                        "service.gui.MSG_DELIVERY_UNKNOWN_ERROR");
+            }
+
+            ChatWindowManager chatWindowManager
+                = GuiActivator.getUIService().getChatWindowManager();
+
+            ChatPanel chatPanel
+                = chatWindowManager.getAdHocMultiChat(sourceChatRoom);
+
+            chatPanel.addMessage(
+                    destParticipant.getDisplayName(),
+                    System.currentTimeMillis(),
+                    Chat.OUTGOING_MESSAGE,
+                    sourceMessage.getContent(),
+                    sourceMessage.getContentType());
+
+            chatPanel.addErrorMessage(
+                    destParticipant.getDisplayName(),
+                    errorMsg);
+
+            chatWindowManager.openChat(chatPanel, false);
+    }
+
+    /**
+     * Implements the <tt>AdHocChatRoomMessageListener.messageReceived</tt>
+     * method.
+     * <br>
+     * Obtains the corresponding <tt>ChatPanel</tt> and process the message
+     * there.
+     */
+    public void messageReceived(AdHocChatRoomMessageReceivedEvent evt)
+    {
+        AdHocChatRoom sourceChatRoom = (AdHocChatRoom) evt.getSource();
+        Contact sourceParticipant = evt.getSourceChatRoomParticipant();
+
+        String messageType = null;
+
+        switch (evt.getEventType())
+        {
+        case AdHocChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED:
+            messageType = Chat.INCOMING_MESSAGE;
+            break;
+        case AdHocChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED:
+            messageType = Chat.SYSTEM_MESSAGE;
+            break;
+        case AdHocChatRoomMessageReceivedEvent.ACTION_MESSAGE_RECEIVED:
+            messageType = Chat.ACTION_MESSAGE;
+            break;
+        }
+
+        logger.info("MESSAGE RECEIVED from contact: "
+            + sourceParticipant.getAddress());
+
+        Message message = evt.getMessage();
+
+        ChatPanel chatPanel = null;
+
+        ChatWindowManager chatWindowManager
+            = GuiActivator.getUIService().getChatWindowManager();
+
+        chatPanel = chatWindowManager
+            .getAdHocMultiChat(sourceChatRoom, message.getMessageUID());
+
+        String messageContent = message.getContent();
+
+        chatPanel.addMessage(
+            sourceParticipant.getDisplayName(),
+            evt.getTimestamp(),
+            messageType,
+            messageContent,
+            message.getContentType());
+
+        chatWindowManager.openChat(chatPanel, false);
+
+        // Fire notification
+        boolean fireChatNotification;
+
+        String nickname = sourceChatRoom.getName();
+
+        fireChatNotification =
+            (nickname == null)
+                || messageContent.toLowerCase().contains(
+                        nickname.toLowerCase());
+
+        if (fireChatNotification)
+        {
+            String title
+                = GuiActivator.getResources().getI18NString(
+                        "service.gui.MSG_RECEIVED",
+                        new String[] { sourceParticipant.getDisplayName() });
+
+            NotificationManager.fireChatNotification(
+                sourceChatRoom,
+                NotificationManager.INCOMING_MESSAGE,
+                title,
+                messageContent);
+        }
+        
+    }
+
+    public void invitationRejected(AdHocChatRoomInvitationRejectedEvent evt) 
+    {
     }
 }

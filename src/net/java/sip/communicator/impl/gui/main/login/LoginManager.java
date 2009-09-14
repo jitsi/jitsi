@@ -108,7 +108,8 @@ public class LoginManager
 
                 if (status == null
                     || status.equals(Constants.ONLINE_STATUS)
-                    || ((status instanceof PresenceStatus) && (((PresenceStatus) status)
+                    || ((status instanceof PresenceStatus)
+                        && (((PresenceStatus) status)
                         .getStatus() >= PresenceStatus.ONLINE_THRESHOLD)))
                 {
                     this.login(protocolProvider);
@@ -138,8 +139,9 @@ public class LoginManager
         {
             OperationSetPresence presence = mainFrame
                 .getProtocolPresenceOpSet(protocolProvider);
-            OperationSetMultiUserChat multiUserChat = mainFrame
-                .getMultiUserChatOpSet(protocolProvider);
+
+            OperationSetMultiUserChat multiUserChat = 
+                mainFrame.getMultiUserChatOpSet(protocolProvider);
 
             if (presence != null)
             {
@@ -153,6 +155,7 @@ public class LoginManager
                     .getChatRoomList().synchronizeOpSetWithLocalContactList(
                         protocolProvider, multiUserChat);
             }
+          
         }
         else if (newState.equals(RegistrationState.AUTHENTICATION_FAILED))
         {

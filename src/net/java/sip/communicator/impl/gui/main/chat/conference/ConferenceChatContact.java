@@ -53,12 +53,13 @@ public class ConferenceChatContact
         String name = chatRoomMember.getName();
 
         if (name == null || name.length() < 1)
-            name = GuiActivator.getResources().getI18NString("service.gui.UNKNOWN");
+            name = GuiActivator.getResources()
+                .getI18NString("service.gui.UNKNOWN");
 
         return name;
     }
 
-    /*
+    /**
      * Implements ChatContact#getAvatarBytes(). Delegates to chatRoomMember.
      */
     public byte[] getAvatarBytes()
@@ -71,7 +72,7 @@ public class ConferenceChatContact
         return chatRoomMember.getRole();
     }
 
-    /*
+    /**
      * Implements ChatContact#getUID(). Delegates to
      * ChatRoomMember#getContactAddress() because it's supposed to be unique.
      */

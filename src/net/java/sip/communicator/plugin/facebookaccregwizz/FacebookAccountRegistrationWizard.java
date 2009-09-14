@@ -143,7 +143,7 @@ public class FacebookAccountRegistrationWizard
      */
     public ProtocolProviderService signin(String userName, String password)
     {
-    	firstWizardPage = null;
+        firstWizardPage = null;
         ProtocolProviderFactory factory
             = FacebookAccRegWizzActivator.getFacebookProtocolProviderFactory();
 
@@ -342,8 +342,8 @@ public class FacebookAccountRegistrationWizard
         return false;
     }
 
-	public Object getSimpleForm() {
-		firstWizardPage = new FirstWizardPage(this);
+    public Object getSimpleForm() {
+        firstWizardPage = new FirstWizardPage(this);
         return firstWizardPage.getSimpleForm();
-	}
+    }
 }

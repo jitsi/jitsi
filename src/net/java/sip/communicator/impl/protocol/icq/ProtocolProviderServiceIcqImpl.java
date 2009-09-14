@@ -26,6 +26,7 @@ import net.kano.joustsim.oscar.proxy.*;
  *
  * @author Emil Ivov
  * @author Damian Minkov
+ * @author Valentin Martinet
  */
 public class ProtocolProviderServiceIcqImpl
     extends AbstractProtocolProviderService
@@ -455,9 +456,10 @@ public class ProtocolProviderServiceIcqImpl
             if(IcqAccountID.isAIM(accountID.getAccountProperties()))
                     USING_ICQ = false;
 
-            supportedOperationSets.put(OperationSetInstantMessageTransform.class.getName(), 
+            supportedOperationSets.put(
+                OperationSetInstantMessageTransform.class.getName(), 
                 new OperationSetInstantMessageTransformImpl());
-            
+
             //initialize the presence operationset
             OperationSetPersistentPresence persistentPresence =
                 new OperationSetPersistentPresenceIcqImpl(this, screenname);
@@ -477,13 +479,13 @@ public class ProtocolProviderServiceIcqImpl
             supportedOperationSets.put(
                 OperationSetBasicInstantMessaging.class.getName(),
                 basicInstantMessaging);
-            
-            //initialize the multi chat operation set
-            OperationSetMultiUserChatIcqImpl multiUserOpSet
-                = new OperationSetMultiUserChatIcqImpl(this);
+
+            //initialize the multi chat operation set  
+            OperationSetAdHocMultiUserChatIcqImpl multiUserOpSet
+                = new OperationSetAdHocMultiUserChatIcqImpl(this);
 
             supportedOperationSets.put(
-                OperationSetMultiUserChat.class.getName(),
+                OperationSetAdHocMultiUserChat.class.getName(),
                 multiUserOpSet);
 
             //initialize the typing notifications operation set

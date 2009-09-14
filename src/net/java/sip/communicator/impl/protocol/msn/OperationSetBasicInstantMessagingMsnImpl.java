@@ -25,8 +25,8 @@ import net.java.sip.communicator.impl.protocol.msn.mail.utils.*;
 public class OperationSetBasicInstantMessagingMsnImpl
     extends AbstractOperationSetBasicInstantMessaging
 {
-    private static final Logger logger =
-        Logger.getLogger(OperationSetBasicInstantMessagingMsnImpl.class);
+    private static final Logger logger
+        = Logger.getLogger(OperationSetBasicInstantMessagingMsnImpl.class);
 
     /**
      * The provider that created us.
@@ -39,7 +39,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
      */
     private OperationSetPersistentPresenceMsnImpl opSetPersPresence = null;
 
-    private OperationSetMultiUserChatMsnImpl opSetMuc = null;
+    private OperationSetAdHocMultiUserChatMsnImpl opSetMuc = null;
     /**
      * Creates an instance of this operation set.
      * @param provider a ref to the <tt>ProtocolProviderServiceImpl</tt>
@@ -50,8 +50,8 @@ public class OperationSetBasicInstantMessagingMsnImpl
         ProtocolProviderServiceMsnImpl provider)
     {
         this.msnProvider = provider;
-        opSetMuc = (OperationSetMultiUserChatMsnImpl) msnProvider
-       .getOperationSet(OperationSetMultiUserChat.class);
+        opSetMuc = (OperationSetAdHocMultiUserChatMsnImpl) msnProvider
+       .getOperationSet(OperationSetAdHocMultiUserChat.class);
         provider.addRegistrationStateChangeListener(new RegistrationStateListener());
     }
 

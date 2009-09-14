@@ -780,7 +780,8 @@ public class ChatPanel
     /**
      * Pastes the content of the clipboard to the write area.
      */
-    public void paste(){
+    public void paste()
+    {
         JEditorPane editorPane = this.writeMessagePanel.getEditorPane();
 
         editorPane.paste();
@@ -1808,11 +1809,18 @@ public class ChatPanel
         ChatTransport currentChatTransport
             = chatSession.getCurrentChatTransport();
 
-        if (currentChatTransport.getProtocolProvider()
-                .getOperationSet(OperationSetMultiUserChat.class) != null)
+        ProtocolProviderService protocolProvider
+            = currentChatTransport.getProtocolProvider();
+
+        // We choose between OpSets for multi user chat...
+        if (protocolProvider.getOperationSet(
+            OperationSetMultiUserChat.class) != null
+            || protocolProvider.getOperationSet(
+                OperationSetAdHocMultiUserChat.class) != null)
         {
             return chatSession.getCurrentChatTransport();
         }
+
         else
         {
             Iterator<ChatTransport> chatTransportsIter
@@ -1838,7 +1846,7 @@ public class ChatPanel
                                 Collection<String> chatContacts,
                                 String reason)
     {
-        ChatSession conferenceChatSession;
+        ChatSession conferenceChatSession = null;
 
         if (chatSession instanceof MetaContactChatSession)
         {
@@ -1849,14 +1857,31 @@ public class ChatPanel
             ConferenceChatManager conferenceChatManager
                 = GuiActivator.getUIService().getConferenceChatManager();
 
-            ChatRoomWrapper chatRoomWrapper
-                = conferenceChatManager.createChatRoom(newChatName,
-                        inviteChatTransport.getProtocolProvider());
+            // the chat session is set regarding to which OpSet is used for MUC
+            if(inviteChatTransport.getProtocolProvider().
+                    getOperationSet(OperationSetMultiUserChat.class) != null)
+            {
+                ChatRoomWrapper chatRoomWrapper
+                    = conferenceChatManager.createChatRoom(newChatName,
+                        inviteChatTransport.getProtocolProvider(), chatContacts);
 
-            conferenceChatSession
-                = new ConferenceChatSession(this, chatRoomWrapper);
+                conferenceChatSession
+                    = new ConferenceChatSession(this, chatRoomWrapper);
+            }
+            else if (inviteChatTransport.getProtocolProvider().
+                getOperationSet(OperationSetAdHocMultiUserChat.class) != null)
+            {
+                AdHocChatRoomWrapper chatRoomWrapper
+                    = conferenceChatManager.createAdHocChatRoom(newChatName,
+                            inviteChatTransport.getProtocolProvider(),
+                            chatContacts);
 
-            this.setChatSession(conferenceChatSession);
+                conferenceChatSession
+                    = new AdHocConferenceChatSession(this, chatRoomWrapper);
+            }
+
+            if (conferenceChatSession != null)
+                this.setChatSession(conferenceChatSession);
         }
         // We're already in a conference chat.
         else

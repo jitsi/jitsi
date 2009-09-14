@@ -386,6 +386,21 @@ public class MainFrame
             multiUserChat.addPresenceListener(conferenceManager);
         }
 
+        // Obtain the ad-hoc multi user chat operation set.
+        OperationSetAdHocMultiUserChat adHocMultiChatOpSet = 
+            (OperationSetAdHocMultiUserChat) protocolProvider
+                .getOperationSet(OperationSetAdHocMultiUserChat.class);
+
+        if (adHocMultiChatOpSet != null)
+        {
+            ConferenceChatManager conferenceManager
+                = GuiActivator.getUIService().getConferenceChatManager();
+
+            adHocMultiChatOpSet.addInvitationListener(conferenceManager);
+            adHocMultiChatOpSet.addInvitationRejectionListener(conferenceManager);
+            adHocMultiChatOpSet.addPresenceListener(conferenceManager);
+        }
+
         // Obtain file transfer operation set.
         OperationSetFileTransfer fileTransferOpSet
             = (OperationSetFileTransfer) protocolProvider
@@ -578,6 +593,26 @@ public class MainFrame
 
         return (opSet instanceof OperationSetBasicTelephony)
             ? (OperationSetBasicTelephony) opSet
+            : null;
+    }
+
+    /**
+     * Returns the multi user chat operation set for the given protocol provider.
+     *
+     * @param protocolProvider The protocol provider for which the multi user
+     * chat operation set is about.
+     * @return OperationSetAdHocMultiUserChat The telephony operation
+     * set for the given protocol provider.
+     */
+    public OperationSetAdHocMultiUserChat getAdHocMultiUserChatOpSet(
+            ProtocolProviderService protocolProvider)
+    {
+        OperationSet opSet
+            = protocolProvider.getOperationSet(
+                    OperationSetAdHocMultiUserChat.class);
+
+        return (opSet instanceof OperationSetAdHocMultiUserChat)
+            ? (OperationSetAdHocMultiUserChat) opSet
             : null;
     }
 

@@ -4,47 +4,53 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.protocol.msn;
+package net.java.sip.communicator.impl.protocol.icq;
 
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * The MSN implementation of the <tt>ChatRoomInvitation</tt> interface.
- * @author Rupert Burchardi
+ * The ICQ implementation of the <tt>ChatRoomInvitation</tt> interface for 
+ * ad-hoc chat rooms.
+ * 
+ * @author Valentin Martinet
  */
-public class ChatRoomInvitationMsnImpl implements ChatRoomInvitation
+public class AdHocChatRoomInvitationIcqImpl
+    implements AdHocChatRoomInvitation
 {
    /**
-    * Corresponding chat room instance.
+    * Corresponding ad-hoc chat room instance.
     */
-   private ChatRoom chatRoom;
+   private AdHocChatRoom chatRoom;
+
    /**
     * The name of the inviter
     */
    private String inviter;
+
    /**
-    * The invitation reason. Note: Not supported in the msn protocol.
+    * The invitation reason.
     */
    private String reason;
 
    /**
-    * The password. Note: Not supported in the msn protocol.
+    * The password. 
     */
    private byte[] password;
 
    /**
-    * Creates an instance of the <tt>ChatRoomInvitationMsnImpl</tt> by
+    * Creates an instance of the <tt>AdHocChatRoomInvitationIcqImpl</tt> by
     * specifying the targetChatRoom, the inviter, the reason and the password.
     * 
-    * @param targetChatRoom The <tt>ChatRoom</tt> for which the invitation is
-    * @param inviter The <tt>ChatRoomMember</tt>, which sent the invitation
+    * @param targetChatRoom The <tt>AdHocChatRoom</tt> for which the invitation
+    * is
+    * @param inviter The <tt>Contact</tt>, which sent the invitation
     * @param reason The Reason for the invitation
     * @param password The password
     */
-   public ChatRoomInvitationMsnImpl(ChatRoom targetChatRoom,
-                                    String inviter,
-                                    String reason,
-                                    byte[] password)
+   public AdHocChatRoomInvitationIcqImpl(AdHocChatRoom     targetChatRoom, 
+                                            String         inviter,
+                                            String         reason, 
+                                            byte[]         password)
    {
        this.chatRoom = targetChatRoom;
        this.inviter = inviter;
@@ -53,10 +59,10 @@ public class ChatRoomInvitationMsnImpl implements ChatRoomInvitation
    }
 
    /**
-    * Returns the corresponding chat room.
-    * @return The chat room
+    * Returns the corresponding ad-hoc chat room.
+    * @return The ad-hoc chat room
     */
-   public ChatRoom getTargetChatRoom()
+   public AdHocChatRoom getTargetAdHocChatRoom()
    {
        return chatRoom;
    }
@@ -78,11 +84,12 @@ public class ChatRoomInvitationMsnImpl implements ChatRoomInvitation
    {
        return reason;
    }
+
    /**
     * Returns the password of the chat room.
     * @return The password
     */
-   public byte[] getChatRoomPassword()
+   public byte[] getAdHocChatRoomPassword()
    {
        return password;
    }

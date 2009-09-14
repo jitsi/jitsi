@@ -342,11 +342,12 @@ public class ProtocolProviderServiceYahooImpl
                 basicInstantMessaging);
 
            //initialize the multi user chat operation set
-            OperationSetMultiUserChatYahooImpl multiUserChatOpSet =
-               new OperationSetMultiUserChatYahooImpl(this);
+            OperationSetAdHocMultiUserChatYahooImpl multiUserChatOpSet =
+               new OperationSetAdHocMultiUserChatYahooImpl(this);
 
-            supportedOperationSets.put(OperationSetMultiUserChat.class.getName(),
-                   multiUserChatOpSet);
+            supportedOperationSets.put(
+                    OperationSetAdHocMultiUserChat.class.getName(),
+                    multiUserChatOpSet);
 
             //initialize the typing notifications operation set
             typingNotifications =

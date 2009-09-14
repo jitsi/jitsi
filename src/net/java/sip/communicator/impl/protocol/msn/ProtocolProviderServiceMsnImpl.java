@@ -261,12 +261,13 @@ public class ProtocolProviderServiceMsnImpl
         {
             this.accountID = accountID;
 
-            supportedOperationSets.put(OperationSetInstantMessageTransform.class.getName(), 
+            supportedOperationSets.put(
+                OperationSetInstantMessageTransform.class.getName(), 
                 new OperationSetInstantMessageTransformImpl());
-            
+
             //initialize the presence operationset
             persistentPresence = new OperationSetPersistentPresenceMsnImpl(this);
-            
+
             supportedOperationSets.put(
                 OperationSetPersistentPresence.class.getName(),
                 persistentPresence);
@@ -275,16 +276,15 @@ public class ProtocolProviderServiceMsnImpl
             supportedOperationSets.put( OperationSetPresence.class.getName(),
                                         persistentPresence);
 
-            // initialize the multi user chat operation set
-           OperationSetMultiUserChat multiUserChat = new OperationSetMultiUserChatMsnImpl(
-                   this);
+           OperationSetAdHocMultiUserChat adHocMultiUserChat = 
+               new OperationSetAdHocMultiUserChatMsnImpl(this);
 
-           supportedOperationSets.put(OperationSetMultiUserChat.class
-                   .getName(), multiUserChat);
+           supportedOperationSets.put(OperationSetAdHocMultiUserChat.class
+                   .getName(), adHocMultiUserChat);
 
            // initialize the IM operation set
-           OperationSetBasicInstantMessagingMsnImpl basicInstantMessaging = new OperationSetBasicInstantMessagingMsnImpl(
-                   this);
+           OperationSetBasicInstantMessagingMsnImpl basicInstantMessaging
+               = new OperationSetBasicInstantMessagingMsnImpl(this);
 
            supportedOperationSets.put(OperationSetBasicInstantMessaging.class
                    .getName(), basicInstantMessaging);

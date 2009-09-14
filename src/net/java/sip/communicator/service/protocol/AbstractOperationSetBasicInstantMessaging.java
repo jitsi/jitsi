@@ -128,11 +128,11 @@ public abstract class AbstractOperationSetBasicInstantMessaging
     }
 
     enum MessageEventType{
-    	None,
-    	MessageDelivered,
-    	MessageReceived,
-    	MessageDeliveryFailed,
-    	MessageDeliveryPending,
+        None,
+        MessageDelivered,
+        MessageReceived,
+        MessageDeliveryFailed,
+        MessageDeliveryPending,
     }
     
     /**
@@ -157,21 +157,21 @@ public abstract class AbstractOperationSetBasicInstantMessaging
         MessageEventType eventType = MessageEventType.None;
         if (evt instanceof MessageDeliveredEvent)
         {
-        	eventType = MessageEventType.MessageDelivered;
+            eventType = MessageEventType.MessageDelivered;
         }
         else if (evt instanceof MessageReceivedEvent)
         {
-        	eventType = MessageEventType.MessageReceived;
+            eventType = MessageEventType.MessageReceived;
         }
         else if (evt instanceof MessageDeliveryFailedEvent)
         {
-        	eventType = MessageEventType.MessageDeliveryFailed;   
+            eventType = MessageEventType.MessageDeliveryFailed;   
         }
         
         // Transform the event.
         evt = messageTransform(evt, eventType);
         if (evt == null)
-        	return;
+            return;
         
         for (Iterator<MessageListener> listenerIter = listeners.iterator(); listenerIter
             .hasNext();)
@@ -179,15 +179,15 @@ public abstract class AbstractOperationSetBasicInstantMessaging
             MessageListener listener = listenerIter.next();
             switch (eventType){
             case MessageDelivered:
-            	listener.messageDelivered((MessageDeliveredEvent) evt);
-            	break;
+                listener.messageDelivered((MessageDeliveredEvent) evt);
+                break;
             case MessageDeliveryFailed:
-            	listener
+                listener
                 .messageDeliveryFailed((MessageDeliveryFailedEvent) evt);
-            	break;
+                break;
             case MessageReceived:
-            	listener.messageReceived((MessageReceivedEvent) evt);
-            	break;
+                listener.messageReceived((MessageReceivedEvent) evt);
+                break;
             }
         }
     }
@@ -221,35 +221,35 @@ public abstract class AbstractOperationSetBasicInstantMessaging
     }
     
     public MessageDeliveredEvent messageDeliveryPendingTransform(MessageDeliveredEvent evt){
-    	return (MessageDeliveredEvent)messageTransform(evt, MessageEventType.MessageDeliveryPending);
+        return (MessageDeliveredEvent)messageTransform(evt, MessageEventType.MessageDeliveryPending);
     }
     
     private EventObject messageTransform(EventObject evt, MessageEventType eventType){
-    	
-    	ProtocolProviderService protocolProvider;
-    	switch (eventType){
-    	case MessageDelivered:
-    		protocolProvider = ((MessageDeliveredEvent)evt).getDestinationContact().getProtocolProvider();
-    		break;
-    	case MessageDeliveryFailed:
-    		protocolProvider = ((MessageDeliveryFailedEvent)evt).getDestinationContact().getProtocolProvider();
-    		break;
-    	case MessageDeliveryPending:
-    		protocolProvider = ((MessageDeliveredEvent)evt).getDestinationContact().getProtocolProvider();
-    		break;
-    	case MessageReceived:
-    		protocolProvider = ((MessageReceivedEvent)evt).getSourceContact().getProtocolProvider();
-    		break;
-    	default:
-    			return evt;
-    	}
-    	
-    	OperationSetInstantMessageTransformImpl opSetMessageTransform = 
+        
+        ProtocolProviderService protocolProvider;
+        switch (eventType){
+        case MessageDelivered:
+            protocolProvider = ((MessageDeliveredEvent)evt).getDestinationContact().getProtocolProvider();
+            break;
+        case MessageDeliveryFailed:
+            protocolProvider = ((MessageDeliveryFailedEvent)evt).getDestinationContact().getProtocolProvider();
+            break;
+        case MessageDeliveryPending:
+            protocolProvider = ((MessageDeliveredEvent)evt).getDestinationContact().getProtocolProvider();
+            break;
+        case MessageReceived:
+            protocolProvider = ((MessageReceivedEvent)evt).getSourceContact().getProtocolProvider();
+            break;
+        default:
+                return evt;
+        }
+        
+        OperationSetInstantMessageTransformImpl opSetMessageTransform = 
             (OperationSetInstantMessageTransformImpl)protocolProvider.getOperationSet(OperationSetInstantMessageTransform.class);
 
-    	if (opSetMessageTransform == null)
-    		return evt;
-    	
+        if (opSetMessageTransform == null)
+            return evt;
+        
         for (Map.Entry<Integer, Vector<TransformLayer>> entry
                 : opSetMessageTransform.transformLayers.entrySet())
         {

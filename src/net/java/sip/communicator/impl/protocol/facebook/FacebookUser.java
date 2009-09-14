@@ -16,48 +16,48 @@ import org.json.*;
  */
 public class FacebookUser
 {
-	/*{"listChanged":true,
-	"availableCount":2,
-	
-	"nowAvailableList":
-	{"1355527894":{"i":false},
-		"1386786477":{"i":false}},
-		
-			"wasAvailableIDs":[],
-			
-			"userInfos":{
-				"1355527894":
-				{"name":"Dai Zhiwei",
-					"firstName":"Dai",
-					"thumbSrc":"http:\/\/profile.ak.facebook.com\/v225\/1132\/119\/q1355527894_6497.jpg",
-					"status":null,
-					"statusTime":0,
-					"statusTimeRel":""},
-					"1386786477":
-					{"name":"\u5341\u4e00",
-						"firstName":"\u4e00",
-						"thumbSrc":"http:\/\/static.ak.fbcdn.net\/pics\/q_silhouette.gif",
-						"status":null,
-						"statusTime":0,
-						"statusTimeRel":""},
-						"1190346972":
-						{"name":"David Willer",
-							"firstName":"David",
-							"thumbSrc":"http:\/\/profile.ak.facebook.com\/profile5\/54\/96\/q1190346972_3586.jpg",
-							"status":null,
-							"statusTime":0,
-							"statusTimeRel":""}},
-							
-							"forcedRender":true,
-							"flMode":false,
-							"flData":{}}*/
+    /*{"listChanged":true,
+    "availableCount":2,
+    
+    "nowAvailableList":
+    {"1355527894":{"i":false},
+        "1386786477":{"i":false}},
+        
+            "wasAvailableIDs":[],
+            
+            "userInfos":{
+                "1355527894":
+                {"name":"Dai Zhiwei",
+                    "firstName":"Dai",
+                    "thumbSrc":"http:\/\/profile.ak.facebook.com\/v225\/1132\/119\/q1355527894_6497.jpg",
+                    "status":null,
+                    "statusTime":0,
+                    "statusTimeRel":""},
+                    "1386786477":
+                    {"name":"\u5341\u4e00",
+                        "firstName":"\u4e00",
+                        "thumbSrc":"http:\/\/static.ak.fbcdn.net\/pics\/q_silhouette.gif",
+                        "status":null,
+                        "statusTime":0,
+                        "statusTimeRel":""},
+                        "1190346972":
+                        {"name":"David Willer",
+                            "firstName":"David",
+                            "thumbSrc":"http:\/\/profile.ak.facebook.com\/profile5\/54\/96\/q1190346972_3586.jpg",
+                            "status":null,
+                            "statusTime":0,
+                            "statusTimeRel":""}},
+                            
+                            "forcedRender":true,
+                            "flMode":false,
+                            "flData":{}}*/
     public static String defaultThumbSrc = "http://static.ak.fbcdn.net/pics/q_silhouette.gif";
     
     public static String defaultAvatarSrc = "http://static.ak.fbcdn.net/pics/d_silhouette.gif";
     
-	public String uid;
-	
-	public boolean isIdle;
+    public String uid;
+    
+    public boolean isIdle;
 
     public String name;
 
@@ -91,9 +91,9 @@ public class FacebookUser
         thumbSrc = (String) user.get("thumbSrc");
         Object temp = user.get("status");
         if(!temp.equals(org.json.JSONObject.NULL))
-			status = (String)temp;
-		else
-			status = "";
+            status = (String)temp;
+        else
+            status = "";
         statusTime = (Number) user.get("statusTime");
         statusTimeRel = (String) user.get("statusTimeRel");
 

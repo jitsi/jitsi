@@ -1,0 +1,513 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+package net.java.sip.communicator.impl.protocol.icq;
+
+import java.util.*;
+
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.Logger;
+import net.kano.joscar.*;
+import net.kano.joustsim.oscar.oscar.service.chatrooms.*;
+
+/**
+ * A ICQ implementation of the ad-hoc multi user chat operation set.
+ *
+ * @author Valentin Martinet
+ */
+public class OperationSetAdHocMultiUserChatIcqImpl
+    implements  OperationSetAdHocMultiUserChat
+{
+   private static final Logger logger = Logger
+           .getLogger(OperationSetAdHocMultiUserChatIcqImpl.class);
+
+   /**
+    * The currently valid ICQ protocol provider service implementation.
+    */
+   private ProtocolProviderServiceIcqImpl icqProvider = null;
+
+   /**
+    * A list of listeners subscribed for invitations multi user chat events.
+    */
+   private Vector<AdHocChatRoomInvitationListener> invitationListeners
+       = new Vector<AdHocChatRoomInvitationListener>();
+
+   /**
+    * A list of listeners subscribed for events indicating rejection of a
+    * multi user chat invitation sent by us.
+    */
+   private Vector<AdHocChatRoomInvitationRejectionListener>
+       invitationRejectionListeners
+           = new Vector<AdHocChatRoomInvitationRejectionListener>();
+
+   /**
+    * Listeners that will be notified of changes in our status in the
+    * room such as us being kicked, banned, or granted admin permissions.
+    */
+   private Vector<LocalUserAdHocChatRoomPresenceListener> presenceListeners
+       = new Vector<LocalUserAdHocChatRoomPresenceListener>();
+
+   /**
+    * A list of the rooms that are currently open by this account. Note that
+    * we have not necessarily joined these rooms, we might have simply been
+    * searching through them.
+    */
+   private Hashtable<String, AdHocChatRoom> chatRoomCache
+       = new Hashtable<String, AdHocChatRoom>();
+
+   /**
+   * The registration listener that would get notified when the underlying
+   * ICQ provider gets registered.
+   */
+   private RegistrationStateListener providerRegListener
+       = new RegistrationStateListener();
+
+   /**
+   * A reference to the persistent presence operation set that we use
+   * to match incoming messages to <tt>Contact</tt>s and vice versa.
+   */
+   protected OperationSetPersistentPresenceIcqImpl opSetPersPresence = null;
+
+   /**
+    * Hash table that contains all invitations, this is needed if the user wants
+    * to reject an invitation.
+    */
+   private Hashtable<AdHocChatRoom, ChatInvitation> invitations
+       = new Hashtable<AdHocChatRoom, ChatInvitation>();
+
+   /**
+   * Instantiates the user operation set with a currently valid instance of
+   * the Icq protocol provider.
+   * @param icqProvider a currently valid instance of
+   * ProtocolProviderServiceIcqImpl.
+   */
+   OperationSetAdHocMultiUserChatIcqImpl(
+           ProtocolProviderServiceIcqImpl icqProvider)
+   {
+       this.icqProvider = icqProvider;
+       icqProvider.addRegistrationStateChangeListener(providerRegListener);
+   }
+
+   /**
+   * Adds a listener to invitation notifications.
+   *
+   * @param listener an invitation listener.
+   */
+   public void addInvitationListener(AdHocChatRoomInvitationListener listener)
+   {
+       synchronized (invitationListeners)
+       {
+           if (!invitationListeners.contains(listener))
+               invitationListeners.add(listener);
+       }
+   }
+
+   /**
+    * Subscribes <tt>listener</tt> so that it would receive events indicating
+    * rejection of a multi user chat invitation that we've sent earlier.
+    *
+    * @param listener the listener that we'll subscribe for invitation
+    * rejection events.
+    */
+   public void addInvitationRejectionListener(
+           AdHocChatRoomInvitationRejectionListener listener)
+   {
+       synchronized (invitationRejectionListeners)
+       {
+           if (!invitationRejectionListeners.contains(listener))
+               invitationRejectionListeners.add(listener);
+       }
+   }
+
+   /**
+    * Adds a listener that will be notified of changes in our status in a chat
+    * room such as us being kicked, banned or dropped.
+    *
+    * @param listener the <tt>LocalUserAdHocChatRoomPresenceListener</tt>.
+    */
+   public void addPresenceListener(
+           LocalUserAdHocChatRoomPresenceListener listener)
+   {
+       synchronized (presenceListeners)
+       {
+           if (!presenceListeners.contains(listener))
+               presenceListeners.add(listener);
+       }
+   }
+
+   /**
+   * Returns a reference to a chatRoom by an given chat invitation. This method
+   * is called, when the user received a chat invitation. The chat room will be
+   * created and the chatInvitation will be saved in the created chat room. This
+   * ensures to get the chat room session for each chat room.
+   * 
+   * @param chatInvitation The Chat invitation the user received
+   * @return A chat room based on the chat invitation
+   * @throws OperationFailedException if an error occurs while trying to
+   * discover the room on the server.
+   * @throws OperationNotSupportedException if the server does not support
+   * multi user chat
+   */
+   public AdHocChatRoom findRoom(ChatInvitation chatInvitation)
+           throws OperationFailedException, OperationNotSupportedException
+   {
+       AdHocChatRoom chatRoom = (AdHocChatRoom) chatRoomCache.get(chatInvitation
+               .getRoomName());
+
+       if (chatRoom == null)
+       {
+           chatRoom = createLocalChatRoomInstance(chatInvitation);
+       }
+
+       return chatRoom;
+   }
+
+   /**
+    * Creates an <tt>AdHocChatRoom</tt> from the specified smack
+    * <tt>MultiUserChat</tt>.
+    *
+    * @param chatInvitation The chat invitation we received from the
+    * chatRoomManager
+    *
+    * @return ChatRoom the chat room that we've just created.
+    */
+
+   private AdHocChatRoom createLocalChatRoomInstance(
+           ChatInvitation chatInvitation)
+   {
+       synchronized (chatRoomCache)
+       {
+           AdHocChatRoom newChatRoom = new AdHocChatRoomIcqImpl(chatInvitation,
+                   icqProvider);
+
+           chatRoomCache.put(chatInvitation.getRoomName(), newChatRoom);
+           return newChatRoom;
+       }
+   }
+
+   /**
+    * Creates a room with the named <tt>roomName</tt> and according to the
+    * specified <tt>roomProperties</tt> on the server that this protocol
+    * provider is currently connected to.
+    *
+    * @param roomName the name of the <tt>AdHocChatRoom</tt> to create.
+    * @param roomProperties properties specifying how the room should be
+    *   created. Contains list of invitees and the invitation message.
+    *
+    * @throws OperationFailedException if the room couldn't be created for
+    * some reason (e.g. room already exists; user already joined to an
+    * existent room or user has no permissions to create an ad-hoc chat room).
+    * @throws OperationNotSupportedException if ad-hoc chat room creation is not
+    * supported by this server
+    *
+    * @return AdHocChatRoom the ad-hoc chat room that we've just created.
+    */
+   public AdHocChatRoom createAdHocChatRoom( String roomName,
+                                   Map<String, Object> roomProperties)
+           throws  OperationFailedException,
+                   OperationNotSupportedException
+   {
+       AdHocChatRoom chatRoom = null;
+
+       ChatRoomManager chatRoomManager = icqProvider.getAimConnection()
+               .getChatRoomManager();
+
+       ChatRoomSession chatRoomSession = chatRoomManager.joinRoom(roomName);
+
+       if(chatRoomSession != null)
+       {
+           chatRoom = new AdHocChatRoomIcqImpl(  roomName,
+                                            chatRoomSession,
+                                            icqProvider);
+       }
+
+       return chatRoom;
+   }
+   
+   /**
+    * Creates an ad-hoc room with the named <tt>adHocRoomName</tt> and in 
+    * including to the specified <tt>contacts</tt>. When the method
+    * returns the ad-hoc room the local user will not have joined it and thus 
+    * will not receive messages on it until the <tt>AdHocChatRoom.join()</tt> 
+    * method is called.
+    * 
+    * NOTE: this method was done for the Yahoo! implementation. But since both
+    * Yahoo! and ICQ are implementing the ad-hoc multi-user-chat operation set,
+    * we have to define this method here.
+    * 
+    * @param adHocRoomName the name of the ad-hoc room
+    * @param contacts the list of contacts
+    * 
+    * @throws OperationFailedException
+    * @throws OperationNotSupportedException
+    */
+   public AdHocChatRoom createAdHocChatRoom(String adHocRoomName,
+       List<Contact> contacts)
+       throws  OperationFailedException,
+               OperationNotSupportedException
+   {
+       AdHocChatRoom chatRoom = null;
+
+       ChatRoomManager chatRoomManager = icqProvider.getAimConnection()
+               .getChatRoomManager();
+
+       ChatRoomSession chatRoomSession = chatRoomManager.joinRoom(adHocRoomName);
+
+       if(chatRoomSession != null)
+       {
+           chatRoom = new AdHocChatRoomIcqImpl(  adHocRoomName,
+                                            chatRoomSession,
+                                            icqProvider);
+       }
+
+       return chatRoom;
+   }
+   
+   /**
+    * Returns a reference to a chatRoom named <tt>roomName</tt> or null if
+    * no such room exists.
+    *
+    * @param roomName the name of the <tt>AdHocChatRoom</tt> that we're looking
+    *   for.
+    * @return the <tt>AdHocChatRoom</tt> named <tt>roomName</tt> or null if no
+    *   such room exists on the server that this provider is currently
+    *   connected to.
+    * @throws OperationFailedException if an error occurs while trying to
+    * discover the room on the server.
+    * @throws OperationNotSupportedException if the server does not support
+    * multi user chat
+    */
+
+   public AdHocChatRoom findRoom(String roomName) 
+           throws OperationFailedException, OperationNotSupportedException
+   {
+       AdHocChatRoom room = (AdHocChatRoom) chatRoomCache.get(roomName);
+
+       return room;
+   }
+
+   /**
+    * Returns true if <tt>contact</tt> supports multi user chat sessions.
+    *
+    * @param contact reference to the contact whose support for chat rooms
+    *   we are currently querying.
+    * @return a boolean indicating whether <tt>contact</tt> supports
+    *   chat rooms.
+    */
+   public boolean isMultiChatSupportedByContact(Contact contact)
+   {
+       if (contact.getProtocolProvider().getOperationSet(
+               OperationSetAdHocMultiUserChat.class) != null)
+           return true;
+
+       return false;
+   }
+
+   /**
+   * Informs the sender of an invitation that we decline their invitation.
+   *
+   * @param invitation the connection to use for sending the rejection.
+   * @param rejectReason the reason to reject the given invitation
+   */
+   public void rejectInvitation(AdHocChatRoomInvitation invitation,
+           String rejectReason)
+   {
+       ChatInvitation inv = (ChatInvitation) invitations.get(invitation
+               .getTargetAdHocChatRoom());
+
+       if (inv != null)
+       {   //send the rejection
+           inv.reject();
+       }
+       //remove the invitation
+       invitations.remove(invitation.getTargetAdHocChatRoom());
+   }
+
+   /**
+    * Removes <tt>listener</tt> from the list of invitation listeners
+    * registered to receive invitation events.
+    *
+    * @param listener the invitation listener to remove.
+    */
+   public void removeInvitationListener(
+           AdHocChatRoomInvitationListener listener)
+   {
+       synchronized (invitationListeners)
+       {
+           invitationListeners.remove(listener);
+       }
+   }
+
+   /**
+    * Removes <tt>listener</tt> from the list of invitation listeners
+    * registered to receive invitation rejection events.
+    *
+    * @param listener the invitation listener to remove.
+    */
+   public void removeInvitationRejectionListener(
+           AdHocChatRoomInvitationRejectionListener listener)
+   {
+       synchronized (invitationRejectionListeners)
+       {
+           invitationRejectionListeners.remove(listener);
+       }
+   }
+
+   /**
+    * Removes a listener that was being notified of changes in our status in
+    * a room such as us being joined or dropped.
+    *
+    * @param listener the <tt>LocalUserAdHocChatRoomPresenceListener</tt>.
+    */
+   public void removePresenceListener(
+           LocalUserAdHocChatRoomPresenceListener listener)
+   {
+       synchronized (presenceListeners)
+       {
+           presenceListeners.remove(listener);
+       }
+   }
+
+   /**
+   * Delivers a <tt>AdHocChatRoomInvitationReceivedEvent</tt> to all
+   * registered <tt>AdHocChatRoomInvitationListener</tt>s.
+   * 
+   * @param targetChatRoom the ad-hoc room that invitation refers to
+   * @param inviter the inviter that sent the invitation
+   * @param reason the reason why the inviter sent the invitation
+   * @param password the password to use when joining the room 
+   */
+   public void fireInvitationEvent(AdHocChatRoom targetChatRoom, String inviter,
+           String reason, byte[] password)
+   {
+       AdHocChatRoomInvitationIcqImpl invitation =
+           new AdHocChatRoomInvitationIcqImpl(
+               targetChatRoom, inviter, reason, password);
+
+       AdHocChatRoomInvitationReceivedEvent evt
+           = new AdHocChatRoomInvitationReceivedEvent(
+               this, invitation, new Date(System.currentTimeMillis()));
+
+       Iterator<AdHocChatRoomInvitationListener> listeners = null;
+       synchronized (invitationListeners)
+       {
+           listeners = new ArrayList<AdHocChatRoomInvitationListener>
+                           (invitationListeners).iterator();
+       }
+
+       while (listeners.hasNext())
+       {
+           AdHocChatRoomInvitationListener listener
+               = (AdHocChatRoomInvitationListener) listeners.next();
+
+           listener.invitationReceived(evt);
+       }
+   }
+
+   /**
+    * Delivers a <tt>LocalUserAdHocChatRoomPresenceChangeEvent</tt> to all
+    * registered <tt>LocalUserAdHocChatRoomPresenceListener</tt>s.
+    * 
+    * @param chatRoom the <tt>AdHocChatRoom</tt> which has been joined, left,
+    * etc.
+    * @param eventType the type of this event; one of LOCAL_USER_JOINED,
+    * LOCAL_USER_LEFT, etc.
+    * @param reason the reason
+    */
+   public void fireLocalUserPresenceEvent( AdHocChatRoom chatRoom,
+                                           String eventType,
+                                           String reason)
+   {
+       LocalUserAdHocChatRoomPresenceChangeEvent evt = 
+           new LocalUserAdHocChatRoomPresenceChangeEvent(
+               this, chatRoom, eventType, reason);
+
+       Iterator<LocalUserAdHocChatRoomPresenceListener> listeners = null;
+       synchronized (presenceListeners)
+       {
+           listeners = new ArrayList<LocalUserAdHocChatRoomPresenceListener>
+                           (presenceListeners).iterator();
+       }
+
+       while (listeners.hasNext())
+       {
+           LocalUserAdHocChatRoomPresenceListener listener
+               = (LocalUserAdHocChatRoomPresenceListener) listeners.next();
+
+           listener.localUserAdHocPresenceChanged(evt);
+       }
+   }
+
+   /**
+    * Our listener that will tell us when we're registered to icq and joust
+    * sim is ready to accept us as a listener.
+    */
+   private class RegistrationStateListener implements
+           RegistrationStateChangeListener
+   {
+       /**
+        * The method is called by a ProtocolProvider implementation whenever
+        * a change in the registration state of the corresponding provider had
+        * occurred.
+        * @param evt ProviderStatusChangeEvent the event describing the status
+        * change.
+        */
+       public void registrationStateChanged(RegistrationStateChangeEvent evt)
+       {
+           logger.debug("The ICQ provider changed state from: "
+                   + evt.getOldState() + " to: " + evt.getNewState());
+           if (evt.getNewState() == RegistrationState.REGISTERED)
+           {
+               String customMessageEncoding = null;
+               if ((customMessageEncoding = System
+                       .getProperty("icq.custom.message.charset")) != null)
+                   OscarTools.setDefaultCharset(customMessageEncoding);
+
+               opSetPersPresence =
+                    (OperationSetPersistentPresenceIcqImpl) icqProvider
+                        .getOperationSet(OperationSetPersistentPresence.class);
+
+               //add ChatRoomMangagerListener
+               icqProvider.getAimConnection().getChatRoomManager()
+                       .addListener(new ChatRoomManagerListenerImpl());
+           }
+       }
+   }
+
+   /**
+    * Our listener for chat room invitations. 
+    *
+    */
+   private class ChatRoomManagerListenerImpl
+       implements ChatRoomManagerListener
+   {
+       public void handleInvitation(ChatRoomManager chatRoomManager,
+               ChatInvitation chatInvitation)
+       {
+           logger
+                   .debug("Invitation received: "
+                           + chatInvitation.getRoomName());
+           try
+           {
+               AdHocChatRoom chatRoom = findRoom(chatInvitation);
+               // save chatInvitation, for a possible rejection
+               invitations.put(chatRoom, chatInvitation);
+
+               fireInvitationEvent(chatRoom, chatInvitation.getScreenname()
+                       .toString(), chatInvitation.getMessage(), null);
+           }
+           catch (OperationNotSupportedException onse)
+           {
+               logger.debug("Failed to handle ChatInvitation: " + onse);
+           }
+           catch (OperationFailedException ofe)
+           {
+               logger.debug("Failed to handle ChatInvitation: " + ofe);
+           }
+       }
+   }
+}

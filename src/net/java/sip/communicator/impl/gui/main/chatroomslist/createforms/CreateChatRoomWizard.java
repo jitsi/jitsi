@@ -21,11 +21,11 @@ public class CreateChatRoomWizard
     implements  WizardListener
 {
     private NewChatRoom newChatRoom = new NewChatRoom();
-    
+
     private CreateChatRoomWizardPage1 page1;
-    
+
     private CreateChatRoomWizardPage2 page2;
-    
+
     /**
      * Creates an instance of <tt>CreateChatRoomWizard</tt>.
      *  
@@ -64,7 +64,8 @@ public class CreateChatRoomWizard
         {
             GuiActivator.getUIService().getConferenceChatManager()
                 .createChatRoom(newChatRoom.getChatRoomName(),
-                                newChatRoom.getProtocolProvider());
+                                newChatRoom.getProtocolProvider(),
+                                null);
         }
     }
 }

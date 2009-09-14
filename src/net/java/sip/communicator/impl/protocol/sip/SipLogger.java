@@ -33,31 +33,31 @@ public class SipLogger
      * Implementation of StackLogger
      */
 
-	/**
+    /**
      * log a stack trace. This helps to look at the stack frame.
      */
-	public void logStackTrace()
+    public void logStackTrace()
     {
         logger.trace("JAIN-SIP stack trace", new Throwable());
     }
 
-	public void logStackTrace(int traceLevel)
+    public void logStackTrace(int traceLevel)
     {
         // FIXE ME: don't ignore the level?
         logger.trace("JAIN-SIP stack trace", new Throwable());
     }
 
-	/**
+    /**
      * Get the line count in the log stream.
      *
      * @return line count
      */
-	public int getLineCount()
+    public int getLineCount()
     {
         return 0;
     }
 
-	/**
+    /**
      * Log an exception.
      *
      * @param ex

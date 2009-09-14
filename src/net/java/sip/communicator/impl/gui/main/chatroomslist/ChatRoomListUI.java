@@ -26,7 +26,8 @@ import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 public class ChatRoomListUI
     extends SCScrollPane
     implements  MouseListener,
-                ChatRoomListChangeListener
+                ChatRoomListChangeListener,
+                AdHocChatRoomListChangeListener
 {
     private final JList chatRoomList = new JList();
 
@@ -41,8 +42,11 @@ public class ChatRoomListUI
      */
     public ChatRoomListUI(ChatRoomListDialog parentDialog)
     {
-        GuiActivator.getUIService().getConferenceChatManager()
-            .addChatRoomListChangeListener(this);
+        ConferenceChatManager confChatManager
+            = GuiActivator.getUIService().getConferenceChatManager();
+
+        confChatManager.addChatRoomListChangeListener(this);
+        confChatManager.addAdHocChatRoomListChangeListener(this);
 
         this.treePanel.add(chatRoomList, BorderLayout.NORTH);
 
@@ -243,6 +247,45 @@ public class ChatRoomListUI
             }
         }
         else if (evt.getEventID() == ChatRoomListChangeEvent.CHAT_ROOM_CHANGED)
+        {
+            int index = chatRoomsListModel.indexOf(chatRoomWrapper);
+
+            chatRoomsListModel.contentChanged(index, index);
+        }
+    }
+
+    /**
+     * Updates the chat room list model when notified of a change in the chat
+     * room list.
+     */
+    public void contentChanged(AdHocChatRoomListChangeEvent evt)
+    {
+        AdHocChatRoomWrapper chatRoomWrapper = evt.getSourceAdHocChatRoom();
+
+        if (evt.getEventID()
+                == AdHocChatRoomListChangeEvent.AD_HOC_CHAT_ROOM_ADDED)
+        {
+            int index = chatRoomsListModel.indexOf(chatRoomWrapper);
+
+            if (index != -1)
+                chatRoomsListModel.contentAdded(index, index);
+        }
+        else if (evt.getEventID()
+                == AdHocChatRoomListChangeEvent.AD_HOC_CHAT_ROOM_REMOVED)
+        {
+            int groupIndex = chatRoomsListModel.indexOf(
+                chatRoomWrapper.getParentProvider());
+
+            int listSize = chatRoomsListModel.getSize();
+
+            if (groupIndex != -1 && listSize > 0)
+            {
+                chatRoomsListModel.contentChanged(groupIndex, listSize - 1);
+                chatRoomsListModel.contentRemoved(listSize, listSize);
+            }
+        }
+        else if (evt.getEventID()
+                == AdHocChatRoomListChangeEvent.AD_HOC_CHAT_ROOM_CHANGED)
         {
             int index = chatRoomsListModel.indexOf(chatRoomWrapper);
 

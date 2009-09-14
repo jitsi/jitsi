@@ -460,7 +460,7 @@ public class ChatWindow
         mainToolBar.changeHistoryButtonsState(chatPanel);
 
         chatPanel.requestFocusInWriteArea();
-        
+
         for (ChatChangeListener l : this.chatChangeListeners)
         {
             l.chatChanged(chatPanel);

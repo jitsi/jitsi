@@ -23,6 +23,7 @@ import net.java.sip.communicator.service.protocol.*;
  * Manages chat windows and panels.
  *
  * @author Yana Stamcheva
+ * @author Valentin Martinet
  */
 public class ChatWindowManager
 {
@@ -123,6 +124,27 @@ public class ChatWindowManager
                 && getChat(chatSession).isShown());
         }
     }
+    
+    /**
+     * Returns TRUE if there is an opened <tt>ChatPanel</tt> for the given
+     * <tt>AdHocChatRoom</tt>.
+     * @param chatRoomWrapper the <tt>AdHocChatRoomWrapper</tt>, for which the 
+     * ad-hoc chat is about
+     * @return TRUE if there is an opened <tt>ChatPanel</tt> for the given
+     * <tt>AdHocChatRoom</tt>
+     */
+    public boolean isChatOpenedForAdHocChatRoom(
+            AdHocChatRoomWrapper adHocChatRoomWrapper)
+    {
+        synchronized (syncChat)
+        {
+            ChatSession chatSession
+                = findChatSessionForDescriptor(adHocChatRoomWrapper);
+
+            return (chatSession != null
+                && getChat(chatSession).isShown());
+        }
+    }
 
     /**
      * Returns TRUE if there is an opened <tt>ChatPanel</tt> for the given
@@ -168,6 +190,43 @@ public class ChatWindowManager
 
                     if(chatRoomWrapper.getChatRoomID()
                             .equals(chatRoom.getIdentifier())
+                        && getChat(chatSession).isShown())
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+    }
+    
+    /**
+     * Returns TRUE if there is an opened <tt>ChatPanel</tt> for the given
+     * <tt>AdHocChatRoom</tt>.
+     * 
+     * @param adHocChatRoom the <tt>AdHocChatRoom</tt>, for which the ad-hoc 
+     * chat is about
+     * @return TRUE if there is an opened <tt>ChatPanel</tt> for the given
+     * <tt>AdHocChatRoom</tt>
+     */
+    public boolean isChatOpenedForAdHocChatRoom(AdHocChatRoom adHocChatRoom)
+    {
+        synchronized (syncChat)
+        {
+            for (ChatPanel chatPanel : chatPanels)
+            {
+                ChatSession chatSession = chatPanel.getChatSession();
+
+                Object descriptor = chatSession.getDescriptor();
+
+                if(descriptor instanceof AdHocChatRoomWrapper)
+                {
+                    AdHocChatRoomWrapper chatRoomWrapper
+                        = (AdHocChatRoomWrapper) descriptor;
+
+                    if(chatRoomWrapper.getAdHocChatRoomID()
+                            .equals(adHocChatRoom.getIdentifier())
                         && getChat(chatSession).isShown())
                     {
                         return true;
@@ -251,6 +310,11 @@ public class ChatWindowManager
 
                         closeChatPanel(chatPanel);
                     }
+                }
+                else if (chatPanel.getChatSession() instanceof
+                        AdHocConferenceChatSession)
+                {
+                    // TODO: close the chat room before closing the window!!!
                 }
                 else
                 {
@@ -476,7 +540,7 @@ public class ChatWindowManager
         synchronized (syncChat)
         {
             ChatSession chatSession
-                = findChatSessionForDescriptor(chatRoomWrapper);
+            = findChatSessionForDescriptor(chatRoomWrapper);
 
             if(chatSession != null)
             {
@@ -484,8 +548,42 @@ public class ChatWindowManager
             }
             else
                 return createChat(chatRoomWrapper);
-            }
         }
+    }
+
+    /**
+     * Returns the chat panel corresponding to the given chat room wrapper.
+     *
+     * @param chatRoomWrapper the ad-hoc chat room wrapper, corresponding to the
+     * ad-hoc chat room for which the chat panel is about
+     * @return the chat panel corresponding to the given chat room
+     */
+    public ChatPanel getAdHocMultiChat(AdHocChatRoomWrapper chatRoomWrapper)
+    {
+        synchronized (syncChat)
+        {
+            ChatSession chatSession
+            = findChatSessionForDescriptor(chatRoomWrapper);
+
+            if(chatSession != null)
+            {
+                return getChat(chatSession);
+            }
+            else
+                return createChat(chatRoomWrapper);
+        }
+    }
+
+    /**
+     * Returns the chat panel corresponding to the given ad-hoc chat room.
+     *
+     * @param adHocChatRoom the chat room, for which the chat panel is about
+     * @return the chat panel corresponding to the given ad-hoc chat room
+     */
+    public ChatPanel getAdHocMultiChat(AdHocChatRoom adHocChatRoom)
+    {
+        return getAdHocMultiChat(adHocChatRoom, null);
+    }
 
     /**
      * Returns the chat panel corresponding to the given chat room.
@@ -528,6 +626,51 @@ public class ChatWindowManager
                 chatRoomWrapper = new ChatRoomWrapper(parentProvider, chatRoom);
 
                 chatRoomList.addChatRoom(chatRoomWrapper);
+            }
+
+            ChatSession chatSession
+                = findChatSessionForDescriptor(chatRoomWrapper);
+
+            if (chatSession != null)
+            {
+                return getChat(chatSession);
+            }
+
+            return createChat(chatRoomWrapper, escapedMessageID);
+        }
+    }
+
+    /**
+     * Returns the chat panel corresponding to the given ad-hoc chat room.
+     *
+     * @param chatRoom the ad-hoc chat room, for which the chat panel is about
+     * @param escapedMessageID the message ID of the message that should be
+     * excluded from the history when the last one is loaded in the chat
+     * @return the chat panel corresponding to the given ad-hoc chat room
+     */
+    public ChatPanel getAdHocMultiChat( AdHocChatRoom     chatRoom,
+                                        String             escapedMessageID)
+    {
+        synchronized (syncChat)
+        {
+            AdHocChatRoomList chatRoomList = GuiActivator.getUIService()
+                .getConferenceChatManager().getAdHocChatRoomList();
+
+            // Search in the chat room's list for a chat room that correspond
+            // to the given one.
+            AdHocChatRoomWrapper chatRoomWrapper
+                = chatRoomList.findChatRoomWrapperFromAdHocChatRoom(chatRoom);
+
+            if (chatRoomWrapper == null)
+            {
+                AdHocChatRoomProviderWrapper parentProvider
+                    = chatRoomList.findServerWrapperFromProvider(
+                        chatRoom.getParentProvider());
+
+                chatRoomWrapper = 
+                    new AdHocChatRoomWrapper(parentProvider, chatRoom);
+
+                chatRoomList.addAdHocChatRoom(chatRoomWrapper);
             }
 
             ChatSession chatSession
@@ -710,10 +853,24 @@ public class ChatWindowManager
      * Creates a <tt>ChatPanel</tt> for the given <tt>ChatRoom</tt> and saves it
      * in the list of created <tt>ChatPanel</tt>s.
      *
-     * @param chatRoomWrapper the <tt>ChatRoom</tt>, for which the chat will be created
+     * @param chatRoomWrapper the <tt>ChatRoom</tt>, for which the chat will be
+     * created
      * @return The <code>ChatPanel</code> newly created.
      */
-    private ChatPanel createChat( ChatRoomWrapper chatRoomWrapper)
+    private ChatPanel createChat(ChatRoomWrapper chatRoomWrapper)
+    {
+        return createChat(chatRoomWrapper, null);
+    }
+
+    /**
+     * Creates a <tt>ChatPanel</tt> for the given <tt>AdHocChatRoom</tt> and 
+     * saves it in the list of created <tt>ChatPanel</tt>s.
+     *
+     * @param chatRoomWrapper the <tt>AdHocChatRoom</tt>, for which the chat 
+     * will be created
+     * @return The <code>ChatPanel</code> newly created.
+     */
+    private ChatPanel createChat(AdHocChatRoomWrapper chatRoomWrapper)
     {
         return createChat(chatRoomWrapper, null);
     }
@@ -722,7 +879,8 @@ public class ChatWindowManager
      * Creates a <tt>ChatPanel</tt> for the given <tt>ChatRoom</tt> and saves it
      * in the list of created <tt>ChatPanel</tt>s.
      *
-     * @param chatRoomWrapper the <tt>ChatRoom</tt>, for which the chat will be created
+     * @param chatRoomWrapper the <tt>ChatRoom</tt>, for which the chat will be
+     * created
      * @param escapedMessageID the message ID of the message that should be
      * excluded from the history when the last one is loaded in the chat.
      * @return The <code>ChatPanel</code> newly created.
@@ -780,6 +938,67 @@ public class ChatWindowManager
     }
 
     /**
+     * Creates a <tt>ChatPanel</tt> for the given <tt>AdHocChatRoom</tt> and 
+     * saves it in the list of created <tt>ChatPanel</tt>s.
+     *
+     * @param chatRoomWrapper the <tt>AdHocChatRoom</tt>, for which the chat 
+     * will be created
+     * @param escapedMessageID the message ID of the message that should be
+     * excluded from the history when the last one is loaded in the chat.
+     * @return The <code>ChatPanel</code> newly created.
+     */
+    private ChatPanel createChat( AdHocChatRoomWrapper chatRoomWrapper,
+                                            String escapedMessageID)
+    {
+        ChatWindow chatWindow;
+
+        if(ConfigurationManager.isMultiChatWindowEnabled())
+        {
+            Iterator<ChatPanel> chatPanelsIter = chatPanels.iterator();
+
+            // If we're in a tabbed window we're looking for the chat window
+            // through one of the already created chats.
+            if(chatPanelsIter.hasNext())
+            {
+                chatWindow = chatPanelsIter.next().getChatWindow();
+            }
+            else
+            {
+                chatWindow = new ChatWindow();
+
+                GuiActivator.getUIService()
+                    .registerExportedWindow(chatWindow);
+            }
+        }
+        else
+        {
+            chatWindow = new ChatWindow();
+        }
+
+        ChatPanel chatPanel = new ChatPanel(chatWindow);
+
+        AdHocConferenceChatSession chatSession
+            = new AdHocConferenceChatSession(chatPanel, chatRoomWrapper);
+
+        chatPanel.setChatSession(chatSession);
+
+        synchronized (chatPanels)
+        {
+            this.chatPanels.add(chatPanel);
+        }
+
+        if (ConfigurationManager.isHistoryShown())
+        {
+            if(escapedMessageID != null)
+                chatPanel.loadHistory(escapedMessageID);
+            else
+                chatPanel.loadHistory();
+        }
+
+        return chatPanel;
+    }
+    
+    /**
      * Finds the chat session corresponding to the given chat descriptor.
      * 
      * @param descriptor The chat descriptor.
@@ -790,7 +1009,6 @@ public class ChatWindowManager
         for (ChatPanel chatPanel : chatPanels)
         {
             ChatSession chatSession = chatPanel.getChatSession();
-
             if (chatSession.getDescriptor().equals(descriptor))
                 return chatSession;
         }
@@ -817,9 +1035,9 @@ public class ChatWindowManager
     /**
      * Returns the <tt>ChatPanel</tt> corresponding to the given meta contact.
      * 
-     * @param chatSession the key, which corresponds to the chat we are looking for. It
-     * could be a <tt>MetaContact</tt> in the case of single user chat and
-     * a <tt>ChatRoom</tt> in the case of a multi user chat
+     * @param chatSession the key, which corresponds to the chat we are looking
+     * for. It could be a <tt>MetaContact</tt> in the case of single user chat
+     * and a <tt>ChatRoom</tt> in the case of a multi user chat
      * @return the <tt>ChatPanel</tt> corresponding to the given meta contact
      */
     private ChatPanel getChat(ChatSession chatSession)

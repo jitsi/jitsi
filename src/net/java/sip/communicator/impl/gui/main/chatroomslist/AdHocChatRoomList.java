@@ -10,7 +10,6 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -18,22 +17,23 @@ import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 
 /**
- * The <tt>ChatRoomsList</tt> is the list containing all chat rooms.
+ * The <tt>AdHocChatRoomsList</tt> is the list containing all ad-hoc chat rooms.
  *
- * @author Yana Stamcheva
+ * @author Valentin Martinet
  */
-public class ChatRoomList
+public class AdHocChatRoomList
 {
-    private static final Logger logger = Logger.getLogger(ChatRoomList.class);
+    private static final Logger logger
+        = Logger.getLogger(AdHocChatRoomList.class);
 
     /**
-     * The list containing all chat servers and rooms.
+     * The list containing all chat servers and ad-hoc rooms.
      */
-    private final List<ChatRoomProviderWrapper> providersList
-        = new Vector<ChatRoomProviderWrapper>();
+    private final List<AdHocChatRoomProviderWrapper> providersList
+        = new Vector<AdHocChatRoomProviderWrapper>();
 
     /**
-     * Initializes the list of chat rooms.
+     * Initializes the list of ad-hoc chat rooms.
      */
     public void loadList()
     {
@@ -47,18 +47,18 @@ public class ChatRoomList
             // If we don't have providers at this stage we just return.
             if (serRefs == null)
                 return;
-
+            logger.setLevelDebug();
             for (ServiceReference serRef : serRefs)
             {
                 ProtocolProviderService protocolProvider
                     = (ProtocolProviderService)
                             GuiActivator.bundleContext.getService(serRef);
 
-                Object multiUserChatOpSet
+                Object adHocMultiUserChatOpSet
                     = protocolProvider
-                        .getOperationSet(OperationSetMultiUserChat.class);
+                        .getOperationSet(OperationSetAdHocMultiUserChat.class);
 
-                if (multiUserChatOpSet != null)
+                if (adHocMultiUserChatOpSet != null)
                 {
                     this.addChatProvider(protocolProvider);
                 }
@@ -71,19 +71,20 @@ public class ChatRoomList
     }
 
     /**
-     * Adds a chat server and all its existing chat rooms.
+     * Adds a chat server and all its existing ad-hoc chat rooms.
      *
      * @param pps the <tt>ProtocolProviderService</tt> corresponding to the chat
      * server
+     * @param adHocMultiUserChatOperationSet the 
+     * <tt>OperationSetAdHocMultiUserChat</tt> from which we manage ad-hoc chat 
+     * rooms
      */
     public void addChatProvider(ProtocolProviderService pps)
     {
-        ChatRoomProviderWrapper chatRoomProvider
-            = new ChatRoomProviderWrapper(pps);
+        AdHocChatRoomProviderWrapper chatRoomProvider
+            = new AdHocChatRoomProviderWrapper(pps);
 
         providersList.add(chatRoomProvider);
-        
-   
         
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
@@ -112,48 +113,50 @@ public class ChatRoomList
                     String chatRoomName = configService.getString(
                         chatRoomPropName + ".chatRoomName");
 
-                    ChatRoomWrapper chatRoomWrapper
-                        = new ChatRoomWrapper(  chatRoomProvider,
-                                                chatRoomID,
-                                                chatRoomName);
+                    AdHocChatRoomWrapper chatRoomWrapper
+                        = new AdHocChatRoomWrapper( chatRoomProvider,
+                                                    chatRoomID,
+                                                    chatRoomName);
 
-                    chatRoomProvider.addChatRoom(chatRoomWrapper);
+                    chatRoomProvider.addAdHocChatRoom(chatRoomWrapper);
                 }
             }
         }
     }
 
     /**
-     * Removes the corresponding server and all related chat rooms from this
-     * list.
+     * Removes the corresponding server and all related ad-hoc chat rooms from
+     * this list.
      * 
      * @param pps the <tt>ProtocolProviderService</tt> corresponding to the
      *            server to remove
      */
     public void removeChatProvider(ProtocolProviderService pps)
     {
-        ChatRoomProviderWrapper wrapper = findServerWrapperFromProvider(pps);
+        AdHocChatRoomProviderWrapper wrapper = 
+            findServerWrapperFromProvider(pps);
 
         if (wrapper != null)
             removeChatProvider(wrapper);
     }
 
     /**
-     * Removes the corresponding server and all related chat rooms from this
-     * list.
+     * Removes the corresponding server and all related ad-hoc chat rooms from 
+     * this list.
      * 
-     * @param chatRoomProvider the <tt>ChatRoomProviderWrapper</tt>
+     * @param adHocChatRoomProvider the <tt>AdHocChatRoomProviderWrapper</tt>
      *            corresponding to the server to remove
      */
-    private void removeChatProvider(ChatRoomProviderWrapper chatRoomProvider)
+    private void removeChatProvider(
+            AdHocChatRoomProviderWrapper adHocChatRoomProvider)
     {
-        providersList.remove(chatRoomProvider);
+        providersList.remove(adHocChatRoomProvider);
 
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
         String prefix = "net.java.sip.communicator.impl.gui.accounts";
         String providerAccountUID
-            = chatRoomProvider
+            = adHocChatRoomProvider
                     .getProtocolProvider().getAccountID().getAccountUniqueID();
 
         for (String accountRootPropName
@@ -184,107 +187,81 @@ public class ChatRoomList
     /**
      * Adds a chat room to this list.
      *
-     * @param chatRoomWrapper the <tt>ChatRoom</tt> to add
+     * @param adHocChatRoomWrapper the <tt>AdHocChatRoom</tt> to add
      */
-    public void addChatRoom(ChatRoomWrapper chatRoomWrapper)
+    public void addAdHocChatRoom(AdHocChatRoomWrapper adHocChatRoomWrapper)
     {
-        ChatRoomProviderWrapper chatRoomProvider
-            = chatRoomWrapper.getParentProvider();
+        AdHocChatRoomProviderWrapper adHocChatRoomProvider
+            = adHocChatRoomWrapper.getParentProvider();
 
-        if (!chatRoomProvider.containsChatRoom(chatRoomWrapper))
-            chatRoomProvider.addChatRoom(chatRoomWrapper);
-
-        if (chatRoomWrapper.isPersistent())
-        {
-            ConfigurationManager.saveChatRoom(
-                chatRoomProvider.getProtocolProvider(),
-                chatRoomWrapper.getChatRoomID(),
-                chatRoomWrapper.getChatRoomID(),
-                chatRoomWrapper.getChatRoomName());
-        }
+        if (!adHocChatRoomProvider.containsAdHocChatRoom(adHocChatRoomWrapper))
+            adHocChatRoomProvider.addAdHocChatRoom(adHocChatRoomWrapper);
     }
 
     /**
-     * Removes the given <tt>ChatRoom</tt> from the list of all chat rooms.
+     * Removes the given <tt>AdHocChatRoom</tt> from the list of all ad-hoc 
+     * chat rooms.
      * 
-     * @param chatRoomWrapper the <tt>ChatRoomWrapper</tt> to remove
+     * @param adHocChatRoomWrapper the <tt>AdHocChatRoomWrapper</tt> to remove
      */
-    public void removeChatRoom(ChatRoomWrapper chatRoomWrapper)
+    public void removeChatRoom(AdHocChatRoomWrapper adHocChatRoomWrapper)
     {
-        ChatRoomProviderWrapper chatRoomProvider
-            = chatRoomWrapper.getParentProvider();
+        AdHocChatRoomProviderWrapper adHocChatRoomProvider
+            = adHocChatRoomWrapper.getParentProvider();
 
-        if (providersList.contains(chatRoomProvider))
+        if (providersList.contains(adHocChatRoomProvider))
         {
-            chatRoomProvider.removeChatRoom(chatRoomWrapper);
-
-            if (chatRoomWrapper.isPersistent())
-            {
-                ConfigurationManager.saveChatRoom(
-                    chatRoomProvider.getProtocolProvider(),
-                    chatRoomWrapper.getChatRoomID(),
-                    null,   // The new identifier.
-                    null);   // The name of the chat room.
-            }
+            adHocChatRoomProvider.removeChatRoom(adHocChatRoomWrapper);
         }
     }
 
     /**
-     * Returns the <tt>ChatRoomWrapper</tt> that correspond to the given
-     * <tt>ChatRoom</tt>. If the list of chat rooms doesn't contain a
-     * corresponding wrapper - returns null.
+     * Returns the <tt>AdHocChatRoomWrapper</tt> that correspond to the given
+     * <tt>AdHocChatRoom</tt>. If the list of ad-hoc chat rooms doesn't contain
+     * a corresponding wrapper - returns null.
      *  
-     * @param chatRoom the <tt>ChatRoom</tt> that we're looking for
+     * @param adHocChatRoom the <tt>ChatRoom</tt> that we're looking for
      * @return the <tt>ChatRoomWrapper</tt> object corresponding to the given
      * <tt>ChatRoom</tt>
      */
-    public ChatRoomWrapper findChatRoomWrapperFromChatRoom(ChatRoom chatRoom)
+    public AdHocChatRoomWrapper findChatRoomWrapperFromAdHocChatRoom(
+            AdHocChatRoom adHocChatRoom)
     {
-        for (ChatRoomProviderWrapper provider : providersList)
+        for (AdHocChatRoomProviderWrapper provider : providersList)
         {
-            ChatRoomWrapper systemRoomWrapper = provider.getSystemRoomWrapper();
-            ChatRoom systemRoom = systemRoomWrapper.getChatRoom();
+            AdHocChatRoomWrapper chatRoomWrapper
+                = provider.findChatRoomWrapperForAdHocChatRoom(
+                        adHocChatRoom);
 
-            if ((systemRoom != null) && systemRoom.equals(chatRoom))
+            if (chatRoomWrapper != null)
             {
-                return systemRoomWrapper;
-            }
-            else
-            {
-                ChatRoomWrapper chatRoomWrapper
-                    = provider.findChatRoomWrapperForChatRoom(chatRoom);
-
-                if (chatRoomWrapper != null)
+                // stored chatrooms has no chatroom, but their
+                // id is the same as the chatroom we are searching wrapper
+                // for
+                if(chatRoomWrapper.getAdHocChatRoom() == null)
                 {
-                    // stored chatrooms has no chatroom, but their
-                    // id is the same as the chatroom we are searching wrapper
-                    // for
-                    if(chatRoomWrapper.getChatRoom() == null)
-                    {
-                        chatRoomWrapper.setChatRoom(chatRoom);
-                    }
-
-                    return chatRoomWrapper;
+                    chatRoomWrapper.setAdHocChatRoom(adHocChatRoom);
                 }
+
+                return chatRoomWrapper;
             }
         }
-
         return null;
     }
 
     /**
-     * Returns the <tt>ChatRoomProviderWrapper</tt> that correspond to the
+     * Returns the <tt>AdHocChatRoomProviderWrapper</tt> that correspond to the
      * given <tt>ProtocolProviderService</tt>. If the list doesn't contain a
      * corresponding wrapper - returns null.
      *  
      * @param protocolProvider the protocol provider that we're looking for
-     * @return the <tt>ChatRoomProvider</tt> object corresponding to
+     * @return the <tt>AdHocChatRoomProvider</tt> object corresponding to
      * the given <tt>ProtocolProviderService</tt>
      */
-    public ChatRoomProviderWrapper findServerWrapperFromProvider(
+    public AdHocChatRoomProviderWrapper findServerWrapperFromProvider(
         ProtocolProviderService protocolProvider)
     {
-        for(ChatRoomProviderWrapper chatRoomProvider : providersList)
+        for(AdHocChatRoomProviderWrapper chatRoomProvider : providersList)
         {
             if(chatRoomProvider.getProtocolProvider().equals(protocolProvider))
             {
@@ -297,20 +274,20 @@ public class ChatRoomList
 
     /**
      * Goes through the locally stored chat rooms list and for each
-     * {@link ChatRoomWrapper} tries to find the corresponding server stored
-     * {@link ChatRoom} in the specified operation set. Joins automatically all
-     * found chat rooms.
+     * {@link AdHocChatRoomWrapper} tries to find the corresponding server 
+     * stored {@link AdHocChatRoom} in the specified operation set. Joins 
+     * automatically all found ad-hoc chat rooms.
      *
      * @param protocolProvider the protocol provider for the account to
      * synchronize
-     * @param opSet the multi user chat operation set, which give us access to
-     * chat room server 
+     * @param opSet the ad-hoc multi user chat operation set, which give us 
+     * access to chat room server 
      */
     public void synchronizeOpSetWithLocalContactList(
         ProtocolProviderService protocolProvider,
-        final OperationSetMultiUserChat opSet)
+        final OperationSetAdHocMultiUserChat opSet)
     {
-        ChatRoomProviderWrapper chatRoomProvider
+        AdHocChatRoomProviderWrapper chatRoomProvider
             = findServerWrapperFromProvider(protocolProvider);
 
         if (chatRoomProvider != null)
@@ -320,11 +297,11 @@ public class ChatRoomList
     }
 
     /**
-     * Returns an iterator to the list of chat room providers.
+     * Returns an iterator to the list of ad-hoc chat room providers.
      * 
-     * @return an iterator to the list of chat room providers.
+     * @return an iterator to the list of ad-hoc chat room providers.
      */
-    public Iterator<ChatRoomProviderWrapper> getChatRoomProviders()
+    public Iterator<AdHocChatRoomProviderWrapper> getAdHocChatRoomProviders()
     {
         return providersList.iterator();
     }
