@@ -131,6 +131,15 @@ public interface MetaContactGroup
     public int countChildContacts();
 
     /**
+     * Returns the number of online <tt>MetaContact</tt>s that this group
+     * contains.
+     *
+     * @return the number of online <tt>MetaContact</tt>s that this group
+     * contains.
+     */
+    public int countOnlineChildContacts();
+
+    /**
      * Returns the number of <tt>ContactGroups</tt>s that this group
      * encapsulates
      * <p>
@@ -268,7 +277,6 @@ public interface MetaContactGroup
      */
     public MetaContactGroup getParentMetaContactGroup();
 
-
     /**
      * Returns a String representation of this group and the contacts it
      * contains (may turn out to be a relatively long string).
@@ -284,5 +292,4 @@ public interface MetaContactGroup
      * @return a String uniquely identifying this meta contact.
      */
     public String getMetaUID();
-
 }

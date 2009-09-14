@@ -172,7 +172,8 @@ public class ContactListCellRenderer
             MetaContactGroup groupItem = (MetaContactGroup) value;
 
             this.nameLabel.setText(groupItem.getGroupName() 
-                    + "  ( " + groupItem.countChildContacts() + " )");
+                    + "  ( "+ groupItem.countOnlineChildContacts() 
+                    + "/" + groupItem.countChildContacts() + " )");
 
             this.nameLabel.setFont(this.getFont().deriveFont(Font.BOLD));
 

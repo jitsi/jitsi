@@ -13,8 +13,8 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * A straightforward implementatiokn of the meta contact group. The group
- * implements a simple algorithme of sorting its children according to their
+ * A straightforward implementation of the meta contact group. The group
+ * implements a simple algorithm of sorting its children according to their
  * status.
  *
  * @author Emil Ivov
@@ -137,6 +137,36 @@ public class MetaContactGroupImpl
     public int countChildContacts()
     {
         return childContacts.size();
+    }
+    
+    /**
+     * Returns the number of online <tt>MetaContact</tt>s that this group
+     * contains.
+     * <p>
+     * @return the number of online <tt>MetaContact</tt>s that this group
+     * contains.
+     */
+    public int countOnlineChildContacts()
+    {
+        int onlineContactsNumber = 0;
+        try 
+        {
+            Iterator<MetaContact> itr = getChildContacts();
+            while(itr.hasNext())
+            {
+                if(itr.next().getDefaultContact()
+                    .getPresenceStatus().isOnline())
+                {
+                    onlineContactsNumber++;
+                }
+            }
+        } 
+        catch(Exception e) 
+        {
+            logger.debug("Failed to count online contacts.", e);
+        }
+
+        return onlineContactsNumber;
     }
 
     /**
