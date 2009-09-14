@@ -32,6 +32,7 @@ import org.osgi.framework.*;
  * The panel containing the call field and button, serving to make calls.
  *
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class MainCallPanel
     extends TransparentPanel
@@ -88,8 +89,6 @@ public class MainCallPanel
                 + " ");
 
         this.createBorder();
-
-        this.dialpadDialog = new DialpadDialog(this);
 
         phoneNumberCombo.setEditable(true);
 
@@ -220,6 +219,8 @@ public class MainCallPanel
         }
         else if (buttonName.equals(DIAL_BUTTON))
         {
+            DialpadDialog dialpadDialog = getDialpadDialog();
+
             if(!dialpadDialog.isVisible())
             {
                 dialpadDialog.setSize(
@@ -238,6 +239,21 @@ public class MainCallPanel
                 dialpadDialog.setVisible(false);
             }
         }
+    }
+
+    /**
+     * Gets the <code>DialpadDialog</code> associated with this instance and
+     * toggled when the <code>DIAL_BUTTON</code> is clicked. If it * still does
+     * not exist, creates it first.
+     *
+     * @return the <code>DialpadDialog</code> associated with this instance and
+     *         toggled when the <code>DIAL_BUTTON</code> is clicked
+     */
+    private DialpadDialog getDialpadDialog()
+    {
+        if (dialpadDialog == null)
+            dialpadDialog = new DialpadDialog(this);
+        return dialpadDialog;
     }
 
     /**
@@ -442,9 +458,7 @@ public class MainCallPanel
 
     public void registrationStateChanged(RegistrationStateChangeEvent evt)
     {
-        ProtocolProviderService protocolProvider = evt.getProvider();
-
-        this.updateCallAccountStatus(protocolProvider);
+        this.updateCallAccountStatus(evt.getProvider());
     }
 
     private void initPluginComponents()
@@ -572,11 +586,11 @@ public class MainCallPanel
 
     public void mouseEntered(MouseEvent e)
     {
-        this.dialpadDialog.removeWindowFocusListener(dialpadDialog);
+        getDialpadDialog().removeWindowFocusListener(dialpadDialog);
     }
 
     public void mouseExited(MouseEvent e)
     {
-        this.dialpadDialog.addWindowFocusListener(dialpadDialog);
+        getDialpadDialog().addWindowFocusListener(dialpadDialog);
     }
 }

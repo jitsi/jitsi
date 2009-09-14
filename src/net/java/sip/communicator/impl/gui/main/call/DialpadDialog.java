@@ -19,12 +19,29 @@ import net.java.sip.communicator.service.protocol.*;
  * The <tt>DialpadDialog</tt> is a popup dialog containing a dialpad.
  *
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class DialpadDialog
     extends JDialog
     implements WindowFocusListener
 {
-    private DialPanel dialPanel;
+    private DialpadDialog(DialPanel dialPanel)
+    {
+        dialPanel.setOpaque(false);
+
+        BackgroundPanel bgPanel = new BackgroundPanel();
+        bgPanel.setLayout(new BorderLayout());
+        bgPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        bgPanel.add(dialPanel, BorderLayout.CENTER);
+
+        Container contentPane = getContentPane();
+        contentPane.setLayout(new BorderLayout());
+        contentPane.add(bgPanel, BorderLayout.CENTER);
+
+        this.setUndecorated(true);
+        this.pack();
+        this.addWindowFocusListener(this);
+    }
 
     /**
      * Creates an instance of the <tt>DialpadDialog</tt>.
@@ -33,13 +50,9 @@ public class DialpadDialog
      */
     public DialpadDialog(Iterator<CallPeer> callPeers)
     {
+        this(new DialPanel(callPeers));
+
         this.setModal(false);
-
-        dialPanel = new DialPanel(callPeers);
-
-        this.init();
-
-        this.addWindowFocusListener(this);
     }
 
     /**
@@ -49,32 +62,7 @@ public class DialpadDialog
      */
     public DialpadDialog(MainCallPanel mainCallPanel)
     {
-        dialPanel = new DialPanel(mainCallPanel);
-
-        this.init();
-
-        this.addWindowFocusListener(this);
-    }
-
-    private void init()
-    {
-        this.setUndecorated(true);
-
-        this.dialPanel.setOpaque(false);
-
-        BackgroundPanel bgPanel = new BackgroundPanel();
-
-        bgPanel.setLayout(new BorderLayout());
-
-        bgPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-        Container contentPane = getContentPane();
-        contentPane.setLayout(new BorderLayout());
-        contentPane.add(bgPanel, BorderLayout.CENTER);
-
-        bgPanel.add(dialPanel, BorderLayout.CENTER);
-
-        this.pack();
+        this(new DialPanel(mainCallPanel));
     }
 
     /**
