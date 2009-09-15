@@ -16,22 +16,20 @@ import net.sf.jml.*;
 public class VolatileContact
     implements MsnContact
 {
-    private String contactId = null;
-    private String displayName = null;
-    private String emailAddress = null;
+    private final String contactId;
+    private final String displayName;
+    private Email email;
 
-    VolatileContact(String id, String emailAddress, String displayName)
+    VolatileContact(String id, Email email, String displayName)
     {
         this.contactId = id;
-        this.emailAddress = emailAddress;
+        this.email = email;
         this.displayName = displayName;
     }
     
     VolatileContact(String id)
     {
-        this.contactId = id;
-        this.emailAddress = id;
-        this.displayName = id;
+        this(id, null, id);
     }
 
     public MsnContactList getContactList(){return null;}
@@ -52,7 +50,12 @@ public class VolatileContact
 
     public boolean belongGroup(MsnGroup msnGroup){return false;}
 
-    public Email getEmail(){return Email.parseStr(emailAddress);}
+    public Email getEmail()
+    {
+        if (email == null)
+            email = Email.parseStr(contactId);
+        return email;
+    }
 
     public String getDisplayName(){return displayName;}
 

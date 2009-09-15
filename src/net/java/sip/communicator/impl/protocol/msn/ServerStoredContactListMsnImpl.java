@@ -408,7 +408,7 @@ public class ServerStoredContactListMsnImpl
         //First create the new volatile contact;
         VolatileContact volatileBuddy =
             new VolatileContact(contact.getId(),
-                                contact.getEmail().getEmailAddress(),
+                                contact.getEmail(),
                                 contact.getDisplayName());
 
         ContactMsnImpl newVolatileContact

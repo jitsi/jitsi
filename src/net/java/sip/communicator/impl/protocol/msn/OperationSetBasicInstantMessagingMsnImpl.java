@@ -279,8 +279,9 @@ public class OperationSetBasicInstantMessagingMsnImpl
                                                  MsnContact contact)
         {
             // we don't process incoming event without email.
-            if ((message.getFromAddr() == null)
-                || (message.getFromAddr().indexOf('@') < 0))
+            String messageFromAddr = message.getFromAddr();
+            if ((messageFromAddr == null)
+                    || (messageFromAddr.indexOf('@') < 0))
             {
                 return;
             }
@@ -301,7 +302,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
                         MsnActivator.getResources()
                             .getI18NString("service.gui.NEW_MAIL"), 
                         new Object[]{message.getFrom(), 
-                                     message.getFromAddr(), 
+                                     messageFromAddr, 
                                      subject}),
                      DEFAULT_MIME_TYPE,
                      DEFAULT_MIME_ENCODING,
@@ -314,7 +315,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
              {
                  logger.debug("received a new mail from an unknown contact: "
                                     + message.getFrom()
-                                    + " &lt;" + message.getFromAddr() + "&gt;");
+                                    + " &lt;" + messageFromAddr + "&gt;");
                  //create the volatile contact
                  sourceContact = opSetPersPresence
                      .createVolatileContact(contact);
