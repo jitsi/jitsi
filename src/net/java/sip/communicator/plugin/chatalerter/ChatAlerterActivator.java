@@ -353,24 +353,7 @@ public class ChatAlerterActivator
 
     public void messageReceived(AdHocChatRoomMessageReceivedEvent evt) 
     {
-        try
-        {
-            ExportedWindow win = 
-                uiService.getExportedWindow(ExportedWindow.CHAT_WINDOW);
-
-            if(win == null || win.getSource() == null || 
-                    !(win.getSource() instanceof JFrame))
-                return;
-
-            JFrame fr = (JFrame)win.getSource(); 
-
-            if(fr != null)
-                Alerter.newInstance().alert(fr);
-        }
-        catch (Exception ex)
-        {
-            logger.error("Cannot alert chat window!");
-        }
+        alertChatWindow();
     }
 
     /**
