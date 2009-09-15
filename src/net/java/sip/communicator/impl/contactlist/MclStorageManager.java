@@ -786,27 +786,31 @@ public class MclStorageManager
                     continue;
 
                 // Extract contact details.
-                Hashtable<String, List<String>> details =
-                    new Hashtable<String, List<String>>();
+                Map<String, List<String>> details = null;
                 try
                 {
                     List<Element> detailsNodes =
                         XMLUtils.findChildren((Element) currentMetaContactNode,
                             META_CONTACT_DETAIL_NAME_NODE_NAME);
-                    for (Element e : detailsNodes)
+                    if (detailsNodes.size() > 0)
                     {
-                        String name = e.getAttribute(DETAIL_NAME_ATTR_NAME);
-                        String value = e.getAttribute(DETAIL_VALUE_ATTR_NAME);
-
-                        List<String> detailsObj = details.get(name);
-                        if (detailsObj == null)
+                        details = new Hashtable<String, List<String>>();
+                        for (Element e : detailsNodes)
                         {
-                            List<String> ds = new ArrayList<String>();
-                            ds.add(value);
-                            details.put(name, ds);
+                            String name = e.getAttribute(DETAIL_NAME_ATTR_NAME);
+                            String value
+                                = e.getAttribute(DETAIL_VALUE_ATTR_NAME);
+    
+                            List<String> detailsObj = details.get(name);
+                            if (detailsObj == null)
+                            {
+                                List<String> ds = new ArrayList<String>();
+                                ds.add(value);
+                                details.put(name, ds);
+                            }
+                            else
+                                detailsObj.add(value);
                         }
-                        else
-                            detailsObj.add(value);
                     }
                 }
                 catch (Exception ex)

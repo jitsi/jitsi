@@ -18,6 +18,7 @@ import net.java.sip.communicator.util.*;
  * status.
  *
  * @author Emil Ivov
+ * @author Lubomir Marinov
  */
 public class MetaContactGroupImpl
     implements MetaContactGroup
@@ -64,14 +65,19 @@ public class MetaContactGroupImpl
      */
     private MetaContactGroupImpl parentMetaContactGroup = null;
 
+    private final MetaContactListServiceImpl mclServiceImpl;
+
     /**
      * Creates an instance of the root meta contact group.
      *
+     * @param mclServiceImpl
      * @param groupName the name of the group to create
      */
-    MetaContactGroupImpl(String groupName)
+    MetaContactGroupImpl(
+            MetaContactListServiceImpl mclServiceImpl,
+            String groupName)
     {
-        this(groupName, null);
+        this(mclServiceImpl, groupName, null);
     }
 
     /**
@@ -83,16 +89,18 @@ public class MetaContactGroupImpl
      * @param metaUID a UID that has been stored earlier or null when a new
      * UID needs to be created.
      */
-    MetaContactGroupImpl(String groupName, String metaUID)
+    MetaContactGroupImpl(
+            MetaContactListServiceImpl mclServiceImpl,
+            String groupName,
+            String metaUID)
     {
+        this.mclServiceImpl = mclServiceImpl;
         this.groupName = groupName;
-
-        //create a new uid if necessary
-        if(metaUID == null)
-            metaUID = String.valueOf( System.currentTimeMillis())
-                       + String.valueOf(hashCode());
-
-        this.groupUID = metaUID;
+        this.groupUID
+            = (metaUID == null)
+                ? String.valueOf( System.currentTimeMillis())
+                        + String.valueOf(hashCode())
+                : metaUID;
     }
 
     /**
@@ -922,5 +930,10 @@ public class MetaContactGroupImpl
     boolean removeSubgroup(MetaContactGroup group)
     {
         return subgroups.remove(group);
+    }
+
+    final MetaContactListServiceImpl getMclServiceImpl()
+    {
+        return mclServiceImpl;
     }
 }

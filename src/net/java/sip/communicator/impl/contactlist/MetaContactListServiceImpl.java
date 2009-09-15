@@ -48,9 +48,7 @@ public class MetaContactListServiceImpl
     /**
      * The root of the meta contact list.
      */
-    final MetaContactGroupImpl rootMetaGroup
-        = new MetaContactGroupImpl("RootMetaContactGroup",
-                                   "RootMetaContactGroup");
+    final MetaContactGroupImpl rootMetaGroup;
 
     /**
      * The event handler that will be handling our subscription events.
@@ -116,6 +114,11 @@ public class MetaContactListServiceImpl
      */
     public MetaContactListServiceImpl()
     {
+        rootMetaGroup
+            = new MetaContactGroupImpl(
+                    this,
+                    "RootMetaContactGroup",
+                    "RootMetaContactGroup");
     }
 
     /**
@@ -659,7 +662,7 @@ public class MetaContactListServiceImpl
                 + " is not an instance of MetaContactGroupImpl");
         }
 
-        MetaContactImpl newMetaContact = new MetaContactImpl(this);
+        MetaContactImpl newMetaContact = new MetaContactImpl();
 
         this.addNewContactToMetaContact(provider, metaContactGroup, newMetaContact,
                 contactID, false);  //don't fire a PROTO_CONT_ADDED event we'll
@@ -719,7 +722,8 @@ public class MetaContactListServiceImpl
 
         // we only have to create the meta contact group here.
         // we don't care about protocol specific groups.
-        MetaContactGroupImpl newMetaGroup = new MetaContactGroupImpl(groupName);
+        MetaContactGroupImpl newMetaGroup
+            = new MetaContactGroupImpl(this, groupName);
 
         ( (MetaContactGroupImpl) parent).addSubgroup(newMetaGroup);
 
@@ -837,7 +841,7 @@ public class MetaContactListServiceImpl
         throws MetaContactListException
     {
         /** first create the new meta contact */
-        MetaContactImpl metaContactImpl = new MetaContactImpl(this);
+        MetaContactImpl metaContactImpl = new MetaContactImpl();
 
         MetaContactGroupImpl newParentMetaGroupImpl
             = (MetaContactGroupImpl)newParentMetaGroup;
@@ -1548,8 +1552,8 @@ public class MetaContactListServiceImpl
             // right now we simply map this group to an existing one
             // without being cautious and verify whether we already have it
             // registered
-            MetaContactGroupImpl newMetaGroup = new MetaContactGroupImpl(
-                group.getGroupName());
+            MetaContactGroupImpl newMetaGroup
+                = new MetaContactGroupImpl(this, group.getGroupName());
 
             metaGroup.addSubgroup(newMetaGroup);
 
@@ -1578,7 +1582,7 @@ public class MetaContactListServiceImpl
                 continue;
 
 
-            MetaContactImpl newMetaContact = new MetaContactImpl(this);
+            MetaContactImpl newMetaContact = new MetaContactImpl();
 
             newMetaContact.addProtoContact(contact);
 
@@ -2049,8 +2053,7 @@ public class MetaContactListServiceImpl
                 return;
             }
 
-            MetaContactImpl newMetaContact = new MetaContactImpl(
-                    MetaContactListServiceImpl.this);
+            MetaContactImpl newMetaContact = new MetaContactImpl();
 
             newMetaContact.addProtoContact(evt.getSourceContact());
 
@@ -2155,8 +2158,7 @@ public class MetaContactListServiceImpl
             //parent group and move the source contact to it.
             else
             {
-                MetaContactImpl newMetaContact = new MetaContactImpl(
-                        MetaContactListServiceImpl.this);
+                MetaContactImpl newMetaContact = new MetaContactImpl();
                 newMetaContact.setDisplayName(evt
                                           .getSourceContact().getDisplayName());
                 newParentGroup.addMetaContact(newMetaContact);
@@ -2324,8 +2326,10 @@ public class MetaContactListServiceImpl
             //one
             if(newMetaGroup == null)
             {
-                newMetaGroup = new MetaContactGroupImpl(
-                    group.getGroupName());
+                newMetaGroup
+                    = new MetaContactGroupImpl(
+                            MetaContactListServiceImpl.this,
+                            group.getGroupName());
                 newMetaGroup.addProtoGroup(group);
                 parent.addSubgroup(newMetaGroup);
             }
@@ -2349,8 +2353,7 @@ public class MetaContactListServiceImpl
             {
                 Contact contact = contactsIter.next();
 
-                MetaContactImpl newMetaContact = new MetaContactImpl(
-                        MetaContactListServiceImpl.this);
+                MetaContactImpl newMetaContact = new MetaContactImpl();
 
                 newMetaContact.addProtoContact(contact);
 
@@ -2668,7 +2671,7 @@ public class MetaContactListServiceImpl
             return newMetaGroup;
 
         newMetaGroup
-            = new MetaContactGroupImpl(displayName, metaContactGroupUID);
+            = new MetaContactGroupImpl(this, displayName, metaContactGroupUID);
 
         parentGroup.addSubgroup(newMetaGroup);
 
@@ -2737,7 +2740,7 @@ public class MetaContactListServiceImpl
             MetaContactGroupImpl parentGroup,
             String metaUID,
             String displayName,
-            Hashtable<String, List<String>>    details,
+            Map<String, List<String>> details,
             List<MclStorageManager.StoredProtoContactDescriptor> protoContacts,
             String accountID)
     {
@@ -2747,7 +2750,7 @@ public class MetaContactListServiceImpl
 
         if(newMetaContact == null)
         {
-            newMetaContact = new MetaContactImpl(this, metaUID, details);
+            newMetaContact = new MetaContactImpl(metaUID, details);
             newMetaContact.setDisplayName(displayName);
         }
 

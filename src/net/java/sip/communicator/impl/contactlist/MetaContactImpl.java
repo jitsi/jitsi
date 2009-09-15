@@ -79,20 +79,10 @@ public class MetaContactImpl
     private MetaContactGroupImpl parentGroup = null;
 
     /**
-     * A sync lock for use when modifying the parentGroup field.
-     */
-    private final Object parentGroupModLock = new Object();
-
-    /**
      * Hashtable containing the contact details.
      * Name -> Value or Name -> (List of values).
      */
-    private final Map<String, List<String>> details;
-
-    /**
-     * The service that is creating the contact.
-     */
-    private final MetaContactListServiceImpl mclServiceImpl;
+    private Map<String, List<String>> details;
 
     private final static String AVATAR_DIR = "avatarcache";
 
@@ -133,13 +123,12 @@ public class MetaContactImpl
      * Creates new meta contact with a newly generated meta contact UID.
      * @param mclServiceImpl the service that creates the contact.
      */
-    MetaContactImpl(MetaContactListServiceImpl mclServiceImpl)
+    MetaContactImpl()
     {
         //create the uid
-        this.uid = String.valueOf( System.currentTimeMillis())
+        this.uid = String.valueOf(System.currentTimeMillis())
                    + String.valueOf(hashCode());
-        this.mclServiceImpl = mclServiceImpl;
-        this.details = new Hashtable<String, List<String>>();
+        this.details = null;
     }
 
     /**
@@ -149,11 +138,9 @@ public class MetaContactImpl
      * @param mclServiceImpl the service that creates the contact.
      * @param details the already stored details for the contact.
      */
-    MetaContactImpl(MetaContactListServiceImpl mclServiceImpl,
-            String metaUID, Hashtable<String, List<String>> details)
+    MetaContactImpl(String metaUID, Map<String, List<String>> details)
     {
         this.uid = metaUID;
-        this.mclServiceImpl = mclServiceImpl;
         this.details = details;
     }
 
@@ -584,7 +571,7 @@ public class MetaContactImpl
      */
     void setDisplayName(String displayName)
     {
-        synchronized (parentGroupModLock)
+        synchronized (getParentGroupModLock())
         {
             if (parentGroup != null)
             {
@@ -609,7 +596,7 @@ public class MetaContactImpl
      */
     void addProtoContact(Contact contact)
     {
-        synchronized (parentGroupModLock)
+        synchronized (getParentGroupModLock())
         {
             if (parentGroup != null)
             {
@@ -646,7 +633,7 @@ public class MetaContactImpl
      */
     int reevalContact()
     {
-        synchronized (parentGroupModLock)
+        synchronized (getParentGroupModLock())
         {
             //first lightremove or otherwise we won't be able to get hold of the
             //contact
@@ -693,7 +680,7 @@ public class MetaContactImpl
      */
     void removeProtoContact(Contact contact)
     {
-        synchronized (parentGroupModLock)
+        synchronized (getParentGroupModLock())
         {
             if (parentGroup != null)
             {
@@ -808,7 +795,7 @@ public class MetaContactImpl
                 + "parent and you  removing it). Use unsetParentGroup "
                 + "instead.");
 
-        synchronized (parentGroupModLock)
+        synchronized (getParentGroupModLock())
         {
             this.parentGroup = parentGroup;
         }
@@ -823,7 +810,7 @@ public class MetaContactImpl
      */
     void unsetParentGroup(MetaContactGroupImpl parentGrp)
     {
-        synchronized(parentGroupModLock)
+        synchronized(getParentGroupModLock())
         {
             if (parentGroup == parentGrp)
                 parentGroup = null;
@@ -857,6 +844,9 @@ public class MetaContactImpl
      */
     public void addDetail(String name, String value)
     {
+        if (details == null)
+            details = new Hashtable<String, List<String>>();
+
         List<String> values = details.get(name);
 
         if(values == null)
@@ -867,12 +857,7 @@ public class MetaContactImpl
 
         values.add(value);
 
-        mclServiceImpl.fireMetaContactEvent(
-            new MetaContactModifiedEvent(
-                this,
-                name,
-                null,
-                value));
+        fireMetaContactModified(name, null, value);
     }
 
     /**
@@ -882,19 +867,16 @@ public class MetaContactImpl
      */
     public void removeDetail(String name, String value)
     {
-        List<String> values = details.get(name);
+        if (details == null)
+            return;
 
+        List<String> values = details.get(name);
         if(values == null)
             return;
 
         values.remove(value);
 
-        mclServiceImpl.fireMetaContactEvent(
-            new MetaContactModifiedEvent(
-                this,
-                name,
-                value,
-                null));
+        fireMetaContactModified(name, value, null);
     }
 
     /**
@@ -903,14 +885,12 @@ public class MetaContactImpl
      */
     public void removeDetails(String name)
     {
+        if (details == null)
+            return;
+
         Object removed = details.remove(name);
 
-        mclServiceImpl.fireMetaContactEvent(
-            new MetaContactModifiedEvent(
-                this,
-                name,
-                removed,
-                null));
+        fireMetaContactModified(name, removed, null);
     }
 
     /**
@@ -921,8 +901,10 @@ public class MetaContactImpl
      */
     public void changeDetail(String name, String oldValue, String newValue)
     {
-        List<String> values = details.get(name);
+        if (details == null)
+            return;
 
+        List<String> values = details.get(name);
         if(values == null)
             return;
 
@@ -932,12 +914,25 @@ public class MetaContactImpl
 
         values.set(changedIx, newValue);
 
-        mclServiceImpl.fireMetaContactEvent(
-            new MetaContactModifiedEvent(
-                this,
-                name,
-                oldValue,
-                newValue));
+        fireMetaContactModified(name, oldValue, newValue);
+    }
+
+    private void fireMetaContactModified(
+            String modificationName,
+            Object oldValue,
+            Object newValue)
+    {
+        MetaContactGroupImpl parentGroup = getParentGroup();
+
+        if (parentGroup != null)
+            parentGroup
+                .getMclServiceImpl()
+                    .fireMetaContactEvent(
+                        new MetaContactModifiedEvent(
+                                this,
+                                modificationName,
+                                oldValue,
+                                newValue));
     }
 
     /**
@@ -946,7 +941,7 @@ public class MetaContactImpl
      */
     public List<String> getDetails(String name)
     {
-        List<String> values = details.get(name);
+        List<String> values = (details == null) ? null : details.get(name);
 
         if(values == null)
             values = new ArrayList<String>();
@@ -1151,5 +1146,23 @@ public class MetaContactImpl
                 if (key.equals(data[index]))
                     return index;
         return -1;
+    }
+
+    /**
+     * Gets the sync lock for use when modifying {@link #parentGroup}.
+     * 
+     * @return the sync lock for use when modifying {@link #parentGroup}
+     */
+    private Object getParentGroupModLock()
+    {
+        /*
+         * XXX The use of uid as parentGroupModLock is a bit unusual but a
+         * dedicated lock enlarges the shallow runtime size of this instance and
+         * having hundreds of MetaContactImpl instances is not unusual for a
+         * multi-protocol application. With respect to parentGroupModLock being
+         * unique among the MetaContactImpl instances, uid is fine because it is
+         * also supposed to be unique in the same way.
+         */
+        return uid;
     }
 }
