@@ -7,9 +7,25 @@
 package net.java.sip.communicator.service.neomedia.event;
 
 /**
+ * The purpose of a <tt>DTMFListener</tt> is to notify implementors when new
+ * DMTF tones are received by this MediaService implementation.
+ *
  * @author Emil Ivov
  */
 public interface DTMFListener
 {
-/**@todo implement*/
+
+    /**
+     * Indicates that we have started receiving a <tt>DTMFTone</tt>.
+     *
+     * @param event the <tt>DTMFToneEvent</tt> instance containing the
+     */
+    public void dtmfToneReceptionStarted(DTMFToneEvent event);
+
+    /**
+     * Indicates that we have started receiving a <tt>DTMFTone</tt>.
+     *
+     * @param event the <tt>DTMFToneEvent</tt> instance containing the
+     */
+    public void dtmfToneReceptionEnded(DTMFToneEvent event);
 }
