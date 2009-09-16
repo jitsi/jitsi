@@ -46,7 +46,7 @@ public interface MediaService
     /**
      * Creates a <tt>MediaStream</tt> that will be using the specified
      * <tt>MediaDevice</tt> for both capture and playback of media exchanged
-     * via the specified <tt>connector</tt>.
+     * via the specified <tt>MediaConnector</tt>.
      *
      * @param the connector that the stream should use for sending and receiving
      * media.

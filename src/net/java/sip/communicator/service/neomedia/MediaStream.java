@@ -53,13 +53,6 @@ public interface MediaStream
     public static final int BIND_RETRIES_DEFAULT_VALUE = 50;
 
     /**
-     * With this property video support can be disabled
-     * (enabled by default).
-     */
-    public static final String DISABLE_VIDEO_SUPPORT_PROPERTY_NAME
-        = "net.java.sip.communicator.service.media.DISABLE_VIDEO_SUPPORT";
-
-    /**
      * The name of the property which indicates whether the remote SSRC is
      * currently available.
      */
