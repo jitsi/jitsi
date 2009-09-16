@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.service.neomedia.event;
 
+import java.util.*;
+
 /**
  * This listener allows interested parties to register for events notifying them
  * that the sound level for a conference participant currently being mixed by
@@ -14,6 +16,7 @@ package net.java.sip.communicator.service.neomedia.event;
  * @author Emil Ivov
  */
 public interface SoundLevelListener
+    extends EventListener
 {
 
     /**

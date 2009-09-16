@@ -7,7 +7,6 @@
 package net.java.sip.communicator.service.neomedia;
 
 import net.java.sip.communicator.service.neomedia.event.*;
-import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Extends the <tt>MediaStream</tt> interface and adds methods specific to
