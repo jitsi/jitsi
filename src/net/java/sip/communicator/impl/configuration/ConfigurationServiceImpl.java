@@ -544,22 +544,31 @@ public class ConfigurationServiceImpl
                 "Service is stopped or has not been started");
 
         // write the file.
-        File config = getConfigurationFile();
         FailSafeTransaction trans =
-            this.faService.createFailSafeTransaction(config);
+            this.faService.createFailSafeTransaction(file);
+        Throwable exception = null;
         try
         {
             trans.beginTransaction();
-            OutputStream stream = new FileOutputStream(config);
+            OutputStream stream = new FileOutputStream(file);
 
             store.storeConfiguration(stream);
 
             stream.close();
             trans.commit();
         }
-        catch (Exception e)
+        catch (IllegalStateException isex)
         {
-            logger.error("can't write data in the configuration file", e);
+            exception = isex;
+        }
+        catch (IOException ioex)
+        {
+            exception = ioex;
+        }
+        if (exception != null)
+        {
+            logger
+                .error("can't write data in the configuration file", exception);
             trans.rollback();
         }
     }
@@ -575,69 +584,7 @@ public class ConfigurationServiceImpl
     {
         if (this.configurationFile == null)
         {
-            File configurationFile = getConfigurationFile("xml", false);
-
-            if (configurationFile == null)
-            {
-                /*
-                 * Quite strange but let it play out as it did when the
-                 * configuration file was in XML format.
-                 */
-                this.configurationFile = getConfigurationFile("xml", true);
-                if (!(this.store instanceof XMLConfigurationStore))
-                    this.store = new XMLConfigurationStore();
-            }
-            else
-            {
-                String name = configurationFile.getName();
-                int extensionBeginIndex = name.lastIndexOf('.');
-                String extension
-                    = (extensionBeginIndex > -1)
-                            ? name.substring(extensionBeginIndex)
-                            : null;
-
-                if (".properties".equalsIgnoreCase(extension))
-                {
-                    this.configurationFile = configurationFile;
-                    if (!(this.store instanceof PropertyConfigurationStore))
-                        this.store = new PropertyConfigurationStore();
-                }
-                else
-                {
-                    File newConfigurationFile
-                        = new File(
-                                configurationFile.getParentFile(),
-                                ((extensionBeginIndex > -1)
-                                        ? name.substring(0, extensionBeginIndex)
-                                        : name)
-                                    + ".properties");
-
-                    if (newConfigurationFile.exists())
-                    {
-                        this.configurationFile = newConfigurationFile;
-                        if (!(this.store instanceof PropertyConfigurationStore))
-                            this.store = new PropertyConfigurationStore();
-                    }
-                    else if (!configurationFile.exists()
-                            && (getSystemProperty(PNAME_CONFIGURATION_FILE_NAME)
-                                    == null))
-                    {
-                        this.configurationFile
-                                = getConfigurationFile("properties", true);
-                        if (!(this.store instanceof PropertyConfigurationStore))
-                            this.store = new PropertyConfigurationStore();
-                    }
-                    else
-                    {
-                        this.configurationFile =
-                                configurationFile.exists()
-                                    ? configurationFile
-                                    : getConfigurationFile("xml", true);
-                        if (!(this.store instanceof XMLConfigurationStore))
-                            this.store = new XMLConfigurationStore();
-                    }
-                }
-            }
+            createConfigurationFile();
 
             /*
              * Make sure that the properties SC_HOME_DIR_LOCATION and
@@ -648,6 +595,178 @@ public class ConfigurationServiceImpl
             getScHomeDirName();
         }
         return this.configurationFile;
+    }
+
+    /**
+     * Determines the name and the format of the configuration file to be used
+     * and initializes the {@link #configurationFile} and {@link #store} fields
+     * of this instance.
+     */
+    private void createConfigurationFile()
+        throws IOException
+    {
+
+        /*
+         * Choose the format of the configuration file so that the
+         * performance-savvy properties format is used whenever possible and
+         * only go with the slow and fat XML format when necessary.
+         */
+        File configurationFile = getConfigurationFile("xml", false);
+
+        if (configurationFile == null)
+        {
+            /*
+             * It's strange that there's no configuration file name but let it
+             * play out as it did when the configuration file was in XML format.
+             */
+            this.configurationFile = getConfigurationFile("xml", true);
+            if (!(this.store instanceof XMLConfigurationStore))
+                this.store = new XMLConfigurationStore();
+        }
+        else
+        {
+
+            /*
+             * Figure out the format of the configuration file by looking at its
+             * extension.
+             */
+            String name = configurationFile.getName();
+            int extensionBeginIndex = name.lastIndexOf('.');
+            String extension
+                = (extensionBeginIndex > -1)
+                        ? name.substring(extensionBeginIndex)
+                        : null;
+
+            /*
+             * Obviously, a file with the .properties extension is in the
+             * properties format. Since there's no file with the .xml extension,
+             * the case is simple.
+             */
+            if (".properties".equalsIgnoreCase(extension))
+            {
+                this.configurationFile = configurationFile;
+                if (!(this.store instanceof PropertyConfigurationStore))
+                    this.store = new PropertyConfigurationStore();
+            }
+            else
+            {
+
+                /*
+                 * But if we're told that the configuration file name is with
+                 * the .xml extension, we may also have a .properties file or
+                 * the .xml extension may be only the default and not forced on
+                 * us so it may be fine to create a .properties file and use the
+                 * properties format anyway.
+                 */
+                File newConfigurationFile
+                    = new File(
+                            configurationFile.getParentFile(),
+                            ((extensionBeginIndex > -1)
+                                    ? name.substring(0, extensionBeginIndex)
+                                    : name)
+                                + ".properties");
+
+                /*
+                 * If there's an actual file with the .properties extension,
+                 * then we've previously migrated the configuration from the XML
+                 * format to the properties format. We may have failed to delete
+                 * the migrated .xml file but it's fine because the .properties
+                 * file is there to signal that we have to use it instead of the
+                 * .xml file.
+                 */
+                if (newConfigurationFile.exists())
+                {
+                    this.configurationFile = newConfigurationFile;
+                    if (!(this.store instanceof PropertyConfigurationStore))
+                        this.store = new PropertyConfigurationStore();
+                }
+                /*
+                 * Otherwise, the lack of an existing .properties file doesn't
+                 * help us much and we have the .xml extension for the file name
+                 * so we have to determine whether it's just the default or it's
+                 * been forced on us.
+                 */
+                else if (getSystemProperty(PNAME_CONFIGURATION_FILE_NAME)
+                            == null)
+                {
+
+                    /*
+                     * The .xml is not forced on us so we allow ourselves to not
+                     * obey the default and use the properties format. If a
+                     * configuration file in the XML foramt exists already, we
+                     * have to migrate it to the properties format.
+                     */
+                    if (configurationFile.exists())
+                    {
+                        ConfigurationStore xmlStore
+                            = new XMLConfigurationStore();
+                        try
+                        {
+                            xmlStore.reloadConfiguration(configurationFile);
+                        }
+                        catch (XMLException xmlex)
+                        {
+                            IOException ioex = new IOException();
+                            ioex.initCause(xmlex);
+                            throw ioex;
+                        }
+
+                        ConfigurationStore propertyStore
+                            = (this.store instanceof PropertyConfigurationStore)
+                                ? this.store
+                                : new PropertyConfigurationStore();
+                        copy(xmlStore, propertyStore);
+
+                        this.configurationFile
+                                = getConfigurationFile("properties", true);
+                        this.store = propertyStore;
+
+                        Throwable exception = null;
+                        try
+                        {
+                            storeConfiguration(this.configurationFile);
+                        }
+                        catch (IllegalStateException isex)
+                        {
+                            exception = isex;
+                        }
+                        catch (IOException ioex)
+                        {
+                            exception = ioex;
+                        }
+                        if (exception == null)
+                            configurationFile.delete();
+                        else
+                        {
+                            this.configurationFile = configurationFile;
+                            this.store = xmlStore;
+                        }
+                    }
+                    else
+                    {
+                        this.configurationFile
+                                = getConfigurationFile("properties", true);
+                        if (!(this.store instanceof PropertyConfigurationStore))
+                            this.store = new PropertyConfigurationStore();
+                    }
+                }
+                else
+                {
+
+                    /*
+                     * The .xml extension is forced on us so we have to assume
+                     * that whoever forced it knows what she wants to get so we
+                     * have to obey and use the XML foramt.
+                     */
+                    this.configurationFile =
+                            configurationFile.exists()
+                                ? configurationFile
+                                : getConfigurationFile("xml", true);
+                    if (!(this.store instanceof XMLConfigurationStore))
+                        this.store = new XMLConfigurationStore();
+                }
+            }
+        }
     }
 
     /**
@@ -836,6 +955,15 @@ public class ConfigurationServiceImpl
             }
         }
         return configFileInUserHomeDir;
+    }
+
+    private static void copy(ConfigurationStore src, ConfigurationStore dest)
+    {
+        for (String name : src.getPropertyNames())
+            if (src.isSystemProperty(name))
+                dest.setSystemProperty(name);
+            else
+                dest.setNonSystemProperty(name, src.getProperty(name));
     }
 
     /**
