@@ -28,6 +28,19 @@ import net.java.sip.communicator.service.neomedia.*;
  */
 public class SoundLevelChangeEvent extends EventObject
 {
+    /**
+     * The maximum level that can be reported for a participant in a conference.
+     * Level values should be distributed among MAX_LEVEL and MIN_LEVEL in a
+     * way that would appear uniform to users.
+     */
+    public static final int MAX_LEVEL = 255;
+
+    /**
+     * The maximum (zero) level that can be reported for a participant in a
+     * conference. Level values should be distributed among MAX_LEVEL and
+     * MIN_LEVEL in a way that would appear uniform to users.
+     */
+    public static final int MIN_LEVEL = 0;
 
     /**
      * The hashtable mapping SSRC identifiers to sound levels.
