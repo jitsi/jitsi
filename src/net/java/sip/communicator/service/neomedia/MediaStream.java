@@ -59,7 +59,19 @@ public interface MediaStream
     public static final String DISABLE_VIDEO_SUPPORT_PROPERTY_NAME
         = "net.java.sip.communicator.service.media.DISABLE_VIDEO_SUPPORT";
 
+    /**
+     * The name of the property which indicates whether the remote SSRC is
+     * currently available.
+     */
+    public static final String PNAME_LOCAL_SSRC_AVAILABLE
+        = "localSSRCAvailable";
 
+    /**
+     * The name of the property which indicates whether the local SSRC is
+     * currently available.
+     */
+    public static final String PNAME_REMOTE_SSRC_AVAILABLE
+        = "remoteSSRCAvailable";
 
     /**
      * Starts capturing media from this stream's <tt>MediaDevice</tt> and then
