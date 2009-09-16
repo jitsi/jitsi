@@ -45,7 +45,7 @@ public class AdHocChatRoomMessageReceivedEvent
     public static final int SYSTEM_MESSAGE_RECEIVED = 3;
 
     /**
-     * The ccontact that has sent this message.
+     * The contact that has sent this message.
      */
     private final Contact from;
 
@@ -69,7 +69,7 @@ public class AdHocChatRoomMessageReceivedEvent
      * <tt>source</tt> message received from the specified <tt>from</tt>
      * contact.
      *
-     * @param source the <tt>AdHocChatRoom</tt> for which the message is 
+     * @param source the <tt>AdHocChatRoom</tt> for which the message is
      * received.
      * @param from the <tt>Contact</tt> that has sent this message.
      * @param timestamp the exact date when the event occurred.
