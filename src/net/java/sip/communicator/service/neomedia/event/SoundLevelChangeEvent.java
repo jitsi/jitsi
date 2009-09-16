@@ -28,6 +28,12 @@ import net.java.sip.communicator.service.neomedia.*;
  */
 public class SoundLevelChangeEvent extends EventObject
 {
+
+    /**
+     * The hashtable mapping SSRC identifiers to sound levels.
+     */
+    private Hashtable<String, Integer> levels = null;
+
     /**
      * Creates a new instance of a <tt>SoundLevelChangeEvent</tt> for the
      * specified source stream and level mappings.
@@ -37,11 +43,31 @@ public class SoundLevelChangeEvent extends EventObject
                                  Hashtable<String, Integer> levels)
     {
         super(source);
-
+        this.levels = levels;
     }
 
+    /**
+     * Returns a reference to the <tt>MediaStream</tt> that this event is
+     * pertaining to.
+     *
+     * @return a reference to the <tt>MediaStream</tt> that this event is
+     * pertaining to.
+     */
     public MediaStream getSourceMediaStream()
     {
         return (MediaStream)getSource();
+    }
+
+    /**
+     * Returns a hashtable mapping SSRC identifiers to sound levels. The table
+     * contains the SSRC identifiers of all participants that whose sound levels
+     * have changed to non-zero values. All known participants that are not
+     * reported in this table are assumed to have zero values of their levels.
+     *
+     * @return a hashtable mapping SSRC identifiers to sound levels.
+     */
+    public Hashtable<String, Integer> getLevels()
+    {
+        return levels;
     }
 }
