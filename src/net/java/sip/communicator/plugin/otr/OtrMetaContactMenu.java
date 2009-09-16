@@ -10,6 +10,7 @@ import java.awt.event.*;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.event.*;
 
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
@@ -18,19 +19,76 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * @author George Politis
+ * @author Lubomir Marinov
  */
 public class OtrMetaContactMenu
     extends AbstractPluginComponent
+    implements ActionListener,
+               PopupMenuListener
 {
+
+    /**
+     * The last known <tt>MetaContact</tt> to be currently selected and to be
+     * depcited by this instance and the <tt>OtrContactMenu</tt>s it contains.
+     */
+    private MetaContact currentContact;
 
     /**
      * The <code>JMenu</code> which is the component of this plugin.
      */
     private JMenu menu;
 
+    /**
+     * The "What's this?" <tt>JMenuItem</tt> which launches help on the subject
+     * of off-the-record messaging.
+     */
+    private JMenuItem whatsThis;
+
     public OtrMetaContactMenu(Container container)
     {
         super(container);
+    }
+
+    /*
+     * Implements ActionListener#actionPerformed(ActionEvent). Handles the
+     * invocation of the whatsThis menu item i.e. launches help on the subject
+     * of off-the-record messaging.
+     */
+    public void actionPerformed(ActionEvent e)
+    {
+        OtrActivator.scOtrEngine.launchHelp();
+    }
+
+    private void createOtrContactMenus(MetaContact metaContact)
+    {
+        // Remove any existing OtrContactMenu items.
+        for (int itemIndex = 0, itemCount = menu.getItemCount();
+                itemIndex < itemCount;)
+        {
+            JMenuItem menuItem = menu.getItem(itemIndex);
+
+            if (menuItem instanceof OtrContactMenu)
+            {
+                menu.remove(itemIndex);
+                itemCount--;
+
+                ((OtrContactMenu) menuItem).dispose();
+            }
+            else
+                itemIndex++;
+        }
+
+        // Create the new OtrContactMenu items.
+        if (metaContact != null)
+        {
+            Iterator<Contact> contacts = metaContact.getContacts();
+            int itemIndex = 0;
+            while (contacts.hasNext())
+            {
+                menu.insert(new OtrContactMenu(contacts.next()), itemIndex);
+                itemIndex++;
+            }
+        }
     }
 
     /*
@@ -53,6 +111,7 @@ public class OtrMetaContactMenu
         if (menu == null)
         {
             menu = new JMenu();
+            menu.setText(getName());
 
             if (Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU
                     .equals(getContainer()))
@@ -65,8 +124,8 @@ public class OtrMetaContactMenu
                 if (icon != null)
                     menu.setIcon(icon);
             }
-            
-            menu.setText(getName());
+
+            menu.getPopupMenu().addPopupMenuListener(this);
         }
         return menu;
     }
@@ -82,37 +141,54 @@ public class OtrMetaContactMenu
                     .getI18NString("plugin.otr.menu.TITLE");
     }
 
+    /*
+     * Implements PopupMenuListener#popupMenuCanceled(PopupMenuEvent).
+     */
+    public void popupMenuCanceled(PopupMenuEvent e)
+    {
+        createOtrContactMenus(null);
+    }
+
+    /*
+     * Implements PopupMenuListener#popupMenuWillBecomeInvisible(
+     * PopupMenuEvent).
+     */
+    public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
+    {
+        popupMenuCanceled(e);
+    }
+
+    /*
+     * Implements PopupMenuListener#popupMenuWillBecomeVisible(PopupMenuEvent).
+     */
+    public void popupMenuWillBecomeVisible(PopupMenuEvent e)
+    {
+        createOtrContactMenus(currentContact);
+
+        if (whatsThis == null)
+        {
+            menu.addSeparator();
+
+            whatsThis = new JMenuItem();
+            whatsThis.setIcon(
+                    OtrActivator.resourceService
+                            .getImage("plugin.otr.HELP_ICON_15x15"));
+            whatsThis.setText(
+                    OtrActivator.resourceService
+                            .getI18NString("plugin.otr.menu.WHATS_THIS"));
+            whatsThis.addActionListener(this);
+            menu.add(whatsThis);
+        }
+    }
+
     public void setCurrentContact(MetaContact metaContact)
     {
-        // Rebuild menu.
-        if (menu != null)
-            menu.removeAll();
-
-        if (metaContact == null)
-            return;
-
-        JMenu menu = getMenu();
-
-        Iterator<Contact> contacts = metaContact.getContacts();
-        while (contacts.hasNext())
+        if (this.currentContact != metaContact)
         {
-            menu.add(new OtrContactMenu(contacts.next()));
+            this.currentContact = metaContact;
+
+            if ((menu != null) && menu.isPopupMenuVisible())
+                createOtrContactMenus(currentContact);
         }
-
-        menu.addSeparator();
-
-        JMenuItem whatsThis = new JMenuItem();
-        whatsThis.setIcon(OtrActivator.resourceService
-            .getImage("plugin.otr.HELP_ICON_15x15"));
-        whatsThis.setText(OtrActivator.resourceService
-            .getI18NString("plugin.otr.menu.WHATS_THIS"));
-        whatsThis.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                OtrActivator.scOtrEngine.launchHelp();
-            }
-        });
-        menu.add(whatsThis);
     }
 }
