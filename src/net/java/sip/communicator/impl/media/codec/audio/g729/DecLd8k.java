@@ -252,8 +252,8 @@ int decod_ld8k(
     *-------------------------------------------------------*/
 
    if(bfi != 0) {            /* Bad Frame Error Concealment */
-     parm[parm_offset + 0] = (int) (Util.random_g729() & 0x1fff);      /* 13 bits random*/
-     parm[parm_offset + 1]= (int) (Util.random_g729() & 0x000f);      /*  4 bits random */
+     parm[parm_offset + 0] = (Util.random_g729() & 0x1fff);      /* 13 bits random*/
+     parm[parm_offset + 1]= (Util.random_g729() & 0x000f);      /*  4 bits random */
    }
 
    DeAcelp.decod_ACELP(parm[parm_offset + 1], parm[parm_offset + 0], code);

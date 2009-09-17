@@ -320,12 +320,12 @@ public class OperationSetAdHocMultiUserChatMsnImpl
 
     public AdHocChatRoom findRoom(MsnSwitchboard switchboard)
         throws OperationFailedException,
-        OperationNotSupportedException
+               OperationNotSupportedException
     {
         this.assertConnected();
 
-        AdHocChatRoomMsnImpl adHocRoom = (AdHocChatRoomMsnImpl) 
-            this.adHocChatRoomCache.get(String.valueOf(switchboard.hashCode()));
+        AdHocChatRoomMsnImpl adHocRoom
+            = adHocChatRoomCache.get(String.valueOf(switchboard.hashCode()));
 
         if (adHocRoom == null)
         {

@@ -78,7 +78,7 @@ static float gain_predict(
 
    /* predicted codebook gain */
    gcode0 = pred_code;
-   gcode0 = (float)Math.pow((double)10.0,(double)(gcode0/20.0));   /* predicted gain */
+   gcode0 = (float)Math.pow(10.0, gcode0/20.0);   /* predicted gain */
 
    return gcode0;
 }

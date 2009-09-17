@@ -418,8 +418,6 @@ public class OperationSetAdHocMultiUserChatYahooImpl
     *            the inviter that sent the invitation
     * @param reason
     *            the reason why the inviter sent the invitation
-    * @param password
-    *            the password to use when joining the room
     */
    public void fireInvitationEvent(AdHocChatRoom targetChatRoom, String inviter,
            String reason)
@@ -441,8 +439,7 @@ public class OperationSetAdHocMultiUserChatYahooImpl
 
        while (listeners.hasNext())
        {
-           AdHocChatRoomInvitationListener listener
-               = (AdHocChatRoomInvitationListener) listeners.next();
+           AdHocChatRoomInvitationListener listener = listeners.next();
 
            listener.invitationReceived(evt);
        }
@@ -479,8 +476,7 @@ public class OperationSetAdHocMultiUserChatYahooImpl
 
        while (listeners.hasNext())
        {
-           AdHocChatRoomInvitationRejectionListener listener
-               = (AdHocChatRoomInvitationRejectionListener) listeners.next();
+           AdHocChatRoomInvitationRejectionListener listener = listeners.next();
 
            listener.invitationRejected(evt);
        }
@@ -518,8 +514,7 @@ public class OperationSetAdHocMultiUserChatYahooImpl
 
        while (listeners.hasNext())
        {
-           LocalUserAdHocChatRoomPresenceListener listener
-               = (LocalUserAdHocChatRoomPresenceListener) listeners.next();
+           LocalUserAdHocChatRoomPresenceListener listener = listeners.next();
           
            listener.localUserAdHocPresenceChanged(evt);
        }

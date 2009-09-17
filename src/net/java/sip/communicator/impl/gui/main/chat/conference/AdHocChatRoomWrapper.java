@@ -48,7 +48,7 @@ public class AdHocChatRoomWrapper
      * Creates a <tt>ChatRoomWrapper</tt> by specifying the corresponding chat
      * room.
      * 
-     * @param chatRoom the chat room to which this wrapper corresponds.
+     * @param adHocChatRoom the chat room to which this wrapper corresponds.
      */
     public AdHocChatRoomWrapper( AdHocChatRoomProviderWrapper parentProvider,
                             AdHocChatRoom adHocChatRoom)

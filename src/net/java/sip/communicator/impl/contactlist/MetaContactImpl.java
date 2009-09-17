@@ -121,7 +121,6 @@ public class MetaContactImpl
 
     /**
      * Creates new meta contact with a newly generated meta contact UID.
-     * @param mclServiceImpl the service that creates the contact.
      */
     MetaContactImpl()
     {
@@ -134,8 +133,8 @@ public class MetaContactImpl
     /**
      * Creates a new meta contact with the specified UID. This constructor
      * MUST ONLY be used when restoring contacts stored in the contactlist.xml.
+     * 
      * @param metaUID the meta uid that this meta contact should have.
-     * @param mclServiceImpl the service that creates the contact.
      * @param details the already stored details for the contact.
      */
     MetaContactImpl(String metaUID, Map<String, List<String>> details)

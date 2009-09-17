@@ -21,7 +21,6 @@ import net.java.sip.communicator.service.protocol.*;
  * A parent class for all status selector boxes.
  * 
  * @see SimpleStatusMenu
- * @see PresenceStatusSelectorBox
  * @see GlobalStatusSelectorBox
  * 
  * @author Yana Stamcheva

@@ -128,7 +128,8 @@ public class ChatWindowManager
     /**
      * Returns TRUE if there is an opened <tt>ChatPanel</tt> for the given
      * <tt>AdHocChatRoom</tt>.
-     * @param chatRoomWrapper the <tt>AdHocChatRoomWrapper</tt>, for which the 
+     * 
+     * @param adHocChatRoomWrapper the <tt>AdHocChatRoomWrapper</tt>, for which the 
      * ad-hoc chat is about
      * @return TRUE if there is an opened <tt>ChatPanel</tt> for the given
      * <tt>AdHocChatRoom</tt>

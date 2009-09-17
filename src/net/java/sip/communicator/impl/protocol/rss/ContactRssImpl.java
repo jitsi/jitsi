@@ -349,8 +349,6 @@ public class ContactRssImpl
      * initialized. This data contains the key identifying the last displayed
      * item, so that upon restart, items that have already been displayed in
      * older sessions don't get displayed again.
-     *
-     * @see #setPersistentData(String)
      */
     public String getPersistentData()
     {

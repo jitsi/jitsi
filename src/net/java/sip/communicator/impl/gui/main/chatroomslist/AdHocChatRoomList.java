@@ -75,9 +75,6 @@ public class AdHocChatRoomList
      *
      * @param pps the <tt>ProtocolProviderService</tt> corresponding to the chat
      * server
-     * @param adHocMultiUserChatOperationSet the 
-     * <tt>OperationSetAdHocMultiUserChat</tt> from which we manage ad-hoc chat 
-     * rooms
      */
     public void addChatProvider(ProtocolProviderService pps)
     {

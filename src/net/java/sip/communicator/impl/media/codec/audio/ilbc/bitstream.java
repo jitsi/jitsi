@@ -169,7 +169,7 @@ class bitstream {
                    index+=((((buffer[buffer_pos]) << (pos)) & 0xFF) >>> (8 - bitno));
                    pos=8;
                } else {
-                   index+=(((int)(((buffer[buffer_pos]) << (pos)) & 0xFF)) << (bitno - 8));
+                   index+=(((buffer[buffer_pos] << pos) & 0xFF) << (bitno - 8));
                    pos=8;
                }
                bitno -= BitsLeft;

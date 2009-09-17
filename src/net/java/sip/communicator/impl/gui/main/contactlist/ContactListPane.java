@@ -570,9 +570,9 @@ public class ContactListPane
     /**
      * When a request has been received we show it to the user through the
      * chat session renderer.
+     * 
      * @param event <tt>FileTransferRequestEvent</tt>
-     * @see FileTransferListener#incomingRequestReceived(
-     * FileTransferRequestEvent)
+     * @see FileTransferListener#fileTransferRequestReceived(FileTransferRequestEvent)
      */
     public void fileTransferRequestReceived(FileTransferRequestEvent event)
     {

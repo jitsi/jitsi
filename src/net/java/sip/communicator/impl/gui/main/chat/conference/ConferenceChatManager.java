@@ -619,7 +619,7 @@ public class ConferenceChatManager
     /**
      * Rejects the given invitation with the specified reason.
      *
-     * @param multiUserChatOpSet the operation set to use for rejecting the
+     * @param multiUserChatAdHocOpSet the operation set to use for rejecting the
      * invitation
      * @param invitation the invitation to reject
      * @param reason the reason for the rejection

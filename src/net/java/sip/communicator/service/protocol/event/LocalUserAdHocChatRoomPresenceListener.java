@@ -21,7 +21,7 @@ public interface LocalUserAdHocChatRoomPresenceListener
      * Called to notify interested parties that a change in our presence in
      * an ad-hoc chat room has occurred. Changes may include us being join,
      * left.
-     * @param _evt the <tt>LocalUserAdHocChatRoomPresenceChangeEvent</tt>
+     * @param evt the <tt>LocalUserAdHocChatRoomPresenceChangeEvent</tt>
      * instance containing the ad-hoc chat room and the type, and reason of the
      * change
      */

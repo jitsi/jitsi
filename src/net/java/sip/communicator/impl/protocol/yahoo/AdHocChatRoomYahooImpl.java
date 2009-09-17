@@ -365,9 +365,7 @@ public class AdHocChatRoomYahooImpl
 
             while (membersSet.hasNext())
             {
-                Map.Entry<String, Contact> memberEntry 
-                    = (Map.Entry<String, Contact>) membersSet.next();
-
+                Map.Entry<String, Contact> memberEntry = membersSet.next();
                 Contact participant = memberEntry.getValue();
 
                 fireParticipantPresenceEvent(participant,
@@ -434,8 +432,7 @@ public class AdHocChatRoomYahooImpl
 
         while (listeners.hasNext())
         {
-            AdHocChatRoomMessageListener listener
-                = (AdHocChatRoomMessageListener) listeners.next();
+            AdHocChatRoomMessageListener listener = listeners.next();
 
             if (evt instanceof AdHocChatRoomMessageDeliveredEvent)
             {
@@ -484,8 +481,7 @@ public class AdHocChatRoomYahooImpl
 
         while (listeners.hasNext())
         {
-            AdHocChatRoomParticipantPresenceListener listener
-                = (AdHocChatRoomParticipantPresenceListener) listeners.next();
+            AdHocChatRoomParticipantPresenceListener listener = listeners.next();
 
             listener.participantPresenceChanged(evt);
         }
@@ -520,7 +516,7 @@ public class AdHocChatRoomYahooImpl
     /**
      * Removes the specified ad-hoc chat room participant from the participants
      * list of this ad-hoc chat room.
-     * @param contact The member, who should be removed from the ad-hoc chat room
+     * @param participant The member, who should be removed from the ad-hoc chat room
      * participants list.
      */
     public void removeChatRoomParticipant(Contact participant)

@@ -266,10 +266,6 @@ public class AdHocChatRoomIcqImpl implements AdHocChatRoom
     * notified every time the room's subject change you should add a
     * <tt>ChatRoomPropertyChangelistener</tt> to this room. <p>
     * 
-    * 
-    * To change the room's subject use {@link #setSubject(String)}. Note: Not
-    * possible inside the msn protocol!
-    * 
     * @return the room subject or <tt>null</tt> if the user hasn't joined the
     * room or the room does not have a subject yet.
     */
@@ -368,7 +364,7 @@ public class AdHocChatRoomIcqImpl implements AdHocChatRoom
        {
            Map.Entry<String, Contact> memberEntry = membersSet.next();
 
-           Contact participant = (Contact) memberEntry.getValue();
+           Contact participant = memberEntry.getValue();
 
            fireParticipantPresenceEvent(participant,
                    AdHocChatRoomParticipantPresenceChangeEvent.CONTACT_LEFT,

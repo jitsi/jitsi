@@ -687,8 +687,6 @@ public class MailThreadInfo
     /**
      * Creates an html description (table rows) of the specified thread.
      *
-     * @param thread the thread that we are to describe.
-     *
      * @return an html description of <tt>thread</tt>
      */
     public String createHtmlDescription()

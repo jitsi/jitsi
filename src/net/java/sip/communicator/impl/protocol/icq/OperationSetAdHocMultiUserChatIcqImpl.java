@@ -155,13 +155,10 @@ public class OperationSetAdHocMultiUserChatIcqImpl
    public AdHocChatRoom findRoom(ChatInvitation chatInvitation)
            throws OperationFailedException, OperationNotSupportedException
    {
-       AdHocChatRoom chatRoom = (AdHocChatRoom) chatRoomCache.get(chatInvitation
-               .getRoomName());
+       AdHocChatRoom chatRoom = chatRoomCache.get(chatInvitation.getRoomName());
 
        if (chatRoom == null)
-       {
            chatRoom = createLocalChatRoomInstance(chatInvitation);
-       }
 
        return chatRoom;
    }
@@ -285,7 +282,7 @@ public class OperationSetAdHocMultiUserChatIcqImpl
    public AdHocChatRoom findRoom(String roomName) 
            throws OperationFailedException, OperationNotSupportedException
    {
-       AdHocChatRoom room = (AdHocChatRoom) chatRoomCache.get(roomName);
+       AdHocChatRoom room = chatRoomCache.get(roomName);
 
        return room;
    }
@@ -316,7 +313,7 @@ public class OperationSetAdHocMultiUserChatIcqImpl
    public void rejectInvitation(AdHocChatRoomInvitation invitation,
            String rejectReason)
    {
-       ChatInvitation inv = (ChatInvitation) invitations.get(invitation
+       ChatInvitation inv = invitations.get(invitation
                .getTargetAdHocChatRoom());
 
        if (inv != null)
@@ -402,7 +399,7 @@ public class OperationSetAdHocMultiUserChatIcqImpl
        while (listeners.hasNext())
        {
            AdHocChatRoomInvitationListener listener
-               = (AdHocChatRoomInvitationListener) listeners.next();
+               = listeners.next();
 
            listener.invitationReceived(evt);
        }
@@ -436,7 +433,7 @@ public class OperationSetAdHocMultiUserChatIcqImpl
        while (listeners.hasNext())
        {
            LocalUserAdHocChatRoomPresenceListener listener
-               = (LocalUserAdHocChatRoomPresenceListener) listeners.next();
+               = listeners.next();
 
            listener.localUserAdHocPresenceChanged(evt);
        }

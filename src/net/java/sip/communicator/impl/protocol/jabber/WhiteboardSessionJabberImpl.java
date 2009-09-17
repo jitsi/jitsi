@@ -167,7 +167,7 @@ public class WhiteboardSessionJabberImpl
 
     /**
      * Returns true if the local user is currently in the white-board session
-     * (after white-boarding one of the {@link #join(String)} methods).
+     * (after white-boarding one of the {@link #join()} methods).
      *
      * @return true if currently we're currently in this white-board and false
      * otherwise.

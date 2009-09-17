@@ -173,11 +173,6 @@ public class AdHocChatRoomProviderWrapper
      * {@link ChatRoomWrapper} tries to find the corresponding server stored
      * {@link ChatRoom} in the specified operation set. Joins automatically all
      * found chat rooms.
-     *
-     * @param protocolProvider the protocol provider for the account to
-     * synchronize
-     * @param opSet the ad-hoc multi-user chat operation set, which give us 
-     * access to chat room server 
      */
     public void synchronizeProvider()
     {

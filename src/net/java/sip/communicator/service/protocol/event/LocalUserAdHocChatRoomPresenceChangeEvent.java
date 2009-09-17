@@ -65,11 +65,11 @@ public class LocalUserAdHocChatRoomPresenceChangeEvent
      * representing that a change in local participant presence in the source 
      * ad-hoc chat room has occurred.
      *
-     * @param _source the <tt>OperationSetAdHocMultiUserChat</tt>, which
+     * @param source the <tt>OperationSetAdHocMultiUserChat</tt>, which
      * produced this event
-     * @param _adHocChatRoom the <tt>AdHocChatRoom</tt> that this event is about
-     * @param _eventType the type of this event.
-     * @param _reason the reason explaining why this event might have occurred
+     * @param adHocChatRoom the <tt>AdHocChatRoom</tt> that this event is about
+     * @param eventType the type of this event.
+     * @param reason the reason explaining why this event might have occurred
      */
     public LocalUserAdHocChatRoomPresenceChangeEvent(
                                 OperationSetAdHocMultiUserChat  source,

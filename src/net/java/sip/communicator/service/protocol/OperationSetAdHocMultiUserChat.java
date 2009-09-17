@@ -72,7 +72,7 @@ public interface OperationSetAdHocMultiUserChat
      * Returns a reference to an  AdHocChatRoom named <tt>adHocRoomName</tt> or 
      * null if no ad-hoc room with the given name exist on the server.
      * <p>
-     * @param adHocRroomName the name of the <tt>AdHocChatRoom</tt> that we're 
+     * @param adHocRoomName the name of the <tt>AdHocChatRoom</tt> that we're 
      * looking for.
      * @return the <tt>AdHocChatRoom</tt> named <tt>adHocRoomName</tt> if it
      * exists, null otherwise.

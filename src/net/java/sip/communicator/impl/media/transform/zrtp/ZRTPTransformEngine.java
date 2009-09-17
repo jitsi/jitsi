@@ -331,8 +331,7 @@ public class ZRTPTransformEngine
     /**
      * Returns an instance of <tt>ZRTPCTransformer</tt>.
      * 
-     * @see net.java.sip.communicator.impl.media.transform.
-     *      TransformEngine#getRTCPTransformer()
+     * @see TransformEngine#getRTCPTransformer()
      */
     public PacketTransformer getRTCPTransformer()
     {
@@ -342,8 +341,7 @@ public class ZRTPTransformEngine
     /**
      * Returns this RTPTransformer.
      * 
-     * @see net.java.sip.communicator.impl.media.transform.
-     *      TransformEngine#getRTPTransformer()
+     * @see TransformEngine#getRTPTransformer()
      */
     public PacketTransformer getRTPTransformer()
     {
@@ -486,8 +484,7 @@ public class ZRTPTransformEngine
      * The data output stream calls this method to transform outgoing
      * packets.
      * 
-     * @see net.java.sip.communicator.impl.media.transform.PacketTransformer#
-     * transform(net.java.sip.communicator.impl.media.transform.RawPacket)
+     * @see PacketTransformer#transform(net.java.sip.communicator.impl.media.transform.RawPacket)
      */
     public RawPacket transform(RawPacket pkt)
     {
@@ -524,9 +521,7 @@ public class ZRTPTransformEngine
      * The input data stream calls this method to transform
      * incoming packets.
      * 
-     * @see net.java.sip.communicator.impl.media.transform.PacketTransformer#
-     * reverseTransform(
-     *      net.java.sip.communicator.impl.media.transform.RawPacket)
+     * @see PacketTransformer#reverseTransform(net.java.sip.communicator.impl.media.transform.RawPacket)
      */
     public RawPacket reverseTransform(RawPacket pkt)
     {

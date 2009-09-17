@@ -278,7 +278,7 @@ static final float GP0999 =      0.9999f;
  * Error threshold taming
  */
 static final float THRESH_ERR =  60000.0f;  
-static final float INV_L_SUBFR = (float) (1.0f/(float)L_SUBFR); /* =0.025 */
+static final float INV_L_SUBFR = (1.0f/(float)L_SUBFR); /* =0.025 */
 /*-------------------------------------------------------------------------
  * gain quantizer  constants
  *-------------------------------------------------------------------------

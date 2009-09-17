@@ -239,9 +239,9 @@ public class AdHocChatRoomMsnImpl
 
     /**
      * Returns the participant of this ad-hoc chat room which corresponds to
-     * the given _id.
+     * the given id.
      * 
-     * @param _id
+     * @param id ID of the participant
      * @return Contact the corresponding Contact
      */
     public Contact getAdHocChatRoomParticipant(String id)
@@ -264,9 +264,9 @@ public class AdHocChatRoomMsnImpl
 
     /**
      * Removes the participant of this ad-hoc chat room which corresponds to
-     * the given _id.
+     * the given id.
      * 
-     * @param _id
+     * @param id ID of the participant
      */
     public void removeParticipant(String id)
     {
@@ -349,7 +349,7 @@ public class AdHocChatRoomMsnImpl
 
         while (participantsIter.hasNext())
         {
-            Contact participant = (Contact) participantsIter.next();
+            Contact participant = participantsIter.next();
 
             fireParticipantPresenceEvent(participant,
                 AdHocChatRoomParticipantPresenceChangeEvent.CONTACT_LEFT,
@@ -455,8 +455,7 @@ public class AdHocChatRoomMsnImpl
 
         while (listeners.hasNext())
         {
-            AdHocChatRoomMessageListener listener =
-                (AdHocChatRoomMessageListener) listeners.next();
+            AdHocChatRoomMessageListener listener = listeners.next();
 
             if (evt instanceof AdHocChatRoomMessageDeliveredEvent)
             {

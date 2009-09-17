@@ -851,14 +851,8 @@ public class IcqTesterAgent
                 System.out.println("printing extra info blocks ("
                                    + eInfoBlocks.size() + ")");
 
-                for (int i = 0; i < eInfoBlocks.size(); i++)
-                {
-                    ExtraInfoBlock block
-                        = (ExtraInfoBlock) eInfoBlocks.get(i);
-                    System.out.println("block.toString()="
-                                       + block.toString()); ;
-
-                }
+                for (ExtraInfoBlock block : eInfoBlocks)
+                    System.out.println("block.toString()=" + block);
             }
             else
                 logger.trace("no extra info.");

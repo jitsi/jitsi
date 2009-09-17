@@ -117,7 +117,7 @@ public class VideoEvent
      * Gets the origin of the video this <code>VideoEvent</code> notifies about
      * which is one of {@link #LOCAL} and {@link #REMOTE}.
      *
-     * @return one of {@link LOCAL} and {@link #REMOTE} which specifies the
+     * @return one of {@link #LOCAL} and {@link #REMOTE} which specifies the
      *         origin of the video this <code>VideoEvent</code> notifies about
      */
     public int getOrigin()

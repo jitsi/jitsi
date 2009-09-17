@@ -513,7 +513,6 @@ public class ProtocolProviderServiceSipImpl
 
     /**
      * Never called.
-     * @see net.java.sip.communicator.impl.protocol.sip.PersistentService#processIOException(IOExceptionEvent)
      */
     public void processIOException(IOExceptionEvent exceptionEvent) {}
 
