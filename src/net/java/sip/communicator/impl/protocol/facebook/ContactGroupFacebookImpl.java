@@ -12,12 +12,11 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * A simple, straightforward implementation of a facebook ContactGroup.
- * We simply store all group details in class fields. 
- * You should know that when implementing a real protocol,
- * the contact group implementation would rather encapsulate group objects from
- * the protocol stack and group property values should be returned by consulting
- * the encapsulated object.
+ * A simple, straightforward implementation of a facebook ContactGroup. We
+ * simply store all group details in class fields. You should know that when
+ * implementing a real protocol, the contact group implementation would rather
+ * encapsulate group objects from the protocol stack and group property values
+ * should be returned by consulting the encapsulated object.
  *
  * @author Dai Zhiwei
  */

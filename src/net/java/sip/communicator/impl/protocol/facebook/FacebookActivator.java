@@ -58,15 +58,15 @@ public class FacebookActivator
     {
         FacebookActivator.bundleContext = context;
 
-        Hashtable<String, String> hashtable = new Hashtable<String, String>();
-        hashtable.put(ProtocolProviderFactory.PROTOCOL, "Facebook");
-
         facebookProviderFactory = new ProtocolProviderFactoryFacebookImpl();
 
         // reg the facebook provider factory.
+        Dictionary<String, String> properties = new Hashtable<String, String>();
+        properties.put(ProtocolProviderFactory.PROTOCOL, "Facebook");
+
         facebookPpFactoryServReg =
             context.registerService(ProtocolProviderFactory.class.getName(),
-                facebookProviderFactory, hashtable);
+                facebookProviderFactory, properties);
 
         logger.info("Facebook protocol implementation [STARTED].");
     }
@@ -75,7 +75,7 @@ public class FacebookActivator
      * Returns a reference to the bundle context that we were started with.
      * 
      * @return a reference to the BundleContext instance that we were started
-     *         witn.
+     *         within.
      */
     public static BundleContext getBundleContext()
     {
@@ -83,7 +83,7 @@ public class FacebookActivator
     }
 
     /**
-     * Retrurns a reference to the protocol provider factory that we have
+     * Returns a reference to the protocol provider factory that we have
      * registered.
      * 
      * @return a reference to the <tt>ProtocolProviderFactoryJabberImpl</tt>
@@ -114,20 +114,8 @@ public class FacebookActivator
     public static ResourceManagementService getResources()
     {
         if (resourceService == null)
-        {
-            ServiceReference serviceReference =
-                bundleContext
-                    .getServiceReference(ResourceManagementService.class
-                        .getName());
-
-            if (serviceReference == null)
-                return null;
-
-            resourceService =
-                (ResourceManagementService) bundleContext
-                    .getService(serviceReference);
-        }
-
+            resourceService
+                = ResourceManagementServiceUtils.getService(bundleContext);
         return resourceService;
     }
 }
