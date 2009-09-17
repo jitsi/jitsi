@@ -18,7 +18,7 @@ import net.java.sip.communicator.service.neomedia.*;
  * properties such as the name of the underlying encoding, or clock rate or in
  * order comparing to compare formats. Extending interfaces representing audio
  * or video formats are likely to add other methods.
- * <p>
+ * 
  * @author Emil Ivov
  */
 public interface MediaFormat

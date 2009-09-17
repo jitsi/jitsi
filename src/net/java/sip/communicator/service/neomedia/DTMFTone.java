@@ -121,7 +121,7 @@ public final class DTMFTone
 
     /**
      * Indicates whether some other object is "equal to" this tone.
-     * <p>
+     * 
      * @param target the reference object with which to compare.
      *
      * @return  <tt>true</tt> if target represents the same tone as this
@@ -143,7 +143,6 @@ public final class DTMFTone
      * supported for the benefit of hashtables such as those provided by
      * <code>java.util.Hashtable</code>. The method would actually return the
      * hashcode of the string representation of this DTMF tone.
-     * <p>
      *
      * @return  a hash code value for this object (same as calling
      * getValue().hashCode()).
@@ -152,5 +151,4 @@ public final class DTMFTone
     {
         return getValue().hashCode();
     }
-
 }

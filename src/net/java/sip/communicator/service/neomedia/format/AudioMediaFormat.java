@@ -13,7 +13,8 @@ package net.java.sip.communicator.service.neomedia.format;
  *
  * @author Emil Ivov
  */
-public interface AudioMediaFormat extends MediaFormat
+public interface AudioMediaFormat
+    extends MediaFormat
 {
     /**
      * Returns the number of audio channels associated with this

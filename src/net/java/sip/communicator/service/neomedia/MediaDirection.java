@@ -43,7 +43,7 @@ public enum MediaDirection
     /**
      * The name of this direction.
      */
-    private String directionName = null;
+    private final String directionName;
 
     /**
      * Creates a <tt>MediaDirection</tt> instance with the specified name.

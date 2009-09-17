@@ -26,7 +26,8 @@ import net.java.sip.communicator.service.neomedia.*;
  *
  * @author Emil Ivov
  */
-public class SoundLevelChangeEvent extends EventObject
+public class SoundLevelChangeEvent
+    extends EventObject
 {
     /**
      * The maximum level that can be reported for a participant in a conference.
@@ -45,17 +46,20 @@ public class SoundLevelChangeEvent extends EventObject
     /**
      * The hashtable mapping SSRC identifiers to sound levels.
      */
-    private Hashtable<String, Integer> levels = null;
+    private final Map<String, Integer> levels;
 
     /**
      * Creates a new instance of a <tt>SoundLevelChangeEvent</tt> for the
      * specified source stream and level mappings.
+     *
      * @param source
+     * @param levels
      */
     public SoundLevelChangeEvent(MediaStream source,
-                                 Hashtable<String, Integer> levels)
+                                 Map<String, Integer> levels)
     {
         super(source);
+
         this.levels = levels;
     }
 
@@ -79,7 +83,7 @@ public class SoundLevelChangeEvent extends EventObject
      *
      * @return a hashtable mapping SSRC identifiers to sound levels.
      */
-    public Hashtable<String, Integer> getLevels()
+    public Map<String, Integer> getLevels()
     {
         return levels;
     }

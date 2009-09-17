@@ -16,7 +16,7 @@ import java.net.*;
  * <tt>StreamConnector</tt> is so that they could be shared among media
  * and other libraries that may need to use them like an ICE implementation for
  * example.
- * </p>
+ * 
  * @author Emil Ivov
  */
 public interface StreamConnector

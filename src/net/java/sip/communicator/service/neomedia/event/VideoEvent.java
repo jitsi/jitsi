@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.service.neomedia.event;
 
-
 import java.awt.*;
 import java.util.*;
 

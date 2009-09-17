@@ -19,12 +19,12 @@ public class MediaStreamTarget
     /**
      * The data (RTP) address of the target.
      */
-    private InetSocketAddress rtpTarget = null;
+    private final InetSocketAddress rtpTarget;
 
     /**
      * The control (RTCP) address of the target.
      */
-    private InetSocketAddress rtcpTarget = null;
+    private final InetSocketAddress rtcpTarget;
 
     /**
      * Creates an instance of this <tt>MediaStreamTarget</tt> containing the

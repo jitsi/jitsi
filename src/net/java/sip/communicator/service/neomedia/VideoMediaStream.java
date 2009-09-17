@@ -17,7 +17,8 @@ import net.java.sip.communicator.service.protocol.event.*;
  *
  * @author Emil Ivov
  */
-public interface VideoMediaStream extends MediaStream
+public interface VideoMediaStream
+    extends MediaStream
 {
     /**
      * Returns a reference to the visual component where video from the remote

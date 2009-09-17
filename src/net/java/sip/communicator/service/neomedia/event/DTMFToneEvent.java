@@ -16,12 +16,13 @@ import net.java.sip.communicator.service.neomedia.*;
  *
  * @author Emil Ivov
  */
-public class DTMFToneEvent extends EventObject
+public class DTMFToneEvent
+    extends EventObject
 {
     /**
      * The tone that this event is pertaining to.
      */
-    private DTMFTone dtmfTone = null;
+    private final DTMFTone dtmfTone;
 
     /**
      * Creates an instance of this <tt>DTMFToneEvent</tt> with the specified
@@ -47,5 +48,4 @@ public class DTMFToneEvent extends EventObject
     {
         return dtmfTone;
     }
-
 }

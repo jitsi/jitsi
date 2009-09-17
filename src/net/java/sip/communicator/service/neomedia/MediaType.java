@@ -25,9 +25,9 @@ public enum MediaType
     VIDEO("video");
 
     /**
-     * The name of this MediaType.
+     * The name of this <tt>MediaType</tt>.
      */
-    private String mediaTypeName = null;
+    private final String mediaTypeName;
 
     /**
      * Creates a <tt>MediaType</tt> instance with the specified name.
@@ -68,10 +68,10 @@ public enum MediaType
         throws IllegalArgumentException
     {
         if(AUDIO.toString().equals(mediaTypeName))
-            return MediaType.AUDIO;
+            return AUDIO;
 
         if(VIDEO.toString().equals(mediaTypeName))
-            return MediaType.VIDEO;
+            return VIDEO;
 
         throw new IllegalArgumentException(
             mediaTypeName + " is not a currently supported MediaType");

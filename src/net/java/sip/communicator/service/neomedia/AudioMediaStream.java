@@ -14,7 +14,8 @@ import net.java.sip.communicator.service.neomedia.event.*;
  *
  * @author Emil Ivov
  */
-public interface AudioMediaStream extends MediaStream
+public interface AudioMediaStream
+    extends MediaStream
 {
     /**
      * Adds <tt>listener</tt> to the list of <tt>SoundLevelListener</tt>s
@@ -66,6 +67,7 @@ public interface AudioMediaStream extends MediaStream
     /**
      * Remove <tt>listener</tt> from the list of <tt>DTMFListener</tt>s
      * registered to receive events for incoming DTMF tones.
+     * 
      * @param listener the listener that we'd like to unregister
      */
     public void removeDTMFListener(DTMFListener listener);

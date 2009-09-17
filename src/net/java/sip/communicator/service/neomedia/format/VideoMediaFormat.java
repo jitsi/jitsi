@@ -16,6 +16,7 @@ import java.awt.*;
  * @author Emil Ivov
  */
 public interface VideoMediaFormat
+    extends MediaFormat
 {
     /**
      * Returns the size of the image that this <tt>VideoMediaFormat</tt>
