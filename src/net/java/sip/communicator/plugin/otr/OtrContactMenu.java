@@ -130,7 +130,7 @@ class OtrContactMenu
                 OtrActivator.scOtrEngine.getContactPolicy(contact);
             boolean state = ((JCheckBoxMenuItem) e.getSource()).getState();
 
-            policy.setEnableAlways(state);
+            policy.setRequireEncryption(state);
             OtrActivator.scOtrEngine.setContactPolicy(contact, policy);
         }
         else if (ACTION_COMMAND_CB_RESET.equals(actionCommand))
