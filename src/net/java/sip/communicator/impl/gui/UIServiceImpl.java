@@ -1046,9 +1046,10 @@ public class UIServiceImpl
     public boolean useMacOSXScreenMenuBar()
     {
         String osName = System.getProperty("os.name");
-        return (osName != null)
-            && ((osName.indexOf("Mac OS X") != -1)
-                            || (osName.indexOf("Darwin") != -1));
+        return
+            (osName != null)
+                && ((osName.indexOf("Mac OS X") != -1)
+                        || (osName.indexOf("Darwin") != -1));
     }
 
     /*

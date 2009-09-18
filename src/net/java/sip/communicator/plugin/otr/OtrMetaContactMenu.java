@@ -29,12 +29,20 @@ public class OtrMetaContactMenu
 
     /**
      * The last known <tt>MetaContact</tt> to be currently selected and to be
-     * depcited by this instance and the <tt>OtrContactMenu</tt>s it contains.
+     * depicted by this instance and the <tt>OtrContactMenu</tt>s it contains.
      */
     private MetaContact currentContact;
 
     /**
-     * The <code>JMenu</code> which is the component of this plugin.
+     * The indicator which determines whether the <tt>JMenu</tt> of this
+     * <tt>OtrMetaContactMenu</tt> is displayed in the Mac OS X screen menu bar
+     * and thus should work around the known problem of PopupMenuListener not
+     * being invoked.
+     */
+    private final boolean inMacOSXScreenMenuBar;
+
+    /**
+     * The <tt>JMenu</tt> which is the component of this plug-in.
      */
     private JMenu menu;
 
@@ -47,6 +55,10 @@ public class OtrMetaContactMenu
     public OtrMetaContactMenu(Container container)
     {
         super(container);
+
+        inMacOSXScreenMenuBar
+            = Container.CONTAINER_CHAT_MENU_BAR.equals(container)
+                && OtrActivator.uiService.useMacOSXScreenMenuBar();
     }
 
     /*
@@ -61,6 +73,8 @@ public class OtrMetaContactMenu
 
     private void createOtrContactMenus(MetaContact metaContact)
     {
+        JMenu menu = getMenu();
+
         // Remove any existing OtrContactMenu items.
         for (int itemIndex = 0, itemCount = menu.getItemCount();
                 itemIndex < itemCount;)
@@ -85,7 +99,11 @@ public class OtrMetaContactMenu
             int itemIndex = 0;
             while (contacts.hasNext())
             {
-                menu.insert(new OtrContactMenu(contacts.next()), itemIndex);
+                menu.insert(
+                        new OtrContactMenu(
+                                contacts.next(),
+                                inMacOSXScreenMenuBar),
+                        itemIndex);
                 itemIndex++;
             }
         }
@@ -93,7 +111,7 @@ public class OtrMetaContactMenu
 
     /*
      * Implements PluginComponent#getComponent(). Returns the JMenu which is
-     * the component of this plugin creating it first if it doesn't exist.
+     * the component of this plug-in creating it first if it doesn't exist.
      */
     public Component getComponent()
     {
@@ -101,10 +119,10 @@ public class OtrMetaContactMenu
     }
 
     /**
-     * Gets the <code>JMenu</code> which is the component of this plugin. If it
+     * Gets the <tt>JMenu</tt> which is the component of this plug-in. If it
      * still doesn't exist, it's created.
      * 
-     * @return the <code>JMenu</code> which is the component of this plugin
+     * @return the <tt>JMenu</tt> which is the component of this plug-in
      */
     private JMenu getMenu()
     {
@@ -125,7 +143,8 @@ public class OtrMetaContactMenu
                     menu.setIcon(icon);
             }
 
-            menu.getPopupMenu().addPopupMenuListener(this);
+            if (!inMacOSXScreenMenuBar)
+                menu.getPopupMenu().addPopupMenuListener(this);
         }
         return menu;
     }
@@ -167,6 +186,8 @@ public class OtrMetaContactMenu
 
         if (whatsThis == null)
         {
+            JMenu menu = getMenu();
+
             menu.addSeparator();
 
             whatsThis = new JMenuItem();
@@ -187,7 +208,9 @@ public class OtrMetaContactMenu
         {
             this.currentContact = metaContact;
 
-            if ((menu != null) && menu.isPopupMenuVisible())
+            if (inMacOSXScreenMenuBar)
+                popupMenuWillBecomeVisible(null);
+            else if ((menu != null) && menu.isPopupMenuVisible())
                 createOtrContactMenus(currentContact);
         }
     }

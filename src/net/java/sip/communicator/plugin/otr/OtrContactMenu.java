@@ -46,13 +46,21 @@ class OtrContactMenu
 
     private final Contact contact;
 
+    /**
+     * The indicator which determines whether this <tt>JMenu</tt> is displayed
+     * in the Mac OS X screen menu bar and thus should work around the known
+     * problem of PopupMenuListener not being invoked.
+     */
+    private final boolean inMacOSXScreenMenuBar;
+
     private OtrPolicy otrPolicy;
 
     private SessionStatus sessionStatus;
 
-    public OtrContactMenu(Contact contact)
+    public OtrContactMenu(Contact contact, boolean inMacOSXScreenMenuBar)
     {
         this.contact = contact;
+        this.inMacOSXScreenMenuBar = inMacOSXScreenMenuBar;
 
         this.setText(contact.getDisplayName());
 
@@ -60,7 +68,8 @@ class OtrContactMenu
          * Setup populating this JMenu on demand because it's not always
          * necessary.
          */
-        getPopupMenu().addPopupMenuListener(this);
+        if (!this.inMacOSXScreenMenuBar)
+            getPopupMenu().addPopupMenuListener(this);
 
         OtrActivator.scOtrEngine.addListener(this);
         OtrActivator.scOtrKeyManager.addListener(this);
@@ -314,7 +323,7 @@ class OtrContactMenu
             this.sessionStatus = sessionStatus;
 
             updateIcon();
-            if (isPopupMenuVisible())
+            if (isPopupMenuVisible() || inMacOSXScreenMenuBar)
                 rebuildMenu();
         }
     }
@@ -325,7 +334,7 @@ class OtrContactMenu
         {
             this.otrPolicy = otrPolicy;
 
-            if (isPopupMenuVisible())
+            if (isPopupMenuVisible() || inMacOSXScreenMenuBar)
                 rebuildMenu();
         }
     }
