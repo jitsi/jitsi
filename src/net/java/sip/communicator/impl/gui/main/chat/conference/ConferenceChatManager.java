@@ -198,7 +198,6 @@ public class ConferenceChatManager
             break;
         }
 
-        logger.setLevelInfo();
         logger.info("MESSAGE RECEIVED from "+sourceMember.getContactAddress());
         
         logger.trace("MESSAGE RECEIVED from contact: "
@@ -1747,7 +1746,6 @@ public class ConferenceChatManager
     }
 
     public void invitationReceived(AdHocChatRoomInvitationReceivedEvent evt) {
-        logger.setLevelInfo();
         logger.info("Invitation received: "+evt.toString());
         OperationSetAdHocMultiUserChat multiUserChatOpSet
             = evt.getSourceOperationSet();
@@ -1768,7 +1766,6 @@ public class ConferenceChatManager
     public void messageDelivered(AdHocChatRoomMessageDeliveredEvent evt) {
         AdHocChatRoom sourceChatRoom = (AdHocChatRoom) evt.getSource();
 
-        logger.setLevelInfo();
         logger.info("MESSAGE DELIVERED to ad-hoc chat room: "
             + sourceChatRoom.getName());
 
@@ -1808,7 +1805,6 @@ public class ConferenceChatManager
         }
         else
         {
-            logger.setLevelError();
             logger.error("chat panel is null, message NOT DELIVERED !");
         }
     }
