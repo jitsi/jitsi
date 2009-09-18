@@ -139,17 +139,28 @@ public class OtrMetaContactButton
 
     public void setCurrentContact(Contact contact)
     {
-        this.contact = contact;
-        this.setStatus(OtrActivator.scOtrEngine.getSessionStatus(contact));
-        this.setPolicy(OtrActivator.scOtrEngine.getContactPolicy(contact));
+        if (this.contact != contact)
+        {
+            this.contact = contact;
+
+            this.setStatus(OtrActivator.scOtrEngine.getSessionStatus(contact));
+            this.setPolicy(OtrActivator.scOtrEngine.getContactPolicy(contact));
+        }
     }
 
     public void setCurrentContact(MetaContact metaContact)
     {
-        Contact defaultContact = metaContact.getDefaultContact();
+        /*
+         * TODO What if metaContact is null? Does it mean that this.contact
+         * should become null?
+         */
+        if (metaContact != null)
+        {
+            Contact defaultContact = metaContact.getDefaultContact();
 
-        if (defaultContact != null)
-            setCurrentContact(defaultContact);
+            if (defaultContact != null)
+                setCurrentContact(defaultContact);
+        }
     }
 
     private void setPolicy(OtrPolicy contactPolicy)

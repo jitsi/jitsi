@@ -322,6 +322,8 @@ public class ChatWindowManager
                     GuiActivator.getUIService().getConferenceChatManager()
                         .leaveChatRoom(
                             (AdHocChatRoomWrapper) adHocSession.getDescriptor());
+
+                    closeChatPanel(chatPanel);
                 }
                 else
                 {

@@ -150,14 +150,10 @@ public class MainToolBar
         MetaContact contact
             = GuiActivator.getUIService().getChatContact(panel);
 
-        if (contact != null)
-        {
-            for (PluginComponent c : pluginContainer.getPluginComponents())
-                c.setCurrentContact(contact);
-        }
+        for (PluginComponent c : pluginContainer.getPluginComponents())
+            c.setCurrentContact(contact);
 
-        if (panel.chatSession != null
-                && panel.chatSession instanceof MetaContactChatSession)
+        if (panel.chatSession instanceof MetaContactChatSession)
         {
             panel.chatSession.addChatTransportChangeListener(
                 new ChatSessionChangeListener()

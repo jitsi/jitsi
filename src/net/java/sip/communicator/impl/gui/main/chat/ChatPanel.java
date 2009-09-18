@@ -135,14 +135,10 @@ public class ChatPanel
         this.writeMessagePanel = new ChatWritePanel(this);
 
         int chatAreaSize = ConfigurationManager.getChatWriteAreaSize();
-
-        Dimension writeMessagePanelDefaultSize;
-        if (chatAreaSize > 0)
-            writeMessagePanelDefaultSize = new Dimension(500, chatAreaSize);
-        else
-            writeMessagePanelDefaultSize = new Dimension(500, 100);
-
+        Dimension writeMessagePanelDefaultSize
+            = new Dimension(500, (chatAreaSize > 0) ? chatAreaSize : 100);
         Dimension writeMessagePanelMinSize = new Dimension(500, 45);
+
         this.writeMessagePanel.setMinimumSize(writeMessagePanelMinSize);
         this.writeMessagePanel.setPreferredSize(writeMessagePanelDefaultSize);
 
