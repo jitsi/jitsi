@@ -163,6 +163,14 @@ public class JmfDeviceDetector
         {
             logger.debug("No FMJ javasound detected: " + exc.getMessage());
         }
+//        try
+//        {
+//            new PortAudioAuto();
+//        }
+//        catch (Throwable exc)
+//        {
+//            logger.info("No JMF portaudio detected: " + exc.getMessage());
+//        }
 
         // video is enabled by default
         // if video is disabled skip device detection
@@ -396,6 +404,18 @@ public class JmfDeviceDetector
         }
 
         setupRenderers();
+
+        // Enables Portaudio Renderer and makes it default by removing
+        // javasound renderer
+//        PlugInManager.addPlugIn(
+//            "net.java.sip.communicator.impl.media.renderer.audio.PortAudioRenderer",
+//            net.java.sip.communicator.impl.media.renderer.audio.PortAudioRenderer.supportedInputFormats,
+//            null,
+//            PlugInManager.RENDERER);
+//
+//        PlugInManager.removePlugIn(
+//            "com.sun.media.renderer.audio.JavaSoundRenderer",
+//            PlugInManager.RENDERER);
     }
 
     @SuppressWarnings("unchecked") //legacy JMF code.
