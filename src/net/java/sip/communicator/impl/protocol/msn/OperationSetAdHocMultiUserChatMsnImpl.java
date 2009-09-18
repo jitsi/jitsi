@@ -40,8 +40,8 @@ public class OperationSetAdHocMultiUserChatMsnImpl
     /**
      * The ad-hoc rooms we currently are in.
      */
-    private Hashtable<String, AdHocChatRoomMsnImpl> adHocChatRoomCache
-                        = new Hashtable<String, AdHocChatRoomMsnImpl>();
+    private Hashtable<MsnSwitchboard, AdHocChatRoomMsnImpl> adHocChatRoomCache
+                        = new Hashtable<MsnSwitchboard, AdHocChatRoomMsnImpl>();
 
     /**
      * A list of listeners subscribed for invitations multi user chat events.
@@ -61,7 +61,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      * A list of the ad-hoc rooms that are currently open and created by this
      * account.
      */
-    private Hashtable<Object, AdHocChatRoom> userCreatedAdHocChatRoomList
+    private Hashtable<Object, AdHocChatRoom> pendingAdHocChatRoomList
         = new Hashtable<Object, AdHocChatRoom>();
 
     /**
@@ -151,30 +151,6 @@ public class OperationSetAdHocMultiUserChatMsnImpl
     }
 
     /**
-     * Creates an <tt>AdHocChatRoom</tt> from the specified _adHocChatRoomName
-     * and the corresponding _switchboard.
-     * 
-     * @param adHocChatRoomName the specific chat room name.
-     * @param switchboard The corresponding switchboard.
-     * 
-     * @return AdHocChatRoomMsnImpl the chat room that we've just created.
-     */
-    private AdHocChatRoomMsnImpl createAdHocChatRoom(String adHocChatRoomName,
-        MsnSwitchboard switchboard)
-    {
-        synchronized (this.adHocChatRoomCache)
-        {
-            AdHocChatRoomMsnImpl adHocChatRoom = new AdHocChatRoomMsnImpl(
-                    adHocChatRoomName, this.provider, switchboard);
-
-            this.adHocChatRoomCache.put(adHocChatRoom.getName(), adHocChatRoom);
-            adHocChatRoom.join();
-            return adHocChatRoom;
-        }
-
-    }
-    
-    /**
      * Creates a message by a given message text.
      * 
      * @param messageText The message text.
@@ -189,14 +165,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
 
     /**
      * Creates an ad-hoc room with the named <tt>adHocRoomName</tt> and in 
-     * including to the specified <tt>contacts</tt>. When the method
-     * returns the ad-hoc room the local user will not have joined it and thus 
-     * will not receive messages on it until the <tt>AdHocChatRoom.join()</tt> 
-     * method is called.
-     * 
-     * NOTE: this method was done for the Yahoo! implementation. But since both
-     * Yahoo! and MSN are implementing the ad-hoc multi-user-chat operation set,
-     * we have to define this method here.
+     * including to the specified <tt>contacts</tt>.
      * 
      * @param adHocRoomName the name of the ad-hoc room
      * @param contacts the list of contacts
@@ -204,26 +173,24 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      * @throws OperationFailedException
      * @throws OperationNotSupportedException
      */
-    public AdHocChatRoom createAdHocChatRoom(String adHocRoomName,
-        List<Contact> contacts) 
+    public AdHocChatRoom createAdHocChatRoom(   String adHocRoomName,
+                                                List<Contact> contacts)
         throws OperationFailedException, OperationNotSupportedException
     {
-        AdHocChatRoom adHocRoom = null;
-        adHocRoom = findRoom(adHocRoomName);
-        if (adHocRoom == null)
-        { 
-            // when the room hasn't been created, we create it.
-            adHocRoom = createLocalAdHocChatRoomInstance(adHocRoomName);
+        AdHocChatRoom adHocChatRoom
+            = createAdHocChatRoom(adHocRoomName, new Hashtable());
 
-            // we create an identifier object and create a new switchboard
-            // we need to track this object to identify this chatRoom
-            Object id = new Object();
-            this.provider.getMessenger().newSwitchboard(id);
-            // we put it into a hash table
-            this.userCreatedAdHocChatRoomList.put(id, adHocRoom);
+        if (adHocChatRoom != null && contacts != null)
+        {
+            for (Contact contact : contacts)
+            {
+                ContactMsnImpl newContact = (ContactMsnImpl) contact;
+
+                adHocChatRoom.invite(newContact.getAddress(), "");
+            }
         }
-        adHocRoom.join();
-        return adHocRoom;
+
+        return adHocChatRoom;
     }
 
     /**
@@ -238,22 +205,23 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      */
     public AdHocChatRoom createAdHocChatRoom(String adHocRoomName,
             Map<String, Object> adHocRoomProperties)
-            throws OperationFailedException, OperationNotSupportedException {
-        AdHocChatRoom adHocRoom = null;
-        adHocRoom = findRoom(adHocRoomName);
+            throws OperationFailedException, OperationNotSupportedException
+    {
+        AdHocChatRoom adHocRoom = adHocChatRoomCache.get(adHocRoomName);
+
         if (adHocRoom == null)
-        { 
-            // when the room hasn't been created, we create it.
-            adHocRoom = createLocalAdHocChatRoomInstance(adHocRoomName);
+        {
+            assertConnected();
 
             // we create an identifier object and create a new switchboard
             // we need to track this object to identify this chatRoom
             Object id = new Object();
             this.provider.getMessenger().newSwitchboard(id);
-            // we put it into a hash table
-            this.userCreatedAdHocChatRoomList.put(id, adHocRoom);
+
+            // when the room hasn't been created, we create it.
+            adHocRoom = createLocalAdHocChatRoomInstance(adHocRoomName, id);
         }
-        adHocRoom.join();
+
         return adHocRoom;
     }
 
@@ -261,88 +229,77 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      * Creates a <tt>ChatRoom</tt> from the specified chatRoomName.
      * 
      * @param adHocChatRoomName the specific ad-hoc chat room name.
-     * 
-     * @return AdHocChatRoom the ad-hoc chat room that we've just created.
+     * @param switchboardId the identifier of the switchboard
+     * @return the ad-hoc chat room that we've just created.
      */
-    private AdHocChatRoom createLocalAdHocChatRoomInstance(
-            String adHocChatRoomName)
+    private AdHocChatRoomMsnImpl createLocalAdHocChatRoomInstance(
+            String adHocChatRoomName, Object switchboardId)
     {
-        synchronized (this.adHocChatRoomCache)
+        synchronized (this.pendingAdHocChatRoomList)
         {
             AdHocChatRoomMsnImpl adHocChatRoom =
                 new AdHocChatRoomMsnImpl(adHocChatRoomName, this.provider);
 
-            this.adHocChatRoomCache.put(adHocChatRoom.getName(), adHocChatRoom);
+            // We put it to the pending ad hoc chat rooms, waiting for the
+            // switchboard to be created.
+            this.pendingAdHocChatRoomList.put(switchboardId, adHocChatRoom);
+
+            adHocChatRoom.join();
+
             return adHocChatRoom;
         }
     }
 
     /**
-     * Returns a reference to a chatRoom named <tt>_adHocRoomName</tt> or null. 
-     * Note: Only called by user.
+     * Returns the <tt>AdHocChatRoomMsnImpl</tt> corresponding to the given
+     * <tt>switchboard</tt>, if one exists, otherwise returns null.
      * 
-     * @param adHocRoomName the name of the <tt>AdHocChatRoom</tt> that we're 
-     * looking for.
-     * @return the <tt>AdHocChatRoom</tt> named <tt>_adHocRoomName</tt> or null
-     * if no such ad-hoc room exists on the server that this provider is 
-     * currently connected to.
+     * @param switchboard the Msn switchboard corresponding to a chat room
      * 
-     * @throws OperationFailedException if an error occurs while trying to
-     *             discover the ad-hoc room on the server.
-     * @throws OperationNotSupportedException if the server does not support
-     *             multi user chat
+     * @return the <tt>AdHocChatRoomMsnImpl</tt> corresponding to the given
+     * <tt>switchboard</tt>, otherwise null
      */
-    public AdHocChatRoom findRoom(String adHocRoomName)
-        throws OperationFailedException, OperationNotSupportedException
+    private AdHocChatRoomMsnImpl getLocalAdHocChatRoomInstance(
+            MsnSwitchboard switchboard)
     {
-        assertConnected();
-
-        AdHocChatRoom adHocRoom = 
-            (AdHocChatRoom) this.adHocChatRoomCache.get(adHocRoomName);
+        AdHocChatRoomMsnImpl adHocRoom = (AdHocChatRoomMsnImpl) 
+            this.adHocChatRoomCache.get(switchboard);
 
         return adHocRoom;
     }
 
     /**
-     * Returns a reference to an chatRoom named <tt>roomName</tt>. If the chat
-     * room doesn't exist, a new chat room is created for the given
-     * MsnSwitchboard.
-     * 
-     * @param switchboard The specific switchboard for the chat room.
-     * 
-     * @return the corresponding chat room
-     * 
-     * @throws OperationFailedException if an error occurs while trying to
-     *             discover the room on the server.
-     * @throws OperationNotSupportedException if the server does not support
-     *             multi user chat
+     * Creates an <tt>AdHocChatRoomMsnImpl</tt> corresponding to the given
+     * <tt>switchboard</tt>.
+     * @param switchboard  the Msn switchboard that will correspond to the
+     * created chat room
+     * @return  an <tt>AdHocChatRoomMsnImpl</tt> corresponding to the given
+     * <tt>switchboard</tt>
      */
-
-    public AdHocChatRoom findRoom(MsnSwitchboard switchboard)
-        throws OperationFailedException,
-               OperationNotSupportedException
+    private AdHocChatRoomMsnImpl createLocalAdHocChatRoomInstance(
+            MsnSwitchboard switchboard)
     {
-        this.assertConnected();
+        AdHocChatRoomMsnImpl adHocChatRoom = (AdHocChatRoomMsnImpl) 
+            this.adHocChatRoomCache.get(String.valueOf(switchboard.hashCode()));
 
-        AdHocChatRoomMsnImpl adHocRoom
-            = adHocChatRoomCache.get(String.valueOf(switchboard.hashCode()));
-
-        if (adHocRoom == null)
+        if (adHocChatRoom == null)
         {
             String name = String.valueOf(switchboard.hashCode());
-            adHocRoom = this.createAdHocChatRoom(name, switchboard);
-            adHocRoom.setSwitchboard(switchboard);
-            adHocRoom.updateParticipantsList(switchboard);
+            adHocChatRoom
+                = new AdHocChatRoomMsnImpl(name, provider, switchboard);
 
-            this.adHocChatRoomCache.put(name, adHocRoom);
+            this.adHocChatRoomCache.put(switchboard, adHocChatRoom);
 
-            // fireInvitationEvent(room,
-            // switchboard.getMessenger().getOwner().getDisplayName(),
-            // "You have been invited to a group chat", null);
-            adHocRoom.join();
+            Object attachment = switchboard.getAttachment();
+            if (attachment != null && pendingAdHocChatRoomList
+                    .containsKey(attachment))
+            {
+                pendingAdHocChatRoomList.remove(attachment);
+            }
         }
+        adHocChatRoom.join();
 
-        return adHocRoom;
+        return adHocChatRoom;
     }
 
     /**
@@ -355,16 +312,15 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      *            LOCAL_USER_LEFT, etc.
      * @param reason the reason
      */
-    public void fireLocalUserPresenceEvent(    AdHocChatRoom     adHocChatRoom,
-                                            String             eventType,
-                                            String             reason)
+    public void fireLocalUserPresenceEvent( AdHocChatRoom   adHocChatRoom,
+                                            String          eventType,
+                                            String          reason)
     {
-        LocalUserAdHocChatRoomPresenceChangeEvent evt =
-            new LocalUserAdHocChatRoomPresenceChangeEvent(
-                    this, 
-                    adHocChatRoom, 
-                    eventType,
-                    reason);
+        LocalUserAdHocChatRoomPresenceChangeEvent evt
+            = new LocalUserAdHocChatRoomPresenceChangeEvent(this,
+                                                            adHocChatRoom,
+                                                            eventType,
+                                                            reason);
 
         Iterator<LocalUserAdHocChatRoomPresenceListener> listeners = null;
         synchronized(this.presenceListeners)
@@ -392,20 +348,23 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      */
     public boolean isGroupChatMessage(MsnSwitchboard switchboard)
     {
-        // //fileTransfer??
-        // if (switchboard.getActiveFileTransfers() != null)
-        // return false;
+        if (getLocalAdHocChatRoomInstance(switchboard) != null)
+            return true;
+        else
+        {
+            Object attachment = switchboard.getAttachment();
 
-        Object attachment = switchboard.getAttachment();
-        if (attachment == null)
-        { // the user did not created the chat room by him/her self,
-            // the only way to figure out if this is a group chat message
-            // is to check the user count
-            return (switchboard.getAllContacts().length > 1);
-
+            if (attachment != null)
+            {
+                return pendingAdHocChatRoomList.containsKey(attachment);
+            }
+            else
+            {   // the user did not created the chat room by him/her self,
+                // the only way to figure out if this is a group chat message
+                // is to check the user count
+                return (switchboard.getAllContacts().length > 1);
+            }
         }
-
-        return this.userCreatedAdHocChatRoomList.containsKey(attachment);
     }
 
     public boolean isMultiChatSupportedByContact(Contact contact) 
@@ -496,54 +455,28 @@ public class OperationSetAdHocMultiUserChatMsnImpl
             Message newMessage = createMessage(message.getContent());
 
             logger.debug("Group chat message received.");
-            Object attachment = switchboard.getAttachment();
-            try
+
+            AdHocChatRoomMsnImpl chatRoom
+                = getLocalAdHocChatRoomInstance(switchboard);
+
+            if (chatRoom == null)
             {
-                AdHocChatRoomMsnImpl chatRoom = null;
-
-                if (attachment == null) // chat room session NOT created by
-                                        // yourself
-                {
-                    chatRoom = (AdHocChatRoomMsnImpl) findRoom(switchboard);
-                }
-
-                // user created chat room session?
-                if (attachment != null
-                    && userCreatedAdHocChatRoomList.containsKey(attachment))
-                {   chatRoom =
-                        (AdHocChatRoomMsnImpl) userCreatedAdHocChatRoomList
-                            .get(attachment);
-                }
-
-                if (chatRoom == null)
-                {
-                    return;
-                }
-
-                Contact participant =
-                    chatRoom.getAdHocChatRoomParticipant(contact.getId());
-
-                AdHocChatRoomMessageReceivedEvent msgReceivedEvent =
-                    new AdHocChatRoomMessageReceivedEvent(
-                        chatRoom,
-                        participant,
-                        System.currentTimeMillis(),
-                        newMessage,
-                        AdHocChatRoomMessageReceivedEvent
-                            .CONVERSATION_MESSAGE_RECEIVED);
-
-                chatRoom.fireMessageEvent(msgReceivedEvent);
-
-            }
-            catch (OperationFailedException e)
-            {
-                logger.error("Failed to find room with name: ", e);
-            }
-            catch (OperationNotSupportedException e)
-            {
-                logger.error("Failed to find room with name: ", e);
+                chatRoom = createLocalAdHocChatRoomInstance(switchboard);
             }
 
+            Contact participant =
+                chatRoom.getAdHocChatRoomParticipant(contact.getId());
+
+            AdHocChatRoomMessageReceivedEvent msgReceivedEvent =
+                new AdHocChatRoomMessageReceivedEvent(
+                    chatRoom,
+                    participant,
+                    System.currentTimeMillis(),
+                    newMessage,
+                    AdHocChatRoomMessageReceivedEvent
+                        .CONVERSATION_MESSAGE_RECEIVED);
+
+            chatRoom.fireMessageEvent(msgReceivedEvent);
         }
 
         public void initialEmailNotificationReceived(
@@ -578,36 +511,40 @@ public class OperationSetAdHocMultiUserChatMsnImpl
     private class MsnSwitchboardListener
         extends MsnSwitchboardAdapter
     {
-        public void contactJoinSwitchboard(MsnSwitchboard switchboard,
-            MsnContact contact)
+        public void contactJoinSwitchboard( MsnSwitchboard switchboard,
+                                            MsnContact msnContact)
         {
             if (!isGroupChatMessage(switchboard))
                 return;
 
-            Object attachment = switchboard.getAttachment();
             try
             {
-                AdHocChatRoomMsnImpl chatRoom = null;
-                if (attachment == null) // chat room session NOT created by
-                                        // yourself
-                    chatRoom = (AdHocChatRoomMsnImpl) findRoom(switchboard);
-
-                // user created chat room session?
-                if (attachment != null
-                    && userCreatedAdHocChatRoomList.containsKey(attachment))
-                    chatRoom =
-                        (AdHocChatRoomMsnImpl) userCreatedAdHocChatRoomList
-                            .get(attachment);
+                AdHocChatRoomMsnImpl chatRoom
+                    = getLocalAdHocChatRoomInstance(switchboard);
 
                 if (chatRoom == null)
-                    return;
+                {
+                    chatRoom = createLocalAdHocChatRoomInstance(switchboard);
+                }
 
-                Contact msnContact = new ContactMsnImpl(
-                        contact, new ServerStoredContactListMsnImpl(
-                            new OperationSetPersistentPresenceMsnImpl(provider),
-                            provider), true, true);
-                chatRoom.addAdHocChatRoomParticipant(    contact.getId(), 
-                                                        msnContact);
+                OperationSetPersistentPresenceMsnImpl presenceOpSet
+                    = (OperationSetPersistentPresenceMsnImpl) provider
+                        .getOperationSet(OperationSetPersistentPresence.class);
+
+                ContactMsnImpl contact
+                    = presenceOpSet.getServerStoredContactList()
+                        .findContactById(
+                            msnContact.getEmail().getEmailAddress());
+
+                if (contact == null)
+                    contact = new ContactMsnImpl(
+                                    msnContact,
+                                    presenceOpSet.getServerStoredContactList(),
+                                    false,
+                                    false);
+
+                chatRoom.addAdHocChatRoomParticipant(   msnContact.getId(),
+                                                        contact);
             }
             catch (Exception e)
             {
@@ -622,93 +559,63 @@ public class OperationSetAdHocMultiUserChatMsnImpl
             logger
                 .debug(contact.getDisplayName() + " has left the Switchboard");
 
-            Object attachment = switchboard.getAttachment();
+            AdHocChatRoomMsnImpl chatRoom
+                = getLocalAdHocChatRoomInstance(switchboard);
 
-            try
+            if (chatRoom == null)
             {
-                AdHocChatRoomMsnImpl adHocChatRoom = null;
-                if (attachment == null)// chat room session NOT created by
-                                       // yourself
-                    adHocChatRoom = (AdHocChatRoomMsnImpl)findRoom(switchboard);
-
-                // user created chat room session?
-                if (attachment != null
-                    && userCreatedAdHocChatRoomList.containsKey(attachment))
-                    adHocChatRoom =
-                        (AdHocChatRoomMsnImpl) userCreatedAdHocChatRoomList
-                            .get(attachment);
-
-                if (adHocChatRoom == null)
-                    return;
-
-                String participantId = contact.getId();
-
-                Contact participant =
-                    adHocChatRoom.getAdHocChatRoomParticipant(participantId);
-
-                if (participant != null)
-                {
-                    adHocChatRoom.removeParticipant(participantId);
-                }
+                chatRoom = createLocalAdHocChatRoomInstance(switchboard);
             }
-            catch (OperationFailedException e)
+
+            String participantId = contact.getId();
+
+            Contact participant
+                = chatRoom.getAdHocChatRoomParticipant(participantId);
+
+            if (participant != null)
             {
-                logger.debug(   "Could not find a chat room corresponding" +
-                                "to the given switchboard.", e);
-            }
-            catch (OperationNotSupportedException e)
-            {
-                logger.debug(   "Could not find a chat room corresponding" +
-                                "to the given switchboard.", e);
+                chatRoom.removeParticipant(participantId);
             }
         }
 
         public void switchboardClosed(MsnSwitchboard switchboard)
         {
-            Object attachment = switchboard.getAttachment();
-            try
+            AdHocChatRoomMsnImpl adHocChatRoom
+                = getLocalAdHocChatRoomInstance(switchboard);
+
+            if (adHocChatRoom == null)
+                return;
+            else
             {
-                AdHocChatRoomMsnImpl adHocChatRoom = null;
-                if (attachment == null)// chat room session NOT created by
-                                       // yourself
-                    adHocChatRoom = (AdHocChatRoomMsnImpl) findRoom(switchboard);
-                // user created chat room session?
-                if (attachment != null
-                    && userCreatedAdHocChatRoomList.containsKey(attachment))
-                    adHocChatRoom =
-                        (AdHocChatRoomMsnImpl) userCreatedAdHocChatRoomList
-                            .get(attachment);
-
-                if (adHocChatRoom == null)
-                    return;
-
                 adHocChatRoom.setSwitchboard(null);
 
-                 adHocChatRoom.leave();
-                 fireLocalUserPresenceEvent(adHocChatRoom,
-                 LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_DROPPED ,
-                 "Switchboard closed.");
-            }
-            catch (Exception e)
-            {
+                adHocChatRoom.leave();
+                fireLocalUserPresenceEvent(adHocChatRoom,
+                    LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_DROPPED ,
+                     "Switchboard closed.");
             }
         }
-        
+
         public void switchboardStarted(MsnSwitchboard switchboard)
         {
-           
             Object switchboardID = switchboard.getAttachment();
+
             AdHocChatRoomMsnImpl adHocChatRoom = null;
             if (switchboardID != null
-                    && userCreatedAdHocChatRoomList.containsKey(switchboardID))
+                    && pendingAdHocChatRoomList.containsKey(switchboardID))
             {
-                adHocChatRoom =
-                    (AdHocChatRoomMsnImpl) userCreatedAdHocChatRoomList
-                    .get(switchboardID);
+                adHocChatRoom
+                    = (AdHocChatRoomMsnImpl) pendingAdHocChatRoomList
+                        .get(switchboardID);
+
+                // Remove this room from the list of pending chat rooms.
+                pendingAdHocChatRoomList.remove(switchboardID);
 
                 adHocChatRoom.setSwitchboard(switchboard);
                 adHocChatRoom.updateParticipantsList(switchboard);
-                adHocChatRoom.join();
+
+                // Add this room to the list of created chat rooms.
+                adHocChatRoomCache.put(switchboard, adHocChatRoom);
             }
             else
             {
@@ -730,5 +637,15 @@ public class OperationSetAdHocMultiUserChatMsnImpl
         // the only way would be to block the Friend and that shouldn't be done
         // here.
         return;
+    }
+
+    /**
+     * Returns a list of all currently joined <tt>AdHocChatRoom</tt>-s.
+     *
+     * @return a list of all currently joined <tt>AdHocChatRoom</tt>-s
+     */
+    public List<AdHocChatRoom> getAdHocChatRooms()
+    {
+        return new ArrayList<AdHocChatRoom>(adHocChatRoomCache.values());
     }
 }

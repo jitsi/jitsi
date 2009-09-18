@@ -283,7 +283,7 @@ public class ChatWindow
         chatCount ++;
 
         chatPanel.setShown(true);
-        
+
         for (ChatChangeListener l : this.chatChangeListeners)
         {
             l.chatChanged(chatPanel);

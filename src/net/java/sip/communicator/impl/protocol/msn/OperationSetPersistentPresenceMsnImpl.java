@@ -763,6 +763,15 @@ public class OperationSetPersistentPresenceMsnImpl
     }
 
     /**
+     * Returns the server stored contact list registered in this operation set.
+     * @return the server stored contact list registered in this operation set.
+     */
+    ServerStoredContactListMsnImpl getServerStoredContactList()
+    {
+        return ssContactList;
+    }
+
+    /**
      * Waits for status changes from the contacts in the list
      * or own account
      */
@@ -787,12 +796,14 @@ public class OperationSetPersistentPresenceMsnImpl
          * @param messenger MsnMessenger
          * @param contact MsnContact
          */
-        public void contactStatusChanged(MsnMessenger messenger, MsnContact contact)
+        public void contactStatusChanged(   MsnMessenger messenger,
+                                            MsnContact contact)
         {
             logger.debug("Received a status update for contact=" + contact);
 
             ContactMsnImpl sourceContact
-                = ssContactList.findContactById(contact.getEmail().getEmailAddress());
+                = ssContactList
+                    .findContactById(contact.getEmail().getEmailAddress());
 
             if (sourceContact == null)
             {

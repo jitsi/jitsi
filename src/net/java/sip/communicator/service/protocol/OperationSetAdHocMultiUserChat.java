@@ -69,21 +69,11 @@ public interface OperationSetAdHocMultiUserChat
         throws OperationFailedException, OperationNotSupportedException;
 
     /**
-     * Returns a reference to an  AdHocChatRoom named <tt>adHocRoomName</tt> or 
-     * null if no ad-hoc room with the given name exist on the server.
-     * <p>
-     * @param adHocRoomName the name of the <tt>AdHocChatRoom</tt> that we're 
-     * looking for.
-     * @return the <tt>AdHocChatRoom</tt> named <tt>adHocRoomName</tt> if it
-     * exists, null otherwise.
+     * Returns a list of all currently joined <tt>AdHocChatRoom</tt>-s.
      *
-     * @throws OperationFailedException if an error occurs while trying to
-     * discover the ad-hoc room on the server.
-     * @throws OperationNotSupportedException if the server does not support
-     * multi-user chat
+     * @return a list of all currently joined <tt>AdHocChatRoom</tt>-s
      */
-    public AdHocChatRoom findRoom(String adHocRoomName)
-        throws OperationFailedException, OperationNotSupportedException;
+    public List<AdHocChatRoom> getAdHocChatRooms();
 
     /**
      * Returns true if <tt>contact</tt> supports multi-user chat sessions.
@@ -123,6 +113,15 @@ public interface OperationSetAdHocMultiUserChat
     public void addInvitationListener(AdHocChatRoomInvitationListener listener);
 
     /**
+     * Removes <tt>listener</tt> from the list of invitation listeners
+     * registered to receive invitation events.
+     *
+     * @param listener the invitation listener to remove.
+     */
+     public void removeInvitationListener(
+         AdHocChatRoomInvitationListener listener);
+
+    /**
      * Adds the given <tt>listener</tt> to the list of
      * <tt>AdHocChatRoomInvitationRejectionListener</tt>-s that would be
      * notified when an add-hoc chat room invitation has been rejected.
@@ -131,6 +130,15 @@ public interface OperationSetAdHocMultiUserChat
      */
     public void addInvitationRejectionListener(
             AdHocChatRoomInvitationRejectionListener listener);
+
+    /**
+     * Removes the given listener from the list of invitation listeners
+     * registered to receive events every time an invitation has been rejected.
+     *
+     * @param listener the invitation listener to remove.
+     */
+    public void removeInvitationRejectionListener(
+        AdHocChatRoomInvitationRejectionListener listener);
 
     /**
      * Informs the sender of an invitation that we decline their invitation.

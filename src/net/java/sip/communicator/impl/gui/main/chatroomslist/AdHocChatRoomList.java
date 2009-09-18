@@ -268,38 +268,4 @@ public class AdHocChatRoomList
 
         return null;
     }
-
-    /**
-     * Goes through the locally stored chat rooms list and for each
-     * {@link AdHocChatRoomWrapper} tries to find the corresponding server 
-     * stored {@link AdHocChatRoom} in the specified operation set. Joins 
-     * automatically all found ad-hoc chat rooms.
-     *
-     * @param protocolProvider the protocol provider for the account to
-     * synchronize
-     * @param opSet the ad-hoc multi user chat operation set, which give us 
-     * access to chat room server 
-     */
-    public void synchronizeOpSetWithLocalContactList(
-        ProtocolProviderService protocolProvider,
-        final OperationSetAdHocMultiUserChat opSet)
-    {
-        AdHocChatRoomProviderWrapper chatRoomProvider
-            = findServerWrapperFromProvider(protocolProvider);
-
-        if (chatRoomProvider != null)
-        {
-            chatRoomProvider.synchronizeProvider();
-        }
-    }
-
-    /**
-     * Returns an iterator to the list of ad-hoc chat room providers.
-     * 
-     * @return an iterator to the list of ad-hoc chat room providers.
-     */
-    public Iterator<AdHocChatRoomProviderWrapper> getAdHocChatRoomProviders()
-    {
-        return providersList.iterator();
-    }
 }

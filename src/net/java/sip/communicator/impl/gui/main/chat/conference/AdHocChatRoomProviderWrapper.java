@@ -8,19 +8,13 @@ package net.java.sip.communicator.impl.gui.main.chat.conference;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * @author Valentin Martinet
  */
 public class AdHocChatRoomProviderWrapper
 {
-    private static final Logger logger
-        = Logger.getLogger(AdHocChatRoomProviderWrapper.class);
-
     private final ProtocolProviderService protocolProvider;
 
     private final List<AdHocChatRoomWrapper> chatRoomsOrderedCopy
@@ -166,64 +160,5 @@ public class AdHocChatRoomProviderWrapper
     public int indexOf(AdHocChatRoomWrapper chatRoomWrapper)
     {
         return chatRoomsOrderedCopy.indexOf(chatRoomWrapper);
-    }
-
-    /**
-     * Goes through the locally stored chat rooms list and for each
-     * {@link ChatRoomWrapper} tries to find the corresponding server stored
-     * {@link ChatRoom} in the specified operation set. Joins automatically all
-     * found chat rooms.
-     */
-    public void synchronizeProvider()
-    {
-        final OperationSetAdHocMultiUserChat groupChatOpSet
-            = (OperationSetAdHocMultiUserChat) protocolProvider
-                .getOperationSet(OperationSetAdHocMultiUserChat.class);
-
-        for(final AdHocChatRoomWrapper chatRoomWrapper : chatRoomsOrderedCopy)
-        {
-            new Thread()
-            {
-                public void run()
-                {
-                    AdHocChatRoom chatRoom = null;
-
-                    try
-                    {
-                        chatRoom = groupChatOpSet.findRoom(
-                                    chatRoomWrapper.getAdHocChatRoomName());
-                    }
-                    catch (OperationFailedException e1)
-                    {
-                        logger.error("Failed to find chat room with name:"
-                            + chatRoomWrapper.getAdHocChatRoomName(), e1);
-                    }
-                    catch (OperationNotSupportedException e1)
-                    {                        
-                        logger.error("Failed to find chat room with name:"
-                            + chatRoomWrapper.getAdHocChatRoomName(), e1);
-                    }
-
-                    if(chatRoom != null)
-                    {
-                        chatRoomWrapper.setAdHocChatRoom(chatRoom);
-
-                        String lastChatRoomStatus
-                            = ConfigurationManager.getChatRoomStatus(
-                                protocolProvider,
-                                chatRoomWrapper.getAdHocChatRoomID());
-
-                        if(lastChatRoomStatus == null
-                            || lastChatRoomStatus.equals(
-                                Constants.ONLINE_STATUS))
-                        {
-                            GuiActivator.getUIService()
-                                .getConferenceChatManager()
-                                    .joinChatRoom(chatRoomWrapper);
-                        }
-                    }
-                }
-            }.start();
-        }
     }
 }

@@ -398,10 +398,10 @@ public class ConferenceChatManager
                         AdHocChatRoomListChangeEvent.AD_HOC_CHAT_ROOM_CHANGED);
 
                 ChatWindowManager chatWindowManager
-                = GuiActivator.getUIService().getChatWindowManager();
+                    = GuiActivator.getUIService().getChatWindowManager();
 
                 ChatPanel chatPanel
-                = chatWindowManager.getAdHocMultiChat(adHocChatRoomWrapper);
+                    = chatWindowManager.getAdHocMultiChat(adHocChatRoomWrapper);
 
                 // Check if we have already opened a chat window for this chat
                 // wrapper and load the real chat room corresponding to the
@@ -410,7 +410,7 @@ public class ConferenceChatManager
                         .isChatOpenedForAdHocChatRoom(adHocChatRoomWrapper))
                 {
                     ((AdHocConferenceChatSession) chatPanel.getChatSession())
-                    .loadChatRoom(sourceAdHocChatRoom);
+                        .loadChatRoom(sourceAdHocChatRoom);
                 }
                 else
                 {
@@ -1073,6 +1073,30 @@ public class ConferenceChatManager
             chatRoomWrapper.getParentProvider().getProtocolProvider(),
             chatRoomWrapper.getChatRoomID(),
             Constants.OFFLINE_STATUS);
+    }
+
+    /**
+     * Leaves the given <tt>ChatRoom</tt>.
+     *
+     * @param chatRoomWrapper the <tt>ChatRoom</tt> to leave.
+     */
+    public void leaveChatRoom(AdHocChatRoomWrapper chatRoomWrapper)
+    {
+        AdHocChatRoom chatRoom = chatRoomWrapper.getAdHocChatRoom();
+
+        if (chatRoom != null)
+        {
+            chatRoom.leave();
+        }
+        else
+        {
+            new ErrorDialog(
+               GuiActivator.getUIService().getMainFrame(),
+               GuiActivator.getResources().getI18NString("service.gui.WARNING"),
+               GuiActivator.getResources().getI18NString(
+                   "service.gui.CHAT_ROOM_LEAVE_NOT_CONNECTED"))
+                   .showDialog();
+        }
     }
 
     public List<String> getExistingChatRooms(

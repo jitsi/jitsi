@@ -146,43 +146,47 @@ public class MainToolBar
     {
         if (panel == null)
             return;
-        
-        MetaContact contact =
-            GuiActivator.getUIService().getChatContact(panel);
 
-        for (PluginComponent c : pluginContainer.getPluginComponents())   
-            c.setCurrentContact(contact);
-        
-        if (panel.chatSession != null)
-            panel
-                .chatSession
-                    .addChatTransportChangeListener(
-                        new ChatSessionChangeListener()
+        MetaContact contact
+            = GuiActivator.getUIService().getChatContact(panel);
+
+        if (contact != null)
+        {
+            for (PluginComponent c : pluginContainer.getPluginComponents())
+                c.setCurrentContact(contact);
+        }
+
+        if (panel.chatSession != null
+                && panel.chatSession instanceof MetaContactChatSession)
+        {
+            panel.chatSession.addChatTransportChangeListener(
+                new ChatSessionChangeListener()
+                {
+                    public void currentChatTransportChanged(
+                        ChatSession chatSession)
+                    {
+                        if (chatSession == null)
+                            return;
+
+                        ChatTransport currentTransport
+                            = chatSession
+                                .getCurrentChatTransport();
+                        Object currentDescriptor
+                            = currentTransport.getDescriptor();
+
+                        if (currentDescriptor instanceof Contact)
                         {
-                            public void currentChatTransportChanged(
-                                ChatSession chatSession)
-                            {
-                                if (chatSession == null)
-                                    return;
+                            Contact contact
+                                = (Contact) currentDescriptor;
 
-                                ChatTransport currentTransport
-                                    = chatSession
-                                        .getCurrentChatTransport();
-                                Object currentDescriptor
-                                    = currentTransport.getDescriptor();
-
-                                if (currentDescriptor instanceof Contact)
-                                {
-                                    Contact contact
-                                        = (Contact) currentDescriptor;
-
-                                    for (PluginComponent c
-                                            : pluginContainer
-                                                .getPluginComponents())
-                                        c.setCurrentContact(contact);
-                                }
-                            }
-                        });
+                            for (PluginComponent c
+                                    : pluginContainer
+                                        .getPluginComponents())
+                                c.setCurrentContact(contact);
+                        }
+                    }
+                });
+        }
     }
 
     /**

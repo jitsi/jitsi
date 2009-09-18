@@ -35,10 +35,7 @@ public class AdHocConferenceChatContact extends ChatContact
      */
     public AdHocConferenceChatContact(Contact participant)
     {
-        OperationSetPersistentPresence opSet =
-            (OperationSetPersistentPresence) participant.getProtocolProvider().
-            getOperationSet(OperationSetPersistentPresence.class);
-        this.participant = opSet.findContactByID(participant.getAddress());
+        this.participant = participant;
     }
 
     /**

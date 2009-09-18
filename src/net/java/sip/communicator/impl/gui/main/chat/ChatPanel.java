@@ -169,10 +169,13 @@ public class ChatPanel
         {
             messagePane.remove(conversationPanel);
 
-            this.chatContactListPanel = new ChatRoomMemberListPanel(this);
+            TransparentPanel rightPanel
+                = new TransparentPanel(new BorderLayout(5, 5));
             Dimension chatContactPanelSize = new Dimension(150, 100);
-            this.chatContactListPanel.setMinimumSize(chatContactPanelSize);
-            this.chatContactListPanel.setPreferredSize(chatContactPanelSize);
+            rightPanel.setMinimumSize(chatContactPanelSize);
+            rightPanel.setPreferredSize(chatContactPanelSize);
+
+            this.chatContactListPanel = new ChatRoomMemberListPanel(this);
             this.chatContactListPanel.setOpaque(false);
 
             topSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
@@ -181,8 +184,20 @@ public class ChatPanel
             topSplitPane.setOpaque(false);
             topSplitPane.setResizeWeight(1.0D);
 
+            ChatTransport chatTransport = chatSession.getCurrentChatTransport();
+
+            JLabel localUserLabel = new JLabel(
+                chatTransport.getProtocolProvider()
+                    .getAccountID().getDisplayName());
+
+            localUserLabel.setFont(
+                localUserLabel.getFont().deriveFont(Font.BOLD));
+
+            rightPanel.add(localUserLabel, BorderLayout.NORTH);
+            rightPanel.add(chatContactListPanel, BorderLayout.CENTER);
+
             topSplitPane.setLeftComponent(conversationPanel);
-            topSplitPane.setRightComponent(chatContactListPanel);
+            topSplitPane.setRightComponent(rightPanel);
 
             messagePane.setTopComponent(topSplitPane);
         }
@@ -1660,12 +1675,22 @@ public class ChatPanel
         }
     }
 
+    /**
+     * Adds the given <tt>chatContact</tt> to the list of chat contacts
+     * participating in the corresponding to this chat panel chat.
+     * @param chatContact the contact to add
+     */
     public void addChatContact(ChatContact chatContact)
     {
         if (chatContactListPanel != null)
             chatContactListPanel.addContact(chatContact);
     }
 
+    /**
+     * Removes the given <tt>chatContact</tt> from the list of chat contacts
+     * participating in the corresponding to this chat panel chat.
+     * @param chatContact the contact to remove
+     */
     public void removeChatContact(ChatContact chatContact)
     {
         if (chatContactListPanel != null)
@@ -1887,12 +1912,12 @@ public class ChatPanel
         else
         {
             conferenceChatSession = chatSession;
-        }
 
-        for (String contactAddress : chatContacts)
-        {
-            conferenceChatSession.getCurrentChatTransport()
-                .inviteChatContact(contactAddress, reason);
+            for (String contactAddress : chatContacts)
+            {
+                conferenceChatSession.getCurrentChatTransport()
+                    .inviteChatContact(contactAddress, reason);
+            }
         }
     }
 

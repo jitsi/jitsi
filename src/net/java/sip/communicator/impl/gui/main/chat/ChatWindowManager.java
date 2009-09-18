@@ -315,7 +315,13 @@ public class ChatWindowManager
                 else if (chatPanel.getChatSession() instanceof
                         AdHocConferenceChatSession)
                 {
-                    // TODO: close the chat room before closing the window!!!
+                    AdHocConferenceChatSession adHocSession
+                        = (AdHocConferenceChatSession) chatPanel
+                            .getChatSession();
+
+                    GuiActivator.getUIService().getConferenceChatManager()
+                        .leaveChatRoom(
+                            (AdHocChatRoomWrapper) adHocSession.getDescriptor());
                 }
                 else
                 {
@@ -337,13 +343,24 @@ public class ChatWindowManager
 
             for (ChatPanel chatPanel : chatPanels)
             {
+                if (chatPanel.getChatSession() instanceof
+                    AdHocConferenceChatSession)
+                {
+                    AdHocConferenceChatSession adHocSession
+                        = (AdHocConferenceChatSession) chatPanel
+                            .getChatSession();
+
+                    GuiActivator.getUIService().getConferenceChatManager()
+                        .leaveChatRoom(
+                            (AdHocChatRoomWrapper) adHocSession.getDescriptor());
+                }
+
                 if (!chatPanel.isWriteAreaEmpty()
                     || chatPanel.containsActiveFileTransfers()
                     || System.currentTimeMillis() - chatWindow
                     .getLastIncomingMsgTimestamp(chatPanel) < 2 * 1000)
                 {
                     activePanel = chatPanel;
-                    break;
                 }
             }
 

@@ -146,7 +146,10 @@ public class OtrMetaContactButton
 
     public void setCurrentContact(MetaContact metaContact)
     {
-        setCurrentContact(metaContact.getDefaultContact());
+        Contact defaultContact = metaContact.getDefaultContact();
+
+        if (defaultContact != null)
+            setCurrentContact(defaultContact);
     }
 
     private void setPolicy(OtrPolicy contactPolicy)

@@ -141,4 +141,11 @@ public interface AdHocChatRoom
      */
     public void join()
         throws OperationFailedException;
+
+    /**
+     * Leaves this chat room. Once this method is called, the user won't be
+     * listed as a member of the chat room any more and no further chat events
+     * will be delivered.
+     */
+    public void leave();
 }

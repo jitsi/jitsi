@@ -40,8 +40,9 @@ public class ConferenceChatSession
 
     private final ChatSessionRenderer sessionRenderer;
     
-    private final java.util.List<ChatSessionChangeListener> chatTransportChangeListeners =
-        new Vector<ChatSessionChangeListener>();
+    private final java.util.List<ChatSessionChangeListener>
+        chatTransportChangeListeners
+            = new Vector<ChatSessionChangeListener>();
 
     /**
      * Creates an instance of <tt>ConferenceChatSession</tt>, by specifying the

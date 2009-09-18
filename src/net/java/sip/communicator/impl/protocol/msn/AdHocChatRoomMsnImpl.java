@@ -79,6 +79,11 @@ public class AdHocChatRoomMsnImpl
     private ArrayList<String> pendingInvitations = new ArrayList<String>();
 
     /**
+     * The presence operation set for the Msn protocol.
+     */
+    private final OperationSetPersistentPresenceMsnImpl presenceOpSet;
+
+    /**
      * Creates a new ad-hoc chat room for MSN named <tt>name</tt>, using the 
      * protocol provider <tt>provider</tt>.
      * 
@@ -93,6 +98,11 @@ public class AdHocChatRoomMsnImpl
         this.opSetAdHocMuc = 
             (OperationSetAdHocMultiUserChatMsnImpl) 
             this.provider.getOperationSet(OperationSetAdHocMultiUserChat.class);
+
+        this.presenceOpSet
+            = (OperationSetPersistentPresenceMsnImpl)
+                this.provider.getOperationSet(
+                    OperationSetPersistentPresence.class);
     }
 
     /**
@@ -110,10 +120,18 @@ public class AdHocChatRoomMsnImpl
     {
         this.name = name;
         this.provider = provider;
-        this.opSetAdHocMuc = 
-            (OperationSetAdHocMultiUserChatMsnImpl) 
+        this.opSetAdHocMuc
+            = (OperationSetAdHocMultiUserChatMsnImpl) 
             this.provider.getOperationSet(OperationSetAdHocMultiUserChat.class);
+
+        this.presenceOpSet
+            = (OperationSetPersistentPresenceMsnImpl)
+                this.provider.getOperationSet(
+                    OperationSetPersistentPresence.class);
+
         this.switchboard = switchboard; 
+
+        this.updateParticipantsList(switchboard);
     }
 
     /**
@@ -489,19 +507,25 @@ public class AdHocChatRoomMsnImpl
         {
             if (!this.participants.containsKey(msnContact.getId()))
             {
-//                // if the member is not inside the members list, create a 
-//                // contact instance,
-//                // add it to the list and fire a member presence event
-//                Contact participant =
-//                    new ContactMsnImpl(msnContact,
-//                        msnContact.getDisplayName(),
-//                        msnContact.getEmail().getEmailAddress(),
-//                        ChatRoomMemberRole.MEMBER);
+                // if the member is not inside the members list, create a 
+                // contact instance,
+                // add it to the list and fire a member presence event
+                ContactMsnImpl contact
+                    = presenceOpSet.getServerStoredContactList()
+                        .findContactById(
+                            msnContact.getEmail().getEmailAddress());
 
-               this.participants.put(msnContact.getId(), (Contact) msnContact);
+                if (contact == null)
+                    contact = new ContactMsnImpl(
+                                    msnContact,
+                                    presenceOpSet.getServerStoredContactList(),
+                                    false,
+                                    false);
+
+               this.participants.put(msnContact.getId(), contact);
 
                 fireParticipantPresenceEvent(
-                    (Contact) msnContact,
+                    (Contact) contact,
                     AdHocChatRoomParticipantPresenceChangeEvent.CONTACT_JOINED,
                     null);
             }
@@ -511,6 +535,9 @@ public class AdHocChatRoomMsnImpl
         {
             this.invite(contactAddress, "");
         }
+        // We have sent all invites and we can now clear the content of
+        // pending invitations.
+        pendingInvitations.clear();
     }
 
     /**

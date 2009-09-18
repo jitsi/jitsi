@@ -37,8 +37,7 @@ public class AdHocConferenceChatSession
     private final AdHocChatRoomWrapper chatRoomWrapper;
 
     private final ChatSessionRenderer sessionRenderer;
-    
-    
+
     /**
      * Creates an instance of <tt>AdHocConferenceChatSession</tt>, by specifying
      * the sessionRenderer to be used for communication with the UI and the 

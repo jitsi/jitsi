@@ -18,8 +18,7 @@ import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 
 /**
  * The <tt>ChatRoomsListPanel</tt> is the panel that contains the
- * <tt>ChatRoomsList</tt>. It is situated in the second tab in the main
- * application window.
+ * <tt>ChatRoomsList</tt>.
  *
  * @author Yana Stamcheva
  */
@@ -31,7 +30,8 @@ public class ChatRoomListUI
 {
     private final JList chatRoomList = new JList();
 
-    private final ChatRoomListModel chatRoomsListModel = new ChatRoomListModel();
+    private final ChatRoomListModel chatRoomsListModel
+        = new ChatRoomListModel();
 
     private final JPanel treePanel = new JPanel(new BorderLayout());
 
