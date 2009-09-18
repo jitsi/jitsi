@@ -44,7 +44,7 @@ public class PortAudioRenderer
     {
         try
         {
-            PortAudio.Pa_Initialize();
+            PortAudio.initialize();
         }
         catch (PortAudioException e)
         {
@@ -115,8 +115,8 @@ public class PortAudioRenderer
     }
 
     /**
-	 * Returns the name of the pluging.
-	 */
+     * Returns the name of the pluging.
+     */
     public String getName()
     {
         return name;

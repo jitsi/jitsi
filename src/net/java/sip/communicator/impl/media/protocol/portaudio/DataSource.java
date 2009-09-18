@@ -17,8 +17,6 @@ import javax.media.protocol.*;
 public class DataSource
     extends PushBufferDataSource
 {
-    private static boolean portAudioIsInitialized = false;
-
     private boolean connected = false;
 
     private final Object[] controls = new Object[0];
@@ -36,18 +34,16 @@ public class DataSource
         if (connected)
             return;
 
-        if (!portAudioIsInitialized)
-            try
-            {
-                PortAudio.Pa_Initialize();
-                portAudioIsInitialized = true;
-            }
-            catch (PortAudioException paex)
-            {
-                IOException ioex = new IOException();
-                ioex.initCause(paex);
-                throw ioex;
-            }
+        try
+        {
+            PortAudio.initialize();
+        }
+        catch (PortAudioException paex)
+        {
+            IOException ioex = new IOException();
+            ioex.initCause(paex);
+            throw ioex;
+        }
 
         connected = true;
     }
@@ -150,7 +146,16 @@ public class DataSource
         if (!connected)
             throw new IOException("DataSource must be connected");
 
-        streams[0].start();
+        try
+        {
+            streams[0].start();
+        }
+        catch (PortAudioException paex)
+        {
+            IOException ioex = new IOException();
+            ioex.initCause(paex);
+            throw ioex;
+        }
         started = true;
     }
 
@@ -163,7 +168,16 @@ public class DataSource
         if (!started)
             return;
 
-        streams[0].stop();
+        try
+        {
+            streams[0].stop();
+        }
+        catch (PortAudioException paex)
+        {
+            IOException ioex = new IOException();
+            ioex.initCause(paex);
+            throw ioex;
+        }
         started = false;
     }
 }

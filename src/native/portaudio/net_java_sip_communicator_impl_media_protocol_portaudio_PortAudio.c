@@ -39,10 +39,13 @@ JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1CloseStream(
 	JNIEnv *env, jclass clazz, jlong stream)
 {
-	PaError errorCode = Pa_CloseStream(((PortAudioStream *) stream)->stream);
+	PortAudioStream *portAudioStream = (PortAudioStream *) stream;
+	PaError errorCode = Pa_CloseStream(portAudioStream->stream);
 
 	if (paNoError != errorCode)
 		PortAudio_throwException(env, errorCode);
+	else
+		PortAudioStream_free(env, portAudioStream);
 }
 
 JNIEXPORT jint JNICALL
@@ -143,23 +146,29 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1StopS
 {
 	PaError errorCode = Pa_StopStream(((PortAudioStream *) stream)->stream);
 
-        if (paNoError != errorCode)
+	if (paNoError != errorCode)
 		PortAudio_throwException(env, errorCode);
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1WriteStream
-  (JNIEnv *env, jclass clazz, jlong stream, jbyteArray buffer, jlong frames)
+Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1WriteStream(
+	JNIEnv *env, jclass clazz, jlong stream, jbyteArray buffer, jlong frames)
 {
-    jbyte* data = (*env)->GetByteArrayElements(env, buffer, NULL);
-    PaError errorCode = Pa_WriteStream(
-            ((PortAudioStream *) stream)->stream,
-            data,
-            frames);
-    (*env)->ReleaseByteArrayElements(env, buffer, data, 0);
+	jbyte* data = (*env)->GetByteArrayElements(env, buffer, NULL);
 
-    if (paNoError != errorCode)
-        PortAudio_throwException(env, errorCode);
+	if (data)
+	{
+		PaError errorCode
+			= Pa_WriteStream(
+				((PortAudioStream *) stream)->stream,
+				data,
+				frames);
+
+		(*env)->ReleaseByteArrayElements(env, buffer, data, 0);
+
+		if (paNoError != errorCode)
+			PortAudio_throwException(env, errorCode);
+	}
 }
 
 JNIEXPORT jint JNICALL
@@ -310,7 +319,7 @@ PortAudioStream_callback(
 			return paAbort;
 	}
 
-        return
+	return
 		(*env)
 			->CallIntMethod(
 				env,
@@ -340,49 +349,40 @@ PortAudioStream_finishedCallback(void *userData)
 	JNIEnv *env;
 	jmethodID streamFinishedCallbackMethodID;
 
-	if (streamCallback)
+	if (!streamCallback)
+		return;
+
+	env = stream->env;
+	if (!env)
 	{
-		env = stream->env;
-		if (!env)
-		{
-			JavaVM *vm = stream->vm;
+		JavaVM *vm = stream->vm;
 
-			if ((*vm)->AttachCurrentThreadAsDaemon(vm, (void **) &env, NULL)
-					< 0)
-				return;
-			else
-				stream->env = env;
-		}
-		streamFinishedCallbackMethodID = stream->streamFinishedCallbackMethodID;
-		if (!streamFinishedCallbackMethodID)
-		{
-			jclass streamCallbackClass
-				= (*env)->GetObjectClass(env, streamCallback);
-
-			streamFinishedCallbackMethodID
-				= (*env)
-					->GetMethodID(
-						env,
-						streamCallbackClass,
-						"finishedCallback",
-						"()V");
-			if (streamFinishedCallbackMethodID)
-				stream->streamFinishedCallbackMethodID
-					= streamFinishedCallbackMethodID;
-			else
-				return;
-		}
-
-		(*env)
-			->CallVoidMethod(
-				env,
-				streamCallback,
-				streamFinishedCallbackMethodID);
+		if ((*vm)->AttachCurrentThreadAsDaemon(vm, (void **) &env, NULL) < 0)
+			return;
+		else
+			stream->env = env;
 	}
-	else
-		env = NULL;
+	streamFinishedCallbackMethodID = stream->streamFinishedCallbackMethodID;
+	if (!streamFinishedCallbackMethodID)
+	{
+		jclass streamCallbackClass
+			= (*env)->GetObjectClass(env, streamCallback);
 
-        PortAudioStream_free(env, stream);
+		streamFinishedCallbackMethodID
+			= (*env)
+				->GetMethodID(
+					env,
+					streamCallbackClass,
+					"finishedCallback",
+					"()V");
+		if (streamFinishedCallbackMethodID)
+			stream->streamFinishedCallbackMethodID
+				= streamFinishedCallbackMethodID;
+		else
+			return;
+	}
+
+	(*env)->CallVoidMethod(env, streamCallback, streamFinishedCallbackMethodID);
 }
 
 static void

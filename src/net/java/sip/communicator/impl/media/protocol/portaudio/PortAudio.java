@@ -22,6 +22,18 @@ public final class PortAudio
 
     public static final long STREAM_FLAGS_NO_FLAG = 0;
 
+    private static boolean initialized;
+
+    public static synchronized void initialize()
+        throws PortAudioException
+    {
+        if (!initialized)
+        {
+            Pa_Initialize();
+            initialized = true;
+        }
+    }
+
     public static native void Pa_CloseStream(long stream)
         throws PortAudioException;
 
@@ -30,7 +42,7 @@ public final class PortAudio
 
     public static native long Pa_GetDeviceInfo(int deviceIndex);
 
-    public static native void Pa_Initialize()
+    private static native void Pa_Initialize()
         throws PortAudioException;
 
     public static native long Pa_OpenStream(
@@ -49,7 +61,9 @@ public final class PortAudio
         throws PortAudioException;
 
     public static native void Pa_WriteStream(
-            long stream, byte[] buffer, long frames)
+            long stream,
+            byte[] buffer,
+            long frames)
         throws PortAudioException;
 
     public static native int PaDeviceInfo_getMaxInputChannels(long deviceInfo);

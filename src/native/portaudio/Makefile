@@ -1,7 +1,8 @@
 PORTAUDIO_HOME=/home/damencho/dev/portaudio/portaudio
 JAVA_HOME=/usr/lib/jvm/java-6-sun
 
-TARGET=../../../lib/native/linux-64/libjportaudio.so
+ARCH=$(shell uname -m | sed -e s/x86_64/-64/ -e s/i.86//)
+TARGET=../../../lib/native/linux$(ARCH)/libjportaudio.so
 
 CC=gcc
 CPPFLAGS=-DJNI_IMPLEMENTATION \

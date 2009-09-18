@@ -31,8 +31,8 @@ public class AudioNotifierActivator implements BundleActivator
      */
     public static BundleContext bundleContext;
     
-    private static Logger logger = Logger.getLogger(
-        AudioNotifierActivator.class.getName());
+    private static final Logger logger
+        = Logger.getLogger(AudioNotifierActivator.class);
     
     /**
      * Called when this bundle is started.
@@ -52,21 +52,22 @@ public class AudioNotifierActivator implements BundleActivator
         
             configService = (ConfigurationService) bundleContext
                 .getService(configReference);
-    
-            String isSoundEnabled = configService.getString(
-                "net.java.sip.communicator.impl.sound.isSoundEnabled");
-    
-            if(isSoundEnabled != null && isSoundEnabled != "") {
-                audioNotifier.setMute(
-                    !new Boolean(isSoundEnabled).booleanValue());
-            }
+
+            audioNotifier.setMute(
+                !configService
+                    .getBoolean(
+                        "net.java.sip.communicator.impl.sound.isSoundEnabled",
+                        true));
 
             logger.logEntry();
             
             logger.info("Audio Notifier Service...[  STARTED ]");
 
-            bundleContext.registerService(AudioNotifierService.class.getName(),
-                    audioNotifier, null);
+            bundleContext
+                .registerService(
+                    AudioNotifierService.class.getName(),
+                    audioNotifier,
+                    null);
 
             logger.info("Audio Notifier Service ...[REGISTERED]");
             
@@ -91,7 +92,7 @@ public class AudioNotifierActivator implements BundleActivator
         try {
             configService.setProperty(
                 "net.java.sip.communicator.impl.sound.isSoundEnabled",
-                new Boolean(!audioNotifier.isMute()));
+                Boolean.toString(!audioNotifier.isMute()));
 
         }
         catch (PropertyVetoException e1) {
@@ -105,18 +106,8 @@ public class AudioNotifierActivator implements BundleActivator
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)
-        {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(ResourceManagementService.class.getName());
-
-            if(serviceReference == null)
-                return null;
-            
-            resourcesService = 
-                (ResourceManagementService)bundleContext
-                    .getService(serviceReference);
-        }
-
+            resourcesService
+                = ResourceManagementServiceUtils.getService(bundleContext);
         return resourcesService;
     }
 }

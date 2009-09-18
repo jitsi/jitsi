@@ -14,8 +14,6 @@ import javax.media.Buffer;
 import javax.media.format.*;
 import javax.media.protocol.*;
 
-import net.java.sip.communicator.util.*;
-
 /**
  * @author Damian Minkov
  */
@@ -23,8 +21,8 @@ public class PortAudioStream
     implements PushBufferStream,
                PortAudioStreamCallback
 {
-    private static final Logger logger =
-        Logger.getLogger(PortAudioStream.class);
+//    private static final Logger logger
+//        = Logger.getLogger(PortAudioStream.class);
 
     private final static ContentDescriptor cd =
         new ContentDescriptor(ContentDescriptor.RAW);
@@ -41,8 +39,9 @@ public class PortAudioStream
                       16,
                       Format.NOT_SPECIFIED,
                       Format.byteArray);
-    private boolean started;
+
     private long stream = 0;
+
     private ByteBuffer bufferToProcess = null;
 
     private int seqNo = 0;
@@ -83,11 +82,7 @@ public class PortAudioStream
      */
     public void setTransferHandler(BufferTransferHandler transferHandler)
     {
-        synchronized (this)
-        {
-            this.transferHandler = transferHandler;
-            notifyAll();
-        }
+        this.transferHandler = transferHandler;
     }
 
     /**
@@ -152,95 +147,94 @@ public class PortAudioStream
 
     public void finishedCallback()
     {
-        stream = 0;
     }
 
     /**
      * Starts the stream operation
      */
     void start()
+        throws PortAudioException
     {
-        synchronized (this)
+        if (this.stream != 0)
+            throw new IllegalStateException("stream");
+
+        long stream = createStream();
+
+        try
         {
-            this.started = true;
+            PortAudio.Pa_StartStream(stream);
+            this.stream = stream;
+        }
+        catch (PortAudioException startException)
+        {
             try
             {
-                PortAudio.Pa_StartStream(getStream());
+                PortAudio.Pa_CloseStream(stream);
             }
-            catch (PortAudioException paex)
+            catch (PortAudioException closeException)
             {
-                paex.printStackTrace();
+                /*
+                 * We couldn't start the stream so we're closing it just to free
+                 * the native resources but if that fails as well, we cannot do
+                 * anything about it. Besides, we have to rethrow the exception
+                 * which was thrown on start.
+                 */
             }
+
+            throw startException;
         }
     }
 
     void stop()
+        throws PortAudioException
     {
-        synchronized (this)
+        if (stream != 0)
         {
-            this.started = false;
-            try
-            {
-                PortAudio.Pa_CloseStream(getStream());
-            }
-            catch (PortAudioException paex)
-            {
-                paex.printStackTrace();
-            }
+            PortAudio.Pa_CloseStream(stream);
+            stream = 0;
         }
     }
 
-    private long getStream()
+    private long createStream()
         throws PortAudioException
     {
-        if (stream == 0)
+        int deviceCount = PortAudio.Pa_GetDeviceCount();
+        int deviceIndex = 0;
+
+        for (; deviceIndex < deviceCount; deviceIndex++)
         {
-            int deviceCount = PortAudio.Pa_GetDeviceCount();
-            int deviceIndex = 0;
+            long deviceInfo = PortAudio.Pa_GetDeviceInfo(deviceIndex);
 
-            for (; deviceIndex < deviceCount; deviceIndex++)
-            {
-                long deviceInfo = PortAudio.Pa_GetDeviceInfo(deviceIndex);
-
-                if ((PortAudio.PaDeviceInfo_getMaxInputChannels(deviceInfo) == 2)
-                    && (PortAudio.PaDeviceInfo_getMaxOutputChannels(deviceInfo) == 0)
-                    && PortAudio.PaDeviceInfo_getName(deviceInfo)
-                        .contains("Analog"))
-                    break;
-            }
-
-            long streamParameters
-                = PortAudio.PaStreamParameters_new(
-                        deviceIndex,
-                        1,
-                        PortAudio.SAMPLE_FORMAT_INT16);
-
-            stream
-                = PortAudio.Pa_OpenStream(
-                        streamParameters,
-                        0,
-                        44100,
-                        PortAudio.FRAMES_PER_BUFFER_UNSPECIFIED,
-                        PortAudio.STREAM_FLAGS_NO_FLAG,
-                        this);
+            if ((PortAudio.PaDeviceInfo_getMaxInputChannels(deviceInfo) == 2)
+                && (PortAudio.PaDeviceInfo_getMaxOutputChannels(deviceInfo) == 0)
+                && PortAudio.PaDeviceInfo_getName(deviceInfo)
+                    .contains("Analog"))
+                break;
         }
-        return stream;
+
+        long streamParameters
+            = PortAudio.PaStreamParameters_new(
+                    deviceIndex,
+                    1,
+                    PortAudio.SAMPLE_FORMAT_INT16);
+
+        return
+            PortAudio.Pa_OpenStream(
+                    streamParameters,
+                    0,
+                    44100,
+                    PortAudio.FRAMES_PER_BUFFER_UNSPECIFIED,
+                    PortAudio.STREAM_FLAGS_NO_FLAG,
+                    this);
     }
 
     public int callback(ByteBuffer input, ByteBuffer output)
     {
         bufferToProcess = input;
 
-        if(started && transferHandler != null)
-        {
+        if (transferHandler != null)
             transferHandler.transferData(this);
-        }
 
-        if(!started)
-        {
-            return RESULT_COMPLETE;
-        }
-        else
-            return RESULT_CONTINUE;
+        return RESULT_CONTINUE;
     }
 }

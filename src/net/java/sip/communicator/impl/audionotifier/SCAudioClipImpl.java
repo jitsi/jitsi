@@ -22,13 +22,15 @@ import net.java.sip.communicator.service.audionotifier.*;
  *
  * @author Yana Stamcheva
  */
-public class SCAudioClipImpl implements SCAudioClip
+public class SCAudioClipImpl
+    implements SCAudioClip,
+               ActionListener
 {
     private static Constructor<AudioClip> acConstructor = null;
 
-    private Timer playAudioTimer = new Timer(1000, null);
+    private final Timer playAudioTimer = new Timer(1000, null);
 
-    private AudioClip audioClip;
+    private final AudioClip audioClip;
 
     private boolean isInvalid;
 
@@ -36,9 +38,7 @@ public class SCAudioClipImpl implements SCAudioClip
 
     private int loopInterval;
 
-    private ActionListener audioListener;
-
-    private AudioNotifierService audioNotifier;
+    private final AudioNotifierService audioNotifier;
 
     /**
      * Creates the audio clip and initialize the listener used from the
@@ -49,15 +49,10 @@ public class SCAudioClipImpl implements SCAudioClip
     public SCAudioClipImpl(URL url, AudioNotifierService audioNotifier)
         throws IOException
     {
-        InputStream inputstream;
-
-        inputstream = url.openStream();
-        this.createAppletAudioClip(inputstream);
-
-        this.audioListener = new PlayAudioListener(audioClip);
-        this.playAudioTimer.addActionListener(audioListener);
-
+        this.audioClip = createAppletAudioClip(url.openStream());
         this.audioNotifier = audioNotifier;
+
+        this.playAudioTimer.addActionListener(this);
     }
 
     /**
@@ -65,7 +60,7 @@ public class SCAudioClipImpl implements SCAudioClip
      */
     public void play()
     {
-        if (audioClip != null && !audioNotifier.isMute())
+        if ((audioClip != null) && !audioNotifier.isMute())
             audioClip.play();
     }
 
@@ -76,9 +71,9 @@ public class SCAudioClipImpl implements SCAudioClip
      */
     public void playInLoop(int interval)
     {
-        if(!audioNotifier.isMute())
+        if ((audioClip != null) && !audioNotifier.isMute())
         {
-            if(interval == 0)
+            if (interval == 0)
                 audioClip.loop();
             else
             {
@@ -92,7 +87,6 @@ public class SCAudioClipImpl implements SCAudioClip
         }
 
         this.loopInterval = interval;
-
         this.isLooping = true;
     }
 
@@ -104,7 +98,7 @@ public class SCAudioClipImpl implements SCAudioClip
         if (audioClip != null)
             audioClip.stop();
 
-        if(isLooping)
+        if (isLooping)
         {
             playAudioTimer.stop();
             this.isLooping = false;
@@ -122,10 +116,8 @@ public class SCAudioClipImpl implements SCAudioClip
         if (audioClip != null)
             audioClip.stop();
 
-        if(isLooping)
-        {
+        if (isLooping)
             playAudioTimer.stop();
-        }
     }
 
     /**
@@ -134,77 +126,78 @@ public class SCAudioClipImpl implements SCAudioClip
      * @param inputstream the audio input stream
      * @throws IOException
      */
-    private void createAppletAudioClip(InputStream inputstream)
+    private static AudioClip createAppletAudioClip(InputStream inputstream)
         throws IOException
     {
-        if(acConstructor == null)
+        if (acConstructor == null)
         {
             try
             {
-                acConstructor = AccessController
-                    .doPrivileged(new PrivilegedExceptionAction<Constructor<AudioClip>>()
-                {
-                    @SuppressWarnings("unchecked")
-                    public Constructor<AudioClip> run()
-                        throws  NoSuchMethodException,
-                                SecurityException,
-                                ClassNotFoundException
-                    {
-
-                        Class<?> class1 = null;
-                        try
-                        {
-                            class1 = Class.forName(
-                                    "com.sun.media.sound.JavaSoundAudioClip",
-                                    true, ClassLoader.getSystemClassLoader());
-                        }
-                        catch(ClassNotFoundException classnotfoundexception)
-                        {
-                            class1 = Class.forName(
-                                "sun.audio.SunAudioClip", true, null);
-                        }
-                        Class<?> aclass[] = new Class[1];
-                        aclass[0] = Class.forName("java.io.InputStream");
-                        return (Constructor<AudioClip>) class1.getConstructor(aclass);
-                    }
-                });
+                acConstructor
+                    = AccessController.doPrivileged(
+                            new PrivilegedExceptionAction<Constructor<AudioClip>>()
+                            {
+                                public Constructor<AudioClip> run()
+                                    throws ClassNotFoundException,
+                                           NoSuchMethodException,
+                                           SecurityException
+                                {
+                                    return createAcConstructor();
+                                }
+                            });
             }
-            catch(PrivilegedActionException privilegedactionexception)
+            catch (PrivilegedActionException paex)
             {
-                throw new IOException("Failed to get AudioClip constructor: "
-                    + privilegedactionexception.getException());
+                throw
+                    new IOException(
+                            "Failed to get AudioClip constructor: "
+                                + paex.getException());
             }
         }
 
         try
         {
-            Object aobj[] = {
-                inputstream
-            };
-            audioClip = acConstructor.newInstance(aobj);
+            return acConstructor.newInstance(inputstream);
         }
-        catch(Exception exception)
+        catch (Exception ex)
         {
-            throw new IOException("Failed to construct the AudioClip: "
-                + exception);
+            throw new IOException("Failed to construct the AudioClip: " + ex);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Constructor<AudioClip> createAcConstructor()
+        throws ClassNotFoundException,
+               NoSuchMethodException,
+               SecurityException
+    {
+        Class<?> class1;
+        try
+        {
+            class1
+                = Class.forName(
+                    "com.sun.media.sound.JavaSoundAudioClip",
+                    true,
+                    ClassLoader.getSystemClassLoader());
+        }
+        catch (ClassNotFoundException cnfex)
+        {
+            class1
+                = Class.forName("sun.audio.SunAudioClip", true, null);
+        }
+        return
+            (Constructor<AudioClip>) class1.getConstructor(InputStream.class);
     }
 
     /**
      * Plays an audio clip. Used in the playAudioTimer to play an audio in loop.
      */
-    private static class PlayAudioListener implements ActionListener
+    public void actionPerformed(ActionEvent e)
     {
-        private AudioClip audio;
-
-        public PlayAudioListener(AudioClip audio)
+        if (audioClip != null)
         {
-            this.audio = audio;
-        }
-        public void actionPerformed(ActionEvent e)
-        {
-            audio.stop();
-            audio.play();
+            audioClip.stop();
+            audioClip.play();
         }
     }
 
