@@ -50,13 +50,9 @@ public class ImageUtils
         double areaRatio = (double) width / height;
 
         if(originalRatio > areaRatio)
-        {
             scaledImage = image.getScaledInstance(width, -1, scaleHint);
-        }
         else
-        {
             scaledImage = image.getScaledInstance(-1, height, scaleHint);
-        }
         return scaledImage;
     }
 
@@ -214,20 +210,17 @@ public class ImageUtils
     {
         BufferedImage image = null;
 
-        if (imagePath == null)
+        if (imagePath != null)
         {
-            return null;
+            try
+            {
+                image = ImageIO.read(imagePath);
+            }
+            catch (IOException ex)
+            {
+                logger.debug("Failed to load image:" + imagePath, ex);
+            }
         }
-
-        try
-        {
-            image = ImageIO.read(imagePath);
-        }
-        catch (Exception exc)
-        {
-            logger.debug("Failed to load image:" + imagePath, exc);
-        }
-
         return image;
     }
 }

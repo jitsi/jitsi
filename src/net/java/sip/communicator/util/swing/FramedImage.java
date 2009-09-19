@@ -43,15 +43,17 @@ public class FramedImage
 
         this.setPreferredSize(new Dimension(width, height));
 
-        this.frameImage = ImageUtils.scaleImageWithinBounds(
-            UtilActivator.getResources()
-                .getImage("service.gui.USER_PHOTO_FRAME").getImage(),
-                width, height);
+        this.frameImage
+            = ImageUtils
+                .scaleImageWithinBounds(
+                    UtilActivator
+                        .getResources()
+                            .getImage("service.gui.USER_PHOTO_FRAME").getImage(),
+                    width,
+                    height);
 
         if (imageIcon != null)
-        {
             this.setImageIcon(imageIcon);
-        }
     }
 
     /**
@@ -72,9 +74,12 @@ public class FramedImage
      */
     public void setImageIcon(ImageIcon imageIcon)
     {
-        this.image =
-            ImageUtils.getScaledRoundedImage(imageIcon.getImage(), width - 2,
-                height - 2);
+        image
+            = ImageUtils
+                .getScaledRoundedImage(
+                    imageIcon.getImage(),
+                    width - 2,
+                    height - 2);
     }
 
     /**
@@ -84,13 +89,25 @@ public class FramedImage
      */
     public void paintComponent(Graphics g)
     {
-        if(image == null)
-            return;
+        if (image != null)
+        {
+            int imageWidth = image.getWidth(this);
+            int imageHeight = image.getHeight(this);
+            if ((imageWidth != -1) && (imageHeight != -1))
+                g.drawImage(
+                    image,
+                    width / 2 - imageWidth / 2,
+                    height / 2 - imageHeight / 2,
+                    null);
+        }
 
-        g.drawImage(image, width / 2 - image.getWidth(null) / 2, height / 2
-            - image.getHeight(null) / 2, null);
-
-        g.drawImage(frameImage, width / 2 - frameImage.getWidth(null) / 2,
-            height / 2 - frameImage.getHeight(null) / 2, null);
+        int frameWidth = frameImage.getWidth(this);
+        int frameHeight = frameImage.getHeight(this);
+        if ((frameWidth != -1) && (frameHeight != -1))
+            g.drawImage(
+                frameImage,
+                width / 2 - frameWidth / 2,
+                height / 2 - frameHeight / 2,
+                null);
     }
 }
