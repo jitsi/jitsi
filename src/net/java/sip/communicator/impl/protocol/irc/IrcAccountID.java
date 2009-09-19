@@ -42,15 +42,11 @@ public class IrcAccountID
      * @param accountProperties Map the properties table configuring the account
      * @return String the service name
      */
-    private static String getServiceName(Map accountProperties)
+    private static String getServiceName(Map<String, String> accountProperties)
     {
-        String serviceName =
-            (String) accountProperties
-                .get(ProtocolProviderFactory.SERVER_ADDRESS);
+        String serviceName
+            = accountProperties.get(ProtocolProviderFactory.SERVER_ADDRESS);
 
-        if(serviceName != null)
-            return serviceName;
-        else
-            return ProtocolNames.IRC;
+        return (serviceName == null) ? ProtocolNames.IRC : serviceName;
     }
 }

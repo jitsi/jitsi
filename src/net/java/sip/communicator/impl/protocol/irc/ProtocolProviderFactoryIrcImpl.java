@@ -75,7 +75,9 @@ public class ProtocolProviderFactoryIrcImpl
         return accountID;
     }
 
-    protected AccountID createAccountID(String userID, Map<String, String> accountProperties)
+    protected AccountID createAccountID(
+        String userID,
+        Map<String, String> accountProperties)
     {
         return new IrcAccountID(userID, accountProperties);
     }
@@ -90,12 +92,9 @@ public class ProtocolProviderFactoryIrcImpl
         return service;
     }
 
-    @Override
     public void modifyAccount(  ProtocolProviderService protocolProvider,
                                 Map<String, String> accountProperties)
-        throws NullPointerException
     {
         // TODO Auto-generated method stub
-        
     }
 }

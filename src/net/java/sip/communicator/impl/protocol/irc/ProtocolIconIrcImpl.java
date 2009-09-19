@@ -10,10 +10,7 @@ import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
-
-import org.osgi.framework.*;
 
 /**
  * Represents the IRC protocol icon. Implements the <tt>ProtocolIcon</tt>
@@ -21,18 +18,17 @@ import org.osgi.framework.*;
  * 
  * @author Stephane Remy
  * @author Loic Kempf
+ * @author Lubomir Marinov
  */
 public class ProtocolIconIrcImpl
     implements ProtocolIcon
 {    
-    private static Logger logger = Logger.getLogger(ProtocolIconIrcImpl.class); 
-    
-    private static ResourceManagementService resourcesService;
+    private static Logger logger = Logger.getLogger(ProtocolIconIrcImpl.class);
     
     /**
      * A hash table containing the protocol icon in different sizes.
      */
-    private static Hashtable<String, byte[]> iconsTable
+    private static final Map<String, byte[]> iconsTable
         = new Hashtable<String, byte[]>();
     static
     {
@@ -93,43 +89,25 @@ public class ProtocolIconIrcImpl
      * @return the byte representation of the image corresponding to the given
      * identifier.
      */
-    public static byte[] getImageInBytes(String imageID) 
+    static byte[] getImageInBytes(String imageID) 
     {
-        InputStream in = IrcActivator.getResources().
-            getImageInputStream(imageID);
-
-        if (in == null)
-            return null;
+        InputStream in
+            = IrcActivator.getResources().getImageInputStream(imageID);
         byte[] image = null;
-        try 
-        {
-            image = new byte[in.available()];
 
-            in.read(image);
-        }
-        catch (IOException e) 
+        if (in != null)
         {
-            logger.error("Failed to load image:" + imageID, e);
+            try 
+            {
+                image = new byte[in.available()];
+    
+                in.read(image);
+            }
+            catch (IOException e) 
+            {
+                logger.error("Failed to load image:" + imageID, e);
+            }
         }
-
         return image;
-    }
-
-    public static ResourceManagementService getResources()
-    {
-        if (resourcesService == null)
-        {
-            ServiceReference serviceReference = IrcActivator.bundleContext
-                .getServiceReference(ResourceManagementService.class.getName());
-
-            if(serviceReference == null)
-                return null;
-
-            resourcesService
-                = (ResourceManagementService)IrcActivator.bundleContext
-                    .getService(serviceReference);
-        }
-
-        return resourcesService;
     }
 }

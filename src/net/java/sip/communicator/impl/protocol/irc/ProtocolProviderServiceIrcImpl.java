@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
-import java.util.*;
-
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -52,7 +50,13 @@ public class ProtocolProviderServiceIrcImpl
     /**
      * The icon corresponding to the irc protocol.
      */
-    private ProtocolIconIrcImpl ircIcon = new ProtocolIconIrcImpl();
+    private final ProtocolIconIrcImpl ircIcon = new ProtocolIconIrcImpl();
+    
+    /**
+     * Keeps our current registration state.
+     */
+    private RegistrationState currentRegistrationState
+        = RegistrationState.UNREGISTERED;
 
     /**
      * The default constructor for the IRC protocol provider.
@@ -61,12 +65,6 @@ public class ProtocolProviderServiceIrcImpl
     {
         logger.trace("Creating a irc provider.");
     }
-    
-    /**
-     * Keeps our current registration state.
-     */
-    private RegistrationState currentRegistrationState
-        = RegistrationState.UNREGISTERED;
 
     /**
      * Initializes the service implementation, and puts it in a sate where it
@@ -271,15 +269,9 @@ public class ProtocolProviderServiceIrcImpl
     public void unregister()
         throws OperationFailedException
     {
-        Iterator joinedChatRooms
-            = multiUserChat.getCurrentlyJoinedChatRooms().iterator();
-
-        while (joinedChatRooms.hasNext())
-        {
-            ChatRoom joinedChatRoom = (ChatRoom) joinedChatRooms.next();
-
+        for (ChatRoom joinedChatRoom
+                : multiUserChat.getCurrentlyJoinedChatRooms())
             joinedChatRoom.leave();
-        }
 
         if (ircStack.isConnected())
             ircStack.disconnect();

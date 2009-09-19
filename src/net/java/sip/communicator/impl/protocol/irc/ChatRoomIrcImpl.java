@@ -24,7 +24,8 @@ import net.java.sip.communicator.util.*;
 public class ChatRoomIrcImpl
     implements  ChatRoom
 {
-    private Logger logger = Logger.getLogger(ChatRoomIrcImpl.class);
+    private static final Logger logger
+        = Logger.getLogger(ChatRoomIrcImpl.class);
     
     /**
      * The name of the chat room.

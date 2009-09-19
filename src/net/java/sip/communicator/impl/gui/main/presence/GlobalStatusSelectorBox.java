@@ -20,6 +20,7 @@ import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
@@ -35,61 +36,40 @@ import net.java.sip.communicator.util.swing.*;
  * status of all registered accounts.
  * 
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class GlobalStatusSelectorBox
     extends StatusSelectorMenu
     implements ActionListener
 {
-    private int IMAGE_INDENT = 10;
+    private static final int IMAGE_INDENT = 10;
 
-    private Image arrowImage = ImageLoader.getImage(ImageLoader.DOWN_ARROW_ICON);
+    private final Image arrowImage
+        = ImageLoader.getImage(ImageLoader.DOWN_ARROW_ICON);
 
-    private Logger logger = Logger.getLogger(
-        GlobalStatusSelectorBox.class.getName());
+    private final Logger logger = Logger.getLogger(GlobalStatusSelectorBox.class);
 
-    private Hashtable<ProtocolProviderService, StatusSelectorMenu> accountMenus =
-        new Hashtable<ProtocolProviderService, StatusSelectorMenu>();
+    private final Map<ProtocolProviderService, StatusSelectorMenu> accountMenus
+        = new Hashtable<ProtocolProviderService, StatusSelectorMenu>();
 
-    private MainFrame mainFrame;
-
-    private ImageIcon onlineIcon = new ImageIcon(
-        ImageLoader.getImage(ImageLoader.USER_ONLINE_ICON));
-
-    private ImageIcon offlineIcon = new ImageIcon(
-        ImageLoader.getImage(ImageLoader.USER_OFFLINE_ICON));
-
-    private ImageIcon awayIcon = new ImageIcon(
-        ImageLoader.getImage(ImageLoader.USER_AWAY_ICON));
+    private final MainFrame mainFrame;
 
 //    private ImageIcon dndIcon = new ImageIcon(
 //        ImageLoader.getImage(ImageLoader.USER_DND_ICON));
 
-    private ImageIcon ffcIcon = new ImageIcon(
-        ImageLoader.getImage(ImageLoader.USER_FFC_ICON));
+    private final JMenuItem onlineItem;
 
-    private JMenuItem onlineItem = new JMenuItem(
-        GuiActivator.getResources().getI18NString("service.gui.ONLINE"),
-        onlineIcon);
+    private final JMenuItem offlineItem;
 
-    private JMenuItem offlineItem = new JMenuItem(
-        GuiActivator.getResources().getI18NString("service.gui.OFFLINE"),
-        offlineIcon);
-
-    private JMenuItem awayItem = new JMenuItem(
-        GuiActivator.getResources().getI18NString("service.gui.AWAY_STATUS"),
-        awayIcon);
+    private final JMenuItem awayItem;
 
 //    private JMenuItem dndItem = new JMenuItem(
 //        GuiActivator.getResources().getI18NString("service.gui.DND_STATUS").getText(),
 //        dndIcon);
 
-    private JMenuItem ffcItem = new JMenuItem(
-        GuiActivator.getResources().getI18NString("service.gui.FFC_STATUS"),
-        ffcIcon);
+    private final JMenuItem ffcItem;
 
-    private JLabel titleLabel;
-
-    private static int STATUS_STRING_WIDTH = 0;
+    private int textWidth = 0;
 
     /**
      * Creates an instance of <tt>SimpleStatusSelectorBox</tt>.
@@ -100,80 +80,93 @@ public class GlobalStatusSelectorBox
     {
         this.mainFrame = mainFrame;
 
-        this.setUI(new SIPCommStatusMenuUI());
-        this.setOpaque(false);
-
-        this.setText("Offline");
-        this.setIcon(offlineIcon);
-
-        String tooltip = "<html><b>"
-            + "Set global status"
-            + "</b></html>";
-
-        this.setToolTipText(tooltip);
-
-        onlineItem.setName(Constants.ONLINE_STATUS);
-        offlineItem.setName(Constants.OFFLINE_STATUS);
-        awayItem.setName(Constants.AWAY_STATUS);
-        ffcItem.setName(Constants.FREE_FOR_CHAT_STATUS);
-
-        onlineItem.addActionListener(this);
-        offlineItem.addActionListener(this);
-        awayItem.addActionListener(this);
-        ffcItem.addActionListener(this);
-
-        titleLabel = new JLabel("Set global status");
-
+        JLabel titleLabel = new JLabel("Set global status");
         titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD));
 
         this.add(titleLabel);
         this.addSeparator();
 
-        this.add(onlineItem);
-        this.add(ffcItem);
-        this.add(awayItem);
-        this.add(offlineItem);
+        onlineItem
+            = createMenuItem(
+                "service.gui.ONLINE",
+                ImageLoader.USER_ONLINE_ICON,
+                Constants.ONLINE_STATUS);
+        ffcItem
+            = createMenuItem(
+                "service.gui.FFC_STATUS",
+                ImageLoader.USER_FFC_ICON,
+                Constants.FREE_FOR_CHAT_STATUS);
+        awayItem
+            = createMenuItem(
+                "service.gui.AWAY_STATUS",
+                ImageLoader.USER_AWAY_ICON,
+                Constants.AWAY_STATUS);
+        offlineItem
+            = createMenuItem(
+                "service.gui.OFFLINE",
+                ImageLoader.USER_OFFLINE_ICON,
+                Constants.OFFLINE_STATUS);
+
         this.addSeparator();
+
+        this.setIcon(offlineItem.getIcon());
+        this.setOpaque(false);
+        this.setText("Offline");
+        this.setToolTipText("<html><b>Set global status</b></html>");
+        this.setUI(new SIPCommStatusMenuUI());
+
+        computeTextWidth();
+    }
+
+    private JMenuItem createMenuItem(
+        String textKey,
+        ImageID iconID,
+        String name)
+    {
+        JMenuItem menuItem
+            = new JMenuItem(
+                    GuiActivator.getResources().getI18NString(textKey),
+                    new ImageIcon(ImageLoader.getImage(iconID)));
+
+        menuItem.setName(name);
+        menuItem.addActionListener(this);
+
+        add(menuItem);
+
+        return menuItem;
     }
 
     public void addAccount(ProtocolProviderService protocolProvider)
     {
-        OperationSetPersistentPresence presenceOpSet
-            = (OperationSetPersistentPresence) protocolProvider
-                .getOperationSet(OperationSetPresence.class);
-
-        boolean isHidden =
-            protocolProvider.getAccountID().getAccountProperty(
-                ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
+        boolean isHidden
+            = protocolProvider
+                    .getAccountID()
+                        .getAccountProperty(
+                            ProtocolProviderFactory.IS_PROTOCOL_HIDDEN)
+                != null;
 
         if (isHidden)
             return;
 
-        StatusSelectorMenu statusSelectorMenu = null;
-
-        if (presenceOpSet != null)
-        {
-            statusSelectorMenu
-                = new PresenceStatusMenu(mainFrame, protocolProvider);
-        }
-        else
-        {
-            statusSelectorMenu = new SimpleStatusMenu(protocolProvider);
-        }
+        OperationSetPersistentPresence presenceOpSet
+            = (OperationSetPersistentPresence)
+                protocolProvider.getOperationSet(OperationSetPresence.class);
+        StatusSelectorMenu statusSelectorMenu
+            = (presenceOpSet != null)
+                ? new PresenceStatusMenu(mainFrame, protocolProvider)
+                : new SimpleStatusMenu(protocolProvider);
 
         this.add(statusSelectorMenu);
-
         this.accountMenus.put(protocolProvider, statusSelectorMenu);
     }
 
     public void removeAccount(ProtocolProviderService protocolProvider)
     {
-        StatusSelectorMenu statusSelectorMenu =
-            this.accountMenus.get(protocolProvider);
+        StatusSelectorMenu statusSelectorMenu
+            = this.accountMenus.get(protocolProvider);
 
         this.remove(statusSelectorMenu);
-
         this.accountMenus.remove(protocolProvider);
     }
 
@@ -188,18 +181,9 @@ public class GlobalStatusSelectorBox
      */
     public boolean hasSelectedMenus()
     {
-        Enumeration<StatusSelectorMenu> statusMenus = accountMenus.elements();
-
-        while (statusMenus.hasMoreElements())
-        {
-            StatusSelectorMenu statusSelectorMenu =
-                statusMenus.nextElement();
-
+        for (StatusSelectorMenu statusSelectorMenu : accountMenus.values())
             if (statusSelectorMenu.isSelected())
-            {
                 return true;
-            }
-        }
         return false;
     }
 
@@ -422,35 +406,24 @@ public class GlobalStatusSelectorBox
 
         if (accountMenu instanceof PresenceStatusMenu)
         {
-            PresenceStatusMenu presenceStatusMenu =
-                (PresenceStatusMenu) accountMenu;
+            PresenceStatusMenu presenceStatusMenu
+                = (PresenceStatusMenu) accountMenu;
+            PresenceStatus presenceStatus;
 
             if (!protocolProvider.isRegistered())
-                presenceStatusMenu.updateStatus(presenceStatusMenu
-                    .getOfflineStatus());
+                presenceStatus = presenceStatusMenu.getOfflineStatus();
             else
             {
-                if (presenceStatusMenu.getLastSelectedStatus() != null)
+                presenceStatus = presenceStatusMenu.getLastSelectedStatus();
+                if (presenceStatus == null)
                 {
-                    presenceStatusMenu.updateStatus(presenceStatusMenu
-                        .getLastSelectedStatus());
-                }
-                else
-                {
-                    PresenceStatus lastStatus =
-                        getLastPresenceStatus(protocolProvider);
-
-                    if (lastStatus == null)
-                    {
-                        presenceStatusMenu.updateStatus(presenceStatusMenu
-                            .getOnlineStatus());
-                    }
-                    else
-                    {
-                        presenceStatusMenu.updateStatus(lastStatus);
-                    }
+                    presenceStatus = getLastPresenceStatus(protocolProvider);
+                    if (presenceStatus == null)
+                        presenceStatus = presenceStatusMenu.getOnlineStatus();
                 }
             }
+
+            presenceStatusMenu.updateStatus(presenceStatus);
         }
         else
         {
@@ -472,8 +445,8 @@ public class GlobalStatusSelectorBox
 
         if (accountMenu instanceof PresenceStatusMenu)
         {
-            PresenceStatusMenu presenceStatusMenu =
-                (PresenceStatusMenu) accountMenu;
+            PresenceStatusMenu presenceStatusMenu
+                = (PresenceStatusMenu) accountMenu;
 
             presenceStatusMenu.updateStatus(presenceStatus);
         }
@@ -489,60 +462,42 @@ public class GlobalStatusSelectorBox
     {
         int status = 0;
 
-        Iterator<ProtocolProviderService> pProviders =
-            mainFrame.getProtocolProviders();
-
-        boolean isProtocolHidden;
+        Iterator<ProtocolProviderService> pProviders
+            = mainFrame.getProtocolProviders();
 
         while (pProviders.hasNext())
         {
-            ProtocolProviderService protocolProvider
-                = pProviders.next();
+            ProtocolProviderService protocolProvider = pProviders.next();
 
             // We do not show hidden protocols in our status bar, so we do not
             // care about their status here.
-            isProtocolHidden =
+            boolean isProtocolHidden =
                 protocolProvider.getAccountID().getAccountProperty(
                     ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
 
             if (isProtocolHidden)
                 continue;
 
-            OperationSetPresence presence
-                = (OperationSetPresence) protocolProvider
-                    .getOperationSet(OperationSetPresence.class);
+            if (!protocolProvider.isRegistered())
+                continue;
 
-            if (presence == null)
-            {
-                if (protocolProvider.isRegistered()
-                    && status < PresenceStatus.AVAILABLE_THRESHOLD)
-                {
-                    status = PresenceStatus.AVAILABLE_THRESHOLD;
-                }
-            }
-            else
-            {
-                if (protocolProvider.isRegistered()
-                    && status < presence.getPresenceStatus().getStatus())
-                {
-                    status = presence.getPresenceStatus().getStatus();
-                }
-            }
+            OperationSetPresence presence
+                = (OperationSetPresence)
+                    protocolProvider
+                        .getOperationSet(OperationSetPresence.class);
+            int presenceStatus
+                = (presence == null)
+                    ? PresenceStatus.AVAILABLE_THRESHOLD
+                    : presence.getPresenceStatus().getStatus();
+
+            if (status < presenceStatus)
+                status = presenceStatus;
         }
 
         JMenuItem item = getItemFromStatus(status);
 
-        SelectedObject selectedObject
-            = new SelectedObject(item.getText(),
-                                item.getIcon(),
-                                item);
-
-        // Obtain the width of the text in order to use it in arrow painting
-        // calculations.
-        STATUS_STRING_WIDTH = SwingUtilities.computeStringWidth(
-            this.getFontMetrics(this.getFont()), item.getText());
-
-        setSelected(selectedObject);
+        setSelected(new SelectedObject(item.getText(), item.getIcon(), item));
+        computeTextWidth();
 
         this.revalidate();
         setSystrayIcon(status);
@@ -707,25 +662,24 @@ public class GlobalStatusSelectorBox
     {
         String lastStatus = getLastStatusString(protocolProvider);
 
-        OperationSetPresence presence =
-            (OperationSetPresence) protocolProvider
-                .getOperationSet(OperationSetPresence.class);
-
-        if (presence == null)
-            return null;
-
-        Iterator<PresenceStatus> i = presence.getSupportedStatusSet();
-
         if (lastStatus != null)
         {
+            OperationSetPresence presence
+                = (OperationSetPresence)
+                    protocolProvider
+                        .getOperationSet(OperationSetPresence.class);
+
+            if (presence == null)
+                return null;
+
+            Iterator<PresenceStatus> i = presence.getSupportedStatusSet();
             PresenceStatus status;
+
             while (i.hasNext())
             {
                 status = i.next();
                 if (status.getStatusName().equals(lastStatus))
-                {
                     return status;
-                }
             }
         }
         return null;
@@ -740,23 +694,22 @@ public class GlobalStatusSelectorBox
      */
     public String getLastStatusString(ProtocolProviderService protocolProvider)
     {
-        ConfigurationService configService =
-            GuiActivator.getConfigurationService();
-
         // find the last contact status saved in the configuration.
         String lastStatus = null;
 
+        ConfigurationService configService
+            = GuiActivator.getConfigurationService();
         String prefix = "net.java.sip.communicator.impl.gui.accounts";
-
         List<String> accounts
             = configService.getPropertyNamesByPrefix(prefix, true);
+        String protocolProviderAccountUID
+            = protocolProvider.getAccountID().getAccountUniqueID();
 
         for (String accountRootPropName : accounts)
         {
             String accountUID = configService.getString(accountRootPropName);
 
-            if (accountUID.equals(protocolProvider.getAccountID()
-                .getAccountUniqueID()))
+            if (accountUID.equals(protocolProviderAccountUID))
             {
                 lastStatus =
                     configService.getString(accountRootPropName
@@ -778,15 +731,16 @@ public class GlobalStatusSelectorBox
     {
         super.paintComponent(g);
 
-        if (STATUS_STRING_WIDTH != 0)
+        if (textWidth != 0)
         {
             g = g.create();
             try
             {
                 AntialiasingManager.activateAntialiasing(g);
 
-                g.drawImage(arrowImage,
-                    STATUS_STRING_WIDTH + 2*IMAGE_INDENT + 2,
+                g.drawImage(
+                    arrowImage,
+                    textWidth + 2*IMAGE_INDENT + 2,
                     (this.getHeight() - arrowImage.getHeight(null)) / 2 + 3,
                     null);
             }
@@ -795,5 +749,21 @@ public class GlobalStatusSelectorBox
                 g.dispose();
             }
         }
+    }
+
+    /**
+     * Computes the width of the text in pixels in order to position the arrow during its painting.
+     */
+    private void computeTextWidth()
+    {
+        String text = getText();
+
+        textWidth
+            = (text == null)
+                ? 0
+                : SwingUtilities
+                        .computeStringWidth(
+                            getFontMetrics(getFont()),
+                            text);
     }
 }

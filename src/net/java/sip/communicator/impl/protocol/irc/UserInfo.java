@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.protocol.irc;
 
 import java.util.*;
@@ -14,28 +13,27 @@ import java.util.*;
  * 
  * @author Stephane Remy
  */
-
 public class UserInfo
 {
     /**
      * The nickname of this user.
      */
-    private String nickName = null;
+    private final String nickName;
     
     /**
      * The login of this user.
      */
-    private String login = null;
+    private final String login;
     
     /**
      * The hostname of this user.
      */
-    private String hostname = null;
+    private final String hostname;
     
     /**
      * A list of the chat rooms this user is in.
      */
-    private List<String> joinedChatRoom = new LinkedList<String>();
+    private final List<String> joinedChatRoom = new LinkedList<String>();
     
     /**
      * Information about the server.
@@ -172,16 +170,6 @@ public class UserInfo
         return serverInfo;
     }
 
-    /**
-     * Set the hostname of this user.
-     * 
-     * @param hostname the hostname of this user
-     */
-    protected void setHostname(String hostname)
-    {
-        this.hostname = hostname;
-    }
-    
     /**
      * Set the idle time for this user.
      * 

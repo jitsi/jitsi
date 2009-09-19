@@ -6,12 +6,9 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
-import java.io.*;
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.dict.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * An implementation of <tt>PresenceStatus</tt> that enumerates all states that
@@ -19,12 +16,11 @@ import net.java.sip.communicator.util.*;
  *
  * @author Stephane Remy
  * @author Loic Kempf
+ * @author Lubomir Marinov
  */
 public class IrcStatusEnum
     extends PresenceStatus
 {
-    private static final Logger logger
-        = Logger.getLogger(IrcStatusEnum.class);
 
     /**
      * Indicates an Offline status or status with 0 connectivity.
@@ -58,7 +54,7 @@ public class IrcStatusEnum
     /**
      * Initialize the list of supported status states.
      */
-    private static List<IrcStatusEnum> supportedStatusSet
+    private static final List<IrcStatusEnum> supportedStatusSet
         = new LinkedList<IrcStatusEnum>();
     static
     {
@@ -102,23 +98,6 @@ public class IrcStatusEnum
      */
     private static byte[] getImageInBytes(String imageID) 
     {
-        InputStream in = DictActivator.getResources().
-            getImageInputStream(imageID);
-
-        if (in == null)
-            return null;
-        byte[] image = null;
-        try 
-        {
-            image = new byte[in.available()];
-
-            in.read(image);
-        }
-        catch (IOException e) 
-        {
-            logger.error("Failed to load image:" + imageID, e);
-        }
-
-        return image;
+        return ProtocolIconIrcImpl.getImageInBytes(imageID);
     }
 }

@@ -579,35 +579,30 @@ public class IrcStack
 
         this.notifyChatRoomOperation(0);
 
-        Iterator joinedChatRoomsIter
-            = ircMUCOpSet.getCurrentlyJoinedChatRooms().iterator();
-
-        while (joinedChatRoomsIter.hasNext())
+        for (ChatRoom chatRoom : ircMUCOpSet.getCurrentlyJoinedChatRooms())
         {
-            ChatRoomIrcImpl chatRoom
-                = (ChatRoomIrcImpl) joinedChatRoomsIter.next();
+            ChatRoomIrcImpl chatRoomIrcImpl = (ChatRoomIrcImpl) chatRoom;
 
             if (chatRoom.getUserNickname().equals(oldNick))
             {
-                chatRoom.setNickName(newNick);
-
+                chatRoomIrcImpl.setNickName(newNick);
                 return;
             }
 
-            ChatRoomMember member = chatRoom.getChatRoomMember(oldNick);
+            ChatRoomMember member = chatRoomIrcImpl.getChatRoomMember(oldNick);
 
             if (member == null)
                 continue;
 
             ChatRoomMemberPropertyChangeEvent evt
                 = new ChatRoomMemberPropertyChangeEvent(
-                    member,
-                    chatRoom,
-                    ChatRoomMemberPropertyChangeEvent.MEMBER_NICKNAME,
-                    oldNick,
-                    newNick);
+                        member,
+                        chatRoom,
+                        ChatRoomMemberPropertyChangeEvent.MEMBER_NICKNAME,
+                        oldNick,
+                        newNick);
 
-            chatRoom.fireMemberPropertyChangeEvent(evt);
+            chatRoomIrcImpl.fireMemberPropertyChangeEvent(evt);
         }
     }
 
@@ -774,12 +769,9 @@ public class IrcStack
             logger.debug("QUIT : Received from " + sourceNick + " "
                 + sourceLogin + "@" + sourceHostname);
 
-        Iterator joinedChatRooms
-            = ircMUCOpSet.getCurrentlyJoinedChatRooms().iterator();
-
-        while (joinedChatRooms.hasNext())
+        for (ChatRoom chatRoom : ircMUCOpSet.getCurrentlyJoinedChatRooms())
         {
-            ChatRoomIrcImpl chatRoom = (ChatRoomIrcImpl) joinedChatRooms.next();
+            ChatRoomIrcImpl chatRoomIrcImpl = (ChatRoomIrcImpl) chatRoom;
 
             if(chatRoom.getUserNickname().equals(sourceNick))
                 ircMUCOpSet.fireLocalUserPresenceEvent(
@@ -788,14 +780,15 @@ public class IrcStack
                     reason);
             else
             {
-                ChatRoomMember member = chatRoom.getChatRoomMember(sourceNick);
+                ChatRoomMember member
+                    = chatRoomIrcImpl.getChatRoomMember(sourceNick);
 
                 if (member == null)
                     return;
 
-                chatRoom.removeChatRoomMember(sourceNick);
+                chatRoomIrcImpl.removeChatRoomMember(sourceNick);
 
-                chatRoom.fireMemberPresenceEvent(
+                chatRoomIrcImpl.fireMemberPresenceEvent(
                     member,
                     null,
                     ChatRoomMemberPresenceChangeEvent.MEMBER_QUIT,
@@ -1793,21 +1786,23 @@ public class IrcStack
      */
     private void onWhoIs(UserInfo userInfo)
     {
+        ChatRoomIrcImpl chatRoom = ircMUCOpSet.findSystemRoom();
+
+        if((chatRoom == null) || !chatRoom.isJoined())
+            return;
+
         logger.trace("WHOIS on: " + userInfo.getNickName() + "!"
                 + userInfo.getLogin() + "@" + userInfo.getHostname());
 
-        String whoisMessage =    "Nickname: " + userInfo.getNickName() + "\n"
-                            + "Host name: " + userInfo.getHostname() + "\n"
-                            + "Login: " + userInfo.getLogin() + "\n"
-                            + "Server info: " + userInfo.getServerInfo() + "\n"
-                            + "Joined chat rooms:";
+        String whoisMessage
+            = "Nickname: " + userInfo.getNickName() + "\n"
+                + "Host name: " + userInfo.getHostname() + "\n"
+                + "Login: " + userInfo.getLogin() + "\n"
+                + "Server info: " + userInfo.getServerInfo() + "\n"
+                + "Joined chat rooms:";
 
-        Iterator joinedChatRooms = userInfo.getJoinedChatRooms().iterator();
-
-        while(joinedChatRooms.hasNext())
-        {
-            whoisMessage += " " + joinedChatRooms.next();
-        }
+        for (String joinedChatRoom : userInfo.getJoinedChatRooms())
+            whoisMessage += " " + joinedChatRoom;
 
         MessageIrcImpl message
             = new MessageIrcImpl(   whoisMessage,
@@ -1815,16 +1810,9 @@ public class IrcStack
                                     MessageIrcImpl.DEFAULT_MIME_ENCODING,
                                     null);
 
-        ChatRoomIrcImpl chatRoom = ircMUCOpSet.findSystemRoom();
-
-        if(chatRoom == null || !chatRoom.isJoined())
-            return;
-
-        ChatRoomMember sourceMember = ircMUCOpSet.findSystemMember();
-
         chatRoom.fireMessageReceivedEvent(
             message,
-            sourceMember,
+            ircMUCOpSet.findSystemMember(),
             System.currentTimeMillis(),
             ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
     }

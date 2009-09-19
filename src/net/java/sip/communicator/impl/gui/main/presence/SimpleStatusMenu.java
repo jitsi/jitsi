@@ -30,7 +30,8 @@ public class SimpleStatusMenu
     extends StatusSelectorMenu
     implements ActionListener
 {
-    private final Logger logger = Logger.getLogger(SimpleStatusMenu.class);
+    private static final Logger logger
+        = Logger.getLogger(SimpleStatusMenu.class);
 
     private final ProtocolProviderService protocolProvider;
 
@@ -79,6 +80,12 @@ public class SimpleStatusMenu
             "service.gui.OFFLINE",
             new ImageIcon(LightGrayFilter.createDisabledImage(onlineImage)),
             Constants.OFFLINE_STATUS);
+
+        /*
+         * Make sure it correctly depicts the status and don't just rely on it
+         * being automatically updated.
+         */
+        updateStatus();
     }
 
     private JMenuItem createMenuItem(String textKey, Icon icon, String name)
@@ -148,28 +155,10 @@ public class SimpleStatusMenu
 
         ImageIcon statusImage
             = ImageLoader.getAccountStatusImage(protocolProvider);
+        JMenuItem menuItem
+            = protocolProvider.isRegistered() ? onlineItem : offlineItem;
 
-        if (protocolProvider.isRegistered())
-        {
-            setSelected(
-                new SelectedObject(statusImage, onlineItem));
-
-            // TODO Technically, we're not closing the html element.
-            this.setToolTipText(tooltip.concat("<br>" + onlineItem.getText()));
-        }
-        else
-        {
-            setSelected(
-                new SelectedObject(statusImage, offlineItem));
-
-            this.setToolTipText(tooltip.concat("<br>" + offlineItem.getText()));
-        }
-    }
-
-    /**
-     * @param status Currently unused 
-     */
-    public void updateStatus(Object status)
-    {
+        setSelected(new SelectedObject(statusImage, menuItem));
+        setToolTipText(tooltip.concat("<br>" + menuItem.getText()));
     }
 }

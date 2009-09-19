@@ -104,17 +104,8 @@ public class IrcActivator
     public static ResourceManagementService getResources()
     {
         if (resourceService == null)
-        {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(ResourceManagementService.class.getName());
-
-            if(serviceReference == null)
-                return null;
-
-            resourceService = (ResourceManagementService) bundleContext
-                .getService(serviceReference);
-        }
-
+            resourceService
+                = ResourceManagementServiceUtils.getService(bundleContext);
         return resourceService;
     }
 }
