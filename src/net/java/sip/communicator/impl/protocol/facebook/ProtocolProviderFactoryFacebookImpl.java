@@ -107,6 +107,7 @@ public class ProtocolProviderFactoryFacebookImpl
      * accounts. Note that if the given accountID doesn't correspond to any
      * registered account this method would do nothing.
      * 
+     * @param protocolProvider
      * @param accountProperties a set of protocol (or implementation) specific
      *            properties defining the new account.
      * 
@@ -159,16 +160,16 @@ public class ProtocolProviderFactoryFacebookImpl
          */
         this.storeAccount(accountID);
 
-        Hashtable<String, String> properties = new Hashtable<String, String>();
-        properties.put(PROTOCOL, ProtocolNames.FACEBOOK);
-        properties.put(USER_ID, accountID.getUserID());
-
         ((ProtocolProviderServiceFacebookImpl) protocolProvider).initialize(
             accountID.getUserID(), accountID);
 
         // We store again the account in order to store all properties added
         // during the protocol provider initialization.
         this.storeAccount(accountID);
+
+        Dictionary<String, String> properties = new Hashtable<String, String>();
+        properties.put(PROTOCOL, ProtocolNames.FACEBOOK);
+        properties.put(USER_ID, accountID.getUserID());
 
         registration =
             context.registerService(ProtocolProviderService.class.getName(),
