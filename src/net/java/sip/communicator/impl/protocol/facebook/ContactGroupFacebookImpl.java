@@ -547,7 +547,7 @@ public class ContactGroupFacebookImpl
      */
     static String createNameFromUID(String uid)
     {
-        return uid.substring(0, uid.length() - (UID_SUFFIX.length()));
+        return uid.substring(0, uid.length() - UID_SUFFIX.length());
     }
 
     /**

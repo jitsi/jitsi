@@ -9,8 +9,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
-import org.json.*;
-
 /**
  * Instant messaging functionality for the Facebook protocol.
  * 
@@ -89,40 +87,33 @@ public class OperationSetBasicInstantMessagingFacebookImpl
             {
                 // deliver the facebook chat Message
                 MessageDeliveryFailedEvent errorEvent = null;
-                try
+                errorEvent =
+                    OperationSetBasicInstantMessagingFacebookImpl.this.parentProvider
+                        .getAdapter().postFacebookChatMessage(message, to);
+                if (errorEvent == null)
                 {
-                    errorEvent =
-                        OperationSetBasicInstantMessagingFacebookImpl.this.parentProvider
-                            .getAdapter().postFacebookChatMessage(message, to);
-                    if (errorEvent == null)
-                    {
-                        fireMessageDelivered(message, to);
-                        return;
-                    }
-                    if(errorEvent.getErrorCode() == FacebookErrorCode.kError_Async_NotLoggedIn
-                        || errorEvent.getErrorCode() == FacebookErrorCode.kError_Async_LoginChanged)
-                    {
-                        try 
-                        {
-                            parentProvider.unregister(RegistrationStateChangeEvent.REASON_MULTIPLE_LOGINS);
-                        }
-                        catch (OperationFailedException e1)
-                        {
-                            logger.error(
-                                "Unable to unregister the protocol provider: "
-                                + this
-                                + " due to the following exception: " + e1);
-                        }
-                        fireMessageDeliveryFailed(
-                            message,
-                            to,
-                            MessageDeliveryFailedEvent.PROVIDER_NOT_REGISTERED);
-                        return;
-                    }
+                    fireMessageDelivered(message, to);
+                    return;
                 }
-                catch (JSONException e)
+                if(errorEvent.getErrorCode() == FacebookErrorException.kError_Async_NotLoggedIn
+                    || errorEvent.getErrorCode() == FacebookErrorException.kError_Async_LoginChanged)
                 {
-                    logger.warn(e.getMessage());
+                    try 
+                    {
+                        parentProvider.unregister(RegistrationStateChangeEvent.REASON_MULTIPLE_LOGINS);
+                    }
+                    catch (OperationFailedException e1)
+                    {
+                        logger.error(
+                            "Unable to unregister the protocol provider: "
+                            + this
+                            + " due to the following exception: " + e1);
+                    }
+                    fireMessageDeliveryFailed(
+                        message,
+                        to,
+                        MessageDeliveryFailedEvent.PROVIDER_NOT_REGISTERED);
+                    return;
                 }
 
                 // if the above delivery failed, we try again!
@@ -138,8 +129,8 @@ public class OperationSetBasicInstantMessagingFacebookImpl
                         fireMessageDelivered(message, to);
                         return;
                     }
-                    if(errorEvent.getErrorCode() == FacebookErrorCode.kError_Async_NotLoggedIn
-                        || errorEvent.getErrorCode() == FacebookErrorCode.kError_Async_LoginChanged)
+                    if(errorEvent.getErrorCode() == FacebookErrorException.kError_Async_NotLoggedIn
+                        || errorEvent.getErrorCode() == FacebookErrorException.kError_Async_LoginChanged)
                     {
                         try 
                         {
@@ -153,10 +144,6 @@ public class OperationSetBasicInstantMessagingFacebookImpl
                                 + " due to the following exception: " + e1);
                         }
                     }
-                }
-                catch (JSONException e)
-                {
-                    logger.warn(e.getMessage());
                 }
                 catch (InterruptedException e)
                 {
@@ -180,12 +167,13 @@ public class OperationSetBasicInstantMessagingFacebookImpl
     /**
      * Invoked by the facebook adapter when we got messages from the server.
      * 
-     * @param fbmsg message received
+     * @param message
+     * @param from
      */
     public void receivedInstantMessage(FacebookMessage fbmsg)
     {
-        Message message = this.createMessage(fbmsg.text);
-        String fromID = fbmsg.from.toString();
+        Message message = this.createMessage(fbmsg.getText());
+        String fromID = fbmsg.getFrom();
 
         // TODO handle the msgID.
         // it's generated when we createMessage() by now.

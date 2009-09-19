@@ -5,6 +5,7 @@
  */
 package net.java.sip.communicator.impl.protocol.facebook;
 
+import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
@@ -21,6 +22,7 @@ import org.osgi.framework.*;
  * protocol stack.
  *
  * @author Dai Zhiwei
+ * @author Edgar Poce
  */
 public class OperationSetPersistentPresenceFacebookImpl
     extends AbstractOperationSetPersistentPresence<ProtocolProviderServiceFacebookImpl>
@@ -135,7 +137,6 @@ public class OperationSetPersistentPresenceFacebookImpl
      *
      * @param statusMessage a String containing the new status message.
      */
-    @Deprecated
     public void setStatusMessage(String statusMessage)
     {
         this.statusMessage = statusMessage;
@@ -278,9 +279,10 @@ public class OperationSetPersistentPresenceFacebookImpl
     {
         PresenceStatus oldPresenceStatus = this.presenceStatus;
         this.presenceStatus = status;
-
+        
         //OK, now post the new status message!
-        if(statusMessage != null && !statusMessage.equals("")){
+        if(statusMessage != null && !statusMessage.equals(""))
+        {
             if(this.statusMessage == null || !this.statusMessage.equals(statusMessage))
             {
                 FacebookAdapter adapter = parentProvider.getAdapter();
@@ -288,25 +290,42 @@ public class OperationSetPersistentPresenceFacebookImpl
                     adapter.setStatusMessage(statusMessage);
             }
         }
-
+        
         this.statusMessage = statusMessage;
 
         this.fireProviderStatusChangeEvent(oldPresenceStatus);
-
-        if(this.presenceStatus == FacebookStatusEnum.OFFLINE){
-            parentProvider.getAdapter().pause();
-            changePresenceStatusForAllContactsWithoutFiringEvent(
-                getServerStoredContactListRoot(),
-                getPresenceStatus());
+        
+        try
+        {
+            if(this.presenceStatus == FacebookStatusEnum.OFFLINE)
+            {
+                parentProvider.getAdapter().shutdown();
+                changePresenceStatusForAllContactsWithoutFiringEvent(
+                    getServerStoredContactListRoot(),
+                    getPresenceStatus());
+            }
+            else if(this.presenceStatus == FacebookStatusEnum.ONLINE)
+            {
+                //parentProvider.getAdapter().initialize(email, pass)
+                if(oldPresenceStatus == FacebookStatusEnum.INVISIBLE)
+                    parentProvider.getAdapter().getSession().setVisibility(true);
+            }
+            else if(this.presenceStatus == FacebookStatusEnum.INVISIBLE)
+            {
+                parentProvider.getAdapter().getSession().setVisibility(false);
+            }
         }
-        else if(this.presenceStatus == FacebookStatusEnum.ONLINE){
-            //parentProvider.getAdapter().initialize(email, pass)
-            if(oldPresenceStatus == FacebookStatusEnum.INVISIBLE)
-                parentProvider.getAdapter().setVisibility(true);
+        catch (IOException e)
+        {
+            throw new OperationFailedException(
+                    "unable to change facebook visibility", -1, e);
         }
-        else if(this.presenceStatus == FacebookStatusEnum.INVISIBLE){
-            parentProvider.getAdapter().setVisibility(false);
+        catch (BrokenFacebookProtocolException e)
+        {
+            throw new OperationFailedException(
+                    "unable to change facebook visibility", -1, e);
         }
+        
 
         /*// since we are not a real protocol, we set the contact presence status
         // ourselves and make them have the same status as ours.
@@ -384,20 +403,29 @@ public class OperationSetPersistentPresenceFacebookImpl
             PresenceStatus newStatus)
     {
         ContactFacebookImpl contact = (ContactFacebookImpl) findContactByID(address);
-        if(contact == null){
-            try {
+        if(contact == null)
+        {
+            try
+            {
                 subscribe(address);
                 contact = (ContactFacebookImpl) findContactByID(address);
-            } catch (IllegalArgumentException e) {
+            }
+            catch (IllegalArgumentException e)
+            {
                 logger.warn(e.getMessage());
-            } catch (IllegalStateException e) {
+            }
+            catch (IllegalStateException e)
+            {
                 logger.warn(e.getMessage());
-            } catch (OperationFailedException e) {
+            }
+            catch (OperationFailedException e)
+            {
                 logger.warn(e.getMessage());
             }
         }
         changePresenceStatusForContact(contact, newStatus);
     }
+
     /**
      * The same as changePresenceStatusForContact, but is public
      * @param contact the <tt>ContactFacebookImpl</tt> whose status we'd like
@@ -1099,5 +1127,4 @@ public class OperationSetPersistentPresenceFacebookImpl
 
         return newVolatileContact;
     }
-
 }

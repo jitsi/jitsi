@@ -17,8 +17,8 @@ import net.java.sip.communicator.util.*;
 public class ProtocolProviderServiceFacebookImpl
     extends AbstractProtocolProviderService
 {
-    private static final Logger logger =
-        Logger.getLogger(ProtocolProviderServiceFacebookImpl.class);
+    private static final Logger logger
+        = Logger.getLogger(ProtocolProviderServiceFacebookImpl.class);
 
     /**
      * The name of this protocol.
@@ -43,16 +43,16 @@ public class ProtocolProviderServiceFacebookImpl
     /**
      * The logo corresponding to the facebook protocol.
      */
-    private ProtocolIconFacebookImpl facebookIcon =
-        new ProtocolIconFacebookImpl();
+    private ProtocolIconFacebookImpl facebookIcon
+        = new ProtocolIconFacebookImpl();
 
     /**
      * The registration state that we are currently in. Note that in a real
      * world protocol implementation this field won't exist and the registration
      * state would be retrieved from the protocol stack.
      */
-    private RegistrationState currentRegistrationState =
-        RegistrationState.UNREGISTERED;
+    private RegistrationState currentRegistrationState
+        = RegistrationState.UNREGISTERED;
 
     private FacebookAdapter facebookAdapter;
 
@@ -66,14 +66,16 @@ public class ProtocolProviderServiceFacebookImpl
 
     /**
      * Initializes the service implementation, and puts it in a sate where it
-     * could interoperate with other services. It is strongly recomended that
+     * could interoperate with other services. It is strongly recommended that
      * properties in this Map be mapped to property names as specified by
      * <tt>AccountProperties</tt>.
      * 
-     * @param userID the user id of the facebook account we're currently
+     * @param userID
+     *            the user id of the facebook account we're currently
      *            initializing
-     * @param accountID the identifier of the account that this protocol
-     *            provider represents.
+     * @param accountID
+     *            the identifier of the account that this protocol provider
+     *            represents.
      * 
      * @see net.java.sip.communicator.service.protocol.AccountID
      */
@@ -84,49 +86,51 @@ public class ProtocolProviderServiceFacebookImpl
             this.accountID = accountID;
 
             // initialize the presence operationset
-            OperationSetPersistentPresenceFacebookImpl persistentPresence =
-                new OperationSetPersistentPresenceFacebookImpl(this);
+            OperationSetPersistentPresenceFacebookImpl persistentPresence
+                = new OperationSetPersistentPresenceFacebookImpl(this);
 
-            supportedOperationSets.put(OperationSetPersistentPresence.class
-                .getName(), persistentPresence);
+            supportedOperationSets
+                .put(
+                    OperationSetPersistentPresence.class.getName(),
+                    persistentPresence);
 
             // register it once again for those that simply need presence and
             // won't be smart enough to check for a persistent presence
             // alternative
-            supportedOperationSets.put(OperationSetPresence.class.getName(),
-                persistentPresence);
+            supportedOperationSets
+                .put(
+                    OperationSetPresence.class.getName(),
+                    persistentPresence);
 
             // initialize the IM operation set
-            OperationSetBasicInstantMessagingFacebookImpl basicInstantMessaging =
-                new OperationSetBasicInstantMessagingFacebookImpl(
-                    this, persistentPresence);
+            supportedOperationSets
+                .put(
+                    OperationSetBasicInstantMessaging.class.getName(),
+                    new OperationSetBasicInstantMessagingFacebookImpl(
+                            this,
+                            persistentPresence));
 
-            supportedOperationSets.put(OperationSetBasicInstantMessaging.class
-                .getName(), basicInstantMessaging);
-            
             // initialize the message operation set
-            OperationSetSmsMessagingFacebookImpl basicMessaging =
-                new OperationSetSmsMessagingFacebookImpl(
-                    this, persistentPresence);
-
-            supportedOperationSets.put(OperationSetSmsMessaging.class
-                .getName(), basicMessaging);
+            supportedOperationSets
+                .put(
+                    OperationSetSmsMessaging.class.getName(),
+                    new OperationSetSmsMessagingFacebookImpl(
+                            this,
+                            persistentPresence));
 
             // initialize the typing notifications operation set
-            supportedOperationSets.put(
-                OperationSetTypingNotifications.class.getName(),
-                new OperationSetTypingNotificationsFacebookImpl(this));
+            supportedOperationSets
+                .put(
+                    OperationSetTypingNotifications.class.getName(),
+                    new OperationSetTypingNotificationsFacebookImpl(this));
 
             // initialize the server stored contact info operation set
-            OperationSetServerStoredContactInfo contactInfo =
-                new OperationSetServerStoredContactInfoFacebookImpl(this);
+            supportedOperationSets
+                .put(
+                    OperationSetServerStoredContactInfo.class.getName(),
+                    new OperationSetServerStoredContactInfoFacebookImpl(this));
 
-            supportedOperationSets.put(
-                OperationSetServerStoredContactInfo.class.getName(),
-                contactInfo);
-            
-            facebookAdapter =
-                new FacebookAdapter(ProtocolProviderServiceFacebookImpl.this);
+            facebookAdapter = new FacebookAdapter(this);
 
             isInitialized = true;
         }
@@ -183,20 +187,22 @@ public class ProtocolProviderServiceFacebookImpl
     /**
      * Starts the registration process.
      * 
-     * @param authority the security authority that will be used for resolving
-     *            any security challenges that may be returned during the
+     * @param authority
+     *            the security authority that will be used for resolving any
+     *            security challenges that may be returned during the
      *            registration or at any moment while wer're registered.
-     * @throws OperationFailedException with the corresponding code it the
-     *             registration fails for some reason (e.g. a networking error
-     *             or an implementation problem).
+     * @throws OperationFailedException
+     *             with the corresponding code it the registration fails for
+     *             some reason (e.g. a networking error or an implementation
+     *             problem).
      */
     public void register(SecurityAuthority authority)
         throws OperationFailedException
     {
         // verify whether a password has already been stored for this account
-        String password =
-            FacebookActivator.getProtocolProviderFactory().loadPassword(
-                getAccountID());
+        String password
+            = FacebookActivator
+                .getProtocolProviderFactory().loadPassword(getAccountID());
 
         // if we don't - retrieve it from the user through the security
         // authority
@@ -207,9 +213,12 @@ public class ProtocolProviderServiceFacebookImpl
             credentials.setUserName(getAccountID().getUserID());
 
             // request a password from the user
-            credentials =
-                authority.obtainCredentials(ProtocolNames.FACEBOOK,
-                    credentials, SecurityAuthority.AUTHENTICATION_REQUIRED);
+            credentials
+                = authority
+                    .obtainCredentials(
+                        ProtocolNames.FACEBOOK,
+                        credentials,
+                        SecurityAuthority.AUTHENTICATION_REQUIRED);
 
             // extract the password the user passed us.
             char[] pass = credentials.getPassword();
@@ -218,8 +227,8 @@ public class ProtocolProviderServiceFacebookImpl
             if (pass == null)
             {
                 fireRegistrationStateChanged(getRegistrationState(),
-                    RegistrationState.UNREGISTERED,
-                    RegistrationStateChangeEvent.REASON_USER_REQUEST, "");
+                        RegistrationState.UNREGISTERED,
+                        RegistrationStateChangeEvent.REASON_USER_REQUEST, "");
                 return;
             }
             password = new String(pass);
@@ -230,26 +239,30 @@ public class ProtocolProviderServiceFacebookImpl
             if (credentials.isPasswordPersistent())
             {
                 FacebookActivator.getProtocolProviderFactory().storePassword(
-                    getAccountID(), password);
+                        getAccountID(), password);
             }
         }
 
         RegistrationState oldState = currentRegistrationState;
 
-        int initErrorCode =
-            facebookAdapter.initialize(getAccountID().getUserID(), password);
+        int initErrorCode = FacebookErrorException.Error_Global_NoError;
 
-        if (initErrorCode == FacebookErrorCode.Error_Global_NoError)
+        if (!facebookAdapter.initialize(getAccountID().getUserID(), password))
+        {
+            initErrorCode = FacebookErrorException.kError_Login_GenericError;
+        }
+
+        if (initErrorCode == FacebookErrorException.Error_Global_NoError)
         {
             currentRegistrationState = RegistrationState.REGISTERED;
             fireRegistrationStateChanged(oldState, currentRegistrationState,
-                RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
+                    RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
         }
         else
         {
             fireRegistrationStateChanged(getRegistrationState(),
-                RegistrationState.UNREGISTERED,
-                RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND, "");
+                    RegistrationState.UNREGISTERED,
+                    RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND, "");
         }
     }
 
@@ -261,9 +274,8 @@ public class ProtocolProviderServiceFacebookImpl
     public void shutdown()
     {
         if (!isInitialized)
-        {
             return;
-        }
+
         logger.trace("Killing the Facebook Protocol Provider.");
 
         if (isRegistered())
@@ -277,8 +289,8 @@ public class ProtocolProviderServiceFacebookImpl
             {
                 // we're shutting down so we need to silence the exception here
                 logger.error(
-                    "Failed to properly unregister before shutting down. "
-                        + getAccountID(), ex);
+                        "Failed to properly unregister before shutting down. "
+                                + getAccountID(), ex);
             }
         }
 
@@ -292,25 +304,30 @@ public class ProtocolProviderServiceFacebookImpl
      * Ends the registration of this protocol provider with the current
      * registration service.
      * 
-     * @throws OperationFailedException with the corresponding code it the
-     *             registration fails for some reason (e.g. a networking error
-     *             or an implementation problem).
+     * @throws OperationFailedException
+     *             with the corresponding code it the registration fails for
+     *             some reason (e.g. a networking error or an implementation
+     *             problem).
      */
     public void unregister() throws OperationFailedException
     {
         unregister(RegistrationStateChangeEvent.REASON_USER_REQUEST);
     }
-    
-    public void unregister(int reason) throws OperationFailedException
-    {
-        // surspend/pause the httpclient
-        this.facebookAdapter.pause();
 
+    public void unregister(int reason) 
+        throws OperationFailedException
+    {
         RegistrationState oldState = currentRegistrationState;
         currentRegistrationState = RegistrationState.UNREGISTERED;
 
-        fireRegistrationStateChanged(oldState, currentRegistrationState,
-            reason, null);
+        fireRegistrationStateChanged(
+            oldState,
+            currentRegistrationState,
+            reason,
+            null);
+
+        // surspend/pause the httpclient
+        this.facebookAdapter.shutdown();
     }
 
     /**
@@ -332,7 +349,20 @@ public class ProtocolProviderServiceFacebookImpl
      */
     public FacebookUser getContactMetaInfoByID(String contactID)
     {
-        return facebookAdapter.getBuddyFromCacheByID(contactID);
+        FacebookSession facebookSession = facebookAdapter.getSession();
+
+        if (facebookSession != null)
+        {
+            try
+            {
+                return facebookSession.getBuddyList().getBuddyByUID(contactID);
+            }
+            catch (Exception e)
+            {
+                logger.warn("unable to get contact info", e);
+            }
+        }
+        return null;
     }
 
     /**

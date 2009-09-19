@@ -1,3 +1,8 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ * 
+ * Distributable under LGPL license. See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.protocol.facebook;
 
 import java.util.*;
@@ -5,8 +10,6 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-
-import org.json.*;
 
 public class OperationSetSmsMessagingFacebookImpl
     implements OperationSetSmsMessaging
@@ -90,41 +93,34 @@ public class OperationSetSmsMessagingFacebookImpl
             {
                 // deliver the facebook chat Message
                 MessageDeliveryFailedEvent errorEvent = null;
-                try
+                errorEvent =
+                    OperationSetSmsMessagingFacebookImpl.this.parentProvider
+                        .getAdapter().postMessage(message, to);
+                if (errorEvent == null)
                 {
-                    errorEvent =
-                        OperationSetSmsMessagingFacebookImpl.this.parentProvider
-                            .getAdapter().postMessage(message, to);
-                    if (errorEvent == null)
-                    {
-                        fireMessageDelivered(message, to);
-                        return;
-                    }
-                    // if we got the message: 
-                    // Error(1357001): Not Logged In; You must be logged in to do that.
-                    // we just unregister.
-                    // and the reason we got this message may be "multiple logins"
-                    if(errorEvent.getErrorCode() == FacebookErrorCode.kError_Async_NotLoggedIn
-                        || errorEvent.getErrorCode() == FacebookErrorCode.kError_Async_LoginChanged)
-                    {
-                        try 
-                        {
-                            parentProvider.unregister(RegistrationStateChangeEvent.REASON_MULTIPLE_LOGINS);
-                        }
-                        catch (OperationFailedException e1)
-                        {
-                            logger.error(
-                                "Unable to unregister the protocol provider: "
-                                + this
-                                + " due to the following exception: " + e1);
-                        }
-                        fireMessageDeliveryFailed(message, to, errorEvent);
-                        return;
-                    }
+                    fireMessageDelivered(message, to);
+                    return;
                 }
-                catch (JSONException e)
+                // if we got the message: 
+                // Error(1357001): Not Logged In; You must be logged in to do that.
+                // we just unregister.
+                // and the reason we got this message may be "multiple logins"
+                if(errorEvent.getErrorCode() == FacebookErrorException.kError_Async_NotLoggedIn
+                    || errorEvent.getErrorCode() == FacebookErrorException.kError_Async_LoginChanged)
                 {
-                    logger.warn(e.getMessage());
+                    try 
+                    {
+                        parentProvider.unregister(RegistrationStateChangeEvent.REASON_MULTIPLE_LOGINS);
+                    }
+                    catch (OperationFailedException e1)
+                    {
+                        logger.error(
+                            "Unable to unregister the protocol provider: "
+                            + this
+                            + " due to the following exception: " + e1);
+                    }
+                    fireMessageDeliveryFailed(message, to, errorEvent);
+                    return;
                 }
 
                 // if the above delivery failed, we try again!
@@ -141,8 +137,8 @@ public class OperationSetSmsMessagingFacebookImpl
                         fireMessageDelivered(message, to);
                         return;
                     }
-                    if(errorEvent.getErrorCode() == FacebookErrorCode.kError_Async_NotLoggedIn
-                        || errorEvent.getErrorCode() == FacebookErrorCode.kError_Async_LoginChanged)
+                    if(errorEvent.getErrorCode() == FacebookErrorException.kError_Async_NotLoggedIn
+                        || errorEvent.getErrorCode() == FacebookErrorException.kError_Async_LoginChanged)
                     {
                         try 
                         {
@@ -156,10 +152,6 @@ public class OperationSetSmsMessagingFacebookImpl
                                 + " due to the following exception: " + e1);
                         }
                     }
-                }
-                catch (JSONException e)
-                {
-                    logger.warn(e.getMessage());
                 }
                 catch (InterruptedException e)
                 {
