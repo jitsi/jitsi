@@ -54,6 +54,7 @@ public class OperationSetServerStoredContactInfoFacebookImpl
     {
         this.parentProvider = provider;
     }
+
     /**
      * Returns the user details from the specified class or its descendants
      * the class is one from the
@@ -65,21 +66,19 @@ public class OperationSetServerStoredContactInfoFacebookImpl
      * @return Iterator
      */
     public Iterator<GenericDetail> getDetailsAndDescendants(
-        Contact contact,
-        Class<? extends GenericDetail> detailClass)
+            Contact contact,
+            Class<? extends GenericDetail> detailClass)
     {
         List<GenericDetail> details = getContactDetails(contact.getAddress());
         List<GenericDetail> result = new LinkedList<GenericDetail>();
         
-        if(details == null)
+        if (details == null)
             return result.iterator();
 
         for (GenericDetail item : details)
-        {
             //the class AND its descendants
-            if(detailClass.isInstance(item))
+            if (detailClass.isInstance(item))
                 result.add(item);
-        }
 
         return result.iterator();
     }
@@ -93,21 +92,19 @@ public class OperationSetServerStoredContactInfoFacebookImpl
      * @return Iterator
      */
     public Iterator<GenericDetail> getDetails(
-        Contact contact,
-        Class<? extends GenericDetail> detailClass)
+            Contact contact,
+            Class<? extends GenericDetail> detailClass)
     {
         List<GenericDetail> details = getContactDetails(contact.getAddress());
         List<GenericDetail> result = new LinkedList<GenericDetail>();
         
-        if(details == null)
+        if (details == null)
             return result.iterator();
         
         for (GenericDetail item : details)
-        {
             //exactly that class not its descendants
-            if(detailClass.equals(item.getClass()))
+            if (detailClass.equals(item.getClass()))
                 result.add(item);
-        }
 
         return result.iterator();
     }
@@ -140,7 +137,7 @@ public class OperationSetServerStoredContactInfoFacebookImpl
     {
         List<GenericDetail> result = retreivedDetails.get(contactAddress);
 
-        if((result == null)
+        if ((result == null)
                 || !detailsRetreivedAddresses.contains(contactAddress))
         {
             result = new LinkedList<GenericDetail>();
@@ -170,7 +167,8 @@ public class OperationSetServerStoredContactInfoFacebookImpl
                 ContactFacebookImpl contact = (ContactFacebookImpl)presenceOS.findContactByID(contactAddress);
                 
                 //avatar, name, first name
-                if(contact != null){
+                if(contact != null)
+                {
                     /**
                      * TODO fixme "Avatar" should be loaded from resources.properties
                      */
@@ -185,14 +183,21 @@ public class OperationSetServerStoredContactInfoFacebookImpl
                     
                     tmpValueStr = metaInfo.name;
                     if(tmpValueStr != null)
-                        result.add(new ServerStoredDetails.DisplayNameDetail(tmpValueStr));
+                        result
+                            .add(
+                                new ServerStoredDetails.DisplayNameDetail(
+                                        tmpValueStr));
                     
                     tmpValueStr = metaInfo.firstName;
                     if(tmpValueStr != null)
-                        result.add(new ServerStoredDetails.FirstNameDetail(tmpValueStr));
+                        result
+                            .add(
+                                new ServerStoredDetails.FirstNameDetail(
+                                        tmpValueStr));
                 }
                 
-                String profilePage = adapter.getProfilePage(contactAddress);
+                String profilePage
+                    = adapter.getSession().getProfilePage(contactAddress);
                 
                 if(profilePage == null)
                     throw new Exception("Failed to load profile page");
@@ -212,7 +217,8 @@ public class OperationSetServerStoredContactInfoFacebookImpl
                 String tmpPrefix = "<div class=\"profile_info_container\">";
                 int beginPos = profilePage.indexOf(tmpPrefix);
                 
-                if(beginPos >= 0){
+                if(beginPos >= 0)
+                {
                     //do something
                     beginPos += tmpPrefix.length();
                     if(beginPos >= profilePage.length())
@@ -221,9 +227,11 @@ public class OperationSetServerStoredContactInfoFacebookImpl
                     String tmpLabelStr;
                     int tmpLeft = profilePage.indexOf("<dt>", beginPos);
                     int tmpRight = 0;
-                    while(tmpLeft >= 0 && tmpLeft < profilePage.length()){
+                    while(tmpLeft >= 0 && tmpLeft < profilePage.length())
+                    {
                         tmpRight = profilePage.indexOf("</dt>", tmpLeft);
-                        if(tmpRight >= 0){
+                        if(tmpRight >= 0)
+                        {
                             tmpLabelStr = profilePage.substring(tmpLeft + 4, tmpRight);
                             tmpLabelStr = getText(tmpLabelStr);
                             if(tmpLabelStr.endsWith(":"))
@@ -231,11 +239,14 @@ public class OperationSetServerStoredContactInfoFacebookImpl
                             //label done!
                             
                             tmpLeft = profilePage.indexOf("<dd>", tmpRight);
-                            if(tmpLeft >= 0){
+                            if(tmpLeft >= 0)
+                            {
                                 tmpRight = profilePage.indexOf("</dd>", tmpLeft);
-                                if(tmpRight >= 0){
+                                if(tmpRight >= 0)
+                                {
                                     tmpValueStr = profilePage.substring(tmpLeft + 4, tmpRight);
-                                    if(tmpValueStr.startsWith("<img src=\"/") && tmpValueStr.endsWith("\" border=0>")){
+                                    if(tmpValueStr.startsWith("<img src=\"/") && tmpValueStr.endsWith("\" border=0>"))
+                                    {
                                         //<img src="/string_image.php?ct=AAAAAQAQVVaveiWcR6O91PkY7zr1NgAAABesyLV-PSZ6liviNVJWiOP6XeTgkFFyaMM%2C&fp=8.7&state=0&highlight=1386786477" border=0>
                                         tmpValueStr = tmpValueStr.substring(10, tmpValueStr.length() - 11);
                                         //"http://static.ak.fbcdn.net"
@@ -243,16 +254,21 @@ public class OperationSetServerStoredContactInfoFacebookImpl
                                         if(imageBytes != null && imageBytes.length > 0)
                                             result.add(new ServerStoredDetails.ImageDetail(
                                                 tmpLabelStr, imageBytes));
-                                    } else {
+                                    }
+                                    else
+                                    {
                                         tmpValueStr = getText(tmpValueStr);
                                         //value done!
                                         result.add(new ServerStoredDetails.StringDetail(tmpLabelStr, tmpValueStr));
                                     }
-                                } else
+                                }
+                                else
                                     break;                                
-                            } else
+                            }
+                            else
                                 break;
-                        } else
+                        }
+                        else
                             break;
                         tmpLeft = profilePage.indexOf("<dt>", tmpRight + 5);
                     }
@@ -326,28 +342,33 @@ public class OperationSetServerStoredContactInfoFacebookImpl
         return (OperationSetPersistentPresenceFacebookImpl) parentProvider
             .getOperationSet(OperationSetPersistentPresence.class);
     }
+
     /**
      * Get text from html formatted string
      * 
      * @param srcStr the html formatted string
      * @return the plain text
      */
-    public static String getText(String srcStr){
+    public static String getText(String srcStr)
+    {
         String text = "";
         
         int left = 0;
         int cur = srcStr.indexOf("<", left);
-        while(cur >= 0){
+        while(cur >= 0)
+        {
             text += srcStr.substring(left, cur);
             left = srcStr.indexOf(">", cur);
             if(left < 0)
                 break;
             
             left++;
-            if(left < srcStr.length()){
+            if(left < srcStr.length())
+            {
                 cur = srcStr.indexOf("<", left);
                 continue;
-            } else
+            }
+            else
                 break;
         }
         if(left >= 0)
@@ -375,7 +396,9 @@ public class OperationSetServerStoredContactInfoFacebookImpl
         
         return text;
     }
-    public static byte[] getImage(String urlStr){
+
+    public static byte[] getImage(String urlStr)
+    {
         ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
         try
         {
