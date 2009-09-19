@@ -163,6 +163,14 @@ public class PluginContainer
     public void dispose()
     {
         GuiActivator.getUIService().removePluginComponentListener(this);
+
+        /*
+         * Explicitly remove the components of the PluginComponent instances
+         * because the latter are registered with OSGi and are thus global.
+         */
+        for (PluginComponent pluginComponent : pluginComponents)
+            container.remove((Component) pluginComponent.getComponent());
+        pluginComponents.clear();
     }
 
     /*

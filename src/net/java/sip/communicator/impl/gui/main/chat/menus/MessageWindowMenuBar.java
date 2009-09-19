@@ -26,11 +26,11 @@ import net.java.sip.communicator.service.gui.Container;
 public class MessageWindowMenuBar
     extends JMenuBar
 {
-    private FileMenu fileMenu;
+    private final FileMenu fileMenu;
 
-    private EditMenu editMenu;
+    private final EditMenu editMenu;
     
-    private OptionsMenu optionsMenu;
+    private final OptionsMenu optionsMenu;
 
     private final HelpMenu helpMenu;
 
@@ -111,13 +111,9 @@ public class MessageWindowMenuBar
      */
     private void init()
     {
-
         this.add(fileMenu);
-
         this.add(editMenu);
-        
         this.add(optionsMenu);
-
         this.add(helpMenu);
     }
 
