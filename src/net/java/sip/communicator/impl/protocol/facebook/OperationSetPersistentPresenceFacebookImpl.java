@@ -652,9 +652,10 @@ public class OperationSetPersistentPresenceFacebookImpl
             findProviderForFacebookUserID(contactIdentifier);
         if (fbProvider != null)
         {
-            OperationSetPersistentPresence opSetPresence =
-                (OperationSetPersistentPresence) fbProvider
-                    .getOperationSet(OperationSetPersistentPresence.class);
+            OperationSetPersistentPresence opSetPresence
+                = (OperationSetPersistentPresence)
+                    fbProvider
+                        .getOperationSet(OperationSetPersistentPresence.class);
 
             changePresenceStatusForContact(contact,
                 (FacebookStatusEnum) opSetPresence.getPresenceStatus());
@@ -716,13 +717,15 @@ public class OperationSetPersistentPresenceFacebookImpl
         {
             // if userID is not our own, try a check whether another provider
             // has that id and if yes - deliver the request to them.
-            ProtocolProviderServiceFacebookImpl facebookProvider =
-                this.findProviderForFacebookUserID(userID);
+            ProtocolProviderServiceFacebookImpl facebookProvider
+                = this.findProviderForFacebookUserID(userID);
             if (facebookProvider != null)
             {
-                OperationSetPersistentPresenceFacebookImpl opSetPersPresence =
-                    (OperationSetPersistentPresenceFacebookImpl) facebookProvider
-                        .getOperationSet(OperationSetPersistentPresence.class);
+                OperationSetPersistentPresenceFacebookImpl opSetPersPresence
+                    = (OperationSetPersistentPresenceFacebookImpl)
+                        facebookProvider
+                            .getOperationSet(
+                                OperationSetPersistentPresence.class);
                 return opSetPersPresence.deliverAuthorizationRequest(request,
                     contact);
             }
@@ -938,22 +941,24 @@ public class OperationSetPersistentPresenceFacebookImpl
                 + osgiQuery, ex);
         }
 
-        for (int i = 0; refs != null && i < refs.length; i++)
-        {
-            ProtocolProviderServiceFacebookImpl gibProvider =
-                (ProtocolProviderServiceFacebookImpl) bc.getService(refs[i]);
+        if (refs != null)
+            for (ServiceReference ref : refs)
+            {
+                ProtocolProviderServiceFacebookImpl gibProvider
+                    = (ProtocolProviderServiceFacebookImpl) bc.getService(ref);
+                OperationSetPersistentPresenceFacebookImpl opSetPersPresence
+                    = (OperationSetPersistentPresenceFacebookImpl)
+                        gibProvider
+                            .getOperationSet(
+                                OperationSetPersistentPresence.class);
+                Contact contact
+                    = opSetPersPresence
+                        .findContactByID(
+                            parentProvider.getAccountID().getUserID());
 
-            OperationSetPersistentPresenceFacebookImpl opSetPersPresence =
-                (OperationSetPersistentPresenceFacebookImpl) gibProvider
-                    .getOperationSet(OperationSetPersistentPresence.class);
-
-            Contact contact =
-                opSetPersPresence.findContactByID(parentProvider.getAccountID()
-                    .getUserID());
-
-            if (contact != null)
-                contacts.add(contact);
-        }
+                if (contact != null)
+                    contacts.add(contact);
+            }
 
         return contacts;
     }

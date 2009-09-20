@@ -103,12 +103,15 @@ public class ProtocolProviderServiceFacebookImpl
                     persistentPresence);
 
             // initialize the IM operation set
+            OperationSetBasicInstantMessagingFacebookImpl basicInstantMessaging
+                = new OperationSetBasicInstantMessagingFacebookImpl(
+                        this,
+                        persistentPresence);
+
             supportedOperationSets
                 .put(
                     OperationSetBasicInstantMessaging.class.getName(),
-                    new OperationSetBasicInstantMessagingFacebookImpl(
-                            this,
-                            persistentPresence));
+                    basicInstantMessaging);
 
             // initialize the message operation set
             supportedOperationSets
@@ -119,10 +122,12 @@ public class ProtocolProviderServiceFacebookImpl
                             persistentPresence));
 
             // initialize the typing notifications operation set
+            OperationSetTypingNotificationsFacebookImpl typingNotifications
+                = new OperationSetTypingNotificationsFacebookImpl(this);
             supportedOperationSets
                 .put(
                     OperationSetTypingNotifications.class.getName(),
-                    new OperationSetTypingNotificationsFacebookImpl(this));
+                    typingNotifications);
 
             // initialize the server stored contact info operation set
             supportedOperationSets
@@ -130,7 +135,12 @@ public class ProtocolProviderServiceFacebookImpl
                     OperationSetServerStoredContactInfo.class.getName(),
                     new OperationSetServerStoredContactInfoFacebookImpl(this));
 
-            facebookAdapter = new FacebookAdapter(this);
+            facebookAdapter
+                = new FacebookAdapter(
+                        this,
+                        persistentPresence,
+                        basicInstantMessaging,
+                        typingNotifications);
 
             isInitialized = true;
         }

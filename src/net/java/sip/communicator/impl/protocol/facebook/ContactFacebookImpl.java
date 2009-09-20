@@ -495,17 +495,4 @@ public class ContactFacebookImpl
 
         return this.getAddress().equals(facebookContact.getAddress());
     }
-
-    /**
-     * Returns the persistent presence operation set that this contact belongs
-     * to.
-     * 
-     * @return the <tt>OperationSetPersistentPresenceFacebookImpl</tt> that
-     *         this contact belongs to.
-     */
-    public OperationSetPersistentPresenceFacebookImpl getParentPresenceOperationSet()
-    {
-        return (OperationSetPersistentPresenceFacebookImpl) parentProvider
-            .getOperationSet(OperationSetPersistentPresence.class);
-    }
 }

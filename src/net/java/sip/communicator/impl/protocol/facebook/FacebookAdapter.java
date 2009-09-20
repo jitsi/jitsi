@@ -31,15 +31,23 @@ public class FacebookAdapter
 {
     private static Logger logger = Logger.getLogger(FacebookAdapter.class);
 
+    private final OperationSetBasicInstantMessagingFacebookImpl
+        basicInstantMessaging;
+
     /**
      * Parent service provider
      */
-    private final ProtocolProviderServiceFacebookImpl parentprovider;
+    private final ProtocolProviderServiceFacebookImpl parentProvider;
+
+    private final OperationSetPersistentPresenceFacebookImpl persistentPresence;
 
     /**
      * The Facebook session
      */
     private FacebookSession session;
+
+    private final OperationSetTypingNotificationsFacebookImpl
+        typingNotifications;
 
     /**
      * Cache of typing notifications
@@ -50,12 +58,21 @@ public class FacebookAdapter
     /**
      * Adapter for each Facebook Chat account.
      * 
-     * @param pprovider
-     *            the parent service provider
+     * @param parentProvider the parent service provider
+     * @param persistentPresence
+     * @param basicInstantMessaging
+     * @param typingNotifications
      */
-    public FacebookAdapter(ProtocolProviderServiceFacebookImpl pprovider)
+    public FacebookAdapter(
+        ProtocolProviderServiceFacebookImpl parentProvider,
+        OperationSetPersistentPresenceFacebookImpl persistentPresence,
+        OperationSetBasicInstantMessagingFacebookImpl basicInstantMessaging,
+        OperationSetTypingNotificationsFacebookImpl typingNotifications)
     {
-        parentprovider = pprovider;
+        this.parentProvider = parentProvider;
+        this.persistentPresence = persistentPresence;
+        this.basicInstantMessaging = basicInstantMessaging;
+        this.typingNotifications = typingNotifications;
     }
 
     /**
@@ -75,7 +92,7 @@ public class FacebookAdapter
      */
     public ProtocolProviderServiceFacebookImpl getParentProvider()
     {
-        return parentprovider;
+        return parentProvider;
     }
 
     /**
@@ -267,21 +284,7 @@ public class FacebookAdapter
     public void onIncomingChatMessage(FacebookMessage msg)
     {
         if (!msg.getFrom().equals(this.session.getUid()))
-        {
-            Map<String, OperationSet> supportedOperationSets = getParentProvider()
-                    .getSupportedOperationSets();
-            if (supportedOperationSets == null
-                    || supportedOperationSets.size() < 1)
-                throw new NullPointerException(
-                        "No OperationSet implementations are supported by "
-                                + "this implementation. ");
-            OperationSetBasicInstantMessagingFacebookImpl operationSetIM
-                = (OperationSetBasicInstantMessagingFacebookImpl)
-                    supportedOperationSets
-                        .get(
-                            OperationSetBasicInstantMessaging.class.getName());
-            operationSetIM.receivedInstantMessage(msg);
-        }
+            basicInstantMessaging.receivedInstantMessage(msg);
     }
 
     /**
@@ -294,23 +297,11 @@ public class FacebookAdapter
     {
         if (!buddyUid.equals(this.session.getUid()))
         {
-            Map<String, OperationSet> supportedOperationSets = getParentProvider()
-                    .getSupportedOperationSets();
-            if (supportedOperationSets == null
-                    || supportedOperationSets.size() < 1)
-                throw new NullPointerException(
-                        "No OperationSet implementations are supported by "
-                                + "this implementation. ");
-            // get the operation set presence here.
-            OperationSetPersistentPresenceFacebookImpl operationSetPP
-                = (OperationSetPersistentPresenceFacebookImpl)
-                    supportedOperationSets
-                        .get(OperationSetPersistentPresence.class.getName());
-            Contact fromContact = operationSetPP.findContactByID(buddyUid);
+            Contact fromContact = persistentPresence.findContactByID(buddyUid);
             if (fromContact == null)
-            {
-                fromContact = operationSetPP.createVolatileContact(buddyUid);
-            }
+                fromContact
+                    = persistentPresence.createVolatileContact(buddyUid);
+
             int typingState = OperationSetTypingNotifications.STATE_UNKNOWN;
             switch (state)
             {
@@ -323,10 +314,9 @@ public class FacebookAdapter
             default:
                 typingState = OperationSetTypingNotifications.STATE_UNKNOWN;
             }
-            // get the operation set presence here.
-            OperationSetTypingNotificationsFacebookImpl operationSetTN = (OperationSetTypingNotificationsFacebookImpl) supportedOperationSets
-                    .get(OperationSetTypingNotifications.class.getName());
-            operationSetTN.receivedTypingNotification(fromContact, typingState);
+
+            typingNotifications
+                .receivedTypingNotification(fromContact, typingState);
         }
     }
 
@@ -334,11 +324,11 @@ public class FacebookAdapter
      * notifies SC that the connection is lost
      */
     public void onFacebookConnectionLost() {
-        if (this.parentprovider.isRegistered())
+        if (parentProvider.isRegistered())
         {
             try
             {
-                this.parentprovider.unregister();
+                parentProvider.unregister();
             }
             catch (OperationFailedException e)
             {
@@ -346,40 +336,13 @@ public class FacebookAdapter
             }
         }
 
-        Map<String, OperationSet> supportedOperationSets = getParentProvider()
-                .getSupportedOperationSets();
-
-        if (supportedOperationSets == null || supportedOperationSets.size() < 1)
-        {
-            throw new NullPointerException(
-                    "No OperationSet implementations are supported by "
-                            + "this implementation. ");
-        }
-
-        // get the operation set presence here.
-        OperationSetPersistentPresenceFacebookImpl operationSetPresence = (OperationSetPersistentPresenceFacebookImpl) supportedOperationSets
-                .get(OperationSetPresence.class.getName());
         // tag all the buddies as offline
-        operationSetPresence
-                .setPresenceStatusForAllContacts(FacebookStatusEnum.OFFLINE);
+        persistentPresence
+            .setPresenceStatusForAllContacts(FacebookStatusEnum.OFFLINE);
     }
 
     public void onBuddyListUpdated()
     {
-        // At last, the best part: updating the contact list.
-        Map<String, OperationSet> supportedOperationSets = this
-                .getParentProvider().getSupportedOperationSets();
-        if (supportedOperationSets == null || supportedOperationSets.size() < 1)
-        {
-            throw new NullPointerException(
-                    "No OperationSet implementations are supported by "
-                            + "this implementation. ");
-        }
-
-        // get the operation set presence here.
-        OperationSetPersistentPresenceFacebookImpl operationSetPresence = (OperationSetPersistentPresenceFacebookImpl) supportedOperationSets
-                .get(OperationSetPresence.class.getName());
-
         for (FacebookUser user : this.session.getBuddyList().getBuddies())
         {
             PresenceStatus newStatus;
@@ -390,8 +353,7 @@ public class FacebookAdapter
             else
                 newStatus = FacebookStatusEnum.OFFLINE;
 
-            operationSetPresence
-                .setPresenceStatusForContact(user.uid, newStatus);
+            persistentPresence.setPresenceStatusForContact(user.uid, newStatus);
         }
     }
 

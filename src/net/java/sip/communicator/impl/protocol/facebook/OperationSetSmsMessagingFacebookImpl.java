@@ -27,19 +27,19 @@ public class OperationSetSmsMessagingFacebookImpl
     /**
      * The currently valid persistent presence operation set..
      */
-    private OperationSetPersistentPresenceFacebookImpl opSetPersPresence = null;
+    private final OperationSetPersistentPresenceFacebookImpl opSetPersPresence;
 
     /**
      * The protocol provider that created us.
      */
-    private ProtocolProviderServiceFacebookImpl parentProvider = null;
+    private final ProtocolProviderServiceFacebookImpl parentProvider;
 
     public OperationSetSmsMessagingFacebookImpl(
         ProtocolProviderServiceFacebookImpl provider,
         OperationSetPersistentPresenceFacebookImpl opSetPersPresence)
     {
-        this.opSetPersPresence = opSetPersPresence;
         this.parentProvider = provider;
+        this.opSetPersPresence = opSetPersPresence;
     }
     
     public void addMessageListener(MessageListener listener)
@@ -173,20 +173,7 @@ public class OperationSetSmsMessagingFacebookImpl
         throws IllegalStateException,
         IllegalArgumentException
     {
-        Map<String, OperationSet> supportedOperationSets =
-            parentProvider.getSupportedOperationSets();
-
-        if (supportedOperationSets == null || supportedOperationSets.size() < 1)
-            throw new NullPointerException(
-                "No OperationSet implementations are supported by "
-                    + "this implementation. ");
-
-        // get the operation set presence here.
-        OperationSetPersistentPresenceFacebookImpl operationSetPP =
-            (OperationSetPersistentPresenceFacebookImpl) supportedOperationSets
-                .get(OperationSetPersistentPresence.class.getName());
-
-        Contact toContact = operationSetPP.findContactByID(to);
+        Contact toContact = opSetPersPresence.findContactByID(to);
         sendSmsMessage(toContact, message);
     }
     

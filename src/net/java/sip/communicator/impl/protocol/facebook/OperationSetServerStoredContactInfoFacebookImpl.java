@@ -158,7 +158,8 @@ public class OperationSetServerStoredContactInfoFacebookImpl
                  * ...
                  */
                 FacebookAdapter adapter = parentProvider.getAdapter();
-                OperationSetPersistentPresenceFacebookImpl presenceOS = getParentPresenceOperationSet();
+                OperationSetPersistentPresenceFacebookImpl presenceOS
+                    = getParentPresenceOperationSet();
 
                 if(adapter == null || presenceOS == null)
                     return null;
@@ -337,10 +338,12 @@ public class OperationSetServerStoredContactInfoFacebookImpl
      * @return the <tt>OperationSetPersistentPresenceFacebookImpl</tt> that
      *         this contact belongs to.
      */
-    public OperationSetPersistentPresenceFacebookImpl getParentPresenceOperationSet()
+    private OperationSetPersistentPresenceFacebookImpl getParentPresenceOperationSet()
     {
-        return (OperationSetPersistentPresenceFacebookImpl) parentProvider
-            .getOperationSet(OperationSetPersistentPresence.class);
+        return
+            (OperationSetPersistentPresenceFacebookImpl)
+                parentProvider
+                    .getOperationSet(OperationSetPersistentPresence.class);
     }
 
     /**
