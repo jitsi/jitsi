@@ -23,6 +23,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
+ * A special {@link Panel} that manages the OTR configuration.
  * 
  * @author George Politis
  * 
@@ -32,13 +33,32 @@ public class OtrConfigurationPanel
     extends TransparentPanel
 {
 
+    /**
+     * A special {@link Panel} for Private Keys display.
+     * 
+     * @author George Politis
+     * 
+     */
     private static class PrivateKeysPanel
         extends TransparentPanel
     {
+        /**
+         * A special {@link JComboBox} for {@link AccountID} enumeration.
+         * 
+         * @author George Politis
+         * 
+         */
         private static class AccountsComboBox
             extends JComboBox
         {
 
+            /**
+             * A class hosted in an {@link AccountsComboBox} that holds a single
+             * {@link AccountID}.
+             * 
+             * @author George Politis
+             * 
+             */
             private static class AccountsComboBoxItem
             {
                 public final AccountID accountID;
@@ -65,6 +85,12 @@ public class OtrConfigurationPanel
                     this.addItem(new AccountsComboBoxItem(accountID));
             }
 
+            /**
+             * Get's the selected {@link AccountID} for this
+             * {@link AccountsComboBox}.
+             * 
+             * @return
+             */
             public AccountID getSelectedAccountID()
             {
                 Object selectedItem = this.getSelectedItem();
@@ -88,6 +114,12 @@ public class OtrConfigurationPanel
             this.openAccount(cbAccounts.getSelectedAccountID());
         }
 
+        /**
+         * Sets up the {@link PrivateKeysPanel} components so that they reflect
+         * the {@link AccountID} param.
+         * 
+         * @param AccountID the {@link AccountID} to setup the components for.
+         */
         private void openAccount(AccountID account)
         {
             if (account == null)
@@ -119,6 +151,9 @@ public class OtrConfigurationPanel
             }
         }
 
+        /**
+         * Initializes the {@link PrivateKeysPanel} components.
+         */
         private void initComponents()
         {
             this.setBorder(BorderFactory.createTitledBorder(BorderFactory
@@ -167,6 +202,12 @@ public class OtrConfigurationPanel
         }
     }
 
+    /**
+     * A special {@link Panel} for fingerprints display.
+     * 
+     * @author George Politis
+     * 
+     */
     private static class KnownFingerprintsPanel
         extends TransparentPanel
     {
@@ -233,6 +274,9 @@ public class OtrConfigurationPanel
 
             public static final int FINGERPRINT_INDEX = 2;
 
+            /*
+             * Implements AbstractTableModel#getColumnName(int).
+             */
             public String getColumnName(int column)
             {
                 switch (column)
@@ -248,6 +292,9 @@ public class OtrConfigurationPanel
                 }
             }
 
+            /*
+             * Implements AbstractTableModel#getValueAt(int,int).
+             */
             public Object getValueAt(int row, int column)
             {
                 if (row < 0)
@@ -269,11 +316,17 @@ public class OtrConfigurationPanel
                 }
             }
 
+            /*
+             * Implements AbstractTableModel#getRowCount().
+             */
             public int getRowCount()
             {
                 return allContacts.size();
             }
 
+            /*
+             * Implements AbstractTableModel#getColumnCount().
+             */
             public int getColumnCount()
             {
                 return 3;
@@ -287,6 +340,12 @@ public class OtrConfigurationPanel
             openContact(getSelectedContact());
         }
 
+        /**
+         * Get's the selected {@link Contact} for this
+         * {@link KnownFingerprintsPanel}.
+         * 
+         * @return the selected {@link Contact}
+         */
         private Contact getSelectedContact()
         {
             ContactsTableModel model =
@@ -298,6 +357,12 @@ public class OtrConfigurationPanel
             return model.allContacts.get(index);
         }
 
+        /**
+         * Sets up the {@link KnownFingerprintsPanel} components so that they
+         * reflect the {@link Contact} param.
+         * 
+         * @param contact the {@link Contact} to setup the components for.
+         */
         private void openContact(Contact contact)
         {
             if (contact == null)
@@ -321,6 +386,9 @@ public class OtrConfigurationPanel
 
         JTable contactsTable;
 
+        /**
+         * Initializes the {@link KnownFingerprintsPanel} components.
+         */
         private void initComponents()
         {
             this
@@ -382,16 +450,27 @@ public class OtrConfigurationPanel
         }
     }
 
-    // TODO We should listen for configuration value changes.
+    /**
+     * A special {@link Panel} for OTR policy display.
+     * 
+     * @author George Politis
+     * 
+     */
     private static class DefaultOtrPolicyPanel
         extends TransparentPanel
     {
+        // TODO We should listen for configuration value changes.
         public DefaultOtrPolicyPanel()
         {
             this.initComponents();
             this.loadPolicy();
         }
 
+        /**
+         * Sets up the {@link DefaultOtrPolicyPanel} components so that they
+         * reflect the global OTR policy.
+         * 
+         */
         public void loadPolicy()
         {
             OtrPolicy otrPolicy = OtrActivator.scOtrEngine.getGlobalPolicy();
@@ -410,6 +489,9 @@ public class OtrConfigurationPanel
 
         private SIPCommCheckBox cbRequireOtr;
 
+        /**
+         * Initializes the {@link DefaultOtrPolicyPanel} components.
+         */
         private void initComponents()
         {
             this.setBorder(BorderFactory.createTitledBorder(BorderFactory
@@ -488,6 +570,9 @@ public class OtrConfigurationPanel
         this.initComponents();
     }
 
+    /**
+     * Initializes all 3 panels of the {@link OtrConfigurationPanel}
+     */
     private void initComponents()
     {
         this.setLayout(new GridBagLayout());

@@ -23,6 +23,12 @@ public class OtrBuddyAuthenticationDialog
 {
     private Contact contact;
 
+    /**
+     * The {@link OtrBuddyAuthenticationDialog} ctor.
+     * 
+     * @param contact The {@link Contact} this
+     *            {@link OtrBuddyAuthenticationDialog} refers to.
+     */
     public OtrBuddyAuthenticationDialog(Contact contact)
     {
         this.contact = contact;
@@ -39,6 +45,10 @@ public class OtrBuddyAuthenticationDialog
 
     private JTextArea txtAction;
 
+    /**
+     * Sets up the {@link OtrBuddyAuthenticationDialog} components so that they
+     * reflect the {@link OtrBuddyAuthenticationDialog#contact}
+     */
     private void loadContact()
     {
         // Local fingerprint.
@@ -66,6 +76,14 @@ public class OtrBuddyAuthenticationDialog
             { user }));
     }
 
+    /**
+     * A special {@link JTextArea} for use in the
+     * {@link OtrBuddyAuthenticationDialog}. It is meant to be used for
+     * fingerprint representation and general information display.
+     * 
+     * @author George Politis
+     * 
+     */
     class CustomTextArea
         extends JTextArea
     {
@@ -79,11 +97,25 @@ public class OtrBuddyAuthenticationDialog
         }
     }
 
+    /**
+     * A simple enumeration that is meant to be used with
+     * {@link ActionComboBoxItem} to distinguish them (like an ID).
+     * 
+     * @author George Politis
+     * 
+     */
     enum ActionComboBoxItemIndex
     {
         I_HAVE, I_HAVE_NOT
     }
 
+    /**
+     * A special {@link JComboBox} that is hosted in
+     * {@link OtrBuddyAuthenticationDialog#cbAction}.
+     * 
+     * @author George Politis
+     * 
+     */
     class ActionComboBoxItem
     {
         public ActionComboBoxItemIndex action;
@@ -114,6 +146,9 @@ public class OtrBuddyAuthenticationDialog
         }
     }
 
+    /**
+     * Initializes the {@link OtrBuddyAuthenticationDialog} components.
+     */
     private void initComponents()
     {
         this.setTitle(OtrActivator.resourceService

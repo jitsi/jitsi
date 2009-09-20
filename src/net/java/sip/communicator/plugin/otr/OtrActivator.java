@@ -21,22 +21,49 @@ import org.osgi.framework.*;
 public class OtrActivator
     implements BundleActivator, ServiceListener
 {
+    /**
+     * The {@link BundleContext} of the {@link OtrActivator}.
+     */
     public static BundleContext bundleContext;
 
     private OtrTransformLayer otrTransformLayer;
 
+    /**
+     * The {@link ScOtrEngine} of the {@link OtrActivator}.
+     */
     public static ScOtrEngine scOtrEngine;
 
+    /**
+     * The {@link ScOtrKeyManager} of the {@link OtrActivator}.
+     */
     public static ScOtrKeyManager scOtrKeyManager = new ScOtrKeyManagerImpl();
 
+    /**
+     * The {@link ResourceManagementService} of the {@link OtrActivator}. Can
+     * also be obtained from the {@link OtrActivator#bundleContext} on demand,
+     * but we add it here for convinience.
+     */
     public static ResourceManagementService resourceService;
 
+    /**
+     * The {@link UIService} of the {@link OtrActivator}. Can also be obtained
+     * from the {@link OtrActivator#bundleContext} on demand, but we add it here
+     * for convinience.
+     */
     public static UIService uiService;
 
+    /**
+     * The {@link ConfigurationService} of the {@link OtrActivator}. Can also be
+     * obtained from the {@link OtrActivator#bundleContext} on demand, but we
+     * add it here for convinience.
+     */
     public static ConfigurationService configService;
 
     private static Logger logger = Logger.getLogger(OtrActivator.class);
 
+    /*
+     * Implements BundleActivator#start(BundleContext).
+     */
     public void start(BundleContext bc) throws Exception
     {
         bundleContext = bc;
@@ -163,6 +190,9 @@ public class OtrActivator
         }
     }
 
+    /*
+     * Implements BundleActivator#stop(BundleContext).
+     */
     public void stop(BundleContext bc) throws Exception
     {
         // Unregister transformation layer.
@@ -224,6 +254,9 @@ public class OtrActivator
         }
     }
 
+    /*
+     * Implements ServiceListener#serviceChanged(ServiceEvent).
+     */
     public void serviceChanged(ServiceEvent serviceEvent)
     {
         Object sService =
@@ -250,6 +283,11 @@ public class OtrActivator
 
     }
 
+    /**
+     * Gets all the available accounts in SIP Communicator.
+     * 
+     * @return a {@link List} of {@link AccountID}.
+     */
     public static List<AccountID> getAllAccountIDs()
     {
         Map<Object, ProtocolProviderFactory> providerFactoriesMap =
@@ -271,11 +309,17 @@ public class OtrActivator
         return accountIDs;
     }
 
+    /**
+     * Get's an {@link AccountID} by it's UID.
+     * 
+     * @param uid The {@link AccountID} UID.
+     * @return The {@link AccountID} with the requested UID or null.
+     */
     public static AccountID getAccountIDByUID(String uid)
     {
         if (uid == null || uid.length() < 1)
             return null;
-        
+
         Map<Object, ProtocolProviderFactory> providerFactoriesMap =
             OtrActivator.getProtocolProviderFactories();
 
