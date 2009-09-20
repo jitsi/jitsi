@@ -139,47 +139,42 @@ public class OtrMetaContactButton
 
     public void setCurrentContact(Contact contact)
     {
-        if (this.contact != contact)
-        {
-            this.contact = contact;
+        if (this.contact == contact) 
+            return;
 
+        this.contact = contact;
+        if (contact != null)
+        {
             this.setStatus(OtrActivator.scOtrEngine.getSessionStatus(contact));
             this.setPolicy(OtrActivator.scOtrEngine.getContactPolicy(contact));
+        }
+        else
+        {
+            this.setStatus(SessionStatus.PLAINTEXT);
+            this.setPolicy(null);
         }
     }
 
     public void setCurrentContact(MetaContact metaContact)
     {
-        /*
-         * TODO What if metaContact is null? Does it mean that this.contact
-         * should become null?
-         */
-        if (metaContact != null)
-        {
-            Contact defaultContact = metaContact.getDefaultContact();
-
-            if (defaultContact != null)
-                setCurrentContact(defaultContact);
-        }
+        setCurrentContact((metaContact == null) ? null : metaContact
+            .getDefaultContact());
     }
 
     private void setPolicy(OtrPolicy contactPolicy)
     {
-        getButton().setEnabled(contactPolicy.getEnableManual());
+        getButton().setEnabled(
+            contactPolicy != null && contactPolicy.getEnableManual());
     }
 
     private void setStatus(SessionStatus status)
     {
-        if (contact == null)
-            return;
-
         String urlKey;
         switch (status)
         {
         case ENCRYPTED:
-            urlKey
-                = OtrActivator.scOtrKeyManager.isVerified(contact)
-                    ? "plugin.otr.ENCRYPTED_ICON_22x22"
+            urlKey =
+                OtrActivator.scOtrKeyManager.isVerified(contact) ? "plugin.otr.ENCRYPTED_ICON_22x22"
                     : "plugin.otr.ENCRYPTED_UNVERIFIED_ICON_22x22";
             break;
         case FINISHED:
@@ -194,10 +189,8 @@ public class OtrMetaContactButton
 
         try
         {
-            getButton()
-                .setImage(
-                    ImageIO.read(
-                        OtrActivator.resourceService.getImageURL(urlKey)));
+            getButton().setImage(
+                ImageIO.read(OtrActivator.resourceService.getImageURL(urlKey)));
         }
         catch (IOException e)
         {
