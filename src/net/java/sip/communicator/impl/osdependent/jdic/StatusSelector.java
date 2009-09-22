@@ -178,9 +178,6 @@ public class StatusSelector
         }
     }
 
-    /**
-     * Stops the timer that manages the connecting animated icon.
-     */
     public void updateStatus(PresenceStatus presenceStatus)
     {
         logger.trace("Systray update status for provider: "
@@ -197,7 +194,7 @@ public class StatusSelector
      */
     private class PublishPresenceStatusThread extends Thread
     {
-        PresenceStatus status;
+        private final PresenceStatus status;
         
         public PublishPresenceStatusThread(PresenceStatus status)
         {
@@ -211,43 +208,38 @@ public class StatusSelector
             }
             catch (IllegalArgumentException e1)
             {
-
                 logger.error("Error - changing status", e1);
             }
             catch (IllegalStateException e1)
             {
-
                 logger.error("Error - changing status", e1);
             }
             catch (OperationFailedException e1)
             {
-                
-                if (e1.getErrorCode()
-                    == OperationFailedException.GENERAL_ERROR)
+                String msg;
+
+                switch (e1.getErrorCode())
                 {
-                    logger.error(
-                        "General error occured while "
-                        + "publishing presence status.",
-                        e1);
+                case OperationFailedException.GENERAL_ERROR:
+                    msg
+                        = "General error occured while "
+                            + "publishing presence status.";
+                    break;
+                case OperationFailedException.NETWORK_FAILURE:
+                    msg
+                        = "Network failure occured while "
+                            + "publishing presence status.";
+                    break;
+                case OperationFailedException.PROVIDER_NOT_REGISTERED:
+                    msg
+                        = "Protocol provider must be"
+                            + "registered in order to change status.";
+                    break;
+                default:
+                    return;
                 }
-                else if (e1.getErrorCode()
-                        == OperationFailedException
-                            .NETWORK_FAILURE) 
-                {
-                    logger.error(
-                        "Network failure occured while "
-                        + "publishing presence status.",
-                        e1);
-                } 
-                else if (e1.getErrorCode()
-                        == OperationFailedException
-                            .PROVIDER_NOT_REGISTERED) 
-                {
-                    logger.error(
-                        "Protocol provider must be"
-                        + "registered in order to change status.",
-                        e1);
-                }
+
+                logger.error(msg, e1);
             }
         }
     }

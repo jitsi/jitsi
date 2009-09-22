@@ -27,6 +27,8 @@ import org.osgi.framework.*;
  * @author Lubomir Marinov
  */
 public class StatusSubMenu
+    implements ProviderPresenceStatusListener,
+               RegistrationStateChangeListener
 {
     /**
      * A reference of <tt>Systray</tt>
@@ -56,6 +58,7 @@ public class StatusSubMenu
         parentSystray = tray;
 
         String text = Resources.getString("impl.systray.SET_STATUS");
+
         if (swing)
         {
             JMenu menu = new JMenu(text);
@@ -89,9 +92,9 @@ public class StatusSubMenu
      */
     private void addAccount(ProtocolProviderService protocolProvider)
     {
-        OperationSetPresence presence =
-            (OperationSetPresence) protocolProvider
-                .getOperationSet(OperationSetPresence.class);
+        OperationSetPresence presence
+            = (OperationSetPresence)
+                protocolProvider.getOperationSet(OperationSetPresence.class);
         boolean swing = (menu instanceof JComponent);
 
         if (presence == null)
@@ -102,6 +105,8 @@ public class StatusSubMenu
             this.accountSelectors.put(protocolProvider.getAccountID(),
                 simpleSelector);
             addMenuItem(menu, simpleSelector.getMenu());
+
+            protocolProvider.addRegistrationStateChangeListener(this);
         }
         else
         {
@@ -113,8 +118,7 @@ public class StatusSubMenu
                 statusSelector);
             addMenuItem(menu, statusSelector.getMenu());
 
-            presence
-                .addProviderPresenceStatusListener(new SystrayProviderPresenceStatusListener());
+            presence.addProviderPresenceStatusListener(this);
         }
     }
 
@@ -147,6 +151,18 @@ public class StatusSubMenu
             ((Container) menu).remove((Component) selectorMenu);
         else
             ((MenuContainer) menu).remove((MenuComponent) selectorMenu);
+
+        /*
+         * Remove the listeners installed in
+         * addAccount(ProtocolProviderService).
+         */
+        OperationSetPresence presence
+            = (OperationSetPresence)
+                protocolProvider.getOperationSet(OperationSetPresence.class);
+        if (presence != null)
+            presence.removeProviderPresenceStatusListener(this);
+        else
+            protocolProvider.removeRegistrationStateChangeListener(this);
     }
 
     /**
@@ -159,7 +175,7 @@ public class StatusSubMenu
         OsDependentActivator.bundleContext
             .addServiceListener(new ProtocolProviderServiceListener());
 
-        ServiceReference[] protocolProviderRefs = null;
+        ServiceReference[] protocolProviderRefs;
         try
         {
             protocolProviderRefs
@@ -178,15 +194,18 @@ public class StatusSubMenu
         if (protocolProviderRefs != null)
         {
 
-            for (int i = 0; i < protocolProviderRefs.length; i++)
+            for (ServiceReference protocolProviderRef : protocolProviderRefs)
             {
                 ProtocolProviderService provider
-                    = (ProtocolProviderService) OsDependentActivator.bundleContext
-                        .getService(protocolProviderRefs[i]);
-
-                boolean isHidden =
-                    provider.getAccountID().getAccountProperty(
-                        ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
+                    = (ProtocolProviderService)
+                        OsDependentActivator
+                            .bundleContext.getService(protocolProviderRef);
+                boolean isHidden
+                    = provider
+                            .getAccountID()
+                                .getAccountProperty(
+                                    ProtocolProviderFactory.IS_PROTOCOL_HIDDEN)
+                        != null;
                 
                 if(!isHidden)
                     this.addAccount(provider);
@@ -195,11 +214,51 @@ public class StatusSubMenu
     }
 
     /**
+     * Fired when an account has changed its status. We update the icon
+     * in the menu.
+     * 
+     * @param evt
+     */
+    public void providerStatusChanged(ProviderPresenceStatusChangeEvent evt)
+    {
+        ProtocolProviderService pps = evt.getProvider();
+        StatusSelector selectorBox 
+            = (StatusSelector) accountSelectors.get(pps.getAccountID());
+    
+        if (selectorBox != null)
+            selectorBox.updateStatus(evt.getNewStatus());
+    }
+
+    /*
+     * ImplementsProviderPresenceStatusListener#providerStatusMessageChanged(
+     * PropertyChangeEvent).
+     */
+    public void providerStatusMessageChanged(PropertyChangeEvent evt)
+    {
+    }
+
+    /*
+     * ImplementsRegistrationStateChangeListener#registrationStateChanged(
+     * RegistrationStateChangeEvent). Updates the status of accounts which do
+     * not support presence.
+     */
+    public void registrationStateChanged(RegistrationStateChangeEvent evt)
+    {
+        ProtocolProviderService pps = evt.getProvider();
+        StatusSimpleSelector selectorBox 
+            = (StatusSimpleSelector) accountSelectors.get(pps.getAccountID());
+    
+        if (selectorBox != null)
+            selectorBox.updateStatus();
+    }
+
+    /**
      * Listens for <tt>ServiceEvent</tt>s indicating that a
      * <tt>ProtocolProviderService</tt> has been registered and completes the
      * account status menu.
      */
-    private class ProtocolProviderServiceListener implements ServiceListener
+    private class ProtocolProviderServiceListener
+        implements ServiceListener
     {
         /**
          * When a service is registered or unregistered, we update
@@ -212,14 +271,13 @@ public class StatusSubMenu
         {
             //if the event is caused by a bundle being stopped, we don't want to
             //know
-            if(event.getServiceReference().getBundle().getState()
-                == Bundle.STOPPING)
-            {
-                return;
-            }
+            ServiceReference serviceRef = event.getServiceReference();
 
-            Object service = OsDependentActivator.bundleContext
-                .getService( event.getServiceReference());
+            if(serviceRef.getBundle().getState() == Bundle.STOPPING)
+                return;
+
+            Object service
+                = OsDependentActivator.bundleContext.getService(serviceRef);
 
             if (! (service instanceof ProtocolProviderService))
                 return;
@@ -236,36 +294,6 @@ public class StatusSubMenu
                 removeAccount(provider);
                 break;
             }
-        }
-    }
-
-    /**
-     * Listens for all providerStatusChanged and providerStatusMessageChanged
-     * events in order to refresh the account status panel, when a status is
-     * changed.
-     */
-    private class SystrayProviderPresenceStatusListener
-        implements ProviderPresenceStatusListener
-    {
-        /**
-         * Fired when an account has changed its status. We update the icon
-         * in the menu.
-         */
-        public void providerStatusChanged(ProviderPresenceStatusChangeEvent evt)
-        {
-            ProtocolProviderService pps = evt.getProvider();
-
-            StatusSelector selectorBox 
-                = (StatusSelector) accountSelectors.get(pps.getAccountID());
-        
-            if(selectorBox == null)
-                return;
-
-            selectorBox.updateStatus(evt.getNewStatus());
-        }
-
-        public void providerStatusMessageChanged(PropertyChangeEvent evt)
-        {
         }
     }
 }

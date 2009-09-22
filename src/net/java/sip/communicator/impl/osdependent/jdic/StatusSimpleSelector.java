@@ -13,7 +13,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.osdependent.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -31,11 +30,6 @@ public class StatusSimpleSelector
      * The protocol provider
      */
     private final ProtocolProviderService provider;
-    
-    /**
-     * The logger for this class.
-     */
-    private final Logger logger = Logger.getLogger(StatusSimpleSelector.class);
 
     private final Object menu;
 
@@ -43,35 +37,18 @@ public class StatusSimpleSelector
      * Creates an instance of <tt>StatusSimpleSelector</tt>
      * 
      * @param protocolProvider the protocol provider
+     * @param swing
      */
-    public StatusSimpleSelector(ProtocolProviderService protocolProvider,
+    public StatusSimpleSelector(
+        ProtocolProviderService protocolProvider,
         boolean swing)
     {
         this.provider = protocolProvider;
 
         /* the parent item */
         String text = provider.getAccountID().getUserID();
-        if (swing)
-        {
-            JMenu menu = new JMenu(text);
-
-            ImageIcon icon =
-                new ImageIcon(protocolProvider.getProtocolIcon().getIcon(
-                    ProtocolIcon.ICON_SIZE_16x16));
-            if (!provider.isRegistered())
-            {
-                icon =
-                    new ImageIcon(LightGrayFilter.createDisabledImage(icon
-                        .getImage()));
-            }
-            menu.setIcon(icon);
-
-            this.menu = menu;
-        }
-        else
-        {
-            this.menu = new Menu(text);
-        }
+        this.menu = swing ? new JMenu(text) : new Menu(text);
+        updateStatus();
 
         /* the menu itself */
         createMenuItem("impl.systray.ONLINE_STATUS", "online");
@@ -125,27 +102,37 @@ public class StatusSimpleSelector
         }
         else 
         {
-            if(    !this.provider.getRegistrationState()
-                            .equals(RegistrationState.UNREGISTERED)
-                && !this.provider.getRegistrationState()
-                            .equals(RegistrationState.UNREGISTERING))
+            RegistrationState registrationState
+                = provider.getRegistrationState();
+
+            if(!RegistrationState.UNREGISTERED.equals(registrationState)
+                    && !RegistrationState.UNREGISTERING
+                            .equals(registrationState))
             {
                 new ProviderUnRegistration(this.provider).start();
             }
         }
     }
 
-    /**
-     * Stops the timer that manages the connecting animated icon.
-     */
-    public void updateStatus(PresenceStatus presenceStatus)
+    public void updateStatus()
     {
-        logger.trace("Systray update status for provider: "
-            + provider.getAccountID().getAccountAddress()
-            + ". The new status will be: " + presenceStatus.getStatusName());
-
         if (menu instanceof AbstractButton)
-            ((AbstractButton) menu).setIcon(new ImageIcon(presenceStatus
-                .getStatusIcon()));
+        {
+            byte[] iconBytes
+                = provider
+                    .getProtocolIcon().getIcon(ProtocolIcon.ICON_SIZE_16x16);
+
+            if ((iconBytes != null) && (iconBytes.length > 0))
+            {
+                ImageIcon icon = new ImageIcon(iconBytes);
+
+                if (!provider.isRegistered())
+                    icon
+                        = new ImageIcon(
+                                LightGrayFilter
+                                    .createDisabledImage(icon.getImage()));
+                ((AbstractButton) menu).setIcon(icon);
+            }
+        }
     }
 }

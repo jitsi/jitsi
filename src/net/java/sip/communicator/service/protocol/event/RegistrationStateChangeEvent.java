@@ -55,7 +55,7 @@ public class RegistrationStateChangeEvent extends PropertyChangeEvent
     public static final int REASON_MULTIPLE_LOGINS = 2;
 
     /**
-     * Indicates that the server does not recognize the used idenfitier that
+     * Indicates that the server does not recognize the used identifier that
      * we tried to register with.
      */
     public static final int REASON_NON_EXISTING_USER_ID = 3;
@@ -91,21 +91,21 @@ public class RegistrationStateChangeEvent extends PropertyChangeEvent
      * The reason code returned by the server in order to explain the state
      * transition.
      */
-    private int reasonCode = REASON_NOT_SPECIFIED;
+    private final int reasonCode;
 
 
     /**
      * A (non localized) String containing information further explaining the
      * reason code.
      */
-    private String reason = null;
+    private final String reason;
 
     /**
      * Creates an event instance indicating a change of the provider state
      * from <tt>oldValue</tt> to <tt>newValue</tt>.
      *
      * @param source the provider that generated the event
-     * @param oldValue the status the source provider was int before enetering
+     * @param oldValue the status the source provider was in before entering
      * the new state.
      * @param newValue the status the source provider is currently in.
      * @param reasonCode a value corresponding to one of the REASON_XXX fields
@@ -128,7 +128,7 @@ public class RegistrationStateChangeEvent extends PropertyChangeEvent
     }
 
     /**
-     * Returns the provider that has genereted this event
+     * Returns the provider that has generated this event
      * @return the provider that generated the event.
      */
     public ProtocolProviderService getProvider()
@@ -167,15 +167,15 @@ public class RegistrationStateChangeEvent extends PropertyChangeEvent
         return "RegistrationStateChangeEvent[ oldState="
             + getOldState().getStateName()
             + "; newState="+ getNewState()
-            + ";reasonCode=" + getReasonCode()
-            + ";reason=" + getReason() + "]";
+            + "; reasonCode=" + getReasonCode()
+            + "; reason=" + getReason() + "]";
     }
 
     /**
      * One of the REASON_XXX fields, indicating the reason code returned by the
      * server in order to explain the state transition.
      *
-     * @return a value corresponding toone of the REASON_XXX fields of this
+     * @return a value corresponding to one of the REASON_XXX fields of this
      * class.
      */
     public int getReasonCode()
