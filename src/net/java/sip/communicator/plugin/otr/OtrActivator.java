@@ -310,7 +310,7 @@ public class OtrActivator
     }
 
     /**
-     * Get's an {@link AccountID} by it's UID.
+     * Gets an {@link AccountID} by its UID.
      * 
      * @param uid The {@link AccountID} UID.
      * @return The {@link AccountID} with the requested UID or null.

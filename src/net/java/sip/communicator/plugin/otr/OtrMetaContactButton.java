@@ -157,8 +157,8 @@ public class OtrMetaContactButton
 
     public void setCurrentContact(MetaContact metaContact)
     {
-        setCurrentContact((metaContact == null) ? null : metaContact
-            .getDefaultContact());
+        setCurrentContact(
+            (metaContact == null) ? null : metaContact.getDefaultContact());
     }
 
     private void setPolicy(OtrPolicy contactPolicy)
@@ -173,8 +173,9 @@ public class OtrMetaContactButton
         switch (status)
         {
         case ENCRYPTED:
-            urlKey =
-                OtrActivator.scOtrKeyManager.isVerified(contact) ? "plugin.otr.ENCRYPTED_ICON_22x22"
+            urlKey
+                = OtrActivator.scOtrKeyManager.isVerified(contact)
+                    ? "plugin.otr.ENCRYPTED_ICON_22x22"
                     : "plugin.otr.ENCRYPTED_UNVERIFIED_ICON_22x22";
             break;
         case FINISHED:
@@ -189,8 +190,10 @@ public class OtrMetaContactButton
 
         try
         {
-            getButton().setImage(
-                ImageIO.read(OtrActivator.resourceService.getImageURL(urlKey)));
+            getButton()
+                .setImage(
+                    ImageIO.read(
+                        OtrActivator.resourceService.getImageURL(urlKey)));
         }
         catch (IOException e)
         {

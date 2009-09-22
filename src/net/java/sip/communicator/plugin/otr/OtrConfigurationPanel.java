@@ -26,7 +26,6 @@ import net.java.sip.communicator.util.swing.*;
  * A special {@link Panel} that manages the OTR configuration.
  * 
  * @author George Politis
- * 
  */
 @SuppressWarnings("serial")
 public class OtrConfigurationPanel
@@ -37,7 +36,6 @@ public class OtrConfigurationPanel
      * A special {@link Panel} for Private Keys display.
      * 
      * @author George Politis
-     * 
      */
     private static class PrivateKeysPanel
         extends TransparentPanel
@@ -46,7 +44,6 @@ public class OtrConfigurationPanel
          * A special {@link JComboBox} for {@link AccountID} enumeration.
          * 
          * @author George Politis
-         * 
          */
         private static class AccountsComboBox
             extends JComboBox
@@ -57,7 +54,6 @@ public class OtrConfigurationPanel
              * {@link AccountID}.
              * 
              * @author George Politis
-             * 
              */
             private static class AccountsComboBoxItem
             {
@@ -86,7 +82,7 @@ public class OtrConfigurationPanel
             }
 
             /**
-             * Get's the selected {@link AccountID} for this
+             * Gets the selected {@link AccountID} for this
              * {@link AccountsComboBox}.
              * 
              * @return
@@ -118,7 +114,7 @@ public class OtrConfigurationPanel
          * Sets up the {@link PrivateKeysPanel} components so that they reflect
          * the {@link AccountID} param.
          * 
-         * @param AccountID the {@link AccountID} to setup the components for.
+         * @param account the {@link AccountID} to setup the components for.
          */
         private void openAccount(AccountID account)
         {
@@ -206,7 +202,6 @@ public class OtrConfigurationPanel
      * A special {@link Panel} for fingerprints display.
      * 
      * @author George Politis
-     * 
      */
     private static class KnownFingerprintsPanel
         extends TransparentPanel
@@ -341,7 +336,7 @@ public class OtrConfigurationPanel
         }
 
         /**
-         * Get's the selected {@link Contact} for this
+         * Gets the selected {@link Contact} for this
          * {@link KnownFingerprintsPanel}.
          * 
          * @return the selected {@link Contact}
@@ -454,7 +449,6 @@ public class OtrConfigurationPanel
      * A special {@link Panel} for OTR policy display.
      * 
      * @author George Politis
-     * 
      */
     private static class DefaultOtrPolicyPanel
         extends TransparentPanel

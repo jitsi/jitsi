@@ -13,15 +13,13 @@ import javax.swing.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * 
  * @author George Politis
- * 
  */
 @SuppressWarnings("serial")
 public class OtrBuddyAuthenticationDialog
     extends JDialog
 {
-    private Contact contact;
+    private final Contact contact;
 
     /**
      * The {@link OtrBuddyAuthenticationDialog} ctor.
@@ -82,7 +80,6 @@ public class OtrBuddyAuthenticationDialog
      * fingerprint representation and general information display.
      * 
      * @author George Politis
-     * 
      */
     class CustomTextArea
         extends JTextArea
@@ -102,7 +99,6 @@ public class OtrBuddyAuthenticationDialog
      * {@link ActionComboBoxItem} to distinguish them (like an ID).
      * 
      * @author George Politis
-     * 
      */
     enum ActionComboBoxItemIndex
     {
@@ -114,7 +110,6 @@ public class OtrBuddyAuthenticationDialog
      * {@link OtrBuddyAuthenticationDialog#cbAction}.
      * 
      * @author George Politis
-     * 
      */
     class ActionComboBoxItem
     {

@@ -16,7 +16,6 @@ import org.bouncycastle.util.encoders.*;
  * OTR Plugin.
  * 
  * @author George Politis
- * 
  */
 class Configurator
 {
@@ -88,7 +87,7 @@ class Configurator
      * @return the <tt>Boolean</tt> value of the property with the specified
      *         name.
      */
-    public Boolean getPropertyBoolean(String id, boolean defaultValue)
+    public boolean getPropertyBoolean(String id, boolean defaultValue)
     {
         return OtrActivator.configService.getBoolean(this.getID(id),
             defaultValue);
@@ -122,7 +121,7 @@ class Configurator
     }
 
     /**
-     * Removed the property with the specified name (
+     * Removes the property with the specified name (
      * {@link ConfigurationService#removeProperty(String)} proxy).
      * 
      * @param id the name of the property to change.
