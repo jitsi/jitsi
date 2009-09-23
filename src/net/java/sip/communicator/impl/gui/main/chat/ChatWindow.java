@@ -44,6 +44,7 @@ import org.osgi.framework.*;
  * Note that the conference case is not yet implemented.
  * 
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class ChatWindow
     extends SIPCommFrame
@@ -52,9 +53,6 @@ public class ChatWindow
                 WindowFocusListener
 {
     private final Logger logger = Logger.getLogger(ChatWindow.class);
-
-    private Image logoBgImage
-        = ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR);
 
     private ChatTabbedPane chatTabbedPane = null;
 
@@ -187,10 +185,6 @@ public class ChatWindow
             .getSettingsInt("impl.gui.CHAT_WINDOW_HEIGHT");
 
         this.setSize(width, height);
-
-        if (logoBgImage != null)
-            logoBgImage
-                = ImageUtils.scaleImageWithinBounds(logoBgImage, 80, 35);
     }
 
     /**
@@ -438,25 +432,21 @@ public class ChatWindow
      */
     public void setCurrentChatPanel(ChatPanel chatPanel)
     {
-        logger.debug("Set current chat panel to: "
-            + chatPanel.getChatSession().getChatName());
+        ChatSession chatSession = chatPanel.getChatSession();
+
+        logger.debug("Set current chat panel to: " + chatSession.getChatName());
 
         if(getChatTabCount() > 0)
             this.chatTabbedPane.setSelectedComponent(chatPanel);
 
-        this.setTitle(chatPanel.getChatSession().getChatName());
+        this.setTitle(chatSession.getChatName());
+        this.setChatContactPhoto(chatSession);
 
-        this.setChatContactPhoto(chatPanel.getChatSession());
-
-        ChatTransport inviteChatTransport = chatPanel.findInviteChatTransport();
-
-        mainToolBar.enableInviteButton(inviteChatTransport != null);
-
-        ChatTransport sendFileTransport
-            = chatPanel.findFileTransferChatTransport();
-
-        mainToolBar.enableSendFileButton(sendFileTransport != null);
-
+        mainToolBar
+            .enableInviteButton(chatPanel.findInviteChatTransport() != null);
+        mainToolBar
+            .enableSendFileButton(
+                chatPanel.findFileTransferChatTransport() != null);
         mainToolBar.changeHistoryButtonsState(chatPanel);
 
         chatPanel.requestFocusInWriteArea();
@@ -468,7 +458,9 @@ public class ChatWindow
     }
 
     /**
-     * Selects the tab given by the index. If there's no tabbed pane does nothing.
+     * Selects the tab given by the index. If there's no tabbed pane, does
+     * nothing.
+     *
      * @param index the index to select
      */
     public void setCurrentChatTab(int index)
@@ -1219,11 +1211,22 @@ public class ChatWindow
         }
     }
     
-    private class NorthPanel extends JPanel
+    private static class NorthPanel
+        extends JPanel
     {
+        private final Image logoBgImage;
+
         public NorthPanel(LayoutManager layoutManager)
         {
             super(layoutManager);
+
+            Image logoBgImage
+                = ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR);
+            if (logoBgImage != null)
+                logoBgImage
+                    = ImageUtils.scaleImageWithinBounds(logoBgImage, 80, 35);
+
+            this.logoBgImage = logoBgImage;
         }
 
         public void paintComponent(Graphics g)
@@ -1232,8 +1235,11 @@ public class ChatWindow
 
             if (logoBgImage != null)
             {
-                g.drawImage(logoBgImage,
-                    (this.getWidth() - logoBgImage.getWidth(null))/2, 0, null);
+                g.drawImage(
+                        logoBgImage,
+                        (this.getWidth() - logoBgImage.getWidth(null))/2,
+                        0,
+                        null);
             }
         }
     }

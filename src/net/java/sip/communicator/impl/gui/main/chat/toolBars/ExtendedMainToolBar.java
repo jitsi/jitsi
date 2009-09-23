@@ -212,7 +212,7 @@ public class ExtendedMainToolBar
         this.fontButton.setEnabled(false);
     }
 
-    protected void chatChanged(ChatPanel panel) 
+    public void chatChanged(ChatPanel panel) 
     {
         if(panel.getChatSession() instanceof MetaContactChatSession)
         { 

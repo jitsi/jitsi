@@ -26,9 +26,11 @@ import net.java.sip.communicator.util.*;
  * select its status.
  *
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class PresenceStatusMenu
     extends StatusSelectorMenu
+    implements ActionListener
 {
     private final Logger logger =
         Logger.getLogger(PresenceStatusMenu.class);
@@ -103,9 +105,10 @@ public class PresenceStatusMenu
                 this.onlineStatus = status;
             }
 
-            this.addItem(status.getStatusName(),
-                new ImageIcon(status.getStatusIcon()),
-                new ItemActionListener());
+            this.addItem(
+                    status.getStatusName(),
+                    new ImageIcon(status.getStatusIcon()),
+                    this);
         }
 
         this.addSeparator();
@@ -118,76 +121,70 @@ public class PresenceStatusMenu
     /**
      * Handles the <tt>ActionEvent</tt> triggered when one of the items in the
      * list is selected.
+     *
+     * @param e an <tt>ActionEvent</tt> which carries the data associated with
+     * the performed action
      */
-    private class ItemActionListener
-        implements ActionListener
+    public void actionPerformed(ActionEvent e)
     {
-        public void actionPerformed(ActionEvent e)
+        if (e.getSource() instanceof JMenuItem)
         {
-            if (e.getSource() instanceof JMenuItem)
+            String menuItemText = ((JMenuItem) e.getSource()).getText();
+            LoginManager loginManager
+                = GuiActivator.getUIService().getLoginManager();
+
+            Iterator<PresenceStatus> statusSet = presence.getSupportedStatusSet();
+
+            while (statusSet.hasNext())
             {
-                JMenuItem menuItem = (JMenuItem) e.getSource();
+                PresenceStatus status = statusSet.next();
 
-                LoginManager loginManager
-                    = GuiActivator.getUIService().getLoginManager();
-
-                Iterator<PresenceStatus> statusSet = presence.getSupportedStatusSet();
-
-                while (statusSet.hasNext())
+                if (status.getStatusName().equals(menuItemText))
                 {
-                    PresenceStatus status = statusSet.next();
+                    RegistrationState registrationState
+                        = protocolProvider.getRegistrationState();
 
-                    if (status.getStatusName().equals(menuItem.getText()))
-                    {
-
-                        if (protocolProvider.getRegistrationState()
-                            == RegistrationState.REGISTERED
+                    if (registrationState == RegistrationState.REGISTERED
                             && !presence.getPresenceStatus().equals(status))
+                    {
+                        if (status.isOnline())
                         {
-                            if (status.isOnline())
-                            {
 
-                                new PublishPresenceStatusThread(status).start();
-                            }
-                            else
-                            {
-                                loginManager.setManuallyDisconnected(true);
-
-                                loginManager.logoff(protocolProvider);
-                            }
-
-                            setSelectedStatus(status);
-                        }
-                        else if (protocolProvider.getRegistrationState()
-                                != RegistrationState.REGISTERED
-                            && protocolProvider.getRegistrationState()
-                                != RegistrationState.REGISTERING
-                            && protocolProvider.getRegistrationState()
-                                != RegistrationState.AUTHENTICATING
-                            && status.isOnline())
-                        {
-                            lastSelectedStatus = status;
-                            loginManager.login(protocolProvider);
+                            new PublishPresenceStatusThread(status).start();
                         }
                         else
                         {
-                            if (!status.isOnline()
-                                && !(protocolProvider.getRegistrationState()
-                                        == RegistrationState.UNREGISTERING))
-                            {
-                                loginManager.setManuallyDisconnected(true);
+                            loginManager.setManuallyDisconnected(true);
 
-                                loginManager.logoff(protocolProvider);
-
-                                setSelectedStatus(status);
-                            }
+                            loginManager.logoff(protocolProvider);
                         }
 
-                        saveStatusInformation(protocolProvider, status
-                            .getStatusName());
-
-                        break;
+                        setSelectedStatus(status);
                     }
+                    else if (registrationState != RegistrationState.REGISTERED
+                        && registrationState != RegistrationState.REGISTERING
+                        && registrationState != RegistrationState.AUTHENTICATING
+                        && status.isOnline())
+                    {
+                        lastSelectedStatus = status;
+                        loginManager.login(protocolProvider);
+                    }
+                    else if (!status.isOnline()
+                            && !(registrationState
+                                    == RegistrationState.UNREGISTERING))
+                    {
+                            loginManager.setManuallyDisconnected(true);
+
+                            loginManager.logoff(protocolProvider);
+
+                            setSelectedStatus(status);
+                    }
+
+                    saveStatusInformation(
+                        protocolProvider,
+                        status.getStatusName());
+
+                    break;
                 }
             }
         }

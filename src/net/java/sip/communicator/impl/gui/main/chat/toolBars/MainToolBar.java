@@ -37,26 +37,35 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class MainToolBar
     extends TransparentPanel
-    implements ActionListener
+    implements ActionListener,
+               ChatChangeListener,
+               ChatSessionChangeListener
 {
-    private ChatToolbarButton inviteButton = new ChatToolbarButton(
+    private final ChatToolbarButton inviteButton
+        = new ChatToolbarButton(
                 ImageLoader.getImage(ImageLoader.ADD_TO_CHAT_ICON));
 
-    private ChatToolbarButton historyButton = new ChatToolbarButton(
-        ImageLoader.getImage(ImageLoader.HISTORY_ICON));
+    private final ChatToolbarButton historyButton
+        = new ChatToolbarButton(
+                ImageLoader.getImage(ImageLoader.HISTORY_ICON));
 
-    private ChatToolbarButton optionsButton = new ChatToolbarButton(
-        ImageLoader.getImage(ImageLoader.CHAT_CONFIGURE_ICON));
-
-    private ChatToolbarButton sendFileButton
+    private final ChatToolbarButton sendFileButton
         = new ChatToolbarButton(
                 ImageLoader.getImage(ImageLoader.SEND_FILE_ICON));
 
-    private ChatToolbarButton previousButton = new ChatToolbarButton(
-        ImageLoader.getImage(ImageLoader.PREVIOUS_ICON));
+    private final ChatToolbarButton previousButton
+        = new ChatToolbarButton(
+                ImageLoader.getImage(ImageLoader.PREVIOUS_ICON));
 
-    private ChatToolbarButton nextButton = new ChatToolbarButton(
-        ImageLoader.getImage(ImageLoader.NEXT_ICON));
+    private final ChatToolbarButton nextButton
+        = new ChatToolbarButton(
+                ImageLoader.getImage(ImageLoader.NEXT_ICON));
+
+    /**
+     * The current <tt>ChatSession</tt> made known to this instance by the last
+     * call to its {@link #chatChanged(ChatPanel)}. 
+     */
+    private ChatSession chatSession;
 
     protected final ChatWindow messageWindow;
 
@@ -76,20 +85,17 @@ public class MainToolBar
         pluginContainer
             = new PluginContainer(this, Container.CONTAINER_CHAT_TOOL_BAR);
         
-        this.messageWindow.addChatChangeListener(new ChatChangeListener()
-        {
-            public void chatChanged(ChatPanel panel)
-            {
-                MainToolBar.this.chatChanged(panel);
-            }
-        });
+        this.messageWindow.addChatChangeListener(this);
     }
 
     protected void init()
     {
-        this.setOpaque(false);
+        ChatToolbarButton optionsButton
+            = new ChatToolbarButton(
+                    ImageLoader.getImage(ImageLoader.CHAT_CONFIGURE_ICON));
 
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 3, 0));
+        this.setOpaque(false);
 
         this.add(inviteButton);
         this.add(historyButton);
@@ -108,8 +114,8 @@ public class MainToolBar
             GuiActivator.getResources().getI18NString("service.gui.HISTORY")
             + " Ctrl-H");
 
-        this.optionsButton.setName("options");
-        this.optionsButton.setToolTipText(
+        optionsButton.setName("options");
+        optionsButton.setToolTipText(
             GuiActivator.getResources().getI18NString("service.gui.OPTIONS"));
 
         this.sendFileButton.setName("sendFile");
@@ -126,7 +132,7 @@ public class MainToolBar
 
         this.inviteButton.addActionListener(this);
         this.historyButton.addActionListener(this);
-        this.optionsButton.addActionListener(this);
+        optionsButton.addActionListener(this);
         this.sendFileButton.addActionListener(this);
         this.previousButton.addActionListener(this);
         this.nextButton.addActionListener(this);
@@ -142,46 +148,45 @@ public class MainToolBar
         pluginContainer.dispose();
     }
 
-    protected void chatChanged(ChatPanel panel)
+    /*
+     * Implements ChatChangeListener#chatChanged(ChatPanel).
+     */
+    public void chatChanged(ChatPanel panel)
     {
         if (panel == null)
+        {
+            setChatSession(null);
+        }
+        else
+        {
+            MetaContact contact
+                = GuiActivator.getUIService().getChatContact(panel);
+
+            for (PluginComponent c : pluginContainer.getPluginComponents())
+                c.setCurrentContact(contact);
+
+            setChatSession(panel.chatSession);
+        }
+    }
+
+    /*
+     * Implements
+     * ChatSessionChangeListener#currentChatTransportChanged(ChatSession).
+     */
+    public void currentChatTransportChanged(ChatSession chatSession)
+    {
+        if (chatSession == null)
             return;
 
-        MetaContact contact
-            = GuiActivator.getUIService().getChatContact(panel);
+        ChatTransport currentTransport = chatSession.getCurrentChatTransport();
+        Object currentDescriptor = currentTransport.getDescriptor();
 
-        for (PluginComponent c : pluginContainer.getPluginComponents())
-            c.setCurrentContact(contact);
-
-        if (panel.chatSession instanceof MetaContactChatSession)
+        if (currentDescriptor instanceof Contact)
         {
-            panel.chatSession.addChatTransportChangeListener(
-                new ChatSessionChangeListener()
-                {
-                    public void currentChatTransportChanged(
-                        ChatSession chatSession)
-                    {
-                        if (chatSession == null)
-                            return;
+            Contact contact = (Contact) currentDescriptor;
 
-                        ChatTransport currentTransport
-                            = chatSession
-                                .getCurrentChatTransport();
-                        Object currentDescriptor
-                            = currentTransport.getDescriptor();
-
-                        if (currentDescriptor instanceof Contact)
-                        {
-                            Contact contact
-                                = (Contact) currentDescriptor;
-
-                            for (PluginComponent c
-                                    : pluginContainer
-                                        .getPluginComponents())
-                                c.setCurrentContact(contact);
-                        }
-                    }
-                });
+            for (PluginComponent c : pluginContainer.getPluginComponents())
+                c.setCurrentContact(contact);
         }
     }
 
@@ -254,8 +259,7 @@ public class MainToolBar
         }
         else if (buttonText.equals("invite"))
         {
-            ChatInviteDialog inviteDialog
-                = new ChatInviteDialog(chatPanel);
+            ChatInviteDialog inviteDialog = new ChatInviteDialog(chatPanel);
 
             inviteDialog.setVisible(true);
         }
@@ -295,27 +299,19 @@ public class MainToolBar
             return;
         }
 
-        if(firstMsgInHistory < firstMsgInPage.getTime())
-            previousButton.setEnabled(true);
-        else
-            previousButton.setEnabled(false);
+        previousButton.setEnabled(firstMsgInHistory < firstMsgInPage.getTime());
 
-        if(lastMsgInPage.getTime() > 0
-                && (lastMsgInHistory > lastMsgInPage.getTime()))
-        {
-            nextButton.setEnabled(true);
-        }
-        else
-        {
-            nextButton.setEnabled(false);
-        }
+        nextButton
+            .setEnabled(
+                (lastMsgInPage.getTime() > 0)
+                    && (lastMsgInHistory > lastMsgInPage.getTime()));
     }
 
     /**
      * Enables or disables the conference button in this tool bar.
      *
      * @param isEnabled <code>true</code> if the conference button should be
-     * enabled, <code>false</code> - otherwise.
+     * enabled; <code>false</code>, otherwise.
      */
     public void enableInviteButton(boolean isEnabled)
     {
@@ -326,10 +322,31 @@ public class MainToolBar
      * Enables or disables the send file button in this tool bar.
      *
      * @param isEnabled <code>true</code> if the send file button should be
-     * enabled, <code>false</code> - otherwise.
+     * enabled; <code>false</code>, otherwise.
      */
     public void enableSendFileButton(boolean isEnabled)
     {
         sendFileButton.setEnabled(isEnabled);
+    }
+
+    /**
+     * Sets the current <tt>ChatSession</tt> made known to this instance by the
+     * last call to its {@link #chatChanged(ChatPanel)}.
+     * 
+     * @param chatSession the <tt>ChatSession</tt> to become current for this
+     * instance
+     */
+    private void setChatSession(ChatSession chatSession)
+    {
+        if (this.chatSession != chatSession)
+        {
+            if (this.chatSession instanceof MetaContactChatSession)
+                this.chatSession.removeChatTransportChangeListener(this);
+
+            this.chatSession = chatSession;
+
+            if (this.chatSession instanceof MetaContactChatSession)
+                this.chatSession.addChatTransportChangeListener(this);
+        }
     }
 }
