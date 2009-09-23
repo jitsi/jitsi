@@ -336,6 +336,7 @@ public class ChatWindowManager
     /**
      * Closes the chat window. Removes all contained chats and invokes
      * setVisible(false) to the window.
+     * @param chatWindow the chat window
      */
     public void closeWindow(ChatWindow chatWindow)
     {

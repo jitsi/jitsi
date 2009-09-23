@@ -14,6 +14,7 @@ import net.java.sip.communicator.util.*;
  * A Gibberish implementation of the ProtocolProviderService.
  *
  * @author Emil Ivov
+ * @author Yana Stamcheva
  */
 public class ProtocolProviderServiceGibberishImpl
     extends AbstractProtocolProviderService
@@ -83,7 +84,7 @@ public class ProtocolProviderServiceGibberishImpl
         {
             this.accountID = accountID;
 
-            //initialize the presence operationset
+            //initialize the presence operation set
             OperationSetPersistentPresenceGibberishImpl persistentPresence =
                 new OperationSetPersistentPresenceGibberishImpl(this);
 
@@ -115,6 +116,23 @@ public class ProtocolProviderServiceGibberishImpl
             supportedOperationSets.put(
                 OperationSetTypingNotifications.class.getName(),
                 typingNotifications);
+
+            //initialize the basic telephony operation set
+            OperationSetBasicTelephonyGibberishImpl telphonyOpSet =
+                new OperationSetBasicTelephonyGibberishImpl(this);
+
+            this.supportedOperationSets.put(
+                    OperationSetBasicTelephony.class.getName(),
+                    telphonyOpSet);
+
+            //initialize the telephony conferencing operation set
+            OperationSetTelephonyConferencing conferenceOpSet
+                = new OperationSetTelephonyConferencingGibberishImpl(
+                    this, telphonyOpSet);
+
+            this.supportedOperationSets.put(
+                    OperationSetTelephonyConferencing.class.getName(),
+                    conferenceOpSet);
 
             isInitialized = true;
         }

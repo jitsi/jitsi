@@ -6,6 +6,9 @@
  */
 package net.java.sip.communicator.service.protocol;
 
+import java.util.*;
+
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -13,6 +16,7 @@ import net.java.sip.communicator.util.*;
  * interface.
  *
  * @author Lubomir Marinov
+ * @author Yana Stamcheva
  */
 public class AbstractConferenceMember
     extends PropertyChangeNotifier
@@ -36,6 +40,13 @@ public class AbstractConferenceMember
      * <code>ConferenceMember</code> in the conference.
      */
     private ConferenceMemberState state = ConferenceMemberState.UNKNOWN;
+
+    /**
+     * The <tt>CallPeerSoundLevelListener</tt>-s registered to get
+     * <tt>CallPeerSoundLevelEvent</tt>-s
+     */
+    private final List<CallPeerSoundLevelListener> soundLevelListeners
+        = new ArrayList<CallPeerSoundLevelListener>();
 
     public AbstractConferenceMember(
         CallPeer conferenceFocusCallPeer)
@@ -112,6 +123,64 @@ public class AbstractConferenceMember
             this.state = state;
 
             firePropertyChange(STATE_PROPERTY_NAME, oldValue, this.state);
+        }
+    }
+
+    /**
+     * Adds a specific <tt>CallPeerSoundLevelListener</tt> to the list of
+     * listeners interested in and notified about changes in sound level related
+     * information.
+     * 
+     * @param listener the <tt>CallPeerSoundLevelListener</tt> to add
+     */
+    public void addCallPeerSoundLevelListener(
+        CallPeerSoundLevelListener listener)
+    {
+        synchronized (soundLevelListeners)
+        {
+            soundLevelListeners.add(listener);
+        }
+    }
+
+    /**
+     * Removes a specific <tt>CallPeerSoundLevelListener</tt> of the list of
+     * listeners interested in and notified about changes in sound level related
+     * information.
+     * 
+     * @param listener the <tt>CallPeerSoundLevelListener</tt> to remove
+     */
+    public void removeCallPeerSoundLevelListener(
+        CallPeerSoundLevelListener listener)
+    {
+        synchronized (soundLevelListeners)
+        {
+            soundLevelListeners.remove(listener);
+        }
+    }
+
+    /**
+     * Fires a <tt>CallPeerSoundLevelEvent</tt> and notifies all registered
+     * listeners.
+     *
+     * @param level The new sound level
+     */
+    public void fireCallPeerSoundLevelEvent(int level)
+    {
+        CallPeerSoundLevelEvent event
+            = new CallPeerSoundLevelEvent(this, level);
+
+        CallPeerSoundLevelListener[] listeners;
+
+        synchronized(soundLevelListeners)
+        {
+            listeners =
+                soundLevelListeners.toArray(
+                    new CallPeerSoundLevelListener[soundLevelListeners.size()]);
+        }
+
+        for (CallPeerSoundLevelListener listener : listeners)
+        {
+            listener.peerSoundLevelChanged(event);
         }
     }
 }

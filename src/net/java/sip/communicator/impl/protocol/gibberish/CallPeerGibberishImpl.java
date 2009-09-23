@@ -4,15 +4,16 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.protocol.mock;
+package net.java.sip.communicator.impl.protocol.gibberish;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
 /**
- * @author Damian Minkov
+ * A Gibberish implementation of the <tt>CallPeer</tt> interface.
+ * @author Yana Stamcheva
  */
-public class MockCallPeer
+public class CallPeerGibberishImpl
     extends AbstractCallPeer
 {
     /**
@@ -23,23 +24,34 @@ public class MockCallPeer
     /**
      * The call peer belongs to.
      */
-    private MockCall call;
+    private CallGibberishImpl call;
 
     /**
      * A string uniquely identifying the peer.
      */
     private String peerID;
 
-    public MockCallPeer(String address, MockCall owningCall)
+    public CallPeerGibberishImpl(String address, CallGibberishImpl owningCall)
     {
         this.peerAddress = address;
         this.call = owningCall;
 
-        call.addCallPeer(this);
-
         //create the uid
         this.peerID = String.valueOf( System.currentTimeMillis())
                              + String.valueOf(hashCode());
+
+        ConferenceMemberGibberishImpl member1
+            = new ConferenceMemberGibberishImpl(this);
+        member1.setDisplayName("conference member1");
+        member1.setState(ConferenceMemberState.CONNECTED);
+
+        ConferenceMemberGibberishImpl member2
+            = new ConferenceMemberGibberishImpl(this);
+        member2.setDisplayName("conference member2");
+        member2.setState(ConferenceMemberState.CONNECTED);
+
+        this.addConferenceMember(member1);
+        this.addConferenceMember(member2);
     }
 
     /**
@@ -119,9 +131,11 @@ public class MockCallPeer
 
     public void addCallPeerSoundLevelListener(
         CallPeerSoundLevelListener listener)
-    {}
+    {
+    }
 
     public void removeCallPeerSoundLevelListener(
         CallPeerSoundLevelListener listener)
-    {}
+    {
+    }
 }

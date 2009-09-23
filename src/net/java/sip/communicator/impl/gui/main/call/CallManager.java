@@ -37,6 +37,9 @@ public class CallManager
     private static Hashtable<Call, CallDialog> activeCalls
                                             = new Hashtable<Call, CallDialog>();
 
+    /**
+     * A call listener.
+     */
     public static class GuiCallListener implements CallListener
     {
         /**
@@ -179,15 +182,28 @@ public class CallManager
     }
 
     /**
+     * Creates a call to the contact represented by the given string.
+     *
+     * @param protocolProvider the protocol provider to which this call belongs.
+     * @param contact the contact to call to
+     */
+    public static void createCall(  ProtocolProviderService protocolProvider,
+                                    Contact contact)
+    {
+        new CreateCallThread(protocolProvider, contact).start();
+    }
+
+    /**
      * Creates a call to the given list of contacts.
      *
      * @param protocolProvider the protocol provider to which this call belongs.
-     * @param contacts the list of contacts to call to
+     * @param callees the list of contacts to call to
      */
-    public static void createCall(  ProtocolProviderService protocolProvider,
-                                    List<Contact> contacts)
+    public static void createConferenceCall(
+            ProtocolProviderService protocolProvider,
+            String[] callees)
     {
-        new CreateCallThread(protocolProvider, contacts).start();
+        new CreateConferenceCallThread(protocolProvider, callees).start();
     }
 
     /**
@@ -195,6 +211,7 @@ public class CallManager
      *
      * @param call the call object to pass to the call dialog
      * @param callType the call type
+     * @return the opened call dialog
      */
     public static CallDialog openCallDialog(Call call, String callType)
     {
@@ -213,9 +230,9 @@ public class CallManager
     private static class CreateCallThread
         extends Thread
     {
-        List<Contact> contacts;
-
         String stringContact;
+
+        Contact contact;
 
         final ProtocolProviderService protocolProvider;
 
@@ -227,10 +244,10 @@ public class CallManager
         }
 
         public CreateCallThread(ProtocolProviderService protocolProvider,
-                                List<Contact> contacts)
+                                Contact contact)
         {
             this.protocolProvider = protocolProvider;
-            this.contacts = contacts;
+            this.contact = contact;
         }
 
         public void run()
@@ -242,27 +259,20 @@ public class CallManager
             if (telephonyOpSet == null)
                 return;
 
-            // NOTE: The multi user call is not yet implemented!
-            // We just get the first contact and create a call for him.
             try
             {
-                if (contacts != null)
-                {
-                    Contact contact = contacts.get(0);
-
+                if (contact != null)
                     telephonyOpSet.createCall(contact);
-                }
-                else
-                {
+                else if (stringContact != null)
                     telephonyOpSet.createCall(stringContact);
-                }
             }
             catch (OperationFailedException e)
             {
                 logger.error("The call could not be created: " + e);
 
                 new ErrorDialog(null,
-                    GuiActivator.getResources().getI18NString("service.gui.ERROR"),
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.ERROR"),
                     e.getMessage(),
                     ErrorDialog.ERROR).showDialog();
             }
@@ -271,13 +281,13 @@ public class CallManager
                 logger.error("The call could not be created: " + e);
 
                 new ErrorDialog(null,
-                    GuiActivator.getResources().getI18NString("service.gui.ERROR"),
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.ERROR"),
                     e.getMessage(),
                     ErrorDialog.ERROR).showDialog();
             }
         }
     }
-
 
     /**
      * Answers all call peers in the given call.
@@ -313,6 +323,50 @@ public class CallManager
                     logger.error("Could not answer to : " + peer
                         + " caused by the following exception: " + e);
                 }
+            }
+        }
+    }
+
+    /**
+     * Creates a conference call from a given list of contact addresses
+     */
+    private static class CreateConferenceCallThread
+        extends Thread
+    {
+        String[] callees;
+
+        final ProtocolProviderService protocolProvider;
+
+        public CreateConferenceCallThread(
+                ProtocolProviderService protocolProvider,
+                String[] callees)
+        {
+            this.protocolProvider = protocolProvider;
+            this.callees = callees;
+        }
+
+        public void run()
+        {
+            OperationSetTelephonyConferencing confOpSet
+            = (OperationSetTelephonyConferencing) protocolProvider
+                .getOperationSet(OperationSetTelephonyConferencing.class);
+
+            if (confOpSet == null)
+                return;
+
+            try
+            {
+                confOpSet.createConfCall(callees);
+            }
+            catch (OperationNotSupportedException e)
+            {
+                logger.error("Failed to create conference call. " + e);
+
+                new ErrorDialog(null,
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.ERROR"),
+                    e.getMessage(),
+                    ErrorDialog.ERROR).showDialog();
             }
         }
     }

@@ -175,8 +175,8 @@ public class MainCallPanel
                 Object[] selectedContacts = mainFrame.getContactListPanel()
                     .getContactList().getSelectedValues();
 
-                java.util.List<Contact> telephonyContacts =
-                    new Vector<Contact>();
+                java.util.List<String> telephonyContacts =
+                    new Vector<String>();
 
                 for (Object o : selectedContacts)
                 {
@@ -187,7 +187,7 @@ public class MainCallPanel
                                 OperationSetBasicTelephony.class);
 
                         if (contact != null)
-                            telephonyContacts.add(contact);
+                            telephonyContacts.add(contact.getAddress());
                         else
                         {
                             new ErrorDialog(
@@ -204,7 +204,15 @@ public class MainCallPanel
                 }
 
                 if (telephonyContacts.size() > 0)
-                    CallManager.createCall(protocolProvider, telephonyContacts);
+                {
+                    String[] contactAddressStrings
+                        = new String[telephonyContacts.size()];
+                    contactAddressStrings
+                        = telephonyContacts.toArray(contactAddressStrings);
+
+                    CallManager.createConferenceCall(
+                        protocolProvider, contactAddressStrings);
+                }
             }
             else if (!phoneNumberCombo.isComboFieldEmpty())
             {

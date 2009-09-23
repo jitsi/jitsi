@@ -16,15 +16,15 @@ import net.java.sip.communicator.impl.gui.utils.*;
 public class SecurityStatusLabel
     extends JLabel
 {
-    private final CallPeerPanel callPeerPanel;
+    private final ParentCallPeerPanel callPeerRenderer;
 
-    public SecurityStatusLabel( CallPeerPanel callPeerPanel,
+    public SecurityStatusLabel( ParentCallPeerPanel callPeerRenderer,
                                 Icon icon,
                                 int alignment)
     {
         super(icon, alignment);
 
-        this.callPeerPanel = callPeerPanel;
+        this.callPeerRenderer = callPeerRenderer;
 
         this.setToolTipText("Security status");
     }
@@ -40,7 +40,7 @@ public class SecurityStatusLabel
 
         ImageIcon audioStatusIcon;
         String audioStatusString;
-        if (callPeerPanel.isAudioSecurityOn())
+        if (callPeerRenderer.isAudioSecurityOn())
         {
             audioStatusIcon = new ImageIcon(
                 ImageLoader.getImage(ImageLoader.SECURE_AUDIO_ON));
@@ -55,7 +55,7 @@ public class SecurityStatusLabel
 
         ImageIcon videoStatusIcon;
         String videoStatusString;
-        if (callPeerPanel.isVideoSecurityOn())
+        if (callPeerRenderer.isVideoSecurityOn())
         {
             videoStatusIcon = new ImageIcon(
                 ImageLoader.getImage(ImageLoader.SECURE_VIDEO_ON));
@@ -68,7 +68,7 @@ public class SecurityStatusLabel
             videoStatusString = "Video security off.";
         }
 
-        String cipher = "Cipher: " + callPeerPanel.getEncryptionCipher();
+        String cipher = "Cipher: " + callPeerRenderer.getEncryptionCipher();
 
         tip.addLine(audioStatusIcon,
                     audioStatusString);

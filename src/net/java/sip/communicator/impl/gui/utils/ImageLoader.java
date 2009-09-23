@@ -1050,6 +1050,24 @@ public class ImageLoader
 
     /*
      * =====================================================================
+     * ---------------------------- SOUND LEVEL ICONS ----------------------
+     * =====================================================================
+     */
+
+    public static final ImageID SOUND_LEVEL_ACTIVE
+        = new ImageID("service.gui.soundlevel.SOUND_LEVEL_ACTIVE");
+
+    public static final ImageID SOUND_LEVEL_INACTIVE
+        = new ImageID("service.gui.soundlevel.SOUND_LEVEL_INACTIVE");
+
+    public static final ImageID MICROPHONE
+        = new ImageID("service.gui.soundlevel.MICROPHONE");
+
+    public static final ImageID HEADPHONE
+        = new ImageID("service.gui.soundlevel.HEADPHONE");
+
+    /*
+     * =====================================================================
      * ---------------------------- SMILIES --------------------------------
      * =====================================================================
      */

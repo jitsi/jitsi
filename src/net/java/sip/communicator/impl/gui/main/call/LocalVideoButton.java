@@ -25,6 +25,11 @@ public class LocalVideoButton
 
     private static final long serialVersionUID = 0L;
 
+    /**
+     * Creates a <tt>LocalVideoButton</tt> by specifying the corresponding
+     * <tt>call</tt>.
+     * @param call the corresponding to this button call
+     */
     public LocalVideoButton(Call call)
     {
         setBgImage(ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG));

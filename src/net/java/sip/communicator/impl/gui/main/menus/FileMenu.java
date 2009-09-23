@@ -51,18 +51,17 @@ public class FileMenu
         ResourceManagementService resources = GuiActivator.getResources();
         JMenuItem newAccountMenuItem = new JMenuItem(
             resources.getI18NString("service.gui.NEW_ACCOUNT"));
-        JMenuItem addContactItem
-            = new JMenuItem(
-                resources.getI18NString("service.gui.ADD_CONTACT"),
-                new ImageIcon(ImageLoader.getImage(
-                    ImageLoader.ADD_CONTACT_16x16_ICON)));
-        JMenuItem createGroupItem
-            = new JMenuItem(
-                resources.getI18NString("service.gui.CREATE_GROUP"),
-                new ImageIcon(ImageLoader.getImage(ImageLoader.GROUPS_16x16_ICON)));
+        JMenuItem addContactItem = new JMenuItem(
+            resources.getI18NString("service.gui.ADD_CONTACT"),
+            new ImageIcon(ImageLoader.getImage(
+                ImageLoader.ADD_CONTACT_16x16_ICON)));
+        JMenuItem createGroupItem = new JMenuItem(
+            resources.getI18NString("service.gui.CREATE_GROUP"),
+            new ImageIcon(ImageLoader.getImage(ImageLoader.GROUPS_16x16_ICON)));
         JMenuItem myChatRoomsItem = new JMenuItem(
             resources.getI18NString("service.gui.MY_CHAT_ROOMS"),
-            new ImageIcon(ImageLoader.getImage(ImageLoader.CHAT_ROOM_16x16_ICON)));
+            new ImageIcon(ImageLoader.getImage(
+                ImageLoader.CHAT_ROOM_16x16_ICON)));
 
         this.setOpaque(false);
 
@@ -169,10 +168,9 @@ public class FileMenu
         Exception exception = null;
         try
         {
-            Class<?> clazz =
-                Class
-                    .forName("net.java.sip.communicator.impl.gui.main.menus.MacOSX"
-                        + menuItemText + "Registration");
+            Class<?> clazz = Class.forName(
+                "net.java.sip.communicator.impl.gui.main.menus.MacOSX"
+                + menuItemText + "Registration");
             Method method = clazz.getMethod("run", new Class[]
             { Object.class });
             Object result = method.invoke(null, new Object[]

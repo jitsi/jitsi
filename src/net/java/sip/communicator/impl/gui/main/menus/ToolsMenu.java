@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.call.conference.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.util.*;
@@ -51,7 +52,7 @@ public class ToolsMenu
 
         this.setOpaque(false);
 
-        registerConfigMenuItem();
+        this.registerMenuItems();
 
         this.initPluginComponents();
     }
@@ -106,8 +107,18 @@ public class ToolsMenu
         {
             configActionPerformed();
         }
+        else if (itemText.equals("conference"))
+        {
+            ConferenceInviteDialog confInviteDialog
+                = new ConferenceInviteDialog();
+
+            confInviteDialog.setVisible(true);
+        }
     }
 
+    /**
+     * Shows the configuration window.
+     */
     void configActionPerformed()
     {
         GuiActivator.getUIService().setConfigurationWindowVisible(true);
@@ -136,7 +147,7 @@ public class ToolsMenu
         }
     }
 
-    private void registerConfigMenuItem()
+    private void registerMenuItems()
     {
         UIService uiService = GuiActivator.getUIService();
         if ((uiService == null) || !uiService.useMacOSXScreenMenuBar()
@@ -144,6 +155,16 @@ public class ToolsMenu
         {
             registerConfigMenuItemNonMacOSX();
         }
+
+        JMenuItem conferenceMenuItem = new JMenuItem(
+            GuiActivator.getResources().getI18NString(
+                "service.gui.CREATE_CONFERENCE_CALL"));
+
+        this.add(conferenceMenuItem);
+        conferenceMenuItem.setMnemonic(GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.CREATE_CONFERENCE_CALL"));
+        conferenceMenuItem.setName("conference");
+        conferenceMenuItem.addActionListener(this);
     }
 
     private boolean registerConfigMenuItemMacOSX()

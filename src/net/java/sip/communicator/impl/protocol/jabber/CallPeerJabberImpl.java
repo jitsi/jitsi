@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+
 import org.jivesoftware.smackx.jingle.*;
 
 /**
@@ -247,4 +248,12 @@ public class CallPeerJabberImpl
 
         return opSetPresence.findContactByID(getAddress());
     }
+
+    public void addCallPeerSoundLevelListener(
+        CallPeerSoundLevelListener listener)
+    {}
+
+    public void removeCallPeerSoundLevelListener(
+        CallPeerSoundLevelListener listener)
+    {}
 }

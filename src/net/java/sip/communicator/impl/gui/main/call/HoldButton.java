@@ -12,6 +12,7 @@ import java.util.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -24,6 +25,8 @@ public class HoldButton
     extends SIPCommToggleButton
 {
     private static final long serialVersionUID = 0L;
+
+    private static final Logger logger = Logger.getLogger(HoldButton.class);
 
     /**
      * Initializes a new <tt>HoldButton</tt> instance which is to put a specific
@@ -137,7 +140,10 @@ public class HoldButton
                     }
                     catch (OperationFailedException ex)
                     {
-                        // TODO Auto-generated method stub
+                        if (isSelected())
+                            logger.error("Failed to put on hold.", ex);
+                        else
+                            logger.error("Failed to put off hold.", ex);
                     }
                 }
             }

@@ -11,7 +11,6 @@ import java.awt.event.*;
 import java.util.*;
 
 import javax.swing.*;
-import javax.swing.Timer;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -28,31 +27,17 @@ import net.java.sip.communicator.util.swing.*;
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  */
-public class CallPeerPanel
-    extends TransparentPanel
+public class OneToOneCallPeerPanel
+    extends ParentCallPeerPanel
 {
-    private static final Logger logger =
-        Logger.getLogger(CallPeerPanel.class);
+    private static final Logger logger
+        = Logger.getLogger(OneToOneCallPeerPanel.class);
 
-    private final JLabel callStatusLabel = new JLabel();
-
-    private final SecurityStatusLabel securityStatusLabel;
-
-    private final JLabel muteStatusLabel = new JLabel();
+    private final JLabel photoLabel
+        = new JLabel(new ImageIcon(ImageLoader
+            .getImage(ImageLoader.DEFAULT_USER_PHOTO)));
 
     private final JLabel timeLabel = new JLabel("00:00:00", JLabel.CENTER);
-
-    /**
-     * This date is meant to be used in the GuiCallPeerRecord, which is
-     * added to the CallList after a call.
-     */
-    private final Date callStartTime = new Date(System.currentTimeMillis());
-
-    private Date callDuration;
-
-    private Timer timer;
-
-    private String callType;
 
     private final String peerName;
 
@@ -65,12 +50,6 @@ public class CallPeerPanel
 
     private Component localVideo;
 
-    private boolean isAudioSecurityOn = false;
-
-    private boolean isVideoSecurityOn = false;
-
-    private String encryptionCipher;
-
     /**
      * The current <code>Window</code> being displayed in full-screen. Because
      * the AWT API with respect to the full-screen support doesn't seem
@@ -79,36 +58,29 @@ public class CallPeerPanel
      */
     private Window fullScreenWindow;
 
-    private SecurityPanel securityPanel = null;
-
-    private final CallDialog callDialog;
-
     /**
      * Creates a <tt>CallPeerPanel</tt> for the given call peer.
      *
+     * @param callDialog the parent dialog containing this call peer panel
      * @param callPeer a call peer
      */
-    public CallPeerPanel(CallDialog callDialog,
-                                CallPeer callPeer)
+    public OneToOneCallPeerPanel(   CallDialog callDialog,
+                                    CallPeer callPeer)
     {
-        this.callDialog = callDialog;
+        super(callDialog, callPeer);
+
         this.callPeer = callPeer;
         this.peerName = callPeer.getDisplayName();
 
-        this.securityStatusLabel = new SecurityStatusLabel(
-            this,
-            new ImageIcon(ImageLoader.getImage(ImageLoader.SECURE_BUTTON_OFF)),
-            JLabel.CENTER);
-
-        // Initialize the date to 0
-        // Need to use Calendar because new Date(0) returns a date where the
-        // hour is initialized to 1.
-        Calendar c = Calendar.getInstance();
-        c.set(0, 0, 0, 0, 0, 0);
-        this.callDuration = c.getTime();
+        // Add all CallPeer related listeners.
+        callPeer.addCallPeerListener(this);
+        callPeer.addPropertyChangeListener(this);
+        callPeer.addCallPeerSecurityListener(this);
 
         /* Create the main Components of the UI. */
-        Component nameBar = createNameBar();
+        nameLabel.setText(peerName);
+        nameLabel.setAlignmentX(JLabel.CENTER);
+
         Component center = createCenter();
         Component statusBar = createStatusBar();
 
@@ -116,14 +88,14 @@ public class CallPeerPanel
         setLayout(new GridBagLayout());
 
         GridBagConstraints constraints = new GridBagConstraints();
-        if (nameBar != null)
+        if (nameLabel != null)
         {
             constraints.fill = GridBagConstraints.NONE;
             constraints.gridx = 0;
             constraints.gridy = 0;
             constraints.weightx = 0;
 
-            add(nameBar, constraints);
+            add(nameLabel, constraints);
         }
         if (center != null)
         {
@@ -155,9 +127,6 @@ public class CallPeerPanel
             add(statusBar, constraints);
         }
 
-        this.timer = new Timer(1000, new CallTimerListener());
-        this.timer.setRepeats(true);
-
         addVideoListener();
     }
 
@@ -188,10 +157,6 @@ public class CallPeerPanel
      */
     private Component createCenter()
     {
-        final JLabel photoLabel =
-            new JLabel(new ImageIcon(ImageLoader
-                .getImage(ImageLoader.DEFAULT_USER_PHOTO)));
-
         photoLabel.setPreferredSize(new Dimension(90, 90));
 
         final Container videoContainer = createVideoContainer(photoLabel);
@@ -245,16 +210,6 @@ public class CallPeerPanel
         return new VideoContainer(noVideoComponent);
     }
 
-    private Component createNameBar()
-    {
-        // nameLabel
-        JLabel nameLabel = new JLabel("", JLabel.CENTER);
-        nameLabel.setText(peerName);
-        nameLabel.setAlignmentX(JLabel.CENTER);
-
-        return nameLabel;
-    }
-
     /**
      * Creates the <code>Component</code> hierarchy of the area of
      * status-related information such as <code>CallPeer</code> display
@@ -298,68 +253,6 @@ public class CallPeerPanel
         statusPanel.add(buttonBar);
 
         return statusPanel;
-    }
-
-    /**
-     * Creates a new <code>Component</code> representing a UI means to transfer
-     * the <code>Call</code> of the associated <code>callPeer</code> or
-     * <tt>null</tt> if call-transfer is unsupported.
-     *
-     * @return a new <code>Component</code> representing the UI means to
-     *         transfer the <code>Call</code> of <code>callPeer</code> or
-     *         <tt>null</tt> if call-transfer is unsupported
-     */
-    private Component createTransferCallButton()
-    {
-        Call call = callPeer.getCall();
-
-        if (call != null)
-        {
-            OperationSetAdvancedTelephony telephony =
-                (OperationSetAdvancedTelephony) call.getProtocolProvider()
-                    .getOperationSet(OperationSetAdvancedTelephony.class);
-
-            if (telephony != null)
-                return new TransferCallButton(callPeer);
-        }
-        return null;
-    }
-
-    public void createSecurityPanel(
-        CallPeerSecurityOnEvent event)
-    {
-        Call call = callPeer.getCall();
-
-        if (call != null)
-        {
-            OperationSetSecureTelephony secure
-                = (OperationSetSecureTelephony) call
-                    .getProtocolProvider().getOperationSet(
-                            OperationSetSecureTelephony.class);
-
-            if (secure != null)
-            {
-                if (securityPanel == null)
-                {
-                    securityPanel = new SecurityPanel(callPeer);
-
-                    GridBagConstraints constraints = new GridBagConstraints();
-
-                    constraints.fill = GridBagConstraints.NONE;
-                    constraints.gridx = 0;
-                    constraints.gridy = 2;
-                    constraints.weightx = 0;
-                    constraints.weighty = 0;
-                    constraints.insets = new Insets(5, 0, 0, 0);
-
-                    this.add(securityPanel, constraints);
-                }
-
-                securityPanel.refreshStates(event);
-
-                this.revalidate();
-            }
-        }
     }
 
     private class VideoTelephonyListener
@@ -664,201 +557,6 @@ public class CallPeerPanel
     }
 
     /**
-     * Sets the state of the contained call peer by specifying the
-     * state name and icon.
-     *
-     * @param state the state of the contained call peer
-     * @param icon the icon of the state
-     */
-    public void setState(String state, Icon icon)
-    {
-        this.callStatusLabel.setText(state);
-        this.callStatusLabel.setIcon(icon);
-    }
-
-    /**
-     * Sets the secured status icon to the status panel.
-     *
-     * @param isSecured indicates if the call with this peer is
-     * secured
-     */
-    public void setSecured(boolean isSecured)
-    {
-        if (isSecured)
-            securityStatusLabel.setIcon(new ImageIcon(ImageLoader
-                .getImage(ImageLoader.SECURE_BUTTON_ON)));
-        else
-            securityStatusLabel.setIcon(new ImageIcon(ImageLoader
-                .getImage(ImageLoader.SECURE_BUTTON_OFF)));
-    }
-
-    /**
-     * Sets the mute status icon to the status panel.
-     *
-     * @param isMute indicates if the call with this peer is
-     * muted
-     */
-    public void setMute(boolean isMute)
-    {
-        if(isMute)
-            muteStatusLabel.setIcon(new ImageIcon(
-                ImageLoader.getImage(ImageLoader.MUTE_STATUS_ICON)));
-        else
-            muteStatusLabel.setIcon(null);
-    }
-
-    /**
-     * Sets the audio security on or off.
-     *
-     * @param isAudioSecurityOn indicates if the audio security is turned on or
-     * off.
-     */
-    public void setAudioSecurityOn(boolean isAudioSecurityOn)
-    {
-        this.isAudioSecurityOn = isAudioSecurityOn;
-    }
-
-    /**
-     * Sets the video security on or off.
-     *
-     * @param isVideoSecurityOn indicates if the video security is turned on or
-     * off.
-     */
-    public void setVideoSecurityOn(boolean isVideoSecurityOn)
-    {
-        this.isVideoSecurityOn = isVideoSecurityOn;
-    }
-
-    /**
-     * Indicates if the audio security is turned on or off.
-     *
-     * @return <code>true</code> if the audio security is on, otherwise -
-     * <code>false</code>.
-     */
-    public boolean isAudioSecurityOn()
-    {
-        return isAudioSecurityOn;
-    }
-
-    /**
-     * Indicates if the video security is turned on or off.
-     *
-     * @return <code>true</code> if the video security is on, otherwise -
-     * <code>false</code>.
-     */
-    public boolean isVideoSecurityOn()
-    {
-        return isVideoSecurityOn;
-    }
-
-    /**
-     * Returns the cipher used for the encryption of the current call.
-     *
-     * @return the cipher used for the encryption of the current call.
-     */
-    public String getEncryptionCipher()
-    {
-        return encryptionCipher;
-    }
-
-    /**
-     * Sets the cipher used for the encryption of the current call.
-     *
-     * @param encryptionCipher the cipher used for the encryption of the
-     * current call.
-     */
-    public void setEncryptionCipher(String encryptionCipher)
-    {
-        this.encryptionCipher = encryptionCipher;
-    }
-
-
-    /**
-     * Starts the timer that counts call duration.
-     */
-    public void startCallTimer()
-    {
-        this.timer.start();
-    }
-
-    /**
-     * Stops the timer that counts call duration.
-     */
-    public void stopCallTimer()
-    {
-        this.timer.stop();
-    }
-
-    /**
-     * Each second refreshes the time label to show to the user the exact
-     * duration of the call.
-     */
-    private class CallTimerListener
-        implements ActionListener
-    {
-        public void actionPerformed(ActionEvent e)
-        {
-            Date time =
-                GuiUtils.substractDates(new Date(System.currentTimeMillis()),
-                    new Date(callPeer.getCallDurationStartTime()));
-
-            callDuration.setTime(time.getTime());
-
-            timeLabel.setText(GuiUtils.formatTime(time));
-        }
-    }
-
-    /**
-     * Returns the start time of the contained peer call. Note that the
-     * start time of the call is different from the conversation start time. For
-     * example if we receive a call, the call start time is when the call is
-     * received and the conversation start time would be when we accept the
-     * call.
-     *
-     * @return the start time of the contained peer call
-     */
-    public Date getCallStartTime()
-    {
-        return callStartTime;
-    }
-
-    /**
-     * Returns the duration of the contained peer call.
-     *
-     * @return the duration of the contained peer call
-     */
-    public Date getCallDuration()
-    {
-        return callDuration;
-    }
-
-    /**
-     * Returns this call type - GuiCallPeerRecord: INCOMING_CALL or
-     * OUTGOING_CALL
-     *
-     * @return Returns this call type : INCOMING_CALL or OUTGOING_CALL
-     */
-    public String getCallType()
-    {
-        if (callDuration != null)
-            return callType;
-        else
-            return GuiCallPeerRecord.INCOMING_CALL;
-    }
-
-    /**
-     * Sets the type of the call. Call type could be
-     * <tt>GuiCallPeerRecord.INCOMING_CALL</tt> or
-     * <tt>GuiCallPeerRecord.INCOMING_CALL</tt>.
-     *
-     * @param callType the type of call to set
-     */
-    public void setCallType(String callType)
-    {
-        this.callType = callType;
-    }
-
-    /**
      * Returns the name of the peer, contained in this panel.
      *
      * @return the name of the peer, contained in this panel
@@ -1058,7 +756,6 @@ public class CallPeerPanel
     private static class PeerStatusPanel
         extends TransparentPanel
     {
-
         /*
          * Silence the serial warning. Though there isn't a plan to serialize
          * the instances of the class, there're no fields so the default

@@ -254,4 +254,24 @@ public interface CallPeer
      */
     public void removeCallPeerConferenceListener(
         CallPeerConferenceListener listener);
+
+    /**
+     * Adds a specific <tt>CallPeerSoundLevelListener</tt> to the list of
+     * listeners interested in and notified about changes in sound level related
+     * information.
+     * 
+     * @param listener the <tt>CallPeerSoundLevelListener</tt> to add
+     */
+    public void addCallPeerSoundLevelListener(
+        CallPeerSoundLevelListener listener);
+
+    /**
+     * Removes a specific <tt>CallPeerSoundLevelListener</tt> of the list of
+     * listeners interested in and notified about changes in sound level related
+     * information.
+     * 
+     * @param listener the <tt>CallPeerSoundLevelListener</tt> to remove
+     */
+    public void removeCallPeerSoundLevelListener(
+        CallPeerSoundLevelListener listener);
 }
