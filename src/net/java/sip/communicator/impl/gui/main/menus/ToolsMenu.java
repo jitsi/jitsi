@@ -156,9 +156,15 @@ public class ToolsMenu
             registerConfigMenuItemNonMacOSX();
         }
 
+        // Marks this feature as an ongoing work until its completed and fully
+        // tested.
         JMenuItem conferenceMenuItem = new JMenuItem(
             GuiActivator.getResources().getI18NString(
-                "service.gui.CREATE_CONFERENCE_CALL"));
+                "service.gui.CREATE_CONFERENCE_CALL") + " (coming soon)");
+
+        // Disables the conference menu item until the work on this feature is
+        // completed and fully tested.
+        conferenceMenuItem.setEnabled(false);
 
         this.add(conferenceMenuItem);
         conferenceMenuItem.setMnemonic(GuiActivator.getResources()
