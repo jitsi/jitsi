@@ -148,6 +148,8 @@ public class SendFileConversationComponent
             {
                 progressBar.setVisible(true);
             }
+            cancelButton.setVisible(true);
+            retryButton.setVisible(false);
         }
         else if (status == FileTransferStatusChangeEvent.COMPLETED)
         {

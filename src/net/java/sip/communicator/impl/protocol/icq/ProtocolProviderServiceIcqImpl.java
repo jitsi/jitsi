@@ -116,7 +116,6 @@ public class ProtocolProviderServiceIcqImpl
         return joustSimStateToRegistrationState(connState);
     }
 
-
     /**
      * Converts the specified joust sim connection state to a corresponding
      * RegistrationState.
@@ -508,7 +507,6 @@ public class ProtocolProviderServiceIcqImpl
                     OperationSetServerStoredContactInfo.class.getName(),
                     serverStoredContactInfo);
 
-
                 OperationSetServerStoredAccountInfo serverStoredAccountInfo =
                     new OperationSetServerStoredAccountInfoIcqImpl
                         (infoRetreiver, screenname, this);
@@ -653,7 +651,8 @@ public class ProtocolProviderServiceIcqImpl
 
         lastRegistrationState = newState;
 
-        super.fireRegistrationStateChanged(oldState, newState, reasonCode, reason);
+        super.fireRegistrationStateChanged(
+            oldState, newState, reasonCode, reason);
     }
 
     /**
@@ -909,10 +908,10 @@ public class ProtocolProviderServiceIcqImpl
     }
 
     /**
-     * Fix for late close conenction due to
+     * Fix for late close connection due to
      * multiple logins.
      * Listening for incoming packets for the close command
-     * when this is received we discconect the session to force it
+     * when this is received we disconnect the session to force it
      * because otherwise is wait for timeout of reading from the socket stream
      * which leads to from 10 to 20 seconds delay of closing the session
      * and connection

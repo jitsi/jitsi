@@ -1150,12 +1150,7 @@ public class UIServiceImpl
      */
     public List<Chat> getChats()
     {
-        List<Chat> chats = new ArrayList<Chat>();
-        for (ChatPanel chat : chatWindowManager.getChatPanels())
-        {
-            chats.add(chat);
-        }
-        return chats;
+        return new ArrayList<Chat>(chatWindowManager.getChatPanels());
     }
 
     /**

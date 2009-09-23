@@ -1,3 +1,9 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.protocol.mock;
 
 import java.text.*;
@@ -29,7 +35,6 @@ public class MockOperationSetBasicTelephony
      * A table mapping call ids against call instances.
      */
     private Hashtable<String, Call> activeCalls = new Hashtable<String, Call>();
-
 
     public MockOperationSetBasicTelephony(MockProvider protocolProvider)
     {

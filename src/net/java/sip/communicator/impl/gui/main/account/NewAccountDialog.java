@@ -171,7 +171,7 @@ public class NewAccountDialog
 
                 networksList.add(wizard);
 
-                // is it the prefered protocol ?
+                // is it the preferred protocol ?
                 if(preferredWizardName != null
                     && wizard.getClass().getName().equals(preferredWizardName))
                 {

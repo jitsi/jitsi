@@ -110,18 +110,18 @@ public class AddContactDialog
      */
     private void init()
     {
-        this.setTitle(
-            GuiActivator.getResources().getI18NString("service.gui.ADD_CONTACT"));
-        
+        this.setTitle(GuiActivator.getResources()
+            .getI18NString("service.gui.ADD_CONTACT"));
+
         this.setSize(520, 250);
-        
+
         this.getRootPane().setDefaultButton(addButton);
         this.addButton.setName("add");
         this.cancelButton.setName("cancel");
-        
+
         this.addButton.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.ADD"));
-        
+
         this.cancelButton.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
         

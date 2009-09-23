@@ -7,7 +7,6 @@
 package net.java.sip.communicator.util;
 
 import java.awt.image.*;
-import java.io.*;
 import java.net.*;
 import java.util.*;
 
@@ -145,26 +144,32 @@ public class UtilActivator
         return resourceService;
     }
 
-    public static BufferedImage getImage(String key)
+    /**
+     * Returns the image corresponding to the given <tt>imageID</tt>.
+     * 
+     * @param imageID the identifier of the image
+     * @return the image corresponding to the given <tt>imageID</tt>
+     */
+    public static BufferedImage getImage(String imageID)
     {
-        if (imageCache.containsKey(key))
-            return imageCache.get(key);
-
-        URL url = getResources().getImageURL(key);
         BufferedImage image = null;
-        if (url != null)
-        {
-            try
-            {
-                image = ImageIO.read(url);
 
-                imageCache.put(key, image);
-            }
-            catch (IOException ex)
-            {
-                logger.error("Failed to load image " + key, ex);
-            }
+        URL path = getResources().getImageURL(imageID);
+
+        if (path == null)
+        {
+            return null;
         }
+
+        try
+        {
+            image = ImageIO.read(path);
+        }
+        catch (Exception exc)
+        {
+            logger.error("Failed to load image:" + path, exc);
+        }
+
         return image;
     }
 }

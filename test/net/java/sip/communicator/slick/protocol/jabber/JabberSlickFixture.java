@@ -140,7 +140,6 @@ public class JabberSlickFixture
             = System.getProperty(
                 JabberProtocolProviderServiceLick.CHAT_ROOM_NAME);
 
-
         //find the protocol providers exported for the two accounts
         ServiceReference[] jabberProvider1Refs
             = bc.getServiceReferences(
