@@ -46,8 +46,8 @@ public interface MediaFormatFactory
      *
      * @param encoding the encoding of the format to create.
      * @param clockRate the rate in Hz of the audio format
-     * @param channels the number of availabe channels (1 for mono,
-     *        2 for stereo)
+     * @param channels the number of available channels (1 for mono, 2 for
+     * stereo)
      *
      * @return a newly created <tt>AudioMediaFormat</tt> with the specified
      * parameters.
@@ -62,8 +62,8 @@ public interface MediaFormatFactory
      *
      * @param encoding the encoding of the format to create.
      * @param clockRate the rate in Hz of the audio format
-     * @param formatParams any codec specific params that have being received
-     * via SIP/SDP or XMPP/Jingle.
+     * @param formatParams any codec specific params that have been received via
+     * SIP/SDP or XMPP/Jingle.
      *
      * @return a newly created <tt>AudioMediaFormat</tt> with the specified
      * parameters.
@@ -106,7 +106,7 @@ public interface MediaFormatFactory
      * and <tt>frameRate</tt>.
      *
      * @param encoding the encoding of the format to create.
-     * @param clockRate the the frame rate
+     * @param clockRate the clock (i.e. frame) rate
      * @return a newly created <tt>AudioMediaFormat</tt> with the specified
      * parameters.
      */

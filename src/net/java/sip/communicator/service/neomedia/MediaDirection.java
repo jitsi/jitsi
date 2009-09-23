@@ -79,9 +79,8 @@ public enum MediaDirection
      * @return a <tt>MediaDirection</tt> value corresponding to the specified
      * <tt>mediaDirectionName</tt>.
      *
-     * @throws a <tt>java.lang.IllegalArgumentException</tt> in case
-     * <tt>mediaDirectionName</tt> is not a valid or currently supported media
-     * direction.
+     * @throws IllegalArgumentException in case <tt>mediaDirectionName</tt> is
+     * not a valid or currently supported media direction.
      */
     public static MediaDirection parseString(String mediaDirectionName)
         throws IllegalArgumentException

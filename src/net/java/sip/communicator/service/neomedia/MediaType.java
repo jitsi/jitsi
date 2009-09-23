@@ -61,8 +61,8 @@ public enum MediaType
      * @return a <tt>MediaType</tt> value corresponding to the specified
      * <tt>mediaTypeName</tt>.
      *
-     * @throws a <tt>java.lang.IllegalArgumentException</tt> in case
-     * <tt>mediaTypeName</tt> is not a valid or currently supported media type.
+     * @throws IllegalArgumentException in case <tt>mediaTypeName</tt> is not a
+     * valid or currently supported media type.
      */
     public static MediaType parseString(String mediaTypeName)
         throws IllegalArgumentException

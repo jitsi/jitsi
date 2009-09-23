@@ -23,13 +23,13 @@ public interface MediaService
      * Returns the default <tt>MediaDevice</tt> for the specified media
      * <tt>type</tt>. In most cases users
      *
-     * @param type a <tt>MediaType</tt> instance indicating the kind of device
+     * @param mediaType a <tt>MediaType</tt> value indicating the kind of device
      * that we are trying to obtain.
      *
      * @return the currently default <tt>MediaDevice</tt> for the specified
      * <tt>MediaType</tt>, or <tt>null</tt> if no such device exists.
      */
-    public MediaDevice getDefaultDevice(MediaType type);
+    public MediaDevice getDefaultDevice(MediaType mediaType);
 
     /**
      * Returns a list containing all devices known to this service
@@ -48,9 +48,10 @@ public interface MediaService
      * <tt>MediaDevice</tt> for both capture and playback of media exchanged
      * via the specified <tt>MediaConnector</tt>.
      *
-     * @param connector the connector that the stream should use for sending and receiving
-     * media.
-     * @param device
+     * @param connector the connector that the stream should use for sending and
+     * receiving media.
+     * @param device the device to be used for both capture and playback of
+     * media changed via the specified <tt>MediaConnector</tt>
      *
      * @return the newly created <tt>MediaStream</tt>.
      */

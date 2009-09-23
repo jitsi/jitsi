@@ -42,9 +42,9 @@ public interface MediaFormat
     /**
      * Returns the clock rate associated with this <tt>MediaFormat</tt>.
      *
-     * @return The clock rate associated with this format..
+     * @return The clock rate associated with this format.
      */
-    public float getClockRate();
+    public double getClockRate();
 
     /**
      * Determines whether this <tt>MediaFormat</tt> is equal to
@@ -59,14 +59,13 @@ public interface MediaFormat
     public boolean equals(Object mediaFormat);
 
     /**
-     * Returns a <tt>Map</tt> containing parameters specific to this
-     * particular <tt>MediaFormat</tt>. The parameters returned here are meant
-     * for use in SIP/SDP or XMPP session descriptions where they get
-     * transported through the "fmtp:" attribute or <parameter/> tag
-     * respectively.
+     * Returns a <tt>Map</tt> containing parameters specific to this particular
+     * <tt>MediaFormat</tt>. The parameters returned here are meant for use in
+     * SIP/SDP or XMPP session descriptions where they get transported through
+     * the "fmtp:" attribute or <parameter/> tag respectively.
      *
-     * @return Returns a <tt>Map</tt> containing parameters specific to this
-     * particular <tt>MediaFormat</tt>.
+     * @return a <tt>Map</tt> containing parameters specific to this particular
+     * <tt>MediaFormat</tt>.
      */
     public Map<String, String> getFormatParameters();
 
