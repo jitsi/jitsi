@@ -119,7 +119,7 @@ public interface OperationSetBasicTelephony
      * Returns an iterator over all currently active calls.
      * @return Iterator
      */
-    public Iterator getActiveCalls();
+    public Iterator<? extends Call> getActiveCalls();
 
     /**
      * Sets the mute state of the audio stream being sent to a specific
