@@ -468,7 +468,7 @@ public class ContactRightButtonMenu
     {
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
-        Contact cont = null;
+        Contact contact = null;
 
         if (itemName.startsWith(addSubcontactPrefix))
         {
@@ -508,10 +508,10 @@ public class ContactRightButtonMenu
         }
         else if (itemName.equalsIgnoreCase("call"))
         {
-            cont = contactItem.getDefaultContact(
+            contact = contactItem.getDefaultContact(
                     OperationSetBasicTelephony.class);
 
-            callContact(cont);
+            callContact(contact);
         }
         else if (itemName.equalsIgnoreCase("sendFile"))
         {
@@ -616,7 +616,7 @@ public class ContactRightButtonMenu
         }
         else if (itemName.startsWith(removeContactPrefix))
         {
-            Contact contact = getContactFromMetaContact(
+            contact = getContactFromMetaContact(
                     itemName.substring(removeContactPrefix.length()));
 
             if(contact != null)
@@ -630,7 +630,7 @@ public class ContactRightButtonMenu
         }
         else if(itemName.startsWith(moveSubcontactPrefix))
         {
-            Contact contact = getContactFromMetaContact(
+            contact = getContactFromMetaContact(
                     itemName.substring(moveSubcontactPrefix.length()));
 
             guiContactList.addExcContactListListener(this);
@@ -664,10 +664,10 @@ public class ContactRightButtonMenu
         }
         else if (itemName.startsWith(callContactPrefix))
         {
-            cont = getContactFromMetaContact(
+            contact = getContactFromMetaContact(
                     itemName.substring(callContactPrefix.length()));
 
-            callContact(cont);
+            callContact(contact);
         }
     }
 
@@ -677,15 +677,8 @@ public class ContactRightButtonMenu
      */
     private void callContact(Contact contact)
     {
-        if (contact != null)
-        {
-            Vector<Contact> contacts = new Vector<Contact>();
-            contacts.add(contact);
-
-            CallManager.createCall(contact.getProtocolProvider(), contacts);
-            // wow, it's really tricky, I wonder there isn't a simple method
-            // CallManager#createCall(Contact contact);
-        }
+        CallManager.createCall(
+            contact.getProtocolProvider(), contact);
     }
 
     /**
