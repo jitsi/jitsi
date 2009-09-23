@@ -17,7 +17,6 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.*;
-
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -75,8 +74,7 @@ public class EditTextToolBar
 
         this.initColorLabel();
 
-        this.smileysBox = new SmileysSelectorBox(
-            ImageLoader.getDefaultSmileysPack(), chatWritePanel);
+        this.smileysBox = new SmileysSelectorBox(chatWritePanel);
 
         this.smileysBox.setName("smiley");
         this.smileysBox.setToolTipText(GuiActivator.getResources()
@@ -494,9 +492,6 @@ public class EditTextToolBar
      */
     public boolean hasSelectedMenus()
     {
-        if(smileysBox.isMenuSelected())
-            return true;
-
-        return false;
+        return smileysBox.isMenuSelected();
     }
 }
