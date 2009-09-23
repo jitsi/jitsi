@@ -278,7 +278,7 @@ public class OperationSetBasicTelephonyJabberImpl
      *
      * @return an iterator over all currently active calls.
      */
-    public Iterator getActiveCalls()
+    public Iterator<CallJabberImpl> getActiveCalls()
     {
         return activeCallsRepository.getActiveCalls();
     }
