@@ -65,9 +65,8 @@ public class CallDialog
     /**
      * Creates a <tt>CallDialog</tt> by specifying the underlying call panel.
      * @param call the <tt>call</tt> that this dialog represents
-     * @param callType the type of the call (incoming or outgoing)
      */
-    public CallDialog(Call call, String callType)
+    public CallDialog(Call call)
     {
         this.call = call;
 
@@ -91,11 +90,11 @@ public class CallDialog
             if (callPeer != null)
                 this.callPanel = new OneToOneCallPanel(
                     this, call, callPeer);
+
+            this.setPreferredSize(new Dimension(500, 400));
         }
 
         call.addCallChangeListener(this);
-
-        this.setPreferredSize(new Dimension(500, 400));
 
         TransparentPanel buttonsPanel
             = new TransparentPanel(new BorderLayout(5, 5));

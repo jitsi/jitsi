@@ -113,6 +113,13 @@ public class ConferenceInviteDialog
                 if (getSelectedMetaContacts().hasMoreElements())
                 {
                     inviteContacts();
+
+                    // Store the last used account in order to pre-select it
+                    // next time.
+                    ConfigurationManager.setLastCallConferenceProvider(
+                        (ProtocolProviderService) accountSelectorBox
+                            .getSelectedItem());
+
                     dispose();
                 }
                 else
@@ -159,6 +166,10 @@ public class ConferenceInviteDialog
                 = GuiActivator.getUIService()
                     .getMainFrame().getProtocolProviders();
 
+            // Obtain the last conference provider used.
+            ProtocolProviderService lastConfProvider
+                = ConfigurationManager.getLastCallConferenceProvider();
+
             while(protocolProviders.hasNext())
             {
                 ProtocolProviderService protocolProvider
@@ -168,13 +179,16 @@ public class ConferenceInviteDialog
                     .getOperationSet(OperationSetTelephonyConferencing.class);
 
                 if (opSet != null && protocolProvider.isRegistered())
+                {
                     accountSelectorBox.addItem(protocolProvider);
+
+                    // Try to select the last used account if it's available.
+                    if (lastConfProvider != null
+                            && lastConfProvider.equals(protocolProvider))
+                        accountSelectorBox.setSelectedItem(protocolProvider);
+                }
             }
         }
-
-        // Select the first possible account.
-        if (accountSelectorBox.getItemCount() > 0)
-            accountSelectorBox.setSelectedIndex(0);
     }
     /**
      * Initializes the left contact list with the contacts that could be added

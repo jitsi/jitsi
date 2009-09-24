@@ -8,65 +8,69 @@ package net.java.sip.communicator.impl.gui.utils;
 
 import java.util.*;
 
+import org.osgi.framework.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
+/**
+ * 
+ * @author Yana Stamcheva
+ */
 public class ConfigurationManager
 {
-    public static final String ENTER_COMMAND = "Enter";
-    
-    public static final String CTRL_ENTER_COMMAND = "Ctrl-Enter";
-    
     /**
-     * Indicates whether the message automatic popup is enabled.
+     * Indicates whether the message automatic pop-up is enabled.
      */
     private static boolean autoPopupNewMessage = false;
-    
+
     private static String sendMessageCommand;
-    
+
     private static boolean isCallPanelShown = true;
-    
+
     private static boolean isShowOffline = true;
-    
+
     private static boolean isApplicationVisible = true;
-    
+
     private static boolean isQuitWarningShown = true;
-    
+
     private static boolean isSendTypingNotifications;
-    
+
     private static boolean isMoveContactConfirmationRequested = true;
-    
+
     private static boolean isMultiChatWindowEnabled;
-    
+
     private static boolean isHistoryLoggingEnabled;
-    
+
     private static boolean isHistoryShown;
-    
+
     private static int chatHistorySize;
-    
+
     private static int chatWriteAreaSize;
-    
+
     private static int windowTransparency;
-    
+
     private static boolean isTransparentWindowEnabled;
-    
+
     private static boolean isWindowDecorated;
-    
+
     private static boolean isChatToolbarVisible;
-    
+
     private static boolean isChatStylebarVisible;
-    
+
     private static String sendFileLastDir;
-    
+
     private static ConfigurationService configService
         = GuiActivator.getConfigurationService();
-    
+
     private static String lastContactParent = null;
-    
+
+    private static ProtocolProviderService lastCallConferenceProvider = null;
+
     /**
-     * 
+     * Loads all user interface configurations.
      */
     public static void loadGuiConfigurations()
     {
@@ -78,7 +82,7 @@ public class ConfigurationManager
             "service.gui.AUTO_POPUP_NEW_MESSAGE";
 
         String autoPopup = configService.getString(autoPopupProperty);
-        
+
         if(autoPopup == null)
             autoPopup = GuiActivator.getResources().
                 getSettingsString(autoPopupProperty);
@@ -87,13 +91,14 @@ public class ConfigurationManager
             autoPopupNewMessage = true;
 
         // Load the "sendMessageCommand" property.
-        String messageCommandProperty = 
-            "service.gui.SEND_MESSAGE_COMMAND";
+        String messageCommandProperty
+            = "service.gui.SEND_MESSAGE_COMMAND";
         String messageCommand = configService.getString(messageCommandProperty);
-        
+
         if(messageCommand == null)
-            messageCommand = 
-                GuiActivator.getResources().getSettingsString(messageCommandProperty);
+            messageCommand
+                = GuiActivator.getResources()
+                    .getSettingsString(messageCommandProperty);
 
         if(messageCommand == null || messageCommand.length() == 0)
             sendMessageCommand = messageCommand;
@@ -140,18 +145,18 @@ public class ConfigurationManager
             "service.gui.SEND_TYPING_NOTIFICATIONS_ENABLED";
         String isSendTypingNotif = 
             configService.getString(isSendTypingNotifProperty);
-        
+
         if(isSendTypingNotif == null)
             isSendTypingNotif = 
                 GuiActivator.getResources().
                     getSettingsString(isSendTypingNotifProperty);
-        
+
         if(isSendTypingNotif != null && isSendTypingNotif.length() > 0)
         {
             isSendTypingNotifications
                 = Boolean.parseBoolean(isSendTypingNotif);
         }
-        
+
         // Load the "isMoveContactConfirmationRequested" property.
         String isMoveContactConfirmationRequestedString
             = configService.getString(
@@ -161,17 +166,16 @@ public class ConfigurationManager
             && isMoveContactConfirmationRequestedString.length() > 0)
         {
             isMoveContactConfirmationRequested
-                = Boolean.parseBoolean(isMoveContactConfirmationRequestedString)
-                ;
+                = Boolean.parseBoolean(isMoveContactConfirmationRequestedString);
         }
 
         // Load the "isMultiChatWindowEnabled" property.
         String isMultiChatWindowEnabledStringProperty
             = "service.gui.IS_MULTI_CHAT_WINDOW_ENABLED";
-        
+
         String isMultiChatWindowEnabledString
             = configService.getString(isMultiChatWindowEnabledStringProperty);
-        
+
         if(isMultiChatWindowEnabledString == null)
             isMultiChatWindowEnabledString = 
                 GuiActivator.getResources().
@@ -181,10 +185,9 @@ public class ConfigurationManager
             && isMultiChatWindowEnabledString.length() > 0)
         {
             isMultiChatWindowEnabled
-                = Boolean.parseBoolean(isMultiChatWindowEnabledString)
-                ;
+                = Boolean.parseBoolean(isMultiChatWindowEnabledString);
         }
-        
+
         // Load the "isHistoryLoggingEnabled" property.
         String isHistoryLoggingEnabledString
             = configService.getString(
@@ -194,17 +197,16 @@ public class ConfigurationManager
             && isHistoryLoggingEnabledString.length() > 0)
         {
             isHistoryLoggingEnabled
-                = Boolean.parseBoolean(isHistoryLoggingEnabledString)
-                ;
+                = Boolean.parseBoolean(isHistoryLoggingEnabledString);
         }
-        
+
         // Load the "isHistoryShown" property.
         String isHistoryShownStringProperty = 
             "service.gui.IS_MESSAGE_HISTORY_SHOWN";
-        
+
         String isHistoryShownString
             = configService.getString(isHistoryShownStringProperty);
-        
+
         if(isHistoryShownString == null)
             isHistoryShownString = 
                 GuiActivator.getResources().
@@ -214,16 +216,15 @@ public class ConfigurationManager
             && isHistoryShownString.length() > 0)
         {
             isHistoryShown
-                = Boolean.parseBoolean(isHistoryShownString)
-                    ;
+                = Boolean.parseBoolean(isHistoryShownString);
         }
-        
+
         // Load the "chatHistorySize" property.
         String chatHistorySizeStringProperty =
             "service.gui.MESSAGE_HISTORY_SIZE";
         String chatHistorySizeString
             = configService.getString(chatHistorySizeStringProperty);
-        
+
         if(chatHistorySizeString == null)
             chatHistorySizeString = 
                 GuiActivator.getResources().
@@ -232,9 +233,7 @@ public class ConfigurationManager
         if(chatHistorySizeString != null
             && chatHistorySizeString.length() > 0)
         {
-            chatHistorySize
-                = new Integer(chatHistorySizeString)
-                .intValue();
+            chatHistorySize = Integer.parseInt(chatHistorySizeString);
         }
 
         // Load the "CHAT_WRITE_AREA_SIZE" property.
@@ -252,7 +251,7 @@ public class ConfigurationManager
             && chatWriteAreaSizeString.length() > 0)
         {
             chatWriteAreaSize
-                = new Integer(chatWriteAreaSizeString).intValue();
+                = Integer.parseInt(chatWriteAreaSizeString);
         }
 
         // Load the "isTransparentWindowEnabled" property.
@@ -290,7 +289,7 @@ public class ConfigurationManager
             && windowTransparencyString.length() > 0)
         {
             windowTransparency
-                = new Integer(windowTransparencyString).intValue();
+                = Integer.parseInt(windowTransparencyString);
         }
 
         // Load the "isWindowDecorated" property.
@@ -311,7 +310,7 @@ public class ConfigurationManager
             isWindowDecorated
                 = Boolean.parseBoolean(isWindowDecoratedString);
         }
-        
+
         // Load the "isChatToolbarVisible" property
         isChatToolbarVisible
             = configService.getBoolean(
@@ -507,6 +506,55 @@ public class ConfigurationManager
     public static String getLastContactParent()
     {
         return lastContactParent;
+    }
+
+    /**
+     * Returns the call conference provider used for the last conference call.
+     * @return the call conference provider used for the last conference call
+     */
+    public static ProtocolProviderService getLastCallConferenceProvider()
+    {
+        if (lastCallConferenceProvider != null)
+            return lastCallConferenceProvider;
+
+        // Obtain the "lastCallConferenceAccount" property from the
+        // configuration service
+        return findProviderFromAccountId(
+            configService.getString(
+            "net.java.sip.communicator.impl.gui.call.lastCallConferenceProvider"));
+    }
+
+    /**
+     * Returns the protocol provider associated with the given
+     * <tt>accountId</tt>.
+     * @param savedAccountId the identifier of the account
+     * @return the protocol provider associated with the given
+     * <tt>accountId</tt>
+     */
+    private static ProtocolProviderService findProviderFromAccountId(
+        String savedAccountId)
+    {
+        ProtocolProviderService protocolProvider = null;
+        for (ProtocolProviderFactory providerFactory : GuiActivator
+            .getProtocolProviderFactories().values())
+        {
+            ServiceReference serRef;
+
+            for (AccountID accountId : providerFactory.getRegisteredAccounts())
+            {
+                // We're interested only in the savedAccountId
+                if (!accountId.getAccountUniqueID().equals(savedAccountId))
+                    continue;
+
+                serRef = providerFactory.getProviderForAccount(accountId);
+
+                protocolProvider
+                    = (ProtocolProviderService) GuiActivator.bundleContext
+                            .getService(serRef);
+            }
+        }
+
+        return protocolProvider;
     }
 
     /**
@@ -746,6 +794,21 @@ public class ConfigurationManager
     }
 
     /**
+     * Sets the call conference provider used for the last conference call.
+     * @param protocolProvider the call conference provider used for the last
+     * conference call
+     */
+    public static void setLastCallConferenceProvider(
+        ProtocolProviderService protocolProvider)
+    {
+        lastCallConferenceProvider = protocolProvider;
+
+        configService.setProperty(
+            "net.java.sip.communicator.impl.gui.call.lastCallConferenceProvider",
+            protocolProvider.getAccountID().getAccountUniqueID());
+    }
+
+    /**
      * Saves a chat room through the <tt>ConfigurationService</tt>.
      * 
      * @param protocolProvider the protocol provider to which the chat room
@@ -909,7 +972,12 @@ public class ConfigurationManager
 
         return null;
     }
-    
+
+    /**
+     * Stores the last group <tt>status</tt> for the given <tt>groupID</tt>.
+     * @param groupID the ideintifier of the group
+     * @param status the status to store
+     */
     public static void storeContactListGroupStatus( String groupID,
                                                     boolean status)
     {
@@ -950,7 +1018,12 @@ public class ConfigurationManager
                                         Boolean.toString(status));
         }
     }
-    
+
+    /**
+     * Returns the last status of the group given by the <tt>groupID</tt>.
+     * @param groupID the identifier of the group
+     * @return the last group status (opened or closed)
+     */
     public static boolean getContactListGroupStatus(String groupID)
     {
         String prefix = "net.java.sip.communicator.impl.gui.contactlist.groups";
@@ -970,147 +1043,119 @@ public class ConfigurationManager
                 return Boolean.parseBoolean(status);
             }
         }
-        
+
         return false;
     }
 
+    /**
+     * Listens for changes of the properties.
+     */
     private static class ConfigurationChangeListener
             implements PropertyChangeListener
     {
         public void propertyChange(PropertyChangeEvent evt) 
         {
+            // All properties we're interested in here are Strings.
+            if (!(evt.getNewValue() instanceof String))
+                return;
+
+            String newValue = (String) evt.getNewValue();
+
             if (evt.getPropertyName().equals(
                 "net.java.sip.communicator.impl.gui.addcontact.lastContactParent"))
-                lastContactParent = (String)evt.getNewValue();
+            {
+                lastContactParent = newValue;
+            }
             else if (evt.getPropertyName().equals(
                 "service.gui.AUTO_POPUP_NEW_MESSAGE"))
             {
-                String autoPopupString = (String) evt.getNewValue();
-                
-                autoPopupNewMessage
-                    = Boolean.parseBoolean(autoPopupString);
+                autoPopupNewMessage = Boolean.parseBoolean(newValue);
             }
             else if (evt.getPropertyName().equals(
                 "service.gui.SEND_MESSAGE_COMMAND"))
             {
-                sendMessageCommand
-                    = (String) evt.getNewValue();
+                sendMessageCommand = newValue;
             }
             else if (evt.getPropertyName().equals(
                 "net.java.sip.communicator.impl.gui.showCallPanel"))
             {
-                String showCallPanelString = (String) evt.getNewValue();
-                
-                isCallPanelShown
-                    = Boolean.parseBoolean(showCallPanelString);
+                isCallPanelShown = Boolean.parseBoolean(newValue);
             }
             else if (evt.getPropertyName().equals(
                 "net.java.sip.communicator.impl.gui.showOffline"))
             {
-                String showOfflineString = (String) evt.getNewValue();
-                
-                isShowOffline
-                    = Boolean.parseBoolean(showOfflineString);
+                isShowOffline = Boolean.parseBoolean(newValue);
             }
             else if (evt.getPropertyName().equals(
                 "net.java.sip.communicator.impl.systray.showApplication"))
             {
-                String showApplicationString = (String) evt.getNewValue();
-
-                isApplicationVisible
-                    = new Boolean(showApplicationString).booleanValue();
+                isApplicationVisible = Boolean.parseBoolean(newValue);;
             }
             else if (evt.getPropertyName().equals(
                 "net.java.sip.communicator.impl.gui.quitWarningShown"))
             {
-                String showQuitWarningString = (String) evt.getNewValue();
-                
-                isQuitWarningShown
-                    = Boolean.parseBoolean(showQuitWarningString);
+                isQuitWarningShown = Boolean.parseBoolean(newValue);
             }
             else if (evt.getPropertyName().equals(
                 "service.gui.SEND_TYPING_NOTIFICATIONS_ENABLED"))
             {
-                String sendTypingNorifString = (String) evt.getNewValue();
-                
-                isSendTypingNotifications
-                    = Boolean.parseBoolean(sendTypingNorifString);
+                isSendTypingNotifications = Boolean.parseBoolean(newValue);
             }
             else if (evt.getPropertyName().equals(
                 "net.java.sip.communicator.impl.gui.isMoveContactConfirmationRequested"))
             {
-                String moveContactConfirmString = (String) evt.getNewValue();
-                
                 isMoveContactConfirmationRequested
-                    = Boolean.parseBoolean(moveContactConfirmString);
+                    = Boolean.parseBoolean(newValue);
             }
             else if (evt.getPropertyName().equals(
                 "service.gui.IS_MULTI_CHAT_WINDOW_ENABLED"))
             {
-                String multiChatWindowString = (String) evt.getNewValue();
-                
-                isMultiChatWindowEnabled
-                    = Boolean.parseBoolean(multiChatWindowString);
+                isMultiChatWindowEnabled = Boolean.parseBoolean(newValue);
             }
             else if (evt.getPropertyName().equals(
                 "net.java.sip.communicator.impl.gui.isHistoryLoggingEnabled"))
             {
-                String historyLoggingString = (String) evt.getNewValue();
-                
-                isHistoryLoggingEnabled
-                    = Boolean.parseBoolean(historyLoggingString);
+                isHistoryLoggingEnabled = Boolean.parseBoolean(newValue);
             }
             else if (evt.getPropertyName().equals(
                 "service.gui.IS_MESSAGE_HISTORY_SHOWN"))
             {
-                String historyShownString = (String) evt.getNewValue();
-                
-                isHistoryShown
-                    = Boolean.parseBoolean(historyShownString);
+                isHistoryShown = Boolean.parseBoolean(newValue);
             }
             else if (evt.getPropertyName().equals(
                 "service.gui.MESSAGE_HISTORY_SIZE"))
             {
-                String chatHistorySizeString = (String) evt.getNewValue();
-
-                chatHistorySize
-                    = new Integer(chatHistorySizeString).intValue();
+                chatHistorySize = Integer.parseInt(newValue);
             }
             else if (evt.getPropertyName().equals(
                 "net.java.sip.communicator.impl.gui.CHAT_WRITE_AREA_SIZE"))
             {
-                String chatWriteAreaSizeString = (String) evt.getNewValue();
-
-                chatWriteAreaSize
-                    = new Integer(chatWriteAreaSizeString).intValue();
+                chatWriteAreaSize = Integer.parseInt(newValue);
             }
             else if (evt.getPropertyName().equals(
                 "impl.gui.IS_TRANSPARENT_WINDOW_ENABLED"))
             {
-                String isTransparentString = (String) evt.getNewValue();
-
-                isTransparentWindowEnabled
-                    = Boolean.parseBoolean(isTransparentString);
+                isTransparentWindowEnabled = Boolean.parseBoolean(newValue);
             }
             else if (evt.getPropertyName().equals(
                 "impl.gui.WINDOW_TRANSPARENCY"))
             {
-                String windowTransparencyString = (String) evt.getNewValue();
-
-                windowTransparency
-                    = new Integer(windowTransparencyString).intValue();
+                windowTransparency = Integer.parseInt(newValue);
             }
             else if (evt.getPropertyName().equals(
                 "net.java.sip.communicator.impl.gui.chat.ChatWindow.showStylebar"))
             {
-                String chatBarString = (String) evt.getNewValue();
-                isChatStylebarVisible = Boolean.parseBoolean(chatBarString);
+                isChatStylebarVisible = Boolean.parseBoolean(newValue);
             }
             else if (evt.getPropertyName().equals(
                 "net.java.sip.communicator.impl.gui.chat.ChatWindow.showToolbar"))
             {
-                String chatBarString = (String) evt.getNewValue();
-                isChatToolbarVisible = Boolean.parseBoolean(chatBarString);
+                isChatToolbarVisible = Boolean.parseBoolean(newValue);
+            }
+            else if (evt.getPropertyName().equals(
+            "net.java.sip.communicator.impl.gui.call.lastCallConferenceProvider"))
+            {
+                lastCallConferenceProvider = findProviderFromAccountId(newValue);
             }
         }
     }

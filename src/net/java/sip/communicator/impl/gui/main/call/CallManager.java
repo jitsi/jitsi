@@ -21,8 +21,8 @@ import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>CallManager</tt> is the one that handles calls. It contains also
- * the "Call" and "Hangup" buttons panel. Here are handles incoming and outgoing
- * calls from and to the call operation set.
+ * the "Call" and "Hang up" buttons panel. Here are handles incoming and
+ * outgoing calls from and to the call operation set.
  *
  * @author Yana Stamcheva
  */
@@ -68,7 +68,7 @@ public class CallManager
         /**
          * Implements CallListener.callEnded. Stops sounds that are playing at
          * the moment if there're any. Removes the call panel and disables the
-         * hangup button.
+         * hang up button.
          */
         public void callEnded(CallEvent event)
         {
@@ -95,8 +95,7 @@ public class CallManager
             Call sourceCall = event.getSourceCall();
 
             CallDialog callDialog
-                = CallManager.openCallDialog(sourceCall,
-                    GuiCallPeerRecord.OUTGOING_CALL);
+                = CallManager.openCallDialog(sourceCall);
 
             activeCalls.put(sourceCall, callDialog);
         }
@@ -149,14 +148,13 @@ public class CallManager
      */
     public static void answerCall(final Call call)
     {
-        CallManager.openCallDialog(call,
-            GuiCallPeerRecord.INCOMING_CALL);
+        CallManager.openCallDialog(call);
 
         new AnswerCallThread(call).start();
     }
 
     /**
-     * Hangups the given call.
+     * Hang ups the given call.
      *
      * @param call the call to answer
      */
@@ -223,16 +221,13 @@ public class CallManager
      * Opens a call dialog.
      *
      * @param call the call object to pass to the call dialog
-     * @param callType the call type
      * @return the opened call dialog
      */
-    public static CallDialog openCallDialog(Call call, String callType)
+    public static CallDialog openCallDialog(Call call)
     {
-        CallDialog callDialog = new CallDialog(call, callType);
+        CallDialog callDialog = new CallDialog(call);
 
-        callDialog.pack();
-
-        callDialog.setVisible(true);
+        callDialog.setVisible(true, true);
 
         return callDialog;
     }
@@ -430,7 +425,7 @@ public class CallManager
     }
 
     /**
-     * Hangups all call peers in the given call.
+     * Hang-ups all call peers in the given call.
      */
     private static class HangupCallThread
         extends Thread

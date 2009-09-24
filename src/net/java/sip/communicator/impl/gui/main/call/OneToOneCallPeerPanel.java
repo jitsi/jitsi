@@ -37,8 +37,6 @@ public class OneToOneCallPeerPanel
         = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.DEFAULT_USER_PHOTO)));
 
-    private final JLabel timeLabel = new JLabel("00:00:00", JLabel.CENTER);
-
     private final String peerName;
 
     private final CallPeer callPeer;
@@ -232,13 +230,10 @@ public class OneToOneCallPeerPanel
             = new TransparentPanel(
                 new FlowLayout(FlowLayout.CENTER, 5, 0));
 
-        timeLabel.setForeground(Color.WHITE);
-
         statusIconsPanel.add(securityStatusLabel);
         statusIconsPanel.add(muteStatusLabel);
         statusIconsPanel.add(callStatusLabel);
 
-        statusPanel.add(timeLabel);
         statusPanel.add(statusIconsPanel);
 
         Component[] buttons =

@@ -20,8 +20,8 @@ import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * A custom frame that remembers its size and location and could have a semi
- * transparent background.
+ * A custom frame that remembers its size and location and could have a
+ * semi-transparent background.
  * 
  * @author Yana Stamcheva
  * @author Lubomir Marinov
@@ -41,6 +41,9 @@ public abstract class SIPCommFrame
 
     private KeybindingSet bindings = null;
 
+    /**
+     * Creates a <tt>SIPCommFrame</tt>.
+     */
     public SIPCommFrame()
     {
         this.setContentPane(new MainContentPane());
@@ -358,6 +361,26 @@ public abstract class SIPCommFrame
         {
             this.setSizeAndLocation();
 
+            this.ensureOnScreenLocationAndSize();
+        }
+
+        super.setVisible(isVisible);
+    }
+
+    /**
+     * Overwrites the setVisible method in order to set the size and the
+     * position of this window before showing it.
+     * @param isVisible indicates if this window will be made visible or will
+     * be hidden
+     * @param isPackEnabled indicates if the pack() method should be invoked
+     * before showing this window
+     */
+    public void setVisible(boolean isVisible, boolean isPackEnabled)
+    {
+        if (isVisible)
+        {
+            this.setSizeAndLocation();
+            this.pack();
             this.ensureOnScreenLocationAndSize();
         }
 
