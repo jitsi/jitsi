@@ -279,9 +279,7 @@ public class ChatWindow
         chatPanel.setShown(true);
 
         for (ChatChangeListener l : this.chatChangeListeners)
-        {
             l.chatChanged(chatPanel);
-        }
     }
 
     /**
@@ -311,49 +309,46 @@ public class ChatWindow
         {
             this.mainPanel.add(chatPanel, BorderLayout.CENTER);
         }
+        else if (getChatTabCount() == 0)
+        {
+            ChatSession firstChatSession = currentChatPanel.getChatSession();
+
+            // Add first two tabs to the tabbed pane.
+            chatTabbedPane.addTab(  firstChatSession.getChatName(),
+                                    firstChatSession.getChatStatusIcon(),
+                                    currentChatPanel);
+
+            chatTabbedPane.addTab(  chatName,
+                                    chatSession.getChatStatusIcon(),
+                                    chatPanel);
+
+            // When added to the tabbed pane, the first chat panel should
+            // rest the selected component.
+            chatTabbedPane.setSelectedComponent(currentChatPanel);
+
+            // Workaround for the following problem:
+            // The scrollbar in the conversation area moves up when the
+            // scrollpane is resized. This happens when ChatWindow is in
+            // mode "Group messages in one window" and the first chat panel
+            // is added to the tabbed pane. Then the scrollpane in the
+            // conversation area is slightly resized and is made smaller,
+            // which moves the scrollbar up.
+            currentChatPanel.setCaretToEnd();
+
+            //add the chatTabbedPane to the window
+            this.mainPanel.add(chatTabbedPane, BorderLayout.CENTER);
+            this.mainPanel.validate();
+        }
         else
         {
-            if (getChatTabCount() == 0)
-            {
-                ChatSession firstChatSession = currentChatPanel.getChatSession();
+            // The tabbed pane already contains tabs.
 
-                // Add first two tabs to the tabbed pane.
-                chatTabbedPane.addTab(  firstChatSession.getChatName(),
-                                        firstChatSession.getChatStatusIcon(),
-                                        currentChatPanel);
+            chatTabbedPane.addTab(
+                chatName,
+                chatSession.getChatStatusIcon(),
+                chatPanel);
 
-                chatTabbedPane.addTab(  chatName,
-                                        chatSession.getChatStatusIcon(),
-                                        chatPanel);
-
-                // When added to the tabbed pane, the first chat panel should
-                // rest the selected component.
-                chatTabbedPane.setSelectedComponent(currentChatPanel);
-
-                // Workaround for the following problem:
-                // The scrollbar in the conversation area moves up when the
-                // scrollpane is resized. This happens when ChatWindow is in
-                // mode "Group messages in one window" and the first chat panel
-                // is added to the tabbed pane. Then the scrollpane in the
-                // conversation area is slightly resized and is made smaller,
-                // which moves the scrollbar up.
-                currentChatPanel.setCaretToEnd();
-
-                //add the chatTabbedPane to the window
-                this.mainPanel.add(chatTabbedPane, BorderLayout.CENTER);
-                this.mainPanel.validate();
-            }
-            else
-            {
-                // The tabbed pane contains already tabs.
-
-                chatTabbedPane.addTab(
-                    chatName,
-                    chatSession.getChatStatusIcon(),
-                    chatPanel);
-
-                chatTabbedPane.getParent().validate();
-            }
+            chatTabbedPane.getParent().validate();
         }
     }
 

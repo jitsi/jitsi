@@ -32,7 +32,7 @@ public class ConferenceInviteDialog
 
     private Object lastSelectedAccount;
 
-    private Call call;
+    private final Call call;
 
     /**
      * Creates <tt>ConferenceInviteDialog</tt> by specifying the call, to which
@@ -85,11 +85,14 @@ public class ConferenceInviteDialog
         {
             public void actionPerformed(ActionEvent e)
             {
+                Object accountSelectorBoxSelectedItem
+                    = accountSelectorBox.getSelectedItem();
+
                 if (lastSelectedAccount == null
                     || !lastSelectedAccount
-                        .equals(accountSelectorBox.getSelectedItem()))
+                        .equals(accountSelectorBoxSelectedItem))
                 {
-                    lastSelectedAccount = accountSelectorBox.getSelectedItem();
+                    lastSelectedAccount = accountSelectorBoxSelectedItem;
 
                     initContactListData(
                         (ProtocolProviderService) accountSelectorBox
@@ -190,6 +193,7 @@ public class ConferenceInviteDialog
             }
         }
     }
+
     /**
      * Initializes the left contact list with the contacts that could be added
      * to the current chat session.

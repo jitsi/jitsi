@@ -58,9 +58,7 @@ public class ChatWindowManager
         {
             ChatWindow chatWindow = chatPanel.getChatWindow();
 
-            boolean isChatVisible = chatPanel.isShown();
-
-            if(!isChatVisible)
+            if(!chatPanel.isShown())
                 chatWindow.addChat(chatPanel);
 
             if(chatWindow.isVisible())
@@ -68,7 +66,7 @@ public class ChatWindowManager
                 if(chatWindow.getExtendedState() != JFrame.ICONIFIED)
                 {
                     if(ConfigurationManager.isAutoPopupNewMessage()
-                        || setSelected)
+                            || setSelected)
                         chatWindow.toFront();
                 }
                 else
@@ -79,9 +77,10 @@ public class ChatWindowManager
                         chatWindow.toFront();
                     }
 
-                    if(!chatWindow.getTitle().startsWith("*"))
-                        chatWindow.setTitle(
-                            "*" + chatWindow.getTitle());
+                    String chatWindowTitle = chatWindow.getTitle();
+
+                    if(!chatWindowTitle.startsWith("*"))
+                        chatWindow.setTitle("*" + chatWindowTitle);
                 }
 
                 if(setSelected)
@@ -91,7 +90,7 @@ public class ChatWindowManager
                 else if(!chatWindow.getCurrentChatPanel().equals(chatPanel)
                     && chatWindow.getChatTabCount() > 0)
                 {
-                    chatPanel.getChatWindow().highlightTab(chatPanel);
+                    chatWindow.highlightTab(chatPanel);
 
                     chatPanel.setCaretToEnd();
                 }
@@ -99,7 +98,6 @@ public class ChatWindowManager
             else
             {
                 chatWindow.setVisible(true);
-
                 chatWindow.setCurrentChatPanel(chatPanel);
 
                 chatPanel.setCaretToEnd();
@@ -201,7 +199,7 @@ public class ChatWindowManager
             return false;
         }
     }
-    
+
     /**
      * Returns TRUE if there is an opened <tt>ChatPanel</tt> for the given
      * <tt>AdHocChatRoom</tt>.
@@ -1074,6 +1072,8 @@ public class ChatWindowManager
 
     /**
      * Disposes the chat window.
+     *
+     * @param chatWindow the <tt>ChatWindow</tt> to dispose of
      */
     private void disposeChatWindow(ChatWindow chatWindow)
     {

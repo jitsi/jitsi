@@ -121,7 +121,7 @@ public class CallManager
     private static class DisposeCallDialogListener
         implements ActionListener
     {
-        private CallDialog callDialog;
+        private final CallDialog callDialog;
 
         public DisposeCallDialogListener(CallDialog callDialog)
         {
@@ -134,10 +134,8 @@ public class CallManager
 
             Call call = callDialog.getCall();
 
-            if(call != null && activeCalls.containsKey(call))
-            {
+            if(call != null)
                 activeCalls.remove(call);
-            }
         }
     }
 
@@ -238,17 +236,18 @@ public class CallManager
     private static class CreateCallThread
         extends Thread
     {
-        String stringContact;
+        private final String stringContact;
 
-        Contact contact;
+        private final Contact contact;
 
-        final ProtocolProviderService protocolProvider;
+        private final ProtocolProviderService protocolProvider;
 
         public CreateCallThread(ProtocolProviderService protocolProvider,
                                 String contact)
         {
             this.protocolProvider = protocolProvider;
             this.stringContact = contact;
+            this.contact = null;
         }
 
         public CreateCallThread(ProtocolProviderService protocolProvider,
@@ -256,6 +255,7 @@ public class CallManager
         {
             this.protocolProvider = protocolProvider;
             this.contact = contact;
+            this.stringContact = null;
         }
 
         public void run()
@@ -264,8 +264,16 @@ public class CallManager
                 = (OperationSetBasicTelephony) protocolProvider
                     .getOperationSet(OperationSetBasicTelephony.class);
 
+            /*
+             * XXX If we are here and we just discover that
+             * OperationSetBasicTelephony is not supported, then we're already
+             * in trouble. At the very least, we've already started a whole new
+             * thread just to check that a reference is null.
+             */
             if (telephonyOpSet == null)
                 return;
+
+            Throwable exception = null;
 
             try
             {
@@ -276,23 +284,23 @@ public class CallManager
             }
             catch (OperationFailedException e)
             {
-                logger.error("The call could not be created: " + e);
-
-                new ErrorDialog(null,
-                    GuiActivator.getResources()
-                        .getI18NString("service.gui.ERROR"),
-                    e.getMessage(),
-                    ErrorDialog.ERROR).showDialog();
+                exception = e;
             }
             catch (ParseException e)
             {
-                logger.error("The call could not be created: " + e);
+                exception = e;
+            }
+            if (exception != null)
+            {
+                logger.error("The call could not be created: " + exception);
 
-                new ErrorDialog(null,
-                    GuiActivator.getResources()
-                        .getI18NString("service.gui.ERROR"),
-                    e.getMessage(),
-                    ErrorDialog.ERROR).showDialog();
+                new ErrorDialog(
+                        null,
+                        GuiActivator.getResources()
+                            .getI18NString("service.gui.ERROR"),
+                        exception.getMessage(),
+                        ErrorDialog.ERROR)
+                    .showDialog();
             }
         }
     }
@@ -341,9 +349,9 @@ public class CallManager
     private static class CreateConferenceCallThread
         extends Thread
     {
-        String[] callees;
+        private final String[] callees;
 
-        final ProtocolProviderService protocolProvider;
+        private final ProtocolProviderService protocolProvider;
 
         public CreateConferenceCallThread(
                 String[] callees,
@@ -359,6 +367,12 @@ public class CallManager
             = (OperationSetTelephonyConferencing) protocolProvider
                 .getOperationSet(OperationSetTelephonyConferencing.class);
 
+            /*
+             * XXX If we are here and we just discover that
+             * OperationSetTelephonyConferencing is not supported, then we're
+             * already in trouble. At the very least, we've already started a
+             * whole new thread just to check that a reference is null.
+             */
             if (confOpSet == null)
                 return;
 
@@ -385,9 +399,9 @@ public class CallManager
     private static class InviteToConferenceCallThread
         extends Thread
     {
-        String[] callees;
+        private final String[] callees;
 
-        final Call call;
+        private final Call call;
 
         public InviteToConferenceCallThread(String[] callees, Call call)
         {
@@ -401,6 +415,12 @@ public class CallManager
             = (OperationSetTelephonyConferencing) call.getProtocolProvider()
                 .getOperationSet(OperationSetTelephonyConferencing.class);
 
+            /*
+             * XXX If we are here and we just discover that
+             * OperationSetTelephonyConferencing is not supported, then we're
+             * already in trouble. At the very least, we've already started a
+             * whole new thread just to check that a reference is null.
+             */
             if (confOpSet == null)
                 return;
 

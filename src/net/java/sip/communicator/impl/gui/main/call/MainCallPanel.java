@@ -218,7 +218,7 @@ public class MainCallPanel
             else if (!phoneNumberCombo.isComboFieldEmpty())
             {
                 // if no contact is selected checks if the user has chosen
-                // or has writen something in the phone combo box
+                // or has written something in the phone combo box
 
                 String stringContact = phoneNumberCombo.getEditor()
                     .getItem().toString();
