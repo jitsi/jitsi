@@ -374,6 +374,12 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.DIAL_BUTTON");
 
     /**
+     * A dial button icon. The icon shown in the CallPeer panel.
+     */
+    public static final ImageID ADD_TO_CALL_BUTTON
+        = new ImageID("service.gui.buttons.ADD_TO_CALL_BUTTON");
+
+    /**
      * A put-on/off-hold button icon. The icon shown in the CallPeer
      * panel.
      */

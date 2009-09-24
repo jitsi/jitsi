@@ -76,6 +76,7 @@ public class MainCallPanel
 
     /**
      * Initializes and constructs this panel.
+     * @param mainFrame the main application window
      */
     public MainCallPanel(MainFrame mainFrame)
     {
@@ -211,7 +212,7 @@ public class MainCallPanel
                         = telephonyContacts.toArray(contactAddressStrings);
 
                     CallManager.createConferenceCall(
-                        protocolProvider, contactAddressStrings);
+                        contactAddressStrings, protocolProvider);
                 }
             }
             else if (!phoneNumberCombo.isComboFieldEmpty())
@@ -276,6 +277,7 @@ public class MainCallPanel
 
     /**
      * Gets the protocol provider used for making calls.
+     * @return the protocol provider service
      */
     public ProtocolProviderService getCallProvider()
     {

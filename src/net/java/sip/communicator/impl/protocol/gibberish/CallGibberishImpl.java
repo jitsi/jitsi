@@ -29,7 +29,11 @@ public class CallGibberishImpl
      */
     private Vector<CallPeer> callPeers = new Vector<CallPeer>();
 
-
+    /**
+     * Creates a <tt>CallGibberishImpl</tt> by specifying the
+     * <tt>sourceProvider</tt>.
+     * @param sourceProvider the source provider
+     */
     public CallGibberishImpl(
         ProtocolProviderServiceGibberishImpl sourceProvider)
     {
@@ -39,8 +43,7 @@ public class CallGibberishImpl
     /**
      * Returns an iterator over all call peers.
      *
-     * @return an Iterator over all peers currently involved in the
-     *   call.
+     * @return an Iterator over all peers currently involved in the call.
      */
     public Iterator<CallPeer> getCallPeers()
     {
@@ -50,7 +53,7 @@ public class CallGibberishImpl
     /**
      * Returns the number of peers currently associated with this call.
      *
-     * @return an <tt>int</tt> indicating the number of peers
+     * @return an <code>int</code> indicating the number of peers
      *   currently associated with this call.
      */
     public int getCallPeerCount()
@@ -121,19 +124,14 @@ public class CallGibberishImpl
     }
 
     public void peerDisplayNameChanged(CallPeerChangeEvent evt)
-    {
-    }
+    {}
 
     public void peerAddressChanged(CallPeerChangeEvent evt)
-    {
-    }
+    {}
 
     public void peerImageChanged(CallPeerChangeEvent evt)
-    {
-    }
+    {}
 
-    public void peerTransportAddressChanged(CallPeerChangeEvent
-        evt)
-    {
-    }
+    public void peerTransportAddressChanged(CallPeerChangeEvent evt)
+    {}
 }

@@ -32,15 +32,20 @@ public class ConferenceInviteDialog
 
     private Object lastSelectedAccount;
 
+    private Call call;
+
     /**
-     * Constructs the <tt>ChatInviteDialog</tt>.
+     * Creates <tt>ConferenceInviteDialog</tt> by specifying the call, to which
+     * the contacts are invited.
      *
-     * <tt>ChatRoom</tt>, where the contact is invited.
+     * @param call the call to which the contacts are invited
      */
-    public ConferenceInviteDialog ()
+    public ConferenceInviteDialog(Call call)
     {
         super(GuiActivator.getResources()
             .getI18NString("service.gui.INVITE_CONTACT_TO_CALL"));
+
+        this.call = call;
 
         JLabel accountSelectorLabel = new JLabel(
             GuiActivator.getResources().getI18NString("service.gui.CALL_VIA"));
@@ -129,23 +134,42 @@ public class ConferenceInviteDialog
     }
 
     /**
+     * Constructs the <tt>ConferenceInviteDialog</tt>.
+     */
+    public ConferenceInviteDialog()
+    {
+        this(null);
+    }
+
+    /**
      * Initializes the account list.
      */
     private void initAccountListData()
     {
-        Iterator<ProtocolProviderService> protocolProviders
-            = GuiActivator.getUIService()
-                .getMainFrame().getProtocolProviders();
-
-        while(protocolProviders.hasNext())
+        // If we have a specified call, we'll have only one provider in the
+        // box.
+        if (call != null)
         {
-            ProtocolProviderService protocolProvider = protocolProviders.next();
+            accountSelectorBox.addItem(call.getProtocolProvider());
+            accountSelectorBox.setEnabled(false);
+        }
+        else
+        {
+            Iterator<ProtocolProviderService> protocolProviders
+                = GuiActivator.getUIService()
+                    .getMainFrame().getProtocolProviders();
 
-            OperationSet opSet = protocolProvider
-                .getOperationSet(OperationSetTelephonyConferencing.class);
+            while(protocolProviders.hasNext())
+            {
+                ProtocolProviderService protocolProvider
+                    = protocolProviders.next();
 
-            if (opSet != null && protocolProvider.isRegistered())
-                accountSelectorBox.addItem(protocolProvider);
+                OperationSet opSet = protocolProvider
+                    .getOperationSet(OperationSetTelephonyConferencing.class);
+
+                if (opSet != null && protocolProvider.isRegistered())
+                    accountSelectorBox.addItem(protocolProvider);
+            }
         }
 
         // Select the first possible account.
@@ -215,7 +239,14 @@ public class ConferenceInviteDialog
                 = selectedContactAddresses.toArray(contactAddressStrings);
         }
 
-        CallManager.createConferenceCall(
-            selectedProvider, contactAddressStrings);
+        if (call != null)
+        {
+            CallManager.inviteToConferenceCall(contactAddressStrings, call);
+        }
+        else
+        {
+            CallManager.createConferenceCall(
+                contactAddressStrings, selectedProvider);
+        }
     }
 }

@@ -36,6 +36,8 @@ public class CallDialog
 {
     private static final String DIAL_BUTTON = "DIAL_BUTTON";
 
+    private static final String CONFERENCE_BUTTON = "CONFERENCE_BUTTON";
+
     private static final String HANGUP_BUTTON = "HANGUP_BUTTON";
 
     private DialpadDialog dialpadDialog;
@@ -108,6 +110,10 @@ public class CallDialog
             ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
             ImageLoader.getImage(ImageLoader.DIAL_BUTTON));
 
+        SIPCommButton conferenceButton = new SIPCommButton(
+            ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
+            ImageLoader.getImage(ImageLoader.ADD_TO_CALL_BUTTON));
+
         holdButton = new HoldButton(call);
         muteButton = new MuteButton(call);
         videoButton = new LocalVideoButton(call);
@@ -118,6 +124,13 @@ public class CallDialog
         dialButton.addActionListener(this);
         dialButton.addMouseListener(this);
 
+        conferenceButton.setName(CONFERENCE_BUTTON);
+        conferenceButton.setToolTipText(
+            GuiActivator.getResources().getI18NString(
+                "service.gui.CREATE_CONFERENCE_CALL"));
+        conferenceButton.addActionListener(this);
+        conferenceButton.addMouseListener(this);
+
         contentPane.add(callPanel, BorderLayout.CENTER);
         contentPane.add(buttonsPanel, BorderLayout.SOUTH);
 
@@ -127,6 +140,7 @@ public class CallDialog
         hangupButton.addActionListener(this);
 
         settingsPanel.add(dialButton);
+        settingsPanel.add(conferenceButton);
         settingsPanel.add(holdButton);
         settingsPanel.add(muteButton);
 
@@ -175,6 +189,13 @@ public class CallDialog
             {
                 dialpadDialog.setVisible(false);
             }
+        }
+        else if (buttonName.equals(CONFERENCE_BUTTON))
+        {
+            ConferenceInviteDialog inviteDialog
+                = new ConferenceInviteDialog(call);
+
+            inviteDialog.setVisible(true);
         }
     }
 

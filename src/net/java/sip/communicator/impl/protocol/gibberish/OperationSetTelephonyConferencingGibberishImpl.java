@@ -38,10 +38,17 @@ public class OperationSetTelephonyConferencingGibberishImpl
     private final OperationSetBasicTelephonyGibberishImpl telephonyOpSet;
 
     /**
-     * A table mapping call ids against call instances.
+     * A table mapping call id-s against call instances.
      */
     private Hashtable<String, Call> activeCalls = new Hashtable<String, Call>();
 
+    /**
+     * Creates an <tt>OperationSetTelephonyConferencingGibberishImpl</tt> by
+     * specifying the protocol <tt>provider</tt> and the according
+     * <tt>telephonyOpSet</tt>.
+     * @param provider the protocol provider
+     * @param telephonyOpSet the according telephony operation set
+     */
     public OperationSetTelephonyConferencingGibberishImpl(
         ProtocolProviderServiceGibberishImpl provider,
         OperationSetBasicTelephonyGibberishImpl telephonyOpSet)
@@ -50,6 +57,10 @@ public class OperationSetTelephonyConferencingGibberishImpl
         this.telephonyOpSet = telephonyOpSet;
     }
 
+    /**
+     * Creates a conference call with the given list of <tt>callees</tt>
+     * @param callees the list of callees to invite in the call
+     */
     public Call createConfCall(String[] callees)
         throws OperationNotSupportedException
     {
@@ -71,10 +82,22 @@ public class OperationSetTelephonyConferencingGibberishImpl
         return newCall;
     }
 
-    public CallPeer inviteCalleeToCall(String uri, Call existingCall)
+    /**
+     * Invites the given <tt>callee</tt> to the given <tt>existingCall</tt>.
+     * @param callee the address of the callee to invite
+     * @param existingCall the call, to which she will be invited
+     */
+    public CallPeer inviteCalleeToCall(String callee, Call existingCall)
         throws OperationNotSupportedException
     {
-        return null;
+        CallGibberishImpl gibberishCall = (CallGibberishImpl) existingCall;
+
+        CallPeerGibberishImpl callPeer
+            = new CallPeerGibberishImpl(callee, gibberishCall);
+
+        gibberishCall.addCallPeer(callPeer);
+
+        return callPeer;
     }
 
     public void callPeerAdded(CallPeerEvent evt)

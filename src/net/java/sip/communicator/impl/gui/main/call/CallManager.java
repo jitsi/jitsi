@@ -200,10 +200,23 @@ public class CallManager
      * @param callees the list of contacts to call to
      */
     public static void createConferenceCall(
-            ProtocolProviderService protocolProvider,
-            String[] callees)
+        String[] callees,
+        ProtocolProviderService protocolProvider)
     {
-        new CreateConferenceCallThread(protocolProvider, callees).start();
+        new CreateConferenceCallThread(callees, protocolProvider).start();
+    }
+
+    /**
+     * Invites the given list of <tt>callees</tt> to the given conference
+     * <tt>call</tt>.
+     *
+     * @param callees the list of contacts to invite
+     * @param call the protocol provider to which this call belongs
+     */
+    public static void inviteToConferenceCall(  String[] callees,
+                                                Call call)
+    {
+        new InviteToConferenceCallThread(callees, call).start();
     }
 
     /**
@@ -338,11 +351,11 @@ public class CallManager
         final ProtocolProviderService protocolProvider;
 
         public CreateConferenceCallThread(
-                ProtocolProviderService protocolProvider,
-                String[] callees)
+                String[] callees,
+                ProtocolProviderService protocolProvider)
         {
-            this.protocolProvider = protocolProvider;
             this.callees = callees;
+            this.protocolProvider = protocolProvider;
         }
 
         public void run()
@@ -367,6 +380,51 @@ public class CallManager
                         .getI18NString("service.gui.ERROR"),
                     e.getMessage(),
                     ErrorDialog.ERROR).showDialog();
+            }
+        }
+    }
+
+    /**
+     * Invites a list of callees to a conference call.
+     */
+    private static class InviteToConferenceCallThread
+        extends Thread
+    {
+        String[] callees;
+
+        final Call call;
+
+        public InviteToConferenceCallThread(String[] callees, Call call)
+        {
+            this.callees = callees;
+            this.call = call;
+        }
+
+        public void run()
+        {
+            OperationSetTelephonyConferencing confOpSet
+            = (OperationSetTelephonyConferencing) call.getProtocolProvider()
+                .getOperationSet(OperationSetTelephonyConferencing.class);
+
+            if (confOpSet == null)
+                return;
+
+            for (String callee : callees)
+            {
+                try
+                {
+                    confOpSet.inviteCalleeToCall(callee, call);
+                }
+                catch (OperationNotSupportedException e)
+                {
+                    logger.error("Failed to invite callee: " + callee, e);
+
+                    new ErrorDialog(null,
+                        GuiActivator.getResources()
+                            .getI18NString("service.gui.ERROR"),
+                        e.getMessage(),
+                        ErrorDialog.ERROR).showDialog();
+                }
             }
         }
     }
