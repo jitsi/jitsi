@@ -90,7 +90,7 @@ public class OtrConfigurationPanel
             public AccountID getSelectedAccountID()
             {
                 Object selectedItem = this.getSelectedItem();
-                if (selectedItem instanceof AccountsComboBox)
+                if (selectedItem instanceof AccountsComboBoxItem)
                     return ((AccountsComboBoxItem) selectedItem).accountID;
                 else
                     return null;
