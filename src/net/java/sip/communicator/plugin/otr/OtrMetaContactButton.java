@@ -20,6 +20,9 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
+ * A {@link AbstractPluginComponent} that registers the Off-the-Record button in
+ * the main chat toolbar.
+ * 
  * @author George Politis
  */
 public class OtrMetaContactButton
@@ -29,41 +32,35 @@ public class OtrMetaContactButton
 
     private Contact contact;
 
-    public OtrMetaContactButton(Container container)
+    private ScOtrEngineListener scOtrEngineListener = new ScOtrEngineListener()
     {
-        super(container);
-
-        OtrActivator.scOtrEngine.addListener(new ScOtrEngineListener()
+        public void sessionStatusChanged(Contact contact)
         {
-            public void sessionStatusChanged(Contact contact)
+            // OtrMetaContactButton.this.contact can be null.
+            if (contact.equals(OtrMetaContactButton.this.contact))
             {
-                // OtrMetaContactButton.this.contact can be null.
-                if (contact.equals(OtrMetaContactButton.this.contact))
-                {
-                    setStatus(OtrActivator.scOtrEngine
-                        .getSessionStatus(contact));
-                }
+                setStatus(OtrActivator.scOtrEngine.getSessionStatus(contact));
             }
+        }
 
-            public void contactPolicyChanged(Contact contact)
+        public void contactPolicyChanged(Contact contact)
+        {
+            // OtrMetaContactButton.this.contact can be null.
+            if (contact.equals(OtrMetaContactButton.this.contact))
             {
-                // OtrMetaContactButton.this.contact can be null.
-                if (contact.equals(OtrMetaContactButton.this.contact))
-                {
-                    setPolicy(OtrActivator.scOtrEngine
-                        .getContactPolicy(contact));
-                }
+                setPolicy(OtrActivator.scOtrEngine.getContactPolicy(contact));
             }
+        }
 
-            public void globalPolicyChanged()
-            {
-                if (OtrMetaContactButton.this.contact != null)
-                    setPolicy(OtrActivator.scOtrEngine
-                        .getContactPolicy(contact));
-            }
-        });
+        public void globalPolicyChanged()
+        {
+            if (OtrMetaContactButton.this.contact != null)
+                setPolicy(OtrActivator.scOtrEngine.getContactPolicy(contact));
+        }
+    };
 
-        OtrActivator.scOtrKeyManager.addListener(new ScOtrKeyManagerListener()
+    private ScOtrKeyManagerListener scOtrKeyManagerListener =
+        new ScOtrKeyManagerListener()
         {
             public void contactVerificationStatusChanged(Contact contact)
             {
@@ -74,7 +71,20 @@ public class OtrMetaContactButton
                         .getSessionStatus(contact));
                 }
             }
-        });
+        };
+
+    public OtrMetaContactButton(Container container)
+    {
+        super(container);
+
+        OtrActivator.scOtrEngine.addListener(scOtrEngineListener);
+        OtrActivator.scOtrKeyManager.addListener(scOtrKeyManagerListener);
+    }
+
+    void dispose()
+    {
+        OtrActivator.scOtrEngine.removeListener(scOtrEngineListener);
+        OtrActivator.scOtrKeyManager.removeListener(scOtrKeyManagerListener);
     }
 
     /**
@@ -137,9 +147,12 @@ public class OtrMetaContactButton
         return "";
     }
 
+    /*
+     * Implements PluginComponent#setCurrentContact(Contact).
+     */
     public void setCurrentContact(Contact contact)
     {
-        if (this.contact == contact) 
+        if (this.contact == contact)
             return;
 
         this.contact = contact;
@@ -155,27 +168,40 @@ public class OtrMetaContactButton
         }
     }
 
+    /*
+     * Implements PluginComponent#setCurrentContact(MetaContact).
+     */
     public void setCurrentContact(MetaContact metaContact)
     {
-        setCurrentContact(
-            (metaContact == null) ? null : metaContact.getDefaultContact());
+        setCurrentContact((metaContact == null) ? null : metaContact
+            .getDefaultContact());
     }
 
+    /**
+     * Sets the button enabled status according to the passed in
+     * {@link OtrPolicy}.
+     * 
+     * @param otrPolicy the {@link OtrPolicy}.
+     */
     private void setPolicy(OtrPolicy contactPolicy)
     {
         getButton().setEnabled(
             contactPolicy != null && contactPolicy.getEnableManual());
     }
 
+    /**
+     * Sets the button icon according to the passed in {@link SessionStatus}.
+     * 
+     * @param otrPolicy the {@link SessionStatus}.
+     */
     private void setStatus(SessionStatus status)
     {
         String urlKey;
         switch (status)
         {
         case ENCRYPTED:
-            urlKey
-                = OtrActivator.scOtrKeyManager.isVerified(contact)
-                    ? "plugin.otr.ENCRYPTED_ICON_22x22"
+            urlKey =
+                OtrActivator.scOtrKeyManager.isVerified(contact) ? "plugin.otr.ENCRYPTED_ICON_22x22"
                     : "plugin.otr.ENCRYPTED_UNVERIFIED_ICON_22x22";
             break;
         case FINISHED:
@@ -190,10 +216,8 @@ public class OtrMetaContactButton
 
         try
         {
-            getButton()
-                .setImage(
-                    ImageIO.read(
-                        OtrActivator.resourceService.getImageURL(urlKey)));
+            getButton().setImage(
+                ImageIO.read(OtrActivator.resourceService.getImageURL(urlKey)));
         }
         catch (IOException e)
         {
