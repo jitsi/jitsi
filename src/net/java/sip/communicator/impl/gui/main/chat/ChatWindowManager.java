@@ -27,14 +27,13 @@ import net.java.sip.communicator.service.protocol.*;
  */
 public class ChatWindowManager
 {
-    private final java.util.List<ChatPanel> chatPanels =
-        new ArrayList<ChatPanel>();
+    private final java.util.List<ChatPanel> chatPanels
+        = new ArrayList<ChatPanel>();
 
     private final Object syncChat = new Object();
 
     /**
-     * Opens the specified chatPanel and brings it to the front if so
-     * specified.
+     * Opens the specified chatPanel and brings it to the front if so specified.
      *
      * @param chatPanel the chat panel that we will be opening
      * @param setSelected specifies whether we should bring the chat to front
@@ -106,73 +105,75 @@ public class ChatWindowManager
     }
 
     /**
-     * Returns TRUE if there is an opened <tt>ChatPanel</tt> for the given
-     * <tt>MetaContact</tt>.
+     * Returns <tt>true</tt> if there is an opened <tt>ChatPanel</tt> for the
+     * given <tt>MetaContact</tt>.
+     *
      * @param metaContact the <tt>MetaContact</tt>, for which the chat is about
-     * @return TRUE if there is an opened <tt>ChatPanel</tt> for the given
-     * <tt>MetaContact</tt>
+     * @return <tt>true</tt> if there is an opened <tt>ChatPanel</tt> for the
+     * given <tt>MetaContact</tt>
      */
-    public boolean isChatOpenedForContact(MetaContact metaContact)
+    public boolean isChatOpenedFor(MetaContact metaContact)
     {
-        synchronized (syncChat)
-        {
-            ChatSession chatSession = findChatSessionForDescriptor(metaContact);
-
-            return (chatSession != null
-                && getChat(chatSession).isShown());
-        }
+        return isChatOpenedForDescriptor(metaContact);
     }
     
     /**
-     * Returns TRUE if there is an opened <tt>ChatPanel</tt> for the given
-     * <tt>AdHocChatRoom</tt>.
+     * Returns <tt>true</tt> if there is an opened <tt>ChatPanel</tt> for the
+     * given <tt>AdHocChatRoom</tt>.
      * 
-     * @param adHocChatRoomWrapper the <tt>AdHocChatRoomWrapper</tt>, for which the 
-     * ad-hoc chat is about
-     * @return TRUE if there is an opened <tt>ChatPanel</tt> for the given
-     * <tt>AdHocChatRoom</tt>
+     * @param adHocChatRoomWrapper the <tt>AdHocChatRoomWrapper</tt> for which
+     * the ad-hoc chat is about
+     * @return <tt>true</tt> if there is an opened <tt>ChatPanel</tt> for the
+     * given <tt>AdHocChatRoom</tt>
      */
-    public boolean isChatOpenedForAdHocChatRoom(
-            AdHocChatRoomWrapper adHocChatRoomWrapper)
+    public boolean isChatOpenedFor(AdHocChatRoomWrapper adHocChatRoomWrapper)
     {
-        synchronized (syncChat)
-        {
-            ChatSession chatSession
-                = findChatSessionForDescriptor(adHocChatRoomWrapper);
-
-            return (chatSession != null
-                && getChat(chatSession).isShown());
-        }
+        return isChatOpenedForDescriptor(adHocChatRoomWrapper);
     }
 
     /**
-     * Returns TRUE if there is an opened <tt>ChatPanel</tt> for the given
-     * <tt>ChatRoom</tt>.
+     * Returns <tt>true</tt> if there is an opened <tt>ChatPanel</tt> for the
+     * given <tt>ChatRoom</tt>.
+     *
      * @param chatRoomWrapper the <tt>ChatRoomWrapper</tt>, for which the chat
      * is about
-     * @return TRUE if there is an opened <tt>ChatPanel</tt> for the given
-     * <tt>ChatRoom</tt>
+     * @return <tt>true</tt> if there is an opened <tt>ChatPanel</tt> for the
+     * given <tt>ChatRoom</tt>
      */
-    public boolean isChatOpenedForChatRoom(ChatRoomWrapper chatRoomWrapper)
+    public boolean isChatOpenedFor(ChatRoomWrapper chatRoomWrapper)
+    {
+        return isChatOpenedForDescriptor(chatRoomWrapper);
+    }
+
+    /**
+     * Determines whether there is an opened <tt>ChatPanel</tt> for a specific
+     * chat descriptor.
+     *
+     * @param descriptor the chat descriptor which is to be checked whether
+     * there is an opened <tt>ChatPanel</tt> for
+     * @return <tt>true</tt> if there is an opened <tt>ChatPanel</tt> for the
+     * specified chat descriptor; <tt>false</tt>, otherwise
+     */
+    private boolean isChatOpenedForDescriptor(Object descriptor)
     {
         synchronized (syncChat)
         {
             ChatSession chatSession
-                = findChatSessionForDescriptor(chatRoomWrapper);
+                = findChatSessionForDescriptor(descriptor);
 
-            return (chatSession != null
-                && getChat(chatSession).isShown());
+            return ((chatSession != null) && getChat(chatSession).isShown());
         }
     }
 
     /**
-     * Returns TRUE if there is an opened <tt>ChatPanel</tt> for the given
-     * <tt>ChatRoom</tt>.
+     * Returns <tt>true</tt> if there is an opened <tt>ChatPanel</tt> for the
+     * given <tt>ChatRoom</tt>.
+     *
      * @param chatRoom the <tt>ChatRoom</tt>, for which the chat is about
-     * @return TRUE if there is an opened <tt>ChatPanel</tt> for the given
-     * <tt>ChatRoom</tt>
+     * @return <tt>true</tt> if there is an opened <tt>ChatPanel</tt> for the
+     * given <tt>ChatRoom</tt>
      */
-    public boolean isChatOpenedForChatRoom(ChatRoom chatRoom)
+    public boolean isChatOpenedFor(ChatRoom chatRoom)
     {
         synchronized (syncChat)
         {
@@ -201,15 +202,15 @@ public class ChatWindowManager
     }
 
     /**
-     * Returns TRUE if there is an opened <tt>ChatPanel</tt> for the given
-     * <tt>AdHocChatRoom</tt>.
+     * Returns <tt>true</tt> if there is an opened <tt>ChatPanel</tt> for the
+     * given <tt>AdHocChatRoom</tt>.
      * 
      * @param adHocChatRoom the <tt>AdHocChatRoom</tt>, for which the ad-hoc 
      * chat is about
-     * @return TRUE if there is an opened <tt>ChatPanel</tt> for the given
-     * <tt>AdHocChatRoom</tt>
+     * @return <tt>true</tt> if there is an opened <tt>ChatPanel</tt> for the
+     * given <tt>AdHocChatRoom</tt>
      */
-    public boolean isChatOpenedForAdHocChatRoom(AdHocChatRoom adHocChatRoom)
+    public boolean isChatOpenedFor(AdHocChatRoom adHocChatRoom)
     {
         synchronized (syncChat)
         {
@@ -333,7 +334,8 @@ public class ChatWindowManager
 
     /**
      * Closes the chat window. Removes all contained chats and invokes
-     * setVisible(false) to the window.
+     * <code>setVisible(false)</code> to the window.
+     * 
      * @param chatWindow the chat window
      */
     public void closeWindow(ChatWindow chatWindow)
@@ -469,17 +471,7 @@ public class ChatWindowManager
     public ChatPanel getContactChat(MetaContact metaContact,
                                     Contact protocolContact)
     {
-        synchronized (syncChat)
-        {
-            ChatSession chatSession = findChatSessionForDescriptor(metaContact);
-
-            if(chatSession != null)
-            {
-                return getChat(chatSession);
-            }
-            else
-                return createChat(metaContact, protocolContact);
-        }
+        return getContactChat(metaContact, protocolContact, null);
     }
 
     /**
@@ -500,9 +492,7 @@ public class ChatWindowManager
             ChatSession chatSession = findChatSessionForDescriptor(metaContact);
 
             if(chatSession != null)
-            {
                 return getChat(chatSession);
-            }
             else
                 return createChat(  metaContact,
                                     protocolContact,
@@ -512,6 +502,7 @@ public class ChatWindowManager
 
     /**
      * Returns the currently selected <tt>ChatPanel</tt>.
+     *
      * @return the currently selected <tt>ChatPanel</tt>
      */
     public ChatPanel getSelectedChat()
@@ -559,12 +550,10 @@ public class ChatWindowManager
         synchronized (syncChat)
         {
             ChatSession chatSession
-            = findChatSessionForDescriptor(chatRoomWrapper);
+                = findChatSessionForDescriptor(chatRoomWrapper);
 
             if(chatSession != null)
-            {
                 return getChat(chatSession);
-            }
             else
                 return createChat(chatRoomWrapper);
         }
@@ -744,23 +733,17 @@ public class ChatWindowManager
      * supports offline messaging.
      *
      * @param metaContact the meta contact for the chat
-     *
      * @return the newly created ChatPanel
      */
     private ChatPanel createChat(MetaContact metaContact)
     {
         Contact defaultContact = metaContact.getDefaultContact();
-
         ProtocolProviderService defaultProvider
             = defaultContact.getProtocolProvider();
-
-        OperationSetBasicInstantMessaging
-            defaultIM = (OperationSetBasicInstantMessaging)
-                defaultProvider.getOperationSet(
-                        OperationSetBasicInstantMessaging.class);
-
-        ProtocolProviderService protoContactProvider;
-        OperationSetBasicInstantMessaging protoContactIM;
+        OperationSetBasicInstantMessaging defaultIM
+            = (OperationSetBasicInstantMessaging)
+                defaultProvider
+                    .getOperationSet(OperationSetBasicInstantMessaging.class);
 
         if (defaultContact.getPresenceStatus().getStatus() < 1
                 && (!defaultIM.isOfflineMessagingSupported()
@@ -771,12 +754,13 @@ public class ChatWindowManager
             while(protoContacts.hasNext())
             {
                 Contact contact = protoContacts.next();
-
-                protoContactProvider = contact.getProtocolProvider();
-
-                protoContactIM = (OperationSetBasicInstantMessaging)
-                    protoContactProvider.getOperationSet(
-                        OperationSetBasicInstantMessaging.class);
+                ProtocolProviderService protoContactProvider
+                    = contact.getProtocolProvider();
+                OperationSetBasicInstantMessaging protoContactIM
+                    = (OperationSetBasicInstantMessaging)
+                        protoContactProvider
+                            .getOperationSet(
+                                OperationSetBasicInstantMessaging.class);
 
                 if(protoContactIM.isOfflineMessagingSupported()
                         && protoContactProvider.isRegistered())
@@ -786,27 +770,12 @@ public class ChatWindowManager
             }
         }
 
-        return createChat(metaContact, defaultContact);
-    }
-
-
-    /**
-     * Creates a <tt>ChatPanel</tt> for the given contact and saves it in the
-     * list ot created <tt>ChatPanel</tt>s.
-     *
-     * @param contact The MetaContact for this chat.
-     * @param protocolContact The protocol contact.
-     * @return The <code>ChatPanel</code> newly created.
-     */
-    private ChatPanel createChat(MetaContact contact,
-                                            Contact protocolContact)
-    {
-        return createChat(contact, protocolContact, null);
+        return createChat(metaContact, defaultContact, null);
     }
 
     /**
      * Creates a <tt>ChatPanel</tt> for the given contact and saves it in the
-     * list ot created <tt>ChatPanel</tt>s.
+     * list of created <tt>ChatPanel</tt>s.
      *
      * @param metaContact The MetaContact for this chat.
      * @param protocolContact The protocol contact.
@@ -1036,12 +1005,12 @@ public class ChatWindowManager
     }
 
     /**
-     * Returns TRUE if this chat window contains the given chatPanel,
-     * FALSE otherwise.
+     * Returns <tt>true</tt> if this chat window contains the given chatPanel;
+     * <tt>false</tt>, otherwise.
      *
      * @param chatPanel the chat panel that we're looking for.
-     * @return TRUE if this chat window contains the given chatPanel,
-     * FALSE otherwise
+     * @return <tt>true</tt> if this chat window contains the given chatPanel;
+     * <tt>false</tt>, otherwise
      */
     private boolean containsChat(ChatPanel chatPanel)
     {

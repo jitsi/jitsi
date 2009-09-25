@@ -17,13 +17,13 @@ import net.java.sip.communicator.service.protocol.*;
  */
 public class AdHocChatRoomWrapper
 {
-    private AdHocChatRoomProviderWrapper parentProvider;
+    private final AdHocChatRoomProviderWrapper parentProvider;
 
     private AdHocChatRoom adHocChatRoom;
 
-    private String adHocChatRoomName;
+    private final String adHocChatRoomName;
 
-    private String adHocChatRoomID;
+    private final String adHocChatRoomID;
 
     /**
      * Creates a <tt>AdHocChatRoomWrapper</tt> by specifying the protocol 
@@ -91,16 +91,6 @@ public class AdHocChatRoomWrapper
     }
 
     /**
-     * Sets the ad-hoc chat room name.
-     * 
-     * @param adHocChatRoomName the name of the ad-hoc chat room
-     */
-    public void setAdHocChatRoomName(String adHocChatRoomName)
-    {
-        this.adHocChatRoomName = adHocChatRoomName;
-    }
-
-    /**
      * Returns the identifier of the ad-hoc chat room.
      * 
      * @return the identifier of the ad-hoc chat room
@@ -108,16 +98,6 @@ public class AdHocChatRoomWrapper
     public String getAdHocChatRoomID()
     {
         return adHocChatRoomID;
-    }
-
-    /**
-     * Sets the identifier of the ad-hoc chat room.
-     * 
-     * @param adHocChatRoomID the identifier of the ad-hoc chat room
-     */
-    public void setAdHocChatRoomID(String adHocChatRoomID)
-    {
-        this.adHocChatRoomID = adHocChatRoomID;
     }
 
     /**

@@ -17,13 +17,13 @@ import net.java.sip.communicator.service.protocol.*;
  */
 public class ChatRoomWrapper
 {
-    private ChatRoomProviderWrapper parentProvider;
+    private final ChatRoomProviderWrapper parentProvider;
 
     private ChatRoom chatRoom;
 
-    private String chatRoomName;
+    private final String chatRoomName;
 
-    private String chatRoomID;
+    private final String chatRoomID;
 
     /**
      * Creates a <tt>ChatRoomWrapper</tt> by specifying the protocol provider,
@@ -90,16 +90,6 @@ public class ChatRoomWrapper
     }
 
     /**
-     * Sets the chat room name.
-     * 
-     * @param chatRoomName the name of the chat room
-     */
-    public void setChatRoomName(String chatRoomName)
-    {
-        this.chatRoomName = chatRoomName;
-    }
-
-    /**
      * Returns the identifier of the chat room.
      * 
      * @return the identifier of the chat room
@@ -107,16 +97,6 @@ public class ChatRoomWrapper
     public String getChatRoomID()
     {
         return chatRoomID;
-    }
-
-    /**
-     * Sets the identifier of the chat room.
-     * 
-     * @param chatRoomID the identifier of the chat room
-     */
-    public void setChatRoomID(String chatRoomID)
-    {
-        this.chatRoomID = chatRoomID;
     }
 
     /**

@@ -142,7 +142,7 @@ public class ConferenceChatManager
         ChatWindowManager chatWindowManager
             = GuiActivator.getUIService().getChatWindowManager();
 
-        if(chatWindowManager.isChatOpenedForChatRoom(sourceChatRoom))
+        if(chatWindowManager.isChatOpenedFor(sourceChatRoom))
         {
             chatPanel = chatWindowManager.getMultiChat(sourceChatRoom);
         }
@@ -405,8 +405,7 @@ public class ConferenceChatManager
                 // Check if we have already opened a chat window for this chat
                 // wrapper and load the real chat room corresponding to the
                 // wrapper.
-                if(chatWindowManager
-                        .isChatOpenedForAdHocChatRoom(adHocChatRoomWrapper))
+                if(chatWindowManager.isChatOpenedFor(adHocChatRoomWrapper))
                 {
                     ((AdHocConferenceChatSession) chatPanel.getChatSession())
                         .loadChatRoom(sourceAdHocChatRoom);
@@ -490,8 +489,7 @@ public class ConferenceChatManager
                 // Check if we have already opened a chat window for this chat
                 // wrapper and load the real chat room corresponding to the
                 // wrapper.
-                if(chatWindowManager
-                    .isChatOpenedForChatRoom(chatRoomWrapper))
+                if(chatWindowManager.isChatOpenedFor(chatRoomWrapper))
                 {
                     ((ConferenceChatSession) chatPanel.getChatSession())
                         .loadChatRoom(sourceChatRoom);
@@ -1272,7 +1270,7 @@ public class ConferenceChatManager
         final ChatWindowManager chatWindowManager
             = GuiActivator.getUIService().getChatWindowManager();
 
-        if(chatWindowManager.isChatOpenedForChatRoom(chatRoomWrapper))
+        if(chatWindowManager.isChatOpenedFor(chatRoomWrapper))
         {
             final ChatPanel chatPanel
                 = chatWindowManager.getMultiChat(chatRoomWrapper);
@@ -1300,7 +1298,7 @@ public class ConferenceChatManager
         final ChatWindowManager chatWindowManager
             = GuiActivator.getUIService().getChatWindowManager();
 
-        if(chatWindowManager.isChatOpenedForAdHocChatRoom(chatRoomWrapper))
+        if(chatWindowManager.isChatOpenedFor(chatRoomWrapper))
         {
             final ChatPanel chatPanel
                 = chatWindowManager.getAdHocMultiChat(chatRoomWrapper);
@@ -1776,7 +1774,7 @@ public class ConferenceChatManager
         ChatWindowManager chatWindowManager
             = GuiActivator.getUIService().getChatWindowManager();
         
-        if(chatWindowManager.isChatOpenedForAdHocChatRoom(sourceChatRoom))
+        if(chatWindowManager.isChatOpenedFor(sourceChatRoom))
         {
             chatPanel = chatWindowManager.getAdHocMultiChat(sourceChatRoom);
         }

@@ -411,7 +411,7 @@ public class ContactListPane
 
         ChatPanel chatPanel = null;
 
-        if(chatWindowManager.isChatOpenedForContact(metaContact))
+        if(chatWindowManager.isChatOpenedFor(metaContact))
             chatPanel = chatWindowManager.getContactChat(metaContact);
 
         if (chatPanel != null)
@@ -536,7 +536,7 @@ public class ContactListPane
             typingTimer.start();
 
             // Proactive typing notification
-            if (!chatWindowManager.isChatOpenedForContact(metaContact))
+            if (!chatWindowManager.isChatOpenedFor(metaContact))
             {
                 this.fireProactiveNotification(evt.getSourceContact());
                 return;
@@ -700,7 +700,7 @@ public class ContactListPane
     public void setChatNotificationMsg(MetaContact metaContact,
             String notificationMsg)
     {
-        if(chatWindowManager.isChatOpenedForContact(metaContact))
+        if(chatWindowManager.isChatOpenedFor(metaContact))
             chatWindowManager.getContactChat(metaContact)
                 .setStatusMessage(notificationMsg);
     }
