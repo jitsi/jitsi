@@ -23,8 +23,7 @@ import net.java.sip.communicator.service.protocol.*;
  */
 public class OtrMetaContactMenu
     extends AbstractPluginComponent
-    implements ActionListener,
-               PopupMenuListener
+    implements ActionListener, PopupMenuListener
 {
 
     /**
@@ -56,8 +55,8 @@ public class OtrMetaContactMenu
     {
         super(container);
 
-        inMacOSXScreenMenuBar
-            = Container.CONTAINER_CHAT_MENU_BAR.equals(container)
+        inMacOSXScreenMenuBar =
+            Container.CONTAINER_CHAT_MENU_BAR.equals(container)
                 && OtrActivator.uiService.useMacOSXScreenMenuBar();
     }
 
@@ -71,13 +70,19 @@ public class OtrMetaContactMenu
         OtrActivator.scOtrEngine.launchHelp();
     }
 
+    /**
+     * Creates an {@link OtrContactMenu} for each {@link Contact} contained in
+     * the <tt>metaContact</tt>.
+     * 
+     * @param metaContact The {@link MetaContact} this
+     *            {@link OtrMetaContactMenu} refers to.
+     */
     private void createOtrContactMenus(MetaContact metaContact)
     {
         JMenu menu = getMenu();
 
         // Remove any existing OtrContactMenu items.
-        for (int itemIndex = 0, itemCount = menu.getItemCount();
-                itemIndex < itemCount;)
+        for (int itemIndex = 0, itemCount = menu.getItemCount(); itemIndex < itemCount;)
         {
             JMenuItem menuItem = menu.getItem(itemIndex);
 
@@ -99,19 +104,16 @@ public class OtrMetaContactMenu
             int itemIndex = 0;
             while (contacts.hasNext())
             {
-                menu.insert(
-                        new OtrContactMenu(
-                                contacts.next(),
-                                inMacOSXScreenMenuBar),
-                        itemIndex);
+                menu.insert(new OtrContactMenu(contacts.next(),
+                    inMacOSXScreenMenuBar), itemIndex);
                 itemIndex++;
             }
         }
     }
 
     /*
-     * Implements PluginComponent#getComponent(). Returns the JMenu which is
-     * the component of this plug-in creating it first if it doesn't exist.
+     * Implements PluginComponent#getComponent(). Returns the JMenu which is the
+     * component of this plug-in creating it first if it doesn't exist.
      */
     public Component getComponent()
     {
@@ -132,12 +134,11 @@ public class OtrMetaContactMenu
             menu.setText(getName());
 
             if (Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU
-                    .equals(getContainer()))
+                .equals(getContainer()))
             {
-                Icon icon
-                    = OtrActivator
-                        .resourceService
-                            .getImage("plugin.otr.MENU_ITEM_ICON_16x16");
+                Icon icon =
+                    OtrActivator.resourceService
+                        .getImage("plugin.otr.MENU_ITEM_ICON_16x16");
 
                 if (icon != null)
                     menu.setIcon(icon);
@@ -154,10 +155,8 @@ public class OtrMetaContactMenu
      */
     public String getName()
     {
-        return
-            OtrActivator
-                .resourceService
-                    .getI18NString("plugin.otr.menu.TITLE");
+        return OtrActivator.resourceService
+            .getI18NString("plugin.otr.menu.TITLE");
     }
 
     /*
@@ -191,17 +190,18 @@ public class OtrMetaContactMenu
             menu.addSeparator();
 
             whatsThis = new JMenuItem();
-            whatsThis.setIcon(
-                    OtrActivator.resourceService
-                            .getImage("plugin.otr.HELP_ICON_15x15"));
-            whatsThis.setText(
-                    OtrActivator.resourceService
-                            .getI18NString("plugin.otr.menu.WHATS_THIS"));
+            whatsThis.setIcon(OtrActivator.resourceService
+                .getImage("plugin.otr.HELP_ICON_15x15"));
+            whatsThis.setText(OtrActivator.resourceService
+                .getI18NString("plugin.otr.menu.WHATS_THIS"));
             whatsThis.addActionListener(this);
             menu.add(whatsThis);
         }
     }
 
+    /*
+     * Implements PluginComponent#setCurrentContact(MetaContact).
+     */
     public void setCurrentContact(MetaContact metaContact)
     {
         if (this.currentContact != metaContact)

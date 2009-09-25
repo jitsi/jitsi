@@ -9,6 +9,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
 /**
+ * The Off-the-Record {@link TransformLayer} implementation.
  * 
  * @author George Politis
  * 
@@ -16,10 +17,12 @@ import net.java.sip.communicator.service.protocol.event.*;
 public class OtrTransformLayer
     implements TransformLayer
 {
-    public OtrTransformLayer()
-    {
-    }
-
+    /*
+     * 
+     * @see
+     * net.java.sip.communicator.service.protocol.TransformLayer#messageDelivered
+     * (net.java.sip.communicator.service.protocol.event.MessageDeliveredEvent)
+     */
     public MessageDeliveredEvent messageDelivered(MessageDeliveredEvent evt)
     {
         if (OtrActivator.scOtrEngine.isMessageUIDInjected(evt
@@ -31,12 +34,27 @@ public class OtrTransformLayer
             return evt;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @seenet.java.sip.communicator.service.protocol.TransformLayer#
+     * messageDeliveryFailed
+     * (net.java.sip.communicator.service.protocol.event.MessageDeliveryFailedEvent
+     * )
+     */
     public MessageDeliveryFailedEvent messageDeliveryFailed(
         MessageDeliveryFailedEvent evt)
     {
         return evt;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @seenet.java.sip.communicator.service.protocol.TransformLayer#
+     * messageDeliveryPending
+     * (net.java.sip.communicator.service.protocol.event.MessageDeliveredEvent)
+     */
     public MessageDeliveredEvent messageDeliveryPending(
         MessageDeliveredEvent evt)
     {
@@ -73,6 +91,13 @@ public class OtrTransformLayer
         return processedEvent;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * net.java.sip.communicator.service.protocol.TransformLayer#messageReceived
+     * (net.java.sip.communicator.service.protocol.event.MessageReceivedEvent)
+     */
     public MessageReceivedEvent messageReceived(MessageReceivedEvent evt)
     {
         // Process the incoming message.

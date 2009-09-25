@@ -16,19 +16,20 @@ import net.java.otr4j.session.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
+ * A special {@link JMenu} that holds the menu items for controlling the
+ * Off-the-Record functionality for a specific contact.
+ * 
  * @author George Politis
  * @author Lubomir Marinov
  */
 @SuppressWarnings("serial")
 class OtrContactMenu
     extends JMenu
-    implements ActionListener,
-               PopupMenuListener,
-               ScOtrEngineListener,
-               ScOtrKeyManagerListener
+    implements ActionListener, PopupMenuListener, ScOtrEngineListener,
+    ScOtrKeyManagerListener
 {
-    private static final String ACTION_COMMAND_AUTHENTICATE_BUDDY
-        = "AUTHENTICATE_BUDDY";
+    private static final String ACTION_COMMAND_AUTHENTICATE_BUDDY =
+        "AUTHENTICATE_BUDDY";
 
     private static final String ACTION_COMMAND_CB_AUTO = "CB_AUTO";
 
@@ -53,10 +54,21 @@ class OtrContactMenu
      */
     private final boolean inMacOSXScreenMenuBar;
 
+    /**
+     * We keep this variable so we can determine if the policy has changed 
+     * or not in in {@link OtrContactMenu#setOtrPolicy(OtrPolicy)}.
+     */
     private OtrPolicy otrPolicy;
 
     private SessionStatus sessionStatus;
 
+    /**
+     * The OtrContactMenu contructor.
+     * 
+     * @param contact the Contact this menu referes to.
+     * @param inMacOSXScreenMenuBar a {@link boolean} that indicates whether the
+     *            menu is displayed in a Mac OS X sreen menubar or not.
+     */
     public OtrContactMenu(Contact contact, boolean inMacOSXScreenMenuBar)
     {
         this.contact = contact;
@@ -73,7 +85,7 @@ class OtrContactMenu
 
         OtrActivator.scOtrEngine.addListener(this);
         OtrActivator.scOtrKeyManager.addListener(this);
-        
+
         setSessionStatus(OtrActivator.scOtrEngine.getSessionStatus(contact));
         setOtrPolicy(OtrActivator.scOtrEngine.getContactPolicy(contact));
     }
@@ -100,16 +112,13 @@ class OtrContactMenu
         else if (ACTION_COMMAND_AUTHENTICATE_BUDDY.equals(actionCommand))
         {
             // Launch auth buddy dialog.
-            OtrBuddyAuthenticationDialog authenticateBuddyDialog
-                = new OtrBuddyAuthenticationDialog(contact);
-            Dimension screenSize
-                = Toolkit.getDefaultToolkit().getScreenSize();
+            OtrBuddyAuthenticationDialog authenticateBuddyDialog =
+                new OtrBuddyAuthenticationDialog(contact);
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
-            authenticateBuddyDialog.setLocation(
-                    screenSize.width / 2
-                        - authenticateBuddyDialog.getWidth() / 2,
-                    screenSize.height / 2
-                        - authenticateBuddyDialog.getHeight() / 2);
+            authenticateBuddyDialog.setLocation(screenSize.width / 2
+                - authenticateBuddyDialog.getWidth() / 2, screenSize.height / 2
+                - authenticateBuddyDialog.getHeight() / 2);
             authenticateBuddyDialog.setVisible(true);
         }
 
@@ -153,8 +162,7 @@ class OtrContactMenu
     {
         // Update the corresponding to the contact menu.
         if (contact.equals(OtrContactMenu.this.contact))
-            setOtrPolicy(
-                OtrActivator.scOtrEngine.getContactPolicy(contact));
+            setOtrPolicy(OtrActivator.scOtrEngine.getContactPolicy(contact));
     }
 
     /*
@@ -164,8 +172,7 @@ class OtrContactMenu
     public void contactVerificationStatusChanged(Contact contact)
     {
         if (contact.equals(OtrContactMenu.this.contact))
-            setSessionStatus(
-                OtrActivator.scOtrEngine.getSessionStatus(contact));
+            setSessionStatus(OtrActivator.scOtrEngine.getSessionStatus(contact));
     }
 
     /**
@@ -180,19 +187,13 @@ class OtrContactMenu
         OtrActivator.scOtrKeyManager.removeListener(this);
     }
 
-    private SessionStatus getSessionStatus()
-    {
-        return sessionStatus;
-    }
-
     /*
      * Implements ScOtrEngineListener#globalPolicyChanged().
      */
     public void globalPolicyChanged()
     {
-        setOtrPolicy(
-            OtrActivator.scOtrEngine
-                    .getContactPolicy(OtrContactMenu.this.contact));
+        setOtrPolicy(OtrActivator.scOtrEngine
+            .getContactPolicy(OtrContactMenu.this.contact));
     }
 
     /*
@@ -219,6 +220,10 @@ class OtrContactMenu
         rebuildMenu();
     }
 
+    /**
+     * Rebuilds own menuitems according to {@link OtrContactMenu#sessionStatus}
+     * and the {@link OtrPolicy} for {@link OtrContactMenu#contact}.
+     */
     private void rebuildMenu()
     {
         this.removeAll();
@@ -238,7 +243,7 @@ class OtrContactMenu
         startOtr.setActionCommand(ACTION_COMMAND_START_OTR);
         startOtr.addActionListener(this);
 
-        switch (getSessionStatus())
+        switch (this.sessionStatus)
         {
         case ENCRYPTED:
             JMenuItem refreshOtr = new JMenuItem();
@@ -312,10 +317,16 @@ class OtrContactMenu
     public void sessionStatusChanged(Contact contact)
     {
         if (contact.equals(OtrContactMenu.this.contact))
-            setSessionStatus(
-                OtrActivator.scOtrEngine.getSessionStatus(contact));
+            setSessionStatus(OtrActivator.scOtrEngine.getSessionStatus(contact));
     }
 
+    /**
+     * Sets the {@link OtrContactMenu#sessionStatus} value, updates the menu
+     * icon and, if necessary, rebuilds the menuitems to match the passed in
+     * sessionStatus.
+     * 
+     * @param sessionStatus the {@link SessionStatus}.
+     */
     private void setSessionStatus(SessionStatus sessionStatus)
     {
         if (sessionStatus != this.sessionStatus)
@@ -328,6 +339,12 @@ class OtrContactMenu
         }
     }
 
+    /**
+     * Sets the {@link OtrContactMenu#otrPolicy} and, if necessary, rebuilds the
+     * menuitems to match the passed in otrPolicy.
+     * 
+     * @param otrPolicy
+     */
     private void setOtrPolicy(OtrPolicy otrPolicy)
     {
         if (!otrPolicy.equals(this.otrPolicy))
@@ -339,17 +356,20 @@ class OtrContactMenu
         }
     }
 
+    /**
+     * Updates the menu icon based on {@link OtrContactMenu#sessionStatus}
+     * value.
+     */
     private void updateIcon()
     {
         String imageID;
 
-        switch (getSessionStatus())
+        switch (sessionStatus)
         {
         case ENCRYPTED:
-            imageID
-                = OtrActivator.scOtrKeyManager.isVerified(contact)
-                        ? "plugin.otr.ENCRYPTED_ICON_16x16"
-                        : "plugin.otr.ENCRYPTED_UNVERIFIED_ICON_16x16";
+            imageID =
+                OtrActivator.scOtrKeyManager.isVerified(contact) ? "plugin.otr.ENCRYPTED_ICON_16x16"
+                    : "plugin.otr.ENCRYPTED_UNVERIFIED_ICON_16x16";
             break;
 
         case FINISHED:
