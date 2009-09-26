@@ -26,23 +26,23 @@ public class DTMFToneEvent
 
     /**
      * Creates an instance of this <tt>DTMFToneEvent</tt> with the specified
-     * source stream and dtmf tone.
+     * source stream and DTMF tone.
      *
      * @param source the <tt>AudioMediaSteam</tt> instance that received the
      * tone.
-     * @param tone the tone that we (started/stopped) receing.
+     * @param dtmfTone the tone that we (started/stopped) receiving.
      */
-    public DTMFToneEvent(AudioMediaStream source, DTMFTone tone)
+    public DTMFToneEvent(AudioMediaStream source, DTMFTone dtmfTone)
     {
         super(source);
 
-        this.dtmfTone = tone;
+        this.dtmfTone = dtmfTone;
     }
 
     /**
-     * Returns the <tt>DTMFTone</tt> instance that this event is pertaining to.
+     * Returns the <tt>DTMFTone</tt> instance that this event pertains to.
      *
-     * @return the <tt>DTMFTone</tt> instance that this event is pertaining to.
+     * @return the <tt>DTMFTone</tt> instance that this event pertains to.
      */
     public DTMFTone getDtmfTone()
     {

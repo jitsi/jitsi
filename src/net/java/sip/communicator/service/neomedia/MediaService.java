@@ -21,7 +21,7 @@ public interface MediaService
 {
     /**
      * Returns the default <tt>MediaDevice</tt> for the specified media
-     * <tt>type</tt>. In most cases users
+     * <tt>type</tt>.
      *
      * @param mediaType a <tt>MediaType</tt> value indicating the kind of device
      * that we are trying to obtain.

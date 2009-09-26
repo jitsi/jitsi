@@ -17,7 +17,6 @@ import net.java.sip.communicator.util.*;
  * stream between exactly two parties. The class reflects one media stream, in
  * the SDP sense of the word. <tt>MediaStream</tt> instances are created through
  * the <tt>openMediaStream()</tt> method of the <tt>MediaService</tt>.
- * <p>
  *
  * @author Emil Ivov
  */

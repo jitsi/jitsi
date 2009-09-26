@@ -7,7 +7,7 @@
 package net.java.sip.communicator.service.neomedia;
 
 /**
- * Class for representing all the different DTMF tones.
+ * Represents all DTMF tones.
  *
  * @author JM HEITZ
  */
@@ -102,7 +102,7 @@ public final class DTMFTone
      * Creates a DTMF instance with the specified tone value. The method is
      * private since one would only have to use predefined static instances.
      *
-     * @param value one of te DTMF_XXX fields, indicating the value of the tone.
+     * @param value one of the DTMF_XXX fields, indicating the value of the tone.
      */
     private DTMFTone(String value)
     {

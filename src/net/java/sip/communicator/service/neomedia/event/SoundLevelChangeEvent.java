@@ -44,7 +44,7 @@ public class SoundLevelChangeEvent
     public static final int MIN_LEVEL = 0;
 
     /**
-     * The hashtable mapping SSRC identifiers to sound levels.
+     * The mapping of SSRC identifiers to sound levels.
      */
     private final Map<String, Integer> levels;
 
@@ -76,12 +76,12 @@ public class SoundLevelChangeEvent
     }
 
     /**
-     * Returns a hashtable mapping SSRC identifiers to sound levels. The table
-     * contains the SSRC identifiers of all participants that whose sound levels
-     * have changed to non-zero values. All known participants that are not
-     * reported in this table are assumed to have zero values of their levels.
+     * Returns the mapping of SSRC identifiers to sound levels. The map contains
+     * the SSRC identifiers of all participants whose sound levels have changed
+     * to non-zero values. All known participants that are not reported in the
+     * map are assumed to have zero values of their levels.
      *
-     * @return a hashtable mapping SSRC identifiers to sound levels.
+     * @return a mapping of SSRC identifiers to sound levels.
      */
     public Map<String, Integer> getLevels()
     {
