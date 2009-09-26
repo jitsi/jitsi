@@ -56,7 +56,7 @@ class OtrContactMenu
 
     /**
      * We keep this variable so we can determine if the policy has changed 
-     * or not in in {@link OtrContactMenu#setOtrPolicy(OtrPolicy)}.
+     * or not in {@link OtrContactMenu#setOtrPolicy(OtrPolicy)}.
      */
     private OtrPolicy otrPolicy;
 
@@ -65,9 +65,9 @@ class OtrContactMenu
     /**
      * The OtrContactMenu contructor.
      * 
-     * @param contact the Contact this menu referes to.
-     * @param inMacOSXScreenMenuBar a {@link boolean} that indicates whether the
-     *            menu is displayed in a Mac OS X sreen menubar or not.
+     * @param contact the Contact this menu refers to.
+     * @param inMacOSXScreenMenuBar <tt>true</tt> if the new menu is to be
+     * displayed in the Mac OS X screen menu bar; <tt>false</tt>, otherwise
      */
     public OtrContactMenu(Contact contact, boolean inMacOSXScreenMenuBar)
     {
@@ -367,8 +367,9 @@ class OtrContactMenu
         switch (sessionStatus)
         {
         case ENCRYPTED:
-            imageID =
-                OtrActivator.scOtrKeyManager.isVerified(contact) ? "plugin.otr.ENCRYPTED_ICON_16x16"
+            imageID
+                = OtrActivator.scOtrKeyManager.isVerified(contact)
+                    ? "plugin.otr.ENCRYPTED_ICON_16x16"
                     : "plugin.otr.ENCRYPTED_UNVERIFIED_ICON_16x16";
             break;
 

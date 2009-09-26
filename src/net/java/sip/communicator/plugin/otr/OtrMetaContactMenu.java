@@ -82,7 +82,8 @@ public class OtrMetaContactMenu
         JMenu menu = getMenu();
 
         // Remove any existing OtrContactMenu items.
-        for (int itemIndex = 0, itemCount = menu.getItemCount(); itemIndex < itemCount;)
+        for (int itemIndex = 0, itemCount = menu.getItemCount();
+                itemIndex < itemCount;)
         {
             JMenuItem menuItem = menu.getItem(itemIndex);
 

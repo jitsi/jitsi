@@ -14,7 +14,6 @@ import net.java.sip.communicator.service.protocol.*;
  * functionality.
  * 
  * @author George Politis
- * 
  */
 public interface ScOtrEngine
 {
@@ -79,6 +78,11 @@ public interface ScOtrEngine
     /**
      * Gets weather the passed in messageUID is injected by the engine or not.
      * If it is injected, it shouldn't be re-transformed.
+     *
+     * @param messageUID the messageUID which is to be determined whether it is
+     * injected by the engine or not
+     * @return <tt>true</tt> if the passed in messageUID is injected by the
+     * engine; <tt>false</tt>, otherwise
      */
     public abstract boolean isMessageUIDInjected(String messageUID);
 
@@ -99,6 +103,8 @@ public interface ScOtrEngine
     // New Methods (Policy management)
     /**
      * Gets the global {@link OtrPolicy}.
+     *
+     * @return the global {@link OtrPolicy}
      */
     public abstract OtrPolicy getGlobalPolicy();
 
@@ -114,7 +120,7 @@ public interface ScOtrEngine
     /**
      * Sets the global policy.
      * 
-     * @param policy
+     * @param policy the global policy
      */
     public abstract void setGlobalPolicy(OtrPolicy policy);
 
@@ -130,5 +136,4 @@ public interface ScOtrEngine
      * Launches the help page.
      */
     public abstract void launchHelp();
-
 }

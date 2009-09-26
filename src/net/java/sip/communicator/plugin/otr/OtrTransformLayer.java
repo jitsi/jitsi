@@ -12,16 +12,12 @@ import net.java.sip.communicator.service.protocol.event.*;
  * The Off-the-Record {@link TransformLayer} implementation.
  * 
  * @author George Politis
- * 
  */
 public class OtrTransformLayer
     implements TransformLayer
 {
     /*
-     * 
-     * @see
-     * net.java.sip.communicator.service.protocol.TransformLayer#messageDelivered
-     * (net.java.sip.communicator.service.protocol.event.MessageDeliveredEvent)
+     * Implements TransformLayer#messageDelivered(MessageDeliveredEvent).
      */
     public MessageDeliveredEvent messageDelivered(MessageDeliveredEvent evt)
     {
@@ -35,12 +31,8 @@ public class OtrTransformLayer
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @seenet.java.sip.communicator.service.protocol.TransformLayer#
-     * messageDeliveryFailed
-     * (net.java.sip.communicator.service.protocol.event.MessageDeliveryFailedEvent
-     * )
+     * Implements
+     * TransformLayer#messageDeliveryFailed(MessageDeliveryFailedEvent).
      */
     public MessageDeliveryFailedEvent messageDeliveryFailed(
         MessageDeliveryFailedEvent evt)
@@ -49,11 +41,7 @@ public class OtrTransformLayer
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @seenet.java.sip.communicator.service.protocol.TransformLayer#
-     * messageDeliveryPending
-     * (net.java.sip.communicator.service.protocol.event.MessageDeliveredEvent)
+     * Implements TransformLayer#messageDeliveryPending(MessageDeliveredEvent).
      */
     public MessageDeliveredEvent messageDeliveryPending(
         MessageDeliveredEvent evt)
@@ -92,11 +80,7 @@ public class OtrTransformLayer
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * net.java.sip.communicator.service.protocol.TransformLayer#messageReceived
-     * (net.java.sip.communicator.service.protocol.event.MessageReceivedEvent)
+     * Implements TransformLayer#messageReceived(MessageReceivedEvent).
      */
     public MessageReceivedEvent messageReceived(MessageReceivedEvent evt)
     {
@@ -128,5 +112,4 @@ public class OtrTransformLayer
 
         return processedEvent;
     }
-
 }

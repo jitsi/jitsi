@@ -32,34 +32,38 @@ public class OtrMetaContactButton
 
     private Contact contact;
 
-    private ScOtrEngineListener scOtrEngineListener = new ScOtrEngineListener()
-    {
-        public void sessionStatusChanged(Contact contact)
+    private final ScOtrEngineListener scOtrEngineListener =
+        new ScOtrEngineListener()
         {
-            // OtrMetaContactButton.this.contact can be null.
-            if (contact.equals(OtrMetaContactButton.this.contact))
+            public void sessionStatusChanged(Contact contact)
             {
-                setStatus(OtrActivator.scOtrEngine.getSessionStatus(contact));
+                // OtrMetaContactButton.this.contact can be null.
+                if (contact.equals(OtrMetaContactButton.this.contact))
+                {
+                    setStatus(
+                        OtrActivator.scOtrEngine.getSessionStatus(contact));
+                }
             }
-        }
 
-        public void contactPolicyChanged(Contact contact)
-        {
-            // OtrMetaContactButton.this.contact can be null.
-            if (contact.equals(OtrMetaContactButton.this.contact))
+            public void contactPolicyChanged(Contact contact)
             {
-                setPolicy(OtrActivator.scOtrEngine.getContactPolicy(contact));
+                // OtrMetaContactButton.this.contact can be null.
+                if (contact.equals(OtrMetaContactButton.this.contact))
+                {
+                    setPolicy(
+                        OtrActivator.scOtrEngine.getContactPolicy(contact));
+                }
             }
-        }
 
-        public void globalPolicyChanged()
-        {
-            if (OtrMetaContactButton.this.contact != null)
-                setPolicy(OtrActivator.scOtrEngine.getContactPolicy(contact));
-        }
-    };
+            public void globalPolicyChanged()
+            {
+                if (OtrMetaContactButton.this.contact != null)
+                    setPolicy(
+                        OtrActivator.scOtrEngine.getContactPolicy(contact));
+            }
+        };
 
-    private ScOtrKeyManagerListener scOtrKeyManagerListener =
+    private final ScOtrKeyManagerListener scOtrKeyManagerListener =
         new ScOtrKeyManagerListener()
         {
             public void contactVerificationStatusChanged(Contact contact)
@@ -67,8 +71,8 @@ public class OtrMetaContactButton
                 // OtrMetaContactButton.this.contact can be null.
                 if (contact.equals(OtrMetaContactButton.this.contact))
                 {
-                    setStatus(OtrActivator.scOtrEngine
-                        .getSessionStatus(contact));
+                    setStatus(
+                        OtrActivator.scOtrEngine.getSessionStatus(contact));
                 }
             }
         };
@@ -200,8 +204,9 @@ public class OtrMetaContactButton
         switch (status)
         {
         case ENCRYPTED:
-            urlKey =
-                OtrActivator.scOtrKeyManager.isVerified(contact) ? "plugin.otr.ENCRYPTED_ICON_22x22"
+            urlKey
+                = OtrActivator.scOtrKeyManager.isVerified(contact)
+                    ? "plugin.otr.ENCRYPTED_ICON_22x22"
                     : "plugin.otr.ENCRYPTED_UNVERIFIED_ICON_22x22";
             break;
         case FINISHED:
