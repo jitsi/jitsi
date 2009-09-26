@@ -27,6 +27,7 @@ package net.java.sip.communicator.impl.media.transform.srtp;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.media.*;
 import net.java.sip.communicator.impl.media.transform.*;
 
 /**

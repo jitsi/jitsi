@@ -7,12 +7,10 @@
 package net.java.sip.communicator.impl.media.transform;
 
 import java.io.*;
-import java.net.*;
 
-import javax.media.protocol.*;
 import javax.media.rtp.*;
 
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.impl.media.*;
 
 /**
  * TransformConnector implements the RTPConnector interface. RTPConnector
@@ -35,53 +33,17 @@ import net.java.sip.communicator.util.*;
  * @see RTPManager
  *
  * @author Bing SU (nova.su@gmail.com)
+ * @author Lubomir Marinov
  */
 public class TransformConnector
-    implements RTPConnector
+    extends RTPConnectorImpl
 {
-    private static final Logger logger
-        = Logger.getLogger(TransformConnector.class);
 
     /**
      * The customized TransformEngine object, which contains the concrete
      * transform logic.
      */
-    protected TransformEngine engine;
-
-    /**
-     * Local RTP session listen address.
-     */
-    private SessionAddress localAddr;
-
-    /**
-     * RTP packet input stream object used by RTPManager.
-     */
-    private TransformInputStream dataInputStream;
-
-    /**
-     * RTCP packet input stream object used by RTPManager.
-     */
-    private TransformInputStream ctrlInputStream;
-
-    /**
-     * RTP packet output stream used by RTPManager.
-     */
-    private TransformOutputStream dataOutputStream;
-
-    /**
-     * RTCP packet output stream used by RTPManager.
-     */
-    private TransformOutputStream ctrlOutputStream;
-
-    /**
-     * UDP Socket we used to send and receive RTP packets.
-     */
-    private DatagramSocket dataSocket;
-
-    /**
-     * UDP Socket we used to send and receive RTCP packets.
-     */
-    private DatagramSocket ctrlSocket;
+    protected final TransformEngine engine;
 
     /**
      * Construct a TransformConnector based on the given local RTP session
@@ -96,340 +58,56 @@ public class TransformConnector
     public TransformConnector(SessionAddress localAddr, TransformEngine engine)
         throws InvalidSessionAddressException
     {
-        this.localAddr = localAddr;
+        super(localAddr);
+
         this.engine = engine;
-
-        try
-        {
-            this.dataSocket = new DatagramSocket(this.localAddr.getDataPort(),
-                                            this.localAddr.getDataAddress());
-            this.ctrlSocket = new DatagramSocket(
-                                            this.localAddr.getControlPort(),
-                                            this.localAddr.getControlAddress());
-        }
-        catch (SocketException se)
-        {
-            /*
-             * TODO Could anyone please provide a meaningful message for the
-             * Logger here because I don't have an idea?
-             */
-            logger.error(null, se);
-
-            InvalidSessionAddressException isae
-                = new InvalidSessionAddressException();
-            isae.initCause(se);
-            throw isae;
-        }
     }
 
-    /**
-     * Closes this RTPConnector object
-     *
-     * @see javax.media.rtp.RTPConnector#close()
+    /*
+     * Overrides RTPConnectorImpl#createControlInputStream() to use
+     * TransformInputStream.
      */
-    public void close()
-    {
-        this.dataOutputStream = null;
-        this.ctrlOutputStream = null;
-
-        if (this.dataInputStream != null)
-        {
-            this.dataInputStream.close();
-            this.dataInputStream = null;
-        }
-
-        if (this.ctrlInputStream != null)
-        {
-            this.ctrlInputStream.close();
-            this.ctrlInputStream = null;
-        }
-
-        this.dataSocket.close();
-        this.dataSocket = null;
-
-        this.ctrlSocket.close();
-        this.ctrlSocket = null;
-    }
-
-    /**
-     * Add a stream target. A stream target is the destination address which
-     * this RTP session will send its data to. For a single session, we can add
-     * multiple SessionAddresses, and for each address, one copy of data will be
-     * sent to.
-     *
-     * @param target Destination target address
-     */
-    public void addTarget(SessionAddress target)
-    {
-        if (this.ctrlOutputStream == null)
-        {
-            this.ctrlOutputStream =
-                new TransformOutputStream(this.ctrlSocket,
-                                          this.engine.getRTCPTransformer());
-        }
-
-        this.ctrlOutputStream.addTarget(target.getControlAddress(),
-                                        target.getControlPort());
-
-        if (this.dataOutputStream == null)
-        {
-            this.dataOutputStream =
-                new TransformOutputStream(this.dataSocket,
-                                          this.engine.getRTPTransformer());
-        }
-
-        this.dataOutputStream.addTarget(target.getDataAddress(),
-                                        target.getDataPort());
-    }
-
-    /**
-     * Removes a target from our session. If a target is removed, there will be
-     * no data sent to that address.
-     *
-     * @param target Destination target to be removed
-     * @return true if the target address is removed successfully
-     *         false if there is something wrong
-     */
-    public boolean removeTarget(SessionAddress target)
-    {
-        boolean ok = true;
-
-        if (this.ctrlOutputStream != null)
-        {
-            ok &= this.ctrlOutputStream.removeTarget(target.getControlAddress(),
-                                                    target.getControlPort());
-        }
-
-        if (this.dataOutputStream != null)
-        {
-            ok &= this.dataOutputStream.removeTarget(target.getDataAddress(),
-                                                    target.getDataPort());
-        }
-
-        return ok;
-    }
-
-    /**
-     * Remove all stream targets. After this operation is done. There will be
-     * no targets receiving data, so no data will be sent.
-     */
-    public void removeTargets()
-    {
-        if (this.ctrlOutputStream != null)
-        {
-            this.ctrlOutputStream.removeTargets();
-        }
-
-        if (this.dataOutputStream != null)
-        {
-            this.dataOutputStream.removeTargets();
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see javax.media.rtp.RTPConnector#getControlInputStream()
-     */
-    public PushSourceStream getControlInputStream()
+    protected TransformInputStream createControlInputStream()
         throws IOException
     {
-        if (this.ctrlInputStream == null)
-        {
-            this.ctrlInputStream =
-                new TransformInputStream(this.ctrlSocket,
-                                        this.engine.getRTCPTransformer());
-        }
-
-        return this.ctrlInputStream;
+        return
+            new TransformInputStream(
+                    controlSocket,
+                    engine.getRTCPTransformer());
     }
 
-    /* (non-Javadoc)
-     * @see javax.media.rtp.RTPConnector#getControlOutputStream()
+    /*
+     * Overrides RTPConnectorImpl#createControlOutputStream() to use
+     * TransformOutputStream.
      */
-    public OutputDataStream getControlOutputStream()
+    protected TransformOutputStream createControlOutputStream()
         throws IOException
     {
-        if (this.ctrlOutputStream == null)
-        {
-            this.ctrlOutputStream =
-                new TransformOutputStream(this.ctrlSocket,
-                                        this.engine.getRTCPTransformer());
-        }
-
-        return this.ctrlOutputStream;
+        return
+            new TransformOutputStream(
+                    controlSocket,
+                    engine.getRTCPTransformer());
     }
 
-    /* (non-Javadoc)
-     * @see javax.media.rtp.RTPConnector#getDataInputStream()
+    /*
+     * Overrides RTPConnectorImpl#createDataInputStream() to use
+     * TransformInputStream.
      */
-    public PushSourceStream getDataInputStream()
+    protected TransformInputStream createDataInputStream()
         throws IOException
     {
-        if (this.dataInputStream == null)
-        {
-            this.dataInputStream =
-                new TransformInputStream(this.dataSocket,
-                                         this.engine.getRTPTransformer());
-        }
-
-        return this.dataInputStream;
+        return new TransformInputStream(dataSocket, engine.getRTPTransformer());
     }
 
-    /* (non-Javadoc)
-     * @see javax.media.rtp.RTPConnector#getDataOutputStream()
+    /*
+     * Overrides RTPConnectorImpl#createDataOutputStream() to use
+     * TransformOutputStream.
      */
-    public OutputDataStream getDataOutputStream()
+    protected TransformOutputStream createDataOutputStream()
         throws IOException
     {
-        if (this.dataOutputStream == null)
-        {
-            this.dataOutputStream =
-                new TransformOutputStream(this.dataSocket,
-                                          this.engine.getRTPTransformer());
-        }
-
-        return this.dataOutputStream;
-    }
-
-    /* (non-Javadoc)
-     * @see javax.media.rtp.RTPConnector#getRTCPBandwidthFraction()
-     */
-    public double getRTCPBandwidthFraction()
-    {
-        // Not applicable
-        return -1;
-    }
-
-    /* (non-Javadoc)
-     * @see javax.media.rtp.RTPConnector#getRTCPSenderBandwidthFraction()
-     */
-    public double getRTCPSenderBandwidthFraction()
-    {
-        // Not applicable
-        return -1;
-    }
-
-    /* (non-Javadoc)
-     * @see javax.media.rtp.RTPConnector#getReceiveBufferSize()
-     */
-    public int getReceiveBufferSize()
-    {
-        // Not applicable
-        return -1;
-    }
-
-    /* (non-Javadoc)
-     * @see javax.media.rtp.RTPConnector#setReceiveBufferSize(int)
-     */
-    public void setReceiveBufferSize(int size)
-        throws IOException
-    {
-        // Nothing should be done here :-)
-    }
-
-    /* (non-Javadoc)
-     * @see javax.media.rtp.RTPConnector#getSendBufferSize()
-     */
-    public int getSendBufferSize()
-    {
-        // Not applicable
-        return -1;
-    }
-
-    /* (non-Javadoc)
-     * @see javax.media.rtp.RTPConnector#setSendBufferSize(int)
-     */
-    public void setSendBufferSize(int size)
-        throws IOException
-    {
-        // Nothing should be done here :-)
-    }
-
-    /**
-     * Getter to use in derived classes.
-     * (Could modify the member variable to protected instead for direct access)
-     *
-     * @return the control input stream
-     */
-    public TransformInputStream getCtrlInputStream()
-    {
-        return ctrlInputStream;
-    }
-
-    /**
-     * Getter to use in derived classes.
-     * (Could modify the member variable to protected instead for direct access)
-     *
-     * @return the control output stream
-     */
-    public TransformOutputStream getCtrlOutputStream()
-    {
-        return ctrlOutputStream;
-    }
-
-    /**
-     * Setter to use in derived classes.
-     * (Could modify the member variable to protected instead for direct access)
-     *
-     * @param ctrlOutputStream the control output stream to be set
-     */
-    public void setCtrlOutputStream(TransformOutputStream ctrlOutputStream)
-    {
-        this.ctrlOutputStream = ctrlOutputStream;
-    }
-
-    /**
-     * Setter to use in derived classes.
-     * (Could modify the member variable to protected instead for direct access)
-     *
-     * @param dataInputStream the data input stream to be set
-     */
-    public void setDataInputStream(TransformInputStream dataInputStream)
-    {
-        this.dataInputStream = dataInputStream;
-    }
-
-    /**
-     * Setter to use in derived classes.
-     * (Could modify the member variable to protected instead for direct access)
-     *
-     * @param ctrlInputStream the control input stream to be set
-     */
-    public void setCtrlInputStream(TransformInputStream ctrlInputStream)
-    {
-        this.ctrlInputStream = ctrlInputStream;
-    }
-
-    /**
-     * Setter to use in derived classes.
-     * (Could modify the member variable to protected instead for direct access)
-     *
-     * @param dataOutputStream the data output stream to be set
-     */
-    public void setDataOutputStream(TransformOutputStream dataOutputStream)
-    {
-        this.dataOutputStream = dataOutputStream;
-    }
-
-    /**
-     * Getter to use in derived classes.
-     * (Could modify the member variable to protected instead for direct access)
-     *
-     * @return the data socket
-     */
-    public DatagramSocket getDataSocket()
-    {
-        return dataSocket;
-    }
-
-    /**
-     * Getter to use in derived classes.
-     * (Could modify the member variable to protected instead for direct access)
-     *
-     * @return the control socket
-     */
-    public DatagramSocket getCtrlSocket()
-    {
-        return ctrlSocket;
+        return
+            new TransformOutputStream(dataSocket, engine.getRTPTransformer());
     }
 
     /**

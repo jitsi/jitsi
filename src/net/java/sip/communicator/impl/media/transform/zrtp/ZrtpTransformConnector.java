@@ -16,7 +16,6 @@
  *
  * Authors: Werner Dittmann <Werner.Dittmann@t-online.de>
  */
-
 package net.java.sip.communicator.impl.media.transform.zrtp;
 
 import net.java.sip.communicator.impl.media.transform.*;
@@ -24,32 +23,24 @@ import net.java.sip.communicator.impl.media.transform.*;
 import javax.media.rtp.InvalidSessionAddressException;
 import javax.media.rtp.SessionAddress;
 
-
 /**
  * ZRTP specific Transform Connector.
  * 
  * This class just adds ZRTP specific functions.
  * 
  * @author Werner Dittmann <Werner.Dittmann@t-online.de>
- *
  */
 public class ZrtpTransformConnector extends TransformConnector 
 {
-
     public ZrtpTransformConnector(SessionAddress localAddr,
-                                TransformEngine engine) 
-            throws InvalidSessionAddressException 
+                                  ZRTPTransformEngine engine) 
+        throws InvalidSessionAddressException 
     {
         super(localAddr, engine);
     }
 
     public ZRTPTransformEngine getEngine() 
     {
-        if (!(engine instanceof ZRTPTransformEngine)) 
-        {
-            return null;
-        }
-
         return (ZRTPTransformEngine) engine;
     }
 }

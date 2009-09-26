@@ -16,14 +16,13 @@
  *
  * Authors: Werner Dittmann <Werner.Dittmann@t-online.de>
  */
-
 package net.java.sip.communicator.impl.media.transform.zrtp;
 
+import net.java.sip.communicator.impl.media.*;
 import net.java.sip.communicator.impl.media.transform.*;
 
 /**
  * @author Werner Dittmann <Werner.Dittmann@t-online.de>
- *
  */
 public class ZRTPCTransformer implements PacketTransformer 
 {

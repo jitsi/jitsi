@@ -26,13 +26,12 @@
 */
 package net.java.sip.communicator.impl.media.transform.srtp;
 
-import org.bouncycastle.crypto.digests.SHA1Digest;
-import org.bouncycastle.crypto.macs.HMac;
-import org.bouncycastle.crypto.params.KeyParameter;
+import net.java.sip.communicator.impl.media.*;
 
-import org.bouncycastle.crypto.engines.AESFastEngine;
-
-import net.java.sip.communicator.impl.media.transform.*;
+import org.bouncycastle.crypto.digests.*;
+import org.bouncycastle.crypto.engines.*;
+import org.bouncycastle.crypto.macs.*;
+import org.bouncycastle.crypto.params.*;
 
 /**
  * SRTPCryptoContext class is the core class of SRTP implementation.

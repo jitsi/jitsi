@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.media.transform;
 
+import net.java.sip.communicator.impl.media.*;
+
 /**
  * Interface PacketTransformer encapsulate the concept of packet transformation.
  * Given a packet, PacketTransformer can either transform it or reverse the

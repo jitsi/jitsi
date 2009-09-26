@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.media.transform.srtp;
 
-import net.java.sip.communicator.impl.media.transform.*;
+import net.java.sip.communicator.impl.media.*;
 
 /**
  * PacketManipulator contains methods for parsing RTP packets.

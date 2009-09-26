@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.media.transform.srtp;
 
+import net.java.sip.communicator.impl.media.*;
 import net.java.sip.communicator.impl.media.transform.*;
 
 /**

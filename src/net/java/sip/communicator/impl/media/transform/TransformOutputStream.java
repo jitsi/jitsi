@@ -7,9 +7,8 @@
 package net.java.sip.communicator.impl.media.transform;
 
 import java.net.*;
-import java.util.*;
 
-import javax.media.rtp.*;
+import net.java.sip.communicator.impl.media.*;
 
 /**
  * TransformOutputStream implements OutputDataStream. It is use by RTPManager
@@ -21,29 +20,16 @@ import javax.media.rtp.*;
  * network to all the stream targets.
  *
  * @author Bing SU (nova.su@gmail.com)
+ * @author Lubomir Marinov
  */
 public class TransformOutputStream
-    implements OutputDataStream
+    extends RTPConnectorOutputStream
 {
-    /**
-     * UDP socket used to send packet data
-     */
-    private DatagramSocket socket;
 
     /**
      * PacketTransformer used to transform RTP/RTCP packets
      */
-    private PacketTransformer transformer;
-
-    /**
-     * Stream targets' ip addresses
-     */
-    private Vector<InetAddress> remoteAddrs;
-
-    /**
-     * Stream targets' ports, corresponding to their ip addresses.
-     */
-    private Vector<Integer> remotePorts;
+    private final PacketTransformer transformer;
 
     /**
      * Construct a TransformOutputStream based on the given UDP socket and
@@ -52,92 +38,33 @@ public class TransformOutputStream
      * @param socket UDP socket used to send packet data out
      * @param transformer PacketTransformer used to transform RTP/RTCP packets
      */
-    public TransformOutputStream(DatagramSocket socket,
-                                 PacketTransformer transformer)
+    public TransformOutputStream(
+        DatagramSocket socket,
+        PacketTransformer transformer)
     {
-        this.socket = socket;
+        super(socket);
+
         this.transformer = transformer;
-        this.remoteAddrs = new Vector<InetAddress>();
-        this.remotePorts = new Vector<Integer>();
     }
 
-    /**
-     * Add a target to stream targets list
-     *
-     * @param remoteAddr target ip address
-     * @param remotePort target port
+    /*
+     * Overrides RTPConnectorOutputStream#createRawPacket(byte[], int, int) to
+     * perform transformation of the packet to be sent.
      */
-    public void addTarget(InetAddress remoteAddr, int remotePort)
+    protected RawPacket createRawPacket(byte[] buffer, int offset, int length)
     {
-        this.remoteAddrs.add(remoteAddr);
-        this.remotePorts.add(remotePort);
-    }
+        RawPacket pkt
+            = transformer
+                .transform(super.createRawPacket(buffer, offset, length));
 
-    /**
-     * Remove a target from stream targets list
-     *
-     * @param remoteAddr target ip address
-     * @param remotePort target port
-     * @return true if the target is in stream target list and can be removed
-     *         false if not
-     */
-    public boolean removeTarget(InetAddress remoteAddr, int remotePort)
-    {
-        return remoteAddrs.remove(remoteAddr)
-            && remotePorts.remove(Integer.valueOf(remotePort));
-    }
-
-    /**
-     * Remove all stream targets from this session.
-     */
-    public void removeTargets()
-    {
-        this.remoteAddrs.removeAllElements();
-        this.remotePorts.removeAllElements();
-    }
-
-    /* (non-Javadoc)
-     * @see javax.media.rtp.OutputDataStream#write(byte[], int, int)
-     */
-    public int write(byte[] buffer, int offset, int length)
-    {
-        // Transformation could be non-inplace, we shall not modify the old
-        // buffer
-        RawPacket pkt = this.transformer.transform(new RawPacket(buffer,
-                                                                offset,
-                                                                length));
-
-        // This is for the case when the ZRTP engine stops the media stream
-        // allowing only ZRTP packets
-        /* TODO GoClear
-         * To uncomment in order to use the GoClear feature
-         */
         /*
-        if (pkt == null)
-            return length;
-        */
+         * This is for the case when the ZRTP engine stops the media stream
+         * allowing only ZRTP packets.
+         */
+        // TODO Comment in order to use the GoClear feature.
+        if ((pkt == null) && (targets.size() > 0))
+            throw new NullPointerException("pkt");
 
-        for (int i = 0; i < this.remoteAddrs.size(); ++i)
-        {
-            InetAddress remoteAddr = this.remoteAddrs.elementAt(i);
-            int remotePort = (this.remotePorts.elementAt(i)).intValue();
-
-            try
-            {
-                this.socket.send(new DatagramPacket(pkt.getBuffer(),
-                                                    pkt.getOffset(),
-                                                    pkt.getLength(),
-                                                    remoteAddr,
-                                                    remotePort));
-            }
-            catch (Exception e)
-            {
-                // TODO error handling
-                return -1;
-            }
-        }
-
-        // yes, we should return the pre-transformed packet length
-        return length;
+        return pkt;
     }
 }

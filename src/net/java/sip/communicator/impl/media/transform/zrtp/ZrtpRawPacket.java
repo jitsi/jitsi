@@ -16,13 +16,11 @@
  *
  * Authors: Werner Dittmann <Werner.Dittmann@t-online.de>
  */
-
 package net.java.sip.communicator.impl.media.transform.zrtp;
 
-import net.java.sip.communicator.impl.media.transform.*;
 import gnu.java.zrtp.packets.*;
 import gnu.java.zrtp.utils.*;
-
+import net.java.sip.communicator.impl.media.*;
 
 /**
  * ZRTP packet representation.
@@ -31,7 +29,6 @@ import gnu.java.zrtp.utils.*;
  * required by the ZRTP transformer.
  *  
  * @author Werner Dittmann <Werner.Dittmann@t-online.de>
- *
  */
 public class ZrtpRawPacket extends RawPacket 
 {
