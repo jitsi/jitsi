@@ -622,7 +622,7 @@ public class MediaControl
      * @return a connected <tt>DataSource</tt> for the media specified by the
      * locator.
      */
-    private DataSource createDataSource(MediaLocator locator)
+    public static DataSource createDataSource(MediaLocator locator)
     {
         try {
             logger.info("Creating datasource for:"

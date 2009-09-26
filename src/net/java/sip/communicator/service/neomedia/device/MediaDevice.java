@@ -37,18 +37,6 @@ public interface MediaDevice
     public MediaType getMediaType();
 
     /**
-     * Specifies the <tt>MediaFormat</tt> that this device should use when
-     * capturing data.
-     *
-     * @param format the <tt>MediaFormat</tt> that this device should use when
-     * capturing media.
-     *
-     * @throws IllegalArgumentException if <tt>format</tt> is not among
-     * <tt>MediaFormet</tt>s supported by this <tt>MediaDevice</tt>.
-     */
-    public void setFormat(MediaFormat format) throws IllegalArgumentException;
-
-    /**
      * Returns the <tt>MediaFormat</tt> that this device is currently set to use
      * when capturing data.
      *
