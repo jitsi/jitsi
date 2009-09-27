@@ -158,10 +158,9 @@ public class ChatWindowManager
     {
         synchronized (syncChat)
         {
-            ChatSession chatSession
-                = findChatSessionForDescriptor(descriptor);
+            ChatPanel chatPanel = findChatPanelForDescriptor(descriptor);
 
-            return ((chatSession != null) && getChat(chatSession).isShown());
+            return ((chatPanel != null) && chatPanel.isShown());
         }
     }
 
@@ -177,26 +176,22 @@ public class ChatWindowManager
     {
         synchronized (syncChat)
         {
+            String chatRoomID = chatRoom.getIdentifier();
+
             for (ChatPanel chatPanel : chatPanels)
             {
-                ChatSession chatSession = chatPanel.getChatSession();
-
-                Object descriptor = chatSession.getDescriptor();
+                Object descriptor = chatPanel.getChatSession().getDescriptor();
 
                 if(descriptor instanceof ChatRoomWrapper)
                 {
                     ChatRoomWrapper chatRoomWrapper
                         = (ChatRoomWrapper) descriptor;
 
-                    if(chatRoomWrapper.getChatRoomID()
-                            .equals(chatRoom.getIdentifier())
-                        && getChat(chatSession).isShown())
-                    {
+                    if(chatRoomWrapper.getChatRoomID().equals(chatRoomID)
+                            && chatPanel.isShown())
                         return true;
-                    }
                 }
             }
-
             return false;
         }
     }
@@ -214,11 +209,11 @@ public class ChatWindowManager
     {
         synchronized (syncChat)
         {
+            String adHocChatRoomID = adHocChatRoom.getIdentifier();
+
             for (ChatPanel chatPanel : chatPanels)
             {
-                ChatSession chatSession = chatPanel.getChatSession();
-
-                Object descriptor = chatSession.getDescriptor();
+                Object descriptor = chatPanel.getChatSession().getDescriptor();
 
                 if(descriptor instanceof AdHocChatRoomWrapper)
                 {
@@ -226,14 +221,11 @@ public class ChatWindowManager
                         = (AdHocChatRoomWrapper) descriptor;
 
                     if(chatRoomWrapper.getAdHocChatRoomID()
-                            .equals(adHocChatRoom.getIdentifier())
-                        && getChat(chatSession).isShown())
-                    {
+                                .equals(adHocChatRoomID)
+                            && chatPanel.isShown())
                         return true;
-                    }
                 }
             }
-
             return false;
         }
     }
@@ -448,16 +440,9 @@ public class ChatWindowManager
     {
         synchronized (syncChat)
         {
-            ChatSession chatSession = findChatSessionForDescriptor(metaContact);
+            ChatPanel chatPanel = findChatPanelForDescriptor(metaContact);
 
-            if(chatSession != null)
-            {
-                return getChat(chatSession);
-            }
-            else
-            {
-                return createChat(metaContact);
-            }
+            return (chatPanel != null) ? chatPanel : createChat(metaContact);
         }
     }
 
@@ -489,14 +474,15 @@ public class ChatWindowManager
     {
         synchronized (syncChat)
         {
-            ChatSession chatSession = findChatSessionForDescriptor(metaContact);
+            ChatPanel chatPanel = findChatPanelForDescriptor(metaContact);
 
-            if(chatSession != null)
-                return getChat(chatSession);
-            else
-                return createChat(  metaContact,
-                                    protocolContact,
-                                    escapedMessageID);
+            return
+                (chatPanel != null)
+                    ? chatPanel
+                    : createChat(
+                            metaContact,
+                            protocolContact,
+                            escapedMessageID);
         }
     }
 
@@ -549,13 +535,10 @@ public class ChatWindowManager
     {
         synchronized (syncChat)
         {
-            ChatSession chatSession
-                = findChatSessionForDescriptor(chatRoomWrapper);
+            ChatPanel chatPanel = findChatPanelForDescriptor(chatRoomWrapper);
 
-            if(chatSession != null)
-                return getChat(chatSession);
-            else
-                return createChat(chatRoomWrapper);
+            return
+                (chatPanel != null) ? chatPanel : createChat(chatRoomWrapper);
         }
     }
 
@@ -570,15 +553,10 @@ public class ChatWindowManager
     {
         synchronized (syncChat)
         {
-            ChatSession chatSession
-            = findChatSessionForDescriptor(chatRoomWrapper);
+            ChatPanel chatPanel = findChatPanelForDescriptor(chatRoomWrapper);
 
-            if(chatSession != null)
-            {
-                return getChat(chatSession);
-            }
-            else
-                return createChat(chatRoomWrapper);
+            return
+                (chatPanel != null) ? chatPanel : createChat(chatRoomWrapper);
         }
     }
 
@@ -636,15 +614,12 @@ public class ChatWindowManager
                 chatRoomList.addChatRoom(chatRoomWrapper);
             }
 
-            ChatSession chatSession
-                = findChatSessionForDescriptor(chatRoomWrapper);
+            ChatPanel chatPanel = findChatPanelForDescriptor(chatRoomWrapper);
 
-            if (chatSession != null)
-            {
-                return getChat(chatSession);
-            }
-
-            return createChat(chatRoomWrapper, escapedMessageID);
+            return
+                (chatPanel != null)
+                    ? chatPanel
+                    : createChat(chatRoomWrapper, escapedMessageID);
         }
     }
 
@@ -681,15 +656,12 @@ public class ChatWindowManager
                 chatRoomList.addAdHocChatRoom(chatRoomWrapper);
             }
 
-            ChatSession chatSession
-                = findChatSessionForDescriptor(chatRoomWrapper);
+            ChatPanel chatPanel = findChatPanelForDescriptor(chatRoomWrapper);
 
-            if (chatSession != null)
-            {
-                return getChat(chatSession);
-            }
-
-            return createChat(chatRoomWrapper, escapedMessageID);
+            return
+                (chatPanel != null)
+                    ? chatPanel
+                    : createChat(chatRoomWrapper, escapedMessageID);
         }
     }
 
@@ -987,20 +959,17 @@ public class ChatWindowManager
     }
     
     /**
-     * Finds the chat session corresponding to the given chat descriptor.
+     * Finds the <tt>ChatPanel</tt> corresponding to the given chat descriptor.
      * 
-     * @param descriptor The chat descriptor.
-     * @return The chat session corresponding to the given chat descriptor.
+     * @param descriptor the chat descriptor.
+     * @return the <tt>ChatPanel</tt> corresponding to the given chat descriptor
+     * if any; otherwise, <tt>null</tt>
      */
-    private ChatSession findChatSessionForDescriptor(Object descriptor)
+    private ChatPanel findChatPanelForDescriptor(Object descriptor)
     {
         for (ChatPanel chatPanel : chatPanels)
-        {
-            ChatSession chatSession = chatPanel.getChatSession();
-            if (chatSession.getDescriptor().equals(descriptor))
-                return chatSession;
-        }
-
+            if (chatPanel.getChatSession().getDescriptor().equals(descriptor))
+                return chatPanel;
         return null;
     }
 
@@ -1018,25 +987,6 @@ public class ChatWindowManager
         {
             return chatPanels.contains(chatPanel);
         }
-    }
-
-    /**
-     * Returns the <tt>ChatPanel</tt> corresponding to the given meta contact.
-     * 
-     * @param chatSession the key, which corresponds to the chat we are looking
-     * for. It could be a <tt>MetaContact</tt> in the case of single user chat
-     * and a <tt>ChatRoom</tt> in the case of a multi user chat
-     * @return the <tt>ChatPanel</tt> corresponding to the given meta contact
-     */
-    private ChatPanel getChat(ChatSession chatSession)
-    {
-        for (ChatPanel chatPanel : chatPanels)
-        {
-            if (chatSession.equals(chatPanel.getChatSession()))
-                return chatPanel;
-        }
-
-        return null;
     }
 
     /**
