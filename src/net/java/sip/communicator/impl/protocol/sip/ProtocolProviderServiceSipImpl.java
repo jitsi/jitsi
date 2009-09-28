@@ -92,11 +92,6 @@ public class ProtocolProviderServiceSipImpl
         new Hashtable<String, List<MethodProcessor>>();
 
     /**
-     * A random generator we use to generate tags.
-     */
-    private static Random localTagGenerator = new Random();
-
-    /**
      * The name of the property under which the user may specify the number of
      * the port where they would prefer us to bind our sip socket.
      */
@@ -842,21 +837,6 @@ public class ProtocolProviderServiceSipImpl
 
             isInitialized = false;
         }
-    }
-
-    /**
-     * Generate a tag for a FROM header or TO header. Just return a random 4
-     * digit integer (should be enough to avoid any clashes!) Tags only need to
-     * be unique within a call.
-     *
-     * @return a string that can be used as a tag parameter.
-     *
-     * synchronized: needed for access to 'rand', else risk to generate same tag
-     * twice
-     */
-    public static synchronized String generateLocalTag()
-    {
-            return Integer.toHexString(localTagGenerator.nextInt());
     }
 
     /**
@@ -1950,46 +1930,49 @@ public class ProtocolProviderServiceSipImpl
     }
 
     /**
-     * Generates a ToTag and attaches it to the to header of <tt>response</tt>.
+     * Sends a specific <tt>Request</tt> through a given
+     * <tt>SipProvider</tt> as part of the conversation associated with a
+     * specific <tt>Dialog</tt>.
      *
-     * @param response the response that is to get the ToTag.
-     * @param containingDialog the <tt>Dialog</tt> instance that the response
-     * would be sent in or <tt>null</tt> if we are not aware of the
-     * <tt>Dialog</tt> when calling this method.
+     * @param sipProvider the <tt>SipProvider</tt> to send the specified
+     *            request through
+     * @param request the <tt>Request</tt> to send through
+     *            <tt>sipProvider</tt>
+     * @param dialog the <tt>Dialog</tt> as part of which the specified
+     *            <tt>request</tt> is to be sent
+     * @throws OperationFailedException
      */
-    public void attachToTag(Response response, Dialog containingDialog)
+    public void sendInDialogRequest(SipProvider sipProvider,
+                                    Request request,
+                                    Dialog dialog)
+        throws OperationFailedException
     {
-        ToHeader to = (ToHeader) response.getHeader(ToHeader.NAME);
-        if (to == null) {
-            logger.debug("Strange ... no to To header in response:" + response);
-            return;
-        }
-
-        if( containingDialog != null
-            && containingDialog.getLocalTag() != null)
+        ClientTransaction clientTransaction = null;
+        try
         {
-            logger.debug("We seem to already have a tag in this dialog. "
-                         +"Returning");
-            return;
+            clientTransaction = sipProvider.getNewClientTransaction(request);
+        }
+        catch (TransactionUnavailableException ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to create a client transaction for request:\n"
+                + request, OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
 
         try
         {
-            if (to.getTag() == null || to.getTag().trim().length() == 0)
-            {
-
-                String toTag = generateLocalTag();
-
-                logger.debug("generated to tag: " + toTag);
-                to.setTag(toTag);
-            }
+            dialog.sendRequest(clientTransaction);
         }
-        catch (ParseException ex)
+        catch (SipException ex)
         {
-            //a parse exception here mean an internal error so we can only log
-            logger.error("Failed to attach a to tag to an outgoing response."
-                         , ex);
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to send request:\n" + request,
+                OperationFailedException.NETWORK_FAILURE,
+                ex,
+                logger);
         }
+
+        logger.debug("Sent request:\n" + request);
     }
 
     /**

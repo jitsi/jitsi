@@ -53,6 +53,11 @@ public class SipMessageFactory
     private final MessageFactory wrappedFactory;
 
     /**
+     * A random generator we use to generate tags.
+     */
+    private static Random localTagGenerator = null;
+
+    /**
      * The constructor for this class.
      *
      * @param service the service this <tt>MessageFactory</tt> belongs to.
@@ -244,7 +249,8 @@ public class SipMessageFactory
     /**
      * Attaches to <tt>message</tt> headers and object params that we'd like to
      * be present in absolutely all messages we create (like for example the
-     * user agent header or the provider message object tag).
+     * user agent header, the contact header or the provider message object
+     * tag).
      *
      * @param message the message that we'd like to tag
      * @return
@@ -268,7 +274,7 @@ public class SipMessageFactory
                 && response.getStatusCode() > 100
                 && response.getStatusCode() < 300)
             {
-                protocolProvider.attachToTag(response, null);
+                attachToTag(response, null);
             }
         }
 
@@ -296,7 +302,10 @@ public class SipMessageFactory
      * account both <tt>Request</tt>s and <tt>Response</tt>s. The method
      * is meant to be used only for messages that have been otherwise
      * initialized (in particular the Request URI in requests or the Via
-     * headers in responses.).
+     * headers in responses.). The method is only meant for use by
+     * <tt>attachScSpecifics()</tt>. Any requests and responses created through
+     * this message factory would go through <tt>attachScSpecifics</tt> so they
+     * don't need to explicitly call this method.
      *
      * @param message the message that we'd like to attach a
      * <tt>ContactHeader</tt> to.
@@ -354,6 +363,66 @@ public class SipMessageFactory
     }
 
     /**
+     * Generate a tag for a FROM header or TO header. Just return a random 4
+     * digit integer (should be enough to avoid any clashes!) Tags only need to
+     * be unique within a call.
+     *
+     * @return a string that can be used as a tag parameter.
+     *
+     * synchronized: needed for access to 'rand', else risk to generate same tag
+     * twice
+     */
+    public static synchronized String generateLocalTag()
+    {
+        if(localTagGenerator == null)
+            localTagGenerator = new Random();
+        return Integer.toHexString(localTagGenerator.nextInt());
+    }
+
+    /**
+     * Generates a ToTag and attaches it to the to header of <tt>response</tt>.
+     *
+     * @param response the response that is to get the ToTag.
+     * @param containingDialog the <tt>Dialog</tt> instance that the response
+     * would be sent in or <tt>null</tt> if we are not aware of the
+     * <tt>Dialog</tt> when calling this method.
+     */
+    private void attachToTag(Response response, Dialog containingDialog)
+    {
+        ToHeader to = (ToHeader) response.getHeader(ToHeader.NAME);
+        if (to == null) {
+            logger.debug("Strange ... no to To header in response:" + response);
+            return;
+        }
+
+        if( containingDialog != null
+            && containingDialog.getLocalTag() != null)
+        {
+            logger.debug("We seem to already have a tag in this dialog. "
+                         +"Returning");
+            return;
+        }
+
+        try
+        {
+            if (to.getTag() == null || to.getTag().trim().length() == 0)
+            {
+
+                String toTag = generateLocalTag();
+
+                logger.debug("generated to tag: " + toTag);
+                to.setTag(toTag);
+            }
+        }
+        catch (ParseException ex)
+        {
+            //a parse exception here mean an internal error so we can only log
+            logger.error("Failed to attach a to tag to an outgoing response."
+                         , ex);
+        }
+    }
+
+    /**
      * Creates a new {@link Request} of a specific method which is to be sent in
      * a specific <tt>Dialog</tt> and populates its generally-necessary
      * headers such as the Authorization header.
@@ -389,8 +458,6 @@ public class SipMessageFactory
             = protocolProvider.getLocalViaHeaders(dialog.getRemoteParty());
         request.setHeader(viaHeaders.get(0));
 
-        request.setHeader(protocolProvider
-                        .getContactHeader(dialog.getRemoteParty()));
 
         //now that we've set the Via headers right, we can attach our SC
         //specifics
@@ -435,27 +502,22 @@ public class SipMessageFactory
         {
             // Shouldn't happen
             ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "An unexpected erro occurred while"
-                + "constructing the CSeqHeadder",
-                OperationFailedException.INTERNAL_ERROR,
-                ex,
-                logger);
+                "Error occurred while constructing the CSeqHeadder",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
         catch (ParseException exc)
         {
             // shouldn't happen
             ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "An unexpected erro occurred while"
-                + "constructing the CSeqHeadder",
-                OperationFailedException.INTERNAL_ERROR, exc,
-                logger);
+                "Error while constructing a CSeqHeadder",
+                OperationFailedException.INTERNAL_ERROR, exc, logger);
         }
 
         // ReplacesHeader
         Header replacesHeader = stripReplacesHeader(toAddress);
 
         // FromHeader
-        String localTag = ProtocolProviderServiceSipImpl.generateLocalTag();
+        String localTag = SipMessageFactory.generateLocalTag();
         FromHeader fromHeader = null;
         ToHeader toHeader = null;
         try
@@ -473,9 +535,7 @@ public class SipMessageFactory
             ProtocolProviderServiceSipImpl.throwOperationFailedException(
                 "An unexpected erro occurred while"
                 + "constructing the ToHeader",
-                OperationFailedException.INTERNAL_ERROR,
-                ex,
-                logger);
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
 
         // ViaHeaders
@@ -485,31 +545,12 @@ public class SipMessageFactory
         // MaxForwards
         MaxForwardsHeader maxForwards = protocolProvider.getMaxForwardsHeader();
 
-        // Contact
-        ContactHeader contactHeader = null;
-        try
-        {
-            contactHeader
-                = protocolProvider.getContactHeader(toHeader.getAddress());
-        }
-        catch (IllegalArgumentException exc)
-        {
-            // encapsulate the illegal argument exception into an OpFailedExc
-            // so that the UI would notice it.
-            throw new OperationFailedException(
-                            exc.getMessage(),
-                            OperationFailedException.ILLEGAL_ARGUMENT,
-                            exc);
-        }
-
         Request invite = null;
         try
         {
-            invite =
-                protocolProvider.getMessageFactory().createRequest(
-                    toHeader.getAddress().getURI(), Request.INVITE,
-                    callIdHeader, cSeqHeader, fromHeader, toHeader, viaHeaders,
-                    maxForwards);
+            invite = protocolProvider.getMessageFactory().createRequest(
+                toHeader.getAddress().getURI(), Request.INVITE, callIdHeader,
+                cSeqHeader, fromHeader, toHeader, viaHeaders, maxForwards);
 
         }
         catch (ParseException ex)
@@ -517,13 +558,8 @@ public class SipMessageFactory
             // shouldn't happen
             ProtocolProviderServiceSipImpl.throwOperationFailedException(
                 "Failed to create invite Request!",
-                OperationFailedException.INTERNAL_ERROR,
-                ex,
-                logger);
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
-
-        // add the contact header.
-        invite.setHeader(contactHeader);
 
         // Add the ReplacesHeader if any.
         if (replacesHeader != null)

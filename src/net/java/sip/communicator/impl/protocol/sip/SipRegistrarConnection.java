@@ -359,8 +359,9 @@ public class SipRegistrarConnection
         }
         request.addHeader(expHeader);
 
-        //Contact Header (should contain IP)
-        ContactHeader contactHeader = sipProvider.getContactHeader(requestURI);
+        //Add an "expires" param to our Contact header.
+        ContactHeader contactHeader
+            = (ContactHeader)request.getHeader(ContactHeader.NAME);
 
         //add expires in the contact header as well in case server likes it
         //better there.
@@ -376,7 +377,7 @@ public class SipRegistrarConnection
                         ,exc);
         }
 
-        request.addHeader(contactHeader);
+        request.setHeader(contactHeader);
 
         //Transaction
         try

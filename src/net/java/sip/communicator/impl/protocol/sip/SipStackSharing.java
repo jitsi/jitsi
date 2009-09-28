@@ -522,10 +522,23 @@ public class SipStackSharing
                      */
                     if (request.getHeader(MaxForwardsHeader.NAME) == null)
                     {
-                        logger.trace(
-                            "Ignoring request without Max-Forwards header: "
+                        //it appears that some buggy providers do send requests
+                        //with no Max-Forwards headers, so let's at least try
+                        //to save calls.
+                        if(Request.INVITE.equals(request.getMethod()))
+                        {
+                            MaxForwardsHeader maxForwards = SipFactory
+                                .getInstance().createHeaderFactory()
+                                    .createMaxForwardsHeader(70);
+                            request.setHeader(maxForwards);
+                        }
+                        else
+                        {
+                            logger.trace(
+                                "Ignoring request without Max-Forwards header: "
                                 + event);
-                        return;
+                            return;
+                        }
                     }
 
                     SipProvider source = (SipProvider) event.getSource();

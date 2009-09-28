@@ -302,12 +302,6 @@ public class ClientCapabilities
                     }
                 }
 
-                //Contact Header (should contain IP)
-                ContactHeader contactHeader = provider
-                    .getContactHeader((SipURI)request.getRequestURI());
-
-                request.addHeader(contactHeader);
-
                 //Transaction
                 ClientTransaction optionsTrans = null;
                 try

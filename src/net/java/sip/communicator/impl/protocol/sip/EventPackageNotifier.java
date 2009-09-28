@@ -196,10 +196,6 @@ public abstract class EventPackageNotifier
                         e);
         }
 
-        // Contact
-        ContactHeader contactHeader
-            = protocolProvider.getContactHeader(toAddress);
-
         // Subscription-State
         SubscriptionStateHeader sStateHeader;
         try
@@ -227,9 +223,7 @@ public abstract class EventPackageNotifier
         ContentTypeHeader cTypeHeader;
         try
         {
-            cTypeHeader
-                = protocolProvider
-                    .getHeaderFactory()
+            cTypeHeader = protocolProvider.getHeaderFactory()
                         .createContentTypeHeader("application", contentSubType);
         }
         catch (ParseException e)
@@ -246,7 +240,6 @@ public abstract class EventPackageNotifier
         req.setHeader(maxForwards);
         req.setHeader(evHeader);
         req.setHeader(sStateHeader);
-        req.setHeader(contactHeader);
 
         /*
          * Check whether there's a cached authorization header for this call id

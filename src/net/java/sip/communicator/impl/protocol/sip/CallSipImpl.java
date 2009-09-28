@@ -503,6 +503,200 @@ public class CallSipImpl
         }
 
     }
+    /**
+     * @param callPeerToReplace
+     */
+    public void hangupCallPeer(CallPeerSipImpl peer)
+        throws OperationFailedException
+    {
+     // do nothing if the call is already ended
+        if (peer.getState().equals(CallPeerState.DISCONNECTED)
+            || peer.getState().equals(CallPeerState.FAILED))
+        {
+            logger.debug("Ignoring a request to hangup a call peer "
+                + "that is already DISCONNECTED");
+            return;
+        }
+
+        CallPeerSipImpl callPeer = (CallPeerSipImpl) peer;
+
+        CallPeerState peerState = callPeer.getState();
+        if (peerState.equals(CallPeerState.CONNECTED)
+            || CallPeerState.isOnHold(peerState))
+        {
+            sayBye(callPeer);
+            callPeer.setState(CallPeerState.DISCONNECTED);
+        }
+        else if (callPeer.getState().equals(
+            CallPeerState.CONNECTING)
+            || callPeer.getState().equals(
+                CallPeerState.CONNECTING_WITH_EARLY_MEDIA)
+            || callPeer.getState().equals(
+                CallPeerState.ALERTING_REMOTE_SIDE))
+        {
+            if (callPeer.getFirstTransaction() != null)
+            {
+                // Someone knows about us. Let's be polite and say we are
+                // leaving
+                sayCancel(callPeer);
+            }
+            callPeer.setState(CallPeerState.DISCONNECTED);
+        }
+        else if (peerState.equals(CallPeerState.INCOMING_CALL))
+        {
+            callPeer.setState(CallPeerState.DISCONNECTED);
+            sayBusyHere(callPeer);
+        }
+        // For FAILE and BUSY we only need to update CALL_STATUS
+        else if (peerState.equals(CallPeerState.BUSY))
+        {
+            callPeer.setState(CallPeerState.DISCONNECTED);
+        }
+        else if (peerState.equals(CallPeerState.FAILED))
+        {
+            callPeer.setState(CallPeerState.DISCONNECTED);
+        }
+        else
+        {
+            callPeer.setState(CallPeerState.DISCONNECTED);
+            logger.error("Could not determine call peer state!");
+        }
+
+    }
+
+    /**
+     * Sends a BYE request to <tt>callPeer</tt>.
+     *
+     * @param callPeer the call peer that we need to say bye to.
+     * @return <tt>true</tt> if the <tt>Dialog</tt> should be considered
+     *         alive after sending the BYE request (e.g. when there're still
+     *         active subscriptions); <tt>false</tt>, otherwise
+     * @throws OperationFailedException if we failed constructing or sending a
+     *             SIP Message.
+     */
+    public boolean sayBye(CallPeerSipImpl callPeer)
+        throws OperationFailedException
+    {
+        Dialog dialog = callPeer.getDialog();
+
+        Request bye = messageFactory.createRequest(dialog, Request.BYE);
+
+        getProtocolProvider().sendInDialogRequest(
+                        callPeer.getJainSipProvider(), bye, dialog);
+
+        /*
+         * Let subscriptions such as the ones associated with REFER requests
+         * keep the dialog alive and correctly delete it when they are
+         * terminated.
+         */
+        try
+        {
+            return DialogUtils.processByeThenIsDialogAlive(dialog);
+        }
+        catch (SipException ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to determine whether the dialog should stay alive.",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
+            return false;
+        }
+    }
+
+    /**
+     * Sends a BUSY_HERE response to <tt>callPeer</tt>.
+     *
+     * @param callPeer the call peer that we need to send busy
+     *            tone to.
+     * @throws OperationFailedException if we fail to create or send the
+     *             response
+     */
+    private void sayBusyHere(CallPeerSipImpl callPeer)
+        throws OperationFailedException
+    {
+        Request request = callPeer.getFirstTransaction().getRequest();
+        Response busyHere = null;
+        try
+        {
+            busyHere = messageFactory.createResponse(
+                                Response.BUSY_HERE, request);
+        }
+        catch (ParseException ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to create the BUSY_HERE response!",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
+        }
+
+        if (!callPeer.getDialog().isServer())
+        {
+            logger.error("Cannot send BUSY_HERE in a client transaction");
+            throw new OperationFailedException(
+                "Cannot send BUSY_HERE in a client transaction",
+                OperationFailedException.INTERNAL_ERROR);
+        }
+        ServerTransaction serverTransaction =
+            (ServerTransaction) callPeer.getFirstTransaction();
+
+        try
+        {
+            serverTransaction.sendResponse(busyHere);
+            logger.debug("sent response:\n" + busyHere);
+        }
+        catch (Exception ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to send the BUSY_HERE response",
+                OperationFailedException.NETWORK_FAILURE, ex, logger);
+        }
+    }
+
+    /**
+     * Sends a Cancel request to <tt>callPeer</tt>.
+     *
+     * @param callPeer the call peer that we need to cancel.
+     *
+     * @throws OperationFailedException we failed to construct or send the
+     *             CANCEL request.
+     */
+    private void sayCancel(CallPeerSipImpl callPeer)
+        throws OperationFailedException
+    {
+        if (callPeer.getDialog().isServer())
+        {
+            logger.error("Cannot cancel a server transaction");
+            throw new OperationFailedException(
+                "Cannot cancel a server transaction",
+                OperationFailedException.INTERNAL_ERROR);
+        }
+
+        ClientTransaction clientTransaction =
+            (ClientTransaction) callPeer.getFirstTransaction();
+        try
+        {
+            Request cancel = clientTransaction.createCancel();
+            ClientTransaction cancelTransaction =
+                callPeer.getJainSipProvider().getNewClientTransaction(
+                    cancel);
+            cancelTransaction.sendRequest();
+            logger.debug("sent request:\n" + cancel);
+        }
+        catch (SipException ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to send the CANCEL request",
+                OperationFailedException.NETWORK_FAILURE, ex, logger);
+        }
+    }
+
+    /**
+     * @param newCallPeer
+     */
+    private void answerCallPeer(CallPeerSipImpl newCallPeer)
+        throws OperationFailedException
+    {
+        // TODO Auto-generated method stub
+
+    }
 
     /**
      * Creates a new call and sends a RINGING response.
@@ -528,66 +722,30 @@ public class CallSipImpl
             peer.setSdpDescription(new String(invite.getRawContent()));
         }
 
-        //send a ringing reply
+        //send a ringing response
         Response response = null;
         try
         {
-            response = this.messageFactory.createResponse(Response.RINGING, invite);
-
-            //set the contact header
-            response.setHeader(getProtocolProvider()
-                            .getContactHeaderForResponse(invite));
-
-            //add the SDP
-            if (statusCode == Response.OK)
-            {
-                try
-                {
-                    attachSDP(callPeer, response);
-                }
-                catch (OperationFailedException ex)
-                {
-                    logger.error("Error while trying to send response "
-                        + response, ex);
-                    callPeer.setState(CallPeerState.FAILED,
-                        "Internal Error: " + ex.getMessage());
-                    return;
-                }
-            }
+            logger.trace("will send ringing response: ");
+            response = messageFactory.createResponse(Response.RINGING, invite);
+            serverTransaction.sendResponse(response);
+            logger.debug("sent a ringing response: " + response);
         }
         catch (ParseException ex)
         {
-            logger.error("Error while trying to send a response", ex);
-            callPeer.setState(CallPeerState.FAILED,
+            logger.error("Error while trying to create a response", ex);
+            peer.setState(CallPeerState.FAILED,
                 "Internal Error: " + ex.getMessage());
-            return;
-        }
-        try
-        {
-            logger.trace("will send " + statusCode + " response: ");
-            serverTransaction.sendResponse(response);
-            logger.debug("sent a " + statusCode + " response: "
-                + response);
+            return peer;
         }
         catch (Exception ex)
         {
             logger.error("Error while trying to send a request", ex);
-            callPeer.setState(CallPeerState.FAILED,
+            peer.setState(CallPeerState.FAILED,
                 "Internal Error: " + ex.getMessage());
-            return;
+            return peer;
         }
 
-        if (statusCode == Response.OK)
-        {
-            try
-            {
-                setMediaFlagsForPeer(callPeer, response);
-            }
-            catch (OperationFailedException ex)
-            {
-                logger.error("Error after sending response " + response, ex);
-            }
-        }
         return peer;
     }
 

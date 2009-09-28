@@ -179,11 +179,6 @@ public class EventPackageSubscriber
                     OperationFailedException.NETWORK_FAILURE);
         }
 
-        //ViaHeaders
-        List<ViaHeader> viaHeaders
-            = protocolProvider.getLocalViaHeaders(toAddress);
-        req.setHeader((Header) viaHeaders.get(0));
-
         populateSubscribeRequest(req, subscription, expires);
 
         return transac;
@@ -465,11 +460,6 @@ public class EventPackageSubscriber
                 , e);
         }
         req.setHeader(evHeader);
-
-        // Contact
-        ContactHeader contactHeader
-            = protocolProvider.getContactHeader(subscription.getAddress());
-        req.setHeader(contactHeader);
 
         // Accept
         AcceptHeader accept;
