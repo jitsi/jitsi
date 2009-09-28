@@ -35,6 +35,7 @@ import net.java.sip.communicator.util.swing.*;
  * links.
  *
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class ChatConversationPanel
     extends SCScrollPane
@@ -44,6 +45,29 @@ public class ChatConversationPanel
 {
     private static final Logger logger =
         Logger.getLogger(ChatConversationPanel.class);
+
+    /**
+     * The closing tag of the <code>PLAINTEXT</code> HTML element.
+     */
+    private static final String END_PLAINTEXT_TAG = "</PLAINTEXT>";
+
+    /**
+     * The opening tag of the <code>PLAINTEXT</code> HTML element.
+     */
+    private static final String START_PLAINTEXT_TAG = "<PLAINTEXT>";
+
+    /**
+     * The regular expression (in the form of compiled <tt>Pattern</tt>) which
+     * matches URLs for the purposed of turning them into links.
+     */
+    private static final Pattern URL_PATTERN
+        = Pattern
+            .compile(
+                "("
+                    + "(\\bwww\\.[^\\s<>\"]+\\.[^\\s<>\"]+/*[?#]*(\\w+[&=;?]\\w+)*\\b)" // wwwURL
+                    + "|"
+                    + "(\\b\\w+://[^\\s<>\"]+/*[?#]*(\\w+[&=;?]\\w+)*\\b)" // protocolURL
+                    + ")");
 
     private final JTextPane chatTextPane = new MyTextPane();
 
@@ -223,8 +247,8 @@ public class ChatConversationPanel
         }
         else
         {
-            startPlainTextTag = "<PLAINTEXT>";
-            endPlainTextTag = "</PLAINTEXT>";
+            startPlainTextTag = START_PLAINTEXT_TAG;
+            endPlainTextTag = END_PLAINTEXT_TAG;
         }
 
         if (messageType.equals(Chat.INCOMING_MESSAGE))
@@ -359,20 +383,21 @@ public class ChatConversationPanel
     /**
      * Processes the message given by the parameters.
      *
-     * @param chatMessage The message.
+     * @param chatMessage the message
+     * @param keyword
+     * @return the processed message
      */
     public String processMessage(ChatMessage chatMessage, String keyword)
     {
-        String formattedMessage = chatMessage.getMessage();
-
         if (keyword != null && keyword.length() != 0)
         {
-            formattedMessage = processKeyword(  chatMessage.getMessage(),
-                                                chatMessage.getContentType(),
-                                                keyword);
+            chatMessage
+                .setMessage(
+                    processKeyword(
+                        chatMessage.getMessage(),
+                        chatMessage.getContentType(),
+                        keyword));
         }
-
-        chatMessage.setMessage(formattedMessage);
 
         return this.processMessage(chatMessage);
     }
@@ -529,8 +554,8 @@ public class ChatConversationPanel
         }
         else
         {
-            startPlainTextTag = "<PLAINTEXT>";
-            endPlainTextTag = "</PLAINTEXT>";
+            startPlainTextTag = START_PLAINTEXT_TAG;
+            endPlainTextTag = END_PLAINTEXT_TAG;
         }
 
         Pattern p = Pattern.compile(keyword, Pattern.CASE_INSENSITIVE);
@@ -560,82 +585,87 @@ public class ChatConversationPanel
     }
 
     /**
-     * Formats the given message. Processes all smileys chars, new lines and all
-     * the links.
+     * Formats the given message. Processes all smiley chars, new lines and
+     * links.
      *
+     * @param message the message to be formatted
+     * @param contentType the content type of the message to be formatted
      * @return the formatted message
      */
     private String formatMessage(String message, String contentType)
     {
-        String processedString = message;
-
         // If the message content type is HTML we won't process links and
         // new lines, but only the smileys.
-        if (contentType == null || !contentType.equals(HTML_CONTENT_TYPE))
+        if (!HTML_CONTENT_TYPE.equals(contentType))
         {
-            String linkProcessedString = processLinks(message);
-
-            processedString = processNewLines(linkProcessedString);
+            message = processNewLines(processLinksAndHTMLChars(message));
         }
         // If the message content is HTML, we process br and img tags.
-        else if(contentType.equals(HTML_CONTENT_TYPE))
+        else
         {
-            processedString = processBrTags(message,
-                contentType);
-            processedString = processImgTags(processedString,
-                contentType);
+            message = processImgTags(processBrTags(message));
         }
 
-        return processSmileys(processedString, contentType);
+        return processSmileys(message, contentType);
     }
 
     /**
-     * Formats all links in the given message.
-     *
+     * Formats all links in the given message and escapes special HTML
+     * characters such as &lt;, &gt;, &amp; and &quot; in order to prevent HTML
+     * injection in plain-text messages such as writing
+     * <code>&lt;/PLAINTEXT&gt;</code>, HTML which is going to be rendered as
+     * such and <code>&lt;PLAINTEXT&gt;</code>. The two procedures are carried
+     * out in one call in order to not break URLs which contain special HTML
+     * characters such as &amp;.
+     * 
      * @param message The source message string.
      * @return The message string with properly formatted links.
      */
-    private String processLinks(String message)
+    private String processLinksAndHTMLChars(String message)
     {
-        String startPlainTextTag = "<PLAINTEXT>";
-        String endPlainTextTag = "</PLAINTEXT>";
-
-        String wwwURL = "(\\bwww\\.\\S+\\.\\S+/*[?#]*(\\w+[&=;?]\\w+)*\\b)";
-        String protocolURL = "(\\b\\w+://\\S+/*[?#]*(\\w+[&=;?]\\w+)*\\b)";
-        String url = "(" + wwwURL + "|" + protocolURL + ")";
-
-        Pattern p = Pattern.compile(url);
-
-        Matcher m = p.matcher(message);
-
+        Matcher m = URL_PATTERN.matcher(message);
         StringBuffer msgBuffer = new StringBuffer();
-
-        boolean matchSuccessfull = false;
+        int prevEnd = 0;
 
         while (m.find())
         {
-            if (!matchSuccessfull)
-                matchSuccessfull = true;
+            msgBuffer
+                .append(
+                    processHTMLChars(message.substring(prevEnd, m.start())));
+            prevEnd = m.end();
 
-            String matchGroup = m.group().trim();
-            String replacement;
+            String url = m.group().trim();
 
-            if (matchGroup.startsWith("www"))
-            {
-                replacement = endPlainTextTag + "<A href=\"" + "http://"
-                    + matchGroup + "\">" + matchGroup + "</A>"
-                    + startPlainTextTag;
-            }
-            else
-            {
-                replacement = endPlainTextTag + "<A href=\"" + matchGroup
-                    + "\">" + matchGroup + "</A>" + startPlainTextTag;
-            }
-            m.appendReplacement(msgBuffer, replacement);
+            msgBuffer.append(END_PLAINTEXT_TAG);
+            msgBuffer.append("<A href=\"");
+            if (url.startsWith("www"))
+                msgBuffer.append("http://");
+            msgBuffer.append(url);
+            msgBuffer.append("\">");
+            msgBuffer.append(url);
+            msgBuffer.append("</A>");
+            msgBuffer.append(START_PLAINTEXT_TAG);
         }
-        m.appendTail(msgBuffer);
+        msgBuffer.append(processHTMLChars(message.substring(prevEnd)));
 
         return msgBuffer.toString();
+    }
+
+    /**
+     * Escapes special HTML characters such as &lt;, &gt;, &amp; and &quot; in
+     * the specified message.
+     *
+     * @param message the message to be processed
+     * @return the processed message with escaped special HTML characters
+     */
+    private String processHTMLChars(String message)
+    {
+        return
+            message
+                .replace("&", "&amp;")
+                    .replace("<", "&lt;")
+                        .replace(">", "&gt;")
+                            .replace("\"", "&quot;");
     }
 
     /**
@@ -646,8 +676,6 @@ public class ChatConversationPanel
      */
     private String processNewLines(String message)
     {
-        String startPlainTextTag = "<PLAINTEXT>";
-        String endPlainTextTag = "</PLAINTEXT>";
 
         /*
          * <br> tags are needed to visualize a new line in the html format, but
@@ -660,8 +688,11 @@ public class ChatConversationPanel
          * To fix this we need "&#10;" - the HTML-Code for ASCII-Character No.10
          * (Line feed).
          */
-        return message.replaceAll("\n", endPlainTextTag + "<BR>&#10;"
-            + startPlainTextTag);
+        return
+            message
+                .replaceAll(
+                    "\n",
+                    END_PLAINTEXT_TAG + "<BR>&#10;" + START_PLAINTEXT_TAG);
     }
 
     /**
@@ -678,8 +709,8 @@ public class ChatConversationPanel
             || contentType.equals(TEXT_CONTENT_TYPE)
             || "".equals(contentType))
         {
-            startPlainTextTag = "<PLAINTEXT>";
-            endPlainTextTag = "</PLAINTEXT>";
+            startPlainTextTag = START_PLAINTEXT_TAG;
+            endPlainTextTag = END_PLAINTEXT_TAG;
         }
         else
         {
@@ -997,47 +1028,35 @@ public class ChatConversationPanel
      * @param message The source message string.
      * @return The message string with properly formatted &lt;br&gt; tags.
      */
-    private String processBrTags(String message, String contentType)
+    private String processBrTags(String message)
     {
         // The resulting message after being processed by this function.
-        StringBuffer processedMessage;
+        StringBuffer processedMessage = new StringBuffer();
 
-        // This is an HTML message.
-        if (contentType != null && contentType.equals(HTML_CONTENT_TYPE))
+        // Compile the regex to match something like <br .. /> or <BR .. />.
+        // This regex is case sensitive and keeps the style or other
+        // attributes of the <br> tag.
+        Matcher m
+            = Pattern.compile("<\\s*[bB][rR](.*?)(/\\s*>)").matcher(message);
+        int start = 0;
+
+        // while we find some <br /> closing tags with a slash inside.
+        while(m.find())
         {
-            processedMessage = new StringBuffer();
-
-            // Compile the regex to match something like <br .. /> or <BR .. />.
-            // This regex is case sensitive and keeps the style or other
-            // attributes of the <br> tag.
-            Pattern p = Pattern.compile("<\\s*[bB][rR](.*?)(/\\s*>)");
-            Matcher m = p.matcher(message);
-            int slash_index;
-            int start = 0;
-
-            // while we find some <br /> closing tags with a slash inside.
-            while(m.find())
-            {
-                // First, we have to copy all the message preceding the <br> tag.
-                processedMessage.append(message.substring(start, m.start()));
-                // Then, we find the position of the slash inside the tag.
-                slash_index = m.group().lastIndexOf("/");
-                // We copy the <br> tag till the slash exclude.
-                processedMessage.append(m.group().substring(0, slash_index));
-                // We copy all the end of the tag following the slash exclude.
-                processedMessage.append(m.group().substring(slash_index+1));
-                start = m.end();
-            }
-            // Finally, we have to add the end of the message following the last
-            // <br> tag, or the whole message if there is no <br> tag.
-            processedMessage.append(message.substring(start));
+            // First, we have to copy all the message preceding the <br> tag.
+            processedMessage.append(message.substring(start, m.start()));
+            // Then, we find the position of the slash inside the tag.
+            int slash_index = m.group().lastIndexOf("/");
+            // We copy the <br> tag till the slash exclude.
+            processedMessage.append(m.group().substring(0, slash_index));
+            // We copy all the end of the tag following the slash exclude.
+            processedMessage.append(m.group().substring(slash_index+1));
+            start = m.end();
         }
-        // This is a plain text message.
-        else
-        {
-            // Nothing to do, just copy the whole message.
-            processedMessage = new StringBuffer(message);
-        }
+        // Finally, we have to add the end of the message following the last
+        // <br> tag, or the whole message if there is no <br> tag.
+        processedMessage.append(message.substring(start));
+
         return processedMessage.toString();
     }
 
@@ -1051,47 +1070,37 @@ public class ChatConversationPanel
      * @param message The source message string.
      * @return The message string with properly formatted &lt;img&gt; tags.
      */
-    private String processImgTags(String message, String contentType)
+    private String processImgTags(String message)
     {
         // The resulting message after being processed by this function.
-        StringBuffer processedMessage;
+        StringBuffer processedMessage = new StringBuffer();
 
-        // This is an HTML message.
-        if (contentType != null && contentType.equals(HTML_CONTENT_TYPE))
-        {
-            processedMessage = new StringBuffer();
-            // Compile the regex to match something like <img ... /> or
-            // <IMG ... />. This regex is case sensitive and keeps the style,
-            // src or other attributes of the <img> tag.
-            Pattern p = Pattern.compile("<\\s*[iI][mM][gG](.*?)(/\\s*>)");
-            Matcher m = p.matcher(message);
-            int slash_index;
-            int start = 0;
+        // Compile the regex to match something like <img ... /> or
+        // <IMG ... />. This regex is case sensitive and keeps the style,
+        // src or other attributes of the <img> tag.
+        Pattern p = Pattern.compile("<\\s*[iI][mM][gG](.*?)(/\\s*>)");
+        Matcher m = p.matcher(message);
+        int slash_index;
+        int start = 0;
 
-            // while we find some <img /> self-closing tags with a slash inside.
-            while(m.find()){
-                // First, we have to copy all the message preceding the <img> tag.
-                processedMessage.append(message.substring(start, m.start()));
-                // Then, we find the position of the slash inside the tag.
-                slash_index = m.group().lastIndexOf("/");
-                // We copy the <img> tag till the slash exclude.
-                processedMessage.append(m.group().substring(0, slash_index));
-                // We copy all the end of the tag following the slash exclude.
-                processedMessage.append(m.group().substring(slash_index+1));
-                // We close the tag with a separate closing tag.
-                processedMessage.append("</img>");
-                start = m.end();
-            }
-            // Finally, we have to add the end of the message following the last
-            // <img> tag, or the whole message if there is no <img> tag.
-            processedMessage.append(message.substring(start));
+        // while we find some <img /> self-closing tags with a slash inside.
+        while(m.find()){
+            // First, we have to copy all the message preceding the <img> tag.
+            processedMessage.append(message.substring(start, m.start()));
+            // Then, we find the position of the slash inside the tag.
+            slash_index = m.group().lastIndexOf("/");
+            // We copy the <img> tag till the slash exclude.
+            processedMessage.append(m.group().substring(0, slash_index));
+            // We copy all the end of the tag following the slash exclude.
+            processedMessage.append(m.group().substring(slash_index+1));
+            // We close the tag with a separate closing tag.
+            processedMessage.append("</img>");
+            start = m.end();
         }
-        // This is a plain text message.
-        else
-        {
-            // Nothing to do, just copy the whole message.
-            processedMessage = new StringBuffer(message);
-        }
+        // Finally, we have to add the end of the message following the last
+        // <img> tag, or the whole message if there is no <img> tag.
+        processedMessage.append(message.substring(start));
+
         return processedMessage.toString();
     }
 
