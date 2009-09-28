@@ -1002,55 +1002,6 @@ public class ProtocolProviderServiceSipImpl
     }
 
     /**
-     * Returns a Contact header containing a sip URI based on the local-host
-     * address that <b>seemed</b> most suitable for use according what we
-     * guessed while looking at <tt>request</tt>.
-     *
-     * @param request the request that we are preparing to answer with the
-     * response that we are building a <tt>Contact</tt> header for.
-     *
-     * @return a Contact header based upon a local inet address.
-     */
-    public ContactHeader getContactHeaderForResponse(Request request)
-    {
-        //emil: so here's the thing. ideally we should use the address and
-        //port that this request arrived at. However there's no way for us
-        //to know this. First because jain-sip does not provide such a way
-        //and second (more important :) ) because the JRE itself does not,
-        //provide away of retrieving the specific local address for a
-        //datagram was received on a 0.0.0.0/::0 bound sock.
-
-        //therefore, since jain-sip will (normally be sending our response to
-        //the address in the topmost Via .. we use it to determine a local
-        //address.
-        ViaHeader via = (ViaHeader)request.getHeader(ViaHeader.NAME);
-        SipURI intendedDestinationURI;
-
-        String transport = via.getTransport();
-
-        String host = via.getHost();
-        int port = via.getPort();
-
-        try
-        {
-            intendedDestinationURI = addressFactory.createSipURI(null, host);
-            intendedDestinationURI.setPort(port);
-
-            if(transport != null)
-                intendedDestinationURI.setTransportParam(transport);
-        }
-        catch (ParseException e)
-        {
-            logger.debug(via + " does not seem to be a valid header.");
-
-            FromHeader from = (FromHeader)request.getHeader(From.NAME);
-            intendedDestinationURI = (SipURI)from.getAddress().getURI();
-        }
-
-        return getContactHeader(intendedDestinationURI);
-    }
-
-    /**
      * Returns a Contact header containing a sip URI based on a localhost
      * address and therefore usable in REGISTER requests only.
      *

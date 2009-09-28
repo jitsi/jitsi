@@ -306,7 +306,51 @@ public class SipMessageFactory
      */
     private Message attachContactHeader(Message message)
     {
-        //creates a Contact header
+        if(message instanceof Request)
+        {
+            Request request = (Request)message;
+
+            SipURI requestURI = (SipURI)request.getRequestURI();
+
+            request.setHeader(protocolProvider.getContactHeader(requestURI));
+            return request;
+        }
+        else
+        {
+            Response response = (Response)message;
+
+            ViaHeader via = (ViaHeader)response.getHeader(ViaHeader.NAME);
+            SipURI intendedDestinationURI;
+
+            String transport = via.getTransport();
+
+            String host = via.getHost();
+            int port = via.getPort();
+
+            try
+            {
+                intendedDestinationURI = protocolProvider.getAddressFactory()
+                    .createSipURI(null, host);
+                intendedDestinationURI.setPort(port);
+
+                if(transport != null)
+                    intendedDestinationURI.setTransportParam(transport);
+            }
+            catch (ParseException e)
+            {
+                logger.debug(via + " does not seem to be a valid header.");
+
+                FromHeader from = (FromHeader)response.getHeader(From.NAME);
+                intendedDestinationURI = (SipURI)from.getAddress().getURI();
+            }
+
+            ContactHeader contactHeader
+                = protocolProvider.getContactHeader(intendedDestinationURI);
+
+            response.setHeader(contactHeader);
+
+            return response;
+        }
     }
 
     /**
