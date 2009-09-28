@@ -18,7 +18,6 @@ import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
 
-import net.java.sip.communicator.impl.protocol.sip.util.*;
 import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -159,7 +158,7 @@ public class OperationSetBasicTelephonySipImpl
      * @param cause the <tt>Message</tt>, if any, which is the cause for the
      *            outgoing call to be placed and which carries additional
      *            information to be included in the call initiation (e.g. a
-     *            Referred-To header and token)
+     *            Referred-To header and token in a Refer request)
      * @return CallPeer the CallPeer that will represented by the
      *         specified uri. All following state change events will be
      *         delivered through that call peer. The Call that this
@@ -175,100 +174,15 @@ public class OperationSetBasicTelephonySipImpl
     {
         assertRegistered();
 
-        // create the invite request
-        Request invite = messageFactory.createInviteRequest(calleeAddress);
+        CallSipImpl call = new CallSipImpl(protocolProvider);
 
-        // pre-authenticate the request if possible.
-        messageFactory.preAuthenticateRequest(invite);
+        activeCallsRepository.addCall(call);
+        call.invite(calleeAddress, cause);
 
-        // Transaction
-        ClientTransaction inviteTransaction = null;
-        SipProvider jainSipProvider =
-            protocolProvider.getDefaultJainSipProvider();
-        try
-        {
-            inviteTransaction = jainSipProvider.getNewClientTransaction(invite);
-        }
-        catch (TransactionUnavailableException ex)
-        {
-            throwOperationFailedException(
-                "Failed to create inviteTransaction.\n"
-                    + "This is most probably a network connection error.",
-                OperationFailedException.INTERNAL_ERROR, ex);
-        }
+        // notify everyone
+        fireCallEvent( CallEvent.CALL_INITIATED, call);
 
-        // create the call peer
-        CallPeerSipImpl callPeer =
-            createCallPeerFor(inviteTransaction, jainSipProvider);
-
-        // invite content
-        try
-        {
-            CallSession callSession =
-                SipActivator.getMediaService().createCallSession(
-                    callPeer.getCall());
-            ((CallSipImpl) callPeer.getCall())
-                .setMediaCallSession(callSession);
-
-            callSession.setSessionCreatorCallback(callPeer);
-
-            // if possible try to indicate the address of the callee so
-            // that the media service can choose the most proper local
-            // address to advertise.
-            javax.sip.address.URI calleeURI = calleeAddress.getURI();
-            if (calleeURI.isSipURI())
-            {
-                // content type should be application/sdp (not applications)
-                // reported by Oleg Shevchenko (Miratech)
-                ContentTypeHeader contentTypeHeader = protocolProvider
-                    .getHeaderFactory().createContentTypeHeader(
-                        "application", "sdp");
-
-                String host = ((SipURI) calleeURI).getHost();
-                InetAddress intendedDestination = protocolProvider
-                        .resolveSipAddress(host).getAddress();
-
-                invite.setContent(callSession
-                            .createSdpOffer(intendedDestination),
-                            contentTypeHeader);
-            }
-        }
-        catch (UnknownHostException ex)
-        {
-            logger.warn("Failed to obtain an InetAddress." + ex.getMessage(),
-                ex);
-            throw new OperationFailedException(
-                            "Failed to obtain an InetAddress for "
-                            + ex.getMessage(),
-                            OperationFailedException.NETWORK_FAILURE,
-                            ex);
-        }
-        catch (ParseException ex)
-        {
-            throwOperationFailedException(
-                "Failed to parse sdp data while creating invite request!",
-                OperationFailedException.INTERNAL_ERROR, ex);
-        }
-        catch (MediaException ex)
-        {
-            throwOperationFailedException("Could not access media devices!",
-                OperationFailedException.INTERNAL_ERROR, ex);
-        }
-
-        try
-        {
-            inviteTransaction.sendRequest();
-            if (logger.isDebugEnabled())
-                logger.debug("sent request:\n" + invite);
-        }
-        catch (SipException ex)
-        {
-            throwOperationFailedException(
-                "An error occurred while sending invite request",
-                OperationFailedException.NETWORK_FAILURE, ex);
-        }
-
-        return (CallSipImpl) callPeer.getCall();
+        return call;
     }
 
     /**
@@ -329,9 +243,9 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (MediaException ex)
         {
-            throwOperationFailedException(
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
                 "Failed to create SDP offer to hold.",
-                OperationFailedException.INTERNAL_ERROR, ex);
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
 
         /*
@@ -386,9 +300,9 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (ParseException ex)
         {
-            throwOperationFailedException(
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
                 "Failed to parse SDP offer for the new invite.",
-                OperationFailedException.INTERNAL_ERROR, ex);
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
 
         sendRequest(sipPeer.getJainSipProvider(), invite, dialog);
@@ -417,9 +331,9 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (TransactionUnavailableException ex)
         {
-            throwOperationFailedException(
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
                 "Failed to create a client transaction for request:\n"
-                    + request, OperationFailedException.INTERNAL_ERROR, ex);
+                + request, OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
 
         try
@@ -428,34 +342,14 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (SipException ex)
         {
-            throwOperationFailedException(
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
                 "Failed to send request:\n" + request,
-                OperationFailedException.NETWORK_FAILURE, ex);
+                OperationFailedException.NETWORK_FAILURE,
+                ex,
+                logger);
         }
 
         logger.debug("Sent request:\n" + request);
-    }
-
-    /**
-     * Logs a specific message and associated <tt>Throwable</tt> cause as an
-     * error using the current <tt>Logger</tt> and then throws a new
-     * <tt>OperationFailedException</tt> with the message, a specific error code
-     * and the cause.
-     *
-     * @param message the message to be logged and then wrapped in a new
-     *            <tt>OperationFailedException</tt>
-     * @param errorCode the error code to be assigned to the new
-     *            <tt>OperationFailedException</tt>
-     * @param cause the <tt>Throwable</tt> that has caused the necessity to log
-     *            an error and have a new <tt>OperationFailedException</tt>
-     *            thrown
-     * @throws OperationFailedException
-     */
-    private void throwOperationFailedException(String message, int errorCode,
-        Throwable cause) throws OperationFailedException
-    {
-        logger.error(message, cause);
-        throw new OperationFailedException(message, errorCode, cause);
     }
 
     /**
@@ -1562,9 +1456,9 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (MediaException ex)
         {
-            throwOperationFailedException(
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
                 "Failed to create SDP answer to put-on/off-hold request.",
-                OperationFailedException.INTERNAL_ERROR, ex);
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
 
         response.setContent(
@@ -1608,9 +1502,9 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (MediaException ex)
         {
-            throwOperationFailedException(
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
                 "Failed to create SDP answer to put-on/off-hold request.",
-                OperationFailedException.INTERNAL_ERROR, ex);
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
 
         /*
@@ -2254,8 +2148,9 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (ParseException ex)
         {
-            throwOperationFailedException("Failed to create " + eventType
-                + " Event header.", OperationFailedException.INTERNAL_ERROR, ex);
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to create " + eventType + " Event header.",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
 
         SubscriptionStateHeader ssHeader = null;
@@ -2268,9 +2163,10 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (ParseException ex)
         {
-            throwOperationFailedException("Failed to create "
-                + subscriptionState + " Subscription-State header.",
-                OperationFailedException.INTERNAL_ERROR, ex);
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to create " + subscriptionState
+                + " Subscription-State header.",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
         notify.setHeader(ssHeader);
 
@@ -2282,9 +2178,9 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (ParseException ex)
         {
-            throwOperationFailedException(
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
                 "Failed to create Content-Type header.",
-                OperationFailedException.INTERNAL_ERROR, ex);
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
         try
         {
@@ -2292,8 +2188,9 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (ParseException ex)
         {
-            throwOperationFailedException("Failed to set NOTIFY body/content.",
-                OperationFailedException.INTERNAL_ERROR, ex);
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to set NOTIFY body/content.",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
 
         sendRequest(sipProvider, notify, dialog);
@@ -2323,8 +2220,9 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (SipException ex)
         {
-            throwOperationFailedException("Failed to create " + method
-                + " request.", OperationFailedException.INTERNAL_ERROR, ex);
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to create " + method + " request.",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
 
         //override the via and contact headers as jain-sip is generating one
@@ -2488,9 +2386,9 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (ParseException ex)
         {
-            throwOperationFailedException(
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
                 "Failed to construct an OK response to an INVITE request",
-                OperationFailedException.INTERNAL_ERROR, ex);
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
         ContactHeader contactHeader = protocolProvider
             .getContactHeader(dialog.getRemoteTarget());
@@ -2504,9 +2402,9 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (Exception ex)
         {
-            throwOperationFailedException(
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
                 "Failed to send an OK response to an INVITE request",
-                OperationFailedException.INTERNAL_ERROR, ex);
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
     } // internal error
 
@@ -2541,8 +2439,9 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (SipException ex)
         {
-            throwOperationFailedException("Failed to create bye request!",
-                OperationFailedException.INTERNAL_ERROR, ex);
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to create bye request!",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
 
         sendRequest(callPeer.getJainSipProvider(), bye, dialog);
@@ -2558,9 +2457,9 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (SipException ex)
         {
-            throwOperationFailedException(
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
                 "Failed to determine whether the dialog should stay alive.",
-                OperationFailedException.INTERNAL_ERROR, ex);
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
             return false;
         }
     } // bye
@@ -2597,8 +2496,9 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (SipException ex)
         {
-            throwOperationFailedException("Failed to send the CANCEL request",
-                OperationFailedException.NETWORK_FAILURE, ex);
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to send the CANCEL request",
+                OperationFailedException.NETWORK_FAILURE, ex, logger);
         }
     } // cancel
 
@@ -2625,9 +2525,9 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (ParseException ex)
         {
-            throwOperationFailedException(
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
                 "Failed to create the BUSY_HERE response!",
-                OperationFailedException.INTERNAL_ERROR, ex);
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
 
         if (!callPeer.getDialog().isServer())
@@ -2647,9 +2547,9 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (Exception ex)
         {
-            throwOperationFailedException(
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
                 "Failed to send the BUSY_HERE response",
-                OperationFailedException.NETWORK_FAILURE, ex);
+                OperationFailedException.NETWORK_FAILURE, ex, logger);
         }
     } // busy here
 
@@ -2702,9 +2602,9 @@ public class OperationSetBasicTelephonySipImpl
         catch (ParseException ex)
         {
             callPeer.setState(CallPeerState.DISCONNECTED);
-            throwOperationFailedException(
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
                 "Failed to construct an OK response to an INVITE request",
-                OperationFailedException.INTERNAL_ERROR, ex);
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
 
         // Content
@@ -2721,9 +2621,9 @@ public class OperationSetBasicTelephonySipImpl
         {
             // Shouldn't happen
             callPeer.setState(CallPeerState.DISCONNECTED);
-            throwOperationFailedException(
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
                 "Failed to create a content type header for the OK response",
-                OperationFailedException.INTERNAL_ERROR, ex);
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
 
         try
@@ -2793,10 +2693,9 @@ public class OperationSetBasicTelephonySipImpl
         catch (Exception ex)
         {
             callPeer.setState(CallPeerState.DISCONNECTED);
-            throwOperationFailedException(
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
                 "Failed to send an OK response to an INVITE request",
-                OperationFailedException.NETWORK_FAILURE,
-                ex);
+                OperationFailedException.NETWORK_FAILURE, ex, logger);
         }
     } // answer call
 
@@ -3028,10 +2927,10 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (ParseException ex)
         {
-            throwOperationFailedException(
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
                 "Failed to create Replaces header for target dialog "
                     + targetDialog,
-                OperationFailedException.ILLEGAL_ARGUMENT, ex);
+                OperationFailedException.ILLEGAL_ARGUMENT, ex, logger);
         }
         try
         {
@@ -3039,9 +2938,10 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (ParseException ex)
         {
-            throwOperationFailedException("Failed to set Replaces header "
-                + replacesHeader + " to SipURI " + sipURI,
-                OperationFailedException.INTERNAL_ERROR, ex);
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to set Replaces header " + replacesHeader
+                + " to SipURI " + sipURI,
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
 
         putOnHold(peer);
@@ -3091,8 +2991,9 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (ParseException ex)
         {
-            throwOperationFailedException("Failed to parse address string "
-                + addressString, OperationFailedException.ILLEGAL_ARGUMENT, ex);
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                 "Failed to parse address string " + addressString,
+                 OperationFailedException.ILLEGAL_ARGUMENT, ex, logger);
         }
         return address;
     }

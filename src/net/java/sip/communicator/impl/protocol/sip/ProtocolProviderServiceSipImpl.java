@@ -2331,5 +2331,30 @@ public class ProtocolProviderServiceSipImpl
             listener.removeRegistrationStateChangeListener(this);
         }
     }
+
+    /**
+     * Logs a specific message and associated <tt>Throwable</tt> cause as an
+     * error using the current <tt>Logger</tt> and then throws a new
+     * <tt>OperationFailedException</tt> with the message, a specific error code
+     * and the cause.
+     *
+     * @param message the message to be logged and then wrapped in a new
+     *            <tt>OperationFailedException</tt>
+     * @param errorCode the error code to be assigned to the new
+     *            <tt>OperationFailedException</tt>
+     * @param cause the <tt>Throwable</tt> that has caused the necessity to log
+     *            an error and have a new <tt>OperationFailedException</tt>
+     *            thrown
+     * @throws OperationFailedException
+     */
+    public static void throwOperationFailedException( String    message,
+                                                      int       errorCode,
+                                                      Throwable cause,
+                                                      Logger    logger)
+        throws OperationFailedException
+    {
+        logger.error(message, cause);
+        throw new OperationFailedException(message, errorCode, cause);
+    }
 }
 

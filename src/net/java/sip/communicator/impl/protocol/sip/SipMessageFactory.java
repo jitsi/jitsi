@@ -292,16 +292,21 @@ public class SipMessageFactory
         catch (InvalidArgumentException ex)
         {
             // Shouldn't happen
-            throwOperationFailedException("An unexpected erro occurred while"
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "An unexpected erro occurred while"
                 + "constructing the CSeqHeadder",
-                OperationFailedException.INTERNAL_ERROR, ex);
+                OperationFailedException.INTERNAL_ERROR,
+                ex,
+                logger);
         }
         catch (ParseException exc)
         {
             // shouldn't happen
-            throwOperationFailedException("An unexpected erro occurred while"
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "An unexpected erro occurred while"
                 + "constructing the CSeqHeadder",
-                OperationFailedException.INTERNAL_ERROR, exc);
+                OperationFailedException.INTERNAL_ERROR, exc,
+                logger);
         }
 
         // ReplacesHeader
@@ -324,9 +329,12 @@ public class SipMessageFactory
         catch (ParseException ex)
         {
             // these two should never happen.
-            throwOperationFailedException("An unexpected erro occurred while"
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "An unexpected erro occurred while"
                 + "constructing the ToHeader",
-                OperationFailedException.INTERNAL_ERROR, ex);
+                OperationFailedException.INTERNAL_ERROR,
+                ex,
+                logger);
         }
 
         // ViaHeaders
@@ -366,8 +374,11 @@ public class SipMessageFactory
         catch (ParseException ex)
         {
             // shouldn't happen
-            throwOperationFailedException("Failed to create invite Request!",
-                OperationFailedException.INTERNAL_ERROR, ex);
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to create invite Request!",
+                OperationFailedException.INTERNAL_ERROR,
+                ex,
+                logger);
         }
 
         // User Agent
@@ -389,12 +400,15 @@ public class SipMessageFactory
     }
 
     /**
-     * Creates an invite request destined for <tt>callee</tt>.
+     * Creates an invite request destined for <tt>callee</tt> and reflects
+     * any possible non-null cause (e.g. a Refer request causing a transfer) on
+     * the newly created request.
      *
      * @param toAddress the sip address of the callee that the request is meant
      * for.
      * @param cause the SIP <tt>Message</tt> from which the information is
-     * to be copied
+     * to be copied or <tt>null</tt> if there is no cause to be reflected (
+     * e.g. a refer request).
      *
      * @return a newly created sip <tt>Request</tt> destined for
      * <tt>callee</tt>.
@@ -512,30 +526,6 @@ public class SipMessageFactory
             }
         }
         return replacesHeader;
-    }
-
-    /**
-     * Logs a specific message and associated <tt>Throwable</tt> cause as an
-     * error using the current <tt>Logger</tt> and then throws a new
-     * <tt>OperationFailedException</tt> with the message, a specific error code
-     * and the cause.
-     *
-     * @param message the message to be logged and then wrapped in a new
-     *            <tt>OperationFailedException</tt>
-     * @param errorCode the error code to be assigned to the new
-     *            <tt>OperationFailedException</tt>
-     * @param cause the <tt>Throwable</tt> that has caused the necessity to log
-     *            an error and have a new <tt>OperationFailedException</tt>
-     *            thrown
-     * @throws OperationFailedException
-     */
-    private void throwOperationFailedException(String    message,
-                                               int       errorCode,
-                                               Throwable cause)
-        throws OperationFailedException
-    {
-        logger.error(message, cause);
-        throw new OperationFailedException(message, errorCode, cause);
     }
 
     /**

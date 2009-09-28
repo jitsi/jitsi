@@ -6,9 +6,15 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import java.net.*;
+import java.text.*;
 import java.util.*;
 
 import javax.sip.*;
+import javax.sip.address.*;
+import javax.sip.address.URI;
+import javax.sip.header.*;
+import javax.sip.message.*;
 
 import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -39,6 +45,12 @@ public class CallSipImpl
     private CallSession mediaCallSession = null;
 
     /**
+     * A reference to the <tt>SipMessageFactory</tt> instance that we should
+     * use when creating requests.
+     */
+    private final SipMessageFactory messageFactory;
+
+    /**
      * Crates a CallSipImpl instance belonging to <tt>sourceProvider</tt> and
      * initiated by <tt>CallCreator</tt>.
      *
@@ -48,6 +60,7 @@ public class CallSipImpl
     protected CallSipImpl(ProtocolProviderServiceSipImpl sourceProvider)
     {
         super(sourceProvider);
+        this.messageFactory = sourceProvider.getMessageFactory();
     }
 
     /**
@@ -268,4 +281,180 @@ public class CallSipImpl
     {
         return this.mediaCallSession;
     }
+
+    /**
+     * Returns a reference to the <tt>ProtocolProviderServiceSipImpl</tt>
+     * instance that created this call.
+     * @return a reference to the <tt>ProtocolProviderServiceSipImpl</tt>
+     * instance that created this call.
+     */
+    public ProtocolProviderServiceSipImpl getProtocolProvider()
+    {
+        return (ProtocolProviderServiceSipImpl)super.getProtocolProvider();
+    }
+
+    /**
+     * Creates a <tt>CallPeerSipImpl</tt> from <tt>calleeAddress</tt> and sends
+     * them an invite request. The invite request will be initialized according
+     * to any relevant parameters in the <tt>cause</tt> message (if different
+     * from <tt>null</tt>) that is the reason for creating this call.
+     *
+     * @param calleeAddress the party that we would like to invite to this call.
+     * @param cause the message (e.g. a Refer request), that is the reason for
+     * this invite or <tt>null</tt> if this is a user-initiated invitation
+     *
+     * @return the newly created <tt>CallPeer</tt> corresponding to
+     * <tt>calleeAddress</tt>. All following state change events will be
+     * delivered through this call peer.
+     *
+     * @throws OperationFailedException  with the corresponding code if we fail
+     *  to create the call.
+     */
+    public CallPeerSipImpl invite(Address                   calleeAddress,
+                                  javax.sip.message.Message cause)
+        throws OperationFailedException
+    {
+        // create the invite request
+        Request invite = messageFactory
+            .createInviteRequest(calleeAddress, cause);
+
+        // pre-authenticate the request if possible.
+        messageFactory.preAuthenticateRequest(invite);
+
+        // Transaction
+        ClientTransaction inviteTransaction = null;
+        SipProvider jainSipProvider
+            = getProtocolProvider().getDefaultJainSipProvider();
+        try
+        {
+            inviteTransaction = jainSipProvider.getNewClientTransaction(invite);
+        }
+        catch (TransactionUnavailableException ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to create inviteTransaction.\n"
+                    + "This is most probably a network connection error.",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
+        }
+        // create the call peer
+        CallPeerSipImpl callPeer =
+            createCallPeerFor(inviteTransaction, jainSipProvider);
+
+        // invite content
+        attachSdpOffer(invite, callPeer);
+
+        try
+        {
+            inviteTransaction.sendRequest();
+            if (logger.isDebugEnabled())
+                logger.debug("sent request:\n" + invite);
+        }
+        catch (SipException ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "An error occurred while sending invite request",
+                OperationFailedException.NETWORK_FAILURE, ex, logger);
+        }
+
+        return callPeer;
+    }
+
+    /**
+     * Creates an SDP offer destined to <tt>callPeer</tt> and attaches it to
+     * the <tt>invite</tt> request.
+     *
+     * @param invite the invite <tt>Request</tt> that we'd like to attach an
+     * SDP offer to.
+     * @param callPeer the <tt>callPeer</tt> that we'd like to address our
+     * offer to
+     */
+    private void attachSdpOffer(Request invite, CallPeerSipImpl callPeer)
+        throws OperationFailedException
+    {
+        try
+        {
+            CallSession callSession =
+                SipActivator.getMediaService().createCallSession(
+                    callPeer.getCall());
+            ((CallSipImpl) callPeer.getCall())
+                .setMediaCallSession(callSession);
+
+            callSession.setSessionCreatorCallback(callPeer);
+
+            // if possible try to indicate the address of the callee so
+            // that the media service can choose the most proper local
+            // address to advertise.
+            URI calleeURI = callPeer.getJainSipAddress().getURI();
+            if (calleeURI.isSipURI())
+            {
+                // content type should be application/sdp (not applications)
+                // reported by Oleg Shevchenko (Miratech)
+                ContentTypeHeader contentTypeHeader = getProtocolProvider()
+                    .getHeaderFactory().createContentTypeHeader(
+                        "application", "sdp");
+
+                String host = ((SipURI) calleeURI).getHost();
+                InetAddress intendedDestination = getProtocolProvider()
+                        .resolveSipAddress(host).getAddress();
+
+                invite.setContent(callSession
+                            .createSdpOffer(intendedDestination),
+                            contentTypeHeader);
+            }
+        }
+        catch (UnknownHostException ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to obtain an InetAddress for " + ex.getMessage(),
+                OperationFailedException.NETWORK_FAILURE, ex, logger);
+        }
+        catch (ParseException ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to parse sdp data while creating invite request!",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
+        }
+        catch (MediaException ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Could not access media devices!",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
+        }
+
+    }
+
+    /**
+     * Creates a new call and call peer associated with
+     * <tt>containingTransaction</tt>
+     *
+     * @param containingTransaction the transaction that created the call.
+     * @param sourceProvider the provider that the containingTransaction belongs
+     *            to.
+     *
+     * @return a new instance of a <tt>CallPeerSipImpl</tt> corresponding
+     *         to the <tt>containingTransaction</tt>.
+     */
+    private CallPeerSipImpl createCallPeerFor(
+        Transaction containingTransaction, SipProvider sourceProvider)
+    {
+        CallPeerSipImpl callPeer =
+            new CallPeerSipImpl(
+                containingTransaction.getDialog().getRemoteParty(),
+                this);
+        boolean incomingCall =
+            (containingTransaction instanceof ServerTransaction);
+
+        callPeer.setState(
+             incomingCall ?
+                 CallPeerState.INCOMING_CALL :
+                 CallPeerState.INITIATING_CALL);
+
+        callPeer.setDialog(containingTransaction.getDialog());
+        callPeer.setFirstTransaction(containingTransaction);
+        callPeer.setJainSipProvider(sourceProvider);
+
+        return callPeer;
+    }
+
+
 }
