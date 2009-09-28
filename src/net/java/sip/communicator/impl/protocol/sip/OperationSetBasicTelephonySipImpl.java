@@ -49,6 +49,12 @@ public class OperationSetBasicTelephonySipImpl
     private final ProtocolProviderServiceSipImpl protocolProvider;
 
     /**
+     * A reference to the <tt>SipMessageFactory</tt> instance that we should
+     * use when creating requests.
+     */
+    private final SipMessageFactory messageFactory;
+
+    /**
      * Contains references for all currently active (non ended) calls.
      */
     private final ActiveCallsRepository activeCallsRepository =
@@ -76,6 +82,7 @@ public class OperationSetBasicTelephonySipImpl
         ProtocolProviderServiceSipImpl protocolProvider)
     {
         this.protocolProvider = protocolProvider;
+        this.messageFactory = protocolProvider.getMessageFactory();
 
         protocolProvider.registerMethodProcessor(Request.INVITE, this);
         protocolProvider.registerMethodProcessor(Request.CANCEL, this);
@@ -166,31 +173,13 @@ public class OperationSetBasicTelephonySipImpl
     private synchronized CallSipImpl createOutgoingCall(Address calleeAddress,
         javax.sip.message.Message cause) throws OperationFailedException
     {
-        if(!protocolProvider.isRegistered())
-        {
-            throw new OperationFailedException(
-                "The protocol provider should be registered "
-                +"before placing an outgoing call.",
-                OperationFailedException.PROVIDER_NOT_REGISTERED);
-        }
+        assertRegistered();
 
         // create the invite request
-        Request invite = JainSipTelephonyHelper
-                .createInviteRequest(calleeAddress, protocolProvider);
-
+        Request invite = messageFactory.createInviteRequest(calleeAddress);
 
         // pre-authenticate the request if possible.
-        JainSipTelephonyHelper.preAuthenticateRequest();
-
-        /*
-         * Whatever the cause of the outgoing call is, reflect the appropriate
-         * information from it into the INVITE request (and do it elsewhere
-         * because this method is already long enough and difficult to grasp).
-         */
-        if (cause != null)
-        {
-            reflectCauseOnEffect(cause, invite);
-        }
+        messageFactory.preAuthenticateRequest(invite);
 
         // Transaction
         ClientTransaction inviteTransaction = null;
@@ -280,43 +269,6 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         return (CallSipImpl) callPeer.getCall();
-    }
-
-    /**
-     * Copies and possibly modifies information from a given SIP
-     * <tt>Message</tt> into another SIP <tt>Message</tt> (the first of
-     * which is being thought of as the cause for the existence of the second
-     * and the second is considered the effect of the first for the sake of
-     * clarity in the most common of use cases).
-     * <p>
-     * The Referred-By header and its optional token are common examples of such
-     * information which is to be copied without modification by the referee
-     * from the REFER <tt>Request</tt> into the resulting <tt>Request</tt>
-     * to the refer target.
-     * </p>
-     *
-     * @param cause the SIP <tt>Message</tt> from which the information is
-     *            to be copied
-     * @param effect the SIP <tt>Message</tt> into which the information is
-     *            to be copied
-     */
-    private void reflectCauseOnEffect(javax.sip.message.Message cause,
-        javax.sip.message.Message effect)
-    {
-
-        /*
-         * Referred-By (which comes from a referrer) should be copied to the
-         * refer target without tampering.
-         *
-         * TODO Apart from Referred-By, its token should also be copied if
-         * present.
-         */
-        Header referredBy = cause.getHeader(ReferredByHeader.NAME);
-
-        if (referredBy != null)
-        {
-            effect.setHeader(referredBy);
-        }
     }
 
     /**
@@ -3143,6 +3095,25 @@ public class OperationSetBasicTelephonySipImpl
                 + addressString, OperationFailedException.ILLEGAL_ARGUMENT, ex);
         }
         return address;
+    }
+
+    /**
+     * Verifies that our protocol provider is properly registered and throws
+     * an <tt>OperationFailedException</tt> if that's not the case.
+     *
+     * @throws OperationFailedException if the protocol provider that created us
+     * is not registered.
+     */
+    private void assertRegistered()
+        throws OperationFailedException
+    {
+        if(!protocolProvider.isRegistered())
+        {
+            throw new OperationFailedException(
+                "The protocol provider should be registered "
+                +"before placing an outgoing call.",
+                OperationFailedException.PROVIDER_NOT_REGISTERED);
+        }
     }
 }
 

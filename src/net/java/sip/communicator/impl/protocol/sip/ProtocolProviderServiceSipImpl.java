@@ -75,7 +75,7 @@ public class ProtocolProviderServiceSipImpl
     /**
      * The Message Factory used to create SIP messages.
      */
-    private MessageFactory messageFactory;
+    private SipMessageFactory messageFactory;
 
     /**
       * The class in charge of event dispatching and managing common JAIN-SIP
@@ -1156,7 +1156,7 @@ public class ProtocolProviderServiceSipImpl
      *
      * @return the Message Factory used to create SIP messages.
      */
-    public MessageFactory getMessageFactory()
+    public SipMessageFactory getMessageFactory()
     {
         if (messageFactory == null)
         {

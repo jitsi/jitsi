@@ -132,6 +132,7 @@ public class CallSipImpl
      */
     public void peerImageChanged(CallPeerChangeEvent evt)
     {
+        //does not concern us
     }
 
     /**
@@ -142,6 +143,7 @@ public class CallSipImpl
      */
     public void peerAddressChanged(CallPeerChangeEvent evt)
     {
+      //does not concern us
     }
 
     /**
@@ -153,6 +155,7 @@ public class CallSipImpl
     public void peerTransportAddressChanged(
         CallPeerChangeEvent evt)
     {
+      //does not concern us
     }
 
     /**
@@ -163,6 +166,7 @@ public class CallSipImpl
      */
     public void peerDisplayNameChanged(CallPeerChangeEvent evt)
     {
+      //does not concern us
     }
 
     /**
