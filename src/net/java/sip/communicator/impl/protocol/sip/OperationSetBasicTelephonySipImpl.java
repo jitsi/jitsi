@@ -782,7 +782,6 @@ public class OperationSetBasicTelephonySipImpl
          */
 
         Request ack = null;
-        ContentTypeHeader contentTypeHeader = null;
         // Create ACK
         try
         {
@@ -790,18 +789,6 @@ public class OperationSetBasicTelephonySipImpl
             // sees them - Fixed by M.Ranganathan
             CSeqHeader cseq = ((CSeqHeader) ok.getHeader(CSeqHeader.NAME));
             ack = clientTransaction.getDialog().createAck(cseq.getSeqNumber());
-
-            //Content.
-            contentTypeHeader = protocolProvider.getHeaderFactory()
-                .createContentTypeHeader( "application", "sdp" );
-        }
-        catch (ParseException ex)
-        {
-            // Shouldn't happen
-            logErrorAndFailCallPeer(
-                "Failed to create a content type header for the ACK request",
-                ex, callPeer);
-            return;
         }
         catch (InvalidArgumentException ex)
         {
@@ -818,64 +805,32 @@ public class OperationSetBasicTelephonySipImpl
             return;
         }
 
-        // !!! set sdp content before setting call state as that is where
-        // listeners get alerted and they need the sdp
-        // ignore sdp if we have already received one in early media
+        // !!! set SDP content before setting call state as that is where
+        // listeners get alerted and they need the SDP
+        // ignore SDP if we have already received one in early media
         if(!CallPeerState.CONNECTING_WITH_EARLY_MEDIA
                .equals(callPeer.getState()))
             callPeer.setSdpDescription(new String(ok.getRawContent()));
 
         // notify the media manager of the sdp content
-        CallSession callSession =
-            ((CallSipImpl) callPeer.getCall()).getMediaCallSession();
+        CallSession callSession = callPeer.getCall().getMediaCallSession();
+
+        // Send the ACK now since we already got all the info we need,
+        // and callSession.processSdpAnswer can take a few seconds.
+        // (patch by Michael Koch)
+        try
+        {
+            clientTransaction.getDialog().sendAck(ack);
+        }
+        catch (SipException ex)
+        {
+            logErrorAndFailCallPeer("Failed to acknowledge call!",
+                            ex, callPeer);
+            return;
+        }
 
         try
         {
-            try
-            {
-                if (callSession == null)
-                {
-                    // non existent call session - that means we didn't send sdp
-                    // in the invite and this is the offer so we need to create
-                    // the answer.
-                    callSession =
-                        SipActivator.getMediaService().createCallSession(
-                            callPeer.getCall());
-
-                    callSession
-                        .setSessionCreatorCallback(callPeer);
-
-                    String sdp
-                        = callSession.processSdpOffer(
-                                callPeer,
-                                callPeer.getSdpDescription());
-                    ack.setContent(sdp, contentTypeHeader);
-
-                    // set the call url in case there was one
-                    /**
-                     * @todo this should be done in CallSession, once we move it
-                     *       here.
-                     */
-                    callPeer.setCallInfoURL(callSession.getCallInfoURL());
-                }
-            }
-            finally
-            {
-                // Send the ACK now since we already got all the info we need,
-                // and callSession.processSdpAnswer can take a few seconds.
-                // (patch by Michael Koch)
-                try
-                {
-                    clientTransaction.getDialog().sendAck(ack);
-                }
-                catch (SipException ex)
-                {
-                    logErrorAndFailCallPeer(
-                        "Failed to acknowledge call!", ex, callPeer);
-                    return;
-                }
-            }
-
             /*
              * We used to not process the SDP if we had already received one in
              * early media. But functionality using re-invites (e.g. toggling
@@ -883,8 +838,7 @@ public class OperationSetBasicTelephonySipImpl
              * the SDP (e.g. because of re-negotiating the media after toggling
              * the streaming of local video).
              */
-            CallPeerState callPeerState =
-                callPeer.getState();
+            CallPeerState callPeerState = callPeer.getState();
             if (!CallPeerState.CONNECTING_WITH_EARLY_MEDIA
                     .equals(callPeerState))
             {
@@ -893,9 +847,6 @@ public class OperationSetBasicTelephonySipImpl
             }
 
             // set the call url in case there was one
-            /**
-             * @todo this should be done in CallSession, once we move it here.
-             */
             callPeer.setCallInfoURL(callSession.getCallInfoURL());
         }
         //at this point we have already sent our ack so in addition to logging

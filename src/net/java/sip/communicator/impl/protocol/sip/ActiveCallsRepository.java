@@ -268,7 +268,6 @@ public class ActiveCallsRepository
                       && branchID.equals(cpTran.getBranchId()))
                 {
                     return cp;
-
                 }
             }
         }
