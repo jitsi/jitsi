@@ -708,7 +708,7 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (ParseException exc)
         {
-            logErrorAndFailCallPeer(
+            logAndFailCallPeer(
                 "There was an error parsing the SDP description of "
                     + callPeer.getDisplayName() + "("
                     + callPeer.getAddress() + ")", exc, callPeer);
@@ -716,7 +716,7 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (MediaException exc)
         {
-            logErrorAndFailCallPeer(
+            logAndFailCallPeer(
                 "We failed to process the SDP description of "
                     + callPeer.getDisplayName() + "("
                     + callPeer.getAddress() + ")" + ". Error was: "
@@ -781,27 +781,29 @@ public class OperationSetBasicTelephonySipImpl
          * streaming of local video while in a call.
          */
 
-        Request ack = null;
-        // Create ACK
+        //ACK
         try
         {
             // Need to use dialog generated ACKs so that the remote UA core
             // sees them - Fixed by M.Ranganathan
             CSeqHeader cseq = ((CSeqHeader) ok.getHeader(CSeqHeader.NAME));
-            ack = clientTransaction.getDialog().createAck(cseq.getSeqNumber());
+            Request ack = clientTransaction.getDialog()
+                .createAck(cseq.getSeqNumber());
+
+            // Send the ACK now since we already got all the info we need,
+            // and callSession.processSdpAnswer can take a few seconds.
+            // (patch by Michael Koch)
+            clientTransaction.getDialog().sendAck(ack);
         }
         catch (InvalidArgumentException ex)
         {
             // Shouldn't happen
-            logErrorAndFailCallPeer(
-                "Failed ACK request, problem with the supplied cseq", ex,
-                callPeer);
+            logAndFailCallPeer("Error creating an ACK (CSeq?)", ex, callPeer);
             return;
         }
         catch (SipException ex)
         {
-            logErrorAndFailCallPeer("Failed to create ACK request!", ex,
-                callPeer);
+            logAndFailCallPeer("Failed to create ACK request!", ex, callPeer);
             return;
         }
 
@@ -810,24 +812,12 @@ public class OperationSetBasicTelephonySipImpl
         // ignore SDP if we have already received one in early media
         if(!CallPeerState.CONNECTING_WITH_EARLY_MEDIA
                .equals(callPeer.getState()))
+        {
             callPeer.setSdpDescription(new String(ok.getRawContent()));
+        }
 
         // notify the media manager of the sdp content
         CallSession callSession = callPeer.getCall().getMediaCallSession();
-
-        // Send the ACK now since we already got all the info we need,
-        // and callSession.processSdpAnswer can take a few seconds.
-        // (patch by Michael Koch)
-        try
-        {
-            clientTransaction.getDialog().sendAck(ack);
-        }
-        catch (SipException ex)
-        {
-            logErrorAndFailCallPeer("Failed to acknowledge call!",
-                            ex, callPeer);
-            return;
-        }
 
         try
         {
@@ -888,7 +878,7 @@ public class OperationSetBasicTelephonySipImpl
      * @param throwable the exception that cause the error we are logging
      * @param peer the peer that caused the error and that we are failing.
      */
-    private void logErrorAndFailCallPeer(String message,
+    private void logAndFailCallPeer(String message,
         Throwable throwable, CallPeerSipImpl peer)
     {
         logger.error(message, throwable);
@@ -973,7 +963,7 @@ public class OperationSetBasicTelephonySipImpl
         catch (Exception exc)
         {
             // tell the others we couldn't register
-            logErrorAndFailCallPeer(
+            logAndFailCallPeer(
                 "We failed to authenticate an INVITE request.", exc,
                 callPeer);
             return;
@@ -1292,14 +1282,14 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (ParseException ex)
         {
-            logErrorAndFailCallPeer(
+            logAndFailCallPeer(
                 "Failed to create an OK Response to an CANCEL request.", ex,
                 callPeer);
             return;
         }
         catch (Exception ex)
         {
-            logErrorAndFailCallPeer(
+            logAndFailCallPeer(
                 "Failed to send an OK Response to an CANCEL request.", ex,
                 callPeer);
             return;
