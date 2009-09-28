@@ -27,6 +27,9 @@ import net.java.sip.communicator.util.*;
 public class SipRegistrarConnection
     extends MethodProcessorAdapter
 {
+    /**
+     * Our class logger.
+     */
     private static final Logger logger =
         Logger.getLogger(SipRegistrarConnection.class);
 
@@ -139,11 +142,12 @@ public class SipRegistrarConnection
     * @throws ParseException in case the specified registrar address is not a
     * valid reigstrar address.
     */
-    public SipRegistrarConnection(InetAddress  registrarAddress,
-                                  int          registrarPort,
-                                  String       registrationTransport,
-                                  int          expirationTimeout,
-                                  ProtocolProviderServiceSipImpl sipProviderCallback)
+    public SipRegistrarConnection(
+                            InetAddress  registrarAddress,
+                            int          registrarPort,
+                            String       registrationTransport,
+                            int          expirationTimeout,
+                            ProtocolProviderServiceSipImpl sipProviderCallback)
         throws ParseException
     {
         this.sipProvider = sipProviderCallback;
@@ -196,7 +200,7 @@ public class SipRegistrarConnection
         {
             fromHeader = sipProvider.getHeaderFactory().createFromHeader(
                 getAddressOfRecord(),
-                ProtocolProviderServiceSipImpl.generateLocalTag());
+                SipMessageFactory.generateLocalTag());
         }
         catch (ParseException ex)
         {
@@ -548,6 +552,10 @@ public class SipRegistrarConnection
     /**
     * Sends a unregistered request to the registrar thus ending our
     * registration.
+    *
+    * @param sendUnregister indicates whether we should actually send an
+    * unREGISTER request or simply set our state to UNREGISTERED.
+    *
     * @throws OperationFailedException with the corresponding code if sending
     * or constructing the request fails.
     */
@@ -1178,21 +1186,6 @@ public class SipRegistrarConnection
     public boolean isRouteHeaderEnabled()
     {
         return useRouteHeader;
-    }
-
-    /**
-    * Specifies whether Register requests should be using a route header.
-    *
-    * Jeroen van Bemmel: The reason this may needed, is that standards-
-    * compliant registrars check the domain in the request URI. If it contains
-    * an IP address, some registrars are unable to match/process it (they may
-    * forward instead, and get into a forwarding loop)
-    *
-    * @return true if we should be using a route header.
-    */
-    public boolean setRouteHeaderEnabled(boolean useRouteHeader)
-    {
-        return this.useRouteHeader = useRouteHeader;
     }
 
     /**

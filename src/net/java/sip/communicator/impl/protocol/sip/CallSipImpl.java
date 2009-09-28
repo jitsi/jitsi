@@ -30,6 +30,9 @@ public class CallSipImpl
     extends Call
     implements CallPeerListener
 {
+    /**
+     * Our class logger.
+     */
     private static final Logger logger = Logger.getLogger(CallSipImpl.class);
 
     /**
@@ -367,6 +370,9 @@ public class CallSipImpl
      * SDP offer to.
      * @param callPeer the <tt>callPeer</tt> that we'd like to address our
      * offer to
+     *
+     * @throws OperationFailedException if we fail constructing the session
+     * description.
      */
     private void attachSdpOffer(Request invite, CallPeerSipImpl callPeer)
         throws OperationFailedException

@@ -395,10 +395,10 @@ public class OperationSetTypingNotificationsSipImpl
                 OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING, null);
 
         //create the message
-        Request mes;
+        Request messageRequest;
         try
         {
-            mes = opSetBasicIm.createMessage(to, message);
+            messageRequest = opSetBasicIm.createMessageRequest(to, message);
         }
         catch (OperationFailedException ex)
         {
@@ -410,7 +410,7 @@ public class OperationSetTypingNotificationsSipImpl
 
         try
         {
-            opSetBasicIm.sendRequestMessage(mes, to, message);
+            opSetBasicIm.sendMessageRequest(messageRequest, to, message);
         }
         catch(TransactionUnavailableException ex)
         {

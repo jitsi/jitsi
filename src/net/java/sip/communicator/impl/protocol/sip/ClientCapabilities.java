@@ -43,6 +43,13 @@ public class ClientCapabilities
      */
     private long nextCSeqValue = 1;
 
+    /**
+     * Creates a new instance of this class using the specified parent
+     * <tt>protocolProvider</tt>.
+     *
+     * @param protocolProvider a reference to the
+     * <tt>ProtocolProviderServiceSipImpl</tt> instance that created us.
+     */
     public ClientCapabilities(ProtocolProviderServiceSipImpl protocolProvider)
     {
         this.provider = protocolProvider;
@@ -182,7 +189,7 @@ public class ClientCapabilities
                     //use the getOurSipAddress() method.
                     fromHeader = provider.getHeaderFactory().createFromHeader(
                         provider.getRegistrarConnection().getAddressOfRecord(),
-                        ProtocolProviderServiceSipImpl.generateLocalTag());
+                        SipMessageFactory.generateLocalTag());
                 }
                 catch (ParseException ex)
                 {

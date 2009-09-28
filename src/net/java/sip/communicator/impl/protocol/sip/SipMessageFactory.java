@@ -281,6 +281,13 @@ public class SipMessageFactory
         //add a contact header.
         attachContactHeader(message);
 
+
+        // If this is a SIP request then let's try to pre-authenticate it.
+        if(message instanceof Request)
+        {
+            preAuthenticateRequest((Request)message);
+        }
+
         // User Agent
         UserAgentHeader userAgentHeader
                     = protocolProvider.getSipCommUserAgentHeader();
@@ -462,9 +469,6 @@ public class SipMessageFactory
         //now that we've set the Via headers right, we can attach our SC
         //specifics
         attachScSpecifics(request);
-
-        // We have a dialog here so let's try and pre-authenticate the request.
-        preAuthenticateRequest(request);
 
         return request;
     }
@@ -715,6 +719,10 @@ public class SipMessageFactory
         // add authorization header
         CallIdHeader callIdHeader
             = (CallIdHeader) request.getHeader(CallIdHeader.NAME);
+
+        if(callIdHeader == null)
+            return;
+
         String callid = callIdHeader.getCallId();
 
         AuthorizationHeader authorization =

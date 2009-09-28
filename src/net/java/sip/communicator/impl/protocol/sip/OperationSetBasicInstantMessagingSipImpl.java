@@ -29,8 +29,11 @@ import net.java.sip.communicator.util.*;
 public class OperationSetBasicInstantMessagingSipImpl
     extends AbstractOperationSetBasicInstantMessaging
 {
+    /**
+     * Our class logger.
+     */
     private static final Logger logger
-        = Logger.getLogger(OperationSetBasicInstantMessagingSipImpl.class);
+    = Logger.getLogger(OperationSetBasicInstantMessagingSipImpl.class);
 
     /**
      * A list of processors registered for incoming sip messages.
@@ -206,7 +209,7 @@ public class OperationSetBasicInstantMessagingSipImpl
         Request mes;
         try
         {
-            mes = createMessage(to, message);
+            mes = createMessageRequest(to, message);
         }
         catch (OperationFailedException ex)
         {
@@ -223,7 +226,7 @@ public class OperationSetBasicInstantMessagingSipImpl
 
         try
         {
-            sendRequestMessage(mes, to, message);
+            sendMessageRequest(mes, to, message);
         }
         catch(TransactionUnavailableException ex)
         {
@@ -252,51 +255,54 @@ public class OperationSetBasicInstantMessagingSipImpl
         }
     }
 
-    void sendRequestMessage(Request mes, Contact to, Message message)
-        throws TransactionUnavailableException,
-               SipException
+    /**
+     * Sends <tt>messageRequest</tt> to the specified destination and logs
+     * <tt>messageContent</tt> for later use.
+     *
+     * @param messageRequest the <tt>SipRequest</tt> that we are about to send.
+     * @param to the Contact that we are sending <tt>messageRequest</tt> to.
+     * @param messageContent the SC <tt>Message</tt> that was used to create
+     * the <tt>Request</tt>
+     * .
+     * @throws TransactionUnavailableException if we fail creating the
+     * transaction required to send <tt>messageRequest</tt>.
+     * @throws SipException if we fail sending <tt>messageRequest</tt>.
+     */
+    void sendMessageRequest(Request messageRequest, Contact to,
+                    Message messageContent)
+        throws TransactionUnavailableException, SipException
     {
-        //check whether there's a cached authorization header for this
-        //call id and if so - attach it to the request.
-        // add authorization header
-        CallIdHeader call = (CallIdHeader)mes.getHeader(CallIdHeader.NAME);
-        String callid = call.getCallId();
-
-        AuthorizationHeader authorization = sipProvider
-            .getSipSecurityManager()
-                .getCachedAuthorizationHeader(callid);
-
-        if(authorization != null)
-            mes.addHeader(authorization);
-
         //Transaction
         ClientTransaction messageTransaction;
         SipProvider jainSipProvider
             = this.sipProvider.getDefaultJainSipProvider();
 
-        messageTransaction = jainSipProvider.getNewClientTransaction(mes);
+        messageTransaction = jainSipProvider
+            .getNewClientTransaction(messageRequest);
 
         // send the message
         messageTransaction.sendRequest();
 
         // we register the reference to this message to retrieve it when
         // we'll receive the response message
-        String key = ((CallIdHeader)mes.getHeader(CallIdHeader.NAME))
+        String key = ((CallIdHeader)messageRequest.getHeader(CallIdHeader.NAME))
             .getCallId();
 
-        this.sentMsg.put(key, message);
+        this.sentMsg.put(key, messageContent);
     }
 
     /**
-     * Construct a Request which represent a new message
+     * Construct a <tt>Request</tt> represent a new message.
      *
      * @param to the <tt>Contact</tt> to send <tt>message</tt> to
      * @param message the <tt>Message</tt> to send.
+     *
      * @return a Message Request destined to the contact
+     *
      * @throws OperationFailedException if an error occurred during
      * the creation of the request
      */
-    Request createMessage(Contact to, Message message)
+    Request createMessageRequest(Contact to, Message message)
         throws OperationFailedException
     {
         Address toAddress = null;
@@ -356,7 +362,7 @@ public class OperationSetBasicInstantMessagingSipImpl
         }
 
         //FromHeader and ToHeader
-        String localTag = ProtocolProviderServiceSipImpl.generateLocalTag();
+        String localTag = SipMessageFactory.generateLocalTag();
         FromHeader fromHeader = null;
         ToHeader toHeader = null;
         try

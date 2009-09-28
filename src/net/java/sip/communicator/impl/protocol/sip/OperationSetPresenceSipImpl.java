@@ -247,23 +247,22 @@ public class OperationSetPresenceSipImpl
                         this.timer,
                         REFRESH_MARGIN);
             this.notifier
-                = new EventPackageNotifier(
-                        this.parentProvider,
-                        "presence",
-                        PRESENCE_DEFAULT_EXPIRE,
-                        PIDF_XML,
-                        this.timer)
+                = new EventPackageNotifier(this.parentProvider, "presence",
+                        PRESENCE_DEFAULT_EXPIRE, PIDF_XML, this.timer)
+                {
+                    /**
+                     * Creates a new <tt>PresenceNotificationSubscription</tt>
+                     * instance.
+                     * @param fromAddress our AOR
+                     * @param eventId the event id to use.
+                     */
+                    protected Subscription createSubscription(
+                                Address fromAddress, String eventId)
                     {
-                        protected Subscription createSubscription(
-                            Address fromAddress,
-                            String eventId)
-                        {
-                            return
-                                new PresenceNotifierSubscription(
-                                        fromAddress,
-                                        eventId);
-                        }
-                    };
+                        return new PresenceNotifierSubscription(
+                                    fromAddress, eventId);
+                    }
+                };
         }
         else
         {
@@ -313,7 +312,7 @@ public class OperationSetPresenceSipImpl
 
     /**
      * Sets if we should use a distant presence agent.
-     * 
+     *
      * @param useDistantPA
      *            <tt>true</tt> if we should use a distant presence agent
      */
@@ -610,7 +609,7 @@ public class OperationSetPresenceSipImpl
             .getDefaultJainSipProvider().getNewCallId();
 
         // FromHeader and ToHeader
-        String localTag = ProtocolProviderServiceSipImpl.generateLocalTag();
+        String localTag = SipMessageFactory.generateLocalTag();
         FromHeader fromHeader = null;
         ToHeader toHeader = null;
         try
@@ -1044,7 +1043,7 @@ public class OperationSetPresenceSipImpl
      * Removes a subscription for the presence status of the specified contact
      * and optionally asserts that the specified contact has an existing
      * subscription prior to attempting the unregistration.
-     * 
+     *
      * @param sipcontact
      *            the contact whose status updates we are unsubscribing from.
      * @param assertConnectedAndSubscribed
@@ -1498,7 +1497,7 @@ public class OperationSetPresenceSipImpl
     /**
      * Attempts to re-generate the corresponding request with the proper
      * credentials.
-     * 
+     *
      * @param clientTransaction
      *            the corresponding transaction
      * @param response
@@ -1542,7 +1541,7 @@ public class OperationSetPresenceSipImpl
     /**
      * Returns a <code>ContactSipImpl</code> with a specific ID in case we have
      * a subscription for it and <tt>null<tt> otherwise.
-     * 
+     *
      * @param contactID
      *            a String identifier of the contact which is to be retrieved
      * @return the <code>ContactSipImpl</code> with the specified
@@ -1754,7 +1753,7 @@ public class OperationSetPresenceSipImpl
     /**
      * Tries to find a <code>ContactSipImpl</code> which is identified either by
      * a specific <code>contactID</code> or by a derivation of it.
-     * 
+     *
      * @param contactID
      *            the identifier of the <code>ContactSipImpl</code> to retrieve
      *            either by directly using it or by deriving it
@@ -2613,6 +2612,9 @@ public class OperationSetPresenceSipImpl
          timer.cancel();
      }
 
+     /**
+      * A <tt>TimerTask</tt> handling refresh of PUBLISH requests.
+      */
      private class RePublishTask extends TimerTask
      {
          /**
@@ -2664,6 +2666,9 @@ public class OperationSetPresenceSipImpl
          }
      }
 
+     /**
+      * A task handling polling of offline contacts.
+      */
      private class PollOfflineContactsTask extends TimerTask
      {
          /**
@@ -2854,12 +2859,13 @@ public class OperationSetPresenceSipImpl
     /**
      * Gets the identifying address of a specific <code>ContactSipImpl</code> in
      * the form of a <code>Address</code> value.
-     * 
+     *
      * @param contact
      *            the <code>ContactSipImpl</code> to get the address of
      * @return a new <code>Address</code> instance representing the identifying
      *         address of the specified <code>ContactSipImpl</code>
-     * @throws OperationFailedException
+     *
+     * @throws OperationFailedException parsing this contact's address fails.
      */
     private Address getAddress(ContactSipImpl contact)
         throws OperationFailedException
@@ -2871,22 +2877,17 @@ public class OperationSetPresenceSipImpl
         catch (ParseException ex)
         {
             //Shouldn't happen
-            String message
-                = "An unexpected error occurred while constructing the address";
-
-            logger.error(message, ex);
-            throw
-                new OperationFailedException(
-                        message,
-                        OperationFailedException.INTERNAL_ERROR,
-                        ex);
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "An unexpected error occurred while constructing the address",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
+            return null;//unreachable but necessary.
         }
     }
 
     /**
      * Represents a subscription of a specific <code>ContactSipImpl</code> to
      * our presence event package.
-     * 
+     *
      * @author Lubomir Marinov
      */
     private class PresenceNotifierSubscription
@@ -2903,7 +2904,7 @@ public class OperationSetPresenceSipImpl
          * Initializes a new <code>PresenceNotifierSubscription</code> instance
          * which is to represent a subscription of a <code>ContactSipImpl</code>
          * specified by <code>Address</code> to our presence event package.
-         * 
+         *
          * @param fromAddress
          *            the <code>Address</code> of the
          *            <code>ContactSipImpl</code> subscribed to our presence
@@ -2971,14 +2972,19 @@ public class OperationSetPresenceSipImpl
                     || contactAddressString.equals(id3);
         }
 
-        /*
-         * Implements
-         * EventPackageNotifier.Subscription#createNotifyContent(String,
-         * String).
+        /**
+         * Creates content for a notify request using the specified
+         * <tt>subscriptionState</tt> and <tt>reason</tt> string.
+         *
+         * @param subscriptionState the state that we'd like to deliver in the
+         * newly created <tt>Notify</tt> request.
+         * @param reason the reason string that  we'd like to deliver in the
+         * newly created <tt>Notify</tt> request.
+         *
+         * @return the String bytes of the newly created content.
          */
-        protected byte[] createNotifyContent(
-            String subscriptionState,
-            String reason)
+        protected byte[] createNotifyContent(String subscriptionState,
+                        String reason)
         {
             return getPidfPresenceStatus(getLocalContactForDst(contact));
         }
@@ -2987,7 +2993,7 @@ public class OperationSetPresenceSipImpl
     /**
      * Represents a subscription to the presence event package of a specific
      * <code>ContactSipImpl</code>.
-     * 
+     *
      * @author Lubomir Marinov
      */
     private class PresenceSubscriberSubscription
@@ -3004,11 +3010,12 @@ public class OperationSetPresenceSipImpl
          * Initializes a new <code>PresenceSubscriberSubscription</code>
          * instance which is to represent a subscription to the presence event
          * package of a specific <code>ContactSipImpl</code>.
-         * 
-         * @param contact
-         *            the <code>ContactSipImpl</code> which is the notifier the
-         *            new subscription is to subscribed to
-         * @throws OperationFailedException
+         *
+         * @param contact the <code>ContactSipImpl</code> which is the notifier
+         * the new subscription is to subscribed to
+         *
+         * @throws OperationFailedException if we fail extracting
+         * <tt>contact</tt>'s address.
          */
         public PresenceSubscriberSubscription(ContactSipImpl contact)
             throws OperationFailedException
@@ -3042,8 +3049,7 @@ public class OperationSetPresenceSipImpl
         {
             // we probably won't be able to communicate with the contact
             changePresenceStatusForContact(
-                contact,
-                sipStatusEnum.getStatus(
+                contact, sipStatusEnum.getStatus(
                     (Response.TEMPORARILY_UNAVAILABLE == statusCode)
                         ? SipStatusEnum.OFFLINE
                         : SipStatusEnum.UNKNOWN));
@@ -3101,18 +3107,21 @@ public class OperationSetPresenceSipImpl
             }
         }
 
-        /*
-         * Implements
-         * EventPackageSubscriber.Subscription#processTerminatedRequest
-         * (RequestEvent, String).
+        /**
+         * Implements the corresponding <tt>SipListener</tt> method by
+         * terminating the corresponding subsctiption and polling the related
+         * contact.
+         *
+         * @param requestEvent the event containing the request that was \
+         * terminated.
+         * @param reasonCode a String indicating the reason of the termination.
          */
         protected void processTerminatedRequest(
-            RequestEvent requestEvent,
-            String reasonCode)
+                            RequestEvent requestEvent, String reasonCode)
         {
             terminateSubscription(contact);
 
-            // if the reason is "deactivated", we immediately resubscribe
+            // if the reason is "de-activated", we immediately re-subscribe
             // to the contact
             if (SubscriptionStateHeader.DEACTIVATED.equals(reasonCode))
                 forcePollContact(contact);

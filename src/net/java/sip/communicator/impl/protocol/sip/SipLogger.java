@@ -17,7 +17,7 @@ import net.java.sip.communicator.util.*;
  * This class passes log calls from JAIN-SIP to log4j, so that it is possible
  * to change the log level for the JAIN-SIP stack in logging.properties
  *
- * @author Sébastien
+ * @author Sebastien Mazy
  */
 public class SipLogger
     implements StackLogger,
@@ -34,13 +34,16 @@ public class SipLogger
      */
 
     /**
-     * log a stack trace. This helps to look at the stack frame.
+     * logs a stack trace. This helps to look at the stack frame.
      */
     public void logStackTrace()
     {
         logger.trace("JAIN-SIP stack trace", new Throwable());
     }
 
+    /**
+     * logs a stack trace. This helps to look at the stack frame.
+     */
     public void logStackTrace(int traceLevel)
     {
         // FIXE ME: don't ignore the level?
@@ -60,7 +63,7 @@ public class SipLogger
     /**
      * Log an exception.
      *
-     * @param ex
+     * @param ex the exception that we are to log.
      */
     public void logException(Throwable ex)
     {
@@ -92,9 +95,7 @@ public class SipLogger
     /**
      * Log an error message.
      *
-     * @param message --
-     *            error message to log.
-     *
+     * @param message error message to log.
      */
     public void logError(String message)
     {
@@ -102,6 +103,8 @@ public class SipLogger
     }
 
     /**
+     * Determines whether logging is enabled.
+     *
      * @return flag to indicate if logging is enabled.
      */
     public boolean isLoggingEnabled()
@@ -112,7 +115,7 @@ public class SipLogger
     /**
      * Return true/false if logging is enabled at a given level.
      *
-     * @param logLevel
+     * @param logLevel the level that we'd like to check loggability for.
      */
     public boolean isLoggingEnabled(int logLevel)
     {
@@ -120,10 +123,10 @@ public class SipLogger
     }
 
     /**
-     * Log an error message.
+     * Logs an exception and an error message error message.
      *
-     * @param message
-     * @param ex
+     * @param message that message that we'd like to log.
+     * @param ex the exception that we'd like to log.
      */
     public void logError(String message, Exception ex)
     {
@@ -133,7 +136,7 @@ public class SipLogger
     /**
      * Log a warning message.
      *
-     * @param string
+     * @param string the warning that we'd like to log
      */
     public void logWarning(String string)
     {
@@ -143,7 +146,7 @@ public class SipLogger
     /**
      * Log an info message.
      *
-     * @param string
+     * @param string the message that we'd like to log.
      */
     public void logInfo(String string)
     {
@@ -160,6 +163,7 @@ public class SipLogger
      * Enable logging (globally).
      */
     public void enableLogging() {}
+
 
     public void setBuildTimeStamp(String buildTimeStamp)
     {

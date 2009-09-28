@@ -508,6 +508,8 @@ public class ProtocolProviderServiceSipImpl
 
     /**
      * Never called.
+     *
+     * @param exceptionEvent the IOExceptionEvent containing the cause.
      */
     public void processIOException(IOExceptionEvent exceptionEvent) {}
 
@@ -791,6 +793,10 @@ public class ProtocolProviderServiceSipImpl
 
     }
 
+    /**
+     * The thread that we use in order to send our unREGISTER request upon
+     * system shut down.
+     */
     protected class ShutdownThread implements Runnable
     {
         public void run() {
@@ -983,7 +989,7 @@ public class ProtocolProviderServiceSipImpl
 
     /**
      * Returns a Contact header containing a sip URI based on a localhost
-     * address and therefore usable in REGISTER requests only.
+     * address.
      *
      * @param intendedDestination the destination that we plan to be sending
      * this contact header to.
@@ -1447,12 +1453,6 @@ public class ProtocolProviderServiceSipImpl
                 , registrarTransport
                 , expires
                 , this);
-
-            // determine whether we should be using route headers or not
-            boolean useRoute =
-                accountID.getAccountPropertyBoolean(REGISTERS_USE_ROUTE, false);
-
-            this.sipRegistrarConnection.setRouteHeaderEnabled(useRoute);
         }
         catch (ParseException ex)
         {
@@ -1509,8 +1509,11 @@ public class ProtocolProviderServiceSipImpl
      * this account is created for. The method takes into account whether or
      * not we are running in Registar or "No Registar" mode and either returns
      * the AOR we are using to register or an address constructed using the
-     * local address
-     * .
+     * local address.
+     *
+     * @param intendedDestination the destination that we would be using the
+     * local address to communicate with.
+     *
      * @return our Address Of Record that we should use in From headers.
      */
     public Address getOurSipAddress(Address intendedDestination)
@@ -1524,6 +1527,9 @@ public class ProtocolProviderServiceSipImpl
      * not we are running in Registar or "No Registar" mode and either returns
      * the AOR we are using to register or an address constructed using the
      * local address
+     *
+     * @param intendedDestination the destination that we would be using the
+     * local address to communicate with.
      * .
      * @return our Address Of Record that we should use in From headers.
      */
@@ -1795,8 +1801,9 @@ public class ProtocolProviderServiceSipImpl
      * initiated by a <tt>method</tt> request.
      *
      * @param method the name of the method whose processor we'd like to
-     *            unregister.
-     * @param methodProcessor
+     * unregister.
+     * @param methodProcessor the <tt>MethodProcessor</tt> that we'd like to
+     * unregister.
      */
     public void unregisterMethodProcessor(String method,
         MethodProcessor methodProcessor)
@@ -2007,12 +2014,14 @@ public class ProtocolProviderServiceSipImpl
      * specific <tt>Dialog</tt>.
      *
      * @param sipProvider the <tt>SipProvider</tt> to send the specified
-     *            request through
+     * request through
      * @param request the <tt>Request</tt> to send through
-     *            <tt>sipProvider</tt>
+     * <tt>sipProvider</tt>
      * @param dialog the <tt>Dialog</tt> as part of which the specified
-     *            <tt>request</tt> is to be sent
-     * @throws OperationFailedException
+     * <tt>request</tt> is to be sent
+     *
+     * @throws OperationFailedException if creating a transaction or sending
+     * the <tt>request</tt> fails.
      */
     public void sendInDialogRequest(SipProvider sipProvider,
                                     Request request,
@@ -2050,6 +2059,7 @@ public class ProtocolProviderServiceSipImpl
     /**
      * Returns a List of Strings corresponding to all methods that we have a
      * processor for.
+     *
      * @return a List of methods that we support.
      */
     public List<String> getSupportedMethods()
@@ -2396,13 +2406,16 @@ public class ProtocolProviderServiceSipImpl
      * and the cause.
      *
      * @param message the message to be logged and then wrapped in a new
-     *            <tt>OperationFailedException</tt>
+     * <tt>OperationFailedException</tt>
      * @param errorCode the error code to be assigned to the new
-     *            <tt>OperationFailedException</tt>
+     * <tt>OperationFailedException</tt>
      * @param cause the <tt>Throwable</tt> that has caused the necessity to log
-     *            an error and have a new <tt>OperationFailedException</tt>
-     *            thrown
-     * @throws OperationFailedException
+     * an error and have a new <tt>OperationFailedException</tt> thrown
+     * @param logger the logger that we'd like to log the error <tt>message</tt>
+     * and <tt>cause</tt>.
+     *
+     * @throws OperationFailedException the exception that we wanted this method
+     * to throw.
      */
     public static void throwOperationFailedException( String    message,
                                                       int       errorCode,

@@ -279,6 +279,8 @@ public class OperationSetBasicTelephonySipImpl
      * @param sipPeer the SIP-specific call peer to send the  to within the
      * current <tt>Dialog</tt> @param sdpOffer the description of the SDP offer
      * to be made to the specified call peer with the sent invite
+     * @param sdpOffer the offer that we'd like to use for the newly created
+     * INVITE request.
      *
      * @throws OperationFailedException if sending the request fails for some
      * reason.
@@ -1580,6 +1582,9 @@ public class OperationSetBasicTelephonySipImpl
      *            the <tt>Request.NOTIFY</tt> request
      * @param notifyRequest the <tt>Request.NOTIFY</tt> request to be
      *            processed
+     *
+     * @return <tt>true</tt> if we have processed/consumed the request and
+     * <tt>false</tt> otherwise.
      */
     private boolean processNotify(ServerTransaction serverTransaction,
         Request notifyRequest)
