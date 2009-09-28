@@ -1930,6 +1930,78 @@ public class ProtocolProviderServiceSipImpl
     }
 
     /**
+     * Send an error response with the <tt>errorCode</tt> code using
+     * <tt>serverTransaction</tt> and do not surface exceptions. The method
+     * is useful when we are sending the error response in a stack initiated
+     * operation and don't have the possibility to escalate potential
+     * exceptions, so we can only log them.
+     *
+     * @param serverTransaction the transaction that we'd like to send an error
+     * response in.
+     * @param errorCode the code that the response should have.
+     */
+    public void sayErrorSilently(ServerTransaction serverTransaction,
+                                 int               errorCode)
+    {
+        try
+        {
+            sayError(serverTransaction, errorCode);
+        }
+        catch (OperationFailedException exc)
+        {
+            logger.debug("Failed to send an error " + errorCode + " response",
+                            exc);
+        }
+    }
+
+    /**
+     * Send an error response with the <tt>errorCode</tt> code using
+     * <tt>serverTransaction</tt>.
+     *
+     * @param serverTransaction the transaction that we'd like to send an error
+     * response in.
+     * @param errorCode the code that the response should have.
+     *
+     * @throws OperationFailedException if we failed constructing or sending a
+     * SIP Message.
+     */
+    public void sayError(ServerTransaction serverTransaction, int errorCode)
+        throws OperationFailedException
+    {
+        Request request = serverTransaction.getRequest();
+        Response errorResponse = null;
+        try
+        {
+            errorResponse = getMessageFactory().createResponse(
+                            errorCode, request);
+
+            //we used to be adding a To tag here and we shouldn't. 3261 says:
+            //"Dialogs are created through [...] non-failure responses". and
+            //we are using this method for failure responses only.
+
+        }
+        catch (ParseException ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to construct an OK response to an INVITE request",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
+        }
+
+        try
+        {
+            serverTransaction.sendResponse(errorResponse);
+            if (logger.isDebugEnabled())
+                logger.debug("sent response: " + errorResponse);
+        }
+        catch (Exception ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to send an OK response to an INVITE request",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
+        }
+    }
+
+    /**
      * Sends a specific <tt>Request</tt> through a given
      * <tt>SipProvider</tt> as part of the conversation associated with a
      * specific <tt>Dialog</tt>.

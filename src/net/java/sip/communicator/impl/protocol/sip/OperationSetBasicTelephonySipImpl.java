@@ -1174,7 +1174,7 @@ public class OperationSetBasicTelephonySipImpl
                 }
                 else
                 {
-                    this.sayErrorSilently(
+                    protocolProvider.sayErrorSilently(
                         serverTransaction,
                         Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST);
                 }
@@ -1185,9 +1185,6 @@ public class OperationSetBasicTelephonySipImpl
             //this is a reINVITE.
             callSipImpl.processReInvite(sourceProvider, serverTransaction);
         }
-
-
-
     }
 
     /**
@@ -2074,13 +2071,12 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
-     * Indicates a user request to end a call with the specified call
-     * peer. Depending on the state of the call the method would send a
-     * CANCEL, BYE, or BUSY_HERE and set the new state to DISCONNECTED.
+     * Ends the call with the specified <tt>peer</tt>.
      *
      * @param peer the peer that we'd like to hang up on.
+     *
      * @throws ClassCastException if peer is not an instance of this
-     *             CallPeerSipImpl.
+     * CallPeerSipImpl.
      * @throws OperationFailedException if we fail to terminate the call.
      */
     public synchronized void hangupCallPeer(CallPeer peer)
@@ -2089,93 +2085,6 @@ public class OperationSetBasicTelephonySipImpl
     {
         CallPeerSipImpl peerSipImpl = (CallPeerSipImpl)peer;
         peerSipImpl.getCall().hangupCallPeer(peerSipImpl);
-    }
-
-    /**
-     * Sends an Internal Error response inside <tt>serverTransaction</tt>.
-     *
-     * @param serverTransaction the transaction that we'd like to send the
-     * response in.
-     *
-     * @throws OperationFailedException if we failed constructing or sending a
-     * SIP Message.
-     */
-    public void sayInternalError(ServerTransaction serverTransaction)
-        throws OperationFailedException
-    {
-        sayError(serverTransaction, Response.SERVER_INTERNAL_ERROR);
-    }
-
-    /**
-     * Send an error response with the <tt>errorCode</tt> code using
-     * <tt>serverTransaction</tt>.
-     *
-     * @param serverTransaction the transaction that we'd like to send an error
-     * response in.
-     * @param errorCode the code that the response should have.
-     *
-     * @throws OperationFailedException if we failed constructing or sending a
-     * SIP Message.
-     */
-    public void sayError(ServerTransaction serverTransaction, int errorCode)
-        throws OperationFailedException
-    {
-        Request request = serverTransaction.getRequest();
-        Response errorResponse = null;
-        try
-        {
-            errorResponse = protocolProvider.getMessageFactory()
-                .createResponse(errorCode, request);
-
-            //we used to be adding a To tag here and we shouldn't. 3261 says:
-            //"Dialogs are created through [...] non-failure responses". and
-            //we are using this method for failure responses only.
-
-        }
-        catch (ParseException ex)
-        {
-            ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "Failed to construct an OK response to an INVITE request",
-                OperationFailedException.INTERNAL_ERROR, ex, logger);
-        }
-
-        try
-        {
-            serverTransaction.sendResponse(errorResponse);
-            if (logger.isDebugEnabled())
-                logger.debug("sent response: " + errorResponse);
-        }
-        catch (Exception ex)
-        {
-            ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "Failed to send an OK response to an INVITE request",
-                OperationFailedException.INTERNAL_ERROR, ex, logger);
-        }
-    }
-
-    /**
-     * Send an error response with the <tt>errorCode</tt> code using
-     * <tt>serverTransaction</tt> and do not surface exceptions. The method
-     * is useful when we are sending the error response in a stack initiated
-     * operation and don't have the possibility to escalate potential
-     * exceptions, so we can only log them.
-     *
-     * @param serverTransaction the transaction that we'd like to send an error
-     * response in.
-     * @param errorCode the code that the response should have.
-     */
-    public void sayErrorSilently(ServerTransaction serverTransaction,
-                                 int               errorCode)
-    {
-        try
-        {
-            sayError(serverTransaction, errorCode);
-        }
-        catch (OperationFailedException exc)
-        {
-            logger.debug("Failed to send an error " + errorCode + " response",
-                            exc);
-        }
     }
 
     /**
@@ -2188,135 +2097,16 @@ public class OperationSetBasicTelephonySipImpl
      * @param peer the call peer that we need to send the ok to.
      * @throws OperationFailedException if we fail to create or send the
      *             response.
+     * @throws ClassCastException if <tt>peer</tt> is not an instance of a
+     * <tt>CallPeerSipImpl</tt>
      */
     public synchronized void answerCallPeer(CallPeer peer)
-        throws OperationFailedException
+        throws OperationFailedException, ClassCastException
     {
-        CallPeerSipImpl callPeer =
-            (CallPeerSipImpl) peer;
-        Transaction transaction = callPeer.getFirstTransaction();
-        Dialog dialog = callPeer.getDialog();
+        CallPeerSipImpl callPeer = (CallPeerSipImpl) peer;
+        callPeer.getCall().answerCallPeer(callPeer);
 
-        if (transaction == null || !dialog.isServer())
-        {
-            callPeer.setState(CallPeerState.DISCONNECTED);
-            throw new OperationFailedException(
-                "Failed to extract a ServerTransaction "
-                    + "from the call's associated dialog!",
-                OperationFailedException.INTERNAL_ERROR);
-        }
-
-        CallPeerState peerState = peer.getState();
-
-        if (peerState.equals(CallPeerState.CONNECTED)
-            || CallPeerState.isOnHold(peerState))
-        {
-            logger.info("Ignoring user request to answer a CallPeer "
-                + "that is already connected. CP:" + peer);
-            return;
-        }
-
-        ServerTransaction serverTransaction = (ServerTransaction) transaction;
-        Response ok = null;
-        try
-        {
-            ok = messageFactory.createResponse(
-                            Response.OK, serverTransaction.getRequest());
-        }
-        catch (ParseException ex)
-        {
-            callPeer.setState(CallPeerState.DISCONNECTED);
-            ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "Failed to construct an OK response to an INVITE request",
-                OperationFailedException.INTERNAL_ERROR, ex, logger);
-        }
-
-        // Content
-        ContentTypeHeader contentTypeHeader = null;
-        try
-        {
-            // content type should be application/sdp (not applications)
-            // reported by Oleg Shevchenko (Miratech)
-            contentTypeHeader =
-                protocolProvider.getHeaderFactory().createContentTypeHeader(
-                    "application", "sdp");
-        }
-        catch (ParseException ex)
-        {
-            // Shouldn't happen
-            callPeer.setState(CallPeerState.DISCONNECTED);
-            ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "Failed to create a content type header for the OK response",
-                OperationFailedException.INTERNAL_ERROR, ex, logger);
-        }
-
-        try
-        {
-            CallSession callSession =
-                SipActivator.getMediaService().createCallSession(
-                    callPeer.getCall());
-            ((CallSipImpl) callPeer.getCall())
-                .setMediaCallSession(callSession);
-
-            callSession.setSessionCreatorCallback(callPeer);
-
-            String sdpOffer = callPeer.getSdpDescription();
-            String sdp;
-            // if the offer was in the invite create an sdp answer
-            if ((sdpOffer != null) && (sdpOffer.length() > 0))
-            {
-                sdp = callSession.processSdpOffer(callPeer, sdpOffer);
-
-                // set the call url in case there was one
-                /**
-                 * @todo this should be done in CallSession, once we move it
-                 *       here.
-                 */
-                callPeer.setCallInfoURL(callSession.getCallInfoURL());
-            }
-            // if there was no offer in the invite - create an offer
-            else
-            {
-                sdp = callSession.createSdpOffer();
-            }
-            ok.setContent(sdp, contentTypeHeader);
-        }
-        catch (MediaException ex)
-        {
-            //log, the error and tell the remote party. do not throw an
-            //exception as it would go to the stack and there's nothing it could
-            //do with it.
-            logger.error(
-                "Failed to create an SDP description for an OK response "
-                    + "to an INVITE request!",
-                ex);
-            this.sayError(serverTransaction, Response.NOT_ACCEPTABLE_HERE);
-        }
-        catch (ParseException ex)
-        {
-            //log, the error and tell the remote party. do not throw an
-            //exception as it would go to the stack and there's nothing it could
-            //do with it.
-            logger.error(
-                "Failed to parse sdp data while creating invite request!",
-                ex);
-            this.sayError(serverTransaction, Response.NOT_ACCEPTABLE_HERE);
-        }
-
-        try
-        {
-            serverTransaction.sendResponse(ok);
-            if (logger.isDebugEnabled())
-                logger.debug("sent response\n" + ok);
-        }
-        catch (Exception ex)
-        {
-            callPeer.setState(CallPeerState.DISCONNECTED);
-            ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "Failed to send an OK response to an INVITE request",
-                OperationFailedException.NETWORK_FAILURE, ex, logger);
-        }
-    } // answer call
+    }
 
     /**
      * Creates a new call and call peer associated with
@@ -2495,20 +2285,22 @@ public class OperationSetBasicTelephonySipImpl
                         sipPeer.getJainSipProvider(), refer, dialog);
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * Transfers the call we have with <tt>transferee</tt> to
+     * <tt>transferTarget</tt>.
      *
-     * @see
-     * net.java.sip.communicator.service.protocol.OperationSetAdvancedTelephony
-     * #transfer(net.java.sip.communicator.service.protocol.CallPeer,
-     * net.java.sip.communicator.service.protocol.CallPeer)
+     * @param transferee the <tt>CallPeer</tt> that we are about to transfer.
+     * @param transferTarget the <tt>CallPeer</tt> that we are about to direct
+     * <tt>transferee</tt> to.
+     *
+     * @throws OperationFailedException if the transfer fails.
      */
-    public void transfer(CallPeer peer, CallPeer target)
+    public void transfer(CallPeer transferee, CallPeer transferTarget)
         throws OperationFailedException
     {
-        Address targetAddress = parseAddressString(target.getAddress());
+        Address targetAddress = parseAddressString(transferTarget.getAddress());
 
-        Dialog targetDialog = ((CallPeerSipImpl) target).getDialog();
+        Dialog targetDialog = ((CallPeerSipImpl) transferTarget).getDialog();
         String remoteTag = targetDialog.getRemoteTag();
         String localTag = targetDialog.getLocalTag();
         Replaces replacesHeader = null;
@@ -2542,10 +2334,14 @@ public class OperationSetBasicTelephonySipImpl
                 OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
 
-        putOnHold(peer);
-        putOnHold(target);
+        //transferee should already be on hold by now but let's make sure he is
+        //just in case user changed default settings and we are still getting
+        //media from him.
+        putOnHold(transferee);
 
-        transfer(peer, targetAddress);
+        putOnHold(transferTarget);
+
+        transfer(transferee, targetAddress);
     }
 
     /**
