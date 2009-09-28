@@ -7,7 +7,9 @@
 package net.java.sip.communicator.impl.protocol.sip;
 
 import java.util.*;
+
 import javax.sip.*;
+import javax.sip.header.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -68,13 +70,13 @@ public class ActiveCallsRepository
     public void callStateChanged(CallChangeEvent evt)
     {
         if(evt.getEventType().equals(CallChangeEvent.CALL_STATE_CHANGE)
-           && evt.getNewValue().equals(CallState.CALL_ENDED))
+        && evt.getNewValue().equals(CallState.CALL_ENDED))
         {
             CallSipImpl sourceCall =
                 this.activeCalls.remove(evt.getSourceCall().getCallID());
 
             logger.trace("Removing call " + sourceCall + " from the list of "
-                         + "active calls because it entered an ENDED state");
+                        + "active calls because it entered an ENDED state");
 
             this.parentOperationSet.fireCallEvent(
                 CallEvent.CALL_ENDED, sourceCall);
@@ -107,14 +109,14 @@ public class ActiveCallsRepository
         if(dialog == null)
         {
             logger.debug("Cannot find a peer with a null dialog. "
-                         +"Returning null");
+                        +"Returning null");
             return null;
         }
 
         if(logger.isTraceEnabled())
         {
             logger.trace("Looking for peer with dialog: " + dialog
-                         + " among " + this.activeCalls.size() + " calls");
+                        + " among " + this.activeCalls.size() + " calls");
         }
 
 
@@ -142,18 +144,18 @@ public class ActiveCallsRepository
         if(dialog == null)
         {
             logger.debug("Cannot find a peer with a null dialog. "
-                         +"Returning null");
+                        +"Returning null");
             return null;
         }
 
         if(logger.isTraceEnabled())
         {
             logger.trace("Looking for peer with dialog: " + dialog
-                         + " among " + this.activeCalls.size() + " calls");
+                        + " among " + this.activeCalls.size() + " calls");
         }
 
         for (Iterator<CallSipImpl> activeCalls = getActiveCalls();
-                 activeCalls.hasNext();)
+                activeCalls.hasNext();)
         {
             CallSipImpl call = activeCalls.next();
             CallPeerSipImpl callPeer
@@ -216,7 +218,7 @@ public class ActiveCallsRepository
 
                         if (((remoteTag == null) || "0".equals(remoteTag))
                                 ? ((dialogRemoteTag == null)
-                                  || "0".equals(dialogRemoteTag))
+                                || "0".equals(dialogRemoteTag))
                                 : remoteTag.equals(dialogRemoteTag))
                         {
                             return callPeer;
@@ -227,6 +229,75 @@ public class ActiveCallsRepository
         }
         return null;
     }
+
+    /**
+     * Returns the <tt>CallPeerSipImpl</tt> whose INVITE transaction has the
+     * specified <tt>branchID</tt> and whose corresponding INVITE request
+     * contains the specified <tt>callID</tt>.
+     *
+     * @param callID the <tt>Call-ID</tt> of the dialog we are looking for.
+     * @param branchID a <tt>String</tt> corresponding to the branch id of the
+     * latest INVITE transaction that was associated with the peer we are
+     * looking for.
+     *
+     * @return the <tt>CallPeerSipImpl</tt> matching specified call and branch
+     * id-s or <tt>null</tt> if no such peer is known to this repository.
+     */
+    public CallPeerSipImpl findCallPeer(String branchID, String callID)
+    {
+        Iterator<CallSipImpl> activeCallsIter = getActiveCalls();
+
+        while (activeCallsIter.hasNext())
+        {
+            CallSipImpl activeCall = activeCallsIter.next();
+            Iterator<CallPeer> callPeersIter = activeCall.getCallPeers();
+
+            while (callPeersIter.hasNext())
+            {
+                CallPeerSipImpl cp = (CallPeerSipImpl) callPeersIter.next();
+                Dialog cpDialog = cp.getDialog();
+                Transaction cpTran = cp.getFirstTransaction();
+
+                if( cpDialog == null
+                    || cpDialog.getCallId() == null
+                    || cpTran == null)
+                    continue;
+
+                if ( cp.getFirstTransaction() != null
+                      && cpDialog.getCallId().getCallId().equals(callID)
+                      && branchID.equals(cpTran.getBranchId()))
+                {
+                    return cp;
+
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the <tt>CallPeerSipImpl</tt> whose INVITE transaction has the
+     * specified <tt>branchID</tt> and whose corresponding INVITE request
+     * contains the specified <tt>callID</tt>.
+     *
+     * @param cidHeader the <tt>Call-ID</tt> of the dialog we are looking for.
+     * @param branchID a <tt>String</tt> corresponding to the branch id of the
+     * latest INVITE transaction that was associated with the peer we are
+     * looking for.
+     *
+     * @return the <tt>CallPeerSipImpl</tt> matching specified call and branch
+     * id-s or <tt>null</tt> if no such peer is known to this repository.
+     */
+    public CallPeerSipImpl findCallPeer(String branchID, Header cidHeader)
+    {
+        if(cidHeader == null || ! (cidHeader instanceof CallIdHeader))
+            return null;
+
+        return findCallPeer(branchID, (((CallIdHeader)cidHeader).getCallId()));
+    }
+
+
 
     /**
      * Returns the <tt>CallSipImpl</tt> instance with a <tt>Dialog</tt>

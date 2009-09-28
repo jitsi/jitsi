@@ -740,11 +740,11 @@ public class OperationSetBasicTelephonySipImpl
      * sends an ACK.
      *
      * @param clientTransaction the <tt>ClientTransaction</tt> that the response
-     *            arrived in.
+     * arrived in.
      * @param ok the OK <tt>Response</tt> to process
      */
     private void processInviteOK(ClientTransaction clientTransaction,
-        Response ok)
+                                 Response          ok)
     {
         Dialog dialog = clientTransaction.getDialog();
         // find the call
@@ -753,45 +753,26 @@ public class OperationSetBasicTelephonySipImpl
         if (callPeer == null)
         {
             /*
-             * In case of forwarding a call, the dialog may have forked. If the
-             * dialog is forked, we must end early state dialogs by replacing
-             * the dialog with the new one.
+             * Handle dialog forking (e.g. we got an early dialog from the
+             * remote party's RINGING response and another, "confirmed" one with
+             * the 200 OK that we received from a VoiceMail IVR). Try to find
+             * a CallPeer with matching Call-ID and branch and update its
+             * dialog.
              */
-            CallIdHeader call = (CallIdHeader) ok.getHeader(CallIdHeader.NAME);
-            String callid = call.getCallId();
-
-            Iterator<CallSipImpl> activeCallsIter
-                                    = activeCallsRepository.getActiveCalls();
-            while (activeCallsIter.hasNext())
-            {
-                CallSipImpl activeCall = activeCallsIter.next();
-                Iterator<CallPeer> callPeersIter = activeCall.getCallPeers();
-                while (callPeersIter.hasNext())
-                {
-                    CallPeerSipImpl cp = (CallPeerSipImpl) callPeersIter.next();
-                    Dialog callPartDialog = cp.getDialog();
-                    // check if peer in same call
-                    // and has the same transaction
-                    if (callPartDialog != null
-                        && callPartDialog.getCallId() != null
-                        && cp.getFirstTransaction() != null
-                        && cp.getDialog().getCallId().getCallId()
-                            .equals(callid)
-                        && clientTransaction.getBranchId().equals(
-                            cp.getFirstTransaction().getBranchId()))
-                    {
-                        // change to the forked dialog
-                        callPeer = cp;
-                        cp.setDialog(dialog);
-                    }
-                }
-            }
+            callPeer = activeCallsRepository.findCallPeer(
+                clientTransaction.getBranchId(),
+                ok.getHeader(CallIdHeader.NAME));
 
             if (callPeer == null)
             {
+                //there's definitely no dialog.
                 logger.debug("Received a stray ok response.");
                 return;
             }
+
+            //dialog's been forked. the one that's stored in the peer must have
+            //been in an early state so replace it with this one - confirmed.
+            callPeer.setDialog(dialog);
         }
 
         /*
@@ -810,10 +791,7 @@ public class OperationSetBasicTelephonySipImpl
             CSeqHeader cseq = ((CSeqHeader) ok.getHeader(CSeqHeader.NAME));
             ack = clientTransaction.getDialog().createAck(cseq.getSeqNumber());
 
-            // Content should it be necessary.
-
-            // content type should be application/sdp (not applications)
-            // reported by Oleg Shevchenko (Miratech)
+            //Content.
             contentTypeHeader = protocolProvider.getHeaderFactory()
                 .createContentTypeHeader( "application", "sdp" );
         }

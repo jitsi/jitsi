@@ -19,7 +19,6 @@ import javax.sip.message.*;
 import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-import net.kano.joscar.snaccmd.ssi.*;
 
 /**
  * The class handles authentication challenges, caches user credentials and
@@ -33,6 +32,9 @@ import net.kano.joscar.snaccmd.ssi.*;
 
 public class SipSecurityManager
 {
+    /**
+     * Our class logger.
+     */
     private static final Logger logger
         = Logger.getLogger(SipSecurityManager.class);
 
