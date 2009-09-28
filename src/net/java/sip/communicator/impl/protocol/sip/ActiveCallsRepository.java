@@ -38,6 +38,12 @@ public class ActiveCallsRepository
     private Hashtable<String, CallSipImpl> activeCalls
                                     = new Hashtable<String, CallSipImpl>();
 
+    /**
+     * Creates a new instance of this repository.
+     *
+     * @param opSet a reference to the
+     * <tt>OperationSetBasicTelephonySipImpl</tt> that craeted us.
+     */
     public ActiveCallsRepository(OperationSetBasicTelephonySipImpl opSet)
     {
         this.parentOperationSet = opSet;

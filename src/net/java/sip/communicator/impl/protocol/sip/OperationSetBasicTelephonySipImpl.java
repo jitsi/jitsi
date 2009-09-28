@@ -164,13 +164,9 @@ public class OperationSetBasicTelephonySipImpl
     {
         assertRegistered();
 
-        CallSipImpl call = new CallSipImpl(protocolProvider);
+        CallSipImpl call = new CallSipImpl(protocolProvider, this);
 
-        activeCallsRepository.addCall(call);
         call.invite(calleeAddress, cause);
-
-        // notify everyone
-        fireCallEvent( CallEvent.CALL_INITIATED, call);
 
         return call;
     }
@@ -183,6 +179,18 @@ public class OperationSetBasicTelephonySipImpl
     public Iterator<CallSipImpl> getActiveCalls()
     {
         return activeCallsRepository.getActiveCalls();
+    }
+
+    /**
+     * Returns a reference to the {@link ActiveCallsRepository} that we are
+     * currently using.
+     *
+     * @return a reference to the {@link ActiveCallsRepository} that we are
+     * currently using.
+     */
+    protected ActiveCallsRepository getActiveCallsRepository()
+    {
+        return activeCallsRepository;
     }
 
     /**
@@ -1161,7 +1169,7 @@ public class OperationSetBasicTelephonySipImpl
             if (replacesHeader == null)
             {
                 //this is a brand new call (not a transfered one)
-                callSipImpl = new CallSipImpl(protocolProvider);
+                callSipImpl = new CallSipImpl(protocolProvider, this);
                 callSipImpl.processInvite(sourceProvider, serverTransaction);
             }
             else
@@ -1877,47 +1885,6 @@ public class OperationSetBasicTelephonySipImpl
         CallPeerSipImpl callPeer = (CallPeerSipImpl) peer;
         callPeer.getCall().answerCallPeer(callPeer);
 
-    }
-
-    /**
-     * Creates a new call and call peer associated with
-     * <tt>containingTransaction</tt>
-     *
-     * @param containingTransaction the transaction that created the call.
-     * @param sourceProvider the provider that the containingTransaction belongs
-     *            to.
-     *
-     * @return a new instance of a <tt>CallPeerSipImpl</tt> corresponding
-     *         to the <tt>containingTransaction</tt>.
-     */
-    private CallPeerSipImpl createCallPeerFor(
-        Transaction containingTransaction, SipProvider sourceProvider)
-    {
-        CallSipImpl call = new CallSipImpl(protocolProvider);
-        CallPeerSipImpl callPeer =
-            new CallPeerSipImpl(
-                containingTransaction.getDialog().getRemoteParty(),
-                call);
-        boolean incomingCall =
-            (containingTransaction instanceof ServerTransaction);
-
-        callPeer.setState(
-             incomingCall ?
-                 CallPeerState.INCOMING_CALL :
-                 CallPeerState.INITIATING_CALL);
-
-        callPeer.setDialog(containingTransaction.getDialog());
-        callPeer.setFirstTransaction(containingTransaction);
-        callPeer.setJainSipProvider(sourceProvider);
-
-        activeCallsRepository.addCall(call);
-
-        // notify everyone
-        fireCallEvent(
-            incomingCall ? CallEvent.CALL_RECEIVED : CallEvent.CALL_INITIATED,
-            call);
-
-        return callPeer;
     }
 
     /**

@@ -6,6 +6,9 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.security;
 
+import gov.nist.javax.sip.header.*;
+import gov.nist.javax.sip.message.*;
+
 import java.text.*;
 import java.util.*;
 
@@ -16,6 +19,7 @@ import javax.sip.message.*;
 import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import net.kano.joscar.snaccmd.ssi.*;
 
 /**
  * The class handles authentication challenges, caches user credentials and
@@ -97,8 +101,6 @@ public class SipSecurityManager
      * new transaction
      * @throws InvalidArgumentException if we fail to create a new header
      * containing user credentials.
-     * @throws ParseException if we fail to create a new header containing user
-     * credentials.
      * @throws NullPointerException if an argument or a header is null.
      * @throws OperationFailedException if we fail to acquire a password from
      * our security authority.
@@ -109,7 +111,6 @@ public class SipSecurityManager
                                     SipProvider       transactionCreator)
         throws SipException,
                InvalidArgumentException,
-               ParseException,
                OperationFailedException,
                NullPointerException
     {
@@ -124,33 +125,23 @@ public class SipSecurityManager
 
         ListIterator authHeaders = null;
 
-        if (challenge == null || reoriginatedRequest == null)
-        {
-            throw new NullPointerException(
-                "A null argument was passed to handle challenge.");
-        }
-
         if (challenge.getStatusCode() == Response.UNAUTHORIZED)
         {
             authHeaders = challenge.getHeaders(WWWAuthenticateHeader.NAME);
+
+            // Remove all authorization headers from the request (we'll re-add
+            // them from cache)
             reoriginatedRequest.removeHeader(AuthorizationHeader.NAME);
         }
         else if (challenge.getStatusCode()
                  == Response.PROXY_AUTHENTICATION_REQUIRED)
         {
             authHeaders = challenge.getHeaders(ProxyAuthenticateHeader.NAME);
+
+            // Remove all authorization headers from the request (we'll re-add
+            // them from cache)
             reoriginatedRequest.removeHeader(ProxyAuthorizationHeader.NAME);
         }
-
-        if (authHeaders == null)
-        {
-            throw new NullPointerException(
-                "Could not find WWWAuthenticate or ProxyAuthenticate headers");
-        }
-
-        //Remove all authorization headers from the request (we'll re-add them
-        //from cache)
-
 
         //rfc 3261 says that the cseq header should be augmented for the new
         //request. do it here so that the new dialog (created together with
@@ -216,7 +207,7 @@ public class SipSecurityManager
                 {
                     //this is the transaction that created the cc entry. if we
                     //need to authenticate the same transaction then the
-                    //credentials we supplied the first time we wrong.
+                    //credentials we supplied the first time were wrong.
                     //remove password and ask user again.
                     SipActivator.getProtocolProviderFactory().storePassword(
                         accountID, null);
@@ -317,25 +308,132 @@ public class SipSecurityManager
     }
 
     /**
-     * Makes sure that the password that was used for this forbidden response,
-     * is removed from the local cache and is not stored for future use.
+     * Handles a 403 Forbidden response. Contrary to the
+     * <tt>handleChallenge</tt> method this one would not attach an \
+     * authentication header to the request since there was no challenge in
+     * the response.As a result the use of this method would result in sending
+     * one more request and receiving one more failure response. Not quite
+     * efficient ... but what do you want ... life is tough.
      *
      * @param forbidden the 401/407 challenge response
      * @param endedTransaction the transaction established by the challenged
      * request
      * @param transactionCreator the JAIN SipProvider that we should use to
      * create the new transaction.
+     *
+     * @return the client transaction that can be used to try and reregister.
+     *
+     * @throws InvalidArgumentException if we fail to create a new header
+     * containing user credentials.
+     * @throws TransactionUnavailableException if we get an exception white
+     * creating the new transaction
      */
-    public void handleForbiddenResponse(
+    public ClientTransaction handleForbiddenResponse(
                                     Response          forbidden,
                                     ClientTransaction endedTransaction,
                                     SipProvider       transactionCreator)
+        throws InvalidArgumentException,
+               TransactionUnavailableException
+
     {
-        //a request that we previously sent was mal-authenticated. empty the
-        //credentials cache so that we don't use the same credentials once more.
+        //now empty the cache because the request we previously sent was
+        //mal-authenticated.
         cachedCredentials.clear();
+
+        //also remove the stored password:
+        SipActivator.getProtocolProviderFactory().storePassword(
+                        accountID, null);
+
+        //now recreate a transaction so that we could start all over again.
+
+        Request challengedRequest = endedTransaction.getRequest();
+        Request reoriginatedRequest = (Request) challengedRequest.clone();
+
+        //remove the branch id so that we could use the request in a new
+        //transaction
+        removeBranchID(reoriginatedRequest);
+
+        //extract the realms that we tried to authenticate with the previous
+        //request and remove the authorization headers.
+        List<String> realms = removeAuthHeaders(reoriginatedRequest);
+
+        //increment cseq (as per 3261)
+        CSeqHeader cSeq =
+            (CSeqHeader) reoriginatedRequest.getHeader( (CSeqHeader.NAME));
+        cSeq.setSeqNumber(cSeq.getSeqNumber() + 1l);
+
+        ClientTransaction retryTran =
+            transactionCreator.getNewClientTransaction(reoriginatedRequest);
+
+        //create a credentials entry with an empty password so that we can
+        //store the transaction and when we get the next challenge notify the
+        //user that their password was wrong.
+        Iterator<String> realmsIter = realms.iterator();
+        while(realmsIter.hasNext())
+        {
+            CredentialsCacheEntry ccEntry = createCcEntryWithStoredPassword("");
+            ccEntry.pushBranchID(retryTran.getBranchId());
+            cachedCredentials.cacheEntry(realmsIter.next(), ccEntry);
+        }
+
+        logger.debug("Returning authorization transaction.");
+        return retryTran;
     }
 
+
+    /**
+     * Removes all authorization (and proxy authorization) headers from
+     * <tt>request</tt> and returns the list of realms that they were about.
+     *
+     * @param request the request that we'd like to clear of all authorization
+     * headers.
+     * @return the <tt>List</tt> of realms that this request was supposed to
+     * authenticate against.
+     */
+    private List<String> removeAuthHeaders(Request request)
+    {
+        List<String> realms = new LinkedList<String>();
+
+        Iterator<SIPHeader> headers = ((SIPRequest)request).getHeaders();
+
+        removeAuthHeaders(headers, realms);
+
+        request.removeHeader(AuthorizationHeader.NAME);
+        request.removeHeader(ProxyAuthorizationHeader.NAME);
+
+        return realms;
+    }
+
+    /**
+     * Adds realms from all authorization headers in the <tt>headers</tt> list
+     * into the realms list (for use from <tt>removeAuthHeaders(Request)</tt>
+     * only). The method also handles header lists and is recursive.
+     *
+     * @param headers the list of headers that we need to analyze.
+     * @param realms the list that we should fill with the realmswe encounter
+     * in all kinds of authorization headers.
+     */
+    @SuppressWarnings("unchecked") //no way around it
+    private void removeAuthHeaders(Iterator<SIPHeader> headers,
+                                   List<String>        realms)
+    {
+        while(headers.hasNext())
+        {
+            SIPHeader header = headers.next();
+
+            if(header instanceof AuthorizationHeader)
+            {
+                realms.add(((AuthorizationHeader)header).getRealm());
+            }
+            //expand header lists
+            else if (header instanceof SIPHeaderList)
+            {
+                Iterator<SIPHeader> hdrListIter
+                    = ((SIPHeaderList<SIPHeader>)header).iterator();
+                removeAuthHeaders(hdrListIter, realms);
+            }
+        }
+    }
 
     /**
      * Generates an authorisation header in response to wwwAuthHeader.
@@ -458,26 +556,30 @@ public class SipSecurityManager
      * new one, equal to the one that was top most.
      *
      * @param request the Request whose branchID we'd like to remove.
-     *
-     * @throws ParseException in case the host port or transport in the original
-     * request were malformed
-     * @throws InvalidArgumentException if the port in the original via header
-     * was invalid.
      */
     private void removeBranchID(Request request)
-        throws ParseException, InvalidArgumentException
+
     {
         ViaHeader viaHeader = (ViaHeader) request.getHeader(ViaHeader.NAME);
 
         request.removeHeader(ViaHeader.NAME);
 
-        ViaHeader newViaHeader = headerFactory.createViaHeader(
-                                        viaHeader.getHost()
-                                        , viaHeader.getPort()
-                                        , viaHeader.getTransport()
-                                        , null);
-
-        request.setHeader(newViaHeader);
+        ViaHeader newViaHeader;
+        try
+        {
+            newViaHeader = headerFactory.createViaHeader(
+                                            viaHeader.getHost()
+                                            , viaHeader.getPort()
+                                            , viaHeader.getTransport()
+                                            , null);
+            request.setHeader(newViaHeader);
+        }
+        catch (Exception exc)
+        {
+            // we are using the host port and transport of an existing Via
+            // header so it would be quite weird to get this exception.
+            logger.debug("failed to reset a Via header");
+        }
     }
 
     /**
@@ -486,13 +588,14 @@ public class SipSecurityManager
      *
      * @param realm the realm that we'd like to obtain a
      * <tt>CredentialsCacheEntry</tt> for.
+     * @param reasonCode one of the fields defined in this class that indicate
+     * the reason for asking the user to enter a password.
      *
      * @return a newly created <tt>CredentialsCacheEntry</tt> corresponding to
      * the specified <tt>realm</tt>.
      */
     private CredentialsCacheEntry createCcEntryWithNewCredentials(
-                                                                String realm,
-                                                                int reasonCode)
+                    String realm, int reasonCode)
     {
         CredentialsCacheEntry ccEntry = new CredentialsCacheEntry();
 
@@ -505,11 +608,8 @@ public class SipSecurityManager
         else
             defaultCredentials.setUserName(accountID.getUserID());
 
-        UserCredentials newCredentials =
-            getSecurityAuthority().obtainCredentials(
-                realm,
-                defaultCredentials,
-                reasonCode);
+        UserCredentials newCredentials = getSecurityAuthority()
+            .obtainCredentials( realm, defaultCredentials, reasonCode);
 
         // in case user has canceled the login window
         if(newCredentials == null)

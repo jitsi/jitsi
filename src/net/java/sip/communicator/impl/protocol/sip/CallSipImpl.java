@@ -54,16 +54,30 @@ public class CallSipImpl
     private final SipMessageFactory messageFactory;
 
     /**
+     * A reference to the <tt>OperationSetBasicTelephonySipImpl</tt> that
+     * created us;
+     */
+    private final OperationSetBasicTelephonySipImpl parentOpSet;
+
+    /**
      * Crates a CallSipImpl instance belonging to <tt>sourceProvider</tt> and
      * initiated by <tt>CallCreator</tt>.
      *
      * @param sourceProvider the ProtocolProviderServiceSipImpl instance in the
-     *            context of which this call has been created.
+     * context of which this call has been created.
+     * @param parentOpSet a reference to the operation set that's creating us
+     * and that we would be able to use for even dispatching.
      */
-    protected CallSipImpl(ProtocolProviderServiceSipImpl sourceProvider)
+    protected CallSipImpl(ProtocolProviderServiceSipImpl    sourceProvider,
+                          OperationSetBasicTelephonySipImpl parentOpSet)
     {
         super(sourceProvider);
         this.messageFactory = sourceProvider.getMessageFactory();
+        this.parentOpSet = parentOpSet;
+
+        //let's add ourselves to the calls repo. we are doing it ourselves just
+        //to make sure that no one ever forgets.
+        parentOpSet.getActiveCallsRepository().addCall(this);
     }
 
     /**
@@ -73,7 +87,7 @@ public class CallSipImpl
      *
      * @param callPeer the new <tt>CallPeer</tt>
      */
-    public void addCallPeer(CallPeerSipImpl callPeer)
+    private void addCallPeer(CallPeerSipImpl callPeer)
     {
         if (callPeers.contains(callPeer))
             return;
@@ -431,8 +445,7 @@ public class CallSipImpl
 
     /**
      * Creates an SDP description that could be sent to <tt>peer</tt> and adds
-     * it to
-     * <tt>response</tt>. Provides a hook for this instance to take last
+     * it to <tt>response</tt>. Provides a hook for this instance to take last
      * configuration steps on a specific <tt>Response</tt> before it is sent to
      * a specific <tt>CallPeer</tt> as part of the execution of.
      *
@@ -442,7 +455,7 @@ public class CallSipImpl
      * @throws OperationFailedException if we fail parsing call peer's media.
      * @throws ParseException if we try to attach invalid SDP to response.
      */
-    private void attachSDPAnswer(Response response, CallPeerSipImpl peer)
+    private void attachSdpHoldAnswer(Response response, CallPeerSipImpl peer)
         throws OperationFailedException, ParseException
     {
         /*
@@ -450,8 +463,7 @@ public class CallSipImpl
          * response to a call-hold invite is to be sent.
          */
 
-        CallSession callSession =
-            ((CallSipImpl) peer.getCall()).getMediaCallSession();
+        CallSession callSession = peer.getCall().getMediaCallSession();
 
         String sdpAnswer = null;
         try
@@ -487,14 +499,23 @@ public class CallSipImpl
     {
         CallPeerSipImpl callPeer = new CallPeerSipImpl(
                 containingTransaction.getDialog().getRemoteParty(), this);
+        addCallPeer(callPeer);
 
-        callPeer.setState( (containingTransaction instanceof ServerTransaction)
+        boolean incomingCall
+            = (containingTransaction instanceof ServerTransaction);
+        callPeer.setState( incomingCall
                         ? CallPeerState.INCOMING_CALL
                         : CallPeerState.INITIATING_CALL);
 
         callPeer.setDialog(containingTransaction.getDialog());
         callPeer.setFirstTransaction(containingTransaction);
         callPeer.setJainSipProvider(sourceProvider);
+
+        // notify everyone
+        parentOpSet.fireCallEvent( (incomingCall
+                                    ? CallEvent.CALL_RECEIVED
+                                    : CallEvent.CALL_INITIATED),
+                                   this);
 
         return callPeer;
     }
@@ -825,9 +846,9 @@ public class CallSipImpl
         throws OperationFailedException
     {
         Transaction transaction = callPeer.getFirstTransaction();
-        Dialog dialog = callPeer.getDialog();
 
-        if (transaction == null || !dialog.isServer())
+        if (transaction == null ||
+            !(transaction instanceof ServerTransaction))
         {
             callPeer.setState(CallPeerState.DISCONNECTED);
             throw new OperationFailedException(

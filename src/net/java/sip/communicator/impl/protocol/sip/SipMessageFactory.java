@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.sip;
 
 import gov.nist.javax.sip.header.*;
 import gov.nist.javax.sip.header.extensions.*;
+import gov.nist.javax.sip.message.*;
 
 import java.text.*;
 import java.util.*;
@@ -201,6 +202,7 @@ public class SipMessageFactory
     {
         Response response = this.wrappedFactory.createResponse(statusCode,
                 request, contentType, content);
+        extractAndApplyDialogToTag((SIPRequest)request, response);
         return (Response)attachScSpecifics(response);
     }
 
@@ -216,6 +218,7 @@ public class SipMessageFactory
     {
         Response response = this.wrappedFactory.createResponse(statusCode,
                 request, contentType, content);
+        extractAndApplyDialogToTag((SIPRequest)request, response);
         return (Response)attachScSpecifics(response);
     }
 
@@ -230,6 +233,7 @@ public class SipMessageFactory
     {
         Response response
             = this.wrappedFactory.createResponse(statusCode, request);
+        extractAndApplyDialogToTag((SIPRequest)request, response);
         return (Response)attachScSpecifics(response);
     }
 
@@ -247,13 +251,58 @@ public class SipMessageFactory
     }
 
     /**
+     * It appears that when the JAIN-SIP message factory creates responses it
+     * does not add the dialog to tag (if it exists) to the response. We
+     * therefore try some heavy-weight JAIN-SIP hacking in order to do this
+     * ourselves.
+     *
+     * @param request the <tt>SIPRequest</tt> that we are constructing a
+     * response to.
+     * @param response the <tt>Response</tt> that we have just constructed
+     * and that we'd like to patch with a To tag.
+     */
+    private void extractAndApplyDialogToTag(
+                    SIPRequest request, Response response)
+    {
+        ServerTransaction tran = (ServerTransaction)request.getTransaction();
+
+        //be extra cautious
+        if(tran == null)
+            return;
+
+        Dialog dialog = tran.getDialog();
+
+        if(dialog == null)
+            return;
+
+        String localDialogTag = dialog.getLocalTag();
+
+        ToHeader to = (ToHeader) response.getHeader(ToHeader.NAME);
+
+        if( to == null)
+            return;
+
+        try
+        {
+            to.setTag(localDialogTag);
+        }
+        catch (ParseException e)
+        {
+            //we just extracted the tag from a Dialog. This is therefore
+            //very unlikely to happen and we are going to just log it.
+            logger.debug("Failed to attach a to tag", e);
+        }
+
+    }
+
+    /**
      * Attaches to <tt>message</tt> headers and object params that we'd like to
      * be present in absolutely all messages we create (like for example the
      * user agent header, the contact header or the provider message object
      * tag).
      *
      * @param message the message that we'd like to tag
-     * @return
+     * @return returns a reference to <tt>message</tt> for convenience reasons.
      */
     private Message attachScSpecifics(Message message)
     {
@@ -269,7 +318,7 @@ public class SipMessageFactory
             Response response = (Response)message;
 
             //if there's a from tag and this is a non-failure response,
-            //then we are adding a to tag.
+            //that still doesn't have a To tag, then we are adding a to tag.
             if(fromTag != null && fromTag.trim().length() > 0
                 && response.getStatusCode() > 100
                 && response.getStatusCode() < 300)
@@ -660,6 +709,8 @@ public class SipMessageFactory
      * @return a <tt>Header</tt> which represents the Replaces header contained
      * in the <tt>URI</tt> of the specified <tt>address</tt>; <tt>null</tt> if
      * no such header is present
+     *
+     * @throws OperationFailedException if we can't parse the replaces header.
      */
     private Header stripReplacesHeader( Address address )
         throws OperationFailedException
@@ -710,7 +761,6 @@ public class SipMessageFactory
      * effect if the <tt>Call-ID</tt> has not been seen by our security manager.
      *
      * @param request the request that we'd like to try pre-authenticating.
-     * @param service the provider where the request originated.
      */
     public void preAuthenticateRequest( Request request )
     {

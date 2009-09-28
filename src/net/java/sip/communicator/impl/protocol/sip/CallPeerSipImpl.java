@@ -107,7 +107,6 @@ public class CallPeerSipImpl
     {
         this.peerAddress = peerAddress;
         this.call = owningCall;
-        call.addCallPeer(this);
 
         //create the uid
         this.peerID = String.valueOf( System.currentTimeMillis())

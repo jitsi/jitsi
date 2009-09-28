@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.sip.security;
 
 import java.util.*;
+import java.util.Map.*;
 
 import javax.sip.header.*;
 
@@ -61,6 +62,33 @@ class CredentialsCache
     }
 
     /**
+     * Returns the list of realms that <tt>branchID</tt> has been used to
+     * authenticate against.
+     *
+     * @param branchID the transaction branchID that we are looking for.
+     *
+     * @return the list of realms that <tt>branchID</tt> has been used to
+     * authenticate against.
+     */
+    List<String> getRealms(String branchID)
+    {
+        List<String> realms = new LinkedList<String>();
+
+        Iterator<Entry<String, CredentialsCacheEntry>> credentials =
+            authenticatedRealms.entrySet().iterator();
+
+        while ( credentials.hasNext())
+        {
+            Entry<String, CredentialsCacheEntry> entry = credentials.next();
+
+            if (entry.getValue().containsBranchID(branchID))
+                realms.add(entry.getKey());
+        }
+
+        return realms;
+    }
+
+    /**
      * Returns the credentials corresponding to the specified realm
      * or null if none could be found and removes the entry from the cache.
      *
@@ -89,7 +117,7 @@ class CredentialsCache
      * belongs to.
      * @param authorization the authorization header that we'd like to cache.
      */
-    void cacheAuthorizationHeader(String callid,
+    void cacheAuthorizationHeader(String              callid,
                                   AuthorizationHeader authorization)
     {
         authenticatedCalls.put(callid, authorization);
@@ -108,5 +136,4 @@ class CredentialsCache
     {
         return this.authenticatedCalls.get(callid);
     }
-
 }

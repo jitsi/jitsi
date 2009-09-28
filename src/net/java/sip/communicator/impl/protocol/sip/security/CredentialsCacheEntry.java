@@ -25,8 +25,8 @@ class CredentialsCacheEntry
     /**
      * The transactionHistory list contains transactions where the entry
      * has been and that had not yet been responded to (or at least the response
-     * has not reached this class). The transactionHistory's elements are Strings
-     * corresponding to branch ids.
+     * has not reached this class). The transactionHistory's elements are
+     * <tt>String</tt>s corresponding to branch id-s.
      */
     private Vector<String> transactionHistory = new Vector<String>();
 
@@ -35,7 +35,7 @@ class CredentialsCacheEntry
      * know that we've seen it and don't try to authenticate with the same
      * credentials if we get an unauthorized response for it.
      *
-     * @param requestBranchID the id to add to the list of uncofirmed
+     * @param requestBranchID the id to add to the list of unconfirmed
      * transactions.
      */
     void pushBranchID(String requestBranchID)
@@ -50,11 +50,25 @@ class CredentialsCacheEntry
      * there is no point in keeping it. We can't get an unauthorized response
      * more than once in the same transaction.
      *
-     * @param responseBranchID the branchi id of the response to process.
-     * @return true if this entry hase been used for the transaction.
+     * @param responseBranchID the branch id of the response to process.
+     * @return true if this entry has been used for the transaction.
      */
     boolean popBranchID(String responseBranchID)
     {
         return transactionHistory.remove(responseBranchID);
+    }
+
+    /**
+     * Determines whether these credentials have been used for the specified
+     * transaction.
+     *
+     * @param branchID the branch id of the transaction that we are looking for.
+     *
+     * @return <tt>true</tt> if this entry has been used for the transaction
+     * and <tt>false</tt> otherwise.
+     */
+    boolean containsBranchID(String branchID)
+    {
+        return transactionHistory.contains(branchID);
     }
 }

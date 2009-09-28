@@ -928,25 +928,18 @@ public class SipRegistrarConnection
         else if (response.getStatusCode() == Response.TRYING) {
             //do nothing
         }
-        //401 UNAUTHORIZED
+        //401 UNAUTHORIZED,
+        //407 PROXY_AUTHENTICATION_REQUIRED,
+        //403 FORBIDDEN
         else if (response.getStatusCode() == Response.UNAUTHORIZED
                 || response.getStatusCode()
-                                == Response.PROXY_AUTHENTICATION_REQUIRED)
+                                == Response.PROXY_AUTHENTICATION_REQUIRED
+                || response.getStatusCode() == Response.FORBIDDEN)
         {
-            processAuthenticationChallenge(clientTransaction
-                                        , response
-                                        , sourceProvider);
+            processAuthenticationChallenge(
+                    clientTransaction, response, sourceProvider);
             processed = true;
         }
-        //403 FORBIDDEN
-        else if (response.getStatusCode() == Response.FORBIDDEN)
-        {
-            processForbidden(clientTransaction
-                            , response
-                            , sourceProvider);
-            processed = true;
-        }
-        //errors
         else if ( response.getStatusCode() >= 400 )
         {
             logger.error("Received an error response.");
@@ -982,11 +975,24 @@ public class SipRegistrarConnection
         {
             logger.debug("Authenticating a Register request.");
 
-            ClientTransaction retryTran
-                = sipProvider.getSipSecurityManager().handleChallenge(
-                    response,
-                    clientTransaction,
-                    jainSipProvider);
+            ClientTransaction retryTran;
+
+            if( response.getStatusCode() == Response.UNAUTHORIZED
+                || response.getStatusCode()
+                    == Response.PROXY_AUTHENTICATION_REQUIRED)
+            {
+                //respond to the challenge
+                retryTran = sipProvider.getSipSecurityManager().handleChallenge(
+                    response, clientTransaction, jainSipProvider);
+            }
+            else
+            {
+                //we got a BAD PASSWD reply. send a new credential-less request
+                //in order to trigger a new challenge and rerequest a password.
+                retryTran = sipProvider.getSipSecurityManager()
+                    .handleForbiddenResponse(
+                            response, clientTransaction, jainSipProvider);
+            }
 
             if(retryTran == null)
             {
@@ -1033,36 +1039,6 @@ public class SipRegistrarConnection
                     , "We failed to authenticate with the server."
                 );
         }
-    }
-
-    /**
-    * Makes sure that the last password used is removed from the cache, and
-    * notifies the user of the authentication failure..
-    *
-    * @param clientTransaction the corresponding transaction
-    * @param response the challenge
-    * @param jainSipProvider the provider that received the challenge
-    */
-    private void processForbidden(
-                        ClientTransaction clientTransaction,
-                        Response          response,
-                        SipProvider       jainSipProvider)
-    {
-        logger.debug("Authenticating a Register request.");
-
-        sipProvider.getSipSecurityManager().handleForbiddenResponse(
-                response
-                , clientTransaction
-                , jainSipProvider);
-
-
-            //tell the others we couldn't register
-            this.setRegistrationState(
-                RegistrationState.AUTHENTICATION_FAILED
-                , RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED
-                , "Received a "+Response.FORBIDDEN+" FORBIDDEN response while "
-                +"authenticating. Server returned error:"
-                + response.getReasonPhrase());
     }
 
     /**
