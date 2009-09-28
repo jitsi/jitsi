@@ -571,16 +571,16 @@ public class OperationSetBasicTelephonySipImpl
      * Updates the call state of the corresponding call peer.
      *
      * @param clientTransaction the transaction in which the response was
-     *            received.
+     * received.
      * @param response the trying response.
      */
     private void processTrying(ClientTransaction clientTransaction,
-        Response response)
+                               Response          response)
     {
         Dialog dialog = clientTransaction.getDialog();
+
         // find the call peer
-        CallPeerSipImpl callPeer =
-            activeCallsRepository.findCallPeer(dialog);
+        CallPeerSipImpl callPeer = activeCallsRepository.findCallPeer(dialog);
 
         if (callPeer == null)
         {
@@ -592,7 +592,9 @@ public class OperationSetBasicTelephonySipImpl
         CallPeerState callPeerState = callPeer.getState();
         if (!CallPeerState.CONNECTED.equals(callPeerState)
             && !CallPeerState.isOnHold(callPeerState))
+        {
             callPeer.setState(CallPeerState.CONNECTING);
+        }
     }
 
     /**
@@ -601,7 +603,7 @@ public class OperationSetBasicTelephonySipImpl
      * presentation and that we didn't have when establishing the call.
      *
      * @param clientTransaction the transaction in which the response was
-     *            received.
+     * received.
      * @param response the Trying response.
      */
     private void processRinging(ClientTransaction clientTransaction,
@@ -949,16 +951,15 @@ public class OperationSetBasicTelephonySipImpl
      * sends an OK response.
      *
      * @param serverTransaction the ServerTransaction the the BYE request
-     *            arrived in.
+     * arrived in.
      * @param byeRequest the BYE request to process
      */
     private void processBye(ServerTransaction serverTransaction,
-        Request byeRequest)
+                            Request           byeRequest)
     {
         // find the call
         Dialog dialog = serverTransaction.getDialog();
-        CallPeerSipImpl callPeer =
-            activeCallsRepository.findCallPeer(dialog);
+        CallPeerSipImpl callPeer = activeCallsRepository.findCallPeer(dialog);
 
         if (callPeer == null)
         {
@@ -966,72 +967,21 @@ public class OperationSetBasicTelephonySipImpl
             return;
         }
 
-        // Send OK
-        Response ok = null;
-        try
-        {
-            ok = messageFactory.createResponse(Response.OK, byeRequest);
-        }
-        catch (ParseException ex)
-        {
-            logger.error("Error while trying to send a response to a bye", ex);
-            // no need to let the user know about the error since it doesn't
-            // affect them
-            return;
-        }
-
-        try
-        {
-            serverTransaction.sendResponse(ok);
-            logger.debug("sent response " + ok);
-        }
-        catch (Exception ex)
-        {
-            // This is not really a problem according to the RFC
-            // so just dump to stdout should someone be interested
-            logger.error("Failed to send an OK response to BYE request,"
-                + "exception was:\n", ex);
-        }
-
-        // change status
-        boolean dialogIsAlive;
-        try
-        {
-            dialogIsAlive = DialogUtils.processByeThenIsDialogAlive(dialog);
-        }
-        catch (SipException ex)
-        {
-            dialogIsAlive = false;
-
-            logger
-                .error(
-                    "Failed to determine whether the dialog should stay alive.",
-                    ex);
-        }
-        if (dialogIsAlive)
-        {
-            ((CallSipImpl) callPeer.getCall()).getMediaCallSession()
-                .stopStreaming();
-        }
-        else
-        {
-            callPeer.setState(CallPeerState.DISCONNECTED);
-        }
+        callPeer.getCall().processBye(serverTransaction, byeRequest, callPeer);
     }
 
     /**
      * Updates the session description and sends the state of the corresponding
      * call peer to CONNECTED.
      *
-     * @param serverTransaction the transaction that the Ack was received in.
-     * @param ackRequest Request
+     * @param serverTransaction the transaction that the ACK was received in.
+     * @param ackRequest the ACK <tt>Request</tt> we need to process
      */
     private void processAck(ServerTransaction serverTransaction,
                             Request ackRequest)
     {
         // find the call
-        CallPeerSipImpl peer
-            = activeCallsRepository.findCallPeer(
+        CallPeerSipImpl peer = activeCallsRepository.findCallPeer(
                     serverTransaction.getDialog());
 
         if (peer == null)
@@ -1044,8 +994,7 @@ public class OperationSetBasicTelephonySipImpl
         ContentLengthHeader contentLength = ackRequest.getContentLength();
         if ((contentLength != null) && (contentLength.getContentLength() > 0))
         {
-            peer.setSdpDescription(
-                new String(ackRequest.getRawContent()));
+            peer.setSdpDescription( new String(ackRequest.getRawContent()));
         }
 
         // change status
@@ -1093,65 +1042,8 @@ public class OperationSetBasicTelephonySipImpl
             return;
         }
 
-        // Cancels should be OK-ed and the initial transaction - terminated
-        // (report and fix by Ranga)
-        try
-        {
-            Response ok
-                = messageFactory.createResponse(Response.OK, cancelRequest);
-            serverTransaction.sendResponse(ok);
-
-            logger.debug("sent an ok response to a CANCEL request:\n" + ok);
-        }
-        catch (ParseException ex)
-        {
-            CallSipImpl.logAndFailCallPeer(
-                "Failed to create an OK Response to an CANCEL request.", ex,
-                callPeer);
-            return;
-        }
-        catch (Exception ex)
-        {
-            CallSipImpl.logAndFailCallPeer(
-                "Failed to send an OK Response to an CANCEL request.", ex,
-                callPeer);
-            return;
-        }
-        try
-        {
-            // stop the invite transaction as well
-            Transaction tran = callPeer.getFirstTransaction();
-            // should be server transaction and misplaced cancels should be
-            // filtered by the stack but it doesn't hurt checking anyway
-            if (!(tran instanceof ServerTransaction))
-            {
-                logger.error("Received a misplaced CANCEL request!");
-                return;
-            }
-
-            ServerTransaction inviteTran = (ServerTransaction) tran;
-            Request invite = callPeer.getFirstTransaction().getRequest();
-            Response requestTerminated = protocolProvider.getMessageFactory()
-                .createResponse(Response.REQUEST_TERMINATED, invite);
-
-            inviteTran.sendResponse(requestTerminated);
-            if (logger.isDebugEnabled())
-                logger.debug("sent request terminated response:\n"
-                    + requestTerminated);
-        }
-        catch (ParseException ex)
-        {
-            logger.error("Failed to create a REQUEST_TERMINATED Response to "
-                + "an INVITE request.", ex);
-        }
-        catch (Exception ex)
-        {
-            logger.error("Failed to send an REQUEST_TERMINATED Response to "
-                + "an INVITE request.", ex);
-        }
-
-        // change status
-        callPeer.setState(CallPeerState.DISCONNECTED);
+        callPeer.getCall().processCancel(serverTransaction,
+                        cancelRequest, callPeer);
     }
 
     /**

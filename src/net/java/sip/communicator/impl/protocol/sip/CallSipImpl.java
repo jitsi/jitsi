@@ -203,7 +203,7 @@ public class CallSipImpl
      * Verifies whether the call peer has entered a state.
      *
      * @param evt The <tt>CallPeerChangeEvent</tt> instance containing
-     *            the source event as well as its previous and its new status.
+     * the source event as well as its previous and its new status.
      */
     public void peerStateChanged(CallPeerChangeEvent evt)
     {
@@ -226,10 +226,10 @@ public class CallSipImpl
      * Returns <tt>true</tt> if <tt>dialog</tt> matches the jain sip dialog
      * established with one of the peers in this call.
      *
-     * @param dialog the dialog whose corresponding peer we're looking
-     *            for.
+     * @param dialog the dialog whose corresponding peer we're looking for.
+     *
      * @return true if this call contains a call peer whose jain sip
-     *         dialog is the same as the specified and false otherwise.
+     * dialog is the same as the specified and false otherwise.
      */
     public boolean contains(Dialog dialog)
     {
@@ -240,10 +240,10 @@ public class CallSipImpl
      * Returns the call peer whose associated jain sip dialog matches
      * <tt>dialog</tt>.
      *
-     * @param dialog the jain sip dialog whose corresponding peer we're
-     *            looking for.
-     * @return the call peer whose jain sip dialog is the same as the
-     *         specified or null if no such call peer was found.
+     * @param dialog the jain sip dialog whose corresponding peer we're looking
+     * for.
+     * @return the call peer whose jain sip dialog is the same as the specified
+     * or null if no such call peer was found.
      */
     public CallPeerSipImpl findCallPeer(Dialog dialog)
     {
@@ -280,7 +280,7 @@ public class CallSipImpl
      * call.
      *
      * @param callSession the <tt>CallSession</tt> that the media service has
-     *            created for this call.
+     * created for this call.
      */
     public void setMediaCallSession(CallSession callSession)
     {
@@ -393,11 +393,9 @@ public class CallSipImpl
     {
         try
         {
-            CallSession callSession =
-                SipActivator.getMediaService().createCallSession(
-                    callPeer.getCall());
-            ((CallSipImpl) callPeer.getCall())
-                .setMediaCallSession(callSession);
+            CallSession callSession = SipActivator.getMediaService()
+                .createCallSession(callPeer.getCall());
+            callPeer.getCall().setMediaCallSession(callSession);
 
             callSession.setSessionCreatorCallback(callPeer);
 
@@ -405,6 +403,7 @@ public class CallSipImpl
             // that the media service can choose the most proper local
             // address to advertise.
             URI calleeURI = callPeer.getJainSipAddress().getURI();
+
             if (calleeURI.isSipURI())
             {
                 // content type should be application/sdp (not applications)
@@ -1251,5 +1250,143 @@ public class CallSipImpl
 
         // change status
         peer.setState(CallPeerState.CONNECTING_WITH_EARLY_MEDIA);
+    }
+
+    /**
+     * Sets the state of the specifies call peer as DISCONNECTED.
+     *
+     * @param serverTransaction the transaction that the cancel was received in.
+     * @param cancelRequest the Request that we've just received.
+     * @param callPeer the peer that sent the CANCEL request.
+     */
+    public void processCancel(ServerTransaction serverTransaction,
+                               Request cancelRequest,
+                               CallPeerSipImpl callPeer)
+    {
+        // Cancels should be OK-ed and the initial transaction - terminated
+        // (report and fix by Ranga)
+        try
+        {
+            Response ok = messageFactory.createResponse(Response.OK,
+                            cancelRequest);
+            serverTransaction.sendResponse(ok);
+
+            logger.debug("sent an ok response to a CANCEL request:\n" + ok);
+        }
+        catch (ParseException ex)
+        {
+            CallSipImpl.logAndFailCallPeer(
+                "Failed to create an OK Response to an CANCEL request.", ex,
+                callPeer);
+            return;
+        }
+        catch (Exception ex)
+        {
+            CallSipImpl.logAndFailCallPeer(
+                "Failed to send an OK Response to an CANCEL request.", ex,
+                callPeer);
+            return;
+        }
+        try
+        {
+            // stop the invite transaction as well
+            Transaction tran = callPeer.getFirstTransaction();
+            // should be server transaction and misplaced cancels should be
+            // filtered by the stack but it doesn't hurt checking anyway
+            if (!(tran instanceof ServerTransaction))
+            {
+                logger.error("Received a misplaced CANCEL request!");
+                return;
+            }
+
+            ServerTransaction inviteTran = (ServerTransaction) tran;
+            Request invite = callPeer.getFirstTransaction().getRequest();
+            Response requestTerminated = messageFactory
+                .createResponse(Response.REQUEST_TERMINATED, invite);
+
+            inviteTran.sendResponse(requestTerminated);
+            if (logger.isDebugEnabled())
+                logger.debug("sent request terminated response:\n"
+                    + requestTerminated);
+        }
+        catch (ParseException ex)
+        {
+            logger.error("Failed to create a REQUEST_TERMINATED Response to "
+                + "an INVITE request.", ex);
+        }
+        catch (Exception ex)
+        {
+            logger.error("Failed to send an REQUEST_TERMINATED Response to "
+                + "an INVITE request.", ex);
+        }
+
+        // change status
+        callPeer.setState(CallPeerState.DISCONNECTED);
+    }
+
+    /**
+     * Sets the state of the corresponding call peer to DISCONNECTED and
+     * sends an OK response.
+     *
+     * @param tran the ServerTransaction the the BYE request
+     * arrived in.
+     * @param byeRequest the BYE request to process
+     * @param callPeer the peer that sent the BYE request
+     */
+    public void processBye(ServerTransaction tran,
+                           Request           byeRequest,
+                           CallPeerSipImpl   callPeer)
+    {
+        // Send OK
+        Response ok = null;
+        try
+        {
+            ok = messageFactory.createResponse(Response.OK, byeRequest);
+        }
+        catch (ParseException ex)
+        {
+            logger.error("Error while trying to send a response to a bye", ex);
+            // no need to let the user know about the error since it doesn't
+            // affect them
+            return;
+        }
+
+        try
+        {
+            tran.sendResponse(ok);
+            logger.debug("sent response " + ok);
+        }
+        catch (Exception ex)
+        {
+            // This is not really a problem according to the RFC
+            // so just dump to stdout should someone be interested
+            logger.error("Failed to send an OK response to BYE request,"
+                + "exception was:\n", ex);
+        }
+
+        // change status
+        boolean dialogIsAlive;
+        try
+        {
+            dialogIsAlive = DialogUtils.processByeThenIsDialogAlive(tran.getDialog());
+        }
+        catch (SipException ex)
+        {
+            dialogIsAlive = false;
+
+            logger
+                .error(
+                    "Failed to determine whether the dialog should stay alive.",
+                    ex);
+        }
+        if (dialogIsAlive)
+        {
+            ((CallSipImpl) callPeer.getCall()).getMediaCallSession()
+                .stopStreaming();
+        }
+        else
+        {
+            callPeer.setState(CallPeerState.DISCONNECTED);
+        }
     }
 }

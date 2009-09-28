@@ -12,44 +12,43 @@ import javax.sip.*;
 /**
  * Implements utility methods to aid the manipulation of {@link Dialog}
  * instances and extend the mentioned type with additional functionality.
- * 
+ *
  * @author Lubomir Marinov
  */
 public final class DialogUtils
 {
 
     /**
-     * Associates a specific subscription with the a given <code>Dialog</code>
+     * Associates a specific subscription with the a given <tt>Dialog</tt>
      * in order to allow it to keep the dialog in question alive even after a
      * BYE request.
-     * 
-     * @param dialog the <code>Dialog</code> to associate the subscription with
-     *            and to be kept alive after a BYE request because of the
-     *            subscription
+     *
+     * @param dialog the <tt>Dialog</tt> to associate the subscription with
+     * and to be kept alive after a BYE request because of the subscription
      * @param subscription the subscription to be associated with
-     *            <code>dialog</code> and keep it alive after a BYE request
+     * <tt>dialog</tt> and keep it alive after a BYE request
+     *
      * @return <tt>true</tt> if the specified subscription was associated with
-     *         the given dialog; <tt>false</tt> if no changes were applied
-     * @throws SipException
+     * the given dialog; <tt>false</tt> if no changes were applied
+     *
+     * @throws SipException if the dialog is already terminated.
      */
     public static boolean addSubscription(Dialog dialog, Object subscription)
         throws SipException
     {
         synchronized (dialog)
         {
-            DialogApplicationData applicationData =
+            DialogApplicationData appData =
                 (DialogApplicationData) SipApplicationData.getApplicationData(
                         dialog, SipApplicationData.KEY_SUBSCRIPTIONS);
-            if (applicationData == null)
+            if (appData == null)
             {
-                applicationData = new DialogApplicationData();
+                appData = new DialogApplicationData();
                 SipApplicationData.setApplicationData(
-                        dialog,
-                        SipApplicationData.KEY_SUBSCRIPTIONS,
-                        applicationData);
+                    dialog, SipApplicationData.KEY_SUBSCRIPTIONS, appData);
             }
 
-            if (applicationData.addSubscription(subscription))
+            if (appData.addSubscription(subscription))
             {
                 try
                 {
@@ -58,12 +57,11 @@ public final class DialogUtils
                 }
                 catch (SipException ex)
                 {
-
                     /*
                      * Since the subscription didn't quite register, undo the
                      * part of the registration which did succeed.
                      */
-                    applicationData.removeSubscription(subscription);
+                    appData.removeSubscription(subscription);
                     throw ex;
                 }
             }
@@ -73,13 +71,14 @@ public final class DialogUtils
 
     /**
      * Determines whether a BYE request has already been processed in a specific
-     * <code>Dialog</code> and thus allows determining whether the dialog in
+     * <tt>Dialog</tt> and thus allows determining whether the dialog in
      * question should be terminated when the last associated subscription is
      * terminated.
-     * 
-     * @param dialog the <code>Dialog</code> to be examined
+     *
+     * @param dialog the <tt>Dialog</tt> to be examined
+     *
      * @return <tt>true</tt> if a BYE request has already been processed in the
-     *         specified <code>dialog</code>; <tt>false</tt>, otherwise
+     * specified <tt>dialog</tt>; <tt>false</tt>, otherwise
      */
     public static boolean isByeProcessed(Dialog dialog)
     {
@@ -94,17 +93,19 @@ public final class DialogUtils
     }
 
     /**
-     * Processes a BYE request in a specific <code>Dialog</code> for the
+     * Processes a BYE request in a specific <tt>Dialog</tt> for the
      * purposes of subscription associations and returns an indicator which
      * determines whether the specified dialog should still be considered alive
      * after the processing of the BYE request.
-     * 
-     * @param dialog the <code>Dialog</code> in which a BYE request has arrived
-     * @return <tt>true</tt> if <code>dialog</code> should still be considered
-     *         alive after processing the mentioned BYE request; <tt>false</tt>
-     *         if <code>dialog</code> is to be expected to die after processing
-     *         the request in question
-     * @throws SipException
+     *
+     * @param dialog the <tt>Dialog</tt> in which a BYE request has arrived
+     *
+     * @return <tt>true</tt> if <tt>dialog</tt> should still be considered
+     * alive after processing the mentioned BYE request; <tt>false</tt> if
+     * <tt>dialog</tt> is to be expected to die after processing the request in
+     * question
+     *
+     * @throws SipException if the dialog is already terminated.
      */
     public static boolean processByeThenIsDialogAlive(Dialog dialog)
         throws SipException
@@ -129,22 +130,22 @@ public final class DialogUtils
     }
 
     /**
-     * Dissociates a specific subscription with a given <code>Dialog</code> in
+     * Dissociates a specific subscription with a given <tt>Dialog</tt> in
      * order to no longer allow it to keep the dialog in question alive even
      * after a BYE request, deletes the dialog if there are no other
      * subscriptions associated with it and a BYE request has already been
      * received and returns an indicator which determines whether the specified
      * dialog is still alive after the dissociation of the given subscription.
-     * 
-     * @param dialog the <code>Dialog</code> to dissociate the subscription with
-     *            and to no longer be kept alive after a BYE request because of
-     *            the subscription
+     *
+     * @param dialog the <tt>Dialog</tt> to dissociate the subscription with
+     * and to no longer be kept alive after a BYE request because of the
+     * subscription
      * @param subscription the subscription to be dissociated with
-     *            <code>dialog</code> and to no longer be kept alive after a BYE
-     *            request because of the subscription
+     * <tt>dialog</tt> and to no longer be kept alive after a BYE request
+     * because of the subscription
      * @return <tt>true</tt> if the dialog is still alive after the
-     *         dissociation; <tt>false</tt> if the dialog was terminated because
-     *         of the dissociation
+     * dissociation; <tt>false</tt> if the dialog was terminated because of the
+     * dissociation
      */
     public static boolean removeSubscriptionThenIsDialogAlive(Dialog dialog,
         Object subscription)
@@ -167,7 +168,7 @@ public final class DialogUtils
     }
 
     /**
-     * Prevents the creation of <code>DialogUtils</code> instances.
+     * Prevents the creation of <tt>DialogUtils</tt> instances.
      */
     private DialogUtils()
     {
@@ -178,7 +179,7 @@ public final class DialogUtils
      * associates with {@link #Dialog} instances.
      * <p>
      * The implementation at the time of this writing allows tracking
-     * subscriptions in a specific <code>Dialog</code> in order to make it
+     * subscriptions in a specific <tt>Dialog</tt> in order to make it
      * possible to determine whether a BYE request should terminate the
      * respective dialog.
      * </p>
@@ -188,7 +189,7 @@ public final class DialogUtils
 
         /**
          * The indicator which determines whether a BYE request has already been
-         * processed in the owning <code>Dialog</code> and thus allows
+         * processed in the owning <tt>Dialog</tt> and thus allows
          * determining whether the dialog in question should be terminated when
          * the last associated subscription is terminated.
          */
@@ -196,21 +197,21 @@ public final class DialogUtils
 
         /**
          * The set of subscriptions not yet terminated in the owning
-         * <code>Dialog</code> i.e. keeping it alive even after a BYE request.
+         * <tt>Dialog</tt> i.e. keeping it alive even after a BYE request.
          */
         private final List<Object> subscriptions = new ArrayList<Object>();
 
         /**
          * Associates a specific subscription with the owning
-         * <code>Dialog</code> in order to allow it to keep the dialog in
+         * <tt>Dialog</tt> in order to allow it to keep the dialog in
          * question alive even after a BYE request.
-         * 
+         *
          * @param subscription the subscription with no specific type of
-         *            interest to this implementation to be associated with the
-         *            owning <code>Dialog</code>
+         * interest to this implementation to be associated with the
+         * owning <tt>Dialog</tt>
          * @return <tt>true</tt> if the specified subscription caused a
-         *         modification of the list of associated subscriptions;
-         *         <tt>false</tt> if no change to the mentioned list was applied
+         * modification of the list of associated subscriptions; <tt>false</tt>
+         * if no change to the mentioned list was applied
          */
         public boolean addSubscription(Object subscription)
         {
@@ -223,12 +224,12 @@ public final class DialogUtils
 
         /**
          * Determines whether a BYE request has already been processed in the
-         * owning <code>Dialog</code> and thus allows determining whether the
+         * owning <tt>Dialog</tt> and thus allows determining whether the
          * dialog in question should be terminated when the last associated
          * subscription is terminated.
-         * 
+         *
          * @return <tt>true</tt> if a BYE request has already been processed in
-         *         the owning <code>Dialog</code>; <tt>false</tt>, otherwise
+         * the owning <tt>Dialog</tt>; <tt>false</tt>, otherwise
          */
         public boolean isByeProcessed()
         {
@@ -237,11 +238,10 @@ public final class DialogUtils
 
         /**
          * Determines the number of subscriptions associated with the owning
-         * <code>Dialog</code> i.e. keeping it alive even after a BYE request.
-         * 
+         * <tt>Dialog</tt> i.e. keeping it alive even after a BYE request.
+         *
          * @return the number of subscriptions associated with the owning
-         *         <code>Dialog</code> i.e. keeping it alive even after a BYE
-         *         request
+         * <tt>Dialog</tt> i.e. keeping it alive even after a BYE request
          */
         public int getSubscriptionCount()
         {
@@ -250,15 +250,15 @@ public final class DialogUtils
 
         /**
          * Dissociates a specific subscription with the owning
-         * <code>Dialog</code> in order to no longer allow it to keep the dialog
+         * <tt>Dialog</tt> in order to no longer allow it to keep the dialog
          * in question alive even after a BYE request.
-         * 
+         *
          * @param subscription the subscription with no specific type of
-         *            interest to this implementation to be dissociated with the
-         *            owning <code>Dialog</code>
+         * interest to this implementation to be dissociated with the owning
+         * <tt>Dialog</tt>
          * @return <tt>true</tt> if the specified subscription caused a
-         *         modification of the list of associated subscriptions;
-         *         <tt>false</tt> if no change to the mentioned list was applied
+         * modification of the list of associated subscriptions; <tt>false</tt>
+         * if no change to the mentioned list was applied
          */
         public boolean removeSubscription(Object subscription)
         {
@@ -267,13 +267,12 @@ public final class DialogUtils
 
         /**
          * Sets the indicator which determines whether a BYE request has already
-         * been processed in the owning <code>Dialog</code> and thus allows
+         * been processed in the owning <tt>Dialog</tt> and thus allows
          * determining whether the dialog in question should be terminated when
          * the last associated subscription is terminated.
-         * 
+         *
          * @param byeIsProcessed <tt>true</tt> if a BYE request has already been
-         *            processed in the owning <code>Dialog</code>;
-         *            <tt>false</tt>, otherwise
+         * processed in the owning <tt>Dialog</tt>; <tt>false</tt>, otherwise
          */
         public void setByeProcessed(boolean byeIsProcessed)
         {

@@ -430,7 +430,7 @@ public class SipMessageFactory
      * synchronized: needed for access to 'rand', else risk to generate same tag
      * twice
      */
-    private synchronized String generateLocalTag()
+    public static synchronized String generateLocalTag()
     {
         if(localTagGenerator == null)
             localTagGenerator = new Random();
