@@ -1233,7 +1233,7 @@ public class OperationSetBasicTelephonySipImpl
         }
         else
         {
-            callSipImpl.processReInvite();
+            callSipImpl.processReInvite(sourceProvider, serverTransaction);
         }
 
 
@@ -1295,7 +1295,8 @@ public class OperationSetBasicTelephonySipImpl
             statusCode = Response.OK;
         }
 
-        // sdp description may be in acks - bug report Laurent Michel
+        // extract the SDP description.
+        // beware: SDP description may be in ACKs - bug report Laurent Michel
         ContentLengthHeader cl = invite.getContentLength();
         if (cl != null && cl.getContentLength() > 0)
         {
@@ -1303,7 +1304,7 @@ public class OperationSetBasicTelephonySipImpl
                 .setSdpDescription(new String(invite.getRawContent()));
         }
 
-        if (!isInviteProperlyAddressed(dialog))
+        if (!isInviteProperlyAddressed(invite))
         {
             callPeer.setState(CallPeerState.FAILED,
                 "A call was received here while it appeared "
@@ -1387,7 +1388,7 @@ public class OperationSetBasicTelephonySipImpl
                 Address callerAddress =
                     ((FromHeader) response.getHeader(FromHeader.NAME))
                         .getAddress();
-                response.addHeader(protocolProvider
+                response.setHeader(protocolProvider
                     .getContactHeader(callerAddress));
 
                 if (statusCode == Response.OK)
@@ -1442,41 +1443,6 @@ public class OperationSetBasicTelephonySipImpl
         }
     }
 
-
-    /**
-     * Determines whether an INVITE request which has initiated a specific
-     * <tt>Dialog</tt> is properly addressed.
-     *
-     * @param dialog the <tt>Dialog</tt> which has been initiated by the
-     *            INVITE request to be checked
-     * @return <tt>true</tt> if the INVITE request represented by the specified
-     *         <tt>Dialog</tt> is properly addressed; <tt>false</tt>,
-     *         otherwise
-     */
-    private boolean isInviteProperlyAddressed(Dialog dialog)
-    {
-        logger.trace("Will verify whether INVITE is properly addressed.");
-        // Are we the one they are looking for?
-        javax.sip.address.URI calleeURI = dialog.getLocalParty().getURI();
-
-        if (calleeURI.isSipURI())
-        {
-            boolean assertUserMatch =
-                Boolean.parseBoolean(
-                    SipActivator.getConfigurationService().getString(
-                        FAIL_CALLS_ON_DEST_USER_MISMATCH));
-
-            if (assertUserMatch)
-            {
-                // user info is case sensitive according to rfc3261
-                String calleeUser = ((SipURI) calleeURI).getUser();
-                String localUser = protocolProvider.getAccountID().getUserID();
-
-                return (calleeUser == null) || calleeUser.equals(localUser);
-            }
-        }
-        return true;
-    }
 
     /**
      * Provides a hook for this instance to take last configuration steps on a
@@ -2430,13 +2396,9 @@ public class OperationSetBasicTelephonySipImpl
                 OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
 
-        FromHeader from = (FromHeader)request.getHeader(FromHeader.NAME);
-        if (from != null)
-        {
-            ContactHeader contactHeader = protocolProvider
-                .getContactHeader(from.getAddress());
-            errorResponse.addHeader(contactHeader);
-        }
+         ContactHeader contactHeader = protocolProvider
+                .getContactHeaderForResponse(request);
+         errorResponse.setHeader(contactHeader);
 
         try
         {
@@ -2750,7 +2712,7 @@ public class OperationSetBasicTelephonySipImpl
 
         ContactHeader contactHeader = protocolProvider.getContactHeader(
                         dialog.getRemoteTarget());
-        ok.addHeader(contactHeader);
+        ok.setHeader(contactHeader);
         try
         {
             serverTransaction.sendResponse(ok);
