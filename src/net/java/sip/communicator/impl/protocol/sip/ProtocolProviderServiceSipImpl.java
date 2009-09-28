@@ -1126,12 +1126,14 @@ public class ProtocolProviderServiceSipImpl
 
             Address contactAddress = addressFactory.createAddress( contactURI );
 
+            String ourDisplayName = getOurDisplayName();
             if (ourDisplayName != null)
             {
                 contactAddress.setDisplayName(ourDisplayName);
             }
             registrationContactHeader = headerFactory.createContactHeader(
                 contactAddress);
+
             logger.debug("generated contactHeader:"
                          + registrationContactHeader);
         }
@@ -2000,8 +2002,9 @@ public class ProtocolProviderServiceSipImpl
      * Generates a ToTag and attaches it to the to header of <tt>response</tt>.
      *
      * @param response the response that is to get the ToTag.
-     * @param containingDialog the Dialog instance that is to extract a unique
-     * Tag value (containingDialog.hashCode())
+     * @param containingDialog the <tt>Dialog</tt> instance that the response
+     * would be sent in or <tt>null</tt> if we are not aware of the
+     * <tt>Dialog</tt> when calling this method.
      */
     public void attachToTag(Response response, Dialog containingDialog)
     {
@@ -2011,7 +2014,8 @@ public class ProtocolProviderServiceSipImpl
             return;
         }
 
-        if(containingDialog.getLocalTag() != null)
+        if( containingDialog != null
+            && containingDialog.getLocalTag() != null)
         {
             logger.debug("We seem to already have a tag in this dialog. "
                          +"Returning");

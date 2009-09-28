@@ -12,7 +12,7 @@ import java.util.*;
 
 import javax.sip.*;
 import javax.sip.address.*;
-import javax.sip.address.URI;
+import javax.sip.address.URI;//disambiguates java.net.URI
 import javax.sip.header.*;
 import javax.sip.message.*;
 
@@ -450,6 +450,60 @@ public class CallSipImpl
         return callPeer;
     }
 
+
+    /**
+     * Processes an incoming INVITE that is meant to replace an existing
+     * <tt>CallPeerSipImpl</tt> that is participating in this call. Typically
+     * this would happen as a result of an attended transfer.
+     *
+     * @param jainSipProvider the JAIN-SIP <tt>SipProvider</tt> that received
+     * the request.
+     * @param serverTransaction the transaction containing the INVITE request.
+     * @param callPeerToReplace a reference to the <tt>CallPeer</tt> that this
+     * INVITE is trying to replace.
+     */
+    public void processReplacingInvite(SipProvider       jainSipProvider,
+                                       ServerTransaction serverTransaction,
+                                       CallPeerSipImpl   callPeerToReplace)
+    {
+        Request request = serverTransaction.getRequest();
+        CallPeerSipImpl newCallPeer
+                    = createCallPeerFor(serverTransaction, jainSipProvider);
+        try
+        {
+            answerCallPeer(newCallPeer);
+        }
+        catch (OperationFailedException ex)
+        {
+            logger.error(
+                "Failed to auto-answer the referred call peer "
+                    + newCallPeer, ex);
+            /*
+             * RFC 3891 says an appropriate error response MUST be returned
+             * and callPeerToReplace must be left unchanged.
+             */
+            //TODO should we send a response here?
+            return;
+        }
+
+
+
+        //we just accepted the new peer and if we got here then it went well
+        //now let's hangup the other call.
+        try
+        {
+            hangupCallPeer(callPeerToReplace);
+        }
+        catch (OperationFailedException ex)
+        {
+            logger.error("Failed to hangup the referer "
+                            + callPeerToReplace, ex);
+            callPeerToReplace.setState(
+                            CallPeerState.FAILED, "Internal Error: " + ex);
+        }
+
+    }
+
     /**
      * Creates a new call and sends a RINGING response.
      *
@@ -460,11 +514,80 @@ public class CallSipImpl
     public CallPeerSipImpl processInvite(SipProvider       jainSipProvider,
                                          ServerTransaction serverTransaction)
     {
-        Request request = serverTransaction.getRequest();
+        Request invite = serverTransaction.getRequest();
 
         CallPeerSipImpl peer
             = createCallPeerFor(serverTransaction, jainSipProvider);
 
+        // extract the SDP description.
+        // beware: SDP description may be in ACKs so it could be that there's
+        // nothing here - bug report Laurent Michel
+        ContentLengthHeader cl = invite.getContentLength();
+        if (cl != null && cl.getContentLength() > 0)
+        {
+            peer.setSdpDescription(new String(invite.getRawContent()));
+        }
+
+        //send a ringing reply
+        Response response = null;
+        try
+        {
+            response = this.messageFactory.createResponse(Response.RINGING, invite);
+
+            //set the contact header
+            response.setHeader(getProtocolProvider()
+                            .getContactHeaderForResponse(invite));
+
+            //add the SDP
+            if (statusCode == Response.OK)
+            {
+                try
+                {
+                    attachSDP(callPeer, response);
+                }
+                catch (OperationFailedException ex)
+                {
+                    logger.error("Error while trying to send response "
+                        + response, ex);
+                    callPeer.setState(CallPeerState.FAILED,
+                        "Internal Error: " + ex.getMessage());
+                    return;
+                }
+            }
+        }
+        catch (ParseException ex)
+        {
+            logger.error("Error while trying to send a response", ex);
+            callPeer.setState(CallPeerState.FAILED,
+                "Internal Error: " + ex.getMessage());
+            return;
+        }
+        try
+        {
+            logger.trace("will send " + statusCode + " response: ");
+            serverTransaction.sendResponse(response);
+            logger.debug("sent a " + statusCode + " response: "
+                + response);
+        }
+        catch (Exception ex)
+        {
+            logger.error("Error while trying to send a request", ex);
+            callPeer.setState(CallPeerState.FAILED,
+                "Internal Error: " + ex.getMessage());
+            return;
+        }
+
+        if (statusCode == Response.OK)
+        {
+            try
+            {
+                setMediaFlagsForPeer(callPeer, response);
+            }
+            catch (OperationFailedException ex)
+            {
+                logger.error("Error after sending response " + response, ex);
+            }
+        }
         return peer;
     }
 
@@ -472,50 +595,6 @@ public class CallSipImpl
                                 ServerTransaction serverTransaction)
     {
         Request request = serverTransaction.getRequest();
-
-    }
-
-    public void processReplacingInvite(SipProvider       jainSipProvider,
-                                       ServerTransaction serverTransaction)
-    {
-        Request request = serverTransaction.getRequest();
-
-        if ((statusCode == Response.OK) && (callPeerToReplace != null))
-        {
-            boolean sayBye = false;
-
-            try
-            {
-                answerCallPeer(callPeer);
-                sayBye = true;
-            }
-            catch (OperationFailedException ex)
-            {
-                logger.error(
-                    "Failed to auto-answer the referred call peer "
-                        + callPeer, ex);
-                /*
-                 * RFC 3891 says an appropriate error response MUST be returned
-                 * and callPeerToReplace must be left unchanged.
-                 */
-            }
-            if (sayBye)
-            {
-                try
-                {
-                    hangupCallPeer(callPeerToReplace);
-                }
-                catch (OperationFailedException ex)
-                {
-                    logger.error("Failed to hangup the referer "
-                        + callPeerToReplace, ex);
-                    callPeerToReplace.setState(
-                        CallPeerState.FAILED, "Internal Error: " + ex);
-                }
-            }
-            // Even if there was a failure, we cannot just send Response.OK.
-            return;
-        }
 
     }
 }

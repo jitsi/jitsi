@@ -277,11 +277,11 @@ public class OperationSetBasicTelephonySipImpl
      *            specified call peer with the sent invite
      * @throws OperationFailedException
      */
-    void sendInviteRequest(CallPeerSipImpl sipPeer,
-        String sdpOffer) throws OperationFailedException
+    void sendInviteRequest(CallPeerSipImpl sipPeer, String sdpOffer)
+        throws OperationFailedException
     {
         Dialog dialog = sipPeer.getDialog();
-        Request invite = createRequest(dialog, Request.INVITE);
+        Request invite = messageFactory.createRequest(dialog, Request.INVITE);
 
         try
         {
@@ -311,8 +311,10 @@ public class OperationSetBasicTelephonySipImpl
      *            <tt>request</tt> is to be sent
      * @throws OperationFailedException
      */
-    private void sendRequest(SipProvider sipProvider, Request request,
-        Dialog dialog) throws OperationFailedException
+    private void sendRequest(SipProvider sipProvider,
+                             Request request,
+                             Dialog dialog)
+        throws OperationFailedException
     {
         ClientTransaction clientTransaction = null;
         try
@@ -1223,6 +1225,7 @@ public class OperationSetBasicTelephonySipImpl
         }
         else
         {
+            //this is a reINVITE.
             callSipImpl.processReInvite(sourceProvider, serverTransaction);
         }
 
@@ -1244,7 +1247,7 @@ public class OperationSetBasicTelephonySipImpl
         Dialog dialog = serverTransaction.getDialog();
         CallPeerSipImpl callPeer =
             activeCallsRepository.findCallPeer(dialog);
-        int statusCode;
+        int statusCode = 0;
         CallPeerSipImpl callPeerToReplace = null;
 
         if (callPeer == null)
@@ -1288,29 +1291,24 @@ public class OperationSetBasicTelephonySipImpl
         // Send statusCode
         //...
         Response response = null;
-
         try
         {
             response = protocolProvider.getMessageFactory()
                 .createResponse(statusCode, invite);
-            protocolProvider.attachToTag(response, dialog);
 
            // set our display name
             ((ToHeader) response.getHeader(ToHeader.NAME)).getAddress()
                 .setDisplayName(protocolProvider.getOurDisplayName());
 
-            // extract our intended destination which should be in the from
-            Address callerAddress =
-                ((FromHeader) response.getHeader(FromHeader.NAME))
-                    .getAddress();
             response.setHeader(protocolProvider
-                .getContactHeader(callerAddress));
+                            .getContactHeaderForResponse(invite));
 
+            //add the SDP
             if (statusCode == Response.OK)
             {
                 try
                 {
-                    processInviteSendingResponse(callPeer, response);
+                    attachSDP(callPeer, response);
                 }
                 catch (OperationFailedException ex)
                 {
@@ -1331,9 +1329,9 @@ public class OperationSetBasicTelephonySipImpl
         }
         try
         {
-            logger.trace("will send " + statusCodeString + " response: ");
+            logger.trace("will send " + statusCode + " response: ");
             serverTransaction.sendResponse(response);
-            logger.debug("sent a " + statusCodeString + " response: "
+            logger.debug("sent a " + statusCode + " response: "
                 + response);
         }
         catch (Exception ex)
@@ -1348,7 +1346,7 @@ public class OperationSetBasicTelephonySipImpl
         {
             try
             {
-                processInviteSentResponse(callPeer, response);
+                setMediaFlagsForPeer(callPeer, response);
             }
             catch (OperationFailedException ex)
             {
@@ -1370,8 +1368,8 @@ public class OperationSetBasicTelephonySipImpl
      * @throws OperationFailedException
      * @throws ParseException
      */
-    private void processInviteSendingResponse(CallPeer peer,
-        Response response) throws OperationFailedException, ParseException
+    private void attachSDP(CallPeer peer, Response response)
+        throws OperationFailedException, ParseException
     {
         /*
          * At the time of this writing, we're only getting called because a
@@ -1416,8 +1414,8 @@ public class OperationSetBasicTelephonySipImpl
      * @throws OperationFailedException
      * @throws ParseException
      */
-    private void processInviteSentResponse(CallPeer peer,
-        Response response) throws OperationFailedException
+    private void setMediaFlagsForPeer(CallPeer peer, Response response)
+        throws OperationFailedException
     {
         /*
          * At the time of this writing, we're only getting called because a
@@ -1665,11 +1663,9 @@ public class OperationSetBasicTelephonySipImpl
 
             ServerTransaction inviteTran = (ServerTransaction) tran;
             Request invite = callPeer.getFirstTransaction().getRequest();
-            Response requestTerminated =
-                protocolProvider.getMessageFactory().createResponse(
-                    Response.REQUEST_TERMINATED, invite);
-            protocolProvider.attachToTag(requestTerminated, callPeer
-                .getDialog());
+            Response requestTerminated = protocolProvider.getMessageFactory()
+                .createResponse(Response.REQUEST_TERMINATED, invite);
+
             inviteTran.sendResponse(requestTerminated);
             if (logger.isDebugEnabled())
                 logger.debug("sent request terminated response:\n"
@@ -1724,10 +1720,8 @@ public class OperationSetBasicTelephonySipImpl
         Response accepted = null;
         try
         {
-            accepted =
-                protocolProvider.getMessageFactory().createResponse(
+            accepted = protocolProvider.getMessageFactory().createResponse(
                     Response.ACCEPTED, referRequest);
-            protocolProvider.attachToTag(accepted, dialog);
         }
         catch (ParseException ex)
         {
@@ -2069,7 +2063,7 @@ public class OperationSetBasicTelephonySipImpl
         String subscriptionState, String reasonCode, Object content,
         SipProvider sipProvider) throws OperationFailedException
     {
-        Request notify = createRequest(dialog, Request.NOTIFY);
+        Request notify = messageFactory.createRequest(dialog, Request.NOTIFY);
         HeaderFactory headerFactory = protocolProvider.getHeaderFactory();
 
         // Populate the request.
@@ -2088,8 +2082,8 @@ public class OperationSetBasicTelephonySipImpl
         SubscriptionStateHeader ssHeader = null;
         try
         {
-            ssHeader =
-                headerFactory.createSubscriptionStateHeader(subscriptionState);
+            ssHeader =  headerFactory
+                .createSubscriptionStateHeader(subscriptionState);
             if (reasonCode != null)
                 ssHeader.setReasonCode(reasonCode);
         }
@@ -2105,8 +2099,8 @@ public class OperationSetBasicTelephonySipImpl
         ContentTypeHeader ctHeader = null;
         try
         {
-            ctHeader =
-                headerFactory.createContentTypeHeader("message", "sipfrag");
+            ctHeader = headerFactory
+                .createContentTypeHeader("message", "sipfrag");
         }
         catch (ParseException ex)
         {
@@ -2379,8 +2373,7 @@ public class OperationSetBasicTelephonySipImpl
         try
         {
             busyHere = messageFactory.createResponse(
-                            Response.BUSY_HERE, request);
-            protocolProvider.attachToTag(busyHere, callPeer.getDialog());
+                                Response.BUSY_HERE, request);
         }
         catch (ParseException ex)
         {
@@ -2571,7 +2564,6 @@ public class OperationSetBasicTelephonySipImpl
         throws ParseException
     {
         Response ok = messageFactory.createResponse(Response.OK, request);
-        protocolProvider.attachToTag(ok, containingDialog);
         return ok;
     }
 

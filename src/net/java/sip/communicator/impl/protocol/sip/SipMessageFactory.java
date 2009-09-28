@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import gov.nist.javax.sip.header.*;
 import gov.nist.javax.sip.header.extensions.*;
 
 import java.text.*;
@@ -253,6 +254,27 @@ public class SipMessageFactory
         SipApplicationData.setApplicationData(message,
                         SipApplicationData.KEY_SERVICE, this.protocolProvider);
 
+        //the jain-sip semantics allow the application to "forget" attaching a
+        //To tag to a response so let's make sure we do this here
+        if(message instanceof Response)
+        {
+            FromHeader from = (FromHeader)message.getHeader(From.NAME);
+            String fromTag = (from == null) ? null : from.getTag();
+            Response response = (Response)message;
+
+            //if there's a from tag and this is a non-failure response,
+            //then we are adding a to tag.
+            if(fromTag != null && fromTag.trim().length() > 0
+                && response.getStatusCode() > 100
+                && response.getStatusCode() < 300)
+            {
+                protocolProvider.attachToTag(response, null);
+            }
+        }
+
+        //add a contact header.
+        attachContactHeader(message);
+
         // User Agent
         UserAgentHeader userAgentHeader
                     = protocolProvider.getSipCommUserAgentHeader();
@@ -267,7 +289,26 @@ public class SipMessageFactory
         return message;
     }
 
-    //---------------- higher level methods ----------------------------------
+    /**
+     * The method tries to determine an address that would be reachable by the
+     * destination of <tt>message</tt> and then creates a <tt>ContactHeader</tt>
+     * out of it and attaches it to the <tt>message</tt>. The method takes into
+     * account both <tt>Request</tt>s and <tt>Response</tt>s. The method
+     * is meant to be used only for messages that have been otherwise
+     * initialized (in particular the Request URI in requests or the Via
+     * headers in responses.).
+     *
+     * @param message the message that we'd like to attach a
+     * <tt>ContactHeader</tt> to.
+     *
+     * @return a reference to the <tt>message</tt> that was also passed as
+     * a parameter in order to allow for more agility when using the method.
+     */
+    private Message attachContactHeader(Message message)
+    {
+        //creates a Contact header
+    }
+
     /**
      * Creates a new {@link Request} of a specific method which is to be sent in
      * a specific <tt>Dialog</tt> and populates its generally-necessary
@@ -298,8 +339,6 @@ public class SipMessageFactory
                 OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
 
-        attachScSpecifics(request);
-
         //override the via and contact headers as jain-sip is generating one
         //from the listening point which is 0.0.0.0 or ::0
         ArrayList<ViaHeader> viaHeaders
@@ -309,22 +348,28 @@ public class SipMessageFactory
         request.setHeader(protocolProvider
                         .getContactHeader(dialog.getRemoteParty()));
 
+        //now that we've set the Via headers right, we can attach our SC
+        //specifics
+        attachScSpecifics(request);
+
         // We have a dialog here so let's try and pre-authenticate the request.
         preAuthenticateRequest(request);
 
         return request;
     }
 
+    //---------------- higher level methods ----------------------------------
     /**
      * Creates an invite request destined for <tt>callee</tt>.
      *
      * @param toAddress the sip address of the callee that the request is meant
-     *            for.
+     * for.
      *
-     * @return a newly created sip <tt>Request</tt> destined for <tt>callee</tt>
-     *         .
+     * @return a newly created sip <tt>Request</tt> destined for
+     * <tt>callee</tt>.
+     *
      * @throws OperationFailedException with the corresponding code if creating
-     *             the request fails.
+     * the request fails.
      * @throws IllegalArgumentException if <tt>toAddress</tt> does not appear
      * to be a valid destination.
      */
@@ -372,8 +417,7 @@ public class SipMessageFactory
         try
         {
             // FromHeader
-            fromHeader =
-                headerFactory.createFromHeader(
+            fromHeader = headerFactory.createFromHeader(
                     protocolProvider.getOurSipAddress(toAddress), localTag);
 
             // ToHeader
