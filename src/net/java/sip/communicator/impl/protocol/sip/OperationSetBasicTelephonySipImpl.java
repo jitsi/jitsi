@@ -410,7 +410,7 @@ public class OperationSetBasicTelephonySipImpl
                 if (logger.isDebugEnabled())
                     logger.debug("request is an INVITE. Dialog state="
                         + dialogState);
-                processInvite(jainSipProvider, serverTransaction, request);
+                processInvite(jainSipProvider, serverTransaction);
                 processed = true;
             }
             else
@@ -1189,7 +1189,65 @@ public class OperationSetBasicTelephonySipImpl
      * @param serverTransaction the transaction containing the received request.
      * @param invite the Request that we've just received.
      */
-    private void processInvite(SipProvider sourceProvider,
+    private void processInvite(SipProvider       sourceProvider,
+                               ServerTransaction serverTransaction)
+    {
+        //first check whether this is a reINVITE or a brand new one.
+        Request     invite      = serverTransaction.getRequest();
+        Dialog      dialog      = serverTransaction.getDialog();
+        CallSipImpl callSipImpl = activeCallsRepository.findCall(dialog);
+
+        if(callSipImpl == null)
+        {
+            //this is not a reINVITE. check if it's a transfer
+            //(i.e. replacing an existing call).
+            ReplacesHeader replacesHeader =
+                (ReplacesHeader) invite.getHeader(ReplacesHeader.NAME);
+
+            if (replacesHeader == null)
+            {
+                //this is a brand new call (not a transfered one)
+                callSipImpl = new CallSipImpl(protocolProvider);
+                callSipImpl.processInvite(sourceProvider, serverTransaction);
+            }
+            else
+            {
+                //this is a transfered call which is replacing an existing one
+                //(i.e. an attended transfer).
+                callSipImpl = activeCallsRepository.findCall(
+                    replacesHeader.getCallId(), replacesHeader.getToTag(),
+                    replacesHeader.getFromTag());
+
+                if (callSipImpl != null)
+                {
+                    callSipImpl.processReplacingInvite(sourceProvider,
+                                                       serverTransaction);
+                }
+                else
+                {
+                    this.sayErrorSilently(
+                        serverTransaction,
+                        Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST);
+                }
+            }
+        }
+        else
+        {
+            callSipImpl.processReInvite();
+        }
+
+
+
+    }
+
+    /**
+     * Creates a new call and sends a RINGING response.
+     *
+     * @param sourceProvider the provider containing <tt>sourceTransaction</tt>.
+     * @param serverTransaction the transaction containing the received request.
+     * @param invite the Request that we've just received.
+     */
+    private void originalProcessInvite(SipProvider sourceProvider,
                                ServerTransaction serverTransaction,
                                Request invite)
     {
@@ -1212,15 +1270,13 @@ public class OperationSetBasicTelephonySipImpl
             else
             {
                 //this is a transfered call
-                List<CallPeerSipImpl> callPeersToReplace =
-                    activeCallsRepository.findCallPeers(
+                callPeerToReplace = activeCallsRepository.findCallPeer(
                         replacesHeader.getCallId(), replacesHeader.getToTag(),
                         replacesHeader.getFromTag());
 
-                if (callPeersToReplace.size() == 1)
+                if (callPeerToReplace != null)
                 {
                     statusCode = Response.OK;
-                    callPeerToReplace = callPeersToReplace.get(0);
                 }
                 else
                 {
@@ -1386,6 +1442,7 @@ public class OperationSetBasicTelephonySipImpl
         }
     }
 
+
     /**
      * Determines whether an INVITE request which has initiated a specific
      * <tt>Dialog</tt> is properly addressed.
@@ -1496,9 +1553,8 @@ public class OperationSetBasicTelephonySipImpl
         int mediaFlags = 0;
         try
         {
-            mediaFlags =
-                callSession
-                    .getSdpOfferMediaFlags(sipPeer.getSdpDescription());
+            mediaFlags = callSession .getSdpOfferMediaFlags(
+                            sipPeer.getSdpDescription());
         }
         catch (MediaException ex)
         {
@@ -2327,62 +2383,45 @@ public class OperationSetBasicTelephonySipImpl
     } // end call
 
     /**
-     * Sends an Internal Error response to <tt>callPeer</tt>.
+     * Sends an Internal Error response inside <tt>serverTransaction</tt>.
      *
-     * @param callPeer the call peer that we need to say bye to.
+     * @param serverTransaction the transaction that we'd like to send the
+     * response in.
      *
      * @throws OperationFailedException if we failed constructing or sending a
-     *             SIP Message.
+     * SIP Message.
      */
-    public void sayInternalError(CallPeerSipImpl callPeer)
+    public void sayInternalError(ServerTransaction serverTransaction)
         throws OperationFailedException
     {
-        sayError(callPeer, Response.SERVER_INTERNAL_ERROR);
+        sayError(serverTransaction, Response.SERVER_INTERNAL_ERROR);
     }
 
     /**
-     * Send an error response with the <tt>errorCode</tt> code to
-     * <tt>callPeer</tt>.
+     * Send an error response with the <tt>errorCode</tt> code using
+     * <tt>serverTransaction</tt>.
      *
-     * @param callPeer the call peer that we need to say bye to.
+     * @param serverTransaction the transaction that we'd like to send an error
+     * response in.
      * @param errorCode the code that the response should have.
      *
      * @throws OperationFailedException if we failed constructing or sending a
-     *             SIP Message.
+     * SIP Message.
      */
-    public void sayError(CallPeerSipImpl callPeer,
-                         int errorCode)
+    public void sayError(ServerTransaction serverTransaction, int errorCode)
         throws OperationFailedException
     {
-        Dialog dialog = callPeer.getDialog();
-        callPeer.setState(CallPeerState.FAILED);
-        if (dialog == null)
-        {
-            logger.error("Failed to extract peer's associated dialog! "
-                + "Ending Call!");
-            throw new OperationFailedException(
-                "Failed to extract peer's associated dialog! "
-                    + "Ending Call!", OperationFailedException.INTERNAL_ERROR);
-        }
-        Transaction transaction = callPeer.getFirstTransaction();
-        if (transaction == null || !dialog.isServer())
-        {
-            logger.error("Failed to extract a transaction"
-                + " from the call's associated dialog!");
-            throw new OperationFailedException(
-                "Failed to extract a transaction from the peer's "
-                    + "associated dialog!",
-                OperationFailedException.INTERNAL_ERROR);
-        }
-
-        ServerTransaction serverTransaction = (ServerTransaction) transaction;
+        Request request = serverTransaction.getRequest();
         Response errorResponse = null;
         try
         {
-            errorResponse =
-                protocolProvider.getMessageFactory().createResponse(errorCode,
-                    callPeer.getFirstTransaction().getRequest());
-            protocolProvider.attachToTag(errorResponse, dialog);
+            errorResponse = protocolProvider.getMessageFactory()
+                .createResponse(errorCode, request);
+
+            //we used to be adding a To tag here and we shouldn't. 3261 says:
+            //"Dialogs are created through [...] non-failure responses". and
+            //we are using this method for failure responses only.
+
         }
         catch (ParseException ex)
         {
@@ -2390,10 +2429,15 @@ public class OperationSetBasicTelephonySipImpl
                 "Failed to construct an OK response to an INVITE request",
                 OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
-        ContactHeader contactHeader = protocolProvider
-            .getContactHeader(dialog.getRemoteTarget());
 
-        errorResponse.addHeader(contactHeader);
+        FromHeader from = (FromHeader)request.getHeader(FromHeader.NAME);
+        if (from != null)
+        {
+            ContactHeader contactHeader = protocolProvider
+                .getContactHeader(from.getAddress());
+            errorResponse.addHeader(contactHeader);
+        }
+
         try
         {
             serverTransaction.sendResponse(errorResponse);
@@ -2406,7 +2450,32 @@ public class OperationSetBasicTelephonySipImpl
                 "Failed to send an OK response to an INVITE request",
                 OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
-    } // internal error
+    }
+
+    /**
+     * Send an error response with the <tt>errorCode</tt> code using
+     * <tt>serverTransaction</tt> and do not surface exceptions. The method
+     * is useful when we are sending the error response in a stack initiated
+     * operation and don't have the possibility to escalate potential
+     * exceptions, so we can only log them.
+     *
+     * @param serverTransaction the transaction that we'd like to send an error
+     * response in.
+     * @param errorCode the code that the response should have.
+     */
+    public void sayErrorSilently(ServerTransaction serverTransaction,
+                                 int               errorCode)
+    {
+        try
+        {
+            sayError(serverTransaction, errorCode);
+        }
+        catch (OperationFailedException exc)
+        {
+            logger.debug("Failed to send an error " + errorCode + " response",
+                            exc);
+        }
+    }
 
     /**
      * Sends a BYE request to <tt>callPeer</tt>.
@@ -2666,8 +2735,7 @@ public class OperationSetBasicTelephonySipImpl
                 "Failed to create an SDP description for an OK response "
                     + "to an INVITE request!",
                 ex);
-            this.sayError((CallPeerSipImpl) peer,
-                          Response.NOT_ACCEPTABLE_HERE);
+            this.sayError(serverTransaction, Response.NOT_ACCEPTABLE_HERE);
         }
         catch (ParseException ex)
         {
@@ -2677,8 +2745,7 @@ public class OperationSetBasicTelephonySipImpl
             logger.error(
                 "Failed to parse sdp data while creating invite request!",
                 ex);
-            this.sayError((CallPeerSipImpl) peer,
-                          Response.NOT_ACCEPTABLE_HERE);
+            this.sayError(serverTransaction, Response.NOT_ACCEPTABLE_HERE);
         }
 
         ContactHeader contactHeader = protocolProvider.getContactHeader(

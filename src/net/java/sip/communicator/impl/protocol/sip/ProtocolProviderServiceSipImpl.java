@@ -1002,6 +1002,24 @@ public class ProtocolProviderServiceSipImpl
     }
 
     /**
+     * Returns a Contact header containing a sip URI based on the local-host
+     * address that <b>seemed</b> most suitable for use according what we
+     * guessed while looking at <tt>request</tt>.
+     *
+     * @param request the request that we are preparing to answer with the
+     * response that we are building a <tt>Contact</tt> header for.
+     *
+     * @return a Contact header based upon a local inet address.
+     * @throws OperationFailedException if we fail constructing the contact
+     * header.
+     */
+    public ContactHeader getContactHeaderForResponse(Request request)
+    {
+        getDefaultJainSipProvider().getListeningPoint().
+        return getContactHeader((SipURI)intendedDestination.getURI());
+    }
+
+    /**
      * Returns a Contact header containing a sip URI based on a localhost
      * address and therefore usable in REGISTER requests only.
      *
@@ -1960,7 +1978,7 @@ public class ProtocolProviderServiceSipImpl
     {
         ToHeader to = (ToHeader) response.getHeader(ToHeader.NAME);
         if (to == null) {
-            logger.debug("Strange ... no to tag in response:" + response);
+            logger.debug("Strange ... no to To header in response:" + response);
             return;
         }
 

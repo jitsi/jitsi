@@ -250,7 +250,7 @@ public class CallPeerSipImpl
      *
      * @return a reference to the call containing this peer.
      */
-    public Call getCall()
+    public CallSipImpl getCall()
     {
         return call;
     }

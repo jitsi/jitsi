@@ -163,17 +163,17 @@ public class ActiveCallsRepository
     }
 
     /**
-     * Returns the <code>CallPeerSipImpl</code> instances with
-     * <code>Dialog</code>s matching CallID, local and remote tags.
+     * Returns the <tt>CallPeerSipImpl</tt> instance with a <tt>Dialog</tt>
+     * matching CallID, local and remote tags.
      *
-     * @param callID
-     * @param localTag
-     * @param remoteTag
-     * @return the <code>List</code> of <code>CallPeerSipImpl</code>
-     *         instances with <code>Dialog</code>s matching the specified
-     *         CallID, local and remote tags
+     * @param callID the <tt>Call-ID</tt> of the dialog we are looking for.
+     * @param localTag the local tag of the dialog we are looking for.
+     * @param remoteTag the remote tag of the dialog we are looking for.
+     *
+     * @return the <tt>CallPeerSipImpl</tt> matching specified dialog ID or
+     * <tt>null</tt> if no such peer is known to this repository.
      */
-    public List<CallPeerSipImpl> findCallPeers(String callID,
+    public CallPeerSipImpl findCallPeer(String callID,
             String localTag, String remoteTag)
     {
         if (logger.isTraceEnabled())
@@ -182,9 +182,6 @@ public class ActiveCallsRepository
                 + ", localTag " + localTag + ", and remoteTag " + remoteTag
                 + " among " + this.activeCalls.size() + " calls.");
         }
-
-        List<CallPeerSipImpl> callPeers =
-            new ArrayList<CallPeerSipImpl>();
 
         for (Iterator<CallSipImpl> activeCalls = getActiveCalls();
                 activeCalls.hasNext();)
@@ -211,16 +208,38 @@ public class ActiveCallsRepository
                     {
                         String dialogRemoteTag = dialog.getRemoteTag();
 
-                        if (((remoteTag == null) || "0".equals(remoteTag)) ?
-                                ((dialogRemoteTag == null) || "0".equals(dialogRemoteTag)) :
-                                remoteTag.equals(dialogRemoteTag))
+                        if (((remoteTag == null) || "0".equals(remoteTag))
+                                ? ((dialogRemoteTag == null)
+                                  || "0".equals(dialogRemoteTag))
+                                : remoteTag.equals(dialogRemoteTag))
                         {
-                            callPeers.add(callPeer);
+                            return callPeer;
                         }
                     }
                 }
             }
         }
-        return callPeers;
+        return null;
+    }
+
+    /**
+     * Returns the <tt>CallSipImpl</tt> instance with a <tt>Dialog</tt>
+     * matching the specified <tt>Call-ID</tt>, local and remote tags.
+     *
+     * @param callID the <tt>Call-ID</tt> of the dialog we are looking for.
+     * @param localTag the local tag of the dialog we are looking for.
+     * @param remoteTag the remote tag of the dialog we are looking for.
+     *
+     * @return the <tt>CallSipImpl</tt> responsible for handling the
+     * <tt>Dialog</tt> with the matching ID or <tt>null</tt> if no such call was
+     * found.
+     */
+    public CallSipImpl findCall(String callID,
+                                String localTag,
+                                String remoteTag)
+    {
+        CallPeerSipImpl peer = findCallPeer(callID, localTag, remoteTag);
+
+        return (peer == null)? null : peer.getCall();
     }
 }

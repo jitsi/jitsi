@@ -424,15 +424,14 @@ public class CallSipImpl
     }
 
     /**
-     * Creates a new call and call peer associated with
-     * <tt>containingTransaction</tt>
+     * Creates a new call peer associated with <tt>containingTransaction</tt>
      *
-     * @param containingTransaction the transaction that created the call.
+     * @param containingTransaction the transaction that created the call peer.
      * @param sourceProvider the provider that the containingTransaction belongs
-     *            to.
+     * to.
      *
      * @return a new instance of a <tt>CallPeerSipImpl</tt> corresponding
-     *         to the <tt>containingTransaction</tt>.
+     * to the <tt>containingTransaction</tt>.
      */
     private CallPeerSipImpl createCallPeerFor(
         Transaction containingTransaction, SipProvider sourceProvider)
@@ -456,5 +455,28 @@ public class CallSipImpl
         return callPeer;
     }
 
+    /**
+     * Creates a new call and sends a RINGING response.
+     *
+     * @param sourceProvider the provider containing <tt>sourceTransaction</tt>.
+     * @param serverTransaction the transaction containing the received request.
+     * @param invite the Request that we've just received.
+     */
+    public CallPeerSipImpl processInvite(SipProvider       jainSipProvider,
+                                         ServerTransaction serverTransaction)
+    {
 
+        CallPeerSipImpl peer
+            = createCallPeerFor(serverTransaction, jainSipProvider);
+
+        return peer;
+    }
+
+    public void processReInvite(){}
+
+    public void processReplacingInvite(SipProvider       jainSipProvider,
+                                       ServerTransaction serverTransaction)
+    {
+
+    }
 }
