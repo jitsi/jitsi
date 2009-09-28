@@ -28,6 +28,9 @@ public class CallPeerSipImpl
     extends AbstractCallPeer
     implements SessionCreatorCallback
 {
+    /**
+     * Our class logger.
+     */
     private static final Logger logger
         = Logger.getLogger(CallPeerSipImpl.class);
 
@@ -551,4 +554,6 @@ public class CallPeerSipImpl
             listener.peerSoundLevelChanged(event);
         }
     }
+
+
 }

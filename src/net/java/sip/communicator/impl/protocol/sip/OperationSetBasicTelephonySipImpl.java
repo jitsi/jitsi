@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.protocol.sip;
 import gov.nist.javax.sip.header.HeaderFactoryImpl; // disambiguates Contact
 import gov.nist.javax.sip.header.extensions.*;
 
-import java.net.*;
 import java.text.*;
 import java.util.*;
 
@@ -38,6 +37,9 @@ public class OperationSetBasicTelephonySipImpl
                OperationSetAdvancedTelephony,
                OperationSetSecureTelephony
 {
+    /**
+     * Our class logger.
+     */
     private static final Logger logger =
         Logger.getLogger(OperationSetBasicTelephonySipImpl.class);
 
@@ -557,7 +559,7 @@ public class OperationSetBasicTelephonySipImpl
     {
         try
         {
-            DialogUtils.addSubscription(clientTransaction.getDialog(), "refer");
+            EventPackageUtils.addSubscription(clientTransaction.getDialog(), "refer");
         }
         catch (SipException ex)
         {
@@ -941,7 +943,7 @@ public class OperationSetBasicTelephonySipImpl
         }
         else
         {
-            //this is a reINVITE.
+            //this is a reINVITE concerning a particular peer.
             callSipImpl.processReInvite(sourceProvider, serverTransaction);
         }
     }
@@ -1132,7 +1134,7 @@ public class OperationSetBasicTelephonySipImpl
                 try
                 {
                     removeSubscription =
-                        DialogUtils.addSubscription(dialog, referRequest);
+                        EventPackageUtils.addSubscription(dialog, referRequest);
                 }
                 catch (SipException ex)
                 {
@@ -1292,14 +1294,14 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         if (SubscriptionStateHeader.TERMINATED.equals(ssHeader.getState())
-            && !DialogUtils
+            && !EventPackageUtils
                 .removeSubscriptionThenIsDialogAlive(dialog, "refer"))
         {
             peer.setState(CallPeerState.DISCONNECTED);
         }
 
         if (!CallPeerState.DISCONNECTED.equals(peer.getState())
-            && !DialogUtils.isByeProcessed(dialog))
+            && !EventPackageUtils.isByeProcessed(dialog))
         {
             boolean dialogIsAlive;
             try
@@ -1387,7 +1389,7 @@ public class OperationSetBasicTelephonySipImpl
          * Whatever the status of the REFER is, the subscription created by it
          * is terminated with the final NOTIFY.
          */
-        if (!DialogUtils.removeSubscriptionThenIsDialogAlive(dialog,
+        if (!EventPackageUtils.removeSubscriptionThenIsDialogAlive(dialog,
             subscription))
         {
             CallPeerSipImpl callPeer =

@@ -734,7 +734,7 @@ public class CallSipImpl
          */
         try
         {
-            return DialogUtils.processByeThenIsDialogAlive(dialog);
+            return EventPackageUtils.processByeThenIsDialogAlive(dialog);
         }
         catch (SipException ex)
         {
@@ -1033,7 +1033,7 @@ public class CallSipImpl
 
         callPeer.setFirstTransaction(serverTransaction);
 
-        // sdp description may be in acks - bug report Laurent Michel
+        // SDP description may be in ACKs - bug report Laurent Michel
         ContentLengthHeader cl = invite.getContentLength();
         if (cl != null && cl.getContentLength() > 0)
         {
@@ -1328,8 +1328,7 @@ public class CallSipImpl
      * Sets the state of the corresponding call peer to DISCONNECTED and
      * sends an OK response.
      *
-     * @param tran the ServerTransaction the the BYE request
-     * arrived in.
+     * @param tran the ServerTransaction the the BYE request arrived in.
      * @param byeRequest the BYE request to process
      * @param callPeer the peer that sent the BYE request
      */
@@ -1368,21 +1367,20 @@ public class CallSipImpl
         boolean dialogIsAlive;
         try
         {
-            dialogIsAlive = DialogUtils.processByeThenIsDialogAlive(tran.getDialog());
+            dialogIsAlive = EventPackageUtils.processByeThenIsDialogAlive(
+                            tran.getDialog());
         }
         catch (SipException ex)
         {
             dialogIsAlive = false;
 
-            logger
-                .error(
-                    "Failed to determine whether the dialog should stay alive.",
-                    ex);
+            logger.error(
+                "Failed to determine whether the dialog should stay alive.",ex);
         }
+
         if (dialogIsAlive)
         {
-            ((CallSipImpl) callPeer.getCall()).getMediaCallSession()
-                .stopStreaming();
+            callPeer.getCall().getMediaCallSession().stopStreaming();
         }
         else
         {

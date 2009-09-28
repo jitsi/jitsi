@@ -91,6 +91,8 @@ public class SipStackSharing
 
     /**
      * Constructor for this class. Creates the JAIN-SIP stack.
+     *
+     * @throws OperationFailedException if creating the stack fails.
      */
     SipStackSharing()
         throws OperationFailedException
@@ -127,6 +129,9 @@ public class SipStackSharing
      * of new messages received from the JAIN-SIP <tt>SipProvider</tt>s.
      *
      * @param listener a new possible target for the dispatching process.
+     *
+     * @throws OperationFailedException if creating one of the underlying
+     * <tt>SipProvider</tt>s fails for whatever reason.
      */
     public void addSipListener(ProtocolProviderServiceSipImpl listener)
         throws OperationFailedException
@@ -202,6 +207,9 @@ public class SipStackSharing
      * Put the stack in a state where it can receive data on three UDP/TCP ports
      * (2 for clear communication, 1 for TLS). That is to say create the related
      * JAIN-SIP <tt>ListeningPoint</tt>s and <tt>SipProvider</tt>s.
+     *
+     * @throws OperationFailedException if creating one of the underlying
+     * <tt>SipProvider</tt>s fails for whatever reason.
      */
     private void startListening()
         throws OperationFailedException
@@ -210,10 +218,10 @@ public class SipStackSharing
         {
             int bindRetriesValue = getBindRetriesValue();
 
-            this.createProvider(this.getPreferredClearPort()
-                    , bindRetriesValue, false);
-            this.createProvider(this.getPreferredSecurePort()
-                    , bindRetriesValue, true);
+            this.createProvider(this.getPreferredClearPort(),
+                            bindRetriesValue, false);
+            this.createProvider(this.getPreferredSecurePort(),
+                            bindRetriesValue, true);
             this.stack.start();
             logger.trace("started listening");
         }
@@ -241,13 +249,27 @@ public class SipStackSharing
      * @param retries how many times should we try to find a free port to bind
      * @param secure whether to create the TLS SipProvider.
      * or the clear UDP/TCP one.
+     *
+     * @throws TransportNotSupportedException in case we try to create a
+     * provider for a transport not currently supported by jain-sip
+     * @throws InvalidArgumentException if we try binding to an illegal port
+     * (which we won't)
+     * @throws ObjectInUseException if another <tt>SipProvider</tt> is already
+     * associated with this <tt>ListeningPoint</tt>.
+     * @throws TransportAlreadySupportedException if there is already a
+     * ListeningPoint associated to this <tt>SipProvider</tt> with the same
+     * transport of the <tt>ListeningPoint</tt>.
+     * @throws TooManyListenersException if we try to add a new
+     * <tt>SipListener</tt> with a <tt>SipProvider</tt> when one was already
+     * registered.
+     *
      */
     private void createProvider(int preferredPort, int retries, boolean secure)
-        throws TransportNotSupportedException
-        , InvalidArgumentException
-        , ObjectInUseException
-        , TransportAlreadySupportedException
-        , TooManyListenersException
+        throws TransportNotSupportedException,
+        InvalidArgumentException,
+        ObjectInUseException,
+        TransportAlreadySupportedException,
+        TooManyListenersException
     {
         String context = (secure ? "TLS: " : "clear UDP/TCP: ");
 
