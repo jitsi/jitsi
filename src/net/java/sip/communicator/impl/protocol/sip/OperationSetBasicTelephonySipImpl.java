@@ -1077,7 +1077,7 @@ public class OperationSetBasicTelephonySipImpl
             return;
         }
 
-        // Accepted
+        //Send Accepted
         final Dialog dialog = serverTransaction.getDialog();
         Response accepted = null;
         try

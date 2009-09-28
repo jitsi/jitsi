@@ -1287,6 +1287,7 @@ public class CallSipImpl
                 callPeer);
             return;
         }
+
         try
         {
             // stop the invite transaction as well
