@@ -18,6 +18,7 @@ import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
 
+import net.java.sip.communicator.impl.protocol.sip.util.*;
 import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -174,20 +175,9 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         // create the invite request
-        Request invite;
-        try
-        {
-            invite = createInviteRequest(calleeAddress);
-        }
-        catch (IllegalArgumentException exc)
-        {
-            // encapsulate the illegal argument exception into an OpFailedExc
-            // so that the UI would notice it.
-            throw new OperationFailedException(
-                            exc.getMessage(),
-                            OperationFailedException.ILLEGAL_ARGUMENT,
-                            exc);
-        }
+        Request invite = JainSipTelephonyHelper
+                .createInviteRequest(calleeAddress, protocolProvider);
+
 
         // check whether there's a cached authorization header for this
         // call id and if so - attach it to the request.
@@ -1355,170 +1345,7 @@ public class OperationSetBasicTelephonySipImpl
         return true;
     }
 
-    /**
-     * Creates an invite request destined for <tt>callee</tt>.
-     *
-     * @param toAddress the sip address of the callee that the request is meant
-     *            for.
-     * @return a newly created sip <tt>Request</tt> destined for <tt>callee</tt>
-     *         .
-     * @throws OperationFailedException with the corresponding code if creating
-     *             the request fails.
-     * @throws IllegalArgumentException if <tt>toAddress</tt> does not appear
-     * to be a valid destination.
-     */
-    private Request createInviteRequest(Address toAddress)
-        throws OperationFailedException, IllegalArgumentException
-    {
-        // Call ID
-        CallIdHeader callIdHeader =
-            protocolProvider.getDefaultJainSipProvider().getNewCallId();
 
-        // CSeq
-        HeaderFactory headerFactory = protocolProvider.getHeaderFactory();
-        CSeqHeader cSeqHeader = null;
-        try
-        {
-            cSeqHeader = headerFactory.createCSeqHeader(1l, Request.INVITE);
-        }
-        catch (InvalidArgumentException ex)
-        {
-            // Shouldn't happen
-            throwOperationFailedException("An unexpected erro occurred while"
-                + "constructing the CSeqHeadder",
-                OperationFailedException.INTERNAL_ERROR, ex);
-        }
-        catch (ParseException exc)
-        {
-            // shouldn't happen
-            throwOperationFailedException("An unexpected erro occurred while"
-                + "constructing the CSeqHeadder",
-                OperationFailedException.INTERNAL_ERROR, exc);
-        }
-
-        // ReplacesHeader
-        Header replacesHeader = stripReplacesHeader(toAddress);
-
-        // FromHeader
-        String localTag = ProtocolProviderServiceSipImpl.generateLocalTag();
-        FromHeader fromHeader = null;
-        ToHeader toHeader = null;
-        try
-        {
-            // FromHeader
-            fromHeader =
-                headerFactory.createFromHeader(
-                    protocolProvider.getOurSipAddress(toAddress), localTag);
-
-            // ToHeader
-            toHeader = headerFactory.createToHeader(toAddress, null);
-        }
-        catch (ParseException ex)
-        {
-            // these two should never happen.
-            throwOperationFailedException("An unexpected erro occurred while"
-                + "constructing the ToHeader",
-                OperationFailedException.INTERNAL_ERROR, ex);
-        }
-
-        // ViaHeaders
-        ArrayList<ViaHeader> viaHeaders =
-            protocolProvider.getLocalViaHeaders(toAddress);
-
-        // MaxForwards
-        MaxForwardsHeader maxForwards = protocolProvider.getMaxForwardsHeader();
-
-        // Contact
-        ContactHeader contactHeader
-            = protocolProvider.getContactHeader(toHeader.getAddress());
-
-        Request invite = null;
-        try
-        {
-            invite =
-                protocolProvider.getMessageFactory().createRequest(
-                    toHeader.getAddress().getURI(), Request.INVITE,
-                    callIdHeader, cSeqHeader, fromHeader, toHeader, viaHeaders,
-                    maxForwards);
-
-        }
-        catch (ParseException ex)
-        {
-            // shouldn't happen
-            throwOperationFailedException("Failed to create invite Request!",
-                OperationFailedException.INTERNAL_ERROR, ex);
-        }
-
-        // User Agent
-        UserAgentHeader userAgentHeader =
-            protocolProvider.getSipCommUserAgentHeader();
-        if (userAgentHeader != null)
-            invite.addHeader(userAgentHeader);
-
-        // add the contact header.
-        invite.addHeader(contactHeader);
-
-        // Add the ReplacesHeader if any.
-        if (replacesHeader != null)
-        {
-            invite.setHeader(replacesHeader);
-        }
-
-        return invite;
-    }
-
-    /**
-     * Returns the <tt>ReplacesHeader</tt> contained, if any, in the
-     * <tt>URI</tt> of a specific <tt>Address</tt> after removing it
-     * from there.
-     *
-     * @param address the <tt>Address</tt> which is to have its
-     *            <tt>URI</tt> examined and modified
-     * @return a <tt>Header</tt> which represents the Replaces header
-     *         contained in the <tt>URI</tt> of the specified
-     *         <tt>address</tt>; <tt>null</tt> if no such header is
-     *         present
-     */
-    private Header stripReplacesHeader(Address address)
-        throws OperationFailedException
-    {
-        javax.sip.address.URI uri = address.getURI();
-        Header replacesHeader = null;
-
-        if (uri.isSipURI())
-        {
-            SipURI sipURI = (SipURI) uri;
-            String replacesHeaderValue = sipURI.getHeader(ReplacesHeader.NAME);
-
-            if (replacesHeaderValue != null)
-            {
-                for (Iterator<?> headerNameIter = sipURI.getHeaderNames();
-                        headerNameIter.hasNext();)
-                {
-                    if (ReplacesHeader.NAME.equals(headerNameIter.next()))
-                    {
-                        headerNameIter.remove();
-                        break;
-                    }
-                }
-
-                try
-                {
-                    replacesHeader =
-                        protocolProvider.getHeaderFactory().createHeader(
-                            ReplacesHeader.NAME, replacesHeaderValue);
-                }
-                catch (ParseException ex)
-                {
-                    throw new OperationFailedException(
-                        "Failed to create ReplacesHeader from "
-                            + replacesHeaderValue,
-                        OperationFailedException.INTERNAL_ERROR, ex);
-                }
-            }
-        }
-        return replacesHeader;
-    }
 
     /**
      * Creates a new call and sends a RINGING response.

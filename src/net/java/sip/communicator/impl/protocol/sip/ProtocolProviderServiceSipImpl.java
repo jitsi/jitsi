@@ -1025,8 +1025,6 @@ public class ProtocolProviderServiceSipImpl
      * this contact header to.
      *
      * @return a Contact header based upon a local inet address.
-     * @throws OperationFailedException if we fail constructing the contact
-     * header.
      */
     public ContactHeader getContactHeader(SipURI intendedDestination)
     {
