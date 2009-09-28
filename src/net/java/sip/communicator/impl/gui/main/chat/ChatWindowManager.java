@@ -799,12 +799,7 @@ public class ChatWindowManager
         }
 
         if (ConfigurationManager.isHistoryShown())
-        {
-            if(escapedMessageID != null)
-                chatPanel.loadHistory(escapedMessageID);
-            else
-                chatPanel.loadHistory();
-        }
+            chatPanel.loadHistory(escapedMessageID);
 
         return chatPanel;
     }
@@ -887,12 +882,7 @@ public class ChatWindowManager
         }
 
         if (ConfigurationManager.isHistoryShown())
-        {
-            if(escapedMessageID != null)
-                chatPanel.loadHistory(escapedMessageID);
-            else
-                chatPanel.loadHistory();
-        }
+            chatPanel.loadHistory(escapedMessageID);
 
         return chatPanel;
     }
@@ -948,12 +938,7 @@ public class ChatWindowManager
         }
 
         if (ConfigurationManager.isHistoryShown())
-        {
-            if(escapedMessageID != null)
-                chatPanel.loadHistory(escapedMessageID);
-            else
-                chatPanel.loadHistory();
-        }
+            chatPanel.loadHistory(escapedMessageID);
 
         return chatPanel;
     }

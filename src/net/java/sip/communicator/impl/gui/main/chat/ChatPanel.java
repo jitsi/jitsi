@@ -1386,11 +1386,10 @@ public class ChatPanel
     }
 
     /**
-     * Loads history messages ignoring the message given by the
-     * escapedMessageID. Implements the
-     * <tt>ChatPanel.loadHistory(String)</tt> method.
+     * Loads history messages ignoring the message with the specified id.
      * 
-     * @param escapedMessageID The id of the message that should be ignored.
+     * @param escapedMessageID the id of the message to be ignored;
+     * <tt>null</tt> if no message is to be ignored
      */
     public void loadHistory(final String escapedMessageID)
     {
@@ -1435,8 +1434,9 @@ public class ChatPanel
     }
 
     /**
-     * Loads history for the chat meta contact in a separate thread. Implements
-     * the <tt>ChatPanel.loadHistory</tt> method.
+     * Loads history for the chat meta contact in a separate thread. Equivalent
+     * to calling {@link #loadHistory(String)} with <tt>null</tt> for
+     * <tt>escapedMessageID</tt>.
      */
     public void loadHistory()
     {
