@@ -192,8 +192,9 @@ public class OperationSetBasicTelephonySipImpl
         // check whether there's a cached authorization header for this
         // call id and if so - attach it to the request.
         // add authorization header
-        CallIdHeader call = (CallIdHeader) invite.getHeader(CallIdHeader.NAME);
-        String callid = call.getCallId();
+        CallIdHeader callIdHeader
+            = (CallIdHeader) invite.getHeader(CallIdHeader.NAME);
+        String callid = callIdHeader.getCallId();
 
         AuthorizationHeader authorization =
             protocolProvider.getSipSecurityManager()
