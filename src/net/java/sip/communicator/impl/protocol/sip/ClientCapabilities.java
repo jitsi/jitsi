@@ -63,8 +63,7 @@ public class ClientCapabilities
         try
         {
             optionsOK = provider.getMessageFactory().createResponse(
-                Response.OK,
-                requestEvent.getRequest());
+                Response.OK, requestEvent.getRequest());
 
             Iterator<String> supportedMethods
                 = provider.getSupportedMethods().iterator();
@@ -93,9 +92,6 @@ public class ClientCapabilities
                             .createAllowEventsHeader(event));
                 }
             }
-
-            //add a user agent header.
-            optionsOK.setHeader(provider.getSipCommUserAgentHeader());
         }
         catch (ParseException ex)
         {
@@ -113,7 +109,7 @@ public class ClientCapabilities
         {
             //this means that we received an OPTIONS request outside the scope
             //of a transaction which could mean that someone is simply sending
-            //us b***shit to keep a NAT connection alive, so let's not get too
+            //us b****hit to keep a NAT connection alive, so let's not get too
             //excited.
             logger.info("Failed to respond to an incoming "
                             +"transactionless OPTIONS request");
@@ -305,12 +301,6 @@ public class ClientCapabilities
                                 .createAllowEventsHeader(event));
                     }
                 }
-
-                //User Agent
-                UserAgentHeader userAgentHeader
-                    = provider.getSipCommUserAgentHeader();
-                if(userAgentHeader != null)
-                    request.addHeader(userAgentHeader);
 
                 //Contact Header (should contain IP)
                 ContactHeader contactHeader = provider

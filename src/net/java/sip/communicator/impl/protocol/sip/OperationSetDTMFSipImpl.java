@@ -66,19 +66,8 @@ public class OperationSetDTMFSipImpl
                          String dtmftone)
         throws OperationFailedException
     {
-        Request info = null;
-        try
-        {
-            info = callPeer.getDialog().createRequest(Request.INFO);
-        }
-        catch (SipException ex)
-        {
-            logger.error("Failed to create info request!", ex);
-            throw new OperationFailedException(
-                "Failed to create info request!"
-                , OperationFailedException.INTERNAL_ERROR
-                , ex);
-        }
+        Request info = pps.getMessageFactory().createRequest(
+                        callPeer.getDialog(), Request.INFO);
 
         //here we add the body
         ContentType ct = new ContentType("application", "dtmf-relay");

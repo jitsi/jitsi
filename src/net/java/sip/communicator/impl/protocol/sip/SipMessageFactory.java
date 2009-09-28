@@ -15,6 +15,7 @@ import javax.sip.*;
 import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
+import javax.sip.message.Message;//disambiguates with service.protocol.Message
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -45,7 +46,7 @@ public class SipMessageFactory
 
     /**
      * The wrapped factory. <tt>SipMessageFactory</tt> does nothing by itself
-     * and will just forward method calls to <tt>factory_</tt> (besides marking
+     * and will just forward method calls to <tt>factory</tt> (besides marking
      * messages).
      */
     private final MessageFactory wrappedFactory;
@@ -83,9 +84,7 @@ public class SipMessageFactory
     {
         Request request = this.wrappedFactory.createRequest(requestURI, method,
                 callId, cSeq, from, to, via, maxForwards, contentType, content);
-        SipApplicationData.setApplicationData(request,
-                SipApplicationData.KEY_SERVICE, this.protocolProvider);
-        return request;
+        return (Request)attachScSpecifics(request);
     }
 
     /**
@@ -102,9 +101,7 @@ public class SipMessageFactory
     {
         Request request = this.wrappedFactory.createRequest(requestURI, method,
                 callId, cSeq, from, to, via, maxForwards, contentType, content);
-        SipApplicationData.setApplicationData(request,
-                SipApplicationData.KEY_SERVICE, this.protocolProvider);
-        return request;
+        return (Request)attachScSpecifics(request);
     }
 
     /**
@@ -120,9 +117,7 @@ public class SipMessageFactory
     {
         Request request = this.wrappedFactory.createRequest(requestURI, method,
                 callId, cSeq, from, to, via, maxForwards);
-        SipApplicationData.setApplicationData(request,
-                SipApplicationData.KEY_SERVICE, this.protocolProvider);
-        return request;
+        return (Request)attachScSpecifics(request);
     }
 
     /**
@@ -135,9 +130,7 @@ public class SipMessageFactory
         throws ParseException
     {
         Request request = this.wrappedFactory.createRequest(requestParam);
-        SipApplicationData.setApplicationData(request,
-                SipApplicationData.KEY_SERVICE, this.protocolProvider);
-        return request;
+        return (Request)attachScSpecifics(request);
     }
 
     /**
@@ -154,9 +147,7 @@ public class SipMessageFactory
     {
         Response response = this.wrappedFactory.createResponse(statusCode,
                 callId, cSeq, from, to, via, maxForwards, contentType, content);
-        SipApplicationData.setApplicationData(response,
-                SipApplicationData.KEY_SERVICE, this.protocolProvider);
-        return response;
+        return (Response)attachScSpecifics(response);
     }
 
     /**
@@ -173,9 +164,7 @@ public class SipMessageFactory
     {
         Response response = this.wrappedFactory.createResponse(statusCode,
                 callId, cSeq, from, to, via, maxForwards, contentType, content);
-        SipApplicationData.setApplicationData(response,
-                SipApplicationData.KEY_SERVICE, this.protocolProvider);
-        return response;
+        return (Response)attachScSpecifics(response);
     }
 
     /**
@@ -191,9 +180,7 @@ public class SipMessageFactory
     {
         Response response = this.wrappedFactory.createResponse(statusCode,
                 callId, cSeq, from, to, via, maxForwards);
-        SipApplicationData.setApplicationData(response,
-                SipApplicationData.KEY_SERVICE, this.protocolProvider);
-        return response;
+        return (Response)attachScSpecifics(response);
     }
 
     /**
@@ -208,9 +195,7 @@ public class SipMessageFactory
     {
         Response response = this.wrappedFactory.createResponse(statusCode,
                 request, contentType, content);
-        SipApplicationData.setApplicationData(response,
-                SipApplicationData.KEY_SERVICE, this.protocolProvider);
-        return response;
+        return (Response)attachScSpecifics(response);
     }
 
     /**
@@ -225,9 +210,7 @@ public class SipMessageFactory
     {
         Response response = this.wrappedFactory.createResponse(statusCode,
                 request, contentType, content);
-        SipApplicationData.setApplicationData(response,
-                SipApplicationData.KEY_SERVICE, this.protocolProvider);
-        return response;
+        return (Response)attachScSpecifics(response);
     }
 
     /**
@@ -241,9 +224,7 @@ public class SipMessageFactory
     {
         Response response
             = this.wrappedFactory.createResponse(statusCode, request);
-        SipApplicationData.setApplicationData(response,
-                SipApplicationData.KEY_SERVICE, this.protocolProvider);
-        return response;
+        return (Response)attachScSpecifics(response);
     }
 
     /**
@@ -256,12 +237,84 @@ public class SipMessageFactory
         throws ParseException
     {
         Response response = this.wrappedFactory.createResponse(responseParam);
-        SipApplicationData.setApplicationData(response,
-                SipApplicationData.KEY_SERVICE, this.protocolProvider);
-        return response;
+        return (Response)attachScSpecifics(response);
+    }
+
+    /**
+     * Attaches to <tt>message</tt> headers and object params that we'd like to
+     * be present in absolutely all messages we create (like for example the
+     * user agent header or the provider message object tag).
+     *
+     * @param message the message that we'd like to tag
+     * @return
+     */
+    private Message attachScSpecifics(Message message)
+    {
+        SipApplicationData.setApplicationData(message,
+                        SipApplicationData.KEY_SERVICE, this.protocolProvider);
+
+        // User Agent
+        UserAgentHeader userAgentHeader
+                    = protocolProvider.getSipCommUserAgentHeader();
+
+        //beware: if UA header generation failed for some reason, we don't want
+        //it to mess up the entire request.
+        if (userAgentHeader != null)
+        {
+            message.setHeader(userAgentHeader);
+        }
+
+        return message;
     }
 
     //---------------- higher level methods ----------------------------------
+    /**
+     * Creates a new {@link Request} of a specific method which is to be sent in
+     * a specific <tt>Dialog</tt> and populates its generally-necessary
+     * headers such as the Authorization header.
+     *
+     * @param dialog the <tt>Dialog</tt> to create the new
+     *            <tt>Request</tt> in
+     * @param method the method of the newly-created <tt>Request<tt>
+     * @return a new {@link Request} of the specified <tt>method</tt> which
+     * is to be sent in the specified <tt>dialog</tt> and populated with its
+     * generally-necessary headers such as the Authorization header
+     *
+     * @throws OperationFailedException if we get a SipException while creating
+     * the new request from <tt>dialog</tt>.
+     */
+    public Request createRequest(Dialog dialog, String method)
+        throws OperationFailedException
+    {
+        Request request = null;
+        try
+        {
+            request = dialog.createRequest(method);
+        }
+        catch (SipException ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to create " + method + " request.",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
+        }
+
+        attachScSpecifics(request);
+
+        //override the via and contact headers as jain-sip is generating one
+        //from the listening point which is 0.0.0.0 or ::0
+        ArrayList<ViaHeader> viaHeaders
+            = protocolProvider.getLocalViaHeaders(dialog.getRemoteParty());
+        request.setHeader(viaHeaders.get(0));
+
+        request.setHeader(protocolProvider
+                        .getContactHeader(dialog.getRemoteParty()));
+
+        // We have a dialog here so let's try and pre-authenticate the request.
+        preAuthenticateRequest(request);
+
+        return request;
+    }
+
     /**
      * Creates an invite request destined for <tt>callee</tt>.
      *
@@ -381,12 +434,6 @@ public class SipMessageFactory
                 logger);
         }
 
-        // User Agent
-        UserAgentHeader userAgentHeader
-                    = protocolProvider.getSipCommUserAgentHeader();
-        if (userAgentHeader != null)
-            invite.setHeader(userAgentHeader);
-
         // add the contact header.
         invite.setHeader(contactHeader);
 
@@ -479,13 +526,12 @@ public class SipMessageFactory
      * <tt>URI</tt> of a specific <tt>Address</tt> after removing it
      * from there.
      *
-     * @param address the <tt>Address</tt> which is to have its
-     *            <tt>URI</tt> examined and modified
+     * @param address the <tt>Address</tt> which is to have its <tt>URI</tt>
+     * examined and modified
      *
-     * @return a <tt>Header</tt> which represents the Replaces header
-     *         contained in the <tt>URI</tt> of the specified
-     *         <tt>address</tt>; <tt>null</tt> if no such header is
-     *         present
+     * @return a <tt>Header</tt> which represents the Replaces header contained
+     * in the <tt>URI</tt> of the specified <tt>address</tt>; <tt>null</tt> if
+     * no such header is present
      */
     private Header stripReplacesHeader( Address address )
         throws OperationFailedException
@@ -532,11 +578,11 @@ public class SipMessageFactory
      * Verifies wither we have already authenticated requests with the same
      * <tt>Call-ID</tt> as <tt>request</tt> and attaches the corresponding
      * credentials in an effort to avoid receiving an authentication challenge
-     * from the server and having to resend the request. This method has no
+     * from the server and having to re-send the request. This method has no
      * effect if the <tt>Call-ID</tt> has not been seen by our security manager.
      *
      * @param request the request that we'd like to try pre-authenticating.
-     * @param service_ the provider where the request originated.
+     * @param service the provider where the request originated.
      */
     public void preAuthenticateRequest( Request request )
     {
@@ -553,6 +599,5 @@ public class SipMessageFactory
 
         if (authorization != null)
             request.setHeader(authorization);
-
     }
 }

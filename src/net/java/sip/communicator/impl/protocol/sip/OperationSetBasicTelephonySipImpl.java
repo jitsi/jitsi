@@ -60,16 +60,6 @@ public class OperationSetBasicTelephonySipImpl
         new ActiveCallsRepository(this);
 
     /**
-     * The name of the boolean property that the user could use to specify
-     * whether incoming calls should be rejected if the user name in the
-     * destination (to) address does not match the one that we have in our sip
-     * address.
-     */
-    private static final String FAIL_CALLS_ON_DEST_USER_MISMATCH =
-        "net.java.sip.communicator.impl.protocol.sip."
-            + "FAIL_CALLS_ON_DEST_USER_MISMATCH";
-
-    /**
      * Creates a new instance and adds itself as an <tt>INVITE</tt> method
      * handler in the creating protocolProvider.
      *
@@ -1270,18 +1260,7 @@ public class OperationSetBasicTelephonySipImpl
             else
             {
                 //this is a transfered call
-                callPeerToReplace = activeCallsRepository.findCallPeer(
-                        replacesHeader.getCallId(), replacesHeader.getToTag(),
-                        replacesHeader.getFromTag());
-
-                if (callPeerToReplace != null)
-                {
-                    statusCode = Response.OK;
-                }
-                else
-                {
-                    statusCode = Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST;
-                }
+                //.. ok or error if no peer found
             }
 
             logger.trace("Creating call peer.");
@@ -1300,111 +1279,46 @@ public class OperationSetBasicTelephonySipImpl
         ContentLengthHeader cl = invite.getContentLength();
         if (cl != null && cl.getContentLength() > 0)
         {
-            callPeer
-                .setSdpDescription(new String(invite.getRawContent()));
-        }
-
-        if (!isInviteProperlyAddressed(invite))
-        {
-            callPeer.setState(CallPeerState.FAILED,
-                "A call was received here while it appeared "
-                    + "destined to someone else. The call was rejected.");
-
-            statusCode = Response.NOT_FOUND;
+            callPeer.setSdpDescription(new String(invite.getRawContent()));
         }
 
         // INVITE w/ Replaces
-        if ((statusCode == Response.OK) && (callPeerToReplace != null))
-        {
-            boolean sayBye = false;
+        //..
 
-            try
-            {
-                answerCallPeer(callPeer);
-                sayBye = true;
-            }
-            catch (OperationFailedException ex)
-            {
-                logger.error(
-                    "Failed to auto-answer the referred call peer "
-                        + callPeer, ex);
-                /*
-                 * RFC 3891 says an appropriate error response MUST be returned
-                 * and callPeerToReplace must be left unchanged.
-                 */
-            }
-            if (sayBye)
+        // Send statusCode
+        //...
+        Response response = null;
+
+        try
+        {
+            response = protocolProvider.getMessageFactory()
+                .createResponse(statusCode, invite);
+            protocolProvider.attachToTag(response, dialog);
+
+           // set our display name
+            ((ToHeader) response.getHeader(ToHeader.NAME)).getAddress()
+                .setDisplayName(protocolProvider.getOurDisplayName());
+
+            // extract our intended destination which should be in the from
+            Address callerAddress =
+                ((FromHeader) response.getHeader(FromHeader.NAME))
+                    .getAddress();
+            response.setHeader(protocolProvider
+                .getContactHeader(callerAddress));
+
+            if (statusCode == Response.OK)
             {
                 try
                 {
-                    hangupCallPeer(callPeerToReplace);
+                    processInviteSendingResponse(callPeer, response);
                 }
                 catch (OperationFailedException ex)
                 {
-                    logger.error("Failed to hangup the referer "
-                        + callPeerToReplace, ex);
-                    callPeerToReplace.setState(
-                        CallPeerState.FAILED, "Internal Error: " + ex);
-                }
-            }
-            // Even if there was a failure, we cannot just send Response.OK.
-            return;
-        }
-
-        // Send statusCode
-        String statusCodeString;
-        switch (statusCode)
-        {
-        case Response.RINGING:
-            statusCodeString = "RINGING";
-            break;
-        case Response.NOT_FOUND:
-            statusCodeString = "NOT_FOUND";
-            break;
-        case Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST:
-            statusCodeString = "CALL_OR_TRANSACTION_DOES_NOT_EXIST";
-            break;
-        default:
-            statusCodeString = "OK";
-            break;
-        }
-        Response response = null;
-
-        logger.debug("Invite seems ok, we'll say " + statusCodeString + ".");
-        try
-        {
-            response =  protocolProvider.getMessageFactory()
-                .createResponse(statusCode, invite);
-            protocolProvider.attachToTag(response, dialog);
-            response.setHeader(protocolProvider.getSipCommUserAgentHeader());
-
-            if (statusCode != Response.NOT_FOUND)
-            {
-                // set our display name
-                ((ToHeader) response.getHeader(ToHeader.NAME)).getAddress()
-                    .setDisplayName(protocolProvider.getOurDisplayName());
-
-                // extract our intended destination which should be in the from
-                Address callerAddress =
-                    ((FromHeader) response.getHeader(FromHeader.NAME))
-                        .getAddress();
-                response.setHeader(protocolProvider
-                    .getContactHeader(callerAddress));
-
-                if (statusCode == Response.OK)
-                {
-                    try
-                    {
-                        processInviteSendingResponse(callPeer, response);
-                    }
-                    catch (OperationFailedException ex)
-                    {
-                        logger.error("Error while trying to send response "
-                            + response, ex);
-                        callPeer.setState(CallPeerState.FAILED,
-                            "Internal Error: " + ex.getMessage());
-                        return;
-                    }
+                    logger.error("Error while trying to send response "
+                        + response, ex);
+                    callPeer.setState(CallPeerState.FAILED,
+                        "Internal Error: " + ex.getMessage());
+                    return;
                 }
             }
         }
@@ -1442,7 +1356,6 @@ public class OperationSetBasicTelephonySipImpl
             }
         }
     }
-
 
     /**
      * Provides a hook for this instance to take last configuration steps on a
@@ -1755,8 +1668,6 @@ public class OperationSetBasicTelephonySipImpl
             Response requestTerminated =
                 protocolProvider.getMessageFactory().createResponse(
                     Response.REQUEST_TERMINATED, invite);
-            requestTerminated.setHeader(protocolProvider
-                .getSipCommUserAgentHeader());
             protocolProvider.attachToTag(requestTerminated, callPeer
                 .getDialog());
             inviteTran.sendResponse(requestTerminated);
@@ -1817,7 +1728,6 @@ public class OperationSetBasicTelephonySipImpl
                 protocolProvider.getMessageFactory().createResponse(
                     Response.ACCEPTED, referRequest);
             protocolProvider.attachToTag(accepted, dialog);
-            accepted.setHeader(protocolProvider.getSipCommUserAgentHeader());
         }
         catch (ParseException ex)
         {
@@ -2219,67 +2129,6 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
-     * Creates a new {@link Request} of a specific method which is to be sent in
-     * a specific <tt>Dialog</tt> and populates its generally-necessary
-     * headers such as the Authorization header.
-     *
-     * @param dialog the <tt>Dialog</tt> to create the new
-     *            <tt>Request</tt> in
-     * @param method the method of the newly-created <tt>Request<tt>
-     * @return a new {@link Request} of the specified <tt>method</tt> which
-     *         is to be sent in the specified <tt>dialog</tt> and populated
-     *         with its generally-necessary headers such as the Authorization
-     *         header
-     * @throws OperationFailedException
-     */
-    private Request createRequest(Dialog dialog, String method)
-        throws OperationFailedException
-    {
-        Request request = null;
-        try
-        {
-            request = dialog.createRequest(method);
-        }
-        catch (SipException ex)
-        {
-            ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "Failed to create " + method + " request.",
-                OperationFailedException.INTERNAL_ERROR, ex, logger);
-        }
-
-        //override the via and contact headers as jain-sip is generating one
-        //from the listening point which is 0.0.0.0 or ::0
-        ArrayList<ViaHeader> viaHeaders
-            = protocolProvider.getLocalViaHeaders(dialog.getRemoteParty());
-        request.setHeader(viaHeaders.get(0));
-
-        request.setHeader(protocolProvider
-                        .getContactHeader(dialog.getRemoteParty()));
-
-        // User Agent
-        UserAgentHeader userAgentHeader =
-            protocolProvider.getSipCommUserAgentHeader();
-        if (userAgentHeader != null)
-            request.setHeader(userAgentHeader);
-
-        /*
-         * The authorization-related headers are the responsibility of the
-         * application (according to the Javadoc of JAIN-SIP).
-         */
-        AuthorizationHeader authorization =
-            protocolProvider.getSipSecurityManager()
-                .getCachedAuthorizationHeader(
-                    ((CallIdHeader) request.getHeader(CallIdHeader.NAME))
-                        .getCallId());
-        if (authorization != null)
-        {
-            request.setHeader(authorization);
-        }
-
-        return request;
-    }
-
-    /**
      * Indicates a user request to end a call with the specified call
      * peer. Depending on the state of the call the method would send a
      * CANCEL, BYE, or BUSY_HERE and set the new state to DISCONNECTED.
@@ -2454,26 +2303,7 @@ public class OperationSetBasicTelephonySipImpl
     {
         Dialog dialog = callPeer.getDialog();
 
-        Request bye = null;
-        try
-        {
-            bye = dialog.createRequest(Request.BYE);
-
-            // we have to set the via headers our selves because otherwise
-            // jain sip would send them with a 0.0.0.0 address
-            SipURI destination = (SipURI) bye.getRequestURI();
-
-            ArrayList<ViaHeader> viaHeaders =
-                protocolProvider.getLocalViaHeaders(destination);
-            bye.setHeader(viaHeaders.get(0));
-            bye.addHeader(protocolProvider.getSipCommUserAgentHeader());
-        }
-        catch (SipException ex)
-        {
-            ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "Failed to create bye request!",
-                OperationFailedException.INTERNAL_ERROR, ex, logger);
-        }
+        Request bye = messageFactory.createRequest(dialog, Request.BYE);
 
         sendRequest(callPeer.getJainSipProvider(), bye, dialog);
 
@@ -2548,10 +2378,8 @@ public class OperationSetBasicTelephonySipImpl
         Response busyHere = null;
         try
         {
-            busyHere =
-                protocolProvider.getMessageFactory().createResponse(
-                    Response.BUSY_HERE, request);
-            busyHere.setHeader(protocolProvider.getSipCommUserAgentHeader());
+            busyHere = messageFactory.createResponse(
+                            Response.BUSY_HERE, request);
             protocolProvider.attachToTag(busyHere, callPeer.getDialog());
         }
         catch (ParseException ex)
@@ -2742,11 +2570,8 @@ public class OperationSetBasicTelephonySipImpl
     private Response createOKResponse(Request request, Dialog containingDialog)
         throws ParseException
     {
-        Response ok =
-            protocolProvider.getMessageFactory().createResponse(Response.OK,
-                request);
+        Response ok = messageFactory.createResponse(Response.OK, request);
         protocolProvider.attachToTag(ok, containingDialog);
-        ok.setHeader(protocolProvider.getSipCommUserAgentHeader());
         return ok;
     }
 
@@ -2909,7 +2734,7 @@ public class OperationSetBasicTelephonySipImpl
         CallPeerSipImpl sipPeer =
             (CallPeerSipImpl) peer;
         Dialog dialog = sipPeer.getDialog();
-        Request refer = createRequest(dialog, Request.REFER);
+        Request refer = messageFactory.createRequest(dialog, Request.REFER);
         HeaderFactory headerFactory = protocolProvider.getHeaderFactory();
 
         // Refer-To is required.

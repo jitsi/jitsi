@@ -23,7 +23,7 @@ import net.java.sip.communicator.util.*;
  * Implements the notifier part of RFC 3265
  * "Session Initiation Protocol (SIP)-Specific Event Notification" and thus
  * eases the creation of event package-specific implementations.
- * 
+ *
  * @author Lubomir Marinov
  * @author Benoit Pradelle
  * @author Emil Ivov
@@ -46,11 +46,17 @@ public abstract class EventPackageNotifier
         = new LinkedList<Subscription>();
 
     /**
+     * A reference to the <tt>SipMessageFactory</tt> instance that we should
+     * use when creating requests.
+     */
+    private final SipMessageFactory messageFactory;
+
+    /**
      * Initializes a new <code>EventPackageNotifier</code> instance which is to
      * provide notifier support according to RFC 3265 to a specific SIP
      * <code>ProtocolProviderService</code> implementation for a specific event
      * package.
-     * 
+     *
      * @param protocolProvider
      *            the SIP <code>ProtocolProviderService</code> implementation
      *            for which the new instance is to provide notifier support for
@@ -82,6 +88,8 @@ public abstract class EventPackageNotifier
             subscriptionDuration,
             contentSubType,
             timer);
+
+        this.messageFactory = protocolProvider.getMessageFactory();
     }
 
     /**
@@ -91,7 +99,7 @@ public abstract class EventPackageNotifier
      * subscriptions managed by this instance already, that matching
      * <code>Subscription</code> is removed before the specified
      * <code>Subscription</code> is added.
-     * 
+     *
      * @param subscription
      *            the <code>Subscription</code> to be added to the list of
      *            subscriptions managed by this instance
@@ -118,7 +126,7 @@ public abstract class EventPackageNotifier
      * Creates a NOTIFY request which is to notify about a specific subscription
      * state and carry a specific content. This request MUST be sent using
      * <code>Dialog#sendRequest()</code>.
-     * 
+     *
      * @param dialog
      *            the <code>Dialog</code> to create the NOTIFY request in
      * @param content
@@ -139,20 +147,7 @@ public abstract class EventPackageNotifier
             String reason)
         throws OperationFailedException
     {
-        Request req;
-        try
-        {
-            req = dialog.createRequest(Request.NOTIFY);
-        }
-        catch (SipException e)
-        {
-            logger.error("Can't create the NOTIFY message", e);
-            throw
-                new OperationFailedException(
-                        "Can't create the NOTIFY message",
-                        OperationFailedException.INTERNAL_ERROR,
-                        e);
-        }
+        Request req = messageFactory.createRequest(dialog, Request.NOTIFY);
 
         // Address
         Address toAddress = dialog.getRemoteTarget();
@@ -309,12 +304,6 @@ public abstract class EventPackageNotifier
                         e);
         }
 
-        //User Agent
-        UserAgentHeader userAgentHeader
-            = protocolProvider.getSipCommUserAgentHeader();
-        if (userAgentHeader != null)
-            req.addHeader(userAgentHeader);
-
         return transac;
     }
 
@@ -323,7 +312,7 @@ public abstract class EventPackageNotifier
      * to notify about a specific subscription state and carry a specific
      * content. This request MUST be sent using
      * <code>Dialog#sendRequest()</code>.
-     * 
+     *
      * @param dialog
      *            the <code>Dialog</code> to create the NOTIFY request in
      * @param subscription
@@ -367,7 +356,7 @@ public abstract class EventPackageNotifier
      * Creates a new <code>Subscription</code> instance which is to represent
      * the subscription signaling from and to a specific target identified by
      * its <code>Address</code>/Request URI and a specific EventId tag.
-     * 
+     *
      * @param fromAddress
      *            the <code>Address</code>/Request URI of the subscription
      *            target
@@ -386,7 +375,7 @@ public abstract class EventPackageNotifier
      * by this instance which is associated with a specific subscription
      * <code>Address</code>/Request URI and has a specific id tag in its Event
      * header.
-     * 
+     *
      * @param fromAddress
      *            the subscription <code>Address</code>/Request URI of the
      *            <code>Subscription</code> to be retrieved
@@ -416,7 +405,7 @@ public abstract class EventPackageNotifier
     /**
      * Gets a new copy of the list of <code>Subscription</code>s managed by this
      * instance.
-     * 
+     *
      * @return a new copy of the list of <code>Subscription</code>s managed by
      *         this instance; if this instance currently manages no
      *         <code>Subscription</code>s, an empty array of
@@ -435,7 +424,7 @@ public abstract class EventPackageNotifier
      * Notifies a specific target identified by its <code>Subscription</code>
      * about a specific subscription state and a specific reason for that
      * subscription state via a NOTIFY request.
-     * 
+     *
      * @param subscription
      *            the target identified by its <code>Subscription</code> to be
      *            notified about the specified subscription state and the
@@ -480,7 +469,7 @@ public abstract class EventPackageNotifier
      * Notifies all targets represented by the <code>Subscription</code>s
      * managed by this instance about a specific subscription state and a
      * specific reason for that subscription state via NOTIFY requests.
-     * 
+     *
      * @param subscriptionState
      *            the subscription state to be sent to all targets represented
      *            by the <code>Subscription</code>s managed by this instance via
@@ -598,7 +587,7 @@ public abstract class EventPackageNotifier
                     = new SubscriptionTimeoutTask(subscription);
                 subscription.setTimerTask(timeout);
                 timer.schedule(timeout, expires * 1000);
-    
+
                 // send a OK
                 Response response;
                 try
@@ -613,7 +602,7 @@ public abstract class EventPackageNotifier
                     logger.error("Error while creating the response 200", e);
                     return false;
                 }
-    
+
                 // add the expire header
                 try
                 {
@@ -628,7 +617,7 @@ public abstract class EventPackageNotifier
                     return false;
                 }
                 response.setHeader(expHeader);
-    
+
                 try
                 {
                     serverTransaction.sendResponse(response);
@@ -638,7 +627,7 @@ public abstract class EventPackageNotifier
                     logger.error("Error while sending the response 200", e);
                     return false;
                 }
-    
+
                 return true;
             }
             else
@@ -930,7 +919,7 @@ public abstract class EventPackageNotifier
      * managed by this instance identified by the <code>Response</code> to our
      * NOTIFY request. If the specified <code>Response</code> cannot identify
      * such a <code>Subscription</code>, does nothing.
-     * 
+     *
      * @param response
      *            a <code>Response</code> identifying the
      *            <code>Subscription</code> to be removed from the list of
@@ -976,7 +965,7 @@ public abstract class EventPackageNotifier
      * <code>EventPackageNotifier</code>. If the specified
      * <code>Subscription</code> is not contained in the list of subscriptions
      * managed by this instance, does nothing.
-     * 
+     *
      * @param subscription
      *            the <code>Subscription</code> to be removed from the list of
      *            subscriptions managed by this instance
@@ -1001,7 +990,7 @@ public abstract class EventPackageNotifier
      * <code>Response</code> s thus allowing implementers to tap into the
      * general event package subscription operations and provide the event
      * package-specific processing.
-     * 
+     *
      * @author Lubomir Marinov
      */
     public static abstract class Subscription
@@ -1012,7 +1001,7 @@ public abstract class EventPackageNotifier
          * Initializes a new <code>Subscription</code> instance with a specific
          * subscription <code>Address</code>/Request URI and a specific id tag
          * of the associated Event headers.
-         * 
+         *
          * @param fromAddress
          *            the subscription <code>Address</code>/Request URI which is
          *            to be the target of the NOTIFY requests associated with
@@ -1032,7 +1021,7 @@ public abstract class EventPackageNotifier
          * Creates the content of the NOTIFY request to be sent to the target
          * represented by this <code>Subscription</code> and having a specific
          * subscription state and a specific reason for that subscription state.
-         * 
+         *
          * @param subscriptionState
          *            the subscription state to be notified about in the NOTIFY
          *            request which is to carry the returned content
@@ -1066,7 +1055,7 @@ public abstract class EventPackageNotifier
         /**
          * Initializes a new <code>SubscriptionTimeoutTask</code> instance which
          * is to time out a specific <code>Subscription</code>.
-         * 
+         *
          * @param subscription
          *            the <code>Subscription</code> to be timed out by the new
          *            instance

@@ -21,7 +21,7 @@ import net.java.sip.communicator.util.*;
  * Implements the subscriber part of RFC 3265
  * "Session Initiation Protocol (SIP)-Specific Event Notification" and thus
  * eases the creation of event package-specific implementations.
- * 
+ *
  * @author Lubomir Marinov
  * @author Benoit Pradelle
  * @author Emil Ivov
@@ -46,11 +46,17 @@ public class EventPackageSubscriber
         = new HashMap<String, Subscription>();
 
     /**
+     * A reference to the <tt>SipMessageFactory</tt> instance that we should
+     * use when creating requests.
+     */
+    private final SipMessageFactory messageFactory;
+
+    /**
      * Initializes a new <code>EventPackageSubscriber</code> instance which is
      * to provide subscriber support according to RFC 3265 to a specific SIP
      * <code>ProtocolProviderService</code> implementation for a specific event
      * package.
-     * 
+     *
      * @param protocolProvider
      *            the SIP <code>ProtocolProviderService</code> implementation
      *            for which the new instance is to provide subscriber support
@@ -89,12 +95,13 @@ public class EventPackageSubscriber
             timer);
 
         this.refreshMargin = refreshMargin;
+        this.messageFactory = protocolProvider.getMessageFactory();
     }
 
     /**
      * Adds a specific <code>Subscription</code> associated with a specific
      * CallId to the list of subscriptions managed by this instance.
-     * 
+     *
      * @param callId
      *            the CallId associated with the <code>Subscription</code> to be
      *            added
@@ -114,7 +121,7 @@ public class EventPackageSubscriber
      * Creates a new SUBSCRIBE request in the form of a
      * <code>ClientTransaction</code> with the parameters of a specific
      * <code>Subscription</code>.
-     * 
+     *
      * @param subscription
      *            the <code>Subscription</code> to be described in a SUBSCRIBE
      *            request
@@ -137,20 +144,7 @@ public class EventPackageSubscriber
             int expires)
         throws OperationFailedException
     {
-        Request req;
-        try
-        {
-            req = dialog.createRequest(Request.SUBSCRIBE);
-        }
-        catch (SipException e)
-        {
-            logger.error("Can't create the SUBSCRIBE message", e);
-            throw new OperationFailedException(
-                    "An unexpected error occurred while"
-                    + "constructing the SUBSCRIBE request"
-                    , OperationFailedException.INTERNAL_ERROR
-                    , e);
-        }
+        Request req = messageFactory.createRequest(dialog, Request.SUBSCRIBE);
 
         // Address
         Address toAddress = dialog.getRemoteTarget();
@@ -171,8 +165,7 @@ public class EventPackageSubscriber
         ClientTransaction transac = null;
         try
         {
-            transac
-                = protocolProvider
+            transac = protocolProvider
                     .getDefaultJainSipProvider().getNewClientTransaction(req);
         }
         catch (TransactionUnavailableException ex)
@@ -200,7 +193,7 @@ public class EventPackageSubscriber
      * Creates a new SUBSCRIBE request in the form of a
      * <code>ClientTransaction</code> with the parameters of a specific
      * <code>Subscription</code>.
-     * 
+     *
      * @param subscription
      *            the <code>Subscription</code> to be described in a SUBSCRIBE
      *            request
@@ -349,7 +342,7 @@ public class EventPackageSubscriber
      * by this instance which is associated with a specific subscription
      * <code>Address</code>/Request URI and has a specific id tag in its Event
      * header.
-     * 
+     *
      * @param toAddress
      *            the subscription <code>Address</code>/Request URI of the
      *            <code>Subscription</code> to be retrieved
@@ -379,7 +372,7 @@ public class EventPackageSubscriber
     /**
      * Gets the <code>Subscription</code> from the list of subscriptions managed
      * by this instance which is associated with a specific CallId.
-     * 
+     *
      * @param callId
      *            the CallId associated with the <code>Subscription</code> to be
      *            retrieved
@@ -402,7 +395,7 @@ public class EventPackageSubscriber
      * managed by this instance only if another <code>Subscription</code> with
      * the same subscription <code>Address</code>/Request URI and id tag of its
      * associated Event header does not exist in the list.
-     * 
+     *
      * @param subscription
      *            the new <code>Subscription</code> to be added to the list of
      *            subscriptions managed by this instance if there is no other
@@ -427,7 +420,7 @@ public class EventPackageSubscriber
      * existing dialogs and specific to the general event package subscription
      * functionality that this instance and a specific <code>Subscription</code>
      * represent.
-     * 
+     *
      * @param req
      *            the <code>Request</code> instance to be populated with common
      *            headers and ones specific to the event package of a specific
@@ -513,22 +506,6 @@ public class EventPackageSubscriber
                     e);
         }
         req.setHeader(expHeader);
-
-        // Authorization
-        CallIdHeader callIdHeader
-            = (CallIdHeader) req.getHeader(CallIdHeader.NAME);
-        AuthorizationHeader authorization
-            = protocolProvider
-                .getSipSecurityManager()
-                    .getCachedAuthorizationHeader(callIdHeader.getCallId());
-        if (authorization != null)
-            req.addHeader(authorization);
-
-        // User Agent
-        UserAgentHeader userAgentHeader
-            = protocolProvider.getSipCommUserAgentHeader();
-        if (userAgentHeader != null)
-            req.addHeader(userAgentHeader);
     }
 
     /*
@@ -935,7 +912,7 @@ public class EventPackageSubscriber
      * managed by this instance which is associated with a specific subscription
      * <code>Address</code>/Request URI and has an id tag in its Event header of
      * <tt>null</tt>. If such an instance is not found, does nothing.
-     * 
+     *
      * @param toAddress
      *            the subscription <code>Address</code>/Request URI of the
      *            <code>Subscription</code> to be removed
@@ -950,7 +927,7 @@ public class EventPackageSubscriber
      * managed by this instance which is associated with a specific subscription
      * <code>Address</code>/Request URI and has a specific id tag in its Event
      * header. If such an instance is not found, does nothing.
-     * 
+     *
      * @param toAddress
      *            the subscription <code>Address</code>/Request URI of the
      *            <code>Subscription</code> to be removed
@@ -981,7 +958,7 @@ public class EventPackageSubscriber
      * specific CallId. If the specified <code>Subscription</code> is not
      * associated with the specified CallId (including the case of no known
      * association for the specified CallId), does nothing.
-     * 
+     *
      * @param callId
      *            the CallId which is expected to be associated with the
      *            specified <code>Subscription</code>
@@ -1016,7 +993,7 @@ public class EventPackageSubscriber
      * with it. If the attempt to create and send the SUBSCRIBE request fails,
      * the specified <code>Subscription</code> is not added to the list of
      * subscriptions managed by this instance.
-     * 
+     *
      * @param subscription
      *            a <code>Subscription</code> which specifies the properties of
      *            the SUBSCRIBE request to be created and sent, to be added to
@@ -1084,7 +1061,7 @@ public class EventPackageSubscriber
      * <code>Subscription</code> in the list of subscriptions managed by this
      * instance, an assertion may optionally be performed or no reaction can be
      * taken.
-     * 
+     *
      * @param toAddress
      *            a subscription <code>Address</code>/Request URI which
      *            identifies a <code>Subscription</code> to be removed from the
@@ -1126,7 +1103,7 @@ public class EventPackageSubscriber
      * <code>Subscription</code> in the list of subscriptions managed by this
      * instance, an assertion may optionally be performed or no reaction can be
      * taken.
-     * 
+     *
      * @param toAddress
      *            a subscription <code>Address</code>/Request URI which
      *            identifies a <code>Subscription</code> to be removed from the
@@ -1216,7 +1193,7 @@ public class EventPackageSubscriber
      * s thus allowing implementers to tap into the general event package
      * subscription operations and provide the event package-specific
      * processing.
-     * 
+     *
      * @author Lubomir Marinov
      */
     public static abstract class Subscription
@@ -1227,7 +1204,7 @@ public class EventPackageSubscriber
          * Initializes a new <code>Subscription</code> instance with a specific
          * subscription <code>Address</code>/Request URI and an id tag of the
          * associated Event headers of value <tt>null</tt>.
-         * 
+         *
          * @param toAddress
          *            the subscription <code>Address</code>/Request URI which is
          *            to be the target of the SUBSCRIBE requests associated with
@@ -1242,7 +1219,7 @@ public class EventPackageSubscriber
          * Initializes a new <code>Subscription</code> instance with a specific
          * subscription <code>Address</code>/Request URI and a specific id tag
          * of the associated Event headers.
-         * 
+         *
          * @param toAddress
          *            the subscription <code>Address</code>/Request URI which is
          *            to be the target of the SUBSCRIBE requests associated with
@@ -1262,7 +1239,7 @@ public class EventPackageSubscriber
          * Notifies this <code>Subscription</code> that an active NOTIFY
          * <code>Request</code> has been received and it may process the
          * specified raw content carried in it.
-         * 
+         *
          * @param requestEvent
          *            the <code>RequestEvent</code> carrying the full details of
          *            the received NOTIFY <code>Request</code> including the raw
@@ -1283,7 +1260,7 @@ public class EventPackageSubscriber
          * to a previous SUBSCRIBE <code>Request</code> has been received with a
          * status code in the failure range and it may process the status code
          * carried in it.
-         * 
+         *
          * @param responseEvent
          *            the <code>ResponseEvent</code> carrying the full details
          *            of the received <code>Response</code> including the status
@@ -1303,7 +1280,7 @@ public class EventPackageSubscriber
          * to a previous SUBSCRIBE <code>Request</code> has been received with a
          * status code in the success range and it may process the status code
          * carried in it.
-         * 
+         *
          * @param responseEvent
          *            the <code>ResponseEvent</code> carrying the full details
          *            of the received <code>Response</code> including the status
@@ -1322,7 +1299,7 @@ public class EventPackageSubscriber
          * Notifies this <code>Subscription</code> that a terminating NOTIFY
          * <code>Request</code> has been received and it may process the reason
          * code carried in it.
-         * 
+         *
          * @param requestEvent
          *            the <code>RequestEvent</code> carrying the full details of
          *            the received NOTIFY <code>Request</code> including the
@@ -1356,7 +1333,7 @@ public class EventPackageSubscriber
         /**
          * Initializes a new <code>SubscriptionRefreshTask</code> which is to
          * refresh a specific <code>Subscription</code>.
-         * 
+         *
          * @param subscription
          *            the <code>Subscription</code> to be refreshed by the new
          *            instance

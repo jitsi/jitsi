@@ -480,5 +480,42 @@ public class CallSipImpl
     {
         Request request = serverTransaction.getRequest();
 
+        if ((statusCode == Response.OK) && (callPeerToReplace != null))
+        {
+            boolean sayBye = false;
+
+            try
+            {
+                answerCallPeer(callPeer);
+                sayBye = true;
+            }
+            catch (OperationFailedException ex)
+            {
+                logger.error(
+                    "Failed to auto-answer the referred call peer "
+                        + callPeer, ex);
+                /*
+                 * RFC 3891 says an appropriate error response MUST be returned
+                 * and callPeerToReplace must be left unchanged.
+                 */
+            }
+            if (sayBye)
+            {
+                try
+                {
+                    hangupCallPeer(callPeerToReplace);
+                }
+                catch (OperationFailedException ex)
+                {
+                    logger.error("Failed to hangup the referer "
+                        + callPeerToReplace, ex);
+                    callPeerToReplace.setState(
+                        CallPeerState.FAILED, "Internal Error: " + ex);
+                }
+            }
+            // Even if there was a failure, we cannot just send Response.OK.
+            return;
+        }
+
     }
 }

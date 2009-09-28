@@ -280,8 +280,7 @@ public class SipRegistrarConnection
             getMaxForwardsHeader();
 
         //create a host-only uri for the request uri header.
-        String domain
-            = ((SipURI) toHeader.getAddress().getURI()).getHost();
+        String domain = ((SipURI) toHeader.getAddress().getURI()).getHost();
 
         //request URI
         SipURI requestURI = null;
@@ -293,20 +292,14 @@ public class SipRegistrarConnection
         Request request = null;
         try
         {
-            requestURI
-                = sipProvider.getAddressFactory().createSipURI(null,domain);
+            requestURI = sipProvider.getAddressFactory()
+                .createSipURI(null, domain);
 
             viaHeaders = sipProvider.getLocalViaHeaders(requestURI);
 
             request = sipProvider.getMessageFactory().createRequest(
-                requestURI
-                , Request.REGISTER
-                , callIdHeader
-                , cSeqHeader
-                , fromHeader
-                , toHeader
-                , viaHeaders
-                , maxForwardsHeader);
+                requestURI, Request.REGISTER, callIdHeader, cSeqHeader,
+                fromHeader, toHeader, viaHeaders, maxForwardsHeader);
 
             // JvB: use Route header in addition to the request URI
             // because some servers loop otherwise
@@ -332,12 +325,6 @@ public class SipRegistrarConnection
                 , OperationFailedException.INTERNAL_ERROR
                 , ex);
         }
-
-        //User Agent
-        UserAgentHeader userAgentHeader
-            = sipProvider.getSipCommUserAgentHeader();
-        if(userAgentHeader != null)
-            request.addHeader(userAgentHeader);
 
         //Expires Header - try to generate it twice in case the default
         //expiration period is null
