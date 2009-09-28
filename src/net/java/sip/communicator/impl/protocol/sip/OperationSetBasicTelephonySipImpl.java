@@ -189,24 +189,6 @@ public class OperationSetBasicTelephonySipImpl
                             exc);
         }
 
-        // Content
-        ContentTypeHeader contentTypeHeader = null;
-        try
-        {
-            // content type should be application/sdp (not applications)
-            // reported by Oleg Shevchenko (Miratech)
-            contentTypeHeader =
-                protocolProvider.getHeaderFactory().createContentTypeHeader(
-                    "application", "sdp");
-        }
-        catch (ParseException ex)
-        {
-            // Shouldn't happen
-            throwOperationFailedException(
-                "Failed to create a content type header for the INVITE request",
-                OperationFailedException.INTERNAL_ERROR, ex);
-        }
-
         // check whether there's a cached authorization header for this
         // call id and if so - attach it to the request.
         // add authorization header
@@ -267,6 +249,12 @@ public class OperationSetBasicTelephonySipImpl
             javax.sip.address.URI calleeURI = calleeAddress.getURI();
             if (calleeURI.isSipURI())
             {
+                // content type should be application/sdp (not applications)
+                // reported by Oleg Shevchenko (Miratech)
+                ContentTypeHeader contentTypeHeader = protocolProvider
+                    .getHeaderFactory().createContentTypeHeader(
+                        "application", "sdp");
+
                 String host = ((SipURI) calleeURI).getHost();
                 InetAddress intendedDestination = protocolProvider
                         .resolveSipAddress(host).getAddress();
