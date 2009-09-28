@@ -436,17 +436,12 @@ public class CallSipImpl
     private CallPeerSipImpl createCallPeerFor(
         Transaction containingTransaction, SipProvider sourceProvider)
     {
-        CallPeerSipImpl callPeer =
-            new CallPeerSipImpl(
-                containingTransaction.getDialog().getRemoteParty(),
-                this);
-        boolean incomingCall =
-            (containingTransaction instanceof ServerTransaction);
+        CallPeerSipImpl callPeer = new CallPeerSipImpl(
+                containingTransaction.getDialog().getRemoteParty(), this);
 
-        callPeer.setState(
-             incomingCall ?
-                 CallPeerState.INCOMING_CALL :
-                 CallPeerState.INITIATING_CALL);
+        callPeer.setState( (containingTransaction instanceof ServerTransaction)
+                        ? CallPeerState.INCOMING_CALL
+                        : CallPeerState.INITIATING_CALL);
 
         callPeer.setDialog(containingTransaction.getDialog());
         callPeer.setFirstTransaction(containingTransaction);
@@ -465,6 +460,7 @@ public class CallSipImpl
     public CallPeerSipImpl processInvite(SipProvider       jainSipProvider,
                                          ServerTransaction serverTransaction)
     {
+        Request request = serverTransaction.getRequest();
 
         CallPeerSipImpl peer
             = createCallPeerFor(serverTransaction, jainSipProvider);
@@ -472,11 +468,17 @@ public class CallSipImpl
         return peer;
     }
 
-    public void processReInvite(){}
+    public void processReInvite(SipProvider       jainSipProvider,
+                                ServerTransaction serverTransaction)
+    {
+        Request request = serverTransaction.getRequest();
+
+    }
 
     public void processReplacingInvite(SipProvider       jainSipProvider,
                                        ServerTransaction serverTransaction)
     {
+        Request request = serverTransaction.getRequest();
 
     }
 }

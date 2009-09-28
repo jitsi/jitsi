@@ -1010,13 +1010,44 @@ public class ProtocolProviderServiceSipImpl
      * response that we are building a <tt>Contact</tt> header for.
      *
      * @return a Contact header based upon a local inet address.
-     * @throws OperationFailedException if we fail constructing the contact
-     * header.
      */
     public ContactHeader getContactHeaderForResponse(Request request)
     {
-        getDefaultJainSipProvider().getListeningPoint().
-        return getContactHeader((SipURI)intendedDestination.getURI());
+        //emil: so here's the thing. ideally we should use the address and
+        //port that this request arrived at. However there's no way for us
+        //to know this. First because jain-sip does not provide such a way
+        //and second (more important :) ) because the JRE itself does not,
+        //provide away of retrieving the specific local address for a
+        //datagram was received on a 0.0.0.0/::0 bound sock.
+
+        //therefore, since jain-sip will (normally be sending our response to
+        //the address in the topmost Via .. we use it to determine a local
+        //address.
+        ViaHeader via = (ViaHeader)request.getHeader(ViaHeader.NAME);
+        SipURI intendedDestinationURI;
+
+        String transport = via.getTransport();
+
+        String host = via.getHost();
+        int port = via.getPort();
+
+        try
+        {
+            intendedDestinationURI = addressFactory.createSipURI(null, host);
+            intendedDestinationURI.setPort(port);
+
+            if(transport != null)
+                intendedDestinationURI.setTransportParam(transport);
+        }
+        catch (ParseException e)
+        {
+            logger.debug(via + " does not seem to be a valid header.");
+
+            FromHeader from = (FromHeader)request.getHeader(From.NAME);
+            intendedDestinationURI = (SipURI)from.getAddress().getURI();
+        }
+
+        return getContactHeader(intendedDestinationURI);
     }
 
     /**
@@ -1027,8 +1058,6 @@ public class ProtocolProviderServiceSipImpl
      * this contact header to.
      *
      * @return a Contact header based upon a local inet address.
-     * @throws OperationFailedException if we fail constructing the contact
-     * header.
      */
     public ContactHeader getContactHeader(Address intendedDestination)
     {

@@ -385,10 +385,10 @@ public class SipMessageFactory
         UserAgentHeader userAgentHeader
                     = protocolProvider.getSipCommUserAgentHeader();
         if (userAgentHeader != null)
-            invite.addHeader(userAgentHeader);
+            invite.setHeader(userAgentHeader);
 
         // add the contact header.
-        invite.addHeader(contactHeader);
+        invite.setHeader(contactHeader);
 
         // Add the ReplacesHeader if any.
         if (replacesHeader != null)
@@ -552,7 +552,7 @@ public class SipMessageFactory
                 .getCachedAuthorizationHeader(callid);
 
         if (authorization != null)
-            request.addHeader(authorization);
+            request.setHeader(authorization);
 
     }
 }
