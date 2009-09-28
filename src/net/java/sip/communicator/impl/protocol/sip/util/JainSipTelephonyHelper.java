@@ -242,4 +242,34 @@ public class JainSipTelephonyHelper
         logger.error(message, cause);
         throw new OperationFailedException(message, errorCode, cause);
     }
+
+    /**
+     * Verifies wither we have already authenticated requests with the same
+     * <tt>Call-ID</tt> as <tt>request</tt> and attaches the corresponding
+     * credentials in an effort to avoid receiving an authentication challenge
+     * from the server and having to resend the request. This method has no
+     * effect if the <tt>Call-ID</tt> has not been seen by our security manager.
+     *
+     * @param request the request that we'd like to try pre-authenticating.
+     * @param protocolProvider the provider where the request originated.
+     */
+    public static void preAuthenticateRequest(
+                    Request request,
+                    ProtocolProviderServiceSipImpl protocolProvider)
+    {
+        //check whether there's a cached authorization header for this
+        // call id and if so - attach it to the request.
+        // add authorization header
+        CallIdHeader callIdHeader
+            = (CallIdHeader) request.getHeader(CallIdHeader.NAME);
+        String callid = callIdHeader.getCallId();
+
+        AuthorizationHeader authorization =
+            protocolProvider.getSipSecurityManager()
+                .getCachedAuthorizationHeader(callid);
+
+        if (authorization != null)
+            request.addHeader(authorization);
+
+    }
 }

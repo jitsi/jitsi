@@ -27,12 +27,14 @@ class CredentialsCache
     /**
      * Contains call->realms mappings
      */
-    private Hashtable<String, CredentialsCacheEntry> authenticatedRealms = new Hashtable<String, CredentialsCacheEntry>();
+    private Hashtable<String, CredentialsCacheEntry> authenticatedRealms
+                            = new Hashtable<String, CredentialsCacheEntry>();
 
     /**
      * Contains callid->authorization header mappings
      */
-    private Hashtable<String, AuthorizationHeader> authenticatedCalls =  new Hashtable<String, AuthorizationHeader>();
+    private Hashtable<String, AuthorizationHeader> authenticatedCalls
+                            =  new Hashtable<String, AuthorizationHeader>();
 
     /**
      * Cache credentials for the specified call and realm

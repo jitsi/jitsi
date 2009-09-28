@@ -21,7 +21,7 @@ import net.java.sip.communicator.util.*;
  * purpose is to mark every created message with its
  * <tt>ProtocolProviderServiceSipImpl</tt>, so that the generated
  * <tt>Message</tt>-s will be easy to route or dispatch.
- * 
+ *
  * @author Sebastien Mazy
  */
 public class SipMessageFactory
@@ -255,4 +255,6 @@ public class SipMessageFactory
                 SipApplicationData.KEY_SERVICE, this.service_);
         return response;
     }
+
+    //---------------- higher level methods ----------------------------------
 }
