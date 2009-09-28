@@ -189,7 +189,9 @@ public class OperationSetBasicTelephonySipImpl
      * Resumes communication with a call peer previously put on hold.
      *
      * @param peer the call peer to put on hold.
-     * @throws OperationFailedException
+     *
+     * @throws OperationFailedException if we fail to construct or send the
+     * INVITE request putting the remote side on/off hold.
      */
     public synchronized void putOffHold(CallPeer peer)
         throws OperationFailedException
@@ -201,7 +203,9 @@ public class OperationSetBasicTelephonySipImpl
      * Puts the specified CallPeer "on hold".
      *
      * @param peer the peer that we'd like to put on hold.
-     * @throws OperationFailedException
+     *
+     * @throws OperationFailedException if we fail to construct or send the
+     * INVITE request putting the remote side on/off hold.
      */
     public synchronized void putOnHold(CallPeer peer)
         throws OperationFailedException
@@ -215,7 +219,8 @@ public class OperationSetBasicTelephonySipImpl
      * @param peer the <tt>CallPeer</tt> to be put on or off hold
      * @param on <tt>true</tt> to have the specified <tt>CallPeer</tt>
      *            put on hold; <tt>false</tt>, otherwise
-     * @throws OperationFailedException
+     * @throws OperationFailedException if we fail to construct or send the
+     * INVITE request putting the remote side on/off hold.
      */
     private void putOnHold(CallPeer peer, boolean on)
         throws OperationFailedException
@@ -271,11 +276,12 @@ public class OperationSetBasicTelephonySipImpl
      * Sends an invite request with a specific SDP offer (description) within
      * the current <tt>Dialog</tt> with a specific call peer.
      *
-     * @param sipPeer the SIP-specific call peer to send the
-     *            invite to within the current <tt>Dialog</tt>
-     * @param sdpOffer the description of the SDP offer to be made to the
-     *            specified call peer with the sent invite
-     * @throws OperationFailedException
+     * @param sipPeer the SIP-specific call peer to send the  to within the
+     * current <tt>Dialog</tt> @param sdpOffer the description of the SDP offer
+     * to be made to the specified call peer with the sent invite
+     *
+     * @throws OperationFailedException if sending the request fails for some
+     * reason.
      */
     void sendInviteRequest(CallPeerSipImpl sipPeer, String sdpOffer)
         throws OperationFailedException
@@ -1134,7 +1140,6 @@ public class OperationSetBasicTelephonySipImpl
      *
      * @param sourceProvider the provider containing <tt>sourceTransaction</tt>.
      * @param serverTransaction the transaction containing the received request.
-     * @param invite the Request that we've just received.
      */
     private void processInvite(SipProvider       sourceProvider,
                                ServerTransaction serverTransaction)
@@ -1185,246 +1190,6 @@ public class OperationSetBasicTelephonySipImpl
             //this is a reINVITE.
             callSipImpl.processReInvite(sourceProvider, serverTransaction);
         }
-    }
-
-    /**
-     * Creates a new call and sends a RINGING response.
-     *
-     * @param sourceProvider the provider containing <tt>sourceTransaction</tt>.
-     * @param serverTransaction the transaction containing the received request.
-     * @param invite the Request that we've just received.
-     */
-    private void originalProcessInvite(SipProvider sourceProvider,
-                               ServerTransaction serverTransaction,
-                               Request invite)
-    {
-        Dialog dialog = serverTransaction.getDialog();
-        CallPeerSipImpl callPeer =
-            activeCallsRepository.findCallPeer(dialog);
-        int statusCode = 0;
-        CallPeerSipImpl callPeerToReplace = null;
-
-        if (callPeer == null)
-        {
-            ReplacesHeader replacesHeader =
-                (ReplacesHeader) invite.getHeader(ReplacesHeader.NAME);
-
-            if (replacesHeader == null)
-            {
-                //this is not a transfered call so start ringing
-                statusCode = Response.RINGING;
-            }
-            else
-            {
-                //this is a transfered call
-                //.. ok or error if no peer found
-            }
-
-            logger.trace("Creating call peer.");
-            callPeer =
-                createCallPeerFor(serverTransaction, sourceProvider);
-            logger.trace("call peer created = " + callPeer);
-        }
-        else
-        {
-            //this is a reINVITE - so we'll OK it without ringing
-            statusCode = Response.OK;
-        }
-
-        // extract the SDP description.
-        // beware: SDP description may be in ACKs - bug report Laurent Michel
-        ContentLengthHeader cl = invite.getContentLength();
-        if (cl != null && cl.getContentLength() > 0)
-        {
-            callPeer.setSdpDescription(new String(invite.getRawContent()));
-        }
-
-        // INVITE w/ Replaces
-        //..
-
-        // Send statusCode
-        //...
-        Response response = null;
-        try
-        {
-            response = protocolProvider.getMessageFactory()
-                .createResponse(statusCode, invite);
-
-           // set our display name
-            ((ToHeader) response.getHeader(ToHeader.NAME)).getAddress()
-                .setDisplayName(protocolProvider.getOurDisplayName());
-
-            //add the SDP
-            if (statusCode == Response.OK)
-            {
-                try
-                {
-                    attachSDP(callPeer, response);
-                }
-                catch (OperationFailedException ex)
-                {
-                    logger.error("Error while trying to send response "
-                        + response, ex);
-                    callPeer.setState(CallPeerState.FAILED,
-                        "Internal Error: " + ex.getMessage());
-                    return;
-                }
-            }
-        }
-        catch (ParseException ex)
-        {
-            logger.error("Error while trying to send a response", ex);
-            callPeer.setState(CallPeerState.FAILED,
-                "Internal Error: " + ex.getMessage());
-            return;
-        }
-        try
-        {
-            logger.trace("will send " + statusCode + " response: ");
-            serverTransaction.sendResponse(response);
-            logger.debug("sent a " + statusCode + " response: "
-                + response);
-        }
-        catch (Exception ex)
-        {
-            logger.error("Error while trying to send a request", ex);
-            callPeer.setState(CallPeerState.FAILED,
-                "Internal Error: " + ex.getMessage());
-            return;
-        }
-
-        if (statusCode == Response.OK)
-        {
-            try
-            {
-                setMediaFlagsForPeer(callPeer, response);
-            }
-            catch (OperationFailedException ex)
-            {
-                logger.error("Error after sending response " + response, ex);
-            }
-        }
-    }
-
-    /**
-     * Provides a hook for this instance to take last configuration steps on a
-     * specific <tt>Response</tt> before it is sent to a specific
-     * <tt>CallPeer</tt> as part of the execution of
-     * {@link #processInvite(SipProvider, ServerTransaction, Request)}.
-     *
-     * @param peer the <tt>CallPeer</tt> to receive a specific
-     *            <tt>Response</tt>
-     * @param response the <tt>Response</tt> to be sent to the
-     *            <tt>peer</tt>
-     * @throws OperationFailedException
-     * @throws ParseException
-     */
-    private void attachSDP(CallPeer peer, Response response)
-        throws OperationFailedException, ParseException
-    {
-        /*
-         * At the time of this writing, we're only getting called because a
-         * response to a call-hold invite is to be sent.
-         */
-
-        CallSession callSession =
-            ((CallSipImpl) peer.getCall()).getMediaCallSession();
-
-        String sdpAnswer = null;
-        try
-        {
-            sdpAnswer
-                = callSession.processSdpOffer(
-                        peer,
-                        ((CallPeerSipImpl) peer)
-                            .getSdpDescription());
-        }
-        catch (MediaException ex)
-        {
-            ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "Failed to create SDP answer to put-on/off-hold request.",
-                OperationFailedException.INTERNAL_ERROR, ex, logger);
-        }
-
-        response.setContent(
-            sdpAnswer,
-            protocolProvider.getHeaderFactory()
-                .createContentTypeHeader("application", "sdp"));
-    }
-
-    /**
-     * Provides a hook for this instance to take immediate steps after a
-     * specific <tt>Response</tt> has been sent to a specific
-     * <tt>CallPeer</tt> as part of the execution of
-     * {@link #processInvite(SipProvider, ServerTransaction, Request)}.
-     *
-     * @param peer the <tt>CallPeer</tt> who was sent a specific
-     *            <tt>Response</tt>
-     * @param response the <tt>Response</tt> that has just been sent to the
-     *            <tt>peer</tt>
-     * @throws OperationFailedException
-     * @throws ParseException
-     */
-    private void setMediaFlagsForPeer(CallPeer peer, Response response)
-        throws OperationFailedException
-    {
-        /*
-         * At the time of this writing, we're only getting called because a
-         * response to a call-hold invite is to be sent.
-         */
-
-        CallSession callSession =
-            ((CallSipImpl) peer.getCall()).getMediaCallSession();
-        CallPeerSipImpl sipPeer =
-            (CallPeerSipImpl) peer;
-
-        int mediaFlags = 0;
-        try
-        {
-            mediaFlags = callSession .getSdpOfferMediaFlags(
-                            sipPeer.getSdpDescription());
-        }
-        catch (MediaException ex)
-        {
-            ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "Failed to create SDP answer to put-on/off-hold request.",
-                OperationFailedException.INTERNAL_ERROR, ex, logger);
-        }
-
-        /*
-         * Comply with the request of the SDP offer with respect to putting on
-         * hold.
-         */
-        boolean on = ((mediaFlags & CallSession.ON_HOLD_REMOTELY) != 0);
-
-        callSession.putOnHold(on, false);
-
-        CallPeerState state = sipPeer.getState();
-        if (CallPeerState.ON_HOLD_LOCALLY.equals(state))
-        {
-            if (on)
-                sipPeer.setState(CallPeerState.ON_HOLD_MUTUALLY);
-        }
-        else if (CallPeerState.ON_HOLD_MUTUALLY.equals(state))
-        {
-            if (!on)
-                sipPeer.setState(CallPeerState.ON_HOLD_LOCALLY);
-        }
-        else if (CallPeerState.ON_HOLD_REMOTELY.equals(state))
-        {
-            if (!on)
-                sipPeer.setState(CallPeerState.CONNECTED);
-        }
-        else if (on)
-        {
-            sipPeer.setState(CallPeerState.ON_HOLD_REMOTELY);
-        }
-
-        /*
-         * Reflect the request of the SDP offer with respect to the modification
-         * of the availability of media.
-         */
-        callSession.setReceiveStreaming(mediaFlags);
     }
 
     /**
@@ -1998,14 +1763,15 @@ public class OperationSetBasicTelephonySipImpl
      *
      * @param dialog the <tt>Dialog</tt> to send the NOTIFY request in
      * @param subscriptionState the <tt>Subscription-State</tt> header to be
-     *            sent with the NOTIFY request
-     * @param reasonCode the reason for the specified
-     *            <tt>subscriptionState</tt> if any; <tt>null</tt> otherwise
+     * sent with the NOTIFY request
+     * @param reasonCode the reason for the specified <tt>subscriptionState</tt>
+     * if any; <tt>null</tt> otherwise
      * @param content the content to be carried in the body of the sent NOTIFY
-     *            request
+     * request
      * @param sipProvider the <tt>SipProvider</tt> to send the NOTIFY
-     *            request through
-     * @throws OperationFailedException
+     * request through
+     *
+     * @throws OperationFailedException if sending the request fails.
      */
     private void sendReferNotifyRequest(Dialog dialog,
         String subscriptionState, String reasonCode, Object content,
@@ -2255,11 +2021,12 @@ public class OperationSetBasicTelephonySipImpl
      * Transfers (in the sense of call transfer) a specific
      * <tt>CallPeer</tt> to a specific callee address.
      *
-     * @param peer the <tt>CallPeer</tt> to be transfered to
-     *            the specified callee address
-     * @param target the <tt>Address</tt> the callee to transfer
-     *            <tt>peer</tt> to
-     * @throws OperationFailedException
+     * @param peer the <tt>CallPeer</tt> to be transfered to the specified
+     * callee address
+     * @param target the <tt>Address</tt> the callee to transfer <tt>peer</tt>
+     * to
+     * @throws OperationFailedException if creating or sending the transferring
+     * INVITE request fails.
      */
     private void transfer(CallPeer peer, Address target)
         throws OperationFailedException
@@ -2353,11 +2120,12 @@ public class OperationSetBasicTelephonySipImpl
      * transfer (though no such requirement is imposed).
      * </p>
      *
-     * @param peer the <tt>CallPeer</tt> to be transfered to
-     *            the specified callee address
-     * @param target the address in the form of <tt>CallPeer</tt> of
-     *            the callee to transfer <tt>peer</tt> to
-     * @throws OperationFailedException
+     * @param peer the <tt>CallPeer</tt> to be transfered to the specified
+     * callee address
+     * @param target the address in the form of <tt>CallPeer</tt> of the callee
+     * to transfer <tt>peer</tt> to
+     * @throws OperationFailedException if creating or sending the transferring
+     * INVITE request fails.
      */
     public void transfer(CallPeer peer, String target)
         throws OperationFailedException

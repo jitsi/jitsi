@@ -424,6 +424,49 @@ public class CallSipImpl
     }
 
     /**
+     * Creates an SDP description that could be sent to <tt>peer</tt> and adds
+     * it to
+     * <tt>response</tt>. Provides a hook for this instance to take last
+     * configuration steps on a specific <tt>Response</tt> before it is sent to
+     * a specific <tt>CallPeer</tt> as part of the execution of.
+     *
+     * @param peer the <tt>CallPeer</tt> to receive a specific <tt>Response</tt>
+     * @param response the <tt>Response</tt> to be sent to the <tt>peer</tt>
+     *
+     * @throws OperationFailedException if we fail parsing call peer's media.
+     * @throws ParseException if we try to attach invalid SDP to response.
+     */
+    private void attachSDPAnswer(Response response, CallPeerSipImpl peer)
+        throws OperationFailedException, ParseException
+    {
+        /*
+         * At the time of this writing, we're only getting called because a
+         * response to a call-hold invite is to be sent.
+         */
+
+        CallSession callSession =
+            ((CallSipImpl) peer.getCall()).getMediaCallSession();
+
+        String sdpAnswer = null;
+        try
+        {
+            sdpAnswer = callSession.processSdpOffer(
+                        peer, ((CallPeerSipImpl) peer).getSdpDescription());
+        }
+        catch (MediaException ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to create SDP answer to put-on/off-hold request.",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
+        }
+
+        response.setContent(
+            sdpAnswer,
+            getProtocolProvider().getHeaderFactory()
+                .createContentTypeHeader("application", "sdp"));
+    }
+
+    /**
      * Creates a new call peer associated with <tt>containingTransaction</tt>
      *
      * @param containingTransaction the transaction that created the call peer.
@@ -466,7 +509,6 @@ public class CallSipImpl
                                        ServerTransaction serverTransaction,
                                        CallPeerSipImpl   callPeerToReplace)
     {
-        Request request = serverTransaction.getRequest();
         CallPeerSipImpl newCallPeer
                     = createCallPeerFor(serverTransaction, jainSipProvider);
         try
@@ -503,12 +545,81 @@ public class CallSipImpl
         }
 
     }
+
+    /**
+     * Updates the media flags for
+     *
+     * @param callPeer the <tt>CallPeer</tt> who was sent a specific
+     * <tt>Response</tt>
+     * @param response the <tt>Response</tt> that has just been sent to the
+     * <tt>peer</tt>
+     * @throws OperationFailedException if we fail parsing callPeer's media.
+     */
+    private void setMediaFlagsForPeer(CallPeerSipImpl callPeer, Response response)
+        throws OperationFailedException
+    {
+        /*
+         * At the time of this writing, we're only getting called because a
+         * response to a call-hold invite is to be sent.
+         */
+
+        CallSession callSession = callPeer.getCall().getMediaCallSession();
+
+        int mediaFlags = 0;
+        try
+        {
+            mediaFlags = callSession .getSdpOfferMediaFlags(
+                            callPeer.getSdpDescription());
+        }
+        catch (MediaException ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to create SDP answer to put-on/off-hold request.",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
+        }
+
+        /*
+         * Comply with the request of the SDP offer with respect to putting on
+         * hold.
+         */
+        boolean on = ((mediaFlags & CallSession.ON_HOLD_REMOTELY) != 0);
+
+        callSession.putOnHold(on, false);
+
+        CallPeerState state = callPeer.getState();
+        if (CallPeerState.ON_HOLD_LOCALLY.equals(state))
+        {
+            if (on)
+                callPeer.setState(CallPeerState.ON_HOLD_MUTUALLY);
+        }
+        else if (CallPeerState.ON_HOLD_MUTUALLY.equals(state))
+        {
+            if (!on)
+                callPeer.setState(CallPeerState.ON_HOLD_LOCALLY);
+        }
+        else if (CallPeerState.ON_HOLD_REMOTELY.equals(state))
+        {
+            if (!on)
+                callPeer.setState(CallPeerState.CONNECTED);
+        }
+        else if (on)
+        {
+            callPeer.setState(CallPeerState.ON_HOLD_REMOTELY);
+        }
+
+        /*
+         * Reflect the request of the SDP offer with respect to the modification
+         * of the availability of media.
+         */
+        callSession.setReceiveStreaming(mediaFlags);
+    }
+
     /**
      * Ends the call with the specified <tt>peer</tt>. Depending on the state
      * of the call the method would send a CANCEL, BYE, or BUSY_HERE message
      * and set the new state to DISCONNECTED.
      *
-     * @param peer the peer that we'd like to hang up on.
+     * @param callPeer the peer that we'd like to hang up on.
      *
      * @throws OperationFailedException if we fail to terminate the call.
      */
@@ -700,9 +811,9 @@ public class CallSipImpl
      * Sends an OK response to <tt>callPeer</tt>. Make sure that the call
      * peer contains an sdp description when you call this method.
      *
-     * @param peer the call peer that we need to send the ok to.
+     * @param callPeer the call peer that we need to send the ok to.
      * @throws OperationFailedException if we fail to create or send the
-     *             response.
+     * response.
      */
     public synchronized void answerCallPeer(CallPeerSipImpl callPeer)
         throws OperationFailedException
@@ -834,13 +945,16 @@ public class CallSipImpl
     /**
      * Creates a new call and sends a RINGING response.
      *
-     * @param sourceProvider the provider containing <tt>sourceTransaction</tt>.
+     * @param jainSipProvider the provider containing
+     * <tt>sourceTransaction</tt>.
      * @param serverTransaction the transaction containing the received request.
-     * @param invite the Request that we've just received.
+     *
+     * @return CallPeerSipImpl the newly created call peer (the one that sent
+     * the INVITE).
      */
     public CallPeerSipImpl processInvite(SipProvider       jainSipProvider,
-                                         ServerTransaction serverTransaction)
-    {
+                    ServerTransaction serverTransaction)
+{
         Request invite = serverTransaction.getRequest();
 
         CallPeerSipImpl peer
@@ -864,13 +978,6 @@ public class CallSipImpl
             serverTransaction.sendResponse(response);
             logger.debug("sent a ringing response: " + response);
         }
-        catch (ParseException ex)
-        {
-            logger.error("Error while trying to create a response", ex);
-            peer.setState(CallPeerState.FAILED,
-                "Internal Error: " + ex.getMessage());
-            return peer;
-        }
         catch (Exception ex)
         {
             logger.error("Error while trying to send a request", ex);
@@ -882,6 +989,14 @@ public class CallSipImpl
         return peer;
     }
 
+    /**
+     * Reinitializes the media session of the <tt>CallPeer</tt> that this
+     * INVITE request is destined to.
+     *
+     * @param jainSipProvider the {@link SipProvider} that received the request.
+     * @param serverTransaction a reference to the {@link ServerTransaction}
+     * that contains the reINVITE request.
+     */
     public void processReInvite(SipProvider       jainSipProvider,
                                 ServerTransaction serverTransaction)
     {
