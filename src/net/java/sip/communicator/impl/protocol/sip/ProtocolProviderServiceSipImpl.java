@@ -39,6 +39,9 @@ public class ProtocolProviderServiceSipImpl
   implements SipListener,
              RegistrationStateChangeListener
 {
+    /**
+     * Our class logger.
+     */
     private static final Logger logger =
         Logger.getLogger(ProtocolProviderServiceSipImpl.class);
 
@@ -107,15 +110,8 @@ public class ProtocolProviderServiceSipImpl
         "net.java.sip.communicator.impl.protocol.sip.REGISTRATION_EXPIRATION";
 
     /**
-     * The name of the property under which the user may specify whether or not
-     * REGISTER requests should be using a route header. Default is false
-     */
-    private static final String REGISTERS_USE_ROUTE =
-        "net.java.sip.communicator.impl.protocol.sip.REGISTERS_USE_ROUTE";
-
-    /**
      * The name of the property under which the user may specify a transport
-     * to use for destinations whose prefererred transport is unknown.
+     * to use for destinations whose preferred transport is unknown.
      */
     private static final String DEFAULT_TRANSPORT
         = "net.java.sip.communicator.impl.protocol.sip.DEFAULT_TRANSPORT";
@@ -1962,6 +1958,26 @@ public class ProtocolProviderServiceSipImpl
     }
 
     /**
+     * Sends an ACK request in the specified dialog.
+     *
+     * @param clientTransaction the transaction that resulted in the ACK we are
+     * about to send (MUST be an INVITE transaction).
+     *
+     * @throws InvalidArgumentException if there is a problem with the supplied
+     * CSeq ( for example <= 0 ).
+     * @throws SipException if the CSeq does not relate to a previously sent
+     * INVITE or if the Method that created the Dialog is not an INVITE ( for
+     * example SUBSCRIBE) or if we fail to send the INVITE for whatever reason.
+     */
+    public void sendAck(ClientTransaction clientTransaction)
+        throws SipException, InvalidArgumentException
+    {
+            Request ack = messageFactory.createAck(clientTransaction);
+
+            clientTransaction.getDialog().sendAck(ack);
+    }
+
+    /**
      * Send an error response with the <tt>errorCode</tt> code using
      * <tt>serverTransaction</tt>.
      *
@@ -2067,82 +2083,90 @@ public class ProtocolProviderServiceSipImpl
         return new ArrayList<String>(methodProcessors.keySet());
     }
 
+    /**
+     * A utility class that allows us to block until we receive a
+     * <tt>RegistrationStateChangeEvent</tt> notifying us of an unregistration.
+     */
     private static class ShutdownUnregistrationBlockListener
         implements RegistrationStateChangeListener
     {
-            public List<RegistrationState> collectedNewStates =
+        /**
+         * The list where we store <tt>RegistationState</tt>s received while
+         * waiting.
+         */
+        public List<RegistrationState> collectedNewStates =
                                         new LinkedList<RegistrationState>();
 
-            /**
-             * The method would simply register all received events so that they
-             * could be available for later inspection by the unit tests. In the
-             * case where a registraiton event notifying us of a completed
-             * registration is seen, the method would call notifyAll().
-             *
-             * @param evt ProviderStatusChangeEvent the event describing the
-             * status change.
-             */
-            public void registrationStateChanged(RegistrationStateChangeEvent evt)
+        /**
+         * The method would simply register all received events so that they
+         * could be available for later inspection by the unit tests. In the
+         * case where a registration event notifying us of a completed
+         * registration is seen, the method would call notifyAll().
+         *
+         * @param evt ProviderStatusChangeEvent the event describing the
+         * status change.
+         */
+        public void registrationStateChanged(RegistrationStateChangeEvent evt)
+        {
+            logger.debug("Received a RegistrationStateChangeEvent: " + evt);
+
+            collectedNewStates.add(evt.getNewState());
+
+            if (evt.getNewState().equals(RegistrationState.UNREGISTERED))
             {
-                logger.debug("Received a RegistrationStateChangeEvent: " + evt);
-
-                collectedNewStates.add(evt.getNewState());
-
-                if (evt.getNewState().equals(RegistrationState.UNREGISTERED))
-                {
-                    logger.debug(
-                        "We're unregistered and will notify those who wait");
-                    synchronized (this)
-                    {
-                        notifyAll();
-                    }
-                }
-            }
-
-            /**
-             * Blocks until an event notifying us of the awaited state change is
-             * received or until waitFor miliseconds pass (whichever happens first).
-             *
-             * @param waitFor the number of miliseconds that we should be waiting
-             * for an event before simply bailing out.
-             */
-            public void waitForEvent(long waitFor)
-            {
-                logger.trace("Waiting for a "
-                             +"RegistrationStateChangeEvent.UNREGISTERED");
-
+                logger.debug(
+                    "We're unregistered and will notify those who wait");
                 synchronized (this)
                 {
-                    if (collectedNewStates.contains(
-                            RegistrationState.UNREGISTERED))
-                    {
-                        logger.trace("Event already received. "
-                                     + collectedNewStates);
-                        return;
-                    }
-
-                    try
-                    {
-                        wait(waitFor);
-
-                        if (collectedNewStates.size() > 0)
-                            logger.trace(
-                                "Received a RegistrationStateChangeEvent.");
-                        else
-                            logger.trace(
-                                "No RegistrationStateChangeEvent received for "
-                                + waitFor + "ms.");
-
-                    }
-                    catch (InterruptedException ex)
-                    {
-                        logger.debug(
-                            "Interrupted while waiting for a "
-                            +"RegistrationStateChangeEvent"
-                            , ex);
-                    }
+                    notifyAll();
                 }
             }
+        }
+
+        /**
+         * Blocks until an event notifying us of the awaited state change is
+         * received or until waitFor milliseconds pass (whichever happens first).
+         *
+         * @param waitFor the number of milliseconds that we should be waiting
+         * for an event before simply bailing out.
+         */
+        public void waitForEvent(long waitFor)
+        {
+            logger.trace("Waiting for a "
+                         +"RegistrationStateChangeEvent.UNREGISTERED");
+
+            synchronized (this)
+            {
+                if (collectedNewStates.contains(
+                        RegistrationState.UNREGISTERED))
+                {
+                    logger.trace("Event already received. "
+                                 + collectedNewStates);
+                    return;
+                }
+
+                try
+                {
+                    wait(waitFor);
+
+                    if (collectedNewStates.size() > 0)
+                        logger.trace(
+                            "Received a RegistrationStateChangeEvent.");
+                    else
+                        logger.trace(
+                            "No RegistrationStateChangeEvent received for "
+                            + waitFor + "ms.");
+
+                }
+                catch (InterruptedException ex)
+                {
+                    logger.debug(
+                        "Interrupted while waiting for a "
+                        +"RegistrationStateChangeEvent"
+                        , ex);
+                }
+            }
+        }
     }
 
     /**

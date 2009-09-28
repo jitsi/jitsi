@@ -1070,4 +1070,186 @@ public class CallSipImpl
             logger.error("Error after sending response " + response, ex);
         }
     }
+
+    /**
+     * Sets <tt>callPeer</tt>'s state to CONNECTED, sends an ACK and processes
+     * the SDP description in the <tt>ok</tt> <tt>Response</tt>.
+     * sends an ACK.
+     *
+     * @param clientTransaction the <tt>ClientTransaction</tt> that the response
+     * arrived in.
+     * @param ok the OK <tt>Response</tt> to process
+     * @param callPeer the peer that send the OK <tt>Response</tt>.
+     */
+    public void processInviteOK(ClientTransaction clientTransaction,
+                                 Response         ok,
+                                 CallPeerSipImpl  callPeer)
+    {
+        try
+        {
+            // Send the ACK. Do it now since we already got all the info we need
+            // and processSdpAnswer() can take a while (patch by Michael Koch)
+            getProtocolProvider().sendAck(clientTransaction);
+        }
+        catch (InvalidArgumentException ex)
+        {
+            // Shouldn't happen
+            CallSipImpl.logAndFailCallPeer(
+                            "Error creating an ACK (CSeq?)", ex, callPeer);
+            return;
+        }
+        catch (SipException ex)
+        {
+            CallSipImpl.logAndFailCallPeer(
+                            "Failed to create ACK request!", ex, callPeer);
+            return;
+        }
+
+        // !!! set SDP content before setting call state as that is where
+        // listeners get alerted and they need the SDP
+        // ignore SDP if we've just had one in early media
+        if(!CallPeerState.CONNECTING_WITH_EARLY_MEDIA
+               .equals(callPeer.getState()))
+        {
+            callPeer.setSdpDescription(new String(ok.getRawContent()));
+        }
+
+        // notify the media manager of the sdp content
+        CallSession callSession = callPeer.getCall().getMediaCallSession();
+
+        try
+        {
+             //Process SDP unless we've just had an answer in a 18X response
+            CallPeerState callPeerState = callPeer.getState();
+            if (!CallPeerState.CONNECTING_WITH_EARLY_MEDIA
+                    .equals(callPeerState))
+            {
+                callSession.processSdpAnswer(
+                                callPeer, callPeer.getSdpDescription());
+            }
+
+            // set the call url in case there was one
+            callPeer.setCallInfoURL(callSession.getCallInfoURL());
+        }
+        //at this point we have already sent our ack so in addition to logging
+        //an error we also need to hangup the call peer.
+        catch (Exception exc)//Media or parse exception.
+        {
+            logger.error("There was an error parsing the SDP description of "
+                             + callPeer.getDisplayName()
+                             + "(" + callPeer.getAddress() + ")",
+                         exc);
+            try
+            {
+                //we are connected from a SIP point of view (cause we sent our
+                //ACK) so make sure we set the state accordingly or the hangup
+                //method won't know how to end the call.
+                callPeer.setState(CallPeerState.CONNECTED);
+                hangupCallPeer(callPeer);
+            }
+            catch (Exception e)
+            {
+                //I don't see what more we could do.
+                logger.error(e);
+                callPeer.setState(CallPeerState.FAILED,
+                                         e.getMessage());
+            }
+            return;
+        }
+
+        // change status
+        if (!CallPeerState.isOnHold(callPeer.getState()))
+            callPeer.setState(CallPeerState.CONNECTED);
+    }
+
+    /**
+     * Logs <tt>message</tt> and <tt>cause</tt> and sets <tt>peer</tt> state
+     * to <tt>CallPeerState.FAILED</tt>
+     *
+     * @param message a message to log and display to the user.
+     * @param throwable the exception that cause the error we are logging
+     * @param peer the peer that caused the error and that we are failing.
+     */
+    public static void logAndFailCallPeer(String message,
+        Throwable throwable, CallPeerSipImpl peer)
+    {
+        logger.error(message, throwable);
+        peer.setState(CallPeerState.FAILED, message);
+    }
+
+    /**
+     * Handles early media in 183 Session Progress responses. Retrieves the SDP
+     * and makes sure that we start transmitting and playing early media that we
+     * receive. Puts the call into a CONNECTING_WITH_EARLY_MEDIA state.
+     *
+     * @param tran the <tt>ClientTransaction</tt> that the response
+     * arrived in.
+     * @param response the 183 <tt>Response</tt> to process
+     * @param peer the peer that the <tt>Response</tt> is pertaining to.
+     */
+    public void processSessionProgress(ClientTransaction tran,
+        Response response, CallPeerSipImpl peer)
+    {
+
+        if (response.getContentLength().getContentLength() == 0)
+        {
+            logger.debug("Ignoring a 183 with no content");
+            return;
+        }
+
+        ContentTypeHeader contentTypeHeader = (ContentTypeHeader) response
+                .getHeader(ContentTypeHeader.NAME);
+
+        if (!contentTypeHeader.getContentType().equalsIgnoreCase("application")
+            || !contentTypeHeader.getContentSubType().equalsIgnoreCase("sdp"))
+        {
+            //This can happen when receiving early media for a second time.
+            logger.warn("Ignoring invite 183 since call peer is "
+                + "already exchanging early media.");
+            return;
+        }
+
+        // set sdp content before setting call state as that is where
+        // listeners get alerted and they need the sdp
+        peer.setSdpDescription(new String(response.getRawContent()));
+
+        // notify the media manager of the sdp content
+        CallSession callSession = peer.getCall().getMediaCallSession();
+
+        if (callSession == null)
+        {
+            // unlikely to happen because it would mean we didn't send an offer
+            // in the invite and we always send one.
+            logger.warn("Could not find call session.");
+            return;
+        }
+
+        try
+        {
+            callSession.processSdpAnswer(peer, peer.getSdpDescription());
+        }
+        catch (ParseException exc)
+        {
+            CallSipImpl.logAndFailCallPeer(
+                "There was an error parsing the SDP description of "
+                + peer.getDisplayName() + "("
+                + peer.getAddress() + ")", exc, peer);
+            return;
+        }
+        catch (MediaException exc)
+        {
+            CallSipImpl.logAndFailCallPeer(
+                "We failed to process the SDP description of "
+                + peer.getDisplayName() + "("
+                + peer.getAddress() + ")" + ". Error was: "
+                + exc.getMessage(), exc, peer);
+            return;
+        }
+
+        // set the call url in case there was one
+        peer.setCallInfoURL(callSession.getCallInfoURL());
+
+        // change status
+        peer.setState(CallPeerState.CONNECTING_WITH_EARLY_MEDIA);
+    }
 }

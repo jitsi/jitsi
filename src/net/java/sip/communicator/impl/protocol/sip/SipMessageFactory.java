@@ -331,8 +331,10 @@ public class SipMessageFactory
         attachContactHeader(message);
 
 
-        // If this is a SIP request then let's try to pre-authenticate it.
-        if(message instanceof Request)
+        // If this is a SIP request (other than ACK) then let's try to
+        // pre-authenticate it.
+        if(message instanceof Request
+           && !Request.ACK.equals(((Request)message).getMethod()))
         {
             preAuthenticateRequest((Request)message);
         }
@@ -428,7 +430,7 @@ public class SipMessageFactory
      * synchronized: needed for access to 'rand', else risk to generate same tag
      * twice
      */
-    public static synchronized String generateLocalTag()
+    private synchronized String generateLocalTag()
     {
         if(localTagGenerator == null)
             localTagGenerator = new Random();
@@ -570,7 +572,7 @@ public class SipMessageFactory
         Header replacesHeader = stripReplacesHeader(toAddress);
 
         // FromHeader
-        String localTag = SipMessageFactory.generateLocalTag();
+        String localTag = generateLocalTag();
         FromHeader fromHeader = null;
         ToHeader toHeader = null;
         try
@@ -751,6 +753,35 @@ public class SipMessageFactory
             }
         }
         return replacesHeader;
+    }
+
+    /**
+     * Creates an ACK request that can be sent in the context of
+     * <tt>clientTransaction</tt>'s <tt>Dialog</tt>.
+     *
+     * @param clientTransaction the transaction that caused us to send an Ack.
+     *
+     * @return the newly created ACK <tt>Request</tt>.
+     *
+     * @throws InvalidArgumentException if there is a problem with the supplied
+     * CSeq ( for example <= 0 ).
+     * @throws SipException if the CSeq does not relate to a previously sent
+     * INVITE or if the Method that created the Dialog is not an INVITE ( for
+     * example SUBSCRIBE)
+     */
+    public Request createAck(ClientTransaction clientTransaction)
+        throws InvalidArgumentException, SipException
+    {
+        // Need to use dialog generated ACKs so that the remote UA core
+        // sees them - Fixed by M.Ranganathan
+        CSeqHeader cseq = ((CSeqHeader) clientTransaction.getRequest()
+                        .getHeader(CSeqHeader.NAME));
+        Request ack = clientTransaction.getDialog()
+            .createAck(cseq.getSeqNumber());
+
+        attachScSpecifics(ack);
+
+        return ack;
     }
 
     /**

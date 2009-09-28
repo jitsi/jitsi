@@ -643,21 +643,19 @@ public class OperationSetBasicTelephonySipImpl
      * and makes sure that we start transmitting and playing early media that we
      * receive. Puts the call into a CONNECTING_WITH_EARLY_MEDIA state.
      *
-     * @param clientTransaction the <tt>ClientTransaction</tt> that the response
+     * @param tran the <tt>ClientTransaction</tt> that the response
      *            arrived in.
-     * @param sessionProgress the 183 <tt>Response</tt> to process
+     * @param response the 183 <tt>Response</tt> to process
      */
-    private void processSessionProgress(ClientTransaction clientTransaction,
-        Response sessionProgress)
+    private void processSessionProgress(ClientTransaction tran,
+                                        Response          response)
     {
 
-        Dialog dialog = clientTransaction.getDialog();
+        Dialog dialog = tran.getDialog();
         // find the call
-        CallPeerSipImpl callPeer =
-            activeCallsRepository.findCallPeer(dialog);
+        CallPeerSipImpl callPeer = activeCallsRepository.findCallPeer(dialog);
 
-        if (callPeer.getState()
-                == CallPeerState.CONNECTING_WITH_EARLY_MEDIA)
+        if (callPeer.getState() == CallPeerState.CONNECTING_WITH_EARLY_MEDIA)
         {
             // This can happen if we are receiving early media for a second time.
             logger.warn("Ignoring invite 183 since call peer is "
@@ -665,74 +663,7 @@ public class OperationSetBasicTelephonySipImpl
             return;
         }
 
-        if (sessionProgress.getContentLength().getContentLength() == 0)
-        {
-            logger.warn("Ignoring a 183 with no content");
-            return;
-        }
-
-        ContentTypeHeader contentTypeHeader =
-            (ContentTypeHeader) sessionProgress
-                .getHeader(ContentTypeHeader.NAME);
-
-        if (!contentTypeHeader.getContentType().equalsIgnoreCase("application")
-            || !contentTypeHeader.getContentSubType().equalsIgnoreCase("sdp"))
-        {
-            // This can happen if we are receiving early media for a second time.
-            logger.warn("Ignoring invite 183 since call peer is "
-                + "already exchanging early media.");
-            return;
-        }
-
-        // set sdp content before setting call state as that is where
-        // listeners get alerted and they need the sdp
-        callPeer.setSdpDescription(new String(sessionProgress
-            .getRawContent()));
-
-        // notify the media manager of the sdp content
-        CallSession callSession =
-            ((CallSipImpl) callPeer.getCall()).getMediaCallSession();
-
-        if (callSession == null)
-        {
-            // unlikely to happen because it would mean we didn't send an offer
-            // in the invite and we always send one.
-            logger.warn("Could not find call session.");
-            return;
-        }
-
-        try
-        {
-            callSession.processSdpAnswer(callPeer, new String(
-                sessionProgress.getRawContent()));
-        }
-        catch (ParseException exc)
-        {
-            logAndFailCallPeer(
-                "There was an error parsing the SDP description of "
-                    + callPeer.getDisplayName() + "("
-                    + callPeer.getAddress() + ")", exc, callPeer);
-            return;
-        }
-        catch (MediaException exc)
-        {
-            logAndFailCallPeer(
-                "We failed to process the SDP description of "
-                    + callPeer.getDisplayName() + "("
-                    + callPeer.getAddress() + ")" + ". Error was: "
-                    + exc.getMessage(), exc, callPeer);
-            return;
-        }
-
-        // set the call url in case there was one
-        /**
-         * @todo this should be done in CallSession, once we move it here.
-         */
-        callPeer.setCallInfoURL(callSession.getCallInfoURL());
-
-        // change status
-        callPeer
-            .setState(CallPeerState.CONNECTING_WITH_EARLY_MEDIA);
+        callPeer.getCall().processSessionProgress(tran, response, callPeer);
     }
 
     /**
@@ -775,114 +706,7 @@ public class OperationSetBasicTelephonySipImpl
             callPeer.setDialog(dialog);
         }
 
-        /*
-         * Receiving an Invite OK is allowed even when the peer is
-         * already connected. Examples include call hold, enabling/disabling the
-         * streaming of local video while in a call.
-         */
-
-        //ACK
-        try
-        {
-            // Need to use dialog generated ACKs so that the remote UA core
-            // sees them - Fixed by M.Ranganathan
-            CSeqHeader cseq = ((CSeqHeader) ok.getHeader(CSeqHeader.NAME));
-            Request ack = clientTransaction.getDialog()
-                .createAck(cseq.getSeqNumber());
-
-            // Send the ACK now since we already got all the info we need,
-            // and callSession.processSdpAnswer can take a few seconds.
-            // (patch by Michael Koch)
-            clientTransaction.getDialog().sendAck(ack);
-        }
-        catch (InvalidArgumentException ex)
-        {
-            // Shouldn't happen
-            logAndFailCallPeer("Error creating an ACK (CSeq?)", ex, callPeer);
-            return;
-        }
-        catch (SipException ex)
-        {
-            logAndFailCallPeer("Failed to create ACK request!", ex, callPeer);
-            return;
-        }
-
-        // !!! set SDP content before setting call state as that is where
-        // listeners get alerted and they need the SDP
-        // ignore SDP if we have already received one in early media
-        if(!CallPeerState.CONNECTING_WITH_EARLY_MEDIA
-               .equals(callPeer.getState()))
-        {
-            callPeer.setSdpDescription(new String(ok.getRawContent()));
-        }
-
-        // notify the media manager of the sdp content
-        CallSession callSession = callPeer.getCall().getMediaCallSession();
-
-        try
-        {
-            /*
-             * We used to not process the SDP if we had already received one in
-             * early media. But functionality using re-invites (e.g. toggling
-             * the streaming of local video while in a call) may need to process
-             * the SDP (e.g. because of re-negotiating the media after toggling
-             * the streaming of local video).
-             */
-            CallPeerState callPeerState = callPeer.getState();
-            if (!CallPeerState.CONNECTING_WITH_EARLY_MEDIA
-                    .equals(callPeerState))
-            {
-                callSession.processSdpAnswer(
-                                callPeer, callPeer.getSdpDescription());
-            }
-
-            // set the call url in case there was one
-            callPeer.setCallInfoURL(callSession.getCallInfoURL());
-        }
-        //at this point we have already sent our ack so in addition to logging
-        //an error we also need to hangup the call peer.
-        catch (Exception exc)//Media or parse exception.
-        {
-            logger.error("There was an error parsing the SDP description of "
-                             + callPeer.getDisplayName()
-                             + "(" + callPeer.getAddress() + ")",
-                         exc);
-            try
-            {
-                //we are connected from a SIP point of view (cause we sent our
-                //ack) so make sure we set the state accordingly or the hangup
-                //method won't know how to end the call.
-                callPeer.setState(CallPeerState.CONNECTED);
-                hangupCallPeer(callPeer);
-            }
-            catch (Exception e)
-            {
-                //I don't see what more we could do.
-                logger.error(e);
-                callPeer.setState(CallPeerState.FAILED,
-                                         e.getMessage());
-            }
-            return;
-        }
-
-        // change status
-        if (!CallPeerState.isOnHold(callPeer.getState()))
-            callPeer.setState(CallPeerState.CONNECTED);
-    }
-
-    /**
-     * Logs <tt>message</tt> and <tt>cause</tt> and sets <tt>peer</tt> state
-     * to <tt>CallPeerState.FAILED</tt>
-     *
-     * @param message a message to log and display to the user.
-     * @param throwable the exception that cause the error we are logging
-     * @param peer the peer that caused the error and that we are failing.
-     */
-    private void logAndFailCallPeer(String message,
-        Throwable throwable, CallPeerSipImpl peer)
-    {
-        logger.error(message, throwable);
-        peer.setState(CallPeerState.FAILED, message);
+        callPeer.getCall().processInviteOK(clientTransaction, ok, callPeer);
     }
 
     /**
@@ -937,8 +761,8 @@ public class OperationSetBasicTelephonySipImpl
         {
             logger.debug("Authenticating an INVITE request.");
 
-            ClientTransaction retryTran =
-                protocolProvider.getSipSecurityManager().handleChallenge(
+            ClientTransaction retryTran = protocolProvider
+                .getSipSecurityManager().handleChallenge(
                     response, clientTransaction, jainSipProvider);
 
             if (retryTran == null)
@@ -948,8 +772,8 @@ public class OperationSetBasicTelephonySipImpl
             }
 
             // There is a new dialog that will be started with this request. Get
-            // that dialog and record it into the Call objet for later use (by
-            // Bye-s for example).
+            // that dialog and record it into the Call object for later use (by
+            // BYEs for example).
             // if the request was BYE then we need to authorize it anyway even
             // if the call and the call peer are no longer there
             if (callPeer != null)
@@ -962,10 +786,9 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (Exception exc)
         {
-            // tell the others we couldn't register
-            logAndFailCallPeer(
-                "We failed to authenticate an INVITE request.", exc,
-                callPeer);
+            // tell the others we couldn't authenticate
+            CallSipImpl.logAndFailCallPeer(
+                            "Failed to authenticate.", exc, callPeer);
             return;
         }
     }
@@ -1282,14 +1105,14 @@ public class OperationSetBasicTelephonySipImpl
         }
         catch (ParseException ex)
         {
-            logAndFailCallPeer(
+            CallSipImpl.logAndFailCallPeer(
                 "Failed to create an OK Response to an CANCEL request.", ex,
                 callPeer);
             return;
         }
         catch (Exception ex)
         {
-            logAndFailCallPeer(
+            CallSipImpl.logAndFailCallPeer(
                 "Failed to send an OK Response to an CANCEL request.", ex,
                 callPeer);
             return;
@@ -1790,11 +1613,11 @@ public class OperationSetBasicTelephonySipImpl
      * CallPeer.
      *
      * Sends an OK response to <tt>callPeer</tt>. Make sure that the call
-     * peer contains an sdp description when you call this method.
+     * peer contains an SDP description when you call this method.
      *
      * @param peer the call peer that we need to send the ok to.
      * @throws OperationFailedException if we fail to create or send the
-     *             response.
+     * response.
      * @throws ClassCastException if <tt>peer</tt> is not an instance of a
      * <tt>CallPeerSipImpl</tt>
      */
@@ -1861,17 +1684,16 @@ public class OperationSetBasicTelephonySipImpl
      * The implementation sends silence through the audio stream.
      * </p>
      *
-     * @param peer the <tt>CallPeer</tt> who receives the audio
-     *            stream to have its mute state set
+     * @param peer the <tt>CallPeer</tt> who receives the audio stream to have
+     * its mute state set
      * @param mute <tt>true</tt> to mute the audio stream being sent to
-     *            <tt>peer</tt>; otherwise, <tt>false</tt>
+     * <tt>peer</tt>; otherwise, <tt>false</tt>
      */
     public void setMute(CallPeer peer, boolean mute)
     {
         CallPeerSipImpl sipPeer = (CallPeerSipImpl) peer;
 
-        ((CallSipImpl) sipPeer.getCall())
-            .getMediaCallSession().setMute(mute);
+        ((CallSipImpl) sipPeer.getCall()).getMediaCallSession().setMute(mute);
 
         sipPeer.setMute(mute);
     }
@@ -1885,8 +1707,7 @@ public class OperationSetBasicTelephonySipImpl
      */
     public boolean isSecure(CallPeer peer)
     {
-        CallSession cs
-            = ((CallSipImpl) peer.getCall()).getMediaCallSession();
+        CallSession cs= ((CallSipImpl) peer.getCall()).getMediaCallSession();
 
         return (cs != null) && cs.getSecureCommunicationStatus();
     }
@@ -2028,11 +1849,11 @@ public class OperationSetBasicTelephonySipImpl
      * Parses a specific string into a JAIN SIP <tt>Address</tt>.
      *
      * @param addressString the <tt>String</tt> to be parsed into an
-     *            <tt>Address</tt>
+     * <tt>Address</tt>
      * @return the <tt>Address</tt> representation of
-     *         <tt>addressString</tt>
+     * <tt>addressString</tt>
      * @throws OperationFailedException if <tt>addressString</tt> is not
-     *             properly formatted
+     * properly formatted
      */
     private Address parseAddressString(String addressString)
         throws OperationFailedException
