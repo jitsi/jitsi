@@ -89,9 +89,15 @@ public class OperationSetBasicInstantMessagingIcqImpl
      */
     private final static long KEEPALIVE_WAIT = 20000l; //20 secs
 
-    private final String defaultHtmlStartTag = "<HTML><BODY>";
+    /**
+     * The piece of HTML code which starts an HTML message.
+     */
+    private static final String HTML_START_TAG = "<HTML><BODY>";
 
-    private final String defaultHtmlEndTag = "</BODY></HTML>";
+    /**
+     * The piece of HTML code which ends an HTML message.
+     */
+    private static final String HTML_END_TAG = "</BODY></HTML>";
 
     /**
      * The task sending packets
@@ -159,14 +165,15 @@ public class OperationSetBasicInstantMessagingIcqImpl
                 getImConversation(
                     new Screenname(to.getAddress()));
 
+        /*
+         * FIXME Does the fact that messageContent is not used mean that HTML
+         * messages are not correctly constructed?
+         */ 
         String messageContent;
         if (message.getContentType().equals(HTML_MIME_TYPE)
-            && !message.getContent().startsWith(defaultHtmlStartTag))
-        {
-            messageContent = defaultHtmlStartTag
-                                + message.getContent()
-                                + defaultHtmlEndTag;
-        }
+                && !message.getContent().startsWith(HTML_START_TAG))
+            messageContent
+                = HTML_START_TAG + message.getContent() + HTML_END_TAG;
         else
             messageContent = message.getContent();
 
@@ -487,7 +494,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
         {
             String msgBody = minfo.getMessage().getMessageBody();
 
-            if(logger.isDebugEnabled())
+            if (logger.isDebugEnabled())
                 logger.debug("Received from "
                              + conversation.getBuddy()
                              + " the message "
@@ -503,12 +510,11 @@ public class OperationSetBasicInstantMessagingIcqImpl
 
             String msgContent;
             String msgContentType;
-            if (msgBody.startsWith(defaultHtmlStartTag))
+            if (msgBody.startsWith(HTML_START_TAG))
             {
                 msgContent = msgBody.substring(
-                    msgBody.indexOf(defaultHtmlStartTag)
-                        + defaultHtmlStartTag.length(),
-                    msgBody.indexOf(defaultHtmlEndTag));
+                    msgBody.indexOf(HTML_START_TAG) + HTML_START_TAG.length(),
+                    msgBody.indexOf(HTML_END_TAG));
 
                 msgContentType = HTML_MIME_TYPE;
             }
@@ -551,13 +557,10 @@ public class OperationSetBasicInstantMessagingIcqImpl
                 new MessageReceivedEvent(newMessage, sourceContact, msgDate);
 
             // msgReceivedEvt = messageReceivedTransform(msgReceivedEvt);
-            
-            if (msgReceivedEvt != null)
-            {
-                logger.debug("fire msg received for : " +
-                    newMessage);
-                fireMessageEvent(msgReceivedEvt);
-            }
+
+            if (logger.isDebugEnabled())
+                logger.debug("fire msg received for : " + newMessage);
+            fireMessageEvent(msgReceivedEvt);
         }
 
         public void sentOtherEvent(Conversation conversation,
