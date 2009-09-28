@@ -455,7 +455,7 @@ public class CallSipImpl
      * @throws OperationFailedException if we fail parsing call peer's media.
      * @throws ParseException if we try to attach invalid SDP to response.
      */
-    private void attachSdpHoldAnswer(Response response, CallPeerSipImpl peer)
+    private void attachSdpAnswer(Response response, CallPeerSipImpl peer)
         throws OperationFailedException, ParseException
     {
         /*
@@ -469,7 +469,7 @@ public class CallSipImpl
         try
         {
             sdpAnswer = callSession.processSdpOffer(
-                        peer, ((CallPeerSipImpl) peer).getSdpDescription());
+                        peer, peer.getSdpDescription());
         }
         catch (MediaException ex)
         {
@@ -579,10 +579,11 @@ public class CallSipImpl
      * @param callPeer the <tt>CallPeer</tt> who was sent a specific
      * <tt>Response</tt>
      * @param response the <tt>Response</tt> that has just been sent to the
-     * <tt>peer</tt>
+     * <tt>callPeer</tt>
      * @throws OperationFailedException if we fail parsing callPeer's media.
      */
-    private void setMediaFlagsForPeer(CallPeerSipImpl callPeer, Response response)
+    private void setMediaFlagsForPeer(CallPeerSipImpl callPeer,
+                                      Response        response)
         throws OperationFailedException
     {
         /*
@@ -1027,7 +1028,46 @@ public class CallSipImpl
     public void processReInvite(SipProvider       jainSipProvider,
                                 ServerTransaction serverTransaction)
     {
-        Request request = serverTransaction.getRequest();
+        Request invite = serverTransaction.getRequest();
 
+        CallPeerSipImpl callPeer = findCallPeer(serverTransaction.getDialog());
+
+        callPeer.setFirstTransaction(serverTransaction);
+
+        // sdp description may be in acks - bug report Laurent Michel
+        ContentLengthHeader cl = invite.getContentLength();
+        if (cl != null && cl.getContentLength() > 0)
+        {
+            callPeer.setSdpDescription(new String(invite.getRawContent()));
+        }
+
+        Response response = null;
+        try
+        {
+            response = messageFactory.createResponse(Response.OK, invite);
+            attachSdpAnswer(response, callPeer);
+
+            logger.trace("will send an OK response: ");
+            serverTransaction.sendResponse(response);
+            logger.debug("sent a an OK response: "+ response);
+        }
+        catch (Exception ex)//no need to distinguish among exceptions.
+        {
+            logger.error("Error while trying to send a response", ex);
+            callPeer.setState(CallPeerState.FAILED,
+                "Internal Error: " + ex.getMessage());
+            getProtocolProvider().sayErrorSilently(
+                            serverTransaction, Response.SERVER_INTERNAL_ERROR);
+            return;
+        }
+
+        try
+        {
+            this.setMediaFlagsForPeer(callPeer, response);
+        }
+        catch (OperationFailedException ex)
+        {
+            logger.error("Error after sending response " + response, ex);
+        }
     }
 }

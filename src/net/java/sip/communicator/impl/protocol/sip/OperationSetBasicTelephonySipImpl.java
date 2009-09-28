@@ -748,12 +748,10 @@ public class OperationSetBasicTelephonySipImpl
     {
         Dialog dialog = clientTransaction.getDialog();
         // find the call
-        CallPeerSipImpl callPeer =
-            activeCallsRepository.findCallPeer(dialog);
+        CallPeerSipImpl callPeer = activeCallsRepository.findCallPeer(dialog);
 
         if (callPeer == null)
         {
-
             /*
              * In case of forwarding a call, the dialog may have forked. If the
              * dialog is forked, we must end early state dialogs by replacing
@@ -767,12 +765,10 @@ public class OperationSetBasicTelephonySipImpl
             while (activeCallsIter.hasNext())
             {
                 CallSipImpl activeCall = activeCallsIter.next();
-                Iterator<CallPeer> callPeersIter =
-                    activeCall.getCallPeers();
+                Iterator<CallPeer> callPeersIter = activeCall.getCallPeers();
                 while (callPeersIter.hasNext())
                 {
-                    CallPeerSipImpl cp =
-                        (CallPeerSipImpl) callPeersIter.next();
+                    CallPeerSipImpl cp = (CallPeerSipImpl) callPeersIter.next();
                     Dialog callPartDialog = cp.getDialog();
                     // check if peer in same call
                     // and has the same transaction
@@ -818,9 +814,8 @@ public class OperationSetBasicTelephonySipImpl
 
             // content type should be application/sdp (not applications)
             // reported by Oleg Shevchenko (Miratech)
-            contentTypeHeader =
-                protocolProvider.getHeaderFactory().createContentTypeHeader(
-                    "application", "sdp");
+            contentTypeHeader = protocolProvider.getHeaderFactory()
+                .createContentTypeHeader( "application", "sdp" );
         }
         catch (ParseException ex)
         {
@@ -883,13 +878,12 @@ public class OperationSetBasicTelephonySipImpl
                      * @todo this should be done in CallSession, once we move it
                      *       here.
                      */
-                    callPeer
-                        .setCallInfoURL(callSession.getCallInfoURL());
+                    callPeer.setCallInfoURL(callSession.getCallInfoURL());
                 }
             }
             finally
             {
-                // Send the ACK now since we got all the info we need,
+                // Send the ACK now since we already got all the info we need,
                 // and callSession.processSdpAnswer can take a few seconds.
                 // (patch by Michael Koch)
                 try
@@ -917,8 +911,7 @@ public class OperationSetBasicTelephonySipImpl
                     .equals(callPeerState))
             {
                 callSession.processSdpAnswer(
-                    callPeer,
-                    callPeer.getSdpDescription());
+                                callPeer, callPeer.getSdpDescription());
             }
 
             // set the call url in case there was one
@@ -958,6 +951,14 @@ public class OperationSetBasicTelephonySipImpl
             callPeer.setState(CallPeerState.CONNECTED);
     }
 
+    /**
+     * Logs <tt>message</tt> and <tt>cause</tt> and sets <tt>peer</tt> state
+     * to <tt>CallPeerState.FAILED</tt>
+     *
+     * @param message a message to log and display to the user.
+     * @param throwable the exception that cause the error we are logging
+     * @param peer the peer that caused the error and that we are failing.
+     */
     private void logErrorAndFailCallPeer(String message,
         Throwable throwable, CallPeerSipImpl peer)
     {
@@ -973,12 +974,11 @@ public class OperationSetBasicTelephonySipImpl
      * @param busyHere the busy here Response
      */
     private void processBusyHere(ClientTransaction clientTransaction,
-        Response busyHere)
+                                 Response          busyHere)
     {
         Dialog dialog = clientTransaction.getDialog();
         // find the call
-        CallPeerSipImpl callPeer =
-            activeCallsRepository.findCallPeer(dialog);
+        CallPeerSipImpl callPeer = activeCallsRepository.findCallPeer(dialog);
 
         if (callPeer == null)
         {
