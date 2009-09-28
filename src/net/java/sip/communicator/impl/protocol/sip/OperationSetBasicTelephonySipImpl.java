@@ -148,7 +148,7 @@ public class OperationSetBasicTelephonySipImpl
      *
      * @param calleeAddress the address of the callee that we'd like to connect
      *            with.
-     * @param cause the <code>Message</code>, if any, which is the cause for the
+     * @param cause the <tt>Message</tt>, if any, which is the cause for the
      *            outgoing call to be placed and which carries additional
      *            information to be included in the call initiation (e.g. a
      *            Referred-To header and token)
@@ -316,20 +316,20 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Copies and possibly modifies information from a given SIP
-     * <code>Message</code> into another SIP <code>Message</code> (the first of
+     * <tt>Message</tt> into another SIP <tt>Message</tt> (the first of
      * which is being thought of as the cause for the existence of the second
      * and the second is considered the effect of the first for the sake of
      * clarity in the most common of use cases).
      * <p>
      * The Referred-By header and its optional token are common examples of such
      * information which is to be copied without modification by the referee
-     * from the REFER <code>Request</code> into the resulting <code>Request</code>
+     * from the REFER <tt>Request</tt> into the resulting <tt>Request</tt>
      * to the refer target.
      * </p>
      *
-     * @param cause the SIP <code>Message</code> from which the information is
+     * @param cause the SIP <tt>Message</tt> from which the information is
      *            to be copied
-     * @param effect the SIP <code>Message</code> into which the information is
+     * @param effect the SIP <tt>Message</tt> into which the information is
      *            to be copied
      */
     private void reflectCauseOnEffect(javax.sip.message.Message cause,
@@ -475,16 +475,16 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
-     * Sends a specific <code>Request</code> through a given
-     * <code>SipProvider</code> as part of the conversation associated with a
-     * specific <code>Dialog</code>.
+     * Sends a specific <tt>Request</tt> through a given
+     * <tt>SipProvider</tt> as part of the conversation associated with a
+     * specific <tt>Dialog</tt>.
      *
-     * @param sipProvider the <code>SipProvider</code> to send the specified
+     * @param sipProvider the <tt>SipProvider</tt> to send the specified
      *            request through
-     * @param request the <code>Request</code> to send through
-     *            <code>sipProvider</code>
-     * @param dialog the <code>Dialog</code> as part of which the specified
-     *            <code>request</code> is to be sent
+     * @param request the <tt>Request</tt> to send through
+     *            <tt>sipProvider</tt>
+     * @param dialog the <tt>Dialog</tt> as part of which the specified
+     *            <tt>request</tt> is to be sent
      * @throws OperationFailedException
      */
     private void sendRequest(SipProvider sipProvider, Request request,
@@ -767,13 +767,13 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
-     * Processes a specific <code>Response.ACCEPTED</code> response of an
-     * earlier <code>Request.REFER</code> request.
+     * Processes a specific <tt>Response.ACCEPTED</tt> response of an
+     * earlier <tt>Request.REFER</tt> request.
      *
-     * @param clientTransaction the <code>ClientTransaction</code> which brought
+     * @param clientTransaction the <tt>ClientTransaction</tt> which brought
      *            the response
-     * @param accepted the <code>Response.ACCEPTED</code> response to an earlier
-     *            <code>Request.REFER</code> request
+     * @param accepted the <tt>Response.ACCEPTED</tt> response to an earlier
+     *            <tt>Request.REFER</tt> request
      */
     private void processReferAccepted(ClientTransaction clientTransaction,
         Response accepted)
@@ -1282,7 +1282,7 @@ public class OperationSetBasicTelephonySipImpl
      * the specific timeout type and the transaction identifier either client or
      * server upon which the timeout occurred. The type of Timeout can by
      * determined by:
-     * <code>timeoutType = timeoutEvent.getTimeout().getValue();</code>
+     * <tt>timeoutType = timeoutEvent.getTimeout().getValue();</tt>
      *
      * @param timeoutEvent the timeoutEvent received indicating either the
      *            message retransmit or transaction timed out.
@@ -1479,15 +1479,15 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
-     * Returns the <code>ReplacesHeader</code> contained, if any, in the
-     * <code>URI</code> of a specific <code>Address</code> after removing it
+     * Returns the <tt>ReplacesHeader</tt> contained, if any, in the
+     * <tt>URI</tt> of a specific <tt>Address</tt> after removing it
      * from there.
      *
-     * @param address the <code>Address</code> which is to have its
-     *            <code>URI</code> examined and modified
-     * @return a <code>Header</code> which represents the Replaces header
-     *         contained in the <code>URI</code> of the specified
-     *         <code>address</code>; <code>null</code> if no such header is
+     * @param address the <tt>Address</tt> which is to have its
+     *            <tt>URI</tt> examined and modified
+     * @return a <tt>Header</tt> which represents the Replaces header
+     *         contained in the <tt>URI</tt> of the specified
+     *         <tt>address</tt>; <tt>null</tt> if no such header is
      *         present
      */
     private Header stripReplacesHeader(Address address)
@@ -1737,12 +1737,12 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Determines whether an INVITE request which has initiated a specific
-     * <code>Dialog</code> is properly addressed.
+     * <tt>Dialog</tt> is properly addressed.
      *
-     * @param dialog the <code>Dialog</code> which has been initiated by the
+     * @param dialog the <tt>Dialog</tt> which has been initiated by the
      *            INVITE request to be checked
      * @return <tt>true</tt> if the INVITE request represented by the specified
-     *         <code>Dialog</code> is properly addressed; <tt>false</tt>,
+     *         <tt>Dialog</tt> is properly addressed; <tt>false</tt>,
      *         otherwise
      */
     private boolean isInviteProperlyAddressed(Dialog dialog)
@@ -2111,10 +2111,10 @@ public class OperationSetBasicTelephonySipImpl
      * call/call peer receiving the request to a specific transfer
      * target.
      *
-     * @param serverTransaction the <code>ServerTransaction</code> containing
+     * @param serverTransaction the <tt>ServerTransaction</tt> containing
      *            the REFER request
      * @param referRequest the very REFER request
-     * @param sipProvider the provider containing <code>serverTransaction</code>
+     * @param sipProvider the provider containing <tt>serverTransaction</tt>
      */
     private void processRefer(ServerTransaction serverTransaction,
         final Request referRequest, final SipProvider sipProvider)
@@ -2280,12 +2280,12 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
-     * Processes a specific <code>Request.NOTIFY</code> request for the purposes
+     * Processes a specific <tt>Request.NOTIFY</tt> request for the purposes
      * of telephony.
      *
-     * @param serverTransaction the <code>ServerTransaction</code> containing
-     *            the <code>Request.NOTIFY</code> request
-     * @param notifyRequest the <code>Request.NOTIFY</code> request to be
+     * @param serverTransaction the <tt>ServerTransaction</tt> containing
+     *            the <tt>Request.NOTIFY</tt> request
+     * @param notifyRequest the <tt>Request.NOTIFY</tt> request to be
      *            processed
      */
     private boolean processNotify(ServerTransaction serverTransaction,
@@ -2386,28 +2386,28 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
-     * Tracks the state changes of a specific <code>Call</code> and sends a
-     * session-terminating NOTIFY request to the <code>Dialog</code> which
+     * Tracks the state changes of a specific <tt>Call</tt> and sends a
+     * session-terminating NOTIFY request to the <tt>Dialog</tt> which
      * referred to the call in question as soon as the outcome of the refer is
      * determined.
      *
-     * @param referToCall the <code>Call</code> to track and send a NOTIFY
+     * @param referToCall the <tt>Call</tt> to track and send a NOTIFY
      *            request for
      * @param sendNotifyRequest <tt>true</tt> if a session-terminating NOTIFY
-     *            request should be sent to the <code>Dialog</code> which
-     *            referred to <code>referToCall</code>; <tt>false</tt> to send
+     *            request should be sent to the <tt>Dialog</tt> which
+     *            referred to <tt>referToCall</tt>; <tt>false</tt> to send
      *            no such NOTIFY request
-     * @param dialog the <code>Dialog</code> which initiated the specified call
+     * @param dialog the <tt>Dialog</tt> which initiated the specified call
      *            as part of processing a REFER request
-     * @param sipProvider the <code>SipProvider</code> to send the NOTIFY
+     * @param sipProvider the <tt>SipProvider</tt> to send the NOTIFY
      *            request through
      * @param subscription the subscription to be terminated when the NOTIFY
      *            request is sent
      * @return <tt>true</tt> if a session-terminating NOTIFY request was sent
-     *         and the state of <code>referToCall</code> should no longer be
+     *         and the state of <tt>referToCall</tt> should no longer be
      *         tracked; <tt>false</tt> if it's too early to send a
      *         session-terminating NOTIFY request and the tracking of the state
-     *         of <code>referToCall</code> should continue
+     *         of <tt>referToCall</tt> should continue
      */
     private boolean referToCallStateChanged(Call referToCall,
         boolean sendNotifyRequest, Dialog dialog, SipProvider sipProvider,
@@ -2464,21 +2464,21 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
-     * Sends a <code>Request.NOTIFY</code> request in a specific
-     * <code>Dialog</code> as part of the communication associated with an
-     * earlier-received <code>Request.REFER</code> request. The sent NOTIFY has
-     * a specific <code>Subscription-State</code> header and reason, carries a
+     * Sends a <tt>Request.NOTIFY</tt> request in a specific
+     * <tt>Dialog</tt> as part of the communication associated with an
+     * earlier-received <tt>Request.REFER</tt> request. The sent NOTIFY has
+     * a specific <tt>Subscription-State</tt> header and reason, carries a
      * specific body content and is sent through a specific
-     * <code>SipProvider</code>.
+     * <tt>SipProvider</tt>.
      *
-     * @param dialog the <code>Dialog</code> to send the NOTIFY request in
-     * @param subscriptionState the <code>Subscription-State</code> header to be
+     * @param dialog the <tt>Dialog</tt> to send the NOTIFY request in
+     * @param subscriptionState the <tt>Subscription-State</tt> header to be
      *            sent with the NOTIFY request
      * @param reasonCode the reason for the specified
-     *            <code>subscriptionState</code> if any; <tt>null</tt> otherwise
+     *            <tt>subscriptionState</tt> if any; <tt>null</tt> otherwise
      * @param content the content to be carried in the body of the sent NOTIFY
      *            request
-     * @param sipProvider the <code>SipProvider</code> to send the NOTIFY
+     * @param sipProvider the <tt>SipProvider</tt> to send the NOTIFY
      *            request through
      * @throws OperationFailedException
      */
@@ -2544,14 +2544,14 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Creates a new {@link Request} of a specific method which is to be sent in
-     * a specific <code>Dialog</code> and populates its generally-necessary
+     * a specific <tt>Dialog</tt> and populates its generally-necessary
      * headers such as the Authorization header.
      *
-     * @param dialog the <code>Dialog</code> to create the new
-     *            <code>Request</code> in
-     * @param method the method of the newly-created <code>Request<code>
-     * @return a new {@link Request} of the specified <code>method</code> which
-     *         is to be sent in the specified <code>dialog</code> and populated
+     * @param dialog the <tt>Dialog</tt> to create the new
+     *            <tt>Request</tt> in
+     * @param method the method of the newly-created <tt>Request<tt>
+     * @return a new {@link Request} of the specified <tt>method</tt> which
+     *         is to be sent in the specified <tt>dialog</tt> and populated
      *         with its generally-necessary headers such as the Authorization
      *         header
      * @throws OperationFailedException
@@ -2757,7 +2757,7 @@ public class OperationSetBasicTelephonySipImpl
      * Sends a BYE request to <tt>callPeer</tt>.
      *
      * @param callPeer the call peer that we need to say bye to.
-     * @return <tt>true</tt> if the <code>Dialog</code> should be considered
+     * @return <tt>true</tt> if the <tt>Dialog</tt> should be considered
      *         alive after sending the BYE request (e.g. when there're still
      *         active subscriptions); <tt>false</tt>, otherwise
      * @throws OperationFailedException if we failed constructing or sending a
@@ -3047,11 +3047,11 @@ public class OperationSetBasicTelephonySipImpl
      * Creates a new {@link Response#OK} response to a specific {@link Request}
      * which is to be sent as part of a specific {@link Dialog}.
      *
-     * @param request the <code>Request</code> to create the OK response for
-     * @param containingDialog the <code>Dialog</code> to send the response in
-     * @return a new <code>Response.OK</code> response to the specified
-     *         <code>request</code> to be sent as part of the specified
-     *         <code>containingDialog</code>
+     * @param request the <tt>Request</tt> to create the OK response for
+     * @param containingDialog the <tt>Dialog</tt> to send the response in
+     * @return a new <tt>Response.OK</tt> response to the specified
+     *         <tt>request</tt> to be sent as part of the specified
+     *         <tt>containingDialog</tt>
      * @throws ParseException
      */
     private Response createOKResponse(Request request, Dialog containingDialog)
@@ -3177,11 +3177,11 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
-     * Returns <code>true</code> to indicate that the call associated with the
-     * given peer is secured, otherwise returns <code>false</code>.
+     * Returns <tt>true</tt> to indicate that the call associated with the
+     * given peer is secured, otherwise returns <tt>false</tt>.
      *
-     * @return <code>true</code> to indicate that the call associated with the
-     * given peer is secured, otherwise returns <code>false</code>.
+     * @return <tt>true</tt> to indicate that the call associated with the
+     * given peer is secured, otherwise returns <tt>false</tt>.
      */
     public boolean isSecure(CallPeer peer)
     {
@@ -3210,12 +3210,12 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Transfers (in the sense of call transfer) a specific
-     * <code>CallPeer</code> to a specific callee address.
+     * <tt>CallPeer</tt> to a specific callee address.
      *
-     * @param peer the <code>CallPeer</code> to be transfered to
+     * @param peer the <tt>CallPeer</tt> to be transfered to
      *            the specified callee address
-     * @param target the <code>Address</code> the callee to transfer
-     *            <code>peer</code> to
+     * @param target the <tt>Address</tt> the callee to transfer
+     *            <tt>peer</tt> to
      * @throws OperationFailedException
      */
     private void transfer(CallPeer peer, Address target)
@@ -3295,17 +3295,17 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Transfers (in the sense of call transfer) a specific
-     * <code>CallPeer</code> to a specific callee address which already
-     * participates in an active <code>Call</code>.
+     * <tt>CallPeer</tt> to a specific callee address which already
+     * participates in an active <tt>Call</tt>.
      * <p>
      * The method is suitable for providing the implementation of attended call
      * transfer (though no such requirement is imposed).
      * </p>
      *
-     * @param peer the <code>CallPeer</code> to be transfered to
+     * @param peer the <tt>CallPeer</tt> to be transfered to
      *            the specified callee address
-     * @param target the address in the form of <code>CallPeer</code> of
-     *            the callee to transfer <code>peer</code> to
+     * @param target the address in the form of <tt>CallPeer</tt> of
+     *            the callee to transfer <tt>peer</tt> to
      * @throws OperationFailedException
      */
     public void transfer(CallPeer peer, String target)
@@ -3315,13 +3315,13 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
-     * Parses a specific string into a JAIN SIP <code>Address</code>.
+     * Parses a specific string into a JAIN SIP <tt>Address</tt>.
      *
-     * @param addressString the <code>String</code> to be parsed into an
-     *            <code>Address</code>
-     * @return the <code>Address</code> representation of
-     *         <code>addressString</code>
-     * @throws OperationFailedException if <code>addressString</code> is not
+     * @param addressString the <tt>String</tt> to be parsed into an
+     *            <tt>Address</tt>
+     * @return the <tt>Address</tt> representation of
+     *         <tt>addressString</tt>
+     * @throws OperationFailedException if <tt>addressString</tt> is not
      *             properly formatted
      */
     private Address parseAddressString(String addressString)
