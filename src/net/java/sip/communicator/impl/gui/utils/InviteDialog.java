@@ -43,7 +43,7 @@ public class InviteDialog
     /**
      * Constructs an <tt>InviteDialog</tt>, by specifying the initial list of
      * contacts available for invite.
-     * 
+     *
      * @param title the title to show on the top of this dialog
      * @param metaContacts the list of contacts available for invite
      */
@@ -128,7 +128,7 @@ public class InviteDialog
                     Object[] metaContacts
                         = (Object[]) contactList.getSelectedValues();
 
-                    moveContactFromLeftToRight(metaContacts);
+                    moveContactsFromLeftToRight(metaContacts);
                 }
             }
         });
@@ -142,7 +142,7 @@ public class InviteDialog
                     Object[] metaContacts
                         = (Object[]) selectedContactList.getSelectedValues();
 
-                    moveContactFromRightToLeft(metaContacts);
+                    moveContactsFromRightToLeft(metaContacts);
                 }
             }
         });
@@ -195,7 +195,7 @@ public class InviteDialog
                     = (Object[]) contactList.getSelectedValues();
 
                 if (metaContacts != null && metaContacts.length > 0)
-                    moveContactFromLeftToRight(metaContacts);
+                    moveContactsFromLeftToRight(metaContacts);
             }
         });
 
@@ -207,7 +207,7 @@ public class InviteDialog
                     = (Object[]) selectedContactList.getSelectedValues();
 
                 if (metaContacts != null && metaContacts.length > 0)
-                    moveContactFromRightToLeft(metaContacts);
+                    moveContactsFromRightToLeft(metaContacts);
             }
         });
 
@@ -301,11 +301,11 @@ public class InviteDialog
     }
 
     /**
-     * Moves a contact from the left list to the right.
+     * Moves contacts from the left list to the right.
      *
-     * @param metaContact the contact to move.
+     * @param metaContacts the contacts to move.
      */
-    private void moveContactFromLeftToRight(Object[] metaContacts)
+    private void moveContactsFromLeftToRight(Object[] metaContacts)
     {
         for (Object metaContact : metaContacts)
         {
@@ -318,9 +318,9 @@ public class InviteDialog
     /**
      * Moves a contact from the right list to the left.
      *
-     * @param metaContact the contact to move.
+     * @param metaContacts the contact to move.
      */
-    private void moveContactFromRightToLeft(Object[] metaContacts)
+    private void moveContactsFromRightToLeft(Object[] metaContacts)
     {
         for (Object metaContact : metaContacts)
         {
