@@ -705,6 +705,12 @@
         </antcall>
     </target>
 
+    <target name="run-v4" description="Starts SC with a preference for IPv4.">
+        <ant target="run">
+          <property name="java.net.preferIPv6Addresses" value="false"/>
+        </ant>
+    </target>
+
     <!--PROFILE-SIP-COMMUNICATOR-IN-NETBEANS-IDE -->
     <target name="profile" depends="bundle-plugin-profiler4j,deploy-os-specific-bundles"
         description="Profile Project">
@@ -812,7 +818,7 @@
         bundle-argdelegation,bundle-zrtp4j,
         bundle-filehistory,bundle-metahistory,bundle-metahistory-slick,
         bundle-facebook,bundle-plugin-facebookaccregwizz,
-		bundle-bouncycastle,bundle-plugin-otr"/>
+        bundle-bouncycastle,bundle-plugin-otr"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -1142,7 +1148,7 @@ javax.swing.event, javax.swing.border"/>
                 <include name="protocol/jabber/**/*"/>
                 <include name="protocol/msn/**/*"/>
                 <include name="protocol/yahoo/**/*"/>
-            </zipfileset> 
+            </zipfileset>
         </jar>
     </target>
 
@@ -1467,7 +1473,7 @@ javax.swing.event, javax.swing.border"/>
              Wizard.-->
         <jar compress="false" destfile="${bundles.dest}/facebookaccregwizz.jar"
                 manifest="${src}/net/java/sip/communicator/plugin/facebookaccregwizz/facebookaccregwizz.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/facebookaccregwizz" 
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/facebookaccregwizz"
                     prefix="net/java/sip/communicator/plugin/facebookaccregwizz" />
         </jar>
     </target>
@@ -2032,16 +2038,16 @@ org.apache.http.util"/>
             <zipfileset src="${lib.noinst}/zrtp4j-light.jar" prefix=""/>
             <manifest>
                 <attribute name="Export-Package" value="
-                	gnu.java.zrtp,
-                	gnu.java.zrtp.packets,
-                	gnu.java.zrtp.utils,
-                	gnu.java.zrtp.zidfile"/>
-    	        <attribute name="Import-Package" value="org.bouncycastle.crypto,
-    	        	org.bouncycastle.crypto.digests,
-    	        	org.bouncycastle.crypto.macs,
-    	        	org.bouncycastle.crypto.params,
-    	        	org.bouncycastle.crypto.engines,
-    	        	org.bouncycastle.crypto.modes"/>
+                    gnu.java.zrtp,
+                    gnu.java.zrtp.packets,
+                    gnu.java.zrtp.utils,
+                    gnu.java.zrtp.zidfile"/>
+                <attribute name="Import-Package" value="org.bouncycastle.crypto,
+                    org.bouncycastle.crypto.digests,
+                    org.bouncycastle.crypto.macs,
+                    org.bouncycastle.crypto.params,
+                    org.bouncycastle.crypto.engines,
+                    org.bouncycastle.crypto.modes"/>
                 <attribute name="Bundle-Name" value="ZRTP4J"/>
                 <attribute name="Bundle-Description" value="ZRTP for Java library."/>
                 <attribute name="Bundle-Version" value="1.4.5"/>
@@ -2072,33 +2078,33 @@ org.apache.http.util"/>
                 prefix="net/java/sip/communicator/impl/metahistory" />
         </jar>
     </target>
-	<!--BUNDLE-BOUNCYCASTLE -->
+    <!--BUNDLE-BOUNCYCASTLE -->
     <target name="bundle-bouncycastle">
-    	<jar compress="true" destfile="${bundles.dest}/bouncycastle.jar">
-    		<zipfileset src="${lib.noinst}/lcrypto-jdk16-143.jar"/>
-    		<manifest>
-    		    <attribute name="Export-Package" value="org.bouncycastle.crypto,
-    	        	org.bouncycastle.crypto.digests,
-    	        	org.bouncycastle.crypto.macs,
-    	        	org.bouncycastle.crypto.params,
-    	        	org.bouncycastle.crypto.engines,
-    	        	org.bouncycastle.crypto.modes,
-    		    	org.bouncycastle.crypto.generators,
-    		    	org.bouncycastle.crypto.signers,
-    		    	org.bouncycastle.util.encoders,
-    		    	org.bouncycastle.util"/>
-    		    <attribute name="Bundle-Name" value="BouncyCastle"/>
-    		    <attribute name="Bundle-Version" value="1.4.3.1"/>
-    		    <attribute name="System-Bundle" value="yes"/>
+        <jar compress="true" destfile="${bundles.dest}/bouncycastle.jar">
+            <zipfileset src="${lib.noinst}/lcrypto-jdk16-143.jar"/>
+            <manifest>
+                <attribute name="Export-Package" value="org.bouncycastle.crypto,
+                    org.bouncycastle.crypto.digests,
+                    org.bouncycastle.crypto.macs,
+                    org.bouncycastle.crypto.params,
+                    org.bouncycastle.crypto.engines,
+                    org.bouncycastle.crypto.modes,
+                    org.bouncycastle.crypto.generators,
+                    org.bouncycastle.crypto.signers,
+                    org.bouncycastle.util.encoders,
+                    org.bouncycastle.util"/>
+                <attribute name="Bundle-Name" value="BouncyCastle"/>
+                <attribute name="Bundle-Version" value="1.4.3.1"/>
+                <attribute name="System-Bundle" value="yes"/>
             </manifest>
-    	</jar>
+        </jar>
     </target>
-	<!--BUNDLE-PLUGIN-OTR -->
+    <!--BUNDLE-PLUGIN-OTR -->
     <target name="bundle-plugin-otr">
         <jar compress="false" destfile="${bundles.dest}/otr.jar" manifest="${src}/net/java/sip/communicator/plugin/otr/otr.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/otr"
                 prefix="net/java/sip/communicator/plugin/otr"/>
-        	<zipfileset src="${lib.noinst}/otr4j.jar"/>
+            <zipfileset src="${lib.noinst}/otr4j.jar"/>
         </jar>
     </target>
     <!--BUNDLE-METAHISTORY-SLICK-->
