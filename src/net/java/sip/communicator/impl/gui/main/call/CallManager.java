@@ -321,7 +321,7 @@ public class CallManager
         public void run()
         {
             ProtocolProviderService pps = call.getProtocolProvider();
-            Iterator<CallPeer> peers = call.getCallPeers();
+            Iterator<? extends CallPeer> peers = call.getCallPeers();
 
             while (peers.hasNext())
             {
@@ -460,7 +460,7 @@ public class CallManager
         public void run()
         {
             ProtocolProviderService pps = call.getProtocolProvider();
-            Iterator<CallPeer> peers = call.getCallPeers();
+            Iterator<? extends CallPeer> peers = call.getCallPeers();
 
             while (peers.hasNext())
             {

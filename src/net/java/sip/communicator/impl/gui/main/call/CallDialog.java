@@ -25,7 +25,7 @@ import net.java.sip.communicator.util.swing.border.*;
 
 /**
  * The dialog created for a given call.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class CallDialog
@@ -240,7 +240,7 @@ public class CallDialog
 
     /**
      * Returns the <tt>Call</tt> corresponding to this CallDialog.
-     * 
+     *
      * @return the <tt>Call</tt> corresponding to this CallDialog.
      */
     public Call getCall()
@@ -259,12 +259,12 @@ public class CallDialog
 
     /**
      * Returns the <tt>DialpadDialog</tt> corresponding to this CallDialog.
-     * 
+     *
      * @return the <tt>DialpadDialog</tt> corresponding to this CallDialog.
      */
     private DialpadDialog getDialpadDialog()
     {
-        Iterator<CallPeer> callPeers =
+        Iterator<? extends CallPeer> callPeers =
             (call == null)
                 ? new Vector<CallPeer>().iterator()
                 : call.getCallPeers();
@@ -275,7 +275,7 @@ public class CallDialog
     /**
      * Returns <code>true</code> if the hold button is selected,
      * <code>false</code> - otherwise.
-     * 
+     *
      * @return  <code>true</code> if the hold button is selected,
      * <code>false</code> - otherwise.
      */
@@ -286,7 +286,7 @@ public class CallDialog
 
     /**
      * Selects or unselects the hold button in this call dialog.
-     * 
+     *
      * @param isSelected indicates if the hold button should be selected or not
      */
     public void setHoldButtonSelected(boolean isSelected)
@@ -297,7 +297,7 @@ public class CallDialog
     /**
      * Returns <code>true</code> if the mute button is selected,
      * <code>false</code> - otherwise.
-     * 
+     *
      * @return  <code>true</code> if the mute button is selected,
      * <code>false</code> - otherwise.
      */
@@ -308,7 +308,7 @@ public class CallDialog
 
     /**
      * Selects or unselects the mute button in this call dialog.
-     * 
+     *
      * @param isSelected indicates if the mute button should be selected or not
      */
     public void setMuteButtonSelected(boolean isSelected)
@@ -319,7 +319,7 @@ public class CallDialog
     /**
      * Returns <code>true</code> if the video button is selected,
      * <code>false</code> - otherwise.
-     * 
+     *
      * @return  <code>true</code> if the video button is selected,
      * <code>false</code> - otherwise.
      */
@@ -330,7 +330,7 @@ public class CallDialog
 
     /**
      * Selects or unselects the video button in this call dialog.
-     * 
+     *
      * @param isSelected indicates if the video button should be selected or not
      */
     public void setVideoButtonSelected(boolean isSelected)
@@ -424,7 +424,7 @@ public class CallDialog
 
     /**
      * Checks if the contained call is a conference call.
-     * 
+     *
      * @return <code>true</code> if the contained <tt>Call</tt> is a conference
      * call, otherwise - returns <code>false</code>.
      */
@@ -436,7 +436,7 @@ public class CallDialog
 
         // If one of our peers is a conference focus, we're in a
         // conference call.
-        Iterator<CallPeer> callPeers = call.getCallPeers();
+        Iterator<? extends CallPeer> callPeers = call.getCallPeers();
 
         while (callPeers.hasNext())
         {

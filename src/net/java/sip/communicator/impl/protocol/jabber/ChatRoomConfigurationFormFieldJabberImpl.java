@@ -149,7 +149,7 @@ public class ChatRoomConfigurationFormFieldJabberImpl
      */
     public Iterator<Object> getValues()
     {
-        Iterator<Object> valuesIter = null;
+        Iterator<? extends Object> valuesIter = null;
         List<Object> values = new ArrayList<Object>();
         Iterator<String> smackValues = smackFormField.getValues();
 
@@ -169,9 +169,9 @@ public class ChatRoomConfigurationFormFieldJabberImpl
             valuesIter = values.iterator();
         }
         else
-            valuesIter = (Iterator) smackValues;
+            valuesIter = (Iterator<? extends Object>) smackValues;
 
-        return valuesIter;
+        return (Iterator<Object>)valuesIter;
     }
 
     /**

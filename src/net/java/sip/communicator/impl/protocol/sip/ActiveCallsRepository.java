@@ -25,6 +25,9 @@ import net.java.sip.communicator.util.*;
 public class ActiveCallsRepository
     extends CallChangeAdapter
 {
+    /**
+     * Our class logger.
+     */
     private static final Logger logger
         = Logger.getLogger(ActiveCallsRepository.class);
 
@@ -199,7 +202,8 @@ public class ActiveCallsRepository
             if (!callID.equals(call.getCallID()))
                 continue;
 
-            for (Iterator<CallPeer> callPeerIter = call.getCallPeers();
+            for (Iterator<? extends CallPeer> callPeerIter
+                            = call.getCallPeers();
                     callPeerIter.hasNext();)
             {
                 CallPeerSipImpl callPeer =
@@ -250,11 +254,11 @@ public class ActiveCallsRepository
         while (activeCallsIter.hasNext())
         {
             CallSipImpl activeCall = activeCallsIter.next();
-            Iterator<CallPeer> callPeersIter = activeCall.getCallPeers();
+            Iterator<CallPeerSipImpl> callPeersIter = activeCall.getCallPeers();
 
             while (callPeersIter.hasNext())
             {
-                CallPeerSipImpl cp = (CallPeerSipImpl) callPeersIter.next();
+                CallPeerSipImpl cp = callPeersIter.next();
                 Dialog cpDialog = cp.getDialog();
                 Transaction cpTran = cp.getLatestInviteTransaction();
 

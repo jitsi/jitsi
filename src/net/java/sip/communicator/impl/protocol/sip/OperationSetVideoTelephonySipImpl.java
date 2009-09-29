@@ -15,17 +15,17 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * Implements <code>OperationSetVideoTelephony</code> in order to give access to
+ * Implements <tt>OperationSetVideoTelephony</tt> in order to give access to
  * video-specific functionality in the SIP protocol implementation such as
- * visual <code>Component</code>s displaying video and listening to dynamic
- * availability of such <code>Component</code>s. Because the video in the SIP
- * protocol implementation is provided by the <code>CallSession</code>, this
- * <code>OperationSetVideoTelephony</code> just delegates to the
- * <code>CallSession</code> while hiding the <code>CallSession</code> as the
+ * visual <tt>Component</tt>s displaying video and listening to dynamic
+ * availability of such <tt>Component</tt>s. Because the video in the SIP
+ * protocol implementation is provided by the <tt>CallSession</tt>, this
+ * <tt>OperationSetVideoTelephony</tt> just delegates to the
+ * <tt>CallSession</tt> while hiding the <tt>CallSession</tt> as the
  * provider of the video and pretending this
- * <code>OperationSetVideoTelephony</code> is the provider because other
+ * <tt>OperationSetVideoTelephony</tt> is the provider because other
  * implementation may not provider their video through the
- * <code>CallSession</code>.
+ * <tt>CallSession</tt>.
  *
  * @author Lubomir Marinov
  */
@@ -39,11 +39,11 @@ public class OperationSetVideoTelephonySipImpl
     private final OperationSetBasicTelephonySipImpl basicTelephony;
 
     /**
-     * Initializes a new <code>OperationSetVideoTelephonySipImpl</code> instance
+     * Initializes a new <tt>OperationSetVideoTelephonySipImpl</tt> instance
      * which builds upon the telephony-related functionality of a specific
-     * <code>OperationSetBasicTelephonySipImpl</code>.
+     * <tt>OperationSetBasicTelephonySipImpl</tt>.
      *
-     * @param basicTelephony the <code>OperationSetBasicTelephonySipImpl</code>
+     * @param basicTelephony the <tt>OperationSetBasicTelephonySipImpl</tt>
      *            the new extension should build upon
      */
     public OperationSetVideoTelephonySipImpl(
@@ -52,36 +52,46 @@ public class OperationSetVideoTelephonySipImpl
         this.basicTelephony = basicTelephony;
     }
 
-    /*
+    /**
      * Delegates to the CallSession of the Call of the specified CallPeer
      * because the video is provided by the CallSession in the SIP protocol
      * implementation. Because other OperationSetVideoTelephony implementations
      * may not provide their video through the CallSession, this implementation
      * promotes itself as the provider of the video by replacing the CallSession
      * in the VideoEvents it fires.
+     *
+     * @param peer the <tt>CallPeer</tt> that we will be registering
+     * <tt>listener</tt> with.
+     * @param listener the <tt>VideoListener</tt> that we'd like to register.
      */
-    public void addVideoListener(CallPeer peer,
-        VideoListener listener)
+    public void addVideoListener(CallPeer peer, VideoListener listener)
     {
         if (listener == null)
             throw new NullPointerException("listener");
 
-        ((CallSipImpl) peer.getCall()).getMediaCallSession()
-            .addVideoListener(
-                new InternalVideoListener(this, peer, listener));
+        ((CallPeerSipImpl) peer).getMediaCallSession()
+            .addVideoListener(new InternalVideoListener(this, peer, listener));
     }
 
-    /*
+    /**
      * Implements OperationSetVideoTelephony#createLocalVisualComponent(
-     * CallPeer, VideoListener). Delegates to CallSession#createLocalVisualComponent(
-     * VideoListener) of the Call of the specified CallPeer because the
-     * CallSession manages the visual components which represent local video.
+     * CallPeer, VideoListener). Delegates to
+     * CallSession#createLocalVisualComponent(VideoListener) of the Call of the
+     * specified CallPeer because the CallSession manages the visual components
+     * which represent local video.
+     *
+     * @param peer the <tt>CallPeer</tt> that we are sending our local video to.
+     * @param listener the <tt>VideoListener</tt> where we'd like to retrieve
+     * the <tt>Component</tt> containing the local video.
+     *
+     * @return the <tt>Component</tt> containing the local video.
+     *
+     * @throws OperationFailedException if we fail extracting the local video.
      */
     public Component createLocalVisualComponent(CallPeer peer,
         VideoListener listener) throws OperationFailedException
     {
-        CallSession callSession =
-            ((CallSipImpl) peer.getCall()).getMediaCallSession();
+        CallSession callSession =((CallPeerSipImpl) peer).getMediaCallSession();
 
         if (callSession != null)
         {
@@ -92,213 +102,206 @@ public class OperationSetVideoTelephonySipImpl
             catch (MediaException ex)
             {
                 throw new OperationFailedException(
-                        "Failed to create visual Component for local video (capture).",
-                        OperationFailedException.INTERNAL_ERROR, ex);
+                    "Failed to create visual Component for local "
+                    +"video (capture).",
+                    OperationFailedException.INTERNAL_ERROR, ex);
             }
         }
         return null;
     }
 
-    /*
+    /**
      * Implements OperationSetVideoTelephony#disposeLocalVisualComponent(
      * CallPeer, Component). Delegates to CallSession#disposeLocalVisualComponent(
      * Component) of the Call of the specified CallPeer because the
      * CallSession manages the visual components which represent local video.
+     *
+     * @param peer the <tt>CallPeer</tt> whose local video component we'd like
+     * to dispose of.
+     * @param component the <tt>Component</tt> that we'll be disposing of.
      */
-    public void disposeLocalVisualComponent(CallPeer peer,
-        Component component)
+    public void disposeLocalVisualComponent(CallPeer peer, Component component)
     {
-        CallSession callSession =
-            ((CallSipImpl) peer.getCall()).getMediaCallSession();
+        CallSession callSession =((CallPeerSipImpl) peer).getMediaCallSession();
 
         if (callSession != null)
             callSession.disposeLocalVisualComponent(component);
     }
 
-    /*
+    /**
      * Delegates to the CallSession of the Call of the specified CallPeer
      * because the video is provided by the CallSession in the SIP protocol
      * implementation.
+     *
+     * @param peer the peer whose visual <tt>Component</tt>s we'd like to
+     * retrieve.
+     *
+     * @return all visual <tt>Component</tt>s for the specified <tt>peer</tt>.
      */
     public Component[] getVisualComponents(CallPeer peer)
     {
-        CallSession callSession =
-            ((CallSipImpl) peer.getCall()).getMediaCallSession();
+        CallSession callSession =((CallPeerSipImpl)peer).getMediaCallSession();
 
         return (callSession != null) ? callSession.getVisualComponents()
             : new Component[0];
     }
 
-    /*
+    /**
      * Delegates to the CallSession of the Call of the specified CallPeer
      * because the video is provided by the CallSession in the SIP protocol
      * implementation. Because other OperationSetVideoTelephony implementations
      * may not provide their video through the CallSession, this implementation
      * promotes itself as the provider of the video by replacing the CallSession
      * in the VideoEvents it fires.
+     *
+     * @param peer the <tt>CallPeer</tt> that we'd like to unregister our
+     * <tt>VideoListener</tt> from.
+     * @param listener the <tt>VideoListener</tt> that we'd like to unregister.
      */
-    public void removeVideoListener(CallPeer peer,
-        VideoListener listener)
+    public void removeVideoListener(CallPeer peer, VideoListener listener)
     {
         if (listener != null)
         {
-            ((CallSipImpl) peer.getCall()).getMediaCallSession()
+            ((CallPeerSipImpl) peer).getMediaCallSession()
                 .removeVideoListener(
                     new InternalVideoListener(this, peer, listener));
         }
     }
 
-    /*
+    /**
      * Implements OperationSetVideoTelephony#setLocalVideoAllowed(Call,
      * boolean). Modifies the local media setup to reflect the requested setting
      * for the streaming of the local video and then re-invites all
      * CallPeers to re-negotiate the modified media setup.
+     *
+     * @param call    the call where we'd like to allow sending local video.
+     * @param allowed <tt>true</tt> if local video transmission is allowed and
+     * <tt>false</tt> otherwise.
+     *
+     *  @throws OperationFailedException if video initialization fails.
      */
     public void setLocalVideoAllowed(Call call, boolean allowed)
         throws OperationFailedException
     {
-
-        /*
-         * Modify the local media setup to reflect the requested setting for the
-         * streaming of the local video.
-         */
-        CallSipImpl sipCall = (CallSipImpl) call;
-        CallSession callSession = sipCall.getMediaCallSession();
-
-        try
-        {
-            callSession.setLocalVideoAllowed(allowed);
-        }
-        catch (MediaException ex)
-        {
-            throw new OperationFailedException(
-                    "Failed to allow/disallow the streaming of local video.",
-                    OperationFailedException.INTERNAL_ERROR, ex);
-        }
-
-        /*
-         * Once the local state has been modified, re-invite all
-         * CallPeers to re-negotiate the modified media setup.
-         */
-        Iterator<CallPeer> peers = call.getCallPeers();
-        while (peers.hasNext())
-        {
-            CallPeerSipImpl peer
-                = (CallPeerSipImpl) peers.next();
-            String sdpOffer = null;
-
-            try
-            {
-                sdpOffer
-                    = callSession.createSdpOffer(
-                        peer.getSdpDescription());
-            }
-            catch (MediaException ex)
-            {
-                throw new OperationFailedException(
-                        "Failed to create re-invite offer for peer "
-                            + peer,
-                        OperationFailedException.INTERNAL_ERROR,
-                        ex);
-            }
-
-            basicTelephony.sendInviteRequest(peer, sdpOffer);
-        }
-    }
-
-    /*
-     * Implements OperationSetVideoTelephony#isLocalVideoAllowed(Call).
-     * Delegates to CallSession#isLocalVideoAllowed() of the specified Call.
-     */
-    public boolean isLocalVideoAllowed(Call call)
-    {
-        return ((CallSipImpl) call).getMediaCallSession().isLocalVideoAllowed();
-    }
-
-    /*
-     * Implements OperationSetVideoTelephony#isLocalVideoStreaming(Call).
-     * Delegates to CallSession#isLocalVideoStreaming() of the specified Call.
-     */
-    public boolean isLocalVideoStreaming(Call call)
-    {
-        return ((CallSipImpl) call)
-            .getMediaCallSession().isLocalVideoStreaming();
-    }
-
-    /*
-     * Implements OperationSetVideoTelephony#addPropertyChangeListener(Call,
-     * PropertyChangeListener). Delegates to CallSession#addPropertyChangeListener(
-     * PropertyChangeListener) of the specified Call because CallSession
-     * contains the properties associated with a Call.
-     */
-    public void addPropertyChangeListener(
-            Call call, PropertyChangeListener listener)
-    {
-        ((CallSipImpl) call)
-            .getMediaCallSession().addPropertyChangeListener(listener);
-    }
-
-    /*
-     * Implements OperationSetVideoTelephony#removePropertyChangeListener(Call,
-     * PropertyChangeListener). Delegates to CallSession#removePropertyChangeListener(
-     * PropertyChangeListener) of the specified Call because CallSession
-     * contains the properties associated with a Call.
-     */
-    public void removePropertyChangeListener(
-            Call call, PropertyChangeListener listener)
-    {
-        ((CallSipImpl) call)
-            .getMediaCallSession().removePropertyChangeListener(listener);
+        ((CallSipImpl)call).setLocalVideoAllowed(allowed);
     }
 
     /**
-     * Represents a <code>VideoListener</code> which forwards notifications to a
-     * specific delegate <code>VideoListener</code> and hides the original
-     * <code>VideoEvent</code> sender from it by pretending the sender is a
-     * specific <code>OperationSetVideoTelephony</code>. It's necessary in order
-     * to hide from the <code>VideoListener</code>s the fact that the video of
-     * the SIP protocol implementation is managed by <code>CallSession</code>.
+     * Determines whether the streaming of local video in a specific
+     * <tt>Call</tt> is currently allowed. The setting does not reflect
+     * the availability of actual video capture devices, it just expresses the
+     * desire of the user to have the local video streamed in the case the
+     * system is actually able to do so.
+     *
+     * @param call the <tt>Call</tt> whose video transmission properties we are
+     * interested in.
+     *
+     * @return <tt>true</tt> if the streaming of local video for the specified
+     * <tt>Call</tt> is allowed; otherwise, <tt>false</tt>
+     */
+    public boolean isLocalVideoAllowed(Call call)
+    {
+        return ((CallSipImpl) call).isLocalVideoAllowed();
+    }
+
+    /**
+     * Determines whether a specific <tt>Call</tt> is currently streaming the
+     * local video (to a remote destination).
+     *
+     * @param call the <tt>Call</tt> whose video transmission we are interested
+     * in.
+     *
+     * @return <tt>true</tt> if the specified <tt>Call</tt> is currently
+     * streaming the local video (to a remote destination); otherwise,
+     * <tt>false</tt>
+     */
+    public boolean isLocalVideoStreaming(Call call)
+    {
+        return ((CallSipImpl) call).isLocalVideoStreaming();
+    }
+
+    /**
+     * Adds a specific <tt>PropertyChangeListener</tt> to the list of
+     * listeners which get notified when the properties (e.g.
+     * {@link #LOCAL_VIDEO_STREAMING}) associated with a specific
+     * <tt>Call</tt> change their values.
+     *
+     * @param call the <tt>Call</tt> to start listening to the changes of
+     * the property values of
+     * @param listener the <tt>PropertyChangeListener</tt> to be notified
+     * when the properties associated with the specified <tt>Call</tt> change
+     * their values
+     */
+    public void addPropertyChangeListener(Call                   call,
+                                          PropertyChangeListener listener)
+    {
+        ((CallSipImpl) call).addVideoPropertyChangeListener(listener);
+    }
+
+    /**
+     * Removes a specific <tt>PropertyChangeListener</tt> from the list of
+     * listeners which get notified when the properties (e.g.
+     * {@link #LOCAL_VIDEO_STREAMING}) associated with a specific
+     * <tt>Call</tt> change their values.
+     *
+     * @param call the <tt>Call</tt> to stop listening to the changes of the
+     * property values of
+     * @param listener the <tt>PropertyChangeListener</tt> to no longer be
+     * notified when the properties associated with the specified <tt>Call</tt>
+     * change their values
+     */
+    public void removePropertyChangeListener(Call                   call,
+                                             PropertyChangeListener listener)
+    {
+        ((CallSipImpl) call).removeVideoPropertyChangeListener(listener);
+    }
+
+    /**
+     * Represents a <tt>VideoListener</tt> which forwards notifications to a
+     * specific delegate <tt>VideoListener</tt> and hides the original
+     * <tt>VideoEvent</tt> sender from it by pretending the sender is a
+     * specific <tt>OperationSetVideoTelephony</tt>. It's necessary in order
+     * to hide from the <tt>VideoListener</tt>s the fact that the video of
+     * the SIP protocol implementation is managed by <tt>CallSession</tt>.
      */
     private static class InternalVideoListener
         implements VideoListener
     {
 
         /**
-         * The <code>VideoListener</code> this implementation hides the original
-         * <code>VideoEvent</code> source from.
+         * The <tt>VideoListener</tt> this implementation hides the original
+         * <tt>VideoEvent</tt> source from.
          */
         private final VideoListener delegate;
 
         /**
-         * The <code>CallPeer</code> whose videos {@link #delegate} is
+         * The <tt>CallPeer</tt> whose videos {@link #delegate} is
          * interested in.
          */
         private final CallPeer peer;
 
         /**
-         * The <code>OperationSetVideoTelephony</code> which is to be presented
-         * as the source of the <code>VideoEvents</code> forwarded to
+         * The <tt>OperationSetVideoTelephony</tt> which is to be presented
+         * as the source of the <tt>VideoEvents</tt> forwarded to
          * {@link #delegate}.
          */
         private final OperationSetVideoTelephony telephony;
 
         /**
-         * Initializes a new <code>InternalVideoListener</code> which is to
-         * impersonate the sources of <code>VideoEvents</code> with a specific
-         * <code>OperationSetVideoTelephony</code> for a specific
-         * <code>VideoListener</code> interested in the videos of a specific
-         * <code>CallPeer</code>.
+         * Initializes a new <tt>InternalVideoListener</tt> which is to
+         * impersonate the sources of <tt>VideoEvents</tt> with a specific
+         * <tt>OperationSetVideoTelephony</tt> for a specific
+         * <tt>VideoListener</tt> interested in the videos of a specific
+         * <tt>CallPeer</tt>.
          *
-         * @param telephony the <code>OperationSetVideoTelephony</code> which is
-         *            to be stated as the source of the <code>VideoEvent</code>
-         *            sent to the specified delegate <code>VideoListener</code>
-         * @param peer the <code>CallPeer</code> whose videos the
-         *            specified delegate <code>VideoListener</code> is
-         *            interested in
-         * @param delegate the <code>VideoListener</code> which shouldn't know
-         *            that the videos in the SIP protocol implementation is
-         *            managed by the CallSession and not by the specified
-         *            <code>telephony</code>
+         * @param telephony the <tt>OperationSetVideoTelephony</tt> which is
+         * to be stated as the source of the <tt>VideoEvent</tt> sent to the
+         * specified delegate <tt>VideoListener</tt>
+         * @param peer the <tt>CallPeer</tt> whose videos the specified delegate
+         * <tt>VideoListener</tt> is interested in
+         * @param delegate the <tt>VideoListener</tt> which shouldn't know
+         * that the videos in the SIP protocol implementation is managed by the
+         * <tt>CallSession</tt> and not by the specified <tt>telephony</tt>
          */
         public InternalVideoListener(OperationSetVideoTelephony telephony,
             CallPeer peer, VideoListener delegate)
@@ -311,10 +314,16 @@ public class OperationSetVideoTelephonySipImpl
             this.delegate = delegate;
         }
 
-        /*
-         * Two InternalVideoListeners are equal if they impersonate the sources
-         * of VideoEvents with equal OperationSetVideoTelephonies for equal
-         * delegate VideoListeners added to equal CallPeer-s.
+        /**
+         * Compares two InternalVideoListeners and determines they are equal
+         * if they impersonate the sources of VideoEvents with equal
+         * OperationSetVideoTelephonies for equal delegate VideoListeners added
+         * to equal CallPeer-s.
+         *
+         * @param other the object that we'd be compared to.
+         *
+         * @return true if the underlying peer, telephony operation set and
+         * delegate are equal to those of the <tt>other</tt> instance.
          */
         public boolean equals(Object other)
         {
@@ -330,17 +339,26 @@ public class OperationSetVideoTelephonySipImpl
                 && otherListener.delegate.equals(delegate);
         }
 
+        /**
+         * Returns a hashcode based on the hash codes of the wrapped telephony
+         * operation set and <tt>VideoListener</tt> delegate.
+         *
+         * @return a hashcode based on the hash codes of the wrapped telephony
+         * operation set and <tt>VideoListener</tt> delegate.
+         */
         public int hashCode()
         {
             return (telephony.hashCode() << 16) + (delegate.hashCode() >> 16);
         }
 
-        /*
+        /**
          * Upon receiving a VideoEvent, sends to delegate a new VideoEvent of
          * the same type and with the same visual Component but with the source
          * of the event being set to #telephony. Thus the fact that the
          * CallSession is the original source is hidden from the clients of
          * OperationSetVideoTelephony.
+         *
+         * @param event the <tt>VideoEvent</tt> containing the visual component
          */
         public void videoAdded(VideoEvent event)
         {
@@ -348,12 +366,15 @@ public class OperationSetVideoTelephonySipImpl
                 .getVisualComponent(), event.getOrigin()));
         }
 
-        /*
+        /**
          * Upon receiving a VideoEvent, sends to delegate a new VideoEvent of
          * the same type and with the same visual Component but with the source
          * of the event being set to #telephony. Thus the fact that the
          * CallSession is the original source is hidden from the clients of
          * OperationSetVideoTelephony.
+         *
+         * @param event the <tt>VideoEvent</tt> containing video details and
+         * the event component.
          */
         public void videoRemoved(VideoEvent event)
         {

@@ -112,7 +112,7 @@ public class MuteButton
         {
             if (call != null)
             {
-                Iterator<CallPeer> peers
+                Iterator<? extends CallPeer> peers
                     = call.getCallPeers();
 
                 while (peers.hasNext())

@@ -22,6 +22,9 @@ import net.java.sip.communicator.util.*;
  */
 public abstract class Call
 {
+    /**
+     * Our class logger.
+     */
     private static final Logger logger = Logger.getLogger(Call.class);
 
     /**
@@ -123,7 +126,7 @@ public abstract class Call
      * Returns an iterator over all call peers.
      * @return an Iterator over all peers currently involved in the call.
      */
-    public abstract Iterator<CallPeer> getCallPeers();
+    public abstract Iterator<? extends CallPeer> getCallPeers();
 
     /**
      * Returns the number of peers currently associated with this call.

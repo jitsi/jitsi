@@ -35,21 +35,39 @@ import net.java.sip.communicator.util.*;
  */
 public class SecurityEventManager extends ZrtpUserCallback
 {
+    /**
+     * Our class logger.
+     */
     private static final Logger logger
         = Logger.getLogger(SecurityEventManager.class);
 
+    /**
+     * A warning <tt>String</tt> that we display to the user.
+     */
     public static final String WARNING_NO_RS_MATCH = MediaActivator
             .getResources().getI18NString(
                     "impl.media.security.WARNING_NO_RS_MATCH");
 
+    /**
+     * A warning <tt>String</tt> that we display to the user.
+     */
     public static final String WARNING_NO_EXPECTED_RS_MATCH = MediaActivator
             .getResources().getI18NString(
                     "impl.media.security.WARNING_NO_EXPECTED_RS_MATCH");
 
+    /**
+     * A reference to the <tt>CallPeer</tt> that we will be interacting with.
+     */
     private CallPeer callPeer;
 
+    /**
+     * The session that this manager is associated with.
+     */
     private final CallSession callSession;
 
+    /**
+     * A callback to the instance that created us.
+     */
     private final SessionCreatorCallback peerSecurityCallback;
 
     /**
@@ -79,6 +97,9 @@ public class SecurityEventManager extends ZrtpUserCallback
 
     /**
      * The class constructor.
+     *
+     * @param callSession the call session that this manager is to be associated
+     * with.
      */
     public SecurityEventManager(CallSession callSession)
     {
@@ -90,7 +111,7 @@ public class SecurityEventManager extends ZrtpUserCallback
         // At this moment we're supporting a security call between only two
         // peers. In the future the call peer would be passed
         // as a parameter to the SecurityEventManager.
-        Iterator<CallPeer> callPeers
+        Iterator<? extends CallPeer> callPeers
             = callSession.getCall().getCallPeers();
 
         while (callPeers.hasNext())
@@ -356,16 +377,24 @@ public class SecurityEventManager extends ZrtpUserCallback
                 + ": GoClear confirmation requested.");
     }
 
+    /**
+     * Converts the <tt>sessionType</tt> into into a <tt>String</tt>.
+     *
+     * @param sessionType one of the
+     * <tt>CallPeerSecurityStatusEvent.XXX_SESSION</tt> fields
+     *
+     * @return a <tt>String</tt> representation of <tt>sessionType</tt>.
+     */
     private String sessionTypeToString(int sessionType)
     {
         switch (sessionType)
         {
-        case CallPeerSecurityStatusEvent.AUDIO_SESSION:
-            return "AUDIO_SESSION";
-        case CallPeerSecurityStatusEvent.VIDEO_SESSION:
-            return "VIDEO_SESSION";
-        default:
-            throw new IllegalArgumentException("sessionType");
+            case CallPeerSecurityStatusEvent.AUDIO_SESSION:
+                return "AUDIO_SESSION";
+            case CallPeerSecurityStatusEvent.VIDEO_SESSION:
+                return "VIDEO_SESSION";
+            default:
+                throw new IllegalArgumentException("sessionType");
         }
     }
 }

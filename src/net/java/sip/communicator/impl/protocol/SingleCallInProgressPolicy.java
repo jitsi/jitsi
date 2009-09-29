@@ -90,7 +90,10 @@ public class SingleCallInProgressPolicy
          * <code>CallState.CALL_IN_PROGRESS</code>, puts the other existing
          * <code>Call</code>s on hold.
          *
-         * @see .CallChangeListener#callStateChanged(CallChangeEvent)
+         * @param callChangeEvent the <tt>CallChangeEvent</tt> that we are to
+         * deliver.
+         *
+         * @see CallChangeListener#callStateChanged(CallChangeEvent)
          */
         public void callStateChanged(CallChangeEvent callChangeEvent)
         {
@@ -143,6 +146,9 @@ public class SingleCallInProgressPolicy
         }
     }
 
+    /**
+     * Our class logger
+     */
     private static final Logger logger =
         Logger.getLogger(SingleCallInProgressPolicy.class);
 
@@ -312,7 +318,7 @@ public class SingleCallInProgressPolicy
 
         if (telephony != null)
         {
-            for (Iterator<CallPeer> peerIter =
+            for (Iterator<? extends CallPeer> peerIter =
                 call.getCallPeers(); peerIter.hasNext();)
             {
                 CallPeer peer = peerIter.next();

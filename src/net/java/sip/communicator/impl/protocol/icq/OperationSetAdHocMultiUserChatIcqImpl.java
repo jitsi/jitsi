@@ -1,6 +1,6 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.protocol.icq;
@@ -15,7 +15,7 @@ import net.kano.joustsim.oscar.oscar.service.chatrooms.*;
 
 /**
  * A ICQ implementation of the ad-hoc multi user chat operation set.
- * 
+ *
  * @author Valentin Martinet
  */
 public class OperationSetAdHocMultiUserChatIcqImpl
@@ -81,7 +81,7 @@ public class OperationSetAdHocMultiUserChatIcqImpl
     /**
      * Instantiates the user operation set with a currently valid instance of
      * the Icq protocol provider.
-     * 
+     *
      * @param icqProvider a currently valid instance of
      *            ProtocolProviderServiceIcqImpl.
      */
@@ -94,7 +94,7 @@ public class OperationSetAdHocMultiUserChatIcqImpl
 
     /**
      * Adds a listener to invitation notifications.
-     * 
+     *
      * @param listener an invitation listener.
      */
     public void addInvitationListener(AdHocChatRoomInvitationListener listener)
@@ -109,7 +109,7 @@ public class OperationSetAdHocMultiUserChatIcqImpl
     /**
      * Subscribes <tt>listener</tt> so that it would receive events indicating
      * rejection of a multi user chat invitation that we've sent earlier.
-     * 
+     *
      * @param listener the listener that we'll subscribe for invitation
      *            rejection events.
      */
@@ -126,7 +126,7 @@ public class OperationSetAdHocMultiUserChatIcqImpl
     /**
      * Adds a listener that will be notified of changes in our status in a chat
      * room such as us being kicked, banned or dropped.
-     * 
+     *
      * @param listener the <tt>LocalUserAdHocChatRoomPresenceListener</tt>.
      */
     public void addPresenceListener(
@@ -141,7 +141,7 @@ public class OperationSetAdHocMultiUserChatIcqImpl
 
     /**
      * Returns a list of all currently joined <tt>AdHocChatRoom</tt>-s.
-     * 
+     *
      * @return a list of all currently joined <tt>AdHocChatRoom</tt>-s
      */
     public List<AdHocChatRoom> getAdHocChatRooms()
@@ -153,18 +153,18 @@ public class OperationSetAdHocMultiUserChatIcqImpl
      * Creates a room with the named <tt>roomName</tt> and according to the
      * specified <tt>roomProperties</tt> on the server that this protocol
      * provider is currently connected to.
-     * 
+     *
      * @param roomName the name of the <tt>AdHocChatRoom</tt> to create.
      * @param roomProperties properties specifying how the room should be
      *            created. Contains list of invitees and the invitation message.
-     * 
+     *
      * @throws OperationFailedException if the room couldn't be created for some
      *             reason (e.g. room already exists; user already joined to an
      *             existent room or user has no permissions to create an ad-hoc
      *             chat room).
      * @throws OperationNotSupportedException if ad-hoc chat room creation is
      *             not supported by this server
-     * 
+     *
      * @return AdHocChatRoom the ad-hoc chat room that we've just created.
      */
     public AdHocChatRoom createAdHocChatRoom(String roomName,
@@ -194,7 +194,7 @@ public class OperationSetAdHocMultiUserChatIcqImpl
      *
      * @param adHocRoomName the name of the ad-hoc room
      * @param contacts the list of contacts
-     * 
+     *
      * @throws OperationFailedException
      * @throws OperationNotSupportedException
      */
@@ -203,8 +203,8 @@ public class OperationSetAdHocMultiUserChatIcqImpl
         throws OperationFailedException,
         OperationNotSupportedException
     {
-        AdHocChatRoom adHocChatRoom
-            = createAdHocChatRoom(adHocRoomName, new Hashtable());
+        AdHocChatRoom adHocChatRoom = createAdHocChatRoom(
+                        adHocRoomName, new Hashtable<String, Object>());
 
         if (adHocChatRoom != null && contacts != null)
         {
@@ -270,7 +270,7 @@ public class OperationSetAdHocMultiUserChatIcqImpl
 
     /**
      * Returns true if <tt>contact</tt> supports multi user chat sessions.
-     * 
+     *
      * @param contact reference to the contact whose support for chat rooms we
      *            are currently querying.
      * @return a boolean indicating whether <tt>contact</tt> supports chat
@@ -287,7 +287,7 @@ public class OperationSetAdHocMultiUserChatIcqImpl
 
     /**
      * Informs the sender of an invitation that we decline their invitation.
-     * 
+     *
      * @param invitation the connection to use for sending the rejection.
      * @param rejectReason the reason to reject the given invitation
      */
@@ -309,7 +309,7 @@ public class OperationSetAdHocMultiUserChatIcqImpl
     /**
      * Removes <tt>listener</tt> from the list of invitation listeners
      * registered to receive invitation events.
-     * 
+     *
      * @param listener the invitation listener to remove.
      */
     public void removeInvitationListener(
@@ -324,7 +324,7 @@ public class OperationSetAdHocMultiUserChatIcqImpl
     /**
      * Removes <tt>listener</tt> from the list of invitation listeners
      * registered to receive invitation rejection events.
-     * 
+     *
      * @param listener the invitation listener to remove.
      */
     public void removeInvitationRejectionListener(
@@ -339,7 +339,7 @@ public class OperationSetAdHocMultiUserChatIcqImpl
     /**
      * Removes a listener that was being notified of changes in our status in a
      * room such as us being joined or dropped.
-     * 
+     *
      * @param listener the <tt>LocalUserAdHocChatRoomPresenceListener</tt>.
      */
     public void removePresenceListener(
@@ -354,7 +354,7 @@ public class OperationSetAdHocMultiUserChatIcqImpl
     /**
      * Delivers a <tt>AdHocChatRoomInvitationReceivedEvent</tt> to all
      * registered <tt>AdHocChatRoomInvitationListener</tt>s.
-     * 
+     *
      * @param targetChatRoom the ad-hoc room that invitation refers to
      * @param inviter the inviter that sent the invitation
      * @param reason the reason why the inviter sent the invitation
@@ -391,7 +391,7 @@ public class OperationSetAdHocMultiUserChatIcqImpl
     /**
      * Delivers a <tt>LocalUserAdHocChatRoomPresenceChangeEvent</tt> to all
      * registered <tt>LocalUserAdHocChatRoomPresenceListener</tt>s.
-     * 
+     *
      * @param chatRoom the <tt>AdHocChatRoom</tt> which has been joined, left,
      *            etc.
      * @param eventType the type of this event; one of LOCAL_USER_JOINED,
@@ -433,7 +433,7 @@ public class OperationSetAdHocMultiUserChatIcqImpl
          * The method is called by a ProtocolProvider implementation whenever a
          * change in the registration state of the corresponding provider had
          * occurred.
-         * 
+         *
          * @param evt ProviderStatusChangeEvent the event describing the status
          *            change.
          */

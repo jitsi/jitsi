@@ -10,6 +10,7 @@ import gov.nist.javax.sip.header.*;
 import gov.nist.javax.sip.header.extensions.*;
 import gov.nist.javax.sip.message.*;
 
+import java.net.URLDecoder; //disamgibuates javax.sip.address.URI
 import java.text.*;
 import java.util.*;
 
@@ -840,9 +841,9 @@ public class SipMessageFactory
      * </p>
      *
      * @param cause the SIP <tt>Message</tt> from which the information is
-     *            to be copied
+     * to be copied
      * @param effect the SIP <tt>Message</tt> into which the information is
-     *            to be copied
+     * to be copied
      */
     private void reflectCauseOnEffect(javax.sip.message.Message cause,
                                       javax.sip.message.Message effect)
@@ -902,12 +903,13 @@ public class SipMessageFactory
 
                 try
                 {
-                    replacesHeader =
-                        protocolProvider.getHeaderFactory().createHeader(
-                            ReplacesHeader.NAME, replacesHeaderValue);
+                    replacesHeader = protocolProvider.getHeaderFactory()
+                        .createHeader(ReplacesHeader.NAME,
+                           URLDecoder.decode(replacesHeaderValue, "UTF-8"));
                 }
-                catch (ParseException ex)
+                catch (Exception ex)
                 {
+                    //ParseException, EncodingNotSupportedException.
                     throw new OperationFailedException(
                         "Failed to create ReplacesHeader from "
                             + replacesHeaderValue,

@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.sip;
 import gov.nist.javax.sip.header.HeaderFactoryImpl; // disambiguates Contact
 import gov.nist.javax.sip.header.extensions.*;
 
+import java.net.*;
 import java.text.*;
 import java.util.*;
 
@@ -237,82 +238,7 @@ public class OperationSetBasicTelephonySipImpl
         throws OperationFailedException
     {
         CallPeerSipImpl sipPeer = (CallPeerSipImpl) peer;
-        CallSession callSession = sipPeer.getMediaCallSession();
-
-        try
-        {
-            sendInviteRequest(sipPeer, callSession.createSdpDescriptionForHold(
-                    sipPeer.getSdpDescription(), on));
-        }
-        catch (MediaException ex)
-        {
-            ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "Failed to create SDP offer to hold.",
-                OperationFailedException.INTERNAL_ERROR, ex, logger);
-        }
-
-        /*
-         * Putting on hold isn't a negotiation (i.e. the issuing side takes the
-         * decision and executes it) so we're muting now regardless of the
-         * desire of the peer to accept the offer.
-         */
-        callSession.putOnHold(on, true);
-
-        CallPeerState state = sipPeer.getState();
-        if (CallPeerState.ON_HOLD_LOCALLY.equals(state))
-        {
-            if (!on)
-                sipPeer.setState(CallPeerState.CONNECTED);
-        }
-        else if (CallPeerState.ON_HOLD_MUTUALLY.equals(state))
-        {
-            if (!on)
-                sipPeer.setState(CallPeerState.ON_HOLD_REMOTELY);
-        }
-        else if (CallPeerState.ON_HOLD_REMOTELY.equals(state))
-        {
-            if (on)
-                sipPeer.setState(CallPeerState.ON_HOLD_MUTUALLY);
-        }
-        else if (on)
-        {
-            sipPeer.setState(CallPeerState.ON_HOLD_LOCALLY);
-        }
-    }
-
-    /**
-     * Sends an invite request with a specific SDP offer (description) within
-     * the current <tt>Dialog</tt> with a specific call peer.
-     *
-     * @param sipPeer the SIP-specific call peer to send the  to within the
-     * current <tt>Dialog</tt> @param sdpOffer the description of the SDP offer
-     * to be made to the specified call peer with the sent invite
-     * @param sdpOffer the offer that we'd like to use for the newly created
-     * INVITE request.
-     *
-     * @throws OperationFailedException if sending the request fails for some
-     * reason.
-     */
-    void sendInviteRequest(CallPeerSipImpl sipPeer, String sdpOffer)
-        throws OperationFailedException
-    {
-        Dialog dialog = sipPeer.getDialog();
-        Request invite = messageFactory.createRequest(dialog, Request.INVITE);
-
-        try
-        {
-            invite.setContent(sdpOffer, protocolProvider.getHeaderFactory()
-                .createContentTypeHeader("application", "sdp"));
-        }
-        catch (ParseException ex)
-        {
-            ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "Failed to parse SDP offer for the new invite.",
-                OperationFailedException.INTERNAL_ERROR, ex, logger);
-        }
-
-        protocolProvider.sendInDialogRequest(
-                        sipPeer.getJainSipProvider(), invite, dialog);
+        sipPeer.putOnHold(on);
     }
 
     /**
@@ -1518,7 +1444,7 @@ public class OperationSetBasicTelephonySipImpl
         {
             CallSipImpl call = activeCalls.next();
 
-            Iterator<CallPeer> callPeers  = call.getCallPeers();
+            Iterator<? extends CallPeer> callPeers  = call.getCallPeers();
 
             // go through all call peers and say bye to every one.
             while (callPeers.hasNext())
@@ -1661,10 +1587,12 @@ public class OperationSetBasicTelephonySipImpl
         }
         try
         {
-            sipURI.setHeader(ReplacesHeader.NAME, replacesHeader.encodeBody());
+            sipURI.setHeader(ReplacesHeader.NAME,
+                    URLEncoder.encode(replacesHeader.encodeBody(), "UTF-8"));
         }
-        catch (ParseException ex)
+        catch (Exception ex)
         {
+            //ParseException or UnsupportedEncodingException
             ProtocolProviderServiceSipImpl.throwOperationFailedException(
                 "Failed to set Replaces header " + replacesHeader
                 + " to SipURI " + sipURI,

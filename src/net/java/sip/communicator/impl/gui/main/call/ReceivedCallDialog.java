@@ -121,7 +121,7 @@ public class ReceivedCallDialog
      */
     private void initCallLabel(JLabel callLabel)
     {
-        Iterator<CallPeer> peersIter = incomingCall.getCallPeers();
+        Iterator<? extends CallPeer> peersIter = incomingCall.getCallPeers();
 
         boolean hasMorePeers = false;
         String text = "";

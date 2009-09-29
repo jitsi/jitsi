@@ -980,7 +980,7 @@ public class CallHistoryServiceImpl
         currentCallRecords.add(newRecord);
 
         // if has already perticipants Dispatch them
-        Iterator<CallPeer> iter = sourceCall.getCallPeers();
+        Iterator<? extends CallPeer> iter = sourceCall.getCallPeers();
         while (iter.hasNext())
         {
             handlePeerAdded(iter.next());

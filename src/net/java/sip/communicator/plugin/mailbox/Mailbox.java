@@ -612,7 +612,7 @@ public class Mailbox
                                 OperationSetBasicTelephony.class);
             logger.info("Max Message Length Reached, Mailbox is"
                         +" disconnecting the call");
-            Iterator<CallPeer> callPeers = call.getCallPeers();
+            Iterator<? extends CallPeer> callPeers = call.getCallPeers();
 
             while(callPeers.hasNext())
             {

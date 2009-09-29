@@ -20,29 +20,32 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
- * Represents an UI means to transfer (the <code>Call</code> of) an associated
- * <code>CallPariticant</code>.
+ * Represents an UI means to transfer (the <tt>Call</tt> of) an associated
+ * <tt>CallPariticant</tt>.
  *
  * @author Lubomir Marinov
  */
 public class TransferCallButton
     extends SIPCommButton
 {
+    /**
+     * Our class logger.
+     */
     private static final Logger logger =
         Logger.getLogger(TransferCallButton.class);
 
     /**
-     * The <code>CallPeer</code> (whose <code>Call</code> is) to be
+     * The <tt>CallPeer</tt> (whose <tt>Call</tt> is) to be
      * transfered.
      */
     private final CallPeer callPeer;
 
     /**
-     * Initializes a new <code>TransferCallButton</code> instance which is to
-     * transfer (the <code>Call</code> of) a specific
-     * <code>CallPeer</code>.
+     * Initializes a new <tt>TransferCallButton</tt> instance which is to
+     * transfer (the <tt>Call</tt> of) a specific
+     * <tt>CallPeer</tt>.
      *
-     * @param callPeer the <code>CallPeer</code> to be associated
+     * @param callPeer the <tt>CallPeer</tt> to be associated
      *            with the new instance and to be transfered
      */
     public TransferCallButton(CallPeer callPeer)
@@ -59,7 +62,7 @@ public class TransferCallButton
             /**
              * Invoked when an action occurs.
              *
-             * @param evt the <code>ActionEvent</code> instance containing the
+             * @param evt the <tt>ActionEvent</tt> instance containing the
              *            data associated with the action and the act of its
              *            performing
              */
@@ -72,11 +75,11 @@ public class TransferCallButton
 
     /**
      * Handles actions performed on this button on behalf of a specific
-     * <code>ActionListener</code>.
+     * <tt>ActionListener</tt>.
      *
-     * @param listener the <code>ActionListener</code> notified about the
+     * @param listener the <tt>ActionListener</tt> notified about the
      *            performing of the action
-     * @param evt the <code>ActionEvent</code> containing the data associated
+     * @param evt the <tt>ActionEvent</tt> containing the data associated
      *            with the action and the act of its performing
      */
     private void actionPerformed(ActionListener listener, ActionEvent evt)
@@ -169,7 +172,7 @@ public class TransferCallButton
         {
             Call call = callIter.next();
 
-            for (Iterator<CallPeer> peerIter = call.getCallPeers();
+            for (Iterator<? extends CallPeer> peerIter = call.getCallPeers();
                     peerIter.hasNext();)
             {
                 CallPeer peer = peerIter.next();
@@ -182,13 +185,15 @@ public class TransferCallButton
     }
 
     /**
-     * Returns the first <code>CallPeer</code> among all existing ones
+     * Returns the first <tt>CallPeer</tt> among all existing ones
      * who has a specific address.
      *
-     * @param address the address of the <code>CallPeer</code> to be
-     *            located
-     * @return the first <code>CallPeer</code> among all existing ones
-     *         who has the specified <code>address</code>
+     * @param address the address of the <tt>CallPeer</tt> to be located
+     * @return the first <tt>CallPeer</tt> among all existing ones
+     * who has the specified <tt>address</tt>
+     *
+     * @throws OperationFailedException in case we fail retrieving a reference
+     * to <tt>ProtocolProviderService</tt>s
      */
     private CallPeer findCallPeer(String address)
         throws OperationFailedException
@@ -231,18 +236,18 @@ public class TransferCallButton
     }
 
     /**
-     * Gets the first <code>Frame</code> in the ancestor <code>Component</code>
-     * hierarchy of a specific <code>Component</code>.
+     * Gets the first <tt>Frame</tt> in the ancestor <tt>Component</tt>
+     * hierarchy of a specific <tt>Component</tt>.
      * <p>
-     * The located <code>Frame</code> (if any) is often used as the owner of
-     * <code>Dialog</code>s opened by the specified <code>Component</code> in
-     * order to provide natural <code>Frame</code> ownership.
-     * 
+     * The located <tt>Frame</tt> (if any) is often used as the owner of
+     * <tt>Dialog</tt>s opened by the specified <tt>Component</tt> in
+     * order to provide natural <tt>Frame</tt> ownership.
+     *
      * @param component the <tt>Component</tt> which is to have its
      * <tt>Component</tt> hierarchy examined for <tt>Frame</tt>
-     * @return the first <code>Frame</code> in the ancestor
-     * <code>Component</code> hierarchy of the specified <code>Component</code>;
-     * <tt>null</tt>, if no such <code>Frame</code> was located
+     * @return the first <tt>Frame</tt> in the ancestor
+     * <tt>Component</tt> hierarchy of the specified <tt>Component</tt>;
+     * <tt>null</tt>, if no such <tt>Frame</tt> was located
      */
     public static Frame getFrame(Component component)
     {

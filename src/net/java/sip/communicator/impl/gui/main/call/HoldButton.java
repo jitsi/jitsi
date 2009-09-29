@@ -125,7 +125,7 @@ public class HoldButton
                     (OperationSetBasicTelephony) call.getProtocolProvider()
                         .getOperationSet(OperationSetBasicTelephony.class);
 
-                Iterator<CallPeer> peers = call.getCallPeers();
+                Iterator<? extends CallPeer> peers = call.getCallPeers();
 
                 while (peers.hasNext())
                 {

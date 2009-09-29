@@ -32,6 +32,9 @@ public class DialPanel
     extends JPanel
     implements MouseListener
 {
+    /**
+     * Our class logger
+     */
     private final Logger logger = Logger.getLogger(DialPanel.class);
 
     /**
@@ -74,7 +77,7 @@ public class DialPanel
      * @param callPeers the <tt>CallPeer</tt>s, for which the
      * dialpad will be opened.
      */
-    public DialPanel(Iterator<CallPeer> callPeers)
+    public DialPanel(Iterator<? extends CallPeer> callPeers)
     {
         // We need to send DTMF tones to all peers each time the user
         // presses a dial button, so we put the iterator into a list.
@@ -409,7 +412,7 @@ public class DialPanel
      */
     private void sendDtmfTone(DTMFTone dtmfTone)
     {
-        Iterator<CallPeer> callPeers = this.callPeersList.iterator();
+        Iterator<? extends CallPeer> callPeers = this.callPeersList.iterator();
 
         try
         {

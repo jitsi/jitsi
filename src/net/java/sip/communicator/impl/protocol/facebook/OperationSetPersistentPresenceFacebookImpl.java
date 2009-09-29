@@ -137,6 +137,7 @@ public class OperationSetPersistentPresenceFacebookImpl
      *
      * @param statusMessage a String containing the new status message.
      */
+    @Deprecated
     public void setStatusMessage(String statusMessage)
     {
         this.statusMessage = statusMessage;
@@ -279,7 +280,7 @@ public class OperationSetPersistentPresenceFacebookImpl
     {
         PresenceStatus oldPresenceStatus = this.presenceStatus;
         this.presenceStatus = status;
-        
+
         //OK, now post the new status message!
         if(statusMessage != null && !statusMessage.equals(""))
         {
@@ -290,11 +291,11 @@ public class OperationSetPersistentPresenceFacebookImpl
                     adapter.setStatusMessage(statusMessage);
             }
         }
-        
+
         this.statusMessage = statusMessage;
 
         this.fireProviderStatusChangeEvent(oldPresenceStatus);
-        
+
         try
         {
             if(this.presenceStatus == FacebookStatusEnum.OFFLINE)
@@ -325,7 +326,7 @@ public class OperationSetPersistentPresenceFacebookImpl
             throw new OperationFailedException(
                     "unable to change facebook visibility", -1, e);
         }
-        
+
 
         /*// since we are not a real protocol, we set the contact presence status
         // ourselves and make them have the same status as ours.

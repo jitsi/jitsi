@@ -25,6 +25,12 @@ public class DialpadDialog
     extends JDialog
     implements WindowFocusListener
 {
+    /**
+     * Creates a new instance of this class using the specified
+     * <tt>dialPanel</tt>.
+     *
+     * @param dialPanel the <tt>DialPanel</tt> that we'd like to wrap.
+     */
     private DialpadDialog(DialPanel dialPanel)
     {
         dialPanel.setOpaque(false);
@@ -48,7 +54,7 @@ public class DialpadDialog
      *
      * @param callPeers The corresponding call peers.
      */
-    public DialpadDialog(Iterator<CallPeer> callPeers)
+    public DialpadDialog(Iterator<? extends CallPeer> callPeers)
     {
         this(new DialPanel(callPeers));
 
@@ -71,6 +77,12 @@ public class DialpadDialog
      */
     private static class BackgroundPanel extends JPanel
     {
+        /**
+         * Calls <tt>super</tt>'s <tt>paintComponent</tt> method and then adds
+         * background with gradient.
+         *
+         * @param g a reference to the currently valid <tt>Graphics</tt> object
+         */
         public void paintComponent(Graphics g)
         {
             super.paintComponent(g);
@@ -94,10 +106,20 @@ public class DialpadDialog
         }
     }
 
+    /**
+     * Dummy implementation.
+     *
+     * @param e unused
+     */
     public void windowGainedFocus(WindowEvent e)
     {
     }
 
+    /**
+     * Dummy implementation.
+     *
+     * @param e unused
+     */
     public void windowLostFocus(WindowEvent e)
     {
         this.setVisible(false);

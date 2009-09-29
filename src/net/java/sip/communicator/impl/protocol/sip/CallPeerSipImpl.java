@@ -1402,6 +1402,185 @@ public class CallPeerSipImpl
                 "Failed to send an OK response to an INVITE request",
                 OperationFailedException.NETWORK_FAILURE, ex, logger);
         }
+    }
 
+    /**
+     * Puts the <tt>CallPeer</tt> represented by this instance on or off hold.
+     *
+     * @param on <tt>true</tt> to have the <tt>CallPeer</tt> put on hold;
+     * <tt>false</tt>, otherwise
+     *
+     * @throws OperationFailedException if we fail to construct or send the
+     * INVITE request putting the remote side on/off hold.
+     */
+    public void putOnHold(boolean on)
+        throws OperationFailedException
+    {
+        CallSession callSession = getMediaCallSession();
+
+        try
+        {
+            sendReInvite(callSession.createSdpDescriptionForHold(
+                    getSdpDescription(), on));
+        }
+        catch (MediaException ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to create SDP offer to hold.",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
+        }
+
+        /*
+         * Putting on hold isn't a negotiation (i.e. the issuing side takes the
+         * decision and executes it) so we're muting now regardless of the
+         * desire of the peer to accept the offer.
+         */
+        callSession.putOnHold(on, true);
+
+        CallPeerState state = getState();
+        if (CallPeerState.ON_HOLD_LOCALLY.equals(state))
+        {
+            if (!on)
+                setState(CallPeerState.CONNECTED);
+        }
+        else if (CallPeerState.ON_HOLD_MUTUALLY.equals(state))
+        {
+            if (!on)
+                setState(CallPeerState.ON_HOLD_REMOTELY);
+        }
+        else if (CallPeerState.ON_HOLD_REMOTELY.equals(state))
+        {
+            if (on)
+                setState(CallPeerState.ON_HOLD_MUTUALLY);
+        }
+        else if (on)
+        {
+            setState(CallPeerState.ON_HOLD_LOCALLY);
+        }
+    }
+
+    /**
+     * Sends a reINVITE request with a specific <tt>sdpOffer</tt> (description)
+     * within the current <tt>Dialog</tt> with a the call peer represented by
+     * this instance.
+     *
+     * @param sdpOffer the offer that we'd like to use for the newly created
+     * INVITE request.
+     *
+     * @throws OperationFailedException if sending the request fails for some
+     * reason.
+     */
+    private void sendReInvite(String sdpOffer)
+        throws OperationFailedException
+    {
+        Dialog dialog = getDialog();
+        Request invite = messageFactory.createRequest(dialog, Request.INVITE);
+
+        try
+        {
+            invite.setContent(sdpOffer, getProtocolProvider().getHeaderFactory()
+                .createContentTypeHeader("application", "sdp"));
+        }
+        catch (ParseException ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to parse SDP offer for the new invite.",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
+        }
+
+        getProtocolProvider().sendInDialogRequest(
+                        getJainSipProvider(), invite, dialog);
+    }
+
+    /**
+     * Modifies the local media setup to reflect the requested setting for the
+     * streaming of the local video and then re-invites the peer represented by
+     * this class using a corresponding SDP description..
+     *
+     * @param allowed <tt>true</tt> if local video transmission is allowed and
+     * <tt>false</tt> otherwise.
+     *
+     *  @throws OperationFailedException if video initialization fails.
+     */
+    public void setLocalVideoAllowed(boolean allowed)
+        throws OperationFailedException
+    {
+        CallSession callSession = getMediaCallSession();
+
+        if(callSession.isLocalVideoAllowed() == allowed)
+            return;
+
+        try
+        {
+            /*
+             * Modify the local media setup to reflect the requested setting for
+             * the streaming of the local video.
+             */
+            callSession.setLocalVideoAllowed(allowed);
+        }
+        catch (MediaException ex)
+        {
+            throw new OperationFailedException(
+                    "Failed to allow/disallow the streaming of local video.",
+                    OperationFailedException.INTERNAL_ERROR, ex);
+        }
+
+        String sdpOffer = null;
+
+        try
+        {
+            sdpOffer = callSession.createSdpOffer(getSdpDescription());
+        }
+        catch (MediaException ex)
+        {
+            throw new OperationFailedException(
+                    "Failed to create re-invite offer for peer "
+                        + this,OperationFailedException.INTERNAL_ERROR, ex);
+        }
+
+        sendReInvite(sdpOffer);
+    }
+
+    /**
+     * Determines whether we are currently streaming video toward whoever this
+     * <tt>CallPeerSipImpl</tt> represents.
+     *
+     * @return <tt>true</tt> if we are currently streaming video toward this
+     *  <tt>CallPeer</tt> and  <tt>false</tt> otherwise.
+     */
+    public boolean isLocalVideoStreaming()
+    {
+        return getMediaCallSession().isLocalVideoStreaming();
+    }
+
+    /**
+     * Adds a specific <tt>PropertyChangeListener</tt> to the list of
+     * listeners which get notified when the properties (e.g.
+     * LOCAL_VIDEO_STREAMING) associated with this <tt>CallPeer</tt> change
+     * their values.
+     *
+     * @param listener the <tt>PropertyChangeListener</tt> to be notified
+     * when the properties associated with the specified <tt>Call</tt> change
+     * their values
+     */
+    public void addVideoPropertyChangeListener(PropertyChangeListener listener)
+    {
+        getMediaCallSession().addPropertyChangeListener(listener);
+    }
+
+    /**
+     * Removes a specific <tt>PropertyChangeListener</tt> from the list of
+     * listeners which get notified when the properties (e.g.
+     * LOCAL_VIDEO_STREAMING) associated with this <tt>CallPeer</tt> change
+     * their values.
+     *
+     * @param listener the <tt>PropertyChangeListener</tt> to no longer be
+     * notified when the properties associated with the specified <tt>Call</tt>
+     * change their values
+     */
+    public void removeVideoPropertyChangeListener(
+                                               PropertyChangeListener listener)
+    {
+        getMediaCallSession().removePropertyChangeListener(listener);
     }
 }

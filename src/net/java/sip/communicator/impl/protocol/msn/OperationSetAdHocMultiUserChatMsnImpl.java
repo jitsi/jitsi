@@ -17,10 +17,10 @@ import net.sf.jml.message.*;
 
 /**
  * A MSN implementation of the ad-hoc multi user chat operation set.
- * 
+ *
  * @author Valentin Martinet
  */
-public class OperationSetAdHocMultiUserChatMsnImpl 
+public class OperationSetAdHocMultiUserChatMsnImpl
     implements  OperationSetAdHocMultiUserChat
 {
      private static final Logger logger
@@ -53,7 +53,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      * A list of listeners subscribed for events indicating rejection of a multi
      * user chat invitation sent by us.
      */
-    private Vector<AdHocChatRoomInvitationRejectionListener> 
+    private Vector<AdHocChatRoomInvitationRejectionListener>
         invitationRejectionListeners
             = new Vector<AdHocChatRoomInvitationRejectionListener>();
 
@@ -78,7 +78,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
 
     /**
      * Adds the given presence listener to existing presence listeners list.
-     * 
+     *
      * @param listener the listener to add
      */
     public void addPresenceListener(
@@ -93,7 +93,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
 
      /**
      * Adds a listener to invitation notifications.
-     * 
+     *
      * @param listener an invitation listener.
      */
     public void addInvitationListener(AdHocChatRoomInvitationListener listener)
@@ -108,7 +108,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
     /**
      * Removes <tt>listener</tt> from the list of invitation listeners
      * registered to receive invitation events.
-     * 
+     *
      * @param listener the invitation listener to remove.
      */
     public void removeInvitationListener(
@@ -122,7 +122,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
 
     /**
      * Adds a listener to invitation notifications.
-     * 
+     *
      * @param listener an invitation listener.
      */
     public void addInvitationRejectionListener(
@@ -138,7 +138,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
     /**
      * Removes <tt>listener</tt> from the list of invitation listeners
      * registered to receive invitation events.
-     * 
+     *
      * @param listener the invitation listener to remove.
      */
     public void removeInvitationRejectionListener(
@@ -152,7 +152,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
 
     /**
      * Creates a message by a given message text.
-     * 
+     *
      * @param messageText The message text.
      * @return the newly created message.
      */
@@ -164,12 +164,12 @@ public class OperationSetAdHocMultiUserChatMsnImpl
     }
 
     /**
-     * Creates an ad-hoc room with the named <tt>adHocRoomName</tt> and in 
+     * Creates an ad-hoc room with the named <tt>adHocRoomName</tt> and in
      * including to the specified <tt>contacts</tt>.
-     * 
+     *
      * @param adHocRoomName the name of the ad-hoc room
      * @param contacts the list of contacts
-     * 
+     *
      * @throws OperationFailedException
      * @throws OperationNotSupportedException
      */
@@ -177,8 +177,8 @@ public class OperationSetAdHocMultiUserChatMsnImpl
                                                 List<Contact> contacts)
         throws OperationFailedException, OperationNotSupportedException
     {
-        AdHocChatRoom adHocChatRoom
-            = createAdHocChatRoom(adHocRoomName, new Hashtable());
+        AdHocChatRoom adHocChatRoom = createAdHocChatRoom(
+                        adHocRoomName, new Hashtable<String, Object>());
 
         if (adHocChatRoom != null && contacts != null)
         {
@@ -196,10 +196,10 @@ public class OperationSetAdHocMultiUserChatMsnImpl
     /**
      * Creates an <tt>AdHocChatRoom</tt> whose name is _adHocRoomName with the
      * properties contained in _adHocRoomProperties
-     * 
+     *
      * @param adHocRoomName the name of the ad-hoc room
      * @param adHocRoomProperties the ad-hoc room's properties
-     * 
+     *
      * @throws OperationFailedException
      * @throws OperationNotSupportedException
      */
@@ -227,7 +227,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
 
     /**
      * Creates a <tt>ChatRoom</tt> from the specified chatRoomName.
-     * 
+     *
      * @param adHocChatRoomName the specific ad-hoc chat room name.
      * @param switchboardId the identifier of the switchboard
      * @return the ad-hoc chat room that we've just created.
@@ -253,16 +253,16 @@ public class OperationSetAdHocMultiUserChatMsnImpl
     /**
      * Returns the <tt>AdHocChatRoomMsnImpl</tt> corresponding to the given
      * <tt>switchboard</tt>, if one exists, otherwise returns null.
-     * 
+     *
      * @param switchboard the Msn switchboard corresponding to a chat room
-     * 
+     *
      * @return the <tt>AdHocChatRoomMsnImpl</tt> corresponding to the given
      * <tt>switchboard</tt>, otherwise null
      */
     private AdHocChatRoomMsnImpl getLocalAdHocChatRoomInstance(
             MsnSwitchboard switchboard)
     {
-        AdHocChatRoomMsnImpl adHocRoom = (AdHocChatRoomMsnImpl) 
+        AdHocChatRoomMsnImpl adHocRoom = (AdHocChatRoomMsnImpl)
             this.adHocChatRoomCache.get(switchboard);
 
         return adHocRoom;
@@ -279,7 +279,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
     private AdHocChatRoomMsnImpl createLocalAdHocChatRoomInstance(
             MsnSwitchboard switchboard)
     {
-        AdHocChatRoomMsnImpl adHocChatRoom = (AdHocChatRoomMsnImpl) 
+        AdHocChatRoomMsnImpl adHocChatRoom = (AdHocChatRoomMsnImpl)
             this.adHocChatRoomCache.get(String.valueOf(switchboard.hashCode()));
 
         if (adHocChatRoom == null)
@@ -305,7 +305,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
     /**
      * Delivers a <tt>LocalUserAdHocChatRoomPresenceChangeEvent</tt> to all
      * registered <tt>LocalUserAdHocChatRoomPresenceListener</tt>s.
-     * 
+     *
      * @param adHocChatRoom the <tt>AdHocChatRoom</tt> which has been joined,
      * left, etc.
      * @param eventType the type of this event; one of LOCAL_USER_JOINED,
@@ -342,7 +342,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      * by the switchboard, if it is not created by the user, its an active file
      * transfer switchboard or the user count is too low then this method return
      * false.
-     * 
+     *
      * @param switchboard The corresponding MSNswitchboard.
      * @return true if it is a group chat message or false in the other case.
      */
@@ -367,18 +367,18 @@ public class OperationSetAdHocMultiUserChatMsnImpl
         }
     }
 
-    public boolean isMultiChatSupportedByContact(Contact contact) 
+    public boolean isMultiChatSupportedByContact(Contact contact)
     {
         return false;
     }
 
     /**
      * Removes the given listener from presence listeners' list.
-     * 
+     *
      * @param listener the listener to remove
      */
     public void removePresenceListener(
-            LocalUserAdHocChatRoomPresenceListener listener) 
+            LocalUserAdHocChatRoomPresenceListener listener)
     {
         synchronized (this.presenceListeners)
         {
@@ -391,7 +391,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
 
     /**
      * Makes sure that we are properly connected.
-     * 
+     *
      * @throws OperationFailedException if the provider is not connected.
      * @throws OperationNotSupportedException if the service is not supported by
      *             the server.
@@ -420,7 +420,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
          * The method is called by a ProtocolProvider implementation whenever a
          * change in the registration state of the corresponding provider had
          * occurred.
-         * 
+         *
          * @param evt ProviderStatusChangeEvent the event describing the status
          *            change.
          */
@@ -506,7 +506,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
     /**
      * The Switchboard Listener, listens to all four switchboard events:
      * Switchboard started/closed and User joins/left.
-     * 
+     *
      */
     private class MsnSwitchboardListener
         extends MsnSwitchboardAdapter
@@ -630,7 +630,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      * Note: Not supported inside the MSN.
      */
     public void rejectInvitation(AdHocChatRoomInvitation invitation,
-                                 String                  rejectReason) 
+                                 String                  rejectReason)
     {
         // there is no way to block invitations, because there arn't any
         // invitations.
