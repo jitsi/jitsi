@@ -19,7 +19,7 @@ import net.java.sip.communicator.util.*;
 
 /**
  * Operation Set Server Stored Contact Info Facebook Implementation
- * 
+ *
  * @author Dai Zhiwei
  */
 public class OperationSetServerStoredContactInfoFacebookImpl
@@ -27,18 +27,18 @@ public class OperationSetServerStoredContactInfoFacebookImpl
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetServerStoredContactInfoFacebookImpl.class);
-    
+
     /**
      * A callback to the Facebook provider that created us.
      */
     private final ProtocolProviderServiceFacebookImpl parentProvider;
-    
+
     /**
      * All the details retrieved so far is kept here
      */
     private final Map<String, List<GenericDetail>> retreivedDetails
         = new Hashtable<String, List<GenericDetail>>();
-    
+
     /**
      * Details retreived addresses
      */
@@ -48,7 +48,7 @@ public class OperationSetServerStoredContactInfoFacebookImpl
      * Host address for retreiving images
      */
     private static String fileHostUrl = "http://static.ak.fbcdn.net";
-    
+
     protected OperationSetServerStoredContactInfoFacebookImpl(
         ProtocolProviderServiceFacebookImpl provider)
     {
@@ -71,7 +71,7 @@ public class OperationSetServerStoredContactInfoFacebookImpl
     {
         List<GenericDetail> details = getContactDetails(contact.getAddress());
         List<GenericDetail> result = new LinkedList<GenericDetail>();
-        
+
         if (details == null)
             return result.iterator();
 
@@ -97,10 +97,10 @@ public class OperationSetServerStoredContactInfoFacebookImpl
     {
         List<GenericDetail> details = getContactDetails(contact.getAddress());
         List<GenericDetail> result = new LinkedList<GenericDetail>();
-        
+
         if (details == null)
             return result.iterator();
-        
+
         for (GenericDetail item : details)
             //exactly that class not its descendants
             if (detailClass.equals(item.getClass()))
@@ -119,13 +119,13 @@ public class OperationSetServerStoredContactInfoFacebookImpl
     public Iterator<GenericDetail> getAllDetailsForContact(Contact contact)
     {
         List<GenericDetail> details = getContactDetails(contact.getAddress());
-        
+
         if(details == null)
             return new LinkedList<GenericDetail>().iterator();
         else
             return new LinkedList<GenericDetail>(details).iterator();
     }
-    
+
     /**
      * Request the full info for the given contactAddress
      * waits and return this details
@@ -153,7 +153,7 @@ public class OperationSetServerStoredContactInfoFacebookImpl
                  * Age;
                  * E-mail;
                  * Phone..
-                 * 
+                 *
                  * Extended:
                  * ...
                  */
@@ -163,10 +163,10 @@ public class OperationSetServerStoredContactInfoFacebookImpl
 
                 if(adapter == null || presenceOS == null)
                     return null;
-                
+
                 String tmpValueStr = "Who Am I";
                 ContactFacebookImpl contact = (ContactFacebookImpl)presenceOS.findContactByID(contactAddress);
-                
+
                 //avatar, name, first name
                 if(contact != null)
                 {
@@ -177,18 +177,18 @@ public class OperationSetServerStoredContactInfoFacebookImpl
                     if(imageBytes != null && imageBytes.length > 0)
                         result.add(new ServerStoredDetails.ImageDetail(
                             "Avatar", imageBytes));
-                    
+
                     FacebookUser metaInfo = contact.getContactInfo();
                     if(metaInfo == null)
                         return null;
-                    
+
                     tmpValueStr = metaInfo.name;
                     if(tmpValueStr != null)
                         result
                             .add(
                                 new ServerStoredDetails.DisplayNameDetail(
                                         tmpValueStr));
-                    
+
                     tmpValueStr = metaInfo.firstName;
                     if(tmpValueStr != null)
                         result
@@ -196,35 +196,35 @@ public class OperationSetServerStoredContactInfoFacebookImpl
                                 new ServerStoredDetails.FirstNameDetail(
                                         tmpValueStr));
                 }
-                
+
                 String profilePage
                     = adapter.getSession().getProfilePage(contactAddress);
-                
+
                 if(profilePage == null)
                     throw new Exception("Failed to load profile page");
-                
+
                 logger.trace("====== Profile Page: ======\n" + profilePage);
-                
+
                 /**
                  * @fixme should we fill the summary pannel?
                  */
-                
+
                 //add this contact into the set,
                 //so that we needn't to fetch his/her info again
                 detailsRetreivedAddresses.add(contactAddress);
-                
+
                 //class="profile_info"><dl class="info">
                 //<div class="profile_info_container">
                 String tmpPrefix = "<div class=\"profile_info_container\">";
                 int beginPos = profilePage.indexOf(tmpPrefix);
-                
+
                 if(beginPos >= 0)
                 {
                     //do something
                     beginPos += tmpPrefix.length();
                     if(beginPos >= profilePage.length())
                         throw new Exception("Failed to load profile page");
-                    
+
                     String tmpLabelStr;
                     int tmpLeft = profilePage.indexOf("<dt>", beginPos);
                     int tmpRight = 0;
@@ -238,7 +238,7 @@ public class OperationSetServerStoredContactInfoFacebookImpl
                             if(tmpLabelStr.endsWith(":"))
                                 tmpLabelStr = tmpLabelStr.substring(0, tmpLabelStr.length()-1);
                             //label done!
-                            
+
                             tmpLeft = profilePage.indexOf("<dd>", tmpRight);
                             if(tmpLeft >= 0)
                             {
@@ -264,7 +264,7 @@ public class OperationSetServerStoredContactInfoFacebookImpl
                                     }
                                 }
                                 else
-                                    break;                                
+                                    break;
                             }
                             else
                                 break;
@@ -288,7 +288,7 @@ public class OperationSetServerStoredContactInfoFacebookImpl
                             result.add(new ServerStoredDetails.GenderDetail(getText(tmp)));
                     }
                 }
-                
+
                 //birthday
                 tmpPrefix = "<td class=\"data\"><div id=\'Birthday-data\'class=\"datawrap\">";
                 tmpPostfix = "</a></div>";
@@ -303,7 +303,7 @@ public class OperationSetServerStoredContactInfoFacebookImpl
                             result.add(new ServerStoredDetails.StringDetail("Birthday", getText(tmp)));
                     }
                 }
-                
+
                 //Hometown
                 tmpPrefix = "<td class=\"data\"><div id=\'Hometown-data\'class=\"datawrap\">";
                 tmpPostfix = "</a></div>";
@@ -327,14 +327,14 @@ public class OperationSetServerStoredContactInfoFacebookImpl
         }
 
         retreivedDetails.put(contactAddress, result);
-        
+
         return new LinkedList<GenericDetail>(result);
     }
-    
+
     /**
      * Returns the persistent presence operation set that this contact belongs
      * to.
-     * 
+     *
      * @return the <tt>OperationSetPersistentPresenceFacebookImpl</tt> that
      *         this contact belongs to.
      */
@@ -348,14 +348,14 @@ public class OperationSetServerStoredContactInfoFacebookImpl
 
     /**
      * Get text from html formatted string
-     * 
+     *
      * @param srcStr the html formatted string
      * @return the plain text
      */
     public static String getText(String srcStr)
     {
         String text = "";
-        
+
         int left = 0;
         int cur = srcStr.indexOf("<", left);
         while(cur >= 0)
@@ -364,7 +364,7 @@ public class OperationSetServerStoredContactInfoFacebookImpl
             left = srcStr.indexOf(">", cur);
             if(left < 0)
                 break;
-            
+
             left++;
             if(left < srcStr.length())
             {
@@ -376,8 +376,8 @@ public class OperationSetServerStoredContactInfoFacebookImpl
         }
         if(left >= 0)
             text += srcStr.substring(left);
-        
-        /**
+
+        /*
          * support for some special symbols, e.g.:
          * & = &amp;
          * (space) = &nbsp;
@@ -396,7 +396,7 @@ public class OperationSetServerStoredContactInfoFacebookImpl
         text = text.replaceAll("&#039;", "'");
         text = text.replaceAll("&copy;", "©");
         text = text.replaceAll("&reg;", "®");
-        
+
         return text;
     }
 
