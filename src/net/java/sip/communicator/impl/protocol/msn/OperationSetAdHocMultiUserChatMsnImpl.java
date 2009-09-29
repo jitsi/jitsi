@@ -619,7 +619,6 @@ public class OperationSetAdHocMultiUserChatMsnImpl
             }
             else
             {
-                logger.setLevelDebug();
                 logger.debug("Could not join the Ad-hoc chat room.");
             }
         }

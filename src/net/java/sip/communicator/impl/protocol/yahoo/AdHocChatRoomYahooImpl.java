@@ -341,7 +341,6 @@ public class AdHocChatRoomYahooImpl
         }
         catch (Exception e)
         {
-            logger.setLevelDebug();
             logger.debug("Couldn't join the chat room: "
                 + yahooConference.getName() + e);
         }

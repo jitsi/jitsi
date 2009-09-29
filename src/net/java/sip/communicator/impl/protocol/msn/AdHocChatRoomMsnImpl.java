@@ -393,7 +393,6 @@ public class AdHocChatRoomMsnImpl
      */
     public void sendMessage(Message message) throws OperationFailedException 
     {
-        logger.setLevelInfo();
         logger.info("switchboard="+this.switchboard);
         this.switchboard.sendText(message.getContent());
 

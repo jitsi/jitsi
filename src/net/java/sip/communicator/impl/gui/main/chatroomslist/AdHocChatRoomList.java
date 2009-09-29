@@ -47,7 +47,7 @@ public class AdHocChatRoomList
             // If we don't have providers at this stage we just return.
             if (serRefs == null)
                 return;
-            logger.setLevelDebug();
+
             for (ServiceReference serRef : serRefs)
             {
                 ProtocolProviderService protocolProvider
