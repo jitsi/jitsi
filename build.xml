@@ -43,6 +43,7 @@
     <property name="path" value="${lib}/native/windows;${system.PATH}"/>
     <property name='j2se_api' value='http://java.sun.com/j2se/1.5/docs/api' />
     <property name='maxwarns' value='10000' />
+    <property name='java.net.preferIPv6Addresses' value='true' />
 
     <!-- set the build label property and make it take the cc bild into account -->
     <condition property="build.label"
@@ -650,7 +651,7 @@
                 value="${lib}/logging.properties"/>
 
             <sysproperty key="java.net.preferIPv6Addresses"
-                value="true"/>
+                value="${java.net.preferIPv6Addresses}"/>
 
             <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
                     value="${user.home}/schome"/-->
