@@ -260,7 +260,7 @@ public class ContactList
         MetaContactGroup group = evt.getSourceMetaContactGroup();
 
         if (!group.equals(contactListService.getRoot()))
-            this.modifyGroup(evt.getSourceMetaContactGroup());
+            this.modifyGroup(group);
     }
 
     /**
@@ -272,7 +272,7 @@ public class ContactList
         MetaContactGroup group = evt.getSourceMetaContactGroup();
 
         if (!group.equals(contactListService.getRoot()))
-            this.removeGroup(evt.getSourceMetaContactGroup());
+            this.removeGroup(group);
     }
 
     /**
@@ -518,32 +518,24 @@ public class ContactList
                 if(!disableOpenClose)
                 {
                     // get the component under the mouse
-                    Component component = this.getHorizontalComponent(renderer,
-                        translatedX);
+                    Component component
+                        = this.getHorizontalComponent(renderer, translatedX);
 
-                    if (component instanceof JPanel)
+                    if ((component instanceof JPanel)
+                            && ("buttonsPanel".equals(component.getName())))
                     {
-                        if (component.getName() != null
-                            && component.getName().equals("buttonsPanel"))
-                        {
-                            JPanel panel = (JPanel) component;
-
-                            int internalX = translatedX
+                        JPanel panel = (JPanel) component;
+                        int internalX
+                            = translatedX
                                 - (renderer.getWidth() - panel.getWidth() - 2);
+                        Component c = getHorizontalComponent(panel, internalX);
 
-                            Component c = getHorizontalComponent(panel, internalX);
-
-                            if (c instanceof JLabel)
-                            {
-                                if (listModel.isGroupClosed(group))
-                                {
-                                    listModel.openGroup(group);
-                                }
-                                else
-                                {
-                                    listModel.closeGroup(group);
-                                }
-                            }
+                        if (c instanceof JLabel)
+                        {
+                            if (listModel.isGroupClosed(group))
+                                listModel.openGroup(group);
+                            else
+                                listModel.closeGroup(group);
                         }
                     }
                 }
@@ -852,16 +844,13 @@ public class ContactList
      */
     private Component getHorizontalComponent(Container c, int x)
     {
-        Component innerComponent = null;
-        int width;
         for (int i = 0; i < c.getComponentCount(); i++)
         {
-            innerComponent = c.getComponent(i);
-            width = innerComponent.getWidth();
-            if (x > innerComponent.getX() && x < innerComponent.getX() + width)
-            {
-                return innerComponent;
-            }
+            Component component = c.getComponent(i);
+            int componentX = component.getX();
+
+            if ((x > componentX) && (x < componentX + component.getWidth()))
+                return component;
         }
         return null;
     }
@@ -928,11 +917,13 @@ public class ContactList
                         if (contentToRefresh.isEmpty())
                             contentToRefresh.wait();
 
-                        copyContentToRefresh = new Hashtable<Object, String>(contentToRefresh);
+                        copyContentToRefresh
+                            = new Hashtable<Object, String>(contentToRefresh);
                         contentToRefresh.clear();
                     }
 
-                    for (Map.Entry<Object, String> groupEntry : copyContentToRefresh.entrySet())
+                    for (Map.Entry<Object, String> groupEntry
+                            : copyContentToRefresh.entrySet())
                     {
                         String operation = groupEntry.getValue();
                         Object o = groupEntry.getKey();
@@ -1212,15 +1203,7 @@ public class ContactList
      */
     public void setSelectedValue(Object o)
     {
-        if (o == null)
-        {
-            this.setSelectedIndex(-1);
-        }
-        else
-        {
-            int i = listModel.indexOf(o);
-            this.setSelectedIndex(i);
-        }
+        setSelectedIndex((o == null) ? -1 : listModel.indexOf(o));
     }
 
     /**

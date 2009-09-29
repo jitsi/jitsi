@@ -11,7 +11,6 @@ import java.awt.event.*;
 import java.util.*;
 
 import javax.swing.*;
-import javax.swing.event.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.main.chat.*;
@@ -30,8 +29,6 @@ public class DefaultContactList
 {
     private static final long serialVersionUID = 0L;
 
-    protected Object[] currentlySelectedObjects;
-
     public DefaultContactList()
     {
         this.setOpaque(false);
@@ -41,17 +38,6 @@ public class DefaultContactList
 
         this.setTransferHandler(new ContactListTransferHandler(this));
         this.setCellRenderer(new ContactListCellRenderer());
-
-        this.addListSelectionListener(new ListSelectionListener()
-        {
-            public void valueChanged(ListSelectionEvent e)
-            {
-                if (!e.getValueIsAdjusting())
-                {
-                    currentlySelectedObjects = getSelectedValues();
-                }
-            }
-        });
     }
 
     /**
