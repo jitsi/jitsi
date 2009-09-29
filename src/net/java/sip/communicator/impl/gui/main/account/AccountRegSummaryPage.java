@@ -79,6 +79,11 @@ public class AccountRegSummaryPage
             Map.Entry<String, String> entry = summaryData.next();
 
             JLabel keyLabel = new JLabel(entry.getKey().toString() + ":");
+
+            //apparently value could be null ....
+            if( entry.getValue() == null)
+                continue;
+
             JLabel valueLabel = new JLabel(entry.getValue().toString());
 
             keysPanel.add(keyLabel);

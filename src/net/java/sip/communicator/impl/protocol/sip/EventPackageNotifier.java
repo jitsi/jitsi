@@ -31,6 +31,9 @@ import net.java.sip.communicator.util.*;
 public abstract class EventPackageNotifier
     extends EventPackageSupport
 {
+    /**
+     * Our class logger.
+     */
     private static final Logger logger
         = Logger.getLogger(EventPackageNotifier.class);
 
@@ -52,28 +55,23 @@ public abstract class EventPackageNotifier
     private final SipMessageFactory messageFactory;
 
     /**
-     * Initializes a new <code>EventPackageNotifier</code> instance which is to
+     * Initializes a new <tt>EventPackageNotifier</tt> instance which is to
      * provide notifier support according to RFC 3265 to a specific SIP
-     * <code>ProtocolProviderService</code> implementation for a specific event
+     * <tt>ProtocolProviderService</tt> implementation for a specific event
      * package.
      *
-     * @param protocolProvider
-     *            the SIP <code>ProtocolProviderService</code> implementation
-     *            for which the new instance is to provide notifier support for
-     *            a specific event package
-     * @param eventPackage
-     *            the name of the event package the new instance is to implement
-     *            and carry in the Event and Allow-Events headers
-     * @param subscriptionDuration
-     *            the duration of each subscription to be managed by the new
-     *            instance and to be carried in the Expires headers
-     * @param contentSubType
-     *            the sub-type of the content type of the NOTIFY bodies to be
-     *            announced, expected and supported by the subscriptions to be
-     *            managed by the new instance
-     * @param timer
-     *            the <code>Timer</code> support which is to time out the
-     *            subscriptions to be managed by the new instance
+     * @param protocolProvider the SIP <tt>ProtocolProviderService</tt>
+     * implementation for which the new instance is to provide notifier support
+     * for a specific event package
+     * @param eventPackage the name of the event package the new instance is to
+     * implement and carry in the Event and Allow-Events headers
+     * @param subscriptionDuration the duration of each subscription to be
+     * managed by the new instance and to be carried in the Expires headers
+     * @param contentSubType the sub-type of the content type of the NOTIFY
+     * bodies to be announced, expected and supported by the subscriptions to be
+     * managed by the new instance
+     * @param timer the <tt>Timer</tt> support which is to time out the
+     * subscriptions to be managed by the new instance
      */
     public EventPackageNotifier(
         ProtocolProviderServiceSipImpl protocolProvider,
@@ -82,27 +80,22 @@ public abstract class EventPackageNotifier
         String contentSubType,
         TimerScheduler timer)
     {
-        super(
-            protocolProvider,
-            eventPackage,
-            subscriptionDuration,
-            contentSubType,
-            timer);
+        super( protocolProvider, eventPackage, subscriptionDuration,
+                        contentSubType, timer);
 
         this.messageFactory = protocolProvider.getMessageFactory();
     }
 
     /**
-     * Adds a specific <code>Subscription</code> to this list of subscriptions
-     * managed by this instance. If a <code>Subscription</code> with matching
-     * <code>Address</code>/Request URI and EventId tag exists in the list of
+     * Adds a specific <tt>Subscription</tt> to this list of subscriptions
+     * managed by this instance. If a <tt>Subscription</tt> with matching
+     * <tt>Address</tt>/Request URI and EventId tag exists in the list of
      * subscriptions managed by this instance already, that matching
-     * <code>Subscription</code> is removed before the specified
-     * <code>Subscription</code> is added.
+     * <tt>Subscription</tt> is removed before the specified
+     * <tt>Subscription</tt> is added.
      *
-     * @param subscription
-     *            the <code>Subscription</code> to be added to the list of
-     *            subscriptions managed by this instance
+     * @param subscription the <tt>Subscription</tt> to be added to the list of
+     * subscriptions managed by this instance
      */
     private void addSubscription(Subscription subscription)
     {
@@ -125,26 +118,24 @@ public abstract class EventPackageNotifier
     /**
      * Creates a NOTIFY request which is to notify about a specific subscription
      * state and carry a specific content. This request MUST be sent using
-     * <code>Dialog#sendRequest()</code>.
+     * <tt>Dialog#sendRequest()</tt>.
      *
-     * @param dialog
-     *            the <code>Dialog</code> to create the NOTIFY request in
-     * @param content
-     *            the content to be carried by the NOTIFY request to be created
-     * @param subscriptionState
-     *            the subscription state
-     * @param reason
-     *            the reason for the specified subscription state; <tt>null</tt>
-     *            for no reason
-     * @return a valid <code>ClientTransaction</code> ready to send the request
-     * @throws OperationFailedException
-     *             if something goes wrong during the creation of the request
+     * @param dialog the <tt>Dialog</tt> to create the NOTIFY request in
+     * @param content the content to be carried by the NOTIFY request to be
+     * created
+     * @param subscriptionState the subscription state
+     * @param reason the reason for the specified subscription state;
+     * <tt>null</tt> for no reason
+     *
+     * @return a valid <tt>ClientTransaction</tt> ready to send the request
+     *
+     * @throws OperationFailedException if something goes wrong during the
+     * creation of the request
      */
-    private ClientTransaction createNotify(
-            Dialog dialog,
-            byte[] content,
-            String subscriptionState,
-            String reason)
+    private ClientTransaction createNotify( Dialog dialog,
+                                            byte[] content,
+                                            String subscriptionState,
+                                            String reason)
         throws OperationFailedException
     {
         Request req = messageFactory.createRequest(dialog, Request.NOTIFY);
@@ -172,9 +163,9 @@ public abstract class EventPackageNotifier
                 e);
             throw
                 new OperationFailedException(
-                        "Can't retrive the via headers or the max forwards header",
-                        OperationFailedException.INTERNAL_ERROR,
-                        e);
+                    "Can't retrive the via headers or the max forwards header",
+                    OperationFailedException.INTERNAL_ERROR,
+                    e);
         }
 
         EventHeader evHeader;
@@ -200,10 +191,8 @@ public abstract class EventPackageNotifier
         SubscriptionStateHeader sStateHeader;
         try
         {
-            sStateHeader
-                = protocolProvider
-                    .getHeaderFactory()
-                        .createSubscriptionStateHeader(subscriptionState);
+            sStateHeader = protocolProvider.getHeaderFactory()
+                .createSubscriptionStateHeader(subscriptionState);
 
             if ((reason != null) && (reason.trim().length() != 0))
                 sStateHeader.setReasonCode(reason);
@@ -242,19 +231,6 @@ public abstract class EventPackageNotifier
         req.setHeader(sStateHeader);
 
         /*
-         * Check whether there's a cached authorization header for this call id
-         * and attach it to the request.
-         */
-        CallIdHeader callIdHeader
-            = (CallIdHeader) req.getHeader(CallIdHeader.NAME);
-        String callId = callIdHeader.getCallId();
-        AuthorizationHeader authorization
-            = protocolProvider
-                .getSipSecurityManager().getCachedAuthorizationHeader(callId);
-        if (authorization != null)
-            req.addHeader(authorization);
-
-        /*
          * Create the transaction (then add the via header as recommended by the
          * jain-sip documentation at
          * http://snad.ncsl.nist.gov/proj/iptel/jain-sip
@@ -263,18 +239,14 @@ public abstract class EventPackageNotifier
         ClientTransaction transac;
         try
         {
-            transac
-                = protocolProvider
-                    .getDefaultJainSipProvider().getNewClientTransaction(req);
+            transac = protocolProvider.getDefaultJainSipProvider()
+                .getNewClientTransaction(req);
         }
         catch (TransactionUnavailableException ex)
         {
-            logger.error(
-                "Failed to create subscriptionTransaction."
-                    + " This is most probably a network connection error.",
-                ex);
-            throw
-                new OperationFailedException(
+            logger.error( "Failed to create subscriptionTransaction."
+                    + " This is most probably a network connection error.", ex);
+            throw new OperationFailedException(
                         "Failed to create subscriptionTransaction.",
                         OperationFailedException.NETWORK_FAILURE,
                         ex);
@@ -290,8 +262,7 @@ public abstract class EventPackageNotifier
         catch (ParseException e)
         {
             logger.error("Failed to add the presence document", e);
-            throw
-                new OperationFailedException(
+            throw new OperationFailedException(
                         "Can't add the presence document to the request",
                         OperationFailedException.INTERNAL_ERROR,
                         e);
@@ -301,88 +272,77 @@ public abstract class EventPackageNotifier
     }
 
     /**
-     * Creates a NOTIFY request within a specific <code>Dialog</code> which is
-     * to notify about a specific subscription state and carry a specific
-     * content. This request MUST be sent using
-     * <code>Dialog#sendRequest()</code>.
+     * Creates a NOTIFY request within a specific <tt>Dialog</tt> which is to
+     * notify about a specific subscription state and carry a specific content.
+     * This request MUST be sent using <tt>Dialog#sendRequest()</tt>.
      *
-     * @param dialog
-     *            the <code>Dialog</code> to create the NOTIFY request in
-     * @param subscription
-     *            the <code>Subscription</code> associated with the NOTIFY
-     *            request to be created
-     * @param subscriptionState
-     *            the subscription state
-     * @param reason
-     *            the reason for the specified subscription state; <tt>null</tt>
-     *            for no reason
-     * @return a valid <code>ClientTransaction</code> ready to send the request
-     * @throws OperationFailedException
-     *             if something goes wrong during the creation of the request
+     * @param dialog the <tt>Dialog</tt> to create the NOTIFY request in
+     * @param subscription the <tt>Subscription</tt> associated with the NOTIFY
+     * request to be created
+     * @param subscriptionState the subscription state
+     * @param reason the reason for the specified subscription state;
+     * <tt>null</tt> for no reason
+     *
+     * @return a valid <tt>ClientTransaction</tt> ready to send the request
+     *
+     * @throws OperationFailedException if something goes wrong during the
+     * creation of the request
      */
-    private ClientTransaction createNotify(
-            Dialog dialog,
-            Subscription subscription,
-            String subscriptionState,
-            String reason)
+    private ClientTransaction createNotify( Dialog dialog,
+                                            Subscription subscription,
+                                            String subscriptionState,
+                                            String reason)
         throws OperationFailedException
     {
         if (dialog == null)
         {
             dialog = subscription.getDialog();
             if (dialog == null)
-                throw
-                    new OperationFailedException(
+                throw new OperationFailedException(
                             "the dialog of the subscription is null",
                             OperationFailedException.INTERNAL_ERROR);
         }
 
         return
-            createNotify(
-                dialog,
+            createNotify( dialog,
                 subscription.createNotifyContent(subscriptionState, reason),
-                subscriptionState,
-                reason);
+                subscriptionState, reason);
     }
 
     /**
-     * Creates a new <code>Subscription</code> instance which is to represent
-     * the subscription signaling from and to a specific target identified by
-     * its <code>Address</code>/Request URI and a specific EventId tag.
+     * Creates a new <tt>Subscription</tt> instance which is to represent the
+     * subscription signaling from and to a specific target identified by its
+     * <tt>Address</tt>/Request URI and a specific EventId tag.
      *
-     * @param fromAddress
-     *            the <code>Address</code>/Request URI of the subscription
-     *            target
-     * @param eventId
-     *            the EventId tag of the subscription signaling associated with
-     *            the specified target
-     * @return a new <code>Subscription</code> instance which represents the
-     *         specified subscription target
+     * @param fromAddress the <tt>Address</tt>/Request URI of the subscription
+     * target
+     * @param eventId the EventId tag of the subscription signaling associated
+     * with the specified target
+     *
+     * @return a new <tt>Subscription</tt> instance which represents the
+     * specified subscription target
      */
     protected abstract Subscription createSubscription(
         Address fromAddress,
         String eventId);
 
     /**
-     * Gets the <code>Subscription</code> from the list of subscriptions managed
-     * by this instance which is associated with a specific subscription
-     * <code>Address</code>/Request URI and has a specific id tag in its Event
+     * Gets the <tt>Subscription</tt> from the list of subscriptions managed by
+     * this instance which is associated with a specific subscription
+     * <tt>Address</tt>/Request URI and has a specific id tag in its Event
      * header.
      *
-     * @param fromAddress
-     *            the subscription <code>Address</code>/Request URI of the
-     *            <code>Subscription</code> to be retrieved
-     * @param eventId
-     *            the id tag placed in the Event header of the
-     *            <code>Subscription</code> to be retrieved if there is one or
-     *            <tt>null</tt> if the <code>Subscription</code> should have no
-     *            id tag in its Event header
-     * @return an existing <code>Subscription</code> from the list of
-     *         subscriptions managed by this instance with the specified
-     *         subscription <code>Address</code>/Request URI and the specified
-     *         id tag in its Event header; <tt>null</tt> if no such
-     *         <code>Subscription</code> exists in the list of subscriptions
-     *         managed by this instance
+     * @param fromAddress the subscription <tt>Address</tt>/Request URI of the
+     * <tt>Subscription</tt> to be retrieved
+     * @param eventId the id tag placed in the Event header of the
+     * <tt>Subscription</tt> to be retrieved if there is one or <tt>null</tt> if
+     * the <tt>Subscription</tt> should have no id tag in its Event header
+     *
+     * @return an existing <tt>Subscription</tt> from the list of subscriptions
+     * managed by this instance with the specified subscription <tt>Address</tt>
+     * /Request URI and the specified id tag in its Event header; <tt>null</tt>
+     * if no such <tt>Subscription</tt> exists in the list of subscriptions
+     * managed by this instance
      */
     private Subscription getSubscription(Address fromAddress, String eventId)
     {
@@ -396,13 +356,12 @@ public abstract class EventPackageNotifier
     }
 
     /**
-     * Gets a new copy of the list of <code>Subscription</code>s managed by this
+     * Gets a new copy of the list of <tt>Subscription</tt>s managed by this
      * instance.
      *
-     * @return a new copy of the list of <code>Subscription</code>s managed by
-     *         this instance; if this instance currently manages no
-     *         <code>Subscription</code>s, an empty array of
-     *         <code>Subscription</code> element type
+     * @return a new copy of the list of <tt>Subscription</tt>s managed by this
+     * instance; if this instance currently manages no <tt>Subscription</tt>s,
+     * an empty array of <tt>Subscription</tt> element type
      */
     private Subscription[] getSubscriptions()
     {
@@ -414,26 +373,22 @@ public abstract class EventPackageNotifier
     }
 
     /**
-     * Notifies a specific target identified by its <code>Subscription</code>
-     * about a specific subscription state and a specific reason for that
-     * subscription state via a NOTIFY request.
+     * Notifies a specific target identified by its <tt>Subscription</tt> about
+     * a specific subscription state and a specific reason for that subscription
+     * state via a NOTIFY request.
      *
-     * @param subscription
-     *            the target identified by its <code>Subscription</code> to be
-     *            notified about the specified subscription state and the
-     *            specified reason for that subscription state via a NOTIFY
-     *            request
-     * @param subscriptionState
-     *            the subscription state to notify the target represented by its
-     *            <code>Subscription</code> about
-     * @param reason
-     *            the reason for that subscription state
+     * @param subscription the target identified by its <tt>Subscription</tt> to
+     * be notified about the specified subscription state and the specified
+     * reason for that subscription state via a NOTIFY request
+     * @param subscriptionState the subscription state to notify the target
+     * represented by its <tt>Subscription</tt> about
+     * @param reason the reason for that subscription state
+     *
      * @throws OperationFailedException
      */
-    public void notify(
-            Subscription subscription,
-            String subscriptionState,
-            String reason)
+    public void notify( Subscription subscription,
+                        String subscriptionState,
+                        String reason)
         throws OperationFailedException
     {
         Dialog dialog = subscription.getDialog();
@@ -447,8 +402,7 @@ public abstract class EventPackageNotifier
         catch (SipException sex)
         {
             logger.error("Failed to send NOTIFY request.", sex);
-            throw
-                new OperationFailedException(
+            throw new OperationFailedException(
                         "Failed to send NOTIFY request.",
                         OperationFailedException.NETWORK_FAILURE,
                         sex);
@@ -459,17 +413,17 @@ public abstract class EventPackageNotifier
     }
 
     /**
-     * Notifies all targets represented by the <code>Subscription</code>s
-     * managed by this instance about a specific subscription state and a
-     * specific reason for that subscription state via NOTIFY requests.
+     * Notifies all targets represented by the <tt>Subscription</tt>s managed by
+     * this instance about a specific subscription state and a specific reason
+     * for that subscription state via NOTIFY requests.
      *
-     * @param subscriptionState
-     *            the subscription state to be sent to all targets represented
-     *            by the <code>Subscription</code>s managed by this instance via
-     *            NOTIFY requests
-     * @param reason
-     *            the reason for the specified subscription state
-     * @throws OperationFailedException
+     * @param subscriptionState the subscription state to be sent to all targets
+     * represented by the <tt>Subscription</tt>s managed by this instance via
+     * NOTIFY requests
+     * @param reason the reason for the specified subscription state
+     *
+     * @throws OperationFailedException if anything goes wrong while sending out
+     * notifications.
      */
     public void notifyAll(String subscriptionState, String reason)
         throws OperationFailedException
@@ -478,8 +432,13 @@ public abstract class EventPackageNotifier
             notify(subscription, subscriptionState, reason);
     }
 
-    /*
-     * Implements MethodProcessor#processRequest(RequestEvent).
+    /**
+     * Processes incoming subscribe requests.
+     *
+     * @param requestEvent the event containing the request we need to handle.
+     *
+     * @return <tt>true</tt> if we have handled and thus consumed the request
+     * and <tt>false</tt> otherwise.
      */
     public boolean processRequest(RequestEvent requestEvent)
     {
@@ -518,12 +477,8 @@ public abstract class EventPackageNotifier
             Response response;
             try
             {
-                response
-                    = protocolProvider
-                        .getMessageFactory()
-                            .createResponse(
-                                Response.INTERVAL_TOO_BRIEF,
-                                request);
+                response = protocolProvider.getMessageFactory()
+                    .createResponse( Response.INTERVAL_TOO_BRIEF, request);
             }
             catch (Exception e)
             {
@@ -534,9 +489,7 @@ public abstract class EventPackageNotifier
             MinExpiresHeader min;
             try
             {
-                min
-                    = protocolProvider
-                        .getHeaderFactory()
+                min = protocolProvider .getHeaderFactory()
                             .createMinExpiresHeader(SUBSCRIBE_MIN_EXPIRE);
             }
             catch (InvalidArgumentException e)
@@ -585,9 +538,7 @@ public abstract class EventPackageNotifier
                 Response response;
                 try
                 {
-                    response
-                        = protocolProvider
-                            .getMessageFactory()
+                    response = protocolProvider.getMessageFactory()
                                 .createResponse(Response.OK, request);
                 }
                 catch (Exception e)
@@ -599,9 +550,7 @@ public abstract class EventPackageNotifier
                 // add the expire header
                 try
                 {
-                    expHeader
-                        = protocolProvider
-                            .getHeaderFactory()
+                    expHeader = protocolProvider.getHeaderFactory()
                                 .createExpiresHeader(expires);
                 }
                 catch (InvalidArgumentException e)
@@ -629,19 +578,14 @@ public abstract class EventPackageNotifier
                  * If the contact was already subscribed, we close the last
                  * subscription before accepting the new one.
                  */
-                logger.debug(
-                    "refreshing subscription "
-                        + subscription
-                        + ", we will remove the first subscription");
+                logger.debug("refreshing subscription "
+                    + subscription+ ", we will remove the first subscription");
 
                 // terminate the subscription with a closing NOTIFY
                 ClientTransaction transac = null;
                 try
                 {
-                    transac
-                        = createNotify(
-                            dialog,
-                            subscription,
+                    transac = createNotify( dialog, subscription,
                             SubscriptionStateHeader.TERMINATED,
                             SubscriptionStateHeader.REJECTED);
                 }
@@ -686,9 +630,7 @@ public abstract class EventPackageNotifier
             Response response;
             try
             {
-                response
-                    = protocolProvider
-                        .getMessageFactory()
+                response = protocolProvider.getMessageFactory()
                             .createResponse(Response.OK, request);
             }
             catch (Exception e)
@@ -700,8 +642,7 @@ public abstract class EventPackageNotifier
             // add the expire header
             try
             {
-                expHeader
-                    = protocolProvider
+                expHeader = protocolProvider
                         .getHeaderFactory().createExpiresHeader(0);
             }
             catch (InvalidArgumentException e)
@@ -725,10 +666,7 @@ public abstract class EventPackageNotifier
             ClientTransaction transac = null;
             try
             {
-                transac
-                    = createNotify(
-                        dialog,
-                        subscription,
+                transac = createNotify( dialog, subscription,
                         SubscriptionStateHeader.TERMINATED,
                         SubscriptionStateHeader.TIMEOUT);
             }
@@ -755,8 +693,7 @@ public abstract class EventPackageNotifier
         Response response;
         try
         {
-            response
-                = protocolProvider
+            response = protocolProvider
                     .getMessageFactory().createResponse(Response.OK, request);
         }
         catch (Exception e)
@@ -768,8 +705,7 @@ public abstract class EventPackageNotifier
         // add the expire header
         try
         {
-            expHeader
-                = protocolProvider
+            expHeader = protocolProvider
                     .getHeaderFactory().createExpiresHeader(expires);
         }
         catch (InvalidArgumentException e)
@@ -795,12 +731,8 @@ public abstract class EventPackageNotifier
         ClientTransaction transac;
         try
         {
-            transac
-                = createNotify(
-                    dialog,
-                    subscription,
-                    SubscriptionStateHeader.ACTIVE,
-                    null);
+            transac = createNotify( dialog, subscription,
+                    SubscriptionStateHeader.ACTIVE, null);
         }
         catch (OperationFailedException e)
         {
@@ -826,8 +758,13 @@ public abstract class EventPackageNotifier
         return true;
     }
 
-    /*
-     * Implements MethodProcessor#processResponse(ResponseEvent).
+    /**
+     * Handles an incoming response to a request we'vre previously sent.
+     *
+     * @param responseEvent the event we need to handle.
+     *
+     * @return <tt>true</tt> in case we've handles and thus consumed the event
+     * and <tt>false</tt> otherwise.
      */
     public boolean processResponse(ResponseEvent responseEvent)
     {
@@ -908,19 +845,16 @@ public abstract class EventPackageNotifier
     }
 
     /**
-     * Removes a <code>Subscription</code> from the list of subscriptions
-     * managed by this instance identified by the <code>Response</code> to our
-     * NOTIFY request. If the specified <code>Response</code> cannot identify
-     * such a <code>Subscription</code>, does nothing.
+     * Removes a <tt>Subscription</tt> from the list of subscriptions managed by
+     * this instance identified by the <tt>Response</tt> to our NOTIFY request.
+     * If the specified <tt>Response</tt> cannot identify such a
+     * <tt>Subscription</tt>, does nothing.
      *
-     * @param response
-     *            a <code>Response</code> identifying the
-     *            <code>Subscription</code> to be removed from the list of
-     *            subscriptions managed by this instance
+     * @param response a <tt>Response</tt> identifying the <tt>Subscription</tt>
+     * to be removed from the list of subscriptions managed by this instance
      * @param eventId
-     * @param clientTransaction
-     *            the <code>ClientTransaction</code> through which the specified
-     *            <code>Response</code> came
+     * @param clientTransaction the <tt>ClientTransaction</tt> through which the
+     * specified <tt>Response</tt> came
      */
     private void removeSubscription(
         Response response,
@@ -949,19 +883,17 @@ public abstract class EventPackageNotifier
     }
 
     /**
-     * Removes a specific <code>Subscription</code> from the list of
-     * subscriptions managed by this instance. If the specified
-     * <code>Subscription</code> is contained in the list of subscriptions
-     * managed by this instance, it is removed and then its
-     * <code>Subscription#removed()</code> method is called to notify it that it
-     * has been removed from the list of subscriptions of its containing
-     * <code>EventPackageNotifier</code>. If the specified
-     * <code>Subscription</code> is not contained in the list of subscriptions
+     * Removes a specific <tt>Subscription</tt> from the list of subscriptions
+     * managed by this instance. If the specified <tt>Subscription</tt> is
+     * contained in the list of subscriptions managed by this instance, it is
+     * removed and then its <tt>Subscription#removed()</tt> method is called to
+     * notify it that it has been removed from the list of subscriptions of its
+     * containing <tt>EventPackageNotifier</tt>. If the specified
+     * <tt>Subscription</tt> is not contained in the list of subscriptions
      * managed by this instance, does nothing.
      *
-     * @param subscription
-     *            the <code>Subscription</code> to be removed from the list of
-     *            subscriptions managed by this instance
+     * @param subscription the <tt>Subscription</tt> to be removed from the list
+     * of subscriptions managed by this instance
      */
     private void removeSubscription(Subscription subscription)
     {
@@ -976,11 +908,11 @@ public abstract class EventPackageNotifier
      * Represents a general event package subscription in the sense of RFC 3265
      * "Session Initiation Protocol (SIP)-Specific Event Notification" from the
      * point of view of the notifier and its signaling characteristics such as
-     * Request URI, id tag value of its Event header, the <code>Dialog</code>
+     * Request URI, id tag value of its Event header, the <tt>Dialog</tt>
      * which has been created by the associated SUBSCRIBE request or through
      * which NOTIFY requests are to be sent. Additionally, represents the
-     * subscription-specific processing of the related <code>Request</code>s and
-     * <code>Response</code> s thus allowing implementers to tap into the
+     * subscription-specific processing of the related <tt>Request</tt>s and
+     * <tt>Response</tt> s thus allowing implementers to tap into the
      * general event package subscription operations and provide the event
      * package-specific processing.
      *
@@ -991,19 +923,17 @@ public abstract class EventPackageNotifier
     {
 
         /**
-         * Initializes a new <code>Subscription</code> instance with a specific
-         * subscription <code>Address</code>/Request URI and a specific id tag
-         * of the associated Event headers.
+         * Initializes a new <tt>Subscription</tt> instance with a specific
+         * subscription <tt>Address</tt>/Request URI and a specific id tag of
+         * the associated Event headers.
          *
-         * @param fromAddress
-         *            the subscription <code>Address</code>/Request URI which is
-         *            to be the target of the NOTIFY requests associated with
-         *            the new instance
-         * @param eventId
-         *            the value of the id tag to be placed in the Event headers
-         *            of the NOTIFY requests created for the new instance and to
-         *            be present in the received Event headers in order to have
-         *            the new instance associated with them
+         * @param fromAddress the subscription <tt>Address</tt>/Request URI
+         * which is to be the target of the NOTIFY requests associated with the
+         * new instance
+         * @param eventId the value of the id tag to be placed in the Event
+         * headers of the NOTIFY requests created for the new instance and to be
+         * present in the received Event headers in order to have the new
+         * instance associated with them
          */
         public Subscription(Address fromAddress, String eventId)
         {
@@ -1012,19 +942,17 @@ public abstract class EventPackageNotifier
 
         /**
          * Creates the content of the NOTIFY request to be sent to the target
-         * represented by this <code>Subscription</code> and having a specific
+         * represented by this <tt>Subscription</tt> and having a specific
          * subscription state and a specific reason for that subscription state.
          *
-         * @param subscriptionState
-         *            the subscription state to be notified about in the NOTIFY
-         *            request which is to carry the returned content
-         * @param reason
-         *            the reason for the subscription state to be notified about
-         *            in the NOTIFY request which is to carry the returned
-         *            content
+         * @param subscriptionState the subscription state to be notified about
+         * in the NOTIFY request which is to carry the returned content
+         * @param reason the reason for the subscription state to be notified
+         * about in the NOTIFY request which is to carry the returned content
+         *
          * @return an array of <tt>byte</tt>s representing the content of the
-         *         NOTIFY request to be sent to the target represented by this
-         *         <code>Subscription</code>
+         * NOTIFY request to be sent to the target represented by this
+         * <tt>Subscription</tt>
          */
         protected abstract byte[] createNotifyContent(
             String subscriptionState,
@@ -1032,26 +960,25 @@ public abstract class EventPackageNotifier
     }
 
     /**
-     * Represents a <code>TimerTask</code> which times out a specific
-     * <code>Subscription</code> when its subscription duration expires.
+     * Represents a <tt>TimerTask</tt> which times out a specific
+     * <tt>Subscription</tt> when its subscription duration expires.
      */
     private class SubscriptionTimeoutTask
         extends TimerTask
     {
 
         /**
-         * The <code>Subscription</code> to be timed out by this
-         * <code>TimerTask</code>.
+         * The <tt>Subscription</tt> to be timed out by this
+         * <tt>TimerTask</tt>.
          */
         private final Subscription subscription;
 
         /**
-         * Initializes a new <code>SubscriptionTimeoutTask</code> instance which
-         * is to time out a specific <code>Subscription</code>.
+         * Initializes a new <tt>SubscriptionTimeoutTask</tt> instance which is
+         * to time out a specific <tt>Subscription</tt>.
          *
-         * @param subscription
-         *            the <code>Subscription</code> to be timed out by the new
-         *            instance
+         * @param subscription the <tt>Subscription</tt> to be timed out by the
+         * new instance
          */
         public SubscriptionTimeoutTask(Subscription subscription)
         {
@@ -1060,8 +987,8 @@ public abstract class EventPackageNotifier
 
         /**
          * Sends a closing NOTIFY to the target represented by the associated
-         * <code>Subscription</code> and removes the associated
-         * <code>Subscription</code>.
+         * <tt>Subscription</tt> and removes the associated
+         * <tt>Subscription</tt>.
          */
         public void run()
         {

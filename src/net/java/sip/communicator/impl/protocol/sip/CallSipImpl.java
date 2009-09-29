@@ -102,7 +102,7 @@ public class CallSipImpl
      *
      * @param callPeer the <tt>CallPeer</tt> leaving the call;
      */
-    public void removeCallPeer(CallPeerSipImpl callPeer)
+    private void removeCallPeer(CallPeerSipImpl callPeer)
     {
         if (!callPeers.contains(callPeer))
             return;
@@ -113,7 +113,7 @@ public class CallSipImpl
         try
         {
             fireCallPeerEvent(callPeer,
-                CallPeerEvent.CALL_PEER_REMVOVED);
+                CallPeerEvent.CALL_PEER_REMOVED);
         }
         finally
         {
@@ -203,13 +203,11 @@ public class CallSipImpl
      */
     public void peerStateChanged(CallPeerChangeEvent evt)
     {
-        CallPeerState newState =
-            (CallPeerState) evt.getNewValue();
+        CallPeerState newState = (CallPeerState) evt.getNewValue();
         if (newState == CallPeerState.DISCONNECTED
             || newState == CallPeerState.FAILED)
         {
-            removeCallPeer((CallPeerSipImpl) evt
-                .getSourceCallPeer());
+            removeCallPeer((CallPeerSipImpl) evt.getSourceCallPeer());
         }
         else if ((newState == CallPeerState.CONNECTED
                || newState == CallPeerState.CONNECTING_WITH_EARLY_MEDIA))
@@ -383,7 +381,7 @@ public class CallSipImpl
             // if possible try to indicate the address of the callee so
             // that the media service can choose the most proper local
             // address to advertise.
-            URI calleeURI = callPeer.getJainSipAddress().getURI();
+            URI calleeURI = callPeer.getPeerAddress().getURI();
 
             if (calleeURI.isSipURI())
             {
@@ -514,18 +512,17 @@ public class CallSipImpl
      *
      * @param jainSipProvider the provider containing
      * <tt>sourceTransaction</tt>.
-     * @param serverTransaction the transaction containing the received request.
+     * @param serverTran the transaction containing the received request.
      *
      * @return CallPeerSipImpl the newly created call peer (the one that sent
      * the INVITE).
      */
     public CallPeerSipImpl processInvite(SipProvider       jainSipProvider,
-                    ServerTransaction serverTransaction)
+                                         ServerTransaction serverTran)
 {
-        Request invite = serverTransaction.getRequest();
+        Request invite = serverTran.getRequest();
 
-        CallPeerSipImpl peer
-            = createCallPeerFor(serverTransaction, jainSipProvider);
+        CallPeerSipImpl peer = createCallPeerFor(serverTran, jainSipProvider);
 
         // extract the SDP description.
         // beware: SDP description may be in ACKs so it could be that there's
@@ -542,7 +539,7 @@ public class CallSipImpl
         {
             logger.trace("will send ringing response: ");
             response = messageFactory.createResponse(Response.RINGING, invite);
-            serverTransaction.sendResponse(response);
+            serverTran.sendResponse(response);
             logger.debug("sent a ringing response: " + response);
         }
         catch (Exception ex)
@@ -554,21 +551,6 @@ public class CallSipImpl
         }
 
         return peer;
-    }
-
-    /**
-     * Logs <tt>message</tt> and <tt>cause</tt> and sets <tt>peer</tt> state
-     * to <tt>CallPeerState.FAILED</tt>
-     *
-     * @param message a message to log and display to the user.
-     * @param throwable the exception that cause the error we are logging
-     * @param peer the peer that caused the error and that we are failing.
-     */
-    public static void logAndFailCallPeer(String message,
-        Throwable throwable, CallPeerSipImpl peer)
-    {
-        logger.error(message, throwable);
-        peer.setState(CallPeerState.FAILED, message);
     }
 
     /**

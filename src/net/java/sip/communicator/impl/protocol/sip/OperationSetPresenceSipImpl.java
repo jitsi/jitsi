@@ -40,6 +40,9 @@ public class OperationSetPresenceSipImpl
     implements MethodProcessor,
                RegistrationStateChangeListener
 {
+    /**
+     * Our class logger.
+     */
     private static final Logger logger
         = Logger.getLogger(OperationSetPresenceSipImpl.class);
 
@@ -784,16 +787,9 @@ public class OperationSetPresenceSipImpl
         try
         {
             req = this.parentProvider.getMessageFactory().createRequest(
-                toHeader.getAddress().getURI(),
-                Request.PUBLISH,
-                callIdHeader,
-                cSeqHeader,
-                fromHeader,
-                toHeader,
-                viaHeaders,
-                maxForwards,
-                contTypeHeader,
-                doc);
+                toHeader.getAddress().getURI(), Request.PUBLISH, callIdHeader,
+                cSeqHeader, fromHeader, toHeader, viaHeaders, maxForwards,
+                contTypeHeader, doc);
         }
         catch (ParseException ex)
         {
@@ -813,26 +809,6 @@ public class OperationSetPresenceSipImpl
         {
             req.setHeader(ifmHeader);
         }
-
-        //check whether there's a cached authorization header for this
-        //call id and if so - attach it to the request.
-        // add authorization header
-        CallIdHeader call = (CallIdHeader)req
-            .getHeader(CallIdHeader.NAME);
-        String callid = call.getCallId();
-
-        AuthorizationHeader authorization = parentProvider
-            .getSipSecurityManager()
-                .getCachedAuthorizationHeader(callid);
-
-        if(authorization != null)
-            req.addHeader(authorization);
-
-        //User Agent
-        UserAgentHeader userAgentHeader
-            = parentProvider.getSipCommUserAgentHeader();
-        if(userAgentHeader != null)
-            req.addHeader(userAgentHeader);
 
         return req;
     }

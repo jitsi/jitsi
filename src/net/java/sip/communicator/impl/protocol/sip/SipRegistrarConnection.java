@@ -194,201 +194,35 @@ public class SipRegistrarConnection
                                 RegistrationStateChangeEvent.REASON_NOT_SPECIFIED,
                                 null);
 
-        //From
-        FromHeader fromHeader = null;
+        Request request;
         try
         {
-            fromHeader = sipProvider.getHeaderFactory().createFromHeader(
-                getAddressOfRecord(),
-                SipMessageFactory.generateLocalTag());
+            //We manage the Call ID Header ourselves.The rest will be handled
+            //by our SipMessageFactory
+            if(callIdHeader == null)
+                callIdHeader = this.getJainSipProvider().getNewCallId();
+
+            request = sipProvider.getMessageFactory().createRegisterRequest(
+                getAddressOfRecord(), registrationsExpiration, callIdHeader,
+                getNextCSeqValue());
         }
-        catch (ParseException ex)
+        catch (Exception exc)
         {
+            //catches InvalidArgumentException, ParseExeption
             //this should never happen so let's just log and bail.
-            logger.error(
-                "Failed to generate a from header for our register request."
-                , ex);
-            setRegistrationState(RegistrationState.CONNECTION_FAILED
-                , RegistrationStateChangeEvent.REASON_INTERNAL_ERROR
-                , ex.getMessage());
+            logger.error("Failed to create a Register request." , exc);
+            setRegistrationState(RegistrationState.CONNECTION_FAILED,
+                 RegistrationStateChangeEvent.REASON_INTERNAL_ERROR,
+                 exc.getMessage());
             throw new OperationFailedException(
-                "Failed to generate a from header for our register request."
-                , OperationFailedException.INTERNAL_ERROR
-                , ex);
+                "Failed to generate a from header for our register request.",
+                OperationFailedException.INTERNAL_ERROR, exc);
         }
-
-        //Call ID Header
-        if(callIdHeader == null)
-            callIdHeader = this.getJainSipProvider().getNewCallId();
-
-        //CSeq Header
-        CSeqHeader cSeqHeader = null;
-
-        try
-        {
-            cSeqHeader = sipProvider.getHeaderFactory().createCSeqHeader(
-                getNextCSeqValue(), Request.REGISTER);
-        }
-        catch (ParseException ex)
-        {
-            //Should never happen
-            logger.error("Corrupt Sip Stack", ex);
-            setRegistrationState(RegistrationState.CONNECTION_FAILED
-                , RegistrationStateChangeEvent.REASON_INTERNAL_ERROR
-                , ex.getMessage());
-
-            throw new OperationFailedException(
-                "Failed to generate a from header for our register request."
-                , OperationFailedException.INTERNAL_ERROR
-                , ex);
-
-        }
-        catch (InvalidArgumentException ex)
-        {
-            //Should never happen
-            logger.error("The application is corrupt", ex);
-            setRegistrationState(RegistrationState.CONNECTION_FAILED
-                , RegistrationStateChangeEvent.REASON_INTERNAL_ERROR
-                , ex.getMessage());
-            throw new OperationFailedException(
-                "Failed to generate a from header for our register request."
-                , OperationFailedException.INTERNAL_ERROR
-                , ex);
-        }
-
-        //To Header (Equal to the from header in a registration message.)
-        ToHeader toHeader = null;
-        try
-        {
-            toHeader = sipProvider.getHeaderFactory().createToHeader(
-                getAddressOfRecord(), null);
-        }
-        catch (ParseException ex)
-        {
-            logger.error("Could not create a To header for address:"
-                        + fromHeader.getAddress(),
-                        ex);
-            //throw was missing - reported by Eero Vaarnas
-            setRegistrationState(RegistrationState.CONNECTION_FAILED
-                , RegistrationStateChangeEvent.REASON_INTERNAL_ERROR
-                , ex.getMessage());
-            throw new OperationFailedException(
-                "Could not create a To header for address:"
-                + fromHeader.getAddress()
-                , OperationFailedException.INTERNAL_ERROR
-                , ex);
-        }
-
-        //MaxForwardsHeader
-        MaxForwardsHeader maxForwardsHeader = sipProvider.
-            getMaxForwardsHeader();
-
-        //create a host-only uri for the request uri header.
-        String domain = ((SipURI) toHeader.getAddress().getURI()).getHost();
-
-        //request URI
-        SipURI requestURI = null;
-
-        //Via Headers
-        ArrayList<ViaHeader> viaHeaders = null;
-
-        //Request
-        Request request = null;
-        try
-        {
-            requestURI = sipProvider.getAddressFactory()
-                .createSipURI(null, domain);
-
-            viaHeaders = sipProvider.getLocalViaHeaders(requestURI);
-
-            request = sipProvider.getMessageFactory().createRequest(
-                requestURI, Request.REGISTER, callIdHeader, cSeqHeader,
-                fromHeader, toHeader, viaHeaders, maxForwardsHeader);
-
-            // JvB: use Route header in addition to the request URI
-            // because some servers loop otherwise
-            if(isRouteHeaderEnabled())
-            {
-                SipURI regURI = (SipURI) registrarURI.clone();
-                regURI.setLrParam();
-                RouteHeader route = sipProvider.getHeaderFactory()
-                    .createRouteHeader( sipProvider.getAddressFactory()
-                        .createAddress( null, regURI ));
-
-                request.addHeader( route );
-            }
-        }
-        catch (ParseException ex)
-        {
-            logger.error("Could not create the register request!", ex);
-            setRegistrationState(RegistrationState.CONNECTION_FAILED
-                , RegistrationStateChangeEvent.REASON_INTERNAL_ERROR
-                , ex.getMessage());
-            throw new OperationFailedException(
-                "Could not create the register request!"
-                , OperationFailedException.INTERNAL_ERROR
-                , ex);
-        }
-
-        //Expires Header - try to generate it twice in case the default
-        //expiration period is null
-        ExpiresHeader expHeader = null;
-        for (int retry = 0; retry < 2; retry++)
-        {
-            try
-            {
-                expHeader = sipProvider.getHeaderFactory().createExpiresHeader(
-                    registrationsExpiration);
-            }
-            catch (InvalidArgumentException ex)
-            {
-                if (retry == 0)
-                {
-                    registrationsExpiration = 3600;
-                    continue;
-                }
-                logger.error(
-                    "Invalid registrations expiration parameter - "
-                    + registrationsExpiration,
-                    ex);
-                setRegistrationState(RegistrationState.CONNECTION_FAILED
-                    , RegistrationStateChangeEvent.REASON_INTERNAL_ERROR
-                    , ex.getMessage());
-                throw new OperationFailedException(
-                    "Invalid registrations expiration parameter - "
-                    + registrationsExpiration
-                    , OperationFailedException.INTERNAL_ERROR
-                    , ex);
-            }
-        }
-        request.addHeader(expHeader);
-
-        //Add an "expires" param to our Contact header.
-        ContactHeader contactHeader
-            = (ContactHeader)request.getHeader(ContactHeader.NAME);
-
-        //add expires in the contact header as well in case server likes it
-        //better there.
-        try
-        {
-            contactHeader.setExpires(registrationsExpiration);
-        }
-        catch (InvalidArgumentException exc)
-        {
-            logger.error("Failed to add an expires param ("+
-                        registrationsExpiration + ") to a contact header."
-                        +"will ignore error"
-                        ,exc);
-        }
-
-        request.setHeader(contactHeader);
 
         //Transaction
         try
         {
-            regTrans = getJainSipProvider().getNewClientTransaction(
-                request);
-
+            regTrans = getJainSipProvider().getNewClientTransaction(request);
         }
         catch (TransactionUnavailableException ex)
         {
@@ -406,6 +240,7 @@ public class SipRegistrarConnection
                 OperationFailedException.NETWORK_FAILURE,
                 ex);
         }
+
         try
         {
             regTrans.sendRequest();
@@ -559,7 +394,8 @@ public class SipRegistrarConnection
     * @throws OperationFailedException with the corresponding code if sending
     * or constructing the request fails.
     */
-    private void unregister(boolean sendUnregister) throws OperationFailedException
+    private void unregister(boolean sendUnregister)
+        throws OperationFailedException
     {
         if (getRegistrationState() == RegistrationState.UNREGISTERED)
         {
@@ -586,26 +422,16 @@ public class SipRegistrarConnection
         if(!sendUnregister)
             return;
 
-        //We are apparently registered so send a un-Register request.
-        Request unregisterRequest = (Request) registerRequest.clone();
+        //We are apparently registered so send an un-Register request.
+        Request unregisterRequest;
         try
         {
-            unregisterRequest.getExpires().setExpires(0);
-            CSeqHeader cSeqHeader =
-                (CSeqHeader) unregisterRequest.getHeader(CSeqHeader.NAME);
-            //[issue 1] - increment registration cseq number
-            //reported by - Roberto Tealdi <roby.tea@tin.it>
-            cSeqHeader.setSeqNumber(getNextCSeqValue());
-
-            //remove the branch id.
-            ViaHeader via
-                = (ViaHeader)unregisterRequest.getHeader(ViaHeader.NAME);
-            if(via != null)
-                via.removeParameter("branch");
+            unregisterRequest = sipProvider.getMessageFactory()
+                .createUnRegisterRequest(registerRequest, getNextCSeqValue());
         }
         catch (InvalidArgumentException ex)
         {
-            logger.error("Unable to set Expires Header", ex);
+            logger.error("Unable to create an unREGISTER request.", ex);
             //Shouldn't happen
             setRegistrationState(
                 RegistrationState.CONNECTION_FAILED
@@ -617,28 +443,11 @@ public class SipRegistrarConnection
                 , ex);
         }
 
-        //also set the expires param in the contact header in case server
-        //prefers it this way.
-        ContactHeader contact
-            = (ContactHeader)unregisterRequest.getHeader(ContactHeader.NAME);
-        try
-        {
-            contact.setExpires(0);
-        }
-        catch (InvalidArgumentException exc)
-        {
-            logger.error("Failed to add an expires param ("+
-                        registrationsExpiration + ") to a contact header."
-                        +"will ignore error"
-                        ,exc);
-        }
-
         ClientTransaction unregisterTransaction = null;
         try
         {
-            unregisterTransaction =
-                this.getJainSipProvider().getNewClientTransaction(
-                    unregisterRequest);
+            unregisterTransaction = getJainSipProvider()
+                .getNewClientTransaction(unregisterRequest);
         }
         catch (TransactionUnavailableException ex)
         {
@@ -654,20 +463,6 @@ public class SipRegistrarConnection
         }
         try
         {
-            //check whether there's a cached authorization header for this
-            //call id and if so - attach it to the request.
-            // add authorization header
-            CallIdHeader call = (CallIdHeader)unregisterRequest
-                .getHeader(CallIdHeader.NAME);
-            String callid = call.getCallId();
-
-            AuthorizationHeader authorization = sipProvider
-                .getSipSecurityManager()
-                    .getCachedAuthorizationHeader(callid);
-
-            if(authorization != null)
-                unregisterRequest.addHeader(authorization);
-
             // remove current call-id header
             // on next register we will create new one
             callIdHeader = null;

@@ -21,6 +21,7 @@ import javax.sip.message.*;
 import javax.sip.message.Message;//disambiguates with service.protocol.Message
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -977,5 +978,149 @@ public class SipMessageFactory
 
         if (authorization != null)
             request.setHeader(authorization);
+    }
+
+    /**
+     * Creates a REGISTER <tt>Request</tt> as per the specified parameters.
+     *
+     * @param addressOfRecord the address that we shall be registering
+     * @param registrationsExpiration the expiration interval for the AOR
+     * @param callIdHeader the Call-ID header for our new <tt>Request</tt>.
+     * @param cSeqValue the sequence number of the new request.
+     *
+     * @return the newly created REGISTER <tt>Request</tt>
+     * @throws InvalidArgumentException in case there's a problem with any of
+     * the arguments that we received for this request.
+     * @throws ParseException in case there's a problem with any of
+     * the arguments that we received for this request.
+     * @throws OperationFailedException if we have a problem with the
+     * <tt>MaxForwardsHeader</tt>.
+     */
+    public Request createRegisterRequest(Address      addressOfRecord,
+                                         int          registrationsExpiration,
+                                         CallIdHeader callIdHeader,
+                                         long         cSeqValue)
+        throws InvalidArgumentException,
+               ParseException,
+               OperationFailedException
+    {
+        //From
+        FromHeader fromHeader = protocolProvider.getHeaderFactory()
+            .createFromHeader(addressOfRecord,
+                            SipMessageFactory.generateLocalTag());
+
+        //CSeq Header
+        CSeqHeader cSeqHeader = protocolProvider.getHeaderFactory()
+            .createCSeqHeader(cSeqValue, Request.REGISTER);
+
+
+        //To Header (In the case of SIP Communicator To and From are always
+        //equal.
+        ToHeader toHeader = protocolProvider.getHeaderFactory().createToHeader(
+                addressOfRecord, null);
+
+        //MaxForwardsHeader
+        MaxForwardsHeader maxForwardsHeader = protocolProvider
+            .getMaxForwardsHeader();
+
+        //create a host-only uri for the request uri header.
+        String domain = ((SipURI) toHeader.getAddress().getURI()).getHost();
+
+        //Request URI
+        SipURI requestURI = protocolProvider.getAddressFactory()
+                .createSipURI(null, domain);
+
+        //Via
+        ArrayList<ViaHeader> viaHeaders = protocolProvider
+            .getLocalViaHeaders(requestURI);
+
+        //Request
+        Request request = createRequest(
+                requestURI, Request.REGISTER, callIdHeader, cSeqHeader,
+                fromHeader, toHeader, viaHeaders, maxForwardsHeader);
+
+        //Expires Header - try to generate it twice in case there was something
+        //wrong with the value we received from the provider or the server.
+        ExpiresHeader expHeader = null;
+        for (int retry = 0; retry < 2; retry++)
+        {
+            try
+            {
+                expHeader = protocolProvider.getHeaderFactory()
+                    .createExpiresHeader(registrationsExpiration);
+            }
+            catch (InvalidArgumentException ex)
+            {
+                if (retry == 0)
+                {
+                    registrationsExpiration = 3600;
+                    continue;
+                }
+                throw new IllegalArgumentException(
+                    "Invalid registrations expiration parameter - "
+                    + registrationsExpiration, ex);
+            }
+        }
+        request.addHeader(expHeader);
+
+        //Add an "expires" param to our Contact header.
+        ContactHeader contactHeader
+            = (ContactHeader)request.getHeader(ContactHeader.NAME);
+
+        //add expires in the contact header as well in case server likes it
+        //better there.
+        contactHeader.setExpires(registrationsExpiration);
+
+        request.setHeader(contactHeader);
+
+        return request;
+
+    }
+
+    /**
+     * Creates a request that would end a registration established with
+     * <tt>registerRequest</tt>
+     * @param registerRequest the request that established the registration
+     * we are now about to terminate.
+     * @param cSeqValue the value of the sequence number that the new
+     * <tt>Request</tt> should list in its <tt>CSeq</tt> header.
+     *
+     * @return a <tt>Request</tt> built to terminate the registration
+     * established with <tt>registerRequest</tt>
+     * .
+     * @throws InvalidArgumentException if we fail constructing the request for
+     * some reason.
+     */
+    public Request createUnRegisterRequest(Request registerRequest,
+                                           long    cSeqValue)
+        throws InvalidArgumentException
+    {
+        Request unregisterRequest = (Request) registerRequest.clone();
+
+        unregisterRequest.getExpires().setExpires(0);
+        CSeqHeader cSeqHeader = (CSeqHeader) unregisterRequest
+            .getHeader(CSeqHeader.NAME);
+
+        //[issue 1] - increment registration cseq number
+        //reported by - Roberto Tealdi <roby.tea@tin.it>
+        cSeqHeader.setSeqNumber(cSeqValue);
+
+        //remove the branch id.
+        ViaHeader via
+            = (ViaHeader)unregisterRequest.getHeader(ViaHeader.NAME);
+        if(via != null)
+            via.removeParameter("branch");
+
+
+        //also set the expires param in the contact header in case server
+        //prefers it this way.
+        ContactHeader contact
+            = (ContactHeader)unregisterRequest.getHeader(ContactHeader.NAME);
+
+        contact.setExpires(0);
+
+        attachScSpecifics(unregisterRequest);
+
+        return unregisterRequest;
     }
 }

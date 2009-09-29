@@ -12,6 +12,7 @@ import java.util.*;
 
 import javax.sip.*;
 import javax.sip.address.*;
+import javax.sip.address.URI;
 import javax.sip.header.*;
 import javax.sip.message.*;
 
@@ -154,29 +155,26 @@ public class CallPeerSipImpl
      */
     public String getAddress()
     {
-        return this.peerAddress.getURI().toString();
+        return this.getPeerAddress().getURI().toString();
     }
 
     /**
-     * Specifies the address, phone number, or other protocol specific
-     * identifier that represents this call peer. This method is to be
-     * used by service users and MUST NOT be called by the implementation.
+     * Returns the address of the remote party (making sure that it corresponds
+     * to the latest address we've received) and caches it.
      *
-     * @param address The address of this call peer.
+     * @return the most recent <tt>javax.sip.address.Address</tt> that we have
+     * for the remote party.
      */
-    public void setAddress(Address address)
+    public Address getPeerAddress()
     {
-        String oldAddress = getAddress();
+        if (getDialog() != null
+            && getDialog().getRemoteParty() != null)
+        {
+            //update the address we've cached.
+            peerAddress = getDialog().getRemoteParty();
+        }
 
-        if(peerAddress.equals(address))
-            return;
-
-        this.peerAddress = address;
-        //Fire the Event
-        fireCallPeerChangeEvent(
-                CallPeerChangeEvent.CALL_PEER_ADDRESS_CHANGE,
-                oldAddress,
-                address.toString());
+        return peerAddress;
     }
 
     /**
@@ -186,9 +184,9 @@ public class CallPeerSipImpl
      */
     public String getDisplayName()
     {
-        String displayName = peerAddress.getDisplayName();
+        String displayName = getPeerAddress().getDisplayName();
         return (displayName == null)
-                    ? peerAddress.getURI().toString()
+                    ? getPeerAddress().getURI().toString()
                     : displayName;
     }
 
@@ -219,11 +217,11 @@ public class CallPeerSipImpl
     }
 
     /**
-     * The method returns an image representation of the call peer
-     * (e.g.
+     * The method returns an image representation of the call peer if one is
+     * available.
      *
-     * @return byte[] a byte array containing the image or null if no image
-     *   is available.
+     * @return byte[] a byte array containing the image or null if no image is
+     * available.
      */
     public byte[] getImage()
     {
@@ -306,15 +304,6 @@ public class CallPeerSipImpl
     public void setSdpDescription(String sdpDescription)
     {
         this.sdpDescription = sdpDescription;
-    }
-
-    /**
-     * Returns the javax.sip Address of this call peer.
-     * @return the javax.sip Address of this call peer.
-     */
-    public Address getJainSipAddress()
-    {
-        return peerAddress;
     }
 
     /**
@@ -811,8 +800,8 @@ public class CallPeerSipImpl
                 "Failed to determine whether the dialog should stay alive.",ex);
         }
 
-        //if the Dialog is still alive (i.e. we are not in the middle of a xfer)
-        //then stop streaming, otherwise only change states.
+        //if the Dialog is still alive (i.e. we are in the middle of a xfer)
+        //then only stop streaming, otherwise Disconnect.
         if (dialogIsAlive)
         {
             getMediaCallSession().stopStreaming();
@@ -906,7 +895,7 @@ public class CallPeerSipImpl
      * @param message a message to log and display to the user.
      * @param throwable the exception that cause the error we are logging
      */
-    private void logAndFail(String message, Throwable throwable)
+    public void logAndFail(String message, Throwable throwable)
     {
         logger.error(message, throwable);
         setState(CallPeerState.FAILED, message);
@@ -1119,8 +1108,11 @@ public class CallPeerSipImpl
         if (peerState.equals(CallPeerState.CONNECTED)
             || CallPeerState.isOnHold(peerState))
         {
-            sayBye();
-            setState(CallPeerState.DISCONNECTED);
+            boolean dialogIsAlive = sayBye();
+            if (!dialogIsAlive)
+            {
+                setState(CallPeerState.DISCONNECTED);
+            }
         }
         else if (CallPeerState.CONNECTING.equals(getState())
             || CallPeerState.CONNECTING_WITH_EARLY_MEDIA.equals(getState())
@@ -1248,7 +1240,7 @@ public class CallPeerSipImpl
      * @throws OperationFailedException if we failed constructing or sending a
      * SIP Message.
      */
-    public boolean sayBye() throws OperationFailedException
+    private boolean sayBye() throws OperationFailedException
     {
         Dialog dialog = getDialog();
 
@@ -1493,6 +1485,102 @@ public class CallPeerSipImpl
     }
 
     /**
+     * Creates a <tt>CallPeerSipImpl</tt> from <tt>calleeAddress</tt> and sends
+     * them an invite request. The invite request will be initialized according
+     * to any relevant parameters in the <tt>cause</tt> message (if different
+     * from <tt>null</tt>) that is the reason for creating this call.
+     *
+     * @throws OperationFailedException  with the corresponding code if we fail
+     *  to create the call or in case we someone calls us mistakenly while we
+     *  are actually wrapped around an invite transaction.
+     */
+    public void invite()
+        throws OperationFailedException
+    {
+        ClientTransaction inviteTran;
+        try
+        {
+            inviteTran = (ClientTransaction)getLatestInviteTransaction();
+        }
+        catch(ClassCastException exc)
+        {
+            throw new OperationFailedException(
+                "Can't invite someone that is actually inviting us",
+                OperationFailedException.INTERNAL_ERROR, exc);
+        }
+
+        attachSdpOffer(inviteTran.getRequest());
+
+        try
+        {
+            inviteTran.sendRequest();
+            if (logger.isDebugEnabled())
+                logger.debug("sent request:\n" + inviteTran.getRequest());
+        }
+        catch (SipException ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "An error occurred while sending invite request",
+                OperationFailedException.NETWORK_FAILURE, ex, logger);
+        }
+    }
+
+    /**
+     * Creates an SDP offer destined to <tt>callPeer</tt> and attaches it to
+     * the <tt>invite</tt> request.
+     *
+     * @param invite the invite <tt>Request</tt> that we'd like to attach an
+     * SDP offer to.
+     *
+     * @throws OperationFailedException if we fail constructing the session
+     * description.
+     */
+    private void attachSdpOffer(Request invite)
+        throws OperationFailedException
+    {
+        try
+        {
+            CallSession callSession = SipActivator.getMediaService()
+                .createCallSession(getCall());
+
+            setMediaCallSession(callSession);
+
+            callSession.setSessionCreatorCallback(this);
+
+            // indicate the address of the callee so that the media service can
+            // choose the most proper local address to advertise.
+            InetAddress intendedDestination = getProtocolProvider()
+                .getIntendedDestination(getPeerAddress());
+
+            ContentTypeHeader contentTypeHeader = getProtocolProvider()
+                .getHeaderFactory().createContentTypeHeader(
+                        "application", "sdp");
+
+            invite.setContent(callSession.createSdpOffer(intendedDestination),
+                              contentTypeHeader);
+        }
+        catch (IllegalArgumentException ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to obtain an InetAddress for " + ex.getMessage(),
+                OperationFailedException.NETWORK_FAILURE, ex, logger);
+        }
+        catch (ParseException ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to parse sdp data while creating invite request!",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
+        }
+        catch (MediaException ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Could not access media devices!",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
+        }
+
+    }
+
+    /**
      * Modifies the local media setup to reflect the requested setting for the
      * streaming of the local video and then re-invites the peer represented by
      * this class using a corresponding SDP description..
@@ -1582,5 +1670,23 @@ public class CallPeerSipImpl
                                                PropertyChangeListener listener)
     {
         getMediaCallSession().removePropertyChangeListener(listener);
+    }
+
+    /**
+     * Updates this call so that it would record a new transaction and dialog
+     * that have been recreated because of a re-authentication.
+     *
+     * @param retryTran the new transaction
+     */
+    public void handleAuthenticationChallenge(ClientTransaction retryTran)
+    {
+        // There is a new dialog that will be started with this request. Get
+        // that dialog and record it into the Call object for later use (by
+        // BYEs for example).
+        // if the request was BYE then we need to authorize it anyway even
+        // if the call and the call peer are no longer there
+        setDialog(retryTran.getDialog());
+        setLatestInviteTransaction(retryTran);
+        setJainSipProvider(jainSipProvider);
     }
 }

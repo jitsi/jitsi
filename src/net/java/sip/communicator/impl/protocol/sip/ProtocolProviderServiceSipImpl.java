@@ -781,7 +781,7 @@ public class ProtocolProviderServiceSipImpl
         }
 
         // launch the shutdown process in a thread to free the GUI as soon
-        // as possible even if the SIP unregistration process may take time
+        // as possible even if the SIP un-registration process may take time
         // especially for ending SIMPLE
         Thread t = new Thread(new ShutdownThread());
         t.setDaemon(false);
@@ -795,6 +795,10 @@ public class ProtocolProviderServiceSipImpl
      */
     protected class ShutdownThread implements Runnable
     {
+        /**
+         * Shutdowns operation sets that need it then calls the
+         * <tt>SipRegistrarConnection.unregister()</tt> method.
+         */
         public void run() {
             logger.trace("Killing the SIP Protocol Provider.");
             //kill all active calls
@@ -1196,6 +1200,13 @@ public class ProtocolProviderServiceSipImpl
     {
         if(logger.isTraceEnabled())
             logger.trace("Query for a " + transport + " listening point");
+
+        //override the transport in case we have an outbound proxy.
+        if(getOutboundProxy() != null)
+        {
+            logger.trace("Will use proxy address");
+            transport = outboundProxyTransport;
+        }
 
         if(   transport == null
            || transport.trim().length() == 0
@@ -2339,7 +2350,9 @@ public class ProtocolProviderServiceSipImpl
      * as a next hop when contacting the specified <tt>destination</tt>. This is
      * an utility method that is used whenever we have to choose one of our
      * local addresses to put in the Via, Contact or (in the case of no
-     * registrar accounts) From headers.
+     * registrar accounts) From headers. The method also takes into account
+     * the existence of an outbound proxy and in that case returns its address
+     * as the next hop.
      *
      * @param destination the destination that we would contact.
      *
@@ -2349,7 +2362,31 @@ public class ProtocolProviderServiceSipImpl
      * @throws IllegalArgumentException if <tt>destination</tt> is not a valid
      * host/ip/fqdn
      */
-    private InetAddress getIntendedDestination(SipURI destination)
+    public InetAddress getIntendedDestination(Address destination)
+        throws IllegalArgumentException
+    {
+        return getIntendedDestination((SipURI)destination.getURI());
+    }
+
+
+    /**
+     * Returns the <tt>InetAddress</tt> that is most likely to be to be used
+     * as a next hop when contacting the specified <tt>destination</tt>. This is
+     * an utility method that is used whenever we have to choose one of our
+     * local addresses to put in the Via, Contact or (in the case of no
+     * registrar accounts) From headers. The method also takes into account
+     * the existence of an outbound proxy and in that case returns its address
+     * as the next hop.
+     *
+     * @param destination the destination that we would contact.
+     *
+     * @return the <tt>InetAddress</tt> that is most likely to be to be used
+     * as a next hop when contacting the specified <tt>destination</tt>.
+     *
+     * @throws IllegalArgumentException if <tt>destination</tt> is not a valid
+     * host/ip/fqdn
+     */
+    public InetAddress getIntendedDestination(SipURI destination)
         throws IllegalArgumentException
     {
         return getIntendedDestination(destination.getHost());
@@ -2360,7 +2397,9 @@ public class ProtocolProviderServiceSipImpl
      * as a next hop when contacting the specified <tt>destination</tt>. This is
      * an utility method that is used whenever we have to choose one of our
      * local addresses to put in the Via, Contact or (in the case of no
-     * registrar accounts) From headers.
+     * registrar accounts) From headers. The method also takes into account
+     * the existence of an outbound proxy and in that case returns its address
+     * as the next hop.
      *
      * @param host the destination that we would contact.
      *
@@ -2370,7 +2409,7 @@ public class ProtocolProviderServiceSipImpl
      * @throws IllegalArgumentException if <tt>destination</tt> is not a valid
      * host/ip/fqdn.
      */
-    private InetAddress getIntendedDestination(String host)
+    public InetAddress getIntendedDestination(String host)
         throws IllegalArgumentException
     {
         // Address

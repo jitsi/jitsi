@@ -99,7 +99,7 @@ public class CallGibberishImpl
         callPeer.removeCallPeerListener(this);
 
         fireCallPeerEvent(
-            callPeer, CallPeerEvent.CALL_PEER_REMVOVED);
+            callPeer, CallPeerEvent.CALL_PEER_REMOVED);
 
         if(callPeers.size() == 0)
             setCallState(CallState.CALL_ENDED);

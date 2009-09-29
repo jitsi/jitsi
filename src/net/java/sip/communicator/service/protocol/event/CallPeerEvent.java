@@ -32,7 +32,7 @@ public class CallPeerEvent
      * An event id value indicating that this event is about the fact that
      * the source call peer has left the source call.
      */
-    public static final int CALL_PEER_REMVOVED = 2;
+    public static final int CALL_PEER_REMOVED = 2;
 
     /**
      * The id indicating the type of this event.

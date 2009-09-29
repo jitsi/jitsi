@@ -679,12 +679,6 @@ public class OperationSetBasicTelephonySipImpl
         CallPeerSipImpl callPeer = activeCallsRepository.findCallPeer(
                         clientTransaction.getDialog());
 
-        if (callPeer == null)
-        {
-            logger.debug("Received an authorization challenge for no "
-                + "peer. authorizing anyway.");
-        }
-
         try
         {
             logger.debug("Authenticating an INVITE request.");
@@ -699,25 +693,20 @@ public class OperationSetBasicTelephonySipImpl
                 return;
             }
 
-            // There is a new dialog that will be started with this request. Get
-            // that dialog and record it into the Call object for later use (by
-            // BYEs for example).
-            // if the request was BYE then we need to authorize it anyway even
-            // if the call and the call peer are no longer there
             if (callPeer != null)
             {
-                callPeer.setDialog(retryTran.getDialog());
-                callPeer.setLatestInviteTransaction(retryTran);
-                callPeer.setJainSipProvider(jainSipProvider);
+                callPeer.handleAuthenticationChallenge(retryTran);
             }
             retryTran.sendRequest();
         }
         catch (Exception exc)
         {
-            // tell the others we couldn't authenticate
-            CallSipImpl.logAndFailCallPeer(
-                            "Failed to authenticate.", exc, callPeer);
-            return;
+            // make sure that we fail the peer in case authentication doesn't
+            //go well.
+            if (callPeer != null)
+            {
+                callPeer.logAndFail("Failed to authenticate.", exc);
+            }
         }
     }
 
@@ -1198,21 +1187,14 @@ public class OperationSetBasicTelephonySipImpl
         if (!CallPeerState.DISCONNECTED.equals(peer.getState())
             && !EventPackageUtils.isByeProcessed(dialog))
         {
-            boolean dialogIsAlive;
             try
             {
-                dialogIsAlive = peer.sayBye();
+                peer.hangup();
             }
             catch (OperationFailedException ex)
             {
-                logger.error(
-                    "Failed to send BYE in response to refer NOTIFY request.",
-                    ex);
-                dialogIsAlive = false;
-            }
-            if (!dialogIsAlive)
-            {
-                peer.setState(CallPeerState.DISCONNECTED);
+                logger.error("Failed to send BYE in response to refer NOTIFY "
+                                +"request.",ex);
             }
         }
 
@@ -1546,7 +1528,7 @@ public class OperationSetBasicTelephonySipImpl
          * may choose to require a valid Referred-By token.
          */
         refer.addHeader( ((HeaderFactoryImpl) headerFactory)
-                .createReferredByHeader(sipPeer.getJainSipAddress()));
+                .createReferredByHeader(sipPeer.getPeerAddress()));
 
         protocolProvider.sendInDialogRequest(
                         sipPeer.getJainSipProvider(), refer, dialog);

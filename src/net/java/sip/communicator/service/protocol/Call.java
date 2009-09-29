@@ -205,7 +205,7 @@ public abstract class Call
 
             if(eventID == CallPeerEvent.CALL_PEER_ADDED)
                 listener.callPeerAdded(cpEvent);
-            else if (eventID == CallPeerEvent.CALL_PEER_REMVOVED)
+            else if (eventID == CallPeerEvent.CALL_PEER_REMOVED)
                 listener.callPeerRemoved(cpEvent);
 
         }

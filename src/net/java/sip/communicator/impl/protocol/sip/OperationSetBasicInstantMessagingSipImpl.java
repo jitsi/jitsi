@@ -441,16 +441,9 @@ public class OperationSetBasicInstantMessagingSipImpl
         try
         {
             req = this.sipProvider.getMessageFactory().createRequest(
-                toHeader.getAddress().getURI(),
-                Request.MESSAGE,
-                callIdHeader,
-                cSeqHeader,
-                fromHeader,
-                toHeader,
-                viaHeaders,
-                maxForwards,
-                contTypeHeader,
-                message.getRawData());
+                toHeader.getAddress().getURI(), Request.MESSAGE, callIdHeader,
+                cSeqHeader, fromHeader, toHeader, viaHeaders, maxForwards,
+                contTypeHeader, message.getRawData());
         }
         catch (ParseException ex)
         {
@@ -464,12 +457,6 @@ public class OperationSetBasicInstantMessagingSipImpl
         }
 
         req.addHeader(contLengthHeader);
-
-        //User Agent
-        UserAgentHeader userAgentHeader
-            = sipProvider.getSipCommUserAgentHeader();
-        if(userAgentHeader != null)
-            req.addHeader(userAgentHeader);
 
         return req;
     }
