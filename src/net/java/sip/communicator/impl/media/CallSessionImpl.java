@@ -2470,7 +2470,7 @@ public class CallSessionImpl
      * <p>
      * JMF stores this statically, so it only has to be done once.  FMJ does it
      * dynamically (per instance, so it needs to be done for each instance.
-     * 
+     *
      * @param rtpManager The manager with which to register the formats.
      * @see EncodingConfiguration#registerCustomCodecs()
      */

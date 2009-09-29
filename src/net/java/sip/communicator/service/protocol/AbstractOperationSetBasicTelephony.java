@@ -21,6 +21,9 @@ import net.java.sip.communicator.util.*;
 public abstract class AbstractOperationSetBasicTelephony
     implements OperationSetBasicTelephony
 {
+    /**
+     * Our class logger
+     */
     private static final Logger logger =
         Logger.getLogger(AbstractOperationSetBasicTelephony.class);
 

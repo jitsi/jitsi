@@ -12,6 +12,8 @@ import java.util.*;
 
 import javax.sip.*;
 import javax.sip.address.*;
+import javax.sip.header.*;
+import javax.sip.message.*;
 
 import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.media.event.*;
@@ -71,7 +73,7 @@ public class CallPeerSipImpl
      * in the jain-sip dialog but got deprected there so we're now keeping it
      * here.
      */
-    private Transaction firstTransaction = null;
+    private Transaction latestInviteTransaction = null;
 
     /**
      * The jain sip provider instance that is responsible for sending and
@@ -93,6 +95,24 @@ public class CallPeerSipImpl
     private URL callControlURL = null;
 
     /**
+     * A reference to the <tt>SipMessageFactory</tt> instance that we should
+     * use when creating requests.
+     */
+    private final SipMessageFactory messageFactory;
+
+    /**
+     * A reference to the <tt>OperationSetBasicTelephonySipImpl</tt> that
+     * created us;
+     */
+    private final OperationSetBasicTelephonySipImpl parentOpSet;
+
+    /**
+     * The <tt>CallSession</tt> that the media service has created for this
+     * call.
+     */
+    private CallSession mediaCallSession = null;
+
+    /**
      * The <tt>CallPeerSoundLevelListener</tt>-s registered to get
      * <tt>CallPeerSoundLevelEvent</tt>-s
      */
@@ -104,12 +124,23 @@ public class CallPeerSipImpl
      *
      * @param peerAddress the JAIN SIP <tt>Address</tt> of the new call peer.
      * @param owningCall the call that contains this call peer.
+     * @param containingTransaction the transaction that created the call peer.
+     * @param sourceProvider the provider that the containingTransaction belongs
+     * to.
      */
     public CallPeerSipImpl(Address     peerAddress,
-                           CallSipImpl owningCall)
+                           CallSipImpl owningCall,
+                           Transaction containingTransaction,
+                           SipProvider sourceProvider)
     {
         this.peerAddress = peerAddress;
         this.call = owningCall;
+        this.parentOpSet = owningCall.getParentOperationSet();
+        this.messageFactory = getProtocolProvider().getMessageFactory();
+
+        setDialog(containingTransaction.getDialog());
+        setLatestInviteTransaction(containingTransaction);
+        setJainSipProvider(sourceProvider);
 
         //create the uid
         this.peerID = String.valueOf( System.currentTimeMillis())
@@ -315,9 +346,9 @@ public class CallPeerSipImpl
      *
      * @param transaction the Transaction that initiated this call.
      */
-    public void setFirstTransaction(Transaction transaction)
+    public void setLatestInviteTransaction(Transaction transaction)
     {
-        this.firstTransaction = transaction;
+        this.latestInviteTransaction = transaction;
     }
 
     /**
@@ -326,9 +357,9 @@ public class CallPeerSipImpl
      *
      * @return the Transaction that initiated this call.
      */
-    public Transaction getFirstTransaction()
+    public Transaction getLatestInviteTransaction()
     {
-        return firstTransaction;
+        return latestInviteTransaction;
     }
 
     /**
@@ -371,18 +402,17 @@ public class CallPeerSipImpl
         this.transportAddress = transportAddress;
 
         this.fireCallPeerChangeEvent(
-            CallPeerChangeEvent
-                .CALL_PEER_TRANSPORT_ADDRESS_CHANGE,
-                oldTransportAddress,
-                transportAddress);
+            CallPeerChangeEvent.CALL_PEER_TRANSPORT_ADDRESS_CHANGE,
+                oldTransportAddress, transportAddress);
     }
 
     /**
      * Returns the protocol provider that this peer belongs to.
-     * @return a reference to the ProtocolProviderService that this peer
-     * belongs to.
+     *
+     * @return a reference to the <tt>ProtocolProviderService</tt> that this
+     * peer belongs to.
      */
-    public ProtocolProviderService getProtocolProvider()
+    public ProtocolProviderServiceSipImpl getProtocolProvider()
     {
         return this.getCall().getProtocolProvider();
     }
@@ -443,7 +473,7 @@ public class CallPeerSipImpl
 
         if (call != null)
         {
-            CallSession callSession = call.getMediaCallSession();
+            CallSession callSession = getMediaCallSession();
 
             if (callSession != null)
                 return callSession.isMute();
@@ -464,10 +494,8 @@ public class CallPeerSipImpl
                                 String securityString,
                                 boolean isVerified)
     {
-        fireCallPeerSecurityOnEvent( sessionType,
-                                     cipher,
-                                     securityString,
-                                     isVerified);
+        fireCallPeerSecurityOnEvent(
+                        sessionType, cipher, securityString, isVerified);
     }
 
     /**
@@ -555,5 +583,825 @@ public class CallPeerSipImpl
         }
     }
 
+    /**
+     * Reinitializes the media session of the <tt>CallPeer</tt> that this
+     * INVITE request is destined to.
+     *
+     * @param serverTransaction a reference to the {@link ServerTransaction}
+     * that contains the reINVITE request.
+     */
+    public void processReInvite(ServerTransaction serverTransaction)
+    {
+        Request invite = serverTransaction.getRequest();
 
+        setLatestInviteTransaction(serverTransaction);
+
+        // SDP description may be in ACKs - bug report Laurent Michel
+        ContentLengthHeader cl = invite.getContentLength();
+        if (cl != null && cl.getContentLength() > 0)
+        {
+            setSdpDescription(new String(invite.getRawContent()));
+        }
+
+        Response response = null;
+        try
+        {
+            response = messageFactory.createResponse(Response.OK, invite);
+            attachSdpAnswer(response);
+
+            logger.trace("will send an OK response: ");
+            serverTransaction.sendResponse(response);
+            logger.debug("sent a an OK response: "+ response);
+        }
+        catch (Exception ex)//no need to distinguish among exceptions.
+        {
+            logger.error("Error while trying to send a response", ex);
+            setState(CallPeerState.FAILED,
+                "Internal Error: " + ex.getMessage());
+            getProtocolProvider().sayErrorSilently(
+                            serverTransaction, Response.SERVER_INTERNAL_ERROR);
+            return;
+        }
+
+        try
+        {
+            updateMediaFlags();
+        }
+        catch (OperationFailedException ex)
+        {
+            logger.error("Error after sending response " + response, ex);
+        }
+    }
+
+    /**
+     * Creates an SDP description that could be sent to <tt>peer</tt> and adds
+     * it to <tt>response</tt>. Provides a hook for this instance to take last
+     * configuration steps on a specific <tt>Response</tt> before it is sent to
+     * a specific <tt>CallPeer</tt> as part of the execution of.
+     *
+     * @param response the <tt>Response</tt> to be sent to the <tt>peer</tt>
+     *
+     * @throws OperationFailedException if we fail parsing call peer's media.
+     * @throws ParseException if we try to attach invalid SDP to response.
+     */
+    private void attachSdpAnswer(Response response)
+        throws OperationFailedException, ParseException
+    {
+        /*
+         * At the time of this writing, we're only getting called because a
+         * response to a call-hold invite is to be sent.
+         */
+
+        CallSession callSession = getMediaCallSession();
+
+        String sdpAnswer = null;
+        try
+        {
+            sdpAnswer = callSession.processSdpOffer(this, getSdpDescription());
+        }
+        catch (MediaException ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to create SDP answer to put-on/off-hold request.",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
+        }
+
+        response.setContent(
+            sdpAnswer,
+            getProtocolProvider().getHeaderFactory()
+                .createContentTypeHeader("application", "sdp"));
+    }
+
+    /**
+     * Sets the <tt>CallSession</tt> that the media service has created for this
+     * call peer.
+     *
+     * @param callSession the <tt>CallSession</tt> that the media service has
+     * created for this <tt>CallPeer</tt>.
+     */
+    public void setMediaCallSession(CallSession callSession)
+    {
+        this.mediaCallSession = callSession;
+    }
+
+    /**
+     * Returns the <tt>CallSession</tt> that the media service has created for
+     * this peer.
+     *
+     * @return the <tt>CallSession</tt> that the media service has created for
+     * this peer or <tt>null</tt> if no call session has been created so far.
+     */
+    public CallSession getMediaCallSession()
+    {
+        return this.mediaCallSession;
+    }
+
+    /**
+     * Updates the media flags for this peer according to the value of the SDP
+     * field.
+     *
+     * @throws OperationFailedException if we fail parsing callPeer's media.
+     */
+    private void updateMediaFlags()
+        throws OperationFailedException
+    {
+        /*
+         * At the time of this writing, we're only getting called because a
+         * response to a call-hold invite is to be sent.
+         */
+
+        CallSession callSession = getMediaCallSession();
+
+        int mediaFlags = 0;
+        try
+        {
+            mediaFlags = callSession.getSdpOfferMediaFlags(getSdpDescription());
+        }
+        catch (MediaException ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to create SDP answer to put-on/off-hold request.",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
+        }
+
+        /*
+         * Comply with the request of the SDP offer with respect to putting on
+         * hold.
+         */
+        boolean on = ((mediaFlags & CallSession.ON_HOLD_REMOTELY) != 0);
+
+        callSession.putOnHold(on, false);
+
+        CallPeerState state = getState();
+        if (CallPeerState.ON_HOLD_LOCALLY.equals(state))
+        {
+            if (on)
+                setState(CallPeerState.ON_HOLD_MUTUALLY);
+        }
+        else if (CallPeerState.ON_HOLD_MUTUALLY.equals(state))
+        {
+            if (!on)
+                setState(CallPeerState.ON_HOLD_LOCALLY);
+        }
+        else if (CallPeerState.ON_HOLD_REMOTELY.equals(state))
+        {
+            if (!on)
+                setState(CallPeerState.CONNECTED);
+        }
+        else if (on)
+        {
+            setState(CallPeerState.ON_HOLD_REMOTELY);
+        }
+
+        /*
+         * Reflect the request of the SDP offer with respect to the modification
+         * of the availability of media.
+         */
+        callSession.setReceiveStreaming(mediaFlags);
+    }
+
+    /**
+     * Sets the state of the corresponding call peer to DISCONNECTED and
+     * sends an OK response.
+     *
+     * @param byeTran the ServerTransaction the the BYE request arrived in.
+     */
+    public void processBye(ServerTransaction byeTran)
+    {
+        Request byeRequest = byeTran.getRequest();
+        // Send OK
+        Response ok = null;
+        try
+        {
+            ok = messageFactory.createResponse(Response.OK, byeRequest);
+        }
+        catch (ParseException ex)
+        {
+            logger.error("Error while trying to send a response to a bye", ex);
+            // no need to let the user know about the error since it doesn't
+            // affect them
+            return;
+        }
+
+        try
+        {
+            byeTran.sendResponse(ok);
+            logger.debug("sent response " + ok);
+        }
+        catch (Exception ex)
+        {
+            // This is not really a problem according to the RFC
+            // so just dump to stdout should someone be interested
+            logger.error("Failed to send an OK response to BYE request,"
+                + "exception was:\n", ex);
+        }
+
+        // change status
+        boolean dialogIsAlive;
+        try
+        {
+            dialogIsAlive = EventPackageUtils.processByeThenIsDialogAlive(
+                            byeTran.getDialog());
+        }
+        catch (SipException ex)
+        {
+            dialogIsAlive = false;
+
+            logger.error(
+                "Failed to determine whether the dialog should stay alive.",ex);
+        }
+
+        //if the Dialog is still alive (i.e. we are not in the middle of a xfer)
+        //then stop streaming, otherwise only change states.
+        if (dialogIsAlive)
+        {
+            getMediaCallSession().stopStreaming();
+        }
+        else
+        {
+            setState(CallPeerState.DISCONNECTED);
+        }
+    }
+
+    /**
+     * Sets the state of the specifies call peer as DISCONNECTED.
+     *
+     * @param serverTransaction the transaction that the cancel was received in.
+     */
+    public void processCancel(ServerTransaction serverTransaction)
+    {
+        // Cancels should be OK-ed and the initial transaction - terminated
+        // (report and fix by Ranga)
+        Request cancel = serverTransaction.getRequest();
+        try
+        {
+            Response ok = messageFactory.createResponse(Response.OK, cancel);
+            serverTransaction.sendResponse(ok);
+
+            logger.debug("sent an ok response to a CANCEL request:\n" + ok);
+        }
+        catch (ParseException ex)
+        {
+            logAndFail("Failed to create an OK Response to a CANCEL.", ex);
+            return;
+        }
+        catch (Exception ex)
+        {
+            logAndFail("Failed to send an OK Response to a CANCEL.", ex);
+            return;
+        }
+
+        try
+        {
+            // stop the invite transaction as well
+            Transaction tran = getLatestInviteTransaction();
+            // should be server transaction and misplaced cancels should be
+            // filtered by the stack but it doesn't hurt checking anyway
+            if (!(tran instanceof ServerTransaction))
+            {
+                logger.error("Received a misplaced CANCEL request!");
+                return;
+            }
+
+            ServerTransaction inviteTran = (ServerTransaction) tran;
+            Request invite = getLatestInviteTransaction().getRequest();
+            Response requestTerminated = messageFactory
+                .createResponse(Response.REQUEST_TERMINATED, invite);
+
+            inviteTran.sendResponse(requestTerminated);
+            if (logger.isDebugEnabled())
+                logger.debug("sent request terminated response:\n"
+                    + requestTerminated);
+        }
+        catch (ParseException ex)
+        {
+            logger.error("Failed to create a REQUEST_TERMINATED Response to "
+                + "an INVITE request.", ex);
+        }
+        catch (Exception ex)
+        {
+            logger.error("Failed to send an REQUEST_TERMINATED Response to "
+                + "an INVITE request.", ex);
+        }
+
+        // change status
+        setState(CallPeerState.DISCONNECTED);
+    }
+
+    /**
+     * Sets the mute property for this call peer.
+     *
+     * @param newMuteValue the new value of the mute property for this call peer
+     */
+    public void setMute(boolean newMuteValue)
+    {
+        getMediaCallSession().setMute(newMuteValue);
+        super.setMute(newMuteValue);
+    }
+
+    /**
+     * Logs <tt>message</tt> and <tt>cause</tt> and sets this <tt>peer</tt>'s
+     * state to <tt>CallPeerState.FAILED</tt>
+     *
+     * @param message a message to log and display to the user.
+     * @param throwable the exception that cause the error we are logging
+     */
+    private void logAndFail(String message, Throwable throwable)
+    {
+        logger.error(message, throwable);
+        setState(CallPeerState.FAILED, message);
+    }
+
+    /**
+     * Updates the session description and sends the state of the corresponding
+     * call peer to CONNECTED.
+     *
+     * @param serverTransaction the transaction that the ACK was received in.
+     * @param ack the ACK <tt>Request</tt> we need to process
+     */
+    public void processAck(ServerTransaction serverTransaction, Request ack)
+    {
+        ContentLengthHeader contentLength = ack.getContentLength();
+        if ((contentLength != null) && (contentLength.getContentLength() > 0))
+        {
+            setSdpDescription( new String(ack.getRawContent()));
+        }
+
+        // change status
+        CallPeerState peerState = getState();
+        if (!CallPeerState.isOnHold(peerState))
+        {
+            if (CallPeerState.CONNECTED.equals(peerState))
+            {
+                try
+                {
+                    getMediaCallSession().startStreamingAndProcessingMedia();
+                }
+                catch (MediaException ex)
+                {
+                    logger.error( "Failed to start the streaming"
+                            + " and the processing of the media", ex);
+                }
+            }
+            else
+                setState(CallPeerState.CONNECTED);
+        }
+    }
+
+    /**
+     * Handles early media in 183 Session Progress responses. Retrieves the SDP
+     * and makes sure that we start transmitting and playing early media that we
+     * receive. Puts the call into a CONNECTING_WITH_EARLY_MEDIA state.
+     *
+     * @param tran the <tt>ClientTransaction</tt> that the response
+     * arrived in.
+     * @param response the 183 <tt>Response</tt> to process
+     */
+    public void processSessionProgress(ClientTransaction tran,
+                                       Response          response)
+    {
+        if (response.getContentLength().getContentLength() == 0)
+        {
+            logger.debug("Ignoring a 183 with no content");
+            return;
+        }
+
+        ContentTypeHeader contentTypeHeader = (ContentTypeHeader) response
+                .getHeader(ContentTypeHeader.NAME);
+
+        if (!contentTypeHeader.getContentType().equalsIgnoreCase("application")
+            || !contentTypeHeader.getContentSubType().equalsIgnoreCase("sdp"))
+        {
+            //This can happen when receiving early media for a second time.
+            logger.warn("Ignoring invite 183 since call peer is "
+                + "already exchanging early media.");
+            return;
+        }
+
+        // set sdp content before setting call state as that is where
+        // listeners get alerted and they need the sdp
+        setSdpDescription(new String(response.getRawContent()));
+
+        // notify the media manager of the sdp content
+        CallSession callSession = getMediaCallSession();
+
+        if (callSession == null)
+        {
+            // unlikely to happen because it would mean we didn't send an offer
+            // in the invite and we always send one.
+            logger.warn("Could not find call session.");
+            return;
+        }
+
+        try
+        {
+            callSession.processSdpAnswer(this, getSdpDescription());
+        }
+        catch (ParseException exc)
+        {
+            logAndFail("There was an error parsing the SDP description of "
+                + getDisplayName() + "(" + getAddress() + ")", exc);
+            return;
+        }
+        catch (MediaException exc)
+        {
+            logAndFail("We failed to process the SDP description of "
+                + getDisplayName() + "(" + getAddress() + ")" + ". Error was: "
+                + exc.getMessage(), exc);
+            return;
+        }
+
+        // set the call url in case there was one
+        setCallInfoURL(callSession.getCallInfoURL());
+
+        // change status
+        setState(CallPeerState.CONNECTING_WITH_EARLY_MEDIA);
+    }
+
+    /**
+     * Sets our state to CONNECTED, sends an ACK and processes the SDP
+     * description in the <tt>ok</tt> <tt>Response</tt>.
+     *
+     * @param clientTransaction the <tt>ClientTransaction</tt> that the response
+     * arrived in.
+     * @param ok the OK <tt>Response</tt> to process
+     */
+    public void processInviteOK(ClientTransaction clientTransaction,
+                                 Response         ok)
+    {
+        try
+        {
+            // Send the ACK. Do it now since we already got all the info we need
+            // and processSdpAnswer() can take a while (patch by Michael Koch)
+            getProtocolProvider().sendAck(clientTransaction);
+        }
+        catch (InvalidArgumentException ex)
+        {
+            // Shouldn't happen
+            logAndFail("Error creating an ACK (CSeq?)", ex);
+            return;
+        }
+        catch (SipException ex)
+        {
+            logAndFail("Failed to create ACK request!", ex);
+            return;
+        }
+
+        // !!! set SDP content before setting call state as that is where
+        // listeners get alerted and they need the SDP
+        // ignore SDP if we've just had one in early media
+        if(!CallPeerState.CONNECTING_WITH_EARLY_MEDIA.equals(getState()))
+        {
+            setSdpDescription(new String(ok.getRawContent()));
+        }
+
+        // notify the media manager of the sdp content
+        CallSession callSession = getMediaCallSession();
+
+        try
+        {
+             //Process SDP unless we've just had an answer in a 18X response
+            if (!CallPeerState.CONNECTING_WITH_EARLY_MEDIA.equals(getState()))
+            {
+                callSession.processSdpAnswer(this, getSdpDescription());
+            }
+
+            // set the call url in case there was one
+            setCallInfoURL(callSession.getCallInfoURL());
+        }
+        //at this point we have already sent our ack so in addition to logging
+        //an error we also need to hangup the call peer.
+        catch (Exception exc)//Media or parse exception.
+        {
+            logger.error("There was an error parsing the SDP description of "
+                + getDisplayName() + "(" + getAddress() + ")", exc);
+            try
+            {
+                //we are connected from a SIP point of view (cause we sent our
+                //ACK) so make sure we set the state accordingly or the hangup
+                //method won't know how to end the call.
+                setState(CallPeerState.CONNECTED);
+                hangup();
+            }
+            catch (Exception e)
+            {
+                //I don't see what more we could do.
+                logAndFail("We couldn't hangup", e);
+            }
+            return;
+        }
+
+        // change status
+        if (!CallPeerState.isOnHold(getState()))
+            setState(CallPeerState.CONNECTED);
+    }
+
+    /**
+     * Ends the call with for this <tt>CallPeer</tt>. Depending on the state
+     * of the peer the method would send a CANCEL, BYE, or BUSY_HERE message
+     * and set the new state to DISCONNECTED.
+     *
+     * @throws OperationFailedException if we fail to terminate the call.
+     */
+    public void hangup()
+        throws OperationFailedException
+    {
+        // do nothing if the call is already ended
+        if (CallPeerState.DISCONNECTED.equals(getState())
+            || CallPeerState.FAILED.equals(getState()))
+        {
+            logger.debug("Ignoring a request to hangup a call peer "
+                + "that is already DISCONNECTED");
+            return;
+        }
+
+        CallPeerState peerState = getState();
+        if (peerState.equals(CallPeerState.CONNECTED)
+            || CallPeerState.isOnHold(peerState))
+        {
+            sayBye();
+            setState(CallPeerState.DISCONNECTED);
+        }
+        else if (CallPeerState.CONNECTING.equals(getState())
+            || CallPeerState.CONNECTING_WITH_EARLY_MEDIA.equals(getState())
+            || CallPeerState.ALERTING_REMOTE_SIDE.equals(getState()))
+        {
+            if (getLatestInviteTransaction() != null)
+            {
+                // Someone knows about us. Let's be polite and say we are
+                // leaving
+                sayCancel();
+            }
+            setState(CallPeerState.DISCONNECTED);
+        }
+        else if (peerState.equals(CallPeerState.INCOMING_CALL))
+        {
+            setState(CallPeerState.DISCONNECTED);
+            sayBusyHere();
+        }
+        // For FAILED and BUSY we only need to update CALL_STATUS
+        else if (peerState.equals(CallPeerState.BUSY))
+        {
+            setState(CallPeerState.DISCONNECTED);
+        }
+        else if (peerState.equals(CallPeerState.FAILED))
+        {
+            setState(CallPeerState.DISCONNECTED);
+        }
+        else
+        {
+            setState(CallPeerState.DISCONNECTED);
+            logger.error("Could not determine call peer state!");
+        }
+    }
+
+    /**
+     * Sends a BUSY_HERE response to the peer represented by this instance.
+     *
+     * @throws OperationFailedException if we fail to create or send the
+     * response
+     */
+    private void sayBusyHere()
+        throws OperationFailedException
+    {
+        if (!(getLatestInviteTransaction() instanceof ServerTransaction))
+        {
+            logger.error("Cannot send BUSY_HERE in a client transaction");
+            throw new OperationFailedException(
+                "Cannot send BUSY_HERE in a client transaction",
+                OperationFailedException.INTERNAL_ERROR);
+        }
+
+        Request request = getLatestInviteTransaction().getRequest();
+        Response busyHere = null;
+        try
+        {
+            busyHere = messageFactory.createResponse(
+                                Response.BUSY_HERE, request);
+        }
+        catch (ParseException ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to create the BUSY_HERE response!",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
+        }
+
+        ServerTransaction serverTransaction =
+            (ServerTransaction) getLatestInviteTransaction();
+
+        try
+        {
+            serverTransaction.sendResponse(busyHere);
+            logger.debug("sent response:\n" + busyHere);
+        }
+        catch (Exception ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to send the BUSY_HERE response",
+                OperationFailedException.NETWORK_FAILURE, ex, logger);
+        }
+    }
+
+    /**
+     * Sends a Cancel request to the peer represented by this instance.
+     *
+     * @throws OperationFailedException we failed to construct or send the
+     * CANCEL request.
+     */
+    private void sayCancel()
+        throws OperationFailedException
+    {
+        if (getLatestInviteTransaction() instanceof ServerTransaction)
+        {
+            logger.error("Cannot cancel a server transaction");
+            throw new OperationFailedException(
+                "Cannot cancel a server transaction",
+                OperationFailedException.INTERNAL_ERROR);
+        }
+
+        ClientTransaction clientTransaction =
+            (ClientTransaction) getLatestInviteTransaction();
+        try
+        {
+            Request cancel = clientTransaction.createCancel();
+            ClientTransaction cancelTransaction =
+                getJainSipProvider().getNewClientTransaction(
+                    cancel);
+            cancelTransaction.sendRequest();
+            logger.debug("sent request:\n" + cancel);
+        }
+        catch (SipException ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to send the CANCEL request",
+                OperationFailedException.NETWORK_FAILURE, ex, logger);
+        }
+    }
+
+    /**
+     * Sends a BYE request to <tt>callPeer</tt>.
+     *
+     * @return <tt>true</tt> if the <tt>Dialog</tt> should be considered
+     * alive after sending the BYE request (e.g. when there're still active
+     * subscriptions); <tt>false</tt>, otherwise
+     *
+     * @throws OperationFailedException if we failed constructing or sending a
+     * SIP Message.
+     */
+    public boolean sayBye() throws OperationFailedException
+    {
+        Dialog dialog = getDialog();
+
+        Request bye = messageFactory.createRequest(dialog, Request.BYE);
+
+        getProtocolProvider().sendInDialogRequest(
+                        getJainSipProvider(), bye, dialog);
+
+        /*
+         * Let subscriptions such as the ones associated with REFER requests
+         * keep the dialog alive and correctly delete it when they are
+         * terminated.
+         */
+        try
+        {
+            return EventPackageUtils.processByeThenIsDialogAlive(dialog);
+        }
+        catch (SipException ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to determine whether the dialog should stay alive.",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
+            return false;
+        }
+    }
+
+    /**
+     * Indicates a user request to answer an incoming call from this
+     * <tt>CallPeer</tt>.
+     *
+     * Sends an OK response to <tt>callPeer</tt>. Make sure that the call
+     * peer contains an SDP description when you call this method.
+     *
+     * @throws OperationFailedException if we fail to create or send the
+     * response.
+     */
+    public synchronized void answer()
+        throws OperationFailedException
+    {
+        Transaction transaction = getLatestInviteTransaction();
+
+        if (transaction == null ||
+            !(transaction instanceof ServerTransaction))
+        {
+            setState(CallPeerState.DISCONNECTED);
+            throw new OperationFailedException(
+                "Failed to extract a ServerTransaction "
+                    + "from the call's associated dialog!",
+                OperationFailedException.INTERNAL_ERROR);
+        }
+
+        CallPeerState peerState = getState();
+
+        if (peerState.equals(CallPeerState.CONNECTED)
+            || CallPeerState.isOnHold(peerState))
+        {
+            logger.info("Ignoring user request to answer a CallPeer "
+                + "that is already connected. CP:");
+            return;
+        }
+
+        ServerTransaction serverTransaction = (ServerTransaction) transaction;
+        Response ok = null;
+        try
+        {
+            ok = messageFactory.createResponse(
+                            Response.OK, serverTransaction.getRequest());
+        }
+        catch (ParseException ex)
+        {
+            setState(CallPeerState.DISCONNECTED);
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to construct an OK response to an INVITE request",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
+        }
+
+        // Content
+        ContentTypeHeader contentTypeHeader = null;
+        try
+        {
+            // content type should be application/sdp (not applications)
+            // reported by Oleg Shevchenko (Miratech)
+            contentTypeHeader = getProtocolProvider().getHeaderFactory()
+                .createContentTypeHeader("application", "sdp");
+        }
+        catch (ParseException ex)
+        {
+            // Shouldn't happen
+            setState(CallPeerState.DISCONNECTED);
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to create a content type header for the OK response",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
+        }
+
+        try
+        {
+            CallSession callSession = SipActivator.getMediaService()
+                .createCallSession( getCall() );
+            setMediaCallSession(callSession);
+
+            callSession.setSessionCreatorCallback(this);
+
+            String sdpOffer = getSdpDescription();
+            String sdp;
+            // if the offer was in the invite create an sdp answer
+            if ((sdpOffer != null) && (sdpOffer.length() > 0))
+            {
+                sdp = callSession.processSdpOffer(this, sdpOffer);
+
+                // set the call url in case there was one
+                setCallInfoURL(callSession.getCallInfoURL());
+            }
+            // if there was no offer in the invite - create an offer
+            else
+            {
+                sdp = callSession.createSdpOffer();
+            }
+            ok.setContent(sdp, contentTypeHeader);
+        }
+        catch (MediaException ex)
+        {
+            //log, the error and tell the remote party. do not throw an
+            //exception as it would go to the stack and there's nothing it could
+            //do with it.
+            logger.error(
+                "Failed to create an SDP description for an OK response "
+                    + "to an INVITE request!", ex);
+            getProtocolProvider().sayError(
+                            serverTransaction, Response.NOT_ACCEPTABLE_HERE);
+        }
+        catch (ParseException ex)
+        {
+            //log, the error and tell the remote party. do not throw an
+            //exception as it would go to the stack and there's nothing it could
+            //do with it.
+            logger.error("Failed to parse SDP of an invoming INVITE",ex);
+            getProtocolProvider().sayError(
+                            serverTransaction, Response.NOT_ACCEPTABLE_HERE);
+        }
+
+        try
+        {
+            serverTransaction.sendResponse(ok);
+            if (logger.isDebugEnabled())
+                logger.debug("sent response\n" + ok);
+        }
+        catch (Exception ex)
+        {
+            setState(CallPeerState.DISCONNECTED);
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to send an OK response to an INVITE request",
+                OperationFailedException.NETWORK_FAILURE, ex, logger);
+        }
+
+    }
 }

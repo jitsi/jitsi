@@ -222,22 +222,20 @@ public abstract class AbstractCallPeer
     /**
      * Constructs a <tt>CallPeerSecurityStatusEvent</tt> using this call
      * peer as source, setting it to be of type <tt>eventType</tt> and
-     * the corresponding <tt>oldValue</tt> and <tt>newValue</tt>,
+     * the corresponding <tt>oldValue</tt> and <tt>newValue</tt>
      *
      * @param sessionType the type of the session - audio or video
+     * @param cipher the cipher associated with the event.
+     * @param securityString the security string associated with this event.
+     * @param isVerified <tt>true</tt> if the session is verified and
+     * <tt>false</tt> otherwise.
      */
-    protected void fireCallPeerSecurityOnEvent(
-        int sessionType,
-        String cipher,
-        String securityString,
-        boolean isVerified)
+    protected void fireCallPeerSecurityOnEvent(int sessionType, String cipher,
+                    String securityString, boolean isVerified)
     {
         CallPeerSecurityOnEvent evt
-            = new CallPeerSecurityOnEvent(   this,
-                                                    sessionType,
-                                                    cipher,
-                                                    securityString,
-                                                    isVerified);
+            = new CallPeerSecurityOnEvent(
+                this, sessionType, cipher, securityString, isVerified);
 
         logger.debug("Dispatching a CallPeerSecurityStatusEvent event to "
                      + callPeerSecurityListeners.size()
@@ -448,29 +446,35 @@ public abstract class AbstractCallPeer
      */
     public void setMute(boolean newMuteValue)
     {
-        firePropertyChange(MUTE_PROPERTY_NAME, isMute, newMuteValue);
-
         this.isMute = newMuteValue;
+        firePropertyChange(MUTE_PROPERTY_NAME, isMute, newMuteValue);
     }
 
-    /*
-     * Implements CallPeer#isConferenceFocus().
+    /**
+     * Determines whether this call peer is currently a conference focus.
+     *
+     * @return <tt>true</tt> if this peer is a conference focus and
+     * <tt>false</tt> otherwise.
      */
     public boolean isConferenceFocus()
     {
         return conferenceFocus;
     }
 
+    /**
+     * Specifies whether this peer is a conference focus.
+     *
+     * @param conferenceFocus <tt>true</tt> if this peer is to become a
+     * conference focus and <tt>false</tt> otherwise.
+     */
     public void setConferenceFocus(boolean conferenceFocus)
     {
         if (this.conferenceFocus != conferenceFocus)
         {
             this.conferenceFocus = conferenceFocus;
 
-            fireCallPeerConferenceEvent(
-                new CallPeerConferenceEvent(
-                        this,
-                        CallPeerConferenceEvent.CONFERENCE_FOCUS_CHANGED));
+            fireCallPeerConferenceEvent( new CallPeerConferenceEvent(
+                    this, CallPeerConferenceEvent.CONFERENCE_FOCUS_CHANGED));
         }
     }
 

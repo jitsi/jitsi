@@ -256,14 +256,14 @@ public class ActiveCallsRepository
             {
                 CallPeerSipImpl cp = (CallPeerSipImpl) callPeersIter.next();
                 Dialog cpDialog = cp.getDialog();
-                Transaction cpTran = cp.getFirstTransaction();
+                Transaction cpTran = cp.getLatestInviteTransaction();
 
                 if( cpDialog == null
                     || cpDialog.getCallId() == null
                     || cpTran == null)
                     continue;
 
-                if ( cp.getFirstTransaction() != null
+                if ( cp.getLatestInviteTransaction() != null
                       && cpDialog.getCallId().getCallId().equals(callID)
                       && branchID.equals(cpTran.getBranchId()))
                 {

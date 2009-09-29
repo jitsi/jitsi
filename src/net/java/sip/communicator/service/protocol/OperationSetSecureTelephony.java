@@ -32,6 +32,9 @@ public interface OperationSetSecureTelephony
      * @param peer the peer who toggled (or for whom is remotely
      *        toggled) the SAS verified flag
      * @param verified the new SAS verification status
+     *
+     * @return Emil: I am not sure why this is returning anything at all; should
+     * get rid of this.
      */
     public boolean setSasVerified(CallPeer peer, boolean verified);
 }

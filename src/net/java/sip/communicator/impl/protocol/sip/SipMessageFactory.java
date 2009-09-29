@@ -81,7 +81,29 @@ public class SipMessageFactory
      * Calls the same method in the internal wrapped factory
      * and returns a <tt>Request</tt> marked with its service.
      *
+     * @param requestURI the new URI object of the requestURI value of this
+     * <tt>Message</tt>.
+     * @param method the new string of the method value of this
+     * <tt>Message</tt>.
+     * @param callId the new CallIdHeader object of the callId value of this
+     * <tt>Message</tt>.
+     * @param cSeq the new CSeqHeader object of the cSeq value of this
+     * <tt>Message</tt>.
+     * @param from the new FromHeader object of the from value of this
+     * <tt>Message</tt>.
+     * @param to the new ToHeader object of the to value of this
+     * <tt>Message</tt>.
+     * @param via the new List object of the ViaHeaders of this
+     * <tt>Message</tt>.
+     * @param maxForwards the Max-Forwards header for the new <tt>Request</tt>.
+     * @param contentType the new ContentTypeHeader object of the content type
+     * value of this <tt>Message</tt>.
+     * @param content the new Object of the body content value of this Message.
+     *
      * @return a <tt>Request</tt> marked with its service
+     *
+     * @throws ParseException which signals that an error has been reached
+     * unexpectedly while parsing the method or the body.
      */
     public Request createRequest(URI requestURI, String method, CallIdHeader
             callId, CSeqHeader cSeq, FromHeader from, ToHeader to, List via,
@@ -98,7 +120,29 @@ public class SipMessageFactory
      * Calls the same method in the internal wrapped factory
      * and returns a <tt>Request</tt> marked with its service.
      *
+     * @param requestURI the new URI object of the requestURI value of this
+     * <tt>Message</tt>.
+     * @param method the new string of the method value of this
+     * <tt>Message</tt>.
+     * @param callId the new CallIdHeader object of the callId value of this
+     * <tt>Message</tt>.
+     * @param cSeq the new CSeqHeader object of the cSeq value of this
+     * <tt>Message</tt>.
+     * @param from the new FromHeader object of the from value of this
+     * <tt>Message</tt>.
+     * @param to the new ToHeader object of the to value of this
+     * <tt>Message</tt>.
+     * @param via the new List object of the ViaHeaders of this
+     * <tt>Message</tt>.
+     * @param maxForwards the Max-Forwards header for the new <tt>Request</tt>.
+     * @param contentType the new ContentTypeHeader object of the content type
+     * value of this <tt>Message</tt>.
+     * @param content the new Object of the body content value of this Message.
+     *
      * @return a <tt>Request</tt> marked with its service
+     *
+     * @throws ParseException which signals that an error has been reached
+     * unexpectedly while parsing the method or the body.
      */
     public Request createRequest(URI requestURI, String method, CallIdHeader
             callId, CSeqHeader cSeq, FromHeader from, ToHeader to, List via,
@@ -115,7 +159,26 @@ public class SipMessageFactory
      * Calls the same method in the internal wrapped factory
      * and returns a <tt>Request</tt> marked with its service.
      *
+     * @param requestURI the new URI object of the requestURI value of this
+     * <tt>Message</tt>.
+     * @param method the new string of the method value of this
+     * <tt>Message</tt>.
+     * @param callId the new CallIdHeader object of the callId value of this
+     * <tt>Message</tt>.
+     * @param cSeq the new CSeqHeader object of the cSeq value of this
+     * <tt>Message</tt>.
+     * @param from the new FromHeader object of the from value of this
+     * <tt>Message</tt>.
+     * @param to the new ToHeader object of the to value of this
+     * <tt>Message</tt>.
+     * @param via the new List object of the ViaHeaders of this
+     * <tt>Message</tt>.
+     * @param maxForwards the Max-Forwards header for the new <tt>Request</tt>.
+     *
      * @return a <tt>Request</tt> marked with its service
+     *
+     * @throws ParseException which signals that an error has been reached
+     * unexpectedly while parsing the method or the body.
      */
     public Request createRequest(URI requestURI, String method, CallIdHeader
             callId, CSeqHeader cSeq, FromHeader from, ToHeader to, List via,
@@ -131,7 +194,10 @@ public class SipMessageFactory
      * Calls the same method in the internal wrapped factory
      * and returns a <tt>Request</tt> marked with its service.
      *
+     * @param requestParam the new string value of the Request.
      * @return a <tt>Request</tt> marked with its service
+     * @throws ParseException which signals that an error has been reached
+     * unexpectedly while parsing the request.
      */
     public Request createRequest(String requestParam)
         throws ParseException
@@ -144,7 +210,28 @@ public class SipMessageFactory
      * Calls the same method in the internal wrapped factory
      * and returns a <tt>Response</tt> marked with its service.
      *
+     * @param statusCode the new integer of the statusCode value of this
+     * <tt>Message</tt>.
+     * @param callId the new CallIdHeader object of the callId value of this
+     * <tt>Message</tt>.
+     * @param cSeq the new CSeqHeader object of the cSeq value of this
+     * <tt>Message</tt>.
+     * @param from the new FromHeader object of the from value of this
+     * <tt>Message</tt>.
+     * @param to the new ToHeader object of the to value of this
+     * <tt>Message</tt>.
+     * @param via the new List object of the ViaHeaders of this
+     * <tt>Message</tt>.
+     * @param maxForwards the Max-Forwards header for the new <tt>Response</tt>.
+     * @param contentType the new ContentTypeHeader object of the content type
+     * value of this <tt>Message</tt>.
+     * @param content the new Object of the body content value of this
+     * <tt>Message</tt>.
+     *
      * @return a <tt>Response</tt> marked with its service
+     *
+     * @throws ParseException which signals that an error has been reached
+     * unexpectedly while parsing the statusCode or the body.
      */
     public Response createResponse(int statusCode, CallIdHeader callId,
             CSeqHeader cSeq, FromHeader from, ToHeader to, List via,
@@ -161,7 +248,28 @@ public class SipMessageFactory
      * Calls the same method in the internal wrapped factory
      * and returns a <tt>Response</tt> marked with its service.
      *
+     * @param statusCode the new integer of the statusCode value of this
+     * <tt>Message</tt>.
+     * @param callId the new CallIdHeader object of the callId value of this
+     * <tt>Message</tt>.
+     * @param cSeq the new CSeqHeader object of the cSeq value of this
+     * <tt>Message</tt>.
+     * @param from the new FromHeader object of the from value of this
+     * <tt>Message</tt>.
+     * @param to the new ToHeader object of the to value of this
+     * <tt>Message</tt>.
+     * @param via the new List object of the ViaHeaders of this
+     * <tt>Message</tt>.
+     * @param maxForwards the Max-Forwards header for the new <tt>Response</tt>.
+     * @param contentType the new ContentTypeHeader object of the content type
+     * value of this <tt>Message</tt>.
+     * @param content the new Object of the body content value of this
+     * <tt>Message</tt>.
+     *
      * @return a <tt>Response</tt> marked with its service
+     *
+     * @throws ParseException which signals that an error has been reached
+     * unexpectedly while parsing the statusCode or the body.
      */
     public Response createResponse(int statusCode, CallIdHeader callId,
             CSeqHeader cSeq, FromHeader from, ToHeader to, List via,
@@ -178,7 +286,24 @@ public class SipMessageFactory
      * Calls the same method in the internal wrapped factory
      * and returns a <tt>Response</tt> marked with its service.
      *
+     * @param statusCode the new integer of the statusCode value of this
+     * <tt>Message</tt>.
+     * @param callId the new CallIdHeader object of the callId value of this
+     * <tt>Message</tt>.
+     * @param cSeq the new CSeqHeader object of the cSeq value of this
+     * <tt>Message</tt>.
+     * @param from the new FromHeader object of the from value of this
+     * <tt>Message</tt>.
+     * @param to the new ToHeader object of the to value of this
+     * <tt>Message</tt>.
+     * @param via the new List object of the ViaHeaders of this
+     * <tt>Message</tt>.
+     * @param maxForwards the Max-Forwards header for the new <tt>Response</tt>.
+     *
      * @return a <tt>Response</tt> marked with its service
+     *
+     * @throws ParseException which signals that an error has been reached
+     * unexpectedly while parsing the statusCode or the body.
      */
     public Response createResponse(int statusCode, CallIdHeader callId,
             CSeqHeader cSeq, FromHeader from, ToHeader to, List via,
@@ -194,7 +319,19 @@ public class SipMessageFactory
      * Calls the same method in the internal wrapped factory
      * and returns a <tt>Response</tt> marked with its service.
      *
+     * @param statusCode the new integer of the statusCode value of this
+     * <tt>Message</tt>.
+     * @param request the received <tt>Request</tt> object upon which to base the
+     * <tt>Response</tt>.
+     * @param contentType the new ContentTypeHeader object of the content type
+     * value of this <tt>Message</tt>.
+     * @param content the new byte array of the body content value of this
+     * <tt>Message</tt>.
+     *
      * @return a <tt>Response</tt> marked with its service
+     *
+     * @throws ParseException which signals that an error has been reached
+     * unexpectedly while parsing the statusCode or the body.
      */
     public Response createResponse(int statusCode, Request request,
             ContentTypeHeader contentType, Object content)
@@ -210,7 +347,19 @@ public class SipMessageFactory
      * Calls the same method in the internal wrapped factory
      * and returns a <tt>Response</tt> marked with its service.
      *
+     * @param statusCode the new integer of the statusCode value of this
+     * <tt>Message</tt>.
+     * @param request the received <tt>Request</tt> object upon which to base the
+     * <tt>Response</tt>.
+     * @param contentType the new ContentTypeHeader object of the content type
+     * value of this <tt>Message</tt>.
+     * @param content the new byte array of the body content value of this
+     * <tt>Message</tt>.
+     *
      * @return a <tt>Response</tt> marked with its service
+     *
+     * @throws ParseException which signals that an error has been reached
+     * unexpectedly while parsing the statusCode or the body.
      */
     public Response createResponse(int statusCode, Request request,
             ContentTypeHeader contentType, byte[] content)
@@ -226,7 +375,15 @@ public class SipMessageFactory
      * Calls the same method in the internal wrapped factory
      * and returns a <tt>Response</tt> marked with its service.
      *
+     * @param statusCode the new integer of the statusCode value of this
+     * <tt>Message</tt>.
+     * @param request the received <tt>Request</tt> object upon which to base the
+     * <tt>Response</tt>.
+     *
      * @return a <tt>Response</tt> marked with its service
+     *
+     * @throws ParseException which signals that an error has been reached
+     * unexpectedly while parsing the statusCode or the body.
      */
     public Response createResponse(int statusCode, Request request)
         throws ParseException
@@ -241,7 +398,13 @@ public class SipMessageFactory
      * Calls the same method in the internal wrapped factory
      * and returns a <tt>Response</tt> marked with its service.
      *
+     * @param responseParam is a string representing the response. The argument
+     * should only contain the Sip Headers and not the body of the response.
+     *
      * @return a <tt>Response</tt> marked with its service
+     *
+     * @throws ParseException which signals an error has been reached unexpectedly
+     * while parsing the response.
      */
     public Response createResponse(String responseParam)
         throws ParseException
