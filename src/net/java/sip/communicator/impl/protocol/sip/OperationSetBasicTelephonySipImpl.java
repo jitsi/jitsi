@@ -959,8 +959,8 @@ public class OperationSetBasicTelephonySipImpl
     private void processRefer(ServerTransaction serverTransaction,
         final Request referRequest, final SipProvider sipProvider)
     {
-        ReferToHeader referToHeader =
-            (ReferToHeader) referRequest.getHeader(ReferToHeader.NAME);
+        ReferToHeader referToHeader
+            = (ReferToHeader) referRequest.getHeader(ReferToHeader.NAME);
         if (referToHeader == null)
         {
             logger.error("No Refer-To header in REFER request:\n"
@@ -1031,8 +1031,8 @@ public class OperationSetBasicTelephonySipImpl
                  */
                 try
                 {
-                    removeSubscription =
-                        EventPackageUtils.addSubscription(dialog, referRequest);
+                    removeSubscription = EventPackageUtils
+                        .addSubscription(dialog, referRequest);
                 }
                 catch (SipException ex)
                 {
