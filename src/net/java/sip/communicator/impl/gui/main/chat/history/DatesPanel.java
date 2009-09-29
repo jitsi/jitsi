@@ -14,24 +14,27 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
+import net.java.sip.communicator.util.swing.*;
+
 /**
  * The <tt>DatesPanel</tt> contains the list of history dates for a contact.
  *
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class DatesPanel
     extends SCScrollPane
     implements ListSelectionListener
 {
-    private  JList datesList = new JList();
+    private final JList datesList = new JList();
 
-    private DefaultListModel listModel = new DefaultListModel();
+    /**
+     * The <tt>ListModel</tt> of {@link #datesList} explicitly stored in order
+     * to have it as a <tt>DefaultListModel</tt> instance.
+     */
+    private final DefaultListModel listModel = new DefaultListModel();
 
-    private DatesListRenderer renderer = new DatesListRenderer();
-
-    private JPanel listPanel = new JPanel(new BorderLayout());
-
-    private HistoryWindow historyWindow;
+    private final HistoryWindow historyWindow;
     
     private int lastSelectedIndex = -1;
     
@@ -46,25 +49,23 @@ public class DatesPanel
         this.historyWindow = historyWindow;
 
         this.setPreferredSize(new Dimension(100, 100));
-        this.datesList.setModel(listModel);
-
-        this.datesList.setCellRenderer(renderer);
-
-        this.datesList.setFont(datesList.getFont().deriveFont(Font.BOLD));
-
         this.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(3, 3, 3, 0),
                 SIPCommBorders.getBoldRoundBorder()));
+        this.setOpaque(false);
 
+        this.datesList.setModel(listModel);
+        this.datesList.setCellRenderer(new DatesListRenderer());
+        this.datesList.setFont(datesList.getFont().deriveFont(Font.BOLD));
         this.datesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        this.datesList.addListSelectionListener(this);
 
-        this.listPanel.add(datesList, BorderLayout.NORTH);
+        JPanel listPanel = new TransparentPanel(new BorderLayout());
+        listPanel.add(datesList, BorderLayout.NORTH);
 
         this.setViewportView(listPanel);
-
-        this.datesList.addListSelectionListener(this);
-        
         this.getVerticalScrollBar().setUnitIncrement(30);
+
     }
 
     /**
@@ -178,8 +179,9 @@ public class DatesPanel
         synchronized (listModel)
         {
             int selectedIndex = this.datesList.getSelectedIndex();
-            
-            if(selectedIndex != -1 && lastSelectedIndex != selectedIndex) {
+
+            if(selectedIndex != -1 && lastSelectedIndex != selectedIndex)
+            {
                 this.setLastSelectedIndex(selectedIndex);
                 Date date = (Date)this.listModel.get(selectedIndex);
 
@@ -205,7 +207,7 @@ public class DatesPanel
      */
     public ListModel getModel()
     {
-        return this.datesList.getModel();
+        return listModel;
     }
 
     /**
