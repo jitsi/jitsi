@@ -90,17 +90,17 @@ public class OperationSetBasicTelephonySipImpl
      * Create a new call and invite the specified CallPeer to it.
      *
      * @param callee the sip address of the callee that we should invite to a
-     *            new call.
+     * new call.
      * @return CallPeer the CallPeer that will represented by the
-     *         specified uri. All following state change events will be
-     *         delivered through that call peer. The Call that this
-     *         peer is a member of could be retrieved from the
-     *         CallParticipatn instance with the use of the corresponding
-     *         method.
+     * specified uri. All following state change events will be delivered
+     * through that call peer. The Call that this peer is a member of could be
+     * retrieved from the <tt>CallPeer</tt> instance with the use of the
+     *  corresponding method.
+     *
      * @throws OperationFailedException with the corresponding code if we fail
-     *             to create the call.
+     * to create the call.
      * @throws ParseException if <tt>callee</tt> is not a valid sip address
-     *             string.
+     * <tt>String</tt>.
      */
     public Call createCall(String callee)
         throws OperationFailedException,
@@ -115,15 +115,15 @@ public class OperationSetBasicTelephonySipImpl
      * Create a new call and invite the specified CallPeer to it.
      *
      * @param callee the address of the callee that we should invite to a new
-     *            call.
-     * @return CallPeer the CallPeer that will represented by the
-     *         specified uri. All following state change events will be
-     *         delivered through that call peer. The Call that this
-     *         peer is a member of could be retrieved from the
-     *         CallParticipatn instance with the use of the corresponding
-     *         method.
+     * call.
+     *
+     * @return CallPeer the CallPeer that will represented by the specified URI.
+     * All following state change events will be delivered through that call
+     * peer. The Call that this peer is a member of could be retrieved from the
+     * CallParticipatn instance with the use of the corresponding method.
+     *
      * @throws OperationFailedException with the corresponding code if we fail
-     *             to create the call.
+     * to create the call.
      */
     public Call createCall(Contact callee) throws OperationFailedException
     {
@@ -147,20 +147,19 @@ public class OperationSetBasicTelephonySipImpl
      * Init and establish the specified call.
      *
      * @param calleeAddress the address of the callee that we'd like to connect
-     *            with.
+     * with.
      * @param cause the <tt>Message</tt>, if any, which is the cause for the
-     *            outgoing call to be placed and which carries additional
-     *            information to be included in the call initiation (e.g. a
-     *            Referred-To header and token in a Refer request)
-     * @return CallPeer the CallPeer that will represented by the
-     *         specified uri. All following state change events will be
-     *         delivered through that call peer. The Call that this
-     *         peer is a member of could be retrieved from the
-     *         CallParticipatn instance with the use of the corresponding
-     *         method.
+     * outgoing call to be placed and which carries additional information to be
+     * included in the call initiation (e.g. a Referred-To header and token in a
+     * Refer request)
+     *
+     * @return CallPeer the CallPeer that will represented by the specified uri.
+     * All following state change events will be delivered through that call
+     * peer. The Call that this peer is a member of could be retrieved from the
+     * CallParticipatn instance with the use of the corresponding method.
      *
      * @throws OperationFailedException with the corresponding code if we fail
-     *             to create the call.
+     * to create the call.
      */
     private synchronized CallSipImpl createOutgoingCall(Address calleeAddress,
         javax.sip.message.Message cause) throws OperationFailedException
@@ -247,11 +246,11 @@ public class OperationSetBasicTelephonySipImpl
      * <p>
      *
      * @param requestEvent requestEvent fired from the SipProvider to the
-     *            <tt>SipListener</tt> representing a Request received from the
-     *            network.
+     * <tt>SipListener</tt> representing a Request received from the network.
+     *
      * @return <tt>true</tt> if the specified event has been handled by this
-     *         processor and shouldn't be offered to other processors registered
-     *         for the same method; <tt>false</tt>, otherwise
+     * processor and shouldn't be offered to other processors registered for the
+     * same method; <tt>false</tt>, otherwise
      */
     public boolean processRequest(RequestEvent requestEvent)
     {
@@ -347,10 +346,11 @@ public class OperationSetBasicTelephonySipImpl
      * Process an asynchronously reported TransactionTerminatedEvent.
      *
      * @param transactionTerminatedEvent -- an event that indicates that the
-     *            transaction has transitioned into the terminated state.
+     * transaction has transitioned into the terminated state.
+     *
      * @return <tt>true</tt> if the specified event has been handled by this
-     *         processor and shouldn't be offered to other processors registered
-     *         for the same method; <tt>false</tt>, otherwise
+     * processor and shouldn't be offered to other processors registered for the
+     * same method; <tt>false</tt>, otherwise
      */
     public boolean processTransactionTerminated(
         TransactionTerminatedEvent transactionTerminatedEvent)
@@ -364,10 +364,11 @@ public class OperationSetBasicTelephonySipImpl
      * proper event handler.
      *
      * @param responseEvent the responseEvent that we received
-     *            ProtocolProviderService.
+     * ProtocolProviderService.
+     *
      * @return <tt>true</tt> if the specified event has been handled by this
-     *         processor and shouldn't be offered to other processors registered
-     *         for the same method; <tt>false</tt>, otherwise
+     * processor and shouldn't be offered to other processors registered for the
+     * same method; <tt>false</tt>, otherwise
      */
     public boolean processResponse(ResponseEvent responseEvent)
     {
@@ -470,13 +471,14 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
-     * Processes a specific <tt>Response.ACCEPTED</tt> response of an
-     * earlier <tt>Request.REFER</tt> request.
+     * Processes a specific <tt>Response.ACCEPTED</tt> response of an earlier
+     * <tt>Request.REFER</tt> request.
      *
-     * @param clientTransaction the <tt>ClientTransaction</tt> which brought
-     *            the response
+     * @param clientTransaction the <tt>ClientTransaction</tt> which brought the
+     * response
+     *
      * @param accepted the <tt>Response.ACCEPTED</tt> response to an earlier
-     *            <tt>Request.REFER</tt> request
+     * <tt>Request.REFER</tt> request
      */
     private void processReferAccepted(ClientTransaction clientTransaction,
         Response accepted)
@@ -571,8 +573,7 @@ public class OperationSetBasicTelephonySipImpl
      * and makes sure that we start transmitting and playing early media that we
      * receive. Puts the call into a CONNECTING_WITH_EARLY_MEDIA state.
      *
-     * @param tran the <tt>ClientTransaction</tt> that the response
-     *            arrived in.
+     * @param tran the <tt>ClientTransaction</tt> that the response arrived in.
      * @param response the 183 <tt>Response</tt> to process
      */
     private void processSessionProgress(ClientTransaction tran,
@@ -731,10 +732,11 @@ public class OperationSetBasicTelephonySipImpl
      * <tt>timeoutType = timeoutEvent.getTimeout().getValue();</tt>
      *
      * @param timeoutEvent the timeoutEvent received indicating either the
-     *            message retransmit or transaction timed out.
+     * message retransmit or transaction timed out.
+     *
      * @return <tt>true</tt> if the specified event has been handled by this
-     *         processor and shouldn't be offered to other processors registered
-     *         for the same method; <tt>false</tt>, otherwise
+     * processor and shouldn't be offered to other processors registered for the
+     * same method; <tt>false</tt>, otherwise
      */
     public boolean processTimeout(TimeoutEvent timeoutEvent)
     {
@@ -774,10 +776,11 @@ public class OperationSetBasicTelephonySipImpl
      * Exceptions to the application.
      *
      * @param exceptionEvent The Exception event that is reported to the
-     *            application.
+     * application.
+     *
      * @return <tt>true</tt> if the specified event has been handled by this
-     *         processor and shouldn't be offered to other processors registered
-     *         for the same method; <tt>false</tt>, otherwise
+     * processor and shouldn't be offered to other processors registered for the
+     * same method; <tt>false</tt>, otherwise
      */
     public boolean processIOException(IOExceptionEvent exceptionEvent)
     {
@@ -790,10 +793,11 @@ public class OperationSetBasicTelephonySipImpl
      * Process an asynchronously reported DialogTerminatedEvent.
      *
      * @param dialogTerminatedEvent -- an event that indicates that the dialog
-     *            has transitioned into the terminated state.
+     * has transitioned into the terminated state.
+     *
      * @return <tt>true</tt> if the specified event has been handled by this
-     *         processor and shouldn't be offered to other processors registered
-     *         for the same method; <tt>false</tt>, otherwise
+     * processor and shouldn't be offered to other processors registered for the
+     * same method; <tt>false</tt>, otherwise
      */
     public boolean processDialogTerminated(
         DialogTerminatedEvent dialogTerminatedEvent)
@@ -1113,13 +1117,12 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
-     * Processes a specific <tt>Request.NOTIFY</tt> request for the purposes
-     * of telephony.
+     * Processes a specific <tt>Request.NOTIFY</tt> request for the purposes of
+     * telephony.
      *
-     * @param serverTransaction the <tt>ServerTransaction</tt> containing
-     *            the <tt>Request.NOTIFY</tt> request
-     * @param notifyRequest the <tt>Request.NOTIFY</tt> request to be
-     *            processed
+     * @param serverTransaction the <tt>ServerTransaction</tt> containing the
+     * <tt>Request.NOTIFY</tt> request
+     * @param notifyRequest the <tt>Request.NOTIFY</tt> request to be processed
      *
      * @return <tt>true</tt> if we have processed/consumed the request and
      * <tt>false</tt> otherwise.
@@ -1218,27 +1221,27 @@ public class OperationSetBasicTelephonySipImpl
 
     /**
      * Tracks the state changes of a specific <tt>Call</tt> and sends a
-     * session-terminating NOTIFY request to the <tt>Dialog</tt> which
-     * referred to the call in question as soon as the outcome of the refer is
+     * session-terminating NOTIFY request to the <tt>Dialog</tt> which referred
+     * to the call in question as soon as the outcome of the refer is
      * determined.
      *
-     * @param referToCall the <tt>Call</tt> to track and send a NOTIFY
-     *            request for
+     * @param referToCall the <tt>Call</tt> to track and send a NOTIFY request
+     * for
      * @param sendNotifyRequest <tt>true</tt> if a session-terminating NOTIFY
-     *            request should be sent to the <tt>Dialog</tt> which
-     *            referred to <tt>referToCall</tt>; <tt>false</tt> to send
-     *            no such NOTIFY request
-     * @param dialog the <tt>Dialog</tt> which initiated the specified call
-     *            as part of processing a REFER request
-     * @param sipProvider the <tt>SipProvider</tt> to send the NOTIFY
-     *            request through
+     * request should be sent to the <tt>Dialog</tt> which referred to
+     * <tt>referToCall</tt>; <tt>false</tt> to send no such NOTIFY request
+     * @param dialog the <tt>Dialog</tt> which initiated the specified call as
+     * part of processing a REFER request
+     * @param sipProvider the <tt>SipProvider</tt> to send the NOTIFY request
+     * through
      * @param subscription the subscription to be terminated when the NOTIFY
-     *            request is sent
+     * request is sent
+     *
      * @return <tt>true</tt> if a session-terminating NOTIFY request was sent
-     *         and the state of <tt>referToCall</tt> should no longer be
-     *         tracked; <tt>false</tt> if it's too early to send a
-     *         session-terminating NOTIFY request and the tracking of the state
-     *         of <tt>referToCall</tt> should continue
+     * and the state of <tt>referToCall</tt> should no longer be tracked;
+     * <tt>false</tt> if it's too early to send a session-terminating NOTIFY
+     * request and the tracking of the state of <tt>referToCall</tt> should
+     * continue
      */
     private boolean referToCallStateChanged(Call referToCall,
         boolean sendNotifyRequest, Dialog dialog, SipProvider sipProvider,
@@ -1402,6 +1405,7 @@ public class OperationSetBasicTelephonySipImpl
      * peer contains an SDP description when you call this method.
      *
      * @param peer the call peer that we need to send the ok to.
+     *
      * @throws OperationFailedException if we fail to create or send the
      * response.
      * @throws ClassCastException if <tt>peer</tt> is not an instance of a
@@ -1636,8 +1640,10 @@ public class OperationSetBasicTelephonySipImpl
      *
      * @param addressString the <tt>String</tt> to be parsed into an
      * <tt>Address</tt>
+     *
      * @return the <tt>Address</tt> representation of
      * <tt>addressString</tt>
+     *
      * @throws OperationFailedException if <tt>addressString</tt> is not
      * properly formatted
      */
