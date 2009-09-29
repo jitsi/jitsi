@@ -25,6 +25,9 @@ import net.java.sip.communicator.util.*;
 public class OperationSetServerStoredContactInfoFacebookImpl
     implements OperationSetServerStoredContactInfo
 {
+    /**
+     * Our class logger
+     */
     private static final Logger logger =
         Logger.getLogger(OperationSetServerStoredContactInfoFacebookImpl.class);
 
@@ -49,6 +52,12 @@ public class OperationSetServerStoredContactInfoFacebookImpl
      */
     private static String fileHostUrl = "http://static.ak.fbcdn.net";
 
+    /**
+     * Creates a new instance of this class using the specified parent
+     * <tt>provider</tt>.
+     *
+     * @param provider the provider that's creating us.
+     */
     protected OperationSetServerStoredContactInfoFacebookImpl(
         ProtocolProviderServiceFacebookImpl provider)
     {
@@ -165,13 +174,15 @@ public class OperationSetServerStoredContactInfoFacebookImpl
                     return null;
 
                 String tmpValueStr = "Who Am I";
-                ContactFacebookImpl contact = (ContactFacebookImpl)presenceOS.findContactByID(contactAddress);
+                ContactFacebookImpl contact = (ContactFacebookImpl)
+                    presenceOS.findContactByID(contactAddress);
 
                 //avatar, name, first name
                 if(contact != null)
                 {
-                    /**
-                     * TODO fixme "Avatar" should be loaded from resources.properties
+                    /*
+                     * TODO fixme "Avatar" should be loaded from resources.
+                     * properties
                      */
                     byte[] imageBytes = contact.getBigImage();
                     if(imageBytes != null && imageBytes.length > 0)
@@ -233,34 +244,45 @@ public class OperationSetServerStoredContactInfoFacebookImpl
                         tmpRight = profilePage.indexOf("</dt>", tmpLeft);
                         if(tmpRight >= 0)
                         {
-                            tmpLabelStr = profilePage.substring(tmpLeft + 4, tmpRight);
+                            tmpLabelStr
+                                = profilePage.substring(tmpLeft + 4, tmpRight);
                             tmpLabelStr = getText(tmpLabelStr);
                             if(tmpLabelStr.endsWith(":"))
-                                tmpLabelStr = tmpLabelStr.substring(0, tmpLabelStr.length()-1);
+                                tmpLabelStr = tmpLabelStr
+                                    .substring(0, tmpLabelStr.length()-1);
                             //label done!
 
                             tmpLeft = profilePage.indexOf("<dd>", tmpRight);
                             if(tmpLeft >= 0)
                             {
-                                tmpRight = profilePage.indexOf("</dd>", tmpLeft);
+                                tmpRight
+                                    = profilePage.indexOf("</dd>", tmpLeft);
                                 if(tmpRight >= 0)
                                 {
-                                    tmpValueStr = profilePage.substring(tmpLeft + 4, tmpRight);
-                                    if(tmpValueStr.startsWith("<img src=\"/") && tmpValueStr.endsWith("\" border=0>"))
+                                    tmpValueStr = profilePage.substring(
+                                                    tmpLeft + 4, tmpRight);
+                                    if(tmpValueStr.startsWith("<img src=\"/")
+                                       && tmpValueStr.endsWith("\" border=0>"))
                                     {
                                         //<img src="/string_image.php?ct=AAAAAQAQVVaveiWcR6O91PkY7zr1NgAAABesyLV-PSZ6liviNVJWiOP6XeTgkFFyaMM%2C&fp=8.7&state=0&highlight=1386786477" border=0>
-                                        tmpValueStr = tmpValueStr.substring(10, tmpValueStr.length() - 11);
+                                        tmpValueStr = tmpValueStr.substring(
+                                                10, tmpValueStr.length() - 11);
                                         //"http://static.ak.fbcdn.net"
-                                        byte[] imageBytes = getImage(fileHostUrl + tmpValueStr);
-                                        if(imageBytes != null && imageBytes.length > 0)
-                                            result.add(new ServerStoredDetails.ImageDetail(
-                                                tmpLabelStr, imageBytes));
+                                        byte[] imageBytes = getImage(
+                                                fileHostUrl + tmpValueStr);
+                                        if(imageBytes != null
+                                           && imageBytes.length > 0)
+                                            result.add(new ServerStoredDetails
+                                                .ImageDetail(
+                                                    tmpLabelStr, imageBytes));
                                     }
                                     else
                                     {
                                         tmpValueStr = getText(tmpValueStr);
                                         //value done!
-                                        result.add(new ServerStoredDetails.StringDetail(tmpLabelStr, tmpValueStr));
+                                        result.add(new ServerStoredDetails
+                                            .StringDetail(
+                                                tmpLabelStr, tmpValueStr));
                                     }
                                 }
                                 else
@@ -275,7 +297,8 @@ public class OperationSetServerStoredContactInfoFacebookImpl
                     }
                 }
                 /*//Gender
-                String tmpPrefix = "<td class=\"data\"><div id=\'Gender-data\'class=\"datawrap\">";
+                String tmpPrefix = "<td class=\"data\"><div id=\'Gender-data"
+                    +"\'class=\"datawrap\">";
                 String tmpPostfix = "</div>";
                 int beginPos = profilePage.indexOf(tmpPrefix);
                 int endPos;
@@ -283,38 +306,46 @@ public class OperationSetServerStoredContactInfoFacebookImpl
                     endPos = profilePage.indexOf(tmpPostfix, beginPos);
                     if(endPos >= 0){
                         tmp = null;
-                        tmp = profilePage.substring(beginPos + tmpPrefix.length(), endPos);
+                        tmp = profilePage.substring(beginPos
+                            + tmpPrefix.length(), endPos);
                         if(tmp != null)
-                            result.add(new ServerStoredDetails.GenderDetail(getText(tmp)));
+                            result.add(new ServerStoredDetails
+                                .GenderDetail(getText(tmp)));
                     }
                 }
 
                 //birthday
-                tmpPrefix = "<td class=\"data\"><div id=\'Birthday-data\'class=\"datawrap\">";
+                tmpPrefix = "<td class=\"data\"><div id=\'Birthday-data\'class"
+                    +"=\"datawrap\">";
                 tmpPostfix = "</a></div>";
                 beginPos = profilePage.indexOf(tmpPrefix);
                 if(beginPos >= 0){
                     endPos = profilePage.indexOf(tmpPostfix, beginPos);
                     if(endPos >= 0){
                         tmp = null;
-                        tmp = profilePage.substring(beginPos + tmpPrefix.length(), endPos);
+                        tmp = profilePage.substring(beginPos
+                            + tmpPrefix.length(), endPos);
                         if(tmp != null)
                             //@fixme birthday label
-                            result.add(new ServerStoredDetails.StringDetail("Birthday", getText(tmp)));
+                            result.add(new ServerStoredDetails.StringDetail(
+                                "Birthday", getText(tmp)));
                     }
                 }
 
                 //Hometown
-                tmpPrefix = "<td class=\"data\"><div id=\'Hometown-data\'class=\"datawrap\">";
+                tmpPrefix = "<td class=\"data\"><div id=\'Hometown-data\'class"
+                    +"=\"datawrap\">";
                 tmpPostfix = "</a></div>";
                 beginPos = profilePage.indexOf(tmpPrefix);
                 if(beginPos >= 0){
                     endPos = profilePage.indexOf(tmpPostfix, beginPos);
                     if(endPos >= 0){
                         tmp = null;
-                        tmp = profilePage.substring(beginPos + tmpPrefix.length(), endPos);
+                        tmp = profilePage.substring(beginPos
+                            + tmpPrefix.length(), endPos);
                         if(tmp != null)
-                            result.add(new ServerStoredDetails.StringDetail("Hometown", getText(tmp)));
+                            result.add(new ServerStoredDetails
+                                .StringDetail("Hometown", getText(tmp)));
                     }
                 }*/
             }
@@ -338,7 +369,8 @@ public class OperationSetServerStoredContactInfoFacebookImpl
      * @return the <tt>OperationSetPersistentPresenceFacebookImpl</tt> that
      *         this contact belongs to.
      */
-    private OperationSetPersistentPresenceFacebookImpl getParentPresenceOperationSet()
+    private OperationSetPersistentPresenceFacebookImpl
+        getParentPresenceOperationSet()
     {
         return
             (OperationSetPersistentPresenceFacebookImpl)
@@ -400,6 +432,17 @@ public class OperationSetServerStoredContactInfoFacebookImpl
         return text;
     }
 
+
+    /**
+     * Returns the bytes of the image at the specified <tt>urlStr</tt> location
+     * or <tt>null</tt> if we fail to retrieve it for some reason.
+     *
+     * @param urlStr
+     *
+     * @return a <tt>byte[]</tt> array containing the bytes of the image at the
+     * specified <tt>urlStr</tt> location or <tt>null</tt> if we fail to
+     * retrieve it for some reason.
+     */
     public static byte[] getImage(String urlStr)
     {
         ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
