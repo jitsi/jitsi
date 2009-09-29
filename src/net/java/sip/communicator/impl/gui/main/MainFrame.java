@@ -546,15 +546,16 @@ public class MainFrame
      * presence operation set is searched.
      * @return the presence operation set for the given protocol provider.
      */
-    public OperationSetPresence getProtocolPresenceOpSet(
+    public static OperationSetPresence getProtocolPresenceOpSet(
             ProtocolProviderService protocolProvider)
     {
         OperationSet opSet
             = protocolProvider.getOperationSet(OperationSetPresence.class);
 
-        return (opSet instanceof OperationSetPresence)
-            ? (OperationSetPresence) opSet
-            : null;
+        return
+            (opSet instanceof OperationSetPresence)
+                ? (OperationSetPresence) opSet
+                : null;
     }
 
     /**
@@ -875,8 +876,7 @@ public class MainFrame
             ProtocolProviderService protocolProvider)
     {
         if(getProtocolPresenceOpSet(protocolProvider) != null)
-            return accountStatusPanel
-                .getLastPresenceStatus(protocolProvider);
+            return accountStatusPanel.getLastPresenceStatus(protocolProvider);
         else
             return accountStatusPanel.getLastStatusString(protocolProvider);
     }

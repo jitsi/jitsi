@@ -32,10 +32,13 @@ public class PresenceStatusMenu
     extends StatusSelectorMenu
     implements ActionListener
 {
-    private final Logger logger =
-        Logger.getLogger(PresenceStatusMenu.class);
+    private final Logger logger = Logger.getLogger(PresenceStatusMenu.class);
 
-    private ProtocolProviderService protocolProvider;
+    /**
+     * The <tt>ProtocolProviderService</tt> which has its presence status
+     * depicted and changed by this instance.
+     */
+    private final ProtocolProviderService protocolProvider;
 
     private Iterator<PresenceStatus> statusIterator;
 
@@ -49,24 +52,20 @@ public class PresenceStatusMenu
 
     private JLabel titleLabel;
 
-    private MainFrame mainFrame;
-
     /**
-     * Creates an instance of <tt>StatusSelectorBox</tt> and initializes the
-     * selector box with data.
+     * Initializes a new <tt>PresenceStatusMenu</tt> instance which is to
+     * depict and change the presence status of a specific
+     * <tt>ProtocolProviderService</tt>.
      *
-     * @param mainFrame The main application window.
-     * @param protocolProvider The protocol provider.
+     * @param protocolProvider the <tt>ProtocolProviderService</tt> which is to
+     * have its presence status depicted and changed by the new instance
      */
-    public PresenceStatusMenu(  MainFrame mainFrame,
-                                ProtocolProviderService protocolProvider)
+    public PresenceStatusMenu(ProtocolProviderService protocolProvider)
     {
         super(protocolProvider.getAccountID().getDisplayName(),
             ImageLoader.getAccountStatusImage(protocolProvider));
 
         this.protocolProvider = protocolProvider;
-
-        this.mainFrame = mainFrame;
 
         this.presence
             = (OperationSetPresence) protocolProvider
@@ -191,26 +190,26 @@ public class PresenceStatusMenu
     }
 
     /**
-     * Stops the timer that manages the connecting animated icon.
+     * Selects a specific <tt>PresenceStatus</tt> in this instance and the
+     * <tt>ProtocolProviderService</tt> it depicts.
+     *
+     * @param presenceStatus the <tt>PresenceStatus</tt> to be selected in this
+     * instance and the <tt>ProtocolProviderService</tt> it depicts
      */
-    public void updateStatus(Object presenceStatus)
+    public void updateStatus(PresenceStatus presenceStatus)
     {
-        PresenceStatus status = (PresenceStatus) presenceStatus;
-
-        OperationSetPresence presence =
-            mainFrame.getProtocolPresenceOpSet(protocolProvider);
+        OperationSetPresence presence
+            = MainFrame.getProtocolPresenceOpSet(protocolProvider);
 
         logger.trace("Update status for provider: "
             + protocolProvider.getAccountID().getAccountAddress()
-            + ". The new status will be: " + status.getStatusName());
+            + ". The new status will be: " + presenceStatus.getStatusName());
 
-        this.setSelectedStatus(status);
+        this.setSelectedStatus(presenceStatus);
 
         if (protocolProvider.isRegistered()
-            && !presence.getPresenceStatus().equals(status))
-        {
-            new PublishPresenceStatusThread(status).start();
-        }
+                && !presence.getPresenceStatus().equals(presenceStatus))
+            new PublishPresenceStatusThread(presenceStatus).start();
     }
 
     /**

@@ -154,7 +154,7 @@ public class GlobalStatusSelectorBox
                 protocolProvider.getOperationSet(OperationSetPresence.class);
         StatusSelectorMenu statusSelectorMenu
             = (presenceOpSet != null)
-                ? new PresenceStatusMenu(mainFrame, protocolProvider)
+                ? new PresenceStatusMenu(protocolProvider)
                 : new SimpleStatusMenu(protocolProvider);
 
         this.add(statusSelectorMenu);
@@ -436,7 +436,7 @@ public class GlobalStatusSelectorBox
     }
 
     public void updateStatus(ProtocolProviderService protocolProvider,
-                            PresenceStatus presenceStatus)
+                             PresenceStatus presenceStatus)
     {
         StatusSelectorMenu accountMenu = accountMenus.get(protocolProvider);
 
@@ -444,12 +444,7 @@ public class GlobalStatusSelectorBox
             return;
 
         if (accountMenu instanceof PresenceStatusMenu)
-        {
-            PresenceStatusMenu presenceStatusMenu
-                = (PresenceStatusMenu) accountMenu;
-
-            presenceStatusMenu.updateStatus(presenceStatus);
-        }
+            ((PresenceStatusMenu) accountMenu).updateStatus(presenceStatus);
 
         this.updateGlobalStatus();
     }

@@ -137,8 +137,8 @@ public class LoginManager
 
         if (newState.equals(RegistrationState.REGISTERED))
         {
-            OperationSetPresence presence = mainFrame
-                .getProtocolPresenceOpSet(protocolProvider);
+            OperationSetPresence presence
+                = MainFrame.getProtocolPresenceOpSet(protocolProvider);
 
             OperationSetMultiUserChat multiUserChat = 
                 mainFrame.getMultiUserChatOpSet(protocolProvider);
