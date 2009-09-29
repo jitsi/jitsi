@@ -40,7 +40,7 @@ public class TestMetaHistoryService
 
     static final String TEST_CONTACT_NAME_1 = "Mincho_Penchev_the_fisrt";
     static final String TEST_CONTACT_NAME_2 = "Mincho_Penchev_the_second";
-    
+
 //    static final String TEST_ROOM_NAME = "test_room";
 
     /**
@@ -148,7 +148,7 @@ public class TestMetaHistoryService
         mockFTOpSet =
             (MockOperationSetFileTransfer) supportedOperationSets.get(
                 OperationSetFileTransfer.class.getName());
-        
+
         metaHistoryServiceRef =
             MetaHistoryServiceLick.bc.
             getServiceReference(MetaHistoryService.class.getName());
@@ -187,8 +187,8 @@ public class TestMetaHistoryService
 
        testMetaContact = metaClService.getRoot().
             getMetaContact(mockProvider, TEST_CONTACT_NAME_1);
-       
-       // add one more contact as specific problems may happen only when 
+
+       // add one more contact as specific problems may happen only when
        // more than one contact is in the metacontact
         metaClService.addNewContactToMetaContact(
             mockProvider, testMetaContact, TEST_CONTACT_NAME_2);
@@ -288,7 +288,7 @@ public class TestMetaHistoryService
 
             Vector<CallPeer> v = new Vector<CallPeer>();
 
-            Iterator<CallPeer> iter = newCall.getCallPeers();
+            Iterator<? extends CallPeer> iter = newCall.getCallPeers();
             while (iter.hasNext())
             {
                 CallPeer item = iter.next();
@@ -717,7 +717,7 @@ public class TestMetaHistoryService
         rs = getFileRecords(
                 metaHistoryService.findFirstMessagesAfter(
                     new String[]{FileHistoryService.class.getName()},
-                    testMetaContact, 
+                    testMetaContact,
                     controlDate1,
                     2));
         assertEquals("Filetransfers must be 2", rs.size(), 2);
@@ -850,7 +850,7 @@ public class TestMetaHistoryService
             testMetaContact,
             "Word6", true);
         assertEquals("Records must be 0", 0, rs.size());
-        
+
         rs = metaHistoryService.findByKeywords(
             new String[]{
                 MessageHistoryService.class.getName(),

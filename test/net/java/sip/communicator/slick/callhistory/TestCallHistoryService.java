@@ -153,7 +153,7 @@ public class TestCallHistoryService
 
             Vector<CallPeer> v = new Vector<CallPeer>();
 
-            Iterator<CallPeer> iter = newCall.getCallPeers();
+            Iterator<? extends CallPeer> iter = newCall.getCallPeers();
             while (iter.hasNext())
             {
                 CallPeer item = iter.next();
@@ -284,7 +284,7 @@ public class TestCallHistoryService
 
             Vector<CallPeer> v = new Vector<CallPeer>();
 
-            Iterator<CallPeer> iter = newCall.getCallPeers();
+            Iterator<? extends CallPeer> iter = newCall.getCallPeers();
             while (iter.hasNext())
             {
                 CallPeer item = iter.next();
