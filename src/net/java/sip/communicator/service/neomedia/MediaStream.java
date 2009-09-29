@@ -83,13 +83,12 @@ public interface MediaStream
     public void stop();
 
     /**
-     * Sets the MediaFormat that this <tt>MediaStream</tt> should be
-     * transmitting in.
+     * Sets the MediaFormat that this <tt>MediaStream</tt> should transmit in.
      *
-     * @param fmt the <tt>MediaFormat</tt> that this <tt>MediaStream</tt> should
-     * be transmitting in.
+     * @param format the <tt>MediaFormat</tt> that this <tt>MediaStream</tt>
+     * should transmit in.
      */
-    public void setFormat(MediaFormat fmt);
+    public void setFormat(MediaFormat format);
 
     /**
      * Returns the <tt>MediaFormat</tt> that this stream is currently
@@ -101,20 +100,19 @@ public interface MediaStream
     public MediaFormat getFormat();
 
     /**
-     * Sets the device that this stream should be using to playback and capture
+     * Sets the device that this stream should use to play back and capture
      * media.
      *
      * @param device the <tt>MediaDevice</tt> that this stream should use
-     * to playback and capture media.
+     * to play back and capture media.
      */
     public void setDevice(MediaDevice device);
 
     /**
-     * Returns the device that this stream should be using to playback and
-     * capture media.
+     * Gets the device that this stream uses to play back and capture media.
      *
-     * @return the <tt>MediaDevice</tt> that this stream should use
-     * to playback and capture media.
+     * @return the <tt>MediaDevice</tt> that this stream uses to play back and
+     * capture media.
      */
     public MediaDevice getDevice();
 
