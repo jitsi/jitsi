@@ -1018,14 +1018,26 @@ public class OperationSetPersistentPresenceFacebookImpl
          */
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
-            if (!evt.getNewState().equals(RegistrationState.UNREGISTERED)
-                && !evt.getNewState().equals(
-                    RegistrationState.AUTHENTICATION_FAILED)
-                && !evt.getNewState().equals(
-                    RegistrationState.CONNECTION_FAILED))
+            RegistrationState newState = evt.getNewState();
+
+            if (RegistrationState.UNREGISTERED.equals(newState))
             {
-                return;
+
+                /*
+                 * Reflect the RegistrationState of the ProtocolProviderService
+                 * onto the presenceStatus of this instance.
+                 */
+                if (!FacebookStatusEnum.OFFLINE.equals(presenceStatus))
+                {
+                    PresenceStatus oldValue = presenceStatus;
+
+                    presenceStatus = FacebookStatusEnum.OFFLINE;
+                    fireProviderStatusChangeEvent(oldValue, presenceStatus);
+                }
             }
+            else if (!newState.equals(RegistrationState.AUTHENTICATION_FAILED)
+                    && !newState.equals(RegistrationState.CONNECTION_FAILED))
+                return;
 
             // send event notifications saying that all our buddies are
             // offline. The icq protocol does not implement top level buddies
@@ -1035,18 +1047,15 @@ public class OperationSetPersistentPresenceFacebookImpl
                 = getServerStoredContactListRoot().subgroups();
             while (groupsIter.hasNext())
             {
-                ContactGroupFacebookImpl group =
-                    (ContactGroupFacebookImpl) groupsIter.next();
-
+                ContactGroup group = groupsIter.next();
                 Iterator<Contact> contactsIter = group.contacts();
 
                 while (contactsIter.hasNext())
                 {
-                    ContactFacebookImpl contact =
-                        (ContactFacebookImpl) contactsIter.next();
-
-                    PresenceStatus oldContactStatus =
-                        contact.getPresenceStatus();
+                    ContactFacebookImpl contact
+                        = (ContactFacebookImpl) contactsIter.next();
+                    PresenceStatus oldContactStatus
+                        = contact.getPresenceStatus();
 
                     if (!oldContactStatus.isOnline())
                         continue;
