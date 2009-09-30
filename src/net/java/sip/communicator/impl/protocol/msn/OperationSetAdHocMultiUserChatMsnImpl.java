@@ -286,7 +286,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
             MsnSwitchboard switchboard)
     {
         AdHocChatRoomMsnImpl adHocChatRoom = (AdHocChatRoomMsnImpl)
-            this.adHocChatRoomCache.get(String.valueOf(switchboard.hashCode()));
+            this.adHocChatRoomCache.get(switchboard);
 
         if (adHocChatRoom == null)
         {
