@@ -211,8 +211,6 @@ public class OperationSetAdHocMultiUserChatYahooImpl
      *             reason (e.g. room already exists; user already joined to an
      *             existent room or user has no permissions to create a chat
      *             room).
-     * @throws OperationNotSupportedException if chat room creation is not
-     *             supported by this server
      * 
      * @return ChatRoom the chat room that we've just created.
      */
@@ -229,9 +227,12 @@ public class OperationSetAdHocMultiUserChatYahooImpl
      * ad-hoc room the local user will not have joined it and thus will not
      * receive messages on it until the <tt>AdHocChatRoom.join()</tt> method is
      * called.
-     * 
+     *
+     * @return the ad-hoc room that has been just created
      * @param adHocRoomName the name of the room to be created
      * @param contacts the list of contacts
+     * @throws OperationFailedException if the room couldn't be created for
+     * some reason
      */
     public AdHocChatRoom createAdHocChatRoom(   String adHocRoomName,
                                                 List<Contact> contacts)

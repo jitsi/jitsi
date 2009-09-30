@@ -195,6 +195,7 @@ public class OperationSetAdHocMultiUserChatIcqImpl
      * @param adHocRoomName the name of the ad-hoc room
      * @param contacts the list of contacts
      *
+     * @return the ad-hoc room that has been just created
      * @throws OperationFailedException
      * @throws OperationNotSupportedException
      */
