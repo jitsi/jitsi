@@ -336,89 +336,9 @@ public class CallSipImpl
         CallPeerSipImpl callPeer =
             createCallPeerFor(inviteTransaction, jainSipProvider);
 
-        // invite content
-        attachSdpOffer(invite, callPeer);
-
-        try
-        {
-            inviteTransaction.sendRequest();
-            if (logger.isDebugEnabled())
-                logger.debug("sent request:\n" + invite);
-        }
-        catch (SipException ex)
-        {
-            ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "An error occurred while sending invite request",
-                OperationFailedException.NETWORK_FAILURE, ex, logger);
-        }
+        callPeer.invite();
 
         return callPeer;
-    }
-
-    /**
-     * Creates an SDP offer destined to <tt>callPeer</tt> and attaches it to
-     * the <tt>invite</tt> request.
-     *
-     * @param invite the invite <tt>Request</tt> that we'd like to attach an
-     * SDP offer to.
-     * @param callPeer the <tt>callPeer</tt> that we'd like to address our
-     * offer to
-     *
-     * @throws OperationFailedException if we fail constructing the session
-     * description.
-     */
-    private void attachSdpOffer(Request invite, CallPeerSipImpl callPeer)
-        throws OperationFailedException
-    {
-        try
-        {
-            CallSession callSession = SipActivator.getMediaService()
-                .createCallSession(callPeer.getCall());
-            callPeer.setMediaCallSession(callSession);
-
-            callSession.setSessionCreatorCallback(callPeer);
-
-            // if possible try to indicate the address of the callee so
-            // that the media service can choose the most proper local
-            // address to advertise.
-            URI calleeURI = callPeer.getPeerAddress().getURI();
-
-            if (calleeURI.isSipURI())
-            {
-                // content type should be application/sdp (not applications)
-                // reported by Oleg Shevchenko (Miratech)
-                ContentTypeHeader contentTypeHeader = getProtocolProvider()
-                    .getHeaderFactory().createContentTypeHeader(
-                        "application", "sdp");
-
-                String host = ((SipURI) calleeURI).getHost();
-                InetAddress intendedDestination = getProtocolProvider()
-                        .resolveSipAddress(host).getAddress();
-
-                invite.setContent(callSession
-                            .createSdpOffer(intendedDestination),
-                            contentTypeHeader);
-            }
-        }
-        catch (UnknownHostException ex)
-        {
-            ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "Failed to obtain an InetAddress for " + ex.getMessage(),
-                OperationFailedException.NETWORK_FAILURE, ex, logger);
-        }
-        catch (ParseException ex)
-        {
-            ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "Failed to parse sdp data while creating invite request!",
-                OperationFailedException.INTERNAL_ERROR, ex, logger);
-        }
-        catch (MediaException ex)
-        {
-            ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "Could not access media devices!",
-                OperationFailedException.INTERNAL_ERROR, ex, logger);
-        }
-
     }
 
     /**
