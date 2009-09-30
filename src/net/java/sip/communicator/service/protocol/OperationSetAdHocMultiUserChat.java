@@ -76,16 +76,6 @@ public interface OperationSetAdHocMultiUserChat
     public List<AdHocChatRoom> getAdHocChatRooms();
 
     /**
-     * Returns true if <tt>contact</tt> supports multi-user chat sessions.
-     *
-     * @param contact reference to the contact whose support for ad-hoc chat
-     * rooms we are currently querying.
-     * @return a boolean indicating whether <tt>contact</tt> supports ad-hoc
-     * chat rooms.
-     */
-    public boolean isMultiChatSupportedByContact(Contact contact);
-
-    /**
      * Adds a listener that will be notified of changes in our participation in
      * an ad-hoc chat room such as us being joined, left.
      *

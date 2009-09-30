@@ -23,6 +23,9 @@ import net.sf.jml.message.*;
 public class OperationSetAdHocMultiUserChatMsnImpl
     implements  OperationSetAdHocMultiUserChat
 {
+    /**
+     * The logger used to log messages.
+     */
      private static final Logger logger
          = Logger.getLogger(OperationSetAdHocMultiUserChatMsnImpl.class);
 
@@ -67,6 +70,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
     /**
      * Creates an <tt>OperationSetAdHocMultiUserChatMsnImpl</tt> by specifying
      * the parent provider.
+     * @param provider the Msn provider
      */
     public OperationSetAdHocMultiUserChatMsnImpl(
             ProtocolProviderServiceMsnImpl provider)
@@ -170,6 +174,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      * @param adHocRoomName the name of the ad-hoc room
      * @param contacts the list of contacts
      *
+     * @return the ad-hoc room that has been just created
      * @throws OperationFailedException
      * @throws OperationNotSupportedException
      */
@@ -200,6 +205,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      * @param adHocRoomName the name of the ad-hoc room
      * @param adHocRoomProperties the ad-hoc room's properties
      *
+     * @return the created ad-hoc room
      * @throws OperationFailedException
      * @throws OperationNotSupportedException
      */
@@ -367,11 +373,6 @@ public class OperationSetAdHocMultiUserChatMsnImpl
         }
     }
 
-    public boolean isMultiChatSupportedByContact(Contact contact)
-    {
-        return false;
-    }
-
     /**
      * Removes the given listener from presence listeners' list.
      *
@@ -445,6 +446,12 @@ public class OperationSetAdHocMultiUserChatMsnImpl
         extends MsnMessageAdapter
         implements MsnEmailListener
     {
+        /**
+         * Indicates that an instant message has been received.
+         * @param switchboard the switchboard
+         * @param message the message
+         * @param contact the contact sending the message
+         */
         public void instantMessageReceived( MsnSwitchboard switchboard,
                                             MsnInstantMessage message,
                                             MsnContact contact)
@@ -479,28 +486,35 @@ public class OperationSetAdHocMultiUserChatMsnImpl
             chatRoom.fireMessageEvent(msgReceivedEvent);
         }
 
+        /**
+         * Not interested in this event.
+         */
         public void initialEmailNotificationReceived(
             MsnSwitchboard switchboard, MsnEmailInitMessage message,
             MsnContact contact)
-        {
-        }
+        {}
 
+        /**
+         * Not interested in this event.
+         */
         public void initialEmailDataReceived(MsnSwitchboard switchboard,
             MsnEmailInitEmailData message, MsnContact contact)
-        {
-        }
+        {}
 
+        /**
+         * Not interested in this event.
+         */
         public void newEmailNotificationReceived(MsnSwitchboard switchboard,
             MsnEmailNotifyMessage message, MsnContact contact)
-        {
+        {}
 
-        }
-
+        /**
+         * Not interested in this event.
+         */
         public void activityEmailNotificationReceived(
             MsnSwitchboard switchboard, MsnEmailActivityMessage message,
             MsnContact contact)
-        {
-        }
+        {}
     }
 
     /**
@@ -511,6 +525,12 @@ public class OperationSetAdHocMultiUserChatMsnImpl
     private class MsnSwitchboardListener
         extends MsnSwitchboardAdapter
     {
+        /**
+         * Indicates that the given <tt>msnContact</tt> has joined the given
+         * <tt>switchboard</tt>.
+         * @param switchboard the switchboard
+         * @param msnContact the contact that has joined
+         */
         public void contactJoinSwitchboard( MsnSwitchboard switchboard,
                                             MsnContact msnContact)
         {
@@ -550,9 +570,14 @@ public class OperationSetAdHocMultiUserChatMsnImpl
             {
                 logger.error("Failed to join switchboard.", e);
             }
-
         }
 
+        /**
+         * Indicates that the given <tt>contact</tt> has left the given
+         * <tt>switchboard</tt>.
+         * @param switchboard the switchboard
+         * @param contact the contact that has left
+         */
         public void contactLeaveSwitchboard(MsnSwitchboard switchboard,
                                             MsnContact contact)
         {
@@ -563,9 +588,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
                 = getLocalAdHocChatRoomInstance(switchboard);
 
             if (chatRoom == null)
-            {
-                chatRoom = createLocalAdHocChatRoomInstance(switchboard);
-            }
+                return;
 
             String participantId = contact.getId();
 
@@ -578,6 +601,10 @@ public class OperationSetAdHocMultiUserChatMsnImpl
             }
         }
 
+        /**
+         * Indicates that a switchboard has been closed.
+         * @param switchboard the switchboard that has been closed
+         */
         public void switchboardClosed(MsnSwitchboard switchboard)
         {
             AdHocChatRoomMsnImpl adHocChatRoom
@@ -596,6 +623,10 @@ public class OperationSetAdHocMultiUserChatMsnImpl
             }
         }
 
+        /**
+         * Indicates that a switchboard has been started.
+         * @param switchboard the switchboard that has been started
+         */
         public void switchboardStarted(MsnSwitchboard switchboard)
         {
             Object switchboardID = switchboard.getAttachment();
@@ -616,10 +647,6 @@ public class OperationSetAdHocMultiUserChatMsnImpl
 
                 // Add this room to the list of created chat rooms.
                 adHocChatRoomCache.put(switchboard, adHocChatRoom);
-            }
-            else
-            {
-                logger.debug("Could not join the Ad-hoc chat room.");
             }
         }
     }

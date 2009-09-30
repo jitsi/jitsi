@@ -269,23 +269,6 @@ public class OperationSetAdHocMultiUserChatIcqImpl
     }
 
     /**
-     * Returns true if <tt>contact</tt> supports multi user chat sessions.
-     *
-     * @param contact reference to the contact whose support for chat rooms we
-     *            are currently querying.
-     * @return a boolean indicating whether <tt>contact</tt> supports chat
-     *         rooms.
-     */
-    public boolean isMultiChatSupportedByContact(Contact contact)
-    {
-        if (contact.getProtocolProvider().getOperationSet(
-            OperationSetAdHocMultiUserChat.class) != null)
-            return true;
-
-        return false;
-    }
-
-    /**
      * Informs the sender of an invitation that we decline their invitation.
      *
      * @param invitation the connection to use for sending the rejection.

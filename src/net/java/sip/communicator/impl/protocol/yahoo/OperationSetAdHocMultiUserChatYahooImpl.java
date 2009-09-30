@@ -339,24 +339,6 @@ public class OperationSetAdHocMultiUserChatYahooImpl
     }
 
     /**
-     * Returns true if <tt>contact</tt> supports multi user chat sessions.
-     * 
-     * @param contact reference to the contact whose support for chat rooms we
-     *            are currently querying.
-     * @return a boolean indicating whether <tt>contact</tt> supports chatrooms.
-     * @todo Implement this
-     *       net.java.sip.communicator.service.protocol.OperationSetMultiUserChat
-     *       method
-     */
-    public boolean isMultiChatSupportedByContact(Contact contact)
-    {
-        return
-            (contact.getProtocolProvider()
-                    .getOperationSet(OperationSetAdHocMultiUserChat.class)
-                != null);
-    }
-
-    /**
      * Informs the sender of an invitation that we decline their invitation.
      * 
      * @param invitation the connection to use for sending the rejection.
