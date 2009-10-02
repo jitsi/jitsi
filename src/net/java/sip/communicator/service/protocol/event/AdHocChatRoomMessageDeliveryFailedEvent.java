@@ -70,11 +70,11 @@ public class AdHocChatRoomMessageDeliveryFailedEvent
      private Message message = null;
 
      /**
-      * Creates an <tt>AdHocChatRoomMessageDeliveryFailedEvent</tt> indicating 
-      * failure of delivery of the <tt>source</tt> message to the specified 
-      * <tt>to</tt> contact.
+      * Creates a <tt>AdHocChatRoomMessageDeliveryFailedEvent</tt> indicating
+      * failure of delivery of a message to the specified <tt>Contact</tt> in
+      * the specified <tt>AdHocChatRoom</tt>.
       *
-      * @param source the <tt>Message</tt> whose delivery this event represents.
+      * @param source the <tt>AdHocChatRoom</tt> in which the message was sent
       * @param to the <tt>Contact</tt> that this message was sent to.
       * @param errorCode an errorCode indicating the reason of the failure.
       * @param timestamp the exact Date when it was determined that delivery
@@ -94,6 +94,7 @@ public class AdHocChatRoomMessageDeliveryFailedEvent
          this.timestamp = timestamp;
          this.message = message;
      }
+
      /**
       * Returns a reference to the <tt>Contact</tt> that the source
       * (failed) <tt>Message</tt> was sent to.

@@ -69,11 +69,11 @@ public class ChatRoomMessageDeliveryFailedEvent
      private Message message = null;
 
      /**
-      * Creates a <tt>MessageDeliveryFailedEvent</tt> indicating failure of
-      * delivery of the <tt>source</tt> message to the specified <tt>to</tt>
-      * contact.
+      * Creates a <tt>ChatRoomMessageDeliveryFailedEvent</tt> indicating failure
+      * of delivery of a message to the specified <tt>ChatRoomMember</tt> in the
+      * specified <tt>ChatRoom</tt>.
       *
-      * @param source the <tt>Message</tt> whose delivery this event represents.
+      * @param source the <tt>ChatRoom</tt> in which the message was sent
       * @param to the <tt>ChatRoomMember</tt> that this message was sent to.
       * @param errorCode an errorCode indicating the reason of the failure.
       * @param timestamp the exacte Date when it was determined that delivery
@@ -93,6 +93,7 @@ public class ChatRoomMessageDeliveryFailedEvent
          this.timestamp = timestamp;
          this.message = message;
      }
+
      /**
       * Returns a reference to the <tt>ChatRoomMember</tt> that the source
       * (failed) <tt>Message</tt> was sent to.
