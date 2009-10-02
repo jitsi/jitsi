@@ -166,9 +166,7 @@ public class AccountList
         }
         else if (event.getType() == ServiceEvent.UNREGISTERING)
         {
-            Object[] accountListModelElements = accountListModel.toArray();
-
-            for (Object accountListModelElement : accountListModelElements)
+            for (Object accountListModelElement : accountListModel.toArray())
             {
                 Account account = (Account) accountListModelElement;
 

@@ -21,11 +21,11 @@ import net.java.sip.communicator.util.*;
  */
 public class Account
 {
-    private ProtocolProviderService protocolProvider;
+    private final ProtocolProviderService protocolProvider;
 
-    private String name;
+    private final String name;
 
-    private ImageIcon icon;
+    private final ImageIcon icon;
 
     /**
      * Creates an <tt>Account</tt> instance from the given
@@ -99,8 +99,7 @@ public class Account
         String status;
 
         OperationSetPresence presence
-            = (OperationSetPresence) protocolProvider
-                .getOperationSet(OperationSetPresence.class);
+            = protocolProvider.getOperationSet(OperationSetPresence.class);
 
         if (presence != null)
         {
@@ -108,16 +107,13 @@ public class Account
         }
         else
         {
-            if (protocolProvider.isRegistered())
-            {
-                status = GuiActivator.getResources()
-                    .getI18NString("service.gui.ONLINE");
-            }
-            else
-            {
-                status = GuiActivator.getResources()
-                    .getI18NString("service.gui.OFFLINE");
-            }
+            status
+                = GuiActivator
+                    .getResources()
+                        .getI18NString(
+                            protocolProvider.isRegistered()
+                                ? "service.gui.ONLINE"
+                                : "service.gui.OFFLINE");
         }
 
         return status;
@@ -132,9 +128,11 @@ public class Account
      */
     private ImageIcon getProtocolIcon()
     {
-        Image protocolImage =
-            ImageLoader.getBytesInImage(protocolProvider.getProtocolIcon()
-                .getIcon(ProtocolIcon.ICON_SIZE_32x32));
+        ProtocolIcon protocolIcon = protocolProvider.getProtocolIcon();
+        Image protocolImage
+            = ImageLoader
+                .getBytesInImage(
+                    protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_32x32));
 
         if (protocolImage != null)
         {
@@ -142,28 +140,18 @@ public class Account
         }
         else
         {
-            protocolImage =
-                ImageLoader.getBytesInImage(protocolProvider.getProtocolIcon()
-                    .getIcon(ProtocolIcon.ICON_SIZE_48x48));
+            protocolImage
+                = ImageLoader
+                    .getBytesInImage(
+                        protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_48x48));
+            if (protocolImage == null)
+                protocolImage
+                    = ImageLoader
+                        .getBytesInImage(
+                            protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_64x64));
 
             if (protocolImage != null)
-            {
-                return ImageUtils.scaleIconWithinBounds(
-                    protocolImage, 32, 32);
-            }
-            else
-            {
-                protocolImage =
-                    ImageLoader.getBytesInImage(
-                        protocolProvider.getProtocolIcon()
-                            .getIcon(ProtocolIcon.ICON_SIZE_64x64));
-
-                if (protocolImage != null)
-                {
-                    return ImageUtils.scaleIconWithinBounds(
-                        protocolImage, 32, 32);
-                }
-            }
+                return ImageUtils.scaleIconWithinBounds(protocolImage, 32, 32);
         }
 
         return null;
