@@ -77,9 +77,8 @@ public class ContactInfoDetailsPanel
         this.contact = c;
 
         ProtocolProviderService pps = contact.getProtocolProvider();
-        contactInfoOpSet =
-            (OperationSetServerStoredContactInfo) pps
-                .getOperationSet(OperationSetServerStoredContactInfo.class);
+        contactInfoOpSet
+            = pps.getOperationSet(OperationSetServerStoredContactInfo.class);
 
         this.removeAll();
 
@@ -486,13 +485,15 @@ public class ContactInfoDetailsPanel
 
         // If the contact's protocol supports web info, give them a button to
         // get it
-        if (contact.getProtocolProvider().getOperationSet(
-                OperationSetWebContactInfo.class) != null)
+        OperationSetWebContactInfo webContactInfo
+            = contact
+                .getProtocolProvider()
+                    .getOperationSet(OperationSetWebContactInfo.class);
+
+        if (webContactInfo != null)
         {
-            final String urlString = ((OperationSetWebContactInfo) contact
-                .getProtocolProvider().getOperationSet(
-                    OperationSetWebContactInfo.class))
-                    .getWebContactInfo(contact).toString();
+            final String urlString
+                = webContactInfo.getWebContactInfo(contact).toString();
 
             JLabel webInfoLabel = new JLabel("Click to see web info: ");
             JEditorPane webInfoValue = new JEditorPane();

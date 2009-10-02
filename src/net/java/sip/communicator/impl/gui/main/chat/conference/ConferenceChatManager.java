@@ -132,42 +132,42 @@ public class ConferenceChatManager
     {
         ChatRoom sourceChatRoom = (ChatRoom) evt.getSource();
 
-        logger.trace("MESSAGE DELIVERED to chat room: "
-            + sourceChatRoom.getName());
+        logger.trace(
+                "MESSAGE DELIVERED to chat room: " + sourceChatRoom.getName());
 
-        Message msg = evt.getMessage();
-
-        ChatPanel chatPanel = null;
-
-        ChatWindowManager chatWindowManager
-            = GuiActivator.getUIService().getChatWindowManager();
-
-        if(chatWindowManager.isChatOpenedFor(sourceChatRoom))
-        {
-            chatPanel = chatWindowManager.getMultiChat(sourceChatRoom);
-        }
-
-        String messageType = null;
-
-        if (evt.getEventType()
-            == ChatRoomMessageDeliveredEvent.CONVERSATION_MESSAGE_DELIVERED)
-        {
-            messageType = Chat.OUTGOING_MESSAGE;
-        }
-        else if (evt.getEventType()
-            == ChatRoomMessageDeliveredEvent.ACTION_MESSAGE_DELIVERED)
-        {
-            messageType = Chat.ACTION_MESSAGE;
-        }
+        ChatPanel chatPanel
+            = GuiActivator
+                .getUIService()
+                    .getChatWindowManager()
+                        .getMultiChat(sourceChatRoom, false);
 
         if(chatPanel != null)
         {
-            chatPanel.addMessage(sourceChatRoom.getParentProvider()
-                .getAccountID().getUserID(),
-                evt.getTimestamp(),
-                messageType,
-                msg.getContent(),
-                msg.getContentType());
+            String messageType;
+
+            switch (evt.getEventType())
+            {
+            case ChatRoomMessageDeliveredEvent.CONVERSATION_MESSAGE_DELIVERED:
+                messageType = Chat.OUTGOING_MESSAGE;
+                break;
+            case ChatRoomMessageDeliveredEvent.ACTION_MESSAGE_DELIVERED:
+                messageType = Chat.ACTION_MESSAGE;
+                break;
+            default:
+                messageType = null;
+                break;
+            }
+
+            Message msg = evt.getMessage();
+
+            chatPanel
+                .addMessage(
+                    sourceChatRoom
+                        .getParentProvider().getAccountID().getUserID(),
+                    evt.getTimestamp(),
+                    messageType,
+                    msg.getContent(),
+                    msg.getContentType());
         }
     }
 
@@ -179,8 +179,7 @@ public class ConferenceChatManager
      */
     public void messageReceived(ChatRoomMessageReceivedEvent evt)
     {
-        ChatRoom sourceChatRoom = (ChatRoom) evt.getSource();
-
+        ChatRoom sourceChatRoom = evt.getSourceChatRoom();
         ChatRoomMember sourceMember = evt.getSourceChatRoomMember();
 
         String messageType = null;
@@ -223,7 +222,7 @@ public class ConferenceChatManager
         else
         {
             chatPanel = chatWindowManager
-                .getMultiChat(sourceChatRoom, message.getMessageUID());
+                .getMultiChat(sourceChatRoom, true, message.getMessageUID());
         }
 
         String messageContent = message.getContent();
@@ -313,11 +312,20 @@ public class ConferenceChatManager
      */
     public void messageDeliveryFailed(ChatRoomMessageDeliveryFailedEvent evt)
     {
-        ChatRoom sourceChatRoom = (ChatRoom) evt.getSource();
+        ChatRoom sourceChatRoom = evt.getSourceChatRoom();
 
         String errorMsg = null;
 
-        Message sourceMessage = (Message) evt.getSource();
+        /*
+         * FIXME ChatRoomMessageDeliveryFailedEvent#getSource() is not a Message
+         * instance at the time of this writing and the attempt "(Message)
+         * evt.getSource()" seems to be to get the message which failed to be
+         * delivered. I'm not sure it's
+         * ChatRoomMessageDeliveryFailedEvent#getMessage() but since it's the
+         * only message I can get out of ChatRoomMessageDeliveryFailedEvent, I'm
+         * using it.
+         */
+        Message sourceMessage = evt.getMessage();
 
         ChatRoomMember destMember = evt.getDestinationChatRoomMember();
 
@@ -353,9 +361,8 @@ public class ConferenceChatManager
 
         ChatWindowManager chatWindowManager
             = GuiActivator.getUIService().getChatWindowManager();
-
         ChatPanel chatPanel
-            = chatWindowManager.getMultiChat(sourceChatRoom);
+            = chatWindowManager.getMultiChat(sourceChatRoom, true);
 
         chatPanel.addMessage(
                 destMember.getName(),
@@ -400,7 +407,7 @@ public class ConferenceChatManager
                     = GuiActivator.getUIService().getChatWindowManager();
 
                 ChatPanel chatPanel
-                    = chatWindowManager.getAdHocMultiChat(adHocChatRoomWrapper);
+                    = chatWindowManager.getMultiChat(adHocChatRoomWrapper);
 
                 // Check if we have already opened a chat window for this chat
                 // wrapper and load the real chat room corresponding to the
@@ -482,7 +489,6 @@ public class ConferenceChatManager
 
                 ChatWindowManager chatWindowManager
                     = GuiActivator.getUIService().getChatWindowManager();
-
                 ChatPanel chatPanel
                     = chatWindowManager.getMultiChat(chatRoomWrapper);
 
@@ -498,7 +504,7 @@ public class ConferenceChatManager
                 {
                     chatWindowManager.openChat(chatPanel, true);
                 }
-                    }
+            }
 
             if (sourceChatRoom.isSystem())
             {
@@ -956,8 +962,8 @@ public class ConferenceChatManager
         this.joinChatRoom(chatRoomWrapper);
         ChatWindowManager chatWindowManager
             = GuiActivator.getUIService().getChatWindowManager();
-        chatWindowManager.openChat(
-            chatWindowManager.getAdHocMultiChat(chatRoomWrapper), true);
+        chatWindowManager
+            .openChat(chatWindowManager.getMultiChat(chatRoomWrapper), true);
     }
     
     /**
@@ -1301,7 +1307,7 @@ public class ConferenceChatManager
         if(chatWindowManager.isChatOpenedFor(chatRoomWrapper))
         {
             final ChatPanel chatPanel
-                = chatWindowManager.getAdHocMultiChat(chatRoomWrapper);
+                = chatWindowManager.getMultiChat(chatRoomWrapper);
 
             // We have to be sure that we close the chat in the swing thread
             SwingUtilities.invokeLater(new Runnable()
@@ -1761,45 +1767,45 @@ public class ConferenceChatManager
      * Shows the message in the conversation area and clears the write message
      * area.
      */
-    public void messageDelivered(AdHocChatRoomMessageDeliveredEvent evt) {
+    public void messageDelivered(AdHocChatRoomMessageDeliveredEvent evt)
+    {
         AdHocChatRoom sourceChatRoom = (AdHocChatRoom) evt.getSource();
 
         logger.info("MESSAGE DELIVERED to ad-hoc chat room: "
             + sourceChatRoom.getName());
 
-        Message msg = evt.getMessage();
-
-        ChatPanel chatPanel = null;
-
-        ChatWindowManager chatWindowManager
-            = GuiActivator.getUIService().getChatWindowManager();
-        
-        if(chatWindowManager.isChatOpenedFor(sourceChatRoom))
-        {
-            chatPanel = chatWindowManager.getAdHocMultiChat(sourceChatRoom);
-        }
-
-        String messageType = null;
-
-        if (evt.getEventType() == 
-            AdHocChatRoomMessageDeliveredEvent.CONVERSATION_MESSAGE_DELIVERED)
-        {
-            messageType = Chat.OUTGOING_MESSAGE;
-        }
-        else if (evt.getEventType()
-            == AdHocChatRoomMessageDeliveredEvent.ACTION_MESSAGE_DELIVERED)
-        {
-            messageType = Chat.ACTION_MESSAGE;
-        }
+        ChatPanel chatPanel
+            = GuiActivator
+                .getUIService()
+                    .getChatWindowManager()
+                        .getMultiChat(sourceChatRoom, false);
 
         if(chatPanel != null)
         {
-            chatPanel.addMessage(sourceChatRoom.getParentProvider()
-                .getAccountID().getUserID(),
-                evt.getTimestamp(),
-                messageType,
-                msg.getContent(),
-                msg.getContentType());
+            String messageType;
+            switch (evt.getEventType())
+            {
+            case AdHocChatRoomMessageDeliveredEvent
+                    .CONVERSATION_MESSAGE_DELIVERED:
+                messageType = Chat.OUTGOING_MESSAGE;
+                break;
+            case AdHocChatRoomMessageDeliveredEvent.ACTION_MESSAGE_DELIVERED:
+                messageType = Chat.ACTION_MESSAGE;
+                break;
+            default:
+                messageType = null;
+            }
+
+            Message msg = evt.getMessage();
+
+            chatPanel
+                .addMessage(
+                    sourceChatRoom
+                        .getParentProvider().getAccountID().getUserID(),
+                    evt.getTimestamp(),
+                    messageType,
+                    msg.getContent(),
+                    msg.getContentType());
         }
         else
         {
@@ -1814,63 +1820,60 @@ public class ConferenceChatManager
      * In the conversation area shows an error message, explaining the problem.
      */
     public void messageDeliveryFailed(
-            AdHocChatRoomMessageDeliveryFailedEvent evt) {
-         AdHocChatRoom sourceChatRoom = (AdHocChatRoom) evt.getSource();
+            AdHocChatRoomMessageDeliveryFailedEvent evt)
+    {
+        AdHocChatRoom sourceChatRoom = evt.getSourceChatRoom();
+        Message sourceMessage = evt.getMessage();
+        Contact destParticipant = evt.getDestinationParticipant();
 
-            String errorMsg = null;
+        String errorMsg = null;
+        if (evt.getErrorCode()
+                == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED)
+        {
+            errorMsg = GuiActivator.getResources().getI18NString(
+                    "service.gui.MSG_DELIVERY_NOT_SUPPORTED");
+        }
+        else if (evt.getErrorCode()
+                == MessageDeliveryFailedEvent.NETWORK_FAILURE)
+        {
+            errorMsg = GuiActivator.getResources()
+                .getI18NString("service.gui.MSG_NOT_DELIVERED");
+        }
+        else if (evt.getErrorCode()
+                == MessageDeliveryFailedEvent.PROVIDER_NOT_REGISTERED)
+        {
+            errorMsg = GuiActivator.getResources().getI18NString(
+                    "service.gui.MSG_SEND_CONNECTION_PROBLEM");
+        }
+        else if (evt.getErrorCode()
+                == MessageDeliveryFailedEvent.INTERNAL_ERROR)
+        {
+            errorMsg = GuiActivator.getResources().getI18NString(
+                    "service.gui.MSG_DELIVERY_INTERNAL_ERROR");
+        }
+        else
+        {
+            errorMsg = GuiActivator.getResources().getI18NString(
+                    "service.gui.MSG_DELIVERY_UNKNOWN_ERROR");
+        }
 
-            Message sourceMessage = (Message) evt.getSource();
+        ChatWindowManager chatWindowManager
+            = GuiActivator.getUIService().getChatWindowManager();
+        ChatPanel chatPanel
+            = chatWindowManager.getMultiChat(sourceChatRoom, true);
 
-            Contact destParticipant = evt.getDestinationParticipant();
+        chatPanel.addMessage(
+                destParticipant.getDisplayName(),
+                System.currentTimeMillis(),
+                Chat.OUTGOING_MESSAGE,
+                sourceMessage.getContent(),
+                sourceMessage.getContentType());
 
-            if (evt.getErrorCode()
-                    == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED)
-            {
-                errorMsg = GuiActivator.getResources().getI18NString(
-                        "service.gui.MSG_DELIVERY_NOT_SUPPORTED");
-            }
-            else if (evt.getErrorCode()
-                    == MessageDeliveryFailedEvent.NETWORK_FAILURE)
-            {
-                errorMsg = GuiActivator.getResources()
-                    .getI18NString("service.gui.MSG_NOT_DELIVERED");
-            }
-            else if (evt.getErrorCode()
-                    == MessageDeliveryFailedEvent.PROVIDER_NOT_REGISTERED)
-            {
-                errorMsg = GuiActivator.getResources().getI18NString(
-                        "service.gui.MSG_SEND_CONNECTION_PROBLEM");
-            }
-            else if (evt.getErrorCode()
-                    == MessageDeliveryFailedEvent.INTERNAL_ERROR)
-            {
-                errorMsg = GuiActivator.getResources().getI18NString(
-                        "service.gui.MSG_DELIVERY_INTERNAL_ERROR");
-            }
-            else
-            {
-                errorMsg = GuiActivator.getResources().getI18NString(
-                        "service.gui.MSG_DELIVERY_UNKNOWN_ERROR");
-            }
+        chatPanel.addErrorMessage(
+                destParticipant.getDisplayName(),
+                errorMsg);
 
-            ChatWindowManager chatWindowManager
-                = GuiActivator.getUIService().getChatWindowManager();
-
-            ChatPanel chatPanel
-                = chatWindowManager.getAdHocMultiChat(sourceChatRoom);
-
-            chatPanel.addMessage(
-                    destParticipant.getDisplayName(),
-                    System.currentTimeMillis(),
-                    Chat.OUTGOING_MESSAGE,
-                    sourceMessage.getContent(),
-                    sourceMessage.getContentType());
-
-            chatPanel.addErrorMessage(
-                    destParticipant.getDisplayName(),
-                    errorMsg);
-
-            chatWindowManager.openChat(chatPanel, false);
+        chatWindowManager.openChat(chatPanel, false);
     }
 
     /**
@@ -1882,7 +1885,7 @@ public class ConferenceChatManager
      */
     public void messageReceived(AdHocChatRoomMessageReceivedEvent evt)
     {
-        AdHocChatRoom sourceChatRoom = (AdHocChatRoom) evt.getSource();
+        AdHocChatRoom sourceChatRoom = evt.getSourceChatRoom();
         Contact sourceParticipant = evt.getSourceChatRoomParticipant();
 
         String messageType = null;
@@ -1905,13 +1908,11 @@ public class ConferenceChatManager
 
         Message message = evt.getMessage();
 
-        ChatPanel chatPanel = null;
-
         ChatWindowManager chatWindowManager
             = GuiActivator.getUIService().getChatWindowManager();
-
-        chatPanel = chatWindowManager
-            .getAdHocMultiChat(sourceChatRoom, message.getMessageUID());
+        ChatPanel chatPanel
+            = chatWindowManager
+                .getMultiChat(sourceChatRoom, true, message.getMessageUID());
 
         String messageContent = message.getContent();
 

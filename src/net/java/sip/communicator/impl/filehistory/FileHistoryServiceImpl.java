@@ -148,9 +148,8 @@ public class FileHistoryServiceImpl
         logger.debug("Adding protocol provider " + provider.getProtocolName());
 
         // check whether the provider has a file transfer operation set
-        OperationSetFileTransfer opSetFileTransfer =
-            (OperationSetFileTransfer) provider
-                .getOperationSet(OperationSetFileTransfer.class);
+        OperationSetFileTransfer opSetFileTransfer
+            = provider.getOperationSet(OperationSetFileTransfer.class);
 
         if (opSetFileTransfer != null)
         {
@@ -169,9 +168,8 @@ public class FileHistoryServiceImpl
      */
     private void handleProviderRemoved(ProtocolProviderService provider)
     {
-        OperationSetFileTransfer opSetFileTransfer =
-            (OperationSetFileTransfer) provider
-                .getOperationSet(OperationSetFileTransfer.class);
+        OperationSetFileTransfer opSetFileTransfer
+            = provider.getOperationSet(OperationSetFileTransfer.class);
 
         if (opSetFileTransfer != null)
         {

@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.util.*;
@@ -33,8 +32,6 @@ public class MetaContactChatSession
 {
     private final MetaContact metaContact;
 
-    private final Contact protocolContact;
-
     private final List<ChatContact> chatParticipants
         = new ArrayList<ChatContact>();
 
@@ -47,8 +44,9 @@ public class MetaContactChatSession
 
     private final ChatSessionRenderer sessionRenderer;
     
-    private final java.util.List<ChatSessionChangeListener> chatTransportChangeListeners =
-        new Vector<ChatSessionChangeListener>();
+    private final java.util.List<ChatSessionChangeListener>
+            chatTransportChangeListeners
+                = new Vector<ChatSessionChangeListener>();
 
     /**
      * Creates an instance of <tt>MetaContactChatSession</tt> by specifying the
@@ -68,13 +66,12 @@ public class MetaContactChatSession
     {
         this.sessionRenderer = sessionRenderer;
         this.metaContact = metaContact;
-        this.protocolContact = protocolContact;
 
         ChatContact chatContact = new MetaContactChatContact(metaContact);
 
         chatParticipants.add(chatContact);
 
-        this.initChatTransports();
+        this.initChatTransports(protocolContact);
 
         // Obtain the MetaContactListService and add this class to it as a
         // listener of all events concerning the contact list.
@@ -327,8 +324,12 @@ public class MetaContactChatSession
 
     /**
      * Initializes all chat transports for this chat session.
+     *
+     * @param protocolContact the <tt>Contact</tt> which is to be selected into
+     * this instance as the current i.e. its <tt>ChatTransport</tt> is to be
+     * selected as <tt>currentChatTransport</tt>
      */
-    private void initChatTransports()
+    private void initChatTransports(Contact protocolContact)
     {
         Iterator<Contact> protocolContacts = metaContact.getContacts();
 
@@ -368,10 +369,9 @@ public class MetaContactChatSession
     public void setCurrentChatTransport(ChatTransport chatTransport)
     {
         this.currentChatTransport = chatTransport;
+
         for (ChatSessionChangeListener l : chatTransportChangeListeners)
-        {
             l.currentChatTransportChanged(this);
-        }
     }
 
     public void childContactsReordered(MetaContactGroupEvent evt)

@@ -311,7 +311,7 @@ public class ContactRightButtonMenu
                 this.callContactMenu.add(callContactItem);
             }
 
-            // TODO Why is OperationSetWebContactInfo requested and not used?
+            // FIXME Why is OperationSetWebContactInfo requested and not used?
             protocolProvider.getOperationSet(OperationSetWebContactInfo.class);
         }
 

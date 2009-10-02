@@ -65,9 +65,10 @@ public class OtrTransformLayer
             return evt;
 
         // Forge a new message based on the new contents.
-        OperationSetBasicInstantMessaging imOpSet =
-            (OperationSetBasicInstantMessaging) contact.getProtocolProvider()
-                .getOperationSet(OperationSetBasicInstantMessaging.class);
+        OperationSetBasicInstantMessaging imOpSet
+            = contact
+                .getProtocolProvider()
+                    .getOperationSet(OperationSetBasicInstantMessaging.class);
         Message processedMessage =
             imOpSet.createMessage(processedMessageContent);
 
@@ -99,9 +100,10 @@ public class OtrTransformLayer
             return evt;
 
         // Forge a new message based on the new contents.
-        OperationSetBasicInstantMessaging imOpSet =
-            (OperationSetBasicInstantMessaging) contact.getProtocolProvider()
-                .getOperationSet(OperationSetBasicInstantMessaging.class);
+        OperationSetBasicInstantMessaging imOpSet
+            = contact
+                .getProtocolProvider()
+                    .getOperationSet(OperationSetBasicInstantMessaging.class);
         Message processedMessage =
             imOpSet.createMessage(processedMessageContent);
 

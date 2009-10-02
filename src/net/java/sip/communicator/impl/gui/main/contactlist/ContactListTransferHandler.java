@@ -41,43 +41,23 @@ public class ContactListTransferHandler
      * Handles transfers to the contact list from the clip board or a
      * DND drop operation. The <tt>Transferable</tt> parameter contains the
      * data that needs to be imported.
-     * <p>
-     * @param comp  the component to receive the transfer;
+     *
+     * @param comp the component to receive the transfer
      * @param t the data to import
-     * @return  true if the data was inserted into the component and false
-     * otherwise
-     * @see #importData(TransferHandler.TransferSupport)
+     * @return <tt>true</tt> if the data was inserted into the component;
+     * <tt>false</tt>, otherwise
+     * @see TransferHandler#importData(JComponent. Transferable)
      */
     @SuppressWarnings("unchecked") //taken care of
     public boolean importData(JComponent comp, Transferable t)
     {
         if (t.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
         {
+            Object o = null;
+
             try
             {
-                Object o = t.getTransferData(DataFlavor.javaFileListFlavor);
-
-                ChatPanel chatPanel = getChatPanel();
-
-                if (chatPanel != null)
-                {
-                    if (o instanceof java.util.Collection)
-                    {
-                        Collection<File> files = (Collection<File>) o;
-
-                        for(File file: files)
-                        {
-                            if (chatPanel != null)
-                                chatPanel.sendFile(file);
-
-                            GuiActivator.getUIService().getChatWindowManager()
-                                .openChat(chatPanel, false);
-                        }
-
-                        // Otherwise fire files dropped event.
-                        return true;
-                    }
-                }
+                o = t.getTransferData(DataFlavor.javaFileListFlavor);
             }
             catch (UnsupportedFlavorException e)
             {
@@ -86,6 +66,27 @@ public class ContactListTransferHandler
             catch (IOException e)
             {
                 logger.debug("Failed to drop files.", e);
+            }
+
+            if (o instanceof Collection)
+            {
+                ChatPanel chatPanel = getChatPanel();
+
+                if (chatPanel != null)
+                {
+                    Collection<File> files = (Collection<File>) o;
+
+                    for (File file : files)
+                    {
+                        chatPanel.sendFile(file);
+
+                        GuiActivator.getUIService().getChatWindowManager()
+                            .openChat(chatPanel, false);
+                    }
+
+                    // Otherwise fire files dropped event.
+                    return true;
+                }
             }
         }
         return false;
@@ -101,10 +102,9 @@ public class ContactListTransferHandler
     private ChatPanel getChatPanel()
     {
         ChatPanel chatPanel = null;
-
         Object selectedObject = contactList.getSelectedValue();
 
-        if (selectedObject != null && selectedObject instanceof MetaContact)
+        if (selectedObject instanceof MetaContact)
         {
             MetaContact metaContact = (MetaContact) selectedObject;
 

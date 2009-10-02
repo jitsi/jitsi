@@ -75,8 +75,8 @@ public class IncomingFileTransferRequestJabberImpl
 
         OperationSetPersistentPresenceJabberImpl opSetPersPresence
             = (OperationSetPersistentPresenceJabberImpl)
-                jabberProvider.getOperationSet(
-                    OperationSetPersistentPresence.class);
+                jabberProvider
+                    .getOperationSet(OperationSetPersistentPresence.class);
 
         sender = opSetPersPresence.findContactByID(fromUserID);
 

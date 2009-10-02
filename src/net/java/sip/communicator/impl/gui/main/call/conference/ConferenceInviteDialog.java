@@ -177,9 +177,10 @@ public class ConferenceInviteDialog
             {
                 ProtocolProviderService protocolProvider
                     = protocolProviders.next();
-
-                OperationSet opSet = protocolProvider
-                    .getOperationSet(OperationSetTelephonyConferencing.class);
+                OperationSet opSet
+                    = protocolProvider
+                        .getOperationSet(
+                            OperationSetTelephonyConferencing.class);
 
                 if (opSet != null && protocolProvider.isRegistered())
                 {

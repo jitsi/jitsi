@@ -304,8 +304,8 @@ public class UriHandlerJabberImpl
 
         if(!uri.contains("?"))
         {
-            OperationSetPersistentPresence presenceOpSet =
-                (OperationSetPersistentPresence) provider
+            OperationSetPersistentPresence presenceOpSet
+                = provider
                     .getOperationSet(OperationSetPersistentPresence.class);
 
             String contactId = uri.replaceFirst(getProtocol() + ":", "");
@@ -353,8 +353,8 @@ public class UriHandlerJabberImpl
 
             if(param.equalsIgnoreCase("join"))
             {
-                OperationSetMultiUserChat mchatOpSet =
-                    (OperationSetMultiUserChat) provider
+                OperationSetMultiUserChat mchatOpSet
+                    = provider
                         .getOperationSet(OperationSetMultiUserChat.class);
 
                 try
@@ -374,9 +374,9 @@ public class UriHandlerJabberImpl
                             && !networkFailReceived)
                     {
                         networkFailReceived = true;
-                        OperationSetPresence presenceOpSet =
-                        (OperationSetPresence) provider
-                            .getOperationSet(OperationSetPresence.class);
+                        OperationSetPresence presenceOpSet
+                            = provider
+                                .getOperationSet(OperationSetPresence.class);
                         presenceOpSet.addProviderPresenceStatusListener(
                                 new ProviderStatusListener(uri, presenceOpSet));
                     }

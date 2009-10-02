@@ -654,9 +654,8 @@ public class OperationSetPersistentPresenceFacebookImpl
         if (fbProvider != null)
         {
             OperationSetPersistentPresence opSetPresence
-                = (OperationSetPersistentPresence)
-                    fbProvider
-                        .getOperationSet(OperationSetPersistentPresence.class);
+                = fbProvider
+                    .getOperationSet(OperationSetPersistentPresence.class);
 
             changePresenceStatusForContact(contact,
                 (FacebookStatusEnum) opSetPresence.getPresenceStatus());

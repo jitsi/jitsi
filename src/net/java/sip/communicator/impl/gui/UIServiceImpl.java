@@ -543,20 +543,17 @@ public class UIServiceImpl
     }
 
     /**
-     * Implements <code>getChat</code> in the UIService interface. If a
-     * chat for the given contact exists already - returns it, otherwise
-     * creates a new one.
+     * Implements {@link UIService#getChat(Contact)}. If a chat for the given
+     * contact exists already, returns it; otherwise, creates a new one.
      *
      * @param contact the contact that we'd like to retrieve a chat window for.
-     *
-     * @return a Chat corresponding to the specified contact.
-     *
+     * @return the <tt>Chat</tt> corresponding to the specified contact.
      * @see UIService#getChat(Contact)
      */
     public ChatPanel getChat(Contact contact)
     {
-        MetaContact metaContact = mainFrame.getContactList()
-            .findMetaContactByContact(contact);
+        MetaContact metaContact
+            = mainFrame.getContactList().findMetaContactByContact(contact);
 
         return chatWindowManager.getContactChat(metaContact);
     }
@@ -570,7 +567,7 @@ public class UIServiceImpl
      */
     public ChatPanel getChat(ChatRoom chatRoom)
     {
-        return chatWindowManager.getMultiChat(chatRoom);
+        return chatWindowManager.getMultiChat(chatRoom, true);
     }
 
     /**

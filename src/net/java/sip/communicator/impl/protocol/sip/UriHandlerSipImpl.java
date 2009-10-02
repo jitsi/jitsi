@@ -296,9 +296,8 @@ public class UriHandlerSipImpl
             return;
         }
 
-        OperationSetBasicTelephony telephonyOpSet =
-            (OperationSetBasicTelephony) provider
-                .getOperationSet(OperationSetBasicTelephony.class);
+        OperationSetBasicTelephony telephonyOpSet
+            = provider.getOperationSet(OperationSetBasicTelephony.class);
 
         try
         {

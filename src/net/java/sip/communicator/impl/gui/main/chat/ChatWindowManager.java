@@ -24,6 +24,7 @@ import net.java.sip.communicator.service.protocol.*;
  *
  * @author Yana Stamcheva
  * @author Valentin Martinet
+ * @author Lubomir Marinov
  */
 public class ChatWindowManager
 {
@@ -33,11 +34,13 @@ public class ChatWindowManager
     private final Object syncChat = new Object();
 
     /**
-     * Opens the specified chatPanel and brings it to the front if so specified.
+     * Opens the specified <tt>ChatPanel</tt> and optinally brings it to the
+     * front.
      *
-     * @param chatPanel the chat panel that we will be opening
-     * @param setSelected specifies whether we should bring the chat to front
-     * after creating it.
+     * @param chatPanel the <tt>ChatPanel</tt> to be opened
+     * @param setSelected <tt>true</tt> if <tt>chatPanel</tt> (and respectively
+     * its <tt>ChatWindow</tt>) should be brought to the front; otherwise,
+     * <tt>false</tt>
      */
     public void openChat(final ChatPanel chatPanel, final boolean setSelected)
     {
@@ -161,72 +164,6 @@ public class ChatWindowManager
             ChatPanel chatPanel = findChatPanelForDescriptor(descriptor);
 
             return ((chatPanel != null) && chatPanel.isShown());
-        }
-    }
-
-    /**
-     * Returns <tt>true</tt> if there is an opened <tt>ChatPanel</tt> for the
-     * given <tt>ChatRoom</tt>.
-     *
-     * @param chatRoom the <tt>ChatRoom</tt>, for which the chat is about
-     * @return <tt>true</tt> if there is an opened <tt>ChatPanel</tt> for the
-     * given <tt>ChatRoom</tt>
-     */
-    public boolean isChatOpenedFor(ChatRoom chatRoom)
-    {
-        synchronized (syncChat)
-        {
-            String chatRoomID = chatRoom.getIdentifier();
-
-            for (ChatPanel chatPanel : chatPanels)
-            {
-                Object descriptor = chatPanel.getChatSession().getDescriptor();
-
-                if(descriptor instanceof ChatRoomWrapper)
-                {
-                    ChatRoomWrapper chatRoomWrapper
-                        = (ChatRoomWrapper) descriptor;
-
-                    if(chatRoomWrapper.getChatRoomID().equals(chatRoomID)
-                            && chatPanel.isShown())
-                        return true;
-                }
-            }
-            return false;
-        }
-    }
-
-    /**
-     * Returns <tt>true</tt> if there is an opened <tt>ChatPanel</tt> for the
-     * given <tt>AdHocChatRoom</tt>.
-     * 
-     * @param adHocChatRoom the <tt>AdHocChatRoom</tt>, for which the ad-hoc 
-     * chat is about
-     * @return <tt>true</tt> if there is an opened <tt>ChatPanel</tt> for the
-     * given <tt>AdHocChatRoom</tt>
-     */
-    public boolean isChatOpenedFor(AdHocChatRoom adHocChatRoom)
-    {
-        synchronized (syncChat)
-        {
-            String adHocChatRoomID = adHocChatRoom.getIdentifier();
-
-            for (ChatPanel chatPanel : chatPanels)
-            {
-                Object descriptor = chatPanel.getChatSession().getDescriptor();
-
-                if(descriptor instanceof AdHocChatRoomWrapper)
-                {
-                    AdHocChatRoomWrapper chatRoomWrapper
-                        = (AdHocChatRoomWrapper) descriptor;
-
-                    if(chatRoomWrapper.getAdHocChatRoomID()
-                                .equals(adHocChatRoomID)
-                            && chatPanel.isShown())
-                        return true;
-                }
-            }
-            return false;
         }
     }
 
@@ -549,7 +486,7 @@ public class ChatWindowManager
      * ad-hoc chat room for which the chat panel is about
      * @return the chat panel corresponding to the given chat room
      */
-    public ChatPanel getAdHocMultiChat(AdHocChatRoomWrapper chatRoomWrapper)
+    public ChatPanel getMultiChat(AdHocChatRoomWrapper chatRoomWrapper)
     {
         synchronized (syncChat)
         {
@@ -561,49 +498,73 @@ public class ChatWindowManager
     }
 
     /**
-     * Returns the chat panel corresponding to the given ad-hoc chat room.
+     * Gets the <tt>ChatPanel</tt> corresponding to the specified
+     * <tt>AdHocChatRoom</tt> and optionally creates it if it does not exist.
      *
-     * @param adHocChatRoom the chat room, for which the chat panel is about
-     * @return the chat panel corresponding to the given ad-hoc chat room
+     * @param adHocChatRoom the <tt>AdHocChatRoom</tt> to get the corresponding
+     * <tt>ChatPanel</tt> of
+     * @param create <tt>true</tt> to create a <tt>ChatPanel</tt> corresponding
+     * to the specified <tt>AdHocChatRoom</tt> if such <tt>ChatPanel</tt> does
+     * not exist yet
+     * @return the <tt>ChatPanel</tt> corresponding to the specified
+     * <tt>AdHocChatRoom</tt>; <tt>null</tt> if there is no such
+     * <tt>ChatPanel</tt> and <tt>create</tt> is <tt>false</tt>
      */
-    public ChatPanel getAdHocMultiChat(AdHocChatRoom adHocChatRoom)
+    public ChatPanel getMultiChat(AdHocChatRoom adHocChatRoom, boolean create)
     {
-        return getAdHocMultiChat(adHocChatRoom, null);
+        return getMultiChat(adHocChatRoom, create, null);
     }
 
     /**
-     * Returns the chat panel corresponding to the given chat room.
+     * Gets the <tt>ChatPanel</tt> corresponding to the specified
+     * <tt>ChatRoom</tt> and optionally creates it if it does not exist.
      *
-     * @param chatRoom the chat room, for which the chat panel is about
-     * @return the chat panel corresponding to the given chat room
+     * @param chatRoom the <tt>ChatRoom</tt> to get the corresponding
+     * <tt>ChatPanel</tt> of
+     * @param create <tt>true</tt> to create a <tt>ChatPanel</tt> corresponding
+     * to the specified <tt>ChatRoom</tt> if such <tt>ChatPanel</tt> does not
+     * exist yet
+     * @return the <tt>ChatPanel</tt> corresponding to the specified
+     * <tt>ChatRoom</tt>; <tt>null</tt> if there is no such <tt>ChatPanel</tt>
+     * and <tt>create</tt> is <tt>false</tt>
      */
-    public ChatPanel getMultiChat(ChatRoom chatRoom)
+    public ChatPanel getMultiChat(ChatRoom chatRoom, boolean create)
     {
-        return getMultiChat(chatRoom, null);
+        return getMultiChat(chatRoom, create, null);
     }
 
     /**
-     * Returns the chat panel corresponding to the given chat room.
+     * Gets the <tt>ChatPanel</tt> corresponding to the specified
+     * <tt>ChatRoom</tt> and optionally creates it if it does not exist.
      *
-     * @param chatRoom the chat room, for which the chat panel is about
+     * @param chatRoom the <tt>ChatRoom</tt> to get the corresponding
+     * <tt>ChatPanel</tt> of
+     * @param create <tt>true</tt> to create a <tt>ChatPanel</tt> corresponding
+     * to the specified <tt>ChatRoom</tt> if such <tt>ChatPanel</tt> does not
+     * exist yet
      * @param escapedMessageID the message ID of the message that should be
      * excluded from the history when the last one is loaded in the chat
-     * @return the chat panel corresponding to the given chat room
+     * @return the <tt>ChatPanel</tt> corresponding to the specified
+     * <tt>ChatRoom</tt>; <tt>null</tt> if there is no such <tt>ChatPanel</tt>
+     * and <tt>create</tt> is <tt>false</tt>
      */
-    public ChatPanel getMultiChat(  ChatRoom chatRoom,
-                                    String escapedMessageID)
+    public ChatPanel getMultiChat(ChatRoom chatRoom,
+                                  boolean create,
+                                  String escapedMessageID)
     {
         synchronized (syncChat)
         {
-            ChatRoomList chatRoomList = GuiActivator.getUIService()
-                .getConferenceChatManager().getChatRoomList();
+            ChatRoomList chatRoomList
+                = GuiActivator
+                    .getUIService()
+                        .getConferenceChatManager().getChatRoomList();
 
             // Search in the chat room's list for a chat room that correspond
             // to the given one.
             ChatRoomWrapper chatRoomWrapper
                 = chatRoomList.findChatRoomWrapperFromChatRoom(chatRoom);
 
-            if (chatRoomWrapper == null)
+            if ((chatRoomWrapper == null) && create)
             {
                 ChatRoomProviderWrapper parentProvider
                     = chatRoomList.findServerWrapperFromProvider(
@@ -614,25 +575,37 @@ public class ChatWindowManager
                 chatRoomList.addChatRoom(chatRoomWrapper);
             }
 
-            ChatPanel chatPanel = findChatPanelForDescriptor(chatRoomWrapper);
+            ChatPanel chatPanel = null;
 
-            return
-                (chatPanel != null)
-                    ? chatPanel
-                    : createChat(chatRoomWrapper, escapedMessageID);
+            if (chatRoomWrapper != null)
+            {
+                chatPanel = findChatPanelForDescriptor(chatRoomWrapper);
+                if ((chatPanel == null) && create)
+                    chatPanel = createChat(chatRoomWrapper, escapedMessageID);
+            }
+
+            return chatPanel;
         }
     }
 
     /**
-     * Returns the chat panel corresponding to the given ad-hoc chat room.
+     * Gets the <tt>ChatPanel</tt> corresponding to the specified
+     * <tt>AdHocChatRoom</tt> and optionally creates it if it does not exist.
      *
-     * @param chatRoom the ad-hoc chat room, for which the chat panel is about
+     * @param adHocChatRoom the <tt>AdHocChatRoom</tt> to get the corresponding
+     * <tt>ChatPanel</tt> of
+     * @param create <tt>true</tt> to create a <tt>ChatPanel</tt> corresponding
+     * to the specified <tt>AdHocChatRoom</tt> if such <tt>ChatPanel</tt> does
+     * not exist yet
      * @param escapedMessageID the message ID of the message that should be
      * excluded from the history when the last one is loaded in the chat
-     * @return the chat panel corresponding to the given ad-hoc chat room
+     * @return the <tt>ChatPanel</tt> corresponding to the specified
+     * <tt>AdHocChatRoom</tt>; <tt>null</tt> if there is no such
+     * <tt>ChatPanel</tt> and <tt>create</tt> is <tt>false</tt>
      */
-    public ChatPanel getAdHocMultiChat( AdHocChatRoom     chatRoom,
-                                        String             escapedMessageID)
+    public ChatPanel getMultiChat(AdHocChatRoom adHocChatRoom,
+                                  boolean create,
+                                  String escapedMessageID)
     {
         synchronized (syncChat)
         {
@@ -642,26 +615,31 @@ public class ChatWindowManager
             // Search in the chat room's list for a chat room that correspond
             // to the given one.
             AdHocChatRoomWrapper chatRoomWrapper
-                = chatRoomList.findChatRoomWrapperFromAdHocChatRoom(chatRoom);
+                = chatRoomList
+                    .findChatRoomWrapperFromAdHocChatRoom(adHocChatRoom);
 
-            if (chatRoomWrapper == null)
+            if ((chatRoomWrapper == null) && create)
             {
                 AdHocChatRoomProviderWrapper parentProvider
                     = chatRoomList.findServerWrapperFromProvider(
-                        chatRoom.getParentProvider());
+                        adHocChatRoom.getParentProvider());
 
                 chatRoomWrapper = 
-                    new AdHocChatRoomWrapper(parentProvider, chatRoom);
+                    new AdHocChatRoomWrapper(parentProvider, adHocChatRoom);
 
                 chatRoomList.addAdHocChatRoom(chatRoomWrapper);
             }
 
-            ChatPanel chatPanel = findChatPanelForDescriptor(chatRoomWrapper);
+            ChatPanel chatPanel = null;
 
-            return
-                (chatPanel != null)
-                    ? chatPanel
-                    : createChat(chatRoomWrapper, escapedMessageID);
+            if (chatRoomWrapper != null)
+            {
+                chatPanel = findChatPanelForDescriptor(chatRoomWrapper);
+                if ((chatPanel == null) && create)
+                    chatPanel = createChat(chatRoomWrapper, escapedMessageID);
+            }
+
+            return chatPanel;
         }
     }
 
@@ -759,31 +737,7 @@ public class ChatWindowManager
                                     Contact protocolContact,
                                     String escapedMessageID)
     {
-        ChatWindow chatWindow;
-
-        if(ConfigurationManager.isMultiChatWindowEnabled())
-        {
-            Iterator<ChatPanel> chatPanelsIter = chatPanels.iterator();
-
-            // If we're in a tabbed window we're looking for the chat window
-            // through one of the already created chats.
-            if(chatPanelsIter.hasNext())
-            {
-                chatWindow = chatPanelsIter.next().getChatWindow();
-            }
-            else
-            {
-                chatWindow = new ChatWindow();
-
-                GuiActivator.getUIService()
-                    .registerExportedWindow(chatWindow);
-            }
-        }
-        else
-        {
-            chatWindow = new ChatWindow();
-        }
-
+        ChatWindow chatWindow = getChatWindow();
         ChatPanel chatPanel = new ChatPanel(chatWindow);
 
         MetaContactChatSession chatSession
@@ -802,6 +756,39 @@ public class ChatWindowManager
             chatPanel.loadHistory(escapedMessageID);
 
         return chatPanel;
+    }
+
+    /**
+     * Gets a <tt>ChatWindow</tt> instance. If there is no existing
+     * <tt>ChatWindow</tt> or chats are configured to be displayed in their own
+     * <tt>ChatWindow</tt>s instead of arranged in tabs in a single
+     * <tt>ChatWindow</tt>, creates a new one.
+     *
+     * @return a <tt>ChatWindow</tt> instance
+     */
+    private ChatWindow getChatWindow()
+    {
+        ChatWindow chatWindow;
+
+        if (ConfigurationManager.isMultiChatWindowEnabled())
+        {
+            Iterator<ChatPanel> chatPanelsIter = chatPanels.iterator();
+
+            /*
+             * If we're in a tabbed window we're looking for the chat window
+             * through one of the existing chats.
+             */
+            if (chatPanelsIter.hasNext())
+                chatWindow = chatPanelsIter.next().getChatWindow();
+            else
+            {
+                chatWindow = new ChatWindow();
+                GuiActivator.getUIService().registerExportedWindow(chatWindow);
+            }
+        }
+        else
+            chatWindow = new ChatWindow();
+        return chatWindow;
     }
 
     /**
@@ -843,31 +830,7 @@ public class ChatWindowManager
     private ChatPanel createChat( ChatRoomWrapper chatRoomWrapper,
                                             String escapedMessageID)
     {
-        ChatWindow chatWindow;
-
-        if(ConfigurationManager.isMultiChatWindowEnabled())
-        {
-            Iterator<ChatPanel> chatPanelsIter = chatPanels.iterator();
-
-            // If we're in a tabbed window we're looking for the chat window
-            // through one of the already created chats.
-            if(chatPanelsIter.hasNext())
-            {
-                chatWindow = chatPanelsIter.next().getChatWindow();
-            }
-            else
-            {
-                chatWindow = new ChatWindow();
-
-                GuiActivator.getUIService()
-                    .registerExportedWindow(chatWindow);
-            }
-        }
-        else
-        {
-            chatWindow = new ChatWindow();
-        }
-
+        ChatWindow chatWindow = getChatWindow();
         ChatPanel chatPanel = new ChatPanel(chatWindow);
 
         ConferenceChatSession chatSession
@@ -900,31 +863,7 @@ public class ChatWindowManager
     private ChatPanel createChat( AdHocChatRoomWrapper chatRoomWrapper,
                                             String escapedMessageID)
     {
-        ChatWindow chatWindow;
-
-        if(ConfigurationManager.isMultiChatWindowEnabled())
-        {
-            Iterator<ChatPanel> chatPanelsIter = chatPanels.iterator();
-
-            // If we're in a tabbed window we're looking for the chat window
-            // through one of the already created chats.
-            if(chatPanelsIter.hasNext())
-            {
-                chatWindow = chatPanelsIter.next().getChatWindow();
-            }
-            else
-            {
-                chatWindow = new ChatWindow();
-
-                GuiActivator.getUIService()
-                    .registerExportedWindow(chatWindow);
-            }
-        }
-        else
-        {
-            chatWindow = new ChatWindow();
-        }
-
+        ChatWindow chatWindow = getChatWindow();
         ChatPanel chatPanel = new ChatPanel(chatWindow);
 
         AdHocConferenceChatSession chatSession

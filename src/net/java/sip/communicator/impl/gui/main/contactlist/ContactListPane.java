@@ -284,8 +284,9 @@ public class ContactListPane
             ChatPanel chatPanel;
 
             if(protocolContact != null)
-                chatPanel = chatWindowManager
-                    .getContactChat(metaContact, protocolContact);
+                chatPanel
+                    = chatWindowManager
+                        .getContactChat(metaContact, protocolContact);
             else
                 chatPanel = chatWindowManager.getContactChat(metaContact);
 
@@ -583,8 +584,8 @@ public class ContactListPane
         MetaContact metaContact = mainFrame.getContactList()
             .findMetaContactByContact(sourceContact);
 
-        final ChatPanel chatPanel = chatWindowManager
-            .getContactChat(metaContact, sourceContact);
+        final ChatPanel chatPanel
+            = chatWindowManager.getContactChat(metaContact, sourceContact);
 
         chatPanel.addIncomingFileTransferRequest(
             event.getFileTransferOperationSet(), request, event.getTimestamp());
@@ -596,13 +597,7 @@ public class ContactListPane
         chatPanel.setSelectedChatTransport(chatTransport);
 
         // Opens the chat panel with the new message in the UI thread.
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            public void run()
-            {
-                chatWindowManager.openChat(chatPanel, false);
-            }
-        });
+        chatWindowManager.openChat(chatPanel, false);
 
         // Fire notification
         String title = GuiActivator.getResources().getI18NString(

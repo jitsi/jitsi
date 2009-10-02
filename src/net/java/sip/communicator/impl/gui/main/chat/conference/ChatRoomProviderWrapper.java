@@ -200,8 +200,7 @@ public class ChatRoomProviderWrapper
     public void synchronizeProvider()
     {
         final OperationSetMultiUserChat groupChatOpSet
-            = (OperationSetMultiUserChat) protocolProvider
-                .getOperationSet(OperationSetMultiUserChat.class);
+            = protocolProvider.getOperationSet(OperationSetMultiUserChat.class);
 
         for(final ChatRoomWrapper chatRoomWrapper : chatRoomsOrderedCopy)
         {

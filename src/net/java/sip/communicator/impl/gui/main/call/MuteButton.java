@@ -120,8 +120,10 @@ public class MuteButton
                     CallPeer callPeer = peers.next();
 
                     OperationSetBasicTelephony telephony
-                        = (OperationSetBasicTelephony) call.getProtocolProvider()
-                            .getOperationSet(OperationSetBasicTelephony.class);
+                        = call
+                            .getProtocolProvider()
+                                .getOperationSet(
+                                    OperationSetBasicTelephony.class);
 
                     telephony.setMute(  callPeer,
                                         !callPeer.isMute());

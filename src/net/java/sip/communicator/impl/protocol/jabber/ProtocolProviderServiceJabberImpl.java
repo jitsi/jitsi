@@ -42,8 +42,9 @@ public class ProtocolProviderServiceJabberImpl
      * The name of the property that tells us whether we are supposed to start
      * experimental support for Jingle.
      */
-    private static final String PNAME_ENABLE_JINGLE = "net.java.sip"
-        + ".communicator.impl.protocol.jabber.ENABLE_EXPERIMENTAL_JINGLE";
+    private static final String PNAME_ENABLE_JINGLE
+        = "net.java.sip.communicator"
+            + ".impl.protocol.jabber.ENABLE_EXPERIMENTAL_JINGLE";
 
     /**
      * Used to connect to a XMPP server.

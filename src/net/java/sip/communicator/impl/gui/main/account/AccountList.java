@@ -83,7 +83,7 @@ public class AccountList
                 protocolProvider.addRegistrationStateChangeListener(this);
 
                 OperationSetPresence presence
-                    = (OperationSetPresence) protocolProvider
+                    = protocolProvider
                         .getOperationSet(OperationSetPresence.class);
 
                 if (presence != null)
@@ -154,7 +154,7 @@ public class AccountList
             // Add a presence listener in order to listen for any status
             // changes.
             OperationSetPresence presence
-                = (OperationSetPresence) protocolProvider
+                = protocolProvider
                     .getOperationSet(OperationSetPresence.class);
 
             if (presence != null)

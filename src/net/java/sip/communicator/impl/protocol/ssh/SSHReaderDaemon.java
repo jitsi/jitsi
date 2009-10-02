@@ -80,9 +80,12 @@ public class SSHReaderDaemon
     public SSHReaderDaemon(ContactSSH sshContact)
     {
         this.sshContact = (ContactSSHImpl)sshContact;
-        instantMessaging = (OperationSetBasicInstantMessagingSSHImpl) sshContact
-            .getProtocolProvider().getOperationSet(
-                    OperationSetBasicInstantMessaging.class);
+        instantMessaging =
+            (OperationSetBasicInstantMessagingSSHImpl)
+                sshContact
+                    .getProtocolProvider()
+                        .getOperationSet(
+                            OperationSetBasicInstantMessaging.class);
     }
     
     /**

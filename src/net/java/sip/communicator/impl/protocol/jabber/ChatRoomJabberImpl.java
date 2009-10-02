@@ -1495,19 +1495,21 @@ public class ChatRoomJabberImpl
             if(!(packet instanceof org.jivesoftware.smack.packet.Message))
                 return;
 
-            org.jivesoftware.smack.packet.Message msg =
-                (org.jivesoftware.smack.packet.Message)packet;
+            org.jivesoftware.smack.packet.Message msg
+                = (org.jivesoftware.smack.packet.Message) packet;
+            String msgBody = msg.getBody();
 
-            if(msg.getBody() == null)
+            if(msgBody == null)
                 return;
 
-            String fromUserName = StringUtils.parseResource(msg.getFrom());
-            
+            String msgFrom = msg.getFrom();
+            String fromUserName = StringUtils.parseResource(msgFrom);
+
             if(fromUserName.equals(nickname))
                 return;
-            
-            ChatRoomMember member = smackParticipantToScMember(msg.getFrom());
-            
+
+            ChatRoomMember member = smackParticipantToScMember(msgFrom);
+
             if(logger.isDebugEnabled())
             {
                 logger.debug("Received from "
@@ -1516,7 +1518,7 @@ public class ChatRoomJabberImpl
                              + msg.toXML());
             }
 
-            Message newMessage = createMessage(msg.getBody());
+            Message newMessage = createMessage(msgBody);
 
             if(msg.getType() == org.jivesoftware.smack.packet.Message.Type.error)
             {
@@ -1545,11 +1547,11 @@ public class ChatRoomJabberImpl
                         errorResultCode,
                         new Date(),
                         newMessage);
-                
+
                 fireMessageEvent(evt);
                 return;
             }
-            
+
             ChatRoomMessageReceivedEvent msgReceivedEvt
                 = new ChatRoomMessageReceivedEvent(
                     ChatRoomJabberImpl.this,
@@ -1558,7 +1560,7 @@ public class ChatRoomJabberImpl
                     newMessage,
                     ChatRoomMessageReceivedEvent
                         .CONVERSATION_MESSAGE_RECEIVED);
-            
+
             fireMessageEvent(msgReceivedEvt);
         }
     }

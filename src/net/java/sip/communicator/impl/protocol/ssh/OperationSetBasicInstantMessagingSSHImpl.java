@@ -52,8 +52,10 @@ public class OperationSetBasicInstantMessagingSSHImpl
     {
         this.parentProvider = provider;
         
-        this.opSetPersPresence = (OperationSetPersistentPresenceSSHImpl)
-                provider.getOperationSet(OperationSetPersistentPresence.class);
+        this.opSetPersPresence
+                = (OperationSetPersistentPresenceSSHImpl)
+                    provider
+                        .getOperationSet(OperationSetPersistentPresence.class);
     }
 
     public Message createMessage(String content, String contentType,
@@ -243,9 +245,10 @@ public class OperationSetBasicInstantMessagingSSHImpl
             if(sshProvider != null)
             {
                 OperationSetBasicInstantMessagingSSHImpl opSetIM
-                        = (OperationSetBasicInstantMessagingSSHImpl)
-                        sshProvider.getOperationSet(
-                        OperationSetBasicInstantMessaging.class);
+                    = (OperationSetBasicInstantMessagingSSHImpl)
+                        sshProvider
+                            .getOperationSet(
+                                OperationSetBasicInstantMessaging.class);
                 opSetIM.deliverMessage(message, to);
             }
             else
