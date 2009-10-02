@@ -126,13 +126,14 @@ public abstract class AbstractProtocolProviderService
      * this operation set is not supported by the provider implementation.
      * 
      * @param opsetClass the <tt>Class</tt> of the operation set that we're
-     *            looking for.
-     * @return returns an OperationSet of the specified <tt>Class</tt> if the
-     *         undelying implementation supports it or null otherwise.
+     * looking for.
+     * @return returns an <tt>OperationSet</tt> of the specified <tt>Class</tt>
+     * if the undelying implementation supports it; <tt>null</tt>, otherwise.
      */
-    public OperationSet getOperationSet(Class<? extends OperationSet> opsetClass)
+    @SuppressWarnings("unchecked")
+    public <T extends OperationSet> T getOperationSet(Class<T> opsetClass)
     {
-        return doGetSupportedOperationSets().get(opsetClass.getName());
+        return (T) doGetSupportedOperationSets().get(opsetClass.getName());
     }
 
     /**
