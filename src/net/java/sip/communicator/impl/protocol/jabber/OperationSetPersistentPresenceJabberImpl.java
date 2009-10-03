@@ -802,8 +802,8 @@ public class OperationSetPersistentPresenceJabberImpl
 
                     // remove the status for this resource
                     // if we are online we will update its value with the new status
-                    for (Iterator<Presence> iter = userStats.iterator(); iter
-                        .hasNext();)
+                    for (Iterator<Presence> iter = userStats.iterator();
+                            iter.hasNext();)
                     {
                         Presence p = iter.next();
                         if (StringUtils.parseResource(p.getFrom()).equals(resource))
@@ -811,9 +811,11 @@ public class OperationSetPersistentPresenceJabberImpl
                     }
                 }
 
-                if(!jabberStatusToPresenceStatus(presence, parentProvider).
-                    equals(parentProvider.getJabberStatusEnum()
-                        .getStatus(JabberStatusEnum.OFFLINE)))
+                if(!jabberStatusToPresenceStatus(presence, parentProvider)
+                        .equals(
+                            parentProvider
+                                .getJabberStatusEnum()
+                                    .getStatus(JabberStatusEnum.OFFLINE)))
                 {
                     userStats.add(presence);
                 }
@@ -884,10 +886,13 @@ public class OperationSetPersistentPresenceJabberImpl
         AuthorizationHandler handler = null;
         public void processPacket(Packet packet)
         {
-            Presence presence = (Presence)packet;
+            Presence presence = (Presence) packet;
+            if (presence == null)
+                return;
 
-            if (presence != null
-                && presence.getType() == Presence.Type.subscribe)
+            Presence.Type presenceType = presence.getType();
+
+            if (presenceType == Presence.Type.subscribe)
             {
                 logger.trace(presence.getFrom()
                                 + " wants to add you to its contact list");
@@ -923,8 +928,7 @@ public class OperationSetPersistentPresenceJabberImpl
                 }
 
             }
-            else if (presence != null
-                     && presence.getType() == Presence.Type.unsubscribed)
+            else if (presenceType == Presence.Type.unsubscribed)
             {
                 logger.trace(presence.getFrom()
                                 + " does not allow your subscription");
@@ -941,8 +945,7 @@ public class OperationSetPersistentPresenceJabberImpl
                     ssContactList.removeContact(contact);
                 }
             }
-            else if (presence != null
-                     && presence.getType() == Presence.Type.subscribed)
+            else if (presenceType == Presence.Type.subscribed)
             {
                 ContactJabberImpl contact =
                     ssContactList.findContactById(presence.getFrom());

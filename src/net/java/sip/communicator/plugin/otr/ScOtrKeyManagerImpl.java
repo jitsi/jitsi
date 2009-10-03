@@ -13,14 +13,12 @@ import net.java.otr4j.crypto.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * 
  * @author George Politis
- *
  */
 public class ScOtrKeyManagerImpl
     implements ScOtrKeyManager
 {
-    private List<ScOtrKeyManagerListener> listeners =
+    private final List<ScOtrKeyManagerListener> listeners =
         new Vector<ScOtrKeyManagerListener>();
 
     public void addListener(ScOtrKeyManagerListener l)
@@ -44,10 +42,7 @@ public class ScOtrKeyManagerImpl
 
     public void verify(Contact contact)
     {
-        if (contact == null)
-            return;
-
-        if (this.isVerified(contact))
+        if ((contact == null) || isVerified(contact))
             return;
 
         this.configurator.setProperty(contact.getAddress()
@@ -59,10 +54,7 @@ public class ScOtrKeyManagerImpl
 
     public void unverify(Contact contact)
     {
-        if (contact == null)
-            return;
-
-        if (!isVerified(contact))
+        if ((contact == null) || !isVerified(contact))
             return;
 
         this.configurator.removeProperty(contact.getAddress()

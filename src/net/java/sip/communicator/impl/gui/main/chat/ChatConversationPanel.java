@@ -803,11 +803,10 @@ public class ChatConversationPanel
      */
     public void setCarretToEnd()
     {
-        if (this.chatTextPane.getDocument().getLength()
-                == this.document.getLength())
-        {
-            this.chatTextPane.setCaretPosition(this.document.getLength());
-        }
+        int documentLength = document.getLength();
+
+        if (chatTextPane.getDocument().getLength() == documentLength)
+            chatTextPane.setCaretPosition(documentLength);
     }
 
     /**

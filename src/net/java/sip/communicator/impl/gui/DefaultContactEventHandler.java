@@ -92,8 +92,8 @@ public class DefaultContactEventHandler
         {
             ChatWindowManager chatWindowManager
                 = GuiActivator.getUIService().getChatWindowManager();
-
-            ChatPanel chatPanel = chatWindowManager
+            ChatPanel chatPanel
+                = chatWindowManager
                     .getContactChat(metaContact, protocolContact);
 
             chatWindowManager.openChat(chatPanel, true);
