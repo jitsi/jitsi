@@ -16,7 +16,6 @@ import java.util.*;
 
 import javax.swing.*;
 import javax.swing.text.*;
-import javax.swing.text.html.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
@@ -413,24 +412,8 @@ public class ChatPanel
      */
     public void setCaretToEnd()
     {
-        ChatConversationPanel chatConversationPanel
-            = getChatConversationPanel();
-
-        HTMLDocument doc = (HTMLDocument) chatConversationPanel
-            .getChatTextPane().getDocument();
-
-        Element root = doc.getDefaultRootElement();
-
-        try {
-            doc.insertAfterEnd(root
-                    .getElement(root.getElementCount() - 1), "<br>");
-        } catch (BadLocationException exc) {
-            logger.error("Insert in the HTMLDocument failed.", exc);
-        } catch (IOException exc) {
-            logger.error("Insert in the HTMLDocument failed.", exc);
-        }
         //Scroll to the last inserted text in the document.
-        chatConversationPanel.setCarretToEnd();
+        getChatConversationPanel().setCarretToEnd();
     }
 
     /**
@@ -834,19 +817,22 @@ public class ChatPanel
     }
 
     /**
-     * Brings the <tt>ChatWindow</tt> containing  this <tt>ChatPanel</tt> to front
-     * if <tt>isVisble</tt> is true, hides it otherwise.
+     * Brings the <tt>ChatWindow</tt> containing this <tt>ChatPanel</tt> to the
+     * front if <tt>isVisble</tt> is <tt>true</tt>; hides it, otherwise.
      * 
-     * @param isVisible tells if the chat will shown or hidden
+     * @param isVisible <tt>true</tt> to bring the <tt>ChatWindow</tt> of this
+     * <tt>ChatPanel</tt> to the front; <tt>false</tt> to close this
+     * <tt>ChatPanel</tt>
      */
     public void setChatVisible(boolean isVisible)
     {
+        ChatWindowManager chatWindowManager
+            = GuiActivator.getUIService().getChatWindowManager();
+
         if (isVisible)
-            GuiActivator.getUIService().getChatWindowManager()
-                .openChat(this, isVisible);
+            chatWindowManager.openChat(this, isVisible);
         else
-            GuiActivator.getUIService().getChatWindowManager()
-                .closeChat(this);
+            chatWindowManager.closeChat(this);
     }
 
     /**
