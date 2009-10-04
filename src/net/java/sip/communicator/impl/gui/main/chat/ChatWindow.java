@@ -105,12 +105,12 @@ public class ChatWindow
                 public void closeOperation(MouseEvent e)
                 {
                     int tabIndex = chatTabbedPane.getOverTabIndex();
-
                     ChatPanel chatPanel
                         = (ChatPanel) chatTabbedPane.getComponentAt(tabIndex);
 
-                    GuiActivator.getUIService()
-                        .getChatWindowManager().closeChat(chatPanel);
+                    GuiActivator
+                        .getUIService()
+                            .getChatWindowManager().closeChat(chatPanel);
                 }
             });
 
@@ -517,8 +517,7 @@ public class ChatWindow
 
         chatPanel.unreadMessageNumber ++;
 
-        this.chatTabbedPane
-            .highlightTab(tabIndex, chatPanel.getUnreadMessageNumber());
+        chatTabbedPane.highlightTab(tabIndex, chatPanel.unreadMessageNumber);
     }
 
     /**
@@ -691,22 +690,14 @@ public class ChatWindow
      */
     protected void close(boolean isEscaped)
     {
-        ChatPanel chatPanel = getCurrentChatPanel();
-
         if(isEscaped)
         {
-            ChatRightButtonMenu chatRightMenu =
-                chatPanel.getChatConversationPanel().getRightButtonMenu();
+            ChatPanel chatPanel = getCurrentChatPanel();
+            ChatRightButtonMenu chatRightMenu
+                = chatPanel.getChatConversationPanel().getRightButtonMenu();
             ChatWritePanel chatWritePanel = chatPanel.getChatWritePanel();
-            WritePanelRightButtonMenu writePanelRightMenu =
-                chatWritePanel.getRightButtonMenu();
-
-            JMenu selectedMenu = menuBar.getSelectedMenu();
-            // SIPCommMenu contactMenu = getCurrentChatPanel()
-            // .getProtoContactSelectorBox().getMenu();
-
-            MenuSelectionManager menuSelectionManager =
-                MenuSelectionManager.defaultManager();
+            WritePanelRightButtonMenu writePanelRightMenu
+                = chatWritePanel.getRightButtonMenu();
 
             if (chatRightMenu.isVisible())
             {
@@ -716,21 +707,22 @@ public class ChatWindow
             {
                 writePanelRightMenu.setVisible(false);
             }
-            else if (selectedMenu != null
-                || chatWritePanel.getEditTextToolBar().hasSelectedMenus())
+            else if ((menuBar.getSelectedMenu() != null)
+                        || chatWritePanel
+                                .getEditTextToolBar().hasSelectedMenus())
             {
-                menuSelectionManager.clearSelectedPath();
+                MenuSelectionManager.defaultManager().clearSelectedPath();
             }
             else
             {
-                GuiActivator.getUIService().getChatWindowManager().closeChat(
-                    chatPanel);
+                GuiActivator
+                    .getUIService().getChatWindowManager().closeChat(chatPanel);
             }
         }
         else
         {
-            GuiActivator.getUIService().getChatWindowManager()
-                .closeWindow(this);
+            GuiActivator
+                .getUIService().getChatWindowManager().closeWindow(this);
         }
     }
 

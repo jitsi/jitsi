@@ -477,17 +477,15 @@ public class ContactRightButtonMenu
 
             if(pps != null)
             {
-                AddContactDialog dialog = new AddContactDialog(
-                        mainFrame,
-                        contactItem, pps);
+                AddContactDialog dialog
+                    = new AddContactDialog(mainFrame, contactItem, pps);
+                Dimension screenSize
+                    = Toolkit.getDefaultToolkit().getScreenSize();
 
-                dialog.setLocation(
-                        Toolkit.getDefaultToolkit().getScreenSize().width/2
-                            - 250,
-                        Toolkit.getDefaultToolkit().getScreenSize().height/2
-                            - 100
-                        );
-
+                dialog
+                    .setLocation(
+                        screenSize.width/2 - 250,
+                        screenSize.height/2 - 100);
                 dialog.showDialog();
             }
         }
@@ -517,8 +515,7 @@ public class ContactRightButtonMenu
         {
             ContactListPane clistPanel = mainFrame.getContactListPanel();
             SwingUtilities.invokeLater(
-                clistPanel.new RunMessageWindow(
-                    contactItem)
+                clistPanel.new RunMessageWindow(contactItem)
                     {
                         public void run()
                         {
@@ -543,7 +540,8 @@ public class ContactRightButtonMenu
                                     getChatWindowManager().getSelectedChat().
                                         sendFile(selectedFile);
                             }
-                        } });
+                        }
+                    });
         }
         else if (itemName.equalsIgnoreCase("renameContact"))
         {

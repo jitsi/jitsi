@@ -44,7 +44,7 @@ public class ChatWindowManager
      */
     public void openChat(final ChatPanel chatPanel, final boolean setSelected)
     {
-        if(!SwingUtilities.isEventDispatchThread())
+        if (!SwingUtilities.isEventDispatchThread())
         {
             SwingUtilities.invokeLater(new Runnable()
             {
@@ -119,34 +119,6 @@ public class ChatWindowManager
     {
         return isChatOpenedForDescriptor(metaContact);
     }
-    
-    /**
-     * Returns <tt>true</tt> if there is an opened <tt>ChatPanel</tt> for the
-     * given <tt>AdHocChatRoom</tt>.
-     * 
-     * @param adHocChatRoomWrapper the <tt>AdHocChatRoomWrapper</tt> for which
-     * the ad-hoc chat is about
-     * @return <tt>true</tt> if there is an opened <tt>ChatPanel</tt> for the
-     * given <tt>AdHocChatRoom</tt>
-     */
-    public boolean isChatOpenedFor(AdHocChatRoomWrapper adHocChatRoomWrapper)
-    {
-        return isChatOpenedForDescriptor(adHocChatRoomWrapper);
-    }
-
-    /**
-     * Returns <tt>true</tt> if there is an opened <tt>ChatPanel</tt> for the
-     * given <tt>ChatRoom</tt>.
-     *
-     * @param chatRoomWrapper the <tt>ChatRoomWrapper</tt>, for which the chat
-     * is about
-     * @return <tt>true</tt> if there is an opened <tt>ChatPanel</tt> for the
-     * given <tt>ChatRoom</tt>
-     */
-    public boolean isChatOpenedFor(ChatRoomWrapper chatRoomWrapper)
-    {
-        return isChatOpenedForDescriptor(chatRoomWrapper);
-    }
 
     /**
      * Determines whether there is an opened <tt>ChatPanel</tt> for a specific
@@ -172,8 +144,20 @@ public class ChatWindowManager
      *
      * @param chatPanel the chat panel to close
      */
-    public void closeChat(ChatPanel chatPanel)
+    public void closeChat(final ChatPanel chatPanel)
     {
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    closeChat(chatPanel);
+                }
+            });
+            return;
+        }
+
         synchronized (syncChat)
         {
             if(containsChat(chatPanel))
@@ -195,9 +179,7 @@ public class ChatWindowManager
                         JOptionPane.WARNING_MESSAGE);
 
                     if (answer == JOptionPane.OK_OPTION)
-                    {
                         closeChatPanel(chatPanel);
-                    }
                 }
                 else if (System.currentTimeMillis() - chatWindow
                     .getLastIncomingMsgTimestamp(chatPanel) < 2 * 1000)
@@ -262,12 +244,12 @@ public class ChatWindowManager
     }
 
     /**
-     * Closes the chat window. Removes all contained chats and invokes
-     * <code>setVisible(false)</code> to the window.
+     * Closes the specified <tt>ChatWindow</tt> and makes it available for
+     * garbage collection.
      * 
-     * @param chatWindow the chat window
+     * @param chatWindow the <tt>ChatWindow</tt> to close
      */
-    public void closeWindow(ChatWindow chatWindow)
+    void closeWindow(ChatWindow chatWindow)
     {
         synchronized (syncChat)
         {
@@ -316,9 +298,7 @@ public class ChatWindowManager
                     JOptionPane.WARNING_MESSAGE);
 
                 if (answer == JOptionPane.OK_OPTION)
-                {
                     this.disposeChatWindow(chatWindow);
-                }
             }
             else if (System.currentTimeMillis() - chatWindow
                 .getLastIncomingMsgTimestamp(activePanel) < 2 * 1000)
@@ -335,9 +315,7 @@ public class ChatWindowManager
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 
                 if (answer == JOptionPane.OK_OPTION)
-                {
                     this.disposeChatWindow(chatWindow);
-                }
             }
             else if (activePanel.containsActiveFileTransfers())
             {
@@ -357,9 +335,7 @@ public class ChatWindowManager
                 if (answer == JOptionPane.OK_OPTION)
                 {
                     for (ChatPanel chatPanel : chatPanels)
-                    {
                         chatPanel.cancelActiveFileTransfers();
-                    }
 
                     this.disposeChatWindow(chatWindow);
                 }
@@ -368,19 +344,21 @@ public class ChatWindowManager
     }
 
     /**
-     * Returns the chat panel corresponding to the given meta contact
+     * Gets the <tt>ChatPanel</tt> corresponding to the specified
+     * <tt>MetaContact</tt> and optionally creates it if it does not exist.
      *
-     * @param metaContact the meta contact.
-     * @return the chat panel corresponding to the given meta contact
+     * @param metaContact the <tt>MetaContact</tt> to get the corresponding
+     * <tt>ChatPanel</tt> of
+     * @param create <tt>true</tt> to create a <tt>ChatPanel</tt> corresponding
+     * to the specified <tt>MetaContact</tt> if such <tt>ChatPanel</tt> does not
+     * exist yet
+     * @return the <tt>ChatPanel</tt> corresponding to the specified
+     * <tt>MetaContact</tt>; <tt>null</tt> if there is no such
+     * <tt>ChatPanel</tt> and <tt>create</tt> is <tt>false</tt>
      */
-    public ChatPanel getContactChat(MetaContact metaContact)
+    public ChatPanel getContactChat(MetaContact metaContact, boolean create)
     {
-        synchronized (syncChat)
-        {
-            ChatPanel chatPanel = findChatPanelForDescriptor(metaContact);
-
-            return (chatPanel != null) ? chatPanel : createChat(metaContact);
-        }
+        return getContactChat(metaContact, null, create, null);
     }
 
     /**
@@ -409,17 +387,52 @@ public class ChatWindowManager
                                     Contact protocolContact,
                                     String escapedMessageID)
     {
+        return
+            getContactChat(
+                metaContact,
+                protocolContact,
+                true,
+                escapedMessageID);
+    }
+
+    /**
+     * Gets the <tt>ChatPanel</tt> corresponding to the specified
+     * <tt>MetaContact</tt> and optionally creates it if it does not exist.
+     *
+     * @param metaContact the <tt>MetaContact</tt> to get the corresponding
+     * <tt>ChatPanel</tt> of
+     * @param protocolContact the <tt>Contact</tt> (respectively its
+     * <tt>ChatTransport</tt>) to be selected in the newly created
+     * <tt>ChatPanel</tt>; <tt>null</tt> to select the default <tt>Contact</tt>
+     * of <tt>metaContact</tt> if it is online or one of its <tt>Contact</tt>s
+     * which supports offline messaging
+     * @param create <tt>true</tt> to create a <tt>ChatPanel</tt> corresponding
+     * to the specified <tt>MetaContact</tt> if such <tt>ChatPanel</tt> does not
+     * exist yet
+     * @param escapedMessageID the message ID of the message to be excluded from
+     * the history when the last one is loaded in the newly created
+     * <tt>ChatPanel</tt>
+     * @return the <tt>ChatPanel</tt> corresponding to the specified
+     * <tt>MetaContact</tt>; <tt>null</tt> if there is no such
+     * <tt>ChatPanel</tt> and <tt>create</tt> is <tt>false</tt>
+     */
+    private ChatPanel getContactChat(
+            MetaContact metaContact,
+            Contact protocolContact,
+            boolean create,
+            String escapedMessageID)
+    {
         synchronized (syncChat)
         {
             ChatPanel chatPanel = findChatPanelForDescriptor(metaContact);
 
-            return
-                (chatPanel != null)
-                    ? chatPanel
-                    : createChat(
-                            metaContact,
-                            protocolContact,
-                            escapedMessageID);
+            if ((chatPanel == null) && create)
+                chatPanel
+                    = createChat(
+                        metaContact,
+                        protocolContact,
+                        escapedMessageID);
+            return chatPanel;
         }
     }
 
@@ -462,38 +475,58 @@ public class ChatWindowManager
     }
 
     /**
-     * Returns the chat panel corresponding to the given chat room wrapper.
+     * Gets the <tt>ChatPanel</tt> corresponding to the specified
+     * <tt>ChatRoomWrapper</tt> and optionally creates it if it does not exist
+     * yet.
      *
-     * @param chatRoomWrapper the chat room wrapper, corresponding to the chat
-     * room for which the chat panel is about
-     * @return the chat panel corresponding to the given chat room
+     * @param chatRoomWrapper the <tt>ChatRoomWrapper</tt> to get the
+     * corresponding <tt>ChatPanel</tt> of
+     * @param create <tt>true</tt> to create a new <tt>ChatPanel</tt> for the
+     * specified <tt>ChatRoomWrapper</tt> if no such <tt>ChatPanel</tt> exists
+     * already; otherwise, <tt>false</tt>
+     * @return the <tt>ChatPanel</tt> corresponding to the specified
+     * <tt>ChatRoomWrapper</tt> or <tt>null</tt> if no such <tt>ChatPanel</tt>
+     * exists and <tt>create</tt> is <tt>false</tt>
      */
-    public ChatPanel getMultiChat(ChatRoomWrapper chatRoomWrapper)
+    public ChatPanel getMultiChat(
+            ChatRoomWrapper chatRoomWrapper,
+            boolean create)
     {
         synchronized (syncChat)
         {
             ChatPanel chatPanel = findChatPanelForDescriptor(chatRoomWrapper);
 
-            return
-                (chatPanel != null) ? chatPanel : createChat(chatRoomWrapper);
+            if ((chatPanel == null) && create)
+                chatPanel = createChat(chatRoomWrapper);
+            return chatPanel;
         }
     }
 
     /**
-     * Returns the chat panel corresponding to the given chat room wrapper.
+     * Gets the <tt>ChatPanel</tt> corresponding to the specified
+     * <tt>AdHocChatRoomWrapper</tt> and optionally creates it if it does not
+     * exist yet.
      *
-     * @param chatRoomWrapper the ad-hoc chat room wrapper, corresponding to the
-     * ad-hoc chat room for which the chat panel is about
-     * @return the chat panel corresponding to the given chat room
+     * @param chatRoomWrapper the <tt>AdHocChatRoomWrapper</tt> to get the
+     * corresponding <tt>ChatPanel</tt> of
+     * @param create <tt>true</tt> to create a new <tt>ChatPanel</tt> for the
+     * specified <tt>AdHocChatRoomWrapper</tt> if no such <tt>ChatPanel</tt>
+     * exists already; otherwise, <tt>false</tt>
+     * @return the <tt>ChatPanel</tt> corresponding to the specified
+     * <tt>AdHocChatRoomWrapper</tt> or <tt>null</tt> if no such
+     * <tt>ChatPanel</tt> exists and <tt>create</tt> is <tt>false</tt>
      */
-    public ChatPanel getMultiChat(AdHocChatRoomWrapper chatRoomWrapper)
+    public ChatPanel getMultiChat(
+            AdHocChatRoomWrapper chatRoomWrapper,
+            boolean create)
     {
         synchronized (syncChat)
         {
             ChatPanel chatPanel = findChatPanelForDescriptor(chatRoomWrapper);
 
-            return
-                (chatPanel != null) ? chatPanel : createChat(chatRoomWrapper);
+            if ((chatPanel == null) && create)
+                chatPanel = createChat(chatRoomWrapper);
+            return chatPanel;
         }
     }
 
@@ -678,22 +711,24 @@ public class ChatWindowManager
     }
 
     /**
-     * Creates a chat for the given meta contact. If the most connected proto
-     * contact of the meta contact is offline choose the proto contact that
+     * Gets the default <tt>Contact</tt> of the specified <tt>MetaContact</tt>
+     * if it is online; otherwise, gets one of its <tt>Contact</tt>s which
      * supports offline messaging.
      *
-     * @param metaContact the meta contact for the chat
-     * @return the newly created ChatPanel
+     * @param metaContact the <tt>MetaContact</tt> to get the default
+     * <tt>Contact</tt> of
+     * @return the default <tt>Contact</tt> of the specified
+     * <tt>MetaContact</tt> if it is online; otherwise, gets one of its
+     * <tt>Contact</tt>s which supports offline messaging
      */
-    private ChatPanel createChat(MetaContact metaContact)
+    private Contact getDefaultContact(MetaContact metaContact)
     {
         Contact defaultContact = metaContact.getDefaultContact();
         ProtocolProviderService defaultProvider
             = defaultContact.getProtocolProvider();
         OperationSetBasicInstantMessaging defaultIM
-            = (OperationSetBasicInstantMessaging)
-                defaultProvider
-                    .getOperationSet(OperationSetBasicInstantMessaging.class);
+            = defaultProvider
+                .getOperationSet(OperationSetBasicInstantMessaging.class);
 
         if (defaultContact.getPresenceStatus().getStatus() < 1
                 && (!defaultIM.isOfflineMessagingSupported()
@@ -707,10 +742,9 @@ public class ChatWindowManager
                 ProtocolProviderService protoContactProvider
                     = contact.getProtocolProvider();
                 OperationSetBasicInstantMessaging protoContactIM
-                    = (OperationSetBasicInstantMessaging)
-                        protoContactProvider
-                            .getOperationSet(
-                                OperationSetBasicInstantMessaging.class);
+                    = protoContactProvider
+                        .getOperationSet(
+                            OperationSetBasicInstantMessaging.class);
 
                 if(protoContactIM.isOfflineMessagingSupported()
                         && protoContactProvider.isRegistered())
@@ -719,16 +753,20 @@ public class ChatWindowManager
                 }
             }
         }
-
-        return createChat(metaContact, defaultContact, null);
+        return defaultContact;
     }
 
     /**
      * Creates a <tt>ChatPanel</tt> for the given contact and saves it in the
      * list of created <tt>ChatPanel</tt>s.
      *
-     * @param metaContact The MetaContact for this chat.
-     * @param protocolContact The protocol contact.
+     * @param metaContact the <tt>MetaContact</tt> to create a
+     * <tt>ChatPanel</tt> for
+     * @param protocolContact the <tt>Contact</tt> (respectively its
+     * <tt>ChatTransport</tt>) to be selected in the newly created
+     * <tt>ChatPanel</tt>; <tt>null</tt> to select the default <tt>Contact</tt>
+     * of <tt>metaContact</tt> if it is online or one of its <tt>Contact</tt>s
+     * which supports offline messaging
      * @param escapedMessageID the message ID of the message that should be
      * excluded from the history when the last one is loaded in the chat.
      * @return The <code>ChatPanel</code> newly created.
@@ -737,6 +775,9 @@ public class ChatWindowManager
                                     Contact protocolContact,
                                     String escapedMessageID)
     {
+        if (protocolContact == null)
+            protocolContact = getDefaultContact(metaContact);
+
         ChatWindow chatWindow = getChatWindow();
         ChatPanel chatPanel = new ChatPanel(chatWindow);
 

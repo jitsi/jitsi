@@ -21,6 +21,7 @@ import net.java.sip.communicator.impl.gui.main.chat.conference.*;
  * <tt>ChatRoomsList</tt>.
  *
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class ChatRoomListUI
     extends SCScrollPane
@@ -85,74 +86,45 @@ public class ChatRoomListUI
 
     }
 
+    private void openChatForSelection()
+    {
+        Object selectedValue = chatRoomList.getSelectedValue();
+        ChatRoomWrapper chatRoomWrapper;
+
+        if (selectedValue instanceof ChatRoomProviderWrapper)
+            chatRoomWrapper
+                = ((ChatRoomProviderWrapper) selectedValue)
+                        .getSystemRoomWrapper();
+        else if (selectedValue instanceof ChatRoomWrapper)
+            chatRoomWrapper = (ChatRoomWrapper) selectedValue;
+        else
+            return;
+
+        ChatWindowManager chatWindowManager
+            = GuiActivator.getUIService().getChatWindowManager();
+        ChatPanel chatPanel
+            = chatWindowManager.getMultiChat(chatRoomWrapper, true);
+
+        chatWindowManager.openChat(chatPanel, true);
+    }
     /**
      * Opens chat window when the selected value is a MetaContact and opens a
      * group when the selected value is a MetaContactGroup.
      */
-    private class ChatRoomsListPanelEnterAction extends AbstractAction
+    private class ChatRoomsListPanelEnterAction
+        extends AbstractAction
     {
         public void actionPerformed(ActionEvent e)
         {
-            Object selectedValue = chatRoomList.getSelectedValue();
-
-            ChatWindowManager chatWindowManager
-                = GuiActivator.getUIService().getChatWindowManager();
-
-            if(selectedValue instanceof ChatRoomProviderWrapper)
-            {
-                ChatRoomProviderWrapper serverWrapper
-                    = (ChatRoomProviderWrapper) selectedValue;
-
-                ChatPanel chatPanel
-                    = chatWindowManager.getMultiChat(
-                        serverWrapper.getSystemRoomWrapper());
-
-                chatWindowManager.openChat(chatPanel, true);
-            }
-            else if(selectedValue instanceof ChatRoomWrapper)
-            {
-                ChatRoomWrapper chatRoomWrapper
-                    = (ChatRoomWrapper) selectedValue;
-
-                ChatPanel chatPanel
-                    = chatWindowManager.getMultiChat(chatRoomWrapper);
-
-                chatWindowManager.openChat(chatPanel, true);
-            }
+            openChatForSelection();
         }
     }
 
     public void mouseClicked(MouseEvent e)
     {
-        if ((e.getModifiers() & InputEvent.BUTTON1_MASK) == 0
-            || e.getClickCount() < 2)
-            return;
-
-        Object o = this.chatRoomList.getSelectedValue();
-
-        ChatWindowManager chatWindowManager
-            = GuiActivator.getUIService().getChatWindowManager();
-
-        if(o instanceof ChatRoomProviderWrapper)
-        {
-            ChatRoomProviderWrapper serverWrapper
-                = (ChatRoomProviderWrapper) o;
-
-            ChatPanel chatPanel
-                = chatWindowManager.getMultiChat(
-                    serverWrapper.getSystemRoomWrapper());
-
-            chatWindowManager.openChat(chatPanel, true);
-        }
-        else if(o instanceof ChatRoomWrapper)
-        {
-            ChatRoomWrapper chatRoomWrapper = (ChatRoomWrapper) o;
-
-            ChatPanel chatPanel
-                = chatWindowManager.getMultiChat(chatRoomWrapper);
-
-            chatWindowManager.openChat(chatPanel, true);
-        }
+        if (((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0)
+                && (e.getClickCount() > 1))
+            openChatForSelection();
     }
 
     public void mouseEntered(MouseEvent e)

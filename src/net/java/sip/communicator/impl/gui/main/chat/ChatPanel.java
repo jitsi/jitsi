@@ -77,7 +77,7 @@ public class ChatPanel
 
     private ChatRoomSubjectPanel subjectPanel;
 
-    public int unreadMessageNumber = 0;
+    int unreadMessageNumber = 0;
 
     /**
      * Indicates that a typing notification event is successfully sent.
@@ -1966,16 +1966,6 @@ public class ChatPanel
     public boolean containsActiveFileTransfers()
     {
         return !activeFileTransfers.isEmpty();
-    }
-
-    /**
-     * Returns the number of messages received but not yet read from the user.
-     * 
-     * @return the number of messages received but not yet read from the user.
-     */
-    public int getUnreadMessageNumber()
-    {
-        return unreadMessageNumber;
     }
 
     /**

@@ -9,8 +9,6 @@ package net.java.sip.communicator.impl.gui.main.chat.conference;
 import java.util.*;
 import java.util.concurrent.*;
 
-import javax.swing.*;
-
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
@@ -109,11 +107,11 @@ public class ConferenceChatManager
      */
     public void invitationReceived(ChatRoomInvitationReceivedEvent evt)
     {
-        OperationSetMultiUserChat multiUserChatOpSet
-            = evt.getSourceOperationSet();
-
-        InvitationReceivedDialog dialog = new InvitationReceivedDialog(
-            this, multiUserChatOpSet, evt.getInvitation());
+        InvitationReceivedDialog dialog
+            = new InvitationReceivedDialog(
+                    this,
+                    evt.getSourceOperationSet(),
+                    evt.getInvitation());
 
         dialog.setVisible(true);
     }
@@ -197,10 +195,12 @@ public class ConferenceChatManager
             break;
         }
 
-        logger.info("MESSAGE RECEIVED from "+sourceMember.getContactAddress());
-        
-        logger.trace("MESSAGE RECEIVED from contact: "
-            + sourceMember.getContactAddress());
+        logger
+            .info("MESSAGE RECEIVED from " + sourceMember.getContactAddress());
+        logger
+            .trace(
+                "MESSAGE RECEIVED from contact: "
+                    + sourceMember.getContactAddress());
 
         Message message = evt.getMessage();
 
@@ -216,13 +216,19 @@ public class ConferenceChatManager
                     sourceChatRoom.getParentProvider());
 
             chatPanel
-                = chatWindowManager.getMultiChat(
-                    serverWrapper.getSystemRoomWrapper());
+                = chatWindowManager
+                    .getMultiChat(
+                        serverWrapper.getSystemRoomWrapper(),
+                        true);
         }
         else
         {
-            chatPanel = chatWindowManager
-                .getMultiChat(sourceChatRoom, true, message.getMessageUID());
+            chatPanel
+                = chatWindowManager
+                    .getMultiChat(
+                        sourceChatRoom,
+                        true,
+                        message.getMessageUID());
         }
 
         String messageContent = message.getContent();
@@ -389,13 +395,14 @@ public class ConferenceChatManager
             LocalUserAdHocChatRoomPresenceChangeEvent evt)
     {
         AdHocChatRoom sourceAdHocChatRoom = evt.getAdHocChatRoom();
+        AdHocChatRoomWrapper adHocChatRoomWrapper
+            = adHocChatRoomList
+                .findChatRoomWrapperFromAdHocChatRoom(sourceAdHocChatRoom);
 
-        AdHocChatRoomWrapper adHocChatRoomWrapper = 
-            adHocChatRoomList.findChatRoomWrapperFromAdHocChatRoom(
-                    sourceAdHocChatRoom);
+        String eventType = evt.getEventType();
 
-        if (evt.getEventType().equals(
-                LocalUserAdHocChatRoomPresenceChangeEvent.LOCAL_USER_JOINED))
+        if (LocalUserAdHocChatRoomPresenceChangeEvent
+                .LOCAL_USER_JOINED.equals(eventType))
         {
             if(adHocChatRoomWrapper != null)
             {
@@ -405,22 +412,18 @@ public class ConferenceChatManager
 
                 ChatWindowManager chatWindowManager
                     = GuiActivator.getUIService().getChatWindowManager();
-
                 ChatPanel chatPanel
-                    = chatWindowManager.getMultiChat(adHocChatRoomWrapper);
+                    = chatWindowManager
+                        .getMultiChat(adHocChatRoomWrapper, true);
 
                 // Check if we have already opened a chat window for this chat
                 // wrapper and load the real chat room corresponding to the
                 // wrapper.
-                if(chatWindowManager.isChatOpenedFor(adHocChatRoomWrapper))
-                {
+                if(chatPanel.isShown())
                     ((AdHocConferenceChatSession) chatPanel.getChatSession())
                         .loadChatRoom(sourceAdHocChatRoom);
-                }
                 else
-                {
                     chatWindowManager.openChat(chatPanel, true);
-                }
             }
 
             sourceAdHocChatRoom.addMessageListener(this);
@@ -437,8 +440,10 @@ public class ConferenceChatManager
                         + evt.getReason())
             .showDialog();
         }
-        else if (evt.getEventType().equals(
-            LocalUserAdHocChatRoomPresenceChangeEvent.LOCAL_USER_LEFT))
+        else if (LocalUserAdHocChatRoomPresenceChangeEvent
+                        .LOCAL_USER_LEFT.equals(eventType)
+                    || LocalUserAdHocChatRoomPresenceChangeEvent
+                            .LOCAL_USER_DROPPED.equals(eventType))
         {
             this.closeAdHocChatRoom(adHocChatRoomWrapper);
 
@@ -450,21 +455,8 @@ public class ConferenceChatManager
 
             sourceAdHocChatRoom.removeMessageListener(this);
         }
-        else if (evt.getEventType().equals(
-                LocalUserAdHocChatRoomPresenceChangeEvent.LOCAL_USER_DROPPED))
-        {
-            this.closeAdHocChatRoom(adHocChatRoomWrapper);
-
-            // Need to refresh the ad-hoc chat room's list in order to change
-            // the state of the ad-hoc chat room to offline.
-            fireAdHocChatRoomListChangedEvent(
-                    adHocChatRoomWrapper,
-                    AdHocChatRoomListChangeEvent.AD_HOC_CHAT_ROOM_CHANGED);
-
-            sourceAdHocChatRoom.removeMessageListener(this);
-        }
     }
-    
+
     /**
      * Implements the
      * <tt>LocalUserChatRoomPresenceListener.localUserPresenceChanged</tt>
@@ -474,12 +466,13 @@ public class ConferenceChatManager
         LocalUserChatRoomPresenceChangeEvent evt)
     {
         ChatRoom sourceChatRoom = evt.getChatRoom();
+        ChatRoomWrapper chatRoomWrapper
+            = chatRoomList.findChatRoomWrapperFromChatRoom(sourceChatRoom);
 
-        ChatRoomWrapper chatRoomWrapper = chatRoomList
-            .findChatRoomWrapperFromChatRoom(sourceChatRoom);
+        String eventType = evt.getEventType();
 
-        if (evt.getEventType().equals(
-            LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED))
+        if (LocalUserChatRoomPresenceChangeEvent
+                .LOCAL_USER_JOINED.equals(eventType))
         {
             if(chatRoomWrapper != null)
             {
@@ -490,20 +483,16 @@ public class ConferenceChatManager
                 ChatWindowManager chatWindowManager
                     = GuiActivator.getUIService().getChatWindowManager();
                 ChatPanel chatPanel
-                    = chatWindowManager.getMultiChat(chatRoomWrapper);
+                    = chatWindowManager.getMultiChat(chatRoomWrapper, true);
 
                 // Check if we have already opened a chat window for this chat
                 // wrapper and load the real chat room corresponding to the
                 // wrapper.
-                if(chatWindowManager.isChatOpenedFor(chatRoomWrapper))
-                {
+                if(chatPanel.isShown())
                     ((ConferenceChatSession) chatPanel.getChatSession())
                         .loadChatRoom(sourceChatRoom);
-                }
                 else
-                {
                     chatWindowManager.openChat(chatPanel, true);
-                }
             }
 
             if (sourceChatRoom.isSystem())
@@ -517,8 +506,8 @@ public class ConferenceChatManager
 
             sourceChatRoom.addMessageListener(this);
         }
-        else if (evt.getEventType().equals(
-            LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOIN_FAILED))
+        else if (LocalUserChatRoomPresenceChangeEvent
+                    .LOCAL_USER_JOIN_FAILED.equals(eventType))
         {
             new ErrorDialog(
                 GuiActivator.getUIService().getMainFrame(),
@@ -528,34 +517,12 @@ public class ConferenceChatManager
                     new String[]{sourceChatRoom.getName()}) + evt.getReason())
                 .showDialog();
         }
-        else if (evt.getEventType().equals(
-            LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT))
-        {
-            this.closeChatRoom(chatRoomWrapper);
-
-            // Need to refresh the chat room's list in order to change
-            // the state of the chat room to offline.
-            fireChatRoomListChangedEvent(
-                chatRoomWrapper,
-                ChatRoomListChangeEvent.CHAT_ROOM_CHANGED);
-
-            sourceChatRoom.removeMessageListener(this);
-        }
-        else if (evt.getEventType().equals(
-            LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_KICKED))
-        {
-            this.closeChatRoom(chatRoomWrapper);
-
-            // Need to refresh the chat room's list in order to change
-            // the state of the chat room to offline.
-            fireChatRoomListChangedEvent(
-                chatRoomWrapper,
-                ChatRoomListChangeEvent.CHAT_ROOM_CHANGED);
-
-            sourceChatRoom.removeMessageListener(this);
-        }
-        else if (evt.getEventType().equals(
-            LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_DROPPED))
+        else if (LocalUserChatRoomPresenceChangeEvent
+                        .LOCAL_USER_LEFT.equals(eventType)
+                    || LocalUserChatRoomPresenceChangeEvent
+                            .LOCAL_USER_KICKED.equals(eventType)
+                    || LocalUserChatRoomPresenceChangeEvent
+                            .LOCAL_USER_DROPPED.equals(eventType))
         {
             this.closeChatRoom(chatRoomWrapper);
 
@@ -913,8 +880,9 @@ public class ConferenceChatManager
         if(chatRoomWrapper == null)
         {
             ChatRoomProviderWrapper parentProvider
-            = chatRoomList.findServerWrapperFromProvider(
-                chatRoom.getParentProvider());
+                = chatRoomList
+                    .findServerWrapperFromProvider(
+                        chatRoom.getParentProvider());
 
             chatRoomWrapper = new ChatRoomWrapper(parentProvider, chatRoom);
 
@@ -926,10 +894,14 @@ public class ConferenceChatManager
         }
 
         this.joinChatRoom(chatRoomWrapper);
+
         ChatWindowManager chatWindowManager
             = GuiActivator.getUIService().getChatWindowManager();
-        chatWindowManager.openChat(
-            chatWindowManager.getMultiChat(chatRoomWrapper), true);
+
+        chatWindowManager
+            .openChat(
+                chatWindowManager.getMultiChat(chatRoomWrapper, true),
+                true);
     }
     
     /**
@@ -960,10 +932,14 @@ public class ConferenceChatManager
         }
 
         this.joinChatRoom(chatRoomWrapper);
+
         ChatWindowManager chatWindowManager
             = GuiActivator.getUIService().getChatWindowManager();
+
         chatWindowManager
-            .openChat(chatWindowManager.getMultiChat(chatRoomWrapper), true);
+            .openChat(
+                chatWindowManager.getMultiChat(chatRoomWrapper, true),
+                true);
     }
     
     /**
@@ -1273,23 +1249,13 @@ public class ConferenceChatManager
      */
     private void closeChatRoom(ChatRoomWrapper chatRoomWrapper)
     {
-        final ChatWindowManager chatWindowManager
+        ChatWindowManager chatWindowManager
             = GuiActivator.getUIService().getChatWindowManager();
+        ChatPanel chatPanel
+            = chatWindowManager.getMultiChat(chatRoomWrapper, false);
 
-        if(chatWindowManager.isChatOpenedFor(chatRoomWrapper))
-        {
-            final ChatPanel chatPanel
-                = chatWindowManager.getMultiChat(chatRoomWrapper);
-
-            // We have to be sure that we close the chat in the swing thread
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    chatWindowManager.closeChat(chatPanel);
-                }
-            });
-        }
+        if (chatPanel != null)
+            chatWindowManager.closeChat(chatPanel);
     }
 
     /**
@@ -1301,23 +1267,13 @@ public class ConferenceChatManager
      */
     private void closeAdHocChatRoom(AdHocChatRoomWrapper chatRoomWrapper)
     {
-        final ChatWindowManager chatWindowManager
+        ChatWindowManager chatWindowManager
             = GuiActivator.getUIService().getChatWindowManager();
+        ChatPanel chatPanel
+            = chatWindowManager.getMultiChat(chatRoomWrapper, false);
 
-        if(chatWindowManager.isChatOpenedFor(chatRoomWrapper))
-        {
-            final ChatPanel chatPanel
-                = chatWindowManager.getMultiChat(chatRoomWrapper);
-
-            // We have to be sure that we close the chat in the swing thread
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    chatWindowManager.closeChat(chatPanel);
-                }
-            });
-        }
+        if (chatPanel != null)
+            chatWindowManager.closeChat(chatPanel);
     }
 
     /**

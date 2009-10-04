@@ -281,14 +281,9 @@ public class ContactListPane
          */
         public void run()
         {
-            ChatPanel chatPanel;
-
-            if(protocolContact != null)
-                chatPanel
-                    = chatWindowManager
-                        .getContactChat(metaContact, protocolContact);
-            else
-                chatPanel = chatWindowManager.getContactChat(metaContact);
+            ChatPanel chatPanel
+                = chatWindowManager
+                    .getContactChat(metaContact, protocolContact);
 
             chatPanel.setSmsSelected(isSmsSelected);
 
@@ -401,28 +396,23 @@ public class ContactListPane
     public void messageDelivered(MessageDeliveredEvent evt)
     {
         Contact contact = evt.getDestinationContact();
+        MetaContact metaContact
+            = mainFrame.getContactList().findMetaContactByContact(contact);
 
-        MetaContact metaContact = mainFrame.getContactList()
-            .findMetaContactByContact(contact);
+        logger.trace("MESSAGE DELIVERED to contact: " + contact.getAddress());
 
-        logger.trace("MESSAGE DELIVERED to contact: "
-            + evt.getDestinationContact().getAddress());
-
-        Message msg = evt.getSourceMessage();
-
-        ChatPanel chatPanel = null;
-
-        if(chatWindowManager.isChatOpenedFor(metaContact))
-            chatPanel = chatWindowManager.getContactChat(metaContact);
+        ChatPanel chatPanel
+            = chatWindowManager.getContactChat(metaContact, false);
 
         if (chatPanel != null)
         {
-            ProtocolProviderService protocolProvider = evt
-                    .getDestinationContact().getProtocolProvider();
+            Message msg = evt.getSourceMessage();
+            ProtocolProviderService protocolProvider
+                = contact.getProtocolProvider();
 
             logger.trace(
                 "MESSAGE DELIVERED: process message to chat for contact: "
-                + evt.getDestinationContact().getAddress()
+                + contact.getAddress()
                 + " MESSAGE: " + msg.getContent());
 
             chatPanel.addMessage(
@@ -485,8 +475,8 @@ public class ContactListPane
                     new String[]{evt.getReason()});
         }
 
-        ChatPanel chatPanel = chatWindowManager
-            .getContactChat(metaContact, sourceContact);
+        ChatPanel chatPanel
+            = chatWindowManager.getContactChat(metaContact, sourceContact);
 
         chatPanel.addMessage(
                 metaContact.getDisplayName(),
@@ -604,11 +594,12 @@ public class ContactListPane
             "service.gui.FILE_RECEIVING_FROM",
             new String[]{sourceContact.getDisplayName()});
 
-        NotificationManager.fireChatNotification(
-                                        sourceContact,
-                                        NotificationManager.INCOMING_FILE,
-                                        title,
-                                        request.getFileName());
+        NotificationManager
+            .fireChatNotification(
+                sourceContact,
+                NotificationManager.INCOMING_FILE,
+                title,
+                request.getFileName());
     }
 
     /**
@@ -695,9 +686,11 @@ public class ContactListPane
     public void setChatNotificationMsg(MetaContact metaContact,
             String notificationMsg)
     {
-        if(chatWindowManager.isChatOpenedFor(metaContact))
-            chatWindowManager.getContactChat(metaContact)
-                .setStatusMessage(notificationMsg);
+        ChatPanel chatPanel
+            = chatWindowManager.getContactChat(metaContact, false);
+
+        if (chatPanel != null)
+            chatPanel.setStatusMessage(notificationMsg);
     }
 
     /**

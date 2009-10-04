@@ -110,8 +110,10 @@ public class ContactListTransferHandler
 
             // Obtain the corresponding chat panel.
             chatPanel
-                = GuiActivator.getUIService().getChatWindowManager()
-                    .getContactChat(metaContact);
+                = GuiActivator
+                    .getUIService()
+                        .getChatWindowManager()
+                            .getContactChat(metaContact, true);
         }
 
         return chatPanel;

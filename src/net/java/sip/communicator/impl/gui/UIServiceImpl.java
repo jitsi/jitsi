@@ -555,7 +555,7 @@ public class UIServiceImpl
         MetaContact metaContact
             = mainFrame.getContactList().findMetaContactByContact(contact);
 
-        return chatWindowManager.getContactChat(metaContact);
+        return chatWindowManager.getContactChat(metaContact, true);
     }
 
     /**
