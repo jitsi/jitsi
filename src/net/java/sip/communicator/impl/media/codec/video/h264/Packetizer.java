@@ -18,7 +18,7 @@ import net.sf.fmj.media.*;
 
 /**
  * Packets supplied data and encapsulates it in RTP in accord with RFC3984.
- * 
+ *
  * @author Damian Minkov
  * @author Lubomir Marinov
  */
@@ -28,7 +28,7 @@ public class Packetizer
     private final static String PLUGIN_NAME = "H264 Packetizer";
 
     // without the headers
-    private final static int MAX_PAYLOAD_SIZE = 512;
+    private final static int MAX_PAYLOAD_SIZE = 1024;
 
     private final static Format[] defOutputFormats =
     {

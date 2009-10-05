@@ -17,7 +17,7 @@ import net.sf.fmj.media.*;
 
 /**
  * Encodes supplied data in h264
- * 
+ *
  * @author Damian Minkov
  * @author Lubomir Marinov
  */
@@ -255,7 +255,8 @@ public class JNIEncoder
 
         FFMPEG.avcodeccontext_set_qcompress(avcontext, 0.6f);
 
-        int _bitRate = 768000;
+        //int _bitRate = 768000;
+        int _bitRate = 256000;
         // average bit rate
         FFMPEG.avcodeccontext_set_bit_rate(avcontext, _bitRate);
         // so to be 1 in x264
