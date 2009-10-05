@@ -119,8 +119,11 @@ public class ConferenceCallPanel
             remotePeerPanel.addConferenceMemberPanel(member);
         }
 
-        this.revalidate();
-        this.repaint();
+        if (isVisible())
+        {
+            this.revalidate();
+            this.repaint();
+        }
 
         peer.addCallPeerListener(remotePeerPanel);
         peer.addPropertyChangeListener(remotePeerPanel);

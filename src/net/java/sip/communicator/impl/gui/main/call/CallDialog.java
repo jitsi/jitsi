@@ -157,6 +157,10 @@ public class CallDialog
 
     }
 
+    /**
+     * Handles action events.
+     * @param evt the <tt>ActionEvent</tt> that was triggered
+     */
     public void actionPerformed(ActionEvent evt)
     {
         JButton button = (JButton) evt.getSource();
@@ -198,18 +202,16 @@ public class CallDialog
         }
     }
 
-    public void mouseClicked(MouseEvent e)
-    {
-    }
+    public void mouseClicked(MouseEvent e) {}
 
-    public void mousePressed(MouseEvent e)
-    {
-    }
+    public void mousePressed(MouseEvent e) {}
 
-    public void mouseReleased(MouseEvent e)
-    {
-    }
+    public void mouseReleased(MouseEvent e) {}
 
+    /**
+     * Updates the dial pad dialog and removes related focus listener.
+     * @param e the <tt>MouseEvent</tt> that was triggered
+     */
     public void mouseEntered(MouseEvent e)
     {
         if (dialpadDialog == null)
@@ -217,6 +219,10 @@ public class CallDialog
         dialpadDialog.removeWindowFocusListener(dialpadDialog);
     }
 
+    /**
+     * Updates the dial pad dialog and adds related focus listener.
+     * @param e the <tt>MouseEvent</tt> that was triggered
+     */
     public void mouseExited(MouseEvent e)
     {
         if (dialpadDialog == null)
@@ -248,7 +254,11 @@ public class CallDialog
         return call;
     }
 
-    @Override
+    /**
+     * Hang ups the current call on close.
+     * @param isEscaped indicates if the window was close by pressing the escape
+     * button
+     */
     protected void close(boolean isEscaped)
     {
         if (!isEscaped)
@@ -341,6 +351,7 @@ public class CallDialog
     /**
      * Implements the <tt>CallChangeListener.callPeerAdded</tt> method.
      * Adds the according user interface when a new peer is added to the call.
+     * @param evt the <tt>CallPeerEvent</tt> that notifies us for the change
      */
     public void callPeerAdded(CallPeerEvent evt)
     {
@@ -362,60 +373,41 @@ public class CallDialog
                     this.callPanel
                         = new ConferenceCallPanel(this, call);
                     contentPane.add(callPanel, BorderLayout.CENTER);
-
-                    contentPane.repaint();
-
-                    this.isLastConference = true;
                 }
                 // We're still in one-to-one call and we receive the remote peer.
                 else
                 {
-                    CallPeer callPeer = null;
+                    CallPeer onlyCallPeer = null;
                     if (call.getCallPeers().hasNext())
-                        callPeer = call.getCallPeers().next();
+                        onlyCallPeer = call.getCallPeers().next();
 
-                    if (callPeer != null)
-                        this.callPanel = new OneToOneCallPanel(
-                            this, call, callPeer);
+                    if (onlyCallPeer != null)
+                        ((OneToOneCallPanel) callPanel)
+                            .addCallPeerPanel(onlyCallPeer);
                 }
             }
+        }
+        if (contentPane.isVisible())
+        {
+            contentPane.validate();
+            contentPane.repaint();
         }
     }
 
     /**
      * Implements the <tt>CallChangeListener.callPeerRemoved</tt> method.
      * Removes all related user interface when a peer is removed from the call.
+     * @param evt the <tt>CallPeerEvent</tt> that has been triggered
      */
     public void callPeerRemoved(CallPeerEvent evt)
     {
         if (evt.getSourceCall() == call)
         {
-            if (isLastConference)
-            {
-                if (call.getCallPeerCount() > 2)
-                {
-                    ((ConferenceCallPanel) callPanel)
-                        .removeCallPeerPanel(evt.getSourceCallPeer());
-                }
-                else
-                {
-                    contentPane.remove(callPanel);
-                    CallPeer peer = call.getCallPeers().next();
+            Timer timer = new Timer(5000,
+                new RemovePeerPanelListener(evt.getSourceCallPeer()));
 
-                    if (peer != null)
-                        callPanel = new OneToOneCallPanel(this, call, peer);
-
-                    contentPane.add(callPanel, BorderLayout.CENTER);
-
-                    contentPane.repaint();
-
-                    this.isLastConference = false;
-                }
-            }
-            else
-            {
-                contentPane.remove(callPanel);
-            }
+            timer.setRepeats(false);
+            timer.start();
         }
     }
 
@@ -508,5 +500,55 @@ public class CallDialog
             this.setTitle(titleString + GuiUtils.formatTime(callDuration));
         else
             this.setTitle(titleString + "00:00:00");
+    }
+
+    /**
+     * Removes the given CallPeer panel from this CallPanel.
+     */
+    private class RemovePeerPanelListener
+        implements ActionListener
+    {
+        private CallPeer peer;
+
+        public RemovePeerPanelListener(CallPeer peer)
+        {
+            this.peer = peer;
+        }
+
+        public void actionPerformed(ActionEvent e)
+        {
+            if (isLastConference)
+            {
+                if (call.getCallPeerCount() > 2)
+                {
+                    ((ConferenceCallPanel) callPanel)
+                        .removeCallPeerPanel(peer);
+                }
+                else
+                {
+                    contentPane.remove(callPanel);
+                    CallPeer singlePeer = call.getCallPeers().next();
+
+                    if (singlePeer != null)
+                        callPanel = new OneToOneCallPanel(
+                            CallDialog.this, call, singlePeer);
+
+                    contentPane.add(callPanel, BorderLayout.CENTER);
+
+                    isLastConference = false;
+                }
+
+                if (contentPane.isVisible())
+                {
+                    contentPane.validate();
+                    contentPane.repaint();
+                }
+            }
+            else
+            {
+                // Dispose the window
+                dispose();
+            }
+        }
     }
 }

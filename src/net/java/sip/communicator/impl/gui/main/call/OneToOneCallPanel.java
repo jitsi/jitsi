@@ -46,7 +46,7 @@ public class OneToOneCallPanel
         this.setBorder(BorderFactory
             .createEmptyBorder(5, 5, 5, 5));
 
-        this.createCallPeerPanel(callPeer);
+        this.addCallPeerPanel(callPeer);
     }
 
     /**
@@ -54,13 +54,19 @@ public class OneToOneCallPanel
      *
      * @param peer the call peer
      */
-    public void createCallPeerPanel(CallPeer peer)
+    public void addCallPeerPanel(CallPeer peer)
     {
         if (peerPanel == null)
         {
             peerPanel = new OneToOneCallPeerPanel(callDialog, peer);
 
             this.add(peerPanel);
+
+            if (isVisible())
+            {
+                this.revalidate();
+                this.repaint();
+            }
         }
     }
 }
