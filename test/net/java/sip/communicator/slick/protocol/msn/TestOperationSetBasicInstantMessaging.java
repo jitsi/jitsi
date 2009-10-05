@@ -147,8 +147,8 @@ public class TestOperationSetBasicInstantMessaging
         //the following 2 need to be run in the specified order.
         suite.addTest(new TestOperationSetBasicInstantMessaging(
                                 "firstTestReceiveMessage"));
-        suite.addTest(new TestOperationSetBasicInstantMessaging(
-                                "thenTestSendMessage"));
+//        suite.addTest(new TestOperationSetBasicInstantMessaging(
+//                                "thenTestSendMessage"));
 
         return suite;
     }
