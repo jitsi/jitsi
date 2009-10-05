@@ -442,6 +442,12 @@ public class SipMessageFactory
 
         String localDialogTag = dialog.getLocalTag();
 
+        if(localDialogTag == null || localDialogTag.length() == 0)
+        {
+            //no local tag yet. return and we'll generate one later.
+            return;
+        }
+
         ToHeader to = (ToHeader) response.getHeader(ToHeader.NAME);
 
         if( to == null)
