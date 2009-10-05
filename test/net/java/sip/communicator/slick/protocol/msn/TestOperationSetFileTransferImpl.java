@@ -143,8 +143,10 @@ public class TestOperationSetFileTransferImpl
         throws Exception
     {
         // clear the provider the first time we run a filetransfer list
-        if(getContact1() == null && getContact2() == null)
+        if(contact1 == null && contact2 == null)
+        {
             fixture.clearProvidersLists();
+        }
 
         if(getContact1() == null)
         {

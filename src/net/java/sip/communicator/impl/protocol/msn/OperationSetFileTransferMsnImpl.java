@@ -94,7 +94,7 @@ public class OperationSetFileTransferMsnImpl
                     file);
 
         if(ft == null)
-            new IllegalStateException(
+            throw new IllegalStateException(
                 "A problem occured sending file, contact not found or offline");
 
         FileTransferImpl outFileTransfer = new FileTransferImpl(
