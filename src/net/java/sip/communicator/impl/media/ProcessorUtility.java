@@ -6,13 +6,9 @@
  */
 package net.java.sip.communicator.impl.media;
 
-//~--- non-JDK imports --------------------------------------------------------
+import javax.media.*;
 
 import net.java.sip.communicator.util.*;
-
-//~--- JDK imports ------------------------------------------------------------
-
-import javax.media.*;
 
 /**
  * A utility class that provides utility functions when working with processors.
@@ -20,7 +16,8 @@ import javax.media.*;
  * @author Emil Ivov
  * @author Ken Larson
  */
-public class ProcessorUtility implements ControllerListener {
+public class ProcessorUtility implements ControllerListener
+{
     private final Logger logger = Logger.getLogger(ProcessorUtility.class);
 
     /**
@@ -34,14 +31,17 @@ public class ProcessorUtility implements ControllerListener {
     /**
      * Default constructor, creates an instance of the of the Processor utility.
      */
-    public ProcessorUtility() {}
+    public ProcessorUtility()
+    {
+    }
 
     /**
      * Returns the object that we use for syncing when waiting for a processor
      * to enter a specific state.
      * @return Integer
      */
-    private Object getStateLock() {
+    private Object getStateLock()
+    {
         return stateLock;
     }
 
@@ -49,9 +49,11 @@ public class ProcessorUtility implements ControllerListener {
      * Specifies whether the wait operation has failed or completed with
      * success.
      *
-     * @param failed true if waiting has failed and false otherwise.
+     * @param failed <tt>true</tt> if waiting has failed; <tt>false</tt>,
+     * otherwise
      */
-    private void setFailed(boolean failed) {
+    private void setFailed(boolean failed)
+    {
         this.failed = failed;
     }
 
@@ -63,16 +65,16 @@ public class ProcessorUtility implements ControllerListener {
      *
      * @param ce The event generated.
      */
-    public void controllerUpdate(ControllerEvent ce) {
-
+    public void controllerUpdate(ControllerEvent ce)
+    {
         // If there was an error during configure or
         // realize, the processor will be closed
-        if (ce instanceof ControllerClosedEvent) {
-            if (ce instanceof ControllerErrorEvent) {
+        if (ce instanceof ControllerClosedEvent)
+        {
+            if (ce instanceof ControllerErrorEvent)
                 logger.warn("ControllerErrorEvent: " + ce);
-            } else {
+            else
                 logger.debug("ControllerClosedEvent: " + ce);
-            }
 
             setFailed(true);
 
@@ -81,7 +83,9 @@ public class ProcessorUtility implements ControllerListener {
         }
 
         Object stateLock = getStateLock();
-        synchronized (stateLock) {
+
+        synchronized (stateLock)
+        {
             stateLock.notifyAll();
         }
     }
@@ -91,8 +95,9 @@ public class ProcessorUtility implements ControllerListener {
      * indicating success or failure of the operation.
      *
      * @param processor Processor
-     * @param state one of the Processor.XXXed sate vars
-     * @return boolean true if the state has been reached and false otherwise
+     * @param state one of the Processor.XXXed state vars
+     * @return <tt>true</tt> if the state has been reached; <tt>false</tt>,
+     * otherwise
      */
     public synchronized boolean waitForState(Processor processor, int state)
     {
@@ -100,21 +105,26 @@ public class ProcessorUtility implements ControllerListener {
         setFailed(false);
 
         // Call the required method on the processor
-        if (state == Processor.Configured) {
+        if (state == Processor.Configured)
             processor.configure();
-        } else if (state == Processor.Realized) {
+        else if (state == Processor.Realized)
             processor.realize();
-        }
 
         // Wait until we get an event that confirms the
         // success of the method, or a failure event.
         // See StateListener inner class
-        while ((processor.getState() < state) &&!failed) {
+        while ((processor.getState() < state) &&!failed)
+        {
             Object stateLock = getStateLock();
-            synchronized (stateLock) {
-                try {
+
+            synchronized (stateLock)
+            {
+                try
+                {
                     stateLock.wait();
-                } catch (InterruptedException ie) {
+                }
+                catch (InterruptedException ie)
+                {
                     return false;
                 }
             }
@@ -123,6 +133,3 @@ public class ProcessorUtility implements ControllerListener {
         return !failed;
     }
 }
-
-
-//~ Formatted by Jindent --- http://www.jindent.com
