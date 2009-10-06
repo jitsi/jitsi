@@ -112,7 +112,7 @@ public class ContactListModel
     /**
      * Goes through all subgroups and contacts and determines the final size of
      * the contact list.
-     *0
+     *
      * @param group The group which to be measured.
      * @return The size of the contactlist
      */

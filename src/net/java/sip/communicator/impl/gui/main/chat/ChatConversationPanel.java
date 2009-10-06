@@ -43,8 +43,8 @@ public class ChatConversationPanel
                 MouseListener,
                 ClipboardOwner
 {
-    private static final Logger logger =
-        Logger.getLogger(ChatConversationPanel.class);
+    private static final Logger logger
+        = Logger.getLogger(ChatConversationPanel.class);
 
     /**
      * The closing tag of the <code>PLAINTEXT</code> HTML element.
@@ -68,6 +68,18 @@ public class ChatConversationPanel
                     + "|"
                     + "(\\b\\w+://[^\\s<>\"]+/*[?#]*(\\w+[&=;?]\\w+)*\\b)" // protocolURL
                     + ")");
+
+    /**
+     * The compiled <tt>Pattern</tt> which matches {@link #smileyStrings}. 
+     */
+    private static Pattern smileyPattern;
+
+    /**
+     * The <tt>List</tt> of smiley strings which are matched by
+     * {@link #smileyPattern}.
+     */
+    private static final java.util.List<String> smileyStrings
+        = new ArrayList<String>();
 
     private final JTextPane chatTextPane = new MyTextPane();
 
@@ -705,9 +717,7 @@ public class ChatConversationPanel
     {
         String startPlainTextTag;
         String endPlainTextTag;
-        if (contentType == null
-            || contentType.equals(TEXT_CONTENT_TYPE)
-            || "".equals(contentType))
+        if (!HTML_CONTENT_TYPE.equals(contentType))
         {
             startPlainTextTag = START_PLAINTEXT_TAG;
             endPlainTextTag = END_PLAINTEXT_TAG;
@@ -718,44 +728,99 @@ public class ChatConversationPanel
             endPlainTextTag = "";
         }
 
-        Collection<Smiley> smileys = ImageLoader.getDefaultSmileysPack();
-
-        StringBuffer regexp = new StringBuffer();
-
-        regexp.append("(?<!(alt='|alt=\"))(");
-
-        for (Smiley smiley : smileys)
-        {
-            for (String smileyString : smiley.getSmileyStrings())
-            {
-                regexp.append(GuiUtils.replaceSpecialRegExpChars(
-                    smileyString)).append("|");
-            }
-        }
-        regexp = regexp.deleteCharAt(regexp.length() - 1);
-
-        regexp.append(')');
-
-        Pattern p = Pattern.compile(regexp.toString());
-
-        Matcher m = p.matcher(message);
-
+        Collection<Smiley> smileys = ImageLoader.getDefaultSmileyPack();
+        Matcher m = getSmileyPattern(smileys).matcher(message);
         StringBuffer msgBuffer = new StringBuffer();
+        int prevEnd = 0;
 
         while (m.find())
         {
-            String matchGroup = m.group().trim();
+            msgBuffer.append(message.substring(prevEnd, m.start()));
+            prevEnd = m.end();
 
-            String replacement = endPlainTextTag + "<IMG SRC=\""
-                + ImageLoader.getSmiley(matchGroup).getImagePath() + "\" ALT=\""
-                + matchGroup + "\"></IMG>" + startPlainTextTag;
+            String smileyString = m.group().trim();
 
-            m.appendReplacement(msgBuffer, GuiUtils
-                .replaceSpecialRegExpChars(replacement));
+            msgBuffer.append(endPlainTextTag);
+            msgBuffer.append("<IMG SRC=\"");
+            msgBuffer
+                .append(ImageLoader.getSmiley(smileyString).getImagePath());
+            msgBuffer.append("\" ALT=\"");
+            msgBuffer.append(smileyString);
+            msgBuffer.append("\"></IMG>");
+            msgBuffer.append(startPlainTextTag);
         }
-        m.appendTail(msgBuffer);
+        msgBuffer.append(message.substring(prevEnd));
 
         return msgBuffer.toString();
+    }
+
+    /**
+     * Gets a compiled <tt>Pattern</tt> which matches the smiley strings of the
+     * specified <tt>Collection</tt> of <tt>Smiley</tt>s.
+     *
+     * @param smileys the <tt>Collection</tt> of <tt>Smiley</tt>s for which to
+     * get a compiled <tt>Pattern</tt> which matches its smiley strings
+     * @return a compiled <tt>Pattern</tt> which matches the smiley strings of
+     * the specified <tt>Collection</tt> of <tt>Smiley</tt>s
+     */
+    private static Pattern getSmileyPattern(Collection<Smiley> smileys)
+    {
+        synchronized (smileyStrings)
+        {
+            boolean smileyStringsIsEqual;
+
+            if (smileyPattern == null)
+                smileyStringsIsEqual = false;
+            else
+            {
+                smileyStringsIsEqual = true;
+
+                int smileyStringIndex = 0;
+                int smileyStringCount = smileyStrings.size();
+
+                smileyLoop: for (Smiley smiley : smileys)
+                    for (String smileyString : smiley.getSmileyStrings())
+                        if ((smileyStringIndex < smileyStringCount)
+                                && smileyString
+                                    .equals(
+                                        smileyStrings.get(smileyStringIndex)))
+                            smileyStringIndex++;
+                        else
+                        {
+                            smileyStringsIsEqual = false;
+                            break smileyLoop;
+                        }
+                if (smileyStringsIsEqual
+                        && (smileyStringIndex != smileyStringCount))
+                    smileyStringsIsEqual = false;
+            }
+
+            if (!smileyStringsIsEqual)
+            {
+                smileyStrings.clear();
+
+                StringBuffer regex = new StringBuffer();
+
+                regex.append("(?<!(alt='|alt=\"))(");
+                for (Smiley smiley : smileys)
+                    for (String smileyString : smiley.getSmileyStrings())
+                    {
+                        smileyStrings.add(smileyString);
+
+                        regex
+                            .append(
+                                    GuiUtils
+                                        .replaceSpecialRegExpChars(
+                                            smileyString))
+                                .append("|");
+                    }
+                regex = regex.deleteCharAt(regex.length() - 1);
+                regex.append(')');
+
+                smileyPattern = Pattern.compile(regex.toString());
+            }
+            return smileyPattern;
+        }
     }
 
     /**

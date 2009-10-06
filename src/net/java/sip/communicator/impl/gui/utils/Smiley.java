@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.gui.utils;
 
 import java.net.*;
+import java.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.resources.*;
@@ -15,14 +16,15 @@ import net.java.sip.communicator.service.resources.*;
  * The <tt>Smiley</tt> is used to store a smiley.
  * 
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class Smiley
 {
-    private ImageID imageID;
+    private final String description;
 
-    private String[] smileyStrings;
+    private final ImageID imageID;
 
-    private String description;
+    private final List<String> smileyStrings;
 
     /**
      * Creates an instance of <tt>Smiley</tt>, by specifying the smiley
@@ -34,29 +36,19 @@ public class Smiley
     public Smiley(ImageID imageID, String[] smileyStrings, String description)
     {
         this.imageID = imageID;
-
-        this.setSmileyStrings(smileyStrings);
-
-        this.setDescription(description);
+        this.smileyStrings
+                = Collections
+                    .unmodifiableList(Arrays.asList(smileyStrings.clone()));
+        this.description = description;
     }
 
     /**
      * Returns the set of Strings corresponding to this smiley.
      * @return the set of Strings corresponding to this smiley.
      */
-    public String[] getSmileyStrings()
+    public List<String> getSmileyStrings()
     {
         return smileyStrings;
-    }
-
-    /**
-     * Sets the set of Strings corresponding to this smiley. They could be
-     * ":-)", ":)", ":))" for example.
-     * @param smileyStrings the set of Strings corresponding to this smiley.
-     */
-    public void setSmileyStrings(String[] smileyStrings)
-    {
-        this.smileyStrings = smileyStrings;
     }
 
     /**
@@ -70,23 +62,13 @@ public class Smiley
     }
 
     /**
-     * Sets the description of this smiley.
-     * 
-     * @param description the description of the smiley.
-     */
-    public void setDescription(String description)
-    {
-        this.description = description;
-    }
-
-    /**
      * Returns the default String corresponding for this smiley. For example
      * ":-)".
      * @return the default String corresponding for this smiley.
      */
     public String getDefaultString()
     {
-        return this.smileyStrings[0];
+        return smileyStrings.get(0);
     }
 
     /**

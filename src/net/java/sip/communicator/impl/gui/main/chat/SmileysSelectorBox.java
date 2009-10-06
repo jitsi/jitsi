@@ -119,7 +119,7 @@ public class SmileysSelectorBox
         SmileyMenuItem smileyItem = (SmileyMenuItem) e.getSource();
         Smiley smiley = smileyItem.smiley;
 
-        chatWritePanel.appendText(smiley.getSmileyStrings()[0]);
+        chatWritePanel.appendText(smiley.getDefaultString());
 
         chatWritePanel.getEditorPane().requestFocus();
 
@@ -188,7 +188,7 @@ public class SmileysSelectorBox
         smileyItem.setIcon(imageIcon);
 
         smileyDescriptionLabel.setText(smiley.getDescription());
-        smileyTextLabel.setText(smiley.getSmileyStrings()[0]);
+        smileyTextLabel.setText(smiley.getDefaultString());
     }
 
     /**
@@ -260,7 +260,7 @@ public class SmileysSelectorBox
         if (popupMenu.getComponentIndex(smileyTextLabel) != -1)
             return;
 
-        Collection<Smiley> imageList = ImageLoader.getDefaultSmileysPack();
+        Collection<Smiley> imageList = ImageLoader.getDefaultSmileyPack();
 
         Dimension gridDimensions
             = this.calculateGridDimensions(imageList.size());

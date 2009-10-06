@@ -30,7 +30,7 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class ImageLoader
 {
-    private static final Logger log = Logger.getLogger(ImageLoader.class);
+    private static final Logger logger = Logger.getLogger(ImageLoader.class);
 
     /**
      * Stores all already loaded images.
@@ -1139,76 +1139,96 @@ public class ImageLoader
         = new ImageID("service.gui.smileys.SMILEY20");
 
     /**
+     * The default pack of <tt>Smiley</tt>s.
+     */
+    private static Collection<Smiley> defaultSmileyPack;
+
+    /**
      * Load default smileys pack.
      *
      * @return the ArrayList of all smileys.
      */
-    public static Collection<Smiley> getDefaultSmileysPack()
+    public static Collection<Smiley> getDefaultSmileyPack()
     {
-        List<Smiley> defaultPackList = new ArrayList<Smiley>();
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY1,
-            new String[] {":((", ":-((", ":((", ":(", ":-(", "(sad)"}, "Sad"));
+        /*
+         * In order to not use a separate sync root for defaultSmileyPack, use
+         * one of the constants it contains.
+         */
+        synchronized (SMILEY1)
+        {
+            if (defaultSmileyPack != null)
+                return defaultSmileyPack;
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY2,
-            new String[] {"(angel)" }, "Angel"));
+            List<Smiley> defaultSmileyList = new ArrayList<Smiley>();
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY3,
-            new String[] {":-*", ":*", "(kiss)"}, "Kiss"));
+            defaultSmileyList.add(new Smiley(SMILEY1,
+                new String[] {":((", ":-((", ":((", ":(", ":-(", "(sad)"},
+                "Sad"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY4,
-            new String[] {":-0", "(shocked)"}, "Shocked"));
+            defaultSmileyList.add(new Smiley(SMILEY2,
+                new String[] {"(angel)" }, "Angel"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY5,
-            new String[] {  ";-((", ";((", ";-(", ";(", ":'(", ":'-(",
-                            ":~-(", ":~(", "(upset)" }, "Upset"));
+            defaultSmileyList.add(new Smiley(SMILEY3,
+                new String[] {":-*", ":*", "(kiss)"}, "Kiss"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY6,
-            new String[] {"(L)" , "(l)", "(H)", "(h)"}, "In love"));
+            defaultSmileyList.add(new Smiley(SMILEY4,
+                new String[] {":-0", "(shocked)"}, "Shocked"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY7,
-            new String[] {"(blush)"}, "Blushing"));
+            defaultSmileyList.add(new Smiley(SMILEY5,
+                new String[] {  ";-((", ";((", ";-(", ";(", ":'(", ":'-(",
+                                ":~-(", ":~(", "(upset)" }, "Upset"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY8,
-            new String[] {":-P", ":P", ":-p", ":p" }, "Tongue out"));
+            defaultSmileyList.add(new Smiley(SMILEY6,
+                new String[] {"(L)" , "(l)", "(H)", "(h)"}, "In love"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY9,
-            new String[] {":-))", ":))", ";-))", ";))", "(lol)"}, "Laughing"));
+            defaultSmileyList.add(new Smiley(SMILEY7,
+                new String[] {"(blush)"}, "Blushing"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY10,
-            new String[] {"(y)", "(Y)", "(ok)"}, "Ok"));
+            defaultSmileyList.add(new Smiley(SMILEY8,
+                new String[] {":-P", ":P", ":-p", ":p" }, "Tongue out"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY11,
-            new String[] {";-)", ";)", ":-)", ":)"}, "Smile"));
+            defaultSmileyList.add(new Smiley(SMILEY9,
+                new String[] {":-))", ":))", ";-))", ";))", "(lol)"},
+                "Laughing"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY12,
-            new String[] {"(sick)"}, "Sick"));
+            defaultSmileyList.add(new Smiley(SMILEY10,
+                new String[] {"(y)", "(Y)", "(ok)"}, "Ok"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY13,
-            new String[] {"(n)", "(N)" }, "No"));
+            defaultSmileyList.add(new Smiley(SMILEY11,
+                new String[] {";-)", ";)", ":-)", ":)"}, "Smile"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY14,
-            new String[] {"(chuckle)" }, "Chuckle"));
+            defaultSmileyList.add(new Smiley(SMILEY12,
+                new String[] {"(sick)"}, "Sick"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY15,
-            new String[] {"(wave)" }, "Waving"));
+            defaultSmileyList.add(new Smiley(SMILEY13,
+                new String[] {"(n)", "(N)" }, "No"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY16,
-            new String[] {"(clap)"}, "Clapping"));
+            defaultSmileyList.add(new Smiley(SMILEY14,
+                new String[] {"(chuckle)" }, "Chuckle"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY17,
-            new String[] {"(angry)"}, "Angry"));
+            defaultSmileyList.add(new Smiley(SMILEY15,
+                new String[] {"(wave)" }, "Waving"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY18,
-            new String[] {"(bomb)"}, "Explosing"));
+            defaultSmileyList.add(new Smiley(SMILEY16,
+                new String[] {"(clap)"}, "Clapping"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY19,
-            new String[] {"(search)"}, "Searching"));
+            defaultSmileyList.add(new Smiley(SMILEY17,
+                new String[] {"(angry)"}, "Angry"));
 
-        defaultPackList.add(new Smiley(ImageLoader.SMILEY20,
-            new String[] {"(oops)"}, "Oops"));
+            defaultSmileyList.add(new Smiley(SMILEY18,
+                new String[] {"(bomb)"}, "Explosing"));
 
-        return defaultPackList;
+            defaultSmileyList.add(new Smiley(SMILEY19,
+                new String[] {"(search)"}, "Searching"));
+
+            defaultSmileyList.add(new Smiley(SMILEY20,
+                new String[] {"(oops)"}, "Oops"));
+
+            defaultSmileyPack
+                = Collections.unmodifiableCollection(defaultSmileyList);
+            return defaultSmileyPack;
+        }
     }
 
     /**
@@ -1218,20 +1238,10 @@ public class ImageLoader
      */
     public static Smiley getSmiley(String smileyString)
     {
-        Collection<Smiley> smileys = getDefaultSmileysPack();
-
-        for (Smiley smiley : smileys)
-        {
-            String[] smileyStrings = smiley.getSmileyStrings();
-
-            for (int j = 0; j < smileyStrings.length; j++)
-            {
-                String srcString = smileyStrings[j];
-
+        for (Smiley smiley : getDefaultSmileyPack())
+            for (String srcString : smiley.getSmileyStrings())
                 if (srcString.equals(smileyString))
                     return smiley;
-            }
-        }
         return null;
     }
 
@@ -1266,7 +1276,7 @@ public class ImageLoader
             }
             catch (Exception exc)
             {
-                log.error("Failed to load image:" + path, exc);
+                logger.error("Failed to load image:" + path, exc);
             }
         }
 
@@ -1289,7 +1299,7 @@ public class ImageLoader
         }
         catch (Exception e)
         {
-            log.error("Failed to convert bytes to image.", e);
+            logger.error("Failed to convert bytes to image.", e);
         }
         return image;
     }
@@ -1313,7 +1323,7 @@ public class ImageLoader
         }
         catch (URISyntaxException e)
         {
-            log.debug("Unable to parse image URL to URI.", e);
+            logger.debug("Unable to parse image URL to URI.", e);
         }
 
         return null;
