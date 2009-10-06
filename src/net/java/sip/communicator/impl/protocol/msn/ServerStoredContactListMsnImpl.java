@@ -547,7 +547,9 @@ public class ServerStoredContactListMsnImpl
         for (int i = 0; i < contacts.length; i++)
         {
             logger.trace("removing contact from group " + contacts[i]);
-            msnProvider.getMessenger().removeFriend(contacts[i].getEmail(), false);
+
+            msnProvider.getMessenger().removeFriend(contacts[i].getEmail(),
+                groupToRemove.getSourceGroup().getGroupId());
         }
 
         // wait max seconds or the last removed contact
