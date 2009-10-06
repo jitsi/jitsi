@@ -6,7 +6,9 @@
  */
 package net.java.sip.communicator.impl.netaddr;
 
+import java.io.*;
 import java.net.*;
+import java.util.*;
 
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.configuration.event.*;
@@ -14,9 +16,6 @@ import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.util.*;
 import net.java.stun4j.*;
 import net.java.stun4j.client.*;
-import java.util.*;
-import java.io.*;
-
 
 /**
  * This implementation of the Network Address Manager allows you to
@@ -124,17 +123,16 @@ public class NetworkAddressManagerServiceImpl
      public void start()
      {
          // init stun
-         String stunAddressStr = null;
-         int port = -1;
-         stunAddressStr = NetaddrActivator.getConfigurationService().getString(
-             PROP_STUN_SERVER_ADDRESS);
-         String portStr = NetaddrActivator.getConfigurationService().getString(
-             PROP_STUN_SERVER_PORT);
+         ConfigurationService configurationService
+             = NetaddrActivator.getConfigurationService();
+         String stunAddressStr
+             = configurationService.getString(PROP_STUN_SERVER_ADDRESS);
+         String portStr
+             = configurationService.getString(PROP_STUN_SERVER_PORT);
 
          this.localHostFinderSocket = initRandomPortSocket();
 
-         if (stunAddressStr == null
-             || portStr == null)
+         if ((stunAddressStr == null) || (portStr == null))
          {
             useStun = false;
 
@@ -146,17 +144,19 @@ public class NetworkAddressManagerServiceImpl
          }
          else
          {
-            try
-            {
-                port = Integer.valueOf(portStr).intValue();
-            }
-            catch (NumberFormatException ex)
-            {
-                logger.info(portStr + " is not a valid port number. "
+             int port = -1;
+
+             try
+             {
+                port = Integer.parseInt(portStr);
+             }
+             catch (NumberFormatException ex)
+             {
+                 logger.info(portStr + " is not a valid port number. "
                              +"Defaulting to 3478",
                              ex);
-                port = DEFAULT_STUN_SERVER_PORT;
-            }
+                 port = DEFAULT_STUN_SERVER_PORT;
+             }
 
              stunServerAddress = new StunAddress(stunAddressStr, port);
              detector = new SimpleAddressDetector(stunServerAddress);
@@ -172,10 +172,10 @@ public class NetworkAddressManagerServiceImpl
              logger.debug("STUN server detector started;");
 
              //make sure that someone doesn't set invalid stun address and port
-             NetaddrActivator.getConfigurationService().addVetoableChangeListener(
-                 PROP_STUN_SERVER_ADDRESS, this);
-             NetaddrActivator.getConfigurationService().addVetoableChangeListener(
-                 PROP_STUN_SERVER_PORT, this);
+             configurationService
+                 .addVetoableChangeListener(PROP_STUN_SERVER_ADDRESS, this);
+             configurationService
+                 .addVetoableChangeListener(PROP_STUN_SERVER_PORT, this);
 
              //now start a thread query to the stun server and only set the
              //useStun flag to true if it succeeds.
@@ -192,21 +192,30 @@ public class NetworkAddressManagerServiceImpl
      {
          try
          {
-            try{
-                detector.shutDown();
-            }catch (Exception ex){
-                logger.debug("Failed to properly shutdown a stun detector: "
-                    +ex.getMessage());
+             if (detector != null)
+             {
+                 try
+                 {
+                     detector.shutDown();
+                 }
+                 catch (Exception ex)
+                 {
+                     logger
+                         .debug(
+                             "Failed to properly shutdown a stun detector: "
+                                 + ex.getMessage());
 
-            }
-             detector = null;
+                 }
+                 detector = null;
+             }
              useStun = false;
 
              //remove the listeners
-             NetaddrActivator.getConfigurationService()
+             ConfigurationService configurationService
+                 = NetaddrActivator.getConfigurationService();
+             configurationService
                  .removeVetoableChangeListener( PROP_STUN_SERVER_ADDRESS, this);
-
-             NetaddrActivator.getConfigurationService()
+             configurationService
                  .removeVetoableChangeListener( PROP_STUN_SERVER_PORT, this);
 
          }
@@ -214,7 +223,6 @@ public class NetworkAddressManagerServiceImpl
          {
              logger.logExit();
          }
-
      }
 
     /**
