@@ -6,11 +6,14 @@
  */
 package net.java.sip.communicator.impl.media;
 
-import java.awt.Component;
+import gnu.java.zrtp.*;
+
+import java.awt.*;
 import java.io.*;
 import java.net.*;
 import java.text.*;
 import java.util.*;
+import java.util.List;
 
 import javax.media.*;
 import javax.media.control.*;
@@ -31,8 +34,6 @@ import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-
-import gnu.java.zrtp.*;
 
 /**
  * Contains parameters associated with a particular Call such as media (audio
@@ -565,11 +566,30 @@ public class CallSessionImpl
             {
                 stream.getDataSource().stop();
                 stream.stop();
-                stream.close();
+
+                try
+                {
+                    stream.close();
+                }
+                catch (NullPointerException npe)
+                {
+                    /*
+                     * Sometimes com.sun.media.rtp.RTCPTransmitter#bye() may
+                     * throw NullPointerException but it does not seem to be
+                     * guaranteed because it does not happen while debugging and
+                     * stopping at a breakpoint on SendStream#close(). One of
+                     * the cases in which it appears upon call hang-up is if we
+                     * do not close the "old" SendStreams upon reinvite(s).
+                     * Though we are now closing such SendStreams, ignore the
+                     * exception here just in case because we already ignore
+                     * IOExceptions.
+                     */
+                    logger.error("Failed to close stream " + stream, npe);
+                }
             }
-            catch (IOException ex)
+            catch (IOException ioe)
             {
-                logger.warn("Failed to stop stream.", ex);
+                logger.warn("Failed to stop stream.", ioe);
             }
             stoppedAtLeastOneStream = true;
         }
@@ -1265,6 +1285,13 @@ public class CallSessionImpl
                                     , MediaException.INTERNAL_ERROR
                                     , exc);
         }
+
+        /*
+         * Close the existing streams because we're about to create new ones.
+         * Otherwise, a NullPointerException may be thrown in SendStream#close()
+         * upon call hang-up for some of the streams. 
+         */
+        stopSendStreaming();
         //create and init the streams (don't start streaming just yet but wait
         //for the call to enter the connected state).
         createSendStreams(mediaDescriptions);
