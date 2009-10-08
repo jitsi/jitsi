@@ -16,7 +16,6 @@ import javax.swing.text.html.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -27,27 +26,16 @@ import net.java.sip.communicator.util.swing.*;
  * normal buttons.
  * 
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class EditTextToolBar
     extends TransparentPanel
 {
-    private Logger logger = Logger.getLogger(EditTextToolBar.class);
+    private final ChatWritePanel chatWritePanel;
 
-    private ChatWritePanel chatWritePanel;
+    private final JEditorPane chatEditorPane;
 
-    private JEditorPane chatEditorPane;
-
-    private Action boldAction = new HTMLEditorKit.BoldAction();
-
-    private Action italicAction = new HTMLEditorKit.ItalicAction();
-
-    private Action underlineAction = new HTMLEditorKit.UnderlineAction();
-
-    private SIPCommButton fontButton = new SIPCommButton(
-        ImageLoader.getImage(ImageLoader.EDIT_TOOLBAR_BUTTON),
-        ImageLoader.getImage(ImageLoader.FONT_ICON));
-
-    private SmileysSelectorBox smileysBox;
+    private final SmileysSelectorBox smileysBox;
 
     private JToggleButton boldButton;
 
@@ -70,6 +58,17 @@ public class EditTextToolBar
 
         this.initStyleToolbarButtons();
 
+        SIPCommButton fontButton
+            = new SIPCommButton(
+                ImageLoader.getImage(ImageLoader.EDIT_TOOLBAR_BUTTON),
+                ImageLoader.getImage(ImageLoader.FONT_ICON));
+        fontButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent event)
+            {
+                showFontChooserDialog();
+            }
+        });
         this.add(fontButton);
 
         this.initColorLabel();
@@ -81,17 +80,6 @@ public class EditTextToolBar
             .getI18NString("service.gui.INSERT_SMILEY") + " Ctrl-M");
 
         this.add(smileysBox);
-
-        logger.trace("[GUI] Editor Pane font name: "
-            + chatEditorPane.getFont().getName());
-
-        fontButton.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent event)
-            {
-                showFontChooserDialog();
-            }
-        });
     }
 
     /**
@@ -164,33 +152,88 @@ public class EditTextToolBar
      */
     private void initStyleToolbarButtons()
     {
-        this.boldButton = initStyleToggleButton(
-                ImageLoader.getImage(ImageLoader.TEXT_BOLD_BUTTON),
-                boldAction,
-                StyleConstants.Bold);
+        this.boldButton
+                = initStyleToggleButton(
+                    ImageLoader.getImage(ImageLoader.TEXT_BOLD_BUTTON),
+                    new HTMLEditorKit.BoldAction(),
+                    StyleConstants.Bold);
+        this.italicButton
+                = initStyleToggleButton(
+                    ImageLoader.getImage(ImageLoader.TEXT_ITALIC_BUTTON),
+                    new HTMLEditorKit.ItalicAction(),
+                    StyleConstants.Italic);
+        this.underlineButton
+                = initStyleToggleButton(
+                    ImageLoader.getImage(ImageLoader.TEXT_UNDERLINED_BUTTON),
+                    new HTMLEditorKit.UnderlineAction(),
+                    StyleConstants.Underline);
 
-        this.add(boldButton);
+        /*
+         * The update of the style toggle buttons used to be very slow because
+         * each of it had to retrieve the same data on its own (most notably,
+         * JEditorPane#getText()) and make almost the same checks. That is why
+         * the update logic is performed for all of them, not individually i.e.
+         * the data is retrieved once, the checks are made and all style toggle
+         * buttons are updated.
+         */
+        final Object[] styleConstants
+                = new Object[]
+                        {
+                            StyleConstants.Bold,
+                            StyleConstants.Italic,
+                            StyleConstants.Underline
+                        };
+        final JToggleButton[] buttons
+                = new JToggleButton[]
+                        {
+                            boldButton,
+                            italicButton,
+                            underlineButton
+                        };
 
-        this.italicButton = initStyleToggleButton(
-            ImageLoader.getImage(ImageLoader.TEXT_ITALIC_BUTTON),
-            italicAction,
-            StyleConstants.Italic);
+        chatEditorPane.addCaretListener(new CaretListener()
+        {
+            public void caretUpdate(CaretEvent e)
+            {
+                selectStyleToggleButtons(styleConstants, buttons);
+            }
+        });
+        chatEditorPane.addKeyListener(new KeyAdapter()
+        {
+            public void keyTyped(KeyEvent e)
+            {
+                if (chatEditorPane.getText().length() > 0)
+                {
+                    AttributeSet attributes
+                        = ((HTMLEditorKit) chatEditorPane.getEditorKit())
+                            .getInputAttributes();
 
-        this.add(italicButton);
-
-        this.underlineButton = initStyleToggleButton(
-            ImageLoader.getImage(ImageLoader.TEXT_UNDERLINED_BUTTON),
-            underlineAction,
-            StyleConstants.Underline);
-
-        this.add(underlineButton);
+                    for (int i = 0; i < buttons.length; i++)
+                        buttons[i]
+                            .setSelected(
+                                attributes
+                                    .containsAttribute(
+                                        styleConstants[i],
+                                        true));
+                }
+            }
+        });
+        chatEditorPane.addMouseListener(new MouseAdapter()
+        {
+            public void mouseClicked(MouseEvent e)
+            {
+                selectStyleToggleButtons(styleConstants, buttons);
+            }
+        });
 
         this.addBindings();
     }
 
     /**
      * Initializes a toggle button.
-     * 
+     *
+     * @param buttonImage the <tt>Image</tt> to be used as the icon of the new
+     * button
      * @param action the action to associate with the button
      * @param styleConstant the style constant
      * @return the toggle button with the associated action and style constant
@@ -222,76 +265,68 @@ public class EditTextToolBar
             }
         });
 
-        chatEditorPane.addCaretListener(new CaretListener()
-        {
-            public void caretUpdate(CaretEvent e)
-            {
-                selectButton(styleConstant, button);
-            }
-        });
-
-        chatEditorPane.addKeyListener(new KeyAdapter()
-        {
-            public void keyTyped(KeyEvent e)
-            {
-                if (chatEditorPane.getText().length() > 0)
-                {
-                    button.setSelected(((HTMLEditorKit) chatEditorPane
-                        .getEditorKit()).getInputAttributes().containsAttribute(
-                            styleConstant, true));
-                }
-            }
-        });
-
-        chatEditorPane.addMouseListener(new MouseAdapter()
-        {
-            public void mouseClicked(MouseEvent e)
-            {
-                selectButton(styleConstant, button);
-            }
-        });
-
+        add(button);
         return button;
     }
 
     /**
-     * Selects or deselects the given toggle button depending on the given
-     * <tt>styleConstant</tt>.
+     * Selects or deselects the given toggle buttons depending on the given
+     * <tt>styleConstants</tt>.
      * 
-     * @param styleConstant the style constant
-     * @param button the button to select
+     * @param styleConstants the style constants
+     * @param buttons the buttons to select
      */
-    private void selectButton(  final Object styleConstant,
-                                final JToggleButton button)
-
+    private void selectStyleToggleButtons(
+            Object[] styleConstants,
+            JToggleButton[] buttons)
     {
-        boolean selected = false;
+        if (chatEditorPane.getText().length() < 1)
+            return;
 
         if (chatEditorPane.getSelectedText() == null)
         {
-            int index = chatEditorPane.getCaretPosition();
-            selected =
-                ((HTMLDocument) chatEditorPane.getDocument())
-                    .getCharacterElement(index - 1).getAttributes()
-                    .containsAttribute(styleConstant, true);
+            AttributeSet attributes
+                = ((HTMLDocument) chatEditorPane.getDocument())
+                    .getCharacterElement(chatEditorPane.getCaretPosition() - 1)
+                        .getAttributes();
+
+            for (int i = 0; i < buttons.length; i++)
+                buttons[i]
+                    .setSelected(
+                        attributes.containsAttribute(styleConstants[i], true));
         }
         else
         {
-            for (int index = chatEditorPane.getSelectionStart();
-                index < chatEditorPane.getSelectionEnd(); index++)
-            {
-                AttributeSet attributes =
-                    ((HTMLDocument) chatEditorPane.getDocument())
-                        .getCharacterElement(index).getAttributes();
+            int selectionStart = chatEditorPane.getSelectionStart();
+            int selectionEnd = chatEditorPane.getSelectionEnd();
+            HTMLDocument htmlDocument
+                = (HTMLDocument) chatEditorPane.getDocument();
 
-                selected =
+            for (int buttonIndex = 0;
+                    buttonIndex < buttons.length;
+                    buttonIndex++)
+            {
+                boolean selected = false;
+                Object styleConstant = styleConstants[buttonIndex];
+
+                for (int selectionIndex = selectionStart;
+                        selectionIndex < selectionEnd;
+                        selectionIndex++)
+                {
+                    AttributeSet attributes
+                        = htmlDocument
+                            .getCharacterElement(selectionIndex)
+                                .getAttributes();
+
                     selected
-                        || attributes.containsAttribute(styleConstant, true);
+                        = attributes.containsAttribute(styleConstant, true);
+                    if (selected)
+                        break;
+                }
+
+                buttons[buttonIndex].setSelected(selected);
             }
         }
-
-        if (chatEditorPane.getText().length() > 0)
-            button.setSelected(selected);
     }
 
     /**
@@ -365,7 +400,6 @@ public class EditTextToolBar
                 AntialiasingManager.activateAntialiasing(g);
 
                 g.setColor(this.getBackground());
-
                 g.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
             }
             finally
@@ -466,10 +500,12 @@ public class EditTextToolBar
     {
         colorLabel.setBackground(color);
         
-        ActionEvent evt = new ActionEvent(chatEditorPane, ActionEvent.ACTION_PERFORMED, "");
-
-        Action action =
-            new HTMLEditorKit.ForegroundAction(Integer.toString(color.getRGB()), color);
+        ActionEvent evt
+            = new ActionEvent(chatEditorPane, ActionEvent.ACTION_PERFORMED, "");
+        Action action
+            = new HTMLEditorKit.ForegroundAction(
+                    Integer.toString(color.getRGB()),
+                    color);
 
         action.actionPerformed(evt);
     }
