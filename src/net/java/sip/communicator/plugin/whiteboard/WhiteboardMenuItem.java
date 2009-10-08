@@ -72,8 +72,8 @@ public class WhiteboardMenuItem
             Contact contact = iter.next();
             ProtocolProviderService pps = contact.getProtocolProvider();
 
-            OperationSetWhiteboarding opSetWb = (OperationSetWhiteboarding)
-                pps.getOperationSet(OperationSetWhiteboarding.class);
+            OperationSetWhiteboarding opSetWb
+                = pps.getOperationSet(OperationSetWhiteboarding.class);
 
             String contactDisplayName = contact.getDisplayName();
 
@@ -140,8 +140,8 @@ public class WhiteboardMenuItem
             Contact contact = iter.next();
             ProtocolProviderService pps = contact.getProtocolProvider();
 
-            OperationSetWhiteboarding opSetWb = (OperationSetWhiteboarding)
-                pps.getOperationSet(OperationSetWhiteboarding.class);
+            OperationSetWhiteboarding opSetWb
+                = pps.getOperationSet(OperationSetWhiteboarding.class);
 
             if (opSetWb != null)
             {

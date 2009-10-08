@@ -12,7 +12,6 @@ import java.util.*;
 
 import javax.sip.*;
 import javax.sip.address.*;
-import javax.sip.address.URI;
 import javax.sip.header.*;
 import javax.sip.message.*;
 

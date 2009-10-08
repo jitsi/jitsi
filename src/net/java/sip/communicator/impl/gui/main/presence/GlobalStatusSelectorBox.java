@@ -216,7 +216,7 @@ public class GlobalStatusSelectorBox
                 else
                 {
                     OperationSetPresence presence
-                        = (OperationSetPresence) protocolProvider
+                        = protocolProvider
                             .getOperationSet(OperationSetPresence.class);
 
                     if (presence == null)
@@ -258,7 +258,7 @@ public class GlobalStatusSelectorBox
                                 .equals(RegistrationState.UNREGISTERING))
                 {
                     OperationSetPresence presence
-                        = (OperationSetPresence) protocolProvider
+                        = protocolProvider
                             .getOperationSet(OperationSetPresence.class);
 
                     if (presence == null)
@@ -311,7 +311,7 @@ public class GlobalStatusSelectorBox
                     continue;
 
                 OperationSetPresence presence
-                    = (OperationSetPresence) protocolProvider
+                    = protocolProvider
                         .getOperationSet(OperationSetPresence.class);
 
                 if (presence == null)
@@ -350,7 +350,7 @@ public class GlobalStatusSelectorBox
                     continue;
 
                 OperationSetPresence presence
-                    = (OperationSetPresence) protocolProvider
+                    = protocolProvider
                         .getOperationSet(OperationSetPresence.class);
 
                 if (presence == null)
@@ -477,9 +477,7 @@ public class GlobalStatusSelectorBox
                 continue;
 
             OperationSetPresence presence
-                = (OperationSetPresence)
-                    protocolProvider
-                        .getOperationSet(OperationSetPresence.class);
+                = protocolProvider.getOperationSet(OperationSetPresence.class);
             int presenceStatus
                 = (presence == null)
                     ? PresenceStatus.AVAILABLE_THRESHOLD
@@ -660,9 +658,7 @@ public class GlobalStatusSelectorBox
         if (lastStatus != null)
         {
             OperationSetPresence presence
-                = (OperationSetPresence)
-                    protocolProvider
-                        .getOperationSet(OperationSetPresence.class);
+                = protocolProvider.getOperationSet(OperationSetPresence.class);
 
             if (presence == null)
                 return null;

@@ -105,7 +105,7 @@ public class ProtocolProviderServiceZeroconfImpl
     {
         synchronized(initializationLock)
         {
-            this.accountID = (ZeroconfAccountID) accountID;
+            this.accountID = accountID;
 
            
            //initialize the presence operationset

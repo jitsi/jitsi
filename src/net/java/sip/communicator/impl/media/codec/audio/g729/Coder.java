@@ -189,7 +189,7 @@ public static void main(String[] args)
         int new_speech_offset = codLd8k.new_speech_offset;
 
         for (int i = 0; i < L_FRAME; i++)
-            new_speech[new_speech_offset + i] = (float) sp16[i];
+            new_speech[new_speech_offset + i] = sp16[i];
 
         preProc.pre_process(new_speech, new_speech_offset, L_FRAME);
 

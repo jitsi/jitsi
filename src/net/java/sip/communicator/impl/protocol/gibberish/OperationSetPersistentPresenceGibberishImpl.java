@@ -457,7 +457,8 @@ public class OperationSetPersistentPresenceGibberishImpl
         ((ContactGroupGibberishImpl)group).setGroupName(newName);
 
         this.fireServerStoredGroupEvent(
-            (ContactGroupGibberishImpl)group, ServerStoredGroupEvent.GROUP_RENAMED_EVENT);
+                group,
+                ServerStoredGroupEvent.GROUP_RENAMED_EVENT);
     }
 
     /**
@@ -530,12 +531,12 @@ public class OperationSetPersistentPresenceGibberishImpl
         if(gibProvider != null)
         {
             OperationSetPersistentPresence opSetPresence
-                = (OperationSetPersistentPresence)gibProvider.getOperationSet(
-                    OperationSetPersistentPresence.class);
+                = gibProvider
+                    .getOperationSet(OperationSetPersistentPresence.class);
 
             changePresenceStatusForContact(
-                contact
-                , (GibberishStatusEnum)opSetPresence.getPresenceStatus());
+                contact,
+                opSetPresence.getPresenceStatus());
         }
         else
         {
@@ -671,9 +672,10 @@ public class OperationSetPersistentPresenceGibberishImpl
 
         parentGroup.removeContact((ContactGibberishImpl)contact);
 
-        fireSubscriptionEvent((ContactGibberishImpl)contact,
-             ((ContactGibberishImpl)contact).getParentContactGroup()
-           , SubscriptionEvent.SUBSCRIPTION_REMOVED);
+        fireSubscriptionEvent(
+            contact,
+            contact.getParentContactGroup(),
+            SubscriptionEvent.SUBSCRIPTION_REMOVED);
     }
 
     /**

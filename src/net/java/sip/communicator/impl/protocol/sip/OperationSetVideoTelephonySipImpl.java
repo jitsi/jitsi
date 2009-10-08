@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.protocol.sip;
 
 import java.awt.*;
-import java.util.*;
 
 import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.protocol.*;

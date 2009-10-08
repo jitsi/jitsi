@@ -941,7 +941,7 @@ public class IcqTesterAgent
                 System.out.println("        buddy is="
                              +((Buddy)buddies.get(i))
                                 .getScreenname().getFormatted());
-                Buddy b = ((Buddy)buddies.get(i));
+                Buddy b = buddies.get(i);
                 conn.getBuddyInfoTracker().addTracker(b.getScreenname(),
                     new BuddyInfoTrackerListener(){});
             }

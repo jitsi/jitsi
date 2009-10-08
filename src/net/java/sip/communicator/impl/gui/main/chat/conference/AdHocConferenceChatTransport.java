@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.chat.conference;
 
 import java.io.*;
@@ -22,9 +21,9 @@ import net.java.sip.communicator.service.protocol.event.*;
 public class AdHocConferenceChatTransport
     implements  ChatTransport
 {
-    private ChatSession chatSession;
+    private final ChatSession chatSession;
 
-    private AdHocChatRoom adHocChatRoom;
+    private final AdHocChatRoom adHocChatRoom;
 
     /**
      * Creates an instance of <tt>ConferenceChatTransport</tt> by specifying the
@@ -216,8 +215,9 @@ public class AdHocConferenceChatTransport
             return;
 
         OperationSetSmsMessaging smsOpSet
-            = (OperationSetSmsMessaging) adHocChatRoom.getParentProvider()
-                .getOperationSet(OperationSetSmsMessaging.class);
+            = adHocChatRoom
+                .getParentProvider()
+                    .getOperationSet(OperationSetSmsMessaging.class);
 
         smsOpSet.addMessageListener(l);
     }
@@ -235,8 +235,8 @@ public class AdHocConferenceChatTransport
             return;
 
         OperationSetBasicInstantMessaging imOpSet
-            = (OperationSetBasicInstantMessaging) 
-                adHocChatRoom.getParentProvider()
+            = adHocChatRoom
+                .getParentProvider()
                     .getOperationSet(OperationSetBasicInstantMessaging.class);
 
         imOpSet.addMessageListener(l);
@@ -255,8 +255,9 @@ public class AdHocConferenceChatTransport
             return;
 
         OperationSetSmsMessaging smsOpSet
-            = (OperationSetSmsMessaging) adHocChatRoom.getParentProvider()
-                .getOperationSet(OperationSetSmsMessaging.class);
+            = adHocChatRoom
+                .getParentProvider()
+                    .getOperationSet(OperationSetSmsMessaging.class);
 
         smsOpSet.removeMessageListener(l);
     }
@@ -274,8 +275,8 @@ public class AdHocConferenceChatTransport
             return;
 
         OperationSetBasicInstantMessaging imOpSet
-            = (OperationSetBasicInstantMessaging) 
-                adHocChatRoom.getParentProvider()
+            = adHocChatRoom
+                .getParentProvider()
                     .getOperationSet(OperationSetBasicInstantMessaging.class);
 
         imOpSet.removeMessageListener(l);

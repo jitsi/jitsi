@@ -412,8 +412,10 @@ public class CallManager
         public void run()
         {
             OperationSetTelephonyConferencing confOpSet
-            = (OperationSetTelephonyConferencing) call.getProtocolProvider()
-                .getOperationSet(OperationSetTelephonyConferencing.class);
+                = call
+                    .getProtocolProvider()
+                        .getOperationSet(
+                            OperationSetTelephonyConferencing.class);
 
             /*
              * XXX If we are here and we just discover that
@@ -465,9 +467,8 @@ public class CallManager
             while (peers.hasNext())
             {
                 CallPeer peer = peers.next();
-                OperationSetBasicTelephony telephony =
-                    (OperationSetBasicTelephony) pps
-                        .getOperationSet(OperationSetBasicTelephony.class);
+                OperationSetBasicTelephony telephony
+                    = pps.getOperationSet(OperationSetBasicTelephony.class);
 
                 try
                 {

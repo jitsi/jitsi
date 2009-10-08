@@ -7,11 +7,10 @@
 package net.java.sip.communicator.impl.protocol.mock;
 
 import java.io.*;
-
 import java.util.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * A mock implementation of a basic telephony opearation set
@@ -21,8 +20,6 @@ import net.java.sip.communicator.util.*;
 public class MockOperationSetFileTransfer
     implements OperationSetFileTransfer
 {
-    private static final Logger logger =
-        Logger.getLogger(MockOperationSetFileTransfer.class);
 
     /**
      * A list of listeners registered for file transfer events.

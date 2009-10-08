@@ -248,7 +248,7 @@ public class ContactInfoDetailsPanel
         String firstNameDetail = "";
         while (contactDetails.hasNext())
         {
-            genericDetail = (FirstNameDetail) contactDetails.next();
+            genericDetail = contactDetails.next();
 
             firstNameDetail =
                 firstNameDetail + " " + genericDetail.getDetailValue();
@@ -267,7 +267,7 @@ public class ContactInfoDetailsPanel
         String middleNameDetail = "";
         while (contactDetails.hasNext())
         {
-            genericDetail = (MiddleNameDetail) contactDetails.next();
+            genericDetail = contactDetails.next();
             middleNameDetail =
                 middleNameDetail + " " + genericDetail.getDetailValue();
         }
@@ -285,7 +285,7 @@ public class ContactInfoDetailsPanel
         String lastNameDetail = "";
         while (contactDetails.hasNext())
         {
-            genericDetail = (LastNameDetail) contactDetails.next();
+            genericDetail = contactDetails.next();
 
             lastNameDetail =
                 lastNameDetail + " " + genericDetail.getDetailValue();
@@ -304,7 +304,7 @@ public class ContactInfoDetailsPanel
         String genderDetail = "";
         while (contactDetails.hasNext())
         {
-            genericDetail = (GenderDetail) contactDetails.next();
+            genericDetail = contactDetails.next();
             genderDetail = genderDetail + " " + genericDetail.getDetailValue();
         }
 
@@ -322,7 +322,7 @@ public class ContactInfoDetailsPanel
         String ageDetail = "";
         if (contactDetails.hasNext())
         {
-            genericDetail = (BirthDateDetail) contactDetails.next();
+            genericDetail = contactDetails.next();
 
             Calendar calendarDetail =
                 (Calendar) genericDetail.getDetailValue();
@@ -358,7 +358,7 @@ public class ContactInfoDetailsPanel
         String emailDetail = "";
         while (contactDetails.hasNext())
         {
-            genericDetail = (EmailAddressDetail) contactDetails.next();
+            genericDetail = contactDetails.next();
             emailDetail = emailDetail + " " + genericDetail.getDetailValue();
         }
 
@@ -375,7 +375,7 @@ public class ContactInfoDetailsPanel
         String phoneNumberDetail = "";
         while (contactDetails.hasNext())
         {
-            genericDetail = (PhoneNumberDetail) contactDetails.next();
+            genericDetail = contactDetails.next();
             phoneNumberDetail =
                 phoneNumberDetail + " " + genericDetail.getDetailValue();
         }

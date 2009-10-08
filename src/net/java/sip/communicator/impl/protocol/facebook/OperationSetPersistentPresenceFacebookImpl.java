@@ -601,8 +601,9 @@ public class OperationSetPersistentPresenceFacebookImpl
     {
         ((ContactGroupFacebookImpl) group).setGroupName(newName);
 
-        this.fireServerStoredGroupEvent((ContactGroupFacebookImpl) group,
-            ServerStoredGroupEvent.GROUP_RENAMED_EVENT);
+        this.fireServerStoredGroupEvent(
+                group,
+                ServerStoredGroupEvent.GROUP_RENAMED_EVENT);
     }
 
     /**
@@ -657,8 +658,9 @@ public class OperationSetPersistentPresenceFacebookImpl
                 = fbProvider
                     .getOperationSet(OperationSetPersistentPresence.class);
 
-            changePresenceStatusForContact(contact,
-                (FacebookStatusEnum) opSetPresence.getPresenceStatus());
+            changePresenceStatusForContact(
+                contact,
+                opSetPresence.getPresenceStatus());
         }
         else
         {
@@ -787,13 +789,13 @@ public class OperationSetPersistentPresenceFacebookImpl
         IllegalStateException,
         OperationFailedException
     {
-        ContactGroupFacebookImpl parentGroup =
-            (ContactGroupFacebookImpl) ((ContactFacebookImpl) contact)
-                .getParentContactGroup();
+        ContactGroupFacebookImpl parentGroup
+            = (ContactGroupFacebookImpl) contact.getParentContactGroup();
 
         parentGroup.removeContact((ContactFacebookImpl) contact);
 
-        fireSubscriptionEvent((ContactFacebookImpl) contact,
+        fireSubscriptionEvent(
+            contact,
             parentGroup,
             SubscriptionEvent.SUBSCRIPTION_REMOVED);
     }

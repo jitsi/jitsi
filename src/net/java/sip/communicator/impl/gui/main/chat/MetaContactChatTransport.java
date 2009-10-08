@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.io.*;
@@ -45,9 +44,10 @@ public class MetaContactChatTransport
         this.parentChatSession = chatSession;
         this.contact = contact;
 
-        presenceOpSet =
-            (OperationSetPresence) contact.getProtocolProvider()
-                .getOperationSet(OperationSetPresence.class);
+        presenceOpSet
+            = contact
+                .getProtocolProvider()
+                    .getOperationSet(OperationSetPresence.class);
 
         if (presenceOpSet != null)
             presenceOpSet.addContactPresenceStatusListener(this);
@@ -190,8 +190,9 @@ public class MetaContactChatTransport
             return;
 
         OperationSetBasicInstantMessaging imOpSet
-            = (OperationSetBasicInstantMessaging) contact.getProtocolProvider()
-                .getOperationSet(OperationSetBasicInstantMessaging.class);
+            = contact
+                .getProtocolProvider()
+                    .getOperationSet(OperationSetBasicInstantMessaging.class);
 
         Message msg;
         if (mimeType.equals(OperationSetBasicInstantMessaging.HTML_MIME_TYPE)
@@ -224,8 +225,9 @@ public class MetaContactChatTransport
             return;
 
         OperationSetSmsMessaging smsOpSet
-            = (OperationSetSmsMessaging) contact.getProtocolProvider()
-                .getOperationSet(OperationSetSmsMessaging.class);
+            = contact
+                .getProtocolProvider()
+                    .getOperationSet(OperationSetSmsMessaging.class);
 
         Message smsMessage = smsOpSet.createMessage(messageText);
 
@@ -247,11 +249,13 @@ public class MetaContactChatTransport
         if (!allowsTypingNotifications())
             return -1;
 
+        ProtocolProviderService protocolProvider
+            = contact.getProtocolProvider();
         OperationSetTypingNotifications tnOperationSet
-            = (OperationSetTypingNotifications) contact.getProtocolProvider()
+            = protocolProvider
                 .getOperationSet(OperationSetTypingNotifications.class);
 
-        if(contact.getProtocolProvider().isRegistered())
+        if(protocolProvider.isRegistered())
         {
             try
             {
@@ -286,16 +290,18 @@ public class MetaContactChatTransport
             return null;
 
         OperationSetFileTransfer ftOpSet
-            = (OperationSetFileTransfer) contact.getProtocolProvider()
-                .getOperationSet(OperationSetFileTransfer.class);
+            = contact
+                .getProtocolProvider()
+                    .getOperationSet(OperationSetFileTransfer.class);
 
         if (FileUtils.isImage(file.getName()))
         {
             // Create a thumbnailed file if possible.
             OperationSetThumbnailedFileFactory tfOpSet
-                = (OperationSetThumbnailedFileFactory)
-                    contact.getProtocolProvider()
-                    .getOperationSet(OperationSetThumbnailedFileFactory.class);
+                = contact
+                    .getProtocolProvider()
+                        .getOperationSet(
+                            OperationSetThumbnailedFileFactory.class);
 
             if (tfOpSet != null)
             {
@@ -320,8 +326,9 @@ public class MetaContactChatTransport
     public long getMaximumFileLength()
     {
         OperationSetFileTransfer ftOpSet
-            = (OperationSetFileTransfer) contact.getProtocolProvider()
-                .getOperationSet(OperationSetFileTransfer.class);
+            = contact
+                .getProtocolProvider()
+                    .getOperationSet(OperationSetFileTransfer.class);
 
         return ftOpSet.getMaximumFileLength();
     }
@@ -354,8 +361,9 @@ public class MetaContactChatTransport
             return;
 
         OperationSetSmsMessaging smsOpSet
-            = (OperationSetSmsMessaging) contact.getProtocolProvider()
-                .getOperationSet(OperationSetSmsMessaging.class);
+            = contact
+                .getProtocolProvider()
+                    .getOperationSet(OperationSetSmsMessaging.class);
 
         smsOpSet.addMessageListener(l);
     }
@@ -373,8 +381,9 @@ public class MetaContactChatTransport
             return;
 
         OperationSetBasicInstantMessaging imOpSet
-            = (OperationSetBasicInstantMessaging) contact.getProtocolProvider()
-                .getOperationSet(OperationSetBasicInstantMessaging.class);
+            = contact
+                .getProtocolProvider()
+                    .getOperationSet(OperationSetBasicInstantMessaging.class);
 
         imOpSet.addMessageListener(l);
     }
@@ -392,8 +401,9 @@ public class MetaContactChatTransport
             return;
 
         OperationSetSmsMessaging smsOpSet
-            = (OperationSetSmsMessaging) contact.getProtocolProvider()
-                .getOperationSet(OperationSetSmsMessaging.class);
+            = contact
+                .getProtocolProvider()
+                    .getOperationSet(OperationSetSmsMessaging.class);
 
         smsOpSet.removeMessageListener(l);
     }
@@ -411,8 +421,9 @@ public class MetaContactChatTransport
             return;
 
         OperationSetBasicInstantMessaging imOpSet
-            = (OperationSetBasicInstantMessaging) contact.getProtocolProvider()
-                .getOperationSet(OperationSetBasicInstantMessaging.class);
+            = contact
+                .getProtocolProvider()
+                    .getOperationSet(OperationSetBasicInstantMessaging.class);
 
         imOpSet.removeMessageListener(l);
     }
@@ -482,21 +493,20 @@ public class MetaContactChatTransport
             try
             {
                 ImageIcon image = new ImageIcon(file.toURI().toURL());
+                int width = image.getIconWidth();
+                int height = image.getIconHeight();
 
-                if (image != null)
-                {
-                    int width = image.getIconWidth();
-                    int height = image.getIconHeight();
+                if (width > THUMBNAIL_WIDTH)
+                    width = THUMBNAIL_WIDTH;
+                if (height > THUMBNAIL_HEIGHT)
+                    height = THUMBNAIL_HEIGHT;
 
-                    if (width > THUMBNAIL_WIDTH)
-                        width = THUMBNAIL_WIDTH;
-                    if (height > THUMBNAIL_HEIGHT)
-                        height = THUMBNAIL_HEIGHT;
-
-                    bytes = ImageUtils
-                        .getScaledInstanceInBytes(image.getImage(),
-                            width, height);
-                }
+                bytes
+                    = ImageUtils
+                        .getScaledInstanceInBytes(
+                            image.getImage(),
+                            width,
+                            height);
             }
             catch (MalformedURLException e)
             {

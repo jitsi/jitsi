@@ -113,7 +113,6 @@ public class InviteDialog
             GuiActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
 
         final DefaultContactList contactList = new DefaultContactList();
-
         final DefaultContactList selectedContactList = new DefaultContactList();
 
         contactList.setModel(contactListModel);
@@ -125,8 +124,7 @@ public class InviteDialog
             {
                 if (e.getClickCount() > 1)
                 {
-                    Object[] metaContacts
-                        = (Object[]) contactList.getSelectedValues();
+                    Object[] metaContacts = contactList.getSelectedValues();
 
                     moveContactsFromLeftToRight(metaContacts);
                 }

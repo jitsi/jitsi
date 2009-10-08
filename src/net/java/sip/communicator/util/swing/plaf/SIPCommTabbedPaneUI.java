@@ -1019,7 +1019,7 @@ public class SIPCommTabbedPaneUI
 
                 if (command != null && command.length() > 0)
                 {
-                    int mnemonic = (int) e.getActionCommand().charAt(0);
+                    int mnemonic = e.getActionCommand().charAt(0);
                     if (mnemonic >= 'a' && mnemonic <= 'z')
                     {
                         mnemonic -= ('a' - 'A');

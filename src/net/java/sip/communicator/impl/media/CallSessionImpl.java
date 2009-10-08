@@ -599,7 +599,9 @@ public class CallSessionImpl
     /**
      * Stops and closes all streams currently handled by <tt>rtpManager</tt>.
      *
-     * @param rtpManager the rtpManager whose streams we'll be stopping.
+     * @param rtpManager the <tt>RTPManager</tt> to stop the streams of
+     * @param dispose <tt>true</tt> to dispose of <tt>rtpManager</tt> after
+     * stopping its streams; otherwise, <tt>false</tt>
      * @return <tt>true</tt> if there was an actual change in the streaming i.e.
      *         the streaming wasn't already stopped before this request;
      *         <tt>false</tt>, otherwise

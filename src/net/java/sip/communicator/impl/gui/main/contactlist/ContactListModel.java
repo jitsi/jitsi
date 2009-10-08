@@ -15,13 +15,8 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * The list model of the ContactList. This class use as a data model the
- * <tt>MetaContactListService</tt> itself. The <tt>ContactListModel</tt>
- * plays only a role of a "list" face of the "tree" MetaContactListService
- * structure. It provides an implementation of the AbstractListModel and adds
- * some methods facilitating the access to the contact list. Some more contact
- * list specific methods are added like: getMetaContactStatus,
- * getMetaContactStatusIcon, changeContactStatus, etc.
+ * Implements <tt>ListModel</tt> for <tt>MetaContactListService</tt> in order to
+ * display it in <tt>ContactList</tt> as a list instead of a tree.
  *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
@@ -39,11 +34,13 @@ public class ContactListModel
     private boolean showOffline = true;
 
     /**
-     * Creates a List Model, which gets its data from the given
-     * MetaContactListService.
+     * Initializes a new <tt>ContactListModel</tt> instance which is to
+     * implement <tt>ListModel</tt> for a specific
+     * <tt>MetaContactListService</tt> in order to display it in
+     * <tt>ContactList</tt> as a list instead of a tree.
      *
-     * @param contactList The MetaContactListService which contains the contact
-     *            list.
+     * @param contactList the <tt>MetaContactListService</tt> which contains the
+     * contact list to be represented as a list by the new instance
      */
     public ContactListModel(MetaContactListService contactList)
     {

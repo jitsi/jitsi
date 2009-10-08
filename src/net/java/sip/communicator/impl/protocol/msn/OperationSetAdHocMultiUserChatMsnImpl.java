@@ -268,10 +268,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
     private AdHocChatRoomMsnImpl getLocalAdHocChatRoomInstance(
             MsnSwitchboard switchboard)
     {
-        AdHocChatRoomMsnImpl adHocRoom = (AdHocChatRoomMsnImpl)
-            this.adHocChatRoomCache.get(switchboard);
-
-        return adHocRoom;
+        return adHocChatRoomCache.get(switchboard);
     }
 
     /**
@@ -285,8 +282,8 @@ public class OperationSetAdHocMultiUserChatMsnImpl
     private AdHocChatRoomMsnImpl createLocalAdHocChatRoomInstance(
             MsnSwitchboard switchboard)
     {
-        AdHocChatRoomMsnImpl adHocChatRoom = (AdHocChatRoomMsnImpl)
-            this.adHocChatRoomCache.get(switchboard);
+        AdHocChatRoomMsnImpl adHocChatRoom
+            = adHocChatRoomCache.get(switchboard);
 
         if (adHocChatRoom == null)
         {

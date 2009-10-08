@@ -22,9 +22,9 @@ import net.java.sip.communicator.service.protocol.event.*;
 public class ConferenceChatTransport
     implements  ChatTransport
 {
-    private ChatSession chatSession;
+    private final ChatSession chatSession;
 
-    private ChatRoom chatRoom;
+    private final ChatRoom chatRoom;
 
     /**
      * Creates an instance of <tt>ConferenceChatTransport</tt> by specifying the
@@ -223,8 +223,9 @@ public class ConferenceChatTransport
             return;
 
         OperationSetSmsMessaging smsOpSet
-            = (OperationSetSmsMessaging) chatRoom.getParentProvider()
-                .getOperationSet(OperationSetSmsMessaging.class);
+            = chatRoom
+                .getParentProvider()
+                    .getOperationSet(OperationSetSmsMessaging.class);
 
         smsOpSet.addMessageListener(l);
     }
@@ -242,8 +243,9 @@ public class ConferenceChatTransport
             return;
 
         OperationSetBasicInstantMessaging imOpSet
-            = (OperationSetBasicInstantMessaging) chatRoom.getParentProvider()
-                .getOperationSet(OperationSetBasicInstantMessaging.class);
+            = chatRoom
+                .getParentProvider()
+                    .getOperationSet(OperationSetBasicInstantMessaging.class);
 
         imOpSet.addMessageListener(l);
     }
@@ -261,8 +263,9 @@ public class ConferenceChatTransport
             return;
 
         OperationSetSmsMessaging smsOpSet
-            = (OperationSetSmsMessaging) chatRoom.getParentProvider()
-                .getOperationSet(OperationSetSmsMessaging.class);
+            = chatRoom
+                .getParentProvider()
+                    .getOperationSet(OperationSetSmsMessaging.class);
 
         smsOpSet.removeMessageListener(l);
     }
@@ -280,8 +283,9 @@ public class ConferenceChatTransport
             return;
 
         OperationSetBasicInstantMessaging imOpSet
-            = (OperationSetBasicInstantMessaging) chatRoom.getParentProvider()
-                .getOperationSet(OperationSetBasicInstantMessaging.class);
+            = chatRoom
+                .getParentProvider()
+                    .getOperationSet(OperationSetBasicInstantMessaging.class);
 
         imOpSet.removeMessageListener(l);
     }

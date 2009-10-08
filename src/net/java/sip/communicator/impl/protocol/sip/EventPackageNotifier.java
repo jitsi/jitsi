@@ -252,7 +252,7 @@ public abstract class EventPackageNotifier
                         ex);
         }
 
-        req.setHeader((Header) viaHeaders.get(0));
+        req.setHeader(viaHeaders.get(0));
 
         // add the content
         try

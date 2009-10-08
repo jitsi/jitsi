@@ -10,18 +10,18 @@ import gov.nist.javax.sip.header.*;
 import gov.nist.javax.sip.header.extensions.*;
 import gov.nist.javax.sip.message.*;
 
-import java.net.URLDecoder; //disamgibuates javax.sip.address.URI
+import java.net.*;
 import java.text.*;
 import java.util.*;
 
 import javax.sip.*;
 import javax.sip.address.*;
+import javax.sip.address.URI;
 import javax.sip.header.*;
 import javax.sip.message.*;
-import javax.sip.message.Message;//disambiguates with service.protocol.Message
+import javax.sip.message.Message;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**

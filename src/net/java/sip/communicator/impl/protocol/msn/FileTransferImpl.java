@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.protocol.msn;
 import java.io.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 import net.sf.jml.*;
 
 /**
@@ -19,12 +18,6 @@ import net.sf.jml.*;
 public class FileTransferImpl
     extends AbstractFileTransfer
 {
-    /**
-     * Logger
-     */
-    private static final Logger logger =
-        Logger.getLogger(FileTransferImpl.class);
-
     private String id = null;
     private Contact contact = null;
     private File file = null;

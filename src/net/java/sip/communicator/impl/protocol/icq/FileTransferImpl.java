@@ -10,7 +10,6 @@ import java.io.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 import net.kano.joustsim.oscar.oscar.service.icbm.ft.*;
 import net.kano.joustsim.oscar.oscar.service.icbm.ft.FileTransfer;
 import net.kano.joustsim.oscar.oscar.service.icbm.ft.controllers.*;
@@ -24,12 +23,6 @@ import net.kano.joustsim.oscar.oscar.service.icbm.ft.state.*;
 public class FileTransferImpl
     extends AbstractFileTransfer
 {
-    /**
-     * Logger
-     */
-    private static final Logger logger =
-        Logger.getLogger(FileTransferImpl.class);
-
     private String id = null;
     private Contact contact = null;
     private File file = null;

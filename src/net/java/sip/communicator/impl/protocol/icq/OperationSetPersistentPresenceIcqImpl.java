@@ -639,7 +639,7 @@ public class OperationSetPersistentPresenceIcqImpl
         }
         else
         {
-            long icqStatus = presenceStatusToStatusLong((IcqStatusEnum)status);
+            long icqStatus = presenceStatusToStatusLong(status);
 
             logger.debug("Will set status: " + status + " long=" + icqStatus);
 

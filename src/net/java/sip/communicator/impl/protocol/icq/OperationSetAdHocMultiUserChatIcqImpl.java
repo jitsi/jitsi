@@ -278,9 +278,8 @@ public class OperationSetAdHocMultiUserChatIcqImpl
     public void rejectInvitation(AdHocChatRoomInvitation invitation,
         String rejectReason)
     {
-        ChatInvitation inv =
-            (ChatInvitation) invitations.get(invitation
-                .getTargetAdHocChatRoom());
+        ChatInvitation inv
+            = invitations.get(invitation.getTargetAdHocChatRoom());
 
         if (inv != null)
         { // send the rejection
@@ -350,26 +349,20 @@ public class OperationSetAdHocMultiUserChatIcqImpl
         AdHocChatRoomInvitationIcqImpl invitation =
             new AdHocChatRoomInvitationIcqImpl(targetChatRoom, inviter, reason,
                 password);
-
         AdHocChatRoomInvitationReceivedEvent evt =
             new AdHocChatRoomInvitationReceivedEvent(this, invitation,
                 new Date(System.currentTimeMillis()));
 
-        Iterator<AdHocChatRoomInvitationListener> listeners = null;
+        Iterable<AdHocChatRoomInvitationListener> listeners;
         synchronized (invitationListeners)
         {
-            listeners =
-                new ArrayList<AdHocChatRoomInvitationListener>(
-                    invitationListeners).iterator();
+            listeners
+                = new ArrayList<AdHocChatRoomInvitationListener>(
+                        invitationListeners);
         }
 
-        while (listeners.hasNext())
-        {
-            AdHocChatRoomInvitationListener listener =
-                (AdHocChatRoomInvitationListener) listeners.next();
-
+        for (AdHocChatRoomInvitationListener listener : listeners)
             listener.invitationReceived(evt);
-        }
     }
 
     /**
@@ -389,21 +382,16 @@ public class OperationSetAdHocMultiUserChatIcqImpl
             new LocalUserAdHocChatRoomPresenceChangeEvent(this, chatRoom,
                 eventType, reason);
 
-        Iterator<LocalUserAdHocChatRoomPresenceListener> listeners = null;
+        Iterable<LocalUserAdHocChatRoomPresenceListener> listeners = null;
         synchronized (presenceListeners)
         {
-            listeners =
-                new ArrayList<LocalUserAdHocChatRoomPresenceListener>(
-                    presenceListeners).iterator();
+            listeners
+                = new ArrayList<LocalUserAdHocChatRoomPresenceListener>(
+                        presenceListeners);
         }
 
-        while (listeners.hasNext())
-        {
-            LocalUserAdHocChatRoomPresenceListener listener =
-                (LocalUserAdHocChatRoomPresenceListener) listeners.next();
-
+        for (LocalUserAdHocChatRoomPresenceListener listener : listeners)
             listener.localUserAdHocPresenceChanged(evt);
-        }
     }
 
     /**
