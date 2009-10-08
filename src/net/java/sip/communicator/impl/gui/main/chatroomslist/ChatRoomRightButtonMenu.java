@@ -14,6 +14,8 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 
 /**
  * The <tt>ChatRoomsListRightButtonMenu</tt> is the menu, opened when user clicks
@@ -21,28 +23,13 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * contains the create chat room item.
  *
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class ChatRoomRightButtonMenu
     extends JPopupMenu
     implements  ActionListener
 {
-    private JMenuItem leaveChatRoomItem = new JMenuItem(
-        GuiActivator.getResources().getI18NString("service.gui.LEAVE"),
-        new ImageIcon(ImageLoader.getImage(ImageLoader.LEAVE_ICON)));
-
-    private JMenuItem joinChatRoomItem = new JMenuItem(
-        GuiActivator.getResources().getI18NString("service.gui.JOIN"),
-        new ImageIcon(ImageLoader.getImage(ImageLoader.JOIN_ICON)));
-
-    private JMenuItem joinAsChatRoomItem = new JMenuItem(
-        GuiActivator.getResources().getI18NString("service.gui.JOIN_AS"),
-        new ImageIcon(ImageLoader.getImage(ImageLoader.JOIN_AS_ICON)));
-
-    private JMenuItem removeChatRoomItem = new JMenuItem(
-        GuiActivator.getResources().getI18NString("service.gui.REMOVE"),
-        new ImageIcon(ImageLoader.getImage(ImageLoader.DELETE_16x16_ICON)));
-
-    private ChatRoomWrapper chatRoomWrapper = null;
+    private final ChatRoomWrapper chatRoomWrapper;
 
     /**
      * Creates an instance of <tt>ChatRoomsListRightButtonMenu</tt>.
@@ -51,55 +38,39 @@ public class ChatRoomRightButtonMenu
      */
     public ChatRoomRightButtonMenu(ChatRoomWrapper chatRoomWrapper)
     {
-        super();
-
         this.chatRoomWrapper = chatRoomWrapper;
 
         this.setLocation(getLocation());
 
-        this.init();
-    }
+        JMenuItem joinChatRoomItem
+            = createMenuItem(
+                "service.gui.JOIN",
+                ImageLoader.JOIN_ICON,
+                "joinChatRoom");
+        JMenuItem joinAsChatRoomItem
+            = createMenuItem(
+                "service.gui.JOIN_AS",
+                ImageLoader.JOIN_AS_ICON,
+                "joinAsChatRoom");
+        JMenuItem leaveChatRoomItem
+            = createMenuItem(
+                "service.gui.LEAVE",
+                ImageLoader.LEAVE_ICON,
+                "leaveChatRoom");
+        createMenuItem(
+            "service.gui.REMOVE",
+            ImageLoader.DELETE_16x16_ICON,
+            "removeChatRoom");
 
-    /**
-     * Initializes the menu, by adding all containing menu items.
-     */
-    private void init()
-    {
-        this.add(joinChatRoomItem);
-        this.add(joinAsChatRoomItem);
-        this.add(leaveChatRoomItem);
-        this.add(removeChatRoomItem);
+        ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
 
-        this.joinChatRoomItem.setName("joinChatRoom");
-        this.joinAsChatRoomItem.setName("joinAsChatRoom");
-        this.leaveChatRoomItem.setName("leaveChatRoom");
-        this.removeChatRoomItem.setName("removeChatRoom");
-
-        this.joinChatRoomItem.setMnemonic(
-            GuiActivator.getResources().getI18nMnemonic("service.gui.JOIN"));
-
-        this.joinAsChatRoomItem.setMnemonic(
-            GuiActivator.getResources().getI18nMnemonic("service.gui.JOIN_AS"));
-
-        this.leaveChatRoomItem.setMnemonic(
-            GuiActivator.getResources().getI18nMnemonic("service.gui.LEAVE"));
-
-        this.removeChatRoomItem.setMnemonic(
-            GuiActivator.getResources().getI18nMnemonic("service.gui.REMOVE"));
-
-        this.joinChatRoomItem.addActionListener(this);
-        this.joinAsChatRoomItem.addActionListener(this);
-        this.leaveChatRoomItem.addActionListener(this);
-        this.removeChatRoomItem.addActionListener(this);
-
-        if (chatRoomWrapper.getChatRoom() != null
-            && chatRoomWrapper.getChatRoom().isJoined())
+        if ((chatRoom != null) && chatRoom.isJoined())
         {
-            this.joinAsChatRoomItem.setEnabled(false);
-            this.joinChatRoomItem.setEnabled(false);
+            joinAsChatRoomItem.setEnabled(false);
+            joinChatRoomItem.setEnabled(false);
         }
         else
-            this.leaveChatRoomItem.setEnabled(false);
+            leaveChatRoomItem.setEnabled(false);
     }
 
     /**
@@ -117,7 +88,6 @@ public class ChatRoomRightButtonMenu
         if (itemName.equals("removeChatRoom"))
         {
             conferenceManager.removeChatRoom(chatRoomWrapper);
-
         }
         else if (itemName.equals("leaveChatRoom"))
         {
@@ -134,5 +104,38 @@ public class ChatRoomRightButtonMenu
 
             authWindow.setVisible(true);
         }
+    }
+
+    /**
+     * Creates a new <tt>JMenuItem</tt> and adds it to this <tt>JPopupMenu</tt>.
+     *
+     * @param textKey the key of the internationalized string in the resources
+     * of the application which represents the text of the new
+     * <tt>JMenuItem</tt>
+     * @param iconID the <tt>ImageID</tt> of the image in the resources of the
+     * application which represents the icon of the new <tt>JMenuItem</tt>
+     * @param name the name of the new <tt>JMenuItem</tt>
+     * @return a new <tt>JMenuItem</tt> instance which has been added to this
+     * <tt>JPopupMenu</tt>
+     */
+    private JMenuItem createMenuItem(
+            String textKey,
+            ImageID iconID,
+            String name)
+    {
+        ResourceManagementService resources = GuiActivator.getResources();
+        JMenuItem menuItem
+            = new JMenuItem(
+                    resources.getI18NString(textKey),
+                    new ImageIcon(ImageLoader.getImage(iconID)));
+
+        menuItem.setMnemonic(resources.getI18nMnemonic(textKey));
+        menuItem.setName(name);
+
+        menuItem.addActionListener(this);
+
+        add(menuItem);
+
+        return menuItem;
     }
 }

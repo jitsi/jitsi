@@ -20,6 +20,7 @@ import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 // Java 1.6 has javax.swing.SwingWorker so we have to disambiguate.
@@ -855,13 +856,16 @@ public class ConferenceChatManager
      */
     public void removeChatRoom(ChatRoomWrapper chatRoomWrapper)
     {
-        this.leaveChatRoom(chatRoomWrapper);
+        ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
+
+        if (chatRoom != null)
+            leaveChatRoom(chatRoomWrapper);
 
         this.closeChatRoom(chatRoomWrapper);
 
         chatRoomList.removeChatRoom(chatRoomWrapper);
 
-        this.fireChatRoomListChangedEvent(
+        fireChatRoomListChangedEvent(
             chatRoomWrapper,
             ChatRoomListChangeEvent.CHAT_ROOM_REMOVED);
     }
@@ -1026,12 +1030,15 @@ public class ConferenceChatManager
 
         if (chatRoom == null)
         {
+            ResourceManagementService resources = GuiActivator.getResources();
+
             new ErrorDialog(
-               GuiActivator.getUIService().getMainFrame(),
-               GuiActivator.getResources().getI18NString("service.gui.WARNING"),
-               GuiActivator.getResources().getI18NString(
-                   "service.gui.CHAT_ROOM_LEAVE_NOT_CONNECTED"))
-                   .showDialog();
+                    GuiActivator.getUIService().getMainFrame(),
+                    resources.getI18NString("service.gui.WARNING"),
+                    resources
+                        .getI18NString(
+                            "service.gui.CHAT_ROOM_LEAVE_NOT_CONNECTED"))
+                .showDialog();
 
             return;
         }

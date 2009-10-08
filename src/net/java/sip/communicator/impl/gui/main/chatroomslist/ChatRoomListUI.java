@@ -162,31 +162,22 @@ public class ChatRoomListUI
 
         if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0)
         {
+            JPopupMenu rightButtonMenu;
+
             if(o instanceof ChatRoomProviderWrapper)
-            {
-                ChatRoomServerRightButtonMenu rightButtonMenu
+                rightButtonMenu
                     = new ChatRoomServerRightButtonMenu(
-                        (ChatRoomProviderWrapper) o);
-
-                rightButtonMenu.setInvoker(this);
-
-                rightButtonMenu.setLocation(selectedCellPoint.x,
-                    selectedCellPoint.y + 20);
-
-                rightButtonMenu.setVisible(true);
-            }
+                            (ChatRoomProviderWrapper) o);
             else if (o instanceof ChatRoomWrapper)
-            {
-                ChatRoomRightButtonMenu rightButtonMenu
+                rightButtonMenu
                     = new ChatRoomRightButtonMenu((ChatRoomWrapper) o);
+            else
+                return;
 
-                rightButtonMenu.setInvoker(this);
-
-                rightButtonMenu.setLocation(selectedCellPoint.x,
-                    selectedCellPoint.y + 20);
-
-                rightButtonMenu.setVisible(true);
-            }
+            rightButtonMenu.setInvoker(this);
+            rightButtonMenu
+                .setLocation(selectedCellPoint.x, selectedCellPoint.y + 20);
+            rightButtonMenu.setVisible(true);
         }
     }
 
