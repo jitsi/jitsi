@@ -17,7 +17,7 @@ import org.bouncycastle.util.encoders.*;
  * 
  * @author George Politis
  */
-class Configurator
+public class OtrConfigurator
 {
     /**
      * Gets an XML tag friendly {@link String} from a {@link String}.
@@ -36,10 +36,12 @@ class Configurator
             s = "p" + s;
 
         char[] cId = new char[s.length()];
+
         for (int i = 0; i < cId.length; i++)
         {
             char c = s.charAt(i);
-            cId[i] = (Character.isLetterOrDigit(c)) ? c : '_';
+
+            cId[i] = Character.isLetterOrDigit(c) ? c : '_';
         }
 
         return new String(cId);
@@ -54,8 +56,8 @@ class Configurator
      */
     private String getID(String id)
     {
-        return "net.java.sip.communicator.plugin.otr."
-            + getXmlFriendlyString(id);
+        return
+            "net.java.sip.communicator.plugin.otr." + getXmlFriendlyString(id);
     }
 
     /**
@@ -69,12 +71,9 @@ class Configurator
      */
     public byte[] getPropertyBytes(String id)
     {
-        String value =
-            (String) OtrActivator.configService.getProperty(this.getID(id));
-        if (value == null)
-            return null;
+        String value = OtrActivator.configService.getString(getID(id));
 
-        return Base64.decode(value.getBytes());
+        return (value == null) ? null : Base64.decode(value.getBytes());
     }
 
     /**
@@ -89,8 +88,8 @@ class Configurator
      */
     public boolean getPropertyBoolean(String id, boolean defaultValue)
     {
-        return OtrActivator.configService.getBoolean(this.getID(id),
-            defaultValue);
+        return
+            OtrActivator.configService.getBoolean(getID(id), defaultValue);
     }
 
     /**
@@ -105,7 +104,7 @@ class Configurator
     {
         String valueToStore = new String(Base64.encode(value));
 
-        OtrActivator.configService.setProperty(this.getID(id), valueToStore);
+        OtrActivator.configService.setProperty(getID(id), valueToStore);
     }
 
     /**
@@ -117,7 +116,7 @@ class Configurator
      */
     public void setProperty(String id, Object value)
     {
-        OtrActivator.configService.setProperty(this.getID(id), value);
+        OtrActivator.configService.setProperty(getID(id), value);
     }
 
     /**
@@ -128,7 +127,7 @@ class Configurator
      */
     public void removeProperty(String id)
     {
-        OtrActivator.configService.removeProperty(this.getID(id));
+        OtrActivator.configService.removeProperty(getID(id));
     }
 
     /**

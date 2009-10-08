@@ -18,6 +18,8 @@ import net.java.sip.communicator.service.protocol.*;
 public class ScOtrKeyManagerImpl
     implements ScOtrKeyManager
 {
+    private final OtrConfigurator configurator = new OtrConfigurator();
+
     private final List<ScOtrKeyManagerListener> listeners =
         new Vector<ScOtrKeyManagerListener>();
 
@@ -37,8 +39,6 @@ public class ScOtrKeyManagerImpl
             listeners.remove(l);
         }
     }
-
-    private Configurator configurator = new Configurator();
 
     public void verify(Contact contact)
     {

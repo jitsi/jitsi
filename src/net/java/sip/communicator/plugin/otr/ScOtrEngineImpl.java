@@ -17,16 +17,23 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * 
  * @author George Politis
- * 
  */
 public class ScOtrEngineImpl
     implements ScOtrEngine
 {
+    private final OtrConfigurator configurator = new OtrConfigurator();
 
-    private List<ScOtrEngineListener> listeners =
+    private static final Map<SessionID, Contact> contactsMap =
+        new Hashtable<SessionID, Contact>();
+
+    private final List<String> injectedMessageUIDs = new Vector<String>();
+
+    private final List<ScOtrEngineListener> listeners =
         new Vector<ScOtrEngineListener>();
+
+    private final OtrEngine otrEngine
+        = new OtrEngineImpl(new ScOtrEngineHost());
 
     public void addListener(ScOtrEngineListener l)
     {
@@ -44,8 +51,6 @@ public class ScOtrEngineImpl
             listeners.remove(l);
         }
     }
-
-    private List<String> injectedMessageUIDs = new Vector<String>();
 
     public boolean isMessageUIDInjected(String mUID)
     {
@@ -94,12 +99,12 @@ public class ScOtrEngineImpl
         public void injectMessage(SessionID sessionID, String messageText)
         {
             Contact contact = getContact(sessionID);
-            OperationSetBasicInstantMessaging imOpSet =
-                (OperationSetBasicInstantMessaging) contact
-                    .getProtocolProvider().getOperationSet(
-                        OperationSetBasicInstantMessaging.class);
-
+            OperationSetBasicInstantMessaging imOpSet
+                = contact
+                    .getProtocolProvider()
+                        .getOperationSet(OperationSetBasicInstantMessaging.class);
             Message message = imOpSet.createMessage(messageText);
+
             injectedMessageUIDs.add(message.getMessageUID());
             imOpSet.sendInstantMessage(contact, message);
         }
@@ -188,11 +193,6 @@ public class ScOtrEngineImpl
         });
     }
 
-    private OtrEngine otrEngine = new OtrEngineImpl(new ScOtrEngineHost());
-
-    private static Map<SessionID, Contact> contactsMap =
-        new Hashtable<SessionID, Contact>();
-
     public static SessionID getSessionID(Contact contact)
     {
         SessionID sessionID =
@@ -242,8 +242,6 @@ public class ScOtrEngineImpl
     {
         otrEngine.startSession(getSessionID(contact));
     }
-
-    private Configurator configurator = new Configurator();
 
     public OtrPolicy getGlobalPolicy()
     {
