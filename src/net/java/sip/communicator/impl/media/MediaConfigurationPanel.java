@@ -26,6 +26,7 @@ import org.osgi.framework.*;
 
 /**
  * @author Lubomir Marinov
+ * @author Damian Minkov
  */
 public class MediaConfigurationPanel
     extends TransparentPanel
@@ -37,15 +38,17 @@ public class MediaConfigurationPanel
     private static MediaServiceImpl getMediaService()
     {
         BundleContext bundleContext = MediaActivator.getBundleContext();
-        ServiceReference serviceReference =
-            bundleContext.getServiceReference(MediaService.class.getName());
+        ServiceReference serviceReference
+            = bundleContext.getServiceReference(MediaService.class.getName());
 
-        return (serviceReference == null) ? null
-            : (MediaServiceImpl) bundleContext.getService(serviceReference);
+        return
+            (serviceReference == null)
+                ? null
+                : (MediaServiceImpl) bundleContext.getService(serviceReference);
     }
 
-    private final Logger logger =
-        Logger.getLogger(MediaConfigurationPanel.class);
+    private final Logger logger
+        = Logger.getLogger(MediaConfigurationPanel.class);
 
     private final MediaServiceImpl mediaService = getMediaService();
 
@@ -74,12 +77,15 @@ public class MediaConfigurationPanel
     {
         super(new GridLayout(0, 1, HGAP, VGAP));
 
-        int[] types =
-            new int[]
-            { DeviceConfigurationComboBoxModel.AUDIO,
-                DeviceConfigurationComboBoxModel.VIDEO };
-        for (int i = 0; i < types.length; i++)
-            add(createControls(types[i]));
+        int[] types
+            = new int[]
+                    {
+                        DeviceConfigurationComboBoxModel.AUDIO,
+                        DeviceConfigurationComboBoxModel.VIDEO
+                    };
+
+        for (int type : types)
+            add(createControls(type));
     }
 
     private void controllerUpdateForPreview(ControllerEvent event,
@@ -131,34 +137,51 @@ public class MediaConfigurationPanel
     {
         final JComboBox comboBox = new JComboBox();
         comboBox.setEditable(false);
-        comboBox.setModel(new DeviceConfigurationComboBoxModel(mediaService
-            .getDeviceConfiguration(), type));
-        final Container portAudioPanel = 
-            new TransparentPanel(new GridLayout(3, 2, HGAP, VGAP));
-        comboBox.addItemListener(new ItemListener() {
+        comboBox
+            .setModel(
+                new DeviceConfigurationComboBoxModel(
+                        mediaService.getDeviceConfiguration(),
+                        type));
 
-            public void itemStateChanged(ItemEvent e)
+        /*
+         * We provide additional configuration properties for PortAudio such as
+         * input audio device, output audio device and audio device for playback
+         * of notifications.
+         */
+        final Container portAudioPanel;
+        if (type == DeviceConfigurationComboBoxModel.AUDIO)
+        {
+            portAudioPanel
+                = new TransparentPanel(new GridLayout(3, 2, HGAP, VGAP));
+
+            comboBox.addItemListener(new ItemListener()
             {
-                if(e.getStateChange() == ItemEvent.SELECTED)
+                public void itemStateChanged(ItemEvent e)
                 {
-                    if(e.getItem().equals(
-                        DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO))
+                    if(e.getStateChange() == ItemEvent.SELECTED)
                     {
-                        createPortAudioControls(portAudioPanel);
-                    }
-                    else
-                    {
-                        portAudioPanel.removeAll();
+                        if(DeviceConfiguration
+                                .AUDIO_SYSTEM_PORTAUDIO.equals(e.getItem()))
+                        {
+                            createPortAudioControls(portAudioPanel);
+                        }
+                        else
+                        {
+                            portAudioPanel.removeAll();
 
-                        revalidate();
-                        repaint();
+                            revalidate();
+                            repaint();
+                        }
                     }
                 }
-            }
-        });
-        if(comboBox.getSelectedItem().equals(
-            DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO))
-            createPortAudioControls(portAudioPanel);
+            });
+            if(comboBox
+                    .getSelectedItem()
+                        .equals(DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO))
+                createPortAudioControls(portAudioPanel);
+        }
+        else
+            portAudioPanel = null;
 
         JLabel label = new JLabel(getLabelText(type));
         label.setDisplayedMnemonic(getDisplayedMnemonic(type));
@@ -174,13 +197,16 @@ public class MediaConfigurationPanel
         firstConstraints.gridx = 1;
         firstConstraints.weightx = 1;
         firstContainer.add(comboBox, firstConstraints);
-        
-        firstConstraints.gridx = 0;
-        firstConstraints.gridy = 1;
-        firstConstraints.weightx = 1;
-        firstConstraints.gridwidth = 2;
-        firstConstraints.insets = new Insets(VGAP, 0, 0, 0);
-        firstContainer.add(portAudioPanel, firstConstraints);
+
+        if (portAudioPanel != null)
+        {
+            firstConstraints.gridx = 0;
+            firstConstraints.gridy = 1;
+            firstConstraints.weightx = 1;
+            firstConstraints.gridwidth = 2;
+            firstConstraints.insets = new Insets(VGAP, 0, 0, 0);
+            firstContainer.add(portAudioPanel, firstConstraints);
+        }
 
         Container secondContainer =
             new TransparentPanel(new GridLayout(1, 0, HGAP, VGAP));
@@ -366,9 +392,13 @@ public class MediaConfigurationPanel
                 {
                     Object selection = comboBox.getSelectedItem();
                     CaptureDeviceInfo device = null;
-                    if (selection instanceof DeviceConfigurationComboBoxModel.CaptureDevice)
-                        device =
-                            ((DeviceConfigurationComboBoxModel.CaptureDevice) selection).info;
+                    if (selection
+                            instanceof
+                                DeviceConfigurationComboBoxModel.CaptureDevice)
+                        device
+                            = ((DeviceConfigurationComboBoxModel.CaptureDevice)
+                                    selection)
+                                .info;
 
                     if ((device != null) && device.equals(videoDeviceInPreview))
                         return;
@@ -414,7 +444,9 @@ public class MediaConfigurationPanel
             {
                 public void hierarchyChanged(HierarchyEvent event)
                 {
-                    if (((event.getChangeFlags() & HierarchyEvent.DISPLAYABILITY_CHANGED) != 0)
+                    if (((event.getChangeFlags()
+                                    & HierarchyEvent.DISPLAYABILITY_CHANGED)
+                                != 0)
                             && comboBox.isDisplayable())
                         comboBoxListener.actionPerformed(null);
                 }
@@ -541,7 +573,9 @@ public class MediaConfigurationPanel
 
                 public void hierarchyChanged(HierarchyEvent event)
                 {
-                    if ((event.getChangeFlags() & HierarchyEvent.DISPLAYABILITY_CHANGED) != 0)
+                    if ((event.getChangeFlags()
+                                    & HierarchyEvent.DISPLAYABILITY_CHANGED)
+                                != 0)
                     {
                         if (preview.isDisplayable())
                         {
