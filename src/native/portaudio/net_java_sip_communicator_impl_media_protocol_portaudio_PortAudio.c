@@ -261,6 +261,57 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaDeviceI
     return ((PaDeviceInfo *) deviceInfo)->defaultSampleRate;
 }
 
+JNIEXPORT jint JNICALL
+Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaDeviceInfo_1getHostApi
+  (JNIEnv *env, jclass clazz, jlong deviceInfo)
+{
+    return ((PaDeviceInfo *) deviceInfo)->hostApi;
+}
+
+JNIEXPORT jlong JNICALL
+Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1GetHostApiInfo
+  (JNIEnv *env , jclass clazz, jint hostApiIndex)
+{
+    return (jlong) Pa_GetHostApiInfo(hostApiIndex);
+}
+
+JNIEXPORT jint JNICALL
+Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaHostApiInfo_1GetType
+  (JNIEnv *env, jclass clazz, jlong hostApi)
+{
+    return ((PaHostApiInfo *) hostApi)->type;
+}
+
+JNIEXPORT jstring JNICALL
+Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaHostApiInfo_1GetName
+  (JNIEnv *env, jclass clazz, jlong hostApi)
+{
+    const char *name = ((PaHostApiInfo *) hostApi)->name;
+
+    return name ? (*env)->NewStringUTF(env, name) : NULL;
+}
+
+JNIEXPORT jint JNICALL
+Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaHostApiInfo_1GetDeviceCount
+  (JNIEnv *env, jclass clazz, jlong hostApi)
+{
+    return ((PaHostApiInfo *) hostApi)->deviceCount;
+}
+
+JNIEXPORT jint JNICALL
+Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaHostApiInfo_1GetDefaultInputDevice
+  (JNIEnv *env, jclass clazz, jlong hostApi)
+{
+    return ((PaHostApiInfo *) hostApi)->defaultInputDevice;
+}
+
+JNIEXPORT jint JNICALL
+Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaHostApiInfo_1GetDefaultOutputDevice
+  (JNIEnv *env, jclass clazz, jlong hostApi)
+{
+    return ((PaHostApiInfo *) hostApi)->defaultOutputDevice;
+}
+
 JNIEXPORT jlong JNICALL
 Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaStreamParameters_1new(
 	JNIEnv *env,

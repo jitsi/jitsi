@@ -145,6 +145,62 @@ JNIEXPORT jdouble JNICALL Java_net_java_sip_communicator_impl_media_protocol_por
 
 /*
  * Class:     net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio
+ * Method:    PaDeviceInfo_getHostApi
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaDeviceInfo_1getHostApi
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio
+ * Method:    Pa_GetHostApiInfo
+ * Signature: (I)J
+ */
+JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1GetHostApiInfo
+  (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio
+ * Method:    PaHostApiInfo_GetType
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaHostApiInfo_1GetType
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio
+ * Method:    PaHostApiInfo_GetName
+ * Signature: (J)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaHostApiInfo_1GetName
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio
+ * Method:    PaHostApiInfo_GetDeviceCount
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaHostApiInfo_1GetDeviceCount
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio
+ * Method:    PaHostApiInfo_GetDefaultInputDevice
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaHostApiInfo_1GetDefaultInputDevice
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio
+ * Method:    PaHostApiInfo_GetDefaultOutputDevice
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaHostApiInfo_1GetDefaultOutputDevice
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio
  * Method:    PaStreamParameters_new
  * Signature: (IIJ)J
  */
