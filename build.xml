@@ -653,10 +653,8 @@
             <sysproperty key="java.net.preferIPv6Addresses"
                 value="${java.net.preferIPv6Addresses}"/>
 
-            <sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
-                      value="${user.home}/schome"/>
-                      <sysproperty key="net.java.sip.communicator.SC_HOME_DIR_NAME"
-                      value="sc-2071"/>
+            <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
+                    value="${user.home}/schome"/-->
 
             <!-- Setting properties necessary for dependencies on native libs.-->
             <sysproperty key="java.library.path"
