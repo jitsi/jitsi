@@ -148,7 +148,8 @@ public class ReceivedCallDialog
                 text = callLabel.getText()
                     + peer.getDisplayName()
                     + " "
-                    + GuiActivator.getResources().getI18NString("service.gui.IS_CALLING");
+                    + GuiActivator.getResources()
+                        .getI18NString("service.gui.IS_CALLING");
 
                 imageIcon = getPeerImage(peer);
             }
@@ -178,6 +179,8 @@ public class ReceivedCallDialog
         }
         else if (buttonName.equals(HANGUP_BUTTON))
         {
+            NotificationManager.stopSound(NotificationManager.INCOMING_CALL);
+
             CallManager.hangupCall(incomingCall);
         }
 
@@ -215,21 +218,32 @@ public class ReceivedCallDialog
         return icon;
     }
 
-    @Override
-    protected void close(boolean isEscaped)
-    {
-    }
-
+    /**
+     * When call is remotely ended we close this dialog.
+     * @param event the <tt>CallEvent</tt> that has been triggered
+     */
     public void callEnded(CallEvent event)
     {
-        this.dispose();
+        Call sourceCall = event.getSourceCall();
+
+        if (sourceCall.equals(incomingCall))
+        {
+            this.dispose();
+        }
     }
 
-    public void incomingCallReceived(CallEvent event)
-    {
-    }
+    /**
+     * Indicates that an incoming call has been received.
+     */
+    public void incomingCallReceived(CallEvent event) {}
 
-    public void outgoingCallCreated(CallEvent event)
-    {
-    }
+    /**
+     * Indicates that an outgoing call has been created.
+     */
+    public void outgoingCallCreated(CallEvent event) {}
+
+    /**
+     * Invoked when this dialog is closed.
+     */
+    protected void close(boolean isEscaped) {}
 }

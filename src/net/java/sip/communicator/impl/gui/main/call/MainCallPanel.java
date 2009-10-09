@@ -86,7 +86,8 @@ public class MainCallPanel
 
         JLabel callViaLabel
             = new JLabel(
-                GuiActivator.getResources().getI18NString("service.gui.CALL_VIA")
+                GuiActivator.getResources()
+                    .getI18NString("service.gui.CALL_VIA")
                 + " ");
 
         this.createBorder();

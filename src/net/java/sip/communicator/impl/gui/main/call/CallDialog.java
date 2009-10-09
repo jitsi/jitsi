@@ -238,6 +238,9 @@ public class CallDialog
     {
         Call call = getCall();
 
+        NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);
+        NotificationManager.stopSound(NotificationManager.BUSY_CALL);
+
         if (call != null)
             CallManager.hangupCall(call);
 
@@ -411,8 +414,7 @@ public class CallDialog
         }
     }
 
-    public void callStateChanged(CallChangeEvent evt)
-    {}
+    public void callStateChanged(CallChangeEvent evt) {}
 
     /**
      * Checks if the contained call is a conference call.

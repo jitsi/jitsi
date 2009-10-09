@@ -46,6 +46,7 @@ public class CallManager
          * Implements CallListener.incomingCallReceived. When a call is received
          * creates a <tt>ReceivedCallDialog</tt> and plays the
          * ring phone sound to the user.
+         * @param event the <tt>CallEvent</tt>
          */
         public void incomingCallReceived(CallEvent event)
         {
@@ -69,6 +70,7 @@ public class CallManager
          * Implements CallListener.callEnded. Stops sounds that are playing at
          * the moment if there're any. Removes the call panel and disables the
          * hang up button.
+         * @param event the <tt>CallEvent</tt>
          */
         public void callEnded(CallEvent event)
         {
@@ -88,7 +90,8 @@ public class CallManager
 
         /**
          * Creates and opens a call dialog. Implements
-         * CallListener.outGoingCallCreated. .
+         * CallListener.outGoingCallCreated.
+         * @param event the <tt>CallEvent</tt>
          */
         public void outgoingCallCreated(CallEvent event)
         {
@@ -158,10 +161,6 @@ public class CallManager
      */
     public static void hangupCall(final Call call)
     {
-        NotificationManager.stopSound(NotificationManager.BUSY_CALL);
-        NotificationManager.stopSound(NotificationManager.INCOMING_CALL);
-        NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);
-
         new HangupCallThread(call).start();
     }
 
@@ -412,9 +411,8 @@ public class CallManager
         public void run()
         {
             OperationSetTelephonyConferencing confOpSet
-                = call
-                    .getProtocolProvider()
-                        .getOperationSet(
+                = call.getProtocolProvider()
+                    .getOperationSet(
                             OperationSetTelephonyConferencing.class);
 
             /*
