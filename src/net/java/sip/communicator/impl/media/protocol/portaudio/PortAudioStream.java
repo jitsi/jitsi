@@ -14,22 +14,28 @@ import javax.media.Buffer;
 import javax.media.format.*;
 import javax.media.protocol.*;
 
+import net.java.sip.communicator.util.*;
+
 /**
  * @author Damian Minkov
  */
 public class PortAudioStream
-    implements PushBufferStream,
-               PortAudioStreamCallback
+    implements PullBufferStream
 {
-//    private static final Logger logger
-//        = Logger.getLogger(PortAudioStream.class);
+    private static final Logger logger =
+        Logger.getLogger(PortAudioStream.class);
+
+    /**
+     * The locatro prefix used when creating or parsing MediaLocators.
+     */
+    public static final String LOCATOR_PREFIX = "portaudio:#";
 
     private final static ContentDescriptor cd =
         new ContentDescriptor(ContentDescriptor.RAW);
-    private BufferTransferHandler transferHandler;
+
     private Control[] controls = new Control[0];
 
-    public static AudioFormat audioFormat = new AudioFormat(
+    private static AudioFormat audioFormat = new AudioFormat(
                     AudioFormat.LINEAR,
                       44100,
                       16,
@@ -40,14 +46,37 @@ public class PortAudioStream
                       Format.NOT_SPECIFIED,
                       Format.byteArray);
 
+    private boolean started;
     private long stream = 0;
-
-    private ByteBuffer bufferToProcess = null;
 
     private int seqNo = 0;
 
+    private int sampleSize = 1;
+
+    final private int deviceIndex;
+
     /**
-     * Returns the supported formats by this stream.
+     * Creates new stream.
+     * @param locator the locator to extract the device index from it.
+     */
+    public PortAudioStream(MediaLocator locator)
+    {
+        this.deviceIndex = getDeviceIndexFromLocator(locator);
+    }
+
+    /**
+     * Return the formats supported by the datasource stream
+     * corresponding the maximum input channels.
+     *
+     * @return the supported formats.
+     */
+    public static Format[] getFormats()
+    {
+        return new Format[]{audioFormat};
+    }
+
+    /**
+     * Returns the supported format by this stream.
      * @return supported formats
      */
     public Format getFormat()
@@ -56,37 +85,8 @@ public class PortAudioStream
     }
 
     /**
-     * 
-     * @param buffer
-     * @throws IOException
-     */
-    public void read(Buffer buffer)
-        throws IOException
-    {
-        byte[] barr = new byte[bufferToProcess.remaining()];
-
-        bufferToProcess.get(barr);
-
-        buffer.setTimeStamp(System.nanoTime());
-        buffer.setData(barr);
-        buffer.setSequenceNumber(seqNo);
-        buffer.setLength(barr.length);
-        buffer.setFlags(0);
-        buffer.setHeader(null);
-        seqNo++;
-    }
-
-    /**
-     * 
-     * @param transferHandler
-     */
-    public void setTransferHandler(BufferTransferHandler transferHandler)
-    {
-        this.transferHandler = transferHandler;
-    }
-
-    /**
      * We are providing access to raw data
+     * @return RAW content descriptor.
      */
     public ContentDescriptor getContentDescriptor()
     {
@@ -95,6 +95,7 @@ public class PortAudioStream
 
     /**
      * We are streaming.
+     * @return unknown content length.
      */
     public long getContentLength()
     {
@@ -103,7 +104,7 @@ public class PortAudioStream
 
     /**
      * The stream never ends.
-     *
+     * @return true if the end of the stream has been reached.
      */
     public boolean endOfStream()
     {
@@ -112,7 +113,7 @@ public class PortAudioStream
 
     /**
      * Gives control information to the caller
-     *
+     * @return no controls currently supported.
      */
     public Object[] getControls()
     {
@@ -121,7 +122,10 @@ public class PortAudioStream
 
     /**
      * Return required control from the Control[] array
-     * if exists, that is
+     * if exists
+     *
+     * @param controlType the control class name.
+     * @return the object that implements the control, or null.
      */
     public Object getControl(String controlType)
     {
@@ -145,96 +149,130 @@ public class PortAudioStream
         }
     }
 
-    public void finishedCallback()
-    {
-    }
-
     /**
      * Starts the stream operation
      */
     void start()
-        throws PortAudioException
     {
-        if (this.stream != 0)
-            throw new IllegalStateException("stream");
-
-        long stream = createStream();
-
-        try
+        synchronized (this)
         {
-            PortAudio.Pa_StartStream(stream);
-            this.stream = stream;
-        }
-        catch (PortAudioException startException)
-        {
+            this.started = true;
             try
             {
-                PortAudio.Pa_CloseStream(stream);
+                PortAudio.Pa_StartStream(getStream());
             }
-            catch (PortAudioException closeException)
+            catch (PortAudioException paex)
             {
-                /*
-                 * We couldn't start the stream so we're closing it just to free
-                 * the native resources but if that fails as well, we cannot do
-                 * anything about it. Besides, we have to rethrow the exception
-                 * which was thrown on start.
-                 */
+                paex.printStackTrace();
             }
-
-            throw startException;
         }
     }
 
     void stop()
-        throws PortAudioException
     {
-        if (stream != 0)
+        synchronized (this)
         {
-            PortAudio.Pa_CloseStream(stream);
-            stream = 0;
+            this.started = false;
+
+            try
+            {
+                PortAudio.Pa_CloseStream(getStream());
+                stream = 0;
+            }
+            catch (PortAudioException paex)
+            {
+                paex.printStackTrace();
+            }
         }
     }
 
-    private long createStream()
+    private long getStream()
         throws PortAudioException
     {
-        int deviceCount = PortAudio.Pa_GetDeviceCount();
-        int deviceIndex = 0;
-
-        for (; deviceIndex < deviceCount; deviceIndex++)
+        if (stream == 0)
         {
-            long deviceInfo = PortAudio.Pa_GetDeviceInfo(deviceIndex);
+            long streamParameters
+                = PortAudio.PaStreamParameters_new(
+                        deviceIndex,
+                        audioFormat.getChannels(),
+                        PortAudio.SAMPLE_FORMAT_INT16);
 
-            if ((PortAudio.PaDeviceInfo_getMaxInputChannels(deviceInfo) == 2)
-                && (PortAudio.PaDeviceInfo_getMaxOutputChannels(deviceInfo) == 0)
-                && PortAudio.PaDeviceInfo_getName(deviceInfo)
-                    .contains("Analog"))
-                break;
+            stream
+                = PortAudio.Pa_OpenStream(
+                        streamParameters,
+                        0,
+                        audioFormat.getSampleRate(),
+                        PortAudio.FRAMES_PER_BUFFER_UNSPECIFIED,
+                        PortAudio.STREAM_FLAGS_NO_FLAG,
+                        null);
+            sampleSize =
+                PortAudio.Pa_GetSampleSize(PortAudio.SAMPLE_FORMAT_INT16);
         }
 
-        long streamParameters
-            = PortAudio.PaStreamParameters_new(
-                    deviceIndex,
-                    1,
-                    PortAudio.SAMPLE_FORMAT_INT16);
-
-        return
-            PortAudio.Pa_OpenStream(
-                    streamParameters,
-                    0,
-                    44100,
-                    PortAudio.FRAMES_PER_BUFFER_UNSPECIFIED,
-                    PortAudio.STREAM_FLAGS_NO_FLAG,
-                    this);
+        return stream;
     }
 
-    public int callback(ByteBuffer input, ByteBuffer output)
+    /**
+     * Query if the next read will block.
+     * @return true if a read will block.
+     */
+    public boolean willReadBlock()
     {
-        bufferToProcess = input;
+        try
+        {
+            return PortAudio.Pa_GetStreamReadAvailable(getStream()) == 0;
+        }
+        catch (PortAudioException ex)
+        {
+            logger.error("Cannot get read available", ex);
+            return true;
+        }
+    }
 
-        if (transferHandler != null)
-            transferHandler.transferData(this);
+    /**
+     * Block and read a buffer from the stream.
+     * @param buffer should be non-null.
+     * @throws IOException Thrown if an error occurs while reading.
+     */
+    public synchronized void read(Buffer buffer)
+        throws IOException
+    {
+        if(!this.started)
+            return;
 
-        return RESULT_CONTINUE;
+        try
+        {
+            int canread =
+                (int)PortAudio.Pa_GetStreamReadAvailable(getStream());
+            if(canread < 1)
+                canread = 512;
+
+            byte[] bytebuff = new byte[canread*sampleSize];
+
+            PortAudio.Pa_ReadStream(getStream(), bytebuff, canread);
+    
+            buffer.setTimeStamp(System.nanoTime());
+            buffer.setData(bytebuff);
+            buffer.setSequenceNumber(seqNo);
+            buffer.setLength(bytebuff.length);
+            buffer.setFlags(0);
+            buffer.setHeader(null);
+            seqNo++;
+        }
+        catch (PortAudioException e)
+        {
+            logger.error("", e);
+        }
+    }
+
+    /**
+     * Extracts the device index from the locator.
+     * @param locator the locator containing the device index.
+     * @return the extracted device index.
+     */
+    public static int getDeviceIndexFromLocator(MediaLocator locator)
+    {
+        return Integer.parseInt(locator.toExternalForm().replace(
+                PortAudioStream.LOCATOR_PREFIX, ""));
     }
 }

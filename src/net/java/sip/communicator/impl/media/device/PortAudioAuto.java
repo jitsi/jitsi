@@ -6,28 +6,71 @@
  */
 package net.java.sip.communicator.impl.media.device;
 
+import java.util.*;
 import javax.media.*;
 import net.java.sip.communicator.impl.media.protocol.portaudio.*;
 
 /**
- * Creates Portaudio capture devices.
+ * Creates Portaudio capture devices by enumarating all the
+ * host devices that has input channels.
  *
  * @author Damian Minkov
  */
 public class PortAudioAuto
 {
+    /**
+     * An array of the devices that can be used for playback.
+     */
+    public static CaptureDeviceInfo[] playbackDevices = null;
+
     PortAudioAuto() throws Exception
     {
-        Format[] formats = new Format[1];
+        // if PortAudio has a problem initializing like missing native
+        // components it will trow exception here and PortAudio rendering will
+        // not be inited.
+        PortAudio.initialize();
 
-        formats[0] = PortAudioStream.audioFormat;
+        int deviceCount = PortAudio.Pa_GetDeviceCount();
+        int deviceIndex = 0;
 
-        CaptureDeviceInfo jmfInfo =
-            new CaptureDeviceInfo("portaudio:1",
-                    new MediaLocator("portaudio:#" + 1), formats);
+        Vector<CaptureDeviceInfo> playbackDevVector =
+            new Vector<CaptureDeviceInfo>();
 
-        CaptureDeviceManager.addDevice(jmfInfo);
+        for (; deviceIndex < deviceCount; deviceIndex++)
+        {
+            long deviceInfo = PortAudio.Pa_GetDeviceInfo(deviceIndex);
+            int maxInputChannels =
+                PortAudio.PaDeviceInfo_getMaxInputChannels(deviceInfo);
+            int maxOutputChannels =
+                PortAudio.PaDeviceInfo_getMaxOutputChannels(deviceInfo);
+
+            CaptureDeviceInfo jmfInfo =
+                    new CaptureDeviceInfo(
+                        PortAudio.PaDeviceInfo_getName(deviceInfo),
+                        new MediaLocator(
+                            PortAudioStream.LOCATOR_PREFIX + deviceIndex),
+                        PortAudioStream.getFormats());
+
+            if(maxInputChannels > 0)
+            {
+                CaptureDeviceManager.addDevice(jmfInfo);
+            }
+
+            if(maxOutputChannels > 0)
+            {
+                playbackDevVector.add(jmfInfo);
+            }
+        }
+
+        playbackDevices = playbackDevVector.toArray(new CaptureDeviceInfo[0]);
 
         CaptureDeviceManager.commit();
+
+        // Enables Portaudio Renderer
+        DeviceConfiguration.initPortAudioRenderer();
+
+        // now add it as available audio system to DeviceConfiguration
+        DeviceConfiguration.addAudioSystem(
+            DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO);
     }
 }

@@ -12,6 +12,7 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.impl.media.protocol.portaudio.*;
 
 /**
+ * Portaudio renderer.
  *
  * @author Damian Minkov
  */
@@ -22,41 +23,55 @@ public class PortAudioRenderer
         Logger.getLogger(PortAudioRenderer.class);
 
     private static final String name = "PortAudio Renderer";
-    public static Format[] supportedInputFormats = new Format[]
-    {
-         new AudioFormat(
+
+    private static AudioFormat audioFormat =
+        new AudioFormat(
                     AudioFormat.LINEAR,
-                      44100,
+                      48000,
                       16,
-                      1,
+                      2,
                       AudioFormat.LITTLE_ENDIAN,
                       AudioFormat.SIGNED,
                       16,
                       Format.NOT_SPECIFIED,
-                      Format.byteArray)
+                      Format.byteArray);
+
+    /**
+     * The supported input formats.
+     */
+    public static Format[] supportedInputFormats = new Format[]
+    {
+         audioFormat
     };
-    protected Object [] controls = new Object[0];
+
+    private Object [] controls = new Object[0];
     private AudioFormat inputFormat;
 
     private long stream = 0;
 
-    public PortAudioRenderer()
-    {
-        try
-        {
-            PortAudio.initialize();
-        }
-        catch (PortAudioException e)
-        {
-            logger.error("Cannot Initialize portaudio", e);
-        }
-    }
+    boolean started = false;
 
+    private WriterThread writerThread = null;
+    private final Object bufferSync = new Object();
+    private byte[] buffer = null;
+
+    private static int deviceIndex = -1;
+
+    /**
+     * Lists the input formats supported by this Renderer.
+     * @return  An array of Format objects that represent
+     *          the input formats supported by this Renderer.
+     */
     public Format[] getSupportedInputFormats()
     {
-        return supportedInputFormats;
+        return new Format[]{audioFormat};
     }
 
+    /**
+     * Sets the Format of the input data.
+     * @param format the format to set.
+     * @return The Format that was set.
+     */
     public Format setInputFormat(Format format)
     {
         if(!(format instanceof AudioFormat))
@@ -69,10 +84,16 @@ public class PortAudioRenderer
         return inputFormat;
     }
 
+    /**
+     * Initiates the rendering process.
+     * When start is called, the renderer begins rendering
+     * any data available in its internal buffers.
+     */
     public void start()
     {
         try
-        {            
+        {
+            started = true;
             PortAudio.Pa_StartStream(stream);
         }
         catch (PortAudioException e)
@@ -81,34 +102,52 @@ public class PortAudioRenderer
         }
     }
 
+    /**
+     * Halts the rendering process.
+     */
     public void stop()
     {
-        try
+        synchronized(bufferSync)
         {
-            PortAudio.Pa_CloseStream(stream);
-        }
-        catch (PortAudioException e)
-        {
-            logger.error("Closing portaudio stream failed", e);
+            try
+            {
+                PortAudio.Pa_CloseStream(stream);
+                writerThread = null;
+                started = false;
+            }
+            catch (PortAudioException e)
+            {
+                logger.error("Closing portaudio stream failed", e);
+            }
         }
     }
 
+    /**
+     * Processes the data and renders it
+     * to the output device represented by this Renderer.
+     * @param inputBuffer the input data.
+     * @return BUFFER_PROCESSED_OK if the processing is successful.
+     */
     public int process(Buffer inputBuffer)
     {
-        try
+        synchronized(bufferSync)
         {
             byte[] buff = new byte[inputBuffer.getLength()];
-            System.arraycopy(
-                (byte[])inputBuffer.getData(),
-                inputBuffer.getOffset(),
-                buff,
-                0,
-                buff.length);
-            PortAudio.Pa_WriteStream(stream, buff, buff.length/2);
+                        System.arraycopy(
+                            (byte[])inputBuffer.getData(),
+                            inputBuffer.getOffset(),
+                            buff,
+                            0,
+                            buff.length);
+
+            buffer = buff;
+            bufferSync.notifyAll();
         }
-        catch (PortAudioException e)
+
+        if(writerThread == null)
         {
-            logger.error("Error write to device!", e);
+            writerThread = new WriterThread();
+            writerThread.start();
         }
 
         return BUFFER_PROCESSED_OK;
@@ -116,12 +155,18 @@ public class PortAudioRenderer
 
     /**
      * Returns the name of the pluging.
+     * @return A String that contains the descriptive name of the plug-in.
      */
     public String getName()
     {
         return name;
     }
 
+    /**
+     * Opens the device and stream that we will use to render data.
+     * @throws  ResourceUnavailableException If required resources cannot
+     *          be opened/created.
+     */
     public void open()
         throws ResourceUnavailableException
     {
@@ -129,31 +174,17 @@ public class PortAudioRenderer
         {
             if (stream == 0)
             {
-                int deviceCount = PortAudio.Pa_GetDeviceCount();
-                int deviceIndex = 0;
-
-                for (; deviceIndex < deviceCount; deviceIndex++)
-                {
-                    long deviceInfo = PortAudio.Pa_GetDeviceInfo(deviceIndex);
-
-                    if ((PortAudio.PaDeviceInfo_getMaxOutputChannels(deviceInfo) == 2)
-                        && (PortAudio.PaDeviceInfo_getMaxInputChannels(deviceInfo) == 2)
-                        && PortAudio.PaDeviceInfo_getName(deviceInfo)
-                                    .contains("Analog"))
-                        break;
-                }
-
                 long streamParameters
                     = PortAudio.PaStreamParameters_new(
                             deviceIndex,
-                            1,
+                            audioFormat.getChannels(),
                             PortAudio.SAMPLE_FORMAT_INT16);
 
                 stream
                     = PortAudio.Pa_OpenStream(
                             0,
                             streamParameters,
-                            44100,
+                            audioFormat.getSampleRate(),
                             PortAudio.FRAMES_PER_BUFFER_UNSPECIFIED,
                             PortAudio.STREAM_FLAGS_NO_FLAG,
                             null);
@@ -166,14 +197,14 @@ public class PortAudioRenderer
     }
 
     /**
-     *
+     *  Closes the plug-in.
      */
     public void close()
     {
     }
 
     /**
-     * 
+     * Resets the state of the plug-in.
      */
     public void reset()
     {
@@ -181,7 +212,7 @@ public class PortAudioRenderer
 
     /**
      * Gives control information to the caller
-     *
+     * @return the collection of object controls.
      */
     public Object[] getControls()
     {
@@ -190,7 +221,9 @@ public class PortAudioRenderer
 
     /**
      * Return required control from the Control[] array
-     * if exists, that is
+     * if exists.
+     * @param controlType the control we are interested in.
+     * @return the object that implements the control, or null.
      */
     public Object getControl(String controlType)
     {
@@ -211,6 +244,62 @@ public class PortAudioRenderer
         catch (Exception e)
         {
             return null;
+        }
+    }
+
+    /**
+     * Used to set the device index used by the renderer common for all
+     * instances of it.
+     * @param locator the locator containing the device index.
+     */
+    public static void setDevice(MediaLocator locator)
+    {
+        deviceIndex = PortAudioStream.getDeviceIndexFromLocator(locator);
+    }
+
+    /**
+     * Writes data to the portaudio stream. If there is no data for
+     * particular time write some silence so we wont hear some cracks in
+     * the sound.
+     */
+    private class WriterThread
+        extends Thread
+    {
+
+        public WriterThread()
+        {
+            setName("Portaudio Renderer");
+        }
+
+        public void run()
+        {
+            while(true)
+            {
+                try
+                {
+                    synchronized(bufferSync)
+                    {
+                        // put some silence if there is no data
+                        if(buffer == null)
+                        {
+                            buffer = new byte[1024];
+                        }
+
+                        PortAudio.Pa_WriteStream(
+                            stream, buffer, buffer.length/4);
+
+                        buffer = null;
+                        bufferSync.wait(90);
+                    }
+
+                    if(!started)
+                        return;
+                }
+                catch (Exception e)
+                {
+                    logger.error("writing to stream", e);
+                }
+            }
         }
     }
 }

@@ -41,4 +41,5 @@ Export-Package: net.java.sip.communicator.service.media,
  net.java.sip.communicator.service.media.event,
  net.java.sip.communicator.impl.media,
  net.java.sip.communicator.impl.media.device,
+ net.java.sip.communicator.service.audionotifier
 Metadata-Location: /net/java/sip/communicator/impl/media/media.metadata.xml

@@ -130,20 +130,6 @@ public class JmfDeviceDetector
     {
         logger.info("Looking for Audio capturer");
 
-        // Issues #693 and #524:
-        // Disable DirectSound since it fails on multiple installations
-        //
-        // //First check if DirectSound capture is available
-        // try
-        // {
-        //
-        //    new DirectSoundAuto();
-        // }
-        // catch (Throwable exc)
-        // {
-        //     logger.debug("No direct sound detected: " + exc.getMessage());
-        // }
-
         // check if JavaSound capture is available
         try
         {
@@ -163,14 +149,20 @@ public class JmfDeviceDetector
         {
             logger.debug("No FMJ javasound detected: " + exc.getMessage());
         }
-//        try
-//        {
-//            new PortAudioAuto();
-//        }
-//        catch (Throwable exc)
-//        {
-//            logger.info("No JMF portaudio detected: " + exc.getMessage());
-//        }
+        try
+        {
+            new PortAudioAuto();
+        }
+        catch (Throwable exc)
+        {
+            logger.info("No portaudio detected: " + exc.getMessage());
+        }
+
+        // after javasound and portaudio eventually add them to available
+        // audio systems, lets add option None, in order to be able to
+        // disable audio
+        DeviceConfiguration.addAudioSystem(
+            DeviceConfiguration.AUDIO_SYSTEM_NONE);
 
         // video is enabled by default
         // if video is disabled skip device detection
@@ -330,17 +322,6 @@ public class JmfDeviceDetector
         }
     }
 
-    private void detectS8DirectAudio()
-    {
-        try
-        {
-            new S8DirectAudioAuto();
-        }
-        catch (Throwable tt)
-        {
-        }
-    }
-
     /**
      * Runs JMFInit the first time the application is started so that capture
      * devices are properly detected and initialized by JMF.
@@ -404,18 +385,6 @@ public class JmfDeviceDetector
         }
 
         setupRenderers();
-
-        // Enables Portaudio Renderer and makes it default by removing
-        // javasound renderer
-//        PlugInManager.addPlugIn(
-//            "net.java.sip.communicator.impl.media.renderer.audio.PortAudioRenderer",
-//            net.java.sip.communicator.impl.media.renderer.audio.PortAudioRenderer.supportedInputFormats,
-//            null,
-//            PlugInManager.RENDERER);
-//
-//        PlugInManager.removePlugIn(
-//            "com.sun.media.renderer.audio.JavaSoundRenderer",
-//            PlugInManager.RENDERER);
     }
 
     @SuppressWarnings("unchecked") //legacy JMF code.
@@ -482,10 +451,5 @@ public class JmfDeviceDetector
     public static void detectAndConfigureCaptureDevices()
     {
         setupJMF();
-    }
-
-    public static void main(String[] args)
-    {
-        detectAndConfigureCaptureDevices();
     }
 }

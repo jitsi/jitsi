@@ -175,13 +175,18 @@ public class MediaControl
         {
             public void propertyChange(PropertyChangeEvent evt)
             {
-                try
+                if(evt.getPropertyName().equals(
+                    DeviceConfiguration.AUDIO_CAPTURE_DEVICE))
                 {
-                    initCaptureDevices();
-                }
-                catch (MediaException e)
-                {
-                    logger.error("Cannot init capture devices after change", e);
+                    try
+                    {
+                        initCaptureDevices();
+                    }
+                    catch (MediaException e)
+                    {
+                        logger.error(
+                            "Cannot init capture devices after change", e);
+                    }
                 }
             }
         });

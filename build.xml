@@ -653,8 +653,10 @@
             <sysproperty key="java.net.preferIPv6Addresses"
                 value="${java.net.preferIPv6Addresses}"/>
 
-            <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
-                    value="${user.home}/schome"/-->
+            <sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
+                      value="${user.home}/schome"/>
+                      <sysproperty key="net.java.sip.communicator.SC_HOME_DIR_NAME"
+                      value="sc-2071"/>
 
             <!-- Setting properties necessary for dependencies on native libs.-->
             <sysproperty key="java.library.path"
@@ -797,7 +799,7 @@
         bundle-plugin-yahooaccregwizz,bundle-plugin-aimaccregwizz,
         bundle-version,bundle-version-impl,bundle-shutdown-timeout,
         bundle-growlnotification,bundle-swingnotification,bundle-sparkle,
-        bundle-audionotifier,bundle-plugin-branding,
+        bundle-plugin-branding,
         bundle-osdependent,bundle-browserlauncher,bundle-gibberish,
         bundle-gibberish-slick,bundle-plugin-gibberishaccregwizz,
         bundle-plugin-call-history-form,
@@ -976,6 +978,8 @@
                 prefix="net/java/sip/communicator/impl/media"/>
             <zipfileset dir="${resources}/images/impl/media"
                 prefix="resources/images/impl/media"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/audionotifier"
+                prefix="net/java/sip/communicator/service/audionotifier"/>
             <zipfileset src="${lib.win.noinst}/jmf.jar" prefix=""/>
             <zipfileset src="${lib.win.noinst}/sound.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jain-sdp.jar" prefix=""/>
@@ -997,6 +1001,8 @@
                 prefix="net/java/sip/communicator/impl/media"/>
             <zipfileset dir="${resources}/images/impl/media"
                 prefix="resources/images/impl/media"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/audionotifier"
+                prefix="net/java/sip/communicator/service/audionotifier"/>
             <zipfileset src="${lib.lin.noinst}/jmf.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jain-sdp.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
@@ -1017,6 +1023,8 @@
                 prefix="net/java/sip/communicator/impl/media"/>
             <zipfileset dir="${resources}/images/impl/media"
                 prefix="resources/images/impl/media"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/audionotifier"
+                prefix="net/java/sip/communicator/service/audionotifier"/>
             <zipfileset src="${lib.mac.noinst}/jmf.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jain-sdp.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>

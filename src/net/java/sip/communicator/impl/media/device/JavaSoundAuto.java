@@ -15,6 +15,10 @@ import javax.media.*;
 
 import net.java.sip.communicator.util.*;
 
+/**
+ * Detects javasound and registers capture devices.
+ * @author damencho
+ */
 public class JavaSoundAuto {
 
     private static final Logger logger = Logger.getLogger(JavaSoundAuto.class);
@@ -74,6 +78,9 @@ public class JavaSoundAuto {
                 }
             }
 
+            // now add it as available audio system to DeviceConfiguration
+            DeviceConfiguration.addAudioSystem(
+                DeviceConfiguration.AUDIO_SYSTEM_JAVASOUND);
         }
     }
 }

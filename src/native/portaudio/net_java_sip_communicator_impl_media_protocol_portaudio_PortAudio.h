@@ -23,6 +23,45 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_media_protocol_portau
 JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1WriteStream
   (JNIEnv *, jclass, jlong, jbyteArray, jlong);
 
+/*
+ * Class:     net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio
+ * Method:    Pa_ReadStream
+ * Signature: (J[BJ)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1ReadStream
+  (JNIEnv *, jclass, jlong, jbyteArray, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio
+ * Method:    Pa_GetStreamReadAvailable
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1GetStreamReadAvailable
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio
+ * Method:    Pa_GetStreamWriteAvailable
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1GetStreamWriteAvailable
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio
+ * Method:    Pa_GetSampleSize
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1GetSampleSize
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio
+ * Method:    Pa_IsFormatSupported
+ * Signature: (JJD)Z
+ */
+JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1IsFormatSupported
+  (JNIEnv *, jclass, jlong, jlong, jdouble);
 
 /*
  * Class:     net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio
@@ -94,6 +133,14 @@ JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_media_protocol_portau
  * Signature: (J)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaDeviceInfo_1getName
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio
+ * Method:    PaDeviceInfo_getDefaultSampleRate
+ * Signature: (J)D
+ */
+JNIEXPORT jdouble JNICALL Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaDeviceInfo_1getDefaultSampleRate
   (JNIEnv *, jclass, jlong);
 
 /*

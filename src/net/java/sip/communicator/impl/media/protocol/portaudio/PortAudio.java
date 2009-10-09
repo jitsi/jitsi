@@ -66,11 +66,28 @@ public final class PortAudio
             long frames)
         throws PortAudioException;
 
+    public static native void Pa_ReadStream(
+            long stream, byte[] buffer, long frames)
+        throws PortAudioException;
+
+    public static native long Pa_GetStreamReadAvailable(long stream);
+
+    public static native long Pa_GetStreamWriteAvailable(long stream);
+
+    public static native int Pa_GetSampleSize(long format);
+
+    public static native boolean Pa_IsFormatSupported(
+        long inputParameters,
+        long outputParameters,
+        double sampleRate);
+
     public static native int PaDeviceInfo_getMaxInputChannels(long deviceInfo);
 
     public static native int PaDeviceInfo_getMaxOutputChannels(long deviceInfo);
 
     public static native String PaDeviceInfo_getName(long deviceInfo);
+
+    public static native double PaDeviceInfo_getDefaultSampleRate(long deviceInfo);
 
     public static native long PaStreamParameters_new(
         int deviceIndex,

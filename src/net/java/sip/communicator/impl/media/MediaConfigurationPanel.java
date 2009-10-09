@@ -16,6 +16,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
 
+import net.java.sip.communicator.impl.media.device.*;
 import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -66,6 +67,9 @@ public class MediaConfigurationPanel
      */
     private Player videoPlayerInPreview;
 
+    /**
+     * Creates the panel.
+     */
     public MediaConfigurationPanel()
     {
         super(new GridLayout(0, 1, HGAP, VGAP));
@@ -90,12 +94,71 @@ public class MediaConfigurationPanel
         }
     }
 
+    private void createPortAudioControls(Container portAudioPanel)
+    {
+        portAudioPanel.add(new JLabel(getLabelText(
+            DeviceConfigurationComboBoxModel.AUDIO_CAPTURE)));
+        JComboBox captureCombo = new JComboBox();
+        captureCombo.setEditable(false);
+        captureCombo.setModel(
+        new DeviceConfigurationComboBoxModel(
+            mediaService.getDeviceConfiguration(),
+            DeviceConfigurationComboBoxModel.AUDIO_CAPTURE));
+        portAudioPanel.add(captureCombo);
+
+        portAudioPanel.add(new JLabel(getLabelText(
+            DeviceConfigurationComboBoxModel.AUDIO_PLAYBACK)));
+        JComboBox playbackCombo = new JComboBox();
+        playbackCombo.setEditable(false);
+        playbackCombo.setModel(
+            new DeviceConfigurationComboBoxModel(
+            mediaService.getDeviceConfiguration(),
+            DeviceConfigurationComboBoxModel.AUDIO_PLAYBACK));
+        portAudioPanel.add(playbackCombo);
+
+        portAudioPanel.add(new JLabel(getLabelText(
+            DeviceConfigurationComboBoxModel.AUDIO_NOTIFY)));
+        JComboBox notifyCombo = new JComboBox();
+        notifyCombo.setEditable(false);
+        notifyCombo.setModel(
+            new DeviceConfigurationComboBoxModel(
+            mediaService.getDeviceConfiguration(),
+            DeviceConfigurationComboBoxModel.AUDIO_NOTIFY));
+        portAudioPanel.add(notifyCombo);
+    }
+
     private Component createControls(int type)
     {
         final JComboBox comboBox = new JComboBox();
         comboBox.setEditable(false);
         comboBox.setModel(new DeviceConfigurationComboBoxModel(mediaService
             .getDeviceConfiguration(), type));
+        final Container portAudioPanel = 
+            new TransparentPanel(new GridLayout(3, 2, HGAP, VGAP));
+        comboBox.addItemListener(new ItemListener() {
+
+            public void itemStateChanged(ItemEvent e)
+            {
+                if(e.getStateChange() == ItemEvent.SELECTED)
+                {
+                    if(e.getItem().equals(
+                        DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO))
+                    {
+                        createPortAudioControls(portAudioPanel);
+                    }
+                    else
+                    {
+                        portAudioPanel.removeAll();
+
+                        revalidate();
+                        repaint();
+                    }
+                }
+            }
+        });
+        if(comboBox.getSelectedItem().equals(
+            DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO))
+            createPortAudioControls(portAudioPanel);
 
         JLabel label = new JLabel(getLabelText(type));
         label.setDisplayedMnemonic(getDisplayedMnemonic(type));
@@ -111,6 +174,13 @@ public class MediaConfigurationPanel
         firstConstraints.gridx = 1;
         firstConstraints.weightx = 1;
         firstContainer.add(comboBox, firstConstraints);
+        
+        firstConstraints.gridx = 0;
+        firstConstraints.gridy = 1;
+        firstConstraints.weightx = 1;
+        firstConstraints.gridwidth = 2;
+        firstConstraints.insets = new Insets(VGAP, 0, 0, 0);
+        firstContainer.add(portAudioPanel, firstConstraints);
 
         Container secondContainer =
             new TransparentPanel(new GridLayout(1, 0, HGAP, VGAP));
@@ -392,6 +462,15 @@ public class MediaConfigurationPanel
         case DeviceConfigurationComboBoxModel.AUDIO:
             return MediaActivator.getResources().getI18NString(
                 "impl.media.configform.AUDIO");
+        case DeviceConfigurationComboBoxModel.AUDIO_CAPTURE:
+            return MediaActivator.getResources().getI18NString(
+                "impl.media.configform.AUDIO_IN");
+        case DeviceConfigurationComboBoxModel.AUDIO_NOTIFY:
+            return MediaActivator.getResources().getI18NString(
+                "impl.media.configform.AUDIO_NOTIFY");
+        case DeviceConfigurationComboBoxModel.AUDIO_PLAYBACK:
+            return MediaActivator.getResources().getI18NString(
+                "impl.media.configform.AUDIO_OUT");
         case DeviceConfigurationComboBoxModel.VIDEO:
             return MediaActivator.getResources().getI18NString(
                 "impl.media.configform.VIDEO");

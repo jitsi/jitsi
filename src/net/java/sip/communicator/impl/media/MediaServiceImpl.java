@@ -14,6 +14,8 @@ import javax.media.Time;
 
 import net.java.sip.communicator.impl.media.codec.*;
 import net.java.sip.communicator.impl.media.device.*;
+import net.java.sip.communicator.impl.media.notify.*;
+import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.media.event.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -409,6 +411,9 @@ public class MediaServiceImpl
                     defaultMediaControl.
                         initialize(deviceConfiguration, encodingConfiguration);
                     sdpFactory = SdpFactory.getInstance();
+
+                    registerAudioNotifyService();
+
                     isStarted = true;
                 }
                 catch (Throwable ex)
@@ -421,6 +426,27 @@ public class MediaServiceImpl
                 startingLock.notifyAll();
             }
         }
+    }
+
+    private void registerAudioNotifyService()
+    {
+        //Create the audio notifier service
+        AudioNotifierServiceImpl audioNotifier = 
+            new AudioNotifierServiceImpl(deviceConfiguration);
+
+        audioNotifier.setMute(
+                !MediaActivator.getConfigurationService()
+                    .getBoolean(
+                        "net.java.sip.communicator.impl.sound.isSoundEnabled",
+                        true));
+
+        MediaActivator.getBundleContext()
+                .registerService(
+                    AudioNotifierService.class.getName(),
+                    audioNotifier,
+                    null);
+
+            logger.info("Audio Notifier Service ...[REGISTERED]");
     }
 
     /**

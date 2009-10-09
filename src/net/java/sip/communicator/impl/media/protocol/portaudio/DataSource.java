@@ -12,10 +12,12 @@ import javax.media.*;
 import javax.media.protocol.*;
 
 /**
+ * Portaudio datasource.
+ *
  * @author Damian Minkov
  */
 public class DataSource
-    extends PushBufferDataSource
+    extends PullBufferDataSource
 {
     private boolean connected = false;
 
@@ -27,6 +29,7 @@ public class DataSource
 
     /**
      * Connect the datasource
+     * @throws IOException if we cannot initialize portaudio.
      */
     public void connect()
         throws IOException
@@ -80,7 +83,9 @@ public class DataSource
 
     /**
      * Return required control from the Control[] array
-     * if exists, that is
+     * if exists.
+     * @param controlType the control we are interested in.
+     * @return the object that implements the control, or null.
      */
     public Object getControl(String controlType)
     {
@@ -101,7 +106,7 @@ public class DataSource
 
     /**
      * Gives control information to the caller
-     *
+     * @return the collection of object controls.
      */
     public Object[] getControls()
     {
@@ -120,22 +125,35 @@ public class DataSource
     }
 
     /**
-     * Returns an array of PushBufferStream containing all the streams
+     * Returns an array of PullBufferStream containing all the streams
      * i.e. only one in our case : only sound.
      *
      * If no stream actually exists, instantiate one on the fly.
      *
      * @return Array of one stream
      */
-    public PushBufferStream[] getStreams()
+    public PullBufferStream[] getStreams()
     {
-        if (streams == null)
-            streams = new PortAudioStream[] { new PortAudioStream() };
+        try
+        {
+            if (streams == null)
+                streams = new PortAudioStream[]
+                    {new PortAudioStream(getLocator())};
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            // if we cannot parse desired device we will not open a stream
+            // so there is no stream returned
+            streams = new PortAudioStream[0];
+        }
+
         return streams;
     }
 
     /**
      * Start the datasource and the underlying stream
+     * @throws IOException 
      */
     public void start()
         throws IOException
@@ -146,21 +164,14 @@ public class DataSource
         if (!connected)
             throw new IOException("DataSource must be connected");
 
-        try
-        {
-            streams[0].start();
-        }
-        catch (PortAudioException paex)
-        {
-            IOException ioex = new IOException();
-            ioex.initCause(paex);
-            throw ioex;
-        }
+        streams[0].start();
+
         started = true;
     }
 
     /**
      * Stop the datasource and it's underlying stream
+     * @throws IOException 
      */
     public void stop()
         throws IOException
@@ -168,16 +179,8 @@ public class DataSource
         if (!started)
             return;
 
-        try
-        {
-            streams[0].stop();
-        }
-        catch (PortAudioException paex)
-        {
-            IOException ioex = new IOException();
-            ioex.initCause(paex);
-            throw ioex;
-        }
+        streams[0].stop();
+
         started = false;
     }
 }

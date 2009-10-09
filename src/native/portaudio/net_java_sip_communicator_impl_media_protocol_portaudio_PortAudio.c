@@ -166,9 +166,68 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1Write
 
 		(*env)->ReleaseByteArrayElements(env, buffer, data, 0);
 
-		if (paNoError != errorCode)
+		if (paNoError != errorCode && errorCode != paOutputUnderflowed)
 			PortAudio_throwException(env, errorCode);
+
+/*
+                if(errorCode == paOutputUnderflowed)
+                {
+                    printf("OutputUnderflowed\n");fflush(stdout);
+                }
+*/
 	}
+}
+
+JNIEXPORT void JNICALL
+Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1ReadStream
+  (JNIEnv *env, jclass clazz, jlong stream, jbyteArray buffer, jlong frames)
+{
+    jbyte* data = (*env)->GetByteArrayElements(env, buffer, NULL);
+    PaError errorCode = Pa_ReadStream(
+            ((PortAudioStream *) stream)->stream,
+            data,
+            frames);
+    (*env)->ReleaseByteArrayElements(env, buffer, data, 0);
+
+    if (paNoError != errorCode && errorCode != paInputOverflowed)
+        PortAudio_throwException(env, errorCode);
+}
+
+JNIEXPORT jlong JNICALL
+Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1GetStreamReadAvailable
+  (JNIEnv *env, jclass clazz, jlong stream)
+{
+    return Pa_GetStreamReadAvailable(((PortAudioStream *) stream)->stream);
+}
+
+JNIEXPORT jlong JNICALL
+Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1GetStreamWriteAvailable
+  (JNIEnv *env, jclass clazz, jlong stream)
+{
+    return Pa_GetStreamWriteAvailable(((PortAudioStream *) stream)->stream);
+}
+
+JNIEXPORT jint JNICALL
+Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1GetSampleSize
+  (JNIEnv *env, jclass clazz, jlong format)
+{
+    return Pa_GetSampleSize(format);
+}
+
+JNIEXPORT jboolean JNICALL
+Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1IsFormatSupported
+  (JNIEnv *env, jclass clazz, 
+    jlong inputParameters,
+    jlong outputParameters,
+    jdouble sampleRate)
+{
+    if(Pa_IsFormatSupported(
+            (PaStreamParameters *) inputParameters,
+            (PaStreamParameters *) outputParameters,
+            sampleRate) == paFormatIsSupported)
+        return JNI_TRUE;
+    else
+        return JNI_FALSE;
 }
 
 JNIEXPORT jint JNICALL
@@ -195,6 +254,13 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaDeviceI
 	return name ? (*env)->NewStringUTF(env, name) : NULL;
 }
 
+JNIEXPORT jdouble JNICALL
+Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaDeviceInfo_1getDefaultSampleRate
+  (JNIEnv *env, jclass clazz, jlong deviceInfo)
+{
+    return ((PaDeviceInfo *) deviceInfo)->defaultSampleRate;
+}
+
 JNIEXPORT jlong JNICALL
 Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaStreamParameters_1new(
 	JNIEnv *env,
@@ -211,7 +277,7 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaStreamP
 		streamParameters->device = deviceIndex;
 		streamParameters->channelCount = channelCount;
 		streamParameters->sampleFormat = sampleFormat;
-		streamParameters->suggestedLatency = 0;
+		streamParameters->suggestedLatency = 0,4;
 		streamParameters->hostApiSpecificStreamInfo = NULL;
 	}
 	return (jlong) streamParameters;
@@ -319,7 +385,7 @@ PortAudioStream_callback(
 			return paAbort;
 	}
 
-	return
+        return
 		(*env)
 			->CallIntMethod(
 				env,
