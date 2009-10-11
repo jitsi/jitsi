@@ -106,19 +106,23 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1OpenS
 			sampleRate,
 			framesPerBuffer,
 			streamFlags,
-                        streamCallback == NULL ? NULL : PortAudioStream_callback,
+			streamCallback ? PortAudioStream_callback : NULL,
 			stream);
 
 	if (paNoError == errorCode)
 	{
-		stream->inputFrameSize = PortAudio_getFrameSize(inputStreamParameters);
-		stream->outputFrameSize
-			= PortAudio_getFrameSize(outputStreamParameters);
+		if (streamCallback)
+		{
+			stream->inputFrameSize
+				= PortAudio_getFrameSize(inputStreamParameters);
+			stream->outputFrameSize
+				= PortAudio_getFrameSize(outputStreamParameters);
 
-		errorCode
-			= Pa_SetStreamFinishedCallback(
-				stream->stream,
-				PortAudioStream_finishedCallback);
+			errorCode
+				= Pa_SetStreamFinishedCallback(
+					stream->stream,
+					PortAudioStream_finishedCallback);
+		}
 
 		return (jlong) stream;
 	}
@@ -183,14 +187,20 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1ReadS
   (JNIEnv *env, jclass clazz, jlong stream, jbyteArray buffer, jlong frames)
 {
     jbyte* data = (*env)->GetByteArrayElements(env, buffer, NULL);
-    PaError errorCode = Pa_ReadStream(
-            ((PortAudioStream *) stream)->stream,
-            data,
-            frames);
-    (*env)->ReleaseByteArrayElements(env, buffer, data, 0);
 
-    if (paNoError != errorCode && errorCode != paInputOverflowed)
-        PortAudio_throwException(env, errorCode);
+    if (data)
+    {
+        PaError errorCode
+            = Pa_ReadStream(
+                ((PortAudioStream *) stream)->stream,
+                data,
+                frames);
+
+        (*env)->ReleaseByteArrayElements(env, buffer, data, 0);
+
+        if ((paNoError != errorCode) && (paInputOverflowed != errorCode))
+            PortAudio_throwException(env, errorCode);
+    }
 }
 
 JNIEXPORT jlong JNICALL
@@ -528,15 +538,15 @@ PortAudioStream_new(JNIEnv *env, jobject streamCallback)
 	}
 	stream->stream = NULL;
 
-	if ((*env)->GetJavaVM(env, &(stream->vm)) < 0)
-	{
-		free(stream);
-		PortAudio_throwException(env, paInternalError);
-		return NULL;
-	}
-
 	if (streamCallback)
 	{
+		if ((*env)->GetJavaVM(env, &(stream->vm)) < 0)
+		{
+			free(stream);
+			PortAudio_throwException(env, paInternalError);
+			return NULL;
+		}
+
 		stream->streamCallback = (*env)->NewGlobalRef(env, streamCallback);
 		if (!(stream->streamCallback))
 		{
@@ -546,7 +556,10 @@ PortAudioStream_new(JNIEnv *env, jobject streamCallback)
 		}
 	}
 	else
+	{
+		stream->vm = NULL;
 		stream->streamCallback = NULL;
+	}
 
 	stream->env = NULL;
 	stream->streamCallbackMethodID = NULL;
