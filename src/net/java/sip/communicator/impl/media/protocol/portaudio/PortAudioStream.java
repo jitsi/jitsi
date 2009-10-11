@@ -7,10 +7,8 @@
 package net.java.sip.communicator.impl.media.protocol.portaudio;
 
 import java.io.*;
-import java.nio.*;
 
 import javax.media.*;
-import javax.media.Buffer;
 import javax.media.format.*;
 import javax.media.protocol.*;
 
@@ -46,14 +44,13 @@ public class PortAudioStream
                       Format.NOT_SPECIFIED,
                       Format.byteArray);
 
-    private boolean started;
     private long stream = 0;
 
     private int seqNo = 0;
 
-    private int sampleSize = 1;
+    private int frameSize;
 
-    final private int deviceIndex;
+    private final int deviceIndex;
 
     /**
      * Creates new stream.
@@ -152,37 +149,19 @@ public class PortAudioStream
     /**
      * Starts the stream operation
      */
-    void start()
+    synchronized void start()
+        throws PortAudioException
     {
-        synchronized (this)
-        {
-            this.started = true;
-            try
-            {
-                PortAudio.Pa_StartStream(getStream());
-            }
-            catch (PortAudioException paex)
-            {
-                paex.printStackTrace();
-            }
-        }
+        PortAudio.Pa_StartStream(getStream());
     }
 
-    void stop()
+    synchronized void stop()
+        throws PortAudioException
     {
-        synchronized (this)
+        if (stream != 0)
         {
-            this.started = false;
-
-            try
-            {
-                PortAudio.Pa_CloseStream(getStream());
-                stream = 0;
-            }
-            catch (PortAudioException paex)
-            {
-                paex.printStackTrace();
-            }
+            PortAudio.Pa_CloseStream(stream);
+            stream = 0;
         }
     }
 
@@ -191,10 +170,11 @@ public class PortAudioStream
     {
         if (stream == 0)
         {
+            int channels = audioFormat.getChannels();
             long streamParameters
                 = PortAudio.PaStreamParameters_new(
                         deviceIndex,
-                        audioFormat.getChannels(),
+                        channels,
                         PortAudio.SAMPLE_FORMAT_INT16);
 
             stream
@@ -205,8 +185,9 @@ public class PortAudioStream
                         PortAudio.FRAMES_PER_BUFFER_UNSPECIFIED,
                         PortAudio.STREAM_FLAGS_NO_FLAG,
                         null);
-            sampleSize =
-                PortAudio.Pa_GetSampleSize(PortAudio.SAMPLE_FORMAT_INT16);
+            frameSize
+                = PortAudio.Pa_GetSampleSize(PortAudio.SAMPLE_FORMAT_INT16)
+                    * channels;
         }
 
         return stream;
@@ -216,17 +197,12 @@ public class PortAudioStream
      * Query if the next read will block.
      * @return true if a read will block.
      */
-    public boolean willReadBlock()
+    public synchronized boolean willReadBlock()
     {
-        try
-        {
-            return PortAudio.Pa_GetStreamReadAvailable(getStream()) == 0;
-        }
-        catch (PortAudioException ex)
-        {
-            logger.error("Cannot get read available", ex);
-            return true;
-        }
+        return
+            (stream != 0)
+                ? PortAudio.Pa_GetStreamReadAvailable(stream) == 0
+                : false;
     }
 
     /**
@@ -237,19 +213,20 @@ public class PortAudioStream
     public synchronized void read(Buffer buffer)
         throws IOException
     {
-        if(!this.started)
+        if (stream == 0)
             return;
 
         try
         {
-            int canread =
-                (int)PortAudio.Pa_GetStreamReadAvailable(getStream());
+            int canread
+                = (int) PortAudio.Pa_GetStreamReadAvailable(stream);
+
             if(canread < 1)
                 canread = 512;
 
-            byte[] bytebuff = new byte[canread*sampleSize];
+            byte[] bytebuff = new byte[canread*frameSize];
 
-            PortAudio.Pa_ReadStream(getStream(), bytebuff, canread);
+            PortAudio.Pa_ReadStream(stream, bytebuff, canread);
     
             buffer.setTimeStamp(System.nanoTime());
             buffer.setData(bytebuff);

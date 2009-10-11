@@ -164,7 +164,17 @@ public class DataSource
         if (!connected)
             throw new IOException("DataSource must be connected");
 
-        streams[0].start();
+        try
+        {
+            streams[0].start();
+        }
+        catch (PortAudioException pae)
+        {
+            IOException ioe = new IOException();
+
+            ioe.initCause(pae);
+            throw ioe;
+        }
 
         started = true;
     }
@@ -179,7 +189,17 @@ public class DataSource
         if (!started)
             return;
 
-        streams[0].stop();
+        try
+        {
+            streams[0].stop();
+        }
+        catch (PortAudioException pae)
+        {
+            IOException ioe = new IOException();
+
+            ioe.initCause(pae);
+            throw ioe;
+        }
 
         started = false;
     }
