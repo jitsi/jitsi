@@ -66,9 +66,6 @@ public class PortAudioAuto
 
         CaptureDeviceManager.commit();
 
-        // Enables Portaudio Renderer
-        DeviceConfiguration.initPortAudioRenderer();
-
         // now add it as available audio system to DeviceConfiguration
         DeviceConfiguration.addAudioSystem(
             DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO);

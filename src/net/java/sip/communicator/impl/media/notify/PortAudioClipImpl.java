@@ -133,19 +133,30 @@ public class PortAudioClipImpl
                 {
                     if (portAudioStream == 0)
                     {
+                        int deviceIndex =
+                            PortAudioStream.getDeviceIndexFromLocator(
+                                        audioNotifier.getDeviceConfiguration().
+                                        getAudioNotifyDevice().getLocator());
+                        long devInfo = PortAudio.Pa_GetDeviceInfo(deviceIndex);
+                        int maxOutChannels =
+                            PortAudio.PaDeviceInfo_getMaxOutputChannels(devInfo);
+                        if(maxOutChannels > 2)
+                            maxOutChannels = 2;
+
+                        double sampleRate =
+                            PortAudio.PaDeviceInfo_getDefaultSampleRate(devInfo);
+
                         long streamParameters
                             = PortAudio.PaStreamParameters_new(
-                                    PortAudioStream.getDeviceIndexFromLocator(
-                                        audioNotifier.getDeviceConfiguration().
-                                        getAudioNotifyDevice().getLocator()),
-                                    2,
+                                    deviceIndex,
+                                    maxOutChannels,
                                     PortAudio.SAMPLE_FORMAT_INT16);
 
                         portAudioStream
                             = PortAudio.Pa_OpenStream(
                                     0,
                                     streamParameters,
-                                    48000,
+                                    sampleRate,
                                     PortAudio.FRAMES_PER_BUFFER_UNSPECIFIED,
                                     PortAudio.STREAM_FLAGS_NO_FLAG,
                                     null);

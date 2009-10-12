@@ -24,25 +24,16 @@ public class PortAudioRenderer
 
     private static final String name = "PortAudio Renderer";
 
-    private static AudioFormat audioFormat =
-        new AudioFormat(
-                    AudioFormat.LINEAR,
-                      48000,
-                      16,
-                      2,
-                      AudioFormat.LITTLE_ENDIAN,
-                      AudioFormat.SIGNED,
-                      16,
-                      Format.NOT_SPECIFIED,
-                      Format.byteArray);
+    /**
+     * Will be inited after the device is set.
+     */
+    private static AudioFormat audioFormat = null;
 
     /**
-     * The supported input formats.
+     * The supported input formats. The Inputformats are
+     * changed after the device is set.
      */
-    public static Format[] supportedInputFormats = new Format[]
-    {
-         audioFormat
-    };
+    public static Format[] supportedInputFormats = new Format[]{};
 
     private Object [] controls = new Object[0];
     private AudioFormat inputFormat;
@@ -249,12 +240,34 @@ public class PortAudioRenderer
 
     /**
      * Used to set the device index used by the renderer common for all
-     * instances of it.
+     * instances of it. Change the format corresponding the device which
+     * will be used.
      * @param locator the locator containing the device index.
      */
     public static void setDevice(MediaLocator locator)
     {
         deviceIndex = PortAudioStream.getDeviceIndexFromLocator(locator);
+
+        long device = PortAudio.Pa_GetDeviceInfo(deviceIndex);
+        int maxOutputChannels =
+            PortAudio.PaDeviceInfo_getMaxOutputChannels(device);
+        if(maxOutputChannels > 2)
+            maxOutputChannels = 2;
+        double defaultSampleRate =
+            PortAudio.PaDeviceInfo_getDefaultSampleRate(device);
+
+        audioFormat =
+            new AudioFormat(
+                    AudioFormat.LINEAR,
+                      defaultSampleRate,
+                      16,
+                      maxOutputChannels,
+                      AudioFormat.LITTLE_ENDIAN,
+                      AudioFormat.SIGNED,
+                      16,
+                      Format.NOT_SPECIFIED,
+                      Format.byteArray);
+        supportedInputFormats = new Format[]{audioFormat};
     }
 
     /**
