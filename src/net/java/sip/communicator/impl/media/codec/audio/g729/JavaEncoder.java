@@ -12,7 +12,6 @@ import javax.media.*;
 import javax.media.format.*;
 
 import net.java.sip.communicator.impl.media.*;
-import net.java.sip.communicator.impl.media.codec.*;
 
 /**
  * @author Lubomir Marinov
