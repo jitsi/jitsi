@@ -14,7 +14,7 @@ import net.java.sip.communicator.impl.media.protocol.portaudio.*;
 
 /**
  * Creates PortAudio capture devices by enumerating all the host devices that
- * has input channels.
+ * have input channels.
  *
  * @author Damian Minkov
  */
@@ -67,9 +67,6 @@ public class PortAudioAuto
         playbackDevices = playbackDevVector.toArray(new CaptureDeviceInfo[0]);
 
         CaptureDeviceManager.commit();
-
-        // Enables Portaudio Renderer
-        DeviceConfiguration.initPortAudioRenderer();
 
         // now add it as available audio system to DeviceConfiguration
         DeviceConfiguration.addAudioSystem(

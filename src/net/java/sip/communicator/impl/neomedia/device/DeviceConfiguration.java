@@ -608,6 +608,7 @@ public class DeviceConfiguration
                             this.audioPlaybackDevice = captureDeviceInfo;
                             setDeviceToRenderer(audioPlaybackDevice);
                             removeJavaSoundRenderer();
+                            initPortAudioRenderer();
                             break;
                         }
                     }
