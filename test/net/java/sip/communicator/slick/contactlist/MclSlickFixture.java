@@ -206,7 +206,7 @@ public class MclSlickFixture
 
         //go over the subgroups and check that they've been all added to the
         //meta contact list.
-        Iterator expectedSubgroups = expectedGroup.subgroups();
+        Iterator<ContactGroup> expectedSubgroups = expectedGroup.subgroups();
         while (expectedSubgroups.hasNext() )
         {
             MockContactGroup expectedSubGroup
@@ -220,14 +220,14 @@ public class MclSlickFixture
                 expectedSubGroup, actualSubGroup, ignoreEmptyMetaGroups);
         }
 
-        Iterator actualContactsIter = actualGroup.getChildContacts();
+        Iterator<MetaContact> actualContactsIter
+            = actualGroup.getChildContacts();
 
         //check whether every contact in the meta list exists in the source
         //mock provider contact list.
         while (actualContactsIter.hasNext())
         {
-            MetaContact actualMetaContact
-                = (MetaContact) actualContactsIter.next();
+            MetaContact actualMetaContact = actualContactsIter.next();
 
             assertEquals("Number of protocol specific contacts in a MetaContact"
                           , 1, actualMetaContact.getContactCount());

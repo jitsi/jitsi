@@ -574,11 +574,11 @@ public class Mailbox
                 = call
                     .getProtocolProvider()
                         .getOperationSet(OperationSetBasicTelephony.class);
-            Iterator peers = call.getCallPeers();
+            Iterator<? extends CallPeer> peers = call.getCallPeers();
 
             while(peers.hasNext())
             {
-                CallPeer peer = (CallPeer)peers.next();
+                CallPeer peer = peers.next();
 
                 try
                 {

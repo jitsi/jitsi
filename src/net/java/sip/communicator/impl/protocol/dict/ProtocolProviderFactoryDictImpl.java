@@ -176,8 +176,10 @@ public class ProtocolProviderFactoryDictImpl
     }
 
     @Override
-    public void modifyAccount(ProtocolProviderService protocolProvider,
-        Map accountProperties) throws NullPointerException
+    public void modifyAccount(
+            ProtocolProviderService protocolProvider,
+            Map<String, String> accountProperties)
+        throws NullPointerException
     {
         // TODO Auto-generated method stub
     }

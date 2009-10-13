@@ -47,7 +47,8 @@ public class XMLConfigurationStore
     /**
      * The list of properties currently registered in the configuration service.
      */
-    private Map<String, Object> properties = new Hashtable<String, Object>();
+    private Hashtable<String, Object> properties
+        = new Hashtable<String, Object>();
 
     /**
      * Contains the properties that were initially loaded from the configuration
@@ -71,25 +72,7 @@ public class XMLConfigurationStore
     @SuppressWarnings("unchecked")
     private Map<String, Object> cloneProperties()
     {
-        // at the time I'm writing this method we're implementing the
-        // configuration service through the use of a hashtable. this may very
-        // well change one day so let's not be presumptuous
-        if (properties instanceof Hashtable)
-            return
-                (Map<String, Object>)
-                    ((Hashtable<String, Object>) properties).clone();
-        if (properties instanceof HashMap)
-            return
-                (Map<String, Object>)
-                    ((HashMap<String, Object>) properties).clone();
-        if (properties instanceof TreeMap)
-            return
-                (Map<String, Object>)
-                    ((TreeMap<String, Object>) properties).clone();
-
-        // well you can't say that I didn't try!!!
-
-        return new Hashtable<String, Object>(properties);
+        return (Map<String, Object>) properties.clone();
     }
 
     private Document createPropertiesDocument()

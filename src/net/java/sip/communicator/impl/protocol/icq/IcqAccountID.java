@@ -1,3 +1,9 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.protocol.icq;
 
 import java.util.*;
@@ -26,24 +32,26 @@ public class IcqAccountID
      */
     IcqAccountID(String uin, Map<String, String> accountProperties )
     {
-        super(uin, accountProperties, 
-            isAIM(accountProperties) ? ProtocolNames.AIM : ProtocolNames.ICQ, 
+        super(
+            uin,
+            accountProperties,
+            isAIM(accountProperties) ? ProtocolNames.AIM : ProtocolNames.ICQ,
             isAIM(accountProperties) ? "aim.com" : "icq.com");
     }
     
     /**
-     * Checks is the provided properties are for icq or aim account
-     * @param accountProperties account properties for the checked account.
+     * Checks whether the specified set of account properties describes an AIM
+     * account.
+     *
+     * @param accountProperties the set of account properties to be checked
+     * whether they describe an AIM account
+     * @return <tt>true</tt> if <tt>accountProperties</tt> describes an AIM
+     * account; otherwise, <tt>false</tt>
      */
-    static boolean isAIM(Map accountProperties)
+    static boolean isAIM(Map<String, String> accountProperties)
     {
-        Object isAim = accountProperties.get(IS_AIM);
+        String isAim = accountProperties.get(IS_AIM);
 
-        if(isAim != null && 
-            isAim instanceof String && 
-            ((String)isAim).equalsIgnoreCase("true"))
-                return true;
-        else
-            return false;
+        return "true".equalsIgnoreCase(isAim);
     }
 }

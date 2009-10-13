@@ -229,8 +229,8 @@ public class OperationSetGeolocationJabberImpl
                 logger.debug("GeolocationExtension found from " + from + ":" +
                              geolocExt.toXML());
 
-                Map newGeolocation = GeolocationJabberUtils
-                    .convertExtensionToMap(geolocExt);
+                Map<String, String> newGeolocation
+                    = GeolocationJabberUtils.convertExtensionToMap(geolocExt);
 
                 this.fireGeolocationContactChangeEvent(
                     from,
@@ -244,10 +244,10 @@ public class OperationSetGeolocationJabberImpl
          * @param sourceContact which send a new Geolocation.
          * @param newGeolocation the new given Geolocation.
          */
-        public void fireGeolocationContactChangeEvent(String sourceContact,
-            Map newGeolocation)
+        public void fireGeolocationContactChangeEvent(
+                String sourceContact,
+                Map<String, String> newGeolocation)
         {
-
             logger.debug("Trying to dispatch geolocation contact update for "
                          + sourceContact);
 
@@ -264,7 +264,7 @@ public class OperationSetGeolocationJabberImpl
                          + geolocationContactsListeners.size()
                          + " evt=" + evt);
 
-            GeolocationListener[] listeners = null;
+            GeolocationListener[] listeners;
 
             synchronized (geolocationContactsListeners)
             {
@@ -275,9 +275,7 @@ public class OperationSetGeolocationJabberImpl
             }
 
             for (GeolocationListener listener : listeners)
-            {
                 listener.contactGeolocationChanged(evt);
-            }
         }
     }
 }

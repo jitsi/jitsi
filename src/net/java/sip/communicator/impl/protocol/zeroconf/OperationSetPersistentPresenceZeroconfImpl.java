@@ -329,7 +329,7 @@ public class OperationSetPersistentPresenceZeroconfImpl
                                                       PresenceStatus newStatus)
     {
         //first set the status for contacts in this group
-        Iterator childContacts = parent.contacts();
+        Iterator<Contact> childContacts = parent.contacts();
 
         while(childContacts.hasNext())
         {
@@ -350,11 +350,11 @@ public class OperationSetPersistentPresenceZeroconfImpl
         }
 
         //now call this method recursively for all subgroups
-        Iterator subgroups = parent.subgroups();
+        Iterator<ContactGroup> subgroups = parent.subgroups();
 
         while(subgroups.hasNext())
         {
-            ContactGroup subgroup = (ContactGroup)subgroups.next();
+            ContactGroup subgroup = subgroups.next();
             changePresenceStatusForAllContacts(subgroup, newStatus);
         }
     }
@@ -720,14 +720,12 @@ public class OperationSetPersistentPresenceZeroconfImpl
             //offline. The Zeroconf protocol does not implement top level buddies
             //nor subgroups for top level groups so a simple nested loop
             //would be enough.
-            Iterator groupsIter = getServerStoredContactListRoot()
-                .subgroups();
+            Iterator<ContactGroup> groupsIter
+                = getServerStoredContactListRoot().subgroups();
             while (groupsIter.hasNext())
             {
-                ContactGroupZeroconfImpl group
-                    = (ContactGroupZeroconfImpl) groupsIter.next();
-
-                Iterator contactsIter = group.contacts();
+                ContactGroup group = groupsIter.next();
+                Iterator<Contact> contactsIter = group.contacts();
 
                 while (contactsIter.hasNext())
                 {

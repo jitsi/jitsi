@@ -1163,13 +1163,13 @@ public class OperationSetPersistentPresenceIcqImpl
          * or certificate.
          * @param extraInfos List
          */
-        public void handleYourExtraInfo(List extraInfos)
+        public void handleYourExtraInfo(List<ExtraInfoBlock> extraInfos)
         {
             logger.debug("Got extra info: " + extraInfos);
             // @xxx we should one day probably do something here, like check
             // whether the status message has been changed for example.
-            for (int i = 0; i < extraInfos.size(); i ++){
-                ExtraInfoBlock block = (ExtraInfoBlock) extraInfos.get(i);
+            for (ExtraInfoBlock block : extraInfos)
+            {
                 if (block.getType() == ExtraInfoBlock.TYPE_AVAILMSG){
                     String statusMessage = ExtraInfoData.readAvailableMessage(
                                                     block.getExtraData());

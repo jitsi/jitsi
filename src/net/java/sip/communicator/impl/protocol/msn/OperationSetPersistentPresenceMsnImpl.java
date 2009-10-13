@@ -657,8 +657,8 @@ public class OperationSetPersistentPresenceMsnImpl
 
                 //send event notifications saying that all our buddies are
                 //offline.
-                Iterator rootContactsIter =
-                    getServerStoredContactListRoot().contacts();
+                Iterator<Contact> rootContactsIter
+                    = getServerStoredContactListRoot().contacts();
                 while(rootContactsIter.hasNext())
                 {
                     ContactMsnImpl contact

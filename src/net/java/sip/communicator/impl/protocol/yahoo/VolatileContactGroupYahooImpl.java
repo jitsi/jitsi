@@ -8,6 +8,8 @@ package net.java.sip.communicator.impl.protocol.yahoo;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.protocol.*;
+
 /**
  * The Yahoo implementation of the Volatile ContactGroup interface.
  *
@@ -55,10 +57,12 @@ public class VolatileContactGroupYahooImpl
         buff.append(getGroupName());
         buff.append(", childContacts="+countContacts()+":[");
 
-        Iterator contacts = contacts();
+        Iterator<Contact> contacts = contacts();
+
         while (contacts.hasNext())
         {
-            ContactYahooImpl contact = (ContactYahooImpl) contacts.next();
+            Contact contact = contacts.next();
+
             buff.append(contact.toString());
             if(contacts.hasNext())
                 buff.append(", ");

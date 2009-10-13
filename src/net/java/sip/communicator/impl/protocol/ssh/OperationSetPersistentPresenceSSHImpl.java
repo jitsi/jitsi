@@ -383,7 +383,7 @@ public class OperationSetPersistentPresenceSSHImpl
             PresenceStatus newStatus)
     {
         //first set the status for contacts in this group
-        Iterator childContacts = parent.contacts();
+        Iterator<Contact> childContacts = parent.contacts();
         
         while(childContacts.hasNext())
         {
@@ -404,11 +404,11 @@ public class OperationSetPersistentPresenceSSHImpl
         }
         
         //now call this method recursively for all subgroups
-        Iterator subgroups = parent.subgroups();
+        Iterator<ContactGroup> subgroups = parent.subgroups();
         
         while(subgroups.hasNext())
         {
-            ContactGroup subgroup = (ContactGroup)subgroups.next();
+            ContactGroup subgroup = subgroups.next();
             changePresenceStatusForAllContacts(subgroup, newStatus);
         }
     }
@@ -743,7 +743,7 @@ public class OperationSetPersistentPresenceSSHImpl
      * @return a list of all contacts in other providers' contact lists that
      * point to us.
      */
-    public List findContactsPointingToUs()
+    public List<Contact> findContactsPointingToUs()
     {
         List<Contact> contacts = new LinkedList<Contact>();
         BundleContext bc = SSHActivator.getBundleContext();
@@ -854,14 +854,12 @@ public class OperationSetPersistentPresenceSSHImpl
             //offline. The icq protocol does not implement top level buddies
             //nor subgroups for top level groups so a simple nested loop
             //would be enough.
-            Iterator groupsIter = getServerStoredContactListRoot()
-            .subgroups();
+            Iterator<ContactGroup> groupsIter
+                = getServerStoredContactListRoot().subgroups();
             while (groupsIter.hasNext())
             {
-                ContactGroupSSHImpl group
-                        = (ContactGroupSSHImpl) groupsIter.next();
-                
-                Iterator contactsIter = group.contacts();
+                ContactGroup group = groupsIter.next();
+                Iterator<Contact> contactsIter = group.contacts();
                 
                 while (contactsIter.hasNext())
                 {
