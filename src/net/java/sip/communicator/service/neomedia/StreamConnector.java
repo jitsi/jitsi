@@ -38,4 +38,23 @@ public interface StreamConnector
      * use for control data (e.g. RTCP).
      */
     public DatagramSocket getControlSocket();
+
+    /**
+     * Releases the resources allocated by this instance in the course of its
+     * execution and prepares it to be garbage collected.
+     */
+    public void close();
+
+    /**
+     * Notifies this instance that utilization of its <tt>DatagramSocket</tt>s
+     * for data and/or control traffic has started.
+     */
+    public void started();
+
+    /**
+     * Notifies this instance that utilization of its <tt>DatagramSocket</tt>s
+     * for data and/or control traffic has temporarily stopped. This instance
+     * should be prepared to be started at a later time again though.
+     */
+    public void stopped();
 }

@@ -183,6 +183,11 @@ public abstract class MediaFormatImpl<T extends Format>
         return format.getEncoding();
     }
 
+    public T getFormat()
+    {
+        return format;
+    }
+
     /*
      * Implements MediaFormat#getFormatParameters(). Returns a copy of the
      * format properties of this instance. Modifications to the returned Map do

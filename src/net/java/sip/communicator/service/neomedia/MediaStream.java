@@ -22,34 +22,6 @@ import net.java.sip.communicator.util.*;
  */
 public interface MediaStream
 {
-    /**
-     * The name of the property containing the number of binds that a Media
-     * Service Implementation should execute in case a port is already
-     * bound to (each retry would be on a new port in the allowed boundaries).
-     */
-    public static final String BIND_RETRIES_PROPERTY_NAME
-        = "net.java.sip.communicator.service.media.BIND_RETRIES";
-
-    /**
-     * The name of the property that contains the minimum port number that we'd
-     * like our RTP managers to bind upon.
-     */
-    public static final String MIN_PORT_NUMBER_PROPERTY_NAME
-        = "net.java.sip.communicator.service.media.MIN_PORT_NUMBER";
-
-    /**
-     * The name of the property that contains the maximum port number that we'd
-     * like our RTP managers to bind upon.
-     */
-    public static final String MAX_PORT_NUMBER_PROPERTY_NAME
-        = "net.java.sip.communicator.service.media.MAX_PORT_NUMBER";
-
-    /**
-     * The default number of binds that a Media Service Implementation should
-     * execute in case a port is already bound to (each retry would be on a
-     * new random port).
-     */
-    public static final int BIND_RETRIES_DEFAULT_VALUE = 50;
 
     /**
      * The name of the property which indicates whether the remote SSRC is
@@ -81,6 +53,12 @@ public interface MediaStream
      * effect on an already closed stream and is simply ignored.
      */
     public void stop();
+
+    /**
+     * Releases the resources allocated by this instance in the course of its
+     * execution and prepares it to be garbage collected.
+     */
+    public void close();
 
     /**
      * Sets the MediaFormat that this <tt>MediaStream</tt> should transmit in.
@@ -169,4 +147,6 @@ public interface MediaStream
      * @param listener the listener that we'd like to remove.
      */
     public void removePropertyChangeListener(PropertyChangeListener listener);
+
+    public void setTarget(MediaStreamTarget target);
 }

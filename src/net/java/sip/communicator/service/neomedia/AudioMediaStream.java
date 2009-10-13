@@ -77,9 +77,9 @@ public interface AudioMediaStream
      * being fed from this stream's <tt>MediaDevice</tt> and transmit silence
      * instead.
      *
-     * @param on <tt>true</tt> if we are to start transmitting silence and
+     * @param mute <tt>true</tt> if we are to start transmitting silence and
      * <tt>false</tt> if we are to use media from this stream's
      * <tt>MediaDevice</tt> again.
      */
-    public void setMute(boolean on);
+    public void setMute(boolean mute);
 }

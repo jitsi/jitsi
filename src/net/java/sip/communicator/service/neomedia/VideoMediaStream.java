@@ -8,7 +8,7 @@ package net.java.sip.communicator.service.neomedia;
 
 import java.awt.*;
 
-import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.neomedia.event.*;
 
 /**
  * Extends the <tt>MediaStream</tt> interface and adds methods specific to
@@ -37,7 +37,7 @@ public interface VideoMediaStream
      *
      * @param listener the <tt>VideoListener</tt> to be notified when
      * visual/video <tt>Component</tt>s are being added or removed in this
-     * <tt>CallSession</tt>
+     * <tt>VideoMediaStream</tt>
      */
     public void addVideoListener(VideoListener listener);
 }

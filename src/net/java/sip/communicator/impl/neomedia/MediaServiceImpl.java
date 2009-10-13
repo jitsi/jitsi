@@ -10,6 +10,7 @@ import java.util.*;
 
 import javax.media.*;
 
+import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
@@ -22,6 +23,12 @@ public class MediaServiceImpl
 {
 
     /**
+     * With this property video support can be disabled (enabled by default).
+     */
+    public static final String DISABLE_VIDEO_SUPPORT_PROPERTY_NAME
+        = "net.java.sip.communicator.service.media.DISABLE_VIDEO_SUPPORT";
+
+    /**
      * The value of the <tt>devices</tt> property of <tt>MediaServiceImpl</tt>
      * when no <tt>MediaDevice</tt>s are available. Explicitly defined in order
      * to reduce unnecessary allocations.
@@ -29,32 +36,11 @@ public class MediaServiceImpl
     private static final List<MediaDevice> EMPTY_DEVICES
         = Collections.emptyList();
 
-    /**
-     * The <tt>net.java.sip.communicator.impl.media.MediaServiceImpl</tt> this
-     * instance delegates to for functionality it already supports in order to
-     * keep this instance as compatible with it as possible. 
-     */
-    private final net.java.sip.communicator.impl.media.MediaServiceImpl mediaServiceImpl;
+    private final DeviceConfiguration deviceConfiguration
+        = new DeviceConfiguration();
 
-    /**
-     * Initializes a new <tt>MediaServiceImpl</tt> instance which is to delegate
-     * to a specific
-     * <tt>net.java.sip.communicator.impl.media.MediaServiceImpl</tt> for
-     * functionality it already supports in order to keep the new instance as
-     * compatible with the specified <tt>mediaServiceImpl</tt> as possible.
-     *
-     * @param mediaServiceImpl the
-     * <tt>net.java.sip.communicator.impl.media.MediaServiceImpl</tt> the new
-     * instance is to delegate to
-     */
-    public MediaServiceImpl(
-        net.java.sip.communicator.impl.media.MediaServiceImpl mediaServiceImpl)
-    {
-        if (mediaServiceImpl == null)
-            throw new NullPointerException("mediaServiceImpl");
-
-        this.mediaServiceImpl = mediaServiceImpl;
-    }
+    private final EncodingConfiguration encodingConfiguration
+        = new EncodingConfiguration();
 
     /*
      * Implements MediaService#createMediaStream(StreamConnector, MediaDevice).
@@ -63,8 +49,15 @@ public class MediaServiceImpl
             StreamConnector connector,
             MediaDevice device)
     {
-        // TODO Auto-generated method stub
-        return null;
+        switch (device.getMediaType())
+        {
+        case AUDIO:
+            return new AudioMediaStreamImpl(connector, device);
+        case VIDEO:
+            return new VideoMediaStreamImpl(connector, device);
+        default:
+            return null;
+        }
     }
 
     /*
@@ -78,13 +71,11 @@ public class MediaServiceImpl
         {
         case AUDIO:
             captureDeviceInfo
-                = mediaServiceImpl
-                    .getDeviceConfiguration().getAudioCaptureDevice();
+                = getDeviceConfiguration().getAudioCaptureDevice();
             break;
         case VIDEO:
             captureDeviceInfo
-                = mediaServiceImpl
-                    .getDeviceConfiguration().getVideoCaptureDevice();
+                = getDeviceConfiguration().getVideoCaptureDevice();
             break;
         default:
             captureDeviceInfo = null;
@@ -95,6 +86,11 @@ public class MediaServiceImpl
             (captureDeviceInfo == null)
                 ? null
                 : new CaptureMediaDevice(captureDeviceInfo, mediaType);
+    }
+
+    DeviceConfiguration getDeviceConfiguration()
+    {
+        return deviceConfiguration;
     }
 
     /*
@@ -108,13 +104,11 @@ public class MediaServiceImpl
         {
         case AUDIO:
             captureDeviceInfos
-                = mediaServiceImpl
-                    .getDeviceConfiguration().getAvailableAudioCaptureDevices();
+                = getDeviceConfiguration().getAvailableAudioCaptureDevices();
             break;
         case VIDEO:
             captureDeviceInfos
-                = mediaServiceImpl
-                    .getDeviceConfiguration().getAvailableVideoCaptureDevices();
+                = getDeviceConfiguration().getAvailableVideoCaptureDevices();
             break;
         default:
             captureDeviceInfos = null;
@@ -134,5 +128,21 @@ public class MediaServiceImpl
                     .add(new CaptureMediaDevice(captureDeviceInfo, mediaType));
         }
         return captureDevices;
+    }
+
+    EncodingConfiguration getEncodingConfiguration()
+    {
+        return encodingConfiguration;
+    }
+
+    void start()
+    {
+        deviceConfiguration.initialize();
+        encodingConfiguration.initializeFormatPreferences();
+        encodingConfiguration.registerCustomPackages();
+    }
+
+    void stop()
+    {
     }
 }

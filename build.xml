@@ -786,7 +786,7 @@
         bundle-callhistory, bundle-callhistory-slick, bundle-popupmessagehandler-slick,
         bundle-netaddr,bundle-netaddr-slick,bundle-slickless,
         bundle-slick-runner,bundle-sip,bundle-sip-slick,bundle-fileaccess,
-        bundle-fileaccess-slick,bundle-media,bundle-media-slick,
+        bundle-fileaccess-slick,bundle-media,bundle-neomedia,bundle-media-slick,
         bundle-resource-manager,bundle-resources-defaultpack,
         bundle-protocol,bundle-icq,bundle-icq-slick,bundle-mock,bundle-smacklib,
         bundle-jabber,bundle-jabber-slick,bundle-swing-ui,bundle-ui-service,
@@ -1031,6 +1031,109 @@
             <zipfileset src="${lib.noinst}/lti-civil-no_s_w_t.jar" prefix=""/>
         </jar>
 
+    </target>
+
+    <!--BUNDLE-NEOMEDIA-->
+    <target name="bundle-neomedia">
+        <!-- Creates a bundle containing the impl of the neomedia package and
+             the win jmf implementation.-->
+        <jar
+            compress="false" destfile="${bundles.dest.win}/neomedia.jar"
+            manifest="${src}/net/java/sip/communicator/impl/neomedia/neomedia.manifest.mf">
+
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/neomedia"
+                prefix="net/java/sip/communicator/service/neomedia"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/neomedia"
+                prefix="net/java/sip/communicator/impl/neomedia"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media"
+                includes="ArrayIOUtils*"
+                prefix="net/java/sip/communicator/impl/media"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/codec"
+                includes="Constants*"
+                prefix="net/java/sip/communicator/impl/media/codec"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/codec/audio"
+                prefix="net/java/sip/communicator/impl/media/codec/audio"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/codec/video"
+                prefix="net/java/sip/communicator/impl/media/codec/video"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/protocol"
+                prefix="net/java/sip/communicator/impl/media/protocol"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/renderer"
+                prefix="net/java/sip/communicator/impl/media/renderer"/>
+            <zipfileset dir="${resources}/images/impl/media"
+                prefix="resources/images/impl/media"/>
+            <zipfileset src="${lib.win.noinst}/jmf.jar" prefix=""/>
+            <zipfileset src="${lib.win.noinst}/sound.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jain-sdp.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/lti-civil-no_s_w_t.jar" prefix=""/>
+        </jar>
+
+        <!-- Creates a bundle containing the impl of the neomedia package and
+             the linux jmf implementation.-->
+        <jar
+            compress="false" destfile="${bundles.dest.lin}/neomedia.jar"
+            manifest="${src}/net/java/sip/communicator/impl/neomedia/neomedia.manifest.mf">
+
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/neomedia"
+                prefix="net/java/sip/communicator/service/neomedia"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/neomedia"
+                prefix="net/java/sip/communicator/impl/neomedia"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media"
+                includes="ArrayIOUtils*"
+                prefix="net/java/sip/communicator/impl/media"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/codec"
+                includes="Constants*"
+                prefix="net/java/sip/communicator/impl/media/codec"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/codec/audio"
+                prefix="net/java/sip/communicator/impl/media/codec/audio"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/codec/video"
+                prefix="net/java/sip/communicator/impl/media/codec/video"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/protocol"
+                prefix="net/java/sip/communicator/impl/media/protocol"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/renderer"
+                prefix="net/java/sip/communicator/impl/media/renderer"/>
+            <zipfileset dir="${resources}/images/impl/media"
+                prefix="resources/images/impl/media"/>
+            <zipfileset src="${lib.lin.noinst}/jmf.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jain-sdp.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/lti-civil-no_s_w_t.jar" prefix=""/>
+        </jar>
+
+        <!-- Creates a bundle containing the impl of the neomedia package and
+             the mac jmf implementation.-->
+        <jar
+            compress="false" destfile="${bundles.dest.mac}/neomedia.jar"
+            manifest="${src}/net/java/sip/communicator/impl/neomedia/neomedia.manifest.mf">
+
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/neomedia"
+                prefix="net/java/sip/communicator/service/neomedia"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/neomedia"
+                prefix="net/java/sip/communicator/impl/neomedia"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media"
+                includes="ArrayIOUtils*"
+                prefix="net/java/sip/communicator/impl/media"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/codec"
+                includes="Constants*"
+                prefix="net/java/sip/communicator/impl/media/codec"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/codec/audio"
+                prefix="net/java/sip/communicator/impl/media/codec/audio"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/codec/video"
+                prefix="net/java/sip/communicator/impl/media/codec/video"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/protocol"
+                prefix="net/java/sip/communicator/impl/media/protocol"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/renderer"
+                prefix="net/java/sip/communicator/impl/media/renderer"/>
+            <zipfileset dir="${resources}/images/impl/media"
+                prefix="resources/images/impl/media"/>
+            <zipfileset src="${lib.mac.noinst}/jmf.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jain-sdp.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/lti-civil-no_s_w_t.jar" prefix=""/>
+        </jar>
     </target>
 
     <!--BUNDLE-MEDIA-SLICK-->
