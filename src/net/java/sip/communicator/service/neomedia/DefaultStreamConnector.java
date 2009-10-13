@@ -22,6 +22,11 @@ import net.java.sip.communicator.util.*;
 public class DefaultStreamConnector
     implements StreamConnector
 {
+
+    /**
+     * The <tt>Logger</tt> used by the <tt>DefaultStreamConnector</tt> class and
+     * its instances for logging output.
+     */
     private static final Logger logger
         = Logger.getLogger(DefaultStreamConnector.class);
 
@@ -47,6 +52,10 @@ public class DefaultStreamConnector
     public static final String MAX_PORT_NUMBER_PROPERTY_NAME
         = "net.java.sip.communicator.service.media.MAX_PORT_NUMBER";
 
+    /**
+     * The maxium port number <tt>DefaultStreamConnector</tt> instances are to
+     * attempt to bind to.
+     */
     private static int maxPort = -1;
 
     /**
@@ -56,8 +65,25 @@ public class DefaultStreamConnector
     public static final String MIN_PORT_NUMBER_PROPERTY_NAME
         = "net.java.sip.communicator.service.media.MIN_PORT_NUMBER";
 
+    /**
+     * The minimum port number <tt>DefaultStreamConnector</tt> instances are to
+     * attempt to bind to.
+     */
     private static int minPort = -1;
 
+    /**
+     * Creates a new <tt>DatagramSocket</tt> instance which is bound to the
+     * specified local <tt>InetAddress</tt> and its port is within the range
+     * defined by the <tt>ConfigurationService</tt> properties
+     * {@link #MIN_PORT_NUMBER_PROPERTY_NAME} and
+     * {@link #MAX_PORT_NUMBER_PROPERTY_NAME}. Attempts at most
+     * {@link #BIND_RETRIES_PROPERTY_NAME} times to bind.
+     *
+     * @param bindAddr the local <tt>InetAddress</tt> the new
+     * <tt>DatagramSocket</tt> is to bind to
+     * @return a new <tt>DatagramSocket</tt> instance bound to the specified
+     * local <tt>InetAddress</tt>
+     */
     private static synchronized DatagramSocket createDatagramSocket(
             InetAddress bindAddr)
     {
@@ -94,6 +120,10 @@ public class DefaultStreamConnector
         return null;
     }
 
+    /**
+     * The local <tt>InetAddress</tt> this <tt>StreamConnector</tt> attempts to
+     * bind to on demand.
+     */
     private final InetAddress bindAddr;
 
     /**
@@ -131,7 +161,8 @@ public class DefaultStreamConnector
      * {@link #MAX_PORT_NUMBER_PROPERTY_NAME} at most
      * {@link #BIND_RETRIES_PROPERTY_NAME} times.
      *
-     * @param bindAddr
+     * @param bindAddr the local <tt>InetAddress</tt> the new instance is to
+     * attempt to bind to
      */
     public DefaultStreamConnector(InetAddress bindAddr)
     {

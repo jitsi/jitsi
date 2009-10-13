@@ -22,12 +22,20 @@ import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
+ * Extends <tt>MediaStreamImpl</tt> in order to provide an implementation of
+ * <tt>VideoMediaStream</tt>.
+ *
  * @author Lubomir Marinov
  */
 public class VideoMediaStreamImpl
     extends MediaStreamImpl
     implements VideoMediaStream
 {
+
+    /**
+     * The <tt>Logger</tt> used by the <tt>VideoMediaStreamImpl</tt> class and
+     * its instances for logging output.
+     */
     private static final Logger logger
         = Logger.getLogger(VideoMediaStreamImpl.class);
 
@@ -46,8 +54,8 @@ public class VideoMediaStreamImpl
         if(videoDS == null)
             return null;
 
-        FormatControl formatControl =
-            (FormatControl) videoDS.getControl(FormatControl.class.getName());
+        FormatControl formatControl
+            =(FormatControl) videoDS.getControl(FormatControl.class.getName());
 
         if (formatControl == null)
             return null;
@@ -123,6 +131,17 @@ public class VideoMediaStreamImpl
         return ((VideoFormat) selectedFormat).getSize();
     }
 
+    /**
+     * Initializes a new <tt>VideoMediaStreamImpl</tt> instance which will use
+     * the specified <tt>MediaDevice</tt> for both capture and playback of video
+     * exchanged via the specified <tt>StreamConnector</tt>.
+     *
+     * @param connector the <tt>StreamConnector</tt> the new instance is to use
+     * for sending and receiving video
+     * @param device the <tt>MediaDevice</tt> the new instance is to use for
+     * both capture and playback of video exchanged via the specified
+     * <tt>StreamConnector</tt>
+     */
     public VideoMediaStreamImpl(StreamConnector connector, MediaDevice device)
     {
         super(connector, device);
@@ -145,6 +164,11 @@ public class VideoMediaStreamImpl
         return null;
     }
 
+    /*
+     * Overrides MediaStreamImpl#registerCustomCodecFormats(RTPManager) in order
+     * to register Constants#H264_RTP.
+     */
+    @Override
     protected void registerCustomCodecFormats(RTPManager rtpManager)
     {
         // if we have already registered custom formats and we are running JMF

@@ -36,9 +36,17 @@ public class MediaServiceImpl
     private static final List<MediaDevice> EMPTY_DEVICES
         = Collections.emptyList();
 
+    /**
+     * The <tt>CaptureDevice</tt> user choices such as the default audio and
+     * video capture devices.
+     */
     private final DeviceConfiguration deviceConfiguration
         = new DeviceConfiguration();
 
+    /**
+     * The format-related user choices such as the enabled and disabled codecs
+     * and the order of their preference.
+     */
     private final EncodingConfiguration encodingConfiguration
         = new EncodingConfiguration();
 
@@ -88,6 +96,13 @@ public class MediaServiceImpl
                 : new CaptureMediaDevice(captureDeviceInfo, mediaType);
     }
 
+    /**
+     * Gets the <tt>CaptureDevice</tt> user choices such as the default audio
+     * and video capture devices.
+     *
+     * @return the <tt>CaptureDevice</tt> user choices such as the default audio
+     * and video capture devices.
+     */
     DeviceConfiguration getDeviceConfiguration()
     {
         return deviceConfiguration;
@@ -130,11 +145,22 @@ public class MediaServiceImpl
         return captureDevices;
     }
 
+    /**
+     * Gets the format-related user choices such as the enabled and disabled
+     * codecs and the order of their preference.
+     *
+     * @return the format-related user choices such as the enabled and disabled
+     * codecs and the order of their preference
+     */
     EncodingConfiguration getEncodingConfiguration()
     {
         return encodingConfiguration;
     }
 
+    /**
+     * Starts this <tt>MediaService</tt> implementation and thus makes it
+     * operational.
+     */
     void start()
     {
         deviceConfiguration.initialize();
@@ -142,6 +168,10 @@ public class MediaServiceImpl
         encodingConfiguration.registerCustomPackages();
     }
 
+    /**
+     * Stops this <tt>MediaService</tt> implementation and thus signals that its
+     * utilization should cease.
+     */
     void stop()
     {
     }

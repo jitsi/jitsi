@@ -31,6 +31,11 @@ import net.java.sip.communicator.util.*;
 public class CaptureMediaDevice
     implements MediaDevice
 {
+
+    /**
+     * The <tt>Logger</tt> used by <tt>CaptureMediaDevice</tt> and its instances
+     * for logging output.
+     */
     private static final Logger logger
         = Logger.getLogger(CaptureMediaDevice.class);
 
@@ -171,6 +176,10 @@ public class CaptureMediaDevice
         return (VideoFormat) result.intersects(sourceFormat);
     }
 
+    /**
+     * Releases the resources allocated by this instance in the course of its
+     * execution and prepares it to be garbage collected.
+     */
     public void close()
     {
         if (captureDevice != null)
@@ -210,6 +219,19 @@ public class CaptureMediaDevice
         }
     }
 
+    /**
+     * Finds the first <tt>Format</tt> instance in a specific list of
+     * <tt>Format</tt>s which matches a specific <tt>Format</tt>. The
+     * implementation considers a pair of <tt>Format</tt>s matching if they have
+     * the same encoding.
+     *
+     * @param formats the array of <tt>Format</tt>s to be searched for a match
+     * to the specified <tt>format</tt>
+     * @param format the <tt>Format</tt> to search for a match in the specified
+     * <tt>formats</tt>
+     * @return the first element of <tt>formats</tt> which matches
+     * <tt>format</tt> i.e. is of the same encoding
+     */
     private Format findFirstMatchingFormat(Format[] formats, Format format)
     {
         for (Format match : formats)
@@ -323,6 +345,15 @@ public class CaptureMediaDevice
         return captureDevice;
     }
 
+    /**
+     * Gets the output <tt>DataSource</tt> of this instance which provides the
+     * captured (RTP) data to be sent by <tt>MediaStream</tt> to
+     * <tt>MediaStreamTarget</tt>.
+     *
+     * @return the output <tt>DataSource</tt> of this instance which provides
+     * the captured (RTP) data to be sent by <tt>MediaStream</tt> to
+     * <tt>MediaStreamTarget</tt>
+     */
     public DataSource getDataSource()
     {
         Processor processor = getProcessor();
@@ -487,7 +518,8 @@ public class CaptureMediaDevice
          * We need javax.media.Format and we know how to convert MediaFormat to
          * it only for MediaFormatImpl so assert early.
          */
-        MediaFormatImpl mediaFormatImpl = (MediaFormatImpl) format;
+        MediaFormatImpl<? extends Format> mediaFormatImpl
+            = (MediaFormatImpl<? extends Format>) format;
 
         Processor processor = getProcessor();
 
@@ -555,6 +587,15 @@ public class CaptureMediaDevice
         }
     }
 
+    /**
+     * Starts the processing of media in this instance in a specific direction.
+     *
+     * @param direction a <tt>MediaDirection</tt> value which represents the
+     * direction of the processing of media to be started. For example,
+     * {@link MediaDirection#SENDRECV} to start both capture and playback of
+     * media in this instance or {@link MediaDirection#SENDONLY} to only start
+     * the capture of media in this instance
+     */
     public void start(MediaDirection direction)
     {
         if (direction == null)
@@ -571,6 +612,15 @@ public class CaptureMediaDevice
         }
     }
 
+    /**
+     * Stops the processing of media in this instance in a specific direction.
+     *
+     * @param direction a <tt>MediaDirection</tt> value which represents the
+     * direction of the processing of media to be stopped. For example,
+     * {@link MediaDirection#SENDRECV} to stop both capture and playback of
+     * media in this instance or {@link MediaDirection#SENDONLY} to only stop
+     * the capture of media in this instance
+     */
     public void stop(MediaDirection direction)
     {
         if (direction == null)

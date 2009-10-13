@@ -32,6 +32,11 @@ public class MediaStreamImpl
                SendStreamListener,
                SessionListener
 {
+
+    /**
+     * The <tt>Logger</tt> used by the <tt>MediaStreamImpl</tt> class and its
+     * instances for logging output.
+     */
     private static final Logger logger
         = Logger.getLogger(MediaStreamImpl.class);
 
@@ -53,8 +58,18 @@ public class MediaStreamImpl
      */
     private final RTPConnectorImpl rtpConnector;
 
+    /**
+     * The <tt>RTPManager</tt> which utilizes {@link #rtpConnector} and sends
+     * and receives RTP and RTCP traffic on behalf of this <tt>MediaStream</tt>.
+     */
     private RTPManager rtpManager;
 
+    /**
+     * The <tt>MediaDirection</tt> in which this instance is started. For
+     * example, {@link MediaDirection#SENDRECV} if this instances is both
+     * sending and receiving data (e.g. RTP and RTCP) or
+     * {@link MediaDirection#SENDONLY} if this instance is only sending data.
+     */
     private MediaDirection startedDirection;
 
     /**
@@ -115,6 +130,10 @@ public class MediaStreamImpl
         }
     }
 
+    /**
+     * Creates new <tt>SendStream</tt> instances for the streams of
+     * {@link #device} through {@link #rtpManager}.
+     */
     private void createSendStreams()
     {
         RTPManager rtpManager = getRTPManager();
@@ -237,6 +256,13 @@ public class MediaStreamImpl
         return null;
     }
 
+    /**
+     * Gets the <tt>RTPManager</tt> instance which sends and receives RTP and
+     * RTCP traffic on behalf of this <tt>MediaStream</tt>.
+     *
+     * @return the <tt>RTPManager</tt> instance which sends and receives RTP and
+     * RTCP traffic on behalf of this <tt>MediaStream</tt>
+     */
     private RTPManager getRTPManager()
     {
         if (rtpManager == null)
@@ -292,6 +318,14 @@ public class MediaStreamImpl
         return rtpManager;
     }
 
+    /**
+     * Registers any custom JMF <tt>Format</tt>s with a specific
+     * <tt>RTPManager</tt>. Extenders should override in order to register their
+     * own customizations.
+     *
+     * @param rtpManager the <tt>RTPManager</tt> to register any custom JMF
+     * <tt>Format</tt>s with
+     */
     protected void registerCustomCodecFormats(RTPManager rtpManager)
     {
     }
@@ -347,6 +381,16 @@ public class MediaStreamImpl
         start(MediaDirection.SENDRECV);
     }
 
+    /**
+     * Starts the processing of media in this instance in a specific direction.
+     *
+     * @param direction a <tt>MediaDirection</tt> value which represents the
+     * direction of the processing of media to be started. For example,
+     * {@link MediaDirection#SENDRECV} to start both capture and playback of
+     * media in this instance or {@link MediaDirection#SENDONLY} to only start
+     * the capture of media in this instance
+     */
+    @SuppressWarnings("unchecked")
     public void start(MediaDirection direction)
     {
         if (direction == null)
@@ -358,7 +402,6 @@ public class MediaStreamImpl
                         && !MediaDirection.SENDONLY.equals(startedDirection)))
         {
             RTPManager rtpManager = getRTPManager();
-            @SuppressWarnings("unchecked")
             Iterable<SendStream> sendStreams = rtpManager.getSendStreams();
 
             if (sendStreams != null)
@@ -446,6 +489,16 @@ public class MediaStreamImpl
         stop(MediaDirection.SENDRECV);
     }
 
+    /**
+     * Stops the processing of media in this instance in a specific direction.
+     *
+     * @param direction a <tt>MediaDirection</tt> value which represents the
+     * direction of the processing of media to be stopped. For example,
+     * {@link MediaDirection#SENDRECV} to stop both capture and playback of
+     * media in this instance or {@link MediaDirection#SENDONLY} to only stop
+     * the capture of media in this instance
+     */
+    @SuppressWarnings("unchecked")
     public void stop(MediaDirection direction)
     {
         if (direction == null)
@@ -459,7 +512,6 @@ public class MediaStreamImpl
                 && (MediaDirection.SENDRECV.equals(startedDirection)
                         || MediaDirection.SENDONLY.equals(startedDirection)))
         {
-            @SuppressWarnings("unchecked")
             Iterable<SendStream> sendStreams = rtpManager.getSendStreams();
 
             if (sendStreams != null)

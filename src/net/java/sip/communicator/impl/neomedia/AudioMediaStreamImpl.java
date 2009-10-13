@@ -17,12 +17,20 @@ import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
+ * Extends <tt>MediaStreamImpl</tt> in order to provide an implementation of
+ * <tt>AudioMediaStream</tt>.
+ *
  * @author Lubomir Marinov
  */
 public class AudioMediaStreamImpl
     extends MediaStreamImpl
     implements AudioMediaStream
 {
+
+    /**
+     * The <tt>Logger</tt> used by the <tt>AudioMediaStreamImpl</tt> class and
+     * its instances for logging output.
+     */
     private static final Logger logger
         = Logger.getLogger(AudioMediaStreamImpl.class);
 
@@ -68,6 +76,17 @@ public class AudioMediaStreamImpl
      */
     private static boolean formatsRegisteredOnce = false;
 
+    /**
+     * Initializes a new <tt>AudioMediaStreamImpl</tt> instance which will use
+     * the specified <tt>MediaDevice</tt> for both capture and playback of audio
+     * exchanged via the specified <tt>StreamConnector</tt>.
+     *
+     * @param connector the <tt>StreamConnector</tt> the new instance is to use
+     * for sending and receiving audio
+     * @param device the <tt>MediaDevice</tt> the new instance is to use for
+     * both capture and playback of audio exchanged via the specified
+     * <tt>StreamConnector</tt>
+     */
     public AudioMediaStreamImpl(StreamConnector connector, MediaDevice device)
     {
         super(connector, device);
@@ -89,6 +108,11 @@ public class AudioMediaStreamImpl
         // TODO Auto-generated method stub
     }
 
+    /*
+     * Overrides MediaStreamImpl#registerCustomCodecFormats(RTPManager) in order
+     * to register CUSTOM_CODEC_FORMATS.
+     */
+    @Override
     protected void registerCustomCodecFormats(RTPManager rtpManager)
     {
         // if we have already registered custom formats and we are running JMF

@@ -19,6 +19,7 @@ import net.java.sip.communicator.util.*;
  * the <tt>openMediaStream()</tt> method of the <tt>MediaService</tt>.
  *
  * @author Emil Ivov
+ * @author Lubomir Marinov
  */
 public interface MediaStream
 {
@@ -148,5 +149,13 @@ public interface MediaStream
      */
     public void removePropertyChangeListener(PropertyChangeListener listener);
 
+    /**
+     * Sets the target of this <tt>MediaStream</tt> to which it is to send and
+     * from which it is to receive data (e.g. RTP) and control data (e.g. RTCP).
+     *
+     * @param target the <tt>MediaStreamTarget</tt> describing the data
+     * (e.g. RTP) and the control data (e.g. RTCP) locations to which this
+     * <tt>MediaStream</tt> is to send and from which it is to receive
+     */
     public void setTarget(MediaStreamTarget target);
 }
