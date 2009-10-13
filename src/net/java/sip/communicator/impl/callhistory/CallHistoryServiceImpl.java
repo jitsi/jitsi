@@ -106,10 +106,11 @@ public class CallHistoryServiceImpl
             History history = this.getHistory(null, null);
             HistoryReader reader = history.getReader();
             addHistorySearchProgressListeners(reader, 1);
-            QueryResultSet rs = reader.findByStartDate(startDate);
+            QueryResultSet<HistoryRecord> rs
+                = reader.findByStartDate(startDate);
             while (rs.hasNext())
             {
-                HistoryRecord hr = (HistoryRecord) rs.next();
+                HistoryRecord hr = rs.next();
                 result.add(convertHistoryRecordToCallRecord(hr));
             }
             removeHistorySearchProgressListeners(reader);
@@ -154,10 +155,10 @@ public class CallHistoryServiceImpl
             History history = this.getHistory(null, null);
             HistoryReader reader = history.getReader();
             addHistorySearchProgressListeners(reader, 1);
-            QueryResultSet rs = reader.findByEndDate(endDate);
+            QueryResultSet<HistoryRecord> rs = reader.findByEndDate(endDate);
             while (rs.hasNext())
             {
-                HistoryRecord hr = (HistoryRecord) rs.next();
+                HistoryRecord hr = rs.next();
                 result.add(convertHistoryRecordToCallRecord(hr));
             }
             removeHistorySearchProgressListeners(reader);
@@ -204,10 +205,11 @@ public class CallHistoryServiceImpl
             History history = this.getHistory(null, null);
             HistoryReader reader = history.getReader();
             addHistorySearchProgressListeners(reader, 1);
-            QueryResultSet rs = reader.findByPeriod(startDate, endDate);
+            QueryResultSet<HistoryRecord> rs
+                = reader.findByPeriod(startDate, endDate);
             while (rs.hasNext())
             {
-                HistoryRecord hr = (HistoryRecord) rs.next();
+                HistoryRecord hr = rs.next();
                 result.add(convertHistoryRecordToCallRecord(hr));
             }
             removeHistorySearchProgressListeners(reader);
@@ -250,10 +252,11 @@ public class CallHistoryServiceImpl
         {
             // the default ones
             History history = this.getHistory(null, null);
-            QueryResultSet rs = history.getReader().findLast(count);
+            QueryResultSet<HistoryRecord> rs
+                = history.getReader().findLast(count);
             while (rs.hasNext())
             {
-                HistoryRecord hr = (HistoryRecord) rs.next();
+                HistoryRecord hr = rs.next();
                 result.add(convertHistoryRecordToCallRecord(hr));
             }
         }
@@ -281,11 +284,11 @@ public class CallHistoryServiceImpl
             History history = this.getHistory(null, null);
             HistoryReader reader = history.getReader();
             addHistorySearchProgressListeners(reader, 1);
-            QueryResultSet rs =
-                reader.findByKeyword(address, "callParticipantIDs");
+            QueryResultSet<HistoryRecord> rs
+                = reader.findByKeyword(address, "callParticipantIDs");
             while (rs.hasNext())
             {
-                HistoryRecord hr = (HistoryRecord) rs.next();
+                HistoryRecord hr = rs.next();
                 result.add(convertHistoryRecordToCallRecord(hr));
             }
             removeHistorySearchProgressListeners(reader);
@@ -679,9 +682,8 @@ public class CallHistoryServiceImpl
         logger.debug("Adding protocol provider " + provider.getProtocolName());
 
         // check whether the provider has a basic telephony operation set
-        OperationSetBasicTelephony opSetTelephony =
-            (OperationSetBasicTelephony) provider
-                .getOperationSet(OperationSetBasicTelephony.class);
+        OperationSetBasicTelephony opSetTelephony
+            = provider.getOperationSet(OperationSetBasicTelephony.class);
 
         if (opSetTelephony != null)
         {
@@ -701,9 +703,8 @@ public class CallHistoryServiceImpl
      */
     private void handleProviderRemoved(ProtocolProviderService provider)
     {
-        OperationSetBasicTelephony opSetTelephony =
-            (OperationSetBasicTelephony) provider
-                .getOperationSet(OperationSetBasicTelephony.class);
+        OperationSetBasicTelephony opSetTelephony
+            = provider.getOperationSet(OperationSetBasicTelephony.class);
 
         if (opSetTelephony != null)
         {

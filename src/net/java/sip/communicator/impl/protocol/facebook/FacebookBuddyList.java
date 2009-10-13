@@ -62,7 +62,7 @@ public class FacebookBuddyList
     /**
      * Init the cache and the parent adapter.
      * 
-     * @param adapter
+     * @param session the Facebook session
      */
     public FacebookBuddyList(FacebookSession session)
     {
@@ -110,8 +110,7 @@ public class FacebookBuddyList
     /**
      * Get our buddy who has the given id from the cache.
      * 
-     * @param contactID
-     *            the id we wanna look up
+     * @param uid the id we want to look up
      * @return the buddy who has the given id
      * @throws FacebookErrorException
      * @throws IOException

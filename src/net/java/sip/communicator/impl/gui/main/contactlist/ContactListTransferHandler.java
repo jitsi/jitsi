@@ -46,7 +46,7 @@ public class ContactListTransferHandler
      * @param t the data to import
      * @return <tt>true</tt> if the data was inserted into the component;
      * <tt>false</tt>, otherwise
-     * @see TransferHandler#importData(JComponent. Transferable)
+     * @see TransferHandler#importData(JComponent, Transferable)
      */
     @SuppressWarnings("unchecked") //taken care of
     public boolean importData(JComponent comp, Transferable t)

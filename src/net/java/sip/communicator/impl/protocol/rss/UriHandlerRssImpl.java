@@ -151,8 +151,7 @@ public class UriHandlerRssImpl
         }
 
         OperationSetPresence presenceOpSet
-            = (OperationSetPresence) provider
-                .getOperationSet(OperationSetPresence.class);
+            = provider.getOperationSet(OperationSetPresence.class);
 
         try
         {

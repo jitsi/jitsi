@@ -176,8 +176,8 @@ public class OtrActivator
 
     private void handleProviderAdded(ProtocolProviderService provider)
     {
-        OperationSetInstantMessageTransform opSetMessageTransform =
-            (OperationSetInstantMessageTransform) provider
+        OperationSetInstantMessageTransform opSetMessageTransform
+            = provider
                 .getOperationSet(OperationSetInstantMessageTransform.class);
 
         if (opSetMessageTransform != null)
@@ -244,8 +244,8 @@ public class OtrActivator
     private void handleProviderRemoved(ProtocolProviderService provider)
     {
         // check whether the provider has a basic im operation set
-        OperationSetInstantMessageTransform opSetMessageTransform =
-            (OperationSetInstantMessageTransform) provider
+        OperationSetInstantMessageTransform opSetMessageTransform
+            = provider
                 .getOperationSet(OperationSetInstantMessageTransform.class);
 
         if (opSetMessageTransform != null)

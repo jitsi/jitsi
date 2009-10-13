@@ -17,12 +17,12 @@ import org.json.*;
 
 /**
  * This poller checks for new messages in Facebook servers and notifies to the
- * registered {@link FacebookIncomingMessageListener listeners} if a new
+ * registered {@link FacebookSessionListener listeners} if a new
  * {@link FacebookMessage} is found.<br>
- * Registered {@link FacebookIncomingMessageListener listeners} are notified
- * upon arrival of both messages from other buddies and own messages.<br>
- * It's responsibility of the {@link FacebookIncomingMessageListener listeners}
- * to discard undesired notifications, e.g. own messages.
+ * Registered {@link FacebookSessionListener listeners} are notified upon
+ * arrival of both messages from other buddies and own messages.<br>
+ * It's the responsibility of the {@link FacebookSessionListener listeners} to
+ * discard undesired notifications, e.g. own messages.
  * 
  * @author Edgar Poce
  */

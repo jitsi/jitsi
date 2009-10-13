@@ -1341,8 +1341,7 @@ public class ImageLoader
         ImageIcon statusIcon;
 
         OperationSetPresence presence
-            = (OperationSetPresence) pps
-                .getOperationSet(OperationSetPresence.class);
+            = pps.getOperationSet(OperationSetPresence.class);
 
         Image statusImage;
         if (presence != null)

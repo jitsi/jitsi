@@ -57,10 +57,9 @@ public class StatusUpdateThread
                                 PresenceStatus lastState
                                     = lastStates.get(protocolProviderService);
                                 OperationSetPresence presence
-                                    = (OperationSetPresence)
-                                        protocolProviderService
-                                            .getOperationSet(
-                                                OperationSetPresence.class);
+                                    = protocolProviderService
+                                        .getOperationSet(
+                                            OperationSetPresence.class);
                                 try
                                 {
                                     presence
@@ -84,10 +83,9 @@ public class StatusUpdateThread
                                 : AutoAwayActivator.getProtocolProviders())
                         {
                             OperationSetPresence presence
-                                = (OperationSetPresence)
-                                    protocolProviderService
-                                        .getOperationSet(
-                                            OperationSetPresence.class);
+                                = protocolProviderService
+                                    .getOperationSet(
+                                        OperationSetPresence.class);
 
                             PresenceStatus status = presence
                                     .getPresenceStatus();

@@ -109,8 +109,7 @@ public class WhiteboardActivator implements BundleActivator
                 = (ProtocolProviderService) bundleContext.getService(serRef);
 
             OperationSetWhiteboarding opSet
-                = (OperationSetWhiteboarding)
-                    protocolProvider
+                = protocolProvider
                         .getOperationSet(OperationSetWhiteboarding.class);
 
             if(opSet != null)

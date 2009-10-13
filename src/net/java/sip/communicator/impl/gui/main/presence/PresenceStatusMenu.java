@@ -68,8 +68,7 @@ public class PresenceStatusMenu
         this.protocolProvider = protocolProvider;
 
         this.presence
-            = (OperationSetPresence) protocolProvider
-                .getOperationSet(OperationSetPresence.class);
+                = protocolProvider.getOperationSet(OperationSetPresence.class);
 
         this.statusIterator = this.presence.getSupportedStatusSet();
 

@@ -65,8 +65,9 @@ public class SecurityPanel
                 if (call != null)
                 {
                     OperationSetSecureTelephony secure
-                        = (OperationSetSecureTelephony) call
-                            .getProtocolProvider().getOperationSet(
+                        = call
+                            .getProtocolProvider()
+                                .getOperationSet(
                                     OperationSetSecureTelephony.class);
 
                     if (secure != null)

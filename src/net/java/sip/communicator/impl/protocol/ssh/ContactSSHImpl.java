@@ -710,7 +710,8 @@ public class ContactSSHImpl
     public OperationSetPersistentPresence
             getParentPresenceOperationSet()
     {
-        return (OperationSetPersistentPresence)parentProvider
+        return
+            parentProvider
                 .getOperationSet(OperationSetPersistentPresence.class);
     }
     
@@ -724,7 +725,8 @@ public class ContactSSHImpl
     public OperationSetBasicInstantMessaging
             getParentBasicInstantMessagingOperationSet()
     {
-        return (OperationSetBasicInstantMessaging)parentProvider
+        return
+            parentProvider
                 .getOperationSet(OperationSetBasicInstantMessaging.class);
     }
     
@@ -738,8 +740,7 @@ public class ContactSSHImpl
     public OperationSetFileTransfer
             getFileTransferOperationSet()
     {
-        return (OperationSetFileTransfer)parentProvider
-                .getOperationSet(OperationSetFileTransfer.class);
+        return parentProvider.getOperationSet(OperationSetFileTransfer.class);
     }
     
     

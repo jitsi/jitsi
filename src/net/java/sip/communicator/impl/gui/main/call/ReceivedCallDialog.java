@@ -53,7 +53,7 @@ public class ReceivedCallDialog
         this.initComponents();
 
         OperationSetBasicTelephony telephonyOpSet
-            = (OperationSetBasicTelephony) call.getProtocolProvider()
+            = call.getProtocolProvider()
                 .getOperationSet(OperationSetBasicTelephony.class);
 
         telephonyOpSet.addCallListener(this);

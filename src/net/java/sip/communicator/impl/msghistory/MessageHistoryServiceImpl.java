@@ -1064,8 +1064,7 @@ public class MessageHistoryServiceImpl
 
         // check whether the provider has a basic im operation set
         OperationSetBasicInstantMessaging opSetIm =
-            (OperationSetBasicInstantMessaging) provider
-                .getOperationSet(OperationSetBasicInstantMessaging.class);
+            provider.getOperationSet(OperationSetBasicInstantMessaging.class);
 
         if (opSetIm != null)
         {
@@ -1077,8 +1076,7 @@ public class MessageHistoryServiceImpl
         }
 
         OperationSetMultiUserChat opSetMultiUChat =
-            (OperationSetMultiUserChat) provider
-                .getOperationSet(OperationSetMultiUserChat.class);
+            provider.getOperationSet(OperationSetMultiUserChat.class);
 
         if (opSetMultiUChat != null)
         {
@@ -1108,8 +1106,7 @@ public class MessageHistoryServiceImpl
     private void handleProviderRemoved(ProtocolProviderService provider)
     {
         OperationSetBasicInstantMessaging opSetIm =
-            (OperationSetBasicInstantMessaging) provider
-                .getOperationSet(OperationSetBasicInstantMessaging.class);
+            provider.getOperationSet(OperationSetBasicInstantMessaging.class);
 
         if (opSetIm != null)
         {
@@ -1117,8 +1114,7 @@ public class MessageHistoryServiceImpl
         }
 
         OperationSetMultiUserChat opSetMultiUChat =
-            (OperationSetMultiUserChat) provider
-                .getOperationSet(OperationSetMultiUserChat.class);
+            provider.getOperationSet(OperationSetMultiUserChat.class);
 
         if (opSetMultiUChat != null)
         {

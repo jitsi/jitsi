@@ -349,8 +349,7 @@ public class Mailbox
 
         // check whether the provider has a basic telephony operation set
         OperationSetBasicTelephony opSetTelephony =
-            (OperationSetBasicTelephony) provider
-                .getOperationSet(OperationSetBasicTelephony.class);
+            provider.getOperationSet(OperationSetBasicTelephony.class);
 
         if (opSetTelephony != null)
         {
@@ -360,7 +359,6 @@ public class Mailbox
         {
             logger.trace("Service did not have a basic telephony op. set.");
         }
-
     }
 
     /**
@@ -372,8 +370,7 @@ public class Mailbox
     private void handleProviderRemoved(ProtocolProviderService provider)
     {
         OperationSetBasicTelephony opSetTelephony =
-            (OperationSetBasicTelephony) provider
-                .getOperationSet(OperationSetBasicTelephony.class);
+            provider.getOperationSet(OperationSetBasicTelephony.class);
 
         if (opSetTelephony != null)
         {
@@ -574,9 +571,9 @@ public class Mailbox
         private void answerCall(Call call)
         {
             OperationSetBasicTelephony telephony
-                = (OperationSetBasicTelephony)call
-                                .getProtocolProvider().getOperationSet(
-                                OperationSetBasicTelephony.class);
+                = call
+                    .getProtocolProvider()
+                        .getOperationSet(OperationSetBasicTelephony.class);
             Iterator peers = call.getCallPeers();
 
             while(peers.hasNext())
@@ -607,9 +604,9 @@ public class Mailbox
         private void hangupCall(Call call)
         {
             OperationSetBasicTelephony telephony
-                = (OperationSetBasicTelephony)call
-                                .getProtocolProvider().getOperationSet(
-                                OperationSetBasicTelephony.class);
+                = call
+                    .getProtocolProvider()
+                        .getOperationSet(OperationSetBasicTelephony.class);
             logger.info("Max Message Length Reached, Mailbox is"
                         +" disconnecting the call");
             Iterator<? extends CallPeer> callPeers = call.getCallPeers();

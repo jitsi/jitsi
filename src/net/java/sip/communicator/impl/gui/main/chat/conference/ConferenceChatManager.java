@@ -650,8 +650,7 @@ public class ConferenceChatManager
         ChatRoomWrapper chatRoomWrapper = null;
 
         OperationSetMultiUserChat groupChatOpSet
-            = (OperationSetMultiUserChat) protocolProvider
-                .getOperationSet(OperationSetMultiUserChat.class);
+            = protocolProvider.getOperationSet(OperationSetMultiUserChat.class);
 
         // If there's no group chat operation set we have nothing to do here.
         if (groupChatOpSet == null)
@@ -661,10 +660,9 @@ public class ConferenceChatManager
         try
         {
             Map<String, Object> members = new Hashtable<String, Object>();
-            OperationSetPersistentPresence opSet = 
-                (OperationSetPersistentPresence)
-                    protocolProvider.getOperationSet(
-                            OperationSetPersistentPresence.class);
+            OperationSetPersistentPresence opSet
+                = protocolProvider
+                    .getOperationSet(OperationSetPersistentPresence.class);
             
             for(String contact : contacts)
             {
@@ -733,7 +731,7 @@ public class ConferenceChatManager
         AdHocChatRoomWrapper chatRoomWrapper = null;
 
         OperationSetAdHocMultiUserChat groupChatOpSet
-            = (OperationSetAdHocMultiUserChat) protocolProvider
+            = protocolProvider
                 .getOperationSet(OperationSetAdHocMultiUserChat.class);
 
         // If there's no group chat operation set we have nothing to do here.
@@ -746,7 +744,6 @@ public class ConferenceChatManager
         {
             List<Contact> members = new LinkedList<Contact>();
             OperationSetPersistentPresence opSet = 
-                (OperationSetPersistentPresence)
                 protocolProvider.getOperationSet(
                         OperationSetPersistentPresence.class);
 
@@ -1645,8 +1642,8 @@ public class ConferenceChatManager
         public ChatRoom doInBackground()
         {
             OperationSetMultiUserChat groupChatOpSet
-                = (OperationSetMultiUserChat) chatRoomProvider
-                    .getProtocolProvider().getOperationSet(
+                = chatRoomProvider
+                      .getProtocolProvider().getOperationSet(
                         OperationSetMultiUserChat.class);
 
             ChatRoom chatRoom = null;
@@ -1687,7 +1684,7 @@ public class ConferenceChatManager
                 return null;
 
             OperationSetMultiUserChat groupChatOpSet
-                = (OperationSetMultiUserChat) protocolProvider
+                = protocolProvider
                     .getOperationSet(OperationSetMultiUserChat.class);
 
             if (groupChatOpSet == null)

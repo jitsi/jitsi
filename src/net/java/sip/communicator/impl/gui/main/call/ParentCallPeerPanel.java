@@ -505,7 +505,7 @@ public abstract class ParentCallPeerPanel
         if (callPeer != null)
         {
             OperationSetSecureTelephony secure
-                = (OperationSetSecureTelephony) callPeer
+                = callPeer
                     .getProtocolProvider().getOperationSet(
                             OperationSetSecureTelephony.class);
 
@@ -548,7 +548,7 @@ public abstract class ParentCallPeerPanel
         if (callPeer != null)
         {
             OperationSetAdvancedTelephony telephony =
-                (OperationSetAdvancedTelephony) callPeer.getProtocolProvider()
+                callPeer.getProtocolProvider()
                     .getOperationSet(OperationSetAdvancedTelephony.class);
 
             if (telephony != null)

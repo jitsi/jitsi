@@ -70,10 +70,10 @@ public class TestOperationSetBasicTelephonySipImpl
         throws ParseException, OperationFailedException
     {
         OperationSetBasicTelephony basicTelephonyP1
-            = (OperationSetBasicTelephony)fixture.provider1.getOperationSet(
+            = fixture.provider1.getOperationSet(
                 OperationSetBasicTelephony.class);
         OperationSetBasicTelephony basicTelephonyP2
-            = (OperationSetBasicTelephony)fixture.provider2.getOperationSet(
+            = fixture.provider2.getOperationSet(
                 OperationSetBasicTelephony.class);
 
         CallEventCollector call1Listener
@@ -300,10 +300,10 @@ public class TestOperationSetBasicTelephonySipImpl
         throws ParseException, OperationFailedException
     {
         OperationSetBasicTelephony basicTelephonyP1
-            = (OperationSetBasicTelephony)fixture.provider1.getOperationSet(
+            = fixture.provider1.getOperationSet(
                 OperationSetBasicTelephony.class);
         OperationSetBasicTelephony basicTelephonyP2
-            = (OperationSetBasicTelephony)fixture.provider2.getOperationSet(
+            = fixture.provider2.getOperationSet(
                 OperationSetBasicTelephony.class);
 
         CallEventCollector call1Listener
@@ -537,10 +537,10 @@ public class TestOperationSetBasicTelephonySipImpl
         throws ParseException, OperationFailedException
     {
         OperationSetBasicTelephony basicTelephonyP1
-            = (OperationSetBasicTelephony)fixture.provider1.getOperationSet(
+            = fixture.provider1.getOperationSet(
                 OperationSetBasicTelephony.class);
         OperationSetBasicTelephony basicTelephonyP2
-            = (OperationSetBasicTelephony)fixture.provider2.getOperationSet(
+            = fixture.provider2.getOperationSet(
                 OperationSetBasicTelephony.class);
 
         CallEventCollector call1Listener

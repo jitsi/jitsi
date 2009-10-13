@@ -167,8 +167,7 @@ public class OperationSetBasicInstantMessagingFacebookImpl
     /**
      * Invoked by the facebook adapter when we got messages from the server.
      * 
-     * @param message
-     * @param from
+     * @param fbmsg the received Facebook instant message
      */
     public void receivedInstantMessage(FacebookMessage fbmsg)
     {

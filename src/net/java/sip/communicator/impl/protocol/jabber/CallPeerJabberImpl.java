@@ -107,8 +107,8 @@ public class CallPeerJabberImpl
         if (call != null)
         {
             ProtocolProviderService pps = call.getProtocolProvider();
-            OperationSetPresence opSetPresence = (OperationSetPresence) pps
-                    .getOperationSet(OperationSetPresence.class);
+            OperationSetPresence opSetPresence
+                = pps.getOperationSet(OperationSetPresence.class);
 
             Contact cont = opSetPresence.findContactByID(getAddress());
             if (cont != null)
@@ -243,8 +243,8 @@ public class CallPeerJabberImpl
     public Contact getContact()
     {
         ProtocolProviderService pps = call.getProtocolProvider();
-        OperationSetPresence opSetPresence = (OperationSetPresence) pps
-                .getOperationSet(OperationSetPresence.class);
+        OperationSetPresence opSetPresence
+            = pps.getOperationSet(OperationSetPresence.class);
 
         return opSetPresence.findContactByID(getAddress());
     }

@@ -63,7 +63,7 @@ public class OperationSetMultiUserChatJabberImpl
         jabberProvider.addRegistrationStateChangeListener(providerRegListener);
 
         OperationSetPersistentPresence presenceOpSet
-            = (OperationSetPersistentPresence) jabberProvider
+            = jabberProvider
                 .getOperationSet(OperationSetPersistentPresence.class);
 
         presenceOpSet.addSubscriptionListener(this);

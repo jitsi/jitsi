@@ -63,8 +63,9 @@ public class OperationSetGeolocationJabberImpl
     {
         this.jabberProvider = provider;
 
-        this.opsetprez = (OperationSetPersistentPresence)
-            provider.getOperationSet(OperationSetPersistentPresence.class);
+        this.opsetprez
+                = provider
+                    .getOperationSet(OperationSetPersistentPresence.class);
 
         this.jabberProvider.addRegistrationStateChangeListener(
             new RegistrationStateListener());

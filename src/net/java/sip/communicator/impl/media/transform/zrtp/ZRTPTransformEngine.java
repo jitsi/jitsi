@@ -484,7 +484,7 @@ public class ZRTPTransformEngine
      * The data output stream calls this method to transform outgoing
      * packets.
      * 
-     * @see PacketTransformer#transform(net.java.sip.communicator.impl.media.transform.RawPacket)
+     * @see PacketTransformer#transform(RawPacket)
      */
     public RawPacket transform(RawPacket pkt)
     {
@@ -521,7 +521,7 @@ public class ZRTPTransformEngine
      * The input data stream calls this method to transform
      * incoming packets.
      * 
-     * @see PacketTransformer#reverseTransform(net.java.sip.communicator.impl.media.transform.RawPacket)
+     * @see PacketTransformer#reverseTransform(RawPacket)
      */
     public RawPacket reverseTransform(RawPacket pkt)
     {

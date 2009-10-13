@@ -109,8 +109,8 @@ public class AccountDetailsPanel
         this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 //        this.setPreferredSize(new Dimension(500, 400));
 
-        accountInfoOpSet =
-            (OperationSetServerStoredAccountInfo) protocolProvider
+        accountInfoOpSet
+            = protocolProvider
                 .getOperationSet(OperationSetServerStoredAccountInfo.class);
 
         this.protocolProvider = protocolProvider;
@@ -489,10 +489,11 @@ public class AccountDetailsPanel
                 OperationSetWebContactInfo.class) != null)
         {
             final String urlString
-                = ((OperationSetWebContactInfo) protocolProvider
-                    .getOperationSet(OperationSetWebContactInfo.class))
-                    .getWebContactInfo(
-                        protocolProvider.getAccountID().getAccountAddress())
+                = protocolProvider
+                    .getOperationSet(OperationSetWebContactInfo.class)
+                        .getWebContactInfo(
+                                protocolProvider
+                                    .getAccountID().getAccountAddress())
                             .toString();
 
             JLabel webInfoLabel = new JLabel("Click to see web info: ");

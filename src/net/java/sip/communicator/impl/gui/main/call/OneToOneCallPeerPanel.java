@@ -290,7 +290,7 @@ public class OneToOneCallPeerPanel
             return null;
 
         final OperationSetVideoTelephony telephony =
-            (OperationSetVideoTelephony) call.getProtocolProvider()
+            call.getProtocolProvider()
                 .getOperationSet(OperationSetVideoTelephony.class);
         if (telephony == null)
             return null;

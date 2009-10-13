@@ -158,8 +158,8 @@ public class ChatAlerterActivator
         logger.debug("Adding protocol provider " + provider.getProtocolName());
 
         // check whether the provider has a basic im operation set
-        OperationSetBasicInstantMessaging opSetIm =
-            (OperationSetBasicInstantMessaging) provider
+        OperationSetBasicInstantMessaging opSetIm
+            = provider
                 .getOperationSet(OperationSetBasicInstantMessaging.class);
 
         if (opSetIm != null)
@@ -172,9 +172,8 @@ public class ChatAlerterActivator
         }
         
         // check whether the provider has a sms operation set
-        OperationSetSmsMessaging opSetSms =
-            (OperationSetSmsMessaging) provider
-                .getOperationSet(OperationSetSmsMessaging.class);
+        OperationSetSmsMessaging opSetSms
+            = provider.getOperationSet(OperationSetSmsMessaging.class);
 
         if (opSetSms != null)
         {
@@ -185,9 +184,8 @@ public class ChatAlerterActivator
             logger.trace("Service did not have a sms op. set.");
         }
         
-        OperationSetMultiUserChat opSetMultiUChat =
-            (OperationSetMultiUserChat) provider
-                .getOperationSet(OperationSetMultiUserChat.class);
+        OperationSetMultiUserChat opSetMultiUChat
+            = provider.getOperationSet(OperationSetMultiUserChat.class);
 
         if (opSetMultiUChat != null)
         {
@@ -210,18 +208,16 @@ public class ChatAlerterActivator
      */
     private void handleProviderRemoved(ProtocolProviderService provider)
     {
-        OperationSetBasicInstantMessaging opSetIm =
-            (OperationSetBasicInstantMessaging) provider
-                .getOperationSet(OperationSetBasicInstantMessaging.class);
+        OperationSetBasicInstantMessaging opSetIm
+            = provider.getOperationSet(OperationSetBasicInstantMessaging.class);
 
         if (opSetIm != null)
         {
             opSetIm.removeMessageListener(this);
         }
         
-         OperationSetMultiUserChat opSetMultiUChat =
-            (OperationSetMultiUserChat) provider
-                .getOperationSet(OperationSetMultiUserChat.class);
+        OperationSetMultiUserChat opSetMultiUChat
+            = provider.getOperationSet(OperationSetMultiUserChat.class);
 
         if (opSetMultiUChat != null)
         {

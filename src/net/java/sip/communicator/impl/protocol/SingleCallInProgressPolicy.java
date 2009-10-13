@@ -313,7 +313,7 @@ public class SingleCallInProgressPolicy
     private void putOnHold(Call call)
     {
         OperationSetBasicTelephony telephony =
-            (OperationSetBasicTelephony) call.getProtocolProvider()
+            call.getProtocolProvider()
                 .getOperationSet(OperationSetBasicTelephony.class);
 
         if (telephony != null)
@@ -396,7 +396,7 @@ public class SingleCallInProgressPolicy
         if (service instanceof ProtocolProviderService)
         {
             OperationSetBasicTelephony telephony =
-                (OperationSetBasicTelephony) ((ProtocolProviderService) service)
+                ((ProtocolProviderService) service)
                     .getOperationSet(OperationSetBasicTelephony.class);
 
             if (telephony != null)

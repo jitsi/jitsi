@@ -260,7 +260,7 @@ public class CallManager
         public void run()
         {
             OperationSetBasicTelephony telephonyOpSet
-                = (OperationSetBasicTelephony) protocolProvider
+                = protocolProvider
                     .getOperationSet(OperationSetBasicTelephony.class);
 
             /*
@@ -326,8 +326,7 @@ public class CallManager
             {
                 CallPeer peer = peers.next();
                 OperationSetBasicTelephony telephony =
-                    (OperationSetBasicTelephony) pps
-                        .getOperationSet(OperationSetBasicTelephony.class);
+                    pps.getOperationSet(OperationSetBasicTelephony.class);
 
                 try
                 {
@@ -363,8 +362,7 @@ public class CallManager
         public void run()
         {
             OperationSetTelephonyConferencing confOpSet
-            = (OperationSetTelephonyConferencing) protocolProvider
-                .getOperationSet(OperationSetTelephonyConferencing.class);
+            = protocolProvider.getOperationSet(OperationSetTelephonyConferencing.class);
 
             /*
              * XXX If we are here and we just discover that

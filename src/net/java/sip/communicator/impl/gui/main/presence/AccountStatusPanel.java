@@ -162,10 +162,8 @@ public class AccountStatusPanel
              * to do anything useful can be prevented.
              */
             final OperationSetServerStoredAccountInfo accountInfoOpSet
-                = (OperationSetServerStoredAccountInfo)
-                    protocolProvider
-                        .getOperationSet(
-                            OperationSetServerStoredAccountInfo.class);
+                = protocolProvider.getOperationSet(
+                        OperationSetServerStoredAccountInfo.class);
 
 
             if (accountInfoOpSet != null)

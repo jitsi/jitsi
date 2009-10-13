@@ -419,16 +419,13 @@ public class DialPanel
             while (callPeers.hasNext())
             {
                 CallPeer peer = callPeers.next();
-
-                if (peer.getProtocolProvider()
-                    .getOperationSet(OperationSetDTMF.class) != null)
-                {
-                    OperationSetDTMF dtmfOpSet
-                        = (OperationSetDTMF) peer.getProtocolProvider()
+                OperationSetDTMF dtmfOpSet
+                    = peer
+                        .getProtocolProvider()
                             .getOperationSet(OperationSetDTMF.class);
 
+                if (dtmfOpSet != null)
                     dtmfOpSet.sendDTMF(peer, dtmfTone);
-                }
             }
         }
         catch (NullPointerException e1)

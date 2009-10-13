@@ -149,11 +149,10 @@ public class HistoryWindow
                 Contact protoContact = protoContacts.next();
 
                 OperationSetBasicInstantMessaging basicInstantMessaging
-                    = (OperationSetBasicInstantMessaging)
-                        protoContact
-                            .getProtocolProvider()
-                                .getOperationSet(
-                                    OperationSetBasicInstantMessaging.class);
+                    = protoContact
+                        .getProtocolProvider()
+                            .getOperationSet(
+                                OperationSetBasicInstantMessaging.class);
 
                 if (basicInstantMessaging != null)
                 {

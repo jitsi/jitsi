@@ -74,7 +74,7 @@ public class PredictableTransformLayer
         String action)
     {
         OperationSetBasicInstantMessaging imOpSet =
-            (OperationSetBasicInstantMessaging) contact.getProtocolProvider()
+            contact.getProtocolProvider()
                 .getOperationSet(OperationSetBasicInstantMessaging.class);
         return imOpSet.createMessage("__" + action + "__"
             + message.getContent());

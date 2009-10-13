@@ -279,7 +279,7 @@ public class FacebookAdapter
     /**
      * Promotes the incoming message to the GUI
      * 
-     * @see FacebookIncomingMessageListener#onIncomingChatMessage(FacebookMessage)
+     * @see FacebookSessionListener#onIncomingChatMessage(FacebookMessage)
      */
     public void onIncomingChatMessage(FacebookMessage msg)
     {
@@ -290,8 +290,7 @@ public class FacebookAdapter
     /**
      * Promotes the incoming notification to the GUI
      * 
-     * @see FacebookIncomingMessageListener#onIncomingTypingNotification(String,
-     *      int)
+     * @see FacebookSessionListener#onIncomingTypingNotification(String, int)
      */
     public void onIncomingTypingNotification(String buddyUid, int state)
     {

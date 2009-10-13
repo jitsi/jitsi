@@ -138,7 +138,7 @@ public class InviteDialog
                 if (e.getClickCount() > 1)
                 {
                     Object[] metaContacts
-                        = (Object[]) selectedContactList.getSelectedValues();
+                        = selectedContactList.getSelectedValues();
 
                     moveContactsFromRightToLeft(metaContacts);
                 }
@@ -189,8 +189,7 @@ public class InviteDialog
         {
             public void actionPerformed(ActionEvent e)
             {
-                Object[] metaContacts
-                    = (Object[]) contactList.getSelectedValues();
+                Object[] metaContacts = contactList.getSelectedValues();
 
                 if (metaContacts != null && metaContacts.length > 0)
                     moveContactsFromLeftToRight(metaContacts);
@@ -201,8 +200,7 @@ public class InviteDialog
         {
             public void actionPerformed(ActionEvent e)
             {
-                Object[] metaContacts
-                    = (Object[]) selectedContactList.getSelectedValues();
+                Object[] metaContacts = selectedContactList.getSelectedValues();
 
                 if (metaContacts != null && metaContacts.length > 0)
                     moveContactsFromRightToLeft(metaContacts);

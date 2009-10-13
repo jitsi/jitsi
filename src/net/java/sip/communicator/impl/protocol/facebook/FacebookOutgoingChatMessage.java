@@ -45,7 +45,6 @@ public class FacebookOutgoingChatMessage {
      * Only one message can be sent at a time for a given
      * {@link FacebookSession}
      * 
-     * @return true if the message was sent successfully
      * @throws BrokenFacebookProtocolException
      * @throws IOException
      */

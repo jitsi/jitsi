@@ -147,8 +147,7 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
         // This message is supposed to be offline message and as one is tested
         // in TestOperationSetBasicInstantMessaging.testReceiveOfflineMessages()
         OperationSetBasicInstantMessaging opSetBasicIM =
-            (OperationSetBasicInstantMessaging) fixture.provider
-                .getOperationSet(OperationSetBasicInstantMessaging.class);
+            fixture.provider.getOperationSet(OperationSetBasicInstantMessaging.class);
         fixture.offlineMsgCollector.register(opSetBasicIM);
 
         //give time for the AIM server to notify everyone of our arrival

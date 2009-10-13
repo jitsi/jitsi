@@ -89,7 +89,7 @@ public class TransferCallButton
         if (call != null)
         {
             OperationSetAdvancedTelephony telephony =
-                (OperationSetAdvancedTelephony) call.getProtocolProvider()
+                call.getProtocolProvider()
                     .getOperationSet(OperationSetAdvancedTelephony.class);
 
             if (telephony != null)
@@ -222,7 +222,7 @@ public class TransferCallButton
         {
             ProtocolProviderService service = (ProtocolProviderService)
                 bundleContext.getService(serviceReference);
-            OperationSetBasicTelephony telephony = (OperationSetBasicTelephony)
+            OperationSetBasicTelephony telephony =
                 service.getOperationSet(telephonyClass);
 
             if (telephony != null)

@@ -155,9 +155,8 @@ public class ContactListPane
             = defaultContact.getProtocolProvider();
 
         OperationSetBasicInstantMessaging
-            defaultIM = (OperationSetBasicInstantMessaging)
-                defaultProvider.getOperationSet(
-                        OperationSetBasicInstantMessaging.class);
+            defaultIM = defaultProvider.getOperationSet(
+                          OperationSetBasicInstantMessaging.class);
 
         ProtocolProviderService protoContactProvider;
         OperationSetBasicInstantMessaging protoContactIM;
@@ -177,9 +176,8 @@ public class ContactListPane
 
                 protoContactProvider = contact.getProtocolProvider();
 
-                protoContactIM = (OperationSetBasicInstantMessaging)
-                    protoContactProvider.getOperationSet(
-                        OperationSetBasicInstantMessaging.class);
+                protoContactIM = protoContactProvider.getOperationSet(
+                                    OperationSetBasicInstantMessaging.class);
 
                 if(protoContactIM != null
                         && protoContactIM.isOfflineMessagingSupported()

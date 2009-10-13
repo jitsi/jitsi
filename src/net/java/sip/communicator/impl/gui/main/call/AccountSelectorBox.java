@@ -82,18 +82,15 @@ public class AccountSelectorBox
         }
         else
         {
-            OperationSetPresence presence =
-                (OperationSetPresence) pps
-                    .getOperationSet(OperationSetPresence.class);
-
-            OperationSetPresence selectedPresence =
-                (OperationSetPresence) selectedProvider
-                    .getOperationSet(OperationSetPresence.class);
+            OperationSetPresence presence
+                = pps.getOperationSet(OperationSetPresence.class);
+            OperationSetPresence selectedPresence
+                = selectedProvider.getOperationSet(OperationSetPresence.class);
 
             if (presence != null
                 && selectedPresence != null
-                && (selectedPresence.getPresenceStatus().getStatus() < presence
-                    .getPresenceStatus().getStatus()))
+                && (selectedPresence.getPresenceStatus().getStatus()
+                        < presence.getPresenceStatus().getStatus()))
             {
                 setSelected(pps);
             }

@@ -59,9 +59,10 @@ public class WhiteboardSessionManager
      */
     public void initWhiteboard (final Contact contact)
     {
-        opSetWb = (OperationSetWhiteboarding)
-            contact.getProtocolProvider().
-                getOperationSet(OperationSetWhiteboarding.class);
+        opSetWb
+            = contact
+                .getProtocolProvider()
+                    .getOperationSet(OperationSetWhiteboarding.class);
         
         if (opSetWb == null)
         {

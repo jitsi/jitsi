@@ -93,8 +93,8 @@ public class StatusSubMenu
     private void addAccount(ProtocolProviderService protocolProvider)
     {
         OperationSetPresence presence
-            = (OperationSetPresence)
-                protocolProvider.getOperationSet(OperationSetPresence.class);
+            = protocolProvider.getOperationSet(OperationSetPresence.class);
+
         boolean swing = (menu instanceof JComponent);
 
         if (presence == null)
@@ -157,8 +157,8 @@ public class StatusSubMenu
          * addAccount(ProtocolProviderService).
          */
         OperationSetPresence presence
-            = (OperationSetPresence)
-                protocolProvider.getOperationSet(OperationSetPresence.class);
+            = protocolProvider.getOperationSet(OperationSetPresence.class);
+
         if (presence != null)
             presence.removeProviderPresenceStatusListener(this);
         else

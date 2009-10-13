@@ -377,7 +377,7 @@ public class AdHocChatRoomIcqImpl
         {
             Map.Entry<String, Contact> memberEntry = membersSet.next();
 
-            Contact participant = (Contact) memberEntry.getValue();
+            Contact participant = memberEntry.getValue();
 
             fireParticipantPresenceEvent(participant,
                 AdHocChatRoomParticipantPresenceChangeEvent.CONTACT_LEFT,

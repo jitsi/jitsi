@@ -93,7 +93,7 @@ public class LocalVideoButton
 
         private void doRun()
         {
-            OperationSetVideoTelephony telephony = (OperationSetVideoTelephony)
+            OperationSetVideoTelephony telephony =
                 call.getProtocolProvider()
                     .getOperationSet(OperationSetVideoTelephony.class);
 

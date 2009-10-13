@@ -387,8 +387,8 @@ public class MainFrame
         }
 
         // Obtain the ad-hoc multi user chat operation set.
-        OperationSetAdHocMultiUserChat adHocMultiChatOpSet = 
-            (OperationSetAdHocMultiUserChat) protocolProvider
+        OperationSetAdHocMultiUserChat adHocMultiChatOpSet
+            = protocolProvider
                 .getOperationSet(OperationSetAdHocMultiUserChat.class);
 
         if (adHocMultiChatOpSet != null)
@@ -403,13 +403,11 @@ public class MainFrame
 
         // Obtain file transfer operation set.
         OperationSetFileTransfer fileTransferOpSet
-            = (OperationSetFileTransfer) protocolProvider
-                .getOperationSet(OperationSetFileTransfer.class);
+            = protocolProvider.getOperationSet(OperationSetFileTransfer.class);
 
         if (fileTransferOpSet != null)
         {
-            fileTransferOpSet.addFileTransferListener(
-                getContactListPanel());
+            fileTransferOpSet.addFileTransferListener(getContactListPanel());
         }
     }
 

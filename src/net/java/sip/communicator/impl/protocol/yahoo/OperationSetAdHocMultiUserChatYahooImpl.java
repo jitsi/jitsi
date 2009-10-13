@@ -369,7 +369,6 @@ public class OperationSetAdHocMultiUserChatYahooImpl
      * @param targetChatRoom the room that invitation refers to
      * @param inviter the inviter that sent the invitation
      * @param reason the reason why the inviter sent the invitation
-     * @param password the password to use when joining the room
      */
     public void fireInvitationEvent(AdHocChatRoom targetChatRoom,
         String inviter, String reason)
