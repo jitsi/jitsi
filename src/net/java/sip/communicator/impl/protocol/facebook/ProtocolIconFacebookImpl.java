@@ -12,8 +12,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
-import org.osgi.framework.*;
-
 /**
  * Represents the Facebook protocol icon. Implements the <tt>ProtocolIcon</tt>
  * interface in order to provide a facebook logo image in two different sizes.
@@ -26,7 +24,7 @@ public class ProtocolIconFacebookImpl
     private static Logger logger =
         Logger.getLogger(ProtocolIconFacebookImpl.class);
 
-    private static ResourceManagementService resourcesService;
+    private static ResourceManagementService resources;
 
     /**
      * A hash table containing the protocol icon in different sizes.
@@ -113,21 +111,10 @@ public class ProtocolIconFacebookImpl
 
     public static ResourceManagementService getResources()
     {
-        if (resourcesService == null)
-        {
-            ServiceReference serviceReference =
-                FacebookActivator.bundleContext
-                    .getServiceReference(ResourceManagementService.class
-                        .getName());
-
-            if (serviceReference == null)
-                return null;
-
-            resourcesService =
-                (ResourceManagementService) FacebookActivator.bundleContext
-                    .getService(serviceReference);
-        }
-
-        return resourcesService;
+        if (resources == null)
+            resources
+                = ResourceManagementServiceUtils
+                    .getService(FacebookActivator.bundleContext);
+        return resources;
     }
 }
