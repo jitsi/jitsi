@@ -94,7 +94,7 @@ public class ChatWindowManager
                 {
                     chatWindow.highlightTab(chatPanel);
 
-                    chatPanel.setCaretToEnd();
+                    chatPanel.scrollConversationToBottom();
                 }
             }
             else
@@ -102,7 +102,7 @@ public class ChatWindowManager
                 chatWindow.setVisible(true);
                 chatWindow.setCurrentChatPanel(chatPanel);
 
-                chatPanel.setCaretToEnd();
+                chatPanel.scrollConversationToBottom();
             }
         }
     }

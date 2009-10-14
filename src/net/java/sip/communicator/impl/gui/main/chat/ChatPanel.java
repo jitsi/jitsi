@@ -89,6 +89,9 @@ public class ChatPanel
      */
     public static final int TYPING_NOTIFICATION_SEND_FAILED = 0;
 
+    /**
+     * The number of messages shown per page.
+     */
     protected static final int MESSAGES_PER_PAGE = 20;
 
     private boolean isShown = false;
@@ -155,6 +158,10 @@ public class ChatPanel
         this.addComponentListener(new TabSelectionComponentListener());
     }
 
+    /**
+     * Sets the chat session to associate to this chat panel.
+     * @param chatSession the chat session to associate to this chat panel
+     */
     public void setChatSession(ChatSession chatSession)
     {
         this.chatSession = chatSession;
@@ -282,15 +289,20 @@ public class ChatPanel
             sendSmsCheckBox.setEnabled(false);
     }
 
+    /**
+     * Returns the chat session associated with this chat panel.
+     * @return the chat session associated with this chat panel
+     */
     public ChatSession getChatSession()
     {
         return chatSession;
     }
-    
+
     /**
      * Shows or hides the Stylebar depending on the value of parameter b.
      * 
-     * @param b if true, makes the Stylebar visible, otherwise hides the Stylebar
+     * @param b if true, makes the Stylebar visible, otherwise hides the
+     * Stylebar
      */
     public void setStylebarVisible(boolean b)
     {
@@ -399,7 +411,7 @@ public class ChatPanel
     }
 
     /**
-     * Moves the caret to the end of the conversation panel, contained in the
+     * Scrolls to the bottom of the conversation panel, contained in the
      * given chat panel.
      *
      * Workaround for the following problem:
@@ -410,10 +422,10 @@ public class ChatPanel
      * conversation area is slightly resized and is made smaller,
      * which moves the scrollbar up.
      */
-    public void setCaretToEnd()
+    public void scrollConversationToBottom()
     {
         //Scroll to the last inserted text in the document.
-        getChatConversationPanel().setCarretToEnd();
+        getChatConversationPanel().scrollToBottom();
     }
 
     /**
@@ -650,7 +662,8 @@ public class ChatPanel
     /**
      * Adds the given error message to the chat window conversation area.
      * 
-     * @param contactName the name of the contact, for which the error occured
+     * @param contactName the name of the contact, for which the error occurred
+     * @param title the title of the error
      * @param message the error message
      */
     public void addErrorMessage(String contactName,
@@ -725,6 +738,7 @@ public class ChatPanel
 
     /**
      * Returns the text contained in the write area editor.
+     * @param mimeType the mime type
      * @return The text contained in the write area editor.
      */
     public String getTextFromWriteArea(String mimeType)
@@ -1529,6 +1543,7 @@ public class ChatPanel
     /**
      * Updates the status of the given chat transport in the send via selector
      * box and notifies the user for the status change.
+     * @param chatTransport the <tt>chatTransport</tt> to update
      */
     public void updateChatTransportStatus(ChatTransport chatTransport)
     {
@@ -1679,8 +1694,13 @@ public class ChatPanel
             chatContactListPanel.removeContact(chatContact);
     }
 
+    /**
+     * Updates the contact status.
+     * @param chatContact the chat contact to update
+     * @param statusMessage the status message to show
+     */
     public void updateChatContactStatus(ChatContact chatContact,
-        String statusMessage)
+                                        String statusMessage)
     {
         this.addMessage(
             chatContact.getName(),
@@ -1690,6 +1710,10 @@ public class ChatPanel
             ChatConversationPanel.TEXT_CONTENT_TYPE);
     }
 
+    /**
+     * Sets the given <tt>subject</tt> to this chat.
+     * @param subject the subject to set
+     */
     public void setChatSubject(String subject)
     {
         if (subjectPanel != null)
@@ -1712,6 +1736,7 @@ public class ChatPanel
      * Adds the given <tt>IncomingFileTransferRequest</tt> to the conversation
      * panel in order to notify the user of the incoming file.
      * 
+     * @param fileTransferOpSet the file transfer operation set
      * @param request the request to display in the conversation panel
      * @param date the date on which the request has been received
      */
@@ -1849,6 +1874,12 @@ public class ChatPanel
         return null;
     }
 
+    /**
+     * Invites the given <tt>chatContacts</tt> to this chat.
+     * @param inviteChatTransport the chat transport to use to send the invite
+     * @param chatContacts the contacts to invite
+     * @param reason the reason of the invite
+     */
     public void inviteContacts( ChatTransport inviteChatTransport,
                                 Collection<String> chatContacts,
                                 String reason)
@@ -1940,6 +1971,8 @@ public class ChatPanel
     /**
      * Handles file transfer status changed in order to remove completed file
      * transfers from the list of active transfers.
+     * @param event the file transfer status change event the notified us for
+     * the change
      */
     public void statusChanged(FileTransferStatusChangeEvent event)
     {
@@ -2043,6 +2076,7 @@ public class ChatPanel
      * transfers.
      * 
      * @param id the identifier of the file transfer to add
+     * @param descriptor the descriptor of the file transfer
      */
     public void addActiveFileTransfer(String id, Object descriptor)
     {

@@ -233,11 +233,8 @@ public class ChatWindow
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * net.java.sip.communicator.impl.gui.customcontrols.SIPCommFrame#dispose()
+    /**
+     * @see SIPCommFrame#dispose()
      */
     public void dispose()
     {
@@ -333,7 +330,7 @@ public class ChatWindow
             // is added to the tabbed pane. Then the scrollpane in the
             // conversation area is slightly resized and is made smaller,
             // which moves the scrollbar up.
-            currentChatPanel.setCaretToEnd();
+            currentChatPanel.scrollConversationToBottom();
 
             //add the chatTabbedPane to the window
             this.mainPanel.add(chatTabbedPane, BorderLayout.CENTER);
@@ -659,6 +656,7 @@ public class ChatWindow
     /**
      * Returns the time of the last received message.
      *
+     * @param chatPanel the chat panel for which w're getting the timestamp
      * @return The time of the last received message.
      */
     public long getLastIncomingMsgTimestamp(ChatPanel chatPanel)
@@ -687,6 +685,8 @@ public class ChatWindow
     /**
      * Implements the <tt>SIPCommFrame</tt> close method. We check for an open
      * menu and if there's one we close it, otherwise we close the current chat.
+     * @param isEscaped indicates if this window was closed by pressing the esc
+     * button
      */
     protected void close(boolean isEscaped)
     {
@@ -728,7 +728,8 @@ public class ChatWindow
 
     /**
      * Implements the <tt>ExportedWindow.getIdentifier()</tt> method.
-     * Returns the identifier of this window, which will
+     * @return the identifier of this window, used as plugin container
+     * identifier.
      */
     public WindowID getIdentifier()
     {
@@ -825,6 +826,11 @@ public class ChatWindow
         GuiActivator.getUIService().addPluginComponentListener(this);
     }
 
+    /**
+     * Adds a plugin component to this container.
+     * @param event the <tt>PluginComponentEvent</tt> that notified us of the
+     * add
+     */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
         PluginComponent c = event.getPluginComponent();
@@ -841,6 +847,11 @@ public class ChatWindow
         }
     }
 
+    /**
+     * Removes a plugin component from this container.
+     * @param event the <tt>PluginComponentEvent</tt> that notified us of the
+     * remove
+     */
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
         PluginComponent c = event.getPluginComponent();
@@ -878,6 +889,10 @@ public class ChatWindow
         return chatCount;
     }
 
+    /**
+     * Adds the given <tt>ChatChangeListener</tt>.
+     * @param listener the listener to add
+     */
     public void addChatChangeListener(ChatChangeListener listener)
     {
         synchronized (chatChangeListeners)
@@ -887,6 +902,10 @@ public class ChatWindow
         }
     }
 
+    /**
+     * Removes the given <tt>ChatChangeListener</tt>.
+     * @param listener the listener to remove
+     */
     public void removeChatChangeListener(ChatChangeListener listener)
     {
         synchronized (chatChangeListeners)
@@ -900,6 +919,7 @@ public class ChatWindow
      * given constraints.
      * 
      * @param c the component to add
+     * @param container the plugin container
      * @param constraints the constraints determining the container
      */
     private void addPluginComponent(Component c,
@@ -942,6 +962,7 @@ public class ChatWindow
      * constraints.
      * 
      * @param c the component to remove
+     * @param container the plugin container
      * @param constraints the constraints determining the container
      */
     private void removePluginComponent( Component c,
@@ -1094,7 +1115,8 @@ public class ChatWindow
         }
 
         /**
-         * Create tooltip.
+         * Creates a tooltip.
+         * @return the created tool tip
          */
         public JToolTip createToolTip()
         {
@@ -1137,6 +1159,7 @@ public class ChatWindow
          * each time in order to make the TooltipManager change the tooltip over
          * the different cells in the JList.
          * 
+         * @param event the <tt>MouseEvent</tt>
          * @return the string to be used as the tooltip for <i>event</i>.
          */
         public String getToolTipText(MouseEvent event)
@@ -1152,14 +1175,14 @@ public class ChatWindow
 
     /**
      * Handles <tt>WindowEvent</tt>s triggered when the window has gained focus.
+     * @param evt the <tt>WindowEvent</tt>
      */
     public void windowGainedFocus(WindowEvent evt)
     {
         this.removeNonReadChatState();
     }
 
-    public void windowLostFocus(WindowEvent arg0)
-    {}
+    public void windowLostFocus(WindowEvent arg0) {}
 
     /**
      * Removes the non read state of the currently selected chat session. This
@@ -1232,15 +1255,20 @@ public class ChatWindow
     }
 
     /**
-     * 
+     * Sends all files from the given directory when it's dropped in the chat
+     * window.
+     * @param dir the directory to send
+     * @param point the point, where the directory was dropped
      */
-    public void directoryDropped(File file, Point point)
+    public void directoryDropped(File dir, Point point)
     {
-        
+        //TODO: Implement send directory
     }
 
     /**
-     * 
+     * Sends the given file when dropped to the chat window.
+     * @param file the file to send
+     * @param point the point, where the file was dropped
      */
     public void fileDropped(File file, Point point)
     {

@@ -442,7 +442,7 @@ public class ChatConversationPanel
             this.ensureDocumentSize();
 
         // Scroll to the last inserted text in the document.
-        this.setCarretToEnd();
+        this.scrollToBottom();
     }
 
     /**
@@ -472,7 +472,7 @@ public class ChatConversationPanel
             this.ensureDocumentSize();
 
         // Scroll to the last inserted text in the document.
-        this.setCarretToEnd();
+        this.scrollToBottom();
     }
 
     /**
@@ -550,11 +550,13 @@ public class ChatConversationPanel
      * Highlights keywords searched in the history.
      *
      * @param message the source message
+     * @param contentType the content type
      * @param keyword the searched keyword
      * @return the formatted message
      */
-    private String processKeyword(String message, String contentType,
-        String keyword)
+    private String processKeyword(  String message,
+                                    String contentType,
+                                    String keyword)
     {
         String startPlainTextTag;
         String endPlainTextTag;
@@ -710,8 +712,9 @@ public class ChatConversationPanel
     /**
      * Formats message smileys.
      *
-     * @param message The source message string.
-     * @return The message string with properly formated smileys.
+     * @param message the source message string
+     * @param contentType the content type
+     * @return the message string with properly formated smileys
      */
     private String processSmileys(String message, String contentType)
     {
@@ -866,12 +869,16 @@ public class ChatConversationPanel
     /**
      * Moves the caret to the end of the editor pane.
      */
-    public void setCarretToEnd()
+    public void scrollToBottom()
     {
-        int documentLength = document.getLength();
-
-        if (chatTextPane.getDocument().getLength() == documentLength)
-            chatTextPane.setCaretPosition(documentLength);
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                getVerticalScrollBar()
+                    .setValue(getVerticalScrollBar().getMaximum());
+            }
+        });
     }
 
     /**
@@ -931,25 +938,15 @@ public class ChatConversationPanel
         rightButtonMenu.setVisible(true);
     }
 
-    public void mousePressed(MouseEvent e)
-    {
-    }
+    public void mousePressed(MouseEvent e) {}
 
-    public void mouseReleased(MouseEvent e)
-    {
-    }
+    public void mouseReleased(MouseEvent e) {}
 
-    public void mouseEntered(MouseEvent e)
-    {
-    }
+    public void mouseEntered(MouseEvent e) {}
 
-    public void mouseExited(MouseEvent e)
-    {
-    }
+    public void mouseExited(MouseEvent e) {}
 
-    public void lostOwnership(Clipboard clipboard, Transferable contents)
-    {
-    }
+    public void lostOwnership(Clipboard clipboard, Transferable contents) {}
 
     /**
      * Returns the chat container.
@@ -1169,7 +1166,7 @@ public class ChatConversationPanel
     }
 
     /**
-     * Extend Editor pane to add url tooltips.
+     * Extend Editor pane to add URL tooltips.
      */
     private class MyTextPane
         extends JTextPane
@@ -1177,6 +1174,7 @@ public class ChatConversationPanel
         /**
          * Returns the string to be used as the tooltip for <i>event</i>. 
          *
+         * @param event the <tt>MouseEvent</tt> 
          * @return the string to be used as the tooltip for <i>event</i>.
          */
         public String getToolTipText(MouseEvent event)
@@ -1231,7 +1229,7 @@ public class ChatConversationPanel
             logger.error("Insert in the HTMLDocument failed.", e);
         }
 
-        this.setCarretToEnd();
+        this.scrollToBottom();
     }
 
     /**
