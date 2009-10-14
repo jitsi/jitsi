@@ -138,14 +138,21 @@ public class AccountStatusPanel
     }
 
     /**
-     * Returns TRUE if there are selected status selector boxes, otherwise
-     * returns FALSE.
+     * Returns <tt>true</tt> if there are selected status selector boxes,
+     * otherwise returns <tt>false</tt>.
+     * @return <tt>true</tt> if there are selected status selector boxes,
+     * otherwise returns <tt>false</tt>
      */
     public boolean hasSelectedMenus()
     {
         return statusComboBox.hasSelectedMenus();
     }
 
+    /**
+     * Updates account information when a protocol provider is registered.
+     * @param evt the <tt>RegistrationStateChangeEvent</tt> that notified us
+     * of the change
+     */
     public void registrationStateChanged(RegistrationStateChangeEvent evt)
     {
         ProtocolProviderService protocolProvider = evt.getProvider();
@@ -154,7 +161,6 @@ public class AccountStatusPanel
 
         if (evt.getNewState().equals(RegistrationState.REGISTERED))
         {
-
             /*
              * Check the support for OperationSetServerStoredAccountInfo prior
              * to starting the Thread because only a couple of the protocols
@@ -164,7 +170,6 @@ public class AccountStatusPanel
             final OperationSetServerStoredAccountInfo accountInfoOpSet
                 = protocolProvider.getOperationSet(
                         OperationSetServerStoredAccountInfo.class);
-
 
             if (accountInfoOpSet != null)
                 /*

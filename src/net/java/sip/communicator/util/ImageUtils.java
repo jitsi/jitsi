@@ -7,14 +7,13 @@
 package net.java.sip.communicator.util;
 
 import java.awt.*;
+import java.awt.geom.*;
 import java.awt.image.*;
 import java.io.*;
 import java.net.*;
 
 import javax.imageio.*;
 import javax.swing.*;
-
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * Utility methods for image manipulation.
@@ -56,6 +55,13 @@ public class ImageUtils
         return scaledImage;
     }
 
+    /**
+     * Returns the scaled icon.
+     * @param image the image to scale
+     * @param width the desired width after the scale
+     * @param height the desired height after the scale
+     * @return the scaled icon
+     */
     public static ImageIcon scaleIconWithinBounds(Image image, int width,
         int height)
     {
@@ -66,13 +72,15 @@ public class ImageUtils
      * Creates a rounded avatar image.
      *
      * @param image image of the initial avatar image.
-     *
-     * @return The rounded corner image.
+     * @param width the desired result width
+     * @param height the desired result height
+     * @return the rounded corner image
      */
     public static Image getScaledRoundedImage(Image image, int width, int height)
     {
         ImageIcon scaledImage =
             ImageUtils.scaleIconWithinBounds(image, width, height);
+
         int scaledImageWidth = scaledImage.getIconWidth();
         int scaledImageHeight = scaledImage.getIconHeight();
 
@@ -80,29 +88,36 @@ public class ImageUtils
            scaledImageWidth <= 0)
             return null;
 
-        BufferedImage destImage =
-            new BufferedImage(scaledImageWidth, scaledImageHeight,
-                BufferedImage.TYPE_INT_ARGB);
+        RoundRectangle2D roundRect
+            = new RoundRectangle2D.Double(
+                0, 0, scaledImageWidth, scaledImageHeight, 10, 10);
 
-        Graphics2D g = destImage.createGraphics();
+        int type = BufferedImage.TYPE_INT_ARGB_PRE;
+        BufferedImage dstImage
+            = new BufferedImage(scaledImageWidth, scaledImageHeight, type);
+        Graphics2D g = dstImage.createGraphics();
 
         try
         {
-            AntialiasingManager.activateAntialiasing(g);
-
-            g.setColor(Color.WHITE);
-            g.fillRoundRect(0, 0, scaledImageWidth, scaledImageHeight, 10, 10);
-            g.setComposite(AlphaComposite.SrcIn);
-
+            g.setRenderingHint( RenderingHints.KEY_INTERPOLATION,
+                                RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+            g.setClip(roundRect);
             g.drawImage(scaledImage.getImage(), 0, 0, null);
         }
         finally
         {
             g.dispose();
         }
-        return destImage;
+        return dstImage;
     }
 
+    /**
+     * Returns the scaled image in byte array.
+     * @param image the image to scale
+     * @param width the desired width after the scale
+     * @param height the desired height after the scale
+     * @return the scaled image in byte array
+     */
     public static byte[] getScaledInstanceInBytes(
         Image image, int width, int height)
     {
