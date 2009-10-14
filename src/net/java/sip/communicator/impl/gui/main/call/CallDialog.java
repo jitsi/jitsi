@@ -60,7 +60,7 @@ public class CallDialog
 
     private boolean isCallTimerStarted = false;
 
-    private Timer timer;
+    private Timer callDurationTimer;
 
     /**
      * Creates a <tt>CallDialog</tt> by specifying the underlying call panel.
@@ -152,8 +152,8 @@ public class CallDialog
         buttonsPanel.setBorder(
             new ExtendedEtchedBorder(EtchedBorder.LOWERED, 1, 0, 0, 0));
 
-        this.timer = new Timer(1000, new CallTimerListener());
-        this.timer.setRepeats(true);
+        this.callDurationTimer = new Timer(1000, new CallTimerListener());
+        this.callDurationTimer.setRepeats(true);
 
     }
 
@@ -411,6 +411,12 @@ public class CallDialog
 
             timer.setRepeats(false);
             timer.start();
+
+            // The call is finished when that last peer is removed.
+            if (call.getCallPeerCount() == 0)
+            {
+                this.stopCallTimer();
+            }
         }
     }
 
@@ -449,7 +455,7 @@ public class CallDialog
     public void startCallTimer()
     {
         this.callStartDate = new Date();
-        this.timer.start();
+        this.callDurationTimer.start();
         this.isCallTimerStarted = true;
     }
 
@@ -458,7 +464,7 @@ public class CallDialog
      */
     public void stopCallTimer()
     {
-        this.timer.stop();
+        this.callDurationTimer.stop();
     }
 
     /**

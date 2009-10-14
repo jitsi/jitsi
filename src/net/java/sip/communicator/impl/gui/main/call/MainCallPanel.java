@@ -174,46 +174,37 @@ public class MainCallPanel
             // call button is pressed when a meta contact is selected
             if (isCallMetaContact)
             {
-                Object[] selectedContacts = mainFrame.getContactListPanel()
-                    .getContactList().getSelectedValues();
+                // We don't support conferencing from multiple selection for
+                // now. That would suppose to make choices on which protocol
+                // provider should be used to establish the call, so until we're
+                // not able to fully implement the feature we'll consider only
+                // one selected contact.
+                Object selectedContact = mainFrame.getContactListPanel()
+                    .getContactList().getSelectedValue();
 
-                java.util.List<String> telephonyContacts =
-                    new Vector<String>();
-
-                for (Object o : selectedContacts)
+                if (selectedContact instanceof MetaContact)
                 {
-                    if (o instanceof MetaContact)
+                    Contact contact = ((MetaContact) selectedContact)
+                        .getDefaultContact(OperationSetBasicTelephony.class);
+
+                    if (contact != null)
                     {
-                        Contact contact = ((MetaContact) o)
-                                .getDefaultContact(
-                                OperationSetBasicTelephony.class);
-
-                        if (contact != null)
-                            telephonyContacts.add(contact.getAddress());
-                        else
-                        {
-                            new ErrorDialog(
-                                this.mainFrame,
-                                GuiActivator.getResources()
-                                    .getI18NString("service.gui.WARNING"),
-                                GuiActivator.getResources().getI18NString(
-                                    "service.gui.CONTACT_NOT_SUPPORTING_TELEPHONY",
-                                    new String[]
-                                    { ((MetaContact) o).getDisplayName() }))
-                                .showDialog();
-                        }
+                        CallManager.createCall(
+                            contact.getProtocolProvider(), contact);
                     }
-                }
-
-                if (telephonyContacts.size() > 0)
-                {
-                    String[] contactAddressStrings
-                        = new String[telephonyContacts.size()];
-                    contactAddressStrings
-                        = telephonyContacts.toArray(contactAddressStrings);
-
-                    CallManager.createConferenceCall(
-                        contactAddressStrings, protocolProvider);
+                    else
+                    {
+                        new ErrorDialog(
+                            this.mainFrame,
+                            GuiActivator.getResources()
+                                .getI18NString("service.gui.WARNING"),
+                            GuiActivator.getResources().getI18NString(
+                                "service.gui.CONTACT_NOT_SUPPORTING_TELEPHONY",
+                                new String[]
+                                { ((MetaContact) selectedContact)
+                                        .getDisplayName() }))
+                            .showDialog();
+                    }
                 }
             }
             else if (!phoneNumberCombo.isComboFieldEmpty())
