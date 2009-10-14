@@ -74,12 +74,15 @@ public class FramedImage
      */
     public void setImageIcon(ImageIcon imageIcon)
     {
-        image
-            = ImageUtils
-                .getScaledRoundedImage(
-                    imageIcon.getImage(),
-                    width - 2,
-                    height - 2);
+        image = ImageUtils.getScaledRoundedImage(   imageIcon.getImage(),
+                                                    width - 2,
+                                                    height - 2);
+
+        if (this.isVisible())
+        {
+            this.revalidate();
+            this.repaint();
+        }
     }
 
     /**
