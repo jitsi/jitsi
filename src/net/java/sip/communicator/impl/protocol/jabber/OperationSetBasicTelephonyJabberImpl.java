@@ -372,7 +372,8 @@ public class OperationSetBasicTelephonyJabberImpl
     public void shutdown()
     {
         logger.trace("Ending all active calls. ");
-        Iterator activeCalls = this.activeCallsRepository.getActiveCalls();
+        Iterator<CallJabberImpl> activeCalls
+            = this.activeCallsRepository.getActiveCalls();
 
         // this is fast, but events aren't triggered ...
         //jingleManager.disconnectAllSessions();
@@ -380,15 +381,13 @@ public class OperationSetBasicTelephonyJabberImpl
         //go through all active calls.
         while(activeCalls.hasNext())
         {
-            CallJabberImpl call = (CallJabberImpl) activeCalls.next();
-
-            Iterator callPeers = call.getCallPeers();
+            CallJabberImpl call = activeCalls.next();
+            Iterator<CallPeer> callPeers = call.getCallPeers();
 
             //go through all call peers and say bye to every one.
             while (callPeers.hasNext())
             {
-                CallPeer peer
-                        = (CallPeer) callPeers.next();
+                CallPeer peer = callPeers.next();
                 try
                 {
                     this.hangupCallPeer(peer);

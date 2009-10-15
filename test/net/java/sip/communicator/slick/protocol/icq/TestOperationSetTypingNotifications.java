@@ -295,10 +295,8 @@ public class TestOperationSetTypingNotifications
         public void sendAutomaticallyFailed(
             IcbmService service,
             net.kano.joustsim.oscar.oscar.service.icbm.Message message,
-            Set triedConversations)
+            Set<Conversation> triedConversations)
         {
         }
     }
-
-
 }

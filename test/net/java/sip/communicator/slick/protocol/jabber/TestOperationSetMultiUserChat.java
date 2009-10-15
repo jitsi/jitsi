@@ -209,7 +209,7 @@ public class TestOperationSetMultiUserChat
     public void testGetExistingChatRooms()
         throws Exception
     {
-        List existingChatRooms = opSetMultiChat1.getExistingChatRooms();
+        List<String> existingChatRooms = opSetMultiChat1.getExistingChatRooms();
 
         assertTrue (
             "No chat rooms found on the server, even after we "
@@ -221,15 +221,9 @@ public class TestOperationSetMultiUserChat
 
         boolean testRoomFound = false;
 
-        Iterator roomsIter = existingChatRooms.iterator();
-
-        while(roomsIter.hasNext())
-        {
-            String roomName = (String)roomsIter.next();
-
+        for (String roomName : existingChatRooms)
             if (roomName.equals(fixture.chatRoomName))
                 testRoomFound = true;
-        }
 
         assertTrue("The room we created in previous tests "
                    +fixture.chatRoomName

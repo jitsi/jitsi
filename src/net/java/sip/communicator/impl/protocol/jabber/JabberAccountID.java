@@ -37,14 +37,11 @@ public class JabberAccountID
      * @param accountProperties Map
      * @return String
      */
-    private static String getServiceName(Map accountProperties)
+    private static String getServiceName(Map<String, String> accountProperties)
     {
-        String serviceName =
-            (String)accountProperties.get(ProtocolProviderFactory.SERVER_ADDRESS);
+        String serviceName
+            = accountProperties.get(ProtocolProviderFactory.SERVER_ADDRESS);
 
-        if(serviceName != null)
-            return serviceName;
-        else
-            return "jabber.org";
+        return (serviceName != null) ? serviceName : "jabber.org";
     }
 }

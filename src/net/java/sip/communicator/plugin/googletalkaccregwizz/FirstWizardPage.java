@@ -394,11 +394,11 @@ public class FirstWizardPage
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
         AccountID accountID = protocolProvider.getAccountID();
+        Map<String, String> accountProperties
+            = accountID.getAccountProperties();
 
-        Map accountProperties = accountID.getAccountProperties();
-
-        String password = (String) accountProperties.get(
-            ProtocolProviderFactory.PASSWORD);
+        String password
+            = accountProperties.get(ProtocolProviderFactory.PASSWORD);
 
         this.userIDField.setEnabled(false);
         this.userIDField.setText(accountID.getUserID());
@@ -409,29 +409,28 @@ public class FirstWizardPage
             this.rememberPassBox.setSelected(true);
         }
 
-        String serverAddress = (String) accountProperties
-            .get(ProtocolProviderFactory.SERVER_ADDRESS);
+        String serverAddress
+            = accountProperties.get(ProtocolProviderFactory.SERVER_ADDRESS);
 
         serverField.setText(serverAddress);
 
-        String serverPort = (String) accountProperties
-            .get(ProtocolProviderFactory.SERVER_PORT);
+        String serverPort
+            = accountProperties.get(ProtocolProviderFactory.SERVER_PORT);
 
         portField.setText(serverPort);
 
         boolean keepAlive
-            = Boolean.parseBoolean(
-                (String) accountProperties.get("SEND_KEEP_ALIVE"));
+            = Boolean.parseBoolean(accountProperties.get("SEND_KEEP_ALIVE"));
 
         sendKeepAliveBox.setSelected(keepAlive);
 
-        String resource = (String) accountProperties.get(
-            ProtocolProviderFactory.RESOURCE);
+        String resource
+            = accountProperties.get(ProtocolProviderFactory.RESOURCE);
 
         resourceField.setText(resource);
 
-        String priority = (String) accountProperties.get(
-            ProtocolProviderFactory.RESOURCE_PRIORITY);
+        String priority
+            = accountProperties.get(ProtocolProviderFactory.RESOURCE_PRIORITY);
 
         priorityField.setText(priority);
 

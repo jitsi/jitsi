@@ -124,10 +124,11 @@ public class InitialAccountRegistrationFrame
         {
             MetaContactListService contactList =
                 SimpleAccountRegistrationActivator.getContactList();
-            Iterator iter = contactList.getRoot().getSubgroups();
+            Iterator<MetaContactGroup> iter
+                = contactList.getRoot().getSubgroups();
             while (iter.hasNext())
             {
-                MetaContactGroup gr = (MetaContactGroup) iter.next();
+                MetaContactGroup gr = iter.next();
                 if (groupName.equals(gr.getGroupName()))
                     return;
             }

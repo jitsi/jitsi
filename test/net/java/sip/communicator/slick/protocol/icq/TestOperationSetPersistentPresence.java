@@ -121,7 +121,8 @@ public class TestOperationSetPersistentPresence
                      + "rootGroup.childGroups="+rootGroup.countSubgroups()
                      + "Printing rootGroupContents=\n"+rootGroup.toString());
 
-        Hashtable expectedContactList = fixture.preInstalledBuddyList;
+        Hashtable<String, List<String>> expectedContactList
+            = fixture.preInstalledBuddyList;
 
         logger.debug("============== Expected Contact List ===================");
         logger.debug(expectedContactList);
@@ -129,13 +130,13 @@ public class TestOperationSetPersistentPresence
         //Go through the contact list retrieved by the persistence presence set
         //and remove the name of every contact and group that we find there from
         //the expected contct list hashtable.
-        Iterator groups = rootGroup.subgroups();
+        Iterator<ContactGroup> groups = rootGroup.subgroups();
         while (groups.hasNext() )
         {
-            ContactGroup group = (ContactGroup)groups.next();
+            ContactGroup group = groups.next();
 
-            List expectedContactsInGroup
-                = (List)expectedContactList.get(group.getGroupName());
+            List<String> expectedContactsInGroup
+                = expectedContactList.get(group.getGroupName());
 
             // When sending the offline message
             // the sever creates a group NotInContactList,
@@ -150,11 +151,11 @@ public class TestOperationSetPersistentPresence
                     "the server but was not in the expected contact list."
                               , expectedContactsInGroup);
 
-                Iterator contactsIter = group.contacts();
+                Iterator<Contact> contactsIter = group.contacts();
                 while(contactsIter.hasNext())
                 {
-                    String contactID = ((Contact)contactsIter.next()).
-                        getAddress();
+                    String contactID = contactsIter.next().getAddress();
+
                     expectedContactsInGroup.remove(contactID);
                 }
 

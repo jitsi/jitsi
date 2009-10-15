@@ -90,7 +90,7 @@ public class TestMetaContact extends TestCase
      */
     public void testGetContacts()
     {
-        Iterator childContacts = metaContact.getContacts();
+        Iterator<Contact> childContacts = metaContact.getContacts();
 
         assertNotNull("getContacts() returned a null iterator."
                       , childContacts);
@@ -110,8 +110,8 @@ public class TestMetaContact extends TestCase
      */
     public void testGetContactsForProvider()
     {
-        Iterator childContacts = metaContact.getContactsForProvider(
-                                                        fixture.mockProvider);
+        Iterator<Contact> childContacts
+            = metaContact.getContactsForProvider(fixture.mockProvider);
 
         assertNotNull("getContactsForProvider() returned a null iterator."
                       , childContacts);
@@ -124,7 +124,6 @@ public class TestMetaContact extends TestCase
                    +")did not contain the "
                    +"right mock contact"
                    , mockContact, childContacts.next());
-
     }
 
     /**
@@ -184,23 +183,22 @@ public class TestMetaContact extends TestCase
                                 MetaContactGroup group)
     {
         //first check order of contacts in this group
-        Iterator contacts = group.getChildContacts();
+        Iterator<MetaContact> contacts = group.getChildContacts();
 
         MetaContact previousContact = null;
         int previousContactIsOnlineStatus = 0;
 
         while(contacts.hasNext())
         {
-            MetaContact currentContact  = (MetaContact)contacts.next();
+            MetaContact currentContact  = contacts.next();
 
             //calculate the total status for this contact
-            Iterator protoContacts = currentContact.getContacts();
+            Iterator<Contact> protoContacts = currentContact.getContacts();
             int currentContactIsOnlineStatus = 0;
 
             while(protoContacts.hasNext())
             {
-                if (((Contact)protoContacts.next())
-                        .getPresenceStatus().isOnline())
+                if (protoContacts.next().getPresenceStatus().isOnline())
                 {
                     currentContactIsOnlineStatus = 1;
                 }
@@ -231,12 +229,12 @@ public class TestMetaContact extends TestCase
         }
 
         //now go over the subgroups
-        Iterator subgroups = group.getSubgroups();
+        Iterator<MetaContactGroup> subgroups = group.getSubgroups();
 
         while(subgroups.hasNext())
         {
             verifyCompareToForAllContactsInGroupAndSubgroups(
-                    (MetaContactGroup)subgroups.next());
+                    subgroups.next());
         }
     }
 
@@ -251,7 +249,7 @@ public class TestMetaContact extends TestCase
         String detail_3 = "detail_3";
         
         metaContact.addDetail(name, detail_1);
-        List ds = metaContact.getDetails(name);
+        List<String> ds = metaContact.getDetails(name);
         assertTrue( "Must contain one detail",
                        1 == ds.size());
         assertTrue("The result details does not contain the desired",

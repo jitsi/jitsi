@@ -207,9 +207,9 @@ public class TestOperationSetBasicInstantMessaging
         }
 
         // put the two accounts online
-        Iterator iter = opSetPresence1.getSupportedStatusSet();
+        Iterator<PresenceStatus> iter = opSetPresence1.getSupportedStatusSet();
         while (iter.hasNext()) {
-            PresenceStatus stat = (PresenceStatus) iter.next();
+            PresenceStatus stat = iter.next();
             if (stat.isOnline()) {
                 opSetPresence1.publishPresenceStatus(
                     stat, "online for testing purpose");
@@ -219,7 +219,7 @@ public class TestOperationSetBasicInstantMessaging
 
         iter = opSetPresence2.getSupportedStatusSet();
         while (iter.hasNext()) {
-            PresenceStatus stat = (PresenceStatus) iter.next();
+            PresenceStatus stat = iter.next();
             if (stat.isOnline()) {
                 opSetPresence2.publishPresenceStatus(
                     stat, "online for testing purpose");

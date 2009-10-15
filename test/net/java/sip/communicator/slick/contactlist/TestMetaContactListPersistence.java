@@ -214,11 +214,11 @@ public class TestMetaContactListPersistence extends TestCase
         //verify that all contacts in the replacement provider are unresolved
         //as otherwise this would mean that the meta contact list has not
         //used the createUnresolvedContact() when creating them.
-        Iterator subgroups = newProtoRoot.subgroups();
+        Iterator<ContactGroup> subgroups = newProtoRoot.subgroups();
 
         while(subgroups.hasNext())
         {
-            assertUnresolvedContents( (MockContactGroup) subgroups.next() );
+            assertUnresolvedContents( subgroups.next() );
         }
     }
 
@@ -273,19 +273,18 @@ public class TestMetaContactListPersistence extends TestCase
         //verify that all contacts in the replacement providers are unresolved
         //as otherwise this would mean that the meta contact list has not
         //used the createUnresolvedContact() when creating them.
-        Iterator subgroups = newProtoMockP1Root.subgroups();
+        Iterator<ContactGroup> subgroups = newProtoMockP1Root.subgroups();
         while(subgroups.hasNext())
         {
-            assertUnresolvedContents( (MockContactGroup) subgroups.next() );
+            assertUnresolvedContents( subgroups.next() );
         }
 
 
         subgroups = newProtoMockP2Root.subgroups();
         while(subgroups.hasNext())
         {
-            assertUnresolvedContents( (MockContactGroup) subgroups.next() );
+            assertUnresolvedContents( subgroups.next() );
         }
-
     }
 
 
@@ -295,26 +294,26 @@ public class TestMetaContactListPersistence extends TestCase
      *
      * @param root the contact group where the recursive assertion should begin
      */
-    private void assertUnresolvedContents(MockContactGroup root)
+    private void assertUnresolvedContents(ContactGroup root)
     {
         assertEquals("isResolved for grp:" + root.getGroupName()
                      , false, root.isResolved());
 
         // verify all contacts
-        Iterator contacts = root.contacts();
+        Iterator<Contact> contacts = root.contacts();
 
         while(contacts.hasNext())
         {
-            Contact contact = (Contact)contacts.next();
+            Contact contact = contacts.next();
             assertEquals("isResolved for contact:" + contact.getDisplayName()
                      , false, contact.isResolved());
         }
 
         //recurse all subgroups
-        Iterator subgroups = root.subgroups();
+        Iterator<ContactGroup> subgroups = root.subgroups();
 
         while(subgroups.hasNext()){
-            assertUnresolvedContents((MockContactGroup)subgroups.next());
+            assertUnresolvedContents(subgroups.next());
         }
     }
 
