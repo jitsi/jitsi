@@ -678,7 +678,9 @@ public class OperationSetPersistentPresenceYahooImpl
 
         for (YahooGroup item : groups)
         {
+            @SuppressWarnings("unchecked")
             Iterable<YahooUser> members = item.getMembers();
+
             for (YahooUser user : members)
             {
                 ContactYahooImpl sourceContact =
