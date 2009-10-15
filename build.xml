@@ -685,6 +685,9 @@
 
             <!-- add some eventual profiler args -->
             <jvmarg line="${profiler.args} ${jvmarg.line}"/>
+            <!-- prevent server-class machine detection because -server uses
+                 much more memory -->
+            <jvmarg value="-client" />
 
             <sysproperty key="apple.laf.useScreenMenuBar" value="true" />
         </java>
@@ -786,7 +789,7 @@
         bundle-callhistory, bundle-callhistory-slick, bundle-popupmessagehandler-slick,
         bundle-netaddr,bundle-netaddr-slick,bundle-slickless,
         bundle-slick-runner,bundle-sip,bundle-sip-slick,bundle-fileaccess,
-        bundle-fileaccess-slick,bundle-media,bundle-neomedia,bundle-media-slick,
+        bundle-fileaccess-slick,bundle-media,bundle-media-slick,
         bundle-resource-manager,bundle-resources-defaultpack,
         bundle-protocol,bundle-icq,bundle-icq-slick,bundle-mock,bundle-smacklib,
         bundle-jabber,bundle-jabber-slick,bundle-swing-ui,bundle-ui-service,
