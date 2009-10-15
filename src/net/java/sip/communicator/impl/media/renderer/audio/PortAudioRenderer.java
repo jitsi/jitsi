@@ -48,6 +48,8 @@ public class PortAudioRenderer
 
     private static int deviceIndex = -1;
 
+    private static int frameSize;
+
     /**
      * Lists the input formats supported by this Renderer.
      * @return  An array of Format objects that represent
@@ -249,10 +251,8 @@ public class PortAudioRenderer
         deviceIndex = PortAudioStream.getDeviceIndexFromLocator(locator);
 
         long device = PortAudio.Pa_GetDeviceInfo(deviceIndex);
-        int maxOutputChannels =
-            PortAudio.PaDeviceInfo_getMaxOutputChannels(device);
-        if(maxOutputChannels > 2)
-            maxOutputChannels = 2;
+        int outputChannels = 1;
+
         double defaultSampleRate =
             PortAudio.PaDeviceInfo_getDefaultSampleRate(device);
 
@@ -261,13 +261,17 @@ public class PortAudioRenderer
                     AudioFormat.LINEAR,
                       defaultSampleRate,
                       16,
-                      maxOutputChannels,
+                      outputChannels,
                       AudioFormat.LITTLE_ENDIAN,
                       AudioFormat.SIGNED,
                       16,
                       Format.NOT_SPECIFIED,
                       Format.byteArray);
         supportedInputFormats = new Format[]{audioFormat};
+
+        frameSize
+            = PortAudio.Pa_GetSampleSize(PortAudio.SAMPLE_FORMAT_INT16)
+                * outputChannels;
     }
 
     /**
@@ -299,7 +303,7 @@ public class PortAudioRenderer
                         }
 
                         PortAudio.Pa_WriteStream(
-                            stream, buffer, buffer.length/4);
+                            stream, buffer, buffer.length/frameSize);
 
                         buffer = null;
                         bufferSync.wait(90);
