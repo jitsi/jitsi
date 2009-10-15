@@ -102,8 +102,6 @@ public class ImageUtils
         try
         {
             AntialiasingManager.activateAntialiasing(g);
-            g.setRenderingHint( RenderingHints.KEY_INTERPOLATION,
-                                RenderingHints.VALUE_INTERPOLATION_BICUBIC);
             g.setClip(roundRect);
             g.drawImage(scaledImage.getImage(), 0, 0, null);
         }
