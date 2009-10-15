@@ -323,15 +323,6 @@ public class ChatWindow
             // rest the selected component.
             chatTabbedPane.setSelectedComponent(currentChatPanel);
 
-            // Workaround for the following problem:
-            // The scrollbar in the conversation area moves up when the
-            // scrollpane is resized. This happens when ChatWindow is in
-            // mode "Group messages in one window" and the first chat panel
-            // is added to the tabbed pane. Then the scrollpane in the
-            // conversation area is slightly resized and is made smaller,
-            // which moves the scrollbar up.
-            currentChatPanel.scrollConversationToBottom();
-
             //add the chatTabbedPane to the window
             this.mainPanel.add(chatTabbedPane, BorderLayout.CENTER);
             this.mainPanel.validate();

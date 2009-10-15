@@ -108,6 +108,30 @@ public class ChatConversationPanel
     public static final String TEXT_CONTENT_TYPE = "text/plain";
 
     /**
+     * The indicator which determines whether an automatic scroll to the bottom
+     * of {@link #chatTextPane} is to be performed.
+     */
+    private boolean scrollToBottomIsPending = false;
+
+    /**
+     * The implementation of the routine which scrolls {@chatTextPane} to its
+     * bottom.
+     */
+    private final Runnable scrollToBottomRunnable = new Runnable()
+    {
+        /*
+         * Implements Runnable#run().
+         */
+        public void run()
+        {
+            JScrollBar verticalScrollBar = getVerticalScrollBar();
+
+            if (verticalScrollBar != null)
+                verticalScrollBar.setValue(verticalScrollBar.getMaximum());
+        }
+    };
+
+    /**
      * Creates an instance of <tt>ChatConversationPanel</tt>.
      *
      * @param chatContainer The parent <tt>ChatConversationContainer</tt>.
@@ -193,6 +217,64 @@ public class ChatConversationPanel
         copyLinkItem.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic(
                 "service.gui.COPY_LINK"));
+
+        /*
+         * When we append a new message (regardless of whether it is a string or
+         * an UI component), we want to make it visible in the viewport of this
+         * JScrollPane so that the user can see it.
+         */
+        ComponentListener componentListener = new ComponentAdapter()
+        {
+            @Override
+            public void componentResized(ComponentEvent e)
+            {
+                synchronized (scrollToBottomRunnable)
+                {
+                    if (!scrollToBottomIsPending)
+                        return;
+                    scrollToBottomIsPending = false;
+
+                    /*
+                     * Yana Stamcheva, being the excellent professional that she
+                     * is, pointed out that Java 5 (on Linux only?) needs
+                     * invokeLater for JScrollBar.
+                     */
+                    SwingUtilities.invokeLater(scrollToBottomRunnable);
+                }
+            }
+        };
+        chatTextPane.addComponentListener(componentListener);
+        getViewport().addComponentListener(componentListener);
+    }
+
+    /*
+     * Overrides Component#setBounds(int, int, int, int) in order to determine
+     * whether an automatic scroll of #chatTextPane to its bottom will be
+     * necessary at a later time in order to keep its vertical scroll bar to its
+     * bottom after the realization of the resize if it is at its bottom before
+     * the resize.
+     */
+    @Override
+    public void setBounds(int x, int y, int width, int height)
+    {
+        synchronized (scrollToBottomRunnable)
+        {
+            JScrollBar verticalScrollBar = getVerticalScrollBar();
+
+            if (verticalScrollBar != null)
+            {
+                BoundedRangeModel verticalScrollBarModel
+                    = verticalScrollBar.getModel();
+
+                if ((verticalScrollBarModel.getValue()
+                                + verticalScrollBarModel.getExtent()
+                            >= verticalScrollBarModel.getMaximum())
+                        || !verticalScrollBar.isVisible())
+                    scrollToBottomIsPending = true;
+            }
+        }
+
+        super.setBounds(x, y, width, height);
     }
 
     /**
@@ -224,10 +306,11 @@ public class ChatConversationPanel
     /**
      * Processes the message given by the parameters.
      *
-     * @param chatMessage the message.
-     * @return the formatted message
+     * @param chatMessage the message
+     * @param keyword
+     * @return the processed message
      */
-    public String processMessage(ChatMessage chatMessage)
+    public String processMessage(ChatMessage chatMessage, String keyword)
     {
         String contactName = chatMessage.getContactName();
         String contentType = chatMessage.getContentType();
@@ -252,7 +335,7 @@ public class ChatConversationPanel
         String startPlainTextTag;
         String endPlainTextTag;
 
-        if (contentType != null && contentType.equals(HTML_CONTENT_TYPE))
+        if (HTML_CONTENT_TYPE.equals(contentType))
         {
             startPlainTextTag = "";
             endPlainTextTag = "";
@@ -274,10 +357,11 @@ public class ChatConversationPanel
 
             endHeaderTag = "</h2>";
 
-            chatString += dateString + contactName + " at "
-                + GuiUtils.formatTime(date) + endHeaderTag + startDivTag
-                + startPlainTextTag + formatMessage(message, contentType)
-                + endPlainTextTag + endDivTag;
+            chatString
+                += dateString + contactName + " at " + GuiUtils.formatTime(date)
+                    + endHeaderTag + startDivTag + startPlainTextTag
+                    + formatMessage(message, contentType, keyword)
+                    + endPlainTextTag + endDivTag;
         }
         else if (messageType.equals(Chat.SMS_MESSAGE))
         {
@@ -288,10 +372,12 @@ public class ChatConversationPanel
 
             endHeaderTag = "</h2>";
 
-            chatString += "SMS: " + dateString + contactName + " at "
-                + GuiUtils.formatTime(date) + endHeaderTag + startDivTag
-                + startPlainTextTag + formatMessage(message, contentType)
-                + endPlainTextTag + endDivTag;
+            chatString
+                += "SMS: " + dateString + contactName + " at "
+                    + GuiUtils.formatTime(date) + endHeaderTag + startDivTag
+                    + startPlainTextTag
+                    + formatMessage(message, contentType, keyword)
+                    + endPlainTextTag + endDivTag;
         }
         else if (messageType.equals(Chat.OUTGOING_MESSAGE))
         {
@@ -302,13 +388,14 @@ public class ChatConversationPanel
 
             endHeaderTag = "</h3>";
 
-            chatString += dateString
-                + GuiActivator.getResources()
-                    .getI18NString("service.gui.ME")
-                + " at " + GuiUtils.formatTime(date) + endHeaderTag
-                + startDivTag + startPlainTextTag
-                + formatMessage(message, contentType) + endPlainTextTag
-                + endDivTag;
+            chatString
+                += dateString
+                    + GuiActivator
+                        .getResources().getI18NString("service.gui.ME")
+                    + " at " + GuiUtils.formatTime(date) + endHeaderTag
+                    + startDivTag + startPlainTextTag
+                    + formatMessage(message, contentType, keyword)
+                    + endPlainTextTag + endDivTag;
         }
         else if (messageType.equals(Chat.STATUS_MESSAGE))
         {
@@ -316,10 +403,9 @@ public class ChatConversationPanel
                             + date + "\">";
             endHeaderTag = "</h4>";
 
-            chatString += GuiUtils.formatTime(date)
-                + " " + contactName + " "
-                + message
-                + endHeaderTag;
+            chatString
+                += GuiUtils.formatTime(date) + " " + contactName + " " + message
+                    + endHeaderTag;
         }
         else if (messageType.equals(Chat.ACTION_MESSAGE))
         {
@@ -334,11 +420,10 @@ public class ChatConversationPanel
         }
         else if (messageType.equals(Chat.SYSTEM_MESSAGE))
         {
-            chatString += startSystemDivTag
-                + startPlainTextTag
-                + formatMessage(message, contentType)
-                + endPlainTextTag
-                + endDivTag;
+            chatString
+                += startSystemDivTag + startPlainTextTag
+                    + formatMessage(message, contentType, keyword)
+                    + endPlainTextTag + endDivTag;
         }
         else if (messageType.equals(Chat.ERROR_MESSAGE))
         {
@@ -366,10 +451,11 @@ public class ChatConversationPanel
 
             endHeaderTag = "</h2>";
 
-            chatString += dateString + contactName + " at "
-                + GuiUtils.formatTime(date) + endHeaderTag + startHistoryDivTag
-                + startPlainTextTag + formatMessage(message, contentType)
-                + endPlainTextTag + endDivTag;
+            chatString
+                += dateString + contactName + " at " + GuiUtils.formatTime(date)
+                    + endHeaderTag + startHistoryDivTag + startPlainTextTag
+                    + formatMessage(message, contentType, keyword)
+                    + endPlainTextTag + endDivTag;
         }
         else if (messageType.equals(Chat.HISTORY_OUTGOING_MESSAGE))
         {
@@ -380,13 +466,14 @@ public class ChatConversationPanel
 
             endHeaderTag = "</h3>";
 
-            chatString += dateString
-                + GuiActivator.getResources()
-                    .getI18NString("service.gui.ME")
-                + " at " + GuiUtils.formatTime(date) + endHeaderTag
-                + startHistoryDivTag + startPlainTextTag
-                + formatMessage(message, contentType) + endPlainTextTag
-                + endDivTag;
+            chatString
+                += dateString
+                    + GuiActivator
+                        .getResources().getI18NString("service.gui.ME")
+                    + " at " + GuiUtils.formatTime(date) + endHeaderTag
+                    + startHistoryDivTag + startPlainTextTag
+                    + formatMessage(message, contentType, keyword)
+                    + endPlainTextTag + endDivTag;
         }
 
         return chatString;
@@ -395,23 +482,12 @@ public class ChatConversationPanel
     /**
      * Processes the message given by the parameters.
      *
-     * @param chatMessage the message
-     * @param keyword
-     * @return the processed message
+     * @param chatMessage the message.
+     * @return the formatted message
      */
-    public String processMessage(ChatMessage chatMessage, String keyword)
+    public String processMessage(ChatMessage chatMessage)
     {
-        if (keyword != null && keyword.length() != 0)
-        {
-            chatMessage
-                .setMessage(
-                    processKeyword(
-                        chatMessage.getMessage(),
-                        chatMessage.getContentType(),
-                        keyword));
-        }
-
-        return this.processMessage(chatMessage);
+        return processMessage(chatMessage, null);
     }
 
     /**
@@ -422,57 +498,30 @@ public class ChatConversationPanel
      */
     public void appendMessageToEnd(String chatString)
     {
-        Element root = this.document.getDefaultRootElement();
-
-        try
+        synchronized (scrollToBottomRunnable)
         {
-            this.document.insertAfterEnd(root
-                .getElement(root.getElementCount() - 1), chatString);
-        }
-        catch (BadLocationException e)
-        {
-            logger.error("Insert in the HTMLDocument failed.", e);
-        }
-        catch (IOException e)
-        {
-            logger.error("Insert in the HTMLDocument failed.", e);
-        }
+            Element root = document.getDefaultRootElement();
 
-        if (!isHistory)
-            this.ensureDocumentSize();
+            scrollToBottomIsPending = true;
 
-        // Scroll to the last inserted text in the document.
-        this.scrollToBottom();
-    }
-
-    /**
-     * Inserts the given string at the beginning of the contained in this panel
-     * document.
-     *
-     * @param chatString the string to insert
-     */
-    public void insertMessageAfterStart(String chatString)
-    {
-        Element root = this.document.getDefaultRootElement();
-
-        try
-        {
-            this.document.insertBeforeStart(root.getElement(0), chatString);
+            try
+            {
+                document
+                    .insertAfterEnd(
+                        root.getElement(root.getElementCount() - 1),
+                        chatString);
+            }
+            catch (BadLocationException e)
+            {
+                logger.error("Insert in the HTMLDocument failed.", e);
+            }
+            catch (IOException e)
+            {
+                logger.error("Insert in the HTMLDocument failed.", e);
+            }
+            if (!isHistory)
+                ensureDocumentSize();
         }
-        catch (BadLocationException e)
-        {
-            logger.error("Insert in the HTMLDocument failed.", e);
-        }
-        catch (IOException e)
-        {
-            logger.error("Insert in the HTMLDocument failed.", e);
-        }
-
-        if (!isHistory)
-            this.ensureDocumentSize();
-
-        // Scroll to the last inserted text in the document.
-        this.scrollToBottom();
     }
 
     /**
@@ -561,7 +610,7 @@ public class ChatConversationPanel
         String startPlainTextTag;
         String endPlainTextTag;
 
-        if (contentType != null && contentType.equals(HTML_CONTENT_TYPE))
+        if (HTML_CONTENT_TYPE.equals(contentType))
         {
             startPlainTextTag = "";
             endPlainTextTag = "";
@@ -572,29 +621,34 @@ public class ChatConversationPanel
             endPlainTextTag = END_PLAINTEXT_TAG;
         }
 
-        Pattern p = Pattern.compile(keyword, Pattern.CASE_INSENSITIVE);
-
-        Matcher m = p.matcher(message);
-
+        Matcher m
+            = Pattern
+                .compile(keyword, Pattern.CASE_INSENSITIVE).matcher(message);
         StringBuffer msgBuffer = new StringBuffer();
-
-        boolean matchSuccessfull = false;
+        int prevEnd = 0;
 
         while (m.find())
         {
-            if (!matchSuccessfull)
-                matchSuccessfull = true;
+            msgBuffer.append(message.substring(prevEnd, m.start()));
+            prevEnd = m.end();
 
-            String matchGroup = m.group().trim();
+            String keywordMatch = m.group().trim();
 
-            String replacement = endPlainTextTag + "<h7>" + matchGroup + "</h7>"
-                + startPlainTextTag;
-
-            m.appendReplacement(msgBuffer, GuiUtils
-                .replaceSpecialRegExpChars(replacement));
+            msgBuffer.append(endPlainTextTag);
+            msgBuffer.append("<h7>");
+            msgBuffer.append(keywordMatch);
+            msgBuffer.append("</h7>");
+            msgBuffer.append(startPlainTextTag);
         }
-        m.appendTail(msgBuffer);
 
+        /*
+         * If the keyword didn't match, let the outside world be able to
+         * discover it.
+         */
+        if (prevEnd == 0)
+            return message;
+
+        msgBuffer.append(message.substring(prevEnd));
         return msgBuffer.toString();
     }
 
@@ -604,19 +658,50 @@ public class ChatConversationPanel
      *
      * @param message the message to be formatted
      * @param contentType the content type of the message to be formatted
+     * @param keyword the word to be highlighted
      * @return the formatted message
      */
-    private String formatMessage(String message, String contentType)
+    private String formatMessage(String message,
+                                 String contentType,
+                                 String keyword)
     {
         // If the message content type is HTML we won't process links and
         // new lines, but only the smileys.
         if (!HTML_CONTENT_TYPE.equals(contentType))
         {
-            message = processNewLines(processLinksAndHTMLChars(message));
+
+            /*
+             * We disallow HTML in plain-text messages. But processKeyword
+             * introduces HTML. So we'll allow HTML if processKeyword has
+             * introduced it in order to not break highlighting.
+             */
+            boolean processHTMLChars;
+
+            if ((keyword != null) && (keyword.length() != 0))
+            {
+                String messageWithProcessedKeyword
+                    = processKeyword(message, contentType, keyword);
+
+                /*
+                 * The same String instance will be returned if there was no
+                 * keyword match. Calling #equals() is expensive so == is
+                 * intentional.
+                 */
+                processHTMLChars = (messageWithProcessedKeyword == message);
+                message = messageWithProcessedKeyword;
+            }
+            else
+                processHTMLChars = true;
+
+            message
+                = processNewLines(
+                    processLinksAndHTMLChars(message, processHTMLChars));
         }
         // If the message content is HTML, we process br and img tags.
         else
         {
+            if ((keyword != null) && (keyword.length() != 0))
+                message = processKeyword(message, contentType, keyword);
             message = processImgTags(processBrTags(message));
         }
 
@@ -624,7 +709,7 @@ public class ChatConversationPanel
     }
 
     /**
-     * Formats all links in the given message and escapes special HTML
+     * Formats all links in a given message and optionally escapes special HTML
      * characters such as &lt;, &gt;, &amp; and &quot; in order to prevent HTML
      * injection in plain-text messages such as writing
      * <code>&lt;/PLAINTEXT&gt;</code>, HTML which is going to be rendered as
@@ -633,9 +718,12 @@ public class ChatConversationPanel
      * characters such as &amp;.
      * 
      * @param message The source message string.
+     * @param processHTMLChars  <tt>true</tt> to escape the special HTML chars;
+     * otherwise, <tt>false</tt>
      * @return The message string with properly formatted links.
      */
-    private String processLinksAndHTMLChars(String message)
+    private String processLinksAndHTMLChars(String message,
+                                            boolean processHTMLChars)
     {
         Matcher m = URL_PATTERN.matcher(message);
         StringBuffer msgBuffer = new StringBuffer();
@@ -643,9 +731,11 @@ public class ChatConversationPanel
 
         while (m.find())
         {
-            msgBuffer
-                .append(
-                    processHTMLChars(message.substring(prevEnd, m.start())));
+            String fromPrevEndToStart = message.substring(prevEnd, m.start());
+
+            if (processHTMLChars)
+                fromPrevEndToStart = processHTMLChars(fromPrevEndToStart);
+            msgBuffer.append(fromPrevEndToStart);
             prevEnd = m.end();
 
             String url = m.group().trim();
@@ -660,7 +750,12 @@ public class ChatConversationPanel
             msgBuffer.append("</A>");
             msgBuffer.append(START_PLAINTEXT_TAG);
         }
-        msgBuffer.append(processHTMLChars(message.substring(prevEnd)));
+
+        String fromPrevEndToEnd = message.substring(prevEnd);
+
+        if (processHTMLChars)
+            fromPrevEndToEnd = processHTMLChars(fromPrevEndToEnd);
+        msgBuffer.append(fromPrevEndToEnd);
 
         return msgBuffer.toString();
     }
@@ -867,21 +962,6 @@ public class ChatConversationPanel
     }
 
     /**
-     * Moves the caret to the end of the editor pane.
-     */
-    public void scrollToBottom()
-    {
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            public void run()
-            {
-                getVerticalScrollBar()
-                    .setValue(getVerticalScrollBar().getMaximum());
-            }
-        });
-    }
-
-    /**
      * When a right button click is performed in the editor pane, a popup menu
      * is opened.
      *
@@ -980,12 +1060,17 @@ public class ChatConversationPanel
     /**
      * Sets the given document to the editor pane in this panel.
      *
-     * @param doc the document to set
+     * @param document the document to set
      */
-    public void setContent(HTMLDocument doc)
+    public void setContent(HTMLDocument document)
     {
-        this.document = doc;
-        this.chatTextPane.setDocument(doc);
+        synchronized (scrollToBottomRunnable)
+        {
+            scrollToBottomIsPending = true;
+
+            this.document = document;
+            chatTextPane.setDocument(this.document);
+        }
     }
 
     /**
@@ -994,7 +1079,7 @@ public class ChatConversationPanel
      */
     public void setDefaultContent()
     {
-        this.chatTextPane.setDocument(document);
+        setContent(document);
     }
 
     /**
@@ -1193,43 +1278,44 @@ public class ChatConversationPanel
      */
     public void addComponent(ChatConversationComponent component)
     {
-        Style style = document.getStyleSheet().addStyle(
-            StyleConstants.ComponentElementName,
-            document.getStyleSheet().getStyle("body"));
-
-        // The image must first be wrapped in a style
-        style.addAttribute(
-            AbstractDocument.ElementNameAttribute,
-            StyleConstants.ComponentElementName);
-
-        TransparentPanel wrapPanel = new TransparentPanel(new BorderLayout());
-
-        wrapPanel.add(component, BorderLayout.NORTH);
-
-        style.addAttribute(
-            StyleConstants.ComponentAttribute,
-            wrapPanel);
-
-        style.addAttribute(
-            "identifier",
-            "messageHeader");
-
-        style.addAttribute(
-            "date",
-            component.getDate().getTime());
-
-        // Insert the component style at the end of the text
-        try
+        synchronized (scrollToBottomRunnable)
         {
-            document.insertString(  document.getLength(),
-                                    "ignored text", style);
-        }
-        catch (BadLocationException e)
-        {
-            logger.error("Insert in the HTMLDocument failed.", e);
-        }
+            StyleSheet styleSheet = document.getStyleSheet();
+            Style style
+                = styleSheet
+                    .addStyle(
+                        StyleConstants.ComponentElementName,
+                        styleSheet.getStyle("body"));
 
-        this.scrollToBottom();
+            // The image must first be wrapped in a style
+            style
+                .addAttribute(
+                    AbstractDocument.ElementNameAttribute,
+                    StyleConstants.ComponentElementName);
+
+            TransparentPanel wrapPanel
+                = new TransparentPanel(new BorderLayout());
+
+            wrapPanel.add(component, BorderLayout.NORTH);
+
+            style
+                .addAttribute(StyleConstants.ComponentAttribute, wrapPanel);
+            style.addAttribute("identifier", "messageHeader");
+            style.addAttribute("date", component.getDate().getTime());
+
+            scrollToBottomIsPending = true;
+
+            // Insert the component style at the end of the text
+            try
+            {
+                document
+                    .insertString(document.getLength(), "ignored text", style);
+            }
+            catch (BadLocationException e)
+            {
+                logger.error("Insert in the HTMLDocument failed.", e);
+            }
+        }
     }
 
     /**
@@ -1242,7 +1328,11 @@ public class ChatConversationPanel
     {
         if (GuiUtils.compareDates(date, System.currentTimeMillis()) < 0)
         {
-            return GuiUtils.formatDate(date) + " ";
+            StringBuffer dateStrBuf = new StringBuffer();
+
+            GuiUtils.formatDate(date, dateStrBuf);
+            dateStrBuf.append(" ");
+            return dateStrBuf.toString();
         }
 
         return "";

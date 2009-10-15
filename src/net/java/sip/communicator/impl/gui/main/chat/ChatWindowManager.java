@@ -93,16 +93,12 @@ public class ChatWindowManager
                     && chatWindow.getChatTabCount() > 0)
                 {
                     chatWindow.highlightTab(chatPanel);
-
-                    chatPanel.scrollConversationToBottom();
                 }
             }
             else
             {
                 chatWindow.setVisible(true);
                 chatWindow.setCurrentChatPanel(chatPanel);
-
-                chatPanel.scrollConversationToBottom();
             }
         }
     }

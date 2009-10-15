@@ -411,24 +411,6 @@ public class ChatPanel
     }
 
     /**
-     * Scrolls to the bottom of the conversation panel, contained in the
-     * given chat panel.
-     *
-     * Workaround for the following problem:
-     * The scrollbar in the conversation area moves up when the
-     * scrollpane is resized. This happens when ChatWindow is in
-     * mode "Group messages in one window" and the first chat panel
-     * is added to the tabbed pane. Then the scrollpane in the
-     * conversation area is slightly resized and is made smaller,
-     * which moves the scrollbar up.
-     */
-    public void scrollConversationToBottom()
-    {
-        //Scroll to the last inserted text in the document.
-        getChatConversationPanel().scrollToBottom();
-    }
-
-    /**
      * Requests the focus in the write message area.
      */
     public void requestFocusInWriteArea()
