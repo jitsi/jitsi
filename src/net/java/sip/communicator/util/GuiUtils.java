@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.util;
 
 import java.awt.*;
@@ -17,6 +16,7 @@ import javax.swing.*;
  * some special operations with strings.
  * 
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class GuiUtils
 {
@@ -167,12 +167,21 @@ public class GuiUtils
      */
     public static String formatDate(final long date)
     {
+        StringBuffer strBuf = new StringBuffer();
+
+        formatDate(date, strBuf);
+        return strBuf.toString();
+    }
+
+    public static void formatDate(long date, StringBuffer dateStrBuf)
+    {
         c1.setTimeInMillis(date);
 
-        return
-            GuiUtils.processMonth(c1.get(Calendar.MONTH) + 1) + " " 
-                + GuiUtils.formatTime(c1.get(Calendar.DAY_OF_MONTH)) + ", "
-                + GuiUtils.formatTime(c1.get(Calendar.YEAR));
+        dateStrBuf.append(GuiUtils.processMonth(c1.get(Calendar.MONTH)));
+        dateStrBuf.append(' ');
+        GuiUtils.formatTime(c1.get(Calendar.DAY_OF_MONTH), dateStrBuf);
+        dateStrBuf.append(", ");
+        GuiUtils.formatTime(c1.get(Calendar.YEAR), dateStrBuf);
     }
 
     /**
@@ -196,10 +205,14 @@ public class GuiUtils
     {
         c1.setTimeInMillis(time);
 
-        return
-            GuiUtils.formatTime(c1.get(Calendar.HOUR_OF_DAY)) + ":"
-                + GuiUtils.formatTime(c1.get(Calendar.MINUTE)) + ":"
-                + GuiUtils.formatTime(c1.get(Calendar.SECOND)) ;
+        StringBuffer timeStrBuf = new StringBuffer();
+
+        GuiUtils.formatTime(c1.get(Calendar.HOUR_OF_DAY), timeStrBuf);
+        timeStrBuf.append(':');
+        GuiUtils.formatTime(c1.get(Calendar.MINUTE), timeStrBuf);
+        timeStrBuf.append(':');
+        GuiUtils.formatTime(c1.get(Calendar.SECOND), timeStrBuf);
+        return timeStrBuf.toString();
     }
 
     /**
@@ -235,89 +248,50 @@ public class GuiUtils
     }
 
     /**
-     * Requests the focus in the given <tt>component</tt>. The actual request
-     * focus is called from a separate thread with the help
-     * SwingUtilities.invokeLater().
-     * 
-     * @param component the component which requests the focus.
-     */
-    public static void requestFocus(final Component component)
-    {
-        new Thread()
-        {
-            public void run()
-            {
-                SwingUtilities.invokeLater(
-                    new Runnable()
-                    {
-                        public void run()
-                        {
-                            component.requestFocus();
-                        }
-                    });
-            }
-        }.start();
-    }
-
-    /**
-     * Replaces the month with its abbreviation.
-     * @param month Value from 1 to 12, which indicates the month.
+     * Gets the display/human-readable string representation of the month with
+     * the specified zero-based month number.
+     *
+     * @param month the zero-based month number
      * @return the corresponding month abbreviation
      */
     private static String processMonth(int month)
     {
-        String monthString = "";
-        if(month == 1)
-            monthString = UtilActivator.getResources()
-                            .getI18NString("service.gui.JANUARY");
-        else if(month == 2)
-            monthString = UtilActivator.getResources()
-                            .getI18NString("service.gui.FEBRUARY");
-        else if(month == 3)
-            monthString = UtilActivator.getResources()
-                            .getI18NString("service.gui.MARCH");
-        else if(month == 4)
-            monthString = UtilActivator.getResources()
-                            .getI18NString("service.gui.APRIL");
-        else if(month == 5)
-            monthString = UtilActivator.getResources()
-                            .getI18NString("service.gui.MAY");
-        else if(month == 6)
-            monthString = UtilActivator.getResources()
-                            .getI18NString("service.gui.JUNE");
-        else if(month == 7)
-            monthString = UtilActivator.getResources()
-                            .getI18NString("service.gui.JULY");
-        else if(month == 8)
-            monthString = UtilActivator.getResources()
-                            .getI18NString("service.gui.AUGUST");
-        else if(month == 9)
-            monthString = UtilActivator.getResources()
-                            .getI18NString("service.gui.SEPTEMBER");
-        else if(month == 10)
-            monthString = UtilActivator.getResources()
-                            .getI18NString("service.gui.OCTOBER");
-        else if(month == 11)
-            monthString = UtilActivator.getResources()
-                            .getI18NString("service.gui.NOVEMBER");
-        else if(month == 12)
-            monthString = UtilActivator.getResources()
-                            .getI18NString("service.gui.DECEMBER");
+        String monthStringKey;
 
-        return monthString;
+        switch (month)
+        {
+        case 0: monthStringKey = "service.gui.JANUARY"; break;
+        case 1: monthStringKey = "service.gui.FEBRUARY"; break;
+        case 2: monthStringKey = "service.gui.MARCH"; break;
+        case 3: monthStringKey = "service.gui.APRIL"; break;
+        case 4: monthStringKey = "service.gui.MAY"; break;
+        case 5: monthStringKey = "service.gui.JUNE"; break;
+        case 6: monthStringKey = "service.gui.JULY"; break;
+        case 7: monthStringKey = "service.gui.AUGUST"; break;
+        case 8: monthStringKey = "service.gui.SEPTEMBER"; break;
+        case 9: monthStringKey = "service.gui.OCTOBER"; break;
+        case 10: monthStringKey = "service.gui.NOVEMBER"; break;
+        case 11: monthStringKey = "service.gui.DECEMBER"; break;
+        default: return "";
+        }
+
+        return UtilActivator.getResources().getI18NString(monthStringKey);
     }
-    
+
     /**
      * Adds a 0 in the beginning of one digit numbers.
      *
      * @param time The time parameter could be hours, minutes or seconds.
-     * @return The formatted minutes string.
+     * @param timeStrBuf the <tt>StringBuffer</tt> to which the formatted
+     * minutes string is to be appended
      */
-    private static String formatTime(int time)
+    private static void formatTime(int time, StringBuffer timeStrBuf)
     {
         String timeString = Integer.toString(time);
 
-        return (timeString.length() < 2) ? "0".concat(timeString) : timeString;
+        if (timeString.length() < 2)
+            timeStrBuf.append('0');
+        timeStrBuf.append(timeString);
     }
 
     /**
@@ -339,23 +313,14 @@ public class GuiUtils
         for (int i = 0; i < 4; i++)
         {
             long value = values[i];
+
             if (value == 0)
             {
-                // handle zero
                 if (valueOutput)
-                {
                     buf.append('0').append(fields[i]);
-                }
-            }
-            else if (value == 1)
-            {
-                // one
-                valueOutput = true;
-                buf.append('1').append(fields[i]);
             }
             else
             {
-                // other
                 valueOutput = true;
                 buf.append(value).append(fields[i]);
             }
