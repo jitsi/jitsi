@@ -184,7 +184,7 @@ public class ContactFacebookImpl
         // if we have not gotten the information of this buddy,
         // return the default avatar
         if (contactMetaInfo == null)
-            return getDefaultAvatar();
+            return null;
 
         // if we get here, the contact is not null but the image is null.
         // That means we've gotten the information of this buddy,
@@ -198,12 +198,11 @@ public class ContactFacebookImpl
                 = ImageIO.read(new URL(contactMetaInfo.thumbSrc));
 
             javax.imageio.ImageIO.write(newAvatar, "PNG", byteArrayOS);
+            image = byteArrayOS.toByteArray();
         }
         catch (IOException e)
         {
             logger.warn("IOException occured when loading avatar", e);
-            // OK, we use the defaultAvatar temporarily
-            return getDefaultAvatar();
         }
         finally
         {
@@ -211,16 +210,12 @@ public class ContactFacebookImpl
             {
                 byteArrayOS.close();
             }
-            catch (IOException e)
+            catch (IOException ioe)
             {
-                e.printStackTrace();
+                logger
+                    .warn("Failed to close avatar ByteArrayOutputStream", ioe);
             }
         }
-        image = byteArrayOS.toByteArray();
-
-        // failed to get the avatar
-        if (image == null)
-            return getDefaultAvatar();
 
         return image;
     }
@@ -240,7 +235,7 @@ public class ContactFacebookImpl
         // if we have not gotten the information of this buddy,
         // return the default avatar
         if (contactMetaInfo == null || contactMetaInfo.thumbSrc == null)
-            return getDefaultAvatar();
+            return null;
         
         String avatarSrcStr;
         
@@ -288,20 +283,6 @@ public class ContactFacebookImpl
             return getImage();
         
         return bigImage;
-    }
-
-    /**
-     * Returns the default avatar.
-     * 
-     * @return the default avatar
-     */
-    private static byte[] getDefaultAvatar()
-    {
-        return
-            ProtocolIconFacebookImpl
-                .getResources()
-                    .getImageInBytes(
-                        "service.protocol.facebook.DEFAULT_AVATAR");
     }
 
     /**
