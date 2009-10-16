@@ -8,16 +8,18 @@ package net.java.sip.communicator.impl.protocol.msn;
 
 import java.util.*;
 
-import org.osgi.framework.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
+
+import org.osgi.framework.*;
 
 /**
  * Loads the MSN provider factory and registers it with  service in the OSGI
  * bundle context.
  *
  * @author Damian Minkov
+ * @author Lubomir Marinov
  */
 public class MsnActivator
     implements BundleActivator
@@ -27,8 +29,13 @@ public class MsnActivator
     private static ConfigurationService configurationService  = null;
 
     private static ProtocolProviderFactoryMsnImpl msnProviderFactory = null;
-    
-    private static ResourceManagementService resourcesService;
+
+    /**
+     * The <tt>ResourceManagementService</tt> instance which provides common
+     * resources such as internationalized and localized strings, images to the
+     * MSN bundle.
+     */
+    private static ResourceManagementService resources;
 
     /**
      * Called when this bundle is started so the Framework can perform the
@@ -48,6 +55,13 @@ public class MsnActivator
         hashtable.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.MSN);
 
         msnProviderFactory = new ProtocolProviderFactoryMsnImpl();
+
+        /*
+         * Fixes issue #647: MalformedURLException in java-jml. Has to execute
+         * before a login in attempted so before the factory is registered seems
+         * OK since the ProtocolProviderService instances are not created yet.
+         */
+        ReferenceURLStreamHandlerService.registerService(bundleContext);
 
         //reg the msn account man.
         msnPpFactoryServReg =  context.registerService(
@@ -113,21 +127,21 @@ public class MsnActivator
         msnProviderFactory.stop();
         msnPpFactoryServReg.unregister();
     }
-    
+
+    /**
+     * Gets the <tt>ResourceManagementService</tt> instance which provides
+     * common resources such as internationalized and localized strings, images
+     * to the MSN bundle.
+     *
+     * @return the <tt>ResourceManagementService</tt> instance which provides
+     * common resources such as internationalized and localized strings, images
+     * to the MSN bundle
+     */
     public static ResourceManagementService getResources()
     {
-        if (resourcesService == null)
-        {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(ResourceManagementService.class.getName());
-
-            if(serviceReference == null)
-                return null;
-
-            resourcesService = (ResourceManagementService) bundleContext
-                .getService(serviceReference);
-        }
-
-        return resourcesService;
+        if (resources == null)
+            resources
+                = ResourceManagementServiceUtils.getService(bundleContext);
+        return resources;
     }
 }
