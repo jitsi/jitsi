@@ -271,15 +271,6 @@ public class DeviceConfiguration
         return audioCaptureDevice;
     }
 
-//    /**
-//     * Returns the default capture device used by the portaudio system.
-//     * @return the default capture device.
-//     */
-//    public CaptureDeviceInfo getDefaultAudioCaptureDevice()
-//    {
-//        return PortAudioAuto.defaultCaptureDevice;
-//    }
-
     /**
      * Gets the list of audio capture devices which are available through this
      * <code>DeviceConfiguration</code>, amongst which is
@@ -727,15 +718,6 @@ public class DeviceConfiguration
         return audioPlaybackDevice;
     }
 
-//    /**
-//     * Returns the default playback device used by the portaudio system.
-//     * @return the default playback device.
-//     */
-//    public CaptureDeviceInfo getDefaultAudioPlaybackDevice()
-//    {
-//        return PortAudioAuto.defaultCaptureDevice;
-//    }
-
     /**
      * @return the audioNotifyDevice
      */
@@ -743,15 +725,6 @@ public class DeviceConfiguration
     {
         return audioNotifyDevice;
     }
-
-//    /**
-//     * Returns the default notify device used by the portaudio system.
-//     * @return the default notify device.
-//     */
-//    public CaptureDeviceInfo getDefaultAudioNotifyDevice()
-//    {
-//        return PortAudioAuto.defaultPlaybackDevice;
-//    }
 
     /**
      * @param audioPlaybackDevice the audioPlaybackDevice to set
