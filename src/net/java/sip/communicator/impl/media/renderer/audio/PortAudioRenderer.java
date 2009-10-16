@@ -86,8 +86,8 @@ public class PortAudioRenderer
     {
         try
         {
-            started = true;
             PortAudio.Pa_StartStream(stream);
+            started = true;
         }
         catch (PortAudioException e)
         {
@@ -104,9 +104,9 @@ public class PortAudioRenderer
         {
             try
             {
+                started = false;
                 PortAudio.Pa_CloseStream(stream);
                 writerThread = null;
-                started = false;
             }
             catch (PortAudioException e)
             {

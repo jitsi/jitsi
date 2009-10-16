@@ -100,37 +100,56 @@ public class MediaConfigurationPanel
         }
     }
 
-    private void createPortAudioControls(Container portAudioPanel)
+    private void createPortAudioControls(
+        JPanel portAudioPanel, JPanel parentPanel)
     {
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.anchor = GridBagConstraints.NORTHWEST;
+        constraints.gridx = 0;
+        constraints.weightx = 0;
+        constraints.weighty = 0;
+        constraints.gridy = 0;
+
         portAudioPanel.add(new JLabel(getLabelText(
-            DeviceConfigurationComboBoxModel.AUDIO_CAPTURE)));
+            DeviceConfigurationComboBoxModel.AUDIO_CAPTURE)), constraints);
+        constraints.gridy = 1;
+        portAudioPanel.add(new JLabel(getLabelText(
+            DeviceConfigurationComboBoxModel.AUDIO_PLAYBACK)), constraints);
+        constraints.gridy = 2;
+        portAudioPanel.add(new JLabel(getLabelText(
+            DeviceConfigurationComboBoxModel.AUDIO_NOTIFY)), constraints);
+
+        constraints.weightx = 1;
+        constraints.gridx = 1;
+        constraints.gridy = 0;
         JComboBox captureCombo = new JComboBox();
         captureCombo.setEditable(false);
         captureCombo.setModel(
         new DeviceConfigurationComboBoxModel(
             mediaService.getDeviceConfiguration(),
             DeviceConfigurationComboBoxModel.AUDIO_CAPTURE));
-        portAudioPanel.add(captureCombo);
+        portAudioPanel.add(captureCombo, constraints);
 
-        portAudioPanel.add(new JLabel(getLabelText(
-            DeviceConfigurationComboBoxModel.AUDIO_PLAYBACK)));
+        constraints.gridy = 1;
         JComboBox playbackCombo = new JComboBox();
         playbackCombo.setEditable(false);
         playbackCombo.setModel(
             new DeviceConfigurationComboBoxModel(
             mediaService.getDeviceConfiguration(),
             DeviceConfigurationComboBoxModel.AUDIO_PLAYBACK));
-        portAudioPanel.add(playbackCombo);
+        portAudioPanel.add(playbackCombo, constraints);
 
-        portAudioPanel.add(new JLabel(getLabelText(
-            DeviceConfigurationComboBoxModel.AUDIO_NOTIFY)));
+        constraints.gridy = 2;
         JComboBox notifyCombo = new JComboBox();
         notifyCombo.setEditable(false);
         notifyCombo.setModel(
             new DeviceConfigurationComboBoxModel(
             mediaService.getDeviceConfiguration(),
             DeviceConfigurationComboBoxModel.AUDIO_NOTIFY));
-        portAudioPanel.add(notifyCombo);
+        portAudioPanel.add(notifyCombo, constraints);
+        parentPanel.setBorder(
+                BorderFactory.createTitledBorder("Devices"));
     }
 
     private Component createControls(int type)
@@ -148,11 +167,13 @@ public class MediaConfigurationPanel
          * input audio device, output audio device and audio device for playback
          * of notifications.
          */
-        final Container portAudioPanel;
+        final JPanel portAudioPanel;
+        final JPanel portAudioParentPanel;
         if (type == DeviceConfigurationComboBoxModel.AUDIO)
         {
             portAudioPanel
-                = new TransparentPanel(new GridLayout(3, 2, HGAP, VGAP));
+                = new TransparentPanel(new GridBagLayout());
+            portAudioParentPanel = new TransparentPanel(new BorderLayout());
 
             comboBox.addItemListener(new ItemListener()
             {
@@ -163,11 +184,13 @@ public class MediaConfigurationPanel
                         if(DeviceConfiguration
                                 .AUDIO_SYSTEM_PORTAUDIO.equals(e.getItem()))
                         {
-                            createPortAudioControls(portAudioPanel);
+                            createPortAudioControls(
+                                portAudioPanel, portAudioParentPanel);
                         }
                         else
                         {
                             portAudioPanel.removeAll();
+                            portAudioParentPanel.setBorder(null);
 
                             revalidate();
                             repaint();
@@ -178,10 +201,13 @@ public class MediaConfigurationPanel
             if(comboBox
                     .getSelectedItem()
                         .equals(DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO))
-                createPortAudioControls(portAudioPanel);
+                createPortAudioControls(portAudioPanel, portAudioParentPanel);
         }
         else
+        {
             portAudioPanel = null;
+            portAudioParentPanel = null;
+        }
 
         JLabel label = new JLabel(getLabelText(type));
         label.setDisplayedMnemonic(getDisplayedMnemonic(type));
@@ -198,19 +224,22 @@ public class MediaConfigurationPanel
         firstConstraints.weightx = 1;
         firstContainer.add(comboBox, firstConstraints);
 
-        if (portAudioPanel != null)
-        {
-            firstConstraints.gridx = 0;
-            firstConstraints.gridy = 1;
-            firstConstraints.weightx = 1;
-            firstConstraints.gridwidth = 2;
-            firstConstraints.insets = new Insets(VGAP, 0, 0, 0);
-            firstContainer.add(portAudioPanel, firstConstraints);
-        }
-
         Container secondContainer =
             new TransparentPanel(new GridLayout(1, 0, HGAP, VGAP));
-        secondContainer.add(createPreview(type, comboBox));
+
+        // if creating controls for audio will add devices panel
+        // otherwise it is video controls and will add preview panel
+        if (portAudioPanel != null)
+        {
+            // add portAudioPanel in new panel on north, as for some reason
+            // anchor = GridBagConstraints.NORTHWEST doesn't work
+            // and all components are vertically centered
+            portAudioParentPanel.add(portAudioPanel, BorderLayout.NORTH);
+            secondContainer.add(portAudioParentPanel);
+        }
+        else
+            secondContainer.add(createPreview(type, comboBox));
+
         secondContainer.add(createEncodingControls(type));
 
         Container container = new TransparentPanel(new GridBagLayout());

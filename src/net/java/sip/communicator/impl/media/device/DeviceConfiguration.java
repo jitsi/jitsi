@@ -221,6 +221,12 @@ public class DeviceConfiguration
         }
     }
 
+    /**
+     * Returns the configured video capture device with the specified
+     * output format.
+     * @param format the output format of the video format.
+     * @return CaptureDeviceInfo for the video device.
+     */
     private CaptureDeviceInfo extractConfiguredVideoCaptureDevice(String format)
     {
         List<CaptureDeviceInfo> videoCaptureDevices =
@@ -264,6 +270,15 @@ public class DeviceConfiguration
     {
         return audioCaptureDevice;
     }
+
+//    /**
+//     * Returns the default capture device used by the portaudio system.
+//     * @return the default capture device.
+//     */
+//    public CaptureDeviceInfo getDefaultAudioCaptureDevice()
+//    {
+//        return PortAudioAuto.defaultCaptureDevice;
+//    }
 
     /**
      * Gets the list of audio capture devices which are available through this
@@ -473,6 +488,11 @@ public class DeviceConfiguration
         return audioSystem;
     }
 
+    /**
+     * Extracts the audio system for the given device info.
+     * @param cdi the device
+     * @return the audio system used by the device.
+     */
     private String getAudioSystem(CaptureDeviceInfo cdi)
     {
         String res = null;
@@ -561,13 +581,10 @@ public class DeviceConfiguration
         }
         else if(name.equals(AUDIO_SYSTEM_PORTAUDIO))
         {
-            // changed to portaudio, so lets clear current device selection
-            // as we must select them
-            // if this is first time call devices will be already null
-            // and nothing will happen
-            setAudioCaptureDevice(null);
-            setAudioNotifyDevice(null);
-            setAudioPlaybackDevice(null);
+            // changed to portaudio, so lets set the default devices
+            setAudioCaptureDevice(PortAudioAuto.defaultCaptureDevice);
+            setAudioNotifyDevice(PortAudioAuto.defaultPlaybackDevice);
+            setAudioPlaybackDevice(PortAudioAuto.defaultPlaybackDevice);
 
             // we don't save anything cause it will be saved
             // when the devices are stored
@@ -640,6 +657,9 @@ public class DeviceConfiguration
         PlugInManager.RENDERER);
     }
 
+    /**
+     * Removes javasound renderer.
+     */
     private void removeJavaSoundRenderer()
     {
         PlugInManager.removePlugIn(
@@ -647,6 +667,9 @@ public class DeviceConfiguration
             PlugInManager.RENDERER);
     }
 
+    /**
+     * Removed portaudio renderer.
+     */
     private void removePortAudioRenderer()
     {
         PlugInManager.removePlugIn(
@@ -654,6 +677,9 @@ public class DeviceConfiguration
         PlugInManager.RENDERER);
     }
 
+    /**
+     * Registers javasound renderer.
+     */
     private void initJavaSoundRenderer()
     {
         try
@@ -672,6 +698,10 @@ public class DeviceConfiguration
         }
     }
 
+    /**
+     * Sets the device to be used by portaudio renderer.
+     * @param devInfo
+     */
     private void setDeviceToRenderer(CaptureDeviceInfo devInfo)
     {
         // no need to change device to renderer it will not be used anyway
@@ -697,6 +727,15 @@ public class DeviceConfiguration
         return audioPlaybackDevice;
     }
 
+//    /**
+//     * Returns the default playback device used by the portaudio system.
+//     * @return the default playback device.
+//     */
+//    public CaptureDeviceInfo getDefaultAudioPlaybackDevice()
+//    {
+//        return PortAudioAuto.defaultCaptureDevice;
+//    }
+
     /**
      * @return the audioNotifyDevice
      */
@@ -704,6 +743,15 @@ public class DeviceConfiguration
     {
         return audioNotifyDevice;
     }
+
+//    /**
+//     * Returns the default notify device used by the portaudio system.
+//     * @return the default notify device.
+//     */
+//    public CaptureDeviceInfo getDefaultAudioNotifyDevice()
+//    {
+//        return PortAudioAuto.defaultPlaybackDevice;
+//    }
 
     /**
      * @param audioPlaybackDevice the audioPlaybackDevice to set

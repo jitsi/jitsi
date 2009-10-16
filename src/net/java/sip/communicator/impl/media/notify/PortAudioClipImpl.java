@@ -131,6 +131,9 @@ public class PortAudioClipImpl
             {
                 while(true)
                 {
+                    AudioInputStream audioStream =
+                        AudioSystem.getAudioInputStream(url);
+
                     if (portAudioStream == 0)
                     {
                         int deviceIndex =
@@ -140,17 +143,27 @@ public class PortAudioClipImpl
                         long devInfo = PortAudio.Pa_GetDeviceInfo(deviceIndex);
                         int maxOutChannels =
                             PortAudio.PaDeviceInfo_getMaxOutputChannels(devInfo);
-                        if(maxOutChannels > 2)
-                            maxOutChannels = 2;
+
+
+                        int outChannels = audioStream.getFormat().getChannels();
+                        if(outChannels > maxOutChannels)
+                            outChannels = maxOutChannels;
 
                         double sampleRate =
-                            PortAudio.PaDeviceInfo_getDefaultSampleRate(devInfo);
+                            audioStream.getFormat().getSampleRate();
 
                         long streamParameters
                             = PortAudio.PaStreamParameters_new(
                                     deviceIndex,
-                                    maxOutChannels,
+                                    outChannels,
                                     PortAudio.SAMPLE_FORMAT_INT16);
+                        // check if file samplerate is supported
+                        // if it is use it and not resample
+                        if(!PortAudio.Pa_IsFormatSupported(
+                                0, streamParameters, sampleRate))
+                            sampleRate = 
+                                PortAudio.PaDeviceInfo_getDefaultSampleRate(
+                                    devInfo);
 
                         portAudioStream
                             = PortAudio.Pa_OpenStream(
@@ -163,9 +176,6 @@ public class PortAudioClipImpl
 
                         PortAudio.Pa_StartStream(portAudioStream);
                     }
-
-                    AudioInputStream audioStream =
-                        AudioSystem.getAudioInputStream(url);
 
                     if(!started)
                     {
