@@ -22,7 +22,7 @@ public class FramedImage
 {
     private final Image frameImage;
 
-    private Image image;
+    private ImageIcon icon;
 
     private final int width;
 
@@ -53,7 +53,8 @@ public class FramedImage
                     height);
 
         if (imageIcon != null)
-            this.setImageIcon(imageIcon);
+            this.icon = ImageUtils.scaleIconWithinBounds(
+                imageIcon.getImage(), width, height);
     }
 
     /**
@@ -70,13 +71,11 @@ public class FramedImage
     /**
      * Sets the image to display in the frame.
      * 
-     * @param imageIcon the image to display in the frame
+     * @param image the image to display in the frame
      */
-    public void setImageIcon(ImageIcon imageIcon)
+    public void setImageIcon(byte[] image)
     {
-        image = ImageUtils.getScaledRoundedImage(   imageIcon.getImage(),
-                                                    width - 2,
-                                                    height - 2);
+        icon = ImageUtils.getScaledRoundedIcon(image, width - 2, height - 2);
 
         if (this.isVisible())
         {
@@ -92,13 +91,13 @@ public class FramedImage
      */
     public void paintComponent(Graphics g)
     {
-        if (image != null)
+        if (icon != null)
         {
-            int imageWidth = image.getWidth(this);
-            int imageHeight = image.getHeight(this);
+            int imageWidth = icon.getIconWidth();
+            int imageHeight = icon.getIconHeight();
             if ((imageWidth != -1) && (imageHeight != -1))
                 g.drawImage(
-                    image,
+                    icon.getImage(),
                     width / 2 - imageWidth / 2,
                     height / 2 - imageHeight / 2,
                     null);

@@ -192,8 +192,7 @@ public class AccountStatusPanel
 
                         // do not set empty images
                         if ((accountImage != null) && (accountImage.length > 0))
-                            accountImageLabel
-                                .setImageIcon(new ImageIcon(accountImage));
+                            accountImageLabel.setImageIcon(accountImage);
 
                         String firstName
                             = AccountInfoUtils.getFirstName(accountInfoOpSet);

@@ -7,7 +7,6 @@
 package net.java.sip.communicator.util;
 
 import java.awt.*;
-import java.awt.geom.*;
 import java.awt.image.*;
 import java.io.*;
 import java.net.*;
@@ -58,11 +57,12 @@ public class ImageUtils
     }
 
     /**
-     * Returns the scaled icon.
+     * Scales the given <tt>image</tt> to fit in the given <tt>width</tt> and
+     * <tt>height</tt>.
      * @param image the image to scale
-     * @param width the desired width after the scale
-     * @param height the desired height after the scale
-     * @return the scaled icon
+     * @param width the desired width
+     * @param height the desired height
+     * @return the scaled image
      */
     public static ImageIcon scaleIconWithinBounds(Image image, int width,
         int height)
@@ -74,15 +74,16 @@ public class ImageUtils
      * Creates a rounded avatar image.
      *
      * @param image image of the initial avatar image.
-     * @param width the desired result width
-     * @param height the desired result height
-     * @return the rounded corner image
+     * @param width the desired width
+     * @param height the desired height
+     * @return The rounded corner image.
      */
-    public static Image getScaledRoundedImage(Image image, int width, int height)
+    public static Image getScaledRoundedImage(  Image image,
+                                                int width,
+                                                int height)
     {
         ImageIcon scaledImage =
             ImageUtils.scaleIconWithinBounds(image, width, height);
-
         int scaledImageWidth = scaledImage.getIconWidth();
         int scaledImageHeight = scaledImage.getIconHeight();
 
@@ -90,34 +91,49 @@ public class ImageUtils
            scaledImageWidth <= 0)
             return null;
 
-        RoundRectangle2D roundRect
-            = new RoundRectangle2D.Double(
-                0, 0, scaledImageWidth, scaledImageHeight, 10, 10);
+        // Just clipping the image would cause jaggies on Windows and Linux.
+        // The following is a soft clipping solution based on the solution
+        // proposed by Chris Campbell:
+        // http://java.sun.com/mailers/techtips/corejava/2006/tt0923.html
+        BufferedImage destImage
+            = new BufferedImage(scaledImageWidth, scaledImageHeight,
+                BufferedImage.TYPE_INT_ARGB);
 
-        int type = BufferedImage.TYPE_INT_ARGB_PRE;
-        BufferedImage dstImage
-            = new BufferedImage(scaledImageWidth, scaledImageHeight, type);
-        Graphics2D g = dstImage.createGraphics();
+        Graphics2D g = destImage.createGraphics();
 
         try
         {
+            // Render our clip shape into the image.  Note that we enable
+            // antialiasing to achieve the soft clipping effect.
+            g.setComposite(AlphaComposite.Src);
             AntialiasingManager.activateAntialiasing(g);
-            g.setClip(roundRect);
+            g.setColor(Color.WHITE);
+            g.fillRoundRect(0, 0, scaledImageWidth, scaledImageHeight, 15, 15);
+
+            // We use SrcAtop, which effectively uses the
+            // alpha value as a coverage value for each pixel stored in the
+            // destination.  For the areas outside our clip shape, the
+            // destination alpha will be zero, so nothing is rendered in those
+            // areas. For the areas inside our clip shape, the destination alpha
+            // will be fully opaque, so the full color is rendered. At the edges,
+            // the original antialiasing is carried over to give us the desired
+            // soft clipping effect.
+            g.setComposite(AlphaComposite.SrcAtop);
             g.drawImage(scaledImage.getImage(), 0, 0, null);
         }
         finally
         {
             g.dispose();
         }
-        return dstImage;
+        return destImage;
     }
 
     /**
-     * Returns the scaled image in byte array.
+     * Returns a scaled instance of the given <tt>image</tt>.
      * @param image the image to scale
-     * @param width the desired width after the scale
-     * @param height the desired height after the scale
-     * @return the scaled image in byte array
+     * @param width the desired width
+     * @param height the desired height
+     * @return a byte array containing the scaled image
      */
     public static byte[] getScaledInstanceInBytes(
         Image image, int width, int height)
