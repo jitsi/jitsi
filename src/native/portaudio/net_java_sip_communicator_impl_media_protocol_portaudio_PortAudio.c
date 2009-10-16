@@ -35,6 +35,20 @@ static void PortAudioStream_free(JNIEnv *env, PortAudioStream *stream);
 static PortAudioStream * PortAudioStream_new(
 	JNIEnv *env, jobject streamCallback);
 
+JNIEXPORT jint JNICALL
+Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1GetDefaultInputDevice
+  (JNIEnv *env, jclass clazz)
+{
+    return Pa_GetDefaultInputDevice();
+}
+
+JNIEXPORT jint JNICALL
+Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1GetDefaultOutputDevice
+  (JNIEnv *env, jclass clazz)
+{
+    return Pa_GetDefaultOutputDevice();
+}
+
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1CloseStream(
 	JNIEnv *env, jclass clazz, jlong stream)

@@ -9,6 +9,22 @@ extern "C" {
 #endif
 /*
  * Class:     net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio
+ * Method:    Pa_GetDefaultInputDevice
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1GetDefaultInputDevice
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio
+ * Method:    Pa_GetDefaultOutputDevice
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1GetDefaultOutputDevice
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio
  * Method:    Pa_CloseStream
  * Signature: (J)V
  */

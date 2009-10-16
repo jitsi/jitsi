@@ -54,6 +54,22 @@ public final class PortAudio
     }
 
     /**
+     * Retrieve the index of the default input device.
+     * @return The default input device index for the default host API,
+     *         or paNoDevice if no default input device is available or
+     *         an error was encountered.
+     */
+    public static native int Pa_GetDefaultInputDevice();
+
+    /**
+     * Retrieve the index of the default output device.
+     * @return The default input device index for the default host API,
+     *         or paNoDevice if no default input device is available or
+     *         an error was encountered.
+     */
+    public static native int Pa_GetDefaultOutputDevice();
+
+    /**
      * Closes an audio stream. If the audio stream is active it discards
      * any pending buffers as if Pa_AbortStream() had been called.
      * @param stream the steam pointer.
