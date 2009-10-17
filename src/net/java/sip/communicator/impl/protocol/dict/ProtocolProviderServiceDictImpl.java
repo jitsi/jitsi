@@ -100,25 +100,22 @@ public class ProtocolProviderServiceDictImpl
             OperationSetPersistentPresenceDictImpl persistentPresence =
                 new OperationSetPersistentPresenceDictImpl(this);
 
-            supportedOperationSets.put(
-                OperationSetPersistentPresence.class.getName(),
+            addSupportedOperationSet(
+                OperationSetPersistentPresence.class,
                 persistentPresence);
-
-
             //register it once again for those that simply need presence and
             //won't be smart enough to check for a persistent presence
             //alternative
-            supportedOperationSets.put( OperationSetPresence.class.getName(),
-                                        persistentPresence);
+            addSupportedOperationSet(
+                OperationSetPresence.class,
+                persistentPresence);
 
             //initialize the IM operation set
-            OperationSetBasicInstantMessagingDictImpl basicInstantMessaging
-                = new OperationSetBasicInstantMessagingDictImpl(
-                    this, persistentPresence);
-
-            supportedOperationSets.put(
-                OperationSetBasicInstantMessaging.class.getName(),
-                basicInstantMessaging);
+            addSupportedOperationSet(
+                OperationSetBasicInstantMessaging.class,
+                new OperationSetBasicInstantMessagingDictImpl(
+                        this,
+                        persistentPresence));
 
             //initialize the typing notifications operation set
             /*OperationSetTypingNotifications typingNotifications =
@@ -132,7 +129,7 @@ public class ProtocolProviderServiceDictImpl
             isInitialized = true;
         }
     }
-    
+
     /**
      * Returns the <tt>DictConnection</tt> opened by this provider
      * @return the <tt>DictConnection</tt> opened by this provider

@@ -567,16 +567,17 @@ public class ProtocolProviderServiceJabberImpl
                         "http://www.xmpp.org/extensions/xep-0168.html#ns");
             }
 
-            supportedOperationSets.put(
-                OperationSetPersistentPresence.class.getName(),
+            addSupportedOperationSet(
+                OperationSetPersistentPresence.class,
                 persistentPresence);
             // TODO: add the feature, if any, corresponding to persistent
             // presence, if someone knows
             // supportedFeatures.add(_PRESENCE_);
 
             //register it once again for those that simply need presence
-            supportedOperationSets.put( OperationSetPresence.class.getName(),
-                                        persistentPresence);
+            addSupportedOperationSet(
+                OperationSetPresence.class,
+                persistentPresence);
 
             //initialize the IM operation set
             OperationSetBasicInstantMessagingJabberImpl basicInstantMessaging =
@@ -586,70 +587,53 @@ public class ProtocolProviderServiceJabberImpl
                 basicInstantMessaging.setKeepAliveEnabled(Boolean
                     .parseBoolean(keepAliveStrValue));
 
-            supportedOperationSets.put(
-                OperationSetBasicInstantMessaging.class.getName(),
+            addSupportedOperationSet(
+                OperationSetBasicInstantMessaging.class,
                 basicInstantMessaging);
 
             // The http://jabber.org/protocol/xhtml-im feature is included
             // already in smack.
 
             //initialize the Whiteboard operation set
-            OperationSetWhiteboardingJabberImpl whiteboard =
-                new OperationSetWhiteboardingJabberImpl (this);
-
-            supportedOperationSets.put (
-                OperationSetWhiteboarding.class.getName(), whiteboard);
+            addSupportedOperationSet(
+                OperationSetWhiteboarding.class,
+                new OperationSetWhiteboardingJabberImpl(this));
 
             //initialize the typing notifications operation set
-            OperationSetTypingNotifications typingNotifications =
-                new OperationSetTypingNotificationsJabberImpl(this);
-
-            supportedOperationSets.put(
-                OperationSetTypingNotifications.class.getName(),
-                typingNotifications);
+            addSupportedOperationSet(
+                OperationSetTypingNotifications.class,
+                new OperationSetTypingNotificationsJabberImpl(this));
 
             // The http://jabber.org/protocol/chatstates feature implemented in
             // OperationSetTypingNotifications is included already in smack.
 
             //initialize the multi user chat operation set
-            OperationSetMultiUserChat multiUserChat =
-                new OperationSetMultiUserChatJabberImpl(this);
-
-            supportedOperationSets.put(
-                OperationSetMultiUserChat.class.getName(),
-                multiUserChat);
+            addSupportedOperationSet(
+                OperationSetMultiUserChat.class,
+                new OperationSetMultiUserChatJabberImpl(this));
 
             InfoRetreiver infoRetreiver = new InfoRetreiver(this, screenname);
 
-            OperationSetServerStoredContactInfo contactInfo =
-                new OperationSetServerStoredContactInfoJabberImpl(infoRetreiver);
+            addSupportedOperationSet(
+                OperationSetServerStoredContactInfo.class,
+                new OperationSetServerStoredContactInfoJabberImpl(
+                        infoRetreiver));
 
-            supportedOperationSets.put(
-                OperationSetServerStoredContactInfo.class.getName(),
-                contactInfo);
-
-            OperationSetServerStoredAccountInfo accountInfo =
+            addSupportedOperationSet(
+                OperationSetServerStoredAccountInfo.class,
                 new OperationSetServerStoredAccountInfoJabberImpl(
-                        this, infoRetreiver, screenname);
-
-            supportedOperationSets.put(
-                OperationSetServerStoredAccountInfo.class.getName(),
-                accountInfo);
+                        this,
+                        infoRetreiver,
+                        screenname));
 
             // initialize the file transfer operation set
-            OperationSetFileTransfer fileTransfer
-                = new OperationSetFileTransferJabberImpl(this);
+            addSupportedOperationSet(
+                OperationSetFileTransfer.class,
+                new OperationSetFileTransferJabberImpl(this));
 
-            supportedOperationSets.put(
-                OperationSetFileTransfer.class.getName(),
-                fileTransfer);
-
-            OperationSetInstantMessageTransform messageTransform
-                = new OperationSetInstantMessageTransformImpl();
-
-            supportedOperationSets.put(
-                OperationSetInstantMessageTransform.class.getName(),
-                messageTransform);
+            addSupportedOperationSet(
+                OperationSetInstantMessageTransform.class,
+                new OperationSetInstantMessageTransformImpl());
 
             // Include features we're supporting in plus of the four that
             // included by smack itself:
@@ -661,12 +645,9 @@ public class ProtocolProviderServiceJabberImpl
             supportedFeatures.add("urn:xmpp:bob");
 
             // initialize the thumbnailed file factory operation set
-            OperationSetThumbnailedFileFactory thumbnailFactory
-                = new OperationSetThumbnailedFileFactoryImpl();
-
-            supportedOperationSets.put(
-                OperationSetThumbnailedFileFactory.class.getName(),
-                thumbnailFactory);
+            addSupportedOperationSet(
+                OperationSetThumbnailedFileFactory.class,
+                new OperationSetThumbnailedFileFactoryImpl());
 
             // TODO: this is the "main" feature to advertise when a client
             // support muc. We have to add some features for
@@ -681,17 +662,15 @@ public class ProtocolProviderServiceJabberImpl
             //check if we are supposed to start telephony
 
             //initialize the telephony opset
-            String enableJingle = (String)JabberActivator
-                .getConfigurationService().getProperty(PNAME_ENABLE_JINGLE);
-            if( Boolean.getBoolean(enableJingle)
-                && JabberActivator.getMediaService() != null)
+            boolean enableJingle
+                = JabberActivator
+                    .getConfigurationService()
+                        .getBoolean(PNAME_ENABLE_JINGLE, false);
+            if(enableJingle && JabberActivator.getMediaService() != null)
             {
-                OperationSetBasicTelephony opSetBasicTelephony
-                    = new OperationSetBasicTelephonyJabberImpl(this);
-
-                supportedOperationSets.put(
-                    OperationSetBasicTelephony.class.getName(),
-                    opSetBasicTelephony);
+                addSupportedOperationSet(
+                    OperationSetBasicTelephony.class,
+                    new OperationSetBasicTelephonyJabberImpl(this));
 
                 // Add Jingle features to supported features.
                 supportedFeatures.add("urn:xmpp:jingle:1");

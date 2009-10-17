@@ -92,25 +92,24 @@ public class ProtocolProviderServiceRssImpl
             OperationSetPersistentPresenceRssImpl persistentPresence =
                 new OperationSetPersistentPresenceRssImpl(this);
 
-            supportedOperationSets.put(
-                OperationSetPersistentPresence.class.getName(),
+            addSupportedOperationSet(
+                OperationSetPersistentPresence.class,
                 persistentPresence);
-
-
             //register it once again for those that simply need presence and
             //won't be smart enough to check for a persistent presence
             //alternative
-            supportedOperationSets.put( OperationSetPresence.class.getName(),
-                                        persistentPresence);
+            addSupportedOperationSet(
+                OperationSetPresence.class,
+                persistentPresence);
 
             //initialize the IM operation set
             //OperationSetBasicInstantMessagingRssImpl
-                    basicInstantMessaging
+            basicInstantMessaging
                 = new OperationSetBasicInstantMessagingRssImpl(
-                    this, persistentPresence);
-
-            supportedOperationSets.put(
-                OperationSetBasicInstantMessaging.class.getName(),
+                        this,
+                        persistentPresence);
+            addSupportedOperationSet(
+                OperationSetBasicInstantMessaging.class,
                 basicInstantMessaging);
 
             isInitialized = true;

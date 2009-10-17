@@ -455,91 +455,70 @@ public class ProtocolProviderServiceIcqImpl
             if(IcqAccountID.isAIM(accountID.getAccountProperties()))
                     USING_ICQ = false;
 
-            supportedOperationSets.put(
-                OperationSetInstantMessageTransform.class.getName(), 
+            addSupportedOperationSet(
+                OperationSetInstantMessageTransform.class, 
                 new OperationSetInstantMessageTransformImpl());
 
             //initialize the presence operationset
             OperationSetPersistentPresence persistentPresence =
                 new OperationSetPersistentPresenceIcqImpl(this, screenname);
 
-            supportedOperationSets.put(
-                OperationSetPersistentPresence.class.getName(),
+            addSupportedOperationSet(
+                OperationSetPersistentPresence.class,
+                persistentPresence);
+            //register it once again for those that simply need presence
+            addSupportedOperationSet(
+                OperationSetPresence.class,
                 persistentPresence);
 
-            //register it once again for those that simply need presence
-            supportedOperationSets.put( OperationSetPresence.class.getName(),
-                                        persistentPresence);
-
             //initialize the IM operation set
-            OperationSetBasicInstantMessaging basicInstantMessaging =
-                new OperationSetBasicInstantMessagingIcqImpl(this);
+            addSupportedOperationSet(
+                OperationSetBasicInstantMessaging.class,
+                new OperationSetBasicInstantMessagingIcqImpl(this));
 
-            supportedOperationSets.put(
-                OperationSetBasicInstantMessaging.class.getName(),
-                basicInstantMessaging);
-
-            //initialize the multi chat operation set  
-            OperationSetAdHocMultiUserChatIcqImpl multiUserOpSet
-                = new OperationSetAdHocMultiUserChatIcqImpl(this);
-
-            supportedOperationSets.put(
-                OperationSetAdHocMultiUserChat.class.getName(),
-                multiUserOpSet);
+            //initialize the multi chat operation set
+            addSupportedOperationSet(
+                OperationSetAdHocMultiUserChat.class,
+                new OperationSetAdHocMultiUserChatIcqImpl(this));
 
             //initialize the typing notifications operation set
-            OperationSetTypingNotifications typingNotifications =
-                new OperationSetTypingNotificationsIcqImpl(this);
-
-            supportedOperationSets.put(
-                OperationSetTypingNotifications.class.getName(),
-                typingNotifications);
+            addSupportedOperationSet(
+                OperationSetTypingNotifications.class,
+                new OperationSetTypingNotificationsIcqImpl(this));
 
             if(USING_ICQ)
             {
                 this.infoRetreiver = new InfoRetreiver(this, screenname);
 
-                OperationSetServerStoredContactInfo serverStoredContactInfo =
-                    new OperationSetServerStoredContactInfoIcqImpl
-                        (infoRetreiver, this);
+                addSupportedOperationSet(
+                    OperationSetServerStoredContactInfo.class,
+                    new OperationSetServerStoredContactInfoIcqImpl(
+                            infoRetreiver,
+                            this));
 
-                supportedOperationSets.put(
-                    OperationSetServerStoredContactInfo.class.getName(),
-                    serverStoredContactInfo);
+                addSupportedOperationSet(
+                    OperationSetServerStoredAccountInfo.class,
+                    new OperationSetServerStoredAccountInfoIcqImpl(
+                            infoRetreiver,
+                            screenname,
+                            this));
 
-                OperationSetServerStoredAccountInfo serverStoredAccountInfo =
-                    new OperationSetServerStoredAccountInfoIcqImpl
-                        (infoRetreiver, screenname, this);
+                addSupportedOperationSet(
+                    OperationSetWebAccountRegistration.class,
+                    new OperationSetWebAccountRegistrationIcqImpl());
 
-                supportedOperationSets.put(
-                    OperationSetServerStoredAccountInfo.class.getName(),
-                    serverStoredAccountInfo);
+                addSupportedOperationSet(
+                    OperationSetWebContactInfo.class,
+                    new OperationSetWebContactInfoIcqImpl());
 
-                OperationSetWebAccountRegistration webAccountRegistration =
-                    new OperationSetWebAccountRegistrationIcqImpl();
-                supportedOperationSets.put(
-                    OperationSetWebAccountRegistration.class.getName(),
-                    webAccountRegistration);
-
-                OperationSetWebContactInfo webContactInfo =
-                    new OperationSetWebContactInfoIcqImpl();
-                supportedOperationSets.put(
-                    OperationSetWebContactInfo.class.getName(),
-                    webContactInfo);
-
-                OperationSetExtendedAuthorizationsIcqImpl extendedAuth =
-                    new OperationSetExtendedAuthorizationsIcqImpl(this);
-                supportedOperationSets.put(
-                    OperationSetExtendedAuthorizations.class.getName(),
-                    extendedAuth);
-
+                addSupportedOperationSet(
+                    OperationSetExtendedAuthorizations.class,
+                    new OperationSetExtendedAuthorizationsIcqImpl(this));
             }
 
-            OperationSetFileTransferIcqImpl fileTransferOpSet
-                = new OperationSetFileTransferIcqImpl(this);
-            supportedOperationSets.put(
-                OperationSetFileTransfer.class.getName(),
-                fileTransferOpSet);
+            addSupportedOperationSet(
+                OperationSetFileTransfer.class,
+                new OperationSetFileTransferIcqImpl(this));
 
             isInitialized = true;
         }

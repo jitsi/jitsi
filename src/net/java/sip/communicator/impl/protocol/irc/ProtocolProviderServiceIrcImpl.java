@@ -88,14 +88,19 @@ public class ProtocolProviderServiceIrcImpl
             //Initialize the multi user chat support
             multiUserChat = new OperationSetMultiUserChatIrcImpl(this);
 
-            supportedOperationSets.put(
-                OperationSetMultiUserChat.class.getName(), multiUserChat);
+            addSupportedOperationSet(
+                OperationSetMultiUserChat.class,
+                multiUserChat);
 
-            this.ircStack = new IrcStack(   this,
-                                            getAccountID().getUserID(),
-                                            getAccountID().getUserID(),
-                                            "SIP Communicator 1.0",
-                                            "");
+            userID = getAccountID().getUserID();
+
+            ircStack
+                = new IrcStack(
+                        this,
+                        userID,
+                        userID,
+                        "SIP Communicator 1.0",
+                        "");
 
             isInitialized = true;
         }
@@ -151,28 +156,21 @@ public class ProtocolProviderServiceIrcImpl
         throws OperationFailedException
     {
         AccountID accountID = getAccountID();
-
-        String serverAddress =
-            accountID
-                .getAccountPropertyString(ProtocolProviderFactory.SERVER_ADDRESS);
-
-        String serverPort =
-            accountID
-                .getAccountPropertyString(ProtocolProviderFactory.SERVER_PORT);
-
-        if(serverPort == null || serverPort.equals(""))
-        {
-            serverPort = "6667";
-        }
-        
+        String serverAddress
+            = accountID
+                .getAccountPropertyString(
+                    ProtocolProviderFactory.SERVER_ADDRESS);
+        int serverPort
+            = accountID
+                .getAccountPropertyInt(
+                    ProtocolProviderFactory.SERVER_PORT,
+                    6667);
         //Verify whether a password has already been stored for this account
         String serverPassword = IrcActivator.
             getProtocolProviderFactory().loadPassword(getAccountID());
-
         boolean autoNickChange =
             accountID.getAccountPropertyBoolean(
                 ProtocolProviderFactory.AUTO_CHANGE_USER_NAME, true);
-
         boolean passwordRequired =
             accountID.getAccountPropertyBoolean(
                 ProtocolProviderFactory.NO_PASSWORD_REQUIRED, true);
@@ -215,7 +213,7 @@ public class ProtocolProviderServiceIrcImpl
         }
 
         this.ircStack.connect(  serverAddress,
-                                Integer.parseInt(serverPort),
+                                serverPort,
                                 serverPassword,
                                 autoNickChange);
     }

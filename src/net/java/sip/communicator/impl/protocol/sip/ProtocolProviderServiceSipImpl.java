@@ -425,60 +425,63 @@ public class ProtocolProviderServiceSipImpl
             //init our call processor
             OperationSetBasicTelephonySipImpl opSetBasicTelephonySipImpl
                 = new OperationSetBasicTelephonySipImpl(this);
-            this.supportedOperationSets.put(
-                OperationSetBasicTelephony.class.getName()
-                , opSetBasicTelephonySipImpl);
-            this.supportedOperationSets.put(
-                OperationSetAdvancedTelephony.class.getName()
-                , opSetBasicTelephonySipImpl);
 
+            addSupportedOperationSet(
+                OperationSetBasicTelephony.class,
+                opSetBasicTelephonySipImpl);
+            addSupportedOperationSet(
+                OperationSetAdvancedTelephony.class,
+                opSetBasicTelephonySipImpl);
             // init ZRTP (OperationSetBasicTelephonySipImpl implements
             // OperationSetSecureTelephony)
-            this.supportedOperationSets.put(
-                OperationSetSecureTelephony.class.getName()
-                , opSetBasicTelephonySipImpl);
+            addSupportedOperationSet(
+                OperationSetSecureTelephony.class,
+                opSetBasicTelephonySipImpl);
 
             //init presence op set.
             OperationSetPersistentPresence opSetPersPresence
                 = new OperationSetPresenceSipImpl(this, enablePresence,
                         forceP2P, pollingValue, subscriptionExpiration);
-            this.supportedOperationSets.put(
-                OperationSetPersistentPresence.class.getName()
-                , opSetPersPresence);
+
+            addSupportedOperationSet(
+                OperationSetPersistentPresence.class,
+                opSetPersPresence);
             //also register with standard presence
-            this.supportedOperationSets.put(
-                OperationSetPresence.class.getName()
-                , opSetPersPresence);
+            addSupportedOperationSet(
+                OperationSetPresence.class,
+                opSetPersPresence);
 
             if (enablePresence)
             {
                 // init instant messaging
                 OperationSetBasicInstantMessagingSipImpl opSetBasicIM =
                     new OperationSetBasicInstantMessagingSipImpl(this);
-                this.supportedOperationSets.put(
-                    OperationSetBasicInstantMessaging.class.getName(),
+
+                addSupportedOperationSet(
+                    OperationSetBasicInstantMessaging.class,
                     opSetBasicIM);
 
                 // init typing notifications
-                OperationSetTypingNotificationsSipImpl opSetTyping =
-                    new OperationSetTypingNotificationsSipImpl(this, opSetBasicIM);
-                this.supportedOperationSets.put(
-                    OperationSetTypingNotifications.class.getName(),
-                    opSetTyping);
+                addSupportedOperationSet(
+                    OperationSetTypingNotifications.class,
+                    new OperationSetTypingNotificationsSipImpl(
+                            this,
+                            opSetBasicIM));
             }
 
             // OperationSetVideoTelephony
-            supportedOperationSets.put(
-                OperationSetVideoTelephony.class.getName(),
-                new OperationSetVideoTelephonySipImpl(opSetBasicTelephonySipImpl));
+            addSupportedOperationSet(
+                OperationSetVideoTelephony.class,
+                new OperationSetVideoTelephonySipImpl(
+                        opSetBasicTelephonySipImpl));
 
             // init DTMF (from JM Heitz)
-            supportedOperationSets.put(
-                OperationSetDTMF.class.getName(),
+            addSupportedOperationSet(
+                OperationSetDTMF.class,
                 new OperationSetDTMFSipImpl(this));
 
-            supportedOperationSets.put(
-                OperationSetTelephonyConferencing.class.getName(),
+            addSupportedOperationSet(
+                OperationSetTelephonyConferencing.class,
                 new OperationSetTelephonyConferencingSipImpl(this));
 
             //initialize our OPTIONS handler

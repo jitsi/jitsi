@@ -144,33 +144,29 @@ public class ProtocolProviderServiceSSHImpl
             OperationSetPersistentPresenceSSHImpl persistentPresence =
                     new OperationSetPersistentPresenceSSHImpl(this);
             
-            supportedOperationSets.put(
-                    OperationSetPersistentPresence.class.getName(),
-                    persistentPresence);
-            
+            addSupportedOperationSet(
+                OperationSetPersistentPresence.class,
+                persistentPresence);
             //register it once again for those that simply need presence and
             //won't be smart enough to check for a persistent presence
             //alternative
-            supportedOperationSets.put(
-                    OperationSetPresence.class.getName(),
-                    persistentPresence);
+            addSupportedOperationSet(
+                OperationSetPresence.class,
+                persistentPresence);
             
             //initialize the IM operation set
             basicInstantMessaging = new 
                 OperationSetBasicInstantMessagingSSHImpl(
                     this);
-            
-            supportedOperationSets.put(
-                    OperationSetBasicInstantMessaging.class.getName(),
-                    basicInstantMessaging);
+            addSupportedOperationSet(
+                OperationSetBasicInstantMessaging.class,
+                basicInstantMessaging);
             
             //initialze the file transfer operation set
-            fileTranfer = new OperationSetFileTransferSSHImpl(
-                    this);
-            
-            supportedOperationSets.put(
-                    OperationSetFileTransfer.class.getName(),
-                    fileTranfer);
+            fileTranfer = new OperationSetFileTransferSSHImpl(this);
+            addSupportedOperationSet(
+                OperationSetFileTransfer.class,
+                fileTranfer);
             
             isInitialized = true;
         }

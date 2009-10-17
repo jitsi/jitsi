@@ -112,29 +112,26 @@ public class ProtocolProviderServiceZeroconfImpl
             OperationSetPersistentPresenceZeroconfImpl persistentPresence =
                 new OperationSetPersistentPresenceZeroconfImpl(this);
 
-            supportedOperationSets.put(
-                OperationSetPersistentPresence.class.getName(),
+            addSupportedOperationSet(
+                OperationSetPersistentPresence.class,
                 persistentPresence);
-
-
             //register it once again for those that simply need presence and
             //won't be smart enough to check for a persistent presence
             //alternative
-            supportedOperationSets.put( OperationSetPresence.class.getName(),
-                                        persistentPresence);
+            addSupportedOperationSet(
+                OperationSetPresence.class,
+                persistentPresence);
 
             //initialize the IM operation set
-            OperationSetBasicInstantMessagingZeroconfImpl basicInstantMessaging
-                = new OperationSetBasicInstantMessagingZeroconfImpl(
-                    this, persistentPresence);
-
-            supportedOperationSets.put(
-                OperationSetBasicInstantMessaging.class.getName(),
-                basicInstantMessaging);
+            addSupportedOperationSet(
+                OperationSetBasicInstantMessaging.class,
+                new OperationSetBasicInstantMessagingZeroconfImpl(
+                        this,
+                        persistentPresence));
 
             //initialize the typing notifications operation set
-            supportedOperationSets.put(
-                OperationSetTypingNotifications.class.getName(),
+            addSupportedOperationSet(
+                OperationSetTypingNotifications.class,
                 new OperationSetTypingNotificationsZeroconfImpl(this));
 
             isInitialized = true;

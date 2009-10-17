@@ -21,8 +21,11 @@ import net.java.sip.communicator.util.*;
 public abstract class AbstractProtocolProviderService
     implements ProtocolProviderService
 {
+
     /**
-     * Logger of this class
+     * The <tt>Logger</tt> instances used by the
+     * <tt>AbstractProtocolProviderService</tt> class and its instances for
+     * logging output.
      */
     private static final Logger logger =
         Logger.getLogger(AbstractProtocolProviderService.class);
@@ -37,7 +40,7 @@ public abstract class AbstractProtocolProviderService
     /**
      * The hashtable with the operation sets that we support locally.
      */
-    protected final Map<String, OperationSet> supportedOperationSets
+    private final Map<String, OperationSet> supportedOperationSets
         = new Hashtable<String, OperationSet>();
 
     /**
@@ -60,9 +63,9 @@ public abstract class AbstractProtocolProviderService
     /**
      * Adds a specific <tt>OperationSet</tt> implementation to the set of
      * supported <tt>OperationSet</tt>s of this instance. Serves as a type-safe
-     * wrapper around {@link #supportedOperationSets} and its
-     * {@link Hashtable#put(String, OperationSet)} and also shortens the code
-     * which performs such additions.
+     * wrapper around {@link #supportedOperationSets} which works with class
+     * names instead of <tt>Class</tt> and also shortens the code which performs
+     * such additions.
      *
      * @param <T> the exact type of the <tt>OperationSet</tt> implementation to
      * be added
@@ -146,11 +149,13 @@ public abstract class AbstractProtocolProviderService
     /**
      * Returns the operation set corresponding to the specified class or null if
      * this operation set is not supported by the provider implementation.
-     * 
+     *
+     * @param <T> the exact type of the <tt>OperationSet</tt> that we're looking
+     * for
      * @param opsetClass the <tt>Class</tt> of the operation set that we're
      * looking for.
      * @return returns an <tt>OperationSet</tt> of the specified <tt>Class</tt>
-     * if the undelying implementation supports it; <tt>null</tt>, otherwise.
+     * if the underlying implementation supports it; <tt>null</tt>, otherwise.
      */
     @SuppressWarnings("unchecked")
     public <T extends OperationSet> T getOperationSet(Class<T> opsetClass)

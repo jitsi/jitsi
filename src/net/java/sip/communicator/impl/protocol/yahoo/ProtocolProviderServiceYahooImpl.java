@@ -318,50 +318,41 @@ public class ProtocolProviderServiceYahooImpl
         {
             this.accountID = accountID;
 
-            supportedOperationSets.put(
-                OperationSetInstantMessageTransform.class.getName(), 
+            addSupportedOperationSet(
+                OperationSetInstantMessageTransform.class,
                 new OperationSetInstantMessageTransformImpl());
             
             //initialize the presence operationset
-            persistentPresence = new OperationSetPersistentPresenceYahooImpl(this);
-
-            supportedOperationSets.put(
-                OperationSetPersistentPresence.class.getName(),
+            persistentPresence
+                = new OperationSetPersistentPresenceYahooImpl(this);
+            addSupportedOperationSet(
+                OperationSetPersistentPresence.class,
+                persistentPresence);
+            //register it once again for those that simply need presence
+            addSupportedOperationSet(
+                OperationSetPresence.class,
                 persistentPresence);
 
-            //register it once again for those that simply need presence
-            supportedOperationSets.put( OperationSetPresence.class.getName(),
-                                        persistentPresence);
-
             //initialize the IM operation set
-            OperationSetBasicInstantMessagingYahooImpl basicInstantMessaging =
-                new OperationSetBasicInstantMessagingYahooImpl(this);
+            addSupportedOperationSet(
+                OperationSetBasicInstantMessaging.class,
+                new OperationSetBasicInstantMessagingYahooImpl(this));
 
-            supportedOperationSets.put(
-                OperationSetBasicInstantMessaging.class.getName(),
-                basicInstantMessaging);
-
-           //initialize the multi user chat operation set
-            OperationSetAdHocMultiUserChatYahooImpl multiUserChatOpSet =
-               new OperationSetAdHocMultiUserChatYahooImpl(this);
-
-            supportedOperationSets.put(
-                    OperationSetAdHocMultiUserChat.class.getName(),
-                    multiUserChatOpSet);
+            //initialize the multi user chat operation set
+            addSupportedOperationSet(
+                OperationSetAdHocMultiUserChat.class,
+                new OperationSetAdHocMultiUserChatYahooImpl(this));
 
             //initialize the typing notifications operation set
-            typingNotifications =
-                new OperationSetTypingNotificationsYahooImpl(this);
-
-            supportedOperationSets.put(
-                OperationSetTypingNotifications.class.getName(),
+            typingNotifications
+                = new OperationSetTypingNotificationsYahooImpl(this);
+            addSupportedOperationSet(
+                OperationSetTypingNotifications.class,
                 typingNotifications);
 
-            OperationSetFileTransferYahooImpl fileTransferOpSet =
-               new OperationSetFileTransferYahooImpl(this);
-
-            supportedOperationSets.put(OperationSetFileTransfer.class.getName(),
-                   fileTransferOpSet);
+            addSupportedOperationSet(
+                OperationSetFileTransfer.class,
+                new OperationSetFileTransferYahooImpl(this));
 
             isInitialized = true;
         }

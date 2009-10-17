@@ -89,18 +89,15 @@ public class ProtocolProviderServiceFacebookImpl
             OperationSetPersistentPresenceFacebookImpl persistentPresence
                 = new OperationSetPersistentPresenceFacebookImpl(this);
 
-            supportedOperationSets
-                .put(
-                    OperationSetPersistentPresence.class.getName(),
-                    persistentPresence);
-
+            addSupportedOperationSet(
+                OperationSetPersistentPresence.class,
+                persistentPresence);
             // register it once again for those that simply need presence and
             // won't be smart enough to check for a persistent presence
             // alternative
-            supportedOperationSets
-                .put(
-                    OperationSetPresence.class.getName(),
-                    persistentPresence);
+            addSupportedOperationSet(
+                OperationSetPresence.class,
+                persistentPresence);
 
             // initialize the IM operation set
             OperationSetBasicInstantMessagingFacebookImpl basicInstantMessaging
@@ -108,32 +105,29 @@ public class ProtocolProviderServiceFacebookImpl
                         this,
                         persistentPresence);
 
-            supportedOperationSets
-                .put(
-                    OperationSetBasicInstantMessaging.class.getName(),
-                    basicInstantMessaging);
+            addSupportedOperationSet(
+                OperationSetBasicInstantMessaging.class,
+                basicInstantMessaging);
 
             // initialize the message operation set
-            supportedOperationSets
-                .put(
-                    OperationSetSmsMessaging.class.getName(),
-                    new OperationSetSmsMessagingFacebookImpl(
-                            this,
-                            persistentPresence));
+            addSupportedOperationSet(
+                OperationSetSmsMessaging.class,
+                new OperationSetSmsMessagingFacebookImpl(
+                        this,
+                        persistentPresence));
 
             // initialize the typing notifications operation set
             OperationSetTypingNotificationsFacebookImpl typingNotifications
                 = new OperationSetTypingNotificationsFacebookImpl(this);
-            supportedOperationSets
-                .put(
-                    OperationSetTypingNotifications.class.getName(),
-                    typingNotifications);
+
+            addSupportedOperationSet(
+                OperationSetTypingNotifications.class,
+                typingNotifications);
 
             // initialize the server stored contact info operation set
-            supportedOperationSets
-                .put(
-                    OperationSetServerStoredContactInfo.class.getName(),
-                    new OperationSetServerStoredContactInfoFacebookImpl(this));
+            addSupportedOperationSet(
+                OperationSetServerStoredContactInfo.class,
+                new OperationSetServerStoredContactInfoFacebookImpl(this));
 
             facebookAdapter
                 = new FacebookAdapter(

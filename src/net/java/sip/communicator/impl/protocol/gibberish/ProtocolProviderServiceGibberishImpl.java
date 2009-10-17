@@ -88,51 +88,46 @@ public class ProtocolProviderServiceGibberishImpl
             OperationSetPersistentPresenceGibberishImpl persistentPresence =
                 new OperationSetPersistentPresenceGibberishImpl(this);
 
-            supportedOperationSets.put(
-                OperationSetPersistentPresence.class.getName(),
+            addSupportedOperationSet(
+                OperationSetPersistentPresence.class,
                 persistentPresence);
-
-
             //register it once again for those that simply need presence and
             //won't be smart enough to check for a persistent presence
             //alternative
-            supportedOperationSets.put( OperationSetPresence.class.getName(),
-                                        persistentPresence);
+            addSupportedOperationSet(
+                OperationSetPresence.class,
+                persistentPresence);
 
             //initialize the IM operation set
-            OperationSetBasicInstantMessagingGibberishImpl basicInstantMessaging
-                = new OperationSetBasicInstantMessagingGibberishImpl(
-                    this, persistentPresence);
-
-            supportedOperationSets.put(
-                OperationSetBasicInstantMessaging.class.getName(),
-                basicInstantMessaging);
+            addSupportedOperationSet(
+                OperationSetBasicInstantMessaging.class,
+                new OperationSetBasicInstantMessagingGibberishImpl(
+                        this,
+                        persistentPresence));
 
             //initialize the typing notifications operation set
-            OperationSetTypingNotifications typingNotifications =
+            addSupportedOperationSet(
+                OperationSetTypingNotifications.class,
                 new OperationSetTypingNotificationsGibberishImpl(
-                        this, persistentPresence);
-
-            supportedOperationSets.put(
-                OperationSetTypingNotifications.class.getName(),
-                typingNotifications);
+                        this,
+                        persistentPresence));
 
             //initialize the basic telephony operation set
             OperationSetBasicTelephonyGibberishImpl telphonyOpSet =
                 new OperationSetBasicTelephonyGibberishImpl(this);
 
-            this.supportedOperationSets.put(
-                    OperationSetBasicTelephony.class.getName(),
-                    telphonyOpSet);
+            addSupportedOperationSet(
+                OperationSetBasicTelephony.class,
+                telphonyOpSet);
 
             //initialize the telephony conferencing operation set
             OperationSetTelephonyConferencing conferenceOpSet
                 = new OperationSetTelephonyConferencingGibberishImpl(
                     this, telphonyOpSet);
 
-            this.supportedOperationSets.put(
-                    OperationSetTelephonyConferencing.class.getName(),
-                    conferenceOpSet);
+            addSupportedOperationSet(
+                OperationSetTelephonyConferencing.class,
+                conferenceOpSet);
 
             isInitialized = true;
         }
