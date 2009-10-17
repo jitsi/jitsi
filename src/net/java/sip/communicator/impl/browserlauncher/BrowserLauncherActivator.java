@@ -12,36 +12,42 @@ import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 
 /**
- * The activator for the browserlauncher bundle.
+ * Implements <tt>BundleActivator</tt> for the browserlauncher bundle.
+ *
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class BrowserLauncherActivator
-    implements
-    BundleActivator
+    implements BundleActivator
 {
-    private static Logger logger
-        = Logger.getLogger(BrowserLauncherActivator.class.getName());
-    
-    private BundleContext bundleContext;
-    
-    private BrowserLauncherImpl browserLauncher;
-    
-    public void start(BundleContext bc)
+
+    /**
+     * The <tt>Logger</tt> instance used by the
+     * <tt>BrowserLauncherActivator</tt> class and its instances for logging
+     * output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(BrowserLauncherActivator.class);
+
+    public void start(BundleContext bundleContext)
         throws Exception
     {
-        bundleContext = bc;
-
         //Create the browser launcher service
-        this.browserLauncher = new BrowserLauncherImpl();
+        BrowserLauncherService browserLauncher = new BrowserLauncherImpl();
 
-        logger.info("UI Service...[  STARTED ]");
+        logger.info("Browser Launcher Service STARTED");
 
-        bundleContext.registerService(BrowserLauncherService.class.getName(),
-                this.browserLauncher, null);
+        bundleContext
+            .registerService(
+                BrowserLauncherService.class.getName(),
+                browserLauncher,
+                null);
 
-        logger.info("UI Service ...[REGISTERED]");
+        logger.info("Browser Launcher Service REGISTERED");
     }
 
-    public void stop(BundleContext arg0) throws Exception
-    {}
+    public void stop(BundleContext bundleContext)
+        throws Exception
+    {
+    }
 }
