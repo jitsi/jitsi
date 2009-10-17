@@ -8,6 +8,8 @@ package net.java.sip.communicator.impl.protocol.msn;
 
 import java.util.*;
 
+import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.sf.jml.*;
 import net.sf.jml.impl.*;
 import net.sf.jml.net.*;
@@ -15,13 +17,8 @@ import net.sf.jml.net.Message;
 import net.sf.jml.protocol.*;
 import net.sf.jml.protocol.incoming.*;
 
-import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.service.protocol.*;
-
-
 /**
- * Manager which listens for changing of the contact list
- * and fires some events
+ * Manager which listens for changing of the contact list and fires some events.
  *
  * @author Damian Minkov
  */
@@ -30,18 +27,29 @@ public class EventManager
 {
     private static final Logger logger = Logger.getLogger(EventManager.class);
 
-    private BasicMessenger msnMessenger = null;
-    private Vector<MsnContactListEventListener> listeners
+    private boolean connected = false;
+
+    private Timer connectionTimer;
+
+    private final List<MsnContactListEventListener> listeners
         = new Vector<MsnContactListEventListener>();
+
+    private final BasicMessenger msnMessenger;
 
     /**
      * The provider that is on top of us.
      */
-    private ProtocolProviderServiceMsnImpl msnProvider = null;
+    private final ProtocolProviderServiceMsnImpl msnProvider;
 
     /**
-     * Creates the manager
-     * @param msnMessenger BasicMessenger the messenger
+     * Initializes a new <tt>EventManager</tt> instance which is to manage the
+     * events of a specific <tt>BasicMessenger</tt> as part of its operation for
+     * the purposes of a specific <tt>ProtocolProviderServiceMsnImpl</tt>.
+     *
+     * @param msnProvider the <tt>ProtocolProviderServiceMsnImpl</tt> which is
+     * the creator of the new instance
+     * @param msnMessenger the <tt>BasicMessenger</tt> which is to have its
+     * events managed by the new instance
      */
     public EventManager(ProtocolProviderServiceMsnImpl msnProvider,
         BasicMessenger msnMessenger)
@@ -60,7 +68,8 @@ public class EventManager
     {
         synchronized(listeners)
         {
-            listeners.add(listener);
+            if (!listeners.contains(listener))
+                listeners.add(listener);
         }
     }
 
@@ -134,11 +143,21 @@ public class EventManager
         }
     }
 
-    private boolean connected = false;
-    private Timer connectionTimer = new Timer();
-
     public void sessionTimeout(Session socketSession) throws Exception
     {
+        Timer connectionTimer;
+
+        /*
+         * Delays the creation of Timer because it immediately starts a new
+         * Thread while it may not be necessary at all.
+         */
+        synchronized (this)
+        {
+            if (this.connectionTimer == null)
+                this.connectionTimer = new Timer();
+            connectionTimer = this.connectionTimer;
+        }
+
         connectionTimer.schedule(new TimerTask()
         {
             public void run()
@@ -159,12 +178,10 @@ public class EventManager
      */
     private void fireMessageDelivered(int transactionID)
     {
-        synchronized(listeners){
-            Iterator<MsnContactListEventListener> iter = listeners.iterator();
-            while (iter.hasNext())
-            {
-                iter.next().messageDelivered(transactionID);
-            }
+        synchronized(listeners)
+        {
+            for (MsnContactListEventListener listener : listeners)
+                listener.messageDelivered(transactionID);
         }
     }
 
@@ -174,12 +191,10 @@ public class EventManager
      */
     private void fireMessageDeliveredFailed(int transactionID)
     {
-        synchronized(listeners){
-            Iterator<MsnContactListEventListener> iter = listeners.iterator();
-            while (iter.hasNext())
-            {
-                iter.next().messageDeliveredFailed(transactionID);
-            }
+        synchronized(listeners)
+        {
+            for (MsnContactListEventListener listener : listeners)
+                listener.messageDeliveredFailed(transactionID);
         }
     }
 
@@ -189,12 +204,10 @@ public class EventManager
      */
     private void fireGroupRenamed(MsnGroup group)
     {
-        synchronized(listeners){
-            Iterator<MsnContactListEventListener> iter = listeners.iterator();
-            while (iter.hasNext())
-            {
-                iter.next().groupRenamed(group);
-            }
+        synchronized(listeners)
+        {
+            for (MsnContactListEventListener listener : listeners)
+                listener.groupRenamed(group);
         }
     }
 
@@ -205,11 +218,8 @@ public class EventManager
     {
         synchronized (listeners)
         {
-            Iterator<MsnContactListEventListener> iter = listeners.iterator();
-            while (iter.hasNext())
-            {
-                iter.next().loggingFromOtherLocation();
-            }
+            for (MsnContactListEventListener listener : listeners)
+                listener.loggingFromOtherLocation();
         }
     }
 }
