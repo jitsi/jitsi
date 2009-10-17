@@ -201,26 +201,23 @@ public interface ConfigurationService
     /**
      * Gets the value of a specific property as a signed decimal integer. If the
      * specified property name is associated with a value in this
-     * <code>ConfigurationService</code>, the string representation of the value
-     * is parsed into a signed decimal integer according to the rules of
+     * <tt>ConfigurationService</tt>, the string representation of the value is
+     * parsed into a signed decimal integer according to the rules of
      * {@link Integer#parseInt(String)} . If parsing the value as a signed
      * decimal integer fails or there is no value associated with the specified
-     * property name, <code>defaultValue</code> is returned.
+     * property name, <tt>defaultValue</tt> is returned.
      * 
-     * @param propertyName
-     *            the name of the property to get the value of as a signed
-     *            decimal integer
-     * @param defaultValue
-     *            the value to be returned if parsing the value of the specified
-     *            property name as a signed decimal integer fails or there is no
-     *            value associated with the specified property name in this
-     *            <code>ConfigurationService</code>
+     * @param propertyName the name of the property to get the value of as a
+     * signed decimal integer
+     * @param defaultValue the value to be returned if parsing the value of the
+     * specified property name as a signed decimal integer fails or there is no
+     * value associated with the specified property name in this
+     * <tt>ConfigurationService</tt>
      * @return the value of the property with the specified name in this
-     *         <code>ConfigurationService</code> as a signed decimal integer;
-     *         <code>defaultValue</code> if parsing the value of the specified
-     *         property name fails or no value is associated in this
-     *         <code>ConfigurationService</code> with the specified property
-     *         name
+     * <tt>ConfigurationService</tt> as a signed decimal integer;
+     * <tt>defaultValue</tt> if parsing the value of the specified property name
+     * fails or no value is associated in this <tt>ConfigurationService</tt>
+     * with the specified property name
      */
     public int getInt(String propertyName, int defaultValue);
 

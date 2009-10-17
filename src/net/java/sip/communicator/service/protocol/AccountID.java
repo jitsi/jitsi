@@ -195,12 +195,32 @@ public abstract class AccountID
         return (value == null) ? defaultValue : Boolean.parseBoolean(value);
     }
 
+    /**
+     * Gets the value of a specific property as a signed decimal integer. If the
+     * specified property key is associated with a value in this
+     * <tt>AccountID</tt>, the string representation of the value is parsed into
+     * a signed decimal integer according to the rules of
+     * {@link Integer#parseInt(String)} . If parsing the value as a signed
+     * decimal integer fails or there is no value associated with the specified
+     * property key, <tt>defaultValue</tt> is returned.
+     *
+     * @param key the key of the property to get the value of as a
+     * signed decimal integer
+     * @param defaultValue the value to be returned if parsing the value of the
+     * specified property key as a signed decimal integer fails or there is no
+     * value associated with the specified property key in this
+     * <tt>AccountID</tt>
+     * @return the value of the property with the specified key in this
+     * <tt>AccountID</tt> as a signed decimal integer; <tt>defaultValue</tt> if
+     * parsing the value of the specified property key fails or no value is
+     * associated in this <tt>AccountID</tt> with the specified property name
+     */
     public int getAccountPropertyInt(Object key, int defaultValue)
     {
         String stringValue = getAccountPropertyString(key);
         int intValue = defaultValue;
 
-        if (stringValue != null)
+        if ((stringValue != null) && (stringValue.length() > 0))
         {
             try
             {
