@@ -31,7 +31,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
     /**
      * The provider that created us.
      */
-    private ProtocolProviderServiceMsnImpl msnProvider = null;
+    private final ProtocolProviderServiceMsnImpl msnProvider;
 
     /**
      * A reference to the persistent presence operation set that we use
@@ -39,7 +39,8 @@ public class OperationSetBasicInstantMessagingMsnImpl
      */
     private OperationSetPersistentPresenceMsnImpl opSetPersPresence = null;
 
-    private OperationSetAdHocMultiUserChatMsnImpl opSetMuc = null;
+    private final OperationSetAdHocMultiUserChatMsnImpl opSetMuc;
+
     /**
      * Creates an instance of this operation set.
      * @param provider a ref to the <tt>ProtocolProviderServiceImpl</tt>
@@ -50,8 +51,10 @@ public class OperationSetBasicInstantMessagingMsnImpl
         ProtocolProviderServiceMsnImpl provider)
     {
         this.msnProvider = provider;
-        opSetMuc = (OperationSetAdHocMultiUserChatMsnImpl) msnProvider
-       .getOperationSet(OperationSetAdHocMultiUserChat.class);
+        opSetMuc
+            = (OperationSetAdHocMultiUserChatMsnImpl)
+                msnProvider
+                    .getOperationSet(OperationSetAdHocMultiUserChat.class);
         provider.addRegistrationStateChangeListener(new RegistrationStateListener());
     }
 
@@ -83,10 +86,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
      */
     public boolean isContentTypeSupported(String contentType)
     {
-        if(contentType.equals(DEFAULT_MIME_TYPE))
-            return true;
-        else
-           return false;
+        return DEFAULT_MIME_TYPE.equals(contentType);
     }
 
     public Message createMessage(String content, String contentType,
@@ -117,10 +117,10 @@ public class OperationSetBasicInstantMessagingMsnImpl
                + to);
 
         MessageDeliveredEvent msgDeliveryPendingEvt
-        = new MessageDeliveredEvent(
-                message, to, System.currentTimeMillis());
+            = new MessageDeliveredEvent(message, to);
 
-        msgDeliveryPendingEvt = messageDeliveryPendingTransform(msgDeliveryPendingEvt);
+        msgDeliveryPendingEvt
+            = messageDeliveryPendingTransform(msgDeliveryPendingEvt);
         
         if (msgDeliveryPendingEvt == null)
             return;
@@ -128,11 +128,10 @@ public class OperationSetBasicInstantMessagingMsnImpl
         msnProvider.getMessenger().
             sendText(
                 ((ContactMsnImpl)to).getSourceContact().getEmail(),
-                msgDeliveryPendingEvt.getSourceMessage().getContent()
-            );
-        MessageDeliveredEvent msgDeliveredEvt
-            = new MessageDeliveredEvent(message, to, System.currentTimeMillis());
+                msgDeliveryPendingEvt.getSourceMessage().getContent());
 
+        MessageDeliveredEvent msgDeliveredEvt
+            = new MessageDeliveredEvent(message, to);
 
         // msgDeliveredEvt = messageDeliveredTransform(msgDeliveredEvt);
         
@@ -183,10 +182,14 @@ public class OperationSetBasicInstantMessagingMsnImpl
                     (OperationSetPersistentPresenceMsnImpl) msnProvider
                         .getOperationSet(OperationSetPersistentPresence.class);
 
-                msnProvider.getMessenger().
-                    addMessageListener(new MsnMessageListener());
-                msnProvider.getMessenger().
-                    addEmailListener(new MsnMessageListener());
+                MsnMessenger msnMessenger = msnProvider.getMessenger();
+
+                /*
+                 * FIXME What's the point of having to MsnMessageListener
+                 * instances?
+                 */
+                msnMessenger.addMessageListener(new MsnMessageListener());
+                msnMessenger.addEmailListener(new MsnMessageListener());
             }
         }
     }
@@ -202,7 +205,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
            // FILTER OUT THE GROUP MESSAGES
            if (opSetMuc.isGroupChatMessage(switchboard))
                return;
-           
+
            Message newMessage = createMessage(message.getContent());
             Contact sourceContact = opSetPersPresence.
                 findContactByID(contact.getEmail().getEmailAddress());
@@ -232,8 +235,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
          * @param body of message
          * @param contentType of message
          * @param encoding of message
-         * @param displayName
-         * @param from the user who sent this message
+         * @param contact the user who sent this message
          */
         public void offlineMessageReceived(String body,
                                            String contentType, 

@@ -21,24 +21,20 @@ import net.sf.jml.impl.*;
  * An implementation of the protocol provider service over the Msn protocol
  *
  * @author Damian Minkov
+ * @author Lubomir Marinov
  */
 public class ProtocolProviderServiceMsnImpl
     extends AbstractProtocolProviderService
 {
-    private static final Logger logger =
-        Logger.getLogger(ProtocolProviderServiceMsnImpl.class);
+    private static final Logger logger
+        = Logger.getLogger(ProtocolProviderServiceMsnImpl.class);
 
     private MsnMessenger messenger = null;
 
     /**
-     * indicates whether or not the provider is initialized and ready for use.
-     */
-    private boolean isInitialized = false;
-
-    /**
      * We use this to lock access to initialization.
      */
-    private Object initializationLock = new Object();
+    private final Object initializationLock = new Object();
 
     /**
      * The identifier of the account that this provider represents.
@@ -57,8 +53,15 @@ public class ProtocolProviderServiceMsnImpl
     /**
      * The icon corresponding to the msn protocol.
      */
-    private ProtocolIconMsnImpl msnIcon
-        = new ProtocolIconMsnImpl();
+    private final ProtocolIconMsnImpl msnIcon = new ProtocolIconMsnImpl();
+
+    /**
+     * The indicator which determines whether
+     * {@link MsnMessengerListener#logout(MsnMessenger)} has been received for
+     * {@link #messenger} and it is thus an error to call
+     * {@link MsnMessenger#logout()} on it.
+     */
+    private boolean logoutReceived = false;
 
     /**
      * Returns the state of the registration of this protocol provider
@@ -114,7 +117,8 @@ public class ProtocolProviderServiceMsnImpl
             fireRegistrationStateChanged(
                 getRegistrationState(),
                 RegistrationState.CONNECTION_FAILED,
-                RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
+                RegistrationStateChangeEvent.REASON_NOT_SPECIFIED,
+                null);
         }
     }
 
@@ -130,21 +134,25 @@ public class ProtocolProviderServiceMsnImpl
         synchronized(initializationLock)
         {
             //verify whether a password has already been stored for this account
-            String password = MsnActivator.
-                getProtocolProviderFactory().loadPassword(getAccountID());
+            ProtocolProviderFactory protocolProviderFactory
+                = MsnActivator.getProtocolProviderFactory();
+            AccountID accountID = getAccountID();
+            String password = protocolProviderFactory.loadPassword(accountID);
 
             //decode
             if (password == null)
             {
                 //create a default credentials object
                 UserCredentials credentials = new UserCredentials();
-                credentials.setUserName(getAccountID().getUserID());
+                credentials.setUserName(accountID.getUserID());
 
                 //request a password from the user
-                credentials = authority.obtainCredentials(
-                        ProtocolNames.MSN,
-                        credentials,
-                        reasonCode);
+                credentials
+                    = authority
+                        .obtainCredentials(
+                            ProtocolNames.MSN,
+                            credentials,
+                            reasonCode);
 
                 // in case user has canceled the login window
                 if(credentials == null)
@@ -152,7 +160,8 @@ public class ProtocolProviderServiceMsnImpl
                     fireRegistrationStateChanged(
                         getRegistrationState(),
                         RegistrationState.UNREGISTERED,
-                        RegistrationStateChangeEvent.REASON_USER_REQUEST, "");
+                        RegistrationStateChangeEvent.REASON_USER_REQUEST,
+                        "");
                     return;
                 }
 
@@ -165,22 +174,25 @@ public class ProtocolProviderServiceMsnImpl
                     fireRegistrationStateChanged(
                         getRegistrationState(),
                         RegistrationState.UNREGISTERED,
-                        RegistrationStateChangeEvent.REASON_USER_REQUEST, "");
+                        RegistrationStateChangeEvent.REASON_USER_REQUEST,
+                        "");
                     return;
                 }
                 password = new String(pass);
 
                 if (credentials.isPasswordPersistent())
-                {
-                    MsnActivator.getProtocolProviderFactory()
-                        .storePassword(getAccountID(), password);
-                }
+                    protocolProviderFactory.storePassword(accountID, password);
             }
 
-            messenger = MsnMessengerFactory.createMsnMessenger(
-                getAccountID().getUserID(),
-                password);
+            messenger
+                = MsnMessengerFactory
+                    .createMsnMessenger(accountID.getUserID(), password);
 
+            /*
+             * We've just created the messenger so we're sure we haven't
+             * received a logout for it.
+             */
+            logoutReceived = false;
             messenger.addMessengerListener(new MsnConnectionListener());
 
             persistentPresence.setMessenger(messenger);
@@ -195,7 +207,8 @@ public class ProtocolProviderServiceMsnImpl
                 fireRegistrationStateChanged(
                     getRegistrationState(),
                     RegistrationState.CONNECTION_FAILED,
-                    RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND, null);
+                    RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND,
+                    null);
             }
         }
     }
@@ -216,16 +229,19 @@ public class ProtocolProviderServiceMsnImpl
     {
         RegistrationState currRegState = getRegistrationState();
 
-        if(messenger != null)
-            messenger.logout();
+        // The synchronization is for logoutReceived at least.
+        synchronized (initializationLock)
+        {
+            if((messenger != null) && !logoutReceived)
+                messenger.logout();
+        }
 
         if(fireEvent)
-        {
             fireRegistrationStateChanged(
                 currRegState,
                 RegistrationState.UNREGISTERED,
-                RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
-        }
+                RegistrationStateChangeEvent.REASON_USER_REQUEST,
+                null);
     }
 
     /**
@@ -254,56 +270,45 @@ public class ProtocolProviderServiceMsnImpl
      *
      * @see net.java.sip.communicator.service.protocol.AccountID
      */
-    protected void initialize(String screenname,
-                              AccountID accountID)
+    protected void initialize(String screenname, AccountID accountID)
     {
         synchronized(initializationLock)
         {
             this.accountID = accountID;
 
-            supportedOperationSets.put(
-                OperationSetInstantMessageTransform.class.getName(), 
+            addSupportedOperationSet(
+                OperationSetInstantMessageTransform.class,
                 new OperationSetInstantMessageTransformImpl());
 
             //initialize the presence operationset
             persistentPresence = new OperationSetPersistentPresenceMsnImpl(this);
-
-            supportedOperationSets.put(
-                OperationSetPersistentPresence.class.getName(),
+            addSupportedOperationSet(
+                OperationSetPersistentPresence.class,
+                persistentPresence);
+            //register it once again for those that simply need presence
+            addSupportedOperationSet(
+                OperationSetPresence.class,
                 persistentPresence);
 
-            //register it once again for those that simply need presence
-            supportedOperationSets.put( OperationSetPresence.class.getName(),
-                                        persistentPresence);
+            addSupportedOperationSet(
+                OperationSetAdHocMultiUserChat.class,
+                new OperationSetAdHocMultiUserChatMsnImpl(this));
 
-           OperationSetAdHocMultiUserChat adHocMultiUserChat = 
-               new OperationSetAdHocMultiUserChatMsnImpl(this);
-
-           supportedOperationSets.put(OperationSetAdHocMultiUserChat.class
-                   .getName(), adHocMultiUserChat);
-
-           // initialize the IM operation set
-           OperationSetBasicInstantMessagingMsnImpl basicInstantMessaging
-               = new OperationSetBasicInstantMessagingMsnImpl(this);
-
-           supportedOperationSets.put(OperationSetBasicInstantMessaging.class
-                   .getName(), basicInstantMessaging);
+            // initialize the IM operation set
+            addSupportedOperationSet(
+                OperationSetBasicInstantMessaging.class,
+                new OperationSetBasicInstantMessagingMsnImpl(this));
 
             //initialize the typing notifications operation set
-            typingNotifications =
-                new OperationSetTypingNotificationsMsnImpl(this);
-
-            supportedOperationSets.put(
-                OperationSetTypingNotifications.class.getName(),
+            typingNotifications
+                = new OperationSetTypingNotificationsMsnImpl(this);
+            addSupportedOperationSet(
+                OperationSetTypingNotifications.class,
                 typingNotifications);
 
-            OperationSetFileTransferMsnImpl fileTransferOpSet =
-                new OperationSetFileTransferMsnImpl(this);
-            supportedOperationSets.put(
-                OperationSetFileTransfer.class.getName(),
-                fileTransferOpSet);
-
-            isInitialized = true;
+            addSupportedOperationSet(
+                OperationSetFileTransfer.class,
+                new OperationSetFileTransferMsnImpl(this));
         }
     }
 
@@ -314,26 +319,11 @@ public class ProtocolProviderServiceMsnImpl
      */
     public void shutdown()
     {
-        synchronized(initializationLock){
-            if (messenger != null)
-            {
-                messenger.logout();
-                messenger = null;
-            }
-            isInitialized = false;
+        synchronized(initializationLock)
+        {
+            unregister(false);
+            messenger = null;
         }
-    }
-
-    /**
-     * Returns true if the provider service implementation is initialized and
-     * ready for use by other services, and false otherwise.
-     *
-     * @return true if the provider is initialized and ready for use and false
-     * otherwise
-     */
-    public boolean isInitialized()
-    {
-        return isInitialized;
     }
 
     /**
@@ -369,21 +359,21 @@ public class ProtocolProviderServiceMsnImpl
      * @param reason a String further explaining the reason code or null if
      * no such explanation is necessary.
      */
-    public void fireRegistrationStateChanged( RegistrationState oldState,
-                                               RegistrationState newState,
-                                               int               reasonCode,
-                                               String            reason)
+    public void fireRegistrationStateChanged(RegistrationState oldState,
+                                             RegistrationState newState,
+                                             int reasonCode,
+                                             String reason)
     {
-        if(newState.equals(RegistrationState.UNREGISTERED) ||
-            newState.equals(RegistrationState.CONNECTION_FAILED))
+        if (newState.equals(RegistrationState.UNREGISTERED)
+                || newState.equals(RegistrationState.CONNECTION_FAILED))
             messenger = null;
 
         super.fireRegistrationStateChanged(oldState, newState, reasonCode, reason);
     }
 
     /**
-     * Listens when we are logged in or out from the server
-     * or incoming exception in the lib impl.
+     * Listens when we are logged in or out from the server or incoming
+     * exception in the lib impl.
      */
     private class MsnConnectionListener
         implements MsnMessengerListener
@@ -394,18 +384,20 @@ public class ProtocolProviderServiceMsnImpl
             fireRegistrationStateChanged(
                 getRegistrationState(),
                 RegistrationState.REGISTERED,
-                RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
+                RegistrationStateChangeEvent.REASON_NOT_SPECIFIED,
+                null);
         }
 
         public void logout(MsnMessenger msnMessenger)
         {
             logger.trace("logout");
-            unregister(true);
-//            if(isRegistered())
-//                fireRegistrationStateChanged(
-//                    getRegistrationState(),
-//                    RegistrationState.UNREGISTERED,
-//                    RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
+
+            // The synchronization is for logoutReceived at least.
+            synchronized (initializationLock)
+            {
+                logoutReceived = true;
+                unregister(true);
+            }
         }
 
         public void exceptionCaught(MsnMessenger msnMessenger,
@@ -446,52 +438,50 @@ public class ProtocolProviderServiceMsnImpl
                     RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND,
                     "A network error occured. Could not connect to server.");
             }
+            else if(throwable instanceof MsnProtocolException)
+            {
+                MsnProtocolException exception =
+                    (MsnProtocolException)throwable;
+
+                logger.error("Error in Msn lib ", exception);
+
+                switch(exception.getErrorCode())
+                {
+                case 500:
+                case 540:
+                case 601:
+                    if(isRegistered())
+                    {
+                        unregister(false);
+                        fireRegistrationStateChanged(
+                            getRegistrationState(),
+                            RegistrationState.UNREGISTERED,
+                            RegistrationStateChangeEvent.REASON_INTERNAL_ERROR,
+                            null);
+                    }
+                    break;
+                case 911:
+                    if(isRegistered())
+                    {
+                        unregister(false);
+                        MsnActivator.getProtocolProviderFactory().
+                            storePassword(getAccountID(), null);
+                        fireRegistrationStateChanged(
+                            getRegistrationState(),
+                            RegistrationState.AUTHENTICATION_FAILED,
+                            RegistrationStateChangeEvent
+                                .REASON_AUTHENTICATION_FAILED,
+                            null);
+
+                        // We try to reconnect and ask user to retype
+                        // password.
+                        reconnect(SecurityAuthority.WRONG_PASSWORD);
+                    }
+                    break;
+                }
+            }
             else
             {
-                if(throwable instanceof MsnProtocolException)
-                {
-                    MsnProtocolException exception =
-                        (MsnProtocolException)throwable;
-
-                    logger.error("Error in Msn lib ", exception);
-
-                    switch(exception.getErrorCode())
-                    {
-                        case 500:
-                        case 540:
-                        case 601:
-                            if(isRegistered())
-                            {
-                                unregister(false);
-                                fireRegistrationStateChanged(
-                                    getRegistrationState(),
-                                    RegistrationState.UNREGISTERED,
-                                    RegistrationStateChangeEvent.
-                                    REASON_INTERNAL_ERROR, null);
-                            }
-                            break;
-                        case 911:
-                            if(isRegistered())
-                            {
-                                unregister(false);
-                                MsnActivator.getProtocolProviderFactory().
-                                    storePassword(getAccountID(), null);
-                                fireRegistrationStateChanged(
-                                    getRegistrationState(),
-                                    RegistrationState.AUTHENTICATION_FAILED,
-                                    RegistrationStateChangeEvent.
-                                    REASON_AUTHENTICATION_FAILED, null);
-
-                                // We try to reconnect and ask user to retype
-                                // password.
-                                reconnect(SecurityAuthority.WRONG_PASSWORD);
-                            }
-                            break;
-                    }
-
-                    return;
-                }
-
                 logger.error("Error in Msn lib ", throwable);
 
 //                We don't want to disconnect on any error, that's why we're
