@@ -1427,8 +1427,21 @@ public class CallSessionImpl
 
             try
             {
-                rtpManager.createSendStream(dataSource, i);
+                SendStream sendStream = rtpManager.createSendStream(dataSource, i);
+                
+                TransformConnector transConnector =
+                    this.transConnectors.get(rtpManager);
 
+                // If a ZRTP engine is availabe then set the SSRC of this stream
+                // currently ZRTP supports only one SSRC per engine
+                if (transConnector != null)
+                {
+                    long ssrc = sendStream.getSSRC();
+
+                    ZRTPTransformEngine engine
+                        = (ZRTPTransformEngine) transConnector.getEngine();
+                    engine.setOwnSSRC(ssrc);
+                }
                 logger.trace("Created a send stream for format " + format);
             }
             catch (Exception exc)

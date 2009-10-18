@@ -481,6 +481,18 @@ public class ZRTPTransformEngine
     }
 
     /**
+     * Set the SSRC of the RTP transmitter stream.
+     * 
+     * ZRTP fills the SSRC in the ZRTP messages.
+     * 
+     * @param ssrc
+     */
+    public void setOwnSSRC(long ssrc) {
+        ownSSRC = (int)(ssrc & 0xffffffff);
+        System.out.println("Own SSRC: " + ownSSRC);
+    }
+
+    /**
      * The data output stream calls this method to transform outgoing
      * packets.
      * 
@@ -527,7 +539,7 @@ public class ZRTPTransformEngine
     {
 
         // Check if we need to start ZRTP
-        if (!started && enableZrtp)
+        if (!started && enableZrtp && ownSSRC != 0)
         {
             startZrtp();
         }
@@ -566,7 +578,7 @@ public class ZRTPTransformEngine
          * In any case return null because ZRTP packets must never reach 
          * the application.
          */
-        if (enableZrtp)
+        if (enableZrtp && ownSSRC != 0)
         {
             ZrtpRawPacket zPkt = new ZrtpRawPacket(pkt);
             if (!zPkt.checkCrc())
