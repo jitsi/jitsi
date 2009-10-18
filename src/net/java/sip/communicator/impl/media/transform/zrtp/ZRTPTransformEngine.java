@@ -489,7 +489,6 @@ public class ZRTPTransformEngine
      */
     public void setOwnSSRC(long ssrc) {
         ownSSRC = (int)(ssrc & 0xffffffff);
-        System.out.println("Own SSRC: " + ownSSRC);
     }
 
     /**
