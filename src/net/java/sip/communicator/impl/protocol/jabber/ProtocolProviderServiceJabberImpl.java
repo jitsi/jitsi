@@ -348,8 +348,11 @@ public class ProtocolProviderServiceJabberImpl
                 }
                 catch (XMPPException exc)
                 {
-                    logger.error("Failed to establish a Jabber connection for "
-                        + getAccountID().getAccountUniqueID(), exc);
+                    if (logger.isInfoEnabled()) 
+                    {
+                        logger.info("Failed to establish a Jabber connection for "
+                                + getAccountID().getAccountUniqueID(), exc);
+                    }
 
                     throw new OperationFailedException(
                         "Failed to establish a Jabber connection for "

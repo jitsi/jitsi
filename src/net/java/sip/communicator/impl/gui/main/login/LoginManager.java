@@ -449,8 +449,11 @@ public class LoginManager
                 break;
             case OperationFailedException.NETWORK_FAILURE:
             {
-                logger.error("Provider could not be registered"
-                    + " due to a network failure: " + ex);
+                if (logger.isInfoEnabled())
+                {
+                    logger.info("Provider could not be registered"
+                            + " due to a network failure: " + ex);
+                }
 
                 AccountID accountID = protocolProvider.getAccountID();
                 errorMessage = GuiActivator.getResources().getI18NString(
