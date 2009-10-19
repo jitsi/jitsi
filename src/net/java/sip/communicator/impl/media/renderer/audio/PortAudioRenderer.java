@@ -42,9 +42,7 @@ public class PortAudioRenderer
 
     boolean started = false;
 
-    private WriterThread writerThread = null;
-    private final Object bufferSync = new Object();
-    private byte[] buffer = null;
+//    private final Object bufferSync = new Object();
 
     private static int deviceIndex = -1;
 
@@ -98,20 +96,16 @@ public class PortAudioRenderer
     /**
      * Halts the rendering process.
      */
-    public void stop()
+    public synchronized void stop()
     {
-        synchronized(bufferSync)
+        try
         {
-            try
-            {
-                started = false;
-                PortAudio.Pa_CloseStream(stream);
-                writerThread = null;
-            }
-            catch (PortAudioException e)
-            {
-                logger.error("Closing portaudio stream failed", e);
-            }
+            started = false;
+            PortAudio.Pa_CloseStream(stream);
+        }
+        catch (PortAudioException e)
+        {
+            logger.error("Closing portaudio stream failed", e);
         }
     }
 
@@ -121,26 +115,24 @@ public class PortAudioRenderer
      * @param inputBuffer the input data.
      * @return BUFFER_PROCESSED_OK if the processing is successful.
      */
-    public int process(Buffer inputBuffer)
+    public synchronized int process(Buffer inputBuffer)
     {
-        synchronized(bufferSync)
-        {
-            byte[] buff = new byte[inputBuffer.getLength()];
-                        System.arraycopy(
-                            (byte[])inputBuffer.getData(),
-                            inputBuffer.getOffset(),
-                            buff,
-                            0,
-                            buff.length);
+        byte[] buff = new byte[inputBuffer.getLength()];
+        System.arraycopy(
+            (byte[])inputBuffer.getData(),
+            inputBuffer.getOffset(),
+            buff,
+            0,
+            buff.length);
 
-            buffer = buff;
-            bufferSync.notifyAll();
+        try
+        {
+            PortAudio.Pa_WriteStream(
+                        stream, buff, buff.length/frameSize);
         }
-
-        if(writerThread == null)
+        catch (PortAudioException e)
         {
-            writerThread = new WriterThread();
-            writerThread.start();
+            logger.error("Error writing to device", e);
         }
 
         return BUFFER_PROCESSED_OK;
@@ -272,51 +264,5 @@ public class PortAudioRenderer
         frameSize
             = PortAudio.Pa_GetSampleSize(PortAudio.SAMPLE_FORMAT_INT16)
                 * outputChannels;
-    }
-
-    /**
-     * Writes data to the portaudio stream. If there is no data for
-     * particular time write some silence so we wont hear some cracks in
-     * the sound.
-     */
-    private class WriterThread
-        extends Thread
-    {
-
-        public WriterThread()
-        {
-            setName("Portaudio Renderer");
-        }
-
-        public void run()
-        {
-            while(true)
-            {
-                try
-                {
-                    synchronized(bufferSync)
-                    {
-                        // put some silence if there is no data
-                        if(buffer == null)
-                        {
-                            buffer = new byte[1024];
-                        }
-
-                        PortAudio.Pa_WriteStream(
-                            stream, buffer, buffer.length/frameSize);
-
-                        buffer = null;
-                        bufferSync.wait(90);
-                    }
-
-                    if(!started)
-                        return;
-                }
-                catch (Exception e)
-                {
-                    logger.error("writing to stream", e);
-                }
-            }
-        }
     }
 }

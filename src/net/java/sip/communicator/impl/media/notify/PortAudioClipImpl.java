@@ -12,7 +12,6 @@ import java.net.*;
 import javax.sound.sampled.*;
 
 import net.java.sip.communicator.impl.media.protocol.portaudio.*;
-import net.java.sip.communicator.impl.media.device.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -22,18 +21,13 @@ import net.java.sip.communicator.util.*;
  */
 public class PortAudioClipImpl
     extends SCAudioClipImpl
-    implements PropertyChangeListener
 {
     private static final Logger logger
         = Logger.getLogger(PortAudioClipImpl.class);
 
     private final AudioNotifierServiceImpl audioNotifier;
 
-    private Thread playThread = new Thread(new PlayThread());
-
     private boolean started = false;
-
-    private long portAudioStream = 0;
 
     private URL url = null;
 
@@ -50,8 +44,6 @@ public class PortAudioClipImpl
     {
         this.audioNotifier = audioNotifier;
         this.url = url;
-
-        audioNotifier.getDeviceConfiguration().addPropertyChangeListener(this);
     }
 
     /**
@@ -62,7 +54,7 @@ public class PortAudioClipImpl
         if ((url != null) && !audioNotifier.isMute())
         {
             started = true;
-            playThread.start();
+            new Thread(new PlayThread()).start();
         }
     }
 
@@ -79,7 +71,7 @@ public class PortAudioClipImpl
         if(!audioNotifier.isMute())
         {
             started = true;
-            playThread.start();
+            new Thread(new PlayThread()).start();
         }
     }
 
@@ -105,24 +97,10 @@ public class PortAudioClipImpl
             started = false;
     }
 
-    /**
-     * Notified when device configuration has changed.
-     * @param evt the event of the change
-     */
-    public void propertyChange(PropertyChangeEvent evt)
-    {
-        if(evt.getPropertyName().equals(
-            DeviceConfiguration.AUDIO_NOTIFY_DEVICE))
-        {
-            // make the stream 0, to be sure next time the new
-            // device will be used
-            portAudioStream = 0;
-        }
-    }
-
     private class PlayThread
         implements Runnable
     {
+        private long portAudioStream = 0;
         byte[] buffer = new byte[1024];
 
         public void run()

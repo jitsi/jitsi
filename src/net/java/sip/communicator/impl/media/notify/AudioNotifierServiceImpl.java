@@ -12,6 +12,7 @@ import java.util.*;
 import net.java.sip.communicator.impl.media.*;
 import net.java.sip.communicator.impl.media.device.*;
 import net.java.sip.communicator.service.audionotifier.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The implementation of the AudioNotifierService.
@@ -19,7 +20,8 @@ import net.java.sip.communicator.service.audionotifier.*;
  * @author Yana Stamcheva
  */
 public class AudioNotifierServiceImpl
-    implements AudioNotifierService
+    implements AudioNotifierService,
+               PropertyChangeListener
 {
     private static final Map<String, SCAudioClipImpl> audioClips =
         new HashMap<String, SCAudioClipImpl>();
@@ -38,6 +40,7 @@ public class AudioNotifierServiceImpl
     public AudioNotifierServiceImpl(DeviceConfiguration deviceConfiguration)
     {
         this.deviceConfiguration = deviceConfiguration;
+        deviceConfiguration.addPropertyChangeListener(this);
     }
 
     /**
@@ -155,5 +158,18 @@ public class AudioNotifierServiceImpl
     public DeviceConfiguration getDeviceConfiguration()
     {
         return deviceConfiguration;
+    }
+
+    /**
+     * Listens for changes in notify device
+     * @param evt the event that notify device has changed.
+     */
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        if(evt.getPropertyName().equals(
+                    DeviceConfiguration.AUDIO_NOTIFY_DEVICE))
+        {
+            audioClips.clear();
+        }
     }
 }
