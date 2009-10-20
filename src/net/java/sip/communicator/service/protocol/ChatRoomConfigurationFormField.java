@@ -143,7 +143,7 @@ public interface ChatRoomConfigurationFormField
      * @return an Iterator for the default values or answered values of the
      * field
      */
-    public Iterator<Object> getValues();
+    public Iterator<?> getValues();
     
     /**
      * Adds the given value to the values of this field.

@@ -76,11 +76,11 @@ public class DefaultColorPackImpl
     private void initResources( ResourceBundle resourceBundle,
                                 Map<String, String> resources)
     {
-        Enumeration colorKeys = resourceBundle.getKeys();
+        Enumeration<String> colorKeys = resourceBundle.getKeys();
 
         while (colorKeys.hasMoreElements())
         {
-            String key = (String) colorKeys.nextElement();
+            String key = colorKeys.nextElement();
             String value = resourceBundle.getString(key);
 
             resources.put(key, value);

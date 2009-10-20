@@ -129,7 +129,7 @@ public class ChatRoomConfigurationWindow
             ChatRoomConfigurationFormField formField
                 = configurationSet.next();
 
-            Iterator<Object> values = formField.getValues();
+            Iterator<?> values = formField.getValues();
             Iterator<String> options = formField.getOptions();
 
             JComponent field = null;

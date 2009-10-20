@@ -460,10 +460,11 @@ public class OperationSetPersistentPresenceJabberImpl
         if(subscribtionPacketListener == null)
         {
             subscribtionPacketListener = new JabberSubscriptionListener();
-            PacketFilter packetFilter = new PacketTypeFilter(Presence.class);
-
-            parentProvider.getConnection().
-                addPacketListener(subscribtionPacketListener, packetFilter);
+            parentProvider
+                .getConnection()
+                    .addPacketListener(
+                        subscribtionPacketListener,
+                        new PacketTypeFilter(Presence.class));
         }
 
         subscribtionPacketListener.handler = handler;
@@ -884,22 +885,24 @@ public class OperationSetPersistentPresenceJabberImpl
         implements PacketListener
     {
         AuthorizationHandler handler = null;
+
         public void processPacket(Packet packet)
         {
             Presence presence = (Presence) packet;
+
             if (presence == null)
                 return;
 
             Presence.Type presenceType = presence.getType();
+            String fromID = presence.getFrom();
 
             if (presenceType == Presence.Type.subscribe)
             {
-                logger.trace(presence.getFrom()
-                                + " wants to add you to its contact list");
+                logger.trace(fromID + " wants to add you to its contact list");
+
                 // buddy want to add you to its roster
-                String fromID = presence.getFrom();
                 ContactJabberImpl srcContact
-                              = ssContactList.findContactById(fromID);
+                    = ssContactList.findContactById(fromID);
 
                 if(srcContact == null)
                     srcContact = createVolatileContact(fromID);
@@ -907,51 +910,54 @@ public class OperationSetPersistentPresenceJabberImpl
                 AuthorizationRequest req = new AuthorizationRequest();
                 AuthorizationResponse response
                     = handler.processAuthorisationRequest(req, srcContact);
+                Presence.Type responsePresenceType;
 
                 if(response != null
                    && response.getResponseCode()
                            .equals(AuthorizationResponse.ACCEPT))
                 {
-                    Presence responsePacket
-                        = new Presence(Presence.Type.subscribed);
-                    responsePacket.setTo(fromID);
+                    responsePresenceType = Presence.Type.subscribed;
                     logger.info("Sending Accepted Subscription");
-                    parentProvider.getConnection().sendPacket(responsePacket);
                 }
                 else
                 {
-                    Presence responsePacket
-                        = new Presence(Presence.Type.unsubscribed);
-                    responsePacket.setTo(fromID);
+                    responsePresenceType = Presence.Type.unsubscribed;
                     logger.info("Sending Rejected Subscription");
-                    parentProvider.getConnection().sendPacket(responsePacket);
                 }
+
+                Presence responsePacket = new Presence(responsePresenceType);
+
+                responsePacket.setTo(fromID);
+                parentProvider.getConnection().sendPacket(responsePacket);
 
             }
             else if (presenceType == Presence.Type.unsubscribed)
             {
-                logger.trace(presence.getFrom()
-                                + " does not allow your subscription");
-                ContactJabberImpl contact =
-                    ssContactList.findContactById(presence.getFrom());
+                logger.trace(fromID + " does not allow your subscription");
+
+                ContactJabberImpl contact
+                    = ssContactList.findContactById(fromID);
 
                 if(contact != null)
                 {
                     AuthorizationResponse response
                         = new AuthorizationResponse(
-                                        AuthorizationResponse.REJECT, "");
-                    handler.processAuthorizationResponse(response, contact);
+                                AuthorizationResponse.REJECT,
+                                "");
 
+                    handler.processAuthorizationResponse(response, contact);
                     ssContactList.removeContact(contact);
                 }
             }
             else if (presenceType == Presence.Type.subscribed)
             {
-                ContactJabberImpl contact =
-                    ssContactList.findContactById(presence.getFrom());
+                ContactJabberImpl contact
+                    = ssContactList.findContactById(fromID);
+                AuthorizationResponse response
+                    = new AuthorizationResponse(
+                            AuthorizationResponse.ACCEPT,
+                            "");
 
-                AuthorizationResponse response = new AuthorizationResponse(
-                    AuthorizationResponse.ACCEPT, "");
                 handler.processAuthorizationResponse(response, contact);
             }
         }
