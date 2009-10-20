@@ -62,7 +62,8 @@ public interface MediaStream
     public void close();
 
     /**
-     * Sets the MediaFormat that this <tt>MediaStream</tt> should transmit in.
+     * Sets the <tt>MediaFormat</tt> that this <tt>MediaStream</tt> should
+     * transmit in.
      *
      * @param format the <tt>MediaFormat</tt> that this <tt>MediaStream</tt>
      * should transmit in.
@@ -82,8 +83,8 @@ public interface MediaStream
      * Sets the device that this stream should use to play back and capture
      * media.
      *
-     * @param device the <tt>MediaDevice</tt> that this stream should use
-     * to play back and capture media.
+     * @param device the <tt>MediaDevice</tt> that this stream should use to
+     * play back and capture media.
      */
     public void setDevice(MediaDevice device);
 
@@ -97,15 +98,17 @@ public interface MediaStream
 
     /**
      * Returns the synchronization source (SSRC) identifier of the remote
-     * participant or null if that identifier is not yet known at this point.
+     * participant or <tt>null</tt> if that identifier is not yet known at this
+     * point.
      *
      * @return  the synchronization source (SSRC) identifier of the remote
-     * participant or null if that identifier is not yet known at this point.
+     * participant or <tt>null</tt> if that identifier is not yet known at this
+     * point.
      */
     public String getRemoteSourceID();
 
     /**
-     * Returns the synchronization source (SSRC) identifier of the remote
+     * Returns the synchronization source (SSRC) identifier of the local
      * participant or <tt>null</tt> if that identifier is not yet known at this
      * point.
      *

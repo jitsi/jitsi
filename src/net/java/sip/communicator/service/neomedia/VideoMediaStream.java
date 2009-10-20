@@ -15,17 +15,18 @@ import net.java.sip.communicator.service.neomedia.event.*;
  * video streaming.
  *
  * @author Emil Ivov
+ * @author Lubomir Marinov
  */
 public interface VideoMediaStream
     extends MediaStream
 {
     /**
-     * Returns a reference to the visual component where video from the remote
-     * participant is being rendered or <tt>null</tt> if no video is currently
+     * Returns a reference to the visual <tt>Component</tt> where video from the
+     * remote peer is being rendered or <tt>null</tt> if no video is currently
      * rendered.
      *
      * @return a reference to the visual <tt>Component</tt> where video from
-     * the remote party is being rendered or <tt>null</tt> if no video is
+     * the remote peer is being rendered or <tt>null</tt> if no video is
      * currently rendered.
      */
     public Component getVisualComponent();
@@ -34,10 +35,27 @@ public interface VideoMediaStream
      * Adds a specific <tt>VideoListener</tt> to this <tt>VideoMediaStream</tt>
      * in order to receive notifications when visual/video <tt>Component</tt>s
      * are being added and removed.
+     * <p>
+     * Adding a listener which has already been added does nothing i.e. it is
+     * not added more than once and thus does not receive one and the same
+     * <tt>VideoEvent</tt> multiple times
+     * </p>
      *
      * @param listener the <tt>VideoListener</tt> to be notified when
      * visual/video <tt>Component</tt>s are being added or removed in this
      * <tt>VideoMediaStream</tt>
      */
     public void addVideoListener(VideoListener listener);
+
+    /**
+     * Removes a specific <tt>VideoListener</tt> from this
+     * <tt>VideoMediaStream</tt> in order to have to no longer receive
+     * notifications when visual/video <tt>Component</tt>s are being added and
+     * removed.
+     *
+     * @param listener the <tt>VideoListener</tt> to no longer be notified when
+     * visual/video <tt>Component</tt>s are being added or removed in this
+     * <tt>VideoMediaStream</tt>
+     */
+    public void removeVideoListener(VideoListener listener);
 }

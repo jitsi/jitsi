@@ -16,6 +16,8 @@ import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 
 /**
+ * Implements <tt>MediaService</tt> for JMF.
+ *
  * @author Lubomir Marinov
  */
 public class MediaServiceImpl
@@ -80,20 +82,20 @@ public class MediaServiceImpl
         case AUDIO:
             captureDeviceInfo
                 = getDeviceConfiguration().getAudioCaptureDevice();
-            break;
+            return
+                (captureDeviceInfo == null)
+                    ? null
+                    : new AudioCaptureMediaDevice(captureDeviceInfo);
         case VIDEO:
             captureDeviceInfo
                 = getDeviceConfiguration().getVideoCaptureDevice();
-            break;
+            return
+                (captureDeviceInfo == null)
+                    ? null
+                    : new CaptureMediaDevice(captureDeviceInfo, mediaType);
         default:
-            captureDeviceInfo = null;
-            break;
+            return null;
         }
-
-        return
-            (captureDeviceInfo == null)
-                ? null
-                : new CaptureMediaDevice(captureDeviceInfo, mediaType);
     }
 
     /**
@@ -139,8 +141,23 @@ public class MediaServiceImpl
             captureDevices
                 = new ArrayList<MediaDevice>(captureDeviceInfos.length);
             for (CaptureDeviceInfo captureDeviceInfo : captureDeviceInfos)
-                captureDevices
-                    .add(new CaptureMediaDevice(captureDeviceInfo, mediaType));
+            {
+                MediaDevice captureDevice;
+
+                switch (mediaType)
+                {
+                case AUDIO:
+                    captureDevice
+                        = new AudioCaptureMediaDevice(captureDeviceInfo);
+                    break;
+                case VIDEO:
+                default:
+                    captureDevice
+                        = new CaptureMediaDevice(captureDeviceInfo, mediaType);
+                    break;
+                }
+                captureDevices.add(captureDevice);
+            }
         }
         return captureDevices;
     }

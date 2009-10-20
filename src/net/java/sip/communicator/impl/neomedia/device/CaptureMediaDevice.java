@@ -48,7 +48,7 @@ public class CaptureMediaDevice
     /**
      * The <tt>CaptureDeviceInfo</tt> of {@link #captureDevice}.
      */
-    private final CaptureDeviceInfo captureDeviceInfo;
+    private CaptureDeviceInfo captureDeviceInfo;
 
     /**
      * The indicator which determines whether {@link DataSource#connect()} has
@@ -84,9 +84,9 @@ public class CaptureMediaDevice
         if (mediaType == null)
             throw new NullPointerException("mediaType");
 
-        this.captureDevice = (DataSource) captureDevice;
-        this.captureDeviceInfo = captureDevice.getCaptureDeviceInfo();
         this.mediaType = mediaType;
+
+        setCaptureDevice(captureDevice);
     }
 
     /**
@@ -144,21 +144,20 @@ public class CaptureMediaDevice
         else if (sourceFormat.matches(new Format(VideoFormat.H263_RTP)))
         {
             // For H.263, we only support some specific sizes.
-            //if (size.width < 128)
+//            if (size.width < 128)
 //            {
 //                width = 128;
 //                height = 96;
 //            }
-            //else if (size.width < 176)
+//            else if (size.width < 176)
 //            {
 //                width = 176;
 //                height = 144;
 //            }
-            //else
+//            else
 //            {
                 width = 352;
                 height = 288;
-
 //            }
         }
         else
@@ -247,14 +246,16 @@ public class CaptureMediaDevice
      * @return the JMF <tt>CaptureDevice</tt> this instance wraps and provides
      * an implementation of <tt>MediaDevice</tt> for
      */
-    private DataSource getCaptureDevice()
+    protected DataSource getCaptureDevice()
     {
         if (captureDevice == null)
         {
             try
             {
-                captureDevice
-                    = Manager.createDataSource(captureDeviceInfo.getLocator());
+                setCaptureDevice(
+                    (CaptureDevice)
+                        Manager
+                            .createDataSource(captureDeviceInfo.getLocator()));
             }
             catch (IOException ioe)
             {
@@ -361,16 +362,27 @@ public class CaptureMediaDevice
         return (processor == null) ? null : processor.getDataOutput();
     }
 
-    /*
-     * Implements MediaDevice#getDirection().
+    /**
+     * Returns the <tt>MediaDirection</tt> supported by this device.
+     *
+     * @return {@link MediaDirection#SENDONLY} if this is a read-only device,
+     * {@link MediaDirection#RECVONLY} if this is a write-only device or
+     * {@link MediaDirection#SENDRECV} if this <tt>MediaDevice</tt> can both
+     * capture and render media
+     * @see MediaDevice#getDirection()
      */
     public MediaDirection getDirection()
     {
         return MediaDirection.SENDRECV;
     }
 
-    /*
-     * Implements MediaDevice#getFormat().
+    /**
+     * Gets the <tt>MediaFormat</tt> in which this <t>MediaDevice</tt> captures
+     * media.
+     *
+     * @return the <tt>MediaFormat</tt> in which this <tt>MediaDevice</tt>
+     * captures media
+     * @see MediaDevice#getFormat()
      */
     public MediaFormat getFormat()
     {
@@ -395,8 +407,12 @@ public class CaptureMediaDevice
         return null;
     }
 
-    /*
-     * Implements MediaDevice#getMediaType().
+    /**
+     * Gets the <tt>MediaType</tt> that this device supports.
+     *
+     * @return {@link MediaType#AUDIO} if this is an audio device or
+     * {@link MediaType#VIDEO} if this is a video device
+     * @see MediaDevice#getMediaType()
      */
     public MediaType getMediaType()
     {
@@ -460,8 +476,12 @@ public class CaptureMediaDevice
         return processor;
     }
 
-    /*
-     * Implements MediaDevice#getSupportedFormats().
+    /**
+     * Gets a list of <tt>MediaFormat</tt>s supported by this
+     * <tt>MediaDevice</tt>.
+     *
+     * @return the list of <tt>MediaFormat</tt>s supported by this device
+     * @see MediaDevice#getSupportedFormats()
      */
     public List<MediaFormat> getSupportedFormats()
     {
@@ -498,6 +518,23 @@ public class CaptureMediaDevice
         for (Format format : supportedFormats)
             supportedMediaFormats.add(MediaFormatImpl.createInstance(format));
         return supportedMediaFormats;
+    }
+
+    /**
+     * Sets the JMF <tt>CaptureDevice</tt> this instance wraps and provides a
+     * <tt>MediaDevice</tt> implementation for. Allows extenders to override in
+     * order to customize <tt>captureDevice</tt> including to replace it.
+     *
+     * @param captureDevice the JMF <tt>CaptureDevice</tt> this instance is to
+     * wrap and provide a <tt>MediaDevice</tt> implementation for
+     */
+    protected void setCaptureDevice(CaptureDevice captureDevice)
+    {
+        if (this.captureDevice != captureDevice)
+        {
+            this.captureDevice = (DataSource) captureDevice;
+            this.captureDeviceInfo = captureDevice.getCaptureDeviceInfo();
+        }
     }
 
     /**

@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.neomedia;
 
 import java.io.*;
 import java.net.*;
+import java.util.*;
 
 import javax.media.*;
 import javax.media.control.*;
@@ -53,6 +54,12 @@ public class MediaStreamImpl
     private CaptureMediaDevice device;
 
     /**
+     * The list of active <tt>Player</tt>s created during the operation of this
+     * <tt>MediaStream</tt>.
+     */
+    protected final List<Player> players = new ArrayList<Player>();
+
+    /**
      * The <tt>RTPConnector</tt> through which this instance sends and receives
      * RTP and RTCP traffic.
      */
@@ -95,8 +102,11 @@ public class MediaStreamImpl
         this.rtpConnector = new RTPConnectorImpl(connector);
     }
 
-    /*
-     * Implements MediaStream#close().
+    /**
+     * Releases the resources allocated by this instance in the course of its
+     * execution and prepares it to be garbage collected.
+     *
+     * @see MediaStream#close()
      */
     public void close()
     {
@@ -113,11 +123,19 @@ public class MediaStreamImpl
             rtpManager = null;
         }
 
+        disposePlayers();
+
         getDevice().close();
     }
 
-    /*
-     * Implements ControllerListener#controllerUpdate(ControllerEvent).
+    /**
+     * Notifies this <tt>ControllerListener</tt> that the <tt>Controller</tt>
+     * which it is registered with has generated an event.
+     *
+     * @param event the <tt>ControllerEvent</tt> specifying the
+     * <tt>Controller</tt> which is the source of the event and the very type of
+     * the event
+     * @see ControllerListener#controllerUpdate(ControllerEvent)
      */
     public void controllerUpdate(ControllerEvent event)
     {
@@ -126,7 +144,11 @@ public class MediaStreamImpl
             Player player = (Player) event.getSourceController();
 
             if (player != null)
+            {
                 player.start();
+
+                realizeComplete(player);
+            }
         }
     }
 
@@ -202,24 +224,70 @@ public class MediaStreamImpl
         }
     }
 
-    /*
-     * Implements MediaStream#getDevice().
+    /**
+     * Releases the resources allocated by a specific <tt>Player</tt> in the
+     * course of its execution and prepares it to be garbage collected.
+     *
+     * @param player the <tt>Player</tt> to dispose of
+     */
+    protected void disposePlayer(Player player)
+    {
+        player.stop();
+        player.deallocate();
+        player.close();
+
+        players.remove(player);
+    }
+
+    /**
+     * Releases the resources allocated by {@link #players} in the course of
+     * their execution and prepares them to be garbage collected.
+     */
+    private void disposePlayers()
+    {
+        synchronized (players)
+        {
+            Player [] players
+                = this.players.toArray(new Player[this.players.size()]);
+
+            for (Player player : players)
+                disposePlayer(player);
+        }
+    }
+
+    /**
+     * Gets the <tt>MediaDevice</tt> that this stream uses to play back and
+     * capture media.
+     *
+     * @return the <tt>MediaDevice</tt> that this stream uses to play back and
+     * capture media
+     * @see MediaStream#getDevice()
      */
     public CaptureMediaDevice getDevice()
     {
         return device;
     }
 
-    /*
-     * Implements MediaStream#getFormat().
+    /**
+     * Gets the <tt>MediaFormat</tt> that this stream is currently transmitting
+     * in.
+     *
+     * @return the <tt>MediaFormat</tt> that this stream is currently
+     * transmitting in
+     * @see MediaStream#getFormat()
      */
     public MediaFormat getFormat()
     {
         return getDevice().getFormat();
     }
 
-    /*
-     * Implements MediaStream#getLocalSourceID().
+    /**
+     * Gets the synchronization source (SSRC) identifier of the local peer or
+     * <tt>null</tt> if it is not yet known.
+     *
+     * @return  the synchronization source (SSRC) identifier of the local peer
+     * or <tt>null</tt> if it is not yet known
+     * @see MediaStream#getLocalSourceID()
      */
     public String getLocalSourceID()
     {
@@ -227,8 +295,12 @@ public class MediaStreamImpl
         return null;
     }
 
-    /*
-     * Implements MediaStream#getRemoteControlAddress().
+    /**
+     * Gets the address that this stream is sending RTCP traffic to.
+     *
+     * @return an <tt>InetSocketAddress</tt> instance indicating the address
+     * that this stream is sending RTCP traffic to
+     * @see MediaStream#getRemoteControlAddress()
      */
     public InetSocketAddress getRemoteControlAddress()
     {
@@ -237,8 +309,12 @@ public class MediaStreamImpl
                 rtpConnector.getControlSocket().getRemoteSocketAddress();
     }
 
-    /*
-     * Implements MediaStream#getRemoteDataAddress().
+    /**
+     * Gets the address that this stream is sending RTP traffic to.
+     *
+     * @return an <tt>InetSocketAddress</tt> instance indicating the address
+     * that this stream is sending RTP traffic to
+     * @see MediaStream#getRemoteDataAddress()
      */
     public InetSocketAddress getRemoteDataAddress()
     {
@@ -247,8 +323,13 @@ public class MediaStreamImpl
                 rtpConnector.getDataSocket().getRemoteSocketAddress();
     }
 
-    /*
-     * Implements MediaStream#getRemoteSourceID().
+    /**
+     * Get the synchronization source (SSRC) identifier of the remote peer or
+     * <tt>null</tt> if it is not yet known.
+     *
+     * @return  the synchronization source (SSRC) identifier of the remote
+     * peer or <tt>null</tt> if it is not yet known
+     * @see MediaStream#getRemoteSourceID()
      */
     public String getRemoteSourceID()
     {
@@ -319,6 +400,18 @@ public class MediaStreamImpl
     }
 
     /**
+     * Notifies this <tt>MediaStream</tt> that a specific <tt>Player</tt> of
+     * remote content has generated a <tt>RealizeCompleteEvent</tt>. Allows
+     * extenders to carry out additional processing on the <tt>Player</tt>.
+     *
+     * @param player the <tt>Player</tt> which is the source of a
+     * <tt>RealizeCompleteEvent</tt>
+     */
+    protected void realizeComplete(Player player)
+    {
+    }
+
+    /**
      * Registers any custom JMF <tt>Format</tt>s with a specific
      * <tt>RTPManager</tt>. Extenders should override in order to register their
      * own customizations.
@@ -330,22 +423,41 @@ public class MediaStreamImpl
     {
     }
 
-    /*
-     * Implements MediaStream#setDevice(MediaDevice).
+    /**
+     * Sets the <tt>MediaDevice</tt> that this stream should use to play back
+     * and capture media.
+     *
+     * @param device the <tt>MediaDevice</tt> that this stream should use to
+     * play back and capture media
+     * @see MediaStream#setDevice(MediaDevice)
      */
     public void setDevice(MediaDevice device)
     {
         this.device = (CaptureMediaDevice) device;
     }
 
-    /*
-     * Implements MediaStream#setFormat(MediaFormat).
+    /**
+     * Sets the <tt>MediaFormat</tt> that this <tt>MediaStream</tt> should
+     * transmit in.
+     *
+     * @param format the <tt>MediaFormat</tt> that this <tt>MediaStream</tt>
+     * should transmit in
+     * @see MediaStream#setFormat(MediaFormat)
      */
     public void setFormat(MediaFormat format)
     {
         getDevice().setFormat(format);
     }
 
+    /**
+     * Sets the target of this <tt>MediaStream</tt> to which it is to send and
+     * from which it is to receive data (e.g. RTP) and control data (e.g. RTCP).
+     *
+     * @param target the <tt>MediaStreamTarget</tt> describing the data
+     * (e.g. RTP) and the control data (e.g. RTCP) locations to which this
+     * <tt>MediaStream</tt> is to send and from which it is to receive
+     * @see MediaStream#setTarget(MediaStreamTarget)
+     */
     public void setTarget(MediaStreamTarget target)
     {
         rtpConnector.removeTargets();
@@ -373,8 +485,14 @@ public class MediaStreamImpl
         }
     }
 
-    /*
-     * Implements MediaStream#start().
+    /**
+     * Starts capturing media from this stream's <tt>MediaDevice</tt> and then
+     * streaming it through the local <tt>StreamConnector</tt> toward the
+     * stream's target address and port. Also puts the <tt>MediaStream</tt> in a
+     * listening state which make it play all media received from the
+     * <tt>StreamConnector</tt> on the stream's <tt>MediaDevice</tt>.
+     *
+     * @see MediaStream#start()
      */
     public void start()
     {
@@ -481,8 +599,12 @@ public class MediaStreamImpl
         }
     }
 
-    /*
-     * Implements MediaStream#stop().
+    /**
+     * Stops all streaming and capturing in this <tt>MediaStream</tt> and closes
+     * and releases all open/allocated devices/resources. Has no effect if this
+     * <tt>MediaStream</tt> is already closed and is simply ignored.
+     *
+     * @see MediaStream#stop()
      */
     public void stop()
     {
@@ -612,8 +734,14 @@ public class MediaStreamImpl
         }
     }
 
-    /*
-     * Implements ReceiveStreamListener#update(ReceiveStreamEvent).
+    /**
+     * Notifies this <tt>ReceiveStreamListener</tt> that the <tt>RTPManager</tt>
+     * it is registered with has generated an event related to a <tt>ReceiveStream</tt>.
+     *
+     * @param event the <tt>ReceiveStreamEvent</tt> which specifies the
+     * <tt>ReceiveStream</tt> that is the cause of the event and the very type
+     * of the event
+     * @see ReceiveStreamListener#update(ReceiveStreamEvent)
      */
     public void update(ReceiveStreamEvent event)
     {
@@ -654,22 +782,41 @@ public class MediaStreamImpl
                     {
                         player.addControllerListener(this);
                         player.realize();
+
+                        synchronized (players)
+                        {
+                            players.add(player);
+                        }
                     }
                 }
             }
         }
     }
 
-    /*
-     * Implements SendStreamListener#update(SendStreamEvent).
+    /**
+     * Notifies this <tt>SendStreamListener</tt> that the <tt>RTPManager</tt> it
+     * is registered with has generated an event related to a <tt>SendStream</tt>.
+     *
+     * @param event the <tt>SendStreamEvent</tt> which specifies the
+     * <tt>SendStream</tt> that is the cause of the event and the very type of
+     * the event
+     * @see SendStreamListener#update(SendStreamEvent)
      */
     public void update(SendStreamEvent event)
     {
         // TODO Auto-generated method stub
     }
 
-    /*
-     * Implements SessionListener#update(SessionEvent).
+
+    /**
+     * Notifies this <tt>SessionListener</tt> that the <tt>RTPManager</tt> it is
+     * registered with has generated an event which pertains to the seesion as a
+     * whole and does not belong to a <tt>ReceiveStream</tt> or a
+     * <tt>SendStream</tt> or a remote participant necessarily.
+     *
+     * @param event the <tt>SessionEvent</tt> which specifies the source and the
+     * very type of the event
+     * @see SessionListener#update(SessionEvent)
      */
     public void update(SessionEvent event)
     {

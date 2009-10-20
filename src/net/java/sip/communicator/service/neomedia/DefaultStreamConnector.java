@@ -187,8 +187,11 @@ public class DefaultStreamConnector
         this.bindAddr = null;
     }
 
-    /*
-     * Implements StreamConnector#close().
+    /**
+     * Releases the resources allocated by this instance in the course of its
+     * execution and prepares it to be garbage collected.
+     *
+     * @see StreamConnector#close()
      */
     public void close()
     {
@@ -198,8 +201,13 @@ public class DefaultStreamConnector
             dataSocket.close();
     }
 
-    /*
-     * Implements StreamConnector#getControlSocket().
+    /**
+     * Returns a reference to the <tt>DatagramSocket</tt> that a stream should
+     * use for control data (e.g. RTCP) traffic.
+     *
+     * @return a reference to the <tt>DatagramSocket</tt> that a stream should
+     * use for control data (e.g. RTCP) traffic
+     * @see StreamConnector#getControlSocket()
      */
     public DatagramSocket getControlSocket()
     {
@@ -208,8 +216,13 @@ public class DefaultStreamConnector
         return controlSocket;
     }
 
-    /*
-     * Implements StreamConnector#getDataSocket().
+    /**
+     * Returns a reference to the <tt>DatagramSocket</tt> that a stream should
+     * use for data (e.g. RTP) traffic.
+     *
+     * @return a reference to the <tt>DatagramSocket</tt> that a stream should
+     * use for data (e.g. RTP) traffic
+     * @see StreamConnector#getDataSocket()
      */
     public DatagramSocket getDataSocket()
     {
@@ -218,15 +231,22 @@ public class DefaultStreamConnector
         return dataSocket;
     }
 
-    /*
-     * Implements StreamConnector#started(). Does nothing.
+    /**
+     * Notifies this instance that utilization of its <tt>DatagramSocket</tt>s
+     * for data and/or control traffic has started.
+     *
+     * @see StreamConnector#started()
      */
     public void started()
     {
     }
 
-    /*
-     * Implements StreamConnector#stopped(). Does nothing.
+    /**
+     * Notifies this instance that utilization of its <tt>DatagramSocket</tt>s
+     * for data and/or control traffic has temporarily stopped. This instance
+     * should be prepared to be started at a later time again though.
+     *
+     * @see StreamConnector#stopped()
      */
     public void stopped()
     {

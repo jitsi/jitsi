@@ -27,8 +27,13 @@ public abstract class AbstractMediaStream
     private final PropertyChangeSupport propertyChangeSupport
         = new PropertyChangeSupport(this);
 
-    /*
-     * Implements MediaStream#addPropertyChangeListener(PropertyChangeListener).
+    /**
+     * Adds a <tt>PropertyChangelistener</tt> to this stream which is to be
+     * notified upon property changes such as a SSRC ID which becomes known.
+     *
+     * @param listener the <tt>PropertyChangeListener</tt> to register for
+     * <tt>PropertyChangeEvent</tt>s
+     * @see MediaStream#addPropertyChangeListener(PropertyChangeListener)
      */
     public void addPropertyChangeListener(PropertyChangeListener listener)
     {
@@ -56,9 +61,12 @@ public abstract class AbstractMediaStream
         propertyChangeSupport.firePropertyChange(property, oldValue, newValue);
     }
 
-    /*
-     * Implements
-     * MediaStream#removePropertyChangeListener(PropertyChangeListener).
+    /**
+     * Removes the specified <tt>PropertyChangeListener</tt> from this stream so
+     * that it won't receive further property change events.
+     *
+     * @param listener the <tt>PropertyChangeListener</tt> to remove
+     * @see MediaStream#removePropertyChangeListener(PropertyChangeListener)
      */
     public void removePropertyChangeListener(PropertyChangeListener listener)
     {

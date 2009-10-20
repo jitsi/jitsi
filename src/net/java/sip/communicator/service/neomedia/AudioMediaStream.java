@@ -65,7 +65,7 @@ public interface AudioMediaStream
     public void addDTMFListener(DTMFListener listener);
 
     /**
-     * Remove <tt>listener</tt> from the list of <tt>DTMFListener</tt>s
+     * Removes <tt>listener</tt> from the list of <tt>DTMFListener</tt>s
      * registered to receive events for incoming DTMF tones.
      * 
      * @param listener the listener that we'd like to unregister
