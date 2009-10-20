@@ -30,10 +30,15 @@ public abstract class SIPCommFrame
     extends JFrame
     implements Observer
 {
+
+    /**
+     * The <tt>Logger</tt> used by the <tt>SIPCommFrame</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger = Logger.getLogger(SIPCommFrame.class);
+
     private static final String SIP_COMMUNICATOR_LOGO =
         "service.gui.SIP_COMMUNICATOR_LOGO";
-
-    private final Logger logger = Logger.getLogger(SIPCommFrame.class);
 
     private final ActionMap amap;
 
@@ -155,23 +160,37 @@ public abstract class SIPCommFrame
         {
             saveSizeAndLocation(this);
         }
-        catch (PropertyVetoException e1)
+        catch (PropertyVetoException e)
         {
-            logger.error("The proposed property change "
-                + "represents an unacceptable value");
+            logger
+                .error(
+                    "Saving the size and the location properties failed",
+                    e);
         }
     }
 
+    /**
+     * Saves the size and the location of a specific <tt>Component</tt> through
+     * the <tt>ConfigurationService</tt>.
+     *
+     * @param component the <tt>Component</tt> which is to have its size and
+     * location saved through the <tt>ConfigurationService</tt>
+     * @throws PropertyVetoException if the <tt>ConfigurationService</tt> does
+     * not accept the saving because of objections from its
+     * <tt>PropertyVetoListener</tt>s.
+     */
     static void saveSizeAndLocation(Component component)
         throws PropertyVetoException
     {
-        ConfigurationService config = UtilActivator.getConfigurationService();
-        String className = component.getClass().getName().replaceAll("\\$", "_");
+        Map<String, Object> props = new HashMap<String, Object>();
+        String className
+            = component.getClass().getName().replaceAll("\\$", "_");
 
-        config.setProperty(className + ".width", component.getWidth());
-        config.setProperty(className + ".height", component.getHeight());
-        config.setProperty(className + ".x", component.getX());
-        config.setProperty(className + ".y", component.getY());
+        props.put(className + ".width", component.getWidth());
+        props.put(className + ".height", component.getHeight());
+        props.put(className + ".x", component.getX());
+        props.put(className + ".y", component.getY());
+        UtilActivator.getConfigurationService().setProperties(props);
     }
 
     /**

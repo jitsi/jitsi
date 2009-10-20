@@ -14,9 +14,19 @@ import javax.swing.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.util.*;
 
-public abstract class SIPCommDialog extends JDialog
+/**
+ * @author Yana Stamcheva
+ * @author Lubomir Marinov
+ */
+public abstract class SIPCommDialog
+    extends JDialog
 {
-    private final Logger logger = Logger.getLogger(SIPCommDialog.class);
+
+    /**
+     * The <tt>Logger</tt> used by the <tt>SIPCommDialog</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger = Logger.getLogger(SIPCommDialog.class);
 
     private ActionMap amap;
     private InputMap imap;
@@ -156,43 +166,24 @@ public abstract class SIPCommDialog extends JDialog
      */
     private void setSizeAndLocation()
     {
-        ConfigurationService configService =
-            UtilActivator.getConfigurationService();
-
+        ConfigurationService config = UtilActivator.getConfigurationService();
         String className = this.getClass().getName().replaceAll("\\$", "_");
         
-        String widthString = configService.getString(
-            className + ".width");
+        int width = config.getInt(className + ".width", 0);
+        int height = config.getInt(className + ".height", 0);
 
-        String heightString = configService.getString(
-            className + ".height");
+        String xString = config.getString(className + ".x");
+        String yString = config.getString(className + ".y");
 
-        String xString = configService.getString(
-            className + ".x");
-
-        String yString = configService.getString(
-            className + ".y");
-
-        int width = 0;
-        int height = 0;
-        
-        if(widthString != null && heightString != null)
-        {   
-            width = new Integer(widthString).intValue();
-            height = new Integer(heightString).intValue();
-            
-            if(width > 0 && height > 0)
-                this.setSize(width, height);
-        }
+        if(width > 0 && height > 0)
+            this.setSize(width, height);
         
         if(xString != null && yString != null)
-        {
-            this.setLocation(new Integer(xString).intValue(),
-                new Integer(yString).intValue());
-        }
-        else {
+            this.setLocation(
+                    Integer.parseInt(xString),
+                    Integer.parseInt(yString));
+        else
             this.setCenterLocation();
-        }
     }
 
     /**
@@ -200,12 +191,11 @@ public abstract class SIPCommDialog extends JDialog
      */
     private void setCenterLocation()
     {
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
         this.setLocation(
-                Toolkit.getDefaultToolkit().getScreenSize().width/2
-                    - this.getWidth()/2,
-                Toolkit.getDefaultToolkit().getScreenSize().height/2
-                    - this.getHeight()/2
-                );
+                screenSize.width/2 - this.getWidth()/2,
+                screenSize.height/2 - this.getHeight()/2);
     }
     
     /**
