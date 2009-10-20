@@ -147,14 +147,15 @@ public class ChatRoomConfigurationFormFieldJabberImpl
      *
      * @return an Iterator over the list of values of this field
      */
-    public Iterator<Object> getValues()
+    public Iterator<?> getValues()
     {
-        Iterator<? extends Object> valuesIter = null;
-        List<Object> values = new ArrayList<Object>();
         Iterator<String> smackValues = smackFormField.getValues();
+        Iterator<?> valuesIter;
 
         if(smackFormField.getType().equals(FormField.TYPE_BOOLEAN))
         {
+            List<Boolean> values = new ArrayList<Boolean>();
+
             while(smackValues.hasNext())
             {
                 String smackValue = smackValues.next();
@@ -169,9 +170,9 @@ public class ChatRoomConfigurationFormFieldJabberImpl
             valuesIter = values.iterator();
         }
         else
-            valuesIter = (Iterator<? extends Object>) smackValues;
+            valuesIter = smackValues;
 
-        return (Iterator<Object>)valuesIter;
+        return valuesIter;
     }
 
     /**
