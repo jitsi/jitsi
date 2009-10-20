@@ -8,8 +8,9 @@ package net.java.sip.communicator.impl.media.renderer.audio;
 
 import javax.media.*;
 import javax.media.format.*;
-import net.java.sip.communicator.util.*;
+
 import net.java.sip.communicator.impl.media.protocol.portaudio.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Portaudio renderer.

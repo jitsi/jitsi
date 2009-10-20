@@ -29,7 +29,7 @@ public class PortAudioClipImpl
 
     private boolean started = false;
 
-    private URL url = null;
+    private final URL url;
 
     /**
      * Creates the audio clip and initialize the listener used from the
@@ -68,11 +68,7 @@ public class PortAudioClipImpl
         setLoopInterval(interval);
         setIsLooping(true);
 
-        if(!audioNotifier.isMute())
-        {
-            started = true;
-            new Thread(new PlayThread()).start();
-        }
+        play();
     }
 
     /**
@@ -80,8 +76,7 @@ public class PortAudioClipImpl
      */
     public void stop()
     {
-        if (url != null)
-            started = false;
+        internalStop();
         setIsLooping(false);
     }
 
@@ -111,6 +106,7 @@ public class PortAudioClipImpl
                 {
                     AudioInputStream audioStream =
                         AudioSystem.getAudioInputStream(url);
+                    AudioFormat audioStreamFormat = audioStream.getFormat();
 
                     if (portAudioStream == 0)
                     {
@@ -122,13 +118,12 @@ public class PortAudioClipImpl
                         int maxOutChannels =
                             PortAudio.PaDeviceInfo_getMaxOutputChannels(devInfo);
 
-
-                        int outChannels = audioStream.getFormat().getChannels();
+                        int outChannels = audioStreamFormat.getChannels();
                         if(outChannels > maxOutChannels)
                             outChannels = maxOutChannels;
 
                         double sampleRate =
-                            audioStream.getFormat().getSampleRate();
+                            audioStreamFormat.getSampleRate();
 
                         long streamParameters
                             = PortAudio.PaStreamParameters_new(
@@ -161,13 +156,12 @@ public class PortAudioClipImpl
                         return;
                     }
 
-                    int read = 0;
-                    while((read = audioStream.read(buffer)) != -1)
+                    while(audioStream.read(buffer) != -1)
                     {
                         PortAudio.Pa_WriteStream(
                             portAudioStream, 
                             buffer,
-                            buffer.length/audioStream.getFormat().getFrameSize());
+                            buffer.length/audioStreamFormat.getFrameSize());
                     }
 
                     if(!isLooping())
