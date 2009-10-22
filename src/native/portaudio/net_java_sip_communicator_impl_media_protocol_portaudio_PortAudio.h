@@ -169,6 +169,38 @@ JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_media_protocol_portau
 
 /*
  * Class:     net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio
+ * Method:    PaDeviceInfo_getDefaultLowInputLatency
+ * Signature: (J)D
+ */
+JNIEXPORT jdouble JNICALL Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaDeviceInfo_1getDefaultLowInputLatency
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio
+ * Method:    PaDeviceInfo_getDefaultLowOutputLatency
+ * Signature: (J)D
+ */
+JNIEXPORT jdouble JNICALL Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaDeviceInfo_1getDefaultLowOutputLatency
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio
+ * Method:    PaDeviceInfo_getDefaultHighInputLatency
+ * Signature: (J)D
+ */
+JNIEXPORT jdouble JNICALL Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaDeviceInfo_1getDefaultHighInputLatency
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio
+ * Method:    PaDeviceInfo_getDefaultHighOutputLatency
+ * Signature: (J)D
+ */
+JNIEXPORT jdouble JNICALL Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaDeviceInfo_1getDefaultHighOutputLatency
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio
  * Method:    Pa_GetHostApiInfo
  * Signature: (I)J
  */

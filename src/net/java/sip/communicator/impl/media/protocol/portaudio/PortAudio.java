@@ -36,6 +36,40 @@ public final class PortAudio
      */
     public static final long STREAM_FLAGS_NO_FLAG = 0;
 
+    /**
+     * Disable default clipping of out of range samples.
+     */
+    public static final long STREAM_FLAGS_CLIP_OFF = 0x00000001;
+
+    /**
+     * Disable default dithering.
+     */
+    public static final long STREAM_FLAGS_DITHER_OFF = 0x00000002;
+
+    /**
+     * Flag requests that where possible a full duplex stream will not discard
+     * overflowed input samples without calling the stream callback.
+     * This flag is only valid for full duplex callback streams and only when
+     * used in combination with the paFramesPerBufferUnspecified (0)
+     * framesPerBuffer parameter. Using this flag incorrectly results in a
+     * paInvalidFlag error being returned from
+     * Pa_OpenStream and Pa_OpenDefaultStream.
+     */
+    public static final long STREAM_FLAGS_NEVER_DROP_INPUT = 0x00000004;
+
+    /**
+     * Call the stream callback to fill initial output buffers, rather than
+     * the default behavior of priming the buffers with zeros (silence).
+     * This flag has no effect for input-only and blocking read/write streams.
+     */
+    public static final long
+        STREAM_FLAGS_PRIME_OUTPUT_BUFFERS_USING_STREAM_CALLBACK = 0x00000008;
+
+    /**
+     * A mask specifying the platform specific bits.
+     */
+    public static final long STREAM_FLAGS_PLATFORM_SPECIFIC_FLAGS = 0xFFFF0000;
+
     private static boolean initialized;
 
     /**
@@ -255,6 +289,34 @@ public final class PortAudio
      * @return The host api of the device.
      */
     public static native int PaDeviceInfo_getHostApi(long deviceInfo);
+
+    /**
+     * Returns defaultLowInputLatency for the device.
+     * @param deviceInfo device info pointer.
+     * @return defaultLowInputLatency for the device.
+     */
+    public static native double PaDeviceInfo_getDefaultLowInputLatency(long deviceInfo);
+
+    /**
+     * Returns defaultLowOutputLatency for the device.
+     * @param deviceInfo device info pointer.
+     * @return defaultLowOutputLatency for the device.
+     */
+    public static native double PaDeviceInfo_getDefaultLowOutputLatency(long deviceInfo);
+
+    /**
+     * Returns defaultHighInputLatency for the device.
+     * @param deviceInfo device info pointer.
+     * @return defaultHighInputLatency for the device.
+     */
+    public static native double PaDeviceInfo_getDefaultHighInputLatency(long deviceInfo);
+
+    /**
+     * Returns defaultHighOutputLatency for the device.
+     * @param deviceInfo device info pointer.
+     * @return defaultHighOutputLatency for the device.
+     */
+    public static native double PaDeviceInfo_getDefaultHighOutputLatency(long deviceInfo);
 
     /**
      * Retrieve a pointer to a structure containing information

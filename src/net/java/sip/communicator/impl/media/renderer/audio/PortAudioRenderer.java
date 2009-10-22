@@ -160,20 +160,9 @@ public class PortAudioRenderer
         {
             if (stream == 0)
             {
-                long streamParameters
-                    = PortAudio.PaStreamParameters_new(
-                            deviceIndex,
-                            audioFormat.getChannels(),
-                            PortAudio.SAMPLE_FORMAT_INT16);
-
-                stream
-                    = PortAudio.Pa_OpenStream(
-                            0,
-                            streamParameters,
-                            audioFormat.getSampleRate(),
-                            PortAudio.FRAMES_PER_BUFFER_UNSPECIFIED,
-                            PortAudio.STREAM_FLAGS_NO_FLAG,
-                            null);
+                // lets try three times to open the device
+                // and wait 250 ms. between retries.
+                stream = openStreamRetring(3, 250);
             }
         }
         catch (PortAudioException e)
@@ -181,6 +170,50 @@ public class PortAudioRenderer
             throw new ResourceUnavailableException(e.getMessage());
         }
     }
+
+    /**
+     * When opening the device notifications maybe running so we will retry
+     * opening the device.
+     * @param numOfRetries the number of tries to open the requested device.
+     * @param interval the interval to wait between retries in miliseconds.
+     * @return the stream pointer.
+     * @throws PortAudioException the exception to be thrown if device
+     *         fail to open and after the last try.
+     */
+    private long openStreamRetring(int numOfRetries, int interval)
+        throws PortAudioException
+    {
+        for(int i = 0; i < numOfRetries; i++)
+        {
+            try
+            {
+                 long streamParameters
+                     = PortAudio.PaStreamParameters_new(
+                             deviceIndex,
+                             audioFormat.getChannels(),
+                             PortAudio.SAMPLE_FORMAT_INT16);
+
+                return PortAudio.Pa_OpenStream(
+                             0,
+                             streamParameters,
+                             audioFormat.getSampleRate(),
+                             PortAudio.FRAMES_PER_BUFFER_UNSPECIFIED,
+                             PortAudio.STREAM_FLAGS_CLIP_OFF
+                                | PortAudio.STREAM_FLAGS_DITHER_OFF,
+                             null);
+             }
+            catch (PortAudioException e)
+            {
+                if(i == numOfRetries - 1)
+                    throw e;
+                else
+                    try
+                    {Thread.sleep(interval);}catch(InterruptedException ex){}
+            }
+         }
+
+        return 0;
+     }
 
     /**
      *  Closes the plug-in.

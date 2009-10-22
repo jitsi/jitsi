@@ -292,6 +292,34 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaDeviceI
     return ((PaDeviceInfo *) deviceInfo)->hostApi;
 }
 
+JNIEXPORT jdouble JNICALL
+Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaDeviceInfo_1getDefaultLowInputLatency
+  (JNIEnv *env, jclass clazz, jlong deviceInfo)
+{
+    return ((PaDeviceInfo *) deviceInfo)->defaultLowInputLatency;
+}
+
+JNIEXPORT jdouble JNICALL
+Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaDeviceInfo_1getDefaultLowOutputLatency
+  (JNIEnv *env, jclass clazz, jlong deviceInfo)
+{
+    return ((PaDeviceInfo *) deviceInfo)->defaultLowOutputLatency;
+}
+
+JNIEXPORT jdouble JNICALL
+Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaDeviceInfo_1getDefaultHighInputLatency
+  (JNIEnv *env, jclass clazz, jlong deviceInfo)
+{
+    return ((PaDeviceInfo *) deviceInfo)->defaultHighInputLatency;
+}
+
+JNIEXPORT jdouble JNICALL
+Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaDeviceInfo_1getDefaultHighOutputLatency
+  (JNIEnv *env, jclass clazz, jlong deviceInfo)
+{
+    return ((PaDeviceInfo *) deviceInfo)->defaultHighOutputLatency;
+}
+
 JNIEXPORT jlong JNICALL
 Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1GetHostApiInfo
   (JNIEnv *env , jclass clazz, jint hostApiIndex)
@@ -352,7 +380,7 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaStreamP
 		streamParameters->device = deviceIndex;
 		streamParameters->channelCount = channelCount;
 		streamParameters->sampleFormat = sampleFormat;
-		streamParameters->suggestedLatency = 0,4;
+		streamParameters->suggestedLatency = 0;
 		streamParameters->hostApiSpecificStreamInfo = NULL;
 	}
 	return (jlong) streamParameters;
@@ -367,8 +395,13 @@ PortAudio_fixInputParametersSuggestedLatency(
 		PaDeviceInfo *deviceInfo = Pa_GetDeviceInfo(inputParameters->device);
 
 		if (deviceInfo)
-			inputParameters->suggestedLatency
-				= deviceInfo->defaultHighInputLatency;
+        {
+            // default latency of 100ms seems ok
+            // to use portaudio on all systems
+            inputParameters->suggestedLatency
+                    = 0.1; //= deviceInfo->defaultLowInputLatency;
+
+        }
 	}
 	return inputParameters;
 }
@@ -383,7 +416,7 @@ PortAudio_fixOutputParametersSuggestedLatency(
 
 		if (deviceInfo)
 			outputParameters->suggestedLatency
-				= deviceInfo->defaultHighOutputLatency;
+				= deviceInfo->defaultLowOutputLatency;
 	}
 	return outputParameters;
 }

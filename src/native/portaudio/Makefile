@@ -9,8 +9,8 @@ CPPFLAGS=-DJNI_IMPLEMENTATION \
          -Wall -Wreturn-type \
          -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux \
          -I$(PORTAUDIO_HOME)/include
-LDFLAGS=-shared -fPIC
-LIBS=-L$(PORTAUDIO_HOME)/lib/.libs -static -lportaudio
+LDFLAGS=-shared
+LIBS=-L$(PORTAUDIO_HOME)/lib/.libs -lasound -lm -lpthread -ljack -static -lportaudio
 
 $(TARGET): net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio.c net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio.h
 	$(CC) $(CPPFLAGS) $< $(LDFLAGS) -o $@ $(LIBS)
