@@ -257,9 +257,7 @@ public class NetworkAddressManagerServiceImpl
         {
             try
             {
-logger.info("eeeeeeeee");
               localHost = Win32LocalhostRetriever.getSourceForDestination(intendedDestination);
-logger.info("eeeeeeeee 2 " + localHost);
             }
             catch(Exception e)
             {
