@@ -3,6 +3,8 @@
     $./configure & make
     - Mac OS X
     $./configure  --enable-static --disable-shared & make
+    - Windows
+    $./configure  --enable-static --disable-shared & make
 2. jportaudio
     - Linux
     $ make
@@ -10,4 +12,10 @@
     CC=gcc -arch i386 -arch ppc -arch x86_64 -mmacosx-version-min=10.3
     LDFLAGS=-shared
     LIBS=-L$(PORTAUDIO_HOME)/lib/.libs -framework AudioToolbox -framework AudioUnit -framework CoreAudio -framework Carbon -lpthread -pthread -dynamic -lportaudio
+    $ make
+    - Windows
+    CPPFLAGS=...
+    	 -Wl,--kill-at \
+	 -02 \
+    LIBS=-L$(PORTAUDIO_HOME)/lib/.libs -static -lportaudio -lwinmm -lm -lstdc++ -lole32 -luuid
     $ make
