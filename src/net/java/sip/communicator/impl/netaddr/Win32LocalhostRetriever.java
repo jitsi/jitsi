@@ -19,9 +19,7 @@ public class Win32LocalhostRetriever
   /* load library */
   static
   {
-      System.out.println("daaaaaaaaaaaaaaaaaaaaa 1");
     System.loadLibrary("LocalhostRetriever");
-      System.out.println("daaaaaaaaaaaaaaaaaaaaa 2");
   }
 
   /**
