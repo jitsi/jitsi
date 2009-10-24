@@ -46,27 +46,48 @@ public class ContactListCellRenderer
     private final ImageIcon closedGroupIcon =
         new ImageIcon(ImageLoader.getImage(ImageLoader.RIGHT_ARROW_ICON));
 
+    /**
+     * The foreground color for groups.
+     */
     private Color groupForegroundColor;
 
+    /**
+     * The foreground color for contacts.
+     */
     protected Color contactForegroundColor;
 
+    /**
+     * The component showing the name of the contact or group.
+     */
     protected final JLabel nameLabel = new JLabel();
 
-    protected final JLabel photoLabel = new JLabel();
-
-//    private final int rowTransparency
-//        = GuiActivator.getResources()
-//            .getSettingsInt("impl.gui.CONTACT_LIST_TRANSPARENCY");
+    /**
+     * The component showing the avatar or the contact count in the case of
+     * groups.
+     */
+    protected final JLabel rightLabel = new JLabel();
 
     private final Image msgReceivedImage =
         ImageLoader.getImage(ImageLoader.MESSAGE_RECEIVED_ICON);
 
+    /**
+     * The icon showing the contact status.
+     */
     protected final ImageIcon statusIcon = new ImageIcon();
 
+    /**
+     * Indicates if the current list cell is selected.
+     */
     protected boolean isSelected = false;
 
+    /**
+     * The index of the current cell.
+     */
     protected int index = 0;
 
+    /**
+     * Indicates if the current cell contains a leaf or a group.
+     */
     protected boolean isLeaf = true;
 
     /**
@@ -95,24 +116,36 @@ public class ContactListCellRenderer
 
         this.nameLabel.setPreferredSize(new Dimension(10, 17));
 
+        this.rightLabel.setPreferredSize(
+            new Dimension(AVATAR_WIDTH, AVATAR_HEIGHT));
+        this.rightLabel.setFont(rightLabel.getFont().deriveFont(9f));
+        this.rightLabel.setHorizontalAlignment(JLabel.CENTER);
+
         this.add(nameLabel, BorderLayout.CENTER);
-        this.add(photoLabel, BorderLayout.EAST);
+        this.add(rightLabel, BorderLayout.EAST);
 
         this.setToolTipText("");
     }
 
     /**
-     * Implements the <tt>ListCellRenderer</tt> method.
+     * Implements the <tt>ListCellRenderer</tt> method. Returns this panel that
+     * has been configured to display the meta contact and meta contact group
+     * cells.
      *
-     * Returns this panel that has been configured to display the meta contact
-     * and meta contact group cells.
+     * @param list the source list
+     * @param value the value of the current cell
+     * @param index the index of the current cell in the source list
+     * @param isSelected indicates if this cell is selected
+     * @param cellHasFocus indicates if this cell is focused
+     * 
+     * @return this panel
      */
     public Component getListCellRendererComponent(JList list, Object value,
             int index, boolean isSelected, boolean cellHasFocus)
     {
         this.index = index;
 
-        this.photoLabel.setIcon(null);
+        this.rightLabel.setIcon(null);
 
         DefaultContactList contactList = (DefaultContactList) list;
 
@@ -153,7 +186,8 @@ public class ContactListCellRenderer
 
             ImageIcon avatar = getAvatar(metaContact);
             if (avatar != null)
-                this.photoLabel.setIcon(avatar);
+                this.rightLabel.setIcon(avatar);
+            this.rightLabel.setText("");
 
             // We should set the bounds of the cell explicitly in order to
             // make getComponentAt work properly.
@@ -161,7 +195,7 @@ public class ContactListCellRenderer
             this.setBounds(0, 0, listWidth - 2, 30);
 
             this.nameLabel.setBounds(0, 0, listWidth - 28, 17);
-            this.photoLabel.setBounds(listWidth - 28, 0, 25, 30);
+            this.rightLabel.setBounds(listWidth - 28, 0, 25, 30);
 
             this.isLeaf = true;
         }
@@ -171,16 +205,14 @@ public class ContactListCellRenderer
 
             MetaContactGroup groupItem = (MetaContactGroup) value;
 
-            this.nameLabel.setText(groupItem.getGroupName() 
-                    + "  ( "+ groupItem.countOnlineChildContacts() 
-                    + "/" + groupItem.countChildContacts() + " )");
+            this.nameLabel.setText(groupItem.getGroupName());
 
             this.nameLabel.setFont(this.getFont().deriveFont(Font.BOLD));
 
             if (groupForegroundColor != null)
                 this.nameLabel.setForeground(groupForegroundColor);
 
-            this.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 2));
+            this.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 3));
 
             // We should set the bounds of the cell explicitly in order to
             // make getComponentAt work properly.
@@ -192,7 +224,9 @@ public class ContactListCellRenderer
                         : openedGroupIcon);
 
             // We have no photo icon for groups.
-            this.photoLabel.setIcon(null);
+            this.rightLabel.setIcon(null);
+            this.rightLabel.setText( groupItem.countOnlineChildContacts() 
+                    + "/" + groupItem.countChildContacts());
 
             this.isLeaf = false;
         }
@@ -248,8 +282,8 @@ public class ContactListCellRenderer
     }
 
     /**
-     * Paint a background for all groups and a round blue border and background
-     * when a cell is selected. 
+     * Paints a customized background.
+     * @param g the <tt>Graphics</tt> object through which we paint
      */
     protected void paintComponent(Graphics g)
     {
@@ -266,6 +300,11 @@ public class ContactListCellRenderer
         }
     }
 
+    /**
+     * Paint a background for all groups and a round blue border and background
+     * when a cell is selected.
+     * @param g the <tt>Graphics</tt> object through which we paint
+     */
     private void internalPaintComponent(Graphics g)
     {
         AntialiasingManager.activateAntialiasing(g);
