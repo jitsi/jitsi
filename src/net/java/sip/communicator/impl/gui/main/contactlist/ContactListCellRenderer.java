@@ -19,9 +19,9 @@ import net.java.sip.communicator.util.swing.*;
 /**
  * The <tt>ContactListCellRenderer</tt> is the custom cell renderer used in the
  * SIP-Communicator's <tt>ContactList</tt>. It extends JPanel instead of JLabel,
- * which allows adding different buttons and icons to the contact cell.
- * The cell border and background are repainted. 
- * 
+ * which allows adding different buttons and icons to the contact cell. The cell
+ * border and background are repainted.
+ *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  */
@@ -34,7 +34,7 @@ public class ContactListCellRenderer
     private static final int AVATAR_WIDTH = 30;
 
     /**
-     * The key of the user data in <code>MetaContact</code> which specifies
+     * The key of the user data in <tt>MetaContact</tt> which specifies
      * the avatar cached from previous invocations.
      */
     private static final String AVATAR_DATA_KEY
@@ -91,7 +91,7 @@ public class ContactListCellRenderer
     protected boolean isLeaf = true;
 
     /**
-     * Initialize the panel containing the node.
+     * Initializes the panel containing the node.
      */
     public ContactListCellRenderer()
     {
@@ -237,13 +237,12 @@ public class ContactListCellRenderer
     }
 
     /**
-     * Gets the avatar of a specific <code>MetaContact</code> in the form of an
-     * <code>ImageIcon</code> value.
+     * Gets the avatar of a specific <tt>MetaContact</tt> in the form of an
+     * <tt>ImageIcon</tt> value.
      * 
-     * @param metaContact
-     *            the <code>MetaContact</code> to retrieve the avatar of
-     * @return an <code>ImageIcon</code> which represents the avatar of the
-     *         specified <code>MetaContact</code>
+     * @param metaContact the <tt>MetaContact</tt> to retrieve the avatar of
+     * @return an <tt>ImageIcon</tt> which represents the avatar of the
+     * specified <tt>MetaContact</tt>
      */
     private ImageIcon getAvatar(MetaContact metaContact)
     {
@@ -283,8 +282,10 @@ public class ContactListCellRenderer
 
     /**
      * Paints a customized background.
+     *
      * @param g the <tt>Graphics</tt> object through which we paint
      */
+    @Override
     protected void paintComponent(Graphics g)
     {
         super.paintComponent(g);
@@ -303,6 +304,7 @@ public class ContactListCellRenderer
     /**
      * Paint a background for all groups and a round blue border and background
      * when a cell is selected.
+     *
      * @param g the <tt>Graphics</tt> object through which we paint
      */
     private void internalPaintComponent(Graphics g)
@@ -320,7 +322,6 @@ public class ContactListCellRenderer
                     Constants.CONTACT_LIST_GROUP_BG_GRADIENT_COLOR);
 
             g2.setPaint(p);
-
             g2.fillRoundRect(1, 1, width - 2, this.getHeight() - 1, 10, 10);
         }
 
