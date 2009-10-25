@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.osdependent;
 
 import java.awt.event.*;
-import java.util.*;
 
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
@@ -17,7 +16,8 @@ import net.java.sip.communicator.util.*;
  * An implementation  of the <tt>PopupMsystrayessageHandler</tt> using the
  * tray icon.
  */
-public class PopupMessageHandlerTrayIconImpl implements PopupMessageHandler
+public class PopupMessageHandlerTrayIconImpl
+    extends AbstractPopupMessageHandler
 {
     /**
      * The logger for this class.
@@ -25,13 +25,8 @@ public class PopupMessageHandlerTrayIconImpl implements PopupMessageHandler
     private static Logger logger =
         Logger.getLogger(PopupMessageHandlerTrayIconImpl.class);
 
-    /** The list of all added systray popup listeners */
-    private final List<SystrayPopupMessageListener> PopupMessageListener =
-        new Vector<SystrayPopupMessageListener>();
-
     /** the tray icon we will use to popup messages */
     private TrayIcon trayIcon;
-
 
     /**
      * Creates a new <tt>PopupMessageHandlerTrayIconImpl</tt> which will uses
@@ -48,31 +43,6 @@ public class PopupMessageHandlerTrayIconImpl implements PopupMessageHandler
                 firePopupMessageClicked(new SystrayPopupMessageEvent(e));
             }
         });
-    }
-
-    /**
-     * Implementation of <tt>PopupMessageHandler.addPopupMessageListener</tt>
-     * @param listener the listener to add
-     */
-    public void addPopupMessageListener(SystrayPopupMessageListener listener)
-    {
-        synchronized (PopupMessageListener)
-        {
-            if (!PopupMessageListener.contains(listener))
-                PopupMessageListener.add(listener);
-        }
-    }
-
-    /**
-     * Implementation of <tt>PopupMessageHandler.removePopupMessageListener</tt>
-     * @param listener the listener to remove
-     */
-    public void removePopupMessageListener(SystrayPopupMessageListener listener)
-    {
-        synchronized (PopupMessageListener)
-        {
-            PopupMessageListener.remove(listener);
-        }
     }
 
     /**
@@ -97,31 +67,10 @@ public class PopupMessageHandlerTrayIconImpl implements PopupMessageHandler
     }
 
     /**
-     * Notifies all interested listeners that a <tt>SystrayPopupMessageEvent</tt>
-     * has occured.
-     *
-     * @param SystrayPopupMessageEvent the evt to send to listener.
-     */
-    private void firePopupMessageClicked(SystrayPopupMessageEvent evt)
-    {
-        logger.trace("Will dispatch the following systray popup event: " + evt);
-
-        List<SystrayPopupMessageListener> listeners;
-        synchronized (PopupMessageListener)
-        {
-            listeners =
-                new ArrayList<SystrayPopupMessageListener>(
-                    PopupMessageListener);
-        }
-
-        for (SystrayPopupMessageListener listener : listeners)
-            listener.popupMessageClicked(evt);
-    }
-
-    /**
      * Implements <tt>toString</tt> from <tt>PopupMessageHandler</tt>
      * @return a description of this handler
      */
+    @Override
     public String toString()
     {
         return OsDependentActivator.getResources()

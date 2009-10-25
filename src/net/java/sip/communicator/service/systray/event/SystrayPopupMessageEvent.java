@@ -52,5 +52,4 @@ public class SystrayPopupMessageEvent
     {
         this.tag = tag;
     }
-
 }

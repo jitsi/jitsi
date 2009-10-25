@@ -7,14 +7,15 @@
 package net.java.sip.communicator.impl.growlnotification;
 
 import java.util.*;
-import org.osgi.framework.*;
 
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
 import net.java.sip.communicator.util.*;
-import org.growl4j.*;
 
-// TO-DO: use a better icon in registration.
+import org.growl4j.*;
+import org.osgi.framework.*;
+
+// TODO Use a better icon in registration.
 
 /**
  * The Growl Notification Service displays on-screen information such as
@@ -24,37 +25,30 @@ import org.growl4j.*;
  * @author Egidijus Jankauskas
  */
 public class GrowlNotificationServiceImpl
-    implements PopupMessageHandler,
-                GrowlCallbacksListener
+    extends AbstractPopupMessageHandler
+    implements GrowlCallbacksListener
 {
     /**
      * The logger for this class.
      */
     private static Logger logger =
         Logger.getLogger(GrowlNotificationServiceImpl.class);
-    
+
     /**
      * A variable that acts as a buffer to temporarily keep all PopupMessages 
      * that were sent to Growl Daemon.
      */
     private static final HashMap<Long, PopupMessage> shownPopups =  
                                         new HashMap<Long, PopupMessage>(10);
-    
+
     private Growl growl = null;
 
-
-    /** The list of all added popup listeners */
-    private final List<SystrayPopupMessageListener> popupMessageListeners =
-            new Vector<SystrayPopupMessageListener>();
-
-    
     /**
      * Starts the service. Creates a Growl notifier, and check the current
      * registered protocol providers which supports BasicIM and adds message
      * listener to them.
      *
      * @param bc a currently valid bundle context
-     * @throws java.lang.Exception if we fail initializing the growl notifier.
      */
     public void start(BundleContext bc)
     {
@@ -99,28 +93,12 @@ public class GrowlNotificationServiceImpl
     
     /**
      * Checks if Growl is running
+     *
      * @return <code>true</code> if Growl is running and <code>false</code> otherwise
      */
     public boolean isGrowlRunning()
     {
         return Growl.isGrowlRunning();
-    }
-
-    public void addPopupMessageListener(SystrayPopupMessageListener listener)
-    {
-        synchronized (popupMessageListeners)
-        {
-            if (!popupMessageListeners.contains(listener))
-                popupMessageListeners.add(listener);
-        }
-    }
-
-    public void removePopupMessageListener(SystrayPopupMessageListener listener)
-    {
-        synchronized (popupMessageListeners)
-        {
-            popupMessageListeners.remove(listener);
-        }
     }
 
     /**
@@ -150,29 +128,8 @@ public class GrowlNotificationServiceImpl
     }
 
     /**
-     * Notifies all interested listeners that a <tt>SystrayPopupMessageEvent</tt>
-     * occured.
-     *
-     * @param SystrayPopupMessageEvent the evt to send to listener.
-     */
-    private void firePopupMessageClicked(SystrayPopupMessageEvent evt)
-    {
-        logger.trace("Will dispatch the following popup event: " + evt);
-
-        List<SystrayPopupMessageListener> listeners;
-        synchronized (popupMessageListeners)
-        {
-            listeners =
-                new ArrayList<SystrayPopupMessageListener>(
-                popupMessageListeners);
-        }
-
-        for (SystrayPopupMessageListener listener : listeners)
-            listener.popupMessageClicked(evt);
-    }
-
-    /**
      * This method is called by Growl when the Growl notification is not clicked
+     *
      * @param context is an object that is used to identify sent notification
      */
     public void growlNotificationTimedOut(Object context)
@@ -185,11 +142,11 @@ public class GrowlNotificationServiceImpl
             logger.trace("Growl notification timed-out :" + 
                 m.getMessageTitle() + ": " + m.getMessage());
         }
-        
     }
 
     /**
      * This method is called by Growl when the Growl notification is clicked
+     *
      * @param context is an object that is used to identify sent notification
      */
     public void growlNotificationWasClicked(Object context)
@@ -207,9 +164,11 @@ public class GrowlNotificationServiceImpl
     }
     
     /**
-     * Implements <tt>toString</tt> from <tt>PopupMessageHandler</tt>
+     * Implements <tt>toString</tt> from <tt>PopupMessageHandler</tt>.
+     *
      * @return a description of this handler
      */
+    @Override
     public String toString()
     {
         return GrowlNotificationActivator.getResources()
@@ -220,6 +179,7 @@ public class GrowlNotificationServiceImpl
      * Implements <tt>getPreferenceIndex</tt> from <tt>PopupMessageHandler</tt>. 
      * This handler is able to show images, detect clicks, match a click to a 
      * message, and use a native popup mechanism, thus the index is 4.
+     *
      * @return a preference index
      */
     public int getPreferenceIndex()

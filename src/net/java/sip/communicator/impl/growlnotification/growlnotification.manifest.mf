@@ -1,6 +1,6 @@
 Bundle-Activator: net.java.sip.communicator.impl.growlnotification.GrowlNotificationActivator
 Bundle-Name: Growl Notification Service Provider
-Bundle-Description: A bundle that implements the Growl notification package.
+Bundle-Description: A bundle which implements Growl notifications.
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 System-Bundle: yes

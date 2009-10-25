@@ -8,59 +8,32 @@ package net.java.sip.communicator.impl.swingnotification;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
-import java.util.List;
-import javax.swing.*;
 
+import javax.swing.*;
 import javax.swing.Timer;
+
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
- * An implementation of <tt>PopupMessageHandler</tt> using swing.
+ * Implements <tt>PopupMessageHandler</tt> using Swing.
+ *
  * @author Symphorien Wanko
+ * @author Lubomir Marinov
  */
-public class PopupMessageHandlerSwingImpl implements PopupMessageHandler
+public class PopupMessageHandlerSwingImpl
+    extends AbstractPopupMessageHandler
 {
     /** logger for the <tt>PopupMessageHandlerSwingImpl</tt> class */
-    private final Logger logger =
-        Logger.getLogger(PopupMessageHandlerSwingImpl.class);
-
-    /** The list of all added popup listeners */
-    private final List<SystrayPopupMessageListener> popupMessageListeners =
-        new Vector<SystrayPopupMessageListener>();
+    private static final Logger logger
+        = Logger.getLogger(PopupMessageHandlerSwingImpl.class);
 
     /** An icon representing the contact from which the notification comes */
     private ImageIcon defaultIcon =
         SwingNotificationActivator.getResources().getImage(
         "service.gui.SIP_COMMUNICATOR_LOGO_45x45");;
-
-    /**
-     * Adds a listerner to receive popup events
-     * @param listener the listener to add
-     */
-    public void addPopupMessageListener(SystrayPopupMessageListener listener)
-    {
-        synchronized (popupMessageListeners)
-        {
-            if (!popupMessageListeners.contains(listener))
-                popupMessageListeners.add(listener);
-        }
-    }
-
-    /**
-     * Removes a listerner previously added with <tt>addPopupMessageListener</tt>
-     * @param listener the listener to remove
-     */
-    public void removePopupMessageListener(SystrayPopupMessageListener listener)
-    {
-        synchronized (popupMessageListeners)
-        {
-            popupMessageListeners.remove(listener);
-        }
-    }
 
     /**
      * Implements <tt>PopupMessageHandler#showPopupMessage()</tt>
@@ -134,11 +107,12 @@ public class PopupMessageHandlerSwingImpl implements PopupMessageHandler
     }
 
     /**
-     * builds the popup component with given informations.
+     * Builds the popup component with given informations.
      * 
-     * @param title message title
+     * @param titleString message title
      * @param message message content
-     * @param icon message icon
+     * @param imageBytes message icon
+     * @param tag
      * @return
      */
     private JComponent createPopup( String titleString,
@@ -196,31 +170,10 @@ public class PopupMessageHandlerSwingImpl implements PopupMessageHandler
     }
 
     /**
-     * Notifies all interested listeners that a <tt>SystrayPopupMessageEvent</tt>
-     * occured.
-     *
-     * @param SystrayPopupMessageEvent the evt to send to listener.
-     */
-    private void firePopupMessageClicked(SystrayPopupMessageEvent evt)
-    {
-        logger.trace("Will dispatch the following popup event: " + evt);
-
-        List<SystrayPopupMessageListener> listeners;
-        synchronized (popupMessageListeners)
-        {
-            listeners =
-                new ArrayList<SystrayPopupMessageListener>(
-                popupMessageListeners);
-        }
-
-        for (SystrayPopupMessageListener listener : listeners)
-            listener.popupMessageClicked(evt);
-    }
-
-    /**
      * Implements <tt>toString</tt> from <tt>PopupMessageHandler</tt>
      * @return a description of this handler
      */
+    @Override
     public String toString()
     {
         return SwingNotificationActivator.getResources()
@@ -231,10 +184,10 @@ public class PopupMessageHandlerSwingImpl implements PopupMessageHandler
      * provide animation to hide a popup. The animation could be described
      * as an "inverse" of the one made by <tt>PopupLauncher</tt>.
      */
-    class PopupDiscarder implements Runnable
+    private static class PopupDiscarder
+        implements Runnable
     {
-
-        private JWindow notificationWindow;
+        private final JWindow notificationWindow;
 
         PopupDiscarder(JWindow notificationWindow)
         {
@@ -268,17 +221,18 @@ public class PopupMessageHandlerSwingImpl implements PopupMessageHandler
      * provide animation to show a popup. The popup comes from the bottom of
      * screen and will stay in the bottom right corner.
      */
-    class PopupLauncher implements Runnable
+    private static class PopupLauncher
+        implements Runnable
     {
-
         private final JWindow notificationWindow;
 
         private final int x;
 
         private final int y;
 
-        PopupLauncher(JWindow notificationWindow,
-            GraphicsConfiguration graphicsConf)
+        PopupLauncher(
+                JWindow notificationWindow,
+                GraphicsConfiguration graphicsConf)
         {
             this.notificationWindow = notificationWindow;
 

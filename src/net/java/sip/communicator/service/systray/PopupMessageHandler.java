@@ -9,9 +9,9 @@ package net.java.sip.communicator.service.systray;
 import net.java.sip.communicator.service.systray.event.*;
 
 /**
- * The <tt>PopupMessageHandler</tt> role is to give differents methods to
- * display <tt>PopupMessage</tt> and listen for events (user click)
- * coming from that popup.
+ * The <tt>PopupMessageHandler</tt> role is to give different methods to display
+ * <tt>PopupMessage</tt> and listen for events (user click) coming from that
+ * popup.
  *
  * @author Symphorien Wanko
  */
@@ -19,7 +19,7 @@ public interface PopupMessageHandler
 {
 
     /**
-     * Register a listener to be informed of systray popup events.
+     * Registers a listener to be informed of systray popup events.
      *
      * @param listener the listened which will be informed of systray popup
      * events
@@ -35,8 +35,8 @@ public interface PopupMessageHandler
 
     /**
      * Shows the given <tt>PopupMessage</tt>. Any given <tt>PopupMessage</tt>
-     * will provides a minimum of two values : a message title and
-     * a message body. thoose two values are respectively available via
+     * will provide a minimum of two values: a message title and a message body.
+     * These two values are respectively available via
      * <tt>PopupMessage#getMessageTitle()</tt> and
      * <tt>PopupMessage#getMessage()</tt>
      *
@@ -59,8 +59,7 @@ public interface PopupMessageHandler
     public int getPreferenceIndex();
 
     /**
-     * Returns a readable description of this popup handler. It is expected
-     * to be a localized string.
+     * Returns a readable localized description of this popup handler.
      *
      * @return a string describing this popup handler
      */
