@@ -29,6 +29,8 @@ public class ExtendedTooltip
 
     private final JPanel linesPanel = new JPanel();
 
+    private final JLabel bottomLabel = new JLabel();
+
     private int textWidth = 0;
 
     private int textHeight = 0;
@@ -46,7 +48,7 @@ public class ExtendedTooltip
 
         this.setLayout(new BorderLayout());
 
-        JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
+        JPanel mainPanel = new JPanel(new BorderLayout(5, 0));
         JPanel centerPanel = new JPanel(new BorderLayout());
 
         mainPanel.setOpaque(false);
@@ -72,6 +74,9 @@ public class ExtendedTooltip
             mainPanel.add(imageLabel, BorderLayout.CENTER);
             mainPanel.add(titleLabel, BorderLayout.NORTH);
         }
+
+        bottomLabel.setFont(bottomLabel.getFont().deriveFont(10f));
+        mainPanel.add(bottomLabel, BorderLayout.SOUTH);
 
         this.add(mainPanel);
     }
@@ -136,6 +141,15 @@ public class ExtendedTooltip
     }
 
     /**
+     * Sets the text that would appear on the bottom of the tooltip.
+     * @param text the text to set
+     */
+    public void setBottomText(String text)
+    {
+        this.bottomLabel.setText(text);
+    }
+
+    /**
      * Customized UI for this MetaContactTooltip.
      */
     private class ImageToolTipUI extends MetalToolTipUI
@@ -179,6 +193,10 @@ public class ExtendedTooltip
             }
             else
                 height = imageHeight + textHeight;
+
+            if (bottomLabel.getText() != null
+                    && bottomLabel.getText().length() > 0)
+                height += textRowHeight;
 
             return new Dimension(width, height);
         }

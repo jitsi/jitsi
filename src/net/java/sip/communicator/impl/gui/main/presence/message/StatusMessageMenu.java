@@ -93,7 +93,7 @@ public class StatusMessageMenu
 
             dialog.setVisible(true);
 
-            dialog.requestFocusInFiled();
+            dialog.requestFocusInField();
         }
         else if (menuItem.equals(busyMessageItem))
         {

@@ -19,7 +19,7 @@ import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>NewStatusMessageDialog</tt> is the dialog containing the form for
- * changing the status message. 
+ * changing the status message for a protocol provider.
  * 
  * @author Yana Stamcheva
  */
@@ -27,35 +27,26 @@ public class NewStatusMessageDialog
     extends SIPCommDialog
     implements ActionListener
 {
-    private Logger logger = Logger.getLogger(NewStatusMessageDialog.class);
+    /**
+     * The Object used for logging.
+     */
+    private final Logger logger = Logger.getLogger(NewStatusMessageDialog.class);
 
-    private JLabel messageLabel = new JLabel(
-        GuiActivator.getResources().getI18NString(
-            "service.gui.NEW_STATUS_MESSAGE"));
+    /**
+     * The field, containing the status message.
+     */
+    private final JTextField messageTextField = new JTextField();
 
-    private JTextField messageTextField = new JTextField();
-
-    private JPanel dataPanel = new TransparentPanel(new BorderLayout(5, 5));
-
-    private JTextArea infoArea = new JTextArea(
-        GuiActivator.getResources().getI18NString(
-            "service.gui.STATUS_MESSAGE_INFO"));
-
-    private JLabel infoTitleLabel = new JLabel(
-        GuiActivator.getResources().getI18NString(
-            "service.gui.NEW_STATUS_MESSAGE"));
-
-    private JPanel labelsPanel = new TransparentPanel(new GridLayout(0, 1));
-
-    private JButton okButton
-        = new JButton(GuiActivator.getResources().getI18NString("service.gui.OK"));
-
-    private JButton cancelButton = new JButton(
+    /**
+     * The button, used to cancel this dialog.
+     */
+    private final JButton cancelButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
 
-    private JPanel buttonsPanel = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
-
-    private ProtocolProviderService protocolProvider;
+    /**
+     * The presence operation set through which we change the status message.
+     */
+    private final OperationSetPresence presenceOpSet;
 
     /**
      * Creates an instance of <tt>NewStatusMessageDialog</tt>.
@@ -64,18 +55,45 @@ public class NewStatusMessageDialog
      */
     public NewStatusMessageDialog (ProtocolProviderService protocolProvider)
     {
-        this.protocolProvider = protocolProvider;
+        presenceOpSet
+            = (OperationSetPersistentPresence) protocolProvider
+                .getOperationSet(OperationSetPresence.class);
 
         this.init();
         pack();
     }
-    
+
     /**
      * Initializes the <tt>NewStatusMessageDialog</tt> by adding the buttons,
      * fields, etc.
      */
     private void init()
     {
+        JLabel messageLabel = new JLabel(
+            GuiActivator.getResources().getI18NString(
+                "service.gui.NEW_STATUS_MESSAGE"));
+
+        JTextField messageTextField = new JTextField();
+
+        JPanel dataPanel
+            = new TransparentPanel(new BorderLayout(5, 5));
+
+        JTextArea infoArea = new JTextArea(
+            GuiActivator.getResources().getI18NString(
+                "service.gui.STATUS_MESSAGE_INFO"));
+
+        JLabel infoTitleLabel = new JLabel(
+            GuiActivator.getResources().getI18NString(
+                "service.gui.NEW_STATUS_MESSAGE"));
+
+        JPanel labelsPanel = new TransparentPanel(new GridLayout(0, 1));
+
+        JButton okButton = new JButton(GuiActivator.getResources()
+                        .getI18NString("service.gui.OK"));
+
+        JPanel buttonsPanel
+            = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
+
         this.setTitle(GuiActivator.getResources()
                 .getI18NString("service.gui.NEW_STATUS_MESSAGE"));
 
@@ -83,22 +101,23 @@ public class NewStatusMessageDialog
 
         this.setPreferredSize(new Dimension(500, 200));
 
-        this.infoArea.setEditable(false);
-        this.infoArea.setLineWrap(true);
-        this.infoArea.setWrapStyleWord(true);
-        this.infoArea.setOpaque(false);
+        infoArea.setEditable(false);
+        infoArea.setLineWrap(true);
+        infoArea.setWrapStyleWord(true);
+        infoArea.setOpaque(false);
 
-        this.dataPanel.add(messageLabel, BorderLayout.WEST);
+        dataPanel.add(messageLabel, BorderLayout.WEST);
 
-        this.dataPanel.add(messageTextField, BorderLayout.CENTER);
+        messageTextField.setText(presenceOpSet.getCurrentStatusMessage());
+        dataPanel.add(messageTextField, BorderLayout.CENTER);
 
-        this.infoTitleLabel.setHorizontalAlignment(JLabel.CENTER);
-        this.infoTitleLabel.setFont(
+        infoTitleLabel.setHorizontalAlignment(JLabel.CENTER);
+        infoTitleLabel.setFont(
             infoTitleLabel.getFont().deriveFont(Font.BOLD, 18.0f));
 
-        this.labelsPanel.add(infoTitleLabel);
-        this.labelsPanel.add(infoArea);
-        this.labelsPanel.add(dataPanel);
+        labelsPanel.add(infoTitleLabel);
+        labelsPanel.add(infoArea);
+        labelsPanel.add(dataPanel);
 
         JPanel messagePanel = new TransparentPanel(new GridBagLayout());
         GridBagConstraints messagePanelConstraints = new GridBagConstraints();
@@ -113,6 +132,7 @@ public class NewStatusMessageDialog
             .add(new ImageCanvas(ImageLoader
                 .getImage(ImageLoader.RENAME_DIALOG_ICON)),
                 messagePanelConstraints);
+
         messagePanelConstraints.anchor = GridBagConstraints.NORTH;
         messagePanelConstraints.fill = GridBagConstraints.HORIZONTAL;
         messagePanelConstraints.gridx = 1;
@@ -120,19 +140,19 @@ public class NewStatusMessageDialog
         messagePanelConstraints.weightx = 1;
         messagePanel.add(labelsPanel, messagePanelConstraints);
 
-        this.okButton.setName("ok");
-        this.cancelButton.setName("cancel");
+        okButton.setName("ok");
+        cancelButton.setName("cancel");
 
-        this.okButton.setMnemonic(
+        okButton.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.OK"));
-        this.cancelButton.setMnemonic(
+        cancelButton.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
 
-        this.okButton.addActionListener(this);
-        this.cancelButton.addActionListener(this);
+        okButton.addActionListener(this);
+        cancelButton.addActionListener(this);
 
-        this.buttonsPanel.add(okButton);
-        this.buttonsPanel.add(cancelButton);
+        buttonsPanel.add(okButton);
+        buttonsPanel.add(cancelButton);
 
         JPanel mainPanel = new TransparentPanel(new GridBagLayout());
         mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 0, 10));
@@ -145,6 +165,7 @@ public class NewStatusMessageDialog
         mainPanelConstraints.weightx = 1;
         mainPanelConstraints.weighty = 1;
         mainPanel.add(messagePanel, mainPanelConstraints);
+
         mainPanelConstraints.anchor = GridBagConstraints.SOUTHEAST;
         mainPanelConstraints.fill = GridBagConstraints.NONE;
         mainPanelConstraints.gridy = 1;
@@ -158,6 +179,7 @@ public class NewStatusMessageDialog
     /**
      * Handles the <tt>ActionEvent</tt>. In order to change the status message
      * with the new one calls the <tt>PublishStatusMessageThread</tt>.
+     * @param e the event that notified us of the action
      */
     public void actionPerformed(ActionEvent e)
     {
@@ -176,7 +198,7 @@ public class NewStatusMessageDialog
      * Requests the focus in the text field contained in this
      * dialog.
      */
-    public void requestFocusInFiled()
+    public void requestFocusInField()
     {
         this.messageTextField.requestFocus();
     }
@@ -190,15 +212,9 @@ public class NewStatusMessageDialog
 
         private PresenceStatus currentStatus;
 
-        private OperationSetPresence presenceOpSet;
-
         public PublishStatusMessageThread(String message)
         {
             this.message = message;
-
-            presenceOpSet
-                = (OperationSetPersistentPresence) protocolProvider
-                    .getOperationSet(OperationSetPresence.class);
 
             this.currentStatus = presenceOpSet.getPresenceStatus();
         }
@@ -252,8 +268,13 @@ public class NewStatusMessageDialog
         }
     }
 
+    /**
+     * Artificially clicks the cancel button when this panel is escaped.
+     * @param isEscaped indicates if this dialog is closed by the Esc shortcut
+     */
     protected void close(boolean isEscaped)
     {
-        cancelButton.doClick();
+        if (isEscaped)
+            cancelButton.doClick();
     }
 }
