@@ -799,8 +799,8 @@
         bundle-plugin-msnaccregwizz,bundle-plugin-sipaccregwizz,
         bundle-plugin-yahooaccregwizz,bundle-plugin-aimaccregwizz,
         bundle-version,bundle-version-impl,bundle-shutdown-timeout,
-        bundle-growlnotification,bundle-swingnotification,bundle-sparkle,
-        bundle-plugin-branding,
+        bundle-growlnotification,bundle-swingnotification,bundle-galagonotification,
+        bundle-sparkle, bundle-plugin-branding,
         bundle-osdependent,bundle-browserlauncher,bundle-gibberish,
         bundle-gibberish-slick,bundle-plugin-gibberishaccregwizz,
         bundle-plugin-call-history-form,
@@ -1058,6 +1058,8 @@
                 prefix="net/java/sip/communicator/impl/media/codec/audio"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/codec/video"
                 prefix="net/java/sip/communicator/impl/media/codec/video"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/conference"
+                prefix="net/java/sip/communicator/impl/media/conference"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/protocol"
                 prefix="net/java/sip/communicator/impl/media/protocol"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/renderer"
@@ -1092,6 +1094,8 @@
                 prefix="net/java/sip/communicator/impl/media/codec/audio"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/codec/video"
                 prefix="net/java/sip/communicator/impl/media/codec/video"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/conference"
+                prefix="net/java/sip/communicator/impl/media/conference"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/protocol"
                 prefix="net/java/sip/communicator/impl/media/protocol"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/renderer"
@@ -1125,6 +1129,8 @@
                 prefix="net/java/sip/communicator/impl/media/codec/audio"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/codec/video"
                 prefix="net/java/sip/communicator/impl/media/codec/video"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/conference"
+                prefix="net/java/sip/communicator/impl/media/conference"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/protocol"
                 prefix="net/java/sip/communicator/impl/media/protocol"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/renderer"
@@ -1647,6 +1653,16 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/impl/swingnotification/swingnotification.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/swingnotification"
                 prefix="net/java/sip/communicator/impl/swingnotification" />
+        </jar>
+    </target>
+
+    <!--BUNDLE-GALAGONOTIFICATION-->
+    <target name="bundle-galagonotification">
+        <!-- Creates a bundle for the galagonotification plugin. -->
+        <jar compress="false" destfile="${bundles.dest.lin}/galagonotification.jar"
+            manifest="${src}/net/java/sip/communicator/impl/galagonotification/galagonotification.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/galagonotification"
+                prefix="net/java/sip/communicator/impl/galagonotification" />
         </jar>
     </target>
 
