@@ -13,9 +13,15 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.swing.*;
 
+/**
+ * The panel containing details about call security.
+ *
+ * @author Werner Dittman
+ * @author Lubomir Marinov
+ * @author Yana Stamcheva
+ */
 public class SecurityPanel
     extends TransparentPanel
 {
@@ -30,6 +36,12 @@ public class SecurityPanel
 
     private final JLabel securityStringLabel = new JLabel();
 
+    /**
+     * Creates an instance of <tt>SecurityPanel</tt> by specifying the
+     * corresponding <tt>peer</tt>.
+     * @param peer the <tt>CallPeer</tt>, with which we established an
+     * encrypted call
+     */
     public SecurityPanel(CallPeer peer)
     {
         this.peer = peer;
@@ -49,6 +61,9 @@ public class SecurityPanel
         this.addComponentsToPane();
     }
 
+    /**
+     * Adds security related components to this panel.
+     */
     private void addComponentsToPane()
     {
         this.add(sasVerificationButton);
@@ -95,17 +110,23 @@ public class SecurityPanel
         });
     }
 
-    public void refreshStates(CallPeerSecurityOnEvent event)
+    /**
+     * Refreshes the state of the <tt>securityString</tt> and the
+     * <tt>isSecurityVerified</tt> corresponding components.
+     *
+     * @param securityString the security string
+     * @param isSecurityVerified indicates if the security string has been
+     * already verified
+     */
+    public void refreshStates(String securityString, boolean isSecurityVerified)
     {
-        String securityString = event.getSecurityString();
-
         if (securityString != null)
         {
             securityStringLabel.setText(securityString);
         }
 
         sasVerificationButton
-            .setImage(event.isSecurityVerified() ? iconEncrVerified : iconEncr);
+            .setImage(isSecurityVerified ? iconEncrVerified : iconEncr);
 
         revalidate();
         repaint();

@@ -59,7 +59,10 @@ public class OperationSetTelephonyConferencingGibberishImpl
 
     /**
      * Creates a conference call with the given list of <tt>callees</tt>
-     * @param callees the list of callees to invite in the call
+     * @param callees the list of <tt>callees</tt> to invite in the call
+     * @return the created call
+     * @throws OperationNotSupportedException indicates that the operation is
+     * not supported for the given <tt>callees</tt>.
      */
     public Call createConfCall(String[] callees)
         throws OperationNotSupportedException
@@ -86,6 +89,9 @@ public class OperationSetTelephonyConferencingGibberishImpl
      * Invites the given <tt>callee</tt> to the given <tt>existingCall</tt>.
      * @param callee the address of the callee to invite
      * @param existingCall the call, to which she will be invited
+     * @return the <tt>CallPeer</tt> corresponding  to the invited
+     * <tt>callee</tt>
+     * @throws OperationNotSupportedException if the operation is not supported
      */
     public CallPeer inviteCalleeToCall(String callee, Call existingCall)
         throws OperationNotSupportedException
@@ -100,13 +106,9 @@ public class OperationSetTelephonyConferencingGibberishImpl
         return callPeer;
     }
 
-    public void callPeerAdded(CallPeerEvent evt)
-    {
-    }
+    public void callPeerAdded(CallPeerEvent evt) {}
 
-    public void callPeerRemoved(CallPeerEvent evt)
-    {
-    }
+    public void callPeerRemoved(CallPeerEvent evt) {}
 
     public void callStateChanged(CallChangeEvent evt)
     {

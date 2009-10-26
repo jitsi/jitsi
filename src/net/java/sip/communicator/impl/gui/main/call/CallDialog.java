@@ -286,47 +286,63 @@ public class CallDialog
     }
 
     /**
-     * Returns <code>true</code> if the hold button is selected,
-     * <code>false</code> - otherwise.
-     *
-     * @return  <code>true</code> if the hold button is selected,
-     * <code>false</code> - otherwise.
+     * Updates the state of the general hold button. The hold button is selected
+     * only if all call peers are locally or mutually on hold at the same time.
+     * In all other cases the hold button is unselected.
      */
-    public boolean isHoldButtonSelected()
+    public void updateHoldButtonState()
     {
-        return holdButton.isSelected();
+        Iterator<? extends CallPeer> peers = call.getCallPeers();
+
+        boolean isAllLocallyOnHold = true;
+        while (peers.hasNext())
+        {
+            CallPeer peer = peers.next();
+
+            CallPeerState state = peer.getState();
+
+            // If we have clicked the hold button in a full screen mode
+            // we need to update the state of the call dialog hold button.
+            if (!state.equals(CallPeerState.ON_HOLD_LOCALLY)
+                && !state.equals(CallPeerState.ON_HOLD_MUTUALLY))
+            {
+                isAllLocallyOnHold = false;
+                break;
+            }
+        }
+
+        // If we have clicked the hold button in a full screen mode or selected
+        // hold of the peer menu in a conference call we need to update the
+        // state of the call dialog hold button.
+        this.holdButton.setSelected(isAllLocallyOnHold);
     }
 
     /**
-     * Selects or unselects the hold button in this call dialog.
-     *
-     * @param isSelected indicates if the hold button should be selected or not
+     * Updates the state of the general mute button. The mute buttons is
+     * selected only if all call peers are muted at the same time. In all other
+     * cases the mute button is unselected.
      */
-    public void setHoldButtonSelected(boolean isSelected)
+    public void updateMuteButtonState()
     {
-        this.holdButton.setSelected(true);
-    }
+        // Check if all the call peers are muted and change the state of
+        // the button.
+        Iterator<? extends CallPeer> callPeers = call.getCallPeers();
 
-    /**
-     * Returns <code>true</code> if the mute button is selected,
-     * <code>false</code> - otherwise.
-     *
-     * @return  <code>true</code> if the mute button is selected,
-     * <code>false</code> - otherwise.
-     */
-    public boolean isMuteButtonSelected()
-    {
-        return muteButton.isSelected();
-    }
+        boolean isAllMute = true;
+        while(callPeers.hasNext())
+        {
+            CallPeer callPeer = callPeers.next();
+            if (!callPeer.isMute())
+            {
+                isAllMute = false;
+                break;
+            }
+        }
 
-    /**
-     * Selects or unselects the mute button in this call dialog.
-     *
-     * @param isSelected indicates if the mute button should be selected or not
-     */
-    public void setMuteButtonSelected(boolean isSelected)
-    {
-        this.muteButton.setSelected(true);
+        // If we have clicked the mute button in a full screen mode or selected
+        // mute of the peer menu in a conference call we need to update the
+        // state of the call dialog hold button.
+        muteButton.setSelected(isAllMute);
     }
 
     /**
@@ -389,11 +405,9 @@ public class CallDialog
                             .addCallPeerPanel(onlyCallPeer);
                 }
             }
-        }
-        if (contentPane.isVisible())
-        {
-            contentPane.validate();
-            contentPane.repaint();
+
+            if (contentPane.isVisible())
+                pack();
         }
     }
 
@@ -527,7 +541,7 @@ public class CallDialog
         {
             if (isLastConference)
             {
-                if (call.getCallPeerCount() > 2)
+                if (call.getCallPeerCount() > 1)
                 {
                     ((ConferenceCallPanel) callPanel)
                         .removeCallPeerPanel(peer);
@@ -547,10 +561,7 @@ public class CallDialog
                 }
 
                 if (contentPane.isVisible())
-                {
-                    contentPane.validate();
-                    contentPane.repaint();
-                }
+                    pack();
             }
             else
             {

@@ -12,7 +12,6 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -23,8 +22,7 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class SoundLevelIndicator
     extends TransparentPanel
-    implements  CallPeerSoundLevelListener,
-                ComponentListener
+    implements ComponentListener
 {
     /**
      * Image when a sound level block is active
@@ -44,10 +42,25 @@ public class SoundLevelIndicator
     private boolean isComponentListenerAdded = false;
 
     /**
-     * Constructor
+     * The minimum possible sound level.
      */
-    public SoundLevelIndicator()
+    private final int minSoundLevel;
+
+    /**
+     * The maximum possible sound level.
+     */
+    private final int maxSoundLevel;
+
+    /**
+     * Constructor
+     * @param minSoundLevel the minimum possible sound level
+     * @param maxSoundLevel the maximum possible sound level
+     */
+    public SoundLevelIndicator(int minSoundLevel, int maxSoundLevel)
     {
+        this.minSoundLevel = minSoundLevel;
+        this.maxSoundLevel = maxSoundLevel;
+
         soundLevelActiveImage = new ImageIcon(
             ImageLoader.getImage(ImageLoader.SOUND_LEVEL_ACTIVE));
         soundLevelInactiveImage = new ImageIcon(
@@ -78,6 +91,9 @@ public class SoundLevelIndicator
         });
     }
 
+    /**
+     * Initializes sound bars.
+     */
     private void initSoundBars()
     {
         for (int i = 0; i < soundBarNumber; i++)
@@ -88,30 +104,26 @@ public class SoundLevelIndicator
     }
 
     /**
-     * TODO: Integrate sound level interfaces and listeners.
-     * 
-     * Implemented method of PeerSoundLevelListener
+     * Update the sound level indicator component to fit the given values.
      *
-     * @param evt The event fired
+     * @param soundLevel the sound level to show
      */
-    public void peerSoundLevelChanged(CallPeerSoundLevelEvent evt) 
+    public void updateSoundLevel(int soundLevel)
     {
-        this.updateSoundLevel(evt.getSoundLevel());
-    }
+        int range = 1;
+        // Check if the given range values are correct.
+        if (maxSoundLevel > -1 && minSoundLevel > -1
+                && maxSoundLevel >= minSoundLevel)
+            range = maxSoundLevel - minSoundLevel;
 
-    /**
-     * Update the UI when received a sound level
-     *
-     * @param soundLevel The sound level received
-     */
-    private void updateSoundLevel(int soundLevel)
-    {
+        int activeBarNumber = soundLevel*soundBarNumber/range;
+
         for (int i = 0; i < getComponentCount(); i++)
         {
             Component c = getComponent(i);
             if (c instanceof JLabel)
             {
-                if (i <= (soundLevel))
+                if (i <= activeBarNumber)
                     ((JLabel) c).setIcon(soundLevelActiveImage);
                 else
                     ((JLabel) c).setIcon(soundLevelInactiveImage);

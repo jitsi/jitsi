@@ -12,7 +12,6 @@ import java.util.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -20,7 +19,7 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
- * The <tt>CallPeerPanel</tt> is the panel containing data for a call
+ * The <tt>OneToOneCallPeerPanel</tt> is the panel containing data for a call
  * peer in a given call. It contains information like call peer
  * name, photo, call duration, etc.
  *
@@ -28,24 +27,72 @@ import net.java.sip.communicator.util.swing.*;
  * @author Lubomir Marinov
  */
 public class OneToOneCallPeerPanel
-    extends ParentCallPeerPanel
+    extends TransparentPanel
+    implements CallPeerRenderer
 {
     private static final Logger logger
         = Logger.getLogger(OneToOneCallPeerPanel.class);
 
+    private CallPeerAdapter callPeerAdapter;
+
+    /**
+     * The component showing the name of the underlying call peer.
+     */
+    private final JLabel nameLabel = new JLabel("", JLabel.CENTER);
+
+    /**
+     * The component showing the status of the underlying call peer.
+     */
+    private final JLabel callStatusLabel = new JLabel();
+
+    /**
+     * The security status of the peer
+     */
+    private SecurityStatusLabel securityStatusLabel = new SecurityStatusLabel();
+
+    /**
+     * The label showing whether the voice has been set to mute.
+     */
+    private final JLabel muteStatusLabel = new JLabel();
+
+    /**
+     * The label showing whether the call is on or off hold.
+     */
+    private final JLabel holdStatusLabel = new JLabel();
+
+    /**
+     * The component showing the avatar of the underlying call peer.
+     */
     private final JLabel photoLabel
         = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.DEFAULT_USER_PHOTO)));
 
+    private SecurityPanel securityPanel;
+
+    /**
+     * The name of the peer.
+     */
     private final String peerName;
 
-    private final CallPeer callPeer;
-
+    /**
+     * The list containing all video containers.
+     */
     private final java.util.List<Container> videoContainers =
         new ArrayList<Container>();
 
+    /**
+     * The operation set through which we do all video operations.
+     */
     private OperationSetVideoTelephony videoTelephony;
 
+    /**
+     * The parent dialog, where this panel is contained.
+     */
+    private final CallDialog callDialog;
+
+    /**
+     * The component showing the local video.
+     */
     private Component localVideo;
 
     /**
@@ -56,24 +103,20 @@ public class OneToOneCallPeerPanel
      */
     private Window fullScreenWindow;
 
+    private CallPeer callPeer;
+
     /**
      * Creates a <tt>CallPeerPanel</tt> for the given call peer.
      *
      * @param callDialog the parent dialog containing this call peer panel
-     * @param callPeer a call peer
+     * @param callPeer the <tt>CallPeer</tt> represented in this panel
      */
     public OneToOneCallPeerPanel(   CallDialog callDialog,
                                     CallPeer callPeer)
     {
-        super(callDialog, callPeer);
-
+        this.callDialog = callDialog;
         this.callPeer = callPeer;
         this.peerName = callPeer.getDisplayName();
-
-        // Add all CallPeer related listeners.
-        callPeer.addCallPeerListener(this);
-        callPeer.addPropertyChangeListener(this);
-        callPeer.addCallPeerSecurityListener(this);
 
         /* Create the main Components of the UI. */
         nameLabel.setText(peerName);
@@ -126,22 +169,6 @@ public class OneToOneCallPeerPanel
         }
 
         addVideoListener();
-    }
-
-    private Component createButtonBar(  boolean heavyweight,
-                                        Component[] buttons)
-    {
-        Container buttonBar
-            = heavyweight ? new Container() : new TransparentPanel();
-
-        buttonBar.setLayout(new FlowLayout(FlowLayout.CENTER, 3, 3));
-
-        for (Component button : buttons)
-        {
-            if (button != null)
-                buttonBar.add(button);
-        }
-        return buttonBar;
     }
 
     /**
@@ -231,6 +258,7 @@ public class OneToOneCallPeerPanel
                 new FlowLayout(FlowLayout.CENTER, 5, 0));
 
         statusIconsPanel.add(securityStatusLabel);
+        statusIconsPanel.add(holdStatusLabel);
         statusIconsPanel.add(muteStatusLabel);
         statusIconsPanel.add(callStatusLabel);
 
@@ -239,11 +267,12 @@ public class OneToOneCallPeerPanel
         Component[] buttons =
             new Component[]
             {
-                createTransferCallButton(),
-                createEnterFullScreenButton()
+                CallPeerRendererUtils.createTransferCallButton(callPeer),
+                CallPeerRendererUtils.createEnterFullScreenButton(this)
             };
 
-        Component buttonBar = createButtonBar(false, buttons);
+        Component buttonBar
+            = CallPeerRendererUtils.createButtonBar(false, buttons);
 
         statusPanel.add(buttonBar);
 
@@ -282,6 +311,8 @@ public class OneToOneCallPeerPanel
      * is represented by a <code>Component</code> and it cannot be displayed in
      * multiple <code>Container</code>s at one and the same time) as soon as it
      * arrives.
+     * @return the video telephony operation set, where the vide listener was
+     * added
      */
     private OperationSetVideoTelephony addVideoListener()
     {
@@ -497,7 +528,8 @@ public class OneToOneCallPeerPanel
 
                 // REMOTE
                 Component[] videos =
-                    videoTelephony.getVisualComponents(callPeer);
+                    videoTelephony
+                        .getVisualComponents(callPeer);
 
                 Component video =
                     ((videos == null) || (videos.length < 1)) ? null
@@ -561,52 +593,9 @@ public class OneToOneCallPeerPanel
         return peerName;
     }
 
-    private Component createEnterFullScreenButton()
-    {
-        SIPCommButton button =
-            new SIPCommButton(ImageLoader
-                .getImage(ImageLoader.ENTER_FULL_SCREEN_BUTTON));
-
-        button.setToolTipText(GuiActivator.getResources().getI18NString(
-            "service.gui.ENTER_FULL_SCREEN_TOOL_TIP"));
-        button.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent event)
-            {
-                enterFullScreen();
-            }
-        });
-        return button;
-    }
-
-    private Component createExitFullScreenButton()
-    {
-        JButton button =
-            new SIPCommButton(
-                ImageLoader.getImage(ImageLoader.FULL_SCREEN_BUTTON_BG),
-                ImageLoader.getImage(ImageLoader.EXIT_FULL_SCREEN_BUTTON));
-
-        button.setToolTipText(GuiActivator.getResources().getI18NString(
-            "service.gui.EXIT_FULL_SCREEN_TOOL_TIP"));
-        button.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent event)
-            {
-                Object source = event.getSource();
-                Frame fullScreenFrame =
-                    (source instanceof Component) ? TransferCallButton
-                        .getFrame((Component) source) : null;
-
-                exitFullScreen(fullScreenFrame);
-            }
-        });
-        return button;
-    }
-
     private Component createFullScreenButtonBar()
     {
-        CallPeerState peerState
-            = callPeer.getState();
+        CallPeerState peerState = callPeer.getState();
 
         Component[] buttons =
             new Component[]
@@ -616,14 +605,19 @@ public class OneToOneCallPeerPanel
                 new MuteButton( callPeer.getCall(),
                                 true,
                                 callPeer.isMute()),
-                createExitFullScreenButton() };
+                CallPeerRendererUtils.createExitFullScreenButton(this) };
 
-        Component fullScreenButtonBar = createButtonBar(true, buttons);
+        Component fullScreenButtonBar
+            = CallPeerRendererUtils.createButtonBar(true, buttons);
 
         return fullScreenButtonBar;
     }
 
-    private void enterFullScreen()
+    /**
+     * Enters full screen mode. Initializes all components for the full screen
+     * user interface.
+     */
+    public void enterFullScreen()
     {
         // Create the main Components of the UI.
         final JFrame frame = new JFrame();
@@ -645,7 +639,7 @@ public class OneToOneCallPeerPanel
         // Full-screen windows usually have black backgrounds.
         Color background = Color.black;
         contentPane.setBackground(background);
-        setBackground(center, background);
+        CallPeerRendererUtils.setBackground(center, background);
 
         class FullScreenListener
             implements ContainerListener, KeyListener, WindowStateListener
@@ -698,7 +692,7 @@ public class OneToOneCallPeerPanel
         FullScreenListener listener = new FullScreenListener();
 
         // Exit on Escape.
-        addKeyListener(frame, listener);
+        CallPeerRendererUtils.addKeyListener(frame, listener);
         // Activate the above features for the local and remote videos.
         if (center instanceof Container)
             ((Container) center).addContainerListener(listener);
@@ -709,7 +703,11 @@ public class OneToOneCallPeerPanel
         this.fullScreenWindow = frame;
     }
 
-    private void exitFullScreen(Window fullScreenWindow)
+    /**
+     * Exits the full screen mode.
+     * @param fullScreenWindow the window shown in the full screen mode
+     */
+    public void exitFullScreen(Window fullScreenWindow)
     {
         GraphicsConfiguration graphicsConfig = getGraphicsConfiguration();
         if (graphicsConfig != null)
@@ -723,28 +721,6 @@ public class OneToOneCallPeerPanel
 
             if (this.fullScreenWindow == fullScreenWindow)
                 this.fullScreenWindow = null;
-        }
-    }
-
-    private void setBackground(Component component, Color background)
-    {
-        component.setBackground(background);
-        if (component instanceof Container)
-        {
-            Component[] components = ((Container) component).getComponents();
-            for (Component c : components)
-                setBackground(c, background);
-        }
-    }
-
-    private void addKeyListener(Component component, KeyListener l)
-    {
-        component.addKeyListener(l);
-        if (component instanceof Container)
-        {
-            Component[] components = ((Container) component).getComponents();
-            for (Component c : components)
-                addKeyListener(c, l);
         }
     }
 
@@ -782,5 +758,171 @@ public class OneToOneCallPeerPanel
                 g.dispose();
             }
         }
+    }
+
+    /**
+     * Sets the name of the peer.
+     * @param name the name of the peer
+     */
+    public void setPeerName(String name)
+    {
+        this.nameLabel.setText(name);
+    }
+
+    /**
+     * Set the image of the peer
+     *
+     * @param peerImage new image
+     */
+    public void setPeerImage(ImageIcon peerImage)
+    {
+        this.photoLabel.setIcon(peerImage);
+    }
+
+    /**
+     * Sets the state of the contained call peer by specifying the
+     * state name and icon.
+     *
+     * @param state the state of the contained call peer
+     */
+    public void setPeerState(String state)
+    {
+        this.callStatusLabel.setText(state);
+    }
+
+    /**
+     * Sets the mute status icon to the status panel.
+     *
+     * @param isMute indicates if the call with this peer is
+     * muted
+     */
+    public void setMute(boolean isMute)
+    {
+        if(isMute)
+            muteStatusLabel.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.MUTE_STATUS_ICON)));
+        else
+            muteStatusLabel.setIcon(null);
+
+        this.revalidate();
+        this.repaint();
+    }
+
+    /**
+     * Sets the "on hold" property value.
+     * @param isOnHold indicates if the call with this peer is put on hold
+     */
+    public void setOnHold(boolean isOnHold)
+    {
+        if(isOnHold)
+            holdStatusLabel.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.HOLD_STATUS_ICON)));
+        else
+            holdStatusLabel.setIcon(null);
+
+        this.revalidate();
+        this.repaint();
+    }
+
+    /**
+     * Indicates that the security is turned on.
+     * <p>
+     * Sets the secured status icon to the status panel and initializes/updates
+     * the corresponding security details.
+     * @param securityString the security string
+     * @param isSecurityVerified indicates if the security string has been
+     * already verified by the underlying <tt>CallPeer</tt>
+     */
+    public void securityOn( String securityString,
+                            boolean isSecurityVerified)
+    {
+        securityStatusLabel.setIcon(new ImageIcon(ImageLoader
+            .getImage(ImageLoader.SECURE_BUTTON_ON)));
+
+        if (securityPanel == null)
+        {
+            SecurityPanel securityPanel = new SecurityPanel(callPeer);
+
+            GridBagConstraints constraints = new GridBagConstraints();
+
+            constraints.fill = GridBagConstraints.NONE;
+            constraints.gridx = 0;
+            constraints.gridy = 2;
+            constraints.weightx = 0;
+            constraints.weighty = 0;
+            constraints.insets = new Insets(5, 0, 0, 0);
+
+
+            this.add(securityPanel, constraints);
+        }
+
+        securityPanel.refreshStates(securityString, isSecurityVerified);
+
+        this.revalidate();
+    }
+
+    /**
+     * Indicates that the security has gone off.
+     */
+    public void securityOff()
+    {
+        securityStatusLabel.setIcon(new ImageIcon(ImageLoader
+            .getImage(ImageLoader.SECURE_BUTTON_OFF)));
+    }
+
+    /**
+     * Updates all related components to fit the new value.
+     * @param isAudioSecurityOn indicates if the audio security is turned on
+     * or off.
+     */
+    public void setAudioSecurityOn(boolean isAudioSecurityOn)
+    {
+        securityStatusLabel.setAudioSecurityOn(isAudioSecurityOn);
+    }
+
+    /**
+     * Updates all related components to fit the new value.
+     * @param encryptionCipher the encryption cipher to show
+     */
+    public void setEncryptionCipher(String encryptionCipher)
+    {
+        securityStatusLabel.setEncryptionCipher(encryptionCipher);
+    }
+
+    /**
+     * Updates all related components to fit the new value.
+     * @param isVideoSecurityOn indicates if the video security is turned on
+     * or off.
+     */
+    public void setVideoSecurityOn(boolean isVideoSecurityOn)
+    {
+        securityStatusLabel.setVideoSecurityOn(isVideoSecurityOn);
+    }
+
+    /**
+     * Sets the call peer adapter managing all related listeners.
+     * @param adapter the adapter to set
+     */
+    public void setCallPeerAdapter(CallPeerAdapter adapter)
+    {
+        this.callPeerAdapter = adapter;
+    }
+
+    /**
+     * Returns the call peer adapter managing all related listeners.
+     * @return the call peer adapter
+     */
+    public CallPeerAdapter getCallPeerAdapter()
+    {
+        return callPeerAdapter;
+    }
+
+    /**
+     * Returns the parent <tt>CallDialog</tt> containing this renderer.
+     * @return the parent <tt>CallDialog</tt> containing this renderer
+     */
+    public CallDialog getCallDialog()
+    {
+        return callDialog;
     }
 }

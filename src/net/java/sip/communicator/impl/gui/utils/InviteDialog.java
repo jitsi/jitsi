@@ -256,6 +256,7 @@ public class InviteDialog
      * Returns an enumeration of the list of selected contacts.
      * @return an enumeration of the list of selected contacts.
      */
+    @SuppressWarnings("unchecked") //We'd like to force the cast here.
     public Enumeration<MetaContact> getSelectedMetaContacts()
     {
         return (Enumeration<MetaContact>) selectedContactListModel.elements();
@@ -290,6 +291,8 @@ public class InviteDialog
 
     /**
      * Closes this dialog by clicking on the "Cancel" button.
+     * @param isEscaped indicates if this <tt>close</tt> is provoked by an
+     * escape
      */
     protected void close(boolean isEscaped)
     {

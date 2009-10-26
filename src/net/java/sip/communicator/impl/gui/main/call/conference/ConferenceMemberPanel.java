@@ -1,35 +1,30 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.gui.main.call.conference;
 
 import java.awt.*;
 
-import javax.swing.*;
-
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.main.call.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.*;
 
+/**
+ * The <tt>ConferenceMemberPanel</tt> renders <tt>ConferenceMember</tt> details.
+ *
+ * @author Yana Stamcheva
+ */
 public class ConferenceMemberPanel
-    extends TransparentPanel
+    extends BasicConferenceParticipantPanel
     implements PropertyChangeListener
 {
-    private final JLabel nameLabel = new JLabel();
-
     /**
-     * The image of the member.
+     * The underlying conference member.
      */
-    private ImageIcon memberImage;
-
-    /**
-     * The status of the peer
-     */
-    private final JLabel callStatusLabel = new JLabel();
-
     private final ConferenceMember member;
-
-    private final Color bgColor = new Color(222, 222, 222);
 
     /**
      * Creates a <tt><ConferenceMemberPanel</tt> by specifying the corresponding
@@ -40,140 +35,30 @@ public class ConferenceMemberPanel
     {
         this.member = member;
 
-        this.memberImage = new ImageIcon
-            (ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO)
-                .getScaledInstance(50, 50, Image.SCALE_SMOOTH));
+        this.setParticipantName(member.getDisplayName());
+        this.setParticipantState(member.getState().toString());
 
-        Component nameBar = createNameBar(member.getDisplayName());
-        Component soundLevelsIndicator = createSoundLevelIndicator();
-
-        JPanel titlePanel = new CallTitlePanel(
+        this.setTitleBackground(
             new Color(GuiActivator.getResources().getColor(
-                "service.gui.CALL_MEMBER_NAME_BACKGROUND")));
-        titlePanel.setLayout(new GridBagLayout());
-
-        this.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
-
-        TransparentPanel detailPanel = new TransparentPanel();
-        detailPanel.setLayout(new GridBagLayout());
-        detailPanel.setBackground(new Color(255, 255, 255));
-
-        this.setLayout(new GridBagLayout());
-
-        GridBagConstraints constraints = new GridBagConstraints();
-
-        if (nameBar != null)
-        {
-            constraints.fill = GridBagConstraints.BOTH;
-            constraints.gridx = 0;
-            constraints.gridy = 0;
-            constraints.weightx = 1;
-            constraints.weighty = 0;
-            constraints.insets = new Insets(2, 0, 2, 0);
-
-            titlePanel.add(nameBar, constraints);
-        }
-        // Add the image
-        if (memberImage != null)
-        {
-            constraints.fill = GridBagConstraints.NONE;
-            constraints.anchor = GridBagConstraints.LINE_START;
-            constraints.gridx = 0;
-            constraints.gridy = 0;
-            constraints.weightx = 0;
-            constraints.weighty = 0;
-            constraints.insets = new Insets(5, 10, 5, 0);
-
-            detailPanel.add(new JLabel(memberImage), constraints);
-        }
-        if (soundLevelsIndicator != null)
-        {
-            constraints.fill = GridBagConstraints.HORIZONTAL;
-            constraints.gridx = 1;
-            constraints.gridy = 0;
-            constraints.weightx = 1;
-            constraints.weighty = 0;
-            constraints.insets = new Insets(2, 20, 2, 20);
-
-            detailPanel.add(soundLevelsIndicator, constraints);
-        }
-
-        constraints.fill = GridBagConstraints.BOTH;
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        constraints.weightx = 1;
-        constraints.weighty = 0;
-        constraints.insets = new Insets(0, 0, 0, 0);
-
-        this.add(titlePanel, constraints);
-
-        constraints.fill = GridBagConstraints.BOTH;
-        constraints.gridx = 0;
-        constraints.gridy = 1;
-        constraints.weightx = 1;
-        constraints.weighty = 0;
-        constraints.insets = new Insets(0, 0, 0, 0);
-
-        this.add(detailPanel, constraints);
+            "service.gui.CALL_MEMBER_NAME_BACKGROUND")));
     }
 
     /**
-     * Create the name bar of the peer
-     *
-     * @return The name bar component
+     * Returns the underlying <tt>ConferenceMember</tt>.
+     * 
+     * @return the underlying <tt>ConferenceMember</tt>.
      */
-    private Component createNameBar(String memberName)
+    public ConferenceMember getConferenceMember()
     {
-        TransparentPanel namePanel = new TransparentPanel(new BorderLayout());
-        namePanel.setBorder(BorderFactory.createEmptyBorder(0,10,0,10));
-
-        nameLabel.setText(memberName);
-
-        namePanel.add(nameLabel, BorderLayout.WEST);
-
-        Component statusBar = createStatusBar();
-        namePanel.add(statusBar, BorderLayout.EAST);
-
-        return namePanel;
+        return member;
     }
 
     /**
-     * Create the sound level indicator of the peer
+     * Updates the name and the state of the conference member whenever notified
+     * of a change.
      *
-     * @return The sound level indicator component
-     */
-    private Component createSoundLevelIndicator()
-    {
-        SoundLevelIndicator indicator
-            = new SoundLevelIndicator();
-
-        member.addCallPeerSoundLevelListener(indicator);
-
-        return indicator;
-    }
-
-    /**
-     * Create the status bar of the peer
-     *
-     * @return The status bar component
-     */
-    private Component createStatusBar()
-    {
-        callStatusLabel.setText(member.getState().toString());
-
-        TransparentPanel statusPanel
-            = new TransparentPanel(
-                new FlowLayout(FlowLayout.RIGHT, 0, 0));
-
-        statusPanel.add(callStatusLabel);
-
-        return statusPanel;
-    }
-
-    /**
-     * Fired when a change in property happened
-     *
-     * @param evt fired PropertyChangeEvent
+     * @param evt the <tt>PropertyChangeEvent</tt> that notified us of the
+     * change
      */
     public void propertyChange(PropertyChangeEvent evt)
     {
@@ -183,7 +68,7 @@ public class ConferenceMemberPanel
         {
             String displayName = (String) evt.getNewValue();
 
-            nameLabel.setText(displayName);
+            this.setParticipantName(displayName);
 
             this.revalidate();
             this.repaint();
@@ -193,38 +78,11 @@ public class ConferenceMemberPanel
             ConferenceMemberState state
                 = (ConferenceMemberState) evt.getNewValue();
 
-            callStatusLabel.setText(state.toString());
+            this.setParticipantState(state.toString());
 
             this.revalidate();
             this.repaint();
         }
     }
 
-    /**
-     * Returns the contained in this panel <tt>ConferenceMember</tt>.
-     * 
-     * @return the contained in this panel <tt>ConferenceMember</tt>.
-     */
-    public ConferenceMember getConferenceMember()
-    {
-        return member;
-    }
-
-    public void paintComponent(Graphics g)
-    {
-        super.paintComponent(g);
-        g = g.create();
-
-        try
-        {
-            AntialiasingManager.activateAntialiasing(g);
-
-            g.setColor(bgColor);
-            g.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), 20, 20);
-        }
-        finally
-        {
-            g.dispose();
-        }
-    }
 }

@@ -62,6 +62,18 @@ public class OneToOneCallPanel
 
             this.add(peerPanel);
 
+            // Create an adapter which would manage all common call peer
+            // listeners.
+            CallPeerAdapter callPeerAdapter
+                = new CallPeerAdapter(peer, peerPanel);
+
+            peerPanel.setCallPeerAdapter(callPeerAdapter);
+
+            peer.addCallPeerListener(callPeerAdapter);
+            peer.addPropertyChangeListener(callPeerAdapter);
+            peer.addCallPeerSecurityListener(callPeerAdapter);
+
+            // Refresh the call panel if it's already visible.
             if (isVisible())
             {
                 this.revalidate();

@@ -76,9 +76,8 @@ public class CallManager
         {
             Call sourceCall = event.getSourceCall();
 
-            NotificationManager.stopSound(NotificationManager.BUSY_CALL);
-            NotificationManager.stopSound(NotificationManager.INCOMING_CALL);
-            NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);
+            // Stop all telephony related sounds.
+            stopAllSounds();
 
             if (activeCalls.get(sourceCall) != null)
             {
@@ -157,11 +156,23 @@ public class CallManager
     /**
      * Hang ups the given call.
      *
-     * @param call the call to answer
+     * @param call the call to hang up
      */
     public static void hangupCall(final Call call)
     {
         new HangupCallThread(call).start();
+    }
+
+    /**
+     * Hang ups the given <tt>callPeer</tt>.
+     *
+     * @param callPeer the <tt>CallPeer</tt> to hang up
+     */
+    public static void hangupCallPeer(final CallPeer callPeer)
+    {
+        stopAllSounds();
+
+        new HangupCallPeerThread(callPeer).start();
     }
 
     /**
@@ -212,6 +223,26 @@ public class CallManager
                                                 Call call)
     {
         new InviteToConferenceCallThread(callees, call).start();
+    }
+
+    /**
+     * Puts on or off hold the given <tt>callPeer</tt>.
+     * @param callPeer the peer to put on/off hold
+     * @param isOnHold indicates the action (on hold or off hold)
+     */
+    public static void putOnHold(CallPeer callPeer, boolean isOnHold)
+    {
+        new PutOnHoldCallPeerThread(callPeer, isOnHold).start();
+    }
+
+    /**
+     * Mutes the given <tt>callPeer</tt>.
+     * @param callPeer the peer to mute
+     * @param isMute indicates the action (disable or enable mute)
+     */
+    public static void mute(CallPeer callPeer, boolean isMute)
+    {
+        new MuteCallPeerThread(callPeer, isMute).start();
     }
 
     /**
@@ -472,10 +503,122 @@ public class CallManager
                 }
                 catch (OperationFailedException e)
                 {
-                    logger.error("Could not answer to : " + peer
+                    logger.error("Could not hang up : " + peer
                         + " caused by the following exception: " + e);
                 }
             }
         }
+    }
+
+    /**
+     * Hang-ups the given <tt>CallPeer</tt>.
+     */
+    private static class HangupCallPeerThread
+        extends Thread
+    {
+        private final CallPeer callPeer;
+
+        public HangupCallPeerThread(CallPeer callPeer)
+        {
+            this.callPeer = callPeer;
+        }
+
+        public void run()
+        {
+            ProtocolProviderService pps = callPeer.getProtocolProvider();
+
+            OperationSetBasicTelephony telephony =
+                (OperationSetBasicTelephony) pps
+                    .getOperationSet(OperationSetBasicTelephony.class);
+
+            try
+            {
+                telephony.hangupCallPeer(callPeer);
+            }
+            catch (OperationFailedException e)
+            {
+                logger.error("Could not hang up : " + callPeer
+                    + " caused by the following exception: " + e);
+            }
+        }
+    }
+
+    /**
+     * Puts on hold the given <tt>CallPeer</tt>.
+     */
+    private static class PutOnHoldCallPeerThread
+        extends Thread
+    {
+        private final CallPeer callPeer;
+
+        private final boolean isOnHold;
+
+        public PutOnHoldCallPeerThread(CallPeer callPeer, boolean isOnHold)
+        {
+            this.callPeer = callPeer;
+            this.isOnHold = isOnHold;
+        }
+
+        public void run()
+        {
+            OperationSetBasicTelephony telephony =
+                (OperationSetBasicTelephony) callPeer.getProtocolProvider()
+                    .getOperationSet(OperationSetBasicTelephony.class);
+
+            try
+            {
+                if (isOnHold)
+                    telephony.putOnHold(callPeer);
+                else
+                    telephony.putOffHold(callPeer);
+            }
+            catch (OperationFailedException ex)
+            {
+                String callPeerAddress = callPeer.getAddress();
+
+                if (isOnHold)
+                    logger.error("Failed to put"
+                        + callPeerAddress + " on hold.", ex);
+                else
+                    logger.error("Failed to put"
+                        + callPeerAddress + " off hold.", ex);
+            }
+        }
+    }
+
+    /**
+     * Mutes the given <tt>CallPeer</tt>.
+     */
+    private static class MuteCallPeerThread
+        extends Thread
+    {
+        private final CallPeer callPeer;
+
+        private final boolean isMute;
+
+        public MuteCallPeerThread(CallPeer callPeer, boolean isMute)
+        {
+            this.callPeer = callPeer;
+            this.isMute = isMute;
+        }
+
+        public void run()
+        {
+            OperationSetBasicTelephony telephony =
+                (OperationSetBasicTelephony) callPeer.getProtocolProvider()
+                    .getOperationSet(OperationSetBasicTelephony.class);
+
+            telephony.setMute(callPeer, isMute);
+        }
+    }
+
+    /**
+     * Stops all telephony related sounds.
+     */
+    private static void stopAllSounds()
+    {
+        NotificationManager.stopSound(NotificationManager.BUSY_CALL);
+        NotificationManager.stopSound(NotificationManager.INCOMING_CALL);
+        NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);
     }
 }

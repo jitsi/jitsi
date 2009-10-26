@@ -248,12 +248,4 @@ public class CallPeerJabberImpl
 
         return opSetPresence.findContactByID(getAddress());
     }
-
-    public void addCallPeerSoundLevelListener(
-        CallPeerSoundLevelListener listener)
-    {}
-
-    public void removeCallPeerSoundLevelListener(
-        CallPeerSoundLevelListener listener)
-    {}
 }

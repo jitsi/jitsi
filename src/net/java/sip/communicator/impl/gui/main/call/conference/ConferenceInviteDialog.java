@@ -198,6 +198,8 @@ public class ConferenceInviteDialog
     /**
      * Initializes the left contact list with the contacts that could be added
      * to the current chat session.
+     * @param protocolProvider the protocol provider from which to initialize
+     * the contact list data
      */
     private void initContactListData(ProtocolProviderService protocolProvider)
     {

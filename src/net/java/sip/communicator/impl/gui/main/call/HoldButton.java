@@ -20,13 +20,17 @@ import net.java.sip.communicator.util.swing.*;
  * hold.
  *
  * @author Lubomir Marinov
+ * @author Yana Stamcheva
  */
 public class HoldButton
     extends SIPCommToggleButton
+    implements ActionListener
 {
     private static final long serialVersionUID = 0L;
 
     private static final Logger logger = Logger.getLogger(HoldButton.class);
+
+    private final Call call;
 
     /**
      * Initializes a new <tt>HoldButton</tt> instance which is to put a specific
@@ -57,6 +61,8 @@ public class HoldButton
                         boolean isFullScreenMode,
                         boolean isSelected)
     {
+        this.call = call;
+
         if (isFullScreenMode)
         {
             this.setBgImage(
@@ -80,71 +86,47 @@ public class HoldButton
                 ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_PRESSED_BG));
         }
 
-        setModel(new HoldButtonModel(call));
+        this.addActionListener(this);
         setToolTipText(GuiActivator.getResources().getI18NString(
             "service.gui.HOLD_BUTTON_TOOL_TIP"));
         setSelected(isSelected);
     }
 
     /**
-     * Represents the model of a toggle button that puts an associated
-     * <tt>CallPeer</tt> on/off hold.
+     * Holds on or off call peers when the hold button is clicked.
+     * @param evt the <tt>ActionEvent</tt> that notified us of the action
      */
-    private static class HoldButtonModel
-        extends ToggleButtonModel
-        implements ActionListener
+    public void actionPerformed(ActionEvent evt)
     {
-
-        /**
-         * The <tt>CallPeer</tt> whose state is being adapted for the
-         * purposes of depicting as a toggle button.
-         */
-        private final Call call;
-
-        /**
-         * Initializes a new <tt>HoldButtonModel</tt> instance to represent
-         * the state of a specific <tt>CallPeer</tt> as a toggle
-         * button.
-         *
-         * @param call
-         *            the <tt>Call</tt> whose state is to be
-         *            represented as a toggle button
-         */
-        public HoldButtonModel(Call call)
+        if (call != null)
         {
-            this.call = call;
+            OperationSetBasicTelephony telephony =
+                call.getProtocolProvider()
+                    .getOperationSet(OperationSetBasicTelephony.class);
 
-            addActionListener(this);
-        }
+            Iterator<? extends CallPeer> peers = call.getCallPeers();
 
-        public void actionPerformed(ActionEvent evt)
-        {
-            if (call != null)
+            // Obtain the isSelected property before invoking putOnHold,
+            // because the property could change after putting on/off hold.
+            boolean isHoldSelected = isSelected();
+
+            while (peers.hasNext())
             {
-                OperationSetBasicTelephony telephony =
-                    call.getProtocolProvider()
-                        .getOperationSet(OperationSetBasicTelephony.class);
+                CallPeer callPeer = peers.next();
 
-                Iterator<? extends CallPeer> peers = call.getCallPeers();
-
-                while (peers.hasNext())
+                try
                 {
-                    CallPeer callPeer = peers.next();
-
-                    try
-                    {
-                        if (isSelected())
-                            telephony.putOnHold(callPeer);
-                        else
-                            telephony.putOffHold(callPeer);
-                    }
-                    catch (OperationFailedException ex)
-                    {
-                        if (isSelected())
-                            logger.error("Failed to put on hold.", ex);
-                        else
-                            logger.error("Failed to put off hold.", ex);
-                    }
+                    if (isHoldSelected)
+                        telephony.putOnHold(callPeer);
+                    else
+                        telephony.putOffHold(callPeer);
+                }
+                catch (OperationFailedException ex)
+                {
+                    if (isHoldSelected)
+                        logger.error("Failed to put on hold.", ex);
+                    else
+                        logger.error("Failed to put off hold.", ex);
                 }
             }
         }

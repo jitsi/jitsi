@@ -19,6 +19,7 @@ import net.java.sip.communicator.util.*;
  *
  * @author Emil Ivov
  * @author Lubomir Marinov
+ * @author Yana Stamcheva
  */
 public abstract class AbstractCallPeer
     extends PropertyChangeNotifier
@@ -48,6 +49,21 @@ public abstract class AbstractCallPeer
     protected final List<CallPeerSecurityListener>
         callPeerSecurityListeners
             = new ArrayList<CallPeerSecurityListener>();
+
+    /**
+     * The <tt>StreamSoundLevelListener</tt>-s registered to get
+     * <tt>StreamSoundLevelEvent</tt>-s.
+     */
+    private final List<StreamSoundLevelListener> streamSoundLevelListeners
+        = new ArrayList<StreamSoundLevelListener>();
+
+    /**
+     * The <tt>ConferenceMembersSoundLevelListener</tt>-s registered to get
+     * <tt>ConferenceMembersSoundLevelEvent</tt>-s.
+     */
+    private final List<ConferenceMembersSoundLevelListener>
+        membersSoundLevelListeners
+            = new ArrayList<ConferenceMembersSoundLevelListener>();
 
     /**
      * The indicator which determines whether this peer is acting as a
@@ -81,7 +97,7 @@ public abstract class AbstractCallPeer
 
     private long callDurationStartTime = CALL_DURATION_START_TIME_UNKNOWN;
 
-    private boolean isMute;
+    private boolean isMute = false;
 
     /**
      * Registers the <tt>listener</tt> to the list of listeners that would be
@@ -436,7 +452,7 @@ public abstract class AbstractCallPeer
      */
     public boolean isMute()
     {
-        return false;
+        return isMute;
     }
 
     /**
@@ -478,10 +494,11 @@ public abstract class AbstractCallPeer
         }
     }
 
-    /*
-     * Implements CallPeer#getConferenceMembers(). In order to reduce
+    /**
+     * Implements <tt>CallPeer#getConferenceMembers()</tt>. In order to reduce
      * allocations, returns #NO_CONFERENCE_MEMBERS if #conferenceMembers
      * contains no ConferenceMember instances.
+     * @return an array of the conference members
      */
     public ConferenceMember[] getConferenceMembers()
     {
@@ -502,8 +519,11 @@ public abstract class AbstractCallPeer
         return conferenceMembers;
     }
 
-    /*
-     * Implements CallPeer#getConferenceMemberCount().
+    /**
+     * Returns the count of the members contained in this peer.
+     * <p>
+     * Implements <tt>CallPeer#getConferenceMemberCount()</tt>.
+     * @return the count of the members contained in this peer
      */
     public int getConferenceMemberCount()
     {
@@ -572,11 +592,12 @@ public abstract class AbstractCallPeer
                     conferenceMember));
     }
 
-    /*
+    /**
      * ImplementsCallPeer#addCallPeerConferenceListener(
      * CallPeerConferenceListener). In the fashion of the addition of the
      * other listeners, does not throw an exception on attempting to add a null
      * listeners and just ignores the call.
+     * @param listener the <tt>CallPeerConferenceListener</tt> to add
      */
     public void addCallPeerConferenceListener(
         CallPeerConferenceListener listener)
@@ -589,9 +610,10 @@ public abstract class AbstractCallPeer
             }
     }
 
-    /*
+    /**
      * Implements CallPeer#removeCallPeerConferenceListener(
      * CallPeerConferenceListener).
+     * @param listener the <tt>CallPeerConferenceListener</tt> to remove
      */
     public void removeCallPeerConferenceListener(
         CallPeerConferenceListener listener)
@@ -600,6 +622,74 @@ public abstract class AbstractCallPeer
             synchronized (callPeerConferenceListeners)
             {
                 callPeerConferenceListeners.remove(listener);
+            }
+    }
+
+    /**
+     * Adds a specific <tt>StreamSoundLevelListener</tt> to the list of
+     * listeners interested in and notified about changes in stream sound level
+     * related information.
+     * 
+     * @param listener the <tt>StreamSoundLevelListener</tt> to add
+     */
+    public void addStreamSoundLevelListener(StreamSoundLevelListener listener)
+    {
+        if (listener != null)
+            synchronized (streamSoundLevelListeners)
+            {
+                streamSoundLevelListeners.add(listener);
+            }
+    }
+
+    /**
+     * Removes a specific <tt>StreamSoundLevelListener</tt> of the list of
+     * listeners interested in and notified about changes in stream sound level
+     * related information.
+     * 
+     * @param listener the <tt>StreamSoundLevelListener</tt> to remove
+     */
+    public void removeStreamSoundLevelListener(
+        StreamSoundLevelListener listener)
+    {
+        if (listener != null)
+            synchronized (streamSoundLevelListeners)
+            {
+                streamSoundLevelListeners.remove(listener);
+            }
+    }
+
+    /**
+     * Adds a specific <tt>ConferenceMembersSoundLevelListener</tt> to the list
+     * of listeners interested in and notified about changes in conference
+     * members sound level.
+     * 
+     * @param listener the <tt>ConferenceMembersSoundLevelListener</tt> to add
+     */
+    public void addConferenceMembersSoundLevelListener(
+        ConferenceMembersSoundLevelListener listener)
+    {
+        if (listener != null)
+            synchronized (membersSoundLevelListeners)
+            {
+                membersSoundLevelListeners.add(listener);
+            }
+    }
+
+    /**
+     * Removes a specific <tt>ConferenceMembersSoundLevelListener</tt> of the
+     * list of listeners interested in and notified about changes in conference
+     * members sound level.
+     * 
+     * @param listener the <tt>ConferenceMembersSoundLevelListener</tt> to
+     * remove
+     */
+    public void removeConferenceMembersSoundLevelListener(
+        ConferenceMembersSoundLevelListener listener)
+    {
+        if (listener != null)
+            synchronized (membersSoundLevelListeners)
+            {
+                membersSoundLevelListeners.remove(listener);
             }
     }
 
@@ -641,5 +731,57 @@ public abstract class AbstractCallPeer
                 listener.conferenceMemberRemoved(conferenceEvent);
                 break;
             }
+    }
+
+    /**
+     * Fires a <tt>StreamSoundLevelEvent</tt> and notifies all registered
+     * listeners.
+     *
+     * @param level the new sound level
+     */
+    public void fireStreamSoundLevelEvent(int level)
+    {
+        StreamSoundLevelEvent event
+            = new StreamSoundLevelEvent(this, level);
+
+        StreamSoundLevelListener[] listeners;
+
+        synchronized(streamSoundLevelListeners)
+        {
+            listeners = streamSoundLevelListeners.toArray(
+                new StreamSoundLevelListener[streamSoundLevelListeners.size()]);
+        }
+
+        for (StreamSoundLevelListener listener : listeners)
+        {
+            listener.streamSoundLevelChanged(event);
+        }
+    }
+
+    /**
+     * Fires a <tt>ConferenceMembersSoundLevelListener</tt> and notifies all
+     * registered listeners.
+     *
+     * @param levels the new conference members sound levels
+     */
+    public void fireConferenceMembersSoundLevelEvent(
+        Map<ConferenceMember, Integer> levels)
+    {
+        ConferenceMembersSoundLevelEvent event
+            = new ConferenceMembersSoundLevelEvent(this, levels);
+
+        ConferenceMembersSoundLevelListener[] listeners;
+
+        synchronized(membersSoundLevelListeners)
+        {
+            listeners = membersSoundLevelListeners.toArray(
+                new ConferenceMembersSoundLevelListener
+                        [membersSoundLevelListeners.size()]);
+        }
+
+        for (ConferenceMembersSoundLevelListener listener : listeners)
+        {
+            listener.membersSoundLevelChanged(event);
+        }
     }
 }

@@ -116,12 +116,4 @@ public class MockCallPeer
     {
         return this.call.getProtocolProvider();
     }
-
-    public void addCallPeerSoundLevelListener(
-        CallPeerSoundLevelListener listener)
-    {}
-
-    public void removeCallPeerSoundLevelListener(
-        CallPeerSoundLevelListener listener)
-    {}
 }

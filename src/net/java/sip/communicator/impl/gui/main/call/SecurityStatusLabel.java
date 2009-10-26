@@ -11,26 +11,45 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 
 /**
+ * The <tt>SecurityStatusLabel</tt> is meant to be used to visualize the audio
+ * and video security details in a call.
+ *
  * @author Yana Stamcheva
  */
 public class SecurityStatusLabel
     extends JLabel
 {
-    private final ParentCallPeerPanel callPeerRenderer;
+    /**
+     * Indicates the state of the audio security (on or off).
+     */
+    private boolean isAudioSecurityOn = false;
 
-    public SecurityStatusLabel( ParentCallPeerPanel callPeerRenderer,
-                                Icon icon,
-                                int alignment)
+    /**
+     * Indicates the state of the video security (on or off).
+     */
+    private boolean isVideoSecurityOn = false;
+
+    /**
+     * The encryption cipher.
+     */
+    private String encryptionCipher;
+
+    /**
+     * Creates an instance of <tt>SecurityStatusLabel</tt> by specifying the
+     * <tt>GuiCallPeer</tt>, the icon and the alignment to use for the label.
+     */
+    public SecurityStatusLabel()
     {
-        super(icon, alignment);
-
-        this.callPeerRenderer = callPeerRenderer;
+        this.setIcon(new ImageIcon(
+            ImageLoader.getImage(ImageLoader.SECURE_BUTTON_OFF)));
+        this.setHorizontalAlignment(JLabel.CENTER);
 
         this.setToolTipText("Security status");
     }
 
     /**
-     * Create tooltip.
+     * Create an extended tooltip showing some more security details.
+     * @return the created tooltip
      */
     public JToolTip createToolTip()
     {
@@ -40,7 +59,7 @@ public class SecurityStatusLabel
 
         ImageIcon audioStatusIcon;
         String audioStatusString;
-        if (callPeerRenderer.isAudioSecurityOn())
+        if (isAudioSecurityOn)
         {
             audioStatusIcon = new ImageIcon(
                 ImageLoader.getImage(ImageLoader.SECURE_AUDIO_ON));
@@ -55,7 +74,7 @@ public class SecurityStatusLabel
 
         ImageIcon videoStatusIcon;
         String videoStatusString;
-        if (callPeerRenderer.isVideoSecurityOn())
+        if (isVideoSecurityOn)
         {
             videoStatusIcon = new ImageIcon(
                 ImageLoader.getImage(ImageLoader.SECURE_VIDEO_ON));
@@ -68,7 +87,7 @@ public class SecurityStatusLabel
             videoStatusString = "Video security off.";
         }
 
-        String cipher = "Cipher: " + callPeerRenderer.getEncryptionCipher();
+        String cipher = "Cipher: " + encryptionCipher;
 
         tip.addLine(audioStatusIcon,
                     audioStatusString);
@@ -81,5 +100,38 @@ public class SecurityStatusLabel
         tip.setComponent(this);
 
         return tip;
+    }
+
+    /**
+     * Sets the audio security on or off.
+     *
+     * @param isAudioSecurityOn indicates if the audio security is turned on or
+     * off.
+     */
+    public void setAudioSecurityOn(boolean isAudioSecurityOn)
+    {
+        this.isAudioSecurityOn = isAudioSecurityOn;
+    }
+
+    /**
+     * Sets the video security on or off.
+     *
+     * @param isVideoSecurityOn indicates if the video security is turned on or
+     * off.
+     */
+    public void setVideoSecurityOn(boolean isVideoSecurityOn)
+    {
+        this.isVideoSecurityOn = isVideoSecurityOn;
+    }
+
+    /**
+     * Sets the cipher used for the encryption of the current call.
+     *
+     * @param encryptionCipher the cipher used for the encryption of the
+     * current call.
+     */
+    public void setEncryptionCipher(String encryptionCipher)
+    {
+        this.encryptionCipher = encryptionCipher;
     }
 }

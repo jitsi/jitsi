@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.protocol.sip;
 
 import java.net.*;
 import java.text.*;
-import java.util.*;
 
 import javax.sip.*;
 import javax.sip.address.*;
@@ -111,13 +110,6 @@ public class CallPeerSipImpl
      * call.
      */
     private CallSession mediaCallSession = null;
-
-    /**
-     * The <tt>CallPeerSoundLevelListener</tt>-s registered to get
-     * <tt>CallPeerSoundLevelEvent</tt>-s
-     */
-    private final List<CallPeerSoundLevelListener> soundLevelListeners
-        = new ArrayList<CallPeerSoundLevelListener>();
 
     /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
@@ -511,64 +503,6 @@ public class CallPeerSipImpl
         fireCallPeerSecurityMessageEvent(messageType,
                                          i18nMessage,
                                          severity);
-    }
-
-    /**
-     * Adds a specific <tt>CallPeerSoundLevelListener</tt> to the list of
-     * listeners interested in and notified about changes in sound level related
-     * information.
-     *
-     * @param listener the <tt>CallPeerSoundLevelListener</tt> to add
-     */
-    public void addCallPeerSoundLevelListener(
-        CallPeerSoundLevelListener listener)
-    {
-        synchronized (soundLevelListeners)
-        {
-            soundLevelListeners.add(listener);
-        }
-    }
-
-    /**
-     * Removes a specific <tt>CallPeerSoundLevelListener</tt> of the list of
-     * listeners interested in and notified about changes in sound level related
-     * information.
-     *
-     * @param listener the <tt>CallPeerSoundLevelListener</tt> to remove
-     */
-    public void removeCallPeerSoundLevelListener(
-        CallPeerSoundLevelListener listener)
-    {
-        synchronized (soundLevelListeners)
-        {
-            soundLevelListeners.remove(listener);
-        }
-    }
-
-    /**
-     * Fires a <tt>CallPeerSoundLevelEvent</tt> and notifies all registered
-     * listeners.
-     *
-     * @param level The new sound level
-     */
-    public void fireCallPeerSoundLevelEvent(int level)
-    {
-        CallPeerSoundLevelEvent event
-            = new CallPeerSoundLevelEvent(this, level);
-
-        CallPeerSoundLevelListener[] listeners;
-
-        synchronized(soundLevelListeners)
-        {
-            listeners =
-                soundLevelListeners.toArray(
-                    new CallPeerSoundLevelListener[soundLevelListeners.size()]);
-        }
-
-        for (CallPeerSoundLevelListener listener : listeners)
-        {
-            listener.peerSoundLevelChanged(event);
-        }
     }
 
     /**

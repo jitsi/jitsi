@@ -68,7 +68,8 @@ public abstract class AbstractOperationSetBasicTelephony
         logger.debug("Dispatching a CallEvent to " + listeners.size()
             + " listeners. event is: " + cEvent);
 
-        for (Iterator<CallListener> listenerIter = listeners.iterator(); listenerIter.hasNext();)
+        for (Iterator<CallListener> listenerIter
+                = listeners.iterator(); listenerIter.hasNext();)
         {
             CallListener listener = listenerIter.next();
 
@@ -114,7 +115,6 @@ public abstract class AbstractOperationSetBasicTelephony
      */
     public void setMute(CallPeer peer, boolean mute)
     {
-
         /*
          * While throwing UnsupportedOperationException may be a possible
          * approach, putOnHold/putOffHold just do nothing when not supported so

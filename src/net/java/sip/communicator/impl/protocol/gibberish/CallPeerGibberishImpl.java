@@ -6,8 +6,9 @@
  */
 package net.java.sip.communicator.impl.protocol.gibberish;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * A Gibberish implementation of the <tt>CallPeer</tt> interface.
@@ -31,6 +32,12 @@ public class CallPeerGibberishImpl
      */
     private String peerID;
 
+    /**
+     * Creates an instance of <tt>CallPeerGibberishImpl</tt> by specifying the
+     * call peer <tt>address</tt> and the parent <tt>owningCall</tt>.
+     * @param address the address of the peer
+     * @param owningCall the parent call
+     */
     public CallPeerGibberishImpl(String address, CallGibberishImpl owningCall)
     {
         this.peerAddress = address;
@@ -40,18 +47,49 @@ public class CallPeerGibberishImpl
         this.peerID = String.valueOf( System.currentTimeMillis())
                              + String.valueOf(hashCode());
 
-        ConferenceMemberGibberishImpl member1
-            = new ConferenceMemberGibberishImpl(this);
-        member1.setDisplayName("conference member1");
-        member1.setState(ConferenceMemberState.CONNECTED);
+        final Random random = new Random();
 
-        ConferenceMemberGibberishImpl member2
-            = new ConferenceMemberGibberishImpl(this);
-        member2.setDisplayName("conference member2");
-        member2.setState(ConferenceMemberState.CONNECTED);
+        Timer timer = new Timer(false);
+        timer.scheduleAtFixedRate(new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                fireStreamSoundLevelEvent(random.nextInt(255));
+            }
+        }, 500, 100);
 
-        this.addConferenceMember(member1);
-        this.addConferenceMember(member2);
+        // Make this peer a conference focus.
+        if (owningCall.getCallPeerCount() > 1)
+        {
+            this.setConferenceFocus(true);
+            final ConferenceMemberGibberishImpl member1
+                = new ConferenceMemberGibberishImpl(this);
+            member1.setDisplayName("Dragancho");
+            this.addConferenceMember(member1);
+
+            final ConferenceMemberGibberishImpl member2
+                = new ConferenceMemberGibberishImpl(this);
+            member2.setDisplayName("Ivancho");
+            this.addConferenceMember(member2);
+
+            Timer timer1 = new Timer(false);
+            timer1.scheduleAtFixedRate(new TimerTask()
+            {
+                @Override
+                public void run()
+                {
+                    fireConferenceMembersSoundLevelEvent(
+                        new HashMap<ConferenceMember, Integer>()
+                            {
+                                {
+                                    put(member1, new Integer(random.nextInt(255)));
+                                    put(member2, new Integer(random.nextInt(255)));
+                                }
+                        });
+                }
+            }, 500, 100);
+        }
     }
 
     /**
@@ -127,15 +165,5 @@ public class CallPeerGibberishImpl
     public ProtocolProviderService getProtocolProvider()
     {
         return this.call.getProtocolProvider();
-    }
-
-    public void addCallPeerSoundLevelListener(
-        CallPeerSoundLevelListener listener)
-    {
-    }
-
-    public void removeCallPeerSoundLevelListener(
-        CallPeerSoundLevelListener listener)
-    {
     }
 }

@@ -19,11 +19,15 @@ import net.java.sip.communicator.util.swing.*;
  * <tt>CallPariticant</tt>.
  *
  * @author Lubomir Marinov
+ * @author Yana Stamcheva
  */
 public class MuteButton
     extends SIPCommToggleButton
+    implements ActionListener
 {
     private static final long serialVersionUID = 0L;
+
+    private final Call call;
 
     /**
      * Initializes a new <tt>MuteButton</tt> instance which is to mute the audio
@@ -51,6 +55,8 @@ public class MuteButton
      */
     public MuteButton(Call call, boolean isFullScreenMode, boolean isSelected)
     {
+        this.call = call;
+
         if (isFullScreenMode)
         {
             this.setBgImage(
@@ -74,67 +80,35 @@ public class MuteButton
                 ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_PRESSED_BG));
         }
 
-        setModel(new MuteButtonModel(call));
+        this.addActionListener(this);
         setToolTipText(GuiActivator.getResources().getI18NString(
             "service.gui.MUTE_BUTTON_TOOL_TIP"));
         setSelected(isSelected);
     }
+
     /**
-     * Represents the model of a toggle button that mutes the audio stream sent
-     * to a specific <tt>CallPeer</tt>.
+     * Mutes or unmutes call peers when the mute button is clicked.
+     * @param evt the <tt>ActionEvent</tt> that notified us of the action
      */
-    private static class MuteButtonModel
-        extends ToggleButtonModel
-        implements ActionListener
+    public void actionPerformed(ActionEvent evt)
     {
-
-        /**
-         * The <tt>CallPeer</tt> whose state is being adapted for the
-         * purposes of depicting as a toggle button.
-         */
-        private final Call call;
-
-        /**
-         * Initializes a new <tt>MuteButtonModel</tt> instance to represent the
-         * state of a specific <tt>CallPeer</tt> as a toggle button.
-         *
-         * @param call the <tt>Call</tt> whose state is to
-         *            be represented as a toggle button
-         */
-        public MuteButtonModel(Call call)
+        if (call != null)
         {
-            this.call = call;
+            OperationSetBasicTelephony telephony
+                = call.getProtocolProvider()
+                    .getOperationSet(OperationSetBasicTelephony.class);
 
-            addActionListener(this);
-        }
+            Iterator<? extends CallPeer> peers = call.getCallPeers();
 
-        public void actionPerformed(ActionEvent evt)
-        {
-            if (call != null)
+            // Obtain the isSelected property before invoking setMute.
+            boolean isMuteSelected = isSelected();
+
+            while (peers.hasNext())
             {
-                Iterator<? extends CallPeer> peers
-                    = call.getCallPeers();
+                CallPeer callPeer = peers.next();
 
-                while (peers.hasNext())
-                {
-                    CallPeer callPeer = peers.next();
-
-                    OperationSetBasicTelephony telephony
-                        = call
-                            .getProtocolProvider()
-                                .getOperationSet(
-                                    OperationSetBasicTelephony.class);
-
-                    telephony.setMute(  callPeer,
-                                        !callPeer.isMute());
-
-                    fireItemStateChanged(
-                        new ItemEvent(this,
-                        ItemEvent.ITEM_STATE_CHANGED, this,
-                        isSelected() ? ItemEvent.SELECTED : ItemEvent.DESELECTED));
-
-                    fireStateChanged();
-                }
+                telephony.setMute(  callPeer,
+                                    isMuteSelected);
             }
         }
     }

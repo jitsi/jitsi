@@ -24,14 +24,15 @@ import net.java.sip.communicator.util.*;
  *
  * @author Emil Ivov
  * @author Lubomir Marinov
+ * @author Yana Stamcheva
  */
 public interface CallPeer
 {
 
     /**
-     * The constant indicating that a <code>CallPeer</code> has not yet
+     * The constant indicating that a <tt>CallPeer</tt> has not yet
      * transitioned into a state marking the beginning of a participation in a
-     * <code>Call</code> or that such a transition may have happened but the
+     * <tt>Call</tt> or that such a transition may have happened but the
      * time of its occurrence is unknown.
      */
     public static final long CALL_DURATION_START_TIME_UNKNOWN = 0;
@@ -127,13 +128,13 @@ public interface CallPeer
     public void removePropertyChangeListener(PropertyChangeListener listener);
 
     /**
-     * Gets the time at which this <code>CallPeer</code> transitioned
+     * Gets the time at which this <tt>CallPeer</tt> transitioned
      * into a state (likely {@link CallPeerState#CONNECTED}) marking the
-     * start of the duration of the participation in a <code>Call</code>.
+     * start of the duration of the participation in a <tt>Call</tt>.
      *
-     * @return the time at which this <code>CallPeer</code> transitioned
+     * @return the time at which this <tt>CallPeer</tt> transitioned
      *         into a state marking the start of the duration of the
-     *         participation in a <code>Call</code> or
+     *         participation in a <tt>Call</tt> or
      *         {@link #CALL_DURATION_START_TIME_UNKNOWN} if such a transition
      *         has not been performed
      */
@@ -194,7 +195,7 @@ public interface CallPeer
 
     /**
      * Determines whether this peer is acting as a conference focus and
-     * thus may provide information about <code>ConferenceMember</code> such as
+     * thus may provide information about <tt>ConferenceMember</tt> such as
      * {@link #getConferenceMembers()} and {@link #getConferenceMemberCount()}.
      *
      * @return <tt>true</tt> if this peer is acting as a conference
@@ -203,10 +204,10 @@ public interface CallPeer
     public boolean isConferenceFocus();
 
     /**
-     * Gets the <code>ConferenceMember</code>s currently known to this
+     * Gets the <tt>ConferenceMember</tt>s currently known to this
      * peer if it is acting as a conference focus.
      *
-     * @return an array of <code>ConferenceMember</code>s describing the members
+     * @return an array of <tt>ConferenceMember</tt>s describing the members
      *         of a conference managed by this peer if it is acting as a
      *         conference focus. If this peer is not acting as a
      *         conference focus or it does but there are currently no members in
@@ -215,10 +216,10 @@ public interface CallPeer
     public ConferenceMember[] getConferenceMembers();
 
     /**
-     * Gets the number of <code>ConferenceMember</code>s currently known to this
+     * Gets the number of <tt>ConferenceMember</tt>s currently known to this
      * peer if it is acting as a conference focus.
      *
-     * @return the number of <code>ConferenceMember</code>s currently known to
+     * @return the number of <tt>ConferenceMember</tt>s currently known to
      *         this peer if it is acting as a conference focus. If this
      *         peer is not acting as a conference focus or it does but
      *         there are currently no members in the conference it manages, a
@@ -227,13 +228,13 @@ public interface CallPeer
     public int getConferenceMemberCount();
 
     /**
-     * Adds a specific <code>CallPeerConferenceListener</code> to the
+     * Adds a specific <tt>CallPeerConferenceListener</tt> to the
      * list of listeners interested in and notified about changes in
      * conference-related information such as this peer acting or not
      * acting as a conference focus and conference membership details.
      *
      * @param listener
-     *            a <code>CallPeerConferenceListener</code> to be
+     *            a <tt>CallPeerConferenceListener</tt> to be
      *            notified about changes in conference-related information. If
      *            the specified listener is already in the list of interested
      *            listeners (i.e. it has been previously added), it is not added
@@ -243,35 +244,55 @@ public interface CallPeer
         CallPeerConferenceListener listener);
 
     /**
-     * Removes a specific <code>CallPeerConferenceListener</code> from
+     * Removes a specific <tt>CallPeerConferenceListener</tt> from
      * the list of listeners interested in and notified about changes in
      * conference-related information such as this peer acting or not
      * acting as a conference focus and conference membership details.
      *
      * @param listener
-     *            a <code>CallPeerConferenceListener</code> to no longer
+     *            a <tt>CallPeerConferenceListener</tt> to no longer
      *            be notified about changes in conference-related information
      */
     public void removeCallPeerConferenceListener(
         CallPeerConferenceListener listener);
 
     /**
-     * Adds a specific <tt>CallPeerSoundLevelListener</tt> to the list of
-     * listeners interested in and notified about changes in sound level related
-     * information.
+     * Adds a specific <tt>StreamSoundLevelListener</tt> to the list of
+     * listeners interested in and notified about changes in stream sound level
+     * related information.
      * 
-     * @param listener the <tt>CallPeerSoundLevelListener</tt> to add
+     * @param listener the <tt>StreamSoundLevelListener</tt> to add
      */
-    public void addCallPeerSoundLevelListener(
-        CallPeerSoundLevelListener listener);
+    public void addStreamSoundLevelListener(StreamSoundLevelListener listener);
 
     /**
-     * Removes a specific <tt>CallPeerSoundLevelListener</tt> of the list of
-     * listeners interested in and notified about changes in sound level related
-     * information.
+     * Removes a specific <tt>StreamSoundLevelListener</tt> of the list of
+     * listeners interested in and notified about changes in stream sound level
+     * related information.
      * 
-     * @param listener the <tt>CallPeerSoundLevelListener</tt> to remove
+     * @param listener the <tt>StreamSoundLevelListener</tt> to remove
      */
-    public void removeCallPeerSoundLevelListener(
-        CallPeerSoundLevelListener listener);
+    public void removeStreamSoundLevelListener(
+        StreamSoundLevelListener listener);
+
+    /**
+     * Adds a specific <tt>ConferenceMembersSoundLevelListener</tt> to the list
+     * of listeners interested in and notified about changes in conference
+     * members sound level.
+     * 
+     * @param listener the <tt>ConferenceMembersSoundLevelListener</tt> to add
+     */
+    public void addConferenceMembersSoundLevelListener(
+        ConferenceMembersSoundLevelListener listener);
+
+    /**
+     * Removes a specific <tt>ConferenceMembersSoundLevelListener</tt> of the
+     * list of listeners interested in and notified about changes in conference
+     * members sound level.
+     * 
+     * @param listener the <tt>ConferenceMembersSoundLevelListener</tt> to
+     * remove
+     */
+    public void removeConferenceMembersSoundLevelListener(
+        ConferenceMembersSoundLevelListener listener);
 }

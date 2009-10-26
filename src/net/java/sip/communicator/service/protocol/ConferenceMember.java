@@ -6,108 +6,86 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
  * Represents a member and its details in a telephony conference managed by a
- * <code>CallPeer</code> in its role as a conference focus.
+ * <tt>CallPeer</tt> in its role as a conference focus.
  *
  * @author Lubomir Marinov
  */
 public interface ConferenceMember
 {
-
     /**
-     * The name of the property of <code>ConferenceMember</code> which specifies
+     * The name of the property of <tt>ConferenceMember</tt> which specifies
      * the user-friendly display name of the respective
-     * <code>ConferenceMember</code> in the conference.
+     * <tt>ConferenceMember</tt> in the conference.
      */
     public static final String DISPLAY_NAME_PROPERTY_NAME = "DisplayName";
 
     /**
-     * The name of the property of <code>ConferenceMember</code> which specifies
+     * The name of the property of <tt>ConferenceMember</tt> which specifies
      * the state of the device and signaling session of the respective
-     * <code>ConferenceMember</code> in the conference.
+     * <tt>ConferenceMember</tt> in the conference.
      */
     public static final String STATE_PROPERTY_NAME = "State";
 
     /**
-     * Adds a specific <code>PropertyChangeListener</code> to the list of
+     * Adds a specific <tt>PropertyChangeListener</tt> to the list of
      * listeners interested in and notified about changes in the values of the
-     * properties of this <code>ConferenceMember</code> such as
-     * <code>#DISPLAY_NAME_PROPERTY_NAME</code> and
-     * <code>#STATE_PROPERTY_NAME</code>.
+     * properties of this <tt>ConferenceMember</tt> such as
+     * <tt>#DISPLAY_NAME_PROPERTY_NAME</tt> and
+     * <tt>#STATE_PROPERTY_NAME</tt>.
      *
      * @param listener
-     *            a <code>PropertyChangeListener</code> to be notified about
+     *            a <tt>PropertyChangeListener</tt> to be notified about
      *            changes in the values of the properties of this
-     *            <code>ConferenceMember</code>. If the specified listener is
+     *            <tt>ConferenceMember</tt>. If the specified listener is
      *            already in the list of interested listeners (i.e. it has been
      *            previously added), it is not added again.
      */
     public void addPropertyChangeListener(PropertyChangeListener listener);
 
     /**
-     * Gets the user-friendly display name of this <code>ConferenceMember</code>
+     * Gets the user-friendly display name of this <tt>ConferenceMember</tt>
      * in the conference.
      *
      * @return the user-friendly display name of this
-     *         <code>ConferenceMember</code> in the conference
+     *         <tt>ConferenceMember</tt> in the conference
      */
     public String getDisplayName();
 
     /**
-     * Gets the <code>CallPeer</code> which is the conference focus of
-     * this <code>ConferenceMember</code>.
+     * Gets the <tt>CallPeer</tt> which is the conference focus of
+     * this <tt>ConferenceMember</tt>.
      *
-     * @return the <code>CallPeer</code> which is the conference focus of
-     *         this <code>ConferenceMember</code>
+     * @return the <tt>CallPeer</tt> which is the conference focus of
+     *         this <tt>ConferenceMember</tt>
      */
     public CallPeer getConferenceFocusCallPeer();
 
     /**
      * Gets the state of the device and signaling session of this
-     * <code>ConferenceMember</code> in the conference in the form of a
-     * <code>ConferenceMemberState</code> value.
+     * <tt>ConferenceMember</tt> in the conference in the form of a
+     * <tt>ConferenceMemberState</tt> value.
      *
-     * @return a <code>ConferenceMemberState</code> value which represents the
+     * @return a <tt>ConferenceMemberState</tt> value which represents the
      *         state of the device and signaling session of this
-     *         <code>ConferenceMember</code> in the conference
+     *         <tt>ConferenceMember</tt> in the conference
      */
     public ConferenceMemberState getState();
 
     /**
-     * Removes a specific <code>PropertyChangeListener</code> from the list of
+     * Removes a specific <tt>PropertyChangeListener</tt> from the list of
      * listeners interested in and notified about changes in the values of the
-     * properties of this <code>ConferenceMember</code> such as
-     * <code>#DISPLAY_NAME_PROPERTY_NAME</code> and
-     * <code>#STATE_PROPERTY_NAME</code>.
+     * properties of this <tt>ConferenceMember</tt> such as
+     * <tt>#DISPLAY_NAME_PROPERTY_NAME</tt> and
+     * <tt>#STATE_PROPERTY_NAME</tt>.
      *
      * @param listener
-     *            a <code>PropertyChangeListener</code> to no longer be notified
+     *            a <tt>PropertyChangeListener</tt> to no longer be notified
      *            about changes in the values of the properties of this
-     *            <code>ConferenceMember</code>
+     *            <tt>ConferenceMember</tt>
      */
     public void removePropertyChangeListener(PropertyChangeListener listener);
-
-    /**
-     * Adds a specific <tt>CallPeerSoundLevelListener</tt> to the list of
-     * listeners interested in and notified about changes in sound level related
-     * information.
-     * 
-     * @param listener the <tt>CallPeerSoundLevelListener</tt> to add
-     */
-    public void addCallPeerSoundLevelListener(
-        CallPeerSoundLevelListener listener);
-
-    /**
-     * Removes a specific <tt>CallPeerSoundLevelListener</tt> of the list of
-     * listeners interested in and notified about changes in sound level related
-     * information.
-     * 
-     * @param listener the <tt>CallPeerSoundLevelListener</tt> to remove
-     */
-    public void removeCallPeerSoundLevelListener(
-        CallPeerSoundLevelListener listener);
 }

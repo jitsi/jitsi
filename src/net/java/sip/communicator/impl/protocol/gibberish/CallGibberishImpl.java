@@ -27,7 +27,8 @@ public class CallGibberishImpl
     /**
      * A list containing all <tt>CallPeer</tt>s of this call.
      */
-    private Vector<CallPeer> callPeers = new Vector<CallPeer>();
+    private Vector<CallPeerGibberishImpl> callPeers
+        = new Vector<CallPeerGibberishImpl>();
 
     /**
      * Creates a <tt>CallGibberishImpl</tt> by specifying the
@@ -45,9 +46,9 @@ public class CallGibberishImpl
      *
      * @return an Iterator over all peers currently involved in the call.
      */
-    public Iterator<CallPeer> getCallPeers()
+    public Iterator<CallPeerGibberishImpl> getCallPeers()
     {
-        return callPeers.iterator();
+        return new LinkedList<CallPeerGibberishImpl>(callPeers).iterator();
     }
 
     /**
@@ -81,6 +82,9 @@ public class CallGibberishImpl
 
         fireCallPeerEvent(
             callPeer, CallPeerEvent.CALL_PEER_ADDED);
+
+        callPeer.setState(CallPeerState.ALERTING_REMOTE_SIDE, "no reason");
+        callPeer.setState(CallPeerState.CONNECTED, "no reason");
     }
 
     /**

@@ -35,6 +35,12 @@ public class OperationSetBasicTelephonyGibberishImpl
      */
     private Hashtable<String, Call> activeCalls = new Hashtable<String, Call>();
 
+    /**
+     * Creates an instance of <tt>OperationSetBasicTelephonyGibberishImpl</tt>
+     * by specifying the corresponding <tt>protocolProvider</tt>
+     * @param protocolProvider the protocol provider, where this operation set
+     * is registered
+     */
     public OperationSetBasicTelephonyGibberishImpl(
         ProtocolProviderServiceGibberishImpl protocolProvider)
     {
@@ -154,19 +160,22 @@ public class OperationSetBasicTelephonyGibberishImpl
 
         logger.info("hangupCallPeer");
         callPeer.setState(CallPeerState.DISCONNECTED, null);
+
+        CallGibberishImpl call = (CallGibberishImpl) callPeer.getCall();
+        call.removeCallPeer(callPeer);
     }
 
     /**
      * Resumes communication with a call peer previously put on hold.
      *
      * @param peer the call peer to put on hold.
-     * @todo Implement this
-     *   net.java.sip.communicator.service.protocol.OperationSetBasicTelephony
-     *   method
+     * @throws OperationFailedException if we encounter an error while
+     * performing this operation
      */
     public void putOffHold(CallPeer peer)
+        throws OperationFailedException
     {
-
+        this.putOnHold(peer, false);
     }
 
     /**
@@ -174,50 +183,12 @@ public class OperationSetBasicTelephonyGibberishImpl
      *
      * @param peer the peer that we'd like to put on hold.
      * @throws OperationFailedException with the corresponding code if we
-     *   encounter an error while performing this operation.
-     * @todo Implement this
-     *   net.java.sip.communicator.service.protocol.OperationSetBasicTelephony
-     *   method
+     * encounter an error while performing this operation.
      */
     public void putOnHold(CallPeer peer) throws
         OperationFailedException
     {
-    }
-
-    public Call receiveCall(String fromAddress)
-        throws Exception
-    {
-        Call newCall = createCall(fromAddress);
-        fireCallEvent(CallEvent.CALL_RECEIVED, newCall);
-
-        return newCall;
-    }
-
-    public Call placeCall(String toAddress)
-        throws Exception
-    {
-        Call newCall = createCall(toAddress);
-        fireCallEvent(CallEvent.CALL_INITIATED, newCall);
-
-        // must have one peer
-        CallPeerGibberishImpl callPArt =
-            (CallPeerGibberishImpl) newCall.getCallPeers().next();
-
-        callPArt.setState(CallPeerState.ALERTING_REMOTE_SIDE, "no reason");
-        callPArt.setState(CallPeerState.CONNECTED, "no reason");
-
-        return newCall;
-    }
-
-    public CallPeer addNewCallPeer(Call call, String address)
-    {
-        CallPeerGibberishImpl callPArt
-            = new CallPeerGibberishImpl(address, (CallGibberishImpl) call);
-
-        callPArt.setState(CallPeerState.ALERTING_REMOTE_SIDE, "no reason");
-        callPArt.setState(CallPeerState.CONNECTED, "no reason");
-
-        return callPArt;
+        this.putOnHold(peer, true);
     }
 
     public void callPeerAdded(CallPeerEvent evt)
@@ -240,6 +211,60 @@ public class OperationSetBasicTelephonyGibberishImpl
                          + "active calls because it entered an ENDED state");
 
             fireCallEvent(CallEvent.CALL_ENDED, sourceCall);
+        }
+    }
+
+    /**
+     * Sets the mute state of the audio stream being sent to a specific
+     * <tt>CallPeer</tt>.
+     * <p>
+     * The implementation sends silence through the audio stream.
+     * </p>
+     *
+     * @param peer the <tt>CallPeer</tt> who receives the audio
+     *            stream to have its mute state set
+     * @param mute <tt>true</tt> to mute the audio stream being sent to
+     *            <tt>peer</tt>; otherwise, <tt>false</tt>
+     */
+    public void setMute(CallPeer peer, boolean mute)
+    {
+        CallPeerGibberishImpl gibberishPeer = (CallPeerGibberishImpl) peer;
+
+        gibberishPeer.setMute(mute);
+    }
+
+    /**
+     * Puts the specified <tt>CallPeer</tt> on or off hold.
+     *
+     * @param peer the <tt>CallPeer</tt> to be put on or off hold
+     * @param on <tt>true</tt> to have the specified <tt>CallPeer</tt>
+     *            put on hold; <tt>false</tt>, otherwise
+     * @throws OperationFailedException
+     */
+    private void putOnHold(CallPeer peer, boolean on)
+        throws OperationFailedException
+    {
+        CallPeerGibberishImpl gibberishPeer = (CallPeerGibberishImpl) peer;
+
+        CallPeerState state = gibberishPeer.getState();
+        if (CallPeerState.ON_HOLD_LOCALLY.equals(state))
+        {
+            if (!on)
+                gibberishPeer.setState(CallPeerState.CONNECTED);
+        }
+        else if (CallPeerState.ON_HOLD_MUTUALLY.equals(state))
+        {
+            if (!on)
+                gibberishPeer.setState(CallPeerState.ON_HOLD_REMOTELY);
+        }
+        else if (CallPeerState.ON_HOLD_REMOTELY.equals(state))
+        {
+            if (on)
+                gibberishPeer.setState(CallPeerState.ON_HOLD_MUTUALLY);
+        }
+        else if (on)
+        {
+            gibberishPeer.setState(CallPeerState.ON_HOLD_LOCALLY);
         }
     }
 }

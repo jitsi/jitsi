@@ -6,13 +6,10 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import java.util.*;
-
-import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * Provides the default implementation of the <code>ConferenceMember</code>
+ * Provides the default implementation of the <tt>ConferenceMember</tt>
  * interface.
  *
  * @author Lubomir Marinov
@@ -24,54 +21,60 @@ public class AbstractConferenceMember
 {
 
     /**
-     * The <code>CallPeer</code> which is the conference focus of this
-     * <code>ConferenceMember</code>.
+     * The <tt>CallPeer</tt> which is the conference focus of this
+     * <tt>ConferenceMember</tt>.
      */
     private final CallPeer conferenceFocusCallPeer;
 
     /**
-     * The user-friendly display name of this <code>ConferenceMember</code> in
+     * The user-friendly display name of this <tt>ConferenceMember</tt> in
      * the conference.
      */
     private String displayName;
 
     /**
      * The state of the device and signaling session of this
-     * <code>ConferenceMember</code> in the conference.
+     * <tt>ConferenceMember</tt> in the conference.
      */
     private ConferenceMemberState state = ConferenceMemberState.UNKNOWN;
 
     /**
-     * The <tt>CallPeerSoundLevelListener</tt>-s registered to get
-     * <tt>CallPeerSoundLevelEvent</tt>-s
+     * Creates an instance of <tt>AbstractConferenceMember</tt> by specifying
+     * the corresponding <tt>conferenceFocusCallPeer</tt>, to which this member
+     * is connected.
+     * @param conferenceFocusCallPeer the <tt>CallPeer</tt> to which this member
+     * is connected
      */
-    private final List<CallPeerSoundLevelListener> soundLevelListeners
-        = new ArrayList<CallPeerSoundLevelListener>();
-
     public AbstractConferenceMember(
         CallPeer conferenceFocusCallPeer)
     {
         this.conferenceFocusCallPeer = conferenceFocusCallPeer;
     }
 
-    /*
-     * Implements ConferenceMember#getConferenceFocusCallPeer().
+    /**
+     * Returns the <tt>CallPeer</tt>, to which this member is connected.
+     * Implements <tt>ConferenceMember#getConferenceFocusCallPeer()</tt>.
+     * @return the <tt>CallPeer</tt>, to which this member is connected
      */
     public CallPeer getConferenceFocusCallPeer()
     {
         return conferenceFocusCallPeer;
     }
 
-    /*
-     * Implement ConferenceMember#getDisplayName().
+    /**
+     * Returns the display name of this conference member. Implements
+     * <tt>ConferenceMember#getDisplayName()</tt>.
+     * @return the display name of this conference member
      */
     public String getDisplayName()
     {
         return displayName;
     }
 
-    /*
-     * Implements ConferenceMember#getState().
+    /**
+     * Returns the state of this conference member. Implements
+     * <tt>ConferenceMember#getState()</tt>.
+     * @return the state of this conference member
      */
     public ConferenceMemberState getState()
     {
@@ -79,13 +82,13 @@ public class AbstractConferenceMember
     }
 
     /**
-     * Sets the user-friendly display name of this <code>ConferenceMember</code>
-     * in the conference and fires a new <code>PropertyChangeEvent</code> for
-     * the property <code>#DISPLAY_NAME_PROPERTY_NAME</code>.
+     * Sets the user-friendly display name of this <tt>ConferenceMember</tt>
+     * in the conference and fires a new <tt>PropertyChangeEvent</tt> for
+     * the property <tt>#DISPLAY_NAME_PROPERTY_NAME</tt>.
      *
      * @param displayName
      *            the user-friendly display name of this
-     *            <code>ConferenceMember</code> in the conference
+     *            <tt>ConferenceMember</tt> in the conference
      */
     public void setDisplayName(String displayName)
     {
@@ -106,13 +109,13 @@ public class AbstractConferenceMember
 
     /**
      * Sets the state of the device and signaling session of this
-     * <code>ConferenceMember</code> in the conference and fires a new
-     * <code>PropertyChangeEvent</code> for the property
-     * <code>#STATE_PROPERTY_NAME</code>.
+     * <tt>ConferenceMember</tt> in the conference and fires a new
+     * <tt>PropertyChangeEvent</tt> for the property
+     * <tt>#STATE_PROPERTY_NAME</tt>.
      *
      * @param state
      *            the state of the device and signaling session of this
-     *            <code>ConferenceMember</code> in the conference
+     *            <tt>ConferenceMember</tt> in the conference
      */
     public void setState(ConferenceMemberState state)
     {
@@ -123,64 +126,6 @@ public class AbstractConferenceMember
             this.state = state;
 
             firePropertyChange(STATE_PROPERTY_NAME, oldValue, this.state);
-        }
-    }
-
-    /**
-     * Adds a specific <tt>CallPeerSoundLevelListener</tt> to the list of
-     * listeners interested in and notified about changes in sound level related
-     * information.
-     * 
-     * @param listener the <tt>CallPeerSoundLevelListener</tt> to add
-     */
-    public void addCallPeerSoundLevelListener(
-        CallPeerSoundLevelListener listener)
-    {
-        synchronized (soundLevelListeners)
-        {
-            soundLevelListeners.add(listener);
-        }
-    }
-
-    /**
-     * Removes a specific <tt>CallPeerSoundLevelListener</tt> of the list of
-     * listeners interested in and notified about changes in sound level related
-     * information.
-     * 
-     * @param listener the <tt>CallPeerSoundLevelListener</tt> to remove
-     */
-    public void removeCallPeerSoundLevelListener(
-        CallPeerSoundLevelListener listener)
-    {
-        synchronized (soundLevelListeners)
-        {
-            soundLevelListeners.remove(listener);
-        }
-    }
-
-    /**
-     * Fires a <tt>CallPeerSoundLevelEvent</tt> and notifies all registered
-     * listeners.
-     *
-     * @param level The new sound level
-     */
-    public void fireCallPeerSoundLevelEvent(int level)
-    {
-        CallPeerSoundLevelEvent event
-            = new CallPeerSoundLevelEvent(this, level);
-
-        CallPeerSoundLevelListener[] listeners;
-
-        synchronized(soundLevelListeners)
-        {
-            listeners =
-                soundLevelListeners.toArray(
-                    new CallPeerSoundLevelListener[soundLevelListeners.size()]);
-        }
-
-        for (CallPeerSoundLevelListener listener : listeners)
-        {
-            listener.peerSoundLevelChanged(event);
         }
     }
 }

@@ -22,20 +22,33 @@ public class CallTitlePanel
 {
     private static final long serialVersionUID = 0L;
 
-    private final Color backgroundColor;
+    private Color backgroundColor;
 
     /**
-     * Creates a <tt>CallTitlePanel</tt> by specifying the background color to
-     * be used.
+     * Creates a <tt>CallTitlePanel</tt> by specifying the <tt>layout</tt>
+     * manager to use when layout out components.
      *
-     * @param backgroundColor indicates the color to be used to paint the
-     * background of this title panel.
+     * @param layout the layout manager to use for layout
      */
-    public CallTitlePanel(Color backgroundColor)
+    public CallTitlePanel(LayoutManager layout)
     {
-        this.backgroundColor = backgroundColor;
+        super(layout);
     }
 
+    /**
+     * Sets the background color of this panel.
+     * @param bgColor the background color of this panel
+     */
+    public void setBackground(Color bgColor)
+    {
+        this.backgroundColor = bgColor;
+    }
+
+    /**
+     * Customizes the background of this panel, by painting a round rectangle in
+     * the background color previously set.
+     * @param g the <tt>Graphics</tt> object to use for painting
+     */
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
