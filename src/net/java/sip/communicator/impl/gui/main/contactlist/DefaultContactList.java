@@ -23,12 +23,16 @@ import net.java.sip.communicator.service.protocol.*;
  * DeafultContactlist used to display <code>JList</code>s with contacts.
  *
  * @author Damian Minkov
+ * @author Yana Stamcheva
  */
 public class DefaultContactList
     extends JList
 {
     private static final long serialVersionUID = 0L;
 
+    /**
+     * Creates an instance of <tt>DefaultContactList</tt>.
+     */
     public DefaultContactList()
     {
         this.setOpaque(false);
@@ -123,9 +127,11 @@ public class DefaultContactList
 
             Iterator<Contact> i = metaContact.getContacts();
 
+            String statusMessage = null;
+            Contact protocolContact;
             while (i.hasNext())
             {
-                Contact protocolContact = i.next();
+                protocolContact = i.next();
 
                 ImageIcon protocolStatusIcon
                     = new ImageIcon(
@@ -135,7 +141,16 @@ public class DefaultContactList
                 //String statusMessage = protocolContact.getStatusMessage();
 
                 tip.addLine(protocolStatusIcon, contactAddress);
+
+                // Set the first found status message.
+                if (statusMessage == null
+                    && protocolContact.getStatusMessage() != null
+                    && protocolContact.getStatusMessage().length() > 0)
+                    statusMessage = protocolContact.getStatusMessage();
             }
+
+            if (statusMessage != null)
+                tip.setBottomText(statusMessage);
         }
         else if (element instanceof MetaContactGroup)
         {
@@ -166,6 +181,7 @@ public class DefaultContactList
      * in order to make the TooltipManager change the tooltip over the different
      * cells in the JList.
      *
+     * @param event the <tt>MouseEvent</tt> that notified us
      * @return the string to be used as the tooltip for <i>event</i>.
      */
     public String getToolTipText(MouseEvent event)
