@@ -78,7 +78,7 @@ public class AudioCaptureMediaDevice
      */
     public void setMute(boolean mute)
     {
-        DataSource captureDevice = getCaptureDevice();
+        CaptureDevice captureDevice = getCaptureDevice();
 
         if (captureDevice instanceof MutePushBufferDataSource)
             ((MutePushBufferDataSource) captureDevice).setMute(mute);

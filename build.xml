@@ -1058,8 +1058,6 @@
                 prefix="net/java/sip/communicator/impl/media/codec/audio"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/codec/video"
                 prefix="net/java/sip/communicator/impl/media/codec/video"/>
-            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/conference"
-                prefix="net/java/sip/communicator/impl/media/conference"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/protocol"
                 prefix="net/java/sip/communicator/impl/media/protocol"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/renderer"
@@ -1069,7 +1067,6 @@
             <zipfileset src="${lib.win.noinst}/jmf.jar" prefix=""/>
             <zipfileset src="${lib.win.noinst}/sound.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/jain-sdp.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/lti-civil-no_s_w_t.jar" prefix=""/>
         </jar>
@@ -1094,8 +1091,6 @@
                 prefix="net/java/sip/communicator/impl/media/codec/audio"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/codec/video"
                 prefix="net/java/sip/communicator/impl/media/codec/video"/>
-            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/conference"
-                prefix="net/java/sip/communicator/impl/media/conference"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/protocol"
                 prefix="net/java/sip/communicator/impl/media/protocol"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/renderer"
@@ -1104,7 +1099,6 @@
                 prefix="resources/images/impl/media"/>
             <zipfileset src="${lib.lin.noinst}/jmf.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/jain-sdp.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/lti-civil-no_s_w_t.jar" prefix=""/>
         </jar>
@@ -1129,8 +1123,6 @@
                 prefix="net/java/sip/communicator/impl/media/codec/audio"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/codec/video"
                 prefix="net/java/sip/communicator/impl/media/codec/video"/>
-            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/conference"
-                prefix="net/java/sip/communicator/impl/media/conference"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/protocol"
                 prefix="net/java/sip/communicator/impl/media/protocol"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/renderer"
@@ -1139,7 +1131,6 @@
                 prefix="resources/images/impl/media"/>
             <zipfileset src="${lib.mac.noinst}/jmf.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/jain-sdp.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/lti-civil-no_s_w_t.jar" prefix=""/>
         </jar>

@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.media.conference;
+package net.java.sip.communicator.impl.neomedia.conference;
 
 import java.io.*;
 
@@ -12,19 +12,19 @@ import javax.media.*;
 import javax.media.format.*;
 import javax.media.protocol.*;
 
-import net.java.sip.communicator.impl.media.*;
+import net.java.sip.communicator.impl.neomedia.*;
 
 /**
- * Enables reading from a <code>PushBufferStream</code> a certain maximum number
+ * Enables reading from a <tt>PushBufferStream</tt> a certain maximum number
  * of data units (e.g. bytes, shorts, ints) even if the
- * <code>PushBufferStream</code> itself pushes a larger number of data units.
+ * <tt>PushBufferStream</tt> itself pushes a larger number of data units.
  * <p>
  * An example use of this functionality is pacing a
- * <code>PushBufferStream</code> which pushes more data units in a single step
- * than a <code>CaptureDevice</code>. When these two undergo audio mixing, the
+ * <tt>PushBufferStream</tt> which pushes more data units in a single step
+ * than a <tt>CaptureDevice</tt>. When these two undergo audio mixing, the
  * different numbers of per-push data units will cause the
- * <code>PushBufferStream</code> "play" itself faster than the
- * <code>CaptureDevice</code>.
+ * <tt>PushBufferStream</tt> "play" itself faster than the
+ * <tt>CaptureDevice</tt>.
  * </p>
  *
  * @author Lubomir Marinov
@@ -34,32 +34,32 @@ public class CachingPushBufferStream
 {
 
     /**
-     * The <code>Buffer</code> in which this instance stores the data it reads
-     * from the wrapped <code>PushBufferStream</code> and from which it reads in
-     * chunks later on when its <code>#read(Buffer)</code> method is called.
+     * The <tt>Buffer</tt> in which this instance stores the data it reads
+     * from the wrapped <tt>PushBufferStream</tt> and from which it reads in
+     * chunks later on when its <tt>#read(Buffer)</tt> method is called.
      */
     private Buffer cache;
 
     /**
-     * The last <code>IOException</code> this stream has received from the
-     * <code>#read(Buffer)</code> method of the wrapped stream and to be thrown
-     * by this stream on the earliest call of its <code>#read(Buffer)</code>
+     * The last <tt>IOException</tt> this stream has received from the
+     * <tt>#read(Buffer)</tt> method of the wrapped stream and to be thrown
+     * by this stream on the earliest call of its <tt>#read(Buffer)</tt>
      * method.
      */
     private IOException readException;
 
     /**
-     * The <code>PushBufferStream</code> being paced by this instance with
+     * The <tt>PushBufferStream</tt> being paced by this instance with
      * respect to the maximum number of data units it provides in a single push. 
      */
     private final PushBufferStream stream;
 
     /**
-     * Initializes a new <code>CachingPushBufferStream</code> instance which is
+     * Initializes a new <tt>CachingPushBufferStream</tt> instance which is
      * to pace the number of per-push data units a specific
-     * <code>PushBufferStream</code> provides.
+     * <tt>PushBufferStream</tt> provides.
      * 
-     * @param stream the <code>PushBufferStream</code> to be paced with respect
+     * @param stream the <tt>PushBufferStream</tt> to be paced with respect
      *            to the number of per-push data units it provides
      */
     public CachingPushBufferStream(PushBufferStream stream)
@@ -129,8 +129,8 @@ public class CachingPushBufferStream
     /**
      * Gets the object this instance uses for synchronization of the operations
      * (such as reading from the wrapped stream into the cache of this instance
-     * and reading out of the cache into the <code>Buffer</code> provided to the
-     * <code>#read(Buffer)</code> method of this instance) it performs in
+     * and reading out of the cache into the <tt>Buffer</tt> provided to the
+     * <tt>#read(Buffer)</tt> method of this instance) it performs in
      * various threads.
      *  
      * @return the object this instance uses for synchronization of the
@@ -187,18 +187,18 @@ public class CachingPushBufferStream
     }
 
     /**
-     * Reads data from a specific input <code>Buffer</code> (if such data is
+     * Reads data from a specific input <tt>Buffer</tt> (if such data is
      * available) and writes the read data into a specific output
-     * <code>Buffer</code>. The input <code>Buffer</code> will be modified to
-     * reflect the number of read data units. If the output <code>Buffer</code>
+     * <tt>Buffer</tt>. The input <tt>Buffer</tt> will be modified to
+     * reflect the number of read data units. If the output <tt>Buffer</tt>
      * has allocated an array for storing the read data and the type of this
-     * array matches that of the input <code>Buffer</code>, it will be used and
-     * thus the output <code>Buffer</code> may control the maximum number of
+     * array matches that of the input <tt>Buffer</tt>, it will be used and
+     * thus the output <tt>Buffer</tt> may control the maximum number of
      * data units to be read into it. 
      * 
-     * @param input the <code>Buffer</code> to read data from
-     * @param output the <code>Buffer</code> into which to write the data read
-     *            from the specified <code>input</code>
+     * @param input the <tt>Buffer</tt> to read data from
+     * @param output the <tt>Buffer</tt> into which to write the data read
+     *            from the specified <tt>input</tt>
      * @throws IOException
      * @throws UnsupportedFormatException
      */

@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.media.conference;
+package net.java.sip.communicator.impl.neomedia.conference;
 
 import java.io.*;
 
@@ -12,11 +12,11 @@ import javax.media.*;
 import javax.media.format.*;
 import javax.media.protocol.*;
 
-import net.java.sip.communicator.impl.media.*;
+import net.java.sip.communicator.impl.neomedia.*;
 
 /**
- * Represents a <code>PushBufferStream</code> containing the result of the audio
- * mixing of <code>DataSource</code>s.
+ * Represents a <tt>PushBufferStream</tt> containing the result of the audio
+ * mixing of <tt>DataSource</tt>s.
  * 
  * @author Lubomir Marinov
  */
@@ -25,50 +25,50 @@ public class AudioMixingPushBufferStream
 {
 
     /**
-     * The <code>AudioMixer.AudioMixerPushBufferStream</code> which reads data
-     * from the input <code>DataSource</code>s and pushes it to this instance to
+     * The <tt>AudioMixer.AudioMixerPushBufferStream</tt> which reads data
+     * from the input <tt>DataSource</tt>s and pushes it to this instance to
      * be mixed.
      */
     private final AudioMixer.AudioMixerPushBufferStream audioMixerStream;
 
     /**
-     * The <code>AudioMixingPushBufferDataSource</code> which created and owns
+     * The <tt>AudioMixingPushBufferDataSource</tt> which created and owns
      * this instance and defines the input data which is to not be mixed in the
-     * output of this <code>PushBufferStream</code>.
+     * output of this <tt>PushBufferStream</tt>.
      */
     private final AudioMixingPushBufferDataSource dataSource;
 
     /**
      * The collection of input audio samples still not mixed and read through
-     * this <code>AudioMixingPushBufferStream</code>.
+     * this <tt>AudioMixingPushBufferStream</tt>.
      */
     private int[][] inputSamples;
 
     /**
      * The maximum number of per-stream audio samples available through
-     * <code>inputSamples</code>.
+     * <tt>inputSamples</tt>.
      */
     private int maxInputSampleCount;
 
     /**
-     * The <code>BufferTransferHandler</code> through which this
-     * <code>PushBufferStream</code> notifies its clients that new data is
+     * The <tt>BufferTransferHandler</tt> through which this
+     * <tt>PushBufferStream</tt> notifies its clients that new data is
      * available for reading.
      */
     private BufferTransferHandler transferHandler;
 
     /**
-     * Initializes a new <code>AudioMixingPushBufferStream</code> mixing the
+     * Initializes a new <tt>AudioMixingPushBufferStream</tt> mixing the
      * input data of a specific
-     * <code>AudioMixer.AudioMixerPushBufferStream</code> and excluding from the
+     * <tt>AudioMixer.AudioMixerPushBufferStream</tt> and excluding from the
      * mix the audio contributions of a specific
-     * <code>AudioMixingPushBufferDataSource</code>.
+     * <tt>AudioMixingPushBufferDataSource</tt>.
      * 
      * @param audioMixerStream the
-     *            <code>AudioMixer.AudioMixerPushBufferStream</code> reading
-     *            data from input <code>DataSource</code>s and to push it to the
-     *            new <code>AudioMixingPushBufferStream</code>
-     * @param dataSource the <code>AudioMixingPushBufferDataSource</code> which
+     *            <tt>AudioMixer.AudioMixerPushBufferStream</tt> reading
+     *            data from input <tt>DataSource</tt>s and to push it to the
+     *            new <tt>AudioMixingPushBufferStream</tt>
+     * @param dataSource the <tt>AudioMixingPushBufferDataSource</tt> which
      *            has requested the initialization of the new instance and which
      *            defines the input data to not be mixed in the output of the
      *            new instance
@@ -131,13 +131,13 @@ public class AudioMixingPushBufferStream
     }
 
     /**
-     * Gets the <code>AudioMixingPushBufferDataSource</code> which created and
+     * Gets the <tt>AudioMixingPushBufferDataSource</tt> which created and
      * owns this instance and defines the input data which is to not be mixed in
-     * the output of this <code>PushBufferStream</code>.
+     * the output of this <tt>PushBufferStream</tt>.
      * 
-     * @return the <code>AudioMixingPushBufferDataSource</code> which created
+     * @return the <tt>AudioMixingPushBufferDataSource</tt> which created
      *         and owns this instance and defines the input data which is to not
-     *         be mixed in the output of this <code>PushBufferStream</code>
+     *         be mixed in the output of this <tt>PushBufferStream</tt>
      */
     public AudioMixingPushBufferDataSource getDataSource()
     {
@@ -155,12 +155,12 @@ public class AudioMixingPushBufferStream
 
     /**
      * Gets the maximum possible value for an audio sample of a specific
-     * <code>AudioFormat</code>.
+     * <tt>AudioFormat</tt>.
      * 
-     * @param outputFormat the <code>AudioFormat</code> of which to get the
+     * @param outputFormat the <tt>AudioFormat</tt> of which to get the
      *            maximum possible value for an audio sample
      * @return the maximum possible value for an audio sample of the specified
-     *         <code>AudioFormat</code>
+     *         <tt>AudioFormat</tt>
      * @throws UnsupportedFormatException
      */
     private static int getMaxOutputSample(AudioFormat outputFormat)
@@ -186,11 +186,11 @@ public class AudioMixingPushBufferStream
     /**
      * Mixes as in audio mixing a specified collection of audio sample sets and
      * returns the resulting mix audio sample set in a specific
-     * <code>AudioFormat</code>.
+     * <tt>AudioFormat</tt>.
      * 
      * @param inputSamples the collection of audio sample sets to be mixed into
      *            one audio sample set in the sense of audio mixing 
-     * @param outputFormat the <code>AudioFormat</code> in which the resulting
+     * @param outputFormat the <tt>AudioFormat</tt> in which the resulting
      *            mix audio sample set is to be produced 
      * @param outputSampleCount the size of the resulting mix audio sample set
      *            to be produced
@@ -310,7 +310,7 @@ public class AudioMixingPushBufferStream
      * @param inputSamples the collection of audio sample sets to be mixed by
      *            this stream when data is read from it
      * @param maxInputSampleCount the maximum number of per-stream audio samples
-     *            available through <code>inputSamples</code>
+     *            available through <tt>inputSamples</tt>
      */
     void setInputSamples(int[][] inputSamples, int maxInputSampleCount)
     {
@@ -353,7 +353,7 @@ public class AudioMixingPushBufferStream
      * @param input the integer to be written out as a series of bytes
      * @param output the output to receive the conversion of the specified
      *            integer to a series of bytes
-     * @param outputOffset the offset in <code>output</code> at which the
+     * @param outputOffset the offset in <tt>output</tt> at which the
      *            writing of the result of the conversion is to be started
      */
     private static void writeInt(int input, byte[] output, int outputOffset)

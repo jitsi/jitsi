@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.media.conference;
+package net.java.sip.communicator.impl.neomedia.conference;
 
 import java.io.*;
 import java.lang.reflect.*;
@@ -14,9 +14,9 @@ import javax.media.control.*;
 import javax.media.protocol.*;
 
 /**
- * Represents a <code>PushBufferDataSource</code> which provides a single
- * <code>PushBufferStream</code> containing the result of the audio mixing of
- * <code>DataSource</code>s.
+ * Represents a <tt>PushBufferDataSource</tt> which provides a single
+ * <tt>PushBufferStream</tt> containing the result of the audio mixing of
+ * <tt>DataSource</tt>s.
  * 
  * @author Lubomir Marinov
  */
@@ -26,39 +26,39 @@ public class AudioMixingPushBufferDataSource
 {
 
     /**
-     * The <code>AudioMixer</code> performing the audio mixing, managing the
-     * input <code>DataSource</code>s and pushing the data of this output
-     * <code>PushBufferDataSource</code>.
+     * The <tt>AudioMixer</tt> performing the audio mixing, managing the
+     * input <tt>DataSource</tt>s and pushing the data of this output
+     * <tt>PushBufferDataSource</tt>.
      */
     private final AudioMixer audioMixer;
 
     /**
-     * The indicator which determines whether this <code>DataSource</code> is
+     * The indicator which determines whether this <tt>DataSource</tt> is
      * connected.
      */
     private boolean connected;
 
     /**
-     * The one and only <code>PushBufferStream</code> this
-     * <code>PushBufferDataSource</code> provides to its clients and containing
-     * the result of the audio mixing performed by <code>audioMixer</code>.
+     * The one and only <tt>PushBufferStream</tt> this
+     * <tt>PushBufferDataSource</tt> provides to its clients and containing
+     * the result of the audio mixing performed by <tt>audioMixer</tt>.
      */
     private AudioMixingPushBufferStream outputStream;
 
     /**
-     * The indicator which determines whether this <code>DataSource</code> is
+     * The indicator which determines whether this <tt>DataSource</tt> is
      * started.
      */
     private boolean started;
 
     /**
-     * Initializes a new <code>AudioMixingPushBufferDataSource</code> instance
+     * Initializes a new <tt>AudioMixingPushBufferDataSource</tt> instance
      * which gives access to the result of the audio mixing performed by a
-     * specific <code>AudioMixer</code>.
+     * specific <tt>AudioMixer</tt>.
      * 
-     * @param audioMixer the <code>AudioMixer</code> performing audio mixing,
-     *            managing the input <code>DataSource</code>s and pushing the
-     *            data of the new output <code>PushBufferDataSource</code>
+     * @param audioMixer the <tt>AudioMixer</tt> performing audio mixing,
+     *            managing the input <tt>DataSource</tt>s and pushing the
+     *            data of the new output <tt>PushBufferDataSource</tt>
      */
     public AudioMixingPushBufferDataSource(AudioMixer audioMixer)
     {
@@ -66,15 +66,15 @@ public class AudioMixingPushBufferDataSource
     }
 
     /**
-     * Adds a new input <code>DataSource</code> to be mixed by the associated
-     * <code>AudioMixer</code> of this instance and to not have its audio
+     * Adds a new input <tt>DataSource</tt> to be mixed by the associated
+     * <tt>AudioMixer</tt> of this instance and to not have its audio
      * contributions included in the mixing output represented by this
-     * <code>DataSource</code>.
+     * <tt>DataSource</tt>.
      * 
-     * @param inputDataSource a <code>DataSource</code> to be added for mixing
-     *            to the <code>AudioMixer</code> associate with this instance
+     * @param inputDataSource a <tt>DataSource</tt> to be added for mixing
+     *            to the <tt>AudioMixer</tt> associate with this instance
      *            and to not have its audio contributions included in the mixing
-     *            output represented by this <code>DataSource</code>
+     *            output represented by this <tt>DataSource</tt>
      */
     public void addInputDataSource(DataSource inputDataSource)
     {

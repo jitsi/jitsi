@@ -52,6 +52,40 @@ public abstract class MediaFormatImpl<T extends Format>
     }
 
     /**
+     * Creates a new <tt>MediaFormat</tt> instance for a specific JMF
+     * <tt>Format</tt> and assigns it a specific clock rate.
+     *
+     * @param format the JMF <tt>Format</tt> the new instance is to provide an
+     * implementation of <tt>MediaFormat</tt> for
+     * @param clockRate the clock rate of the new instance
+     * @return a new <tt>MediaFormat</tt> instance for the specified JMF
+     * <tt>Format</tt> and with the specified clock rate
+     */
+    public static MediaFormatImpl<? extends Format> createInstance(
+            Format format,
+            double clockRate)
+    {
+        if (format instanceof AudioFormat)
+        {
+            AudioFormat audioFormat = (AudioFormat) format;
+            AudioFormat clockRateAudioFormat
+                = new AudioFormat(
+                        audioFormat.getEncoding(),
+                        clockRate,
+                        audioFormat.getSampleSizeInBits(),
+                        audioFormat.getChannels());
+
+            return
+                new AudioMediaFormatImpl(
+                        (AudioFormat)
+                            clockRateAudioFormat.intersects(audioFormat));
+        }
+        if (format instanceof VideoFormat)
+            return new VideoMediaFormatImpl((VideoFormat) format, clockRate);
+        return null;
+    }
+
+    /**
      * Determines whether a specific set of format parameters is equal to
      * another set of format parameters in the sense that they define an equal
      * number of parameters and assign them equal values. Since the values are
@@ -184,14 +218,29 @@ public abstract class MediaFormatImpl<T extends Format>
 
     /**
      * Implements MediaFormat#getEncoding() and returns the encoding of the JMF
-     * <tt>Format</tt> that we are encapsulating here.
+     * <tt>Format</tt> that we are encapsulating here but it is the RFC-known
+     * encoding and not the internal JMF encoding.
      *
-     * @return the encoding of the JMF
-     * <tt>Format</tt> that we are encapsulating here.
+     * @return the RFC-known encoding of the JMF <tt>Format</tt> that we are
+     * encapsulating
      */
     public String getEncoding()
     {
-        return format.getEncoding();
+        String encoding = getJMFEncoding();
+
+        if (encoding != null)
+        {
+            int encodingLength = encoding.length();
+
+            if (encodingLength > 3)
+            {
+                int rtpPos = encodingLength - 4;
+
+                if (encoding.substring(rtpPos).equalsIgnoreCase("/rtp"))
+                    encoding = encoding.substring(0, rtpPos);
+            }
+        }
+        return encoding;
     }
 
     /**
@@ -221,6 +270,18 @@ public abstract class MediaFormatImpl<T extends Format>
     }
 
     /**
+     * Gets the encoding of the JMF <tt>Format</tt> represented by this
+     * instance as it is known to JMF (in contrast to its RFC name).
+     *
+     * @return the encoding of the JMF <tt>Format</tt> represented by this
+     * instance as it is known to JMF (in contrast to its RFC name)
+     */
+    public String getJMFEncoding()
+    {
+        return format.getEncoding();
+    }
+
+    /**
      * Overrides Object#hashCode() because Object#equals(Object) is overridden.
      *
      * @return a hash code value for this <tt>MediaFormat</tt>.
@@ -240,6 +301,6 @@ public abstract class MediaFormatImpl<T extends Format>
     @Override
     public String toString()
     {
-        return getEncoding()+"/"+getClockRate();
+        return getEncoding() + "/" + ((long) getClockRate());
     }
 }

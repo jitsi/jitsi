@@ -119,7 +119,7 @@ public class EncodingConfigurationTableModel
         case 0:
             return (encodingConfiguration.getPriority(encoding) > 0);
         case 1:
-            return MediaUtils.sdpToJmfEncoding(encoding);
+            return MediaUtils.rtpPayloadTypeToJmfEncoding(encoding);
         default:
             return null;
         }

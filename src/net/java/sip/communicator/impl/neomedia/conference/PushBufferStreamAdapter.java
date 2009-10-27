@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.media.conference;
+package net.java.sip.communicator.impl.neomedia.conference;
 
 import java.io.*;
 
@@ -12,8 +12,8 @@ import javax.media.*;
 import javax.media.protocol.*;
 
 /**
- * Represents a <code>PushBufferStream</code> which reads its data from a
- * specific <code>PushSourceStream</code>.
+ * Represents a <tt>PushBufferStream</tt> which reads its data from a
+ * specific <tt>PushSourceStream</tt>.
  * 
  * @author Lubomir Marinov
  */
@@ -23,14 +23,14 @@ public class PushBufferStreamAdapter
 {
 
     /**
-     * Initializes a new <code>PushBufferStreamAdapter</code> instance which
-     * reads its data from a specific <code>PushSourceStream</code> with a
-     * specific <code>Format</code>
+     * Initializes a new <tt>PushBufferStreamAdapter</tt> instance which
+     * reads its data from a specific <tt>PushSourceStream</tt> with a
+     * specific <tt>Format</tt>
      * 
-     * @param stream the <code>PushSourceStream</code> the new instance is to
+     * @param stream the <tt>PushSourceStream</tt> the new instance is to
      *            read its data from
-     * @param format the <code>Format</code> of the specified input
-     *            <code>stream</code> and of the new instance
+     * @param format the <tt>Format</tt> of the specified input
+     *            <tt>stream</tt> and of the new instance
      */
     public PushBufferStreamAdapter(PushSourceStream stream, Format format)
     {

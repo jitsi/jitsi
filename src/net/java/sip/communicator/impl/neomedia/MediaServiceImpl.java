@@ -46,11 +46,27 @@ public class MediaServiceImpl
         = new DeviceConfiguration();
 
     /**
+     * The list of audio <tt>MediaDevice</tt>s reported by this instance when
+     * its {@link MediaService#getDevices(MediaType)} method is called with an
+     * argument {@link MediaType#AUDIO}.
+     */
+    private final List<CaptureMediaDevice> audioDevices
+        = new ArrayList<CaptureMediaDevice>();
+
+    /**
      * The format-related user choices such as the enabled and disabled codecs
      * and the order of their preference.
      */
     private final EncodingConfiguration encodingConfiguration
         = new EncodingConfiguration();
+
+    /**
+     * The list of video <tt>MediaDevice</tt>s reported by this instance when
+     * its {@link MediaService#getDevices(MediaType)} method is called with an
+     * argument {@link MediaType#VIDEO}.
+     */
+    private final List<CaptureMediaDevice> videoDevices
+        = new ArrayList<CaptureMediaDevice>();
 
     /*
      * Implements MediaService#createMediaStream(StreamConnector, MediaDevice).
@@ -105,61 +121,99 @@ public class MediaServiceImpl
      * @return the <tt>CaptureDevice</tt> user choices such as the default audio
      * and video capture devices.
      */
-    DeviceConfiguration getDeviceConfiguration()
+    public DeviceConfiguration getDeviceConfiguration()
     {
         return deviceConfiguration;
     }
 
-    /*
-     * Implements MediaService#getDevices(MediaType).
+    /**
+     * Gets a list of the <tt>MediaDevice</tt>s known to this
+     * <tt>MediaService</tt> and handling the specified <tt>MediaType</tt>.
+     *
+     * @param mediaType the <tt>MediaType</tt> to obtain the
+     * <tt>MediaDevice</tt> list for
+     * @return a new <tt>List</tt> of <tt>MediaDevice</tt>s known to this
+     * <tt>MediaService</tt> and handling the specified <tt>MediaType</tt>. The
+     * returned <tt>List</tt> is a copy of the internal storage and,
+     * consequently, modifications to it do not affect this instance. Despite
+     * the fact that a new <tt>List</tt> instance is returned by each call to
+     * this method, the <tt>MediaDevice</tt> instances are the same if they are
+     * still known to this <tt>MediaService</tt> to be available.
+     * @see MediaService#getDevices(MediaType)
      */
     public List<MediaDevice> getDevices(MediaType mediaType)
     {
         CaptureDeviceInfo[] captureDeviceInfos;
+        List<CaptureMediaDevice> devices;
 
         switch (mediaType)
         {
         case AUDIO:
             captureDeviceInfos
                 = getDeviceConfiguration().getAvailableAudioCaptureDevices();
+            devices = audioDevices;
             break;
         case VIDEO:
             captureDeviceInfos
                 = getDeviceConfiguration().getAvailableVideoCaptureDevices();
+            devices = videoDevices;
             break;
         default:
             captureDeviceInfos = null;
+            devices = null;
             break;
         }
 
-        List<MediaDevice> captureDevices;
-
-        if ((captureDeviceInfos == null) || (captureDeviceInfos.length == 0))
-            captureDevices = EMPTY_DEVICES;
-        else
+        synchronized (devices)
         {
-            captureDevices
-                = new ArrayList<MediaDevice>(captureDeviceInfos.length);
+            if ((captureDeviceInfos == null) || (captureDeviceInfos.length == 0))
+            {
+                devices.clear();
+                return EMPTY_DEVICES;
+            }
+
+            Iterator<CaptureMediaDevice> deviceIter = devices.iterator();
+
+            while (deviceIter.hasNext())
+            {
+                CaptureDeviceInfo captureDeviceInfo
+                    = deviceIter.next().getCaptureDeviceInfo();
+                boolean deviceIsFound = false;
+
+                for (int i = 0; i < captureDeviceInfos.length; i++)
+                    if (captureDeviceInfo.equals(captureDeviceInfos[i]))
+                    {
+                        deviceIsFound = true;
+                        captureDeviceInfos[i] = null;
+                        break;
+                    }
+                if (!deviceIsFound)
+                    deviceIter.remove();
+            }
+
             for (CaptureDeviceInfo captureDeviceInfo : captureDeviceInfos)
             {
-                MediaDevice captureDevice;
+                if (captureDeviceInfo == null)
+                    continue;
+
+                CaptureMediaDevice device;
 
                 switch (mediaType)
                 {
                 case AUDIO:
-                    captureDevice
-                        = new AudioCaptureMediaDevice(captureDeviceInfo);
+                    device = new AudioCaptureMediaDevice(captureDeviceInfo);
                     break;
                 case VIDEO:
                 default:
-                    captureDevice
+                    device
                         = new CaptureMediaDevice(captureDeviceInfo, mediaType);
                     break;
                 }
-                captureDevices.add(captureDevice);
+                devices.add(device);
             }
+
+            return new ArrayList<MediaDevice>(devices);
         }
-        return captureDevices;
     }
 
     /**
@@ -169,7 +223,7 @@ public class MediaServiceImpl
      * @return the format-related user choices such as the enabled and disabled
      * codecs and the order of their preference
      */
-    EncodingConfiguration getEncodingConfiguration()
+    public EncodingConfiguration getEncodingConfiguration()
     {
         return encodingConfiguration;
     }

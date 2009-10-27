@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.media.conference;
+package net.java.sip.communicator.impl.neomedia.conference;
 
 import java.io.*;
 
@@ -13,8 +13,8 @@ import javax.media.format.*;
 import javax.media.protocol.*;
 
 /**
- * Represents a <code>PullBufferStream</code> which reads its data from a
- * specific <code>PullSourceStream</code>.
+ * Represents a <tt>PullBufferStream</tt> which reads its data from a
+ * specific <tt>PullSourceStream</tt>.
  * 
  * @author Lubomir Marinov
  */
@@ -24,14 +24,14 @@ public class PullBufferStreamAdapter
 {
 
     /**
-     * Initializes a new <code>PullBufferStreamAdapter</code> instance which
-     * reads its data from a specific <code>PullSourceStream</code> with a
-     * specific <code>Format</code>
+     * Initializes a new <tt>PullBufferStreamAdapter</tt> instance which
+     * reads its data from a specific <tt>PullSourceStream</tt> with a
+     * specific <tt>Format</tt>
      * 
-     * @param stream the <code>PullSourceStream</code> the new instance is to
+     * @param stream the <tt>PullSourceStream</tt> the new instance is to
      *            read its data from
-     * @param format the <code>Format</code> of the specified input
-     *            <code>stream</code> and of the new instance
+     * @param format the <tt>Format</tt> of the specified input
+     *            <tt>stream</tt> and of the new instance
      */
     public PullBufferStreamAdapter(PullSourceStream stream, Format format)
     {
@@ -40,12 +40,12 @@ public class PullBufferStreamAdapter
 
     /**
      * Gets the frame size measured in bytes defined by a specific
-     * <code>Format</code>.
+     * <tt>Format</tt>.
      * 
-     * @param format the <code>Format</code> to determine the frame size in
+     * @param format the <tt>Format</tt> to determine the frame size in
      *            bytes of
      * @return the frame size measured in bytes defined by the specified
-     *         <code>Format</code>
+     *         <tt>Format</tt>
      */
     private static int getFrameSizeInBytes(Format format)
     {

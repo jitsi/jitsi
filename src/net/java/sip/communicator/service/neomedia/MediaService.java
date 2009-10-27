@@ -38,7 +38,7 @@ public interface MediaService
      * @param mediaType the media type (i.e. AUDIO or VIDEO) that we'd like
      * to obtain the device list for.
      *
-     * @return the list of <tt>MediaDevices</tt> currently known to handle the
+     * @return the list of <tt>MediaDevice</tt>s currently known to handle the
      * specified <tt>mediaType</tt>.
      */
     public List<MediaDevice> getDevices(MediaType mediaType);

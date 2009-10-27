@@ -10,8 +10,7 @@ import java.util.*;
 
 /**
  * Defines the notification support informing about changes in the availability
- * of visual <code>Components</code> representing video such as adding and
- * removing.
+ * of visual <tt>Components</tt> representing video such as adding and removing.
  *
  * @author Lubomir Marinov
  */
@@ -20,22 +19,21 @@ public interface VideoListener
 {
 
     /**
-     * Notifies that a visual <code>Component</code> representing video has been
+     * Notifies that a visual <tt>Component</tt> representing video has been
      * added to the provider this listener has been added to.
      *
-     * @param event a <code>VideoEvent</code> describing the added visual
-     *            <code>Component</code> representing video and the provider it
-     *            was added into
+     * @param event a <tt>VideoEvent</tt> describing the added visual
+     * <tt>Component</tt> representing video and the provider it was added into
      */
     void videoAdded(VideoEvent event);
 
     /**
-     * Notifies that a visual <code>Component</code> representing video has been
+     * Notifies that a visual <tt>Component</tt> representing video has been
      * removed from the provider this listener has been added to.
      *
-     * @param event a <code>VideoEvent</code> describing the removed visual
-     *            <code>Component</code> representing video and the provider it
-     *            was removed from
+     * @param event a <tt>VideoEvent</tt> describing the removed visual
+     * <tt>Component</tt> representing video and the provider it was removed
+     * from
      */
     void videoRemoved(VideoEvent event);
 }

@@ -10,7 +10,6 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import javax.media.*;
 import javax.media.control.*;
 import javax.media.format.*;
 import javax.media.protocol.*;
@@ -24,12 +23,13 @@ import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.util.*;
 
 /**
+ * Implements <tt>MediaStream</tt> using JMF.
+ *
  * @author Lubomir Marinov
  */
 public class MediaStreamImpl
     extends AbstractMediaStream
-    implements ControllerListener,
-               ReceiveStreamListener,
+    implements ReceiveStreamListener,
                SendStreamListener,
                SessionListener
 {
@@ -48,16 +48,17 @@ public class MediaStreamImpl
         = "net.java.sip.communicator.impl.media.RECEIVE_BUFFER_LENGTH";
 
     /**
-     * The <tt>MediaDevice</tt> this instance uses for both capture and playback
-     * of media.
+     * The session with the <tt>MediaDevice</tt> this instance uses for both
+     * capture and playback of media.
      */
-    private CaptureMediaDevice device;
+    private MediaDeviceSession deviceSession;
 
     /**
-     * The list of active <tt>Player</tt>s created during the operation of this
-     * <tt>MediaStream</tt>.
+     * The <tt>ReceiveStream</tt>s this instance plays back on its associated
+     * <tt>MediaDevice</tt>.
      */
-    protected final List<Player> players = new ArrayList<Player>();
+    private final List<ReceiveStream> receiveStreams
+        = new ArrayList<ReceiveStream>();
 
     /**
      * The <tt>RTPConnector</tt> through which this instance sends and receives
@@ -70,6 +71,15 @@ public class MediaStreamImpl
      * and receives RTP and RTCP traffic on behalf of this <tt>MediaStream</tt>.
      */
     private RTPManager rtpManager;
+
+    /**
+     * The indicator which determines whether {@link #createSendStreams()} has
+     * been executed for {@link #rtpManager}. If <tt>true</tt>, the
+     * <tt>SendStream</tt>s have to be recreated when the <tt>MediaDevice</tt>,
+     * respectively the <tt>MediaDeviceSession</tt>, of this instance is
+     * changed.
+     */
+    private boolean sendStreamsAreCreated = false;
 
     /**
      * The <tt>MediaDirection</tt> in which this instance is started. For
@@ -111,6 +121,7 @@ public class MediaStreamImpl
     public void close()
     {
         stop();
+        closeSendStreams();
 
         rtpConnector.removeTargets();
 
@@ -123,33 +134,17 @@ public class MediaStreamImpl
             rtpManager = null;
         }
 
-        disposePlayers();
-
-        getDevice().close();
+        if (deviceSession != null)
+            deviceSession.close();
     }
 
     /**
-     * Notifies this <tt>ControllerListener</tt> that the <tt>Controller</tt>
-     * which it is registered with has generated an event.
-     *
-     * @param event the <tt>ControllerEvent</tt> specifying the
-     * <tt>Controller</tt> which is the source of the event and the very type of
-     * the event
-     * @see ControllerListener#controllerUpdate(ControllerEvent)
+     * Closes the <tt>SendStream</tt>s this instance is sending to its remote
+     * peer.
      */
-    public void controllerUpdate(ControllerEvent event)
+    private void closeSendStreams()
     {
-        if (event instanceof RealizeCompleteEvent)
-        {
-            Player player = (Player) event.getSourceController();
-
-            if (player != null)
-            {
-                player.start();
-
-                realizeComplete(player);
-            }
-        }
+        stopSendStreams(true);
     }
 
     /**
@@ -159,7 +154,7 @@ public class MediaStreamImpl
     private void createSendStreams()
     {
         RTPManager rtpManager = getRTPManager();
-        DataSource dataSource = getDevice().getDataSource();
+        DataSource dataSource = getDeviceSession().getOutputDataSource();
         int streamCount;
 
         if (dataSource instanceof PushBufferDataSource)
@@ -222,36 +217,30 @@ public class MediaStreamImpl
                         exception);
             }
         }
+        sendStreamsAreCreated = true;
     }
 
     /**
-     * Releases the resources allocated by a specific <tt>Player</tt> in the
-     * course of its execution and prepares it to be garbage collected.
+     * Notifies this <tt>MediaStream</tt> that the <tt>MediaDevice</tt> (and
+     * respectively the <tt>MediaDeviceSession</tt> with it) which this instance
+     * uses for capture and playback of media has been changed. Allows extenders
+     * to override and provide additional processing of <tt>oldValue</tt> and
+     * <tt>newValue</tt>.
      *
-     * @param player the <tt>Player</tt> to dispose of
+     * @param oldValue the <tt>MediaDeviceSession</tt> with the
+     * <tt>MediaDevice</tt> this instance used work with
+     * @param newValue the <tt>MediaDeviceSession</tt> with the
+     * <tt>MediaDevice</tt> this instance is to work with
      */
-    protected void disposePlayer(Player player)
+    protected void deviceSessionChanged(
+            MediaDeviceSession oldValue,
+            MediaDeviceSession newValue)
     {
-        player.stop();
-        player.deallocate();
-        player.close();
-
-        players.remove(player);
-    }
-
-    /**
-     * Releases the resources allocated by {@link #players} in the course of
-     * their execution and prepares them to be garbage collected.
-     */
-    private void disposePlayers()
-    {
-        synchronized (players)
+        if (sendStreamsAreCreated)
         {
-            Player [] players
-                = this.players.toArray(new Player[this.players.size()]);
-
-            for (Player player : players)
-                disposePlayer(player);
+            closeSendStreams();
+            if ((newValue != null) && (rtpManager != null))
+                createSendStreams();
         }
     }
 
@@ -263,9 +252,21 @@ public class MediaStreamImpl
      * capture media
      * @see MediaStream#getDevice()
      */
-    public CaptureMediaDevice getDevice()
+    public AbstractMediaDevice getDevice()
     {
-        return device;
+        return getDeviceSession().getDevice();
+    }
+
+    /**
+     * Gets the <tt>MediaDeviceSession</tt> which represents the work of this
+     * <tt>MediaStream</tt> with its associated <tt>MediaDevice</tt>.
+     *
+     * @return the <tt>MediaDeviceSession</tt> which represents the work of this
+     * <tt>MediaStream</tt> with its associated <tt>MediaDevice</tt>
+     */
+    protected MediaDeviceSession getDeviceSession()
+    {
+        return deviceSession;
     }
 
     /**
@@ -278,7 +279,7 @@ public class MediaStreamImpl
      */
     public MediaFormat getFormat()
     {
-        return getDevice().getFormat();
+        return getDeviceSession().getFormat();
     }
 
     /**
@@ -400,18 +401,6 @@ public class MediaStreamImpl
     }
 
     /**
-     * Notifies this <tt>MediaStream</tt> that a specific <tt>Player</tt> of
-     * remote content has generated a <tt>RealizeCompleteEvent</tt>. Allows
-     * extenders to carry out additional processing on the <tt>Player</tt>.
-     *
-     * @param player the <tt>Player</tt> which is the source of a
-     * <tt>RealizeCompleteEvent</tt>
-     */
-    protected void realizeComplete(Player player)
-    {
-    }
-
-    /**
      * Registers any custom JMF <tt>Format</tt>s with a specific
      * <tt>RTPManager</tt>. Extenders should override in order to register their
      * own customizations.
@@ -433,7 +422,31 @@ public class MediaStreamImpl
      */
     public void setDevice(MediaDevice device)
     {
-        this.device = (CaptureMediaDevice) device;
+        AbstractMediaDevice abstractMediaDevice = (AbstractMediaDevice) device;
+
+        if ((deviceSession == null) || (deviceSession.getDevice() != device))
+        {
+            MediaDeviceSession oldValue = deviceSession;
+
+            if (deviceSession != null)
+            {
+                deviceSession.close();
+                deviceSession = null;
+            }
+
+            deviceSession = abstractMediaDevice.createSession();
+
+            MediaDeviceSession newValue = deviceSession;
+
+            deviceSessionChanged(oldValue, newValue);
+
+            if (deviceSession != null)
+                synchronized (receiveStreams)
+                {
+                    for (ReceiveStream receiveStream : receiveStreams)
+                        deviceSession.addReceiveStream(receiveStream);
+                }
+        }
     }
 
     /**
@@ -446,7 +459,7 @@ public class MediaStreamImpl
      */
     public void setFormat(MediaFormat format)
     {
-        getDevice().setFormat(format);
+        getDeviceSession().setFormat(format);
     }
 
     /**
@@ -536,7 +549,7 @@ public class MediaStreamImpl
                             .warn("Failed to start stream " + sendStream, ioe);
                     }
 
-            getDevice().start(MediaDirection.SENDONLY);
+            getDeviceSession().start(MediaDirection.SENDONLY);
 
             if (MediaDirection.RECVONLY.equals(startedDirection))
                 startedDirection = MediaDirection.SENDRECV;
@@ -590,7 +603,7 @@ public class MediaStreamImpl
                                 ioe);
                     }
 
-            getDevice().start(MediaDirection.RECVONLY);
+            getDeviceSession().start(MediaDirection.RECVONLY);
 
             if (MediaDirection.SENDONLY.equals(startedDirection))
                 startedDirection = MediaDirection.SENDONLY;
@@ -634,45 +647,10 @@ public class MediaStreamImpl
                 && (MediaDirection.SENDRECV.equals(startedDirection)
                         || MediaDirection.SENDONLY.equals(startedDirection)))
         {
-            Iterable<SendStream> sendStreams = rtpManager.getSendStreams();
+            stopSendStreams(false);
 
-            if (sendStreams != null)
-                for (SendStream sendStream : sendStreams)
-                    try
-                    {
-                        sendStream.getDataSource().stop();
-                        sendStream.stop();
-
-                        try
-                        {
-                            sendStream.close();
-                        }
-                        catch (NullPointerException npe)
-                        {
-                            /*
-                             * Sometimes com.sun.media.rtp.RTCPTransmitter#bye()
-                             * may throw NullPointerException but it does not
-                             * seem to be guaranteed because it does not happen
-                             * while debugging and stopping at a breakpoint on
-                             * SendStream#close(). One of the cases in which it
-                             * appears upon call hang-up is if we do not close
-                             * the "old" SendStreams upon reinvite(s). Though we
-                             * are now closing such SendStreams, ignore the
-                             * exception here just in case because we already
-                             * ignore IOExceptions.
-                             */
-                            logger
-                                .error(
-                                    "Failed to close stream " + sendStream,
-                                    npe);
-                        }
-                    }
-                    catch (IOException ioe)
-                    {
-                        logger.warn("Failed to stop stream " + sendStream, ioe);
-                    }
-
-            getDevice().stop(MediaDirection.SENDONLY);
+            if (deviceSession != null)
+                deviceSession.stop(MediaDirection.SENDONLY);
 
             if (MediaDirection.SENDRECV.equals(startedDirection))
                 startedDirection = MediaDirection.RECVONLY;
@@ -725,13 +703,72 @@ public class MediaStreamImpl
                                 ioe);
                     }
 
-            getDevice().stop(MediaDirection.RECVONLY);
+            if (deviceSession != null)
+                deviceSession.stop(MediaDirection.RECVONLY);
 
             if (MediaDirection.SENDRECV.equals(startedDirection))
                 startedDirection = MediaDirection.SENDONLY;
             else if (MediaDirection.RECVONLY.equals(startedDirection))
                 startedDirection = null;
         }
+    }
+
+    /**
+     * Stops the <tt>SendStream</tt> that this instance is sending to its
+     * remote peer and optionally closes them.
+     *
+     * @param close <tt>true</tt> to close the <tt>SendStream</tt>s that this
+     * instance is sending to its remote peer after stopping them;
+     * <tt>false</tt> to only stop them
+     */
+    private void stopSendStreams(boolean close)
+    {
+        if (rtpManager == null)
+            return;
+
+        @SuppressWarnings("unchecked")
+        Iterable<SendStream> sendStreams = rtpManager.getSendStreams();
+
+        if (sendStreams == null)
+            return;
+
+        for (SendStream sendStream : sendStreams)
+            try
+            {
+                sendStream.getDataSource().stop();
+                sendStream.stop();
+
+                if (close)
+                    try
+                    {
+                        sendStream.close();
+                    }
+                    catch (NullPointerException npe)
+                    {
+                        /*
+                         * Sometimes com.sun.media.rtp.RTCPTransmitter#bye() may
+                         * throw NullPointerException but it does not seem to be
+                         * guaranteed because it does not happen while debugging
+                         * and stopping at a breakpoint on SendStream#close().
+                         * One of the cases in which it appears upon call
+                         * hang-up is if we do not close the "old" SendStreams
+                         * upon reinvite(s). Though we are now closing such
+                         * SendStreams, ignore the exception here just in case
+                         * because we already ignore IOExceptions.
+                         */
+                        logger
+                            .error(
+                                "Failed to close stream " + sendStream,
+                                npe);
+                    }
+            }
+            catch (IOException ioe)
+            {
+                logger.warn("Failed to stop stream " + sendStream, ioe);
+            }
+
+        if (close)
+            sendStreamsAreCreated = false;
     }
 
     /**
@@ -750,46 +787,33 @@ public class MediaStreamImpl
             ReceiveStream receiveStream = event.getReceiveStream();
 
             if (receiveStream != null)
-            {
-                DataSource receiveStreamDataSource
-                    = receiveStream.getDataSource();
-
-                if (receiveStreamDataSource != null)
+                synchronized (receiveStreams)
                 {
-                    Player player = null;
-                    Throwable exception = null;
+                    if (!receiveStreams.contains(receiveStream)
+                            && receiveStreams.add(receiveStream))
+                    {
+                        MediaDeviceSession deviceSession = getDeviceSession();
 
-                    try
-                    {
-                        player = Manager.createPlayer(receiveStreamDataSource);
-                    }
-                    catch (IOException ioe)
-                    {
-                        exception = ioe;
-                    }
-                    catch (NoPlayerException npe)
-                    {
-                        exception = npe;
-                    }
-
-                    if (exception != null)
-                        logger
-                            .error(
-                                "Failed to create player for new receive stream "
-                                    + receiveStream,
-                                exception);
-                    else
-                    {
-                        player.addControllerListener(this);
-                        player.realize();
-
-                        synchronized (players)
-                        {
-                            players.add(player);
-                        }
+                        if (deviceSession != null)
+                            deviceSession.addReceiveStream(receiveStream);
                     }
                 }
-            }
+        }
+        else if (event instanceof TimeoutEvent)
+        {
+            ReceiveStream receiveStream = event.getReceiveStream();
+
+            if (receiveStream != null)
+                synchronized (receiveStreams)
+                {
+                    if (receiveStreams.remove(receiveStream))
+                    {
+                        MediaDeviceSession deviceSession = getDeviceSession();
+
+                        if (deviceSession != null)
+                            deviceSession.removeReceiveStream(receiveStream);
+                    }
+                }
         }
     }
 

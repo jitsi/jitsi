@@ -17,6 +17,8 @@ import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 
 /**
+ * Implements <tt>BundleActivator</tt> for the neomedia bundle.
+ *
  * @author Martin Andre
  * @author Emil Ivov
  * @author Lubomir Marinov
@@ -24,38 +26,80 @@ import org.osgi.framework.*;
 public class NeomediaActivator
     implements BundleActivator
 {
+
+    /**
+     * The <tt>Logger</tt> used by the <tt>NeomediaActivator</tt> class and its
+     * instances for logging output.
+     */
     private final Logger logger = Logger.getLogger(NeomediaActivator.class);
 
+    /**
+     * The context in which the one and only <tt>NeomediaActivator</tt> instance
+     * has started executing.
+     */
     private static BundleContext bundleContext;
 
+    /**
+     * The <tt>ConfigurationService</tt> registered in {@link #bundleContext}
+     * and used by the <tt>NeomediaActivator</tt> instance to read and write
+     * configuration properties.
+     */
     private static ConfigurationService configurationService;
 
+    /**
+     * The <tt>FileAccessService</tt> registered in {@link #bundleContext} and
+     * used by the <tt>NeomediaActivator</tt> instance to safely access files.
+     */
     private static FileAccessService fileAccessService;
 
+    /**
+     * The one and only <tt>MediaServiceImpl</tt> instance registered in
+     * {@link #bundleContext} by the <tt>NeomediaActivator</tt> instance.
+     */
     private static MediaServiceImpl mediaServiceImpl;
 
+    /**
+     * The <tt>NetworkAddressManagerService</tt> registered in
+     * {@link #bundleContext} and used by the <tt>NeomediaActivator</tt>
+     * instance for network address resolution.
+     */
     private static NetworkAddressManagerService networkAddressManagerService;
 
+    /**
+     * The <tt>ResourceManagementService</tt> registered in
+     * {@link #bundleContext} and representing the resources such as
+     * internationalized and localized text and images used by the neomedia
+     * bundle.
+     */
     private static ResourceManagementService resources;
 
+    /**
+     * The OSGi <tt>ServiceRegistration</tt> of {@link #mediaServiceImpl} in
+     * {@link #bundleContext}.
+     */
     private ServiceRegistration mediaServiceRegistration;
 
-    /*
-     * Implements BundleActivator#start(BundleContext).
+    /**
+     * Starts the execution of the neomedia bundle in the specified context.
+     *
+     * @param bundleContext the context in which the neomedia bundle is to start
+     * executing
+     * @throws Exception if an error occurs while starting the execution of the
+     * neomedia bundle in the specified context
      */
-    public void start(BundleContext context)
+    public void start(BundleContext bundleContext)
         throws Exception
     {
         logger.debug("Started.");
 
-        NeomediaActivator.bundleContext = context;
+        NeomediaActivator.bundleContext = bundleContext;
 
         // MediaService
         mediaServiceImpl = new MediaServiceImpl();
         mediaServiceImpl.start();
 
         mediaServiceRegistration
-            = context
+            = bundleContext
                 .registerService(
                     MediaService.class.getName(),
                     mediaServiceImpl,
@@ -63,7 +107,7 @@ public class NeomediaActivator
         logger.debug("Media Service ... [REGISTERED]");
 
         // MediaConfigurationForm
-        context
+        bundleContext
             .registerService(
                 ConfigurationForm.class.getName(),
                 new LazyConfigurationForm(
@@ -80,10 +124,15 @@ public class NeomediaActivator
         System.setProperty("gov.nist.core.STRIP_ADDR_SCOPES", "true");
     }
 
-    /*
-     * Implements BundleActivator#stop(BundleContext).
+    /**
+     * Stops the execution of the neomedia bundle in the specified context.
+     *
+     * @param bundleContext the context in which the neomedia bundle is to stop
+     * executing
+     * @throws Exception if an error occurs while stopping the execution of the
+     * neomedia bundle in the specified context
      */
-    public void stop(BundleContext context)
+    public void stop(BundleContext bundleContext)
         throws Exception
     {
         mediaServiceImpl.stop();
@@ -146,6 +195,18 @@ public class NeomediaActivator
     }
 
     /**
+     * Gets the <tt>MediaService</tt> implementation instance registered by the
+     * neomedia bundle.
+     *
+     * @return the <tt>MediaService</tt> implementation instance registered by
+     * the neomedia bundle
+     */
+    public static MediaServiceImpl getMediaServiceImpl()
+    {
+        return mediaServiceImpl;
+    }
+
+    /**
      * Returns a reference to a NetworkAddressManagerService implementation
      * currently registered in the bundle context or null if no such
      * implementation was found.
@@ -169,6 +230,15 @@ public class NeomediaActivator
         return networkAddressManagerService;
     }
 
+    /**
+     * Gets the <tt>ResourceManagementService</tt> instance which represents the
+     * resources such as internationalized and localized text and images used by
+     * the neomedia bundle.
+     *
+     * @return the <tt>ResourceManagementService</tt> instance which represents
+     * the resources such as internationalized and localized text and images
+     * used by the neomedia bundle
+     */
     public static ResourceManagementService getResources()
     {
         if (resources == null)

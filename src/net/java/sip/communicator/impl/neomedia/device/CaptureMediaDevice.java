@@ -6,10 +6,8 @@
  */
 package net.java.sip.communicator.impl.neomedia.device;
 
-import java.awt.*;
 import java.io.*;
 import java.util.*;
-import java.util.List;
 
 import javax.media.*;
 import javax.media.control.*;
@@ -17,6 +15,7 @@ import javax.media.format.*;
 import javax.media.protocol.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
+import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
@@ -29,7 +28,7 @@ import net.java.sip.communicator.util.*;
  * @author Lubomir Marinov
  */
 public class CaptureMediaDevice
-    implements MediaDevice
+    extends AbstractMediaDevice
 {
 
     /**
@@ -43,7 +42,7 @@ public class CaptureMediaDevice
      * The JMF <tt>CaptureDevice</tt> this instance wraps and provides an
      * implementation of <tt>MediaDevice</tt> for.
      */
-    private DataSource captureDevice;
+    private CaptureDevice captureDevice;
 
     /**
      * The <tt>CaptureDeviceInfo</tt> of {@link #captureDevice}.
@@ -61,12 +60,6 @@ public class CaptureMediaDevice
      * that it wraps.
      */
     private final MediaType mediaType;
-
-    /**
-     * The JMF <tt>Processor</tt> which transcodes {@link #captureDevice} into
-     * the format of this instance.
-     */
-    private Processor processor;
 
     /**
      * Initializes a new <tt>CaptureMediaDevice</tt> instance which is to
@@ -115,128 +108,37 @@ public class CaptureMediaDevice
     }
 
     /**
-     * For JPEG and H263, we know that they only work for particular
-     * sizes.  So we'll perform extra checking here to make sure they
-     * are of the right sizes.
+     * Notifies this instance that its <tt>captureDevice</tt> (the JMF
+     * <tt>CaptureDevice</tt> this instance wraps and provides an implementation
+     * of <tt>MediaDevice</tt> for) property has changed its value from
+     * <tt>oldValue</tt> to <tt>newValue</tt>. Allows extenders to override in
+     * order to perform additional processing of the new <tt>captureDevice</tt>
+     * once it is clear that it is set into this instance.
      *
-     * @param sourceFormat the original format that we'd like to check for
-     * size.
-     * @return the modified <tt>VideoFormat</tt> set to the size we support.
+     * @param oldValue the JMF <tt>CaptureDevice</tt> which was the value of the
+     * <tt>captureDevice</tt> property of this instance before <tt>newValue</tt>
+     * was set
+     * @param newValue the JMF <tt>CaptureDevice</tt> which is the value of the
+     * <tt>captureDevice</tt> property of this instance and which replaced
+     * <tt>oldValue</tt>
      */
-    private VideoFormat assertSize(VideoFormat sourceFormat)
+    protected void captureDeviceChanged(
+            CaptureDevice oldValue,
+            CaptureDevice newValue)
     {
-        int width, height;
-
-        // JPEG
-        if (sourceFormat.matches(new Format(VideoFormat.JPEG_RTP)))
-        {
-            Dimension size = sourceFormat.getSize();
-
-            // For JPEG, make sure width and height are divisible by 8.
-            width = (size.width % 8 == 0)
-                ? size.width
-                : ( ( (size.width / 8)) * 8);
-            height = (size.height % 8 == 0)
-                ? size.height
-                : (size.height / 8) * 8;
-        }
-        // H.263
-        else if (sourceFormat.matches(new Format(VideoFormat.H263_RTP)))
-        {
-            // For H.263, we only support some specific sizes.
-//            if (size.width < 128)
-//            {
-//                width = 128;
-//                height = 96;
-//            }
-//            else if (size.width < 176)
-//            {
-//                width = 176;
-//                height = 144;
-//            }
-//            else
-//            {
-                width = 352;
-                height = 288;
-//            }
-        }
-        else
-        {
-            // We don't know this particular format.  We'll just
-            // leave it alone then.
-            return sourceFormat;
-        }
-
-        VideoFormat result = new VideoFormat(null,
-                                             new Dimension(width, height),
-                                             Format.NOT_SPECIFIED,
-                                             null,
-                                             Format.NOT_SPECIFIED);
-        return (VideoFormat) result.intersects(sourceFormat);
     }
 
     /**
-     * Releases the resources allocated by this instance in the course of its
-     * execution and prepares it to be garbage collected.
-     */
-    public void close()
-    {
-        if (captureDevice != null)
-        {
-            /*
-             * As reported by Carlos Alexandre, stopping before disconnecting
-             * resolves a slow disconnect on Linux.
-             */
-            try
-            {
-                captureDevice.stop();
-            }
-            catch (IOException ex)
-            {
-                /*
-                 * We cannot do much about the exception because we're not
-                 * really interested in the stopping but rather in calling
-                 * DataSource#disconnect() anyway.
-                 */
-                logger.error("Failed to properly stop avDataSource.", ex);
-            }
-
-            captureDevice.disconnect();
-        }
-        if (processor != null)
-        {
-            processor.stop();
-            if (processor.getState() == Processor.Realized)
-            {
-                DataSource dataOutput = processor.getDataOutput();
-
-                if (dataOutput != null)
-                    dataOutput.disconnect();
-            }
-            processor.deallocate();
-            processor.close();
-        }
-    }
-
-    /**
-     * Finds the first <tt>Format</tt> instance in a specific list of
-     * <tt>Format</tt>s which matches a specific <tt>Format</tt>. The
-     * implementation considers a pair of <tt>Format</tt>s matching if they have
-     * the same encoding.
+     * Creates a <tt>DataSource</tt> instance for this <tt>MediaDevice</tt>
+     * which gives access to the captured media.
      *
-     * @param formats the array of <tt>Format</tt>s to be searched for a match
-     * to the specified <tt>format</tt>
-     * @param format the <tt>Format</tt> to search for a match in the specified
-     * <tt>formats</tt>
-     * @return the first element of <tt>formats</tt> which matches
-     * <tt>format</tt> i.e. is of the same encoding
+     * @return a <tt>DataSource</tt> instance which gives access to the media
+     * captured by this <tt>MediaDevice</tt>
+     * @see AbstractMediaDevice#createOutputDataSource()
      */
-    private Format findFirstMatchingFormat(Format[] formats, Format format)
+    DataSource createOutputDataSource()
     {
-        for (Format match : formats)
-            if (match.isSameEncoding(format))
-                return match;
-        return null;
+        return (DataSource) getConnectedCaptureDevice();
     }
 
     /**
@@ -246,27 +148,54 @@ public class CaptureMediaDevice
      * @return the JMF <tt>CaptureDevice</tt> this instance wraps and provides
      * an implementation of <tt>MediaDevice</tt> for
      */
-    protected DataSource getCaptureDevice()
+    public CaptureDevice getCaptureDevice()
     {
         if (captureDevice == null)
         {
+            CaptureDevice captureDevice = null;
+            Throwable exception = null;
+
             try
             {
-                setCaptureDevice(
-                    (CaptureDevice)
+                captureDevice
+                    = (CaptureDevice)
                         Manager
-                            .createDataSource(captureDeviceInfo.getLocator()));
+                            .createDataSource(captureDeviceInfo.getLocator());
             }
             catch (IOException ioe)
             {
                 // TODO
+                exception = ioe;
             }
             catch (NoDataSourceException ndse)
             {
                 // TODO
+                exception = ndse;
             }
+
+            if (exception != null)
+                logger
+                    .error(
+                        "Failed to create CaptureDevice DataSource "
+                            + "from CaptureDeviceInfo "
+                            + captureDeviceInfo,
+                        exception);
+            else
+                setCaptureDevice(captureDevice);
         }
         return captureDevice;
+    }
+
+    /**
+     * Gets the <tt>CaptureDeviceInfo</tt> of the JMF <tt>CaptureDevice</tt>
+     * represented by this instance.
+     *
+     * @return the <tt>CaptureDeviceInfo</tt> of the <tt>CaptureDevice</tt>
+     * represented by this instance
+     */
+    public CaptureDeviceInfo getCaptureDeviceInfo()
+    {
+        return captureDeviceInfo;
     }
 
     /**
@@ -281,9 +210,9 @@ public class CaptureMediaDevice
      * <tt>null</tt> if this instance has failed to create a
      * <tt>CaptureDevice</tt> instance or to connect to it
      */
-    private DataSource getConnectedCaptureDevice()
+    private CaptureDevice getConnectedCaptureDevice()
     {
-        DataSource captureDevice = getCaptureDevice();
+        CaptureDevice captureDevice = getCaptureDevice();
 
         if ((captureDevice != null) && !captureDeviceIsConnected)
         {
@@ -331,7 +260,7 @@ public class CaptureMediaDevice
                 {
                     Control bufferControl
                         = (Control)
-                            captureDevice
+                            ((DataSource) captureDevice)
                                 .getControl(
                                     "javax.media.control.BufferControl");
 
@@ -344,22 +273,6 @@ public class CaptureMediaDevice
                 captureDevice = null;
         }
         return captureDevice;
-    }
-
-    /**
-     * Gets the output <tt>DataSource</tt> of this instance which provides the
-     * captured (RTP) data to be sent by <tt>MediaStream</tt> to
-     * <tt>MediaStreamTarget</tt>.
-     *
-     * @return the output <tt>DataSource</tt> of this instance which provides
-     * the captured (RTP) data to be sent by <tt>MediaStream</tt> to
-     * <tt>MediaStreamTarget</tt>
-     */
-    public DataSource getDataSource()
-    {
-        Processor processor = getProcessor();
-
-        return (processor == null) ? null : processor.getDataOutput();
     }
 
     /**
@@ -386,23 +299,16 @@ public class CaptureMediaDevice
      */
     public MediaFormat getFormat()
     {
-        Processor processor = getProcessor();
+        MediaType mediaType = getMediaType();
 
-        if (processor != null)
+        for (FormatControl formatControl
+                : getCaptureDevice().getFormatControls())
         {
-            MediaType mediaType = getMediaType();
+            MediaFormat format
+                = MediaFormatImpl.createInstance(formatControl.getFormat());
 
-            for (TrackControl trackControl : processor.getTrackControls())
-            {
-                if (!trackControl.isEnabled())
-                    continue;
-
-                MediaFormat format
-                    = MediaFormatImpl.createInstance(trackControl.getFormat());
-
-                if ((format != null) && format.getMediaType().equals(mediaType))
-                    return format;
-            }
+            if ((format != null) && format.getMediaType().equals(mediaType))
+                return format;
         }
         return null;
     }
@@ -420,63 +326,6 @@ public class CaptureMediaDevice
     }
 
     /**
-     * Gets the JMF <tt>Processor</tt> which transcodes the
-     * <tt>CaptureDevice</tt> wrapped by this instance into the format of this
-     * instance.
-     *
-     * @return the JMF <tt>Processor</tt> which transcodes the
-     * <tt>CaptureDevice</tt> wrapped by this instance into the format of this
-     * instance
-     */
-    private Processor getProcessor()
-    {
-        if (processor == null)
-        {
-            DataSource captureDevice = getConnectedCaptureDevice();
-
-            if (captureDevice != null)
-            {
-                Processor processor = null;
-
-                try
-                {
-                    processor = Manager.createProcessor(captureDevice);
-                }
-                catch (IOException ioe)
-                {
-                    // TODO
-                }
-                catch (NoProcessorException npe)
-                {
-                    // TODO
-                }
-
-                if (waitForState(processor, Processor.Configured))
-                {
-                    try
-                    {
-                        processor
-                            .setContentDescriptor(
-                                new ContentDescriptor(
-                                        ContentDescriptor.RAW_RTP));
-                    }
-                    catch (NotConfiguredError nce)
-                    {
-                        // TODO
-                        processor = null;
-                    }
-
-                    if (processor != null)
-                        this.processor = processor;
-                }
-                else
-                    processor = null;
-            }
-        }
-        return processor;
-    }
-
-    /**
      * Gets a list of <tt>MediaFormat</tt>s supported by this
      * <tt>MediaDevice</tt>.
      *
@@ -485,31 +334,71 @@ public class CaptureMediaDevice
      */
     public List<MediaFormat> getSupportedFormats()
     {
-        Processor processor = getProcessor();
+        MediaType mediaType = getMediaType();
+        EncodingConfiguration encodingConfiguration
+            = NeomediaActivator.getMediaServiceImpl().getEncodingConfiguration();
+        String[] supportedEncodings;
+
+        switch (mediaType)
+        {
+        case AUDIO:
+            supportedEncodings
+                = encodingConfiguration.getSupportedAudioEncodings();
+            break;
+        case VIDEO:
+            supportedEncodings
+                = encodingConfiguration.getSupportedVideoEncodings();
+            break;
+        default:
+            supportedEncodings = null;
+            break;
+        }
+
+        List<MediaFormat> supportedFormats = new ArrayList<MediaFormat>();
+
+        if (supportedEncodings != null)
+            for (String supportedPayloadType : supportedEncodings)
+            {
+                MediaFormat[] supportedFormatsForPayloadType
+                    = MediaUtils
+                        .rtpPayloadTypeToMediaFormats(supportedPayloadType);
+
+                for (MediaFormat supportedFormatForPayloadType
+                        :supportedFormatsForPayloadType)
+                    supportedFormats.add(supportedFormatForPayloadType);
+            }
+
+        return supportedFormats;
+    }
+
+    /**
+     * Gets the <tt>MediaFormat</tt>s supported by a specific
+     * <tt>CaptureDevice</tt>.
+     *
+     * @param captureDevice the JMF <tt>CaptureDevice</tt> to retrieve the
+     * supported <tt>MediaFormat</tt>s of
+     * @return the <tt>MediaFormat</tt>s supported by the specified
+     * <tt>CaptureDevice</tt>
+     */
+    private List<MediaFormat> getSupportedFormats(CaptureDevice captureDevice)
+    {
+        MediaType mediaType = getMediaType();
         Set<Format> supportedFormats = new HashSet<Format>();
 
-        if (processor != null)
+        for (FormatControl formatControl : captureDevice.getFormatControls())
         {
-            MediaType mediaType = getMediaType();
-
-            for (TrackControl trackControl : processor.getTrackControls())
-            {
-                if (!trackControl.isEnabled())
-                    continue;
-
-                for (Format supportedFormat : trackControl.getSupportedFormats())
-                    switch (mediaType)
-                    {
-                    case AUDIO:
-                        if (supportedFormat instanceof AudioFormat)
-                            supportedFormats.add(supportedFormat);
-                        break;
-                    case VIDEO:
-                        if (supportedFormat instanceof VideoFormat)
-                            supportedFormats.add(supportedFormat);
-                        break;
-                    }
-            }
+            for (Format format : formatControl.getSupportedFormats())
+                switch (mediaType)
+                {
+                case AUDIO:
+                    if (format instanceof AudioFormat)
+                        supportedFormats.add(format);
+                    break;
+                case VIDEO:
+                    if (format instanceof VideoFormat)
+                        supportedFormats.add(format);
+                    break;
+                }
         }
 
         List<MediaFormat> supportedMediaFormats
@@ -521,9 +410,38 @@ public class CaptureMediaDevice
     }
 
     /**
+     * Gets the <tt>MediaFormat</tt>s supported by a <tt>CaptureDevice</tt>
+     * judging by its <tt>CaptureDeviceInfo</tt>.
+     *
+     * @param captureDeviceInfo the <tt>CaptureDeviceInfo</tt> to retrieve the
+     * supported <tt>MediaFormat</tt>s of
+     * @return the <tt>MediaFormat</tt>s supported by the specified
+     * <tt>CaptureDeviceInfo</tt>
+     */
+    private List<MediaFormat> getSupportedFormats(
+            CaptureDeviceInfo captureDeviceInfo)
+    {
+        Format[] supportedFormats = captureDeviceInfo.getFormats();
+        MediaType mediaType = getMediaType();
+        List<MediaFormat> supportedMediaFormats
+            = new ArrayList<MediaFormat>(supportedFormats.length);
+
+        for (Format format : supportedFormats)
+        {
+            MediaFormat mediaFormat = MediaFormatImpl.createInstance(format);
+
+            if ((mediaFormat != null)
+                    && mediaFormat.getMediaType().equals(mediaType))
+                supportedMediaFormats.add(mediaFormat);
+        }
+        return supportedMediaFormats;
+    }
+
+    /**
      * Sets the JMF <tt>CaptureDevice</tt> this instance wraps and provides a
      * <tt>MediaDevice</tt> implementation for. Allows extenders to override in
-     * order to customize <tt>captureDevice</tt> including to replace it.
+     * order to customize <tt>captureDevice</tt> including to replace it before
+     * it is set into this instance.
      *
      * @param captureDevice the JMF <tt>CaptureDevice</tt> this instance is to
      * wrap and provide a <tt>MediaDevice</tt> implementation for
@@ -532,158 +450,31 @@ public class CaptureMediaDevice
     {
         if (this.captureDevice != captureDevice)
         {
-            this.captureDevice = (DataSource) captureDevice;
+            CaptureDevice oldValue = this.captureDevice;
+
+            this.captureDevice = captureDevice;
             this.captureDeviceInfo = captureDevice.getCaptureDeviceInfo();
+
+            CaptureDevice newValue = captureDevice;
+
+            captureDeviceChanged(oldValue, newValue);
         }
     }
 
     /**
-     * Sets the <tt>MediaFormat</tt> in which this <tt>MediaDevice</tt> is to
-     * capture data.
+     * Gets a human-readable <tt>String</tt> representation of this instance.
      *
-     * @param format the <tt>MediaFormat</tt> in which this <tt>MediaDevice</tt>
-     * is to capture data
+     * @return a <tt>String</tt> providing a human-readable representation of
+     * this instance
      */
-    public void setFormat(MediaFormat format)
+    @Override
+    public String toString()
     {
-        MediaType mediaType = getMediaType();
+        CaptureDeviceInfo captureDeviceInfo = getCaptureDeviceInfo();
 
-        if (!mediaType.equals(format.getMediaType()))
-            throw new IllegalArgumentException("format");
-
-        /*
-         * We need javax.media.Format and we know how to convert MediaFormat to
-         * it only for MediaFormatImpl so assert early.
-         */
-        MediaFormatImpl<? extends Format> mediaFormatImpl
-            = (MediaFormatImpl<? extends Format>) format;
-
-        Processor processor = getProcessor();
-
-        if (processor != null)
-        {
-            if ((processor.getState() < Processor.Configured)
-                    && !waitForState(processor, Processor.Configured))
-            {
-                // TODO
-                return;
-            }
-
-            for (TrackControl trackControl : processor.getTrackControls())
-            {
-                if (!trackControl.isEnabled())
-                    continue;
-
-                Format[] supportedFormats = trackControl.getSupportedFormats();
-
-                if ((supportedFormats == null) || (supportedFormats.length < 1))
-                {
-                    trackControl.setEnabled(false);
-                    continue;
-                }
-
-                Format supportedFormat = null;
-
-                switch (mediaType)
-                {
-                case AUDIO:
-                    if (supportedFormats[0] instanceof AudioFormat)
-                    {
-                        if (FMJConditionals.FORCE_AUDIO_FORMAT != null)
-                            trackControl
-                                .setFormat(FMJConditionals.FORCE_AUDIO_FORMAT);
-                        else
-                        {
-                            supportedFormat
-                                = findFirstMatchingFormat(
-                                    supportedFormats,
-                                    mediaFormatImpl.getFormat());
-                        }
-                    }
-                    break;
-                case VIDEO:
-                    if (supportedFormats[0] instanceof VideoFormat)
-                    {
-                        supportedFormat
-                            = findFirstMatchingFormat(
-                                supportedFormats,
-                                mediaFormatImpl.getFormat());
-
-                        if (supportedFormat != null)
-                            supportedFormat
-                                = assertSize((VideoFormat) supportedFormat);
-                    }
-                    break;
-                }
-
-                if (supportedFormat == null)
-                    trackControl.setEnabled(false);
-                else
-                    trackControl.setFormat(supportedFormat);
-            }
-        }
-    }
-
-    /**
-     * Starts the processing of media in this instance in a specific direction.
-     *
-     * @param direction a <tt>MediaDirection</tt> value which represents the
-     * direction of the processing of media to be started. For example,
-     * {@link MediaDirection#SENDRECV} to start both capture and playback of
-     * media in this instance or {@link MediaDirection#SENDONLY} to only start
-     * the capture of media in this instance
-     */
-    public void start(MediaDirection direction)
-    {
-        if (direction == null)
-            throw new IllegalArgumentException("direction");
-
-        if (MediaDirection.SENDRECV.equals(direction)
-                || MediaDirection.SENDONLY.equals(direction))
-        {
-            Processor processor = getProcessor();
-
-            if ((processor != null)
-                    && (processor.getState() != Processor.Started))
-                processor.start();
-        }
-    }
-
-    /**
-     * Stops the processing of media in this instance in a specific direction.
-     *
-     * @param direction a <tt>MediaDirection</tt> value which represents the
-     * direction of the processing of media to be stopped. For example,
-     * {@link MediaDirection#SENDRECV} to stop both capture and playback of
-     * media in this instance or {@link MediaDirection#SENDONLY} to only stop
-     * the capture of media in this instance
-     */
-    public void stop(MediaDirection direction)
-    {
-        if (direction == null)
-            throw new IllegalArgumentException("direction");
-
-        if (MediaDirection.SENDRECV.equals(direction)
-                || MediaDirection.SENDONLY.equals(direction))
-            if ((processor != null)
-                    && (processor.getState() == Processor.Started))
-                processor.start();
-    }
-
-    /**
-     * Waits for the specified JMF <tt>Processor</tt> to enter the specified
-     * <tt>state</tt> and returns <tt>true</tt> if <tt>processor</tt> has
-     * successfully entered <tt>state</tt> or <tt>false</tt> if <tt>process</tt>
-     * has failed to enter <tt>state</tt>.
-     *
-     * @param processor the JMF <tt>Processor</tt> to wait on
-     * @param state the state as defined by the respective <tt>Processor</tt>
-     * state constants to wait <tt>processor</tt> to enter
-     * @return <tt>true</tt> if <tt>processor</tt> has successfully entered
-     * <tt>state</tt>; otherwise, <tt>false</tt>
-     */
-    private static boolean waitForState(Processor processor, int state)
-    {
-        return new ProcessorUtility().waitForState(processor, state);
+        return
+            (captureDeviceInfo == null)
+                ? super.toString()
+                : captureDeviceInfo.toString();
     }
 }

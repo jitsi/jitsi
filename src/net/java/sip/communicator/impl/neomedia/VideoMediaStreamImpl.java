@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.neomedia;
 
 import java.awt.*;
 import java.util.*;
-import java.util.List;
 
 import javax.media.*;
 import javax.media.control.*;
@@ -17,6 +16,7 @@ import javax.media.protocol.*;
 import javax.media.rtp.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.*;
+import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.event.*;
@@ -48,7 +48,7 @@ public class VideoMediaStreamImpl
     private static boolean formatsRegisteredOnce = false;
 
     /**
-     * Selects the <tt>VideoFormat</tt> from the list of supported formatts of a
+     * Selects the <tt>VideoFormat</tt> from the list of supported formats of a
      * specific video <tt>DataSource</tt> which has a size as close as possible
      * to a specific size and sets it as the format of the specified video
      * <tt>DataSource</tt>.
@@ -152,11 +152,58 @@ public class VideoMediaStreamImpl
     }
 
     /**
-     * The list of <tt>VideoListener</tt>s interested in changes in the
-     * availability of visual <tt>Component</tt>s depicting video.
+     * The <tt>VideoListener</tt> which handles <tt>VideoEvent</tt>s from the
+     * <tt>MediaDeviceSession</tt> of this instance and fires respective
+     * <tt>VideoEvent</tt>s from this <tt>VideoMediaStream</tt> to its
+     * <tt>VideoListener</tt>s.
      */
-    private final List<VideoListener> videoListeners
-        = new ArrayList<VideoListener>();
+    private final VideoListener deviceSessionVideoListener
+        = new VideoListener()
+                {
+
+                    /**
+                     * Notifies that a visual <tt>Component</tt> representing
+                     * video has been added to the provider this listener has
+                     * been added to.
+                     *
+                     * @param e a <tt>VideoEvent</tt> describing the added
+                     * visual <tt>Component</tt> representing video and the
+                     * provider it was added into
+                     * @see VideoListener#videoAdded(VideoEvent)
+                     */
+                    public void videoAdded(VideoEvent e)
+                    {
+                        fireVideoEvent(
+                            e.getType(),
+                            e.getVisualComponent(),
+                            e.getOrigin());
+                    }
+
+                    /**
+                     * Notifies that a visual <tt>Component</tt> representing
+                     * video has been removed from the provider this listener
+                     * has been added to.
+                     *
+                     * @param e a <tt>VideoEvent</tt> describing the removed
+                     * visual <tt>Component</tt> representing video and the
+                     * provider it was removed from
+                     * @see VideoListener#videoRemoved(VideoEvent)
+                     */
+                    public void videoRemoved(VideoEvent e)
+                    {
+                        fireVideoEvent(
+                            e.getType(),
+                            e.getVisualComponent(),
+                            e.getOrigin());
+                    }
+                };
+
+    /**
+     * The facility which aids this instance in managing a list of
+     * <tt>VideoListener</tt>s and firing <tt>VideoEvent</tt>s to them.
+     */
+    private final VideoNotifierSupport videoNotifierSupport
+        = new VideoNotifierSupport(this);
 
     /**
      * Initializes a new <tt>VideoMediaStreamImpl</tt> instance which will use
@@ -181,7 +228,7 @@ public class VideoMediaStreamImpl
      * <p>
      * Adding a listener which has already been added does nothing i.e. it is
      * not added more than once and thus does not receive one and the same
-     * <tt>VideoEvent</tt> multiple times
+     * <tt>VideoEvent</tt> multiple times.
      * </p>
      *
      * @param listener the <tt>VideoListener</tt> to be notified when
@@ -190,43 +237,36 @@ public class VideoMediaStreamImpl
      */
     public void addVideoListener(VideoListener listener)
     {
-        if (listener == null)
-            throw new NullPointerException("listener");
-
-        synchronized (videoListeners)
-        {
-            if (!videoListeners.contains(listener))
-                videoListeners.add(listener);
-        }
+        videoNotifierSupport.addVideoListener(listener);
     }
 
     /**
-     * Releases the resources allocated by a specific <tt>Player</tt> in the
-     * course of its execution and prepares it to be garbage collected. If the
-     * specified <tt>Player</tt> is rendering video, notifies the
-     * <tt>VideoListener</tt>s of this <tt>VideoMediaStream</tt> that its visual
-     * <tt>Component</tt> is to no longer be used by firing a
-     * {@link VideoEvent#VIDEO_REMOVED} <tt>VideoEvent</tt>.
+     * Notifies this <tt>MediaStream</tt> that the <tt>MediaDevice</tt> (and
+     * respectively the <tt>MediaDeviceSession</tt> with it) which this instance
+     * uses for capture and playback of media has been changed. Makes sure that
+     * the <tt>VideoListener</tt>s of this instance get <tt>VideoEvent</tt>s for
+     * the new/current <tt>VideoMediaDeviceSession</tt> and not for the old one.
      *
-     * @param player the <tt>Player</tt> to dispose of
+     * @param oldValue the <tt>MediaDeviceSession</tt> with the
+     * <tt>MediaDevice</tt> this instance used work with
+     * @param newValue the <tt>MediaDeviceSession</tt> with the
+     * <tt>MediaDevice</tt> this instance is to work with
+     * @see MediaStreamImpl#deviceSessionChanged(MediaDeviceSession,
+     * MediaDeviceSession)
      */
     @Override
-    protected void disposePlayer(Player player)
+    protected void deviceSessionChanged(
+            MediaDeviceSession oldValue,
+            MediaDeviceSession newValue)
     {
+        super.deviceSessionChanged(oldValue, newValue);
 
-        /*
-         * The player is being disposed so let the (interested) listeners know
-         * its Player#getVisualComponent() (if any) should be released.
-         */
-        Component visualComponent = getVisualComponent(player);
-
-        super.disposePlayer(player);
-
-        if (visualComponent != null)
-            fireVideoEvent(
-                VideoEvent.VIDEO_REMOVED,
-                visualComponent,
-                VideoEvent.REMOTE);
+        if (oldValue instanceof VideoMediaDeviceSession)
+            ((VideoMediaDeviceSession) oldValue)
+                .removeVideoListener(deviceSessionVideoListener);
+        if (newValue instanceof VideoMediaDeviceSession)
+            ((VideoMediaDeviceSession) newValue)
+                .addVideoListener(deviceSessionVideoListener);
     }
 
     /**
@@ -235,41 +275,19 @@ public class VideoMediaStreamImpl
      * availability of a specific visual <tt>Component</tt> depicting video.
      *
      * @param type the type of change as defined by <tt>VideoEvent</tt> in the
-     * availability of the specified visual <tt>Component</tt> depciting video
+     * availability of the specified visual <tt>Component</tt> depicting video
      * @param visualComponent the visual <tt>Component</tt> depicting video
      * which has been added or removed in this <tt>VideoMediaStream</tt>
-     * @param origin
+     * @param origin {@link VideoEvent#LOCAL} if the origin of the video is
+     * local (e.g. it is being locally captured); {@link VideoEvent#REMOTE} if
+     * the origin of the video is remote (e.g. a remote peer is streaming it)
      */
     protected void fireVideoEvent(
             int type,
             Component visualComponent,
             int origin)
     {
-        VideoListener[] listeners;
-
-        synchronized (videoListeners)
-        {
-            listeners
-                = videoListeners
-                    .toArray(new VideoListener[videoListeners.size()]);
-        }
-
-        if (listeners.length > 0)
-        {
-            VideoEvent event
-                = new VideoEvent(this, type, visualComponent, origin);
-
-            for (VideoListener listener : listeners)
-                switch (type)
-                {
-                    case VideoEvent.VIDEO_ADDED:
-                        listener.videoAdded(event);
-                        break;
-                    case VideoEvent.VIDEO_REMOVED:
-                        listener.videoRemoved(event);
-                        break;
-                }
-        }
+        videoNotifierSupport.fireVideoEvent(type, visualComponent, origin);
     }
 
     /**
@@ -283,73 +301,12 @@ public class VideoMediaStreamImpl
      */
     public Component getVisualComponent()
     {
-        synchronized (players)
-        {
-            for (Player player : players)
-            {
-                Component visualComponent = getVisualComponent(player);
+        MediaDeviceSession deviceSession = getDeviceSession();
 
-                if (visualComponent != null)
-                    return visualComponent;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Gets the visual <tt>Component</tt> of a specific <tt>Player</tt> if it
-     * has one and ignores the failure to access it if the specified
-     * <tt>Player</tt> is unrealized.
-     *
-     * @param player the <tt>Player</tt> to get the visual <tt>Component</tt> of
-     * if it has one
-     * @return the visual <tt>Component</tt> of the specified <tt>Player</tt> if
-     * it has one; <tt>null</tt> if the specified <tt>Player</tt> does not have
-     * a visual <tt>Component</tt> or the <tt>Player</tt> is unrealized
-     */
-    private Component getVisualComponent(Player player)
-    {
-        Component visualComponent;
-
-        try
-        {
-            visualComponent = player.getVisualComponent();
-        }
-        catch (NotRealizedError e)
-        {
-            visualComponent = null;
-
-            if (logger.isDebugEnabled())
-                logger
-                    .debug(
-                        "Called Player#getVisualComponent() "
-                            + "on Unrealized player "
-                            + player,
-                        e);
-        }
-        return visualComponent;
-    }
-
-    /**
-     * Notifies this <tt>MediaStream</tt> that a specific <tt>Player</tt> of
-     * remote content has generated a <tt>RealizeCompleteEvent</tt>. Allows
-     * extenders to carry out additional processing on the <tt>Player</tt>.
-     *
-     * @param player the <tt>Player</tt> which is the source of a
-     * <tt>RealizeCompleteEvent</tt>
-     */
-    @Override
-    protected void realizeComplete(Player player)
-    {
-        super.realizeComplete(player);
-
-        Component visualComponent = getVisualComponent(player);
-
-        if (visualComponent != null)
-            fireVideoEvent(
-                VideoEvent.VIDEO_ADDED,
-                visualComponent,
-                VideoEvent.REMOTE);
+        return
+            (deviceSession instanceof VideoMediaDeviceSession)
+                ? ((VideoMediaDeviceSession) deviceSession).getVisualComponent()
+                : null;
     }
 
     /**
@@ -399,9 +356,6 @@ public class VideoMediaStreamImpl
      */
     public void removeVideoListener(VideoListener listener)
     {
-        synchronized (videoListeners)
-        {
-            videoListeners.remove(listener);
-        }
+        videoNotifierSupport.removeVideoListener(listener);
     }
 }

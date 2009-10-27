@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.media.conference;
+package net.java.sip.communicator.impl.neomedia.conference;
 
 import java.io.*;
 import java.lang.reflect.*;
@@ -14,13 +14,13 @@ import javax.media.control.*;
 import javax.media.format.*;
 import javax.media.protocol.*;
 
-import net.java.sip.communicator.impl.media.*;
+import net.java.sip.communicator.impl.neomedia.*;
 
 /**
- * Represents a <code>DataSource</code> which transcodes the tracks of a
- * specific input <code>DataSource</code> into a specific output
- * <code>Format</code>. The transcoding is attempted only for tracks which
- * actually support it for the specified output <code>Format</code>.
+ * Represents a <tt>DataSource</tt> which transcodes the tracks of a
+ * specific input <tt>DataSource</tt> into a specific output
+ * <tt>Format</tt>. The transcoding is attempted only for tracks which
+ * actually support it for the specified output <tt>Format</tt>.
  * 
  * @author Lubomir Marinov
  */
@@ -29,39 +29,39 @@ public class TranscodingDataSource
 {
 
     /**
-     * The <code>DataSource</code> which has its tracks transcoded by this
+     * The <tt>DataSource</tt> which has its tracks transcoded by this
      * instance.
      */
     private final DataSource inputDataSource;
 
     /**
-     * The <code>DataSource</code> which contains the transcoded tracks of
-     * <code>inputDataSource</code> and which is wrapped by this instance. It is
-     * the output of <code>transcodingProcessor</code>.
+     * The <tt>DataSource</tt> which contains the transcoded tracks of
+     * <tt>inputDataSource</tt> and which is wrapped by this instance. It is
+     * the output of <tt>transcodingProcessor</tt>.
      */
     private DataSource outputDataSource;
 
     /**
-     * The <code>Format</code> in which the tracks of
-     * <code>inputDataSource</code> are transcoded.
+     * The <tt>Format</tt> in which the tracks of
+     * <tt>inputDataSource</tt> are transcoded.
      */
     private final Format outputFormat;
 
     /**
-     * The <code>Processor</code> which carries out the actual transcoding of
-     * the tracks of <code>inputDataSource</code>.
+     * The <tt>Processor</tt> which carries out the actual transcoding of
+     * the tracks of <tt>inputDataSource</tt>.
      */
     private Processor transcodingProcessor;
 
     /**
-     * Initializes a new <code>TranscodingDataSource</code> instance to
-     * transcode the tracks of a specific <code>DataSource</code> into a
-     * specific output <code>Format</code>.
+     * Initializes a new <tt>TranscodingDataSource</tt> instance to
+     * transcode the tracks of a specific <tt>DataSource</tt> into a
+     * specific output <tt>Format</tt>.
      * 
-     * @param inputDataSource the <code>DataSource</code> which is to have its
-     *            tracks transcoded in a specific outptu <code>Format</code>
-     * @param outputFormat the <code>Format</code> in which the new instance is
-     *            to transcode the tracks of <code>inputDataSource</code>
+     * @param inputDataSource the <tt>DataSource</tt> which is to have its
+     *            tracks transcoded in a specific outptu <tt>Format</tt>
+     * @param outputFormat the <tt>Format</tt> in which the new instance is
+     *            to transcode the tracks of <tt>inputDataSource</tt>
      */
     public TranscodingDataSource(
         DataSource inputDataSource,
@@ -229,10 +229,10 @@ public class TranscodingDataSource
 
     /**
      * Gets the output streams that this instance provides. Some of them may be
-     * the result of transcoding the tracks of the input <code>DataSource</code>
-     * of this instance in the output <code>Format</code> of this instance.
+     * the result of transcoding the tracks of the input <tt>DataSource</tt>
+     * of this instance in the output <tt>Format</tt> of this instance.
      * 
-     * @return an array of <code>SourceStream</code>s which represents the
+     * @return an array of <tt>SourceStream</tt>s which represents the
      *         collection of output streams that this instance provides
      */
     public SourceStream[] getStreams()
