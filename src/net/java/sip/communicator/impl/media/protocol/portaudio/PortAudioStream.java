@@ -16,6 +16,7 @@ import net.java.sip.communicator.util.*;
 
 /**
  * @author Damian Minkov
+ * @author Lubomir Marinov
  */
 public class PortAudioStream
     implements PullBufferStream
@@ -24,14 +25,17 @@ public class PortAudioStream
         Logger.getLogger(PortAudioStream.class);
 
     /**
-     * The locatro prefix used when creating or parsing MediaLocators.
+     * The locator prefix used when creating or parsing <tt>MediaLocator</tt>s.
      */
     public static final String LOCATOR_PREFIX = "portaudio:#";
 
-    private final static ContentDescriptor cd =
-        new ContentDescriptor(ContentDescriptor.RAW);
-
-    private Control[] controls = new Control[0];
+    /**
+     * The indicator which determines whether
+     * <tt>PortAudioStream#read(Buffer)</tt> will try to workaround a crash
+     * experienced on Linux with Alsa and PulseAudio when <tt>Pa_ReadStream</tt>
+     * is invoked to read more than the internal <tt>framesPerBuffer</tt>.
+     */
+    private static final boolean USE_FRAMES_PER_BUFFER_WORKAROUND;
 
     private static AudioFormat audioFormat = new AudioFormat(
                     AudioFormat.LINEAR,
@@ -43,6 +47,19 @@ public class PortAudioStream
                       16,
                       Format.NOT_SPECIFIED,
                       Format.byteArray);
+
+    private final static ContentDescriptor cd =
+        new ContentDescriptor(ContentDescriptor.RAW);
+
+    static
+    {
+        String osName = System.getProperty("os.name");
+
+        USE_FRAMES_PER_BUFFER_WORKAROUND
+            = (osName != null) && osName.contains("Linux");
+    }
+
+    private Control[] controls = new Control[0];
 
     private long stream = 0;
 
@@ -207,8 +224,9 @@ public class PortAudioStream
 
     /**
      * Block and read a buffer from the stream.
-     * @param buffer should be non-null.
-     * @throws IOException Thrown if an error occurs while reading.
+     *
+     * @param buffer the <tt>Buffer</tt> to read captured media into
+     * @throws IOException if an error occurs while reading.
      */
     public synchronized void read(Buffer buffer)
         throws IOException
@@ -218,27 +236,57 @@ public class PortAudioStream
 
         try
         {
-            int canread
+            int readAvailableFrames
                 = (int) PortAudio.Pa_GetStreamReadAvailable(stream);
 
-            if(canread < 1)
-                canread = 512;
+            if (readAvailableFrames < 1)
+                readAvailableFrames = 512;
 
-            byte[] bytebuff = new byte[canread*frameSize];
+            byte[] bytebuff = null;
 
-            PortAudio.Pa_ReadStream(stream, bytebuff, canread);
+            if (USE_FRAMES_PER_BUFFER_WORKAROUND)
+            {
+                Format bufferFormat = buffer.getFormat();
+
+                /*
+                 * If we've managed to read at least once with a certain buffer
+                 * length, there does not seem to be a reason why we will not be
+                 * able to do it again.
+                 */
+                if ((bufferFormat != null)
+                        && Format.byteArray.equals(bufferFormat.getDataType()))
+                    bytebuff = (byte[]) buffer.getData();
+            }
+
+            int bytebuffLength;
+
+            if (bytebuff == null)
+            {
+                bytebuff = new byte[readAvailableFrames * frameSize];
+                bytebuffLength = bytebuff.length;
+            }
+            else
+            {
+                readAvailableFrames = bytebuff.length / frameSize;
+                bytebuffLength = readAvailableFrames * frameSize;
+            }
+
+            PortAudio.Pa_ReadStream(stream, bytebuff, readAvailableFrames);
     
             buffer.setTimeStamp(System.nanoTime());
             buffer.setData(bytebuff);
             buffer.setSequenceNumber(seqNo);
-            buffer.setLength(bytebuff.length);
+            buffer.setLength(bytebuffLength);
             buffer.setFlags(0);
             buffer.setHeader(null);
             seqNo++;
         }
-        catch (PortAudioException e)
+        catch (PortAudioException pae)
         {
-            logger.error("", e);
+            IOException ioe = new IOException();
+
+            ioe.initCause(pae);
+            throw ioe;
         }
     }
 
