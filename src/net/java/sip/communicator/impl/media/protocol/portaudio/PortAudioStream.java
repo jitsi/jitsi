@@ -236,13 +236,8 @@ public class PortAudioStream
 
         try
         {
-            int readAvailableFrames
-                = (int) PortAudio.Pa_GetStreamReadAvailable(stream);
-
-            if (readAvailableFrames < 1)
-                readAvailableFrames = 512;
-
             byte[] bytebuff = null;
+            int readAvailableFrames;
 
             if (USE_FRAMES_PER_BUFFER_WORKAROUND)
             {
@@ -262,6 +257,11 @@ public class PortAudioStream
 
             if (bytebuff == null)
             {
+                readAvailableFrames
+                    = (int) PortAudio.Pa_GetStreamReadAvailable(stream);
+                if (readAvailableFrames < 1)
+                    readAvailableFrames = 512;
+
                 bytebuff = new byte[readAvailableFrames * frameSize];
                 bytebuffLength = bytebuff.length;
             }
