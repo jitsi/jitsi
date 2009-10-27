@@ -50,7 +50,7 @@ public class PortAudioAuto
                     new CaptureDeviceInfo(
                         PortAudio.PaDeviceInfo_getName(deviceInfo),
                         new MediaLocator(
-                            PortAudioStream.LOCATOR_PREFIX + deviceIndex),
+                            PortAudioUtils.LOCATOR_PREFIX + deviceIndex),
                         PortAudioStream.getFormats());
 
             if(maxInputChannels > 0)

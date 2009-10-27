@@ -31,6 +31,36 @@ public final class PortAudio
     public static final long SAMPLE_FORMAT_INT16 = 0x00000008;
 
     /**
+     * A type used to specify one or more sample formats.
+     * The format paFloat32.
+     */
+    public static final long SAMPLE_FORMAT_FLOAT32 = 0x00000001;
+
+    /**
+     * A type used to specify one or more sample formats.
+     * The format paInt32.
+     */
+    public static final long SAMPLE_FORMAT_INT32 = 0x00000002;
+
+    /**
+     * A type used to specify one or more sample formats.
+     * The format paInt24.
+     */
+    public static final long SAMPLE_FORMAT_INT24 = 0x00000004;
+
+    /**
+     * A type used to specify one or more sample formats.
+     * The format paInt8.
+     */
+    public static final long SAMPLE_FORMAT_INT8 = 0x00000010;
+
+    /**
+     * A type used to specify one or more sample formats.
+     * The format paUInt8.
+     */
+    public static final long SAMPLE_FORMAT_UINT8 = 0x00000020;
+
+    /**
      * Flags used to control the behavior of a stream.
      * They are passed as parameters to Pa_OpenStream or Pa_OpenDefaultStream.
      */

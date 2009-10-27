@@ -390,20 +390,17 @@ static PaStreamParameters *
 PortAudio_fixInputParametersSuggestedLatency(
 	PaStreamParameters *inputParameters)
 {
-	if (inputParameters && (0 == inputParameters->suggestedLatency))
-	{
-		PaDeviceInfo *deviceInfo = Pa_GetDeviceInfo(inputParameters->device);
+    if (inputParameters && (0 == inputParameters->suggestedLatency))
+    {
+        PaDeviceInfo *deviceInfo = Pa_GetDeviceInfo(inputParameters->device);
 
-		if (deviceInfo)
+        if (deviceInfo)
         {
-            // default latency of 100ms seems ok
-            // to use portaudio on all systems
             inputParameters->suggestedLatency
-                    = 0.1; //= deviceInfo->defaultLowInputLatency;
-
+                    = deviceInfo->defaultLowInputLatency;
         }
-	}
-	return inputParameters;
+    }
+    return inputParameters;
 }
 
 static PaStreamParameters *

@@ -111,7 +111,7 @@ public class PortAudioClipImpl
                     if (portAudioStream == 0)
                     {
                         int deviceIndex =
-                            PortAudioStream.getDeviceIndexFromLocator(
+                            PortAudioUtils.getDeviceIndexFromLocator(
                                         audioNotifier.getDeviceConfiguration().
                                         getAudioNotifyDevice().getLocator());
                         long devInfo = PortAudio.Pa_GetDeviceInfo(deviceIndex);
@@ -129,7 +129,8 @@ public class PortAudioClipImpl
                             = PortAudio.PaStreamParameters_new(
                                     deviceIndex,
                                     outChannels,
-                                    PortAudio.SAMPLE_FORMAT_INT16);
+                                    PortAudioUtils.getPortAudioSampleFormat(
+                                        audioStreamFormat.getSampleSizeInBits()));
                         // check if file samplerate is supported
                         // if it is use it and not resample
                         if(!PortAudio.Pa_IsFormatSupported(

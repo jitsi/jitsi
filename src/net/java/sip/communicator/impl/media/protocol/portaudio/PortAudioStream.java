@@ -25,11 +25,6 @@ public class PortAudioStream
         Logger.getLogger(PortAudioStream.class);
 
     /**
-     * The locator prefix used when creating or parsing <tt>MediaLocator</tt>s.
-     */
-    public static final String LOCATOR_PREFIX = "portaudio:#";
-
-    /**
      * The indicator which determines whether
      * <tt>PortAudioStream#read(Buffer)</tt> will try to workaround a crash
      * experienced on Linux with Alsa and PulseAudio when <tt>Pa_ReadStream</tt>
@@ -55,8 +50,8 @@ public class PortAudioStream
     {
         String osName = System.getProperty("os.name");
 
-        USE_FRAMES_PER_BUFFER_WORKAROUND
-            = (osName != null) && osName.contains("Linux");
+        USE_FRAMES_PER_BUFFER_WORKAROUND = false;
+//            = (osName != null) && osName.contains("Linux");
     }
 
     private Control[] controls = new Control[0];
@@ -75,7 +70,7 @@ public class PortAudioStream
      */
     public PortAudioStream(MediaLocator locator)
     {
-        this.deviceIndex = getDeviceIndexFromLocator(locator);
+        this.deviceIndex = PortAudioUtils.getDeviceIndexFromLocator(locator);
     }
 
     /**
@@ -272,7 +267,7 @@ public class PortAudioStream
             }
 
             PortAudio.Pa_ReadStream(stream, bytebuff, readAvailableFrames);
-    
+
             buffer.setTimeStamp(System.nanoTime());
             buffer.setData(bytebuff);
             buffer.setSequenceNumber(seqNo);
@@ -288,16 +283,5 @@ public class PortAudioStream
             ioe.initCause(pae);
             throw ioe;
         }
-    }
-
-    /**
-     * Extracts the device index from the locator.
-     * @param locator the locator containing the device index.
-     * @return the extracted device index.
-     */
-    public static int getDeviceIndexFromLocator(MediaLocator locator)
-    {
-        return Integer.parseInt(locator.toExternalForm().replace(
-                PortAudioStream.LOCATOR_PREFIX, ""));
     }
 }

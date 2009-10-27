@@ -43,8 +43,6 @@ public class PortAudioRenderer
 
     boolean started = false;
 
-//    private final Object bufferSync = new Object();
-
     private static int deviceIndex = -1;
 
     private static int frameSize;
@@ -274,7 +272,7 @@ public class PortAudioRenderer
      */
     public static void setDevice(MediaLocator locator)
     {
-        deviceIndex = PortAudioStream.getDeviceIndexFromLocator(locator);
+        deviceIndex = PortAudioUtils.getDeviceIndexFromLocator(locator);
 
         long device = PortAudio.Pa_GetDeviceInfo(deviceIndex);
         int outputChannels = 1;
