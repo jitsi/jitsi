@@ -17,7 +17,7 @@ import net.java.sip.communicator.service.neomedia.format.*;
  * Implements <tt>MediaFormat</tt> for the JMF <tt>Format</tt>.
  *
  * @param <T> the type of the wrapped <tt>Format</tt>
- * 
+ *
  * @author Lubomir Marinov
  */
 public abstract class MediaFormatImpl<T extends Format>
@@ -57,9 +57,9 @@ public abstract class MediaFormatImpl<T extends Format>
      * number of parameters and assign them equal values. Since the values are
      * <tt>String</tt>s, presumes that a value of <tt>null</tt> is equal to the
      * empty <tt>String</tt>.
-     * 
+     *
      * @param formatParameters1 the first set of format parameters to be tested
-     * for equality 
+     * for equality
      * @param formatParameters2 the second set of format parameters to be tested
      * for equality
      * @return <tt>true</tt> if the specified sets of format parameters are
@@ -154,9 +154,17 @@ public abstract class MediaFormatImpl<T extends Format>
                 : new HashMap<String, String>(formatParameters);
     }
 
-    /*
-     * Implements MediaFormat#equals(Object).
+    /**
+     * Implements MediaFormat#equals(Object) and actually compares the
+     * encapsulated JMF <tt>Format</tt> instances.
+     *
+     * @param mediaFormat the object that we'd like to compare <tt>this</tt> one
+     * to.
+     *
+     * @return <tt>true</tt> if the JMF <tt>Format</tt> instances encapsulated
+     * by this class are equal and <tt>false</tt> otherwise.
      */
+    @Override
     public boolean equals(Object mediaFormat)
     {
         if (this == mediaFormat)
@@ -168,44 +176,70 @@ public abstract class MediaFormatImpl<T extends Format>
         @SuppressWarnings("unchecked")
         MediaFormatImpl<T> mediaFormatImpl = (MediaFormatImpl<T>) mediaFormat;
 
-        return
-            format.equals(mediaFormatImpl.format)
+        return format.equals(mediaFormatImpl.format)
                 && formatParametersAreEqual(
                         getFormatParameters(),
                         mediaFormatImpl.getFormatParameters());
     }
 
-    /*
-     * Implements MediaFormat#getEncoding().
+    /**
+     * Implements MediaFormat#getEncoding() and returns the encoding of the JMF
+     * <tt>Format</tt> that we are encapsulating here.
+     *
+     * @return the encoding of the JMF
+     * <tt>Format</tt> that we are encapsulating here.
      */
     public String getEncoding()
     {
         return format.getEncoding();
     }
 
+    /**
+     * Returns the JMF <tt>Format</tt> instance that we are wrapping here.
+     *
+     * @return a reference to that JMF <tt>Format</tt> instance that this class
+     * is wrapping.
+     */
     public T getFormat()
     {
         return format;
     }
 
-    /*
+    /**
      * Implements MediaFormat#getFormatParameters(). Returns a copy of the
      * format properties of this instance. Modifications to the returned Map do
      * no affect the format properties of this instance.
+     *
+     * @return a copy of the format properties of this instance. Modifications
+     * to the returned Map do no affect the format properties of this instance.
      */
     public Map<String, String> getFormatParameters()
     {
-        return
-            (formatParameters == EMPTY_FORMAT_PARAMETERS)
+        return (formatParameters == EMPTY_FORMAT_PARAMETERS)
                 ? EMPTY_FORMAT_PARAMETERS
                 : new HashMap<String, String>(formatParameters);
     }
 
-    /*
+    /**
      * Overrides Object#hashCode() because Object#equals(Object) is overridden.
+     *
+     * @return a hash code value for this <tt>MediaFormat</tt>.
      */
+    @Override
     public int hashCode()
     {
-        return (super.hashCode() | getFormatParameters().hashCode()); 
+        return (super.hashCode() | getFormatParameters().hashCode());
+    }
+
+    /**
+     * Returns a <tt>String</tt> representation of this <tt>MediaFormat</tt>
+     * containing, among other things, its encoding and clockrate values.
+     *
+     * @return a <tt>String</tt> representation of this <tt>MediaFormat</tt>.
+     */
+    @Override
+    public String toString()
+    {
+        return getEncoding()+"/"+getClockRate();
     }
 }
