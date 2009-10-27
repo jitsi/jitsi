@@ -21,20 +21,6 @@
  */
 #define WIN32_LEAN_AND_MEAN
 
-/**
- * \def ASSUME_COMPLETE_JDK
- * \brief Assume the JDK has a correct implementation of:\n
- * - byte[] InetAddress.getAddress();\n
- * - void InetAddress.getByteAddress(byte[]);\n
- * - RuntimeException and OutOfMemoryError classes.\n\n
- *
- * This will not test if GetObjectClass, GetMethodID,
- * GetStaticMethodID fail for these classes.
- *
- * Typically it is safe to set 1 for OpenJDK and SUN JDK.
- */
-#define ASSUME_COMPLETE_JDK 1
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -86,7 +72,7 @@ static int get_source_for_destination(struct sockaddr* dst, struct sockaddr_stor
     /* we should loop only if host has more than 
      * (ADAPTERS_DEFAULT_SIZE / sizeof(IP_ADAPTER_ADDRESSES)) interfaces
      */
-    allAdapters = malloc(ADAPTERS_DEFAULT_SIZE);
+    allAdapters = malloc(size);
 
     if(!allAdapters)
     {
@@ -111,7 +97,6 @@ static int get_source_for_destination(struct sockaddr* dst, struct sockaddr_stor
        */
       free(allAdapters);
     }
-
   }while(ret == ERROR_BUFFER_OVERFLOW);
 
   if(ret != ERROR_SUCCESS)
@@ -164,48 +149,23 @@ static int get_source_for_destination(struct sockaddr* dst, struct sockaddr_stor
  * \brief JNI native method to get source address for a destination.
  * \param env JVM environment
  * \param class class that call method (Win32LocalhostRetriever)
- * \param dst destination address (InetAddress)
- * \return source address for the destination (InetAddress)
+ * \param dst destination address
+ * \return source address for the destination
  */
-JNIEXPORT jobject JNICALL Java_net_java_sip_communicator_impl_netaddr_Win32LocalhostRetriever_getSourceForDestination
-  (JNIEnv *env, jclass class, jobject dst)
+JNIEXPORT jbyteArray JNICALL Java_net_java_sip_communicator_impl_netaddr_Win32LocalhostRetriever_getSourceForDestination
+  (JNIEnv *env, jclass class, jbyteArray dst)
 {
   jbyteArray array = NULL;
-  jclass clazz = NULL;
-  jmethodID mid = NULL;
   jsize len = 0;
-  jobject ret = NULL; /* InetAddress type */
   struct sockaddr_storage source;
   struct sockaddr_in dstv4;
   struct sockaddr_in6 dstv6;
   struct sockaddr* destination = NULL;
   char* buf = NULL; 
 
-  /* get class for InetAddress and appropriate method getAddress */
-  clazz = (*env)->GetObjectClass(env, dst);
-
-#ifndef ASSUME_COMPLETE_JDK
-  if(!clazz)
-  {
-    /* printf("!clazz\n"); */
-    return NULL;
-  }
-#endif
-
-  mid = (*env)->GetMethodID(env, clazz, "getAddress", "()[B");
-
-#ifndef ASSUME_COMPLETE_JDK
-  if(!mid)
-  {
-    /* printf("!mid\n"); */
-    return NULL;
-  }
-#endif
-
   /* get the bytes */
-  array = (*env)->CallObjectMethod(env, dst, mid);
-  len = (*env)->GetArrayLength(env, array);
-  buf = (char*)(*env)->GetByteArrayElements(env, array, NULL);
+  len = (*env)->GetArrayLength(env, dst);
+  buf = (char*)(*env)->GetByteArrayElements(env, dst, NULL);
 
   if(len == 4)
   {
@@ -228,32 +188,30 @@ JNIEXPORT jobject JNICALL Java_net_java_sip_communicator_impl_netaddr_Win32Local
   else
   {
     /* printf("not an IPv4 or IPv6 address\n"); */
-    jclass exception = (*env)->FindClass(env, "java/lang/RuntimeException");
-    (*env)->ThrowNew(env, exception, "Not an IPv4 or IPv6 address");
-    (*env)->ReleaseByteArrayElements(env, array, buf, 0);
+    (*env)->ReleaseByteArrayElements(env, dst, (jbyte*)buf, 0);
     return NULL;
   }
   
   /* cleanup */
-  (*env)->ReleaseByteArrayElements(env, array, buf, 0);
+  (*env)->ReleaseByteArrayElements(env, dst, (jbyte*)buf, 0);
+  
+  /* find the source address for a specific destination */
+  if(get_source_for_destination(destination, &source) == -1)
+  {
+    return NULL;
+  }
 
   /* create jbyteArray that will contains raw address */
   array = (*env)->NewByteArray(env, len);
   if(!array)
-  {
-    jclass exception = (*env)->FindClass(env, "java/lang/OutOfMemoryError");
-    (*env)->ThrowNew(env, exception, "Not enough memory");
+  { 
     return NULL;
   }
 
   /* get internal buffer */
   buf = (char*)(*env)->GetByteArrayElements(env, array, NULL);
-
-  /* find the source address for a specific destination */
-  if(get_source_for_destination(destination, &source) == -1)
+  if(!buf)
   {
-    jclass exception = (*env)->FindClass(env, "java/lang/RuntimeException");
-    (*env)->ThrowNew(env, exception, "Native call failed");
     return NULL;
   }
 
@@ -269,28 +227,11 @@ JNIEXPORT jobject JNICALL Java_net_java_sip_communicator_impl_netaddr_Win32Local
     memcpy(buf, &((struct sockaddr_in6*)&source)->sin6_addr, len);
   }
 
-  /* update content of byte array */
-  (*env)->SetByteArrayRegion(env, array, 0, len, (const jbyte*)buf);
-
-  /* construct new InetAddress object with
-   * static InetAddress.getByAddress(byte[]) method
+  /* ReleaseByteArrayElements() updates array with buf's content 
+   * when third parameter is 0
    */
-  mid = (*env)->GetStaticMethodID(env, clazz, "getByAddress", "([B)Ljava/net/InetAddress;");
-
-#ifndef ASSUME_COMPLETE_JDK
-  if(!mid)
-  {
-    /* printf("!mid2\n"); */
-    return NULL;
-  }
-#endif
-
-  /* ret class is InetAddress */
-  ret = (*env)->CallStaticObjectMethod(env, clazz, mid, array);
-  
-  /* cleanup */
   (*env)->ReleaseByteArrayElements(env, array, (jbyte*)buf, 0);
-  return ret;
+  return array;
 }
 
 /* test */
@@ -356,6 +297,7 @@ int main(int argc, char** argv)
   if(get_source_for_destination((struct sockaddr*)&addr6, &st2) == 0)
   {
     len = sizeof(buf);
+
     if(WSAAddressToStringA((struct sockaddr*)src6, sizeof(*src6), NULL, buf, &len) != 0)
     {
       printf("WSAAddressToString failed: %ld\n", WSAGetLastError());
@@ -368,8 +310,7 @@ int main(int argc, char** argv)
   {
     printf("get_source_for_destination failed for IPv6!\n");
   }
-
-
+  
   return EXIT_SUCCESS;
 }
 

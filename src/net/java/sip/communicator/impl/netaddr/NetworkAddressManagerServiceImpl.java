@@ -238,6 +238,8 @@ public class NetworkAddressManagerServiceImpl
     public synchronized InetAddress getLocalHost(InetAddress intendedDestination)
     {
         InetAddress localHost = null;
+        String osName = System.getProperty("os.name");
+        String osVersion = System.getProperty("os.version");
         
         if(logger.isTraceEnabled())
         {
@@ -247,21 +249,32 @@ public class NetworkAddressManagerServiceImpl
         }
 
         /* use native code (JNI) to find source address for a specific destination
-         * address on Windows. 
+         * address on Windows XP SP1 and over. 
          *
          * For other systems, we used method based on DatagramSocket.connect 
          * which will returns us source address. The reason why we cannot use it 
          * on Windows is because its socket implementation returns the any address...
          */
-        if(System.getProperty("os.name").startsWith("Windows"))
+        if(osName.startsWith("Windows") && 
+           !osVersion.startsWith("4") && /* 95/98/Me/NT */
+           !osVersion.startsWith("5.0")) /* 2000 */
         {
-            try
+            byte[] src = Win32LocalhostRetriever.getSourceForDestination(intendedDestination.getAddress());
+           
+            if(src == null)
             {
-              localHost = Win32LocalhostRetriever.getSourceForDestination(intendedDestination);
+                logger.warn("Failed to get localhost ");
             }
-            catch(Exception e)
+            else
             {
-              logger.warn("Failed to get localhost ", e);
+                try
+                {
+                    localHost = InetAddress.getByAddress(src);
+                }
+                catch(UnknownHostException e)
+                {
+                    logger.warn("Failed to get localhost ", e);
+                }
             }
         }
         else
@@ -274,7 +287,6 @@ public class NetworkAddressManagerServiceImpl
             localHost = localHostFinderSocket.getLocalAddress();
             localHostFinderSocket.disconnect();
         }
-/*
         //windows socket implementations return the any address so we need to
         //find something else here ... InetAddress.getLocalHost seems to work
         //better on windows so lets hope it'll do the trick.
@@ -365,7 +377,6 @@ public class NetworkAddressManagerServiceImpl
                 logger.warn("Failed to get localhost ", ex);
             }
         }
-*/
         if(logger.isTraceEnabled())
         {
             logger.trace("Will return the following localhost address: "

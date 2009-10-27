@@ -16,31 +16,26 @@ import java.net.*;
  */
 public class Win32LocalhostRetriever
 {
-  /* load library */
-  static
-  {
-    System.loadLibrary("LocalhostRetriever");
-  }
+    /* load library */
+    static
+    {
+        System.loadLibrary("LocalhostRetriever");
+    }
 
-  /**
-   * Constructor.
-   */
-  public Win32LocalhostRetriever()
-  {
-  }
+    /**
+     * Constructor.
+     */
+    public Win32LocalhostRetriever()
+    {
+    }
 
-  /**
-   * Native function to retrieve source address to use for a specific destination.
-   * @param dst destination address
-   * @return source address or null if error
-   * @note This function is only implemented for Microsoft Windows (>= XP SP1).
-   * Do not try to call it from another OS.
-   * @throws RuntimeException if dst is not an IPv4 or IPv6 address, and if
-   * native get_source_for_destination function failed
-   * @throws OutOfMemoryError if run out of memory
-   */
-  public native static InetAddress getSourceForDestination(InetAddress dst) throws 
-    RuntimeException,
-    OutOfMemoryError;
+    /**
+     * Native function to retrieve source address to use for a specific destination.
+     * @param dst destination address
+     * @return source address or null if error
+     * @note This function is only implemented for Microsoft Windows (>= XP SP1).
+     * Do not try to call it from another OS.
+     */
+    public native static byte[] getSourceForDestination(byte[] dst);
 }
 

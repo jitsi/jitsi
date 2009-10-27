@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     net_java_sip_communicator_impl_netaddr_Win32LocalhostRetriever
  * Method:    getSourceForDestination
- * Signature: (Ljava/net/InetAddress;)Ljava/net/InetAddress;
+ * Signature: ([B)[B
  */
-JNIEXPORT jobject JNICALL Java_net_java_sip_communicator_impl_netaddr_Win32LocalhostRetriever_getSourceForDestination
-  (JNIEnv *, jclass, jobject);
+JNIEXPORT jbyteArray JNICALL Java_net_java_sip_communicator_impl_netaddr_Win32LocalhostRetriever_getSourceForDestination
+  (JNIEnv *, jclass, jbyteArray);
 
 #ifdef __cplusplus
 }
