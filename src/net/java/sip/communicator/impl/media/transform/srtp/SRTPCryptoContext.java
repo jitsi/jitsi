@@ -239,6 +239,7 @@ public class SRTPCryptoContext
         case SRTPPolicy.AESF8_ENCRYPTION:
             AEScipherF8 = new AESFastEngine();
 
+            //$FALL-THROUGH$
         case SRTPPolicy.AESCM_ENCRYPTION:
             encKey = new byte[policy.getEncKeyLength()];
             saltKey = new byte[policy.getSaltKeyLength()];
