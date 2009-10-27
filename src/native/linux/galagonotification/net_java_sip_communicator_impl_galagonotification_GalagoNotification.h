@@ -34,10 +34,10 @@ JNIEXPORT jobjectArray JNICALL Java_net_java_sip_communicator_impl_galagonotific
 /*
  * Class:     net_java_sip_communicator_impl_galagonotification_GalagoNotification
  * Method:    notify
- * Signature: (JLjava/lang/String;JLjava/lang/String;Ljava/lang/String;Ljava/lang/String;)J
+ * Signature: (JLjava/lang/String;JLjava/awt/image/BufferedImage;Ljava/lang/String;Ljava/lang/String;I)J
  */
 JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_galagonotification_GalagoNotification_notify
-  (JNIEnv *, jclass, jlong, jstring, jlong, jstring, jstring, jstring);
+  (JNIEnv *, jclass, jlong, jstring, jlong, jobject, jstring, jstring, jint);
 
 #ifdef __cplusplus
 }

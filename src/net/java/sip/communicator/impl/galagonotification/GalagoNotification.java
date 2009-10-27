@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.galagonotification;
 
+import java.awt.image.*;
+
 /**
  * Declares the native functions required by the galagonotification bundle.
  *
@@ -67,10 +69,15 @@ public final class GalagoNotification
      * @param replacesId the optional notification identifier of an existing
      * notification to be replaced by the notification being sent; <tt>0</tt> to
      * not replace any existing notification
-     * @param appIcon the optional program icon of the application sending the
-     * notification. Not supported at this time.
+     * @param icon the optional icon to be displayed by the notification if the
+     * server supports such display. Not supported by this implementation at
+     * this time.
      * @param summary the summary text briefly describing the notification
      * @param body the optional detailed body text of the notification
+     * @param expireTimeout the time in milliseconds since the display of the
+     * notification after which the notification should automatically close. If
+     * <tt>-1</tt>, the notification's expiration time is dependent on the
+     * notification server's settings. If <tt>0</tt>, never expires.
      * @return the unique identifier of the sent notification if
      * <tt>replacesId</tt> is <tt>0</tt>; <tt>replacesId</tt> if
      * <tt>replacesId</tt> is not <tt>0</tt>
@@ -81,9 +88,10 @@ public final class GalagoNotification
             long connection,
             String appName,
             long replacesId,
-            String appIcon,
+            BufferedImage icon,
             String summary,
-            String body)
+            String body,
+            int expireTimeout)
         throws DBusException;
 
     /**

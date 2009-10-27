@@ -112,12 +112,20 @@ public class GalagoNotificationActivator
                  * above questions.
                  */
                 boolean bodyIsImplemented = false;
+                boolean iconStaticIsImplemented = false;
 
                 for (String capability : capabilities)
                     if ("body".equals(capability))
                     {
                         bodyIsImplemented = true;
-                        break;
+                        if (iconStaticIsImplemented)
+                            break;
+                    }
+                    else if ("icon-static".equals(capability))
+                    {
+                        iconStaticIsImplemented = true;
+                        if (bodyIsImplemented)
+                            break;
                     }
                 if (bodyIsImplemented)
                 {
@@ -127,7 +135,8 @@ public class GalagoNotificationActivator
                     bundleContext
                         .registerService(
                             PopupMessageHandler.class.getName(),
-                            new GalagoPopupMessageHandler(),
+                            new GalagoPopupMessageHandler(
+                                    iconStaticIsImplemented),
                             null);
                 }
                 else

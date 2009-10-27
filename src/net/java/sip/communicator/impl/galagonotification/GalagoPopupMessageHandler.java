@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.galagonotification;
 
+import java.awt.image.*;
+
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 
@@ -25,6 +27,25 @@ public class GalagoPopupMessageHandler
      */
     private static final Logger logger
         = Logger.getLogger(GalagoPopupMessageHandler.class);
+
+    /**
+     * The indicator which determines whether the freedesktop.org Desktop
+     * Notifications server has reported that it implements the "icon-static"
+     * hint and we have to send it the icons of the <tt>PopupMessage</tt>s for
+     * display.
+     */
+    private final boolean iconStaticIsImplemented;
+
+    public GalagoPopupMessageHandler(boolean iconStaticIsImplemented)
+    {
+        this.iconStaticIsImplemented = iconStaticIsImplemented;
+    }
+
+    private BufferedImage getIcon(PopupMessage popupMessge)
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
     /**
      * Returns the preference index of this <tt>PopupMessageHandler</tt> which
@@ -55,9 +76,10 @@ public class GalagoPopupMessageHandler
                     GalagoNotificationActivator.dbusConnection,
                     null,
                     0,
-                    null,
+                    iconStaticIsImplemented ? getIcon(popupMessage) : null,
                     popupMessage.getMessageTitle(),
-                    popupMessage.getMessage());
+                    popupMessage.getMessage(),
+                    -1);
         }
         catch (DBusException dbe)
         {

@@ -8,7 +8,7 @@ GalagoNotification_messageAppendString(
 {
     const jbyte *str;
     dbus_bool_t success;
-    const char *emptyStr = "";
+    const char *emptyStr = "";  /* cannot append NULL, use "" in this case */
 
     if (jstr)
     {
@@ -31,7 +31,7 @@ GalagoNotification_messageAppendString(
 static dbus_bool_t
 GalagoNotification_notifyAppendArgs(
     JNIEnv *env, DBusMessage *message, jstring appName, jlong replacesId,
-    jstring appIcon, jstring summary, jstring body)
+    jobject icon, jstring summary, jstring body, jint expireTimeout)
 {
     DBusMessageIter iter;
     dbus_uint32_t _replacesId;
@@ -47,7 +47,7 @@ GalagoNotification_notifyAppendArgs(
     if (!dbus_message_iter_append_basic(&iter, DBUS_TYPE_UINT32, &_replacesId))
         return FALSE;
 
-    if (!GalagoNotification_messageAppendString(env, &iter, appIcon))
+    if (!GalagoNotification_messageAppendString(env, &iter, NULL))
         return FALSE;
 
     if (!GalagoNotification_messageAppendString(env, &iter, summary))
@@ -74,7 +74,7 @@ GalagoNotification_notifyAppendArgs(
     if (!dbus_message_iter_close_container(&iter, &subIter))
         return FALSE;
 
-    _expireTimeout = -1;
+    _expireTimeout = expireTimeout;
     if (!dbus_message_iter_append_basic(&iter, DBUS_TYPE_INT32, &_expireTimeout))
         return FALSE;
 
@@ -230,7 +230,8 @@ Java_net_java_sip_communicator_impl_galagonotification_GalagoNotification_getCap
 JNIEXPORT jlong JNICALL
 Java_net_java_sip_communicator_impl_galagonotification_GalagoNotification_notify(
     JNIEnv *env, jclass clazz, jlong connection, jstring appName,
-    jlong replacesId, jstring appIcon, jstring summary, jstring body)
+    jlong replacesId, jobject icon, jstring summary, jstring body,
+    jint expireTimeout)
 {
     DBusMessage *message;
     jlong jid = 0;
@@ -248,9 +249,10 @@ Java_net_java_sip_communicator_impl_galagonotification_GalagoNotification_notify
                 message,
                 appName,
                 replacesId,
-                appIcon,
+                icon,
                 summary,
-                body))
+                body,
+                expireTimeout))
         {
             DBusError error;
             DBusMessage *reply;
