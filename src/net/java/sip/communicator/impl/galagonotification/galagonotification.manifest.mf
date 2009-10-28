@@ -4,7 +4,8 @@ Bundle-Description: A bundle which implements notifications according to the fre
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
-Import-Package: net.java.sip.communicator.service.systray,
+Import-Package: javax.imageio,
+ net.java.sip.communicator.service.systray,
  net.java.sip.communicator.service.resources,
  net.java.sip.communicator.util,
  org.osgi.framework
