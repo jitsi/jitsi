@@ -307,8 +307,7 @@ public abstract class MediaFormatImpl<T extends Format>
      */
     public int getRTPPayloadType()
     {
-        // TODO Auto-generated method stub
-        return RTP_PAYLOAD_TYPE_UNKNOWN;
+        return MediaUtils.jmfEncodingToRtpPayloadType(getJMFEncoding());
     }
 
     /**
