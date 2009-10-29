@@ -31,9 +31,27 @@ public class AudioMediaFormatImpl
      * @param format the JMF <tt>AudioFormat</tt> the new instance is to wrap
      * and provide an implementation of <tt>AudioMediaFormat</tt> for
      */
-    public AudioMediaFormatImpl(AudioFormat format)
+    AudioMediaFormatImpl(AudioFormat format)
     {
         super(format);
+    }
+
+    /**
+     * Initializes a new <tt>AudioMediaFormatImpl</tt> instance which is to
+     * provide an implementation of <tt>AudioMediaFormat</tt> for a specific
+     * JMF <tt>AudioFormat</tt> and to have a specific set of format-specific
+     * parameters.
+     *
+     * @param format the JMF <tt>AudioFormat</tt> the new instance is to wrap
+     * and provide an implementation of <tt>AudioMediaFormat</tt> for
+     * @param formatParameters  the set of format-specific parameters of the new
+     * instance
+     */
+    AudioMediaFormatImpl(
+            AudioFormat format,
+            Map<String, String> formatParameters)
+    {
+        super(format, formatParameters);
     }
 
     /**
@@ -43,7 +61,7 @@ public class AudioMediaFormatImpl
      * @param encoding the encoding of the new <tt>AudioMediaFormatImpl</tt>
      * instance
      */
-    public AudioMediaFormatImpl(String encoding)
+    AudioMediaFormatImpl(String encoding)
     {
         super(new AudioFormat(encoding));
     }
@@ -57,7 +75,7 @@ public class AudioMediaFormatImpl
      * @param clockRate the clock (i.e. sample) rate of the new
      * <tt>AudioMediaFormatImpl</tt> instance
      */
-    public AudioMediaFormatImpl(String encoding, double clockRate)
+    AudioMediaFormatImpl(String encoding, double clockRate)
     {
         this(encoding, clockRate, 1);
     }
@@ -73,7 +91,7 @@ public class AudioMediaFormatImpl
      * @param channels the number of available channels (1 for mono, 2 for
      * stereo)
      */
-    public AudioMediaFormatImpl(String encoding, double clockRate, int channels)
+    AudioMediaFormatImpl(String encoding, double clockRate, int channels)
     {
         this(encoding, clockRate, channels, null);
     }
@@ -90,7 +108,7 @@ public class AudioMediaFormatImpl
      * @param formatParameters any codec-specific parameters that have been
      * received via SIP/SDP or XMPP/Jingle.
      */
-    public AudioMediaFormatImpl(
+    AudioMediaFormatImpl(
             String encoding,
             double clockRate,
             Map<String, String> formatParameters)
@@ -112,7 +130,7 @@ public class AudioMediaFormatImpl
      * @param formatParameters any codec-specific parameters that have been
      * received via SIP/SDP or XMPP/Jingle
      */
-    public AudioMediaFormatImpl(
+    AudioMediaFormatImpl(
             String encoding,
             double clockRate,
             int channels,
@@ -127,25 +145,37 @@ public class AudioMediaFormatImpl
             formatParameters);
     }
 
-    /*
-     * Implements AudioMediaFormat#getChannels(). Delegates to AudioFormat.
+    /**
+     * Gets the number of audio channels associated with this
+     * <tt>AudioMediaFormat</tt>.
+     *
+     * @return the number of audio channels associated with this
+     * <tt>AudioMediaFormat</tt>
+     * @see AudioMediaFormat#getChannels()
      */
     public int getChannels()
     {
         return format.getChannels();
     }
 
-    /*
-     * Implements MediaFormat#getClockRate(). Returns
-     * AudioFormat#getSampleRate().
+    /**
+     * Gets the clock rate associated with this <tt>MediaFormat</tt>.
+     *
+     * @return the clock rate associated with this <tt>MediaFormat</tt>
+     * @see MediaFormat#getClockRate()
      */
     public double getClockRate()
     {
         return format.getSampleRate();
     }
 
-    /*
-     * Implements MediaFormat#getMediaType(). Returns MediaType#AUDIO.
+    /**
+     * Gets the type of this <tt>MediaFormat</tt> which is
+     * {@link MediaType#AUDIO} for <tt>AudioMediaFormatImpl</tt> instances.
+     *
+     * @return the <tt>MediaType</tt> that this format represents and which is
+     * <tt>MediaType.AUDIO</tt> for <tt>AudioMediaFormatImpl</tt> instances
+     * @see MediaFormat#getMediaType()
      */
     public final MediaType getMediaType()
     {

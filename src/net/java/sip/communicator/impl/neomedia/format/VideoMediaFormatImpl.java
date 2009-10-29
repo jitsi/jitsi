@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.neomedia.format;
 
 import java.awt.*;
+import java.util.*;
 
 import javax.media.format.*;
 
@@ -14,7 +15,7 @@ import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 
 /**
- * Implements <tt>VideoMediaFormat</tt> for the JMF <tt>VideoFormat</tt>
+ * Implements <tt>VideoMediaFormat</tt> for the JMF <tt>VideoFormat</tt>.
  *
  * @author Lubomir Marinov
  */
@@ -41,7 +42,7 @@ public class VideoMediaFormatImpl
      * @param encoding the encoding of the new <tt>VideoMediaFormatImpl</tt>
      * instance
      */
-    public VideoMediaFormatImpl(String encoding)
+    VideoMediaFormatImpl(String encoding)
     {
         this(encoding, DEFAULT_CLOCK_RATE);
     }
@@ -55,7 +56,7 @@ public class VideoMediaFormatImpl
      * @param clockRate the clock rate of the new <tt>VideoMediaFormatImpl</tt>
      * instance
      */
-    public VideoMediaFormatImpl(String encoding, double clockRate)
+    VideoMediaFormatImpl(String encoding, double clockRate)
     {
         this(new VideoFormat(encoding), clockRate);
     }
@@ -68,7 +69,7 @@ public class VideoMediaFormatImpl
      * @param format the JMF <tt>VideoFormat</tt> the new instance is to wrap
      * and provide an implementation of <tt>VideoMediaFormat</tt> for
      */
-    public VideoMediaFormatImpl(VideoFormat format)
+    VideoMediaFormatImpl(VideoFormat format)
     {
         this(format, DEFAULT_CLOCK_RATE);
     }
@@ -83,16 +84,48 @@ public class VideoMediaFormatImpl
      * @param clockRate the clock rate of the new <tt>VideoMediaFormatImpl</tt>
      * instance
      */
-    public VideoMediaFormatImpl(VideoFormat format, double clockRate)
+    VideoMediaFormatImpl(VideoFormat format, double clockRate)
     {
         super(format);
 
         this.clockRate = clockRate;
     }
 
-    /*
-     * Overrides MediaFormatImpl#equals(Object).
+    /**
+     * Initializes a new <tt>VideoMediaFormatImpl</tt> instance which is to
+     * provide an implementation of <tt>VideoMediaFormat</tt> for a specific
+     * JMF <tt>VideoFormat</tt> and to have specific clock rate and set of
+     * format-specific parameters.
+     *
+     * @param format the JMF <tt>VideoFormat</tt> the new instance is to wrap
+     * and provide an implementation of <tt>VideoMediaFormat</tt> for
+     * @param clockRate the clock rate of the new <tt>VideoMediaFormatImpl</tt>
+     * instance
+     * @param formatParameters the set of format-specific parameters of the new
+     * instance
      */
+    VideoMediaFormatImpl(
+            VideoFormat format,
+            double clockRate,
+            Map<String, String> formatParameters)
+    {
+        super(format, formatParameters);
+
+        this.clockRate = clockRate;
+    }
+
+    /**
+     * Implements <tt>MediaFormat#equals(Object)</tt> and actually compares the
+     * encapsulated JMF <tt>Format</tt> instances.
+     *
+     * @param mediaFormat the object that we'd like to compare <tt>this</tt> one
+     * to
+     * @return <tt>true</tt> if the JMF <tt>Format</tt> instances encapsulated
+     * by this instance and their other characteristics are equal;
+     * <tt>false</tt>, otherwise.
+     * @see MediaFormatImpl#equals(Object)
+     */
+    @Override
     public boolean equals(Object mediaFormat)
     {
         if (this == mediaFormat)
@@ -107,34 +140,50 @@ public class VideoMediaFormatImpl
         return (getClockRate() == videoMediaFormatImpl.getClockRate());
     }
 
-    /*
-     * Implements MediaFormat#getClockRate().
+    /**
+     * Gets the clock rate associated with this <tt>MediaFormat</tt>.
+     *
+     * @return the clock rate associated with this <tt>MediaFormat</tt>
+     * @see MediaFormat#getClockRate()
      */
     public double getClockRate()
     {
         return clockRate;
     }
 
-    /*
-     * Implements MediaFormat#getMediaType(). Returns MediaType#VIDEO.
+    /**
+     * Gets the type of this <tt>MediaFormat</tt> which is
+     * {@link MediaType#VIDEO} for <tt>AudioMediaFormatImpl</tt> instances.
+     *
+     * @return the <tt>MediaType</tt> that this format represents and which is
+     * <tt>MediaType.VIDEO</tt> for <tt>AudioMediaFormatImpl</tt> instances
+     * @see MediaFormat#getMediaType()
      */
     public final MediaType getMediaType()
     {
         return MediaType.VIDEO;
     }
 
-    /*
-     * Implements VideoMediaFormat#getSize(). Delegates to VideoFormat.
+    /**
+     * Gets the size of the image that this <tt>VideoMediaFormat</tt> describes.
+     *
+     * @return a {@link Dimension} instance indicating the image size (in
+     * pixels) of this <tt>VideoMediaFormat</tt>
+     * @see VideoMediaFormat#getSize()
      */
     public Dimension getSize()
     {
         return format.getSize();
     }
 
-    /*
-     * Overrides MediaFormatImpl#hashCode() because Object#equals(Object) is
-     * overridden.
+    /**
+     * Overrides <tt>MediaFormatImpl#hashCode()</tt> because
+     * <tt>Object#equals(Object)</tt> is overridden.
+     *
+     * @returns a hash code value for this <tt>VideoMediaFormatImpl</tt>
+     * @see MediaFormatImpl#hashCode()
      */
+    @Override
     public int hashCode()
     {
         return (super.hashCode() | (int) getClockRate()); 

@@ -7,6 +7,7 @@
 package net.java.sip.communicator.service.neomedia;
 
 import java.net.*;
+import java.util.*;
 
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
@@ -161,4 +162,37 @@ public interface MediaStream
      * <tt>MediaStream</tt> is to send and from which it is to receive
      */
     public void setTarget(MediaStreamTarget target);
+
+    /**
+     * Adds a new association in this <tt>MediaStream</tt> of the specified RTP
+     * payload type with the specified <tt>MediaFormat</tt> in order to allow it
+     * to report <tt>rtpPayloadType</tt> in RTP flows sending and receiving
+     * media in <tt>format</tt>. Usually, <tt>rtpPayloadType</tt> will be in the
+     * range of dynamic RTP payload types.
+     *
+     * @param rtpPayloadType the RTP payload type to be associated in this
+     * <tt>MediaStream</tt> with the specified <tt>MediaFormat</tt>
+     * @param format the <tt>MediaFormat</tt> to be associated in this
+     * <tt>MediaStream</tt> with <tt>rtpPayloadType</tt>
+     */
+    public void addDynamicRTPPayloadType(
+            int rtpPayloadType,
+            MediaFormat format);
+
+    /**
+     * Gets the existing associations in this <tt>MediaStream</tt> of RTP
+     * payload types to <tt>MediaFormat</tt>s. The returned <tt>Map</tt>
+     * only contains associations previously added in this instance with
+     * {@link #addDynamicRTPPayloadType(int, MediaFormat)} and not globally or
+     * well-known associations reported by
+     * {@link MediaFormat#getRTPPayloadType()}.
+     *
+     * @return a <tt>Map</tt> of RTP payload type expressed as <tt>Integer</tt>
+     * to <tt>MediaFormat</tt> describing the existing (dynamic) associations in
+     * this instance of RTP payload types to <tt>MediaFormat</tt>s. The
+     * <tt>Map</tt> represents a snapshot of the existing associations at the
+     * time of the <tt>getDynamicRTPPayloadTypes()</tt> method call and
+     * modifications to it are not reflected on the internal storage
+     */
+    public Map<Integer, MediaFormat> getDynamicRTPPayloadTypes();
 }

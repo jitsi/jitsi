@@ -11,6 +11,7 @@ import java.util.*;
 import javax.media.*;
 import javax.media.format.*;
 
+import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 
 /**
@@ -53,17 +54,22 @@ public abstract class MediaFormatImpl<T extends Format>
 
     /**
      * Creates a new <tt>MediaFormat</tt> instance for a specific JMF
-     * <tt>Format</tt> and assigns it a specific clock rate.
+     * <tt>Format</tt> and assigns it specific clock rate and set of
+     * format-specific parameters.
      *
      * @param format the JMF <tt>Format</tt> the new instance is to provide an
      * implementation of <tt>MediaFormat</tt> for
      * @param clockRate the clock rate of the new instance
+     * @param formatParameters the set of format-specific parameters of the new
+     * instance
      * @return a new <tt>MediaFormat</tt> instance for the specified JMF
-     * <tt>Format</tt> and with the specified clock rate
+     * <tt>Format</tt> and with the specified clock rate and set of
+     * format-specific parameters
      */
     public static MediaFormatImpl<? extends Format> createInstance(
             Format format,
-            double clockRate)
+            double clockRate,
+            Map<String, String> formatParameters)
     {
         if (format instanceof AudioFormat)
         {
@@ -78,10 +84,15 @@ public abstract class MediaFormatImpl<T extends Format>
             return
                 new AudioMediaFormatImpl(
                         (AudioFormat)
-                            clockRateAudioFormat.intersects(audioFormat));
+                            clockRateAudioFormat.intersects(audioFormat),
+                        formatParameters);
         }
         if (format instanceof VideoFormat)
-            return new VideoMediaFormatImpl((VideoFormat) format, clockRate);
+            return
+                new VideoMediaFormatImpl(
+                        (VideoFormat) format,
+                        clockRate,
+                        formatParameters);
         return null;
     }
 
@@ -99,7 +110,7 @@ public abstract class MediaFormatImpl<T extends Format>
      * @return <tt>true</tt> if the specified sets of format parameters are
      * equal; <tt>false</tt>, otherwise
      */
-    private static boolean formatParametersAreEqual(
+    static boolean formatParametersAreEqual(
             Map<String, String> formatParameters1,
             Map<String, String> formatParameters2)
     {
@@ -161,7 +172,7 @@ public abstract class MediaFormatImpl<T extends Format>
      * @param format the JMF <tt>Format</tt> the new instance is to provide an
      * implementation of <tt>MediaFormat</tt> for
      */
-    public MediaFormatImpl(T format)
+    protected MediaFormatImpl(T format)
     {
         this(format, null);
     }
@@ -176,7 +187,7 @@ public abstract class MediaFormatImpl<T extends Format>
      * @param formatParameters any codec-specific parameters that have been
      * received via SIP/SDP or XMPP/Jingle
      */
-    public MediaFormatImpl(T format, Map<String, String> formatParameters)
+    protected MediaFormatImpl(T format, Map<String, String> formatParameters)
     {
         if (format == null)
             throw new NullPointerException("format");
@@ -226,17 +237,20 @@ public abstract class MediaFormatImpl<T extends Format>
      */
     public String getEncoding()
     {
-        String encoding = getJMFEncoding();
+        String jmfEncoding = getJMFEncoding();
+        String encoding = MediaUtils.jmfEncodingToEncoding(jmfEncoding);
 
-        if (encoding != null)
+        if (encoding == null)
         {
+            encoding = jmfEncoding;
+
             int encodingLength = encoding.length();
 
             if (encodingLength > 3)
             {
                 int rtpPos = encodingLength - 4;
 
-                if (encoding.substring(rtpPos).equalsIgnoreCase("/rtp"))
+                if ("/rtp".equalsIgnoreCase(encoding.substring(rtpPos)))
                     encoding = encoding.substring(0, rtpPos);
             }
         }
@@ -279,6 +293,22 @@ public abstract class MediaFormatImpl<T extends Format>
     public String getJMFEncoding()
     {
         return format.getEncoding();
+    }
+
+    /**
+     * Gets the RTP payload type (number) of this <tt>MediaFormat</tt> as it is
+     * known in RFC 3551 "RTP Profile for Audio and Video Conferences with
+     * Minimal Control".
+     *
+     * @return the RTP payload type of this <tt>MediaFormat</tt> if it is known
+     * in RFC 3551 "RTP Profile for Audio and Video Conferences with Minimal
+     * Control"; otherwise, {@link #RTP_PAYLOAD_TYPE_UNKNOWN}
+     * @see MediaFormat#getRTPPayloadType()
+     */
+    public int getRTPPayloadType()
+    {
+        // TODO Auto-generated method stub
+        return RTP_PAYLOAD_TYPE_UNKNOWN;
     }
 
     /**

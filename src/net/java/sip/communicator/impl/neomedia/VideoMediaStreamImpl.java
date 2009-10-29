@@ -339,7 +339,7 @@ public class VideoMediaStreamImpl
         rtpManager
             .addFormat(
                 format,
-                MediaUtils.jmfToSdpEncoding(format.getEncoding()));
+                MediaUtils.jmfEncodingToRtpPayloadType(format.getEncoding()));
 
         formatsRegisteredOnce = true;
     }

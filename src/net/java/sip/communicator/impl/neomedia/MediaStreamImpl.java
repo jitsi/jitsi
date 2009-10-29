@@ -10,6 +10,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import javax.media.*;
 import javax.media.control.*;
 import javax.media.format.*;
 import javax.media.protocol.*;
@@ -17,6 +18,7 @@ import javax.media.rtp.*;
 import javax.media.rtp.event.*;
 
 import net.java.sip.communicator.impl.neomedia.device.*;
+import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
@@ -52,6 +54,14 @@ public class MediaStreamImpl
      * capture and playback of media.
      */
     private MediaDeviceSession deviceSession;
+
+    /**
+     * The <tt>Map</tt> of associations in this <tt>MediaStream</tt> and the
+     * <tt>RTPManager</tt> it utilizes of (dynamic) RTP payload types to
+     * <tt>MediaFormat</tt>s.
+     */
+    private final Map<Integer, MediaFormat> dynamicRTPPayloadTypes
+        = new HashMap<Integer, MediaFormat>();
 
     /**
      * The <tt>ReceiveStream</tt>s this instance plays back on its associated
@@ -110,6 +120,36 @@ public class MediaStreamImpl
         setDevice(device);
 
         this.rtpConnector = new RTPConnectorImpl(connector);
+    }
+
+    /**
+     * Adds a new association in this <tt>MediaStream</tt> of the specified RTP
+     * payload type with the specified <tt>MediaFormat</tt> in order to allow it
+     * to report <tt>rtpPayloadType</tt> in RTP flows sending and receiving
+     * media in <tt>format</tt>. Usually, <tt>rtpPayloadType</tt> will be in the
+     * range of dynamic RTP payload types.
+     *
+     * @param rtpPayloadType the RTP payload type to be associated in this
+     * <tt>MediaStream</tt> with the specified <tt>MediaFormat</tt>
+     * @param format the <tt>MediaFormat</tt> to be associated in this
+     * <tt>MediaStream</tt> with <tt>rtpPayloadType</tt>
+     * @see MediaStream#addDynamicRTPPayloadType(int, MediaFormat)
+     */
+    public void addDynamicRTPPayloadType(
+            int rtpPayloadType,
+            MediaFormat format)
+    {
+        MediaFormatImpl<? extends Format> mediaFormatImpl
+            = (MediaFormatImpl<? extends Format>) format;
+
+        synchronized (dynamicRTPPayloadTypes)
+        {
+            dynamicRTPPayloadTypes.put(Integer.valueOf(rtpPayloadType), format);
+
+            if (rtpManager != null)
+                rtpManager
+                    .addFormat(mediaFormatImpl.getFormat(), rtpPayloadType);
+        }
     }
 
     /**
@@ -270,6 +310,31 @@ public class MediaStreamImpl
     }
 
     /**
+     * Gets the existing associations in this <tt>MediaStream</tt> of RTP
+     * payload types to <tt>MediaFormat</tt>s. The returned <tt>Map</tt>
+     * only contains associations previously added in this instance with
+     * {@link #addDynamicRTPPayloadType(int, MediaFormat)} and not globally or
+     * well-known associations reported by
+     * {@link MediaFormat#getRTPPayloadType()}.
+     *
+     * @return a <tt>Map</tt> of RTP payload type expressed as <tt>Integer</tt>
+     * to <tt>MediaFormat</tt> describing the existing (dynamic) associations in
+     * this instance of RTP payload types to <tt>MediaFormat</tt>s. The
+     * <tt>Map</tt> represents a snapshot of the existing associations at the
+     * time of the <tt>getDynamicRTPPayloadTypes()</tt> method call and
+     * modifications to it are not reflected on the internal storage
+     * @see MediaStream#getDynamicRTPPayloadTypes()
+     */
+    public Map<Integer, MediaFormat> getDynamicRTPPayloadTypes()
+    {
+        synchronized (dynamicRTPPayloadTypes)
+        {
+            return
+                new HashMap<Integer, MediaFormat>(dynamicRTPPayloadTypes);
+        }
+    }
+
+    /**
      * Gets the <tt>MediaFormat</tt> that this stream is currently transmitting
      * in.
      *
@@ -403,13 +468,31 @@ public class MediaStreamImpl
     /**
      * Registers any custom JMF <tt>Format</tt>s with a specific
      * <tt>RTPManager</tt>. Extenders should override in order to register their
-     * own customizations.
+     * own customizations and should call back to this super implementation
+     * during the execution of their override in order to register the
+     * associations defined in this instance of (dynamic) RTP payload types to
+     * <tt>MediaFormat</tt>s.
      *
      * @param rtpManager the <tt>RTPManager</tt> to register any custom JMF
      * <tt>Format</tt>s with
      */
     protected void registerCustomCodecFormats(RTPManager rtpManager)
     {
+        synchronized (dynamicRTPPayloadTypes)
+        {
+            for (Map.Entry<Integer, MediaFormat> dynamicRTPPayloadType
+                    : dynamicRTPPayloadTypes.entrySet())
+            {
+                MediaFormatImpl<? extends Format> mediaFormatImpl
+                    = (MediaFormatImpl<? extends Format>)
+                        dynamicRTPPayloadType.getValue();
+
+                rtpManager
+                    .addFormat(
+                        mediaFormatImpl.getFormat(),
+                        dynamicRTPPayloadType.getKey());
+            }
+        }
     }
 
     /**

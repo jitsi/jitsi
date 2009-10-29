@@ -23,6 +23,15 @@ import net.java.sip.communicator.service.neomedia.*;
  */
 public interface MediaFormat
 {
+
+    /**
+     * The constant returned by {@link #getRTPPayloadType()} when the
+     * <tt>MediaFormat</tt> instance describes a format without an RTP payload
+     * type (number) known in RFC 3551 "RTP Profile for Audio and Video
+     * Conferences with Minimal Control".
+     */
+    public static final int RTP_PAYLOAD_TYPE_UNKNOWN = -1;
+
     /**
      * Returns the type of this <tt>MediaFormat</tt> (e.g. audio or video).
      *
@@ -56,6 +65,7 @@ public interface MediaFormat
      * @return <tt>true</tt> if <tt>mediaFormat</tt> is equal to this format and
      * <tt>false</tt> otherwise.
      */
+    @Override
     public boolean equals(Object mediaFormat);
 
     /**
@@ -75,5 +85,17 @@ public interface MediaFormat
      *
      * @return a <tt>String</tt> representation of this <tt>MediaFormat</tt>.
      */
+    @Override
     public String toString();
+
+    /**
+     * Gets the RTP payload type (number) of this <tt>MediaFormat</tt> as it is
+     * known in RFC 3551 "RTP Profile for Audio and Video Conferences with
+     * Minimal Control".
+     *
+     * @return the RTP payload type of this <tt>MediaFormat</tt> if it is known
+     * in RFC 3551 "RTP Profile for Audio and Video Conferences with Minimal
+     * Control"; otherwise, {@link #RTP_PAYLOAD_TYPE_UNKNOWN}
+     */
+    public int getRTPPayloadType();
 }
