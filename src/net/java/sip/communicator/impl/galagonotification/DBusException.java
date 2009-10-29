@@ -17,6 +17,12 @@ public class DBusException
 {
 
     /**
+     * Silences a serialization warning. Besides, we don't have fields of our
+     * own so the default serialization routine will always work for us.
+     */
+    private static final long serialVersionUID = 0;
+
+    /**
      * Initializes a new <tt>DBusException</tt> instance with the specified
      * detail message.
      *

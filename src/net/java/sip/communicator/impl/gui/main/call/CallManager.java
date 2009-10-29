@@ -528,8 +528,7 @@ public class CallManager
             ProtocolProviderService pps = callPeer.getProtocolProvider();
 
             OperationSetBasicTelephony telephony =
-                (OperationSetBasicTelephony) pps
-                    .getOperationSet(OperationSetBasicTelephony.class);
+                pps.getOperationSet(OperationSetBasicTelephony.class);
 
             try
             {
@@ -562,7 +561,7 @@ public class CallManager
         public void run()
         {
             OperationSetBasicTelephony telephony =
-                (OperationSetBasicTelephony) callPeer.getProtocolProvider()
+                callPeer.getProtocolProvider()
                     .getOperationSet(OperationSetBasicTelephony.class);
 
             try
@@ -605,7 +604,7 @@ public class CallManager
         public void run()
         {
             OperationSetBasicTelephony telephony =
-                (OperationSetBasicTelephony) callPeer.getProtocolProvider()
+                callPeer.getProtocolProvider()
                     .getOperationSet(OperationSetBasicTelephony.class);
 
             telephony.setMute(callPeer, isMute);
