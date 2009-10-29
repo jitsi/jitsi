@@ -45,11 +45,16 @@ public abstract class MediaFormatImpl<T extends Format>
      */
     public static MediaFormat createInstance(Format format)
     {
-        if (format instanceof AudioFormat)
-            return new AudioMediaFormatImpl((AudioFormat) format);
-        if (format instanceof VideoFormat)
-            return new VideoMediaFormatImpl((VideoFormat) format);
-        return null;
+        MediaFormat mediaFormat = MediaUtils.formatToMediaFormat(format);
+
+        if (mediaFormat == null)
+        {
+            if (format instanceof AudioFormat)
+                mediaFormat = new AudioMediaFormatImpl((AudioFormat) format);
+            else if (format instanceof VideoFormat)
+                mediaFormat = new VideoMediaFormatImpl((VideoFormat) format);
+        }
+        return mediaFormat;
     }
 
     /**

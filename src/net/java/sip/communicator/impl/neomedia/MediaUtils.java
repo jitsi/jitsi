@@ -173,6 +173,37 @@ public class MediaUtils
     }
 
     /**
+     * Gets a <tt>MediaFormat</tt> predefined in <tt>MediaUtils</tt> which
+     * represents a specific JMF <tt>Format</tt>. If there is no such
+     * representing <tt>MediaFormat</tt> in <tt>MediaUtils</tt>, returns
+     * <tt>null</tt>.
+     *
+     * @param format the JMF <tt>Format</tt> to get the <tt>MediaFormat</tt>
+     * representation for
+     * @return a <tt>MediaFormat</tt> predefined in <tt>MediaUtils</tt> which
+     * represents <tt>format</tt> if any; <tt>null</tt> if there is no such
+     * representing <tt>MediaFormat</tt> in <tt>MediaUtils</tt>
+     */
+    public static MediaFormat formatToMediaFormat(Format format)
+    {
+        int rtpPayloadType = jmfEncodingToRtpPayloadType(format.getEncoding());
+
+        if (MediaFormatImpl.RTP_PAYLOAD_TYPE_UNKNOWN != rtpPayloadType)
+        {
+            for (MediaFormat mediaFormat
+                    : rtpPayloadTypeToMediaFormats(Integer.toString(rtpPayloadType)))
+            {
+                MediaFormatImpl<? extends Format> mediaFormatImpl
+                    = (MediaFormatImpl<? extends Format>) mediaFormat;
+
+                if (format.matches(mediaFormatImpl.getFormat()))
+                    return mediaFormat;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Gets the well-known encoding (name) as defined in RFC 3551 "RTP Profile
      * for Audio and Video Conferences with Minimal Control" corresponding to a
      * given JMF-specific encoding.
