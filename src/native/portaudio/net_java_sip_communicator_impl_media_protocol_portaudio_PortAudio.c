@@ -2,6 +2,8 @@
 
 #include <portaudio.h>
 #include <stdlib.h>
+#include <speex/speex_resampler.h>
+#include <math.h>
 
 typedef struct
 {
@@ -13,8 +15,14 @@ typedef struct
 	jmethodID streamFinishedCallbackMethodID;
 	long inputFrameSize;
 	long outputFrameSize;
+
+    SpeexResamplerState *resampler;
+    double resampleFactor;
+    int channelCount;
 }
 PortAudioStream;
+
+#define DEFAULT_SAMPLE_RATE 44100.0
 
 static void PortAudio_throwException(JNIEnv *env, PaError errorCode);
 static PaStreamParameters * PortAudio_fixInputParametersSuggestedLatency(
@@ -55,6 +63,9 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1Close
 {
 	PortAudioStream *portAudioStream = (PortAudioStream *) stream;
 	PaError errorCode = Pa_CloseStream(portAudioStream->stream);
+
+    if(portAudioStream->resampleFactor != 1)
+        speex_resampler_destroy(portAudioStream->resampler);
 
 	if (paNoError != errorCode)
 		PortAudio_throwException(env, errorCode);
@@ -117,11 +128,25 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1OpenS
 			PortAudio_fixInputParametersSuggestedLatency(inputStreamParameters),
 			PortAudio_fixOutputParametersSuggestedLatency(
 				outputStreamParameters),
-			sampleRate,
+			DEFAULT_SAMPLE_RATE,
 			framesPerBuffer,
 			streamFlags,
 			streamCallback ? PortAudioStream_callback : NULL,
 			stream);
+
+    stream->resampleFactor = DEFAULT_SAMPLE_RATE / sampleRate;
+
+    if(stream->resampleFactor != 1.0)
+    {
+        if(inputStreamParameters)
+            stream->channelCount = inputStreamParameters->channelCount;
+        else
+            stream->channelCount = outputStreamParameters->channelCount;
+
+        // resample quality 3 is for voip
+        stream->resampler = speex_resampler_init(
+            stream->channelCount, sampleRate, DEFAULT_SAMPLE_RATE, 3, NULL);
+    }
 
 	if (paNoError == errorCode)
 	{
@@ -176,16 +201,42 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1Write
 
 	if (data)
 	{
-		PaError errorCode
-			= Pa_WriteStream(
-				((PortAudioStream *) stream)->stream,
-				data,
-				frames);
+        PaError errorCode;
 
-		(*env)->ReleaseByteArrayElements(env, buffer, data, 0);
+        if(((PortAudioStream *) stream)->resampleFactor != 1)
+        {
+            spx_uint32_t out_len;
+            out_len = lrint(
+                frames
+                *((PortAudioStream *) stream)->channelCount
+                *((PortAudioStream *) stream)->resampleFactor);
 
-		if (paNoError != errorCode && errorCode != paOutputUnderflowed)
-			PortAudio_throwException(env, errorCode);
+            short res[out_len];
+            int l = frames;
+            speex_resampler_process_interleaved_int(
+                    ((PortAudioStream *) stream)->resampler,
+                    data,
+                    &l,
+                    res,
+                    &out_len);
+
+            errorCode = Pa_WriteStream(
+                ((PortAudioStream *) stream)->stream,
+                res,
+                out_len);
+        }
+        else
+        {
+            errorCode = Pa_WriteStream(
+                ((PortAudioStream *) stream)->stream,
+                data,
+                frames);
+        }
+
+        (*env)->ReleaseByteArrayElements(env, buffer, data, 0);
+
+        if (paNoError != errorCode && errorCode != paOutputUnderflowed)
+                PortAudio_throwException(env, errorCode);
 
 /*
                 if(errorCode == paOutputUnderflowed)

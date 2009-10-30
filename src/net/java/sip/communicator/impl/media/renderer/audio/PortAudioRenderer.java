@@ -26,15 +26,16 @@ public class PortAudioRenderer
     private static final String name = "PortAudio Renderer";
 
     /**
-     * Will be inited after the device is set.
-     */
-    private static AudioFormat audioFormat = null;
-
-    /**
      * The supported input formats. The Inputformats are
      * changed after the device is set.
      */
     public static Format[] supportedInputFormats = new Format[]{};
+
+    /**
+     * The standart supported sample rates.
+     */
+    private static double[] supportedSampleRates =
+        new double[]{8000, 16000, 22050, 44100, 48000};
 
     private Object [] controls = new Object[0];
     private AudioFormat inputFormat;
@@ -54,7 +55,7 @@ public class PortAudioRenderer
      */
     public Format[] getSupportedInputFormats()
     {
-        return new Format[]{audioFormat};
+        return supportedInputFormats;
     }
 
     /**
@@ -188,13 +189,13 @@ public class PortAudioRenderer
                  long streamParameters
                      = PortAudio.PaStreamParameters_new(
                              deviceIndex,
-                             audioFormat.getChannels(),
+                             inputFormat.getChannels(),
                              PortAudio.SAMPLE_FORMAT_INT16);
 
                 return PortAudio.Pa_OpenStream(
                              0,
                              streamParameters,
-                             audioFormat.getSampleRate(),
+                             inputFormat.getSampleRate(),
                              PortAudio.FRAMES_PER_BUFFER_UNSPECIFIED,
                              PortAudio.STREAM_FLAGS_CLIP_OFF
                                 | PortAudio.STREAM_FLAGS_DITHER_OFF,
@@ -274,16 +275,18 @@ public class PortAudioRenderer
     {
         deviceIndex = PortAudioUtils.getDeviceIndexFromLocator(locator);
 
-        long device = PortAudio.Pa_GetDeviceInfo(deviceIndex);
         int outputChannels = 1;
 
-        double defaultSampleRate =
-            PortAudio.PaDeviceInfo_getDefaultSampleRate(device);
+        supportedInputFormats = new Format[supportedSampleRates.length];
 
-        audioFormat =
-            new AudioFormat(
+        for(int i = 0; i < supportedSampleRates.length; i++)
+        {
+            double sampleRate = supportedSampleRates[i];
+
+            supportedInputFormats[i] =
+                new AudioFormat(
                     AudioFormat.LINEAR,
-                      defaultSampleRate,
+                      sampleRate,
                       16,
                       outputChannels,
                       AudioFormat.LITTLE_ENDIAN,
@@ -291,7 +294,7 @@ public class PortAudioRenderer
                       16,
                       Format.NOT_SPECIFIED,
                       Format.byteArray);
-        supportedInputFormats = new Format[]{audioFormat};
+        }
 
         frameSize
             = PortAudio.Pa_GetSampleSize(PortAudio.SAMPLE_FORMAT_INT16)

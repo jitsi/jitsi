@@ -131,13 +131,6 @@ public class PortAudioClipImpl
                                     outChannels,
                                     PortAudioUtils.getPortAudioSampleFormat(
                                         audioStreamFormat.getSampleSizeInBits()));
-                        // check if file samplerate is supported
-                        // if it is use it and not resample
-                        if(!PortAudio.Pa_IsFormatSupported(
-                                0, streamParameters, sampleRate))
-                            sampleRate = 
-                                PortAudio.PaDeviceInfo_getDefaultSampleRate(
-                                    devInfo);
 
                         portAudioStream
                             = PortAudio.Pa_OpenStream(
