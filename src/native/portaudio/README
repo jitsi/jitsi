@@ -1,21 +1,46 @@
 1. portaudio
     - Linux
     $./configure & make
+
+    - Linux amd64
+    ./configure  --enable-static --disable-shared --with-pic & make
+
     - Mac OS X
     $./configure  --enable-static --disable-shared & make
+
     - Windows
     $./configure  --enable-static --disable-shared & make
-2. jportaudio
+2. speex
+    - Linux
+    $./configure --enable-static --disable-shared & make
+
+    - Linux amd64
+    $./configure --enable-static --disable-shared --with-pic & make
+
+    - Macosx
+    $export CC="gcc -arch i386 -arch ppc -arch x86_64 -mmacosx-version-min=10.4"
+    $export CPP="gcc -E"
+    $export MACOSX_DEPLOYMENT_TARGET=10.4
+    $./configure --enable-static --disable-shared & make
+
+3. jportaudio
     - Linux
     $ make
+
+    - Linux amd64
+    LDFLAGS=-shared -fPIC
+    LIBS=-L$(SPEEX_HOME)/libspeex/.libs -L$(PORTAUDIO_HOME)/lib/.libs -Wl,-Bstatic -lportaudio -lspeexdsp -Wl,-Bdynamic -lasound -lm -lpthread
+    $ make
+
     - Mac OS X
     CC=gcc -arch i386 -arch ppc -arch x86_64 -mmacosx-version-min=10.3
     LDFLAGS=-shared
-    LIBS=-L$(PORTAUDIO_HOME)/lib/.libs -framework AudioToolbox -framework AudioUnit -framework CoreAudio -framework Carbon -lpthread -pthread -dynamic -lportaudio
+    LIBS=-L$(PORTAUDIO_HOME)/lib/.libs -framework AudioToolbox -framework AudioUnit -framework CoreAudio -framework Carbon -lpthread -pthread -dynamic -lportaudio -lspeexdsp
     $ make
+
     - Windows
     CPPFLAGS=...
     	 -Wl,--kill-at \
 	 -02 \
-    LIBS=-L$(PORTAUDIO_HOME)/lib/.libs -static -lportaudio -lwinmm -lm -lstdc++ -lole32 -luuid
+    LIBS=-L$(PORTAUDIO_HOME)/lib/.libs -static -lportaudio -lspeexdsp -lwinmm -lm -lstdc++ -lole32 -luuid
     $ make
