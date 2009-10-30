@@ -1,9 +1,9 @@
 1. portaudio
     - Linux
-    $./configure & make
+    $./configure --enable-static --disable-shared --with-jack=no & make
 
     - Linux amd64
-    ./configure  --enable-static --disable-shared --with-pic & make
+    ./configure  --enable-static --disable-shared --with-pic --with-jack=no & make
 
     - Mac OS X
     $./configure  --enable-static --disable-shared & make

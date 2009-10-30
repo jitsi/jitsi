@@ -12,7 +12,7 @@ CPPFLAGS=-DJNI_IMPLEMENTATION \
 	 -I$(SPEEX_HOME)/include \
          -I$(PORTAUDIO_HOME)/include
 LDFLAGS=-shared
-LIBS=-L$(SPEEX_HOME)/libspeex/.libs -L$(PORTAUDIO_HOME)/lib/.libs -static -lportaudio -lspeexdsp -dynamic -lasound -lm -lpthread -ljack
+LIBS=-L$(SPEEX_HOME)/libspeex/.libs -L$(PORTAUDIO_HOME)/lib/.libs -static -lportaudio -lspeexdsp -dynamic -lasound -lm -lpthread
 
 $(TARGET): net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio.c net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio.h
 	$(CC) $(CPPFLAGS) $< $(LDFLAGS) -o $@ $(LIBS)
