@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>CallComboBox</tt> is a history editable combo box that is
@@ -53,8 +54,8 @@ public class CallComboBox
         JTextField textField =
             (JTextField) this.getEditor().getEditorComponent();
 
+        textField.setTransferHandler(new ExtendedTransferHandler());
         textField.getDocument().addDocumentListener(this);
-
         textField.getActionMap().put("createCall", new CreateCallAction());
         textField.getInputMap().put(
                 KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "createCall");

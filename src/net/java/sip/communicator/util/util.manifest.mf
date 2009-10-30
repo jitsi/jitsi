@@ -28,6 +28,7 @@ Import-Package: org.xml.sax,
  net.java.sip.communicator.service.resources,
  net.java.sip.communicator.service.keybindings,
  net.java.sip.communicator.service.configuration,
+ net.java.sip.communicator.service.contactlist,
  sun.awt.shell
 Export-Package: net.java.sip.communicator.util.xml,
  net.java.sip.communicator.util.swing.plaf,

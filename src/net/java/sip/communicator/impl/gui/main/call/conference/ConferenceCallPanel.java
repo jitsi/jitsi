@@ -86,6 +86,8 @@ public class ConferenceCallPanel
 
         this.getViewport().setOpaque(false);
         this.getViewport().add(mainPanel);
+
+        mainPanel.setTransferHandler(new CallTransferHandler(call));
     }
 
     /**

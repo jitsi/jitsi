@@ -7,6 +7,8 @@
 package net.java.sip.communicator.util;
 
 import java.awt.*;
+import java.awt.font.*;
+import java.awt.geom.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -53,7 +55,7 @@ public class GuiUtils
     {
         return text.replaceAll("([.()^&$*|])", "\\\\$1");
     }
-    
+
     /**
      * Returns the width in pixels of a text.
      * @param c the component where the text is contained
@@ -64,6 +66,43 @@ public class GuiUtils
     {
         return SwingUtilities.computeStringWidth(c
                 .getFontMetrics(c.getFont()), text);
+    }
+
+    /**
+     * Returns the bounds of the given string.
+     * @param text the string to measure
+     * @return the bounds of the given string
+     */
+    public static Rectangle2D getStringBounds(String text)
+    {
+        Font font = UIManager.getFont("Label.font");
+
+        FontRenderContext frc = new FontRenderContext(null, true, false);
+
+        TextLayout layout = new TextLayout(text, font, frc);
+
+        return layout.getBounds();
+    }
+
+    /**
+     * Counts occurrences of the <tt>needle</tt> character in the given
+     * <tt>text</tt>.
+     * @param text the text in which we search
+     * @param needle the character we're looking for
+     * @return the count of occurrences of the <tt>needle</tt> chat in the
+     * given <tt>text</tt>
+     */
+    public static int countOccurrences(String text, char needle)
+    {
+        int count = 0;
+        for (char c : text.toCharArray())
+        {
+            if (c == needle)
+            {
+               ++count;
+            }
+        }
+        return count;
     }
 
     /**
@@ -173,6 +212,13 @@ public class GuiUtils
         return strBuf.toString();
     }
 
+    /**
+     * Formats the given date as: Month DD, YYYY and appends it to the given
+     * <tt>dateStrBuf</tt> string buffer.
+     * @param date the date to format
+     * @param dateStrBuf the <tt>StringBuffer</tt>, where to append the
+     * formatted date
+     */
     public static void formatDate(long date, StringBuffer dateStrBuf)
     {
         c1.setTimeInMillis(date);
@@ -296,6 +342,8 @@ public class GuiUtils
 
     /**
      * Formats the given long to X hour, Y min, Z sec.
+     * @param millis the time in milliseconds to format
+     * @return the formatted seconds
      */
     public static String formatSeconds(long millis)
     {

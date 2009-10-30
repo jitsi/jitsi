@@ -19,7 +19,7 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
- * A TransferHandler that we use to handle DnD operations of files in our
+ * A TransferHandler that we use to handle DnD operations in our
  * <tt>ContactList</tt>.
  *
  * @author Yana Stamcheva
@@ -32,9 +32,59 @@ public class ContactListTransferHandler
 
     private final DefaultContactList contactList;
 
+    /**
+     * Creates an instance of <tt>ContactListTransferHandler</tt> passing the
+     * <tt>contactList</tt> which uses this <tt>TransferHandler</tt>.
+     * @param contactList the <tt>DefaultContactList</tt> which uses this
+     * <tt>TransferHandler</tt>
+     */
     public ContactListTransferHandler(DefaultContactList contactList)
     {
         this.contactList = contactList;
+    }
+
+    /**
+     * Creates a transferable for text pane components in order to enable drag
+     * and drop of text.
+     * @param component the component for which to create a
+     * <tt>Transferable</tt>
+     * @return the created <tt>Transferable</tt>
+     */
+    public Transferable createTransferable(JComponent component)
+    {
+        if (component instanceof JList)
+        {
+            JList list = (JList) component;
+            return new ContactListTransferable(
+                list.getSelectedIndex(), list.getSelectedValue());
+        }
+
+        return super.createTransferable(component);
+    }
+
+    /**
+     * Indicates whether a component will accept an import of the given
+     * set of data flavors prior to actually attempting to import it. We return
+     * <tt>true</tt> to indicate that the transfer with at least one of the
+     * given flavors would work and <tt>false</tt> to reject the transfer.
+     * <p>
+     * @param comp component
+     * @param flavor the data formats available
+     * @return  true if the data can be inserted into the component, false
+     * otherwise
+     * @throws NullPointerException if <code>support</code> is {@code null}
+     */
+    public boolean canImport(JComponent comp, DataFlavor flavor[])
+    {
+        for (int i = 0, n = flavor.length; i < n; i++)
+        {
+            if (flavor[i].equals(metaContactDataFlavor))
+            {
+                return true;
+            }
+        }
+
+        return super.canImport(comp, flavor);
     }
 
     /**
@@ -83,13 +133,111 @@ public class ContactListTransferHandler
                         GuiActivator.getUIService().getChatWindowManager()
                             .openChat(chatPanel, false);
                     }
-
-                    // Otherwise fire files dropped event.
                     return true;
                 }
             }
         }
+        else if (t.isDataFlavorSupported(metaContactDataFlavor))
+        {
+            Object o = null;
+
+            try
+            {
+                o = t.getTransferData(metaContactDataFlavor);
+            }
+            catch (UnsupportedFlavorException e)
+            {
+                if (logger.isDebugEnabled())
+                    logger.debug("Failed to drop meta contact.", e);
+            }
+            catch (IOException e)
+            {
+                if (logger.isDebugEnabled())
+                    logger.debug("Failed to drop meta contact.", e);
+            }
+
+            if (o instanceof MetaContact
+                && comp instanceof ContactList)
+            {
+                MetaContact transferredContact = (MetaContact) o;
+                ContactList list = (ContactList) comp;
+
+                Object dest = list.getSelectedValue();
+
+                if (transferredContact != null)
+                {
+                    if (dest instanceof MetaContact)
+                    {
+                        MetaContact destContact = (MetaContact) dest;
+                        if (transferredContact != destContact)
+                        {
+                            list.moveMetaContactToMetaContact(
+                                transferredContact, destContact);
+                        }
+                        return true;
+                    }
+                    else if (dest instanceof MetaContactGroup)
+                    {
+                        MetaContactGroup destGroup = (MetaContactGroup) dest;
+
+                        if (transferredContact.getParentMetaContactGroup()
+                                != destGroup)
+                        {
+                            list.moveMetaContactToGroup(
+                                transferredContact, destGroup);
+                        }
+                        return true;
+                    }
+                }
+            }
+        }
         return false;
+    }
+
+    /**
+     * Overrides <tt>TransferHandler.getVisualRepresentation(Transferable t)</tt>
+     * in order to return a custom drag icon.
+     * <p>
+     * The default parent implementation of this method returns null.
+     *
+     * @param t  the data to be transferred; this value is expected to have been
+     * created by the <code>createTransferable</code> method
+     * @return the icon to show when dragging
+     */
+    public Icon getVisualRepresentation(Transferable t)
+    {
+        ContactListCellRenderer renderer = null;
+
+        if (t instanceof ContactListTransferable)
+        {
+            ContactListTransferable transferable = ((ContactListTransferable) t);
+
+            try
+            {
+                renderer = (ContactListCellRenderer)
+                    contactList.getCellRenderer()
+                        .getListCellRendererComponent(
+                        contactList,
+                        transferable.getTransferData(metaContactDataFlavor),
+                        transferable.getTransferIndex(), false, false);
+            }
+            catch (UnsupportedFlavorException e)
+            {
+                if (logger.isDebugEnabled())
+                    logger.debug(
+                        "Unsupported flavor while" +
+                        " obtaining transfer data.", e);
+            }
+            catch (IOException e)
+            {
+                if (logger.isDebugEnabled())
+                    logger.debug(
+                        "The data for the request flavor" +
+                        " is no longer available.", e);
+            }
+        }
+
+        return renderer;
     }
 
     /**
@@ -109,13 +257,91 @@ public class ContactListTransferHandler
             MetaContact metaContact = (MetaContact) selectedObject;
 
             // Obtain the corresponding chat panel.
-            chatPanel
-                = GuiActivator
-                    .getUIService()
-                        .getChatWindowManager()
+            chatPanel = GuiActivator.getUIService().getChatWindowManager()
                             .getContactChat(metaContact, true);
         }
 
         return chatPanel;
+    }
+
+    /**
+     * Transferable for JList that enables drag and drop of contacts.
+     */
+    public class ContactListTransferable implements Transferable
+    {
+        private int transferredIndex;
+
+        private Object transferredObject;
+
+        /**
+         * Creates an instance of <tt>ContactListTransferable</tt>.
+         * @param index the index of the transferred object in the list
+         * @param o the transferred list object
+         */
+        public ContactListTransferable(int index, Object o)
+        {
+            this.transferredIndex = index;
+            this.transferredObject = o;
+        }
+
+        /**
+         * Returns supported flavors.
+         * @return an array of supported flavors
+         */
+        public DataFlavor[] getTransferDataFlavors()
+        {
+            return new DataFlavor[] {   metaContactDataFlavor,
+                                        DataFlavor.stringFlavor};
+        }
+
+        /**
+         * Returns <tt>true</tt> if the given <tt>flavor</tt> is supported,
+         * otherwise returns <tt>false</tt>.
+         * @param flavor the data flavor to verify
+         * @return <tt>true</tt> if the given <tt>flavor</tt> is supported,
+         * otherwise returns <tt>false</tt>
+         */
+        public boolean isDataFlavorSupported(DataFlavor flavor)
+        {
+            return metaContactDataFlavor.equals(flavor)
+                    || DataFlavor.stringFlavor.equals(flavor);
+        }
+
+        /**
+         * Returns the selected text.
+         * @param flavor the flavor
+         * @return the selected text
+         * @exception UnsupportedFlavorException if the requested data flavor
+         * is not supported.
+         * @exception IOException if the data is no longer available in the
+         * requested flavor.
+         */
+        public Object getTransferData(DataFlavor flavor)
+            throws  UnsupportedFlavorException,
+                    IOException
+        {
+            if (metaContactDataFlavor.equals(flavor))
+            {
+                return transferredObject;
+            }
+            else if (DataFlavor.stringFlavor.equals(flavor))
+            {
+                if (transferredObject instanceof MetaContact)
+                    return ((MetaContact) transferredObject).getDisplayName();
+            }
+            else
+                throw new UnsupportedFlavorException(flavor);
+
+            return null;
+        }
+
+        /**
+         * Returns the index of the transferred list cell.
+         * @return the index of the transferred list cell
+         */
+        public int getTransferIndex()
+        {
+            return transferredIndex;
+        }
     }
 }

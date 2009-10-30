@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -36,8 +35,7 @@ import net.java.sip.communicator.util.*;
 public class ContactList
     extends DefaultContactList
     implements  MetaContactListListener,
-                MouseListener,
-                MouseMotionListener
+                MouseListener
 {
     private static final String ADD_OPERATION = "AddOperation";
 
@@ -69,8 +67,6 @@ public class ContactList
     private GroupRightButtonMenu groupRightButtonMenu;
 
     private ContactRightButtonMenu contactRightButtonMenu;
-
-    private ContactListDraggable draggedElement;
 
     /**
      * A list of all contacts that are currently "active". An "active" contact
@@ -114,34 +110,8 @@ public class ContactList
         this.contactListService.addMetaContactListListener(this);
 
         this.addMouseListener(this);
-        this.addMouseMotionListener(this);
-
-        this.addFocusListener(new FocusAdapter()
-        {
-            public void focusLost(FocusEvent e)
-            {
-                if (draggedElement != null)
-                {
-                    draggedElement.setVisible(false);
-                    draggedElement = null;
-                }
-            }
-        });
 
         this.addKeyListener(new CListKeySearchListener(this));
-
-        this.addKeyListener(new KeyAdapter()
-        {
-            public void keyPressed(KeyEvent e)
-            {
-                if ((e.getKeyCode() == KeyEvent.VK_ESCAPE)
-                        && (draggedElement != null))
-                {
-                    draggedElement.setVisible(false);
-                    draggedElement = null;
-                }
-            }
-        });
 
         this.addListSelectionListener(new ListSelectionListener()
         {
@@ -157,6 +127,7 @@ public class ContactList
 
     /**
      * Handles the <tt>MetaContactEvent</tt>. Refreshes the list model.
+     * @param evt the <tt>MetaContactEvent</tt> that notified us of the add
      */
     public void metaContactAdded(MetaContactEvent evt)
     {
@@ -166,6 +137,8 @@ public class ContactList
     /**
      * Handles the <tt>MetaContactRenamedEvent</tt>. Refreshes the list when
      * a meta contact is renamed.
+     * @param evt the <tt>MetaContactRnamedEvent</tt> that notified us of the
+     * rename
      */
     public void metaContactRenamed(MetaContactRenamedEvent evt)
     {
@@ -175,16 +148,15 @@ public class ContactList
     /**
      * Handles the <tt>MetaContactModifiedEvent</tt>.
      * Indicates that a MetaContact has been modified.
-     * @param evt the MetaContactModifiedEvent containing the corresponding contact
+     * @param evt the MetaContactModifiedEvent containing the corresponding
+     * contact
      */
-    public void metaContactModified(MetaContactModifiedEvent evt)
-    {
-        //dummy impl
-    }
+    public void metaContactModified(MetaContactModifiedEvent evt) {}
 
     /**
      * Handles the <tt>ProtoContactEvent</tt>. Refreshes the list when a
      * protocol contact has been added.
+     * @param evt the <tt>ProtoContactEvent</tt> that notified us of the add
      */
     public void protoContactAdded(ProtoContactEvent evt)
     {
@@ -194,6 +166,7 @@ public class ContactList
     /**
      * Handles the <tt>ProtoContactEvent</tt>. Refreshes the list when a
      * protocol contact has been removed.
+     * @param evt the <tt>ProtoContactEvent</tt> that notified us of the remove
      */
     public void protoContactRemoved(ProtoContactEvent evt)
     {
@@ -203,6 +176,7 @@ public class ContactList
     /**
      * Handles the <tt>ProtoContactEvent</tt>. Refreshes the list when a
      * protocol contact has been moved.
+     *  @param evt the <tt>ProtoContactEvent</tt> that notified us of the move
      */
     public void protoContactMoved(ProtoContactEvent evt)
     {
@@ -214,15 +188,18 @@ public class ContactList
      * Implements the <tt>MetaContactListListener.protoContactModified</tt>
      * method with an empty body since we are not interested in proto contact
      * specific changes (such as the persistent data) in the user interface.
+     * @param evt the <tt>ProtoContactEvent</tt> that notified us of the
+     *  modification
      */
     public void protoContactModified(ProtoContactEvent evt)
     {
-        //currently ignored
+        // currently ignored
     }
 
     /**
      * Handles the <tt>MetaContactEvent</tt>. Refreshes the list when a meta
      * contact has been removed.
+     * @param evt the <tt>MetaContactEvent</tt> that notified us of the remove
      */
     public void metaContactRemoved(MetaContactEvent evt)
     {
@@ -232,6 +209,7 @@ public class ContactList
     /**
      * Handles the <tt>MetaContactMovedEvent</tt>. Refreshes the list when a
      * meta contact has been moved.
+     * @param evt the <tt>MetaContactEvent</tt> that notified us of the move
      */
     public void metaContactMoved(MetaContactMovedEvent evt)
     {
@@ -242,6 +220,7 @@ public class ContactList
     /**
      * Handles the <tt>MetaContactGroupEvent</tt>. Refreshes the list model
      * when a new meta contact group has been added.
+     * @param evt the <tt>MetaContactGroupEvent</tt> that notified us of the add
      */
     public void metaContactGroupAdded(MetaContactGroupEvent evt)
     {
@@ -254,6 +233,8 @@ public class ContactList
     /**
      * Handles the <tt>MetaContactGroupEvent</tt>. Refreshes the list when a
      * meta contact group has been modified.
+     * @param evt the <tt>MetaContactGroupEvent</tt> that notified us of the
+     * modification
      */
     public void metaContactGroupModified(MetaContactGroupEvent evt)
     {
@@ -266,6 +247,8 @@ public class ContactList
     /**
      * Handles the <tt>MetaContactGroupEvent</tt>. Refreshes the list when a
      * meta contact group has been removed.
+     * @param evt the <tt>MetaContactGroupEvent</tt> that notified us of the
+     * remove
      */
     public void metaContactGroupRemoved(MetaContactGroupEvent evt)
     {
@@ -281,6 +264,8 @@ public class ContactList
      * index to the index of the contact that was selected before the reordered
      * event. This way the selection depends on the contact and not on the
      * index.
+     * @param evt the <tt>MetaContactGroupEvent</tt> that notified us of the
+     * reordering
      */
     public void childContactsReordered(MetaContactGroupEvent evt)
     {
@@ -415,6 +400,11 @@ public class ContactList
             new ContactListEvent(sourceContact, protocolContact, eventID));
     }
 
+    /**
+     * 
+     * @param contactListListeners
+     * @param event
+     */
     protected void fireContactListEvent(
             java.util.List<ContactListListener> contactListListeners,
             ContactListEvent event)
@@ -459,6 +449,7 @@ public class ContactList
      * selected and the <tt>GroupRightButtonMenu</tt> is opened.
      *
      * When the middle mouse button is clicked on a cell, the cell is selected.
+     * @param e the <tt>MouseEvent</tt> that notified us of the click
      */
     public void mouseClicked(MouseEvent e)
     {
@@ -611,35 +602,12 @@ public class ContactList
         }
     }
 
-    public void mouseEntered(MouseEvent e)
-    {
-        //dummy impl
-    }
-
-    public void mouseExited(MouseEvent e)
-    {
-        //dummy impl
-    }
-
     /**
-     * Handle a mouse pressed event over the contact list.
-     *
-     * The main thing done when the mouse is pressed over the contact list is,
-     * simply select the <tt>MetaContact</tt> on which the event has occured.
-     *
-     * A <tt>ContactListDraggable</tt> object is also built, based on the
-     * element on which the mouse has been pressed. If the user is iniating
-     * a drag'n drop operation, the <tt>ContactListDraggable</tt> object will
-     * be monitored in <tt>mouseDragged</tt> and the dnd operation will be
-     * completed in <tt>mouseReleased</tt>.
+     * Selects the contact or group under the right mouse click.
+     * @param e the <tt>MouseEvent</tt> that notified us of the press
      */
     public void mousePressed(MouseEvent e)
     {
-        // Request the focus in the meta contact list when user clicks on it.
-        this.requestFocus();
-
-        draggedElement = null;
-
         // Select the meta contact under the right button click.
         if ((e.getModifiers() & InputEvent.BUTTON2_MASK) != 0
             || (e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
@@ -650,189 +618,13 @@ public class ContactList
             if (index != -1)
                 this.setSelectedIndex(index);
         }
-
-        int selectedIndex = this.getSelectedIndex();
-        Object selectedValue = this.getSelectedValue();
-
-        // If there's no index selected we have nothing to do here.
-        if (selectedIndex < 0)
-            return;
-
-        ContactListCellRenderer renderer = (ContactListCellRenderer) this
-            .getCellRenderer().getListCellRendererComponent(this,
-                                                            selectedValue,
-                                                            selectedIndex,
-                                                            true,
-                                                            true);
-
-        Point selectedCellPoint = this.indexToLocation(selectedIndex);
-
-        int translatedX = e.getX() - selectedCellPoint.x;
-
-        if (selectedValue instanceof MetaContact
-            && (e.getModifiers() & InputEvent.BUTTON1_MASK) != 0)
-        {
-            MetaContact mContact = (MetaContact) selectedValue;
-
-            // get the component under the mouse
-            Component component
-                = this.getHorizontalComponent(renderer, translatedX);
-
-            if (component instanceof JLabel)
-            {
-                Image image = new BufferedImage(component.getWidth(),
-                    component.getHeight(),
-                    BufferedImage.TYPE_INT_ARGB);
-
-                Graphics g = image.getGraphics();
-
-                g.setColor(getBackground());
-                g.fillRect(0, 0, image.getWidth(null), image.getHeight(null));
-
-                component.paint(image.getGraphics());
-                draggedElement = new ContactListDraggable(  this,
-                                                            mContact,
-                                                            null,
-                                                            image);
-            }
-        }
-
-        if (draggedElement != null)
-        {
-            mainFrame.setGlassPane(draggedElement);
-
-            Point p = (Point) e.getPoint().clone();
-
-            p = SwingUtilities.convertPoint(e.getComponent(), p, draggedElement);
-            draggedElement.setLocation(p);
-        }
     }
 
-    /**
-     * If we are moving a <tt>Contact</tt> or <tt>MetaContact</tt> we
-     * update the coordinates of the dragged element and paint it at its new
-     * position.
-     */
-    public void mouseDragged(MouseEvent e)
-    {
-        if (draggedElement != null)
-        {
-            if (!draggedElement.isVisible())
-                draggedElement.setVisible(true);
-            Point p = (Point) e.getPoint().clone();
-            p = SwingUtilities.convertPoint(e.getComponent(), p, draggedElement);
-            draggedElement.setLocation(p);
-            draggedElement.repaint();
-        }
-        else
-            this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-    }
+    public void mouseEntered(MouseEvent e) {}
 
-    /**
-     * If we were performing a drag'n drop operation when the mouse is released,
-     * complete it by moving the <tt>Contact</tt> and/or <tt>MetaContact</tt> enclosed
-     * by the <tt>draggedElement</tt> from that <tt>MetaContact</tt>
-     * to the <tt>MetaContactGroup</tt> or <tt>MetaContact</tt> on which
-     * the drop occurs.
-     */
-    public void mouseReleased(MouseEvent e)
-    {
-        int selectedIndex = this.locationToIndex(e.getPoint());
+    public void mouseExited(MouseEvent e) {}
 
-        Object dest = listModel.getElementAt(selectedIndex);
-
-        if (draggedElement != null)
-        {
-            if (dest instanceof MetaContact)
-            {
-                MetaContact contactDest = (MetaContact) dest;
-                if (draggedElement.getMetaContact() != contactDest)
-                {
-                    if (draggedElement.getContact() != null)
-                    {
-                        new MoveContactToMetaContactThread(
-                                draggedElement.getContact(),
-                                contactDest).start();
-                    }
-                    else
-                    {
-                        // we move all contacts from this meta contact
-                        Iterator<Contact> i
-                            = draggedElement.getMetaContact().getContacts();
-                        while(i.hasNext())
-                        {
-                            Contact contact = i.next();
-
-                            new MoveContactToMetaContactThread(
-                                contact,
-                                contactDest).start();
-                        }
-
-                    }
-                }
-            }
-            else if (dest instanceof MetaContactGroup)
-            {
-                MetaContactGroup contactDest = (MetaContactGroup) dest;
-                if (draggedElement.getContact() != null)
-                {
-                    // there is a specific contact moved. if this contact
-                    // has fellow in its meta contact parent, we move only
-                    // this contact. Otherwise we move the whole meta contact
-                    // as this contact is the only one inside it.
-                    if (draggedElement.getMetaContact().getContactCount() > 1)
-                    {
-                        new MoveContactToGroupThread(
-                            draggedElement.getContact(),
-                            contactDest).start();
-                    }
-                    else if (!contactDest.contains(
-                        draggedElement.getMetaContact()))
-                    {
-                        new MoveMetaContactThread(
-                            draggedElement.getMetaContact(),
-                            contactDest).start();
-                    }
-                }
-                else if (!contactDest.contains(draggedElement.getMetaContact()))
-                {
-                    try
-                    {
-                        new MoveMetaContactThread(
-                            draggedElement.getMetaContact(),
-                            contactDest).start();
-                    }
-                    catch (Exception ex)
-                    {
-                        new ErrorDialog(
-                                mainFrame,
-                                GuiActivator.getResources().getI18NString(
-                                    "service.gui.MOVE_TO_GROUP"),
-                                GuiActivator.getResources().getI18NString(
-                                    "service.gui.MOVE_CONTACT_ERROR"),
-                                ex).showDialog();
-                    }
-                }
-            }
-
-            draggedElement.setVisible(false);
-            draggedElement = null;
-        }
-
-        setCursor(Cursor
-            .getPredefinedCursor((dest instanceof MetaContactGroup) ? Cursor.HAND_CURSOR
-                : Cursor.DEFAULT_CURSOR));
-    }
-
-    public void mouseMoved(MouseEvent e)
-    {
-        int selectedIndex = this.locationToIndex(e.getPoint());
-        Object cell = listModel.getElementAt(selectedIndex);
-
-        setCursor(Cursor
-            .getPredefinedCursor((cell instanceof MetaContactGroup) ? Cursor.HAND_CURSOR
-                : Cursor.DEFAULT_CURSOR));
-    }
+    public void mouseReleased(MouseEvent e) {}
 
     /**
      * Returns the component positioned at the given x in the given container.
@@ -964,8 +756,6 @@ public class ContactList
 
         /**
          * Refreshes the given group content.
-         *
-         * @param group the group to update
          */
         private class RefreshGroup
             implements Runnable
@@ -1025,8 +815,6 @@ public class ContactList
 
         /**
          * Refreshes the given contact content.
-         *
-         * @param group the contact to refresh
          */
         private class RefreshContact
             implements Runnable
@@ -1098,6 +886,7 @@ public class ContactList
 
     /**
      * Refreshes all the contact list.
+     * @param group the <tt>MetaContactGroup</tt> to add
      */
     public void addGroup(MetaContactGroup group)
     {
@@ -1116,6 +905,7 @@ public class ContactList
 
     /**
      * Refreshes all the contact list.
+     * @param group the <tt>MetaContactGroup</tt> to remove
      */
     public void removeGroup(MetaContactGroup group)
     {
@@ -1163,6 +953,7 @@ public class ContactList
 
     /**
      * Adds the given contact to the contact list.
+     * @param contact the <tt>MetaContact</tt> to add
      */
     public void addContact(MetaContact contact)
     {
@@ -1182,6 +973,8 @@ public class ContactList
 
     /**
      * Refreshes all the contact list.
+     * @param event the <tt>MetaContactEvent</tt>, from which we get the contact
+     * to remove
      */
     public void removeContact(MetaContactEvent event)
     {
@@ -1230,7 +1023,7 @@ public class ContactList
      * Sets the showOffline property.
      *
      * @param isShowOffline TRUE to show all offline users, FALSE to hide
-     *            offline users.
+     * offline users.
      */
     public void setShowOffline(boolean isShowOffline)
     {
@@ -1291,6 +1084,17 @@ public class ContactList
     }
 
     /**
+     * Moves the given <tt>srcContact</tt> to the <tt>destMetaContact</tt>.
+     * @param srcContact the <tt>Contact</tt> to move
+     * @param destMetaContact the destination <tt>MetaContact</tt> to move to
+     */
+    public void moveContactToMetaContact(   Contact srcContact,
+                                            MetaContact destMetaContact)
+    {
+        new MoveContactToMetaContactThread(srcContact, destMetaContact).start();
+    }
+
+    /**
      * Moves the given <tt>Contact</tt> to the given <tt>MetaContact</tt> and
      * asks user for confirmation.
      */
@@ -1347,6 +1151,99 @@ public class ContactList
     }
 
     /**
+     * Moves the given <tt>srcMetaContact</tt> to the <tt>destMetaContact</tt>.
+     * @param srcMetaContact the <tt>MetaContact</tt> to move
+     * @param destMetaContact the destination <tt>MetaContact</tt> to move to
+     */
+    public void moveMetaContactToMetaContact(   MetaContact srcMetaContact,
+                                                MetaContact destMetaContact)
+    {
+        new MoveMetaContactToMetaContactThread(srcMetaContact, destMetaContact)
+            .start();
+    }
+
+    /**
+     * Moves the given <tt>Contact</tt> to the given <tt>MetaContact</tt> and
+     * asks user for confirmation.
+     */
+    private class MoveMetaContactToMetaContactThread extends Thread
+    {
+        private final MetaContact srcMetaContact;
+        private final MetaContact destMetaContact;
+
+        public MoveMetaContactToMetaContactThread(  MetaContact srcContact,
+                                                    MetaContact destMetaContact)
+        {
+            this.srcMetaContact = srcContact;
+            this.destMetaContact = destMetaContact;
+        }
+
+        @SuppressWarnings("fallthrough") //intentional
+        public void run()
+        {
+            if (!ConfigurationManager.isMoveContactConfirmationRequested())
+            {
+                // We move all subcontacts of the source MetaContact to the
+                // destination MetaContact.
+                this.moveAllSubcontacts();
+
+                return;
+            }
+
+            String message = GuiActivator.getResources().getI18NString(
+                "service.gui.MOVE_SUBCONTACT_QUESTION",
+                new String[]{   srcMetaContact.getDisplayName(),
+                                destMetaContact.getDisplayName()});
+
+            MessageDialog dialog = new MessageDialog(
+                    mainFrame,
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.MOVE_CONTACT"),
+                    message,
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.MOVE"));
+
+            switch (dialog.showDialog())
+            {
+            case MessageDialog.OK_DONT_ASK_CODE:
+                ConfigurationManager.setMoveContactConfirmationRequested(false);
+                // do fall through
+
+            case MessageDialog.OK_RETURN_CODE:
+                // We move all subcontacts of the source MetaContact to the
+                // destination MetaContact.
+                this.moveAllSubcontacts();
+                break;
+            }
+        }
+
+        /**
+         * Move all subcontacts of the <tt>srcMetaContact</tt> to
+         * <tt>destMetaContact</tt>.
+         */
+        private void moveAllSubcontacts()
+        {
+            Iterator<Contact> contacts = srcMetaContact.getContacts();
+            while(contacts.hasNext())
+            {
+                mainFrame.getContactList().moveContact(
+                    contacts.next(), destMetaContact);
+            }
+        }
+    }
+
+    /**
+     * Moves the given <tt>srcContact</tt> to the <tt>destGroup</tt>.
+     * @param srcContact the <tt>Contact</tt> to move
+     * @param destGroup the destination <tt>MetaContactGroup</tt> to move to
+     */
+    public void moveContactToGroup( Contact srcContact,
+                                    MetaContactGroup destGroup)
+    {
+        new MoveContactToGroupThread(srcContact, destGroup).start();
+    }
+
+    /**
      * Moves the given <tt>Contact</tt> to the given <tt>MetaContactGroup</tt>
      * and asks user for confirmation.
      */
@@ -1357,7 +1254,7 @@ public class ContactList
         private final MetaContactGroup destGroup;
 
         public MoveContactToGroupThread(Contact srcContact,
-                                          MetaContactGroup destGroup)
+                                        MetaContactGroup destGroup)
         {
             this.srcContact = srcContact;
             this.destGroup = destGroup;
@@ -1403,6 +1300,17 @@ public class ContactList
     }
 
     /**
+     * Moves the given <tt>srcContact</tt> to the <tt>destGroup</tt>.
+     * @param srcContact the <tt>MetaContact</tt> to move
+     * @param destGroup the destination <tt>MetaContactGroup</tt> to move to
+     */
+    public void moveMetaContactToGroup( MetaContact srcContact,
+                                        MetaContactGroup destGroup)
+    {
+        new MoveMetaContactThread(srcContact, destGroup).start();
+    }
+
+    /**
      * Moves the given <tt>MetaContact</tt> to the given <tt>MetaContactGroup</tt>
      * and asks user for confirmation.
      */
@@ -1425,8 +1333,15 @@ public class ContactList
             if (!ConfigurationManager.isMoveContactConfirmationRequested())
             {
                 // we move the specified contact
-                mainFrame.getContactList().moveMetaContact(
-                    srcContact, destGroup);
+                try
+                {
+                    mainFrame.getContactList().moveMetaContact(
+                        srcContact, destGroup);
+                }
+                catch (MetaContactListException e)
+                {
+                    
+                }
 
                 return;
             }
@@ -1547,19 +1462,6 @@ public class ContactList
     {
         this.removeMouseListener(this);
         this.addMouseListener(l);
-    }
-
-    /**
-     * Resets the contained mouse motion listeners and adds the given one. This
-     * allows other components to integrate the contact list by specifying their
-     * own mouse events.
-     *
-     * @param l the mouse listener to set.
-     */
-    public void setMouseMotionListener(MouseMotionListener l)
-    {
-        this.removeMouseMotionListener(this);
-        this.addMouseMotionListener(l);
     }
 
     /**

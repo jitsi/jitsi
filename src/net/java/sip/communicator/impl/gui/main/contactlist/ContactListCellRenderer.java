@@ -27,7 +27,8 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class ContactListCellRenderer
     extends JPanel
-    implements ListCellRenderer
+    implements  ListCellRenderer,
+                Icon
 {
     private static final int AVATAR_HEIGHT = 30;
 
@@ -116,8 +117,10 @@ public class ContactListCellRenderer
 
         this.nameLabel.setPreferredSize(new Dimension(10, 17));
 
+        this.rightLabel.setPreferredSize(
+            new Dimension(AVATAR_WIDTH, AVATAR_HEIGHT));
         this.rightLabel.setFont(rightLabel.getFont().deriveFont(9f));
-        this.rightLabel.setHorizontalAlignment(JLabel.RIGHT);
+        this.rightLabel.setHorizontalAlignment(JLabel.CENTER);
 
         this.add(nameLabel, BorderLayout.CENTER);
         this.add(rightLabel, BorderLayout.EAST);
@@ -329,6 +332,65 @@ public class ContactListCellRenderer
             g2.fillRoundRect(   1, 1,
                                 this.getWidth() - 2, this.getHeight() - 1,
                                 10, 10);
+        }
+    }
+
+    /**
+     * Returns the height of this icon.
+     * @return the height of this icon
+     */
+    public int getIconHeight()
+    {
+        return this.getHeight() + 10;
+    }
+
+    /**
+     * Returns the width of this icon.
+     * @return the widht of this icon
+     */
+    public int getIconWidth()
+    {
+        return this.getWidth() + 10;
+    }
+
+    /**
+     * Draw the icon at the specified location. Paints this component as an
+     * icon.
+     * @param c the component which can be used as observer
+     * @param g the <tt>Graphics</tt> object used for painting
+     * @param x the position on the X coordinate
+     * @param y the position on the Y coordinate
+     */
+    public void paintIcon(Component c, Graphics g, int x, int y)
+    {
+        Graphics2D g2 = (Graphics2D) g.create();
+        try
+        {
+            AntialiasingManager.activateAntialiasing(g2);
+
+            g2.setColor(Color.WHITE);
+            g2.setComposite(AlphaComposite.
+                getInstance(AlphaComposite.SRC_OVER, 0.8f));
+            g2.fillRoundRect(x, y,
+                            getIconWidth() - 1, getIconHeight() - 1,
+                            10, 10);
+            g2.setColor(Color.DARK_GRAY);
+            g2.drawRoundRect(x, y,
+                            getIconWidth() - 1, getIconHeight() - 1,
+                            10, 10);
+
+            // Indent component content from the border. 
+            g2.translate(x + 5, y + 5);
+
+            // Paint component.
+            super.paint(g2);
+
+            //
+            g2.translate(x, y);
+        }
+        finally
+        {
+            g.dispose();
         }
     }
 }

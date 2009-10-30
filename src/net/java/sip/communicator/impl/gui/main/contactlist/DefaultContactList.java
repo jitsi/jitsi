@@ -31,6 +31,11 @@ public class DefaultContactList
     private static final long serialVersionUID = 0L;
 
     /**
+     * The cached mouse event.
+     */
+    private MouseEvent cachedMouseEvent;
+
+    /**
      * Creates an instance of <tt>DefaultContactList</tt>.
      */
     public DefaultContactList()
@@ -40,6 +45,7 @@ public class DefaultContactList
         this.getSelectionModel().setSelectionMode(
                 ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
+        this.setDragEnabled(true);
         this.setTransferHandler(new ContactListTransferHandler(this));
         this.setCellRenderer(new ContactListCellRenderer());
     }
@@ -276,5 +282,57 @@ public class DefaultContactList
             index = (index + increment + max) % max;
         } while (index != startIndex);
         return -1;
+    }
+
+    /**
+     * Processes the <tt>MouseEvent</tt> we have previously cached before
+     * invoking the parent <tt>fireSelectionValueChanged</tt> which would
+     * notify the <tt>JList</tt> <tt>ListSelectionListener</tt>s that the
+     * selection model has changed.
+     * <p>
+     * Workaround provided by simon@tardell.se on 29-DEC-2002 for bug 4521075
+     * http://bugs.sun.com/bugdatabase/view_bug.do;jsessionid=a13e98ab2364524506eb91505565?bug_id=4521075
+     * "Drag gesture in JAVA different from Windows". The bug is also noticed
+     * on Mac Leopard.
+     *
+     * @param firstIndex the first selected index
+     * @param lastIndex the last selected index
+     * @param isAdjusting true if multiple changes are being made
+     */
+    protected void fireSelectionValueChanged(int firstIndex, int lastIndex,
+                                            boolean isAdjusting)
+    {
+        if (cachedMouseEvent != null)
+        {
+            super.processMouseEvent(new MouseEvent(
+                (Component) cachedMouseEvent.getSource(),
+                cachedMouseEvent.getID(),
+                cachedMouseEvent.getWhen(),
+                cachedMouseEvent.getModifiers(),
+                cachedMouseEvent.getX(),
+                cachedMouseEvent.getY(),
+                cachedMouseEvent.getClickCount(),
+                cachedMouseEvent.isPopupTrigger()));
+
+            cachedMouseEvent = null;
+        }
+        super.fireSelectionValueChanged(firstIndex, lastIndex, isAdjusting);
+    }
+
+    /**
+     * Caches the incoming mouse <tt>event</tt> before passing it to the parent
+     * implementation of <tt>processMouseEvent</tt>.
+     * <p>
+     * Workaround provided by simon@tardell.se on 29-DEC-2002 for bug 4521075
+     * http://bugs.sun.com/bugdatabase/view_bug.do;jsessionid=a13e98ab2364524506eb91505565?bug_id=4521075
+     * "Drag gesture in JAVA different from Windows". The bug is also noticed
+     * on Mac Leopard.
+     * @param event the <tt>MouseEvent</tt> to process
+     */
+    protected void processMouseEvent(MouseEvent event)
+    {
+        if ((event.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) != 0)
+            cachedMouseEvent= event;
+        super.processMouseEvent(event);
     }
 }

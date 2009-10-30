@@ -44,7 +44,7 @@ public class CallDialog
 
     private final Container contentPane = getContentPane();
 
-    private Component callPanel = null;
+    private JComponent callPanel = null;
 
     private final HoldButton holdButton;
 
@@ -154,7 +154,6 @@ public class CallDialog
 
         this.callDurationTimer = new Timer(1000, new CallTimerListener());
         this.callDurationTimer.setRepeats(true);
-
     }
 
     /**
@@ -541,12 +540,7 @@ public class CallDialog
         {
             if (isLastConference)
             {
-                if (call.getCallPeerCount() > 1)
-                {
-                    ((ConferenceCallPanel) callPanel)
-                        .removeCallPeerPanel(peer);
-                }
-                else
+                if (call.getCallPeerCount() == 1)
                 {
                     contentPane.remove(callPanel);
                     CallPeer singlePeer = call.getCallPeers().next();
@@ -558,6 +552,11 @@ public class CallDialog
                     contentPane.add(callPanel, BorderLayout.CENTER);
 
                     isLastConference = false;
+                }
+                else if (call.getCallPeerCount() > 1)
+                {
+                    ((ConferenceCallPanel) callPanel)
+                        .removeCallPeerPanel(peer);
                 }
 
                 if (contentPane.isVisible())

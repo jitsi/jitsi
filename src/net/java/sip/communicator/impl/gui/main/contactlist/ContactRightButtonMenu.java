@@ -593,24 +593,7 @@ public class ContactRightButtonMenu
                 = mainFrame.getGroupByID(
                         itemName.substring(moveToPrefix.length()));
 
-            try
-            {
-                if(group != null)
-                {
-                    mainFrame.getContactList().
-                        moveMetaContact(contactItem, group);
-                }
-            }
-            catch (Exception ex)
-            {
-                new ErrorDialog(
-                        mainFrame,
-                        GuiActivator.getResources().getI18NString(
-                            "service.gui.MOVE_TO_GROUP"),
-                        GuiActivator.getResources().getI18NString(
-                            "service.gui.MOVE_CONTACT_ERROR"),
-                        ex).showDialog();
-            }
+            guiContactList.moveMetaContactToGroup(contactItem, group);
         }
         else if (itemName.startsWith(removeContactPrefix))
         {
@@ -820,12 +803,11 @@ public class ContactRightButtonMenu
 
         if(moveAllContacts)
         {
-            mainFrame.getContactList()
-                .moveMetaContact(contactItem, sourceGroup);
+            guiContactList.moveMetaContactToGroup(contactItem, sourceGroup);
         }
         else if(contactToMove != null)
         {
-            new MoveSubcontactThread(sourceGroup).start();
+            guiContactList.moveContactToGroup(contactToMove, sourceGroup);
         }
 
         guiContactList.setDisableOpenClose(false);
@@ -869,7 +851,8 @@ public class ContactRightButtonMenu
                 ErrorDialog.WARNING)
                     .showDialog();
         }
-        else {
+        else
+        {
             guiContactList.removeExcContactListListener(this);
 
             // FIXME: unset the special cursor after a subcontact has been moved
@@ -878,71 +861,13 @@ public class ContactRightButtonMenu
 
             if(moveAllContacts)
             {
-                new MoveAllSubcontactsThread(toMetaContact).start();
+                guiContactList.moveMetaContactToMetaContact(
+                    contactItem, toMetaContact);
             }
             else if(contactToMove != null)
             {
-                new MoveSubcontactThread(toMetaContact).start();
-            }
-        }
-    }
-
-    /**
-     * Moves the previously chosen contact in the given meta group or meta
-     * contact.
-     */
-    private class MoveSubcontactThread extends Thread
-    {
-        private MetaContact metaContact;
-
-        private MetaContactGroup metaGroup;
-
-        public MoveSubcontactThread(MetaContact metaContact)
-        {
-            this.metaContact = metaContact;
-        }
-
-        public MoveSubcontactThread(MetaContactGroup metaGroup)
-        {
-            this.metaGroup = metaGroup;
-        }
-
-        public void run()
-        {
-            if(metaContact != null)
-            {
-                mainFrame.getContactList()
-                    .moveContact(contactToMove, metaContact);
-            }
-            else {
-                mainFrame.getContactList()
-                    .moveContact(contactToMove, metaGroup);
-            }
-        }
-    }
-
-    /**
-     * Moves all sub-contacts contained in the previously selected meta contact
-     * in the given meta contact.
-     */
-    private class MoveAllSubcontactsThread extends Thread
-    {
-        private MetaContact metaContact;
-
-        public MoveAllSubcontactsThread(MetaContact metaContact)
-        {
-            this.metaContact = metaContact;
-        }
-
-        public void run()
-        {
-            Iterator<Contact> i = contactItem.getContacts();
-
-            while(i.hasNext())
-            {
-                Contact contact = i.next();
-                mainFrame.getContactList()
-                    .moveContact(contact, metaContact);
+                guiContactList
+                    .moveContactToMetaContact(contactToMove, toMetaContact);
             }
         }
     }

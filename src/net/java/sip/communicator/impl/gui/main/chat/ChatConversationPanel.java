@@ -61,13 +61,12 @@ public class ChatConversationPanel
      * matches URLs for the purposed of turning them into links.
      */
     private static final Pattern URL_PATTERN
-        = Pattern
-            .compile(
-                "("
-                    + "(\\bwww\\.[^\\s<>\"]+\\.[^\\s<>\"]+/*[?#]*(\\w+[&=;?]\\w+)*\\b)" // wwwURL
-                    + "|"
-                    + "(\\b\\w+://[^\\s<>\"]+/*[?#]*(\\w+[&=;?]\\w+)*\\b)" // protocolURL
-                    + ")");
+        = Pattern.compile(
+            "("
+            + "(\\bwww\\.[^\\s<>\"]+\\.[^\\s<>\"]+/*[?#]*(\\w+[&=;?]\\w+)*\\b)" // wwwURL
+            + "|"
+            + "(\\b\\w+://[^\\s<>\"]+/*[?#]*(\\w+[&=;?]\\w+)*\\b)" // protocolURL
+            + ")");
 
     /**
      * The compiled <tt>Pattern</tt> which matches {@link #smileyStrings}. 

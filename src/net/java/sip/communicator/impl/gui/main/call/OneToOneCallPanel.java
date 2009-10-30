@@ -46,6 +46,8 @@ public class OneToOneCallPanel
         this.setBorder(BorderFactory
             .createEmptyBorder(5, 5, 5, 5));
 
+        this.setTransferHandler(new CallTransferHandler(call));
+
         this.addCallPeerPanel(callPeer);
     }
 

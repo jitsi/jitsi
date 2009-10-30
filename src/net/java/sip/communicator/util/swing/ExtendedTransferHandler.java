@@ -6,11 +6,19 @@
  */
 package net.java.sip.communicator.util.swing;
 
+import java.awt.*;
 import java.awt.datatransfer.*;
+import java.awt.dnd.*;
+import java.awt.event.*;
+import java.awt.geom.*;
+import java.awt.image.*;
 import java.io.*;
 
 import javax.swing.*;
 import javax.swing.text.*;
+
+import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * A TransferHandler that we use to handle copying, pasting and DnD operations.
@@ -27,6 +35,19 @@ public class ExtendedTransferHandler
     extends TransferHandler
 {
     /**
+     * The data flavor used when transferring <tt>MetaContact</tt>s.
+     */
+    protected static final DataFlavor metaContactDataFlavor
+        = new DataFlavor(MetaContact.class, "MetaContact");
+
+    /**
+     * The drag icon that is the visual representation of the contained
+     * <tt>Transferable</tt>.
+     */
+    protected static final ImageIcon dragIcon = UtilActivator.getResources()
+                        .getImage("service.gui.icons.DRAG_ICON");
+
+    /**
      * Returns the type of transfer actions supported by the source;
      * any bitwise-OR combination of <tt>COPY</tt>, <tt>MOVE</tt>
      * and <tt>LINK</tt>.
@@ -42,11 +63,12 @@ public class ExtendedTransferHandler
      */
     public int getSourceActions(JComponent c)
     {
-        return TransferHandler.COPY_OR_MOVE;
+        return TransferHandler.COPY;
     }
 
-    /** Indicates whether a component will accept an import of the given
-     * set of data flavors prior to actually attempting to import it.  We return
+    /**
+     * Indicates whether a component will accept an import of the given
+     * set of data flavors prior to actually attempting to import it. We return
      * <tt>true</tt> to indicate that the transfer with at least one of the
      * given flavors would work and <tt>false</tt> to reject the transfer.
      * <p>
@@ -79,22 +101,25 @@ public class ExtendedTransferHandler
                 return false;
             }
         }
-
         return false;
     }
 
     /**
      * Creates a transferable for text pane components in order to enable drag
      * and drop of text.
+     * @param component the component for which to create a
+     * <tt>Transferable</tt>
+     * @return the created <tt>Transferable</tt>
      */
-    public Transferable createTransferable(JComponent comp)
+    public Transferable createTransferable(JComponent component)
     {
-        if (comp instanceof JTextPane)
+        if (component instanceof JTextPane
+            || component instanceof JTextField)
         {
-            return new SelectedTextTransferable((JTextPane) comp);
+            return new SelectedTextTransferable((JTextComponent) component);
         }
 
-        return super.createTransferable(comp);
+        return super.createTransferable(component);
     }
 
     /**
@@ -131,7 +156,7 @@ public class ExtendedTransferHandler
                     Document doc = textComponent.getDocument();
                     String srcData = doc.getText(startIndex,
                                                  endIndex - startIndex);
-                    StringSelection contents =new StringSelection(srcData);
+                    StringSelection contents = new StringSelection(srcData);
 
                     // this may throw an IllegalStateException,
                     // but it will be caught and handled in the
@@ -156,35 +181,294 @@ public class ExtendedTransferHandler
      */
     public class SelectedTextTransferable implements Transferable
     {
-        private JTextPane textPane;
+        private JTextComponent textComponent;
 
-        public SelectedTextTransferable(JTextPane textPane)
+        /**
+         * Creates an instance of <tt>SelectedTextTransferable</tt>.
+         * @param component the text component
+         */
+        public SelectedTextTransferable(JTextComponent component)
         {
-            this.textPane = textPane;
+            this.textComponent = component;
         }
 
-        // Returns supported flavors
+        /**
+         * Returns supported flavors.
+         * @return an array of supported flavors
+         */
         public DataFlavor[] getTransferDataFlavors()
         {
             return new DataFlavor[]{DataFlavor.stringFlavor};
         }
 
-        // Returns true if flavor is supported
+        /**
+         * Returns <tt>true</tt> if the given <tt>flavor</tt> is supported,
+         * otherwise returns <tt>false</tt>.
+         * @param flavor the data flavor to verify
+         * @return <tt>true</tt> if the given <tt>flavor</tt> is supported,
+         * otherwise returns <tt>false</tt>
+         */
         public boolean isDataFlavorSupported(DataFlavor flavor)
         {
             return DataFlavor.stringFlavor.equals(flavor);
         }
 
-        // Returns Selected Text
+        /**
+         * Returns the selected text.
+         * @param flavor the flavor
+         * @return the selected text
+         * @exception IOException if the data is no longer available in the
+         * requested flavor.
+         * @exception UnsupportedFlavorException if the requested data flavor
+         * is not supported.
+         */
         public Object getTransferData(DataFlavor flavor)
-            throws UnsupportedFlavorException, IOException
+            throws  UnsupportedFlavorException,
+                    IOException
         {
             if (!DataFlavor.stringFlavor.equals(flavor))
             {
                 throw new UnsupportedFlavorException(flavor);
             }
 
-            return textPane.getSelectedText();
+            return textComponent.getSelectedText();
         }
     }
+
+    /**
+     * Overrides <tt>TransferHandler.getVisualRepresentation(Transferable t)</tt>
+     * in order to return a custom drag icon.
+     * <p>
+     * The default parent implementation of this method returns null.
+     *
+     * @param t  the data to be transferred; this value is expected to have been
+     * created by the <code>createTransferable</code> method
+     * @return the icon to show when dragging
+     */
+    public Icon getVisualRepresentation(Transferable t)
+    {
+        Icon icon = null;
+        if (t.isDataFlavorSupported(DataFlavor.stringFlavor))
+        {
+            String text = null;
+            try
+            {
+                text = (String) t.getTransferData(DataFlavor.stringFlavor);
+            }
+            catch (UnsupportedFlavorException e) {}
+            catch (IOException e) {}
+
+            if (text != null)
+            {
+                Rectangle2D bounds = GuiUtils.getStringBounds(text);
+                BufferedImage image = new BufferedImage(
+                    (int) Math.ceil(bounds.getWidth()),
+                    (int) Math.ceil(bounds.getHeight()),
+                    BufferedImage.TYPE_INT_ARGB);
+
+                Graphics g = image.getGraphics();
+                AntialiasingManager.activateAntialiasing(g);
+                g.setColor(Color.BLACK);
+                // Don't know why if we draw the string on y = 0 it doesn't
+                // appear in the visible area.
+                g.drawString(text, 0, 10);
+
+                icon = new ImageIcon(image);
+            }
+        }
+
+        return icon;
+    }
+
+    // Patch for bug 4816922 "No way to set drag icon:
+    // TransferHandler.getVisualRepresentation() is not used".
+    // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4816922
+    // The following workaround comes from bug comments section!
+    private static SwingDragGestureRecognizer recognizer = null;
+
+    private static class SwingDragGestureRecognizer
+        extends DragGestureRecognizer
+    {
+        SwingDragGestureRecognizer(DragGestureListener dgl)
+        {
+            super(DragSource.getDefaultDragSource(), null, NONE, dgl);
+        }
+
+        void gestured(JComponent c, MouseEvent e, int srcActions, int action)
+        {
+            setComponent(c);
+            setSourceActions(srcActions);
+            appendEvent(e);
+            fireDragGestureRecognized(action, e.getPoint());
+        }
+
+        /**
+         * Registers this DragGestureRecognizer's Listeners with the Component.
+         */
+        protected void registerListeners() {}
+
+        /**
+         * Unregister this DragGestureRecognizer's Listeners with the Component.
+         * <p/>
+         * Subclasses must override this method.
+         */
+        protected void unregisterListeners() {}
+    }
+
+    /**
+     * Overrides <tt>TransferHandler.exportAsDrag</tt> method in order to call
+     * our own <tt>SwingDragGestureRecognizer</tt>, which takes care of the
+     * visual representation icon.
+     *
+     * @param comp the component holding the data to be transferred; this
+     * argument is provided to enable sharing of <code>TransferHandler</code>s
+     * by multiple components
+     * @param e the event that triggered the transfer
+     * @param action the transfer action initially requested; this should
+     * be a value of either <code>COPY</code> or <code>MOVE</code>;
+     * the value may be changed during the course of the drag operation
+     */
+    public void exportAsDrag(JComponent comp, InputEvent e, int action)
+    {
+        int srcActions = getSourceActions(comp);
+        int dragAction = srcActions & action;
+
+        // only mouse events supported for drag operations
+        if (! (e instanceof MouseEvent))
+            action = NONE;
+
+        if (action != NONE && !GraphicsEnvironment.isHeadless())
+        {
+            if (recognizer == null)
+            {
+                recognizer = new SwingDragGestureRecognizer(new DragHandler());
+            }
+            recognizer.gestured(comp, (MouseEvent) e, srcActions, dragAction);
+        }
+        else
+        {
+            exportDone(comp, null, NONE);
+        }
+    }
+
+    /**
+     * This is the default drag handler for drag and drop operations that
+     * use the <code>TransferHandler</code>.
+     */
+    private static class DragHandler
+        implements  DragGestureListener,
+                    DragSourceListener
+    {
+        private boolean scrolls;
+
+        // --- DragGestureListener methods -----------------------------------
+
+        /**
+         * A Drag gesture has been recognized.
+         * @param dge the <tt>DragGestureEvent</tt> that notified us
+         */
+        public void dragGestureRecognized(DragGestureEvent dge)
+        {
+            JComponent c = (JComponent) dge.getComponent();
+            ExtendedTransferHandler th
+                = (ExtendedTransferHandler) c.getTransferHandler();
+
+            Transferable t = th.createTransferable(c);
+            if (t != null)
+            {
+                scrolls = c.getAutoscrolls();
+                c.setAutoscrolls(false);
+                try
+                {
+                    Image img = null;
+                    Icon icn = th.getVisualRepresentation(t);
+
+                    if (icn != null)
+                    {
+                        if (icn instanceof ImageIcon)
+                        {
+                            img = ((ImageIcon) icn).getImage();
+                        }
+                        else
+                        {
+                            img = new BufferedImage(icn.getIconWidth(),
+                                icn.getIconHeight(),
+                                BufferedImage.TYPE_4BYTE_ABGR);
+                            Graphics g = img.getGraphics();
+                            icn.paintIcon(c, g, 0, 0);
+                        }
+                    }
+                    if (img == null)
+                    {
+                        dge.startDrag(null, t, this);
+                    }
+                    else
+                    {
+                        dge.startDrag(null, img,
+                            new Point(0, -1 * img.getHeight(null)), t, this);
+                    }
+
+                    return;
+                }
+                catch (RuntimeException re)
+                {
+                    c.setAutoscrolls(scrolls);
+                }
+            }
+
+            th.exportDone(c, t, NONE);
+        }
+
+        // --- DragSourceListener methods -----------------------------------
+
+        /**
+         * As the hotspot enters a platform dependent drop site.
+         * @param e the <tt>DragSourceDragEvent</tt> containing the details of
+         * the drag
+         */
+        public void dragEnter(DragSourceDragEvent e)
+        {}
+
+        /**
+         * As the hotspot moves over a platform dependent drop site.
+         * @param e the <tt>DragSourceDragEvent</tt> containing the details of
+         * the drag
+         */
+        public void dragOver(DragSourceDragEvent e)
+        {
+        }
+
+        /**
+         * As the hotspot exits a platform dependent drop site.
+         * @param e the <tt>DragSourceDragEvent</tt> containing the details of
+         * the drag
+         */
+        public void dragExit(DragSourceEvent e)
+        {}
+
+        /**
+         * As the operation completes.
+         * @param e the <tt>DragSourceDragEvent</tt> containing the details of
+         * the drag
+         */
+        public void dragDropEnd(DragSourceDropEvent e)
+        {
+            DragSourceContext dsc = e.getDragSourceContext();
+            JComponent c = (JComponent) dsc.getComponent();
+
+            if (e.getDropSuccess())
+            {
+                ((ExtendedTransferHandler) c.getTransferHandler())
+                    .exportDone(c, dsc.getTransferable(), e.getDropAction());
+            }
+            else
+            {
+                ((ExtendedTransferHandler) c.getTransferHandler())
+                    .exportDone(c, dsc.getTransferable(), NONE);
+            }
+            c.setAutoscrolls(scrolls);
+        }
+
+        public void dropActionChanged(DragSourceDragEvent dsde) {}
+    } 
 }
