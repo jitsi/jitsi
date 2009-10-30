@@ -41,13 +41,6 @@ public class ExtendedTransferHandler
         = new DataFlavor(MetaContact.class, "MetaContact");
 
     /**
-     * The drag icon that is the visual representation of the contained
-     * <tt>Transferable</tt>.
-     */
-    protected static final ImageIcon dragIcon = UtilActivator.getResources()
-                        .getImage("service.gui.icons.DRAG_ICON");
-
-    /**
      * Returns the type of transfer actions supported by the source;
      * any bitwise-OR combination of <tt>COPY</tt>, <tt>MOVE</tt>
      * and <tt>LINK</tt>.
