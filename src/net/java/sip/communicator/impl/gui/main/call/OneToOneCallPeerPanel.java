@@ -841,7 +841,7 @@ public class OneToOneCallPeerPanel
 
         if (securityPanel == null)
         {
-            SecurityPanel securityPanel = new SecurityPanel(callPeer);
+            securityPanel = new SecurityPanel(callPeer);
 
             GridBagConstraints constraints = new GridBagConstraints();
 
