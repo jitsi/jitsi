@@ -569,15 +569,10 @@ public class ZRTPTransformEngine
         /*
          * If ZRTP is enabled process it. 
          * 
-         * The check "!started && ... " covers the case that the
-         * other party sends ZRTP messages only. This may happen in 
-         * "half-duplex" session, for example only one party can send video
-         * and the other party just receives it.
-         * 
          * In any case return null because ZRTP packets must never reach 
          * the application.
          */
-        if (enableZrtp && ownSSRC != 0)
+        if (enableZrtp && started)
         {
             ZrtpRawPacket zPkt = new ZrtpRawPacket(pkt);
             if (!zPkt.checkCrc())
@@ -587,7 +582,7 @@ public class ZRTPTransformEngine
                 return null;
             }
             // Check if it is really a ZRTP packet, if not don't process it
-            if (!zPkt.hasMagic() || zrtpEngine == null)
+            if (!zPkt.hasMagic())
             {
                 return null;
             }
