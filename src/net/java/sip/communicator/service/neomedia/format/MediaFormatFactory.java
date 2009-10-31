@@ -15,6 +15,13 @@ import java.util.*;
  */
 public interface MediaFormatFactory
 {
+
+    /**
+     * The constant to be used as an argument representing a clock rate to
+     * denote that a specific clock rate is not specified.
+     */
+    public static final double CLOCK_RATE_NOT_SPECIFIED = -1;
+
     /**
      * Creates an <tt>AudioMediaFormat</tt> for the specified <tt>encoding</tt>,
      * <tt>clockRate</tt>, a default clock rate for the specified
@@ -25,7 +32,7 @@ public interface MediaFormatFactory
      * @return a newly created <tt>AudioMediaFormat</tt> with the specified
      * parameters.
      */
-    public AudioMediaFormat createAudioMediaFormat(String encoding);
+    public MediaFormat createMediaFormat(String encoding);
 
     /**
      * Creates an <tt>AudioMediaFormat</tt> for the specified <tt>encoding</tt>,
@@ -37,8 +44,9 @@ public interface MediaFormatFactory
      * @return a newly created <tt>AudioMediaFormat</tt> with the specified
      * parameters.
      */
-    public AudioMediaFormat createAudioMediaFormat(
-                    String encoding, double clockRate);
+    public MediaFormat createMediaFormat(
+            String encoding,
+            double clockRate);
 
     /**
      * Creates an <tt>AudioMediaFormat</tt> for the specified <tt>encoding</tt>,
@@ -68,9 +76,10 @@ public interface MediaFormatFactory
      * @return a newly created <tt>AudioMediaFormat</tt> with the specified
      * parameters.
      */
-    public AudioMediaFormat createAudioMediaFormat(
-                    String encoding, double clockRate,
-                    Map<String, String> formatParams);
+    public MediaFormat createMediaFormat(
+            String encoding,
+            double clockRate,
+            Map<String, String> formatParams);
 
     /**
      * Creates an <tt>AudioMediaFormat</tt> for the specified <tt>encoding</tt>,
@@ -90,26 +99,4 @@ public interface MediaFormatFactory
     public AudioMediaFormat createAudioMediaFormat(
                     String encoding, double clockRate, int channels,
                     Map<String, String> formatParams);
-
-    /**
-     * Creates a <tt>VideoMediaFormat</tt> for the specified <tt>encoding</tt>.
-     *
-     * @param encoding the encoding of the format to create.
-     *
-     * @return a newly created <tt>VideoMediaFormat</tt> with the specified
-     * encoding.
-     */
-    public VideoMediaFormat createVideoMediaFormat(String encoding);
-
-    /**
-     * Creates an <tt>VideoMediaFormat</tt> for the specified <tt>encoding</tt>,
-     * and <tt>frameRate</tt>.
-     *
-     * @param encoding the encoding of the format to create.
-     * @param clockRate the clock (i.e. frame) rate
-     * @return a newly created <tt>AudioMediaFormat</tt> with the specified
-     * parameters.
-     */
-    public VideoMediaFormat createVideoMediaFormat(
-                    String encoding, double clockRate);
 }

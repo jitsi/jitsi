@@ -9,6 +9,8 @@ package net.java.sip.communicator.impl.neomedia.format;
 import java.util.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
+import net.java.sip.communicator.impl.neomedia.codec.*;
+import net.java.sip.communicator.service.neomedia.MediaType;
 import net.java.sip.communicator.service.neomedia.format.*;
 
 /**
@@ -29,13 +31,9 @@ public class MediaFormatFactoryImpl
      * encoding (name)
      * @see MediaFormatFactory#createAudioMediaFormat(String)
      */
-    public AudioMediaFormat createAudioMediaFormat(String encoding)
+    public MediaFormat createMediaFormat(String encoding)
     {
-        for (MediaFormat format : MediaUtils.getMediaFormats(encoding))
-            if (format instanceof AudioMediaFormat)
-                return (AudioMediaFormat) format;
-
-        return new AudioMediaFormatImpl(encodingToJmfEncoding(encoding));
+        return createMediaFormat(encoding, CLOCK_RATE_NOT_SPECIFIED);
     }
 
     /**
@@ -48,19 +46,17 @@ public class MediaFormatFactoryImpl
      * encoding (name) and clock rate
      * @see MediaFormatFactory#createAudioMediaFormat(String, double)
      */
-    public AudioMediaFormat createAudioMediaFormat(
+    public MediaFormat createMediaFormat(
             String encoding,
             double clockRate)
     {
-        for (MediaFormat format : MediaUtils.getMediaFormats(encoding))
-            if ((format instanceof AudioMediaFormat)
-                    && (format.getClockRate() == clockRate))
-                return (AudioMediaFormat) format;
+        List<MediaFormat> supportedMediaFormats
+            = getSupportedMediaFormats(encoding, clockRate);
 
         return
-            new AudioMediaFormatImpl(
-                    encodingToJmfEncoding(encoding),
-                    clockRate);
+            supportedMediaFormats.isEmpty()
+                ? null
+                : supportedMediaFormats.get(0);
     }
 
     /**
@@ -79,21 +75,15 @@ public class MediaFormatFactoryImpl
             double clockRate,
             int channels)
     {
-        for (MediaFormat format : MediaUtils.getMediaFormats(encoding))
-            if ((format instanceof AudioMediaFormat)
-                    && (format.getClockRate() == clockRate))
+        for (MediaFormat format : getSupportedMediaFormats(encoding, clockRate))
+            if (format instanceof AudioMediaFormat)
             {
                 AudioMediaFormat audioFormat = (AudioMediaFormat) format;
 
                 if (audioFormat.getChannels() == channels)
                     return audioFormat;
             }
-
-        return
-            new AudioMediaFormatImpl(
-                    encodingToJmfEncoding(encoding),
-                    clockRate,
-                    channels);
+        return null;
     }
 
     /**
@@ -108,25 +98,46 @@ public class MediaFormatFactoryImpl
      * encoding (name), clock rate and set of format-specific parameters
      * @see MediaFormatFactory#createAudioMediaFormat(String, double, Map)
      */
-    public AudioMediaFormat createAudioMediaFormat(
+    public MediaFormat createMediaFormat(
             String encoding,
             double clockRate,
             Map<String, String> formatParams)
     {
-        for (MediaFormat format : MediaUtils.getMediaFormats(encoding))
-            if ((format instanceof AudioMediaFormat)
-                    && (format.getClockRate() == clockRate)
-                    && MediaFormatImpl
-                            .formatParametersAreEqual(
-                                format.getFormatParameters(),
-                                formatParams))
-                return (AudioMediaFormat) format;
+        MediaFormat mediaFormat = createMediaFormat(encoding, clockRate);
 
-        return
-            new AudioMediaFormatImpl(
-                    encodingToJmfEncoding(encoding),
-                    clockRate,
-                    formatParams);
+        if ((mediaFormat != null)
+                && (formatParams != null)
+                && !formatParams.isEmpty())
+        {
+            Map<String, String> formatParameters
+                = new HashMap<String, String>();
+
+            formatParameters.putAll(mediaFormat.getFormatParameters());
+            formatParameters.putAll(formatParams);
+
+            switch (mediaFormat.getMediaType())
+            {
+            case AUDIO:
+                mediaFormat
+                    = new AudioMediaFormatImpl(
+                            ((AudioMediaFormatImpl) mediaFormat).getFormat(),
+                            formatParameters);
+                break;
+            case VIDEO:
+                VideoMediaFormatImpl videoMediaFormatImpl
+                    = (VideoMediaFormatImpl) mediaFormat;
+
+                mediaFormat
+                    = new VideoMediaFormatImpl(
+                            videoMediaFormatImpl.getFormat(),
+                            videoMediaFormatImpl.getClockRate(),
+                            formatParameters);
+                break;
+            default:
+                mediaFormat = null;
+            }
+        }
+        return mediaFormat;
     }
 
     /**
@@ -150,100 +161,63 @@ public class MediaFormatFactoryImpl
             int channels,
             Map<String, String> formatParams)
     {
-        for (MediaFormat format : MediaUtils.getMediaFormats(encoding))
-            if ((format instanceof AudioMediaFormat)
-                    && (format.getClockRate() == clockRate))
-            {
-                AudioMediaFormat audioFormat = (AudioMediaFormat) format;
+        AudioMediaFormat audioMediaFormat
+            = createAudioMediaFormat(encoding, clockRate, channels);
 
-                if ((audioFormat.getChannels() == channels)
-                        && MediaFormatImpl
-                                .formatParametersAreEqual(
-                                    format.getFormatParameters(),
-                                    formatParams))
-                    return audioFormat;
-            }
+        if ((audioMediaFormat != null)
+                && (formatParams != null)
+                && !formatParams.isEmpty())
+        {
+            Map<String, String> formatParameters
+                = new HashMap<String, String>();
 
-        return
-            new AudioMediaFormatImpl(
-                    encodingToJmfEncoding(encoding),
-                    clockRate,
-                    channels,
-                    formatParams);
+            formatParameters.putAll(audioMediaFormat.getFormatParameters());
+            formatParameters.putAll(formatParams);
+
+            audioMediaFormat
+                = new AudioMediaFormatImpl(
+                        ((AudioMediaFormatImpl) audioMediaFormat).getFormat(),
+                        formatParameters);
+        }
+        return null;
     }
 
-    /**
-     * Creates a new <tt>VideoMediaFormat</tt> instance with a specific encoding
-     * (name).
-     *
-     * @param encoding the encoding (name) of the new instance
-     * @return a new <tt>VideoMediaFormat</tt> instance with the specified
-     * encoding (name)
-     * @see MediaFormatFactory#createVideoMediaFormat(String)
-     */
-    public VideoMediaFormat createVideoMediaFormat(String encoding)
-    {
-        for (MediaFormat format : MediaUtils.getMediaFormats(encoding))
-            if (format instanceof VideoMediaFormat)
-                return (VideoMediaFormat) format;
-
-        return new VideoMediaFormatImpl(encodingToJmfEncoding(encoding));
-    }
-
-    /**
-     * Creates a new <tt>VideoMediaFormat</tt> instance with specific encoding
-     * (name) and clock rate.
-     *
-     * @param encoding the encoding (name) of the new instance
-     * @param clockRate the clock rate of the new instance
-     * @return a new <tt>VideoMediaFormat</tt> instance with the specified
-     * encoding (name) and clock rate
-     * @see MediaFormatFactory#createVideoMediaFormat(String, double)
-     */
-    public VideoMediaFormat createVideoMediaFormat(
+    private List<MediaFormat> getSupportedMediaFormats(
             String encoding,
             double clockRate)
     {
-        for (MediaFormat format : MediaUtils.getMediaFormats(encoding))
-            if ((format instanceof VideoMediaFormat)
-                    && (format.getClockRate() == clockRate))
-                return (VideoMediaFormat) format;
+        EncodingConfiguration encodingConfiguration
+            = NeomediaActivator
+                .getMediaServiceImpl().getEncodingConfiguration();
+        List<MediaFormat> supportedMediaFormats
+            = getSupportedMediaFormats(
+                encodingConfiguration
+                    .getSupportedEncodings(MediaType.AUDIO),
+                encoding,
+                clockRate);
 
-        return
-            new VideoMediaFormatImpl(
-                    encodingToJmfEncoding(encoding),
+        if (supportedMediaFormats.isEmpty())
+            supportedMediaFormats
+                = getSupportedMediaFormats(
+                    encodingConfiguration
+                        .getSupportedEncodings(MediaType.VIDEO),
+                    encoding,
                     clockRate);
+        return supportedMediaFormats;
     }
 
-    /**
-     * Gets the JMF-specific encoding corresponding to the specified well-known
-     * encoding (name) as defined in RFC 3551 "RTP Profile for Audio and Video
-     * Conferences with Minimal Control".
-     * <p>
-     * <b>Note</b>: This method is to be called only as a last resort because it
-     * just appends "/rtp" to the specified <tt>encoding</tt> if it is not
-     * appended yet.
-     * </p>
-     *
-     * @param encoding the well-known encoding (name) as defined in RFC 3551
-     * "RTP Profile for Audio and Video Conferences with Minimal Control" to get
-     * the corresponding JMF-specific encoding of
-     * @return the JMF-specific encoding corresponding to the specified
-     * well-known encoding (name) as defined in RFC 3551 "RTP Profile for Audio
-     * and Video Conferences with Minimal Control"
-     */
-    private static String encodingToJmfEncoding(String encoding)
+    private List<MediaFormat> getSupportedMediaFormats(
+            MediaFormat[] mediaFormats,
+            String encoding,
+            double clockRate)
     {
-        if (encoding != null)
-        {
-            int encodingLength = encoding.length();
+        List<MediaFormat> supportedMediaFormats = new ArrayList<MediaFormat>();
 
-            if ((encodingLength < 4)
-                    || !"/rtp"
-                            .equalsIgnoreCase(
-                                encoding.substring(encodingLength - 4)))
-                encoding += "/rtp";
-        }
-        return encoding;
+        for (MediaFormat mediaFormat : mediaFormats)
+            if (mediaFormat.getEncoding().equals(encoding)
+                    && ((CLOCK_RATE_NOT_SPECIFIED == clockRate)
+                            || (mediaFormat.getClockRate() == clockRate)))
+                supportedMediaFormats.add(mediaFormat);
+        return supportedMediaFormats;
     }
 }

@@ -145,6 +145,7 @@ public class MediaUtils
             Constants.H264_RTP,
             h264FormatProperties);
     }
+
     /**
      * Adds a new mapping of a specific RTP payload type to a list of
      * <tt>MediaFormat</tt>s of a specific <tt>MediaType</tt>, with a specific
@@ -242,14 +243,19 @@ public class MediaUtils
         else
         {
             Format format;
+            double clockRate;
 
             switch (mediaType)
             {
                 case AUDIO:
-                    format = new AudioFormat(jmfEncoding);
+                    AudioFormat audioFormat = new AudioFormat(jmfEncoding);
+
+                    format = audioFormat;
+                    clockRate = audioFormat.getSampleRate();
                     break;
                 case VIDEO:
                     format = new VideoFormat(jmfEncoding);
+                    clockRate = VideoMediaFormatImpl.DEFAULT_CLOCK_RATE;
                     break;
                 default:
                     throw new IllegalArgumentException("mediaType");
@@ -258,7 +264,8 @@ public class MediaUtils
             if (format != null)
             {
                 MediaFormat mediaFormat
-                    = MediaFormatImpl.createInstance(format);
+                    = MediaFormatImpl
+                        .createInstance(format, clockRate, formatParameters);
 
                 if (mediaFormat != null)
                     mediaFormats.add(mediaFormat);
