@@ -12,8 +12,10 @@ import javax.media.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
+import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
+import net.java.sip.communicator.service.neomedia.format.*;
 
 /**
  * Implements <tt>MediaService</tt> for JMF.
@@ -59,6 +61,13 @@ public class MediaServiceImpl
      */
     private final EncodingConfiguration encodingConfiguration
         = new EncodingConfiguration();
+
+    /**
+     * The <tt>MediaFormatFactory</tt> through which <tt>MediaFormat</tt>
+     * instances may be created for the purposes of working with the
+     * <tt>MediaStream</tt>s created by this <tt>MediaService</tt>.
+     */
+    private MediaFormatFactory formatFactory;
 
     /**
      * The list of video <tt>MediaDevice</tt>s reported by this instance when
@@ -226,6 +235,23 @@ public class MediaServiceImpl
     public EncodingConfiguration getEncodingConfiguration()
     {
         return encodingConfiguration;
+    }
+
+    /**
+     * Gets the <tt>MediaFormatFactory</tt> through which <tt>MediaFormat</tt>
+     * instances may be created for the purposes of working with the
+     * <tt>MediaStream</tt>s created by this <tt>MediaService</tt>.
+     *
+     * @return the <tt>MediaFormatFactory</tt> through which
+     * <tt>MediaFormat</tt> instances may be created for the purposes of working
+     * with the <tt>MediaStream</tt>s created by this <tt>MediaService</tt>
+     * @see MediaService#getFormatFactory()
+     */
+    public MediaFormatFactory getFormatFactory()
+    {
+        if (formatFactory == null)
+            formatFactory = new MediaFormatFactoryImpl();
+        return formatFactory;
     }
 
     /**

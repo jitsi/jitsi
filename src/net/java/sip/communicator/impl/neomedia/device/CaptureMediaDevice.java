@@ -334,39 +334,16 @@ public class CaptureMediaDevice
      */
     public List<MediaFormat> getSupportedFormats()
     {
-        MediaType mediaType = getMediaType();
         EncodingConfiguration encodingConfiguration
-            = NeomediaActivator.getMediaServiceImpl().getEncodingConfiguration();
-        String[] supportedEncodings;
-
-        switch (mediaType)
-        {
-        case AUDIO:
-            supportedEncodings
-                = encodingConfiguration.getSupportedAudioEncodings();
-            break;
-        case VIDEO:
-            supportedEncodings
-                = encodingConfiguration.getSupportedVideoEncodings();
-            break;
-        default:
-            supportedEncodings = null;
-            break;
-        }
-
+            = NeomediaActivator
+                .getMediaServiceImpl().getEncodingConfiguration();
+        MediaFormat[] supportedEncodings
+            = encodingConfiguration.getSupportedEncodings(getMediaType());
         List<MediaFormat> supportedFormats = new ArrayList<MediaFormat>();
 
         if (supportedEncodings != null)
-            for (String supportedPayloadType : supportedEncodings)
-            {
-                MediaFormat[] supportedFormatsForPayloadType
-                    = MediaUtils
-                        .rtpPayloadTypeToMediaFormats(supportedPayloadType);
-
-                for (MediaFormat supportedFormatForPayloadType
-                        :supportedFormatsForPayloadType)
-                    supportedFormats.add(supportedFormatForPayloadType);
-            }
+            for (MediaFormat supportedEncoding : supportedEncodings)
+                supportedFormats.add(supportedEncoding);
 
         return supportedFormats;
     }

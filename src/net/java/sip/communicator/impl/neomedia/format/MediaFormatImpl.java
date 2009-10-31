@@ -45,7 +45,7 @@ public abstract class MediaFormatImpl<T extends Format>
      */
     public static MediaFormat createInstance(Format format)
     {
-        MediaFormat mediaFormat = MediaUtils.formatToMediaFormat(format);
+        MediaFormat mediaFormat = MediaUtils.getMediaFormat(format);
 
         if (mediaFormat == null)
         {
@@ -312,7 +312,7 @@ public abstract class MediaFormatImpl<T extends Format>
      */
     public int getRTPPayloadType()
     {
-        return MediaUtils.jmfEncodingToRtpPayloadType(getJMFEncoding());
+        return MediaUtils.getRTPPayloadType(getJMFEncoding(), getClockRate());
     }
 
     /**

@@ -10,16 +10,19 @@ import java.io.*;
 import java.util.*;
 
 import javax.media.*;
-import javax.sdp.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
+import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.util.*;
 
 /**
  * Simple configuration of encoding priorities.
  *
  * @author Damian Minkov
+ * @author Lubomir Marinov
  */
 public class EncodingConfiguration
 {
@@ -28,51 +31,11 @@ public class EncodingConfiguration
     private static final String PROP_SDP_PREFERENCE
         = "net.java.sip.communicator.impl.media.sdppref";
 
-    /**
-     * SDP Codes of all video formats that JMF supports.
-     */
-    private final String[] availableVideoEncodings = new String[]
-    {
-        Integer.toString(Constants.H264_RTP_SDP),
-        // javax.media.format.VideoFormat.H263_RTP
-        Integer.toString(SdpConstants.H263),
-        // javax.media.format.VideoFormat.JPEG_RTP
-        Integer.toString(SdpConstants.JPEG),
-        // javax.media.format.VideoFormat.H261_RTP
-        Integer.toString(SdpConstants.H261)
-    };
+    private final Set<MediaFormat> supportedVideoEncodings =
+        new TreeSet<MediaFormat>(new EncodingComparator());
 
-    /**
-     * SDP Codes of all audio formats that JMF supports.
-     */
-    private final String[] availableAudioEncodings = new String[]
-    {
-        // ILBC
-        Integer.toString(97),
-        // javax.media.format.AudioFormat.G723_RTP
-        Integer.toString(SdpConstants.G723),
-        // javax.media.format.AudioFormat.GSM_RTP;
-        Integer.toString(SdpConstants.GSM),
-        // javax.media.format.AudioFormat.ULAW_RTP;
-        Integer.toString(SdpConstants.PCMU),
-        // javax.media.format.AudioFormat.DVI_RTP;
-        Integer.toString(SdpConstants.DVI4_8000),
-        // javax.media.format.AudioFormat.DVI_RTP;
-        Integer.toString(SdpConstants.DVI4_16000),
-        // javax.media.format.AudioFormat.ALAW;
-        Integer.toString(SdpConstants.PCMA),
-        Integer.toString(110),
-        // javax.media.format.AudioFormat.G728_RTP;
-        Integer.toString(SdpConstants.G728),
-        // javax.media.format.AudioFormat.G729_RTP
-        Integer.toString(SdpConstants.G729)
-    };
-
-    private final Set<String> supportedVideoEncodings =
-        new TreeSet<String>(new EncodingComparator());
-
-    private final Set<String> supportedAudioEncodings =
-        new TreeSet<String>(new EncodingComparator());
+    private final Set<MediaFormat> supportedAudioEncodings =
+        new TreeSet<MediaFormat>(new EncodingComparator());
 
     /**
      * That's where we keep format preferences matching SDP formats to integers.
@@ -81,8 +44,8 @@ public class EncodingConfiguration
      * would be decorelated and other components (such as the UI) should present
      * them separately.
      */
-    private final Map<String, Integer> encodingPreferences =
-        new Hashtable<String, Integer>();
+    private final Map<MediaFormat, Integer> encodingPreferences =
+        new Hashtable<MediaFormat, Integer>();
 
     /**
      * The indicator which determines whether the G.729 codec is enabled.
@@ -91,7 +54,7 @@ public class EncodingConfiguration
      * some countries and is licensed by
      * <a href="http://www.sipro.com">SIPRO Lab Telecom</a>.
      */
-    private static final boolean G729 = false;
+    public static final boolean G729 = false;
 
     private static final String[] CUSTOM_CODECS =
         {
@@ -146,23 +109,24 @@ public class EncodingConfiguration
     {
         // first init default preferences
         // video
-        setEncodingPreference(Constants.H264_RTP_SDP, 1100);
-        setEncodingPreference(SdpConstants.H263, 1000);
-        setEncodingPreference(SdpConstants.JPEG, 950);
-        setEncodingPreference(SdpConstants.H261, 800);
+        setEncodingPreference("H264", VideoMediaFormatImpl.DEFAULT_CLOCK_RATE, 1100);
+        setEncodingPreference("H263", VideoMediaFormatImpl.DEFAULT_CLOCK_RATE, 1000);
+        setEncodingPreference("JPEG", VideoMediaFormatImpl.DEFAULT_CLOCK_RATE, 950);
+        setEncodingPreference("H261", VideoMediaFormatImpl.DEFAULT_CLOCK_RATE, 800);
 
         // audio
-        setEncodingPreference(SdpConstants.PCMU, 650);
-        setEncodingPreference(SdpConstants.PCMA, 600);
-        setEncodingPreference(97, 500);
-        setEncodingPreference(SdpConstants.GSM, 450);
-        setEncodingPreference(110, 350);
-        setEncodingPreference(SdpConstants.DVI4_8000, 300);
-        setEncodingPreference(SdpConstants.DVI4_16000, 250);
-        setEncodingPreference(SdpConstants.G723, 150);
-        setEncodingPreference(SdpConstants.G728, 100);
-        if (G729)
-            setEncodingPreference(SdpConstants.G729, 50);
+        setEncodingPreference("PCMU", 8000, 650);
+        setEncodingPreference("PCMA", 8000, 600);
+        setEncodingPreference("iLBC", 8000, 500);
+        setEncodingPreference("GSM", 8000, 450);
+        setEncodingPreference("speex", 8000, 352);
+        setEncodingPreference("speex", 16000, 351);
+        setEncodingPreference("speex", 32000, 350);
+        setEncodingPreference("DVI4", 8000, 300);
+        setEncodingPreference("DVI4", 16000, 250);
+        setEncodingPreference("G723", 8000, 150);
+        setEncodingPreference("G728", 8000, 100);
+        setEncodingPreference("G729", 8000, 50);
 
         // now override with those that are specified by the user.
         ConfigurationService confService
@@ -174,24 +138,48 @@ public class EncodingConfiguration
         for (String pName : sdpPreferences)
         {
             String prefStr = confService.getString(pName);
-            String fmtName =
-                pName.substring(pName.lastIndexOf('.') + 1).replaceAll("sdp",
-                    "");
+            String fmtName
+                = pName
+                    .substring(pName.lastIndexOf('.') + 1)
+                        .replaceAll("sdp", "");
             int preference = -1;
-            int fmt = -1;
+            String encoding;
+            double clockRate;
             try
             {
                 preference = Integer.parseInt(prefStr);
-                fmt = Integer.parseInt(fmtName);
+
+                int encodingClockRateSeparator = fmtName.lastIndexOf('/');
+
+                if (encodingClockRateSeparator > -1)
+                {
+                    encoding = fmtName.substring(0, encodingClockRateSeparator);
+                    clockRate
+                        = Double
+                            .parseDouble(
+                                fmtName
+                                    .substring(encodingClockRateSeparator + 1));
+                }
+                else
+                {
+                    encoding = fmtName;
+                    clockRate = -1;
+                }
             }
-            catch (NumberFormatException exc)
+            catch (NumberFormatException nfe)
             {
-                logger.warn("Failed to parse format (" + fmtName
-                    + ") or preference(" + prefStr + ").", exc);
+                logger
+                    .warn(
+                        "Failed to parse format ("
+                            + fmtName
+                            + ") or preference("
+                            + prefStr
+                            + ").",
+                        nfe);
                 continue;
             }
 
-            setEncodingPreference(fmt, preference);
+            setEncodingPreference(encoding, clockRate, preference);
         }
 
         // now update the arrays so that they are returned by order of
@@ -205,26 +193,26 @@ public class EncodingConfiguration
      */
     private void updateSupportedEncodings()
     {
-        for (String ac : availableAudioEncodings)
+        for (MediaFormat format : getAvailableEncodings(MediaType.AUDIO))
         {
-            Integer pref1 = encodingPreferences.get(ac);
+            Integer pref1 = encodingPreferences.get(format);
             int pref1IntValue = (pref1 == null) ? 0 : pref1;
 
             if (pref1IntValue > 0)
-                supportedAudioEncodings.add(ac);
+                supportedAudioEncodings.add(format);
             else
-                supportedAudioEncodings.remove(ac);
+                supportedAudioEncodings.remove(format);
         }
 
-        for (String ac : availableVideoEncodings)
+        for (MediaFormat format : getAvailableEncodings(MediaType.VIDEO))
         {
-            Integer pref1 = encodingPreferences.get(ac);
+            Integer pref1 = encodingPreferences.get(format);
             int pref1IntValue = (pref1 == null) ? 0 : pref1;
 
             if (pref1IntValue > 0)
-                supportedVideoEncodings.add(ac);
+                supportedVideoEncodings.add(format);
             else
-                supportedVideoEncodings.remove(ac);
+                supportedVideoEncodings.remove(format);
         }
     }
 
@@ -232,10 +220,11 @@ public class EncodingConfiguration
      * Updates the codecs in the set according preferences in
      * encodingPreferences. If value is "0" the codec is disabled.
      */
-    public String[] updateEncodings(List<String> encs)
+    public MediaFormat[] updateEncodings(List<MediaFormat> encs)
     {
-        Set<String> result = new TreeSet<String>(new EncodingComparator());
-        for (String c : encs)
+        Set<MediaFormat> result
+            = new TreeSet<MediaFormat>(new EncodingComparator());
+        for (MediaFormat c : encs)
         {
             Integer pref1 = encodingPreferences.get(c);
             int pref1IntValue = (pref1 == null) ? 0 : pref1;
@@ -244,7 +233,7 @@ public class EncodingConfiguration
                 result.add(c);
         }
 
-        return result.toArray(new String[result.size()]);
+        return result.toArray(new MediaFormat[result.size()]);
     }
 
     /**
@@ -254,11 +243,15 @@ public class EncodingConfiguration
      * encodings to those of audio encodings.
      *
      * @param encoding the SDP int of the encoding whose pref we're setting.
+     * @param clockRate
      * @param pref a positive int indicating the preference for that encoding.
      */
-    private void setEncodingPreference(int encoding, int pref)
+    private void setEncodingPreference(String encoding, double clockRate, int pref)
     {
-        this.encodingPreferences.put(Integer.toString(encoding), pref);
+        MediaFormat mediaFormat = MediaUtils.getMediaFormat(encoding, clockRate);
+
+        if (mediaFormat != null)
+            encodingPreferences.put(mediaFormat, pref);
     }
 
     /**
@@ -271,18 +264,25 @@ public class EncodingConfiguration
      *            pref we're setting.
      * @param priority a positive int indicating the preference for that encoding.
      */
-    public void setPriority(String encoding, int priority)
+    public void setPriority(MediaFormat encoding, int priority)
     {
-        this.encodingPreferences.put(encoding, priority);
+        encodingPreferences.put(encoding, priority);
 
         // save the settings
-        NeomediaActivator.getConfigurationService().setProperty(
-            PROP_SDP_PREFERENCE + ".sdp" + encoding, priority);
+        NeomediaActivator
+            .getConfigurationService()
+                .setProperty(
+                    PROP_SDP_PREFERENCE
+                        + ".sdp"
+                        + encoding.getEncoding()
+                        + "/"
+                        + ((long) encoding.getClockRate()),
+                    priority);
 
         updateSupportedEncodings();
     }
 
-    public int getPriority(String encoding)
+    public int getPriority(MediaFormat encoding)
     {
 
         /*
@@ -407,26 +407,29 @@ public class EncodingConfiguration
             + currentPackagePrefix);
     }
 
-    public String[] getAvailableVideoEncodings()
+    public MediaFormat[] getAvailableEncodings(MediaType type)
     {
-        return availableVideoEncodings;
+        return MediaUtils.getMediaFormats(type);
     }
 
-    public String[] getAvailableAudioEncodings()
+    public MediaFormat[] getSupportedEncodings(MediaType type)
     {
-        return availableAudioEncodings;
-    }
+        Set<MediaFormat> supportedEncodings;
 
-    public String[] getSupportedVideoEncodings()
-    {
-        return supportedVideoEncodings
-            .toArray(new String[supportedVideoEncodings.size()]);
-    }
-
-    public String[] getSupportedAudioEncodings()
-    {
-        return supportedAudioEncodings
-            .toArray(new String[supportedAudioEncodings.size()]);
+        switch (type)
+        {
+        case AUDIO:
+            supportedEncodings = supportedAudioEncodings;
+            break;
+        case VIDEO:
+            supportedEncodings = supportedVideoEncodings;
+            break;
+        default:
+            return MediaUtils.EMPTY_MEDIA_FORMATS;
+        }
+        return
+            supportedEncodings
+                .toArray(new MediaFormat[supportedEncodings.size()]);
     }
 
     /**
@@ -442,7 +445,7 @@ public class EncodingConfiguration
      *         format has been assigned a preference higher, equal to, or
      *         greater than the one of the second.
      */
-    private int compareEncodingPreferences(String enc1, String enc2)
+    private int compareEncodingPreferences(MediaFormat enc1, MediaFormat enc2)
     {
         Integer pref1 = encodingPreferences.get(enc1);
         int pref1IntValue = (pref1 == null) ? 0 : pref1;
@@ -458,9 +461,9 @@ public class EncodingConfiguration
      * encodingPreferences.
      */
     private class EncodingComparator
-        implements Comparator<String>
+        implements Comparator<MediaFormat>
     {
-        public int compare(String s1, String s2)
+        public int compare(MediaFormat s1, MediaFormat s2)
         {
             return compareEncodingPreferences(s1, s2);
         }

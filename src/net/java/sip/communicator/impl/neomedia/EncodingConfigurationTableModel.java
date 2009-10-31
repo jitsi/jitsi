@@ -11,6 +11,9 @@ import java.util.*;
 import javax.swing.table.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.*;
+import net.java.sip.communicator.impl.neomedia.format.*;
+import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.service.neomedia.format.*;
 
 /**
  * @author Lubomir Marinov
@@ -18,28 +21,30 @@ import net.java.sip.communicator.impl.neomedia.codec.*;
 public class EncodingConfigurationTableModel
     extends AbstractTableModel
 {
-    public static final int AUDIO = DeviceConfigurationComboBoxModel.AUDIO;
-
-    private static final String[] NO_ENCODINGS = new String[0];
-
-    public static final int VIDEO = DeviceConfigurationComboBoxModel.VIDEO;
-
     private final EncodingConfiguration encodingConfiguration;
 
-    private String[] encodings;
+    private MediaFormat[] encodings;
 
-    private final int type;
+    private final MediaType type;
 
     public EncodingConfigurationTableModel(
         EncodingConfiguration encodingConfiguration, int type)
     {
         if (encodingConfiguration == null)
             throw new IllegalArgumentException("encodingConfiguration");
-        if ((type != AUDIO) && (type != VIDEO))
-            throw new IllegalArgumentException("type");
-
         this.encodingConfiguration = encodingConfiguration;
-        this.type = type;
+
+        switch (type)
+        {
+        case DeviceConfigurationComboBoxModel.AUDIO:
+            this.type = MediaType.AUDIO;
+            break;
+        case DeviceConfigurationComboBoxModel.VIDEO:
+            this.type = MediaType.VIDEO;
+            break;
+        default:
+            throw new IllegalArgumentException("type");
+        }
     }
 
     public Class<?> getColumnClass(int columnIndex)
@@ -53,49 +58,39 @@ public class EncodingConfigurationTableModel
         return 2;
     }
 
-    private String[] getEncodings()
+    private MediaFormat[] getEncodings()
     {
         if (encodings != null)
             return encodings;
 
-        String[] availableEncodings;
-        switch (type)
-        {
-        case AUDIO:
-            availableEncodings =
-                encodingConfiguration.getAvailableAudioEncodings();
-            break;
-        case VIDEO:
-            availableEncodings =
-                encodingConfiguration.getAvailableVideoEncodings();
-            break;
-        default:
-            throw new IllegalStateException("type");
-        }
+        MediaFormat[] availableEncodings
+            = encodingConfiguration.getAvailableEncodings(type);
 
         final int encodingCount = availableEncodings.length;
         if (encodingCount < 1)
-            encodings = NO_ENCODINGS;
+            encodings = MediaUtils.EMPTY_MEDIA_FORMATS;
         else
         {
-            encodings = new String[encodingCount];
+            encodings = new MediaFormat[encodingCount];
             System
                 .arraycopy(availableEncodings, 0, encodings, 0, encodingCount);
-            Arrays.sort(encodings, 0, encodingCount, new Comparator<String>()
-            {
-                public int compare(String encoding0, String encoding1)
+            Arrays
+                .sort(encodings, 0, encodingCount, new Comparator<MediaFormat>()
                 {
-                    return encodingConfiguration.getPriority(encoding1) -
-                        encodingConfiguration.getPriority(encoding0);
-                }
-            });
+                    public int compare(MediaFormat format0, MediaFormat format1)
+                    {
+                        return
+                            encodingConfiguration.getPriority(format1)
+                                - encodingConfiguration.getPriority(format0);
+                    }
+                });
         }
         return encodings;
     }
 
     private int[] getPriorities()
     {
-        String[] encodings = getEncodings();
+        MediaFormat[] encodings = getEncodings();
         final int count = encodings.length;
         int[] priorities = new int[count];
         for (int i = 0; i < count; i++)
@@ -113,13 +108,21 @@ public class EncodingConfigurationTableModel
 
     public Object getValueAt(int rowIndex, int columnIndex)
     {
-        String encoding = getEncodings()[rowIndex];
+        MediaFormat encoding = getEncodings()[rowIndex];
         switch (columnIndex)
         {
         case 0:
             return (encodingConfiguration.getPriority(encoding) > 0);
         case 1:
-            return MediaUtils.rtpPayloadTypeToJmfEncoding(encoding);
+            if (MediaType.VIDEO.equals(encoding.getMediaType())
+                    && (VideoMediaFormatImpl.DEFAULT_CLOCK_RATE
+                            == encoding.getClockRate()))
+                return encoding.getEncoding();
+            else
+                return
+                    encoding.getEncoding()
+                        + "/"
+                        + ((long) encoding.getClockRate());
         default:
             return null;
         }
@@ -151,7 +154,7 @@ public class EncodingConfigurationTableModel
             priorities[nextRowIndex] = priorities.length - rowIndex;
         setPriorities(priorities);
 
-        String swap = encodings[rowIndex];
+        MediaFormat swap = encodings[rowIndex];
         encodings[rowIndex] = encodings[nextRowIndex];
         encodings[nextRowIndex] = swap;
 

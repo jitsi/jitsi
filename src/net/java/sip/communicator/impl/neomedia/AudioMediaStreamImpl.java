@@ -41,8 +41,8 @@ public class AudioMediaStreamImpl
      * 
      * @see #registerCustomCodecFormats(RTPManager)
      */
-    private static final Format[] CUSTOM_CODEC_FORMATS
-        = new Format[]
+    private static final AudioFormat[] CUSTOM_CODEC_FORMATS
+        = new AudioFormat[]
                 {
                     /*
                      * these formats are specific, since RTP uses format numbers
@@ -142,7 +142,7 @@ public class AudioMediaStreamImpl
                 && formatsRegisteredOnce)
             return;
 
-        for (Format format : CUSTOM_CODEC_FORMATS)
+        for (AudioFormat format : CUSTOM_CODEC_FORMATS)
         {
             logger.debug("registering format " + format + " with RTP manager");
 
@@ -156,7 +156,9 @@ public class AudioMediaStreamImpl
                 .addFormat(
                     format,
                     MediaUtils
-                        .jmfEncodingToRtpPayloadType(format.getEncoding()));
+                        .getRTPPayloadType(
+                            format.getEncoding(),
+                            format.getSampleRate()));
         }
 
         formatsRegisteredOnce = true;

@@ -31,7 +31,7 @@ public class MediaFormatFactoryImpl
      */
     public AudioMediaFormat createAudioMediaFormat(String encoding)
     {
-        for (MediaFormat format : MediaUtils.encodingToMediaFormats(encoding))
+        for (MediaFormat format : MediaUtils.getMediaFormats(encoding))
             if (format instanceof AudioMediaFormat)
                 return (AudioMediaFormat) format;
 
@@ -52,7 +52,7 @@ public class MediaFormatFactoryImpl
             String encoding,
             double clockRate)
     {
-        for (MediaFormat format : MediaUtils.encodingToMediaFormats(encoding))
+        for (MediaFormat format : MediaUtils.getMediaFormats(encoding))
             if ((format instanceof AudioMediaFormat)
                     && (format.getClockRate() == clockRate))
                 return (AudioMediaFormat) format;
@@ -79,7 +79,7 @@ public class MediaFormatFactoryImpl
             double clockRate,
             int channels)
     {
-        for (MediaFormat format : MediaUtils.encodingToMediaFormats(encoding))
+        for (MediaFormat format : MediaUtils.getMediaFormats(encoding))
             if ((format instanceof AudioMediaFormat)
                     && (format.getClockRate() == clockRate))
             {
@@ -113,7 +113,7 @@ public class MediaFormatFactoryImpl
             double clockRate,
             Map<String, String> formatParams)
     {
-        for (MediaFormat format : MediaUtils.encodingToMediaFormats(encoding))
+        for (MediaFormat format : MediaUtils.getMediaFormats(encoding))
             if ((format instanceof AudioMediaFormat)
                     && (format.getClockRate() == clockRate)
                     && MediaFormatImpl
@@ -150,7 +150,7 @@ public class MediaFormatFactoryImpl
             int channels,
             Map<String, String> formatParams)
     {
-        for (MediaFormat format : MediaUtils.encodingToMediaFormats(encoding))
+        for (MediaFormat format : MediaUtils.getMediaFormats(encoding))
             if ((format instanceof AudioMediaFormat)
                     && (format.getClockRate() == clockRate))
             {
@@ -183,7 +183,7 @@ public class MediaFormatFactoryImpl
      */
     public VideoMediaFormat createVideoMediaFormat(String encoding)
     {
-        for (MediaFormat format : MediaUtils.encodingToMediaFormats(encoding))
+        for (MediaFormat format : MediaUtils.getMediaFormats(encoding))
             if (format instanceof VideoMediaFormat)
                 return (VideoMediaFormat) format;
 
@@ -204,7 +204,7 @@ public class MediaFormatFactoryImpl
             String encoding,
             double clockRate)
     {
-        for (MediaFormat format : MediaUtils.encodingToMediaFormats(encoding))
+        for (MediaFormat format : MediaUtils.getMediaFormats(encoding))
             if ((format instanceof VideoMediaFormat)
                     && (format.getClockRate() == clockRate))
                 return (VideoMediaFormat) format;

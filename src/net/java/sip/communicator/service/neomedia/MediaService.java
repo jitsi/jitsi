@@ -9,6 +9,7 @@ package net.java.sip.communicator.service.neomedia;
 import java.util.*;
 
 import net.java.sip.communicator.service.neomedia.device.*;
+import net.java.sip.communicator.service.neomedia.format.*;
 
 /**
  * The <tt>MediaService</tt> service is meant to be a wrapper of media libraries
@@ -57,4 +58,15 @@ public interface MediaService
      */
     public MediaStream createMediaStream(StreamConnector connector,
                                          MediaDevice     device);
+
+    /**
+     * Gets the <tt>MediaFormatFactory</tt> through which <tt>MediaFormat</tt>
+     * instances may be created for the purposes of working with the
+     * <tt>MediaStream</tt>s created by this <tt>MediaService</tt>.
+     *
+     * @return the <tt>MediaFormatFactory</tt> through which
+     * <tt>MediaFormat</tt> instances may be created for the purposes of working
+     * with the <tt>MediaStream</tt>s created by this <tt>MediaService</tt>
+     */
+    public MediaFormatFactory getFormatFactory();
 }

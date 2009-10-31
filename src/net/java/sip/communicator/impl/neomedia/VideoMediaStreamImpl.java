@@ -17,6 +17,7 @@ import javax.media.rtp.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
+import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.event.*;
@@ -339,7 +340,10 @@ public class VideoMediaStreamImpl
         rtpManager
             .addFormat(
                 format,
-                MediaUtils.jmfEncodingToRtpPayloadType(format.getEncoding()));
+                MediaUtils
+                    .getRTPPayloadType(
+                        format.getEncoding(),
+                        VideoMediaFormatImpl.DEFAULT_CLOCK_RATE));
 
         formatsRegisteredOnce = true;
     }

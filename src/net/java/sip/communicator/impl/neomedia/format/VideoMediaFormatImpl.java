@@ -28,7 +28,7 @@ public class VideoMediaFormatImpl
      * The default value of the <tt>clockRate</tt> property of
      * <tt>VideoMediaFormatImpl</tt>.
      */
-    private static final double DEFAULT_CLOCK_RATE = 90000;
+    public static final double DEFAULT_CLOCK_RATE = 90000;
 
     /**
      * The clock rate of this <tt>VideoMediaFormat</tt>.

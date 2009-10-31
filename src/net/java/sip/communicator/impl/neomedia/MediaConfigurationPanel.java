@@ -1,6 +1,6 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.neomedia;
@@ -59,14 +59,14 @@ public class MediaConfigurationPanel
      * Because the creation of the preview is asynchronous, it's possible to
      * request the preview of one and the same device multiple times. Which may
      * lead to failures because of, for example, busy devices and/or resources
-     * (as is the case with LTI-CIVIL and video4linux2). 
+     * (as is the case with LTI-CIVIL and video4linux2).
      * </p>
      */
     private CaptureDeviceInfo videoDeviceInPreview;
 
     /**
      * The <code>Player</code> depicting the preview of the currently selected
-     * <code>CaptureDeviceInfo</code>. 
+     * <code>CaptureDeviceInfo</code>.
      */
     private Player videoPlayerInPreview;
 
@@ -100,37 +100,56 @@ public class MediaConfigurationPanel
         }
     }
 
-    private void createPortAudioControls(Container portAudioPanel)
+    private void createPortAudioControls(
+        JPanel portAudioPanel, JPanel parentPanel)
     {
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.anchor = GridBagConstraints.NORTHWEST;
+        constraints.gridx = 0;
+        constraints.weightx = 0;
+        constraints.weighty = 0;
+        constraints.gridy = 0;
+
         portAudioPanel.add(new JLabel(getLabelText(
-            DeviceConfigurationComboBoxModel.AUDIO_CAPTURE)));
+            DeviceConfigurationComboBoxModel.AUDIO_CAPTURE)), constraints);
+        constraints.gridy = 1;
+        portAudioPanel.add(new JLabel(getLabelText(
+            DeviceConfigurationComboBoxModel.AUDIO_PLAYBACK)), constraints);
+        constraints.gridy = 2;
+        portAudioPanel.add(new JLabel(getLabelText(
+            DeviceConfigurationComboBoxModel.AUDIO_NOTIFY)), constraints);
+
+        constraints.weightx = 1;
+        constraints.gridx = 1;
+        constraints.gridy = 0;
         JComboBox captureCombo = new JComboBox();
         captureCombo.setEditable(false);
         captureCombo.setModel(
         new DeviceConfigurationComboBoxModel(
             mediaService.getDeviceConfiguration(),
             DeviceConfigurationComboBoxModel.AUDIO_CAPTURE));
-        portAudioPanel.add(captureCombo);
+        portAudioPanel.add(captureCombo, constraints);
 
-        portAudioPanel.add(new JLabel(getLabelText(
-            DeviceConfigurationComboBoxModel.AUDIO_PLAYBACK)));
+        constraints.gridy = 1;
         JComboBox playbackCombo = new JComboBox();
         playbackCombo.setEditable(false);
         playbackCombo.setModel(
             new DeviceConfigurationComboBoxModel(
             mediaService.getDeviceConfiguration(),
             DeviceConfigurationComboBoxModel.AUDIO_PLAYBACK));
-        portAudioPanel.add(playbackCombo);
+        portAudioPanel.add(playbackCombo, constraints);
 
-        portAudioPanel.add(new JLabel(getLabelText(
-            DeviceConfigurationComboBoxModel.AUDIO_NOTIFY)));
+        constraints.gridy = 2;
         JComboBox notifyCombo = new JComboBox();
         notifyCombo.setEditable(false);
         notifyCombo.setModel(
             new DeviceConfigurationComboBoxModel(
             mediaService.getDeviceConfiguration(),
             DeviceConfigurationComboBoxModel.AUDIO_NOTIFY));
-        portAudioPanel.add(notifyCombo);
+        portAudioPanel.add(notifyCombo, constraints);
+        parentPanel.setBorder(
+                BorderFactory.createTitledBorder("Devices"));
     }
 
     private Component createControls(int type)
@@ -148,11 +167,13 @@ public class MediaConfigurationPanel
          * input audio device, output audio device and audio device for playback
          * of notifications.
          */
-        final Container portAudioPanel;
+        final JPanel portAudioPanel;
+        final JPanel portAudioParentPanel;
         if (type == DeviceConfigurationComboBoxModel.AUDIO)
         {
             portAudioPanel
-                = new TransparentPanel(new GridLayout(3, 2, HGAP, VGAP));
+                = new TransparentPanel(new GridBagLayout());
+            portAudioParentPanel = new TransparentPanel(new BorderLayout());
 
             comboBox.addItemListener(new ItemListener()
             {
@@ -163,11 +184,13 @@ public class MediaConfigurationPanel
                         if(DeviceConfiguration
                                 .AUDIO_SYSTEM_PORTAUDIO.equals(e.getItem()))
                         {
-                            createPortAudioControls(portAudioPanel);
+                            createPortAudioControls(
+                                portAudioPanel, portAudioParentPanel);
                         }
                         else
                         {
                             portAudioPanel.removeAll();
+                            portAudioParentPanel.setBorder(null);
 
                             revalidate();
                             repaint();
@@ -175,12 +198,16 @@ public class MediaConfigurationPanel
                     }
                 }
             });
-            if (DeviceConfiguration
-                    .AUDIO_SYSTEM_PORTAUDIO.equals(comboBox.getSelectedItem()))
-                createPortAudioControls(portAudioPanel);
+            if(comboBox
+                    .getSelectedItem()
+                        .equals(DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO))
+                createPortAudioControls(portAudioPanel, portAudioParentPanel);
         }
         else
+        {
             portAudioPanel = null;
+            portAudioParentPanel = null;
+        }
 
         JLabel label = new JLabel(getLabelText(type));
         label.setDisplayedMnemonic(getDisplayedMnemonic(type));
@@ -197,19 +224,22 @@ public class MediaConfigurationPanel
         firstConstraints.weightx = 1;
         firstContainer.add(comboBox, firstConstraints);
 
-        if (portAudioPanel != null)
-        {
-            firstConstraints.gridx = 0;
-            firstConstraints.gridy = 1;
-            firstConstraints.weightx = 1;
-            firstConstraints.gridwidth = 2;
-            firstConstraints.insets = new Insets(VGAP, 0, 0, 0);
-            firstContainer.add(portAudioPanel, firstConstraints);
-        }
-
         Container secondContainer =
             new TransparentPanel(new GridLayout(1, 0, HGAP, VGAP));
-        secondContainer.add(createPreview(type, comboBox));
+
+        // if creating controls for audio will add devices panel
+        // otherwise it is video controls and will add preview panel
+        if (portAudioPanel != null)
+        {
+            // add portAudioPanel in new panel on north, as for some reason
+            // anchor = GridBagConstraints.NORTHWEST doesn't work
+            // and all components are vertically centered
+            portAudioParentPanel.add(portAudioPanel, BorderLayout.NORTH);
+            secondContainer.add(portAudioParentPanel);
+        }
+        else
+            secondContainer.add(createPreview(type, comboBox));
+
         secondContainer.add(createEncodingControls(type));
 
         Container container = new TransparentPanel(new GridBagLayout());
@@ -378,12 +408,9 @@ public class MediaConfigurationPanel
         final Container preview;
         if (type == DeviceConfigurationComboBoxModel.VIDEO)
         {
-            JLabel noPreview
-                = new JLabel(
-                        NeomediaActivator
-                            .getResources()
-                                .getI18NString(
-                                    "impl.media.configform.NO_PREVIEW"));
+            JLabel noPreview =
+                new JLabel(NeomediaActivator.getResources().getI18NString(
+                    "impl.media.configform.NO_PREVIEW"));
             noPreview.setHorizontalAlignment(SwingConstants.CENTER);
             noPreview.setVerticalAlignment(SwingConstants.CENTER);
 
@@ -480,15 +507,11 @@ public class MediaConfigurationPanel
         switch (type)
         {
         case DeviceConfigurationComboBoxModel.AUDIO:
-            return
-                NeomediaActivator
-                    .getResources()
-                        .getI18nMnemonic("impl.media.configform.AUDIO");
+            return NeomediaActivator.getResources().getI18nMnemonic(
+                "impl.media.configform.AUDIO");
         case DeviceConfigurationComboBoxModel.VIDEO:
-            return
-                NeomediaActivator
-                    .getResources()
-                        .getI18nMnemonic("impl.media.configform.VIDEO");
+            return NeomediaActivator.getResources().getI18nMnemonic(
+                "impl.media.configform.VIDEO");
         default:
             throw new IllegalArgumentException("type");
         }
@@ -499,30 +522,20 @@ public class MediaConfigurationPanel
         switch (type)
         {
         case DeviceConfigurationComboBoxModel.AUDIO:
-            return
-                NeomediaActivator
-                    .getResources()
-                        .getI18NString("impl.media.configform.AUDIO");
+            return NeomediaActivator.getResources().getI18NString(
+                "impl.media.configform.AUDIO");
         case DeviceConfigurationComboBoxModel.AUDIO_CAPTURE:
-            return
-                NeomediaActivator
-                    .getResources()
-                        .getI18NString("impl.media.configform.AUDIO_IN");
+            return NeomediaActivator.getResources().getI18NString(
+                "impl.media.configform.AUDIO_IN");
         case DeviceConfigurationComboBoxModel.AUDIO_NOTIFY:
-            return
-                NeomediaActivator
-                    .getResources()
-                        .getI18NString("impl.media.configform.AUDIO_NOTIFY");
+            return NeomediaActivator.getResources().getI18NString(
+                "impl.media.configform.AUDIO_NOTIFY");
         case DeviceConfigurationComboBoxModel.AUDIO_PLAYBACK:
-            return
-                NeomediaActivator
-                    .getResources()
-                        .getI18NString("impl.media.configform.AUDIO_OUT");
+            return NeomediaActivator.getResources().getI18NString(
+                "impl.media.configform.AUDIO_OUT");
         case DeviceConfigurationComboBoxModel.VIDEO:
-            return
-                NeomediaActivator
-                    .getResources()
-                        .getI18NString("impl.media.configform.VIDEO");
+            return NeomediaActivator.getResources().getI18NString(
+                "impl.media.configform.VIDEO");
         default:
             throw new IllegalArgumentException("type");
         }
