@@ -38,7 +38,13 @@ public enum MediaDirection
      * Indicates that the related entity supports both input and output (send
      * and receive) operations.
      */
-    SENDRECV("sendrecv");
+    SENDRECV("sendrecv"),
+
+    /**
+     * Indicates that the related entity does not support neither input
+     * nor output (i.e. neither send nor receive) operations.
+     */
+    INACTIVE("inactive");
 
     /**
      * The name of this direction.
@@ -72,7 +78,8 @@ public enum MediaDirection
     /**
      * Returns a <tt>MediaDirection</tt> value corresponding to the specified
      * <tt>mediaDirectionName</tt> or in other words <tt>MediaType.SENDONLY</tt>
-     * for "sendonly", <tt>MediaType.RECVONLY</tt> for "recvonly", and
+     * for "sendonly", <tt>MediaType.RECVONLY</tt> for "recvonly",
+     * <tt>MediaType.INACTIVE</tt> for "inactive", and
      * <tt>MediaType.SENDRECV</tt> for "sendrecv".
      *
      * @param mediaDirectionName the name that we'd like to parse.
@@ -93,6 +100,9 @@ public enum MediaDirection
 
         if(SENDRECV.toString().equals(mediaDirectionName))
             return SENDRECV;
+
+        if(INACTIVE.toString().equals(mediaDirectionName))
+            return INACTIVE;
 
         throw new IllegalArgumentException(mediaDirectionName
                         + " is not a currently supported MediaDirection");
