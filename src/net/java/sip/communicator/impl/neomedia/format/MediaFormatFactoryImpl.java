@@ -26,7 +26,7 @@ public class MediaFormatFactoryImpl
      * Creates a <tt>MediaFormat</tt> for the specified <tt>encoding</tt> with
      * default clock rate and set of format parameters. If <tt>encoding</tt> is
      * known to this <tt>MediaFormatFactory</tt>, returns a
-     * <tt>MediaFormat</tt> which either an <tt>AudioMediaFormat</tt> or a
+     * <tt>MediaFormat</tt> which is either an <tt>AudioMediaFormat</tt> or a
      * <tt>VideoMediaFormat</tt> instance. Otherwise, returns <tt>null</tt>.
      *
      * @param encoding the well-known encoding (name) to create a
@@ -46,9 +46,9 @@ public class MediaFormatFactoryImpl
      * Creates a <tt>MediaFormat</tt> for the specified RTP payload type with
      * default clock rate and set of format parameters. If
      * <tt>rtpPayloadType</tt> is known to this <tt>MediaFormatFactory</tt>,
-     * returns a <tt>MediaFormat</tt> which either an <tt>AudioMediaFormat</tt>
-     * or a <tt>VideoMediaFormat</tt> instance. Otherwise, returns
-     * <tt>null</tt>.
+     * returns a <tt>MediaFormat</tt> which is either an
+     * <tt>AudioMediaFormat</tt> or a <tt>VideoMediaFormat</tt> instance.
+     * Otherwise, returns <tt>null</tt>.
      *
      * @param rtpPayloadType the RTP payload type of the <tt>MediaFormat</tt> to
      * create
@@ -84,9 +84,9 @@ public class MediaFormatFactoryImpl
      * Creates a <tt>MediaFormat</tt> for the specified <tt>encoding</tt> with
      * the specified <tt>clockRate</tt> and a default set of format parameters.
      * If <tt>encoding</tt> is known to this <tt>MediaFormatFactory</tt>,
-     * returns a <tt>MediaFormat</tt> which either an <tt>AudioMediaFormat</tt>
-     * or a <tt>VideoMediaFormat</tt> instance. Otherwise, returns
-     * <tt>null</tt>.
+     * returns a <tt>MediaFormat</tt> which is either an
+     * <tt>AudioMediaFormat</tt> or a <tt>VideoMediaFormat</tt> instance.
+     * Otherwise, returns <tt>null</tt>.
      *
      * @param encoding the well-known encoding (name) to create a
      * <tt>MediaFormat</tt> for
@@ -102,39 +102,46 @@ public class MediaFormatFactoryImpl
             String encoding,
             double clockRate)
     {
-        List<MediaFormat> supportedMediaFormats
-            = getSupportedMediaFormats(encoding, clockRate);
-
-        return
-            supportedMediaFormats.isEmpty()
-                ? null
-                : supportedMediaFormats.get(0);
+        return createMediaFormat(encoding, clockRate, CHANNELS_NOT_SPECIFIED);
     }
 
     /**
-     * Creates a new <tt>AudioMediaFormat</tt> instance with specific encoding
-     * (name), clock rate and number of channels.
+     * Creates a <tt>MediaFormat</tt> for the specified <tt>encoding</tt>,
+     * <tt>clockRate</tt> and <tt>channels</tt> and a default set of format
+     * parameters. If <tt>encoding</tt> is known to this
+     * <tt>MediaFormatFactory</tt>, returns a <tt>MediaFormat</tt> which is
+     * either an <tt>AudioMediaFormat</tt> or a <tt>VideoMediaFormat</tt>
+     * instance. Otherwise, returns <tt>null</tt>.
      *
-     * @param encoding the encoding (name) of the new instance
-     * @param clockRate the clock rate of the new instance
-     * @param channels the number of channels of the new instance
-     * @return a new <tt>AudioMediaFormat</tt> instance with the specified
-     * encoding (name), clock rate and number of channels
-     * @see MediaFormatFactory#createAudioMediaFormat(String, double, int)
+     * @param encoding the well-known encoding (name) to create a
+     * <tt>MediaFormat</tt> for
+     * @param clockRate the clock rate in Hz to create a <tt>MediaFormat</tt>
+     * for
+     * @param channels the number of availabe channels (1 for mono, 2 for
+     * stereo) if it makes sense for the <tt>MediaFormat</tt> with the specified
+     * <tt>encoding</tt>; otherwise, ignored
+     * @return a <tt>MediaFormat</tt> with the specified <tt>encoding</tt>,
+     * <tt>clockRate</tt> and <tt>channels</tt> and a default set of format
+     * parameters which is either an <tt>AudioMediaFormat</tt> or a
+     * <tt>VideoMediaFormat</tt> instance if <tt>encoding</tt> is known to this
+     * <tt>MediaFormatFactory</tt>; otherwise, <tt>null</tt>
+     * @see MediaFormatFactory#createMediaFormat(String, double, int)
      */
-    public AudioMediaFormat createAudioMediaFormat(
+    public MediaFormat createMediaFormat(
             String encoding,
             double clockRate,
             int channels)
     {
         for (MediaFormat format : getSupportedMediaFormats(encoding, clockRate))
-            if (format instanceof AudioMediaFormat)
+            if ((CHANNELS_NOT_SPECIFIED != channels)
+                    && (format instanceof AudioMediaFormat))
             {
                 AudioMediaFormat audioFormat = (AudioMediaFormat) format;
 
                 if (audioFormat.getChannels() == channels)
                     return audioFormat;
-            }
+            } else
+                return format;
         return null;
     }
 
@@ -142,8 +149,8 @@ public class MediaFormatFactoryImpl
      * Creates a <tt>MediaFormat</tt> for the specified <tt>encoding</tt>,
      * <tt>clockRate</tt> and set of format parameters. If <tt>encoding</tt> is
      * known to this <tt>MediaFormatFactory</tt>, returns a <tt>MediaFormat</tt>
-     * which either an <tt>AudioMediaFormat</tt> or a <tt>VideoMediaFormat</tt>
-     * instance. Otherwise, returns <tt>null</tt>.
+     * which is either an <tt>AudioMediaFormat</tt> or a
+     * <tt>VideoMediaFormat</tt> instance. Otherwise, returns <tt>null</tt>.
      *
      * @param encoding the well-known encoding (name) to create a
      * <tt>MediaFormat</tt> for
@@ -163,7 +170,45 @@ public class MediaFormatFactoryImpl
             double clockRate,
             Map<String, String> formatParams)
     {
-        MediaFormat mediaFormat = createMediaFormat(encoding, clockRate);
+        return
+            createMediaFormat(
+                encoding,
+                clockRate,
+                CHANNELS_NOT_SPECIFIED,
+                formatParams);
+    }
+
+    /**
+     * Creates a <tt>MediaFormat</tt> for the specified <tt>encoding</tt>,
+     * <tt>clockRate</tt>, <tt>channels</tt> and set of format parameters. If
+     * <tt>encoding</tt> is known to this <tt>MediaFormatFactory</tt>, returns a
+     * <tt>MediaFormat</tt> which is either an <tt>AudioMediaFormat</tt> or a
+     * <tt>VideoMediaFormat</tt> instance. Otherwise, returns <tt>null</tt>.
+     *
+     * @param encoding the well-known encoding (name) to create a
+     * <tt>MediaFormat</tt> for
+     * @param clockRate the clock rate in Hz to create a <tt>MediaFormat</tt>
+     * for
+     * @param channels the number of availabe channels (1 for mono, 2 for
+     * stereo) if it makes sense for the <tt>MediaFormat</tt> with the specified
+     * <tt>encoding</tt>; otherwise, ignored
+     * @param formatParams any codec specific parameters which have been
+     * received via SIP/SDP or XMPP/Jingle
+     * @return a <tt>MediaFormat</tt> with the specified <tt>encoding</tt>,
+     * <tt>clockRate</tt>, <tt>channels</tt> and set of format parameters which
+     * is either an <tt>AudioMediaFormat</tt> or a <tt>VideoMediaFormat</tt>
+     * instance if <tt>encoding</tt> is known to this
+     * <tt>MediaFormatFactory</tt>; otherwise, <tt>null</tt>
+     * @see MediaFormatFactory#createMediaFormat(String, double, int, Map)
+     */
+    public MediaFormat createMediaFormat(
+            String encoding,
+            double clockRate,
+            int channels,
+            Map<String, String> formatParams)
+    {
+        MediaFormat mediaFormat
+            = createMediaFormat(encoding, clockRate, channels);
 
         if ((mediaFormat != null)
                 && (formatParams != null)
@@ -201,45 +246,85 @@ public class MediaFormatFactoryImpl
     }
 
     /**
-     * Creates a new <tt>AudioMediaFormat</tt> instance with specific encoding
-     * (name), clock rate, number of channels and set of format-specific
-     * parameters.
+     * Creates a <tt>MediaFormat</tt> either for the specified
+     * <tt>rtpPayloadType</tt> or for the specified <tt>encoding</tt>,
+     * <tt>clockRate</tt>, <tt>channels</tt> and set of format parameters. If
+     * <tt>encoding</tt> is known to this <tt>MediaFormatFactory</tt>, ignores
+     * <tt>rtpPayloadType</tt> and returns a <tt>MediaFormat</tt> which is
+     * either an <tt>AudioMediaFormat</tt> or a <tt>VideoMediaFormat</tt>
+     * instance. If <tt>rtpPayloadType</tt> is not
+     * {@link MediaFormat#RTP_PAYLOAD_TYPE_UNKNOWN} and <tt>encoding</tt> is
+     * <tt>null</tt>, uses the encoding associated with <tt>rtpPayloadType</tt>.
      *
-     * @param encoding the encoding (name) of the new instance
-     * @param clockRate the clock rate of the new instance
-     * @param channels the number of channels of the new instance
-     * @param formatParams the set of format-specific parameters of the new
-     * instance
-     * @return a new <tt>AudioMediaFormat</tt> instance with the specified
-     * encoding (name), clock rate, number of channels and set of
-     * format-specific parameters
-     * @see MediaFormatFactory#createAudioMediaFormat(String, double, Map)
+     * @param rtpPayloadType the RTP payload type to create a
+     * <tt>MediaFormat</tt> for; {@link MediaFormat#RTP_PAYLOAD_TYPE_UNKNOWN} if
+     * <tt>encoding</tt> is not <tt>null</tt>. If <tt>rtpPayloadType</tt> is not
+     * <tt>MediaFormat#RTP_PAYLOAD_TYPE_UNKNOWN</tt> and <tt>encoding</tt> is
+     * not <tt>null</tt>, <tt>rtpPayloadType</tt> is ignored
+     * @param encoding the well-known encoding (name) to create a
+     * <tt>MediaFormat</tt> for; <tt>null</tt>
+     * @param clockRate the clock rate in Hz to create a <tt>MediaFormat</tt>
+     * for
+     * @param channels the number of availabe channels (1 for mono, 2 for
+     * stereo) if it makes sense for the <tt>MediaFormat</tt> with the specified
+     * <tt>encoding</tt>; otherwise, ignored
+     * @param formatParams any codec specific parameters which have been
+     * received via SIP/SDP or XMPP/Jingle
+     * @return a <tt>MediaFormat</tt> with the specified <tt>encoding</tt>,
+     * <tt>clockRate</tt>, <tt>channels</tt> and set of format parameters which
+     * is either an <tt>AudioMediaFormat</tt> or a <tt>VideoMediaFormat</tt>
+     * instance if <tt>encoding</tt> is known to this
+     * <tt>MediaFormatFactory</tt>; otherwise, <tt>null</tt>
      */
-    public AudioMediaFormat createAudioMediaFormat(
+    public MediaFormat createMediaFormat(
+            byte rtpPayloadType,
             String encoding,
             double clockRate,
             int channels,
             Map<String, String> formatParams)
     {
-        AudioMediaFormat audioMediaFormat
-            = createAudioMediaFormat(encoding, clockRate, channels);
 
-        if ((audioMediaFormat != null)
-                && (formatParams != null)
-                && !formatParams.isEmpty())
+        /*
+         * If rtpPayloadType is specified, use it only to figure out encoding
+         * and/or clockRate in case either one of them is unknown.
+         */
+        if ((MediaFormat.RTP_PAYLOAD_TYPE_UNKNOWN != rtpPayloadType)
+                && ((encoding == null)
+                        || (CLOCK_RATE_NOT_SPECIFIED == clockRate)))
         {
-            Map<String, String> formatParameters
-                = new HashMap<String, String>();
+            MediaFormat[] rtpPayloadTypeMediaFormats
+                = MediaUtils.getMediaFormats(rtpPayloadType);
 
-            formatParameters.putAll(audioMediaFormat.getFormatParameters());
-            formatParameters.putAll(formatParams);
+            if (rtpPayloadTypeMediaFormats.length > 0)
+            {
+                if (encoding == null)
+                    encoding = rtpPayloadTypeMediaFormats[0].getEncoding();
 
-            audioMediaFormat
-                = new AudioMediaFormatImpl(
-                        ((AudioMediaFormatImpl) audioMediaFormat).getFormat(),
-                        formatParameters);
+                // Assign or check the clock rate.
+                if (CLOCK_RATE_NOT_SPECIFIED == clockRate)
+                    clockRate = rtpPayloadTypeMediaFormats[0].getClockRate();
+                else
+                {
+                    boolean clockRateIsValid = false;
+
+                    for (MediaFormat rtpPayloadTypeMediaFormat
+                            : rtpPayloadTypeMediaFormats)
+                        if (rtpPayloadTypeMediaFormat
+                                    .getEncoding().equals(encoding)
+                                && (rtpPayloadTypeMediaFormat.getClockRate()
+                                            == clockRate))
+                        {
+                            clockRateIsValid = true;
+                            break;
+                        }
+
+                    if (!clockRateIsValid)
+                        return null;
+                }
+            }
         }
-        return null;
+
+        return createMediaFormat(encoding, clockRate, channels, formatParams);
     }
 
     /**
