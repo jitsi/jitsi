@@ -70,6 +70,7 @@ public enum MediaDirection
      * @return the name of this <tt>MediaDirection</tt> (e.g. "sendonly",
      * "recvonly", "sendrecv").
      */
+    @Override
     public String toString()
     {
         return directionName;

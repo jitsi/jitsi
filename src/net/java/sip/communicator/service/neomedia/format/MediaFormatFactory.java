@@ -40,6 +40,23 @@ public interface MediaFormatFactory
     public MediaFormat createMediaFormat(String encoding);
 
     /**
+     * Creates a <tt>MediaFormat</tt> for the specified RTP payload type with
+     * default clock rate and set of format parameters. If
+     * <tt>rtpPayloadType</tt> is known to this <tt>MediaFormatFactory</tt>,
+     * returns a <tt>MediaFormat</tt> which either an <tt>AudioMediaFormat</tt>
+     * or a <tt>VideoMediaFormat</tt> instance. Otherwise, returns
+     * <tt>null</tt>.
+     *
+     * @param rtpPayloadType the RTP payload type of the <tt>MediaFormat</tt> to
+     * create
+     * @return a <tt>MediaFormat</tt> with the specified <tt>rtpPayloadType</tt>
+     * which is either an <tt>AudioMediaFormat</tt> or a
+     * <tt>VideoMediaFormat</tt> instance if <tt>rtpPayloadType</tt> is known to
+     * this <tt>MediaFormatFactory</tt>; otherwise, <tt>null</tt>
+     */
+    public MediaFormat createMediaFormat(byte rtpPayloadType);
+
+    /**
      * Creates a <tt>MediaFormat</tt> for the specified <tt>encoding</tt> with
      * the specified <tt>clockRate</tt> and a default set of format parameters.
      * If <tt>encoding</tt> is known to this <tt>MediaFormatFactory</tt>,

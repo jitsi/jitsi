@@ -325,9 +325,7 @@ public class MediaUtils
 
         if (MediaFormatImpl.RTP_PAYLOAD_TYPE_UNKNOWN != rtpPayloadType)
         {
-            for (MediaFormat mediaFormat
-                    : rtpPayloadTypeToMediaFormats(
-                            Byte.toString(rtpPayloadType)))
+            for (MediaFormat mediaFormat : getMediaFormats(rtpPayloadType))
             {
                 MediaFormatImpl<? extends Format> mediaFormatImpl
                     = (MediaFormatImpl<? extends Format>) mediaFormat;
@@ -429,6 +427,26 @@ public class MediaUtils
     }
 
     /**
+     * Gets the <tt>MediaFormat</tt>s (expressed as an array) corresponding to
+     * a specific RTP payload type.
+     *
+     * @param rtpPayloadType the RTP payload type to retrieve the
+     * corresponding <tt>MediaFormat</tt>s for
+     * @return an array of <tt>MediaFormat</tt>s corresponding to the specified
+     * RTP payload type
+     */
+    public static MediaFormat[] getMediaFormats(byte rtpPayloadType)
+    {
+        MediaFormat[] mediaFormats
+            = rtpPayloadTypeStrToMediaFormats.get(Byte.toString(rtpPayloadType));
+
+        return
+            (mediaFormats == null)
+                ? EMPTY_MEDIA_FORMATS
+                : mediaFormats.clone();
+    }
+
+    /**
      * Gets the well-known encoding (name) as defined in RFC 3551 "RTP Profile
      * for Audio and Video Conferences with Minimal Control" corresponding to a
      * given JMF-specific encoding.
@@ -492,26 +510,5 @@ public class MediaUtils
             return SdpConstants.H261;
         else
             return MediaFormat.RTP_PAYLOAD_TYPE_UNKNOWN;
-    }
-
-    /**
-     * Gets the <tt>MediaFormat</tt>s (expressed as an array) corresponding to
-     * a specific RTP payload type (expressed as a <tt>String</tt>).
-     *
-     * @param rtpPayloadTypeStr the RTP payload type to retrieve the
-     * corresponding <tt>MediaFormat</tt>s for
-     * @return an array of <tt>MediaFormat</tt>s corresponding to the specified
-     * RTP payload type
-     */
-    private static MediaFormat[] rtpPayloadTypeToMediaFormats(
-            String rtpPayloadTypeStr)
-    {
-        MediaFormat[] mediaFormats
-            = rtpPayloadTypeStrToMediaFormats.get(rtpPayloadTypeStr);
-
-        return
-            (mediaFormats == null)
-                ? EMPTY_MEDIA_FORMATS
-                : mediaFormats.clone();
     }
 }

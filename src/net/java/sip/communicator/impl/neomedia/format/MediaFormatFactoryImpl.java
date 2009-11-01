@@ -43,6 +43,44 @@ public class MediaFormatFactoryImpl
     }
 
     /**
+     * Creates a <tt>MediaFormat</tt> for the specified RTP payload type with
+     * default clock rate and set of format parameters. If
+     * <tt>rtpPayloadType</tt> is known to this <tt>MediaFormatFactory</tt>,
+     * returns a <tt>MediaFormat</tt> which either an <tt>AudioMediaFormat</tt>
+     * or a <tt>VideoMediaFormat</tt> instance. Otherwise, returns
+     * <tt>null</tt>.
+     *
+     * @param rtpPayloadType the RTP payload type of the <tt>MediaFormat</tt> to
+     * create
+     * @return a <tt>MediaFormat</tt> with the specified <tt>rtpPayloadType</tt>
+     * which is either an <tt>AudioMediaFormat</tt> or a
+     * <tt>VideoMediaFormat</tt> instance if <tt>rtpPayloadType</tt> is known to
+     * this <tt>MediaFormatFactory</tt>; otherwise, <tt>null</tt>
+     * @see MediaFormatFactory#createMediaFormat(byte)
+     */
+    public MediaFormat createMediaFormat(byte rtpPayloadType)
+    {
+
+        /*
+         * We know which are the MediaFormat instance with the specified
+         * rtpPayloadType but we cannot directly return them because they do not
+         * reflect the user configuration with respect to being enabled and
+         * disabled.
+         */
+        for (MediaFormat rtpPayloadTypeMediaFormat
+                : MediaUtils.getMediaFormats(rtpPayloadType))
+        {
+            MediaFormat mediaFormat
+                = createMediaFormat(
+                    rtpPayloadTypeMediaFormat.getEncoding(),
+                    rtpPayloadTypeMediaFormat.getClockRate());
+            if (mediaFormat != null)
+                return mediaFormat;
+        }
+        return null;
+    }
+
+    /**
      * Creates a <tt>MediaFormat</tt> for the specified <tt>encoding</tt> with
      * the specified <tt>clockRate</tt> and a default set of format parameters.
      * If <tt>encoding</tt> is known to this <tt>MediaFormatFactory</tt>,
