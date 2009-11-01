@@ -30,7 +30,7 @@ public interface MediaFormat
      * type (number) known in RFC 3551 "RTP Profile for Audio and Video
      * Conferences with Minimal Control".
      */
-    public static final int RTP_PAYLOAD_TYPE_UNKNOWN = -1;
+    public static final byte RTP_PAYLOAD_TYPE_UNKNOWN = -1;
 
     /**
      * Returns the type of this <tt>MediaFormat</tt> (e.g. audio or video).
@@ -97,5 +97,5 @@ public interface MediaFormat
      * in RFC 3551 "RTP Profile for Audio and Video Conferences with Minimal
      * Control"; otherwise, {@link #RTP_PAYLOAD_TYPE_UNKNOWN}
      */
-    public int getRTPPayloadType();
+    public byte getRTPPayloadType();
 }

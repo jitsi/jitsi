@@ -32,9 +32,17 @@ public class MediaUtils
      */
     public static final MediaFormat[] EMPTY_MEDIA_FORMATS = new MediaFormat[0];
 
+    /**
+     * The <tt>Map</tt> of JMF-specific encodings to well-known encodings as
+     * defined in RFC 3551.
+     */
     private static final Map<String, String> jmfEncodingToEncodings
         = new HashMap<String, String>();
 
+    /**
+     * The <tt>MediaFormat</tt>s which do not have RTP payload types assigned by
+     * RFC 3551 and are thus refered to as having dynamic RTP payload types.
+     */
     private static final List<MediaFormat> rtpPayloadTypelessMediaFormats
         = new ArrayList<MediaFormat>();
 
@@ -49,44 +57,44 @@ public class MediaUtils
     static
     {
         addMediaFormats(
-            SdpConstants.PCMU,
+            (byte) SdpConstants.PCMU,
             "PCMU",
             MediaType.AUDIO,
             AudioFormat.ULAW_RTP,
             8000);
         addMediaFormats(
-            SdpConstants.GSM,
+            (byte) SdpConstants.GSM,
             "GSM",
             MediaType.AUDIO,
             AudioFormat.GSM_RTP,
             8000);
 
-        Map<String, String> g723FormatProperties
+        Map<String, String> g723FormatParams
             = new HashMap<String, String>();
-        g723FormatProperties.put("annexa", "no");
-        g723FormatProperties.put("bitrate", "6.3");
+        g723FormatParams.put("annexa", "no");
+        g723FormatParams.put("bitrate", "6.3");
         addMediaFormats(
-            SdpConstants.G723,
+            (byte) SdpConstants.G723,
             "G723",
             MediaType.AUDIO,
             AudioFormat.G723_RTP,
-            g723FormatProperties,
+            g723FormatParams,
             8000);
 
         addMediaFormats(
-            SdpConstants.DVI4_8000,
+            (byte) SdpConstants.DVI4_8000,
             "DVI4",
             MediaType.AUDIO,
             AudioFormat.DVI_RTP,
             8000);
         addMediaFormats(
-            SdpConstants.DVI4_16000,
+            (byte) SdpConstants.DVI4_16000,
             "DVI4",
             MediaType.AUDIO,
             AudioFormat.DVI_RTP,
             16000);
         addMediaFormats(
-            SdpConstants.PCMA,
+            (byte) SdpConstants.PCMA,
             "PCMA",
             MediaType.AUDIO,
             Constants.ALAW_RTP,
@@ -106,44 +114,44 @@ public class MediaUtils
             16000,
             32000);
         addMediaFormats(
-            SdpConstants.G728,
+            (byte) SdpConstants.G728,
             "G728",
             MediaType.AUDIO,
             AudioFormat.G728_RTP,
             8000);
         if (EncodingConfiguration.G729)
             addMediaFormats(
-                SdpConstants.G729,
+                (byte) SdpConstants.G729,
                 "G729",
                 MediaType.AUDIO,
                 AudioFormat.G729_RTP,
                 8000);
 
         addMediaFormats(
-            SdpConstants.H263,
+            (byte) SdpConstants.H263,
             "H263",
             MediaType.VIDEO,
             VideoFormat.H263_RTP);
         addMediaFormats(
-            SdpConstants.JPEG,
+            (byte) SdpConstants.JPEG,
             "JPEG",
             MediaType.VIDEO,
             VideoFormat.JPEG_RTP);
         addMediaFormats(
-            SdpConstants.H261,
+            (byte) SdpConstants.H261,
             "H261",
             MediaType.VIDEO,
             VideoFormat.H261_RTP);
 
-        Map<String, String> h264FormatProperties
+        Map<String, String> h264FormatParams
             = new HashMap<String, String>();
-        h264FormatProperties.put("packetization-mode", "1");
+        h264FormatParams.put("packetization-mode", "1");
         addMediaFormats(
             MediaFormat.RTP_PAYLOAD_TYPE_UNKNOWN,
             "H264",
             MediaType.VIDEO,
             Constants.H264_RTP,
-            h264FormatProperties);
+            h264FormatParams);
     }
 
     /**
@@ -164,7 +172,7 @@ public class MediaUtils
      * <tt>MediaFormat</tt>s to be associated with <tt>rtpPayloadType</tt>
      */
     private static void addMediaFormats(
-            int rtpPayloadType,
+            byte rtpPayloadType,
             String encoding,
             MediaType mediaType,
             String jmfEncoding,
@@ -199,7 +207,7 @@ public class MediaUtils
      * <tt>MediaFormat</tt>s to be associated with <tt>rtpPayloadType</tt>
      */
     private static void addMediaFormats(
-            int rtpPayloadType,
+            byte rtpPayloadType,
             String encoding,
             MediaType mediaType,
             String jmfEncoding,
@@ -279,7 +287,7 @@ public class MediaUtils
             else
                 rtpPayloadTypeStrToMediaFormats
                     .put(
-                        Integer.toString(rtpPayloadType),
+                        Byte.toString(rtpPayloadType),
                         mediaFormats.toArray(EMPTY_MEDIA_FORMATS));
 
             jmfEncodingToEncodings
@@ -313,12 +321,13 @@ public class MediaUtils
         else
             clockRate = Format.NOT_SPECIFIED;
 
-        int rtpPayloadType = getRTPPayloadType(format.getEncoding(), clockRate);
+        byte rtpPayloadType = getRTPPayloadType(format.getEncoding(), clockRate);
 
         if (MediaFormatImpl.RTP_PAYLOAD_TYPE_UNKNOWN != rtpPayloadType)
         {
             for (MediaFormat mediaFormat
-                    : rtpPayloadTypeToMediaFormats(Integer.toString(rtpPayloadType)))
+                    : rtpPayloadTypeToMediaFormats(
+                            Byte.toString(rtpPayloadType)))
             {
                 MediaFormatImpl<? extends Format> mediaFormatImpl
                     = (MediaFormatImpl<? extends Format>) mediaFormat;
@@ -330,6 +339,16 @@ public class MediaUtils
         return null;
     }
 
+    /**
+     * Gets the <tt>MediaFormat</tt> known to <tt>MediaUtils</tt> and having the
+     * specified well-known <tt>encoding</tt> (name) and <tt>clockRate</tt>.
+     *
+     * @param encoding the well-known encoding (name) of the
+     * <tt>MediaFormat</tt> to get
+     * @param clockRate the clock rate of the <tt>MediaFormat</tt> to get
+     * @return the <tt>MediaFormat</tt> known to <tt>MediaUtils</tt> and having
+     * the specified <tt>encoding</tt> and <tt>clockRate</tt>
+     */
     public static MediaFormat getMediaFormat(String encoding, double clockRate)
     {
         for (MediaFormat format : getMediaFormats(encoding))
@@ -386,6 +405,15 @@ public class MediaUtils
         return mediaFormats;
     }
 
+    /**
+     * Gets the <tt>MediaFormat</tt>s known to <tt>MediaUtils</tt> and being of
+     * the specified <tt>MediaType</tt>.
+     *
+     * @param mediaType the <tt>MediaType</tt> of the <tt>MediaFormat</tt>s to
+     * get
+     * @return the <tt>MediaFormat</tt>s known to <tt>MediaUtils</tt> and being
+     * of the specified <tt>mediaType</tt>
+     */
     public static MediaFormat[] getMediaFormats(MediaType mediaType)
     {
         List<MediaFormat> mediaFormats = new ArrayList<MediaFormat>();
@@ -417,17 +445,22 @@ public class MediaUtils
     }
 
     /**
-     * Gets the RTP payload type corresponding to a specific JMF encoding.
+     * Gets the RTP payload type corresponding to a specific JMF encoding and
+     * clock rate.
      *
      * @param jmfEncoding the JMF encoding as returned by
      * {@link Format#getEncoding()} or the respective <tt>AudioFormat</tt> and
      * <tt>VideoFormat</tt> encoding constants to get the corresponding RTP
      * payload type of
+     * @param clockRate the clock rate to be taken into account in the search
+     * for the RTP payload type if the JMF encoding does not uniquely identify
+     * it
      * @return the RTP payload type corresponding to the specified JMF encoding
-     * if known in RFC 3551 "RTP Profile for Audio and Video Conferences with
-     * Minimal Control"; otherwise, {@link MediaFormat#RTP_PAYLOAD_TYPE_UNKNOWN}
+     * and clock rate if known in RFC 3551 "RTP Profile for Audio and Video
+     * Conferences with Minimal Control"; otherwise,
+     * {@link MediaFormat#RTP_PAYLOAD_TYPE_UNKNOWN}
      */
-    public static int getRTPPayloadType(String jmfEncoding, double clockRate)
+    public static byte getRTPPayloadType(String jmfEncoding, double clockRate)
     {
         if (jmfEncoding == null)
             return MediaFormat.RTP_PAYLOAD_TYPE_UNKNOWN;

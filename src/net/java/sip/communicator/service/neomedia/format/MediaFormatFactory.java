@@ -9,9 +9,10 @@ package net.java.sip.communicator.service.neomedia.format;
 import java.util.*;
 
 /**
- * The MediaFormatFactory allows creating instances of Audio and Video formats.
+ * Allows the creation of audio and video <tt>MediaFormat</tt> instances.
  *
  * @author Emil Ivov
+ * @author Lubomir Marinov
  */
 public interface MediaFormatFactory
 {
@@ -23,26 +24,37 @@ public interface MediaFormatFactory
     public static final double CLOCK_RATE_NOT_SPECIFIED = -1;
 
     /**
-     * Creates an <tt>AudioMediaFormat</tt> for the specified <tt>encoding</tt>,
-     * <tt>clockRate</tt>, a default clock rate for the specified
-     * <tt>encoding</tt>, a single audio channel, and no format parameters.
+     * Creates a <tt>MediaFormat</tt> for the specified <tt>encoding</tt> with
+     * default clock rate and set of format parameters. If <tt>encoding</tt> is
+     * known to this <tt>MediaFormatFactory</tt>, returns a
+     * <tt>MediaFormat</tt> which either an <tt>AudioMediaFormat</tt> or a
+     * <tt>VideoMediaFormat</tt> instance. Otherwise, returns <tt>null</tt>.
      *
-     * @param encoding the encoding of the format to create.
-     *
-     * @return a newly created <tt>AudioMediaFormat</tt> with the specified
-     * parameters.
+     * @param encoding the well-known encoding (name) to create a
+     * <tt>MediaFormat</tt> for
+     * @return a <tt>MediaFormat</tt> with the specified <tt>encoding</tt> which
+     * is either an <tt>AudioMediaFormat</tt> or a <tt>VideoMediaFormat</tt>
+     * instance if <tt>encoding</tt> is known to this
+     * <tt>MediaFormatFactory</tt>; otherwise, <tt>null</tt>
      */
     public MediaFormat createMediaFormat(String encoding);
 
     /**
-     * Creates an <tt>AudioMediaFormat</tt> for the specified <tt>encoding</tt>,
-     * <tt>clockRate</tt>, a single audio channel, and no format parameters.
+     * Creates a <tt>MediaFormat</tt> for the specified <tt>encoding</tt> with
+     * the specified <tt>clockRate</tt> and a default set of format parameters.
+     * If <tt>encoding</tt> is known to this <tt>MediaFormatFactory</tt>,
+     * returns a <tt>MediaFormat</tt> which either an <tt>AudioMediaFormat</tt>
+     * or a <tt>VideoMediaFormat</tt> instance. Otherwise, returns
+     * <tt>null</tt>.
      *
-     * @param encoding the encoding of the format to create.
-     * @param clockRate the rate in Hz of the audio format
-     *
-     * @return a newly created <tt>AudioMediaFormat</tt> with the specified
-     * parameters.
+     * @param encoding the well-known encoding (name) to create a
+     * <tt>MediaFormat</tt> for
+     * @param clockRate the clock rate in Hz to create a <tt>MediaFormat</tt>
+     * for
+     * @return a <tt>MediaFormat</tt> with the specified <tt>encoding</tt> and
+     * <tt>clockRate</tt> which is either an <tt>AudioMediaFormat</tt> or a
+     * <tt>VideoMediaFormat</tt> instance if <tt>encoding</tt> is known to this
+     * <tt>MediaFormatFactory</tt>; otherwise, <tt>null</tt>
      */
     public MediaFormat createMediaFormat(
             String encoding,
@@ -64,17 +76,23 @@ public interface MediaFormatFactory
                     String encoding, double clockRate, int channels);
 
     /**
-     * Creates an <tt>AudioMediaFormat</tt> for the specified <tt>encoding</tt>,
-     * <tt>clockRate</tt>, <tt>formatParams</tt> parameters and a single audio
-     * channel.
+     * Creates a <tt>MediaFormat</tt> for the specified <tt>encoding</tt>,
+     * <tt>clockRate</tt> and set of format parameters. If <tt>encoding</tt> is
+     * known to this <tt>MediaFormatFactory</tt>, returns a <tt>MediaFormat</tt>
+     * which either an <tt>AudioMediaFormat</tt> or a <tt>VideoMediaFormat</tt>
+     * instance. Otherwise, returns <tt>null</tt>.
      *
-     * @param encoding the encoding of the format to create.
-     * @param clockRate the rate in Hz of the audio format
-     * @param formatParams any codec specific params that have been received via
-     * SIP/SDP or XMPP/Jingle.
-     *
-     * @return a newly created <tt>AudioMediaFormat</tt> with the specified
-     * parameters.
+     * @param encoding the well-known encoding (name) to create a
+     * <tt>MediaFormat</tt> for
+     * @param clockRate the clock rate in Hz to create a <tt>MediaFormat</tt>
+     * for
+     * @param formatParams any codec specific parameters which have been
+     * received via SIP/SDP or XMPP/Jingle
+     * @return a <tt>MediaFormat</tt> with the specified <tt>encoding</tt>,
+     * <tt>clockRate</tt> and set of format parameters which is either an
+     * <tt>AudioMediaFormat</tt> or a <tt>VideoMediaFormat</tt> instance if
+     * <tt>encoding</tt> is known to this <tt>MediaFormatFactory</tt>;
+     * otherwise, <tt>null</tt>
      */
     public MediaFormat createMediaFormat(
             String encoding,

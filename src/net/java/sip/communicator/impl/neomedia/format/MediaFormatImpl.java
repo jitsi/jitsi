@@ -310,7 +310,7 @@ public abstract class MediaFormatImpl<T extends Format>
      * Control"; otherwise, {@link #RTP_PAYLOAD_TYPE_UNKNOWN}
      * @see MediaFormat#getRTPPayloadType()
      */
-    public int getRTPPayloadType()
+    public byte getRTPPayloadType()
     {
         return MediaUtils.getRTPPayloadType(getJMFEncoding(), getClockRate());
     }

@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
-import javax.media.*;
 import javax.media.format.*;
 import javax.media.rtp.*;
 
