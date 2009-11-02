@@ -150,7 +150,27 @@ public class CaptureMediaDevice
      */
     public CaptureDevice getCaptureDevice()
     {
-        if (captureDevice == null)
+        return getCaptureDevice(true);
+    }
+
+    /**
+     * Gets the JMF <tt>CaptureDevice</tt> this instance wraps and provides an
+     * implementation of <tt>MediaDevice</tt> for and, optionally, creates it if
+     * it does not exist yet.
+     *
+     * @param create <tt>true</tt> to create the <tt>CaptureDevice</tt> this
+     * instance provides an implementation of <tt>MediaDevice</tt> for it it
+     * does not exist yet; <tt>false</tt> to not create it and return
+     * <tt>null</tt> if it does not exist yet
+     * @return the JMF <tt>CaptureDevice</tt> this instance wraps and provides
+     * an implementation of <tt>MediaDevice</tt> for if it exists or
+     * <tt>create</tt> is <tt>true</tt> and its creation succeeds; <tt>null</tt>
+     * if it does not exist yet and <tt>create</tt> is <tt>false</tt> or its
+     * creation fails
+     */
+    protected CaptureDevice getCaptureDevice(boolean create)
+    {
+        if ((captureDevice == null) && create)
         {
             CaptureDevice captureDevice = null;
             Throwable exception = null;

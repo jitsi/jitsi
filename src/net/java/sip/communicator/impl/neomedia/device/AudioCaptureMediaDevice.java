@@ -49,6 +49,23 @@ public class AudioCaptureMediaDevice
     }
 
     /**
+     * Determines whether this <tt>MediaDevice</tt> will provide silence instead
+     * of actual captured data next time it is read.
+     *
+     * @return <tt>true</tt> if this <tt>MediaDevice</tt> will provide silence
+     * instead of actual captured data next time it is read; <tt>false</tt>,
+     * otherwise
+     */
+    public boolean isMute()
+    {
+        CaptureDevice captureDevice = getCaptureDevice(false);
+
+        if (captureDevice instanceof MutePushBufferDataSource)
+            return ((MutePushBufferDataSource) captureDevice).isMute();
+        return false;
+    }
+
+    /**
      * Sets the JMF <tt>CaptureDevice</tt> this instance wraps and provides a
      * <tt>MediaDevice</tt> implementation for. Tries to enable muting.
      *
@@ -69,7 +86,7 @@ public class AudioCaptureMediaDevice
 
     /**
      * Sets the indicator which determines whether this <tt>MediaDevice</tt>
-     * will start providing silence instead of actual capture data next time it
+     * will start providing silence instead of actual captured data next time it
      * is read.
      *
      * @param mute <tt>true</tt> to have this <tt>MediaDevice</tt> start

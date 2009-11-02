@@ -82,4 +82,14 @@ public interface AudioMediaStream
      * <tt>MediaDevice</tt> again.
      */
     public void setMute(boolean mute);
+
+    /**
+     * Determines whether this <tt>AudioMediaStream</tt> is set to transmit
+     * silence instead of the audio being fed from its <tt>MediaDevice</tt>.
+     *
+     * @return <tt>true</tt> if this <tt>AudioMediaStream</tt> is set to
+     * transmit silence instead of the audio fed from its <tt>MediaDevice</tt>;
+     * <tt>false</tt>, otherwise
+     */
+    public boolean isMute();
 }

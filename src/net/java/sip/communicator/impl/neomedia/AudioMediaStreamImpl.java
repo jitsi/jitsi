@@ -123,6 +123,20 @@ public class AudioMediaStreamImpl
     }
 
     /**
+     * Determines whether this <tt>AudioMediaStream</tt> is set to transmit
+     * silence instead of the audio being fed from its <tt>MediaDevice</tt>.
+     *
+     * @return <tt>true</tt> if this <tt>AudioMediaStream</tt> is set to
+     * transmit silence instead of the audio fed from its <tt>MediaDevice</tt>;
+     * <tt>false</tt>, otherwise
+     * @see AudioMediaStream#isMute()
+     */
+    public boolean isMute()
+    {
+        return ((AudioCaptureMediaDevice) getDevice()).isMute();
+    }
+
+    /**
      * Registers {@link #CUSTOM_CODEC_FORMATS} with a specific
      * <tt>RTPManager</tt>.
      *
