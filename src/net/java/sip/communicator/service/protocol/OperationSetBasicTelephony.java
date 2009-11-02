@@ -135,4 +135,17 @@ public interface OperationSetBasicTelephony
      *            <tt>peer</tt>; otherwise, <tt>false</tt>
      */
     public void setMute(CallPeer peer, boolean mute);
+
+    /**
+     * Adds the given <tt>LocalUserSoundLevelListener</tt> to this operation set.
+     * @param l the <tt>LocalUserSoundLevelListener</tt> to add
+     */
+    public void addLocalUserSoundLevelListener(LocalUserSoundLevelListener l);
+
+    /**
+     * Removes the given <tt>LocalUserSoundLevelListener</tt> from this
+     * operation set.
+     * @param l the <tt>LocalUserSoundLevelListener</tt> to remove
+     */
+    public void removeLocalUserSoundLevelListener(LocalUserSoundLevelListener l);
 }

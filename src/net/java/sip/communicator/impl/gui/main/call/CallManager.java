@@ -393,7 +393,8 @@ public class CallManager
         public void run()
         {
             OperationSetTelephonyConferencing confOpSet
-            = protocolProvider.getOperationSet(OperationSetTelephonyConferencing.class);
+                = protocolProvider.getOperationSet(
+                    OperationSetTelephonyConferencing.class);
 
             /*
              * XXX If we are here and we just discover that

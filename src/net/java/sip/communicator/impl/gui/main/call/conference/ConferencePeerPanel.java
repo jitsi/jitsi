@@ -26,7 +26,8 @@ import net.java.sip.communicator.service.protocol.event.*;
 public class ConferencePeerPanel
     extends BasicConferenceParticipantPanel
     implements  CallPeerRenderer,
-                StreamSoundLevelListener
+                StreamSoundLevelListener,
+                LocalUserSoundLevelListener
 {
     /**
      * The parent dialog containing this panel.
@@ -324,6 +325,17 @@ public class ConferencePeerPanel
      * sound level change
      */
     public void streamSoundLevelChanged(StreamSoundLevelEvent event)
+    {
+        this.updateSoundBar(event.getLevel());
+    }
+
+    /**
+     * Updates the sound bar level of the local user participating in the
+     * conference.
+     * @param event the <tt>LocalUserSoundLevelEvent</tt> that notifies us of
+     * the sound level change
+     */
+    public void localUserSoundLevelChanged(LocalUserSoundLevelEvent event)
     {
         this.updateSoundBar(event.getLevel());
     }

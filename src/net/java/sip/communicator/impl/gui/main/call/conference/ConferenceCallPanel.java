@@ -107,6 +107,12 @@ public class ConferenceCallPanel
         constraints.insets = new Insets(0, 0, 10, 10);
 
         mainPanel.add(localPeerPanel, constraints);
+
+        OperationSetBasicTelephony telephonyOpSet = call.getProtocolProvider()
+            .getOperationSet(OperationSetBasicTelephony.class);
+
+        if (telephonyOpSet != null)
+            telephonyOpSet.addLocalUserSoundLevelListener(localPeerPanel);
     }
 
     /**

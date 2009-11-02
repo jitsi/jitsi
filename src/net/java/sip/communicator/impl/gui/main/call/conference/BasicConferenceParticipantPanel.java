@@ -134,7 +134,7 @@ public class BasicConferenceParticipantPanel
      */
     public void setParticipantState(String participantState)
     {
-        callStatusLabel.setText(participantState);
+        callStatusLabel.setText(participantState.toLowerCase());
     }
 
     /**

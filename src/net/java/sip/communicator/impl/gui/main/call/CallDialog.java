@@ -70,6 +70,9 @@ public class CallDialog
     {
         this.call = call;
 
+        this.callDurationTimer = new Timer(1000, new CallTimerListener());
+        this.callDurationTimer.setRepeats(true);
+
         // The call duration parameter is not known yet.
         this.setCallTitle(null);
 
@@ -151,9 +154,6 @@ public class CallDialog
 
         buttonsPanel.setBorder(
             new ExtendedEtchedBorder(EtchedBorder.LOWERED, 1, 0, 0, 0));
-
-        this.callDurationTimer = new Timer(1000, new CallTimerListener());
-        this.callDurationTimer.setRepeats(true);
     }
 
     /**

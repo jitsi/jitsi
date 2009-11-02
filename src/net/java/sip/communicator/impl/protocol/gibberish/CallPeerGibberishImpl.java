@@ -49,16 +49,6 @@ public class CallPeerGibberishImpl
 
         final Random random = new Random();
 
-        Timer timer = new Timer(false);
-        timer.scheduleAtFixedRate(new TimerTask()
-        {
-            @Override
-            public void run()
-            {
-                fireStreamSoundLevelEvent(random.nextInt(255));
-            }
-        }, 500, 100);
-
         // Make this peer a conference focus.
         if (owningCall.getCallPeerCount() > 1)
         {
@@ -66,11 +56,13 @@ public class CallPeerGibberishImpl
             final ConferenceMemberGibberishImpl member1
                 = new ConferenceMemberGibberishImpl(this);
             member1.setDisplayName("Dragancho");
+            member1.setState(ConferenceMemberState.CONNECTED);
             this.addConferenceMember(member1);
 
             final ConferenceMemberGibberishImpl member2
                 = new ConferenceMemberGibberishImpl(this);
             member2.setDisplayName("Ivancho");
+            member2.setState(ConferenceMemberState.CONNECTED);
             this.addConferenceMember(member2);
 
             Timer timer1 = new Timer(false);

@@ -69,7 +69,7 @@ public class CallGibberishImpl
      *
      * @param callPeer the new <tt>CallPeer</tt>
      */
-    public void addCallPeer(CallPeerGibberishImpl callPeer)
+    public void addCallPeer(final CallPeerGibberishImpl callPeer)
     {
         if(callPeers.contains(callPeer))
             return;
@@ -84,7 +84,28 @@ public class CallGibberishImpl
             callPeer, CallPeerEvent.CALL_PEER_ADDED);
 
         callPeer.setState(CallPeerState.ALERTING_REMOTE_SIDE, "no reason");
-        callPeer.setState(CallPeerState.CONNECTED, "no reason");
+
+        Timer timer1 = new Timer(false);
+        timer1.schedule(new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                callPeer.setState(CallPeerState.CONNECTED, "no reason");
+            }
+        }, 1500);
+
+        final Random random = new Random();
+        Timer timer = new Timer(false);
+        timer.scheduleAtFixedRate(new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                callPeer.fireStreamSoundLevelEvent(random.nextInt(255));
+            }
+        }, 1800, 100);
+
     }
 
     /**

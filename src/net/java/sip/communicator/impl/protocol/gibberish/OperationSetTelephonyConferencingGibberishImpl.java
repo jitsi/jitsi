@@ -82,6 +82,19 @@ public class OperationSetTelephonyConferencingGibberishImpl
 
         telephonyOpSet.fireCallEvent(CallEvent.CALL_INITIATED, newCall);
 
+        final Random random = new Random();
+        Timer timer1 = new Timer(false);
+        timer1.scheduleAtFixedRate(new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                telephonyOpSet.fireLocalUserSoundLevelEvent(
+                                            protocolProvider,
+                                            random.nextInt(255));
+            }
+        }, 500, 100);
+
         return newCall;
     }
 

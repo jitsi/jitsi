@@ -123,7 +123,7 @@ public class SoundLevelIndicator
             Component c = getComponent(i);
             if (c instanceof JLabel)
             {
-                if (i <= activeBarNumber)
+                if (i < activeBarNumber)
                     ((JLabel) c).setIcon(soundLevelActiveImage);
                 else
                     ((JLabel) c).setIcon(soundLevelInactiveImage);

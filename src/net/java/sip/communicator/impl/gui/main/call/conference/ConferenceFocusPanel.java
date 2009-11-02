@@ -171,8 +171,6 @@ public class ConferenceFocusPanel
      */
     private Component createStatusBar()
     {
-        callStatusLabel.setText(callPeer.getState().getStateString());
-
         TransparentPanel statusBar
             = new TransparentPanel(
                 new FlowLayout(FlowLayout.RIGHT, 0, 0));
@@ -407,7 +405,7 @@ public class ConferenceFocusPanel
      */
     public void setPeerState(String state)
     {
-        callStatusLabel.setText(state);
+        callStatusLabel.setText(state.toLowerCase());
     }
 
     /**
