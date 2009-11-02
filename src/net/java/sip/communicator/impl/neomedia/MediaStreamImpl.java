@@ -56,6 +56,12 @@ public class MediaStreamImpl
     private MediaDeviceSession deviceSession;
 
     /**
+     * The <tt>MediaDirection</tt> in which this <tt>MediaStream</tt> is allowed
+     * to stream media.
+     */
+    private MediaDirection direction = MediaDirection.SENDRECV;
+
+    /**
      * The <tt>Map</tt> of associations in this <tt>MediaStream</tt> and the
      * <tt>RTPManager</tt> it utilizes of (dynamic) RTP payload types to
      * <tt>MediaFormat</tt>s.
@@ -90,6 +96,12 @@ public class MediaStreamImpl
      * changed.
      */
     private boolean sendStreamsAreCreated = false;
+
+    /**
+     * The indicator which determines whether {@link #start()} has been called
+     * on this <tt>MediaStream</tt> without {@link #stop()} or {@link #close()}.
+     */
+    private boolean started = false;
 
     /**
      * The <tt>MediaDirection</tt> in which this instance is started. For
@@ -310,6 +322,19 @@ public class MediaStreamImpl
     }
 
     /**
+     * Gets the direction in which this <tt>MediaStream</tt> is allowed to
+     * stream media.
+     *
+     * @return the <tt>MediaDirection</tt> in which this <tt>MediaStream</tt> is
+     * allowed to stream media
+     * @see MediaStream#getDirection()
+     */
+    public MediaDirection getDirection()
+    {
+        return direction;
+    }
+
+    /**
      * Gets the existing associations in this <tt>MediaStream</tt> of RTP
      * payload types to <tt>MediaFormat</tt>s. The returned <tt>Map</tt>
      * only contains associations previously added in this instance with
@@ -466,6 +491,21 @@ public class MediaStreamImpl
     }
 
     /**
+     * Determines whether {@link #start()} has been called on this
+     * <tt>MediaStream</tt> without {@link #stop()} or {@link #close()}
+     * afterwards.
+     *
+     * @return <tt>true</tt> if {@link #start()} has been called on this
+     * <tt>MediaStream</tt> without {@link #stop()} or {@link #close()}
+     * afterwards
+     * @see MediaStream#isStarted()
+     */
+    public boolean isStarted()
+    {
+        return started;
+    }
+
+    /**
      * Registers any custom JMF <tt>Format</tt>s with a specific
      * <tt>RTPManager</tt>. Extenders should override in order to register their
      * own customizations and should call back to this super implementation
@@ -533,6 +573,45 @@ public class MediaStreamImpl
     }
 
     /**
+     * Sets the direction in which media in this <tt>MediaStream</tt> is to be
+     * streamed. If this <tt>MediaStream</tt> is not currently started, calls to
+     * {@link #start()} later on will start it only in the specified
+     * <tt>direction</tt>. If it is currently started in a direction different
+     * than the specified, directions other than the specified will be stopped.
+     *
+     * @param direction the <tt>MediaDirection</tt> in which this
+     * <tt>MediaStream</tt> is to stream media when it is started
+     * @see MediaStream#setDirection(MediaDirection)
+     */
+    public void setDirection(MediaDirection direction)
+    {
+        if (direction == null)
+            throw new NullPointerException("direction");
+
+        this.direction = direction;
+
+        switch (this.direction)
+        {
+        case INACTIVE:
+            stop(MediaDirection.SENDRECV);
+            return;
+        case RECVONLY:
+            stop(MediaDirection.SENDONLY);
+            break;
+        case SENDONLY:
+            stop(MediaDirection.RECVONLY);
+            break;
+        case SENDRECV:
+            break;
+        default:
+            // Don't know what it may be in the future so ignore it.
+            return;
+        }
+        if (started)
+            start(this.direction);
+    }
+
+    /**
      * Sets the <tt>MediaFormat</tt> that this <tt>MediaStream</tt> should
      * transmit in.
      *
@@ -592,7 +671,8 @@ public class MediaStreamImpl
      */
     public void start()
     {
-        start(MediaDirection.SENDRECV);
+        start(this.direction);
+        started = true;
     }
 
     /**
@@ -605,10 +685,10 @@ public class MediaStreamImpl
      * the capture of media in this instance
      */
     @SuppressWarnings("unchecked")
-    public void start(MediaDirection direction)
+    private void start(MediaDirection direction)
     {
         if (direction == null)
-            throw new IllegalArgumentException("direction");
+            throw new NullPointerException("direction");
 
         if ((MediaDirection.SENDRECV.equals(direction)
                     || MediaDirection.SENDONLY.equals(direction))
@@ -705,6 +785,7 @@ public class MediaStreamImpl
     public void stop()
     {
         stop(MediaDirection.SENDRECV);
+        started = false;
     }
 
     /**
@@ -717,10 +798,10 @@ public class MediaStreamImpl
      * the capture of media in this instance
      */
     @SuppressWarnings("unchecked")
-    public void stop(MediaDirection direction)
+    private void stop(MediaDirection direction)
     {
         if (direction == null)
-            throw new IllegalArgumentException("direction");
+            throw new NullPointerException("direction");
 
         if (rtpManager == null)
             return;

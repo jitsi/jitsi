@@ -195,4 +195,36 @@ public interface MediaStream
      * modifications to it are not reflected on the internal storage
      */
     public Map<Integer, MediaFormat> getDynamicRTPPayloadTypes();
+
+    /**
+     * Sets the direction in which media in this <tt>MediaStream</tt> is to be
+     * streamed. If this <tt>MediaStream</tt> is not currently started, calls to
+     * {@link #start()} later on will start it only in the specified
+     * <tt>direction</tt>. If it is currently started in a direction different
+     * than the specified, directions other than the specified will be stopped.
+     *
+     * @param direction the <tt>MediaDirection</tt> in which this
+     * <tt>MediaStream</tt> is to stream media when it is started
+     */
+    public void setDirection(MediaDirection direction);
+
+    /**
+     * Gets the direction in which this <tt>MediaStream</tt> is allowed to
+     * stream media.
+     *
+     * @return the <tt>MediaDirection</tt> in which this <tt>MediaStream</tt> is
+     * allowed to stream media
+     */
+    public MediaDirection getDirection();
+
+    /**
+     * Determines whether {@link #start()} has been called on this
+     * <tt>MediaStream</tt> without {@link #stop()} or {@link #close()}
+     * afterwards.
+     *
+     * @return <tt>true</tt> if {@link #start()} has been called on this
+     * <tt>MediaStream</tt> without {@link #stop()} or {@link #close()}
+     * afterwards
+     */
+    public boolean isStarted();
 }
