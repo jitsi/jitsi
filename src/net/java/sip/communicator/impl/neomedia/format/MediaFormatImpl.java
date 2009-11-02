@@ -327,6 +327,25 @@ public abstract class MediaFormatImpl<T extends Format>
     }
 
     /**
+     * Returns a <tt>String</tt> representation of the clock rate associated
+     * with this <tt>MediaFormat</tt> making sure that the value appears as
+     * an integer (i.e. its long-casted value is equal to its original one)
+     * unless it is actually a non integer.
+     *
+     * @return a <tt>String</tt> representation of the clock rate associated
+     * with this <tt>MediaFormat</tt>.
+     */
+    public String getClockRateString()
+    {
+        double clockRate = getClockRate();
+        long   clockRateL = (long)clockRate;
+        if ( clockRateL == clockRate)
+            return Long.toString(clockRateL);
+        else
+            return Double.toString(clockRate);
+    }
+
+    /**
      * Returns a <tt>String</tt> representation of this <tt>MediaFormat</tt>
      * containing, among other things, its encoding and clockrate values.
      *
@@ -335,6 +354,7 @@ public abstract class MediaFormatImpl<T extends Format>
     @Override
     public String toString()
     {
-        return getEncoding() + "/" + ((long) getClockRate());
+        return getEncoding() + "/" + (getClockRateString())
+            + " PayloadType="+getRTPPayloadType();
     }
 }

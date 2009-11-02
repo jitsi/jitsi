@@ -18,7 +18,7 @@ import net.java.sip.communicator.service.neomedia.*;
  * properties such as the name of the underlying encoding, or clock rate or in
  * order comparing to compare formats. Extending interfaces representing audio
  * or video formats are likely to add other methods.
- * 
+ *
  * @author Emil Ivov
  */
 public interface MediaFormat
@@ -54,6 +54,17 @@ public interface MediaFormat
      * @return The clock rate associated with this format.
      */
     public double getClockRate();
+
+    /**
+     * Returns a <tt>String</tt> representation of the clock rate associated
+     * with this <tt>MediaFormat</tt> making sure that the value appears as
+     * an integer (i.e. contains no decimal point) unless it is actually a non
+     * integer.
+     *
+     * @return a <tt>String</tt> representation of the clock rate associated
+     * with this <tt>MediaFormat</tt>.
+     */
+    public String getClockRateString();
 
     /**
      * Determines whether this <tt>MediaFormat</tt> is equal to
