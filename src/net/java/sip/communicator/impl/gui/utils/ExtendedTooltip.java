@@ -21,8 +21,6 @@ import net.java.sip.communicator.util.*;
 public class ExtendedTooltip
     extends JToolTip
 {
-    private static final int textRowHeight = 16;
-
     private final JLabel imageLabel = new JLabel();
 
     private final JLabel titleLabel = new JLabel();
@@ -39,6 +37,7 @@ public class ExtendedTooltip
 
     /**
      * Created a <tt>MetaContactTooltip</tt>.
+     * @param isListViewEnabled indicates if the list view is enabled
      */
     public ExtendedTooltip(boolean isListViewEnabled)
     {
@@ -106,7 +105,7 @@ public class ExtendedTooltip
         if (textWidth < stringWidth)
             textWidth = stringWidth;
 
-        textHeight += textRowHeight;
+        textHeight += GuiUtils.getStringSize(titleLabel, titleText).height;
     }
 
     /**
@@ -137,7 +136,7 @@ public class ExtendedTooltip
         if (textWidth < stringWidth)
             textWidth = stringWidth;
 
-        textHeight += textRowHeight;
+        textHeight += GuiUtils.getStringSize(lineLabel, text).height;
     }
 
     /**
@@ -157,12 +156,15 @@ public class ExtendedTooltip
         /**
          * Overwrite the UI paint method to do nothing in order fix double
          * painting of the tooltip text.
+         * @param g the <tt>Graphics</tt> object
+         * @param c the component used to render the tooltip
          */
         public void paint(Graphics g, JComponent c)
         {}
 
         /**
          * Returns the size of the given component.
+         * @param c the component used to render the tooltip
          * @return the size of the given component.
          */
         public Dimension getPreferredSize(JComponent c)
@@ -184,19 +186,17 @@ public class ExtendedTooltip
             int height = 0;
             if (isListViewEnabled)
             {
-                height = imageHeight > textHeight
-                    ? imageHeight
-                    //Emil: adding extra row height is a dirty trick to fix
-                    //the size but I don't have the time to look at the issue
-                    //now
-                    : (textHeight + textRowHeight/3);
+                height = imageHeight > textHeight ? imageHeight : textHeight;
             }
             else
                 height = imageHeight + textHeight;
 
             if (bottomLabel.getText() != null
-                    && bottomLabel.getText().length() > 0)
-                height += textRowHeight;
+                && bottomLabel.getText().length() > 0)
+            {
+                height += GuiUtils.getStringSize(
+                    bottomLabel, bottomLabel.getText()).height;
+            }
 
             return new Dimension(width, height);
         }

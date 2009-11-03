@@ -69,11 +69,30 @@ public class GuiUtils
     }
 
     /**
+     * Returns the size of the given text computed towards to the given
+     * component.
+     * @param c the component where the text is contained
+     * @param text the text to measure
+     * @return the dimensions of the text
+     */
+    public static Dimension getStringSize(Component c, String text)
+    {
+        // get metrics from the graphics
+        FontMetrics metrics = c.getFontMetrics(c.getFont());
+        // get the height of a line of text in this font and render context
+        int hgt = metrics.getHeight();
+        // get the advance of my text in this font and render context
+        int adv = metrics.stringWidth(text);
+        // calculate the size of a box to hold the text with some padding.
+        return new Dimension(adv+2, hgt+2);
+    }
+
+    /**
      * Returns the bounds of the given string.
      * @param text the string to measure
      * @return the bounds of the given string
      */
-    public static Rectangle2D getStringBounds(String text)
+    public static Rectangle2D getDefaultStringSize(String text)
     {
         Font font = UIManager.getFont("Label.font");
 

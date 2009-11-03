@@ -253,7 +253,7 @@ public class ExtendedTransferHandler
 
             if (text != null)
             {
-                Rectangle2D bounds = GuiUtils.getStringBounds(text);
+                Rectangle2D bounds = GuiUtils.getDefaultStringSize(text);
                 BufferedImage image = new BufferedImage(
                     (int) Math.ceil(bounds.getWidth()),
                     (int) Math.ceil(bounds.getHeight()),
