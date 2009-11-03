@@ -153,17 +153,8 @@ public class CallTransferHandler
                 while ((str = reader.readLine()) != null)
                     buffToCall.append(str);
 
-                // Need to call this through invokeLater, because apparently
-                // the new thread created in inviteToConferenceCall method
-                // causes problems after the first drop.
-                SwingUtilities.invokeLater(new Runnable()
-                {
-                    public void run()
-                    {
-                        CallManager.inviteToConferenceCall(
-                            new String[]{buffToCall.toString()}, call);
-                    }
-                });
+                CallManager.inviteToConferenceCall(
+                    new String[]{buffToCall.toString()}, call);
 
                 return true;
             }

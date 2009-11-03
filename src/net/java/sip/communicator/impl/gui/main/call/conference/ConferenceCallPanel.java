@@ -55,6 +55,25 @@ public class ConferenceCallPanel
     private final CallDialog callDialog;
 
     /**
+     * The implementation of the routine which scrolls this scroll pane to its
+     * bottom.
+     */
+    private final Runnable scrollToBottomRunnable = new Runnable()
+    {
+        /**
+         * Implements Runnable#run().
+         * @see Runnable#run()
+         */
+        public void run()
+        {
+            JScrollBar verticalScrollBar = getVerticalScrollBar();
+
+            if (verticalScrollBar != null)
+                verticalScrollBar.setValue(verticalScrollBar.getMaximum());
+        }
+    };
+
+    /**
      * Creates an instance of <tt>ConferenceCallPanel</tt>.
      *
      * @param callDialog the dialog which contains this panel
@@ -152,13 +171,6 @@ public class ConferenceCallPanel
 
         mainPanel.add((Component) peerRenderer, constraints);
 
-        // Refresh this panel if its already visible.
-        if (isVisible())
-        {
-            this.revalidate();
-            this.repaint();
-        }
-
         // Create an adapter which would manage all common call peer listeners.
         CallPeerAdapter callPeerAdapter
             = new CallPeerAdapter(peer, peerRenderer);
@@ -168,6 +180,8 @@ public class ConferenceCallPanel
         peer.addCallPeerListener(callPeerAdapter);
         peer.addPropertyChangeListener(callPeerAdapter);
         peer.addCallPeerSecurityListener(callPeerAdapter);
+
+        SwingUtilities.invokeLater(scrollToBottomRunnable);
     }
 
     /**
@@ -202,10 +216,6 @@ public class ConferenceCallPanel
         peer.removeCallPeerListener(adapter);
         peer.removePropertyChangeListener(adapter);
         peer.removeCallPeerSecurityListener(adapter);
-
-        // Refresh the call panel.
-        this.revalidate();
-        this.repaint();
     }
 
     /**

@@ -234,9 +234,8 @@ public class ChatConversationPanel
                     scrollToBottomIsPending = false;
 
                     /*
-                     * Yana Stamcheva, being the excellent professional that she
-                     * is, pointed out that Java 5 (on Linux only?) needs
-                     * invokeLater for JScrollBar.
+                     * Yana Stamcheva, pointed out that Java 5 (on Linux only?)
+                     * needs invokeLater for JScrollBar.
                      */
                     SwingUtilities.invokeLater(scrollToBottomRunnable);
                 }

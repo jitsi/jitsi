@@ -371,43 +371,50 @@ public class CallDialog
      * Adds the according user interface when a new peer is added to the call.
      * @param evt the <tt>CallPeerEvent</tt> that notifies us for the change
      */
-    public void callPeerAdded(CallPeerEvent evt)
+    public void callPeerAdded(final CallPeerEvent evt)
     {
-        if (evt.getSourceCall() == call)
+        SwingUtilities.invokeLater(new Runnable()
         {
-            if (isLastConference)
+            public void run()
             {
-                ((ConferenceCallPanel) callPanel)
-                    .addCallPeerPanel(evt.getSourceCallPeer());
-            }
-            else
-            {
-                this.isLastConference = isConference();
+                if (evt.getSourceCall() != call)
+                    return;
 
-                // We've been in one-to-one call and we're now in a conference.
                 if (isLastConference)
                 {
-                    contentPane.remove(callPanel);
-                    this.callPanel
-                        = new ConferenceCallPanel(this, call);
-                    contentPane.add(callPanel, BorderLayout.CENTER);
+                    ((ConferenceCallPanel) callPanel)
+                        .addCallPeerPanel(evt.getSourceCallPeer());
                 }
-                // We're still in one-to-one call and we receive the remote peer.
                 else
                 {
-                    CallPeer onlyCallPeer = null;
-                    if (call.getCallPeers().hasNext())
-                        onlyCallPeer = call.getCallPeers().next();
+                    isLastConference = isConference();
 
-                    if (onlyCallPeer != null)
-                        ((OneToOneCallPanel) callPanel)
-                            .addCallPeerPanel(onlyCallPeer);
+                    // We've been in one-to-one call and we're now in a
+                    // conference.
+                    if (isLastConference)
+                    {
+                        contentPane.remove(callPanel);
+                        callPanel
+                            = new ConferenceCallPanel(CallDialog.this, call);
+                        contentPane.add(callPanel, BorderLayout.CENTER);
+                    }
+                    // We're still in one-to-one call and we receive the
+                    // remote peer.
+                    else
+                    {
+                        CallPeer onlyCallPeer = null;
+                        if (call.getCallPeers().hasNext())
+                            onlyCallPeer = call.getCallPeers().next();
+
+                        if (onlyCallPeer != null)
+                            ((OneToOneCallPanel) callPanel)
+                                .addCallPeerPanel(onlyCallPeer);
+                    }
                 }
-            }
 
-            if (contentPane.isVisible())
-                pack();
-        }
+                refreshWindow();
+            }
+        });
     }
 
     /**
@@ -538,35 +545,71 @@ public class CallDialog
 
         public void actionPerformed(ActionEvent e)
         {
-            if (isLastConference)
+            SwingUtilities.invokeLater(new Runnable()
             {
-                if (call.getCallPeerCount() == 1)
+                public void run()
                 {
-                    contentPane.remove(callPanel);
-                    CallPeer singlePeer = call.getCallPeers().next();
+                    if (isLastConference)
+                    {
+                        if (call.getCallPeerCount() == 1)
+                        {
+                            contentPane.remove(callPanel);
+                            CallPeer singlePeer = call.getCallPeers().next();
 
-                    if (singlePeer != null)
-                        callPanel = new OneToOneCallPanel(
-                            CallDialog.this, call, singlePeer);
+                            if (singlePeer != null)
+                                callPanel = new OneToOneCallPanel(
+                                    CallDialog.this, call, singlePeer);
 
-                    contentPane.add(callPanel, BorderLayout.CENTER);
+                            contentPane.add(callPanel, BorderLayout.CENTER);
 
-                    isLastConference = false;
+                            isLastConference = false;
+                        }
+                        else if (call.getCallPeerCount() > 1)
+                        {
+                            ((ConferenceCallPanel) callPanel)
+                                .removeCallPeerPanel(peer);
+                        }
+
+                        refreshWindow();
+                    }
+                    else
+                    {
+                        // Dispose the window
+                        dispose();
+                    }
                 }
-                else if (call.getCallPeerCount() > 1)
-                {
-                    ((ConferenceCallPanel) callPanel)
-                        .removeCallPeerPanel(peer);
-                }
-
-                if (contentPane.isVisible())
-                    pack();
-            }
-            else
-            {
-                // Dispose the window
-                dispose();
-            }
+            });
         }
+    }
+
+    /**
+     * Refreshes the content of this dialog.
+     */
+    public void refreshWindow()
+    {
+        if (!contentPane.isVisible())
+            return;
+
+        contentPane.validate();
+        contentPane.repaint();
+
+        // Calling pack would resize the window to fit the new content. We'd
+        // like to use the whole possible space before showing the scroll bar.
+        // Needed a workaround for the following problem:
+        // When window reaches its maximum size (and the scroll bar is visible?)
+        // calling pack() results in an incorrect repainting and makes the
+        // whole window to freeze.
+        // We check also if the vertical scroll bar is visible in order to
+        // correctly pack the window when a peer is removed.
+        boolean isScrollBarVisible = (callPanel instanceof ConferenceCallPanel)
+            && ((ConferenceCallPanel) callPanel).getVerticalScrollBar() != null
+            && ((ConferenceCallPanel) callPanel).getVerticalScrollBar()
+                .isVisible();
+
+        if (!isScrollBarVisible
+            || getHeight()
+                < GraphicsEnvironment.getLocalGraphicsEnvironment()
+                    .getMaximumWindowBounds().height)
+            pack();
     }
 }
