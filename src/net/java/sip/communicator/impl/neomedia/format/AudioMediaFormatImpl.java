@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.neomedia.format;
 
 import java.util.*;
 
+import javax.media.*;
 import javax.media.format.*;
 
 import net.java.sip.communicator.service.neomedia.*;
@@ -33,7 +34,7 @@ public class AudioMediaFormatImpl
      */
     AudioMediaFormatImpl(AudioFormat format)
     {
-        super(format);
+        this(format, null);
     }
 
     /**
@@ -51,7 +52,7 @@ public class AudioMediaFormatImpl
             AudioFormat format,
             Map<String, String> formatParameters)
     {
-        super(format, formatParameters);
+        super(fixChannels(format), formatParameters);
     }
 
     /**
@@ -63,7 +64,7 @@ public class AudioMediaFormatImpl
      */
     AudioMediaFormatImpl(String encoding)
     {
-        super(new AudioFormat(encoding));
+        this(new AudioFormat(encoding));
     }
 
     /**
@@ -136,13 +137,38 @@ public class AudioMediaFormatImpl
             int channels,
             Map<String, String> formatParameters)
     {
-        super(
+        this(
             new AudioFormat(
                     encoding,
                     clockRate,
                     AudioFormat.NOT_SPECIFIED,
                     channels),
             formatParameters);
+    }
+
+    /**
+     * Gets an <tt>AudioFormat</tt> instance which matches a specific
+     * <tt>AudioFormat</tt> and has 1 channel if the specified
+     * <tt>AudioFormat</tt> has its number of channels not specified.
+     *
+     * @param format the <tt>AudioFormat</tt> to get a match of
+     * @return if the specified <tt>format</tt> has a specific number of
+     * channels, <tt>format</tt>; otherwise, a new <tt>AudioFormat</tt> instance
+     * which matches <tt>format</tt> and has 1 channel
+     */
+    private static AudioFormat fixChannels(AudioFormat format)
+    {
+        if (Format.NOT_SPECIFIED == format.getChannels())
+            format
+                = (AudioFormat)
+                    format
+                        .intersects(
+                            new AudioFormat(
+                                    format.getEncoding(),
+                                    format.getSampleRate(),
+                                    format.getSampleSizeInBits(),
+                                    1));
+        return format;
     }
 
     /**
@@ -155,7 +181,9 @@ public class AudioMediaFormatImpl
      */
     public int getChannels()
     {
-        return format.getChannels();
+        int channels = format.getChannels();
+
+        return (Format.NOT_SPECIFIED == channels) ? 1 : channels;
     }
 
     /**

@@ -102,7 +102,7 @@ public class MediaFormatFactoryImpl
             String encoding,
             double clockRate)
     {
-        return createMediaFormat(encoding, clockRate, CHANNELS_NOT_SPECIFIED);
+        return createMediaFormat(encoding, clockRate, 1);
     }
 
     /**
@@ -137,8 +137,10 @@ public class MediaFormatFactoryImpl
                     && (format instanceof AudioMediaFormat))
             {
                 AudioMediaFormat audioFormat = (AudioMediaFormat) format;
+                int audioFormatChannels = audioFormat.getChannels();
 
-                if (audioFormat.getChannels() == channels)
+                if ((CHANNELS_NOT_SPECIFIED == audioFormatChannels)
+                        || (audioFormatChannels == channels))
                     return audioFormat;
             } else
                 return format;
@@ -174,7 +176,7 @@ public class MediaFormatFactoryImpl
             createMediaFormat(
                 encoding,
                 clockRate,
-                CHANNELS_NOT_SPECIFIED,
+                1,
                 formatParams);
     }
 
