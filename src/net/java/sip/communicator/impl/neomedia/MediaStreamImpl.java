@@ -59,7 +59,7 @@ public class MediaStreamImpl
      * The <tt>MediaDirection</tt> in which this <tt>MediaStream</tt> is allowed
      * to stream media.
      */
-    private MediaDirection direction = MediaDirection.SENDRECV;
+    private MediaDirection direction;
 
     /**
      * The <tt>Map</tt> of associations in this <tt>MediaStream</tt> and the
@@ -238,7 +238,7 @@ public class MediaStreamImpl
             streamCount = (streams == null) ? 0 : streams.length;
         }
         else
-            streamCount = 1;
+            streamCount = (dataSource == null) ? 0 : 1;
 
         for (int streamIndex = 0; streamIndex < streamCount; streamIndex++)
         {
@@ -331,7 +331,15 @@ public class MediaStreamImpl
      */
     public MediaDirection getDirection()
     {
-        return direction;
+        if (direction != null)
+            return direction;
+
+        MediaDeviceSession deviceSession = getDeviceSession();
+
+        return
+            (deviceSession == null)
+                ? MediaDirection.INACTIVE
+                : deviceSession.getDevice().getDirection();
     }
 
     /**
@@ -538,6 +546,11 @@ public class MediaStreamImpl
     /**
      * Sets the <tt>MediaDevice</tt> that this stream should use to play back
      * and capture media.
+     * <p>
+     * <b>Note</b>: Also resets any previous direction set with
+     * {@link #setDirection(MediaDirection)} to the direction of the specified
+     * <tt>MediaDevice</tt>.
+     * </p>
      *
      * @param device the <tt>MediaDevice</tt> that this stream should use to
      * play back and capture media
@@ -545,6 +558,9 @@ public class MediaStreamImpl
      */
     public void setDevice(MediaDevice device)
     {
+        if (device == null)
+            throw new NullPointerException("device");
+
         AbstractMediaDevice abstractMediaDevice = (AbstractMediaDevice) device;
 
         if ((deviceSession == null) || (deviceSession.getDevice() != device))
@@ -558,6 +574,14 @@ public class MediaStreamImpl
             }
 
             deviceSession = abstractMediaDevice.createSession();
+
+            /*
+             * Setting a new device resets any previously-set direction.
+             * Otherwise, we risk not being able to set a new device if it is
+             * mandatory for the new device to fully cover any previously-set
+             * direction.
+             */
+            direction = null;
 
             MediaDeviceSession newValue = deviceSession;
 
@@ -588,6 +612,19 @@ public class MediaStreamImpl
         if (direction == null)
             throw new NullPointerException("direction");
 
+        /*
+         * Make sure that the specified direction is in accord with the
+         * direction of the MediaDevice of this instance.
+         */
+        MediaDeviceSession deviceSession = getDeviceSession();
+        MediaDirection deviceDirection
+            = (deviceSession == null)
+                ? MediaDirection.INACTIVE
+                : deviceSession.getDevice().getDirection();
+
+        if (!deviceDirection.and(direction).equals(direction))
+            throw new IllegalArgumentException("direction");
+
         this.direction = direction;
 
         switch (this.direction)
@@ -604,7 +641,7 @@ public class MediaStreamImpl
         case SENDRECV:
             break;
         default:
-            // Don't know what it may be in the future so ignore it.
+            // Don't know what it may be (in the future) so ignore it.
             return;
         }
         if (started)
@@ -671,7 +708,7 @@ public class MediaStreamImpl
      */
     public void start()
     {
-        start(this.direction);
+        start(getDirection());
         started = true;
     }
 

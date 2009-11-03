@@ -13,29 +13,39 @@ import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.service.neomedia.*;
 
 /**
- * Extends <tt>CaptureMediaDevice</tt> with audio-specific functionality.
+ * Extends <tt>MediaDeviceImpl</tt> with audio-specific functionality.
  *
  * @author Lubomir Marinov
  */
-public class AudioCaptureMediaDevice
-    extends CaptureMediaDevice
+public class AudioMediaDeviceImpl
+    extends MediaDeviceImpl
 {
 
     /**
-     * Initializes a new <tt>AudioCaptureMediaDevice</tt> instance which is to
+     * Initializes a new <tt>AudioMediaDeviceImpl</tt> instance with
+     * <tt>MediaDirection</tt> which does not allow sending i.e. the new
+     * instance cannot be used to capture audio.
+     */
+    public AudioMediaDeviceImpl()
+    {
+        super(MediaType.AUDIO);
+    }
+
+    /**
+     * Initializes a new <tt>AudioMediaDeviceImpl</tt> instance which is to
      * provide an implementation of <tt>MediaDevice</tt> for a specific audio
      * <tt>CaptureDevice</tt>.
      *
      * @param captureDevice the audio <tt>CaptureDevice</tt> the new instance is
      * to provide an implementation of <tt>MediaDevice</tt> for
      */
-    public AudioCaptureMediaDevice(CaptureDevice captureDevice)
+    public AudioMediaDeviceImpl(CaptureDevice captureDevice)
     {
         super(captureDevice, MediaType.AUDIO);
     }
 
     /**
-     * Initializes a new <tt>AudioCaptureMediaDevice</tt> instance which is to
+     * Initializes a new <tt>AudioMediaDeviceImpl</tt> instance which is to
      * provide an implementation of <tt>MediaDevice</tt> for an audio
      * <tt>CaptureDevice</tt> with a specific <tt>CaptureDeviceInfo</tt>.
      *
@@ -43,7 +53,7 @@ public class AudioCaptureMediaDevice
      * <tt>CaptureDevice</tt> the new instance is to provide an implementation
      * of <tt>MediaDevice</tt> for
      */
-    public AudioCaptureMediaDevice(CaptureDeviceInfo captureDeviceInfo)
+    public AudioMediaDeviceImpl(CaptureDeviceInfo captureDeviceInfo)
     {
         super(captureDeviceInfo, MediaType.AUDIO);
     }
@@ -62,7 +72,12 @@ public class AudioCaptureMediaDevice
 
         if (captureDevice instanceof MutePushBufferDataSource)
             return ((MutePushBufferDataSource) captureDevice).isMute();
-        return false;
+
+        /*
+         * If there is no underlying CaptureDevice, this instance is mute
+         * because it cannot capture any audio.
+         */
+        return !getDirection().allowsSending();
     }
 
     /**
@@ -71,7 +86,7 @@ public class AudioCaptureMediaDevice
      *
      * @param captureDevice the JMF <tt>CaptureDevice</tt> this instance is to
      * wrap and provide a <tt>MediaDevice</tt> implementation for
-     * @see CaptureMediaDevice#setCaptureDevice(CaptureDevice)
+     * @see MediaDeviceImpl#setCaptureDevice(CaptureDevice)
      */
     @Override
     protected void setCaptureDevice(CaptureDevice captureDevice)

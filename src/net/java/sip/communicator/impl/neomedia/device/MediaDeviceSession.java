@@ -785,7 +785,7 @@ public class MediaDeviceSession
     public void start(MediaDirection direction)
     {
         if (direction == null)
-            throw new IllegalArgumentException("direction");
+            throw new NullPointerException("direction");
 
         if (MediaDirection.SENDRECV.equals(direction)
                 || MediaDirection.SENDONLY.equals(direction))
@@ -810,7 +810,7 @@ public class MediaDeviceSession
     public void stop(MediaDirection direction)
     {
         if (direction == null)
-            throw new IllegalArgumentException("direction");
+            throw new NullPointerException("direction");
 
         if (MediaDirection.SENDRECV.equals(direction)
                 || MediaDirection.SENDONLY.equals(direction))

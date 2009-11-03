@@ -41,7 +41,7 @@ public class MediaUtils
 
     /**
      * The <tt>MediaFormat</tt>s which do not have RTP payload types assigned by
-     * RFC 3551 and are thus refered to as having dynamic RTP payload types.
+     * RFC 3551 and are thus referred to as having dynamic RTP payload types.
      */
     private static final List<MediaFormat> rtpPayloadTypelessMediaFormats
         = new ArrayList<MediaFormat>();

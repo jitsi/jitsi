@@ -52,8 +52,8 @@ public class MediaServiceImpl
      * its {@link MediaService#getDevices(MediaType)} method is called with an
      * argument {@link MediaType#AUDIO}.
      */
-    private final List<CaptureMediaDevice> audioDevices
-        = new ArrayList<CaptureMediaDevice>();
+    private final List<MediaDeviceImpl> audioDevices
+        = new ArrayList<MediaDeviceImpl>();
 
     /**
      * The format-related user choices such as the enabled and disabled codecs
@@ -70,15 +70,39 @@ public class MediaServiceImpl
     private MediaFormatFactory formatFactory;
 
     /**
+     * The one and only <tt>MediaDevice</tt> instance with
+     * <tt>MediaDirection</tt> not allowing sending and <tt>MediaType</tt> equal
+     * to <tt>AUDIO</tt>.
+     */
+    private MediaDevice nonSendAudioDevice;
+
+    /**
+     * The one and only <tt>MediaDevice</tt> instance with
+     * <tt>MediaDirection</tt> not allowing sending and <tt>MediaType</tt> equal
+     * to <tt>VIDEO</tt>.
+     */
+    private MediaDevice nonSendVideoDevice;
+
+    /**
      * The list of video <tt>MediaDevice</tt>s reported by this instance when
      * its {@link MediaService#getDevices(MediaType)} method is called with an
      * argument {@link MediaType#VIDEO}.
      */
-    private final List<CaptureMediaDevice> videoDevices
-        = new ArrayList<CaptureMediaDevice>();
+    private final List<MediaDeviceImpl> videoDevices
+        = new ArrayList<MediaDeviceImpl>();
 
-    /*
-     * Implements MediaService#createMediaStream(StreamConnector, MediaDevice).
+    /**
+     * Creates a new <tt>MediaStream</tt> instance which will use the specified
+     * <tt>MediaDevice</tt> for both capture and playback of media exchanged
+     * via the specified <tt>StreamConnector</tt>.
+     *
+     * @param connector the <tt>StreamConnector</tt> that the new
+     * <tt>MediaStream</tt> instance is to use for sending and receiving media
+     * @param device the <tt>MediaDevice</tt> that the new <tt>MediaStream</tt>
+     * instance is to use for both capture and playback of media exchanged via
+     * the specified <tt>connector</tt>
+     * @return a new <tt>MediaStream</tt> instance
+     * @see MediaService#createMediaStream(StreamConnector, MediaDevice)
      */
     public MediaStream createMediaStream(
             StreamConnector connector,
@@ -95,8 +119,16 @@ public class MediaServiceImpl
         }
     }
 
-    /*
-     * Implements MediaService#getDefaultDevice(MediaType).
+    /**
+     * Gets the default <tt>MediaDevice</tt> for the specified
+     * <tt>MediaType</tt>.
+     *
+     * @param mediaType a <tt>MediaType</tt> value indicating the type of media
+     * to be handled by the <tt>MediaDevice</tt> to be obtained
+     * @return the default <tt>MediaDevice</tt> for the specified
+     * <tt>mediaType</tt> if such a <tt>MediaDevice</tt> exists; otherwise,
+     * <tt>null</tt>
+     * @see MediaService#getDefaultDevice(MediaType)
      */
     public MediaDevice getDefaultDevice(MediaType mediaType)
     {
@@ -107,20 +139,48 @@ public class MediaServiceImpl
         case AUDIO:
             captureDeviceInfo
                 = getDeviceConfiguration().getAudioCaptureDevice();
-            return
-                (captureDeviceInfo == null)
-                    ? null
-                    : new AudioCaptureMediaDevice(captureDeviceInfo);
+            break;
         case VIDEO:
             captureDeviceInfo
                 = getDeviceConfiguration().getVideoCaptureDevice();
-            return
-                (captureDeviceInfo == null)
-                    ? null
-                    : new CaptureMediaDevice(captureDeviceInfo, mediaType);
+            break;
         default:
-            return null;
+            captureDeviceInfo = null;
+            break;
         }
+
+        MediaDevice defaultDevice = null;
+
+        if (captureDeviceInfo != null)
+        {
+            for (MediaDevice device : getDevices(mediaType))
+                if ((device instanceof MediaDeviceImpl)
+                        && captureDeviceInfo
+                                .equals(
+                                    ((MediaDeviceImpl) device)
+                                        .getCaptureDeviceInfo()))
+                {
+                    defaultDevice = device;
+                    break;
+                }
+        }
+        if (defaultDevice == null)
+            switch (mediaType)
+            {
+            case AUDIO:
+                defaultDevice = getNonSendAudioDevice();
+                break;
+            case VIDEO:
+                defaultDevice = getNonSendVideoDevice();
+                break;
+            default:
+                /*
+                 * There is no MediaDevice with direction which does not allow
+                 * sending and mediaType other than AUDIO and VIDEO.
+                 */
+                break;
+            }
+        return defaultDevice;
     }
 
     /**
@@ -153,76 +213,113 @@ public class MediaServiceImpl
     public List<MediaDevice> getDevices(MediaType mediaType)
     {
         CaptureDeviceInfo[] captureDeviceInfos;
-        List<CaptureMediaDevice> devices;
+        List<MediaDeviceImpl> privateDevices;
 
         switch (mediaType)
         {
         case AUDIO:
             captureDeviceInfos
                 = getDeviceConfiguration().getAvailableAudioCaptureDevices();
-            devices = audioDevices;
+            privateDevices = audioDevices;
             break;
         case VIDEO:
             captureDeviceInfos
                 = getDeviceConfiguration().getAvailableVideoCaptureDevices();
-            devices = videoDevices;
+            privateDevices = videoDevices;
             break;
         default:
-            captureDeviceInfos = null;
-            devices = null;
-            break;
+            /*
+             * MediaService does not understad MediaTypes other than AUDIO and
+             * VIDEO.
+             */
+            return EMPTY_DEVICES;
         }
 
-        synchronized (devices)
+        List<MediaDevice> publicDevices = new ArrayList<MediaDevice>();
+
+        synchronized (privateDevices)
         {
-            if ((captureDeviceInfos == null) || (captureDeviceInfos.length == 0))
+            if ((captureDeviceInfos == null)
+                    || (captureDeviceInfos.length == 0))
+                privateDevices.clear();
+            else
             {
-                devices.clear();
-                return EMPTY_DEVICES;
-            }
+                Iterator<MediaDeviceImpl> deviceIter
+                    = privateDevices.iterator();
 
-            Iterator<CaptureMediaDevice> deviceIter = devices.iterator();
+                while (deviceIter.hasNext())
+                {
+                    CaptureDeviceInfo captureDeviceInfo
+                        = deviceIter.next().getCaptureDeviceInfo();
+                    boolean deviceIsFound = false;
 
-            while (deviceIter.hasNext())
-            {
-                CaptureDeviceInfo captureDeviceInfo
-                    = deviceIter.next().getCaptureDeviceInfo();
-                boolean deviceIsFound = false;
+                    for (int i = 0; i < captureDeviceInfos.length; i++)
+                        if (captureDeviceInfo.equals(captureDeviceInfos[i]))
+                        {
+                            deviceIsFound = true;
+                            captureDeviceInfos[i] = null;
+                            break;
+                        }
+                    if (!deviceIsFound)
+                        deviceIter.remove();
+                }
 
-                for (int i = 0; i < captureDeviceInfos.length; i++)
-                    if (captureDeviceInfo.equals(captureDeviceInfos[i]))
+                for (CaptureDeviceInfo captureDeviceInfo : captureDeviceInfos)
+                {
+                    if (captureDeviceInfo == null)
+                        continue;
+
+                    MediaDeviceImpl device;
+
+                    switch (mediaType)
                     {
-                        deviceIsFound = true;
-                        captureDeviceInfos[i] = null;
+                    case AUDIO:
+                        device = new AudioMediaDeviceImpl(captureDeviceInfo);
+                        break;
+                    case VIDEO:
+                        device = new MediaDeviceImpl(captureDeviceInfo, mediaType);
+                        break;
+                    default:
+                        device = null;
                         break;
                     }
-                if (!deviceIsFound)
-                    deviceIter.remove();
-            }
-
-            for (CaptureDeviceInfo captureDeviceInfo : captureDeviceInfos)
-            {
-                if (captureDeviceInfo == null)
-                    continue;
-
-                CaptureMediaDevice device;
-
-                switch (mediaType)
-                {
-                case AUDIO:
-                    device = new AudioCaptureMediaDevice(captureDeviceInfo);
-                    break;
-                case VIDEO:
-                default:
-                    device
-                        = new CaptureMediaDevice(captureDeviceInfo, mediaType);
-                    break;
+                    if (device != null)
+                        privateDevices.add(device);
                 }
-                devices.add(device);
             }
 
-            return new ArrayList<MediaDevice>(devices);
+            publicDevices = new ArrayList<MediaDevice>(privateDevices);
         }
+
+        /*
+         * If there are no MediaDevice instances of the specified mediaType,
+         * make sure that there is at least one MediaDevice which does not allow
+         * sending.
+         */
+        if (publicDevices.isEmpty())
+        {
+            MediaDevice nonSendDevice;
+
+            switch (mediaType)
+            {
+            case AUDIO:
+                nonSendDevice = getNonSendAudioDevice();
+                break;
+            case VIDEO:
+                nonSendDevice = getNonSendVideoDevice();
+                break;
+            default:
+                /*
+                 * There is no MediaDevice with direction not allowing sending
+                 * and mediaType other than AUDIO and VIDEO.
+                 */
+                nonSendDevice = null;
+                break;
+            }
+            if (nonSendDevice != null)
+                publicDevices.add(nonSendDevice);
+        }
+        return publicDevices;
     }
 
     /**
@@ -252,6 +349,38 @@ public class MediaServiceImpl
         if (formatFactory == null)
             formatFactory = new MediaFormatFactoryImpl();
         return formatFactory;
+    }
+
+    /**
+     * Gets the one and only <tt>MediaDevice</tt> instance with
+     * <tt>MediaDirection</tt> not allowing sending and <tt>MediaType</tt> equal
+     * to <tt>AUDIO</tt>.
+     *
+     * @return the one and only <tt>MediaDevice</tt> instance with
+     * <tt>MediaDirection</tt> not allowing sending and <tt>MediaType</tt> equal
+     * to <tt>AUDIO</tt>
+     */
+    private MediaDevice getNonSendAudioDevice()
+    {
+        if (nonSendAudioDevice == null)
+            nonSendAudioDevice = new AudioMediaDeviceImpl();
+        return nonSendAudioDevice;
+    }
+
+    /**
+     * Gets the one and only <tt>MediaDevice</tt> instance with
+     * <tt>MediaDirection</tt> not allowing sending and <tt>MediaType</tt> equal
+     * to <tt>VIDEO</tt>.
+     *
+     * @return the one and only <tt>MediaDevice</tt> instance with
+     * <tt>MediaDirection</tt> not allowing sending and <tt>MediaType</tt> equal
+     * to <tt>VIDEO</tt>
+     */
+    private MediaDevice getNonSendVideoDevice()
+    {
+        if (nonSendVideoDevice == null)
+            nonSendVideoDevice = new MediaDeviceImpl(MediaType.VIDEO);
+        return nonSendVideoDevice;
     }
 
     /**

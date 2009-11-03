@@ -48,20 +48,7 @@ public class AudioMediaStreamImpl
                      * with no parameters.
                      */
                     new AudioFormat(
-                            Constants.ILBC_RTP,
-                            8000.0,
-                            16,
-                            1,
-                            AudioFormat.LITTLE_ENDIAN,
-                            AudioFormat.SIGNED),
-                    new AudioFormat(
                             Constants.ALAW_RTP,
-                            8000,
-                            8,
-                            1,
-                            -1,
-                            AudioFormat.SIGNED),
-                    new AudioFormat(Constants.SPEEX_RTP,
                             8000,
                             8,
                             1,
@@ -133,7 +120,7 @@ public class AudioMediaStreamImpl
      */
     public boolean isMute()
     {
-        return ((AudioCaptureMediaDevice) getDevice()).isMute();
+        return ((AudioMediaDeviceImpl) getDevice()).isMute();
     }
 
     /**
@@ -210,7 +197,7 @@ public class AudioMediaStreamImpl
     /**
      * Sets the <tt>MediaDevice</tt> that this stream should use to play back
      * and capture media. Asserts that the specified <tt>device</tt> is an
-     * <tt>AudioCaptureMediaDevice</tt> because the implementation of
+     * <tt>AudioMediaDeviceImpl</tt> because the implementation of
      * <tt>AudioMediaStreamImpl</tt> depends on it.
      *
      * @param device the <tt>MediaDevice</tt> that this stream should use to
@@ -220,7 +207,7 @@ public class AudioMediaStreamImpl
     @Override
     public void setDevice(MediaDevice device)
     {
-        super.setDevice((AudioCaptureMediaDevice) device);
+        super.setDevice((AudioMediaDeviceImpl) device);
     }
 
     /**
@@ -236,7 +223,7 @@ public class AudioMediaStreamImpl
      */
     public void setMute(boolean mute)
     {
-        ((AudioCaptureMediaDevice) getDevice()).setMute(mute);
+        ((AudioMediaDeviceImpl) getDevice()).setMute(mute);
     }
 
     /**

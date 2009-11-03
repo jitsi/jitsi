@@ -11,7 +11,6 @@ import java.util.*;
 
 import javax.media.*;
 import javax.media.control.*;
-import javax.media.format.*;
 import javax.media.protocol.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
@@ -27,16 +26,16 @@ import net.java.sip.communicator.util.*;
  *
  * @author Lubomir Marinov
  */
-public class CaptureMediaDevice
+public class MediaDeviceImpl
     extends AbstractMediaDevice
 {
 
     /**
-     * The <tt>Logger</tt> used by <tt>CaptureMediaDevice</tt> and its instances
+     * The <tt>Logger</tt> used by <tt>MediaDeviceImpl</tt> and its instances
      * for logging output.
      */
     private static final Logger logger
-        = Logger.getLogger(CaptureMediaDevice.class);
+        = Logger.getLogger(MediaDeviceImpl.class);
 
     /**
      * The JMF <tt>CaptureDevice</tt> this instance wraps and provides an
@@ -62,15 +61,29 @@ public class CaptureMediaDevice
     private final MediaType mediaType;
 
     /**
-     * Initializes a new <tt>CaptureMediaDevice</tt> instance which is to
-     * provide an implementation of <tt>MediaDevice</tt> for a specific
+     * Initializes a new <tt>MediaDeviceImpl</tt> instance with a specific
+     * <tt>MediaType</tt> and with <tt>MediaDirection</tt> which does not allow
+     * sending.
+     *
+     * @param mediaType the <tt>MediaType</tt> of the new instance
+     */
+    public MediaDeviceImpl(MediaType mediaType)
+    {
+        this.captureDevice = null;
+        this.captureDeviceInfo = null;
+        this.mediaType = mediaType;
+    }
+
+    /**
+     * Initializes a new <tt>MediaDeviceImpl</tt> instance which is to provide
+     * an implementation of <tt>MediaDevice</tt> for a specific
      * <tt>CaptureDevice</tt> with a specific <tt>MediaType</tt>.
      *
      * @param captureDevice the JMF <tt>CaptureDevice</tt> the new instance is
      * to provide an implementation of <tt>MediaDevice</tt> for
      * @param mediaType the <tt>MediaType</tt> of the new instance
      */
-    public CaptureMediaDevice(CaptureDevice captureDevice, MediaType mediaType)
+    public MediaDeviceImpl(CaptureDevice captureDevice, MediaType mediaType)
     {
         if (captureDevice == null)
             throw new NullPointerException("captureDevice");
@@ -83,19 +96,19 @@ public class CaptureMediaDevice
     }
 
     /**
-     * Initializes a new <tt>CaptureMediaDevice</tt> instance which is to
-     * provide an implementation of <tt>MediaDevice</tt> for a
-     * <tt>CaptureDevice</tt> with a specific <tt>CaptureDeviceInfo</tt> and
-     * which is of a specific <tt>MediaType</tt>.
+     * Initializes a new <tt>MediaDeviceImpl</tt> instance which is to provide
+     * an implementation of <tt>MediaDevice</tt> for a <tt>CaptureDevice</tt>
+     * with a specific <tt>CaptureDeviceInfo</tt> and which is of a specific
+     * <tt>MediaType</tt>.
      *
      * @param captureDeviceInfo the <tt>CaptureDeviceInfo</tt> of the JMF
      * <tt>CaptureDevice</tt> the new instance is to provide an implementation
      * of <tt>MediaDevice</tt> for
      * @param mediaType the <tt>MediaType</tt> of the new instance
      */
-    public CaptureMediaDevice(
-        CaptureDeviceInfo captureDeviceInfo,
-        MediaType mediaType)
+    public MediaDeviceImpl(
+            CaptureDeviceInfo captureDeviceInfo,
+            MediaType mediaType)
     {
         if (captureDeviceInfo == null)
             throw new NullPointerException("captureDeviceInfo");
@@ -138,7 +151,10 @@ public class CaptureMediaDevice
      */
     DataSource createOutputDataSource()
     {
-        return (DataSource) getConnectedCaptureDevice();
+        return
+            getDirection().allowsSending()
+                ? (DataSource) getConnectedCaptureDevice()
+                : null;
     }
 
     /**
@@ -170,7 +186,7 @@ public class CaptureMediaDevice
      */
     protected CaptureDevice getCaptureDevice(boolean create)
     {
-        if ((captureDevice == null) && create)
+        if (getDirection().allowsSending() && (captureDevice == null) && create)
         {
             CaptureDevice captureDevice = null;
             Throwable exception = null;
@@ -306,7 +322,19 @@ public class CaptureMediaDevice
      */
     public MediaDirection getDirection()
     {
-        return MediaDirection.SENDRECV;
+        if ((captureDeviceInfo != null) || (captureDevice != null))
+            return MediaDirection.SENDRECV;
+        else
+        {
+            /*
+             * If there is no audio CaptureDevice, then even play back is not
+             * possible.
+             */
+            return
+                MediaType.AUDIO.equals(getMediaType())
+                    ? MediaDirection.INACTIVE
+                    : MediaDirection.RECVONLY;
+        }
     }
 
     /**
@@ -319,16 +347,21 @@ public class CaptureMediaDevice
      */
     public MediaFormat getFormat()
     {
-        MediaType mediaType = getMediaType();
+        CaptureDevice captureDevice = getCaptureDevice();
 
-        for (FormatControl formatControl
-                : getCaptureDevice().getFormatControls())
+        if (captureDevice != null)
         {
-            MediaFormat format
-                = MediaFormatImpl.createInstance(formatControl.getFormat());
+            MediaType mediaType = getMediaType();
 
-            if ((format != null) && format.getMediaType().equals(mediaType))
-                return format;
+            for (FormatControl formatControl
+                    : captureDevice.getFormatControls())
+            {
+                MediaFormat format
+                    = MediaFormatImpl.createInstance(formatControl.getFormat());
+
+                if ((format != null) && format.getMediaType().equals(mediaType))
+                    return format;
+            }
         }
         return null;
     }
@@ -366,72 +399,6 @@ public class CaptureMediaDevice
                 supportedFormats.add(supportedEncoding);
 
         return supportedFormats;
-    }
-
-    /**
-     * Gets the <tt>MediaFormat</tt>s supported by a specific
-     * <tt>CaptureDevice</tt>.
-     *
-     * @param captureDevice the JMF <tt>CaptureDevice</tt> to retrieve the
-     * supported <tt>MediaFormat</tt>s of
-     * @return the <tt>MediaFormat</tt>s supported by the specified
-     * <tt>CaptureDevice</tt>
-     */
-    private List<MediaFormat> getSupportedFormats(CaptureDevice captureDevice)
-    {
-        MediaType mediaType = getMediaType();
-        Set<Format> supportedFormats = new HashSet<Format>();
-
-        for (FormatControl formatControl : captureDevice.getFormatControls())
-        {
-            for (Format format : formatControl.getSupportedFormats())
-                switch (mediaType)
-                {
-                case AUDIO:
-                    if (format instanceof AudioFormat)
-                        supportedFormats.add(format);
-                    break;
-                case VIDEO:
-                    if (format instanceof VideoFormat)
-                        supportedFormats.add(format);
-                    break;
-                }
-        }
-
-        List<MediaFormat> supportedMediaFormats
-            = new ArrayList<MediaFormat>(supportedFormats.size());
-
-        for (Format format : supportedFormats)
-            supportedMediaFormats.add(MediaFormatImpl.createInstance(format));
-        return supportedMediaFormats;
-    }
-
-    /**
-     * Gets the <tt>MediaFormat</tt>s supported by a <tt>CaptureDevice</tt>
-     * judging by its <tt>CaptureDeviceInfo</tt>.
-     *
-     * @param captureDeviceInfo the <tt>CaptureDeviceInfo</tt> to retrieve the
-     * supported <tt>MediaFormat</tt>s of
-     * @return the <tt>MediaFormat</tt>s supported by the specified
-     * <tt>CaptureDeviceInfo</tt>
-     */
-    private List<MediaFormat> getSupportedFormats(
-            CaptureDeviceInfo captureDeviceInfo)
-    {
-        Format[] supportedFormats = captureDeviceInfo.getFormats();
-        MediaType mediaType = getMediaType();
-        List<MediaFormat> supportedMediaFormats
-            = new ArrayList<MediaFormat>(supportedFormats.length);
-
-        for (Format format : supportedFormats)
-        {
-            MediaFormat mediaFormat = MediaFormatImpl.createInstance(format);
-
-            if ((mediaFormat != null)
-                    && mediaFormat.getMediaType().equals(mediaType))
-                supportedMediaFormats.add(mediaFormat);
-        }
-        return supportedMediaFormats;
     }
 
     /**

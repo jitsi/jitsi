@@ -17,11 +17,9 @@ import javax.media.rtp.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
-import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Extends <tt>MediaStreamImpl</tt> in order to provide an implementation of
@@ -33,13 +31,6 @@ public class VideoMediaStreamImpl
     extends MediaStreamImpl
     implements VideoMediaStream
 {
-
-    /**
-     * The <tt>Logger</tt> used by the <tt>VideoMediaStreamImpl</tt> class and
-     * its instances for logging output.
-     */
-    private static final Logger logger
-        = Logger.getLogger(VideoMediaStreamImpl.class);
 
     /**
      * JMF stores <tt>CUSTOM_CODEC_FORMATS</tt> statically, so they only need to
@@ -328,22 +319,7 @@ public class VideoMediaStreamImpl
                 && formatsRegisteredOnce)
             return;
 
-        Format format = new VideoFormat(Constants.H264_RTP);
-
-        logger.debug("registering format " + format + " with RTP manager");
-
-        /*
-         * NOTE (mkoch@rowa.de): com.sun.media.rtp.RtpSessionMgr.addFormat leaks
-         * memory, since it stores the Format in a static Vector. AFAIK there is
-         * no easy way around it, but the memory impact should not be too bad.
-         */
-        rtpManager
-            .addFormat(
-                format,
-                MediaUtils
-                    .getRTPPayloadType(
-                        format.getEncoding(),
-                        VideoMediaFormatImpl.DEFAULT_CLOCK_RATE));
+        // We do not have formats to register right now.
 
         formatsRegisteredOnce = true;
     }

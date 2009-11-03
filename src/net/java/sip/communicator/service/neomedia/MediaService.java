@@ -52,7 +52,7 @@ public interface MediaService
      * @param connector the connector that the stream should use for sending and
      * receiving media.
      * @param device the device to be used for both capture and playback of
-     * media changed via the specified <tt>StreamConnector</tt>
+     * media exchanged via the specified <tt>StreamConnector</tt>
      *
      * @return the newly created <tt>MediaStream</tt>.
      */
