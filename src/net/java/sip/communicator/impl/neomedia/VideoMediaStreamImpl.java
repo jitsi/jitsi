@@ -149,46 +149,7 @@ public class VideoMediaStreamImpl
      * <tt>VideoEvent</tt>s from this <tt>VideoMediaStream</tt> to its
      * <tt>VideoListener</tt>s.
      */
-    private final VideoListener deviceSessionVideoListener
-        = new VideoListener()
-                {
-
-                    /**
-                     * Notifies that a visual <tt>Component</tt> representing
-                     * video has been added to the provider this listener has
-                     * been added to.
-                     *
-                     * @param e a <tt>VideoEvent</tt> describing the added
-                     * visual <tt>Component</tt> representing video and the
-                     * provider it was added into
-                     * @see VideoListener#videoAdded(VideoEvent)
-                     */
-                    public void videoAdded(VideoEvent e)
-                    {
-                        fireVideoEvent(
-                            e.getType(),
-                            e.getVisualComponent(),
-                            e.getOrigin());
-                    }
-
-                    /**
-                     * Notifies that a visual <tt>Component</tt> representing
-                     * video has been removed from the provider this listener
-                     * has been added to.
-                     *
-                     * @param e a <tt>VideoEvent</tt> describing the removed
-                     * visual <tt>Component</tt> representing video and the
-                     * provider it was removed from
-                     * @see VideoListener#videoRemoved(VideoEvent)
-                     */
-                    public void videoRemoved(VideoEvent e)
-                    {
-                        fireVideoEvent(
-                            e.getType(),
-                            e.getVisualComponent(),
-                            e.getOrigin());
-                    }
-                };
+    private VideoListener deviceSessionVideoListener;
 
     /**
      * The facility which aids this instance in managing a list of
@@ -253,12 +214,56 @@ public class VideoMediaStreamImpl
     {
         super.deviceSessionChanged(oldValue, newValue);
 
-        if (oldValue instanceof VideoMediaDeviceSession)
+        if ((oldValue instanceof VideoMediaDeviceSession)
+                && (deviceSessionVideoListener != null))
             ((VideoMediaDeviceSession) oldValue)
                 .removeVideoListener(deviceSessionVideoListener);
         if (newValue instanceof VideoMediaDeviceSession)
+        {
+            if (deviceSessionVideoListener == null)
+                deviceSessionVideoListener = new VideoListener()
+                {
+
+                    /**
+                     * Notifies that a visual <tt>Component</tt> representing
+                     * video has been added to the provider this listener has
+                     * been added to.
+                     *
+                     * @param e a <tt>VideoEvent</tt> describing the added
+                     * visual <tt>Component</tt> representing video and the
+                     * provider it was added into
+                     * @see VideoListener#videoAdded(VideoEvent)
+                     */
+                    public void videoAdded(VideoEvent e)
+                    {
+                        fireVideoEvent(
+                            e.getType(),
+                            e.getVisualComponent(),
+                            e.getOrigin());
+                    }
+
+                    /**
+                     * Notifies that a visual <tt>Component</tt> representing
+                     * video has been removed from the provider this listener
+                     * has been added to.
+                     *
+                     * @param e a <tt>VideoEvent</tt> describing the removed
+                     * visual <tt>Component</tt> representing video and the
+                     * provider it was removed from
+                     * @see VideoListener#videoRemoved(VideoEvent)
+                     */
+                    public void videoRemoved(VideoEvent e)
+                    {
+                        fireVideoEvent(
+                            e.getType(),
+                            e.getVisualComponent(),
+                            e.getOrigin());
+                    }
+                };
+
             ((VideoMediaDeviceSession) newValue)
                 .addVideoListener(deviceSessionVideoListener);
+        }
     }
 
     /**

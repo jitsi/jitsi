@@ -513,8 +513,15 @@ public class MediaDeviceSession
     public DataSource getOutputDataSource()
     {
         Processor processor = getProcessor();
+        DataSource outputDataSource;
 
-        return (processor == null) ? null : processor.getDataOutput();
+        if ((processor == null)
+                || ((processor.getState() < Processor.Realized)
+                        && !waitForState(processor, Processor.Realized)))
+            outputDataSource = null;
+        else
+            outputDataSource = processor.getDataOutput();
+        return outputDataSource;
     }
 
     /**
