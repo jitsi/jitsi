@@ -29,7 +29,7 @@ public class EncodingConfiguration
     private final Logger logger = Logger.getLogger(EncodingConfiguration.class);
 
     private static final String PROP_SDP_PREFERENCE
-        = "net.java.sip.communicator.impl.media.sdppref";
+        = "net.java.sip.communicator.impl.neomedia.codec.EncodingConfiguration";
 
     private final Set<MediaFormat> supportedVideoEncodings =
         new TreeSet<MediaFormat>(new EncodingComparator());
