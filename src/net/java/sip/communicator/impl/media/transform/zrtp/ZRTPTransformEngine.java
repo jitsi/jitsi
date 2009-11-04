@@ -349,15 +349,42 @@ public class ZRTPTransformEngine
     }
 
     /**
+     * Engine initialization method.
+     * Calling this for engine initialization and start it with auto-sensing
+     * and a given configuration setting.
+     *
+     * @param zidFilename The ZID file name
+     * @param config The configuration data
+     * @return true if initialization fails, false if succeeds
+     */
+    public boolean initialize(String zidFilename, ZrtpConfigure config) {
+        return initialize(zidFilename, true, config);
+    }
+
+    /**
+     * Engine initialization method.
+     * Calling this for engine initialization and start it with defined
+     * auto-sensing and a default configuration setting.
+     *
+     * @param zidFilename The ZID file name
+     * @param autoEnable If true start with auto-sensing mode. 
+     * @return true if initialization fails, false if succeeds
+     */
+    public boolean initialize(String zidFilename, boolean autoEnable) {
+        return initialize(zidFilename, autoEnable, null);
+    }
+
+    /**
      * Default engine initialization method.
-     * Calling this for engine initialization and start it with auto-sensing.
+     * 
+     * Calling this for engine initialization and start it with auto-sensing
+     * and default configuration setting.
      *
      * @param zidFilename The ZID file name
      * @return true if initialization fails, false if succeeds
      */
-    public synchronized boolean initialize(String zidFilename)
-    {
-        return initialize(zidFilename, true);
+    public boolean initialize(String zidFilename) {
+        return initialize(zidFilename, true, null);
     }
 
     /**
@@ -370,8 +397,8 @@ public class ZRTPTransformEngine
      * disable it.
      * @return true if initialization fails, false if succeeds
      */
-    public synchronized boolean initialize(String zidFilename,
-                                           boolean autoEnable)
+    public synchronized boolean initialize(String zidFilename, 
+            boolean autoEnable, ZrtpConfigure config)
     {
         // Get a reference to the FileAccessService
         BundleContext bc = MediaActivator.getBundleContext();
@@ -429,8 +456,12 @@ public class ZRTPTransformEngine
                 return false;
             }
         }
+        if (config == null) {
+            config = new ZrtpConfigure();
+            config.setStandardConfig();
+        }
 
-        zrtpEngine = new ZRtp(zf.getZid(), this, clientIdString);
+        zrtpEngine = new ZRtp(zf.getZid(), this, clientIdString, config);
 
         if (timeoutProvider == null)
         {
@@ -948,25 +979,25 @@ public class ZRTPTransformEngine
     }
 
     /**
-     * Sets the srtps secret data (chapter 3.2.1 in the ZRTP specification)
+     * Sets the auxilliary secret data
      *
-     * @param data The srtps secret data
+     * @param data The auxilliary secret data
      */
-    public void setSrtpsSecret(byte[] data)
+    public void setAuxSecret(byte[] data) 
     {
         if (zrtpEngine != null)
-            zrtpEngine.setSrtpsSecret(data);
+            zrtpEngine.setAuxSecret(data);
     }
 
+
     /**
-     * Sets the other secret data (chapter 3.2.1 in the ZRTP specification)
+     * Sets the PBX secret data
      *
-     * @param data The other secret data
+     * @param data The PBX secret data
      */
-    public void setOtherSecret(byte[] data)
-    {
+    public void setPbxSecret(byte[] data) {
         if (zrtpEngine != null)
-            zrtpEngine.setOtherSecret(data);
+            zrtpEngine.setPbxSecret(data);
     }
 
     /**
