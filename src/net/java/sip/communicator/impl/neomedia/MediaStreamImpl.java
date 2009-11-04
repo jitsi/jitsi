@@ -499,6 +499,22 @@ public class MediaStreamImpl
     }
 
     /**
+     * Determines whether this <tt>MediaStream</tt> is set to transmit "silence"
+     * instead of the media being fed from its <tt>MediaDevice</tt>. "Silence"
+     * for video is understood as video data which is not the captured video
+     * data and may represent, for example, a black image.
+     *
+     * @return <tt>true</tt> if this <tt>MediaStream</tt> is set to transmit
+     * "silence" instead of the media fed from its <tt>MediaDevice</tt>;
+     * <tt>false</tt>, otherwise
+     * @see MediaStream#isMute()
+     */
+    public boolean isMute()
+    {
+        return false;
+    }
+
+    /**
      * Determines whether {@link #start()} has been called on this
      * <tt>MediaStream</tt> without {@link #stop()} or {@link #close()}
      * afterwards.
@@ -659,6 +675,22 @@ public class MediaStreamImpl
     public void setFormat(MediaFormat format)
     {
         getDeviceSession().setFormat(format);
+    }
+
+    /**
+     * Causes this <tt>MediaStream</tt> to stop transmitting the media being fed
+     * from this stream's <tt>MediaDevice</tt> and transmit "silence" instead.
+     * "Silence" for video is understood as video data which is not the captured
+     * video data and may represent, for example, a black image.
+     *
+     * @param mute <tt>true</tt> to have this <tt>MediaStream</tt> transmit
+     * "silence" instead of the actual media data that it captures from its
+     * <tt>MediaDevice</tt>; <tt>false</tt> to transmit actual media data
+     * captured from the <tt>MediaDevice</tt> of this <tt>MediaStream</tt>
+     * @see MediaStream#setMute(boolean)
+     */
+    public void setMute(boolean mute)
+    {
     }
 
     /**

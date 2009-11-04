@@ -71,25 +71,4 @@ public interface AudioMediaStream
      * @param listener the listener that we'd like to unregister
      */
     public void removeDTMFListener(DTMFListener listener);
-
-    /**
-     * Causes this <tt>AudioMediaStream</tt> to stop transmitting the audio
-     * being fed from this stream's <tt>MediaDevice</tt> and transmit silence
-     * instead.
-     *
-     * @param mute <tt>true</tt> if we are to start transmitting silence and
-     * <tt>false</tt> if we are to use media from this stream's
-     * <tt>MediaDevice</tt> again.
-     */
-    public void setMute(boolean mute);
-
-    /**
-     * Determines whether this <tt>AudioMediaStream</tt> is set to transmit
-     * silence instead of the audio being fed from its <tt>MediaDevice</tt>.
-     *
-     * @return <tt>true</tt> if this <tt>AudioMediaStream</tt> is set to
-     * transmit silence instead of the audio fed from its <tt>MediaDevice</tt>;
-     * <tt>false</tt>, otherwise
-     */
-    public boolean isMute();
 }

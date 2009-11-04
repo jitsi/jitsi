@@ -227,4 +227,28 @@ public interface MediaStream
      * afterwards
      */
     public boolean isStarted();
+
+    /**
+     * Causes this <tt>MediaStream</tt> to stop transmitting the media being fed
+     * from this stream's <tt>MediaDevice</tt> and transmit "silence" instead.
+     * "Silence" for video is understood as video data which is not the captured
+     * video data and may represent, for example, a black image.
+     *
+     * @param mute <tt>true</tt> if we are to start transmitting "silence" and
+     * <tt>false</tt> if we are to use media from this stream's
+     * <tt>MediaDevice</tt> again.
+     */
+    public void setMute(boolean mute);
+
+    /**
+     * Determines whether this <tt>MediaStream</tt> is set to transmit "silence"
+     * instead of the media being fed from its <tt>MediaDevice</tt>. "Silence"
+     * for video is understood as video data which is not the captured video
+     * data and may represent, for example, a black image.
+     *
+     * @return <tt>true</tt> if this <tt>MediaStream</tt> is set to transmit
+     * "silence" instead of the media fed from its <tt>MediaDevice</tt>;
+     * <tt>false</tt>, otherwise
+     */
+    public boolean isMute();
 }
