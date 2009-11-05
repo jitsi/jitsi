@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import java.io.*;
 import java.net.*;
 import java.util.*;
 
@@ -65,13 +66,40 @@ public class CallPeerMediaHandler
     /**
      * The minimum port number that we'd like our RTP sockets to bind upon.
      */
-    private static int minPortNumber = 5000;
+    private static int minMediaPort = 5000;
 
     /**
      * The maximum port number that we'd like our RTP sockets to bind upon.
      */
-    private static int maxPortNumber = 6000;
+    private static int maxMediaPort = 6000;
 
+    /**
+     * The minimum integer that is allowed for use in dynamic payload type
+     * assignment.
+     */
+    public static final int MIN_DYNAMIC_PAYLOAD_TYPE = 96;
+
+    /**
+     * The maximum integer that is allowed for use in dynamic payload type
+     * assignment.
+     */
+    public static final int MAX_DYNAMIC_PAYLOAD_TYPE = 127;
+
+    /**
+     * A field that we use to track dynamic payload numbers that we allocate.
+     */
+    private int nextDynamicPayloadType = MIN_DYNAMIC_PAYLOAD_TYPE;
+
+    /**
+     * A reference to the currently valid SDP factory instance.
+     */
+    private static final SdpFactory sdpFactory = SdpFactory.getInstance();
+
+    /**
+     * Contains all dynamic for
+     */
+    private final Hashtable<MediaFormat, Integer> dynamicFmtMap
+        = new Hashtable<MediaFormat, Integer>();
 
     /**
      * Creates a new handler that will be managing media streams for
@@ -163,11 +191,13 @@ public class CallPeerMediaHandler
     {
         while(fmtsIter.hasNext())
         {
+
             logger.error("Foramt="+fmtsIter.next());
         }
     }
 
-    private void createStreamConnector()
+    private StreamConnector createStreamConnector(int preferredRtpPort)
+        throws OperationFailedException
     {
         NetworkAddressManagerService nam
                             = SipActivator.getNetworkAddressManagerService();
@@ -177,12 +207,44 @@ public class CallPeerMediaHandler
 
         InetAddress localHostForPeer = nam.getLocalHost(intendedDestination);
 
-        DatagramSocket rtpSocket = nam.createDatagramSocket(localHostForPeer, minPort, maxPort)
-        DefaultStreamConnector audioConnector = new DefaultStreamConnector();
+        //make sure our port numbers reflect the configuration service settings
+        initializePortNumbers();
 
-        DefaultStreamConnector videoConnector = new DefaultStreamConnector();
+        //create the RTP socket.
+        DatagramSocket rtpSocket = null;
+        try
+        {
+            rtpSocket = nam.createDatagramSocket(
+                localHostForPeer, preferredRtpPort, minMediaPort, maxMediaPort);
+        }
+        catch (Exception exc)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to allocate the network ports necessary for the call.",
+                OperationFailedException.INTERNAL_ERROR, exc, logger);
+        }
 
+        int rtpPort = rtpSocket.getLocalPort();
 
+        //create the RTCP socket, preferably on the port following our RTP one.
+        DatagramSocket rtcpSocket = null;
+        try
+        {
+            rtcpSocket = nam.createDatagramSocket(
+                localHostForPeer, rtpPort + 1, minMediaPort, maxMediaPort);
+        }
+        catch (Exception exc)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to allocate the network ports necessary for the call.",
+                OperationFailedException.INTERNAL_ERROR, exc, logger);
+        }
+
+        //create the RTCP socket
+        DefaultStreamConnector connector = new DefaultStreamConnector(
+                        rtpSocket, rtcpSocket);
+
+        return connector;
     }
 
     /**
@@ -192,8 +254,8 @@ public class CallPeerMediaHandler
     private void initializePortNumbers()
     {
         //first reset to default values
-        minPortNumber = 5000;
-        maxPortNumber = 6000;
+        minMediaPort = 5000;
+        maxMediaPort = 6000;
 
         //then set to anything the user might have specified.
         String minPortNumberStr = SipActivator.getConfigurationService()
@@ -204,13 +266,13 @@ public class CallPeerMediaHandler
         {
             try
             {
-                minPortNumber = Integer.parseInt(minPortNumberStr);
+                minMediaPort = Integer.parseInt(minPortNumberStr);
             }
             catch (NumberFormatException ex)
             {
                 logger.warn(minPortNumberStr
                             + " is not a valid min port number value. "
-                            +"using min port " + minPortNumber);
+                            + "using min port " + minMediaPort);
             }
         }
 
@@ -222,15 +284,61 @@ public class CallPeerMediaHandler
         {
             try
             {
-                maxPortNumber = Integer.parseInt(maxPortNumberStr);
+                maxMediaPort = Integer.parseInt(maxPortNumberStr);
             }
             catch (NumberFormatException ex)
             {
                 logger.warn(maxPortNumberStr
                             + " is not a valid max port number value. "
-                            +"using max port " + maxPortNumber,
+                            +"using max port " + maxMediaPort,
                             ex);
             }
         }
     }
+
+    private MediaDescription createMediaDescription(MediaType         type,
+                                                    StreamConnector   connector,
+                                                    List<MediaFormat> formats)
+    {
+        int[] encodingsArray = new int[formats.size()];
+
+        for(int i = 0; i < encodingsArray.length; i++)
+        {
+            int payloadType = 0;//formats.get(i).getPayloadType();
+
+            //is this a dynamic payload type.
+            if ( payloadType == -1 )//MediaFormat.DYNAMIC_PAYLOAD_TYPE)
+            {
+                //check whether we have already registered this format.
+            }
+
+
+        }
+        MediaDescription mediaDesc = sdpFactory.createMediaDescription(
+            type, connector.getDataSocket().getLocalPort(), 1, "RTP/AVP",
+            encodingsArray);
+
+        mediaDesc.set
+        mediaDesc.addDynamicPayloads(payloadNames, payloadValues)
+        mediaDesc.set
+
+        //attributes:
+        //dynamic mappings
+        //fmtp-s
+        //rtcp port
+
+    }
+
+    private int obtainDynamicPayloadType(MediaFormat fmt)
+    {
+        Integer pt = dynamicFmtMap.get(fmt);
+
+        if(pt == null)
+        {}
+
+
+    }
+
+    private
+
 }

@@ -84,29 +84,35 @@ public interface NetworkAddressManagerService
         throws IOException,
                BindException;
 
-     /**
-      * Creates a datagram socket and binds it to on the specified
-      * <tt>localAddress</tt> and a port in the range specified by the
-      * <tt>minPort</tt> and <tt>maxPort</tt> parameters. The implementation
-      * would first try to bind the socket on the <tt>minPort</tt> port number
-      * and then proceed incrementally upwards until it succeeds or reaches
-      * <tt>maxPort</tt>.
-      *
-      * @param laddr the address that we'd like to bind the socket on.
-      * @param minPort the port number where we should first try to bind before
-      * moving to the next one (i.e. <tt>minPort + 1</tt>)
-      * @param maxPort the maximum port number where we should try binding
-      * before giving up and throwinG an exception.
-      *
-      * @return the newly created <tt>DatagramSocket</tt>.
-      *
-      * @throws IllegalArgumentException if either <tt>minPort</tt> or
-      * <tt>maxPort</tt> is not a valid port number.
-      * @throws IOException if an error occurs while the underlying resolver lib
-      * is using sockets.
-      * @throws BindException if the port is already in use.
-      */
+    /**
+     * Creates a <tt>DatagramSocket</tt> and binds it to on the specified
+     * <tt>localAddress</tt> and a port in the range specified by the
+     * <tt>minPort</tt> and <tt>maxPort</tt> parameters. We first try to bind
+     * the newly created socket on the <tt>preferredPort</tt> port number and
+     * then proceed incrementally upwards until we succeed or reach the bind
+     * retries limit. If we reach the <tt>maxPort</tt> port number before the
+     * bind retries limit, we will then start over again at <tt>minPort</tt>
+     * and keep going until we run out of retries.
+     *
+     * @param laddr the address that we'd like to bind the socket on.
+     * @param preferredPort the port number that we should try to bind to first.
+     * @param minPort the port number where we should first try to bind before
+     * moving to the next one (i.e. <tt>minPort + 1</tt>)
+     * @param maxPort the maximum port number where we should try binding
+     * before giving up and throwinG an exception.
+     *
+     * @return the newly created <tt>DatagramSocket</tt>.
+     *
+     * @throws IllegalArgumentException if either <tt>minPort</tt> or
+     * <tt>maxPort</tt> is not a valid port number.
+     * @throws IOException if an error occurs while the underlying resolver lib
+     * is using sockets.
+     * @throws BindException if we couldn't find a free port between
+     * <tt>minPort</tt> and <tt>maxPort</tt> before reaching the maximum allowed
+     * number of retries.
+     */
      public DatagramSocket createDatagramSocket(InetAddress laddr,
+                                                int         preferredPort,
                                                 int         minPort,
                                                 int         maxPort)
          throws IllegalArgumentException,

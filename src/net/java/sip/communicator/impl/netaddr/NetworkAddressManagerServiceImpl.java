@@ -722,11 +722,14 @@ public class NetworkAddressManagerServiceImpl
      * Creates a <tt>DatagramSocket</tt> and binds it to on the specified
      * <tt>localAddress</tt> and a port in the range specified by the
      * <tt>minPort</tt> and <tt>maxPort</tt> parameters. We first try to bind
-     * the newly created socket on the <tt>minPort</tt> port number and then
-     * proceed incrementally upwards until we succeed or reach
-     * <tt>maxPort</tt>.
+     * the newly created socket on the <tt>preferredPort</tt> port number and
+     * then proceed incrementally upwards until we succeed or reach the bind
+     * retries limit. If we reach the <tt>maxPort</tt> port number before the
+     * bind retries limit, we will then start over again at <tt>minPort</tt>
+     * and keep going until we run out of retries.
      *
      * @param laddr the address that we'd like to bind the socket on.
+     * @param preferredPort the port number that we should try to bind to first.
      * @param minPort the port number where we should first try to bind before
      * moving to the next one (i.e. <tt>minPort + 1</tt>)
      * @param maxPort the maximum port number where we should try binding
@@ -742,8 +745,10 @@ public class NetworkAddressManagerServiceImpl
      * <tt>minPort</tt> and <tt>maxPort</tt> before reaching the maximum allowed
      * number of retries.
      */
-    public DatagramSocket createDatagramSocket(InetAddress laddr, int minPort,
-                    int maxPort)
+    public DatagramSocket createDatagramSocket(InetAddress laddr,
+                                               int preferredPort,
+                                               int minPort,
+                                               int maxPort)
         throws IllegalArgumentException,
                IOException,
                BindException
@@ -765,13 +770,21 @@ public class NetworkAddressManagerServiceImpl
                             + "equal to maxPort (" + maxPort + ")");
         }
 
+        // make sure preferredPort is in the allowed range.
+        if (minPort > preferredPort || preferredPort > maxPort)
+        {
+            throw new IllegalArgumentException("preferredPort ("+preferredPort
+                            +") must be between minPort (" + minPort
+                            + ") and maxPort (" + maxPort + ")");
+        }
+
         ConfigurationService config = NeomediaActivator
                         .getConfigurationService();
 
         int bindRetries = config.getInt(BIND_RETRIES_PROPERTY_NAME,
                         BIND_RETRIES_DEFAULT_VALUE);
 
-        int port = minPort;
+        int port = preferredPort;
         for (int i = 0; i < bindRetries; i++)
         {
 
@@ -787,6 +800,9 @@ public class NetworkAddressManagerServiceImpl
             }
 
             port ++;
+
+            if (port > maxPort)
+                port = minPort;
         }
 
         throw new BindException("Could not bind to any port between "
