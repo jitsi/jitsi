@@ -139,7 +139,10 @@ public class CallPeerMediaHandler
         MediaDevice vDev = mediaService.getDefaultDevice(MediaType.VIDEO);
 
         Iterator<MediaFormat> aFmtIter = aDev.getSupportedFormats().iterator();
+        initFormats(aFmtIter);
+
         Iterator<MediaFormat> vFmtIter = vDev.getSupportedFormats().iterator();
+        initFormats(vFmtIter);
     }
 
     private void initFormats(Iterator<MediaFormat> fmtsIter)
