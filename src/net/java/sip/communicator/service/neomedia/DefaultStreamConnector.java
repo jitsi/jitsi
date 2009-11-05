@@ -172,14 +172,14 @@ public class DefaultStreamConnector
      * Initializes a new <tt>DefaultStreamConnector</tt> instance which is to
      * represent a specific pair of control and data <tt>DatagramSocket</tt>s.
      *
-     * @param controlSocket the <tt>DatagramSocket</tt> to be used for control
-     * data (e.g. RTCP) traffic
      * @param dataSocket the <tt>DatagramSocket</tt> to be used for data (e.g.
      * RTP) traffic
+     * @param controlSocket the <tt>DatagramSocket</tt> to be used for control
+     * data (e.g. RTCP) traffic
      */
     public DefaultStreamConnector(
-            DatagramSocket controlSocket,
-            DatagramSocket dataSocket)
+            DatagramSocket dataSocket,
+            DatagramSocket controlSocket)
     {
         this.controlSocket = controlSocket;
         this.dataSocket = dataSocket;

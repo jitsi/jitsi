@@ -122,7 +122,7 @@ public enum MediaDirection
      * @return the new <tt>MediaDirection</tt> obtained after applying the
      * <tt>direction</tt> constraint to this <tt>MediaDirection</tt>.
      */
-    private MediaDirection and(MediaDirection direction)
+    public MediaDirection and(MediaDirection direction)
     {
         if (this == SENDRECV)
         {
@@ -237,5 +237,33 @@ public enum MediaDirection
     public MediaDirection getDirectionForAnswer(MediaDirection remotePartyDir)
     {
         return this.and(remotePartyDir.getReverseDirection());
+    }
+
+    /**
+     * Determines whether the directions specified by this
+     * <tt>MediaDirection</tt> instance allow for outgoing (i.e. sending)
+     * streams or in other words whether this is a <tt>SENDONLY</tt> or a
+     * <tt>SENDRECV</tt> instance
+     *
+     * @return <tt>true</tt> if this <tt>MediaDirection</tt> instance includes
+     * the possibility of sending and <tt>false</tt> otherwise.
+     */
+    public boolean allowsSending()
+    {
+        return this == SENDONLY || this == SENDRECV;
+    }
+
+    /**
+     * Determines whether the directions specified by this
+     * <tt>MediaDirection</tt> instance allow for incoming (i.e. receiving)
+     * streams or in other words whether this is a <tt>RECVONLY</tt> or a
+     * <tt>SENDRECV</tt> instance
+     *
+     * @return <tt>true</tt> if this <tt>MediaDirection</tt> instance includes
+     * the possibility of receiving and <tt>false</tt> otherwise.
+     */
+    public boolean allowsReceiving()
+    {
+        return this == RECVONLY || this == SENDRECV;
     }
 }

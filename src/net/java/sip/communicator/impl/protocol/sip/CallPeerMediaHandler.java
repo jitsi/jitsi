@@ -56,12 +56,14 @@ public class CallPeerMediaHandler
     /**
      * Determines whether or not streaming local video is currently enabled.
      */
-    private boolean localVideoTransmissionEnabled = false;
+    private MediaDirection videoDirectionUserPreference
+        = MediaDirection.RECVONLY;
 
     /**
      * Determines whether or not streaming local audio is currently enabled.
      */
-    private boolean localAudioTransmissionEnabled = true;
+    private MediaDirection audioDirectionUserPreference
+        = MediaDirection.SENDRECV;
 
     /**
      * The minimum port number that we'd like our RTP sockets to bind upon.
@@ -111,25 +113,18 @@ public class CallPeerMediaHandler
     }
 
     /**
-     * The method creates . The
-     * resources (address and port) allocated for the <tt>callPeer</tt>
-     * should be kept by the media service implementation until the originating
-     * <tt>callPeer</tt> enters the DISCONNECTED state. Subsequent sdp
-     * offers/answers requested for the <tt>Call</tt> that the original
-     * <tt>callPeer</tt> belonged to MUST receive the same IP/port couple
-     * as the first one in order to allow for conferencing. The associated port
-     * will be released once the call has ended.
+     * Specifies whether this media handler should be allowed to transmit
+     * local video.
      *
-     * @return a new SDP description String advertising all params of
-     * <tt>callSession</tt>.
+     * @param enabled  <tt>true</tt> if the media handler should transmit local
+     * video and <tt>false</tt> otherwise.
      */
-    public synchronized String createSdpOffer()
+    public void setLocalVideoTransmissionEnabled(boolean enabled)
     {
-        SessionDescription sess = SdpUtils.createSessionDescription(
-
-            peer.getProtocolProvider().getAccountID().getUserID());
-
-        return sess.toString();
+        if (enabled)
+            videoDirectionUserPreference = MediaDirection.SENDRECV;
+        else
+            videoDirectionUserPreference = MediaDirection.RECVONLY;
     }
 
     /**
@@ -141,7 +136,22 @@ public class CallPeerMediaHandler
      */
     public boolean isLocalVideoTransmissionEnabled()
     {
-        return localVideoTransmissionEnabled;
+        return videoDirectionUserPreference.allowsSending();
+    }
+
+    /**
+     * Specifies whether this media handler should be allowed to transmit
+     * local audio.
+     *
+     * @param enabled  <tt>true</tt> if the media handler should transmit local
+     * audio and <tt>false</tt> otherwise.
+     */
+    public void setLocalAudioTransmissionEnabled(boolean enabled)
+    {
+        if(enabled)
+            audioDirectionUserPreference = MediaDirection.SENDRECV;
+        else
+            audioDirectionUserPreference = MediaDirection.RECVONLY;
     }
 
     /**
@@ -153,7 +163,7 @@ public class CallPeerMediaHandler
      */
     public boolean isLocalAudioTransmissionEnabled()
     {
-        return localAudioTransmissionEnabled;
+        return audioDirectionUserPreference.allowsSending();
     }
 
     /**
@@ -175,14 +185,40 @@ public class CallPeerMediaHandler
         MediaService mediaService = SipActivator.getMediaService();
 
         //media connectors.
-        StreamConnector audioConn = createStreamConnector();
-        StreamConnector videoConn = createStreamConnector();
+        audioStreamConnector = createStreamConnector();
+        videoStreamConnector = createStreamConnector();
 
-        //devices
+        //Audio Media Description
+        Vector<MediaDescription> mediaDescs = new Vector<MediaDescription>();
+
         MediaDevice aDev = mediaService.getDefaultDevice(MediaType.AUDIO);
+        MediaDirection audioDirection
+            = aDev.getDirection().and(audioDirectionUserPreference);
+
+        if(audioDirection != MediaDirection.INACTIVE);
+        {
+            mediaDescs.add(createMediaDescription(
+                            aDev, this.audioStreamConnector, audioDirection));
+        }
+
+
         MediaDevice vDev = mediaService.getDefaultDevice(MediaType.VIDEO);
+        MediaDirection videoDirection
+            = vDev.getDirection().and(videoDirectionUserPreference);
 
+        if(videoDirection != MediaDirection.INACTIVE);
+        {
+            mediaDescs.add(createMediaDescription(
+                            vDev, this.videoStreamConnector, videoDirection));
+        }
 
+        String userName = peer.getProtocolProvider().getAccountID().getUserID();
+
+        SessionDescription sDes = SdpUtils.createSessionDescription(
+            videoStreamConnector.getDataSocket().getLocalAddress(),
+            userName, mediaDescs);
+
+        System.out.println(sDes.toString());
 
     }
 
@@ -200,18 +236,15 @@ public class CallPeerMediaHandler
      * @throws OperationFailedException
      */
     private MediaDescription createMediaDescription(MediaDevice     dev,
-                                                    StreamConnector connector
-                                                    )
+                                                    StreamConnector connector,
+                                                    MediaDirection  direction)
         throws OperationFailedException
     {
 
         List<MediaFormat> formats = dev.getSupportedFormats();
 
-
-
-
         return SdpUtils.createMediaDescription(
-           formats, connector, dev.getDirection(), dynamicPayloadTypes);
+           formats, connector, direction, dynamicPayloadTypes);
     }
 
     private void initFormats(Iterator<MediaFormat> fmtsIter)

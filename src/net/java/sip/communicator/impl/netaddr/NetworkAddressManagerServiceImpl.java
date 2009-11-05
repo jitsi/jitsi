@@ -781,7 +781,7 @@ public class NetworkAddressManagerServiceImpl
                             + ") and maxPort (" + maxPort + ")");
         }
 
-        ConfigurationService config = NeomediaActivator
+        ConfigurationService config = NetaddrActivator
                         .getConfigurationService();
 
         int bindRetries = config.getInt(BIND_RETRIES_PROPERTY_NAME,

@@ -54,7 +54,7 @@ public class SdpUtils
     public static SessionDescription createSessionDescription(
                     InetAddress localAddress)
     {
-        return createSessionDescription(localAddress, null);
+        return createSessionDescription(localAddress, null, null);
     }
 
     /**
@@ -66,12 +66,17 @@ public class SdpUtils
      * address that we'd like to use when talking to the remote party.
      * @param userName the user name to use in the origin parameter or
      * <tt>null</tt> in case we'd like to use a default.
+     * @param mediaDescriptions a <tt>Vector</tt> containing the list of
+     * <tt>MediaDescription</tt>s that we'd like to advertise (leave
+     * <tt>null</tt> if you'd like to add these later).
      *
      * @return an empty instance of a <tt>SessionDescription</tt> with
      * preinitialized <tt>s</tt>, <tt>v</tt>, and <tt>t</tt> parameters.
      */
     public static SessionDescription createSessionDescription(
-                    InetAddress localAddress, String userName)
+                                   InetAddress              localAddress,
+                                   String                   userName,
+                                   Vector<MediaDescription> mediaDescriptions)
     {
         SessionDescription sessDescr = null;
 
@@ -117,6 +122,9 @@ public class SdpUtils
                 "IN", addrType, localAddress.getHostAddress());
 
             sessDescr.setConnection(c);
+
+            if ( mediaDescriptions != null)
+                sessDescr.setMediaDescriptions(mediaDescriptions);
 
             return sessDescr;
         }
@@ -202,7 +210,7 @@ public class SdpUtils
             try
             {
                 fmtp = findPayloadTypeSpecificAttribute(
-                    mediaDesc.getAttributes(false), SdpConstants.FMTP, pt);
+                    mediaDesc.getAttributes(false), "fmtp", pt);
             }
             catch (SdpException exc)
             {
@@ -319,9 +327,8 @@ public class SdpUtils
 
         //now create the format.
         MediaFormat format = SipActivator.getMediaService().getFormatFactory()
-            //.createMediaFormat(payloadType, encoding, clockRate,
-            //                   numChannels, fmtParamsMap);
-            .createMediaFormat(encoding, clockRate, fmtParamsMap);
+            .createMediaFormat(payloadType, encoding, clockRate,
+                               numChannels, fmtParamsMap);
 
         return format;
     }
@@ -775,7 +782,8 @@ public class SdpUtils
         MediaType mediaType = null;
 
         // a=sendonly|sendrecv|recvonly|inactive
-        mediaAttributes.add(createDirectionAttribute(direction));
+        if( direction != MediaDirection.SENDRECV)
+            mediaAttributes.add(createDirectionAttribute(direction));
 
         for (int i = 0; i < payloadTypesArray.length; i++)
         {
@@ -783,7 +791,7 @@ public class SdpUtils
             MediaType fmtMediaType = format.getMediaType();
 
             // determine whether we are dealing with audio or video.
-            if (mediaType != null)
+            if (mediaType == null)
             {
                 mediaType = fmtMediaType;
             }
@@ -819,15 +827,18 @@ public class SdpUtils
 
             Attribute rtpmap = sdpFactory.createAttribute(SdpConstants.RTPMAP,
                 payloadType + " " + format.getEncoding() + "/"
-                + format.getClockRate() + numChannelsStr);
+                + format.getClockRateString() + numChannelsStr);
 
             mediaAttributes.add(rtpmap);
 
             // a=fmtp:
-            Attribute fmtp = sdpFactory.createAttribute(SdpConstants.FMTP,
+            if( format.getFormatParameters().size() > 0)
+            {
+                Attribute fmtp = sdpFactory.createAttribute("fmtp",
                             payloadType + " " + encodeFmtp(format));
 
-            mediaAttributes.add(fmtp);
+                mediaAttributes.add(fmtp);
+            }
 
             payloadTypesArray[i] = payloadType;
         }
