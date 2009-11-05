@@ -394,15 +394,28 @@ public class SdpUtils
     }
 
     /**
-     * Returns a <tt>MediaStreamTarget</tt> instance reflecting the target
-     * @param mediaDesc
-     * @param sessDesc
-     * @return
+     * Returns a <tt>MediaStreamTarget</tt> instance reflecting the address
+     * pair (RTP + RTCP) where we should send media in this stream. The method
+     * takes into account the possibility to have a connection (i.e. c=)
+     * parameter in either the media description (i.e. <tt>mediaDesc</tt>) or
+     * (i.e. <tt>sessDesc</tt>), or both and handles their priority as defined
+     * by the SDP spec [RFC 4566].
+     *
+     * @param mediaDesc the media description that we'd like to extract our
+     * RTP and RTCP destination addresses.
+     * @param sessDesc the session description that we received
+     * <tt>mediaDesc</tt> in.
+     *
+     * @return a <tt>MediaStreamTarget</tt> containing the RTP and RTCP
+     * destinations that our interlocutor has specified for this media stream.
      */
-    public static MediaStreamTarget extractTarget(
+    public static MediaStreamTarget extractDefaultTarget(
                                          MediaDescription mediaDesc,
                                          SessionDescription sessDesc)
     {
+        //ip address (media or session level c)
+        //rtp port
+        //rtcp port ( and address? )
         return null;
     }
 
