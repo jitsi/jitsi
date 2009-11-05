@@ -125,9 +125,9 @@ public class CallPeerMediaHandler
      */
     public synchronized String createSdpOffer()
     {
-        SessionDescription sess = null;//SdpUtils.createSessionDescription(
+        SessionDescription sess = SdpUtils.createSessionDescription(
 
-           // peer.getProtocolProvider().getAccountID().getUserID());
+            peer.getProtocolProvider().getAccountID().getUserID());
 
         return sess.toString();
     }
