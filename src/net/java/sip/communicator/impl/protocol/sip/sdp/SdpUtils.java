@@ -115,6 +115,105 @@ public class SdpUtils
         return null;
     }
 
+    private static MediaFormat createFormat(String    payloadType,
+                                            Attribute rtpmap,
+                                            Attribute fmtp)
+        throws SdpException
+    {
+        String rtpmapValue = rtpmap.getValue();
+
+        //rtpmapValue looks sth like this: "98 H264/90000" or "97 speex/16000/2"
+        //we need to extract the encoding name, the clock rate and the number
+        //of channels if any
+
+        //first strip the payload type
+        StringTokenizer tokenizer
+            = new StringTokenizer(rtpmapValue, " /", false);
+
+        //skip payload type number (mandatory)
+        if(! tokenizer.hasMoreTokens())
+            return null;
+        tokenizer.nextToken();
+
+        //encoding name (mandatory)
+        if(! tokenizer.hasMoreTokens())
+            return null;
+        String encoding = tokenizer.nextToken();
+
+        //clock rate (mandatory)
+        if(! tokenizer.hasMoreTokens())
+            return null;
+        int clockRate = Integer.parseInt(tokenizer.nextToken());
+
+        //number of channels (optional)
+        int nChans = 1;
+        if(tokenizer.hasMoreTokens())
+        {
+            String nChansStr = tokenizer.nextToken();
+
+            try
+            {
+                nChans = Integer.parseInt(nChansStr);
+            }
+            catch(NumberFormatException exc)
+            {
+                logger.debug(nChansStr + " is not a valid number of channels.");
+            }
+        }
+
+        //Format parameters
+        Map<String, String> fmtParamsMap = parseFmtpAttribute(fmtp);
+
+        ((MediaFormatFactory)null).createAudioMediaFormat(
+                        encoding, clockRate, nChans);
+
+
+        return null;
+    }
+
+    /**
+     * Parses the value of the <tt>fmtpAttr</tt> attribute into a format
+     * parameters <tt>Map</tt> and returns it.
+     *
+     * @param fmtpAttr the SDP attribute containing the format params that we'd
+     * like to parse.
+     *
+     * @return a (possibly empty) <tt>Map</tt> containing the format parameters
+     * resulting from parsing <tt>fmtpAttr</tt>'s value.
+     */
+    private static Map<String, String> parseFmtpAttribute(Attribute fmtpAttr)
+        throws SdpException
+    {
+        Map<String, String> fmtParamsMap = new Hashtable<String, String>();
+        String fmtpValue = fmtpAttr.getValue();
+
+        StringTokenizer tokenizer
+            = new StringTokenizer(fmtpValue, " ;", false);
+
+        //skip payload type number (mandatory)
+        if(! tokenizer.hasMoreTokens())
+            return null;
+
+        while (tokenizer.hasMoreTokens())
+        {
+            //every token looks sth like "name=value". nb: value may contain
+            //other equation signs
+            String token = tokenizer.nextToken();
+            int indexOfEq = token.indexOf("=");
+
+            if (indexOfEq == -1 || indexOfEq == token.length() -1)
+                continue; // there's something wrong with this param - move on.
+
+            String paramName = token.substring(0, indexOfEq );
+            String paramValue = token.substring(indexOfEq + 1, token.length());
+
+
+            fmtParamsMap.put(paramName, paramValue);
+        }
+
+        return fmtParamsMap;
+    }
+
     /**
      * Tries to find an attribute with the specified <tt>attibuteName</tt>
      * pertaining to the specified  <tt>payloadType</tt> in the
@@ -158,7 +257,7 @@ public class SdpUtils
 
             attrValue = attrValue.trim();
 
-            if(!attrValue.startsWith(ptStr))
+            if(!attrValue.startsWith(ptStr + " "))
                 continue;
 
             //that's it! we have the attribute we are looking for.
@@ -235,7 +334,7 @@ public class SdpUtils
                 mediaType = fmtMediaType;
             }
 
-            int payloadType = formats.get(i).getRTPPayloadType();
+            int payloadType = format.getRTPPayloadType();
 
             // is this a dynamic payload type.
             if (payloadType == MediaFormat.RTP_PAYLOAD_TYPE_UNKNOWN)
@@ -265,15 +364,14 @@ public class SdpUtils
             }
 
             Attribute rtpmap = sdpFactory.createAttribute(SdpConstants.RTPMAP,
-                            payloadType + " " + format.getEncoding() + "/"
-                                            + format.getClockRate()
-                                            + numChannelsStr);
+                payloadType + " " + format.getEncoding() + "/"
+                + format.getClockRate() + numChannelsStr);
 
             mediaAttributes.add(rtpmap);
 
             // a=fmtp:
-            Attribute fmtp = sdpFactory.createAttribute(SdpConstants.FMTP + ":"
-                            + payloadType, encodeFmtp(format));
+            Attribute fmtp = sdpFactory.createAttribute(SdpConstants.FMTP,
+                            payloadType + " " + encodeFmtp(format));
 
             mediaAttributes.add(fmtp);
 
