@@ -106,7 +106,7 @@ public class SdpUtils
 
             // is this a dynamic payload type.
             if (payloadType == MediaFormat.RTP_PAYLOAD_TYPE_UNKNOWN)
-            {
+            {/*
                 Integer dynamicPT = dynamicPayloadTypes.get(format);
                 if (dynamicPT == null)
                 {
@@ -117,7 +117,7 @@ public class SdpUtils
                 {
                     // we have already registered this format for this session.
                     payloadType = dynamicPT.intValue();
-                }
+                }*/
             }
 
             // a=rtpmap:

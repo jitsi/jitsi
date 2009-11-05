@@ -74,23 +74,6 @@ public class CallPeerMediaHandler
     private static int maxMediaPort = 6000;
 
     /**
-     * The minimum integer that is allowed for use in dynamic payload type
-     * assignment.
-     */
-    public static final int MIN_DYNAMIC_PAYLOAD_TYPE = 96;
-
-    /**
-     * The maximum integer that is allowed for use in dynamic payload type
-     * assignment.
-     */
-    public static final int MAX_DYNAMIC_PAYLOAD_TYPE = 127;
-
-    /**
-     * A field that we use to track dynamic payload numbers that we allocate.
-     */
-    private int nextDynamicPayloadType = MIN_DYNAMIC_PAYLOAD_TYPE;
-
-    /**
      * A reference to the currently valid SDP factory instance.
      */
     private static final SdpFactory sdpFactory = SdpFactory.getInstance();
