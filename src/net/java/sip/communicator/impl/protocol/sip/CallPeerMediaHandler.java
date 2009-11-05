@@ -183,7 +183,6 @@ public class CallPeerMediaHandler
         Iterator<MediaFormat> aFmtIter = aDev.getSupportedFormats().iterator();
         initFormats(aFmtIter);
 
-
         Iterator<MediaFormat> vFmtIter = vDev.getSupportedFormats().iterator();
         initFormats(vFmtIter);
     }
@@ -297,13 +296,42 @@ public class CallPeerMediaHandler
         }
     }
 
-    private MediaDescription createMediaDescription(StreamConnector   connector,
-                                                    List<MediaFormat> formats)
+    private Attribute createDirectionAttribute(MediaDirection direction)
+    {
+        String dirStr;
+
+        if(MediaDirection.SENDONLY.equals(direction))
+        {
+            dirStr = "sendonly";
+        }
+        else if(MediaDirection.RECVONLY.equals(direction))
+        {
+            dirStr = "recvonly";
+        }
+        else if(MediaDirection.SENDRECV.equals(direction))
+        {
+            dirStr = "sendrecv";
+        }
+        else
+        {
+            dirStr = "inactive";
+        }
+
+        return sdpFactory.createAttribute(dirStr, null);
+    }
+
+    private MediaDescription createMediaDescription(List<MediaFormat> formats,
+                                                    StreamConnector   connector,
+                                                    MediaDirection    direction)
+        throws OperationFailedException
     {
         int[] payloadTypesArray = new int[formats.size()];
-        List<Attribute> mediaAttributes
-            = new ArrayList<Attribute>(payloadTypesArray.length);
+        Vector<Attribute> mediaAttributes
+            = new Vector<Attribute>(2*payloadTypesArray.length + 1);
         MediaType mediaType = null;
+
+        //a=sendonly|sendrecv|recvonly|inactive
+        mediaAttributes.add(createDirectionAttribute(direction));
 
         for(int i = 0; i < payloadTypesArray.length; i++)
         {
@@ -336,19 +364,19 @@ public class CallPeerMediaHandler
                 }
             }
 
-            //a=rtpmap: attribute
-            String channelsString = "";
+            //a=rtpmap:
+            String numChannelsStr = "";
             if (format instanceof AudioMediaFormat)
             {
                 int channels = ((AudioMediaFormat)format).getChannels();
                 if( channels > 1 )
-                    channelsString = "/" + channels;
+                    numChannelsStr = "/" + channels;
             }
 
             Attribute rtpmap = sdpFactory.createAttribute(
-                SdpConstants.RTPMAP + ":" + payloadType,
-                format.getEncoding() + "/"
-                + format.getClockRate() + channelsString);
+                SdpConstants.RTPMAP,
+                payloadType + " " + format.getEncoding() + "/"
+                + format.getClockRate() + numChannelsStr);
 
             mediaAttributes.add(rtpmap);
 
@@ -361,27 +389,39 @@ public class CallPeerMediaHandler
 
             payloadTypesArray[i] = payloadType;
         }
-        /*
-        MediaDescription mediaDesc = sdpFactory.createMediaDescription(
-            type, connector.getDataSocket().getLocalPort(), 1,
-            SdpConstants.RTP_AVP, encodingsArray);
 
-        mediaDesc.set
-        mediaDesc.addDynamicPayloads(payloadNames, payloadValues)
-        mediaDesc.set
+        //rtcp:
+        int rtpPort = connector.getDataSocket().getLocalPort();
+        int rtcpPort = connector.getControlSocket().getLocalPort();
 
-        //attributes:
-        //a=rtpmap:
-        //a=fmtp:
-        //a=rtcp:
-        //a=sendonly|sendrecv|recvonly|inactive
+        if( (rtpPort +1 )!= rtcpPort)
+        {
+            Attribute rtcpAttr = sdpFactory.createAttribute(
+                            "rtcp:", Integer.toString(rtcpPort));
+            mediaAttributes.add(rtcpAttr);
+        }
+
+
+        MediaDescription mediaDesc = null;
+        try
+        {
+            mediaDesc = sdpFactory.createMediaDescription(
+                mediaType.name(), connector.getDataSocket().getLocalPort(), 1,
+                SdpConstants.RTP_AVP, payloadTypesArray);
+
+            //add all the attributes we have created above
+            mediaDesc.setAttributes(mediaAttributes);
+        }
+        catch (Exception cause)
+        {
+            //this is very unlikely to happen but we should still re-throw
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to create a media description",
+                OperationFailedException.INTERNAL_ERROR, cause, logger);
+        }
 
         //dtmf
-        //ice candidates
-         *
-         *
-*/
-        return null;
+        return mediaDesc;
     }
 
     private String encodeFmtp(MediaFormat format)
