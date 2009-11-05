@@ -97,7 +97,7 @@ public class SdpUtils
                                          MediaDescription mediaDesc,
                                          DynamicPayloadTypeRegistry ptRegistry)
     {
-        Vector<String> formatStrings;
+        Vector<String> formatStrings = null;
         try
         {
             formatStrings
@@ -111,6 +111,59 @@ public class SdpUtils
             logger.trace("A funny thing just happened ...", exc);
         }
 
+
+        return null;
+    }
+
+    /**
+     * Tries to find an attribute with the specified <tt>attibuteName</tt>
+     * pertaining to the specified  <tt>payloadType</tt> in the
+     * <tt>mediaAttributes</tt> list  and returns it if it exists.
+     *
+     * @param mediaAttributes the list of <tt>Attribute</tt> fields where we
+     * are to look for the attribute.
+     * @param payloadType the payloadType that we are trying to find.
+     * @param attributeName the name of the attribute we are looking for.
+     *
+     * @return the first Attribute whose name matches <tt>attributeName</tt>
+     * and whose value pertains to <tt>payloadType</tt> or <tt>null</tt> if no
+     * such attribute was found.
+     *
+     * @throws SdpException when ... well never really, it's there just for ...
+     * fun?
+     */
+    private static Attribute findRtpmapForPayloadType(
+                                    Vector<Attribute> mediaAttributes,
+                                    String            attributeName,
+                                    byte              payloadType)
+        throws SdpException
+    {
+        if( mediaAttributes == null || mediaAttributes.size() == 0)
+            return null;
+
+        Iterator<Attribute> attIter = mediaAttributes.iterator();
+        String ptStr = Byte.toString(payloadType);
+
+        while(attIter.hasNext())
+        {
+            Attribute attr = attIter.next();
+
+            if(!attributeName.equals(attr.getName()))
+                continue;
+
+            String attrValue = attr.getValue();
+
+            if(attrValue == null)
+                continue;
+
+            attrValue = attrValue.trim();
+
+            if(!attrValue.startsWith(ptStr))
+                continue;
+
+            //that's it! we have the attribute we are looking for.
+            return attr;
+        }
 
         return null;
     }
