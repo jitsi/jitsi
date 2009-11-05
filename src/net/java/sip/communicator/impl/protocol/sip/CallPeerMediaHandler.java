@@ -412,7 +412,7 @@ public class CallPeerMediaHandler
         }
         else
         {
-            stream.stop();
+            //this is a reinit
         }
 
         return  configureAndStartStream(connector, device, format,
@@ -439,7 +439,8 @@ public class CallPeerMediaHandler
         else
             this.videoStream = (VideoMediaStream)stream;
 
-        stream.start();
+        if ( ! stream.isStarted())
+            stream.start();
 
         return stream;
     }

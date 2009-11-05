@@ -183,42 +183,6 @@ public enum MediaDirection
     }
 
     /**
-     * Reverses a direction constraint on this <tt>MediaDirection</tt>
-     * or in other words performs an <tt>or</tt> operation. This method is
-     * meant for use in cases like putting a stream off hold or in other words
-     * reversing the <tt>SENDONLY</tt> constraint.
-     *
-     * @param direction the direction that we'd like to enable (i.e. add) to
-     * this <tt>MediaDirection</tt>
-     *
-     * @return the new <tt>MediaDirection</tt> obtained after adding the
-     * specified <tt>direction</tt> this <tt>MediaDirection</tt>.
-     */
-    public MediaDirection or(MediaDirection direction)
-    {
-        if (this == SENDRECV)
-        {
-            return this;
-        }
-        else if( this == SENDONLY)
-        {
-            if( direction.allowsReceiving())
-                return SENDRECV;
-            else
-                return this;
-        }
-        else if( this == RECVONLY)
-        {
-            if( direction.allowsSending())
-                return SENDRECV;
-            else
-                return this;
-        }
-        else // INACTIVE
-            return direction;
-    }
-
-    /**
      * Returns the <tt>MediaDirection</tt> value corresponding to a remote
      * party's perspective of this <tt>MediaDirection</tt>. In other words,
      * if I say I'll be sending only, for you this means that you'll be
