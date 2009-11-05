@@ -1475,7 +1475,7 @@ public class CallPeerSipImpl
         InetAddress intendedDestination = getProtocolProvider()
             .getIntendedDestination(getPeerAddress());
 
-        getMediaHandler().init(intendedDestination);
+        getMediaHandler().init();
         /**
          * @todo update to neomedia.
         try

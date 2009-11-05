@@ -98,7 +98,7 @@ public class CallPeerMediaHandler
     /**
      * Contains all dynamic for
      */
-    private final Hashtable<MediaFormat, Integer> dynamicFmtMap
+    private final Hashtable<MediaFormat, Integer> dynamicPayloadTypes
         = new Hashtable<MediaFormat, Integer>();
 
     /**
@@ -182,6 +182,7 @@ public class CallPeerMediaHandler
 
         Iterator<MediaFormat> aFmtIter = aDev.getSupportedFormats().iterator();
         initFormats(aFmtIter);
+
 
         Iterator<MediaFormat> vFmtIter = vDev.getSupportedFormats().iterator();
         initFormats(vFmtIter);
@@ -296,49 +297,122 @@ public class CallPeerMediaHandler
         }
     }
 
-    private MediaDescription createMediaDescription(MediaType         type,
-                                                    StreamConnector   connector,
+    private MediaDescription createMediaDescription(StreamConnector   connector,
                                                     List<MediaFormat> formats)
     {
-        int[] encodingsArray = new int[formats.size()];
+        int[] payloadTypesArray = new int[formats.size()];
+        List<Attribute> mediaAttributes
+            = new ArrayList<Attribute>(payloadTypesArray.length);
+        MediaType mediaType = null;
 
-        for(int i = 0; i < encodingsArray.length; i++)
+        for(int i = 0; i < payloadTypesArray.length; i++)
         {
-            int payloadType = 0;//formats.get(i).getPayloadType();
+            MediaFormat format = formats.get(i);
+            MediaType fmtMediaType = format.getMediaType();
 
-            //is this a dynamic payload type.
-            if ( payloadType == -1 )//MediaFormat.DYNAMIC_PAYLOAD_TYPE)
+            //determine whether we are dealing with audio or video.
+            if( mediaType != null)
             {
-                //check whether we have already registered this format.
+                mediaType = fmtMediaType;
             }
 
+            int payloadType = formats.get(i).getRTPPayloadType();
 
+            //is this a dynamic payload type.
+            if ( payloadType == MediaFormat.RTP_PAYLOAD_TYPE_UNKNOWN)
+            {
+                Integer dynamicPT = dynamicPayloadTypes.get(format);
+                if( dynamicPT == null)
+                {
+                    //this is the first time we see this fmt in this session
+                    payloadType = nextDynamicPayloadType++;
+                    dynamicPayloadTypes.put(
+                                format, new Integer(payloadType));
+                }
+                else
+                {
+                    //we have already registered this format for this session.
+                    payloadType = dynamicPT.intValue();
+                }
+            }
+
+            //a=rtpmap: attribute
+            String channelsString = "";
+            if (format instanceof AudioMediaFormat)
+            {
+                int channels = ((AudioMediaFormat)format).getChannels();
+                if( channels > 1 )
+                    channelsString = "/" + channels;
+            }
+
+            Attribute rtpmap = sdpFactory.createAttribute(
+                SdpConstants.RTPMAP + ":" + payloadType,
+                format.getEncoding() + "/"
+                + format.getClockRate() + channelsString);
+
+            mediaAttributes.add(rtpmap);
+
+            //a=fmtp:
+            Attribute fmtp = sdpFactory.createAttribute(
+                            SdpConstants.FMTP + ":" + payloadType,
+                            encodeFmtp( format ));
+
+            mediaAttributes.add(fmtp);
+
+            payloadTypesArray[i] = payloadType;
         }
+        /*
         MediaDescription mediaDesc = sdpFactory.createMediaDescription(
-            type, connector.getDataSocket().getLocalPort(), 1, "RTP/AVP",
-            encodingsArray);
+            type, connector.getDataSocket().getLocalPort(), 1,
+            SdpConstants.RTP_AVP, encodingsArray);
 
         mediaDesc.set
         mediaDesc.addDynamicPayloads(payloadNames, payloadValues)
         mediaDesc.set
 
         //attributes:
-        //dynamic mappings
-        //fmtp-s
-        //rtcp port
+        //a=rtpmap:
+        //a=fmtp:
+        //a=rtcp:
+        //a=sendonly|sendrecv|recvonly|inactive
 
+        //dtmf
+        //ice candidates
+         *
+         *
+*/
+        return null;
+    }
+
+    private String encodeFmtp(MediaFormat format)
+    {
+        Iterator<Map.Entry<String, String>> formatParamsIter
+            = format.getFormatParameters().entrySet().iterator();
+
+        StringBuffer fmtpBuff = new StringBuffer();
+
+        while(formatParamsIter.hasNext())
+        {
+            Map.Entry<String, String> ntry = formatParamsIter.next();
+            fmtpBuff.append(ntry.getKey()).append("=").append(ntry.getValue());
+
+            //add a separator in case we'd need to add more parameters
+            if(formatParamsIter.hasNext())
+                fmtpBuff.append(";");
+        }
+
+        return fmtpBuff.toString();
     }
 
     private int obtainDynamicPayloadType(MediaFormat fmt)
     {
-        Integer pt = dynamicFmtMap.get(fmt);
+        Integer pt = dynamicPayloadTypes.get(fmt);
 
         if(pt == null)
         {}
 
 
+        return -1;
     }
-
-    private
 
 }
