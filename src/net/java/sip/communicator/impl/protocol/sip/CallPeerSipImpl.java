@@ -1472,7 +1472,10 @@ public class CallPeerSipImpl
     private void attachSdpOffer(Request invite)
         throws OperationFailedException
     {
-        getMediaHandler().init();
+        InetAddress intendedDestination = getProtocolProvider()
+            .getIntendedDestination(getPeerAddress());
+
+        getMediaHandler().init(intendedDestination);
         /**
          * @todo update to neomedia.
         try

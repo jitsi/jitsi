@@ -441,6 +441,20 @@ public class NetworkUtils
         }
 
         return IN4_ADDR_ANY;
+    }
+
+    /**
+     * Determines whether <tt>port</tt> is a valid port number bindable by an
+     * application (i.e. an integer between 1024 and 65535).
+     *
+     * @param port the port number that we'd like verified.
+     *
+     * @return <tt>true</tt> if port is a valid and bindable port number and
+     * <tt>alse</tt> otherwise.
+     */
+    public static boolean isValidPortNumber(int port)
+    {
+        return MIN_PORT_NUMBER < port && port < MAX_PORT_NUMBER;
 
     }
 }

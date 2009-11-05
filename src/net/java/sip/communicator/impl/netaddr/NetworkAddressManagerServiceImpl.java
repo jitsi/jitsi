@@ -10,6 +10,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.configuration.event.*;
 import net.java.sip.communicator.service.netaddr.*;
@@ -49,6 +50,9 @@ import net.java.stun4j.client.*;
 public class NetworkAddressManagerServiceImpl
     implements NetworkAddressManagerService,  VetoableChangeListener
 {
+    /**
+     * Our class logger.
+     */
     private static  Logger logger =
         Logger.getLogger(NetworkAddressManagerServiceImpl.class);
 
@@ -240,7 +244,7 @@ public class NetworkAddressManagerServiceImpl
         InetAddress localHost = null;
         String osName = System.getProperty("os.name");
         String osVersion = System.getProperty("os.version");
-        
+
         if(logger.isTraceEnabled())
         {
             logger.trace("Querying a localhost addr for dst="
@@ -249,18 +253,18 @@ public class NetworkAddressManagerServiceImpl
         }
 
         /* use native code (JNI) to find source address for a specific destination
-         * address on Windows XP SP1 and over. 
+         * address on Windows XP SP1 and over.
          *
-         * For other systems, we used method based on DatagramSocket.connect 
-         * which will returns us source address. The reason why we cannot use it 
+         * For other systems, we used method based on DatagramSocket.connect
+         * which will returns us source address. The reason why we cannot use it
          * on Windows is because its socket implementation returns the any address...
          */
-        if(osName.startsWith("Windows") && 
+        if(osName.startsWith("Windows") &&
            !osVersion.startsWith("4") && /* 95/98/Me/NT */
            !osVersion.startsWith("5.0")) /* 2000 */
         {
             byte[] src = Win32LocalhostRetriever.getSourceForDestination(intendedDestination.getAddress());
-           
+
             if(src == null)
             {
                 logger.warn("Failed to get localhost ");
@@ -414,6 +418,7 @@ public class NetworkAddressManagerServiceImpl
     /**
      * The method queries a Stun server for a binding for the port and address
      * that <tt>sock</tt> is bound on.
+     *
      * @param sock the socket whose port and address we'dlike to resolve (the
      * stun message gets sent trhough that socket)
      *
@@ -712,4 +717,81 @@ public class NetworkAddressManagerServiceImpl
         stunServerTestThread.start();
 
     }
+
+    /**
+     * Creates a <tt>DatagramSocket</tt> and binds it to on the specified
+     * <tt>localAddress</tt> and a port in the range specified by the
+     * <tt>minPort</tt> and <tt>maxPort</tt> parameters. We first try to bind
+     * the newly created socket on the <tt>minPort</tt> port number and then
+     * proceed incrementally upwards until we succeed or reach
+     * <tt>maxPort</tt>.
+     *
+     * @param laddr the address that we'd like to bind the socket on.
+     * @param minPort the port number where we should first try to bind before
+     * moving to the next one (i.e. <tt>minPort + 1</tt>)
+     * @param maxPort the maximum port number where we should try binding
+     * before giving up and throwinG an exception.
+     *
+     * @return the newly created <tt>DatagramSocket</tt>.
+     *
+     * @throws IllegalArgumentException if either <tt>minPort</tt> or
+     * <tt>maxPort</tt> is not a valid port number.
+     * @throws IOException if an error occurs while the underlying resolver lib
+     * is using sockets.
+     * @throws BindException if we couldn't find a free port between
+     * <tt>minPort</tt> and <tt>maxPort</tt> before reaching the maximum allowed
+     * number of retries.
+     */
+    public DatagramSocket createDatagramSocket(InetAddress laddr, int minPort,
+                    int maxPort)
+        throws IllegalArgumentException,
+               IOException,
+               BindException
+    {
+        // make sure port numbers are valid
+        if (!NetworkUtils.isValidPortNumber(minPort)
+                        || !NetworkUtils.isValidPortNumber(maxPort))
+        {
+            throw new IllegalArgumentException("minPort (" + minPort
+                            + ") and maxPort (" + maxPort + ") "
+                            + "should be integers between 1024 and 65535.");
+        }
+
+        // make sure minPort comes before maxPort.
+        if (minPort > maxPort)
+        {
+            throw new IllegalArgumentException("minPort (" + minPort
+                            + ") should be less than or "
+                            + "equal to maxPort (" + maxPort + ")");
+        }
+
+        ConfigurationService config = NeomediaActivator
+                        .getConfigurationService();
+
+        int bindRetries = config.getInt(BIND_RETRIES_PROPERTY_NAME,
+                        BIND_RETRIES_DEFAULT_VALUE);
+
+        int port = minPort;
+        for (int i = 0; i < bindRetries; i++)
+        {
+
+            try
+            {
+                return new DatagramSocket(port, laddr);
+            }
+            catch (SocketException se)
+            {
+                logger.info(
+                    "Retrying a bind because of a failure to bind to address "
+                        + laddr + " and port " + port, se);
+            }
+
+            port ++;
+        }
+
+        throw new BindException("Could not bind to any port between "
+                        + minPort + " and " + (port -1));
+    }
+
+
 }

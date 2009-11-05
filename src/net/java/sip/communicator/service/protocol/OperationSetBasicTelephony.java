@@ -23,6 +23,20 @@ public interface OperationSetBasicTelephony
     extends OperationSet
 {
     /**
+     * The name of the property that contains the minimum port number that we'd
+     * like our RTP managers to bind upon.
+     */
+    public static final String MIN_MEDIA_PORT_NUMBER_PROPERTY_NAME
+        = "net.java.sip.communicator.service.protocol.MIN_MEDIA_PORT_NUMBER";
+
+    /**
+     * The name of the property that contains the maximum port number that we'd
+     * like our RTP managers to bind upon.
+     */
+    public static final String MAX_MEDIA_PORT_NUMBER_PROPERTY_NAME
+        = "net.java.sip.communicator.service.protocol.MAX_MEDIA_PORT_NUMBER";
+
+    /**
      * Registers the specified CallListener with this provider so that it could
      * be notified when incoming calls are received. This method is called
      * by the implementation of the PhoneUI service.

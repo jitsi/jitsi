@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import java.net.*;
 import java.util.*;
 
 import javax.sdp.*;
@@ -14,6 +15,8 @@ import net.java.sip.communicator.impl.protocol.sip.sdp.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
+import net.java.sip.communicator.service.netaddr.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -58,6 +61,17 @@ public class CallPeerMediaHandler
      * Determines whether or not streaming local audio is currently enabled.
      */
     private boolean localAudioTransmissionEnabled = true;
+
+    /**
+     * The minimum port number that we'd like our RTP sockets to bind upon.
+     */
+    private static int minPortNumber = 5000;
+
+    /**
+     * The maximum port number that we'd like our RTP sockets to bind upon.
+     */
+    private static int maxPortNumber = 6000;
+
 
     /**
      * Creates a new handler that will be managing media streams for
@@ -150,6 +164,73 @@ public class CallPeerMediaHandler
         while(fmtsIter.hasNext())
         {
             logger.error("Foramt="+fmtsIter.next());
+        }
+    }
+
+    private void createStreamConnector()
+    {
+        NetworkAddressManagerService nam
+                            = SipActivator.getNetworkAddressManagerService();
+
+        InetAddress intendedDestination = peer.getProtocolProvider()
+            .getIntendedDestination(peer.getPeerAddress());
+
+        InetAddress localHostForPeer = nam.getLocalHost(intendedDestination);
+
+        DatagramSocket rtpSocket = nam.createDatagramSocket(localHostForPeer, minPort, maxPort)
+        DefaultStreamConnector audioConnector = new DefaultStreamConnector();
+
+        DefaultStreamConnector videoConnector = new DefaultStreamConnector();
+
+
+    }
+
+    /**
+     * (Re)Sets the <tt>minPortNumber</tt> and <tt>maxPortNumber</tt> to their
+     * defaults or to the values specified in the <tt>ConfigurationService</tt>.
+     */
+    private void initializePortNumbers()
+    {
+        //first reset to default values
+        minPortNumber = 5000;
+        maxPortNumber = 6000;
+
+        //then set to anything the user might have specified.
+        String minPortNumberStr = SipActivator.getConfigurationService()
+            .getString(OperationSetBasicTelephony
+                            .MIN_MEDIA_PORT_NUMBER_PROPERTY_NAME);
+
+        if (minPortNumberStr != null)
+        {
+            try
+            {
+                minPortNumber = Integer.parseInt(minPortNumberStr);
+            }
+            catch (NumberFormatException ex)
+            {
+                logger.warn(minPortNumberStr
+                            + " is not a valid min port number value. "
+                            +"using min port " + minPortNumber);
+            }
+        }
+
+        String maxPortNumberStr = SipActivator.getConfigurationService()
+            .getString(OperationSetBasicTelephony
+                            .MAX_MEDIA_PORT_NUMBER_PROPERTY_NAME);
+
+        if (maxPortNumberStr != null)
+        {
+            try
+            {
+                maxPortNumber = Integer.parseInt(maxPortNumberStr);
+            }
+            catch (NumberFormatException ex)
+            {
+                logger.warn(maxPortNumberStr
+                            + " is not a valid max port number value. "
+                            +"using max port " + maxPortNumber,
+                            ex);
+            }
         }
     }
 }

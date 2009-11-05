@@ -53,7 +53,7 @@ public class DefaultStreamConnector
         = "net.java.sip.communicator.service.media.MAX_PORT_NUMBER";
 
     /**
-     * The maxium port number <tt>DefaultStreamConnector</tt> instances are to
+     * The maximum port number <tt>DefaultStreamConnector</tt> instances are to
      * attempt to bind to.
      */
     private static int maxPort = -1;

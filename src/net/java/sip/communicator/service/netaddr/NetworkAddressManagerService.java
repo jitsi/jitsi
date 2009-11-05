@@ -16,6 +16,22 @@ import java.io.*;
 public interface NetworkAddressManagerService
 {
     /**
+     * The default number of binds that a <tt>NetworkAddressManagerService</tt>
+     * implementation should execute in case a port is already bound to (each
+     * retry would be on a different port).
+     */
+    public static final int BIND_RETRIES_DEFAULT_VALUE = 50;
+
+    /**
+     * The name of the property containing number of binds that a
+     * <tt>NetworkAddressManagerService</tt> implementation should execute in
+     * case a port is already bound to (each retry would be on a different
+     * port).
+     */
+    public static final String BIND_RETRIES_PROPERTY_NAME
+        = "net.java.sip.communicator.service.netaddr.BIND_RETRIES";
+
+    /**
      * Returns an InetAddress instance that represents the localhost, and that
      * a socket can bind upon or distribute to peers as a contact address.
      * <p>
@@ -58,7 +74,7 @@ public interface NetworkAddressManagerService
      * @return a public address corresponding to the specified port or null if
      * all attempts to retrieve such an address have failed.
      *
-     * @throws IOException if an error occurs while the underlying resolve lib
+     * @throws IOException if an error occurs while the underlying resolver lib
      * is using sockets.
      * @throws BindException if the port is already in use.
      */
@@ -68,20 +84,33 @@ public interface NetworkAddressManagerService
         throws IOException,
                BindException;
 
-    /**
-      * Initializes the network address manager service implementation and
-      * starts all processes/threads associated with this address manager, such
-      * as a stun firewall/nat detector, keep alive threads, binding lifetime
-      * discovery threads and etc. The method may also be used after a call to
-      * stop() as a reinitialization technique.
-      */
-     public void start();
-
      /**
-      * Kills all threads/processes lauched by this thread and prepares it for
-      * shutdown. You may use this method as a reinitialization technique (
-      * you'll have to call start afterwards)
+      * Creates a datagram socket and binds it to on the specified
+      * <tt>localAddress</tt> and a port in the range specified by the
+      * <tt>minPort</tt> and <tt>maxPort</tt> parameters. The implementation
+      * would first try to bind the socket on the <tt>minPort</tt> port number
+      * and then proceed incrementally upwards until it succeeds or reaches
+      * <tt>maxPort</tt>.
+      *
+      * @param laddr the address that we'd like to bind the socket on.
+      * @param minPort the port number where we should first try to bind before
+      * moving to the next one (i.e. <tt>minPort + 1</tt>)
+      * @param maxPort the maximum port number where we should try binding
+      * before giving up and throwinG an exception.
+      *
+      * @return the newly created <tt>DatagramSocket</tt>.
+      *
+      * @throws IllegalArgumentException if either <tt>minPort</tt> or
+      * <tt>maxPort</tt> is not a valid port number.
+      * @throws IOException if an error occurs while the underlying resolver lib
+      * is using sockets.
+      * @throws BindException if the port is already in use.
       */
-     public void stop();
+     public DatagramSocket createDatagramSocket(InetAddress laddr,
+                                                int         minPort,
+                                                int         maxPort)
+         throws IllegalArgumentException,
+                IOException,
+                BindException;
 
 }
