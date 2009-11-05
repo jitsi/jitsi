@@ -621,13 +621,24 @@ public class SdpUtils
 
         for (Attribute attribute : attributes)
         {
-            if ("sendonly".equals(attribute.getName()))
+            String attrName = null;
+            try
+            {
+                attrName = attribute.getName();
+            }
+            catch (SdpParseException e)
+            {
+                //can't happen (checkout the jain-sdp code if you wish)
+                logger.debug("The impossible has just occurred!", e);
+            }
+
+            if (MediaDirection.SENDONLY.name().equals(attrName))
                 return MediaDirection.SENDONLY;
-            else if ("recvonly".equals(attribute.getName()))
+            else if (MediaDirection.RECVONLY.name().equals(attrName))
                 return MediaDirection.RECVONLY;
-            else if ("sendrecv".equals(attribute.getName()))
+            else if (MediaDirection.SENDRECV.name().equals(attrName))
                 return MediaDirection.SENDRECV;
-            else if ("inactive".equals(attribute.getName()))
+            else if (MediaDirection.INACTIVE.name().equals(attrName))
                 return MediaDirection.INACTIVE;
         }
 
