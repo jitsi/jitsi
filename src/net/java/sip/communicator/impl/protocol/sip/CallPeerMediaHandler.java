@@ -215,11 +215,14 @@ public class CallPeerMediaHandler
             {
                 audioStream.setDirection(audioStream.getDirection()
                             .and(MediaDirection.SENDONLY));
-                audioStream.setMute(true);
+                audioStream.setMute(locallyOnHold);
             }
             if(videoStream != null)
+            {
                 videoStream.setDirection(videoStream.getDirection()
                             .and(MediaDirection.SENDONLY));
+                videoStream.setMute(locallyOnHold);
+            }
         }
         else
         {
@@ -233,7 +236,7 @@ public class CallPeerMediaHandler
             {
                 videoStream.setDirection(videoStream.getDirection()
                             .or(MediaDirection.SENDONLY));
-                //videoStream.setMute(true);
+                videoStream.setMute(locallyOnHold);
             }
         }
     }
@@ -616,7 +619,12 @@ public class CallPeerMediaHandler
         return answerDescriptions;
     }
 
-    public void processAnswer(SessionDescription answer)
+    public void processAnswer(String answer)
+        throws OperationFailedException, IllegalArgumentException
+    {
+        processAnswer(SdpUtils.parseSdpString(answer));
+    }
+    private void processAnswer(SessionDescription answer)
         throws OperationFailedException, IllegalArgumentException
     {
         this.remoteSess = answer;

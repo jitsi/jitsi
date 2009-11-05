@@ -645,19 +645,14 @@ public class CallPeerSipImpl
 
         //if the Dialog is still alive (i.e. we are in the middle of a xfer)
         //then only stop streaming, otherwise Disconnect.
-
-        /**
-         * @todo update to neomedia.
-         *
-        if (dialogIsAlive)
+        if (!dialogIsAlive)
         {
-            getMediaCallSession().stopStreaming();
+            getMediaHandler().close();
         }
         else
         {
             setState(CallPeerState.DISCONNECTED);
         }
-        */
     }
 
     /**
@@ -768,23 +763,7 @@ public class CallPeerSipImpl
         CallPeerState peerState = getState();
         if (!CallPeerState.isOnHold(peerState))
         {
-            if (CallPeerState.CONNECTED.equals(peerState))
-            {
-                /**
-                 * @todo update to neomedia.
-                try
-                {
-                    getMediaCallSession().startStreamingAndProcessingMedia();
-                }
-                catch (MediaException ex)
-                {
-                    logger.error( "Failed to start the streaming"
-                            + " and the processing of the media", ex);
-                }
-                */
-            }
-            else
-                setState(CallPeerState.CONNECTED);
+            setState(CallPeerState.CONNECTED);
         }
     }
 
@@ -823,42 +802,20 @@ public class CallPeerSipImpl
         setSdpDescription(new String(response.getRawContent()));
 
         // notify the media manager of the sdp content
-        /**
-         * @todo update to neomedia.
-        CallSession callSession = getMediaCallSession();
-
-        if (callSession == null)
-        {
-            // unlikely to happen because it would mean we didn't send an offer
-            // in the invite and we always send one.
-            logger.warn("Could not find call session.");
-            return;
-        }
 
         try
         {
-            callSession.processSdpAnswer(this, getSdpDescription());
+            getMediaHandler().processAnswer(getSdpDescription());
         }
-        catch (ParseException exc)
+        catch (Exception exc)
         {
             logAndFail("There was an error parsing the SDP description of "
                 + getDisplayName() + "(" + getAddress() + ")", exc);
             return;
         }
-        catch (MediaException exc)
-        {
-            logAndFail("We failed to process the SDP description of "
-                + getDisplayName() + "(" + getAddress() + ")" + ". Error was: "
-                + exc.getMessage(), exc);
-            return;
-        }
-
-        // set the call url in case there was one
-        setCallInfoURL(callSession.getCallInfoURL());
 
         // change status
         setState(CallPeerState.CONNECTING_WITH_EARLY_MEDIA);
-        */
     }
 
     /**
@@ -904,8 +861,7 @@ public class CallPeerSipImpl
              //Process SDP unless we've just had an answer in a 18X response
             if (!CallPeerState.CONNECTING_WITH_EARLY_MEDIA.equals(getState()))
             {
-                getMediaHandler().processAnswer(
-                                SdpUtils.parseSdpString(getSdpDescription()));
+                getMediaHandler().processAnswer(getSdpDescription());
             }
         }
         //at this point we have already sent our ack so in addition to logging
@@ -1346,38 +1302,22 @@ public class CallPeerSipImpl
     public void setLocalVideoAllowed(boolean allowed)
         throws OperationFailedException
     {
-         /**
-         * @todo update to neomedia.
-        CallSession callSession = getMediaCallSession();
+        CallPeerMediaHandler mediaHandler = getMediaHandler();
 
-        if(callSession.isLocalVideoAllowed() == allowed)
+        if(mediaHandler.isLocalVideoTransmissionEnabled() == allowed)
             return;
 
-        try
-        {
-        */
-            /*
-             * Modify the local media setup to reflect the requested setting for
-             * the streaming of the local video.
-             */
-        /**
-         * @todo update to neomedia.
-            callSession.setLocalVideoAllowed(allowed);
-        }
-        catch (MediaException ex)
-        {
-            throw new OperationFailedException(
-                    "Failed to allow/disallow the streaming of local video.",
-                    OperationFailedException.INTERNAL_ERROR, ex);
-        }
+        // Modify the local media setup to reflect the requested setting for
+        // the streaming of the local video.
+        mediaHandler.setLocalVideoTransmissionEnabled(allowed);
 
         String sdpOffer = null;
 
         try
         {
-            sdpOffer = callSession.createSdpOffer(getSdpDescription());
+            sdpOffer = mediaHandler.createOffer();
         }
-        catch (MediaException ex)
+        catch (Exception ex)
         {
             throw new OperationFailedException(
                     "Failed to create re-invite offer for peer "
@@ -1385,7 +1325,6 @@ public class CallPeerSipImpl
         }
 
         sendReInvite(sdpOffer);
-        */
     }
 
     /**
