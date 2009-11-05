@@ -609,9 +609,29 @@ public class SdpUtils
         }
     }
 
+    @SuppressWarnings("unchecked")//legacy code from jain-sdp
     public static MediaDirection getDirection( MediaDescription mediaDesc )
     {
-        return null;
+        Vector<Attribute> attributes  = mediaDesc.getAttributes(false);
+        String newAttribute = null;
+
+        //default
+        if (attributes == null)
+            return MediaDirection.SENDRECV;
+
+        for (Attribute attribute : attributes)
+        {
+            if ("sendonly".equals(attribute.getName()))
+                return MediaDirection.SENDONLY;
+            else if ("recvonly".equals(attribute.getName()))
+                return MediaDirection.RECVONLY;
+            else if ("sendrecv".equals(attribute.getName()))
+                return MediaDirection.SENDRECV;
+            else if ("inactive".equals(attribute.getName()))
+                return MediaDirection.INACTIVE;
+        }
+
+        return MediaDirection.SENDRECV;
     }
 
     public static URL getCallInfoURL(SessionDescription sessDesc)
