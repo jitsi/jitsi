@@ -194,6 +194,23 @@ public class CallPeerMediaHandler
         return this.audioStream != null && audioStream.isMute();
     }
 
+    /**
+     * Causes this handler's <tt>AudioMediaStream</tt> to stop transmitting the
+     * audio being fed from this stream's <tt>MediaDevice</tt> and transmit
+     * silence instead.
+     *
+     * @param mute <tt>true</tt> if we are to make our audio stream start
+     * transmitting silence and <tt>false</tt> if we are to end the transmission
+     * of silence and use our stream's <tt>MediaDevice</tt> again.
+     */
+    public void setMute(boolean mute)
+    {
+        if (this.audioStream == null)
+            return;
+
+        audioStream.setMute(mute);
+    }
+
     public String createOffer()
         throws OperationFailedException
     {
@@ -210,6 +227,24 @@ public class CallPeerMediaHandler
      * reason.
      */
     private SessionDescription createFirstOffer()
+        throws OperationFailedException
+    {
+        //Audio Media Description
+        Vector<MediaDescription> mediaDescs = createMediaDescriptions();
+
+
+        //wrap everything up in a session description
+        String userName = peer.getProtocolProvider().getAccountID().getUserID();
+
+        SessionDescription sDes = SdpUtils.createSessionDescription(
+            getLastUsedLocalHost(), userName, mediaDescs);
+
+        this.localSess = sDes;
+
+        return localSess;
+    }
+
+    private Vector<MediaDescription> createMediaDescriptions()
         throws OperationFailedException
     {
         MediaService mediaService = SipActivator.getMediaService();
@@ -259,27 +294,27 @@ public class CallPeerMediaHandler
                  logger);
         }
 
-        //wrap everything up in a session description
-        String userName = peer.getProtocolProvider().getAccountID().getUserID();
+        return mediaDescs;
 
-        SessionDescription sDes = SdpUtils.createSessionDescription(
-            getLocalHost(), userName, mediaDescs);
-
-        this.localSess = sDes;
-
-        return localSess;
     }
 
-    private SessionDescription createReOffer(SessionDescription sdessToUpdate)
+    private SessionDescription createUpdateOffer(
+                                        SessionDescription sdescToUpdate)
         throws OperationFailedException
 
     {
-        SessionDescription newOffer = createFirstOffer();
+        //create the media descriptions reflecting our current state.
+        Vector<MediaDescription> newMediaDescs = createMediaDescriptions();
 
-        //The Offer/Answer Model [RFC 3264]
+        SessionDescription newOffer = SdpUtils.createSessionUpdateDescription(
+                        sdescToUpdate, getLastUsedLocalHost(), newMediaDescs);
+
+        return newOffer;
     }
 
-    private InetAddress getLocalHost()
+
+
+    private InetAddress getLastUsedLocalHost()
     {
         if (audioStreamConnector != null)
             return audioStreamConnector.getDataSocket().getLocalAddress();
@@ -305,9 +340,36 @@ public class CallPeerMediaHandler
     {
         MediaService mediaService = SipActivator.getMediaService();
 
-        MediaStream stream = mediaService.createMediaStream(connector, device);
-        registerDynamicPTsWithStream(stream);
+        MediaStream stream = null;
 
+        if (device.getMediaType() == MediaType.AUDIO)
+            stream = this.audioStream;
+        if (device.getMediaType() == MediaType.AUDIO)
+            stream = this.videoStream;
+
+        if (stream == null)
+        {
+            stream = mediaService.createMediaStream(connector, device);
+        }
+        else
+        {
+            //this is a reinitialization so make sure we stop the stream
+            stream.stop();
+        }
+
+        return  configureStream(connector, device, format,
+                        target, direction, stream);
+    }
+
+    private MediaStream configureStream(StreamConnector      connector,
+                                        MediaDevice          device,
+                                        MediaFormat          format,
+                                        MediaStreamTarget    target,
+                                        MediaDirection       direction,
+                                        MediaStream          stream)
+       throws OperationFailedException
+    {
+        registerDynamicPTsWithStream(stream);
 
         stream.setFormat(format);
         stream.setTarget(target);
@@ -334,7 +396,7 @@ public class CallPeerMediaHandler
         }
     }
 
-    private String processFirstOffer(SessionDescription offer)
+    public SessionDescription processFirstOffer(SessionDescription offer)
         throws OperationFailedException,
                IllegalArgumentException
     {
@@ -363,8 +425,13 @@ public class CallPeerMediaHandler
             MediaDevice dev = mediaService.getDefaultDevice(mediaType);
             MediaDirection devDirection = dev.getDirection();
 
+            //stream target
+            MediaStreamTarget target
+                = SdpUtils.extractDefaultTarget(mediaDescription, offer);
+
             if (supportedFormats == null || supportedFormats.size() == 0
-                || dev == null || devDirection == MediaDirection.INACTIVE)
+                || dev == null || devDirection == MediaDirection.INACTIVE
+                || target.getDataAddress().getPort() == 0)
             {
                 //mark stream as dead and go on bravely
                 answerDescriptions.add(
@@ -380,10 +447,6 @@ public class CallPeerMediaHandler
 
             MediaDirection direction
                 = devDirection.getDirectionForAnswer(remoteDirection);
-
-            //stream target
-            MediaStreamTarget target
-                = SdpUtils.extractDefaultTarget(mediaDescription, offer);
 
             //create the corresponding stream
             initStream( connector, dev, supportedFormats.get(0),
@@ -403,11 +466,11 @@ public class CallPeerMediaHandler
 
         //wrap everything up in a session description
         SessionDescription answer = SdpUtils.createSessionDescription(
-            getLocalHost(), getUserName(), answerDescriptions);
+            getLastUsedLocalHost(), getUserName(), answerDescriptions);
 
         this.localSess = answer;
 
-        return localSess.toString();
+        return localSess;
     }
 
     public void processAnswer(SessionDescription answer)

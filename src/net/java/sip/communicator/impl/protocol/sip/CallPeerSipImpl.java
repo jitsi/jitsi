@@ -785,11 +785,8 @@ public class CallPeerSipImpl
      */
     public void setMute(boolean newMuteValue)
     {
-        /**
-         * @todo update to neomedia.
-        getMediaCallSession().setMute(newMuteValue);
+        getMediaHandler().setMute(newMuteValue);
         super.setMute(newMuteValue);
-        */
     }
 
     /**
@@ -1244,34 +1241,25 @@ public class CallPeerSipImpl
                 OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
 
-        /**
-         * @todo update to neomedia.
         try
         {
-            CallSession callSession = SipActivator.getMediaService()
-                .createCallSession( getCall() );
-            setMediaCallSession(callSession);
-
-            callSession.setSessionCreatorCallback(this);
-
             String sdpOffer = getSdpDescription();
+
             String sdp;
             // if the offer was in the invite create an sdp answer
             if ((sdpOffer != null) && (sdpOffer.length() > 0))
             {
-                sdp = callSession.processSdpOffer(this, sdpOffer);
-
-                // set the call url in case there was one
-                setCallInfoURL(callSession.getCallInfoURL());
+                sdp = getMediaHandler().processFirstOffer(
+                                SdpUtils.parseSdpString(sdpOffer)).toString();
             }
             // if there was no offer in the invite - create an offer
             else
             {
-                sdp = callSession.createSdpOffer();
+                sdp = getMediaHandler().createOffer();
             }
             ok.setContent(sdp, contentTypeHeader);
         }
-        catch (MediaException ex)
+        catch (Exception ex)
         {
             //log, the error and tell the remote party. do not throw an
             //exception as it would go to the stack and there's nothing it could
@@ -1282,16 +1270,6 @@ public class CallPeerSipImpl
             getProtocolProvider().sayError(
                             serverTransaction, Response.NOT_ACCEPTABLE_HERE);
         }
-        catch (ParseException ex)
-        {
-            //log, the error and tell the remote party. do not throw an
-            //exception as it would go to the stack and there's nothing it could
-            //do with it.
-            logger.error("Failed to parse SDP of an invoming INVITE",ex);
-            getProtocolProvider().sayError(
-                            serverTransaction, Response.NOT_ACCEPTABLE_HERE);
-        }
-        */
 
         try
         {
@@ -1460,7 +1438,7 @@ public class CallPeerSipImpl
                 .getHeaderFactory().createContentTypeHeader(
                         "application", "sdp");
 
-            invite.setContent(getMediaHandler().createFirstOffer().toString(),
+            invite.setContent(getMediaHandler().createOffer(),
                               contentTypeHeader);
         }
         catch (IllegalArgumentException ex)

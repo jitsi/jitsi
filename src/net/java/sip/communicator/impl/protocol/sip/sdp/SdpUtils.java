@@ -12,7 +12,6 @@ import java.util.*;
 import javax.sdp.*;
 
 import net.java.sip.communicator.impl.protocol.sip.*;
-import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -163,6 +162,134 @@ public class SdpUtils
         }
 
         return sessDescr;
+    }
+
+    /**
+     * Creates and returns a new <tt>SessionDescription</tt> that is supposed
+     * to update our previous <tt>descToUpdate</tt> and advertise the brand new
+     * <tt>newMediaDescriptions</tt>. The method also respects other 3264
+     * policies like reusing the origing field and augmenting its version number
+     * for example.
+     *
+     * @param descToUpdate the <tt>SessionDescription</tt> that we'd like to
+     * update.
+     * @param newConnectionAddress the <tt>InetAddress</tt> that we'd like to
+     * use in the new <tt>c=</tt> field.
+     * @param newMediaDescriptions the descriptions of the new streams that we'd
+     * like to have in the updated session.
+     *
+     * @return a new <tt>SessionDescription</tt> that updates
+     * <tt>descToUpdate</tt>;
+     */
+    public static SessionDescription createSessionUpdateDescription(
+                          SessionDescription       descToUpdate,
+                          InetAddress              newConnectionAddress,
+                          Vector<MediaDescription> newMediaDescriptions)
+    {
+        SessionDescription update = createSessionDescription(
+                        newConnectionAddress, null, newMediaDescriptions);
+
+        //extract the previous o= field.
+        //RFC 3264 says we must use it in the update and only change the ver
+        try
+        {
+            Origin o = (Origin)descToUpdate.getOrigin().clone();
+
+            long version = o.getSessionVersion();
+            o.setSessionId(version + 1);
+
+            update.setOrigin(o);
+        }
+        catch (Exception e)
+        {
+            // can't happen, ignore
+            logger.info("Something very odd just happened.", e);
+        }
+
+        //now, RFC 3264 says all previous m= fields must be present and new ones
+        //added at the end. We should also disable all m= fields that are not
+        //present in the new version. We therefore loop through the previous m=s
+        //update them along the way and then add our new descs (if any).
+        Vector<MediaDescription> prevMedias
+            = extractMediaDescriptions(descToUpdate);
+
+        Vector<MediaDescription> completeMediaDescList
+            = new Vector<MediaDescription>();
+
+        //we'll be modifying the newMediaDescs list so let's make sure we don't
+        //cause any trouble and clone it.
+        newMediaDescriptions
+            = new Vector<MediaDescription>(newMediaDescriptions);
+
+        for(MediaDescription medToUpdate : prevMedias)
+        {
+            MediaType type = getMediaType(medToUpdate);
+            MediaDescription desc = removeMediaDesc(newMediaDescriptions, type);
+
+            if (desc == null)
+            {
+                //obviously we don't want a stream of that type so make sure
+                //the old one is disabled
+                desc = createDisablingAnswer(medToUpdate);
+            }
+
+            completeMediaDescList.add(desc);
+        }
+
+        //now add whatever's left;
+        for(MediaDescription medToAdd : newMediaDescriptions)
+        {
+            completeMediaDescList.add(medToAdd);
+        }
+
+        try
+        {
+            update.setMediaDescriptions(completeMediaDescList);
+        }
+        catch (SdpException e)
+        {
+            // never thrown, unless completeMediaDescList is null and that
+            // can't be since we just created it.
+            logger.info("A crazy thing just happened.", e);
+        }
+
+
+        return update;
+    }
+
+    /**
+     * Iterates through the <tt>descs</tt> <tt>Vector</tt> looking for a
+     * <tt>MediaDescription</tt> of the specified media <tt>type</tt> and
+     * then removes and return the first one it finds. Returns <tt>null</tt> if
+     * the <tt>descs</tt> <tt>Vector</tt> contains no <tt>MediaDescription</tt>
+     * with the specified <tt>MediaType</tt>.
+     *
+     * @param descs the <tt>Vector</tt> that we'd like to search for a
+     * <tt>MediaDescription</tt> of the specified <tt>MediaType</tt>.
+     * @param type the <tt>MediaType</tt> that we're trying to find and remove
+     * from the <tt>descs Vector</tt>
+     *
+     * @return the first <tt>MediaDescription</tt> of the specified
+     * <tt>type</tt> or <tt>null</tt> if no such description was found in the
+     * <tt>descs Vector</tt>.
+     */
+    private static MediaDescription removeMediaDesc(
+                                            Vector<MediaDescription> descs,
+                                            MediaType                type)
+    {
+        Iterator<MediaDescription> descsIter = descs.iterator();
+        while( descsIter.hasNext())
+        {
+            MediaDescription mDesc = descsIter.next();
+
+            if (getMediaType(mDesc) == type)
+            {
+                descsIter.remove();
+                return mDesc;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -1079,7 +1206,7 @@ public class SdpUtils
         if(remoteDescriptions == null || remoteDescriptions.size() == 0)
         {
             throw new IllegalArgumentException(
-                "Remote party did not send any media descriptions.");
+                "Could not find any media descriptions.");
         }
 
         return remoteDescriptions;
