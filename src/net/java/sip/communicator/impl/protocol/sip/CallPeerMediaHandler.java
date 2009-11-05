@@ -470,30 +470,6 @@ public class CallPeerMediaHandler
 
     /**
      * Returns the <tt>StreamConnector</tt> instance that this media handler
-     * should use for audio streams. The method would also create a new
-     * <tt>StreamConnector</tt> if it hasn't be initialized so far or in case
-     * of its underlying sockets has been closed.
-     *
-     * @return this media handler's audio <tt>StreamConnector</tt>.
-     *
-     * @throws OperationFailedException in case we failed to initialize our
-     * connector.
-     */
-    public StreamConnector getAudioStreamConnector()
-        throws OperationFailedException
-    {
-        if ( audioStreamConnector == null
-             || audioStreamConnector.getDataSocket().isClosed()
-             || audioStreamConnector.getControlSocket().isClosed())
-        {
-            audioStreamConnector = createStreamConnector();
-        }
-
-        return audioStreamConnector;
-    }
-
-    /**
-     * Returns the <tt>StreamConnector</tt> instance that this media handler
      * should use for streams of the specified <tt>mediaType</tt>. The method
      * would also create a new <tt>StreamConnector</tt> if no connector has
      * been initialized for this <tt>mediaType</tt> yet or in case one
@@ -507,41 +483,31 @@ public class CallPeerMediaHandler
      * @throws OperationFailedException in case we failed to initialize our
      * connector.
      */
-    public StreamConnector getAudioStreamConnector(MediaType mediaType)
+    private StreamConnector getStreamConnector(MediaType mediaType)
         throws OperationFailedException
     {
-        if ( audioStreamConnector == null
-             || audioStreamConnector.getDataSocket().isClosed()
-             || audioStreamConnector.getControlSocket().isClosed())
+        if (mediaType == MediaType.AUDIO)
         {
-            audioStreamConnector = createStreamConnector();
+            if ( audioStreamConnector == null
+                 || audioStreamConnector.getDataSocket().isClosed()
+                 || audioStreamConnector.getControlSocket().isClosed())
+            {
+                audioStreamConnector = createStreamConnector();
+            }
+
+            return audioStreamConnector;
         }
-
-        return audioStreamConnector;
-    }
-
-    /**
-     * Returns the <tt>StreamConnector</tt> instance that this media handler
-     * should use for video streams. The method would also create a new
-     * <tt>StreamConnector</tt> if it hasn't be initialized so far or in case
-     * of its underlying sockets has been closed.
-     *
-     * @return this media handler's video <tt>StreamConnector</tt>.
-     *
-     * @throws OperationFailedException in case we failed to initialize our
-     * connector.
-     */
-    public StreamConnector getVideoStreamConnector()
-        throws OperationFailedException
-    {
-        if ( videoStreamConnector == null
-             || videoStreamConnector.getDataSocket().isClosed()
-             || videoStreamConnector.getControlSocket().isClosed())
+        else
         {
-            videoStreamConnector = createStreamConnector();
-        }
+            if ( videoStreamConnector == null
+                 || videoStreamConnector.getDataSocket().isClosed()
+                 || videoStreamConnector.getControlSocket().isClosed())
+            {
+                videoStreamConnector = createStreamConnector();
+            }
 
-        return videoStreamConnector;
+            return videoStreamConnector;
+        }
     }
 
     /**
