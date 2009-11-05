@@ -12,6 +12,7 @@ import java.util.*;
 import javax.sdp.*;
 
 import net.java.sip.communicator.impl.protocol.sip.*;
+import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -40,6 +41,31 @@ public class SdpUtils
      */
     private static final String RTCP_ATTR = "rtcp";
 
+    /**
+     * Parses the specified <tt>sdp String</tt> into a
+     * <tt>SessionDescription</tt> and returns it;
+     *
+     * @param sdp the <tt>sdp String</tt> that we'd like to parse.
+     *
+     * @return the <tt>SessionDescription</tt> instance corresponding to the
+     * specified <tt>sdp String</tt>.
+     *
+     * @throws IllegalArgumentException in case <tt>sdp</tt> is not a valid
+     * SDP <tt>String</tt>.
+     */
+    public static SessionDescription parseSdpString(String sdp)
+        throws IllegalArgumentException
+    {
+        try
+        {
+            return sdpFactory.createSessionDescription(sdp);
+        }
+        catch (SdpParseException ex)
+        {
+            throw new IllegalArgumentException(
+                "Failed to parse the SDP description of the peer.", ex);
+        }
+    }
     /**
      * Creates an empty instance of a <tt>SessionDescription</tt> with
      * preinitialized  <tt>s</tt>, <tt>v</tt>, <tt>c</tt>, <tt>o</tt> and
@@ -335,7 +361,9 @@ public class SdpUtils
         }
 
         //Format parameters
-        Map<String, String> fmtParamsMap = parseFmtpAttribute(fmtp);
+        Map<String, String> fmtParamsMap = null;
+        if ( fmtp != null)
+            fmtParamsMap = parseFmtpAttribute(fmtp);
 
         //now create the format.
         MediaFormat format = SipActivator.getMediaService().getFormatFactory()
@@ -948,5 +976,112 @@ public class SdpUtils
         }
 
         return sdpFactory.createAttribute(dirStr, null);
+    }
+
+    /**
+     * Returns the media type (e.g. audio or video) for the specified media
+     * <tt>description</tt>.
+     *
+     * @param description the <tt>MediaDescription</tt> whose media type we'd
+     * like to extract.
+     *
+     * @return the media type (e.g. audio or video) for the specified media
+     * <tt>description</tt>.
+     */
+    public static MediaType getMediaType(MediaDescription description)
+    {
+        try
+        {
+            return MediaType.parseString(description.getMedia().getMediaType());
+        }
+        catch (SdpException exc)
+        {
+            // impossible to happen for reasons mentioned many times here :)
+            logger.debug("Invalid media type in m= line: " + description, exc);
+            throw new IllegalArgumentException(
+                         "Invalid media type in m= line: " + description, exc);
+        }
+    }
+
+    /**
+     * Creates and returns a <tt>MediaDescription</tt> in answer of the
+     * specified <tt>offer</tt> that disables the corresponding stream by
+     * setting a <tt>0</tt> port and keeping the original list of formats and
+     * eliminating all attributes.
+     *
+     * @param offer the <tt>MediaDescription</tt> of the stream that we'd like
+     * to disable.
+     *
+     * @return a <tt>MediaDescription</tt> meant to disable the media stream
+     * specified by the <tt>offer</tt> description.
+     *
+     * @throws IllegalArgumentException if the <tt>offer</tt> argument is so
+     * in-parsable that there was no way we could create a meaningful answer.
+     *
+     */
+    @SuppressWarnings("unchecked") // legacy jain-sdp code
+    public static MediaDescription createDisablingAnswer(
+                                                  MediaDescription offer)
+        throws IllegalArgumentException
+    {
+        MediaType type = getMediaType(offer);
+        try
+        {
+            Vector<String> formatsVec = offer.getMedia().getMediaFormats(true);
+
+            if(formatsVec == null)
+            {
+                formatsVec = new Vector<String>();
+                //add at least one format so that we could generate a valid offer.
+                formatsVec.add(Integer.toString(0));
+            }
+
+            String[] formatsArray = new String[formatsVec.size()];
+
+            return sdpFactory.createMediaDescription(type.toString(), 0, 1,
+                SdpConstants.RTP_AVP, formatsVec.toArray(formatsArray));
+        }
+        catch (Exception e)
+        {
+            throw new IllegalArgumentException("Could not create an ");
+        }
+    }
+
+    /**
+     * Extracts and returns all <tt>MediaDescription</tt>s provided in
+     * <tt>sessionDescription</tt>.
+     *
+     * @param sessionDescription the <tt>SessionDescription</tt> that we'd like
+     * to extract <tt>MediaDescription</tt>s from.
+     *
+     * @return a non <tt>null</tt> <tt>Vector</tt> containing all media
+     * descriptions from the <tt>sessionDescription</tt>.
+     *
+     * @throws IllegalArgumentException in case there were no media descriptions
+     * in <tt>sessionDescription</tt>.
+     */
+    @SuppressWarnings("unchecked") // legacy jain-sdp code.
+    public static Vector<MediaDescription> extractMediaDescriptions(
+                    SessionDescription sessionDescription)
+        throws IllegalArgumentException
+    {
+        Vector<MediaDescription> remoteDescriptions = null;
+        try
+        {
+            remoteDescriptions = sessionDescription.getMediaDescriptions(false);
+        }
+        catch (SdpException e)
+        {
+            // ignoring as remoteDescriptions would remain null and we will
+            // log and rethrow right underneath.
+        }
+
+        if(remoteDescriptions == null || remoteDescriptions.size() == 0)
+        {
+            throw new IllegalArgumentException(
+                "Remote party did not send any media descriptions.");
+        }
+
+        return remoteDescriptions;
     }
 }

@@ -103,6 +103,13 @@ public class CallPeerMediaHandler
     private VideoMediaStream videoStream = null;
 
     /**
+     * A <tt>URL</tt> pointing to a location with call information or a call
+     * control web interface related to the <tt>CallPeer</tt> that we are
+     * associated with.
+     */
+    private URL callInfoURL = null;
+
+    /**
      * Contains all dynamic for payload type mappings that have been made for
      * this call.
      */
@@ -187,11 +194,6 @@ public class CallPeerMediaHandler
         return this.audioStream != null && audioStream.isMute();
     }
 
-    public void init()
-    {
-
-    }
-
     /**
      * Allocates ports, retrieves supported formats and creates a
      * <tt>SessionDescription</tt>.
@@ -202,7 +204,7 @@ public class CallPeerMediaHandler
      * @throws OperationFailedException if generating the SDP fails for whatever
      * reason.
      */
-    private String createFirstOffer()
+    public String createFirstOffer()
         throws OperationFailedException
     {
         MediaService mediaService = SipActivator.getMediaService();
@@ -211,24 +213,34 @@ public class CallPeerMediaHandler
         Vector<MediaDescription> mediaDescs = new Vector<MediaDescription>();
 
         MediaDevice aDev = mediaService.getDefaultDevice(MediaType.AUDIO);
-        MediaDirection audioDirection
-            = aDev.getDirection().and(audioDirectionUserPreference);
 
-        if(audioDirection != MediaDirection.INACTIVE);
+        if (aDev != null)
         {
-            mediaDescs.add(createMediaDescription(aDev.getSupportedFormats(),
-                getStreamConnector(MediaType.AUDIO), audioDirection));
+            MediaDirection audioDirection
+                = aDev.getDirection().and(audioDirectionUserPreference);
+
+            if(audioDirection != MediaDirection.INACTIVE);
+            {
+                mediaDescs.add(createMediaDescription(
+                        aDev.getSupportedFormats(),
+                        getStreamConnector(MediaType.AUDIO), audioDirection));
+            }
         }
 
         //Video Media Description
         MediaDevice vDev = mediaService.getDefaultDevice(MediaType.VIDEO);
-        MediaDirection videoDirection
-            = vDev.getDirection().and(videoDirectionUserPreference);
 
-        if(videoDirection != MediaDirection.INACTIVE);
+        if(vDev != null)
         {
-            mediaDescs.add(createMediaDescription( vDev.getSupportedFormats(),
-                getStreamConnector(MediaType.VIDEO), videoDirection));
+            MediaDirection videoDirection
+                = vDev.getDirection().and(videoDirectionUserPreference);
+
+            if(videoDirection != MediaDirection.INACTIVE);
+            {
+                mediaDescs.add(createMediaDescription(
+                        vDev.getSupportedFormats(),
+                        getStreamConnector(MediaType.VIDEO), videoDirection));
+            }
         }
 
         //fail if all devices were inactive
@@ -246,18 +258,96 @@ public class CallPeerMediaHandler
         String userName = peer.getProtocolProvider().getAccountID().getUserID();
 
         SessionDescription sDes = SdpUtils.createSessionDescription(
-            videoStreamConnector.getDataSocket().getLocalAddress(),
-            userName, mediaDescs);
+            getLocalHost(), userName, mediaDescs);
 
         this.localSess = sDes;
 
         return localSess.toString();
     }
 
-    private MediaStream createStream(StreamConnector      connector,
-                                     MediaDevice          device,
-                                     MediaFormat          format,
-                                     MediaStreamTarget    target)
+    public String createReOffer()
+        throws OperationFailedException
+    {
+        MediaService mediaService = SipActivator.getMediaService();
+
+        //Audio Media Description
+        Vector<MediaDescription> mediaDescs = new Vector<MediaDescription>();
+
+        MediaDevice aDev = mediaService.getDefaultDevice(MediaType.AUDIO);
+
+        if (aDev != null)
+        {
+            MediaDirection audioDirection
+                = aDev.getDirection().and(audioDirectionUserPreference);
+
+            if(audioDirection != MediaDirection.INACTIVE);
+            {
+                mediaDescs.add(createMediaDescription(
+                        aDev.getSupportedFormats(),
+                        getStreamConnector(MediaType.AUDIO), audioDirection));
+            }
+        }
+
+        //Video Media Description
+        MediaDevice vDev = mediaService.getDefaultDevice(MediaType.VIDEO);
+
+        if(vDev != null)
+        {
+            MediaDirection videoDirection
+                = vDev.getDirection().and(videoDirectionUserPreference);
+
+            if(videoDirection != MediaDirection.INACTIVE);
+            {
+                mediaDescs.add(createMediaDescription(
+                        vDev.getSupportedFormats(),
+                        getStreamConnector(MediaType.VIDEO), videoDirection));
+            }
+        }
+
+        //fail if all devices were inactive
+        if(mediaDescs.size() == 0)
+        {
+             ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                 "We couldn't find any active Audio/Video devices and "
+                 +"couldn't create a call",
+                 OperationFailedException.GENERAL_ERROR,
+                 null,
+                 logger);
+        }
+
+        //wrap everything up in a session description
+        String userName = peer.getProtocolProvider().getAccountID().getUserID();
+
+        SessionDescription sDes = SdpUtils.createSessionDescription(
+            getLocalHost(), userName, mediaDescs);
+
+        this.localSess = sDes;
+
+        return localSess.toString();
+    }
+
+    private InetAddress getLocalHost()
+    {
+        if (audioStreamConnector != null)
+            return audioStreamConnector.getDataSocket().getLocalAddress();
+
+        if (videoStreamConnector != null)
+            return videoStreamConnector.getDataSocket().getLocalAddress();
+
+        NetworkAddressManagerService nam
+            = SipActivator.getNetworkAddressManagerService();
+
+        InetAddress intendedDestination = peer.getProtocolProvider()
+            .getIntendedDestination(peer.getPeerAddress());
+
+        return nam.getLocalHost(intendedDestination);
+    }
+
+    private MediaStream initStream(StreamConnector      connector,
+                                   MediaDevice          device,
+                                   MediaFormat          format,
+                                   MediaStreamTarget    target,
+                                   MediaDirection       direction)
         throws OperationFailedException
     {
         MediaService mediaService = SipActivator.getMediaService();
@@ -266,7 +356,7 @@ public class CallPeerMediaHandler
 
         stream.setFormat(format);
         stream.setTarget(target);
-        //stream.setDirection(direction);
+        stream.setDirection(direction);
 
         if( stream instanceof AudioMediaStream)
             this.audioStream = (AudioMediaStream)stream;
@@ -278,77 +368,143 @@ public class CallPeerMediaHandler
         return stream;
     }
 
-    @SuppressWarnings("unchecked") // legacy jain-sdp code.
     private String processFirstOffer(SessionDescription offer)
-        throws OperationFailedException
+        throws OperationFailedException,
+               IllegalArgumentException
     {
         this.remoteSess = offer;
 
-        Vector<MediaDescription> remoteDescriptions = null;
-        try
-        {
-            remoteDescriptions = offer.getMediaDescriptions(false);
-        }
-        catch (SdpException e)
-        {
-            // ignoring as remoteDescriptions would remain null and we will
-            // log and rethrow right underneath.
-        }
-
-        if(remoteDescriptions == null || remoteDescriptions.size() == 0)
-        {
-            ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "Remote party did not send any media descriptions.",
-                OperationFailedException.ILLEGAL_ARGUMENT, null, logger);
-        }
+        Vector<MediaDescription> remoteDescriptions
+            = SdpUtils.extractMediaDescriptions(offer);
 
         MediaService mediaService = SipActivator.getMediaService();
 
-        //prepaer to generate answers to all the incoming descriptions
+        //prepare to generate answers to all the incoming descriptions
         Vector<MediaDescription> answerDescriptions
             = new Vector<MediaDescription>(remoteDescriptions.size());
 
+        this.setCallInfoURL(SdpUtils.getCallInfoURL(offer));
+
+        boolean atLeastOneValidDescription = false;
+
         for ( MediaDescription mediaDescription : remoteDescriptions)
         {
-            MediaType mediaType = MediaType.parseString(
-                            mediaDescription.getMedia().getMediaType());
+            MediaType mediaType = SdpUtils.getMediaType(mediaDescription);
+
             List<MediaFormat> supportedFormats = SdpUtils.extractFormats(
                             mediaDescription, dynamicPayloadTypes);
 
-            if (supportedFormats == null || supportedFormats.size() == 0)
+            MediaDevice dev = mediaService.getDefaultDevice(mediaType);
+            MediaDirection devDirection = dev.getDirection();
+
+            if (supportedFormats == null || supportedFormats.size() == 0
+                || dev == null || devDirection == MediaDirection.INACTIVE)
             {
                 //mark stream as dead and go on bravely
-                //@todo
+                answerDescriptions.add(
+                             SdpUtils.createDisablingAnswer(mediaDescription));
                 continue;
             }
 
             StreamConnector connector = getStreamConnector(mediaType);
 
-            //calculate the direction that we need to announce.
+            //determine the direction that we need to announce.
             MediaDirection remoteDirection
                 = SdpUtils.getDirection(mediaDescription);
 
-            MediaDirection localDirection
-                = mediaService.getDefaultDevice(mediaType).getDirection();
-
             MediaDirection direction
-                = localDirection.getDirectionForAnswer(remoteDirection);
+                = devDirection.getDirectionForAnswer(remoteDirection);
 
-            createMediaDescription(supportedFormats, connector, direction);
+            //stream target
+            MediaStreamTarget target
+                = SdpUtils.extractDefaultTarget(mediaDescription, offer);
+
+            //create the corresponding stream
+            initStream( connector, dev, supportedFormats.get(0),
+                            target, direction);
+
+            //create the answer description
+            answerDescriptions.add( createMediaDescription(
+                            supportedFormats, connector, direction));
+
+            atLeastOneValidDescription = true;
         }
 
-        //wrap everything up in a session description
-        String userName = peer.getProtocolProvider().getAccountID().getUserID();
+        if(!atLeastOneValidDescription)
+            throw new OperationFailedException("Offer contained no valid "
+                + "media descriptions.",
+                OperationFailedException.ILLEGAL_ARGUMENT);
 
+        //wrap everything up in a session description
         SessionDescription answer = SdpUtils.createSessionDescription(
-            videoStreamConnector.getDataSocket().getLocalAddress(),
-            userName, answerDescriptions);
+            getLocalHost(), getUserName(), answerDescriptions);
 
         this.localSess = answer;
 
         return localSess.toString();
     }
 
+    public void processAnswer(SessionDescription answer)
+        throws OperationFailedException, IllegalArgumentException
+    {
+        this.remoteSess = answer;
+
+        Vector<MediaDescription> remoteDescriptions
+            = SdpUtils.extractMediaDescriptions(answer);
+
+        this.setCallInfoURL(SdpUtils.getCallInfoURL(answer));
+
+        MediaService mediaService = SipActivator.getMediaService();
+
+        for ( MediaDescription mediaDescription : remoteDescriptions)
+        {
+            MediaType mediaType = SdpUtils.getMediaType(mediaDescription);
+
+            List<MediaFormat> supportedFormats = SdpUtils.extractFormats(
+                            mediaDescription, dynamicPayloadTypes);
+
+            MediaDevice dev = mediaService.getDefaultDevice(mediaType);
+            MediaDirection devDirection = dev.getDirection();
+
+            if (supportedFormats == null || supportedFormats.size() == 0
+                || dev == null || devDirection == MediaDirection.INACTIVE)
+            {
+                //remote party must have messed up our SDP. throw an exception.
+                ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                    "Remote party sent an invlid SDP answer.",
+                     OperationFailedException.ILLEGAL_ARGUMENT, null, logger);
+            }
+
+            StreamConnector connector = getStreamConnector(mediaType);
+
+            //determine the direction that we need to announce.
+            MediaDirection remoteDirection
+                = SdpUtils.getDirection(mediaDescription);
+
+            MediaDirection direction
+                = devDirection.getDirectionForAnswer(remoteDirection);
+
+            //stream target
+            MediaStreamTarget target
+                = SdpUtils.extractDefaultTarget(mediaDescription, answer);
+
+            //create the corresponding stream
+            initStream( connector, dev, supportedFormats.get(0),
+                            target, direction);
+        }
+    }
+
+    /**
+     * Returns our own user name so that we could use it when generating SDP o=
+     * fields.
+     *
+     * @return our own user name so that we could use it when generating SDP o=
+     * fields.
+     */
+    private String getUserName()
+    {
+        return peer.getProtocolProvider().getAccountID().getUserID();
+    }
 
 
     /**
@@ -531,5 +687,32 @@ public class CallPeerMediaHandler
                             ex);
             }
         }
+    }
+
+    /**
+     * Returns a <tt>URL</tt> pointing ta a location with call control
+     * information for this peer or <tt>null</tt> if no such <tt>URL</tt> is
+     * available for the <tt>CallPeer</tt> associated with this handler..
+     *
+     * @return a <tt>URL</tt> link to a location with call information or a
+     * call control web interface related to our <tt>CallPeer</tt> or
+     * <tt>null</tt> if no such <tt>URL</tt>.
+     */
+    public URL getCallInfoURL()
+    {
+        return callInfoURL;
+    }
+
+    /**
+     * Specifies a <tt>URL</tt> pointing to a location with call control
+     * information for this peer.
+     *
+     * @param callInfolURL a <tt>URL</tt> link to a location with call
+     * information or a call control web interface related to the
+     * <tt>CallPeer</tt> that we are associated with.
+     */
+    private void setCallInfoURL(URL callInfolURL)
+    {
+        this.callInfoURL = callInfolURL;
     }
 }

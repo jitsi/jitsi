@@ -14,6 +14,7 @@ import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
 
+import net.java.sip.communicator.impl.protocol.sip.sdp.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -83,12 +84,6 @@ public class CallPeerSipImpl
      * address of our sip registrar).
      */
     private InetSocketAddress transportAddress = null;
-
-    /**
-     * A URL pointing to a location with call information or a call control
-     * web interface related to this peer.
-     */
-    private URL callControlURL = null;
 
     /**
      * A reference to the <tt>SipMessageFactory</tt> instance that we should
@@ -427,19 +422,10 @@ public class CallPeerSipImpl
      */
     public URL getCallInfoURL()
     {
-        return this.callControlURL;
-    }
+        if (mediaHandler == null)
+            return null;
 
-    /**
-     * Returns a URL pointing ta a location with call control information for
-     * this peer.
-     *
-     * @param callControlURL a URL link to a location with call information or
-     * a call control web interface related to this peer.
-     */
-    public void setCallInfoURL(URL callControlURL)
-    {
-        this.callControlURL = callControlURL;
+        return mediaHandler.getCallInfoURL();
     }
 
     /**
@@ -969,20 +955,14 @@ public class CallPeerSipImpl
         }
 
         // notify the media manager of the sdp content
-        /**
-         * @todo update to neomedia.
-        CallSession callSession = getMediaCallSession();
-
         try
         {
              //Process SDP unless we've just had an answer in a 18X response
             if (!CallPeerState.CONNECTING_WITH_EARLY_MEDIA.equals(getState()))
             {
-                callSession.processSdpAnswer(this, getSdpDescription());
+                getMediaHandler().processAnswer(
+                                SdpUtils.parseSdpString(getSdpDescription()));
             }
-
-            // set the call url in case there was one
-            setCallInfoURL(callSession.getCallInfoURL());
         }
         //at this point we have already sent our ack so in addition to logging
         //an error we also need to hangup the call peer.
@@ -1000,8 +980,11 @@ public class CallPeerSipImpl
             }
             catch (Exception e)
             {
-                //I don't see what more we could do.
-                logAndFail("We couldn't hangup", e);
+                //handle in finally.
+            }
+            finally
+            {
+                logAndFail("Remote party sent a faulty session description.", exc);
             }
             return;
         }
@@ -1009,7 +992,6 @@ public class CallPeerSipImpl
         // change status
         if (!CallPeerState.isOnHold(getState()))
             setState(CallPeerState.CONNECTED);
-        */
     }
 
     /**
@@ -1472,31 +1454,13 @@ public class CallPeerSipImpl
     private void attachSdpOffer(Request invite)
         throws OperationFailedException
     {
-        InetAddress intendedDestination = getProtocolProvider()
-            .getIntendedDestination(getPeerAddress());
-
-        getMediaHandler().init();
-        /**
-         * @todo update to neomedia.
         try
         {
-            CallSession callSession = SipActivator.getMediaService()
-                .createCallSession(getCall());
-
-            setMediaCallSession(callSession);
-
-            callSession.setSessionCreatorCallback(this);
-
-            // indicate the address of the callee so that the media service can
-            // choose the most proper local address to advertise.
-            InetAddress intendedDestination = getProtocolProvider()
-                .getIntendedDestination(getPeerAddress());
-
             ContentTypeHeader contentTypeHeader = getProtocolProvider()
                 .getHeaderFactory().createContentTypeHeader(
                         "application", "sdp");
 
-            invite.setContent(callSession.createSdpOffer(intendedDestination),
+            invite.setContent(getMediaHandler().createFirstOffer().toString(),
                               contentTypeHeader);
         }
         catch (IllegalArgumentException ex)
@@ -1511,14 +1475,6 @@ public class CallPeerSipImpl
                 "Failed to parse sdp data while creating invite request!",
                 OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
-        catch (MediaException ex)
-        {
-            ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "Could not access media devices!",
-                OperationFailedException.INTERNAL_ERROR, ex, logger);
-        }
-        */
-
     }
 
     /**
