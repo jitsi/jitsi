@@ -80,6 +80,8 @@ public class CallPeerMediaHandler
      */
     private static int nextMediaPortToTry = minMediaPort;
 
+    private boolean onHold = false;
+
     /**
      * The RTP/RTCP socket couple that this media handler should use to send
      * and receive audio flows through.
@@ -195,6 +197,54 @@ public class CallPeerMediaHandler
     }
 
     /**
+     * Specifies that this handler's <tt>MediaStream</tt>s should be on hold
+     * so that this would be taken into account and the streams put in
+     * sendonly or inactive mode when the next update offer is generated.
+     * Note that the stream has no immediate effect and would only affect
+     * the flows after an update description is regenerated.
+     *
+     * @param onHold <tt>true</tt> if we are to make our audio stream start
+     * transmitting silence and <tt>false</tt> if we are to end the transmission
+     * of silence and use our stream's <tt>MediaDevice</tt> again.
+     */
+    public void setOnHold(boolean onHold)
+    {
+        this.onHold = onHold;
+
+        if(onHold)
+        {
+            if(audioStream != null)
+                audioStream.setDirection(audioStream.getDirection()
+                            .and(MediaDirection.SENDONLY));
+            if(videoStream != null)
+                videoStream.setDirection(videoStream.getDirection()
+                            .and(MediaDirection.SENDONLY));
+        }
+        else
+        {
+            if(audioStream != null)
+                audioStream.setDirection(audioStream.getDirection()
+                            .or(MediaDirection.SENDONLY));
+            if(videoStream != null)
+                videoStream.setDirection(videoStream.getDirection()
+                            .or(MediaDirection.SENDONLY));
+
+        }
+    }
+
+    /**
+     * Determines whether this handler's streams should be placed on hold during
+     * the next session update.
+     *
+     * @return <tt>true</tt> if this handler's streams should be placed on hold
+     * next time we update this session and false otherwise.
+     */
+    public boolean isOnHold()
+    {
+        return onHold;
+    }
+
+    /**
      * Causes this handler's <tt>AudioMediaStream</tt> to stop transmitting the
      * audio being fed from this stream's <tt>MediaDevice</tt> and transmit
      * silence instead.
@@ -214,7 +264,10 @@ public class CallPeerMediaHandler
     public String createOffer()
         throws OperationFailedException
     {
-        return createFirstOffer().toString();
+        if (localSess == null)
+            return createFirstOffer().toString();
+        else
+            return createUpdateOffer(localSess).toString();
     }
     /**
      * Allocates ports, retrieves supported formats and creates a
@@ -259,6 +312,9 @@ public class CallPeerMediaHandler
             MediaDirection audioDirection
                 = aDev.getDirection().and(audioDirectionUserPreference);
 
+            if(onHold)
+                audioDirection = audioDirection.and(MediaDirection.SENDONLY);
+
             if(audioDirection != MediaDirection.INACTIVE);
             {
                 mediaDescs.add(createMediaDescription(
@@ -274,6 +330,9 @@ public class CallPeerMediaHandler
         {
             MediaDirection videoDirection
                 = vDev.getDirection().and(videoDirectionUserPreference);
+
+            if(onHold)
+                videoDirection = videoDirection.and(MediaDirection.SENDONLY);
 
             if(videoDirection != MediaDirection.INACTIVE);
             {
@@ -344,7 +403,7 @@ public class CallPeerMediaHandler
 
         if (device.getMediaType() == MediaType.AUDIO)
             stream = this.audioStream;
-        if (device.getMediaType() == MediaType.AUDIO)
+        else
             stream = this.videoStream;
 
         if (stream == null)
@@ -353,15 +412,15 @@ public class CallPeerMediaHandler
         }
         else
         {
-            //this is a reinitialization so make sure we stop the stream
             stream.stop();
         }
 
-        return  configureStream(connector, device, format,
+        return  configureAndStartStream(connector, device, format,
                         target, direction, stream);
     }
 
-    private MediaStream configureStream(StreamConnector      connector,
+    private MediaStream configureAndStartStream(
+                                        StreamConnector      connector,
                                         MediaDevice          device,
                                         MediaFormat          format,
                                         MediaStreamTarget    target,

@@ -1295,25 +1295,24 @@ public class CallPeerSipImpl
      * @throws OperationFailedException if we fail to construct or send the
      * INVITE request putting the remote side on/off hold.
      */
-    public void putOnHold(boolean on)
+    public void putOnHold(boolean onHold)
         throws OperationFailedException
     {
-        /**
-         * @todo update to neomedia.
-        CallSession callSession = getMediaCallSession();
+        CallPeerMediaHandler mediaHandler = getMediaHandler();
+
+        mediaHandler.setOnHold(onHold);
 
         try
         {
-            sendReInvite(callSession.createSdpDescriptionForHold(
-                    getSdpDescription(), on));
+            sendReInvite(mediaHandler.createOffer());
         }
-        catch (MediaException ex)
+        catch (Exception ex)
         {
             ProtocolProviderServiceSipImpl.throwOperationFailedException(
                 "Failed to create SDP offer to hold.",
                 OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
-        */
+
         /*
          * Putting on hold isn't a negotiation (i.e. the issuing side takes the
          * decision and executes it) so we're muting now regardless of the
@@ -1323,23 +1322,24 @@ public class CallPeerSipImpl
          * @todo update to neomedia.
         callSession.putOnHold(on, true);
          */
+
         CallPeerState state = getState();
         if (CallPeerState.ON_HOLD_LOCALLY.equals(state))
         {
-            if (!on)
+            if (!onHold)
                 setState(CallPeerState.CONNECTED);
         }
         else if (CallPeerState.ON_HOLD_MUTUALLY.equals(state))
         {
-            if (!on)
+            if (!onHold)
                 setState(CallPeerState.ON_HOLD_REMOTELY);
         }
         else if (CallPeerState.ON_HOLD_REMOTELY.equals(state))
         {
-            if (on)
+            if (onHold)
                 setState(CallPeerState.ON_HOLD_MUTUALLY);
         }
-        else if (on)
+        else if (onHold)
         {
             setState(CallPeerState.ON_HOLD_LOCALLY);
         }

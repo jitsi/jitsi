@@ -196,7 +196,7 @@ public class SdpUtils
             Origin o = (Origin)descToUpdate.getOrigin().clone();
 
             long version = o.getSessionVersion();
-            o.setSessionId(version + 1);
+            o.setSessionVersion(version + 1);
 
             update.setOrigin(o);
         }
@@ -1024,7 +1024,7 @@ public class SdpUtils
         MediaDescription mediaDesc = null;
         try
         {
-            mediaDesc = sdpFactory.createMediaDescription(mediaType.name(),
+            mediaDesc = sdpFactory.createMediaDescription(mediaType.toString(),
                             connector.getDataSocket().getLocalPort(), 1,
                             SdpConstants.RTP_AVP, payloadTypesArray);
 
