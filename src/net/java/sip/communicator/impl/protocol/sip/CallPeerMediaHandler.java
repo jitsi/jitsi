@@ -230,7 +230,7 @@ public class CallPeerMediaHandler
             {
                 audioStream.setDirection(audioStream.getDirection()
                             .or(MediaDirection.SENDONLY));
-                audioStream.setMute(false);
+                audioStream.setMute(locallyOnHold);
             }
             if(videoStream != null)
             {
@@ -240,6 +240,7 @@ public class CallPeerMediaHandler
             }
         }
     }
+
 
     /**
      * Closes and null-ifies all streams and connectors and readies this media
@@ -413,6 +414,8 @@ public class CallPeerMediaHandler
 
         SessionDescription newOffer = SdpUtils.createSessionUpdateDescription(
                         sdescToUpdate, getLastUsedLocalHost(), newMediaDescs);
+
+        this.localSess = newOffer;
 
         return newOffer;
     }

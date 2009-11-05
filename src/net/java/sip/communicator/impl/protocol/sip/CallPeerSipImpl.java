@@ -60,12 +60,6 @@ public class CallPeerSipImpl
     private Dialog jainSipDialog = null;
 
     /**
-     * The SDP session description that we have received from this call
-     * peer.
-     */
-    private String sdpDescription = null;
-
-    /**
      * The SIP transaction that established this call. This was previously kept
      * in the jain-sip dialog but got deprected there so we're now keeping it
      * here.
@@ -92,12 +86,6 @@ public class CallPeerSipImpl
     private final SipMessageFactory messageFactory;
 
     /**
-     * A reference to the <tt>OperationSetBasicTelephonySipImpl</tt> that
-     * created us;
-     */
-    private final OperationSetBasicTelephonySipImpl parentOpSet;
-
-    /**
      * The media handler class handles all media management for a single
      * <tt>CallPeer</tt>. This includes initializing and configuring streams,
      * generating SDP, handling ICE, etc. One instance of <tt>CallPeer</tt> always
@@ -122,7 +110,6 @@ public class CallPeerSipImpl
     {
         this.peerAddress = peerAddress;
         this.call = owningCall;
-        this.parentOpSet = owningCall.getParentOperationSet();
         this.messageFactory = getProtocolProvider().getMessageFactory();
 
         this.mediaHandler = new CallPeerMediaHandler(this);
@@ -245,15 +232,6 @@ public class CallPeerSipImpl
     }
 
     /**
-     * Returns the latest sdp description that this peer sent us.
-     * @return the latest sdp description that this peer sent us.
-     */
-    public String getSdpDescription()
-    {
-        return sdpDescription;
-    }
-
-    /**
      * Sets the String that serves as a unique identifier of this
      * CallPeer.
      * @param peerID the ID of this call peer.
@@ -282,16 +260,6 @@ public class CallPeerSipImpl
     protected void setCall(CallSipImpl call)
     {
         this.call = call;
-    }
-
-    /**
-     * Sets the sdp description for this call peer.
-     *
-     * @param sdpDescription the sdp description for this call peer.
-     */
-    public void setSdpDescription(String sdpDescription)
-    {
-        this.sdpDescription = sdpDescription;
     }
 
     /**
@@ -498,18 +466,23 @@ public class CallPeerSipImpl
         setLatestInviteTransaction(serverTransaction);
 
         // SDP description may be in ACKs - bug report Laurent Michel
+        String sdp = null;
         ContentLengthHeader cl = invite.getContentLength();
         if (cl != null && cl.getContentLength() > 0)
         {
-            setSdpDescription(new String(invite.getRawContent()));
+            sdp = new String(invite.getRawContent());
         }
 
         Response response = null;
         try
         {
             response = messageFactory.createResponse(Response.OK, invite);
-            String sdpAnswer = getMediaHandler()
-                .processOffer( getSdpDescription() );
+
+            String sdpAnswer;
+            if(sdp == null)
+                sdpAnswer = getMediaHandler().processOffer( sdp );
+            else
+                sdpAnswer = getMediaHandler().createOffer();
 
             response.setContent( sdpAnswer, getProtocolProvider()
                 .getHeaderFactory().createContentTypeHeader(
@@ -756,7 +729,17 @@ public class CallPeerSipImpl
         ContentLengthHeader contentLength = ack.getContentLength();
         if ((contentLength != null) && (contentLength.getContentLength() > 0))
         {
-            setSdpDescription( new String(ack.getRawContent()));
+            try
+            {
+                getMediaHandler().processAnswer(
+                                    new String(ack.getRawContent()));
+            }
+            catch (Exception exc)
+            {
+                logAndFail("There was an error parsing the SDP description of "
+                            + getDisplayName() + "(" + getAddress() + ")", exc);
+                return;
+            }
         }
 
         // change status
@@ -797,15 +780,11 @@ public class CallPeerSipImpl
             return;
         }
 
-        // set sdp content before setting call state as that is where
-        // listeners get alerted and they need the sdp
-        setSdpDescription(new String(response.getRawContent()));
-
-        // notify the media manager of the sdp content
-
+        //handle media
         try
         {
-            getMediaHandler().processAnswer(getSdpDescription());
+            getMediaHandler().processAnswer(
+                            new String(response.getRawContent()));
         }
         catch (Exception exc)
         {
@@ -847,21 +826,12 @@ public class CallPeerSipImpl
             return;
         }
 
-        // !!! set SDP content before setting call state as that is where
-        // listeners get alerted and they need the SDP
-        // ignore SDP if we've just had one in early media
-        if(!CallPeerState.CONNECTING_WITH_EARLY_MEDIA.equals(getState()))
-        {
-            setSdpDescription(new String(ok.getRawContent()));
-        }
-
-        // notify the media manager of the sdp content
         try
         {
              //Process SDP unless we've just had an answer in a 18X response
             if (!CallPeerState.CONNECTING_WITH_EARLY_MEDIA.equals(getState()))
             {
-                getMediaHandler().processAnswer(getSdpDescription());
+                getMediaHandler().processAnswer(new String(ok.getRawContent()));
             }
         }
         //at this point we have already sent our ack so in addition to logging
@@ -1146,7 +1116,17 @@ public class CallPeerSipImpl
 
         try
         {
-            String sdpOffer = getSdpDescription();
+            String sdpOffer = null;
+
+            // extract the SDP description.
+            // beware: SDP description may be in ACKs so it could be that there's
+            // nothing here - bug report Laurent Michel
+            Request invite = getLatestInviteTransaction().getRequest();
+            ContentLengthHeader cl = invite.getContentLength();
+            if (cl != null && cl.getContentLength() > 0)
+            {
+                sdpOffer = new String(invite.getRawContent());
+            };
 
             String sdp;
             // if the offer was in the invite create an sdp answer
@@ -1412,11 +1392,20 @@ public class CallPeerSipImpl
     }
 
     /**
-     * Overrides the
+     * Overrides the parent set state method in order to make sure that we
+     * close our media handler whenever we enter a disconnected state.
+     *
+     * @param newState the <tt>CallPeerState</tt> that we are about to enter and
+     * that we pass to our predecessor.
+     * @param reason a reason phrase explaining the state (e.g. if newState
+     * indicates a failure) and that we pass to our predecessor.
      */
     public void setState(CallPeerState newState, String reason)
     {
         super.setState(newState, reason);
-        this.getMediaHandler().close();
+
+        if ( CallPeerState.DISCONNECTED.equals(newState)
+             || CallPeerState.FAILED.equals(newState))
+            this.getMediaHandler().close();
     }
 }

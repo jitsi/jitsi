@@ -440,15 +440,6 @@ public class CallSipImpl
 
         CallPeerSipImpl peer = createCallPeerFor(serverTran, jainSipProvider);
 
-        // extract the SDP description.
-        // beware: SDP description may be in ACKs so it could be that there's
-        // nothing here - bug report Laurent Michel
-        ContentLengthHeader cl = invite.getContentLength();
-        if (cl != null && cl.getContentLength() > 0)
-        {
-            peer.setSdpDescription(new String(invite.getRawContent()));
-        }
-
         //send a ringing response
         Response response = null;
         try
