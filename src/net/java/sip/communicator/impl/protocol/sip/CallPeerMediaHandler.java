@@ -157,14 +157,38 @@ public class CallPeerMediaHandler
     {
         MediaService mediaService = SipActivator.getMediaService();
 
+        //media connectors.
+        StreamConnector audioConn = createStreamConnector(preferredRtpPort);
+        StreamConnector videoConn = createStreamConnector(audioConn.getControlSocket().getLocalPort() + 1);
+
+        //devices
         MediaDevice aDev = mediaService.getDefaultDevice(MediaType.AUDIO);
         MediaDevice vDev = mediaService.getDefaultDevice(MediaType.VIDEO);
 
-        Iterator<MediaFormat> aFmtIter = aDev.getSupportedFormats().iterator();
-        initFormats(aFmtIter);
 
-        Iterator<MediaFormat> vFmtIter = vDev.getSupportedFormats().iterator();
-        initFormats(vFmtIter);
+
+    }
+
+    /**
+     * Generates an SDP <tt>MediaDescription</tt> for <tt>MediaDevice</tt>
+     * taking account the local streaming preference for the corresponding
+     * media type.
+     *
+     * @param dev the <tt>MediaDevice</tt> that we'd like to generate a media
+     * description for.
+     *
+     * @return a newly created <tt>MediaDescription</tt> representing streams
+     * that we'd be able to handle with <tt>dev</tt>.
+     */
+    private MediaDescription createMediaDescription(MediaDevice dev)
+    {
+
+        List<MediaFormat> formats = dev.getSupportedFormats();
+
+
+
+
+        return SdpUtils.createMediaDescription(formats, connector, direction, dynamicPayloadTypes);
     }
 
     private void initFormats(Iterator<MediaFormat> fmtsIter)

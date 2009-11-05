@@ -12,7 +12,6 @@ import java.util.*;
 import javax.sdp.*;
 
 import net.java.sip.communicator.impl.protocol.sip.*;
-import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -43,12 +42,36 @@ public class SdpUtils
 
     /**
      * Creates an empty instance of a <tt>SessionDescription</tt> with
-     * preinitialized  <tt>s</tt>, <tt>v</tt>, and <tt>t</tt> parameters.
+     * preinitialized  <tt>s</tt>, <tt>v</tt>, <tt>c</tt>, <tt>o</tt> and
+     * <tt>t</tt> parameters.
+     *
+     * @param localAddress the <tt>InetAddress</tt> corresponding to the local
+     * address that we'd like to use when talking to the remote party.
      *
      * @return an empty instance of a <tt>SessionDescription</tt> with
      * preinitialized <tt>s</tt>, <tt>v</tt>, and <tt>t</tt> parameters.
      */
-    public static SessionDescription createSessionDescription()
+    public static SessionDescription createSessionDescription(
+                    InetAddress localAddress)
+    {
+        return createSessionDescription(localAddress, null);
+    }
+
+    /**
+     * Creates an empty instance of a <tt>SessionDescription</tt> with
+     * preinitialized  <tt>s</tt>, <tt>v</tt>, <tt>c</tt>, <tt>o</tt> and
+     * <tt>t</tt> parameters.
+     *
+     * @param localAddress the <tt>InetAddress</tt> corresponding to the local
+     * address that we'd like to use when talking to the remote party.
+     * @param userName the user name to use in the origin parameter or
+     * <tt>null</tt> in case we'd like to use a default.
+     *
+     * @return an empty instance of a <tt>SessionDescription</tt> with
+     * preinitialized <tt>s</tt>, <tt>v</tt>, and <tt>t</tt> parameters.
+     */
+    public static SessionDescription createSessionDescription(
+                    InetAddress localAddress, String userName)
     {
         SessionDescription sessDescr = null;
 
@@ -70,6 +93,30 @@ public class SdpUtils
             timeDescs.add(t);
 
             sessDescr.setTimeDescriptions(timeDescs);
+
+            String addrType = localAddress instanceof Inet6Address
+                ? Connection.IP6
+                : Connection.IP4;
+
+            //o
+            if (userName == null)
+                userName = "sip-communicator";
+
+            Origin o = sdpFactory.createOrigin(
+                userName,
+                0,
+                0,
+                "IN",
+                addrType,
+                localAddress.getHostAddress());
+
+            sessDescr.setOrigin(o);
+
+            //c=
+            Connection c = sdpFactory.createConnection(
+                "IN", addrType, localAddress.getHostAddress());
+
+            sessDescr.setConnection(c);
 
             return sessDescr;
         }
@@ -214,7 +261,7 @@ public class SdpUtils
     {
         //default values in case rtpmap is null.
         String encoding = null;
-        int clockRate = -1;
+        double clockRate = -1;
         int numChannels = 1;
 
         if (rtpmap != null)
@@ -247,7 +294,7 @@ public class SdpUtils
             //clock rate (mandatory)
             if(tokenizer.hasMoreTokens())
             {
-                clockRate = Integer.parseInt(tokenizer.nextToken());
+                clockRate = Double.parseDouble(tokenizer.nextToken());
             }
 
             //number of channels (optional)
@@ -272,8 +319,9 @@ public class SdpUtils
 
         //now create the format.
         MediaFormat format = SipActivator.getMediaService().getFormatFactory()
-            .createMediaFormat(payloadType, encoding, clockRate,
-                               numChannels, fmtParamsMap);
+            //.createMediaFormat(payloadType, encoding, clockRate,
+            //                   numChannels, fmtParamsMap);
+            .createMediaFormat(encoding, clockRate, fmtParamsMap);
 
         return format;
     }
