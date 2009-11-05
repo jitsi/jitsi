@@ -353,6 +353,8 @@ public class CallPeerMediaHandler
         MediaService mediaService = SipActivator.getMediaService();
 
         MediaStream stream = mediaService.createMediaStream(connector, device);
+        registerDynamicPTsWithStream(stream);
+
 
         stream.setFormat(format);
         stream.setTarget(target);
@@ -366,6 +368,17 @@ public class CallPeerMediaHandler
         stream.start();
 
         return stream;
+    }
+
+    private void registerDynamicPTsWithStream(MediaStream stream)
+    {
+        for ( Map.Entry<MediaFormat, Byte> mapEntry
+                        : dynamicPayloadTypes.getMappings().entrySet())
+        {
+            byte pt = mapEntry.getValue().byteValue();
+            MediaFormat fmt = mapEntry.getKey();
+            stream.addDynamicRTPPayloadType(pt, fmt);
+        }
     }
 
     private String processFirstOffer(SessionDescription offer)
