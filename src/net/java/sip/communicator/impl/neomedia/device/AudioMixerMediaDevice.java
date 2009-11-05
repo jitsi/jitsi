@@ -33,21 +33,23 @@ public class AudioMixerMediaDevice
     private AudioMixer audioMixer;
 
     /**
-     * The actual <tt>AudioMediaDeviceImpl</tt> wrapped by this instance for the
+     * The actual <tt>MediaDeviceImpl</tt> wrapped by this instance for the
      * purposes of audio mixing and used by {@link #audioMixer} as its
      * <tt>CaptureDevice</tt>.
      */
-    private final AudioMediaDeviceImpl device;
+    private final MediaDeviceImpl device;
 
     /**
      * Initializes a new <tt>AudioMixerMediaDevice</tt> instance which is to
-     * enable audio mixing on a specific <tt>AudioMediaDeviceImpl</tt>.
+     * enable audio mixing on a specific <tt>MediaDeviceImpl</tt>.
      *
-     * @param device the <tt>AudioMediaDeviceImpl</tt> which the new instance is
-     * to enable audio mixing on
+     * @param device the <tt>MediaDeviceImpl</tt> which the new instance is to
+     * enable audio mixing on
      */
-    public AudioMixerMediaDevice(AudioMediaDeviceImpl device)
+    public AudioMixerMediaDevice(MediaDeviceImpl device)
     {
+        if (!MediaType.AUDIO.equals(device.getMediaType()))
+            throw new IllegalArgumentException("device");
 
         /*
          * AudioMixer is initialized with a CaptureDevice so we have to be sure

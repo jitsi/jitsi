@@ -56,6 +56,13 @@ public class MediaStreamImpl
     private MediaDeviceSession deviceSession;
 
     /**
+     * The <tt>PropertyChangeListener</tt> which listens to
+     * {@link #deviceSession} and changes in the values of its
+     * {@link MediaDeviceSession#OUTPUT_DATA_SOURCE} property.
+     */
+    private PropertyChangeListener deviceSessionPropertyChangeListener;
+
+    /**
      * The <tt>MediaDirection</tt> in which this <tt>MediaStream</tt> is allowed
      * to stream media.
      */
@@ -66,8 +73,8 @@ public class MediaStreamImpl
      * <tt>RTPManager</tt> it utilizes of (dynamic) RTP payload types to
      * <tt>MediaFormat</tt>s.
      */
-    private final Map<Integer, MediaFormat> dynamicRTPPayloadTypes
-        = new HashMap<Integer, MediaFormat>();
+    private final Map<Byte, MediaFormat> dynamicRTPPayloadTypes
+        = new HashMap<Byte, MediaFormat>();
 
     /**
      * The <tt>ReceiveStream</tt>s this instance plays back on its associated
@@ -148,7 +155,7 @@ public class MediaStreamImpl
      * @see MediaStream#addDynamicRTPPayloadType(int, MediaFormat)
      */
     public void addDynamicRTPPayloadType(
-            int rtpPayloadType,
+            byte rtpPayloadType,
             MediaFormat format)
     {
         MediaFormatImpl<? extends Format> mediaFormatImpl
@@ -156,7 +163,7 @@ public class MediaStreamImpl
 
         synchronized (dynamicRTPPayloadTypes)
         {
-            dynamicRTPPayloadTypes.put(Integer.valueOf(rtpPayloadType), format);
+            dynamicRTPPayloadTypes.put(Byte.valueOf(rtpPayloadType), format);
 
             if (rtpManager != null)
                 rtpManager
@@ -206,7 +213,8 @@ public class MediaStreamImpl
     private void createSendStreams()
     {
         RTPManager rtpManager = getRTPManager();
-        DataSource dataSource = getDeviceSession().getOutputDataSource();
+        MediaDeviceSession deviceSession = getDeviceSession();
+        DataSource dataSource = deviceSession.getOutputDataSource();
         int streamCount;
 
         if (dataSource instanceof PushBufferDataSource)
@@ -247,6 +255,13 @@ public class MediaStreamImpl
             try
             {
                 rtpManager.createSendStream(dataSource, streamIndex);
+                if (logger.isTraceEnabled())
+                    logger
+                        .trace(
+                            "Created send stream for data source "
+                                + dataSource
+                                + " and stream index "
+                                + streamIndex);
             }
             catch (IOException ioe)
             {
@@ -270,6 +285,19 @@ public class MediaStreamImpl
             }
         }
         sendStreamsAreCreated = true;
+
+        if (deviceSessionPropertyChangeListener == null)
+            deviceSessionPropertyChangeListener = new PropertyChangeListener()
+            {
+                public void propertyChange(PropertyChangeEvent event)
+                {
+                    if (MediaDeviceSession
+                            .OUTPUT_DATA_SOURCE.equals(event.getPropertyName()))
+                        deviceSessionOutputDataSourceChanged();
+                }
+            };
+        deviceSession
+            .addPropertyChangeListener(deviceSessionPropertyChangeListener);
     }
 
     /**
@@ -288,12 +316,19 @@ public class MediaStreamImpl
             MediaDeviceSession oldValue,
             MediaDeviceSession newValue)
     {
-        if (sendStreamsAreCreated)
-        {
-            closeSendStreams();
-            if ((newValue != null) && (rtpManager != null))
-                createSendStreams();
-        }
+        recreateSendStreams();
+    }
+
+    /**
+     * Notifies this instance that the output <tt>DataSource</tt> of its
+     * <tt>MediaDeviceSession</tt> has changed. Recreates the
+     * <tt>SendStream</tt>s of this instance as necessary so that it, for
+     * example, continues streaming after the change if it was streaming before
+     * the change.
+     */
+    private void deviceSessionOutputDataSourceChanged()
+    {
+        recreateSendStreams();
     }
 
     /**
@@ -350,20 +385,20 @@ public class MediaStreamImpl
      * well-known associations reported by
      * {@link MediaFormat#getRTPPayloadType()}.
      *
-     * @return a <tt>Map</tt> of RTP payload type expressed as <tt>Integer</tt>
-     * to <tt>MediaFormat</tt> describing the existing (dynamic) associations in
+     * @return a <tt>Map</tt> of RTP payload type expressed as <tt>Byte</tt> to
+     * <tt>MediaFormat</tt> describing the existing (dynamic) associations in
      * this instance of RTP payload types to <tt>MediaFormat</tt>s. The
      * <tt>Map</tt> represents a snapshot of the existing associations at the
      * time of the <tt>getDynamicRTPPayloadTypes()</tt> method call and
      * modifications to it are not reflected on the internal storage
      * @see MediaStream#getDynamicRTPPayloadTypes()
      */
-    public Map<Integer, MediaFormat> getDynamicRTPPayloadTypes()
+    public Map<Byte, MediaFormat> getDynamicRTPPayloadTypes()
     {
         synchronized (dynamicRTPPayloadTypes)
         {
             return
-                new HashMap<Integer, MediaFormat>(dynamicRTPPayloadTypes);
+                new HashMap<Byte, MediaFormat>(dynamicRTPPayloadTypes);
         }
     }
 
@@ -511,7 +546,12 @@ public class MediaStreamImpl
      */
     public boolean isMute()
     {
-        return false;
+        MediaDevice device = getDevice();
+
+        return
+            (device instanceof MediaDeviceImpl)
+                ? ((MediaDeviceImpl) device).isMute()
+                : false;
     }
 
     /**
@@ -530,6 +570,29 @@ public class MediaStreamImpl
     }
 
     /**
+     * Recreates the <tt>SendStream</tt>s of this instance (i.e. of its
+     * <tt>RTPManager</tt>) as necessary. For example, if there was no attempt
+     * to create the <tt>SendStream</tt>s prior to the call, does nothing. If
+     * they were created prior to the call, closes them and creates them again.
+     * If they were not started prior to the call, does not start them after
+     * recreating them.
+     */
+    private void recreateSendStreams()
+    {
+        if (sendStreamsAreCreated)
+        {
+            closeSendStreams();
+            if ((getDeviceSession() != null) && (rtpManager != null))
+            {
+                createSendStreams();
+                if (MediaDirection.SENDONLY.equals(startedDirection)
+                        || MediaDirection.SENDRECV.equals(startedDirection))
+                    startSendStreams();
+            }
+        }
+    }
+
+    /**
      * Registers any custom JMF <tt>Format</tt>s with a specific
      * <tt>RTPManager</tt>. Extenders should override in order to register their
      * own customizations and should call back to this super implementation
@@ -544,7 +607,7 @@ public class MediaStreamImpl
     {
         synchronized (dynamicRTPPayloadTypes)
         {
-            for (Map.Entry<Integer, MediaFormat> dynamicRTPPayloadType
+            for (Map.Entry<Byte, MediaFormat> dynamicRTPPayloadType
                     : dynamicRTPPayloadTypes.entrySet())
             {
                 MediaFormatImpl<? extends Format> mediaFormatImpl
@@ -577,6 +640,7 @@ public class MediaStreamImpl
         if (device == null)
             throw new NullPointerException("device");
 
+        // Require AbstractMediaDevice for MediaDeviceSession support.
         AbstractMediaDevice abstractMediaDevice = (AbstractMediaDevice) device;
 
         if ((deviceSession == null) || (deviceSession.getDevice() != device))
@@ -585,6 +649,10 @@ public class MediaStreamImpl
 
             if (deviceSession != null)
             {
+                if (deviceSessionPropertyChangeListener != null)
+                    deviceSession
+                        .removePropertyChangeListener(
+                            deviceSessionPropertyChangeListener);
                 deviceSession.close();
                 deviceSession = null;
             }
@@ -691,6 +759,12 @@ public class MediaStreamImpl
      */
     public void setMute(boolean mute)
     {
+        MediaDevice device = getDevice();
+
+        if (device instanceof MediaDeviceImpl)
+            ((MediaDeviceImpl) device).setMute(mute);
+        else
+            throw new IllegalStateException("device");
     }
 
     /**
@@ -764,22 +838,7 @@ public class MediaStreamImpl
                 && (!MediaDirection.SENDRECV.equals(startedDirection)
                         && !MediaDirection.SENDONLY.equals(startedDirection)))
         {
-            RTPManager rtpManager = getRTPManager();
-            Iterable<SendStream> sendStreams = rtpManager.getSendStreams();
-
-            if (sendStreams != null)
-                for (SendStream sendStream : sendStreams)
-                    try
-                    {
-                        // TODO Are we sure we want to connect here?
-                        sendStream.getDataSource().connect();
-                        sendStream.start();
-                    }
-                    catch (IOException ioe)
-                    {
-                        logger
-                            .warn("Failed to start stream " + sendStream, ioe);
-                    }
+            startSendStreams();
 
             getDeviceSession().start(MediaDirection.SENDONLY);
 
@@ -842,6 +901,31 @@ public class MediaStreamImpl
             else if (startedDirection == null)
                 startedDirection = MediaDirection.RECVONLY;
         }
+    }
+
+    /**
+     * Starts the <tt>SendStream</tt>s of the <tt>RTPManager</tt> of this
+     * <tt>MediaStream</tt>.
+     */
+    private void startSendStreams()
+    {
+        RTPManager rtpManager = getRTPManager();
+        @SuppressWarnings("unchecked")
+        Iterable<SendStream> sendStreams = rtpManager.getSendStreams();
+
+        if (sendStreams != null)
+            for (SendStream sendStream : sendStreams)
+                try
+                {
+                    // TODO Are we sure we want to connect here?
+                    sendStream.getDataSource().connect();
+                    sendStream.start();
+                }
+                catch (IOException ioe)
+                {
+                    logger
+                        .warn("Failed to start stream " + sendStream, ioe);
+                }
     }
 
     /**

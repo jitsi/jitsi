@@ -402,6 +402,28 @@ public class MediaDeviceImpl
     }
 
     /**
+     * Determines whether this <tt>MediaDevice</tt> will provide silence instead
+     * of actual captured data next time it is read.
+     *
+     * @return <tt>true</tt> if this <tt>MediaDevice</tt> will provide silence
+     * instead of actual captured data next time it is read; <tt>false</tt>,
+     * otherwise
+     */
+    public boolean isMute()
+    {
+        CaptureDevice captureDevice = getCaptureDevice(false);
+
+        if (captureDevice instanceof MutePushBufferDataSource)
+            return ((MutePushBufferDataSource) captureDevice).isMute();
+
+        /*
+         * If there is no underlying CaptureDevice, this instance is mute
+         * because it cannot capture any media.
+         */
+        return !getDirection().allowsSending();
+    }
+
+    /**
      * Sets the JMF <tt>CaptureDevice</tt> this instance wraps and provides a
      * <tt>MediaDevice</tt> implementation for. Allows extenders to override in
      * order to customize <tt>captureDevice</tt> including to replace it before
@@ -412,6 +434,12 @@ public class MediaDeviceImpl
      */
     protected void setCaptureDevice(CaptureDevice captureDevice)
     {
+        // Try to enable mute support on the specified CaptureDevice.
+        if (captureDevice instanceof PushBufferDataSource)
+            captureDevice
+                = new MutePushBufferDataSource(
+                        (PushBufferDataSource) captureDevice);
+
         if (this.captureDevice != captureDevice)
         {
             CaptureDevice oldValue = this.captureDevice;
@@ -423,6 +451,23 @@ public class MediaDeviceImpl
 
             captureDeviceChanged(oldValue, newValue);
         }
+    }
+
+    /**
+     * Sets the indicator which determines whether this <tt>MediaDevice</tt>
+     * will start providing silence instead of actual captured data next time it
+     * is read.
+     *
+     * @param mute <tt>true</tt> to have this <tt>MediaDevice</tt> start
+     * providing silence instead of actual captured data next time it is read;
+     * otherwise, <tt>false</tt>
+     */
+    public void setMute(boolean mute)
+    {
+        CaptureDevice captureDevice = getCaptureDevice();
+
+        if (captureDevice instanceof MutePushBufferDataSource)
+            ((MutePushBufferDataSource) captureDevice).setMute(mute);
     }
 
     /**

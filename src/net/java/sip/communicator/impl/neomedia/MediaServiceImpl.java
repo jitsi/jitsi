@@ -274,8 +274,6 @@ public class MediaServiceImpl
                     switch (mediaType)
                     {
                     case AUDIO:
-                        device = new AudioMediaDeviceImpl(captureDeviceInfo);
-                        break;
                     case VIDEO:
                         device = new MediaDeviceImpl(captureDeviceInfo, mediaType);
                         break;
@@ -363,7 +361,7 @@ public class MediaServiceImpl
     private MediaDevice getNonSendAudioDevice()
     {
         if (nonSendAudioDevice == null)
-            nonSendAudioDevice = new AudioMediaDeviceImpl();
+            nonSendAudioDevice = new MediaDeviceImpl(MediaType.AUDIO);
         return nonSendAudioDevice;
     }
 
@@ -392,6 +390,7 @@ public class MediaServiceImpl
         deviceConfiguration.initialize();
         encodingConfiguration.initializeFormatPreferences();
         encodingConfiguration.registerCustomPackages();
+        encodingConfiguration.registerCustomCodecs();
     }
 
     /**

@@ -6,11 +6,11 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
+import javax.media.*;
 import javax.media.format.*;
 import javax.media.rtp.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.*;
-import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.event.*;
@@ -52,7 +52,7 @@ public class AudioMediaStreamImpl
                             8000,
                             8,
                             1,
-                            -1,
+                            Format.NOT_SPECIFIED,
                             AudioFormat.SIGNED)
                 };
 
@@ -107,20 +107,6 @@ public class AudioMediaStreamImpl
     public void addSoundLevelListener(SoundLevelListener listener)
     {
         // TODO Auto-generated method stub
-    }
-
-    /**
-     * Determines whether this <tt>AudioMediaStream</tt> is set to transmit
-     * silence instead of the audio being fed from its <tt>MediaDevice</tt>.
-     *
-     * @return <tt>true</tt> if this <tt>AudioMediaStream</tt> is set to
-     * transmit silence instead of the audio fed from its <tt>MediaDevice</tt>;
-     * <tt>false</tt>, otherwise
-     * @see AudioMediaStream#isMute()
-     */
-    public boolean isMute()
-    {
-        return ((AudioMediaDeviceImpl) getDevice()).isMute();
     }
 
     /**
@@ -192,38 +178,6 @@ public class AudioMediaStreamImpl
     public void removeSoundLevelListener(SoundLevelListener listener)
     {
         // TODO Auto-generated method stub
-    }
-
-    /**
-     * Sets the <tt>MediaDevice</tt> that this stream should use to play back
-     * and capture media. Asserts that the specified <tt>device</tt> is an
-     * <tt>AudioMediaDeviceImpl</tt> because the implementation of
-     * <tt>AudioMediaStreamImpl</tt> depends on it.
-     *
-     * @param device the <tt>MediaDevice</tt> that this stream should use to
-     * play back and capture media
-     * @see MediaStreamImpl#setDevice(MediaDevice)
-     */
-    @Override
-    public void setDevice(MediaDevice device)
-    {
-        super.setDevice((AudioMediaDeviceImpl) device);
-    }
-
-    /**
-     * Causes this <tt>AudioMediaStream</tt> to stop transmitting the audio
-     * being fed from this stream's <tt>MediaDevice</tt> and transmit silence
-     * instead.
-     *
-     * @param mute <tt>true</tt> to have this <tt>AudioMediaStream</tt> transmit
-     * silence instead of the actual audio data that it captures from its
-     * <tt>MediaDevice</tt>; <tt>false</tt> to transmit actual audio data
-     * captured from the <tt>MediaDevice</tt> of this <tt>AudioMediaStream</tt>
-     * @see AudioMediaStream#setMute(boolean)
-     */
-    public void setMute(boolean mute)
-    {
-        ((AudioMediaDeviceImpl) getDevice()).setMute(mute);
     }
 
     /**

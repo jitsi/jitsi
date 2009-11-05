@@ -15,30 +15,43 @@ import net.java.sip.communicator.util.*;
  *
  * @author Emil Ivov
  * @author Ken Larson
+ * @author Lubomir Marinov
  */
 public class ProcessorUtility implements ControllerListener
 {
-    private final Logger logger = Logger.getLogger(ProcessorUtility.class);
 
     /**
-     * The object that we use for syncing when waiting for a processor
-     * to enter a specific state.
+     * The <tt>Logger</tt> used by the <tt>ProcessorUtility</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(ProcessorUtility.class);
+
+    /**
+     * The <tt>Object</tt> used for syncing when waiting for a processor to
+     * enter a specific state.
      */
     private final Object stateLock = new Object();
 
+    /**
+     * The indicator which determines whether the waiting of this instance on a
+     * processor for it to enter a specific state has failed.
+     */
     private boolean failed = false;
 
     /**
-     * Default constructor, creates an instance of the of the Processor utility.
+     * Initializes a new <tt>ProcessorUtility</tt> instance.
      */
     public ProcessorUtility()
     {
     }
 
     /**
-     * Returns the object that we use for syncing when waiting for a processor
+     * Gets the <tt>Object</tt> to use for syncing when waiting for a processor
      * to enter a specific state.
-     * @return Integer
+     *
+     * @return the <tt>Object</tt> to use for syncing when waiting for a
+     * processor to enter a specific state
      */
     private Object getStateLock()
     {
@@ -125,11 +138,20 @@ public class ProcessorUtility implements ControllerListener
                 }
                 catch (InterruptedException ie)
                 {
+                    logger
+                        .warn(
+                            "Failed while waiting on Processor "
+                                + processor
+                                + " for state "
+                                + state,
+                            ie);
+                    processor.removeControllerListener(this);
                     return false;
                 }
             }
         }
 
+        processor.removeControllerListener(this);
         return !failed;
     }
 }

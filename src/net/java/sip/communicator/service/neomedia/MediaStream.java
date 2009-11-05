@@ -176,7 +176,7 @@ public interface MediaStream
      * <tt>MediaStream</tt> with <tt>rtpPayloadType</tt>
      */
     public void addDynamicRTPPayloadType(
-            int rtpPayloadType,
+            byte rtpPayloadType,
             MediaFormat format);
 
     /**
@@ -187,14 +187,14 @@ public interface MediaStream
      * well-known associations reported by
      * {@link MediaFormat#getRTPPayloadType()}.
      *
-     * @return a <tt>Map</tt> of RTP payload type expressed as <tt>Integer</tt>
-     * to <tt>MediaFormat</tt> describing the existing (dynamic) associations in
+     * @return a <tt>Map</tt> of RTP payload type expressed as <tt>Byte</tt> to
+     * <tt>MediaFormat</tt> describing the existing (dynamic) associations in
      * this instance of RTP payload types to <tt>MediaFormat</tt>s. The
      * <tt>Map</tt> represents a snapshot of the existing associations at the
      * time of the <tt>getDynamicRTPPayloadTypes()</tt> method call and
      * modifications to it are not reflected on the internal storage
      */
-    public Map<Integer, MediaFormat> getDynamicRTPPayloadTypes();
+    public Map<Byte, MediaFormat> getDynamicRTPPayloadTypes();
 
     /**
      * Sets the direction in which media in this <tt>MediaStream</tt> is to be
