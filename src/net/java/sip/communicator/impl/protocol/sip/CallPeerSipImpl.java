@@ -106,10 +106,13 @@ public class CallPeerSipImpl
     private final OperationSetBasicTelephonySipImpl parentOpSet;
 
     /**
-     * The <tt>CallSession</tt> that the media service has created for this
-     * call.
+     * The media handler class handles all media management for a single
+     * <tt>CallPeer</tt>. This includes initializing and configuring streams,
+     * generating SDP, handling ICE, etc. One instance of <tt>CallPeer</tt> always
+     * corresponds to exactly one instance of <tt>CallPeerMediaHandler</tt> and
+     * both classes are only separated for reasons of readability.
      */
-    private CallSession mediaCallSession = null;
+    private final CallPeerMediaHandler mediaHandler;
 
     /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
@@ -129,6 +132,8 @@ public class CallPeerSipImpl
         this.call = owningCall;
         this.parentOpSet = owningCall.getParentOperationSet();
         this.messageFactory = getProtocolProvider().getMessageFactory();
+
+        this.mediaHandler = new CallPeerMediaHandler(this);
 
         setDialog(containingTransaction.getDialog());
         setLatestInviteTransaction(containingTransaction);
@@ -592,30 +597,6 @@ public class CallPeerSipImpl
             sdpAnswer,
             getProtocolProvider().getHeaderFactory()
                 .createContentTypeHeader("application", "sdp"));
-    }
-
-    /**
-     * Sets the <tt>CallSession</tt> that the media service has created for this
-     * call peer.
-     *
-     * @param callSession the <tt>CallSession</tt> that the media service has
-     * created for this <tt>CallPeer</tt>.
-     */
-    public void setMediaCallSession(CallSession callSession)
-    {
-        this.mediaCallSession = callSession;
-    }
-
-    /**
-     * Returns the <tt>CallSession</tt> that the media service has created for
-     * this peer.
-     *
-     * @return the <tt>CallSession</tt> that the media service has created for
-     * this peer or <tt>null</tt> if no call session has been created so far.
-     */
-    public CallSession getMediaCallSession()
-    {
-        return this.mediaCallSession;
     }
 
     /**
@@ -1621,5 +1602,22 @@ public class CallPeerSipImpl
         setDialog(retryTran.getDialog());
         setLatestInviteTransaction(retryTran);
         setJainSipProvider(jainSipProvider);
+    }
+
+    /**
+     * Returns a reference to the <tt>CallPeerMediaHandler</tt> used by this
+     * peer. The media handler class handles all media management for a single
+     * <tt>CallPeer</tt>. This includes initializing and configuring streams,
+     * generating SDP, handling ICE, etc. One instance of <tt>CallPeer</tt>
+     * always corresponds to exactly one instance of
+     * <tt>CallPeerMediaHandler</tt> and both classes are only separated for
+     * reasons of readability.
+     *
+     * @return a reference to the <tt>CallPeerMediaHandler</tt> instance that
+     * this peer uses for media related tips and tricks.
+     */
+    private CallPeerMediaHandler getMediaHandler()
+    {
+        return mediaHandler;
     }
 }
