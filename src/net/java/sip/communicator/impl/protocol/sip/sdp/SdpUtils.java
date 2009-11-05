@@ -6,12 +6,10 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.sdp;
 
-import java.net.*;
 import java.util.*;
 
 import javax.sdp.*;
 
-import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.util.*;
 
 /**

@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.protocol.sip;
 
 import java.awt.*;
 
-import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -68,8 +67,11 @@ public class OperationSetVideoTelephonySipImpl
         if (listener == null)
             throw new NullPointerException("listener");
 
+        /**
+         * @todo update to neomedia.
         ((CallPeerSipImpl) peer).getMediaCallSession()
             .addVideoListener(new InternalVideoListener(this, peer, listener));
+            */
     }
 
     /**
@@ -90,6 +92,8 @@ public class OperationSetVideoTelephonySipImpl
     public Component createLocalVisualComponent(CallPeer peer,
         VideoListener listener) throws OperationFailedException
     {
+        /**
+         * @todo update to neomedia.
         CallSession callSession =((CallPeerSipImpl) peer).getMediaCallSession();
 
         if (callSession != null)
@@ -106,6 +110,7 @@ public class OperationSetVideoTelephonySipImpl
                     OperationFailedException.INTERNAL_ERROR, ex);
             }
         }
+        */
         return null;
     }
 
@@ -121,10 +126,13 @@ public class OperationSetVideoTelephonySipImpl
      */
     public void disposeLocalVisualComponent(CallPeer peer, Component component)
     {
+        /**
+         * @todo update to neomedia.
         CallSession callSession =((CallPeerSipImpl) peer).getMediaCallSession();
 
         if (callSession != null)
             callSession.disposeLocalVisualComponent(component);
+        */
     }
 
     /**
@@ -139,10 +147,14 @@ public class OperationSetVideoTelephonySipImpl
      */
     public Component[] getVisualComponents(CallPeer peer)
     {
+        /**
+         * @todo update to neomedia.
         CallSession callSession =((CallPeerSipImpl)peer).getMediaCallSession();
 
         return (callSession != null) ? callSession.getVisualComponents()
             : new Component[0];
+         */
+        return null;
     }
 
     /**
@@ -159,12 +171,15 @@ public class OperationSetVideoTelephonySipImpl
      */
     public void removeVideoListener(CallPeer peer, VideoListener listener)
     {
+        /**
+         * @todo update to neomedia.
         if (listener != null)
         {
             ((CallPeerSipImpl) peer).getMediaCallSession()
                 .removeVideoListener(
                     new InternalVideoListener(this, peer, listener));
         }
+        */
     }
 
     /**

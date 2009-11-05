@@ -18,7 +18,6 @@ import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
 
-import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -1478,9 +1477,13 @@ public class OperationSetBasicTelephonySipImpl
      */
     public boolean isSecure(CallPeer peer)
     {
+        return false;
+        /**
+         * @todo update to neomedia.
         CallSession cs= ((CallPeerSipImpl) peer).getMediaCallSession();
 
         return (cs != null) && cs.getSecureCommunicationStatus();
+        */
     }
 
     /**
@@ -1493,11 +1496,12 @@ public class OperationSetBasicTelephonySipImpl
      * @return Emil: I am not sure why this is returning anything at all; should
      * get rid of this.
      */
-    public boolean setSasVerified(  CallPeer peer, boolean isVerified )
+    public void setSasVerified(  CallPeer peer, boolean isVerified )
     {
+        /**
+         * @todo update to neomedia.
         CallSession cs = ((CallPeerSipImpl) peer).getMediaCallSession();
-
-        return (cs != null) && cs.setZrtpSASVerification(isVerified);
+        */
     }
 
 
