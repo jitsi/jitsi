@@ -215,6 +215,7 @@ public abstract class MediaFormatImpl<T extends Format>
      * @return <tt>true</tt> if the JMF <tt>Format</tt> instances encapsulated
      * by this class are equal and <tt>false</tt> otherwise.
      */
+    @Override
     public boolean equals(Object mediaFormat)
     {
         if (this == mediaFormat)
@@ -320,6 +321,7 @@ public abstract class MediaFormatImpl<T extends Format>
      *
      * @return a hash code value for this <tt>MediaFormat</tt>.
      */
+    @Override
     public int hashCode()
     {
         return (super.hashCode() | getFormatParameters().hashCode());
@@ -350,6 +352,7 @@ public abstract class MediaFormatImpl<T extends Format>
      *
      * @return a <tt>String</tt> representation of this <tt>MediaFormat</tt>.
      */
+    @Override
     public String toString()
     {
         StringBuffer str = new StringBuffer();
