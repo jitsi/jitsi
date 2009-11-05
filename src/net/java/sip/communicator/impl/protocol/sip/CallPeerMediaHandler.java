@@ -217,7 +217,7 @@ public class CallPeerMediaHandler
         if(audioDirection != MediaDirection.INACTIVE);
         {
             mediaDescs.add(createMediaDescription(aDev.getSupportedFormats(),
-                            getAudioStreamConnector(), audioDirection));
+                getStreamConnector(MediaType.AUDIO), audioDirection));
         }
 
         //Video Media Description
@@ -228,7 +228,7 @@ public class CallPeerMediaHandler
         if(videoDirection != MediaDirection.INACTIVE);
         {
             mediaDescs.add(createMediaDescription( vDev.getSupportedFormats(),
-                            getVideoStreamConnector(), videoDirection));
+                getStreamConnector(MediaType.VIDEO), videoDirection));
         }
 
         //fail if all devices were inactive
@@ -302,13 +302,15 @@ public class CallPeerMediaHandler
                 OperationFailedException.ILLEGAL_ARGUMENT, null, logger);
         }
 
+        MediaService mediaService = SipActivator.getMediaService();
+
         //prepaer to generate answers to all the incoming descriptions
         Vector<MediaDescription> answerDescriptions
             = new Vector<MediaDescription>(remoteDescriptions.size());
 
         for ( MediaDescription mediaDescription : remoteDescriptions)
         {
-            MediaType mediaType = MediaType.valueOf(
+            MediaType mediaType = MediaType.parseString(
                             mediaDescription.getMedia().getMediaType());
             List<MediaFormat> supportedFormats = SdpUtils.extractFormats(
                             mediaDescription, dynamicPayloadTypes);
@@ -320,47 +322,19 @@ public class CallPeerMediaHandler
                 continue;
             }
 
-        }
+            StreamConnector connector = getStreamConnector(mediaType);
 
-        MediaService mediaService = SipActivator.getMediaService();
+            //calculate the direction that we need to announce.
+            MediaDirection remoteDirection
+                = SdpUtils.getDirection(mediaDescription);
 
-        //media connectors.
-        audioStreamConnector = getAudioStreamConnector();
-        videoStreamConnector = getVideoStreamConnector();
+            MediaDirection localDirection
+                = mediaService.getDefaultDevice(mediaType).getDirection();
 
-        //Audio Media Description
-        Vector<MediaDescription> mediaDescs = new Vector<MediaDescription>();
+            MediaDirection direction
+                = localDirection.getDirectionForAnswer(remoteDirection);
 
-        MediaDevice aDev = mediaService.getDefaultDevice(MediaType.AUDIO);
-        MediaDirection audioDirection
-            = aDev.getDirection().and(audioDirectionUserPreference);
-
-        if(audioDirection != MediaDirection.INACTIVE);
-        {
-            mediaDescs.add(createMediaDescription(aDev.getSupportedFormats(),
-                            this.audioStreamConnector, audioDirection));
-        }
-
-        //Video Media Description
-        MediaDevice vDev = mediaService.getDefaultDevice(MediaType.VIDEO);
-        MediaDirection videoDirection
-            = vDev.getDirection().and(videoDirectionUserPreference);
-
-        if(videoDirection != MediaDirection.INACTIVE);
-        {
-            mediaDescs.add(createMediaDescription( vDev.getSupportedFormats(),
-                            this.videoStreamConnector, videoDirection));
-        }
-
-        //fail if all devices were inactive
-        if(mediaDescs.size() == 0)
-        {
-             ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                 "We couldn't find any active Audio/Video devices and "
-                 +"couldn't create a call",
-                 OperationFailedException.GENERAL_ERROR,
-                 null,
-                 logger);
+            createMediaDescription(supportedFormats, connector, direction);
         }
 
         //wrap everything up in a session description
@@ -368,7 +342,7 @@ public class CallPeerMediaHandler
 
         SessionDescription answer = SdpUtils.createSessionDescription(
             videoStreamConnector.getDataSocket().getLocalAddress(),
-            userName, mediaDescs);
+            userName, answerDescriptions);
 
         this.localSess = answer;
 

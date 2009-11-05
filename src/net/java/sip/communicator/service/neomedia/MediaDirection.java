@@ -234,7 +234,7 @@ public enum MediaDirection
      * party's perspective of this <tt>MediaDirection</tt> applying a remote
      * party constraint.
      */
-    public MediaDirection getDirectionForAnswer(MediaDirection remotePartyDir)
+    public MediaDirection getAnswerDirection(MediaDirection remotePartyDir)
     {
         return this.and(remotePartyDir.getReverseDirection());
     }
