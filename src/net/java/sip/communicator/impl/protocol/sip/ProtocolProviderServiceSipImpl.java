@@ -2490,7 +2490,11 @@ public class ProtocolProviderServiceSipImpl
         throws OperationFailedException
     {
         logger.error(message, cause);
-        throw new OperationFailedException(message, errorCode, cause);
+
+        if(cause == null)
+            throw new OperationFailedException(message, errorCode);
+        else
+            throw new OperationFailedException(message, errorCode, cause);
     }
 }
 

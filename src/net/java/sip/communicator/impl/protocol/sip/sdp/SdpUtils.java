@@ -142,16 +142,23 @@ public class SdpUtils
     /**
      * Extracts and returns the list of <tt>MediaFormat</tt>s advertised in
      * <tt>mediaDesc</tt> preserving their oder and registering dynamic payload
-     * type numbers in the specified <tt>ptRegistry</tt>.
+     * type numbers in the specified <tt>ptRegistry</tt>. Note that this method
+     * would only include in the result list <tt>MediaFormat</tt> instances
+     * that are currently supported by our <tt>MediaService</tt> implementation
+     * and enabled in its configuration. This means that the method could
+     * return an empty list even if there were actually some formats in the
+     * <tt>mediaDesc</tt> if we support none of them or if all these we support
+     * are not enabled in the <tt>MediaService</tt> configuration form.
      *
      * @param mediaDesc the <tt>MediaDescription</tt> that we'd like to probe
      * for a list of <tt>MediaFormat</tt>s
      * @param ptRegistry a reference to the <tt>DynamycPayloadTypeRegistry</tt>
-     * where we should be registering newly added payloat type number to format
+     * where we should be registering newly added payload type number to format
      * mappings.
      *
-     * @return an ordered list of <tt>MediaFormat</tt>s as advertised in the
-     * <tt>mediaDesc</tt> description.
+     * @return an ordered list of <tt>MediaFormat</tt>s that are both advertised
+     * in the <tt>mediaDesc</tt> description and supported by our
+     * <tt>MediaService</tt> implementation.
      */
     @SuppressWarnings("unchecked")//legacy code from jain-sdp
     public static List<MediaFormat> extractFormats(
@@ -233,7 +240,12 @@ public class SdpUtils
                 continue;
             }
 
-            mediaFmts.add(mediaFormat);
+            if (mediaFormat != null)
+            {
+                //only add the format if it non-null (i.e. if our MediaService
+                //supports it
+                mediaFmts.add(mediaFormat);
+            }
 
         }
 

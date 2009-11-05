@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
-import java.io.*;
 import java.net.*;
 import java.util.*;
 
@@ -88,10 +87,20 @@ public class CallPeerMediaHandler
     private StreamConnector audioStreamConnector = null;
 
     /**
+     * The RTP stream that this media handler uses to send audio.
+     */
+    private AudioMediaStream audioStream = null;
+
+    /**
      * The RTP/RTCP socket couple that this media handler should use to send
      * and receive video flows through.
      */
     private StreamConnector videoStreamConnector = null;
+
+    /**
+     * The RTP stream that this media handler uses to send video.
+     */
+    private VideoMediaStream videoStream = null;
 
     /**
      * Contains all dynamic for payload type mappings that have been made for
@@ -175,18 +184,28 @@ public class CallPeerMediaHandler
      */
     public boolean isMute()
     {
-        /** @todo implement */
-        return false;
+        return this.audioStream != null && audioStream.isMute();
     }
 
     public void init()
+    {
+
+    }
+
+    /**
+     * Allocates ports, retrieves supported formats and creates a
+     * <tt>SessionDescription</tt>.
+     *
+     * @return the <tt>String</tt> representation of the newly created
+     * <tt>SessionDescription</tt>.
+     *
+     * @throws OperationFailedException if generating the SDP fails for whatever
+     * reason.
+     */
+    private String createFirstOffer()
         throws OperationFailedException
     {
         MediaService mediaService = SipActivator.getMediaService();
-
-        //media connectors.
-        audioStreamConnector = createStreamConnector();
-        videoStreamConnector = createStreamConnector();
 
         //Audio Media Description
         Vector<MediaDescription> mediaDescs = new Vector<MediaDescription>();
@@ -197,63 +216,193 @@ public class CallPeerMediaHandler
 
         if(audioDirection != MediaDirection.INACTIVE);
         {
-            mediaDescs.add(createMediaDescription(
-                            aDev, this.audioStreamConnector, audioDirection));
+            mediaDescs.add(createMediaDescription(aDev.getSupportedFormats(),
+                            getAudioStreamConnector(), audioDirection));
         }
 
-
+        //Video Media Description
         MediaDevice vDev = mediaService.getDefaultDevice(MediaType.VIDEO);
         MediaDirection videoDirection
             = vDev.getDirection().and(videoDirectionUserPreference);
 
         if(videoDirection != MediaDirection.INACTIVE);
         {
-            mediaDescs.add(createMediaDescription(
-                            vDev, this.videoStreamConnector, videoDirection));
+            mediaDescs.add(createMediaDescription( vDev.getSupportedFormats(),
+                            getVideoStreamConnector(), videoDirection));
         }
 
+        //fail if all devices were inactive
+        if(mediaDescs.size() == 0)
+        {
+             ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                 "We couldn't find any active Audio/Video devices and "
+                 +"couldn't create a call",
+                 OperationFailedException.GENERAL_ERROR,
+                 null,
+                 logger);
+        }
+
+        //wrap everything up in a session description
         String userName = peer.getProtocolProvider().getAccountID().getUserID();
 
         SessionDescription sDes = SdpUtils.createSessionDescription(
             videoStreamConnector.getDataSocket().getLocalAddress(),
             userName, mediaDescs);
 
-        System.out.println(sDes.toString());
+        this.localSess = sDes;
 
+        return localSess.toString();
     }
+
+    private MediaStream createStream(StreamConnector      connector,
+                                     MediaDevice          device,
+                                     MediaFormat          format,
+                                     MediaStreamTarget    target)
+        throws OperationFailedException
+    {
+        MediaService mediaService = SipActivator.getMediaService();
+
+        MediaStream stream = mediaService.createMediaStream(connector, device);
+
+        stream.setFormat(format);
+        stream.setTarget(target);
+        //stream.setDirection(direction);
+
+        if( stream instanceof AudioMediaStream)
+            this.audioStream = (AudioMediaStream)stream;
+        else
+            this.videoStream = (VideoMediaStream)stream;
+
+        stream.start();
+
+        return stream;
+    }
+
+    @SuppressWarnings("unchecked") // legacy jain-sdp code.
+    private String processFirstOffer(SessionDescription offer)
+        throws OperationFailedException
+    {
+        this.remoteSess = offer;
+
+        Vector<MediaDescription> remoteDescriptions = null;
+        try
+        {
+            remoteDescriptions = offer.getMediaDescriptions(false);
+        }
+        catch (SdpException e)
+        {
+            // ignoring as remoteDescriptions would remain null and we will
+            // log and rethrow right underneath.
+        }
+
+        if(remoteDescriptions == null || remoteDescriptions.size() == 0)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Remote party did not send any media descriptions.",
+                OperationFailedException.ILLEGAL_ARGUMENT, null, logger);
+        }
+
+        //prepaer to generate answers to all the incoming descriptions
+        Vector<MediaDescription> answerDescriptions
+            = new Vector<MediaDescription>(remoteDescriptions.size());
+
+        for ( MediaDescription mediaDescription : remoteDescriptions)
+        {
+            MediaType mediaType = MediaType.valueOf(
+                            mediaDescription.getMedia().getMediaType());
+            List<MediaFormat> supportedFormats = SdpUtils.extractFormats(
+                            mediaDescription, dynamicPayloadTypes);
+
+            if (supportedFormats == null || supportedFormats.size() == 0)
+            {
+                //mark stream as dead and go on bravely
+                //@todo
+                continue;
+            }
+
+        }
+
+        MediaService mediaService = SipActivator.getMediaService();
+
+        //media connectors.
+        audioStreamConnector = getAudioStreamConnector();
+        videoStreamConnector = getVideoStreamConnector();
+
+        //Audio Media Description
+        Vector<MediaDescription> mediaDescs = new Vector<MediaDescription>();
+
+        MediaDevice aDev = mediaService.getDefaultDevice(MediaType.AUDIO);
+        MediaDirection audioDirection
+            = aDev.getDirection().and(audioDirectionUserPreference);
+
+        if(audioDirection != MediaDirection.INACTIVE);
+        {
+            mediaDescs.add(createMediaDescription(aDev.getSupportedFormats(),
+                            this.audioStreamConnector, audioDirection));
+        }
+
+        //Video Media Description
+        MediaDevice vDev = mediaService.getDefaultDevice(MediaType.VIDEO);
+        MediaDirection videoDirection
+            = vDev.getDirection().and(videoDirectionUserPreference);
+
+        if(videoDirection != MediaDirection.INACTIVE);
+        {
+            mediaDescs.add(createMediaDescription( vDev.getSupportedFormats(),
+                            this.videoStreamConnector, videoDirection));
+        }
+
+        //fail if all devices were inactive
+        if(mediaDescs.size() == 0)
+        {
+             ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                 "We couldn't find any active Audio/Video devices and "
+                 +"couldn't create a call",
+                 OperationFailedException.GENERAL_ERROR,
+                 null,
+                 logger);
+        }
+
+        //wrap everything up in a session description
+        String userName = peer.getProtocolProvider().getAccountID().getUserID();
+
+        SessionDescription answer = SdpUtils.createSessionDescription(
+            videoStreamConnector.getDataSocket().getLocalAddress(),
+            userName, mediaDescs);
+
+        this.localSess = answer;
+
+        return localSess.toString();
+    }
+
+
 
     /**
      * Generates an SDP <tt>MediaDescription</tt> for <tt>MediaDevice</tt>
      * taking account the local streaming preference for the corresponding
      * media type.
      *
-     * @param dev the <tt>MediaDevice</tt> that we'd like to generate a media
-     * description for.
+     * @param formats the list of <tt>MediaFormats</tt> that we'd like to
+     * advertise.
+     * @param connector the <tt>StreamConnector</tt> that we will be using
+     * for the stream represented by the description we are creating.
+     * @param direction the <tt>MediaDirection</tt> that we'd like to establish
+     * the stream in.
      *
      * @return a newly created <tt>MediaDescription</tt> representing streams
      * that we'd be able to handle with <tt>dev</tt>.
      *
-     * @throws OperationFailedException
+     * @throws OperationFailedException if generating the
+     * <tt>MediaDescription</tt> fails for some reason.
      */
-    private MediaDescription createMediaDescription(MediaDevice     dev,
-                                                    StreamConnector connector,
-                                                    MediaDirection  direction)
+    private MediaDescription createMediaDescription(
+                                                  List<MediaFormat> formats,
+                                                  StreamConnector   connector,
+                                                  MediaDirection    direction)
         throws OperationFailedException
     {
-
-        List<MediaFormat> formats = dev.getSupportedFormats();
-
         return SdpUtils.createMediaDescription(
            formats, connector, direction, dynamicPayloadTypes);
-    }
-
-    private void initFormats(Iterator<MediaFormat> fmtsIter)
-    {
-        while(fmtsIter.hasNext())
-        {
-
-            logger.error("Foramt="+fmtsIter.next());
-        }
     }
 
     /**
@@ -317,6 +466,82 @@ public class CallPeerMediaHandler
                         rtpSocket, rtcpSocket);
 
         return connector;
+    }
+
+    /**
+     * Returns the <tt>StreamConnector</tt> instance that this media handler
+     * should use for audio streams. The method would also create a new
+     * <tt>StreamConnector</tt> if it hasn't be initialized so far or in case
+     * of its underlying sockets has been closed.
+     *
+     * @return this media handler's audio <tt>StreamConnector</tt>.
+     *
+     * @throws OperationFailedException in case we failed to initialize our
+     * connector.
+     */
+    public StreamConnector getAudioStreamConnector()
+        throws OperationFailedException
+    {
+        if ( audioStreamConnector == null
+             || audioStreamConnector.getDataSocket().isClosed()
+             || audioStreamConnector.getControlSocket().isClosed())
+        {
+            audioStreamConnector = createStreamConnector();
+        }
+
+        return audioStreamConnector;
+    }
+
+    /**
+     * Returns the <tt>StreamConnector</tt> instance that this media handler
+     * should use for streams of the specified <tt>mediaType</tt>. The method
+     * would also create a new <tt>StreamConnector</tt> if no connector has
+     * been initialized for this <tt>mediaType</tt> yet or in case one
+     * of its underlying sockets has been closed.
+     *
+     * @param mediaType the MediaType that we'd like to create a connector for.
+     *
+     * @return this media handler's <tt>StreamConnector</tt> for the specified
+     * <tt>mediaType</tt>.
+     *
+     * @throws OperationFailedException in case we failed to initialize our
+     * connector.
+     */
+    public StreamConnector getAudioStreamConnector(MediaType mediaType)
+        throws OperationFailedException
+    {
+        if ( audioStreamConnector == null
+             || audioStreamConnector.getDataSocket().isClosed()
+             || audioStreamConnector.getControlSocket().isClosed())
+        {
+            audioStreamConnector = createStreamConnector();
+        }
+
+        return audioStreamConnector;
+    }
+
+    /**
+     * Returns the <tt>StreamConnector</tt> instance that this media handler
+     * should use for video streams. The method would also create a new
+     * <tt>StreamConnector</tt> if it hasn't be initialized so far or in case
+     * of its underlying sockets has been closed.
+     *
+     * @return this media handler's video <tt>StreamConnector</tt>.
+     *
+     * @throws OperationFailedException in case we failed to initialize our
+     * connector.
+     */
+    public StreamConnector getVideoStreamConnector()
+        throws OperationFailedException
+    {
+        if ( videoStreamConnector == null
+             || videoStreamConnector.getDataSocket().isClosed()
+             || videoStreamConnector.getControlSocket().isClosed())
+        {
+            videoStreamConnector = createStreamConnector();
+        }
+
+        return videoStreamConnector;
     }
 
     /**
