@@ -51,7 +51,7 @@ public class DynamicPayloadTypeRegistry
      * A table mapping <tt>MediaFormat</tt> instances to the dynamic payload
      * type number they have obtained for the lifetime of this registry.
      */
-    private Map<MediaFormat, Byte> payloadMappings
+    private Map<MediaFormat, Byte> payloadTypeMappings
         = new Hashtable<MediaFormat, Byte>();
 
     /**
@@ -73,7 +73,7 @@ public class DynamicPayloadTypeRegistry
     public byte obtainPayloadTypeNumber(MediaFormat format)
         throws IllegalStateException
     {
-        Byte payloadType = payloadMappings.get(format);
+        Byte payloadType = payloadTypeMappings.get(format);
 
         //hey, we already had this one, let's return it ;)
         if( payloadType != null)
@@ -81,7 +81,7 @@ public class DynamicPayloadTypeRegistry
 
         payloadType = nextPayloadTypeNumber();
 
-        payloadMappings.put(format, payloadType);
+        payloadTypeMappings.put(format, payloadType);
 
         return payloadType.byteValue();
     }
@@ -120,7 +120,7 @@ public class DynamicPayloadTypeRegistry
                 + " and " + MAX_DYNAMIC_PAYLOAD_TYPE);
         }
 
-        payloadMappings.put(format, new Byte(payloadType));
+        payloadTypeMappings.put(format, new Byte(payloadType));
     }
 
     /**
@@ -138,7 +138,7 @@ public class DynamicPayloadTypeRegistry
     public MediaFormat findFormat(byte payloadType)
     {
         Iterator<Map.Entry<MediaFormat, Byte>> entriesIter
-                                    = payloadMappings.entrySet().iterator();
+                                = payloadTypeMappings.entrySet().iterator();
 
         while(entriesIter.hasNext())
         {
@@ -182,5 +182,15 @@ public class DynamicPayloadTypeRegistry
             //incrementing our PT counter was already occupied (probably by an
             //incoming SDP). continue bravely and get the next free one.
         }
+    }
+
+    /**
+     * Returns a copy of all mappings currently registered in this registry.
+     *
+     * @return a copy of all mappings currently registered in this registry.
+     */
+    public Map<MediaFormat, Byte> getMappings()
+    {
+        return new Hashtable<MediaFormat, Byte>(payloadTypeMappings);
     }
 }
