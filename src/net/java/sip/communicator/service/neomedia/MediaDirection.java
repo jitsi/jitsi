@@ -19,7 +19,7 @@ public enum MediaDirection
      * Indicates that the related entity does not support neither input
      * nor output (i.e. neither send nor receive) operations.
      */
-    INACTIVE("inactive", 0),
+    INACTIVE("inactive"),
 
     /**
      * Represents a direction from the entity that this direction pertains to
@@ -28,7 +28,7 @@ public enum MediaDirection
      * a <tt>SENDONLY</tt> direction indicates that the stream is only sending
      * data to the remote party without receiving.
      */
-    SENDONLY("sendonly", 1),
+    SENDONLY("sendonly"),
 
     /**
      * Represents a direction pointing to the entity that this object pertains
@@ -38,13 +38,13 @@ public enum MediaDirection
      * stream is only receiving data from the remote party without sending
      * any.
      */
-    RECVONLY("recvonly", 2),
+    RECVONLY("recvonly"),
 
     /**
      * Indicates that the related entity supports both input and output (send
      * and receive) operations.
      */
-    SENDRECV("sendrecv", 3);
+    SENDRECV("sendrecv");
 
     /**
      * The name of this direction.
@@ -52,23 +52,14 @@ public enum MediaDirection
     private final String directionName;
 
     /**
-     * An Integer representation of this direction that we use to facilitate
-     * reversing, comparing and subtracting directions
-     */
-    private final int intValue;
-
-    /**
      * Creates a <tt>MediaDirection</tt> instance with the specified name.
      *
      * @param directionName the name of the <tt>MediaDirections</tt> we'd like
      * to create.
-     * @param intValue an <tt>int</tt> representation of this direction that we
-     * only use in internal operations.
      */
-    private MediaDirection(String directionName, int intValue)
+    private MediaDirection(String directionName)
     {
         this.directionName = directionName;
-        this.intValue = intValue;
     }
 
     /**
