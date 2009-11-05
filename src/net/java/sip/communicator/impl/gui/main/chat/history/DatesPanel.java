@@ -49,9 +49,7 @@ public class DatesPanel
         this.historyWindow = historyWindow;
 
         this.setPreferredSize(new Dimension(100, 100));
-        this.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createEmptyBorder(3, 3, 3, 0),
-                SIPCommBorders.getBoldRoundBorder()));
+        this.setBorder(SIPCommBorders.getBoldRoundBorder());
         this.setOpaque(false);
 
         this.datesList.setModel(listModel);
@@ -65,7 +63,6 @@ public class DatesPanel
 
         this.setViewportView(listPanel);
         this.getVerticalScrollBar().setUnitIncrement(30);
-
     }
 
     /**

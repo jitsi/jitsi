@@ -48,19 +48,29 @@ public class HistoryWindow
 {
     private static final Logger logger = Logger.getLogger(HistoryWindow.class);
 
+    private static final String[] HISTORY_FILTER
+        = new String[]
+                {
+                    MessageHistoryService.class.getName(),
+                    FileHistoryService.class.getName()
+                };
+
+    /**
+     * The horizontal and vertical spacing between the UI components of this
+     * instance defined in one place for the purposes of consistency. Hopefully,
+     * one day it should be defined at a global application level to achieve
+     * consistency with the UI elsewhere.
+     */
+    private static final int SPACING = 5;
+
     private ChatConversationPanel chatConvPanel;
 
-    private TransparentPanel mainPanel
-        = new TransparentPanel(new BorderLayout(10, 10));
+    private final JPanel mainPanel
+        = new TransparentPanel(new BorderLayout(SPACING, SPACING));
 
     private JProgressBar progressBar;
 
-    private SearchPanel searchPanel;
-
     private HistoryMenu historyMenu;
-
-    private TransparentPanel northPanel
-        = new TransparentPanel(new BorderLayout());
 
     private DatesPanel datesPanel;
 
@@ -71,16 +81,13 @@ public class HistoryWindow
     private Hashtable<Date, HTMLDocument> dateHistoryTable
         = new Hashtable<Date, HTMLDocument>();
 
-    private JLabel readyLabel = new JLabel(
-        GuiActivator.getResources().getI18NString("service.gui.READY"));
+    private final JLabel readyLabel
+        = new JLabel(
+                GuiActivator.getResources().getI18NString("service.gui.READY"));
 
     private String searchKeyword;
 
     private Vector<Date> datesVector = new Vector<Date>();
-
-    private static final String[] historyFilter
-        = new String[]{ MessageHistoryService.class.getName(),
-                        FileHistoryService.class.getName()};
 
     private Date ignoreProgressDate;
 
@@ -124,7 +131,6 @@ public class HistoryWindow
 
         this.datesPanel = new DatesPanel(this);
         this.historyMenu = new HistoryMenu(this);
-        this.searchPanel = new SearchPanel(this);
 
         this.initPanels();
 
@@ -173,24 +179,22 @@ public class HistoryWindow
      */
     private void initPanels()
     {
-        this.northPanel.add(searchPanel, BorderLayout.CENTER);
-
-        this.mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-        this.mainPanel.add(northPanel, BorderLayout.NORTH);
-
-        this.mainPanel.add(chatConvPanel, BorderLayout.CENTER);
-
-        this.mainPanel.add(datesPanel, BorderLayout.WEST);
-
+        this.mainPanel
+                .setBorder(
+                    BorderFactory
+                        .createEmptyBorder(SPACING, SPACING, SPACING, SPACING));
         this.mainPanel.setPreferredSize(new Dimension(500, 400));
+
+        this.mainPanel.add(new SearchPanel(this), BorderLayout.NORTH);
+        this.mainPanel.add(chatConvPanel, BorderLayout.CENTER);
+        this.mainPanel.add(datesPanel, BorderLayout.WEST);
 
         this.getContentPane().add(mainPanel);
     }
 
     /**
      * Initializes the history with a list of all dates, for which a history
-     * with the given contact is availabled.
+     * with the given contact is available.
      */
     private void initDates()
     {
@@ -433,7 +437,7 @@ public class HistoryWindow
             if (historyContact instanceof MetaContact)
             {
                 msgList = history.findByEndDate(
-                    historyFilter,
+                    HISTORY_FILTER,
                     (MetaContact) historyContact,
                     new Date(System.currentTimeMillis()));
             }
@@ -446,7 +450,7 @@ public class HistoryWindow
                     return;
 
                 msgList = history.findByEndDate(
-                    historyFilter,
+                    HISTORY_FILTER,
                     chatRoomWrapper.getChatRoom(),
                     new Date(System.currentTimeMillis()));
             }
@@ -551,7 +555,7 @@ public class HistoryWindow
             if(historyContact instanceof MetaContact)
             {
                 msgList = history.findByPeriod(
-                    historyFilter,
+                    HISTORY_FILTER,
                     (MetaContact) historyContact,
                     startDate, endDate);
             }
@@ -564,7 +568,7 @@ public class HistoryWindow
                     return;
 
                 msgList = history.findByPeriod(
-                    historyFilter,
+                    HISTORY_FILTER,
                     chatRoomWrapper.getChatRoom(),
                     startDate, endDate);
             }
@@ -613,7 +617,7 @@ public class HistoryWindow
             if (historyContact instanceof MetaContact)
             {
                 msgList = history.findByKeyword(
-                    historyFilter,
+                    HISTORY_FILTER,
                     (MetaContact) historyContact, keyword);
             }
             else if (historyContact instanceof ChatRoomWrapper)
@@ -625,7 +629,7 @@ public class HistoryWindow
                     return;
 
                 msgList = history.findByKeyword(
-                    historyFilter,
+                    HISTORY_FILTER,
                     chatRoomWrapper.getChatRoom(), keyword);
             }
 
@@ -752,11 +756,14 @@ public class HistoryWindow
     public void messageReceived(MessageReceivedEvent evt)
     {
         Contact sourceContact = evt.getSourceContact();
+        Message sourceMessage = evt.getSourceMessage();
 
-        this.processMessage(sourceContact, evt.getTimestamp(),
-            Chat.INCOMING_MESSAGE,
-            evt.getSourceMessage().getContent(),
-            evt.getSourceMessage().getContentType());
+        this.processMessage(
+                sourceContact,
+                evt.getTimestamp(),
+                Chat.INCOMING_MESSAGE,
+                sourceMessage.getContent(),
+                sourceMessage.getContentType());
     }
 
     /**
@@ -766,11 +773,14 @@ public class HistoryWindow
     public void messageDelivered(MessageDeliveredEvent evt)
     {
         Contact destContact = evt.getDestinationContact();
+        Message sourceMessage = evt.getSourceMessage();
         
-        this.processMessage(destContact, evt.getTimestamp(),
-            Chat.OUTGOING_MESSAGE,
-            evt.getSourceMessage().getContent(),
-            evt.getSourceMessage().getContentType());
+        this.processMessage(
+                destContact,
+                evt.getTimestamp(),
+                Chat.OUTGOING_MESSAGE,
+                sourceMessage.getContent(),
+                sourceMessage.getContentType());
     }
     
     public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)

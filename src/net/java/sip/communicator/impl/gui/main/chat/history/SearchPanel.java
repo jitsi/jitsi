@@ -22,25 +22,14 @@ import net.java.sip.communicator.util.swing.*;
  * or an hour, or searching by a keyword.
  *
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class SearchPanel
     extends TransparentPanel
     implements  ActionListener,
                 DocumentListener
 {
-    private static final String searchString
-        = GuiActivator.getResources().getI18NString("service.gui.SEARCH");
-
-    private JButton searchButton = new JButton(
-        searchString,
-        new ImageIcon(ImageLoader.getImage(ImageLoader.SEARCH_ICON)));
-
-    private JLabel searchLabel = new JLabel(searchString + ": ");
-
     private JTextField searchTextField = new JTextField();
-    
-    private TransparentPanel textFieldPanel
-        = new TransparentPanel(new BorderLayout());
 
     /*
     private JRadioButton todayMessagesRadio = new JRadioButton(Messages
@@ -91,38 +80,40 @@ public class SearchPanel
     private JPanel checksPanel = new JPanel(new GridLayout(0, 1));
     */
     
-    private HistoryWindow historyWindow;
+    private final HistoryWindow historyWindow;
 
     // private JPanel extendedSearchPanel = new JPanel(new BorderLayout());
 
     /**
      * Creates an instance of the <tt>SearchPanel</tt>.
      */
-    public SearchPanel(HistoryWindow historyWindow) {
-        
-        super(new BorderLayout());
+    public SearchPanel(HistoryWindow historyWindow)
+    {
+        super(new BorderLayout(5, 5));
 
         this.historyWindow = historyWindow;
 
-        this.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createTitledBorder(searchString),
-                BorderFactory.createEmptyBorder(5, 5, 5, 5))); 
-        
-        this.textFieldPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-        
         this.init();
     }
 
     /**
      * Constructs the <tt>SearchPanel</tt>.
      */
-    public void init() {
-        this.textFieldPanel.add(searchTextField);
-        
+    private void init()
+    {
+        String searchString
+            = GuiActivator.getResources().getI18NString("service.gui.SEARCH");
+        JLabel searchLabel = new JLabel(searchString + ": ");
+        JButton searchButton
+            = new JButton(
+                    searchString,
+                    new ImageIcon(
+                            ImageLoader.getImage(ImageLoader.SEARCH_ICON)));
+
         this.searchTextField.getDocument().addDocumentListener(this);
-        
+
         this.add(searchLabel, BorderLayout.WEST);
-        this.add(textFieldPanel, BorderLayout.CENTER);
+        this.add(searchTextField, BorderLayout.CENTER);
 
         /*
         this.detailsLabelsPanel.add(dateLabel);
@@ -150,14 +141,14 @@ public class SearchPanel
         this.dateCenteredPanel.add(datePanel);
         */
         
-        this.searchButton.setName("search");
-        this.searchButton.setMnemonic(
+        searchButton.setName("search");
+        searchButton.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.SEARCH"));
         
         // this.extendedSearchButton.setName("extendedSearch");
         // this.extendedSearchOpenedButton.setName("extendedSearchOpened");
 
-        this.searchButton.addActionListener(this);
+        searchButton.addActionListener(this);
 
         this.historyWindow.getRootPane().setDefaultButton(searchButton);
         // this.extendedSearchPanel.add(extendedSearchButton,
