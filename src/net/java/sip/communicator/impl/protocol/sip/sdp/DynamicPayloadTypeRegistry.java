@@ -25,7 +25,6 @@ import net.java.sip.communicator.service.neomedia.format.*;
  * this registry is supposed to be mapped to one media session. They should
  * have pretty much the same life cycle.
  * </p>
- *
  * @author Emil Ivov
  */
 public class DynamicPayloadTypeRegistry

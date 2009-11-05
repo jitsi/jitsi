@@ -153,9 +153,6 @@ public class CallPeerMediaHandler
         return false;
     }
 
-    /**
-     *
-     */
     public void init()
     {
         MediaService mediaService = SipActivator.getMediaService();

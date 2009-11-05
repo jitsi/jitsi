@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.sdp;
 
+import java.net.*;
 import java.util.*;
 
 import javax.sdp.*;
@@ -77,10 +78,59 @@ public class SdpUtils
         return sessDescr;
     }
 
-    private static MediaDescription createMediaDescription(
-                    List<MediaFormat> formats,
-                    StreamConnector   connector,
-                    MediaDirection    direction)
+    public static List<MediaFormat> extractFormats(
+                                         MediaDescription mediaDesc,
+                                         DynamicPayloadTypeRegistry ptRegistry)
+    {
+        return null;
+    }
+
+    public static MediaStreamTarget extractTarget(
+                                         MediaDescription mediaDesc,
+                                         SessionDescription sessDesc)
+    {
+        return null;
+    }
+
+    public static MediaDirection getDirection( MediaDescription mediaDesc )
+    {
+        return null;
+    }
+
+    public static URL getCallInfoURL(SessionDescription sessDesc)
+    {
+        return null;
+    }
+
+
+    /**
+     * Creates a new <tt>MediaDescription</tt> instance according to the
+     * specified <tt>formats</tt>, <tt>connector</tt> and <tt>direction</tt>,
+     * and using the <tt>dynamicPayloadTypes</tt> registry to handle dynamic
+     * payload type registrations. The type (e.g. audio/video) of the media
+     * description is determined via from the type of the first
+     * <tt>MediaFormat</tt> in the <tt>formats</tt> list.
+     *
+     * @param formats the list of formats that should be advertised in the newly
+     * created <tt>MediaDescription</tt>.
+     * @param connector the socket couple that will be used for the media stream
+     * which we are advertising with the media description created here.
+     * @param direction the direction of the media stream that we are describing
+     * here.
+     * @param dynamicPayloadTypes a reference to the
+     * <tt>DynamicPayloadTypeRegistry</tt>
+     *
+     * @return the newly create SDP <tt>MediaDescription</tt>.
+     *
+     * @throws OperationFailedException in case we fail to get payload type
+     * numbers for dynamic payload types or in case our SDP generation fails for
+     * some other reason.
+     */
+    public static MediaDescription createMediaDescription(
+                    List<MediaFormat>          formats,
+                    StreamConnector            connector,
+                    MediaDirection             direction,
+                    DynamicPayloadTypeRegistry dynamicPayloadTypes)
         throws OperationFailedException
     {
         int[] payloadTypesArray = new int[formats.size()];
@@ -106,18 +156,20 @@ public class SdpUtils
 
             // is this a dynamic payload type.
             if (payloadType == MediaFormat.RTP_PAYLOAD_TYPE_UNKNOWN)
-            {/*
-                Integer dynamicPT = dynamicPayloadTypes.get(format);
-                if (dynamicPT == null)
+            {
+                try
                 {
-                    // this is the first time we see this fmt in this session
-                    payloadType = nextDynamicPayloadType++;
-                    dynamicPayloadTypes.put(format, new Integer(payloadType));
-                } else
+                    payloadType
+                        = dynamicPayloadTypes.obtainPayloadTypeNumber(format);
+                }
+                catch (IllegalStateException exception)
                 {
-                    // we have already registered this format for this session.
-                    payloadType = dynamicPT.intValue();
-                }*/
+                    //means we ran out of dynamic rtp payload types.
+                    throw new OperationFailedException(
+                          "Failed to allocate a new dynamic PT number.",
+                          OperationFailedException.INTERNAL_ERROR,
+                          exception);
+                }
             }
 
             // a=rtpmap:
@@ -145,7 +197,7 @@ public class SdpUtils
             payloadTypesArray[i] = payloadType;
         }
 
-        // rtcp:
+        // rtcp: (only include it if different from the default (i.e. rtp + 1)
         int rtpPort = connector.getDataSocket().getLocalPort();
         int rtcpPort = connector.getControlSocket().getLocalPort();
 
@@ -165,7 +217,8 @@ public class SdpUtils
 
             // add all the attributes we have created above
             mediaDesc.setAttributes(mediaAttributes);
-        } catch (Exception cause)
+        }
+        catch (Exception cause)
         {
             // this is very unlikely to happen but we should still re-throw
             ProtocolProviderServiceSipImpl.throwOperationFailedException(
@@ -174,10 +227,17 @@ public class SdpUtils
                             logger);
         }
 
-        // dtmf
         return mediaDesc;
     }
 
+    /**
+     * Encodes in an SDP string all <tt>format</tt> specific codec parameters.
+     *
+     * @param format a reference to the <tt>MediaFormat</tt> instance whose
+     * parameters we'd like to encode.
+     *
+     * @return a String representation of the <tt>format</tt>s codec parameters.
+     */
     private static String encodeFmtp(MediaFormat format)
     {
         Iterator<Map.Entry<String, String>> formatParamsIter = format
@@ -198,6 +258,16 @@ public class SdpUtils
         return fmtpBuff.toString();
     }
 
+    /**
+     * Creates an <tt>Attribute</tt> instance reflecting the value of the
+     * <tt>direction</tt> parameter (e.g. a=sendrecv, a=recvonly, etc.).
+     *
+     * @param direction the direction that we'd like to convert to an SDP
+     * <tt>Attribute</tt>.
+     *
+     * @return an SDP <tt>Attribute</tt> field translating the value of the
+     * <tt>direction</tt> parameter.
+     */
     private static Attribute createDirectionAttribute(MediaDirection direction)
     {
         String dirStr;
