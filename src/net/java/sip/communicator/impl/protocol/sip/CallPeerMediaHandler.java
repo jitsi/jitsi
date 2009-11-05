@@ -194,6 +194,11 @@ public class CallPeerMediaHandler
         return this.audioStream != null && audioStream.isMute();
     }
 
+    public String createOffer()
+        throws OperationFailedException
+    {
+        return createFirstOffer().toString();
+    }
     /**
      * Allocates ports, retrieves supported formats and creates a
      * <tt>SessionDescription</tt>.
@@ -204,7 +209,7 @@ public class CallPeerMediaHandler
      * @throws OperationFailedException if generating the SDP fails for whatever
      * reason.
      */
-    public String createFirstOffer()
+    private SessionDescription createFirstOffer()
         throws OperationFailedException
     {
         MediaService mediaService = SipActivator.getMediaService();
@@ -262,68 +267,16 @@ public class CallPeerMediaHandler
 
         this.localSess = sDes;
 
-        return localSess.toString();
+        return localSess;
     }
 
-    public String createReOffer()
+    private SessionDescription createReOffer(SessionDescription sdessToUpdate)
         throws OperationFailedException
+
     {
-        MediaService mediaService = SipActivator.getMediaService();
+        SessionDescription newOffer = createFirstOffer();
 
-        //Audio Media Description
-        Vector<MediaDescription> mediaDescs = new Vector<MediaDescription>();
-
-        MediaDevice aDev = mediaService.getDefaultDevice(MediaType.AUDIO);
-
-        if (aDev != null)
-        {
-            MediaDirection audioDirection
-                = aDev.getDirection().and(audioDirectionUserPreference);
-
-            if(audioDirection != MediaDirection.INACTIVE);
-            {
-                mediaDescs.add(createMediaDescription(
-                        aDev.getSupportedFormats(),
-                        getStreamConnector(MediaType.AUDIO), audioDirection));
-            }
-        }
-
-        //Video Media Description
-        MediaDevice vDev = mediaService.getDefaultDevice(MediaType.VIDEO);
-
-        if(vDev != null)
-        {
-            MediaDirection videoDirection
-                = vDev.getDirection().and(videoDirectionUserPreference);
-
-            if(videoDirection != MediaDirection.INACTIVE);
-            {
-                mediaDescs.add(createMediaDescription(
-                        vDev.getSupportedFormats(),
-                        getStreamConnector(MediaType.VIDEO), videoDirection));
-            }
-        }
-
-        //fail if all devices were inactive
-        if(mediaDescs.size() == 0)
-        {
-             ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                 "We couldn't find any active Audio/Video devices and "
-                 +"couldn't create a call",
-                 OperationFailedException.GENERAL_ERROR,
-                 null,
-                 logger);
-        }
-
-        //wrap everything up in a session description
-        String userName = peer.getProtocolProvider().getAccountID().getUserID();
-
-        SessionDescription sDes = SdpUtils.createSessionDescription(
-            getLocalHost(), userName, mediaDescs);
-
-        this.localSess = sDes;
-
-        return localSess.toString();
+        //The Offer/Answer Model [RFC 3264]
     }
 
     private InetAddress getLocalHost()
