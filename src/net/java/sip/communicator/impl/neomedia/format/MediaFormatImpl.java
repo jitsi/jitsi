@@ -145,9 +145,9 @@ public abstract class MediaFormatImpl<T extends Format>
                  * Since the values are strings, allow null to be equal to the
                  * empty string.
                  */
-                if ((value1 == null) || value1.isEmpty())
+                if ((value1 == null) || (value1.length() == 0))
                 {
-                    if ((value2 != null) && !value2.isEmpty())
+                    if ((value2 != null) && (value2.length() != 0))
                         return false;
                 }
                 else if (!value1.equals(value2))
