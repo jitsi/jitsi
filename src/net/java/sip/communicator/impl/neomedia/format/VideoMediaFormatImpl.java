@@ -86,9 +86,7 @@ public class VideoMediaFormatImpl
      */
     VideoMediaFormatImpl(VideoFormat format, double clockRate)
     {
-        super(format);
-
-        this.clockRate = clockRate;
+        this(format, clockRate, null);
     }
 
     /**
@@ -137,7 +135,17 @@ public class VideoMediaFormatImpl
         VideoMediaFormatImpl videoMediaFormatImpl
             = (VideoMediaFormatImpl) mediaFormat;
 
-        return (getClockRate() == videoMediaFormatImpl.getClockRate());
+        double clockRate = getClockRate();
+        double videoMediaFormatImplClockRate
+            = videoMediaFormatImpl.getClockRate();
+
+        if (MediaFormatFactory.CLOCK_RATE_NOT_SPECIFIED == clockRate)
+            clockRate = DEFAULT_CLOCK_RATE;
+        if (MediaFormatFactory.CLOCK_RATE_NOT_SPECIFIED
+                == videoMediaFormatImplClockRate)
+            videoMediaFormatImplClockRate = DEFAULT_CLOCK_RATE;
+
+        return (clockRate == videoMediaFormatImplClockRate);
     }
 
     /**

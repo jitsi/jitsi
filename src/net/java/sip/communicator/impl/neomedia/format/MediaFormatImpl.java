@@ -12,6 +12,7 @@ import javax.media.*;
 import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 
 /**
@@ -122,11 +123,11 @@ public abstract class MediaFormatImpl<T extends Format>
         if (formatParameters1 == null)
             return
                 (formatParameters2 == null)
-                    || (formatParameters2.size() == 0);
+                    || formatParameters2.isEmpty();
         if (formatParameters2 == null)
             return
                 (formatParameters1 == null)
-                    || (formatParameters1.size() == 0);
+                    || formatParameters1.isEmpty();
         if (formatParameters1.size() == formatParameters2.size())
         {
             for (Map.Entry<String, String> formatParameter1
@@ -144,9 +145,9 @@ public abstract class MediaFormatImpl<T extends Format>
                  * Since the values are strings, allow null to be equal to the
                  * empty string.
                  */
-                if ((value1 == null) || (value1.length() == 0))
+                if ((value1 == null) || value1.isEmpty())
                 {
-                    if ((value2 != null) && (value2.length() > 0))
+                    if ((value2 != null) && !value2.isEmpty())
                         return false;
                 }
                 else if (!value1.equals(value2))
@@ -354,7 +355,51 @@ public abstract class MediaFormatImpl<T extends Format>
     @Override
     public String toString()
     {
-        return getEncoding() + "/" + (getClockRateString())
-            + " PayloadType="+getRTPPayloadType();
+        StringBuffer str = new StringBuffer();
+
+        str.append("rtpmap:");
+        str.append(getRTPPayloadType());
+        str.append(' ');
+        str.append(getEncoding());
+        str.append('/');
+        str.append(getClockRateString());
+
+        /*
+         * If the number of channels is 1, it does not have to be mentioned
+         * because it is the default.
+         */
+        if (MediaType.AUDIO.equals(getMediaType()))
+        {
+            int channels = ((AudioFormat) getFormat()).getChannels();
+
+            if (channels != 1)
+            {
+                str.append('/');
+                str.append(channels);
+            }
+        }
+
+        Map<String, String> formatParameters = getFormatParameters();
+
+        if (!formatParameters.isEmpty())
+        {
+            str.append(" fmtp:");
+
+            boolean prependSeparator = false;
+
+            for (Map.Entry<String, String> formatParameter
+                    : formatParameters.entrySet())
+            {
+                if (prependSeparator)
+                    str.append(';');
+                else
+                    prependSeparator = true;
+                str.append(formatParameter.getKey());
+                str.append('=');
+                str.append(formatParameter.getValue());
+            }
+        }
+
+        return str.toString();
     }
 }
