@@ -164,7 +164,7 @@ public class SdpUtils
         //Format parameters
         Map<String, String> fmtParamsMap = parseFmtpAttribute(fmtp);
 
-        ((MediaFormatFactory)null).createAudioMediaFormat(
+        SipActivator.getMediaService().getMediaFactory().createAudioMediaFormat(
                         encoding, clockRate, nChans);
 
 
