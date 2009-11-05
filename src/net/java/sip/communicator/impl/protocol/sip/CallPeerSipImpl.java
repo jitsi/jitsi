@@ -466,11 +466,11 @@ public class CallPeerSipImpl
         setLatestInviteTransaction(serverTransaction);
 
         // SDP description may be in ACKs - bug report Laurent Michel
-        String sdp = null;
+        String sdpOffer = null;
         ContentLengthHeader cl = invite.getContentLength();
         if (cl != null && cl.getContentLength() > 0)
         {
-            sdp = new String(invite.getRawContent());
+            sdpOffer = new String(invite.getRawContent());
         }
 
         Response response = null;
@@ -479,8 +479,8 @@ public class CallPeerSipImpl
             response = messageFactory.createResponse(Response.OK, invite);
 
             String sdpAnswer;
-            if(sdp == null)
-                sdpAnswer = getMediaHandler().processOffer( sdp );
+            if(sdpOffer != null)
+                sdpAnswer = getMediaHandler().processOffer( sdpOffer );
             else
                 sdpAnswer = getMediaHandler().createOffer();
 

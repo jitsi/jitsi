@@ -80,6 +80,9 @@ public class CallPeerMediaHandler
      */
     private static int nextMediaPortToTry = minMediaPort;
 
+    /**
+     * Determines whether we have placed the call on hold locally.
+     */
     private boolean locallyOnHold = false;
 
     /**
@@ -226,6 +229,7 @@ public class CallPeerMediaHandler
         }
         else
         {
+            //off hold - make sure that we re-enable sending
             if(audioStream != null)
             {
                 audioStream.setDirection(audioStream.getDirection()
@@ -248,33 +252,43 @@ public class CallPeerMediaHandler
      */
     public void close()
     {
-        if (this.audioStream != null)
-        {
-            audioStream.close();
-            audioStream = null;
-        }
-
-        if (this.videoStream != null)
-        {
-            videoStream.close();
-            videoStream = null;
-        }
-
-        if (this.audioStreamConnector != null)
-        {
-            audioStreamConnector.getDataSocket().close();
-            audioStreamConnector.getControlSocket().close();
-            audioStreamConnector = null;
-        }
-
-        if (this.videoStreamConnector != null)
-        {
-            videoStreamConnector.getDataSocket().close();
-            videoStreamConnector.getControlSocket().close();
-            videoStreamConnector = null;
-        }
+        closeStream(MediaType.AUDIO);
+        closeStream(MediaType.VIDEO);
 
         locallyOnHold = false;
+    }
+
+    private void closeStream(MediaType type)
+    {
+        if( type == MediaType.AUDIO)
+        {
+            if (this.audioStream != null)
+            {
+                audioStream.close();
+                audioStream = null;
+            }
+            if (this.audioStreamConnector != null)
+            {
+                audioStreamConnector.getDataSocket().close();
+                audioStreamConnector.getControlSocket().close();
+                audioStreamConnector = null;
+            }
+        }
+        else
+        {
+            if (this.videoStream != null)
+            {
+                videoStream.close();
+                videoStream = null;
+            }
+
+            if (this.videoStreamConnector != null)
+            {
+                videoStreamConnector.getDataSocket().close();
+                videoStreamConnector.getControlSocket().close();
+                videoStreamConnector = null;
+            }
+        }
     }
 
     /**
@@ -479,9 +493,9 @@ public class CallPeerMediaHandler
     {
         registerDynamicPTsWithStream(stream);
 
-        stream.setFormat(format);
         stream.setTarget(target);
         stream.setDirection(direction);
+        stream.setFormat(format);
 
         if( stream instanceof AudioMediaStream)
             this.audioStream = (AudioMediaStream)stream;
@@ -603,9 +617,17 @@ public class CallPeerMediaHandler
             MediaDirection direction = devDirection
                             .getDirectionForAnswer(remoteDirection);
 
-            // create the corresponding stream
-            initStream(connector, dev, supportedFormats.get(0), target,
-                            direction);
+            // create the corresponding stream...
+            if(target.getDataAddress().getPort() != 0)
+            {
+                initStream(connector, dev, supportedFormats.get(0), target,
+                                direction);
+            }
+            else
+            // or destroy it in case the target port was 0.
+            {
+                closeStream(mediaType);
+            }
 
             // create the answer description
             answerDescriptions.add(createMediaDescription(supportedFormats,
@@ -670,6 +692,18 @@ public class CallPeerMediaHandler
             //stream target
             MediaStreamTarget target
                 = SdpUtils.extractDefaultTarget(mediaDescription, answer);
+
+            // create the corresponding stream...
+            if(target.getDataAddress().getPort() != 0)
+            {
+                initStream(connector, dev, supportedFormats.get(0), target,
+                                direction);
+            }
+            else
+            // or destroy it in case the target port was 0.
+            {
+                closeStream(mediaType);
+            }
 
             //create the corresponding stream
             initStream( connector, dev, supportedFormats.get(0),

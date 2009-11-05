@@ -382,7 +382,7 @@ public class SdpUtils
             MediaFormat mediaFormat = null;
             try
             {
-                mediaFormat = createFormat(pt, rtpmap, fmtp);
+                mediaFormat = createFormat(pt, rtpmap, fmtp, ptRegistry);
             }
             catch (SdpException e)
             {
@@ -417,6 +417,9 @@ public class SdpUtils
      * @param rtpmap an SDP <tt>Attribute</tt> mapping the <tt>payloadType</tt>
      * to an encoding name.
      * @param fmtp a list of format specific parameters
+     * @param ptRegistry the {@link DynamicPayloadTypeRegistry} that we are to
+     * use in case <tt>payloadType</tt> is dynamic and <tt>rtpmap</tt> is
+     * <tt>null</tt> (in which case we can hope its in the registry).
      *
      * @return a <tt>MediaForamt</tt> instance corresponding to the specified
      * <tt>payloadType</tt> and <tt>rtpmap</tt>, and <tt>fmtp</tt> attributes
@@ -427,9 +430,11 @@ public class SdpUtils
      * jain-sdp API declares exceptions in case of impls using lazy parsing but
      * the one in the jain-sip-ri isn't doing it.
      */
-    private static MediaFormat createFormat(byte      payloadType,
-                                            Attribute rtpmap,
-                                            Attribute fmtp)
+    private static MediaFormat createFormat(
+                                        byte                       payloadType,
+                                        Attribute                  rtpmap,
+                                        Attribute                  fmtp,
+                                        DynamicPayloadTypeRegistry ptRegistry)
         throws SdpException
     {
         //default values in case rtpmap is null.
@@ -485,6 +490,15 @@ public class SdpUtils
                                     + " is not a valid number of channels.");
                 }
             }
+        }
+        else
+        {
+            //if rtpmap was null, check whether we have previously registered
+            //the type in our dynamiyc payload type registry. and if that's
+            //the case return it.
+            MediaFormat fmt = ptRegistry.findFormat(payloadType);
+            if (fmt != null)
+                return fmt;
         }
 
         //Format parameters
