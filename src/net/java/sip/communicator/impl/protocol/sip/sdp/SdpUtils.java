@@ -609,11 +609,23 @@ public class SdpUtils
         }
     }
 
+    /**
+     * Determines the direction of the media stream that <tt>mediaDesc</tt>
+     * describes and returns the corresponding <tt>MediaDirection</tt> enum
+     * entry. The method looks for a direction specifier attribute (e.g.
+     * sendrecv, recvonly, etc.) or the absence thereof and returns the
+     * corresponding <tt>MediaDirection</tt> entry.
+     *
+     * @param mediaDesc the description of the media stream whose direction
+     * we are trying to determine.
+     *
+     * @return one of the <tt>MediaDirection</tt> values indicating the
+     * direction of the media steam described by <tt>mediaDesc</tt>.
+     */
     @SuppressWarnings("unchecked")//legacy code from jain-sdp
     public static MediaDirection getDirection( MediaDescription mediaDesc )
     {
         Vector<Attribute> attributes  = mediaDesc.getAttributes(false);
-        String newAttribute = null;
 
         //default
         if (attributes == null)
