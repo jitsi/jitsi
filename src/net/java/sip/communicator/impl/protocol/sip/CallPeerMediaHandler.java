@@ -13,6 +13,8 @@ import javax.sdp.*;
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
+import net.java.sip.communicator.service.neomedia.format.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The media handler class handles all media management for a single
@@ -25,6 +27,10 @@ import net.java.sip.communicator.service.neomedia.device.*;
  */
 public class CallPeerMediaHandler
 {
+    /**
+     * Our class logger.
+     */
+    private Logger logger = Logger.getLogger(CallPeerMediaHandler.class);
     /**
      * A reference to the CallPeerSipImpl instance that this handler is
      * managing media streams for.
@@ -125,13 +131,22 @@ public class CallPeerMediaHandler
     /**
      *
      */
-    private void init()
+    public void init()
     {
         MediaService mediaService = SipActivator.getMediaService();
 
-        List<MediaDevice> aDevs = mediaService.getDevices(MediaType.AUDIO);
-        List<MediaDevice> vDevs = mediaService.getDevices(MediaType.VIDEO);
+        MediaDevice aDev = mediaService.getDefaultDevice(MediaType.AUDIO);
+        MediaDevice vDev = mediaService.getDefaultDevice(MediaType.VIDEO);
 
+        Iterator<MediaFormat> aFmtIter = aDev.getSupportedFormats().iterator();
+        Iterator<MediaFormat> vFmtIter = vDev.getSupportedFormats().iterator();
+    }
 
+    private void initFormats(Iterator<MediaFormat> fmtsIter)
+    {
+        while(fmtsIter.hasNext())
+        {
+            logger.error("Foramt="+fmtsIter.next());
+        }
     }
 }

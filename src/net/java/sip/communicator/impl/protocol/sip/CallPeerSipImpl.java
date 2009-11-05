@@ -1472,6 +1472,7 @@ public class CallPeerSipImpl
     private void attachSdpOffer(Request invite)
         throws OperationFailedException
     {
+        getMediaHandler().init();
         /**
          * @todo update to neomedia.
         try

@@ -74,7 +74,6 @@ public class SecurityPanel
         {
             public void actionPerformed(ActionEvent e)
             {
-                boolean sucess = false;
                 Call call = peer.getCall();
 
                 if (call != null)
@@ -87,25 +86,20 @@ public class SecurityPanel
 
                     if (secure != null)
                     {
-                        sucess = secure.setSasVerified( peer,
-                                                        !sasVerified);
+                        secure.setSasVerified( peer, !sasVerified);
                     }
 
-                    if (sucess)
+                    if (sasVerified)
                     {
-                        if (sasVerified)
-                        {
-                            sasVerified = false;
-                            sasVerificationButton.setImage(iconEncr);
-                        }
-                        else
-                        {
-                            sasVerified = true;
-                            sasVerificationButton.setImage(iconEncrVerified);
-                        }
+                        sasVerified = false;
+                        sasVerificationButton.setImage(iconEncr);
+                    }
+                    else
+                    {
+                        sasVerified = true;
+                        sasVerificationButton.setImage(iconEncrVerified);
                     }
                 }
-
             }
         });
     }
