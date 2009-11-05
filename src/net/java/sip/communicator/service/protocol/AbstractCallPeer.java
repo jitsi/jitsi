@@ -629,7 +629,7 @@ public abstract class AbstractCallPeer
      * Adds a specific <tt>StreamSoundLevelListener</tt> to the list of
      * listeners interested in and notified about changes in stream sound level
      * related information.
-     * 
+     *
      * @param listener the <tt>StreamSoundLevelListener</tt> to add
      */
     public void addStreamSoundLevelListener(StreamSoundLevelListener listener)
@@ -645,7 +645,7 @@ public abstract class AbstractCallPeer
      * Removes a specific <tt>StreamSoundLevelListener</tt> of the list of
      * listeners interested in and notified about changes in stream sound level
      * related information.
-     * 
+     *
      * @param listener the <tt>StreamSoundLevelListener</tt> to remove
      */
     public void removeStreamSoundLevelListener(
@@ -662,7 +662,7 @@ public abstract class AbstractCallPeer
      * Adds a specific <tt>ConferenceMembersSoundLevelListener</tt> to the list
      * of listeners interested in and notified about changes in conference
      * members sound level.
-     * 
+     *
      * @param listener the <tt>ConferenceMembersSoundLevelListener</tt> to add
      */
     public void addConferenceMembersSoundLevelListener(
@@ -679,7 +679,7 @@ public abstract class AbstractCallPeer
      * Removes a specific <tt>ConferenceMembersSoundLevelListener</tt> of the
      * list of listeners interested in and notified about changes in conference
      * members sound level.
-     * 
+     *
      * @param listener the <tt>ConferenceMembersSoundLevelListener</tt> to
      * remove
      */

@@ -80,7 +80,7 @@ public class CallPeerMediaHandler
      */
     private static int nextMediaPortToTry = minMediaPort;
 
-    private boolean onHold = false;
+    private boolean locallyOnHold = false;
 
     /**
      * The RTP/RTCP socket couple that this media handler should use to send
@@ -197,25 +197,26 @@ public class CallPeerMediaHandler
     }
 
     /**
-     * Specifies that this handler's <tt>MediaStream</tt>s should be on hold
-     * so that this would be taken into account and the streams put in
-     * sendonly or inactive mode when the next update offer is generated.
-     * Note that the stream has no immediate effect and would only affect
-     * the flows after an update description is regenerated.
+     * Puts all <tt>MediaStream</tt>s in this handler locally on or off hold
+     * (according to the value of <tt>locallyOnHold</tt>). This would also be
+     * taken into account when the next update offer is generated.
      *
-     * @param onHold <tt>true</tt> if we are to make our audio stream start
-     * transmitting silence and <tt>false</tt> if we are to end the transmission
-     * of silence and use our stream's <tt>MediaDevice</tt> again.
+     * @param locallyOnHold <tt>true</tt> if we are to make our audio stream
+     * stop transmitting and <tt>false</tt> if we are to start transmitting
+     * again.
      */
-    public void setOnHold(boolean onHold)
+    public void setLocallyOnHold(boolean locallyOnHold)
     {
-        this.onHold = onHold;
+        this.locallyOnHold = locallyOnHold;
 
-        if(onHold)
+        if(locallyOnHold)
         {
             if(audioStream != null)
+            {
                 audioStream.setDirection(audioStream.getDirection()
                             .and(MediaDirection.SENDONLY));
+                audioStream.setMute(true);
+            }
             if(videoStream != null)
                 videoStream.setDirection(videoStream.getDirection()
                             .and(MediaDirection.SENDONLY));
@@ -223,25 +224,67 @@ public class CallPeerMediaHandler
         else
         {
             if(audioStream != null)
+            {
                 audioStream.setDirection(audioStream.getDirection()
                             .or(MediaDirection.SENDONLY));
+                audioStream.setMute(false);
+            }
             if(videoStream != null)
+            {
                 videoStream.setDirection(videoStream.getDirection()
                             .or(MediaDirection.SENDONLY));
-
+                //videoStream.setMute(true);
+            }
         }
     }
 
     /**
-     * Determines whether this handler's streams should be placed on hold during
-     * the next session update.
-     *
-     * @return <tt>true</tt> if this handler's streams should be placed on hold
-     * next time we update this session and false otherwise.
+     * Closes and null-ifies all streams and connectors and readies this media
+     * handler for garbage collection (or reuse).
      */
-    public boolean isOnHold()
+    public void close()
     {
-        return onHold;
+        if (this.audioStream != null)
+        {
+            audioStream.close();
+            audioStream = null;
+        }
+
+        if (this.videoStream != null)
+        {
+            videoStream.close();
+            videoStream = null;
+        }
+
+        if (this.audioStreamConnector != null)
+        {
+            audioStreamConnector.getDataSocket().close();
+            audioStreamConnector.getControlSocket().close();
+            audioStreamConnector = null;
+        }
+
+        if (this.videoStreamConnector != null)
+        {
+            videoStreamConnector.getDataSocket().close();
+            videoStreamConnector.getControlSocket().close();
+            videoStreamConnector = null;
+        }
+
+        locallyOnHold = false;
+    }
+
+    /**
+     * Determines whether this handler's streams have been placed on hold.
+     *
+     * @return <tt>true</tt> if this handler's streams have been placed on hold
+     * and <tt>false</tt> otherwise.
+     */
+    public boolean isLocallyOnHold()
+    {
+        return locallyOnHold;
+        //no need to actually check stream directions because we only update
+        //them through the setLocallyOnHold() method so if the value of the
+        //locallyOnHold field has changed, so have stream directions.
     }
 
     /**
@@ -312,7 +355,7 @@ public class CallPeerMediaHandler
             MediaDirection audioDirection
                 = aDev.getDirection().and(audioDirectionUserPreference);
 
-            if(onHold)
+            if(locallyOnHold)
                 audioDirection = audioDirection.and(MediaDirection.SENDONLY);
 
             if(audioDirection != MediaDirection.INACTIVE);
@@ -331,7 +374,7 @@ public class CallPeerMediaHandler
             MediaDirection videoDirection
                 = vDev.getDirection().and(videoDirectionUserPreference);
 
-            if(onHold)
+            if(locallyOnHold)
                 videoDirection = videoDirection.and(MediaDirection.SENDONLY);
 
             if(videoDirection != MediaDirection.INACTIVE);
@@ -456,26 +499,72 @@ public class CallPeerMediaHandler
         }
     }
 
+    public String processOffer(String offerString)
+        throws OperationFailedException
+    {
+        SessionDescription offer = SdpUtils.parseSdpString(offerString);
+        if (localSess == null)
+            return processFirstOffer(offer).toString();
+        else
+            return processUpdateOffer(offer, localSess).toString();
+    }
+
     public SessionDescription processFirstOffer(SessionDescription offer)
         throws OperationFailedException,
                IllegalArgumentException
     {
         this.remoteSess = offer;
 
-        Vector<MediaDescription> remoteDescriptions
-            = SdpUtils.extractMediaDescriptions(offer);
+        Vector<MediaDescription> answerDescriptions
+            = createMediaDescriptionsForAnswer(offer);
+
+        //wrap everything up in a session description
+        SessionDescription answer = SdpUtils.createSessionDescription(
+            getLastUsedLocalHost(), getUserName(), answerDescriptions);
+
+        this.localSess = answer;
+
+        return localSess;
+    }
+
+    public SessionDescription processUpdateOffer(
+                                           SessionDescription newOffer,
+                                           SessionDescription previousAnswer)
+        throws OperationFailedException,
+               IllegalArgumentException
+    {
+        this.remoteSess = newOffer;
+
+        Vector<MediaDescription> answerDescriptions
+            = createMediaDescriptionsForAnswer(newOffer);
+
+        // wrap everything up in a session description
+        SessionDescription newAnswer = SdpUtils.createSessionUpdateDescription(
+                    previousAnswer, getLastUsedLocalHost(), answerDescriptions);
+
+        this.localSess = newAnswer;
+
+        return localSess;
+    }
+
+    private Vector<MediaDescription> createMediaDescriptionsForAnswer(
+                    SessionDescription offer)
+        throws OperationFailedException
+    {
+        Vector<MediaDescription> remoteDescriptions = SdpUtils
+                        .extractMediaDescriptions(offer);
 
         MediaService mediaService = SipActivator.getMediaService();
 
-        //prepare to generate answers to all the incoming descriptions
+        // prepare to generate answers to all the incoming descriptions
         Vector<MediaDescription> answerDescriptions
-            = new Vector<MediaDescription>(remoteDescriptions.size());
+            = new Vector<MediaDescription>( remoteDescriptions.size() );
 
         this.setCallInfoURL(SdpUtils.getCallInfoURL(offer));
 
         boolean atLeastOneValidDescription = false;
 
-        for ( MediaDescription mediaDescription : remoteDescriptions)
+        for (MediaDescription mediaDescription : remoteDescriptions)
         {
             MediaType mediaType = SdpUtils.getMediaType(mediaDescription);
 
@@ -485,52 +574,46 @@ public class CallPeerMediaHandler
             MediaDevice dev = mediaService.getDefaultDevice(mediaType);
             MediaDirection devDirection = dev.getDirection();
 
-            //stream target
-            MediaStreamTarget target
-                = SdpUtils.extractDefaultTarget(mediaDescription, offer);
+            // stream target
+            MediaStreamTarget target = SdpUtils.extractDefaultTarget(
+                            mediaDescription, offer);
 
             if (supportedFormats == null || supportedFormats.size() == 0
                 || dev == null || devDirection == MediaDirection.INACTIVE
                 || target.getDataAddress().getPort() == 0)
             {
-                //mark stream as dead and go on bravely
-                answerDescriptions.add(
-                             SdpUtils.createDisablingAnswer(mediaDescription));
+                // mark stream as dead and go on bravely
+                answerDescriptions.add(SdpUtils
+                                .createDisablingAnswer(mediaDescription));
                 continue;
             }
 
             StreamConnector connector = getStreamConnector(mediaType);
 
-            //determine the direction that we need to announce.
-            MediaDirection remoteDirection
-                = SdpUtils.getDirection(mediaDescription);
+            // determine the direction that we need to announce.
+            MediaDirection remoteDirection = SdpUtils
+                            .getDirection(mediaDescription);
 
-            MediaDirection direction
-                = devDirection.getDirectionForAnswer(remoteDirection);
+            MediaDirection direction = devDirection
+                            .getDirectionForAnswer(remoteDirection);
 
-            //create the corresponding stream
-            initStream( connector, dev, supportedFormats.get(0),
-                            target, direction);
+            // create the corresponding stream
+            initStream(connector, dev, supportedFormats.get(0), target,
+                            direction);
 
-            //create the answer description
-            answerDescriptions.add( createMediaDescription(
-                            supportedFormats, connector, direction));
+            // create the answer description
+            answerDescriptions.add(createMediaDescription(supportedFormats,
+                            connector, direction));
 
             atLeastOneValidDescription = true;
         }
 
-        if(!atLeastOneValidDescription)
+        if (!atLeastOneValidDescription)
             throw new OperationFailedException("Offer contained no valid "
-                + "media descriptions.",
-                OperationFailedException.ILLEGAL_ARGUMENT);
+                            + "media descriptions.",
+                            OperationFailedException.ILLEGAL_ARGUMENT);
 
-        //wrap everything up in a session description
-        SessionDescription answer = SdpUtils.createSessionDescription(
-            getLastUsedLocalHost(), getUserName(), answerDescriptions);
-
-        this.localSess = answer;
-
-        return localSess;
+        return answerDescriptions;
     }
 
     public void processAnswer(SessionDescription answer)
@@ -776,6 +859,23 @@ public class CallPeerMediaHandler
                             ex);
             }
         }
+    }
+
+    /**
+     * Determines whether the remote party has placed all our streams on hold.
+     *
+     * @return <tt>true</tt> if all our streams have been placed on hold (i.e.
+     * if none of them is currently sending and <tt>false</tt> otherwise.
+     */
+    public boolean isRemotelyOnHold()
+    {
+        if(audioStream != null && audioStream.getDirection().allowsSending())
+            return false;
+
+        if(videoStream != null && videoStream.getDirection().allowsSending())
+            return false;
+
+        return true;
     }
 
     /**

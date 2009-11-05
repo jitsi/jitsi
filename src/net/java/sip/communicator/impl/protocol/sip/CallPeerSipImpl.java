@@ -508,11 +508,16 @@ public class CallPeerSipImpl
         try
         {
             response = messageFactory.createResponse(Response.OK, invite);
-            attachSdpAnswer(response);
+            String sdpAnswer = getMediaHandler()
+                .processOffer( getSdpDescription() );
 
-            logger.trace("will send an OK response: ");
+            response.setContent( sdpAnswer, getProtocolProvider()
+                .getHeaderFactory().createContentTypeHeader(
+                                "application", "sdp"));
+
+            logger.trace("will send an OK response: " + response);
             serverTransaction.sendResponse(response);
-            logger.debug("sent a an OK response: "+ response);
+            logger.debug("OK response sent");
         }
         catch (Exception ex)//no need to distinguish among exceptions.
         {
@@ -524,125 +529,67 @@ public class CallPeerSipImpl
             return;
         }
 
-        try
-        {
-            updateMediaFlags();
-        }
-        catch (OperationFailedException ex)
-        {
-            logger.error("Error after sending response " + response, ex);
-        }
+        reevalRemoteHoldStatus();
     }
 
     /**
-     * Creates an SDP description that could be sent to <tt>peer</tt> and adds
-     * it to <tt>response</tt>. Provides a hook for this instance to take last
-     * configuration steps on a specific <tt>Response</tt> before it is sent to
-     * a specific <tt>CallPeer</tt> as part of the execution of.
-     *
-     * @param response the <tt>Response</tt> to be sent to the <tt>peer</tt>
-     *
-     * @throws OperationFailedException if we fail parsing call peer's media.
-     * @throws ParseException if we try to attach invalid SDP to response.
+     * Updates the state of this <tt>CallPeer</tt> to match the remotely-on-hold
+     * status of our media handler.
      */
-    private void attachSdpAnswer(Response response)
-        throws OperationFailedException, ParseException
+    private void reevalRemoteHoldStatus()
     {
-        /*
-         * At the time of this writing, we're only getting called because a
-         * response to a call-hold invite is to be sent.
-         */
-        /**
-         * @todo update to neomedia.
-        CallSession callSession = getMediaCallSession();
-
-        String sdpAnswer = null;
-        try
-        {
-            sdpAnswer = callSession.processSdpOffer(this, getSdpDescription());
-        }
-        catch (MediaException ex)
-        {
-            ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "Failed to create SDP answer to put-on/off-hold request.",
-                OperationFailedException.INTERNAL_ERROR, ex, logger);
-        }
-
-        response.setContent(
-            sdpAnswer,
-            getProtocolProvider().getHeaderFactory()
-                .createContentTypeHeader("application", "sdp"));
-                */
-    }
-
-    /**
-     * Updates the media flags for this peer according to the value of the SDP
-     * field.
-     *
-     * @throws OperationFailedException if we fail parsing callPeer's media.
-     */
-    private void updateMediaFlags()
-        throws OperationFailedException
-    {
-        /*
-         * At the time of this writing, we're only getting called because a
-         * response to a call-hold invite is to be sent.
-         */
-        /**
-         * @todo update to neomedia.
-        CallSession callSession = getMediaCallSession();
-
-        int mediaFlags = 0;
-        try
-        {
-            mediaFlags = callSession.getSdpOfferMediaFlags(getSdpDescription());
-        }
-        catch (MediaException ex)
-        {
-            ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "Failed to create SDP answer to put-on/off-hold request.",
-                OperationFailedException.INTERNAL_ERROR, ex, logger);
-        }
-        */
-        /*
-         * Comply with the request of the SDP offer with respect to putting on
-         * hold.
-         */
-        /**
-         * @todo update to neomedia.
-        boolean on = ((mediaFlags & CallSession.ON_HOLD_REMOTELY) != 0);
-
-        callSession.putOnHold(on, false);
+        boolean remotelyOnHold = getMediaHandler().isRemotelyOnHold();
 
         CallPeerState state = getState();
         if (CallPeerState.ON_HOLD_LOCALLY.equals(state))
         {
-            if (on)
+            if (remotelyOnHold)
                 setState(CallPeerState.ON_HOLD_MUTUALLY);
         }
         else if (CallPeerState.ON_HOLD_MUTUALLY.equals(state))
         {
-            if (!on)
+            if (!remotelyOnHold)
                 setState(CallPeerState.ON_HOLD_LOCALLY);
         }
         else if (CallPeerState.ON_HOLD_REMOTELY.equals(state))
         {
-            if (!on)
+            if (!remotelyOnHold)
                 setState(CallPeerState.CONNECTED);
         }
-        else if (on)
+        else if (remotelyOnHold)
         {
             setState(CallPeerState.ON_HOLD_REMOTELY);
         }
-        */
-        /*
-         * Reflect the request of the SDP offer with respect to the modification
-         * of the availability of media.
-         */
-        /**
-         * @todo update to neomedia.
-        callSession.setReceiveStreaming(mediaFlags);
-        */
+    }
+
+    /**
+     * Updates the state of this <tt>CallPeer</tt> to match the locally-on-hold
+     * status of our media handler.
+     */
+    private void reevalLocalHoldStatus()
+    {
+        boolean locallyOnHold = getMediaHandler().isLocallyOnHold();
+
+        CallPeerState state = getState();
+        if (CallPeerState.ON_HOLD_LOCALLY.equals(state))
+        {
+            if (!locallyOnHold)
+                setState(CallPeerState.CONNECTED);
+        }
+        else if (CallPeerState.ON_HOLD_MUTUALLY.equals(state))
+        {
+            if (!locallyOnHold)
+                setState(CallPeerState.ON_HOLD_REMOTELY);
+        }
+        else if (CallPeerState.ON_HOLD_REMOTELY.equals(state))
+        {
+            if (locallyOnHold)
+                setState(CallPeerState.ON_HOLD_MUTUALLY);
+        }
+        else if (locallyOnHold)
+        {
+            setState(CallPeerState.ON_HOLD_LOCALLY);
+        }
     }
 
     /**
@@ -1289,7 +1236,7 @@ public class CallPeerSipImpl
     /**
      * Puts the <tt>CallPeer</tt> represented by this instance on or off hold.
      *
-     * @param on <tt>true</tt> to have the <tt>CallPeer</tt> put on hold;
+     * @param onHold <tt>true</tt> to have the <tt>CallPeer</tt> put on hold;
      * <tt>false</tt>, otherwise
      *
      * @throws OperationFailedException if we fail to construct or send the
@@ -1300,7 +1247,7 @@ public class CallPeerSipImpl
     {
         CallPeerMediaHandler mediaHandler = getMediaHandler();
 
-        mediaHandler.setOnHold(onHold);
+        mediaHandler.setLocallyOnHold(onHold);
 
         try
         {
@@ -1313,36 +1260,7 @@ public class CallPeerSipImpl
                 OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
 
-        /*
-         * Putting on hold isn't a negotiation (i.e. the issuing side takes the
-         * decision and executes it) so we're muting now regardless of the
-         * desire of the peer to accept the offer.
-         */
-        /**
-         * @todo update to neomedia.
-        callSession.putOnHold(on, true);
-         */
-
-        CallPeerState state = getState();
-        if (CallPeerState.ON_HOLD_LOCALLY.equals(state))
-        {
-            if (!onHold)
-                setState(CallPeerState.CONNECTED);
-        }
-        else if (CallPeerState.ON_HOLD_MUTUALLY.equals(state))
-        {
-            if (!onHold)
-                setState(CallPeerState.ON_HOLD_REMOTELY);
-        }
-        else if (CallPeerState.ON_HOLD_REMOTELY.equals(state))
-        {
-            if (onHold)
-                setState(CallPeerState.ON_HOLD_MUTUALLY);
-        }
-        else if (onHold)
-        {
-            setState(CallPeerState.ON_HOLD_LOCALLY);
-        }
+        reevalLocalHoldStatus();
     }
 
     /**
@@ -1395,63 +1313,23 @@ public class CallPeerSipImpl
         try
         {
             inviteTran = (ClientTransaction)getLatestInviteTransaction();
-        }
-        catch(ClassCastException exc)
-        {
-            throw new OperationFailedException(
-                "Can't invite someone that is actually inviting us",
-                OperationFailedException.INTERNAL_ERROR, exc);
-        }
 
-        attachSdpOffer(inviteTran.getRequest());
+            ContentTypeHeader contentTypeHeader = getProtocolProvider()
+                .getHeaderFactory().createContentTypeHeader(
+                    "application", "sdp");
 
-        try
-        {
+            inviteTran.getRequest().setContent(getMediaHandler().createOffer(),
+                          contentTypeHeader);
+
             inviteTran.sendRequest();
             if (logger.isDebugEnabled())
                 logger.debug("sent request:\n" + inviteTran.getRequest());
         }
-        catch (SipException ex)
+        catch (Exception ex)
         {
             ProtocolProviderServiceSipImpl.throwOperationFailedException(
                 "An error occurred while sending invite request",
                 OperationFailedException.NETWORK_FAILURE, ex, logger);
-        }
-    }
-
-    /**
-     * Creates an SDP offer destined to <tt>callPeer</tt> and attaches it to
-     * the <tt>invite</tt> request.
-     *
-     * @param invite the invite <tt>Request</tt> that we'd like to attach an
-     * SDP offer to.
-     *
-     * @throws OperationFailedException if we fail constructing the session
-     * description.
-     */
-    private void attachSdpOffer(Request invite)
-        throws OperationFailedException
-    {
-        try
-        {
-            ContentTypeHeader contentTypeHeader = getProtocolProvider()
-                .getHeaderFactory().createContentTypeHeader(
-                        "application", "sdp");
-
-            invite.setContent(getMediaHandler().createOffer(),
-                              contentTypeHeader);
-        }
-        catch (IllegalArgumentException ex)
-        {
-            ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "Failed to obtain an InetAddress for " + ex.getMessage(),
-                OperationFailedException.NETWORK_FAILURE, ex, logger);
-        }
-        catch (ParseException ex)
-        {
-            ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "Failed to parse sdp data while creating invite request!",
-                OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
     }
 
@@ -1592,5 +1470,14 @@ public class CallPeerSipImpl
     private CallPeerMediaHandler getMediaHandler()
     {
         return mediaHandler;
+    }
+
+    /**
+     * Overrides the
+     */
+    public void setState(CallPeerState newState, String reason)
+    {
+        super.setState(newState, reason);
+        this.getMediaHandler().close();
     }
 }
