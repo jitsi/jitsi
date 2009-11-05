@@ -657,9 +657,37 @@ public class SdpUtils
         return MediaDirection.SENDRECV;
     }
 
+    /**
+     * Returns a <tt>URL</tt> pointing to a location with more details (and
+     * possibly call control utilities) about the session. This corresponds to
+     * the <tt>"u="</tt> field of the SDP data.
+     *
+     * @param sessDesc the session description that we'd like to extract an
+     * <tt>URL</tt> form.
+     *
+     * @return a <tt>URL</tt> pointing to a location with more details about
+     * the session or <tt>null</tt> if the remote party did not provide one.
+     */
     public static URL getCallInfoURL(SessionDescription sessDesc)
     {
-        return null;
+        javax.sdp.URI sdpUriField = sessDesc.getURI();
+
+        if (sdpUriField == null)
+        {
+            logger.trace("Call URI was null.");
+            return null;
+        }
+
+        try
+        {
+            return sdpUriField.get();
+        }
+        catch (SdpParseException exc)
+        {
+            logger.warn("Failed to parse SDP URI.", exc);
+            return null;
+        }
+
     }
 
 
