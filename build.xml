@@ -789,7 +789,7 @@
         bundle-callhistory, bundle-callhistory-slick, bundle-popupmessagehandler-slick,
         bundle-netaddr,bundle-netaddr-slick,bundle-slickless,
         bundle-slick-runner,bundle-sip,bundle-sip-slick,bundle-fileaccess,
-        bundle-fileaccess-slick,bundle-media,bundle-media-slick,
+        bundle-fileaccess-slick,bundle-media,bundle-neomedia,bundle-media-slick,
         bundle-resource-manager,bundle-resources-defaultpack,
         bundle-protocol,bundle-icq,bundle-icq-slick,bundle-mock,bundle-smacklib,
         bundle-jabber,bundle-jabber-slick,bundle-swing-ui,bundle-ui-service,
@@ -1224,6 +1224,7 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/impl/protocol/sip"/>
             <zipfileset src="${lib.noinst}/jain-sip-ri.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jain-sip-api.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jain-sdp.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/concurrent.jar" prefix=""/>
         </jar>
     </target>
