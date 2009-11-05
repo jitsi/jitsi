@@ -1291,7 +1291,7 @@ public class CallSessionImpl
         /*
          * Close the existing streams because we're about to create new ones.
          * Otherwise, a NullPointerException may be thrown in SendStream#close()
-         * upon call hang-up for some of the streams. 
+         * upon call hang-up for some of the streams.
          */
         stopSendStreaming();
         //create and init the streams (don't start streaming just yet but wait
@@ -1428,7 +1428,7 @@ public class CallSessionImpl
             try
             {
                 SendStream sendStream = rtpManager.createSendStream(dataSource, i);
-                
+
                 TransformConnector transConnector =
                     this.transConnectors.get(rtpManager);
 

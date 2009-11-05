@@ -14,8 +14,6 @@ import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
 
-import net.java.sip.communicator.service.media.*;
-import net.java.sip.communicator.service.media.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -27,7 +25,6 @@ import net.java.sip.communicator.util.*;
  */
 public class CallPeerSipImpl
     extends AbstractCallPeer
-    implements SessionCreatorCallback
 {
     /**
      * Our class logger.
@@ -454,16 +451,7 @@ public class CallPeerSipImpl
      */
     public boolean isMute()
     {
-        CallSipImpl call = this.call;
-
-        if (call != null)
-        {
-            CallSession callSession = getMediaCallSession();
-
-            if (callSession != null)
-                return callSession.isMute();
-        }
-        return false;
+        return getMediaHandler().isMute();
     }
 
     /**
@@ -578,7 +566,8 @@ public class CallPeerSipImpl
          * At the time of this writing, we're only getting called because a
          * response to a call-hold invite is to be sent.
          */
-
+        /**
+         * @todo update to neomedia.
         CallSession callSession = getMediaCallSession();
 
         String sdpAnswer = null;
@@ -597,6 +586,7 @@ public class CallPeerSipImpl
             sdpAnswer,
             getProtocolProvider().getHeaderFactory()
                 .createContentTypeHeader("application", "sdp"));
+                */
     }
 
     /**
@@ -612,7 +602,8 @@ public class CallPeerSipImpl
          * At the time of this writing, we're only getting called because a
          * response to a call-hold invite is to be sent.
          */
-
+        /**
+         * @todo update to neomedia.
         CallSession callSession = getMediaCallSession();
 
         int mediaFlags = 0;
@@ -626,11 +617,13 @@ public class CallPeerSipImpl
                 "Failed to create SDP answer to put-on/off-hold request.",
                 OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
-
+        */
         /*
          * Comply with the request of the SDP offer with respect to putting on
          * hold.
          */
+        /**
+         * @todo update to neomedia.
         boolean on = ((mediaFlags & CallSession.ON_HOLD_REMOTELY) != 0);
 
         callSession.putOnHold(on, false);
@@ -655,12 +648,15 @@ public class CallPeerSipImpl
         {
             setState(CallPeerState.ON_HOLD_REMOTELY);
         }
-
+        */
         /*
          * Reflect the request of the SDP offer with respect to the modification
          * of the availability of media.
          */
+        /**
+         * @todo update to neomedia.
         callSession.setReceiveStreaming(mediaFlags);
+        */
     }
 
     /**
@@ -716,6 +712,10 @@ public class CallPeerSipImpl
 
         //if the Dialog is still alive (i.e. we are in the middle of a xfer)
         //then only stop streaming, otherwise Disconnect.
+
+        /**
+         * @todo update to neomedia.
+         *
         if (dialogIsAlive)
         {
             getMediaCallSession().stopStreaming();
@@ -724,6 +724,7 @@ public class CallPeerSipImpl
         {
             setState(CallPeerState.DISCONNECTED);
         }
+        */
     }
 
     /**
@@ -798,8 +799,11 @@ public class CallPeerSipImpl
      */
     public void setMute(boolean newMuteValue)
     {
+        /**
+         * @todo update to neomedia.
         getMediaCallSession().setMute(newMuteValue);
         super.setMute(newMuteValue);
+        */
     }
 
     /**
@@ -836,6 +840,8 @@ public class CallPeerSipImpl
         {
             if (CallPeerState.CONNECTED.equals(peerState))
             {
+                /**
+                 * @todo update to neomedia.
                 try
                 {
                     getMediaCallSession().startStreamingAndProcessingMedia();
@@ -845,6 +851,7 @@ public class CallPeerSipImpl
                     logger.error( "Failed to start the streaming"
                             + " and the processing of the media", ex);
                 }
+                */
             }
             else
                 setState(CallPeerState.CONNECTED);
@@ -886,6 +893,8 @@ public class CallPeerSipImpl
         setSdpDescription(new String(response.getRawContent()));
 
         // notify the media manager of the sdp content
+        /**
+         * @todo update to neomedia.
         CallSession callSession = getMediaCallSession();
 
         if (callSession == null)
@@ -919,6 +928,7 @@ public class CallPeerSipImpl
 
         // change status
         setState(CallPeerState.CONNECTING_WITH_EARLY_MEDIA);
+        */
     }
 
     /**
@@ -959,6 +969,8 @@ public class CallPeerSipImpl
         }
 
         // notify the media manager of the sdp content
+        /**
+         * @todo update to neomedia.
         CallSession callSession = getMediaCallSession();
 
         try
@@ -997,6 +1009,7 @@ public class CallPeerSipImpl
         // change status
         if (!CallPeerState.isOnHold(getState()))
             setState(CallPeerState.CONNECTED);
+        */
     }
 
     /**
@@ -1249,6 +1262,8 @@ public class CallPeerSipImpl
                 OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
 
+        /**
+         * @todo update to neomedia.
         try
         {
             CallSession callSession = SipActivator.getMediaService()
@@ -1294,6 +1309,7 @@ public class CallPeerSipImpl
             getProtocolProvider().sayError(
                             serverTransaction, Response.NOT_ACCEPTABLE_HERE);
         }
+        */
 
         try
         {
@@ -1322,6 +1338,8 @@ public class CallPeerSipImpl
     public void putOnHold(boolean on)
         throws OperationFailedException
     {
+        /**
+         * @todo update to neomedia.
         CallSession callSession = getMediaCallSession();
 
         try
@@ -1335,14 +1353,16 @@ public class CallPeerSipImpl
                 "Failed to create SDP offer to hold.",
                 OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
-
+        */
         /*
          * Putting on hold isn't a negotiation (i.e. the issuing side takes the
          * decision and executes it) so we're muting now regardless of the
          * desire of the peer to accept the offer.
          */
+        /**
+         * @todo update to neomedia.
         callSession.putOnHold(on, true);
-
+         */
         CallPeerState state = getState();
         if (CallPeerState.ON_HOLD_LOCALLY.equals(state))
         {
@@ -1452,6 +1472,8 @@ public class CallPeerSipImpl
     private void attachSdpOffer(Request invite)
         throws OperationFailedException
     {
+        /**
+         * @todo update to neomedia.
         try
         {
             CallSession callSession = SipActivator.getMediaService()
@@ -1491,6 +1513,7 @@ public class CallPeerSipImpl
                 "Could not access media devices!",
                 OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
+        */
 
     }
 
@@ -1507,6 +1530,8 @@ public class CallPeerSipImpl
     public void setLocalVideoAllowed(boolean allowed)
         throws OperationFailedException
     {
+         /**
+         * @todo update to neomedia.
         CallSession callSession = getMediaCallSession();
 
         if(callSession.isLocalVideoAllowed() == allowed)
@@ -1514,10 +1539,13 @@ public class CallPeerSipImpl
 
         try
         {
+        */
             /*
              * Modify the local media setup to reflect the requested setting for
              * the streaming of the local video.
              */
+        /**
+         * @todo update to neomedia.
             callSession.setLocalVideoAllowed(allowed);
         }
         catch (MediaException ex)
@@ -1541,6 +1569,7 @@ public class CallPeerSipImpl
         }
 
         sendReInvite(sdpOffer);
+        */
     }
 
     /**
@@ -1552,7 +1581,7 @@ public class CallPeerSipImpl
      */
     public boolean isLocalVideoStreaming()
     {
-        return getMediaCallSession().isLocalVideoStreaming();
+        return getMediaHandler().isLocalVideoTransmissionEnabled();
     }
 
     /**
@@ -1567,7 +1596,10 @@ public class CallPeerSipImpl
      */
     public void addVideoPropertyChangeListener(PropertyChangeListener listener)
     {
+        /**
+         * @todo update to neomedia.
         getMediaCallSession().addPropertyChangeListener(listener);
+        */
     }
 
     /**
@@ -1583,7 +1615,10 @@ public class CallPeerSipImpl
     public void removeVideoPropertyChangeListener(
                                                PropertyChangeListener listener)
     {
-        getMediaCallSession().removePropertyChangeListener(listener);
+        /**
+         * @todo update to neomedia.
+         getMediaCallSession().removePropertyChangeListener(listener);
+         */
     }
 
     /**
