@@ -12,6 +12,7 @@ import java.util.*;
 import javax.sdp.*;
 
 import net.java.sip.communicator.impl.protocol.sip.*;
+import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -408,12 +409,58 @@ public class SdpUtils
      *
      * @return a <tt>MediaStreamTarget</tt> containing the RTP and RTCP
      * destinations that our interlocutor has specified for this media stream.
+     *
+     * @throws IllegalArgumentException in case we couldn't find connection
+     * data or stumble upon other problems while analyzing the SDP.
      */
     public static MediaStreamTarget extractDefaultTarget(
                                          MediaDescription mediaDesc,
                                          SessionDescription sessDesc)
+        throws IllegalArgumentException
     {
+        //first check if there's a "c=" field in the media description
+        Connection conn = mediaDesc.getConnection();
+
+        if ( conn == null)
+        {
+            //no "c=" in the media description. check the session level.
+            conn = sessDesc.getConnection();
+
+            if (conn == null)
+            {
+                throw new IllegalArgumentException(
+                    "No \"c=\" field in the following media description nor "
+                    +"in the enclosing session:\n"+ mediaDesc.toString());
+            }
+        }
+
+        String address;
+        try
+        {
+            address = conn.getAddress();
+        }
+        catch (SdpParseException exc)
+        {
+            //this can't actually happen as there's no parsing here. the
+            //exception is just inherited from the jain-sdp api. we are
+            //rethrowing only because there's nothing else we could do.
+            throw new IllegalArgumentException(
+                            "Couldn't extract connection address.", exc);
+        }
+
+        InetAddress inetAddress = null;
+        try
+        {
+            inetAddress = NetworkUtils.getInetAddress(address);
+        }
+        catch (UnknownHostException exc)
+        {
+            throw new IllegalArgumentException(
+                "Failed to parse address " + address, exc);
+        }
+
         //ip address (media or session level c)
+
         //rtp port
         //rtcp port ( and address? )
         return null;
