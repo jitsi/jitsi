@@ -37,6 +37,11 @@ public class SdpUtils
     private static final SdpFactory sdpFactory = SdpFactory.getInstance();
 
     /**
+     * The name of the SDP attribute that contains RTCP address and port.
+     */
+    private static final String RTCP_ATTR = "rtcp";
+
+    /**
      * Creates an empty instance of a <tt>SessionDescription</tt> with
      * preinitialized  <tt>s</tt>, <tt>v</tt>, and <tt>t</tt> parameters.
      *
@@ -448,10 +453,11 @@ public class SdpUtils
                             "Couldn't extract connection address.", exc);
         }
 
-        InetAddress inetAddress = null;
+        InetAddress rtpAddress = null;
+
         try
         {
-            inetAddress = NetworkUtils.getInetAddress(address);
+            rtpAddress = NetworkUtils.getInetAddress(address);
         }
         catch (UnknownHostException exc)
         {
@@ -459,11 +465,148 @@ public class SdpUtils
                 "Failed to parse address " + address, exc);
         }
 
-        //ip address (media or session level c)
-
         //rtp port
-        //rtcp port ( and address? )
-        return null;
+        int rtpPort;
+        try
+        {
+            rtpPort = mediaDesc.getMedia().getMediaPort();
+        }
+        catch (SdpParseException exc)
+        {
+            throw new IllegalArgumentException(
+                "Couldn't extract port from a media description.", exc);
+        }
+
+        InetSocketAddress rtpTarget = new InetSocketAddress(
+                        rtpAddress, rtpPort);
+
+
+        //by default RTP and RTCP will be going to the same address (which is
+        //actually going to be the case 99% of the time.
+        InetAddress rtcpAddress = rtpAddress;
+        int         rtcpPort    = rtpPort + 1;
+
+        String rtcpAttributeValue;
+        try
+        {
+            rtcpAttributeValue = mediaDesc.getAttribute(RTCP_ATTR);
+        }
+        catch (SdpParseException exc)
+        {
+            //this can't actually happen as there's no parsing here. the
+            //exception is just inherited from the jain-sdp api. we are
+            //rethrowing only because there's nothing else we could do.
+            throw new IllegalArgumentException(
+                            "Couldn't extract attribute value.", exc);
+        }
+
+        InetSocketAddress rtcpTarget = determineRtcpAddress(
+                        rtcpAttributeValue, rtcpAddress, rtcpPort);
+
+        return new MediaStreamTarget(rtpTarget, rtcpTarget);
+    }
+
+    /**
+     * Determines the address and port where our interlocutor would like to
+     * receive RTCP. The method uses the port, and possibly address, indicated
+     * in the <tt>rtcpAttribute</tt> or returns the default
+     * <tt>defaultAddr:defaultPort</tt> in case <tt>rtcpAttribute</tt> is null.
+     * We also use <tt>defaultAddr</tt> in case <tt>rtcpAttribute</tt> only
+     * contains a port number and no address.
+     *
+     * @param rtcpAttrValue the SDP <tt>Attribute</tt> where we are supposed
+     * to look for an RTCP address and port (could be <tt>null</tt> if there
+     * was no such field in the incoming SDP);
+     * @param defaultAddr the address that we should use to construct the result
+     * <tt>InetSocketAddress</tt> in case <tt>rtcpAttribute</tt> is
+     * <tt>null</tt> or in case <tt>rtcpAttribute</tt> only contains a port
+     * number.
+     * @param defaultPort  the port that we should use to construct the result
+     * <tt>InetSocketAddress</tt> in case <tt>rtcpAttribute</tt> is
+     * <tt>null</tt>.
+     *
+     * @return an <tt>InetSocketAddress</tt> instance indicating the destination
+     * where should be sending RTCP.
+     *
+     * @throws IllegalArgumentException if an error occurs while parsing the
+     * <tt>rtcpAttribute</tt>.
+     */
+    private static InetSocketAddress determineRtcpAddress(
+                                        String      rtcpAttrValue,
+                                        InetAddress defaultAddr,
+                                        int         defaultPort)
+        throws IllegalArgumentException
+    {
+        if (rtcpAttrValue == null)
+        {
+            //no explicit RTCP attribute means RTCP goes to RTP.port + 1
+            return new InetSocketAddress(defaultAddr, defaultPort);
+        }
+
+        if (rtcpAttrValue == null || rtcpAttrValue.trim().length() == 0)
+        {
+            //invalid attribute. return default port.
+            return new InetSocketAddress(defaultAddr, defaultPort);
+        }
+
+        StringTokenizer rtcpTokenizer
+            = new StringTokenizer(rtcpAttrValue.trim(), " ");
+
+        // RTCP attribtutes are supposed to look this way:
+        // rtcp-attribute =  "a=rtcp:" port  [nettype space addrtype space
+        //                                    connection-address] CRLF
+        // which gives us 2 cases: port only (1 token), or port+addr (4 tokens)
+
+        int tokenCount = rtcpTokenizer.countTokens();
+
+        //a single token means we only have a port number.
+        int rtcpPort;
+        try
+        {
+            rtcpPort = Integer.parseInt( rtcpTokenizer.nextToken() );
+        }
+        catch (NumberFormatException exc)
+        {
+            //rtcp attribute is messed up.
+            throw new IllegalArgumentException(
+                "Error while parsing rtcp attribute: " + rtcpAttrValue, exc);
+        }
+
+        if ( tokenCount == 1 )
+        {
+            //that was all then. ready to return.
+            return new InetSocketAddress(defaultAddr, rtcpPort);
+        }
+        else if ( tokenCount == 4)
+        {
+            rtcpTokenizer.nextToken();//nettype
+            rtcpTokenizer.nextToken();//addrtype
+
+            //address
+            String rtcpAddrStr = rtcpTokenizer.nextToken();
+
+            InetAddress rtcpAddress = null;
+
+            try
+            {
+                rtcpAddress = NetworkUtils.getInetAddress(rtcpAddrStr);
+            }
+            catch (UnknownHostException exc)
+            {
+                throw new IllegalArgumentException(
+                    "Failed to parse address " + rtcpAddress, exc);
+            }
+
+            return new InetSocketAddress(rtcpAddress, rtcpPort);
+        }
+        else
+        {
+            //rtcp attribute is messed up: too many tokens.
+            throw new IllegalArgumentException(
+                "Error while parsing rtcp attribute: "
+                + rtcpAttrValue + ". Too many tokens! ("
+                + tokenCount + ")");
+        }
     }
 
     public static MediaDirection getDirection( MediaDescription mediaDesc )
@@ -576,7 +719,7 @@ public class SdpUtils
 
         if ((rtpPort + 1) != rtcpPort)
         {
-            Attribute rtcpAttr = sdpFactory.createAttribute("rtcp:", Integer
+            Attribute rtcpAttr = sdpFactory.createAttribute(RTCP_ATTR, Integer
                             .toString(rtcpPort));
             mediaAttributes.add(rtcpAttr);
         }
