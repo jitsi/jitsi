@@ -97,6 +97,8 @@ public class SdpUtils
                                          MediaDescription mediaDesc,
                                          DynamicPayloadTypeRegistry ptRegistry)
     {
+        List<MediaFormat> mediaFmts = new ArrayList();
+
         Vector<String> formatStrings = null;
         try
         {
@@ -108,67 +110,166 @@ public class SdpUtils
             //this is never thrown by the implementation because it doesn't
             //do lazy parsing ... and whose idea was it to have an exception
             //here anyway ?!?
-            logger.trace("A funny thing just happened ...", exc);
+            logger.debug("A funny thing just happened ...", exc);
+            return mediaFmts;
         }
 
+        Iterator<String> fmtStringsIter = formatStrings.iterator();
 
-        return null;
+        while( fmtStringsIter.hasNext() )
+        {
+            String ptStr = fmtStringsIter.next();
+            byte pt = -1;
+
+            try
+            {
+                pt = Byte.parseByte(ptStr);
+            }
+            catch (NumberFormatException e)
+            {
+                //weird payload type. contact is sending rubbish. try to ignore
+                logger.debug(ptStr + " is not a valid payload type", e);
+                continue;
+            }
+
+            Attribute rtpmap = null;
+            try
+            {
+                rtpmap = findPayloadTypeSpecificAttribute(
+                    mediaDesc.getAttributes(false), SdpConstants.RTPMAP, pt);
+            }
+            catch (SdpException e)
+            {
+                //there was a problem parsing the rtpmap. try to ignore.
+                logger.debug(
+                   rtpmap + " does not seem like a valid rtpmap: attribute", e);
+            }
+
+            Attribute fmtp = null;
+            try
+            {
+                fmtp = findPayloadTypeSpecificAttribute(
+                    mediaDesc.getAttributes(false), SdpConstants.FMTP, pt);
+            }
+            catch (SdpException exc)
+            {
+                //there was a problem parsing the fmtp: try to ignore.
+                logger.debug(
+                   fmtp + " does not seem like a valid fmtp: attribute", exc);
+            }
+
+            MediaFormat mediaFormat = null;
+            try
+            {
+                mediaFormat = createFormat(pt, rtpmap, fmtp);
+            }
+            catch (SdpException e)
+            {
+                //this is never thrown by the implementation because it doesn't
+                //do lazy parsing ... and whose idea was it to have an exception
+                //here anyway ?!?
+                logger.debug("A funny thing just happened ...");
+                continue;
+            }
+
+            mediaFmts.add(mediaFormat);
+
+        }
+
+        return mediaFmts;
     }
 
-    private static MediaFormat createFormat(String    payloadType,
+    /**
+     * Creates and returns <tt>MediaFormat</tt> instance corresponding to the
+     * specified <tt>payloadType</tt> and the parameters in the <tt>rtpmap</tt>
+     * and <tt>fmtp</tt> <tt>Attribute</tt>s. The method would only return
+     * <tt>MediaFormat</tt> instances for formats known to our media service
+     * implementation and returns <tt>null</tt> otherwise.
+     *
+     * @param payloadType a static or dynamic payload type number that
+     * determines the encoding of the format we'd like to create.
+     * @param rtpmap an SDP <tt>Attribute</tt> mapping the <tt>payloadType</tt>
+     * to an encoding name.
+     * @param fmtp a list of format specific parameters
+     *
+     * @return a <tt>MediaForamt</tt> instance corresponding to the specified
+     * <tt>payloadType</tt> and <tt>rtpmap</tt>, and <tt>fmtp</tt> attributes
+     * or <tt>null</tt> if such a format is not currently supported by our
+     * media service implementation.
+     *
+     * @throws SdpException never, the exception is only there because the
+     * jain-sdp API declares exceptions in case of impls using lazy parsing but
+     * the one in the jain-sip-ri isn't doing it.
+     */
+    private static MediaFormat createFormat(byte      payloadType,
                                             Attribute rtpmap,
                                             Attribute fmtp)
         throws SdpException
     {
-        String rtpmapValue = rtpmap.getValue();
+        //default values in case rtpmap is null.
+        String encoding = null;
+        int clockRate = -1;
+        int numChannels = 1;
 
-        //rtpmapValue looks sth like this: "98 H264/90000" or "97 speex/16000/2"
-        //we need to extract the encoding name, the clock rate and the number
-        //of channels if any
-
-        //first strip the payload type
-        StringTokenizer tokenizer
-            = new StringTokenizer(rtpmapValue, " /", false);
-
-        //skip payload type number (mandatory)
-        if(! tokenizer.hasMoreTokens())
-            return null;
-        tokenizer.nextToken();
-
-        //encoding name (mandatory)
-        if(! tokenizer.hasMoreTokens())
-            return null;
-        String encoding = tokenizer.nextToken();
-
-        //clock rate (mandatory)
-        if(! tokenizer.hasMoreTokens())
-            return null;
-        int clockRate = Integer.parseInt(tokenizer.nextToken());
-
-        //number of channels (optional)
-        int nChans = 1;
-        if(tokenizer.hasMoreTokens())
+        if (rtpmap != null)
         {
-            String nChansStr = tokenizer.nextToken();
+            String rtpmapValue = rtpmap.getValue();
 
-            try
+            //rtpmapValue looks sth like this: "98 H264/90000" or
+            //"97 speex/16000/2" we need to extract the encoding name, the clock
+            // rate and the number of channels if any
+            // if at any point we determine there's something wrong with the
+            // rtpmap we bail out and try to create a format based on the
+            // payloadType only.
+
+            //first strip the payload type
+            StringTokenizer tokenizer
+                = new StringTokenizer(rtpmapValue, " /", false);
+
+            //skip payload type number (mandatory)
+            if(tokenizer.hasMoreTokens())
             {
-                nChans = Integer.parseInt(nChansStr);
+                tokenizer.nextToken();
             }
-            catch(NumberFormatException exc)
+
+            //encoding name (mandatory)
+            if(tokenizer.hasMoreTokens())
             {
-                logger.debug(nChansStr + " is not a valid number of channels.");
+                encoding = tokenizer.nextToken();
+            }
+
+            //clock rate (mandatory)
+            if(tokenizer.hasMoreTokens())
+            {
+                clockRate = Integer.parseInt(tokenizer.nextToken());
+            }
+
+            //number of channels (optional)
+            if(tokenizer.hasMoreTokens())
+            {
+                String nChansStr = tokenizer.nextToken();
+
+                try
+                {
+                    numChannels = Integer.parseInt(nChansStr);
+                }
+                catch(NumberFormatException exc)
+                {
+                    logger.debug(nChansStr
+                                    + " is not a valid number of channels.");
+                }
             }
         }
 
         //Format parameters
         Map<String, String> fmtParamsMap = parseFmtpAttribute(fmtp);
 
-        SipActivator.getMediaService().getMediaFactory().createAudioMediaFormat(
-                        encoding, clockRate, nChans);
+        //now create the format.
+        MediaFormat format = SipActivator.getMediaService().getFormatFactory()
+            .createMediaFormat(payloadType, encoding, clockRate,
+                               numChannels, fmtParamsMap);
 
-
-        return null;
+        return format;
     }
 
     /**
@@ -180,10 +281,35 @@ public class SdpUtils
      *
      * @return a (possibly empty) <tt>Map</tt> containing the format parameters
      * resulting from parsing <tt>fmtpAttr</tt>'s value.
+     *
+     * @throws SdpException never, the exception is only there because the
+     * jain-sdp API declares exceptions in case of impls using lazy parsing but
+     * the one in the jain-sip-ri isn't doing it.
      */
     private static Map<String, String> parseFmtpAttribute(Attribute fmtpAttr)
         throws SdpException
     {
+        /* a few examples of what format params may look like:
+         *
+         * //ilbc
+         * a=fmtp:97 mode=20
+         *
+         * //H264
+         * a=fmtp:98 profile-level-id=42A01E;
+         *       sprop-parameter-sets=Z0IACpZTBYmI,aMljiA==
+         *
+         * a=fmtp:100 profile-level-id=42A01E; packetization-mode=2;
+         *       sprop-parameter-sets=Z0IACpZTBYmI,aMljiA==;
+         *       sprop-interleaving-depth=45; sprop-deint-buf-req=64000;
+         *       sprop-init-buf-time=102478; deint-buf-cap=128000
+         *
+         * //speex
+         * a=fmtp:97 mode="1,any";vbr=on
+         *
+         * //yes ... it's funny how sometimes there are spaces after the colons
+         * //and sometimes not
+         */
+
         Map<String, String> fmtParamsMap = new Hashtable<String, String>();
         String fmtpValue = fmtpAttr.getValue();
 
@@ -197,7 +323,7 @@ public class SdpUtils
         while (tokenizer.hasMoreTokens())
         {
             //every token looks sth like "name=value". nb: value may contain
-            //other equation signs
+            //other "=" signs so only tokenize by semicolons and use the 1st one
             String token = tokenizer.nextToken();
             int indexOfEq = token.indexOf("=");
 
@@ -231,7 +357,7 @@ public class SdpUtils
      * @throws SdpException when ... well never really, it's there just for ...
      * fun?
      */
-    private static Attribute findRtpmapForPayloadType(
+    private static Attribute findPayloadTypeSpecificAttribute(
                                     Vector<Attribute> mediaAttributes,
                                     String            attributeName,
                                     byte              payloadType)
@@ -267,6 +393,12 @@ public class SdpUtils
         return null;
     }
 
+    /**
+     * Returns a <tt>MediaStreamTarget</tt> instance reflecting the target
+     * @param mediaDesc
+     * @param sessDesc
+     * @return
+     */
     public static MediaStreamTarget extractTarget(
                                          MediaDescription mediaDesc,
                                          SessionDescription sessDesc)
