@@ -74,15 +74,29 @@ public class CallPeerMediaHandler
     private static int maxMediaPort = 6000;
 
     /**
-     * A reference to the currently valid SDP factory instance.
+     * The port that we should try to bind our next media stream's RTP socket
+     * to.
      */
-    private static final SdpFactory sdpFactory = SdpFactory.getInstance();
+    private static int nextMediaPortToTry = minMediaPort;
 
     /**
-     * Contains all dynamic for
+     * The RTP/RTCP socket couple that this media handler should use to send
+     * and receive audio flows through.
      */
-    private final Hashtable<MediaFormat, Integer> dynamicPayloadTypes
-        = new Hashtable<MediaFormat, Integer>();
+    private StreamConnector audioStreamConnector = null;
+
+    /**
+     * The RTP/RTCP socket couple that this media handler should use to send
+     * and receive video flows through.
+     */
+    private StreamConnector videoStreamConnector = null;
+
+    /**
+     * Contains all dynamic for payload type mappings that have been made for
+     * this call.
+     */
+    private final DynamicPayloadTypeRegistry dynamicPayloadTypes
+        = new DynamicPayloadTypeRegistry();
 
     /**
      * Creates a new handler that will be managing media streams for
@@ -111,7 +125,9 @@ public class CallPeerMediaHandler
      */
     public synchronized String createSdpOffer()
     {
-        SessionDescription sess = SdpUtils.createSessionDescription();
+        SessionDescription sess = null;//SdpUtils.createSessionDescription(
+
+           // peer.getProtocolProvider().getAccountID().getUserID());
 
         return sess.toString();
     }
@@ -154,12 +170,13 @@ public class CallPeerMediaHandler
     }
 
     public void init()
+        throws OperationFailedException
     {
         MediaService mediaService = SipActivator.getMediaService();
 
         //media connectors.
-        StreamConnector audioConn = createStreamConnector(preferredRtpPort);
-        StreamConnector videoConn = createStreamConnector(audioConn.getControlSocket().getLocalPort() + 1);
+        StreamConnector audioConn = createStreamConnector();
+        StreamConnector videoConn = createStreamConnector();
 
         //devices
         MediaDevice aDev = mediaService.getDefaultDevice(MediaType.AUDIO);
@@ -179,8 +196,13 @@ public class CallPeerMediaHandler
      *
      * @return a newly created <tt>MediaDescription</tt> representing streams
      * that we'd be able to handle with <tt>dev</tt>.
+     *
+     * @throws OperationFailedException
      */
-    private MediaDescription createMediaDescription(MediaDevice dev)
+    private MediaDescription createMediaDescription(MediaDevice     dev,
+                                                    StreamConnector connector
+                                                    )
+        throws OperationFailedException
     {
 
         List<MediaFormat> formats = dev.getSupportedFormats();
@@ -188,7 +210,8 @@ public class CallPeerMediaHandler
 
 
 
-        return SdpUtils.createMediaDescription(formats, connector, direction, dynamicPayloadTypes);
+        return SdpUtils.createMediaDescription(
+           formats, connector, dev.getDirection(), dynamicPayloadTypes);
     }
 
     private void initFormats(Iterator<MediaFormat> fmtsIter)
@@ -200,7 +223,15 @@ public class CallPeerMediaHandler
         }
     }
 
-    private StreamConnector createStreamConnector(int preferredRtpPort)
+    /**
+     * Creates a media <tt>StreamConnector</tt>. The method takes into account
+     * the minimum and maximum media port boundaries.
+     *
+     * @return a new <tt>StreamConnector</tt>.
+     *
+     * @throws OperationFailedException if we fail binding the the sockets.
+     */
+    private StreamConnector createStreamConnector()
         throws OperationFailedException
     {
         NetworkAddressManagerService nam
@@ -218,8 +249,8 @@ public class CallPeerMediaHandler
         DatagramSocket rtpSocket = null;
         try
         {
-            rtpSocket = nam.createDatagramSocket(
-                localHostForPeer, preferredRtpPort, minMediaPort, maxMediaPort);
+            rtpSocket = nam.createDatagramSocket( localHostForPeer,
+                            nextMediaPortToTry, minMediaPort, maxMediaPort);
         }
         catch (Exception exc)
         {
@@ -228,14 +259,15 @@ public class CallPeerMediaHandler
                 OperationFailedException.INTERNAL_ERROR, exc, logger);
         }
 
-        int rtpPort = rtpSocket.getLocalPort();
+        //make sure that next time we don't try to bind on occupied ports
+        nextMediaPortToTry = rtpSocket.getLocalPort() + 1;
 
         //create the RTCP socket, preferably on the port following our RTP one.
         DatagramSocket rtcpSocket = null;
         try
         {
-            rtcpSocket = nam.createDatagramSocket(
-                localHostForPeer, rtpPort + 1, minMediaPort, maxMediaPort);
+            rtcpSocket = nam.createDatagramSocket(localHostForPeer,
+                            nextMediaPortToTry, minMediaPort, maxMediaPort);
         }
         catch (Exception exc)
         {
@@ -243,6 +275,9 @@ public class CallPeerMediaHandler
                 "Failed to allocate the network ports necessary for the call.",
                 OperationFailedException.INTERNAL_ERROR, exc, logger);
         }
+
+      //make sure that next time we don't try to bind on occupied ports
+        nextMediaPortToTry = rtcpSocket.getLocalPort() + 1;
 
         //create the RTCP socket
         DefaultStreamConnector connector = new DefaultStreamConnector(
