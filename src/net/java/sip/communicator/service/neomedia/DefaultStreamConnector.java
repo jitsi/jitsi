@@ -72,6 +72,38 @@ public class DefaultStreamConnector
     private static int minPort = -1;
 
     /**
+     * The local <tt>InetAddress</tt> this <tt>StreamConnector</tt> attempts to
+     * bind to on demand.
+     */
+    private final InetAddress bindAddr;
+
+    /**
+     * The <tt>DatagramSocket</tt> that a stream should use for control data
+     * (e.g. RTCP) traffic.
+     */
+    protected DatagramSocket controlSocket;
+
+    /**
+     * The <tt>DatagramSocket</tt> that a stream should use for data (e.g. RTP)
+     * traffic.
+     */
+    protected DatagramSocket dataSocket;
+
+    /**
+     * Initializes a new <tt>DefaultStreamConnector</tt> instance with no
+     * control and data <tt>DatagramSocket</tt>s.
+     * <p>
+     * Suitable for extenders willing to delay the creation of the control and
+     * data sockets. For example, they could override
+     * {@link #getControlSocket()} and/or {@link #getDataSocket()} and create
+     * them on demand.
+     */
+    public DefaultStreamConnector()
+    {
+        this(null, null);
+    }
+
+    /**
      * Creates a new <tt>DatagramSocket</tt> instance which is bound to the
      * specified local <tt>InetAddress</tt> and its port is within the range
      * defined by the <tt>ConfigurationService</tt> properties
@@ -108,48 +140,15 @@ public class DefaultStreamConnector
             }
             catch (SocketException se)
             {
-                logger
-                    .warn(
-                        "Retrying a bind because of a failure to bind to address "
-                            + bindAddr
-                            + " and port "
-                            + port,
-                        se);
+                logger.warn(
+                    "Retrying a bind because of a failure to bind to address "
+                    + bindAddr
+                    + " and port "
+                    + port,
+                    se);
             }
         }
         return null;
-    }
-
-    /**
-     * The local <tt>InetAddress</tt> this <tt>StreamConnector</tt> attempts to
-     * bind to on demand.
-     */
-    private final InetAddress bindAddr;
-
-    /**
-     * The <tt>DatagramSocket</tt> that a stream should use for control data
-     * (e.g. RTCP) traffic.
-     */
-    protected DatagramSocket controlSocket;
-
-    /**
-     * The <tt>DatagramSocket</tt> that a stream should use for data (e.g. RTP)
-     * traffic.
-     */
-    protected DatagramSocket dataSocket;
-
-    /**
-     * Initializes a new <tt>DefaultStreamConnector</tt> instance with no
-     * control and data <tt>DatagramSocket</tt>s.
-     * <p>
-     * Suitable for extenders willing to delay the creation of the control and
-     * data sockets. For example, they could override
-     * {@link #getControlSocket()} and/or {@link #getDataSocket()} and create
-     * them on demand.
-     */
-    public DefaultStreamConnector()
-    {
-        this(null, null);
     }
 
     /**
