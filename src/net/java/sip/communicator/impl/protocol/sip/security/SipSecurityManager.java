@@ -29,7 +29,6 @@ import net.java.sip.communicator.util.*;
  * @author Jeroen van Bemmel
  * @version 1.0
  */
-
 public class SipSecurityManager
 {
     /**
@@ -58,7 +57,7 @@ public class SipSecurityManager
     /**
      * The ID of the account that this security manager instance is serving.
      */
-    private AccountID accountID = null;
+    private final AccountID accountID;
 
     /**
      * Default constructor for the security manager.
@@ -150,7 +149,7 @@ public class SipSecurityManager
         //the new client transaction) takes it into account.
         //Bug report - Fredrik Wickstrom
         CSeqHeader cSeq =
-            (CSeqHeader) reoriginatedRequest.getHeader( (CSeqHeader.NAME));
+            (CSeqHeader) reoriginatedRequest.getHeader(CSeqHeader.NAME);
         cSeq.setSeqNumber(cSeq.getSeqNumber() + 1l);
 
         ClientTransaction retryTran =
@@ -382,7 +381,6 @@ public class SipSecurityManager
         return retryTran;
     }
 
-
     /**
      * Removes all authorization (and proxy authorization) headers from
      * <tt>request</tt> and returns the list of realms that they were about.
@@ -394,9 +392,8 @@ public class SipSecurityManager
      */
     private List<String> removeAuthHeaders(Request request)
     {
-        List<String> realms = new LinkedList<String>();
-
         Iterator<SIPHeader> headers = ((SIPRequest)request).getHeaders();
+        List<String> realms = new LinkedList<String>();
 
         removeAuthHeaders(headers, realms);
 
@@ -412,7 +409,7 @@ public class SipSecurityManager
      * only). The method also handles header lists and is recursive.
      *
      * @param headers the list of headers that we need to analyze.
-     * @param realms the list that we should fill with the realmswe encounter
+     * @param realms the list that we should fill with the realms we encounter
      * in all kinds of authorization headers.
      */
     @SuppressWarnings("unchecked") //no way around it
@@ -438,7 +435,7 @@ public class SipSecurityManager
     }
 
     /**
-     * Generates an authorisation header in response to wwwAuthHeader.
+     * Generates an authorization header in response to wwwAuthHeader.
      *
      * @param method method of the request being authenticated
      * @param uri digest-uri
@@ -446,9 +443,9 @@ public class SipSecurityManager
      * @param authHeader the challenge that we should respond to
      * @param userCredentials username and pass
      *
-     * @return an authorisation header in response to authHeader.
+     * @return an authorization header in response to authHeader.
      *
-     * @throws OperationFailedException if auth header was malformated.
+     * @throws OperationFailedException if auth header was malformed.
      */
     private AuthorizationHeader getAuthorization(
                 String                method,
@@ -560,7 +557,6 @@ public class SipSecurityManager
      * @param request the Request whose branchID we'd like to remove.
      */
     private void removeBranchID(Request request)
-
     {
         ViaHeader viaHeader = (ViaHeader) request.getHeader(ViaHeader.NAME);
 
@@ -633,7 +629,7 @@ public class SipSecurityManager
     }
 
     /**
-     * Creaes a new credentials cache entry using <tt>password</tt>.
+     * Creates a new credentials cache entry using <tt>password</tt>.
      *
      * @param password the password that we'd like to use in our the credentials
      * associated with the new <tt>CredentialsCacheEntry</tt>.
@@ -673,5 +669,4 @@ public class SipSecurityManager
     {
         return this.cachedCredentials.getCachedAuthorizationHeader(callID);
     }
-
 }
