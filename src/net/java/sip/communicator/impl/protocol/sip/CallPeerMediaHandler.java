@@ -34,6 +34,7 @@ public class CallPeerMediaHandler
      * Our class logger.
      */
     private Logger logger = Logger.getLogger(CallPeerMediaHandler.class);
+
     /**
      * A reference to the CallPeerSipImpl instance that this handler is
      * managing media streams for.
@@ -346,7 +347,6 @@ public class CallPeerMediaHandler
         //Audio Media Description
         Vector<MediaDescription> mediaDescs = createMediaDescriptions();
 
-
         //wrap everything up in a session description
         String userName = peer.getProtocolProvider().getAccountID().getUserID();
 
@@ -376,7 +376,7 @@ public class CallPeerMediaHandler
             if(locallyOnHold)
                 audioDirection = audioDirection.and(MediaDirection.SENDONLY);
 
-            if(audioDirection != MediaDirection.INACTIVE);
+            if(audioDirection != MediaDirection.INACTIVE)
             {
                 mediaDescs.add(createMediaDescription(
                         aDev.getSupportedFormats(),
@@ -395,7 +395,7 @@ public class CallPeerMediaHandler
             if(locallyOnHold)
                 videoDirection = videoDirection.and(MediaDirection.SENDONLY);
 
-            if(videoDirection != MediaDirection.INACTIVE);
+            if(videoDirection != MediaDirection.INACTIVE)
             {
                 mediaDescs.add(createMediaDescription(
                         vDev.getSupportedFormats(),
@@ -433,8 +433,6 @@ public class CallPeerMediaHandler
 
         return newOffer;
     }
-
-
 
     private InetAddress getLastUsedLocalHost()
     {
@@ -704,10 +702,6 @@ public class CallPeerMediaHandler
             {
                 closeStream(mediaType);
             }
-
-            //create the corresponding stream
-            initStream( connector, dev, supportedFormats.get(0),
-                            target, direction);
         }
     }
 
