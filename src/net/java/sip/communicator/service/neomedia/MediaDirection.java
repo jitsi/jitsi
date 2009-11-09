@@ -77,39 +77,6 @@ public enum MediaDirection
     }
 
     /**
-     * Returns a <tt>MediaDirection</tt> value corresponding to the specified
-     * <tt>mediaDirectionName</tt> or in other words <tt>MediaType.SENDONLY</tt>
-     * for "sendonly", <tt>MediaType.RECVONLY</tt> for "recvonly",
-     * <tt>MediaType.INACTIVE</tt> for "inactive", and
-     * <tt>MediaType.SENDRECV</tt> for "sendrecv".
-     *
-     * @param mediaDirectionName the name that we'd like to parse.
-     * @return a <tt>MediaDirection</tt> value corresponding to the specified
-     * <tt>mediaDirectionName</tt>.
-     *
-     * @throws IllegalArgumentException in case <tt>mediaDirectionName</tt> is
-     * not a valid or currently supported media direction.
-     */
-    public static MediaDirection parseString(String mediaDirectionName)
-        throws IllegalArgumentException
-    {
-        if(SENDONLY.toString().equals(mediaDirectionName))
-            return SENDONLY;
-
-        if(RECVONLY.toString().equals(mediaDirectionName))
-            return RECVONLY;
-
-        if(SENDRECV.toString().equals(mediaDirectionName))
-            return SENDRECV;
-
-        if(INACTIVE.toString().equals(mediaDirectionName))
-            return INACTIVE;
-
-        throw new IllegalArgumentException(mediaDirectionName
-                        + " is not a currently supported MediaDirection");
-    }
-
-    /**
      * Applies an extra direction constraint to this <tt>MediaDirection</tt>
      * or in other words performs an <tt>and</tt> operation. This method is
      * primarily meant for use by the
