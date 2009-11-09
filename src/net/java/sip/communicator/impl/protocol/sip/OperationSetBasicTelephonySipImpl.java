@@ -447,9 +447,11 @@ public class OperationSetBasicTelephonySipImpl
 
         // errors
         default:
-            if ((responseStatusCode / 100 == 4)
-                || (responseStatusCode / 100 == 5)
-                || (responseStatusCode / 100 == 6))
+            int responseStatusCodeRange = responseStatusCode / 100;
+
+            if ((responseStatusCodeRange == 4)
+                || (responseStatusCodeRange == 5)
+                || (responseStatusCodeRange == 6))
             {
                 CallPeerSipImpl callPeer =
                     activeCallsRepository.findCallPeer(clientTransaction
@@ -804,8 +806,6 @@ public class OperationSetBasicTelephonySipImpl
         return true;
     }
 
-
-
     /**
      * Creates a new call and sends a RINGING response.
      *
@@ -1082,25 +1082,33 @@ public class OperationSetBasicTelephonySipImpl
              */
             private boolean done;
 
+            /**
+             * Notifies this <tt>CallChangeListener</tt> that a <tt>Call</tt>
+             * which it has been registered with has changed it state.
+             *
+             * @param evt a <tt>CallChangeEvent</tt> which specifies the
+             * <tt>Call</tt> which has changed its state
+             */
+            @Override
             public synchronized void callStateChanged(CallChangeEvent evt)
             {
                 if (!done
-                    && referToCallStateChanged(referToCallListenerSource,
-                        sendNotifyRequest, dialog, sipProvider, subscription))
+                        && referToCallStateChanged(
+                                referToCallListenerSource,
+                                sendNotifyRequest,
+                                dialog,
+                                sipProvider,
+                                subscription))
                 {
                     done = true;
                     if (referToCallListenerSource != null)
-                    {
                         referToCallListenerSource
                             .removeCallChangeListener(this);
-                    }
                 }
             }
         };
         if (referToCall != null)
-        {
             referToCall.addCallChangeListener(referToCallListener);
-        }
         referToCallListener.callStateChanged(null);
     }
 
@@ -1396,8 +1404,8 @@ public class OperationSetBasicTelephonySipImpl
         throws OperationFailedException, ClassCastException
     {
         CallPeerSipImpl callPeer = (CallPeerSipImpl) peer;
-        callPeer.answer();
 
+        callPeer.answer();
     }
 
     /**
@@ -1407,6 +1415,7 @@ public class OperationSetBasicTelephonySipImpl
      *
      * @return a string representation of this operation set.
      */
+    @Override
     public String toString()
     {
         return getClass().getSimpleName() + "-[dn="
@@ -1460,6 +1469,7 @@ public class OperationSetBasicTelephonySipImpl
      * @param mute <tt>true</tt> to mute the audio stream being sent to
      * <tt>peer</tt>; otherwise, <tt>false</tt>
      */
+    @Override
     public void setMute(CallPeer peer, boolean mute)
     {
         CallPeerSipImpl sipPeer = (CallPeerSipImpl) peer;
@@ -1680,4 +1690,3 @@ public class OperationSetBasicTelephonySipImpl
         return protocolProvider;
     }
 }
-
