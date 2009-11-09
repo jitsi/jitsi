@@ -388,6 +388,7 @@ public class CallPeerSipImpl
      * web interface related to this peer or <tt>null</tt> if no such URL
      * is available.
      */
+    @Override
     public URL getCallInfoURL()
     {
         if (mediaHandler == null)
@@ -403,6 +404,7 @@ public class CallPeerSipImpl
      * @return <tt>true</tt> if an audio stream is being sent to this
      *         peer and it is currently mute; <tt>false</tt>, otherwise
      */
+    @Override
     public boolean isMute()
     {
         return getMediaHandler().isMute();
@@ -470,7 +472,7 @@ public class CallPeerSipImpl
         ContentLengthHeader cl = invite.getContentLength();
         if (cl != null && cl.getContentLength() > 0)
         {
-            sdpOffer = new String(invite.getRawContent());
+            sdpOffer = SdpUtils.getContentAsString(invite);
         }
 
         Response response = null;
@@ -698,6 +700,7 @@ public class CallPeerSipImpl
      *
      * @param newMuteValue the new value of the mute property for this call peer
      */
+    @Override
     public void setMute(boolean newMuteValue)
     {
         getMediaHandler().setMute(newMuteValue);
@@ -732,7 +735,7 @@ public class CallPeerSipImpl
             try
             {
                 getMediaHandler().processAnswer(
-                                    new String(ack.getRawContent()));
+                                    SdpUtils.getContentAsString(ack));
             }
             catch (Exception exc)
             {
@@ -784,7 +787,7 @@ public class CallPeerSipImpl
         try
         {
             getMediaHandler().processAnswer(
-                            new String(response.getRawContent()));
+                            SdpUtils.getContentAsString(response));
         }
         catch (Exception exc)
         {
@@ -831,7 +834,8 @@ public class CallPeerSipImpl
              //Process SDP unless we've just had an answer in a 18X response
             if (!CallPeerState.CONNECTING_WITH_EARLY_MEDIA.equals(getState()))
             {
-                getMediaHandler().processAnswer(new String(ok.getRawContent()));
+                getMediaHandler()
+                    .processAnswer(SdpUtils.getContentAsString(ok));
             }
         }
         //at this point we have already sent our ack so in addition to logging
@@ -1125,8 +1129,8 @@ public class CallPeerSipImpl
             ContentLengthHeader cl = invite.getContentLength();
             if (cl != null && cl.getContentLength() > 0)
             {
-                sdpOffer = new String(invite.getRawContent());
-            };
+                sdpOffer = SdpUtils.getContentAsString(invite);
+            }
 
             String sdp;
             // if the offer was in the invite create an sdp answer
@@ -1400,6 +1404,7 @@ public class CallPeerSipImpl
      * @param reason a reason phrase explaining the state (e.g. if newState
      * indicates a failure) and that we pass to our predecessor.
      */
+    @Override
     public void setState(CallPeerState newState, String reason)
     {
         super.setState(newState, reason);

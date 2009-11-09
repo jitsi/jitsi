@@ -6,10 +6,12 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.sdp;
 
+import java.io.*;
 import java.net.*;
 import java.util.*;
 
 import javax.sdp.*;
+import javax.sip.header.ContentTypeHeader; // disambiguates MediaType
 
 import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.service.neomedia.*;
@@ -28,7 +30,7 @@ public class SdpUtils
     /**
      * Our class logger.
      */
-    private static Logger logger = Logger.getLogger(SdpUtils.class);
+    private static final Logger logger = Logger.getLogger(SdpUtils.class);
 
     /**
      * A reference to the currently valid SDP factory instance.
@@ -318,7 +320,7 @@ public class SdpUtils
                                          MediaDescription mediaDesc,
                                          DynamicPayloadTypeRegistry ptRegistry)
     {
-        List<MediaFormat> mediaFmts = new ArrayList();
+        List<MediaFormat> mediaFmts = new ArrayList<MediaFormat>();
 
         Vector<String> formatStrings = null;
         try
@@ -858,9 +860,9 @@ public class SdpUtils
      * @return one of the <tt>MediaDirection</tt> values indicating the
      * direction of the media steam described by <tt>mediaDesc</tt>.
      */
-    @SuppressWarnings("unchecked")//legacy code from jain-sdp
     public static MediaDirection getDirection( MediaDescription mediaDesc )
     {
+        @SuppressWarnings("unchecked") // legacy code from jain-sdp
         Vector<Attribute> attributes  = mediaDesc.getAttributes(false);
 
         //default
@@ -1224,5 +1226,49 @@ public class SdpUtils
         }
 
         return remoteDescriptions;
+    }
+
+    /**
+     * Gets the content of the specified SIP <tt>Message</tt> in the form of a
+     * <tt>String</tt> value.
+     *
+     * @param message the SIP <tt>Message</tt> to get the content of
+     * @return a <tt>String</tt> value which represents the content of the
+     * specified SIP <tt>Message</tt>
+     */
+    public static String getContentAsString(javax.sip.message.Message message)
+    {
+        byte[] rawContent = message.getRawContent();
+
+        /*
+         * If rawContent isn't in the default charset, its charset is in the
+         * Content-Type header.
+         */
+        ContentTypeHeader contentTypeHeader
+            = (ContentTypeHeader) message.getHeader(ContentTypeHeader.NAME);
+        String charset = null;
+
+        if (contentTypeHeader != null)
+            charset = contentTypeHeader.getParameter("charset");
+        if (charset == null)
+            charset = "UTF-8"; // RFC 3261
+
+        try
+        {
+            return new String(rawContent, charset);
+        }
+        catch (UnsupportedEncodingException uee)
+        {
+            logger
+                .warn(
+                    "SIP message with unsupported charset of its content",
+                    uee);
+
+            /*
+             * We failed to do it the right way so just do what we used to do
+             * before.
+             */
+            return new String(rawContent);
+        }
     }
 }
