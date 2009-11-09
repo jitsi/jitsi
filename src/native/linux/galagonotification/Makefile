@@ -5,6 +5,7 @@ TARGET=../../../../lib/native/linux$(ARCH)/libgalagonotification.so
 
 CC=gcc
 CPPFLAGS=-DJNI_IMPLEMENTATION \
+         -fPIC \
          -Wall -Wreturn-type \
          -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux \
          $(shell pkg-config --cflags dbus-1)
