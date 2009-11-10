@@ -47,6 +47,7 @@ public enum MediaType
      *
      * @return the name of this MediaType (e.g. "audio" or "video").
      */
+    @Override
     public String toString()
     {
         return mediaTypeName;

@@ -170,7 +170,7 @@ public class SdpUtils
      * Creates and returns a new <tt>SessionDescription</tt> that is supposed
      * to update our previous <tt>descToUpdate</tt> and advertise the brand new
      * <tt>newMediaDescriptions</tt>. The method also respects other 3264
-     * policies like reusing the origing field and augmenting its version number
+     * policies like reusing the origin field and augmenting its version number
      * for example.
      *
      * @param descToUpdate the <tt>SessionDescription</tt> that we'd like to
@@ -322,7 +322,7 @@ public class SdpUtils
     {
         List<MediaFormat> mediaFmts = new ArrayList<MediaFormat>();
 
-        Vector<String> formatStrings = null;
+        Vector<String> formatStrings;
         try
         {
             formatStrings
@@ -337,11 +337,8 @@ public class SdpUtils
             return mediaFmts;
         }
 
-        Iterator<String> fmtStringsIter = formatStrings.iterator();
-
-        while( fmtStringsIter.hasNext() )
+        for(String ptStr : formatStrings)
         {
-            String ptStr = fmtStringsIter.next();
             byte pt = -1;
 
             try
@@ -391,7 +388,7 @@ public class SdpUtils
                 //this is never thrown by the implementation because it doesn't
                 //do lazy parsing ... and whose idea was it to have an exception
                 //here anyway ?!?
-                logger.debug("A funny thing just happened ...");
+                logger.debug("A funny thing just happened ...", e);
                 continue;
             }
 
@@ -401,7 +398,6 @@ public class SdpUtils
                 //supports it
                 mediaFmts.add(mediaFormat);
             }
-
         }
 
         return mediaFmts;
@@ -488,8 +484,9 @@ public class SdpUtils
                 }
                 catch(NumberFormatException exc)
                 {
-                    logger.debug(nChansStr
-                                    + " is not a valid number of channels.");
+                    logger.debug(
+                            nChansStr + " is not a valid number of channels.",
+                            exc);
                 }
             }
         }
@@ -509,9 +506,35 @@ public class SdpUtils
             fmtParamsMap = parseFmtpAttribute(fmtp);
 
         //now create the format.
-        MediaFormat format = SipActivator.getMediaService().getFormatFactory()
-            .createMediaFormat(payloadType, encoding, clockRate,
-                               numChannels, fmtParamsMap);
+        MediaFormat format
+            = SipActivator
+                .getMediaService()
+                    .getFormatFactory()
+                        .createMediaFormat(
+                            payloadType,
+                            encoding,
+                            clockRate,
+                            numChannels,
+                            fmtParamsMap);
+
+        /*
+         * We've just created a MediaFormat for the specified payloadType so we
+         * have to remember the mapping between the two so that we don't, for
+         * example, map the same payloadType to a different MediaFormat at a
+         * later time when we do automatic generatation of payloadType in
+         * DynamicPayloadTypeRegistry.
+         */
+        /*
+         * TODO What is expected to happen when the remote peer tries to remap a
+         * payloadType in its answer to a different MediaFormat than the one
+         * we've specified in our offer?
+         */
+        if ((payloadType >= DynamicPayloadTypeRegistry.MIN_DYNAMIC_PAYLOAD_TYPE)
+                && (payloadType
+                        <= DynamicPayloadTypeRegistry.MAX_DYNAMIC_PAYLOAD_TYPE)
+                && (format != null)
+                && (ptRegistry.findFormat(payloadType) == null))
+            ptRegistry.addMapping(format, payloadType);
 
         return format;
     }
@@ -610,13 +633,10 @@ public class SdpUtils
         if( mediaAttributes == null || mediaAttributes.size() == 0)
             return null;
 
-        Iterator<Attribute> attIter = mediaAttributes.iterator();
         String ptStr = Byte.toString(payloadType);
 
-        while(attIter.hasNext())
+        for (Attribute attr : mediaAttributes)
         {
-            Attribute attr = attIter.next();
-
             if(!attributeName.equals(attr.getName()))
                 continue;
 
@@ -882,14 +902,9 @@ public class SdpUtils
                 logger.debug("The impossible has just occurred!", e);
             }
 
-            if (MediaDirection.SENDONLY.name().equals(attrName))
-                return MediaDirection.SENDONLY;
-            else if (MediaDirection.RECVONLY.name().equals(attrName))
-                return MediaDirection.RECVONLY;
-            else if (MediaDirection.SENDRECV.name().equals(attrName))
-                return MediaDirection.SENDRECV;
-            else if (MediaDirection.INACTIVE.name().equals(attrName))
-                return MediaDirection.INACTIVE;
+            for (MediaDirection value : MediaDirection.values())
+                if (value.toString().equals(attrName))
+                    return value;
         }
 
         return MediaDirection.SENDRECV;
@@ -979,7 +994,7 @@ public class SdpUtils
                 mediaType = fmtMediaType;
             }
 
-            int payloadType = format.getRTPPayloadType();
+            byte payloadType = format.getRTPPayloadType();
 
             // is this a dynamic payload type.
             if (payloadType == MediaFormat.RTP_PAYLOAD_TYPE_UNKNOWN)

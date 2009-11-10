@@ -75,14 +75,13 @@ public class DynamicPayloadTypeRegistry
         Byte payloadType = payloadTypeMappings.get(format);
 
         //hey, we already had this one, let's return it ;)
-        if( payloadType != null)
-            return payloadType.byteValue();
+        if( payloadType == null)
+        {
+            payloadType = nextPayloadTypeNumber();
+            payloadTypeMappings.put(format, payloadType);
+        }
 
-        payloadType = nextPayloadTypeNumber();
-
-        payloadTypeMappings.put(format, payloadType);
-
-        return payloadType.byteValue();
+        return payloadType;
     }
 
     /**
@@ -119,7 +118,7 @@ public class DynamicPayloadTypeRegistry
                 + " and " + MAX_DYNAMIC_PAYLOAD_TYPE);
         }
 
-        payloadTypeMappings.put(format, new Byte(payloadType));
+        payloadTypeMappings.put(format, Byte.valueOf(payloadType));
     }
 
     /**
@@ -136,19 +135,14 @@ public class DynamicPayloadTypeRegistry
      */
     public MediaFormat findFormat(byte payloadType)
     {
-        Iterator<Map.Entry<MediaFormat, Byte>> entriesIter
-                                = payloadTypeMappings.entrySet().iterator();
-
-        while(entriesIter.hasNext())
+        for (Map.Entry<MediaFormat, Byte> entry
+                : payloadTypeMappings.entrySet())
         {
-            Map.Entry<MediaFormat, Byte> entry = entriesIter.next();
-
             byte fmtPayloadType = entry.getValue();
 
             if(fmtPayloadType == payloadType)
                 return entry.getKey();
         }
-
         return null;
     }
 

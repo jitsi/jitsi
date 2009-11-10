@@ -189,6 +189,30 @@ public class CallPeerMediaHandler
     }
 
     /**
+     * Gets the <tt>MediaDirection</tt> value which represents the preference of
+     * the user with respect to streaming media of the specified
+     * <tt>MediaType</tt>.
+     *
+     * @param mediaType the <tt>MediaType</tt> to retrieve the user preference
+     * for
+     * @return a <tt>MediaDirection</tt> value which represents the preference
+     * of the user with respect to streaming media of the specified
+     * <tt>mediaType</tt>
+     */
+    private MediaDirection getDirectionUserPreference(MediaType mediaType)
+    {
+        switch (mediaType)
+        {
+        case AUDIO:
+            return audioDirectionUserPreference;
+        case VIDEO:
+            return videoDirectionUserPreference;
+        default:
+            throw new IllegalArgumentException("mediaType");
+        }
+    }
+
+    /**
      * Determines whether the audio stream of this media handler is currently
      * on mute.
      *
@@ -366,56 +390,41 @@ public class CallPeerMediaHandler
         //Audio Media Description
         Vector<MediaDescription> mediaDescs = new Vector<MediaDescription>();
 
-        MediaDevice aDev = mediaService.getDefaultDevice(MediaType.AUDIO);
-
-        if (aDev != null)
+        for (MediaType mediaType : MediaType.values())
         {
-            MediaDirection audioDirection
-                = aDev.getDirection().and(audioDirectionUserPreference);
+            MediaDevice dev = mediaService.getDefaultDevice(mediaType);
 
-            if(locallyOnHold)
-                audioDirection = audioDirection.and(MediaDirection.SENDONLY);
-
-            if(audioDirection != MediaDirection.INACTIVE)
+            if (dev != null)
             {
-                mediaDescs.add(createMediaDescription(
-                        aDev.getSupportedFormats(),
-                        getStreamConnector(MediaType.AUDIO), audioDirection));
-            }
-        }
+                MediaDirection direction
+                    = dev.getDirection().and(getDirectionUserPreference(mediaType));
 
-        //Video Media Description
-        MediaDevice vDev = mediaService.getDefaultDevice(MediaType.VIDEO);
+                if(locallyOnHold)
+                    direction = direction.and(MediaDirection.SENDONLY);
 
-        if(vDev != null)
-        {
-            MediaDirection videoDirection
-                = vDev.getDirection().and(videoDirectionUserPreference);
-
-            if(locallyOnHold)
-                videoDirection = videoDirection.and(MediaDirection.SENDONLY);
-
-            if(videoDirection != MediaDirection.INACTIVE)
-            {
-                mediaDescs.add(createMediaDescription(
-                        vDev.getSupportedFormats(),
-                        getStreamConnector(MediaType.VIDEO), videoDirection));
+                if(direction != MediaDirection.INACTIVE)
+                    mediaDescs
+                        .add(
+                            createMediaDescription(
+                                dev.getSupportedFormats(),
+                                getStreamConnector(mediaType),
+                                direction));
             }
         }
 
         //fail if all devices were inactive
         if(mediaDescs.size() == 0)
         {
-             ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                 "We couldn't find any active Audio/Video devices and "
-                 +"couldn't create a call",
-                 OperationFailedException.GENERAL_ERROR,
-                 null,
-                 logger);
+            ProtocolProviderServiceSipImpl
+                .throwOperationFailedException(
+                    "We couldn't find any active Audio/Video devices and "
+                        + "couldn't create a call",
+                    OperationFailedException.GENERAL_ERROR,
+                    null,
+                    logger);
         }
 
         return mediaDescs;
-
     }
 
     private SessionDescription createUpdateOffer(
@@ -511,8 +520,9 @@ public class CallPeerMediaHandler
         for ( Map.Entry<MediaFormat, Byte> mapEntry
                         : dynamicPayloadTypes.getMappings().entrySet())
         {
-            byte pt = mapEntry.getValue().byteValue();
+            byte pt = mapEntry.getValue();
             MediaFormat fmt = mapEntry.getKey();
+
             stream.addDynamicRTPPayloadType(pt, fmt);
         }
     }
@@ -590,15 +600,23 @@ public class CallPeerMediaHandler
                             mediaDescription, dynamicPayloadTypes);
 
             MediaDevice dev = mediaService.getDefaultDevice(mediaType);
-            MediaDirection devDirection = dev.getDirection();
+            MediaDirection devDirection
+                = (dev == null) ? MediaDirection.INACTIVE : dev.getDirection();
+            /*
+             * Take the preference of the user with respect to streaming
+             * mediaType into account.
+             */
+            devDirection
+                = devDirection.and(getDirectionUserPreference(mediaType));
 
             // stream target
-            MediaStreamTarget target = SdpUtils.extractDefaultTarget(
-                            mediaDescription, offer);
+            MediaStreamTarget target
+                = SdpUtils.extractDefaultTarget(mediaDescription, offer);
+            int targetDataPort = target.getDataAddress().getPort();
 
-            if (supportedFormats == null || supportedFormats.size() == 0
-                || dev == null || devDirection == MediaDirection.INACTIVE
-                || target.getDataAddress().getPort() == 0)
+            if (supportedFormats.isEmpty()
+                    || (devDirection == MediaDirection.INACTIVE)
+                    || (targetDataPort == 0))
             {
                 // mark stream as dead and go on bravely
                 answerDescriptions.add(SdpUtils
@@ -616,7 +634,7 @@ public class CallPeerMediaHandler
                             .getDirectionForAnswer(remoteDirection);
 
             // create the corresponding stream...
-            if(target.getDataAddress().getPort() != 0)
+            if(targetDataPort != 0)
             {
                 initStream(connector, dev, supportedFormats.get(0), target,
                                 direction);
@@ -624,6 +642,10 @@ public class CallPeerMediaHandler
             else
             // or destroy it in case the target port was 0.
             {
+                /*
+                 * We shouldn't even be here because targetDataPort has already
+                 * been checked.
+                 */
                 closeStream(mediaType);
             }
 
@@ -667,10 +689,11 @@ public class CallPeerMediaHandler
                             mediaDescription, dynamicPayloadTypes);
 
             MediaDevice dev = mediaService.getDefaultDevice(mediaType);
-            MediaDirection devDirection = dev.getDirection();
+            MediaDirection devDirection
+                = (dev == null) ? MediaDirection.INACTIVE : dev.getDirection();
 
-            if (supportedFormats == null || supportedFormats.size() == 0
-                || dev == null || devDirection == MediaDirection.INACTIVE)
+            if (supportedFormats.isEmpty()
+                    || (devDirection == MediaDirection.INACTIVE))
             {
                 //remote party must have messed up our SDP. throw an exception.
                 ProtocolProviderServiceSipImpl.throwOperationFailedException(
