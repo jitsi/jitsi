@@ -13,8 +13,8 @@ import javax.media.*;
 import net.java.sip.communicator.impl.media.protocol.portaudio.*;
 
 /**
- * Creates PortAudio capture devices by enumerating all the host devices that
- * have input channels.
+ * Creates PortAudio capture devices by enumerating all host devices that have
+ * input channels.
  *
  * @author Damian Minkov
  */
@@ -25,6 +25,16 @@ public class PortAudioAuto
      */
     public static CaptureDeviceInfo[] playbackDevices = null;
 
+    /**
+     * The default playback device.
+     */
+    public static CaptureDeviceInfo defaultPlaybackDevice = null;
+
+    /**
+     * The default capture device.
+     */
+    public static CaptureDeviceInfo defaultCaptureDevice = null;
+
     PortAudioAuto() throws Exception
     {
         // if PortAudio has a problem initializing like missing native
@@ -34,6 +44,9 @@ public class PortAudioAuto
 
         int deviceCount = PortAudio.Pa_GetDeviceCount();
         int deviceIndex = 0;
+
+        int defaultInputDeviceIx = PortAudio.Pa_GetDefaultInputDevice();
+        int defaultOutputDeviceIx = PortAudio.Pa_GetDefaultOutputDevice();
 
         Vector<CaptureDeviceInfo> playbackDevVector =
             new Vector<CaptureDeviceInfo>();
@@ -62,6 +75,12 @@ public class PortAudioAuto
             {
                 playbackDevVector.add(jmfInfo);
             }
+
+            if(deviceIndex == defaultInputDeviceIx)
+                defaultCaptureDevice = jmfInfo;
+
+            if(deviceIndex == defaultOutputDeviceIx)
+                defaultPlaybackDevice = jmfInfo;
         }
 
         playbackDevices = playbackDevVector.toArray(new CaptureDeviceInfo[0]);
