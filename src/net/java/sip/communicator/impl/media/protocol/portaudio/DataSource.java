@@ -7,17 +7,21 @@
 package net.java.sip.communicator.impl.media.protocol.portaudio;
 
 import java.io.*;
+import java.util.*;
 
 import javax.media.*;
+import javax.media.control.*;
 import javax.media.protocol.*;
 
 /**
- * Portaudio datasource.
+ * Implements <tt>DataSource</tt> and <tt>CaptureDevice</tt> for PortAudio.
  *
  * @author Damian Minkov
+ * @author Lubomir Marinov
  */
 public class DataSource
     extends PullBufferDataSource
+    implements CaptureDevice
 {
     private boolean connected = false;
 
@@ -72,6 +76,31 @@ public class DataSource
     }
 
     /**
+     * Gets the <tt>CaptureDeviceInfo</tt> that describes this
+     * <tt>CaptureDevice</tt>.
+     *
+     * @return the <tt>CaptureDeviceInfo</tt> that describes this
+     * <tt>CaptureDevice</tt>
+     */
+    public CaptureDeviceInfo getCaptureDeviceInfo()
+    {
+        /*
+         * TODO The implemented search for the CaptureDeviceInfo of this
+         * CaptureDevice by looking for its MediaLocator is inefficient.
+         */
+        @SuppressWarnings("unchecked")
+        Vector<CaptureDeviceInfo> captureDeviceInfos
+            = (Vector<CaptureDeviceInfo>)
+                CaptureDeviceManager.getDeviceList(null);
+        MediaLocator locator = getLocator();
+
+        for (CaptureDeviceInfo captureDeviceInfo : captureDeviceInfos)
+            if (captureDeviceInfo.getLocator().equals(locator))
+                return captureDeviceInfo;
+        return null;
+    }
+
+    /**
      * Tell we are a raw datasource
      *
      * @return "raw"
@@ -122,6 +151,26 @@ public class DataSource
     public Time getDuration()
     {
         return DURATION_UNKNOWN;
+    }
+
+    /**
+     * Gets an array of <tt>FormatControl</tt> instances each one of which can
+     * be used before {@link #connect()} to get and set the capture
+     * <tt>Format</tt> of each one of the capture streams.
+     *
+     * @return an array of <tt>FormatControl</tt> instances each one of which
+     * can be used before {@link #connect()} to get and set the capture
+     * <tt>Format</tt> of each one of the capture streams
+     */
+    public FormatControl[] getFormatControls()
+    {
+        // TODO Make getControls() actually return a FormatControl instance.
+        List<FormatControl> formatControls = new ArrayList<FormatControl>();
+
+        for (Object control : getControls())
+            if (control instanceof FormatControl)
+                formatControls.add((FormatControl) control);
+        return formatControls.toArray(new FormatControl[formatControls.size()]);
     }
 
     /**
