@@ -73,22 +73,22 @@ public class DeviceConfiguration
     public static final String AUDIO_SYSTEM_PORTAUDIO = "PortAudio";
 
     private static final String PROP_AUDIO_DEVICE =
-        "net.java.sip.communicator.impl.media.audiodev";
+        "net.java.sip.communicator.impl.neomedia.audiodev";
 
     private static final String PROP_AUDIO_PLAYBACK_DEVICE =
-        "net.java.sip.communicator.impl.media.audio.playbackdev";
+        "net.java.sip.communicator.impl.neomedia.audio.playbackdev";
 
     private static final String PROP_AUDIO_NOTIFY_DEVICE =
-        "net.java.sip.communicator.impl.media.audio.notifydev";
+        "net.java.sip.communicator.impl.neomedia.audio.notifydev";
 
     private static final String PROP_AUDIO_DEVICE_IS_DISABLED =
-        "net.java.sip.communicator.impl.media.audiodevIsDisabled";
+        "net.java.sip.communicator.impl.neomedia.audiodevIsDisabled";
 
     private static final String PROP_VIDEO_DEVICE =
-        "net.java.sip.communicator.impl.media.videodev";
+        "net.java.sip.communicator.impl.neomedia.videodev";
 
     private static final String PROP_VIDEO_DEVICE_IS_DISABLED =
-        "net.java.sip.communicator.impl.media.videodevIsDisabled";
+        "net.java.sip.communicator.impl.neomedia.videodevIsDisabled";
 
     private static final CaptureDeviceInfo[] NO_CAPTURE_DEVICES =
         new CaptureDeviceInfo[0];
