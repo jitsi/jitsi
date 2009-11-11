@@ -194,6 +194,15 @@ public class VideoMediaFormatImpl
     @Override
     public int hashCode()
     {
-        return (super.hashCode() | (int) getClockRate()); 
+        double clockRate = getClockRate();
+
+        /*
+         * The implementation of #equals(Object) of this instance assumes that
+         * MediaFormatFactory#CLOCK_RATE_NOT_SPECIFIED and #DEFAULT_CLOCK_RATE
+         * are equal.
+         */
+        if (MediaFormatFactory.CLOCK_RATE_NOT_SPECIFIED == clockRate)
+            clockRate = DEFAULT_CLOCK_RATE;
+        return (super.hashCode() | Double.valueOf(clockRate).hashCode());
     }
 }

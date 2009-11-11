@@ -227,7 +227,7 @@ public abstract class MediaFormatImpl<T extends Format>
         @SuppressWarnings("unchecked")
         MediaFormatImpl<T> mediaFormatImpl = (MediaFormatImpl<T>) mediaFormat;
 
-        return format.equals(mediaFormatImpl.format)
+        return getFormat().equals(mediaFormatImpl.getFormat())
                 && formatParametersAreEqual(
                         getFormatParameters(),
                         mediaFormatImpl.getFormatParameters());
@@ -324,7 +324,7 @@ public abstract class MediaFormatImpl<T extends Format>
     @Override
     public int hashCode()
     {
-        return (super.hashCode() | getFormatParameters().hashCode());
+        return (getFormat().hashCode() | getFormatParameters().hashCode());
     }
 
     /**
