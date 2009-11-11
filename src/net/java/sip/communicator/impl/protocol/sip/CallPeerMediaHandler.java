@@ -705,7 +705,24 @@ public class CallPeerMediaHandler
         return localSess;
     }
 
-    public SessionDescription processUpdateOffer(
+    /**
+     * Parses, handles <tt>newOffer</tt>, and produces an update answer
+     * representing the current state of this <tt>MediaHandler</tt>.
+     *
+     * @param newOffer the new SDP description that we are receiving as an
+     * update to our current state.
+     * @param previousAnswer the <tt>SessionDescripiton</tt> that we last sent
+     * as an answer to the previous offer currently updated by
+     * <tt>newOffer</tt> is updating.
+     *
+     * @return an answer that updates <tt>previousAnswer</tt>.
+     *
+     * @throws OperationFailedException if we have a problem initializing the
+     * <tt>MediaStream</tt>s as suggested by <tt>newOffer</tt>
+     * @throws IllegalArgumentException if there's a problem with the syntax
+     * or semantics of <tt>newOffer</tt>.
+     */
+    private SessionDescription processUpdateOffer(
                                            SessionDescription newOffer,
                                            SessionDescription previousAnswer)
         throws OperationFailedException,
@@ -725,9 +742,25 @@ public class CallPeerMediaHandler
         return localSess;
     }
 
+    /**
+     * Creates a number of <tt>MediaDescription</tt>s answering the descriptions
+     * offered by the specified <tt>offer</tt> and reflecting the state of this
+     * <tt>MediaHandler</tt>.
+     *
+     * @param offer the offer that we'd like the newly generated session
+     * descriptions to answer.
+     *
+     * @return a <tt>Vector</tt> containing the <tt>MediaDescription</tt>s
+     * answering those provided in the <tt>offer</tt>.
+     * @throws OperationFailedException if there's a problem handling the
+     * <tt>offer</tt>
+     * @throws IllegalArgumentException if there's a problem with the syntax
+     * or semantics of <tt>newOffer</tt>.
+     */
     private Vector<MediaDescription> createMediaDescriptionsForAnswer(
                     SessionDescription offer)
-        throws OperationFailedException
+        throws OperationFailedException,
+               IllegalArgumentException
     {
         Vector<MediaDescription> remoteDescriptions = SdpUtils
                         .extractMediaDescriptions(offer);
@@ -814,11 +847,34 @@ public class CallPeerMediaHandler
         return answerDescriptions;
     }
 
+    /**
+     * Handles the specified <tt>answer</tt> by creating and initializing the
+     * corresponding <tt>MediaStream</tt>s.
+     *
+     * @param answer the SDP answer that we'd like to handle.
+     *
+     * @throws OperationFailedException if we fail to handle <tt>answer</tt> for
+     * reasons like failing to initialize media devices or streams.
+     * @throws IllegalArgumentException if there's a problem with the syntax or
+     * the semantics of <tt>answer</tt>.
+     */
     public void processAnswer(String answer)
         throws OperationFailedException, IllegalArgumentException
     {
         processAnswer(SdpUtils.parseSdpString(answer));
     }
+
+    /**
+     * Handles the specified <tt>answer</tt> by creating and initializing the
+     * corresponding <tt>MediaStream</tt>s.
+     *
+     * @param answer the SDP <tt>SessionDescription</tt>.
+     *
+     * @throws OperationFailedException if we fail to handle <tt>answer</tt> for
+     * reasons like failing to initialize media devices or streams.
+     * @throws IllegalArgumentException if there's a problem with the syntax or
+     * the semantics of <tt>answer</tt>.
+     */
     private void processAnswer(SessionDescription answer)
         throws OperationFailedException, IllegalArgumentException
     {

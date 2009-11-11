@@ -1133,7 +1133,7 @@ public class CallPeerSipImpl
             }
 
             String sdp;
-            // if the offer was in the invite create an sdp answer
+            // if the offer was in the invite create an SDP answer
             if ((sdpOffer != null) && (sdpOffer.length() > 0))
             {
                 sdp = getMediaHandler().processOffer(sdpOffer);
