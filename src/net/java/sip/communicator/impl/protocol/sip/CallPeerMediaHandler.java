@@ -657,7 +657,7 @@ public class CallPeerMediaHandler
      * <tt>offerString</tt> fails or we have a problem while creating the
      * response.
      * @throws IllegalArgumentException if there's a problem with the format
-     * or semantings of the <tt>offerString</tt>.
+     * or semantics of the <tt>offerString</tt>.
      */
     public String processOffer(String offerString)
         throws OperationFailedException,
@@ -673,12 +673,19 @@ public class CallPeerMediaHandler
     /**
      * Parses and handles the specified <tt>SessionDescription offer</tt> and
      * returns and SDP answer representing the current state of this media
-     * handler.
+     * handler. This method MUST only be called when <tt>offer</tt> is the
+     * first session description that this <tt>MediaHandler</tt> is seeing.
      *
-     * @param offer
-     * @return
-     * @throws OperationFailedException
-     * @throws IllegalArgumentException
+     * @param offer the offer that we'd like to parse, handle and get an SDP
+     * answer for.
+     * @return the SDP answer reflecting the current state of this
+     * <tt>MediaHandler</tt>
+     *
+     * @throws OperationFailedException if we have a problem satisfying the
+     * description received in <tt>offer</tt> (e.g. failed to open a device or
+     * initialize a stream ...).
+     * @throws IllegalArgumentException if there's a problem with
+     * <tt>offer</tt>'s format or semantics.
      */
     private SessionDescription processFirstOffer(SessionDescription offer)
         throws OperationFailedException,
