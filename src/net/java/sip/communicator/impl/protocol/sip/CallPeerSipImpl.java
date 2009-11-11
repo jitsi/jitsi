@@ -61,7 +61,7 @@ public class CallPeerSipImpl
 
     /**
      * The SIP transaction that established this call. This was previously kept
-     * in the jain-sip dialog but got deprected there so we're now keeping it
+     * in the jain-sip dialog but got deprecated there so we're now keeping it
      * here.
      */
     private Transaction latestInviteTransaction = null;

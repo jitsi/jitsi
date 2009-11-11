@@ -377,6 +377,7 @@ public class CallPeerMediaHandler
         else
             return createUpdateOffer(localSess).toString();
     }
+
     /**
      * Allocates ports, retrieves supported formats and creates a
      * <tt>SessionDescription</tt>.
@@ -462,6 +463,21 @@ public class CallPeerMediaHandler
         return mediaDescs;
     }
 
+    /**
+     * Creates a <tt>SessionDescription</tt> meant to update a previous offer
+     * (<tt>sdescToUpdate</tt>) so that it would reflect the current state (e.g.
+     * on-hold and local video transmission preferences) of this
+     * <tt>MediaHandler</tt>.
+     *
+     * @param sdescToUpdate the <tt>SessionDescription</tt> that we are going to
+     * update.
+     *
+     * @return the newly created <tt>SessionDescription</tt> meant to update
+     * <tt>sdescToUpdate</tt>.
+     *
+     * @throws OperationFailedException in case creating the new description
+     * fails for some reason.
+     */
     private SessionDescription createUpdateOffer(
                                         SessionDescription sdescToUpdate)
         throws OperationFailedException
@@ -478,6 +494,23 @@ public class CallPeerMediaHandler
         return newOffer;
     }
 
+    /**
+     * Returns the <tt>InetAddress</tt> that we are using in one of our
+     * <tt>StreamConnector</tt>s or, in case we don't have any connectors yet
+     * the address returned by the our network address manager as the best local
+     * address to use when contacting the <tt>CallPeer</tt> associated with this
+     * <tt>MediaHandler</tt>. This method is primarily meant for use with the
+     * o= and c= fields of a newly created session description. The point is
+     * that we create our <tt>StreamConnector</tt>s when constructing the media
+     * descriptions so we already have a specific local address assigned to them
+     * at the time we get ready to create the c= and o= fields. It is therefore
+     * better to try and return one of these addresses before trying the net
+     * address manager again ang running the slight risk of getting a different
+     * address.
+     *
+     * @return an <tt>InetAddress</tt> that we use in one of the
+     * <tt>StreamConnector</tt>s in this class.
+     */
     private InetAddress getLastUsedLocalHost()
     {
         if (audioStreamConnector != null)

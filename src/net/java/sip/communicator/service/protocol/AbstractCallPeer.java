@@ -25,6 +25,9 @@ public abstract class AbstractCallPeer
     extends PropertyChangeNotifier
     implements CallPeer
 {
+    /**
+     * Our class logger.
+     */
     private static final Logger logger
         = Logger.getLogger(AbstractCallPeer.class);
 
@@ -95,8 +98,15 @@ public abstract class AbstractCallPeer
      */
     private CallPeerState state = CallPeerState.UNKNOWN;
 
+    /**
+     * The time this call started at.
+     */
     private long callDurationStartTime = CALL_DURATION_START_TIME_UNKNOWN;
 
+    /**
+     * The flag that determines whether our audio stream to this call peer is
+     * currently muted.
+     */
     private boolean isMute = false;
 
     /**
