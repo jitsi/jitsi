@@ -528,6 +528,27 @@ public class CallPeerMediaHandler
         return nam.getLocalHost(intendedDestination);
     }
 
+    /**
+     * Creates if necessary, and configures the stream that this
+     * <tt>MediaHandler</tt> is using for the <tt>MediaType</tt> matching the
+     * one of the <tt>MediaDevice</tt>.
+     *
+     * @param connector the <tt>MediaConnector</tt> that we'd like to bind the
+     * newly created stream to.
+     * @param device the <tt>MediaDevice</tt> that we'd like to attach the newly
+     * created <tt>MediaStream</tt> to.
+     * @param format the <tt>MediaFormat</tt> that we'd like the new
+     * <tt>MediaStream</tt> to be set to transmit in.
+     * @param target the <tt>MediaStreamTarget</tt> containing the RTP and RTCP
+     * address:port couples that the new stream would be sending packets to.
+     * @param direction the <tt>MediaDirection</tt> that we'd like the new
+     * stream to use (i.e. sendonly, sendrecv, recvonly, or inactive).
+     *
+     * @return the newly created <tt>MediaStream</tt>.
+     *
+     * @throws OperationFailedException if creating the stream fails for any
+     * reason (like for example accessing the device or setting the format).
+     */
     private MediaStream initStream(StreamConnector      connector,
                                    MediaDevice          device,
                                    MediaFormat          format,
@@ -553,18 +574,35 @@ public class CallPeerMediaHandler
             //this is a reinit
         }
 
-        return  configureAndStartStream(connector, device, format,
-                        target, direction, stream);
+        return  configureAndStartStream(format, target, direction, stream);
     }
 
+        /**
+         * Configures <tt>stream</tt> to use the specified <tt>format</tt>,
+         * <tt>target</tt>, <tt>target</tt>, and <tt>direction</tt>.
+         *
+         * @param format the <tt>MediaFormat</tt> that we'd like the new stream
+         * to transmit in.
+         * @param target the <tt>MediaStreamTarget</tt> containing the RTP and
+         * RTCP address:port couples that the new stream would be sending
+         * packets to.
+         * @param direction the <tt>MediaDirection</tt> that we'd like the new
+         * stream to use (i.e. sendonly, sendrecv, recvonly, or inactive).
+         * @param stream the <tt>MediaStream</tt> that we'd like to configure.
+         *
+         * @return the <tt>MediaStream</tt> that we received as a parameter (for
+         * convenience reasons).
+         *
+         * @throws OperationFailedException if setting the <tt>MediaFormat</tt>
+         * or connecting to the specified <tt>MediaDevice</tt> fails for some
+         * reason.
+         */
     private MediaStream configureAndStartStream(
-                                        StreamConnector      connector,
-                                        MediaDevice          device,
-                                        MediaFormat          format,
-                                        MediaStreamTarget    target,
-                                        MediaDirection       direction,
-                                        MediaStream          stream)
-       throws OperationFailedException
+                                            MediaFormat          format,
+                                            MediaStreamTarget    target,
+                                            MediaDirection       direction,
+                                            MediaStream          stream)
+           throws OperationFailedException
     {
         registerDynamicPTsWithStream(stream);
 
@@ -583,6 +621,13 @@ public class CallPeerMediaHandler
         return stream;
     }
 
+    /**
+     * Registers all dynamic payload mappings known to this
+     * <tt>MediaHandler</tt> with the specified <tt>MediaStream</tt>.
+     *
+     * @param stream the <tt>MediaStream</tt> that we'd like to register our
+     * dynamic payload mappings with.
+     */
     private void registerDynamicPTsWithStream(MediaStream stream)
     {
         for ( Map.Entry<MediaFormat, Byte> mapEntry
@@ -595,6 +640,14 @@ public class CallPeerMediaHandler
         }
     }
 
+    /**
+     * Parses <tt>offerString</tt>, creates the <tt>MediaStream</tt>s that it
+     * describes and constructs a response representing the state of this
+     * <tt>MediaHandler</tt>.
+     * @param offerString
+     * @return
+     * @throws OperationFailedException
+     */
     public String processOffer(String offerString)
         throws OperationFailedException
     {
