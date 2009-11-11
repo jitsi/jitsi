@@ -283,6 +283,12 @@ public class CallPeerMediaHandler
         locallyOnHold = false;
     }
 
+    /**
+     * Closes the <tt>MediaStream</tt> that this <tt>MediaHandler</tt> uses for
+     * specified media <tt>type</tt> and prepares it for garbage collection.
+     *
+     * @param type the <tt>MediaType</tt> that we'd like to stop a stream for.
+     */
     private void closeStream(MediaType type)
     {
         if( type == MediaType.AUDIO)
@@ -347,6 +353,22 @@ public class CallPeerMediaHandler
         audioStream.setMute(mute);
     }
 
+    /**
+     * Creates a session description <tt>String</tt> representing the
+     * <tt>MediaStream</tt>s that this <tt>MediaHandler</tt> is prepare to
+     * exchange. The offer takes into account user preferences such as whether
+     * or not local user would be transmitting video, whether any or all streams
+     * are put on hold, etc. The method is also taking into account any previous
+     * offers that this handler may have previously issues hence making the
+     * newly generated <tt>String</tt> an session creation or a session update
+     * offer accordingly.
+     *
+     * @return an SDP description <tt>String</tt> representing the streams that
+     * this handler is prepared to initiate.
+     *
+     * @throws OperationFailedException if creating the SDP fails for some
+     * reason.
+     */
     public String createOffer()
         throws OperationFailedException
     {
@@ -382,6 +404,19 @@ public class CallPeerMediaHandler
         return localSess;
     }
 
+    /**
+     * Creates a <tt>Vector</tt> containing the <tt>MediaSescription</tt> of
+     * streams that this handler is prepared to initiate depending on available
+     * <tt>MediaDevice</tt>s and local on-hold and video transmission
+     * preferences.
+     *
+     * @return a <tt>Vector</tt> containing the <tt>MediaSescription</tt> of
+     * streams that this handler is prepared to initiate.
+     *
+     * @throws OperationFailedException if we fail to create the descriptions
+     * for reasons like - problems with device interaction, allocating ports,
+     * etc.
+     */
     private Vector<MediaDescription> createMediaDescriptions()
         throws OperationFailedException
     {
