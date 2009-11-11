@@ -643,13 +643,25 @@ public class CallPeerMediaHandler
     /**
      * Parses <tt>offerString</tt>, creates the <tt>MediaStream</tt>s that it
      * describes and constructs a response representing the state of this
-     * <tt>MediaHandler</tt>.
-     * @param offerString
-     * @return
-     * @throws OperationFailedException
+     * <tt>MediaHandler</tt>. The method takes into account the presence or
+     * absence of previous negotiations and interprets the <tt>offerString</tt>
+     * as an initial offer or a session update accordingly.
+     *
+     * @param offerString The SDP offer that we'd like to parse, handle and get
+     * a response for.
+     *
+     * @return A <tt>String</tt> containing the SDP response representing the
+     * current state of this <tt>MediaHandler</tt>.
+     *
+     * @throws OperationFailedException if parsing or handling
+     * <tt>offerString</tt> fails or we have a problem while creating the
+     * response.
+     * @throws IllegalArgumentException if there's a problem with the format
+     * or semantings of the <tt>offerString</tt>.
      */
     public String processOffer(String offerString)
-        throws OperationFailedException
+        throws OperationFailedException,
+               IllegalArgumentException
     {
         SessionDescription offer = SdpUtils.parseSdpString(offerString);
         if (localSess == null)
@@ -658,7 +670,17 @@ public class CallPeerMediaHandler
             return processUpdateOffer(offer, localSess).toString();
     }
 
-    public SessionDescription processFirstOffer(SessionDescription offer)
+    /**
+     * Parses and handles the specified <tt>SessionDescription offer</tt> and
+     * returns and SDP answer representing the current state of this media
+     * handler.
+     *
+     * @param offer
+     * @return
+     * @throws OperationFailedException
+     * @throws IllegalArgumentException
+     */
+    private SessionDescription processFirstOffer(SessionDescription offer)
         throws OperationFailedException,
                IllegalArgumentException
     {
