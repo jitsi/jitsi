@@ -10,9 +10,9 @@ import java.awt.*;
 import java.util.*;
 
 /**
- * Represents an event fired by providers of visual <code>Component</code>s
+ * Represents an event fired by providers of visual <tt>Component</tt>s
  * depicting video to notify about changes in the availability of such
- * <code>Component</code>s.
+ * <tt>Component</tt>s.
  *
  * @author Lubomir Marinov
  */
@@ -21,74 +21,71 @@ public class VideoEvent
 {
 
     /**
-     * The video origin of a <code>VideoEvent</code> which is local to the
-     * executing client such as a local video capture device.
+     * The video origin of a <tt>VideoEvent</tt> which is local to the executing
+     * client such as a local video capture device.
      */
     public static final int LOCAL = 1;
 
     /**
-     * The video origin of a <code>VideoEvent</code> which is remote to the
+     * The video origin of a <tt>VideoEvent</tt> which is remote to the
      * executing client such as a video being remotely streamed from a
-     * <code>CallPeer</code>.
+     * <tt>CallPeer</tt>.
      */
     public static final int REMOTE = 2;
 
     /**
-     * The type of a <code>VideoEvent</code> which notifies about a specific
-     * visual <code>Component</code> depicting video being made available by the
-     * firing provider.
+     * The type of a <tt>VideoEvent</tt> which notifies about a specific visual
+     * <tt>Component</tt> depicting video being made available by the firing
+     * provider.
      */
     public static final int VIDEO_ADDED = 1;
 
     /**
-     * The type of a <code>VideoEvent</code> which notifies about a specific
-     * visual <code>Component</code> depicting video no longer being made
-     * available by the firing provider.
+     * The type of a <tt>VideoEvent</tt> which notifies about a specific visual
+     * <tt>Component</tt> depicting video no longer being made available by the
+     * firing provider.
      */
     public static final int VIDEO_REMOVED = 2;
 
     /**
      * The indicator which determines whether this event and, more specifically,
-     * the visual <code>Component</code> it describes have been consumed and
-     * should be considered owned, referenced (which is important because
-     * <code>Component</code>s belong to a single <code>Container</code> at a
-     * time).
+     * the visual <tt>Component</tt> it describes have been consumed and should
+     * be considered owned, referenced (which is important because
+     * <tt>Component</tt>s belong to a single <tt>Container</tt> at a time).
      */
     private boolean consumed;
 
     /**
-     * The origin of the video this <code>VideoEvent</code> notifies about which
-     * is one of {@link #LOCAL} and {@link #REMOTE}.
+     * The origin of the video this <tt>VideoEvent</tt> notifies about which is
+     * one of {@link #LOCAL} and {@link #REMOTE}.
      */
     private final int origin;
 
     /**
-     * The type of availability change this <code>VideoEvent</code> notifies
-     * about which is one of {@link #VIDEO_ADDED} and {@link #VIDEO_REMOVED}.
+     * The type of availability change this <tt>VideoEvent</tt> notifies about
+     * which is one of {@link #VIDEO_ADDED} and {@link #VIDEO_REMOVED}.
      */
     private final int type;
 
     /**
-     * The visual <code>Component</code> depicting video which had its
-     * availability changed and which this <code>VideoEvent</code> notifies
-     * about.
+     * The visual <tt>Component</tt> depicting video which had its availability
+     * changed and which this <tt>VideoEvent</tt> notifies about.
      */
     private final Component visualComponent;
 
     /**
-     * Initializes a new <code>VideoEvent</code> which is to notify about a
-     * specific change in the availability of a specific visual
-     * <code>Component</code> depicting video and being provided by a specific
-     * source.
+     * Initializes a new <tt>VideoEvent</tt> which is to notify about a specific
+     * change in the availability of a specific visual <tt>Component</tt>
+     * depicting video and being provided by a specific source.
      *
-     * @param source the source of the new <code>VideoEvent</code> and the
-     *            provider of the visual <code>Component</code> depicting video
+     * @param source the source of the new <tt>VideoEvent</tt> and the
+     *            provider of the visual <tt>Component</tt> depicting video
      * @param type the type of the availability change which has caused the new
-     *            <code>VideoEvent</code> to be fired
-     * @param visualComponent the visual <code>Component</code> depicting video
-     *            which had its availability in the <code>source</code> provider
+     *            <tt>VideoEvent</tt> to be fired
+     * @param visualComponent the visual <tt>Component</tt> depicting video
+     *            which had its availability in the <tt>source</tt> provider
      *            changed
-     * @param origin the origin of the video the new <code>VideoEvent</code> is
+     * @param origin the origin of the video the new <tt>VideoEvent</tt> is
      *            to notify about
      */
     public VideoEvent(Object source, int type, Component visualComponent,
@@ -103,10 +100,10 @@ public class VideoEvent
 
     /**
      * Consumes this event and, more specifically, marks the
-     * <code>Component</code> it describes as owned, referenced in order to let
+     * <tt>Component</tt> it describes as owned, referenced in order to let
      * other potential consumers know about its current ownership status (which
-     * is important because <code>Component</code>s belong to a single
-     * <code>Container</code> at a time).
+     * is important because <tt>Component</tt>s belong to a single
+     * <tt>Container</tt> at a time).
      */
     public void consume()
     {
@@ -114,11 +111,11 @@ public class VideoEvent
     }
 
     /**
-     * Gets the origin of the video this <code>VideoEvent</code> notifies about
+     * Gets the origin of the video this <tt>VideoEvent</tt> notifies about
      * which is one of {@link #LOCAL} and {@link #REMOTE}.
      *
      * @return one of {@link #LOCAL} and {@link #REMOTE} which specifies the
-     *         origin of the video this <code>VideoEvent</code> notifies about
+     *         origin of the video this <tt>VideoEvent</tt> notifies about
      */
     public int getOrigin()
     {
@@ -126,13 +123,13 @@ public class VideoEvent
     }
 
     /**
-     * Gets the type of availability change this <code>VideoEvent</code>
+     * Gets the type of availability change this <tt>VideoEvent</tt>
      * notifies about which is one of {@link #VIDEO_ADDED} and
      * {@link #VIDEO_REMOVED}.
      *
      * @return one of {@link #VIDEO_ADDED} and {@link #VIDEO_REMOVED} which
      *         describes the type of availability change this
-     *         <code>VideoEvent</code> notifies about
+     *         <tt>VideoEvent</tt> notifies about
      */
     public int getType()
     {
@@ -140,12 +137,12 @@ public class VideoEvent
     }
 
     /**
-     * Gets the visual <code>Component</code> depicting video which had its
-     * availability changed and which this <code>VideoEvent</code> notifies
+     * Gets the visual <tt>Component</tt> depicting video which had its
+     * availability changed and which this <tt>VideoEvent</tt> notifies
      * about.
      *
-     * @return the visual <code>Component</code> depicting video which had its
-     *         availability changed and which this <code>VideoEvent</code>
+     * @return the visual <tt>Component</tt> depicting video which had its
+     *         availability changed and which this <tt>VideoEvent</tt>
      *         notifies about
      */
     public Component getVisualComponent()
@@ -155,19 +152,45 @@ public class VideoEvent
 
     /**
      * Determines whether this event and, more specifically, the visual
-     * <code>Component</code> it describes have been consumed and should be
+     * <tt>Component</tt> it describes have been consumed and should be
      * considered owned, referenced (which is important because
-     * <code>Component</code>s belong to a single <code>Container</code> at a
+     * <tt>Component</tt>s belong to a single <tt>Container</tt> at a
      * time).
      *
      * @return <tt>true</tt> if this event and, more specifically, the visual
-     *         <code>Component</code> it describes have been consumed and should
+     *         <tt>Component</tt> it describes have been consumed and should
      *         be considered owned, referenced (which is important because
-     *         <code>Component</code>s belong to a single <code>Container</code>
+     *         <tt>Component</tt>s belong to a single <tt>Container</tt>
      *         at a time); otherwise, <tt>false</tt>
      */
     public boolean isConsumed()
     {
         return consumed;
+    }
+
+    public static String originToString(int origin)
+    {
+        switch (origin)
+        {
+        case VideoEvent.LOCAL:
+            return "LOCAL";
+        case VideoEvent.REMOTE:
+            return "REMOTE";
+        default:
+            throw new IllegalArgumentException("origin");
+        }
+    }
+
+    public static String typeToString(int type)
+    {
+        switch (type)
+        {
+        case VideoEvent.VIDEO_ADDED:
+            return "VIDEO_ADDED";
+        case VideoEvent.VIDEO_REMOVED:
+            return "VIDEO_REMOVED";
+        default:
+            throw new IllegalArgumentException("type");
+        }
     }
 }

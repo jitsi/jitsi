@@ -83,8 +83,13 @@ public class VideoNotifierSupport
      * @param origin {@link VideoEvent#LOCAL} if the origin of the video is
      * local (e.g. it is being locally captured); {@link VideoEvent#REMOTE} if
      * the origin of the video is remote (e.g. a remote peer is streaming it)
+     * @return <tt>true</tt> if this event and, more specifically, the visual
+     * <tt>Component</tt> it describes have been consumed and should be
+     * considered owned, referenced (which is important because
+     * <tt>Component</tt>s belong to a single <tt>Container</tt> at a time);
+     * otherwise, <tt>false</tt>
      */
-    public void fireVideoEvent(
+    public boolean fireVideoEvent(
             int type,
             Component visualComponent,
             int origin)
@@ -97,6 +102,8 @@ public class VideoNotifierSupport
                 = this.listeners
                     .toArray(new VideoListener[this.listeners.size()]);
         }
+
+        boolean consumed;
 
         if (listeners.length > 0)
         {
@@ -113,7 +120,12 @@ public class VideoNotifierSupport
                         listener.videoRemoved(event);
                         break;
                 }
+
+            consumed = event.isConsumed();
         }
+        else
+            consumed = false;
+        return consumed;
     }
 
     /**

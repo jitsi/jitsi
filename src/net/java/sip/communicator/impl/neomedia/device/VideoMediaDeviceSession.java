@@ -127,13 +127,27 @@ public class VideoMediaDeviceSession
      * @param origin {@link VideoEvent#LOCAL} if the origin of the video is
      * local (e.g. it is being locally captured); {@link VideoEvent#REMOTE} if
      * the origin of the video is remote (e.g. a remote peer is streaming it)
+     * @return <tt>true</tt> if this event and, more specifically, the visual
+     * <tt>Component</tt> it describes have been consumed and should be
+     * considered owned, referenced (which is important because
+     * <tt>Component</tt>s belong to a single <tt>Container</tt> at a time);
+     * otherwise, <tt>false</tt>
      */
-    protected void fireVideoEvent(
+    protected boolean fireVideoEvent(
             int type,
             Component visualComponent,
             int origin)
     {
-        videoNotifierSupport.fireVideoEvent(type, visualComponent, origin);
+        if (logger.isTraceEnabled())
+            logger
+                .trace(
+                    "Firing VideoEvent with type "
+                        + VideoEvent.typeToString(type)
+                        + " and origin "
+                        + VideoEvent.originToString(origin));
+
+        return
+            videoNotifierSupport.fireVideoEvent(type, visualComponent, origin);
     }
 
     /**

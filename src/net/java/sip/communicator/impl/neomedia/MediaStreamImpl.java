@@ -1179,6 +1179,13 @@ public class MediaStreamImpl
             ReceiveStream receiveStream = event.getReceiveStream();
 
             if (receiveStream != null)
+            {
+                if (logger.isTraceEnabled())
+                    logger
+                        .trace(
+                            "Received new ReceiveStream with ssrc "
+                                + receiveStream.getSSRC());
+
                 synchronized (receiveStreams)
                 {
                     if (!receiveStreams.contains(receiveStream)
@@ -1190,6 +1197,7 @@ public class MediaStreamImpl
                             deviceSession.addReceiveStream(receiveStream);
                     }
                 }
+            }
         }
         else if (event instanceof TimeoutEvent)
         {

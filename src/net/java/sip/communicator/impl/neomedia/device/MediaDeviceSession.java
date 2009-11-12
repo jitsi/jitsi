@@ -193,6 +193,10 @@ public class MediaDeviceSession
             return;
 
         receiveStreams.put(receiveStream, receiveStreamDataSource);
+        if (logger.isTraceEnabled())
+            logger
+                .trace(
+                    "Added ReceiveStream with ssrc " + receiveStream.getSSRC());
 
         synchronized (players)
         {
@@ -246,6 +250,14 @@ public class MediaDeviceSession
                         };
                     player.addControllerListener(playerControllerListener);
                     player.realize();
+
+                    if (logger.isTraceEnabled())
+                        logger
+                            .trace(
+                                "Created Player with hashCode "
+                                    + player.hashCode()
+                                    + " for ReceiveStream with ssrc "
+                                    + receiveStream.getSSRC());
 
                     players.put(receiveStreamDataSource, player);
                 }
@@ -788,6 +800,12 @@ public class MediaDeviceSession
 
             if (player != null)
             {
+                if (logger.isTraceEnabled())
+                    logger
+                        .trace(
+                            "Realized Player with hashCode "
+                                + player.hashCode());
+
                 player.start();
 
                 realizeComplete(player);
