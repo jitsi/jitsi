@@ -67,6 +67,12 @@ public class MediaDeviceSession
     private final AbstractMediaDevice device;
 
     /**
+     * The <tt>MediaDirection</tt> in which this <tt>MediaDeviceSession</tt> has
+     * been started.
+     */
+    private MediaDirection direction = MediaDirection.INACTIVE;
+
+    /**
      * The last JMF <tt>Format</tt> set to this instance by a call to its
      * {@link #setFormat(MediaFormat) and to be set as the output format of
      * {@link #processor}.
@@ -343,6 +349,12 @@ public class MediaDeviceSession
                 processor.removeControllerListener(processorControllerListener);
 
             processor.stop();
+            if (logger.isTraceEnabled())
+                logger
+                    .trace(
+                        "Stopped Processor with hashCode "
+                            + processor.hashCode());
+
             if (processor.getState() == Processor.Realized)
             {
                 DataSource dataOutput = processor.getDataOutput();
@@ -601,7 +613,15 @@ public class MediaDeviceSession
                         && !waitForState(processor, Processor.Realized)))
             outputDataSource = null;
         else
+        {
             outputDataSource = processor.getDataOutput();
+
+            /*
+             * Whoever wants the outputDataSource, they expect it to be started
+             * in accord with the previously-set direction.
+             */
+            startProcessorInAccordWithDirection(processor);
+        }
         return outputDataSource;
     }
 
@@ -982,7 +1002,7 @@ public class MediaDeviceSession
 
             if (supportedFormat == null)
                 trackControl.setEnabled(false);
-            else
+            else if (!supportedFormat.equals(trackControl.getFormat()))
             {
                 Format setFormat = trackControl.setFormat(supportedFormat);
 
@@ -1054,14 +1074,34 @@ public class MediaDeviceSession
         if (direction == null)
             throw new NullPointerException("direction");
 
-        if (MediaDirection.SENDRECV.equals(direction)
-                || MediaDirection.SENDONLY.equals(direction))
+        this.direction = this.direction.or(direction);
+
+        if (this.direction.allowsSending())
         {
             Processor processor = getProcessor();
 
-            if ((processor != null)
-                    && (processor.getState() != Processor.Started))
-                processor.start();
+            if (processor != null)
+                startProcessorInAccordWithDirection(processor);
+        }
+    }
+
+    /**
+     * Starts a specific <tt>Processor</tt> if this <tt>MediaDeviceSession</tt>
+     * has been started and the specified <tt>Processor</tt> is not started.
+     *
+     * @param processor the <tt>Processor</tt> to start
+     */
+    private void startProcessorInAccordWithDirection(Processor processor)
+    {
+        if (direction.allowsSending()
+                && (processor.getState() != Processor.Started))
+        {
+            processor.start();
+            if (logger.isTraceEnabled())
+                logger
+                    .trace(
+                        "Started Processor with hashCode "
+                            + processor.hashCode());
         }
     }
 
@@ -1079,11 +1119,46 @@ public class MediaDeviceSession
         if (direction == null)
             throw new NullPointerException("direction");
 
-        if (MediaDirection.SENDRECV.equals(direction)
-                || MediaDirection.SENDONLY.equals(direction))
+        switch (this.direction)
+        {
+        case SENDRECV:
+            if (direction.allowsReceiving())
+                this.direction
+                        = direction.allowsSending()
+                            ? MediaDirection.INACTIVE
+                            : MediaDirection.SENDONLY;
+            else if (direction.allowsSending())
+                this.direction = MediaDirection.RECVONLY;
+            break;
+        case SENDONLY:
+            if (direction.allowsSending())
+                this.direction = MediaDirection.INACTIVE;
+            break;
+        case RECVONLY:
+            if (direction.allowsReceiving())
+                this.direction = MediaDirection.INACTIVE;
+            break;
+        case INACTIVE:
+            /*
+             * This MediaDeviceSession is already inactive so there's nothing to
+             * stop.
+             */
+            break;
+        default:
+            throw new IllegalArgumentException("direction");
+        }
+
+        if (this.direction.allowsSending())
             if ((processor != null)
                     && (processor.getState() > Processor.Configured))
+            {
                 processor.stop();
+                if (logger.isTraceEnabled())
+                    logger
+                        .trace(
+                            "Stopped Processor with hashCode "
+                                + processor.hashCode());
+            }
     }
 
     /**

@@ -261,13 +261,18 @@ public class MediaStreamImpl
 
             try
             {
-                rtpManager.createSendStream(dataSource, streamIndex);
+                SendStream sendStream
+                    = rtpManager.createSendStream(dataSource, streamIndex);
+
                 if (logger.isTraceEnabled())
                     logger
                         .trace(
-                            "Created send stream for data source "
-                                + dataSource
-                                + " and stream index "
+                            "Created SendStream"
+                                + " with hashCode "
+                                + sendStream.hashCode()
+                                + " for DataSource "
+                                + toString(dataSource)
+                                + " and streamIndex "
                                 + streamIndex);
             }
             catch (IOException ioe)
@@ -871,10 +876,9 @@ public class MediaStreamImpl
         if (direction == null)
             throw new NullPointerException("direction");
 
-        if ((MediaDirection.SENDRECV.equals(direction)
-                    || MediaDirection.SENDONLY.equals(direction))
-                && (!MediaDirection.SENDRECV.equals(startedDirection)
-                        && !MediaDirection.SENDONLY.equals(startedDirection)))
+        if (direction.allowsSending()
+                && ((startedDirection == null)
+                        || !startedDirection.allowsSending()))
         {
             startSendStreams();
 
@@ -886,10 +890,9 @@ public class MediaStreamImpl
                 startedDirection = MediaDirection.SENDONLY;
         }
 
-        if ((MediaDirection.SENDRECV.equals(direction)
-                    || MediaDirection.RECVONLY.equals(direction))
-                && (!MediaDirection.SENDRECV.equals(startedDirection)
-                        && !MediaDirection.RECVONLY.equals(startedDirection)))
+        if (direction.allowsReceiving()
+                && ((startedDirection == null)
+                        || !startedDirection.allowsReceiving()))
         {
             RTPManager rtpManager = getRTPManager();
             Iterable<ReceiveStream> receiveStreams;
@@ -935,7 +938,7 @@ public class MediaStreamImpl
             getDeviceSession().start(MediaDirection.RECVONLY);
 
             if (MediaDirection.SENDONLY.equals(startedDirection))
-                startedDirection = MediaDirection.SENDONLY;
+                startedDirection = MediaDirection.SENDRECV;
             else if (startedDirection == null)
                 startedDirection = MediaDirection.RECVONLY;
         }
@@ -958,6 +961,13 @@ public class MediaStreamImpl
                     // TODO Are we sure we want to connect here?
                     sendStream.getDataSource().connect();
                     sendStream.start();
+
+                    if (logger.isTraceEnabled())
+                        logger
+                            .trace(
+                                "Started SendStream"
+                                    + " with hashCode "
+                                    + sendStream.hashCode());
                 }
                 catch (IOException ioe)
                 {
@@ -1124,6 +1134,33 @@ public class MediaStreamImpl
 
         if (close)
             sendStreamsAreCreated = false;
+    }
+
+    /**
+     * Returns a human-readable representation of a specific <tt>DataSource</tt>
+     * instance in the form of a <tt>String</tt> value.
+     *
+     * @param dataSource the <tt>DataSource</tt> to return a human-readable
+     * representation of
+     * @return a <tt>String</tt> value which gives a human-readable
+     * representation of the specified <tt>dataSource</tt>
+     */
+    private static String toString(DataSource dataSource)
+    {
+        StringBuffer str = new StringBuffer();
+
+        str.append(dataSource.getClass().getSimpleName());
+        str.append(" with hashCode ");
+        str.append(dataSource.hashCode());
+
+        MediaLocator locator = dataSource.getLocator();
+
+        if (locator != null)
+        {
+            str.append(" and locator ");
+            str.append(locator);
+        }
+        return str.toString();
     }
 
     /**

@@ -217,7 +217,69 @@ public class MediaDeviceImpl
                             + captureDeviceInfo,
                         exception);
             else
+            {
+
+                // Try to enable tracing on captureDevice.
+                if (logger.isTraceEnabled()
+                        && (captureDevice instanceof PushBufferDataSource))
+                    captureDevice
+                        = new CaptureDeviceDelegatePushBufferDataSource(
+                                captureDevice)
+                        {
+                            @Override
+                            public void connect()
+                                throws IOException
+                            {
+                                super.connect();
+
+                                if (logger.isTraceEnabled())
+                                    logger
+                                        .trace(
+                                            "Connected "
+                                                + MediaDeviceImpl.toString(this.captureDevice));
+                            }
+
+                            @Override
+                            public void disconnect()
+                            {
+                                super.disconnect();
+
+                                if (logger.isTraceEnabled())
+                                    logger
+                                        .trace(
+                                            "Disconnected "
+                                                + MediaDeviceImpl.toString(this.captureDevice));
+                            }
+
+                            @Override
+                            public void start()
+                                throws IOException
+                            {
+                                super.start();
+
+                                if (logger.isTraceEnabled())
+                                    logger
+                                        .trace(
+                                            "Started "
+                                                + MediaDeviceImpl.toString(this.captureDevice));
+                            }
+
+                            @Override
+                            public void stop()
+                                throws IOException
+                            {
+                                super.stop();
+
+                                if (logger.isTraceEnabled())
+                                    logger
+                                        .trace(
+                                            "Stopped "
+                                                + MediaDeviceImpl.toString(this.captureDevice));
+                            }
+                        };
+
                 setCaptureDevice(captureDevice);
+            }
         }
         return captureDevice;
     }
@@ -485,5 +547,23 @@ public class MediaDeviceImpl
             (captureDeviceInfo == null)
                 ? super.toString()
                 : captureDeviceInfo.toString();
+    }
+
+    /**
+     * Returns a human-readable representation of a specific
+     * <tt>CaptureDevice</tt> in the form of a <tt>String</tt> value.
+     *
+     * @param captureDevice the <tt>CaptureDevice</tt> to get a human-readable
+     * representation of
+     * @return a <tt>String</tt> value which gives a human-readable
+     * representation of the specified <tt>captureDevice</tt>
+     */
+    private static String toString(CaptureDevice captureDevice)
+    {
+        return
+            "CaptureDevice with hashCode "
+                + captureDevice.hashCode()
+                + " and captureDeviceInfo "
+                + captureDevice.getCaptureDeviceInfo();
     }
 }
