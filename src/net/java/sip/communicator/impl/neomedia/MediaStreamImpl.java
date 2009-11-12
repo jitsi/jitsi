@@ -90,6 +90,12 @@ public class MediaStreamImpl
     private final RTPConnectorImpl rtpConnector;
 
     /**
+     * The one and only <tt>MediaStreamTarget</tt> this instance has added as a
+     * target in {@link #rtpConnector}.
+     */
+    private MediaStreamTarget rtpConnectorTarget;
+
+    /**
      * The <tt>RTPManager</tt> which utilizes {@link #rtpConnector} and sends
      * and receives RTP and RTCP traffic on behalf of this <tt>MediaStream</tt>.
      */
@@ -183,6 +189,7 @@ public class MediaStreamImpl
         closeSendStreams();
 
         rtpConnector.removeTargets();
+        rtpConnectorTarget = null;
 
         if (rtpManager != null)
         {
@@ -778,7 +785,19 @@ public class MediaStreamImpl
      */
     public void setTarget(MediaStreamTarget target)
     {
+        // Short-circuit if setting the same target.
+        if (target == null)
+        {
+            if (rtpConnectorTarget == null)
+                return;
+        }
+        else if (target.equals(rtpConnectorTarget))
+            return;
+
         rtpConnector.removeTargets();
+        rtpConnectorTarget = null;
+
+        boolean targetIsSet;
 
         if (target != null)
         {
@@ -794,12 +813,31 @@ public class MediaStreamImpl
                                 dataAddr.getPort(),
                                 controlAddr.getAddress(),
                                 controlAddr.getPort()));
+                targetIsSet = true;
             }
             catch (IOException ioe)
             {
                 // TODO
-                logger.error("Failed to add target " + target, ioe);
+                targetIsSet = false;
+                logger.error("Failed to set target " + target, ioe);
             }
+        }
+        else
+            targetIsSet = true;
+
+        if (targetIsSet)
+        {
+            rtpConnectorTarget = target;
+
+            if (logger.isTraceEnabled())
+                logger
+                    .trace(
+                        "Set target of "
+                            + getClass().getSimpleName()
+                            + " with hashCode "
+                            + hashCode()
+                            + " to "
+                            + target);
         }
     }
 

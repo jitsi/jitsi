@@ -67,6 +67,7 @@ public class SdpUtils
                 "Failed to parse the SDP description of the peer.", ex);
         }
     }
+
     /**
      * Creates an empty instance of a <tt>SessionDescription</tt> with
      * preinitialized  <tt>s</tt>, <tt>v</tt>, <tt>c</tt>, <tt>o</tt> and

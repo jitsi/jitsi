@@ -804,6 +804,11 @@ public class CallPeerMediaHandler
                 // mark stream as dead and go on bravely
                 answerDescriptions.add(SdpUtils
                                 .createDisablingAnswer(mediaDescription));
+
+                /*
+                 * TODO As we closeStream bellow when targetDataPort is equal to
+                 * 0, does it mean that we have to do it here?
+                 */
                 continue;
             }
 
@@ -812,7 +817,6 @@ public class CallPeerMediaHandler
             // determine the direction that we need to announce.
             MediaDirection remoteDirection = SdpUtils
                             .getDirection(mediaDescription);
-
             MediaDirection direction = devDirection
                             .getDirectionForAnswer(remoteDirection);
 
@@ -826,8 +830,8 @@ public class CallPeerMediaHandler
             // or destroy it in case the target port was 0.
             {
                 /*
-                 * We shouldn't even be here because targetDataPort has already
-                 * been checked.
+                 * XXX We shouldn't even be here because targetDataPort has
+                 * already been checked.
                  */
                 closeStream(mediaType);
             }
@@ -859,7 +863,8 @@ public class CallPeerMediaHandler
      * the semantics of <tt>answer</tt>.
      */
     public void processAnswer(String answer)
-        throws OperationFailedException, IllegalArgumentException
+        throws OperationFailedException,
+               IllegalArgumentException
     {
         processAnswer(SdpUtils.parseSdpString(answer));
     }
@@ -876,7 +881,8 @@ public class CallPeerMediaHandler
      * the semantics of <tt>answer</tt>.
      */
     private void processAnswer(SessionDescription answer)
-        throws OperationFailedException, IllegalArgumentException
+        throws OperationFailedException,
+               IllegalArgumentException
     {
         this.remoteSess = answer;
 

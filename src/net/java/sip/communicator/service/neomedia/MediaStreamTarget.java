@@ -13,6 +13,7 @@ import java.net.*;
  * indicating a data (RTP) and control (RTCP) locations.
  *
  * @author Emil Ivov
+ * @author Lubomir Marinov
  */
 public class MediaStreamTarget
 {
@@ -43,6 +44,55 @@ public class MediaStreamTarget
     }
 
     /**
+     * Determines whether two specific <tt>InetSocketAddress</tt> instances are
+     * equal.
+     *
+     * @param addr1 one of the <tt>InetSocketAddress</tt> instances to be
+     * compared
+     * @param addr2 the other <tt>InetSocketAddress</tt> instance to be compared
+     * @return <tt>true</tt> if <tt>addr1</tt> is equal to <tt>addr2</tt>;
+     * otherwise, <tt>false</tt>
+     */
+    private boolean addressesAreEqual(
+            InetSocketAddress addr1,
+            InetSocketAddress addr2)
+    {
+        if (addr1 == null)
+            return (addr2 == null);
+        else
+            return addr1.equals(addr2);
+    }
+
+    /**
+     * Determines whether this <tt>MediaStreamTarget</tt> is equal to a specific
+     * <tt>Object</tt>.
+     *
+     * @param obj the <tt>Object</tt> to be compared to this
+     * <tt>MediaStreamTarget</tt>
+     * @return <tt>true</tt> if this <tt>MediaStreamTarget</tt> is equal to the
+     * specified <tt>obj</tt>; otherwise, <tt>false</tt>
+     */
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+            return true;
+
+        if (!getClass().isInstance(obj))
+            return false;
+
+        MediaStreamTarget mediaStreamTarget = (MediaStreamTarget) obj;
+
+        return
+            addressesAreEqual(
+                    getControlAddress(),
+                    mediaStreamTarget.getControlAddress())
+                && addressesAreEqual(
+                        getDataAddress(),
+                        mediaStreamTarget.getDataAddress());
+    }
+
+    /**
      * Returns the <tt>InetSocketAddress</tt> that this <tt>MediaTarget</tt> is
      * pointing to for all media (RTP) traffic.
      *
@@ -64,5 +114,47 @@ public class MediaStreamTarget
     public InetSocketAddress getControlAddress()
     {
         return rtcpTarget;
+    }
+
+    /**
+     * Returns a hash code for this <tt>MediaStreamTarget</tt> instance which is
+     * suitable for use in hash tables.
+     *
+     * @return a hash code for this <tt>MediaStreamTarget</tt> instance which is
+     * suitable for use in hash tables
+     */
+    @Override
+    public int hashCode()
+    {
+        int hashCode = 0;
+
+        InetSocketAddress controlAddress = getControlAddress();
+        if (controlAddress != null)
+            hashCode |= controlAddress.hashCode();
+
+        InetSocketAddress dataAddress = getDataAddress();
+        if (dataAddress != null)
+            hashCode |= dataAddress.hashCode();
+
+        return hashCode;
+    }
+
+    /**
+     * Returns a human-readable representation of this
+     * <tt>MediaStreamTarget</tt> instance in the form of a <tt>String</tt>
+     * value.
+     *
+     * @return a <tt>String</tt> value which gives a human-readable
+     * representation of this <tt>MediaStreamTarget</tt> instance
+     */
+    @Override
+    public String toString()
+    {
+        return
+            getClass().getSimpleName()
+                + " with dataAddress "
+                + getDataAddress()
+                + " and controlAddress "
+                + getControlAddress();
     }
 }
