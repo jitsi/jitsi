@@ -200,15 +200,10 @@ public abstract class SIPCommFrame
     {
         ConfigurationService configService =
             UtilActivator.getConfigurationService();
-
         String className = this.getClass().getName();
-
         String widthString = configService.getString(className + ".width");
-
         String heightString = configService.getString(className + ".height");
-
         String xString = configService.getString(className + ".x");
-
         String yString = configService.getString(className + ".y");
 
         int width = 0;
@@ -216,8 +211,8 @@ public abstract class SIPCommFrame
 
         if (widthString != null && heightString != null)
         {
-            width = new Integer(widthString).intValue();
-            height = new Integer(heightString).intValue();
+            width = Integer.parseInt(widthString);
+            height = Integer.parseInt(heightString);
 
             if (width > 0 && height > 0)
             {
@@ -233,8 +228,8 @@ public abstract class SIPCommFrame
 
         if (xString != null && yString != null)
         {
-            x = new Integer(xString).intValue();
-            y = new Integer(yString).intValue();
+            x = Integer.parseInt(xString);
+            y = Integer.parseInt(yString);
 
             this.setLocation(x, y);
         }
@@ -398,8 +393,14 @@ public abstract class SIPCommFrame
     {
         if (isVisible)
         {
-            this.setSizeAndLocation();
+            /*
+             * Since setSizeAndLocation() will use the width and the height,
+             * pack() should be called prior to it. Otherwise, the width and the
+             * height may be zero or may just change after setSizeAndLocation()
+             * during pack().
+             */
             this.pack();
+            this.setSizeAndLocation();
             this.ensureOnScreenLocationAndSize();
         }
 
