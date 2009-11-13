@@ -78,18 +78,20 @@ public class VideoEvent
      * change in the availability of a specific visual <tt>Component</tt>
      * depicting video and being provided by a specific source.
      *
-     * @param source the source of the new <tt>VideoEvent</tt> and the
-     *            provider of the visual <tt>Component</tt> depicting video
+     * @param source the source of the new <tt>VideoEvent</tt> and the provider
+     * of the visual <tt>Component</tt> depicting video
      * @param type the type of the availability change which has caused the new
-     *            <tt>VideoEvent</tt> to be fired
+     * <tt>VideoEvent</tt> to be fired
      * @param visualComponent the visual <tt>Component</tt> depicting video
-     *            which had its availability in the <tt>source</tt> provider
-     *            changed
-     * @param origin the origin of the video the new <tt>VideoEvent</tt> is
-     *            to notify about
+     * which had its availability in the <tt>source</tt> provider changed
+     * @param origin the origin of the video the new <tt>VideoEvent</tt> is to
+     * notify about
      */
-    public VideoEvent(Object source, int type, Component visualComponent,
-        int origin)
+    public VideoEvent(
+            Object source,
+            int type,
+            Component visualComponent,
+            int origin)
     {
         super(source);
 
@@ -99,11 +101,11 @@ public class VideoEvent
     }
 
     /**
-     * Consumes this event and, more specifically, marks the
-     * <tt>Component</tt> it describes as owned, referenced in order to let
-     * other potential consumers know about its current ownership status (which
-     * is important because <tt>Component</tt>s belong to a single
-     * <tt>Container</tt> at a time).
+     * Consumes this event and, more specifically, marks the <tt>Component</tt>
+     * it describes as owned, referenced in order to let other potential
+     * consumers know about its current ownership status (which is important
+     * because <tt>Component</tt>s belong to a single <tt>Container</tt> at a
+     * time).
      */
     public void consume()
     {
@@ -115,7 +117,7 @@ public class VideoEvent
      * which is one of {@link #LOCAL} and {@link #REMOTE}.
      *
      * @return one of {@link #LOCAL} and {@link #REMOTE} which specifies the
-     *         origin of the video this <tt>VideoEvent</tt> notifies about
+     * origin of the video this <tt>VideoEvent</tt> notifies about
      */
     public int getOrigin()
     {
@@ -123,13 +125,12 @@ public class VideoEvent
     }
 
     /**
-     * Gets the type of availability change this <tt>VideoEvent</tt>
-     * notifies about which is one of {@link #VIDEO_ADDED} and
-     * {@link #VIDEO_REMOVED}.
+     * Gets the type of availability change this <tt>VideoEvent</tt> notifies
+     * about which is one of {@link #VIDEO_ADDED} and {@link #VIDEO_REMOVED}.
      *
      * @return one of {@link #VIDEO_ADDED} and {@link #VIDEO_REMOVED} which
-     *         describes the type of availability change this
-     *         <tt>VideoEvent</tt> notifies about
+     * describes the type of availability change this <tt>VideoEvent</tt>
+     * notifies about
      */
     public int getType()
     {
@@ -138,12 +139,10 @@ public class VideoEvent
 
     /**
      * Gets the visual <tt>Component</tt> depicting video which had its
-     * availability changed and which this <tt>VideoEvent</tt> notifies
-     * about.
+     * availability changed and which this <tt>VideoEvent</tt> notifies about.
      *
      * @return the visual <tt>Component</tt> depicting video which had its
-     *         availability changed and which this <tt>VideoEvent</tt>
-     *         notifies about
+     * availability changed and which this <tt>VideoEvent</tt> notifies about
      */
     public Component getVisualComponent()
     {
@@ -154,20 +153,29 @@ public class VideoEvent
      * Determines whether this event and, more specifically, the visual
      * <tt>Component</tt> it describes have been consumed and should be
      * considered owned, referenced (which is important because
-     * <tt>Component</tt>s belong to a single <tt>Container</tt> at a
-     * time).
+     * <tt>Component</tt>s belong to a single <tt>Container</tt> at a time).
      *
      * @return <tt>true</tt> if this event and, more specifically, the visual
-     *         <tt>Component</tt> it describes have been consumed and should
-     *         be considered owned, referenced (which is important because
-     *         <tt>Component</tt>s belong to a single <tt>Container</tt>
-     *         at a time); otherwise, <tt>false</tt>
+     * <tt>Component</tt> it describes have been consumed and should be
+     * considered owned, referenced (which is important because
+     * <tt>Component</tt>s belong to a single <tt>Container</tt> at a time);
+     * otherwise, <tt>false</tt>
      */
     public boolean isConsumed()
     {
         return consumed;
     }
 
+    /**
+     * Returns a human-readable representation of a specific <tt>VideoEvent</tt>
+     * origin constant in the form of a <tt>String</tt> value.
+     *
+     * @param origin one of the <tt>VideoEvent</tt> origin constants such as
+     * {@link #LOCAL} or {@link #REMOTE}
+     * @return a <tt>String</tt> value which gives a human-readable
+     * representation of the specified <tt>VideoEvent</tt> <tt>origin</tt>
+     * constant
+     */
     public static String originToString(int origin)
     {
         switch (origin)
@@ -181,6 +189,16 @@ public class VideoEvent
         }
     }
 
+    /**
+     * Returns a human-readable representation of a specific <tt>VideoEvent</tt>
+     * type constant in the form of a <tt>String</tt> value.
+     *
+     * @param type one of the <tt>VideoEvent</tt> type constants such as
+     * {@link #VIDEO_ADDED} or {@link #VIDEO_REMOVED}
+     * @return a <tt>String</tt> value which gives a human-readable
+     * representation of the specified <tt>VideoEvent</tt> <tt>type</tt>
+     * constant
+     */
     public static String typeToString(int type)
     {
         switch (type)
