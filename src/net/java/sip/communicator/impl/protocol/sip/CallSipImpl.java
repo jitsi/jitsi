@@ -270,6 +270,7 @@ public class CallSipImpl
      * @return a reference to the <tt>ProtocolProviderServiceSipImpl</tt>
      * instance that created this call.
      */
+    @Override
     public ProtocolProviderServiceSipImpl getProtocolProvider()
     {
         return (ProtocolProviderServiceSipImpl)super.getProtocolProvider();

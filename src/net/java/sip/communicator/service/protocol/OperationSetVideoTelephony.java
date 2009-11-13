@@ -79,15 +79,14 @@ public interface OperationSetVideoTelephony
     public void disposeLocalVisualComponent(CallPeer peer, Component component);
 
     /**
-     * Gets the visual/video <tt>Component</tt>s available in this telephony
-     * for a specific <tt>CallPeer</tt>.
+     * Gets the visual/video <tt>Component</tt> available in this telephony for
+     * a specific <tt>CallPeer</tt>.
      *
-     * @param peer the <tt>CallPeer</tt> whose videos are to be retrieved
-     *
-     * @return an array of the visual <tt>Component</tt>s available in this
-     * telephony for the specified <tt>peer</tt>
+     * @param peer the <tt>CallPeer</tt> whose video is to be retrieved
+     * @return the visual/video <tt>Component</tt> available in this telephony
+     * for the specified <tt>peer</tt> if any; otherwise, <tt>null</tt>
      */
-    public Component[] getVisualComponents(CallPeer peer);
+    public Component getVisualComponent(CallPeer peer);
 
     /**
      * Removes a specific <tt>VideoListener</tt> from this telephony in

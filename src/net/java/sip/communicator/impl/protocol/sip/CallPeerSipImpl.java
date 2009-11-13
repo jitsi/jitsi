@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.sip;
 
 import java.net.*;
 import java.text.*;
+import java.util.*;
 
 import javax.sip.*;
 import javax.sip.address.*;
@@ -93,6 +94,20 @@ public class CallPeerSipImpl
      * both classes are only separated for reasons of readability.
      */
     private final CallPeerMediaHandler mediaHandler;
+
+    /**
+     * The <tt>PropertyChangeListener</tt> which listens to
+     * {@link #mediaHandler} for changes in the values of its properties.
+     */
+    private PropertyChangeListener mediaHandlerPropertyChangeListener;
+
+    /**
+     * The <tt>List</tt> of <tt>PropertyChangeListener</tt>s listening to this
+     * <tt>CallPeer</tt> for changes in the values of its properties related to
+     * video.
+     */
+    private final List<PropertyChangeListener> videoPropertyChangeListeners
+            = new LinkedList<PropertyChangeListener>();
 
     /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
@@ -391,10 +406,7 @@ public class CallPeerSipImpl
     @Override
     public URL getCallInfoURL()
     {
-        if (mediaHandler == null)
-            return null;
-
-        return mediaHandler.getCallInfoURL();
+        return getMediaHandler().getCallInfoURL();
     }
 
     /**
@@ -1334,10 +1346,51 @@ public class CallPeerSipImpl
      */
     public void addVideoPropertyChangeListener(PropertyChangeListener listener)
     {
-        /**
-         * @todo update to neomedia.
-        getMediaCallSession().addPropertyChangeListener(listener);
-        */
+        if (listener == null)
+            throw new NullPointerException("listener");
+
+        synchronized (videoPropertyChangeListeners)
+        {
+            /*
+             * The video is part of the media-related functionality and thus it
+             * is the responsibility of mediaHandler. So listen to mediaHandler
+             * for video-related property changes and re-fire them as
+             * originating from this instance.
+             */
+            if (!videoPropertyChangeListeners.contains(listener)
+                    && videoPropertyChangeListeners.add(listener)
+                    && (mediaHandlerPropertyChangeListener == null))
+            {
+                mediaHandlerPropertyChangeListener
+                    = new PropertyChangeListener()
+                    {
+                        public void propertyChange(PropertyChangeEvent event)
+                        {
+                            Iterable<PropertyChangeListener> listeners;
+
+                            synchronized (videoPropertyChangeListeners)
+                            {
+                                listeners
+                                    = new LinkedList<PropertyChangeListener>(
+                                            videoPropertyChangeListeners);
+                            }
+
+                            PropertyChangeEvent thisEvent
+                                = new PropertyChangeEvent(
+                                        this,
+                                        event.getPropertyName(),
+                                        event.getOldValue(),
+                                        event.getNewValue());
+
+                            for (PropertyChangeListener listener : listeners)
+                                listener.propertyChange(thisEvent);
+                        }
+                    };
+//                getMediaHandler()
+//                    .addPropertyChangeListener(
+//                        mediaHandlerPropertyChangeListener);
+            }
+        }
     }
 
     /**
@@ -1353,10 +1406,28 @@ public class CallPeerSipImpl
     public void removeVideoPropertyChangeListener(
                                                PropertyChangeListener listener)
     {
-        /**
-         * @todo update to neomedia.
-         getMediaCallSession().removePropertyChangeListener(listener);
-         */
+        if (listener != null)
+            synchronized (videoPropertyChangeListeners)
+            {
+                /*
+                 * The video is part of the media-related functionality and thus
+                 * it is the responsibility of mediaHandler. So we're listening
+                 * to mediaHandler for video-related property changes and w're
+                 * re-firing them as originating from this instance. Make sure
+                 * that we're not listening to mediaHandler if noone is
+                 * interested in video-related property changes originating from
+                 * this instance.
+                 */
+                if (videoPropertyChangeListeners.remove(listener)
+                        && videoPropertyChangeListeners.isEmpty()
+                        && (mediaHandlerPropertyChangeListener != null))
+                {
+//                    getMediaHandler()
+//                        .removePropertyChangeListener(
+//                            mediaHandlerPropertyChangeListener);
+                    mediaHandlerPropertyChangeListener = null;
+                }
+            }
     }
 
     /**
@@ -1389,7 +1460,7 @@ public class CallPeerSipImpl
      * @return a reference to the <tt>CallPeerMediaHandler</tt> instance that
      * this peer uses for media related tips and tricks.
      */
-    private CallPeerMediaHandler getMediaHandler()
+    CallPeerMediaHandler getMediaHandler()
     {
         return mediaHandler;
     }

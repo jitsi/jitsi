@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import java.awt.Component;
 import java.net.*;
 import java.util.*;
 
@@ -17,6 +18,7 @@ import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -33,7 +35,8 @@ public class CallPeerMediaHandler
     /**
      * Our class logger.
      */
-    private Logger logger = Logger.getLogger(CallPeerMediaHandler.class);
+    private static final Logger logger
+        = Logger.getLogger(CallPeerMediaHandler.class);
 
     /**
      * A reference to the CallPeerSipImpl instance that this handler is
@@ -107,6 +110,57 @@ public class CallPeerMediaHandler
      * The RTP stream that this media handler uses to send video.
      */
     private VideoMediaStream videoStream = null;
+
+    /**
+     * The <tt>List</tt> of <tt>VideoListener</tt>s interested in
+     * <tt>VideoEvent</tt>s fired by this instance or rather its
+     * <tt>VideoMediaStream</tt>.
+     */
+    private final List<VideoListener> videoListeners
+        = new LinkedList<VideoListener>();
+
+    /**
+     * The neomedia <tt>VideoListener</tt> which listens to {@link #videoStream}
+     * for changes in the availability of visual <tt>Component</tt>s displaying
+     * remote video and re-fires them as
+     * <tt>net.java.sip.communicator.service.protocol.event.VideoEvent</tt>s
+     * originating from this instance.
+     */
+    private final net.java.sip.communicator.service.neomedia.event.VideoListener videoStreamVideoListener
+        = new net.java.sip.communicator.service.neomedia.event.VideoListener()
+        {
+            /**
+             * Notifies this neomedia <tt>VideoListener</tt> that a new visual
+             * <tt>Component</tt> displaying remote video has been added in
+             * {@link CallPeerMediaHandler#videoStream}.
+             *
+             * @param event the neomedia <tt>VideoEvent</tt> which specifies the
+             * newly-added visual <tt>Component</tt> displaying remote video
+             */
+            public void videoAdded(
+                    net.java.sip.communicator.service.neomedia.event.VideoEvent event)
+            {
+                if (fireVideoEvent(
+                        event.getType(),
+                        event.getVisualComponent(),
+                        event.getOrigin()))
+                    event.consume();
+            }
+
+            /**
+             * Notifies this neomedia <tt>VideoListener</tt> that a visual
+             * <tt>Component</tt> displaying remote video has been removed from
+             * {@link CallPeerMediaHandler#videoStream}.
+             *
+             * @param event the neomedia <tt>VideoEvent</tt> which specifies the
+             * removed visual <tt>Component</tt> displaying remote video
+             */
+            public void videoRemoved(
+                    net.java.sip.communicator.service.neomedia.event.VideoEvent event)
+            {
+                videoAdded(event);
+            }
+        };
 
     /**
      * A <tt>URL</tt> pointing to a location with call information or a call
@@ -307,11 +361,7 @@ public class CallPeerMediaHandler
         }
         else
         {
-            if (this.videoStream != null)
-            {
-                videoStream.close();
-                videoStream = null;
-            }
+            setVideoStream(null);
 
             if (this.videoStreamConnector != null)
             {
@@ -613,7 +663,7 @@ public class CallPeerMediaHandler
         if( stream instanceof AudioMediaStream)
             this.audioStream = (AudioMediaStream)stream;
         else
-            this.videoStream = (VideoMediaStream)stream;
+            setVideoStream((VideoMediaStream)stream);
 
         if ( ! stream.isStarted())
             stream.start();
@@ -1177,5 +1227,173 @@ public class CallPeerMediaHandler
     private void setCallInfoURL(URL callInfolURL)
     {
         this.callInfoURL = callInfolURL;
+    }
+
+    /**
+     * Sets the RTP media stream that this instance uses to stream video to a
+     * specific <tt>VideoMediaStream</tt>.
+     *
+     * @param videoStream the <tt>VideoMediaStream</tt> to be set as the RTP
+     * media stream that this instance uses to stream video
+     */
+    private void setVideoStream(VideoMediaStream videoStream)
+    {
+        if (this.videoStream != videoStream)
+        {
+            /*
+             * Make sure we will no longer notify the registered VideoListeners
+             * about changes in the availability of video in the old
+             * videoStream.
+             */
+            Component oldVisualComponent = null;
+
+            if (this.videoStream != null)
+            {
+                this.videoStream.removeVideoListener(videoStreamVideoListener);
+                oldVisualComponent = this.videoStream.getVisualComponent();
+
+                this.videoStream.close();
+            }
+
+            this.videoStream = videoStream;
+
+            /*
+             * Make sure we will notify the registered VideoListeners about
+             * changes in the availability of video in the new videoStream.
+             */
+            Component newVisualComponent = null;
+
+            if (this.videoStream != null)
+            {
+                this.videoStream.addVideoListener(videoStreamVideoListener);
+                newVisualComponent = this.videoStream.getVisualComponent();
+            }
+
+            /*
+             * Notify the VideoListeners in case there was a change in the
+             * availability of the visual <tt>Component</tt>s displaying remote
+             * video.
+             */
+            if (oldVisualComponent != null)
+                fireVideoEvent(
+                    VideoEvent.VIDEO_REMOVED,
+                    oldVisualComponent,
+                    VideoEvent.REMOTE);
+            if (newVisualComponent != null)
+                fireVideoEvent(
+                    VideoEvent.VIDEO_REMOVED,
+                    newVisualComponent,
+                    VideoEvent.REMOTE);
+        }
+    }
+
+    /**
+     * Registers a specific <tt>VideoListener</tt> with this instance so that it
+     * starts receiving notifications from it about changes in the availability
+     * of visual <tt>Component</tt>s displaying video.
+     *
+     * @param listener the <tt>VideoListener</tt> to be registered with this
+     * instance and to start receiving notifications from it about changes in
+     * the availability of visual <tt>Component</tt>s displaying video
+     */
+    public void addVideoListener(VideoListener listener)
+    {
+        if (listener == null)
+            throw new NullPointerException("listener");
+
+        synchronized (videoListeners)
+        {
+            if (!videoListeners.contains(listener))
+                videoListeners.add(listener);
+        }
+    }
+
+    /**
+     * Notifies the <tt>VideoListener</tt>s registered with this
+     * <tt>CallPeerMediaHandler</tt> about a specific type of change in the
+     * availability of a specific visual <tt>Component</tt> depicting video.
+     *
+     * @param type the type of change as defined by <tt>VideoEvent</tt> in the
+     * availability of the specified visual <tt>Component</tt> depicting video
+     * @param visualComponent the visual <tt>Component</tt> depicting video
+     * which has been added or removed in this <tt>CallPeerMediaHandler</tt>
+     * @param origin {@link VideoEvent#LOCAL} if the origin of the video is
+     * local (e.g. it is being locally captured); {@link VideoEvent#REMOTE} if
+     * the origin of the video is remote (e.g. a remote peer is streaming it)
+     * @return <tt>true</tt> if this event and, more specifically, the visual
+     * <tt>Component</tt> it describes have been consumed and should be
+     * considered owned, referenced (which is important because
+     * <tt>Component</tt>s belong to a single <tt>Container</tt> at a time);
+     * otherwise, <tt>false</tt>
+     */
+    protected boolean fireVideoEvent(
+            int type,
+            Component visualComponent,
+            int origin)
+    {
+        VideoListener[] listeners;
+
+        synchronized (videoListeners)
+        {
+            listeners
+                = videoListeners
+                    .toArray(new VideoListener[videoListeners.size()]);
+        }
+
+        boolean consumed;
+
+        if (listeners.length > 0)
+        {
+            VideoEvent event
+                = new VideoEvent(this, type, visualComponent, origin);
+
+            for (VideoListener listener : listeners)
+                switch (type)
+                {
+                    case VideoEvent.VIDEO_ADDED:
+                        listener.videoAdded(event);
+                        break;
+                    case VideoEvent.VIDEO_REMOVED:
+                        listener.videoRemoved(event);
+                        break;
+                }
+
+            consumed = event.isConsumed();
+        }
+        else
+            consumed = false;
+        return consumed;
+    }
+
+    /**
+     * Gets the visual <tt>Component</tt> in which video from the remote peer is
+     * currently being rendered or <tt>null</tt> if there is currently no video
+     * streaming from the remote peer.
+     *
+     * @return the visual <tt>Component</tt> in which video from the remote peer
+     * is currently being rendered or <tt>null</tt> if there is currently no
+     * video streaming from the remote peer
+     */
+    public Component getVisualComponent()
+    {
+        return (videoStream == null) ? null : videoStream.getVisualComponent();
+    }
+
+    /**
+     * Unregisters a specific <tt>VideoListener</tt> from this instance so that
+     * it stops receiving notifications from it about changes in the
+     * availability of visual <tt>Component</tt>s displaying video.
+     *
+     * @param listener the <tt>VideoListener</tt> to be unregistered from this
+     * instance and to stop receiving notifications from it about changes in the
+     * availability of visual <tt>Component</tt>s displaying video
+     */
+    public void removeVideoListener(VideoListener listener)
+    {
+        if (listener != null)
+            synchronized (videoListeners)
+            {
+                videoListeners.remove(listener);
+            }
     }
 }

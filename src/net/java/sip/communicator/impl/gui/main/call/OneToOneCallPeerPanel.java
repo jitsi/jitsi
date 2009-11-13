@@ -527,13 +527,7 @@ public class OneToOneCallPeerPanel
                 }
 
                 // REMOTE
-                Component[] videos =
-                    videoTelephony
-                        .getVisualComponents(callPeer);
-
-                Component video =
-                    ((videos == null) || (videos.length < 1)) ? null
-                        : videos[0];
+                Component video = videoTelephony.getVisualComponent(callPeer);
 
                 if (video != null)
                     videoContainer

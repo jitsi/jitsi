@@ -51,12 +51,12 @@ public class OperationSetVideoTelephonySipImpl
     }
 
     /**
-     * Delegates to the CallSession of the Call of the specified CallPeer
-     * because the video is provided by the CallSession in the SIP protocol
-     * implementation. Because other OperationSetVideoTelephony implementations
-     * may not provide their video through the CallSession, this implementation
-     * promotes itself as the provider of the video by replacing the CallSession
-     * in the VideoEvents it fires.
+     * Delegates to the <tt>CallPeerMediaHandler</tt> of the specified
+     * <tt>CallPeer</tt> because the video is provided by it. Because other
+     * <tt>OperationSetVideoTelephony</tt> implementations may not provide their
+     * video through the <tt>CallPeerMediaHandler</tt>, this implementation
+     * promotes itself as the provider of the video by replacing the
+     * <tt>CallPeerMediaHandler</tt> in the <tt>VideoEvents</tt> it fires.
      *
      * @param peer the <tt>CallPeer</tt> that we will be registering
      * <tt>listener</tt> with.
@@ -67,11 +67,10 @@ public class OperationSetVideoTelephonySipImpl
         if (listener == null)
             throw new NullPointerException("listener");
 
-        /**
-         * @todo update to neomedia.
-        ((CallPeerSipImpl) peer).getMediaCallSession()
-            .addVideoListener(new InternalVideoListener(this, peer, listener));
-            */
+        ((CallPeerSipImpl) peer)
+            .getMediaHandler()
+                .addVideoListener(
+                    new InternalVideoListener(this, peer, listener));
     }
 
     /**
@@ -136,34 +135,21 @@ public class OperationSetVideoTelephonySipImpl
     }
 
     /**
-     * Delegates to the CallSession of the Call of the specified CallPeer
-     * because the video is provided by the CallSession in the SIP protocol
-     * implementation.
+     * Gets the visual/video <tt>Component</tt> available in this telephony for
+     * a specific <tt>CallPeer</tt>.
      *
-     * @param peer the peer whose visual <tt>Component</tt>s we'd like to
-     * retrieve.
-     *
-     * @return all visual <tt>Component</tt>s for the specified <tt>peer</tt>.
+     * @param peer the <tt>CallPeer</tt> whose video is to be retrieved
+     * @return the visual/video <tt>Component</tt> available in this telephony
+     * for the specified <tt>peer</tt> if any; otherwise, <tt>null</tt>
      */
-    public Component[] getVisualComponents(CallPeer peer)
+    public Component getVisualComponent(CallPeer peer)
     {
-        /**
-         * @todo update to neomedia.
-        CallSession callSession =((CallPeerSipImpl)peer).getMediaCallSession();
-
-        return (callSession != null) ? callSession.getVisualComponents()
-            : new Component[0];
-         */
-        return null;
+        return ((CallPeerSipImpl) peer).getMediaHandler().getVisualComponent();
     }
 
     /**
-     * Delegates to the CallSession of the Call of the specified CallPeer
-     * because the video is provided by the CallSession in the SIP protocol
-     * implementation. Because other OperationSetVideoTelephony implementations
-     * may not provide their video through the CallSession, this implementation
-     * promotes itself as the provider of the video by replacing the CallSession
-     * in the VideoEvents it fires.
+     * Delegates to the <tt>CallPeerMediaHandler</tt> of the specified
+     * <tt>CallPeer</tt> because the video is provided by it.
      *
      * @param peer the <tt>CallPeer</tt> that we'd like to unregister our
      * <tt>VideoListener</tt> from.
@@ -171,15 +157,11 @@ public class OperationSetVideoTelephonySipImpl
      */
     public void removeVideoListener(CallPeer peer, VideoListener listener)
     {
-        /**
-         * @todo update to neomedia.
         if (listener != null)
-        {
-            ((CallPeerSipImpl) peer).getMediaCallSession()
-                .removeVideoListener(
-                    new InternalVideoListener(this, peer, listener));
-        }
-        */
+            ((CallPeerSipImpl) peer)
+                .getMediaHandler()
+                    .removeVideoListener(
+                        new InternalVideoListener(this, peer, listener));
     }
 
     /**
@@ -246,8 +228,9 @@ public class OperationSetVideoTelephonySipImpl
      * when the properties associated with the specified <tt>Call</tt> change
      * their values
      */
-    public void addPropertyChangeListener(Call                   call,
-                                          PropertyChangeListener listener)
+    public void addPropertyChangeListener(
+            Call call,
+            PropertyChangeListener listener)
     {
         ((CallSipImpl) call).addVideoPropertyChangeListener(listener);
     }
@@ -264,8 +247,9 @@ public class OperationSetVideoTelephonySipImpl
      * notified when the properties associated with the specified <tt>Call</tt>
      * change their values
      */
-    public void removePropertyChangeListener(Call                   call,
-                                             PropertyChangeListener listener)
+    public void removePropertyChangeListener(
+            Call call,
+            PropertyChangeListener listener)
     {
         ((CallSipImpl) call).removeVideoPropertyChangeListener(listener);
     }
@@ -317,8 +301,10 @@ public class OperationSetVideoTelephonySipImpl
          * that the videos in the SIP protocol implementation is managed by the
          * <tt>CallSession</tt> and not by the specified <tt>telephony</tt>
          */
-        public InternalVideoListener(OperationSetVideoTelephony telephony,
-            CallPeer peer, VideoListener delegate)
+        public InternalVideoListener(
+                OperationSetVideoTelephony telephony,
+                CallPeer peer,
+                VideoListener delegate)
         {
             if (peer == null)
                 throw new NullPointerException("peer cannot be null");
@@ -339,6 +325,7 @@ public class OperationSetVideoTelephonySipImpl
          * @return true if the underlying peer, telephony operation set and
          * delegate are equal to those of the <tt>other</tt> instance.
          */
+        @Override
         public boolean equals(Object other)
         {
             if (other == this)
@@ -360,6 +347,7 @@ public class OperationSetVideoTelephonySipImpl
          * @return a hashcode based on the hash codes of the wrapped telephony
          * operation set and <tt>VideoListener</tt> delegate.
          */
+        @Override
         public int hashCode()
         {
             return (telephony.hashCode() << 16) + (delegate.hashCode() >> 16);
@@ -376,8 +364,16 @@ public class OperationSetVideoTelephonySipImpl
          */
         public void videoAdded(VideoEvent event)
         {
-            delegate.videoAdded(new VideoEvent(this, event.getType(), event
-                .getVisualComponent(), event.getOrigin()));
+            VideoEvent delegateEvent
+                = new VideoEvent(
+                        this,
+                        event.getType(),
+                        event.getVisualComponent(),
+                        event.getOrigin());
+
+            delegate.videoAdded(delegateEvent);
+            if (delegateEvent.isConsumed())
+                event.consume();
         }
 
         /**
@@ -392,8 +388,16 @@ public class OperationSetVideoTelephonySipImpl
          */
         public void videoRemoved(VideoEvent event)
         {
-            delegate.videoAdded(new VideoEvent(this, event.getType(), event
-                .getVisualComponent(), event.getOrigin()));
+            VideoEvent delegateEvent
+                = new VideoEvent(
+                        this,
+                        event.getType(),
+                        event.getVisualComponent(),
+                        event.getOrigin());
+
+            delegate.videoRemoved(delegateEvent);
+            if (delegateEvent.isConsumed())
+                event.consume();
         }
     }
 }

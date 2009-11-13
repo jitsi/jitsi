@@ -263,11 +263,7 @@ public class VideoMediaStreamImpl
                      */
                     public void videoRemoved(VideoEvent e)
                     {
-                        if (fireVideoEvent(
-                                e.getType(),
-                                e.getVisualComponent(),
-                                e.getOrigin()))
-                            e.consume();
+                        videoAdded(e);
                     }
                 };
 
