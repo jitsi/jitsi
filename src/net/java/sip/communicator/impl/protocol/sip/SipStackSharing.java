@@ -965,8 +965,9 @@ public class SipStackSharing
             = "An error occurred while processing event of type: "
                 + eventClass.getName();
 
-        logger.error(message);
-        logger.debug(message, exc);
+        logger.error(message, exc);
+        if (logger.isDebugEnabled())
+            logger.debug(message, exc);
     }
 
     /**
