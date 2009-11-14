@@ -14,11 +14,15 @@ package net.java.sip.communicator.plugin.googletalkaccregwizz;
  */
 public class GoogleTalkAccountRegistration
 {
-    public static final String DEFAULT_PORT = "5222";
+    public static final int DEFAULT_PORT = 5222;
 
-    public static final String DEFAULT_PRIORITY = "10";
+    public static final int DEFAULT_PRIORITY = 10;
 
     public static final String DEFAULT_RESOURCE = "sip-comm";
+
+    static final String GOOGLE_CONNECT_SRV = "talk.google.com";
+
+    static final String GOOGLE_USER_SUFFIX = "gmail.com";
 
     private String userID;
 
@@ -28,11 +32,11 @@ public class GoogleTalkAccountRegistration
 
     private String serverAddress;
 
-    private int port = new Integer(DEFAULT_PORT).intValue();
+    private int port = DEFAULT_PORT;
 
     private String resource = DEFAULT_RESOURCE;
 
-    private int priority = new Integer(DEFAULT_PRIORITY).intValue();
+    private int priority = DEFAULT_PRIORITY;
 
     private boolean sendKeepAlive = true;
 
@@ -79,7 +83,15 @@ public class GoogleTalkAccountRegistration
      */
     public String getUserID()
     {
-        return userID;
+        String serverAddress = getServerAddress();
+
+        return
+            ((userID != null)
+                    && (userID.indexOf('@') < 0)
+                    && ((serverAddress == null)
+                            || serverAddress.equals(GOOGLE_CONNECT_SRV)))
+                ? (userID + '@' + GOOGLE_USER_SUFFIX)
+                : userID;
     }
 
     /**

@@ -28,10 +28,6 @@ public class GoogleTalkAccountRegistrationWizard
     private final Logger logger
         = Logger.getLogger(GoogleTalkAccountRegistrationWizard.class);
 
-    private static final String GOOGLE_USER_SUFFIX = "gmail.com";
-
-    private static final String GOOGLE_CONNECT_SRV = "talk.google.com";
-
     public static final String PROTOCOL = "Google Talk";
 
     private FirstWizardPage firstWizardPage;
@@ -213,11 +209,9 @@ public class GoogleTalkAccountRegistrationWizard
         accountProperties.put("SEND_KEEP_ALIVE",
                               String.valueOf(registration.isSendKeepAlive()));
 
-        String serverName = null;
-        if (registration.getServerAddress() != null)
+        String serverName = registration.getServerAddress();
+        if (serverName != null)
         {
-            serverName = registration.getServerAddress();
-
             if (userName.indexOf(serverName) < 0)
                 accountProperties.put(
                     ProtocolProviderFactory.IS_SERVER_OVERRIDDEN,
@@ -398,20 +392,17 @@ public class GoogleTalkAccountRegistrationWizard
     protected String getServerFromUserName(String userName)
     {
         int delimIndex = userName.indexOf("@");
+
         if (delimIndex != -1)
         {
             String newServerAddr = userName.substring(delimIndex + 1);
-            if (newServerAddr.equals(GOOGLE_USER_SUFFIX))
-            {
-                return GOOGLE_CONNECT_SRV;
-            }
-            else
-            {
+
+            if (!newServerAddr
+                    .equals(GoogleTalkAccountRegistration.GOOGLE_USER_SUFFIX))
                 return newServerAddr;
-            }
         }
 
-        return null;
+        return GoogleTalkAccountRegistration.GOOGLE_CONNECT_SRV;
     }
 
     public void webSignup()

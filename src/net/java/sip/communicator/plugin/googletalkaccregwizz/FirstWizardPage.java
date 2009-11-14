@@ -77,7 +77,8 @@ public class FirstWizardPage
         = new JLabel(Resources.getString("plugin.jabberaccregwizz.PRIORITY"));
 
     private JTextField priorityField
-        = new JTextField(GoogleTalkAccountRegistration.DEFAULT_PRIORITY);
+        = new JTextField(
+                Integer.toString(GoogleTalkAccountRegistration.DEFAULT_PRIORITY));
 
     private JLabel serverLabel
         = new JLabel(Resources.getString("plugin.jabberaccregwizz.SERVER"));
@@ -88,7 +89,8 @@ public class FirstWizardPage
         = new JLabel(Resources.getString("plugin.jabberaccregwizz.PORT"));
 
     private JTextField portField
-        = new JTextField(GoogleTalkAccountRegistration.DEFAULT_PORT);
+        = new JTextField(
+                Integer.toString(GoogleTalkAccountRegistration.DEFAULT_PORT));
 
     private JPanel registerPanel = new TransparentPanel(new GridLayout(0, 1));
 
