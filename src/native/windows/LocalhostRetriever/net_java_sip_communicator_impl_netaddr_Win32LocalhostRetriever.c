@@ -228,7 +228,7 @@ JNIEXPORT jbyteArray JNICALL Java_net_java_sip_communicator_impl_netaddr_Win32Lo
   }
 
   /* ReleaseByteArrayElements() updates array with buf's content 
-   * when third parameter is 0
+   * when the last parameter is 0.
    */
   (*env)->ReleaseByteArrayElements(env, array, (jbyte*)buf, 0);
   return array;
