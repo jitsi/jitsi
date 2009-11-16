@@ -206,6 +206,7 @@ public class SRTPCryptoContext
      *            SRTP policy for this SRTP cryptographic context, defined the
      *            encryption algorithm, the authentication algorithm, etc
      */
+    @SuppressWarnings("fallthrough")
     public SRTPCryptoContext(long ssrcIn, int rocIn, long kdr,
             byte[] masterK, byte[] masterS, SRTPPolicy policyIn)
     {
