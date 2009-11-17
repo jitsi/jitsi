@@ -32,7 +32,8 @@ public class CallDialog
     extends SIPCommFrame
     implements ActionListener,
                MouseListener,
-               CallChangeListener
+               CallChangeListener,
+               CallPeerConferenceListener
 {
     private static final String DIAL_BUTTON = "DIAL_BUTTON";
 
@@ -373,17 +374,21 @@ public class CallDialog
      */
     public void callPeerAdded(final CallPeerEvent evt)
     {
+        if (evt.getSourceCall() != call)
+            return;
+
+        final CallPeer callPeer = evt.getSourceCallPeer();
+
+        callPeer.addCallPeerConferenceListener(this);
+
         SwingUtilities.invokeLater(new Runnable()
         {
             public void run()
             {
-                if (evt.getSourceCall() != call)
-                    return;
-
                 if (isLastConference)
                 {
                     ((ConferenceCallPanel) callPanel)
-                        .addCallPeerPanel(evt.getSourceCallPeer());
+                        .addCallPeerPanel(callPeer);
                 }
                 else
                 {
@@ -424,23 +429,68 @@ public class CallDialog
      */
     public void callPeerRemoved(CallPeerEvent evt)
     {
-        if (evt.getSourceCall() == call)
+        if (evt.getSourceCall() != call)
+            return;
+
+        CallPeer callPeer = evt.getSourceCallPeer();
+
+        callPeer.addCallPeerConferenceListener(this);
+
+        Timer timer = new Timer(5000,
+            new RemovePeerPanelListener(callPeer));
+
+        timer.setRepeats(false);
+        timer.start();
+
+        // The call is finished when that last peer is removed.
+        if (call.getCallPeerCount() == 0)
         {
-            Timer timer = new Timer(5000,
-                new RemovePeerPanelListener(evt.getSourceCallPeer()));
-
-            timer.setRepeats(false);
-            timer.start();
-
-            // The call is finished when that last peer is removed.
-            if (call.getCallPeerCount() == 0)
-            {
-                this.stopCallTimer();
-            }
+            this.stopCallTimer();
         }
     }
 
     public void callStateChanged(CallChangeEvent evt) {}
+
+    /**
+     * Updates <tt>CallPeer</tt> related components to fit the new focus state.
+     * @param conferenceEvent the event that notified us of the change
+     */
+    public void conferenceFocusChanged(CallPeerConferenceEvent conferenceEvent)
+    {
+        final CallPeer callPeer = conferenceEvent.getSourceCallPeer();
+
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                if (isLastConference)
+                {
+                    ((ConferenceCallPanel) callPanel)
+                        .updateCallPeerPanel(callPeer);
+                }
+                else
+                {
+                    isLastConference = isConference();
+
+                    // We've been in one-to-one call and we're now in a
+                    // conference.
+                    if (isLastConference)
+                    {
+                        contentPane.remove(callPanel);
+                        callPanel
+                            = new ConferenceCallPanel(CallDialog.this, call);
+                        contentPane.add(callPanel, BorderLayout.CENTER);
+                    }
+                }
+
+                refreshWindow();
+            }
+        });
+    }
+
+    public void conferenceMemberAdded(CallPeerConferenceEvent conferenceEvent) {}
+
+    public void conferenceMemberRemoved(CallPeerConferenceEvent conferenceEvent) {}
 
     /**
      * Checks if the contained call is a conference call.

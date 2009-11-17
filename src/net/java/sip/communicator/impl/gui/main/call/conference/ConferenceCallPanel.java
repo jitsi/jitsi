@@ -14,7 +14,6 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.call.CallPeerAdapter;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -26,7 +25,6 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class ConferenceCallPanel
     extends JScrollPane
-    implements CallPeerConferenceListener
 {
     /**
      * The conference call.
@@ -219,21 +217,17 @@ public class ConferenceCallPanel
     }
 
     /**
-     * Updates <tt>CallPeer</tt> related components to fit the new focus state.
-     * @param conferenceEvent the event that notified us of the change
+     * Updates the current call peer panel to represent correctly the new state
+     * of the peer.
+     * @param peer the <tt>CallPeer</tt>, which panel to update
      */
-    public void conferenceFocusChanged(CallPeerConferenceEvent conferenceEvent)
+    public void updateCallPeerPanel(CallPeer peer)
     {
-        CallPeer callPeer = conferenceEvent.getSourceCallPeer();
-
         // Removes the previously used panel for the peer.
-        this.removeCallPeerPanel(callPeer);
+        this.removeCallPeerPanel(peer);
 
-        // Create a new panel which should fit the new state of the peer.
-        this.addCallPeerPanel(callPeer);
+        // Create a new panel which should fit the new state of
+        // the peer.
+        this.addCallPeerPanel(peer);
     }
-
-    public void conferenceMemberAdded(CallPeerConferenceEvent conferenceEvent) {}
-
-    public void conferenceMemberRemoved(CallPeerConferenceEvent conferenceEvent) {}
 }
