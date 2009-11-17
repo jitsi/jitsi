@@ -10,6 +10,10 @@ import java.util.*;
 import javax.media.*;
 import net.java.sip.communicator.impl.media.protocol.portaudio.*;
 
+import net.java.sip.communicator.util.*;
+
+import com.sun.media.util.*;
+
 /**
  * Creates Portaudio capture devices by enumarating all the
  * host devices that has input channels.
@@ -38,7 +42,11 @@ public class PortAudioAuto
         // if PortAudio has a problem initializing like missing native
         // components it will trow exception here and PortAudio rendering will
         // not be inited.
-        PortAudio.initialize();
+        PortAudioManager.getInstance();
+
+        // enable jmf logging, so we can track codec chains and formats
+        if(Logger.getLogger(PortAudioAuto.class).isDebugEnabled())
+            Registry.set("allowLogging", true);
 
         int deviceCount = PortAudio.Pa_GetDeviceCount();
         int deviceIndex = 0;
@@ -62,7 +70,7 @@ public class PortAudioAuto
                         PortAudio.PaDeviceInfo_getName(deviceInfo),
                         new MediaLocator(
                             PortAudioUtils.LOCATOR_PREFIX + deviceIndex),
-                        PortAudioStream.getFormats());
+                        new Format[]{DataSource.getCaptureFormat()});
 
             if(maxInputChannels > 0)
             {

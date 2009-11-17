@@ -148,6 +148,39 @@ public class MediaConfigurationPanel
             mediaService.getDeviceConfiguration(),
             DeviceConfigurationComboBoxModel.AUDIO_NOTIFY));
         portAudioPanel.add(notifyCombo, constraints);
+
+        constraints.gridy = 3;
+        constraints.insets = new Insets(10,0,0,0);
+        final JCheckBox echoCancelCheckBox = new JCheckBox(
+            MediaActivator.getResources().getI18NString(
+                "impl.media.configform.ECHOCANCEL"));
+        echoCancelCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e)
+            {
+                mediaService.getDeviceConfiguration().setEchoCancel(
+                    echoCancelCheckBox.isSelected());
+            }
+        });
+        echoCancelCheckBox.setSelected(
+            mediaService.getDeviceConfiguration().isEchoCancelEnabled());
+        portAudioPanel.add(echoCancelCheckBox, constraints);
+
+        constraints.gridy = 4;
+        constraints.insets = new Insets(0,0,0,0);
+        final JCheckBox denoiseCheckBox = new JCheckBox(
+            MediaActivator.getResources().getI18NString(
+                "impl.media.configform.DENOISE"));
+        denoiseCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e)
+            {
+                mediaService.getDeviceConfiguration().setDenoise(
+                    denoiseCheckBox.isSelected());
+            }
+        });
+        denoiseCheckBox.setSelected(
+            mediaService.getDeviceConfiguration().isDenoiseEnabled());
+        portAudioPanel.add(denoiseCheckBox, constraints);
+
         parentPanel.setBorder(
                 BorderFactory.createTitledBorder("Devices"));
     }

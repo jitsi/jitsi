@@ -100,6 +100,24 @@ public final class PortAudio
      */
     public static final long STREAM_FLAGS_PLATFORM_SPECIFIC_FLAGS = 0xFFFF0000;
 
+    /**
+     * Used when creating new stream parameters for suggested latency.
+     * To use default value.
+     */
+    public static final double LATENCY_UNSEPCIFIED = 0d;
+
+    /**
+     * Used when creating new stream parameters for suggested latency.
+     * To use high input/output value.
+     */
+    public static final double LATENCY_HIGH = -1d;
+
+    /**
+     * Used when creating new stream parameters for suggested latency.
+     * To use low input/default value.
+     */
+    public static final double LATENCY_LOW = -2d;
+
     private static boolean initialized;
 
     /**
@@ -116,6 +134,23 @@ public final class PortAudio
             initialized = true;
         }
     }
+
+    /**
+     * Set params for echocancel and turns on/off noise suppression.
+     * @param inputStream the input stream.
+     * @param outputStream the output stream.
+     * @param enableDenoise is noise suppression enabled.
+     * @param enableEchoCancel is echo cancel enabled.
+     * @param frameSize Number of samples to process at one time
+     *          (should correspond to 10-20 ms)
+     * @param filterLength Number of samples of echo to cancel
+     *          (should generally correspond to 100-500 ms)
+     */
+    public static native void setEchoCancelParams(
+        long inputStream,
+        long outputStream,
+        boolean enableDenoise,
+        boolean enableEchoCancel, int frameSize, int filterLength);
 
     /**
      * Retrieve the index of the default input device.
@@ -140,6 +175,15 @@ public final class PortAudio
      * @throws PortAudioException
      */
     public static native void Pa_CloseStream(long stream)
+        throws PortAudioException;
+
+    /**
+     * Terminates audio processing immediately without waiting
+     * for pending buffers to complete.
+     * @param stream the steam pointer.
+     * @throws PortAudioException
+     */
+    public static native void Pa_AbortStream(long stream)
         throws PortAudioException;
 
     /**
@@ -355,7 +399,7 @@ public final class PortAudio
      * @return A pointer to an immutable PaHostApiInfo structure
      *         describing a specific host API.
      */
-    public static native long Pa_GetHostApiInfo(long hostApiIndex);
+    public static native long Pa_GetHostApiInfo(int hostApiIndex);
 
     /**
      * The well known unique identifier of this host API.
@@ -412,12 +456,19 @@ public final class PortAudio
      * @param deviceIndex the device.
      * @param channelCount the channels to be used.
      * @param sampleFormat the sample format.
+     * @param suggestedLatency the suggested latency in milliseconds:
+     *          LATENCY_UNSEPCIFIED -
+     *              use default(default high input/output latency)
+     *          LATENCY_HIGH - use default high input/output latency
+     *          LATENCY_LOW - use default low input/output latency
+     *          ... - any other value in milliseconds (e.g. 0.1 is acceptable)
      * @return pointer to the params used for Pa_OpenStream.
      */
     public static native long PaStreamParameters_new(
         int deviceIndex,
         int channelCount,
-        long sampleFormat);
+        long sampleFormat,
+        double suggestedLatency);
 
     /**
      * Prevents the creation of <code>PortAudio</code> instances.

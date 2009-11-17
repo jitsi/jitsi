@@ -12,6 +12,7 @@ import java.net.*;
 import javax.sound.sampled.*;
 
 import net.java.sip.communicator.impl.media.protocol.portaudio.*;
+import net.java.sip.communicator.impl.media.protocol.portaudio.streams.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -95,8 +96,8 @@ public class PortAudioClipImpl
     private class PlayThread
         implements Runnable
     {
-        private long portAudioStream = 0;
         byte[] buffer = new byte[1024];
+        private OutputPortAudioStream portAudioStream = null;
 
         public void run()
         {
@@ -108,59 +109,37 @@ public class PortAudioClipImpl
                         AudioSystem.getAudioInputStream(url);
                     AudioFormat audioStreamFormat = audioStream.getFormat();
 
-                    if (portAudioStream == 0)
+                    if (portAudioStream == null)
                     {
                         int deviceIndex =
                             PortAudioUtils.getDeviceIndexFromLocator(
                                         audioNotifier.getDeviceConfiguration().
                                         getAudioNotifyDevice().getLocator());
-                        long devInfo = PortAudio.Pa_GetDeviceInfo(deviceIndex);
-                        int maxOutChannels =
-                            PortAudio.PaDeviceInfo_getMaxOutputChannels(devInfo);
 
-                        int outChannels = audioStreamFormat.getChannels();
-                        if(outChannels > maxOutChannels)
-                            outChannels = maxOutChannels;
-
-                        double sampleRate =
-                            audioStreamFormat.getSampleRate();
-
-                        long streamParameters
-                            = PortAudio.PaStreamParameters_new(
-                                    deviceIndex,
-                                    outChannels,
-                                    PortAudioUtils.getPortAudioSampleFormat(
-                                        audioStreamFormat.getSampleSizeInBits()));
-
-                        portAudioStream
-                            = PortAudio.Pa_OpenStream(
-                                    0,
-                                    streamParameters,
-                                    sampleRate,
-                                    PortAudio.FRAMES_PER_BUFFER_UNSPECIFIED,
-                                    PortAudio.STREAM_FLAGS_NO_FLAG,
-                                    null);
-
-                        PortAudio.Pa_StartStream(portAudioStream);
+                        portAudioStream = PortAudioManager.getInstance().
+                            getOutputStream(
+                                deviceIndex,
+                                audioStreamFormat.getSampleRate(),
+                                audioStreamFormat.getChannels(),
+                                PortAudioUtils.getPortAudioSampleFormat(
+                                    audioStreamFormat.getSampleSizeInBits()));
+                        portAudioStream.start();
                     }
 
                     if(!started)
                     {
-                        PortAudio.Pa_CloseStream(portAudioStream);
+                        portAudioStream.stop();
                         return;
                     }
 
                     while(audioStream.read(buffer) != -1)
                     {
-                        PortAudio.Pa_WriteStream(
-                            portAudioStream, 
-                            buffer,
-                            buffer.length/audioStreamFormat.getFrameSize());
+                        portAudioStream.write(buffer);
                     }
 
                     if(!isLooping())
                     {
-                        PortAudio.Pa_CloseStream(portAudioStream);
+                        portAudioStream.stop();
                         break;
                     }
                     else

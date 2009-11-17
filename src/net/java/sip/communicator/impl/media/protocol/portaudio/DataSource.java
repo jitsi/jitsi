@@ -11,6 +11,7 @@ import java.util.*;
 
 import javax.media.*;
 import javax.media.control.*;
+import javax.media.format.*;
 import javax.media.protocol.*;
 
 /**
@@ -29,7 +30,29 @@ public class DataSource
 
     private boolean started = false;
 
-    private PortAudioStream[] streams = null;
+    private DSAudioStream[] streams = null;
+
+    private static AudioFormat captureAudioFormat =
+        new AudioFormat(
+                AudioFormat.LINEAR,
+                  8000,
+                  16,
+                  1,
+                  AudioFormat.LITTLE_ENDIAN,
+                  AudioFormat.SIGNED,
+                  16,
+                  Format.NOT_SPECIFIED,
+                  Format.byteArray);
+
+    /**
+     * Return the formats supported by the datasource.
+     *
+     * @return the supported formats.
+     */
+    public static Format getCaptureFormat()
+    {
+        return captureAudioFormat;
+    }
 
     /**
      * Connect the datasource
@@ -40,17 +63,6 @@ public class DataSource
     {
         if (connected)
             return;
-
-        try
-        {
-            PortAudio.initialize();
-        }
-        catch (PortAudioException paex)
-        {
-            IOException ioex = new IOException();
-            ioex.initCause(paex);
-            throw ioex;
-        }
 
         connected = true;
     }
@@ -186,15 +198,15 @@ public class DataSource
         try
         {
             if (streams == null)
-                streams = new PortAudioStream[]
-                    {new PortAudioStream(getLocator())};
+                streams = new DSAudioStream[]
+                    {new DSAudioStream(getLocator())};
         }
         catch (Exception e)
         {
             e.printStackTrace();
             // if we cannot parse desired device we will not open a stream
             // so there is no stream returned
-            streams = new PortAudioStream[0];
+            streams = new DSAudioStream[0];
         }
 
         return streams;

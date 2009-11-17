@@ -3,7 +3,18 @@
 #include <portaudio.h>
 #include <stdlib.h>
 #include <speex/speex_resampler.h>
+#include <speex/speex_preprocess.h>
+#include <speex/speex_echo.h>
 #include <math.h>
+#include <time.h>
+//#include <sys/time.h> //used on windows
+
+typedef struct
+{
+    long time;
+    short *data;
+    struct Buffer *next;
+} Buffer;
 
 typedef struct
 {
@@ -15,10 +26,23 @@ typedef struct
 	jmethodID streamFinishedCallbackMethodID;
 	long inputFrameSize;
 	long outputFrameSize;
+    double samplerate;
 
-    SpeexResamplerState *resampler;
-    double resampleFactor;
-    int channelCount;
+    SpeexResamplerState *outputResampler;
+    double outputResampleFactor;
+    int outputChannelCount;
+
+    SpeexPreprocessState *preprocessor;
+    SpeexResamplerState *inputResampler;
+    double inputResampleFactor;
+    int inputChannelCount;
+
+    SpeexEchoState *echoState;
+    struct PortAudioStream *connectedToStream;
+    int startCaching;
+
+    Buffer *first;
+    Buffer *last;
 }
 PortAudioStream;
 
@@ -43,6 +67,101 @@ static void PortAudioStream_free(JNIEnv *env, PortAudioStream *stream);
 static PortAudioStream * PortAudioStream_new(
 	JNIEnv *env, jobject streamCallback);
 
+static void clear(PortAudioStream *st)
+{
+    int cleared = 0;
+    Buffer *curr = st->first;
+    while(curr != NULL)
+    {
+        Buffer *n = curr->next;
+        free(curr->data);
+        free(curr);
+        curr = n;
+        cleared++;
+    }
+
+/*
+    if(cleared > 0)
+        printf("cleared %d\n", cleared);fflush(stdout);
+*/
+
+    st->first = NULL;
+    st->last = NULL;
+}
+
+static void addBuffer(PortAudioStream *st, Buffer *b)
+{
+    if(st->last != NULL)
+    {
+        st->last->next = b;
+        st->last = b;
+    }
+    else
+    {
+        st->first = b;
+        st->last = b;
+    }
+}
+
+static Buffer* getBuffer(PortAudioStream *st, int time)
+{
+    if(st->first == NULL)
+        return NULL;
+
+    Buffer *res = st->first;
+
+    st->first = st->first->next;
+
+    if(st->first == NULL)
+    {
+        st->last = NULL;
+    }
+
+    return res;
+}
+
+JNIEXPORT void JNICALL
+Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_setEchoCancelParams
+  (JNIEnv *env, jclass clazz, 
+  jlong instream, jlong outstream,
+  jboolean enableDenoise, 
+  jboolean enableEchoCancel, jint frameSize, jint filterLength)
+{
+    PortAudioStream *inAudioStream = (PortAudioStream *) instream;
+    PortAudioStream *outAudioStream = (PortAudioStream *) outstream;
+
+    // only if denoise is enabled and preprocessor is not created
+    if(enableDenoise && inAudioStream->preprocessor == NULL)
+    {
+        SpeexPreprocessState *pp =
+                speex_preprocess_state_init(frameSize, inAudioStream->samplerate);
+        inAudioStream->preprocessor = pp;
+
+        int option = 1;
+        speex_preprocess_ctl(pp, SPEEX_PREPROCESS_SET_DENOISE, &option);
+        option = 2;
+        speex_preprocess_ctl(pp, SPEEX_PREPROCESS_SET_VAD, &option);
+    }
+
+    if(enableEchoCancel && outAudioStream != 0)
+    {
+        if(inAudioStream->preprocessor == NULL)
+            inAudioStream->preprocessor =
+                speex_preprocess_state_init(frameSize, inAudioStream->samplerate);
+
+        inAudioStream->echoState =
+            speex_echo_state_init(frameSize, filterLength);
+
+        speex_preprocess_ctl(
+            inAudioStream->preprocessor,
+            SPEEX_PREPROCESS_SET_ECHO_STATE,
+            inAudioStream->echoState);
+
+        inAudioStream->connectedToStream = outAudioStream;
+        outAudioStream->connectedToStream = inAudioStream;
+    }
+}
+
 JNIEXPORT jint JNICALL
 Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1GetDefaultInputDevice
   (JNIEnv *env, jclass clazz)
@@ -64,13 +183,37 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1Close
 	PortAudioStream *portAudioStream = (PortAudioStream *) stream;
 	PaError errorCode = Pa_CloseStream(portAudioStream->stream);
 
-    if(portAudioStream->resampleFactor != 1)
-        speex_resampler_destroy(portAudioStream->resampler);
+    if(portAudioStream->outputResampleFactor != 1.0)
+        speex_resampler_destroy(portAudioStream->outputResampler);
+
+    if(portAudioStream->inputResampleFactor != 1.0)
+    {
+        speex_resampler_destroy(portAudioStream->inputResampler);
+
+        if(portAudioStream->preprocessor != NULL)
+            speex_preprocess_state_destroy(portAudioStream->preprocessor);
+
+        if(portAudioStream->echoState != NULL)
+        {
+            speex_echo_state_destroy(portAudioStream->echoState);
+        }        
+        clear(portAudioStream);
+    }
 
 	if (paNoError != errorCode)
 		PortAudio_throwException(env, errorCode);
 	else
 		PortAudioStream_free(env, portAudioStream);
+}
+
+JNIEXPORT void JNICALL
+Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1AbortStream
+  (JNIEnv *env, jclass clazz, jlong stream)
+{
+    PaError errorCode = Pa_AbortStream(((PortAudioStream *) stream)->stream);
+
+    if (paNoError != errorCode)
+		PortAudio_throwException(env, errorCode);
 }
 
 JNIEXPORT jint JNICALL
@@ -134,22 +277,49 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1OpenS
 			streamCallback ? PortAudioStream_callback : NULL,
 			stream);
 
-    stream->resampleFactor = DEFAULT_SAMPLE_RATE / sampleRate;
+    stream->samplerate = sampleRate;
 
-    if(stream->resampleFactor != 1.0)
+    if(outputStreamParameters)
     {
-        if(inputStreamParameters)
-            stream->channelCount = inputStreamParameters->channelCount;
-        else
-            stream->channelCount = outputStreamParameters->channelCount;
+        stream->outputResampleFactor = DEFAULT_SAMPLE_RATE / sampleRate;
+        if(stream->outputResampleFactor != 1.0)
+        {
+            stream->outputChannelCount = outputStreamParameters->channelCount;
 
-        // resample quality 3 is for voip
-        stream->resampler = speex_resampler_init(
-            stream->channelCount, sampleRate, DEFAULT_SAMPLE_RATE, 3, NULL);
+            // resample quality 3 is for voip
+            stream->outputResampler = speex_resampler_init(
+                stream->outputChannelCount, sampleRate, DEFAULT_SAMPLE_RATE, 3, NULL);
+        }
     }
+    else
+        stream->outputResampleFactor = 1.0;
+    
+    if(inputStreamParameters)
+    {
+        stream->inputResampleFactor = DEFAULT_SAMPLE_RATE / sampleRate;
+
+        if(stream->inputResampleFactor != 1.0)
+        {
+            stream->inputChannelCount = inputStreamParameters->channelCount;
+
+            // resample quality 3 is for voip
+            stream->inputResampler = speex_resampler_init(
+                stream->inputChannelCount, DEFAULT_SAMPLE_RATE, sampleRate, 3, NULL);
+
+            stream->inputFrameSize
+				= PortAudio_getFrameSize(inputStreamParameters);
+        }
+    }
+    else
+        stream->inputResampleFactor = 1.0;
 
 	if (paNoError == errorCode)
 	{
+        stream->outputFrameSize
+				= PortAudio_getFrameSize(outputStreamParameters);
+        stream->inputFrameSize
+				= PortAudio_getFrameSize(inputStreamParameters);
+
 		if (streamCallback)
 		{
 			stream->inputFrameSize
@@ -199,36 +369,56 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1Write
 {
 	jbyte* data = (*env)->GetByteArrayElements(env, buffer, NULL);
 
-	if (data)
+    PortAudioStream *outStream = (PortAudioStream *) stream;
+    if (data)
 	{
         PaError errorCode;
 
-        if(((PortAudioStream *) stream)->resampleFactor != 1)
+        if(outStream->outputResampleFactor != 1)
         {
             spx_uint32_t out_len;
             out_len = lrint(
                 frames
-                *((PortAudioStream *) stream)->channelCount
-                *((PortAudioStream *) stream)->resampleFactor);
+                *outStream->outputChannelCount
+                *outStream->outputResampleFactor);
 
             short res[out_len];
-            int l = frames;
             speex_resampler_process_interleaved_int(
-                    ((PortAudioStream *) stream)->resampler,
+                    outStream->outputResampler,
                     data,
-                    &l,
+                    &frames,
                     res,
                     &out_len);
 
             errorCode = Pa_WriteStream(
-                ((PortAudioStream *) stream)->stream,
+                outStream->stream,
                 res,
                 out_len);
+
+            
+            if(outStream->connectedToStream != NULL &&
+                ((PortAudioStream *)outStream->connectedToStream)->echoState != NULL &&
+                outStream->startCaching == 1)
+            {
+                struct timeval tv;
+                gettimeofday(&tv,NULL);
+
+                Buffer *b;
+                b = (Buffer*)malloc(sizeof(Buffer));
+                b->time = tv.tv_sec*1000 + tv.tv_usec/1000;
+
+                b->data = malloc(sizeof(short)*frames);
+                memcpy(b->data, data, sizeof(short)*frames);
+
+                b->next = NULL;
+
+                addBuffer(outStream, b);
+            }
         }
         else
         {
             errorCode = Pa_WriteStream(
-                ((PortAudioStream *) stream)->stream,
+                outStream->stream,
                 data,
                 frames);
         }
@@ -253,13 +443,105 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1ReadS
 {
     jbyte* data = (*env)->GetByteArrayElements(env, buffer, NULL);
 
+    PortAudioStream *inStream = (PortAudioStream *) stream;
     if (data)
     {
-        PaError errorCode
-            = Pa_ReadStream(
-                ((PortAudioStream *) stream)->stream,
+        PaError errorCode;
+        if(inStream->inputResampleFactor != 1)
+        {
+            spx_uint32_t in_len;
+            in_len = lrint(
+                frames
+                *inStream->inputChannelCount
+                *inStream->inputResampleFactor);
+
+            short res[in_len];
+
+            errorCode = Pa_ReadStream(
+                inStream->stream,
+                res,
+                frames*inStream->inputResampleFactor);
+
+            // if echo is enabled
+            if(inStream->echoState != NULL)
+            {
+                // lets say to player to start caching
+                if(inStream->connectedToStream != NULL)
+                {
+                    if(((PortAudioStream *)inStream->connectedToStream)->startCaching == 0)
+                        ((PortAudioStream *)inStream->connectedToStream)->startCaching = 1;
+                    else if(((PortAudioStream *)inStream->connectedToStream)->first != NULL)
+                    {
+                        short tempBuffer[160];
+
+                        speex_resampler_process_interleaved_int(
+                                inStream->inputResampler,
+                                res,
+                                &in_len,
+                                tempBuffer,
+                                //data,
+                                &frames);
+
+                        if(inStream->echoState != NULL)
+                        {
+                            struct timeval tv;
+                            gettimeofday(&tv,NULL);
+
+                            int time = tv.tv_sec*1000 + tv.tv_usec/1000;
+                            Buffer *b = getBuffer(
+                                (PortAudioStream *)inStream->connectedToStream, time);
+                            if(b != NULL)
+                            {
+                                short *t;
+                                t = b->data;
+                                speex_echo_cancellation(
+                                        inStream->echoState, tempBuffer, t, data);
+                                free(b);
+                            }
+                        }
+
+                        if(inStream->preprocessor != NULL)
+                            speex_preprocess_run(inStream->preprocessor, data);
+                    }
+                    else
+                    {
+                        // lets just do the job se we wont return empty data
+                        speex_resampler_process_interleaved_int(
+                            inStream->inputResampler,
+                            res,
+                            &in_len,
+                            data,
+                            &frames);
+
+                        if(inStream->preprocessor != NULL)
+                        {
+                            speex_preprocess_run(inStream->preprocessor, data);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                speex_resampler_process_interleaved_int(
+                        inStream->inputResampler,
+                        res,
+                        &in_len,
+                        data,
+                        &frames);
+
+                if(inStream->preprocessor != NULL)
+                {
+                    speex_preprocess_run(inStream->preprocessor, data);
+                }
+            }
+        }
+        else
+        {
+            errorCode = Pa_ReadStream(
+                inStream->stream,
                 data,
                 frames);
+        }
 
         (*env)->ReleaseByteArrayElements(env, buffer, data, 0);
 
@@ -272,7 +554,8 @@ JNIEXPORT jlong JNICALL
 Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1GetStreamReadAvailable
   (JNIEnv *env, jclass clazz, jlong stream)
 {
-    return Pa_GetStreamReadAvailable(((PortAudioStream *) stream)->stream);
+    return Pa_GetStreamReadAvailable(((PortAudioStream *) stream)->stream) /
+            ((PortAudioStream *) stream)->inputResampleFactor;
 }
 
 JNIEXPORT jlong JNICALL
@@ -421,7 +704,8 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaStreamP
 	jclass clazz,
 	jint deviceIndex,
 	jint channelCount,
-	jlong sampleFormat)
+	jlong sampleFormat,
+    jdouble suggestedLatency)
 {
 	PaStreamParameters *streamParameters
 		= (PaStreamParameters *) malloc(sizeof(PaStreamParameters));
@@ -431,7 +715,7 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaStreamP
 		streamParameters->device = deviceIndex;
 		streamParameters->channelCount = channelCount;
 		streamParameters->sampleFormat = sampleFormat;
-		streamParameters->suggestedLatency = 0;
+		streamParameters->suggestedLatency = suggestedLatency;
 		streamParameters->hostApiSpecificStreamInfo = NULL;
 	}
 	return (jlong) streamParameters;
@@ -441,14 +725,21 @@ static PaStreamParameters *
 PortAudio_fixInputParametersSuggestedLatency(
 	PaStreamParameters *inputParameters)
 {
-    if (inputParameters && (0 == inputParameters->suggestedLatency))
+    if (inputParameters)
     {
         PaDeviceInfo *deviceInfo = Pa_GetDeviceInfo(inputParameters->device);
 
         if (deviceInfo)
         {
-            inputParameters->suggestedLatency
-                    = deviceInfo->defaultLowInputLatency;
+            if(inputParameters->suggestedLatency ==
+                net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_LATENCY_LOW)
+                inputParameters->suggestedLatency =
+                    deviceInfo->defaultLowInputLatency;
+            else if(inputParameters->suggestedLatency ==
+                net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_LATENCY_HIGH
+                    || inputParameters->suggestedLatency == 0)
+                inputParameters->suggestedLatency =
+                    deviceInfo->defaultHighInputLatency;
         }
     }
     return inputParameters;
@@ -458,13 +749,22 @@ static PaStreamParameters *
 PortAudio_fixOutputParametersSuggestedLatency(
 	PaStreamParameters *outputParameters)
 {
-	if (outputParameters && (0 == outputParameters->suggestedLatency))
+	if (outputParameters)
 	{
 		PaDeviceInfo *deviceInfo = Pa_GetDeviceInfo(outputParameters->device);
 
 		if (deviceInfo)
-			outputParameters->suggestedLatency
-				= deviceInfo->defaultLowOutputLatency;
+        {
+            if(outputParameters->suggestedLatency ==
+                net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_LATENCY_LOW)
+                outputParameters->suggestedLatency =
+                    deviceInfo->defaultLowOutputLatency;
+            else if(outputParameters->suggestedLatency ==
+                net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_LATENCY_HIGH
+                    || outputParameters->suggestedLatency == 0)
+                outputParameters->suggestedLatency =
+                    deviceInfo->defaultHighOutputLatency;
+        }
 	}
 	return outputParameters;
 }
@@ -632,6 +932,12 @@ PortAudioStream_new(JNIEnv *env, jobject streamCallback)
 		return NULL;
 	}
 	stream->stream = NULL;
+    stream->preprocessor = NULL;
+    stream->echoState = NULL;
+    stream->first = NULL;
+    stream->last = NULL;
+    stream->connectedToStream = NULL;
+    stream->startCaching = 0;
 
 	if (streamCallback)
 	{

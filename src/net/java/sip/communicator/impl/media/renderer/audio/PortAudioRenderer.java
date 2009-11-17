@@ -10,6 +10,7 @@ import javax.media.*;
 import javax.media.format.*;
 
 import net.java.sip.communicator.impl.media.protocol.portaudio.*;
+import net.java.sip.communicator.impl.media.protocol.portaudio.streams.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -40,13 +41,11 @@ public class PortAudioRenderer
     private Object [] controls = new Object[0];
     private AudioFormat inputFormat;
 
-    private long stream = 0;
+    private OutputPortAudioStream stream = null;
 
     boolean started = false;
 
     private static int deviceIndex = -1;
-
-    private static int frameSize;
 
     /**
      * Lists the input formats supported by this Renderer.
@@ -84,7 +83,7 @@ public class PortAudioRenderer
     {
         try
         {
-            PortAudio.Pa_StartStream(stream);
+            stream.start();
             started = true;
         }
         catch (PortAudioException e)
@@ -101,7 +100,7 @@ public class PortAudioRenderer
         try
         {
             started = false;
-            PortAudio.Pa_CloseStream(stream);
+            stream.stop();
         }
         catch (PortAudioException e)
         {
@@ -127,8 +126,7 @@ public class PortAudioRenderer
 
         try
         {
-            PortAudio.Pa_WriteStream(
-                        stream, buff, buff.length/frameSize);
+            stream.write(buff);
         }
         catch (PortAudioException e)
         {
@@ -157,62 +155,14 @@ public class PortAudioRenderer
     {
         try
         {
-            if (stream == 0)
-            {
-                // lets try three times to open the device
-                // and wait 250 ms. between retries.
-                stream = openStreamRetring(3, 250);
-            }
+            stream = PortAudioManager.getInstance().getOutputStream(deviceIndex,
+                inputFormat.getSampleRate(), inputFormat.getChannels());
         }
         catch (PortAudioException e)
         {
             throw new ResourceUnavailableException(e.getMessage());
         }
     }
-
-    /**
-     * When opening the device notifications maybe running so we will retry
-     * opening the device.
-     * @param numOfRetries the number of tries to open the requested device.
-     * @param interval the interval to wait between retries in miliseconds.
-     * @return the stream pointer.
-     * @throws PortAudioException the exception to be thrown if device
-     *         fail to open and after the last try.
-     */
-    private long openStreamRetring(int numOfRetries, int interval)
-        throws PortAudioException
-    {
-        for(int i = 0; i < numOfRetries; i++)
-        {
-            try
-            {
-                 long streamParameters
-                     = PortAudio.PaStreamParameters_new(
-                             deviceIndex,
-                             inputFormat.getChannels(),
-                             PortAudio.SAMPLE_FORMAT_INT16);
-
-                return PortAudio.Pa_OpenStream(
-                             0,
-                             streamParameters,
-                             inputFormat.getSampleRate(),
-                             PortAudio.FRAMES_PER_BUFFER_UNSPECIFIED,
-                             PortAudio.STREAM_FLAGS_CLIP_OFF
-                                | PortAudio.STREAM_FLAGS_DITHER_OFF,
-                             null);
-             }
-            catch (PortAudioException e)
-            {
-                if(i == numOfRetries - 1)
-                    throw e;
-                else
-                    try
-                    {Thread.sleep(interval);}catch(InterruptedException ex){}
-            }
-         }
-
-        return 0;
-     }
 
     /**
      *  Closes the plug-in.
@@ -295,9 +245,5 @@ public class PortAudioRenderer
                       Format.NOT_SPECIFIED,
                       Format.byteArray);
         }
-
-        frameSize
-            = PortAudio.Pa_GetSampleSize(PortAudio.SAMPLE_FORMAT_INT16)
-                * outputChannels;
     }
 }

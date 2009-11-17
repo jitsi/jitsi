@@ -64,7 +64,7 @@ public class PortAudioAuto
                         PortAudio.PaDeviceInfo_getName(deviceInfo),
                         new MediaLocator(
                             PortAudioUtils.LOCATOR_PREFIX + deviceIndex),
-                        PortAudioStream.getFormats());
+                        new Format[]{DataSource.getCaptureFormat()});
 
             if(maxInputChannels > 0)
             {
