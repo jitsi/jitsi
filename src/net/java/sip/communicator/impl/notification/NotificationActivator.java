@@ -91,11 +91,14 @@ public class NotificationActivator
     {
         if (audioNotifierService == null)
         {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(AudioNotifierService.class.getName());
+            ServiceReference serviceReference
+                = bundleContext
+                    .getServiceReference(AudioNotifierService.class.getName());
 
-            audioNotifierService = (AudioNotifierService) bundleContext
-                .getService(serviceReference);
+            if (serviceReference != null)
+                audioNotifierService
+                    = (AudioNotifierService)
+                        bundleContext.getService(serviceReference);
         }
 
         return audioNotifierService;
