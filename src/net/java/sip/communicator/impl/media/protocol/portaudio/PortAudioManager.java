@@ -10,8 +10,8 @@ import net.java.sip.communicator.impl.media.protocol.portaudio.streams.*;
 import java.util.*;
 
 /**
- * Manages portaudio stream creation and setting nessecary properties when
- * using them.
+ * Manages PortAudio stream creation and setting necessary properties when using
+ * them.
  *
  * @author Damian Minkov
  */

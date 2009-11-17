@@ -11,6 +11,7 @@ import java.util.*;
 import javax.media.*;
 import javax.media.format.*;
 
+import net.java.sip.communicator.impl.media.protocol.portaudio.*;
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.util.*;
@@ -89,6 +90,18 @@ public class DeviceConfiguration
 
     private static final String PROP_VIDEO_DEVICE_IS_DISABLED =
         "net.java.sip.communicator.impl.neomedia.videodevIsDisabled";
+
+    private static final String PROP_AUDIO_ECHOCANCEL_ENABLED =
+        "net.java.sip.communicator.impl.neomedia.audio.echocancel";
+
+    private static final String PROP_AUDIO_ECHOCANCEL_TAIL =
+        "net.java.sip.communicator.impl.neomedia.audio.echocancel.tail";
+
+    private static final String PROP_AUDIO_DENOISE_ENABLED =
+        "net.java.sip.communicator.impl.neomedia.audio.denoise";
+
+    private static final String PROP_AUDIO_LATENCY =
+        "net.java.sip.communicator.impl.neomedia.audio.latency";
 
     private static final CaptureDeviceInfo[] NO_CAPTURE_DEVICES =
         new CaptureDeviceInfo[0];
@@ -202,6 +215,42 @@ public class DeviceConfiguration
             if (audioCaptureDevice != null)
                 logger.info("Found " + audioCaptureDevice.getName()
                     + " as an audio capture device.");
+
+            // now extract other sound related configs
+            try
+            {
+                boolean echoCancelEnabled =
+                    config.getBoolean(PROP_AUDIO_ECHOCANCEL_ENABLED,
+                        PortAudioManager.getInstance().isEnabledEchoCancel());
+                if(echoCancelEnabled)
+                {
+                    int echoCancelTail =
+                        config.getInt(PROP_AUDIO_ECHOCANCEL_TAIL,
+                            PortAudioManager.getInstance().getFilterLength());
+                    PortAudioManager.getInstance().setEchoCancel(
+                        echoCancelEnabled,
+                        PortAudioManager.getInstance().getFrameSize(),
+                        echoCancelTail);
+        }
+
+                boolean denoiseEnabled =
+                    config.getBoolean(PROP_AUDIO_DENOISE_ENABLED,
+                        PortAudioManager.getInstance().isEnabledDeNoise());
+                PortAudioManager.getInstance().setDeNoise(denoiseEnabled);
+
+                // suggested latency is saved in configuration as
+                // milliseconds but PortAudioManager use it as seconds
+                int audioLatency = config.getInt(PROP_AUDIO_LATENCY,
+                    (int)(PortAudioManager.getSuggestedLatency()*1000));
+                if(audioLatency !=
+                    (int)PortAudioManager.getSuggestedLatency()*1000)
+                        PortAudioManager.setSuggestedLatency(
+                            (double)audioLatency/1000d);
+            }
+            catch (Exception e)
+            {
+                logger.error("Error parsing audio config", e);
+            }
         }
 
         if (config.getBoolean(PROP_VIDEO_DEVICE_IS_DISABLED, false))
@@ -222,6 +271,12 @@ public class DeviceConfiguration
         }
     }
 
+    /**
+     * Returns the configured video capture device with the specified
+     * output format.
+     * @param format the output format of the video format.
+     * @return CaptureDeviceInfo for the video device.
+     */
     private CaptureDeviceInfo extractConfiguredVideoCaptureDevice(String format)
     {
         List<CaptureDeviceInfo> videoCaptureDevices =
@@ -280,7 +335,7 @@ public class DeviceConfiguration
     {
         Vector<CaptureDeviceInfo> audioCaptureDevices =
             CaptureDeviceManager.getDeviceList(new AudioFormat(
-                AudioFormat.LINEAR, 44100, 16, 1));// 1 means 1 channel for mono
+                AudioFormat.LINEAR, -1, 16, -1));
 
         return audioCaptureDevices.toArray(NO_CAPTURE_DEVICES);
     }
@@ -474,6 +529,11 @@ public class DeviceConfiguration
         return audioSystem;
     }
 
+    /**
+     * Extracts the audio system for the given device info.
+     * @param cdi the device
+     * @return the audio system used by the device.
+     */
     private String getAudioSystem(CaptureDeviceInfo cdi)
     {
         String res = null;
@@ -563,57 +623,53 @@ public class DeviceConfiguration
         }
         else if(name.equals(AUDIO_SYSTEM_PORTAUDIO))
         {
-            // changed to portaudio, so lets clear current device selection
-            // as we must select them
-            // if this is first time call devices will be already null
-            // and nothing will happen
-            setAudioCaptureDevice(null);
-            setAudioNotifyDevice(null);
-            setAudioPlaybackDevice(null);
+            // firts get anyconfig before we change it
+            String audioNotifyDevName =
+                config.getString(PROP_AUDIO_NOTIFY_DEVICE);
 
-            // we don't save anything cause it will be saved
-            // when the devices are stored
-            // if nothing is set we consider it as not configured
-            // so when we restart we will end up with default config
-            // till restart will use latest config
+            String audioPlaybackDevName =
+                config.getString(PROP_AUDIO_PLAYBACK_DEVICE);
+
+            // changed to portaudio, so lets first set the default devices
+            setAudioPlaybackDevice(PortAudioAuto.defaultPlaybackDevice);
+            setAudioNotifyDevice(PortAudioAuto.defaultPlaybackDevice);
 
             // capture device is not null when we are called for the
             // first time, we will also extract playback devices here
             if(captureDevice != null)
             {
-                setAudioCaptureDevice(captureDevice);
+                this.audioCaptureDevice = captureDevice;
 
-                String audioDevName = config.getString(PROP_AUDIO_NOTIFY_DEVICE);
-                if(audioDevName != null)
+                if(audioNotifyDevName != null)
                 {
                     for (CaptureDeviceInfo captureDeviceInfo :
                             PortAudioAuto.playbackDevices)
                     {
-                        if (audioDevName.equals(captureDeviceInfo.getName()))
+                        if (audioNotifyDevName.equals(
+                                captureDeviceInfo.getName()))
                         {
-                            this.audioNotifyDevice = captureDeviceInfo;
+                            setAudioNotifyDevice(captureDeviceInfo);
                             break;
                         }
                     }
                 }
 
-                audioDevName = config.getString(PROP_AUDIO_PLAYBACK_DEVICE);
-                if(audioDevName != null)
+                if(audioPlaybackDevName != null)
                 {
                     for (CaptureDeviceInfo captureDeviceInfo :
                             PortAudioAuto.playbackDevices)
                     {
-                        if (audioDevName.equals(captureDeviceInfo.getName()))
+                        if (audioPlaybackDevName.equals(
+                                captureDeviceInfo.getName()))
                         {
-                            this.audioPlaybackDevice = captureDeviceInfo;
-                            setDeviceToRenderer(audioPlaybackDevice);
-                            removeJavaSoundRenderer();
-                            initPortAudioRenderer();
+                            setAudioPlaybackDevice(captureDeviceInfo);
                             break;
                         }
                     }
                 }
             }
+            else // no capture device specified save default
+                setAudioCaptureDevice(PortAudioAuto.defaultCaptureDevice);
 
             // return here to prevent clearing the last config that was saved
             return;
@@ -642,6 +698,9 @@ public class DeviceConfiguration
         PlugInManager.RENDERER);
     }
 
+    /**
+     * Removes javasound renderer.
+     */
     private void removeJavaSoundRenderer()
     {
         PlugInManager.removePlugIn(
@@ -649,6 +708,9 @@ public class DeviceConfiguration
             PlugInManager.RENDERER);
     }
 
+    /**
+     * Removed portaudio renderer.
+     */
     private void removePortAudioRenderer()
     {
         PlugInManager.removePlugIn(
@@ -656,6 +718,9 @@ public class DeviceConfiguration
         PlugInManager.RENDERER);
     }
 
+    /**
+     * Registers javasound renderer.
+     */
     private void initJavaSoundRenderer()
     {
         try
@@ -674,6 +739,10 @@ public class DeviceConfiguration
         }
     }
 
+    /**
+     * Sets the device to be used by portaudio renderer.
+     * @param devInfo
+     */
     private void setDeviceToRenderer(CaptureDeviceInfo devInfo)
     {
         // no need to change device to renderer it will not be used anyway
@@ -769,6 +838,77 @@ public class DeviceConfiguration
 
             firePropertyChange(AUDIO_NOTIFY_DEVICE,
                 oldDev, audioNotifyDevice);
+        }
+    }
+
+    /**
+     * Change the state of echo cancel configuration
+     * @param enabled true if enabled
+     */
+    public void setEchoCancel(boolean enabled)
+    {
+        try
+        {
+            PortAudioManager.getInstance().setEchoCancel(
+                enabled,
+                PortAudioManager.getInstance().getFrameSize(),
+                PortAudioManager.getInstance().getFilterLength());
+            NeomediaActivator.getConfigurationService()
+                .setProperty(PROP_AUDIO_ECHOCANCEL_ENABLED, enabled);
+        }
+        catch (PortAudioException ex)
+        {
+            logger.error("Error setting echocancel config", ex);
+        }
+    }
+
+    /**
+     * Change the state of noise suppression configuration
+     * @param enabled true if enabled
+     */
+    public void setDenoise(boolean enabled)
+    {
+        try
+        {
+            PortAudioManager.getInstance().setDeNoise(enabled);
+            NeomediaActivator.getConfigurationService()
+                .setProperty(PROP_AUDIO_DENOISE_ENABLED, enabled);
+        }
+        catch (PortAudioException ex)
+        {
+            logger.error("Error setting denoise config", ex);
+        }
+    }
+
+    /**
+     * Returns the state of echo cancel configuration.
+     * @return state of echo cancel.
+     */
+    public boolean isEchoCancelEnabled()
+    {
+        try
+        {
+            return PortAudioManager.getInstance().isEnabledEchoCancel();
+        }
+        catch (PortAudioException e)
+        {
+            return false;
+        }
+    }
+
+    /**
+     * Returns the state of noise suppression configuration.
+     * @return state of noise suppression.
+     */
+    public boolean isDenoiseEnabled()
+    {
+        try
+        {
+            return PortAudioManager.getInstance().isEnabledDeNoise();
+        }
+        catch (PortAudioException e)
+        {
+            return false;
         }
     }
 }

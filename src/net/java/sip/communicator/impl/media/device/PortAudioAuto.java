@@ -7,16 +7,17 @@
 package net.java.sip.communicator.impl.media.device;
 
 import java.util.*;
-import javax.media.*;
-import net.java.sip.communicator.impl.media.protocol.portaudio.*;
 
+import javax.media.*;
+
+import net.java.sip.communicator.impl.media.protocol.portaudio.*;
 import net.java.sip.communicator.util.*;
 
 import com.sun.media.util.*;
 
 /**
- * Creates Portaudio capture devices by enumarating all the
- * host devices that has input channels.
+ * Creates PortAudio capture devices by enumerating all host devices that have
+ * input channels.
  *
  * @author Damian Minkov
  */
