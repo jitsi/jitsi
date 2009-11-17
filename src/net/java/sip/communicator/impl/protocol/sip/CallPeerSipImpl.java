@@ -24,6 +24,7 @@ import net.java.sip.communicator.util.*;
  * Our SIP implementation of the default CallPeer;
  *
  * @author Emil Ivov
+ * @author Lubomir Marinov
  */
 public class CallPeerSipImpl
     extends AbstractCallPeer
@@ -81,12 +82,6 @@ public class CallPeerSipImpl
     private InetSocketAddress transportAddress = null;
 
     /**
-     * A reference to the <tt>SipMessageFactory</tt> instance that we should
-     * use when creating requests.
-     */
-    private final SipMessageFactory messageFactory;
-
-    /**
      * The media handler class handles all media management for a single
      * <tt>CallPeer</tt>. This includes initializing and configuring streams,
      * generating SDP, handling ICE, etc. One instance of <tt>CallPeer</tt> always
@@ -100,6 +95,19 @@ public class CallPeerSipImpl
      * {@link #mediaHandler} for changes in the values of its properties.
      */
     private PropertyChangeListener mediaHandlerPropertyChangeListener;
+
+    /**
+     * A reference to the <tt>SipMessageFactory</tt> instance that we should
+     * use when creating requests.
+     */
+    private final SipMessageFactory messageFactory;
+
+    /**
+     * The <tt>List</tt> of <tt>MethodProcessorListener</tt>s interested in how
+     * this <tt>CallPeer</tt> processes SIP signaling.
+     */
+    private final List<MethodProcessorListener> methodProcessorListeners
+        = new LinkedList<MethodProcessorListener>();
 
     /**
      * The <tt>List</tt> of <tt>PropertyChangeListener</tt>s listening to this
@@ -492,6 +500,13 @@ public class CallPeerSipImpl
         {
             response = messageFactory.createResponse(Response.OK, invite);
 
+            /*
+             * If the local peer represented by the Call of this CallPeer is
+             * acting as a conference focus, it must indicate it in its Contact
+             * header.
+             */
+            reflectConferenceFocus(response);
+
             String sdpAnswer;
             if(sdpOffer != null)
                 sdpAnswer = getMediaHandler().processOffer( sdpOffer );
@@ -517,6 +532,8 @@ public class CallPeerSipImpl
         }
 
         reevalRemoteHoldStatus();
+
+        fireRequestProcessed(invite, response);
     }
 
     /**
@@ -878,6 +895,8 @@ public class CallPeerSipImpl
         // change status
         if (!CallPeerState.isOnHold(getState()))
             setState(CallPeerState.CONNECTED);
+
+        fireResponseProcessed(ok, null);
     }
 
     /**
@@ -1098,11 +1117,18 @@ public class CallPeerSipImpl
         }
 
         ServerTransaction serverTransaction = (ServerTransaction) transaction;
+        Request invite = serverTransaction.getRequest();
         Response ok = null;
         try
         {
-            ok = messageFactory.createResponse(
-                            Response.OK, serverTransaction.getRequest());
+            ok = messageFactory.createResponse(Response.OK, invite);
+
+            /*
+             * If the local peer represented by the Call of this CallPeer is
+             * acting as a conference focus, it must indicate it in its Contact
+             * header.
+             */
+            reflectConferenceFocus(ok);
         }
         catch (ParseException ex)
         {
@@ -1137,7 +1163,6 @@ public class CallPeerSipImpl
             // extract the SDP description.
             // beware: SDP description may be in ACKs so it could be that there's
             // nothing here - bug report Laurent Michel
-            Request invite = getLatestInviteTransaction().getRequest();
             ContentLengthHeader cl = invite.getContentLength();
             if (cl != null && cl.getContentLength() > 0)
             {
@@ -1182,6 +1207,8 @@ public class CallPeerSipImpl
                 "Failed to send an OK response to an INVITE request",
                 OperationFailedException.NETWORK_FAILURE, ex, logger);
         }
+
+        fireRequestProcessed(invite, ok);
     }
 
     /**
@@ -1215,8 +1242,20 @@ public class CallPeerSipImpl
     }
 
     /**
+     * Sends a reINVITE request to this <tt>CallPeer</tt> within its current
+     * <tt>Dialog</tt>.
+     *
+     * @throws OperationFailedException if sending the reINVITE request fails
+     */
+    void sendReInvite()
+        throws OperationFailedException
+    {
+        sendReInvite(getMediaHandler().createOffer());
+    }
+
+    /**
      * Sends a reINVITE request with a specific <tt>sdpOffer</tt> (description)
-     * within the current <tt>Dialog</tt> with a the call peer represented by
+     * within the current <tt>Dialog</tt> with the call peer represented by
      * this instance.
      *
      * @param sdpOffer the offer that we'd like to use for the newly created
@@ -1233,8 +1272,16 @@ public class CallPeerSipImpl
 
         try
         {
+            // Content-Type
             invite.setContent(sdpOffer, getProtocolProvider().getHeaderFactory()
                 .createContentTypeHeader("application", "sdp"));
+
+            /*
+             * If the local peer represented by the Call of this CallPeer is
+             * acting as a conference focus, it must indicate it in its Contact
+             * header.
+             */
+            reflectConferenceFocus(invite);
         }
         catch (ParseException ex)
         {
@@ -1260,17 +1307,27 @@ public class CallPeerSipImpl
     public void invite()
         throws OperationFailedException
     {
-        ClientTransaction inviteTran;
         try
         {
-            inviteTran = (ClientTransaction)getLatestInviteTransaction();
+            ClientTransaction inviteTran
+                = (ClientTransaction) getLatestInviteTransaction();
+            Request invite = inviteTran.getRequest();
 
-            ContentTypeHeader contentTypeHeader = getProtocolProvider()
-                .getHeaderFactory().createContentTypeHeader(
-                    "application", "sdp");
+            // Content-Type
+            ContentTypeHeader contentTypeHeader
+                = getProtocolProvider()
+                    .getHeaderFactory()
+                        .createContentTypeHeader("application", "sdp");
 
-            inviteTran.getRequest().setContent(getMediaHandler().createOffer(),
-                          contentTypeHeader);
+            invite
+                .setContent(getMediaHandler().createOffer(), contentTypeHeader);
+
+            /*
+             * If the local peer represented by the Call of this CallPeer is
+             * acting as a conference focus, it must indicate it in its Contact
+             * header.
+             */
+            reflectConferenceFocus(invite);
 
             inviteTran.sendRequest();
             if (logger.isDebugEnabled())
@@ -1281,6 +1338,33 @@ public class CallPeerSipImpl
             ProtocolProviderServiceSipImpl.throwOperationFailedException(
                 "An error occurred while sending invite request",
                 OperationFailedException.NETWORK_FAILURE, ex, logger);
+        }
+    }
+
+    /**
+     * Reflects the value of the <tt>conferenceFocus</tt> property of the
+     * <tt>Call</tt> of this <tt>CallPeer</tt> in the specified SIP
+     * <tt>Message</tt>.
+     *
+     * @param message the SIP <tt>Message</tt> in which the value of the
+     * <tt>conferenceFocus</tt> property of the <tt>Call</tt> of this
+     * <tt>CallPeer</tt> is to be reflected
+     * @throws ParseException if modifying the specified SIP <tt>Message</tt> to
+     * reflect the <tt>conferenceFocus</tt> property of the <tt>Call</tt> of
+     * this <tt>CallPeer</tt> fails
+     */
+    private void reflectConferenceFocus(javax.sip.message.Message message)
+        throws ParseException
+    {
+        ContactHeader contactHeader
+            = (ContactHeader) message.getHeader(ContactHeader.NAME);
+
+        if (contactHeader != null)
+        {
+            if (getCall().isConferenceFocus())
+                contactHeader.setParameter("isfocus", "");
+            else
+                contactHeader.removeParameter("isfocus");
         }
     }
 
@@ -1427,6 +1511,97 @@ public class CallPeerSipImpl
 //                            mediaHandlerPropertyChangeListener);
                     mediaHandlerPropertyChangeListener = null;
                 }
+            }
+    }
+
+    /**
+     * Registers a specific <tt>MethodProcessorListener</tt> with this
+     * <tt>CallPeer</tt> so that it gets notified by this instance about the
+     * processing of SIP signaling. If the specified <tt>listener</tt> is
+     * already registered with this instance, does nothing
+     *
+     * @param listener the <tt>MethodProcessorListener</tt> to be registered
+     * with this <tt>CallPeer</tt> so that it gets notified by this instance
+     * about the processing of SIP signaling
+     */
+    void addMethodProcessorListener(MethodProcessorListener listener)
+    {
+        if (listener == null)
+            throw new NullPointerException("listener");
+
+        synchronized (methodProcessorListeners)
+        {
+            if (!methodProcessorListeners.contains(listener))
+                methodProcessorListeners.add(listener);
+        }
+    }
+
+    /**
+     * Notifies the <tt>MethodProcessorListener</tt>s registered with this
+     * <tt>CallPeer</tt> that it has processed a specific SIP <tt>Request</tt>
+     * by sending a specific SIP <tt>Response</tt>.
+     *
+     * @param request the SIP <tt>Request</tt> processed by this
+     * <tt>CallPeer</tt>
+     * @param response the SIP <tt>Response</tt> this <tt>CallPeer</tt> sent as
+     * part of its processing of the specified <tt>request</tt>
+     */
+    protected void fireRequestProcessed(Request request, Response response)
+    {
+        Iterable<MethodProcessorListener> listeners;
+
+        synchronized (methodProcessorListeners)
+        {
+            listeners
+                = new LinkedList<MethodProcessorListener>(
+                        methodProcessorListeners);
+        }
+
+        for (MethodProcessorListener listener : listeners)
+            listener.requestProcessed(this, request, response);
+    }
+
+    /**
+     * Notifies the <tt>MethodProcessorListener</tt>s registered with this
+     * <tt>CallPeer</tt> that it has processed a specific SIP <tt>Response</tt>
+     * by sending a specific SIP <tt>Request</tt>.
+     *
+     * @param response the SIP <tt>Response</tt> processed by this
+     * <tt>CallPeer</tt>
+     * @param request the SIP <tt>Request</tt> this <tt>CallPeer</tt> sent as
+     * part of its processing of the specified <tt>response</tt>
+     */
+    protected void fireResponseProcessed(Response response, Request request)
+    {
+        Iterable<MethodProcessorListener> listeners;
+
+        synchronized (methodProcessorListeners)
+        {
+            listeners
+                = new LinkedList<MethodProcessorListener>(
+                        methodProcessorListeners);
+        }
+
+        for (MethodProcessorListener listener : listeners)
+            listener.responseProcessed(this, response, request);
+    }
+
+    /**
+     * Unregisters a specific <tt>MethodProcessorListener</tt> from this
+     * <tt>CallPeer</tt> so that it no longer gets notified by this instance
+     * about the processing of SIP signaling. If the specified <tt>listener</tt>
+     * is not registered with this instance, does nothing.
+     *
+     * @param listener the <tt>MethodProcessorListener</tt> to be unregistered
+     * from this <tt>CallPeer</tt> so that it no longer gets notified by this
+     * instance about the processing of SIP signaling
+     */
+    void removeMethodProcessorListener(MethodProcessorListener listener)
+    {
+        if (listener != null)
+            synchronized (methodProcessorListeners)
+            {
+                methodProcessorListeners.remove(listener);
             }
     }
 

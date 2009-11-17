@@ -390,6 +390,7 @@ public class CallManager
             this.protocolProvider = protocolProvider;
         }
 
+        @Override
         public void run()
         {
             OperationSetTelephonyConferencing confOpSet
@@ -405,19 +406,31 @@ public class CallManager
             if (confOpSet == null)
                 return;
 
+            Throwable exception = null;
+
             try
             {
                 confOpSet.createConfCall(callees);
             }
-            catch (OperationNotSupportedException e)
+            catch (OperationFailedException ofe)
             {
-                logger.error("Failed to create conference call. " + e);
+                exception = ofe;
+            }
+            catch (OperationNotSupportedException onse)
+            {
+                exception = onse;
+            }
+            if (exception != null)
+            {
+                logger.error("Failed to create conference call. " + exception);
 
-                new ErrorDialog(null,
-                    GuiActivator.getResources()
-                        .getI18NString("service.gui.ERROR"),
-                    e.getMessage(),
-                    ErrorDialog.ERROR).showDialog();
+                new ErrorDialog(
+                        null,
+                        GuiActivator
+                            .getResources().getI18NString("service.gui.ERROR"),
+                        exception.getMessage(),
+                        ErrorDialog.ERROR)
+                    .showDialog();
             }
         }
     }
@@ -438,6 +451,7 @@ public class CallManager
             this.call = call;
         }
 
+        @Override
         public void run()
         {
             OperationSetTelephonyConferencing confOpSet
@@ -456,19 +470,33 @@ public class CallManager
 
             for (String callee : callees)
             {
+                Throwable exception = null;
+
                 try
                 {
                     confOpSet.inviteCalleeToCall(callee, call);
                 }
-                catch (OperationNotSupportedException e)
+                catch (OperationFailedException ofe)
                 {
-                    logger.error("Failed to invite callee: " + callee, e);
+                    exception = ofe;
+                }
+                catch (OperationNotSupportedException onse)
+                {
+                    exception = onse;
+                }
+                if (exception != null)
+                {
+                    logger
+                        .error("Failed to invite callee: " + callee, exception);
 
-                    new ErrorDialog(null,
-                        GuiActivator.getResources()
-                            .getI18NString("service.gui.ERROR"),
-                        e.getMessage(),
-                        ErrorDialog.ERROR).showDialog();
+                    new ErrorDialog(
+                            null,
+                            GuiActivator
+                                .getResources()
+                                    .getI18NString("service.gui.ERROR"),
+                            exception.getMessage(),
+                            ErrorDialog.ERROR)
+                        .showDialog();
                 }
             }
         }

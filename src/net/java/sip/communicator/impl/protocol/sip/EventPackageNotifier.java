@@ -423,23 +423,50 @@ public abstract class EventPackageNotifier
      * @param reason the reason for the specified subscription state
      *
      * @throws OperationFailedException if anything goes wrong while sending out
-     * notifications.
+     * the notifications.
      */
     public void notifyAll(String subscriptionState, String reason)
         throws OperationFailedException
     {
+        notifyAll(subscriptionState, reason, null);
+    }
+
+    /**
+     * Notifies all targets represented by the <tt>Subscription</tt>s managed by
+     * this instance which are accepted by a specific
+     * <tt>SubscriptionFilter</tt> about a specific subscription state and a
+     * specific reason for that subscription state via NOTIFY requests.
+     *
+     * @param subscriptionState the subscription state to be sent to all targets
+     * represented by the <tt>Subscription</tt>s managed by this instance which
+     * are accepted by <tt>filter</tt> via NOTIFY requests
+     * @param reason the reason for the specified subscription state
+     * @param filter the <tt>SubscriptionFilter</tt> to pick up the
+     * <tt>Subscription</tt>s managed by this instance to be notified about
+     * <tt>subscriptionState</tt>
+     * @throws OperationFailedException if anything goes wrong while sending out
+     * the notifications
+     */
+    public void notifyAll(
+            String subscriptionState,
+            String reason,
+            SubscriptionFilter filter)
+        throws OperationFailedException
+    {
         for (Subscription subscription : getSubscriptions())
-            notify(subscription, subscriptionState, reason);
+            if ((filter == null) || filter.accept(subscription))
+                notify(subscription, subscriptionState, reason);
     }
 
     /**
      * Processes incoming subscribe requests.
      *
-     * @param requestEvent the event containing the request we need to handle.
-     *
-     * @return <tt>true</tt> if we have handled and thus consumed the request
-     * and <tt>false</tt> otherwise.
+     * @param requestEvent the event containing the request we need to handle
+     * @return <tt>true</tt> if we have handled and thus consumed the request;
+     * <tt>false</tt>, otherwise
+     * @see MethodProcessor#processRequest(RequestEvent)
      */
+    @Override
     public boolean processRequest(RequestEvent requestEvent)
     {
         Request request = requestEvent.getRequest();
@@ -761,11 +788,12 @@ public abstract class EventPackageNotifier
     /**
      * Handles an incoming response to a request we'vre previously sent.
      *
-     * @param responseEvent the event we need to handle.
-     *
-     * @return <tt>true</tt> in case we've handles and thus consumed the event
-     * and <tt>false</tt> otherwise.
+     * @param responseEvent the event we need to handle
+     * @return <tt>true</tt> in case we've handles and thus consumed the event;
+     * <tt>false</tt>, otherwise
+     * @see MethodProcessor#processResponse(ResponseEvent)
      */
+    @Override
     public boolean processResponse(ResponseEvent responseEvent)
     {
         Response response = responseEvent.getResponse();
@@ -957,6 +985,29 @@ public abstract class EventPackageNotifier
         protected abstract byte[] createNotifyContent(
             String subscriptionState,
             String reason);
+    }
+
+    /**
+     * Represents a filter for <tt>Subscription</tt>s i.e. it determines whether
+     * a specific <tt>Subscription</tt> is to be selected or deselected by the
+     * caller of the filter.
+     */
+    public interface SubscriptionFilter
+    {
+
+        /**
+         * Determines whether the specified <tt>Subscription</tt> is accepted by
+         * this <tt>SubscriptionFilter</tt> i.e. whether the caller of this
+         * instance is to include or exclude the specified <tt>Subscription</tt>
+         * from their list of processed <tt>Subscription</tt>s.
+         *
+         * @param subscription the <tt>Subscription</tt> to be checked
+         * @return <tt>true</tt> if this <tt>SubscriptionFilter</tt> accepts
+         * the specified <tt>subscription</tt> i.e. the caller of this instance
+         * should include <tt>subscription</tt> in their list of processed
+         * <tt>Subscription</tt>s; otherwise, <tt>false</tt>
+         */
+        public boolean accept(Subscription subscription);
     }
 
     /**

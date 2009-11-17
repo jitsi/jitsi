@@ -143,7 +143,26 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
-     * Init and establish the specified call.
+     * Initializes a new outgoing <tt>Call</tt> with no peers in it. Intended
+     * for use by other <tt>OperationSet</tt>s willing to initialize
+     * <tt>Call</tt>s and willing to control their establishment in ways
+     * different than {@link #createOutgoingCall(Address, Message)}.
+     *
+     * @return a new outgoing <tt>Call</tt> with no peers in it
+     * @throws OperationFailedException if initializing the new outgoing
+     * <tt>Call</tt> fails
+     */
+    synchronized CallSipImpl createOutgoingCall()
+        throws OperationFailedException
+    {
+        assertRegistered();
+
+        return new CallSipImpl(this);
+    }
+
+    /**
+     * Initializes and establishes a new outgoing <tt>Call</tt> to a callee with
+     * a specific <tt>Address</tt>.
      *
      * @param calleeAddress the address of the callee that we'd like to connect
      * with.
@@ -163,9 +182,7 @@ public class OperationSetBasicTelephonySipImpl
     private synchronized CallSipImpl createOutgoingCall(Address calleeAddress,
         javax.sip.message.Message cause) throws OperationFailedException
     {
-        assertRegistered();
-
-        CallSipImpl call = new CallSipImpl(this);
+        CallSipImpl call = createOutgoingCall();
 
         call.invite(calleeAddress, cause);
 

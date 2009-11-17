@@ -162,15 +162,11 @@ public class ToolsMenu
             GuiActivator.getResources().getI18NString(
                 "service.gui.CREATE_CONFERENCE_CALL") + " (coming soon)");
 
-        // Disables the conference menu item until the work on this feature is
-        // completed and fully tested.
-        conferenceMenuItem.setEnabled(false);
-
-        this.add(conferenceMenuItem);
         conferenceMenuItem.setMnemonic(GuiActivator.getResources()
             .getI18nMnemonic("service.gui.CREATE_CONFERENCE_CALL"));
         conferenceMenuItem.setName("conference");
         conferenceMenuItem.addActionListener(this);
+        this.add(conferenceMenuItem);
     }
 
     private boolean registerConfigMenuItemMacOSX()

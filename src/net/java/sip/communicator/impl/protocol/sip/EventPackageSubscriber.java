@@ -401,7 +401,7 @@ public class EventPackageSubscriber
      *            subscription <tt>Address</tt>/Request URI and id tag of
      *            its Event header
      * @throws OperationFailedException if we fail constructing or sending the
-     * subsctiption request.
+     * subscription request.
      */
     public void poll(Subscription subscription)
         throws OperationFailedException
@@ -504,15 +504,21 @@ public class EventPackageSubscriber
         req.setHeader(expHeader);
     }
 
-    /*
-     * Implements MethodProcessor#processRequest(RequestEvent). Handles only
-     * NOTIFY requests because they are the only requests concerning event
+    /**
+     * Implements {@link MethodProcessor#processRequest(RequestEvent)}. Handles
+     * only NOTIFY requests because they are the only requests concerning event
      * package subscribers and if the processing of a given request requires
      * event package-specific handling, delivers the request to the matching
      * Subscription instance. Examples of such event package-specific handling
      * include handling the termination of an existing Subscription and
      * processing the bodies of the NOTIFY requests for active Subscriptions.
+     *
+     * @param requestEvent a <tt>RequestEvent</tt> specifying the SIP
+     * <tt>Request</tt> to be processed
+     * @return <tt>true</tt> if the SIP <tt>Request</tt> specified by
+     * <tt>requestEvent</tt> was processed; otherwise, <tt>false</tt>
      */
+    @Override
     public boolean processRequest(RequestEvent requestEvent)
     {
         Request request = requestEvent.getRequest();
@@ -704,16 +710,23 @@ public class EventPackageSubscriber
         return true;
     }
 
-    /*
-     * Implements MethodProcessor#processResponse(ResponseEvent). Handles only
-     * responses to SUBSCRIBE requests because they are the only requests
-     * concerning event package subscribers (and the only requests sent by them,
-     * for that matter) and if the processing of a given response requires event
-     * package-specific handling, delivers the response to the matching
-     * Subscription instance. Examples of such event package-specific handling
-     * include letting the respective Subscription handle the success or failure
-     * in the establishment of a subscription.
+    /**
+     * Implements {@link MethodProcessor#processResponse(ResponseEvent)}.
+     * Handles only responses to SUBSCRIBE requests because they are the only
+     * requests concerning event package subscribers (and the only requests sent
+     * by them, for that matter) and if the processing of a given response
+     * requires event package-specific handling, delivers the response to the
+     * matching <tt>Subscription</tt> instance. Examples of such event
+     * package-specific handling include letting the respective
+     * <tt>Subscription</tt> handle the success or failure in the establishment
+     * of a subscription.
+     *
+     * @param responseEvent a <tt>ResponseEvent</tt> specifying the SIP
+     * <tt>Response</tt> to be processed
+     * @return <tt>true</tt> if the SIP <tt>Response</tt> specified by
+     * <tt>responseEvent</tt> was processed; otherwise, <tt>false</tt>
      */
+    @Override
     public boolean processResponse(ResponseEvent responseEvent)
     {
         Response response = responseEvent.getResponse();
@@ -995,17 +1008,25 @@ public class EventPackageSubscriber
      *            the SUBSCRIBE request to be created and sent, to be added to
      *            the list of subscriptions managed by this instance
      * @throws OperationFailedException if we fail constructing or sending the
-     * subsctiption request.
+     * subscription request.
      */
     public void subscribe(Subscription subscription)
         throws OperationFailedException
     {
+        Dialog dialog = subscription.getDialog();
+
+        if ((dialog != null)
+                && DialogState.TERMINATED.equals(dialog.getState()))
+            dialog = null;
+
         //create the subscription
         ClientTransaction subscribeTransaction = null;
         try
         {
             subscribeTransaction
-                = createSubscription(subscription, subscriptionDuration);
+                = (dialog == null)
+                    ? createSubscription(subscription, subscriptionDuration)
+                    : createSubscription(subscription, dialog, subscriptionDuration);
         }
         catch (OperationFailedException ex)
         {
@@ -1024,7 +1045,10 @@ public class EventPackageSubscriber
         // send the message
         try
         {
-            subscribeTransaction.sendRequest();
+            if (dialog == null)
+                subscribeTransaction.sendRequest();
+            else
+                dialog.sendRequest(subscribeTransaction);
         }
         catch (SipException ex)
         {

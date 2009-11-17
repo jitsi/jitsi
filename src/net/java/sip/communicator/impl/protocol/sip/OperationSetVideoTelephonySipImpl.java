@@ -74,22 +74,20 @@ public class OperationSetVideoTelephonySipImpl
     }
 
     /**
-     * Implements OperationSetVideoTelephony#createLocalVisualComponent(
-     * CallPeer, VideoListener). Delegates to
-     * CallSession#createLocalVisualComponent(VideoListener) of the Call of the
-     * specified CallPeer because the CallSession manages the visual components
-     * which represent local video.
+     * Implements
+     * {@link OperationSetVideoTelephony#createLocalVisualComponent(CallPeer,
+     * VideoListener)}.
      *
      * @param peer the <tt>CallPeer</tt> that we are sending our local video to.
      * @param listener the <tt>VideoListener</tt> where we'd like to retrieve
      * the <tt>Component</tt> containing the local video.
-     *
      * @return the <tt>Component</tt> containing the local video.
-     *
      * @throws OperationFailedException if we fail extracting the local video.
      */
-    public Component createLocalVisualComponent(CallPeer peer,
-        VideoListener listener) throws OperationFailedException
+    public Component createLocalVisualComponent(
+            CallPeer peer,
+            VideoListener listener)
+        throws OperationFailedException
     {
         /**
          * @todo update to neomedia.
@@ -114,10 +112,9 @@ public class OperationSetVideoTelephonySipImpl
     }
 
     /**
-     * Implements OperationSetVideoTelephony#disposeLocalVisualComponent(
-     * CallPeer, Component). Delegates to CallSession#disposeLocalVisualComponent(
-     * Component) of the Call of the specified CallPeer because the
-     * CallSession manages the visual components which represent local video.
+     * Implements
+     * {@link OperationSetVideoTelephony#disposeLocalVisualComponent(CallPeer,
+     * Component)}.
      *
      * @param peer the <tt>CallPeer</tt> whose local video component we'd like
      * to dispose of.

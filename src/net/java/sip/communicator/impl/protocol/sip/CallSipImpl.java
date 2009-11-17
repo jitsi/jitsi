@@ -37,6 +37,19 @@ public class CallSipImpl
         new Vector<CallPeerSipImpl>();
 
     /**
+     * The indicator which determines whether the local peer represented by this
+     * <tt>Call</tt> is acting as a conference focus and is thus specifying the
+     * &quot;isfocus&quot; parameter in the Contact headers of its outgoing SIP
+     * signaling.
+     */
+    private boolean conferenceFocus = false;
+
+    /**
+     * Our video streaming policy.
+     */
+    private boolean localVideoAllowed = false;
+
+    /**
      * A reference to the <tt>SipMessageFactory</tt> instance that we should
      * use when creating requests.
      */
@@ -47,11 +60,6 @@ public class CallSipImpl
      * created us;
      */
     private final OperationSetBasicTelephonySipImpl parentOpSet;
-
-    /**
-     * Our video streaming policy.
-     */
-    private boolean isLocalVideoAllowed = false;
 
     /**
      * Crates a CallSipImpl instance belonging to <tt>sourceProvider</tt> and
@@ -405,8 +413,6 @@ public class CallSipImpl
             return;
         }
 
-
-
         //we just accepted the new peer and if we got here then it went well
         //now let's hangup the other call.
         try
@@ -420,7 +426,6 @@ public class CallSipImpl
             callPeerToReplace.setState(
                             CallPeerState.FAILED, "Internal Error: " + ex);
         }
-
     }
 
     /**
@@ -473,7 +478,7 @@ public class CallSipImpl
     public void setLocalVideoAllowed(boolean allowed)
         throws OperationFailedException
     {
-        this.isLocalVideoAllowed = allowed;
+        this.localVideoAllowed = allowed;
 
         /*
          * Record the setting locally and notify all peers.
@@ -499,7 +504,7 @@ public class CallSipImpl
      */
     public boolean isLocalVideoAllowed()
     {
-        return isLocalVideoAllowed;
+        return localVideoAllowed;
     }
 
     /**
@@ -561,6 +566,38 @@ public class CallSipImpl
         {
             CallPeerSipImpl peer = peers.next();
             peer.removeVideoPropertyChangeListener(listener);
+        }
+    }
+
+    /**
+     * Gets the indicator which determines whether the local peer represented by
+     * this <tt>Call</tt> is acting as a conference focus and thus should send
+     * the &quot;isfocus&quot; parameter in the Contact headers of its outgoing
+     * SIP signaling.
+     *
+     * @return <tt>true</tt> if the local peer represented by this <tt>Call</tt>
+     * is acting as a conference focus; otherwise, <tt>false</tt>
+     */
+    boolean isConferenceFocus()
+    {
+        return conferenceFocus;
+    }
+
+    /**
+     * Sets the indicator which determines whether the local peer represented by
+     * this <tt>Call</tt> is acting as a conference focus and thus should send
+     * the &quot;isfocus&quot; parameter in the Contact headers of its outgoing
+     * SIP signaling
+     *
+     * @param conferenceFocus <tt>true</tt> if the local peer represented by
+     * this <tt>Call</tt> is to act as a conference focus; otherwise,
+     * <tt>false</tt>
+     */
+    void setConferenceFocus(boolean conferenceFocus)
+    {
+        if (this.conferenceFocus != conferenceFocus)
+        {
+            this.conferenceFocus = conferenceFocus;
         }
     }
 }

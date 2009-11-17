@@ -1095,6 +1095,30 @@ public class CallPeerMediaHandler
     }
 
     /**
+     * Gets the <tt>MediaStream</tt> of this <tt>CallPeerMediaHandler</tt> which
+     * is of a specific <tt>MediaType</tt>. If this instance doesn't have such a
+     * <tt>MediaStream</tt>, returns <tt>null</tt>
+     *
+     * @param mediaType the <tt>MediaType</tt> of the <tt>MediaStream</tt> to
+     * retrieve
+     * @return the <tt>MediaStream</tt> of this <tt>CallPeerMediaHandler</tt>
+     * which is of the specified <tt>mediaType</tt> if this instance has such a
+     * <tt>MediaStream</tt>; otherwise, <tt>null</tt>
+     */
+    MediaStream getStream(MediaType mediaType)
+    {
+        switch (mediaType)
+        {
+        case AUDIO:
+            return audioStream;
+        case VIDEO:
+            return videoStream;
+        default:
+            throw new IllegalArgumentException("mediaType");
+        }
+    }
+
+    /**
      * Returns the <tt>StreamConnector</tt> instance that this media handler
      * should use for streams of the specified <tt>mediaType</tt>. The method
      * would also create a new <tt>StreamConnector</tt> if no connector has
