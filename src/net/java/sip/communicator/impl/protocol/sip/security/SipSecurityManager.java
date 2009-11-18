@@ -87,12 +87,12 @@ public class SipSecurityManager
      * request so that it could be retransmitted.
      *
      * Fredrik Wickstrom reported that dialog cseq counters are not incremented
-     * when resending requests. He later uncovered additional problems and proposed
-     * a way to fix them (his proposition was taken into account).
+     * when resending requests. He later uncovered additional problems and
+     * proposed a way to fix them (his proposition was taken into account).
      *
      * @param challenge the 401/407 challenge response
-     * @param challengedTransaction the transaction established by the challenged
-     * request
+     * @param challengedTransaction the transaction established by the
+     * challenged request
      * @param transactionCreator the JAIN SipProvider that we should use to
      * create the new transaction.
      *
