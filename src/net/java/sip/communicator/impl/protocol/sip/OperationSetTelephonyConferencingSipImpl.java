@@ -181,7 +181,7 @@ public class OperationSetTelephonyConferencingSipImpl
      * Initializes a new <tt>OperationSetTelephonyConferencingSipImpl</tt>
      * instance which is to provide telephony conferencing services for the
      * specified SIP <tt>ProtocolProviderService</tt> implementation.
-     * 
+     *
      * @param parentProvider the SIP <tt>ProtocolProviderService</tt>
      * implementation which has requested the creation of the new instance and
      * for which the new instance is to provide telephony conferencing services

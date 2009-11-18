@@ -337,8 +337,8 @@ public class CallSipImpl
                 OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
         // create the call peer
-        CallPeerSipImpl callPeer =
-            createCallPeerFor(inviteTransaction, jainSipProvider);
+        CallPeerSipImpl callPeer
+            = createCallPeerFor(inviteTransaction, jainSipProvider);
 
         callPeer.invite();
 
@@ -369,11 +369,15 @@ public class CallSipImpl
                         ? CallPeerState.INCOMING_CALL
                         : CallPeerState.INITIATING_CALL);
 
-        // notify everyone
-        parentOpSet.fireCallEvent( (incomingCall
-                                    ? CallEvent.CALL_RECEIVED
-                                    : CallEvent.CALL_INITIATED),
-                                   this);
+        // if this was the first peer we added in this call then the call is
+        // new and we also need to notify everyone of its creation.
+        if(this.getCallPeerCount() == 1)
+        {
+            parentOpSet.fireCallEvent( (incomingCall
+                                        ? CallEvent.CALL_RECEIVED
+                                        : CallEvent.CALL_INITIATED),
+                                        this);
+        }
 
         return callPeer;
     }
