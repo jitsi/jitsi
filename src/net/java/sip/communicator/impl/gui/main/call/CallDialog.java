@@ -47,11 +47,11 @@ public class CallDialog
 
     private JComponent callPanel = null;
 
-    private final HoldButton holdButton;
+    private HoldButton holdButton;
 
-    private final MuteButton muteButton;
+    private MuteButton muteButton;
 
-    private final LocalVideoButton videoButton;
+    private LocalVideoButton videoButton;
 
     private final Call call;
 
@@ -77,6 +77,8 @@ public class CallDialog
         // The call duration parameter is not known yet.
         this.setCallTitle(null);
 
+        // Initializes the correct renderer panel depending on whether we're in
+        // a single call or a conference call.
         this.isLastConference = isConference();
 
         if (isLastConference)
@@ -98,8 +100,27 @@ public class CallDialog
             this.setPreferredSize(new Dimension(500, 400));
         }
 
+        // Adds a CallChangeListener that would receive events when a peer is
+        // added or removed, or the state of the call has changed.
         call.addCallChangeListener(this);
 
+        // Adds the CallPeerConferenceListener that would listen for changes in
+        // the focus state of each call peer.
+        Iterator<? extends CallPeer> callPeers = call.getCallPeers();
+        while (callPeers.hasNext())
+        {
+            callPeers.next().addCallPeerConferenceListener(this);
+        }
+
+        // Initializes all buttons and common panels.
+        init();
+    }
+
+    /**
+     * Initializes all buttons and common panels
+     */
+    private void init()
+    {
         TransparentPanel buttonsPanel
             = new TransparentPanel(new BorderLayout(5, 5));
 
