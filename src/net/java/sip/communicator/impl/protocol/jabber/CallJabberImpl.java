@@ -255,4 +255,18 @@ public class CallJabberImpl
     {
         return this.mediaCallSession;
     }
+
+    /**
+     * Gets the indicator which determines whether the local peer represented by
+     * this <tt>Call</tt> is acting as a conference focus and thus should send
+     * the &quot;isfocus&quot; parameter in the Contact headers of its outgoing
+     * SIP signaling.
+     *
+     * @return <tt>true</tt> if the local peer represented by this <tt>Call</tt>
+     * is acting as a conference focus; otherwise, <tt>false</tt>
+     */
+    public boolean isConferenceFocus()
+    {
+        return false;
+    }
 }

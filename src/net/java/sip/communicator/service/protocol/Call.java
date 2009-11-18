@@ -196,7 +196,8 @@ public abstract class Call
         Iterator<CallChangeListener> listeners;
         synchronized(callListeners)
         {
-           listeners = new ArrayList<CallChangeListener>(callListeners).iterator();
+            listeners
+                = new ArrayList<CallChangeListener>(callListeners).iterator();
         }
 
         while(listeners.hasNext())
@@ -248,7 +249,8 @@ public abstract class Call
         Iterator<CallChangeListener> listeners;
         synchronized(callListeners)
         {
-            listeners = new ArrayList<CallChangeListener>(callListeners).iterator();
+            listeners
+                = new ArrayList<CallChangeListener>(callListeners).iterator();
         }
 
         while(listeners.hasNext())
@@ -306,7 +308,19 @@ public abstract class Call
      *
      * @return include the ZRTP attribute to SIP/SDP
      */
-    public boolean isSipZrtpAttribute() {
+    public boolean isSipZrtpAttribute()
+    {
         return sipZrtpAttribute;
     }
+
+    /**
+     * Gets the indicator which determines whether the local peer represented by
+     * this <tt>Call</tt> is acting as a conference focus and thus should send
+     * the &quot;isfocus&quot; parameter in the Contact headers of its outgoing
+     * SIP signaling.
+     *
+     * @return <tt>true</tt> if the local peer represented by this <tt>Call</tt>
+     * is acting as a conference focus; otherwise, <tt>false</tt>
+     */
+    public abstract boolean isConferenceFocus();
 }

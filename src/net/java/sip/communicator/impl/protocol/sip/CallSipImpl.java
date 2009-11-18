@@ -582,7 +582,7 @@ public class CallSipImpl
      * @return <tt>true</tt> if the local peer represented by this <tt>Call</tt>
      * is acting as a conference focus; otherwise, <tt>false</tt>
      */
-    boolean isConferenceFocus()
+    public boolean isConferenceFocus()
     {
         return conferenceFocus;
     }

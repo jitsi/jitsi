@@ -86,7 +86,8 @@ public class ConferenceCallPanel
 
         mainPanel.setLayout(new GridBagLayout());
 
-        this.addLocalCallPeer();
+        if (call.isConferenceFocus())
+            this.addLocalCallPeer();
 
         Iterator<? extends CallPeer> iterator = this.call.getCallPeers();
         while (iterator.hasNext())
@@ -145,6 +146,7 @@ public class ConferenceCallPanel
         if (peer.isConferenceFocus())
         {
             peerRenderer = new ConferenceFocusPanel(callDialog, peer);
+
             peer.addConferenceMembersSoundLevelListener(
                 (ConferenceFocusPanel) peerRenderer);
             peer.addCallPeerConferenceListener(

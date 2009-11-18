@@ -521,8 +521,8 @@ public class CallDialog
      */
     private boolean isConference()
     {
-        // If we have more than one peer, we're in a conference call.
-        if (call.getCallPeerCount() > 1)
+        // If we're the focus of the conference.
+        if (call.isConferenceFocus())
             return true;
 
         // If one of our peers is a conference focus, we're in a
