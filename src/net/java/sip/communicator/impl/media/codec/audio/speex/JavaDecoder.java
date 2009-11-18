@@ -23,35 +23,45 @@ public class JavaDecoder
     private Format lastFormat = null;
     private SpeexDecoder decoder = null;
 
+    /**
+     * Creates the decoder and inits supported input formats.
+     */
     public JavaDecoder()
     {
-        inputFormats = new Format[]
-            {
-            new AudioFormat(
-                Constants.SPEEX_RTP,
-                8000,
-                8,
-                1,
-                Format.NOT_SPECIFIED,
-                Format.NOT_SPECIFIED
-            )};
-
         supportedInputFormats = new AudioFormat[]
-            {
+        {
             new AudioFormat(Constants.SPEEX_RTP,
                             8000,
                             8,
                             1,
                             Format.NOT_SPECIFIED,
-                            Format.NOT_SPECIFIED)};
+                            Format.NOT_SPECIFIED),
+            new AudioFormat(Constants.SPEEX_RTP,
+                            16000,
+                            8,
+                            1,
+                            Format.NOT_SPECIFIED,
+                            Format.NOT_SPECIFIED),
+            new AudioFormat(Constants.SPEEX_RTP,
+                            32000,
+                            8,
+                            1,
+                            Format.NOT_SPECIFIED,
+                            Format.NOT_SPECIFIED)
+        };
+        inputFormats = supportedInputFormats;
 
         defaultOutputFormats = new AudioFormat[]
-            {
-            new AudioFormat(AudioFormat.LINEAR)};
+            {new AudioFormat(AudioFormat.LINEAR)};
 
         PLUGIN_NAME = "Speex Decoder";
     }
 
+    /**
+     * Returns the output format that matches the supplied input format.
+     * @param in
+     * @return
+     */
     protected Format[] getMatchingOutputFormats(Format in)
     {
         AudioFormat af = (AudioFormat) in;
@@ -71,10 +81,15 @@ public class JavaDecoder
 
     }
 
-
+    /**
+     * Does nothing.
+     */
     public void open()
     {}
 
+    /**
+     * Does nothing.
+     */
     public void close()
     {}
 
@@ -84,12 +99,28 @@ public class JavaDecoder
 
         decoder = new SpeexDecoder();
 
-        decoder.init(0,
-                     (int) (inFormat).getSampleRate(),
+        int sampleRate =
+            (int)inFormat.getSampleRate();
+
+        int band = JavaEncoder.NARROW_BAND;
+
+        if(sampleRate == 16000)
+            band = JavaEncoder.WIDE_BAND;
+        else if(sampleRate == 32000)
+            band = JavaEncoder.ULTRA_WIDE_BAND;
+
+        decoder.init(band,
+                     sampleRate,
                      inFormat.getChannels(),
                      false);
     }
 
+    /**
+     * Process the input and decodes it.
+     * @param inputBuffer the input data.
+     * @param outputBuffer the result data.
+     * @return state of the process.
+     */
     public int process(Buffer inputBuffer, Buffer outputBuffer)
     {
         if (!checkInputBuffer(inputBuffer))

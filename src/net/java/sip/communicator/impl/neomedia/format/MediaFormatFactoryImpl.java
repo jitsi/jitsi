@@ -353,8 +353,10 @@ public class MediaFormatFactoryImpl
     {
         List<MediaFormat> supportedMediaFormats = new ArrayList<MediaFormat>();
 
+        // uses equalsIgnoreCase, as some clients transmit some of the codecs
+        // starting with capital letters
         for (MediaFormat mediaFormat : mediaFormats)
-            if (mediaFormat.getEncoding().equals(encoding)
+            if (mediaFormat.getEncoding().equalsIgnoreCase(encoding)
                     && ((CLOCK_RATE_NOT_SPECIFIED == clockRate)
                             || (mediaFormat.getClockRate() == clockRate)))
                 supportedMediaFormats.add(mediaFormat);

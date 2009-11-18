@@ -22,14 +22,21 @@ public class JavaEncoder
 {
     private Format lastFormat = null;
 
-    private static int FRAME_SIZE = 320;
+    private int FRAME_SIZE = -1;
 
     private SpeexEncoder encoder = null;
 
+    final static int NARROW_BAND= 0;
+    final static int WIDE_BAND= 1;
+    final static int ULTRA_WIDE_BAND= 2;
+
+    /**
+     * Creates the encoder and init supported formats
+     */
     public JavaEncoder()
     {
         supportedInputFormats = new AudioFormat[]
-            {
+        {
             new AudioFormat(
                 AudioFormat.LINEAR,
                 8000,
@@ -37,7 +44,24 @@ public class JavaEncoder
                 1,
                 AudioFormat.LITTLE_ENDIAN, //isBigEndian(),
                 AudioFormat.SIGNED //isSigned());
-            )};
+            ),
+            new AudioFormat(
+                AudioFormat.LINEAR,
+                16000,
+                16,
+                1,
+                AudioFormat.LITTLE_ENDIAN, //isBigEndian(),
+                AudioFormat.SIGNED //isSigned());
+            ),
+            new AudioFormat(
+                AudioFormat.LINEAR,
+                32000,
+                16,
+                1,
+                AudioFormat.LITTLE_ENDIAN, //isBigEndian(),
+                AudioFormat.SIGNED //isSigned());
+            )
+            };
 
         defaultOutputFormats = new AudioFormat[]
             {new AudioFormat(Constants.SPEEX_RTP)};
@@ -45,6 +69,11 @@ public class JavaEncoder
         PLUGIN_NAME = "pcm to speex converter";
     }
 
+    /**
+     * Returns the output format that matches the supplied input format.
+     * @param in
+     * @return
+     */
     protected Format[] getMatchingOutputFormats(Format in)
     {
         AudioFormat af = (AudioFormat) in;
@@ -62,11 +91,17 @@ public class JavaEncoder
         return supportedOutputFormats;
     }
 
-    public void open() throws ResourceUnavailableException
+    /**
+     * Does nothing.
+     */
+    public void open()
     {
 
     }
 
+    /**
+     * Does nothing.
+     */
     public void close()
     {
 
@@ -78,9 +113,32 @@ public class JavaEncoder
 
         encoder = new SpeexEncoder();
 
-        encoder.init(0, 4, (int)inFormat.getSampleRate(), 1);
+        int sampleRate = 
+            (int)inFormat.getSampleRate();
+        
+        int band = NARROW_BAND;
+        FRAME_SIZE = 320;
+
+        if(sampleRate == 16000)
+        {
+            band = WIDE_BAND;
+            FRAME_SIZE = 640;
+        }
+        else if(sampleRate == 32000)
+        {
+            band = ULTRA_WIDE_BAND;
+            FRAME_SIZE = 1280;
+        }
+
+        encoder.init(band, 4, sampleRate, 1);
     }
 
+    /**
+     * Process the input and encodes it.
+     * @param inputBuffer the input data.
+     * @param outputBuffer the result data.
+     * @return state of the process.
+     */
     public int process(Buffer inputBuffer, Buffer outputBuffer)
     {
         if (!checkInputBuffer(inputBuffer))
