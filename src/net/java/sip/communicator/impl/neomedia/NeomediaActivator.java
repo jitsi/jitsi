@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
+import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.gui.*;
@@ -13,6 +14,8 @@ import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+
+import net.java.sip.communicator.impl.neomedia.notify.*;
 
 import org.osgi.framework.*;
 
@@ -122,6 +125,24 @@ public class NeomediaActivator
         //following property to make sure that it would accept java generated
         //IPv6 addresses that contain address scope zones.
         System.setProperty("gov.nist.core.STRIP_ADDR_SCOPES", "true");
+
+        // AudioNotify Service
+        AudioNotifierServiceImpl audioNotifier = new AudioNotifierServiceImpl(
+            mediaServiceImpl.getDeviceConfiguration());
+
+        audioNotifier.setMute(
+                !getConfigurationService()
+                    .getBoolean(
+                        "net.java.sip.communicator.impl.sound.isSoundEnabled",
+                        true));
+
+        getBundleContext()
+                .registerService(
+                    AudioNotifierService.class.getName(),
+                    audioNotifier,
+                    null);
+
+        logger.info("Audio Notifier Service ...[REGISTERED]");
     }
 
     /**

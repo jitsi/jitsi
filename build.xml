@@ -1062,6 +1062,8 @@
                 prefix="net/java/sip/communicator/impl/media/protocol"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/renderer"
                 prefix="net/java/sip/communicator/impl/media/renderer"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/audionotifier"
+                prefix="net/java/sip/communicator/service/audionotifier"/>
             <zipfileset dir="${resources}/images/impl/media"
                 prefix="resources/images/impl/media"/>
             <zipfileset src="${lib.win.noinst}/jmf.jar" prefix=""/>
@@ -1095,6 +1097,8 @@
                 prefix="net/java/sip/communicator/impl/media/protocol"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/renderer"
                 prefix="net/java/sip/communicator/impl/media/renderer"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/audionotifier"
+                prefix="net/java/sip/communicator/service/audionotifier"/>
             <zipfileset dir="${resources}/images/impl/media"
                 prefix="resources/images/impl/media"/>
             <zipfileset src="${lib.lin.noinst}/jmf.jar" prefix=""/>
@@ -1127,6 +1131,8 @@
                 prefix="net/java/sip/communicator/impl/media/protocol"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/media/renderer"
                 prefix="net/java/sip/communicator/impl/media/renderer"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/audionotifier"
+                prefix="net/java/sip/communicator/service/audionotifier"/>
             <zipfileset dir="${resources}/images/impl/media"
                 prefix="resources/images/impl/media"/>
             <zipfileset src="${lib.mac.noinst}/jmf.jar" prefix=""/>
