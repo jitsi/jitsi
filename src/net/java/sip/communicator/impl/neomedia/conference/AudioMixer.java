@@ -97,6 +97,14 @@ public class AudioMixer
     private final AudioMixingPushBufferDataSource localOutputDataSource;
 
     /**
+     * The number of output <tt>AudioMixingPushBufferDataSource</tt>s reading
+     * from this <tt>AudioMixer</tt> which are started. When the value is
+     * greater than zero, this <tt>AudioMixer</tt> is started and so are the
+     * input <tt>DataSource</tt>s it manages.
+     */
+    private int started;
+
+    /**
      * The output <tt>AudioMixerPushBufferStream</tt> through which this
      * instance pushes audio sample data to
      * <tt>AudioMixingPushBufferStream</tt>s to be mixed.
@@ -161,8 +169,8 @@ public class AudioMixer
      * mix it outputs
      */
     void addInputDataSource(
-        DataSource inputDataSource,
-        AudioMixingPushBufferDataSource outputDataSource)
+            DataSource inputDataSource,
+            AudioMixingPushBufferDataSource outputDataSource)
     {
         if (inputDataSource == null)
             throw new IllegalArgumentException("inputDataSource");
@@ -173,10 +181,54 @@ public class AudioMixer
                 if (inputDataSource.equals(inputDataSourceDesc.inputDataSource))
                     throw new IllegalArgumentException("inputDataSource");
 
-            inputDataSources.add(
-                new InputDataSourceDesc(
+            InputDataSourceDesc inputDataSourceDesc
+                = new InputDataSourceDesc(
                         inputDataSource,
-                        outputDataSource));
+                        outputDataSource);
+            boolean added = inputDataSources.add(inputDataSourceDesc);
+
+            if (added)
+            {
+                if (logger.isTraceEnabled())
+                    logger
+                        .trace(
+                            "Added input DataSource with hashCode "
+                                + inputDataSource.hashCode());
+
+                /*
+                 * If the other inputDataSources have already been connected,
+                 * connect to the new one as well.
+                 */
+                if (connected > 0)
+                    try
+                    {
+                        inputDataSourceDesc
+                            .getEffectiveInputDataSource().connect();
+                    }
+                    catch (IOException ioe)
+                    {
+                        throw new UndeclaredThrowableException(ioe);
+                    }
+
+                // Update outputStream with any new inputStreams.
+                if (outputStream != null)
+                    getOutputStream();
+
+                /*
+                 * If the other inputDataSources have been started, start the
+                 * new one as well.
+                 */
+                if (started > 0)
+                    try
+                    {
+                        inputDataSourceDesc
+                            .getEffectiveInputDataSource().start();
+                    }
+                    catch (IOException ioe)
+                    {
+                        throw new UndeclaredThrowableException(ioe);
+                    }
+            }
         }
     }
 
@@ -193,14 +245,14 @@ public class AudioMixer
     void connect()
         throws IOException
     {
-        if (connected == 0)
-            synchronized (inputDataSources)
-            {
+        synchronized (inputDataSources)
+        {
+            if (connected == 0)
                 for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
                     inputDataSourceDesc.getEffectiveInputDataSource().connect();
-            }
 
-        connected++;
+            connected++;
+        }
     }
 
     /**
@@ -252,6 +304,8 @@ public class AudioMixer
 
             if (connected > 0)
                 transcodingDataSource.connect();
+            if (started > 0)
+                transcodingDataSource.start();
         }
         return transcodingDataSource;
     }
@@ -266,19 +320,21 @@ public class AudioMixer
      */
     void disconnect()
     {
-        if (connected <= 0)
-            return;
-
-        connected--;
-
-        if (connected == 0)
+        synchronized (inputDataSources)
         {
-            outputStream = null;
+            if (connected <= 0)
+                return;
 
-            synchronized (inputDataSources)
+            connected--;
+
+            if (connected == 0)
             {
-                for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
-                    inputDataSourceDesc.getEffectiveInputDataSource().disconnect();
+                outputStream = null;
+
+                for (InputDataSourceDesc inputDataSourceDesc
+                        : inputDataSources)
+                    inputDataSourceDesc
+                        .getEffectiveInputDataSource().disconnect();
             }
         }
     }
@@ -639,30 +695,34 @@ public class AudioMixer
      */
     AudioMixerPushBufferStream getOutputStream()
     {
-        AudioFormat outputFormat = getOutputFormatFromInputDataSources();
-
-        setOutputFormatToInputDataSources(outputFormat);
-
-        Collection<InputStreamDesc> inputStreams;
-
-        try
+        synchronized (inputDataSources)
         {
-            inputStreams = getInputStreamsFromInputDataSources(outputFormat);
-        }
-        catch (IOException ex)
-        {
-            throw new UndeclaredThrowableException(ex);
-        }
+            AudioFormat outputFormat = getOutputFormatFromInputDataSources();
 
-        if (inputStreams.size() <= 0)
-            outputStream = null;
-        else
-        {
-            if (outputStream == null)
-                outputStream = new AudioMixerPushBufferStream(outputFormat);
-            outputStream.setInputStreams(inputStreams);
+            setOutputFormatToInputDataSources(outputFormat);
+
+            Collection<InputStreamDesc> inputStreams;
+
+            try
+            {
+                inputStreams
+                    = getInputStreamsFromInputDataSources(outputFormat);
+            }
+            catch (IOException ex)
+            {
+                throw new UndeclaredThrowableException(ex);
+            }
+
+            if (inputStreams.size() <= 0)
+                outputStream = null;
+            else
+            {
+                if (outputStream == null)
+                    outputStream = new AudioMixerPushBufferStream(outputFormat);
+                outputStream.setInputStreams(inputStreams);
+            }
+            return outputStream;
         }
-        return outputStream;
     }
 
     /**
@@ -780,8 +840,11 @@ public class AudioMixer
     {
         synchronized (inputDataSources)
         {
-            for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
-                inputDataSourceDesc.getEffectiveInputDataSource().start();
+            if (started == 0)
+                for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
+                    inputDataSourceDesc.getEffectiveInputDataSource().start();
+
+            started++;
         }
     }
 
@@ -795,8 +858,14 @@ public class AudioMixer
     {
         synchronized (inputDataSources)
         {
-            for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
-                inputDataSourceDesc.getEffectiveInputDataSource().stop();
+            if (started <= 0)
+                return;
+
+            started--;
+
+            if (started == 0)
+                for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
+                    inputDataSourceDesc.getEffectiveInputDataSource().stop();
         }
     }
 
@@ -833,6 +902,12 @@ public class AudioMixer
          * this instance reads its data.
          */
         private InputStreamDesc[] inputStreams;
+
+        /**
+         * The <tt>Object</tt> which synchronizes the access to
+         * {@link #inputStreams}-related members.
+         */
+        private final Object inputStreamsSyncRoot = new Object();
 
         /**
          * The <tt>AudioFormat</tt> of the data this instance outputs.
@@ -902,10 +977,13 @@ public class AudioMixer
          */
         public boolean endOfStream()
         {
-            if (inputStreams != null)
-                for (InputStreamDesc inputStreamDesc : inputStreams)
-                    if (!inputStreamDesc.getInputStream().endOfStream())
-                        return false;
+            synchronized (inputStreamsSyncRoot)
+            {
+                if (inputStreams != null)
+                    for (InputStreamDesc inputStreamDesc : inputStreams)
+                        if (!inputStreamDesc.getInputStream().endOfStream())
+                            return false;
+            }
             return true;
         }
 
@@ -927,17 +1005,20 @@ public class AudioMixer
         {
             long contentLength = 0;
 
-            if (inputStreams != null)
-                for (InputStreamDesc inputStreamDesc : inputStreams)
-                {
-                    long inputContentLength
-                        = inputStreamDesc.getInputStream().getContentLength();
+            synchronized (inputStreamsSyncRoot)
+            {
+                if (inputStreams != null)
+                    for (InputStreamDesc inputStreamDesc : inputStreams)
+                    {
+                        long inputContentLength
+                            = inputStreamDesc.getInputStream().getContentLength();
 
-                    if (LENGTH_UNKNOWN == inputContentLength)
-                        return LENGTH_UNKNOWN;
-                    if (contentLength < inputContentLength)
-                        contentLength = inputContentLength;
-                }
+                        if (LENGTH_UNKNOWN == inputContentLength)
+                            return LENGTH_UNKNOWN;
+                        if (contentLength < inputContentLength)
+                            contentLength = inputContentLength;
+                    }
+            }
             return contentLength;
         }
 
@@ -977,6 +1058,16 @@ public class AudioMixer
         public void read(Buffer buffer)
             throws IOException
         {
+            InputStreamDesc[] inputStreams;
+
+            synchronized (inputStreamsSyncRoot)
+            {
+                if (this.inputStreams != null)
+                    inputStreams = this.inputStreams.clone();
+                else
+                    inputStreams = null;
+            }
+
             int inputStreamCount
                 = (inputStreams == null) ? 0 : inputStreams.length;
 
@@ -990,7 +1081,10 @@ public class AudioMixer
             try
             {
                 maxInputSampleCount
-                    = readInputPushBufferStreams(outputFormat, inputSamples);
+                    = readInputPushBufferStreams(
+                        inputStreams,
+                        outputFormat,
+                        inputSamples);
             }
             catch (UnsupportedFormatException ufex)
             {
@@ -1003,11 +1097,12 @@ public class AudioMixer
                 = Math.max(
                         maxInputSampleCount,
                         readInputPullBufferStreams(
+                            inputStreams,
                             outputFormat,
                             maxInputSampleCount,
                             inputSamples));
 
-            buffer.setData(inputSamples);
+            buffer.setData(new InputSampleDesc(inputSamples, inputStreams));
             buffer.setLength(maxInputSampleCount);
         }
 
@@ -1198,7 +1293,8 @@ public class AudioMixer
          * maximum number of samples from each of the
          * <tt>PullBufferStream</tt>s but the very
          * <tt>PullBufferStream</tt> may not honor the request.
-         * 
+         *
+         * @param inputStreams
          * @param outputFormat
          *            the <tt>AudioFormat</tt> in which the audio samples
          *            read from the <tt>PullBufferStream</tt>s are to be
@@ -1215,13 +1311,14 @@ public class AudioMixer
          * @throws IOException
          */
         private int readInputPullBufferStreams(
+                InputStreamDesc[] inputStreams,
                 AudioFormat outputFormat,
                 int outputSampleCount,
                 int[][] inputSamples)
             throws IOException
         {
             int maxInputSampleCount = 0;
-        
+
             for (InputStreamDesc inputStreamDesc : inputStreams)
                 if (inputStreamDesc.getInputStream() instanceof PullBufferStream)
                     throw
@@ -1235,7 +1332,8 @@ public class AudioMixer
          * Reads audio samples from the input <tt>PushBufferStream</tt>s of
          * this instance and converts them to a specific output
          * <tt>AudioFormat</tt>.
-         * 
+         *
+         * @param inputStreams
          * @param outputFormat
          *            the <tt>AudioFormat</tt> in which the audio samples
          *            read from the <tt>PushBufferStream</tt>s are to be
@@ -1249,6 +1347,7 @@ public class AudioMixer
          * @throws UnsupportedFormatException
          */
         private int readInputPushBufferStreams(
+                InputStreamDesc[] inputStreams,
                 AudioFormat outputFormat,
                 int[][] inputSamples)
             throws IOException,
@@ -1317,7 +1416,7 @@ public class AudioMixer
          * @param outputStream
          *            the <tt>AudioMixingPushBufferStream</tt> to push the
          *            specified set of audio samples to
-         * @param inputSamples
+         * @param inputSampleDesc
          *            the set of audio samples to be pushed to
          *            <tt>outputStream</tt> for audio mixing
          * @param maxInputSampleCount
@@ -1326,9 +1425,12 @@ public class AudioMixer
          */
         private void setInputSamples(
             AudioMixingPushBufferStream outputStream,
-            int[][] inputSamples,
+            InputSampleDesc inputSampleDesc,
             int maxInputSampleCount)
         {
+            int[][] inputSamples = inputSampleDesc.inputSamples;
+            InputStreamDesc[] inputStreams = inputSampleDesc.inputStreams;
+
             inputSamples = inputSamples.clone();
 
             AudioMixingPushBufferDataSource outputDataSource
@@ -1360,17 +1462,24 @@ public class AudioMixer
          */
         private void setInputStreams(Collection<InputStreamDesc> inputStreams)
         {
-            InputStreamDesc[] oldValue = this.inputStreams;
+            InputStreamDesc[] oldValue;
             InputStreamDesc[] newValue
                 = inputStreams.toArray(
                         new InputStreamDesc[inputStreams.size()]);
+
+            synchronized (inputStreamsSyncRoot)
+            {
+                oldValue = this.inputStreams;
+
+                this.inputStreams = newValue;
+            }
+
             boolean valueIsChanged = !Arrays.equals(oldValue, newValue);
 
             if (valueIsChanged)
-                setTransferHandler(oldValue, null);
-            this.inputStreams = newValue;
-            if (valueIsChanged)
             {
+                setTransferHandler(oldValue, null);
+
                 boolean skippedForTransferHandler = false;
 
                 for (InputStreamDesc inputStreamDesc : newValue)
@@ -1389,6 +1498,18 @@ public class AudioMixer
                 }
 
                 setTransferHandler(newValue, transferHandler);
+
+                if (logger.isTraceEnabled())
+                {
+                    int oldValueLength = (oldValue == null) ? 0 : oldValue.length;
+                    int newValueLength = (newValue == null) ? 0 : newValue.length;
+                    int difference = newValueLength - oldValueLength;
+
+                    if (difference > 0)
+                        logger.trace("Added " + difference + " inputStream(s).");
+                    else if (difference < 0)
+                        logger.trace("Removed " + difference + " inputStream(s).");
+                }
             }
         }
 
@@ -1489,7 +1610,9 @@ public class AudioMixer
                 throw new UndeclaredThrowableException(ex);
             }
 
-            int[][] inputSamples = (int[][]) buffer.getData();
+            InputSampleDesc inputSampleDesc
+                = (InputSampleDesc) buffer.getData();
+            int[][] inputSamples = inputSampleDesc.inputSamples;
             int maxInputSampleCount = buffer.getLength();
 
             if ((inputSamples == null)
@@ -1507,7 +1630,7 @@ public class AudioMixer
                                     this.outputStreams.size()]);
             }
             for (AudioMixingPushBufferStream outputStream : outputStreams)
-                setInputSamples(outputStream, inputSamples, maxInputSampleCount);
+                setInputSamples(outputStream, inputSampleDesc, maxInputSampleCount);
         }
     }
 
@@ -1600,6 +1723,42 @@ public class AudioMixer
         public void setTranscodingDataSource(DataSource transcodingDataSource)
         {
             this.transcodingDataSource = transcodingDataSource;
+        }
+    }
+
+    /**
+     * Describes a specific set of audio samples read from a specific set of
+     * input streams specified by their <tt>InputStreamDesc</tt>s.
+     */
+    private static class InputSampleDesc
+    {
+
+        /**
+         * The set of audio samples read from {@link #inputStreams}.
+         */
+        public final int[][] inputSamples;
+
+        /**
+         * The set of input streams from which {@link #inputSamples} were read.
+         */
+        public final InputStreamDesc[] inputStreams;
+
+        /**
+         * Initializes a new <tt>InputSampleDesc</tt> instance which is to
+         * describe a specific set of audio samples read from a specific set of
+         * input streams specified by their <tt>InputStreamDesc</tt>s.
+         *
+         * @param inputSamples the set of audio samples read from
+         * <tt>inputStreams</tt>
+         * @param inputStreams the set of input streams from which
+         * <tt>inputSamples</tt> were read
+         */
+        public InputSampleDesc(
+                int[][] inputSamples,
+                InputStreamDesc[] inputStreams)
+        {
+            this.inputSamples = inputSamples;
+            this.inputStreams = inputStreams;
         }
     }
 

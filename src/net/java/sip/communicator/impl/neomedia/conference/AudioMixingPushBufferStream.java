@@ -13,6 +13,7 @@ import javax.media.format.*;
 import javax.media.protocol.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Represents a <tt>PushBufferStream</tt> containing the result of the audio
@@ -23,6 +24,13 @@ import net.java.sip.communicator.impl.neomedia.*;
 public class AudioMixingPushBufferStream
     implements PushBufferStream
 {
+
+    /**
+     * The <tt>Logger</tt> used by the <tt>AudioMixingPushBufferStream</tt>
+     * class and its instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(AudioMixingPushBufferStream.class);
 
     /**
      * The <tt>AudioMixer.AudioMixerPushBufferStream</tt> which reads data
@@ -251,13 +259,13 @@ public class AudioMixingPushBufferStream
         throws IOException
     {
         int[][] inputSamples = this.inputSamples;
+        int inputSampleCount = (inputSamples == null) ? 0 : inputSamples.length;
         int maxInputSampleCount = this.maxInputSampleCount;
 
         this.inputSamples = null;
         this.maxInputSampleCount = 0;
 
-        if ((inputSamples == null)
-                || (inputSamples.length == 0)
+        if ((inputSampleCount == 0)
                 || (maxInputSampleCount <= 0))
             return;
 
