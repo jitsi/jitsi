@@ -15,8 +15,15 @@ import net.java.sip.communicator.service.protocol.*;
 public class ConferenceMemberGibberishImpl
     extends AbstractConferenceMember
 {
-    public ConferenceMemberGibberishImpl(CallPeer conferenceFocusCallPeer)
+    /**
+     * Creates an instance of <tt>ConferenceMemberGibberishImpl</tt> by
+     * specifying the parent call peer and the address of the member.
+     * @param conferenceFocusCallPeer the parent call peer
+     * @param address the protocol address of the member
+     */
+    public ConferenceMemberGibberishImpl(   CallPeer conferenceFocusCallPeer,
+                                            String address)
     {
-        super(conferenceFocusCallPeer);
+        super(conferenceFocusCallPeer, address);
     }
 }

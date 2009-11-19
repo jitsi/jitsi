@@ -63,12 +63,6 @@ public class ConferenceMemberSipImpl
     static final String PENDING = "pending";
 
     /**
-     * The SIP address of this <tt>ConferenceMember</tt> as specified by the
-     * conference-info XML received from its <tt>conferenceFocusCallPeer</tt>.
-     */
-    private final String address;
-
-    /**
      * Initializes a new <tt>ConferenceMemberSipImpl</tt> instance with a
      * specific SIP address as indicated by the conference-info XML received
      * from its <tt>conferenceFocusCallPeer</tt>.
@@ -81,25 +75,7 @@ public class ConferenceMemberSipImpl
             CallPeerSipImpl conferenceFocusCallPeer,
             String address)
     {
-        super(conferenceFocusCallPeer);
-
-        if (address == null)
-            throw new NullPointerException("address");
-        this.address = address;
-    }
-
-    /**
-     * Gets the SIP address of this <tt>ConferenceMember</tt> as specified by
-     * the conference-info XML received from its
-     * <tt>conferenceFocusCallPeer</tt>.
-     *
-     * @return the SIP address of this <tt>ConferenceMember</tt> as specified by
-     * the conference-info XML received from its
-     * <tt>conferenceFocusCallPeer</tt>
-     */
-    public String getAddress()
-    {
-        return address;
+        super(conferenceFocusCallPeer, address);
     }
 
     /**

@@ -7,6 +7,8 @@
 package net.java.sip.communicator.impl.gui.main.call.conference;
 
 import java.awt.*;
+import java.util.*;
+import java.util.Map.*;
 
 import javax.swing.*;
 
@@ -16,6 +18,7 @@ import net.java.sip.communicator.impl.gui.main.call.CallPeerAdapter;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>ConferencePeerPanel</tt> renders a single <tt>ConferencePeer</tt>,
@@ -26,8 +29,10 @@ import net.java.sip.communicator.service.protocol.event.*;
 public class ConferencePeerPanel
     extends BasicConferenceParticipantPanel
     implements  CallPeerRenderer,
+                CallPeerConferenceListener,
                 StreamSoundLevelListener,
-                LocalUserSoundLevelListener
+                LocalUserSoundLevelListener,
+                ConferenceMembersSoundLevelListener
 {
     /**
      * The parent dialog containing this panel.
@@ -65,6 +70,13 @@ public class ConferencePeerPanel
     private SecurityPanel securityPanel;
 
     private CallPeerAdapter callPeerAdapter;
+
+    /**
+     * Maps a <tt>ConferenceMember</tt> to its renderer panel.
+     */
+    private final Hashtable<ConferenceMember, ConferenceMemberPanel>
+        conferenceMembersPanels
+            = new Hashtable<ConferenceMember, ConferenceMemberPanel>();
 
     /**
      * Creates a <tt>ConferencePeerPanel</tt> by specifying the parent
@@ -110,6 +122,12 @@ public class ConferencePeerPanel
         this.setTitleBackground(
             new Color(GuiActivator.getResources().getColor(
                 "service.gui.CALL_PEER_NAME_BACKGROUND")));
+
+        // Add the UI for all contained conference members.
+        for (ConferenceMember member : callPeer.getConferenceMembers())
+        {
+            this.addConferenceMemberPanel(member);
+        }
     }
 
     /**
@@ -197,7 +215,8 @@ public class ConferencePeerPanel
      */
     public void setPeerImage(ImageIcon icon)
     {
-        this.setParticipantImage(icon);
+        if (!callPeer.isConferenceFocus())
+            this.setParticipantImage(icon);
     }
 
     /**
@@ -320,12 +339,78 @@ public class ConferencePeerPanel
     }
 
     /**
+     * Adds a <tt>ConferenceMemberPanel</tt> for a given
+     * <tt>ConferenceMember</tt>.
+     *
+     * @param member the <tt>ConferenceMember</tt> that will correspond to the
+     * panel to add.
+     */
+    private void addConferenceMemberPanel(ConferenceMember member)
+    {
+        ConferenceMemberPanel memberPanel
+            = new ConferenceMemberPanel(member);
+
+        // Map the conference member to the created member panel.
+        conferenceMembersPanels.put(member, memberPanel);
+
+        // If we have members turn to the conference focus UI.
+        if (conferenceMembersPanels.size() > 0)
+            this.setConferenceFocusUI(true);
+
+        GridBagConstraints constraints = new GridBagConstraints();
+
+        // Add the member panel to this container
+        constraints.fill = GridBagConstraints.BOTH;
+        constraints.gridx = 0;
+        constraints.gridy = getComponentCount();
+        constraints.weightx = 1;
+        constraints.weighty = 0;
+        constraints.insets = new Insets(5, 10, 5, 10);
+
+        this.add(memberPanel, constraints);
+
+        // Refresh this panel.
+        this.revalidate();
+        this.repaint();
+
+        member.addPropertyChangeListener(memberPanel);
+    }
+
+    /**
+     * Removes the <tt>ConferenceMemberPanel</tt> corresponding to the given
+     * <tt>member</tt>.
+     *
+     * @param member the <tt>ConferenceMember</tt>, which panel to remove
+     */
+    private void removeConferenceMemberPanel(ConferenceMember member)
+    {
+        ConferenceMemberPanel memberPanel = conferenceMembersPanels.get(member);
+
+        if (memberPanel != null)
+        {
+            this.remove(memberPanel);
+            conferenceMembersPanels.remove(member);
+            member.removePropertyChangeListener(memberPanel);
+        }
+
+        // If we don't have more members turn to the normal peer UI.
+        if (conferenceMembersPanels.size() == 0)
+            this.setConferenceFocusUI(false);
+
+        this.revalidate();
+        this.repaint();
+    }
+
+    /**
      * Updates the sound bar level to fit the new stream sound level.
      * @param event the <tt>StreamSoundLevelEvent</tt> that notifies us of the
      * sound level change
      */
     public void streamSoundLevelChanged(StreamSoundLevelEvent event)
     {
+        if (event.getSourcePeer().isConferenceFocus())
+            return;
+
         this.updateSoundBar(event.getLevel());
     }
 
@@ -338,5 +423,98 @@ public class ConferencePeerPanel
     public void localUserSoundLevelChanged(LocalUserSoundLevelEvent event)
     {
         this.updateSoundBar(event.getLevel());
+    }
+
+    /**
+     * Updates according sound level indicators to reflect the new member sound
+     * level.
+     * @param event the <tt>ConferenceMembersSoundLevelEvent</tt> that notified
+     * us
+     */
+    public void membersSoundLevelChanged(ConferenceMembersSoundLevelEvent event)
+    {
+        Map<ConferenceMember, Integer> levels = event.getLevels();
+
+        Iterator<Entry<ConferenceMember, ConferenceMemberPanel>>
+            memberPanelsIter = conferenceMembersPanels.entrySet().iterator();
+
+        while (memberPanelsIter.hasNext())
+        {
+            Map.Entry<ConferenceMember, ConferenceMemberPanel>
+                 entry = memberPanelsIter.next();
+
+            ConferenceMember member = entry.getKey();
+            ConferenceMemberPanel memberPanel = entry.getValue();
+
+            if (levels.containsKey(member))
+                memberPanel.updateSoundBar(levels.get(member));
+            else
+                memberPanel.updateSoundBar(0);
+        }
+    }
+
+    /**
+     * Adds a <tt>ConferenceMemberPanel</tt> to this container when a
+     * <tt>ConferenceMember</tt> has been added to the corresponding conference.
+     * @param conferenceEvent the <tt>CallPeerConferenceEvent</tt> that has been
+     * triggered
+     */
+    public void conferenceMemberAdded(CallPeerConferenceEvent conferenceEvent)
+    {
+        ConferenceMember member = conferenceEvent.getConferenceMember();
+
+        String localUserAddress = callPeer.getProtocolProvider()
+            .getAccountID().getAccountAddress();
+
+        if (!member.getAddress().equals(localUserAddress))
+            this.addConferenceMemberPanel(member);
+    }
+
+    /**
+     * Removes the corresponding <tt>ConferenceMemberPanel</tt> from this
+     * container when a <tt>ConferenceMember</tt> has been removed from the
+     * corresponding conference.
+     * @param conferenceEvent the <tt>CallPeerConferenceEvent</tt> that has been
+     * triggered
+     */
+    public void conferenceMemberRemoved(CallPeerConferenceEvent conferenceEvent)
+    {
+        ConferenceMember member = conferenceEvent.getConferenceMember();
+
+        this.removeConferenceMemberPanel(member);
+    }
+
+    /**
+     * We're adding the up-coming members on conferenceMemberAdded, so for
+     * now we have nothing to do here.
+     * @param conferenceEvent the conference event
+     */
+    public void conferenceFocusChanged(CallPeerConferenceEvent conferenceEvent)
+    {}
+
+    /**
+     * Paints a special background for conference focus peers.
+     * @param g the <tt>Graphics</tt> object used for painting
+     */
+    public void paintComponent(Graphics g)
+    {
+        super.paintComponent(g);
+        if (isConferenceFocusUI())
+        {
+            Graphics2D g2 = (Graphics2D) g.create();
+
+            try
+            {
+                AntialiasingManager.activateAntialiasing(g2);
+
+                g2.setColor(Color.LIGHT_GRAY);
+                g2.fillRoundRect(0, 0,
+                    this.getWidth(), this.getHeight(), 20, 20);
+            }
+            finally
+            {
+                g2.dispose();
+            }
+        }
     }
 }

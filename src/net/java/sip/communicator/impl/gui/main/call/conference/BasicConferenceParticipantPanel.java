@@ -52,6 +52,8 @@ public class BasicConferenceParticipantPanel
     private final JPanel nameBar
         = new TransparentPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
+    private final TransparentPanel peerDetailsPanel = new TransparentPanel();
+
     /**
      * The component showing the sound level of the participant.
      */
@@ -59,24 +61,50 @@ public class BasicConferenceParticipantPanel
         = new SoundLevelIndicator(  ConferenceMembersSoundLevelEvent.MIN_LEVEL,
                                     ConferenceMembersSoundLevelEvent.MAX_LEVEL);
 
+    private final GridBagConstraints constraints = new GridBagConstraints();
+
+    private boolean isConferenceFocusUI;
+
     /**
      * Creates an instance of <tt>ConferenceParticipantPanel</tt>.
      */
     public BasicConferenceParticipantPanel()
     {
+        this.setLayout(new GridBagLayout());
+        this.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
+
+        this.initTitleBar();
+
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.weightx = 1;
+        constraints.weighty = 0;
+        constraints.insets = new Insets(0, 0, 0, 0);
+        this.add(titleBar, constraints);
+
+        this.initPeerDetailsPanel();
+
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        constraints.weightx = 1;
+        constraints.weighty = 0;
+        constraints.insets = new Insets(0, 0, 0, 0);
+        this.add(peerDetailsPanel, constraints);
+    }
+
+    /**
+     * Initializes the details panel for the peer.
+     */
+    private void initPeerDetailsPanel()
+    {
         ImageIcon avatarIcon = new ImageIcon
             (ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO)
                 .getScaledInstance(50, 50, Image.SCALE_SMOOTH));
 
-        this.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
-
-        TransparentPanel detailPanel = new TransparentPanel();
-        detailPanel.setLayout(new GridBagLayout());
-        detailPanel.setBackground(new Color(255, 255, 255));
-
-        this.setLayout(new GridBagLayout());
-
-        GridBagConstraints constraints = new GridBagConstraints();
+        peerDetailsPanel.setLayout(new GridBagLayout());
+        peerDetailsPanel.setBackground(new Color(255, 255, 255));
 
         imageLabel.setIcon(avatarIcon);
 
@@ -88,7 +116,7 @@ public class BasicConferenceParticipantPanel
         constraints.weighty = 0;
         constraints.insets = new Insets(5, 10, 5, 0);
 
-        detailPanel.add(imageLabel, constraints);
+        peerDetailsPanel.add(imageLabel, constraints);
 
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridx = 1;
@@ -97,26 +125,7 @@ public class BasicConferenceParticipantPanel
         constraints.weighty = 0;
         constraints.insets = new Insets(2, 20, 2, 20);
 
-        detailPanel.add(soundIndicator, constraints);
-
-        constraints.fill = GridBagConstraints.BOTH;
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        constraints.weightx = 1;
-        constraints.weighty = 0;
-        constraints.insets = new Insets(0, 0, 0, 0);
-
-        this.initTitleBar();
-        this.add(titleBar, constraints);
-
-        constraints.fill = GridBagConstraints.BOTH;
-        constraints.gridx = 0;
-        constraints.gridy = 1;
-        constraints.weightx = 1;
-        constraints.weighty = 0;
-        constraints.insets = new Insets(0, 0, 0, 0);
-
-        this.add(detailPanel, constraints);
+        peerDetailsPanel.add(soundIndicator, constraints);
     }
 
     /**
@@ -144,6 +153,41 @@ public class BasicConferenceParticipantPanel
     public void setParticipantImage(ImageIcon icon)
     {
         imageLabel.setIcon(icon);
+    }
+
+    /**
+     * Enables or disables the conference focus user interface.
+     * @param isConferenceFocusUI indicates if we should enable or disable the
+     * conference focus user interface.
+     */
+    public void setConferenceFocusUI(boolean isConferenceFocusUI)
+    {
+        this.isConferenceFocusUI = isConferenceFocusUI;
+
+        if (isConferenceFocusUI)
+            this.remove(peerDetailsPanel);
+        else
+        {
+            constraints.fill = GridBagConstraints.BOTH;
+            constraints.gridx = 0;
+            constraints.gridy = 1;
+            constraints.weightx = 1;
+            constraints.weighty = 0;
+            constraints.insets = new Insets(0, 0, 0, 0);
+
+            this.add(peerDetailsPanel, constraints);
+        }
+    }
+
+    /**
+     * Returns <tt>true</tt> if the current interface corresponds to a
+     * conference focus interface, otherwise returns <tt>false</tt>.
+     * @return <tt>true</tt> if the current interface corresponds to a
+     * conference focus interface, otherwise returns <tt>false</tt>.
+     */
+    public boolean isConferenceFocusUI()
+    {
+        return isConferenceFocusUI;
     }
 
     /**

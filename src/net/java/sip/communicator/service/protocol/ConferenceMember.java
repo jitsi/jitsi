@@ -47,6 +47,17 @@ public interface ConferenceMember
     public void addPropertyChangeListener(PropertyChangeListener listener);
 
     /**
+     * Gets the SIP address of this <tt>ConferenceMember</tt> as specified by
+     * the conference-info XML received from its
+     * <tt>conferenceFocusCallPeer</tt>.
+     *
+     * @return the SIP address of this <tt>ConferenceMember</tt> as specified by
+     * the conference-info XML received from its
+     * <tt>conferenceFocusCallPeer</tt>
+     */
+    public String getAddress();
+
+    /**
      * Gets the user-friendly display name of this <tt>ConferenceMember</tt>
      * in the conference.
      *

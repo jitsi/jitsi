@@ -478,18 +478,11 @@ public class CallDialog
      */
     public void conferenceFocusChanged(CallPeerConferenceEvent conferenceEvent)
     {
-        final CallPeer callPeer = conferenceEvent.getSourceCallPeer();
-
         SwingUtilities.invokeLater(new Runnable()
         {
             public void run()
             {
-                if (isLastConference)
-                {
-                    ((ConferenceCallPanel) callPanel)
-                        .updateCallPeerPanel(callPeer);
-                }
-                else
+                if (!isLastConference)
                 {
                     isLastConference = isConference();
 
@@ -536,7 +529,6 @@ public class CallDialog
             if (callPeer.isConferenceFocus())
                 return true;
         }
-
         return false;
     }
 

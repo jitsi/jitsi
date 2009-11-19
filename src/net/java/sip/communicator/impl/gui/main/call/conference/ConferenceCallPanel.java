@@ -44,8 +44,8 @@ public class ConferenceCallPanel
     /**
      * Maps a <tt>CallPeer</tt> to its renderer.
      */
-    private final Hashtable<CallPeer, CallPeerRenderer> callPeerPanels
-        = new Hashtable<CallPeer, CallPeerRenderer>();
+    private final Hashtable<CallPeer, ConferencePeerPanel> callPeerPanels
+        = new Hashtable<CallPeer, ConferencePeerPanel>();
 
     /**
      * The CallDialog which contains this panel.
@@ -86,8 +86,7 @@ public class ConferenceCallPanel
 
         mainPanel.setLayout(new GridBagLayout());
 
-        if (call.isConferenceFocus())
-            this.addLocalCallPeer();
+        this.addLocalCallPeer();
 
         Iterator<? extends CallPeer> iterator = this.call.getCallPeers();
         while (iterator.hasNext())
@@ -140,26 +139,15 @@ public class ConferenceCallPanel
      */
     public void addCallPeerPanel(CallPeer peer)
     {
-        CallPeerRenderer peerRenderer;
+        ConferencePeerPanel confPeerPanel
+            = new ConferencePeerPanel(callDialog, peer);
 
-        // Add all specific listeners
-        if (peer.isConferenceFocus())
-        {
-            peerRenderer = new ConferenceFocusPanel(callDialog, peer);
-
-            peer.addConferenceMembersSoundLevelListener(
-                (ConferenceFocusPanel) peerRenderer);
-            peer.addCallPeerConferenceListener(
-                (ConferenceFocusPanel) peerRenderer);
-        }
-        else
-        {
-            peerRenderer = new ConferencePeerPanel(callDialog, peer);
-            peer.addStreamSoundLevelListener((ConferencePeerPanel) peerRenderer);
-        }
+        peer.addCallPeerConferenceListener(confPeerPanel);
+        peer.addConferenceMembersSoundLevelListener(confPeerPanel);
+        peer.addStreamSoundLevelListener(confPeerPanel);
 
         // Map the call peer to its renderer.
-        callPeerPanels.put(peer, peerRenderer);
+        callPeerPanels.put(peer, confPeerPanel);
 
         // Add the renderer component to this container.
         constraints.fill = GridBagConstraints.BOTH;
@@ -169,13 +157,13 @@ public class ConferenceCallPanel
         constraints.weighty = 0;
         constraints.insets = new Insets(0, 0, 10, 10);
 
-        mainPanel.add((Component) peerRenderer, constraints);
+        mainPanel.add(confPeerPanel, constraints);
 
         // Create an adapter which would manage all common call peer listeners.
         CallPeerAdapter callPeerAdapter
-            = new CallPeerAdapter(peer, peerRenderer);
+            = new CallPeerAdapter(peer, confPeerPanel);
 
-        peerRenderer.setCallPeerAdapter(callPeerAdapter);
+        confPeerPanel.setCallPeerAdapter(callPeerAdapter);
 
         peer.addCallPeerListener(callPeerAdapter);
         peer.addPropertyChangeListener(callPeerAdapter);
@@ -191,45 +179,20 @@ public class ConferenceCallPanel
      */
     public void removeCallPeerPanel(CallPeer peer)
     {
-        CallPeerRenderer peerRenderer = callPeerPanels.get(peer);
+        ConferencePeerPanel confPeerPanel = callPeerPanels.get(peer);
 
         // Remove the renderer component.
-        mainPanel.remove((Component) peerRenderer);
+        mainPanel.remove(confPeerPanel);
 
-        // Remove all specific listeners first.
-        if (peerRenderer instanceof ConferenceFocusPanel)
-        {
-            peer.removeConferenceMembersSoundLevelListener(
-                (ConferenceFocusPanel) peerRenderer);
-            peer.removeCallPeerConferenceListener(
-                (ConferenceFocusPanel) peerRenderer);
-        }
-        else if (peerRenderer instanceof ConferencePeerPanel)
-        {
-            peer.removeStreamSoundLevelListener(
-                (ConferencePeerPanel) peerRenderer);
-        }
+        peer.removeConferenceMembersSoundLevelListener(confPeerPanel);
+        peer.removeCallPeerConferenceListener(confPeerPanel);
+        peer.removeStreamSoundLevelListener(confPeerPanel);
 
         // Remove all common listeners.
-        CallPeerAdapter adapter = peerRenderer.getCallPeerAdapter();
+        CallPeerAdapter adapter = confPeerPanel.getCallPeerAdapter();
 
         peer.removeCallPeerListener(adapter);
         peer.removePropertyChangeListener(adapter);
         peer.removeCallPeerSecurityListener(adapter);
-    }
-
-    /**
-     * Updates the current call peer panel to represent correctly the new state
-     * of the peer.
-     * @param peer the <tt>CallPeer</tt>, which panel to update
-     */
-    public void updateCallPeerPanel(CallPeer peer)
-    {
-        // Removes the previously used panel for the peer.
-        this.removeCallPeerPanel(peer);
-
-        // Create a new panel which should fit the new state of
-        // the peer.
-        this.addCallPeerPanel(peer);
     }
 }

@@ -54,13 +54,13 @@ public class CallPeerGibberishImpl
         {
             this.setConferenceFocus(true);
             final ConferenceMemberGibberishImpl member1
-                = new ConferenceMemberGibberishImpl(this);
+                = new ConferenceMemberGibberishImpl(this, "Dragancho@gibberish");
             member1.setDisplayName("Dragancho");
             member1.setState(ConferenceMemberState.CONNECTED);
             this.addConferenceMember(member1);
 
             final ConferenceMemberGibberishImpl member2
-                = new ConferenceMemberGibberishImpl(this);
+                = new ConferenceMemberGibberishImpl(this, "Ivancho@gibberish");
             member2.setDisplayName("Ivancho");
             member2.setState(ConferenceMemberState.CONNECTED);
             this.addConferenceMember(member2);

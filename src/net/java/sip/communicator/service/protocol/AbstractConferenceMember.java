@@ -19,7 +19,6 @@ public class AbstractConferenceMember
     extends PropertyChangeNotifier
     implements ConferenceMember
 {
-
     /**
      * The <tt>CallPeer</tt> which is the conference focus of this
      * <tt>ConferenceMember</tt>.
@@ -33,6 +32,11 @@ public class AbstractConferenceMember
     private String displayName;
 
     /**
+     * The protocol address of this <tt>ConferenceMember</tt>.
+     */
+    private String address;
+
+    /**
      * The state of the device and signaling session of this
      * <tt>ConferenceMember</tt> in the conference.
      */
@@ -44,11 +48,16 @@ public class AbstractConferenceMember
      * is connected.
      * @param conferenceFocusCallPeer the <tt>CallPeer</tt> to which this member
      * is connected
+     * @param address the protocol address of this <tt>ConferenceMember</tt>
      */
-    public AbstractConferenceMember(
-        CallPeer conferenceFocusCallPeer)
+    public AbstractConferenceMember(CallPeer conferenceFocusCallPeer,
+                                    String address)
     {
         this.conferenceFocusCallPeer = conferenceFocusCallPeer;
+
+        if (address == null)
+            throw new NullPointerException("address");
+        this.address = address;
     }
 
     /**
@@ -79,6 +88,16 @@ public class AbstractConferenceMember
     public ConferenceMemberState getState()
     {
         return state;
+    }
+
+    /**
+     * Returns the protocol address of this <tt>ConferenceMember</tt>.
+     *
+     * @return the protocol address of this <tt>ConferenceMember</tt>
+     */
+    public String getAddress()
+    {
+        return address;
     }
 
     /**
