@@ -99,11 +99,15 @@ public class DSAudioStream
             byte[] bytebuff = stream.read();
 
             buffer.setTimeStamp(System.nanoTime());
+
             buffer.setData(bytebuff);
-            buffer.setSequenceNumber(seqNo);
             buffer.setLength(bytebuff.length);
+
             buffer.setFlags(0);
+            buffer.setFormat(getFormat());
             buffer.setHeader(null);
+
+            buffer.setSequenceNumber(seqNo);
             seqNo++;
         }
         catch (PortAudioException pae)

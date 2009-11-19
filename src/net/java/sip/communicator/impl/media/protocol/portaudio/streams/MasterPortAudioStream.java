@@ -32,8 +32,8 @@ public class MasterPortAudioStream
     double sampleRate;
     int channels;
 
-    private ArrayList<InputPortAudioStream> slaves =
-        new ArrayList<InputPortAudioStream>();
+    private final List<InputPortAudioStream> slaves
+        = new ArrayList<InputPortAudioStream>();
 
     /**
      * Creates new stream.
@@ -160,10 +160,8 @@ public class MasterPortAudioStream
         PortAudio.Pa_ReadStream(
             stream, bytebuff, PortAudioManager.NUM_SAMPLES);
 
-        for(int i = 0; i < slaves.size(); i++)
-        {
-            slaves.get(i).setBuffer(bytebuff);
-        }
+        for(InputPortAudioStream slave : slaves)
+            slave.setBuffer(bytebuff);
 
         return bytebuff;
     }
