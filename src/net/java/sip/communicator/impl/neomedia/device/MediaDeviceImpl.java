@@ -496,6 +496,16 @@ public class MediaDeviceImpl
      */
     protected void setCaptureDevice(CaptureDevice captureDevice)
     {
+        /*
+         * Translate PullBufferDataSource into PushBufferDataSource because
+         * other functionality such as MutePushBufferDataSource may depend on
+         * it.
+         */
+//        if (captureDevice instanceof PullBufferDataSource)
+//            captureDevice
+//                = new PushBufferDataSourceAdapter(
+//                        (PullBufferDataSource) captureDevice);
+
         // Try to enable mute support on the specified CaptureDevice.
         if (captureDevice instanceof PushBufferDataSource)
             captureDevice

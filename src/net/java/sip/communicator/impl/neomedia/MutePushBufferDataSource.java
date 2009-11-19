@@ -24,13 +24,8 @@ import javax.media.protocol.*;
  * @author Lubomir Marinov
  */
 public class MutePushBufferDataSource
-    extends CaptureDeviceDelegatePushBufferDataSource
+    extends PushBufferDataSourceDelegate<PushBufferDataSource>
 {
-
-    /**
-     * The wrapped <tt>DataSource</tt> this instance provides mute support for.
-     */
-    private final PushBufferDataSource dataSource;
 
     /**
      * The indicator which determines whether this <tt>DataSource</tt> is mute.
@@ -46,107 +41,7 @@ public class MutePushBufferDataSource
      */
     public MutePushBufferDataSource(PushBufferDataSource dataSource)
     {
-        super(
-            (dataSource instanceof CaptureDevice)
-                ? (CaptureDevice) dataSource
-                : null);
-
-        this.dataSource = dataSource;
-    }
-
-    /**
-     * Implements {@link DataSource#connect()}. Delegates to the wrapped
-     * <tt>PushBufferDataSource</tt>. Overrides
-     * {@link CaptureDeviceDelegatePushBufferDataSource#connect()} because the
-     * wrapped <tt>PushBufferDataSource</tt> may not be a <tt>CaptureDevice</tt>
-     * yet it still needs to be connected.
-     *
-     * @throws IOException if the wrapped <tt>PushBufferDataSource</tt> throws
-     * such an exception
-     */
-    @Override
-    public void connect()
-        throws IOException
-    {
-        dataSource.connect();
-    }
-
-    /**
-     * Implements {@link DataSource#disconnect()}. Delegates to the wrapped
-     * <tt>PushBufferDataSource</tt>. Overrides
-     * {@link CaptureDeviceDelegatePushBufferDataSource#disconnect()} because
-     * the wrapped <tt>PushBufferDataSource</tt> may not be a
-     * <tt>CaptureDevice</tt> yet it still needs to be disconnected.
-     */
-    @Override
-    public void disconnect()
-    {
-        dataSource.disconnect();
-    }
-
-    /**
-     * Implements {@link DataSource#getContentType()}. Delegates to the wrapped
-     * <tt>PushBufferDataSource</tt>. Overrides
-     * {@link CaptureDeviceDelegatePushBufferDataSource#getContentType()}
-     * because the wrapped <tt>PushBufferDataSource</tt> may not be a
-     * <tt>CaptureDevice</tt> yet it still needs to report the content type.
-     *
-     * @return a <tt>String</tt> value which describes the content type of the
-     * wrapped <tt>PushBufferDataSource</tt>
-     */
-    @Override
-    public String getContentType()
-    {
-        return dataSource.getContentType();
-    }
-
-    /**
-     * Implements {@link DataSource#getControl(String)}. Delegates to the
-     * wrapped <tt>PushBufferDataSource</tt>. Overrides
-     * {@link CaptureDeviceDelegatePushBufferDataSource#getControl(String)}
-     * because the wrapped <tt>PushBufferDataSource</tt> may not be a
-     * <tt>CaptureDevice</tt> yet it still needs to give access to the control.
-     *
-     * @param controlType a <tt>String</tt> value which names the type of the
-     * control to be retrieved
-     * @return an <tt>Object</tt> which represents the control of the requested
-     * <tt>controlType</tt> of the wrapped <tt>PushBufferDataSource</tt>
-     */
-    @Override
-    public Object getControl(String controlType)
-    {
-        return dataSource.getControl(controlType);
-    }
-
-    /**
-     * Implements {@link DataSource#getControls()}. Delegates to the wrapped
-     * <tt>PushBufferDataSource</tt>. Overrides
-     * {@link CaptureDeviceDelegatePushBufferDataSource#getControls()} because
-     * the wrapped <tt>PushBufferDataSource</tt> may not be a
-     * <tt>CaptureDevice</tt> yet it still needs to give access to the controls.
-     *
-     * @return an array of <tt>Objects</tt> which represent the controls of the
-     * wrapped <tt>PushBufferDataSource</tt>
-     */
-    @Override
-    public Object[] getControls()
-    {
-        return dataSource.getControls();
-    }
-
-    /**
-     * Implements {@link DataSource#getDuration()}. Delegates to the wrapped
-     * <tt>PushBufferDataSource</tt>. Overrides
-     * {@link CaptureDeviceDelegatePushBufferDataSource#getDuration()} because
-     * the wrapped <tt>PushBufferDataSource</tt> may not be a
-     * <tt>CaptureDevice</tt> yet it still needs to report the duration.
-     *
-     * @return the duration of the wrapped <tt>PushBufferDataSource</tt>
-     */
-    @Override
-    public Time getDuration()
-    {
-        return dataSource.getDuration();
+        super(dataSource);
     }
 
     /**
@@ -158,7 +53,6 @@ public class MutePushBufferDataSource
      * @return an array of <tt>PushBufferStream</tt> instances with enabled mute
      * support
      */
-    @Override
     public PushBufferStream[] getStreams()
     {
         PushBufferStream[] streams = dataSource.getStreams();
@@ -190,38 +84,6 @@ public class MutePushBufferDataSource
     public synchronized void setMute(boolean mute)
     {
         this.mute = mute;
-    }
-
-    /**
-     * Implements {@link DataSource#start()}. Delegates to the wrapped
-     * <tt>PushBufferDataSource</tt>. Overrides
-     * {@link CaptureDeviceDelegatePushBufferDataSource#start()} because the
-     * wrapped <tt>PushBufferDataSource</tt> may not be a <tt>CaptureDevice</tt>
-     * yet it still needs to be started.
-     *
-     * @throws IOException if the wrapped <tt>PushBufferDataSource</tt> throws
-     * such an exception
-     */
-    @Override
-    public void start() throws IOException
-    {
-        dataSource.start();
-    }
-
-    /**
-     * Implements {@link DataSource#stop()}. Delegates to the wrapped
-     * <tt>PushBufferDataSource</tt>. Overrides
-     * {@link CaptureDeviceDelegatePushBufferDataSource#stop()} because the
-     * wrapped <tt>PushBufferDataSource</tt> may not be a <tt>CaptureDevice</tt>
-     * yet it still needs to be stopped.
-     *
-     * @throws IOException if the wrapped <tt>PushBufferDataSource</tt> throws
-     * such an exception
-     */
-    @Override
-    public void stop() throws IOException
-    {
-        dataSource.stop();
     }
 
     /**

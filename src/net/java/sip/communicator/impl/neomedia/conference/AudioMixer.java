@@ -16,6 +16,7 @@ import javax.media.format.*;
 import javax.media.protocol.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Represents an audio mixer which manages the mixing of multiple audio streams
@@ -43,6 +44,12 @@ public class AudioMixer
 {
 
     /**
+     * The <tt>Logger</tt> used by the <tt>AudioMixer</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger = Logger.getLogger(AudioMixer.class);
+
+    /**
      * The default output <tt>AudioFormat</tt> in which <tt>AudioMixer</tt>,
      * <tt>AudioMixingPushBufferDataSource</tt> and
      * <tt>AudioMixingPushBufferStream</tt> output audio.
@@ -52,7 +59,7 @@ public class AudioMixer
                 AudioFormat.LINEAR,
                 44100,
                 16,
-                2,
+                1,
                 AudioFormat.LITTLE_ENDIAN,
                 AudioFormat.SIGNED);
 
@@ -113,6 +120,11 @@ public class AudioMixer
      */
     public AudioMixer(CaptureDevice captureDevice)
     {
+        if (captureDevice instanceof PullBufferDataSource)
+            captureDevice
+                = new PushBufferDataSourceAdapter(
+                        (PullBufferDataSource) captureDevice);
+
         this.captureDevice = captureDevice;
 
         this.localOutputDataSource = createOutputDataSource();
@@ -155,14 +167,17 @@ public class AudioMixer
         if (inputDataSource == null)
             throw new IllegalArgumentException("inputDataSource");
 
-        for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
-            if (inputDataSource.equals(inputDataSourceDesc.inputDataSource))
-                throw new IllegalArgumentException("inputDataSource");
+        synchronized (inputDataSources)
+        {
+            for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
+                if (inputDataSource.equals(inputDataSourceDesc.inputDataSource))
+                    throw new IllegalArgumentException("inputDataSource");
 
-        inputDataSources.add(
-            new InputDataSourceDesc(
-                    inputDataSource,
-                    outputDataSource));
+            inputDataSources.add(
+                new InputDataSourceDesc(
+                        inputDataSource,
+                        outputDataSource));
+        }
     }
 
     /**
@@ -179,8 +194,11 @@ public class AudioMixer
         throws IOException
     {
         if (connected == 0)
-            for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
-                inputDataSourceDesc.getEffectiveInputDataSource().connect();
+            synchronized (inputDataSources)
+            {
+                for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
+                    inputDataSourceDesc.getEffectiveInputDataSource().connect();
+            }
 
         connected++;
     }
@@ -257,8 +275,11 @@ public class AudioMixer
         {
             outputStream = null;
 
-            for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
-                inputDataSourceDesc.getEffectiveInputDataSource().disconnect();
+            synchronized (inputDataSources)
+            {
+                for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
+                    inputDataSourceDesc.getEffectiveInputDataSource().disconnect();
+            }
         }
     }
 
@@ -297,19 +318,23 @@ public class AudioMixer
     {
         Time duration = null;
 
-        for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
+        synchronized (inputDataSources)
         {
-            Time inputDuration
-                = inputDataSourceDesc
-                        .getEffectiveInputDataSource().getDuration();
+            for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
+            {
+                Time inputDuration
+                    = inputDataSourceDesc
+                            .getEffectiveInputDataSource().getDuration();
 
-            if (Duration.DURATION_UNBOUNDED.equals(inputDuration)
-                    || Duration.DURATION_UNKNOWN.equals(inputDuration))
-                return inputDuration;
+                if (Duration.DURATION_UNBOUNDED.equals(inputDuration)
+                        || Duration.DURATION_UNKNOWN.equals(inputDuration))
+                    return inputDuration;
 
-            if ((duration == null)
-                    || (duration.getNanoseconds() < inputDuration.getNanoseconds()))
-                duration = inputDuration;
+                if ((duration == null)
+                        || (duration.getNanoseconds()
+                                < inputDuration.getNanoseconds()))
+                    duration = inputDuration;
+            }
         }
         return (duration == null) ? Duration.DURATION_UNKNOWN : duration;
     }
@@ -485,30 +510,34 @@ public class AudioMixer
     {
         List<InputStreamDesc> inputStreams = new ArrayList<InputStreamDesc>();
 
-        for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
+        synchronized (inputDataSources)
         {
-            boolean got
-                = getInputStreamsFromInputDataSource(
-                        inputDataSourceDesc,
-                        outputFormat,
-                        inputStreams);
-
-            if (!got)
+            for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
             {
-                DataSource transcodingDataSource
-                    = createTranscodingDataSource(
-                            inputDataSourceDesc.getEffectiveInputDataSource(),
-                            outputFormat);
+                boolean got
+                    = getInputStreamsFromInputDataSource(
+                            inputDataSourceDesc,
+                            outputFormat,
+                            inputStreams);
 
-                if (transcodingDataSource != null)
+                if (!got)
                 {
-                    inputDataSourceDesc.setTranscodingDataSource(
-                        transcodingDataSource);
+                    DataSource transcodingDataSource
+                        = createTranscodingDataSource(
+                                inputDataSourceDesc
+                                    .getEffectiveInputDataSource(),
+                                outputFormat);
 
-                    getInputStreamsFromInputDataSource(
-                        inputDataSourceDesc,
-                        outputFormat,
-                        inputStreams);
+                    if (transcodingDataSource != null)
+                    {
+                        inputDataSourceDesc
+                            .setTranscodingDataSource(transcodingDataSource);
+
+                        getInputStreamsFromInputDataSource(
+                            inputDataSourceDesc,
+                            outputFormat,
+                            inputStreams);
+                    }
                 }
             }
         }
@@ -544,8 +573,57 @@ public class AudioMixer
      */
     private AudioFormat getOutputFormatFromInputDataSources()
     {
-        // TODO Auto-generated method stub
-        return DEFAULT_OUTPUT_FORMAT;
+        String formatControlType = FormatControl.class.getName();
+        AudioFormat outputFormat = null;
+
+        synchronized (inputDataSources)
+        {
+            for (InputDataSourceDesc inputDataSource : inputDataSources)
+            {
+                FormatControl formatControl
+                    = (FormatControl)
+                        inputDataSource
+                            .getEffectiveInputDataSource()
+                                .getControl(formatControlType);
+
+                if (formatControl != null)
+                {
+                    AudioFormat format
+                        = (AudioFormat) formatControl.getFormat();
+
+                    if (format != null)
+                    {
+                        // SIGNED
+                        int signed = format.getSigned();
+
+                        if ((AudioFormat.SIGNED == signed)
+                                || (Format.NOT_SPECIFIED == signed))
+                        {
+                            // LITTLE_ENDIAN
+                            int endian = format.getEndian();
+
+                            if ((AudioFormat.LITTLE_ENDIAN == endian)
+                                    || (Format.NOT_SPECIFIED == endian))
+                            {
+                                outputFormat = format;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (outputFormat == null)
+            outputFormat = DEFAULT_OUTPUT_FORMAT;
+
+        if (logger.isTraceEnabled())
+            logger
+                .trace(
+                    "Determined outputFormat of AudioMixer"
+                        + " from inputDataSources to be "
+                        + outputFormat);
+        return outputFormat;
     }
 
     /**
@@ -649,20 +727,45 @@ public class AudioMixer
     {
         String formatControlType = FormatControl.class.getName();
 
-        for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
+        synchronized (inputDataSources)
         {
-            DataSource inputDataSource
-                = inputDataSourceDesc.getEffectiveInputDataSource();
-            FormatControl formatControl
-                = (FormatControl) inputDataSource.getControl(formatControlType);
-
-            if (formatControl != null)
+            for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
             {
-                Format inputFormat = formatControl.getFormat();
+                DataSource inputDataSource
+                    = inputDataSourceDesc.getEffectiveInputDataSource();
+                FormatControl formatControl
+                    = (FormatControl)
+                        inputDataSource.getControl(formatControlType);
 
-                if ((inputFormat == null)
-                        || !matches(inputFormat, outputFormat))
-                    formatControl.setFormat(outputFormat);
+                if (formatControl != null)
+                {
+                    Format inputFormat = formatControl.getFormat();
+
+                    if ((inputFormat == null)
+                            || !matches(inputFormat, outputFormat))
+                    {
+                        Format setFormat
+                            = formatControl.setFormat(outputFormat);
+
+                        if (setFormat == null)
+                            logger
+                                .error(
+                                    "Failed to set format of inputDataSource to "
+                                        + outputFormat);
+                        else if (setFormat != outputFormat)
+                            logger
+                                .warn(
+                                    "Failed to change format of inputDataSource from "
+                                        + setFormat
+                                        + " to "
+                                        + outputFormat);
+                        else if (logger.isTraceEnabled())
+                            logger
+                                .trace(
+                                    "Set format of inputDataSource to "
+                                        + setFormat);
+                    }
+                }
             }
         }
     }
@@ -675,8 +778,11 @@ public class AudioMixer
     void start()
         throws IOException
     {
-        for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
-            inputDataSourceDesc.getEffectiveInputDataSource().start();
+        synchronized (inputDataSources)
+        {
+            for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
+                inputDataSourceDesc.getEffectiveInputDataSource().start();
+        }
     }
 
     /**
@@ -687,8 +793,11 @@ public class AudioMixer
     void stop()
         throws IOException
     {
-        for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
-            inputDataSourceDesc.getEffectiveInputDataSource().stop();
+        synchronized (inputDataSources)
+        {
+            for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
+                inputDataSourceDesc.getEffectiveInputDataSource().stop();
+        }
     }
 
     /**
@@ -931,19 +1040,20 @@ public class AudioMixer
             throws IOException,
                    UnsupportedFormatException
         {
+            AudioFormat inputStreamFormat = (AudioFormat) inputStream.getFormat();
             Buffer buffer = new Buffer();
         
             if (sampleCount != 0)
             {
-                AudioFormat inputFormat = (AudioFormat) inputStream.getFormat();
-                Class<?> inputDataType = inputFormat.getDataType();
+                Class<?> inputDataType = inputStreamFormat.getDataType();
         
                 if (Format.byteArray.equals(inputDataType))
                 {
                     buffer.setData(
                         new byte[
                                 sampleCount
-                                    * (inputFormat.getSampleSizeInBits() / 8)]);
+                                    * (inputStreamFormat.getSampleSizeInBits()
+                                            / 8)]);
                     buffer.setLength(0);
                     buffer.setOffset(0);
                 }
@@ -951,7 +1061,7 @@ public class AudioMixer
                     throw
                         new UnsupportedFormatException(
                                 "!Format.getDataType().equals(byte[].class)",
-                                inputFormat);
+                                inputStreamFormat);
             }
         
             inputStream.read(buffer);
@@ -962,18 +1072,39 @@ public class AudioMixer
                 return null;
         
             AudioFormat inputFormat = (AudioFormat) buffer.getFormat();
-        
-            if (inputFormat.getSigned() != AudioFormat.SIGNED)
+
+            if (inputFormat == null)
+                inputFormat = inputStreamFormat;
+
+            int inputFormatSigned = inputFormat.getSigned();
+
+            if ((inputFormatSigned != AudioFormat.SIGNED)
+                    && (inputFormatSigned != Format.NOT_SPECIFIED))
                 throw
                     new UnsupportedFormatException(
                             "AudioFormat.getSigned()",
                             inputFormat);
-            if (inputFormat.getChannels() != outputFormat.getChannels())
+
+            int inputFormatChannels = inputFormat.getChannels();
+            int outputFormatChannels = outputFormat.getChannels();
+
+            if ((inputFormatChannels != outputFormatChannels)
+                    && (inputFormatChannels != Format.NOT_SPECIFIED)
+                    && (outputFormatChannels != Format.NOT_SPECIFIED))
+            {
+                logger
+                    .error(
+                        "Encountered inputFormat with a different number of"
+                            + " channels than outputFormat for inputFormat "
+                            + inputFormat
+                            + " and outputFormat "
+                            + outputFormat);
                 throw
                     new UnsupportedFormatException(
                             "AudioFormat.getChannels()",
                             inputFormat);
-        
+            }
+
             Object inputData = buffer.getData();
         
             if (inputData instanceof byte[])
