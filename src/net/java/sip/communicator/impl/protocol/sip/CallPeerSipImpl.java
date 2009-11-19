@@ -614,23 +614,30 @@ public class CallPeerSipImpl
         catch (ParseException ex)
         {
             logger.error("Error while trying to send a response to a bye", ex);
-            // no need to let the user know about the error since it doesn't
-            // affect them
-            return;
+            /*
+             * No need to let the user know about the error since it doesn't
+             * affect them. And just as the comment on sendResponse bellow
+             * says, this is not really a problem according to the RFC so we
+             * should proceed with the execution bellow in order to gracefully
+             * hangup the call.
+             */
         }
 
-        try
-        {
-            byeTran.sendResponse(ok);
-            logger.debug("sent response " + ok);
-        }
-        catch (Exception ex)
-        {
-            // This is not really a problem according to the RFC
-            // so just dump to stdout should someone be interested
-            logger.error("Failed to send an OK response to BYE request,"
-                + "exception was:\n", ex);
-        }
+        if (ok != null)
+            try
+            {
+                byeTran.sendResponse(ok);
+                logger.debug("sent response " + ok);
+            }
+            catch (Exception ex)
+            {
+                /*
+                 * This is not really a problem according to the RFC so just
+                 * dump to stdout should someone be interested.
+                 */
+                logger.error("Failed to send an OK response to BYE request,"
+                    + "exception was:\n", ex);
+            }
 
         // change status
         boolean dialogIsAlive;
@@ -1654,8 +1661,8 @@ public class CallPeerSipImpl
     {
         super.setState(newState, reason);
 
-        if ( CallPeerState.DISCONNECTED.equals(newState)
-             || CallPeerState.FAILED.equals(newState))
-            this.getMediaHandler().close();
+        if (CallPeerState.DISCONNECTED.equals(newState)
+                || CallPeerState.FAILED.equals(newState))
+            getMediaHandler().close();
     }
 }

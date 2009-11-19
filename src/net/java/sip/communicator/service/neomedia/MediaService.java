@@ -60,6 +60,24 @@ public interface MediaService
                                          MediaDevice     device);
 
     /**
+     * Creates a new <tt>MediaDevice</tt> which uses a specific
+     * <tt>MediaDevice</tt> to capture and play back media and performs mixing
+     * of the captured media and the media played back by any other users of the
+     * returned <tt>MediaDevice</tt>. For the <tt>AUDIO</tt> <tt>MediaType</tt>,
+     * the returned device is commonly referred to as an audio mixer. The
+     * <tt>MediaType</tt> of the returned <tt>MediaDevice</tt> is the same as
+     * the <tt>MediaType</tt> of the specified <tt>device</tt>.
+     *
+     * @param device the <tt>MediaDevice</tt> which is to be used by the
+     * returned <tt>MediaDevice</tt> to actually capture and play back media
+     * @return a new <tt>MediaDevice</tt> instance which uses <tt>device</tt> to
+     * capture and play back media and performs mixing of the captured media and
+     * the media played back by any other users of the returned
+     * <tt>MediaDevice</tt> instance
+     */
+    public MediaDevice createMixer(MediaDevice device);
+
+    /**
      * Gets the <tt>MediaFormatFactory</tt> through which <tt>MediaFormat</tt>
      * instances may be created for the purposes of working with the
      * <tt>MediaStream</tt>s created by this <tt>MediaService</tt>.

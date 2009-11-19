@@ -29,6 +29,7 @@ import net.java.sip.communicator.util.*;
  * both classes are only separated for reasons of readability.
  *
  * @author Emil Ivov
+ * @author Lubomir Marinov
  */
 public class CallPeerMediaHandler
 {
@@ -243,6 +244,31 @@ public class CallPeerMediaHandler
     }
 
     /**
+     * Gets a <tt>MediaDevice</tt> which is capable of capture and/or playback
+     * of media of the specified <tt>MediaType</tt>, is the default choice of
+     * the user for a <tt>MediaDevice</tt> with the specified <tt>MediaType</tt>
+     * and is appropriate for the current states of the associated
+     * <tt>CallPeer</tt> and <tt>Call</tt>.
+     * <p>
+     * For example, when the local peer is acting as a conference focus in the
+     * <tt>Call</tt> of the associated <tt>CallPeer</tt>, the audio device must
+     * be a mixer.
+     * </p>
+     *
+     * @param mediaType the <tt>MediaType</tt> in which the retrieved
+     * <tt>MediaDevice</tt> is to capture and/or play back media
+     * @return a <tt>MediaDevice</tt> which is capable of capture and/or
+     * playback of media of the specified <tt>mediaType</tt>, is the default
+     * choice of the user for a <tt>MediaDevice</tt> with the specified
+     * <tt>mediaType</tt> and is appropriate for the current states of the
+     * associated <tt>CallPeer</tt> and <tt>Call</tt>
+     */
+    private MediaDevice getDefaultDevice(MediaType mediaType)
+    {
+        return peer.getCall().getDefaultDevice(mediaType);
+    }
+
+    /**
      * Gets the <tt>MediaDirection</tt> value which represents the preference of
      * the user with respect to streaming media of the specified
      * <tt>MediaType</tt>.
@@ -275,7 +301,7 @@ public class CallPeerMediaHandler
      */
     public boolean isMute()
     {
-        return this.audioStream != null && audioStream.isMute();
+        return (audioStream != null) && audioStream.isMute();
     }
 
     /**
@@ -397,10 +423,8 @@ public class CallPeerMediaHandler
      */
     public void setMute(boolean mute)
     {
-        if (this.audioStream == null)
-            return;
-
-        audioStream.setMute(mute);
+        if (audioStream != null)
+            audioStream.setMute(mute);
     }
 
     /**
@@ -471,14 +495,12 @@ public class CallPeerMediaHandler
     private Vector<MediaDescription> createMediaDescriptions()
         throws OperationFailedException
     {
-        MediaService mediaService = SipActivator.getMediaService();
-
         //Audio Media Description
         Vector<MediaDescription> mediaDescs = new Vector<MediaDescription>();
 
         for (MediaType mediaType : MediaType.values())
         {
-            MediaDevice dev = mediaService.getDefaultDevice(mediaType);
+            MediaDevice dev = getDefaultDevice(mediaType);
 
             if (dev != null)
             {
@@ -815,8 +837,6 @@ public class CallPeerMediaHandler
         Vector<MediaDescription> remoteDescriptions = SdpUtils
                         .extractMediaDescriptions(offer);
 
-        MediaService mediaService = SipActivator.getMediaService();
-
         // prepare to generate answers to all the incoming descriptions
         Vector<MediaDescription> answerDescriptions
             = new Vector<MediaDescription>( remoteDescriptions.size() );
@@ -832,7 +852,7 @@ public class CallPeerMediaHandler
             List<MediaFormat> supportedFormats = SdpUtils.extractFormats(
                             mediaDescription, dynamicPayloadTypes);
 
-            MediaDevice dev = mediaService.getDefaultDevice(mediaType);
+            MediaDevice dev = getDefaultDevice(mediaType);
             MediaDirection devDirection
                 = (dev == null) ? MediaDirection.INACTIVE : dev.getDirection();
             /*
@@ -941,8 +961,6 @@ public class CallPeerMediaHandler
 
         this.setCallInfoURL(SdpUtils.getCallInfoURL(answer));
 
-        MediaService mediaService = SipActivator.getMediaService();
-
         for ( MediaDescription mediaDescription : remoteDescriptions)
         {
             MediaType mediaType = SdpUtils.getMediaType(mediaDescription);
@@ -950,7 +968,7 @@ public class CallPeerMediaHandler
             List<MediaFormat> supportedFormats = SdpUtils.extractFormats(
                             mediaDescription, dynamicPayloadTypes);
 
-            MediaDevice dev = mediaService.getDefaultDevice(mediaType);
+            MediaDevice dev = getDefaultDevice(mediaType);
             MediaDirection devDirection
                 = (dev == null) ? MediaDirection.INACTIVE : dev.getDirection();
 

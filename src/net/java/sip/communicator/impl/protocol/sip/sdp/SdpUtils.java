@@ -24,6 +24,7 @@ import net.java.sip.communicator.util.*;
  * creating and parsing SDP descriptions.
  *
  * @author Emil Ivov
+ * @author Lubomir Marinov
  */
 public class SdpUtils
 {
@@ -255,7 +256,6 @@ public class SdpUtils
             // can't be since we just created it.
             logger.info("A crazy thing just happened.", e);
         }
-
 
         return update;
     }

@@ -12,6 +12,8 @@ import javax.sip.*;
 import javax.sip.address.*;
 import javax.sip.message.*;
 
+import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -35,6 +37,14 @@ public class CallSipImpl
      */
     private final List<CallPeerSipImpl> callPeers =
         new Vector<CallPeerSipImpl>();
+
+    /**
+     * The <tt>MediaDevice</tt> which performs audio mixing for this
+     * <tt>Call</tt> and its <tt>CallPeer</tt>s when the local peer represented
+     * by this <tt>Call</tt> is acting as a conference focus i.e.
+     * {@link #conferenceFocus} is <tt>true</tt>.
+     */
+    private MediaDevice conferenceAudioMixer;
 
     /**
      * The indicator which determines whether the local peer represented by this
@@ -207,13 +217,14 @@ public class CallSipImpl
     public void peerStateChanged(CallPeerChangeEvent evt)
     {
         CallPeerState newState = (CallPeerState) evt.getNewValue();
-        if (newState == CallPeerState.DISCONNECTED
-            || newState == CallPeerState.FAILED)
+
+        if (CallPeerState.DISCONNECTED.equals(newState)
+                || CallPeerState.FAILED.equals(newState))
         {
             removeCallPeer((CallPeerSipImpl) evt.getSourceCallPeer());
         }
-        else if ((newState == CallPeerState.CONNECTED
-               || newState == CallPeerState.CONNECTING_WITH_EARLY_MEDIA))
+        else if (CallPeerState.CONNECTED.equals(newState)
+                || CallPeerState.CONNECTING_WITH_EARLY_MEDIA.equals(newState))
         {
             setCallState(CallState.CALL_IN_PROGRESS);
         }
@@ -602,6 +613,51 @@ public class CallSipImpl
         if (this.conferenceFocus != conferenceFocus)
         {
             this.conferenceFocus = conferenceFocus;
+
+            /*
+             * If this Call switches from being a conference focus to not being
+             * one, dispose of the audio mixer used when it was a conference
+             * focus.
+             */
+            if (!this.conferenceFocus)
+                conferenceAudioMixer = null;
         }
+    }
+
+    /**
+     * Gets a <tt>MediaDevice</tt> which is capable of capture and/or playback
+     * of media of the specified <tt>MediaType</tt>, is the default choice of
+     * the user for a <tt>MediaDevice</tt> with the specified <tt>MediaType</tt>
+     * and is appropriate for the current state of this <tt>Call</tt>.
+     * <p>
+     * For example, when the local peer represented by this <tt>Call</tt>
+     * instance is acting as a conference focus, the audio device must be a
+     * mixer.
+     * </p>
+     *
+     * @param mediaType the <tt>MediaType</tt> in which the retrieved
+     * <tt>MediaDevice</tt> is to capture and/or play back media
+     * @return a <tt>MediaDevice</tt> which is capable of capture and/or
+     * playback of media of the specified <tt>mediaType</tt>, is the default
+     * choice of the user for a <tt>MediaDevice</tt> with the specified
+     * <tt>mediaType</tt> and is appropriate for the current state of this
+     * <tt>Call</tt>
+     */
+    MediaDevice getDefaultDevice(MediaType mediaType)
+    {
+        MediaService mediaService = SipActivator.getMediaService();
+
+        if (MediaType.AUDIO.equals(mediaType) && isConferenceFocus())
+        {
+            if (conferenceAudioMixer == null)
+            {
+                MediaDevice device = mediaService.getDefaultDevice(mediaType);
+
+                if (device != null)
+                    conferenceAudioMixer = mediaService.createMixer(device);
+            }
+            return conferenceAudioMixer;
+        }
+        return mediaService.getDefaultDevice(mediaType);
     }
 }
