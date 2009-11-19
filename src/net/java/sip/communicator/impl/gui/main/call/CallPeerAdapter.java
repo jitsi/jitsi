@@ -20,11 +20,12 @@ import net.java.sip.communicator.util.*;
  * different <tt>CallPeerRenderer</tt>s when implementing peer functionalities.
  *
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class CallPeerAdapter
-    implements  CallPeerListener,
-                PropertyChangeListener,
-                CallPeerSecurityListener
+    extends net.java.sip.communicator.service.protocol.event.CallPeerAdapter
+    implements PropertyChangeListener,
+               CallPeerSecurityListener
 {
     /**
      * The renderer of the underlying <tt>CallPeer</tt>.
@@ -46,9 +47,8 @@ public class CallPeerAdapter
      */
     public CallPeerAdapter(CallPeer callPeer, CallPeerRenderer renderer)
     {
-        this.renderer = renderer;
-
         this.callPeer = callPeer;
+        this.renderer = renderer;
     }
 
     /**
@@ -56,6 +56,7 @@ public class CallPeerAdapter
      *
      * @param evt fired CallPeerEvent
      */
+    @Override
     public void peerStateChanged(CallPeerChangeEvent evt)
     {
         CallPeer sourcePeer = evt.getSourceCallPeer();
@@ -117,20 +118,11 @@ public class CallPeerAdapter
     }
 
     /**
-     * Fired when peer's address is changed
-     *
-     * @param evt fired CallPeerEvent
-     */
-    public void peerAddressChanged(CallPeerChangeEvent evt)
-    {
-        //TODO: Implement peer address changed.
-    }
-
-    /**
      * Fired when peer's display name is changed
      *
      * @param evt fired CallPeerEvent
      */
+    @Override
     public void peerDisplayNameChanged(CallPeerChangeEvent evt)
     {
         CallPeer sourcePeer = evt.getSourceCallPeer();
@@ -144,6 +136,7 @@ public class CallPeerAdapter
      *
      * @param evt fired CallPeerEvent
      */
+    @Override
     public void peerImageChanged(CallPeerChangeEvent evt)
     {
         CallPeer sourcePeer = evt.getSourceCallPeer();
@@ -152,15 +145,6 @@ public class CallPeerAdapter
             return;
 
         renderer.setPeerImage(new ImageIcon( (byte[]) evt.getNewValue()));
-    }
-
-    /**
-     * Fired when peer's transport address is changed
-     *
-     * @param evt fired CallPeerEvent
-     */
-    public void peerTransportAddressChanged(CallPeerChangeEvent evt)
-    {
     }
 
     /**

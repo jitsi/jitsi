@@ -857,6 +857,7 @@ public class CallHistoryServiceImpl
 
         callPeer.addCallPeerListener(new CallPeerAdapter()
         {
+            @Override
             public void peerStateChanged(CallPeerChangeEvent evt)
             {
                 if(evt.getNewValue().equals(CallPeerState.DISCONNECTED))

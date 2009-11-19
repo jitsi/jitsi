@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
@@ -77,13 +78,17 @@ public class ActionMenuPanel
                     : ImageLoader.QUICK_MENU_HIDE_OFFLINE_ICON),
             "Show/Hide",
             "showOffline");
-        addMoreActionsButton(
-            ImageLoader.getImage(
-                GuiActivator.getAudioNotifier().isMute()
-                    ? ImageLoader.QUICK_MENU_SOUND_OFF_ICON
-                    : ImageLoader.QUICK_MENU_SOUND_ON_ICON),
-            "Sound",
-            "sound");
+
+        AudioNotifierService audioNotifier = GuiActivator.getAudioNotifier();
+        if (audioNotifier != null)
+            addMoreActionsButton(
+                ImageLoader.getImage(
+                    audioNotifier.isMute()
+                        ? ImageLoader.QUICK_MENU_SOUND_OFF_ICON
+                        : ImageLoader.QUICK_MENU_SOUND_ON_ICON),
+                "Sound",
+                "sound");
+
         addMoreActionsButton(
             ImageLoader.getImage(ImageLoader.QUICK_MENU_MY_CHAT_ROOMS_ICON),
             "Chatrooms",

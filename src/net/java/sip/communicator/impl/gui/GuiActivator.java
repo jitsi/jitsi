@@ -288,15 +288,19 @@ public class GuiActivator implements BundleActivator
      * @return the <tt>AudioNotifierService</tt> obtained from the bundle
      * context
      */
-    public static AudioNotifierService getAudioNotifier() {
-        if (audioNotifierService == null) {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(AudioNotifierService.class.getName());
+    public static AudioNotifierService getAudioNotifier()
+    {
+        if (audioNotifierService == null)
+        {
+            ServiceReference serviceReference
+                = bundleContext
+                    .getServiceReference(AudioNotifierService.class.getName());
 
-            audioNotifierService = (AudioNotifierService) bundleContext
-                .getService(serviceReference);
+            if (serviceReference != null)
+                audioNotifierService
+                    = (AudioNotifierService)
+                        bundleContext.getService(serviceReference);
         }
-
         return audioNotifierService;
     }
 
