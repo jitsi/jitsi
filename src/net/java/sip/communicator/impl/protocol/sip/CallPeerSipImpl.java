@@ -16,6 +16,9 @@ import javax.sip.header.*;
 import javax.sip.message.*;
 
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
+import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.service.neomedia.MediaType;
+import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -116,6 +119,30 @@ public class CallPeerSipImpl
      */
     private final List<PropertyChangeListener> videoPropertyChangeListeners
             = new LinkedList<PropertyChangeListener>();
+
+    /**
+     * Holds the wrapped ConferenceMembersSoundLevelListeners
+     * and their wrappers.
+     */
+    private Hashtable<
+                ConferenceMembersSoundLevelListener,
+                SoundLevelListenerWrapperForConferences>
+        confmembersSoundLevelListeners =
+            new Hashtable<
+                ConferenceMembersSoundLevelListener,
+                SoundLevelListenerWrapperForConferences>();
+
+    /**
+     * Holds the wrapped StreamSoundLevelListener
+     * and their wrappers.
+     */
+    private Hashtable<
+                StreamSoundLevelListener,
+                SoundLevelListenerWrapperForStream>
+        streamSoundLevelListeners =
+            new Hashtable<
+                StreamSoundLevelListener,
+                SoundLevelListenerWrapperForStream>();
 
     /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
@@ -1664,5 +1691,196 @@ public class CallPeerSipImpl
         if (CallPeerState.DISCONNECTED.equals(newState)
                 || CallPeerState.FAILED.equals(newState))
             getMediaHandler().close();
+    }
+
+    /**
+     * Adds a specific <tt>ConferenceMembersSoundLevelListener</tt> to the list
+     * of listeners interested in and notified about changes in conference
+     * members sound level.
+     *
+     * @param listener the <tt>ConferenceMembersSoundLevelListener</tt> to add
+     */
+    public void addConferenceMembersSoundLevelListener(
+        ConferenceMembersSoundLevelListener listener)
+    {
+        AudioMediaStream audioStream =
+            (AudioMediaStream)mediaHandler.getStream(MediaType.AUDIO);
+
+        if(audioStream != null)
+        {
+            SoundLevelListenerWrapperForConferences sli =
+                new SoundLevelListenerWrapperForConferences(listener);
+            audioStream.addConferenceMemberSoundLevelListener(sli);
+
+            confmembersSoundLevelListeners.put(listener, sli);
+            super.addConferenceMembersSoundLevelListener(listener);
+        }
+    }
+
+    /**
+     * Removes a specific <tt>ConferenceMembersSoundLevelListener</tt> of the
+     * list of listeners interested in and notified about changes in conference
+     * members sound level.
+     *
+     * @param listener the <tt>ConferenceMembersSoundLevelListener</tt> to
+     * remove
+     */
+    public void removeConferenceMembersSoundLevelListener(
+        ConferenceMembersSoundLevelListener listener)
+    {
+        super.removeConferenceMembersSoundLevelListener(listener);
+
+        AudioMediaStream audioStream =
+            (AudioMediaStream)mediaHandler.getStream(MediaType.AUDIO);
+
+        if(audioStream != null)
+        {
+            SoundLevelListenerWrapperForConferences sli =
+                confmembersSoundLevelListeners.get(listener);
+            if(sli != null)
+                audioStream.removeConferenceMemberSoundLevelListener(sli);
+        }
+        confmembersSoundLevelListeners.remove(listener);
+    }
+
+    /**
+     * Adds a specific <tt>StreamSoundLevelListener</tt> to the list of
+     * listeners interested in and notified about changes in stream sound level
+     * related information.
+     *
+     * @param listener the <tt>StreamSoundLevelListener</tt> to add
+     */
+    public void addStreamSoundLevelListener(StreamSoundLevelListener listener)
+    {
+        AudioMediaStream audioStream =
+            (AudioMediaStream)mediaHandler.getStream(MediaType.AUDIO);
+
+        if(audioStream != null)
+        {
+            SoundLevelListenerWrapperForStream sli =
+                new SoundLevelListenerWrapperForStream(listener);
+            audioStream.addSoundLevelListener(sli);
+
+            streamSoundLevelListeners.put(listener, sli);
+            super.addStreamSoundLevelListener(listener);
+        }
+    }
+
+    /**
+     * Removes a specific <tt>StreamSoundLevelListener</tt> of the list of
+     * listeners interested in and notified about changes in stream sound level
+     * related information.
+     *
+     * @param listener the <tt>StreamSoundLevelListener</tt> to remove
+     */
+    public void removeStreamSoundLevelListener(
+        StreamSoundLevelListener listener)
+    {
+        super.removeStreamSoundLevelListener(listener);
+
+        AudioMediaStream audioStream =
+            (AudioMediaStream)mediaHandler.getStream(MediaType.AUDIO);
+
+        if(audioStream != null)
+        {
+            SoundLevelListenerWrapperForStream sli =
+                streamSoundLevelListeners.get(listener);
+            if(sli != null)
+                audioStream.removeSoundLevelListener(sli);
+        }
+        streamSoundLevelListeners.remove(listener);
+    }
+
+    /**
+     * Wraps SoundLevelListener and convert its event to
+     * ConferenceMembersSoundLevelEvent events to be delivered to
+     * ConferenceMembersSoundLevelListener.
+     */
+    private class SoundLevelListenerWrapperForConferences
+        implements SoundLevelListener
+    {
+        private ConferenceMembersSoundLevelListener listener;
+
+        public SoundLevelListenerWrapperForConferences(
+            ConferenceMembersSoundLevelListener listener)
+        {
+            this.listener = listener;
+        }
+
+        /**
+         *
+         * @param evt the notification event containing the list of changes.
+         */
+        public void soundLevelChanged(SoundLevelChangeEvent evt)
+        {
+            Map<String,Integer> levels = evt.getLevels();
+
+            if(levels.size() == 0)
+                return;
+
+            Map<ConferenceMember, Integer> res =
+                new HashMap<ConferenceMember, Integer>();
+
+            ConferenceMember[] cms = getConferenceMembers();
+            for(int i = 0; i < cms.length; i++)
+            {
+                ConferenceMemberSipImpl cm = (ConferenceMemberSipImpl)cms[i];
+                String ssrc = cm.getSSRC();
+                if(ssrc != null)
+                {
+                    Integer level = levels.get(ssrc);
+                    if(level != null)
+                        res.put(cm, level);
+                }
+            }
+
+            if(res.size() > 0)
+                listener.membersSoundLevelChanged(
+                    new ConferenceMembersSoundLevelEvent(
+                            CallPeerSipImpl.this, res));
+        }
+    }
+
+    /**
+     * Wraps SoundLevelListener and convert its event to
+     * StreamSoundLevelEvent events to be delivered to
+     * StreamSoundLevelListener.
+     */
+    private class SoundLevelListenerWrapperForStream
+        implements SoundLevelListener
+    {
+        private StreamSoundLevelListener listener;
+
+        public SoundLevelListenerWrapperForStream(
+            StreamSoundLevelListener listener)
+        {
+            this.listener = listener;
+        }
+
+        /**
+         * Receives <tt>SoundLevelChangeEvent</tt>s and converts them to
+         * <tt>StreamSoundLevelEvent</tt> and fires them.
+         *
+         * @param evt the notification event containing the list of changes.
+         */
+        public void soundLevelChanged(SoundLevelChangeEvent evt)
+        {
+            Map<String,Integer> levels = evt.getLevels();
+
+            // as we listens for stream sound levels we must receive
+            // only one level at a time, or something is wrong
+            if(levels.size() == 1)
+            {
+                listener.streamSoundLevelChanged(
+                    new StreamSoundLevelEvent(
+                        CallPeerSipImpl.this,
+                        levels.values().iterator().next()
+                    ));
+            }
+            else
+                logger.warn("suspicious behavior of the SoundLevelListener " +
+                    "for peer " + CallPeerSipImpl.this);
+        }
+        
     }
 }
