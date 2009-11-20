@@ -4,9 +4,8 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.neomedia;
+package net.java.sip.communicator.impl.neomedia.protocol;
 
-import javax.media.*;
 import javax.media.protocol.*;
 
 /**

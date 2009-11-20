@@ -16,6 +16,7 @@ import javax.media.format.*;
 import javax.media.protocol.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
+import net.java.sip.communicator.impl.neomedia.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -1067,9 +1068,13 @@ public class AudioMixer
             }
         }
 
-        /*
-         * Implements SourceStream#endOfStream(). Delegates to the input
-         * SourceStreams of this instance.
+        /**
+         * Implements {@link SourceStream#endOfStream()}. Delegates to the input
+         * <tt>SourceStreams</tt> of this instance.
+         *
+         * @return <tt>true</tt> if all input <tt>SourceStream</tt>s of this
+         * instance have reached the end of their content; <tt>false</tt>,
+         * otherwise
          */
         public boolean endOfStream()
         {
@@ -1083,9 +1088,13 @@ public class AudioMixer
             return true;
         }
 
-        /*
-         * Implements SourceStream#getContentDescriptor(). Returns a
-         * ContentDescriptor which describes the content type of this instance.
+        /**
+         * Implements {@link SourceStream#getContentDescriptor()}. Returns a
+         * <tt>ContentDescriptor</tt> which describes the content type of this
+         * instance.
+         *
+         * @return a <tt>ContentDescriptor</tt> which describes the content type
+         * of this instance
          */
         public ContentDescriptor getContentDescriptor()
         {
@@ -1093,9 +1102,13 @@ public class AudioMixer
                 new ContentDescriptor(AudioMixer.this.getContentType());
         }
 
-        /*
-         * Implements SourceStream#getContentLength(). Delegates to the input
-         * SourceStreams of this instance.
+        /**
+         * Implements {@link SourceStream#getContentLength()}. Delegates to the
+         * input <tt>SourceStreams</tt> of this instance.
+         *
+         * @return the length of the content made available by this instance
+         * which is the maximum length of the contents made available by its
+         * input <tt>StreamSource</tt>s
          */
         public long getContentLength()
         {
@@ -1118,12 +1131,41 @@ public class AudioMixer
             return contentLength;
         }
 
-        /*
-         * Implements Controls#getControl(String). Does nothing.
+        /**
+         * Implements {@link Controls#getControl(String)}. Invokes
+         * {@link #getControls()} and then looks for a control of the specified
+         * type in the returned array of controls.
+         *
+         * @param controlType a <tt>String</tt> value naming the type of the
+         * control of this instance to be retrieved
+         * @return an <tt>Object</tt> which represents the control of this
+         * instance with the specified type
          */
         public Object getControl(String controlType)
         {
-            // TODO Auto-generated method stub
+            Object[] controls = getControls();
+
+            if ((controls != null) && (controls.length > 0))
+            {
+                Class<?> controlClass;
+
+                try
+                {
+                    controlClass = Class.forName(controlType);
+                }
+                catch (ClassNotFoundException cnfe)
+                {
+                    controlClass = null;
+                    logger
+                        .warn(
+                            "Failed to find control class " + controlType,
+                            cnfe);
+                }
+                if (controlClass != null)
+                    for (Object control : controls)
+                        if (controlClass.isInstance(control))
+                            return control;
+            }
             return null;
         }
 
@@ -1136,15 +1178,28 @@ public class AudioMixer
             return new Object[0];
         }
 
-        /*
-         * Implements PushBufferStream#getFormat(). Returns the output
-         * AudioFormat in which this instance was configured to output its data.
+        /**
+         * Implements {@link PushBufferStream#getFormat()}. Returns the
+         * <tt>AudioFormat</tt> in which this instance was configured to output
+         * its data.
+         *
+         * @return the <tt>AudioFormat</tt> in which this instance was
+         * configured to output its data
          */
         public AudioFormat getFormat()
         {
             return outputFormat;
         }
 
+        /**
+         * Gets the <tt>SourceStream</tt>s (in the form of
+         * <tt>InputStreamDesc</tt>s) from which this instance reads audio
+         * samples.
+         *
+         * @return an array of <tt>InputStreamDesc</tt>s which describe the
+         * input <tt>SourceStream</tt>s from which this instance reads audio
+         * samples
+         */
         InputStreamDesc[] getInputStreams()
         {
             synchronized (inputStreamsSyncRoot)
@@ -1153,11 +1208,18 @@ public class AudioMixer
             }
         }
 
-        /*
-         * Implements PushBufferStream#read(Buffer). Reads audio samples from
-         * the input SourceStreams of this instance in various formats, converts
-         * the read audio samples to one and the same format and pushes them to
-         * the output AudioMixingPushBufferStreams for the very audio mixing.
+        /**
+         * Implements {@link PushBufferStream#read(Buffer)}. Reads audio samples
+         * from the input <tt>SourceStreams</tt> of this instance in various
+         * formats, converts the read audio samples to one and the same format
+         * and pushes them to the output <tt>AudioMixingPushBufferStream</tt>s
+         * for the very audio mixing.
+         *
+         * @param buffer the <tt>Buffer</tt> in which the audio samples read
+         * from the input <tt>SourceStream</tt>s are to be returned to the
+         * caller
+         * @throws IOException if any of the input <tt>SourceStream</tt>s throw
+         * such an exception while reading from them or anything else goes wrong
          */
         public void read(Buffer buffer)
             throws IOException
@@ -1665,11 +1727,17 @@ public class AudioMixer
             }
         }
 
-        /*
-         * Implements PushBufferStream#setTransferHandler(BufferTransferHandler).
+        /**
+         * Implements
+         * {@link PushBufferStream#setTransferHandler(BufferTransferHandler)}.
          * Because this instance pushes data to multiple output
-         * AudioMixingPushBufferStreams, a single BufferTransferHandler is not
-         * sufficient and thus this method is unsupported.
+         * <tt>AudioMixingPushBufferStreams</tt>, a single
+         * <tt>BufferTransferHandler</tt> is not sufficient and thus this method
+         * is unsupported and throws <tt>UnsupportedOperationException</tt>.
+         *
+         * @param transferHandler the <tt>BufferTransferHandler</tt> to be
+         * notified by this <tt>PushBufferStream</tt> when media is available
+         * for reading
          */
         public void setTransferHandler(BufferTransferHandler transferHandler)
         {

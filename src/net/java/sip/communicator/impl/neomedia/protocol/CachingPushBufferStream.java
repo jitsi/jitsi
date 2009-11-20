@@ -4,15 +4,13 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.neomedia.conference;
+package net.java.sip.communicator.impl.neomedia.protocol;
 
 import java.io.*;
 
 import javax.media.*;
 import javax.media.format.*;
 import javax.media.protocol.*;
-
-import net.java.sip.communicator.impl.neomedia.*;
 
 /**
  * Enables reading from a <tt>PushBufferStream</tt> a certain maximum number
