@@ -20,7 +20,7 @@ public interface AudioMediaStream
     /**
      * Adds <tt>listener</tt> to the list of <tt>SoundLevelListener</tt>s
      * registered to receive notifications for changes in the levels of
-     * conference participants that the remote party could be mixing.
+     * remote participant.
      *
      * @param listener the <tt>SoundLevelListener</tt> that we'd like to
      * register.
@@ -35,6 +35,27 @@ public interface AudioMediaStream
      * @param listener the listener that we'd like to unregister.
      */
     public void removeSoundLevelListener(SoundLevelListener listener);
+
+    /**
+     * Adds <tt>listener</tt> to the list of <tt>SoundLevelListener</tt>s
+     * registered to receive notifications for changes in the levels of
+     * conference participants that the remote party could be mixing.
+     *
+     * @param listener the <tt>SoundLevelListener</tt> that we'd like to
+     * register.
+     */
+    public void addConferenceMemberSoundLevelListener(
+        SoundLevelListener listener);
+
+    /**
+     * Removes <tt>listener</tt> from the list of <tt>SoundLevelListener</tt>s
+     * registered to receive notification events upon changes of the sound
+     * level.
+     *
+     * @param listener the listener that we'd like to unregister.
+     */
+    public void removeConferenceMemberSoundLevelListener(
+        SoundLevelListener listener);
 
     /**
      * Starts sending the specified <tt>DTMFTone</tt> until the

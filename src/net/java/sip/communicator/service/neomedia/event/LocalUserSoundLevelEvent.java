@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.service.protocol.event;
+package net.java.sip.communicator.service.neomedia.event;
 
 import java.util.*;
 
@@ -38,15 +38,13 @@ public class LocalUserSoundLevelEvent
     /**
      * Creates an <tt>StreamSoundLevelEvent</tt> for the given <tt>callPeer</tt>
      * by indicating the current sound level of the audio stream.
-     * 
-     * @param protocolProvider the <tt>ProtocolProviderService</tt>
+     *
+     * @param source the source of the new <tt>LocalUserSoundLevelEvent</tt>.
      * @param level the current sound level of the audio stream
      */
-    public LocalUserSoundLevelEvent(
-        ProtocolProviderService protocolProvider, int level)
+    public LocalUserSoundLevelEvent(Object source, int level)
     {
-        super(protocolProvider);
-
+        super(source);
         this.level = level;
     }
 

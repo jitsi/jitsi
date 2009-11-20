@@ -11,8 +11,8 @@ import java.util.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
-import net.java.sip.communicator.impl.gui.main.call.CallPeerAdapter;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -129,7 +129,8 @@ public class ConferenceCallPanel
             .getOperationSet(OperationSetBasicTelephony.class);
 
         if (telephonyOpSet != null)
-            telephonyOpSet.addLocalUserSoundLevelListener(localPeerPanel);
+            GuiActivator.getMediaService().
+                addLocalUserSoundLevelListener(localPeerPanel);
     }
 
     /**

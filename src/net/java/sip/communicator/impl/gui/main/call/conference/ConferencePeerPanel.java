@@ -18,6 +18,7 @@ import net.java.sip.communicator.impl.gui.main.call.CallPeerAdapter;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**

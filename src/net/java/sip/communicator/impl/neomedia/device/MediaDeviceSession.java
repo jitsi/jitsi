@@ -17,9 +17,11 @@ import javax.media.protocol.*;
 import javax.media.rtp.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
+import net.java.sip.communicator.impl.neomedia.codec.audio.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
+import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.util.*;
 
@@ -86,15 +88,15 @@ public class MediaDeviceSession
     private ControllerListener playerControllerListener;
 
     /**
-     * The <tt>Player</tt>s rendering <tt>ReceiveStream</tt>s on the
+     * The <tt>Processor</tt>s rendering <tt>ReceiveStream</tt>s on the
      * <tt>MediaDevice</tt> represented by this instance. Associated with
      * <tt>DataSource</tt> because different <tt>ReceiveStream</tt>s may be
      * added with one and the same <tt>DataSource</tt> so it has to be clear
-     * when a new <tt>Player</tt> is to be created and when it is to be
-     * disposed.
+     * when a new <tt>Processor</tt> is to be created and when it is to be
+     * disposed. The <tt>Processor</tt> is used as a Player.
      */
-    private final Map<DataSource, Player> players
-        = new HashMap<DataSource, Player>();
+    private final Map<DataSource, Processor> players
+        = new HashMap<DataSource, Processor>();
 
     /**
      * The JMF <tt>Processor</tt> which transcodes {@link #captureDevice} into
@@ -200,7 +202,7 @@ public class MediaDeviceSession
 
         synchronized (players)
         {
-            Player player = players.get(receiveStreamDataSource);
+            Processor player = players.get(receiveStreamDataSource);
 
             if (player == null)
             {
@@ -208,7 +210,7 @@ public class MediaDeviceSession
 
                 try
                 {
-                    player = Manager.createPlayer(receiveStreamDataSource);
+                    player = Manager.createProcessor(receiveStreamDataSource);
                 }
                 catch (IOException ioe)
                 {
@@ -227,29 +229,39 @@ public class MediaDeviceSession
                             exception);
                 else
                 {
-                    if (playerControllerListener == null)
-                        playerControllerListener = new ControllerListener()
-                        {
+                    waitForState(player, Processor.Configured);
+//                    // here we add sound level indicator for every incoming
+//                    //stream
+//                    try
+//                    {
+//                        TrackControl tc[] = player.getTrackControls();
+//                        if (tc != null)
+//                        {
+//                            for (int i = 0; i < tc.length; i++)
+//                            {
+//                                if (tc[i].getFormat() instanceof AudioFormat)
+//                                {
+//                                    // Assume there is only one audio track
+//                                    tc[i].setCodecChain(new Codec[]{
+//                                        new SoundLevelIndicatorEffect()});
+//                                    break;
+//                                }
+//                            }
+//                        }
+//                    }
+//                    catch (UnsupportedPlugInException ex)
+//                    {
+//                        logger.error("The processor does not support effects", ex);
+//                    }
+                    // to use the processor as player we must se its
+                    // content descriptor to null
+                    player.setContentDescriptor(null);
 
-                            /**
-                             * Notifies this <tt>ControllerListener</tt> that
-                             * the <tt>Controller</tt> which it is registered
-                             * with has generated an event.
-                             *
-                             * @param event the <tt>ControllerEvent</tt>
-                             * specifying the <tt>Controller</tt> which is the
-                             * source of the event and the very type of the
-                             * event
-                             * @see ControllerListener#controllerUpdate(
-                             * ControllerEvent)
-                             */
-                            public void controllerUpdate(ControllerEvent event)
-                            {
-                                playerControllerUpdate(event);
-                            }
-                        };
-                    player.addControllerListener(playerControllerListener);
-                    player.realize();
+                    waitForState(player, Processor.Realized);
+
+                    player.start();
+
+                    realizeComplete(player);
 
                     if (logger.isTraceEnabled())
                         logger
@@ -421,16 +433,17 @@ public class MediaDeviceSession
     }
 
     /**
-     * Releases the resources allocated by a specific <tt>Player</tt> in the
+     * Releases the resources allocated by a specific <tt>Processor</tt> in the
      * course of its execution and prepares it to be garbage collected.
+     * The <tt>Processor</tt> is used as a <tt>Player</tt>.
      *
-     * @param player the <tt>Player</tt> to dispose of
+     * @param player the <tt>Processor</tt> to dispose of
      */
-    protected void disposePlayer(Player player)
+    protected void disposePlayer(Processor player)
     {
         synchronized (players)
         {
-            Iterator<Map.Entry<DataSource, Player>> playerIter
+            Iterator<Map.Entry<DataSource, Processor>> playerIter
                 = players.entrySet().iterator();
 
             while (playerIter.hasNext())
@@ -456,7 +469,7 @@ public class MediaDeviceSession
     {
         synchronized (players)
         {
-            for (Player player : getPlayers())
+            for (Processor player : getPlayers())
                 disposePlayer(player);
         }
     }
@@ -638,20 +651,21 @@ public class MediaDeviceSession
     }
 
     /**
-     * Gets the <tt>Player</tt>s rendering <tt>ReceiveStream</tt>s for this
+     * Gets the <tt>Processors</tt>s rendering <tt>ReceiveStream</tt>s for this
      * instance on its associated <tt>MediaDevice</tt>. The returned
      * <tt>List</tt> is a copy of the internal storage and, consequently,
      * modifications to it do not affect this instance.
+     * The <tt>Processor</tt>s are used as a <tt>Player</tt>s.
      *
-     * @return a new <tt>List</tt> of <tt>Player</tt>s rendering
+     * @return a new <tt>List</tt> of <tt>Processor</tt>s rendering
      * <tt>ReceiveStream</tt>s for this instance on its associated
      * <tt>MediaDevice</tt>
      */
-    protected List<Player> getPlayers()
+    protected List<Processor> getPlayers()
     {
         synchronized (players)
         {
-            return new ArrayList<Player>(players.values());
+            return new ArrayList<Processor>(players.values());
         }
     }
 
@@ -785,35 +799,6 @@ public class MediaDeviceSession
     }
 
     /**
-     * Gets notified about <tt>ControllerEvent</tt>s generated by the
-     * <tt>Player</tt> instances in {@link #players}.
-     *
-     * @param event the <tt>ControllerEvent</tt> specifying the
-     * <tt>Controller</tt> which is the source of the event and the very type of
-     * the event
-     */
-    private void playerControllerUpdate(ControllerEvent event)
-    {
-        if (event instanceof RealizeCompleteEvent)
-        {
-            Player player = (Player) event.getSourceController();
-
-            if (player != null)
-            {
-                if (logger.isTraceEnabled())
-                    logger
-                        .trace(
-                            "Realized Player with hashCode "
-                                + player.hashCode());
-
-                player.start();
-
-                realizeComplete(player);
-            }
-        }
-    }
-
-    /**
      * Gets notified about <tt>ControllerEvent</tt>s generated by
      * {@link #processor}.
      *
@@ -846,6 +831,33 @@ public class MediaDeviceSession
 
                 if (format != null)
                     setFormat(processor, format);
+
+                if(NeomediaActivator.getMediaServiceImpl()
+                    .getLocalSoundLevelListeners().size() > 0)
+                {
+                    // here we add sound level indicator for captured media
+                    // from the microphone if there are interested listeners
+                    try
+                    {
+                        TrackControl tc[] = processor.getTrackControls();
+                        if (tc != null)
+                        {
+                            for (int i = 0; i < tc.length; i++)
+                            {
+                                if (tc[i].getFormat() instanceof AudioFormat)
+                                {
+                                    addSpundLevelIndicator(tc[i]);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    catch (UnsupportedPlugInException ex)
+                    {
+                        logger.error(
+                            "Unsupported sound level indicator effect", ex);
+                    }
+                }
             }
         }
         else if (event instanceof ControllerClosedEvent)
@@ -865,14 +877,40 @@ public class MediaDeviceSession
     }
 
     /**
-     * Notifies this instance that a specific <tt>Player</tt> of remote content
-     * has generated a <tt>RealizeCompleteEvent</tt>. Allows extenders to carry
-     * out additional processing on the <tt>Player</tt>.
+     * Creates sound level indicator effect and add it to the
+     * codec chain of the <tt>TrackControl</tt> and
+     * assumes there is only one audio track.
+     * @param tc the track control.
+     * @throws UnsupportedPlugInException
+     */
+    private void addSpundLevelIndicator(TrackControl tc)
+        throws UnsupportedPlugInException
+    {
+        SoundLevelIndicatorEffect slie = new SoundLevelIndicatorEffect(
+            LocalUserSoundLevelEvent.MIN_LEVEL,
+            LocalUserSoundLevelEvent.MAX_LEVEL,
+            new SoundLevelIndicatorEffect.SoundLevelIndicatorListener()
+            {
+                public void soundLevelChanged(int level)
+                {
+                    NeomediaActivator.getMediaServiceImpl()
+                        .fireLocalUserSoundLevelEvent(level);
+                }
+            });
+        // Assume there is only one audio track
+        tc.setCodecChain(new Codec[]{slie});
+    }
+
+    /**
+     * Notifies this instance that a specific <tt>Processor</tt> of 
+     * remote content has generated a <tt>RealizeCompleteEvent</tt>.
+     * Allows extenders to carry out additional processing on the 
+     * <tt>Processor</tt>. The <tt>Processor</tt> is used as a <tt>Player</tt>.
      *
-     * @param player the <tt>Player</tt> which is the source of a
+     * @param player the <tt>Processor</tt> which is the source of a
      * <tt>RealizeCompleteEvent</tt>
      */
-    protected void realizeComplete(Player player)
+    protected void realizeComplete(Processor player)
     {
     }
 
@@ -893,7 +931,7 @@ public class MediaDeviceSession
                 && !receiveStreams.containsValue(receiveStreamDataSource))
             synchronized (players)
             {
-                Player player = players.get(receiveStreamDataSource);
+                Processor player = players.get(receiveStreamDataSource);
 
                 if (player != null)
                     disposePlayer(player);

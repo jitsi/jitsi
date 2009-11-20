@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
+import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 
 /**
@@ -90,6 +91,12 @@ public class MediaServiceImpl
      */
     private final List<MediaDeviceImpl> videoDevices
         = new ArrayList<MediaDeviceImpl>();
+
+    /**
+     * A list of listeners registered for local user sound level events.
+     */
+    private final List<LocalUserSoundLevelListener> soundLevelListeners
+        = new Vector<LocalUserSoundLevelListener>();
 
     /**
      * Creates a new <tt>MediaStream</tt> instance which will use the specified
@@ -427,5 +434,67 @@ public class MediaServiceImpl
      */
     void stop()
     {
+    }
+
+    /**
+     * Adds the given <tt>LocalUserSoundLevelListener</tt> to this operation set.
+     * @param l the <tt>LocalUserSoundLevelListener</tt> to add
+     */
+    public void addLocalUserSoundLevelListener(LocalUserSoundLevelListener l)
+    {
+        synchronized(soundLevelListeners)
+        {
+            if (!soundLevelListeners.contains(l))
+                soundLevelListeners.add(l);
+        }
+    }
+
+    /**
+     * Removes the given <tt>LocalUserSoundLevelListener</tt> from this
+     * operation set.
+     * @param l the <tt>LocalUserSoundLevelListener</tt> to remove
+     */
+    public void removeLocalUserSoundLevelListener(LocalUserSoundLevelListener l)
+    {
+        synchronized(soundLevelListeners)
+        {
+            soundLevelListeners.remove(l);
+        }
+    }
+
+    /**
+     * Creates and dispatches a <tt>LocalUserSoundLevelEvent</tt> notifying
+     * registered listeners that the local user sound level has changed.
+     *
+     * @param level the new level
+     */
+    public void fireLocalUserSoundLevelEvent(int level)
+    {
+        LocalUserSoundLevelEvent soundLevelEvent
+            = new LocalUserSoundLevelEvent(this, level);
+        List<LocalUserSoundLevelListener> listeners;
+
+        synchronized (soundLevelListeners)
+        {
+            listeners = 
+                new ArrayList<LocalUserSoundLevelListener>(soundLevelListeners);
+        }
+
+        for (Iterator<LocalUserSoundLevelListener> listenerIter
+                = listeners.iterator(); listenerIter.hasNext();)
+        {
+            LocalUserSoundLevelListener listener = listenerIter.next();
+
+            listener.localUserSoundLevelChanged(soundLevelEvent);
+        }
+    }
+
+    /**
+     * All the local sound level listeners.
+     * @return the soundLevelListeners interested in local sound level changes.
+     */
+    public List<LocalUserSoundLevelListener> getLocalSoundLevelListeners()
+    {
+        return soundLevelListeners;
     }
 }

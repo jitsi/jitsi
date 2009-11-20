@@ -9,6 +9,7 @@ package net.java.sip.communicator.service.neomedia;
 import java.util.*;
 
 import net.java.sip.communicator.service.neomedia.device.*;
+import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 
 /**
@@ -87,4 +88,17 @@ public interface MediaService
      * with the <tt>MediaStream</tt>s created by this <tt>MediaService</tt>
      */
     public MediaFormatFactory getFormatFactory();
+
+    /**
+     * Adds the given <tt>LocalUserSoundLevelListener</tt> to this operation set.
+     * @param l the <tt>LocalUserSoundLevelListener</tt> to add
+     */
+    public void addLocalUserSoundLevelListener(LocalUserSoundLevelListener l);
+
+    /**
+     * Removes the given <tt>LocalUserSoundLevelListener</tt> from this
+     * operation set.
+     * @param l the <tt>LocalUserSoundLevelListener</tt> to remove
+     */
+    public void removeLocalUserSoundLevelListener(LocalUserSoundLevelListener l);
 }

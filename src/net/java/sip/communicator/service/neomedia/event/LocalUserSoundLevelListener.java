@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.service.protocol.event;
+package net.java.sip.communicator.service.neomedia.event;
 
 /**
  * Notifies interested parties in sound level changes of the local user audio

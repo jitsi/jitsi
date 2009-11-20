@@ -33,12 +33,6 @@ public abstract class AbstractOperationSetBasicTelephony
     private final List<CallListener> callListeners = new Vector<CallListener>();
 
     /**
-     * A list of listeners registered for local user sound level events.
-     */
-    private final List<LocalUserSoundLevelListener> soundLevelListeners
-        = new Vector<LocalUserSoundLevelListener>();
-
-    /**
      * Registers <tt>listener</tt> with this provider so that it
      * could be notified when incoming calls are received.
      *
@@ -126,64 +120,5 @@ public abstract class AbstractOperationSetBasicTelephony
          * approach, putOnHold/putOffHold just do nothing when not supported so
          * this implementation takes inspiration from them.
          */
-    }
-
-    /**
-     * Adds the given <tt>LocalUserSoundLevelListener</tt> to this operation set.
-     * @param l the <tt>LocalUserSoundLevelListener</tt> to add
-     */
-    public void addLocalUserSoundLevelListener(LocalUserSoundLevelListener l)
-    {
-        synchronized(soundLevelListeners)
-        {
-            if (!soundLevelListeners.contains(l))
-                soundLevelListeners.add(l);
-        }
-    }
-
-    /**
-     * Removes the given <tt>LocalUserSoundLevelListener</tt> from this
-     * operation set.
-     * @param l the <tt>LocalUserSoundLevelListener</tt> to remove
-     */
-    public void removeLocalUserSoundLevelListener(LocalUserSoundLevelListener l)
-    {
-        synchronized(soundLevelListeners)
-        {
-            soundLevelListeners.remove(l);
-        }
-    }
-
-    /**
-     * Creates and dispatches a <tt>LocalUserSoundLevelEvent</tt> notifying
-     * registered listeners that the local user sound level has changed.
-     *
-     * @param protocolProvider the protocol provider for which the level is
-     * @param level the new level
-     */
-    public void fireLocalUserSoundLevelEvent(
-        ProtocolProviderService protocolProvider, int level)
-    {
-        LocalUserSoundLevelEvent soundLevelEvent
-            = new LocalUserSoundLevelEvent(protocolProvider, level);
-        List<LocalUserSoundLevelListener> listeners;
-
-        synchronized (soundLevelListeners)
-        {
-            listeners = new ArrayList<LocalUserSoundLevelListener>(
-                                                        soundLevelListeners);
-        }
-
-        logger.debug("Dispatching a LocalUserSoundLevelEvent to "
-                + listeners.size()
-                + " listeners. event is: " + soundLevelEvent);
-
-        for (Iterator<LocalUserSoundLevelListener> listenerIter
-                = listeners.iterator(); listenerIter.hasNext();)
-        {
-            LocalUserSoundLevelListener listener = listenerIter.next();
-
-            listener.localUserSoundLevelChanged(soundLevelEvent);
-        }
     }
 }
