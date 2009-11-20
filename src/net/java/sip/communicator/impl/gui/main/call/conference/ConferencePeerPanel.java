@@ -114,6 +114,9 @@ public class ConferencePeerPanel
 
         this.setPeerName(callPeer.getDisplayName());
 
+        if (callPeer.isConferenceFocus())
+            setFocusUI(true);
+
         // We initialize the status bar for call peers only.
         this.initStatusBar(callPeer);
 
@@ -354,10 +357,6 @@ public class ConferencePeerPanel
         // Map the conference member to the created member panel.
         conferenceMembersPanels.put(member, memberPanel);
 
-        // If we have members turn to the conference focus UI.
-        if (conferenceMembersPanels.size() > 0)
-            this.setConferenceFocusUI(true);
-
         GridBagConstraints constraints = new GridBagConstraints();
 
         // Add the member panel to this container
@@ -366,7 +365,7 @@ public class ConferencePeerPanel
         constraints.gridy = getComponentCount();
         constraints.weightx = 1;
         constraints.weighty = 0;
-        constraints.insets = new Insets(5, 10, 5, 10);
+        constraints.insets = new Insets(10, 0, 0, 0);
 
         this.add(memberPanel, constraints);
 
@@ -393,10 +392,6 @@ public class ConferencePeerPanel
             conferenceMembersPanels.remove(member);
             member.removePropertyChangeListener(memberPanel);
         }
-
-        // If we don't have more members turn to the normal peer UI.
-        if (conferenceMembersPanels.size() == 0)
-            this.setConferenceFocusUI(false);
 
         this.revalidate();
         this.repaint();
@@ -486,12 +481,16 @@ public class ConferencePeerPanel
     }
 
     /**
-     * We're adding the up-coming members on conferenceMemberAdded, so for
-     * now we have nothing to do here.
+     * Enables or disables the conference focus UI depending on the change.
      * @param conferenceEvent the conference event
      */
     public void conferenceFocusChanged(CallPeerConferenceEvent conferenceEvent)
-    {}
+    {
+        if (conferenceEvent.getSourceCallPeer().equals(callPeer))
+        {
+            this.setFocusUI(callPeer.isConferenceFocus());
+        }
+    }
 
     /**
      * Paints a special background for conference focus peers.
@@ -500,7 +499,7 @@ public class ConferencePeerPanel
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
-        if (isConferenceFocusUI())
+        if (isFocusUI() && !isSingleFocusUI())
         {
             Graphics2D g2 = (Graphics2D) g.create();
 

@@ -150,6 +150,12 @@ public class ConferenceCallPanel
         // Map the call peer to its renderer.
         callPeerPanels.put(peer, confPeerPanel);
 
+        // Depending on call peer count enables or disables the 
+        if (call.getCallPeerCount() > 1)
+            setSingleConferenceFocusUI(false);
+        else
+            setSingleConferenceFocusUI(true);
+
         // Add the renderer component to this container.
         constraints.fill = GridBagConstraints.BOTH;
         constraints.gridx = 0;
@@ -182,6 +188,14 @@ public class ConferenceCallPanel
     {
         ConferencePeerPanel confPeerPanel = callPeerPanels.get(peer);
 
+        // Remove the corresponding renderer.
+        callPeerPanels.remove(peer);
+
+        if (call.getCallPeerCount() > 1)
+            setSingleConferenceFocusUI(false);
+        else
+            setSingleConferenceFocusUI(true);
+
         // Remove the renderer component.
         mainPanel.remove(confPeerPanel);
 
@@ -195,5 +209,26 @@ public class ConferenceCallPanel
         peer.removeCallPeerListener(adapter);
         peer.removePropertyChangeListener(adapter);
         peer.removeCallPeerSecurityListener(adapter);
+    }
+
+    /**
+     * Sets the single conference focus interface.
+     * @param isSingleConferenceFocusUI indicates if the single conference
+     * focus interface should be enabled or disabled
+     */
+    private void setSingleConferenceFocusUI(boolean isSingleConferenceFocusUI)
+    {
+        Enumeration<CallPeer> callPeers = callPeerPanels.keys();
+
+        while (callPeers.hasMoreElements())
+        {
+            CallPeer callPeer = callPeers.nextElement();
+
+            if (callPeer.isConferenceFocus())
+            {
+                callPeerPanels.get(callPeer)
+                    .setSingleFocusUI(isSingleConferenceFocusUI);
+            }
+        }
     }
 }

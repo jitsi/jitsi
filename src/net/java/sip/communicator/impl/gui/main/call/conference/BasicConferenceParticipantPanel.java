@@ -63,7 +63,9 @@ public class BasicConferenceParticipantPanel
 
     private final GridBagConstraints constraints = new GridBagConstraints();
 
-    private boolean isConferenceFocusUI;
+    private boolean isFocusUI;
+
+    private boolean isSingleFocusUI;
 
     /**
      * Creates an instance of <tt>ConferenceParticipantPanel</tt>.
@@ -156,16 +158,60 @@ public class BasicConferenceParticipantPanel
     }
 
     /**
-     * Enables or disables the conference focus user interface.
-     * @param isConferenceFocusUI indicates if we should enable or disable the
+     * Enables or disables the single conference focus user interface.
+     * @param isSingleFocusUI indicates if we should enable or disable the
      * conference focus user interface.
      */
-    public void setConferenceFocusUI(boolean isConferenceFocusUI)
+    public void setSingleFocusUI(boolean isSingleFocusUI)
     {
-        this.isConferenceFocusUI = isConferenceFocusUI;
+        this.isSingleFocusUI = isSingleFocusUI;
 
-        if (isConferenceFocusUI)
+        if (isSingleFocusUI)
+        {
+            this.setBorder(BorderFactory.createEmptyBorder(0,0,0,0));
+
+            this.remove(titleBar);
             this.remove(peerDetailsPanel);
+        }
+        else
+        {
+            this.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
+
+            constraints.fill = GridBagConstraints.HORIZONTAL;
+            constraints.gridx = 0;
+            constraints.gridy = 0;
+            constraints.weightx = 1;
+            constraints.weighty = 0;
+            constraints.insets = new Insets(0, 0, 0, 0);
+
+            this.add(titleBar, constraints);
+
+            constraints.fill = GridBagConstraints.BOTH;
+            constraints.gridx = 0;
+            constraints.gridy = 1;
+            constraints.weightx = 1;
+            constraints.weighty = 0;
+            constraints.insets = new Insets(0, 0, 0, 0);
+
+            this.add(peerDetailsPanel, constraints);
+        }
+        this.revalidate();
+        this.repaint();
+    }
+
+    /**
+     * Enables or disables the conference focus user interface.
+     * @param isFocusUI indicates if we should enable or disable the
+     * conference focus user interface.
+     */
+    public void setFocusUI(boolean isFocusUI)
+    {
+        this.isFocusUI = isFocusUI;
+
+        if (isFocusUI)
+        {
+            this.remove(peerDetailsPanel);
+        }
         else
         {
             constraints.fill = GridBagConstraints.BOTH;
@@ -177,6 +223,19 @@ public class BasicConferenceParticipantPanel
 
             this.add(peerDetailsPanel, constraints);
         }
+        this.revalidate();
+        this.repaint();
+    }
+
+    /**
+     * Returns <tt>true</tt> if the current interface corresponds to a
+     * single conference focus interface, otherwise returns <tt>false</tt>.
+     * @return <tt>true</tt> if the current interface corresponds to a
+     * single conference focus interface, otherwise returns <tt>false</tt>.
+     */
+    public boolean isSingleFocusUI()
+    {
+        return isSingleFocusUI;
     }
 
     /**
@@ -185,9 +244,9 @@ public class BasicConferenceParticipantPanel
      * @return <tt>true</tt> if the current interface corresponds to a
      * conference focus interface, otherwise returns <tt>false</tt>.
      */
-    public boolean isConferenceFocusUI()
+    public boolean isFocusUI()
     {
-        return isConferenceFocusUI;
+        return isFocusUI;
     }
 
     /**
@@ -241,18 +300,22 @@ public class BasicConferenceParticipantPanel
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
-        g = g.create();
 
-        try
+        if (!isSingleFocusUI)
         {
-            AntialiasingManager.activateAntialiasing(g);
+            g = g.create();
 
-            g.setColor(bgColor);
-            g.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), 20, 20);
-        }
-        finally
-        {
-            g.dispose();
+            try
+            {
+                AntialiasingManager.activateAntialiasing(g);
+
+                g.setColor(bgColor);
+                g.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), 20, 20);
+            }
+            finally
+            {
+                g.dispose();
+            }
         }
     }
 
