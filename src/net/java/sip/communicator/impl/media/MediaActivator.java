@@ -53,7 +53,7 @@ public class MediaActivator
         throws Exception
     {
         logger.debug("Started.");
-
+/*
         MediaActivator.bundleContext = context;
 
         // MediaService
@@ -73,12 +73,13 @@ public class MediaActivator
                 "plugin.mediaconfig.PLUGIN_ICON",
                 "impl.media.configform.TITLE",
                 40),
-            null);
+              null);
 
         //we use the nist-sdp stack to make parse sdp and we need to set the
         //following property to make sure that it would accept java generated
         //IPv6 addresses that contain address scope zones.
         System.setProperty("gov.nist.core.STRIP_ADDR_SCOPES", "true");
+*/
     }
 
     /**
