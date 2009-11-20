@@ -117,48 +117,19 @@ public class SipSecurityManager
     {
         String branchID = challengedTransaction.getBranchId();
         Request challengedRequest = challengedTransaction.getRequest();
+        Request reoriginatedRequest = cloneReqForAuthentication(
+                                            challengedRequest, challenge);
 
-        Request reoriginatedRequest = (Request) challengedRequest.clone();
-
-        //remove the branch id so that we could use the request in a new
-        //transaction
-        removeBranchID(reoriginatedRequest);
-
-        ListIterator authHeaders = null;
-
-        if (challenge.getStatusCode() == Response.UNAUTHORIZED)
-        {
-            authHeaders = challenge.getHeaders(WWWAuthenticateHeader.NAME);
-
-            // Remove all authorization headers from the request (we'll re-add
-            // them from cache)
-            reoriginatedRequest.removeHeader(AuthorizationHeader.NAME);
-        }
-        else if (challenge.getStatusCode()
-                 == Response.PROXY_AUTHENTICATION_REQUIRED)
-        {
-            authHeaders = challenge.getHeaders(ProxyAuthenticateHeader.NAME);
-
-            // Remove all authorization headers from the request (we'll re-add
-            // them from cache)
-            reoriginatedRequest.removeHeader(ProxyAuthorizationHeader.NAME);
-        }
-
-        //rfc 3261 says that the cseq header should be augmented for the new
-        //request. do it here so that the new dialog (created together with
-        //the new client transaction) takes it into account.
-        //Bug report - Fredrik Wickstrom
-        CSeqHeader cSeq =
-            (CSeqHeader) reoriginatedRequest.getHeader(CSeqHeader.NAME);
-        cSeq.setSeqNumber(cSeq.getSeqNumber() + 1l);
+        ListIterator<WWWAuthenticateHeader> authHeaders
+            = extractChallenges(challenge);
 
         ClientTransaction retryTran =
             transactionCreator.getNewClientTransaction(reoriginatedRequest);
 
-        WWWAuthenticateHeader authHeader = null;
+        //obtain authentication credentials for all authentication challenges.
         while (authHeaders.hasNext())
         {
-            authHeader = (WWWAuthenticateHeader) authHeaders.next();
+            WWWAuthenticateHeader authHeader = authHeaders.next();
             String realm = authHeader.getRealm();
 
             //Check whether we have cached credentials for authHeader's realm.
@@ -251,7 +222,7 @@ public class SipSecurityManager
             }
 
             AuthorizationHeader authorization =
-                this.getAuthorization(
+                this.createAuthorizationHeader(
                     reoriginatedRequest.getMethod(),
                     reoriginatedRequest.getRequestURI().toString(),
                     ( reoriginatedRequest.getContent() == null )? "" :
@@ -435,6 +406,85 @@ public class SipSecurityManager
     }
 
     /**
+     * Clones <tt>challengedRequest</tt> and initializes the clone (i.e.
+     * removes the branch id, and previously added authorization headers) so
+     *  that it would be ready for use as an authentication request.
+     *
+     * @param challengedRequest the request that we need to clone and prepare
+     * for re-authentication.
+     * @param challenge the response that challenged the original request.
+     *
+     * @return the list of authentication challenge headers that we'd need to
+     * reply to.
+     *
+     * @throws InvalidArgumentException if we fail to increase the value of the
+     * cseq header.
+     */
+    private Request cloneReqForAuthentication( Request  challengedRequest,
+                                               Response challenge)
+        throws InvalidArgumentException
+    {
+        Request reoriginatedRequest = (Request) challengedRequest.clone();
+
+        //remove the branch id so that we could use the request in a new
+        //transaction
+        removeBranchID(reoriginatedRequest);
+
+        // Remove all previously added authorization headers from the
+        // request since there was obviously something wrong with them
+        if (challenge.getStatusCode() == Response.UNAUTHORIZED)
+        {
+            reoriginatedRequest.removeHeader(AuthorizationHeader.NAME);
+        }
+        else if (challenge.getStatusCode()
+                 == Response.PROXY_AUTHENTICATION_REQUIRED)
+        {
+            reoriginatedRequest.removeHeader(ProxyAuthorizationHeader.NAME);
+        }
+
+        //rfc 3261 says that the cseq header should be augmented for the new
+        //request. do it here so that the new dialog (created together with
+        //the new client transaction) takes it into account.
+        //Bug report - Fredrik Wickstrom
+        CSeqHeader cSeq =
+            (CSeqHeader) reoriginatedRequest.getHeader(CSeqHeader.NAME);
+        cSeq.setSeqNumber(cSeq.getSeqNumber() + 1l);
+
+        return reoriginatedRequest;
+    }
+
+    /**
+     * Extracts and returns all authentication challenge headers that we'd
+     * need to reply to.
+     *
+     * @param challenge the <tt>Response</tt> containing the challenge headers
+     * that we'd like to retrieve.
+     *
+     * @return a <tt>ListIterator</tt> over the challenge headers available
+     * in <tt>challenge</tt> or <tt>null</tt> if there were no challenges in
+     * there.
+     */
+    @SuppressWarnings("unchecked") // legacy jain-sip code.
+    private ListIterator<WWWAuthenticateHeader> extractChallenges(
+                                                        Response challenge)
+    {
+        ListIterator<WWWAuthenticateHeader> authHeaders = null;
+
+        if (challenge.getStatusCode() == Response.UNAUTHORIZED)
+        {
+            authHeaders = challenge.getHeaders(WWWAuthenticateHeader.NAME);
+        }
+        else if (challenge.getStatusCode()
+                 == Response.PROXY_AUTHENTICATION_REQUIRED)
+        {
+
+            authHeaders = challenge.getHeaders(ProxyAuthenticateHeader.NAME);
+        }
+
+        return authHeaders;
+    }
+
+    /**
      * Generates an authorization header in response to wwwAuthHeader.
      *
      * @param method method of the request being authenticated
@@ -447,7 +497,7 @@ public class SipSecurityManager
      *
      * @throws OperationFailedException if auth header was malformed.
      */
-    private AuthorizationHeader getAuthorization(
+    private AuthorizationHeader createAuthorizationHeader(
                 String                method,
                 String                uri,
                 String                requestBody,
