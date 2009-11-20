@@ -67,10 +67,13 @@ public class CachingPushBufferStream
         this.stream = stream;
     }
 
-    /*
-     * Implements SourceStream#endOfStream(). Delegates to the wrapped
-     * PushBufferStream when the cache of this instance is fully read;
-     * otherwise, returns false.
+    /**
+     * Implements {@link SourceStream#endOfStream()}. Delegates to the wrapped
+     * <tt>PushBufferStream</tt> when the cache of this instance is fully read;
+     * otherwise, returns <tt>false</tt>.
+     *
+     * @return <tt> if this <tt>PushBufferStream</tt> has reached the end of the
+     * content it makes available; otherwise, <tt>false</tt>
      */
     public boolean endOfStream()
     {
@@ -81,49 +84,77 @@ public class CachingPushBufferStream
         return stream.endOfStream();
     }
 
-    /*
-     * Implements SourceStream#getContentDescriptor(). Delegates to the wrapped
-     * PushBufferStream.
+    /**
+     * Implements {@link SourceStream#getContentDescriptor()}. Delegates to the
+     * wrapped <tt>PushBufferStream</tt>.
+     *
+     * @return a <tt>ContentDescriptor</tt> which describes the type of the
+     * content made available by the wrapped <tt>PushBufferStream</tt>
      */
     public ContentDescriptor getContentDescriptor()
     {
         return stream.getContentDescriptor();
     }
 
-    /*
-     * Implements SourceStream#getContentLength(). Delegates to the wrapped
-     * PushBufferStream.
+    /**
+     * Implements {@link SourceStream#getContentLength()}. Delegates to the
+     * wrapped <tt>PushBufferStream</tt>.
+     *
+     * @return the length of the content made available by the wrapped
+     * <tt>PushBufferStream</tt>
      */
     public long getContentLength()
     {
         return stream.getContentLength();
     }
 
-    /*
-     * Implements Controls#getControl(String). Delegates to the wrapped
-     * PushBufferStream.
+    /**
+     * Implements {@link Controls#getControl(String)}. Delegates to the wrapped
+     * <tt>PushBufferStream</tt>.
+     *
+     * @param controlType a <tt>String</tt> value which names the type of the
+     * control of the wrapped <tt>PushBufferStream</tt> to be retrieved
+     * @return an <tt>Object</tt> which represents the control of the wrapped
+     * <tt>PushBufferStream</tt> with the specified type if such a control is
+     * available; otherwise, <tt>null</tt>
      */
     public Object getControl(String controlType)
     {
         return stream.getControl(controlType);
     }
 
-    /*
-     * Implements Controls#getControls(). Delegates to the wrapped
-     * PushBufferStream.
+    /**
+     * Implements {@link Controls#getControls()}. Delegates to the wrapped
+     * <tt>PushBufferStream</tt>.
+     *
+     * @return an array of <tt>Object</tt>s which represent the control
+     * available for the wrapped <tt>PushBufferStream</tt>
      */
     public Object[] getControls()
     {
         return stream.getControls();
     }
 
-    /*
-     * Implements PushBufferStream#getFormat(). Delegates to the wrapped
-     * PushBufferStream.
+    /**
+     * Implements {@link PushBufferStream#getFormat()}. Delegates to the wrapped
+     * <tt>PushBufferStream</tt>.
+     *
+     * @return the <tt>Format</tt> of the media data available for reading in
+     * this <tt>PushBufferStream</tt>
      */
     public Format getFormat()
     {
         return stream.getFormat();
+    }
+
+    /**
+     * Gets the <tt>PushBufferStream</tt> wrapped by this instance.
+     *
+     * @return the <tt>PushBufferStream</tt> wrapped by this instance
+     */
+    public PushBufferStream getStream()
+    {
+        return stream;
     }
 
     /**
@@ -141,10 +172,15 @@ public class CachingPushBufferStream
         return this;
     }
 
-    /*
-     * Implements PushBufferStream#read(Buffer). If an IOException has been
-     * thrown by the wrapped stream when data was last read from it, re-throws
-     * it. If there is no such exception, reads from the cache of this instance.
+    /**
+     * Implements {@link PushBufferStream#read(Buffer)}. If an
+     * <tt>IOException</tt> has been thrown by the wrapped stream when data was
+     * last read from it, re-throws it. If there has been no such exception,
+     * reads from the cache of this instance.
+     *
+     * @param buffer the <tt>Buffer</tt> to receive the read media data
+     * @throws IOException if the wrapped stream has thrown such an exception
+     * when data was last read from it
      */
     public void read(Buffer buffer)
         throws IOException
@@ -155,7 +191,9 @@ public class CachingPushBufferStream
         {
             if (readException != null)
             {
-                IOException ex = readException;
+                IOException ex = new IOException();
+
+                ex.initCause(readException);
                 readException = null;
                 throw ex;
             }
@@ -169,6 +207,7 @@ public class CachingPushBufferStream
                 catch (UnsupportedFormatException ufex)
                 {
                     IOException ioex = new IOException();
+
                     ioex.initCause(ufex);
                     throw ioex;
                 }
@@ -253,12 +292,18 @@ public class CachingPushBufferStream
         input.setOffset(input.getOffset() + outputLength);
     }
 
-    /*
-     * Implements PushBufferStream#setTransferHandler(BufferTransferHandler).
-     * Delegates to the wrapped PushBufferStream but wraps the specified
+    /**
+     * Implements
+     * {@link PushBufferStream#setTransferHandler(BufferTransferHandler)}.
+     * Delegates to the wrapped <tt>PushBufferStream<tt> but wraps the specified
      * BufferTransferHandler in order to intercept the calls to
-     * BufferTransferHandler#transferData(PushBufferStream) and read data from
-     * the wrapped PushBufferStream into the cache during the calls in question.
+     * {@link BufferTransferHandler#transferData(PushBufferStream)} and read
+     * data from the wrapped <tt>PushBufferStream</tt> into the cache during the
+     * calls in question.
+     *
+     * @param transferHandler the <tt>BufferTransferHandler</tt> to be notified
+     * by this <tt>PushBufferStream</tt> when media data is available for
+     * reading
      */
     public void setTransferHandler(BufferTransferHandler transferHandler)
     {
@@ -270,6 +315,7 @@ public class CachingPushBufferStream
                             stream,
                             this)
                         {
+                            @Override
                             public void transferData(PushBufferStream stream)
                             {
                                 if (CachingPushBufferStream.this.stream

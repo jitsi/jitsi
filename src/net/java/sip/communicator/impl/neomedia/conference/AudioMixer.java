@@ -364,6 +364,50 @@ public class AudioMixer
     }
 
     /**
+     * Gets an <tt>InputStreamDesc</tt> from a specific existing list of
+     * <tt>InputStreamDesc</tt>s which describes a specific
+     * <tt>SourceStream</tt>. If such an <tt>InputStreamDesc</tt> does not
+     * exist, returns <tt>null</tt>.
+     *
+     * @param inputStream the <tt>SourceStream</tt> to locate an
+     * <tt>InputStreamDesc</tt> for in <tt>existingInputStreamDescs</tt>
+     * @param existingInputStreamDescs the list of existing
+     * <tt>InputStreamDesc</tt>s in which an <tt>InputStreamDesc</tt> for
+     * <tt>inputStream</tt> is to be located
+     * @return an <tt>InputStreamDesc</tt> from
+     * <tt>existingInputStreamDescs</tt> which describes <tt>inputStream</tt> if
+     * such an <tt>InputStreamDesc</tt> exists; otherwise, <tt>null</tt>
+     */
+    private InputStreamDesc getExistingInputStreamDesc(
+            SourceStream inputStream,
+            InputStreamDesc[] existingInputStreamDescs)
+    {
+        if (existingInputStreamDescs == null)
+            return null;
+
+        for (InputStreamDesc existingInputStreamDesc
+                : existingInputStreamDescs)
+        {
+            SourceStream existingInputStream
+                = existingInputStreamDesc.getInputStream();
+
+            if (existingInputStream == inputStream)
+                return existingInputStreamDesc;
+            if ((existingInputStream instanceof BufferStreamAdapter<?>)
+                    && (((BufferStreamAdapter<?>) existingInputStream)
+                                .getStream()
+                            == inputStream))
+                return existingInputStreamDesc;
+            if ((existingInputStream instanceof CachingPushBufferStream)
+                    && (((CachingPushBufferStream) existingInputStream)
+                                .getStream()
+                            == inputStream))
+                return existingInputStreamDesc;
+        }
+        return null;
+    }
+
+    /**
      * Gets the duration of each one of the output streams produced by this
      * <tt>AudioMixer</tt>.
      * 
@@ -462,17 +506,19 @@ public class AudioMixer
      * @param outputFormat
      *            the <tt>AudioFormat</tt> in which the collected
      *            <tt>SourceStream</tt>s are to produce data
+     * @param existingInputStreams
      * @param inputStreams
      *            the <tt>List</tt> of <tt>InputStreamDesc</tt> in which
      *            the discovered <tt>SourceStream</tt>s are to be returned
      * @return <tt>true</tt> if <tt>SourceStream</tt>s produced by the
-     *         specified input <tt>DataSource</tt> and outputing data in the
+     *         specified input <tt>DataSource</tt> and outputting data in the
      *         specified <tt>AudioFormat</tt> were discovered and reported
      *         in <tt>inputStreams</tt>; otherwise, <tt>false</tt>
      */
     private boolean getInputStreamsFromInputDataSource(
         InputDataSourceDesc inputDataSourceDesc,
         AudioFormat outputFormat,
+        InputStreamDesc[] existingInputStreams,
         List<InputStreamDesc> inputStreams)
     {
         DataSource inputDataSource
@@ -500,12 +546,21 @@ public class AudioMixer
                 Format inputFormat = getFormat(inputStream);
 
                 if ((inputFormat != null)
-                        && matches(inputFormat, outputFormat)
-                        && inputStreams.add(
-                                new InputStreamDesc(
-                                        inputStream,
-                                        inputDataSourceDesc)))
-                    added = true;
+                        && matches(inputFormat, outputFormat))
+                {
+                    InputStreamDesc inputStreamDesc
+                        = getExistingInputStreamDesc(
+                            inputStream,
+                            existingInputStreams);
+
+                    if (inputStreamDesc == null)
+                        inputStreamDesc
+                            = new InputStreamDesc(
+                                    inputStream,
+                                    inputDataSourceDesc);
+                    if (inputStreams.add(inputStreamDesc))
+                        added = true;
+                }
             }
             return added;
         }
@@ -518,24 +573,42 @@ public class AudioMixer
             {
                 for (PushSourceStream inputStream
                         : ((PushDataSource) inputDataSource).getStreams())
-                    inputStreams.add(
-                        new InputStreamDesc(
-                                new PushBufferStreamAdapter(
-                                        inputStream,
-                                        inputFormat),
-                                inputDataSourceDesc));
+                {
+                    InputStreamDesc inputStreamDesc
+                        = getExistingInputStreamDesc(
+                            inputStream,
+                            existingInputStreams);
+
+                    if (inputStreamDesc == null)
+                        inputStreamDesc
+                            = new InputStreamDesc(
+                                    new PushBufferStreamAdapter(
+                                            inputStream,
+                                            inputFormat),
+                                    inputDataSourceDesc);
+                    inputStreams.add(inputStreamDesc);
+                }
                 return true;
             }
             if (inputDataSource instanceof PullDataSource)
             {
                 for (PullSourceStream inputStream
                         : ((PullDataSource) inputDataSource).getStreams())
-                    inputStreams.add(
-                        new InputStreamDesc(
-                                new PullBufferStreamAdapter(
-                                        inputStream,
-                                        inputFormat),
-                                inputDataSourceDesc));
+                {
+                    InputStreamDesc inputStreamDesc
+                        = getExistingInputStreamDesc(
+                            inputStream,
+                            existingInputStreams);
+
+                    if (inputStreamDesc == null)
+                        inputStreamDesc
+                            = new InputStreamDesc(
+                                    new PullBufferStreamAdapter(
+                                            inputStream,
+                                            inputFormat),
+                                    inputDataSourceDesc);
+                    inputStreams.add(inputStreamDesc);
+                }
                 return true;
             }
         }
@@ -554,6 +627,7 @@ public class AudioMixer
      * @param outputFormat
      *            the <tt>AudioFormat</tt> in which the retrieved
      *            <tt>SourceStream</tt>s are to produce data
+     * @param existingInputStreams
      * @return a new collection of <tt>SourceStream</tt>s (in the form of
      *         <tt>InputStreamDesc</tt>) retrieved from the input
      *         <tt>DataSource</tt>s of this <tt>AudioMixer</tt> and
@@ -561,7 +635,8 @@ public class AudioMixer
      * @throws IOException
      */
     private Collection<InputStreamDesc> getInputStreamsFromInputDataSources(
-            AudioFormat outputFormat)
+            AudioFormat outputFormat,
+            InputStreamDesc[] existingInputStreams)
         throws IOException
     {
         List<InputStreamDesc> inputStreams = new ArrayList<InputStreamDesc>();
@@ -574,6 +649,7 @@ public class AudioMixer
                     = getInputStreamsFromInputDataSource(
                             inputDataSourceDesc,
                             outputFormat,
+                            existingInputStreams,
                             inputStreams);
 
                 if (!got)
@@ -592,6 +668,7 @@ public class AudioMixer
                         getInputStreamsFromInputDataSource(
                             inputDataSourceDesc,
                             outputFormat,
+                            existingInputStreams,
                             inputStreams);
                     }
                 }
@@ -706,7 +783,11 @@ public class AudioMixer
             try
             {
                 inputStreams
-                    = getInputStreamsFromInputDataSources(outputFormat);
+                    = getInputStreamsFromInputDataSources(
+                        outputFormat,
+                        (outputStream == null)
+                            ? null
+                            : outputStream.getInputStreams());
             }
             catch (IOException ex)
             {
@@ -894,6 +975,14 @@ public class AudioMixer
             = Short.MAX_VALUE / (float) Integer.MAX_VALUE;
 
         /**
+         * The number of reads from an input stream with no returned samples
+         * which do not get reported in tracing output. Once the number of such
+         * reads from an input streams exceeds this limit, they get reported and
+         * the counting is restarted.
+         */
+        private static final long TRACE_NON_CONTRIBUTING_READ_COUNT = 1000;
+
+        /**
          * The <tt>SourceStream</tt>s (in the form of
          * <tt>InputStreamDesc</tt> so that this instance can track back the
          * <tt>AudioMixingPushBufferDataSource</tt> which outputs the mixed
@@ -908,6 +997,13 @@ public class AudioMixer
          * {@link #inputStreams}-related members.
          */
         private final Object inputStreamsSyncRoot = new Object();
+
+        /**
+         * The <tt>AudioFormat</tt> of the <tt>Buffer</tt> read during the last
+         * read from one of the {@link #inputStreams}. Only used for debugging
+         * purposes.
+         */
+        private AudioFormat lastReadInputFormat;
 
         /**
          * The <tt>AudioFormat</tt> of the data this instance outputs.
@@ -1049,6 +1145,14 @@ public class AudioMixer
             return outputFormat;
         }
 
+        InputStreamDesc[] getInputStreams()
+        {
+            synchronized (inputStreamsSyncRoot)
+            {
+                return (inputStreams == null) ? null : inputStreams.clone();
+            }
+        }
+
         /*
          * Implements PushBufferStream#read(Buffer). Reads audio samples from
          * the input SourceStreams of this instance in various formats, converts
@@ -1135,7 +1239,8 @@ public class AudioMixer
             throws IOException,
                    UnsupportedFormatException
         {
-            AudioFormat inputStreamFormat = (AudioFormat) inputStream.getFormat();
+            AudioFormat inputStreamFormat
+                = (AudioFormat) inputStream.getFormat();
             Buffer buffer = new Buffer();
         
             if (sampleCount != 0)
@@ -1170,6 +1275,17 @@ public class AudioMixer
 
             if (inputFormat == null)
                 inputFormat = inputStreamFormat;
+
+            if (logger.isTraceEnabled()
+                    && ((lastReadInputFormat == null)
+                            || !lastReadInputFormat.matches(inputFormat)))
+            {
+                lastReadInputFormat = inputFormat;
+                logger
+                    .trace(
+                        "Read inputSamples in different format "
+                            + lastReadInputFormat);
+            }
 
             int inputFormatSigned = inputFormat.getSigned();
 
@@ -1269,18 +1385,13 @@ public class AudioMixer
                                 inputFormat);
                 }
             }
-            else if (inputData instanceof short[])
+            else if (inputData != null)
             {
                 throw
                     new UnsupportedFormatException(
-                            "Format.getDataType().equals(short[].class)",
-                            inputFormat);
-            }
-            else if (inputData instanceof int[])
-            {
-                throw
-                    new UnsupportedFormatException(
-                            "Format.getDataType().equals(int[].class)",
+                            "Format.getDataType().equals("
+                                + inputData.getClass()
+                                + ")",
                             inputFormat);
             }
             return null;
@@ -1357,7 +1468,8 @@ public class AudioMixer
         
             for (int i = 0; i < inputStreams.length; i++)
             {
-                SourceStream inputStream = inputStreams[i].getInputStream();
+                InputStreamDesc inputStreamDesc = inputStreams[i];
+                SourceStream inputStream = inputStreamDesc.getInputStream();
         
                 if (inputStream instanceof PushBufferStream)
                 {
@@ -1366,11 +1478,11 @@ public class AudioMixer
                                 (PushBufferStream) inputStream,
                                 outputFormat,
                                 maxInputSampleCount);
+                    int inputStreamSampleCount;
         
                     if (inputStreamSamples != null)
                     {
-                        int inputStreamSampleCount = inputStreamSamples.length;
-        
+                        inputStreamSampleCount = inputStreamSamples.length;
                         if (inputStreamSampleCount != 0)
                         {
                             inputSamples[i] = inputStreamSamples;
@@ -1378,6 +1490,26 @@ public class AudioMixer
                             if (maxInputSampleCount < inputStreamSampleCount)
                                 maxInputSampleCount = inputStreamSampleCount;
                         }
+                        else if (logger.isTraceEnabled())
+                            inputStreamDesc.nonContributingReadCount++;
+                    }
+                    else if (logger.isTraceEnabled())
+                        inputStreamDesc.nonContributingReadCount++;
+
+                    if (logger.isTraceEnabled()
+                            && (TRACE_NON_CONTRIBUTING_READ_COUNT > 0)
+                            && (inputStreamDesc.nonContributingReadCount
+                                    >= TRACE_NON_CONTRIBUTING_READ_COUNT))
+                    {
+                        logger
+                            .trace(
+                                "Failed to read actual inputSamples more than "
+                                    + inputStreamDesc
+                                        .nonContributingReadCount
+                                    + " times from inputStream with hash code "
+                                    + inputStreamDesc
+                                        .getInputStream().hashCode());
+                        inputStreamDesc.nonContributingReadCount = 0;
                     }
                 }
             }
@@ -1484,31 +1616,51 @@ public class AudioMixer
 
                 for (InputStreamDesc inputStreamDesc : newValue)
                 {
-                   SourceStream inputStream = inputStreamDesc.getInputStream();
+                    SourceStream inputStream = inputStreamDesc.getInputStream();
 
-                   if (inputStream instanceof PushBufferStream)
-                   {
-                       if (!skippedForTransferHandler)
-                           skippedForTransferHandler = true;
-                       else if (!(inputStream instanceof CachingPushBufferStream))
-                           inputStreamDesc.setInputStream(
-                               new CachingPushBufferStream(
-                                       (PushBufferStream) inputStream));
-                   }
+                    if (!(inputStream instanceof PushBufferStream))
+                        continue;
+                    if (!skippedForTransferHandler)
+                    {
+                        skippedForTransferHandler = true;
+                        continue;
+                    }
+                    if (!(inputStream instanceof CachingPushBufferStream))
+                    {
+                        PushBufferStream cachingInputStream
+                            = new CachingPushBufferStream(
+                                    (PushBufferStream) inputStream);
+                        inputStreamDesc.setInputStream(cachingInputStream);
+                        if (logger.isTraceEnabled())
+                            logger
+                                .trace(
+                                    "Created CachingPushBufferStream"
+                                        + " with hashCode "
+                                        + cachingInputStream.hashCode()
+                                        + " for inputStream with hashCode "
+                                        + inputStream.hashCode());
+                    }
                 }
 
                 setTransferHandler(newValue, transferHandler);
 
                 if (logger.isTraceEnabled())
                 {
-                    int oldValueLength = (oldValue == null) ? 0 : oldValue.length;
-                    int newValueLength = (newValue == null) ? 0 : newValue.length;
+                    int oldValueLength
+                        = (oldValue == null) ? 0 : oldValue.length;
+                    int newValueLength
+                        = (newValue == null) ? 0 : newValue.length;
                     int difference = newValueLength - oldValueLength;
 
                     if (difference > 0)
-                        logger.trace("Added " + difference + " inputStream(s).");
+                        logger
+                            .trace("Added " + difference + " inputStream(s).");
                     else if (difference < 0)
-                        logger.trace("Removed " + difference + " inputStream(s).");
+                        logger
+                            .trace(
+                                "Removed "
+                                    + difference
+                                    + " inputStream(s).");
                 }
             }
         }
@@ -1784,6 +1936,12 @@ public class AudioMixer
          * described by this instance.
          */
         private SourceStream inputStream;
+
+        /**
+         * The number of reads of this input stream which did not return any
+         * samples.
+         */
+        long nonContributingReadCount;
 
         /**
          * Initializes a new <tt>InputStreamDesc</tt> instance which is to

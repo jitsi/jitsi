@@ -16,7 +16,9 @@ import javax.media.protocol.*;
  * ones reading data in arrays of bytes and not in <tt>Buffer</tt>s, to
  * <tt>SourceStream</tt>s reading data in <tt>Buffer</tt>s. An example
  * use is creating a PushBufferStream representation of a PushSourceStream.
- * 
+ *
+ * @param <T> the very type of <tt>SourceStream</tt> to be adapted by a
+ * <tt>BufferStreamAdapter</tt>
  * @author Lubomir Marinov
  */
 public abstract class BufferStreamAdapter<T extends SourceStream>
@@ -100,6 +102,16 @@ public abstract class BufferStreamAdapter<T extends SourceStream>
     public Format getFormat()
     {
         return format;
+    }
+
+    /**
+     * Gets the <tt>SourceStream</tt> wrapped by this instance.
+     *
+     * @return the <tt>SourceStream</tt> wrapped by this instance
+     */
+    public T getStream()
+    {
+        return stream;
     }
 
     /**
