@@ -253,7 +253,7 @@ public class MediaDeviceSession
 //                    {
 //                        logger.error("The processor does not support effects", ex);
 //                    }
-                    // to use the processor as player we must se its
+                    // to use the processor as player we must set its
                     // content descriptor to null
                     player.setContentDescriptor(null);
 
@@ -399,6 +399,18 @@ public class MediaDeviceSession
     }
 
     /**
+     * Creates the <tt>DataSource</tt> that this instance is to read captured
+     * media from.
+     *
+     * @return the <tt>DataSource</tt> that this instance is to read captured
+     * media from
+     */
+    protected DataSource createCaptureDevice()
+    {
+        return getDevice().createOutputDataSource();
+    }
+
+    /**
      * Makes sure {@link #captureDevice} is disconnected.
      */
     private void disconnectCaptureDevice()
@@ -514,7 +526,7 @@ public class MediaDeviceSession
     protected DataSource getCaptureDevice()
     {
         if (captureDevice == null)
-            captureDevice = getDevice().createOutputDataSource();
+            captureDevice = createCaptureDevice();
         return captureDevice;
     }
 

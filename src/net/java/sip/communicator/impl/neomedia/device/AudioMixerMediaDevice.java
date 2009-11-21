@@ -40,6 +40,12 @@ public class AudioMixerMediaDevice
     private final MediaDeviceImpl device;
 
     /**
+     * The <tt>MediaDeviceSession</tt> of this <tt>AudioMixer</tt> with
+     * {@link #device}.
+     */
+    private AudioMixerMediaDeviceSession deviceSession;
+
+    /**
      * Initializes a new <tt>AudioMixerMediaDevice</tt> instance which is to
      * enable audio mixing on a specific <tt>MediaDeviceImpl</tt>.
      *
@@ -83,9 +89,11 @@ public class AudioMixerMediaDevice
      * @see AbstractMediaDevice#createSession()
      */
     @Override
-    public MediaDeviceSession createSession()
+    public synchronized MediaDeviceSession createSession()
     {
-        return new AudioMixerMediaDeviceSession();
+        if (deviceSession == null)
+            deviceSession = new AudioMixerMediaDeviceSession();
+        return new MediaStreamMediaDeviceSession(deviceSession);
     }
 
     /**
@@ -155,19 +163,25 @@ public class AudioMixerMediaDevice
     }
 
     /**
-     * Represents the <tt>MediaDeviceSession</tt> specific to one of the many
-     * possible <tt>MediaStream</tt>s using this <tt>MediaDevice</tt> for audio
-     * mixing.
+     * Represents the one and only <tt>MediaDeviceSession</tt> with the
+     * <tt>MediaDevice</tt> of this <tt>AudioMixer</tt>
      */
     private class AudioMixerMediaDeviceSession
         extends MediaDeviceSession
     {
 
         /**
+         * The list of <tt>MediaDeviceSession</tt>s of <tt>MediaStream</tt>s
+         * which use this <tt>AudioMixer</tt>.
+         */
+        private final List<MediaStreamMediaDeviceSession>
+            mediaStreamMediaDeviceSessions
+                = new LinkedList<MediaStreamMediaDeviceSession>();
+
+        /**
          * Initializes a new <tt>AudioMixingMediaDeviceSession</tt> which is to
-         * represent the <tt>MediaDeviceSession</tt> of one of the many possible
-         * <tt>MediaStream</tt>s using this <tt>MediaDevice</tt> for audio
-         * mixing.
+         * represent the <tt>MediaDeviceSession</tt> of this <tt>AudioMixer</tt>
+         * with its <tt>MediaDevice</tt>
          */
         public AudioMixerMediaDeviceSession()
         {
@@ -175,12 +189,33 @@ public class AudioMixerMediaDevice
         }
 
         /**
+         * Adds a specific <tt>MediaStreamMediaDeviceSession</tt> to the mix
+         * represented by this instance so that it knows when it is in use.
+         *
+         * @param mediaStreamMediaDeviceSession the
+         * <tt>MediaStreamMediaDeviceSession</tt> to be added to the mix
+         * represented by this instance
+         */
+        void addMediaStreamMediaDeviceSession(
+                MediaStreamMediaDeviceSession mediaStreamMediaDeviceSession)
+        {
+            if (mediaStreamMediaDeviceSession == null)
+                throw new NullPointerException("mediaStreamMediaDeviceSession");
+
+            synchronized (mediaStreamMediaDeviceSessions)
+            {
+                if (!mediaStreamMediaDeviceSessions
+                        .contains(mediaStreamMediaDeviceSession))
+                    mediaStreamMediaDeviceSessions
+                        .add(mediaStreamMediaDeviceSession);
+            }
+        }
+
+        /**
          * Adds a <tt>ReceiveStream</tt> to this <tt>MediaDeviceSession</tt> to
          * be played back on the associated <tt>MediaDevice</tt> and a specific
          * <tt>DataSource</tt> is to be used to access its media data during the
-         * playback. The <tt>DataSource</tt> is explicitly specified in order to
-         * allow extenders to override the <tt>DataSource</tt> of the
-         * <tt>ReceiveStream</tt> (e.g. create a clone of it).
+         * playback.
          *
          * @param receiveStream the <tt>ReceiveStream</tt> to be played back by
          * this <tt>MediaDeviceSession</tt> on its associated
@@ -196,30 +231,168 @@ public class AudioMixerMediaDevice
                 DataSource receiveStreamDataSource)
         {
             DataSource captureDevice = getCaptureDevice();
-            AudioMixingPushBufferDataSource audioMixingDataSource;
             DataSource receiveStreamDataSourceForPlayback;
 
             if (captureDevice instanceof AudioMixingPushBufferDataSource)
-            {
-                audioMixingDataSource
-                    = (AudioMixingPushBufferDataSource) captureDevice;
                 receiveStreamDataSourceForPlayback
-                    = getAudioMixer().getLocalOutputDataSource();
-            }
+                    = (AudioMixingPushBufferDataSource) captureDevice;
             else
-            {
-                audioMixingDataSource = null;
                 receiveStreamDataSourceForPlayback = receiveStreamDataSource;
-            }
 
             super
                 .addReceiveStream(
                     receiveStream,
                     receiveStreamDataSourceForPlayback);
+        }
 
-            if (audioMixingDataSource != null)
-                audioMixingDataSource
+        /**
+         * Creates the <tt>DataSource</tt> that this instance is to read
+         * captured media from. Since this is the <tt>MediaDeviceSession</tt> of
+         * this <tt>AudioMixer</tt> with its <tt>MediaDevice</tt>, returns the
+         * <tt>localOutputDataSource</tt> of the <tt>AudioMixer</tt> i.e. the
+         * <tt>DataSource</tt> which represents the mix of all
+         * <tt>ReceiveStream</tt>s and excludes the captured data from the
+         * <tt>MediaDevice</tt> of the <tt>AudioMixer</tt>.
+         *
+         * @return the <tt>DataSource</tt> that this instance is to read
+         * captured media from
+         * @see MediaDeviceSession#createCaptureDevice()
+         */
+        @Override
+        protected DataSource createCaptureDevice()
+        {
+            return getAudioMixer().getLocalOutputDataSource();
+        }
+
+        /**
+         * Removes a specific <tt>MediaStreamMediaDeviceSession</tt> from the
+         * mix represented by this instance. When the last
+         * <tt>MediaStreamMediaDeviceSession</tt> is removed from this instance,
+         * it is no longer in use and closes itself thus signaling to its
+         * <tt>MediaDevice</tt> that it is no longer in use.
+         *
+         * @param mediaStreamMediaDeviceSession the
+         * <tt>MediaStreamMediaDeviceSession</tt> to be removed from the mix
+         * represented by this instance
+         */
+        void removeMediaStreamMediaDeviceSession(
+                MediaStreamMediaDeviceSession mediaStreamMediaDeviceSession)
+        {
+            if (mediaStreamMediaDeviceSession != null)
+                synchronized (mediaStreamMediaDeviceSessions)
+                {
+                    if (mediaStreamMediaDeviceSessions
+                                .remove(mediaStreamMediaDeviceSession)
+                            && mediaStreamMediaDeviceSessions.isEmpty())
+                        close();
+                }
+        }
+    }
+
+    /**
+     * Represents the work of a <tt>MediaStream</tt> with the
+     * <tt>MediaDevice</tt> of an <tt>AudioMixer</tt> and the contribution of
+     * that <tt>MediaStream</tt> to the mix.
+     */
+    private static class MediaStreamMediaDeviceSession
+        extends MediaDeviceSession
+    {
+
+        /**
+         * The <tt>MediaDeviceSession</tt> of the <tt>AudioMixer</tt> that this
+         * instance exposes to a <tt>MediaStream</tt>. While there are multiple
+         * <tt>MediaStreamMediaDeviceSession<tt>s each servicing a specific
+         * <tt>MediaStream</tt>, they all share and delegate to one and the same
+         * <tt>AudioMixerMediaDeviceSession</tt> so that they all contribute to
+         * the mix.
+         */
+        private final AudioMixerMediaDeviceSession audioMixerMediaDeviceSession;
+
+        /**
+         * Initializes a new <tt>MediaStreamMediaDeviceSession</tt> which is to
+         * represent the work of a <tt>MediaStream</tt> with the
+         * <tt>MediaDevice</tt> of this <tt>AudioMixer</tt> and its contribution
+         * to the mix.
+         *
+         * @param audioMixerMediaDeviceSession the <tt>MediaDeviceSession</tt>
+         * of the <tt>AudioMixer</tt> with its <tt>MediaDevice</tt> which the
+         * new instance is to delegate to in order to contribute to the mix
+         */
+        public MediaStreamMediaDeviceSession(
+                AudioMixerMediaDeviceSession audioMixerMediaDeviceSession)
+        {
+            super(audioMixerMediaDeviceSession.getDevice());
+
+            this.audioMixerMediaDeviceSession = audioMixerMediaDeviceSession;
+            this.audioMixerMediaDeviceSession
+                    .addMediaStreamMediaDeviceSession(this);
+        }
+
+        /**
+         * Adds a <tt>ReceiveStream</tt> to this <tt>MediaDeviceSession</tt> to
+         * be played back on the associated <tt>MediaDevice</tt> and a specific
+         * <tt>DataSource</tt> is to be used to access its media data during the
+         * playback.
+         *
+         * @param receiveStream the <tt>ReceiveStream</tt> to be played back by
+         * this <tt>MediaDeviceSession</tt> on its associated
+         * <tt>MediaDevice</tt>
+         * @param receiveStreamDataSource the <tt>DataSource</tt> to be used for
+         * accessing the media data of <tt>receiveStream</tt> during its
+         * playback
+         * @see MediaDeviceSession#addReceiveStream(ReceiveStream, DataSource)
+         */
+        @Override
+        protected void addReceiveStream(
+                ReceiveStream receiveStream,
+                DataSource receiveStreamDataSource)
+        {
+            audioMixerMediaDeviceSession
+                .addReceiveStream(receiveStream, receiveStreamDataSource);
+
+            DataSource captureDevice = getCaptureDevice();
+
+            if (captureDevice instanceof AudioMixingPushBufferDataSource)
+                ((AudioMixingPushBufferDataSource) captureDevice)
                     .addInputDataSource(receiveStreamDataSource);
+        }
+
+        /**
+         * Releases the resources allocated by this instance in the course of
+         * its execution and prepares it to be garbage collected.
+         *
+         * @see MediaDeviceSession#close()
+         */
+        @Override
+        public void close()
+        {
+            try
+            {
+                super.close();
+            }
+            finally
+            {
+                audioMixerMediaDeviceSession
+                    .removeMediaStreamMediaDeviceSession(this);
+            }
+        }
+
+        /**
+         * Removes a <tt>ReceiveStream</tt> from this
+         * <tt>MediaDeviceSession</tt> so that it no longer plays back on the
+         * associated <tt>MediaDevice</tt>. Since this is the
+         * <tt>MediaDeviceSession</tt> of a <tt>MediaStream</tt>, removes the
+         * specified <tt>ReceiveStream</tt> from the mix.
+         *
+         * @param receiveStream the <tt>ReceiveStream</tt> to be removed from
+         * this <tt>MediaDeviceSession</tt> and playback on the associated
+         * <tt>MediaDevice</tt>
+         * @see MediaDeviceSession#removeReceiveStream(ReceiveStream)
+         */
+        @Override
+        public void removeReceiveStream(ReceiveStream receiveStream)
+        {
+            audioMixerMediaDeviceSession.removeReceiveStream(receiveStream);
         }
     }
 }
