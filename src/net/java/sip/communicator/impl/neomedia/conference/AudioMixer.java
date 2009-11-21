@@ -1716,13 +1716,18 @@ public class AudioMixer
 
                     if (difference > 0)
                         logger
-                            .trace("Added " + difference + " inputStream(s).");
+                            .trace(
+                                "Added "
+                                    + difference
+                                    + " inputStream(s) and the total is "
+                                    + newValueLength);
                     else if (difference < 0)
                         logger
                             .trace(
                                 "Removed "
                                     + difference
-                                    + " inputStream(s).");
+                                    + " inputStream(s) and the total is "
+                                    + newValueLength);
                 }
             }
         }
