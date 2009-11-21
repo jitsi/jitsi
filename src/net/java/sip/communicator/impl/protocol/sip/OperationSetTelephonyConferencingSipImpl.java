@@ -473,6 +473,62 @@ public class OperationSetTelephonyConferencingSipImpl
     }
 
     /**
+     * Reads the text content of the <tt>src-id</tt> XML element of a
+     * <tt>media</tt> XML element of a specific <tt>endpoint</tt> XML element.
+     *
+     * @param endpoint an XML <tt>Node</tt> which represents the
+     * <tt>endpoint</tt> XML element from which to get the text content of a
+     * <tt>src-id</tt> XML element of a <tt>media</tt> XML element
+     * @param mediaType the type of the media to get the <tt>src-id</tt> of
+     * @return the text content of the <tt>src-id</tt> XML element of the
+     * <tt>media</tt> XML element of the specified <tt>endpoint</tt> XML element
+     * if any; otherwise, <tt>null</tt>
+     */
+    private String getEndpointMediaSrcId(Node endpoint, MediaType mediaType)
+    {
+        NodeList endpointChildList = endpoint.getChildNodes();
+        int endpoingChildCount = endpointChildList.getLength();
+        String mediaTypeStr = mediaType.toString();
+
+        for (int endpointChildIndex = 0;
+                endpointChildIndex < endpoingChildCount;
+                endpointChildIndex++)
+        {
+            Node endpointChild = endpointChildList.item(endpointChildIndex);
+
+            if (ELEMENT_MEDIA.equals(endpointChild.getNodeName()))
+            {
+                NodeList mediaChildList = endpointChild.getChildNodes();
+                int mediaChildCount = mediaChildList.getLength();
+                String srcId = null;
+                String type = null;
+
+                for (int mediaChildIndex = 0;
+                        mediaChildIndex < mediaChildCount;
+                        mediaChildIndex++)
+                {
+                    Node mediaChild = mediaChildList.item(mediaChildIndex);
+                    String mediaChildName = mediaChild.getNodeName();
+
+                    if (ELEMENT_SRC_ID.equals(mediaChildName))
+                    {
+                        srcId = mediaChild.getTextContent();
+                        if (mediaTypeStr.equalsIgnoreCase(type))
+                            return srcId;
+                    }
+                    else if (ELEMENT_TYPE.equals(mediaChildName))
+                    {
+                        type = mediaChild.getTextContent();
+                        if ((srcId != null) && mediaTypeStr.equalsIgnoreCase(type))
+                            return srcId;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
      * Reads the text content of the <tt>status</tt> XML element of a specific
      * <tt>endpoint</tt> XML element.
      *
@@ -997,6 +1053,7 @@ public class OperationSetTelephonyConferencingSipImpl
                     int userChildCount = userChildList.getLength();
                     String displayName = null;
                     String endpointStatus = null;
+                    String ssrc = null;
 
                     for (int userChildIndex = 0;
                             userChildIndex < userChildCount;
@@ -1006,15 +1063,19 @@ public class OperationSetTelephonyConferencingSipImpl
                         String userChildName = userChild.getNodeName();
 
                         if (ELEMENT_DISPLAY_TEXT.equals(userChildName))
-                        {
                             displayName = userChild.getTextContent();
-                        } else if (ELEMENT_ENDPOINT.equals(userChildName))
+                        else if (ELEMENT_ENDPOINT.equals(userChildName))
                         {
                             endpointStatus = getEndpointStatus(userChild);
+                            ssrc
+                                = getEndpointMediaSrcId(
+                                    userChild,
+                                    MediaType.AUDIO);
                         }
                     }
                     existingConferenceMember.setDisplayName(displayName);
                     existingConferenceMember.setEndpointStatus(endpointStatus);
+                    existingConferenceMember.setSSRC(ssrc);
 
                     if (addConferenceMember)
                         callPeer.addConferenceMember(existingConferenceMember);
