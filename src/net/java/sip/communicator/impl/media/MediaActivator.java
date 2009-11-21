@@ -176,8 +176,16 @@ public class MediaActivator
     public void stop(BundleContext context)
         throws Exception
     {
-        mediaServiceImpl.stop();
-        mediaServiceRegistration.unregister();
+        if (mediaServiceImpl != null)
+        {
+            mediaServiceImpl.stop();
+            mediaServiceImpl = null;
+        }
+        if (mediaServiceRegistration != null)
+        {
+            mediaServiceRegistration.unregister();
+            mediaServiceRegistration = null;
+        }
     }
 
 }
