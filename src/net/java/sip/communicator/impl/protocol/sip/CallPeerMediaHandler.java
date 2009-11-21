@@ -646,13 +646,15 @@ public class CallPeerMediaHandler
             //this is a reinit
         }
 
-        return  configureAndStartStream(format, target, direction, stream);
+        return  configureAndStartStream(device, format, target, direction, stream);
     }
 
         /**
          * Configures <tt>stream</tt> to use the specified <tt>format</tt>,
          * <tt>target</tt>, <tt>target</tt>, and <tt>direction</tt>.
          *
+         * @param device the <tt>MediaDevice</tt> to be used by <tt>stream</tt>
+         * for capture and playback
          * @param format the <tt>MediaFormat</tt> that we'd like the new stream
          * to transmit in.
          * @param target the <tt>MediaStreamTarget</tt> containing the RTP and
@@ -670,6 +672,7 @@ public class CallPeerMediaHandler
          * reason.
          */
     private MediaStream configureAndStartStream(
+                                            MediaDevice          device,
                                             MediaFormat          format,
                                             MediaStreamTarget    target,
                                             MediaDirection       direction,
@@ -678,6 +681,7 @@ public class CallPeerMediaHandler
     {
         registerDynamicPTsWithStream(stream);
 
+        stream.setDevice(device);
         stream.setTarget(target);
         stream.setDirection(direction);
         stream.setFormat(format);
