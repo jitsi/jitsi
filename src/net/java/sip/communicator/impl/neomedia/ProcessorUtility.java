@@ -17,7 +17,8 @@ import net.java.sip.communicator.util.*;
  * @author Ken Larson
  * @author Lubomir Marinov
  */
-public class ProcessorUtility implements ControllerListener
+public class ProcessorUtility
+    implements ControllerListener
 {
 
     /**
@@ -126,7 +127,7 @@ public class ProcessorUtility implements ControllerListener
         // Wait until we get an event that confirms the
         // success of the method, or a failure event.
         // See StateListener inner class
-        while ((processor.getState() < state) &&!failed)
+        while ((processor.getState() < state) && !failed)
         {
             Object stateLock = getStateLock();
 

@@ -140,13 +140,18 @@ public class AudioMixingPushBufferDataSource
         return audioMixer.getContentType();
     }
 
-    /*
-     * Implements DataSource#getControl(String). Does nothing.
+    /**
+     * Implements DataSource#getControl(String).
+     *
+     * @param controlType a <tt>String</tt> value which names the type of the
+     * control of this instance to be retrieved
+     * @return an <tt>Object</tt> which represents the control of this instance
+     * with the specified type if such a control is available; otherwise,
+     * <tt>null</tt>
      */
     public Object getControl(String controlType)
     {
-        // TODO Auto-generated method stub
-        return null;
+        return AudioMixer.getControl(this, controlType);
     }
 
     /*
