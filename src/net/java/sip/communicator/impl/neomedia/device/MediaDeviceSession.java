@@ -30,6 +30,7 @@ import net.java.sip.communicator.util.*;
  * <tt>MediaStream</tt>.
  * 
  * @author Lubomir Marinov
+ * @author Damian Minkov
  */
 public class MediaDeviceSession
     extends PropertyChangeNotifier
@@ -275,6 +276,31 @@ public class MediaDeviceSession
                 }
             }
         }
+    }
+
+    /**
+     * Creates sound level indicator effect and add it to the codec chain of the
+     * <tt>TrackControl</tt> and assumes there is only one audio track.
+     *
+     * @param tc the track control.
+     * @throws UnsupportedPlugInException
+     */
+    private void addSoundLevelIndicator(TrackControl tc)
+        throws UnsupportedPlugInException
+    {
+        SoundLevelIndicatorEffect slie = new SoundLevelIndicatorEffect(
+            LocalUserSoundLevelEvent.MIN_LEVEL,
+            LocalUserSoundLevelEvent.MAX_LEVEL,
+            new SoundLevelIndicatorEffect.SoundLevelIndicatorListener()
+            {
+                public void soundLevelChanged(int level)
+                {
+                    NeomediaActivator.getMediaServiceImpl()
+                        .fireLocalUserSoundLevelEvent(level);
+                }
+            });
+        // Assume there is only one audio track
+        tc.setCodecChain(new Codec[]{slie});
     }
 
     /**
@@ -851,23 +877,22 @@ public class MediaDeviceSession
                     // from the microphone if there are interested listeners
                     try
                     {
-                        TrackControl tc[] = processor.getTrackControls();
-                        if (tc != null)
-                        {
-                            for (int i = 0; i < tc.length; i++)
-                            {
-                                if (tc[i].getFormat() instanceof AudioFormat)
+                        TrackControl tcs[] = processor.getTrackControls();
+
+                        if (tcs != null)
+                            for (TrackControl tc : tcs)
+                                if (tc.getFormat() instanceof AudioFormat)
                                 {
-                                    addSpundLevelIndicator(tc[i]);
+                                    addSoundLevelIndicator(tc);
                                     break;
                                 }
-                            }
-                        }
                     }
                     catch (UnsupportedPlugInException ex)
                     {
-                        logger.error(
-                            "Unsupported sound level indicator effect", ex);
+                        logger
+                            .error(
+                                "Unsupported sound level indicator effect",
+                                ex);
                     }
                 }
             }
@@ -886,31 +911,6 @@ public class MediaDeviceSession
             if ((processor != null) && (this.processor == processor))
                 processorIsPrematurelyClosed = true;
         }
-    }
-
-    /**
-     * Creates sound level indicator effect and add it to the
-     * codec chain of the <tt>TrackControl</tt> and
-     * assumes there is only one audio track.
-     * @param tc the track control.
-     * @throws UnsupportedPlugInException
-     */
-    private void addSpundLevelIndicator(TrackControl tc)
-        throws UnsupportedPlugInException
-    {
-        SoundLevelIndicatorEffect slie = new SoundLevelIndicatorEffect(
-            LocalUserSoundLevelEvent.MIN_LEVEL,
-            LocalUserSoundLevelEvent.MAX_LEVEL,
-            new SoundLevelIndicatorEffect.SoundLevelIndicatorListener()
-            {
-                public void soundLevelChanged(int level)
-                {
-                    NeomediaActivator.getMediaServiceImpl()
-                        .fireLocalUserSoundLevelEvent(level);
-                }
-            });
-        // Assume there is only one audio track
-        tc.setCodecChain(new Codec[]{slie});
     }
 
     /**
