@@ -125,11 +125,7 @@ public class ConferenceCallPanel
 
         mainPanel.add(localPeerPanel, constraints);
 
-        OperationSetBasicTelephony telephonyOpSet = call.getProtocolProvider()
-            .getOperationSet(OperationSetBasicTelephony.class);
-
-        if (telephonyOpSet != null)
-            GuiActivator.getMediaService().
+        GuiActivator.getMediaService().
                 addLocalUserSoundLevelListener(localPeerPanel);
     }
 

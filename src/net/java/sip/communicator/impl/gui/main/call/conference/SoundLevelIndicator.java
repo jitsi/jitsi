@@ -39,6 +39,9 @@ public class SoundLevelIndicator
      */
     private int soundBarNumber = 8;
 
+    /**
+     * Indicates if the component listener is added.
+     */
     private boolean isComponentListenerAdded = false;
 
     /**

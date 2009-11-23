@@ -12,9 +12,14 @@ import java.util.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.main.call.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.event.VideoEvent;
+import net.java.sip.communicator.service.protocol.event.VideoListener;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -67,6 +72,9 @@ public class OneToOneCallPeerPanel
         = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.DEFAULT_USER_PHOTO)));
 
+    /**
+     * The panel containing security related components.
+     */
     private SecurityPanel securityPanel;
 
     /**
@@ -167,6 +175,8 @@ public class OneToOneCallPeerPanel
 
             add(statusBar, constraints);
         }
+
+        this.createSoundLevelIndicators();
 
         addVideoListener();
     }
@@ -277,6 +287,74 @@ public class OneToOneCallPeerPanel
         statusPanel.add(buttonBar);
 
         return statusPanel;
+    }
+
+    /**
+     * Creates sound level related components.
+     */
+    private void createSoundLevelIndicators()
+    {
+        TransparentPanel localLevelPanel
+            = new TransparentPanel(new BorderLayout(5, 0));
+        TransparentPanel remoteLevelPanel
+            = new TransparentPanel(new BorderLayout(5, 0));
+
+        JLabel localLevelLabel
+            = new JLabel(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.MICROPHONE)));
+        JLabel remoteLevelLabel
+            = new JLabel(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.HEADPHONE)));
+
+        final SoundLevelIndicator localLevelIndicator
+            = new SoundLevelIndicator(  LocalUserSoundLevelEvent.MIN_LEVEL,
+                                        LocalUserSoundLevelEvent.MAX_LEVEL);
+
+        final SoundLevelIndicator remoteLevelIndicator
+            = new SoundLevelIndicator(  LocalUserSoundLevelEvent.MIN_LEVEL,
+                                        LocalUserSoundLevelEvent.MAX_LEVEL);
+
+        localLevelPanel.add(localLevelLabel, BorderLayout.WEST);
+        localLevelPanel.add(localLevelIndicator, BorderLayout.CENTER);
+        remoteLevelPanel.add(remoteLevelLabel, BorderLayout.WEST);
+        remoteLevelPanel.add(remoteLevelIndicator, BorderLayout.CENTER);
+
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridx = 0;
+        constraints.gridy = 4;
+        constraints.weightx = 0;
+        constraints.weighty = 0;
+        constraints.insets = new Insets(10, 0, 0, 0);
+
+        add(localLevelPanel, constraints);
+
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridx = 0;
+        constraints.gridy = 5;
+        constraints.weightx = 0;
+        constraints.weighty = 0;
+        constraints.insets = new Insets(5, 0, 10, 0);
+
+        add(remoteLevelPanel, constraints);
+
+        this.callPeer.addStreamSoundLevelListener(new StreamSoundLevelListener()
+        {
+            public void streamSoundLevelChanged(StreamSoundLevelEvent event)
+            {
+                remoteLevelIndicator.updateSoundLevel(event.getLevel());
+            }
+        });
+
+        GuiActivator.getMediaService().
+            addLocalUserSoundLevelListener(new LocalUserSoundLevelListener()
+            {
+                public void localUserSoundLevelChanged(
+                    LocalUserSoundLevelEvent event)
+                {
+                    localLevelIndicator.updateSoundLevel(event.getLevel());
+                }
+            });
     }
 
     private class VideoTelephonyListener
