@@ -159,7 +159,6 @@ public class SoundLevelIndicatorEffect
     public static int calculateCurrentSignalPower(
         byte[] buff, int offset, int len, double levelRatio)
     {
-System.out.println("time="+ System.currentTimeMillis());
         if(len == 0)
             return 0;
 
