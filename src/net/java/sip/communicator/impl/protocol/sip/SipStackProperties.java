@@ -87,20 +87,6 @@ public class SipStackProperties
     private static final String NSPVALUE_DEBUG_LOG_OVERWRITE = "true";
 
     /**
-     * The name of the property that tells jain-sip whether that we would like
-     * to receive messages from the stack in a concurrent/reentrant/non-blocking
-     * manner.
-     */
-    private static final String NSPNAME_REENTRANT_LISTENER
-        = "gov.nist.javax.sip.DEBUG_LOG_OVERWRITE";
-
-    /**
-     * The value of the property that tells jain-sip whether or we would like to
-     * receive messages from the stack in a concurrent or blocking manner.
-     */
-    private static final String NSPVALUE_REENTRANT_LISTENER = "true";
-
-    /**
      * The name of the property under which the jain-sip-ri would expect to find
      * if the server log file has to be overwritten when starting.
      */
@@ -126,6 +112,20 @@ public class SipStackProperties
      * connections.
      */
     private static final String NSPVALUE_CACHE_CLIENT_CONNECTIONS = "true";
+
+    /**
+     * The name of the property that tells jain-sip whether that we would like
+     * to receive messages from the stack in a concurrent/reentrant/non-blocking
+     * manner.
+     */
+    private static final String NSPNAME_REENTRANT_LISTENER
+        = "gov.nist.javax.sip.REENTRANT_LISTENER";
+
+    /**
+     * The value of the property that tells jain-sip whether or we would like to
+     * receive messages from the stack in a concurrent or blocking manner.
+     */
+    private static final String NSPVALUE_REENTRANT_LISTENER = "true";
 
     /**
      * The name of the property under which the jain-sip-ri would expect to find
@@ -219,6 +219,10 @@ public class SipStackProperties
         // Drop the client connection after we are done with the transaction.
         this.setProperty(NSPNAME_CACHE_CLIENT_CONNECTIONS,
                 NSPVALUE_CACHE_CLIENT_CONNECTIONS);
+
+        //handling SIP messages in a reentrant/non-blocking mode
+        this.setProperty(NSPNAME_REENTRANT_LISTENER,
+                NSPVALUE_REENTRANT_LISTENER);
 
         // deliver unsolicited NOTIFY
         this.setProperty(NSPNAME_DELIVER_UNSOLICITED_NOTIFY,
