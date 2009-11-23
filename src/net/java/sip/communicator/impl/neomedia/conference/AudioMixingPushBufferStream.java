@@ -59,6 +59,12 @@ public class AudioMixingPushBufferStream
     private int maxInputSampleCount;
 
     /**
+     * The indicator which determines whether {@link #start()} has been called
+     * on this instance without a subsequent call to {@link #stop()}.
+     */
+    private boolean started;
+
+    /**
      * The <tt>BufferTransferHandler</tt> through which this
      * <tt>PushBufferStream</tt> notifies its clients that new data is
      * available for reading.
@@ -120,13 +126,19 @@ public class AudioMixingPushBufferStream
         return audioMixerStream.getContentLength();
     }
 
-    /*
-     * Implements Controls#getControl(String). Does nothing.
+    /**
+     * Implements {@link Controls#getControl(String)}. Gets the control from
+     * the controls available for this instance which is of the specified type.
+     *
+     * @param controlType a <tt>String</tt> value which names the type of the
+     * control to retrieve
+     * @return the control from the controls available for this instance which
+     * is of the specified type if such a control is available; otherwise,
+     * <tt>null</tt>
      */
     public Object getControl(String controlType)
     {
-        // TODO Auto-generated method stub
-        return null;
+        return AudioMixer.getControl(this, controlType);
     }
 
     /*
@@ -325,14 +337,24 @@ public class AudioMixingPushBufferStream
         this.inputSamples = inputSamples;
         this.maxInputSampleCount = maxInputSampleCount;
 
-        if (transferHandler != null)
-            transferHandler.transferData(this);
+        synchronized (this)
+        {
+            if (started && (transferHandler != null))
+                transferHandler.transferData(this);
+        }
     }
 
-    /*
-     * Implements PushBufferStream#setTransferHandler(BufferTransferHandler).
+    /**
+     * Implements
+     * {@link PushBufferStream#setTransferHandler(BufferTransferHandler)}. Sets
+     * the <tt>BufferTransferHandler</tt> which is to be notified by this
+     * instance when it has media available for reading.
+     *
+     * @param transferHandler the <tt>BufferTransferHandler</tt> to be notified
+     * by this instance when it has media available for reading
      */
-    public void setTransferHandler(BufferTransferHandler transferHandler)
+    public synchronized void setTransferHandler(
+            BufferTransferHandler transferHandler)
     {
         this.transferHandler = transferHandler;
     }
@@ -340,17 +362,33 @@ public class AudioMixingPushBufferStream
     /**
      * Starts the pushing of data out of this stream.
      */
-    void start()
+    synchronized void start()
     {
+        started = true;
         audioMixerStream.addOutputStream(this);
+        if (logger.isTraceEnabled())
+            logger
+                .trace(
+                    "Started "
+                        + getClass().getSimpleName()
+                        + " with hashCode "
+                        + hashCode());
     }
 
     /**
      * Stops the pushing of data out of this stream.
      */
-    void stop()
+    synchronized void stop()
     {
+        started = false;
         audioMixerStream.removeOutputStream(this);
+        if (logger.isTraceEnabled())
+            logger
+                .trace(
+                    "Stopped "
+                        + getClass().getSimpleName()
+                        + " with hashCode "
+                        + hashCode());
     }
 
     /**

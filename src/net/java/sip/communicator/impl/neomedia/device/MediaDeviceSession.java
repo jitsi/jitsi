@@ -70,12 +70,6 @@ public class MediaDeviceSession
     private final AbstractMediaDevice device;
 
     /**
-     * The <tt>MediaDirection</tt> in which this <tt>MediaDeviceSession</tt> has
-     * been started.
-     */
-    private MediaDirection direction = MediaDirection.INACTIVE;
-
-    /**
      * The last JMF <tt>Format</tt> set to this instance by a call to its
      * {@link #setFormat(MediaFormat) and to be set as the output format of
      * {@link #processor}.
@@ -141,6 +135,12 @@ public class MediaDeviceSession
         = new HashMap<ReceiveStream, DataSource>();
 
     /**
+     * The <tt>MediaDirection</tt> in which this <tt>MediaDeviceSession</tt> has
+     * been started.
+     */
+    private MediaDirection startedDirection = MediaDirection.INACTIVE;
+
+    /**
      * Initializes a new <tt>MediaDeviceSession</tt> instance which is to
      * represent the use of a specific <tt>MediaDevice</tt> by a
      * <tt>MediaStream</tt>.
@@ -167,7 +167,25 @@ public class MediaDeviceSession
         DataSource receiveStreamDataSource = receiveStream.getDataSource();
 
         if (receiveStreamDataSource != null)
+        {
+            if (receiveStreamDataSource instanceof PushBufferDataSource)
+                receiveStreamDataSource
+                    = new ReceiveStreamPushBufferDataSource(
+                            receiveStream,
+                            (PushBufferDataSource) receiveStreamDataSource,
+                            true);
+            else
+                logger
+                    .warn(
+                        "Adding ReceiveStream with DataSource"
+                            + " not of type PushBufferDataSource but "
+                            + receiveStreamDataSource.getClass().getSimpleName()
+                            + " which may prevent the ReceiveStream from"
+                            + " properly transferring to another MediaDevice"
+                            + " if such a need arises.");
+
             addReceiveStream(receiveStream, receiveStreamDataSource);
+        }
     }
 
     /**
@@ -611,6 +629,11 @@ public class MediaDeviceSession
         return device;
     }
 
+    public MediaDirection getStartedDirection()
+    {
+        return startedDirection;
+    }
+
     /**
      * Gets the <tt>MediaFormat</tt> in which this instance captures media from
      * its associated <tt>MediaDevice</tt>.
@@ -678,6 +701,13 @@ public class MediaDeviceSession
         else
         {
             outputDataSource = processor.getDataOutput();
+            if (logger.isTraceEnabled() && (outputDataSource != null))
+                logger
+                    .trace(
+                        "Processor with hashCode "
+                            + processor.hashCode()
+                            + " provided "
+                            + MediaStreamImpl.toString(outputDataSource));
 
             /*
              * Whoever wants the outputDataSource, they expect it to be started
@@ -1142,9 +1172,9 @@ public class MediaDeviceSession
         if (direction == null)
             throw new NullPointerException("direction");
 
-        this.direction = this.direction.or(direction);
+        startedDirection = startedDirection.or(direction);
 
-        if (this.direction.allowsSending())
+        if (startedDirection.allowsSending())
         {
             Processor processor = getProcessor();
 
@@ -1161,7 +1191,7 @@ public class MediaDeviceSession
      */
     private void startProcessorInAccordWithDirection(Processor processor)
     {
-        if (direction.allowsSending()
+        if (startedDirection.allowsSending()
                 && (processor.getState() != Processor.Started))
         {
             processor.start();
@@ -1187,24 +1217,24 @@ public class MediaDeviceSession
         if (direction == null)
             throw new NullPointerException("direction");
 
-        switch (this.direction)
+        switch (startedDirection)
         {
         case SENDRECV:
             if (direction.allowsReceiving())
-                this.direction
-                        = direction.allowsSending()
-                            ? MediaDirection.INACTIVE
-                            : MediaDirection.SENDONLY;
+                startedDirection
+                    = direction.allowsSending()
+                        ? MediaDirection.INACTIVE
+                        : MediaDirection.SENDONLY;
             else if (direction.allowsSending())
-                this.direction = MediaDirection.RECVONLY;
+                startedDirection = MediaDirection.RECVONLY;
             break;
         case SENDONLY:
             if (direction.allowsSending())
-                this.direction = MediaDirection.INACTIVE;
+                startedDirection = MediaDirection.INACTIVE;
             break;
         case RECVONLY:
             if (direction.allowsReceiving())
-                this.direction = MediaDirection.INACTIVE;
+                startedDirection = MediaDirection.INACTIVE;
             break;
         case INACTIVE:
             /*
@@ -1216,7 +1246,7 @@ public class MediaDeviceSession
             throw new IllegalArgumentException("direction");
         }
 
-        if (this.direction.allowsSending())
+        if (startedDirection.allowsSending())
             if ((processor != null)
                     && (processor.getState() > Processor.Configured))
             {

@@ -270,10 +270,12 @@ public class MediaStreamImpl
                             "Created SendStream"
                                 + " with hashCode "
                                 + sendStream.hashCode()
-                                + " for DataSource "
+                                + " for "
                                 + toString(dataSource)
                                 + " and streamIndex "
-                                + streamIndex);
+                                + streamIndex
+                                + " in RTPManager with hashCode "
+                                + rtpManager.hashCode());
             }
             catch (IOException ioe)
             {
@@ -297,6 +299,21 @@ public class MediaStreamImpl
             }
         }
         sendStreamsAreCreated = true;
+
+        if (logger.isTraceEnabled())
+        {
+            @SuppressWarnings("unchecked")
+            Vector<SendStream> sendStreams = rtpManager.getSendStreams();
+            int sendStreamCount
+                = (sendStreams == null) ? 0 : sendStreams.size();
+
+            logger
+                .trace(
+                    "Total number of SendStreams in RTPManager with hashCode "
+                        + rtpManager.hashCode()
+                        + " is "
+                        + sendStreamCount);
+        }
 
         if (deviceSessionPropertyChangeListener == null)
             deviceSessionPropertyChangeListener = new PropertyChangeListener()
@@ -658,9 +675,12 @@ public class MediaStreamImpl
         if ((deviceSession == null) || (deviceSession.getDevice() != device))
         {
             MediaDeviceSession oldValue = deviceSession;
+            MediaDirection startedDirection;
 
             if (deviceSession != null)
             {
+                startedDirection = deviceSession.getStartedDirection();
+
                 if (deviceSessionPropertyChangeListener != null)
                     deviceSession
                         .removePropertyChangeListener(
@@ -668,6 +688,8 @@ public class MediaStreamImpl
                 deviceSession.close();
                 deviceSession = null;
             }
+            else
+                startedDirection = MediaDirection.INACTIVE;
 
             deviceSession = abstractMediaDevice.createSession();
 
@@ -684,11 +706,15 @@ public class MediaStreamImpl
             deviceSessionChanged(oldValue, newValue);
 
             if (deviceSession != null)
+            {
+                deviceSession.start(startedDirection);
+
                 synchronized (receiveStreams)
                 {
                     for (ReceiveStream receiveStream : receiveStreams)
                         deviceSession.addReceiveStream(receiveStream);
                 }
+            }
         }
     }
 
@@ -961,6 +987,7 @@ public class MediaStreamImpl
                     // TODO Are we sure we want to connect here?
                     sendStream.getDataSource().connect();
                     sendStream.start();
+                    sendStream.getDataSource().start();
 
                     if (logger.isTraceEnabled())
                         logger
@@ -1085,17 +1112,39 @@ public class MediaStreamImpl
      * @param close <tt>true</tt> to close the <tt>SendStream</tt>s that this
      * instance is sending to its remote peer after stopping them;
      * <tt>false</tt> to only stop them
+     * @return the <tt>SendStream</tt>s which were stopped
      */
-    private void stopSendStreams(boolean close)
+    private Iterable<SendStream> stopSendStreams(boolean close)
     {
         if (rtpManager == null)
-            return;
+            return null;
 
         @SuppressWarnings("unchecked")
         Iterable<SendStream> sendStreams = rtpManager.getSendStreams();
+        Iterable<SendStream> stoppedSendStreams
+            = stopSendStreams(sendStreams, close);
 
+        if (close)
+            sendStreamsAreCreated = false;
+
+        return stoppedSendStreams;
+    }
+
+    /**
+     * Stops specific <tt>SendStream</tt>s and optionally closes them.
+     *
+     * @param sendStreams the <tt>SendStream</tt>s to be stopped and optionally
+     * closed
+     * @param close <tt>true</tt> to close the specified <tt>SendStream</tt>s
+     * after stopping them; <tt>false</tt> to only stop them
+     * @return the stopped <tt>SendStream</tt>s
+     */
+    private Iterable<SendStream> stopSendStreams(
+            Iterable<SendStream> sendStreams,
+            boolean close)
+    {
         if (sendStreams == null)
-            return;
+            return null;
 
         for (SendStream sendStream : sendStreams)
             try
@@ -1131,9 +1180,7 @@ public class MediaStreamImpl
             {
                 logger.warn("Failed to stop stream " + sendStream, ioe);
             }
-
-        if (close)
-            sendStreamsAreCreated = false;
+        return sendStreams;
     }
 
     /**
@@ -1145,7 +1192,7 @@ public class MediaStreamImpl
      * @return a <tt>String</tt> value which gives a human-readable
      * representation of the specified <tt>dataSource</tt>
      */
-    private static String toString(DataSource dataSource)
+    public static String toString(DataSource dataSource)
     {
         StringBuffer str = new StringBuffer();
 

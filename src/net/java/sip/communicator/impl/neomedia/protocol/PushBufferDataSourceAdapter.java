@@ -394,24 +394,31 @@ public class PushBufferDataSourceAdapter
          */
         private void runInStreamReadThread()
         {
+            boolean bufferIsWritten;
+
             synchronized (buffer)
             {
                 try
                 {
                     stream.read(buffer);
-                    bufferIsWritten = true;
+                    this.bufferIsWritten = !buffer.isDiscard();
                     streamReadException = null;
                 }
                 catch (IOException ie)
                 {
+                    this.bufferIsWritten = false;
                     streamReadException = ie;
                 }
+                bufferIsWritten = this.bufferIsWritten;
             }
 
-            BufferTransferHandler transferHandler = this.transferHandler;
+            if (bufferIsWritten)
+            {
+                BufferTransferHandler transferHandler = this.transferHandler;
 
-            if (transferHandler != null)
-                transferHandler.transferData(this);
+                if (transferHandler != null)
+                    transferHandler.transferData(this);
+            }
         }
 
         /**

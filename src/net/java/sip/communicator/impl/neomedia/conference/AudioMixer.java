@@ -1025,7 +1025,7 @@ public class AudioMixer
          * reads from an input streams exceeds this limit, they get reported and
          * the counting is restarted.
          */
-        private static final long TRACE_NON_CONTRIBUTING_READ_COUNT = 1000;
+        private static final long TRACE_NON_CONTRIBUTING_READ_COUNT = 0;
 
         /**
          * The <tt>SourceStream</tt>s (in the form of
