@@ -50,24 +50,28 @@ public class SipStackProperties
     /**
      * The name of the property indicating a custom logger class for the stack
      */
-    private static final String NSPNAME_STACK_LOGGER = "gov.nist.javax.sip.STACK_LOGGER";
+    private static final String NSPNAME_STACK_LOGGER
+        = "gov.nist.javax.sip.STACK_LOGGER";
 
     /**
      * The value of the property indicating a custom logger class for the stack
      */
-    private static final String NSPVALUE_STACK_LOGGER = "net.java.sip.communicator.impl.protocol.sip.SipLogger";
+    private static final String NSPVALUE_STACK_LOGGER
+        = "net.java.sip.communicator.impl.protocol.sip.SipLogger";
 
     /**
      * The name of the property indicating a custom logger class
      * for the server messages
      */
-    private static final String NSPNAME_SERVER_LOGGER = "gov.nist.javax.sip.SERVER_LOGGER";
+    private static final String NSPNAME_SERVER_LOGGER
+        = "gov.nist.javax.sip.SERVER_LOGGER";
 
     /**
      * The value of the property indicating a custom logger class
      * for the server messages
      */
-    private static final String NSPVALUE_SERVER_LOGGER = "net.java.sip.communicator.impl.protocol.sip.SipLogger";
+    private static final String NSPVALUE_SERVER_LOGGER
+        = "net.java.sip.communicator.impl.protocol.sip.SipLogger";
 
     /**
      * The name of the property under which the jain-sip-ri would expect to find
@@ -80,8 +84,21 @@ public class SipStackProperties
      * A string indicating to jain-sip-ri if the debug log file has to be
      * overwritten when starting.
      */
-    private static final String NSPVALUE_DEBUG_LOG_OVERWRITE
-        = "true";
+    private static final String NSPVALUE_DEBUG_LOG_OVERWRITE = "true";
+
+    /**
+     * The name of the property that tells jain-sip whether that we would like
+     * to receive messages from the stack in a concurrent/reentrant/non-blocking
+     * manner.
+     */
+    private static final String NSPNAME_REENTRANT_LISTENER
+        = "gov.nist.javax.sip.DEBUG_LOG_OVERWRITE";
+
+    /**
+     * The value of the property that tells jain-sip whether or we would like to
+     * receive messages from the stack in a concurrent or blocking manner.
+     */
+    private static final String NSPVALUE_REENTRANT_LISTENER = "true";
 
     /**
      * The name of the property under which the jain-sip-ri would expect to find

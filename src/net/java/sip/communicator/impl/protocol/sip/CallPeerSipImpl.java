@@ -430,7 +430,7 @@ public class CallPeerSipImpl
     }
 
     /**
-     * Returns a URL pointing ta a location with call control information for
+     * Returns a URL pointing to a location with call control information for
      * this peer or <tt>null</tt> if no such URL is available for this
      * call peer.
      *
@@ -1881,6 +1881,6 @@ public class CallPeerSipImpl
                 logger.warn("suspicious behavior of the SoundLevelListener " +
                     "for peer " + CallPeerSipImpl.this);
         }
-        
+
     }
 }

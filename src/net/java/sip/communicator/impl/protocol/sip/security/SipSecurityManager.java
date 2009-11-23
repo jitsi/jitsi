@@ -106,7 +106,7 @@ public class SipSecurityManager
      * @throws OperationFailedException if we fail to acquire a password from
      * our security authority.
      */
-    public ClientTransaction handleChallenge(
+    public synchronized ClientTransaction handleChallenge(
                                     Response          challenge,
                                     ClientTransaction challengedTransaction,
                                     SipProvider       transactionCreator)
@@ -148,10 +148,10 @@ public class SipSecurityManager
 
             if(ccEntry == null)
             {
-                //we haven't yet authentified this realm since we were started.
+                //we haven't yet authenticated this realm since we were started.
                 if(storedPassword != null)
                 {
-                    //use the stored password to authenticate
+                    //there's a stored password though so let's try it.
                     ccEntry = createCcEntryWithStoredPassword(storedPassword);
                     logger.trace("seem to have a stored pass! Try with it.");
                 }
@@ -160,6 +160,7 @@ public class SipSecurityManager
                     //obtain new credentials
                     logger.trace("We don't seem to have a good pass! Get one.");
 
+System.err.println("!!!???!!! - asking for authentication because we don't have a password at all.");
                     ccEntry = createCcEntryWithNewCredentials(
                         realm, SecurityAuthority.AUTHENTICATION_REQUIRED);
 
@@ -171,11 +172,11 @@ public class SipSecurityManager
             }
             else
             {
-                //we have already authentified against this realm since we were
+                //we have already authenticated against this realm since we were
                 //started. this authentication is either for a different request
                 //or the previous authentication used a wrong pass.
 
-                if (ccEntryHasSeenTran)
+                if (ccEntryHasSeenTran && !authHeader.isStale())
                 {
                     //this is the transaction that created the cc entry. if we
                     //need to authenticate the same transaction then the
@@ -184,6 +185,7 @@ public class SipSecurityManager
                     SipActivator.getProtocolProviderFactory().storePassword(
                         accountID, null);
 
+System.err.println("!!!???!!! - asking for authentication because passwd was wrong");
                     ccEntry = createCcEntryWithNewCredentials(
                         realm, SecurityAuthority.WRONG_PASSWORD);
 
@@ -202,16 +204,6 @@ public class SipSecurityManager
                 }
             }
 
-            //get a new pass
-            if (ccEntry == null // we don't have credentials for the specified
-                                //realm
-                || ( (ccEntryHasSeenTran // we have already tried with those
-                      && !authHeader.isStale()))) // and this is (!stale) not
-                                                  // just a request to reencode
-            {
-
-            }
-
             //if user canceled or sth else went wrong
             if (ccEntry.userCredentials == null)
             {
@@ -225,8 +217,9 @@ public class SipSecurityManager
                 this.createAuthorizationHeader(
                     reoriginatedRequest.getMethod(),
                     reoriginatedRequest.getRequestURI().toString(),
-                    ( reoriginatedRequest.getContent() == null )? "" :
-                    reoriginatedRequest.getContent().toString(),
+                    ( reoriginatedRequest.getContent() == null )
+                                ? ""
+                                : reoriginatedRequest.getContent().toString(),
                     authHeader,
                     ccEntry.userCredentials);
 
