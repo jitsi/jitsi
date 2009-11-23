@@ -106,7 +106,7 @@ public class SipSecurityManager
      * @throws OperationFailedException if we fail to acquire a password from
      * our security authority.
      */
-    public synchronized ClientTransaction handleChallenge(
+    public ClientTransaction handleChallenge(
                                     Response          challenge,
                                     ClientTransaction challengedTransaction,
                                     SipProvider       transactionCreator)
@@ -115,6 +115,7 @@ public class SipSecurityManager
                OperationFailedException,
                NullPointerException
     {
+
         String branchID = challengedTransaction.getBranchId();
         Request challengedRequest = challengedTransaction.getRequest();
         Request reoriginatedRequest = cloneReqForAuthentication(
@@ -160,7 +161,6 @@ public class SipSecurityManager
                     //obtain new credentials
                     logger.trace("We don't seem to have a good pass! Get one.");
 
-System.err.println("!!!???!!! - asking for authentication because we don't have a password at all.");
                     ccEntry = createCcEntryWithNewCredentials(
                         realm, SecurityAuthority.AUTHENTICATION_REQUIRED);
 
@@ -185,7 +185,6 @@ System.err.println("!!!???!!! - asking for authentication because we don't have 
                     SipActivator.getProtocolProviderFactory().storePassword(
                         accountID, null);
 
-System.err.println("!!!???!!! - asking for authentication because passwd was wrong");
                     ccEntry = createCcEntryWithNewCredentials(
                         realm, SecurityAuthority.WRONG_PASSWORD);
 

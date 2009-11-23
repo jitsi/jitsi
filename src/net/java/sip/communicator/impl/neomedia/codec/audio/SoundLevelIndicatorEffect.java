@@ -77,7 +77,7 @@ public class SoundLevelIndicatorEffect
 
     /**
      * Lists the output formats that this codec can generate.
-     * @param input The <code>Format</code> of the data to be used 
+     * @param input The <code>Format</code> of the data to be used
      *        as input to the plug-in.
      * @return An array that contains the supported output <code>Formats</code>.
      */
@@ -149,7 +149,7 @@ public class SoundLevelIndicatorEffect
 
     /**
      * Estimates the signal power and use the levelRatio to
-     * scale it to the needed levels. 
+     * scale it to the needed levels.
      * @param buff the buffer with the data.
      * @param offset the offset that data starts.
      * @param len the length of the data
@@ -159,6 +159,7 @@ public class SoundLevelIndicatorEffect
     public static int calculateCurrentSignalPower(
         byte[] buff, int offset, int len, double levelRatio)
     {
+System.out.println("time="+ System.currentTimeMillis());
         if(len == 0)
             return 0;
 
