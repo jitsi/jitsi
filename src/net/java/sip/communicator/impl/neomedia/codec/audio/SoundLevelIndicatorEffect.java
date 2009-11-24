@@ -123,7 +123,6 @@ public class SoundLevelIndicatorEffect
         System.arraycopy(inputBuffer.getData(), inputBuffer.getOffset(), b, 0, b.length);
         outputBuffer.setData(b);
 
-        outputBuffer.setData(b);
         outputBuffer.setFormat(inputBuffer.getFormat());
         outputBuffer.setLength(inputBuffer.getLength());
         outputBuffer.setOffset(inputBuffer.getOffset());
@@ -145,7 +144,6 @@ public class SoundLevelIndicatorEffect
 
         return BUFFER_PROCESSED_OK;
     }
-
 
     /**
      * Estimates the signal power and use the levelRatio to
@@ -212,7 +210,7 @@ public class SoundLevelIndicatorEffect
     }
 
     /**
-     * Restes its state.
+     * Resets its state.
      */
     public void reset()
     {

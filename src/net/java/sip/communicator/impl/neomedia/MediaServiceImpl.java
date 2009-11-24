@@ -470,23 +470,23 @@ public class MediaServiceImpl
      */
     public void fireLocalUserSoundLevelEvent(int level)
     {
-        LocalUserSoundLevelEvent soundLevelEvent
-            = new LocalUserSoundLevelEvent(this, level);
-        List<LocalUserSoundLevelListener> listeners;
+        Iterable<LocalUserSoundLevelListener> listeners;
 
         synchronized (soundLevelListeners)
         {
-            listeners = 
-                new ArrayList<LocalUserSoundLevelListener>(soundLevelListeners);
+            if (soundLevelListeners.isEmpty())
+                return;
+
+            listeners
+                = new ArrayList<LocalUserSoundLevelListener>(
+                        soundLevelListeners);
         }
 
-        for (Iterator<LocalUserSoundLevelListener> listenerIter
-                = listeners.iterator(); listenerIter.hasNext();)
-        {
-            LocalUserSoundLevelListener listener = listenerIter.next();
+        LocalUserSoundLevelEvent soundLevelEvent
+            = new LocalUserSoundLevelEvent(this, level);
 
+        for (LocalUserSoundLevelListener listener : listeners)
             listener.localUserSoundLevelChanged(soundLevelEvent);
-        }
     }
 
     /**

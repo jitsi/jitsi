@@ -900,8 +900,10 @@ public class MediaDeviceSession
                 if (format != null)
                     setFormat(processor, format);
 
-                if(NeomediaActivator.getMediaServiceImpl()
-                    .getLocalSoundLevelListeners().size() > 0)
+                if(NeomediaActivator
+                            .getMediaServiceImpl()
+                                .getLocalSoundLevelListeners().size()
+                        > 0)
                 {
                     // here we add sound level indicator for captured media
                     // from the microphone if there are interested listeners
