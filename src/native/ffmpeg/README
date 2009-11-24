@@ -4,12 +4,9 @@
 
 ./configure --disable-pthread
 
-- Linux
+- Linux, Mac OS X
 
 ./configure --enable-pic
-
-- Mac OS X
-./configure --disable-asm
 
 2. ffmpeg-r16801
 
@@ -29,7 +26,7 @@
   --disable-ffserver --disable-ffplay --disable-ffmpeg \
   --disable-pthreads --enable-w32threads
 
-- Linux, Mac OS X(removed from configure the option to add -mdynamic-no-pic)
+- Linux
 
 ./configure \
   --disable-mmx \
@@ -40,6 +37,20 @@
   --enable-libx264 --enable-gpl --enable-parser=h264 --enable-encoder=libx264 \
   --enable-decoder=h264 --enable-muxer=h264 --enable-demuxer=h264 \
   --extra-ldflags=-L$X264_HOME --extra-cflags=-I$X264_HOME \
+  --disable-debug \
+  --disable-ffserver --disable-ffplay --disable-ffmpeg \
+  --enable-pthreads
+
+- Mac OS X(removed from configure script the option to add -mdynamic-no-pic)
+./configure \
+  --disable-mmx \
+  --enable-static --disable-shared --shlibdir=. \
+  --disable-encoders --disable-decoders --disable-muxers --disable-demuxers \
+  --disable-parsers --disable-bsfs --disable-protocols --disable-devices \
+  --disable-network \
+  --enable-libx264 --enable-gpl --enable-parser=h264 --enable-encoder=libx264 \
+  --enable-decoder=h264 --enable-muxer=h264 --enable-demuxer=h264 \
+  --extra-ldflags="-fPIC -L$X264_HOME" --extra-cflags="-fPIC -I$X264_HOME" \
   --disable-debug \
   --disable-ffserver --disable-ffplay --disable-ffmpeg \
   --enable-pthreads

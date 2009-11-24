@@ -8,7 +8,10 @@ CC=gcc
 CPPFLAGS=-DJNI_IMPLEMENTATION \
          -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/win32 \
          -I$(FFMPEG_HOME)
-#LDFLAGS=-dynamiclib
+#-fPIC \
+
+
+#LDFLAGS=-dynamiclib -Wl,-read_only_relocs,suppress
 LDFLAGS=-Wl,--kill-at -shared
 LIBS=-L$(FFMPEG_HOME)/libavformat -L$(FFMPEG_HOME)/libavcodec -L$(FFMPEG_HOME)/libavutil \
      -L$(X264_HOME) \
