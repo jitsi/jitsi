@@ -152,8 +152,7 @@ public class InviteDialog
         contactListScrollPane.getViewport().add(contactList);
         contactListScrollPane.getViewport().setBorder(null);
         contactListScrollPane.setViewportBorder(null);
-        contactListScrollPane.setBorder(
-            SIPCommBorders.getRoundBorder());
+        contactListScrollPane.setBorder(null);
 
         JScrollPane selectedListScrollPane = new JScrollPane();
 
@@ -165,10 +164,20 @@ public class InviteDialog
         selectedListScrollPane.setBorder(
             SIPCommBorders.getRoundBorder());
 
+        // New contact text field panel.
+        final SIPCommTextField newContactField
+            = new SIPCommTextField(GuiActivator.getResources()
+                .getI18NString("service.gui.OR_ENTER_PHONE_NUMBER"));
+
+        TransparentPanel leftPanel = new TransparentPanel(new BorderLayout());
+        leftPanel.setBorder(SIPCommBorders.getRoundBorder());
+        leftPanel.add(contactListScrollPane);
+        leftPanel.add(newContactField, BorderLayout.SOUTH);
+
         JPanel listPanel = new JPanel(new GridLayout(0, 2, 5, 5));
         listPanel.setPreferredSize(new Dimension(400, 200));
 
-        listPanel.add(contactListScrollPane);
+        listPanel.add(leftPanel);
         listPanel.add(selectedListScrollPane);
         listPanel.setOpaque(false);
 
@@ -193,6 +202,14 @@ public class InviteDialog
 
                 if (metaContacts != null && metaContacts.length > 0)
                     moveContactsFromLeftToRight(metaContacts);
+
+                String newContactText = newContactField.getText();
+
+                if (newContactText != null && newContactText.length() > 0)
+                {
+                    moveStringFromLeftToRight(newContactText);
+                    newContactField.setText("");
+                }
             }
         });
 
@@ -253,13 +270,45 @@ public class InviteDialog
     }
 
     /**
-     * Returns an enumeration of the list of selected contacts.
-     * @return an enumeration of the list of selected contacts.
+     * Returns an enumeration of the list of selected <tt>MetaContact</tt>s.
+     * @return an enumeration of the list of selected <tt>MetaContact</tt>s
      */
-    @SuppressWarnings("unchecked") //We'd like to force the cast here.
     public Enumeration<MetaContact> getSelectedMetaContacts()
     {
-        return (Enumeration<MetaContact>) selectedContactListModel.elements();
+        if (selectedContactListModel.getSize() == 0)
+            return null;
+
+        Vector<MetaContact> selectedMetaContacts = new Vector<MetaContact>();
+        Enumeration<?> selectedContacts = selectedContactListModel.elements();
+        while(selectedContacts.hasMoreElements())
+        {
+            Object contact = selectedContacts.nextElement();
+            if (contact instanceof MetaContact)
+                selectedMetaContacts.add((MetaContact)contact);
+        }
+
+        return selectedMetaContacts.elements();
+    }
+
+    /**
+     * Returns an enumeration of the list of selected Strings.
+     * @return an enumeration of the list of selected Strings
+     */
+    public Enumeration<String> getSelectedStrings()
+    {
+        if (selectedContactListModel.getSize() == 0)
+            return null;
+
+        Vector<String> selectedStrings = new Vector<String>();
+        Enumeration<?> selectedContacts = selectedContactListModel.elements();
+        while(selectedContacts.hasMoreElements())
+        {
+            Object contact = selectedContacts.nextElement();
+            if (contact instanceof String)
+                selectedStrings.add((String)contact);
+        }
+
+        return selectedStrings.elements();
     }
 
     /**
@@ -315,17 +364,28 @@ public class InviteDialog
     }
 
     /**
+     * Moves a string from left to right.
+     * @param text the text to move from left to right
+     */
+    private void moveStringFromLeftToRight(String text)
+    {
+        selectedContactListModel.addElement(text);
+    }
+
+    /**
      * Moves a contact from the right list to the left.
      *
-     * @param metaContacts the contact to move.
+     * @param contacts the contact to move.
      */
-    private void moveContactsFromRightToLeft(Object[] metaContacts)
+    private void moveContactsFromRightToLeft(Object[] contacts)
     {
-        for (Object metaContact : metaContacts)
+        for (Object contact : contacts)
         {
-            selectedContactListModel.removeElement(metaContact);
+            selectedContactListModel.removeElement(contact);
 
-            contactListModel.addElement(metaContact);
+            // If this is a MetaContact re-add it in the left list.
+            if (contact instanceof MetaContact)
+                contactListModel.addElement(contact);
         }
     }
 }

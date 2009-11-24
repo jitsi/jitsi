@@ -229,6 +229,12 @@ public class ContactListCellRenderer
 
             this.isLeaf = false;
         }
+        else if (value instanceof String)
+        {
+            this.setPreferredSize(new Dimension(20, 30));
+            this.nameLabel.setText((String) value);
+            this.nameLabel.setFont(this.getFont().deriveFont(Font.PLAIN));
+        }
 
         this.isSelected = isSelected;
 

@@ -3,7 +3,7 @@
  *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.lookandfeel;
+package net.java.sip.communicator.util.swing.plaf;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -13,7 +13,7 @@ import javax.swing.plaf.*;
 import javax.swing.plaf.metal.*;
 import javax.swing.text.*;
 
-import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -41,11 +41,12 @@ public class SIPCommTextFieldUI
      */
     public SIPCommTextFieldUI()
     {
-        deleteButtonImg
-            = ImageLoader.getImage(ImageLoader.DELETE_TEXT_ICON);
+        deleteButtonImg = UtilActivator.getResources()
+            .getImage("service.gui.lookandfeel.DELETE_TEXT_ICON").getImage();
 
-        deleteButtonRolloverImg
-            = ImageLoader.getImage(ImageLoader.DELETE_TEXT_ROLLOVER_ICON);
+        deleteButtonRolloverImg = UtilActivator.getResources()
+            .getImage("service.gui.lookandfeel.DELETE_TEXT_ROLLOVER_ICON")
+                .getImage();
 
         deleteButton = new SIPCommButton(   deleteButtonImg,
                                             deleteButtonRolloverImg);

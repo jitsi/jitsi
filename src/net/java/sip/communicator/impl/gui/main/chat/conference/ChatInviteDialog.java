@@ -92,30 +92,47 @@ public class ChatInviteDialog
         java.util.List<String> selectedContactAddresses =
             new ArrayList<String>();
 
-        Enumeration<MetaContact> selectedContacts
-            = getSelectedMetaContacts();
+        // Obtain selected contacts.
+        Enumeration<MetaContact> selectedContacts = getSelectedMetaContacts();
 
-        while (selectedContacts.hasMoreElements())
+        if (selectedContacts != null)
         {
-            MetaContact metaContact
-                = selectedContacts.nextElement();
-
-            Iterator<Contact> contactsIter = metaContact
-                .getContactsForProvider(
-                    inviteChatTransport.getProtocolProvider());
-
-            // We invite the first protocol contact that corresponds to the
-            // invite provider.
-            if (contactsIter.hasNext())
+            while (selectedContacts.hasMoreElements())
             {
-                Contact inviteContact = contactsIter.next();
+                MetaContact metaContact
+                    = selectedContacts.nextElement();
 
-                selectedContactAddresses.add(inviteContact.getAddress());
+                Iterator<Contact> contactsIter = metaContact
+                    .getContactsForProvider(
+                        inviteChatTransport.getProtocolProvider());
+
+                // We invite the first protocol contact that corresponds to the
+                // invite provider.
+                if (contactsIter.hasNext())
+                {
+                    Contact inviteContact = contactsIter.next();
+
+                    selectedContactAddresses.add(inviteContact.getAddress());
+                }
             }
         }
 
-        chatPanel.inviteContacts(   inviteChatTransport,
-                                    selectedContactAddresses,
-                                    this.getReason());
+        // Obtain selected strings.
+        Enumeration<String> selectedStrings = getSelectedStrings();
+        if (selectedStrings != null)
+        {
+            while (selectedStrings.hasMoreElements())
+            {
+                selectedContactAddresses.add(selectedStrings.nextElement());
+            }
+        }
+
+        // Invite all selected.
+        if (selectedContactAddresses.size() > 0)
+        {
+            chatPanel.inviteContacts(   inviteChatTransport,
+                                        selectedContactAddresses,
+                                        this.getReason());
+        }
     }
 }

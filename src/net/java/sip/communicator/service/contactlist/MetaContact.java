@@ -69,6 +69,15 @@ public interface MetaContact
                                ProtocolProviderService ownerProvider);
 
     /**
+     * Returns <tt>true</tt> if the given <tt>protocolContact</tt> is contained
+     * in this <tt>MetaContact</tt>, otherwise - returns <tt>false</tt>.
+     * @param protocolContact the <tt>Contact</tt> we're looking for
+     * @return <tt>true</tt> if the given <tt>protocolContact</tt> is contained
+     * in this <tt>MetaContact</tt>, otherwise - returns <tt>false</tt>
+     */
+    public boolean containsContact(Contact protocolContact);
+
+    /**
      * Returns the number of protocol speciic <tt>Contact</tt>s that this
      * <tt>MetaContact</tt> contains.
      * @return an int indicating the number of protocol specific contacts merged

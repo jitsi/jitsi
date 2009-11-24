@@ -113,7 +113,8 @@ public class ConferenceInviteDialog
         {
             public void actionPerformed(ActionEvent e)
             {
-                if (getSelectedMetaContacts().hasMoreElements())
+                if (getSelectedMetaContacts() != null
+                    || getSelectedStrings() != null)
                 {
                     inviteContacts();
 
@@ -216,7 +217,8 @@ public class ConferenceInviteDialog
         {
             MetaContact metaContact = contactListIter.next();
 
-            this.addMetaContact(metaContact);
+            if (!containsContact(metaContact))
+                this.addMetaContact(metaContact);
         }
     }
 
@@ -228,30 +230,45 @@ public class ConferenceInviteDialog
         ProtocolProviderService selectedProvider
             = (ProtocolProviderService) accountSelectorBox.getSelectedItem();
 
-        java.util.List<String> selectedContactAddresses =
-            new ArrayList<String>();
+        java.util.List<String> selectedContactAddresses
+            = new ArrayList<String>();
 
-        Enumeration<MetaContact> selectedContacts
-            = getSelectedMetaContacts();
+        // Obtain selected contacts.
+        Enumeration<MetaContact> selectedContacts = getSelectedMetaContacts();
 
-        while (selectedContacts.hasMoreElements())
+        if (selectedContacts != null)
         {
-            MetaContact metaContact
-                = selectedContacts.nextElement();
-
-            Iterator<Contact> contactsIter = metaContact
-                .getContactsForProvider(selectedProvider);
-
-            // We invite the first protocol contact that corresponds to the
-            // invite provider.
-            if (contactsIter.hasNext())
+            while (selectedContacts.hasMoreElements())
             {
-                Contact inviteContact = contactsIter.next();
+                MetaContact metaContact
+                    = selectedContacts.nextElement();
 
-                selectedContactAddresses.add(inviteContact.getAddress());
+                Iterator<Contact> contactsIter = metaContact
+                    .getContactsForProvider(selectedProvider);
+
+                // We invite the first protocol contact that corresponds to the
+                // invite provider.
+                if (contactsIter.hasNext())
+                {
+                    Contact inviteContact = contactsIter.next();
+
+                    selectedContactAddresses.add(inviteContact.getAddress());
+                }
             }
         }
 
+        // Obtain selected strings.
+        Enumeration<String> selectedStrings = getSelectedStrings();
+
+        if (selectedStrings != null)
+        {
+            while (selectedStrings.hasMoreElements())
+            {
+                selectedContactAddresses.add(selectedStrings.nextElement());
+            }
+        }
+
+        // Invite all selected.
         String[] contactAddressStrings = null;
         if (selectedContactAddresses.size() > 0)
         {
@@ -269,5 +286,31 @@ public class ConferenceInviteDialog
             CallManager.createConferenceCall(
                 contactAddressStrings, selectedProvider);
         }
+    }
+
+    /**
+     * Check if the given <tt>metaContact</tt> is already contained in the call.
+     *
+     * @param metaContact the <tt>Contact</tt> to check for
+     * @return <tt>true</tt> if the given <tt>metaContact</tt> is already
+     * contained in the call, otherwise - returns <tt>false</tt>
+     */
+    private boolean containsContact(MetaContact metaContact)
+    {
+        // If the call is not yet created we just return false.
+        if (call == null)
+            return false;
+
+        Iterator<? extends CallPeer> callPeers = call.getCallPeers();
+
+        while(callPeers.hasNext())
+        {
+            CallPeer callPeer = callPeers.next();
+
+            if(metaContact.containsContact(callPeer.getContact()))
+                return true;
+        }
+
+        return false;
     }
 }

@@ -194,7 +194,7 @@ public class CallComboBox
                 = callHistory.findLast(MAX_HISTORY_SIZE);
 
             FilterableComboBoxModel callComboModel
-                = (FilterableComboBoxModel)getModel();
+                = (FilterableComboBoxModel) getModel();
 
             for (CallRecord call : historyCalls)
             {

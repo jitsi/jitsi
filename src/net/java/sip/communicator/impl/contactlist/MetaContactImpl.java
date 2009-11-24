@@ -260,6 +260,17 @@ public class MetaContactImpl
         return null;
     }
 
+    /**
+     * Returns <tt>true</tt> if the given <tt>protocolContact</tt> is contained
+     * in this <tt>MetaContact</tt>, otherwise - returns <tt>false</tt>.
+     * @param protocolContact the <tt>Contact</tt> we're looking for
+     * @return <tt>true</tt> if the given <tt>protocolContact</tt> is contained
+     * in this <tt>MetaContact</tt>, otherwise - returns <tt>false</tt>
+     */
+    public boolean containsContact(Contact protocolContact)
+    {
+        return protoContacts.contains(protocolContact);
+    }
 
     /**
      * Returns a <tt>java.util.Iterator</tt> over all protocol specific

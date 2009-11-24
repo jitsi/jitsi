@@ -13,6 +13,7 @@ import javax.swing.border.*;
 import javax.swing.plaf.metal.*;
 
 import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.util.swing.plaf.*;
 
 /**
  * The default editor for SIPCommunicator editable combo boxes.
