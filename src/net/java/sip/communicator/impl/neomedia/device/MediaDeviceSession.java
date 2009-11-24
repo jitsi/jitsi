@@ -629,6 +629,15 @@ public class MediaDeviceSession
         return device;
     }
 
+    /**
+     * Gets the <tt>MediaDirection</tt> in which this instance has been started.
+     * For example, a <tt>MediaDirection</tt> which returns <tt>true</tt> for
+     * <tt>allowsSending()</tt> signals that this instance is capturing media
+     * from its <tt>MediaDevice</tt>.
+     *
+     * @return the <tt>MediaDirection</tt> in which this instance has been
+     * started
+     */
     public MediaDirection getStartedDirection()
     {
         return startedDirection;
@@ -900,10 +909,11 @@ public class MediaDeviceSession
                 if (format != null)
                     setFormat(processor, format);
 
-                if(NeomediaActivator
-                            .getMediaServiceImpl()
-                                .getLocalSoundLevelListeners().size()
-                        > 0)
+                if (true
+                        && (NeomediaActivator
+                                    .getMediaServiceImpl()
+                                        .getLocalSoundLevelListeners().size()
+                                > 0))
                 {
                     // here we add sound level indicator for captured media
                     // from the microphone if there are interested listeners
