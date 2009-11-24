@@ -1,4 +1,10 @@
-#include "net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio.h"
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+#include "net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio.h"
 
 #include <portaudio.h>
 #include <stdlib.h>
@@ -121,7 +127,7 @@ static Buffer* getBuffer(PortAudioStream *st, int time)
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_setEchoCancelParams
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_setEchoCancelParams
   (JNIEnv *env, jclass clazz, 
   jlong instream, jlong outstream,
   jboolean enableDenoise, 
@@ -163,21 +169,21 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_setEchoCa
 }
 
 JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1GetDefaultInputDevice
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_Pa_1GetDefaultInputDevice
   (JNIEnv *env, jclass clazz)
 {
     return Pa_GetDefaultInputDevice();
 }
 
 JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1GetDefaultOutputDevice
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_Pa_1GetDefaultOutputDevice
   (JNIEnv *env, jclass clazz)
 {
     return Pa_GetDefaultOutputDevice();
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1CloseStream(
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_Pa_1CloseStream(
 	JNIEnv *env, jclass clazz, jlong stream)
 {
 	PortAudioStream *portAudioStream = (PortAudioStream *) stream;
@@ -207,7 +213,7 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1Close
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1AbortStream
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_Pa_1AbortStream
   (JNIEnv *env, jclass clazz, jlong stream)
 {
     PaError errorCode = Pa_AbortStream(((PortAudioStream *) stream)->stream);
@@ -217,7 +223,7 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1Abort
 }
 
 JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1GetDeviceCount(
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_Pa_1GetDeviceCount(
 	JNIEnv *env, jclass clazz)
 {
 	PaDeviceIndex deviceCount = Pa_GetDeviceCount();
@@ -228,14 +234,14 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1GetDe
 }
 
 JNIEXPORT jlong JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1GetDeviceInfo(
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_Pa_1GetDeviceInfo(
 	JNIEnv *env, jclass clazz, jint deviceIndex)
 {
 	return (jlong) Pa_GetDeviceInfo(deviceIndex);
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1Initialize(
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_Pa_1Initialize(
 	JNIEnv *env, jclass clazz)
 {
 	PaError errorCode = Pa_Initialize();
@@ -245,7 +251,7 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1Initi
 }
 
 JNIEXPORT jlong JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1OpenStream(
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_Pa_1OpenStream(
 	JNIEnv *env,
 	jclass clazz,
 	jlong inputParameters,
@@ -344,7 +350,7 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1OpenS
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1StartStream(
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_Pa_1StartStream(
 	JNIEnv *env, jclass clazz, jlong stream)
 {
 	PaError errorCode = Pa_StartStream(((PortAudioStream *) stream)->stream);
@@ -354,7 +360,7 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1Start
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1StopStream(
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_Pa_1StopStream(
 	JNIEnv *env, jclass clazz, jlong stream)
 {
 	PaError errorCode = Pa_StopStream(((PortAudioStream *) stream)->stream);
@@ -364,7 +370,7 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1StopS
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1WriteStream(
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_Pa_1WriteStream(
 	JNIEnv *env, jclass clazz, jlong stream, jbyteArray buffer, jlong frames)
 {
 	jbyte* data = (*env)->GetByteArrayElements(env, buffer, NULL);
@@ -438,7 +444,7 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1Write
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1ReadStream
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_Pa_1ReadStream
   (JNIEnv *env, jclass clazz, jlong stream, jbyteArray buffer, jlong frames)
 {
     jbyte* data = (*env)->GetByteArrayElements(env, buffer, NULL);
@@ -551,7 +557,7 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1ReadS
 }
 
 JNIEXPORT jlong JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1GetStreamReadAvailable
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_Pa_1GetStreamReadAvailable
   (JNIEnv *env, jclass clazz, jlong stream)
 {
     return Pa_GetStreamReadAvailable(((PortAudioStream *) stream)->stream) /
@@ -559,21 +565,21 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1GetSt
 }
 
 JNIEXPORT jlong JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1GetStreamWriteAvailable
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_Pa_1GetStreamWriteAvailable
   (JNIEnv *env, jclass clazz, jlong stream)
 {
     return Pa_GetStreamWriteAvailable(((PortAudioStream *) stream)->stream);
 }
 
 JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1GetSampleSize
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_Pa_1GetSampleSize
   (JNIEnv *env, jclass clazz, jlong format)
 {
     return Pa_GetSampleSize(format);
 }
 
 JNIEXPORT jboolean JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1IsFormatSupported
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_Pa_1IsFormatSupported
   (JNIEnv *env, jclass clazz, 
     jlong inputParameters,
     jlong outputParameters,
@@ -589,14 +595,14 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1IsFor
 }
 
 JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaDeviceInfo_1getMaxInputChannels(
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_PaDeviceInfo_1getMaxInputChannels(
 	JNIEnv *env, jclass clazz, jlong deviceInfo)
 {
 	return ((PaDeviceInfo *) deviceInfo)->maxInputChannels;
 }
 
 JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaDeviceInfo_1getMaxOutputChannels(
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_PaDeviceInfo_1getMaxOutputChannels(
 	JNIEnv *env, jclass clazz, jlong deviceInfo)
 {
 	return ((PaDeviceInfo *) deviceInfo)->maxOutputChannels;
@@ -604,7 +610,7 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaDeviceI
 
 
 JNIEXPORT jstring JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaDeviceInfo_1getName(
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_PaDeviceInfo_1getName(
 	JNIEnv *env, jclass clazz, jlong deviceInfo)
 {
 	const char *name = ((PaDeviceInfo *) deviceInfo)->name;
@@ -613,63 +619,63 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaDeviceI
 }
 
 JNIEXPORT jdouble JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaDeviceInfo_1getDefaultSampleRate
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_PaDeviceInfo_1getDefaultSampleRate
   (JNIEnv *env, jclass clazz, jlong deviceInfo)
 {
     return ((PaDeviceInfo *) deviceInfo)->defaultSampleRate;
 }
 
 JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaDeviceInfo_1getHostApi
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_PaDeviceInfo_1getHostApi
   (JNIEnv *env, jclass clazz, jlong deviceInfo)
 {
     return ((PaDeviceInfo *) deviceInfo)->hostApi;
 }
 
 JNIEXPORT jdouble JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaDeviceInfo_1getDefaultLowInputLatency
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_PaDeviceInfo_1getDefaultLowInputLatency
   (JNIEnv *env, jclass clazz, jlong deviceInfo)
 {
     return ((PaDeviceInfo *) deviceInfo)->defaultLowInputLatency;
 }
 
 JNIEXPORT jdouble JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaDeviceInfo_1getDefaultLowOutputLatency
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_PaDeviceInfo_1getDefaultLowOutputLatency
   (JNIEnv *env, jclass clazz, jlong deviceInfo)
 {
     return ((PaDeviceInfo *) deviceInfo)->defaultLowOutputLatency;
 }
 
 JNIEXPORT jdouble JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaDeviceInfo_1getDefaultHighInputLatency
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_PaDeviceInfo_1getDefaultHighInputLatency
   (JNIEnv *env, jclass clazz, jlong deviceInfo)
 {
     return ((PaDeviceInfo *) deviceInfo)->defaultHighInputLatency;
 }
 
 JNIEXPORT jdouble JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaDeviceInfo_1getDefaultHighOutputLatency
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_PaDeviceInfo_1getDefaultHighOutputLatency
   (JNIEnv *env, jclass clazz, jlong deviceInfo)
 {
     return ((PaDeviceInfo *) deviceInfo)->defaultHighOutputLatency;
 }
 
 JNIEXPORT jlong JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_Pa_1GetHostApiInfo
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_Pa_1GetHostApiInfo
   (JNIEnv *env , jclass clazz, jint hostApiIndex)
 {
     return (jlong) Pa_GetHostApiInfo(hostApiIndex);
 }
 
 JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaHostApiInfo_1GetType
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_PaHostApiInfo_1GetType
   (JNIEnv *env, jclass clazz, jlong hostApi)
 {
     return ((PaHostApiInfo *) hostApi)->type;
 }
 
 JNIEXPORT jstring JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaHostApiInfo_1GetName
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_PaHostApiInfo_1GetName
   (JNIEnv *env, jclass clazz, jlong hostApi)
 {
     const char *name = ((PaHostApiInfo *) hostApi)->name;
@@ -678,28 +684,28 @@ Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaHostApi
 }
 
 JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaHostApiInfo_1GetDeviceCount
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_PaHostApiInfo_1GetDeviceCount
   (JNIEnv *env, jclass clazz, jlong hostApi)
 {
     return ((PaHostApiInfo *) hostApi)->deviceCount;
 }
 
 JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaHostApiInfo_1GetDefaultInputDevice
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_PaHostApiInfo_1GetDefaultInputDevice
   (JNIEnv *env, jclass clazz, jlong hostApi)
 {
     return ((PaHostApiInfo *) hostApi)->defaultInputDevice;
 }
 
 JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaHostApiInfo_1GetDefaultOutputDevice
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_PaHostApiInfo_1GetDefaultOutputDevice
   (JNIEnv *env, jclass clazz, jlong hostApi)
 {
     return ((PaHostApiInfo *) hostApi)->defaultOutputDevice;
 }
 
 JNIEXPORT jlong JNICALL
-Java_net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_PaStreamParameters_1new(
+Java_net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_PaStreamParameters_1new(
 	JNIEnv *env,
 	jclass clazz,
 	jint deviceIndex,
@@ -732,11 +738,11 @@ PortAudio_fixInputParametersSuggestedLatency(
         if (deviceInfo)
         {
             if(inputParameters->suggestedLatency ==
-                net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_LATENCY_LOW)
+                net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_LATENCY_LOW)
                 inputParameters->suggestedLatency =
                     deviceInfo->defaultLowInputLatency;
             else if(inputParameters->suggestedLatency ==
-                net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_LATENCY_HIGH
+                net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_LATENCY_HIGH
                     || inputParameters->suggestedLatency == 0)
                 inputParameters->suggestedLatency =
                     deviceInfo->defaultHighInputLatency;
@@ -756,11 +762,11 @@ PortAudio_fixOutputParametersSuggestedLatency(
 		if (deviceInfo)
         {
             if(outputParameters->suggestedLatency ==
-                net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_LATENCY_LOW)
+                net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_LATENCY_LOW)
                 outputParameters->suggestedLatency =
                     deviceInfo->defaultLowOutputLatency;
             else if(outputParameters->suggestedLatency ==
-                net_java_sip_communicator_impl_media_protocol_portaudio_PortAudio_LATENCY_HIGH
+                net_java_sip_communicator_impl_neomedia_protocol_portaudio_PortAudio_LATENCY_HIGH
                     || outputParameters->suggestedLatency == 0)
                 outputParameters->suggestedLatency =
                     deviceInfo->defaultHighOutputLatency;
@@ -789,7 +795,7 @@ PortAudio_throwException(JNIEnv *env, PaError errorCode)
 		= (*env)
 			->FindClass(
 				env,
-				"net/java/sip/communicator/impl/media/protocol/portaudio/PortAudioException");
+				"net/java/sip/communicator/impl/neomedia/protocol/portaudio/PortAudioException");
 
 	if (clazz)
 		(*env)->ThrowNew(env, clazz, Pa_GetErrorText(errorCode));

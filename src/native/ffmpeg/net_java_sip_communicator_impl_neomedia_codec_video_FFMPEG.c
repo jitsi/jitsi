@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-#include "net_java_sip_communicator_impl_media_codec_video_FFMPEG.h"
+#include "net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG.h"
 
 #include <string.h>
 
@@ -13,43 +13,43 @@
 #include <libavformat/avformat.h>
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_av_1free (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_av_1free (
         JNIEnv *jniEnv, jclass clazz, jlong ptr) {
     av_free ((void *) ptr);
 }
 
 JNIEXPORT jlong JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_av_1malloc (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_av_1malloc (
         JNIEnv *jniEnv, jclass clazz, jint size) {
     return (jlong) av_malloc ((unsigned int) size);
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_av_1register_1all (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_av_1register_1all (
         JNIEnv *jniEnv, jclass clazz) {
     av_register_all ();
 }
 
 JNIEXPORT jlong JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodec_1alloc_1context (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodec_1alloc_1context (
         JNIEnv *jniEnv, jclass clazz) {
     return (jlong) avcodec_alloc_context ();
 }
 
 JNIEXPORT jlong JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodec_1alloc_1frame (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodec_1alloc_1frame (
         JNIEnv *jniEnv, jclass clazz) {
     return (jlong) avcodec_alloc_frame ();
 }
 
 JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodec_1close (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodec_1close (
         JNIEnv *jniEnv, jclass clazz, jlong avctx) {
     return (jint) avcodec_close ((AVCodecContext *) avctx);
 }
 
 JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodec_1decode_1video (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodec_1decode_1video (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jlong frame,
         jbooleanArray got_picture, jbyteArray buf, jint buf_size) {
     jint ret;
@@ -79,7 +79,7 @@ Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodec_1decode_1vi
 }
 
 JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodec_1encode_1video (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodec_1encode_1video (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jbyteArray buf,
         jint buf_size, jlong frame) {
     jint ret;
@@ -101,133 +101,133 @@ Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodec_1encode_1vi
 }
 
 JNIEXPORT jlong JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodec_1find_1decoder (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodec_1find_1decoder (
         JNIEnv *jniEnv, jclass clazz, jint id) {
     return (jlong) avcodec_find_decoder ((enum CodecID) id);
 }
 
 JNIEXPORT jlong JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodec_1find_1encoder (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodec_1find_1encoder (
         JNIEnv *jniEnv, jclass clazz, jint id) {
     return (jlong) avcodec_find_encoder ((enum CodecID) id);
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodec_1init (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodec_1init (
         JNIEnv *jniEnv, jclass clazz) {
     avcodec_init ();
 }
 
 JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodec_1open (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodec_1open (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jlong codec) {
     return (jint) avcodec_open ((AVCodecContext *) avctx, (AVCodec *) codec);
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1add_1flags (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1add_1flags (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jint flags) {
     ((AVCodecContext *) avctx)->flags |= (int) flags;
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1add_1partitions (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1add_1partitions (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jint partitions) {
     ((AVCodecContext *) avctx)->partitions |= (int) partitions;
 }
 
 JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1get_1height (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1get_1height (
         JNIEnv *jniEnv, jclass clazz, jlong avctx) {
     return (jint) (((AVCodecContext *) avctx)->height);
 }
 
 JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1get_1pix_1fmt (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1get_1pix_1fmt (
         JNIEnv *jniEnv, jclass clazz, jlong avctx) {
     return (jint) (((AVCodecContext *) avctx)->pix_fmt);
 }
 
 JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1get_1width (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1get_1width (
         JNIEnv *jniEnv, jclass clazz, jlong avctx) {
     return (jint) (((AVCodecContext *) avctx)->width);
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1set_1bit_1rate (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1bit_1rate (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jint bit_rate) {
     ((AVCodecContext *) avctx)->bit_rate = (int) bit_rate;
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1set_1bit_1rate_1tolerance (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1bit_1rate_1tolerance (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jint bit_rate_tolerance) {
     ((AVCodecContext *) avctx)->bit_rate_tolerance = (int) bit_rate_tolerance;
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1set_1crf (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1crf (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jfloat crf) {
     ((AVCodecContext *) avctx)->crf = (float) crf;
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1set_1gop_1size (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1gop_1size (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jint gop_size) {
     ((AVCodecContext *) avctx)->gop_size = (int) gop_size;
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1set_1i_1quant_1factor (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1i_1quant_1factor (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jfloat i_quant_factor) {
     ((AVCodecContext *) avctx)->i_quant_factor = (float) i_quant_factor;
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1set_1mb_1decision (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1mb_1decision (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jint mb_decision) {
     ((AVCodecContext *) avctx)->mb_decision = (int) mb_decision;
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1set_1me_1cmp (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1me_1cmp (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jint me_cmp) {
     ((AVCodecContext *) avctx)->me_cmp = (int) me_cmp;
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1set_1me_1method (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1me_1method (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jint me_method) {
     ((AVCodecContext *) avctx)->me_method = (int) me_method;
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1set_1me_1range (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1me_1range (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jint me_range) {
     ((AVCodecContext *) avctx)->me_range = (int) me_range;
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1set_1me_1subpel_1quality (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1me_1subpel_1quality (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jint me_subpel_quality) {
     ((AVCodecContext *) avctx)->me_subpel_quality = (int) me_subpel_quality;
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1set_1pix_1fmt (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1pix_1fmt (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jint pix_fmt) {
     ((AVCodecContext *) avctx)->pix_fmt = (int) pix_fmt;
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1set_1qcompress (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1qcompress (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jfloat qcompress) {
     ((AVCodecContext *) avctx)->qcompress = (float) qcompress;
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1set_1quantizer (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1quantizer (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jint qmin, jint qmax,
         jint max_qdiff) {
     AVCodecContext *n_avctx = (AVCodecContext *) avctx;
@@ -238,13 +238,13 @@ Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1set
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1set_1rc_1buffer_1size (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1rc_1buffer_1size (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jint rc_buffer_size) {
     ((AVCodecContext *) avctx)->rc_buffer_size = (int) rc_buffer_size;
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1set_1rc_1eq (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1rc_1eq (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jstring rc_eq) {
     char *n_rc_eq;
 
@@ -263,13 +263,13 @@ Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1set
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1set_1rc_1max_1rate (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1rc_1max_1rate (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jint rc_max_rate) {
     ((AVCodecContext *) avctx)->rc_max_rate = (int) rc_max_rate;
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1set_1sample_1aspect_1ratio (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1sample_1aspect_1ratio (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jint num, jint den) {
     AVRational *sample_aspect_ratio =
         &(((AVCodecContext *) avctx)->sample_aspect_ratio);
@@ -279,14 +279,14 @@ Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1set
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1set_1scenechange_1threshold (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1scenechange_1threshold (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jint scenechange_threshold) {
     ((AVCodecContext *) avctx)->scenechange_threshold =
         (int) scenechange_threshold;
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1set_1size (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1size (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jint width, jint height) {
     AVCodecContext *n_avctx = (AVCodecContext *) avctx;
 
@@ -295,13 +295,13 @@ Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1set
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1set_1thread_1count (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1thread_1count (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jint thread_count) {
     ((AVCodecContext *) avctx)->thread_count = (int) thread_count;
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1set_1time_1base (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1time_1base (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jint num, jint den) {
     AVRational *time_base = &(((AVCodecContext *) avctx)->time_base);
 
@@ -310,13 +310,13 @@ Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1set
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avcodeccontext_1set_1workaround_1bugs (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1workaround_1bugs (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jint workaround_bugs) {
 	((AVCodecContext *) avctx)->workaround_bugs = (int) workaround_bugs;
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avframe_1set_1data (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avframe_1set_1data (
         JNIEnv *jniEnv, jclass clazz, jlong frame, jlong data0, jlong offset1,
         jlong offset2) {
     AVFrame *n_frame = (AVFrame *) frame;
@@ -327,13 +327,13 @@ Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avframe_1set_1data 
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avframe_1set_1key_1frame (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avframe_1set_1key_1frame (
         JNIEnv *jniEnv, jclass clazz, jlong frame, jboolean key_frame) {
     ((AVFrame *) frame)->key_frame = (JNI_TRUE == key_frame) ? 1 : 0;
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avframe_1set_1linesize (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avframe_1set_1linesize (
         JNIEnv *jniEnv, jclass clazz, jlong frame, jint linesize0,
         jint linesize1, jint linesize2) {
     AVFrame *n_frame = (AVFrame *) frame;
@@ -344,7 +344,7 @@ Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avframe_1set_1lines
 }
 
 JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avpicture_1fill (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avpicture_1fill (
         JNIEnv *jniEnv, jclass clazz, jlong picture, jlong ptr, jint pix_fmt,
         jint width, jint height) {
     return (jint)
@@ -353,19 +353,19 @@ Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avpicture_1fill (
 }
 
 JNIEXPORT jlong JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avpicture_1get_1data0 (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avpicture_1get_1data0 (
         JNIEnv *jniEnv, jclass clazz, jlong picture) {
     return (jlong) (((AVPicture *) picture)->data[0]);
 }
 
 JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_avpicture_1get_1size (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avpicture_1get_1size (
         JNIEnv *jniEnv, jclass clazz, jint pix_fmt, jint width, jint height) {
     return (jint) avpicture_get_size ((int) pix_fmt, (int) width, (int) height);
 }
 
 JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_img_1convert (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_img_1convert (
         JNIEnv *jniEnv, jclass clazz, jlong dst, jint dst_pix_fmt, jlong src,
         jint pix_fmt, jint width, jint height) {
     return (jint)
@@ -374,7 +374,7 @@ Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_img_1convert (
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_memcpy___3IIIJ (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_memcpy___3IIIJ (
         JNIEnv *jniEnv, jclass clazz, jintArray dst, jint dst_offset,
         jint dst_length, jlong src) {
     jint *dst_ptr = (*jniEnv)->GetIntArrayElements (jniEnv, dst, NULL);
@@ -387,7 +387,7 @@ Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_memcpy___3IIIJ (
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_media_codec_video_FFMPEG_memcpy__J_3BII (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_memcpy__J_3BII (
         JNIEnv *jniEnv, jclass clazz, jlong dst, jbyteArray src,
         jint src_offset, jint src_length) {
     (*jniEnv)->GetByteArrayRegion (jniEnv, src, src_offset, src_length,

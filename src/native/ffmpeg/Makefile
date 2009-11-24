@@ -8,10 +8,11 @@ CC=gcc
 CPPFLAGS=-DJNI_IMPLEMENTATION \
          -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/win32 \
          -I$(FFMPEG_HOME)
+#LDFLAGS=-dynamiclib
 LDFLAGS=-Wl,--kill-at -shared
 LIBS=-L$(FFMPEG_HOME)/libavformat -L$(FFMPEG_HOME)/libavcodec -L$(FFMPEG_HOME)/libavutil \
      -L$(X264_HOME) \
      -lavformat -lavcodec -lavutil -lx264
 
-$(TARGET): net_java_sip_communicator_impl_media_codec_video_FFMPEG.c net_java_sip_communicator_impl_media_codec_video_FFMPEG.h
+$(TARGET): net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG.c net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG.h
 	$(CC) $(CPPFLAGS) $< $(LDFLAGS) -o $@ $(LIBS)

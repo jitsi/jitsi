@@ -11,8 +11,8 @@ import java.net.*;
 
 import javax.sound.sampled.*;
 
-import net.java.sip.communicator.impl.media.protocol.portaudio.*;
-import net.java.sip.communicator.impl.media.protocol.portaudio.streams.*;
+import net.java.sip.communicator.impl.neomedia.protocol.portaudio.*;
+import net.java.sip.communicator.impl.neomedia.protocol.portaudio.streams.*;
 import net.java.sip.communicator.util.*;
 
 /**

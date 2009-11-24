@@ -49,29 +49,29 @@ public class EncodingConfiguration
         {
             FMJConditionals.FMJ_CODECS
                 ? "net.sf.fmj.media.codec.audio.alaw.Encoder"
-                : "net.java.sip.communicator.impl.media.codec.audio.alaw.JavaEncoder",
+                : "net.java.sip.communicator.impl.neomedia.codec.audio.alaw.JavaEncoder",
             FMJConditionals.FMJ_CODECS
                 ? "net.sf.fmj.media.codec.audio.alaw.DePacketizer"
-                : "net.java.sip.communicator.impl.media.codec.audio.alaw.DePacketizer",
+                : "net.java.sip.communicator.impl.neomedia.codec.audio.alaw.DePacketizer",
             FMJConditionals.FMJ_CODECS
                 ? "net.sf.fmj.media.codec.audio.alaw.Packetizer"
-                : "net.java.sip.communicator.impl.media.codec.audio.alaw.Packetizer",
+                : "net.java.sip.communicator.impl.neomedia.codec.audio.alaw.Packetizer",
             FMJConditionals.FMJ_CODECS
                 ? "net.sf.fmj.media.codec.audio.ulaw.Packetizer"
-                : "net.java.sip.communicator.impl.media.codec.audio.ulaw.Packetizer",
-            "net.java.sip.communicator.impl.media.codec.video.h264.JNIEncoder",
-            "net.java.sip.communicator.impl.media.codec.video.h264.Packetizer",
-            "net.java.sip.communicator.impl.media.codec.video.h264.JNIDecoder",
-            "net.java.sip.communicator.impl.media.codec.video.ImageScaler",
-            "net.java.sip.communicator.impl.media.codec.audio.speex.JavaEncoder",
-            "net.java.sip.communicator.impl.media.codec.audio.speex.JavaDecoder",
-            "net.java.sip.communicator.impl.media.codec.audio.ilbc.JavaEncoder",
-            "net.java.sip.communicator.impl.media.codec.audio.ilbc.JavaDecoder",
+                : "net.java.sip.communicator.impl.neomedia.codec.audio.ulaw.Packetizer",
+            "net.java.sip.communicator.impl.neomedia.codec.video.h264.JNIEncoder",
+            "net.java.sip.communicator.impl.neomedia.codec.video.h264.Packetizer",
+            "net.java.sip.communicator.impl.neomedia.codec.video.h264.JNIDecoder",
+            "net.java.sip.communicator.impl.neomedia.codec.video.ImageScaler",
+            "net.java.sip.communicator.impl.neomedia.codec.audio.speex.JavaEncoder",
+            "net.java.sip.communicator.impl.neomedia.codec.audio.speex.JavaDecoder",
+            "net.java.sip.communicator.impl.neomedia.codec.audio.ilbc.JavaEncoder",
+            "net.java.sip.communicator.impl.neomedia.codec.audio.ilbc.JavaDecoder",
             G729
-                ? "net.java.sip.communicator.impl.media.codec.audio.g729.JavaEncoder"
+                ? "net.java.sip.communicator.impl.neomedia.codec.audio.g729.JavaEncoder"
                 : null,
             G729
-                ? "net.java.sip.communicator.impl.media.codec.audio.g729.JavaDecoder"
+                ? "net.java.sip.communicator.impl.neomedia.codec.audio.g729.JavaDecoder"
                 : null
         };
 

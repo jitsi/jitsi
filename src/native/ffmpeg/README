@@ -4,9 +4,12 @@
 
 ./configure --disable-pthread
 
-- Linux, Mac OS X
+- Linux
 
 ./configure --enable-pic
+
+- Mac OS X
+./configure --disable-asm
 
 2. ffmpeg-r16801
 
@@ -26,7 +29,7 @@
   --disable-ffserver --disable-ffplay --disable-ffmpeg \
   --disable-pthreads --enable-w32threads
 
-- Linux, Mac OS X
+- Linux, Mac OS X(removed from configure the option to add -mdynamic-no-pic)
 
 ./configure \
   --disable-mmx \

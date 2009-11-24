@@ -11,7 +11,7 @@ import java.util.*;
 import javax.media.*;
 import javax.media.format.*;
 
-import net.java.sip.communicator.impl.media.protocol.portaudio.*;
+import net.java.sip.communicator.impl.neomedia.protocol.portaudio.*;
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.util.*;
@@ -691,8 +691,8 @@ public class DeviceConfiguration
     protected static void initPortAudioRenderer()
     {
         PlugInManager.addPlugIn(
-        "net.java.sip.communicator.impl.media.renderer.audio.PortAudioRenderer",
-        net.java.sip.communicator.impl.media.renderer.audio.
+        "net.java.sip.communicator.impl.neomedia.renderer.audio.PortAudioRenderer",
+        net.java.sip.communicator.impl.neomedia.renderer.audio.
             PortAudioRenderer.supportedInputFormats,
         null,
         PlugInManager.RENDERER);
@@ -714,7 +714,7 @@ public class DeviceConfiguration
     private void removePortAudioRenderer()
     {
         PlugInManager.removePlugIn(
-        "net.java.sip.communicator.impl.media.renderer.audio.PortAudioRenderer",
+        "net.java.sip.communicator.impl.neomedia.renderer.audio.PortAudioRenderer",
         PlugInManager.RENDERER);
     }
 
@@ -751,7 +751,7 @@ public class DeviceConfiguration
 
         try
         {
-            net.java.sip.communicator.impl.media.renderer.audio.
+            net.java.sip.communicator.impl.neomedia.renderer.audio.
                 PortAudioRenderer.setDevice(devInfo.getLocator());
         }
         catch (Exception e)

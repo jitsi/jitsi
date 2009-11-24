@@ -47,7 +47,7 @@ public class MediaStreamImpl
      * The name of the property indicating the length of our receive buffer.
      */
     private static final String PROPERTY_NAME_RECEIVE_BUFFER_LENGTH
-        = "net.java.sip.communicator.impl.media.RECEIVE_BUFFER_LENGTH";
+        = "net.java.sip.communicator.impl.neomedia.RECEIVE_BUFFER_LENGTH";
 
     /**
      * The session with the <tt>MediaDevice</tt> this instance uses for both
