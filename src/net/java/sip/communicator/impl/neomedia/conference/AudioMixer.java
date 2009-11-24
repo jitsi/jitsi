@@ -17,6 +17,7 @@ import javax.media.format.*;
 import javax.media.protocol.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
+import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -130,10 +131,21 @@ public class AudioMixer
      */
     public AudioMixer(CaptureDevice captureDevice)
     {
+        /*
+         * AudioMixer provides PushBufferDataSources so it needs a way to push
+         * them. It does the pushing by using the pushes of its CaptureDevice
+         * i.e. it has to be a PushBufferDataSource.
+         */
         if (captureDevice instanceof PullBufferDataSource)
             captureDevice
                 = new PushBufferDataSourceAdapter(
                         (PullBufferDataSource) captureDevice);
+
+        // Try to enable tracing on captureDevice.
+        if (logger.isTraceEnabled())
+            captureDevice
+                = MediaDeviceImpl
+                    .createTracingCaptureDevice(captureDevice, logger);
 
         this.captureDevice = captureDevice;
 
