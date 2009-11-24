@@ -129,6 +129,11 @@ public class JavaEncoder
             initConverter( (AudioFormat) newFormat);
         }
 
+        if (inputBuffer.getLength() == 0)
+        {
+            return OUTPUT_BUFFER_NOT_FILLED;
+        }
+
         int outLength = calculateOutputSize(inputBuffer.getLength());
 
         byte[] inpData = (byte[]) inputBuffer.getData();

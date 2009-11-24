@@ -79,8 +79,8 @@ public class EncodingConfiguration
      * Custom Packages provided by Sip-Communicator
      */
     private static final String[] CUSTOM_PACKAGES = new String[]
-    { // datasource for low latency ALSA input
-        "net.java.sip.communicator.impl", "net.sf.fmj" };
+    { // datasource for low latency PortAudio or ALSA input
+        "net.java.sip.communicator.impl.neomedia.jmfext", "net.sf.fmj" };
 
     /**
      * The <tt>Comparator</tt> which sorts the sets according to the settings in

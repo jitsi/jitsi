@@ -10,7 +10,8 @@ import java.util.*;
 
 import javax.media.*;
 
-import net.java.sip.communicator.impl.neomedia.protocol.portaudio.*;
+import net.java.sip.communicator.impl.neomedia.portaudio.*;
+import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.portaudio.*;
 import net.java.sip.communicator.util.*;
 
 import com.sun.media.util.*;
