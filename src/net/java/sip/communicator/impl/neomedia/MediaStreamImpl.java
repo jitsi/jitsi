@@ -17,6 +17,8 @@ import javax.media.protocol.*;
 import javax.media.rtp.*;
 import javax.media.rtp.event.*;
 
+import com.sun.media.rtp.*;
+
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.service.neomedia.*;
@@ -1238,7 +1240,7 @@ public class MediaStreamImpl
                     logger.trace("Received new ReceiveStream with ssrc "
                                 + receiveStream.getSSRC());
 
-                setRemoteSourceID( Long.toString( receiveStream.getSSRC() ));
+                setRemoteSourceID( Long.toHexString( receiveStream.getSSRC() ));
 
                 synchronized (receiveStreams)
                 {
