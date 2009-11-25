@@ -29,15 +29,13 @@ public interface MediaStream
      * The name of the property which indicates whether the remote SSRC is
      * currently available.
      */
-    public static final String PNAME_LOCAL_SSRC_AVAILABLE
-        = "localSSRCAvailable";
+    public static final String PNAME_LOCAL_SSRC = "localSSRCAvailable";
 
     /**
      * The name of the property which indicates whether the local SSRC is
      * currently available.
      */
-    public static final String PNAME_REMOTE_SSRC_AVAILABLE
-        = "remoteSSRCAvailable";
+    public static final String PNAME_REMOTE_SSRC = "remoteSSRCAvailable";
 
     /**
      * Starts capturing media from this stream's <tt>MediaDevice</tt> and then

@@ -1238,7 +1238,7 @@ public class MediaStreamImpl
                     logger.trace("Received new ReceiveStream with ssrc "
                                 + receiveStream.getSSRC());
 
-                this.remoteSourceID = Long.toString( receiveStream.getSSRC() );
+                setRemoteSourceID( Long.toString( receiveStream.getSSRC() ));
 
                 synchronized (receiveStreams)
                 {
@@ -1299,5 +1299,35 @@ public class MediaStreamImpl
     public void update(SessionEvent event)
     {
         // TODO Auto-generated method stub
+    }
+
+    /**
+     * Sets the local SSRC identifier and fires the corresponding
+     * <tt>PropertyChangeEvent</tt>.
+     *
+     * @param ssrc the SSRC identifier that this stream will be using in
+     * outgoing RTP packets from now on.
+     */
+    private void setLocalSourceID(String ssrc)
+    {
+        String oldValue = this.localSourceID;
+        this.localSourceID = ssrc;
+
+        firePropertyChange(PNAME_LOCAL_SSRC, oldValue, ssrc);
+    }
+
+    /**
+     * Sets the remote SSRC identifier and fires the corresponding
+     * <tt>PropertyChangeEvent</tt>.
+     *
+     * @param ssrc the SSRC identifier that this stream will be using in
+     * outgoing RTP packets from now on.
+     */
+    private void setRemoteSourceID(String ssrc)
+    {
+        String oldValue = this.remoteSourceID;
+        this.remoteSourceID = ssrc;
+
+        firePropertyChange(PNAME_REMOTE_SSRC, oldValue, ssrc);
     }
 }
