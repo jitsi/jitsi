@@ -127,8 +127,9 @@ public class CallPeerMediaHandler
      * <tt>net.java.sip.communicator.service.protocol.event.VideoEvent</tt>s
      * originating from this instance.
      */
-    private final net.java.sip.communicator.service.neomedia.event.VideoListener videoStreamVideoListener
-        = new net.java.sip.communicator.service.neomedia.event.VideoListener()
+    private final net.java.sip.communicator.service.neomedia.event.VideoListener
+        videoStreamVideoListener = new net.java.sip.communicator.service
+            .neomedia.event.VideoListener()
         {
             /**
              * Notifies this neomedia <tt>VideoListener</tt> that a new visual
@@ -138,8 +139,8 @@ public class CallPeerMediaHandler
              * @param event the neomedia <tt>VideoEvent</tt> which specifies the
              * newly-added visual <tt>Component</tt> displaying remote video
              */
-            public void videoAdded(
-                    net.java.sip.communicator.service.neomedia.event.VideoEvent event)
+            public void videoAdded(net.java.sip.communicator.service.neomedia
+                            .event.VideoEvent event)
             {
                 if (fireVideoEvent(
                         event.getType(),
@@ -156,8 +157,8 @@ public class CallPeerMediaHandler
              * @param event the neomedia <tt>VideoEvent</tt> which specifies the
              * removed visual <tt>Component</tt> displaying remote video
              */
-            public void videoRemoved(
-                    net.java.sip.communicator.service.neomedia.event.VideoEvent event)
+            public void videoRemoved(net.java.sip.communicator.service.neomedia
+                            .event.VideoEvent event)
             {
                 videoAdded(event);
             }
@@ -646,7 +647,8 @@ public class CallPeerMediaHandler
             //this is a reinit
         }
 
-        return  configureAndStartStream(device, format, target, direction, stream);
+        return  configureAndStartStream(
+                        device, format, target, direction, stream);
     }
 
         /**
