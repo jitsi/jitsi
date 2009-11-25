@@ -176,7 +176,26 @@ public class RTPConnectorImpl
     public RTPConnectorInputStream getControlInputStream()
         throws IOException
     {
-        if (controlInputStream == null)
+        return getControlInputStream(true);
+    }
+
+    /**
+     * Gets the <tt>PushSourceStream</tt> which gives access to the RTCP data
+     * received from the remote targets and optionally creates it if it does not
+     * exist yet.
+     *
+     * @param create <tt>true</tt> to create the <tt>PushSourceStream</tt> which
+     * gives access to the RTCP data received from the remote targets if it does
+     * not exist yet; otherwise, <tt>false</tt>
+     * @return the <tt>PushBufferStream</tt> which gives access to the RTCP data
+     * received from the remote targets; <tt>null</tt> if it does not exist yet
+     * and <tt>create</tt> is <tt>false</tt>
+     * @throws IOException if creating the <tt>PushSourceStream</tt> fails
+     */
+    protected RTPConnectorInputStream getControlInputStream(boolean create)
+        throws IOException
+    {
+        if ((controlInputStream == null) && create)
             controlInputStream = createControlInputStream();
         return controlInputStream;
     }
@@ -187,7 +206,26 @@ public class RTPConnectorImpl
     public RTPConnectorOutputStream getControlOutputStream()
         throws IOException
     {
-        if (controlOutputStream == null)
+        return getControlOutputStream(true);
+    }
+
+    /**
+     * Gets the <tt>OutputDataStream</tt> which is used to write RTCP data to be
+     * sent to from the remote targets and optionally creates it if it does not
+     * exist yet.
+     *
+     * @param create <tt>true</tt> to create the <tt>OutputDataStream</tt> which
+     * is to be used to write RTCP data to be sent to the remote targets if it
+     * does not exist yet; otherwise, <tt>false</tt>
+     * @return the <tt>OutputDataStream</tt> which is used to write RTCP data to
+     * be sent to the remote targets; <tt>null</tt> if it does not exist yet and
+     * <tt>create</tt> is <tt>false</tt>
+     * @throws IOException if creating the <tt>OutputDataStream</tt> fails
+     */
+    protected RTPConnectorOutputStream getControlOutputStream(boolean create)
+        throws IOException
+    {
+        if ((controlOutputStream == null) && create)
             controlOutputStream = createControlOutputStream();
         return controlOutputStream;
     }
@@ -211,7 +249,26 @@ public class RTPConnectorImpl
     public RTPConnectorInputStream getDataInputStream()
         throws IOException
     {
-        if (dataInputStream == null)
+        return getDataInputStream(true);
+    }
+
+    /**
+     * Gets the <tt>PushSourceStream</tt> which gives access to the RTP data
+     * received from the remote targets and optionally creates it if it does not
+     * exist yet.
+     *
+     * @param create <tt>true</tt> to create the <tt>PushSourceStream</tt> which
+     * gives access to the RTP data received from the remote targets if it does
+     * not exist yet; otherwise, <tt>false</tt>
+     * @return the <tt>PushBufferStream</tt> which gives access to the RTP data
+     * received from the remote targets; <tt>null</tt> if it does not exist yet
+     * and <tt>create</tt> is <tt>false</tt>
+     * @throws IOException if creating the <tt>PushSourceStream</tt> fails
+     */
+    protected RTPConnectorInputStream getDataInputStream(boolean create)
+        throws IOException
+    {
+        if ((dataInputStream == null) && create)
             dataInputStream = createDataInputStream();
         return dataInputStream;
     }
@@ -222,7 +279,26 @@ public class RTPConnectorImpl
     public RTPConnectorOutputStream getDataOutputStream()
         throws IOException
     {
-        if (dataOutputStream == null)
+        return getDataOutputStream(true);
+    }
+
+    /**
+     * Gets the <tt>OutputDataStream</tt> which is used to write RTP data to be
+     * sent to from the remote targets and optionally creates it if it does not
+     * exist yet.
+     *
+     * @param create <tt>true</tt> to create the <tt>OutputDataStream</tt> which
+     * is to be used to write RTP data to be sent to the remote targets if it
+     * does not exist yet; otherwise, <tt>false</tt>
+     * @return the <tt>OutputDataStream</tt> which is used to write RTP data to
+     * be sent to the remote targets; <tt>null</tt> if it does not exist yet and
+     * <tt>create</tt> is <tt>false</tt>
+     * @throws IOException if creating the <tt>OutputDataStream</tt> fails
+     */
+    public RTPConnectorOutputStream getDataOutputStream(boolean create)
+        throws IOException
+    {
+        if ((dataOutputStream == null) && create)
             dataOutputStream = createDataOutputStream();
         return dataOutputStream;
     }

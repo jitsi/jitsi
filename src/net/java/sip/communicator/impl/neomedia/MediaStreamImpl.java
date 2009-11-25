@@ -17,10 +17,9 @@ import javax.media.protocol.*;
 import javax.media.rtp.*;
 import javax.media.rtp.event.*;
 
-import com.sun.media.rtp.*;
-
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
+import net.java.sip.communicator.impl.neomedia.transform.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
@@ -87,9 +86,10 @@ public class MediaStreamImpl
 
     /**
      * The <tt>RTPConnector</tt> through which this instance sends and receives
-     * RTP and RTCP traffic.
+     * RTP and RTCP traffic. The instance is a <tt>TransformConnector</tt> in
+     * order to also enable packet transformations.
      */
-    private final RTPConnectorImpl rtpConnector;
+    private final TransformConnector rtpConnector;
 
     /**
      * The one and only <tt>MediaStreamTarget</tt> this instance has added as a
@@ -156,7 +156,7 @@ public class MediaStreamImpl
          */
         setDevice(device);
 
-        this.rtpConnector = new RTPConnectorImpl(connector);
+        this.rtpConnector = new TransformConnector(connector);
     }
 
     /**

@@ -12,6 +12,8 @@ import javax.media.*;
 import javax.media.format.*;
 import javax.media.protocol.*;
 
+import net.java.sip.communicator.util.*;
+
 /**
  * Enables reading from a <tt>PushBufferStream</tt> a certain maximum number
  * of data units (e.g. bytes, shorts, ints) even if the
@@ -30,6 +32,13 @@ import javax.media.protocol.*;
 public class CachingPushBufferStream
     implements PushBufferStream
 {
+
+    /**
+     * The <tt>Logger</tt> used by the <tt>CachingPushBufferStream</tt> class
+     * and its instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(CachingPushBufferStream.class);
 
     /**
      * The <tt>Buffer</tt> in which this instance stores the data it reads
@@ -213,7 +222,6 @@ public class CachingPushBufferStream
                 int cacheLength = cache.getLength();
 
                 if ((cacheLength <= 0)
-                        || (cacheLength <= cache.getOffset())
                         || (cache.getData() == null))
                 {
                     cache = null;
@@ -261,23 +269,43 @@ public class CachingPushBufferStream
             if (inputData.getClass().equals(dataType)
                     && dataType.equals(byte[].class))
             {
+                int inputOffset = input.getOffset();
+                int inputLength = input.getLength();
                 byte[] outputBytes = (byte[]) outputData;
                 int outputLength
-                    = Math.min(input.getLength(), outputBytes.length);
+                    = Math.min(inputLength, outputBytes.length);
 
                 System.arraycopy(
                     (byte[]) inputData,
-                    input.getOffset(),
+                    inputOffset,
                     outputBytes,
                     output.getOffset(),
                     outputLength);
 
                 output.setData(outputBytes);
-                output.setFormat(input.getFormat());
                 output.setLength(outputLength);
 
-                input.setLength(input.getLength() - outputLength);
-                input.setOffset(input.getOffset() + outputLength);
+                output.setFormat(input.getFormat());
+
+                output.setDiscard(input.isDiscard());
+                output.setEOM(input.isEOM());
+                output.setFlags(input.getFlags());
+                output.setHeader(input.getHeader());
+                output.setSequenceNumber(input.getSequenceNumber());
+                output.setTimeStamp(input.getTimeStamp());
+
+                /*
+                 * It's possible that we've split the input into multiple
+                 * outputs so the output duration may be different than the
+                 * input duration. An alternative to Buffer.TIME_UNKNOWN is
+                 * possibly the calculation of the output duration as the input
+                 * duration multiplied by the ration between the current output
+                 * length and the initial input length.
+                 */
+                output.setDuration(Buffer.TIME_UNKNOWN);
+
+                input.setLength(inputLength - outputLength);
+                input.setOffset(inputOffset + outputLength);
                 return;
             }
         }
@@ -342,14 +370,23 @@ public class CachingPushBufferStream
             try
             {
                 while (cache != null)
+                {
+//                    if (logger.isTraceEnabled())
+//                        logger
+//                            .trace(
+//                                "Blocking transferData of "
+//                                    + stream.getClass().getSimpleName()
+//                                    + " with hashCode "
+//                                    + stream.hashCode());
                     try
                     {
                         syncRoot.wait();
                     }
-                    catch (InterruptedException ex)
+                    catch (InterruptedException ie)
                     {
                         interrupted = true;
                     }
+                }
             }
             finally
             {
@@ -364,9 +401,9 @@ public class CachingPushBufferStream
                 stream.read(cache);
                 readException = null;
             }
-            catch (IOException ex)
+            catch (IOException ioe)
             {
-                readException = ex;
+                readException = ioe;
             }
         }
     }

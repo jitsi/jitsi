@@ -909,7 +909,7 @@ public class MediaDeviceSession
                 if (format != null)
                     setFormat(processor, format);
 
-                if (true
+                if (false
                         && (NeomediaActivator
                                     .getMediaServiceImpl()
                                         .getLocalSoundLevelListeners().size()

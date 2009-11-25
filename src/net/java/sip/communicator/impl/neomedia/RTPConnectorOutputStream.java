@@ -65,7 +65,7 @@ public class RTPConnectorOutputStream
      * specified <tt>byte[]</tt> buffer or possibly its modification;
      * <tt>null</tt> to ignore the packet data of the specified <tt>byte[]</tt>
      * buffer and not send it to the targets of this instance through its
-     * {@link #write(byte[], int, int)} method 
+     * {@link #write(byte[], int, int)} method
      */
     protected RawPacket createRawPacket(byte[] buffer, int offset, int length)
     {
