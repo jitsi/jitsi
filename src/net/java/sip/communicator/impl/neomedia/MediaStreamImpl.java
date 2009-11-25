@@ -125,6 +125,16 @@ public class MediaStreamImpl
     private MediaDirection startedDirection;
 
     /**
+     * The SSRC identifier of the party that we are exchanging media with.
+     */
+    private String remoteSourceID = null;
+
+    /**
+     * Our own SSRC identifier.
+     */
+    private String localSourceID = null;
+
+    /**
      * Initializes a new <tt>MediaStreamImpl</tt> instance which will use the
      * specified <tt>MediaDevice</tt> for both capture and playback of media
      * exchanged via the specified <tt>StreamConnector</tt>.
@@ -496,8 +506,7 @@ public class MediaStreamImpl
      */
     public String getRemoteSourceID()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return remoteSourceID;
     }
 
     /**
@@ -643,10 +652,8 @@ public class MediaStreamImpl
                     = (MediaFormatImpl<? extends Format>)
                         dynamicRTPPayloadType.getValue();
 
-                rtpManager
-                    .addFormat(
-                        mediaFormatImpl.getFormat(),
-                        dynamicRTPPayloadType.getKey());
+                rtpManager.addFormat( mediaFormatImpl.getFormat(),
+                                      dynamicRTPPayloadType.getKey());
             }
         }
     }
@@ -1228,10 +1235,10 @@ public class MediaStreamImpl
             if (receiveStream != null)
             {
                 if (logger.isTraceEnabled())
-                    logger
-                        .trace(
-                            "Received new ReceiveStream with ssrc "
+                    logger.trace("Received new ReceiveStream with ssrc "
                                 + receiveStream.getSSRC());
+
+                this.remoteSourceID = Long.toString( receiveStream.getSSRC() );
 
                 synchronized (receiveStreams)
                 {
