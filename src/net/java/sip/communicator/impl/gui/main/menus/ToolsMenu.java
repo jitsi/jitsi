@@ -97,6 +97,7 @@ public class ToolsMenu
     
     /**
      * Handles the <tt>ActionEvent</tt> when one of the menu items is selected.
+     * @param e the <tt>ActionEvent</tt> that notified us
      */
     public void actionPerformed(ActionEvent e)
     {
@@ -124,6 +125,10 @@ public class ToolsMenu
         GuiActivator.getUIService().setConfigurationWindowVisible(true);
     }
 
+    /**
+     * Adds the plugin component contained in the event to this container.
+     * @param event the <tt>PluginComponentEvent</tt> that notified us
+     */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
         PluginComponent c = event.getPluginComponent();
@@ -137,6 +142,9 @@ public class ToolsMenu
         }
     }
 
+    /**
+     * 
+     */
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
         PluginComponent c = event.getPluginComponent();
@@ -160,7 +168,9 @@ public class ToolsMenu
         // tested.
         JMenuItem conferenceMenuItem = new JMenuItem(
             GuiActivator.getResources().getI18NString(
-                "service.gui.CREATE_CONFERENCE_CALL") + " (coming soon)");
+                "service.gui.CREATE_CONFERENCE_CALL"),
+            GuiActivator.getResources().getImage(
+                "service.gui.icons.CHAT_ROOM_16x16_ICON"));
 
         conferenceMenuItem.setMnemonic(GuiActivator.getResources()
             .getI18nMnemonic("service.gui.CREATE_CONFERENCE_CALL"));
