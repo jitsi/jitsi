@@ -75,7 +75,7 @@ public class AudioMixer
      * is indeed the case for our use case of
      * <tt>AudioMixingPushBufferDataSource</tt>.
      */
-    private final CaptureDevice captureDevice;
+    protected final CaptureDevice captureDevice;
 
     /**
      * The number of output <tt>AudioMixingPushBufferDataSource</tt>s reading
@@ -926,22 +926,23 @@ public class AudioMixer
 
     /**
      * Reads media from a specific <tt>PushBufferStream</tt> which belongs to
-     * the <tt>CaptureDevice</tt> of this <tt>AudioMixer</tt> into a specific
-     * output <tt>Buffer</tt>. The reading from the <tt>CaptureDevice</tt> is
-     * explicitly separated in order to allow extenders to override and
-     * customize it.
+     * a specific <tt>DataSource</tt> into a specific output <tt>Buffer</tt>.
+     * Allows extenders to tap into the reading and monitor and customize it.
      *
      * @param stream the <tt>PushBufferStream</tt> to read media from and known
-     * to belong to the <tt>CaptureDevice</tt> of this <tt>AudioMixer</tt>
+     * to belong to the specified <tt>DataSOurce</tt>
      * @param buffer the output <tt>Buffer</tt> in which the media read from the
      * specified <tt>stream</tt> is to be written so that it gets returned to
      * the caller
+     * @param dataSource the <tt>DataSource</tt> from which <tt>stream</tt>
+     * originated
      * @throws IOException if anything wrong happens while reading from the
      * specified <tt>stream</tt>
      */
-    protected void readCaptureDeviceStream(
+    protected void read(
             PushBufferStream stream,
-            Buffer buffer)
+            Buffer buffer,
+            DataSource dataSource)
         throws IOException
     {
         stream.read(buffer);
@@ -1374,22 +1375,60 @@ public class AudioMixer
         }
 
         /**
+         * Reads audio samples from the input <tt>PullBufferStream</tt>s of this
+         * instance and converts them to a specific output <tt>AudioFormat</tt>.
+         * An attempt is made to read a specific maximum number of samples from
+         * each of the <tt>PullBufferStream</tt>s but the very
+         * <tt>PullBufferStream</tt> may not honor the request.
+         *
+         * @param outputFormat the <tt>AudioFormat</tt> in which the audio
+         * samples read from the <tt>PullBufferStream</tt>s are to be converted
+         * before being returned
+         * @param outputSampleCount the maximum number of audio samples to be
+         * read from each of the <tt>PullBufferStream</tt>s but the very
+         * <tt>PullBufferStream</tt>s may not honor the request
+         * @param inputSampleDesc an <tt>InputStreamDesc</tt> which specifies
+         * the input streams to be read and the collection of audio samples in
+         * which the read audio samples are to be returned
+         * @return the maximum number of audio samples actually read from the
+         * input <tt>PullBufferStream</tt>s of this instance
+         * @throws IOException if anything goes wrong while reading the
+         * specified input streams
+         */
+        private int readInputPullBufferStreams(
+                AudioFormat outputFormat,
+                int outputSampleCount,
+                InputSampleDesc inputSampleDesc)
+            throws IOException
+        {
+            InputStreamDesc[] inputStreams = inputSampleDesc.inputStreams;
+            int maxInputSampleCount = 0;
+
+            for (InputStreamDesc inputStream : inputStreams)
+                if (inputStream.getInputStream() instanceof PullBufferStream)
+                    throw
+                        new UnsupportedOperationException(
+                                AudioMixerPushBufferStream.class.getSimpleName()
+                                    + ".readInputPullBufferStreams"
+                                    + "(AudioFormat,int,InputSampleDesc)");
+            return maxInputSampleCount;
+        }
+
+        /**
          * Reads audio samples from a specific <tt>PushBufferStream</tt> and
          * converts them to a specific output <tt>AudioFormat</tt>. An attempt
          * is made to read a specific maximum number of samples from the
          * specified <tt>PushBufferStream</tt> but the very
          * <tt>PushBufferStream</tt> may not honor the request.
          * 
-         * @param inputStream the <tt>PushBufferStream</tt> to read from
+         * @param inputStreamDesc an <tt>InputStreamDesc</tt> which specifies
+         * the input <tt>PushBufferStream</tt> to read from
          * @param outputFormat the <tt>AudioFormat</tt> to which the samples
          * read from <tt>inputStream</tt> are to be converted before being
          * returned
          * @param sampleCount the maximum number of samples which the read
          * operation should attempt to read from <tt>inputStream</tt> but the
          * very <tt>inputStream</tt> may not honor the request
-         * @param captureDevice <tt>true</tt> if the specified
-         * <tt>inputStream</tt> is one of the streams of the
-         * <tt>CaptureDevice</tt> of this <tt>AudioMixer</tt>
          * @return a <tt>Buffer</tt> which contains the array of <tt>int</tt>
          * audio samples read from the specified <tt>inputStream</tt>
          * @throws IOException if anything wrong happens while reading
@@ -1397,14 +1436,15 @@ public class AudioMixer
          * @throws UnsupportedFormatException if converting the samples read
          * from <tt>inputStream</tt> to <tt>outputFormat</tt> fails
          */
-        private Buffer read(
-                PushBufferStream inputStream,
+        private Buffer readInputPushBufferStream(
+                InputStreamDesc inputStreamDesc,
                 AudioFormat outputFormat,
-                int sampleCount,
-                boolean captureDevice)
+                int sampleCount)
             throws IOException,
                    UnsupportedFormatException
         {
+            PushBufferStream inputStream
+                = (PushBufferStream) inputStreamDesc.getInputStream();
             AudioFormat inputStreamFormat
                 = (AudioFormat) inputStream.getFormat();
             Buffer buffer = new Buffer();
@@ -1430,10 +1470,10 @@ public class AudioMixer
                                 inputStreamFormat);
             }
 
-            if (captureDevice)
-                readCaptureDeviceStream(inputStream, buffer);
-            else
-                inputStream.read(buffer);
+            AudioMixer.this.read(
+                    inputStream,
+                    buffer,
+                    inputStreamDesc.getInputDataSource());
 
             /*
              * If the media is to be discarded, don't even bother with the
@@ -1603,46 +1643,6 @@ public class AudioMixer
         }
 
         /**
-         * Reads audio samples from the input <tt>PullBufferStream</tt>s of this
-         * instance and converts them to a specific output <tt>AudioFormat</tt>.
-         * An attempt is made to read a specific maximum number of samples from
-         * each of the <tt>PullBufferStream</tt>s but the very
-         * <tt>PullBufferStream</tt> may not honor the request.
-         *
-         * @param outputFormat the <tt>AudioFormat</tt> in which the audio
-         * samples read from the <tt>PullBufferStream</tt>s are to be converted
-         * before being returned
-         * @param outputSampleCount the maximum number of audio samples to be
-         * read from each of the <tt>PullBufferStream</tt>s but the very
-         * <tt>PullBufferStream</tt>s may not honor the request
-         * @param inputSampleDesc an <tt>InputStreamDesc</tt> which specifies
-         * the input streams to be read and the collection of audio samples in
-         * which the read audio samples are to be returned
-         * @return the maximum number of audio samples actually read from the
-         * input <tt>PullBufferStream</tt>s of this instance
-         * @throws IOException if anything goes wrong while reading the
-         * specified input streams
-         */
-        private int readInputPullBufferStreams(
-                AudioFormat outputFormat,
-                int outputSampleCount,
-                InputSampleDesc inputSampleDesc)
-            throws IOException
-        {
-            InputStreamDesc[] inputStreams = inputSampleDesc.inputStreams;
-            int maxInputSampleCount = 0;
-
-            for (InputStreamDesc inputStream : inputStreams)
-                if (inputStream.getInputStream() instanceof PullBufferStream)
-                    throw
-                        new UnsupportedOperationException(
-                                AudioMixerPushBufferStream.class.getSimpleName()
-                                    + ".readInputPullBufferStreams"
-                                    + "(AudioFormat,int,InputSampleDesc)");
-            return maxInputSampleCount;
-        }
-
-        /**
          * Reads audio samples from the input <tt>PushBufferStream</tt>s of
          * this instance and converts them to a specific output
          * <tt>AudioFormat</tt>.
@@ -1678,12 +1678,10 @@ public class AudioMixer
                 if (inputStream instanceof PushBufferStream)
                 {
                     Buffer inputStreamBuffer
-                        = read(
-                                (PushBufferStream) inputStream,
+                        = readInputPushBufferStream(
+                                inputStreamDesc,
                                 outputFormat,
-                                maxInputSampleCount,
-                                inputStreamDesc.getInputDataSource()
-                                    == captureDevice);
+                                maxInputSampleCount);
                     int[] inputStreamSamples
                         = (inputStreamBuffer == null)
                             ? null

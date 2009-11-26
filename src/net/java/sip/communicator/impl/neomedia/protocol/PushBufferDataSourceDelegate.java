@@ -131,6 +131,16 @@ public abstract class PushBufferDataSourceDelegate<T extends DataSource>
     }
 
     /**
+     * Gets the <tt>DataSource</tt> wrapped by this instance.
+     *
+     * @return the <tt>DataSource</tt> wrapped by this instance
+     */
+    public T getDataSource()
+    {
+        return dataSource;
+    }
+
+    /**
      * Implements {@link DataSource#getDuration()}. Delegates to the wrapped
      * <tt>DataSource</tt>. Overrides
      * {@link CaptureDeviceDelegatePushBufferDataSource#getDuration()} because

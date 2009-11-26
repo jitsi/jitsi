@@ -14,6 +14,7 @@ import javax.media.protocol.*;
 import javax.media.rtp.*;
 
 import net.java.sip.communicator.impl.neomedia.conference.*;
+import net.java.sip.communicator.impl.neomedia.protocol.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
@@ -112,18 +113,38 @@ public class AudioMixerMediaDevice
             audioMixer = new AudioMixer(device.createCaptureDevice())
             {
                 @Override
-                protected void readCaptureDeviceStream(
+                protected void read(
                         PushBufferStream stream,
-                        Buffer buffer)
+                        Buffer buffer,
+                        DataSource dataSource)
                     throws IOException
                 {
-                    super.readCaptureDeviceStream(stream, buffer);
+                    super.read(stream, buffer, dataSource);
 
                     /*
-                     * TODO Data from the CaptureDevice of the AudioMixer is
-                     * available here and has not been made available for audio
-                     * mixing yet. Process it as necessary.
+                     * XXX The audio read from the specified stream has not been
+                     * made available to the mixing yet. Slow code here is
+                     * likely to degrade the performance of the whole mixer.
                      */
+
+                    if (dataSource == captureDevice)
+                    {
+                        /*
+                         * The audio of the very CaptureDevice to be contributed
+                         * to the mix.
+                         */
+                    }
+                    else if (dataSource
+                            instanceof ReceiveStreamPushBufferDataSource)
+                    {
+                        ReceiveStream receiveStream
+                            = ((ReceiveStreamPushBufferDataSource) dataSource)
+                                .getReceiveStream();
+                        /*
+                         * The audio of a ReceiveStream to be contributed to the
+                         * mix.
+                         */
+                    }
                 }
             };
         return audioMixer;
@@ -370,6 +391,14 @@ public class AudioMixerMediaDevice
 
             DataSource captureDevice = getCaptureDevice();
 
+            /*
+             * Unwrap wrappers of the captureDevice until
+             * AudioMixingPushBufferDataSource is found.
+             */
+            if (captureDevice instanceof PushBufferDataSourceDelegate<?>)
+                captureDevice
+                    = ((PushBufferDataSourceDelegate<?>) captureDevice)
+                        .getDataSource();
             if (captureDevice instanceof AudioMixingPushBufferDataSource)
                 ((AudioMixingPushBufferDataSource) captureDevice)
                     .addInputDataSource(receiveStreamDataSource);
