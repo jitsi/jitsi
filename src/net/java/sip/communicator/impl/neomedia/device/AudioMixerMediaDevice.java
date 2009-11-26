@@ -6,8 +6,10 @@
  */
 package net.java.sip.communicator.impl.neomedia.device;
 
+import java.io.*;
 import java.util.*;
 
+import javax.media.*;
 import javax.media.protocol.*;
 import javax.media.rtp.*;
 
@@ -107,7 +109,23 @@ public class AudioMixerMediaDevice
     private AudioMixer getAudioMixer()
     {
         if (audioMixer == null)
-            audioMixer = new AudioMixer(device.getCaptureDevice());
+            audioMixer = new AudioMixer(device.getCaptureDevice())
+            {
+                @Override
+                protected void readCaptureDeviceStream(
+                        PushBufferStream stream,
+                        Buffer buffer)
+                    throws IOException
+                {
+                    super.readCaptureDeviceStream(stream, buffer);
+
+                    /*
+                     * TODO Data from the CaptureDevice of the AudioMixer is
+                     * available here and has not been made available for audio
+                     * mixing yet. Process it as necessary.
+                     */
+                }
+            };
         return audioMixer;
     }
 

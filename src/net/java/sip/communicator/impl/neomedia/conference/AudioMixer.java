@@ -270,6 +270,25 @@ public class AudioMixer
     }
 
     /**
+     * Creates a new <tt>InputStreamDesc</tt> instance which is to describe a
+     * specific input <tt>SourceStream</tt> originating from a specific input
+     * <tt>DataSource</tt> given by its <tt>InputDataSourceDesc</tt>.
+     *
+     * @param inputStream the input <tt>SourceStream</tt> to be described by the
+     * new instance
+     * @param inputDataSourceDesc the input <tt>DataSource</tt> given by its
+     * <tt>InputDataSourceDesc</tt> to be described by the new instance
+     * @return a new <tt>InputStreamDesc</tt> instance which describes the
+     * specified input <tt>SourceStream</tt> and <tt>DataSource</tt>
+     */
+    private InputStreamDesc createInputStreamDesc(
+            SourceStream inputStream,
+            InputDataSourceDesc inputDataSourceDesc)
+    {
+        return new InputStreamDesc(inputStream, inputDataSourceDesc);
+    }
+
+    /**
      * Creates a new <tt>AudioMixingPushBufferDataSource</tt> which gives
      * access to a single audio stream representing the mix of the audio streams
      * input into this <tt>AudioMixer</tt> through its input
@@ -612,7 +631,7 @@ public class AudioMixer
 
                     if (inputStreamDesc == null)
                         inputStreamDesc
-                            = new InputStreamDesc(
+                            = createInputStreamDesc(
                                     inputStream,
                                     inputDataSourceDesc);
                     if (inputStreams.add(inputStreamDesc))
@@ -638,7 +657,7 @@ public class AudioMixer
 
                     if (inputStreamDesc == null)
                         inputStreamDesc
-                            = new InputStreamDesc(
+                            = createInputStreamDesc(
                                     new PushBufferStreamAdapter(
                                             inputStream,
                                             inputFormat),
@@ -659,7 +678,7 @@ public class AudioMixer
 
                     if (inputStreamDesc == null)
                         inputStreamDesc
-                            = new InputStreamDesc(
+                            = createInputStreamDesc(
                                     new PullBufferStreamAdapter(
                                             inputStream,
                                             inputFormat),
@@ -887,6 +906,29 @@ public class AudioMixer
     {
         return
             ((input instanceof AudioFormat) && input.isSameEncoding(pattern));
+    }
+
+    /**
+     * Reads media from a specific <tt>PushBufferStream</tt> which belongs to
+     * the <tt>CaptureDevice</tt> of this <tt>AudioMixer</tt> into a specific
+     * output <tt>Buffer</tt>. The reading from the <tt>CaptureDevice</tt> is
+     * explicitly separated in order to allow extenders to override and
+     * customize it.
+     *
+     * @param stream the <tt>PushBufferStream</tt> to read media from and known
+     * to belong to the <tt>CaptureDevice</tt> of this <tt>AudioMixer</tt>
+     * @param buffer the output <tt>Buffer</tt> in which the media read from the
+     * specified <tt>stream</tt> is to be written so that it gets returned to
+     * the caller
+     * @throws IOException if anything wrong happens while reading from the
+     * specified <tt>stream</tt>
+     */
+    protected void readCaptureDeviceStream(
+            PushBufferStream stream,
+            Buffer buffer)
+        throws IOException
+    {
+        stream.read(buffer);
     }
 
     /**
@@ -1304,6 +1346,15 @@ public class AudioMixer
 
             buffer.setData(inputSampleDesc);
             buffer.setLength(maxInputSampleCount);
+
+            /*
+             * Convey the timeStamp so that it can be reported by the Buffers of
+             * the AudioMixingPushBufferStreams when mixes are read from them.
+             */
+            long timeStamp = inputSampleDesc.getTimeStamp();
+
+            if (timeStamp != Buffer.TIME_UNKNOWN)
+                buffer.setTimeStamp(timeStamp);
         }
 
         /**
@@ -1320,17 +1371,21 @@ public class AudioMixer
          * @param sampleCount the maximum number of samples which the read
          * operation should attempt to read from <tt>inputStream</tt> but the
          * very <tt>inputStream</tt> may not honor the request
-         * @return an array of audio samples read from the specified
-         * <tt>inputStream</tt>
+         * @param captureDevice <tt>true</tt> if the specified
+         * <tt>inputStream</tt> is one of the streams of the
+         * <tt>CaptureDevice</tt> of this <tt>AudioMixer</tt>
+         * @return a <tt>Buffer</tt> which contains the array of <tt>int</tt>
+         * audio samples read from the specified <tt>inputStream</tt>
          * @throws IOException if anything wrong happens while reading
          * <tt>inputStream</tt>
          * @throws UnsupportedFormatException if converting the samples read
          * from <tt>inputStream</tt> to <tt>outputFormat</tt> fails
          */
-        private int[] read(
+        private Buffer read(
                 PushBufferStream inputStream,
                 AudioFormat outputFormat,
-                int sampleCount)
+                int sampleCount,
+                boolean captureDevice)
             throws IOException,
                    UnsupportedFormatException
         {
@@ -1358,9 +1413,19 @@ public class AudioMixer
                                 "!Format.getDataType().equals(byte[].class)",
                                 inputStreamFormat);
             }
-        
-            inputStream.read(buffer);
-        
+
+            if (captureDevice)
+                readCaptureDeviceStream(inputStream, buffer);
+            else
+                inputStream.read(buffer);
+
+            /*
+             * If the media is to be discarded, don't even bother with the
+             * checks and the conversion.
+             */
+            if (buffer.isDiscard())
+                return null;
+
             int inputLength = buffer.getLength();
         
             if (inputLength <= 0)
@@ -1372,8 +1437,8 @@ public class AudioMixer
                 inputFormat = inputStreamFormat;
 
             if (logger.isTraceEnabled()
-                    && ((lastReadInputFormat == null)
-                            || !lastReadInputFormat.matches(inputFormat)))
+                    && (lastReadInputFormat != null)
+                    && !lastReadInputFormat.matches(inputFormat))
             {
                 lastReadInputFormat = inputFormat;
                 logger
@@ -1466,7 +1531,11 @@ public class AudioMixer
         
                         outputSamples[i] = sample;
                     }
-                    return outputSamples;
+                    buffer.setData(outputSamples);
+                    buffer.setFormat(outputFormat);
+                    buffer.setLength(outputSamples.length);
+                    buffer.setOffset(0);
+                    return buffer;
                 case 32:
                     outputSamples = new int[inputSamples.length / 4];
                     for (int i = 0; i < outputSamples.length; i++)
@@ -1491,7 +1560,11 @@ public class AudioMixer
         
                         outputSamples[i] = sample;
                     }
-                    return outputSamples;
+                    buffer.setData(outputSamples);
+                    buffer.setFormat(outputFormat);
+                    buffer.setLength(outputSamples.length);
+                    buffer.setOffset(0);
+                    return buffer;
                 case 8:
                 case 24:
                 default:
@@ -1588,11 +1661,17 @@ public class AudioMixer
         
                 if (inputStream instanceof PushBufferStream)
                 {
-                    int[] inputStreamSamples
+                    Buffer inputStreamBuffer
                         = read(
                                 (PushBufferStream) inputStream,
                                 outputFormat,
-                                maxInputSampleCount);
+                                maxInputSampleCount,
+                                inputStreamDesc.getInputDataSource()
+                                    == captureDevice);
+                    int[] inputStreamSamples
+                        = (inputStreamBuffer == null)
+                            ? null
+                            : (int[]) inputStreamBuffer.getData();
                     int inputStreamSampleCount;
         
                     if (inputStreamSamples != null)
@@ -1604,6 +1683,19 @@ public class AudioMixer
         
                             if (maxInputSampleCount < inputStreamSampleCount)
                                 maxInputSampleCount = inputStreamSampleCount;
+
+                            /*
+                             * Convey the timeStamp so that it can be set to the
+                             * Buffers of the AudioMixingPushBufferStreams when
+                             * mixes are read from them. Since the inputStreams
+                             * will report different timeStamps, only use the
+                             * first meaningful timestamp for now.
+                             */
+                            if (inputSampleDesc.getTimeStamp()
+                                    == Buffer.TIME_UNKNOWN)
+                                inputSampleDesc
+                                    .setTimeStamp(
+                                        inputStreamBuffer.getTimeStamp());
                         }
                         else if (logger.isTraceEnabled())
                             inputStreamDesc.nonContributingReadCount++;
@@ -1692,7 +1784,11 @@ public class AudioMixer
                     inputSamples[i] = null;
             }
 
-            outputStream.setInputSamples(inputSamples, maxInputSampleCount);
+            outputStream
+                .setInputSamples(
+                    inputSamples,
+                    maxInputSampleCount,
+                    inputSampleDesc.getTimeStamp());
         }
 
         /**
@@ -2023,6 +2119,13 @@ public class AudioMixer
         public final InputStreamDesc[] inputStreams;
 
         /**
+         * The time stamp of <tt>inputSamples</tt> to be reported in the
+         * <tt>Buffer</tt>s of the <tt>AudioMixingPushBufferStream</tt>s when
+         * mixes are read from them.
+         */
+        private long timeStamp = Buffer.TIME_UNKNOWN;
+
+        /**
          * Initializes a new <tt>InputSampleDesc</tt> instance which is to
          * describe a specific set of audio samples read from a specific set of
          * input streams specified by their <tt>InputStreamDesc</tt>s.
@@ -2038,6 +2141,45 @@ public class AudioMixer
         {
             this.inputSamples = inputSamples;
             this.inputStreams = inputStreams;
+        }
+
+        /**
+         * Gets the time stamp of <tt>inputSamples</tt> to be reported in the
+         * <tt>Buffer</tt>s of the <tt>AudioMixingPushBufferStream</tt>s when
+         * mixes are read from them.
+         *
+         * @return the time stamp of <tt>inputSamples</tt> to be reported in the
+         * <tt>Buffer</tt>s of the <tt>AudioMixingPushBufferStream</tt>s when
+         * mixes are read from them
+         */
+        public long getTimeStamp()
+        {
+            return timeStamp;
+        }
+
+        /**
+         * Sets the time stamp of <tt>inputSamples</tt> to be reported in the
+         * <tt>Buffer</tt>s of the <tt>AudioMixingPushBufferStream</tt>s when
+         * mixes are read from them.
+         *
+         * @param timeStamp the time stamp of <tt>inputSamples</tt> to be
+         * reported in the <tt>Buffer</tt>s of the
+         * <tt>AudioMixingPushBufferStream</tt>s when mixes are read from them
+         */
+        public void setTimeStamp(long timeStamp)
+        {
+            if (this.timeStamp == Buffer.TIME_UNKNOWN)
+                this.timeStamp = timeStamp;
+            else
+            {
+                /*
+                 * Setting the timeStamp more than once does not make sense
+                 * because the inputStreams will report different timeStamps so
+                 * only one should be picked up where the very reading from
+                 * inputStreams takes place.
+                 */
+                throw new IllegalStateException("timeStamp");
+            }
         }
     }
 
@@ -2090,6 +2232,22 @@ public class AudioMixer
         {
             this.inputStream = inputStream;
             this.inputDataSourceDesc = inputDataSourceDesc;
+        }
+
+        /**
+         * Gets the input <tt>DataSource</tt> which caused {@link #inputStream}
+         * to exist. If input <tt>DataSource</tt> is not transcoded for the
+         * purposes of the audio mixing, it has directly provided
+         * <tt>inputStream</tt>. Otherwise, it has been wrapped in a
+         * <tt>TranscodingDataSource</tt> the latter has provided
+         * <tt>inputStream</tt>.
+         *
+         * @return the input <tt>DataSource</tt> which caused
+         * <tt>inputStream</tt> to exist
+         */
+        public DataSource getInputDataSource()
+        {
+            return inputDataSourceDesc.inputDataSource;
         }
 
         /**

@@ -243,12 +243,18 @@ public class MediaDeviceSession
                 if (exception != null)
                     logger
                         .error(
-                            "Failed to create player for new receive stream "
-                                + receiveStream,
+                            "Failed to create player"
+                                + " for ReceiveStream with ssrc "
+                                + receiveStream.getSSRC(),
                             exception);
+                else if (!waitForState(player, Processor.Configured))
+                    logger
+                        .error(
+                            "Failed to configure player"
+                                + " for ReceiveStream with ssrc "
+                                + receiveStream.getSSRC());
                 else
                 {
-                    waitForState(player, Processor.Configured);
 //                    // here we add sound level indicator for every incoming
 //                    //stream
 //                    try
@@ -276,21 +282,28 @@ public class MediaDeviceSession
                     // content descriptor to null
                     player.setContentDescriptor(null);
 
-                    waitForState(player, Processor.Realized);
+                    if (waitForState(player, Processor.Realized))
+                    {
+                        player.start();
 
-                    player.start();
+                        realizeComplete(player);
 
-                    realizeComplete(player);
+                        if (logger.isTraceEnabled())
+                            logger
+                                .trace(
+                                    "Created Player with hashCode "
+                                        + player.hashCode()
+                                        + " for ReceiveStream with ssrc "
+                                        + receiveStream.getSSRC());
 
-                    if (logger.isTraceEnabled())
+                        players.put(receiveStreamDataSource, player);
+                    }
+                    else
                         logger
-                            .trace(
-                                "Created Player with hashCode "
-                                    + player.hashCode()
+                            .error(
+                                "Failed to realize player"
                                     + " for ReceiveStream with ssrc "
                                     + receiveStream.getSSRC());
-
-                    players.put(receiveStreamDataSource, player);
                 }
             }
         }

@@ -65,6 +65,12 @@ public class AudioMixingPushBufferStream
     private boolean started;
 
     /**
+     * The time stamp of {@link #inputSamples} to be reported in the specified
+     * <tt>Buffer</tt> when data is read from this instance.
+     */
+    private long timeStamp;
+
+    /**
      * The <tt>BufferTransferHandler</tt> through which this
      * <tt>PushBufferStream</tt> notifies its clients that new data is
      * available for reading.
@@ -223,6 +229,27 @@ public class AudioMixingPushBufferStream
         int outputSampleCount)
     {
         int[] outputSamples = new int[outputSampleCount];
+
+        /*
+         * The trivial case of performing audio mixing the audio of a single
+         * stream. Then there is nothing to mix and the input becomes the
+         * output.
+         */
+        if (inputSamples.length == 1)
+        {
+            int[] inputStreamSamples = inputSamples[0];
+
+            if (inputStreamSamples != null)
+                System
+                    .arraycopy(
+                        inputStreamSamples,
+                        0,
+                        outputSamples,
+                        0,
+                        inputStreamSamples.length);
+            return outputSamples;
+        }
+
         int maxOutputSample;
     
         try
@@ -262,10 +289,15 @@ public class AudioMixingPushBufferStream
         return outputSamples;
     }
 
-    /*
-     * Implements PushBufferStream#read(Buffer). If inputSamples are available,
-     * mixes them and writes them to the specified Buffer performing the
-     * necessary data type conversions.
+    /**
+     * Implements {@link PushBufferStream#read(Buffer)}. If
+     * <tt>inputSamples</tt> are available, mixes them and writes the mix to the
+     * specified <tt>Buffer</tt> performing the necessary data type conversions.
+     *
+     * @param buffer the <tt>Buffer</tt> to receive the data read from this
+     * instance
+     * @throws IOException if anything wrong happens while reading from this
+     * instance
      */
     public void read(Buffer buffer)
         throws IOException
@@ -273,9 +305,11 @@ public class AudioMixingPushBufferStream
         int[][] inputSamples = this.inputSamples;
         int inputSampleCount = (inputSamples == null) ? 0 : inputSamples.length;
         int maxInputSampleCount = this.maxInputSampleCount;
+        long timeStamp = this.timeStamp;
 
         this.inputSamples = null;
         this.maxInputSampleCount = 0;
+        this.timeStamp = Buffer.TIME_UNKNOWN;
 
         if ((inputSampleCount == 0)
                 || (maxInputSampleCount <= 0))
@@ -315,6 +349,7 @@ public class AudioMixingPushBufferStream
             buffer.setFormat(outputFormat);
             buffer.setLength(outputData.length);
             buffer.setOffset(0);
+            buffer.setTimeStamp(timeStamp);
         }
         else
             throw
@@ -328,11 +363,16 @@ public class AudioMixingPushBufferStream
      * the clients of this stream.
      * 
      * @param inputSamples the collection of audio sample sets to be mixed by
-     *            this stream when data is read from it
+     * this stream when data is read from it
      * @param maxInputSampleCount the maximum number of per-stream audio samples
-     *            available through <tt>inputSamples</tt>
+     * available through <tt>inputSamples</tt>
+     * @param timeStamp the time stamp of <tt>inputSamples</tt> to be reported
+     * in the specified <tt>Buffer</tt> when data is read from this instance
      */
-    void setInputSamples(int[][] inputSamples, int maxInputSampleCount)
+    void setInputSamples(
+            int[][] inputSamples,
+            int maxInputSampleCount,
+            long timeStamp)
     {
         this.inputSamples = inputSamples;
         this.maxInputSampleCount = maxInputSampleCount;
