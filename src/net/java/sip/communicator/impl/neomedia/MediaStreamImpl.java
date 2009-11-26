@@ -137,6 +137,13 @@ public class MediaStreamImpl
     private String localSourceID = null;
 
     /**
+     * The indicator which determines whether this <tt>MediaStream</tt> is set
+     * to transmit "silence" instead of the actual media fed from its
+     * <tt>MediaDevice</tt>.
+     */
+    private boolean mute = false;
+
+    /**
      * Initializes a new <tt>MediaStreamImpl</tt> instance which will use the
      * specified <tt>MediaDevice</tt> for both capture and playback of media
      * exchanged via the specified <tt>StreamConnector</tt>.
@@ -586,12 +593,9 @@ public class MediaStreamImpl
      */
     public boolean isMute()
     {
-        MediaDevice device = getDevice();
+        MediaDeviceSession deviceSession = getDeviceSession();
 
-        return
-            (device instanceof MediaDeviceImpl)
-                ? ((MediaDeviceImpl) device).isMute()
-                : false;
+        return (deviceSession == null) ? mute : deviceSession.isMute();
     }
 
     /**
@@ -716,6 +720,7 @@ public class MediaStreamImpl
 
             if (deviceSession != null)
             {
+                deviceSession.setMute(mute);
                 deviceSession.start(startedDirection);
 
                 synchronized (receiveStreams)
@@ -806,12 +811,15 @@ public class MediaStreamImpl
      */
     public void setMute(boolean mute)
     {
-        MediaDevice device = getDevice();
+        if (this.mute != mute)
+        {
+            this.mute = mute;
 
-        if (device instanceof MediaDeviceImpl)
-            ((MediaDeviceImpl) device).setMute(mute);
-        else
-            throw new IllegalStateException("device");
+            MediaDeviceSession deviceSession = getDeviceSession();
+
+            if (deviceSession != null)
+                deviceSession.setMute(this.mute);
+        }
     }
 
     /**

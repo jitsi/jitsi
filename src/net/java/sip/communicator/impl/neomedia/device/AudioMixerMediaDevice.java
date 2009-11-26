@@ -109,7 +109,7 @@ public class AudioMixerMediaDevice
     private AudioMixer getAudioMixer()
     {
         if (audioMixer == null)
-            audioMixer = new AudioMixer(device.getCaptureDevice())
+            audioMixer = new AudioMixer(device.createCaptureDevice())
             {
                 @Override
                 protected void readCaptureDeviceStream(

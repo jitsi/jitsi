@@ -14,8 +14,10 @@ import javax.media.control.*;
 import javax.media.format.*;
 import javax.media.protocol.*;
 
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.impl.neomedia.*;
+import net.java.sip.communicator.impl.neomedia.control.*;
 import net.java.sip.communicator.impl.neomedia.portaudio.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Implements <tt>DataSource</tt> and <tt>CaptureDevice</tt> for PortAudio.
@@ -83,6 +85,8 @@ public class DataSource
             return;
 
         connected = true;
+        if (logger.isTraceEnabled())
+            logger.trace("Connected " + MediaStreamImpl.toString(this));
     }
 
     /**
@@ -106,6 +110,8 @@ public class DataSource
         }
 
         connected = false;
+        if (logger.isTraceEnabled())
+            logger.trace("Disconnected " + MediaStreamImpl.toString(this));
     }
 
     /**
@@ -274,6 +280,8 @@ public class DataSource
         }
 
         started = true;
+        if (logger.isTraceEnabled())
+            logger.trace("Started " + MediaStreamImpl.toString(this));
     }
 
     /**
@@ -299,6 +307,8 @@ public class DataSource
         }
 
         started = false;
+        if (logger.isTraceEnabled())
+            logger.trace("Stopped " + MediaStreamImpl.toString(this));
     }
 
     /**
@@ -307,29 +317,8 @@ public class DataSource
      * important because, for example, <tt>AudioMixer</tt> will ask for it.
      */
     private class FormatControlImpl
-        implements FormatControl
+        extends AbstractFormatControl
     {
-
-        /**
-         * The indicator which determines whether this track is enabled. I don't
-         * known what it means for <tt>DataSource</tt> implementations but
-         * at least the choice of the caller is remembered and reported.
-         */
-        private boolean enabled;
-
-        /**
-         * Implements {@link Controls#getControlComponent()}. Since
-         * <tt>DataSource</tt> does not export any UI, returns <tt>null</tt>.
-         *
-         * @return a <tt>Component</tt> which represents UI associated with this
-         * <tt>DataSource</tt> and this <tt>FormatControl</tt> if any;
-         * otherwise, <tt>null</tt>
-         */
-        public java.awt.Component getControlComponent()
-        {
-            // No Component is exported for this DataSource.
-            return null;
-        }
 
         /**
          * Implements {@link FormatControl#getFormat()}.
@@ -351,68 +340,6 @@ public class DataSource
         public Format[] getSupportedFormats()
         {
             return new Format[] { getCaptureFormat() };
-        }
-
-        /**
-         * Implements {@link FormatControl#isEnabled()}. Does not mean anything
-         * to this <tt>DataSource</tt> at the time of this writing.
-         *
-         * @return <tt>true</tt> if this track is enabled; otherwise,
-         * <tt>false</tt>
-         */
-        public boolean isEnabled()
-        {
-            return enabled;
-        }
-
-        /**
-         * Implements {@link FormatControl#setEnabled(boolean)}. Does not mean
-         * anything to this <tt>DataSource</tt> at the time of this writing.
-         *
-         * @param enabled <tt>true</tt> if this track is to be enabled;
-         * otherwise, <tt>false</tt>
-         */
-        public void setEnabled(boolean enabled)
-        {
-            this.enabled = enabled;
-        }
-
-        /**
-         * Implements {@link FormatControl#setFormat(Format)}. Not supported at
-         * this time and just returns the currently set format if the specified
-         * <tt>Format</tt> is supported and <tt>null</tt> if it is not
-         * supported.
-         *
-         * @param format the <tt>Format</tt> in which this <tt>DataSource</tt>
-         * is to output
-         * @return the currently set <tt>Format</tt> after the attempt to set it
-         * as the output format of this <tt>DataSource</tt> if <tt>format</tt>
-         * is supported by this <tt>DataSource</tt> and regardless of whether it
-         * was actually set; <tt>null</tt> if <tt>format</tt> is not supported
-         * by this <tt>DataSource</tt>
-         */
-        public Format setFormat(Format format)
-        {
-            /*
-             * Determine whether the specified format is supported by this
-             * DataSource because we have to return null if it is not supported.
-             * Or at least that is what I gather from the respective javadoc.
-             */
-            boolean formatIsSupported = false;
-
-            if (format != null)
-                for (Format supportedFormat : getSupportedFormats())
-                    if (supportedFormat.matches(format))
-                    {
-                        formatIsSupported = true;
-                        break;
-                    }
-
-            /*
-             * We do not actually support setFormat so we have to return the
-             * currently set format if the specified format is supported.
-             */
-            return (formatIsSupported) ? getFormat() : null;
         }
     }
 }

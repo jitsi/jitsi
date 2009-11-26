@@ -263,7 +263,23 @@ public class AudioMixer
         {
             if (connected == 0)
                 for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
-                    inputDataSourceDesc.getEffectiveInputDataSource().connect();
+                    try
+                    {
+                        inputDataSourceDesc
+                            .getEffectiveInputDataSource().connect();
+                    }
+                    catch (IOException ioe)
+                    {
+                        logger
+                            .error(
+                                "Failed to connect to inputDataSource "
+                                    + MediaStreamImpl
+                                        .toString(
+                                            inputDataSourceDesc
+                                                .inputDataSource),
+                                ioe);
+                        throw ioe;
+                    }
 
             connected++;
         }
