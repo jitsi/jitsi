@@ -86,11 +86,18 @@ public class CsrcTransformEngine
      * into the <tt>RawPacket</tt>.
      *
      * @param pkt the RTP <tt>RawPacket</tt> that we need to add a CSRC list to.
+     *
+     * @return the updated <tt>RawPacket</tt> instance containing the list of
+     * CSRC identifiers.
      */
     public RawPacket transform(RawPacket pkt)
     {
-        pkt.setCsrcList(this.mediaStream.getLocalContributingSourceIDs() );
-        return null;
+        long[] csrcList = mediaStream.getLocalContributingSourceIDs();
+
+        if (csrcList != null && csrcList.length > 0)
+            pkt.setCsrcList( csrcList);
+
+        return pkt;
     }
 
 }

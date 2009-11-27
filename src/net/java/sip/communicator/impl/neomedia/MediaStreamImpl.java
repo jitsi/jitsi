@@ -1393,7 +1393,11 @@ public class MediaStreamImpl
                 csrcList.add(csrc);
         }
 
-        long[] csrcArray = new long[csrcList.size()];
+        int cc = csrcList.size();
+        if ( cc == 0)
+            return null;
+
+        long[] csrcArray = new long[cc];
 
         for (int i = 0; i < csrcArray.length; i++)
         {
