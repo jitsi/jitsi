@@ -512,7 +512,7 @@ public class CallDialog
      * @return <code>true</code> if the contained <tt>Call</tt> is a conference
      * call, otherwise - returns <code>false</code>.
      */
-    private boolean isConference()
+    public boolean isConference()
     {
         // If we're the focus of the conference.
         if (call.isConferenceFocus())

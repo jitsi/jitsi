@@ -78,7 +78,10 @@ public class CallPeerAdapter
         {
             NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);
 
-            NotificationManager.fireNotification(NotificationManager.BUSY_CALL);
+            // We start the busy sound only if we're in a simple call.
+            if (!renderer.getCallDialog().isConference())
+                NotificationManager.fireNotification(
+                    NotificationManager.BUSY_CALL);
         }
         else if (newState == CallPeerState.CONNECTED)
         {
