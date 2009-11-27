@@ -7,16 +7,16 @@
 package net.java.sip.communicator.impl.neomedia;
 
 /**
- * When using TransformConnector, a RTP/RTCP packet is represented using 
+ * When using TransformConnector, a RTP/RTCP packet is represented using
  * RawPacket. RawPacket stores the buffer holding the RTP/RTCP packet, as well
  * as the inner offset and length of RTP/RTCP packet data.
- * 
- * After transformation, data is also store in RawPacket objects, either the 
+ *
+ * After transformation, data is also store in RawPacket objects, either the
  * original RawPacket (in place transformation), or a newly created RawPacket.
- * 
+ *
  * Besides packet info storage, RawPacket also provides some other operations
  * such as readInt() to ease the development process.
- * 
+ *
  * @author Werner Dittmann (Werner.Dittmann@t-online.de)
  * @author Bing SU (nova.su@gmail.com)
  */
@@ -26,14 +26,14 @@ public class RawPacket
      * Byte array storing the content of this Packet
      */
     protected byte[] buffer;
-    
+
     /**
      * Start offset of the packet data inside buffer.
-     * Usually this value would be 0. But in order to be compatible with 
+     * Usually this value would be 0. But in order to be compatible with
      * RTPManager we store this info. (Not assuming the offset is always zero)
      */
     protected int offset;
-    
+
     /**
      * Length of this packet's data
      */
@@ -41,7 +41,7 @@ public class RawPacket
 
     /**
      * Construct a RawPacket using specified value.
-     * 
+     *
      * @param buffer Byte array holding the content of this Packet
      * @param offset Start offset of packet content inside buffer
      * @param length Length of the packet's data
@@ -62,7 +62,7 @@ public class RawPacket
     {
         return this.buffer;
     }
-    
+
     /**
      * Get the length of this packet's data
      *
@@ -108,7 +108,7 @@ public class RawPacket
         return (short) ((this.buffer[this.offset + off + 0] << 8) |
                         (this.buffer[this.offset + off + 1] & 0xff));
     }
-    
+
     /**
      * Read an unsigned short at specified offset as a int
      *
@@ -146,44 +146,45 @@ public class RawPacket
         int b1 = (0x000000FF & (this.buffer[this.offset + off + 1]));
         int b2 = (0x000000FF & (this.buffer[this.offset + off + 2]));
         int b3 = (0x000000FF & (this.buffer[this.offset + off + 3]));
-        
+
         return  ((b0 << 24 | b1 << 16 | b2 << 8 | b3)) & 0xFFFFFFFFL;
     }
-    
+
     /**
      * Read a byte region from specified offset with specified length
      *
-     * @param off start offset of the region to be read 
+     * @param off start offset of the region to be read
      * @param len length of the region to be read
      * @return byte array of [offset, offset + length)
      */
     public byte[] readRegion(int off, int len)
     {
         int startOffset = this.offset + off;
-        if (off < 0 || len <= 0 
+        if (off < 0 || len <= 0
             || startOffset + len > this.buffer.length)
         {
             return null;
         }
 
         byte[] region = new byte[len];
-        
+
         System.arraycopy(this.buffer, startOffset, region, 0, len);
-        
+
         return region;
     }
-    
+
     /**
-     * Read a byte region from specified offset with specified length in given buffer
+     * Read a byte region from specified offset with specified length in given
+     * buffer
      *
-     * @param off start offset of the region to be read 
+     * @param off start offset of the region to be read
      * @param len length of the region to be read
      * @param outBuff output buffer
      */
     public void readRegionToBuff(int off, int len, byte[] outBuff)
     {
         int startOffset = this.offset + off;
-        if (off < 0 || len <= 0 
+        if (off < 0 || len <= 0
             || startOffset + len > this.buffer.length)
         {
             return;
@@ -198,25 +199,25 @@ public class RawPacket
 
     /**
      * Append a byte array to then end of the packet. This will change the data
-     * buffer of this packet. 
+     * buffer of this packet.
      *
      * @param data byte array to append
      * @param len the number of bytes to append
      */
-    public void append(byte[] data, int len) 
+    public void append(byte[] data, int len)
     {
-        if (data == null || len == 0)  
+        if (data == null || len == 0)
         {
             return;
         }
-        
+
         byte[] newBuffer = new byte[this.length + len];
         System.arraycopy(this.buffer, this.offset, newBuffer, 0, this.length);
         System.arraycopy(data, 0, newBuffer, this.length, len);
         this.offset = 0;
         this.length = this.length + len;
         this.buffer = newBuffer;
-       
+
     }
     /**
      * Shrink the buffer of this packet by specified length
@@ -229,7 +230,7 @@ public class RawPacket
         {
             return;
         }
-        
+
         this.length -= len;
         if (this.length < 0)
         {

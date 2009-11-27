@@ -29,9 +29,10 @@ import net.java.sip.communicator.util.*;
 /**
  * Represents the use of a specific <tt>MediaDevice</tt> by a
  * <tt>MediaStream</tt>.
- * 
+ *
  * @author Lubomir Marinov
  * @author Damian Minkov
+ * @author Emil Ivov
  */
 public class MediaDeviceSession
     extends PropertyChangeNotifier
@@ -1010,9 +1011,9 @@ public class MediaDeviceSession
     }
 
     /**
-     * Notifies this instance that a specific <tt>Processor</tt> of 
+     * Notifies this instance that a specific <tt>Processor</tt> of
      * remote content has generated a <tt>RealizeCompleteEvent</tt>.
-     * Allows extenders to carry out additional processing on the 
+     * Allows extenders to carry out additional processing on the
      * <tt>Processor</tt>. The <tt>Processor</tt> is used as a <tt>Player</tt>.
      *
      * @param player the <tt>Processor</tt> which is the source of a
@@ -1362,5 +1363,30 @@ public class MediaDeviceSession
     private static boolean waitForState(Processor processor, int state)
     {
         return new ProcessorUtility().waitForState(processor, state);
+    }
+
+    /**
+     * Returns the list of SSRC identifiers that this device session is handling
+     * streams from. In this case (i.e. the case of a device session handling
+     * a single remote party) we would rarely (if ever) have more than a single
+     * SSRC identifier returned. However, we would also be using the same method
+     * to query a device session operating over a mixer in which case we would
+     * have the SSRC IDs of all parties currently contributing to the mixing.
+     *
+     * @return a <tt>List</tt> of SSRC identifiers (in a hexadecimal
+     * <tt>String</tt> form) that this device session is.
+     * handling streams from.
+     */
+    public List<String> getRemoteSSRCList()
+    {
+        Set<ReceiveStream> streams = this.receiveStreams.keySet();
+        List<String> ssrcIDList = new ArrayList<String>();
+
+        for ( ReceiveStream stream : streams)
+        {
+            ssrcIDList.add(Long.toHexString(stream.getSSRC()));
+        }
+
+        return ssrcIDList;
     }
 }

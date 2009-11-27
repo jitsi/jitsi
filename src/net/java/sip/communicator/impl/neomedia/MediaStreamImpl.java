@@ -89,7 +89,7 @@ public class MediaStreamImpl
      * RTP and RTCP traffic. The instance is a <tt>TransformConnector</tt> in
      * order to also enable packet transformations.
      */
-    private final TransformConnector rtpConnector;
+    private final RTPTransformConnector rtpConnector;
 
     /**
      * The one and only <tt>MediaStreamTarget</tt> this instance has added as a
@@ -163,7 +163,7 @@ public class MediaStreamImpl
          */
         setDevice(device);
 
-        this.rtpConnector = new TransformConnector(connector);
+        this.rtpConnector = new RTPTransformConnector(connector);
     }
 
     /**
@@ -580,7 +580,8 @@ public class MediaStreamImpl
             //JMF inits the local SSRC upon initialize(RTPConnector) so now's
             //the time to ask:
             setLocalSourceID(Long.toHexString(
-                            (((RTPSessionMgr)rtpManager).getLocalSSRC())));
+                (((com.sun.media.rtp.RTPSessionMgr)
+                                rtpManager).getLocalSSRC())));
 
             createSendStreams();
         }
@@ -1330,7 +1331,6 @@ public class MediaStreamImpl
         String oldValue = this.localSourceID;
         this.localSourceID = ssrc;
 
-System.out.println("old local ssrc = " + oldValue + " newLocalSSRC= " + localSourceID );
         firePropertyChange(PNAME_LOCAL_SSRC, oldValue, ssrc);
     }
 
@@ -1346,7 +1346,6 @@ System.out.println("old local ssrc = " + oldValue + " newLocalSSRC= " + localSou
         String oldValue = this.remoteSourceID;
         this.remoteSourceID = ssrc;
 
-System.out.println("old remote ssrc = " + oldValue + " newRemoteSSRC= " + remoteSourceID );
         firePropertyChange(PNAME_REMOTE_SSRC, oldValue, ssrc);
     }
 }
