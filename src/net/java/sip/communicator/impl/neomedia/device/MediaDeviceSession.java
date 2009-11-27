@@ -224,8 +224,7 @@ public class MediaDeviceSession
 
         receiveStreams.put(receiveStream, receiveStreamDataSource);
         if (logger.isTraceEnabled())
-            logger
-                .trace(
+            logger.trace(
                     "Added ReceiveStream with ssrc " + receiveStream.getSSRC());
 
         synchronized (players)
@@ -250,15 +249,13 @@ public class MediaDeviceSession
                 }
 
                 if (exception != null)
-                    logger
-                        .error(
+                    logger.error(
                             "Failed to create player"
                                 + " for ReceiveStream with ssrc "
                                 + receiveStream.getSSRC(),
                             exception);
                 else if (!waitForState(player, Processor.Configured))
-                    logger
-                        .error(
+                    logger.error(
                             "Failed to configure player"
                                 + " for ReceiveStream with ssrc "
                                 + receiveStream.getSSRC());
@@ -1373,18 +1370,19 @@ public class MediaDeviceSession
      * to query a device session operating over a mixer in which case we would
      * have the SSRC IDs of all parties currently contributing to the mixing.
      *
-     * @return a <tt>List</tt> of SSRC identifiers (in a hexadecimal
-     * <tt>String</tt> form) that this device session is.
-     * handling streams from.
+     * @return a <tt>long[]</tt> array of SSRC identifiers that this device
+     * session is handling streams from.
      */
-    public List<String> getRemoteSSRCList()
+    public long[] getRemoteSSRCList()
     {
-        Set<ReceiveStream> streams = this.receiveStreams.keySet();
-        List<String> ssrcIDList = new ArrayList<String>();
+        List<ReceiveStream> streams
+            = new LinkedList<ReceiveStream>(this.receiveStreams.keySet());
+        long[] ssrcIDList = new long[streams.size()];
 
-        for ( ReceiveStream stream : streams)
+        for ( int i = 0; i < ssrcIDList.length; i++)
         {
-            ssrcIDList.add(Long.toHexString(stream.getSSRC()));
+            ReceiveStream stream = streams.get(i);
+            ssrcIDList[i] = stream.getSSRC();
         }
 
         return ssrcIDList;

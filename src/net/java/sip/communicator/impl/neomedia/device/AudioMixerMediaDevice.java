@@ -449,12 +449,12 @@ public class AudioMixerMediaDevice
          * a pseudo device we would simply be delegating the call to the
          * corresponding method of the master mixer device session.
          *
-         * @return a <tt>List</tt> of SSRC identifiers (in a hexadecimal
-         * <tt>String</tt> form) that are currently contributing to the mixer
-         * encapsulated by this device session.
+         * @return a <tt>long[]</tt> array of SSRC identifiers that are
+         * currently contributing to the mixer encapsulated by this device
+         * session.
          */
         @Override
-        public List<String> getRemoteSSRCList()
+        public long[] getRemoteSSRCList()
         {
             return audioMixerMediaDeviceSession.getRemoteSSRCList();
         }

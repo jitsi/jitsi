@@ -10,24 +10,35 @@ import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
 
 /**
+ * We use this engine to add the list of CSRC identifiers in RTP packets that
+ * we send to conference participants during calls where we are the mixer.
+ *
  * @author Emil Ivov
  */
 public class CsrcTransformEngine
     implements TransformEngine,
                PacketTransformer
 {
-
-    /* (non-Javadoc)
-     * @see net.java.sip.communicator.impl.neomedia.transform.TransformEngine#getRTCPTransformer()
+    /**
+     * The <tt>MediaStreamImpl</tt> that this transform engine was created to
+     * transform packets fro.
      */
+    private final MediaStreamImpl mediaStream;
+
+    /**
+     * Creates
+     * @param stream
+     */
+    public CsrcTransformEngine(MediaStreamImpl stream)
+    {
+        this.mediaStream = stream;
+    }
+
     public PacketTransformer getRTCPTransformer()
     {
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see net.java.sip.communicator.impl.neomedia.transform.TransformEngine#getRTPTransformer()
-     */
     public PacketTransformer getRTPTransformer()
     {
         return this;

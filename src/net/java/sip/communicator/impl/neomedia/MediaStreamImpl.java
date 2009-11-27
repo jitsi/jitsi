@@ -1360,30 +1360,29 @@ public class MediaStreamImpl
      * return an empty <tt>List</tt> in case this stream is not part of a mixed
      * conference call.
      *
-     * @return a <tt>List</tt> of CSRC IDs for parties that are currently known
-     * to contribute to the media that this stream is currently streaming or
-     * an empty <tt>List</tt> in case this <tt>MediaStream</tt> is not part of
-     * a conference call.
+     * @return a <tt>List</tt> array of CSRC IDs stored as <tt>Long</tt>
+     * instances and representing parties that are currently known to contribute
+     * to the media that this stream or an empty <tt>List</tt> in case this
+     * <tt>MediaStream</tt> is not part of a conference call.
      */
-    public List<String> getLocalContributingSourceIDs()
+    public List<Long> getLocalContributingSourceIDs()
     {
-        List<String> csrcList = new ArrayList<String>();
+        if( this.deviceSession == null)
+            return null;
 
         MediaDeviceSession deviceSession = getDeviceSession();
-        if( this.deviceSession != null)
-            csrcList.addAll( deviceSession.getRemoteSSRCList() );
 
-        Iterator<String> csrcIter = csrcList.iterator();
+        long[] ssrcArray = deviceSession.getRemoteSSRCList();
+
+        List<Long> csrcList = new ArrayList<Long>(ssrcArray.length);
 
         //in case of a conf call the mixer would return all SSRC IDs that are
         //currently contributing including this stream's counterpart. This
         //method is about
-        while(csrcIter.hasNext())
+        for(long csrc : ssrcArray)
         {
-            String csrc = csrcIter.next();
-
-            if (csrc.equals(getRemoteSourceID()))
-                csrcIter.remove();
+            if (csrc != this.getRemoteSourceID())
+                csrcList.add(csrc);
         }
 
         return csrcList;
@@ -1398,10 +1397,12 @@ public class MediaStreamImpl
      * contributing to the stream that we are receiving from this
      * <tt>MediaStream</tt>'s remote party.
      */
-    public List<String> getRemoteContributingSourceIDs()
+    public long[] getRemoteContributingSourceIDs()
     {
-        List<String> csrcList = new ArrayList<String>();
+        long[] remoteSsrcList = getDeviceSession().getRemoteSSRCList();
 
-        return csrcList;
+        //todo -implement
+
+        return remoteSsrcList;
     }
 }
