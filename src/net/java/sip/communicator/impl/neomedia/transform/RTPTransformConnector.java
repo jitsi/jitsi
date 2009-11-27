@@ -37,7 +37,7 @@ import net.java.sip.communicator.util.*;
  * @author Bing SU (nova.su@gmail.com)
  * @author Lubomir Marinov
  */
-public class TransformConnector
+public class RTPTransformConnector
     extends RTPConnectorImpl
 {
 
@@ -46,7 +46,7 @@ public class TransformConnector
      * instances for logging output.
      */
     private static final Logger logger
-        = Logger.getLogger(TransformConnector.class);
+        = Logger.getLogger(RTPTransformConnector.class);
 
     /**
      * The customized <tt>TransformEngine</tt> which contains the concrete
@@ -62,7 +62,7 @@ public class TransformConnector
      * @param connector the pair of datagram sockets for RTP and RTCP traffic
      * the new instance is to use
      */
-    public TransformConnector(StreamConnector connector)
+    public RTPTransformConnector(StreamConnector connector)
     {
         super(connector);
     }
