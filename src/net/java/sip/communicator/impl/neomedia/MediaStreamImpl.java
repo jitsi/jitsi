@@ -1377,11 +1377,9 @@ public class MediaStreamImpl
     {
         if( this.deviceSession == null)
             return null;
-
         MediaDeviceSession deviceSession = getDeviceSession();
 
         long[] ssrcArray = deviceSession.getRemoteSSRCList();
-
         List<Long> csrcList = new ArrayList<Long>(ssrcArray.length);
 
         //in case of a conf call the mixer would return all SSRC IDs that are
@@ -1390,8 +1388,16 @@ public class MediaStreamImpl
         for(long csrc : ssrcArray)
         {
             if (csrc != this.getRemoteSourceID())
+            {
                 csrcList.add(csrc);
+            }
+            else
+            {
+            }
         }
+
+        //now add our own ID since we are also participating in the call.
+        csrcList.add(getLocalSourceID());
 
         int cc = csrcList.size();
         if ( cc == 0)
@@ -1420,7 +1426,7 @@ public class MediaStreamImpl
     {
         long[] remoteSsrcList = getDeviceSession().getRemoteSSRCList();
 
-        //todo -implement
+        /** @todo -implement */
 
         return remoteSsrcList;
     }

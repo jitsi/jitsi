@@ -254,7 +254,7 @@ public class RawPacket
      */
     public int getCsrcCount()
     {
-        return (buffer[offset] & 0x0fb);
+        return (buffer[offset] & 0x0f);
     }
 
     /**
@@ -267,6 +267,7 @@ public class RawPacket
      */
     public void setCsrcList(long[] newCsrcList)
     {
+
         int newCsrcCount = newCsrcList.length;
         byte[] csrcBuff = new byte[newCsrcCount * 4];
         int csrcOffset = 0;
@@ -309,11 +310,15 @@ public class RawPacket
 
         System.arraycopy( oldBuffer, payloadOffsetForOldBuff,
                           newBuffer, payloadOffsetForNewBuff,
-                          csrcBuff.length - payloadOffsetForOldBuff);
+                          oldBuffer.length - payloadOffsetForOldBuff);
 
         //set the new CSRC count
-        newBuffer[offset] = (byte)((newBuffer[offset] & 0xF0b)
-                                    & newCsrcCount);
+        newBuffer[offset] = (byte)((newBuffer[offset] & 0xF0)
+                                    | newCsrcCount);
+
+        this.buffer = newBuffer;
+        this.length = newBuffer.length;
+
     }
 
     /**
