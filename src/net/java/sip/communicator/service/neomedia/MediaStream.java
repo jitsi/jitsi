@@ -97,25 +97,25 @@ public interface MediaStream
 
     /**
      * Returns the synchronization source (SSRC) identifier of the remote
-     * participant or <tt>null</tt> if that identifier is not yet known at this
+     * participant or <tt>-1</tt> if that identifier is not yet known at this
      * point.
      *
      * @return  the synchronization source (SSRC) identifier of the remote
-     * participant or <tt>null</tt> if that identifier is not yet known at this
+     * participant or <tt>-1</tt> if that identifier is not yet known at this
      * point.
      */
-    public String getRemoteSourceID();
+    public long getRemoteSourceID();
 
     /**
      * Returns the synchronization source (SSRC) identifier of the local
-     * participant or <tt>null</tt> if that identifier is not yet known at this
+     * participant or <tt>-1</tt> if that identifier is not yet known at this
      * point.
      *
      * @return  the synchronization source (SSRC) identifier of the local
-     * participant or <tt>null</tt> if that identifier is not yet known at this
+     * participant or <tt>-1</tt> if that identifier is not yet known at this
      * point.
      */
-    public String getLocalSourceID();
+    public long getLocalSourceID();
 
     /**
      * Returns the address that this stream is sending RTCP traffic to.

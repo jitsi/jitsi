@@ -6,6 +6,9 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
+import java.math.*;
+import java.util.*;
+
 /**
  * When using TransformConnector, a RTP/RTCP packet is represented using
  * RawPacket. RawPacket stores the buffer holding the RTP/RTCP packet, as well
@@ -19,6 +22,7 @@ package net.java.sip.communicator.impl.neomedia;
  *
  * @author Werner Dittmann (Werner.Dittmann@t-online.de)
  * @author Bing SU (nova.su@gmail.com)
+ * @author Emil Ivov
  */
 public class RawPacket
 {
@@ -38,6 +42,11 @@ public class RawPacket
      * Length of this packet's data
      */
     protected int length;
+
+    /**
+     * The size of the fixed part of the RTP header as defined by RFC 3550.
+     */
+    public static final int FIXED_HEADER_SIZE = 12;
 
     /**
      * Construct a RawPacket using specified value.
@@ -236,5 +245,101 @@ public class RawPacket
         {
             this.length = 0;
         }
+    }
+
+    /**
+     * Returns the number of CSRC identifiers currently included in this packet.
+     *
+     * @return the CSRC count for this <tt>RawPacket</tt>.
+     */
+    public int getCsrcCount()
+    {
+        return (buffer[offset] & 0x0fb);
+    }
+
+    /**
+     * Replaces the existing CSRC list (even if empty) with <tt>newCsrcList</tt>
+     * and updates the CC (CSRC count) field of this <tt>RawPacket</tt>
+     * accordingly.
+     *
+     * @param newCsrcList the list of CSRC identifiers that we'd like to set for
+     * this <tt>RawPacket</tt>.
+     */
+    public void setCsrcList(long[] newCsrcList)
+    {
+        int newCsrcCount = newCsrcList.length;
+        byte[] csrcBuff = new byte[newCsrcCount * 4];
+        int csrcOffset = 0;
+
+        for(long csrc : newCsrcList)
+        {
+            csrcBuff[csrcOffset] = (byte)(csrc >> 24);
+            csrcBuff[csrcOffset+1] = (byte)(csrc >> 16);
+            csrcBuff[csrcOffset+2] = (byte)(csrc >> 8);
+            csrcBuff[csrcOffset+3] = (byte)csrc;
+
+            csrcOffset += 4;
+        }
+
+        int oldCsrcCount = getCsrcCount();
+
+        byte[] oldBuffer = this.getBuffer();
+
+        //the new buffer needs to be bigger than the new one in order to
+        //accommodate the list of CSRC IDs (unless there were more of them
+        //previously than after setting the new list).
+        byte[] newBuffer
+            = new byte[oldBuffer.length + csrcBuff.length - oldCsrcCount*4];
+
+        //copy the part up to the CSRC list
+        System.arraycopy(
+                    oldBuffer, 0, newBuffer, 0, offset + FIXED_HEADER_SIZE);
+
+        //copy the new CSRC list
+        System.arraycopy( csrcBuff, 0, newBuffer,
+                        offset + FIXED_HEADER_SIZE, csrcBuff.length);
+
+        //now copy the payload from the old buff and make sure we don't copy
+        //the CSRC list if there was one in the old packet
+        int payloadOffsetForOldBuff
+            = offset + FIXED_HEADER_SIZE + oldCsrcCount*4;
+
+        int payloadOffsetForNewBuff
+            = offset + FIXED_HEADER_SIZE + newCsrcCount*4;
+
+        System.arraycopy( oldBuffer, payloadOffsetForOldBuff,
+                          newBuffer, payloadOffsetForNewBuff,
+                          csrcBuff.length - payloadOffsetForOldBuff);
+
+        //set the new CSRC count
+        newBuffer[offset] = (byte)((newBuffer[offset] & 0xF0b)
+                                    & newCsrcCount);
+    }
+
+    /**
+     * Returns the list of CSRC IDs, currently encapsulated in this packet.
+     *
+     * @return an array containing the list of CSRC IDs, currently encapsulated
+     * in this packet.
+     */
+    public long[] extractCsrcList()
+    {
+        int csrcCount = getCsrcCount();
+        byte[] buffer = getBuffer();
+
+        long[] csrcList = new long[csrcCount];
+
+        int csrcStartIndex = offset + FIXED_HEADER_SIZE;
+        for (int i = 0; i < csrcCount; i++)
+        {
+            csrcList[i] =   buffer[csrcStartIndex]     << 24
+                          & buffer[csrcStartIndex + 1] << 16
+                          & buffer[csrcStartIndex + 2] << 8
+                          & buffer[csrcStartIndex + 3];
+
+            csrcStartIndex += 4;
+        }
+
+        return csrcList;
     }
 }

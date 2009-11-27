@@ -626,7 +626,7 @@ public class OperationSetTelephonyConferencingSipImpl
                 // </type>
                 append(xml, "</", ELEMENT_TYPE, ">");
 
-                String srcId = stream.getRemoteSourceID();
+                String srcId = Long.toString(stream.getRemoteSourceID());
 
                 if (srcId != null)
                 {

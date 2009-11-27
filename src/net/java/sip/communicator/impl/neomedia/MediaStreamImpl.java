@@ -17,6 +17,8 @@ import javax.media.protocol.*;
 import javax.media.rtp.*;
 import javax.media.rtp.event.*;
 
+import com.sun.media.rtp.*;
+
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
@@ -129,12 +131,18 @@ public class MediaStreamImpl
     /**
      * The SSRC identifier of the party that we are exchanging media with.
      */
-    private String remoteSourceID = null;
+    private long remoteSourceID = -1;
 
     /**
      * Our own SSRC identifier.
      */
-    private String localSourceID = null;
+    private long localSourceID = -1;
+
+    /**
+     * The list of CSRC IDs that the remote party reported as contributing to
+     * the media they are sending toward us.
+     */
+    private long[] remoteContributingSourceIDList = new long[0];
 
     /**
      * The indicator which determines whether this <tt>MediaStream</tt> is set
@@ -164,6 +172,8 @@ public class MediaStreamImpl
         setDevice(device);
 
         this.rtpConnector = new RTPTransformConnector(connector);
+
+
     }
 
     /**
@@ -419,8 +429,7 @@ public class MediaStreamImpl
 
         MediaDeviceSession deviceSession = getDeviceSession();
 
-        return
-            (deviceSession == null)
+        return (deviceSession == null)
                 ? MediaDirection.INACTIVE
                 : deviceSession.getDevice().getDirection();
     }
@@ -445,8 +454,7 @@ public class MediaStreamImpl
     {
         synchronized (dynamicRTPPayloadTypes)
         {
-            return
-                new HashMap<Byte, MediaFormat>(dynamicRTPPayloadTypes);
+            return new HashMap<Byte, MediaFormat>(dynamicRTPPayloadTypes);
         }
     }
 
@@ -465,16 +473,15 @@ public class MediaStreamImpl
 
     /**
      * Gets the synchronization source (SSRC) identifier of the local peer or
-     * <tt>null</tt> if it is not yet known.
+     * <tt>-1</tt> if it is not yet known.
      *
      * @return  the synchronization source (SSRC) identifier of the local peer
-     * or <tt>null</tt> if it is not yet known
+     * or <tt>-1</tt> if it is not yet known
      * @see MediaStream#getLocalSourceID()
      */
-    public String getLocalSourceID()
+    public long getLocalSourceID()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return this.localSourceID;
     }
 
     /**
@@ -486,8 +493,7 @@ public class MediaStreamImpl
      */
     public InetSocketAddress getRemoteControlAddress()
     {
-        return
-            (InetSocketAddress)
+        return (InetSocketAddress)
                 rtpConnector.getControlSocket().getRemoteSocketAddress();
     }
 
@@ -500,20 +506,19 @@ public class MediaStreamImpl
      */
     public InetSocketAddress getRemoteDataAddress()
     {
-        return
-            (InetSocketAddress)
+        return (InetSocketAddress)
                 rtpConnector.getDataSocket().getRemoteSocketAddress();
     }
 
     /**
      * Get the synchronization source (SSRC) identifier of the remote peer or
-     * <tt>null</tt> if it is not yet known.
+     * <tt>-1</tt> if it is not yet known.
      *
      * @return  the synchronization source (SSRC) identifier of the remote
-     * peer or <tt>null</tt> if it is not yet known
+     * peer or <tt>-1</tt> if it is not yet known
      * @see MediaStream#getRemoteSourceID()
      */
-    public String getRemoteSourceID()
+    public long getRemoteSourceID()
     {
         return remoteSourceID;
     }
@@ -579,9 +584,7 @@ public class MediaStreamImpl
 
             //JMF inits the local SSRC upon initialize(RTPConnector) so now's
             //the time to ask:
-            setLocalSourceID(Long.toHexString(
-                (((com.sun.media.rtp.RTPSessionMgr)
-                                rtpManager).getLocalSSRC())));
+            setLocalSourceID(((RTPSessionMgr)rtpManager).getLocalSSRC());
 
             createSendStreams();
         }
@@ -1256,7 +1259,7 @@ public class MediaStreamImpl
                     logger.trace("Received new ReceiveStream with ssrc "
                                 + receiveStream.getSSRC());
 
-                setRemoteSourceID( Long.toHexString( receiveStream.getSSRC() ));
+                setRemoteSourceID( receiveStream.getSSRC() );
 
                 synchronized (receiveStreams)
                 {
@@ -1326,9 +1329,9 @@ public class MediaStreamImpl
      * @param ssrc the SSRC identifier that this stream will be using in
      * outgoing RTP packets from now on.
      */
-    private void setLocalSourceID(String ssrc)
+    private void setLocalSourceID(long ssrc)
     {
-        String oldValue = this.localSourceID;
+        Long oldValue = this.localSourceID;
         this.localSourceID = ssrc;
 
         firePropertyChange(PNAME_LOCAL_SSRC, oldValue, ssrc);
@@ -1341,11 +1344,64 @@ public class MediaStreamImpl
      * @param ssrc the SSRC identifier that this stream will be using in
      * outgoing RTP packets from now on.
      */
-    private void setRemoteSourceID(String ssrc)
+    private void setRemoteSourceID(long ssrc)
     {
-        String oldValue = this.remoteSourceID;
+        Long oldValue = this.remoteSourceID;
         this.remoteSourceID = ssrc;
 
         firePropertyChange(PNAME_REMOTE_SSRC, oldValue, ssrc);
+    }
+
+    /**
+     * Returns the list of CSRC identifiers for all parties currently known
+     * to contribute to the media that this stream is sending toward its remote
+     * counter part. In other words, the method returns the list of CSRC IDs
+     * that this stream will include in outgoing RTP packets. This method will
+     * return an empty <tt>List</tt> in case this stream is not part of a mixed
+     * conference call.
+     *
+     * @return a <tt>List</tt> of CSRC IDs for parties that are currently known
+     * to contribute to the media that this stream is currently streaming or
+     * an empty <tt>List</tt> in case this <tt>MediaStream</tt> is not part of
+     * a conference call.
+     */
+    public List<String> getLocalContributingSourceIDs()
+    {
+        List<String> csrcList = new ArrayList<String>();
+
+        MediaDeviceSession deviceSession = getDeviceSession();
+        if( this.deviceSession != null)
+            csrcList.addAll( deviceSession.getRemoteSSRCList() );
+
+        Iterator<String> csrcIter = csrcList.iterator();
+
+        //in case of a conf call the mixer would return all SSRC IDs that are
+        //currently contributing including this stream's counterpart. This
+        //method is about
+        while(csrcIter.hasNext())
+        {
+            String csrc = csrcIter.next();
+
+            if (csrc.equals(getRemoteSourceID()))
+                csrcIter.remove();
+        }
+
+        return csrcList;
+    }
+
+    /**
+     * Returns the <tt>List</tt> of CSRC identifiers representing the parties
+     * contributing to the stream that we are receiving from this
+     * <tt>MediaStream</tt>'s remote party.
+     *
+     * @return a <tt>List</tt> of CSRC identifiers representing the parties
+     * contributing to the stream that we are receiving from this
+     * <tt>MediaStream</tt>'s remote party.
+     */
+    public List<String> getRemoteContributingSourceIDs()
+    {
+        List<String> csrcList = new ArrayList<String>();
+
+        return csrcList;
     }
 }

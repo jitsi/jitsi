@@ -116,7 +116,10 @@ public class TransformEngineChain
                     ? engine.getRTPTransformer()
                     : engine.getRTCPTransformer();
 
-                pkt = pTransformer.transform(pkt);
+                //the packet transformer may be null if for example the engine
+                //only does RTP transformations and this is an RTCP transformer.
+                if( pTransformer != null)
+                    pkt = pTransformer.transform(pkt);
             }
 
             return pkt;
@@ -144,7 +147,10 @@ public class TransformEngineChain
                 ? engine.getRTPTransformer()
                 : engine.getRTCPTransformer();
 
-                pkt = pTransformer.reverseTransform(pkt);
+                //the packet transformer may be null if for example the engine
+                //only does RTP transformations and this is an RTCP transformer.
+                if( pTransformer != null)
+                    pkt = pTransformer.reverseTransform(pkt);
             }
 
             return pkt;
