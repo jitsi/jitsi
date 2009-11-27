@@ -59,8 +59,8 @@ public class AudioMixerMediaDevice
         = new Vector<SoundLevelListener>();
 
     /**
-     * The dispatcher of the events, handle the calculation and the
-     * evnent firing in different thread.
+     * The dispatcher of the events, handle the calculation and the event firing
+     * in a different thread.
      */
     private LocalSliEventDispatcher localEventsDispatcher = null;
 
@@ -221,20 +221,23 @@ public class AudioMixerMediaDevice
                     else if (dataSource
                             instanceof ReceiveStreamPushBufferDataSource)
                     {
-                        ReceiveStream receiveStream
-                            = ((ReceiveStreamPushBufferDataSource) dataSource)
-                                .getReceiveStream();
                         /*
                          * The audio of a ReceiveStream to be contributed to the
                          * mix.
                          */
-                        StreamSliEventDispatcher stEvDispatch =
-                            streamSoundLevelListeners.get(receiveStream);
+                        ReceiveStream receiveStream
+                            = ((ReceiveStreamPushBufferDataSource) dataSource)
+                                .getReceiveStream();
+                        StreamSliEventDispatcher stEvDispatch;
+
+                        synchronized (streamSoundLevelListeners)
+                        {
+                            stEvDispatch
+                                = streamSoundLevelListeners.get(receiveStream);
+                        }
 
                         if(stEvDispatch != null)
-                        {
                             stEvDispatch.addData(buffer);
-                        }
                     }
                 }
             };
@@ -677,7 +680,6 @@ public class AudioMixerMediaDevice
             audioMixerMediaDeviceSession.setParentStream(parentStream);
         }
 
-
         /**
          * Returns the list of SSRC identifiers that are directly contributing
          * to the media flows that we are sending out. Note that since this is
@@ -909,27 +911,26 @@ public class AudioMixerMediaDevice
                             lastLevel);
 
                     Map<Long,Integer> lev = new HashMap<Long, Integer>();
+                    MediaStream parentStream = deviceSession.getParentStream();
 
-                    lev.put(deviceSession.getParentStream().getRemoteSourceID(),
-                        newLevel);
+                    lev.put(parentStream.getRemoteSourceID(), newLevel);
+
                     SoundLevelChangeEvent soundLevelEvent
                         = new SoundLevelChangeEvent(
-                            deviceSession.getParentStream(),
-                            lev);
+                                parentStream,
+                                lev);
 
                     List<SoundLevelListener> listeners;
 
                     synchronized (stSoundLevelListeners)
                     {
-                        listeners = new ArrayList<SoundLevelListener>(
-                            stSoundLevelListeners);
+                        listeners
+                            = new ArrayList<SoundLevelListener>(
+                                    stSoundLevelListeners);
                     }
 
-                    for (Iterator<SoundLevelListener> listenerIter
-                            = listeners.iterator(); listenerIter.hasNext();)
-                    {
-                        listenerIter.next().soundLevelChanged(soundLevelEvent);
-                    }
+                    for (SoundLevelListener listener : listeners)
+                        listener.soundLevelChanged(soundLevelEvent);
 
                     lastLevel = newLevel;
                 }

@@ -163,7 +163,7 @@ public class MediaDeviceSession
     private MediaDirection startedDirection = MediaDirection.INACTIVE;
 
     /**
-     * The <tt>MediaStream</tt> that creates us.
+     * The <tt>MediaStream</tt> that created us.
      */
     private MediaStream parentStream = null;
 
@@ -1420,7 +1420,7 @@ public class MediaDeviceSession
     }
 
     /**
-     * Sets the parent <tt>MediaStream</tt> that creates us.
+     * Sets the parent <tt>MediaStream</tt> that created us.
      *
      * @param parentStream the parentStream to set
      */
@@ -1430,7 +1430,8 @@ public class MediaDeviceSession
     }
 
     /**
-     * Retrurns the parent <tt>MediaStream</tt> that creates us.
+     * Returns the parent <tt>MediaStream</tt> that created us.
+     *
      * @return the parentStream that created us.
      */
     public MediaStream getParentStream()
