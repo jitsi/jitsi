@@ -111,6 +111,11 @@ public class TransferCallButton
                      */
                     public void callStateChanged(CallChangeEvent evt)
                     {
+                        // we are interested only in CALL_STATE_CHANGEs
+                        if(!evt.getEventType().equals(
+                                CallChangeEvent.CALL_STATE_CHANGE))
+                            return;
+
                         if (!CallState.CALL_IN_PROGRESS.equals(call
                             .getCallState()))
                         {

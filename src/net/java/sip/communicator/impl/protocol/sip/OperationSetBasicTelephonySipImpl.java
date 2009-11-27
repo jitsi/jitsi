@@ -1109,6 +1109,10 @@ public class OperationSetBasicTelephonySipImpl
             @Override
             public synchronized void callStateChanged(CallChangeEvent evt)
             {
+                // we are interested only in CALL_STATE_CHANGEs
+                if(!evt.getEventType().equals(CallChangeEvent.CALL_STATE_CHANGE))
+                    return;
+
                 if (!done
                         && referToCallStateChanged(
                                 referToCallListenerSource,

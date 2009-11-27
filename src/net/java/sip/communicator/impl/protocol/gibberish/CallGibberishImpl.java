@@ -173,4 +173,28 @@ public class CallGibberishImpl
     {
         return true;
     }
+
+    /*
+     * Adds a specific <tt>SoundLevelListener</tt> to the list of
+     * listeners interested in and notified about changes in local sound level
+     * related information.
+     * @param l the <tt>SoundLevelListener</tt> to add
+     */
+    public void addLocalUserSoundLevelListener(
+        SoundLevelListener<Long> l)
+    {
+
+    }
+
+    /**
+     * Removes a specific <tt>SoundLevelListener</tt> of the list of
+     * listeners interested in and notified about changes in local sound level
+     * related information.
+     * @param l the <tt>SoundLevelListener</tt> to remove
+     */
+    public void removeLocalUserSoundLevelListener(
+        SoundLevelListener<Long> l)
+    {
+        
+    }
 }

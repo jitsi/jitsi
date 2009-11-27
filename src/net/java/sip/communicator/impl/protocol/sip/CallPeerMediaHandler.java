@@ -14,6 +14,7 @@ import javax.sdp.*;
 
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
 import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.service.neomedia.event.SoundLevelListener;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.netaddr.*;
@@ -177,6 +178,18 @@ public class CallPeerMediaHandler
      */
     private final DynamicPayloadTypeRegistry dynamicPayloadTypes
         = new DynamicPayloadTypeRegistry();
+
+    /**
+     * A list of listeners registered for local user sound level events.
+     */
+    private final List<SoundLevelListener> localSoundLevelListeners
+        = new Vector<SoundLevelListener>();
+
+    /**
+     * A list of listeners registered for stream sound level events.
+     */
+    private final List<SoundLevelListener> streamSoundLevelListeners
+        = new Vector<SoundLevelListener>();
 
     /**
      * Creates a new handler that will be managing media streams for
@@ -689,7 +702,32 @@ public class CallPeerMediaHandler
         stream.setFormat(format);
 
         if( stream instanceof AudioMediaStream)
+        {
             this.audioStream = (AudioMediaStream)stream;
+            
+            // now if we had already add soundlevel listeners
+            // add them to the stream
+            synchronized (localSoundLevelListeners)
+            {
+                for (Iterator<SoundLevelListener> listenerIter
+                    = localSoundLevelListeners.iterator();
+                    listenerIter.hasNext();)
+                {
+                    SoundLevelListener listener = listenerIter.next();
+                    this.audioStream.addLocalUserSoundLevelListener(listener);
+                }
+            }
+            synchronized (streamSoundLevelListeners)
+            {
+                for (Iterator<SoundLevelListener> listenerIter
+                    = streamSoundLevelListeners.iterator();
+                    listenerIter.hasNext();)
+                {
+                    SoundLevelListener listener = listenerIter.next();
+                    this.audioStream.addSoundLevelListener(listener);
+                }
+            }
+        }
         else
             setVideoStream((VideoMediaStream)stream);
 
@@ -1443,5 +1481,105 @@ public class CallPeerMediaHandler
             {
                 videoListeners.remove(listener);
             }
+    }
+
+    /**
+     * Adds the given <tt>SoundLevelListener</tt> to this operation set.
+     * @param l the <tt>SoundLevelListener</tt> to add
+     */
+    void addLocalUserSoundLevelListener(SoundLevelListener l)
+    {
+        synchronized(localSoundLevelListeners)
+        {
+            if (!localSoundLevelListeners.contains(l))
+                localSoundLevelListeners.add(l);
+        }
+
+        if(audioStream != null)
+        {
+            audioStream.addLocalUserSoundLevelListener(l);
+        }
+    }
+
+    /**
+     * Removes the given <tt>SoundLevelListener</tt> from this
+     * operation set.
+     * @param l the <tt>SoundLevelListener</tt> to remove
+     */
+    void removeLocalUserSoundLevelListener(SoundLevelListener l)
+    {
+        synchronized(localSoundLevelListeners)
+        {
+            localSoundLevelListeners.remove(l);
+        }
+
+        if(audioStream != null)
+            audioStream.removeLocalUserSoundLevelListener(l);
+    }
+
+    /**
+     * Adds a specific <tt>StreamSoundLevelListener</tt> to the list of
+     * listeners interested in and notified about changes in stream sound level
+     * related information.
+     *
+     * @param listener the <tt>StreamSoundLevelListener</tt> to add
+     */
+    void addStreamSoundLevelListener(SoundLevelListener listener)
+    {
+        synchronized(streamSoundLevelListeners)
+        {
+            if (!streamSoundLevelListeners.contains(listener))
+                streamSoundLevelListeners.add(listener);
+        }
+
+        if(audioStream != null)
+        {
+            audioStream.addSoundLevelListener(listener);
+        }
+    }
+
+    /**
+     * Removes a specific <tt>StreamSoundLevelListener</tt> of the list of
+     * listeners interested in and notified about changes in stream sound level
+     * related information.
+     *
+     * @param listener the <tt>StreamSoundLevelListener</tt> to remove
+     */
+    void removeStreamSoundLevelListener(SoundLevelListener listener)
+    {
+        synchronized(streamSoundLevelListeners)
+        {
+            streamSoundLevelListeners.remove(listener);
+        }
+
+        if(audioStream != null)
+            audioStream.removeSoundLevelListener(listener);
+    }
+
+    /**
+     * Adds a specific <tt>ConferenceMembersSoundLevelListener</tt> to the list
+     * of listeners interested in and notified about changes in conference
+     * members sound level.
+     *
+     * @param listener the <tt>ConferenceMembersSoundLevelListener</tt> to add
+     */
+    public void addConferenceMembersSoundLevelListener(
+        SoundLevelListener listener)
+    {
+
+    }
+
+    /**
+     * Removes a specific <tt>ConferenceMembersSoundLevelListener</tt> of the
+     * list of listeners interested in and notified about changes in conference
+     * members sound level.
+     *
+     * @param listener the <tt>ConferenceMembersSoundLevelListener</tt> to
+     * remove
+     */
+    public void removeConferenceMembersSoundLevelListener(
+        SoundLevelListener listener)
+    {
+
     }
 }

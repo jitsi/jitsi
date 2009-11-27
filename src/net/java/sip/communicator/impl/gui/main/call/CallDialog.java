@@ -455,7 +455,7 @@ public class CallDialog
 
         CallPeer callPeer = evt.getSourceCallPeer();
 
-        callPeer.addCallPeerConferenceListener(this);
+        callPeer.removeCallPeerConferenceListener(this);
 
         Timer timer = new Timer(5000,
             new RemovePeerPanelListener(callPeer));

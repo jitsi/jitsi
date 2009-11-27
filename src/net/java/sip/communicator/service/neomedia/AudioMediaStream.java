@@ -58,6 +58,22 @@ public interface AudioMediaStream
         SoundLevelListener listener);
 
     /**
+     * Adds a specific <tt>SoundLevelListener</tt> to the list of
+     * listeners interested in and notified about changes in local sound level
+     * related information.
+     * @param l the <tt>SoundLevelListener</tt> to add
+     */
+    public abstract void addLocalUserSoundLevelListener(SoundLevelListener l);
+
+    /**
+     * Removes a specific <tt>SoundLevelListener</tt> of the list of
+     * listeners interested in and notified about changes in local sound level
+     * related information.
+     * @param l the <tt>SoundLevelListener</tt> to remove
+     */
+    public abstract void removeLocalUserSoundLevelListener(SoundLevelListener l);
+
+    /**
      * Starts sending the specified <tt>DTMFTone</tt> until the
      * <tt>stopSendingDTMF()</tt> method is called. Callers should keep in mind
      * the fact that calling this method would most likely interrupt all audio

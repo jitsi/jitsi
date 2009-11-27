@@ -248,4 +248,57 @@ public class CallPeerJabberImpl
 
         return opSetPresence.findContactByID(getAddress());
     }
+
+    /**
+     * Adds a specific <tt>SoundLevelListener</tt> to the list of
+     * listeners interested in and notified about changes in stream sound level
+     * related information.
+     *
+     * @param listener the <tt>SoundLevelListener</tt> to add
+     */
+    public void addStreamSoundLevelListener(
+        SoundLevelListener<Long> listener)
+    {
+        
+    }
+
+    /**
+     * Removes a specific <tt>SoundLevelListener</tt> of the list of
+     * listeners interested in and notified about changes in stream sound level
+     * related information.
+     *
+     * @param listener the <tt>SoundLevelListener</tt> to remove
+     */
+    public void removeStreamSoundLevelListener(
+        SoundLevelListener<Long> listener)
+    {
+        
+    }
+
+    /**
+     * Adds a specific <tt>SoundLevelListener</tt> to the list
+     * of listeners interested in and notified about changes in conference
+     * members sound level.
+     *
+     * @param listener the <tt>SoundLevelListener</tt> to add
+     */
+    public void addConferenceMembersSoundLevelListener(
+        SoundLevelListener listener)
+    {
+        
+    }
+
+    /**
+     * Removes a specific <tt>SoundLevelListener</tt> of the
+     * list of listeners interested in and notified about changes in conference
+     * members sound level.
+     *
+     * @param listener the <tt>SoundLevelListener</tt> to
+     * remove
+     */
+    public void removeConferenceMembersSoundLevelListener(
+        SoundLevelListener listener)
+    {
+
+    }
 }

@@ -72,6 +72,15 @@ public class CallSipImpl
     private final OperationSetBasicTelephonySipImpl parentOpSet;
 
     /**
+     * Holds the wrapped protocl.event.SoundLevelListeners
+     * and their wrappers.
+     */
+    private Hashtable<SoundLevelListener, LocalSoundLevelListener>
+        localSoundLevelListeners =
+            new Hashtable<SoundLevelListener,LocalSoundLevelListener>();
+
+
+    /**
      * Crates a CallSipImpl instance belonging to <tt>sourceProvider</tt> and
      * initiated by <tt>CallCreator</tt>.
      *
@@ -103,6 +112,15 @@ public class CallSipImpl
 
         callPeer.addCallPeerListener(this);
 
+        synchronized(localSoundLevelListeners)
+        {
+            // add sound levevel listeners to the new peer
+            for(LocalSoundLevelListener ls : localSoundLevelListeners.values())
+            {
+                callPeer.getMediaHandler().addLocalUserSoundLevelListener(ls);
+            }
+        }
+
         this.callPeers.add(callPeer);
         fireCallPeerEvent(callPeer,
             CallPeerEvent.CALL_PEER_ADDED);
@@ -122,6 +140,15 @@ public class CallSipImpl
 
         this.callPeers.remove(callPeer);
         callPeer.removeCallPeerListener(this);
+
+        synchronized(localSoundLevelListeners)
+        {
+            // remove sound levevel listeners to the new peer
+            for(LocalSoundLevelListener ls : localSoundLevelListeners.values())
+            {
+                callPeer.getMediaHandler().removeLocalUserSoundLevelListener(ls);
+            }
+        }
 
         try
         {
@@ -621,6 +648,11 @@ public class CallSipImpl
              */
             if (!this.conferenceFocus)
                 conferenceAudioMixer = null;
+
+            // fire that the focus property has changed
+            fireCallChangeEvent(
+                CallChangeEvent.CALL_FOCUS_CHANGE,
+                !this.conferenceFocus, this.conferenceFocus);
         }
     }
 
@@ -659,5 +691,90 @@ public class CallSipImpl
             return conferenceAudioMixer;
         }
         return mediaService.getDefaultDevice(mediaType);
+    }
+
+    /**
+     * Adds a specific <tt>SoundLevelListener</tt> to the list of
+     * listeners interested in and notified about changes in local sound level
+     * related information.
+     * @param l the <tt>SoundLevelListener</tt> to add
+     */
+    public void addLocalUserSoundLevelListener(SoundLevelListener<Long> l)
+    {
+        LocalSoundLevelListener sli = new LocalSoundLevelListener(l);
+        synchronized(localSoundLevelListeners)
+        {
+            localSoundLevelListeners.put(l, sli);
+        }
+
+        Iterator<CallPeerSipImpl> cps = getCallPeers();
+        while (cps.hasNext())
+        {
+            CallPeerSipImpl callPeerSipImpl = cps.next();
+            callPeerSipImpl.getMediaHandler()
+                    .addLocalUserSoundLevelListener(sli);
+        }
+    }
+
+    /**
+     * Removes a specific <tt>SoundLevelListener</tt> of the list of
+     * listeners interested in and notified about changes in local sound level
+     * related information.
+     * @param l the <tt>SoundLevelListener</tt> to remove
+     */
+    public void removeLocalUserSoundLevelListener(SoundLevelListener l)
+    {
+        LocalSoundLevelListener sli = null;
+        synchronized(localSoundLevelListeners)
+        {
+            sli = localSoundLevelListeners.remove(l);
+        }
+
+        // no listener
+        if(sli == null)
+            return;
+
+        Iterator<CallPeerSipImpl> cPeers = getCallPeers();
+        while (cPeers.hasNext())
+        {
+            CallPeerSipImpl callPeerSipImpl = cPeers.next();
+            callPeerSipImpl.getMediaHandler()
+                    .removeLocalUserSoundLevelListener(sli);
+        }
+    }
+
+    /**
+     * Wraps SoundLevelListener.
+     */
+    private class LocalSoundLevelListener
+        implements net.java.sip.communicator.service.neomedia.event.SoundLevelListener
+    {
+        /**
+         * Holds the listener we wrap.
+         */
+        private SoundLevelListener<Long> soundLevelListener;
+
+        /**
+         * @param soundLevelListener the listener we wrap.
+         */
+        public LocalSoundLevelListener(SoundLevelListener<Long> soundLevelListener)
+        {
+            this.soundLevelListener = soundLevelListener;
+        }
+
+        /**
+         * Delivers <tt>SoundLevelChangeEvent</tt>s to the implementing class.
+         * These events may be delivered if the remote party is a mixer
+         * which supports the RTP sound levels extension.
+         *
+         * @param evt the notification event containing the list of changes.
+         */
+        public void soundLevelChanged(
+                net.java.sip.communicator.service.neomedia.event.SoundLevelChangeEvent evt)
+        {
+            soundLevelListener.soundLevelChanged(
+                new SoundLevelChangeEvent<Long>(
+                    CallSipImpl.this, evt.getLevels()));
+        }
     }
 }

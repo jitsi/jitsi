@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
+import java.util.*;
 import javax.media.*;
 import javax.media.format.*;
 import javax.media.rtp.*;
@@ -106,7 +107,7 @@ public class AudioMediaStreamImpl
      */
     public void addSoundLevelListener(SoundLevelListener listener)
     {
-        // TODO Auto-generated method stub
+        getDeviceSession().addSoundLevelListener(listener);
     }
 
     /**
@@ -191,7 +192,7 @@ public class AudioMediaStreamImpl
      */
     public void removeSoundLevelListener(SoundLevelListener listener)
     {
-        // TODO Auto-generated method stub
+        getDeviceSession().addSoundLevelListener(listener);
     }
 
     /**
@@ -234,5 +235,27 @@ public class AudioMediaStreamImpl
     public void stopSendingDTMF()
     {
         // TODO Auto-generated method stub
+    }
+
+    /**
+     * Adds a specific <tt>SoundLevelListener</tt> to the list of
+     * listeners interested in and notified about changes in local sound level
+     * related information.
+     * @param l the <tt>SoundLevelListener</tt> to add
+     */
+    public void addLocalUserSoundLevelListener(SoundLevelListener l)
+    {
+        getDeviceSession().addLocalUserSoundLevelListener(l);
+    }
+
+    /**
+     * Removes a specific <tt>SoundLevelListener</tt> of the list of
+     * listeners interested in and notified about changes in local sound level
+     * related information.
+     * @param l the <tt>SoundLevelListener</tt> to remove
+     */
+    public void removeLocalUserSoundLevelListener(SoundLevelListener l)
+    {
+        getDeviceSession().removeLocalUserSoundLevelListener(l);
     }
 }

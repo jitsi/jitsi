@@ -12,10 +12,8 @@ import java.util.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.event.VideoEvent;
@@ -307,12 +305,12 @@ public class OneToOneCallPeerPanel
                 ImageLoader.getImage(ImageLoader.HEADPHONE)));
 
         final SoundLevelIndicator localLevelIndicator
-            = new SoundLevelIndicator(  LocalUserSoundLevelEvent.MIN_LEVEL,
-                                        LocalUserSoundLevelEvent.MAX_LEVEL);
+            = new SoundLevelIndicator(  SoundLevelChangeEvent.MIN_LEVEL,
+                                        SoundLevelChangeEvent.MAX_LEVEL);
 
         final SoundLevelIndicator remoteLevelIndicator
-            = new SoundLevelIndicator(  LocalUserSoundLevelEvent.MIN_LEVEL,
-                                        LocalUserSoundLevelEvent.MAX_LEVEL);
+            = new SoundLevelIndicator(  SoundLevelChangeEvent.MIN_LEVEL,
+                                        SoundLevelChangeEvent.MAX_LEVEL);
 
         localLevelPanel.add(localLevelLabel, BorderLayout.WEST);
         localLevelPanel.add(localLevelIndicator, BorderLayout.CENTER);
@@ -338,23 +336,30 @@ public class OneToOneCallPeerPanel
 
         add(remoteLevelPanel, constraints);
 
-        this.callPeer.addStreamSoundLevelListener(new StreamSoundLevelListener()
+        this.callPeer.addStreamSoundLevelListener(new SoundLevelListener<Long>()
         {
-            public void streamSoundLevelChanged(StreamSoundLevelEvent event)
+            public void soundLevelChanged(SoundLevelChangeEvent<Long> event)
             {
-                remoteLevelIndicator.updateSoundLevel(event.getLevel());
+                Collection<Integer> levels = event.getLevels().values();
+
+                if(!levels.isEmpty())
+                    remoteLevelIndicator.updateSoundLevel(
+                        levels.iterator().next());
             }
         });
-
-        GuiActivator.getMediaService().
-            addLocalUserSoundLevelListener(new LocalUserSoundLevelListener()
+        
+        this.callPeer.getCall().addLocalUserSoundLevelListener(
+        new SoundLevelListener<Long>()
+        {
+            public void soundLevelChanged(SoundLevelChangeEvent<Long> event)
             {
-                public void localUserSoundLevelChanged(
-                    LocalUserSoundLevelEvent event)
-                {
-                    localLevelIndicator.updateSoundLevel(event.getLevel());
-                }
-            });
+                Collection<Integer> levels = event.getLevels().values();
+
+                if(!levels.isEmpty())
+                    localLevelIndicator.updateSoundLevel(
+                        levels.iterator().next());
+            }
+        });
     }
 
     private class VideoTelephonyListener
@@ -482,6 +487,11 @@ public class OneToOneCallPeerPanel
              */
             public synchronized void callStateChanged(CallChangeEvent event)
             {
+                // we are interested only in CALL_STATE_CHANGEs
+                if(!event.getEventType().equals(
+                        CallChangeEvent.CALL_STATE_CHANGE))
+                    return;
+
                 CallState newCallState = (CallState) event.getNewValue();
 
                 if (CallState.CALL_ENDED.equals(newCallState))

@@ -2575,6 +2575,10 @@ public class CallSessionImpl
      */
     public void callStateChanged(CallChangeEvent evt)
     {
+        // we are interested only in CALL_STATE_CHANGEs
+        if(!evt.getEventType().equals(CallChangeEvent.CALL_STATE_CHANGE))
+            return;
+
         Object newValue = evt.getNewValue();
 
         if (newValue == evt.getOldValue())

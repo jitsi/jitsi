@@ -28,6 +28,13 @@ public class CallChangeEvent
     public static final String CALL_STATE_CHANGE = "CallState";
 
     /**
+     * An event type indicating that the corresponding event is caused by a
+     * change of the Call he became focus for a conference call or was one
+     * and is no longer such.
+     */
+    public static final String CALL_FOCUS_CHANGE = "CallFocusState";
+
+    /**
      * Creates a CallChangeEvent with the specified source, type, oldValue and
      * newValue.
      * @param source the peer that produced the event.

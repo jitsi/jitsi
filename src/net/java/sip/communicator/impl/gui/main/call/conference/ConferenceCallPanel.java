@@ -11,9 +11,10 @@ import java.util.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
+import net.java.sip.communicator.impl.gui.main.call.CallPeerAdapter;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -112,7 +113,7 @@ public class ConferenceCallPanel
      */
     private void addLocalCallPeer()
     {
-        ConferencePeerPanel localPeerPanel
+        final ConferencePeerPanel localPeerPanel
             = new ConferencePeerPanel(
                     callDialog, call.getProtocolProvider());
 
@@ -125,8 +126,17 @@ public class ConferenceCallPanel
 
         mainPanel.add(localPeerPanel, constraints);
 
-        GuiActivator.getMediaService().
-                addLocalUserSoundLevelListener(localPeerPanel);
+        call.addLocalUserSoundLevelListener(new SoundLevelListener<Long>()
+        {
+            public void soundLevelChanged(SoundLevelChangeEvent<Long> evt)
+            {
+                if(evt.getLevels().size() > 0)
+                {
+                    localPeerPanel.fireLocalUserSoundLevelChanged(
+                        evt.getLevels().values().iterator().next());
+                }
+            }
+        });
     }
 
     /**
@@ -140,8 +150,11 @@ public class ConferenceCallPanel
             = new ConferencePeerPanel(callDialog, peer);
 
         peer.addCallPeerConferenceListener(confPeerPanel);
-        peer.addConferenceMembersSoundLevelListener(confPeerPanel);
-        peer.addStreamSoundLevelListener(confPeerPanel);
+
+        peer.addConferenceMembersSoundLevelListener(
+            confPeerPanel.getConferenceMembersSoundLevelListener());
+        peer.addStreamSoundLevelListener(
+            confPeerPanel.getStreamSoundLevelListener());
 
         // Map the call peer to its renderer.
         callPeerPanels.put(peer, confPeerPanel);
@@ -195,9 +208,11 @@ public class ConferenceCallPanel
         // Remove the renderer component.
         mainPanel.remove(confPeerPanel);
 
-        peer.removeConferenceMembersSoundLevelListener(confPeerPanel);
         peer.removeCallPeerConferenceListener(confPeerPanel);
-        peer.removeStreamSoundLevelListener(confPeerPanel);
+        peer.removeConferenceMembersSoundLevelListener(
+            confPeerPanel.getConferenceMembersSoundLevelListener());
+        peer.removeStreamSoundLevelListener(
+            confPeerPanel.getStreamSoundLevelListener());
 
         // Remove all common listeners.
         CallPeerAdapter adapter = confPeerPanel.getCallPeerAdapter();

@@ -257,42 +257,43 @@ public interface CallPeer
         CallPeerConferenceListener listener);
 
     /**
-     * Adds a specific <tt>StreamSoundLevelListener</tt> to the list of
+     * Adds a specific <tt>SoundLevelListener</tt> to the list of
      * listeners interested in and notified about changes in stream sound level
      * related information.
      * 
-     * @param listener the <tt>StreamSoundLevelListener</tt> to add
+     * @param listener the <tt>SoundLevelListener</tt> to add
      */
-    public void addStreamSoundLevelListener(StreamSoundLevelListener listener);
+    public void addStreamSoundLevelListener(
+        SoundLevelListener<Long> listener);
 
     /**
-     * Removes a specific <tt>StreamSoundLevelListener</tt> of the list of
+     * Removes a specific <tt>SoundLevelListener</tt> of the list of
      * listeners interested in and notified about changes in stream sound level
      * related information.
      * 
-     * @param listener the <tt>StreamSoundLevelListener</tt> to remove
+     * @param listener the <tt>SoundLevelListener</tt> to remove
      */
     public void removeStreamSoundLevelListener(
-        StreamSoundLevelListener listener);
+        SoundLevelListener<Long> listener);
 
     /**
-     * Adds a specific <tt>ConferenceMembersSoundLevelListener</tt> to the list
+     * Adds a specific <tt>SoundLevelListener</tt> to the list
      * of listeners interested in and notified about changes in conference
      * members sound level.
      * 
-     * @param listener the <tt>ConferenceMembersSoundLevelListener</tt> to add
+     * @param listener the <tt>SoundLevelListener</tt> to add
      */
     public void addConferenceMembersSoundLevelListener(
-        ConferenceMembersSoundLevelListener listener);
+        SoundLevelListener<ConferenceMember> listener);
 
     /**
-     * Removes a specific <tt>ConferenceMembersSoundLevelListener</tt> of the
+     * Removes a specific <tt>SoundLevelListener</tt> of the
      * list of listeners interested in and notified about changes in conference
      * members sound level.
      * 
-     * @param listener the <tt>ConferenceMembersSoundLevelListener</tt> to
+     * @param listener the <tt>SoundLevelListener</tt> to
      * remove
      */
     public void removeConferenceMembersSoundLevelListener(
-        ConferenceMembersSoundLevelListener listener);
+        SoundLevelListener<ConferenceMember> listener);
 }

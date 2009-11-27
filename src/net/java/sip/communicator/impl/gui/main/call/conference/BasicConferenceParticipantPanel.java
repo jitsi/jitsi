@@ -58,8 +58,8 @@ public class BasicConferenceParticipantPanel
      * The component showing the sound level of the participant.
      */
     private final SoundLevelIndicator soundIndicator
-        = new SoundLevelIndicator(  ConferenceMembersSoundLevelEvent.MIN_LEVEL,
-                                    ConferenceMembersSoundLevelEvent.MAX_LEVEL);
+        = new SoundLevelIndicator(  SoundLevelChangeEvent.MIN_LEVEL,
+                                    SoundLevelChangeEvent.MAX_LEVEL);
 
     private final GridBagConstraints constraints = new GridBagConstraints();
 

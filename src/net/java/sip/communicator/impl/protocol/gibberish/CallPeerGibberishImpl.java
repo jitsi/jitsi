@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.gibberish;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * A Gibberish implementation of the <tt>CallPeer</tt> interface.
@@ -31,6 +32,18 @@ public class CallPeerGibberishImpl
      * A string uniquely identifying the peer.
      */
     private String peerID;
+
+    /**
+     * A list of listeners registered for stream user sound level events.
+     */
+    private final List<SoundLevelListener> soundLevelListeners
+        = new Vector<SoundLevelListener>();
+
+    /**
+     * A list of listeners registered for stream user sound level events.
+     */
+    private final List<SoundLevelListener> confMemebrSoundLevelListeners
+        = new Vector<SoundLevelListener>();
 
     /**
      * Creates an instance of <tt>CallPeerGibberishImpl</tt> by specifying the
@@ -157,5 +170,125 @@ public class CallPeerGibberishImpl
     public ProtocolProviderService getProtocolProvider()
     {
         return this.call.getProtocolProvider();
+    }
+
+    /**
+     * Adds a specific <tt>SoundLevelListener</tt> to the list of
+     * listeners interested in and notified about changes in stream sound level
+     * related information.
+     *
+     * @param listener the <tt>SoundLevelListener</tt> to add
+     */
+    public void addStreamSoundLevelListener(
+        SoundLevelListener<Long> listener)
+    {
+        synchronized(soundLevelListeners)
+        {
+            if (!soundLevelListeners.contains(listener))
+                soundLevelListeners.add(listener);
+        }
+    }
+
+    /**
+     * Removes a specific <tt>SoundLevelListener</tt> of the list of
+     * listeners interested in and notified about changes in stream sound level
+     * related information.
+     *
+     * @param listener the <tt>SoundLevelListener</tt> to remove
+     */
+    public void removeStreamSoundLevelListener(
+        SoundLevelListener<Long> listener)
+    {
+        synchronized(soundLevelListeners)
+        {
+            soundLevelListeners.remove(listener);
+        }
+    }
+
+    /**
+     * Adds a specific <tt>SoundLevelListener</tt> to the list
+     * of listeners interested in and notified about changes in conference
+     * members sound level.
+     *
+     * @param listener the <tt>SoundLevelListener</tt> to add
+     */
+    public void addConferenceMembersSoundLevelListener(
+        SoundLevelListener listener)
+    {
+        synchronized(confMemebrSoundLevelListeners)
+        {
+            if (!confMemebrSoundLevelListeners.contains(listener))
+                confMemebrSoundLevelListeners.add(listener);
+        }
+    }
+
+    /**
+     * Removes a specific <tt>SoundLevelListener</tt> of the
+     * list of listeners interested in and notified about changes in conference
+     * members sound level.
+     *
+     * @param listener the <tt>SoundLevelListener</tt> to
+     * remove
+     */
+    public void removeConferenceMembersSoundLevelListener(
+        SoundLevelListener listener)
+    {
+        synchronized(confMemebrSoundLevelListeners)
+        {
+            confMemebrSoundLevelListeners.remove(listener);
+        }
+    }
+
+    /**
+     * Fires a <tt>StreamSoundLevelEvent</tt> and notifies all registered
+     * listeners.
+     *
+     * @param level the new sound level
+     */
+    void fireStreamSoundLevelEvent(int level)
+    {
+        Map<Long,Integer> lev = new HashMap<Long, Integer>();
+        lev.put(0l, level);
+        SoundLevelChangeEvent<Long> event
+            = new SoundLevelChangeEvent<Long>(this, lev);
+
+        SoundLevelListener<Long>[] ls;
+
+        synchronized(soundLevelListeners)
+        {
+            ls = soundLevelListeners.toArray(
+                new SoundLevelListener[soundLevelListeners.size()]);
+        }
+
+        for (SoundLevelListener<Long> listener : ls)
+        {
+            listener.soundLevelChanged(event);
+        }
+    }
+
+    /**
+     * Fires a <tt>StreamSoundLevelEvent</tt> and notifies all registered
+     * listeners.
+     *
+     * @param levels the new sound levels
+     */
+    void fireConferenceMembersSoundLevelEvent(
+        Map<ConferenceMember,Integer> levels)
+    {
+        SoundLevelChangeEvent<ConferenceMember> event
+            = new SoundLevelChangeEvent<ConferenceMember>(this, levels);
+
+        SoundLevelListener<ConferenceMember>[] ls;
+
+        synchronized(confMemebrSoundLevelListeners)
+        {
+            ls = confMemebrSoundLevelListeners.toArray(
+                new SoundLevelListener[confMemebrSoundLevelListeners.size()]);
+        }
+
+        for (SoundLevelListener<ConferenceMember> listener : ls)
+        {
+            listener.soundLevelChanged(event);
+        }
     }
 }

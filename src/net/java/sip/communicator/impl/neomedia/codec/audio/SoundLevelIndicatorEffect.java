@@ -18,6 +18,9 @@ import javax.media.format.*;
 public class SoundLevelIndicatorEffect
     implements Effect
 {
+    /**
+     * The supported audio formats by this effect.
+     */
     private Format[] supportedAudioFormats;
 
     /**
@@ -30,14 +33,59 @@ public class SoundLevelIndicatorEffect
      */
     private AudioFormat outputFormat;
 
+    /**
+     * The ratio we will scale the levels, to come to desired
+     * boundaries.
+     */
     private double levelRatio;
 
+    /**
+     * The maximum level we can get as a result after compute.
+     */
     private static int MAX_SOUND_LEVEL = Short.MAX_VALUE;
+
+    /**
+     * The minimum level we can get as a result after compute.
+     */
     private static int MIN_SOUND_LEVEL = Short.MIN_VALUE;
 
+    /**
+     * This is the last level we fired.
+     */
     private int lastLevel = 0;
 
+    /**
+     * The maimum level that we can fire.
+     */
+    private int maxOutputLevel = 0;
+
+    /**
+     * The minimum level that we can fire.
+     */
+    private int minOutputLevel = 0;
+
+    /**
+     * The listener for the levels.
+     */
     private SoundLevelIndicatorListener listener = null;
+
+    /**
+     * The dispatcher of the events, handle the calculation and the
+     * evnent firing in different thread.
+     */
+    private SliEventDispatcher eventDispatcher = null;
+
+    /**
+     * The increase percentage. The increase cannot be done with more than this
+     * value in percents.
+     */
+    private final static double INC_LEVEL = 0.4;
+
+    /**
+     * The decrease percentage. The decrease cannot be done with more than this
+     * value in percents.
+     */
+    private final static double DEC_LEVEL = 0.2;
 
     /**
      * The minimum and maximum values of the scale
@@ -49,8 +97,11 @@ public class SoundLevelIndicatorEffect
         SoundLevelIndicatorListener listener)
     {
         this.listener = listener;
+        this.maxOutputLevel = maxLevel;
+        this.minOutputLevel = minLevel;
 
-        levelRatio = MAX_SOUND_LEVEL/(maxLevel - minLevel);
+        // magic ratio which scales good visually our levels
+        levelRatio = MAX_SOUND_LEVEL/(maxLevel - minLevel)/16;
 
         supportedAudioFormats = new Format[]{
             new AudioFormat(
@@ -64,6 +115,18 @@ public class SoundLevelIndicatorEffect
                 Format.NOT_SPECIFIED,
                 Format.byteArray)
             };
+    }
+
+    /**
+     * Calculates the ration we will use.
+     * @param minLevel
+     * @param maxLevel
+     * @return
+     */
+    private static int getLevelRatio(int minLevel, int maxLevel)
+    {
+        // magic ratio which scales good visually our levels
+        return MAX_SOUND_LEVEL/(maxLevel - minLevel)/16;
     }
 
     /**
@@ -83,7 +146,18 @@ public class SoundLevelIndicatorEffect
      */
     public Format[] getSupportedOutputFormats(Format input)
     {
-        return supportedAudioFormats;
+        return new Format[]{
+            new AudioFormat(
+                AudioFormat.LINEAR,
+                ((AudioFormat)input).getSampleRate(),
+                16,
+                1,
+                AudioFormat.LITTLE_ENDIAN,
+                AudioFormat.SIGNED,
+                16,
+                Format.NOT_SPECIFIED,
+                Format.byteArray)
+            };
     }
 
     /**
@@ -103,7 +177,7 @@ public class SoundLevelIndicatorEffect
      * @return The <code>Format</code> that was set.
      */
     public Format setOutputFormat(Format format)
-    {
+    {   
         this.outputFormat = (AudioFormat)format;
         return outputFormat;
     }
@@ -120,8 +194,11 @@ public class SoundLevelIndicatorEffect
     public int process(Buffer inputBuffer, Buffer outputBuffer)
     {
         byte[] b = new byte[inputBuffer.getLength()];
-        System.arraycopy(inputBuffer.getData(), inputBuffer.getOffset(), b, 0, b.length);
+        System.arraycopy(
+            inputBuffer.getData(), inputBuffer.getOffset(), b, 0, b.length);
         outputBuffer.setData(b);
+
+        eventDispatcher.addData(b);
 
         outputBuffer.setFormat(inputBuffer.getFormat());
         outputBuffer.setLength(inputBuffer.getLength());
@@ -134,15 +211,27 @@ public class SoundLevelIndicatorEffect
         outputBuffer.setEOM(inputBuffer.isEOM());
         outputBuffer.setDuration(inputBuffer.getDuration());
 
-        int newLevel = calculateCurrentSignalPower(
-            b, 0, b.length, levelRatio);
-
-        if(newLevel != lastLevel)
-            listener.soundLevelChanged(newLevel);
-
-        lastLevel = newLevel;
-
         return BUFFER_PROCESSED_OK;
+    }
+
+    /**
+     * Estimates the signal power and use the levelRatio to
+     * scale it to the needed levels.
+     * @param buff the buffer with the data.
+     * @param offset the offset that data starts.
+     * @param len the length of the data
+     * @param maxOutLevel the maximum value of the result
+     * @param minOutLevel the minimum value of the result
+     * @param lastLevel the last level we calculated.
+     * @return the power of the signal in dB SWL.
+     */
+    public static int calculateCurrentSignalPower(
+        byte[] buff, int offset, int len, 
+        int maxOutLevel, int minOutLevel, int lastLevel)
+    {
+        return calculateCurrentSignalPower(buff, offset, len,
+            getLevelRatio(minOutLevel, maxOutLevel), 
+            maxOutLevel, minOutLevel, lastLevel);
     }
 
     /**
@@ -152,10 +241,14 @@ public class SoundLevelIndicatorEffect
      * @param offset the offset that data starts.
      * @param len the length of the data
      * @param levelRatio the ratio for scaling to the needed levels
+     * @param maxOutLevel the maximum value of the result
+     * @param minOutLevel the minimum value of the result
+     * @param lastLevel the last level we calculated.
      * @return the power of the signal in dB SWL.
      */
     public static int calculateCurrentSignalPower(
-        byte[] buff, int offset, int len, double levelRatio)
+        byte[] buff, int offset, int len, double levelRatio,
+        int maxOutLevel, int minOutLevel, int lastLevel)
     {
         if(len == 0)
             return 0;
@@ -178,8 +271,35 @@ public class SoundLevelIndicatorEffect
 
             absoluteMeanSoundLevel += Math.abs(soundLevel);
         }
+        
+        int result =
+            (int)(absoluteMeanSoundLevel/samplesNumber/levelRatio);
 
-        return (int)(absoluteMeanSoundLevel/samplesNumber/levelRatio);
+        if(result > maxOutLevel)
+            result = maxOutLevel;
+        int result2 = result;
+        // we don't allow to quick level changes
+        // the speed ot fthe change is controlled by
+        //
+        int diff = lastLevel - result;
+        if(diff >= 0)
+        {
+            int maxDiff = (int)(maxOutLevel*DEC_LEVEL);
+            if(diff > maxDiff)
+                result2 = lastLevel - maxDiff;
+            else
+                result2 = result;
+        }
+        else
+        {
+            int maxDiff = (int)(maxOutLevel*INC_LEVEL);
+            if(diff > maxDiff)
+                result2 = lastLevel + maxDiff;
+            else
+                result2 = result;
+        }
+
+        return result2;
     }
 
     /**
@@ -200,6 +320,10 @@ public class SoundLevelIndicatorEffect
     public void open()
         throws ResourceUnavailableException
     {
+        if(eventDispatcher == null)
+            eventDispatcher = new SliEventDispatcher();
+
+        new Thread(eventDispatcher).start();
     }
 
     /**
@@ -207,6 +331,12 @@ public class SoundLevelIndicatorEffect
      */
     public void close()
     {
+        synchronized(eventDispatcher)
+        {
+            eventDispatcher.stopped = true;
+            eventDispatcher.notifyAll();
+        }
+        eventDispatcher = null;
     }
 
     /**
@@ -276,5 +406,64 @@ public class SoundLevelIndicatorEffect
          * @param level the new level.
          */
         public void soundLevelChanged(int level);
+    }
+
+    /**
+     * We use different thread to compute and deliver sound levels
+     * so we wont delay the media processing thread.
+     */
+    private class SliEventDispatcher
+        implements Runnable
+    {
+        /**
+         * start/stop indicator.
+         */
+        boolean stopped = true;
+
+        /**
+         * The data to process.
+         */
+        byte[] data = null;
+
+        public void run()
+        {
+            stopped = false;
+            while(!stopped)
+            {
+                byte[] dataToProcess = null;
+                synchronized(this)
+                {
+                    if(data == null)
+                        try {
+                            wait();
+                        } catch (InterruptedException ie) {}
+
+                    dataToProcess = data;
+                    data = null;
+                }
+
+                if(dataToProcess != null)
+                {
+                    int newLevel = calculateCurrentSignalPower(
+                        dataToProcess, 0, dataToProcess.length,
+                        levelRatio, maxOutputLevel, minOutputLevel, lastLevel);
+
+                    if(newLevel != lastLevel)
+                        listener.soundLevelChanged(newLevel);
+
+                    lastLevel = newLevel;
+                }
+            }
+        }
+
+        /**
+         * Adds data to be processed.
+         * @param data
+         */
+        synchronized void addData(byte[] data)
+        {
+            this.data = data;
+            notifyAll();
+        }
     }
 }

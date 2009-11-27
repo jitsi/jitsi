@@ -19,7 +19,6 @@ import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.service.metahistory.*;
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
@@ -66,8 +65,6 @@ public class GuiActivator implements BundleActivator
     private static FileAccessService fileAccessService;
 
     private static DesktopService desktopService;
-
-    private static MediaService mediaService;
 
     private static final Map<Object, ProtocolProviderFactory>
         providerFactoriesMap = new Hashtable<Object, ProtocolProviderFactory>();
@@ -454,25 +451,6 @@ public class GuiActivator implements BundleActivator
         }
 
         return desktopService;
-    }
-
-    /**
-     * Returns the <tt>MediaService</tt> obtained from the bundle context.
-     *
-     * @return the <tt>MediaService</tt> obtained from the bundle context
-     */
-    public static MediaService getMediaService()
-    {
-        if (mediaService == null)
-        {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(MediaService.class.getName());
-
-            mediaService = (MediaService) bundleContext
-                .getService(serviceReference);
-        }
-
-        return mediaService;
     }
 
     /**

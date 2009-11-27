@@ -22,9 +22,15 @@ import net.java.sip.communicator.util.*;
 public class PortAudioRenderer
     implements  Renderer
 {
+    /**
+     * logger
+     */
     private static final Logger logger =
         Logger.getLogger(PortAudioRenderer.class);
 
+    /**
+     * Name of the renderer.
+     */
     private static final String name = "PortAudio Renderer";
 
     /**
@@ -39,13 +45,29 @@ public class PortAudioRenderer
     private static double[] supportedSampleRates =
         new double[]{8000, 16000, 22050, 44100, 48000};
 
+    /**
+     * The renderer controls.
+     */
     private Object [] controls = new Object[0];
+
+    /**
+     * The current input format of the renderer.
+     */
     private AudioFormat inputFormat;
 
+    /**
+     * Portaudio output stream currently in use.
+     */
     private OutputPortAudioStream stream = null;
 
+    /**
+     * Is renderer started.
+     */
     boolean started = false;
 
+    /**
+     * Index of the device we use and must use when creating stream.
+     */
     private static int deviceIndex = -1;
 
     /**

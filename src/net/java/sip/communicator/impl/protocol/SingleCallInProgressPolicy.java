@@ -97,6 +97,10 @@ public class SingleCallInProgressPolicy
          */
         public void callStateChanged(CallChangeEvent callChangeEvent)
         {
+            // we are interested only in CALL_STATE_CHANGEs
+            if(!callChangeEvent.getEventType().equals(CallChangeEvent.CALL_STATE_CHANGE))
+                return;
+
             SingleCallInProgressPolicy.this.callStateChanged(callChangeEvent);
         }
 
