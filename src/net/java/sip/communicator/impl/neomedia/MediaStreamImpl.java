@@ -22,6 +22,7 @@ import com.sun.media.rtp.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
+import net.java.sip.communicator.impl.neomedia.transform.csrc.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
@@ -173,6 +174,13 @@ public class MediaStreamImpl
 
         this.rtpConnector = new RTPTransformConnector(connector);
 
+        //register the transform engines that we will be using in this stream.
+        CsrcTransformEngine csrcEngine = new CsrcTransformEngine(this);
+
+
+        TransformEngineChain engineChain = new TransformEngineChain(
+            new TransformEngine[]{ csrcEngine });
+        rtpConnector.setEngine(engineChain);
 
     }
 
@@ -1357,15 +1365,15 @@ public class MediaStreamImpl
      * to contribute to the media that this stream is sending toward its remote
      * counter part. In other words, the method returns the list of CSRC IDs
      * that this stream will include in outgoing RTP packets. This method will
-     * return an empty <tt>List</tt> in case this stream is not part of a mixed
+     * return an <tt>null</tt> in case this stream is not part of a mixed
      * conference call.
      *
-     * @return a <tt>List</tt> array of CSRC IDs stored as <tt>Long</tt>
-     * instances and representing parties that are currently known to contribute
-     * to the media that this stream or an empty <tt>List</tt> in case this
-     * <tt>MediaStream</tt> is not part of a conference call.
+     * @return a <tt>long[]</tt> array of CSRC IDs representing parties that are
+     * currently known to contribute to the media that this stream is sending
+     * or an <tt>null</tt> in case this <tt>MediaStream</tt> is not part of a
+     * conference call.
      */
-    public List<Long> getLocalContributingSourceIDs()
+    public long[] getLocalContributingSourceIDs()
     {
         if( this.deviceSession == null)
             return null;
@@ -1385,7 +1393,14 @@ public class MediaStreamImpl
                 csrcList.add(csrc);
         }
 
-        return csrcList;
+        long[] csrcArray = new long[csrcList.size()];
+
+        for (int i = 0; i < csrcArray.length; i++)
+        {
+            csrcArray[i] = csrcList.get(i);
+        }
+
+        return csrcArray;
     }
 
     /**

@@ -21,36 +21,75 @@ public class CsrcTransformEngine
 {
     /**
      * The <tt>MediaStreamImpl</tt> that this transform engine was created to
-     * transform packets fro.
+     * transform packets for.
      */
     private final MediaStreamImpl mediaStream;
 
     /**
-     * Creates
-     * @param stream
+     * Creates an engine instance that will be adding CSRC lists to the
+     * specified <tt>stream</tt>.
+     *
+     * @param stream that <tt>MediaStream</tt> whose RTP packets we are going
+     * to be adding CSRC lists. to
      */
     public CsrcTransformEngine(MediaStreamImpl stream)
     {
         this.mediaStream = stream;
     }
 
+    /**
+     * Always returns <tt>null</tt> since this engine does not require any
+     * RTCP transformations.
+     *
+     * @return <tt>null</tt> since this engine does not require any
+     * RTCP transformations.
+     */
     public PacketTransformer getRTCPTransformer()
     {
         return null;
     }
 
+    /**
+     * Returns a reference to this class since it is performing RTP
+     * transformations in here.
+     *
+     * @return a reference to <tt>this</tt> instance of the
+     * <tt>CsrcTransformEngine</tt>.
+     */
     public PacketTransformer getRTPTransformer()
     {
         return this;
     }
 
+    /**
+     * Extracts the list of CSRC identifiers and passes it to the
+     * <tt>MediaStream</tt> associated with this engine. Other than that the
+     * method does not do any transformations since CSRC lists are part of
+     * RFC 3550 and they shouldn't be disrupting the rest of the application.
+     *
+     * @param pkt the RTP <tt>RawPacket</tt> that we are to extract a CSRC list
+     * from.
+     *
+     * @return the same <tt>RawPacket</tt> that was received as a parameter
+     * since we don't need to worry about hiding the CSRC list from the rest
+     * of the RTP stack.
+     */
     public RawPacket reverseTransform(RawPacket pkt)
     {
         return pkt;
     }
 
+    /**
+     * Extracts the list of CSRC identifiers representing participants currently
+     * contributing to the media being sent by the <tt>MediaStream</tt>
+     * associated with this engine and (unless the list is empty) encodes them
+     * into the <tt>RawPacket</tt>.
+     *
+     * @param pkt the RTP <tt>RawPacket</tt> that we need to add a CSRC list to.
+     */
     public RawPacket transform(RawPacket pkt)
     {
+        pkt.setCsrcList(this.mediaStream.getLocalContributingSourceIDs() );
         return null;
     }
 
