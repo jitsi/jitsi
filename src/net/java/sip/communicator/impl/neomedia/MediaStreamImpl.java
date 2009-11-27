@@ -573,7 +573,14 @@ public class MediaStreamImpl
                 bc.setMinimumThreshold(100);
             }
 
+            //Emil: if you replace this method with another init method make
+            //sure you check that the line below still works.
             rtpManager.initialize(rtpConnector);
+
+            //JMF inits the local SSRC upon initialize(RTPConnector) so now's
+            //the time to ask:
+            setLocalSourceID(Long.toHexString(
+                            (((RTPSessionMgr)rtpManager).getLocalSSRC())));
 
             createSendStreams();
         }
@@ -1323,6 +1330,7 @@ public class MediaStreamImpl
         String oldValue = this.localSourceID;
         this.localSourceID = ssrc;
 
+System.out.println("old local ssrc = " + oldValue + " newLocalSSRC= " + localSourceID );
         firePropertyChange(PNAME_LOCAL_SSRC, oldValue, ssrc);
     }
 
@@ -1338,6 +1346,7 @@ public class MediaStreamImpl
         String oldValue = this.remoteSourceID;
         this.remoteSourceID = ssrc;
 
+System.out.println("old remote ssrc = " + oldValue + " newRemoteSSRC= " + remoteSourceID );
         firePropertyChange(PNAME_REMOTE_SSRC, oldValue, ssrc);
     }
 }
