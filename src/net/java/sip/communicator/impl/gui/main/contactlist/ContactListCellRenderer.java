@@ -112,10 +112,9 @@ public class ContactListCellRenderer
 
         this.setOpaque(false);
         this.nameLabel.setOpaque(false);
-
         this.nameLabel.setIconTextGap(2);
 
-        this.nameLabel.setPreferredSize(new Dimension(10, 17));
+        this.nameLabel.setPreferredSize(new Dimension(10, 20));
 
         this.rightLabel.setFont(rightLabel.getFont().deriveFont(9f));
         this.rightLabel.setHorizontalAlignment(JLabel.RIGHT);
