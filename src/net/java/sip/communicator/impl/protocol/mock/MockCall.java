@@ -154,7 +154,7 @@ public class MockCall
      * @param l the <tt>SoundLevelListener</tt> to add
      */
     public void addLocalUserSoundLevelListener(
-        SoundLevelListener<Long> l)
+        SoundLevelListener l)
     {
         
     }
@@ -166,7 +166,7 @@ public class MockCall
      * @param l the <tt>SoundLevelListener</tt> to remove
      */
     public void removeLocalUserSoundLevelListener(
-        SoundLevelListener<Long> l)
+        SoundLevelListener l)
     {
 
     }

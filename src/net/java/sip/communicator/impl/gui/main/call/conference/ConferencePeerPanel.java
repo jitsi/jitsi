@@ -500,7 +500,7 @@ public class ConferencePeerPanel
     {
         if(conferenceMembersSoundLevelListener == null)
             conferenceMembersSoundLevelListener =
-                new ConferenceMembersSoundLevelListener();
+                new ConfMembersSoundLevelListener();
 
         return conferenceMembersSoundLevelListener;
     }
@@ -521,19 +521,19 @@ public class ConferencePeerPanel
      * Updates according sound level indicators to reflect the new member sound
      * level.
      */
-    private class ConferenceMembersSoundLevelListener
-        implements SoundLevelListener<ConferenceMember>
+    private class ConfMembersSoundLevelListener
+        implements ConferenceMembersSoundLevelListener
     {
-
         /**
          * Delivers <tt>SoundLevelChangeEvent</tt>s on conference member
          * sound level change.
          *
          * @param e the notification event containing the list of changes.
          */
-        public void soundLevelChanged(SoundLevelChangeEvent<ConferenceMember> e)
+        public void soundLevelChanged(
+            ConferenceMembersSoundLevelEvent event)
         {
-            Map<ConferenceMember, Integer> levels = e.getLevels();
+            Map<ConferenceMember, Integer> levels = event.getLevels();
 
             Iterator<Entry<ConferenceMember, ConferenceMemberPanel>>
                 memberPanelsIter = conferenceMembersPanels.entrySet().iterator();
@@ -551,14 +551,14 @@ public class ConferencePeerPanel
                 else
                     memberPanel.updateSoundBar(0);
             }
-        }   
+        }
     }
 
     /**
      * Updates the sound bar level to fit the new stream sound level.
      */
     private class StreamSoundLevelListener
-        implements SoundLevelListener<Long>
+        implements SoundLevelListener
     {
 
         /**
@@ -566,14 +566,13 @@ public class ConferencePeerPanel
          *
          * @param evt the notification event containing the list of changes.
          */
-        public void soundLevelChanged(SoundLevelChangeEvent<Long> evt)
+        public void soundLevelChanged(SoundLevelChangeEvent evt)
         {
             if (evt.getSource() instanceof CallPeer &&
                     ((CallPeer)evt.getSource()).isConferenceFocus())
                 return;
 
-            if(evt.getLevels().size() > 0)
-                updateSoundBar(evt.getLevels().values().iterator().next());
+            updateSoundBar(evt.getLevel());
         }
     }
 }

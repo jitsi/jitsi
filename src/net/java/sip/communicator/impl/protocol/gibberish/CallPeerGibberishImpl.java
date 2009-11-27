@@ -42,8 +42,9 @@ public class CallPeerGibberishImpl
     /**
      * A list of listeners registered for stream user sound level events.
      */
-    private final List<SoundLevelListener> confMemebrSoundLevelListeners
-        = new Vector<SoundLevelListener>();
+    private final List<ConferenceMembersSoundLevelListener>
+        confMemebrSoundLevelListeners
+            = new Vector<ConferenceMembersSoundLevelListener>();
 
     /**
      * Creates an instance of <tt>CallPeerGibberishImpl</tt> by specifying the
@@ -180,7 +181,7 @@ public class CallPeerGibberishImpl
      * @param listener the <tt>SoundLevelListener</tt> to add
      */
     public void addStreamSoundLevelListener(
-        SoundLevelListener<Long> listener)
+        SoundLevelListener listener)
     {
         synchronized(soundLevelListeners)
         {
@@ -197,7 +198,7 @@ public class CallPeerGibberishImpl
      * @param listener the <tt>SoundLevelListener</tt> to remove
      */
     public void removeStreamSoundLevelListener(
-        SoundLevelListener<Long> listener)
+        SoundLevelListener listener)
     {
         synchronized(soundLevelListeners)
         {
@@ -213,7 +214,7 @@ public class CallPeerGibberishImpl
      * @param listener the <tt>SoundLevelListener</tt> to add
      */
     public void addConferenceMembersSoundLevelListener(
-        SoundLevelListener listener)
+        ConferenceMembersSoundLevelListener listener)
     {
         synchronized(confMemebrSoundLevelListeners)
         {
@@ -231,7 +232,7 @@ public class CallPeerGibberishImpl
      * remove
      */
     public void removeConferenceMembersSoundLevelListener(
-        SoundLevelListener listener)
+        ConferenceMembersSoundLevelListener listener)
     {
         synchronized(confMemebrSoundLevelListeners)
         {
@@ -247,12 +248,10 @@ public class CallPeerGibberishImpl
      */
     void fireStreamSoundLevelEvent(int level)
     {
-        Map<Long,Integer> lev = new HashMap<Long, Integer>();
-        lev.put(0l, level);
-        SoundLevelChangeEvent<Long> event
-            = new SoundLevelChangeEvent<Long>(this, lev);
+        SoundLevelChangeEvent event
+            = new SoundLevelChangeEvent(this, level);
 
-        SoundLevelListener<Long>[] ls;
+        SoundLevelListener[] ls;
 
         synchronized(soundLevelListeners)
         {
@@ -260,7 +259,7 @@ public class CallPeerGibberishImpl
                 new SoundLevelListener[soundLevelListeners.size()]);
         }
 
-        for (SoundLevelListener<Long> listener : ls)
+        for (SoundLevelListener listener : ls)
         {
             listener.soundLevelChanged(event);
         }
@@ -275,18 +274,19 @@ public class CallPeerGibberishImpl
     void fireConferenceMembersSoundLevelEvent(
         Map<ConferenceMember,Integer> levels)
     {
-        SoundLevelChangeEvent<ConferenceMember> event
-            = new SoundLevelChangeEvent<ConferenceMember>(this, levels);
+        ConferenceMembersSoundLevelEvent event
+            = new ConferenceMembersSoundLevelEvent(this, levels);
 
-        SoundLevelListener<ConferenceMember>[] ls;
+        ConferenceMembersSoundLevelListener[] ls;
 
         synchronized(confMemebrSoundLevelListeners)
         {
             ls = confMemebrSoundLevelListeners.toArray(
-                new SoundLevelListener[confMemebrSoundLevelListeners.size()]);
+                new ConferenceMembersSoundLevelListener[
+                        confMemebrSoundLevelListeners.size()]);
         }
 
-        for (SoundLevelListener<ConferenceMember> listener : ls)
+        for (ConferenceMembersSoundLevelListener listener : ls)
         {
             listener.soundLevelChanged(event);
         }

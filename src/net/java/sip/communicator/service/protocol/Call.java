@@ -330,8 +330,7 @@ public abstract class Call
      * related information.
      * @param l the <tt>SoundLevelListener</tt> to add
      */
-    public abstract void addLocalUserSoundLevelListener(
-        SoundLevelListener<Long> l);
+    public abstract void addLocalUserSoundLevelListener(SoundLevelListener l);
 
     /**
      * Removes a specific <tt>SoundLevelListener</tt> of the list of
@@ -339,6 +338,5 @@ public abstract class Call
      * related information.
      * @param l the <tt>SoundLevelListener</tt> to remove
      */
-    public abstract void removeLocalUserSoundLevelListener(
-        SoundLevelListener<Long> l);
+    public abstract void removeLocalUserSoundLevelListener(SoundLevelListener l);
 }

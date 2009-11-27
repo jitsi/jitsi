@@ -7,26 +7,25 @@
 package net.java.sip.communicator.service.protocol.event;
 
 import java.util.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
- * <tt>SoundLevelChangeEvent</tt>s are distributed to
- * <tt>SoundLevelChangeListener</tt> during calls and only by those
- * which support the feature. A single event instance contains the new
- * sound level values for one or more participants being mixed by the remote
- * party. Every participant is represented by an SSRC <tt>String</tt> identifier
- * which corresponds to the SSRC field that it is using when communicating with
- * the mixer. If a certain SSRC identifier is reported in a particular
- * <tt>SoundLevelChangeEvent</tt> and is not present in a following instance
- * should be interpreted as a sound-level value of 0 for that participant.
+ * <tt>SoundLevelChangeEvent</tt>s are triggered whenever a change occurs in the
+ * sound level of the audio stream coming from a certain <tt>CallPeer</tt>.
  * <p>
- * Listeners should assume that the absence of sound level events indicates the
- * absence of changes in the sound level of all known call participants.
+ * In the case of a <tt>CallPeer</tt>, which is also a conference focus and
+ * is participating in the conference as a <tt>ConferenceMember</tt> the level
+ * would be the aggregated level of all <tt>ConferenceMember</tt>s levels
+ * including the one corresponding to the peer itself.
+ * <p>
+ * In the case of a <tt>CallPeer</tt>, which is also a conference focus, but
+ * is NOT participating in the conference as a <tt>ConferenceMember</tt>
+ * (server) the level would be the aggregated level of all attached
+ * <tt>ConferenceMember</tt>s.
  *
- * @param <T> type of the mappings to the levels, local ssrc which is Long
- *        or ConferenceMember when used for ConferenceMember listeners.
- * @author Emil Ivov
+ * @author Yana Stamcheva
  */
-public class SoundLevelChangeEvent<T>
+public class SoundLevelChangeEvent
     extends EventObject
 {
     /**
@@ -44,36 +43,31 @@ public class SoundLevelChangeEvent<T>
     public static final int MIN_LEVEL = 0;
 
     /**
-     * The mapping of SSRC identifiers to sound levels or ConferenceMembers
-     * to sound levels.
+     * The audio stream level, for the change of which this event is about.
      */
-    private final Map<T, Integer> levels;
+    private final int level;
 
     /**
-     * Creates a new instance of a <tt>SoundLevelChangeEvent</tt> for the
-     * specified source stream and level mappings.
+     * Creates an <tt>StreamSoundLevelEvent</tt> for the given <tt>callPeer</tt>
+     * by indicating the current sound level of the audio stream.
      *
-     * @param source
-     * @param levels
+     * @param source the source from which the change is received
+     * @param level the current sound level of the audio stream
      */
     public SoundLevelChangeEvent(Object source,
-                                 Map<T, Integer> levels)
+                                 int level)
     {
         super(source);
 
-        this.levels = levels;
+        this.level = level;
     }
 
     /**
-     * Returns the mapping of SSRC identifiers to sound levels. The map contains
-     * the SSRC identifiers of all participants whose sound levels have changed
-     * to non-zero values. All known participants that are not reported in the
-     * map are assumed to have zero values of their levels.
-     *
-     * @return a mapping of SSRC identifiers to sound levels.
+     * Returns the current sound level of the audio stream.
+     * @return the current sound level of the audio stream
      */
-    public Map<T, Integer> getLevels()
+    public int getLevel()
     {
-        return levels;
+        return level;
     }
 }

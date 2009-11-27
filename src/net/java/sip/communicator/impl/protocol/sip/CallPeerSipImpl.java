@@ -1688,7 +1688,7 @@ public class CallPeerSipImpl
      *
      * @param listener the <tt>SoundLevelListener</tt> to add
      */
-    public void addStreamSoundLevelListener(SoundLevelListener<Long> listener)
+    public void addStreamSoundLevelListener(SoundLevelListener listener)
     {
         // if we are not conference focus we just save the listeners
         // if we become focus we must add them.
@@ -1716,7 +1716,7 @@ public class CallPeerSipImpl
      *
      * @param listener the <tt>SoundLevelListener</tt> to remove
      */
-    public void removeStreamSoundLevelListener(SoundLevelListener<Long> listener)
+    public void removeStreamSoundLevelListener(SoundLevelListener listener)
     {
         SoundLevelListenerWrapperForStream sli = null;
 
@@ -1731,14 +1731,14 @@ public class CallPeerSipImpl
     }
 
     /**
-     * Adds a specific <tt>SoundLevelListener</tt> to the list
+     * Adds a specific <tt>ConferenceMembersSoundLevelListener</tt> to the list
      * of listeners interested in and notified about changes in conference
      * members sound level.
      *
-     * @param listener the <tt>SoundLevelListener</tt> to add
+     * @param listener the <tt>ConferenceMembersSoundLevelListener</tt> to add
      */
     public void addConferenceMembersSoundLevelListener(
-        SoundLevelListener listener)
+        ConferenceMembersSoundLevelListener listener)
     {
     }
 
@@ -1747,11 +1747,11 @@ public class CallPeerSipImpl
      * list of listeners interested in and notified about changes in conference
      * members sound level.
      *
-     * @param listener the <tt>SoundLevelListener</tt> to
+     * @param listener the <tt>ConferenceMembersSoundLevelListener</tt> to
      * remove
      */
     public void removeConferenceMembersSoundLevelListener(
-        SoundLevelListener listener)
+        ConferenceMembersSoundLevelListener listener)
     {
     }
 
@@ -1822,14 +1822,14 @@ public class CallPeerSipImpl
         /**
          * The wrapped listener.
          */
-        private SoundLevelListener<Long> listener;
+        private SoundLevelListener listener;
 
         /**
          * Create the wrapper.
          * @param listener
          */
         public SoundLevelListenerWrapperForStream(
-            SoundLevelListener<Long> listener)
+            SoundLevelListener listener)
         {
             this.listener = listener;
         }
@@ -1845,9 +1845,11 @@ public class CallPeerSipImpl
         {
             Map<Long,Integer> levels = evt.getLevels();
 
-            listener.soundLevelChanged(
-                new SoundLevelChangeEvent<Long>(
-                    CallPeerSipImpl.this, levels));
+            if(!levels.isEmpty())
+                listener.soundLevelChanged(
+                    new SoundLevelChangeEvent(
+                        CallPeerSipImpl.this,
+                        levels.values().iterator().next()));
         }
     }
 }

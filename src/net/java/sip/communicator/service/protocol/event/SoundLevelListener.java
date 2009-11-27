@@ -9,23 +9,35 @@ package net.java.sip.communicator.service.protocol.event;
 import java.util.*;
 
 /**
- * This listener allows interested parties to register for events notifying them
- * that the sound level for a conference participant currently being mixed by
- * our interlocutor has changed.
+ * Notifies interested parties in sound level changes of the main audio stream
+ * coming from a given <tt>CallPeer</tt>.
+ * <p>
+ * What does this mean in the different cases:
+ * 1) In the case of a <tt>CallPeer</tt>, which is not a conference focus and
+ * has no <tt>ConferenceMember</tt>s we would be notified of any change in the
+ * sound level of the stream coming from this peer.
+ * 2) In the case of a <tt>CallPeer</tt>, which is also a conference focus and
+ * is participating in the conference as a <tt>ConferenceMember</tt> the level
+ * would be the aggregated level of all <tt>ConferenceMember</tt>s levels
+ * including the one corresponding to the peer itself.
+ * 3) In the case of a <tt>CallPeer</tt>, which is also a conference focus, but
+ * is NOT participating in the conference as a <tt>ConferenceMember</tt>
+ * (server) the level would be the aggregated level of all
+ * <tt>ConferenceMember</tt>s.
  *
- * @param <T> Long or ConferenceMember type mapping with sound levels.
- * @author Emil Ivov
+ * @author Yana Stamcheva
  */
-public interface SoundLevelListener<T>
+public interface SoundLevelListener
     extends EventListener
 {
 
-    /**
-     * Delivers <tt>SoundLevelChangeEvent</tt>s to the implementing class. These
-     * events may be delivered if the remote party is a mixer which supports
-     * the RTP sound levels extension.
+     /**
+     * Indicates that a change has occurred in the audio stream level coming
+     * from a given <tt>CallPeer</tt>. In the case of conference focus the audio
+     * stream level would be the total level including all
+     * <tt>ConferenceMember</tt>s levels.
      *
-     * @param evt the notification event containing the list of changes.
+     * @param event the <tt>StreamSoundLevelEvent</tt> containing the new level
      */
-    public void soundLevelChanged(SoundLevelChangeEvent<T> evt);
+    public void soundLevelChanged(SoundLevelChangeEvent event);
 }

@@ -126,15 +126,11 @@ public class ConferenceCallPanel
 
         mainPanel.add(localPeerPanel, constraints);
 
-        call.addLocalUserSoundLevelListener(new SoundLevelListener<Long>()
+        call.addLocalUserSoundLevelListener(new SoundLevelListener()
         {
-            public void soundLevelChanged(SoundLevelChangeEvent<Long> evt)
+            public void soundLevelChanged(SoundLevelChangeEvent evt)
             {
-                if(evt.getLevels().size() > 0)
-                {
-                    localPeerPanel.fireLocalUserSoundLevelChanged(
-                        evt.getLevels().values().iterator().next());
-                }
+                localPeerPanel.fireLocalUserSoundLevelChanged(evt.getLevel());
             }
         });
     }

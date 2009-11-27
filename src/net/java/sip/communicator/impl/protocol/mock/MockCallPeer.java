@@ -125,7 +125,7 @@ public class MockCallPeer
      * @param listener the <tt>SoundLevelListener</tt> to add
      */
     public void addStreamSoundLevelListener(
-        SoundLevelListener<Long> listener)
+        SoundLevelListener listener)
     {
         
     }
@@ -138,7 +138,7 @@ public class MockCallPeer
      * @param listener the <tt>SoundLevelListener</tt> to remove
      */
     public void removeStreamSoundLevelListener(
-        SoundLevelListener<Long> listener)
+        SoundLevelListener listener)
     {
         
     }
@@ -151,7 +151,7 @@ public class MockCallPeer
      * @param listener the <tt>SoundLevelListener</tt> to add
      */
     public void addConferenceMembersSoundLevelListener(
-        SoundLevelListener listener)
+        ConferenceMembersSoundLevelListener listener)
     {
         
     }
@@ -165,7 +165,7 @@ public class MockCallPeer
      * remove
      */
     public void removeConferenceMembersSoundLevelListener(
-        SoundLevelListener listener)
+        ConferenceMembersSoundLevelListener listener)
     {
         
     }

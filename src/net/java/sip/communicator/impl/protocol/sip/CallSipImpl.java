@@ -699,7 +699,7 @@ public class CallSipImpl
      * related information.
      * @param l the <tt>SoundLevelListener</tt> to add
      */
-    public void addLocalUserSoundLevelListener(SoundLevelListener<Long> l)
+    public void addLocalUserSoundLevelListener(SoundLevelListener l)
     {
         LocalSoundLevelListener sli = new LocalSoundLevelListener(l);
         synchronized(localSoundLevelListeners)
@@ -752,12 +752,12 @@ public class CallSipImpl
         /**
          * Holds the listener we wrap.
          */
-        private SoundLevelListener<Long> soundLevelListener;
+        private SoundLevelListener soundLevelListener;
 
         /**
          * @param soundLevelListener the listener we wrap.
          */
-        public LocalSoundLevelListener(SoundLevelListener<Long> soundLevelListener)
+        public LocalSoundLevelListener(SoundLevelListener soundLevelListener)
         {
             this.soundLevelListener = soundLevelListener;
         }
@@ -772,9 +772,12 @@ public class CallSipImpl
         public void soundLevelChanged(
                 net.java.sip.communicator.service.neomedia.event.SoundLevelChangeEvent evt)
         {
-            soundLevelListener.soundLevelChanged(
-                new SoundLevelChangeEvent<Long>(
-                    CallSipImpl.this, evt.getLevels()));
+            // there must be one level in the result
+            if(!evt.getLevels().isEmpty())
+                soundLevelListener.soundLevelChanged(
+                    new SoundLevelChangeEvent(
+                        CallSipImpl.this,
+                        evt.getLevels().values().iterator().next()));
         }
     }
 }

@@ -263,8 +263,7 @@ public interface CallPeer
      * 
      * @param listener the <tt>SoundLevelListener</tt> to add
      */
-    public void addStreamSoundLevelListener(
-        SoundLevelListener<Long> listener);
+    public void addStreamSoundLevelListener(SoundLevelListener listener);
 
     /**
      * Removes a specific <tt>SoundLevelListener</tt> of the list of
@@ -273,8 +272,7 @@ public interface CallPeer
      * 
      * @param listener the <tt>SoundLevelListener</tt> to remove
      */
-    public void removeStreamSoundLevelListener(
-        SoundLevelListener<Long> listener);
+    public void removeStreamSoundLevelListener(SoundLevelListener listener);
 
     /**
      * Adds a specific <tt>SoundLevelListener</tt> to the list
@@ -284,7 +282,7 @@ public interface CallPeer
      * @param listener the <tt>SoundLevelListener</tt> to add
      */
     public void addConferenceMembersSoundLevelListener(
-        SoundLevelListener<ConferenceMember> listener);
+        ConferenceMembersSoundLevelListener listener);
 
     /**
      * Removes a specific <tt>SoundLevelListener</tt> of the
@@ -295,5 +293,5 @@ public interface CallPeer
      * remove
      */
     public void removeConferenceMembersSoundLevelListener(
-        SoundLevelListener<ConferenceMember> listener);
+        ConferenceMembersSoundLevelListener listener);
 }

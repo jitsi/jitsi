@@ -336,28 +336,20 @@ public class OneToOneCallPeerPanel
 
         add(remoteLevelPanel, constraints);
 
-        this.callPeer.addStreamSoundLevelListener(new SoundLevelListener<Long>()
+        this.callPeer.addStreamSoundLevelListener(new SoundLevelListener()
         {
-            public void soundLevelChanged(SoundLevelChangeEvent<Long> event)
+            public void soundLevelChanged(SoundLevelChangeEvent event)
             {
-                Collection<Integer> levels = event.getLevels().values();
-
-                if(!levels.isEmpty())
-                    remoteLevelIndicator.updateSoundLevel(
-                        levels.iterator().next());
+                remoteLevelIndicator.updateSoundLevel(event.getLevel());
             }
         });
         
         this.callPeer.getCall().addLocalUserSoundLevelListener(
-        new SoundLevelListener<Long>()
+        new SoundLevelListener()
         {
-            public void soundLevelChanged(SoundLevelChangeEvent<Long> event)
+            public void soundLevelChanged(SoundLevelChangeEvent event)
             {
-                Collection<Integer> levels = event.getLevels().values();
-
-                if(!levels.isEmpty())
-                    localLevelIndicator.updateSoundLevel(
-                        levels.iterator().next());
+                localLevelIndicator.updateSoundLevel(event.getLevel());
             }
         });
     }
