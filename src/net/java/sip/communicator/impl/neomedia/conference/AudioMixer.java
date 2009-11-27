@@ -508,27 +508,7 @@ public class AudioMixer
      */
     Time getDuration()
     {
-        Time duration = null;
-
-        synchronized (inputDataSources)
-        {
-            for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
-            {
-                Time inputDuration
-                    = inputDataSourceDesc
-                            .getEffectiveInputDataSource().getDuration();
-
-                if (Duration.DURATION_UNBOUNDED.equals(inputDuration)
-                        || Duration.DURATION_UNKNOWN.equals(inputDuration))
-                    return inputDuration;
-
-                if ((duration == null)
-                        || (duration.getNanoseconds()
-                                < inputDuration.getNanoseconds()))
-                    duration = inputDuration;
-            }
-        }
-        return (duration == null) ? Duration.DURATION_UNKNOWN : duration;
+        return ((DataSource) captureDevice).getDuration();
     }
 
     /**

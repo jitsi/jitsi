@@ -124,7 +124,7 @@ public class MediaDeviceImpl
                 logger
                     .error(
                         "Failed to create CaptureDevice"
-                            + "from CaptureDeviceInfo "
+                            + " from CaptureDeviceInfo "
                             + captureDeviceInfo,
                         exception);
             else

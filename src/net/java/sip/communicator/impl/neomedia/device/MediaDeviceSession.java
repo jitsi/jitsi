@@ -210,7 +210,7 @@ public class MediaDeviceSession
      * @param receiveStreamDataSource the <tt>DataSource</tt> to be used for
      * accessing the media data of <tt>receiveStream</tt> during its playback
      */
-    protected void addReceiveStream(
+    protected synchronized void addReceiveStream(
             ReceiveStream receiveStream,
             DataSource receiveStreamDataSource)
     {
@@ -599,7 +599,7 @@ public class MediaDeviceSession
      * @return the <tt>DataSource</tt> that this instance uses to read captured
      * media from
      */
-    protected DataSource getCaptureDevice()
+    protected synchronized DataSource getCaptureDevice()
     {
         if (captureDevice == null)
             captureDevice = createCaptureDevice();
@@ -1028,7 +1028,7 @@ public class MediaDeviceSession
      * <tt>MediaDeviceSession</tt> and playback on the associated
      * <tt>MediaDevice</tt>
      */
-    public void removeReceiveStream(ReceiveStream receiveStream)
+    public synchronized void removeReceiveStream(ReceiveStream receiveStream)
     {
         DataSource receiveStreamDataSource
             = receiveStreams.remove(receiveStream);

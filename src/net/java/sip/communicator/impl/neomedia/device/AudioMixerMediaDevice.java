@@ -108,7 +108,7 @@ public class AudioMixerMediaDevice
      * @return the <tt>AudioMixer</tt> which performs audio mixing in this
      * <tt>MediaDevice</tt> (and rather the session it represents)
      */
-    private AudioMixer getAudioMixer()
+    private synchronized AudioMixer getAudioMixer()
     {
         if (audioMixer == null)
             audioMixer = new AudioMixer(device.createCaptureDevice())
