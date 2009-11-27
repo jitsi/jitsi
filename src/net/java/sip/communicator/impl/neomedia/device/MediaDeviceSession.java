@@ -54,6 +54,13 @@ public class MediaDeviceSession
     public static final String OUTPUT_DATA_SOURCE = "OUTPUT_DATA_SOURCE";
 
     /**
+     * The name of the property that corresponds to the array of SSRC
+     * identifiers that we store in this <tt>MediaDeviceSession</tt> instance
+     * and that we update upon adding and removing <tt>ReceiveStream</tt>
+     */
+    public static final String SSRC_LIST = "SSRC_LIST";
+
+    /**
      * The JMF <tt>DataSource</tt> of {@link #device} through which this
      * instance accesses the media captured by it.
      */
@@ -144,6 +151,12 @@ public class MediaDeviceSession
         = new HashMap<ReceiveStream, DataSource>();
 
     /**
+     * The list of SSRC identifiers representing the parties that we are
+     * currently handling receive streams from.
+     */
+    private long[] ssrcList = null;
+
+    /**
      * The <tt>MediaDirection</tt> in which this <tt>MediaDeviceSession</tt> has
      * been started.
      */
@@ -226,6 +239,8 @@ public class MediaDeviceSession
         if (logger.isTraceEnabled())
             logger.trace(
                     "Added ReceiveStream with ssrc " + receiveStream.getSSRC());
+
+        addSSRC(receiveStream.getSSRC());
 
         synchronized (players)
         {
@@ -1033,6 +1048,8 @@ public class MediaDeviceSession
         DataSource receiveStreamDataSource
             = receiveStreams.remove(receiveStream);
 
+        removeSSRC(receiveStream.getSSRC());
+
         if ((receiveStreamDataSource != null)
                 && !receiveStreams.containsValue(receiveStreamDataSource))
             synchronized (players)
@@ -1375,16 +1392,111 @@ public class MediaDeviceSession
      */
     public long[] getRemoteSSRCList()
     {
-        List<ReceiveStream> streams
-            = new LinkedList<ReceiveStream>(this.receiveStreams.keySet());
-        long[] ssrcIDList = new long[streams.size()];
+        return ssrcList;
+    }
 
-        for ( int i = 0; i < ssrcIDList.length; i++)
+    /**
+     * Adds <tt>ssrc</tt> to the array of SSRC identifiers representing parties
+     * that this <tt>MediaDeviceSession</tt> is currently receiving streams
+     * from.
+     *
+     * @param ssrc the new SSRC identifier that we'd like to add to the array of
+     * <tt>ssrc</tt> identifiers stored by this session.
+     */
+    private void addSSRC(long ssrc)
+    {
+        //init if necessary
+        if ( ssrcList == null)
         {
-            ReceiveStream stream = streams.get(i);
-            ssrcIDList[i] = stream.getSSRC();
+            setSsrcList(new long[]{ssrc});
+            return;
         }
 
-        return ssrcIDList;
+        //check whether we already have this ssrc
+        for ( long i : ssrcList)
+        {
+            if ( i == ssrc)
+                return;
+        }
+
+        //resize the array and add the new ssrc to the end.
+        long[] newSsrcList = new long[ssrcList.length + 1];
+
+        System.arraycopy(ssrcList, 0, newSsrcList, 0, ssrcList.length);
+        newSsrcList[newSsrcList.length - 1] = ssrc;
+
+        setSsrcList(newSsrcList);
+    }
+
+    /**
+     * Removes <tt>ssrc</tt> from the array of SSRC identifiers representing
+     * parties that this <tt>MediaDeviceSession</tt> is currently receiving
+     * streams from.
+     *
+     * @param ssrc the SSRC identifier that we'd like to remove from the array
+     * of <tt>ssrc</tt> identifiers stored by this session.
+     */
+    private void removeSSRC(long ssrc)
+    {
+        //find the ssrc
+        int index = -1;
+
+        if (ssrcList == null || ssrcList.length == 0)
+        {
+            //list is already empty so there's nothing to do.
+            return;
+        }
+
+        for (int i = 0; i < ssrcList.length; i++)
+        {
+            if (ssrcList[i] == ssrc)
+            {
+                index = i;
+                break;
+            }
+        }
+
+        if (index < 0 || index >= ssrcList.length)
+        {
+            //the ssrc we are trying to remove is not in the list so there's
+            //nothing to do.
+            return;
+        }
+
+        //if we get here and the list has a single element this would mean we
+        //simply need to empty it as the only element is the one we are removing
+        if (ssrcList.length == 1)
+        {
+            setSsrcList(null);
+            return;
+        }
+
+        long[] newSsrcList = new long[ssrcList.length];
+
+        System.arraycopy(ssrcList, 0, newSsrcList, 0, index);
+        if (index < ssrcList.length - 1)
+        {
+            System.arraycopy(ssrcList,    index + 1,
+                             newSsrcList, index,
+                             ssrcList.length - index - 1);
+        }
+
+        setSsrcList(newSsrcList);
+    }
+
+    /**
+     * Sets the list of SSRC identifiers that this device stores to
+     * <tt>newSsrcList</tt> and fires a <tt>PropertyChangeEvent</tt> for the
+     * <tt>SSRC_LIST</tt> property.
+     *
+     * @param newSsrcList that SSRC array that we'd like to replace the existing
+     * SSRC list with.
+     */
+    private void setSsrcList(long[] newSsrcList)
+    {
+        long[] oldSsrcList = ssrcList;
+        ssrcList = newSsrcList;
+
+        firePropertyChange(SSRC_LIST, oldSsrcList, newSsrcList);
     }
 }

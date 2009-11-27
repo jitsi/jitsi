@@ -18,6 +18,7 @@ import net.java.sip.communicator.impl.neomedia.protocol.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Implements a <tt>MediaDevice</tt> which performs audio mixing using
@@ -279,10 +280,8 @@ public class AudioMixerMediaDevice
             else
                 receiveStreamDataSourceForPlayback = receiveStreamDataSource;
 
-            super
-                .addReceiveStream(
-                    receiveStream,
-                    receiveStreamDataSourceForPlayback);
+            super.addReceiveStream( receiveStream,
+                                    receiveStreamDataSourceForPlayback);
         }
 
         /**
@@ -336,6 +335,7 @@ public class AudioMixerMediaDevice
      */
     private static class MediaStreamMediaDeviceSession
         extends MediaDeviceSession
+        implements PropertyChangeListener
     {
 
         /**
@@ -366,6 +366,8 @@ public class AudioMixerMediaDevice
             this.audioMixerMediaDeviceSession = audioMixerMediaDeviceSession;
             this.audioMixerMediaDeviceSession
                     .addMediaStreamMediaDeviceSession(this);
+
+            this.audioMixerMediaDeviceSession.addPropertyChangeListener(this);
         }
 
         /**
@@ -459,6 +461,22 @@ public class AudioMixerMediaDevice
             return audioMixerMediaDeviceSession.getRemoteSSRCList();
         }
 
-
+        /**
+         * The method relays <tt>PropertyChangeEvent</tt>s indicating a change
+         * in the SSRC_LIST in the encapsulated mixer device so that the
+         * <tt>MediaStream</tt> that uses this device session can update its
+         * CSRC list.
+         *
+         * @param evt that <tt>PropertyChangeEvent</tt> whose old and new value
+         * we will be relaying to the stream.
+         */
+        public void propertyChange(PropertyChangeEvent evt)
+        {
+            if (MediaDeviceSession.SSRC_LIST.equals(evt.getPropertyName()))
+            {
+                firePropertyChange(MediaDeviceSession.SSRC_LIST,
+                                evt.getOldValue(), evt.getNewValue());
+            }
+        }
     }
 }

@@ -140,10 +140,16 @@ public class MediaStreamImpl
     private long localSourceID = -1;
 
     /**
+     * The list of CSRC IDs contributing to the media that this
+     * <tt>MediaStream</tt> is sending to its remote party.
+     */
+    private long[] localContributingSourceIDList = null;
+
+    /**
      * The list of CSRC IDs that the remote party reported as contributing to
      * the media they are sending toward us.
      */
-    private long[] remoteContributingSourceIDList = new long[0];
+    private long[] remoteContributingSourceIDList = null;
 
     /**
      * The indicator which determines whether this <tt>MediaStream</tt> is set
@@ -360,6 +366,9 @@ public class MediaStreamImpl
                     if (MediaDeviceSession
                             .OUTPUT_DATA_SOURCE.equals(event.getPropertyName()))
                         deviceSessionOutputDataSourceChanged();
+                    else if (MediaDeviceSession
+                                    .SSRC_LIST.equals(event.getPropertyName()))
+                                    deviceSessionSsrcListChanged(event);
                 }
             };
         deviceSession
@@ -395,6 +404,71 @@ public class MediaStreamImpl
     private void deviceSessionOutputDataSourceChanged()
     {
         recreateSendStreams();
+    }
+
+    /**
+     * Recalculates the list of CSRC identifiers that this <tt>MediaStream</tt>
+     * needs to include in RTP packets bound to its interlocutor. The method
+     * uses the list of SSRC identifiers currently handled by our device
+     * (possibly a mixer), then removes the SSRC ID of this stream's
+     * interlocutor. If this turns out to be the only SSRC currently in the list
+     * we set the list of local CSRC identifiers to null since this is obviously
+     * a non-conf call and we don't need to be advertising CSRC lists. If that's
+     * not the case, we also add our own SSRC to the list of IDs and cache the
+     * entire list.
+     *
+     * @param evt the <tt>PropetyChangeEvent</tt> containing the list of SSRC
+     * identifiers handled by our device session before and after it changed.
+     *
+     */
+    private void deviceSessionSsrcListChanged(PropertyChangeEvent evt)
+    {
+        long[] ssrcArray = (long[])evt.getNewValue();
+        int elementsToRemove = 0;
+        long remoteSrcID = this.getRemoteSourceID();
+
+        //in case of a conf call the mixer would return all SSRC IDs that are
+        //currently contributing including this stream's counterpart. We need
+        //to remove that last one since that's where we will be sending our
+        //csrc list
+        for(long csrc : ssrcArray)
+        {
+            if (csrc == remoteSrcID)
+            {
+                elementsToRemove ++;
+            }
+        }
+
+        //we don't seem to be in a conf call since the list only contains the
+        //SSRC id of the party that we are directly interacting with.
+        if (elementsToRemove >= ssrcArray.length)
+        {
+            this.localContributingSourceIDList = null;
+            return;
+        }
+
+        //prepare the new array. make it big enough to also add the local
+        //SSRC id but do not make it bigger than 15 since that's the maximum
+        //for RTP.
+        int cc = Math.min(ssrcArray.length - elementsToRemove + 1, 15);
+
+        long[] csrcArray = new long[cc];
+
+        for (int i = 0,j = 0;
+                i < ssrcArray.length
+             && j < csrcArray.length - 1;
+             i++)
+        {
+            long ssrc = ssrcArray[i];
+            if (ssrc != remoteSrcID)
+            {
+                csrcArray[j] = ssrc;
+                j++;
+            }
+        }
+
+        csrcArray[csrcArray.length - 1] = getLocalSourceID();
+        this.localContributingSourceIDList = csrcArray;
     }
 
     /**
@@ -714,9 +788,9 @@ public class MediaStreamImpl
                 startedDirection = deviceSession.getStartedDirection();
 
                 if (deviceSessionPropertyChangeListener != null)
-                    deviceSession
-                        .removePropertyChangeListener(
+                    deviceSession.removePropertyChangeListener(
                             deviceSessionPropertyChangeListener);
+
                 deviceSession.close();
                 deviceSession = null;
             }
@@ -1375,42 +1449,7 @@ public class MediaStreamImpl
      */
     public long[] getLocalContributingSourceIDs()
     {
-        if( this.deviceSession == null)
-            return null;
-        MediaDeviceSession deviceSession = getDeviceSession();
-
-        long[] ssrcArray = deviceSession.getRemoteSSRCList();
-        List<Long> csrcList = new ArrayList<Long>(ssrcArray.length);
-
-        //in case of a conf call the mixer would return all SSRC IDs that are
-        //currently contributing including this stream's counterpart. This
-        //method is about
-        for(long csrc : ssrcArray)
-        {
-            if (csrc != this.getRemoteSourceID())
-            {
-                csrcList.add(csrc);
-            }
-            else
-            {
-            }
-        }
-
-        //now add our own ID since we are also participating in the call.
-        csrcList.add(getLocalSourceID());
-
-        int cc = csrcList.size();
-        if ( cc == 0)
-            return null;
-
-        long[] csrcArray = new long[cc];
-
-        for (int i = 0; i < csrcArray.length; i++)
-        {
-            csrcArray[i] = csrcList.get(i);
-        }
-
-        return csrcArray;
+        return localContributingSourceIDList;
     }
 
     /**
