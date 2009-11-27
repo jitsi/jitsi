@@ -24,6 +24,7 @@ import net.java.sip.communicator.service.neomedia.format.*;
  * {@link AudioMixer}.
  *
  * @author Lubomir Marinov
+ * @author Emil Ivov
  */
 public class AudioMixerMediaDevice
     extends AbstractMediaDevice
@@ -441,5 +442,23 @@ public class AudioMixerMediaDevice
         {
             audioMixerMediaDeviceSession.removeReceiveStream(receiveStream);
         }
+
+        /**
+         * Returns the list of SSRC identifiers that are directly contributing
+         * to the media flows that we are sending out. Note that since this is
+         * a pseudo device we would simply be delegating the call to the
+         * corresponding method of the master mixer device session.
+         *
+         * @return a <tt>List</tt> of SSRC identifiers (in a hexadecimal
+         * <tt>String</tt> form) that are currently contributing to the mixer
+         * encapsulated by this device session.
+         */
+        @Override
+        public List<String> getRemoteSSRCList()
+        {
+            return audioMixerMediaDeviceSession.getRemoteSSRCList();
+        }
+
+
     }
 }
