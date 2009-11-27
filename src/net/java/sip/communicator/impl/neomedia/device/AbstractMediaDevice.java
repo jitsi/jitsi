@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.neomedia.device;
 
+import java.io.*;
+
 import javax.media.protocol.*;
 
 import net.java.sip.communicator.service.neomedia.device.*;
@@ -45,6 +47,37 @@ public abstract class AbstractMediaDevice
             return new VideoMediaDeviceSession(this);
         default:
             return new MediaDeviceSession(this);
+        }
+    }
+
+    /**
+     * Connects to a specific <tt>CaptureDevice</tt> given in the form of a
+     * <tt>DataSource</tt>. Explicitly defined in order to allow extenders to
+     * customize the connect procedure.
+     *
+     * @param captureDevice the <tt>CaptureDevice</tt> to be connected to
+     * @throws IOException if anything wrong happens while connecting to the
+     * specified <tt>captureDevice</tt>
+     */
+    public void connect(DataSource captureDevice)
+        throws IOException
+    {
+        if (captureDevice == null)
+            throw new NullPointerException("captureDevice");
+        try
+        {
+            captureDevice.connect();
+        }
+        catch (NullPointerException npe)
+        {
+            /*
+             * The old media says it happens when the operating system does not
+             * support the operation.
+             */
+            IOException ioe = new IOException();
+
+            ioe.initCause(npe);
+            throw ioe;
         }
     }
 }

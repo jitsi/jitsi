@@ -265,8 +265,9 @@ public class AudioMixer
                 for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
                     try
                     {
-                        inputDataSourceDesc
-                            .getEffectiveInputDataSource().connect();
+                        connect(
+                            inputDataSourceDesc.getEffectiveInputDataSource(),
+                            inputDataSourceDesc.inputDataSource);
                     }
                     catch (IOException ioe)
                     {
@@ -283,6 +284,26 @@ public class AudioMixer
 
             connected++;
         }
+    }
+
+    /**
+     * Connects to a specific <tt>DataSource</tt> which this <tt>AudioMixer<tt>
+     * will read audio from. The specified <tt>DataSource</tt> is known to exist
+     * because of a specific <tt>DataSource</tt> added as an input to this
+     * instance i.e. it may be an actual input <tt>DataSource</tt> added to this
+     * instance or a <tt>DataSource</tt> transcoding an input
+     * <tt>DataSource</tt> added to this instance.
+     *
+     * @param dataSource the <tt>DataSource</tt> to connect to
+     * @param inputDataSource the <tt>DataSource</tt> which is the cause for
+     * <tt>dataSource</tt> to exist in this <tt>AudioMixer</tt>
+     * @throws IOException if anything wrong happens while connecting to
+     * <tt>dataSource</tt>
+     */
+    protected void connect(DataSource dataSource, DataSource inputDataSource)
+        throws IOException
+    {
+        dataSource.connect();
     }
 
     /**

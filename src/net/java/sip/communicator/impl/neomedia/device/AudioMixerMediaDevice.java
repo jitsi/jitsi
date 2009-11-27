@@ -69,7 +69,7 @@ public class AudioMixerMediaDevice
      * Those threads contain the listeners that are interested for sound level
      * changes of the particular received stream.
      */
-    private Hashtable<ReceiveStream, StreamSliEventDispatcher>
+    private final Map<ReceiveStream, StreamSliEventDispatcher>
         streamSoundLevelListeners
             = new Hashtable<ReceiveStream, StreamSliEventDispatcher>();
 
@@ -83,16 +83,54 @@ public class AudioMixerMediaDevice
     public AudioMixerMediaDevice(MediaDeviceImpl device)
     {
         if (!MediaType.AUDIO.equals(device.getMediaType()))
-            throw new IllegalArgumentException("device");
+            throw
+                new IllegalArgumentException(
+                        "device must be of MediaType AUDIO");
 
         /*
          * AudioMixer is initialized with a CaptureDevice so we have to be sure
          * that the wrapped device can provide one.
          */
         if (!device.getDirection().allowsSending())
-            throw new IllegalArgumentException("device");
+            throw
+                new IllegalArgumentException("device must be able to capture");
 
         this.device = device;
+    }
+
+    /**
+     * Connects to a specific <tt>CaptureDevice</tt> given in the form of a
+     * <tt>DataSource</tt>.
+     *
+     * @param captureDevice the <tt>CaptureDevice</tt> to be connected to
+     * @throws IOException if anything wrong happens while connecting to the
+     * specified <tt>captureDevice</tt>
+     * @see AbstractMediaDevice#connect(DataSource)
+     */
+    @Override
+    public void connect(DataSource captureDevice)
+        throws IOException
+    {
+        DataSource effectiveCaptureDevice = captureDevice;
+
+        /*
+         * Unwrap wrappers of the captureDevice until
+         * AudioMixingPushBufferDataSource is found.
+         */
+        if (captureDevice instanceof PushBufferDataSourceDelegate<?>)
+            captureDevice
+                = ((PushBufferDataSourceDelegate<?>) captureDevice)
+                    .getDataSource();
+
+        /*
+         * AudioMixingPushBufferDataSource is definitely not a CaptureDevice
+         * and does not need the special connecting defined by
+         * AbstractMediaDevice and MediaDeviceImpl.
+         */
+        if (captureDevice instanceof AudioMixingPushBufferDataSource)
+            effectiveCaptureDevice.connect();
+        else
+            device.connect(effectiveCaptureDevice);
     }
 
     /**
@@ -137,6 +175,22 @@ public class AudioMixerMediaDevice
         if (audioMixer == null)
             audioMixer = new AudioMixer(device.createCaptureDevice())
             {
+                @Override
+                protected void connect(
+                        DataSource dataSource,
+                        DataSource inputDataSource)
+                    throws IOException
+                {
+                    /*
+                     * CaptureDevice needs special connecting as defined by
+                     * AbstractMediaDevice and, especially, MediaDeviceImpl.
+                     */
+                    if (inputDataSource == captureDevice)
+                        AudioMixerMediaDevice.this.connect(dataSource);
+                    else
+                        super.connect(dataSource, inputDataSource);
+                }
+
                 @Override
                 protected void read(
                         PushBufferStream stream,

@@ -691,20 +691,12 @@ public class MediaDeviceSession
 
             try
             {
-                captureDevice.connect();
+                getDevice().connect(captureDevice);
             }
             catch (IOException ioe)
             {
                 // TODO
                 exception = ioe;
-            }
-            catch (NullPointerException npe)
-            {
-                /*
-                 * TODO The old media says it happens when the operating system
-                 * does not support the operation.
-                 */
-                exception = npe;
             }
 
             if (exception == null)

@@ -87,6 +87,49 @@ public class MediaDeviceImpl
     }
 
     /**
+     * Connects to a specific <tt>CaptureDevice</tt> given in the form of a
+     * <tt>DataSource</tt>.
+     *
+     * @param captureDevice the <tt>CaptureDevice</tt> to be connected to
+     * @throws IOException if anything wrong happens while connecting to the
+     * specified <tt>captureDevice</tt>
+     * @see AbstractMediaDevice#connect(DataSource)
+     */
+    @Override
+    public void connect(DataSource captureDevice)
+        throws IOException
+    {
+        super.connect(captureDevice);
+
+        /*
+         * 1. Changing buffer size. The default buffer size (for JavaSound) is
+         * 125 milliseconds - 1/8 sec. On Mac OS X this leads to an exception
+         * and no audio capture. A value of 30 for the buffer fixes the problem
+         * and is OK when using some PSTN gateways.
+         *
+         * 2. Changing to 60. When it is 30 there are some issues with Asterisk
+         * and NAT (we don't start to send stream and so Asterisk RTP part
+         * doesn't notice that we are behind NAT).
+         *
+         * 3. Do not set buffer length on Linux as it completely breaks audio
+         * capture.
+         */
+        String osName = System.getProperty("os.name");
+
+        if ((osName == null) || !osName.toLowerCase().contains("linux"))
+        {
+            Control bufferControl
+                = (Control)
+                    captureDevice
+                        .getControl("javax.media.control.BufferControl");
+
+            if (bufferControl != null)
+                ((BufferControl) bufferControl)
+                    .setBufferLength(60); // in milliseconds
+        }
+    }
+
+    /**
      * Creates the JMF <tt>CaptureDevice</tt> this instance represents and
      * provides an implementation of <tt>MediaDevice</tt> for.
      *
