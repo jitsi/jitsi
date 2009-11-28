@@ -91,8 +91,21 @@ public class TransformEngineChain
     private class PacketTransformerChain
         implements PacketTransformer
     {
+        /**
+         * Indicates whether this transformer will be dealing with RTP or,
+         * in other words, whether it will transform packets via the RTP
+         * transformers in this chain rather than the RTCP ones.
+         */
         private final boolean isRtp;
 
+        /**
+         * Creates an instance of this packet transformer and prepares it to
+         * deal with RTP or RTCP according to the <tt>isRtp</tt> arg.
+         *
+         * @param isRtp <tt>true</tt> if this transformer will be dealing with
+         * RTP (i.e. will transform packets via the RTP transformers in this
+         * chain rather than the RTCP ones) and <tt>false</tt> otherwise.
+         */
         public PacketTransformerChain(boolean isRtp)
         {
             this.isRtp = isRtp;

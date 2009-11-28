@@ -96,8 +96,9 @@ public class RTPConnectorImpl
                 target.getDataPort());
     }
 
-    /*
-     * Implements RTPConnector#close().
+    /**
+     * Closes all sockets, stream, and the <tt>StreamConnector</tt> that this
+     * <tt>RTPConnector</tt> is using.
      */
     public void close()
     {
@@ -170,8 +171,13 @@ public class RTPConnectorImpl
         return new RTPConnectorOutputStream(getDataSocket());
     }
 
-    /*
-     * Implements RTPConnector#getControlInputStream().
+    /**
+     * Returns the input stream that is handling incoming RTCP packets.
+     *
+     * @return the input stream that is handling incoming RTCP packets.
+     *
+     * @throws IOException if an error occurs during the creation of the RTCP
+     * packet input stream
      */
     public RTPConnectorInputStream getControlInputStream()
         throws IOException
@@ -200,8 +206,13 @@ public class RTPConnectorImpl
         return controlInputStream;
     }
 
-    /*
-     * Implements RTPConnector#getControlOutputStream().
+    /**
+     * Returns the input stream that is handling outgoing RTCP packets.
+     *
+     * @return the input stream that is handling outgoing RTCP packets.
+     *
+     * @throws IOException if an error occurs during the creation of the RTCP
+     * packet output stream
      */
     public RTPConnectorOutputStream getControlOutputStream()
         throws IOException
@@ -243,8 +254,13 @@ public class RTPConnectorImpl
         return controlSocket;
     }
 
-    /*
-     * Implements RTPConnector#getDataInputStream().
+    /**
+     * Returns the input stream that is handling incoming RTP packets.
+     *
+     * @return the input stream that is handling incoming RTP packets.
+     *
+     * @throws IOException if an error occurs during the creation of the RTP
+     * packet input stream
      */
     public RTPConnectorInputStream getDataInputStream()
         throws IOException
@@ -273,8 +289,12 @@ public class RTPConnectorImpl
         return dataInputStream;
     }
 
-    /*
-     * Implements RTPConnector#getDataOutputStream().
+    /**
+     * Returns the input stream that is handling outgoing RTP packets.
+     *
+     * @return the input stream that is handling outgoing RTP packets.
+     *
+     * @throws IOException if an error occurs during the creation of the RTP
      */
     public RTPConnectorOutputStream getDataOutputStream()
         throws IOException
@@ -315,8 +335,9 @@ public class RTPConnectorImpl
         return dataSocket;
     }
 
-    /*
-     * Implements RTPConnector#getReceiveBufferSize().
+    /**
+     * Provides a dummy implementation to {@link
+     * RTPConnector#getReceiveBufferSize()} that always returns <tt>-1</tt>.
      */
     public int getReceiveBufferSize()
     {
@@ -324,8 +345,9 @@ public class RTPConnectorImpl
         return -1;
     }
 
-    /*
-     * Implements RTPConnector#getRTCPBandwidthFraction().
+    /**
+     * Provides a dummy implementation to {@link
+     * RTPConnector#getRTCPBandwidthFraction()} that always returns <tt>-1</tt>.
      */
     public double getRTCPBandwidthFraction()
     {
@@ -333,8 +355,10 @@ public class RTPConnectorImpl
         return -1;
     }
 
-    /*
-     * Implements RTPConnector#getRTCPSenderBandwidthFraction().
+    /**
+     * Provides a dummy implementation to {@link
+     * RTPConnector#getRTCPSenderBandwidthFraction()} that always returns
+     * <tt>-1</tt>.
      */
     public double getRTCPSenderBandwidthFraction()
     {
@@ -342,8 +366,9 @@ public class RTPConnectorImpl
         return -1;
     }
 
-    /*
-     * Implements RTPConnector#getSendBufferSize().
+    /**
+     * Provides a dummy implementation to {@link
+     * RTPConnector#getSendBufferSize()} that always returns <tt>-1</tt>.
      */
     public int getSendBufferSize()
     {
@@ -385,8 +410,11 @@ public class RTPConnectorImpl
             dataOutputStream.removeTargets();
     }
 
-    /*
-     * Implements RTPConnector#setReceiveBufferSize(int).
+    /**
+     * Provides a dummy implementation to {@link
+     * RTPConnector#setReceiveBufferSize(int)}.
+     *
+     * @param size ignored.
      */
     public void setReceiveBufferSize(int size)
         throws IOException
@@ -394,8 +422,11 @@ public class RTPConnectorImpl
         // Nothing should be done here :-)
     }
 
-    /*
-     * Implements RTPConnector#setSendBufferSize(int).
+    /**
+     * Provides a dummy implementation to {@link
+     * RTPConnector#setSendBufferSize(int)}.
+     *
+     * @param size ignored.
      */
     public void setSendBufferSize(int size)
         throws IOException
