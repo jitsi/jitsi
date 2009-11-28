@@ -181,7 +181,7 @@ public interface MediaStream
      * Gets the existing associations in this <tt>MediaStream</tt> of RTP
      * payload types to <tt>MediaFormat</tt>s. The returned <tt>Map</tt>
      * only contains associations previously added in this instance with
-     * {@link #addDynamicRTPPayloadType(int, MediaFormat)} and not globally or
+     * {@link #addDynamicRTPPayloadType(byte, MediaFormat)} and not globally or
      * well-known associations reported by
      * {@link MediaFormat#getRTPPayloadType()}.
      *

@@ -526,7 +526,9 @@ public class CallPeerMediaHandler
 
                 if(direction != MediaDirection.INACTIVE)
                     mediaDescs.add(createMediaDescription(
-                        dev, getStreamConnector(mediaType), direction));
+                        dev.getSupportedFormats(),
+                        getStreamConnector(mediaType),
+                        direction));
             }
         }
 

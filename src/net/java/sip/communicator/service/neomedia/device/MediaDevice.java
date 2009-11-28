@@ -29,6 +29,16 @@ public interface MediaDevice
     public List<MediaFormat> getSupportedFormats();
 
     /**
+     * Returns the <tt>List</tt> of <tt>RTPExtension</tt>s that this device
+     * know how to handle.
+     *
+     * @return the <tt>List</tt> of <tt>RTPExtension</tt>s that this device
+     * know how to handle or <tt>null</tt> if the device does not support any
+     * RTP extensions.
+     */
+    public List<RTPExtension> getSupportedExtensions();
+
+    /**
      * Returns the <tt>MediaType</tt> that this device supports.
      *
      * @return <tt>MediaType.AUDIO</tt> if this is an audio device or

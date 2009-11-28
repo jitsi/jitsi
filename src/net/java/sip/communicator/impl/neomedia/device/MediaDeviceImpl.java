@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.neomedia.device;
 
 import java.io.*;
+import java.net.*;
 import java.util.*;
 
 import javax.media.*;
@@ -26,6 +27,7 @@ import net.java.sip.communicator.util.*;
  * Implements <tt>MediaDevice</tt> for the JMF <tt>CaptureDevice</tt>.
  *
  * @author Lubomir Marinov
+ * @author Emil Ivov
  */
 public class MediaDeviceImpl
     extends AbstractMediaDevice
@@ -39,7 +41,8 @@ public class MediaDeviceImpl
         = Logger.getLogger(MediaDeviceImpl.class);
 
     /**
-     * The <tt>CaptureDeviceInfo</tt> of {@link #captureDevice}.
+     * The <tt>CaptureDeviceInfo</tt> of the device that this instance is
+     * representing.
      */
     private CaptureDeviceInfo captureDeviceInfo;
 
@@ -48,6 +51,13 @@ public class MediaDeviceImpl
      * that it wraps.
      */
     private final MediaType mediaType;
+
+    /**
+     * The <tt>List</tt> of RTP extensions supported by this device (at the time
+     * of writing this list is only filled for audio devices and is
+     * <tt>null</tt> otherwise).
+     */
+    private List<RTPExtension> rtpExtensions = null;
 
     /**
      * Initializes a new <tt>MediaDeviceImpl</tt> instance with a specific
@@ -127,6 +137,43 @@ public class MediaDeviceImpl
                 ((BufferControl) bufferControl)
                     .setBufferLength(60); // in milliseconds
         }
+    }
+
+    /**
+     * A default implementation for the
+     * {@link MediaDevice#getSupportedExtensions()} method returning
+     * <tt>null</tt> and hence indicating support for no RTP extensions.
+     *
+     * @return <tt>null</tt>, indicating that this device does not support any
+     * RTP extensions.
+     */
+    public List<RTPExtension> getSupportedExtensions()
+    {
+        if ( getMediaType() != MediaType.AUDIO)
+            return null;
+
+        if ( rtpExtensions == null)
+        {
+            rtpExtensions = new ArrayList<RTPExtension>(1);
+
+            URI csrcAudioLevelURN;
+            try
+            {
+                csrcAudioLevelURN = new URI(RTPExtension.CSRC_AUDIO_LEVEL_URN);
+            }
+            catch (URISyntaxException e)
+            {
+                // can't happen since CSRC_AUDIO_LEVEL_URN is a valid URI and
+                // never changes.
+                logger.info("Aha! Someone messed with the source!", e);
+                return null;
+            }
+
+            rtpExtensions.add(new RTPExtension(
+                               csrcAudioLevelURN, MediaDirection.RECVONLY));
+        }
+
+        return rtpExtensions;
     }
 
     /**

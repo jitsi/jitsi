@@ -52,8 +52,9 @@ public class SoundLevelChangeEvent
      * Creates a new instance of a <tt>SoundLevelChangeEvent</tt> for the
      * specified source stream and level mappings.
      *
-     * @param source
-     * @param levels
+     * @param source the MediaStream that we are listening to and that generated
+     * this event.
+     * @param levels the <tt>Map</tt> containing SSRC to level bindings.
      */
     public SoundLevelChangeEvent(MediaStream source,
                                  Map<Long, Integer> levels)
