@@ -504,6 +504,20 @@ public class MediaDeviceSession
         return captureDevice;
     }
 
+    /**
+     * Creates a new <tt>Player</tt> for a specific <tt>DataSource</tt> which is
+     * known to be related to a specific <tt>ReceiveStream</tt>. The relation is
+     * in the sense that either the specified <tt>DataSource</tt> belongs to the
+     * specified <tt>ReceiveStream</tt> or it was determined as the appropriate
+     * playback source for the specified <tt>ReceiveStream</tt>
+     *
+     * @param receiveStream the <tt>ReceiveStream</tt> related to the specified
+     * <tt>DataSource</tt>
+     * @param receiveStreamDataSource the <tt>DataSource</tt> to create a new
+     * <tt>Player</tt> for
+     * @return a new <tt>Player</tt> for the specified
+     * <tt>receiveStreamDataSource</tt>
+     */
     private Processor createPlayer(
             ReceiveStream receiveStream,
             DataSource receiveStreamDataSource)
