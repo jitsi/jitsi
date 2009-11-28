@@ -946,12 +946,22 @@ public class AudioMixerMediaDevice
             while(!stopped)
             {
                 byte[] dataToProcess = null;
-                synchronized(this)
+
+                synchronized (this)
                 {
-                    if(data == null)
-                        try {
+                    boolean interrupted = false;
+
+                    while (data == null)
+                        try
+                        {
                             wait();
-                        } catch (InterruptedException ie) {}
+                        }
+                        catch (InterruptedException ie)
+                        {
+                            interrupted = true;
+                        }
+                    if (interrupted)
+                        Thread.currentThread().interrupt();
 
                     dataToProcess = data;
                     data = null;

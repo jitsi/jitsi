@@ -265,87 +265,39 @@ public class MediaDeviceSession
 
             if (player == null)
             {
-                Throwable exception = null;
+                /*
+                 * A Player is documented to be created on a connected
+                 * DataSource.
+                 */
+                Throwable exception;
 
                 try
                 {
-                    player = Manager.createProcessor(receiveStreamDataSource);
+                    receiveStreamDataSource.connect();
+                    exception = null;
                 }
-                catch (IOException ioe)
+                catch (IOException ioex)
                 {
-                    exception = ioe;
-                }
-                catch (NoPlayerException npe)
-                {
-                    exception = npe;
+                    // TODO
+                    exception = ioex;
                 }
 
-                if (exception != null)
-                    logger.error(
-                            "Failed to create player"
-                                + " for ReceiveStream with ssrc "
+                if (exception == null)
+                {
+                    player
+                        = createPlayer(receiveStream, receiveStreamDataSource);
+                    if (player == null)
+                        receiveStreamDataSource.disconnect();
+                    else
+                        players.put(receiveStreamDataSource, player);
+                }
+                else
+                    logger
+                        .error(
+                            "Failed to connect to DataSource"
+                                + " of ReceiveStream with ssrc "
                                 + receiveStream.getSSRC(),
                             exception);
-                else if (!waitForState(player, Processor.Configured))
-                    logger.error(
-                            "Failed to configure player"
-                                + " for ReceiveStream with ssrc "
-                                + receiveStream.getSSRC());
-                else
-                {
-                    boolean status = waitForState(player, Processor.Configured);
-
-                    if(status){
-                    //here we add sound level indicator for every incoming
-                    //stream
-                    try
-                    {
-                        TrackControl tcs[] = player.getTrackControls();
-                        if (tcs != null)
-                        {
-                            for (TrackControl tc : tcs)
-                            {
-                                if (tc.getFormat() instanceof AudioFormat)
-                                {
-                                    // Assume there is only one audio track
-                                    addSoundLevelIndicator(parentStream,tc);
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    catch (UnsupportedPlugInException ex)
-                    {
-                        logger.error("The processor does not support effects", ex);
-                    }}
-
-                    // to use the processor as player we must set its
-                    // content descriptor to null
-                    player.setContentDescriptor(null);
-
-                    if (waitForState(player, Processor.Realized))
-                    {
-                        player.start();
-
-                        realizeComplete(player);
-
-                        if (logger.isTraceEnabled())
-                            logger
-                                .trace(
-                                    "Created Player with hashCode "
-                                        + player.hashCode()
-                                        + " for ReceiveStream with ssrc "
-                                        + receiveStream.getSSRC());
-
-                        players.put(receiveStreamDataSource, player);
-                    }
-                    else
-                        logger
-                            .error(
-                                "Failed to realize player"
-                                    + " for ReceiveStream with ssrc "
-                                    + receiveStream.getSSRC());
-                }
             }
         }
     }
@@ -550,6 +502,92 @@ public class MediaDeviceSession
         }
 
         return captureDevice;
+    }
+
+    private Processor createPlayer(
+            ReceiveStream receiveStream,
+            DataSource receiveStreamDataSource)
+    {
+        Processor player = null;
+        Throwable exception = null;
+
+        try
+        {
+            player = Manager.createProcessor(receiveStreamDataSource);
+        }
+        catch (IOException ioe)
+        {
+            exception = ioe;
+        }
+        catch (NoPlayerException npe)
+        {
+            exception = npe;
+        }
+
+        if (exception != null)
+            logger.error(
+                    "Failed to create player for ReceiveStream with ssrc "
+                        + receiveStream.getSSRC(),
+                    exception);
+        else if (!waitForState(player, Processor.Configured))
+            logger.error(
+                    "Failed to configure player for ReceiveStream with ssrc "
+                        + receiveStream.getSSRC());
+        else
+        {
+            // Add sound level indicator for every incoming stream.
+            try
+            {
+                TrackControl tcs[] = player.getTrackControls();
+
+                if (tcs != null)
+                {
+                    for (TrackControl tc : tcs)
+                    {
+                        if (tc.getFormat() instanceof AudioFormat)
+                        {
+                            // Assume there is only one audio track
+                            addSoundLevelIndicator(parentStream, tc);
+                            break;
+                        }
+                    }
+                }
+            }
+            catch (UnsupportedPlugInException upiex)
+            {
+                logger.error("The processor does not support effects", upiex);
+            }
+
+            /*
+             * To use the processor as a Player we must set its
+             * ContentDescriptor to null.
+             */
+            player.setContentDescriptor(null);
+
+            if (waitForState(player, Processor.Realized))
+            {
+                player.start();
+
+                realizeComplete(player);
+
+                if (logger.isTraceEnabled())
+                    logger
+                        .trace(
+                            "Created Player with hashCode "
+                                + player.hashCode()
+                                + " for ReceiveStream with ssrc "
+                                + receiveStream.getSSRC());
+
+                return player;
+            }
+            else
+                logger
+                    .error(
+                        "Failed to realize player"
+                            + " for ReceiveStream with ssrc "
+                            + receiveStream.getSSRC());
+        }
+        return null;
     }
 
     /**

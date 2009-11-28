@@ -25,7 +25,7 @@ import net.java.sip.communicator.impl.neomedia.*;
  * @author Lubomir Marinov
  */
 public class TranscodingDataSource
-    extends DataSource
+    extends PushBufferDataSource
 {
 
     /**
@@ -66,7 +66,8 @@ public class TranscodingDataSource
         DataSource inputDataSource,
         Format outputFormat)
     {
-        super(inputDataSource.getLocator());
+        //super(inputDataSource.getLocator());
+        setLocator(inputDataSource.getLocator());
 
         this.inputDataSource = inputDataSource;
         this.outputFormat = outputFormat;
@@ -146,6 +147,7 @@ public class TranscodingDataSource
             throw new IOException("Couldn't realize transcoding processor.");
 
         DataSource outputDataSource = processor.getDataOutput();
+
         outputDataSource.connect();
 
         transcodingProcessor = processor;
@@ -254,17 +256,17 @@ public class TranscodingDataSource
      * @return an array of <tt>SourceStream</tt>s which represents the
      * collection of output streams that this instance provides
      */
-    public synchronized SourceStream[] getStreams()
+    public synchronized PushBufferStream[] getStreams()
     {
         if (outputDataSource instanceof PushBufferDataSource)
             return ((PushBufferDataSource) outputDataSource).getStreams();
-        if (outputDataSource instanceof PullBufferDataSource)
-            return ((PullBufferDataSource) outputDataSource).getStreams();
-        if (outputDataSource instanceof PushDataSource)
-            return ((PushDataSource) outputDataSource).getStreams();
-        if (outputDataSource instanceof PullDataSource)
-            return ((PullDataSource) outputDataSource).getStreams();
-        return new SourceStream[0];
+//        if (outputDataSource instanceof PullBufferDataSource)
+//            return ((PullBufferDataSource) outputDataSource).getStreams();
+//        if (outputDataSource instanceof PushDataSource)
+//            return ((PushDataSource) outputDataSource).getStreams();
+//        if (outputDataSource instanceof PullDataSource)
+//            return ((PullDataSource) outputDataSource).getStreams();
+        return new PushBufferStream[0];
     }
 
     /**

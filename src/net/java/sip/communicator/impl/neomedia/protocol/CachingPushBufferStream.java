@@ -299,7 +299,7 @@ public class CachingPushBufferStream
                  * outputs so the output duration may be different than the
                  * input duration. An alternative to Buffer.TIME_UNKNOWN is
                  * possibly the calculation of the output duration as the input
-                 * duration multiplied by the ration between the current output
+                 * duration multiplied by the ratio between the current output
                  * length and the initial input length.
                  */
                 output.setDuration(Buffer.TIME_UNKNOWN);
@@ -367,32 +367,17 @@ public class CachingPushBufferStream
         {
             boolean interrupted = false;
 
-            try
-            {
-                while (cache != null)
+            while (cache != null)
+                try
                 {
-//                    if (logger.isTraceEnabled())
-//                        logger
-//                            .trace(
-//                                "Blocking transferData of "
-//                                    + stream.getClass().getSimpleName()
-//                                    + " with hashCode "
-//                                    + stream.hashCode());
-                    try
-                    {
-                        syncRoot.wait();
-                    }
-                    catch (InterruptedException ie)
-                    {
-                        interrupted = true;
-                    }
+                    syncRoot.wait();
                 }
-            }
-            finally
-            {
-                if (interrupted)
-                    Thread.currentThread().interrupt();
-            }
+                catch (InterruptedException ie)
+                {
+                    interrupted = true;
+                }
+            if (interrupted)
+                Thread.currentThread().interrupt();
 
             cache = new Buffer();
 

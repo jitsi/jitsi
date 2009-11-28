@@ -214,15 +214,18 @@ public class AudioMixer
                  * connect to the new one as well.
                  */
                 if (connected > 0)
+                {
                     try
                     {
-                        inputDataSourceDesc
-                            .getEffectiveInputDataSource().connect();
+                        connect(
+                            inputDataSourceDesc.getEffectiveInputDataSource(),
+                            inputDataSourceDesc.inputDataSource);
                     }
                     catch (IOException ioe)
                     {
                         throw new UndeclaredThrowableException(ioe);
                     }
+                }
 
                 // Update outputStream with any new inputStreams.
                 if (outputStream != null)
@@ -262,25 +265,29 @@ public class AudioMixer
         synchronized (inputDataSources)
         {
             if (connected == 0)
+            {
                 for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
+                {
+                    DataSource effectiveInputDataSource
+                        = inputDataSourceDesc.getEffectiveInputDataSource();
+                    DataSource inputDataSource
+                        = inputDataSourceDesc.inputDataSource;
+
                     try
                     {
-                        connect(
-                            inputDataSourceDesc.getEffectiveInputDataSource(),
-                            inputDataSourceDesc.inputDataSource);
+                        connect(effectiveInputDataSource, inputDataSource);
                     }
                     catch (IOException ioe)
                     {
                         logger
                             .error(
                                 "Failed to connect to inputDataSource "
-                                    + MediaStreamImpl
-                                        .toString(
-                                            inputDataSourceDesc
-                                                .inputDataSource),
+                                    + MediaStreamImpl.toString(inputDataSource),
                                 ioe);
                         throw ioe;
                     }
+                }
+            }
 
             connected++;
         }
