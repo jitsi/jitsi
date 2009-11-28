@@ -25,7 +25,7 @@ import net.java.sip.communicator.impl.neomedia.*;
  * @author Lubomir Marinov
  */
 public class TranscodingDataSource
-    extends PushBufferDataSource
+    extends DataSource
 {
 
     /**
@@ -66,8 +66,7 @@ public class TranscodingDataSource
         DataSource inputDataSource,
         Format outputFormat)
     {
-        //super(inputDataSource.getLocator());
-        setLocator(inputDataSource.getLocator());
+        super(inputDataSource.getLocator());
 
         this.inputDataSource = inputDataSource;
         this.outputFormat = outputFormat;
@@ -256,17 +255,17 @@ public class TranscodingDataSource
      * @return an array of <tt>SourceStream</tt>s which represents the
      * collection of output streams that this instance provides
      */
-    public synchronized PushBufferStream[] getStreams()
+    public synchronized SourceStream[] getStreams()
     {
         if (outputDataSource instanceof PushBufferDataSource)
             return ((PushBufferDataSource) outputDataSource).getStreams();
-//        if (outputDataSource instanceof PullBufferDataSource)
-//            return ((PullBufferDataSource) outputDataSource).getStreams();
-//        if (outputDataSource instanceof PushDataSource)
-//            return ((PushDataSource) outputDataSource).getStreams();
-//        if (outputDataSource instanceof PullDataSource)
-//            return ((PullDataSource) outputDataSource).getStreams();
-        return new PushBufferStream[0];
+        if (outputDataSource instanceof PullBufferDataSource)
+            return ((PullBufferDataSource) outputDataSource).getStreams();
+        if (outputDataSource instanceof PushDataSource)
+            return ((PushDataSource) outputDataSource).getStreams();
+        if (outputDataSource instanceof PullDataSource)
+            return ((PullDataSource) outputDataSource).getStreams();
+        return new SourceStream[0];
     }
 
     /**
