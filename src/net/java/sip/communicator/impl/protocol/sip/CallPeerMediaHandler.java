@@ -173,11 +173,18 @@ public class CallPeerMediaHandler
     private URL callInfoURL = null;
 
     /**
-     * Contains all dynamic for payload type mappings that have been made for
-     * this call.
+     * Contains all dynamic payload type mappings that have been made for this
+     * call.
      */
     private final DynamicPayloadTypeRegistry dynamicPayloadTypes
         = new DynamicPayloadTypeRegistry();
+
+    /**
+     * Contains all RTP extension mappings (those made through the extmap
+     * attribute) that have been bound during this call.
+     */
+    private final DynamicRTPExtensionsRegistry rtpExtensionsRegistry
+        = new DynamicRTPExtensionsRegistry();
 
     /**
      * A list of listeners registered for local user sound level events.
@@ -518,17 +525,19 @@ public class CallPeerMediaHandler
 
             if (dev != null)
             {
-                MediaDirection direction
-                    = dev.getDirection().and(getDirectionUserPreference(mediaType));
+                MediaDirection direction = dev.getDirection().and(
+                                getDirectionUserPreference(mediaType));
 
                 if(locallyOnHold)
                     direction = direction.and(MediaDirection.SENDONLY);
 
                 if(direction != MediaDirection.INACTIVE)
-                    mediaDescs.add(createMediaDescription(
-                        dev.getSupportedFormats(),
-                        getStreamConnector(mediaType),
-                        direction));
+                    mediaDescs.add(
+                        createMediaDescription(
+                                        dev.getSupportedFormats(),
+                                        getStreamConnector(mediaType),
+                                        direction,
+                                        dev.getSupportedExtensions()));
             }
         }
 
@@ -1060,17 +1069,20 @@ public class CallPeerMediaHandler
      * for the stream represented by the description we are creating.
      * @param direction the <tt>MediaDirection</tt> that we'd like to establish
      * the stream in.
+     * @param extensions the list of <tt>RTPExtension</tt>s that we'd like to
+     * advertise in the <tt>MediaDescription</tt>.
      *
      * @return a newly created <tt>MediaDescription</tt> representing streams
-     * that we'd be able to handle with <tt>dev</tt>.
+     * that we'd be able to handle.
      *
      * @throws OperationFailedException if generating the
      * <tt>MediaDescription</tt> fails for some reason.
      */
     private MediaDescription createMediaDescription(
-                                                  List<MediaFormat> formats,
-                                                  StreamConnector   connector,
-                                                  MediaDirection    direction)
+                                             List<MediaFormat>  formats,
+                                             StreamConnector    connector,
+                                             MediaDirection     direction,
+                                             List<RTPExtension> extensions )
         throws OperationFailedException
     {
         return SdpUtils.createMediaDescription(
