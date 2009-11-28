@@ -1064,10 +1064,9 @@ public class CallPeerMediaHandler
      */
     private List<RTPExtension> getExtensionsForType(MediaType type)
     {
-        List<RTPExtension> supportedExtensions
-            = new ArrayList<RTPExtension>();
+        MediaDevice dev = getDefaultDevice(type);
 
-        return supportedExtensions;
+        return dev.getSupportedExtensions();
     }
 
     /**
