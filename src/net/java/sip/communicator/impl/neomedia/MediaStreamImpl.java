@@ -201,7 +201,7 @@ public class MediaStreamImpl
      * <tt>MediaStream</tt> with the specified <tt>MediaFormat</tt>
      * @param format the <tt>MediaFormat</tt> to be associated in this
      * <tt>MediaStream</tt> with <tt>rtpPayloadType</tt>
-     * @see MediaStream#addDynamicRTPPayloadType(int, MediaFormat)
+     * @see MediaStream#addDynamicRTPPayloadType(byte, MediaFormat)
      */
     public void addDynamicRTPPayloadType(
             byte rtpPayloadType,
@@ -258,7 +258,7 @@ public class MediaStreamImpl
 
     /**
      * Creates new <tt>SendStream</tt> instances for the streams of
-     * {@link #device} through {@link #rtpManager}.
+     * {@link #deviceSession} through {@link #rtpManager}.
      */
     private void createSendStreams()
     {
@@ -520,7 +520,7 @@ public class MediaStreamImpl
      * Gets the existing associations in this <tt>MediaStream</tt> of RTP
      * payload types to <tt>MediaFormat</tt>s. The returned <tt>Map</tt>
      * only contains associations previously added in this instance with
-     * {@link #addDynamicRTPPayloadType(int, MediaFormat)} and not globally or
+     * {@link #addDynamicRTPPayloadType(byte, MediaFormat)} and not globally or
      * well-known associations reported by
      * {@link MediaFormat#getRTPPayloadType()}.
      *

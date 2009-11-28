@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.neomedia.device;
 
 import java.io.*;
+import java.net.*;
 import java.util.*;
 
 import javax.media.*;
@@ -32,6 +33,12 @@ import net.java.sip.communicator.util.*;
 public class AudioMixerMediaDevice
     extends AbstractMediaDevice
 {
+    /**
+     * The <tt>Logger</tt> used by <tt>AudioMixerMediaDevice</tt> and its
+     * instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(AudioMixerMediaDevice.class);
 
     /**
      * The <tt>AudioMixer</tt> which performs audio mixing in this
@@ -63,6 +70,13 @@ public class AudioMixerMediaDevice
      * in a different thread.
      */
     private LocalSliEventDispatcher localEventsDispatcher = null;
+
+    /**
+     * The <tt>List</tt> of RTP extensions supported by this device (at the time
+     * of writing this list is only filled for audio devices and is
+     * <tt>null</tt> otherwise).
+     */
+    private List<RTPExtension> rtpExtensions = null;
 
     /**
      * Mapping between threads dispatching events and received streams.
@@ -160,6 +174,40 @@ public class AudioMixerMediaDevice
         if (deviceSession == null)
             deviceSession = new AudioMixerMediaDeviceSession();
         return new MediaStreamMediaDeviceSession(deviceSession);
+    }
+
+    /**
+     * Returns a <tt>List</tt> containing (at the time of writing) a single
+     * extension descriptor indicating <tt>SENDRECV</tt> for mixer-to-client
+     * audio levels.
+     *
+     * @return a <tt>List</tt> containing the <tt>CSRC_AUDIO_LEVEL_URN</tt>
+     * extension descriptor.
+     */
+    public List<RTPExtension> getSupportedExtensions()
+    {
+        if ( rtpExtensions == null)
+        {
+            rtpExtensions = new ArrayList<RTPExtension>(1);
+
+            URI csrcAudioLevelURN;
+            try
+            {
+                csrcAudioLevelURN = new URI(RTPExtension.CSRC_AUDIO_LEVEL_URN);
+            }
+            catch (URISyntaxException e)
+            {
+                // can't happen since CSRC_AUDIO_LEVEL_URN is a valid URI and
+                // never changes.
+                logger.info("Aha! Someone messed with the source!", e);
+                return null;
+            }
+
+            rtpExtensions.add(new RTPExtension(
+                               csrcAudioLevelURN, MediaDirection.SENDRECV));
+        }
+
+        return rtpExtensions;
     }
 
     /**
@@ -713,7 +761,7 @@ public class AudioMixerMediaDevice
             {
                 if (!stSLListeners.contains(listener))
                     stSLListeners.add(listener);
-                
+
                 if(receiveStream != null)
                     audioMixerMediaDeviceSession.addSoundLevelListener(
                         receiveStream, listener);
@@ -786,6 +834,9 @@ public class AudioMixerMediaDevice
          */
         private int lastLevel = 0;
 
+        /**
+         * Runs the actual sound level calculations.
+         */
         public void run()
         {
             stopped = false;
@@ -805,7 +856,7 @@ public class AudioMixerMediaDevice
 
                 if(dataToProcess != null)
                 {
-                    int newLevel = 
+                    int newLevel =
                         SoundLevelIndicatorEffect.calculateCurrentSignalPower(
                             dataToProcess, 0, dataToProcess.length,
                             SoundLevelChangeEvent.MAX_LEVEL,
@@ -842,7 +893,9 @@ public class AudioMixerMediaDevice
 
         /**
          * Adds data to be processed.
-         * @param buffer
+         *
+         * @param buffer the data that we'd like to add to the queue.
+         *
          */
         synchronized void addData(Buffer buffer)
         {
@@ -884,6 +937,9 @@ public class AudioMixerMediaDevice
          */
         private int lastLevel = 0;
 
+        /**
+         * Runs the actual audio level calculations.
+         */
         public void run()
         {
             stopped = false;
@@ -939,7 +995,8 @@ public class AudioMixerMediaDevice
 
         /**
          * Adds data to be processed.
-         * @param buffer
+         *
+         * @param buffer the data that we'd like to queue for processing.
          */
         synchronized void addData(Buffer buffer)
         {
@@ -953,6 +1010,7 @@ public class AudioMixerMediaDevice
 
         /**
          * Adds new listener.
+         *
          * @param l the listener.
          */
         void addSoundLevelListener(SoundLevelListener l)
@@ -966,6 +1024,7 @@ public class AudioMixerMediaDevice
 
         /**
          * Removes a listener.
+         *
          * @param l the listener.
          */
         void removeSoundLevelListener(SoundLevelListener l)

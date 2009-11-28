@@ -140,12 +140,12 @@ public class MediaDeviceImpl
     }
 
     /**
-     * A default implementation for the
-     * {@link MediaDevice#getSupportedExtensions()} method returning
-     * <tt>null</tt> and hence indicating support for no RTP extensions.
+     * Returns a <tt>List</tt> containing (at the time of writing) a single
+     * extension descriptor indicating <tt>RECVONLY</tt> support for
+     * mixer-to-client audio levels.
      *
-     * @return <tt>null</tt>, indicating that this device does not support any
-     * RTP extensions.
+     * @return a <tt>List</tt> containing the <tt>CSRC_AUDIO_LEVEL_URN</tt>
+     * extension descriptor.
      */
     public List<RTPExtension> getSupportedExtensions()
     {
