@@ -10,14 +10,15 @@ import java.io.*;
 import java.net.*;
 
 import javax.media.protocol.*;
+import javax.media.rtp.*;
 
 /**
  * @author Bing SU (nova.su@gmail.com)
  * @author Lubomir Marinov
  */
-public class RTPConnectorInputStream 
-    implements PushSourceStream, 
-               Runnable 
+public class RTPConnectorInputStream
+    implements PushSourceStream,
+               Runnable
 {
 
     /**
@@ -65,7 +66,7 @@ public class RTPConnectorInputStream
      *
      * @param socket the UDP socket the new instance is to receive data from
      */
-    public RTPConnectorInputStream(DatagramSocket socket) 
+    public RTPConnectorInputStream(DatagramSocket socket)
     {
         this.socket = socket;
 
@@ -76,7 +77,7 @@ public class RTPConnectorInputStream
     /**
      * Close this stream, stops the worker thread.
      */
-    public synchronized void close() 
+    public synchronized void close()
     {
         closed = true;
         socket.close();
@@ -94,7 +95,7 @@ public class RTPConnectorInputStream
      * specified <tt>DatagramPacket</tt> or possibly its modification;
      * <tt>null</tt> to ignore the packet data of the specified
      * <tt>DatagramPacket</tt> and not make it available to this instance
-     * through its {@link #read(byte[], int, int)} method 
+     * through its {@link #read(byte[], int, int)} method
      */
     protected RawPacket createRawPacket(DatagramPacket datagramPacket)
     {
@@ -105,59 +106,98 @@ public class RTPConnectorInputStream
                     datagramPacket.getLength());
     }
 
-    /*
-     * Implements SourceStream#endOfStream().
+    /**
+     * Provides a dummy implementation to {@link
+     * RTPConnectorInputStream#endOfStream()} that always returns
+     * <tt>false</tt>.
+     *
+     * @return <tt>false</tt>, no matter what.
      */
-    public boolean endOfStream() 
+    public boolean endOfStream()
     {
         return false;
     }
 
-    /*
-     * Implements SourceStream#getContentDescriptor().
+    /**
+     * Provides a dummy implementation to {@link
+     * RTPConnectorInputStream#getContentDescriptor()} that always returns
+     * <tt>null</tt>.
+     *
+     * @return <tt>null</tt>, no matter what.
      */
-    public ContentDescriptor getContentDescriptor() 
+    public ContentDescriptor getContentDescriptor()
     {
         return null;
     }
 
-    /*
-     * Implements SourceStream#getContentLength().
+    /**
+     * Provides a dummy implementation to {@link
+     * RTPConnectorInputStream#getContentLength()} that always returns
+     * <tt>LENGTH_UNKNOWN</tt>.
+     *
+     * @return <tt>LENGTH_UNKNOWN</tt>, no matter what.
      */
-    public long getContentLength() 
+    public long getContentLength()
     {
         return LENGTH_UNKNOWN;
     }
 
-    /*
-     * Implements Controls#getControl(String).
+    /**
+     * Provides a dummy implementation to {@link
+     * RTPConnectorInputStream#getControl(String)} that always returns
+     * <tt>null</tt>.
+     *
+     * @param controlType ignored.
+     *
+     * @return <tt>null</tt>, no matter what.
      */
-    public Object getControl(String controlType) 
+    public Object getControl(String controlType)
     {
         return null;
     }
 
-    /*
-     * Implements Controls#getControls().
+    /**
+     * Provides a dummy implementation to {@link
+     * RTPConnectorInputStream#getControls()} that always returns
+     * <tt>EMPTY_CONTROLS</tt>.
+     *
+     * @return <tt>EMPTY_CONTROLS</tt>, no matter what.
      */
-    public Object[] getControls() 
+    public Object[] getControls()
     {
         return EMPTY_CONTROLS;
     }
 
-    /*
-     * Implements PushSourceStream#getMinimumTransferSize().
+    /**
+     * Provides a dummy implementation to {@link
+     * RTPConnectorInputStream#getMinimumTransferSize()} that always returns
+     * <tt>2 * 1024</tt>.
+     *
+     * @return <tt>2 * 1024</tt>, no matter what.
      */
-    public int getMinimumTransferSize() 
+    public int getMinimumTransferSize()
     {
         return 2 * 1024; // twice the MTU size, just to be safe.
     }
 
-    /*
-     * Implements PushSourceStream#read(byte[], int, int).
+    /**
+     * Copies the content of the most recently received packet into
+     * <tt>inBuffer</tt>.
+     *
+     * @param inBuffer the <tt>byte[]</tt> that we'd like to copy the content
+     * of the packet to.
+     * @param offset the position where we are supposed to start writing in
+     * <tt>inBuffer</tt>.
+     * @param length the number of <tt>byte</tt>s available for writing in
+     * <tt>inBuffer</tt>.
+     *
+     * @return the number of bytes read
+     *
+     * @throws IOException if <tt>length</tt> is less than the size of the
+     * packet.
      */
-    public int read(byte[] inBuffer, int offset, int length) 
-        throws IOException 
+    public int read(byte[] inBuffer, int offset, int length)
+        throws IOException
     {
         if (ioError)
             return -1;
@@ -168,26 +208,28 @@ public class RTPConnectorInputStream
             throw
                 new IOException("Input buffer not big enough for " + pktLength);
 
-        System
-            .arraycopy(
+        System.arraycopy(
                 pkt.getBuffer(), pkt.getOffset(), inBuffer, offset, pktLength);
+
         return pktLength;
     }
 
-    /*
-     * Implements Runnable#run().
+    /**
+     * Listens for incoming datagrams, stores them for reading by the
+     * <tt>read</tt> method and notifies the local <tt>transferHandler</tt>
+     * that there's data to be read.
      */
-    public void run() 
+    public void run()
     {
-        while (!closed) 
+        while (!closed)
         {
             DatagramPacket p = new DatagramPacket(buffer, 0, 65535);
 
-            try 
+            try
             {
                 socket.receive(p);
-            } 
-            catch (IOException e) 
+            }
+            catch (IOException e)
             {
                 ioError = true;
                 break;
@@ -204,10 +246,14 @@ public class RTPConnectorInputStream
         }
     }
 
-    /*
-     * Implements PushSourceStream#setTransferHandler(SourceTransferHandler).
+    /**
+     * Sets the <tt>transferHandler</tt> that this connector should be notifying
+     * when new data is available for reading.
+     *
+     * @param transferHandler the <tt>transferHandler</tt> that this connector
+     * should be notifying when new data is available for reading.
      */
-    public void setTransferHandler(SourceTransferHandler transferHandler) 
+    public void setTransferHandler(SourceTransferHandler transferHandler)
     {
         if (!closed)
             this.transferHandler = transferHandler;
