@@ -903,10 +903,6 @@ public class CallPeerMediaHandler
             List<MediaFormat> supportedFormats = SdpUtils.extractFormats(
                             mediaDescription, dynamicPayloadTypes);
 
-            List<RTPExtension> offeredRTPExtensions
-                    = SdpUtils.extractRTPExtensions(
-                            mediaDescription, this.rtpExtensionsRegistry);
-
             MediaDevice dev = getDefaultDevice(mediaType);
             MediaDirection devDirection
                 = (dev == null) ? MediaDirection.INACTIVE : dev.getDirection();
@@ -943,6 +939,17 @@ public class CallPeerMediaHandler
             MediaDirection direction = devDirection
                             .getDirectionForAnswer(remoteDirection);
 
+            // check whether we will be exchanging any RTP extensions.
+            List<RTPExtension> offeredRTPExtensions
+                    = SdpUtils.extractRTPExtensions(
+                            mediaDescription, this.rtpExtensionsRegistry);
+
+            List<RTPExtension> supportedExtensions
+                    = getExtensionsForType(mediaType);
+
+            List<RTPExtension> rtpExtensions = intersectRTPExtensions(
+                            offeredRTPExtensions, supportedExtensions);
+
             // create the corresponding stream...
             initStream(connector, dev, supportedFormats.get(0), target,
                       direction);
@@ -950,7 +957,7 @@ public class CallPeerMediaHandler
             // create the answer description
             answerDescriptions.add(createMediaDescription(
                 supportedFormats, connector,
-                direction, supportedRTPExtensions));
+                direction, rtpExtensions));
 
             atLeastOneValidDescription = true;
         }
@@ -972,12 +979,12 @@ public class CallPeerMediaHandler
      * the local device that we are dealing with. Direction attributes of both
      * lists are also intersected and the returned <tt>RTPExtension</tt>s have
      * directions valid from a local perspective. In other words, if
-     * <tt>offeredExtensions</tt> contains an extension that the remote party
+     * <tt>remoteExtensions</tt> contains an extension that the remote party
      * supports in a <tt>SENDONLY</tt> mode, and we support that extension in a
      * <tt>SENDRECV</tt> mode, the corresponding entry in the returned list will
      * have a <tt>RECVONLY</tt> direction.
      *
-     * @param offeredExtensions the <tt>List</tt> of <tt>RTPExtension</tt>s as
+     * @param remoteExtensions the <tt>List</tt> of <tt>RTPExtension</tt>s as
      * advertised by the remote party.
      * @param supportedExtensions the <tt>List</tt> of <tt>RTPExtension</tt>s
      * that a local <tt>MediaDevice</tt> returned as supported.
@@ -987,15 +994,33 @@ public class CallPeerMediaHandler
      * for configuring a stream.
      */
     private List<RTPExtension> intersectRTPExtensions(
-                                    List<RTPExtension> offeredExtensions,
+                                    List<RTPExtension> remoteExtensions,
                                     List<RTPExtension> supportedExtensions)
     {
-        List<RTPExtension>
+        List<RTPExtension> intersection = new ArrayList<RTPExtension>(
+                Math.min(remoteExtensions.size(), supportedExtensions.size()));
+
         //loop through the list that the remote party sent
-        for(RTPExtension offeredExtension : offeredExtensions)
+        for(RTPExtension remoteExtension : remoteExtensions)
         {
-            RTPExtension localExtension
+            RTPExtension localExtension = findExtension(
+                    supportedExtensions, remoteExtension.getURI().toString());
+
+            if(localExtension == null)
+                continue;
+
+            MediaDirection localDir  = localExtension.getDirection();
+            MediaDirection remoteDir = remoteExtension.getDirection();
+
+            RTPExtension intersected = new RTPExtension(
+                            localExtension.getURI(),
+                            localDir.getDirectionForAnswer(remoteDir),
+                            remoteExtension.getExtensionAttributes());
+
+            intersection.add(intersected);
         }
+
+        return intersection;
     }
 
     /**
@@ -1023,6 +1048,26 @@ public class CallPeerMediaHandler
         }
 
         return null;
+    }
+
+    /**
+     * Returns a (possibly empty) <tt>List</tt> of <tt>RTPExtension</tt>s
+     * supported by the device that this media handler uses to handle media of
+     * the specified <tt>type</tt>.
+     *
+     * @param type the <tt>MediaType</tt> of the device whose
+     * <tt>RTPExtension</tt>s we are interested in.
+     *
+     * @return a (possibly empty) <tt>List</tt> of <tt>RTPExtension</tt>s
+     * supported by the device that this media handler uses to handle media of
+     * the specified <tt>type</tt>.
+     */
+    private List<RTPExtension> getExtensionsForType(MediaType type)
+    {
+        List<RTPExtension> supportedExtensions
+            = new ArrayList<RTPExtension>();
+
+        return supportedExtensions;
     }
 
     /**
