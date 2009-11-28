@@ -15,6 +15,7 @@ import javax.sip.header.ContentTypeHeader; // disambiguates MediaType
 
 import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -969,12 +970,13 @@ public class SdpUtils
      * some other reason.
      */
     public static MediaDescription createMediaDescription(
-                    List<MediaFormat>          formats,
+                    MediaDevice                dev,
                     StreamConnector            connector,
                     MediaDirection             direction,
                     DynamicPayloadTypeRegistry dynamicPayloadTypes)
         throws OperationFailedException
     {
+        List<MediaFormat> formats = dev.getSupportedFormats();
         int[] payloadTypesArray = new int[formats.size()];
         Vector<Attribute> mediaAttributes = new Vector<Attribute>(
                         2 * payloadTypesArray.length + 1);

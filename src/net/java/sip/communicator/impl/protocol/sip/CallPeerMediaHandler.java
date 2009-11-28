@@ -525,12 +525,8 @@ public class CallPeerMediaHandler
                     direction = direction.and(MediaDirection.SENDONLY);
 
                 if(direction != MediaDirection.INACTIVE)
-                    mediaDescs
-                        .add(
-                            createMediaDescription(
-                                dev.getSupportedFormats(),
-                                getStreamConnector(mediaType),
-                                direction));
+                    mediaDescs.add(createMediaDescription(
+                        dev, getStreamConnector(mediaType), direction));
             }
         }
 
@@ -704,7 +700,7 @@ public class CallPeerMediaHandler
         if( stream instanceof AudioMediaStream)
         {
             this.audioStream = (AudioMediaStream)stream;
-            
+
             // now if we had already add soundlevel listeners
             // add them to the stream
             synchronized (localSoundLevelListeners)
