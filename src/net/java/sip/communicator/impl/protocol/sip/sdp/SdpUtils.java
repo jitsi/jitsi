@@ -970,13 +970,12 @@ public class SdpUtils
      * some other reason.
      */
     public static MediaDescription createMediaDescription(
-                    MediaDevice                dev,
+                    List<MediaFormat>          formats,
                     StreamConnector            connector,
                     MediaDirection             direction,
                     DynamicPayloadTypeRegistry dynamicPayloadTypes)
         throws OperationFailedException
     {
-        List<MediaFormat> formats = dev.getSupportedFormats();
         int[] payloadTypesArray = new int[formats.size()];
         Vector<Attribute> mediaAttributes = new Vector<Attribute>(
                         2 * payloadTypesArray.length + 1);

@@ -915,10 +915,8 @@ public class CallPeerMediaHandler
                 answerDescriptions.add(SdpUtils
                                 .createDisablingAnswer(mediaDescription));
 
-                /*
-                 * TODO As we closeStream bellow when targetDataPort is equal to
-                 * 0, does it mean that we have to do it here?
-                 */
+                //close the stream in case it already exists
+                closeStream(mediaType);
                 continue;
             }
 
@@ -931,24 +929,12 @@ public class CallPeerMediaHandler
                             .getDirectionForAnswer(remoteDirection);
 
             // create the corresponding stream...
-            if(targetDataPort != 0)
-            {
-                initStream(connector, dev, supportedFormats.get(0), target,
-                                direction);
-            }
-            else
-            // or destroy it in case the target port was 0.
-            {
-                /*
-                 * XXX We shouldn't even be here because targetDataPort has
-                 * already been checked.
-                 */
-                closeStream(mediaType);
-            }
+            initStream(connector, dev, supportedFormats.get(0), target,
+                      direction);
 
             // create the answer description
-            answerDescriptions.add(createMediaDescription(supportedFormats,
-                            connector, direction));
+            answerDescriptions.add(createMediaDescription(
+                            supportedFormats, connector, direction));
 
             atLeastOneValidDescription = true;
         }
