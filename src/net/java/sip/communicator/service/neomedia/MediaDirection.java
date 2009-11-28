@@ -233,4 +233,29 @@ public enum MediaDirection
     {
         return this == RECVONLY || this == SENDRECV;
     }
+
+    /**
+     * Returns a <tt>MediaDirection</tt> value corresponding to the specified
+     * <tt>mediaDirectionStr</tt> or in other words <tt>SENDONLY</tt> for
+     * "sendonly", <tt>RECVONLY</tt> for "recvonly", <tt>SENDRECV</tt> for
+     * "sendrecv",  and <tt>INACTIVE</tt> for "inactive".
+     *
+     * @param mediaDirectionStr the direction <tt>String</tt> that we'd like to
+     * parse.
+     * @return a <tt>MediaDirection</tt> value corresponding to the specified
+     * <tt>mediaDirectionStr</tt>.
+     *
+     * @throws IllegalArgumentException in case <tt>mediaDirectionStr</tt> is
+     * not a valid media direction.
+     */
+    public static MediaDirection parseString(String mediaDirectionStr)
+        throws IllegalArgumentException
+    {
+        for (MediaDirection value : values())
+            if (value.toString().equals(mediaDirectionStr))
+                return value;
+
+        throw new IllegalArgumentException(
+            mediaDirectionStr + " is not a valid media direction");
+    }
 }

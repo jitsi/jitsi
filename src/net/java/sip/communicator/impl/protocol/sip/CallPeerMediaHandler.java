@@ -903,6 +903,10 @@ public class CallPeerMediaHandler
             List<MediaFormat> supportedFormats = SdpUtils.extractFormats(
                             mediaDescription, dynamicPayloadTypes);
 
+            List<RTPExtension> offeredRTPExtensions
+                    = SdpUtils.extractRTPExtensions(
+                            mediaDescription, this.rtpExtensionsRegistry);
+
             MediaDevice dev = getDefaultDevice(mediaType);
             MediaDirection devDirection
                 = (dev == null) ? MediaDirection.INACTIVE : dev.getDirection();
@@ -945,7 +949,8 @@ public class CallPeerMediaHandler
 
             // create the answer description
             answerDescriptions.add(createMediaDescription(
-                            supportedFormats, connector, direction));
+                supportedFormats, connector,
+                direction, supportedRTPExtensions));
 
             atLeastOneValidDescription = true;
         }
@@ -956,6 +961,68 @@ public class CallPeerMediaHandler
                             OperationFailedException.ILLEGAL_ARGUMENT);
 
         return answerDescriptions;
+    }
+
+    /**
+     * Compares a list of <tt>RTPExtensoin</tt>s offered by a remote party
+     * to the list of locally supported <tt>RTPExtension</tt>s as returned
+     * by one of our local <tt>MediaDevice</tt>s and returns a third
+     * <tt>List</tt> that contains their intersection. The returned
+     * <tt>List</tt> contains extensions supported by both the remote party and
+     * the local device that we are dealing with. Direction attributes of both
+     * lists are also intersected and the returned <tt>RTPExtension</tt>s have
+     * directions valid from a local perspective. In other words, if
+     * <tt>offeredExtensions</tt> contains an extension that the remote party
+     * supports in a <tt>SENDONLY</tt> mode, and we support that extension in a
+     * <tt>SENDRECV</tt> mode, the corresponding entry in the returned list will
+     * have a <tt>RECVONLY</tt> direction.
+     *
+     * @param offeredExtensions the <tt>List</tt> of <tt>RTPExtension</tt>s as
+     * advertised by the remote party.
+     * @param supportedExtensions the <tt>List</tt> of <tt>RTPExtension</tt>s
+     * that a local <tt>MediaDevice</tt> returned as supported.
+     *
+     * @return the (possibly empty) intersection of both of the extensions lists
+     * in a form that can be used for generating an SDP media description or
+     * for configuring a stream.
+     */
+    private List<RTPExtension> intersectRTPExtensions(
+                                    List<RTPExtension> offeredExtensions,
+                                    List<RTPExtension> supportedExtensions)
+    {
+        List<RTPExtension>
+        //loop through the list that the remote party sent
+        for(RTPExtension offeredExtension : offeredExtensions)
+        {
+            RTPExtension localExtension
+        }
+    }
+
+    /**
+     * Returns the first <tt>RTPExtension</tt> in <tt>extList</tt> that uses
+     * the specified <tt>extensionURN</tt> or <tt>null</tt> if <tt>extList</tt>
+     * did not contain such an extension.
+     *
+     * @param extList the <tt>List</tt> that we will be looking through.
+     * @param extensionURN the URN of the <tt>RTPExtension</tt> that we are
+     * looking for.
+     *
+     * @return the first <tt>RTPExtension</tt> in <tt>extList</tt> that uses
+     * the specified <tt>extensionURN</tt> or <tt>null</tt> if <tt>extList</tt>
+     * did not contain such an extension.
+     */
+    private RTPExtension findExtension(List<RTPExtension> extList,
+                                       String extensionURN)
+    {
+        for(RTPExtension rtpExt : extList)
+        {
+            if (rtpExt.getURI().toASCIIString().equals(extensionURN))
+            {
+                return rtpExt;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -1086,7 +1153,8 @@ public class CallPeerMediaHandler
         throws OperationFailedException
     {
         return SdpUtils.createMediaDescription(
-           formats, connector, direction, dynamicPayloadTypes);
+           formats, connector, direction, extensions,
+           dynamicPayloadTypes, rtpExtensionsRegistry);
     }
 
     /**

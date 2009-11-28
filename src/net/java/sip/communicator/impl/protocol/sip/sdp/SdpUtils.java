@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.sip.sdp;
 
 import java.io.*;
 import java.net.*;
+import java.net.URI;
 import java.util.*;
 
 import javax.sdp.*;
@@ -43,6 +44,11 @@ public class SdpUtils
      * The name of the SDP attribute that contains RTCP address and port.
      */
     private static final String RTCP_ATTR = "rtcp";
+
+    /**
+     * The name of the SDP attribute that defines RTP extension mappings.
+     */
+    private static final String EXTMAP_ATTR = "extmap";
 
     /**
      * Parses the specified <tt>sdp String</tt> into a
@@ -403,6 +409,148 @@ public class SdpUtils
         }
 
         return mediaFmts;
+    }
+
+    /**
+     * Extracts and returns the list of <tt>RTPExtension</tt>s advertised in
+     * <tt>mediaDesc</tt> and registers newly encountered ones into the
+     * specified <tt>extMap</tt>. The method returns an empty list in case
+     * there were no <tt>extmap</tt> advertisements in <tt>mediaDesc</tt>.
+     *
+     * @param mediaDesc the <tt>MediaDescription</tt> that we'd like to probe
+     * for a list of <tt>RTPExtension</tt>s
+     * @param extMap a reference to the <tt>DynamycRTPExtensionsRegistry</tt>
+     * where we should be registering newly added extension mappings.
+     *
+     * @return a <tt>List</tt> of <tt>RTPExtension</tt>s advertised in the
+     * <tt>mediaDesc</tt> description.
+     */
+    @SuppressWarnings("unchecked")//legacy code from jain-sdp
+    public static List<RTPExtension> extractRTPExtensions(
+                                         MediaDescription mediaDesc,
+                                         DynamicRTPExtensionsRegistry extMap)
+    {
+        List<RTPExtension> extensionsList = new ArrayList<RTPExtension>();
+
+        Vector<Attribute> mediaAttributes = mediaDesc.getAttributes(false);
+
+        if( mediaAttributes == null || mediaAttributes.size() == 0)
+            return null;
+
+        for (Attribute attr : mediaAttributes)
+        {
+            String attrValue;
+            try
+            {
+                if(!EXTMAP_ATTR.equals(attr.getName()))
+                    continue;
+
+                attrValue = attr.getValue();
+            }
+            catch (SdpException e)
+            {
+                //this is never thrown by the implementation because it doesn't
+                //do lazy parsing ... and whose idea was it to have an exception
+                //here anyway ?!?
+                logger.debug("A funny thing just happened ...", e);
+                continue;
+            }
+
+            if(attrValue == null)
+                continue;
+
+            attrValue = attrValue.trim();
+
+            RTPExtension rtpExtension
+                = parseRTPExtensionAttribute(attrValue, extMap);
+
+            if(rtpExtension != null)
+                extensionsList.add( rtpExtension );
+        }
+
+        return extensionsList;
+    }
+
+    /**
+     * Parses <tt>extmapAttr</tt> and creates an <tt>RTPExtension</tt>
+     * corresponding to its content. The <tt>extmapAttr</tt> is expected to
+     * have the following syntax: <br>
+     * <tt> <value>["/"<direction>] <URI> <extensionattributes> </tt><br>
+     *
+     * @param extmapAttr the <tt>String</tt> describing the extension mapping.
+     * @param extMap the extensions registry where we should append the ID to
+     * URN mapping advertised in the <tt>extmapAttr</tt>.
+     *
+     * @return an <tt>RTPExtension</tt> instance corresponding to the
+     * description in <tt>attrValue</tt>  or <tt>null</tt> if we couldn't parse
+     * the attribute.
+     */
+    private static RTPExtension parseRTPExtensionAttribute(
+                                    String                       extmapAttr,
+                                    DynamicRTPExtensionsRegistry extMap)
+    {
+        //heres' what we are parsing:
+        //<value>["/"<direction>] <URI> <extensionattributes>
+
+        StringTokenizer tokenizer = new StringTokenizer(extmapAttr, " ");
+
+        //Ext ID and direction
+        if( !tokenizer.hasMoreElements())
+            return null;
+
+        String idAndDirection = tokenizer.nextToken();
+        String extIDStr;
+        MediaDirection direction = MediaDirection.SENDRECV;
+
+        if( idAndDirection.contains("/"))
+        {
+            StringTokenizer idAndDirTokenizer
+                = new StringTokenizer(idAndDirection, "/");
+
+            if(!idAndDirTokenizer.hasMoreElements())
+                return null;
+
+            extIDStr = idAndDirTokenizer.nextToken();
+
+            if( !idAndDirTokenizer.hasMoreTokens())
+                return null;
+
+            direction = MediaDirection.parseString(
+                            idAndDirTokenizer.nextToken());
+        }
+        else
+        {
+            extIDStr = idAndDirection;
+        }
+
+        if( !tokenizer.hasMoreElements())
+            return null;
+
+        String uriStr = tokenizer.nextToken();
+
+        URI uri;
+        try
+        {
+            uri = new URI(uriStr);
+        }
+        catch (URISyntaxException e)
+        {
+            //invalid URI
+            return null;
+        }
+
+        String extensionAttributes = null;
+        if( tokenizer.hasMoreElements())
+        {
+            extensionAttributes = tokenizer.nextToken();
+        }
+
+        RTPExtension rtpExtension
+            = new RTPExtension(uri, direction, extensionAttributes);
+
+        extMap.addMapping(rtpExtension, Byte.parseByte(extIDStr));
+
+        return rtpExtension;
     }
 
     /**
@@ -960,8 +1108,14 @@ public class SdpUtils
      * which we are advertising with the media description created here.
      * @param direction the direction of the media stream that we are describing
      * here.
+     * @param supportedExtensions a list of <tt>RTPExtension</tt>s supported by the
+     * <tt>MediaDevice</tt> that we will be advertising.
      * @param dynamicPayloadTypes a reference to the
-     * <tt>DynamicPayloadTypeRegistry</tt>
+     * <tt>DynamicPayloadTypeRegistry</tt> that we should be using to lookup
+     * and register dynamic RTP mappings.
+     * @param rtpExtensionsRegistry a reference to the
+     * <tt>DynamicRTPExtensionRegistry</tt> that we should be using to lookup
+     * and register URN to ID mappings.
      *
      * @return the newly create SDP <tt>MediaDescription</tt>.
      *
@@ -970,10 +1124,12 @@ public class SdpUtils
      * some other reason.
      */
     public static MediaDescription createMediaDescription(
-                    List<MediaFormat>          formats,
-                    StreamConnector            connector,
-                    MediaDirection             direction,
-                    DynamicPayloadTypeRegistry dynamicPayloadTypes)
+                    List<MediaFormat>            formats,
+                    StreamConnector              connector,
+                    MediaDirection               direction,
+                    List<RTPExtension>           supportedExtensions,
+                    DynamicPayloadTypeRegistry   dynamicPayloadTypes,
+                    DynamicRTPExtensionsRegistry rtpExtensionsRegistry)
         throws OperationFailedException
     {
         int[] payloadTypesArray = new int[formats.size()];
@@ -1052,6 +1208,31 @@ public class SdpUtils
             Attribute rtcpAttr = sdpFactory.createAttribute(RTCP_ATTR, Integer
                             .toString(rtcpPort));
             mediaAttributes.add(rtcpAttr);
+        }
+
+        // extmap: attributes
+        for (RTPExtension extension : supportedExtensions)
+        {
+            byte extID
+                = rtpExtensionsRegistry.obtainExtensionMapping(extension);
+
+            String uri = extension.getURI().toString();
+            MediaDirection extDirection = extension.getDirection();
+            String attributes = extension.getExtensionAttributes();
+
+            //this is what our extmap value should look like:
+            //extmap:<value>["/"<direction>] <URI> <extensionattributes>
+            String attrValue
+                = Byte.toString(extID)
+                + ((extDirection == MediaDirection.SENDRECV)
+                                ? ""
+                                : ("/" + extDirection.toString()))
+                + " " + uri
+                + (attributes == null? "" : (" " + attributes));
+
+            Attribute extMapAttr = sdpFactory.createAttribute(
+                            EXTMAP_ATTR, attrValue);
+            mediaAttributes.add(extMapAttr);
         }
 
         MediaDescription mediaDesc = null;
