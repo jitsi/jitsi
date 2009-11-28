@@ -1108,7 +1108,7 @@ public class SdpUtils
      * which we are advertising with the media description created here.
      * @param direction the direction of the media stream that we are describing
      * here.
-     * @param supportedExtensions a list of <tt>RTPExtension</tt>s supported by the
+     * @param rtpExtensions a list of <tt>RTPExtension</tt>s supported by the
      * <tt>MediaDevice</tt> that we will be advertising.
      * @param dynamicPayloadTypes a reference to the
      * <tt>DynamicPayloadTypeRegistry</tt> that we should be using to lookup
@@ -1127,7 +1127,7 @@ public class SdpUtils
                     List<MediaFormat>            formats,
                     StreamConnector              connector,
                     MediaDirection               direction,
-                    List<RTPExtension>           supportedExtensions,
+                    List<RTPExtension>           rtpExtensions,
                     DynamicPayloadTypeRegistry   dynamicPayloadTypes,
                     DynamicRTPExtensionsRegistry rtpExtensionsRegistry)
         throws OperationFailedException
@@ -1211,28 +1211,31 @@ public class SdpUtils
         }
 
         // extmap: attributes
-        for (RTPExtension extension : supportedExtensions)
+        if (rtpExtensions != null && rtpExtensions.size() > 0)
         {
-            byte extID
-                = rtpExtensionsRegistry.obtainExtensionMapping(extension);
+            for (RTPExtension extension : rtpExtensions)
+            {
+                byte extID
+                    = rtpExtensionsRegistry.obtainExtensionMapping(extension);
 
-            String uri = extension.getURI().toString();
-            MediaDirection extDirection = extension.getDirection();
-            String attributes = extension.getExtensionAttributes();
+                String uri = extension.getURI().toString();
+                MediaDirection extDirection = extension.getDirection();
+                String attributes = extension.getExtensionAttributes();
 
-            //this is what our extmap value should look like:
-            //extmap:<value>["/"<direction>] <URI> <extensionattributes>
-            String attrValue
-                = Byte.toString(extID)
-                + ((extDirection == MediaDirection.SENDRECV)
-                                ? ""
-                                : ("/" + extDirection.toString()))
-                + " " + uri
-                + (attributes == null? "" : (" " + attributes));
+                //this is what our extmap value should look like:
+                //extmap:<value>["/"<direction>] <URI> <extensionattributes>
+                String attrValue
+                    = Byte.toString(extID)
+                    + ((extDirection == MediaDirection.SENDRECV)
+                                    ? ""
+                                    : ("/" + extDirection.toString()))
+                    + " " + uri
+                    + (attributes == null? "" : (" " + attributes));
 
-            Attribute extMapAttr = sdpFactory.createAttribute(
-                            EXTMAP_ATTR, attrValue);
-            mediaAttributes.add(extMapAttr);
+                Attribute extMapAttr = sdpFactory.createAttribute(
+                                EXTMAP_ATTR, attrValue);
+                mediaAttributes.add(extMapAttr);
+            }
         }
 
         MediaDescription mediaDesc = null;
