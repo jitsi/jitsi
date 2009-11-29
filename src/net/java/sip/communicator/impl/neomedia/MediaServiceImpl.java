@@ -139,7 +139,7 @@ public class MediaServiceImpl
     public MediaDevice createMixer(MediaDevice device)
     {
         if (MediaType.AUDIO.equals(device.getMediaType()))
-            return new AudioMixerMediaDevice((MediaDeviceImpl) device);
+            return new AudioMixerMediaDevice((AudioMediaDeviceImpl) device);
         /*
          * TODO If we do not support mixing, should we return null or rather a
          * MediaDevice with INACTIVE MediaDirection?
@@ -302,8 +302,11 @@ public class MediaServiceImpl
                     switch (mediaType)
                     {
                     case AUDIO:
+                        device = new AudioMediaDeviceImpl(captureDeviceInfo);
+                        break;
                     case VIDEO:
-                        device = new MediaDeviceImpl(captureDeviceInfo, mediaType);
+                        device
+                            = new MediaDeviceImpl(captureDeviceInfo, mediaType);
                         break;
                     default:
                         device = null;
@@ -389,7 +392,7 @@ public class MediaServiceImpl
     private MediaDevice getNonSendAudioDevice()
     {
         if (nonSendAudioDevice == null)
-            nonSendAudioDevice = new MediaDeviceImpl(MediaType.AUDIO);
+            nonSendAudioDevice = new AudioMediaDeviceImpl();
         return nonSendAudioDevice;
     }
 

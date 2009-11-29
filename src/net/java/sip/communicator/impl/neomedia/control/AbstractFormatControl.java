@@ -72,6 +72,26 @@ public abstract class AbstractFormatControl
      */
     public Format setFormat(Format format)
     {
+        return setFormat(this, format);
+    }
+
+    /**
+     * Implements setting the <tt>Format</tt> of a specific
+     * <tt>FormatControl</tt> as documented for
+     * {@link FormatControl#setFormat(Format)} in the case of not supporting
+     * <tt>Format</tt> setting.
+     *
+     * @param formatControl the <tt>FormatControl</tt> for which the
+     * functionality is implemented
+     * @param format the <tt>Format</tt> specified to be set to
+     * <tt>formatControl</tt> and which will be ignored in accord with the
+     * documentation of <tt>FormatControl#setFormat(Format)</tt>
+     * @return the currently set <tt>Format</tt> of <tt>formatControl</tt> if
+     * <tt>format</tt> is supported by <tt>formatControl</tt>; <tt>null</tt> if
+     * <tt>format</tt> is not supported by <tt>formatControl</tt>
+     */
+    public static Format setFormat(FormatControl formatControl, Format format)
+    {
         /*
          * Determine whether the specified format is supported by this instance
          * because we have to return null if it is not supported. Or at least
@@ -80,7 +100,7 @@ public abstract class AbstractFormatControl
         boolean formatIsSupported = false;
 
         if (format != null)
-            for (Format supportedFormat : getSupportedFormats())
+            for (Format supportedFormat : formatControl.getSupportedFormats())
                 if (supportedFormat.matches(format))
                 {
                     formatIsSupported = true;
@@ -91,6 +111,6 @@ public abstract class AbstractFormatControl
          * We do not actually support setFormat so we have to return the
          * currently set format if the specified format is supported.
          */
-        return (formatIsSupported) ? getFormat() : null;
+        return (formatIsSupported) ? formatControl.getFormat() : null;
     }
 }

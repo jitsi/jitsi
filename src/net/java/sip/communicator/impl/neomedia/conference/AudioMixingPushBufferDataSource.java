@@ -154,13 +154,17 @@ public class AudioMixingPushBufferDataSource
         return AudioMixer.getControl(this, controlType);
     }
 
-    /*
-     * Implements DataSource#getControls(). Does nothing.
+    /**
+     * Implements DataSource#getControls(). Gets an array of <tt>Object</tt>s
+     * which represent the controls available for this <tt>DataSource</tt>.
+     *
+     * @return an array of <tt>Object</tt>s which represent the controls
+     * available for this <tt>DataSource</tt>
      */
     public Object[] getControls()
     {
-        // TODO Auto-generated method stub
-        return new Object[0];
+        // At least a FormatControl is known to be necessary.
+        return getFormatControls();
     }
 
     /*

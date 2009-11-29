@@ -7,9 +7,11 @@
 package net.java.sip.communicator.impl.neomedia.device;
 
 import java.io.*;
+import java.util.*;
 
 import javax.media.protocol.*;
 
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 
 /**
@@ -79,5 +81,18 @@ public abstract class AbstractMediaDevice
             ioe.initCause(npe);
             throw ioe;
         }
+    }
+
+    /**
+     * Returns a <tt>List</tt> containing (at the time of writing) a single
+     * extension descriptor indicating <tt>RECVONLY</tt> support for
+     * mixer-to-client audio levels.
+     *
+     * @return a <tt>List</tt> containing the <tt>CSRC_AUDIO_LEVEL_URN</tt>
+     * extension descriptor.
+     */
+    public List<RTPExtension> getSupportedExtensions()
+    {
+        return null;
     }
 }

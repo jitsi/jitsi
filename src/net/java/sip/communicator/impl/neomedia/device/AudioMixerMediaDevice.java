@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.neomedia.device;
 
 import java.io.*;
-import java.net.*;
 import java.util.*;
 
 import javax.media.*;
@@ -47,11 +46,11 @@ public class AudioMixerMediaDevice
     private AudioMixer audioMixer;
 
     /**
-     * The actual <tt>MediaDeviceImpl</tt> wrapped by this instance for the
+     * The actual <tt>AudioMediaDeviceImpl</tt> wrapped by this instance for the
      * purposes of audio mixing and used by {@link #audioMixer} as its
      * <tt>CaptureDevice</tt>.
      */
-    private final MediaDeviceImpl device;
+    private final AudioMediaDeviceImpl device;
 
     /**
      * The <tt>MediaDeviceSession</tt> of this <tt>AudioMixer</tt> with
@@ -72,13 +71,6 @@ public class AudioMixerMediaDevice
     private LocalSliEventDispatcher localEventsDispatcher = null;
 
     /**
-     * The <tt>List</tt> of RTP extensions supported by this device (at the time
-     * of writing this list is only filled for audio devices and is
-     * <tt>null</tt> otherwise).
-     */
-    private List<RTPExtension> rtpExtensions = null;
-
-    /**
      * Mapping between threads dispatching events and received streams.
      * Those threads contain the listeners that are interested for sound level
      * changes of the particular received stream.
@@ -89,18 +81,13 @@ public class AudioMixerMediaDevice
 
     /**
      * Initializes a new <tt>AudioMixerMediaDevice</tt> instance which is to
-     * enable audio mixing on a specific <tt>MediaDeviceImpl</tt>.
+     * enable audio mixing on a specific <tt>AudioMediaDeviceImpl</tt>.
      *
-     * @param device the <tt>MediaDeviceImpl</tt> which the new instance is to
-     * enable audio mixing on
+     * @param device the <tt>AudioMediaDeviceImpl</tt> which the new instance is
+     * to enable audio mixing on
      */
-    public AudioMixerMediaDevice(MediaDeviceImpl device)
+    public AudioMixerMediaDevice(AudioMediaDeviceImpl device)
     {
-        if (!MediaType.AUDIO.equals(device.getMediaType()))
-            throw
-                new IllegalArgumentException(
-                        "device must be of MediaType AUDIO");
-
         /*
          * AudioMixer is initialized with a CaptureDevice so we have to be sure
          * that the wrapped device can provide one.
@@ -184,30 +171,10 @@ public class AudioMixerMediaDevice
      * @return a <tt>List</tt> containing the <tt>CSRC_AUDIO_LEVEL_URN</tt>
      * extension descriptor.
      */
+    @Override
     public List<RTPExtension> getSupportedExtensions()
     {
-        if ( rtpExtensions == null)
-        {
-            rtpExtensions = new ArrayList<RTPExtension>(1);
-
-            URI csrcAudioLevelURN;
-            try
-            {
-                csrcAudioLevelURN = new URI(RTPExtension.CSRC_AUDIO_LEVEL_URN);
-            }
-            catch (URISyntaxException e)
-            {
-                // can't happen since CSRC_AUDIO_LEVEL_URN is a valid URI and
-                // never changes.
-                logger.info("Aha! Someone messed with the source!", e);
-                return null;
-            }
-
-            rtpExtensions.add(new RTPExtension(
-                               csrcAudioLevelURN, MediaDirection.SENDRECV));
-        }
-
-        return rtpExtensions;
+        return device.getSupportedExtensions();
     }
 
     /**

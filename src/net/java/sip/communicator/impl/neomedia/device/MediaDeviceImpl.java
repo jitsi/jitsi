@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.neomedia.device;
 
 import java.io.*;
-import java.net.*;
 import java.util.*;
 
 import javax.media.*;
@@ -44,20 +43,13 @@ public class MediaDeviceImpl
      * The <tt>CaptureDeviceInfo</tt> of the device that this instance is
      * representing.
      */
-    private CaptureDeviceInfo captureDeviceInfo;
+    private final CaptureDeviceInfo captureDeviceInfo;
 
     /**
      * The <tt>MediaType</tt> of this instance and the <tt>CaptureDevice</tt>
      * that it wraps.
      */
     private final MediaType mediaType;
-
-    /**
-     * The <tt>List</tt> of RTP extensions supported by this device (at the time
-     * of writing this list is only filled for audio devices and is
-     * <tt>null</tt> otherwise).
-     */
-    private List<RTPExtension> rtpExtensions = null;
 
     /**
      * Initializes a new <tt>MediaDeviceImpl</tt> instance with a specific
@@ -94,86 +86,6 @@ public class MediaDeviceImpl
 
         this.captureDeviceInfo = captureDeviceInfo;
         this.mediaType = mediaType;
-    }
-
-    /**
-     * Connects to a specific <tt>CaptureDevice</tt> given in the form of a
-     * <tt>DataSource</tt>.
-     *
-     * @param captureDevice the <tt>CaptureDevice</tt> to be connected to
-     * @throws IOException if anything wrong happens while connecting to the
-     * specified <tt>captureDevice</tt>
-     * @see AbstractMediaDevice#connect(DataSource)
-     */
-    @Override
-    public void connect(DataSource captureDevice)
-        throws IOException
-    {
-        super.connect(captureDevice);
-
-        /*
-         * 1. Changing buffer size. The default buffer size (for JavaSound) is
-         * 125 milliseconds - 1/8 sec. On Mac OS X this leads to an exception
-         * and no audio capture. A value of 30 for the buffer fixes the problem
-         * and is OK when using some PSTN gateways.
-         *
-         * 2. Changing to 60. When it is 30 there are some issues with Asterisk
-         * and NAT (we don't start to send stream and so Asterisk RTP part
-         * doesn't notice that we are behind NAT).
-         *
-         * 3. Do not set buffer length on Linux as it completely breaks audio
-         * capture.
-         */
-        String osName = System.getProperty("os.name");
-
-        if ((osName == null) || !osName.toLowerCase().contains("linux"))
-        {
-            Control bufferControl
-                = (Control)
-                    captureDevice
-                        .getControl("javax.media.control.BufferControl");
-
-            if (bufferControl != null)
-                ((BufferControl) bufferControl)
-                    .setBufferLength(60); // in milliseconds
-        }
-    }
-
-    /**
-     * Returns a <tt>List</tt> containing (at the time of writing) a single
-     * extension descriptor indicating <tt>RECVONLY</tt> support for
-     * mixer-to-client audio levels.
-     *
-     * @return a <tt>List</tt> containing the <tt>CSRC_AUDIO_LEVEL_URN</tt>
-     * extension descriptor.
-     */
-    public List<RTPExtension> getSupportedExtensions()
-    {
-        if ( getMediaType() != MediaType.AUDIO)
-            return null;
-
-        if ( rtpExtensions == null)
-        {
-            rtpExtensions = new ArrayList<RTPExtension>(1);
-
-            URI csrcAudioLevelURN;
-            try
-            {
-                csrcAudioLevelURN = new URI(RTPExtension.CSRC_AUDIO_LEVEL_URN);
-            }
-            catch (URISyntaxException e)
-            {
-                // can't happen since CSRC_AUDIO_LEVEL_URN is a valid URI and
-                // never changes.
-                logger.info("Aha! Someone messed with the source!", e);
-                return null;
-            }
-
-            rtpExtensions.add(new RTPExtension(
-                               csrcAudioLevelURN, MediaDirection.RECVONLY));
-        }
-
-        return rtpExtensions;
     }
 
     /**

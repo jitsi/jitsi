@@ -17,6 +17,7 @@ import javax.media.format.*;
 import javax.media.protocol.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
+import net.java.sip.communicator.impl.neomedia.control.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -589,7 +590,17 @@ public class AudioMixer
      */
     FormatControl[] getFormatControls()
     {
-        return captureDevice.getFormatControls();
+        /*
+         * Setting the format of the captureDevice once we've started using it
+         * is likely to wreak havoc so disable it.
+         */
+        FormatControl[] formatControls = captureDevice.getFormatControls();
+
+        if (formatControls != null)
+            for (int i = 0; i < formatControls.length; i++)
+                formatControls[i]
+                    = new ReadOnlyFormatControlDelegate(formatControls[i]);
+        return formatControls;
     }
 
     /**
