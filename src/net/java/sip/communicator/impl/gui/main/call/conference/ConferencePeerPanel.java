@@ -349,6 +349,10 @@ public class ConferencePeerPanel
      */
     private void addConferenceMemberPanel(ConferenceMember member)
     {
+        // It's already there.
+        if (conferenceMembersPanels.containsKey(member))
+            return;
+
         ConferenceMemberPanel memberPanel
             = new ConferenceMemberPanel(member);
 
@@ -389,10 +393,10 @@ public class ConferencePeerPanel
             this.remove(memberPanel);
             conferenceMembersPanels.remove(member);
             member.removePropertyChangeListener(memberPanel);
-        }
 
-        this.revalidate();
-        this.repaint();
+            this.revalidate();
+            this.repaint();
+        }
     }
 
     /**
@@ -518,7 +522,7 @@ public class ConferencePeerPanel
          * Delivers <tt>SoundLevelChangeEvent</tt>s on conference member
          * sound level change.
          *
-         * @param e the notification event containing the list of changes.
+         * @param event the notification event containing the list of changes.
          */
         public void soundLevelChanged(
             ConferenceMembersSoundLevelEvent event)
@@ -550,7 +554,6 @@ public class ConferencePeerPanel
     private class StreamSoundLevelListener
         implements SoundLevelListener
     {
-
         /**
          * Delivers <tt>SoundLevelChangeEvent</tt>s on stream sound level change.
          *

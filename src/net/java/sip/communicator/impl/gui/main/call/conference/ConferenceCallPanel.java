@@ -142,6 +142,9 @@ public class ConferenceCallPanel
      */
     public void addCallPeerPanel(CallPeer peer)
     {
+        if (callPeerPanels.containsKey(peer))
+            return;
+
         ConferencePeerPanel confPeerPanel
             = new ConferencePeerPanel(callDialog, peer);
 
@@ -192,6 +195,9 @@ public class ConferenceCallPanel
     public void removeCallPeerPanel(CallPeer peer)
     {
         ConferencePeerPanel confPeerPanel = callPeerPanels.get(peer);
+
+        if (confPeerPanel == null)
+            return;
 
         // Remove the corresponding renderer.
         callPeerPanels.remove(peer);
