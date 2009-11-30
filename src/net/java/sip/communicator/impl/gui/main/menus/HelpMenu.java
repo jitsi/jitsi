@@ -10,12 +10,12 @@ import java.awt.*;
 import java.awt.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
 
@@ -26,7 +26,7 @@ import org.osgi.framework.*;
  * @author Thomas Hofer
  */
 public class HelpMenu 
-    extends SIPCommMenu 
+    extends SIPCommMenu
     implements ActionListener,
                PluginComponentListener
 {

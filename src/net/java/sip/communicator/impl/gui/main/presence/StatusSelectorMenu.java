@@ -13,9 +13,9 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * A parent class for all status selector boxes.
@@ -28,11 +28,20 @@ import net.java.sip.communicator.service.protocol.*;
 public abstract class StatusSelectorMenu
     extends SIPCommMenu
 {
+    /**
+     * Creates a <tt>StatusSelectorMenu</tt>.
+     */
     public StatusSelectorMenu()
     {
         super();
     }
 
+    /**
+     * Creates a <tt>StatusSelectorMenu</tt> by specifying the text and icon to
+     * show.
+     * @param text the text of the menu
+     * @param defaultIcon the icon of the menu
+     */
     public StatusSelectorMenu(String text, Icon defaultIcon)
     {
         super(text, defaultIcon);
@@ -69,6 +78,9 @@ public abstract class StatusSelectorMenu
      * Saves the last status for all accounts. This information is used
      * on loging. Each time user logs in he's logged with the same status
      * as he was the last time before closing the application.
+     * @param protocolProvider the protocol provider to save status information
+     * for
+     * @param statusName the name of the status to save
      */
     protected void saveStatusInformation(
             ProtocolProviderService protocolProvider,

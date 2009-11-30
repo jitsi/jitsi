@@ -12,7 +12,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>HistoryMenu</tt> is the main menu in the history window.
@@ -23,9 +23,15 @@ public class HistoryMenu
     extends SIPCommMenu
     implements ActionListener
 {
+    /**
+     * The empty history menu item.
+     */
     private JMenuItem emptyMenuItem = new JMenuItem(
         GuiActivator.getResources().getI18NString("service.gui.EMPTY_HISTORY"));
 
+    /**
+     * The close menu item.
+     */
     private JMenuItem closeMenuItem = new JMenuItem(
         GuiActivator.getResources().getI18NString("service.gui.CLOSE"));
 
@@ -63,14 +69,15 @@ public class HistoryMenu
     /**
      * Handles the <tt>ActionEvent</tt> when user selects an item from the
      * menu. When the close item is selected disposes the window.
+     * @param e the <tt>ActionEvent</tt> that notified us
      */
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e)
+    {
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String menuName = menuItem.getName();
 
-        if (menuName.equalsIgnoreCase("empty")) {
-            //TODO: Implement - "empty" history.
-        } else if (menuName.equalsIgnoreCase("service.gui.CLOSE")) {
+        if (menuName.equalsIgnoreCase("service.gui.CLOSE"))
+        {
             this.parentWindow.setVisible(false);
             this.parentWindow.dispose();
         }

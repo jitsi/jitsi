@@ -6,12 +6,12 @@
  */
 package net.java.sip.communicator.impl.gui.main.call.conference;
 
+import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -58,6 +58,8 @@ public class CallPeerActionMenuBar
 
         SIPCommMenu menu = new SIPCommMenu();
 
+        menu.setPreferredSize(new Dimension(20, 20));
+
         this.setOpaque(false);
         menu.setOpaque(false);
 
@@ -65,8 +67,8 @@ public class CallPeerActionMenuBar
         // icon.
         menu.setBorder(BorderFactory.createEmptyBorder());
         menu.setIcon(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.DOWN_ARROW_ICON)));
-
+            .getImage(ImageLoader.CALL_PEER_TOOLS)));
+        menu.setIconTextGap(0);
         menu.addItem(
             GuiActivator.getResources().getI18NString("service.gui.HANG_UP"),
             null,
@@ -83,6 +85,18 @@ public class CallPeerActionMenuBar
 
         menu.add(holdMenuItem);
         menu.add(muteMenuItem);
+
+        menu.addItem(
+            GuiActivator.getResources().getI18NString(
+                "service.gui.TRANSFER_BUTTON_TOOL_TIP"),
+            null,
+            new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    CallManager.transferCall(callPeer);
+                }
+            });
 
         this.add(menu);
 

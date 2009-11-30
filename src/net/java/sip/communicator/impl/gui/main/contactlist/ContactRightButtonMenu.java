@@ -27,6 +27,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
 
@@ -463,6 +464,7 @@ public class ContactRightButtonMenu
     /**
      * Handles the <tt>ActionEvent</tt>. Determines which menu item was
      * selected and performs the appropriate operations.
+     * @param e the <tt>ActionEvent</tt> that notified us
      */
     public void actionPerformed(ActionEvent e)
     {
@@ -789,6 +791,11 @@ public class ContactRightButtonMenu
         }
     }
 
+    /**
+     * Indicates that a group has been selected during a move operation. Moves
+     * the selected contact to the selected group.
+     * @param evt the <tt>ContactListEvent</tt> has 
+     */
     public void groupSelected(ContactListEvent evt)
     {
         this.moveDialog.dispose();
@@ -816,6 +823,7 @@ public class ContactRightButtonMenu
     /**
      * Implements ContactListListener.contactSelected method in order
      * to move the chosen sub-contact when a meta contact is selected.
+     * @param evt the <tt>ContactListEvent</tt> that notified us
      */
     public void contactClicked(ContactListEvent evt)
     {
@@ -825,6 +833,7 @@ public class ContactRightButtonMenu
     /**
      * Implements ContactListListener.contactSelected method in order
      * to move the chosen sub-contact when a meta contact is selected.
+     * @param evt the <tt>ContactListEvent</tt> that notified us
      */
     public void protocolContactClicked(ContactListEvent evt)
     {

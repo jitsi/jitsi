@@ -12,11 +12,11 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>FileMenu</tt> is the menu in the chat window menu bar that contains
@@ -24,7 +24,8 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * 
  * @author Yana Stamcheva
  */
-public class FileMenu extends SIPCommMenu 
+public class FileMenu
+    extends SIPCommMenu
     implements ActionListener
 {
     private JMenuItem myChatRoomsItem = new JMenuItem(

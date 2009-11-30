@@ -99,7 +99,8 @@ public class HistoryWindow
      * which this <code>HistoryWindow</code> has added itself as a
      * <code>MessageListener</code>.
      */
-    private java.util.List<OperationSetBasicInstantMessaging> basicInstantMessagings;
+    private java.util.List<OperationSetBasicInstantMessaging>
+        basicInstantMessagings;
 
     /**
      * If the <code>historyContact</code> is a <code>ChatRoomWrapper</code>,
@@ -245,6 +246,8 @@ public class HistoryWindow
     /**
      * Shows the history given by the collection into a ChatConversationPanel.
      * @param historyRecords a collection of history records
+     * @return an <tt>HTMLDocument</tt> containing the history given by
+     * <tt>historyRecords</tt>
      */
     private HTMLDocument createHistory(Collection<Object> historyRecords)
     {
@@ -335,19 +338,22 @@ public class HistoryWindow
     /**
      * Implements <tt>ChatConversationContainer.setStatusMessage</tt> method.
      */
-    public void setStatusMessage(String message)
-    {
-        //TODO : setStatusMessage(String message)
-    }
+    public void setStatusMessage(String message) {}
 
     /**
      * Implements <tt>ChatConversationContainer.getWindow</tt> method.
+     * @return this window
      */
     public Window getConversationContainerWindow()
     {
         return this;
     }
 
+    /**
+     * Indicates that the window is closing. Removes all message listeners when
+     * closing.
+     * @param e the <tt>WindowEvent</tt> that notified us
+     */
     protected void windowClosing(WindowEvent e)
     {
         super.windowClosing(e);
@@ -387,10 +393,11 @@ public class HistoryWindow
         else
             return new Date(System.currentTimeMillis());
     }
-    
+
     /**
      * Handles the ProgressEvent triggered from the history when processing
      * a query.
+     * @param evt the <tt>ProgressEvent</tt> that notified us
      */
     public void progressChanged(ProgressEvent evt)
     {
@@ -523,10 +530,10 @@ public class HistoryWindow
                     }
                 };
                 SwingUtilities.invokeLater(updateDatesPanel);
-            } 
-        } 
+            }
+        }
      }
-    
+
     /**
      * Loads history messages in the right panel.
      */
@@ -547,7 +554,7 @@ public class HistoryWindow
             this.startDate = startDate;
             this.endDate = endDate;
         }
-        
+
         public void run()
         {
             final Collection<Object> msgList;
@@ -590,7 +597,7 @@ public class HistoryWindow
             SwingUtilities.invokeLater(updateMessagesPanel);
         }
     }
-    
+
     /**
      * Loads dates found for keyword.
      */
@@ -609,7 +616,7 @@ public class HistoryWindow
         {
             this.keyword = keyword;
         }
-        
+
         public void run()
         {
             Collection<Object> msgList = null;
@@ -663,7 +670,7 @@ public class HistoryWindow
                     }
                 }
             }
-            
+
             Runnable updateDatesPanel = new Runnable()
             {
                 public void run()
@@ -706,7 +713,7 @@ public class HistoryWindow
                 }
             };
             SwingUtilities.invokeLater(updateDatesPanel);
-        }       
+        }
     }
 
     /**
@@ -714,6 +721,8 @@ public class HistoryWindow
      * user presses the Esc key. Checks if the popup menu is visible and if
      * this is the case hides it, otherwise saves the current history window
      * size and location and disposes the window.
+     * @param isEscaped indicates if the window has been closed by pressing the
+     * Esc key
      */
     protected void close(boolean isEscaped)
     {
@@ -774,7 +783,7 @@ public class HistoryWindow
     {
         Contact destContact = evt.getDestinationContact();
         Message sourceMessage = evt.getSourceMessage();
-        
+
         this.processMessage(
                 destContact,
                 evt.getTimestamp(),
@@ -782,10 +791,9 @@ public class HistoryWindow
                 sourceMessage.getContent(),
                 sourceMessage.getContentType());
     }
-    
-    public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)
-    {}
-    
+
+    public void messageDeliveryFailed(MessageDeliveryFailedEvent evt) {}
+
     /**
      * Processes the message given by the parameters.
      * 
@@ -793,6 +801,7 @@ public class HistoryWindow
      * @param timestamp the timestamp of the message
      * @param messageType INCOMING or OUTGOING
      * @param messageContent the content text of the message
+     * @param messageContentType the content type of the message
      */
     private void processMessage(Contact contact,
                                 long timestamp,
@@ -853,7 +862,8 @@ public class HistoryWindow
     
     /**
      * Appends the given string at the end of the given html document.
-     * 
+     *
+     * @param doc the document to append to
      * @param chatString the string to append
      */
     private void appendMessageToDocument(HTMLDocument doc, String chatString)
@@ -875,12 +885,9 @@ public class HistoryWindow
         }
     }
 
-    public void messageDelivered(ChatRoomMessageDeliveredEvent evt)
-    {}
+    public void messageDelivered(ChatRoomMessageDeliveredEvent evt) {}
 
-    public void messageDeliveryFailed(ChatRoomMessageDeliveryFailedEvent evt)
-    {}
+    public void messageDeliveryFailed(ChatRoomMessageDeliveryFailedEvent evt) {}
 
-    public void messageReceived(ChatRoomMessageReceivedEvent evt)
-    {}
+    public void messageReceived(ChatRoomMessageReceivedEvent evt) {}
 }

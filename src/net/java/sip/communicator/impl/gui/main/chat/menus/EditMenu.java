@@ -12,9 +12,9 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>EditMenu</tt> is the menu in the chat window menu bar, which contains
@@ -22,7 +22,8 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * 
  * @author Yana Stamcheva
  */
-public class EditMenu extends SIPCommMenu 
+public class EditMenu
+    extends SIPCommMenu
     implements ActionListener
 {
     private JMenuItem fontDialogMenuItem = new JMenuItem(

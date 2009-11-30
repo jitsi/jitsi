@@ -19,6 +19,7 @@ import net.java.sip.communicator.impl.gui.main.presence.message.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>StatusSelectorBox</tt> is a <tt>SIPCommMenu</tt> that contains
@@ -261,10 +262,6 @@ public class PresenceStatusMenu
     public PresenceStatus getLastSelectedStatus()
     {
         return lastSelectedStatus;
-    }
-
-    public void updateStatus()
-    {
     }
 
     private class PublishPresenceStatusThread

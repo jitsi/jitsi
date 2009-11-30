@@ -12,6 +12,8 @@ import java.util.*;
 
 import javax.swing.Timer;
 
+import org.osgi.framework.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -243,6 +245,84 @@ public class CallManager
     public static void mute(CallPeer callPeer, boolean isMute)
     {
         new MuteCallPeerThread(callPeer, isMute).start();
+    }
+
+    /**
+     * Transfers the given <tt>callPeer</tt>.
+     * @param callPeer the <tt>CallPeer</tt> to transfer
+     */
+    public static void transferCall(CallPeer callPeer)
+    {
+        final Call call = callPeer.getCall();
+
+        if (call != null)
+        {
+            OperationSetAdvancedTelephony telephony
+                = call.getProtocolProvider()
+                    .getOperationSet(OperationSetAdvancedTelephony.class);
+
+            if (telephony != null)
+            {
+                final TransferCallDialog dialog = new TransferCallDialog(null);
+
+                /*
+                 * Transferring a call works only when the call is in progress
+                 * so close the dialog (if it's not already closed, of course)
+                 * once the dialog ends.
+                 */
+                CallChangeListener callChangeListener = new CallChangeAdapter()
+                {
+                    /*
+                     * Implements
+                     * CallChangeAdapter#callStateChanged(CallChangeEvent).
+                     */
+                    public void callStateChanged(CallChangeEvent evt)
+                    {
+                        // we are interested only in CALL_STATE_CHANGEs
+                        if(!evt.getEventType().equals(
+                                CallChangeEvent.CALL_STATE_CHANGE))
+                            return;
+
+                        if (!CallState.CALL_IN_PROGRESS.equals(call
+                            .getCallState()))
+                        {
+                            dialog.setVisible(false);
+                            dialog.dispose();
+                        }
+                    }
+                };
+                call.addCallChangeListener(callChangeListener);
+                try
+                {
+                    dialog.setModal(true);
+                    dialog.pack();
+                    dialog.setVisible(true);
+                }
+                finally
+                {
+                    call.removeCallChangeListener(callChangeListener);
+                }
+
+                String target = dialog.getTarget();
+                if ((target != null) && (target.length() > 0))
+                {
+                    try
+                    {
+                        CallPeer targetPeer = findCallPeer(target);
+
+                        if (targetPeer == null)
+                            telephony.transfer(callPeer, target);
+                        else
+                            telephony.transfer(callPeer, targetPeer);
+                    }
+                    catch (OperationFailedException ex)
+                    {
+                        logger.error("Failed to transfer call " + call + " to "
+                            + target, ex);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -648,5 +728,87 @@ public class CallManager
         NotificationManager.stopSound(NotificationManager.BUSY_CALL);
         NotificationManager.stopSound(NotificationManager.INCOMING_CALL);
         NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);
+    }
+
+    /**
+     * Returns the first <tt>CallPeer</tt> among all existing ones
+     * who has a specific address.
+     *
+     * @param address the address of the <tt>CallPeer</tt> to be located
+     * @return the first <tt>CallPeer</tt> among all existing ones
+     * who has the specified <tt>address</tt>
+     *
+     * @throws OperationFailedException in case we fail retrieving a reference
+     * to <tt>ProtocolProviderService</tt>s
+     */
+    private static CallPeer findCallPeer(String address)
+        throws OperationFailedException
+    {
+        BundleContext bundleContext = GuiActivator.bundleContext;
+        ServiceReference[] serviceReferences;
+
+        try
+        {
+            serviceReferences =
+                bundleContext.getServiceReferences(
+                    ProtocolProviderService.class.getName(), null);
+        }
+        catch (InvalidSyntaxException ex)
+        {
+            throw new OperationFailedException(
+                "Failed to retrieve ProtocolProviderService references.",
+                OperationFailedException.INTERNAL_ERROR, ex);
+        }
+
+        Class<OperationSetBasicTelephony> telephonyClass
+            = OperationSetBasicTelephony.class;
+        CallPeer peer = null;
+
+        for (ServiceReference serviceReference : serviceReferences)
+        {
+            ProtocolProviderService service = (ProtocolProviderService)
+                bundleContext.getService(serviceReference);
+            OperationSetBasicTelephony telephony =
+                service.getOperationSet(telephonyClass);
+
+            if (telephony != null)
+            {
+                peer = findCallPeer(telephony, address);
+                if (peer != null)
+                    break;
+            }
+        }
+        return peer;
+    }
+
+    /**
+     * Returns the first <tt>CallPeer</tt> known to a specific
+     * <tt>OperationSetBasicTelephony</tt> to have a specific address.
+     *
+     * @param telephony the <tt>OperationSetBasicTelephony</tt> to have its
+     * <tt>CallPeer</tt>s examined in search for one which has a specific
+     * address
+     * @param address the address to locate the associated <tt>CallPeer</tt> of
+     * @return the first <tt>CallPeer</tt> known to the specified
+     * <tt>OperationSetBasicTelephony</tt> to have the specified address
+     */
+    private static CallPeer findCallPeer(
+        OperationSetBasicTelephony telephony, String address)
+    {
+        for (Iterator<? extends Call> callIter = telephony.getActiveCalls();
+                callIter.hasNext();)
+        {
+            Call call = callIter.next();
+
+            for (Iterator<? extends CallPeer> peerIter = call.getCallPeers();
+                    peerIter.hasNext();)
+            {
+                CallPeer peer = peerIter.next();
+
+                if (address.equals(peer.getAddress()))
+                    return peer;
+            }
+        }
+        return null;
     }
 }

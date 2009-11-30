@@ -13,7 +13,6 @@ import java.lang.reflect.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
@@ -23,6 +22,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>FileMenu</tt> is a menu in the main application menu bar that

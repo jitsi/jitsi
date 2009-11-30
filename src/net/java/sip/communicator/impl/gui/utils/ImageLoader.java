@@ -742,6 +742,12 @@ public class ImageLoader
     public static final ImageID DEFAULT_FILE_ICON
         = new ImageID("service.gui.icons.DEFAULT_FILE_ICON");
 
+    /**
+     * The tools icon shown in conference calls.
+     */
+    public static final ImageID CALL_PEER_TOOLS
+        = new ImageID("service.gui.buttons.CALL_PEER_TOOLS");
+
     /*
      * =======================================================================
      * ------------------------ EDIT TOOLBAR ICONS ---------------------------

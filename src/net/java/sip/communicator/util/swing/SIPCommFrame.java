@@ -65,8 +65,8 @@ public abstract class SIPCommFrame
         amap = rootPane.getActionMap();
         amap.put("close", new CloseAction());
 
-        imap =
-            rootPane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        imap
+            = rootPane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
     /**

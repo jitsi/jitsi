@@ -12,13 +12,13 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.call.conference.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
 
@@ -143,7 +143,9 @@ public class ToolsMenu
     }
 
     /**
-     * 
+     * Indicates that a plugin component has been removed. Removes it from this
+     * container if it is contained in it.
+     * @param event the <tt>PluginComponentEvent</tt> that notified us
      */
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
@@ -155,6 +157,9 @@ public class ToolsMenu
         }
     }
 
+    /**
+     * Registers all menu items.
+     */
     private void registerMenuItems()
     {
         UIService uiService = GuiActivator.getUIService();
@@ -179,11 +184,19 @@ public class ToolsMenu
         this.add(conferenceMenuItem);
     }
 
+    /**
+     * Registers the preferences item in the MacOS X menu.
+     * @return <tt>true</tt> if the operation succeeds, otherwise - returns
+     * <tt>false</tt>
+     */
     private boolean registerConfigMenuItemMacOSX()
     {
         return FileMenu.registerMenuItemMacOSX("Preferences", this);
     }
 
+    /**
+     * Registers the settings item in the MacOS X menu.
+     */
     private void registerConfigMenuItemNonMacOSX()
     {
         JMenuItem configMenuItem = new JMenuItem(

@@ -40,6 +40,10 @@ public class InviteDialog
     private final DefaultListModel selectedContactListModel
         = new DefaultListModel();
 
+    private final SIPCommTextField newContactField
+        = new SIPCommTextField(GuiActivator.getResources()
+            .getI18NString("service.gui.OR_ENTER_PHONE_NUMBER"));
+
     /**
      * Constructs an <tt>InviteDialog</tt>, by specifying the initial list of
      * contacts available for invite.
@@ -165,9 +169,24 @@ public class InviteDialog
             SIPCommBorders.getRoundBorder());
 
         // New contact text field panel.
-        final SIPCommTextField newContactField
-            = new SIPCommTextField(GuiActivator.getResources()
-                .getI18NString("service.gui.OR_ENTER_PHONE_NUMBER"));
+        newContactField.getInputMap().put(
+            KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0),
+            "moveStringFromLeftToRight");
+        newContactField.getActionMap().put("moveStringFromLeftToRight",
+            new MoveStringToRight());
+
+        newContactField.addFocusListener(new FocusAdapter()
+        {
+            /**
+             * Removes all other selections.
+             * @param e the <tt>FocusEvent</tt> that notified us
+             */
+            public void focusGained(FocusEvent e)
+            {
+                contactList.removeSelectionInterval(
+                    0, contactList.getMaxSelectionIndex());
+            }
+        });
 
         TransparentPanel leftPanel = new TransparentPanel(new BorderLayout());
         leftPanel.setBorder(SIPCommBorders.getRoundBorder());
@@ -203,13 +222,7 @@ public class InviteDialog
                 if (metaContacts != null && metaContacts.length > 0)
                     moveContactsFromLeftToRight(metaContacts);
 
-                String newContactText = newContactField.getText();
-
-                if (newContactText != null && newContactText.length() > 0)
-                {
-                    moveStringFromLeftToRight(newContactText);
-                    newContactField.setText("");
-                }
+                moveStringFromLeftToRight();
             }
         });
 
@@ -365,11 +378,15 @@ public class InviteDialog
 
     /**
      * Moves a string from left to right.
-     * @param text the text to move from left to right
      */
-    private void moveStringFromLeftToRight(String text)
+    private void moveStringFromLeftToRight()
     {
-        selectedContactListModel.addElement(text);
+        String newContactText = newContactField.getText();
+
+        if (newContactText != null && newContactText.length() > 0)
+            selectedContactListModel.addElement(newContactField.getText());
+
+        newContactField.setText("");
     }
 
     /**
@@ -386,6 +403,19 @@ public class InviteDialog
             // If this is a MetaContact re-add it in the left list.
             if (contact instanceof MetaContact)
                 contactListModel.addElement(contact);
+        }
+    }
+
+    /**
+     * The <tt>MoveStringToRight</tt> is an <tt>AbstractAction</tt> that moves
+     * the text to right panel containing selected contacts.
+     */
+    private class MoveStringToRight
+        extends UIAction
+    {
+        public void actionPerformed(ActionEvent e)
+        {
+            moveStringFromLeftToRight();
         }
     }
 }

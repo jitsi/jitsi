@@ -106,9 +106,9 @@ public class SIPCommTextField
      */
     public void setText(String text)
     {
-        if (text != null && text.length() > 0)
-            super.setText(text);
-        else
+        super.setText(text);
+ 
+        if ((text == null || text.length() == 0) && !isFocusOwner())
             setDefaultText();
     }
 

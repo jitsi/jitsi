@@ -338,16 +338,6 @@ public class ConferencePeerPanel
         this.addToStatusBar(securityStatusLabel);
         this.addToStatusBar(holdStatusLabel);
         this.addToStatusBar(muteStatusLabel);
-
-        Component[] buttons = new Component[]
-        {
-            CallPeerRendererUtils.createTransferCallButton(callPeer)
-        };
-
-        Component buttonBar
-            = CallPeerRendererUtils.createButtonBar(false, buttons);
-
-        this.addToStatusBar(buttonBar);
     }
 
     /**

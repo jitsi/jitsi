@@ -67,7 +67,8 @@ public class SIPCommButton
     /**
      * Creates a button with custom background image.
      *
-     * @param bgImage The background button image.
+     * @param bgImage the background button image
+     * @param iconImage the icon of this button
      */
     public SIPCommButton(   Image bgImage,
                             Image iconImage)
@@ -117,10 +118,13 @@ public class SIPCommButton
         }
     }
 
+    /**
+     * Paints this button.
+     * @param g the <tt>Graphics</tt> object used for painting
+     */
     private void internalPaintComponent(Graphics g)
     {
         AntialiasingManager.activateAntialiasing(g);
-
         /*
          * As JComponent#paintComponent says, if you do not invoke super's
          * implementation you must honor the opaque property, that is if this

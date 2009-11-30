@@ -24,6 +24,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
 
@@ -160,12 +161,14 @@ public class GroupRightButtonMenu
     }
 
     /**
-     * Handles the <tt>ActionEvent</tt>. The choosen menu item should correspond
+     * Handles the <tt>ActionEvent</tt>. The chosen menu item should correspond
      * to an account, where the new contact will be added. We obtain here the
-     * protocol provider corresponding to the choosen account and show the
+     * protocol provider corresponding to the chosen account and show the
      * dialog, where the user could add the contact.
+     * @param e the <tt>ActionEvent</tt> that notified us
      */
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e)
+    {
         JMenuItem item = (JMenuItem)e.getSource();
         String itemName = item.getName();
 
@@ -266,6 +269,11 @@ public class GroupRightButtonMenu
         }
     }
 
+    /**
+     * Indicates that a new plugin component has been added. Adds it to this
+     * container if it belongs to it.
+     * @param event the <tt>PluginComponentEvent</tt> that notified us
+     */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
         PluginComponent c = event.getPluginComponent();
@@ -281,6 +289,11 @@ public class GroupRightButtonMenu
         this.repaint();
     }
 
+    /**
+     * Indicates that a new plugin component has been removed. Removes it to
+     * from this container if it belongs to it.
+     * @param event the <tt>PluginComponentEvent</tt> that notified us
+     */
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
         PluginComponent c = event.getPluginComponent();

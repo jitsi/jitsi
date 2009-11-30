@@ -29,7 +29,7 @@ public class MessageWindowMenuBar
     private final FileMenu fileMenu;
 
     private final EditMenu editMenu;
-    
+
     private final OptionsMenu optionsMenu;
 
     private final HelpMenu helpMenu;
