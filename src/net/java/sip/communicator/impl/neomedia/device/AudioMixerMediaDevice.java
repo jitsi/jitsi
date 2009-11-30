@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.neomedia.device;
 
 import java.io.*;
+import java.net.*;
 import java.util.*;
 
 import javax.media.*;
@@ -69,6 +70,13 @@ public class AudioMixerMediaDevice
      * in a different thread.
      */
     private LocalSliEventDispatcher localEventsDispatcher = null;
+
+    /**
+     * The <tt>List</tt> of RTP extensions supported by this device (at the time
+     * of writing this list is only filled for audio devices and is
+     * <tt>null</tt> otherwise).
+     */
+    private List<RTPExtension> rtpExtensions = null;
 
     /**
      * Mapping between threads dispatching events and received streams.
@@ -171,10 +179,30 @@ public class AudioMixerMediaDevice
      * @return a <tt>List</tt> containing the <tt>CSRC_AUDIO_LEVEL_URN</tt>
      * extension descriptor.
      */
-    @Override
     public List<RTPExtension> getSupportedExtensions()
     {
-        return device.getSupportedExtensions();
+        if ( rtpExtensions == null)
+        {
+            rtpExtensions = new ArrayList<RTPExtension>(1);
+
+            URI csrcAudioLevelURN;
+            try
+            {
+                csrcAudioLevelURN = new URI(RTPExtension.CSRC_AUDIO_LEVEL_URN);
+            }
+            catch (URISyntaxException e)
+            {
+                // can't happen since CSRC_AUDIO_LEVEL_URN is a valid URI and
+                // never changes.
+                logger.info("Aha! Someone messed with the source!", e);
+                return null;
+            }
+
+            rtpExtensions.add(new RTPExtension(
+                               csrcAudioLevelURN, MediaDirection.SENDRECV));
+        }
+
+        return rtpExtensions;
     }
 
     /**
