@@ -28,11 +28,25 @@ public abstract class SIPCommDialog
      */
     private static final Logger logger = Logger.getLogger(SIPCommDialog.class);
 
+    /**
+     * The action map of this dialog.
+     */
     private ActionMap amap;
+
+    /**
+     * The input map of this dialog.
+     */
     private InputMap imap;
 
+    /**
+     * Indicates if the size and location of this dialog are stored after
+     * closing.
+     */
     private boolean isSaveSizeAndLocation = true;
 
+    /**
+     * Creates an instance of <tt>SIPCommDialog</tt>.
+     */
     public SIPCommDialog()
     {
         super();
@@ -40,13 +54,23 @@ public abstract class SIPCommDialog
         this.init();
     }
 
+    /**
+     * Creates an instance of <tt>SIPCommDialog</tt> by specifying the
+     * <tt>Dialog</tt>owner of this dialog.
+     * @param owner the owner of this dialog
+     */
     public SIPCommDialog(Dialog owner)
     {
         super(owner);
 
         this.init();
     }
- 
+
+    /**
+     * Creates an instance of <tt>SIPCommDialog</tt> by specifying the
+     * <tt>Frame</tt> owner.
+     * @param owner the owner of this dialog
+     */
     public SIPCommDialog(Frame owner)
     {
         super(owner);
@@ -54,6 +78,13 @@ public abstract class SIPCommDialog
         this.init();
     }
 
+    /**
+     * Creates an instance of <tt>SIPCommDialog</tt> by specifying explicitly
+     * if the size and location properties are saved. By default size and
+     * location are stored.
+     * @param isSaveSizeAndLocation indicates whether to save the size and
+     * location of this dialog
+     */
     public SIPCommDialog(boolean isSaveSizeAndLocation)
     {
         this();
@@ -61,6 +92,14 @@ public abstract class SIPCommDialog
         this.isSaveSizeAndLocation = isSaveSizeAndLocation;
     }
 
+    /**
+     * Creates an instance of <tt>SIPCommDialog</tt> by specifying the owner
+     * of this dialog and indicating whether to save the size and location
+     * properties.
+     * @param owner the owner of this dialog
+     * @param isSaveSizeAndLocation indicates whether to save the size and
+     * location of this dialog
+     */
     public SIPCommDialog(Dialog owner, boolean isSaveSizeAndLocation)
     {
         this(owner);
@@ -68,6 +107,14 @@ public abstract class SIPCommDialog
         this.isSaveSizeAndLocation = isSaveSizeAndLocation;
     }
 
+    /**
+     * Creates an instance of <tt>SIPCommDialog</tt> by specifying the owner
+     * of this dialog and indicating whether to save the size and location
+     * properties.
+     * @param owner the owner of this dialog
+     * @param isSaveSizeAndLocation indicates whether to save the size and
+     * location of this dialog
+     */
     public SIPCommDialog(Frame owner, boolean isSaveSizeAndLocation)
     {
         this(owner);
@@ -112,7 +159,7 @@ public abstract class SIPCommDialog
             close(true);
         }
     }
-    
+
     /**
      * Adds a key - action pair for this frame.
      * 
@@ -135,6 +182,10 @@ public abstract class SIPCommDialog
      */
     public class DialogWindowAdapter extends WindowAdapter
     {
+        /**
+         * Invoked when this window is in the process of being closed.
+         * @param e the <tt>WindowEvent</tt> that notified us
+         */
         public void windowClosing(WindowEvent e)
         {
             if(isSaveSizeAndLocation)
@@ -160,7 +211,7 @@ public abstract class SIPCommDialog
                     + "represents an unacceptable value");
         }
     }
-    
+
     /**
      * Sets window size and position.
      */
@@ -168,7 +219,7 @@ public abstract class SIPCommDialog
     {
         ConfigurationService config = UtilActivator.getConfigurationService();
         String className = this.getClass().getName().replaceAll("\\$", "_");
-        
+
         int width = config.getInt(className + ".width", 0);
         int height = config.getInt(className + ".height", 0);
 
@@ -177,7 +228,7 @@ public abstract class SIPCommDialog
 
         if(width > 0 && height > 0)
             this.setSize(width, height);
-        
+
         if(xString != null && yString != null)
             this.setLocation(
                     Integer.parseInt(xString),
@@ -197,7 +248,7 @@ public abstract class SIPCommDialog
                 screenSize.width/2 - this.getWidth()/2,
                 screenSize.height/2 - this.getHeight()/2);
     }
-    
+
     /**
      * Checks whether the current component will 
      * exceeds the screen size and if it do will set a default size 
@@ -206,7 +257,7 @@ public abstract class SIPCommDialog
     {
         int x = this.getX();
         int y = this.getY();
-        
+
         int width = this.getWidth();
         int height = this.getHeight();
 
@@ -307,13 +358,14 @@ public abstract class SIPCommDialog
             this.setLocation(x, y);
         }
     }
-    
+
     /**
      * Overwrites the setVisible method in order to set the size and the
      * position of this window before showing it.
+     * @param isVisible indicates if the dialog should be visible
      */
     public void setVisible(boolean isVisible)
-    {   
+    {
         if(isVisible)
         {
             this.pack();
@@ -333,10 +385,9 @@ public abstract class SIPCommDialog
             if(button != null)
                 button.requestFocus();
         }
-        
         super.setVisible(isVisible);
     }
-    
+
     /**
      * Overwrites the dispose method in order to save the size and the position
      * of this window before closing it.
@@ -345,13 +396,15 @@ public abstract class SIPCommDialog
     {
         if(isSaveSizeAndLocation)
             this.saveSizeAndLocation();
-        
+
         super.dispose();
     }
 
     /**
      * All functions implemented in this method will be invoked when user
-     * presses the Escape key. 
+     * presses the Escape key.
+     * @param isEscaped indicates if this dialog has been closed by pressing
+     * the Esc key
      */
     protected abstract void close(boolean isEscaped);
 }

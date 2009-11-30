@@ -30,21 +30,38 @@ public abstract class SIPCommFrame
     extends JFrame
     implements Observer
 {
-
     /**
      * The <tt>Logger</tt> used by the <tt>SIPCommFrame</tt> class and its
      * instances for logging output.
      */
     private static final Logger logger = Logger.getLogger(SIPCommFrame.class);
 
-    private static final String SIP_COMMUNICATOR_LOGO =
-        "service.gui.SIP_COMMUNICATOR_LOGO";
+    /**
+     * The logo icon.
+     */
+    private static final String SIP_COMMUNICATOR_LOGO
+        = "service.gui.SIP_COMMUNICATOR_LOGO";
 
-    private final ActionMap amap;
+    /**
+     * The action map of this dialog.
+     */
+    private ActionMap amap;
 
-    private final InputMap imap;
+    /**
+     * The input map of this dialog.
+     */
+    private InputMap imap;
 
+    /**
+     * The key bindings set.
+     */
     private KeybindingSet bindings = null;
+
+    /**
+     * Indicates if the size and location of this dialog are stored after
+     * closing. By default we store window size and location.
+     */
+    private boolean isSaveSizeAndLocation = true;
 
     /**
      * Creates a <tt>SIPCommFrame</tt>.
@@ -65,8 +82,22 @@ public abstract class SIPCommFrame
         amap = rootPane.getActionMap();
         amap.put("close", new CloseAction());
 
-        imap
-            = rootPane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        imap = rootPane.getInputMap(
+            JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+    }
+
+    /**
+     * Creates an instance of <tt>SIPCommFrame</tt> by specifying explicitly
+     * if the size and location properties are saved. By default size and
+     * location are stored.
+     * @param isSaveSizeAndLocation indicates whether to save the size and
+     * location of this dialog
+     */
+    public SIPCommFrame(boolean isSaveSizeAndLocation)
+    {
+        this();
+
+        this.isSaveSizeAndLocation = isSaveSizeAndLocation;
     }
 
     /**
@@ -77,7 +108,8 @@ public abstract class SIPCommFrame
     {
         public void actionPerformed(ActionEvent e)
         {
-            saveSizeAndLocation();
+            if (isSaveSizeAndLocation)
+                saveSizeAndLocation();
             close(true);
         }
     }
@@ -136,8 +168,7 @@ public abstract class SIPCommFrame
     /**
      * Invoked when this window is in the process of being closed. The close
      * operation can be overridden at this point.
-     * 
-     * @param e
+     * @param e the <tt>WindowEvent</tt> that notified us
      */
     protected void windowClosing(WindowEvent e)
     {
@@ -145,7 +176,8 @@ public abstract class SIPCommFrame
          * Before closing the application window save the current size and
          * position through the ConfigurationService.
          */
-        saveSizeAndLocation();
+        if(isSaveSizeAndLocation)
+            saveSizeAndLocation();
 
         close(false);
     }
@@ -368,6 +400,7 @@ public abstract class SIPCommFrame
     /**
      * Overwrites the setVisible method in order to set the size and the
      * position of this window before showing it.
+     * @param isVisible indicates if this frame should be visible
      */
     public void setVisible(boolean isVisible)
     {
@@ -413,7 +446,8 @@ public abstract class SIPCommFrame
      */
     public void dispose()
     {
-        this.saveSizeAndLocation();
+        if (isSaveSizeAndLocation)
+            this.saveSizeAndLocation();
 
         /*
          * The keybinding service will outlive us so don't let us retain our
@@ -433,7 +467,8 @@ public abstract class SIPCommFrame
 
     /**
      * Listens for changes in binding sets so they can be reflected in the input
-     * map
+     * map.
+     * @param obs the <tt>KeybindingSet</tt> from which to update
      */
     public void update(Observable obs, Object arg)
     {
@@ -450,6 +485,9 @@ public abstract class SIPCommFrame
         }
     }
 
+    /**
+     * The main content pane.
+     */
     public static class MainContentPane
         extends JPanel
     {
@@ -465,6 +503,9 @@ public abstract class SIPCommFrame
 
         private TexturePaint texture = null;
 
+        /**
+         * Creates an instance of <tt>MainContentPane</tt>.
+         */
         public MainContentPane()
         {
             super(new BorderLayout());
@@ -517,6 +558,10 @@ public abstract class SIPCommFrame
             }
         }
 
+        /**
+         * Paints this content pane.
+         * @param g the <tt>Graphics</tt> object used for painting
+         */
         public void paintComponent(Graphics g)
         {
             super.paintComponent(g);
@@ -537,6 +582,11 @@ public abstract class SIPCommFrame
             }
         }
 
+        /**
+         * Provides a custom paint if the color or image background properties
+         * are enabled.
+         * @param g the <tt>Graphics</tt> object used for painting
+         */
         private void internalPaintComponent(Graphics g)
         {
             AntialiasingManager.activateAntialiasing(g);
@@ -573,6 +623,8 @@ public abstract class SIPCommFrame
     /**
      * All functions implemented in this method will be invoked when user
      * presses the Escape key.
+     * @param isEscaped indicates if this frame has been closed by pressing the
+     * Esc key
      */
     protected abstract void close(boolean isEscaped);
 }
