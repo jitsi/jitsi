@@ -69,6 +69,8 @@ public class CallDialog
      */
     public CallDialog(Call call)
     {
+        super(false);
+
         this.call = call;
 
         this.callDurationTimer = new Timer(1000, new CallTimerListener());
@@ -96,8 +98,6 @@ public class CallDialog
             if (callPeer != null)
                 this.callPanel = new OneToOneCallPanel(
                     this, call, callPeer);
-
-            this.setPreferredSize(new Dimension(500, 400));
         }
 
         // Adds a CallChangeListener that would receive events when a peer is
@@ -515,7 +515,7 @@ public class CallDialog
     public boolean isConference()
     {
         // If we're the focus of the conference.
-        if (call.isConferenceFocus())
+        if (call.isConferenceFocus() && call.getCallPeerCount() > 1)
             return true;
 
         // If one of our peers is a conference focus, we're in a
@@ -654,7 +654,6 @@ public class CallDialog
             return;
 
         contentPane.validate();
-        contentPane.repaint();
 
         // Calling pack would resize the window to fit the new content. We'd
         // like to use the whole possible space before showing the scroll bar.
@@ -674,5 +673,7 @@ public class CallDialog
                 < GraphicsEnvironment.getLocalGraphicsEnvironment()
                     .getMaximumWindowBounds().height)
             pack();
+        else
+            contentPane.repaint();
     }
 }

@@ -49,6 +49,8 @@ public class OneToOneCallPanel
         this.setTransferHandler(new CallTransferHandler(call));
 
         this.addCallPeerPanel(callPeer);
+
+        this.setPreferredSize(new Dimension(400, 400));
     }
 
     /**

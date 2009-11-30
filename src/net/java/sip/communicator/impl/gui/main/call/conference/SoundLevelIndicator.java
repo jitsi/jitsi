@@ -149,9 +149,9 @@ public class SoundLevelIndicator
     {
         int windowWidth = e.getComponent().getWidth();
 
-        int currentNumber = getSoundBarNumber(windowWidth);
+        int newNumber = getSoundBarNumber(windowWidth);
 
-        while (currentNumber > 0 && currentNumber < soundBarNumber)
+        while (newNumber > 0 && newNumber < soundBarNumber)
         {
             for (int i = getComponentCount() - 1; i >= 0; i--)
             {
@@ -164,7 +164,7 @@ public class SoundLevelIndicator
             }
         }
 
-        while (currentNumber > 0 && soundBarNumber < currentNumber)
+        while (newNumber > 0 && soundBarNumber < newNumber)
         {
             JLabel block = new JLabel(soundLevelInactiveImage);
 
@@ -191,6 +191,6 @@ public class SoundLevelIndicator
 
         // We deduct 150px from the given windowWidth because this is not the
         // only component positioned on the horizontal axe.
-        return (windowWidth - 150)/barWidth;
+        return (windowWidth - 130)/barWidth;
     }
 }
