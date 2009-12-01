@@ -494,7 +494,7 @@ public interface ChatRoom
     * membership. A user that becomes a room member will be able to enter a room
     * of type Members-Only (i.e. a room that a user cannot enter without being
     * on the member list). If the user is in the room and the room is of type
-    * members-only then the user will be removed from the room.   
+    * members-only then the user will be removed from the room.
     *
     * @param address the user address of the user to revoke membership
     * (e.g. "user@host.org").
@@ -517,7 +517,7 @@ public interface ChatRoom
     * Revokes ownership privileges from another user. The occupant that loses
     * ownership privileges will become an administrator. Room owners may revoke
     * ownership privileges. Some room implementations will not allow to grant
-    * ownership privileges to other users.  
+    * ownership privileges to other users.
     *
     * @param address the user address of the user to revoke ownership
     * (e.g. "user@host.org").

@@ -89,8 +89,7 @@ public class ChatContactCellRenderer
             {
                 // Try to retrieve local user avatar:
                 OperationSetServerStoredAccountInfo opSet
-                    = (OperationSetServerStoredAccountInfo)
-                    member.getChatRoom().getParentProvider().getOperationSet(
+                    = member.getChatRoom().getParentProvider().getOperationSet(
                         OperationSetServerStoredAccountInfo.class);
 
                 Iterator<GenericDetail> itr = opSet.getAllAvailableDetails();
@@ -116,8 +115,7 @@ public class ChatContactCellRenderer
             {
                 // Try to retrieve participant avatar:
                 OperationSetPersistentPresence opSet
-                    = (OperationSetPersistentPresence)
-                member.getChatRoom().getParentProvider().getOperationSet(
+                    = member.getChatRoom().getParentProvider().getOperationSet(
                     OperationSetPersistentPresence.class);
 
                 Contact c = opSet.findContactByID(member.getContactAddress());

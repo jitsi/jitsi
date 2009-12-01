@@ -223,7 +223,7 @@ public class ChatContactRightButtonMenu
         this.addSeparator();
 
         OperationSetPersistentPresence opSet
-            = (OperationSetPersistentPresence) room.getParentProvider()
+            = room.getParentProvider()
                 .getOperationSet(OperationSetPersistentPresence.class);
 
         Contact c = opSet.findContactByID(room.getUserNickname());
