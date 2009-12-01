@@ -3,10 +3,6 @@
  *
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
- *
- * File based on:
- * @(#)JavaSoundAuto.java   1.2 01/03/13
- * Copyright (c) 1999-2001 Sun Microsystems, Inc. All Rights Reserved.
  */
 package net.java.sip.communicator.impl.neomedia.device;
 
@@ -14,41 +10,48 @@ import java.util.*;
 
 import javax.media.*;
 
+import javax.sound.sampled.*;
+
 import net.java.sip.communicator.util.*;
 
 /**
  * Detects javasound and registers capture devices.
- * @author damencho
+ *
+ * @author Damian Minkov
  */
-public class JavaSoundAuto {
-
+public class JavaSoundAuto
+{
+    /**
+     * The <tt>Logger</tt> used by the <tt>JavaSoundAuto</tt> class and its
+     * instances for logging output.
+     */
     private static final Logger logger = Logger.getLogger(JavaSoundAuto.class);
 
-    private static final String detectClass =
-            "net.java.sip.communicator.impl.neomedia.device.JavaSoundDetector";
-    CaptureDeviceInfo[] devices = null;
-
-    public static void main(String[] args) {
-        new JavaSoundAuto();
-        System.exit(0);
-    }
-
+    /**
+     * Creates <tt>JavaSoundAuto</tt> and checks is javasound supported
+     * on current operating system.
+     */
     @SuppressWarnings("unchecked") //legacy JMF code.
-    public JavaSoundAuto() {
+    public JavaSoundAuto()
+    {
         boolean supported = false;
-        // instance JavaSoundDetector to check is javasound's capture is availabe
-        try {
-            Class<?> cls = Class.forName(detectClass);
-            JavaSoundDetector detect = (JavaSoundDetector)cls.newInstance();
-            supported = detect.isSupported();
-        } catch (Throwable thr) {
+        
+        try
+        {
+            DataLine.Info info = new DataLine.Info(TargetDataLine.class,
+                    null,
+                    AudioSystem.NOT_SPECIFIED);
+            supported = AudioSystem.isLineSupported(info);
+        } catch (Throwable thr)
+        {
             supported = false;
             logger.error("Failed detecting java sound audio", thr);
         }
 
         logger.info("JavaSound Capture Supported = " + supported);
 
-        if (supported) {
+        if (supported)
+        {
             // It's there, start to register JavaSound with CaptureDeviceManager
             Vector<CaptureDeviceInfo> devices
                 = (Vector) CaptureDeviceManager.getDeviceList(null).clone();
@@ -56,7 +59,8 @@ public class JavaSoundAuto {
             // remove the old javasound capturers
             String name;
             Enumeration<CaptureDeviceInfo> enumeration = devices.elements();
-            while (enumeration.hasMoreElements()) {
+            while (enumeration.hasMoreElements())
+            {
                 CaptureDeviceInfo cdi = enumeration.nextElement();
                 name = cdi.getName();
                 if (name.startsWith("JavaSound"))
@@ -68,13 +72,17 @@ public class JavaSoundAuto {
             CaptureDeviceInfo[] cdi
                 =  com.sun.media.protocol.javasound.JavaSoundSourceStream
                     .listCaptureDeviceInfo();
-            if ( cdi != null ){
+            if ( cdi != null )
+            {
                 for (int i = 0; i < cdi.length; i++)
                     CaptureDeviceManager.addDevice(cdi[i]);
-                try {
+
+                try
+                {
                     CaptureDeviceManager.commit();
                     logger.info("JavaSoundAuto: Committed ok");
-                } catch (java.io.IOException ioe) {
+                } catch (java.io.IOException ioe)
+                {
                     logger.error("JavaSoundAuto: error committing cdm");
                 }
             }

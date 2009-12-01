@@ -25,6 +25,7 @@ import javax.media.protocol.*;
  */
 public class MutePushBufferDataSource
     extends PushBufferDataSourceDelegate<PushBufferDataSource>
+    implements MuteDataSource
 {
 
     /**

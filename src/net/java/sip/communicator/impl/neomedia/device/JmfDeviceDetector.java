@@ -3,10 +3,6 @@
  *
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
- *
- * File based on:
- * @(#)JMFInit.java 1.14 03/04/30
- * Copyright (c) 1996-2002 Sun Microsystems, Inc.  All rights reserved.
  */
 package net.java.sip.communicator.impl.neomedia.device;
 
@@ -14,7 +10,6 @@ import java.io.*;
 import java.util.*;
 
 import javax.media.*;
-import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.service.fileaccess.*;
@@ -32,6 +27,10 @@ import com.sun.media.util.*;
  */
 public class JmfDeviceDetector
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>JmfDeviceDetector</tt> class and its
+     * instances for logging output.
+     */
     private static final Logger logger
         = Logger.getLogger(JmfDeviceDetector.class);
 
@@ -84,11 +83,12 @@ public class JmfDeviceDetector
         if (FMJConditionals.USE_JMF_INTERNAL_REGISTRY)
         {
             // This uses JMF internals:
-            // see if the registry has already been "tagged" by us, skip auto-detection if
-            // it has.
-            // This was probably done because JMF auto-detection is very slow, especially
-            // for video devices.  FMJ does this quickly, so there is no need for this
-            // kind of workaround (besides the fact that these internal functions are not
+            // see if the registry has already been "tagged" by us, 
+            // skip auto-detection if it has.
+            // This was probably done because JMF auto-detection is very slow, 
+            // especially for video devices.  FMJ does this quickly, 
+            // so there is no need for this kind of workaround
+            // (besides the fact that these internal functions are not
             // implemented in FMJ).
             String author = (String)Registry.get(PROP_REGISTRY_AUTHOR);
 
@@ -114,11 +114,6 @@ public class JmfDeviceDetector
             }
         }
 
-        // Issues #693 and #524:
-        // Disable DirectSound since it fails on multiple installations
-        //
-        // detectDirectAudio();
-        // detectS8DirectAudio();
         detectCaptureDevices();
     }
 
@@ -174,68 +169,8 @@ public class JmfDeviceDetector
             return;
 
         // Try to configgure capture devices for any operating system.
-        //those that do not apply will silently fail.
+        // those that do not apply will silently fail.
         logger.info("Looking for video capture devices");
-/*        int nDevices = 0;
-        //Windows
-        try
-        {
-            VFWAuto vfwAuto = new VFWAuto();
-            vfwAuto.autoDetectDevices();
-            logger.info("Detected "
-                        + nDevices
-                        +" VFW video capture device(s).");
-        }
-        catch (Throwable exc)
-        {
-            logger.debug("No VFW video detected: " + exc.getMessage());
-        }
-
-        //SunVideo
-        try
-        {
-            SunVideoAuto sunVideoAuto = new SunVideoAuto();
-            nDevices = sunVideoAuto.autoDetectDevices();
-
-            logger.info("Detected "
-                        + nDevices
-                        +" SUN Video capture device(s).");
-        }
-        catch (Throwable exc)
-        {
-            logger.debug("No SUN Video detected: " + exc.getMessage());
-        }
-
-        //SunVideoPlus
-        try
-        {
-            SunVideoPlusAuto sunVideoAutoPlus = new SunVideoPlusAuto();
-            nDevices = sunVideoAutoPlus.autoDetectDevices();
-
-            logger.info("Detected "
-                        + nDevices
-                        + " SUN Video Plus device(s).");
-        }
-        catch (Throwable exc)
-        {
-            logger.debug("No SUN Video Plus detected: " + exc.getMessage());
-        }
-
-        //Linux
-        try
-        {
-            V4LAuto v4lAuto = new V4LAuto();
-            nDevices = v4lAuto.autoDetectDevices();
-            logger.info("Detected "
-                        + nDevices
-                        +" V4L video capture device.");
-        }
-        catch (Throwable exc)
-        {
-            logger.debug("No V4l video detected: " + exc.getMessage());
-        }
-*/
-
 
         //FMJ
         try
@@ -265,63 +200,6 @@ public class JmfDeviceDetector
         }
 
         return true;
-    }
-
-    /**
-     * Will try to detect direct audio devices.
-     */
-    @SuppressWarnings("unchecked") //legacy JMF code.
-    private void detectDirectAudio()
-    {
-        Class<?> cls;
-        int plType = PlugInManager.RENDERER;
-        String dar = "com.sun.media.renderer.audio.DirectAudioRenderer";
-        try
-        {
-            // Check if this is the Windows Performance Pack - hack
-            cls = Class.forName(
-                "net.java.sip.communicator.impl.media.device.VFWAuto");
-            // Check if DS capture is supported, otherwise fail DS renderer
-            // since NT doesn't have capture
-            cls = Class.forName("com.sun.media.protocol.dsound.DSound");
-            // Find the renderer class and instantiate it.
-            cls = Class.forName(dar);
-
-            Renderer rend = (Renderer) cls.newInstance();
-            try
-            {
-                // Set the format and open the device
-                AudioFormat af = new AudioFormat(AudioFormat.LINEAR,
-                                                 44100, 16, 2);
-                rend.setInputFormat(af);
-                rend.open();
-                Format[] inputFormats = rend.getSupportedInputFormats();
-                // Register the device
-                PlugInManager.addPlugIn(dar, inputFormats, new Format[0],
-                                        plType);
-                // Move it to the top of the list
-                Vector<String> rendList =
-                    PlugInManager.getPlugInList(null, null, plType);
-                int listSize = rendList.size();
-                if (rendList.elementAt(listSize - 1).equals(dar))
-                {
-                    rendList.removeElementAt(listSize - 1);
-                    rendList.insertElementAt(dar, 0);
-                    PlugInManager.setPlugInList(rendList, plType);
-                    PlugInManager.commit();
-                    //System.err.println("registered");
-                }
-                rend.close();
-            }
-            catch (Throwable throwable)
-            {
-                logger.debug("Detection for direct audio failed.", throwable);
-            }
-        }
-        catch (Throwable tt)
-        {
-            logger.debug("Detection for direct audio failed.", tt);
-        }
     }
 
     /**
@@ -389,12 +267,14 @@ public class JmfDeviceDetector
         setupRenderers();
     }
 
+    /**
+     * Sets the renderers appropriate for the current platform.
+     */
     @SuppressWarnings("unchecked") //legacy JMF code.
     private static void setupRenderers()
     {
         if (isWindowsVista())
         {
-
             /*
              * DDRenderer will cause Windows Vista to switch its theme from Aero
              * to Vista Basic so try to pick up a different Renderer.
@@ -426,6 +306,10 @@ public class JmfDeviceDetector
         }
     }
 
+    /**
+     * Checks whether we are running on windows vista.
+     * @return true if the current platform is Windows Vista otherwise false;
+     */
     private static boolean isWindowsVista()
     {
         String osName = System.getProperty("os.name");
@@ -438,6 +322,10 @@ public class JmfDeviceDetector
             && (osName.indexOf("Vista") != -1);
     }
 
+    /**
+     * Checks whether we are running on linux i386.
+     * @return true if the current platform is linux i386 otherwise false;
+     */
     private static boolean isLinux32()
     {
         String osName = System.getProperty("os.name");

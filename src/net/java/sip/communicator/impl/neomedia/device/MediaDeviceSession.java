@@ -500,6 +500,15 @@ public class MediaDeviceSession
             mutePushBufferDataSource.setMute(mute);
             captureDevice = mutePushBufferDataSource;
         }
+        else if (captureDevice instanceof PullBufferDataSource)
+        {
+            MutePullBufferDataSource mutePullBufferDataSource
+                = new MutePullBufferDataSource(
+                        (PullBufferDataSource) captureDevice);
+
+            mutePullBufferDataSource.setMute(mute);
+            captureDevice = mutePullBufferDataSource;
+        }
 
         return captureDevice;
     }
@@ -1032,8 +1041,8 @@ public class MediaDeviceSession
 
         if (captureDevice == null)
             return mute;
-        if (captureDevice instanceof MutePushBufferDataSource)
-            return ((MutePushBufferDataSource) captureDevice).isMute();
+        if (captureDevice instanceof MuteDataSource)
+            return ((MuteDataSource) captureDevice).isMute();
         return false;
     }
 
@@ -1325,8 +1334,8 @@ public class MediaDeviceSession
 
             DataSource captureDevice = this.captureDevice;
 
-            if (captureDevice instanceof MutePushBufferDataSource)
-                ((MutePushBufferDataSource) captureDevice).setMute(this.mute);
+            if (captureDevice instanceof MuteDataSource)
+                ((MuteDataSource) captureDevice).setMute(this.mute);
         }
     }
 
