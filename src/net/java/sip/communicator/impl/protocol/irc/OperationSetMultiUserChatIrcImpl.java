@@ -320,8 +320,6 @@ public class OperationSetMultiUserChatIrcImpl
                 ircProvider,
                 serverChatRoom,
                 ircProvider.getAccountID().getService(),
-                "", // We don't specify a login.
-                "", // We don't specify a hostname.
                 ChatRoomMemberRole.GUEST);
     }
 }

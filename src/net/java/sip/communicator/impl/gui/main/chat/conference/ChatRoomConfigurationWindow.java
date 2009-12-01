@@ -19,48 +19,86 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
- * The configuration window for the chat room.
- * 
+ * The configuration window for a chat room.
+ *
  * @author Yana Stamcheva
+ * @author Valentin Martinet
  */
 public class ChatRoomConfigurationWindow
     extends SIPCommFrame
     implements ActionListener
 {
+    /**
+     * The configuration form contained in this window.
+     */
     private ChatRoomConfigurationForm configForm;
 
+    /**
+     * The scroll pane contained in the "General" tab.
+     */
     private JScrollPane generalScrollPane = new JScrollPane();
+
+    /**
+     * The scroll pane contained in the "Options" tab.
+     */
     private JScrollPane optionsScrollPane = new JScrollPane();
 
+    /**
+     * The main panel.
+     */
     private JPanel mainPanel = new JPanel();
 
+    /**
+     * The button that stores the data.
+     */
     private JButton saveButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.APPLY"));
 
+    /**
+     * The cancel button.
+     */
     private JButton cancelButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
 
+    /**
+     * The panel contained in the "Options" tab.
+     */
     private JPanel roomOptionsPanel = new JPanel(new GridLayout(0, 1));
 
+    /**
+     * The panel containing all buttons.
+     */
     private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
+    /**
+     * The tabbed pane containing the "General" and "Options" tabs.
+     */
     private JTabbedPane tabbedPane = new SIPCommTabbedPane(false, false);
 
+    /**
+     * The panel containing the title.
+     */
     private TitlePanel titlePanel = new TitlePanel();
 
+    /**
+     * A map all configuration components.
+     */
     private Hashtable<String, JComponent> uiFieldsTable
         = new Hashtable<String, JComponent>();
 
     /**
      * Creates an instance of <tt>ChatRoomConfigurationWindow</tt> and
      * initializes the configuration form.
-     * 
+     *
+     * @param chatRoomName the name of the room
      * @param configForm the configuration form to load in this configuration
      * window
      */
     public ChatRoomConfigurationWindow(String chatRoomName,
         ChatRoomConfigurationForm configForm)
     {
+        super(false);
+
         this.configForm = configForm;
 
         this.setTitle(GuiActivator.getResources().getI18NString(
@@ -105,6 +143,14 @@ public class ChatRoomConfigurationWindow
         this.getContentPane().add(tabbedPane, BorderLayout.CENTER);
         this.getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
 
+        titlePanel.setOpaque(false);
+        tabbedPane.setOpaque(false);
+        buttonsPanel.setOpaque(false);
+        roomOptionsPanel.setOpaque(false);
+        optionsScrollPane.setOpaque(false);
+        mainPanel.setOpaque(false);
+        generalScrollPane.setOpaque(false);
+
         this.roomOptionsPanel.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createEmptyBorder(15, 15, 15, 15),
             BorderFactory.createTitledBorder(
@@ -113,7 +159,7 @@ public class ChatRoomConfigurationWindow
 
         this.loadConfigurationForm();
     }
-    
+
     /**
      * Loads the configuration form obtained from the chat room.
      */
@@ -278,6 +324,7 @@ public class ChatRoomConfigurationWindow
             else
             {
                 JPanel fieldPanel = new JPanel(new BorderLayout());
+                fieldPanel.setOpaque(false);
                 fieldPanel.setBorder(
                     BorderFactory.createEmptyBorder(0, 0, 10, 0));
 
@@ -290,7 +337,7 @@ public class ChatRoomConfigurationWindow
             }
         }
     }
-    
+
     /**
      * Computes the maximum width of a label in the configuration form.
      * 
@@ -327,7 +374,8 @@ public class ChatRoomConfigurationWindow
     }
 
     /**
-     * 
+     * Saves all configuration settings when the "Save" button is pressed.
+     * @param e the <tt>ActionEvent</tt> that notified us of the button action
      */
     public void actionPerformed(ActionEvent e)
     {
@@ -398,10 +446,10 @@ public class ChatRoomConfigurationWindow
                     {
                         new ErrorDialog(
                             ChatRoomConfigurationWindow.this,
-                            GuiActivator.getResources()
-                                .getI18NString("service.gui.ERROR"),
                             GuiActivator.getResources().getI18NString(
-                                "service.gui.CHAT_ROOM_CONFIGURATION_SUBMIT_FAILED"),
+                            "service.gui.ERROR"),
+                            GuiActivator.getResources().getI18NString(
+                            "service.gui.CHAT_ROOM_CONFIGURATION_SUBMIT_FAILED"),
                             e).showDialog();
                     }
                 }
@@ -411,7 +459,5 @@ public class ChatRoomConfigurationWindow
         this.dispose();
     }
 
-    protected void close(boolean isEscaped)
-    {
-    }
+    protected void close(boolean isEscaped) {}
 }

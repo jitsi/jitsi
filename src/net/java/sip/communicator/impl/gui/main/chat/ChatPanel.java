@@ -30,7 +30,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
-import net.java.sip.communicator.util.swing.SwingWorker; // disambiguation
 
 /**
  * The <tt>ChatPanel</tt> is the panel, where users can write and send messages,
@@ -49,6 +48,8 @@ public class ChatPanel
     implements  ChatSessionRenderer,
                 Chat,
                 ChatConversationContainer,
+                ChatRoomMemberRoleListener,
+                ChatRoomLocalUserRoleListener,
                 FileTransferStatusListener
 {
     private static final Logger logger = Logger.getLogger(ChatPanel.class);
@@ -258,17 +259,20 @@ public class ChatPanel
         }
         else if (chatSession instanceof ConferenceChatSession)
         {
+            ConferenceChatSession confSession
+                = (ConferenceChatSession) chatSession;
+
             removeChatTransportSelectorBox();
 
+            confSession.addLocalUserRoleListener(this);
+            confSession.addMemberRoleListener(this);
 
-//          We don't add the subject panel for now. It takes too much space
-//          and is not used.
-//          subjectPanel
-//              = new ChatRoomSubjectPanel( chatWindow,
-//                                          (ConferenceChatSession) chatSession);
+            subjectPanel = new ChatRoomSubjectPanel(chatWindow,
+                    (ConferenceChatSession) chatSession);
+
             // The subject panel is added here, because it's specific for the
             // multi user chat and is not contained in the single chat chat panel.
-//            this.add(subjectPanel, BorderLayout.NORTH);
+            this.add(subjectPanel, BorderLayout.NORTH);
         }
 
         if (chatContactListPanel != null)
@@ -382,6 +386,77 @@ public class ChatPanel
     public ChatSendPanel getChatSendPanel()
     {
         return this.sendPanel;
+    }
+
+    /**
+     * Returns the corresponding role description to the given role index.
+     *
+     * @param role to role index to analyse
+     * @return String the corresponding role description
+     */
+    public String getRoleDescription(ChatRoomMemberRole role)
+    {
+        String roleDescription = null;
+
+        switch(role)
+        {
+            case OWNER: roleDescription
+                = GuiActivator.getResources().getI18NString(
+                    "service.gui.OWNER");
+            break;
+            case ADMINISTRATOR: roleDescription
+                = GuiActivator.getResources().getI18NString(
+                    "service.gui.ADMINISTRATOR");
+            break;
+            case MODERATOR: roleDescription
+                = GuiActivator.getResources().getI18NString(
+                    "service.gui.MODERATOR");
+            break;
+            case MEMBER: roleDescription
+                = GuiActivator.getResources().getI18NString(
+                    "service.gui.MEMBER");
+            break;
+            case GUEST: roleDescription
+                = GuiActivator.getResources().getI18NString(
+                    "service.gui.GUEST");
+            break;
+            case SILENT_MEMBER: roleDescription
+                = GuiActivator.getResources().getI18NString(
+                    "service.gui.SILENT_MEMBER");
+            break;
+            default:;
+        }
+
+        return roleDescription;
+    }
+
+    /**
+     * Implements the <tt>memberRoleChanged()</tt> method.
+     *
+     * @param evt
+     */
+    public void memberRoleChanged(ChatRoomMemberRoleChangeEvent evt)
+    {
+        this.conversationPanel.appendMessageToEnd(
+            "<DIV identifier=\"message\" style=\"color:#707070;\">"
+            + GuiActivator.getResources().getI18NString("service.gui.IS_NOW",
+                new String[]{evt.getSourceMember().getName(), 
+                getRoleDescription(evt.getNewRole())})
+                +"</DIV>");
+    }
+
+    /**
+     * Implements the <tt>localUserRoleChanged()</tt> method.
+     *
+     * @param evt
+     */
+    public void localUserRoleChanged(ChatRoomLocalUserRoleChangeEvent evt)
+    {
+        this.conversationPanel.appendMessageToEnd(
+            "<DIV identifier=\"message\" style=\"color:#707070;\">"
+            +GuiActivator.getResources().getI18NString("service.gui.ARE_NOW",
+                new String[]{
+                getRoleDescription(evt.getNewRole())}) +"</DIV>");
     }
 
     /**
@@ -1870,8 +1945,6 @@ public class ChatPanel
 
         if (chatSession instanceof MetaContactChatSession)
         {
-            String newChatName = inviteChatTransport.getDisplayName();
-
             chatContacts.add(inviteChatTransport.getName());
 
             ConferenceChatManager conferenceChatManager
@@ -1882,7 +1955,7 @@ public class ChatPanel
                     getOperationSet(OperationSetMultiUserChat.class) != null)
             {
                 ChatRoomWrapper chatRoomWrapper
-                    = conferenceChatManager.createChatRoom(newChatName,
+                    = conferenceChatManager.createChatRoom(
                         inviteChatTransport.getProtocolProvider(), chatContacts);
 
                 conferenceChatSession
@@ -1892,7 +1965,7 @@ public class ChatPanel
                 getOperationSet(OperationSetAdHocMultiUserChat.class) != null)
             {
                 AdHocChatRoomWrapper chatRoomWrapper
-                    = conferenceChatManager.createAdHocChatRoom(newChatName,
+                    = conferenceChatManager.createAdHocChatRoom(
                             inviteChatTransport.getProtocolProvider(),
                             chatContacts);
 

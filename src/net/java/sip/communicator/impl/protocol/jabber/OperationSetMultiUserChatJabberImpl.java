@@ -14,6 +14,7 @@ import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.muc.*;
 
@@ -40,7 +41,8 @@ public class OperationSetMultiUserChatJabberImpl
      * we have not necessarily joined these rooms, we might have simply been
      * searching through them.
      */
-    private final Hashtable<String, ChatRoom> chatRoomCache = new Hashtable<String, ChatRoom>();
+    private final Hashtable<String, ChatRoom> chatRoomCache
+        = new Hashtable<String, ChatRoom>();
 
     /**
      * The registration listener that would get notified when the underlying
@@ -95,16 +97,21 @@ public class OperationSetMultiUserChatJabberImpl
         //first make sure we are connected and the server supports multichat
         assertSupportedAndConnected();
 
-        ChatRoom room = findRoom(roomName);
+        ChatRoom room = null;
+        if (roomName == null)
+            roomName = "chatroom-" + StringUtils.randomString(4);
+        else
+            room = findRoom(roomName);
 
         if (room == null)
         {
+            logger.info("Find room returns null.");
             MultiUserChat muc = new MultiUserChat(
                 getXmppConnection(), getCanonicalRoomName(roomName));
 
             try
             {
-                muc.create(getXmppConnection().getUser());
+                muc.create(StringUtils.parseName(getXmppConnection().getUser()));
                 muc.sendConfigurationForm(new Form(Form.TYPE_SUBMIT));
             }
             catch (XMPPException ex)
@@ -115,7 +122,9 @@ public class OperationSetMultiUserChatJabberImpl
                                                    , ex.getCause());
             }
             room = createLocalChatRoomInstance(muc);
+            room.setUserRole(ChatRoomMemberRole.OWNER);
         }
+        room.join();
         return room;
     }
 
@@ -493,7 +502,12 @@ public class OperationSetMultiUserChatJabberImpl
     }
 
     /**
-     * Returns the list of currently joined chat rooms.
+     * Returns the list of currently joined chat rooms for
+     * <tt>chatRoomMember</tt>.
+     * @param chatRoomMember the member we're looking for
+     * @return a list of all currently joined chat rooms
+     * @throws OperationFailedException if the operation fails
+     * @throws OperationNotSupportedException if the operation is not supported
      */
     public List<String> getCurrentlyJoinedChatRooms(ChatRoomMember chatRoomMember)
         throws OperationFailedException, OperationNotSupportedException
@@ -621,14 +635,14 @@ public class OperationSetMultiUserChatJabberImpl
     }
 
     /**
-     * Our listener that will tell us when we're registered to jabber and the
+     * Our listener that will tell us when we're registered to Jabber and the
      * smack MultiUserChat is ready to accept us as a listener.
      */
     private class RegistrationStateListener
         implements RegistrationStateChangeListener
     {
         /**
-         * The method is called by a ProtocolProvider implementation whenver
+         * The method is called by a ProtocolProvider implementation whenever
          * a change in the registration state of the corresponding provider had
          * occurred.
          * @param evt ProviderStatusChangeEvent the event describing the status
@@ -650,6 +664,7 @@ public class OperationSetMultiUserChatJabberImpl
     /**
      * Updates corresponding chat room members when a contact has been modified
      * in our contact list.
+     * @param evt the <tt>SubscriptionEvent</tt> that notified us
      */
      public void contactModified(ContactPropertyChangeEvent evt)
      {
@@ -661,6 +676,7 @@ public class OperationSetMultiUserChatJabberImpl
      /**
       * Updates corresponding chat room members when a contact has been created
       * in our contact list.
+      * @param evt the <tt>SubscriptionEvent</tt> that notified us
       */
      public void subscriptionCreated(SubscriptionEvent evt)
      {
@@ -671,19 +687,20 @@ public class OperationSetMultiUserChatJabberImpl
 
      /**
       * Not interested in this event for our member update purposes.
+      * @param evt the <tt>SubscriptionEvent</tt> that notified us
       */
-     public void subscriptionFailed(SubscriptionEvent evt)
-     {}
+     public void subscriptionFailed(SubscriptionEvent evt) {}
 
      /**
       * Not interested in this event for our member update purposes.
+      * @param evt the <tt>SubscriptionEvent</tt> that notified us
       */
-     public void subscriptionMoved(SubscriptionMovedEvent evt)
-     {}
+     public void subscriptionMoved(SubscriptionMovedEvent evt) {}
 
      /**
       * Updates corresponding chat room members when a contact has been removed
       * from our contact list.
+      * @param evt the <tt>SubscriptionEvent</tt> that notified us
       */
      public void subscriptionRemoved(SubscriptionEvent evt)
      {
@@ -694,9 +711,9 @@ public class OperationSetMultiUserChatJabberImpl
 
      /**
       * Not interested in this event for our member update purposes.
+      * @param evt the <tt>SubscriptionEvent</tt> that notified us
       */
-     public void subscriptionResolved(SubscriptionEvent evt)
-     {}
+     public void subscriptionResolved(SubscriptionEvent evt) {}
 
      /**
       * Finds all chat room members, which name corresponds to the name of the

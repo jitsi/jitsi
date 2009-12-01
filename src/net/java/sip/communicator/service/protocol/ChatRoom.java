@@ -16,6 +16,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  *
  * @author Emil Ivov
  * @author Yana Stamcheva
+ * @author Valentin Martinet
  */
 public interface ChatRoom
 {
@@ -142,6 +143,25 @@ public interface ChatRoom
     public String getUserNickname();
 
     /**
+     * Returns the local user's role in the context of this chat room or
+     * <tt>null</tt> if not currently joined.
+     *
+     * @return the role currently being used by the local user in the context of
+     * the chat room.
+     */
+    public ChatRoomMemberRole getUserRole();
+
+    /**
+     * Changes the the local user's nickname in the context of this chatroom.
+     *
+     * @param role the new role to set for the local user.
+     *
+     * @throws OperationFailedException if an error occurs.
+     */
+    public void setUserRole(ChatRoomMemberRole role)
+        throws OperationFailedException;
+
+    /**
      * Changes the the local user's nickname in the context of this chatroom.
      * 
      * @param nickname the new nickname within the room.
@@ -261,14 +281,12 @@ public interface ChatRoom
      *
      * @return a <tt>List</tt> of <tt>ChatRoomMember</tt> instances
      * corresponding to all room members.
-     * @throws OperationFailedException if we fail retrieving the list of room
-     * participants.
      */
     public List<ChatRoomMember> getMembers();
 
     /**
      * Returns the number of participants that are currently in this chat room.
-     * @return int the number of <tt>Contact</tt>s, currently participating in
+     * @return the number of <tt>Contact</tt>s, currently participating in
      * this room.
      */
     public int getMembersCount();
@@ -339,7 +357,7 @@ public interface ChatRoom
      */
     public Iterator<ChatRoomMember> getBanList()
         throws OperationFailedException;
-    
+
     /**
      * Bans a user from the room. An administrator or owner of the room can ban
      * users from a room. A banned user will no longer be able to join the room
@@ -357,7 +375,7 @@ public interface ChatRoom
      */
     public void banParticipant(ChatRoomMember chatRoomMember, String reason)
         throws OperationFailedException;
-    
+
     /**
      * Kicks a visitor or participant from the room.
      *
@@ -372,7 +390,7 @@ public interface ChatRoom
      */
     public void kickParticipant(ChatRoomMember chatRoomMember, String reason)
         throws OperationFailedException;
-    
+
     /**
      * Returns the <tt>ChatRoomConfigurationForm</tt> containing all
      * configuration properties for this chat room. If the user doesn't have
@@ -405,4 +423,114 @@ public interface ChatRoom
      * @return true if this chat room is persistent, false otherwise
      */
     public boolean isPersistent();
+
+    /**
+    * Grants administrator privileges to another user. Room owners may grant
+    * administrator privileges to a member or unaffiliated user. An
+    * administrator is allowed to perform administrative functions such as
+    * banning users and edit moderator list.
+    *
+    * @param address the user address of the user to grant administrator
+    * privileges (e.g. "user@host.org").
+    */
+    public void grantAdmin(String address);
+
+    /**
+    * Grants membership to a user. Only administrators are able to grant
+    * membership. A user that becomes a room member will be able to enter a room
+    * of type Members-Only (i.e. a room that a user cannot enter without being
+    * on the member list).
+    *
+    * @param address the user address of the user to grant membership
+    * privileges (e.g. "user@host.org").
+    */
+    public void grantMembership(String address);
+
+    /**
+    * Grants moderator privileges to a participant or visitor. Room
+    * administrators may grant moderator privileges. A moderator is allowed to
+    * kick users, grant and revoke voice, invite other users, modify room's
+    * subject plus all the partcipants privileges.
+    *
+    * @param nickname the nickname of the occupant to grant moderator
+    * privileges.
+    */
+    public void grantModerator(String nickname);
+
+    /**
+    * Grants ownership privileges to another user. Room owners may grant
+    * ownership privileges. Some room implementations will not allow to grant
+    * ownership privileges to other users. An owner is allowed to change
+    * defining room features as well as perform all administrative functions.
+    *
+    * @param address the user address of the user to grant ownership
+    * privileges (e.g. "user@host.org").
+    */
+    public void grantOwnership(String address);
+
+    /**
+    * Grants voice to a visitor in the room. In a moderated room, a moderator
+    * may want to manage who does and does not have "voice" in the room. To have
+    * voice means that a room occupant is able to send messages to the room
+    * occupants.
+    *
+    * @param nickname the nickname of the visitor to grant voice in the room
+    * (e.g. "john").
+    */
+    public void grantVoice(String nickname);
+
+    /**
+    * Revokes administrator privileges from a user. The occupant that loses
+    * administrator privileges will become a member. Room owners may revoke
+    * administrator privileges from a member or unaffiliated user.
+    *
+    * @param address the user address of the user to grant administrator
+    * privileges (e.g. "user@host.org").
+    */
+    public void revokeAdmin(String address);
+
+    /**
+    * Revokes a user's membership. Only administrators are able to revoke
+    * membership. A user that becomes a room member will be able to enter a room
+    * of type Members-Only (i.e. a room that a user cannot enter without being
+    * on the member list). If the user is in the room and the room is of type
+    * members-only then the user will be removed from the room.   
+    *
+    * @param address the user address of the user to revoke membership
+    * (e.g. "user@host.org").
+    */
+    public void revokeMembership(String address);
+
+    /**
+    * Revokes moderator privileges from another user. The occupant that loses
+    * moderator privileges will become a participant. Room administrators may
+    * revoke moderator privileges only to occupants whose affiliation is member
+    * or none. This means that an administrator is not allowed to revoke
+    * moderator privileges from other room administrators or owners.
+    *
+    * @param nickname the nickname of the occupant to revoke moderator
+    * privileges.
+    */
+    public void revokeModerator(String nickname);
+
+    /**
+    * Revokes ownership privileges from another user. The occupant that loses
+    * ownership privileges will become an administrator. Room owners may revoke
+    * ownership privileges. Some room implementations will not allow to grant
+    * ownership privileges to other users.  
+    *
+    * @param address the user address of the user to revoke ownership
+    * (e.g. "user@host.org").
+    */
+    public void revokeOwnership(String address);
+
+    /**
+    * Revokes voice from a participant in the room. In a moderated room, a
+    * moderator may want to revoke an occupant's privileges to speak. To have
+    * voice means that a room occupant is able to send messages to the room
+    * occupants.
+    * @param nickname the nickname of the participant to revoke voice
+    * (e.g. "john").
+    */
+    public void revokeVoice(String nickname);
 }

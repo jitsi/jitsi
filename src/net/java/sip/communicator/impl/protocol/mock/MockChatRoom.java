@@ -18,9 +18,9 @@ public class MockChatRoom
     implements ChatRoom
 {
     private MockProvider provider;
-    
+
     private MockMultiUserChat parentOpSet = null;
-    
+
     private String name;
 
     private String subject;
@@ -36,19 +36,19 @@ public class MockChatRoom
      */
     private final List<ChatRoomMemberPresenceListener> memberPresenceListeners
         = new Vector<ChatRoomMemberPresenceListener>();
-    
+
     /**
      * Currently registered local user role listeners.
      */
     private final List<ChatRoomLocalUserRoleListener> localUserRoleListeners
         = new Vector<ChatRoomLocalUserRoleListener>();
-    
+
     /**
      * Currently registered member role listeners.
      */
     private final List<ChatRoomMemberRoleListener> memberRoleListeners
         = new Vector<ChatRoomMemberRoleListener>();
-    
+
     /**
      * Currently registered property change listeners.
      */
@@ -60,11 +60,18 @@ public class MockChatRoom
      */
     private final List<ChatRoomMessageListener> messageListeners
         = new Vector<ChatRoomMessageListener>();
-    
-    public MockChatRoom(
-        MockProvider provider, 
-        MockMultiUserChat parentOpSet, 
-        String roomName)
+
+    /**
+     * Creates an instance of <tt>MockChatRoom</tt> by specifying the
+     * corresponding protocol provider, the multi user chat operation set
+     * and the room name.
+     * @param provider the corresponding <tt>ProtocolProviderService</tt>
+     * @param parentOpSet the corresponding <tt>OperationSetMultiUserChat</tt>
+     * @param roomName the name of the room
+     */
+    public MockChatRoom(MockProvider provider, 
+                        MockMultiUserChat parentOpSet, 
+                        String roomName)
     {
         this.provider = provider;
         this.name = roomName;
@@ -546,35 +553,76 @@ public class MockChatRoom
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    /**
+     * Bans a user from the room. Not implemented for mock chat rooms.
+     *
+     * @param chatRoomMember the <tt>ChatRoomMember</tt> to be banned
+     * @param reason the reason why the user was banned
+     * @throws OperationFailedException if an error occurs while banning a user
+     */
     public void banParticipant(ChatRoomMember chatRoomMember, String reason)
-        throws OperationFailedException
-    {   
-    }
+        throws OperationFailedException {}
 
+    /**
+     * Kicks a visitor or participant from the room. Not implemented for mock
+     * chat rooms.
+     *
+     * @param chatRoomMember the <tt>ChatRoomMember</tt> to kick from the room
+     * @param reason the reason why the participant is being kicked from the
+     * room
+     * @throws OperationFailedException if an error occurs while kicking the
+     * participant
+     */
     public void kickParticipant(ChatRoomMember chatRoomMember, String reason)
-        throws OperationFailedException
-    {   
-    }
+        throws OperationFailedException {}
 
+    /**
+     * Returns the <tt>ChatRoomConfigurationForm</tt> containing all
+     * configuration properties for this chat room. Not implemented for mock
+     * chat rooms.
+     *
+     * @return the <tt>ChatRoomConfigurationForm</tt> containing all
+     * configuration properties for this chat room
+     * @throws OperationFailedException if the user doesn't have
+     * permissions to see and change chat room configuration
+     */
     public ChatRoomConfigurationForm getConfigurationForm()
         throws OperationFailedException
     {
         return null;
     }
 
+    /**
+     * Adds a listener that will be notified of changes in the property of a
+     * room member such as the nickname being changed.
+     * 
+     * @param listener a room member property change listener.
+     */
     public void addMemberPropertyChangeListener(
         ChatRoomMemberPropertyChangeListener listener)
     {
         // TODO Implement the addMemberPropertyChangeListener
     }
 
+    /**
+     * Removes a listener that was being notified of changes in the property of
+     * a chat room member such as the nickname being changed.
+     * 
+     * @param listener a room member property change listener.
+     */
     public void removeMemberPropertyChangeListener(
         ChatRoomMemberPropertyChangeListener listener)
     {
         // TODO Implement the removeMemberPropertyChangeListener
-        
     }
-    
+
+    /**
+     * Returns <code>true</code> if this chat room is a system room and 
+     * <code>false</code> otherwise.
+     * 
+     * @return <code>true</code> if this chat room is a system room and 
+     * <code>false</code> otherwise.
+     */
     public boolean isSystem()
     {
         return false;
@@ -591,5 +639,118 @@ public class MockChatRoom
     public boolean isPersistent()
     {
         return true;
+    }
+
+    /**
+     * Grants admin role to the participant given by <tt>address</tt>.
+     * @param address the address of the participant to grant admin role to
+     */
+    public void grantAdmin(String address)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Grants membership role to the participant given by <tt>address</tt>.
+     * @param address the address of the participant to grant membership role to
+     */
+    public void grantMembership(String address)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Grants moderator role to the participant given by <tt>address</tt>.
+     * @param address the address of the participant to grant moderator role to
+     */
+    public void grantModerator(String address)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Grants ownership role to the participant given by <tt>address</tt>.
+     * @param address the address of the participant to grant ownership role to
+     */
+    public void grantOwnership(String address)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Grants voice to the participant given by <tt>address</tt>.
+     * @param address the address of the participant to grant voice to
+     */
+    public void grantVoice(String address)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Revokes the admin role for the participant given by <tt>address</tt>.
+     * @param address the address of the participant to revoke admin role for
+     */
+    public void revokeAdmin(String address)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Revokes the membership role for the participant given by <tt>address</tt>.
+     * @param address the address of the participant to revoke membership role
+     * for
+     */
+    public void revokeMembership(String address)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Revokes the moderator role for the participant given by <tt>address</tt>.
+     * @param address the address of the participant to revoke moderator role
+     * for
+     */
+    public void revokeModerator(String address)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Revokes the ownership role for the participant given by <tt>address</tt>.
+     * @param address the address of the participant to revoke ownership role
+     * for
+     */
+    public void revokeOwnership(String address)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Revokes the voice for the participant given by <tt>address</tt>.
+     * @param address the address of the participant to revoke voice for
+     */
+    public void revokeVoice(String address)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Returns the local user role.
+     * @return the local user role
+     */
+    public ChatRoomMemberRole getUserRole()
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Sets the local user role.
+     * @param role the role to set
+     * @throws OperationFailedException if the operation don't succeed
+     */
+    public void setUserRole(ChatRoomMemberRole role)
+        throws OperationFailedException
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

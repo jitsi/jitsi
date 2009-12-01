@@ -8,18 +8,23 @@
 package net.java.sip.communicator.impl.gui.main.chat.conference;
 
 import java.awt.*;
+import java.util.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
+import net.java.sip.communicator.util.*;
 
 /**
- * The <tt>ChatContactCellRenderer</tt> is the renderer for the chat contact
- * list.
+ * The <tt>ChatContactCellRenderer</tt> is the renderer for the chat room
+ * contact list.
  *
  * @author Yana Stamcheva
+ * @author Valentin Martinet
  */
 public class ChatContactCellRenderer
     extends ContactListCellRenderer
@@ -36,6 +41,7 @@ public class ChatContactCellRenderer
      * 
      * @return this panel
      */
+    @Override
     public Component getListCellRendererComponent(  JList list,
                                                     Object value,
                                                     int index,
@@ -46,7 +52,9 @@ public class ChatContactCellRenderer
 
         this.rightLabel.setIcon(null);
 
-        ChatContact chatContact = (ChatContact) value;
+        final ChatContact chatContact = (ChatContact) value;
+        final ChatRoomMember member 
+            = (ChatRoomMember) chatContact.getDescriptor();
 
         this.setPreferredSize(new Dimension(20, 30));
 
@@ -61,8 +69,9 @@ public class ChatContactCellRenderer
         this.nameLabel.setFont(this.getFont().deriveFont(Font.PLAIN));
         this.nameLabel.setText(displayName);
 
-//        statusIcon.setImage(Constants.getStatusIcon();
-//        this.nameLabel.setIcon(statusIcon);
+        if(member.getRole() != null)
+            this.nameLabel.setIcon(
+                ChatContactRoleIcon.getRoleIcon(member.getRole()));
 
         if (contactForegroundColor != null)
             this.nameLabel.setForeground(contactForegroundColor);
@@ -73,6 +82,51 @@ public class ChatContactCellRenderer
 
         if (avatar != null)
             this.rightLabel.setIcon(avatar);
+        else
+        {
+            if(chatContact.getName().equals(
+                    member.getChatRoom().getUserNickname()))
+            {
+                // Try to retrieve local user avatar:
+                OperationSetServerStoredAccountInfo opSet
+                    = (OperationSetServerStoredAccountInfo)
+                    member.getChatRoom().getParentProvider().getOperationSet(
+                        OperationSetServerStoredAccountInfo.class);
+
+                Iterator<GenericDetail> itr = opSet.getAllAvailableDetails();
+                while(itr.hasNext())
+                {
+                    GenericDetail detail = itr.next();
+                    if(detail instanceof BinaryDetail)
+                    {
+                        BinaryDetail bin = (BinaryDetail)detail;
+                        if(bin.getBytes() != null)
+                            this.rightLabel.setIcon(
+                                ImageUtils.getScaledRoundedIcon(
+                                    bin.getBytes(), 25, 25));
+                        break;
+                    }
+                }
+                ChatRoomMemberRole role = member.getChatRoom().getUserRole();
+                if (role != null)
+                    this.nameLabel.setIcon(
+                        ChatContactRoleIcon.getRoleIcon(role));
+            }
+            else
+            {
+                // Try to retrieve participant avatar:
+                OperationSetPersistentPresence opSet
+                    = (OperationSetPersistentPresence)
+                member.getChatRoom().getParentProvider().getOperationSet(
+                    OperationSetPersistentPresence.class);
+
+                Contact c = opSet.findContactByID(member.getContactAddress());
+
+                if(opSet != null && c != null && c.getImage() != null)
+                    this.rightLabel.setIcon(ImageUtils.getScaledRoundedIcon(
+                            c.getImage(), 25, 25));
+            }
+        }
 
         // We should set the bounds of the cell explicitly in order to
         // make getComponentAt work properly.

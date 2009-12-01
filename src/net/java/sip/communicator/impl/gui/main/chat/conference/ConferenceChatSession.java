@@ -28,18 +28,37 @@ public class ConferenceChatSession
                 ChatRoomMemberPresenceListener,
                 ChatRoomPropertyChangeListener
 {
+    /**
+     * The list of all chat participants.
+     */
     private final List<ChatContact> chatParticipants
         = new ArrayList<ChatContact>();
 
+    /**
+     * The list of available chat transports.
+     */
     private final List<ChatTransport> chatTransports
         = new ArrayList<ChatTransport>();
 
+    /**
+     * The current chat transport used for messaging.
+     */
     private ChatTransport currentChatTransport;
 
+    /**
+     * The chat room wrapper, which is the descriptor of this chat session.
+     */
     private final ChatRoomWrapper chatRoomWrapper;
 
+    /**
+     * The object used for rendering.
+     */
     private final ChatSessionRenderer sessionRenderer;
-    
+
+    /**
+     * The list of all <tt>ChatSessionChangeListener</tt>-s registered to listen
+     * for transport modifications.
+     */
     private final java.util.List<ChatSessionChangeListener>
         chatTransportChangeListeners
             = new Vector<ChatSessionChangeListener>();
@@ -90,6 +109,7 @@ public class ConferenceChatSession
         ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
         chatRoom.removeMemberPresenceListener(this);
         chatRoom.removePropertyChangeListener(this);
+        chatRoom.leave();
     }
 
     /**
@@ -362,8 +382,7 @@ public class ConferenceChatSession
      * @param smsPhoneNumber The default mobile number used to send sms-es in
      * this session.
      */
-    public void setDefaultSmsNumber(String smsPhoneNumber)
-    {}
+    public void setDefaultSmsNumber(String smsPhoneNumber) {}
 
     /**
      * Returns the <tt>ChatSessionRenderer</tt> that provides the connection
@@ -382,6 +401,8 @@ public class ConferenceChatSession
      * list of chat participants on the right of the chat window. When a
      * <tt>ChatRoomMember</tt> has left or quit, or has being kicked it's
      * removed from the chat window.
+     * @param evt the <tt>ChatRoomMemberPresenceChangeEvent</tt> that notified
+     * us
      */
     public void memberPresenceChanged(ChatRoomMemberPresenceChangeEvent evt)
     {
@@ -397,6 +418,20 @@ public class ConferenceChatSession
 
         if (eventType.equals(ChatRoomMemberPresenceChangeEvent.MEMBER_JOINED))
         {
+            // Check if not ever present in the chat room. In some cases, the
+            // considered chatroom member may appear twice in the chat contact
+            // list panel.
+            for(int i=0; i<chatParticipants.size(); i++)
+            {
+                ChatContact cc = chatParticipants.get(i);
+                if(((ChatRoomMember)cc.getDescriptor()).getContactAddress()
+                        .equals(evt.getChatRoomMember().getContactAddress()))
+                {
+                    chatParticipants.remove(i);
+                    sessionRenderer.removeChatContact(cc);
+                }
+            }
+
             ConferenceChatContact chatContact
                 = new ConferenceChatContact(chatRoomMember);
 
@@ -462,8 +497,7 @@ public class ConferenceChatSession
     }
 
     public void chatRoomPropertyChangeFailed(
-        ChatRoomPropertyChangeFailedEvent event)
-    {}
+        ChatRoomPropertyChangeFailedEvent event) {}
 
     /**
      * Updates the chat panel when a property of the chat room has been modified.
@@ -490,6 +524,13 @@ public class ConferenceChatSession
         return true;
     }
 
+    /**
+     * Finds the <tt>ChatTransport</tt> corresponding to the given
+     * <tt>descriptor</tt>.
+     * @param descriptor the descriptor of the chat transport we're looking for
+     * @return the <tt>ChatTransport</tt> corresponding to the given
+     * <tt>descriptor</tt>
+     */
     public ChatTransport findChatTransportForDescriptor(Object descriptor)
     {
         return MetaContactChatSession.findChatTransportForDescriptor(
@@ -559,7 +600,12 @@ public class ConferenceChatSession
         }
     }
 
-    /* Implements ChatSession#isContactListSupported(). */
+    /**
+     * Indicates if the contact list is supported by this session. The contact
+     * list would be supported for all non system and non private sessions.
+     * @return <tt>true</tt> to indicate that the contact list is supported,
+     * <tt>false</tt> otherwise.
+     */
     public boolean isContactListSupported()
     {
         ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
@@ -568,7 +614,12 @@ public class ConferenceChatSession
             !chatRoom.isSystem()
                 && !ConferenceChatManager.isPrivate(chatRoom);
     }
-    
+
+    /**
+     * Adds the given <tt>ChatSessionChangeListener</tt> to the list of
+     * transport listeners.
+     * @param l the listener to add
+     */
     public void addChatTransportChangeListener(ChatSessionChangeListener l)
     {
         synchronized (chatTransportChangeListeners)
@@ -577,12 +628,37 @@ public class ConferenceChatSession
                 chatTransportChangeListeners.add(l);
         }
     }
-    
+
+    /**
+     * Removes the given <tt>ChatSessionChangeListener</tt> from contained
+     * transport listeners.
+     * @param l the listener to remove
+     */
     public void removeChatTransportChangeListener(ChatSessionChangeListener l)
     {
         synchronized (chatTransportChangeListeners)
         {
             chatTransportChangeListeners.remove(l);
         }
+    }
+
+    /**
+     * Adds the given <tt>ChatRoomMemberRoleListener</tt> to the contained
+     * chat room role listeners.
+     * @param l the listener to add
+     */
+    public void addMemberRoleListener(ChatRoomMemberRoleListener l)
+    {
+        chatRoomWrapper.getChatRoom().addMemberRoleListener(l);
+    }
+
+    /**
+     * Adds the given <tt>ChatRoomLocalUserRoleListener</tt> to the contained
+     * chat room role listeners.
+     * @param l the listener to add
+     */
+    public void addLocalUserRoleListener(ChatRoomLocalUserRoleListener l)
+    {
+        chatRoomWrapper.getChatRoom().addLocalUserRoleListener(l);
     }
 }

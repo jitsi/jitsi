@@ -24,9 +24,12 @@ import net.java.sip.communicator.util.*;
 public class ChatRoomIrcImpl
     implements  ChatRoom
 {
+    /**
+     * The object used for logging.
+     */
     private static final Logger logger
         = Logger.getLogger(ChatRoomIrcImpl.class);
-    
+
     /**
      * The name of the chat room.
      */
@@ -89,8 +92,9 @@ public class ChatRoomIrcImpl
      * Listeners that will be notified every time
      * a chat room member property has been changed.
      */
-    private Vector<ChatRoomMemberPropertyChangeListener> memberPropChangeListeners 
-        = new Vector<ChatRoomMemberPropertyChangeListener>();
+    private Vector<ChatRoomMemberPropertyChangeListener>
+        memberPropChangeListeners 
+            = new Vector<ChatRoomMemberPropertyChangeListener>();
 
     /**
      * The table containing all banned members.
@@ -136,6 +140,7 @@ public class ChatRoomIrcImpl
      * @param chatRoomName the name of the chat room
      * @param parentProvider the protocol provider
      * @param isPrivate indicates if this chat room is a private one
+     * @param isSystem indicates if this chat room is a system room
      */
     public ChatRoomIrcImpl( String chatRoomName,
                             ProtocolProviderServiceIrcImpl parentProvider,
@@ -586,6 +591,7 @@ public class ChatRoomIrcImpl
     /**
      * Adds a <tt>ChatRoomMember</tt> to the list of members of this chat room.
      * 
+     * @param memberID the identifier of the member
      * @param member the <tt>ChatRoomMember</tt> to add.
      */
     protected void addChatRoomMember(String memberID, ChatRoomMember member)
@@ -1023,30 +1029,142 @@ public class ChatRoomIrcImpl
 
     /**
      * Sets the subject obtained from the server once we're connected.
-     * 
+     *
      * @param subject the subject to set
      */
     protected void setSubjectFromServer(String subject)
     {
         this.chatSubject = subject;
     }
-    
+
     /**
      * Determines whether this chat room should be stored in the configuration
      * file or not. If the chat room is persistent it still will be shown after a
      * restart in the chat room list. A non-persistent chat room will be only in
      * the chat room list until the the program is running.
-     * 
+     *
      * @return true if this chat room is persistent, false otherwise
      */
     public boolean isPersistent()
     {
-
         /*
          * Private ChatRooms are not persistent because they correspond to
          * conversations created by sending private messages and such
          * conversations are not traditionally persisted by other IRC clients.
          */
         return !isPrivate();
+    }
+
+    /**
+     * Returns the local user role.
+     * @return the local user role
+     */
+    public ChatRoomMemberRole getUserRole()
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Sets the local user role.
+     * @param role the role to set
+     * @throws OperationFailedException if the operation don't succeed
+     */
+    public void setUserRole(ChatRoomMemberRole role)
+        throws OperationFailedException
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Grants admin role to the participant given by <tt>address</tt>.
+     * @param address the address of the participant to grant admin role to
+     */
+    public void grantAdmin(String address)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Grants membership role to the participant given by <tt>address</tt>.
+     * @param address the address of the participant to grant membership role to
+     */
+    public void grantMembership(String address)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Grants moderator role to the participant given by <tt>address</tt>.
+     * @param address the address of the participant to grant moderator role to
+     */
+    public void grantModerator(String address)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Grants ownership role to the participant given by <tt>address</tt>.
+     * @param address the address of the participant to grant ownership role to
+     */
+    public void grantOwnership(String address)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Grants voice to the participant given by <tt>address</tt>.
+     * @param address the address of the participant to grant voice to
+     */
+    public void grantVoice(String address)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Revokes the admin role for the participant given by <tt>address</tt>.
+     * @param address the address of the participant to revoke admin role for
+     */
+    public void revokeAdmin(String address)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Revokes the membership role for the participant given by <tt>address</tt>.
+     * @param address the address of the participant to revoke membership role
+     * for
+     */
+    public void revokeMembership(String address)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Revokes the moderator role for the participant given by <tt>address</tt>.
+     * @param address the address of the participant to revoke moderator role
+     * for
+     */
+    public void revokeModerator(String address)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Revokes the ownership role for the participant given by <tt>address</tt>.
+     * @param address the address of the participant to revoke ownership role
+     * for
+     */
+    public void revokeOwnership(String address)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    /**
+     * Revokes the voice for the participant given by <tt>address</tt>.
+     * @param address the address of the participant to revoke voice for
+     */
+    public void revokeVoice(String address)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

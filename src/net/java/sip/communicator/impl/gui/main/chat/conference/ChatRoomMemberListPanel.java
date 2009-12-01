@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.gui.main.chat.conference;
 
 import java.awt.*;
+import java.awt.event.*;
 
 import javax.swing.*;
 
@@ -27,26 +28,44 @@ import net.java.sip.communicator.impl.gui.main.contactlist.*;
 public class ChatRoomMemberListPanel
     extends JPanel
 {
+    /**
+     * The list of members.
+     */
     private final DefaultContactList memberList = new DefaultContactList();
 
+    /**
+     * The model of the members list.
+     */
     private final ChatContactListModel memberListModel
         = new ChatContactListModel();
 
-    // private final ChatPanel chatPanel;
+     private final ChatPanel chatPanel;
 
     /**
      * Creates an instance of <tt>ChatContactListPanel</tt>.
      * @param chat Currently not used
      */
-    public ChatRoomMemberListPanel(ChatPanel chat)
+    public ChatRoomMemberListPanel(final ChatPanel chat)
     {
         super(new BorderLayout());
 
-        // this.chatPanel = chat;
+         this.chatPanel = chat;
 
         this.memberList.setModel(memberListModel);
         this.memberList.addKeyListener(new CListKeySearchListener(memberList));
         this.memberList.setCellRenderer(new ChatContactCellRenderer());
+        this.memberList.addMouseListener(new MouseAdapter()
+        {
+            public void mouseClicked(MouseEvent e)
+            {
+                if(e.getButton() == MouseEvent.BUTTON3)
+                {
+                    new ChatContactRightButtonMenu(
+                        chat, (ChatContact)memberList.getSelectedValue()).show(
+                            memberList, e.getX(), e.getY());
+                }
+            }
+        });
 
         JScrollPane contactsScrollPane = new SCScrollPane();
         contactsScrollPane.setHorizontalScrollBarPolicy(

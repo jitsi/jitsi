@@ -10,53 +10,47 @@ package net.java.sip.communicator.service.protocol;
  * Indicates roles that a chat room member detains in its containing chat room.
  *
  * @author Emil Ivov
+ * @author Valentin Martinet
+ * @author Yana Stamcheva
  */
-public class ChatRoomMemberRole
+public enum ChatRoomMemberRole
     implements Comparable<ChatRoomMemberRole>
 {
     /**
      * A role implying the full set of chat room permissions
      */
-    public static final ChatRoomMemberRole OWNER
-                                = new ChatRoomMemberRole("Owner", 70);
+    OWNER("Owner", 70),
 
     /**
      * A role implying administrative permissions.
      */
-    public static final ChatRoomMemberRole ADMINISTRATOR
-        = new ChatRoomMemberRole("Administrator", 60);
+    ADMINISTRATOR("Administrator", 60),
 
     /**
      * A role implying moderator permissions.
      */
-    public static final ChatRoomMemberRole MODERATOR
-        = new ChatRoomMemberRole("Moderator", 50);
+    MODERATOR("Moderator", 50),
 
     /**
      * A role implying standard participant permissions.
      */
-    public static final ChatRoomMemberRole MEMBER
-        = new ChatRoomMemberRole("Member", 40);
+    MEMBER("Member", 40),
 
     /**
      * A role implying standard participant permissions.
      */
-    public static final ChatRoomMemberRole GUEST
-        = new ChatRoomMemberRole("Guest", 30);
-
+    GUEST("Guest", 30),
 
     /**
      * A role implying standard participant permissions without the right to
      * send messages/speak.
      */
-    public static final ChatRoomMemberRole SILENT_MEMBER
-        = new ChatRoomMemberRole("SilentMember", 30);
+    SILENT_MEMBER("SilentMember", 20),
 
     /**
      * A role implying an explicit ban for the user to join the room.
      */
-    public static final ChatRoomMemberRole OUTCAST
-        = new ChatRoomMemberRole("Outcast", 20);
+    OUTCAST("Outcast", 10);
 
     /**
      * the name of this role.
@@ -83,7 +77,7 @@ public class ChatRoomMemberRole
      *
      * @throws java.lang.NullPointerException if roleName is null.
      */
-    protected ChatRoomMemberRole(String roleName, int roleIndex)
+    private ChatRoomMemberRole(String roleName, int roleIndex)
         throws NullPointerException
     {
         if(roleName == null)
@@ -125,62 +119,5 @@ public class ChatRoomMemberRole
     public int getRoleIndex()
     {
         return roleIndex;
-    }
-
-    /**
-     * Indicates whether some other object is "equal to" this role instance.
-     * <p>
-     * @param   obj   the reference object with which to compare.
-     * @return  <code>true</code> if obj is a role instance that has the same
-     * name and role index as this one.
-     */
-    public boolean equals(Object obj)
-    {
-        if (obj == this)
-            return true;
-
-        /*
-         * XXX Implementing Object#equals(Object) with instanceof is error
-         * prone. The safe and recommended approach is to return true only if
-         * the runtime types of the two Objects being tested are one and the
-         * same i.e. getClass().equals(obj.getClass()).
-         */
-        if (!(obj instanceof ChatRoomMemberRole))
-            return false;
-
-        ChatRoomMemberRole role = (ChatRoomMemberRole) obj;
-
-        return role.getRoleName().equals(getRoleName())
-                && (role.getRoleIndex() == getRoleIndex());
-    }
-
-    /**
-     * Returns a hash code value for the object. This method is
-     * supported for the benefit of hashtables such as those provided by
-     * <code>java.util.Hashtable</code>.
-     * <p>
-     * @return  a hash code value for this object.
-     */
-    public int hashCode()
-    {
-        return getRoleName().hashCode();
-    }
-
-    /**
-     * Compares this role's role index with that of the specified object for
-     * order.  Returns a negative integer, zero, or a positive integer as this
-     * role is less than, equal to, or greater than the specified object.
-     *
-     * @param   obj the object to be compared.
-     * @return  a negative integer, zero, or a positive integer as this object
-     *            is less than, equal to, or greater than the specified object.
-     *
-     * @throws ClassCastException if the specified object's type is not an
-     * instance of ChatRoomMemberRole.
-     */
-    public int compareTo(ChatRoomMemberRole obj)
-        throws ClassCastException
-    {
-        return getRoleIndex() - obj.getRoleIndex();
     }
 }

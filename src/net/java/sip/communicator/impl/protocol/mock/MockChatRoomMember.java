@@ -21,6 +21,18 @@ public class MockChatRoomMember
     private Contact contact;
     private byte[] avatar;
 
+    /**
+     * Creates an instance of <tt>MockChatRoomMember</tt> by specifying the
+     * <tt>name</tt> of the member, the <tt>chatRoom</tt>, to which it belongs,
+     * its <tt>role</tt> in the room, the <tt>contact</tt> corresponding to it
+     * and its <tt>avatar</tt>.
+     * @param name the name of the member
+     * @param chatRoom the chat room to which the member belongs
+     * @param role the role of the member in the room
+     * @param contact the contact corresponding to this member in the local
+     * contact list
+     * @param avatar the avatar of the member
+     */
     public MockChatRoomMember(String name, ChatRoom chatRoom, 
         ChatRoomMemberRole role, Contact contact, byte[] avatar)
     {
@@ -90,6 +102,15 @@ public class MockChatRoomMember
     public ChatRoomMemberRole getRole()
     {
         return role;
+    }
+
+    /**
+     * Sets the role of this member.
+     * @param role the role to set
+     */
+    public void setRole(ChatRoomMemberRole role)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     /**

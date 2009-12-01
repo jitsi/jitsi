@@ -86,7 +86,7 @@ public class IrcStack
 
     /**
      * Creates an instance of <tt>IrcStack</tt>.
-     * 
+     *
      * @param parentProvider the IRC protocol provider service
      * @param nickname our nickname
      * @param login our login
@@ -201,6 +201,11 @@ public class IrcStack
 
     /**
      * Indicates that a message has arrived from the IRC stack.
+     * @param channel the channel where the message is received
+     * @param sender the sender of the message
+     * @param login the login
+     * @param hostname the host name
+     * @param messageContent the content of the message
      */
     protected void onMessage(   String channel,
                                 String sender,
@@ -242,6 +247,10 @@ public class IrcStack
     /**
      * Indicates that a private message has been received.
      * Note that for now this method only logs the message.
+     * @param sender the sender of the message
+     * @param login the login
+     * @param hostname the host name
+     * @param messageContent the content of the message
      */
     protected void onPrivateMessage(String sender,
                                     String login,
@@ -272,8 +281,6 @@ public class IrcStack
                 = new ChatRoomMemberIrcImpl(parentProvider,
                                             chatRoom,
                                             sender,
-                                            login,
-                                            hostname,
                                             ChatRoomMemberRole.GUEST);
 
             chatRoom.addChatRoomMember(sender, sourceMember);
@@ -490,8 +497,6 @@ public class IrcStack
                     parentProvider,
                     chatRoom,
                     sender,
-                    login,
-                    hostname,
                     ChatRoomMemberRole.GUEST);
 
             chatRoom.addChatRoomMember(sender, member);
@@ -1527,8 +1532,6 @@ public class IrcStack
                 = new ChatRoomMemberIrcImpl(parentProvider,
                                             chatRoom,
                                             user.getNick(),
-                                            null,
-                                            null,
                                             newMemberRole);
 
             chatRoom.addChatRoomMember(user.getNick(), newMember);
@@ -1731,6 +1734,7 @@ public class IrcStack
      * @param chatRoom the chat room for which the user should be banned
      * @param hostmask the host mask of the user to ban
      * @param reason the reason of the ban
+     * @throws OperationFailedException if something goes wrong
      */
     protected void banParticipant( String chatRoom,
                         String hostmask,
@@ -1816,7 +1820,7 @@ public class IrcStack
             System.currentTimeMillis(),
             ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
     }
-    
+
     /**
      * Adds a chat room to the server chat room list.
      * 
@@ -1838,7 +1842,7 @@ public class IrcStack
     private class JoinTimeoutTask extends TimerTask
     {
         private ChatRoom chatRoom;
-        
+
         /**
          * Creates an instance of <tt>JoinTimeoutTask</tt>.
          * 
@@ -1885,6 +1889,7 @@ public class IrcStack
 
     /**
      * Notifies the waiting chat room operation.
+     * @param responseCode the response code of the operation to notify for
      */
     private void notifyChatRoomOperation(int responseCode)
     {
@@ -2006,7 +2011,11 @@ public class IrcStack
                 "You need to enter a valid nickname.",
                 OperationFailedException.ILLEGAL_ARGUMENT);
     }
-    
+
+    /**
+     * Creates the chat room given by <tt>target</tt>.
+     * @param target the name of the chat room to create
+     */
     protected void createPrivateChatRoom(String target)
     {
         ChatRoomIrcImpl privateChatRoom
@@ -2024,8 +2033,6 @@ public class IrcStack
                         parentProvider,
                         privateChatRoom,
                         parentProvider.getAccountID().getService(),
-                        "",
-                        "",
                         ChatRoomMemberRole.GUEST);
 
         MessageIrcImpl queryMessage

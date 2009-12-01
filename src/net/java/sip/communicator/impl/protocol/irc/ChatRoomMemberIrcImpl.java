@@ -10,37 +10,27 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Represents a chat room member.
- * 
+ *
  * @author Stephane Remy
  */
-public class ChatRoomMemberIrcImpl implements ChatRoomMember
+public class ChatRoomMemberIrcImpl
+    implements ChatRoomMember
 {
-
     /**
      * The ChatRoom.
      */
-    private ChatRoom chatRoom = null;
-    
+    private final ChatRoom chatRoom;
+
     /**
      * The id of the contact.
      */
-    private String contactID = null;
-    
-    /**
-     * The login of the contact.
-     */
-    private String login = null;
-    
-    /**
-     * The host name of the contact
-     */
-    private String hostname = null;
-    
+    private final String contactID;
+
     /**
      * The provider that created us.
      */
     private ProtocolProviderServiceIrcImpl parentProvider = null;
-    
+
     /**
      * The role of this member.
      */
@@ -56,26 +46,20 @@ public class ChatRoomMemberIrcImpl implements ChatRoomMember
      * chat room belongs 
      * @param chatRoom the chat room, where this member is joined
      * @param contactID the nickname of the member
-     * @param login the login name of the member
-     * @param hostname the host name
      * @param chatRoomMemberRole the role that this member has in the
      * corresponding chat room
      */
     public ChatRoomMemberIrcImpl(ProtocolProviderServiceIrcImpl parentProvider,
             ChatRoom chatRoom,
             String contactID,
-            String login,
-            String hostname,
             ChatRoomMemberRole chatRoomMemberRole)
     {
         this.parentProvider = parentProvider;
         this.chatRoom = chatRoom;
         this.contactID = contactID;
-        this.login = login;
-        this.hostname = hostname;
         this.chatRoomMemberRole = chatRoomMemberRole;
     }
-    
+
     /**
      * Returns the chat room that this member is participating in.
      *
@@ -134,13 +118,13 @@ public class ChatRoomMemberIrcImpl implements ChatRoomMember
     {
         return this.chatRoomMemberRole;
     }
-    
+
     /**
      * Sets a new member role to this <tt>ChatRoomMember</tt>.
      * 
      * @param chatRoomMemberRole the role to be set
      */
-    public void setChatRoomMemberRole(ChatRoomMemberRole chatRoomMemberRole)
+    public void setRole(ChatRoomMemberRole chatRoomMemberRole)
     {
         this.chatRoomMemberRole = chatRoomMemberRole;
     }

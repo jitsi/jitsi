@@ -748,6 +748,12 @@ public class ImageLoader
     public static final ImageID CALL_PEER_TOOLS
         = new ImageID("service.gui.buttons.CALL_PEER_TOOLS");
 
+    /**
+     * The icon used for the chat room configuration button.
+     */
+    public static final ImageID CHAT_ROOM_CONFIG
+        = new ImageID("service.gui.buttons.CHAT_ROOM_CONFIG");
+
     /*
      * =======================================================================
      * ------------------------ EDIT TOOLBAR ICONS ---------------------------
@@ -1059,6 +1065,66 @@ public class ImageLoader
      */
     public static final ImageID USER_OCCUPIED_ICON
         = new ImageID("service.gui.statusicons.USER_OCCUPIED_ICON");
+
+   /**
+    * Owner chatroom member.
+    */
+    public static final ImageID CHATROOM_MEMBER_OWNER
+        = new ImageID("service.gui.icons.CHATROOM_MEMBER_OWNER");
+
+    /**
+     * Admin chatroom member.
+     */
+    public static final ImageID CHATROOM_MEMBER_ADMIN
+        = new ImageID("service.gui.icons.CHATROOM_MEMBER_ADMIN");
+
+    /**
+     * Moderator chatroom member.
+     */
+    public static final ImageID CHATROOM_MEMBER_MODERATOR
+        = new ImageID("service.gui.icons.CHATROOM_MEMBER_MODERATOR");
+
+    /**
+     * Standard chatroom member.
+     */
+    public static final ImageID CHATROOM_MEMBER_STANDARD
+        = new ImageID("service.gui.icons.CHATROOM_MEMBER_STANDARD");
+
+    /**
+     * Guest chatroom member.
+     */
+    public static final ImageID CHATROOM_MEMBER_GUEST
+        = new ImageID("service.gui.icons.CHATROOM_MEMBER_GUEST");
+
+    /**
+     * Silent chatroom member.
+     */
+    public static final ImageID CHATROOM_MEMBER_SILENT
+        = new ImageID("service.gui.icons.CHATROOM_MEMBER_SILENT");
+
+    /**
+     * Change room icon.
+     */
+    public static final ImageID CHANGE_ROOM_SUBJECT_ICON_16x16
+        = new ImageID("service.gui.icons.CHANGE_ROOM_SUBJECT_16x16");
+
+    /**
+     * Change nickname icon
+     */
+    public static final ImageID CHANGE_NICKNAME_ICON_16x16
+        = new ImageID("service.gui.icons.CHANGE_NICKNAME_16x16");
+
+    /**
+     * Ban icon.
+     */
+    public static final ImageID BAN_ICON_16x16
+        = new ImageID("service.gui.icons.BAN_16x16");
+
+    /**
+     * Kick icon.
+     */
+    public static final ImageID KICK_ICON_16x16
+        = new ImageID("service.gui.icons.KICK_16x16");
 
     /*
      * =====================================================================

@@ -46,19 +46,37 @@ public class ConferenceChatManager
                 LocalUserAdHocChatRoomPresenceListener,
                 ServiceListener
 {
+    /**
+     * The object used for logging.
+     */
     private static final Logger logger
         = Logger.getLogger(ConferenceChatManager.class);
 
+    /**
+     * Maps each history window to a <tt>ChatRoomWrapper</tt>.
+     */
     private final Hashtable<ChatRoomWrapper, HistoryWindow> chatRoomHistory =
         new Hashtable<ChatRoomWrapper, HistoryWindow>();
 
+    /**
+     * The list of persistent chat rooms.
+     */
     private final ChatRoomList chatRoomList = new ChatRoomList();
-    
+
+    /**
+     * The list of ad-hoc chat rooms.
+     */
     private final AdHocChatRoomList adHocChatRoomList = new AdHocChatRoomList();
 
+    /**
+     * A list of all <tt>ChatRoomListChangeListener</tt>-s.
+     */
     private final Vector<ChatRoomListChangeListener> listChangeListeners
         = new Vector<ChatRoomListChangeListener>();
 
+    /**
+     * A list of all <tt>AdHocChatRoomListChangeListener</tt>-s.
+     */
     private final Vector<AdHocChatRoomListChangeListener>
         adHoclistChangeListeners = new Vector<AdHocChatRoomListChangeListener>();
 
@@ -90,7 +108,7 @@ public class ConferenceChatManager
     {
         return chatRoomList;
     }
-    
+
     /**
      * Returns all chat room providers currently contained in the ad-hoc chat 
      * room list.
@@ -117,15 +135,15 @@ public class ConferenceChatManager
         dialog.setVisible(true);
     }
 
-    public void invitationRejected(ChatRoomInvitationRejectedEvent evt)
-    {
-    }
+    public void invitationRejected(ChatRoomInvitationRejectedEvent evt) {}
 
     /**
      * Implements the <tt>ChatRoomMessageListener.messageDelivered</tt> method.
      * <br>
      * Shows the message in the conversation area and clears the write message
      * area.
+     * @param evt the <tt>ChatRoomMessageDeliveredEvent</tt> that notified us
+     * that the message was delivered to its destination
      */
     public void messageDelivered(ChatRoomMessageDeliveredEvent evt)
     {
@@ -175,6 +193,8 @@ public class ConferenceChatManager
      * <br>
      * Obtains the corresponding <tt>ChatPanel</tt> and process the message
      * there.
+     * @param evt the <tt>ChatRoomMessageReceivedEvent</tt> that notified us
+     * that a message has been received
      */
     public void messageReceived(ChatRoomMessageReceivedEvent evt)
     {
@@ -316,6 +336,8 @@ public class ConferenceChatManager
      * method.
      * <br>
      * In the conversation area shows an error message, explaining the problem.
+     * @param evt the <tt>ChatRoomMessageDeliveryFailedEvent</tt> that notified
+     * us of a delivery failure
      */
     public void messageDeliveryFailed(ChatRoomMessageDeliveryFailedEvent evt)
     {
@@ -390,7 +412,8 @@ public class ConferenceChatManager
      * <tt>LocalUserAdHocChatRoomPresenceListener.localUserPresenceChanged</tt>
      * method
      * 
-     * @param evt
+     * @param evt the <tt>LocalUserAdHocChatRoomPresenceChangeEvent</tt> that
+     * notified us of a presence change
      */
     public void localUserAdHocPresenceChanged(
             LocalUserAdHocChatRoomPresenceChangeEvent evt)
@@ -462,6 +485,8 @@ public class ConferenceChatManager
      * Implements the
      * <tt>LocalUserChatRoomPresenceListener.localUserPresenceChanged</tt>
      * method.
+     * @param evt the <tt>LocalUserChatRoomPresenceChangeEvent</tt> that
+     * notified us
      */
     public void localUserPresenceChanged(
         LocalUserChatRoomPresenceChangeEvent evt)
@@ -558,9 +583,9 @@ public class ConferenceChatManager
      * Called to accept an incoming invitation. Adds the invitation chat room
      * to the list of chat rooms and joins it.
      *
-     * @param invitation the invitation to accept.
-     * 
-     * @throws OperationFailedException 
+     * @param invitation the invitation to accept
+     * @param multiUserChatOpSet the operation set for chat conferencing
+     * @throws OperationFailedException if the accept fails
      */
     public void acceptInvitation(
         AdHocChatRoomInvitation invitation,
@@ -637,13 +662,30 @@ public class ConferenceChatManager
      * Creates a chat room, by specifying the chat room name, the parent
      * protocol provider and eventually, the contacts invited to participate in 
      * this chat room.
-     * 
-     * @param chatRoomName the name of the chat room to create.
+     *
      * @param protocolProvider the parent protocol provider.
      * @param contacts the contacts invited when creating the chat room.
+     * @return the <tt>ChatRoomWrapper</tt> corresponding to the created room
      */
     public ChatRoomWrapper createChatRoom(
-        String chatRoomName,
+        ProtocolProviderService protocolProvider,
+        Collection<String> contacts)
+    {
+        return this.createChatRoom(null, protocolProvider, contacts);
+    }
+
+    /**
+     * Creates a chat room, by specifying the chat room name, the parent
+     * protocol provider and eventually, the contacts invited to participate in 
+     * this chat room.
+     *
+     * @param roomName the name of the room
+     * @param protocolProvider the parent protocol provider.
+     * @param contacts the contacts invited when creating the chat room.
+     * @return the <tt>ChatRoomWrapper</tt> corresponding to the created room
+     */
+    public ChatRoomWrapper createChatRoom(
+        String roomName,
         ProtocolProviderService protocolProvider,
         Collection<String> contacts)
     {
@@ -663,13 +705,12 @@ public class ConferenceChatManager
             OperationSetPersistentPresence opSet
                 = protocolProvider
                     .getOperationSet(OperationSetPersistentPresence.class);
-            
+
             for(String contact : contacts)
-            {
                 members.put(contact, opSet.findContactByID(contact));
-            }
-            
-            chatRoom = groupChatOpSet.createChatRoom(chatRoomName, members);
+
+            // We don't specify the name of the room for now.
+            chatRoom = groupChatOpSet.createChatRoom(roomName, members);
         }
         catch (OperationFailedException ex)
         {
@@ -680,7 +721,7 @@ public class ConferenceChatManager
                 GuiActivator.getResources().getI18NString("service.gui.ERROR"),
                 GuiActivator.getResources().getI18NString(
                     "service.gui.CREATE_CHAT_ROOM_ERROR",
-                    new String[]{chatRoomName}),
+                    new String[]{protocolProvider.getProtocolName()}),
                     ex)
             .showDialog();
         }
@@ -693,7 +734,7 @@ public class ConferenceChatManager
                 GuiActivator.getResources().getI18NString("service.gui.ERROR"),
                 GuiActivator.getResources().getI18NString(
                     "service.gui.CREATE_CHAT_ROOM_ERROR",
-                    new String[]{chatRoomName}),
+                    new String[]{protocolProvider.getProtocolName()}),
                     ex)
             .showDialog();
         }
@@ -718,13 +759,13 @@ public class ConferenceChatManager
      * Creates an ad-hoc chat room, by specifying the ad-hoc chat room name, the
      * parent protocol provider and eventually, the contacts invited to 
      * participate in this ad-hoc chat room.
-     * 
-     * @param chatRoomName the name of the chat room to create.
+     *
      * @param protocolProvider the parent protocol provider.
      * @param contacts the contacts invited when creating the chat room.
+     * @return the <tt>AdHocChatRoomWrapper</tt> corresponding to the created
+     * ad hoc chat room
      */
     public AdHocChatRoomWrapper createAdHocChatRoom(
-        String chatRoomName,
         ProtocolProviderService protocolProvider,
         Collection<String> contacts)
     {
@@ -737,9 +778,9 @@ public class ConferenceChatManager
         // If there's no group chat operation set we have nothing to do here.
         if (groupChatOpSet == null)
             return null;
-        
+
         AdHocChatRoom chatRoom = null;
-        
+
         try
         {
             List<Contact> members = new LinkedList<Contact>();
@@ -752,17 +793,16 @@ public class ConferenceChatManager
                 members.add(opSet.findContactByID(contact));
             }
 
-            chatRoom = groupChatOpSet.createAdHocChatRoom(
-                chatRoomName, members);
+            chatRoom = groupChatOpSet.createAdHocChatRoom(null, members);
         }
         catch (OperationFailedException ex)
-        {    
+        {
             new ErrorDialog(
                 GuiActivator.getUIService().getMainFrame(),
                 GuiActivator.getResources().getI18NString("service.gui.ERROR"),
                 GuiActivator.getResources().getI18NString(
                     "service.gui.CREATE_CHAT_ROOM_ERROR",
-                    new String[]{chatRoomName}),
+                    new String[]{protocolProvider.getProtocolName()}),
                     ex)
             .showDialog();
         }
@@ -773,7 +813,7 @@ public class ConferenceChatManager
                 GuiActivator.getResources().getI18NString("service.gui.ERROR"),
                 GuiActivator.getResources().getI18NString(
                     "service.gui.CREATE_CHAT_ROOM_ERROR",
-                    new String[]{chatRoomName}),
+                    new String[]{protocolProvider.getProtocolName()}),
                     ex)
             .showDialog();
         }
@@ -782,8 +822,8 @@ public class ConferenceChatManager
         {
             AdHocChatRoomProviderWrapper parentProvider
                 = adHocChatRoomList.findServerWrapperFromProvider(
-                        protocolProvider);          
-            
+                        protocolProvider);
+
             chatRoomWrapper = new AdHocChatRoomWrapper(
                     parentProvider, chatRoom);
             parentProvider.addAdHocChatRoom(chatRoomWrapper);
@@ -845,7 +885,7 @@ public class ConferenceChatManager
 
         new JoinAdHocChatRoomTask(chatRoomWrapper).execute();
     }
-    
+
     /**
      * Removes the given chat room from the UI.
      *
@@ -942,12 +982,14 @@ public class ConferenceChatManager
                 chatWindowManager.getMultiChat(chatRoomWrapper, true),
                 true);
     }
-    
+
     /**
      * Joins the given chat room and manages all the exceptions that could
      * occur during the join process.
      *
      * @param chatRoom the chat room to join
+     * @param nickname the nickname we're using to join
+     * @param password the password we're using to join
      */
     public void joinChatRoom(   ChatRoom chatRoom,
                                 String nickname,
@@ -1082,6 +1124,12 @@ public class ConferenceChatManager
         }
     }
 
+    /**
+     * Returns existing chat rooms for the given <tt>chatRoomProvider</tt>.
+     * @param chatRoomProvider the <tt>ChatRoomProviderWrapper</tt>, which
+     * chat rooms we're looking for
+     * @return  existing chat rooms for the given <tt>chatRoomProvider</tt>
+     */
     public List<String> getExistingChatRooms(
         ChatRoomProviderWrapper chatRoomProvider)
     {
@@ -1214,6 +1262,9 @@ public class ConferenceChatManager
     /**
      * Notifies all interested listeners that a change in the chat room list
      * model has occurred.
+     * @param chatRoomWrapper the chat room wrapper that identifies the chat
+     * room
+     * @param eventID the identifier of the event
      */
     private void fireChatRoomListChangedEvent(  ChatRoomWrapper chatRoomWrapper,
                                                 int eventID)
@@ -1226,10 +1277,13 @@ public class ConferenceChatManager
             l.contentChanged(evt);
         }
     }
-    
+
     /**
      * Notifies all interested listeners that a change in the chat room list
      * model has occurred.
+     * @param adHocChatRoomWrapper the chat room wrapper that identifies the
+     * chat room
+     * @param eventID the identifier of the event
      */
     private void fireAdHocChatRoomListChangedEvent(  
                                     AdHocChatRoomWrapper adHocChatRoomWrapper,
@@ -1293,18 +1347,14 @@ public class ConferenceChatManager
         // know
         if (event.getServiceReference().getBundle().getState()
                 == Bundle.STOPPING)
-        {
             return;
-        }
 
         Object service = GuiActivator.bundleContext.getService(event
             .getServiceReference());
 
         // we don't care if the source service is not a protocol provider
         if (!(service instanceof ProtocolProviderService))
-        {
             return;
-        }
 
         ProtocolProviderService protocolProvider
             = (ProtocolProviderService) service;
@@ -1312,7 +1362,7 @@ public class ConferenceChatManager
         Object multiUserChatOpSet
             = protocolProvider
                 .getOperationSet(OperationSetMultiUserChat.class);
-        
+
         Object multiUserChatAdHocOpSet
             = protocolProvider
             .getOperationSet(OperationSetAdHocMultiUserChat.class);
@@ -1339,12 +1389,6 @@ public class ConferenceChatManager
                  chatRoomList.removeChatProvider(protocolProvider);
              }
         }
-        else
-        {
-            return;
-        }
-
-       
     }
 
     /**
@@ -1388,6 +1432,7 @@ public class ConferenceChatManager
         /**
          * @override {@link SwingWorker}{@link #doInBackground()} to perform
          * all asynchronous tasks.
+         * @return SUCCESS if success, otherwise the error code
          */
         public String doInBackground()
         {
@@ -1528,6 +1573,7 @@ public class ConferenceChatManager
         /**
          * @override {@link SwingWorker}{@link #doInBackground()} to perform
          * all asynchronous tasks.
+         * @return SUCCESS if success, otherwise the error code
          */
         public String doInBackground()
         {
@@ -1638,6 +1684,7 @@ public class ConferenceChatManager
         /**
          * @override {@link SwingWorker}{@link #doInBackground()} to perform
          * all asynchronous tasks.
+         * @return the chat room
          */
         public ChatRoom doInBackground()
         {
@@ -1674,6 +1721,7 @@ public class ConferenceChatManager
         /**
          * @override {@link SwingWorker}{@link #doInBackground()} to perform
          * all asynchronous tasks.
+         * @return a list of existing chat rooms
          */
         public List<String> doInBackground()
         {
@@ -1709,7 +1757,14 @@ public class ConferenceChatManager
         }
     }
 
-    public void invitationReceived(AdHocChatRoomInvitationReceivedEvent evt) {
+    /**
+     * Indicates that an invitation has been received and opens the invitation
+     * dialog to notify the user.
+     * @param evt the <tt>AdHocChatRoomInvitationReceivedEvent</tt> that
+     * notified us
+     */
+    public void invitationReceived(AdHocChatRoomInvitationReceivedEvent evt)
+    {
         logger.info("Invitation received: "+evt.toString());
         OperationSetAdHocMultiUserChat multiUserChatOpSet
             = evt.getSourceOperationSet();
@@ -1726,6 +1781,8 @@ public class ConferenceChatManager
      * <br>
      * Shows the message in the conversation area and clears the write message
      * area.
+     * @param evt the <tt>AdHocChatRoomMessageDeliveredEvent</tt> that notified
+     * us
      */
     public void messageDelivered(AdHocChatRoomMessageDeliveredEvent evt)
     {
@@ -1778,6 +1835,8 @@ public class ConferenceChatManager
      * method.
      * <br>
      * In the conversation area shows an error message, explaining the problem.
+     * @param evt the <tt>AdHocChatRoomMessageDeliveryFailedEvent</tt> that
+     * notified us
      */
     public void messageDeliveryFailed(
             AdHocChatRoomMessageDeliveryFailedEvent evt)
@@ -1842,6 +1901,8 @@ public class ConferenceChatManager
      * <br>
      * Obtains the corresponding <tt>ChatPanel</tt> and process the message
      * there.
+     * @param evt the <tt>AdHocChatRoomMessageReceivedEvent</tt> that notified
+     * us
      */
     public void messageReceived(AdHocChatRoomMessageReceivedEvent evt)
     {
@@ -1911,7 +1972,5 @@ public class ConferenceChatManager
         
     }
 
-    public void invitationRejected(AdHocChatRoomInvitationRejectedEvent evt) 
-    {
-    }
+    public void invitationRejected(AdHocChatRoomInvitationRejectedEvent evt) {}
 }

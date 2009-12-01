@@ -80,4 +80,12 @@ public interface ChatRoomMember
      * the this member in its containing chat room.
      */
     public ChatRoomMemberRole getRole();
+
+    /**
+     * Sets the role of this chat room member in its containing room.
+     *
+     * @param role <tt>ChatRoomMemberRole</tt> instance indicating the role
+     * to set for this member in its containing chat room.
+     */
+    public void setRole(ChatRoomMemberRole role);
 }

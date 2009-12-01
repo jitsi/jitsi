@@ -50,8 +50,8 @@ public class MessageHistoryServiceImpl
     private static Logger logger = Logger
             .getLogger(MessageHistoryServiceImpl.class);
 
-    private static String[] STRUCTURE_NAMES =
-        new String[] { "dir", "msg_CDATA", "msgTyp", "enc", "uid", "sub",
+    private static String[] STRUCTURE_NAMES
+        = new String[] { "dir", "msg_CDATA", "msgTyp", "enc", "uid", "sub",
             "receivedTimestamp" };
 
     private static HistoryRecordStructure recordStructure =
@@ -80,6 +80,10 @@ public class MessageHistoryServiceImpl
 
     private static ResourceManagementService resourcesService;
 
+    /**
+     * Returns the history service.
+     * @return the history service
+     */
     public HistoryService getHistoryService()
     {
         return historyService;
@@ -664,7 +668,7 @@ public class MessageHistoryServiceImpl
      * which are returned by the finder methods
      *
      * @param hr HistoryRecord
-     * @param contact Contact
+     * @param room the chat room
      * @return Object
      */
     private EventObject convertHistoryRecordToMessageEvent(
@@ -763,7 +767,7 @@ public class MessageHistoryServiceImpl
     }
 
     /**
-     * starts the service. Check the current registerd protocol providers
+     * Starts the service. Check the current registered protocol providers
      * which supports BasicIM and adds message listener to them
      *
      * @param bc BundleContext
@@ -817,7 +821,7 @@ public class MessageHistoryServiceImpl
     }
 
     /**
-     * stops the service.
+     * Stops the service.
      *
      * @param bc BundleContext
      */
@@ -2020,7 +2024,7 @@ public class MessageHistoryServiceImpl
     {
         private final ChatRoom chatRoom;
         private final String name;
-        private final ChatRoomMemberRole role;
+        private ChatRoomMemberRole role;
 
         public ChatRoomMemberImpl(String name, ChatRoom chatRoom,
             ChatRoomMemberRole role)
@@ -2058,6 +2062,11 @@ public class MessageHistoryServiceImpl
         public byte[] getAvatar()
         {
             return null;
+        }
+
+        public void setRole(ChatRoomMemberRole newRole)
+        {
+            this.role = newRole;
         }
 
         public Contact getContact()

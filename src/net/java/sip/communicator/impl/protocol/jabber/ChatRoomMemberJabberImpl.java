@@ -22,10 +22,11 @@ public class ChatRoomMemberJabberImpl
      * The chat room that we are a member of.
      */
     private final ChatRoomJabberImpl containingRoom;
+
     /**
      * The role that this member has in its member room.
      */
-    private final ChatRoomMemberRole  role;
+    private ChatRoomMemberRole  role;
 
     /**
      * The jabber id of the member (will only be visible to members with
@@ -150,7 +151,16 @@ public class ChatRoomMemberJabberImpl
     {
         return role;
     }
-    
+
+    /**
+     * Sets the role of this member.
+     * @param role the role to set
+     */
+    public void setRole(ChatRoomMemberRole role)
+    {
+        this.role = role;
+    }
+
     /**
      * Returns the avatar of this member, that can be used when including it in
      * user interface.

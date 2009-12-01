@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The panel containing the subject of the chat room and the configuration
@@ -25,25 +26,40 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class ChatRoomSubjectPanel
-    extends JPanel
+    extends TransparentPanel
 {
+    /**
+     * The object used for logging.
+     */
     private Logger logger = Logger.getLogger(ChatRoomSubjectPanel.class);
 
+    /**
+     * The panel containing the subject of the chat room.
+     */
     private JLabel subjectLabel = new JLabel(
         GuiActivator.getResources().getI18NString("service.gui.SUBJECT") + ": ");
 
+    /**
+     * The field containing the subject of the chat room.
+     */
     private JTextField subjectField = new JTextField();
 
+    /**
+     * The button that opens the configuration form of the chat room.
+     */
     private JButton configButton = new JButton(new ImageIcon(
-        ImageLoader.getImage(ImageLoader.QUICK_MENU_CONFIGURE_ICON)));
+        ImageLoader.getImage(ImageLoader.CHAT_ROOM_CONFIG)));
 
+    /**
+     * The corresponding chat session.
+     */
     private ConferenceChatSession chatSession;
 
     /**
      * The parent window.
      */
     private ChatWindow chatWindow;
-    
+
     /**
      * Creates the panel containing the chat room subject.
      * 
@@ -86,14 +102,16 @@ public class ChatRoomSubjectPanel
         this.subjectField.setText(subject);
     }
 
-    /*
+    /**
      * Opens the configuration dialog when the configure buttons is pressed.
      */
-    private class ConfigButtonActionListener implements ActionListener
+    private class ConfigButtonActionListener
+        implements ActionListener
     {
         /**
          * Obtains and opens the configuration form of the corresponding chat
          * room when user clicks on the configuration button.
+         * @param evt the <tt>ActionEvent</tt> that notified us
          */
         public void actionPerformed(ActionEvent evt)
         {
@@ -106,14 +124,14 @@ public class ChatRoomSubjectPanel
                     = new ChatRoomConfigurationWindow(
                         chatSession.getChatName(), configForm);
 
+                configWindow.pack();
                 configWindow.setVisible(true);
             }
             catch (OperationFailedException e)
             {
                 logger.error(
-                    "Failed to obtain the chat room configuration form.",
-                    e);
-                
+                    "Failed to obtain the chat room configuration form.", e);
+
                 if(e.getErrorCode()
                     == OperationFailedException.NOT_ENOUGH_PRIVILEGES)
                 {

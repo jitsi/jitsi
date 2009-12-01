@@ -17,7 +17,6 @@ import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>ChatContactRightButtonMenu</tt> is the menu, opened when user clicks
@@ -31,31 +30,83 @@ public class ChatContactRightButtonMenu
     implements  ActionListener
 {
     private Logger logger = Logger.getLogger(ChatContactRightButtonMenu.class);
-    
-    private JMenuItem kickItem = new JMenuItem(
-        GuiActivator.getResources().getI18NString("service.gui.KICK"));
-    
-    private JMenuItem banItem = new JMenuItem(
-        GuiActivator.getResources().getI18NString("service.gui.BAN"));
-    
-    private static String KICK_OPERATION = "Kick";
-    
-    private static String BAN_OPERATION = "Ban";
-    
-    private ChatPanel chatPanel;
-    
-    private ChatContact chatContact;
+
+    private final JMenuItem kickItem
+        = new JMenuItem(GuiActivator.getResources().getI18NString(
+            "service.gui.KICK"));
+    private final JMenuItem banItem
+        = new JMenuItem(GuiActivator.getResources().getI18NString(
+            "service.gui.BAN"));
+
+    private final JMenuItem changeRoomSubjectItem
+        = new JMenuItem(GuiActivator.getResources().getI18NString(
+            "service.gui.CHANGE_ROOM_SUBJECT"));
+    private final JMenuItem changeNicknameItem
+        = new JMenuItem(GuiActivator.getResources().getI18NString(
+            "service.gui.CHANGE_NICKNAME"));
+
+    private final JMenuItem grantOwnershipItem
+        = new JMenuItem(GuiActivator.getResources().getI18NString(
+            "service.gui.GRANT_OWNERSHIP"));
+    private final JMenuItem grantAdminItem
+        = new JMenuItem(GuiActivator.getResources().getI18NString(
+            "service.gui.GRANT_ADMIN"));
+    private final JMenuItem grantMembershipItem
+        = new JMenuItem(GuiActivator.getResources().getI18NString(
+            "service.gui.GRANT_MEMBERSHIP"));
+    private final JMenuItem grantModeratorItem
+        = new JMenuItem(GuiActivator.getResources().getI18NString(
+            "service.gui.GRANT_MODERATOR"));
+    private final JMenuItem grantVoiceItem
+        = new JMenuItem(GuiActivator.getResources().getI18NString(
+            "service.gui.GRANT_VOICE"));
+
+    private final JMenuItem revokeOwnershipItem
+        = new JMenuItem(GuiActivator.getResources().getI18NString(
+            "service.gui.REVOKE_OWNERSHIP"));
+    private final JMenuItem revokeAdminItem
+        = new JMenuItem(GuiActivator.getResources().getI18NString(
+            "service.gui.REVOKE_ADMIN"));
+    private final JMenuItem revokeMembershipItem
+        = new JMenuItem(GuiActivator.getResources().getI18NString(
+            "service.gui.REVOKE_MEMBERSHIP"));
+    private final JMenuItem revokeModeratorItem
+        = new JMenuItem(GuiActivator.getResources().getI18NString(
+            "service.gui.REVOKE_MODERATOR"));
+    private final JMenuItem revokeVoiceItem
+        = new JMenuItem(GuiActivator.getResources().getI18NString(
+            "service.gui.REVOKE_VOICE"));
+
+    private final ChatPanel chatPanel;
+
+    /**
+     * The contact associated with this menu
+     */
+    private final ChatContact chatContact;
+
+    /**
+     * The Chatroom in which the chatContact is currently participating.
+     */
+    private ChatRoom room;
 
     /**
      * Creates an instance of <tt>ChatRoomsListRightButtonMenu</tt>.
+     * @param chatPanel the chat panel containing this menu
+     * @param chatContact the contact 
      */
-    public ChatContactRightButtonMenu(ChatPanel chatPanel,
-            ChatContact chatContact)
+    public ChatContactRightButtonMenu(  ChatPanel chatPanel,
+                                        ChatContact chatContact)
     {
         this.chatPanel = chatPanel;
-        
+
         this.chatContact = chatContact;
-        
+
+        Object descriptor
+            = chatPanel.getChatSession().getDescriptor();
+
+        if (descriptor instanceof ChatRoomWrapper)
+            this.room = ((ChatRoomWrapper) descriptor).getChatRoom();
+
         this.setLocation(getLocation());
 
         this.init();
@@ -66,20 +117,182 @@ public class ChatContactRightButtonMenu
      */
     private void init()
     {
-        this.add(kickItem);
-        this.add(banItem);
-
-        this.kickItem.setName("kick");
-        this.banItem.setName("ban");
-
         this.kickItem.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.KICK"));
 
         this.banItem.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.BAN"));
 
+        this.grantAdminItem.setMnemonic(
+           GuiActivator.getResources().getI18nMnemonic(
+           "service.gui.GRANT_ADMIN"));
+        this.grantMembershipItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic(
+           "service.gui.GRANT_MEMBERSHIP"));
+        this.grantModeratorItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic(
+            "service.gui.GRANT_MODERATOR"));
+        this.grantOwnershipItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic(
+            "service.gui.GRANT_OWNERSHIP"));
+        this.grantVoiceItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic(
+            "service.gui.GRANT_VOICE"));
+        this.revokeAdminItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic(
+            "service.gui.REVOKE_ADMIN"));
+        this.revokeMembershipItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic(
+            "service.gui.REVOKE_MEMBERSHIP"));
+        this.revokeModeratorItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic(
+            "service.gui.REVOKE_MODERATOR"));
+        this.revokeOwnershipItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic(
+            "service.gui.REVOKE_OWNERSHIP"));
+        this.revokeVoiceItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic(
+            "service.gui.REVOKE_VOICE"));
+        this.changeNicknameItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic(
+            "service.gui.CHANGE_NICKNAME"));
+        this.changeNicknameItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic(
+            "service.gui.CHANGE_ROOM_SUBJECT"));
+
         this.kickItem.addActionListener(this);
         this.banItem.addActionListener(this);
+        this.changeNicknameItem.addActionListener(this);
+        this.changeRoomSubjectItem.addActionListener(this);
+        this.grantAdminItem.addActionListener(this);
+        this.grantMembershipItem.addActionListener(this);
+        this.grantModeratorItem.addActionListener(this);
+        this.grantOwnershipItem.addActionListener(this);
+        this.grantVoiceItem.addActionListener(this);
+        this.revokeAdminItem.addActionListener(this);
+        this.revokeMembershipItem.addActionListener(this);
+        this.revokeModeratorItem.addActionListener(this);
+        this.revokeOwnershipItem.addActionListener(this);
+        this.revokeVoiceItem.addActionListener(this);
+
+        this.grantOwnershipItem.setIcon(ImageUtils.getScaledRoundedIcon(
+            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_OWNER), 16, 16));
+        this.grantAdminItem.setIcon(ImageUtils.getScaledRoundedIcon(
+            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_ADMIN), 16, 16));
+        this.grantMembershipItem.setIcon(ImageUtils.getScaledRoundedIcon(
+            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_STANDARD), 16, 16));
+        this.grantModeratorItem.setIcon(ImageUtils.getScaledRoundedIcon(
+            ImageLoader.getImage(
+                ImageLoader.CHATROOM_MEMBER_MODERATOR), 16, 16));
+        this.grantVoiceItem.setIcon(ImageUtils.getScaledRoundedIcon(
+            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_STANDARD), 16, 16));
+        this.revokeAdminItem.setIcon(ImageUtils.getScaledRoundedIcon(
+            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_STANDARD), 16, 16));
+        this.revokeMembershipItem.setIcon(ImageUtils.getScaledRoundedIcon(
+            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_GUEST), 16, 16));
+        this.revokeModeratorItem.setIcon(ImageUtils.getScaledRoundedIcon(
+            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_STANDARD), 16, 16));
+        this.revokeOwnershipItem.setIcon(ImageUtils.getScaledRoundedIcon(
+            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_ADMIN), 16, 16));
+        this.revokeVoiceItem.setIcon(ImageUtils.getScaledRoundedIcon(
+            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_SILENT), 16, 16));
+        this.kickItem.setIcon(new ImageIcon(ImageLoader.getImage(
+            ImageLoader.KICK_ICON_16x16)));
+        this.banItem.setIcon(new ImageIcon(ImageLoader.getImage(
+            ImageLoader.BAN_ICON_16x16)));
+        this.changeNicknameItem.setIcon(new ImageIcon(ImageLoader.getImage(
+            ImageLoader.CHANGE_NICKNAME_ICON_16x16)));
+        this.changeRoomSubjectItem.setIcon(new ImageIcon(ImageLoader.getImage(
+            ImageLoader.CHANGE_ROOM_SUBJECT_ICON_16x16)));
+        int roleIndex = ((ChatRoomMember)
+                chatContact.getDescriptor()).getRole().getRoleIndex();
+        String roleName = ((ChatRoomMember)
+                chatContact.getDescriptor()).getRole().getRoleName();
+
+        if(chatContact.getName().equals(room.getUserNickname()))
+        {
+            roleName = room.getUserRole().getRoleName();
+            roleIndex  = room.getUserRole().getRoleIndex();
+        }
+
+        JLabel jl_username
+            = new JLabel(" "+chatContact.getName()+" ("+roleName+") ");
+        jl_username.setFont(jl_username.getFont().deriveFont(Font.BOLD));
+
+        this.add(jl_username);
+        this.addSeparator();
+
+        OperationSetPersistentPresence opSet
+            = (OperationSetPersistentPresence) room.getParentProvider()
+                .getOperationSet(OperationSetPersistentPresence.class);
+
+        Contact c = opSet.findContactByID(room.getUserNickname());
+
+        // Here we build the menu when the local user cell renderer is clicked:
+        if(chatContact.getName().equals(room.getUserNickname()))
+        {
+            if(roleIndex >= 50)
+            {
+                // It means we are at least a moderator, so we can change room's
+                // subject:
+                this.add(this.changeRoomSubjectItem);
+            }
+
+            this.add(this.changeNicknameItem);
+        }
+        else
+        {
+            if(room.getUserRole().getRoleIndex() >= 50)
+            {
+                if(roleIndex <= 40)
+                {
+                    this.add(this.kickItem);
+
+                    // Admins and owners can ban members:
+                    if(room.getUserRole().getRoleIndex() >= 60 && roleIndex < 50)
+                    {
+                        this.add(this.banItem);
+                    }
+                    this.addSeparator();
+                }
+
+                // we must at least be a moderator for managing voice rights
+                if(roleIndex <= 20)
+                    this.add(this.grantVoiceItem);
+                else if(roleIndex == 40 || roleIndex == 30)
+                    this.add(this.revokeVoiceItem);
+            }
+
+            if(room.getUserRole().getRoleIndex() >= 60)
+            {
+                // we must at least be an admin to manage membership
+                if(roleIndex < 40)
+                    this.add(this.grantMembershipItem);
+                else if(roleIndex == 40)
+                    this.add(this.revokeMembershipItem);
+
+                if(roleIndex < 50)    // room admins can edit moderators list
+                    this.add(this.grantModeratorItem);
+                else if(roleIndex == 50)
+                    this.add(this.revokeModeratorItem);
+            }
+
+            // only room owners can edit admins list
+            if(room.getUserRole().getRoleIndex() == 70)
+            {
+                if(roleIndex != 60 && roleIndex >= 30)
+                // room owners can grant members or unaffiliated users as admins
+                    this.add(this.grantAdminItem);
+                else if(roleIndex == 60)
+                    this.add(this.revokeAdminItem);
+
+                // room owners can edit owners list
+                if(roleIndex != 70 && roleIndex >= 40)
+                    this.add(this.grantOwnershipItem);
+                else if(roleIndex == 70)
+                    this.add(this.revokeOwnershipItem);
+            }
+        }
     }
 
     /**
@@ -89,130 +302,143 @@ public class ChatContactRightButtonMenu
     public void actionPerformed(ActionEvent e)
     {
         JMenuItem menuItem = (JMenuItem) e.getSource();
-        String itemName = menuItem.getName();
 
-        if (itemName.equals("kick"))
+        if (menuItem.equals(kickItem))
         {
-            new ReasonDialog(KICK_OPERATION).setVisible(true);
+            ChatOperationReasonDialog reasonDialog
+                = new ChatOperationReasonDialog();
+
+            int result = new ChatOperationReasonDialog().showDialog();
+
+            if (result == 0)
+                new KickParticipantThread(  room,
+                                            reasonDialog.getReason()).start();
         }
-        else if (itemName.equals("ban"))
+        else if (menuItem.equals(banItem))
         {
-            new ReasonDialog(BAN_OPERATION).setVisible(true);
+            ChatOperationReasonDialog reasonDialog
+                = new ChatOperationReasonDialog();
+
+            int result = new ChatOperationReasonDialog().showDialog();
+
+            if (result == 0)
+                new BanParticipantThread(   room,
+                                            reasonDialog.getReason()).start();
+        }
+        else if (menuItem.equals(changeRoomSubjectItem))
+        {
+            ChatOperationReasonDialog reasonDialog
+                = new ChatOperationReasonDialog(
+                    GuiActivator.getResources().getI18NString(
+                    "service.gui.CHANGE_ROOM_SUBJECT"),
+                    GuiActivator.getResources().getI18NString(
+                    "service.gui.CHANGE_ROOM_SUBJECT_LABEL"));
+
+            int result = new ChatOperationReasonDialog().showDialog();
+
+            if (result == 0)
+            {
+                try
+                {
+                    room.setSubject(reasonDialog.getReason().trim());
+                }
+                catch (OperationFailedException ex)
+                {
+                    ex.printStackTrace();
+                }
+            }
+        }
+        else if (menuItem.equals(changeNicknameItem))
+        {
+            ChatOperationReasonDialog reasonDialog
+                = new ChatOperationReasonDialog(
+                    GuiActivator.getResources().getI18NString(
+                    "service.gui.CHANGE_NICKNAME"),
+                    GuiActivator.getResources().getI18NString(
+                    "service.gui.CHANGE_NICKNAME_LABEL"));
+
+            int result = new ChatOperationReasonDialog().showDialog();
+
+            if (result == 0)
+            {
+                try
+                {
+                    room.setUserNickname(reasonDialog.getReason().trim());
+                }
+                catch (OperationFailedException ex)
+                {
+                    ex.printStackTrace();
+                }
+            }
+        }
+        else if (menuItem.equals(grantVoiceItem))
+        {
+            room.grantVoice(chatContact.getName());
+            ((ChatRoomMember)chatContact.getDescriptor()).setRole(
+                ChatRoomMemberRole.GUEST);
+        }
+        else if (menuItem.equals(grantMembershipItem))
+        {
+            room.grantMembership(((ChatRoomMember)
+                chatContact.getDescriptor()).getContactAddress());
+            ((ChatRoomMember)chatContact.getDescriptor()).setRole(
+                ChatRoomMemberRole.MEMBER);
+        }
+        else if(menuItem.equals(grantModeratorItem))
+        {
+            room.grantModerator(chatContact.getName());
+            ((ChatRoomMember)chatContact.getDescriptor()).setRole(
+                ChatRoomMemberRole.MODERATOR);
+        }
+        else if(menuItem.equals(grantAdminItem))
+        {
+            room.grantAdmin(((ChatRoomMember) chatContact
+                    .getDescriptor()).getContactAddress());
+            ((ChatRoomMember)chatContact.getDescriptor()).setRole(
+                               ChatRoomMemberRole.ADMINISTRATOR);
+        }
+        else if(menuItem.equals(grantOwnershipItem))
+        {
+            room.grantOwnership(((ChatRoomMember)
+                chatContact.getDescriptor()).getContactAddress());
+            ((ChatRoomMember)chatContact.getDescriptor()).setRole(
+                ChatRoomMemberRole.OWNER);
+        }
+        else if(menuItem.equals(revokeOwnershipItem))
+        {
+            room.revokeOwnership(((ChatRoomMember)
+                chatContact.getDescriptor()).getContactAddress());
+            ((ChatRoomMember)chatContact.getDescriptor()).setRole(
+                ChatRoomMemberRole.ADMINISTRATOR);
+        }
+        else if(menuItem.equals(revokeAdminItem))
+        {
+            room.revokeAdmin(((ChatRoomMember)
+                chatContact.getDescriptor()).getContactAddress());
+            ((ChatRoomMember)chatContact.getDescriptor()).setRole(
+                ChatRoomMemberRole.MEMBER);
+        }
+        else if(menuItem.equals(revokeModeratorItem))
+        {
+            room.revokeModerator(chatContact.getName());
+            ((ChatRoomMember)chatContact.getDescriptor()).setRole(
+                ChatRoomMemberRole.MEMBER);
+        }
+        else if(menuItem.equals(revokeMembershipItem))
+        {
+            room.revokeMembership(((ChatRoomMember)
+                chatContact.getDescriptor()).getContactAddress());
+            ((ChatRoomMember)chatContact.getDescriptor()).setRole(
+                ChatRoomMemberRole.GUEST);
+        }
+        else if(menuItem.equals(revokeVoiceItem))
+        {
+            room.revokeVoice(chatContact.getName());
+            ((ChatRoomMember)chatContact.getDescriptor()).setRole(
+                ChatRoomMemberRole.SILENT_MEMBER);
         }
     }
-    
-    private class ReasonDialog extends SIPCommDialog
-    {
-        private JLabel iconLabel = new JLabel(new ImageIcon(
-            ImageLoader.getImage(ImageLoader.REASON_DIALOG_ICON)));
-        
-        private JLabel infoLabel = new JLabel(
-            GuiActivator.getResources()
-                .getI18NString("service.gui.SPECIFY_REASON"));
-        
-        private JLabel reasonLabel = new JLabel(
-            GuiActivator.getResources()
-                .getI18NString("service.gui.REASON") + ":");
-        
-        private JTextField reasonField = new JTextField();
-        
-        private JButton okButton = new JButton(
-            GuiActivator.getResources().getI18NString("service.gui.OK"));
-        
-        private JButton cancelButton = new JButton(
-            GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
-        
-        private JPanel buttonsPanel
-            = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        
-        private JPanel titlePanel = new JPanel(new BorderLayout(10, 10));
-        
-        private JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
-        
-        private String operationType;
-        
-        ReasonDialog(String operation)
-        {
-            super(chatPanel.getChatWindow());
-            
-            this.setTitle(
-                GuiActivator.getResources().getI18NString("service.gui.REASON"));
-            
-            this.operationType = operation;
-            
-            this.buttonsPanel.add(okButton);
-            this.buttonsPanel.add(cancelButton);
-            
-            okButton.addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    //This menu is shown only for chat rooms, so we're sure
-                    // here that we deal with a multi user chat.
-                    ChatRoomWrapper chatRoomWrapper
-                        = (ChatRoomWrapper) chatPanel
-                            .getChatSession().getDescriptor();
 
-                    ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
-
-                    if(chatRoom == null)
-                    {
-                        new ErrorDialog(chatPanel.getChatWindow(),
-                            GuiActivator.getResources()
-                                .getI18NString("service.gui.ERROR"),
-                            GuiActivator.getResources()
-                                .getI18NString("service.gui.CHAT_ROOM_NOT_JOINED"))
-                                .setVisible(true);
-
-                        return;
-                    }
-                    
-                    if (operationType.equals(KICK_OPERATION))
-                    {
-                        new KickParticipantThread(chatRoom,
-                            reasonField.getText()).start();
-                    }
-                    else if (operationType.equals(BAN_OPERATION))
-                    {
-                        new BanParticipantThread(chatRoom,
-                            reasonField.getText()).start();
-                    }
-                    
-                    ReasonDialog.this.setVisible(false);
-                }
-            });
-        
-            cancelButton.addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    ReasonDialog.this.setVisible(false);
-                }
-            });
-            
-            this.infoLabel.setFont(infoLabel.getFont().deriveFont(Font.BOLD));
-            
-            this.titlePanel.add(iconLabel, BorderLayout.WEST);
-            this.titlePanel.add(infoLabel, BorderLayout.CENTER);
-            
-            this.mainPanel.add(titlePanel, BorderLayout.NORTH);
-            this.mainPanel.add(reasonLabel, BorderLayout.WEST);
-            this.mainPanel.add(reasonField, BorderLayout.CENTER);
-            this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
-            
-            this.mainPanel.setBorder(
-                BorderFactory.createEmptyBorder(10, 10, 10, 10));
-            
-            this.getContentPane().add(mainPanel);
-            
-            this.pack();
-        }
-
-        protected void close(boolean isEscaped)
-        {   
-        }
-    }
-    
     /**
      * Kicks the the selected chat room participant or shows a message to the
      * user that he/she has not enough permissions to do a ban.
@@ -220,15 +446,15 @@ public class ChatContactRightButtonMenu
     private class KickParticipantThread extends Thread
     {
         private final ChatRoom chatRoom;
-        
+
         private final String reason;
-        
+
         KickParticipantThread(ChatRoom chatRoom, String reason)
         {
             this.chatRoom = chatRoom;
             this.reason = reason;
         }
-        
+
         public void run()
         {
             try

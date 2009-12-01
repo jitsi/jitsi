@@ -82,9 +82,7 @@ public class ChatRoomList
             = new ChatRoomProviderWrapper(pps);
 
         providersList.add(chatRoomProvider);
-        
-   
-        
+
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
 
