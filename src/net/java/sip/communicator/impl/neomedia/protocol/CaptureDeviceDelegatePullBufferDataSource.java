@@ -211,7 +211,6 @@ public class CaptureDeviceDelegatePullBufferDataSource
      * <tt>CaptureDevice</tt> if available; otherwise, an empty array with
      * <tt>FormatControl</tt> element type
      */
-    @Override
     public FormatControl[] getFormatControls()
     {
         return
