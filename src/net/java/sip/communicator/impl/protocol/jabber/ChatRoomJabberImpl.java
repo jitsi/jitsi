@@ -107,12 +107,12 @@ public class ChatRoomJabberImpl
      */
     private final Hashtable<String, ChatRoomMember> banList
         = new Hashtable<String, ChatRoomMember>();
-    
+
     /**
      * The nickname of this chat room local user participant.
      */
     private String nickname;
-    
+
     /**
      * The subject of this chat room. Keeps track of the subject changes.
      */
@@ -127,7 +127,7 @@ public class ChatRoomJabberImpl
      * The corresponding configuration form.
      */
     private ChatRoomConfigurationFormJabberImpl configForm;
-    
+
     /**
      * Creates an instance of a chat room that has been.
      *
@@ -460,7 +460,7 @@ public class ChatRoomJabberImpl
         throws OperationFailedException
     {
         this.assertConnected();
- 
+
         this.nickname = StringUtils.parseName(nickname);
 
         try
@@ -706,10 +706,10 @@ public class ChatRoomJabberImpl
     public ChatRoomMember smackParticipantToScMember(String participant)
     {
         String participantName = StringUtils.parseResource(participant);
-        
+
         Iterator<ChatRoomMember> chatRoomMembers =
             this.members.values().iterator();
-        
+
         while(chatRoomMembers.hasNext())
         {
             ChatRoomMember member = chatRoomMembers.next();
@@ -718,7 +718,6 @@ public class ChatRoomJabberImpl
                 || participant.equals(member.getContactAddress()))
                 return member;
         }
-        
         return null;
     }
 
@@ -733,18 +732,18 @@ public class ChatRoomJabberImpl
 
         Iterator<Map.Entry<String, ChatRoomMember>> membersSet 
             = members.entrySet().iterator();
-        
+
         while(membersSet.hasNext())
         {
             Map.Entry<String, ChatRoomMember> memberEntry = membersSet.next();
-            
+
             ChatRoomMember member = memberEntry.getValue();
-            
+
             fireMemberPresenceEvent(member,
                 ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT,
                 "Local user has left the chat room.");
         }
-        
+
         // Delete the list of members
         members.clear();
     }
@@ -763,10 +762,10 @@ public class ChatRoomJabberImpl
          try
          {
              assertConnected();
-             
+
              org.jivesoftware.smack.packet.Message msg = 
                 new org.jivesoftware.smack.packet.Message();
-             
+
              msg.setBody(message.getContent());
              msg.addExtension(new Version());
 
@@ -875,9 +874,9 @@ public class ChatRoomJabberImpl
         {
             logger.info(participant + " has been banned from "
                 + getName() + " chat room.");
-            
+
             ChatRoomMember member = smackParticipantToScMember(participant);
-            
+
             if(member == null)
                 return;
 
@@ -886,7 +885,7 @@ public class ChatRoomJabberImpl
             members.remove(participantName);
 
             banList.put(participant, member);
-            
+
             fireMemberRoleEvent(member, member.getRole(),
                 ChatRoomMemberRole.OUTCAST);
         }
@@ -902,10 +901,10 @@ public class ChatRoomJabberImpl
         public void adminGranted(String participant)
         {
             ChatRoomMember member = smackParticipantToScMember(participant);
-            
+
             if(member == null)
                 return;
-            
+
             fireMemberRoleEvent(member, member.getRole(),
                 ChatRoomMemberRole.ADMINISTRATOR);
         }
@@ -943,13 +942,16 @@ public class ChatRoomJabberImpl
         {
             logger.info(participant + " has joined the "
                 + getName() + " chat room.");
-            
+
             String participantName = StringUtils.parseResource(participant);
 
-            if(participantName.equals(nickname)
+            // We try to get the nickname of the participantName in case it's
+            // in the form john@servicename.com, because the nickname we keep
+            // in the nickname property is just the user name like "john".
+            if (nickname.equals(getNickName(participantName))
                 || members.containsKey(participantName))
                 return;
-            
+
             Occupant occupant = multiUserChat.getOccupant(participant);
 
             ChatRoomMemberRole role = smackRoleToScRole(occupant.getRole());
@@ -960,9 +962,9 @@ public class ChatRoomJabberImpl
                   occupant.getNick(),
                   occupant.getJid(),
                   role);
-            
+
             members.put(participantName, member);
-                        
+
             //we don't specify a reason
             fireMemberPresenceEvent(member,
                 ChatRoomMemberPresenceChangeEvent.MEMBER_JOINED, null);
@@ -979,17 +981,17 @@ public class ChatRoomJabberImpl
         {
             logger.info(participant + " has left the "
                 + getName() + " chat room.");
-            
+
             ChatRoomMember member
                 = smackParticipantToScMember(participant);
-            
+
             if(member == null)
                 return;
-            
+
             String participantName = StringUtils.parseResource(participant);
-            
+
             members.remove(participantName);
-            
+
             fireMemberPresenceEvent(member,
                 ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT, null);
         }
@@ -1013,7 +1015,7 @@ public class ChatRoomJabberImpl
             ((ChatRoomMemberJabberImpl) member).setName(newNickname);
 
             String participantName = StringUtils.parseResource(participant);
-            
+
             ChatRoomMemberPropertyChangeEvent evt
                 = new ChatRoomMemberPropertyChangeEvent(
                     member,
@@ -1036,10 +1038,10 @@ public class ChatRoomJabberImpl
         public void ownershipRevoked(String participant)
         {
             ChatRoomMember member = smackParticipantToScMember(participant);
-            
+
             if(member == null)
                 return;
-            
+
             fireMemberRoleEvent(member, member.getRole(),
                 ChatRoomMemberRole.MEMBER);
         }
@@ -1060,17 +1062,17 @@ public class ChatRoomJabberImpl
         {
             ChatRoomMember member
                 = smackParticipantToScMember(participant);
-            
+
             ChatRoomMember actorMember
                 = smackParticipantToScMember(actor);
-            
+
             if(member == null)
                 return;
-            
+
             String participantName = StringUtils.parseResource(participant);
-            
+
             members.remove(participantName);
-            
+
             fireMemberPresenceEvent(member, actorMember,
                 ChatRoomMemberPresenceChangeEvent.MEMBER_KICKED, reason);
         }
@@ -1087,10 +1089,10 @@ public class ChatRoomJabberImpl
         public void moderatorGranted(String participant)
         {
             ChatRoomMember member = smackParticipantToScMember(participant);
-            
+
             if(member == null)
                 return;
-            
+
             fireMemberRoleEvent(member, member.getRole(),
                 ChatRoomMemberRole.MODERATOR);
         }
@@ -1106,10 +1108,10 @@ public class ChatRoomJabberImpl
         public void voiceRevoked(String participant)
         {
             ChatRoomMember member = smackParticipantToScMember(participant);
-            
+
             if(member == null)
                 return;
-            
+
             fireMemberRoleEvent(member, member.getRole(),
                 ChatRoomMemberRole.SILENT_MEMBER);
         }
@@ -1124,10 +1126,10 @@ public class ChatRoomJabberImpl
         public void membershipGranted(String participant)
         {
             ChatRoomMember member = smackParticipantToScMember(participant);
-            
+
             if(member == null)
                 return;
-            
+
             fireMemberRoleEvent(member, member.getRole(),
                 ChatRoomMemberRole.MEMBER);
         }
@@ -1144,10 +1146,10 @@ public class ChatRoomJabberImpl
         public void moderatorRevoked(String participant)
         {
             ChatRoomMember member = smackParticipantToScMember(participant);
-            
+
             if(member == null)
                 return;
-            
+
             fireMemberRoleEvent(member, member.getRole(),
                 ChatRoomMemberRole.GUEST);
         }
@@ -1163,10 +1165,10 @@ public class ChatRoomJabberImpl
         public void voiceGranted(String participant)
         {
             ChatRoomMember member = smackParticipantToScMember(participant);
-            
+
             if(member == null)
                 return;
-            
+
             fireMemberRoleEvent(member, member.getRole(),
                 ChatRoomMemberRole.GUEST);
         }
@@ -1183,10 +1185,10 @@ public class ChatRoomJabberImpl
         public void membershipRevoked(String participant)
         {
             ChatRoomMember member = smackParticipantToScMember(participant);
-            
+
             if(member == null)
                 return;
-            
+
             fireMemberRoleEvent(member, member.getRole(),
                 ChatRoomMemberRole.GUEST);
         }
@@ -1202,10 +1204,10 @@ public class ChatRoomJabberImpl
         public void ownershipGranted(String participant)
         {
             ChatRoomMember member = smackParticipantToScMember(participant);
-            
+
             if(member == null)
                 return;
-            
+
             fireMemberRoleEvent(member, member.getRole(),
                 ChatRoomMemberRole.OWNER);
         }
@@ -1414,24 +1416,24 @@ public class ChatRoomJabberImpl
         ChatRoomMemberPresenceChangeEvent evt
             = new ChatRoomMemberPresenceChangeEvent(
                 this, member, eventID, eventReason);
-        
+
         logger.trace("Will dispatch the following ChatRoom event: " + evt);
-    
+
         Iterator<ChatRoomMemberPresenceListener> listeners = null;
         synchronized (memberListeners)
         {
             listeners = new ArrayList<ChatRoomMemberPresenceListener>(
                                 memberListeners).iterator();
         }
-    
+
         while (listeners.hasNext())
         {
             ChatRoomMemberPresenceListener listener = listeners.next();
-    
+
             listener.memberPresenceChanged(evt);
         }
     }
-    
+
     /**
      * Creates the corresponding ChatRoomMemberPresenceChangeEvent and notifies
      * all <tt>ChatRoomMemberPresenceListener</tt>s that a ChatRoomMember has
@@ -1450,9 +1452,9 @@ public class ChatRoomJabberImpl
         ChatRoomMemberPresenceChangeEvent evt
             = new ChatRoomMemberPresenceChangeEvent(
                 this, member, actor, eventID, eventReason);
-        
+
         logger.trace("Will dispatch the following ChatRoom event: " + evt);
-    
+
         Iterable<ChatRoomMemberPresenceListener> listeners;
         synchronized (memberListeners)
         {
@@ -1460,11 +1462,11 @@ public class ChatRoomJabberImpl
                 = new ArrayList<ChatRoomMemberPresenceListener>(
                         memberListeners);
         }
-    
+
         for (ChatRoomMemberPresenceListener listener : listeners)
             listener.memberPresenceChanged(evt);
     }
-    
+
     /**
      * Creates the corresponding ChatRoomMemberRoleChangeEvent and notifies
      * all <tt>ChatRoomMemberRoleListener</tt>s that a ChatRoomMember has
@@ -1480,9 +1482,9 @@ public class ChatRoomJabberImpl
         ChatRoomMemberRoleChangeEvent evt
             = new ChatRoomMemberRoleChangeEvent(
                 this, member, previousRole, newRole);
-        
+
         logger.trace("Will dispatch the following ChatRoom event: " + evt);
-    
+
         Iterable<ChatRoomMemberRoleListener> listeners;
         synchronized (memberRoleListeners)
         {
@@ -1533,7 +1535,7 @@ public class ChatRoomJabberImpl
      */
     private class SmackMessageListener
         implements PacketListener
-    {   
+    {
         public void processPacket(Packet packet)
         {
             if(!(packet instanceof org.jivesoftware.smack.packet.Message))
@@ -1549,7 +1551,10 @@ public class ChatRoomJabberImpl
             String msgFrom = msg.getFrom();
             String fromUserName = StringUtils.parseResource(msgFrom);
 
-            if(fromUserName.equals(nickname))
+            // We try to get the nickname of the participantName in case it's
+            // in the form john@servicename.com, because the nickname we keep
+            // in the nickname property is just the user name, like "john".
+            if(nickname.equals(getNickName(fromUserName)))
                 return;
 
             ChatRoomMember member = smackParticipantToScMember(msgFrom);
@@ -1911,7 +1916,6 @@ public class ChatRoomJabberImpl
                     OperationFailedException.GENERAL_ERROR,
                     e);
         }
-        
         return configForm;
     }
 
@@ -2209,5 +2213,24 @@ public class ChatRoomJabberImpl
         {
             ex.printStackTrace();
         }
+    }
+
+    /**
+     * Returns the nickname of the given participant name. For example, for
+     * the address "john@xmppservice.com", "john" would be returned. If no @
+     * is found in the address we return the given name.
+     * @param participantAddress the address of the participant
+     * @return the nickname part of the given participant address
+     */
+    private String getNickName(String participantAddress)
+    {
+        if (participantAddress == null)
+            return null;
+
+        int atIndex = participantAddress.lastIndexOf("@");
+        if (atIndex <= 0)
+            return participantAddress;
+        else
+            return participantAddress.substring(0, atIndex);
     }
 }
