@@ -30,6 +30,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.util.swing.SwingWorker; // disambiguation
 
 /**
  * The <tt>ChatPanel</tt> is the panel, where users can write and send messages,
