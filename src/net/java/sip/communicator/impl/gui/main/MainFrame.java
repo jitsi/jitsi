@@ -656,7 +656,8 @@ public class MainFrame
                     .findMetaContactByContact(sourceContact);
 
             if (metaContact != null
-                && (evt.getOldStatus() != evt.getNewStatus()))
+                && ((evt.getOldStatus() != evt.getNewStatus())
+                    || sourceContact.getStatusMessage() != null))
             {
                 // Update the status in the contact list.
                 contactListPanel.getContactList().refreshContact(metaContact);

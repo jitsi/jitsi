@@ -7,12 +7,14 @@
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
+import java.util.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -30,8 +32,14 @@ public class ContactListCellRenderer
     implements  ListCellRenderer,
                 Icon
 {
+    /**
+     * The avatar icon height.
+     */
     private static final int AVATAR_HEIGHT = 30;
 
+    /**
+     * The avatar icon width.
+     */
     private static final int AVATAR_WIDTH = 30;
 
     /**
@@ -41,9 +49,15 @@ public class ContactListCellRenderer
     private static final String AVATAR_DATA_KEY
         = ContactListCellRenderer.class.getName() + ".avatar";
 
+    /**
+     * The icon indicating an open group.
+     */
     private final ImageIcon openedGroupIcon =
         new ImageIcon(ImageLoader.getImage(ImageLoader.DOWN_ARROW_ICON));
 
+    /**
+     * The icon indicating a closed group.
+     */
     private final ImageIcon closedGroupIcon =
         new ImageIcon(ImageLoader.getImage(ImageLoader.RIGHT_ARROW_ICON));
 
@@ -63,18 +77,38 @@ public class ContactListCellRenderer
     protected final JLabel nameLabel = new JLabel();
 
     /**
+     * The status message label.
+     */
+    protected final JLabel statusMessageLabel = new JLabel();
+
+    /**
      * The component showing the avatar or the contact count in the case of
      * groups.
      */
     protected final JLabel rightLabel = new JLabel();
 
+    /**
+     * An icon indicating that a new message has been received from the
+     * corresponding contact.
+     */
     private final Image msgReceivedImage =
         ImageLoader.getImage(ImageLoader.MESSAGE_RECEIVED_ICON);
+
+    /**
+     * The label containing the status icon.
+     */
+    private final JLabel statusLabel = new JLabel();
 
     /**
      * The icon showing the contact status.
      */
     protected final ImageIcon statusIcon = new ImageIcon();
+
+    /**
+     * The panel containing the name and status message labels.
+     */
+    private final TransparentPanel centerPanel
+        = new TransparentPanel(new GridLayout(0, 1));
 
     /**
      * Indicates if the current list cell is selected.
@@ -112,14 +146,20 @@ public class ContactListCellRenderer
 
         this.setOpaque(false);
         this.nameLabel.setOpaque(false);
-        this.nameLabel.setIconTextGap(2);
-
         this.nameLabel.setPreferredSize(new Dimension(10, 20));
+
+        this.statusMessageLabel.setFont(getFont().deriveFont(9f));
+        this.statusMessageLabel.setForeground(Color.GRAY);
 
         this.rightLabel.setFont(rightLabel.getFont().deriveFont(9f));
         this.rightLabel.setHorizontalAlignment(JLabel.RIGHT);
 
-        this.add(nameLabel, BorderLayout.CENTER);
+        centerPanel.add(nameLabel);
+
+        statusLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 2));
+
+        this.add(statusLabel, BorderLayout.WEST);
+        this.add(centerPanel, BorderLayout.CENTER);
         this.add(rightLabel, BorderLayout.EAST);
 
         this.setToolTipText("");
@@ -173,14 +213,23 @@ public class ContactListCellRenderer
                     contactList.getMetaContactStatus(metaContact)));
             }
 
-            this.nameLabel.setIcon(statusIcon);
+            this.statusLabel.setIcon(statusIcon);
 
             this.nameLabel.setFont(this.getFont().deriveFont(Font.PLAIN));
 
             if (contactForegroundColor != null)
                 this.nameLabel.setForeground(contactForegroundColor);
 
-            this.setBorder(BorderFactory.createEmptyBorder(1, 5, 1, 3));
+            String statusMessage = getStatusMessage(metaContact);
+            if (getStatusMessage(metaContact) != null)
+            {
+                statusMessageLabel.setText(statusMessage);
+                centerPanel.add(statusMessageLabel);
+            }
+            else
+                centerPanel.remove(statusMessageLabel);
+
+            this.setBorder(BorderFactory.createEmptyBorder(1, 3, 1, 3));
 
             ImageIcon avatar = getAvatar(metaContact);
             if (avatar != null)
@@ -210,13 +259,15 @@ public class ContactListCellRenderer
             if (groupForegroundColor != null)
                 this.nameLabel.setForeground(groupForegroundColor);
 
-            this.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 3));
+            centerPanel.remove(statusMessageLabel);
+
+            this.setBorder(BorderFactory.createEmptyBorder(2, 3, 2, 3));
 
             // We should set the bounds of the cell explicitly in order to
             // make getComponentAt work properly.
             this.setBounds(0, 0, list.getWidth() - 2, 20);
 
-            this.nameLabel.setIcon(
+            this.statusLabel.setIcon(
                     contactList.isGroupClosed(groupItem)
                         ? closedGroupIcon
                         : openedGroupIcon);
@@ -282,6 +333,29 @@ public class ContactListCellRenderer
         }
 
         return avatar;
+    }
+
+    /**
+     * Returns the first found status message for the given
+     * <tt>metaContact</tt>.
+     * @param metaContact the <tt>MetaContact</tt>, for which we'd like to
+     * obtain a status message
+     * @return the first found status message for the given
+     * <tt>metaContact</tt>
+     */
+    private String getStatusMessage(MetaContact metaContact)
+    {
+        Iterator<Contact> protoContacts = metaContact.getContacts();
+
+        while (protoContacts.hasNext())
+        {
+            Contact protoContact = protoContacts.next();
+
+            String statusMessage = protoContact.getStatusMessage();
+            if (statusMessage != null && statusMessage.length() > 0)
+                return statusMessage;
+        }
+        return null;
     }
 
     /**
