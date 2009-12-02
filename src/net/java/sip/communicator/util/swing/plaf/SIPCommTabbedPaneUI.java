@@ -1689,6 +1689,9 @@ public class SIPCommTabbedPaneUI
                 return;
             }
 
+            // Allow tabs closing with mouse middle button
+            if (e.getButton() == MouseEvent.BUTTON2)
+                ((SIPCommTabbedPane) tabPane).fireCloseTabEvent(e, overTabIndex);
         }
 
         public void mouseExited(MouseEvent e)
