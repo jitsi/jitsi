@@ -36,6 +36,9 @@ public class DataSource
      */
     private static final Logger logger = Logger.getLogger(DataSource.class);
 
+    /**
+     * Indicates whether the datasource is connected or not.
+     */
     private boolean connected = false;
 
     /**
@@ -48,10 +51,24 @@ public class DataSource
                     new FormatControlImpl()
                 };
 
+    /**
+     * Indicates whether the datasource is starteded or not.
+     */
     private boolean started = false;
 
-    private DSAudioStream[] streams = null;
+    /**
+     * The stream created by the datasource.
+     */
+    private DSAudioStream sourceStream = null;
 
+    /**
+     * The streams returned byt the datasource.
+     */
+    private PullBufferStream[] streams = null;
+
+    /**
+     * The format of the media captured byt he datasource.
+     */
     private static AudioFormat captureAudioFormat =
         new AudioFormat(
                 AudioFormat.LINEAR,
@@ -236,14 +253,15 @@ public class DataSource
             if (streams == null)
             {
                 locator = getLocator();
-                streams = new DSAudioStream[] { new DSAudioStream(locator) };
+                sourceStream = new DSAudioStream(locator);
+                streams = new PullBufferStream[]{sourceStream};
             }
         }
         catch (Exception e)
         {
             // if we cannot parse desired device we will not open a stream
             // so there is no stream returned
-            streams = new DSAudioStream[0];
+            streams = new PullBufferStream[0];
 
             logger
                 .error(
@@ -269,7 +287,7 @@ public class DataSource
 
         try
         {
-            streams[0].start();
+            sourceStream.start();
         }
         catch (PortAudioException pae)
         {
@@ -296,7 +314,7 @@ public class DataSource
 
         try
         {
-            streams[0].stop();
+            sourceStream.stop();
         }
         catch (PortAudioException pae)
         {
