@@ -42,33 +42,67 @@ public class GlobalStatusSelectorBox
     extends StatusSelectorMenu
     implements ActionListener
 {
+    /**
+     * The indent of the image.
+     */
     private static final int IMAGE_INDENT = 10;
 
+    /**
+     * The arrow icon shown on the right of the status and indicating that
+     * this is a menu.
+     */
     private final Image arrowImage
         = ImageLoader.getImage(ImageLoader.DOWN_ARROW_ICON);
 
-    private final Logger logger = Logger.getLogger(GlobalStatusSelectorBox.class);
+    /**
+     * The object used for logging.
+     */
+    private final Logger logger
+        = Logger.getLogger(GlobalStatusSelectorBox.class);
 
+    /**
+     * Mapping of <tt>ProtocolProviderService</tt> and corresponding
+     * <tt>StatusSelectorMenu</tt>.
+     */
     private final Map<ProtocolProviderService, StatusSelectorMenu> accountMenus
         = new Hashtable<ProtocolProviderService, StatusSelectorMenu>();
 
+    /**
+     * The main application window.
+     */
     private final MainFrame mainFrame;
 
 //    private ImageIcon dndIcon = new ImageIcon(
 //        ImageLoader.getImage(ImageLoader.USER_DND_ICON));
 
+    /**
+     * The item corresponding to the online status.
+     */
     private final JMenuItem onlineItem;
 
+    /**
+     * The item corresponding to the offline status.
+     */
     private final JMenuItem offlineItem;
 
+    /**
+     * The item corresponding to the away status.
+     */
     private final JMenuItem awayItem;
 
 //    private JMenuItem dndItem = new JMenuItem(
-//        GuiActivator.getResources().getI18NString("service.gui.DND_STATUS").getText(),
+//        GuiActivator.getResources().getI18NString("service.gui.DND_STATUS")
+//    .getText(),
 //        dndIcon);
 
+    /**
+     * The item corresponding to the free for chat status.
+     */
     private final JMenuItem ffcItem;
 
+    /**
+     * The width of the text.
+     */
     private int textWidth = 0;
 
     /**
@@ -119,6 +153,14 @@ public class GlobalStatusSelectorBox
         computeTextWidth();
     }
 
+    /**
+     * Creates a menu item with the given <tt>textKey</tt>, <tt>iconID</tt> and
+     * <tt>name</tt>.
+     * @param textKey the text of the item
+     * @param iconID the icon of the item
+     * @param name the name of the item
+     * @return the created <tt>JMenuItem</tt>
+     */
     private JMenuItem createMenuItem(
         String textKey,
         ImageID iconID,
@@ -137,6 +179,11 @@ public class GlobalStatusSelectorBox
         return menuItem;
     }
 
+    /**
+     * Adds a status menu for the account given by <tt>protocolProvider</tt>.
+     * @param protocolProvider the <tt>ProtocolProviderService</tt>, for which
+     * to add a status menu
+     */
     public void addAccount(ProtocolProviderService protocolProvider)
     {
         boolean isHidden
@@ -161,6 +208,12 @@ public class GlobalStatusSelectorBox
         this.accountMenus.put(protocolProvider, statusSelectorMenu);
     }
 
+    /**
+     * Removes the status menu corresponding to the account given by
+     * <tt>protocolProvider</tt>.
+     * @param protocolProvider the <tt>ProtocolProviderService</tt>, which
+     * menu to remove
+     */
     public void removeAccount(ProtocolProviderService protocolProvider)
     {
         StatusSelectorMenu statusSelectorMenu
@@ -170,14 +223,23 @@ public class GlobalStatusSelectorBox
         this.accountMenus.remove(protocolProvider);
     }
 
+    /**
+     * Checks if a menu for the given <tt>protocolProvider</tt> exists.
+     * @param protocolProvider the <tt>ProtocolProviderService</tt> to check
+     * @return <tt>true</tt> to indicate that a status menu for the given
+     * <tt>protocolProvider</tt> already exists, otherwise returns
+     * <tt>false</tt>
+     */
     public boolean containsAccount(ProtocolProviderService protocolProvider)
     {
         return accountMenus.containsKey(protocolProvider);
     }
 
     /**
-     * Returns TRUE if there are selected status selector boxes, otherwise
-     * returns FALSE.
+     * Returns <tt>true</tt> if there are selected status selector boxes,
+     * otherwise returns <tt>false</tt>.
+     * @return <tt>true</tt> if there are selected status selector boxes,
+     * otherwise returns <tt>false</tt>
      */
     public boolean hasSelectedMenus()
     {
@@ -190,13 +252,15 @@ public class GlobalStatusSelectorBox
     /**
      * Handles the <tt>ActionEvent</tt> triggered when one of the items
      * in the list is selected.
+     * @param e the <tt>ActionEvent</tt> that notified us
      */
     public void actionPerformed(ActionEvent e)
     {
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
 
-        Iterator<ProtocolProviderService> pProviders = mainFrame.getProtocolProviders();
+        Iterator<ProtocolProviderService> pProviders
+            = mainFrame.getProtocolProviders();
 
         while (pProviders.hasNext())
         {
@@ -376,9 +440,12 @@ public class GlobalStatusSelectorBox
 
                     if (status != null) 
                     {
-                        if (currentStatus.getStatus() < PresenceStatus.AVAILABLE_THRESHOLD
-                                && currentStatus.getStatus() >= PresenceStatus.ONLINE_THRESHOLD
-                                && currentStatus.getStatus() > status.getStatus()) 
+                        if (currentStatus.getStatus()
+                                < PresenceStatus.AVAILABLE_THRESHOLD
+                                && currentStatus.getStatus()
+                                    >= PresenceStatus.ONLINE_THRESHOLD
+                                && currentStatus.getStatus()
+                                    > status.getStatus()) 
                         {
                             status = currentStatus;
                         }
@@ -397,6 +464,11 @@ public class GlobalStatusSelectorBox
         }
     }
 
+    /**
+     * Updates the status of the given <tt>protocolProvider</tt>.
+     * @param protocolProvider the <tt>ProtocolProviderService</tt>
+     * corresponding to the menu to update
+     */
     public void updateStatus(ProtocolProviderService protocolProvider)
     {
         StatusSelectorMenu accountMenu = accountMenus.get(protocolProvider);
@@ -435,6 +507,13 @@ public class GlobalStatusSelectorBox
         this.updateGlobalStatus();
     }
 
+    /**
+     * Updates the status of the given <tt>protocolProvider</tt> with the given
+     * <tt>presenceStatus</tt>.
+     * @param protocolProvider the <tt>ProtocolProviderService</tt>
+     * corresponding to the menu to update
+     * @param presenceStatus the new status to set
+     */
     public void updateStatus(ProtocolProviderService protocolProvider,
                              PresenceStatus presenceStatus)
     {
@@ -540,9 +619,10 @@ public class GlobalStatusSelectorBox
         private OperationSetPresence presence;
 
         /**
-         * 
-         * @param presence
-         * @param status
+         * Publishes the given <tt>status</tt> through the given
+         * <tt>presence</tt> operation set.
+         * @param presence the operation set through which we publish the status
+         * @param status the status to publish
          */
         public PublishPresenceStatusThread( OperationSetPresence presence,
                                             PresenceStatus status)
@@ -717,6 +797,7 @@ public class GlobalStatusSelectorBox
     /**
      * Overwrites the <tt>paintComponent(Graphics g)</tt> method in order to
      * provide a new look and the mouse moves over this component.
+     * @param g the <tt>Graphics</tt> object used for painting
      */
     public void paintComponent(Graphics g)
     {
@@ -743,7 +824,8 @@ public class GlobalStatusSelectorBox
     }
 
     /**
-     * Computes the width of the text in pixels in order to position the arrow during its painting.
+     * Computes the width of the text in pixels in order to position the arrow
+     * during its painting.
      */
     private void computeTextWidth()
     {

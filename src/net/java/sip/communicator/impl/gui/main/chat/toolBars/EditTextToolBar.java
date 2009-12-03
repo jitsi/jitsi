@@ -47,6 +47,7 @@ public class EditTextToolBar
 
     /**
      * Creates an instance and constructs the <tt>EditTextToolBar</tt>.
+     * @param writePanel the panel containing the chat write area
      */
     public EditTextToolBar(ChatWritePanel writePanel)
     {
@@ -79,7 +80,11 @@ public class EditTextToolBar
         this.smileysBox.setToolTipText(GuiActivator.getResources()
             .getI18NString("service.gui.INSERT_SMILEY") + " Ctrl-M");
 
-        this.add(smileysBox);
+        SIPCommMenuBar smileyMenuBar = new SIPCommMenuBar();
+        smileyMenuBar.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        smileyMenuBar.add(smileysBox);
+
+        this.add(smileyMenuBar);
     }
 
     /**

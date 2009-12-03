@@ -42,9 +42,9 @@ public class ConferencePeerPanel
     private CallPeer callPeer;
 
     /**
-     * The action menu available for all call peers.
+     * The tools menu available for each peer.
      */
-    private CallPeerActionMenuBar actionMenuBar;
+    private CallPeerMenu callPeerMenu;
 
     /**
      * The label showing whether the voice has been set to mute.
@@ -101,7 +101,9 @@ public class ConferencePeerPanel
     {
         this.callDialog = callDialog;
 
-        this.setPeerName(protocolProvider.getAccountID().getUserID());
+        this.setPeerName(protocolProvider.getAccountID().getUserID()
+            + " (" + GuiActivator.getResources()
+                .getI18NString("service.gui.ACCOUNT_ME").toLowerCase() + ")");
 
         this.setTitleBackground(
             new Color(GuiActivator.getResources().getColor(
@@ -128,8 +130,12 @@ public class ConferencePeerPanel
         // We initialize the status bar for call peers only.
         this.initStatusBar(callPeer);
 
-        actionMenuBar = new CallPeerActionMenuBar(callPeer);
-        this.addToNameBar(actionMenuBar);
+        callPeerMenu = new CallPeerMenu(callPeer);
+
+        SIPCommMenuBar menuBar = new SIPCommMenuBar();
+        menuBar.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        menuBar.add(callPeerMenu);
+        this.addToNameBar(menuBar);
 
         this.setTitleBackground(
             new Color(GuiActivator.getResources().getColor(

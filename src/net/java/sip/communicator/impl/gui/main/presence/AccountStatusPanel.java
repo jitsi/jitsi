@@ -19,34 +19,67 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.swing.*;
 
+/**
+ * The panel shown on the top of the contact list. It contains user name,
+ * current status menu and the avatar of the user.
+ *
+ * @author Yana Stamcheva
+ */
 public class AccountStatusPanel
     extends TransparentPanel
     implements  RegistrationStateChangeListener
 {
+    /**
+     * The desired height of the avatar.
+     */
     private static final int AVATAR_ICON_HEIGHT = 45;
 
+    /**
+     * The desired width of the avatar.
+     */
     private static final int AVATAR_ICON_WIDTH = 45;
 
+    /**
+     * The image object storing the avatar.
+     */
     private final FramedImage accountImageLabel;
 
+    /**
+     * The label showing the name of the user.
+     */
     private final JLabel accountNameLabel
         = new JLabel(
                 GuiActivator
                     .getResources().getI18NString("service.gui.ACCOUNT_ME"));
 
+    /**
+     * The background color property.
+     */
     private final Color bgColor
-        = new Color(
-                GuiActivator
-                    .getResources()
+        = new Color(GuiActivator.getResources()
                         .getColor("service.gui.LOGO_BAR_BACKGROUND"));
 
+    /**
+     * The background image property.
+     */
     private final Image logoBgImage
         = ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR);
 
+    /**
+     * The combo box containing status menu.
+     */
     private final GlobalStatusSelectorBox statusComboBox;
 
+    /**
+     * TexturePaint used to paint background image.
+     */
     private final TexturePaint texture;
 
+    /**
+     * Creates an instance of <tt>AccountStatusPanel</tt> by specifying the
+     * main window, where this panel is added.
+     * @param mainFrame the main window, where this panel is added
+     */
     public AccountStatusPanel(MainFrame mainFrame)
     {
         super(new BorderLayout(10, 0));
@@ -96,6 +129,12 @@ public class AccountStatusPanel
                             bgImage.getHeight(null)));
     }
 
+    /**
+     * Adds the account given by <tt>protocolProvider</tt> in the contained
+     * status combo box.
+     * @param protocolProvider the <tt>ProtocolProviderService</tt>
+     * corresponding to the account to add
+     */
     public void addAccount(ProtocolProviderService protocolProvider)
     {
         statusComboBox.addAccount(protocolProvider);
@@ -103,6 +142,12 @@ public class AccountStatusPanel
         protocolProvider.addRegistrationStateChangeListener(this);
     }
 
+    /**
+     * Removes the account given by <tt>protocolProvider</tt> from the contained
+     * status combo box.
+     * @param protocolProvider the <tt>ProtocolProviderService</tt>
+     * corresponding to the account to remove
+     */
     public void removeAccount(ProtocolProviderService protocolProvider)
     {
         statusComboBox.removeAccount(protocolProvider);
@@ -110,28 +155,63 @@ public class AccountStatusPanel
         protocolProvider.removeRegistrationStateChangeListener(this);
     }
 
+    /**
+     * Checks if an account corresponding to the given <tt>protocolProvider</tt>
+     * is contained in the contained status combo box.
+     * @param protocolProvider the <tt>ProtocolProviderService</tt>
+     * corresponding to the account to check for
+     * @return <tt>true</tt> to indicate that an account corresponding to the
+     * given <tt>protocolProvider</tt> is contained in the status box,
+     * <tt>false</tt> - otherwise
+     */
     public boolean containsAccount(ProtocolProviderService protocolProvider)
     {
         return statusComboBox.containsAccount(protocolProvider);
     }
 
+    /**
+     * Returns the last used presence status for the given
+     * <tt>protocolProvider</tt>.
+     * @param protocolProvider the <tt>ProtocolProviderService</tt>
+     * corresponding to the account we're looking for
+     * @return the last used presence status for the given
+     * <tt>protocolProvider</tt>
+     */
     public Object getLastPresenceStatus(
                                     ProtocolProviderService protocolProvider)
     {
         return statusComboBox.getLastPresenceStatus(protocolProvider);
     }
 
+    /**
+     * Returns the last used status for the given <tt>protocolProvider</tt>
+     * as a String.
+     * @param protocolProvider the <tt>ProtocolProviderService</tt>
+     * corresponding to the account we're looking for
+     * @return a String representation of the last used status for the given
+     * <tt>protocolProvider</tt>
+     */
     public String getLastStatusString(ProtocolProviderService protocolProvider)
     {
         return statusComboBox.getLastStatusString(protocolProvider);
     }
 
+    /**
+     * Updates the current status of the <tt>protocolProvider</tt> with the
+     * <tt>newStatus</tt>.
+     * @param protocolProvider the <tt>ProtocolProviderService</tt> to update
+     * @param newStatus the new status to set
+     */
     public void updateStatus(   ProtocolProviderService protocolProvider,
                                 PresenceStatus newStatus)
     {
         statusComboBox.updateStatus(protocolProvider, newStatus);
     }
 
+    /**
+     * Updates the current status of the <tt>protocolProvider</tt>.
+     * @param protocolProvider the <tt>ProtocolProviderService</tt> to update
+     */
     public void updateStatus( ProtocolProviderService protocolProvider)
     {
         statusComboBox.updateStatus(protocolProvider);
@@ -227,6 +307,10 @@ public class AccountStatusPanel
         }
     }
 
+    /**
+     * Paints this component.
+     * @param g the <tt>Graphics</tt> object used for painting
+     */
     public void paintComponent(Graphics g)
     { 
         super.paintComponent(g);

@@ -13,7 +13,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.swing.*;
@@ -26,14 +25,12 @@ import net.java.sip.communicator.util.swing.*;
  * @author Lubomir Marinov
  */
 public class SmileysSelectorBox
-    extends SIPCommMenuBar
+    extends SIPCommMenu
     implements ActionListener,
                MouseListener,
                PopupMenuListener
 {
     private final ChatWritePanel chatWritePanel;
-
-    private final SIPCommMenu selectorBox = new SIPCommMenu();
 
     private final JLabel smileyTextLabel = new JLabel();
     private final JLabel smileyDescriptionLabel = new JLabel();
@@ -49,15 +46,13 @@ public class SmileysSelectorBox
         this.chatWritePanel = writePanel;
 
         this.setOpaque(false);
-        this.selectorBox.setOpaque(false);
-
         // Should explicitly remove any border in order to align correctly the
         // icon.
-        this.selectorBox.setBorder(BorderFactory.createEmptyBorder());
-        this.selectorBox.setIcon(new ImageIcon(ImageLoader
+        this.setBorder(BorderFactory.createEmptyBorder());
+        this.setIcon(new ImageIcon(ImageLoader
             .getImage(ImageLoader.SMILIES_ICON)));
 
-        JPopupMenu popupMenu = this.selectorBox.getPopupMenu();
+        JPopupMenu popupMenu = this.getPopupMenu();
 
         popupMenu.setLayout(new GridBagLayout());
         popupMenu.setBackground(Color.WHITE);
@@ -67,8 +62,6 @@ public class SmileysSelectorBox
          * they are not always necessary.
          */
         popupMenu.addPopupMenuListener(this);
-
-        this.add(selectorBox);
     }
 
     /**
@@ -97,7 +90,7 @@ public class SmileysSelectorBox
      */
     public void open()
     {
-        this.selectorBox.doClick();
+        this.doClick();
     }
 
     /**
@@ -107,12 +100,13 @@ public class SmileysSelectorBox
      */
     public boolean isMenuSelected()
     {
-        return selectorBox.isPopupMenuVisible();
+        return isPopupMenuVisible();
     }
 
     /**
      * Writes the symbol corresponding to a chosen smiley icon to the write
      * message area at the end of the current text.
+     * @param e the <tt>ActionEvent</tt> that notified us
      */
     public void actionPerformed(ActionEvent e)
     {
@@ -127,33 +121,11 @@ public class SmileysSelectorBox
     }
 
     /**
-     * Sets the given text to this smiley selector box. The given text will be
-     * position by default on the bottom of the icon.
-     * 
-     * @param text the text to be added to this selector box.
-     */
-    public void setText(String text)
-    {
-        this.selectorBox.setText(text);
-
-        this.selectorBox.setFont(getFont().deriveFont(Font.BOLD, 10f));
-        this.selectorBox.setVerticalTextPosition(SwingConstants.BOTTOM);
-        this.selectorBox.setHorizontalTextPosition(SwingConstants.CENTER);
-        this.selectorBox.setForeground(new Color(GuiActivator.getResources()
-            .getColor("service.gui.CHAT_MENU_FOREGROUND")));
-    }
-
-    public void paintComponent(Graphics g)
-    {
-    }
-
-    /**
      * A custom menu item, which paints round border over selection.
      */
     private static class SmileyMenuItem
         extends JMenuItem
     {
-
         /**
          * The <tt>Smiley</tt> depicted by this instance.
          */
@@ -177,6 +149,7 @@ public class SmileysSelectorBox
     /**
      * Changes the static image of the underlying smiley with a dynamic one.
      * Also shows the description and smiley string in the description area.
+     * @param e the <tt>MouseEvent</tt> that notified us
      */
     public void mouseEntered(MouseEvent e)
     {
@@ -193,6 +166,7 @@ public class SmileysSelectorBox
 
     /**
      * Clears all mouse over effects when the mouse has exited the smiley area.
+     * @param e the <tt>MouseEvent</tt> that notified us
      */
     public void mouseExited(MouseEvent e)
     {
@@ -201,17 +175,11 @@ public class SmileysSelectorBox
         this.clearMouseOverEffects(smileyItem);
     }
 
-    public void mouseClicked(MouseEvent e)
-    {
-    }
+    public void mouseClicked(MouseEvent e) {}
 
-    public void mousePressed(MouseEvent e)
-    {
-    }
+    public void mousePressed(MouseEvent e) {}
 
-    public void mouseReleased(MouseEvent e)
-    {
-    }
+    public void mouseReleased(MouseEvent e) {}
 
     /**
      * Clears all mouse over effects for the given smiley item. This method
@@ -230,27 +198,26 @@ public class SmileysSelectorBox
         smileyDescriptionLabel.setText("");
     }
 
-    /*
+    /**
      * Implements PopupMenuListener#popupMenuCanceled(PopupMenuEvent). Does
      * nothing.
+     * @param e the <tt>PopupMenuEvent</tt>
      */
-    public void popupMenuCanceled(PopupMenuEvent e)
-    {
-    }
+    public void popupMenuCanceled(PopupMenuEvent e) {}
 
-    /*
+    /**
      * Implements
      * PopupMenuListener#popupMenuWillBecomeInvisible(PopupMenuEvent). Does
      * nothing.
+     * @param e the <tt>PopupMenuEvent</tt>
      */
-    public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
-    {
-    }
+    public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {}
 
-    /*
+    /**
      * Implements PopupMenuListener#popupMenuWillBecomeVisible(PopupMenuEvent).
      * Loads the smileys and creates the UI to represent them when they are
      * first necessary.
+     * @param e the <tt>PopupMenuEvent</tt> that notified us
      */
     public void popupMenuWillBecomeVisible(PopupMenuEvent e)
     {

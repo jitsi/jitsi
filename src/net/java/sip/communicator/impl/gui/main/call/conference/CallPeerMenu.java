@@ -26,8 +26,8 @@ import net.java.sip.communicator.util.swing.*;
  *
  * @author Yana Stamcheva
  */
-public class CallPeerActionMenuBar
-    extends SIPCommMenuBar
+public class CallPeerMenu
+    extends SIPCommMenu
     implements  CallPeerListener,
                 PropertyChangeListener
 {
@@ -52,24 +52,20 @@ public class CallPeerActionMenuBar
      * <tt>callPeer</tt>.
      * @param peer the <tt>CallPeer</tt> associated with the contained menus
      */
-    public CallPeerActionMenuBar(CallPeer peer)
+    public CallPeerMenu(CallPeer peer)
     {
         this.callPeer = peer;
 
-        SIPCommMenu menu = new SIPCommMenu();
-
-        menu.setPreferredSize(new Dimension(20, 20));
-
         this.setOpaque(false);
-        menu.setOpaque(false);
+        this.setPreferredSize(new Dimension(20, 20));
 
         // Should explicitly remove any border in order to align correctly the
         // icon.
-        menu.setBorder(BorderFactory.createEmptyBorder());
-        menu.setIcon(new ImageIcon(ImageLoader
+        this.setBorder(BorderFactory.createEmptyBorder());
+        this.setIcon(new ImageIcon(ImageLoader
             .getImage(ImageLoader.CALL_PEER_TOOLS)));
-        menu.setIconTextGap(0);
-        menu.addItem(
+        this.setIconTextGap(0);
+        this.addItem(
             GuiActivator.getResources().getI18NString("service.gui.HANG_UP"),
             null,
             new ActionListener()
@@ -83,10 +79,10 @@ public class CallPeerActionMenuBar
         initHoldMenuItem();
         initMuteMenuItem();
 
-        menu.add(holdMenuItem);
-        menu.add(muteMenuItem);
+        this.add(holdMenuItem);
+        this.add(muteMenuItem);
 
-        menu.addItem(
+        this.addItem(
             GuiActivator.getResources().getI18NString(
                 "service.gui.TRANSFER_BUTTON_TOOL_TIP"),
             null,
@@ -97,8 +93,6 @@ public class CallPeerActionMenuBar
                     CallManager.transferCall(callPeer);
                 }
             });
-
-        this.add(menu);
 
         // Add the call peer listener that would notify us for call peer state
         // changes. We'll be using these notifications in order to update the
