@@ -13,6 +13,8 @@ import javax.media.*;
 import javax.media.control.*;
 import javax.media.protocol.*;
 
+import net.java.sip.communicator.util.*;
+
 /**
  * Represents a <tt>PushBufferDataSource</tt> which provides a single
  * <tt>PushBufferStream</tt> containing the result of the audio mixing of
@@ -26,8 +28,15 @@ public class AudioMixingPushBufferDataSource
 {
 
     /**
-     * The <tt>AudioMixer</tt> performing the audio mixing, managing the
-     * input <tt>DataSource</tt>s and pushing the data of this output
+     * The <tt>Logger</tt> used by the <tt>AudioMixingPushBufferDataSource</tt>
+     * class and its instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(AudioMixingPushBufferDataSource.class);
+
+    /**
+     * The <tt>AudioMixer</tt> performing the audio mixing, managing the input
+     * <tt>DataSource</tt>s and pushing the data of this output
      * <tt>PushBufferDataSource</tt>.
      */
     private final AudioMixer audioMixer;
@@ -40,8 +49,8 @@ public class AudioMixingPushBufferDataSource
 
     /**
      * The one and only <tt>PushBufferStream</tt> this
-     * <tt>PushBufferDataSource</tt> provides to its clients and containing
-     * the result of the audio mixing performed by <tt>audioMixer</tt>.
+     * <tt>PushBufferDataSource</tt> provides to its clients and containing the
+     * result of the audio mixing performed by <tt>audioMixer</tt>.
      */
     private AudioMixingPushBufferStream outputStream;
 
@@ -52,13 +61,13 @@ public class AudioMixingPushBufferDataSource
     private boolean started;
 
     /**
-     * Initializes a new <tt>AudioMixingPushBufferDataSource</tt> instance
-     * which gives access to the result of the audio mixing performed by a
-     * specific <tt>AudioMixer</tt>.
+     * Initializes a new <tt>AudioMixingPushBufferDataSource</tt> instance which
+     * gives access to the result of the audio mixing performed by a specific
+     * <tt>AudioMixer</tt>.
      * 
      * @param audioMixer the <tt>AudioMixer</tt> performing audio mixing,
-     *            managing the input <tt>DataSource</tt>s and pushing the
-     *            data of the new output <tt>PushBufferDataSource</tt>
+     * managing the input <tt>DataSource</tt>s and pushing the data of the new
+     * output <tt>PushBufferDataSource</tt>
      */
     public AudioMixingPushBufferDataSource(AudioMixer audioMixer)
     {
@@ -71,22 +80,24 @@ public class AudioMixingPushBufferDataSource
      * contributions included in the mixing output represented by this
      * <tt>DataSource</tt>.
      * 
-     * @param inputDataSource a <tt>DataSource</tt> to be added for mixing
-     *            to the <tt>AudioMixer</tt> associate with this instance
-     *            and to not have its audio contributions included in the mixing
-     *            output represented by this <tt>DataSource</tt>
+     * @param inputDataSource a <tt>DataSource</tt> to be added for mixing to
+     * the <tt>AudioMixer</tt> associate with this instance and to not have its
+     * audio contributions included in the mixing output represented by this
+     * <tt>DataSource</tt>
      */
     public void addInputDataSource(DataSource inputDataSource)
     {
         audioMixer.addInputDataSource(inputDataSource, this);
     }
 
-    /*
-     * Implements DataSource#connect(). Lets the AudioMixer know that one of its
-     * output PushBufferDataSources has been connected and marks this DataSource
-     * as connected.
+    /**
+     * Implements {@link DataSource#connect()}. Lets the <tt>AudioMixer</tt>
+     * know that one of its output <tt>PushBufferDataSources</tt> has been
+     * connected and marks this <tt>DataSource</tt> as connected.
+     *
+     * @throws IOException if the <tt>AudioMixer</tt> fails to connect
      */
-    public void connect()
+    public synchronized void connect()
         throws IOException
     {
         if (!connected)
@@ -96,20 +107,21 @@ public class AudioMixingPushBufferDataSource
         }
     }
 
-    /*
-     * Implements DataSource#disconnect(). Marks this DataSource as disconnected
-     * and notifies the AudioMixer that one of its output PushBufferDataSources
-     * has been disconnected.
+    /**
+     * Implements {@link DataSource#disconnect()}. Marks this
+     * <tt>DataSource</tt> as disconnected and notifies the <tt>AudioMixer</tt>
+     * that one of its output <tt>PushBufferDataSources</tt> has been
+     * disconnected.
      */
-    public void disconnect()
+    public synchronized void disconnect()
     {
         try
         {
             stop();
         }
-        catch (IOException ex)
+        catch (IOException ioex)
         {
-            throw new UndeclaredThrowableException(ex);
+            throw new UndeclaredThrowableException(ioex);
         }
 
         if (connected)
@@ -121,19 +133,39 @@ public class AudioMixingPushBufferDataSource
         }
     }
 
-    /*
-     * Implements CaptureDevice#getCaptureDeviceInfo(). Delegates to the
-     * associated AudioMixer because it knows which CaptureDevice is being
-     * wrapped.
+    /**
+     * Gets the <tt>BufferControl</tt> available for this <tt>DataSource</tt>.
+     * Delegates to the <tt>AudioMixer</tt> because this instance is just a
+     * facet to it.
+     *
+     * @return the <tt>BufferControl</tt> available for this <tt>DataSource</tt>
+     */
+    private BufferControl getBufferControl()
+    {
+        return audioMixer.getBufferControl();
+    }
+
+    /**
+     * Implements {@link CaptureDevice#getCaptureDeviceInfo()}. Delegates to the
+     * associated <tt>AudioMixer</tt> because it knows which
+     * <tt>CaptureDevice</tt> is being wrapped.
+     *
+     * @return the <tt>CaptureDeviceInfo</tt> of the <tt>CaptureDevice</tt> of
+     * the <tt>AudioMixer</tt>
      */
     public CaptureDeviceInfo getCaptureDeviceInfo()
     {
         return audioMixer.getCaptureDeviceInfo();
     }
 
-    /*
-     * Implements DataSource#getContentType(). Delegates to the associated
-     * AudioMixer because it manages the inputs and knows their characteristics.
+    /**
+     * Implements {@link DataSource#getContentType()}. Delegates to the
+     * associated <tt>AudioMixer</tt> because it manages the inputs and knows
+     * their characteristics.
+     *
+     * @return a <tt>String</tt> value which represents the type of the content
+     * being made available by this <tt>DataSource</tt> i.e. the associated
+     * <tt>AudioMixer</tt>
      */
     public String getContentType()
     {
@@ -141,7 +173,7 @@ public class AudioMixingPushBufferDataSource
     }
 
     /**
-     * Implements DataSource#getControl(String).
+     * Implements {@link DataSource#getControl(String)}.
      *
      * @param controlType a <tt>String</tt> value which names the type of the
      * control of this instance to be retrieved
@@ -155,45 +187,78 @@ public class AudioMixingPushBufferDataSource
     }
 
     /**
-     * Implements DataSource#getControls(). Gets an array of <tt>Object</tt>s
-     * which represent the controls available for this <tt>DataSource</tt>.
+     * Implements {@link DataSource#getControls()}. Gets an array of
+     * <tt>Object</tt>s which represent the controls available for this
+     * <tt>DataSource</tt>.
      *
      * @return an array of <tt>Object</tt>s which represent the controls
      * available for this <tt>DataSource</tt>
      */
     public Object[] getControls()
     {
-        // At least a FormatControl is known to be necessary.
-        return getFormatControls();
+        BufferControl bufferControl = getBufferControl();
+        FormatControl[] formatControls = getFormatControls();
+
+        if (bufferControl == null)
+            return formatControls;
+        else if ((formatControls == null) || (formatControls.length < 1))
+            return new Object[] { bufferControl };
+        else
+        {
+            Object[] controls = new Object[1 + formatControls.length];
+
+            controls[0] = bufferControl;
+            System
+                .arraycopy(
+                    formatControls,
+                    0,
+                    controls,
+                    1,
+                    formatControls.length);
+            return controls;
+        }
     }
 
-    /*
-     * Implements DataSource#getDuration(). Delegates to the associated
-     * AudioMixer because it manages the inputs and knows their characteristics.
+    /**
+     * Implements {@link DataSource#getDuration()}. Delegates to the associated
+     * <tt>AudioMixer</tt> because it manages the inputs and knows their
+     * characteristics.
+     *
+     * @return a <tt>Time</tt> value which represents the duration of the media
+     * being made available through this <tt>DataSource</tt>
      */
     public Time getDuration()
     {
         return audioMixer.getDuration();
     }
 
-    /*
-     * Implements CaptureDevice#getFormatControls(). Delegates to the associated
-     * AudioMixer because it knows which CaptureDevice is being wrapped.
+    /**
+     * Implements {@link CaptureDevice#getFormatControls()}. Delegates to the
+     * associated <tt>AudioMixer</tt> because it knows which
+     * <tt>CaptureDevice</tt> is being wrapped.
+     *
+     * @return an array of <tt>FormatControl</tt>s of the <tt>CaptureDevice</tt>
+     * of the associated <tt>AudioMixer</tt>
      */
     public FormatControl[] getFormatControls()
     {
         return audioMixer.getFormatControls();
     }
 
-    /*
-     * Implements PushBufferDataSource#getStreams(). Gets a PushBufferStream
-     * which reads data from the associated AudioMixer and mixes it.
+    /**
+     * Implements {@link PushBufferDataSource#getStreams()}. Gets a
+     * <tt>PushBufferStream</tt> which reads data from the associated
+     * <tt>AudioMixer</tt> and mixes its inputs.
+     *
+     * @return an array with a single <tt>PushBufferStream</tt> which reads data
+     * from the associated <tt>AudioMixer</tt> and mixes its inputs if this
+     * <tt>DataSource</tt> is connected; otherwise, an empty array
      */
-    public PushBufferStream[] getStreams()
+    public synchronized PushBufferStream[] getStreams()
     {
-        if (outputStream == null)
+        if (connected && (outputStream == null))
         {
-            AudioMixer.AudioMixerPushBufferStream audioMixerOutputStream
+            AudioMixerPushBufferStream audioMixerOutputStream
                 = audioMixer.getOutputStream();
 
             if (audioMixerOutputStream != null)
@@ -203,7 +268,20 @@ public class AudioMixingPushBufferDataSource
                             audioMixerOutputStream,
                             this);
                 if (started)
-                    outputStream.start();
+                    try
+                    {
+                        outputStream.start();
+                    }
+                    catch (IOException ioex)
+                    {
+                        logger
+                            .error(
+                                "Failed to start "
+                                    + outputStream.getClass().getSimpleName()
+                                    + " with hashCode "
+                                    + outputStream.hashCode(),
+                                ioex);
+                    }
             }
         }
         return
@@ -212,37 +290,43 @@ public class AudioMixingPushBufferDataSource
                 : new PushBufferStream[] { outputStream };
     }
 
-    /*
-     * Implements DataSource#start(). Starts the output PushBufferStream of
-     * this DataSource (if it exists) and notifies the AudioMixer that one of
-     * its output PushBufferDataSources has been started.
+    /**
+     * Implements {@link DataSource#start()}. Starts the output
+     * <tt>PushBufferStream</tt> of this <tt>DataSource</tt> (if it exists) and
+     * notifies the <tt>AudioMixer</tt> that one of its output
+     * <tt>PushBufferDataSources</tt> has been started.
+     *
+     * @throws IOException if anything wrong happens while starting the output
+     * <tt>PushBufferStream</tt> of this <tt>DataSource</tt>
      */
-    public void start()
+    public synchronized void start()
         throws IOException
     {
         if (!started)
         {
+            started = true;
             if (outputStream != null)
                 outputStream.start();
-            audioMixer.start();
-            started = true;
         }
     }
 
-    /*
-     * Implements DataSource#stop(). Notifies the AudioMixer that one of its
-     * output PushBufferDataSources has been stopped and stops the output
-     * PushBufferStream of this DataSource (if it exists).
+    /**
+     * Implements {@link DataSource#stop()}. Notifies the <tt>AudioMixer</tt>
+     * that one of its output <tt>PushBufferDataSources</tt> has been stopped
+     * and stops the output <tt>PushBufferStream</tt> of this
+     * <tt>DataSource</tt> (if it exists).
+     *
+     * @throws IOException if anything wrong happens while stopping the output
+     * <tt>PushBufferStream</tt> of this <tt>DataSource</tt>
      */
-    public void stop()
+    public synchronized void stop()
         throws IOException
     {
         if (started)
         {
-            audioMixer.stop();
+            started = false;
             if (outputStream != null)
                 outputStream.stop();
-            started = false;
         }
     }
 }

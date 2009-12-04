@@ -88,6 +88,12 @@ public class TranscodingDataSource
         if (outputDataSource != null)
             return;
 
+        /*
+         * Manager#createProcessor(DataSource) requires the specified DataSource
+         * to be connected.
+         */
+//        inputDataSource.connect();
+
         Processor processor;
 
         try

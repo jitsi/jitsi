@@ -91,7 +91,7 @@ public class ReadOnlyFormatControlDelegate
      */
     public void setEnabled(boolean enabled)
     {
-        formatControl.setEnabled(enabled);
+        // Ignore the request because this instance is read-only.
     }
 
     /**

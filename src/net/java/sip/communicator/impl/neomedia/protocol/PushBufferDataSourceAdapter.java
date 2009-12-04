@@ -57,6 +57,12 @@ public class PushBufferDataSourceAdapter
         super(dataSource);
     }
 
+    /**
+     * Implements {@link DataSource#disconnect()}. Disposes of the
+     * <tt>PushBufferStreamAdapter</tt>s which wrap the
+     * <tt>PullBufferStream</tt>s of the <tt>PullBufferDataSource</tt> wrapped
+     * by this instance.
+     */
     @Override
     public void disconnect()
     {
@@ -76,6 +82,19 @@ public class PushBufferDataSourceAdapter
         super.disconnect();
     }
 
+    /**
+     * Implements {@link DataSource#start()}. Starts the wrapped
+     * <tt>PullBufferDataSource</tt> and the pushing from the
+     * <tt>PushBufferStreamAdapter</tt>s which wrap the
+     * <tt>PullBufferStream</tt>s of the <tt>PullBufferDataSource</tt> wrapped
+     * by this instance.
+     *
+     * @throws IOException if anything wrong happens while starting the wrapped
+     * <tt>PullBufferDataSource</tt> or the pushing from the
+     * <tt>PushBufferStreamAdapter</tt>s which wrap the
+     * <tt>PullBufferStream</tt>s of the <tt>PullBufferDataSource</tt> wrapped
+     * by this instance
+     */
     @Override
     public void start()
         throws IOException
@@ -91,16 +110,29 @@ public class PushBufferDataSourceAdapter
         }
     }
 
+    /**
+     * Implements {@link DataSource#start()}. Stops the wrapped
+     * <tt>PullBufferDataSource</tt> and the pushing from the
+     * <tt>PushBufferStreamAdapter</tt>s which wrap the
+     * <tt>PullBufferStream</tt>s of the <tt>PullBufferDataSource</tt> wrapped
+     * by this instance.
+     *
+     * @throws IOException if anything wrong happens while stopping the wrapped
+     * <tt>PullBufferDataSource</tt> or the pushing from the
+     * <tt>PushBufferStreamAdapter</tt>s which wrap the
+     * <tt>PullBufferStream</tt>s of the <tt>PullBufferDataSource</tt> wrapped
+     * by this instance
+     */
     @Override
     public void stop()
         throws IOException
     {
         synchronized (streams)
         {
+            started = false;
+
             for (PushBufferStreamAdapter stream : streams)
                 stream.stop();
-
-            started = false;
         }
 
         super.stop();
@@ -191,7 +223,7 @@ public class PushBufferDataSourceAdapter
      * Implements <tt>PushBufferStream</tt> for a specific
      * <tt>PullBufferStream</tt>.
      */
-    private class PushBufferStreamAdapter
+    private static class PushBufferStreamAdapter
         implements PushBufferStream
     {
 
@@ -383,6 +415,8 @@ public class PushBufferDataSourceAdapter
                     buffer.copy(this.buffer);
                     bufferIsWritten = false;
                 }
+                else
+                    buffer.setLength(0);
             }
         }
 
@@ -484,6 +518,7 @@ public class PushBufferDataSourceAdapter
                             }
                         }
                     };
+                    streamReadThread.setDaemon(true);
                     streamReadThread.start();
                 }
             }
