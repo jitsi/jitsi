@@ -508,6 +508,7 @@ public class MediaDeviceSession
                         + receiveStream.getSSRC());
         else
         {
+            configureCompleted(player);
             /*
              * To use the processor as a Player we must set its
              * ContentDescriptor to null.
@@ -1046,6 +1047,19 @@ public class MediaDeviceSession
      * <tt>RealizeCompleteEvent</tt>
      */
     protected void realizeComplete(Processor player)
+    {
+    }
+
+    /**
+     * Notifies this instance that a specific <tt>Processor</tt> of
+     * remote content has generated a <tt>ConfigureCompleteEvent</tt>.
+     * Allows descendants to carry out additional processing on the
+     * <tt>Processor</tt>. The <tt>Processor</tt> is used as a <tt>Player</tt>.
+     *
+     * @param player the <tt>Processor</tt> which is the source of a
+     * <tt>RealizeCompleteEvent</tt>
+     */
+    protected void configureCompleted(Processor player)
     {
     }
 

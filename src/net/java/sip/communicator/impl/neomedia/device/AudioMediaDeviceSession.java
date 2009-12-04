@@ -206,37 +206,17 @@ public class AudioMediaDeviceSession
     }
 
     /**
-     * Adds a <tt>ReceiveStream</tt> to this <tt>AudioMediaDeviceSession</tt>
-     * so that it would be played back on the associated <tt>MediaDevice</tt>
-     * and registers an <tt>AudioLevelEffect</tt> so that we would be able to
-     * measure its audio level and report changes.
+     * Called by {@link MediaDeviceSession#addReceiveStream(ReceiveStream,
+     * DataSource)} when the player associated with this session's
+     * <tt>ReceiveStream</tt> moves enters the <tt>Configured</tt> state, so
+     * we use the occasion to add our audio level effect.
      *
-     * @param receiveStream the <tt>ReceiveStream</tt> that is being added to
-     * this <tt>AudioMediaDeviceSession</tt>.
-     * @param receiveStreamDataSource the <tt>DataSource</tt> to be used for
-     * accessing the media data of <tt>receiveStream</tt> during its playback
+     * @param player the <tt>Processor</tt> which is the source of a
+     * <tt>ConfigureCompleteEvent</tt>
      */
-    protected synchronized void playerconfigured(
-            ReceiveStream receiveStream,
-            DataSource receiveStreamDataSource)
+    @Override
+    protected void configureCompleted(Processor player)
     {
-        if (receiveStreamDataSource == null)
-            return;
-
-        super.addReceiveStream(receiveStream, receiveStreamDataSource);
-
-        //at this point we should already have a processor for receiveStream
-        //(unless something has gone wrong) so we can now register our audio
-        //level effect.
-        Processor player = getPlayer(receiveStreamDataSource);
-
-        if (player == null || player.getState() < Processor.Configured)
-        {
-            //something must have gone wrong during processor creation in
-            //the super ... guess it's not that super after all ;)
-            return;
-        }
-
         try
         {
             TrackControl tcs[] = player.getTrackControls();
