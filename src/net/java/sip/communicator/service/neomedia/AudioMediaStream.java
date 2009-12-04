@@ -25,7 +25,7 @@ public interface AudioMediaStream
      * @param listener the <tt>SoundLevelListener</tt> that we'd like to
      * register.
      */
-    public void addSoundLevelListener(SoundLevelListener listener);
+    public void addStreamAudioLevelListener(SoundLevelListener listener);
 
     /**
      * Removes <tt>listener</tt> from the list of <tt>SoundLevelListener</tt>s
@@ -34,7 +34,7 @@ public interface AudioMediaStream
      *
      * @param listener the listener that we'd like to unregister.
      */
-    public void removeSoundLevelListener(SoundLevelListener listener);
+    public void removeStreamAudioLevelListener(SoundLevelListener listener);
 
     /**
      * Adds <tt>listener</tt> to the list of <tt>SoundLevelListener</tt>s
@@ -63,7 +63,8 @@ public interface AudioMediaStream
      * related information.
      * @param l the <tt>SoundLevelListener</tt> to add
      */
-    public abstract void addLocalUserSoundLevelListener(SoundLevelListener l);
+    public abstract void addLocalUserAudioLevelListener(
+                                                SimpleAudioLevelListener l);
 
     /**
      * Removes a specific <tt>SoundLevelListener</tt> of the list of
@@ -71,7 +72,8 @@ public interface AudioMediaStream
      * related information.
      * @param l the <tt>SoundLevelListener</tt> to remove
      */
-    public abstract void removeLocalUserSoundLevelListener(SoundLevelListener l);
+    public abstract void removeLocalUserAudioLevelListener(
+                                                SimpleAudioLevelListener l);
 
     /**
      * Starts sending the specified <tt>DTMFTone</tt> until the
@@ -104,7 +106,7 @@ public interface AudioMediaStream
     /**
      * Removes <tt>listener</tt> from the list of <tt>DTMFListener</tt>s
      * registered to receive events for incoming DTMF tones.
-     * 
+     *
      * @param listener the listener that we'd like to unregister
      */
     public void removeDTMFListener(DTMFListener listener);

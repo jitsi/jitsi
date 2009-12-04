@@ -6,12 +6,12 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
-import java.util.*;
 import javax.media.*;
 import javax.media.format.*;
 import javax.media.rtp.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.*;
+import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.event.*;
@@ -38,7 +38,7 @@ public class AudioMediaStreamImpl
     /**
      * List of RTP format strings which are supported by SIP Communicator in
      * addition to the JMF standard formats.
-     * 
+     *
      * @see #registerCustomCodecFormats(RTPManager)
      */
     private static final AudioFormat[] CUSTOM_CODEC_FORMATS
@@ -103,11 +103,11 @@ public class AudioMediaStreamImpl
      *
      * @param listener the <tt>SoundLevelListener</tt> to register with this
      * <tt>AudioMediaStream</tt>
-     * @see AudioMediaStream#addSoundLevelListener(SoundLevelListener)
+     * @see AudioMediaStream#addStreamAudioLevelListener(SoundLevelListener)
      */
-    public void addSoundLevelListener(SoundLevelListener listener)
+    public void addSoundLevelListener(SimpleAudioLevelListener listener)
     {
-        getDeviceSession().addStreamSoundLevelListener(listener);
+        getDeviceSession().setStreamAudioLevelListener(listener);
     }
 
     /**
@@ -188,11 +188,11 @@ public class AudioMediaStreamImpl
      * @param listener the <tt>SoundLevelListener</tt> to no longer be notified
      * by this <tt>AudioMediaStream</tt> about changes in the sound levels of
      * the conference participants that the remote party may be mixing
-     * @see AudioMediaStream#removeSoundLevelListener(SoundLevelListener)
+     * @see AudioMediaStream#removeStreamAudioLevelListener(SoundLevelListener)
      */
-    public void removeSoundLevelListener(SoundLevelListener listener)
+    public void removeStreamAudioLevelListener(SoundLevelListener listener)
     {
-        getDeviceSession().addStreamSoundLevelListener(listener);
+        getDeviceSession().setStreamAudioLevelListener(null);
     }
 
     /**
@@ -205,7 +205,7 @@ public class AudioMediaStreamImpl
     public void removeConferenceMemberSoundLevelListener(
         SoundLevelListener listener)
     {
-        
+
     }
 
     /**
@@ -243,9 +243,9 @@ public class AudioMediaStreamImpl
      * related information.
      * @param l the <tt>SoundLevelListener</tt> to add
      */
-    public void addLocalUserSoundLevelListener(SoundLevelListener l)
+    public void addLocalUserSoundLevelListener(SimpleAudioLevelListener l)
     {
-        getDeviceSession().addLocalUserSoundLevelListener(l);
+        getDeviceSession().setLocalUserAudioLevelListener(l);
     }
 
     /**
@@ -254,8 +254,20 @@ public class AudioMediaStreamImpl
      * related information.
      * @param l the <tt>SoundLevelListener</tt> to remove
      */
-    public void removeLocalUserSoundLevelListener(SoundLevelListener l)
+    public void removeLocalUserAudioLevelListener(SimpleAudioLevelListener l)
     {
-        getDeviceSession().removeLocalUserSoundLevelListener(l);
+        getDeviceSession().setLocalUserAudioLevelListener(null);
+    }
+
+    /**
+     * Returns the <tt>MediaDeviceSession</tt> associated with this stream
+     * after first casting it to <tt>AudioMediaDeviceSession</tt> since this is,
+     * after all, an <tt>AudioMediaStreamImpl</tt>.
+     *
+     * @return the <tt>AudioMediaDeviceSession</tt> associated with this stream.
+     */
+    public AudioMediaDeviceSession getDeviceSession()
+    {
+        return (AudioMediaDeviceSession)super.getDeviceSession();
     }
 }

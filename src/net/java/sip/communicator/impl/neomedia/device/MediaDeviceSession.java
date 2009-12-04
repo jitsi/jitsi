@@ -17,14 +17,10 @@ import javax.media.protocol.*;
 import javax.media.rtp.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
-import net.java.sip.communicator.impl.neomedia.audiolevel.*;
-import net.java.sip.communicator.impl.neomedia.audiolevel.event.*;
-import net.java.sip.communicator.impl.neomedia.codec.audio.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.impl.neomedia.protocol.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
-import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.util.*;
 
@@ -82,7 +78,7 @@ public class MediaDeviceSession
 
     /**
      * The last JMF <tt>Format</tt> set to this instance by a call to its
-     * {@link #setFormat(MediaFormat) and to be set as the output format of
+     * {@link #setFormat(MediaFormat)} and to be set as the output format of
      * {@link #processor}.
      */
     private Format format;
@@ -153,6 +149,12 @@ public class MediaDeviceSession
         = new HashMap<ReceiveStream, DataSource>();
 
     /**
+     * The last <tt>ReceiveStream</tt> that was added to this session
+     * @todo make this the only stream that this session cares about
+     */
+    private ReceiveStream receiveStream = null;
+
+    /**
      * The list of SSRC identifiers representing the parties that we are
      * currently handling receive streams from.
      */
@@ -199,8 +201,7 @@ public class MediaDeviceSession
                             (PushBufferDataSource) receiveStreamDataSource,
                             true);
             else
-                logger
-                    .warn(
+                logger.warn(
                         "Adding ReceiveStream with DataSource"
                             + " not of type PushBufferDataSource but "
                             + receiveStreamDataSource.getClass().getSimpleName()
@@ -209,6 +210,10 @@ public class MediaDeviceSession
                             + " if such a need arises.");
 
             addReceiveStream(receiveStream, receiveStreamDataSource);
+
+            //todo this should eventually be the only ref we keep to a
+            //receive stream.
+            this.receiveStream = receiveStream;
         }
     }
 
@@ -285,6 +290,25 @@ public class MediaDeviceSession
                             exception);
             }
         }
+    }
+
+    /**
+     * Returns the <tt>ReceiveStream</tt> associated with this
+     * <tt>MediaDeviceSession</tt> or null if no <tt>ReceiveStream</tt> has
+     * been set yet.
+     *
+     * @return the <tt>ReceiveStream</tt> associated with this
+     * <tt>MediaDeviceSession</tt> or null if no <tt>ReceiveStream</tt> has
+     * been set yet.
+     *
+     * @todo right now this method is a bit of a hack as it returns the last
+     * receive stream that we added to this session. We are however planning
+     * changes on the architecture here that are going to replace the
+     * multistream nature of this class with a single stream one.
+     */
+    public ReceiveStream getReceiveStream()
+    {
+        return receiveStream;
     }
 
     /**
@@ -996,7 +1020,7 @@ public class MediaDeviceSession
      * <tt>Controller</tt> which is the source of the event and the very type of
      * the event
      */
-    private void processorControllerUpdate(ControllerEvent event)
+    protected void processorControllerUpdate(ControllerEvent event)
     {
         if (event instanceof ConfigureCompleteEvent)
         {
@@ -1021,32 +1045,6 @@ public class MediaDeviceSession
 
                 if (format != null)
                     setFormat(processor, format);
-
-                if(parentStream instanceof AudioMediaStreamImpl
-                    && localSoundLevelListeners.size() > 0)
-                {
-                    // here we add sound level indicator for captured media
-                    // from the microphone if there are interested listeners
-                    try
-                    {
-                        TrackControl tcs[] = processor.getTrackControls();
-
-                        if (tcs != null)
-                            for (TrackControl tc : tcs)
-                                if (tc.getFormat() instanceof AudioFormat)
-                                {
-                                    registerLocalAudioLevelJMFEffect(tc);
-                                    break;
-                                }
-                    }
-                    catch (UnsupportedPlugInException ex)
-                    {
-                        logger
-                            .error(
-                                "Unsupported sound level indicator effect",
-                                ex);
-                    }
-                }
             }
         }
         else if (event instanceof ControllerClosedEvent)
@@ -1423,16 +1421,6 @@ public class MediaDeviceSession
     }
 
     /**
-     * Sets the parent <tt>MediaStream</tt> that created us.
-     *
-     * @param parentStream the parentStream to set
-     */
-    public void setParentStream(MediaStream parentStream)
-    {
-        this.parentStream = parentStream;
-    }
-
-    /**
      * Returns the list of SSRC identifiers that this device session is handling
      * streams from. In this case (i.e. the case of a device session handling
      * a single remote party) we would rarely (if ever) have more than a single
@@ -1451,7 +1439,10 @@ public class MediaDeviceSession
     /**
      * Adds <tt>ssrc</tt> to the array of SSRC identifiers representing parties
      * that this <tt>MediaDeviceSession</tt> is currently receiving streams
-     * from.
+     * from. We use this method mostly as a way of to caching SSRC identifiers
+     * during a conference call so that the streams that are sending CSRC lists
+     * could have them ready for use rather than have to construct them for
+     * every RTP packet.
      *
      * @param ssrc the new SSRC identifier that we'd like to add to the array of
      * <tt>ssrc</tt> identifiers stored by this session.

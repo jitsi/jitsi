@@ -9,7 +9,7 @@ package net.java.sip.communicator.impl.neomedia.audiolevel;
 import javax.media.*;
 import javax.media.format.*;
 
-import net.java.sip.communicator.impl.neomedia.audiolevel.event.*;
+import net.java.sip.communicator.service.neomedia.event.*;
 
 /**
  * An effect that calculates the power of the signal and fire an event

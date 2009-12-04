@@ -866,7 +866,6 @@ public class MediaStreamImpl
 
             if (deviceSession != null)
             {
-                deviceSession.setParentStream(this);
                 deviceSession.setMute(mute);
                 deviceSession.start(startedDirection);
 

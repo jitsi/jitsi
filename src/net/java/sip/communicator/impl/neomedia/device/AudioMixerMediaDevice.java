@@ -15,8 +15,6 @@ import javax.media.protocol.*;
 import javax.media.rtp.*;
 
 import net.java.sip.communicator.impl.neomedia.audiolevel.*;
-import net.java.sip.communicator.impl.neomedia.audiolevel.event.*;
-import net.java.sip.communicator.impl.neomedia.codec.audio.*;
 import net.java.sip.communicator.impl.neomedia.conference.*;
 import net.java.sip.communicator.impl.neomedia.protocol.*;
 import net.java.sip.communicator.service.neomedia.*;
@@ -62,10 +60,25 @@ public class AudioMixerMediaDevice
     private AudioMixerMediaDeviceSession deviceSession;
 
     /**
-     * The dispatcher of the events, handle the calculation and the event firing
-     * in a different thread.
+     * The dispatcher that delivers to listeners calculations of the local
+     * audio level.
      */
     private AudioLevelEventDispatcher localAudioLevelEventDispatcher = null;
+
+    /**
+     * The <tt>Map</tt> where we store audio level dispatchers and the
+     * streams they are interested in.
+     */
+    private Map<ReceiveStream, AudioLevelEventDispatcher>
+        streamAudioLevelListeners = new Hashtable<ReceiveStream,
+                                              AudioLevelEventDispatcher>();
+
+    /**
+     * The <tt>List</tt> where we store all listeners interested in changes
+     * of the local audio level.
+     */
+    private List<SimpleAudioLevelListener> localAudioLevelListeners
+        = new ArrayList<SimpleAudioLevelListener>();
 
     /**
      * The <tt>List</tt> of RTP extensions supported by this device (at the time
@@ -222,10 +235,9 @@ public class AudioMixerMediaDevice
                 }
 
                 @Override
-                protected void read(
-                        PushBufferStream stream,
-                        Buffer buffer,
-                        DataSource dataSource)
+                protected void read( PushBufferStream stream,
+                                     Buffer buffer,
+                                     DataSource dataSource)
                     throws IOException
                 {
                     super.read(stream, buffer, dataSource);
@@ -333,7 +345,6 @@ public class AudioMixerMediaDevice
     private class AudioMixerMediaDeviceSession
         extends MediaDeviceSession
     {
-
         /**
          * The list of <tt>MediaDeviceSession</tt>s of <tt>MediaStream</tt>s
          * which use this <tt>AudioMixer</tt>.
@@ -376,6 +387,73 @@ public class AudioMixerMediaDevice
         }
 
         /**
+         * Adds <tt>l</tt> to the list of listeners that are being notified of
+         * new local audio levels as they change. If <tt>l</tt> is added
+         * multiple times it would only be registered once.
+         *
+         * @param l the listener we'd like to add.
+         */
+        public void addLocalUserAudioLevelListener(SimpleAudioLevelListener l)
+        {
+            synchronized(localAudioLevelListeners)
+            {
+                if(! localAudioLevelListeners.contains(l))
+                    localAudioLevelListeners.add(l);
+            }
+        }
+
+        /**
+         * Removes <tt>l</tt> from the list of listeners that are being
+         * notified of local audio levels.If <tt>l</tt> is not in the list,
+         * the method has no effect.
+         *
+         * @param l the listener we'd like to remove.
+         */
+        public void removeLocalUserAudioLevelListener(SimpleAudioLevelListener l)
+        {
+            synchronized(localAudioLevelListeners)
+            {
+                localAudioLevelListeners.remove(l);
+            }
+        }
+
+        /**
+         * Sets <tt>l</tt> as the list of listeners that will receive
+         * notifications of audio level event changes in the data arriving from
+         * <tt>stream</tt>.
+         *
+         * @param stream the stream that <tt>l</tt> would like to register as
+         * an audio level listener for.
+         * @param l the listener we'd like to register for notifications from
+         * <tt>stream</tt>.
+         */
+        public void putStreamAudioLevelListener(ReceiveStream            stream,
+                                                SimpleAudioLevelListener l)
+        {
+            synchronized(streamAudioLevelListeners)
+            {
+                AudioLevelEventDispatcher dispatcher
+                    = new AudioLevelEventDispatcher();
+                dispatcher.addAudioLevelListener(l);
+                streamAudioLevelListeners.put(stream, dispatcher);
+            }
+        }
+
+        /**
+         * Removes listeners registered for audio level changes with the
+         * specified receive  <tt>stream</tt>.
+         *
+         * @param stream the stream whose listeners we'd like to get rid of.
+         */
+        public void removeStreamAudioLevelListener(ReceiveStream stream)
+        {
+            synchronized(streamAudioLevelListeners)
+            {
+                streamAudioLevelListeners.remove(stream);
+            }
+        }
+
+        /**
          * Adds a <tt>ReceiveStream</tt> to this <tt>MediaDeviceSession</tt> to
          * be played back on the associated <tt>MediaDevice</tt> and a specific
          * <tt>DataSource</tt> is to be used to access its media data during the
@@ -390,9 +468,8 @@ public class AudioMixerMediaDevice
          * @see MediaDeviceSession#addReceiveStream(ReceiveStream, DataSource)
          */
         @Override
-        protected void addReceiveStream(
-                ReceiveStream receiveStream,
-                DataSource receiveStreamDataSource)
+        protected void addReceiveStream( ReceiveStream receiveStream,
+                                         DataSource receiveStreamDataSource)
         {
             DataSource captureDevice = getCaptureDevice();
             DataSource receiveStreamDataSourceForPlayback;
@@ -449,6 +526,7 @@ public class AudioMixerMediaDevice
                         close();
                 }
         }
+    }
 
     /**
      * Represents the work of a <tt>MediaStream</tt> with the
@@ -456,20 +534,9 @@ public class AudioMixerMediaDevice
      * that <tt>MediaStream</tt> to the mix.
      */
     private static class MediaStreamMediaDeviceSession
-        extends MediaDeviceSession
+        extends AudioMediaDeviceSession
         implements PropertyChangeListener
     {
-        /**
-         * A list of listeners registered for stream user sound level events.
-         */
-        private final List<SoundLevelListener> streamSndLevelListeners
-            = new Vector<SoundLevelListener>();
-
-        /**
-         * The received stream.
-         */
-        private ReceiveStream receiveStream = null;
-
         /**
          * The <tt>MediaDeviceSession</tt> of the <tt>AudioMixer</tt> that this
          * instance exposes to a <tt>MediaStream</tt>. While there are multiple
@@ -479,6 +546,14 @@ public class AudioMixerMediaDevice
          * the mix.
          */
         private final AudioMixerMediaDeviceSession audioMixerMediaDeviceSession;
+
+        /**
+         * We use this field to keep a reference to the listener that we've
+         * registered with the audio mixer for local audio level notifications.
+         * We use this reference so that we could unregister it if someone
+         * resets it or sets it to <tt>null</tt>.
+         */
+        private SimpleAudioLevelListener localAudioLevelListener = null;
 
         /**
          * Initializes a new <tt>MediaStreamMediaDeviceSession</tt> which is to
@@ -517,21 +592,11 @@ public class AudioMixerMediaDevice
          * @see MediaDeviceSession#addReceiveStream(ReceiveStream, DataSource)
          */
         @Override
-        protected void addReceiveStream(
-                ReceiveStream receiveStream,
-                DataSource receiveStreamDataSource)
+        protected void addReceiveStream( ReceiveStream receiveStream,
+                                         DataSource receiveStreamDataSource)
         {
-            this.receiveStream = receiveStream;
-
             audioMixerMediaDeviceSession
                 .addReceiveStream(receiveStream, receiveStreamDataSource);
-
-            synchronized(streamSndLevelListeners)
-            {
-                for(SoundLevelListener sl : streamSndLevelListeners)
-                    audioMixerMediaDeviceSession.addStreamSoundLevelListener(
-                        receiveStream, sl);
-            }
 
             DataSource captureDevice = getCaptureDevice();
 
@@ -593,34 +658,21 @@ public class AudioMixerMediaDevice
          * @param l the <tt>SoundLevelListener</tt> to add
          */
         @Override
-        public void addLocalUserSoundLevelListener(SoundLevelListener l)
+        public void setLocalUserAudioLevelListener(SimpleAudioLevelListener l)
         {
-            audioMixerMediaDeviceSession.addLocalUserSoundLevelListener(l);
-        }
+            if (localAudioLevelListener != null)
+            {
+                    audioMixerMediaDeviceSession
+                        .removeLocalUserAudioLevelListener(
+                                        localAudioLevelListener);
+                    localAudioLevelListener = null;
+            }
 
-        /**
-         * Removes a specific <tt>SoundLevelListener</tt> of the list of
-         * listeners interested in and notified about changes in local sound level
-         * related information.
-         * @param l the <tt>SoundLevelListener</tt> to remove
-         */
-        @Override
-        public void removeLocalUserSoundLevelListener(SoundLevelListener l)
-        {
-            audioMixerMediaDeviceSession.removeLocalUserSoundLevelListener(l);
-        }
-
-        /**
-         * Sets the parent <tt>MediaStream</tt> that creates us.
-         * Set it also to parent deviceSession.
-         *
-         * @param parentStream the parentStream to set
-         */
-        @Override
-        public void setParentStream(MediaStream parentStream)
-        {
-            super.setParentStream(parentStream);
-            audioMixerMediaDeviceSession.setParentStream(parentStream);
+            if( l != null)
+            {
+                this.localAudioLevelListener = l;
+                audioMixerMediaDeviceSession.addLocalUserAudioLevelListener(l);
+            }
         }
 
         /**
@@ -640,27 +692,25 @@ public class AudioMixerMediaDevice
         }
 
         /**
-         * Adds <tt>listener</tt> to the list of <tt>SoundLevelListener</tt>s
-         * registered with this <tt>AudioMediaStream</tt> to receive notifications
-         * about changes in the sound levels of the conference participants that the
-         * remote party may be mixing.
+         * Adds <tt>listener</tt> to the list of
+         * <tt>SimpleAudioLevelListener</tt>s registered with the mixer session
+         * that this "slave session" encapsulates. This class does not keep a
+         * reference to <tt>listener</tt>.
          *
-         * @param listener the <tt>SoundLevelListener</tt> to register with this
-         * <tt>AudioMediaStream</tt>
-         * @see AudioMediaStream#addSoundLevelListener(SoundLevelListener)
+         * @param listener the <tt>SimpleAudioLevelListener</tt> that we are to
+         * pass to the mixer device session or <tt>null</tt> if we are trying
+         * to unregister it.
          */
         @Override
-        public void addStreamSoundLevelListener(SoundLevelListener listener)
+        public void setStreamAudioLevelListener(
+                                            SimpleAudioLevelListener listener)
         {
-            synchronized(streamSndLevelListeners)
-            {
-                if (!streamSndLevelListeners.contains(listener))
-                    streamSndLevelListeners.add(listener);
-
-                if(receiveStream != null)
-                    audioMixerMediaDeviceSession.addStreamSoundLevelListener(
-                        receiveStream, listener);
-            }
+            if( listener != null)
+                audioMixerMediaDeviceSession.putStreamAudioLevelListener(
+                        getReceiveStream(), listener);
+            else
+                audioMixerMediaDeviceSession
+                    .removeStreamAudioLevelListener(getReceiveStream());
         }
 
         /**
@@ -681,28 +731,5 @@ public class AudioMixerMediaDevice
             }
         }
 
-        /**
-         * Removes <tt>listener</tt> from the list of <tt>SoundLevelListener</tt>s
-         * registered with this <tt>AudioMediaStream</tt> to receive notifications
-         * about changes in the sound levels of the conference participants that the
-         * remote party may be mixing.
-         *
-         * @param listener the <tt>SoundLevelListener</tt> to no longer be notified
-         * by this <tt>AudioMediaStream</tt> about changes in the sound levels of
-         * the conference participants that the remote party may be mixing
-         * @see AudioMediaStream#removeSoundLevelListener(SoundLevelListener)
-         */
-        @Override
-        public void removeSoundLevelListener(SoundLevelListener listener)
-        {
-            synchronized(streamSndLevelListeners)
-            {
-                streamSndLevelListeners.remove(listener);
-
-                if(receiveStream != null)
-                    audioMixerMediaDeviceSession.removeSoundLevelListener(
-                        receiveStream, listener);
-            }
-        }
     }
 }

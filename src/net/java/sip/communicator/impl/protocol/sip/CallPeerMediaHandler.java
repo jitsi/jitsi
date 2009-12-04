@@ -721,7 +721,7 @@ public class CallPeerMediaHandler
                     listenerIter.hasNext();)
                 {
                     SoundLevelListener listener = listenerIter.next();
-                    this.audioStream.addLocalUserSoundLevelListener(listener);
+                    this.audioStream.addLocalUserAudioLevelListener(listener);
                 }
             }
             synchronized (streamSoundLevelListeners)
@@ -731,7 +731,7 @@ public class CallPeerMediaHandler
                     listenerIter.hasNext();)
                 {
                     SoundLevelListener listener = listenerIter.next();
-                    this.audioStream.addSoundLevelListener(listener);
+                    this.audioStream.addStreamAudioLevelListener(listener);
                 }
             }
         }
@@ -1605,7 +1605,7 @@ public class CallPeerMediaHandler
 
         if(audioStream != null)
         {
-            audioStream.addLocalUserSoundLevelListener(l);
+            audioStream.addLocalUserAudioLevelListener(l);
         }
     }
 
@@ -1642,7 +1642,7 @@ public class CallPeerMediaHandler
 
         if(audioStream != null)
         {
-            audioStream.addSoundLevelListener(listener);
+            audioStream.addStreamAudioLevelListener(listener);
         }
     }
 
@@ -1661,7 +1661,7 @@ public class CallPeerMediaHandler
         }
 
         if(audioStream != null)
-            audioStream.removeSoundLevelListener(listener);
+            audioStream.removeStreamAudioLevelListener(listener);
     }
 
     /**

@@ -10,8 +10,6 @@ import java.util.*;
 
 import javax.media.*;
 
-import net.java.sip.communicator.impl.neomedia.audiolevel.event.*;
-import net.java.sip.communicator.impl.neomedia.codec.audio.*;
 import net.java.sip.communicator.service.neomedia.event.*;
 
 /**
