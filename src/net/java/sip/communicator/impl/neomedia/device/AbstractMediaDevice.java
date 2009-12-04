@@ -48,7 +48,7 @@ public abstract class AbstractMediaDevice
         case VIDEO:
             return new VideoMediaDeviceSession(this);
         default:
-            return new MediaDeviceSession(this);
+            return new AudioMediaDeviceSession(this);
         }
     }
 

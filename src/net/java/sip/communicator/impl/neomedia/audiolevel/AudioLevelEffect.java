@@ -38,12 +38,12 @@ public class AudioLevelEffect
     /**
      * The maximum level we can get as a result after compute.
      */
-    private static int MAX_AUDIO_LEVEL = Short.MAX_VALUE;
+    private static int MAX_AUDIO_LEVEL = 255;
 
     /**
      * The minimum level we can get as a result after compute.
      */
-    private static int MIN_AUDIO_LEVEL = Short.MIN_VALUE;
+    private static int MIN_AUDIO_LEVEL = 0;
 
     /**
      * The listener for the levels.
@@ -103,7 +103,7 @@ public class AudioLevelEffect
     private static int calculateLevelRatio(int minLevel, int maxLevel)
     {
         // magic ratio which scales good visually our levels
-        return MAX_AUDIO_LEVEL/(maxLevel - minLevel)/16;
+        return MAX_AUDIO_LEVEL/ ((maxLevel - minLevel)/16);
     }
 
     /**
@@ -170,7 +170,7 @@ public class AudioLevelEffect
      */
     public int process(Buffer inputBuffer, Buffer outputBuffer)
     {
-        eventDispatcher.addData(outputBuffer);
+        eventDispatcher.addData(inputBuffer);
 
         //now simply copy the data.
         outputBuffer.setData(inputBuffer.getData());
@@ -225,8 +225,8 @@ public class AudioLevelEffect
             absoluteMeanSoundLevel += Math.abs(soundLevel);
         }
 
-        int result =
-            (int)(absoluteMeanSoundLevel/samplesNumber/calculateLevelRatio(
+        int result
+            = (int)(absoluteMeanSoundLevel/samplesNumber/calculateLevelRatio(
                                 MIN_AUDIO_LEVEL, MAX_AUDIO_LEVEL));
 
         if(result > maxOutLevel)

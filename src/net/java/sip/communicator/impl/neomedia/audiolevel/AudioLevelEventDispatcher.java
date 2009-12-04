@@ -89,8 +89,8 @@ public class AudioLevelEventDispatcher
                 int newLevel =
                     AudioLevelEffect.calculateCurrentSignalPower(
                         dataToProcess, 0, dataToProcess.length,
-                        SoundLevelChangeEvent.MAX_LEVEL,
-                        SoundLevelChangeEvent.MIN_LEVEL,
+                        SimpleAudioLevelListener.MAX_LEVEL,
+                        SimpleAudioLevelListener.MIN_LEVEL,
                         lastLevel);
 
                 synchronized(levelListeners)

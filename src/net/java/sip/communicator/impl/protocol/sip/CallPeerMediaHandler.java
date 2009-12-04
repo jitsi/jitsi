@@ -196,10 +196,22 @@ public class CallPeerMediaHandler
     private SimpleAudioLevelListener localAudioLevelListener = null;
 
     /**
+     * The object that we are using to sync operations on
+     * <tt>localAudioLevelListener</tt>.
+     */
+    private Object localAudioLevelListenerLock = new Object();
+
+    /**
      * The listener that our <tt>CallPeer</tt> registered for stream audio
      * level events.
      */
     private SimpleAudioLevelListener streamAudioLevelListener = null;
+
+    /**
+     * The object that we are using to sync operations on
+     * <tt>streamAudioLevelListener</tt>.
+     */
+    private Object streamAudioLevelListenerLock = new Object();
 
     /**
      * Creates a new handler that will be managing media streams for
@@ -716,7 +728,7 @@ public class CallPeerMediaHandler
             this.audioStream = (AudioMediaStream)stream;
 
             // if we already have a local level listener - register it now.
-            synchronized (localAudioLevelListener)
+            synchronized (localAudioLevelListenerLock)
             {
                 if (localAudioLevelListener != null)
                 {
@@ -726,7 +738,7 @@ public class CallPeerMediaHandler
             }
 
             // if we already have a stream level listener - register it now.
-            synchronized (streamAudioLevelListener)
+            synchronized (streamAudioLevelListenerLock)
             {
                 if (streamAudioLevelListener != null)
                 {
@@ -1603,16 +1615,16 @@ public class CallPeerMediaHandler
     public void setLocalUserAudioLevelListener(
                                             SimpleAudioLevelListener listener)
     {
-        synchronized(localAudioLevelListener)
+        synchronized(localAudioLevelListenerLock)
         {
-            //first add the listener to the stream and only then change the
-            //local ref or otherwise our synch is pointless.
+            this.localAudioLevelListener = listener;
+
             if(audioStream != null)
             {
                 audioStream.setLocalUserAudioLevelListener(listener);
             }
 
-            this.localAudioLevelListener = listener;
+
         }
     }
 
@@ -1628,16 +1640,14 @@ public class CallPeerMediaHandler
      */
     public void setStreamAudioLevelListener(SimpleAudioLevelListener listener)
     {
-        synchronized(streamAudioLevelListener)
+        synchronized(streamAudioLevelListenerLock)
         {
-            //first add the listener to the stream and only then change the
-            //local ref or otherwise our synch is pointless.
+            this.streamAudioLevelListener = listener;
+
             if(audioStream != null)
             {
                 audioStream.setStreamAudioLevelListener(listener);
             }
-
-            this.streamAudioLevelListener = listener;
         }
     }
 

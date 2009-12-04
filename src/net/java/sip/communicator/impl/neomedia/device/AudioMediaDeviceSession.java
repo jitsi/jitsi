@@ -216,7 +216,7 @@ public class AudioMediaDeviceSession
      * @param receiveStreamDataSource the <tt>DataSource</tt> to be used for
      * accessing the media data of <tt>receiveStream</tt> during its playback
      */
-    protected synchronized void addReceiveStream(
+    protected synchronized void playerconfigured(
             ReceiveStream receiveStream,
             DataSource receiveStreamDataSource)
     {
