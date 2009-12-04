@@ -209,11 +209,11 @@ public class MediaDeviceSession
                             + " properly transferring to another MediaDevice"
                             + " if such a need arises.");
 
-            addReceiveStream(receiveStream, receiveStreamDataSource);
-
-            //todo this should eventually be the only ref we keep to a
+            //todo: this should eventually become the only ref we keep to a
             //receive stream.
             this.receiveStream = receiveStream;
+
+            addReceiveStream(receiveStream, receiveStreamDataSource);
         }
     }
 
@@ -1089,6 +1089,11 @@ public class MediaDeviceSession
                 if (player != null)
                     disposePlayer(player);
             }
+
+        //todo: this should eventually become the only ref we keep to a
+        //receive stream.
+        if (this.receiveStream == receiveStream)
+            this.receiveStream = null;
     }
 
     /**

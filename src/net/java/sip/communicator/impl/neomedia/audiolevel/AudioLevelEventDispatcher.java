@@ -6,18 +6,17 @@
  */
 package net.java.sip.communicator.impl.neomedia.audiolevel;
 
-import java.util.*;
-
 import javax.media.*;
 
 import net.java.sip.communicator.service.neomedia.event.*;
 
 /**
  * The class implements an audio level measurement thread. The thread will
- * measure new data every time it is added through the <tt>addData</tt> method
- * and would then deliver it to all registered  We use a separate thread so that
- * we could compute and deliver audio levels in a way that won't delay the
- * media processing thread.
+ * measure new data every time it is added through the <tt>addData()</tt> method
+ * and would then deliver it to a registered listener if any. (No measurement
+ * would be performed until we have a <tt>levelListener</tt>). We use a
+ * separate thread so that we could compute and deliver audio levels in a way
+ * that won't delay the media processing thread.
  * <p>
  * Note that, for performance reasons this class is not 100% thread safe and you
  * should not modify add or remove audio listeners in this dispatcher in the
@@ -93,13 +92,14 @@ public class AudioLevelEventDispatcher
             if(dataToProcess != null)
             {
                 int newLevel =
-                    AudioLevelEffect.calculateCurrentSignalPower(
+                    AudioLevelCalculator.calculateCurrentSignalPower(
                         dataToProcess, 0, dataToProcess.length,
                         SimpleAudioLevelListener.MAX_LEVEL,
                         SimpleAudioLevelListener.MIN_LEVEL,
                         lastLevel);
 
-                listenerToNotify.audioLevelChanged(newLevel);
+                if (listenerToNotify != null)
+                    listenerToNotify.audioLevelChanged(newLevel);
 
                 lastLevel = newLevel;
             }
@@ -153,5 +153,19 @@ public class AudioLevelEventDispatcher
             stopped = true;
             notifyAll();
         }
+    }
+
+    /**
+     * Returns <tt>true</tt> if this dispatcher is currently running and
+     * delivering audio level events when available and <tt>false</tt>
+     * otherwise.
+     *
+     * @return <tt>true</tt> if this dispatcher is currently running and
+     * delivering audio level events when available and <tt>false</tt>
+     * otherwise.
+     */
+    public boolean isRunning()
+    {
+        return !stopped;
     }
 }

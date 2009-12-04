@@ -12,10 +12,11 @@ import javax.media.format.*;
 import net.java.sip.communicator.service.neomedia.event.*;
 
 /**
- * An effect that calculates the power of the signal and fire an event
- * with the current level.
+ * An effect that would pass data to the <tt>AudioLevelEventDispatcher</tt>
+ * so that it would calculate levels and dispatch changes to interested parties.
  *
  * @author Damian Minkov
+ * @author Emil Ivov
  */
 public class AudioLevelEffect
     implements Effect
@@ -36,47 +37,17 @@ public class AudioLevelEffect
     private AudioFormat outputFormat;
 
     /**
-     * The maximum level we can get as a result after compute.
-     */
-    private static int MAX_AUDIO_LEVEL = Short.MAX_VALUE;
-
-    /**
-     * The minimum level we can get as a result after compute.
-     */
-    private static int MIN_AUDIO_LEVEL = Short.MIN_VALUE;
-
-    /**
-     * The listener for the levels.
-     */
-    private SimpleAudioLevelListener listener = null;
-
-    /**
      * The dispatcher of the events, handle the calculation and the
-     * evnent firing in different thread.
+     * event firing in different thread.
      */
-    private AudioLevelEventDispatcher eventDispatcher = null;
-
-    /**
-     * The increase percentage. The increase cannot be done with more than this
-     * value in percents.
-     */
-    private final static double INC_LEVEL = 0.4;
-
-    /**
-     * The decrease percentage. The decrease cannot be done with more than this
-     * value in percents.
-     */
-    private final static double DEC_LEVEL = 0.2;
+    private AudioLevelEventDispatcher eventDispatcher
+                                            = new AudioLevelEventDispatcher();
 
     /**
      * The minimum and maximum values of the scale
-     *
-     * @param listener the listener of the sound level changes.
      */
-    public AudioLevelEffect(SimpleAudioLevelListener listener)
+    public AudioLevelEffect()
     {
-        this.listener = listener;
-
         supportedAudioFormats = new Format[]{
             new AudioFormat(
                 AudioFormat.LINEAR,
@@ -92,19 +63,19 @@ public class AudioLevelEffect
     }
 
     /**
-     * Calculates the ratio we will use.
+     * Sets (or unsets if <tt>listener</tt> is <tt>null</tt>, the listener that
+     * is going to be notified of audio level changes detected by this effect.
+     * Given the semantics of the {@link AudioLevelEventDispatcher} this effect
+     * would do no real work if no listener is set or if it is set to
+     * <tt>null</tt>.
      *
-     * @param minLevel the minimum level
-     * @param maxLevel the maximum level
-     *
-     * @return a ratio that could be used to fine tune levels so that they
-     * render in an user friendly manner.
+     * @param listener the <tt>SimplAudioLevelListener</tt> that we'd like to
+     * receive level changes or <tt>null</tt> if we'd like level measurements
+     * to stop.
      */
-    private static int calculateLevelRatio(int minLevel, int maxLevel)
+    public void setAudioLevelListener(SimpleAudioLevelListener listener)
     {
-        // magic ratio which scales good visually our levels
-        return MAX_AUDIO_LEVEL/(maxLevel - minLevel)/16;
-
+        eventDispatcher.setAudioLevelListener(listener);
     }
 
     /**
@@ -196,73 +167,6 @@ public class AudioLevelEffect
         return BUFFER_PROCESSED_OK;
     }
 
-    /**
-     * Estimates the signal power and use the levelRatio to
-     * scale it to the needed levels.
-     * @param buff the buffer with the data.
-     * @param offset the offset that data starts.
-     * @param len the length of the data
-     * @param maxOutLevel the maximum value of the result
-     * @param minOutLevel the minimum value of the result
-     * @param lastLevel the last level we calculated.
-     * @return the power of the signal in dB SWL.
-     */
-    public static int calculateCurrentSignalPower(
-        byte[] buff, int offset, int len,
-        int maxOutLevel, int minOutLevel, int lastLevel)
-    {
-        if(len == 0)
-            return 0;
-
-        int samplesNumber = len/2;
-        int absoluteMeanSoundLevel = 0;
-        double levelRatio = calculateLevelRatio(minOutLevel, maxOutLevel);
-        // Do the processing
-        for (int i = 0; i < samplesNumber; i++)
-        {
-            int tempL = buff[offset++];
-            int tempH = buff[offset++];
-            int soundLevel = tempH << 8 | (tempL & 255);
-
-            if (soundLevel > MAX_AUDIO_LEVEL)
-            {
-                soundLevel = MAX_AUDIO_LEVEL;
-            } else if (soundLevel < MIN_AUDIO_LEVEL) {
-                soundLevel = MIN_AUDIO_LEVEL;
-            }
-
-            absoluteMeanSoundLevel += Math.abs(soundLevel);
-        }
-
-        int result =
-            (int)(absoluteMeanSoundLevel/samplesNumber/levelRatio);
-
-        if(result > maxOutLevel)
-            result = maxOutLevel;
-        int result2 = result;
-        // we don't allow to quick level changes
-        // the speed ot fthe change is controlled by
-        //
-        int diff = lastLevel - result;
-        if(diff >= 0)
-        {
-            int maxDiff = (int)(maxOutLevel*DEC_LEVEL);
-            if(diff > maxDiff)
-                result2 = lastLevel - maxDiff;
-            else
-                result2 = result;
-        }
-        else
-        {
-            int maxDiff = (int)(maxOutLevel*INC_LEVEL);
-            if(diff > maxDiff)
-                result2 = lastLevel + maxDiff;
-            else
-                result2 = result;
-        }
-
-        return result2;
-    }
 
 
     /**
@@ -278,19 +182,18 @@ public class AudioLevelEffect
 
     /**
      * Opens this effect.
+     *
      * @throws ResourceUnavailableException If all of the required resources
      * cannot be acquired.
      */
     public void open()
         throws ResourceUnavailableException
     {
-        if(eventDispatcher == null)
+        synchronized(eventDispatcher)
         {
-            eventDispatcher = new AudioLevelEventDispatcher();
-            eventDispatcher.setAudioLevelListener(listener);
+            new Thread(eventDispatcher, "AudioLevelEffect Notification Thread")
+                .start();
         }
-
-        new Thread(eventDispatcher).start();
     }
 
     /**
@@ -298,8 +201,10 @@ public class AudioLevelEffect
      */
     public void close()
     {
-        eventDispatcher.stop();
-        eventDispatcher = null;
+        synchronized(eventDispatcher)
+        {
+            eventDispatcher.stop();
+        }
     }
 
     /**

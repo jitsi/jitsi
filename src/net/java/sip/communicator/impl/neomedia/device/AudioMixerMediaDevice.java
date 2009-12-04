@@ -76,10 +76,55 @@ public class AudioMixerMediaDevice
 
     /**
      * The <tt>List</tt> where we store all listeners interested in changes
-     * of the local audio level.
+     * of the local audio level and the number of times each one of them has
+     * been added. We wrap listeners because we may have multiple subscriptions
+     * with the same listener and we would only store it once. If one of the
+     * multiple subscriptions of a particular listener is removed, however,
+     * we wouldn't want to reset the listener to <tt>null</tt> as there are
+     * others still interested, and hence the refCounter in the wrapper.
      */
-    private List<SimpleAudioLevelListener> localUserAudioLevelListeners
-        = new ArrayList<SimpleAudioLevelListener>();
+    private List<SimpleAudioLevelListenerWrapper> localUserAudioLevelListeners
+        = new ArrayList<SimpleAudioLevelListenerWrapper>();
+
+    /**
+     * A very lightweight wrapper that allows us to track the number of times
+     * that a particular listener was added.
+     */
+    private class SimpleAudioLevelListenerWrapper
+    {
+        /** The listener being wrapped by this wrapper.*/
+        SimpleAudioLevelListener listener;
+
+        /** The number of times this listener has been added*/
+        int refCounter;
+
+        /**
+         * Creates a wrapper of the <tt>l</tt> listener.
+         *
+         * @param l the listener we'd like to wrap;
+         */
+        public SimpleAudioLevelListenerWrapper(SimpleAudioLevelListener l)
+        {
+            this.listener = l;
+            this.refCounter = 1;
+        }
+
+        /**
+         * Returns <tt>true</tt> if <tt>obj</tt> is a wrapping the same listener
+         * as ours.
+         *
+         * @param obj the wrapper we'd like to compare to this instance
+         *
+         * @return <tt>true</tt> if <tt>obj</tt> is a wrapping the same listener
+         * as ours.
+         */
+        @Override
+        public boolean equals(Object obj)
+        {
+            return (obj instanceof SimpleAudioLevelListenerWrapper)
+                && ((SimpleAudioLevelListenerWrapper)obj).listener == listener;
+        }
+    }
 
     /**
      * The listener that we'll register with the level dispatcher of the local
@@ -287,16 +332,22 @@ public class AudioMixerMediaDevice
                         ReceiveStream receiveStream
                             = ((ReceiveStreamPushBufferDataSource) dataSource)
                                 .getReceiveStream();
-                        AudioLevelEventDispatcher stEvDispatch;
+                        AudioLevelEventDispatcher streamEventDispatcher;
 
                         synchronized (streamAudioLevelListeners)
                         {
-                            stEvDispatch
+                            streamEventDispatcher
                                 = streamAudioLevelListeners.get(receiveStream);
                         }
 
-                        if(stEvDispatch != null)
-                            stEvDispatch.addData(buffer);
+                        if(streamEventDispatcher != null)
+                        {
+                            if(! streamEventDispatcher.isRunning())
+                                new Thread(streamEventDispatcher,
+                                   "StreamAudioLevelDispatcher (Mixer Edition)")
+                                        .start();
+                            streamEventDispatcher.addData(buffer);
+                        }
                     }
                 }
             };
@@ -317,7 +368,7 @@ public class AudioMixerMediaDevice
             //and we'd like to avoid creating an iterator every time
             for(int i = 0; i < localUserAudioLevelListeners.size(); i++)
             {
-                localUserAudioLevelListeners.get(i)
+                localUserAudioLevelListeners.get(i).listener
                     .audioLevelChanged(level);
             }
         }
@@ -441,11 +492,25 @@ public class AudioMixerMediaDevice
                     localUserAudioLevelDispatcher
                         .setAudioLevelListener(localUserAudioLevelDelegator);
 
-                    new Thread(localUserAudioLevelDispatcher).start();
+                    new Thread(localUserAudioLevelDispatcher,
+                          "Local User Audio Level Dispatcher (Mixer Edition)")
+                                .start();
                 }
 
-                if(! localUserAudioLevelListeners.contains(l))
-                    localUserAudioLevelListeners.add(l);
+                //check if this listener has already been added.
+                SimpleAudioLevelListenerWrapper wrapper
+                    = new SimpleAudioLevelListenerWrapper(l);
+
+                int index = localUserAudioLevelListeners.indexOf(wrapper);
+                if( index != -1)
+                {
+                    wrapper = localUserAudioLevelListeners.get(index);
+                    wrapper.refCounter++;
+                }
+                else
+                {
+                    localUserAudioLevelListeners.add(wrapper);
+                }
             }
         }
 
@@ -461,7 +526,22 @@ public class AudioMixerMediaDevice
         {
             synchronized(localUserAudioLevelListeners)
             {
-                localUserAudioLevelListeners.remove(l);
+                //check if this listener has already been added.
+                SimpleAudioLevelListenerWrapper wrapper
+                    = new SimpleAudioLevelListenerWrapper(l);
+                localUserAudioLevelListeners.remove(wrapper);
+
+                int index = localUserAudioLevelListeners.indexOf(wrapper);
+
+                if( index != -1)
+                {
+                    wrapper = localUserAudioLevelListeners.get(index);
+
+                    if(wrapper.refCounter > 1)
+                        wrapper.refCounter--;
+                    else
+                        localUserAudioLevelListeners.remove(wrapper);
+                }
 
                 //if this was the last listener then we also need to remove the
                 //dispatcher
@@ -482,11 +562,12 @@ public class AudioMixerMediaDevice
          *
          * @param stream the stream that <tt>l</tt> would like to register as
          * an audio level listener for.
-         * @param l the listener we'd like to register for notifications from
-         * <tt>stream</tt>.
+         * @param listener the listener we'd like to register for notifications
+         * from <tt>stream</tt>.
          */
-        public void putStreamAudioLevelListener(ReceiveStream            stream,
-                                                SimpleAudioLevelListener l)
+        public void putStreamAudioLevelListener(
+                                            ReceiveStream            stream,
+                                            SimpleAudioLevelListener listener)
         {
             synchronized(streamAudioLevelListeners)
             {
@@ -501,7 +582,7 @@ public class AudioMixerMediaDevice
                     streamAudioLevelListeners.put(stream, dispatcher);
                 }
 
-                dispatcher.setAudioLevelListener(l);
+                dispatcher.setAudioLevelListener(listener);
             }
         }
 
@@ -622,7 +703,24 @@ public class AudioMixerMediaDevice
          * We use this reference so that we could unregister it if someone
          * resets it or sets it to <tt>null</tt>.
          */
-        private SimpleAudioLevelListener localAudioLevelListener = null;
+        private SimpleAudioLevelListener localUserAudioLevelListener = null;
+
+        /**
+         * We use this field to keep a reference to the listener that we've
+         * registered with the audio mixer for stream audio level notifications.
+         * We use this reference so because at the time we get it from the
+         * <tt>MediaStream</tt> it might be too early to register it with the
+         * mixer as it is like that we don't have a receive stream yet. If
+         * that's the case, we hold on to the listener and register it only
+         * when we get the <tt>ReceiveStream</tt>.
+         */
+        private SimpleAudioLevelListener streamAudioLevelListener = null;
+
+        /**
+         * The <tt>Object</tt> that we use to lock operations on
+         * <tt>streamAudioLevelListener</tt>.
+         */
+        private Object streamAudioLevelListenerLock = new Object();
 
         /**
          * Initializes a new <tt>MediaStreamMediaDeviceSession</tt> which is to
@@ -680,6 +778,19 @@ public class AudioMixerMediaDevice
             if (captureDevice instanceof AudioMixingPushBufferDataSource)
                 ((AudioMixingPushBufferDataSource) captureDevice)
                     .addInputDataSource(receiveStreamDataSource);
+
+            /*
+             * if someone registered a stream level listener we can now add it
+             * since we have the stream that it's supposed to be listening to.
+             */
+            synchronized(streamAudioLevelListenerLock)
+            {
+                if(this.streamAudioLevelListener != null)
+                {
+                    audioMixerMediaDeviceSession.putStreamAudioLevelListener(
+                                receiveStream, streamAudioLevelListener);
+                }
+            }
         }
 
         /**
@@ -729,17 +840,17 @@ public class AudioMixerMediaDevice
         @Override
         public void setLocalUserAudioLevelListener(SimpleAudioLevelListener l)
         {
-            if (localAudioLevelListener != null)
+            if (localUserAudioLevelListener != null)
             {
                     audioMixerMediaDeviceSession
                         .removeLocalUserAudioLevelListener(
-                                        localAudioLevelListener);
-                    localAudioLevelListener = null;
+                                        localUserAudioLevelListener);
+                    localUserAudioLevelListener = null;
             }
 
             if( l != null)
             {
-                this.localAudioLevelListener = l;
+                this.localUserAudioLevelListener = l;
                 audioMixerMediaDeviceSession.addLocalUserAudioLevelListener(l);
             }
         }
@@ -774,12 +885,23 @@ public class AudioMixerMediaDevice
         public void setStreamAudioLevelListener(
                                             SimpleAudioLevelListener listener)
         {
-            if( listener != null)
-                audioMixerMediaDeviceSession.putStreamAudioLevelListener(
-                        getReceiveStream(), listener);
-            else
-                audioMixerMediaDeviceSession
-                    .removeStreamAudioLevelListener(getReceiveStream());
+            synchronized(streamAudioLevelListenerLock)
+            {
+                this.streamAudioLevelListener = listener;
+
+                if( listener != null)
+                {
+                    //if we already have a ReceiveStream - register the listener
+                    //with the mixer. Otherwise - wait till we get one.
+                    if( getReceiveStream() != null)
+                        audioMixerMediaDeviceSession
+                            .putStreamAudioLevelListener(
+                                    getReceiveStream(), listener);
+                }
+                else if( getReceiveStream() != null)
+                    audioMixerMediaDeviceSession
+                        .removeStreamAudioLevelListener(getReceiveStream());
+            }
         }
 
         /**

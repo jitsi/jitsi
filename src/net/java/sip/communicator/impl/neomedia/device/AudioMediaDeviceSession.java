@@ -32,18 +32,16 @@ public class AudioMediaDeviceSession
     private Logger logger = Logger.getLogger(AudioMediaDeviceSession.class);
 
     /**
-     * The listener (possibly the stream that created this session) that we
-     * should be notifying every time we detect a change in the level of the
-     * audio that the local user is generating.
+     * The effect that we will register with our datasource in order to measure
+     * audio levels of the local user audio.
      */
-    private SimpleAudioLevelListener localUserAudioLevelListener = null;
+    private AudioLevelEffect localUserAudioLevelEffect = new AudioLevelEffect();
 
     /**
-     * The listener (possibly the stream that created this session) that we
-     * should be notifying every time we detect a change in the level of the
-     * audio that the remote user is sending to us.
+     * The effect that we will register with our stream in order to measure
+     * audio levels of the remote user audio.
      */
-    private SimpleAudioLevelListener streamAudioLevelListener = null;
+    private AudioLevelEffect streamAudioLevelEffect = new AudioLevelEffect();
 
     /**
      * Initializes a new <tt>MediaDeviceSession</tt> instance which is to
@@ -67,44 +65,12 @@ public class AudioMediaDeviceSession
      * number of objects associated with the process (such as event instances
      * listener list iterators and sync copies).
      *
-     * @param l the <tt>SimpleAudioLevelListener</tt> to add
+     * @param listener the <tt>SimpleAudioLevelListener</tt> to add
      */
-    public void setLocalUserAudioLevelListener(SimpleAudioLevelListener l)
+    public void setLocalUserAudioLevelListener(
+                                            SimpleAudioLevelListener listener)
     {
-        this.localUserAudioLevelListener = l;
-    }
-
-    /**
-     * Returns the  <tt>SimpleAudioLevelListener</tt> that this session is
-     * notifying about changes in local audio level related information. This
-     * class only supports a single listener for audio changes per source
-     * (i.e. stream or data source). Audio changes are generally quite time
-     * intensive (~ 50 per second) so we are doing this in order to reduce the
-     * number of objects associated with the process (such as event instances
-     * listener list iterators and sync copies).
-     *
-     * @return the <tt>SimpleAudioLevelListener</tt> that this session is
-     * currently notifying for changes in the audio level of the local user.
-     */
-    public SimpleAudioLevelListener getLocalUserAudioLevelListener()
-    {
-        return localUserAudioLevelListener;
-    }
-
-    /**
-     * Delivers <tt>level</tt> to the <tt>SimpleAudioLevelListener</tt> handling
-     * local user levels for this class or ignores it if that listener has
-     * not been set yet.
-     *
-     * @param level the new level that we need to pass to our local user level
-     * listener if it exists
-     */
-    protected void fireLocalUserAudioLevelEvent(int level)
-    {
-        if (localUserAudioLevelListener != null)
-        {
-            localUserAudioLevelListener.audioLevelChanged(level);
-        }
+        this.localUserAudioLevelEffect.setAudioLevelListener(listener);
     }
 
     /**
@@ -115,19 +81,18 @@ public class AudioMediaDeviceSession
      * @throws UnsupportedPlugInException if we <tt>tc</tt> does not support
      * effects.
      */
-    private void registerLocalAudioLevelJMFEffect(TrackControl tc)
+    private void registerLocalUserAudioLevelJMFEffect(TrackControl tc)
             throws UnsupportedPlugInException
     {
-        AudioLevelEffect levelEffect = new AudioLevelEffect(
-            new SimpleAudioLevelListener()
-            {
-                public void audioLevelChanged(int level)
-                {
-                    fireLocalUserAudioLevelEvent(level);
-                }
-            });
-        // Assume there is only one audio track
-        tc.setCodecChain(new Codec[]{levelEffect});
+        //we register the effect regardless of whether or not we have any
+        //listeners at this point because we won't get a second chance.
+        //however the effect would do next to nothing unless we register a
+        //first listener with it.
+        //
+        //XXX: i am assuming that a single effect could be reused multiple times
+        // if that turns out not to be the case we need to create a new instance
+        // here.
+        tc.setCodecChain(new Codec[]{localUserAudioLevelEffect});
     }
 
     /**
@@ -145,37 +110,7 @@ public class AudioMediaDeviceSession
      */
     public void setStreamAudioLevelListener(SimpleAudioLevelListener listener)
     {
-        this.streamAudioLevelListener = listener;
-    }
-
-    /**
-     * Returns the  <tt>SimpleAudioLevelListener</tt> that this session is
-     * notifying about changes in the audio level of media we receive from the
-     * stream associated with this session. This class only supports a single
-     * listener for audio changes per source (i.e. stream or data source).
-     * Audio changes are generally quite time intensive (~ 50 per second) so we
-     * are doing this in order to reduce the number of objects associated with
-     * the process (such as event instances listener list iterators and sync
-     * copies).
-     *
-     * @return the <tt>SimpleAudioLevelListener</tt> that this session is
-     * currently notifying for changes in the audio level of the stream
-     * associated with this session.
-     */
-    public SimpleAudioLevelListener getStreamAudioLevelListener()
-    {
-        return streamAudioLevelListener;
-    }
-
-    /**
-     * Notifies all registered listeners that the audio level of the stream
-     * that this device session is receiving has changed.
-     *
-     * @param level the new sound level
-     */
-    protected void fireStreamAudioLevelEvent(int level)
-    {
-        this.streamAudioLevelListener.audioLevelChanged(level);
+        this.streamAudioLevelEffect.setAudioLevelListener(listener);
     }
 
     /**
@@ -193,16 +128,12 @@ public class AudioMediaDeviceSession
     private void registerStreamAudioLevelJMFEffect(TrackControl trackControl)
         throws UnsupportedPlugInException
     {
-        AudioLevelEffect audioLevelEffect = new AudioLevelEffect(
-            new SimpleAudioLevelListener()
-            {
-                public void audioLevelChanged(int level)
-                {
-                    fireStreamAudioLevelEvent(level);
-                }
-            });
+        //we register the effect regardless of whether or not we have any
+        //listeners at this point because we won't get a second chance.
+        //however the effect would do next to nothing unless we register a
+        //first listener with it.
         // Assume there is only one audio track
-        trackControl.setCodecChain(new Codec[]{audioLevelEffect});
+        trackControl.setCodecChain(new Codec[]{streamAudioLevelEffect});
     }
 
     /**
@@ -259,8 +190,6 @@ public class AudioMediaDeviceSession
 
             if (processor != null)
             {
-                if (localUserAudioLevelListener == null)
-                    return;
                 // here we add sound level indicator for captured media
                 // from the microphone if there are interested listeners
                 try
@@ -273,8 +202,8 @@ public class AudioMediaDeviceSession
                         {
                             if (tc.getFormat() instanceof AudioFormat)
                             {
-                                registerLocalAudioLevelJMFEffect(tc);
-                                // we assume a single track
+                                //we assume a single track
+                                registerLocalUserAudioLevelJMFEffect(tc);
                                 break;
                             }
                         }
