@@ -195,6 +195,28 @@ public interface MediaStream
     public Map<Byte, MediaFormat> getDynamicRTPPayloadTypes();
 
     /**
+     * Adds or updates an association in this <tt>MediaStream</tt> mapping the
+     * specified <tt>extensionID</tt> to <tt>rtpExtension</tt> and enabling or
+     * disabling its use according to the direction attribute of
+     * <tt>rtpExtension</tt>.
+     *
+     * @param extensionID the ID that is mapped to <tt>rtpExtension</tt> for
+     * the lifetime of this <tt>MediaStream</tt>.
+     * @param rtpExtension the <tt>RTPExtension</tt> that we are mapping to
+     * <tt>extensionID</tt>.
+     */
+    public void addRTPExtension(byte extensionID, RTPExtension rtpExtension);
+
+    /**
+     * Returns a map containing all currently active <tt>RTPExtension</tt>s in
+     * use by this stream.
+     *
+     * @return a map containing all currently active <tt>RTPExtension</tt>s in
+     * use by this stream.
+     */
+    public Map<Byte, RTPExtension> getActiveRTPExtensions();
+
+    /**
      * Sets the direction in which media in this <tt>MediaStream</tt> is to be
      * streamed. If this <tt>MediaStream</tt> is not currently started, calls to
      * {@link #start()} later on will start it only in the specified

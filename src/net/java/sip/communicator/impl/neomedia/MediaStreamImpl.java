@@ -159,6 +159,14 @@ public class MediaStreamImpl
     private boolean mute = false;
 
     /**
+     * Stores the map of currently active <tt>RTPExtension</tt>s and the IDs
+     * that they have been assigned for the lifetime of this
+     * <tt>MediaStream</tt>.
+     */
+    private Map<Byte, RTPExtension> activeRTPExtensions
+        = new Hashtable<Byte, RTPExtension>();
+
+    /**
      * Initializes a new <tt>MediaStreamImpl</tt> instance which will use the
      * specified <tt>MediaDevice</tt> for both capture and playback of media
      * exchanged via the specified <tt>StreamConnector</tt>.
@@ -217,6 +225,45 @@ public class MediaStreamImpl
             if (rtpManager != null)
                 rtpManager
                     .addFormat(mediaFormatImpl.getFormat(), rtpPayloadType);
+        }
+    }
+
+    /**
+     * Maps or updates the mapping between <tt>extensionID</tt> and
+     * <tt>rtpExtension</tt>. If <tt>rtpExtension</tt>'s <tt>MediaDirection</tt>
+     * attribute is set to <tt>INACTIVE</tt> the mapping is removed from the
+     * local extensions table and the extension would not be transmitted or
+     * handled by this stream's <tt>RTPConnector</tt>.
+     *
+     * @param extensionID the ID that is being mapped to <tt>rtpExtension</tt>
+     * @param rtpExtension the <tt>RTPExtension</tt> that we are mapping.
+     */
+    public void addRTPExtension(byte extensionID, RTPExtension rtpExtension)
+    {
+        synchronized (activeRTPExtensions)
+        {
+            if(rtpExtension.getDirection() == MediaDirection.INACTIVE)
+            {
+                this.activeRTPExtensions.remove(extensionID);
+                return;
+            }
+
+            activeRTPExtensions.put(extensionID, rtpExtension);
+        }
+    }
+
+    /**
+     * Returns a map containing all currently active <tt>RTPExtension</tt>s in
+     * use by this stream.
+     *
+     * @return a map containing all currently active <tt>RTPExtension</tt>s in
+     * use by this stream.
+     */
+    public Map<Byte, RTPExtension> getActiveRTPExtensions()
+    {
+        synchronized (activeRTPExtensions)
+        {
+            return new HashMap<Byte, RTPExtension>(activeRTPExtensions);
         }
     }
 
