@@ -31,10 +31,9 @@ public class AudioLevelEventDispatcher
     implements Runnable
 {
     /**
-     * The listeners we dispatch.
+     * The listener that's interested in event changes.
      */
-    private final List<SimpleAudioLevelListener> levelListeners
-        = new Vector<SimpleAudioLevelListener>();
+    private SimpleAudioLevelListener levelListener = null;
 
     /**
      * start/stop indicator.
@@ -62,9 +61,12 @@ public class AudioLevelEventDispatcher
     public void run()
     {
         stopped = false;
+
+        SimpleAudioLevelListener listenerToNotify = null;
         while(!stopped)
         {
             byte[] dataToProcess = null;
+
             synchronized(this)
             {
                 if(data == null)
@@ -74,8 +76,12 @@ public class AudioLevelEventDispatcher
                         wait();
                         //no point in measuring level if there's no one
                         //listening
-                        if (levelListeners.size() == 0)
+                        if (levelListener == null)
                             continue;
+
+                        //store the ref of the listener in case someone resets
+                        //it before we've had a chance to notify it.
+                        listenerToNotify = levelListener;
                     }
                     catch (InterruptedException ie) {}
                 }
@@ -93,11 +99,7 @@ public class AudioLevelEventDispatcher
                         SimpleAudioLevelListener.MIN_LEVEL,
                         lastLevel);
 
-                synchronized(levelListeners)
-                {
-                    for (SimpleAudioLevelListener listener : levelListeners)
-                        listener.audioLevelChanged(newLevel);
-                }
+                listenerToNotify.audioLevelChanged(newLevel);
 
                 lastLevel = newLevel;
             }
@@ -109,45 +111,35 @@ public class AudioLevelEventDispatcher
      *
      * @param buffer the data that we'd like to queue for processing.
      */
-    public synchronized void addData(Buffer buffer)
+    public void addData(Buffer buffer)
     {
-        dataLength = buffer.getLength();
-        if(data == null || data.length < dataLength)
+        synchronized(this)
         {
-            data = new byte[dataLength];
+            dataLength = buffer.getLength();
+            if(data == null || data.length < dataLength)
+            {
+                data = new byte[dataLength];
+            }
 
-        }
+            System.arraycopy( buffer.getData(), buffer.getOffset(),
+                            data, 0, dataLength);
 
-        System.arraycopy(
-            buffer.getData(), buffer.getOffset(), data, 0, dataLength);
-
-        notifyAll();
-    }
-
-    /**
-     * Adds new listener.
-     *
-     * @param l the listener.
-     */
-    public void addAudioLevelListener(SimpleAudioLevelListener l)
-    {
-        synchronized(levelListeners)
-        {
-            if (!levelListeners.contains(l))
-                levelListeners.add(l);
+            notifyAll();
         }
     }
 
     /**
-     * Removes a listener.
+     * Sets the new listener that will be gathering all events from this
+     * dispatcher.
      *
-     * @param l the listener.
+     * @param l the listener that we will be notifying or <tt>null</tt> if we
+     * are to remove it.
      */
-    public void removeAudioLevelListener(SimpleAudioLevelListener l)
+    public void setAudioLevelListener(SimpleAudioLevelListener l)
     {
-        synchronized(levelListeners)
+        synchronized(this)
         {
-            levelListeners.remove(l);
+            this.levelListener = l;
         }
     }
 

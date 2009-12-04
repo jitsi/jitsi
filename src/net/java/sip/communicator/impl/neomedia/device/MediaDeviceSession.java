@@ -451,6 +451,7 @@ public class MediaDeviceSession
             mutePushBufferDataSource.setMute(mute);
             captureDevice = mutePushBufferDataSource;
         }
+/*
         else if (captureDevice instanceof PullBufferDataSource)
         {
             MutePullBufferDataSource mutePullBufferDataSource
@@ -460,6 +461,7 @@ public class MediaDeviceSession
             mutePullBufferDataSource.setMute(mute);
             captureDevice = mutePullBufferDataSource;
         }
+*/
 
         return captureDevice;
     }

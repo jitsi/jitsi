@@ -63,7 +63,8 @@ public class AudioMixerMediaDevice
      * The dispatcher that delivers to listeners calculations of the local
      * audio level.
      */
-    private AudioLevelEventDispatcher localAudioLevelEventDispatcher = null;
+    private AudioLevelEventDispatcher localAudioLevelEventDispatcher
+        = new AudioLevelEventDispatcher();
 
     /**
      * The <tt>Map</tt> where we store audio level dispatchers and the
@@ -77,8 +78,22 @@ public class AudioMixerMediaDevice
      * The <tt>List</tt> where we store all listeners interested in changes
      * of the local audio level.
      */
-    private List<SimpleAudioLevelListener> localAudioLevelListeners
+    private List<SimpleAudioLevelListener> localUserAudioLevelListeners
         = new ArrayList<SimpleAudioLevelListener>();
+
+    /**
+     * The listener that we'll register with the level dispatcher of the local
+     * stream and that will notify all the listeners (if any) registered in
+     * <tt>localUserAudioLevelListeners</tt>.
+     */
+    private SimpleAudioLevelListener localUserAudioLevelDelegator
+        = new SimpleAudioLevelListener()
+            {
+                public void audioLevelChanged(int level)
+                {
+                    fireLocalUserAudioLevelException(level);
+                }
+            };
 
     /**
      * The <tt>List</tt> of RTP extensions supported by this device (at the time
@@ -256,7 +271,12 @@ public class AudioMixerMediaDevice
                         if(localAudioLevelEventDispatcher == null)
                         {
                             localAudioLevelEventDispatcher
-                                = new AudioLevelEventDispatcher();
+
+                            synchronized (localAudioLevelListeners)
+                            {
+                                if(localAudioLevelEventDispatcher == null)
+                            localAudioLevelEventDispatcher
+                            }
                             new Thread(localAudioLevelEventDispatcher).start();
                         }
                         localAudioLevelEventDispatcher.addData(buffer);
@@ -285,6 +305,26 @@ public class AudioMixerMediaDevice
                 }
             };
         return audioMixer;
+    }
+
+    /**
+     * Notifies all currently registered <tt>SimpleAudioLevelListener</tt>s
+     * that our local media now has audio level <tt>level</tt>.
+     *
+     * @param level the new audio level of the local media stream.
+     */
+    private void fireLocalUserAudioLevelException(int level)
+    {
+        synchronized(this.localUserAudioLevelListeners)
+        {
+            //these events are going to happen veeery often (~50 times per sec)
+            //and we'd like to avoid creating an iterator every time
+            for(int i = 0; i < localUserAudioLevelListeners.size(); i++)
+            {
+                localUserAudioLevelListeners.get(i)
+                    .audioLevelChanged(level);
+            }
+        }
     }
 
     /**
@@ -395,10 +435,10 @@ public class AudioMixerMediaDevice
          */
         public void addLocalUserAudioLevelListener(SimpleAudioLevelListener l)
         {
-            synchronized(localAudioLevelListeners)
+            synchronized(localUserAudioLevelListeners)
             {
-                if(! localAudioLevelListeners.contains(l))
-                    localAudioLevelListeners.add(l);
+                if(! localUserAudioLevelListeners.contains(l))
+                    localUserAudioLevelListeners.add(l);
             }
         }
 
@@ -409,11 +449,12 @@ public class AudioMixerMediaDevice
          *
          * @param l the listener we'd like to remove.
          */
-        public void removeLocalUserAudioLevelListener(SimpleAudioLevelListener l)
+        public void removeLocalUserAudioLevelListener(
+                                                SimpleAudioLevelListener l)
         {
-            synchronized(localAudioLevelListeners)
+            synchronized(localUserAudioLevelListeners)
             {
-                localAudioLevelListeners.remove(l);
+                localUserAudioLevelListeners.remove(l);
             }
         }
 
@@ -433,9 +474,17 @@ public class AudioMixerMediaDevice
             synchronized(streamAudioLevelListeners)
             {
                 AudioLevelEventDispatcher dispatcher
-                    = new AudioLevelEventDispatcher();
-                dispatcher.addAudioLevelListener(l);
-                streamAudioLevelListeners.put(stream, dispatcher);
+                    = streamAudioLevelListeners.get(stream);
+
+                if ( dispatcher == null )
+                {
+                    //this is not a replacement but a registration for a stream
+                    //that was not listened to so far. create it and "put" it
+                    dispatcher = new AudioLevelEventDispatcher();
+                    streamAudioLevelListeners.put(stream, dispatcher);
+                }
+
+                dispatcher.setAudioLevelListener(l);
             }
         }
 
@@ -449,7 +498,10 @@ public class AudioMixerMediaDevice
         {
             synchronized(streamAudioLevelListeners)
             {
-                streamAudioLevelListeners.remove(stream);
+                AudioLevelEventDispatcher dispatcher =
+                    streamAudioLevelListeners.remove(stream);
+
+                dispatcher.setAudioLevelListener(null);
             }
         }
 
