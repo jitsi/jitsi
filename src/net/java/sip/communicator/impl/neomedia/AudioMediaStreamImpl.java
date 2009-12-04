@@ -22,6 +22,7 @@ import net.java.sip.communicator.util.*;
  * <tt>AudioMediaStream</tt>.
  *
  * @author Lubomir Marinov
+ * @author Emil Ivov
  */
 public class AudioMediaStreamImpl
     extends MediaStreamImpl
@@ -96,30 +97,29 @@ public class AudioMediaStreamImpl
     }
 
     /**
-     * Adds <tt>listener</tt> to the list of <tt>SoundLevelListener</tt>s
-     * registered with this <tt>AudioMediaStream</tt> to receive notifications
-     * about changes in the sound levels of the conference participants that the
-     * remote party may be mixing.
+     * Sets <tt>listener</tt> as the <tt>SimpleAudioLevelListener</tt>
+     * registered to receive notifications from our device session for changes
+     * in the levels of the party that's at the other end of this stream.
      *
-     * @param listener the <tt>SoundLevelListener</tt> to register with this
-     * <tt>AudioMediaStream</tt>
-     * @see AudioMediaStream#addStreamAudioLevelListener(SoundLevelListener)
+     * @param listener the <tt>SimpleAudioLevelListener</tt> that we'd like to
+     * register or <tt>null</tt> if we want to stop stream audio level
+     * measurements.
      */
-    public void addStreamAudioLevelListener(SimpleAudioLevelListener listener)
+    public void setStreamAudioLevelListener(SimpleAudioLevelListener listener)
     {
         getDeviceSession().setStreamAudioLevelListener(listener);
     }
 
     /**
-     * Adds <tt>listener</tt> to the list of <tt>SoundLevelListener</tt>s
-     * registered to receive notifications for changes in the levels of
-     * conference participants that the remote party could be mixing.
+     * Registers <tt>listener</tt> as the <tt>SoundLevelListener</tt> that will
+     * receive notifications for changes in the levels of conference
+     * participants that the remote party could be mixing.
      *
      * @param listener the <tt>SoundLevelListener</tt> that we'd like to
-     * register.
+     * register or <tt>null</tt> if we'd like to stop receiving notifications.
      */
-    public void addConferenceMemberSoundLevelListener(
-        SoundLevelListener listener)
+    public void setConferenceMemberAudioLevelListener(
+        SimpleAudioLevelListener listener)
     {
 
     }
@@ -153,13 +153,9 @@ public class AudioMediaStreamImpl
              * AFAIK there is no easy way around it, but the memory impact
              * should not be too bad.
              */
-            rtpManager
-                .addFormat(
-                    format,
-                    MediaUtils
-                        .getRTPPayloadType(
-                            format.getEncoding(),
-                            format.getSampleRate()));
+            rtpManager.addFormat( format,
+                        MediaUtils.getRTPPayloadType(
+                            format.getEncoding(), format.getSampleRate()));
         }
 
         formatsRegisteredOnce = true;
@@ -177,36 +173,6 @@ public class AudioMediaStreamImpl
     public void removeDTMFListener(DTMFListener listener)
     {
         // TODO Auto-generated method stub
-    }
-
-    /**
-     * Removes <tt>listener</tt> from the list of <tt>SoundLevelListener</tt>s
-     * registered with this <tt>AudioMediaStream</tt> to receive notifications
-     * about changes in the sound levels of the conference participants that the
-     * remote party may be mixing.
-     *
-     * @param listener the <tt>SoundLevelListener</tt> to no longer be notified
-     * by this <tt>AudioMediaStream</tt> about changes in the sound levels of
-     * the conference participants that the remote party may be mixing
-     * @see AudioMediaStream#removeStreamAudioLevelListener(SoundLevelListener)
-     */
-    public void removeStreamAudioLevelListener(
-                                            SimpleAudioLevelListener listener)
-    {
-        getDeviceSession().setStreamAudioLevelListener(null);
-    }
-
-    /**
-     * Removes <tt>listener</tt> from the list of <tt>SoundLevelListener</tt>s
-     * registered to receive notification events upon changes of the sound
-     * level.
-     *
-     * @param listener the listener that we'd like to unregister.
-     */
-    public void removeConferenceMemberSoundLevelListener(
-        SoundLevelListener listener)
-    {
-
     }
 
     /**
@@ -239,25 +205,18 @@ public class AudioMediaStreamImpl
     }
 
     /**
-     * Adds a specific <tt>SoundLevelListener</tt> to the list of
-     * listeners interested in and notified about changes in local sound level
-     * related information.
-     * @param l the <tt>SoundLevelListener</tt> to add
+     * Sets <tt>listener</tt> as the <tt>SimpleAudioLevelListener</tt>
+     * registered to receive notifications from our device session for changes
+     * in the levels of the audio that this stream is sending out.
+     *
+     * @param listener the <tt>SimpleAudioLevelListener</tt> that we'd like to
+     * register or <tt>null</tt> if we want to stop local audio level
+     * measurements.
      */
-    public void addLocalUserAudioLevelListener(SimpleAudioLevelListener l)
+    public void setLocalUserAudioLevelListener(
+                                            SimpleAudioLevelListener listener)
     {
-        getDeviceSession().setLocalUserAudioLevelListener(l);
-    }
-
-    /**
-     * Removes a specific <tt>SoundLevelListener</tt> of the list of
-     * listeners interested in and notified about changes in local sound level
-     * related information.
-     * @param l the <tt>SoundLevelListener</tt> to remove
-     */
-    public void removeLocalUserAudioLevelListener(SimpleAudioLevelListener l)
-    {
-        getDeviceSession().setLocalUserAudioLevelListener(null);
+        getDeviceSession().setLocalUserAudioLevelListener(listener);
     }
 
     /**

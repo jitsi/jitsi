@@ -18,43 +18,38 @@ public interface AudioMediaStream
     extends MediaStream
 {
     /**
-     * Adds <tt>listener</tt> to the list of <tt>SoundLevelListener</tt>s
-     * registered to receive notifications for changes in the levels of
-     * remote participant.
+     * Sets <tt>listener</tt> as the <tt>SimpleAudioLevelListener</tt>
+     * registered to receive notifications for changes in the levels of the
+     * party that's at the other end of this stream.
      *
-     * @param listener the <tt>SoundLevelListener</tt> that we'd like to
-     * register.
+     * @param listener the <tt>SimpleAudioLevelListener</tt> that we'd like to
+     * register or <tt>null</tt> if we want to stop stream audio level
+     * measurements.
      */
     public void setStreamAudioLevelListener(SimpleAudioLevelListener listener);
 
     /**
-     * Adds <tt>listener</tt> to the list of <tt>SoundLevelListener</tt>s
-     * registered to receive notifications for changes in the levels of
-     * conference participants that the remote party could be mixing.
+     * Registers <tt>listener</tt> as the <tt>SoundLevelListener</tt> that will
+     * receive notifications for changes in the levels of conference
+     * participants that the remote party could be mixing.
      *
      * @param listener the <tt>SoundLevelListener</tt> that we'd like to
-     * register.
+     * register or <tt>null</tt> if we'd like to stop receiving notifications.
      */
     public void setConferenceMemberAudioLevelListener(
                                             SimpleAudioLevelListener listener);
 
     /**
-     * Adds a specific <tt>SoundLevelListener</tt> to the list of
-     * listeners interested in and notified about changes in local sound level
-     * related information.
-     * @param l the <tt>SoundLevelListener</tt> to add
+     * Sets <tt>listener</tt> as the <tt>SimpleAudioLevelListener</tt>
+     * registered to receive notifications for changes in the levels of the
+     * audio that this stream is sending out.
+     *
+     * @param listener the <tt>SimpleAudioLevelListener</tt> that we'd like to
+     * register or <tt>null</tt> if we want to stop local audio level
+     * measurements.
      */
-    public abstract void setLocalUserAudioLevelListener(
-                                            SimpleAudioLevelListener l);
-
-    /**
-     * Removes a specific <tt>SoundLevelListener</tt> of the list of
-     * listeners interested in and notified about changes in local sound level
-     * related information.
-     * @param l the <tt>SoundLevelListener</tt> to remove
-     */
-    public abstract void removeLocalUserAudioLevelListener(
-                                                SimpleAudioLevelListener l);
+    public void setLocalUserAudioLevelListener(
+                                            SimpleAudioLevelListener listener);
 
     /**
      * Starts sending the specified <tt>DTMFTone</tt> until the
