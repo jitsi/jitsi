@@ -478,9 +478,8 @@ public class MediaDeviceSession
      * @return a new <tt>Player</tt> for the specified
      * <tt>receiveStreamDataSource</tt>
      */
-    private Processor createPlayer(
-            ReceiveStream receiveStream,
-            DataSource receiveStreamDataSource)
+    private Processor createPlayer( ReceiveStream receiveStream,
+                                    DataSource receiveStreamDataSource)
     {
         Processor player = null;
         Throwable exception = null;
@@ -509,29 +508,6 @@ public class MediaDeviceSession
                         + receiveStream.getSSRC());
         else
         {
-            // Add sound level indicator for every incoming stream.
-            try
-            {
-                TrackControl tcs[] = player.getTrackControls();
-
-                if (tcs != null)
-                {
-                    for (TrackControl tc : tcs)
-                    {
-                        if (tc.getFormat() instanceof AudioFormat)
-                        {
-                            // Assume there is only one audio track
-                            addSoundLevelIndicator(parentStream, tc);
-                            break;
-                        }
-                    }
-                }
-            }
-            catch (UnsupportedPlugInException upiex)
-            {
-                logger.error("The processor does not support effects", upiex);
-            }
-
             /*
              * To use the processor as a Player we must set its
              * ContentDescriptor to null.
@@ -545,8 +521,7 @@ public class MediaDeviceSession
                 realizeComplete(player);
 
                 if (logger.isTraceEnabled())
-                    logger
-                        .trace(
+                    logger .trace(
                             "Created Player with hashCode "
                                 + player.hashCode()
                                 + " for ReceiveStream with ssrc "
@@ -555,9 +530,7 @@ public class MediaDeviceSession
                 return player;
             }
             else
-                logger
-                    .error(
-                        "Failed to realize player"
+                logger.error( "Failed to realize player"
                             + " for ReceiveStream with ssrc "
                             + receiveStream.getSSRC());
         }
