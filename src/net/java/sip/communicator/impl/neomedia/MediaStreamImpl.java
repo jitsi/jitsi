@@ -167,6 +167,12 @@ public class MediaStreamImpl
         = new Hashtable<Byte, RTPExtension>();
 
     /**
+     * The engine that we are using in order to add CSRC lists in conference
+     * calls, send CSRC sound levels, and handle incoming levels and CSRC lists.
+     */
+    private final CsrcTransformEngine csrcEngine;
+
+    /**
      * Initializes a new <tt>MediaStreamImpl</tt> instance which will use the
      * specified <tt>MediaDevice</tt> for both capture and playback of media
      * exchanged via the specified <tt>StreamConnector</tt>.
@@ -189,7 +195,7 @@ public class MediaStreamImpl
         this.rtpConnector = new RTPTransformConnector(connector);
 
         //register the transform engines that we will be using in this stream.
-        CsrcTransformEngine csrcEngine = new CsrcTransformEngine(this);
+        csrcEngine = new CsrcTransformEngine(this);
 
 
         TransformEngineChain engineChain = new TransformEngineChain(

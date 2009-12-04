@@ -107,7 +107,7 @@ public class AudioMediaStreamImpl
      */
     public void addSoundLevelListener(SoundLevelListener listener)
     {
-        getDeviceSession().addSoundLevelListener(listener);
+        getDeviceSession().addStreamSoundLevelListener(listener);
     }
 
     /**
@@ -192,7 +192,7 @@ public class AudioMediaStreamImpl
      */
     public void removeSoundLevelListener(SoundLevelListener listener)
     {
-        getDeviceSession().addSoundLevelListener(listener);
+        getDeviceSession().addStreamSoundLevelListener(listener);
     }
 
     /**

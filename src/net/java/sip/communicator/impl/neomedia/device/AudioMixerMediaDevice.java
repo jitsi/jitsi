@@ -14,6 +14,8 @@ import javax.media.*;
 import javax.media.protocol.*;
 import javax.media.rtp.*;
 
+import net.java.sip.communicator.impl.neomedia.audiolevel.*;
+import net.java.sip.communicator.impl.neomedia.audiolevel.event.*;
 import net.java.sip.communicator.impl.neomedia.codec.audio.*;
 import net.java.sip.communicator.impl.neomedia.conference.*;
 import net.java.sip.communicator.impl.neomedia.protocol.*;
@@ -60,16 +62,10 @@ public class AudioMixerMediaDevice
     private AudioMixerMediaDeviceSession deviceSession;
 
     /**
-     * A list of listeners registered for local user sound level events.
-     */
-    private final List<SoundLevelListener> localSoundLevelListeners
-        = new Vector<SoundLevelListener>();
-
-    /**
      * The dispatcher of the events, handle the calculation and the event firing
      * in a different thread.
      */
-    private LocalSliEventDispatcher localEventsDispatcher = null;
+    private AudioLevelEventDispatcher localAudioLevelEventDispatcher = null;
 
     /**
      * The <tt>List</tt> of RTP extensions supported by this device (at the time
@@ -77,15 +73,6 @@ public class AudioMixerMediaDevice
      * <tt>null</tt> otherwise).
      */
     private List<RTPExtension> rtpExtensions = null;
-
-    /**
-     * Mapping between threads dispatching events and received streams.
-     * Those threads contain the listeners that are interested for sound level
-     * changes of the particular received stream.
-     */
-    private final Map<ReceiveStream, StreamSliEventDispatcher>
-        streamSoundLevelListeners
-            = new Hashtable<ReceiveStream, StreamSliEventDispatcher>();
 
     /**
      * Initializes a new <tt>AudioMixerMediaDevice</tt> instance which is to
@@ -254,12 +241,13 @@ public class AudioMixerMediaDevice
                          * The audio of the very CaptureDevice to be contributed
                          * to the mix.
                          */
-                        if(localEventsDispatcher == null)
+                        if(localAudioLevelEventDispatcher == null)
                         {
-                            localEventsDispatcher = new LocalSliEventDispatcher();
-                            new Thread(localEventsDispatcher).start();
+                            localAudioLevelEventDispatcher
+                                = new AudioLevelEventDispatcher();
+                            new Thread(localAudioLevelEventDispatcher).start();
                         }
-                        localEventsDispatcher.addData(buffer);
+                        localAudioLevelEventDispatcher.addData(buffer);
                     }
                     else if (dataSource
                             instanceof ReceiveStreamPushBufferDataSource)
@@ -271,12 +259,12 @@ public class AudioMixerMediaDevice
                         ReceiveStream receiveStream
                             = ((ReceiveStreamPushBufferDataSource) dataSource)
                                 .getReceiveStream();
-                        StreamSliEventDispatcher stEvDispatch;
+                        AudioLevelEventDispatcher stEvDispatch;
 
-                        synchronized (streamSoundLevelListeners)
+                        synchronized (streamAudioLevelListeners)
                         {
                             stEvDispatch
-                                = streamSoundLevelListeners.get(receiveStream);
+                                = streamAudioLevelListeners.get(receiveStream);
                         }
 
                         if(stEvDispatch != null)
@@ -462,94 +450,6 @@ public class AudioMixerMediaDevice
                 }
         }
 
-        /**
-         * Adds a specific <tt>SoundLevelListener</tt> to the list of
-         * listeners interested in and notified about changes in local sound level
-         * related information.
-         * @param l the <tt>SoundLevelListener</tt> to add
-         */
-        @Override
-        public void addLocalUserSoundLevelListener(SoundLevelListener l)
-        {
-            synchronized(localSoundLevelListeners)
-            {
-                if (!localSoundLevelListeners.contains(l))
-                    localSoundLevelListeners.add(l);
-            }
-        }
-
-        /**
-         * Removes a specific <tt>SoundLevelListener</tt> of the list of
-         * listeners interested in and notified about changes in local sound level
-         * related information.
-         * @param l the <tt>SoundLevelListener</tt> to remove
-         */
-        @Override
-        public void removeLocalUserSoundLevelListener(SoundLevelListener l)
-        {
-            synchronized(localSoundLevelListeners)
-            {
-                localSoundLevelListeners.remove(l);
-            }
-        }
-
-        /**
-         * Adds <tt>listener</tt> to the list of <tt>SoundLevelListener</tt>s
-         * registered with this <tt>AudioMediaStream</tt> to receive notifications
-         * about changes in the sound levels of the conference participants that the
-         * remote party may be mixing.
-         *
-         * @param receiveStream the received stream for the listener
-         * @param listener the <tt>SoundLevelListener</tt> to register with this
-         * <tt>AudioMediaStream</tt>
-         * @see AudioMediaStream#addSoundLevelListener(SoundLevelListener)
-         */
-        public void addSoundLevelListener(
-            ReceiveStream receiveStream, SoundLevelListener listener)
-        {
-            synchronized(streamSoundLevelListeners)
-            {
-                StreamSliEventDispatcher slls =
-                    streamSoundLevelListeners.get(receiveStream);
-                if(slls == null)
-                {
-                    slls = new StreamSliEventDispatcher();
-                    new Thread(slls).start();
-                    streamSoundLevelListeners.put(receiveStream, slls);
-                }
-
-                slls.addSoundLevelListener(listener);
-            }
-        }
-
-        /**
-         * Removes <tt>listener</tt> from the list of <tt>SoundLevelListener</tt>s
-         * registered with this <tt>AudioMediaStream</tt> to receive notifications
-         * about changes in the sound levels of the conference participants that the
-         * remote party may be mixing.
-         *
-         * @param receiveStream the received stream for the listener
-         * @param listener the <tt>SoundLevelListener</tt> to no longer be notified
-         * by this <tt>AudioMediaStream</tt> about changes in the sound levels of
-         * the conference participants that the remote party may be mixing
-         * @see AudioMediaStream#removeSoundLevelListener(SoundLevelListener)
-         */
-        public void removeSoundLevelListener(
-            ReceiveStream receiveStream, SoundLevelListener listener)
-        {
-            synchronized(streamSoundLevelListeners)
-            {
-                StreamSliEventDispatcher slls =
-                    streamSoundLevelListeners.get(receiveStream);
-                if(slls != null)
-                {
-                    slls.stopped = true;
-                    slls.removeSoundLevelListener(listener);
-                }
-            }
-        }
-    }
-
     /**
      * Represents the work of a <tt>MediaStream</tt> with the
      * <tt>MediaDevice</tt> of an <tt>AudioMixer</tt> and the contribution of
@@ -562,7 +462,7 @@ public class AudioMixerMediaDevice
         /**
          * A list of listeners registered for stream user sound level events.
          */
-        private final List<SoundLevelListener> stSLListeners
+        private final List<SoundLevelListener> streamSndLevelListeners
             = new Vector<SoundLevelListener>();
 
         /**
@@ -626,10 +526,10 @@ public class AudioMixerMediaDevice
             audioMixerMediaDeviceSession
                 .addReceiveStream(receiveStream, receiveStreamDataSource);
 
-            synchronized(stSLListeners)
+            synchronized(streamSndLevelListeners)
             {
-                for(SoundLevelListener sl : stSLListeners)
-                    audioMixerMediaDeviceSession.addSoundLevelListener(
+                for(SoundLevelListener sl : streamSndLevelListeners)
+                    audioMixerMediaDeviceSession.addStreamSoundLevelListener(
                         receiveStream, sl);
             }
 
@@ -750,15 +650,15 @@ public class AudioMixerMediaDevice
          * @see AudioMediaStream#addSoundLevelListener(SoundLevelListener)
          */
         @Override
-        public void addSoundLevelListener(SoundLevelListener listener)
+        public void addStreamSoundLevelListener(SoundLevelListener listener)
         {
-            synchronized(stSLListeners)
+            synchronized(streamSndLevelListeners)
             {
-                if (!stSLListeners.contains(listener))
-                    stSLListeners.add(listener);
+                if (!streamSndLevelListeners.contains(listener))
+                    streamSndLevelListeners.add(listener);
 
                 if(receiveStream != null)
-                    audioMixerMediaDeviceSession.addSoundLevelListener(
+                    audioMixerMediaDeviceSession.addStreamSoundLevelListener(
                         receiveStream, listener);
             }
         }
@@ -795,248 +695,13 @@ public class AudioMixerMediaDevice
         @Override
         public void removeSoundLevelListener(SoundLevelListener listener)
         {
-            synchronized(stSLListeners)
+            synchronized(streamSndLevelListeners)
             {
-                stSLListeners.remove(listener);
+                streamSndLevelListeners.remove(listener);
 
                 if(receiveStream != null)
                     audioMixerMediaDeviceSession.removeSoundLevelListener(
                         receiveStream, listener);
-            }
-        }
-    }
-
-    /**
-     * We use different thread to compute and deliver sound levels
-     * so we wont delay the media processing thread.
-     * This thread is for local sound events.
-     */
-    private class LocalSliEventDispatcher
-        implements Runnable
-    {
-        /**
-         * start/stop indicator.
-         */
-        boolean stopped = true;
-
-        /**
-         * The data to process.
-         */
-        byte[] data = null;
-
-        /**
-         * This is the last level we fired.
-         */
-        private int lastLevel = 0;
-
-        /**
-         * Runs the actual sound level calculations.
-         */
-        public void run()
-        {
-            stopped = false;
-            while(!stopped)
-            {
-                byte[] dataToProcess = null;
-                synchronized(this)
-                {
-                    if(data == null)
-                        try {
-                            wait();
-                        } catch (InterruptedException ie) {}
-
-                    dataToProcess = data;
-                    data = null;
-                }
-
-                if(dataToProcess != null)
-                {
-                    int newLevel =
-                        SoundLevelIndicatorEffect.calculateCurrentSignalPower(
-                            dataToProcess, 0, dataToProcess.length,
-                            SoundLevelChangeEvent.MAX_LEVEL,
-                            SoundLevelChangeEvent.MIN_LEVEL,
-                            lastLevel);
-
-                    Map<Long,Integer> lev = new HashMap<Long, Integer>();
-
-                    lev.put(deviceSession.getParentStream().getLocalSourceID(),
-                        newLevel);
-                    SoundLevelChangeEvent soundLevelEvent
-                        = new SoundLevelChangeEvent(
-                            deviceSession.getParentStream(),
-                            lev);
-
-                    List<SoundLevelListener> listeners;
-
-                    synchronized (localSoundLevelListeners)
-                    {
-                        listeners = new ArrayList<SoundLevelListener>(
-                            localSoundLevelListeners);
-                    }
-
-                    for (Iterator<SoundLevelListener> listenerIter
-                            = listeners.iterator(); listenerIter.hasNext();)
-                    {
-                        listenerIter.next().soundLevelChanged(soundLevelEvent);
-                    }
-
-                    lastLevel = newLevel;
-                }
-            }
-        }
-
-        /**
-         * Adds data to be processed.
-         *
-         * @param buffer the data that we'd like to add to the queue.
-         *
-         */
-        synchronized void addData(Buffer buffer)
-        {
-            byte[] data = new byte[buffer.getLength()];
-            System.arraycopy(
-                buffer.getData(), buffer.getOffset(), data, 0, data.length);
-
-            this.data = data;
-            notifyAll();
-        }
-    }
-
-    /**
-     * We use different thread to compute and deliver sound levels
-     * so we wont delay the media processing thread.
-     * This thread is for stream sound events.
-     */
-    private class StreamSliEventDispatcher
-        implements Runnable
-    {
-        /**
-         * The listeners we dispatch.
-         */
-        private final List<SoundLevelListener> stSoundLevelListeners
-            = new Vector<SoundLevelListener>();
-
-        /**
-         * start/stop indicator.
-         */
-        boolean stopped = true;
-
-        /**
-         * The data to process.
-         */
-        byte[] data = null;
-
-        /**
-         * This is the last level we fired.
-         */
-        private int lastLevel = 0;
-
-        /**
-         * Runs the actual audio level calculations.
-         */
-        public void run()
-        {
-            stopped = false;
-            while(!stopped)
-            {
-                byte[] dataToProcess = null;
-
-                synchronized (this)
-                {
-                    boolean interrupted = false;
-
-                    while (data == null)
-                        try
-                        {
-                            wait();
-                        }
-                        catch (InterruptedException ie)
-                        {
-                            interrupted = true;
-                        }
-                    if (interrupted)
-                        Thread.currentThread().interrupt();
-
-                    dataToProcess = data;
-                    data = null;
-                }
-
-                if(dataToProcess != null)
-                {
-                    int newLevel =
-                        SoundLevelIndicatorEffect.calculateCurrentSignalPower(
-                            dataToProcess, 0, dataToProcess.length,
-                            SoundLevelChangeEvent.MAX_LEVEL,
-                            SoundLevelChangeEvent.MIN_LEVEL,
-                            lastLevel);
-
-                    Map<Long,Integer> lev = new HashMap<Long, Integer>();
-                    MediaStream parentStream = deviceSession.getParentStream();
-
-                    lev.put(parentStream.getRemoteSourceID(), newLevel);
-
-                    SoundLevelChangeEvent soundLevelEvent
-                        = new SoundLevelChangeEvent(
-                                parentStream,
-                                lev);
-
-                    List<SoundLevelListener> listeners;
-
-                    synchronized (stSoundLevelListeners)
-                    {
-                        listeners
-                            = new ArrayList<SoundLevelListener>(
-                                    stSoundLevelListeners);
-                    }
-
-                    for (SoundLevelListener listener : listeners)
-                        listener.soundLevelChanged(soundLevelEvent);
-
-                    lastLevel = newLevel;
-                }
-            }
-        }
-
-        /**
-         * Adds data to be processed.
-         *
-         * @param buffer the data that we'd like to queue for processing.
-         */
-        synchronized void addData(Buffer buffer)
-        {
-            byte[] data = new byte[buffer.getLength()];
-            System.arraycopy(
-                buffer.getData(), buffer.getOffset(), data, 0, data.length);
-
-            this.data = data;
-            notifyAll();
-        }
-
-        /**
-         * Adds new listener.
-         *
-         * @param l the listener.
-         */
-        void addSoundLevelListener(SoundLevelListener l)
-        {
-            synchronized(stSoundLevelListeners)
-            {
-                if (!stSoundLevelListeners.contains(l))
-                    stSoundLevelListeners.add(l);
-            }
-        }
-
-        /**
-         * Removes a listener.
-         *
-         * @param l the listener.
-         */
-        void removeSoundLevelListener(SoundLevelListener l)
-        {
-            synchronized(stSoundLevelListeners)
-            {
-                stSoundLevelListeners.remove(l);
             }
         }
     }

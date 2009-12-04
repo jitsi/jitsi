@@ -17,6 +17,8 @@ import javax.media.protocol.*;
 import javax.media.rtp.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
+import net.java.sip.communicator.impl.neomedia.audiolevel.*;
+import net.java.sip.communicator.impl.neomedia.audiolevel.event.*;
 import net.java.sip.communicator.impl.neomedia.codec.audio.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.impl.neomedia.protocol.*;
@@ -163,23 +165,6 @@ public class MediaDeviceSession
     private MediaDirection startedDirection = MediaDirection.INACTIVE;
 
     /**
-     * The <tt>MediaStream</tt> that created us.
-     */
-    private MediaStream parentStream = null;
-
-    /**
-     * A list of listeners registered for local user sound level events.
-     */
-    private final List<SoundLevelListener> localSoundLevelListeners
-        = new Vector<SoundLevelListener>();
-
-    /**
-     * A list of listeners registered for stream user sound level events.
-     */
-    private final List<SoundLevelListener> streamSoundLevelListeners
-        = new Vector<SoundLevelListener>();
-
-    /**
      * Initializes a new <tt>MediaDeviceSession</tt> instance which is to
      * represent the use of a specific <tt>MediaDevice</tt> by a
      * <tt>MediaStream</tt>.
@@ -303,62 +288,6 @@ public class MediaDeviceSession
     }
 
     /**
-     * Creates sound level indicator effect and add it to the codec chain of the
-     * <tt>TrackControl</tt> and assumes there is only one audio track.
-     *
-     * @param tc the track control.
-     * @throws UnsupportedPlugInException
-     */
-    private void addLocalSoundLevelIndicator(TrackControl tc)
-            throws UnsupportedPlugInException
-    {
-        SoundLevelIndicatorEffect slie = new SoundLevelIndicatorEffect(
-            SoundLevelChangeEvent.MIN_LEVEL,
-            SoundLevelChangeEvent.MAX_LEVEL,
-            new SoundLevelIndicatorEffect.SoundLevelIndicatorListener()
-            {
-                public void soundLevelChanged(int level)
-                {
-                    fireLocalUserSoundLevelEvent(level);
-                }
-            });
-        // Assume there is only one audio track
-        tc.setCodecChain(new Codec[]{slie});
-    }
-
-    /**
-     * Adds sound level indicator to the track and fire events to the listeners
-     * from the <tt>MediaStream</tt>.
-     * @param mediaStream the media stream
-     * @param tc the TrackControl
-     * @throws UnsupportedPlugInException
-     */
-    private void addSoundLevelIndicator(MediaStream mediaStream, TrackControl tc)
-        throws UnsupportedPlugInException
-    {
-        if(mediaStream == null || !(mediaStream instanceof AudioMediaStreamImpl))
-            return;
-
-        final AudioMediaStreamImpl aStream = (AudioMediaStreamImpl)mediaStream;
-
-        if(streamSoundLevelListeners.size() == 0)
-            return;
-
-        SoundLevelIndicatorEffect slie = new SoundLevelIndicatorEffect(
-            SoundLevelChangeEvent.MIN_LEVEL,
-            SoundLevelChangeEvent.MAX_LEVEL,
-            new SoundLevelIndicatorEffect.SoundLevelIndicatorListener()
-            {
-                public void soundLevelChanged(int level)
-                {
-                    fireStreamSoundLevelEvent(level);
-                }
-            });
-        // Assume there is only one audio track
-        tc.setCodecChain(new Codec[]{slie});
-    }
-
-    /**
      * For JPEG and H263, we know that they only work for particular sizes.  So
      * we'll perform extra checking here to make sure they are of the right
      * sizes.
@@ -376,12 +305,10 @@ public class MediaDeviceSession
             Dimension size = sourceFormat.getSize();
 
             // For JPEG, make sure width and height are divisible by 8.
-            width
-                = (size.width % 8 == 0)
+            width = (size.width % 8 == 0)
                     ? size.width
                     : ((size.width / 8) * 8);
-            height
-                = (size.height % 8 == 0)
+            height = (size.height % 8 == 0)
                     ? size.height
                     : ((size.height / 8) * 8);
         }
@@ -687,6 +614,21 @@ public class MediaDeviceSession
             for (Processor player : getPlayers())
                 disposePlayer(player);
         }
+    }
+
+    /**
+     * Returns the <tt>Processor</tt> associated with the specified
+     * <tt>dataSource</tt> or <tt>null</tt> if there isn't one.
+     *
+     * @param dataSource the <tt>DataSource</tt> whose processor we are trying
+     * to obtain.
+     *
+     * @return the <tt>Processor</tt> associated with the specified
+     * <tt>dataSource</tt> or <tt>null</tt> if there isn't one.
+     */
+    protected Processor getPlayer(DataSource dataSource)
+    {
+        return players.get(dataSource);
     }
 
     /**
@@ -1093,7 +1035,7 @@ public class MediaDeviceSession
                             for (TrackControl tc : tcs)
                                 if (tc.getFormat() instanceof AudioFormat)
                                 {
-                                    addLocalSoundLevelIndicator(tc);
+                                    registerLocalAudioLevelJMFEffect(tc);
                                     break;
                                 }
                     }
@@ -1488,148 +1430,6 @@ public class MediaDeviceSession
     public void setParentStream(MediaStream parentStream)
     {
         this.parentStream = parentStream;
-    }
-
-    /**
-     * Returns the parent <tt>MediaStream</tt> that created us.
-     *
-     * @return the parentStream that created us.
-     */
-    public MediaStream getParentStream()
-    {
-        return this.parentStream;
-    }
-
-    /**
-     * Adds a specific <tt>SoundLevelListener</tt> to the list of
-     * listeners interested in and notified about changes in local sound level
-     * related information.
-     * @param l the <tt>SoundLevelListener</tt> to add
-     */
-    public void addLocalUserSoundLevelListener(SoundLevelListener l)
-    {
-        synchronized(localSoundLevelListeners)
-        {
-            if (!localSoundLevelListeners.contains(l))
-                localSoundLevelListeners.add(l);
-        }
-    }
-
-    /**
-     * Removes a specific <tt>SoundLevelListener</tt> of the list of
-     * listeners interested in and notified about changes in local sound level
-     * related information.
-     * @param l the <tt>SoundLevelListener</tt> to remove
-     */
-    public void removeLocalUserSoundLevelListener(SoundLevelListener l)
-    {
-        synchronized(localSoundLevelListeners)
-        {
-            localSoundLevelListeners.remove(l);
-        }
-    }
-
-    /**
-     * Creates and dispatches a <tt>SoundLevelEvent</tt> notifying
-     * registered listeners that the local user sound level has changed.
-     *
-     * @param level the new level
-     */
-    void fireLocalUserSoundLevelEvent(int level)
-    {
-        // If no local ssrc give up
-        if(parentStream.getLocalSourceID() == 0)
-            return;
-
-        Map<Long,Integer> lev = new HashMap<Long, Integer>();
-        lev.put(parentStream.getLocalSourceID(), level);
-        SoundLevelChangeEvent soundLevelEvent
-            = new SoundLevelChangeEvent(parentStream,lev);
-
-        List<SoundLevelListener> listeners;
-
-        synchronized (localSoundLevelListeners)
-        {
-            listeners =
-                new ArrayList<SoundLevelListener>(localSoundLevelListeners);
-        }
-
-        for (Iterator<SoundLevelListener> listenerIter
-                = listeners.iterator(); listenerIter.hasNext();)
-        {
-            SoundLevelListener listener = listenerIter.next();
-
-            listener.soundLevelChanged(soundLevelEvent);
-        }
-    }
-
-    /**
-     * Adds <tt>listener</tt> to the list of <tt>SoundLevelListener</tt>s
-     * registered with this <tt>AudioMediaStream</tt> to receive notifications
-     * about changes in the sound levels of the conference participants that the
-     * remote party may be mixing.
-     *
-     * @param listener the <tt>SoundLevelListener</tt> to register with this
-     * <tt>AudioMediaStream</tt>
-     * @see AudioMediaStream#addSoundLevelListener(SoundLevelListener)
-     */
-    public void addSoundLevelListener(SoundLevelListener listener)
-    {
-        synchronized(streamSoundLevelListeners)
-        {
-            if (!streamSoundLevelListeners.contains(listener))
-                streamSoundLevelListeners.add(listener);
-        }
-    }
-
-    /**
-     * Removes <tt>listener</tt> from the list of <tt>SoundLevelListener</tt>s
-     * registered with this <tt>AudioMediaStream</tt> to receive notifications
-     * about changes in the sound levels of the conference participants that the
-     * remote party may be mixing.
-     *
-     * @param listener the <tt>SoundLevelListener</tt> to no longer be notified
-     * by this <tt>AudioMediaStream</tt> about changes in the sound levels of
-     * the conference participants that the remote party may be mixing
-     * @see AudioMediaStream#removeSoundLevelListener(SoundLevelListener)
-     */
-    public void removeSoundLevelListener(SoundLevelListener listener)
-    {
-        synchronized(streamSoundLevelListeners)
-        {
-            streamSoundLevelListeners.remove(listener);
-        }
-    }
-
-    /**
-     * Fires a <tt>StreamSoundLevelEvent</tt> and notifies all registered
-     * listeners.
-     *
-     * @param level the new sound level
-     */
-    public void fireStreamSoundLevelEvent(int level)
-    {
-        // If no remote ssrc give up
-        if(parentStream.getRemoteSourceID() == 0)
-            return;
-
-        Map<Long,Integer> lev = new HashMap<Long, Integer>();
-        lev.put(parentStream.getLocalSourceID(), level);
-        SoundLevelChangeEvent event
-            = new SoundLevelChangeEvent(parentStream, lev);
-
-        SoundLevelListener[] ls;
-
-        synchronized(streamSoundLevelListeners)
-        {
-            ls = streamSoundLevelListeners.toArray(
-                new SoundLevelListener[streamSoundLevelListeners.size()]);
-        }
-
-        for (SoundLevelListener listener : ls)
-        {
-            listener.soundLevelChanged(event);
-        }
     }
 
     /**
