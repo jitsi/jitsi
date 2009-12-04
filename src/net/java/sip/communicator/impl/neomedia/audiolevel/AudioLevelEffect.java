@@ -38,12 +38,12 @@ public class AudioLevelEffect
     /**
      * The maximum level we can get as a result after compute.
      */
-    private static int MAX_AUDIO_LEVEL = 255;
+    private static int MAX_AUDIO_LEVEL = Short.MAX_VALUE;
 
     /**
      * The minimum level we can get as a result after compute.
      */
-    private static int MIN_AUDIO_LEVEL = 0;
+    private static int MIN_AUDIO_LEVEL = Short.MIN_VALUE;
 
     /**
      * The listener for the levels.
