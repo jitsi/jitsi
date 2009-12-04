@@ -16,6 +16,7 @@ import javax.sip.header.*;
 import javax.sip.message.*;
 
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
+import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -28,7 +29,8 @@ import net.java.sip.communicator.util.*;
  */
 public class CallPeerSipImpl
     extends AbstractCallPeer
-    implements CallChangeListener
+    implements SimpleAudioLevelListener,
+               CallPeerConferenceListener
 {
     /**
      * Our class logger.
@@ -119,14 +121,11 @@ public class CallPeerSipImpl
             = new LinkedList<PropertyChangeListener>();
 
     /**
-     * Holds the wrapped SoundLevelListener
-     * and their wrappers.
+     * Holds listeners registered for level changes in the audio we are getting
+     * from the remote participant.
      */
-    private Hashtable<
-                SoundLevelListener,SoundLevelListenerWrapperForStream>
-        streamSoundLevelListeners =
-            new Hashtable<
-                SoundLevelListener,SoundLevelListenerWrapperForStream>();
+    private List<SoundLevelListener> streamAudioLevelListeners
+        = new ArrayList<SoundLevelListener>();
 
     /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
@@ -158,7 +157,7 @@ public class CallPeerSipImpl
 
         // we listen fr events when the call will become focus or not
         // of a conference so we will add or remove our sound level listeners
-        this.call.addCallChangeListener(this);
+        super.addCallPeerConferenceListener(this);
     }
 
     /**
@@ -1682,30 +1681,31 @@ public class CallPeerSipImpl
     }
 
     /**
-     * Adds a specific <tt>SoundLevelListener</tt> to the list of
-     * listeners interested in and notified about changes in stream sound level
-     * related information.
+     * Adds a specific <tt>SoundLevelListener</tt> to the list of listeners
+     * interested in and notified about changes in the sound level of the audio
+     * sent by the remote party. When the first listener is being registered
+     * the method also registers its single listener with the media handler so
+     * that it would receive level change events and delegate them to the listeners
+     * that have registered with us.
      *
      * @param listener the <tt>SoundLevelListener</tt> to add
      */
     public void addStreamSoundLevelListener(SoundLevelListener listener)
     {
-        // if we are not conference focus we just save the listeners
-        // if we become focus we must add them.
-        SoundLevelListenerWrapperForStream sli =
-            new SoundLevelListenerWrapperForStream(listener);
-
-        // we must be focus and the other side must not be focus
-        // or we must be in a case with only one peer
-        // and the other peer is not focus
-        // in order to listen to the stream
-        if(call.getCallPeerCount() == 1
-                ||(call.isConferenceFocus() && !isConferenceFocus()))
-            getMediaHandler().addStreamSoundLevelListener(sli);
-
-        synchronized(streamSoundLevelListeners)
+        synchronized (streamAudioLevelListeners)
         {
-            streamSoundLevelListeners.put(listener, sli);
+
+            if (streamAudioLevelListeners.size() == 0)
+            {
+                // if this is the first listener that's being registered with
+                // us, we also need to register ourselves as an audio level
+                // listener with the media handler. we do this so that audio
+                // levels would only be calculated if anyone is interested in
+                // receiving them.
+                getMediaHandler().setStreamAudioLevelListener(this);
+            }
+
+            streamAudioLevelListeners.add(listener);
         }
     }
 
@@ -1718,16 +1718,18 @@ public class CallPeerSipImpl
      */
     public void removeStreamSoundLevelListener(SoundLevelListener listener)
     {
-        SoundLevelListenerWrapperForStream sli = null;
-
-        synchronized(streamSoundLevelListeners)
+        synchronized (streamAudioLevelListeners)
         {
-            sli = streamSoundLevelListeners.remove(listener);
-        }
+            streamAudioLevelListeners.remove(listener);
 
-        if(sli != null && (call.getCallPeerCount() == 1 ||
-                (call.isConferenceFocus() && !isConferenceFocus())))
-            getMediaHandler().removeStreamSoundLevelListener(sli);
+            if (streamAudioLevelListeners.size() == 0)
+            {
+                // if this was the last listener then we also need to remove
+                // ourselves as an audio level so that audio levels would only
+                // be calculated if anyone is interested in receiving them.
+                getMediaHandler().setStreamAudioLevelListener(null);
+            }
+        }
     }
 
     /**
@@ -1770,86 +1772,78 @@ public class CallPeerSipImpl
     {}
 
     /**
-     * Indicates that a change has occurred in the state of the source call.
+     * Called when this peer becomes or stops being a conference focus, this
+     * method adds or removes stream listeners because the levels they deliver
+     * no longer represent the level of a particular member. The method
+     * therefore replaces them (if supported by the peer) with a conference
+     * member audio level listener.
      *
-     * @param evt the <tt>CallChangeEvent</tt> instance containing the source
-     * calls and its old and new state.
+     * @param evt a <tt>CallPeerConferenceEvent</tt> with ID
+     * <tt>CallPeerConferenceEvent#CONFERENCE_FOCUS_CHANGED</tt> and no
+     * associated <tt>ConferenceMember</tt>
      */
-    public void callStateChanged(CallChangeEvent evt)
+    public void conferenceFocusChanged(CallPeerConferenceEvent evt)
     {
-        // we are only interested in CALL_FOCUS_CHANGE
-        if(!evt.getEventType().equals(CallChangeEvent.CALL_FOCUS_CHANGE))
+        //we are only interested in CONFERENCE_FOCUS_CHANGED
+        if(evt.getEventID() != CallPeerConferenceEvent.CONFERENCE_FOCUS_CHANGED)
             return;
 
-        if(!evt.getSourceCall().equals(call))
+        if (evt.getSourceCallPeer() != this)
             return;
 
-        if(call.isConferenceFocus())
+        if (isConferenceFocus())
         {
-            if(!isConferenceFocus())
-            {
-                // we are focus and the remote part is not focus lets
-                // listen the stream
-                synchronized(streamSoundLevelListeners)
-                {
-                    for(SoundLevelListenerWrapperForStream sli :
-                            streamSoundLevelListeners.values())
-                        getMediaHandler().addStreamSoundLevelListener(sli);
-                }
-            }
+            // this peer is now a conference focus so we need to remove the
+            //stream  level listeners, and
+
         }
         else
         {
             // our call became from focus to not focus
             // lets remove listeners if any
-            synchronized(streamSoundLevelListeners)
-            {
-                for(SoundLevelListenerWrapperForStream sli :
-                        streamSoundLevelListeners.values())
-                    getMediaHandler().removeStreamSoundLevelListener(sli);
-            }
+
         }
     }
 
     /**
-     * Wraps SoundLevelListener and convert its event to
-     * StreamSoundLevelEvent events to be delivered to
-     * StreamSoundLevelListener.
+     * Dummy implementation of {@link CallPeerConferenceListener
+     * #conferenceFocusChanged(CallPeerConferenceEvent)}.
+     *
+     * @param conferenceEvent ignored
      */
-    private class SoundLevelListenerWrapperForStream
-        implements net.java.sip.communicator.service.neomedia.event.SoundLevelListener
+    public void conferenceMemberAdded(CallPeerConferenceEvent conferenceEvent)
     {
-        /**
-         * The wrapped listener.
-         */
-        private SoundLevelListener listener;
 
-        /**
-         * Create the wrapper.
-         * @param listener
-         */
-        public SoundLevelListenerWrapperForStream(
-            SoundLevelListener listener)
+    }
+
+    /**
+     * Dummy implementation of {@link CallPeerConferenceListener
+     * #conferenceMemberRemoved(CallPeerConferenceEvent)}.
+     *
+     * @param conferenceEvent ignored
+     */
+    public void conferenceMemberRemoved(CallPeerConferenceEvent conferenceEvent)
+    {
+
+    }
+
+    /**
+     * Notified by its very majesty the media service about changes in the
+     * audio level of the stream coming from this peer, this method generates
+     * the corresponding events and delivers them to the listeners that have
+     * registered here.
+     *
+     * @param newLevel the new audio level of the local user.
+     */
+    public void audioLevelChanged(int newLevel)
+    {
+        SoundLevelChangeEvent evt
+            = new SoundLevelChangeEvent(this, newLevel);
+
+        synchronized( streamAudioLevelListeners )
         {
-            this.listener = listener;
-        }
-
-        /**
-         * Receives <tt>SoundLevelChangeEvent</tt>s and converts them to
-         * <tt>StreamSoundLevelEvent</tt> and fires them.
-         *
-         * @param evt the notification event containing the list of changes.
-         */
-        public void soundLevelChanged(
-            net.java.sip.communicator.service.neomedia.event.SoundLevelChangeEvent evt)
-        {
-            Map<Long,Integer> levels = evt.getLevels();
-
-            if(!levels.isEmpty())
-                listener.soundLevelChanged(
-                    new SoundLevelChangeEvent(
-                        CallPeerSipImpl.this,
-                        levels.values().iterator().next()));
+            for(SoundLevelListener listener : streamAudioLevelListeners)
+                 listener.soundLevelChanged(evt);
         }
     }
 }

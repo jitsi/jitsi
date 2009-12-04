@@ -10,8 +10,8 @@ import java.util.*;
 
 /**
  * Represents a listener of changes in the conference-related information of
- * <code>CallPeer</code> delivered in the form of
- * <code>CallPeerConferenceEvent</code>s.
+ * <tt>CallPeer</tt> delivered in the form of
+ * <tt>CallPeerConferenceEvent</tt>s.
  *
  * @author Lubomir Marinov
  */
@@ -21,43 +21,42 @@ public interface CallPeerConferenceListener
 
     /**
      * Notifies this listener about a change in the characteristic of being a
-     * conference focus of a specific <code>CallPeer</code>.
+     * conference focus of a specific <tt>CallPeer</tt>.
      *
      * @param conferenceEvent
-     *            a <code>CallPeerConferenceEvent</code> with ID
-     *            <code>CallPeerConferenceEvent#CONFERENCE_FOCUS_CHANGED</code>
-     *            and no associated <code>ConferenceMember</code>
+     *            a <tt>CallPeerConferenceEvent</tt> with ID
+     *            <tt>CallPeerConferenceEvent#CONFERENCE_FOCUS_CHANGED</tt>
+     *            and no associated <tt>ConferenceMember</tt>
      */
     public void conferenceFocusChanged(
         CallPeerConferenceEvent conferenceEvent);
 
     /**
      * Notifies this listener about the addition of a specific
-     * <code>ConferenceMember</code> to the list of
-     * <code>ConferenceMember</code>s of a specific <code>CallPeer</code>
+     * <tt>ConferenceMember</tt> to the list of
+     * <tt>ConferenceMember</tt>s of a specific <tt>CallPeer</tt>
      * acting as a conference focus.
      *
      * @param conferenceEvent
-     *            a <code>CallPeerConferenceEvent</code> with ID
-     *            <code>CallPeerConferenceEvent#CONFERENCE_MEMBER_ADDED</code>
-     *            and <code>conferenceMember</code> property specifying the
-     *            <code>ConferenceMember</code> which was added
+     *            a <tt>CallPeerConferenceEvent</tt> with ID
+     *            <tt>CallPeerConferenceEvent#CONFERENCE_MEMBER_ADDED</tt>
+     *            and <tt>conferenceMember</tt> property specifying the
+     *            <tt>ConferenceMember</tt> which was added
      */
     public void conferenceMemberAdded(
         CallPeerConferenceEvent conferenceEvent);
 
     /**
      * Notifies this listener about the removal of a specific
-     * <code>ConferenceMember</code> from the list of
-     * <code>ConferenceMember</code>s of a specific <code>CallPeer</code>
+     * <tt>ConferenceMember</tt> from the list of
+     * <tt>ConferenceMember</tt>s of a specific <tt>CallPeer</tt>
      * acting as a conference focus.
      *
      * @param conferenceEvent
-     *            a <code>CallPeerConferenceEvent</code> with ID
-     *            <code>CallPeerConferenceEvent#CONFERENCE_MEMBER_REMOVED</code>
-     *            and <code>conferenceMember</code> property specifying the
-     *            <code>ConferenceMember</code> which was removed
+     *            a <tt>CallPeerConferenceEvent</tt> with ID
+     *            <tt>CallPeerConferenceEvent#CONFERENCE_MEMBER_REMOVED</tt>
+     *            and <tt>conferenceMember</tt> property specifying the
+     *            <tt>ConferenceMember</tt> which was removed
      */
-    public void conferenceMemberRemoved(
-        CallPeerConferenceEvent conferenceEvent);
+    public void conferenceMemberRemoved(CallPeerConferenceEvent conferenceEvent);
 }

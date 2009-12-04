@@ -15,6 +15,20 @@ package net.java.sip.communicator.service.neomedia.event;
 public interface SimpleAudioLevelListener
 {
     /**
+     * The maximum level that can be reported for a participant in a conference.
+     * Level values should be distributed among MAX_LEVEL and MIN_LEVEL in a
+     * way that would appear uniform to users.
+     */
+    public static final int MAX_LEVEL = 255;
+
+    /**
+     * The maximum (zero) level that can be reported for a participant in a
+     * conference. Level values should be distributed among MAX_LEVEL and
+     * MIN_LEVEL in a way that would appear uniform to users.
+     */
+    public static final int MIN_LEVEL = 0;
+
+    /**
      * Indicates a new audio level for the source that this listener was
      * registered with.
      * @param level the new/current level of the audio source that this

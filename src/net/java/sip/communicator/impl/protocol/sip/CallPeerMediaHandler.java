@@ -14,7 +14,10 @@ import javax.sdp.*;
 
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
 import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.neomedia.event.SoundLevelListener;
+
+//disambiguates VideoListener which is also available in protocol.event
+import net.java.sip.communicator.service.neomedia.event.SimpleAudioLevelListener;
+
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.netaddr.*;
@@ -187,16 +190,16 @@ public class CallPeerMediaHandler
         = new DynamicRTPExtensionsRegistry();
 
     /**
-     * A list of listeners registered for local user sound level events.
+     * The listener that the <tt>CallPeer</tt> registered for local user audio
+     * level events.
      */
-    private final List<SoundLevelListener> localSoundLevelListeners
-        = new Vector<SoundLevelListener>();
+    private SimpleAudioLevelListener localAudioLevelListener = null;
 
     /**
-     * A list of listeners registered for stream sound level events.
+     * The listener that our <tt>CallPeer</tt> registered for stream audio
+     * level events.
      */
-    private final List<SoundLevelListener> streamSoundLevelListeners
-        = new Vector<SoundLevelListener>();
+    private SimpleAudioLevelListener streamAudioLevelListener = null;
 
     /**
      * Creates a new handler that will be managing media streams for
@@ -712,26 +715,23 @@ public class CallPeerMediaHandler
         {
             this.audioStream = (AudioMediaStream)stream;
 
-            // now if we had already add soundlevel listeners
-            // add them to the stream
-            synchronized (localSoundLevelListeners)
+            // if we already have a local level listener - register it now.
+            synchronized (localAudioLevelListener)
             {
-                for (Iterator<SoundLevelListener> listenerIter
-                    = localSoundLevelListeners.iterator();
-                    listenerIter.hasNext();)
+                if (localAudioLevelListener != null)
                 {
-                    SoundLevelListener listener = listenerIter.next();
-                    this.audioStream.addLocalUserAudioLevelListener(listener);
+                    audioStream.setLocalUserAudioLevelListener(
+                                    localAudioLevelListener);
                 }
             }
-            synchronized (streamSoundLevelListeners)
+
+            // if we already have a stream level listener - register it now.
+            synchronized (streamAudioLevelListener)
             {
-                for (Iterator<SoundLevelListener> listenerIter
-                    = streamSoundLevelListeners.iterator();
-                    listenerIter.hasNext();)
+                if (streamAudioLevelListener != null)
                 {
-                    SoundLevelListener listener = listenerIter.next();
-                    this.audioStream.addStreamAudioLevelListener(listener);
+                    audioStream.setStreamAudioLevelListener(
+                                    streamAudioLevelListener);
                 }
             }
         }
@@ -1592,76 +1592,53 @@ public class CallPeerMediaHandler
     }
 
     /**
-     * Adds the given <tt>SoundLevelListener</tt> to this operation set.
-     * @param l the <tt>SoundLevelListener</tt> to add
-     */
-    void addLocalUserSoundLevelListener(SoundLevelListener l)
-    {
-        synchronized(localSoundLevelListeners)
-        {
-            if (!localSoundLevelListeners.contains(l))
-                localSoundLevelListeners.add(l);
-        }
-
-        if(audioStream != null)
-        {
-            audioStream.addLocalUserAudioLevelListener(l);
-        }
-    }
-
-    /**
-     * Removes the given <tt>SoundLevelListener</tt> from this
-     * operation set.
-     * @param l the <tt>SoundLevelListener</tt> to remove
-     */
-    void removeLocalUserSoundLevelListener(SoundLevelListener l)
-    {
-        synchronized(localSoundLevelListeners)
-        {
-            localSoundLevelListeners.remove(l);
-        }
-
-        if(audioStream != null)
-            audioStream.removeLocalUserSoundLevelListener(l);
-    }
-
-    /**
-     * Adds a specific <tt>StreamSoundLevelListener</tt> to the list of
-     * listeners interested in and notified about changes in stream sound level
-     * related information.
+     * If the local <tt>AudioMediaStream</tt> has already been created, sets
+     * <tt>listener</tt> as the <tt>SimpleAudioLevelListener</tt> that it should
+     * notify for local user level events. Otherwise stores a reference to
+     * <tt>listener</tt> so that we could add it once we create the stream.
      *
-     * @param listener the <tt>StreamSoundLevelListener</tt> to add
+     * @param listener the <tt>SimpleAudioLevelListener</tt> to add or
+     * <tt>null</tt> if we are trying to remove it.
      */
-    void addStreamSoundLevelListener(SoundLevelListener listener)
+    public void setLocalUserAudioLevelListener(
+                                            SimpleAudioLevelListener listener)
     {
-        synchronized(streamSoundLevelListeners)
+        synchronized(localAudioLevelListener)
         {
-            if (!streamSoundLevelListeners.contains(listener))
-                streamSoundLevelListeners.add(listener);
-        }
+            //first add the listener to the stream and only then change the
+            //local ref or otherwise our synch is pointless.
+            if(audioStream != null)
+            {
+                audioStream.setLocalUserAudioLevelListener(listener);
+            }
 
-        if(audioStream != null)
-        {
-            audioStream.addStreamAudioLevelListener(listener);
+            this.localAudioLevelListener = listener;
         }
     }
 
     /**
-     * Removes a specific <tt>StreamSoundLevelListener</tt> of the list of
-     * listeners interested in and notified about changes in stream sound level
-     * related information.
+     * If the local <tt>AudioMediaStream</tt> has already been created, sets
+     * <tt>listener</tt> as the <tt>SimpleAudioLevelListener</tt> that it should
+     * notify for stream user level events. Otherwise stores a reference to
+     * <tt>listener</tt> so that we could add it once we create the stream.
      *
-     * @param listener the <tt>StreamSoundLevelListener</tt> to remove
+     * @param listener the <tt>SimpleAudioLevelListener</tt> to add or
+     * <tt>null</tt> if we are trying to remove it.
+     *
      */
-    void removeStreamSoundLevelListener(SoundLevelListener listener)
+    public void setStreamAudioLevelListener(SimpleAudioLevelListener listener)
     {
-        synchronized(streamSoundLevelListeners)
+        synchronized(streamAudioLevelListener)
         {
-            streamSoundLevelListeners.remove(listener);
-        }
+            //first add the listener to the stream and only then change the
+            //local ref or otherwise our synch is pointless.
+            if(audioStream != null)
+            {
+                audioStream.setStreamAudioLevelListener(listener);
+            }
 
-        if(audioStream != null)
-            audioStream.removeStreamAudioLevelListener(listener);
+            this.streamAudioLevelListener = listener;
+        }
     }
 
     /**
@@ -1672,7 +1649,7 @@ public class CallPeerMediaHandler
      * @param listener the <tt>ConferenceMembersSoundLevelListener</tt> to add
      */
     public void addConferenceMembersSoundLevelListener(
-        SoundLevelListener listener)
+                                                SoundLevelListener listener)
     {
 
     }
@@ -1686,7 +1663,7 @@ public class CallPeerMediaHandler
      * remove
      */
     public void removeConferenceMembersSoundLevelListener(
-        SoundLevelListener listener)
+                                                SoundLevelListener listener)
     {
 
     }
