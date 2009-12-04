@@ -6,11 +6,9 @@
  */
 package net.java.sip.communicator.impl.neomedia.portaudio.streams;
 
-import net.java.sip.communicator.impl.neomedia.portaudio.PortAudioManager;
-import net.java.sip.communicator.impl.neomedia.portaudio.PortAudio;
-import net.java.sip.communicator.impl.neomedia.portaudio.PortAudioException;
 import java.util.*;
-import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.portaudio.*;
+
+import net.java.sip.communicator.impl.neomedia.portaudio.*;
 
 /**
  * The master audio stream which opens the PortAudio stream and reads from it.
@@ -30,11 +28,14 @@ public class MasterPortAudioStream
 
     private int frameSize;
 
-    private int numberOfStarts = 0;
-
     double sampleRate;
+
     int channels;
 
+    /**
+     * The <tt>InputPortAudioStream</tt>s which read audio from this
+     * <tt>MasterPortAudioStream</tt>s.
+     */
     private final List<InputPortAudioStream> slaves
         = new ArrayList<InputPortAudioStream>();
 
@@ -84,15 +85,23 @@ public class MasterPortAudioStream
     }
 
     /**
-     * Starts the stream operation if not already started
-     * and stores the slave inputstream
-     * that starts us.
-     * @throws PortAudioException
+     * Starts this <tt>MasterPortAudioStream</tt> so that a specific
+     * <tt>InputPortAudioStream</tt> can read from it. When the first such
+     * <tt>InputPortAudioStream</tt> request the starting of this instance, this
+     * instance starts the native PortAudio stream it reads from.
+     *
+     * @param slave the <tt>InputPortAudioStream</tt> which has been started
+     * and wants to read audio from this instance
+     * @throws PortAudioException if anything wrong happens while starting the
+     * native PortAudio stream this instance is to read from
      */
     synchronized void start(InputPortAudioStream slave)
         throws PortAudioException
     {
-        if(numberOfStarts == 0)
+        if (slave == null)
+            throw new NullPointerException("slave");
+
+        if(slaves.isEmpty())
         {
             if(stream == 0)
                 initStream();
@@ -103,12 +112,18 @@ public class MasterPortAudioStream
         }
 
         slaves.add(slave);
-        numberOfStarts++;
     }
 
     /**
-     * Stops the PortAudio stream if requested by the last stream that uses us.
-     * @throws PortAudioException
+     * Stops the reading of a specific <tt>InputPortAudioStream</tt> from this
+     * <tt>MasterPortAudioStream</tt>. When the last such
+     * <tt>InputPortAudioStream</tt> stops reading from this instance, this
+     * instance closes the native PortAudio stream it reads from.
+     *
+     * @param slave the <tt>InputPortAudioStream</tt> which has been stopped and
+     * no longer wants to read audio from this instance
+     * @throws PortAudioException if anything wrong happens while stopping the
+     * native PortAudio stream this instance reads from
      */
     synchronized void stop(InputPortAudioStream slave)
         throws PortAudioException
@@ -117,9 +132,8 @@ public class MasterPortAudioStream
             return;
 
         slaves.remove(slave);
-        numberOfStarts--;
 
-        if(numberOfStarts == 0)
+        if(slaves.isEmpty())
         {
             // stop
             PortAudio.Pa_CloseStream(stream);
@@ -153,7 +167,7 @@ public class MasterPortAudioStream
      * @return the bytes that a read from underlying stream.
      * @throws PortAudioException if an error occurs while reading.
      */
-    public byte[] read()
+    public synchronized byte[] read()
         throws PortAudioException
     {
         if(!started)

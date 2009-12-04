@@ -37,6 +37,15 @@ public class DataSource
     private static final Logger logger = Logger.getLogger(DataSource.class);
 
     /**
+     * The value of the <tt>streams</tt> property of <tt>DataSource</tt> which
+     * represents an empty array of <tt>PullBufferStream</tt>s i.e. no
+     * <tt>DSAudioStream</tt>s in <tt>DataSource</tt>. Explicitly defined in
+     * order to reduce unnecessary allocations.
+     */
+    private static final PullBufferStream[] EMPTY_STREAMS
+        = new PullBufferStream[0];
+
+    /**
      * Indicates whether the datasource is connected or not.
      */
     private boolean connected = false;
@@ -59,15 +68,10 @@ public class DataSource
     /**
      * The stream created by the datasource.
      */
-    private DSAudioStream sourceStream = null;
+    private DSAudioStream stream = null;
 
     /**
-     * The streams returned byt the datasource.
-     */
-    private PullBufferStream[] streams = null;
-
-    /**
-     * The format of the media captured byt he datasource.
+     * The format of the media captured by the datasource.
      */
     private static AudioFormat captureAudioFormat =
         new AudioFormat(
@@ -95,7 +99,7 @@ public class DataSource
      * Connect the datasource
      * @throws IOException if we cannot initialize portaudio.
      */
-    public void connect()
+    public synchronized void connect()
         throws IOException
     {
         if (connected)
@@ -109,7 +113,7 @@ public class DataSource
     /**
      * Disconnect the datasource
      */
-    public void disconnect()
+    public synchronized void disconnect()
     {
         if (!connected)
             return;
@@ -244,24 +248,23 @@ public class DataSource
      *
      * @return Array of one stream
      */
-    public PullBufferStream[] getStreams()
+    public synchronized PullBufferStream[] getStreams()
     {
         MediaLocator locator = null;
 
         try
         {
-            if (streams == null)
+            if (stream == null)
             {
                 locator = getLocator();
-                sourceStream = new DSAudioStream(locator);
-                streams = new PullBufferStream[]{sourceStream};
+                stream = new DSAudioStream(locator);
             }
         }
         catch (Exception e)
         {
             // if we cannot parse desired device we will not open a stream
             // so there is no stream returned
-            streams = new PullBufferStream[0];
+            stream = null;
 
             logger
                 .error(
@@ -269,14 +272,17 @@ public class DataSource
                     e);
         }
 
-        return streams;
+        return
+            (stream == null)
+                ? EMPTY_STREAMS
+                : new PullBufferStream[] { stream };
     }
 
     /**
      * Start the datasource and the underlying stream
      * @throws IOException 
      */
-    public void start()
+    public synchronized void start()
         throws IOException
     {
         if (started)
@@ -287,7 +293,7 @@ public class DataSource
 
         try
         {
-            sourceStream.start();
+            stream.start();
         }
         catch (PortAudioException pae)
         {
@@ -306,7 +312,7 @@ public class DataSource
      * Stop the datasource and it's underlying stream
      * @throws IOException 
      */
-    public void stop()
+    public synchronized void stop()
         throws IOException
     {
         if (!started)
@@ -314,7 +320,7 @@ public class DataSource
 
         try
         {
-            sourceStream.stop();
+            stream.stop();
         }
         catch (PortAudioException pae)
         {

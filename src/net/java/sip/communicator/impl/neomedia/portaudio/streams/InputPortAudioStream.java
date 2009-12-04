@@ -6,8 +6,7 @@
  */
 package net.java.sip.communicator.impl.neomedia.portaudio.streams;
 
-import net.java.sip.communicator.impl.neomedia.portaudio.PortAudioException;
-import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.portaudio.*;
+import net.java.sip.communicator.impl.neomedia.portaudio.*;
 
 /**
  * The input audio stream.
@@ -62,11 +61,11 @@ public class InputPortAudioStream
     public synchronized void start()
         throws PortAudioException
     {
-        if(started)
-            return;
-
-        parentStream.start(this);
-        started = true;
+        if(!started)
+        {
+            parentStream.start(this);
+            started = true;
+        }
     }
 
     /**
@@ -77,11 +76,11 @@ public class InputPortAudioStream
     public synchronized void stop()
         throws PortAudioException
     {
-        if(!started)
-            return;
-
-        parentStream.stop(this);
-        started = false;
+        if(started)
+        {
+            parentStream.stop(this);
+            started = false;
+        }
     }
 
     /**
@@ -91,6 +90,9 @@ public class InputPortAudioStream
      */
     public void setBuffer(byte[] buffer)
     {
-        this.buffer = buffer;
+        synchronized (parentStream)
+        {
+            this.buffer = buffer;
+        }
     }
 }
