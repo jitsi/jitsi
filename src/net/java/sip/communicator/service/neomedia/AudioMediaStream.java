@@ -25,16 +25,7 @@ public interface AudioMediaStream
      * @param listener the <tt>SoundLevelListener</tt> that we'd like to
      * register.
      */
-    public void addStreamAudioLevelListener(SoundLevelListener listener);
-
-    /**
-     * Removes <tt>listener</tt> from the list of <tt>SoundLevelListener</tt>s
-     * registered to receive notification events upon changes of the sound
-     * level.
-     *
-     * @param listener the listener that we'd like to unregister.
-     */
-    public void removeStreamAudioLevelListener(SoundLevelListener listener);
+    public void setStreamAudioLevelListener(SimpleAudioLevelListener listener);
 
     /**
      * Adds <tt>listener</tt> to the list of <tt>SoundLevelListener</tt>s
@@ -44,18 +35,8 @@ public interface AudioMediaStream
      * @param listener the <tt>SoundLevelListener</tt> that we'd like to
      * register.
      */
-    public void addConferenceMemberSoundLevelListener(
-        SoundLevelListener listener);
-
-    /**
-     * Removes <tt>listener</tt> from the list of <tt>SoundLevelListener</tt>s
-     * registered to receive notification events upon changes of the sound
-     * level.
-     *
-     * @param listener the listener that we'd like to unregister.
-     */
-    public void removeConferenceMemberSoundLevelListener(
-        SoundLevelListener listener);
+    public void setConferenceMemberAudioLevelListener(
+                                            SimpleAudioLevelListener listener);
 
     /**
      * Adds a specific <tt>SoundLevelListener</tt> to the list of
@@ -63,8 +44,8 @@ public interface AudioMediaStream
      * related information.
      * @param l the <tt>SoundLevelListener</tt> to add
      */
-    public abstract void addLocalUserAudioLevelListener(
-                                                SimpleAudioLevelListener l);
+    public abstract void setLocalUserAudioLevelListener(
+                                            SimpleAudioLevelListener l);
 
     /**
      * Removes a specific <tt>SoundLevelListener</tt> of the list of

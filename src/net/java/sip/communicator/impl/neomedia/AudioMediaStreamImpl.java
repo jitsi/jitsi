@@ -105,7 +105,7 @@ public class AudioMediaStreamImpl
      * <tt>AudioMediaStream</tt>
      * @see AudioMediaStream#addStreamAudioLevelListener(SoundLevelListener)
      */
-    public void addSoundLevelListener(SimpleAudioLevelListener listener)
+    public void addStreamAudioLevelListener(SimpleAudioLevelListener listener)
     {
         getDeviceSession().setStreamAudioLevelListener(listener);
     }
@@ -190,7 +190,8 @@ public class AudioMediaStreamImpl
      * the conference participants that the remote party may be mixing
      * @see AudioMediaStream#removeStreamAudioLevelListener(SoundLevelListener)
      */
-    public void removeStreamAudioLevelListener(SoundLevelListener listener)
+    public void removeStreamAudioLevelListener(
+                                            SimpleAudioLevelListener listener)
     {
         getDeviceSession().setStreamAudioLevelListener(null);
     }
@@ -243,7 +244,7 @@ public class AudioMediaStreamImpl
      * related information.
      * @param l the <tt>SoundLevelListener</tt> to add
      */
-    public void addLocalUserSoundLevelListener(SimpleAudioLevelListener l)
+    public void addLocalUserAudioLevelListener(SimpleAudioLevelListener l)
     {
         getDeviceSession().setLocalUserAudioLevelListener(l);
     }
