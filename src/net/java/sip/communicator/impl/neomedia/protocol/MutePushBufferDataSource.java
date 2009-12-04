@@ -77,6 +77,34 @@ public class MutePushBufferDataSource
     }
 
     /**
+     * Replaces the media data contained in a specific <tt>Buffer</tt> with a
+     * compatible representation of silence.
+     *
+     * @param buffer the <tt>Buffer</tt> the data contained in which is to be
+     * replaced with silence
+     */
+    public static void mute(Buffer buffer)
+    {
+        Object data = buffer.getData();
+
+        if (data != null)
+        {
+            Class<?> dataClass = data.getClass();
+            final int fromIndex = buffer.getOffset();
+            final int toIndex = fromIndex + buffer.getLength();
+
+            if (Format.byteArray.equals(dataClass))
+                Arrays.fill((byte[]) data, fromIndex, toIndex, (byte) 0);
+            else if (Format.intArray.equals(dataClass))
+                Arrays.fill((int[]) data, fromIndex, toIndex, 0);
+            else if (Format.shortArray.equals(dataClass))
+                Arrays.fill((short[]) data, fromIndex, toIndex, (short) 0);
+
+            buffer.setData(data);
+        }
+    }
+
+    /**
      * Sets the mute state of this <tt>DataSource</tt>.
      * 
      * @param mute <tt>true</tt> to mute this <tt>DataSource</tt>; otherwise,
@@ -92,119 +120,65 @@ public class MutePushBufferDataSource
      * support for the wrapped instance.
      */
     private class MutePushBufferStream
+        extends SourceStreamDelegate<PushBufferStream>
         implements PushBufferStream
     {
 
         /**
-         * The wrapped stream this instance provides mute support for.
-         */
-        private final PushBufferStream stream;
-
-        /**
          * Initializes a new <tt>MutePushBufferStream</tt> instance which is to
-         * provide mute support for a specific <tt>PushBufferStream</tt>.
+         * provide mute support to a specific <tt>PushBufferStream</tt>.
          * 
          * @param stream the <tt>PushBufferStream</tt> the new instance is to
-         *            provide mute support for
+         * provide mute support to
          */
         public MutePushBufferStream(PushBufferStream stream)
         {
-            this.stream = stream;
+            super(stream);
         }
 
-        /*
-         * Implements SourceStream#getContentDescriptor(). Delegates to the
-         * wrapped PushBufferStream.
-         */
-        public ContentDescriptor getContentDescriptor()
-        {
-            return stream.getContentDescriptor();
-        }
-
-        /*
-         * Implements SourceStream#getContentLength(). Delegates to the wrapped
-         * PushBufferStream.
-         */
-        public long getContentLength()
-        {
-            return stream.getContentLength();
-        }
-
-        /*
-         * Implements Controls#getControl(String). Delegates to the wrapped
-         * PushBufferStream.
-         */
-        public Object getControl(String controlType)
-        {
-            return stream.getControl(controlType);
-        }
-
-        /*
-         * Implements Controls#getControls(). Delegates to the wrapped
-         * PushBufferStream.
-         */
-        public Object[] getControls()
-        {
-            return stream.getControls();
-        }
-
-        /*
-         * Implements PushBufferStream#getFormat(). Delegates to the wrapped
-         * PushBufferStream.
+        /**
+         * Implements {@link PushBufferStream#getFormat()}. Delegates to the
+         * wrapped <tt>PushBufferStream</tt>.
+         *
+         * @return the <tt>Format</tt> of the wrapped <tt>PushBufferStream</tt>
          */
         public Format getFormat()
         {
             return stream.getFormat();
         }
 
-        /*
-         * Implements SourceStream#endOfStream(). Delegates to the wrapped
-         * PushBufferStream.
+        /**
+         * Implements {@link PushBufferStream#read(Buffer)}. If this instance is
+         * muted (through its owning <tt>MutePushBufferDataSource</tt>),
+         * overwrites the data read from the wrapped <tt>PushBufferStream</tt>
+         * with silence data.
+         *
+         * @param buffer a <tt>Buffer</tt> in which the read data is to be
+         * returned to the caller
+         * @throws IOException if reading from the wrapped
+         * <tt>PushBufferStream</tt> fails
          */
-        public boolean endOfStream()
-        {
-            return stream.endOfStream();
-        }
-
-        /*
-         * Implements PushBufferStream#read(Buffer). If this instance is muted
-         * (through its owning MutePushBufferDataSource), overwrites the data
-         * read from the wrapped PushBufferStream with silence data.
-         */
-        public void read(Buffer buffer) throws IOException
+        public void read(Buffer buffer)
+            throws IOException
         {
             stream.read(buffer);
 
             if (isMute())
-            {
-                Object data = buffer.getData();
-
-                if (data != null)
-                {
-                    Class<?> dataClass = data.getClass();
-                    final int fromIndex = buffer.getOffset();
-                    final int toIndex = fromIndex + buffer.getLength();
-
-                    if (Format.byteArray.equals(dataClass))
-                        Arrays
-                            .fill((byte[]) data, fromIndex, toIndex, (byte) 0);
-                    else if (Format.intArray.equals(dataClass))
-                        Arrays.fill((int[]) data, fromIndex, toIndex, 0);
-                    else if (Format.shortArray.equals(dataClass))
-                        Arrays.fill((short[]) data, fromIndex, toIndex,
-                            (short) 0);
-
-                    buffer.setData(data);
-                }
-            }
+                mute(buffer);
         }
 
-        /*
-         * Implements PushBufferStream#setTransferHandler(BufferTransferHandler).
-         * Sets up the hiding of the wrapped PushBufferStream from the specified
-         * transferHandler and thus gives this MutePushBufferStream full control
-         * when the transferHandler in question starts calling to the stream
-         * given to it in BufferTransferHandler#transferData(PushBufferStream). 
+        /**
+         * Implements
+         * {@link PushBufferStream#setTransferHandler(BufferTransferHandler)}.
+         * Sets up the hiding of the wrapped <tt>PushBufferStream</tt> from the
+         * specified <tt>transferHandler</tt> and thus gives this
+         * <tt>MutePushBufferStream</tt> full control when the
+         * <tt>transferHandler</tt> in question starts calling to the stream
+         * given to it in
+         * <tt>BufferTransferHandler#transferData(PushBufferStream)</tt>.
+         *
+         * @param transferHandler a <tt>BufferTransferHandler</tt> to be
+         * notified by this instance when data is available for reading from it
          */
         public void setTransferHandler(BufferTransferHandler transferHandler)
         {

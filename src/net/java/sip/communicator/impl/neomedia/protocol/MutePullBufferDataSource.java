@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.neomedia.protocol;
 
 import java.io.*;
-import java.util.*;
 
 import javax.media.*;
 import javax.media.protocol.*;
@@ -22,6 +21,7 @@ import javax.media.protocol.*;
  * </p>
  *
  * @author Damian Minkov
+ * @author Lubomir Marinov
  */
 public class MutePullBufferDataSource
     extends PullBufferDataSourceDelegate<PullBufferDataSource>
@@ -75,7 +75,6 @@ public class MutePullBufferDataSource
      * @return an array of <tt>PullBufferStream</tt> instances with enabled mute
      * support
      */
-    @Override
     public PullBufferStream[] getStreams()
     {
         PullBufferStream[] streams = dataSource.getStreams();
@@ -92,23 +91,20 @@ public class MutePullBufferDataSource
      * support for the wrapped instance.
      */
     private class MutePullBufferStream
+        extends SourceStreamDelegate<PullBufferStream>
         implements PullBufferStream
     {
-        /**
-         * The wrapped stream this instance provides mute support for.
-         */
-        private final PullBufferStream stream;
 
         /**
          * Initializes a new <tt>MutePullBufferStream</tt> instance which is to
          * provide mute support for a specific <tt>PullBufferStream</tt>.
          *
          * @param stream the <tt>PullBufferStream</tt> the new instance is to
-         *            provide mute support for
+         * provide mute support for
          */
         private MutePullBufferStream(PullBufferStream stream)
         {
-            this.stream = stream;
+            super(stream);
         }
 
         /*
@@ -131,81 +127,18 @@ public class MutePullBufferDataSource
             stream.read(buffer);
 
             if (isMute())
-            {
-                Object data = buffer.getData();
-
-                if (data != null)
-                {
-                    Class<?> dataClass = data.getClass();
-                    final int fromIndex = buffer.getOffset();
-                    final int toIndex = fromIndex + buffer.getLength();
-
-                    if (Format.byteArray.equals(dataClass))
-                        Arrays
-                            .fill((byte[]) data, fromIndex, toIndex, (byte) 0);
-                    else if (Format.intArray.equals(dataClass))
-                        Arrays.fill((int[]) data, fromIndex, toIndex, 0);
-                    else if (Format.shortArray.equals(dataClass))
-                        Arrays.fill((short[]) data, fromIndex, toIndex,
-                            (short) 0);
-
-                    buffer.setData(data);
-                }
-            }
+                MutePushBufferDataSource.mute(buffer);
         }
 
-        /*
-         * Implements SourceStream#getContentDescriptor(). Delegates to the
-         * wrapped PullBufferStream.
-         */
-        public ContentDescriptor getContentDescriptor()
-        {
-            return stream.getContentDescriptor();
-        }
-
-        /*
-         * Implements SourceStream#getContentLength(). Delegates to the wrapped
-         * PullBufferStream.
-         */
-        public long getContentLength()
-        {
-            return stream.getContentLength();
-        }
-
-        /*
-         * Implements Controls#getControl(String). Delegates to the wrapped
-         * PullBufferStream.
-         */
-        public Object getControl(String controlType)
-        {
-            return stream.getControl(controlType);
-        }
-
-        /*
-         * Implements Controls#getControls(). Delegates to the wrapped
-         * PullBufferStream.
-         */
-        public Object[] getControls()
-        {
-            return stream.getControls();
-        }
-
-        /*
-         * Implements PullBufferStream#getFormat(). Delegates to the wrapped
-         * PullBufferStream.
+        /**
+         * Implements {@link PullBufferStream#getFormat()}. Delegates to the
+         * wrapped <tt>PullBufferStream</tt>.
+         *
+         * @return the <tt>Format</tt> of the wrapped <tt>PullBufferStream</tt>
          */
         public Format getFormat()
         {
             return stream.getFormat();
-        }
-
-        /*
-         * Implements SourceStream#endOfStream(). Delegates to the wrapped
-         * PullBufferStream.
-         */
-        public boolean endOfStream()
-        {
-            return stream.endOfStream();
         }
     }
 }

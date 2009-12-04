@@ -7,8 +7,8 @@
 package net.java.sip.communicator.impl.neomedia.protocol;
 
 /**
- * All datasources that supports
- * muting functionality imeplements <tt>MuteDataSource</tt>.
+ * All datasources that support muting functionality implement
+ * <tt>MuteDataSource</tt>.
  *
  * @author Damian Minkov
  */
