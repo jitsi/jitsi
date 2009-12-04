@@ -63,7 +63,7 @@ public class AudioMixerMediaDevice
      * The dispatcher that delivers to listeners calculations of the local
      * audio level.
      */
-    private AudioLevelEventDispatcher localAudioLevelEventDispatcher
+    private final AudioLevelEventDispatcher localUserAudioLevelDispatcher
         = new AudioLevelEventDispatcher();
 
     /**
@@ -268,18 +268,14 @@ public class AudioMixerMediaDevice
                          * The audio of the very CaptureDevice to be contributed
                          * to the mix.
                          */
-                        if(localAudioLevelEventDispatcher == null)
+                        synchronized(localUserAudioLevelListeners)
                         {
-                            localAudioLevelEventDispatcher
-
-                            synchronized (localAudioLevelListeners)
-                            {
-                                if(localAudioLevelEventDispatcher == null)
-                            localAudioLevelEventDispatcher
-                            }
-                            new Thread(localAudioLevelEventDispatcher).start();
+                            if (localUserAudioLevelListeners.size() == 0)
+                                return;
                         }
-                        localAudioLevelEventDispatcher.addData(buffer);
+
+                        localUserAudioLevelDispatcher.addData(buffer);
+
                     }
                     else if (dataSource
                             instanceof ReceiveStreamPushBufferDataSource)
@@ -437,6 +433,17 @@ public class AudioMixerMediaDevice
         {
             synchronized(localUserAudioLevelListeners)
             {
+                //if this is the first listener that we are seeing then we also
+                //need to create the dispatcher.
+                if (localUserAudioLevelListeners.size() == 0)
+                {
+
+                    localUserAudioLevelDispatcher
+                        .setAudioLevelListener(localUserAudioLevelDelegator);
+
+                    new Thread(localUserAudioLevelDispatcher).start();
+                }
+
                 if(! localUserAudioLevelListeners.contains(l))
                     localUserAudioLevelListeners.add(l);
             }
@@ -455,6 +462,16 @@ public class AudioMixerMediaDevice
             synchronized(localUserAudioLevelListeners)
             {
                 localUserAudioLevelListeners.remove(l);
+
+                //if this was the last listener then we also need to remove the
+                //dispatcher
+                if (localUserAudioLevelListeners.size() == 0)
+                {
+                    localUserAudioLevelDispatcher.stop();
+
+                    localUserAudioLevelDispatcher.setAudioLevelListener(null);
+
+                }
             }
         }
 

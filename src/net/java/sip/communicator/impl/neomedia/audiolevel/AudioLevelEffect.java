@@ -103,7 +103,8 @@ public class AudioLevelEffect
     private static int calculateLevelRatio(int minLevel, int maxLevel)
     {
         // magic ratio which scales good visually our levels
-        return MAX_AUDIO_LEVEL/ ((maxLevel - minLevel)/16);
+        return MAX_AUDIO_LEVEL/(maxLevel - minLevel)/16;
+
     }
 
     /**
@@ -170,12 +171,19 @@ public class AudioLevelEffect
      */
     public int process(Buffer inputBuffer, Buffer outputBuffer)
     {
-        eventDispatcher.addData(inputBuffer);
-
-        //now simply copy the data.
-        outputBuffer.setData(inputBuffer.getData());
-        outputBuffer.setFormat(inputBuffer.getFormat());
+        //copy the actual data from input to the output.
+        byte[] b = new byte[inputBuffer.getLength()];
         outputBuffer.setLength(inputBuffer.getLength());
+
+        System.arraycopy(
+            inputBuffer.getData(), inputBuffer.getOffset(), b, 0, b.length);
+        outputBuffer.setData(b);
+
+        //now copy the output to the level dispatcher.
+        eventDispatcher.addData(outputBuffer);
+
+        //now copy the rest of the data.
+        outputBuffer.setFormat(inputBuffer.getFormat());
         outputBuffer.setOffset(inputBuffer.getOffset());
         outputBuffer.setHeader(inputBuffer.getHeader());
         outputBuffer.setSequenceNumber(inputBuffer.getSequenceNumber());
@@ -208,6 +216,7 @@ public class AudioLevelEffect
 
         int samplesNumber = len/2;
         int absoluteMeanSoundLevel = 0;
+        double levelRatio = calculateLevelRatio(minOutLevel, maxOutLevel);
         // Do the processing
         for (int i = 0; i < samplesNumber; i++)
         {
@@ -225,9 +234,8 @@ public class AudioLevelEffect
             absoluteMeanSoundLevel += Math.abs(soundLevel);
         }
 
-        int result
-            = (int)(absoluteMeanSoundLevel/samplesNumber/calculateLevelRatio(
-                                MIN_AUDIO_LEVEL, MAX_AUDIO_LEVEL));
+        int result =
+            (int)(absoluteMeanSoundLevel/samplesNumber/levelRatio);
 
         if(result > maxOutLevel)
             result = maxOutLevel;
@@ -256,6 +264,7 @@ public class AudioLevelEffect
         return result2;
     }
 
+
     /**
      * Gets the name of this plug-in as a human-readable string.
      *
@@ -278,7 +287,7 @@ public class AudioLevelEffect
         if(eventDispatcher == null)
         {
             eventDispatcher = new AudioLevelEventDispatcher();
-            eventDispatcher.addAudioLevelListener(listener);
+            eventDispatcher.setAudioLevelListener(listener);
         }
 
         new Thread(eventDispatcher).start();
