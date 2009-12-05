@@ -14,6 +14,7 @@ import javax.swing.event.*;
 import net.java.otr4j.*;
 import net.java.otr4j.session.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * A special {@link JMenu} that holds the menu items for controlling the
@@ -24,9 +25,11 @@ import net.java.sip.communicator.service.protocol.*;
  */
 @SuppressWarnings("serial")
 class OtrContactMenu
-    extends JMenu
-    implements ActionListener, PopupMenuListener, ScOtrEngineListener,
-    ScOtrKeyManagerListener
+    extends SIPCommMenu
+    implements ActionListener,
+               PopupMenuListener,
+               ScOtrEngineListener,
+               ScOtrKeyManagerListener
 {
     private static final String ACTION_COMMAND_AUTHENTICATE_BUDDY =
         "AUTHENTICATE_BUDDY";
@@ -63,7 +66,7 @@ class OtrContactMenu
     private SessionStatus sessionStatus;
 
     /**
-     * The OtrContactMenu contructor.
+     * The OtrContactMenu constructor.
      * 
      * @param contact the Contact this menu refers to.
      * @param inMacOSXScreenMenuBar <tt>true</tt> if the new menu is to be

@@ -16,6 +16,7 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * @author George Politis
@@ -23,7 +24,8 @@ import net.java.sip.communicator.service.protocol.*;
  */
 public class OtrMetaContactMenu
     extends AbstractPluginComponent
-    implements ActionListener, PopupMenuListener
+    implements ActionListener,
+               PopupMenuListener
 {
 
     /**
@@ -131,7 +133,7 @@ public class OtrMetaContactMenu
     {
         if (menu == null)
         {
-            menu = new JMenu();
+            menu = new SIPCommMenu();
             menu.setText(getName());
 
             if (Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU

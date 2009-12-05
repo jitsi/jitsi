@@ -35,8 +35,11 @@ public class FileMenu
     extends SIPCommMenu
     implements ActionListener
 {
-    private static final Logger logger =
-        Logger.getLogger(FileMenu.class);
+    /**
+     * The <tt>Logger</tt> used by the <tt>FileMenu</tt> class and its instances
+     * for logging output.
+     */
+    private static final Logger logger = Logger.getLogger(FileMenu.class);
 
     private final MainFrame parentWindow;
 
