@@ -70,9 +70,9 @@ public class AudioMixerMediaDevice
      * The <tt>Map</tt> where we store audio level dispatchers and the
      * streams they are interested in.
      */
-    private Map<ReceiveStream, AudioLevelEventDispatcher>
-        streamAudioLevelListeners = new Hashtable<ReceiveStream,
-                                              AudioLevelEventDispatcher>();
+    private final Map<ReceiveStream, AudioLevelEventDispatcher>
+        streamAudioLevelListeners
+            = new Hashtable<ReceiveStream, AudioLevelEventDispatcher>();
 
     /**
      * The <tt>List</tt> where we store all listeners interested in changes
@@ -83,19 +83,20 @@ public class AudioMixerMediaDevice
      * we wouldn't want to reset the listener to <tt>null</tt> as there are
      * others still interested, and hence the refCounter in the wrapper.
      */
-    private List<SimpleAudioLevelListenerWrapper> localUserAudioLevelListeners
-        = new ArrayList<SimpleAudioLevelListenerWrapper>();
+    private final List<SimpleAudioLevelListenerWrapper>
+        localUserAudioLevelListeners
+            = new ArrayList<SimpleAudioLevelListenerWrapper>();
 
     /**
      * A very lightweight wrapper that allows us to track the number of times
      * that a particular listener was added.
      */
-    private class SimpleAudioLevelListenerWrapper
+    private static class SimpleAudioLevelListenerWrapper
     {
-        /** The listener being wrapped by this wrapper.*/
-        SimpleAudioLevelListener listener;
+        /** The listener being wrapped by this wrapper. */
+        public final SimpleAudioLevelListener listener;
 
-        /** The number of times this listener has been added*/
+        /** The number of times this listener has been added. */
         int refCounter;
 
         /**
@@ -124,6 +125,24 @@ public class AudioMixerMediaDevice
             return (obj instanceof SimpleAudioLevelListenerWrapper)
                 && ((SimpleAudioLevelListenerWrapper)obj).listener == listener;
         }
+
+        /**
+         * Returns a hash code value for this instance for the benefit of
+         * hashtables.
+         *
+         * @return a hash code value for this instance for the benefit of
+         * hashtables
+         */
+        @Override
+        public int hashCode()
+        {
+            /*
+             * Equality is based on the listener field only so its hashCode is
+             * enough. Besides, it's the only immutable of this instance i.e.
+             * the only field appropriate for the calculation of the hashCode.
+             */
+            return listener.hashCode();
+        }
     }
 
     /**
@@ -131,7 +150,7 @@ public class AudioMixerMediaDevice
      * stream and that will notify all the listeners (if any) registered in
      * <tt>localUserAudioLevelListeners</tt>.
      */
-    private SimpleAudioLevelListener localUserAudioLevelDelegator
+    private final SimpleAudioLevelListener localUserAudioLevelDelegator
         = new SimpleAudioLevelListener()
             {
                 public void audioLevelChanged(int level)
@@ -239,6 +258,7 @@ public class AudioMixerMediaDevice
      * @return a <tt>List</tt> containing the <tt>CSRC_AUDIO_LEVEL_URN</tt>
      * extension descriptor.
      */
+    @Override
     public List<RTPExtension> getSupportedExtensions()
     {
         if ( rtpExtensions == null)
@@ -362,15 +382,18 @@ public class AudioMixerMediaDevice
      */
     private void fireLocalUserAudioLevelException(int level)
     {
-        synchronized(this.localUserAudioLevelListeners)
+        synchronized(localUserAudioLevelListeners)
         {
-            //these events are going to happen veeery often (~50 times per sec)
-            //and we'd like to avoid creating an iterator every time
-            for(int i = 0; i < localUserAudioLevelListeners.size(); i++)
-            {
-                localUserAudioLevelListeners.get(i).listener
-                    .audioLevelChanged(level);
-            }
+            /*
+             * XXX These events are going to happen veeery often (~50 times per
+             * sec) and we'd like to avoid creating an iterator every time.
+             */
+            int localUserAudioLevelListenerCount
+                = localUserAudioLevelListeners.size();
+
+            for(int i = 0; i < localUserAudioLevelListenerCount; i++)
+                localUserAudioLevelListeners
+                    .get(i).listener.audioLevelChanged(level);
         }
     }
 
@@ -423,6 +446,23 @@ public class AudioMixerMediaDevice
     public List<MediaFormat> getSupportedFormats()
     {
         return device.getSupportedFormats();
+    }
+
+    /**
+     * Removes the <tt>DataSource</tt> accepted by a specific
+     * <tt>DataSourceFilter</tt> from the list of input <tt>DataSource</tt> of
+     * the <tt>AudioMixer</tt> of this <tt>AudioMixerMediaDevice</tt> from
+     * which it reads audio to be mixed.
+     *
+     * @param dataSourceFilter the <tt>DataSourceFilter</tt> which selects the
+     * <tt>DataSource</tt>s to be removed
+     */
+    private void removeInputDataSources(DataSourceFilter dataSourceFilter)
+    {
+        AudioMixer audioMixer = this.audioMixer;
+
+        if (audioMixer != null)
+            audioMixer.removeInputDataSources(dataSourceFilter);
     }
 
     /**
@@ -550,7 +590,6 @@ public class AudioMixerMediaDevice
                     localUserAudioLevelDispatcher.stop();
 
                     localUserAudioLevelDispatcher.setAudioLevelListener(null);
-
                 }
             }
         }
@@ -584,6 +623,38 @@ public class AudioMixerMediaDevice
 
                 dispatcher.setAudioLevelListener(listener);
             }
+        }
+
+        /**
+         * Removes a <tt>ReceiveStream</tt> from this
+         * <tt>MediaDeviceSession</tt> so that it no longer plays back on the
+         * associated <tt>MediaDevice</tt>. Removes the specified
+         * <tt>ReceiveStream</tt> from the audio mix by removing the
+         * <tt>DataSource</tt> it has contributed from the <tt>AudioMixer</tt>.
+         *
+         * @param receiveStream the <tt>ReceiveStream</tt> to be removed from
+         * this <tt>MediaDeviceSession</tt> and playback on the associated
+         * <tt>MediaDevice</tt>
+         * @see MediaDeviceSession#removeReceiveStream(ReceiveStream)
+         */
+        @Override
+        public void removeReceiveStream(final ReceiveStream receiveStream)
+        {
+            removeInputDataSources(new DataSourceFilter()
+            {
+                public boolean accept(DataSource dataSource)
+                {
+                    if (dataSource instanceof ReceiveStreamPushBufferDataSource)
+                        return
+                            receiveStream
+                                .equals(
+                                    ((ReceiveStreamPushBufferDataSource)
+                                            dataSource)
+                                        .getReceiveStream());
+                    else
+                        return dataSource.equals(receiveStream.getDataSource());
+                }
+            });
         }
 
         /**
@@ -720,7 +791,7 @@ public class AudioMixerMediaDevice
          * The <tt>Object</tt> that we use to lock operations on
          * <tt>streamAudioLevelListener</tt>.
          */
-        private Object streamAudioLevelListenerLock = new Object();
+        private final Object streamAudioLevelListenerLock = new Object();
 
         /**
          * Initializes a new <tt>MediaStreamMediaDeviceSession</tt> which is to
@@ -889,18 +960,20 @@ public class AudioMixerMediaDevice
             {
                 this.streamAudioLevelListener = listener;
 
+                ReceiveStream receiveStream = getReceiveStream();
+
                 if( listener != null)
                 {
                     //if we already have a ReceiveStream - register the listener
                     //with the mixer. Otherwise - wait till we get one.
-                    if( getReceiveStream() != null)
+                    if( receiveStream != null)
                         audioMixerMediaDeviceSession
                             .putStreamAudioLevelListener(
-                                    getReceiveStream(), listener);
+                                receiveStream, listener);
                 }
-                else if( getReceiveStream() != null)
+                else if( receiveStream != null)
                     audioMixerMediaDeviceSession
-                        .removeStreamAudioLevelListener(getReceiveStream());
+                        .removeStreamAudioLevelListener(receiveStream);
             }
         }
 
@@ -916,11 +989,10 @@ public class AudioMixerMediaDevice
         public void propertyChange(PropertyChangeEvent evt)
         {
             if (MediaDeviceSession.SSRC_LIST.equals(evt.getPropertyName()))
-            {
-                firePropertyChange(MediaDeviceSession.SSRC_LIST,
-                                evt.getOldValue(), evt.getNewValue());
-            }
+                firePropertyChange(
+                    MediaDeviceSession.SSRC_LIST,
+                    evt.getOldValue(),
+                    evt.getNewValue());
         }
-
     }
 }

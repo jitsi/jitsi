@@ -223,9 +223,7 @@ public class AudioMixer
                 if (connected > 0)
                     try
                     {
-                        connect(
-                            inputDataSourceDesc.getEffectiveInputDataSource(),
-                            inputDataSourceDesc.inputDataSource);
+                        inputDataSourceDesc.connect(this);
                     }
                     catch (IOException ioex)
                     {
@@ -271,26 +269,22 @@ public class AudioMixer
             if (connected == 0)
             {
                 for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
-                {
-                    DataSource effectiveInputDataSource
-                        = inputDataSourceDesc.getEffectiveInputDataSource();
-                    DataSource inputDataSource
-                        = inputDataSourceDesc.inputDataSource;
-
                     try
                     {
-                        connect(effectiveInputDataSource, inputDataSource);
+                        inputDataSourceDesc.connect(this);
                     }
                     catch (IOException ioe)
                     {
                         logger
                             .error(
                                 "Failed to connect to inputDataSource "
-                                    + MediaStreamImpl.toString(inputDataSource),
+                                    + MediaStreamImpl
+                                        .toString(
+                                            inputDataSourceDesc
+                                                .inputDataSource),
                                 ioe);
                         throw ioe;
                     }
-                }
 
                 /*
                  * Since the media of the input streams is to be mixed, their
@@ -325,6 +319,34 @@ public class AudioMixer
         throws IOException
     {
         dataSource.connect();
+    }
+
+    /**
+     * Notifies this <tt>AudioMixer</tt> that a specific input
+     * <tt>DataSource</tt> has finished its connecting procedure. Primarily
+     * meant for input <tt>DataSource</tt> which have their connecting executed
+     * in a separate thread as are, for example, input <tt>DataSource</tt>s
+     * which are being transcoded.
+     *
+     * @param inputDataSource the <tt>InputDataSourceDesc</tt> of the input
+     * <tt>DataSource</tt> which has finished its connecting procedure
+     * @throws IOException if anything wrong happens while including
+     * <tt>inputDataSource</tt> into the mix
+     */
+    void connected(InputDataSourceDesc inputDataSource)
+        throws IOException
+    {
+        synchronized (inputDataSources)
+        {
+            if (inputDataSources.contains(inputDataSource)
+                    && (connected > 0))
+            {
+                if (started > 0)
+                    inputDataSource.start();
+                if (outputStream != null)
+                    getOutputStream();
+            }
+        }
     }
 
     /**
@@ -366,39 +388,36 @@ public class AudioMixer
     }
 
     /**
-     * Creates a <tt>DataSource</tt> which attempts to transcode the tracks
-     * of a specific input <tt>DataSource</tt> into a specific output
+     * Creates a <tt>DataSource</tt> which attempts to transcode the tracks of a
+     * specific input <tt>DataSource</tt> into a specific output
      * <tt>Format</tt>.
      * 
-     * @param inputDataSource the <tt>DataSource</tt> from the tracks of which
-     * data is to be read and transcoded into the specified output
-     * <tt>Format</tt>
-     * @param outputFormat the <tt>Format</tt> in which the tracks of
-     * <tt>inputDataSource</tt> are to be transcoded
-     * @return a new <tt>DataSource</tt> which attempts to transcode the tracks
-     * of <tt>inputDataSource</tt> into <tt>outputFormat</tt>
-     * @throws IOException
+     * @param inputDataSourceDesc the <tt>InputDataSourceDesc</tt> describing
+     * the input <tt>DataSource</tt> to be transcoded into the specified output
+     * <tt>Format</tt> and to receive the transcoding <tt>DataSource</tt>
+     * @param outputFormat the <tt>Format</tt> in which the tracks of the input
+     * <tt>DataSource</tt> are to be transcoded
+     * @return <tt>true</tt> if a new transcoding <tt>DataSource</tt> has been
+     * created for the input <tt>DataSource</tt> described by
+     * <tt>inputDataSourceDesc</tt>; otherwise, <tt>false</tt>
+     * @throws IOException if an error occurs while creating the transcoding
+     * <tt>DataSource</tt>, connecting to it or staring it
      */
-    private DataSource createTranscodingDataSource(
-            DataSource inputDataSource,
+    private boolean createTranscodingDataSource(
+            InputDataSourceDesc inputDataSourceDesc,
             Format outputFormat)
         throws IOException
     {
-        TranscodingDataSource transcodingDataSource;
-
-        if (inputDataSource instanceof TranscodingDataSource)
-            transcodingDataSource = null;
-        else
+        if (inputDataSourceDesc.createTranscodingDataSource(outputFormat))
         {
-            transcodingDataSource
-                = new TranscodingDataSource(inputDataSource, outputFormat);
-
             if (connected > 0)
-                transcodingDataSource.connect();
+                inputDataSourceDesc.connect(this);
             if (started > 0)
-                transcodingDataSource.start();
+                inputDataSourceDesc.start();
+            return true;
         }
-        return transcodingDataSource;
+        else
+            return false;
     }
 
     /**
@@ -669,21 +688,8 @@ public class AudioMixer
         InputStreamDesc[] existingInputStreams,
         List<InputStreamDesc> inputStreams)
     {
-        DataSource inputDataSource
-            = inputDataSourceDesc.getEffectiveInputDataSource();
-        SourceStream[] inputDataSourceStreams;
-
-        if (inputDataSource instanceof PushBufferDataSource)
-            inputDataSourceStreams
-                = ((PushBufferDataSource) inputDataSource).getStreams();
-        else if (inputDataSource instanceof PullBufferDataSource)
-            inputDataSourceStreams
-                = ((PullBufferDataSource) inputDataSource).getStreams();
-        else if (inputDataSource instanceof TranscodingDataSource)
-            inputDataSourceStreams
-                = ((TranscodingDataSource) inputDataSource).getStreams();
-        else
-            inputDataSourceStreams = null;
+        SourceStream[] inputDataSourceStreams
+            = inputDataSourceDesc.getStreams();
 
         if (inputDataSourceStreams != null)
         {
@@ -712,6 +718,12 @@ public class AudioMixer
             }
             return added;
         }
+
+        DataSource inputDataSource
+            = inputDataSourceDesc.getEffectiveInputDataSource();
+
+        if (inputDataSource == null)
+            return false;
 
         Format inputFormat = getFormat(inputDataSource);
 
@@ -800,26 +812,15 @@ public class AudioMixer
                             existingInputStreams,
                             inputStreams);
 
-                if (!got)
-                {
-                    DataSource transcodingDataSource
-                        = createTranscodingDataSource(
-                                inputDataSourceDesc
-                                    .getEffectiveInputDataSource(),
-                                outputFormat);
-
-                    if (transcodingDataSource != null)
-                    {
-                        inputDataSourceDesc
-                            .setTranscodingDataSource(transcodingDataSource);
-
-                        getInputStreamsFromInputDataSource(
-                            inputDataSourceDesc,
-                            outputFormat,
-                            existingInputStreams,
-                            inputStreams);
-                    }
-                }
+                if (!got
+                        && createTranscodingDataSource(
+                                inputDataSourceDesc,
+                                outputFormat))
+                    getInputStreamsFromInputDataSource(
+                        inputDataSourceDesc,
+                        outputFormat,
+                        existingInputStreams,
+                        inputStreams);
             }
         }
         return inputStreams;
@@ -861,11 +862,15 @@ public class AudioMixer
         {
             for (InputDataSourceDesc inputDataSource : inputDataSources)
             {
+                DataSource effectiveInputDataSource
+                    = inputDataSource.getEffectiveInputDataSource();
+
+                if (effectiveInputDataSource == null)
+                    continue;
+
                 FormatControl formatControl
                     = (FormatControl)
-                        inputDataSource
-                            .getEffectiveInputDataSource()
-                                .getControl(formatControlType);
+                        effectiveInputDataSource.getControl(formatControlType);
 
                 if (formatControl != null)
                 {
@@ -1004,6 +1009,36 @@ public class AudioMixer
     }
 
     /**
+     * Removes <tt>DataSource</tt>s accepted by a specific
+     * <tt>DataSourceFilter</tt> from the list of input <tt>DataSource</tt>s of
+     * this <tt>AudioMixer</tt> from which it reads audio to be mixed.
+     *
+     * @param dataSourceFilter the <tt>DataSourceFilter</tt> which selects the
+     * <tt>DataSource</tt>s to be removed from the list of input
+     * <tt>DataSource</tt>s of this <tt>AudioMixer</tt> from which it reads
+     * audio to be mixed
+     */
+    public void removeInputDataSources(DataSourceFilter dataSourceFilter)
+    {
+        synchronized (inputDataSources)
+        {
+            Iterator<InputDataSourceDesc> inputDataSourceIter
+                = inputDataSources.iterator();
+            boolean removed = false;
+
+            while (inputDataSourceIter.hasNext())
+                if (dataSourceFilter
+                        .accept(inputDataSourceIter.next().inputDataSource))
+                {
+                    inputDataSourceIter.remove();
+                    removed = true;
+                }
+            if (removed && (outputStream != null))
+                getOutputStream();
+        }
+    }
+
+    /**
      * Sets a specific <tt>AudioFormat</tt>, if possible, as the output
      * format of the input <tt>DataSource</tt>s of this
      * <tt>AudioMixer</tt> in an attempt to not have to perform explicit
@@ -1022,11 +1057,9 @@ public class AudioMixer
         {
             for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
             {
-                DataSource inputDataSource
-                    = inputDataSourceDesc.getEffectiveInputDataSource();
                 FormatControl formatControl
                     = (FormatControl)
-                        inputDataSource.getControl(formatControlType);
+                        inputDataSourceDesc.getControl(formatControlType);
 
                 if (formatControl != null)
                 {

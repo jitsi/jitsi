@@ -696,16 +696,22 @@ public class MediaDeviceSession
             {
                 getDevice().connect(captureDevice);
             }
-            catch (IOException ioe)
+            catch (IOException ioex)
             {
-                // TODO
-                exception = ioe;
+                exception = ioex;
             }
 
             if (exception == null)
                 captureDeviceIsConnected = true;
             else
+            {
+                logger
+                    .error(
+                        "Failed to connect to "
+                            + MediaStreamImpl.toString(captureDevice),
+                        exception);
                 captureDevice = null;
+            }
         }
         return captureDevice;
     }

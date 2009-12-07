@@ -32,6 +32,14 @@ public class PushBufferDataSourceAdapter
         = Logger.getLogger(PushBufferDataSourceAdapter.class);
 
     /**
+     * The indicator which determines whether the
+     * <tt>PushBufferStreamAdapater</tt> instances should wait for their
+     * {@link PushBufferStreamAdapter#streamReadThread}s to exit before their
+     * {@link PushBufferStreamAdapter#stop()} returns.
+     */
+    private static final boolean STRICT_STOP = false;
+
+    /**
      * The indicator which determines whether {@ link #start()} has been called
      * on this <tt>DataSource</tt> without a subsequent call to {@link #stop()}.
      */
@@ -534,26 +542,31 @@ public class PushBufferDataSourceAdapter
             synchronized (streamReadThreadSyncRoot)
             {
                 started = false;
+                if (STRICT_STOP)
+                {
+                    boolean interrupted = false;
 
-                boolean interrupted = false;
-
-                while (streamReadThread != null)
-                    try
-                    {
-                        streamReadThreadSyncRoot.wait();
-                    }
-                    catch (InterruptedException ie)
-                    {
-                        logger
-                            .info(
-                                getClass().getSimpleName()
-                                    + " interrupted while waiting for"
-                                    + " PullBufferStream read thread to stop.",
-                                ie);
-                        interrupted = true;
-                    }
-                if (interrupted)
-                    Thread.currentThread().interrupt();
+                    while (streamReadThread != null)
+                        try
+                        {
+                            streamReadThreadSyncRoot.wait();
+                        }
+                        catch (InterruptedException iex)
+                        {
+                            logger
+                                .info(
+                                    getClass().getSimpleName()
+                                        + " interrupted while waiting for"
+                                        + " PullBufferStream read thread"
+                                        + " to stop.",
+                                    iex);
+                            interrupted = true;
+                        }
+                    if (interrupted)
+                        Thread.currentThread().interrupt();
+                }
+                else
+                    streamReadThread = null;
             }
         }
     }

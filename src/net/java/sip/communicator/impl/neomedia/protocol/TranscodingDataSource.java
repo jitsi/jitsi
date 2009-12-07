@@ -92,7 +92,7 @@ public class TranscodingDataSource
          * Manager#createProcessor(DataSource) requires the specified DataSource
          * to be connected.
          */
-//        inputDataSource.connect();
+        inputDataSource.connect();
 
         Processor processor;
 

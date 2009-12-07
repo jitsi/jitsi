@@ -85,6 +85,11 @@ public class ReceiveStreamPushBufferDataSource
         setSuppressDisconnect(suppressDisconnect);
     }
 
+    /**
+     * Implements {@link DataSource#disconnect()}. Disconnects the wrapped
+     * <tt>DataSource</tt> if it has not been explicitly suppressed by setting
+     * the <tt>suppressDisconnect</tt> property of this instance.
+     */
     @Override
     public void disconnect()
     {

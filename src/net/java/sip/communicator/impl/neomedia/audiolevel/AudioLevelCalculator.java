@@ -46,7 +46,6 @@ public class AudioLevelCalculator
     {
         // magic ratio which scales good visually our levels
         return MAX_AUDIO_LEVEL/(maxLevel - minLevel)/16;
-
     }
 
     /**
@@ -81,7 +80,9 @@ public class AudioLevelCalculator
             if (soundLevel > MAX_AUDIO_LEVEL)
             {
                 soundLevel = MAX_AUDIO_LEVEL;
-            } else if (soundLevel < MIN_AUDIO_LEVEL) {
+            }
+            else if (soundLevel < MIN_AUDIO_LEVEL)
+            {
                 soundLevel = MIN_AUDIO_LEVEL;
             }
 
