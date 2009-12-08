@@ -97,15 +97,15 @@ public class MediaDeviceSession
     private ControllerListener playerControllerListener;
 
     /**
-     * The <tt>Processor</tt>s rendering <tt>ReceiveStream</tt>s on the
+     * The <tt>Player</tt>s rendering <tt>ReceiveStream</tt>s on the
      * <tt>MediaDevice</tt> represented by this instance. Associated with
      * <tt>DataSource</tt> because different <tt>ReceiveStream</tt>s may be
      * added with one and the same <tt>DataSource</tt> so it has to be clear
-     * when a new <tt>Processor</tt> is to be created and when it is to be
-     * disposed. The <tt>Processor</tt> is used as a Player.
+     * when a new <tt>Player</tt> is to be created and when it is to be
+     * disposed.
      */
-    private final Map<DataSource, Processor> players
-        = new HashMap<DataSource, Processor>();
+    private final Map<DataSource, Player> players
+        = new HashMap<DataSource, Player>();
 
     /**
      * The JMF <tt>Processor</tt> which transcodes {@link #captureDevice} into
@@ -251,7 +251,7 @@ public class MediaDeviceSession
 
         synchronized (players)
         {
-            Processor player = players.get(receiveStreamDataSource);
+            Player player = players.get(receiveStreamDataSource);
 
             if (player == null)
             {
@@ -290,25 +290,6 @@ public class MediaDeviceSession
                             exception);
             }
         }
-    }
-
-    /**
-     * Returns the <tt>ReceiveStream</tt> associated with this
-     * <tt>MediaDeviceSession</tt> or null if no <tt>ReceiveStream</tt> has
-     * been set yet.
-     *
-     * @return the <tt>ReceiveStream</tt> associated with this
-     * <tt>MediaDeviceSession</tt> or null if no <tt>ReceiveStream</tt> has
-     * been set yet.
-     *
-     * @todo right now this method is a bit of a hack as it returns the last
-     * receive stream that we added to this session. We are however planning
-     * changes on the architecture here that are going to replace the
-     * multistream nature of this class with a single stream one.
-     */
-    public ReceiveStream getReceiveStream()
-    {
-        return receiveStream;
     }
 
     /**
@@ -451,7 +432,6 @@ public class MediaDeviceSession
             mutePushBufferDataSource.setMute(mute);
             captureDevice = mutePushBufferDataSource;
         }
-/*
         else if (captureDevice instanceof PullBufferDataSource)
         {
             MutePullBufferDataSource mutePullBufferDataSource
@@ -461,7 +441,6 @@ public class MediaDeviceSession
             mutePullBufferDataSource.setMute(mute);
             captureDevice = mutePullBufferDataSource;
         }
-*/
 
         return captureDevice;
     }
@@ -480,7 +459,7 @@ public class MediaDeviceSession
      * @return a new <tt>Player</tt> for the specified
      * <tt>receiveStreamDataSource</tt>
      */
-    private Processor createPlayer( ReceiveStream receiveStream,
+    private Player createPlayer( ReceiveStream receiveStream,
                                     DataSource receiveStreamDataSource)
     {
         Processor player = null;
@@ -510,7 +489,8 @@ public class MediaDeviceSession
                         + receiveStream.getSSRC());
         else
         {
-            configureCompleted(player);
+            playerConfigureComplete(player);
+
             /*
              * To use the processor as a Player we must set its
              * ContentDescriptor to null.
@@ -521,7 +501,7 @@ public class MediaDeviceSession
             {
                 player.start();
 
-                realizeComplete(player);
+                playerRealizeComplete(player);
 
                 if (logger.isTraceEnabled())
                     logger .trace(
@@ -575,17 +555,16 @@ public class MediaDeviceSession
     }
 
     /**
-     * Releases the resources allocated by a specific <tt>Processor</tt> in the
+     * Releases the resources allocated by a specific <tt>Player</tt> in the
      * course of its execution and prepares it to be garbage collected.
-     * The <tt>Processor</tt> is used as a <tt>Player</tt>.
      *
-     * @param player the <tt>Processor</tt> to dispose of
+     * @param player the <tt>Player</tt> to dispose of
      */
-    protected void disposePlayer(Processor player)
+    protected void disposePlayer(Player player)
     {
         synchronized (players)
         {
-            Iterator<Map.Entry<DataSource, Processor>> playerIter
+            Iterator<Map.Entry<DataSource, Player>> playerIter
                 = players.entrySet().iterator();
 
             while (playerIter.hasNext())
@@ -611,22 +590,21 @@ public class MediaDeviceSession
     {
         synchronized (players)
         {
-            for (Processor player : getPlayers())
+            for (Player player : getPlayers())
                 disposePlayer(player);
         }
     }
 
     /**
-     * Returns the <tt>Processor</tt> associated with the specified
+     * Returns the <tt>Player</tt> associated with the specified
      * <tt>dataSource</tt> or <tt>null</tt> if there isn't one.
      *
      * @param dataSource the <tt>DataSource</tt> whose processor we are trying
-     * to obtain.
-     *
-     * @return the <tt>Processor</tt> associated with the specified
+     * to obtain
+     * @return the <tt>Player</tt> associated with the specified
      * <tt>dataSource</tt> or <tt>null</tt> if there isn't one.
      */
-    protected Processor getPlayer(DataSource dataSource)
+    protected Player getPlayer(DataSource dataSource)
     {
         return players.get(dataSource);
     }
@@ -729,20 +707,6 @@ public class MediaDeviceSession
     }
 
     /**
-     * Gets the <tt>MediaDirection</tt> in which this instance has been started.
-     * For example, a <tt>MediaDirection</tt> which returns <tt>true</tt> for
-     * <tt>allowsSending()</tt> signals that this instance is capturing media
-     * from its <tt>MediaDevice</tt>.
-     *
-     * @return the <tt>MediaDirection</tt> in which this instance has been
-     * started
-     */
-    public MediaDirection getStartedDirection()
-    {
-        return startedDirection;
-    }
-
-    /**
      * Gets the <tt>MediaFormat</tt> in which this instance captures media from
      * its associated <tt>MediaDevice</tt>.
      *
@@ -827,21 +791,20 @@ public class MediaDeviceSession
     }
 
     /**
-     * Gets the <tt>Processors</tt>s rendering <tt>ReceiveStream</tt>s for this
+     * Gets the <tt>Player</tt>s rendering <tt>ReceiveStream</tt>s for this
      * instance on its associated <tt>MediaDevice</tt>. The returned
      * <tt>List</tt> is a copy of the internal storage and, consequently,
      * modifications to it do not affect this instance.
-     * The <tt>Processor</tt>s are used as a <tt>Player</tt>s.
      *
-     * @return a new <tt>List</tt> of <tt>Processor</tt>s rendering
+     * @return a new <tt>List</tt> of <tt>Player</tt>s rendering
      * <tt>ReceiveStream</tt>s for this instance on its associated
      * <tt>MediaDevice</tt>
      */
-    protected List<Processor> getPlayers()
+    protected List<Player> getPlayers()
     {
         synchronized (players)
         {
-            return new ArrayList<Processor>(players.values());
+            return new ArrayList<Player>(players.values());
         }
     }
 
@@ -929,6 +892,39 @@ public class MediaDeviceSession
     }
 
     /**
+     * Returns the <tt>ReceiveStream</tt> associated with this
+     * <tt>MediaDeviceSession</tt> or <tt>null</tt> if no <tt>ReceiveStream</tt>
+     * has been set yet.
+     *
+     * @return the <tt>ReceiveStream</tt> associated with this
+     * <tt>MediaDeviceSession</tt> or <tt>null</tt> if no <tt>ReceiveStream</tt>
+     * has been set yet.
+     *
+     * @todo right now this method is a bit of a hack as it returns the last
+     * receive stream that we added to this session. We are however planning
+     * changes on the architecture here that are going to replace the
+     * multi-stream nature of this class with a single stream one.
+     */
+    public ReceiveStream getReceiveStream()
+    {
+        return receiveStream;
+    }
+
+    /**
+     * Gets the <tt>MediaDirection</tt> in which this instance has been started.
+     * For example, a <tt>MediaDirection</tt> which returns <tt>true</tt> for
+     * <tt>allowsSending()</tt> signals that this instance is capturing media
+     * from its <tt>MediaDevice</tt>.
+     *
+     * @return the <tt>MediaDirection</tt> in which this instance has been
+     * started
+     */
+    public MediaDirection getStartedDirection()
+    {
+        return startedDirection;
+    }
+
+    /**
      * Gets a list of the <tt>MediaFormat</tt>s in which this instance is
      * capable of capturing media from its associated <tt>MediaDevice</tt>.
      *
@@ -995,6 +991,30 @@ public class MediaDeviceSession
     }
 
     /**
+     * Notifies this instance that a specific <tt>Player</tt> of remote content
+     * has generated a <tt>ConfigureCompleteEvent</tt>. Allows extenders to
+     * carry out additional processing on the <tt>Player</tt>.
+     *
+     * @param player the <tt>Player</tt> which is the source of a
+     * <tt>ConfigureCompleteEvent</tt>
+     */
+    protected void playerConfigureComplete(Processor player)
+    {
+    }
+
+    /**
+     * Notifies this instance that a specific <tt>Player</tt> of remote content
+     * has generated a <tt>RealizeCompleteEvent</tt>. Allows extenders to carry
+     * out additional processing on the <tt>Player</tt>.
+     *
+     * @param player the <tt>Player</tt> which is the source of a
+     * <tt>RealizeCompleteEvent</tt>
+     */
+    protected void playerRealizeComplete(Processor player)
+    {
+    }
+
+    /**
      * Gets notified about <tt>ControllerEvent</tt>s generated by
      * {@link #processor}.
      *
@@ -1046,32 +1066,6 @@ public class MediaDeviceSession
     }
 
     /**
-     * Notifies this instance that a specific <tt>Processor</tt> of
-     * remote content has generated a <tt>RealizeCompleteEvent</tt>.
-     * Allows extenders to carry out additional processing on the
-     * <tt>Processor</tt>. The <tt>Processor</tt> is used as a <tt>Player</tt>.
-     *
-     * @param player the <tt>Processor</tt> which is the source of a
-     * <tt>RealizeCompleteEvent</tt>
-     */
-    protected void realizeComplete(Processor player)
-    {
-    }
-
-    /**
-     * Notifies this instance that a specific <tt>Processor</tt> of
-     * remote content has generated a <tt>ConfigureCompleteEvent</tt>.
-     * Allows descendants to carry out additional processing on the
-     * <tt>Processor</tt>. The <tt>Processor</tt> is used as a <tt>Player</tt>.
-     *
-     * @param player the <tt>Processor</tt> which is the source of a
-     * <tt>RealizeCompleteEvent</tt>
-     */
-    protected void configureCompleted(Processor player)
-    {
-    }
-
-    /**
      * Removes a <tt>ReceiveStream</tt> from this <tt>MediaDeviceSession</tt> so
      * that it no longer plays back on the associated <tt>MediaDevice</tt>.
      *
@@ -1090,7 +1084,7 @@ public class MediaDeviceSession
                 && !receiveStreams.containsValue(receiveStreamDataSource))
             synchronized (players)
             {
-                Processor player = players.get(receiveStreamDataSource);
+                Player player = players.get(receiveStreamDataSource);
 
                 if (player != null)
                     disposePlayer(player);

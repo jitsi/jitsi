@@ -86,21 +86,19 @@ public class VideoMediaDeviceSession
     }
 
     /**
-     * Releases the resources allocated by a specific <tt>Processor</tt> in the
+     * Releases the resources allocated by a specific <tt>Player</tt> in the
      * course of its execution and prepares it to be garbage collected. If the
-     * specified <tt>Processor</tt> is rendering video, notifies the
+     * specified <tt>Player</tt> is rendering video, notifies the
      * <tt>VideoListener</tt>s of this instance that its visual
      * <tt>Component</tt> is to no longer be used by firing a
      * {@link VideoEvent#VIDEO_REMOVED} <tt>VideoEvent</tt>.
      *
-     * @param player the <tt>Processor</tt> to dispose of,
-     *        the processor is used as Player.
+     * @param player the <tt>Player</tt> to dispose of
      * @see MediaDeviceSession#disposePlayer(Player)
      */
     @Override
-    protected void disposePlayer(Processor player)
+    protected void disposePlayer(Player player)
     {
-
         /*
          * The player is being disposed so let the (interested) listeners know
          * its Player#getVisualComponent() (if any) should be released.
@@ -160,7 +158,7 @@ public class VideoMediaDeviceSession
      */
     public Component getVisualComponent()
     {
-        for (Processor player : getPlayers())
+        for (Player player : getPlayers())
         {
             Component visualComponent = getVisualComponent(player);
 
@@ -171,19 +169,17 @@ public class VideoMediaDeviceSession
     }
 
     /**
-     * Gets the visual <tt>Component</tt> of a specific <tt>Processor</tt> if it
+     * Gets the visual <tt>Component</tt> of a specific <tt>Player</tt> if it
      * has one and ignores the failure to access it if the specified
-     * <tt>Processor</tt> is unrealized.
-     * The <tt>Processor</tt> is used as Player.
+     * <tt>Player</tt> is unrealized.
      *
      * @param player the <tt>Player</tt> to get the visual <tt>Component</tt> of
      * if it has one
      * @return the visual <tt>Component</tt> of the specified <tt>Player</tt> if
-     * it has one; <tt>null</tt> if the specified <tt>Processor</tt> 
-     * does not have a visual <tt>Component</tt> or
-     * the <tt>Processor</tt> is unrealized.
+     * it has one; <tt>null</tt> if the specified <tt>Player</tt> does not have
+     * a visual <tt>Component</tt> or the <tt>Player</tt> is unrealized
      */
-    private static Component getVisualComponent(Processor player)
+    private static Component getVisualComponent(Player player)
     {
         Component visualComponent;
 
@@ -207,18 +203,17 @@ public class VideoMediaDeviceSession
     }
 
     /**
-     * Notifies this instance that a specific <tt>Processor</tt> of remote 
-     * content has generated a <tt>RealizeCompleteEvent</tt>.
-     * The <tt>Processor</tt> is used as Player.
+     * Notifies this instance that a specific <tt>Player</tt> of remote content
+     * has generated a <tt>RealizeCompleteEvent</tt>.
      *
-     * @param player the <tt>Processor</tt> which is the source of a
+     * @param player the <tt>Player</tt> which is the source of a
      * <tt>RealizeCompleteEvent</tt>.
-     * @see MediaDeviceSession#realizeComplete(Player)
+     * @see MediaDeviceSession#playerRealizeComplete(Processor)
      */
     @Override
-    protected void realizeComplete(Processor player)
+    protected void playerRealizeComplete(Processor player)
     {
-        super.realizeComplete(player);
+        super.playerRealizeComplete(player);
 
         Component visualComponent = getVisualComponent(player);
 
