@@ -544,60 +544,31 @@ public class ContactList
             Component component = this.getHorizontalComponent(renderer,
                 translatedX);
 
-            if (component instanceof JLabel)
+            // Right click and Ctrl+LeftClick on the contact label opens
+            // Popup menu
+            if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
+                || (e.isControlDown() && !e.isMetaDown()))
             {
-                // Right click and Ctrl+LeftClick on the contact label opens
-                // Popup menu
-                if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
-                    || (e.isControlDown() && !e.isMetaDown()))
-                {
 
-                    contactRightButtonMenu = new ContactRightButtonMenu(this,
-                        contact);
+                contactRightButtonMenu = new ContactRightButtonMenu(this,
+                    contact);
 
-                    SwingUtilities
-                        .convertPointToScreen(selectedCellPoint, this);
+                SwingUtilities
+                    .convertPointToScreen(selectedCellPoint, this);
 
-                    contactRightButtonMenu.setInvoker(this);
+                contactRightButtonMenu.setInvoker(this);
 
-                    contactRightButtonMenu.setLocation(selectedCellPoint.x,
-                        selectedCellPoint.y + renderer.getHeight());
+                contactRightButtonMenu.setLocation(selectedCellPoint.x,
+                    selectedCellPoint.y + renderer.getHeight());
 
-                    contactRightButtonMenu.setVisible(true);
-                }
-                // Left click on the contact label opens Chat window
-                else if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0
-                    && e.getClickCount() > 1)
-                {
-                    fireContactListEvent(contact,
-                        ContactListEvent.CONTACT_SELECTED, e.getClickCount());
-                }
+                contactRightButtonMenu.setVisible(true);
             }
-            else if (component instanceof JButton)
+            // Left click on the contact label opens Chat window
+            else if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0
+                && e.getClickCount() > 1)
             {
-                // Click on the info button opens the info popup panel
-                SwingUtilities.invokeLater(new RunInfoWindow(selectedCellPoint,
-                    contact));
-            }
-            else if (component instanceof JPanel)
-            {
-                if (component.getName() != null
-                    && component.getName().equals("buttonsPanel"))
-                {
-                    JPanel panel = (JPanel) component;
-
-                    int internalX = translatedX
-                        - (renderer.getWidth() - panel.getWidth() - 2);
-
-                    Component c = getHorizontalComponent(panel, internalX);
-
-                    if (c instanceof ContactProtocolButton)
-                    {
-                        fireContactListEvent(contact,
-                            ((ContactProtocolButton) c).getProtocolContact(),
-                            ContactListEvent.PROTOCOL_CONTACT_SELECTED);
-                    }
-                }
+                fireContactListEvent(contact,
+                    ContactListEvent.CONTACT_SELECTED, e.getClickCount());
             }
         }
     }
@@ -676,8 +647,8 @@ public class ContactList
 
         public void run()
         {
-            ContactInfoDialog contactInfoPanel = new ContactInfoDialog(mainFrame,
-                contactItem);
+            ContactInfoDialog contactInfoPanel
+                = new ContactInfoDialog(mainFrame, contactItem);
 
             SwingUtilities.convertPointToScreen(p, ContactList.this);
 
