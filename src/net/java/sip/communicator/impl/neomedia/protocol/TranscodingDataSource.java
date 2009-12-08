@@ -15,6 +15,7 @@ import javax.media.format.*;
 import javax.media.protocol.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
+import net.java.sip.communicator.impl.neomedia.control.*;
 
 /**
  * Represents a <tt>DataSource</tt> which transcodes the tracks of a specific
@@ -234,7 +235,7 @@ public class TranscodingDataSource
     {
         return
             (outputDataSource == null)
-                ? new Object[0]
+                ? ControlsAdapter.EMPTY_CONTROLS
                 : outputDataSource.getControls();
     }
 

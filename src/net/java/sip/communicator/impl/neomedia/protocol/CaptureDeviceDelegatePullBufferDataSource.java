@@ -12,12 +12,15 @@ import javax.media.*;
 import javax.media.control.*;
 import javax.media.protocol.*;
 
+import net.java.sip.communicator.impl.neomedia.control.*;
+
 /**
  * Represents a <tt>PullBufferDataSource</tt> which is also a
  * <tt>CaptureDevice</tt> through delegation to a specific
  * <tt>CaptureDevice</tt>.
  *
  * @author Damian Minkov
+ * @author Lubomir Marinov
  */
 public class CaptureDeviceDelegatePullBufferDataSource
     extends PullBufferDataSource
@@ -28,13 +31,6 @@ public class CaptureDeviceDelegatePullBufferDataSource
      * implement its <tt>CaptureDevice</tt> functionality.
      */
     protected final CaptureDevice captureDevice;
-
-    /**
-     * The constant which represents an empty array with <tt>Object</tt> element
-     * type giving no controls for a <tt>DataSource</tt>. Explicitly defined in
-     * order to reduce unnecessary allocations.
-     */
-    protected static final Object[] EMPTY_CONTROLS = new Object[0];
 
     /**
      * The constant which represents an empty array with
@@ -182,7 +178,7 @@ public class CaptureDeviceDelegatePullBufferDataSource
     {
         if (captureDevice instanceof DataSource)
             return ((DataSource) captureDevice).getControls();
-        return EMPTY_CONTROLS;
+        return ControlsAdapter.EMPTY_CONTROLS;
     }
 
     /**
