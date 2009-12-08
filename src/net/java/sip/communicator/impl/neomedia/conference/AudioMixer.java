@@ -542,49 +542,6 @@ public class AudioMixer
     }
 
     /**
-     * Gets the control of a specific <tt>Controls</tt> implementation of a
-     * specific type if such a control is made available through
-     * {@link Controls#getControls()}; otherwise, returns <tt>null</tt>.
-     *
-     * @param controlsImpl the implementation of <tt>Controls</tt> which is to
-     * be queried for its list of controls so that the control of the specified
-     * type can be looked for
-     * @param controlType a <tt>String</tt> value which names the type of the
-     * control to be retrieved
-     * @return an <tt>Object</tt> which represents the control of
-     * <tt>controlsImpl</tt> of the specified <tt>controlType</tt> if such a
-     * control is made available through <tt>Controls#getControls()</tt>;
-     * otherwise, <tt>null</tt>
-     */
-    public static Object getControl(Controls controlsImpl, String controlType)
-    {
-        Object[] controls = controlsImpl.getControls();
-
-        if ((controls != null) && (controls.length > 0))
-        {
-            Class<?> controlClass;
-
-            try
-            {
-                controlClass = Class.forName(controlType);
-            }
-            catch (ClassNotFoundException cnfe)
-            {
-                controlClass = null;
-                logger
-                    .warn(
-                        "Failed to find control class " + controlType,
-                        cnfe);
-            }
-            if (controlClass != null)
-                for (Object control : controls)
-                    if (controlClass.isInstance(control))
-                        return control;
-        }
-        return null;
-    }
-
-    /**
      * Gets the duration of each one of the output streams produced by this
      * <tt>AudioMixer</tt>.
      * 

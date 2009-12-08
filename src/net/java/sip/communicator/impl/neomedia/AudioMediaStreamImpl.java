@@ -121,7 +121,6 @@ public class AudioMediaStreamImpl
     public void setConferenceMemberAudioLevelListener(
         SimpleAudioLevelListener listener)
     {
-
     }
 
     /**
@@ -226,6 +225,7 @@ public class AudioMediaStreamImpl
      *
      * @return the <tt>AudioMediaDeviceSession</tt> associated with this stream.
      */
+    @Override
     public AudioMediaDeviceSession getDeviceSession()
     {
         return (AudioMediaDeviceSession)super.getDeviceSession();

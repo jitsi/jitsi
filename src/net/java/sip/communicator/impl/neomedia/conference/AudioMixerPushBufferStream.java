@@ -16,6 +16,7 @@ import javax.media.format.*;
 import javax.media.protocol.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
+import net.java.sip.communicator.impl.neomedia.control.*;
 import net.java.sip.communicator.impl.neomedia.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -32,6 +33,7 @@ import net.java.sip.communicator.util.*;
  * @author Lubomir Marinov
  */
 class AudioMixerPushBufferStream
+    extends ControlsAdapter
     implements PushBufferStream
 {
     /**
@@ -322,35 +324,6 @@ class AudioMixerPushBufferStream
                 }
         }
         return contentLength;
-    }
-
-    /**
-     * Implements {@link Controls#getControl(String)}. Invokes
-     * {@link #getControls()} and then looks for a control of the specified type
-     * in the returned array of controls.
-     *
-     * @param controlType a <tt>String</tt> value naming the type of the control
-     * of this instance to be retrieved
-     * @return an <tt>Object</tt> which represents the control of this instance
-     * with the specified type
-     */
-    public Object getControl(String controlType)
-    {
-        return AudioMixer.getControl(this, controlType);
-    }
-
-    /**
-     * Implements {@link Controls#getControls()}. Gets the controls available
-     * for this <tt>PushBufferStream</tt>. The current implementation returns an
-     * empty array because it has no available controls.
-     *
-     * @return an array of <tt>Object</tt>s which represent the controls
-     * available for this <tt>PushBufferStream</tt>
-     */
-    public Object[] getControls()
-    {
-        // TODO Auto-generated method stub
-        return new Object[0];
     }
 
     /**

@@ -10,8 +10,6 @@ package net.java.sip.communicator.impl.neomedia.device;
 import javax.media.*;
 import javax.media.control.*;
 import javax.media.format.*;
-import javax.media.protocol.*;
-import javax.media.rtp.*;
 
 import net.java.sip.communicator.impl.neomedia.audiolevel.*;
 import net.java.sip.communicator.service.neomedia.event.*;
@@ -35,13 +33,15 @@ public class AudioMediaDeviceSession
      * The effect that we will register with our datasource in order to measure
      * audio levels of the local user audio.
      */
-    private AudioLevelEffect localUserAudioLevelEffect = new AudioLevelEffect();
+    private final AudioLevelEffect localUserAudioLevelEffect
+        = new AudioLevelEffect();
 
     /**
      * The effect that we will register with our stream in order to measure
      * audio levels of the remote user audio.
      */
-    private AudioLevelEffect streamAudioLevelEffect = new AudioLevelEffect();
+    private final AudioLevelEffect streamAudioLevelEffect
+        = new AudioLevelEffect();
 
     /**
      * Initializes a new <tt>MediaDeviceSession</tt> instance which is to
@@ -180,6 +180,7 @@ public class AudioMediaDeviceSession
      * <tt>Controller</tt> which is the source of the event and the very type of
      * the event
      */
+    @Override
     protected void processorControllerUpdate(ControllerEvent event)
     {
         super.processorControllerUpdate(event);

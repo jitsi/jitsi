@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.neomedia.audiolevel;
 import javax.media.*;
 import javax.media.format.*;
 
+import net.java.sip.communicator.impl.neomedia.control.*;
 import net.java.sip.communicator.service.neomedia.event.*;
 
 /**
@@ -17,8 +18,10 @@ import net.java.sip.communicator.service.neomedia.event.*;
  *
  * @author Damian Minkov
  * @author Emil Ivov
+ * @author Lubomir Marinov
  */
 public class AudioLevelEffect
+    extends ControlsAdapter
     implements Effect
 {
     /**
@@ -37,29 +40,30 @@ public class AudioLevelEffect
     private AudioFormat outputFormat;
 
     /**
-     * The dispatcher of the events, handle the calculation and the
-     * event firing in different thread.
+     * The dispatcher of the events which handles the calculation and the event
+     * firing in different thread in order to now slow down the JMF codec chain.
      */
-    private AudioLevelEventDispatcher eventDispatcher
-                                            = new AudioLevelEventDispatcher();
+    private final AudioLevelEventDispatcher eventDispatcher
+        = new AudioLevelEventDispatcher();
 
     /**
      * The minimum and maximum values of the scale
      */
     public AudioLevelEffect()
     {
-        supportedAudioFormats = new Format[]{
+        supportedAudioFormats = new Format[]
+        {
             new AudioFormat(
-                AudioFormat.LINEAR,
-                Format.NOT_SPECIFIED,
-                16,
-                1,
-                AudioFormat.LITTLE_ENDIAN,
-                AudioFormat.SIGNED,
-                16,
-                Format.NOT_SPECIFIED,
-                Format.byteArray)
-            };
+                    AudioFormat.LINEAR,
+                    Format.NOT_SPECIFIED,
+                    16,
+                    1,
+                    AudioFormat.LITTLE_ENDIAN,
+                    AudioFormat.SIGNED,
+                    16,
+                    Format.NOT_SPECIFIED,
+                    Format.byteArray)
+        };
     }
 
     /**
@@ -212,55 +216,5 @@ public class AudioLevelEffect
      */
     public void reset()
     {
-    }
-
-    /**
-     * Obtain the collection of objects that
-     * control the object that implements this interface.
-     * <p>
-     *
-     * If no controls are supported, a zero length
-     * array is returned.
-     *
-     * @return the collection of object controls
-     */
-    public Object[] getControls()
-    {
-        return new Control[0];
-    }
-
-    /**
-     * Obtain the object that implements the specified
-     * <tt>Class</tt> or <tt>Interface</tt>
-     * The full class or interface name must be used.
-     * <p>
-     *
-     * If the control is not supported then <tt>null</tt>
-     * is returned.
-     *
-     * @param controlType the control type to return.
-     * @return the object that implements the control,
-     * or <tt>null</tt>.
-     */
-    public Object getControl(String controlType)
-    {
-        try
-        {
-            Class<?> cls = Class.forName(controlType);
-            Object cs[] = getControls();
-            for(int i = 0; i < cs.length; i++)
-            {
-                if(cls.isInstance(cs[i]))
-                {
-                    return cs[i];
-                }
-            }
-            return null;
-
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
     }
 }

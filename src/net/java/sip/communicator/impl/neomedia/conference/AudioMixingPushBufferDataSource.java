@@ -13,6 +13,7 @@ import javax.media.*;
 import javax.media.control.*;
 import javax.media.protocol.*;
 
+import net.java.sip.communicator.impl.neomedia.control.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -183,7 +184,7 @@ public class AudioMixingPushBufferDataSource
      */
     public Object getControl(String controlType)
     {
-        return AudioMixer.getControl(this, controlType);
+        return AbstractControls.getControl(this, controlType);
     }
 
     /**

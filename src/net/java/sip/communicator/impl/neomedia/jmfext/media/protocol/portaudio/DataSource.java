@@ -178,23 +178,7 @@ public class DataSource
      */
     public Object getControl(String controlType)
     {
-        try
-        {
-            Class<?> controlClass = Class.forName(controlType);
-
-            for (Object control : getControls())
-                if (controlClass.isInstance(control))
-                    return control;
-        }
-        catch (ClassNotFoundException cnfex)
-        {
-            logger
-                .warn(
-                    "Failed to load class of requested controlType "
-                        + controlType,
-                    cnfex);
-        }
-        return null;
+        return AbstractControls.getControl(this, controlType);
     }
 
     /**

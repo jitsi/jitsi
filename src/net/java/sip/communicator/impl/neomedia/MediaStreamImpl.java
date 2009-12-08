@@ -32,6 +32,7 @@ import net.java.sip.communicator.util.*;
  * Implements <tt>MediaStream</tt> using JMF.
  *
  * @author Lubomir Marinov
+ * @author Emil Ivov
  */
 public class MediaStreamImpl
     extends AbstractMediaStream
@@ -81,11 +82,16 @@ public class MediaStreamImpl
         = new HashMap<Byte, MediaFormat>();
 
     /**
-     * The <tt>ReceiveStream</tt>s this instance plays back on its associated
+     * The <tt>ReceiveStream</tt> this instance plays back on its associated
      * <tt>MediaDevice</tt>.
      */
-    private final List<ReceiveStream> receiveStreams
-        = new ArrayList<ReceiveStream>();
+    private ReceiveStream receiveStream;
+
+    /**
+     * The <tt>Object</tt> which synchronizes the access to
+     * {@link #receiveStream} and its registration with {@link #deviceSession}.
+     */
+    private final Object receiveStreamSyncRoot = new Object();
 
     /**
      * The <tt>RTPConnector</tt> through which this instance sends and receives
@@ -159,11 +165,10 @@ public class MediaStreamImpl
     private boolean mute = false;
 
     /**
-     * Stores the map of currently active <tt>RTPExtension</tt>s and the IDs
-     * that they have been assigned for the lifetime of this
-     * <tt>MediaStream</tt>.
+     * The map of currently active <tt>RTPExtension</tt>s and the IDs that they
+     * have been assigned for the lifetime of this <tt>MediaStream</tt>.
      */
-    private Map<Byte, RTPExtension> activeRTPExtensions
+    private final Map<Byte, RTPExtension> activeRTPExtensions
         = new Hashtable<Byte, RTPExtension>();
 
     /**
@@ -197,11 +202,7 @@ public class MediaStreamImpl
         //register the transform engines that we will be using in this stream.
         csrcEngine = new CsrcTransformEngine(this);
 
-
-        TransformEngineChain engineChain = new TransformEngineChain(
-            new TransformEngine[]{ csrcEngine });
-        rtpConnector.setEngine(engineChain);
-
+        rtpConnector.setEngine(new TransformEngineChain(csrcEngine));
     }
 
     /**
@@ -249,12 +250,9 @@ public class MediaStreamImpl
         synchronized (activeRTPExtensions)
         {
             if(rtpExtension.getDirection() == MediaDirection.INACTIVE)
-            {
-                this.activeRTPExtensions.remove(extensionID);
-                return;
-            }
-
-            activeRTPExtensions.put(extensionID, rtpExtension);
+                activeRTPExtensions.remove(extensionID);
+            else
+                activeRTPExtensions.put(extensionID, rtpExtension);
         }
     }
 
@@ -869,9 +867,9 @@ public class MediaStreamImpl
                 deviceSession.setMute(mute);
                 deviceSession.start(startedDirection);
 
-                synchronized (receiveStreams)
+                synchronized (receiveStreamSyncRoot)
                 {
-                    for (ReceiveStream receiveStream : receiveStreams)
+                    if (receiveStream != null)
                         deviceSession.addReceiveStream(receiveStream);
                 }
             }
@@ -1390,21 +1388,26 @@ public class MediaStreamImpl
 
             if (receiveStream != null)
             {
+                long receiveStreamSSRC = receiveStream.getSSRC();
+
                 if (logger.isTraceEnabled())
-                    logger.trace("Received new ReceiveStream with ssrc "
-                                + receiveStream.getSSRC());
+                    logger
+                        .trace(
+                            "Received new ReceiveStream with ssrc "
+                                + receiveStreamSSRC);
 
-                setRemoteSourceID( receiveStream.getSSRC() );
+                setRemoteSourceID(receiveStreamSSRC);
 
-                synchronized (receiveStreams)
+                synchronized (receiveStreamSyncRoot)
                 {
-                    if (!receiveStreams.contains(receiveStream)
-                            && receiveStreams.add(receiveStream))
+                    if (this.receiveStream != receiveStream)
                     {
+                        this.receiveStream = receiveStream;
+
                         MediaDeviceSession deviceSession = getDeviceSession();
 
                         if (deviceSession != null)
-                            deviceSession.addReceiveStream(receiveStream);
+                            deviceSession.addReceiveStream(this.receiveStream);
                     }
                 }
             }
@@ -1414,10 +1417,12 @@ public class MediaStreamImpl
             ReceiveStream receiveStream = event.getReceiveStream();
 
             if (receiveStream != null)
-                synchronized (receiveStreams)
+                synchronized (receiveStreamSyncRoot)
                 {
-                    if (receiveStreams.remove(receiveStream))
+                    if (this.receiveStream == receiveStream)
                     {
+                        this.receiveStream = null;
+
                         MediaDeviceSession deviceSession = getDeviceSession();
 
                         if (deviceSession != null)
@@ -1444,7 +1449,7 @@ public class MediaStreamImpl
 
     /**
      * Notifies this <tt>SessionListener</tt> that the <tt>RTPManager</tt> it is
-     * registered with has generated an event which pertains to the seesion as a
+     * registered with has generated an event which pertains to the session as a
      * whole and does not belong to a <tt>ReceiveStream</tt> or a
      * <tt>SendStream</tt> or a remote participant necessarily.
      *
@@ -1467,6 +1472,7 @@ public class MediaStreamImpl
     private void setLocalSourceID(long ssrc)
     {
         Long oldValue = this.localSourceID;
+
         this.localSourceID = ssrc;
 
         firePropertyChange(PNAME_LOCAL_SSRC, oldValue, ssrc);

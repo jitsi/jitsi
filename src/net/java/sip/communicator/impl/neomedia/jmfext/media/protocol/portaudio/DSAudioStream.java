@@ -15,6 +15,8 @@ import javax.media.*;
 import javax.media.format.*;
 import javax.media.protocol.*;
 
+import net.java.sip.communicator.impl.neomedia.control.*;
+
 /**
  * The stream used by jmf, wraps our InputPortAudioStream, which wraps
  * the actual PortAudio stream.
@@ -23,12 +25,11 @@ import javax.media.protocol.*;
  * @author Lubomir Marinov
  */
 public class DSAudioStream
+    extends ControlsAdapter
     implements PullBufferStream
 {
     private final static ContentDescriptor cd =
         new ContentDescriptor(ContentDescriptor.RAW);
-
-    private Control[] controls = new Control[0];
 
     private final int deviceIndex;
 
@@ -155,43 +156,5 @@ public class DSAudioStream
     public boolean endOfStream()
     {
         return false;
-    }
-
-    /**
-     * Gives control information to the caller
-     * @return no controls currently supported.
-     */
-    public Object[] getControls()
-    {
-        return controls;
-    }
-
-    /**
-     * Return required control from the Control[] array
-     * if exists
-     *
-     * @param controlType the control class name.
-     * @return the object that implements the control, or null.
-     */
-    public Object getControl(String controlType)
-    {
-        try
-        {
-            Class<?> cls = Class.forName(controlType);
-            Object cs[] = getControls();
-            for(int i = 0; i < cs.length; i++)
-            {
-                if(cls.isInstance(cs[i]))
-                {
-                    return cs[i];
-                }
-            }
-            return null;
-
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
     }
 }

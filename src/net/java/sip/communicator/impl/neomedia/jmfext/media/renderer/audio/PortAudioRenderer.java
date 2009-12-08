@@ -6,20 +6,22 @@
  */
 package net.java.sip.communicator.impl.neomedia.jmfext.media.renderer.audio;
 
-
 import javax.media.*;
 import javax.media.format.*;
 
+import net.java.sip.communicator.impl.neomedia.control.*;
 import net.java.sip.communicator.impl.neomedia.portaudio.*;
 import net.java.sip.communicator.impl.neomedia.portaudio.streams.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * Portaudio renderer.
+ * PortAudio renderer.
  *
  * @author Damian Minkov
+ * @author Lubomir Marinov
  */
 public class PortAudioRenderer
+    extends ControlsAdapter
     implements  Renderer
 {
     /**
@@ -44,11 +46,6 @@ public class PortAudioRenderer
      */
     private static double[] supportedSampleRates =
         new double[]{8000, 16000, 22050, 44100, 48000};
-
-    /**
-     * The renderer controls.
-     */
-    private Object [] controls = new Object[0];
 
     /**
      * The current input format of the renderer.
@@ -199,43 +196,6 @@ public class PortAudioRenderer
      */
     public void reset()
     {
-    }
-
-    /**
-     * Gives control information to the caller
-     * @return the collection of object controls.
-     */
-    public Object[] getControls()
-    {
-        return controls;
-    }
-
-    /**
-     * Return required control from the Control[] array
-     * if exists.
-     * @param controlType the control we are interested in.
-     * @return the object that implements the control, or null.
-     */
-    public Object getControl(String controlType)
-    {
-        try
-        {
-            Class<?> cls = Class.forName(controlType);
-            Object cs[] = getControls();
-            for(int i = 0; i < cs.length; i++)
-            {
-                if(cls.isInstance(cs[i]))
-                {
-                    return cs[i];
-                }
-            }
-            return null;
-
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
     }
 
     /**

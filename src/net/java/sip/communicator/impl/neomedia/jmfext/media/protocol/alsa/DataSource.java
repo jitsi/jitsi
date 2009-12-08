@@ -6,19 +6,22 @@
  */
 package net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.alsa;
 
-import javax.media.Time;
+import java.io.*;
+
+import javax.media.*;
 import javax.media.protocol.*;
-import java.io.IOException;
+
+import net.java.sip.communicator.impl.neomedia.control.*;
 
 /**
  * low-latency ALSA access through JNI wrapper
  *
  * @author Jean Lorchat
+ * @author Lubomir Marinov
  */
 public class DataSource
     extends PushBufferDataSource
 {
-    protected Object [] controls = new Object[0];
     protected boolean started = false;
     protected String contentType = "raw";
     protected boolean connected = false;
@@ -90,30 +93,20 @@ public class DataSource
     }
 
     /**
-     * Gives control information to the caller
-     *
+     * Gives control information to the caller.
      */
-    public Object [] getControls() {
-    return controls;
+    public Object [] getControls()
+    {
+        return ControlsAdapter.EMPTY_CONTROLS;
     }
 
     /**
      * Return required control from the Control[] array
      * if exists, that is
      */
-    public Object getControl(String controlType) {
-       try {
-          Class<?>  cls = Class.forName(controlType);
-          Object cs[] = getControls();
-          for (int i = 0; i < cs.length; i++) {
-             if (cls.isInstance(cs[i]))
-                return cs[i];
-          }
-          return null;
-
-       } catch (Exception e) {
-         return null;
-       }
+    public Object getControl(String controlType)
+    {
+        return AbstractControls.getControl(this, controlType);
     }
 
     /**

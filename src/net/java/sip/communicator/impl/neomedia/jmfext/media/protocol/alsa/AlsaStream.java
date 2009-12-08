@@ -6,18 +6,24 @@
  */
 package net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.alsa;
 
+import java.io.*;
+
 import javax.media.*;
 import javax.media.format.*;
 import javax.media.protocol.*;
-import java.io.IOException;
+
+import net.java.sip.communicator.impl.neomedia.control.*;
 
 /**
  * low-latency ALSA access through JNI wrapper
  *
  * @author Jean Lorchat
+ * @author Lubomir Marinov
  */
 public class AlsaStream
-    implements PushBufferStream, Runnable
+    extends ControlsAdapter
+    implements PushBufferStream,
+               Runnable
 {
     protected ContentDescriptor cd = new ContentDescriptor(ContentDescriptor.RAW);
     protected int maxDataLength;
@@ -25,7 +31,6 @@ public class AlsaStream
     protected boolean started;
     protected Thread thread;
     protected BufferTransferHandler transferHandler;
-    protected Control [] controls = new Control[0];
 
     private native void jni_alsa_init();
     private native void jni_alsa_read(byte [] arr);
@@ -187,33 +192,5 @@ public class AlsaStream
         }
 
     }
-    }
-
-
-    /**
-     * Gives control information to the caller
-     *
-     */
-    public Object [] getControls() {
-    return controls;
-    }
-
-    /**
-     * Return required control from the Control[] array
-     * if exists, that is
-     */
-    public Object getControl(String controlType) {
-       try {
-          Class<?>  cls = Class.forName(controlType);
-          Object cs[] = getControls();
-          for (int i = 0; i < cs.length; i++) {
-             if (cls.isInstance(cs[i]))
-                return cs[i];
-          }
-          return null;
-
-       } catch (Exception e) {
-         return null;
-       }
     }
 }

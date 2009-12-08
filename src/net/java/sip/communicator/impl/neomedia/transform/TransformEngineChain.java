@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.neomedia.transform;
 
-import java.util.*;
-
 import net.java.sip.communicator.impl.neomedia.*;
 
 /**
@@ -15,6 +13,7 @@ import net.java.sip.communicator.impl.neomedia.*;
  * stream.
  *
  * @author Emil Ivov
+ * @author Lubomir Marinov
  */
 public class TransformEngineChain
     implements TransformEngine
@@ -25,7 +24,7 @@ public class TransformEngineChain
      * <tt>PacketTransformer</tt>s that this engine chain will be applying to
      * RTP and RTCP packets.
      */
-    private final List<TransformEngine> engineChain;
+    private final TransformEngine[] engineChain;
 
     /**
      * The sequence of <tt>PacketTransformer</tt>s that this engine chain will
@@ -48,9 +47,9 @@ public class TransformEngineChain
      * @param engineChain an array containing <tt>TransformEngine</tt>s in the
      * order that they are to be applied on outgoing packets.
      */
-    public TransformEngineChain(TransformEngine[] engineChain)
+    public TransformEngineChain(TransformEngine... engineChain)
     {
-        this.engineChain = Arrays.asList(engineChain);
+        this.engineChain = engineChain.clone();
 
         rtpTransformChain = new PacketTransformerChain(true);
         rtcpTransformChain = new PacketTransformerChain(false);
@@ -64,7 +63,7 @@ public class TransformEngineChain
      * @return a <tt>PacketTransformerChain</tt> over all RTP transformers in
      * this engine chain.
      */
-    public PacketTransformerChain getRTPTransformer()
+    public PacketTransformer getRTPTransformer()
     {
         return rtpTransformChain;
     }
@@ -110,6 +109,7 @@ public class TransformEngineChain
         {
             this.isRtp = isRtp;
         }
+
         /**
          * Transforms a specific packet.
          *
@@ -118,16 +118,12 @@ public class TransformEngineChain
          */
         public RawPacket transform(RawPacket pkt)
         {
-            if( engineChain == null)
-            {
-                return pkt;
-            }
-
             for (TransformEngine engine : engineChain)
             {
-                PacketTransformer pTransformer = isRtp
-                    ? engine.getRTPTransformer()
-                    : engine.getRTCPTransformer();
+                PacketTransformer pTransformer
+                    = isRtp
+                        ? engine.getRTPTransformer()
+                        : engine.getRTCPTransformer();
 
                 //the packet transformer may be null if for example the engine
                 //only does RTP transformations and this is an RTCP transformer.
@@ -147,18 +143,13 @@ public class TransformEngineChain
          */
         public RawPacket reverseTransform(RawPacket pkt)
         {
-            if( engineChain == null)
+            for (int i = engineChain.length - 1 ; i >= 0; i--)
             {
-                return pkt;
-            }
-
-            for (int i = engineChain.size() - 1 ; i >= 0; i--)
-            {
-                TransformEngine engine = engineChain.get(i);
-
-                PacketTransformer pTransformer = isRtp
-                ? engine.getRTPTransformer()
-                : engine.getRTCPTransformer();
+                TransformEngine engine = engineChain[i];
+                PacketTransformer pTransformer
+                    = isRtp
+                        ? engine.getRTPTransformer()
+                        : engine.getRTCPTransformer();
 
                 //the packet transformer may be null if for example the engine
                 //only does RTP transformations and this is an RTCP transformer.
@@ -169,6 +160,4 @@ public class TransformEngineChain
             return pkt;
         }
     }
-
-
 }
