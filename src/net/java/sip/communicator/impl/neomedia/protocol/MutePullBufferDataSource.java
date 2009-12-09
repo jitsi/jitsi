@@ -144,5 +144,5 @@ public class MutePullBufferDataSource
         {
             return stream.getFormat();
         }
-        }
     }
+}
