@@ -192,13 +192,9 @@ public class JmfDeviceDetector
      */
     private boolean isFMJVideoAvailable()
     {
-        if (OSUtils.isMac() &&
-            System.getProperty("java.version").startsWith("1.6"))
-        {
-            return false;
-        }
-
-        return true;
+        return
+            !(OSUtils.isMac()
+                && System.getProperty("java.version").startsWith("1.6"));
     }
 
     /**
@@ -272,17 +268,34 @@ public class JmfDeviceDetector
     @SuppressWarnings("unchecked") //legacy JMF code.
     private static void setupRenderers()
     {
-        if (OSUtils.isWindows("Vista"))
-        {
-            /*
-             * DDRenderer will cause Windows Vista to switch its theme from Aero
-             * to Vista Basic so try to pick up a different Renderer.
-             */
-            Vector<String> renderers =
-                PlugInManager.getPlugInList(null, null, PlugInManager.RENDERER);
+        Vector<String> renderers =
+            PlugInManager.getPlugInList(null, null, PlugInManager.RENDERER);
 
-            if (renderers.contains("com.sun.media.renderer.video.GDIRenderer"))
+        if(OSUtils.isWindows())
+        {
+            if (OSUtils.isWindows("Vista"))
             {
+                /*
+                 * DDRenderer will cause Windows Vista to switch its theme from
+                 * Aero to Vista Basic so try to pick up a different Renderer.
+                 */
+                if (renderers
+                        .contains("com.sun.media.renderer.video.GDIRenderer"))
+                {
+                    PlugInManager.removePlugIn(
+                        "com.sun.media.renderer.video.DDRenderer",
+                        PlugInManager.RENDERER);
+                }
+            }
+            else if (OSUtils.isWindows64())
+            {
+                /*
+                 * Remove native renderers for Windows x64 because native JMF libs
+                 * are not available for 64 bit machines
+                 */
+                PlugInManager.removePlugIn(
+                    "com.sun.media.renderer.video.GDIRenderer",
+                    PlugInManager.RENDERER);
                 PlugInManager.removePlugIn(
                     "com.sun.media.renderer.video.DDRenderer",
                     PlugInManager.RENDERER);
@@ -290,9 +303,6 @@ public class JmfDeviceDetector
         }
         else if(!OSUtils.isLinux32())
         {
-            Vector<String> renderers =
-                PlugInManager.getPlugInList(null, null, PlugInManager.RENDERER);
-
             if (renderers.contains("com.sun.media.renderer.video.LightWeightRenderer") ||
                 renderers.contains("com.sun.media.renderer.video.AWTRenderer"))
             {

@@ -6,22 +6,41 @@
     ./configure  --enable-static --disable-shared --with-pic --with-jack=no & make
 
     - Mac OS X
-    $./configure  --enable-static --disable-shared & make
+    $./configure  --enable-static --disable-shared && make
 
     - Windows
-    $./configure  --enable-static --disable-shared & make
+    $./configure  --enable-static --disable-shared && make
+    
+    Note for Windows x64, edit Makefile (after ./configure) and modify
+    %.lo: %.c $(MAKEFILE) $(PAINC)
+	$(LIBTOOL) --mode=compile $(CC) -c $(CFLAGS) $< -o $@
+
+    %.o: %.cpp $(MAKEFILE) $(PAINC)
+	$(CXX) -c $(CXXFLAGS) $< -o $@
+   by 
+   %.lo: %.c $(MAKEFILE) $(PAINC)
+	$(LIBTOOL) --mode=compile $(CC) -c $(CFLAGS) $< -o $@ ; sleep 1
+
+   %.o: %.cpp $(MAKEFILE) $(PAINC)
+	$(CXX) -c $(CXXFLAGS) $< -o $@ ; sleep 1
+
+   Finally add src/os/win32/pa_win_waveformat.o to OTHER_OBJS
+
 2. speex
+    - Windows
+    $./configure --enable-static --disable-shared && make
+
     - Linux
-    $./configure --enable-static --disable-shared & make
+    $./configure --enable-static --disable-shared && make
 
     - Linux amd64
-    $./configure --enable-static --disable-shared --with-pic & make
+    $./configure --enable-static --disable-shared --with-pic && make
 
     - Macosx
     $export CC="gcc -arch i386 -arch ppc -arch x86_64 -mmacosx-version-min=10.4"
     $export CPP="gcc -E"
     $export MACOSX_DEPLOYMENT_TARGET=10.4
-    $./configure --enable-static --disable-shared & make
+    $./configure --enable-static --disable-shared && make
 
 3. jportaudio
     - Linux

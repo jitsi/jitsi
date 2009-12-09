@@ -40,7 +40,6 @@
     <property name="release.src" value="${release}/install"/>
     <property name="resources" value="${dest}/resources"/>
     <property name="inst.resrc" value="${sc.basedir}/resources/install"/>
-    <property name="path" value="${lib}/native/windows;${system.PATH}"/>
     <property name='j2se_api' value='http://java.sun.com/j2se/1.5/docs/api' />
     <property name='maxwarns' value='10000' />
     <property name='java.net.preferIPv6Addresses' value='true' />
@@ -60,6 +59,24 @@
         <isset property="is.running.windows"/>
     </condition>
 
+    <!-- Make sure we use the windows-64 natives if this is 64-bit Windows -->
+    <condition property="path"
+            value="${lib}/native/windows-64:${system.PATH}">
+        <and>
+            <isset property="is.running.windows"/>
+            <os arch="amd64" />
+        </and>
+    </condition>
+    <!-- Otherwise and if this is still Windows, go for the windows natives
+         (i.e. os.arch==i386) -->
+    <condition property="path"
+            value="${lib}/native/windows:${system.PATH}">
+        <isset property="is.running.windows"/>
+    </condition>
+    <!-- At last i.e. if this is not Windows, use the system PATH environment
+         variable -->
+    <property name="path" value="${system.PATH}"/>
+
     <condition property="bundles.dest.os" value="${bundles.dest.win}">
         <isset property="is.running.windows"/>
     </condition>
@@ -75,7 +92,7 @@
 
     <!-- make sure we use the linux-64 natives if this is a 64 bit system-->
     <condition property="ld.library.path"
-              value="${lib}/native/linux-64:${system.LD_LIBRARY_PATH}">
+            value="${lib}/native/linux-64:${system.LD_LIBRARY_PATH}">
         <and>
             <isset property="is.running.linux"/>
             <os arch="amd64" />
@@ -83,8 +100,8 @@
     </condition>
     <!-- otherwise we go for the normal linuxnatives (i.e. os.arch==i386)-->
     <condition property="ld.library.path"
-                  value="${lib}/native/linux:${system.LD_LIBRARY_PATH}">
-                <isset property="is.running.linux"/>
+            value="${lib}/native/linux:${system.LD_LIBRARY_PATH}">
+        <isset property="is.running.linux"/>
     </condition>
 
     <condition property="bundles.dest.os" value="${bundles.dest.lin}">

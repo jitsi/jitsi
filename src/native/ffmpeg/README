@@ -2,7 +2,11 @@
 
 - Windows
 
+32-bit
 ./configure --disable-pthread
+
+64-bit
+./configure --disable-pthread --disable-avis-input --disable-asm
 
 - Linux, Mac OS X
 
@@ -12,8 +16,29 @@
 
 - Windows
 
+32-bit
 ./configure \
   --target-os=mingw32 \
+  --disable-mmx --enable-memalign-hack \
+  --enable-static --disable-shared --shlibdir=. \
+  --disable-encoders --disable-decoders --disable-muxers --disable-demuxers \
+  --disable-parsers --disable-bsfs --disable-protocols --disable-devices \
+  --disable-network \
+  --enable-libx264 --enable-gpl --enable-parser=h264 --enable-encoder=libx264 \
+  --enable-decoder=h264 --enable-muxer=h264 --enable-demuxer=h264 \
+  --extra-ldflags=-L$X264_HOME --extra-cflags=-I$X264_HOME \
+  --disable-debug \
+  --disable-ffserver --disable-ffplay --disable-ffmpeg \
+  --disable-pthreads --enable-w32threads
+
+64-bit
+Edit configure script and remove the following lines:
+check_cpp_condition _mingw.h "(__MINGW32_MAJOR_VERSION > 3) || (__MINGW32_MAJOR_VERSION == 3 && __MINGW32_MINOR_VERSION >= 15)" ||
+    die "ERROR: MinGW runtime version must be >= 3.15."
+
+Then run:
+./configure \
+  --arch=amd64 --target-os=mingw32 \
   --disable-mmx --enable-memalign-hack \
   --enable-static --disable-shared --shlibdir=. \
   --disable-encoders --disable-decoders --disable-muxers --disable-demuxers \
