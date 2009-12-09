@@ -26,7 +26,7 @@ public class ActionMenuPanel
     extends JPanel
     implements  ActionListener
 {
-    private static final boolean setButtonContentAreaFilled = OSUtils.isWindows();
+    private static final boolean setButtonContentAreaFilled = OSUtils.IS_WINDOWS;
 
     private final Logger logger = Logger.getLogger(ActionMenuPanel.class);
 

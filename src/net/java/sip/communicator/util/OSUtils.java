@@ -7,7 +7,7 @@
 package net.java.sip.communicator.util;
 
 /**
- * Utility methods for OS detection.
+ * Utility fields for OS detection.
  *
  * @author Sebastien Vincent
  * @author Lubomir Marinov
@@ -15,118 +15,108 @@ package net.java.sip.communicator.util;
 public class OSUtils
 {
 
-    /**
-     * Full OS name.
-     */
-    private static final String osName = System.getProperty("os.name");
+    /** <tt>true</tt> if architecture is 32 bit. */
+    public static final boolean IS_32_BIT;
 
-    /**
-     * OS Architecture (x86, x64, ...).
-     */
-    private static final String osArch
-        = System.getProperty("sun.arch.data.model");
+    /** <tt>true</tt> if architecture is 64 bit. */
+    public static final boolean IS_64_BIT;
 
-    /**
-     * Check whether or not platform is Windows.
-     *
-     * @return <tt>true</tt> if OS is Windows, <tt>false</tt> otherwise
-     */
-    public static boolean isWindows()
+    /** <tt>true</tt> if OS is Linux. */
+    public static final boolean IS_LINUX;
+
+    /** <tt>true</tt> if OS is Linux 32-bit. */
+    public static final boolean IS_LINUX32;
+
+    /** <tt>true</tt> if OS is Linux 64-bit. */
+    public static final boolean IS_LINUX64;
+
+    /** <tt>true</tt> if OS is MacOSX. */
+    public static final boolean IS_MAC;
+
+    /** <tt>true</tt> if OS is MacOSX 32-bit. */
+    public static final boolean IS_MAC32;
+
+    /** <tt>true</tt> if OS is MacOSX 64-bit. */
+    public static final boolean IS_MAC64;
+    
+    /** <tt>true</tt> if OS is Windows. */
+    public static final boolean IS_WINDOWS;
+
+    /** <tt>true</tt> if OS is Windows 32-bit. */
+    public static final boolean IS_WINDOWS32;
+
+    /** <tt>true</tt> if OS is Windows 64-bit. */
+    public static final boolean IS_WINDOWS64;
+
+    /** <tt>true</tt> if OS is Windows Vista. */
+    public static final boolean IS_WINDOWS_VISTA;
+
+    static
     {
-        return (osName != null) && osName.startsWith("Windows");
-    }
+        // OS
+        String osName = System.getProperty("os.name");
 
-    /**
-     * Check whether or not platform is Windows.
-     *
-     * @param name OS version name (i.e. Vista) or <tt>null</tt> if OS version
-     * name is not important
-     * @return <tt>true</tt> if OS is Windows, <tt>false</tt> otherwise
-     */
-    public static boolean isWindows(String name)
-    {
-        return
-            isWindows() && ((name == null) || (osName.indexOf(name) != -1));
-    }
+        if (osName == null)
+        {
+            IS_LINUX = false;
+            IS_MAC = false;
+            IS_WINDOWS = false;
+            IS_WINDOWS_VISTA = false;
+        }
+        else if (osName.startsWith("Linux"))
+        {
+            IS_LINUX = true;
+            IS_MAC = false;
+            IS_WINDOWS = false;
+            IS_WINDOWS_VISTA = false;
+        }
+        else if (osName.startsWith("Mac"))
+        {
+            IS_LINUX = false;
+            IS_MAC = true;
+            IS_WINDOWS = false;
+            IS_WINDOWS_VISTA = false;
+        }
+        else if (osName.startsWith("Windows"))
+        {
+            IS_LINUX = false;
+            IS_MAC = false;
+            IS_WINDOWS = true;
+            IS_WINDOWS_VISTA = (osName.indexOf("Vista") != -1);
+        }
+        else
+        {
+            IS_LINUX = false;
+            IS_MAC = false;
+            IS_WINDOWS = false;
+            IS_WINDOWS_VISTA = false;
+        }
 
-    /**
-     * Check whether or not platform is Windows 64-bit.
-     *
-     * @return <tt>true</tt> if OS is Windows 64-bit, <tt>false</tt> otherwise
-     */
-    public static boolean isWindows64()
-    {
-        return isWindows() && isArch64();
-    }
+        // arch i.e. x86, amd64
+        String osArch = System.getProperty("sun.arch.data.model");
 
-    /**
-     * Check whether or not platform is Linux.
-     *
-     * @return <tt>true</tt> if OS is Linux, <tt>false</tt> otherwise
-     */
-    public static boolean isLinux()
-    {
-        return (osName != null) && osName.startsWith("Linux");
-    }
+        if (osArch.indexOf("32") != -1)
+        {
+            IS_32_BIT = true;
+            IS_64_BIT = false;
+        }
+        else if (osArch.indexOf("64") != -1)
+        {
+            IS_32_BIT = false;
+            IS_64_BIT = true;
+        }
+        else
+        {
+            IS_32_BIT = false;
+            IS_64_BIT = false;
+        }
 
-    /**
-     * Check whether or not platform is Linux 32-bit.
-     *
-     * @return <tt>true</tt> if OS is Linux 32-bit, <tt>false</tt> otherwise
-     */
-    public static boolean isLinux32()
-    {
-        return isLinux() && isArch32();
-    }
-
-    /**
-     * Check whether or not platform is Linux 64-bit.
-     *
-     * @return <tt>true</tt> if OS is Linux 64-bit, <tt>false</tt> otherwise
-     */
-    public static boolean isLinux64()
-    {
-        return isLinux() && isArch64();
-    }
-
-    /**
-     * Check whether or not platform is Mac.
-     *
-     * @return <tt>true</tt> if OS is Mac, <tt>false</tt> otherwise
-     */
-    public static boolean isMac()
-    {
-        return
-            (osName != null)
-                && (osName.startsWith("Mac")
-                    || (osName.indexOf("Darwin") != -1));
-    }
-
-    /**
-     * Check whether or not platform is MacOS 64-bit.
-     * @return true if OS is Mac 64-bit, false otherwise
-     */
-    public static boolean isMac64()
-    {
-        return isMac() && isArch64();
-    }
-
-    /**
-     * Check whether or not platform is 32-bit.
-     * @return true if OS is 32-bit, false otherwise
-     */
-    public static boolean isArch32()
-    {
-        return (osArch.indexOf("32") != -1);
-    }
-
-    /**
-     * Check whether or not platform is 64-bit.
-     *
-     * @return <tt>true</tt> if OS is 64-bit, <tt>false</tt> otherwise
-     */
-    public static boolean isArch64()
-    {
-        return (osArch.indexOf("64") != -1);
+        // OS && arch
+        IS_LINUX32 = IS_LINUX && IS_32_BIT;
+        IS_LINUX64 = IS_LINUX && IS_64_BIT;
+        IS_MAC32 = IS_MAC && IS_32_BIT;
+        IS_MAC64 = IS_MAC && IS_64_BIT;
+        IS_WINDOWS32 = IS_WINDOWS && IS_32_BIT;
+        IS_WINDOWS64 = IS_WINDOWS && IS_64_BIT;
     }
 }

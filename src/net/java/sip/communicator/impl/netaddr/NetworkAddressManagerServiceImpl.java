@@ -254,7 +254,7 @@ public class NetworkAddressManagerServiceImpl
          * which will returns us source address. The reason why we cannot use it
          * on Windows is because its socket implementation returns the any address...
          */
-        if(OSUtils.isWindows() &&
+        if(OSUtils.IS_WINDOWS &&
            !osVersion.startsWith("4") && /* 95/98/Me/NT */
            !osVersion.startsWith("5.0")) /* 2000 */
         {

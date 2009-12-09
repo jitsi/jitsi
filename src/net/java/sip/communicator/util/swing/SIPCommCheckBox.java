@@ -18,7 +18,7 @@ public class SIPCommCheckBox
 {
     private static final long serialVersionUID = 0L;
 
-    private static final boolean setContentAreaFilled = OSUtils.isWindows();
+    private static final boolean setContentAreaFilled = OSUtils.IS_WINDOWS;
 
     public SIPCommCheckBox()
     {

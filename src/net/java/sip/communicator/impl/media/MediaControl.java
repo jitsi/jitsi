@@ -429,7 +429,7 @@ public class MediaControl
 
             if(ctl != null)
             {
-                if(!OSUtils.isLinux())
+                if(!OSUtils.IS_LINUX)
                     ((BufferControl)ctl).setBufferLength(60);//buffers in ms
             }
 

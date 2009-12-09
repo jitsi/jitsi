@@ -142,11 +142,11 @@ public class SystrayServiceJdicImpl
     {
         menu = TrayMenuFactory.createTrayMenu(this, systray.isSwing());
 
-        boolean isMac = OSUtils.isMac();
+        boolean isMac = OSUtils.IS_MAC;
 
         // If we're running under Windows, we use a special icon without
         // background.
-        if (OSUtils.isWindows())
+        if (OSUtils.IS_WINDOWS)
         {
             logoIcon = Resources.getImage("service.systray.TRAY_ICON_WINDOWS");
             logoIconOffline = Resources.getImage(
@@ -443,7 +443,7 @@ public class SystrayServiceJdicImpl
         if (!checkInitialized())
             return;
 
-        boolean isMac = OSUtils.isMac();
+        boolean isMac = OSUtils.IS_MAC;
         ImageIcon toChangeSystrayIcon = null;
 
         if (imageType == SystrayService.SC_IMG_TYPE)

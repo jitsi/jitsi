@@ -370,7 +370,7 @@ public class FileAccessServiceImpl implements FileAccessService {
 
         // For Windows versions previous to Vista, the default download location
         // would be the home directory (i.e. the Desktop folder).
-        if (OSUtils.isWindows() && getMajorOSVersion() <= 5)
+        if (OSUtils.IS_WINDOWS && getMajorOSVersion() <= 5)
         {
             FileSystemView fsv = FileSystemView.getFileSystemView(); 
 

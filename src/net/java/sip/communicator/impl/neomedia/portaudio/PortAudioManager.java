@@ -8,8 +8,8 @@ package net.java.sip.communicator.impl.neomedia.portaudio;
 
 import java.util.*;
 
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.impl.neomedia.portaudio.streams.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Manages PortAudio stream creation and setting necessary properties when using
@@ -208,13 +208,12 @@ public class PortAudioManager
         if(suggestedLatency != PortAudio.LATENCY_UNSEPCIFIED)
             return suggestedLatency;
 
-        if (OSUtils.isMac())
+        if (OSUtils.IS_MAC || OSUtils.IS_LINUX)
             return PortAudio.LATENCY_HIGH;
-        else if (OSUtils.isLinux())
-            return PortAudio.LATENCY_HIGH;
-        else if (OSUtils.isWindows())
+        else if (OSUtils.IS_WINDOWS)
             return 0.1d;
-        return PortAudio.LATENCY_UNSEPCIFIED;
+        else
+            return PortAudio.LATENCY_UNSEPCIFIED;
     }
 
     /**

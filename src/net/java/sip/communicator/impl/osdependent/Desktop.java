@@ -337,10 +337,8 @@ public class Desktop
             {
                 // Use browse(URL) instead of open(file) if we're on Mac OS,
                 // because of a Java VM crash when open(file) is invoked.
-                if (!OSUtils.isMac())
-                {
+                if (!OSUtils.IS_MAC)
                     org.jdesktop.jdic.desktop.Desktop.open(file);
-                }
                 else if (!file.isDirectory())
                     org.jdesktop.jdic.desktop.Desktop.browse(
                             file.toURI().toURL());

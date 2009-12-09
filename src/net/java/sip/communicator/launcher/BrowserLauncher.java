@@ -39,11 +39,11 @@ public class BrowserLauncher
         {
             try
             {
-                if (OSUtils.isMac())
+                if (OSUtils.IS_MAC)
                 {
                     FileManager.openURL(url);
                 }
-                else if (OSUtils.isWindows())
+                else if (OSUtils.IS_WINDOWS)
                 {
                    Runtime.getRuntime().exec(
                        "rundll32 url.dll,FileProtocolHandler " + url);

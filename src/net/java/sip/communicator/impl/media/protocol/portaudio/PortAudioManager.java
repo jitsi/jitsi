@@ -208,9 +208,9 @@ public class PortAudioManager
         if(suggestedLatency != PortAudio.LATENCY_UNSEPCIFIED)
             return suggestedLatency;
 
-        if (OSUtils.isMac() || OSUtils.isLinux())
+        if (OSUtils.IS_MAC || OSUtils.IS_LINUX)
             return PortAudio.LATENCY_HIGH;
-        else if (OSUtils.isWindows())
+        else if (OSUtils.IS_WINDOWS)
             return 0.1d;
         else
             return PortAudio.LATENCY_UNSEPCIFIED;

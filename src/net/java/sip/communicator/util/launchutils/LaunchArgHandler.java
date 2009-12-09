@@ -4,14 +4,13 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.util.launchutils;
 
+import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
 import net.java.sip.communicator.util.*;
-import java.io.*;
 
 /**
  * The <tt>LauncherArgHandler</tt> class handles invocation arguments that have
@@ -156,7 +155,7 @@ public class LaunchArgHandler
         }
 
         // Start url handler for Mac OS X.
-        if (OSUtils.isMac())
+        if (OSUtils.IS_MAC)
             new AEGetURLEventHandler(this);
     }
 

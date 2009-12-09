@@ -395,8 +395,6 @@ public class TrayIcon
     private static class AWTMouseAdapter
         extends MouseAdapter
     {
-        private final static boolean IS_WINDOWS = OSUtils.isWindows();
-
         private JPopupMenu popup = null;
         private Window hiddenWindow = null;
     
@@ -446,7 +444,7 @@ public class TrayIcon
             {
                 if (hiddenWindow == null)
                 {
-                    if (IS_WINDOWS)
+                    if (OSUtils.IS_WINDOWS)
                     {
                         hiddenWindow = new JDialog((Frame) null);
                         ((JDialog) hiddenWindow).setUndecorated(true);

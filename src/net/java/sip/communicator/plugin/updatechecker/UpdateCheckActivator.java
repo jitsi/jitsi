@@ -724,12 +724,13 @@ public class UpdateCheckActivator
                 JButton downloadButton = new JButton(getResources().getI18NString(
                     "plugin.updatechecker.BUTTON_DOWNLOAD"));
 
-                downloadButton.addActionListener(new ActionListener() {
-
+                downloadButton.addActionListener(new ActionListener()
+                {
                     public void actionPerformed(ActionEvent e)
                     {
-                        if(OSUtils.isLinux64())
-                            downloadLink = downloadLink.replace("i386", "amd64");
+                        if(OSUtils.IS_LINUX64)
+                            downloadLink
+                                = downloadLink.replace("i386", "amd64");
 
                         getBrowserLauncher().openURL(downloadLink);
                         dialog.dispose();

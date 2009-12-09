@@ -255,7 +255,7 @@ public class JmfDeviceDetector
      */
     private boolean isFMJVideoAvailable()
     {
-        if (OSUtils.isMac() &&
+        if (OSUtils.IS_MAC &&
             System.getProperty("java.version").startsWith("1.6"))
         {
             return false;
@@ -389,7 +389,7 @@ public class JmfDeviceDetector
     @SuppressWarnings("unchecked") //legacy JMF code.
     private static void setupRenderers()
     {
-        if (OSUtils.isWindows("Vista"))
+        if (OSUtils.IS_WINDOWS_VISTA)
         {
 
             /*
@@ -406,7 +406,7 @@ public class JmfDeviceDetector
                     PlugInManager.RENDERER);
             }
         }
-        else if(!OSUtils.isLinux32())
+        else if(!OSUtils.IS_LINUX32)
         {
             Vector<String> renderers =
                 PlugInManager.getPlugInList(null, null, PlugInManager.RENDERER);

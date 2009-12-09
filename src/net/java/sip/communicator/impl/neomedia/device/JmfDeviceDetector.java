@@ -193,7 +193,7 @@ public class JmfDeviceDetector
     private boolean isFMJVideoAvailable()
     {
         return
-            !(OSUtils.isMac()
+            !(OSUtils.IS_MAC
                 && System.getProperty("java.version").startsWith("1.6"));
     }
 
@@ -271,9 +271,9 @@ public class JmfDeviceDetector
         Vector<String> renderers =
             PlugInManager.getPlugInList(null, null, PlugInManager.RENDERER);
 
-        if(OSUtils.isWindows())
+        if(OSUtils.IS_WINDOWS)
         {
-            if (OSUtils.isWindows("Vista"))
+            if (OSUtils.IS_WINDOWS_VISTA)
             {
                 /*
                  * DDRenderer will cause Windows Vista to switch its theme from
@@ -287,7 +287,7 @@ public class JmfDeviceDetector
                         PlugInManager.RENDERER);
                 }
             }
-            else if (OSUtils.isWindows64())
+            else if (OSUtils.IS_WINDOWS64)
             {
                 /*
                  * Remove native renderers for Windows x64 because native JMF libs
@@ -301,7 +301,7 @@ public class JmfDeviceDetector
                     PlugInManager.RENDERER);
             }
         }
-        else if(!OSUtils.isLinux32())
+        else if(!OSUtils.IS_LINUX32)
         {
             if (renderers.contains("com.sun.media.renderer.video.LightWeightRenderer") ||
                 renderers.contains("com.sun.media.renderer.video.AWTRenderer"))

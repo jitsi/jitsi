@@ -765,7 +765,7 @@ public class UIServiceImpl
                 lafIsSet = true;
 
                 UIDefaults uiDefaults = UIManager.getDefaults();
-                if (OSUtils.isWindows())
+                if (OSUtils.IS_WINDOWS)
                     fixWindowsUIDefaults(uiDefaults);
                 // Workaround for SC issue #516
                 // "GNOME SCScrollPane has rounded and rectangular borders"
@@ -1040,7 +1040,7 @@ public class UIServiceImpl
      */
     public boolean useMacOSXScreenMenuBar()
     {
-        return OSUtils.isMac();
+        return OSUtils.IS_MAC;
     }
 
     /*

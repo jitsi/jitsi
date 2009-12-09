@@ -43,7 +43,7 @@ public class Constants
          * 640x480 in this situation we suffer from high cpu usage as every
          * frame is scaled, so we use the non standard format 320x240.
          */
-        if (OSUtils.isMac())
+        if (OSUtils.IS_MAC)
         {
             VIDEO_WIDTH = 320;
             VIDEO_HEIGHT = 240;
