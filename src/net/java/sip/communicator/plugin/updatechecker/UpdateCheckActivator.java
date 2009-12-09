@@ -584,21 +584,6 @@ public class UpdateCheckActivator
     }
 
     /**
-     * Checks whether we are running on 64 bit Linux.
-     * (Not really a correct check as if we are running a 32bit jvm
-     * on 64bit linux it will report 32bit).
-     * @return is Linux 64bit.
-     */
-    private static boolean isLinux64()
-    {
-        String osName = System.getProperty("os.name");
-        String arch = System.getProperty("sun.arch.data.model");
-
-        return (osName != null) && (arch != null) && (osName.indexOf("Linux") != -1)
-            && (arch.indexOf("64") != -1);
-    }
-
-    /**
      * The menu entry under tools menu.
      */
     private class UpdateMenuButtonComponent
@@ -743,10 +728,8 @@ public class UpdateCheckActivator
 
                     public void actionPerformed(ActionEvent e)
                     {
-                        if(isLinux64())
-                        {
+                        if(OSUtils.isLinux64())
                             downloadLink = downloadLink.replace("i386", "amd64");
-                        }
 
                         getBrowserLauncher().openURL(downloadLink);
                         dialog.dispose();

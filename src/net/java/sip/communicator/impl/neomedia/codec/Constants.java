@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.neomedia.codec;
 
+import net.java.sip.communicator.util.*;
+
 /**
  * Allows start import of <tt>net.java.sip.communicator.impl.neomedia.codec</tt>
  * in order to get the constants define in
@@ -45,7 +47,7 @@ public class Constants
          * 640x480 in this situation we suffer from high cpu usage as every
          * frame is scaled, so we use the non standard format 320x240.
          */
-        if (System.getProperty("os.name").startsWith("Mac"))
+        if (OSUtils.isMac())
         {
             VIDEO_WIDTH = 320;
             VIDEO_HEIGHT = 240;

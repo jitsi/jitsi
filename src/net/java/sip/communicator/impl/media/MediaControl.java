@@ -429,11 +429,8 @@ public class MediaControl
 
             if(ctl != null)
             {
-                if(!System.getProperty("os.name")
-                    .toLowerCase().contains("linux"))
-                {
+                if(!OSUtils.isLinux())
                     ((BufferControl)ctl).setBufferLength(60);//buffers in ms
-                }
             }
 
             sourceProcessor = Manager.createProcessor(dataSource);

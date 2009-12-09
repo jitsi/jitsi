@@ -14,6 +14,7 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.osdependent.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>TrayMenu</tt> is the menu that appears when the user right-click
@@ -95,7 +96,7 @@ public final class TrayMenuFactory
                                         boolean swing)
     {
         // Enable swing for java 1.6 except for the mac version
-        if (!swing && !System.getProperty("os.name").startsWith("Mac"))
+        if (!swing && !OSUtils.isMac())
             swing = true;
 
         Object trayMenu = swing ? new JPopupMenu() : new PopupMenu();

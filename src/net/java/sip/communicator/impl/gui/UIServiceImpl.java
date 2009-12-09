@@ -748,8 +748,6 @@ public class UIServiceImpl
         // resources packed inside OSGI bundles
         UIManager.put("ClassLoader", getClass().getClassLoader());
 
-        String osName = System.getProperty("os.name");
-
         /*
          * Attempt to use the OS-native LookAndFeel instead of
          * SIPCommLookAndFeel.
@@ -767,7 +765,7 @@ public class UIServiceImpl
                 lafIsSet = true;
 
                 UIDefaults uiDefaults = UIManager.getDefaults();
-                if (osName.startsWith("Windows"))
+                if (OSUtils.isWindows())
                     fixWindowsUIDefaults(uiDefaults);
                 // Workaround for SC issue #516
                 // "GNOME SCScrollPane has rounded and rectangular borders"
@@ -1042,11 +1040,7 @@ public class UIServiceImpl
      */
     public boolean useMacOSXScreenMenuBar()
     {
-        String osName = System.getProperty("os.name");
-        return
-            (osName != null)
-                && ((osName.indexOf("Mac OS X") != -1)
-                        || (osName.indexOf("Darwin") != -1));
+        return OSUtils.isMac();
     }
 
     /*

@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.neomedia.portaudio;
 
 import java.util.*;
 
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.impl.neomedia.portaudio.streams.*;
 
 /**
@@ -207,12 +208,11 @@ public class PortAudioManager
         if(suggestedLatency != PortAudio.LATENCY_UNSEPCIFIED)
             return suggestedLatency;
 
-        String osName = System.getProperty("os.name");
-        if (osName.startsWith("Mac"))
+        if (OSUtils.isMac())
             return PortAudio.LATENCY_HIGH;
-        else if (osName.startsWith("Linux"))
+        else if (OSUtils.isLinux())
             return PortAudio.LATENCY_HIGH;
-        else if (osName.startsWith("Windows"))
+        else if (OSUtils.isWindows())
             return 0.1d;
         return PortAudio.LATENCY_UNSEPCIFIED;
     }

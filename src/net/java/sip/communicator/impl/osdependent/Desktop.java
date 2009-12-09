@@ -335,23 +335,18 @@ public class Desktop
         {
             try
             {
-                String osName = System.getProperty("os.name");
-
                 // Use browse(URL) instead of open(file) if we're on Mac OS,
                 // because of a Java VM crash when open(file) is invoked.
-                if (!osName.startsWith("Mac OS"))
+                if (!OSUtils.isMac())
                 {
                     org.jdesktop.jdic.desktop.Desktop.open(file);
                 }
-                else
-                {
-                    if (!file.isDirectory())
-                        org.jdesktop.jdic.desktop.Desktop.browse(
+                else if (!file.isDirectory())
+                    org.jdesktop.jdic.desktop.Desktop.browse(
                             file.toURI().toURL());
-                    else
-                        Runtime.getRuntime().exec("open "
-                            + file.getCanonicalPath());
-                }
+                else
+                    Runtime.getRuntime().exec(
+                            "open " + file.getCanonicalPath());
             }
             catch (DesktopException ex)
             {

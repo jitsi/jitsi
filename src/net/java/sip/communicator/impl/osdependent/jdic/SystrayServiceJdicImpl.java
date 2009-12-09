@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.osdependent.jdic;
 
-import org.osgi.framework.*;
-
 import java.awt.event.*;
 import java.net.*;
 import java.util.*;
@@ -23,6 +21,8 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The <tt>Systray</tt> provides a Icon and the associated <tt>TrayMenu</tt>
@@ -142,10 +142,11 @@ public class SystrayServiceJdicImpl
     {
         menu = TrayMenuFactory.createTrayMenu(this, systray.isSwing());
 
-        String osName = System.getProperty("os.name");
+        boolean isMac = OSUtils.isMac();
+
         // If we're running under Windows, we use a special icon without
         // background.
-        if (osName.startsWith("Windows"))
+        if (OSUtils.isWindows())
         {
             logoIcon = Resources.getImage("service.systray.TRAY_ICON_WINDOWS");
             logoIconOffline = Resources.getImage(
@@ -158,7 +159,7 @@ public class SystrayServiceJdicImpl
                 "service.systray.MESSAGE_ICON_WINDOWS");
         } // If we're running under MacOSX, we use a special black and
         // white icons without background.
-        else if (osName.startsWith("Mac OS X"))
+        else if (isMac)
         {
             logoIcon = Resources.getImage("service.systray.TRAY_ICON_MACOSX");
             logoIconWhite = Resources.getImage(
@@ -167,7 +168,8 @@ public class SystrayServiceJdicImpl
                 "service.systray.MESSAGE_ICON_MACOSX");
             envelopeIconWhite = Resources.getImage(
                 "service.systray.MESSAGE_ICON_MACOSX_WHITE");
-        } else
+        }
+        else
         {
             logoIcon = Resources.getImage("service.systray.TRAY_ICON");
             logoIconOffline = Resources.getImage(
@@ -177,15 +179,11 @@ public class SystrayServiceJdicImpl
             envelopeIcon = Resources.getImage("service.systray.MESSAGE_ICON");
         }
 
-        if (!osName.startsWith("Mac OS X"))
-        {
-            // default to set offline , if any protocols become
-            // online will set it to online
-            currentIcon = logoIconOffline;
-        } else
-        {
-            currentIcon = logoIcon;
-        }
+        /*
+         * Default to set offline , if any protocols become online will set it
+         * to online.
+         */
+        currentIcon = isMac ? logoIcon : logoIconOffline;
 
         trayIcon = new TrayIcon(
             currentIcon,
@@ -194,7 +192,7 @@ public class SystrayServiceJdicImpl
 
         trayIcon.setIconAutoSize(true);
 
-        if (osName.startsWith("Mac OS X"))
+        if (isMac)
         {
             // init dock Icons
             dockIconOffline = Resources.getImageURL(
@@ -228,35 +226,30 @@ public class SystrayServiceJdicImpl
 
         // Change the MacOSX icon with the white one when the popup
         // menu appears
-        if (osName.startsWith("Mac OS X"))
+        if (isMac)
         {
             TrayMenuFactory.addPopupMenuListener(menu, new PopupMenuListener()
             {
-
                 public void popupMenuWillBecomeVisible(PopupMenuEvent e)
                 {
-                    if (currentIcon == envelopeIcon)
-                    {
-                        trayIcon.setIcon(envelopeIconWhite);
-                        currentIcon = envelopeIconWhite;
-                    } else
-                    {
-                        trayIcon.setIcon(logoIconWhite);
-                        currentIcon = logoIconWhite;
-                    }
+                    ImageIcon newIcon
+                        = (currentIcon == envelopeIcon)
+                            ? envelopeIconWhite
+                            : logoIconWhite;
+
+                    trayIcon.setIcon(newIcon);
+                    currentIcon = newIcon;
                 }
 
                 public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
                 {
-                    if (currentIcon == envelopeIconWhite)
-                    {
-                        trayIcon.setIcon(envelopeIcon);
-                        currentIcon = envelopeIcon;
-                    } else
-                    {
-                        getTrayIcon().setIcon(logoIcon);
-                        currentIcon = logoIcon;
-                    }
+                    ImageIcon newIcon
+                        = (currentIcon == envelopeIconWhite)
+                            ? envelopeIcon
+                            : logoIcon;
+
+                    getTrayIcon().setIcon(newIcon);
+                    currentIcon = newIcon;
                 }
 
                 public void popupMenuCanceled(PopupMenuEvent e)
@@ -267,7 +260,7 @@ public class SystrayServiceJdicImpl
         }
 
         PopupMessageHandler pph = null;
-        if (!osName.startsWith("Mac OS X"))
+        if (!isMac)
         {
             pph = new PopupMessageHandlerTrayIconImpl(trayIcon);
             popupHandlerSet.put(pph.getClass().getName(), pph);
@@ -280,7 +273,8 @@ public class SystrayServiceJdicImpl
             OsDependentActivator.bundleContext.addServiceListener(
                 new ServiceListenerImpl(),
                 "(objectclass=" + PopupMessageHandler.class.getName() + ")");
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             logger.warn(e);
         }
@@ -293,7 +287,8 @@ public class SystrayServiceJdicImpl
             handlerRefs = OsDependentActivator.bundleContext.getServiceReferences(
                 PopupMessageHandler.class.getName(),
                 null);
-        } catch (InvalidSyntaxException ex)
+        }
+        catch (InvalidSyntaxException ex)
         {
             logger.error("Error while retrieving service refs", ex);
         }
@@ -446,50 +441,39 @@ public class SystrayServiceJdicImpl
     public void setSystrayIcon(int imageType)
     {
         if (!checkInitialized())
-        {
             return;
-        }
 
-        String osName = System.getProperty("os.name");
-
+        boolean isMac = OSUtils.isMac();
         ImageIcon toChangeSystrayIcon = null;
 
         if (imageType == SystrayService.SC_IMG_TYPE)
         {
-            if (osName.startsWith("Mac OS X") && TrayMenuFactory.isVisible(menu))
-            {
-                toChangeSystrayIcon = logoIconWhite;
-            } else
-            {
-                toChangeSystrayIcon = logoIcon;
-            }
-        } else if (imageType == SystrayService.SC_IMG_OFFLINE_TYPE)
+            toChangeSystrayIcon
+                = (isMac && TrayMenuFactory.isVisible(menu))
+                    ? logoIconWhite
+                    : logoIcon;
+        }
+        else if (imageType == SystrayService.SC_IMG_OFFLINE_TYPE)
         {
-            if (!osName.startsWith("Mac OS X"))
-            {
+            if (!isMac)
                 toChangeSystrayIcon = logoIconOffline;
-            }
-        } else if (imageType == SystrayService.SC_IMG_AWAY_TYPE)
+        }
+        else if (imageType == SystrayService.SC_IMG_AWAY_TYPE)
         {
-            if (!osName.startsWith("Mac OS X"))
-            {
+            if (!isMac)
                 toChangeSystrayIcon = logoIconAway;
-            }
-        } else if (imageType == SystrayService.SC_IMG_FFC_TYPE)
+        }
+        else if (imageType == SystrayService.SC_IMG_FFC_TYPE)
         {
-            if (!osName.startsWith("Mac OS X"))
-            {
+            if (!isMac)
                 toChangeSystrayIcon = logoIconFFC;
-            }
-        } else if (imageType == SystrayService.ENVELOPE_IMG_TYPE)
+        }
+        else if (imageType == SystrayService.ENVELOPE_IMG_TYPE)
         {
-            if (osName.startsWith("Mac OS X") && TrayMenuFactory.isVisible(menu))
-            {
-                toChangeSystrayIcon = envelopeIconWhite;
-            } else
-            {
-                toChangeSystrayIcon = envelopeIcon;
-            }
+            toChangeSystrayIcon
+                = (isMac && TrayMenuFactory.isVisible(menu))
+                    ? envelopeIconWhite
+                    : envelopeIcon;
         }
 
         if (toChangeSystrayIcon != null)
@@ -498,7 +482,7 @@ public class SystrayServiceJdicImpl
             this.currentIcon = toChangeSystrayIcon;
         }
 
-        if (osName.startsWith("Mac OS X"))
+        if (isMac)
         {
             URL toChangeDockIcon = null;
             switch (imageType)
@@ -520,13 +504,11 @@ public class SystrayServiceJdicImpl
             try
             {
                 if (toChangeDockIcon != null)
-                {
                     Dock.setDockTileImage(toChangeDockIcon);
-                } else
-                {
+                else
                     Dock.restoreDockTileImage();
-                }
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 logger.error("failed to change dock icon", e);
             }
@@ -536,13 +518,8 @@ public class SystrayServiceJdicImpl
     private boolean checkInitialized()
     {
         if (!initialized)
-        {
             logger.error("Systray not init");
-            return false;
-        } else
-        {
-            return true;
-        }
+        return initialized;
     }
 
     /**

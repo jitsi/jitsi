@@ -167,8 +167,7 @@ public class ChatWindow
                                     new CloseAction());
 
         // simple fix adding meta+w on macosx
-        String osName = System.getProperty("os.name");
-        if (osName.startsWith("Mac"))
+        if (OSUtils.isMac())
         {
             this.getRootPane().getInputMap(
                 JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(

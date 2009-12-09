@@ -101,9 +101,7 @@ public class AudioMediaDeviceImpl
          * 3. Do not set buffer length on Linux as it completely breaks audio
          * capture.
          */
-        String osName = System.getProperty("os.name");
-
-        if ((osName == null) || !osName.toLowerCase().contains("linux"))
+        if(!OSUtils.isLinux())
         {
             Control bufferControl
                 = (Control)

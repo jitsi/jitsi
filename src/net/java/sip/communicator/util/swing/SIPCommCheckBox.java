@@ -8,6 +8,8 @@ package net.java.sip.communicator.util.swing;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.util.*;
+
 /**
  * @author Lubomir Marinov
  */
@@ -16,13 +18,7 @@ public class SIPCommCheckBox
 {
     private static final long serialVersionUID = 0L;
 
-    private static final boolean setContentAreaFilled = isWindows();
-
-    private static boolean isWindows()
-    {
-        String osName = System.getProperty("os.name");
-        return (osName != null) && (osName.indexOf("Windows") != -1);
-    }
+    private static final boolean setContentAreaFilled = OSUtils.isWindows();
 
     public SIPCommCheckBox()
     {

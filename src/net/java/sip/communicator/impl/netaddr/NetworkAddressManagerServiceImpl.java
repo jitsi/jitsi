@@ -10,7 +10,6 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.configuration.event.*;
 import net.java.sip.communicator.service.netaddr.*;
@@ -242,15 +241,11 @@ public class NetworkAddressManagerServiceImpl
     public synchronized InetAddress getLocalHost(InetAddress intendedDestination)
     {
         InetAddress localHost = null;
-        String osName = System.getProperty("os.name");
         String osVersion = System.getProperty("os.version");
 
         if(logger.isTraceEnabled())
-        {
-            logger.trace("Querying a localhost addr for dst="
-                            + intendedDestination);
-
-        }
+            logger.trace(
+                    "Querying a localhost addr for dst=" + intendedDestination);
 
         /* use native code (JNI) to find source address for a specific destination
          * address on Windows XP SP1 and over.
@@ -259,7 +254,7 @@ public class NetworkAddressManagerServiceImpl
          * which will returns us source address. The reason why we cannot use it
          * on Windows is because its socket implementation returns the any address...
          */
-        if(osName.startsWith("Windows") &&
+        if(OSUtils.isWindows() &&
            !osVersion.startsWith("4") && /* 95/98/Me/NT */
            !osVersion.startsWith("5.0")) /* 2000 */
         {
@@ -674,6 +669,7 @@ public class NetworkAddressManagerServiceImpl
         Thread stunServerTestThread
             = new Thread("StunServerTestThread")
         {
+            @Override
             public void run()
             {
                 DatagramSocket randomSocket = initRandomPortSocket();

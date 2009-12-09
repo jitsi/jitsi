@@ -41,13 +41,12 @@ public class BrowserLauncherImpl
     private void launchBrowser(String url)
         throws Exception
     {
-        String osName = System.getProperty("os.name");
 
-        if (osName.startsWith("Mac OS"))
+        if (OSUtils.isMac())
         {
             FileManager.openURL(url);
         }
-        else if (osName.startsWith("Windows"))
+        else if (OSUtils.isWindows())
         {
             Runtime
                 .getRuntime()

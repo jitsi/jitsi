@@ -8,6 +8,8 @@ package net.java.sip.communicator.launcher;
 
 import com.apple.eio.*;
 
+import net.java.sip.communicator.util.*;
+
 /**
  * A simple implementation of the BrowserLauncherService. Checks the operating
  * system and launches the appropriate browser.
@@ -37,19 +39,18 @@ public class BrowserLauncher
         {
             try
             {
-                String osName = System.getProperty("os.name");
-                
-                if (osName.startsWith("Mac OS"))
+                if (OSUtils.isMac())
                 {
                     FileManager.openURL(url);
                 }
-                else if (osName.startsWith("Windows"))
+                else if (OSUtils.isWindows())
                 {
                    Runtime.getRuntime().exec(
                        "rundll32 url.dll,FileProtocolHandler " + url);
                 }
                 else
                 {
+                   /* Linux and other Unix systems */
                    String[] browsers = {"firefox", "iceweasel", "opera", "konqueror",
                        "epiphany", "mozilla", "netscape" };
                    

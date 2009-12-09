@@ -14,6 +14,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.osdependent.SystemTray.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * @author Lubomir Marinov
@@ -394,8 +395,7 @@ public class TrayIcon
     private static class AWTMouseAdapter
         extends MouseAdapter
     {
-        private final static boolean IS_WINDOWS =
-            System.getProperty("os.name").toLowerCase().contains("windows");
+        private final static boolean IS_WINDOWS = OSUtils.isWindows();
 
         private JPopupMenu popup = null;
         private Window hiddenWindow = null;

@@ -156,10 +156,8 @@ public class LaunchArgHandler
         }
 
         // Start url handler for Mac OS X.
-        if (System.getProperty("os.name").startsWith("Mac"))
-        {
+        if (OSUtils.isMac())
             new AEGetURLEventHandler(this);
-        }
     }
 
     /**

@@ -192,8 +192,7 @@ public class JmfDeviceDetector
      */
     private boolean isFMJVideoAvailable()
     {
-        String osName = System.getProperty("os.name");
-        if (osName.startsWith("Mac") &&
+        if (OSUtils.isMac() &&
             System.getProperty("java.version").startsWith("1.6"))
         {
             return false;
@@ -273,7 +272,7 @@ public class JmfDeviceDetector
     @SuppressWarnings("unchecked") //legacy JMF code.
     private static void setupRenderers()
     {
-        if (isWindowsVista())
+        if (OSUtils.isWindows("Vista"))
         {
             /*
              * DDRenderer will cause Windows Vista to switch its theme from Aero
@@ -289,7 +288,7 @@ public class JmfDeviceDetector
                     PlugInManager.RENDERER);
             }
         }
-        else if(!isLinux32())
+        else if(!OSUtils.isLinux32())
         {
             Vector<String> renderers =
                 PlugInManager.getPlugInList(null, null, PlugInManager.RENDERER);
@@ -304,35 +303,6 @@ public class JmfDeviceDetector
                     PlugInManager.RENDERER);
             }
         }
-    }
-
-    /**
-     * Checks whether we are running on windows vista.
-     * @return true if the current platform is Windows Vista otherwise false;
-     */
-    private static boolean isWindowsVista()
-    {
-        String osName = System.getProperty("os.name");
-
-        /*
-         * TODO We're currently checking for Vista only but it may make sense to
-         * check for a version of Windows greater than or equal to Vista.
-         */
-        return (osName != null) && (osName.indexOf("Windows") != -1)
-            && (osName.indexOf("Vista") != -1);
-    }
-
-    /**
-     * Checks whether we are running on linux i386.
-     * @return true if the current platform is linux i386 otherwise false;
-     */
-    private static boolean isLinux32()
-    {
-        String osName = System.getProperty("os.name");
-        String arch = System.getProperty("sun.arch.data.model");
-
-        return (osName != null) && (arch != null) && (osName.indexOf("Linux") != -1)
-            && (arch.indexOf("32") != -1);
     }
 
     /**

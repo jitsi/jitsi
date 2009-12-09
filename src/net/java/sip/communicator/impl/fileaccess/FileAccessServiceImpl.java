@@ -18,6 +18,7 @@ import net.java.sip.communicator.util.*;
  * Default FileAccessService implementation.
  *
  * @author Alexander Pelov
+ * @author Lubomir Marinov
  */
 public class FileAccessServiceImpl implements FileAccessService {
 
@@ -367,16 +368,9 @@ public class FileAccessServiceImpl implements FileAccessService {
     {
         File downloadDir;
 
-        String osName = System.getProperty("os.name");
-        String osVersion = System.getProperty("os.version");
-
-        String majorVersionString
-            = osVersion.substring(0, osVersion.indexOf("."));
-
         // For Windows versions previous to Vista, the default download location
         // would be the home directory (i.e. the Desktop folder).
-        if (osName.startsWith("Windows")
-            && Integer.parseInt(majorVersionString) <= 5)
+        if (OSUtils.isWindows() && getMajorOSVersion() <= 5)
         {
             FileSystemView fsv = FileSystemView.getFileSystemView(); 
 
@@ -392,6 +386,33 @@ public class FileAccessServiceImpl implements FileAccessService {
         }
 
         return downloadDir;
+    }
+
+    /**
+     * Gets the major version of the executing operating system as defined by
+     * the <tt>os.version</tt> system property.
+     *
+     * @return the major version of the executing operating system as defined by
+     * the <tt>os.version</tt> system property
+     */
+    private static int getMajorOSVersion()
+    {
+        String osVersion = System.getProperty("os.version");
+        int majorOSVersion;
+
+        if ((osVersion != null) && (osVersion.length() > 0))
+        {
+            int majorOSVersionEnd = osVersion.indexOf(".");
+            String majorOSVersionString
+                = (majorOSVersionEnd > -1)
+                    ? osVersion.substring(0, majorOSVersionEnd)
+                    : osVersion;
+
+            majorOSVersion = Integer.parseInt(majorOSVersionString);
+        }
+        else
+            majorOSVersion = 0;
+        return majorOSVersion;
     }
 
     /**
@@ -411,5 +432,4 @@ public class FileAccessServiceImpl implements FileAccessService {
 
         return new FailSafeTransactionImpl(file);
     }
-
 }

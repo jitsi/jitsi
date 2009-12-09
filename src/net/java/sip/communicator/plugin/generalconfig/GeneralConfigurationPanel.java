@@ -72,8 +72,7 @@ public class GeneralConfigurationPanel
             mainPanel.setLayout(boxLayout);
             this.add(mainPanel, BorderLayout.NORTH);
 
-            String osName = System.getProperty("os.name");
-            if (osName.startsWith("Windows"))
+            if (OSUtils.isWindows())
             {
                 autoStartCheckBox = new SIPCommCheckBox();
                 mainPanel.add(autoStartCheckBox);

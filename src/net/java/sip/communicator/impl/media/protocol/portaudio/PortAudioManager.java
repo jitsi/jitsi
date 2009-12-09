@@ -6,8 +6,10 @@
  */
 package net.java.sip.communicator.impl.media.protocol.portaudio;
 
-import net.java.sip.communicator.impl.media.protocol.portaudio.streams.*;
 import java.util.*;
+
+import net.java.sip.communicator.impl.media.protocol.portaudio.streams.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Manages PortAudio stream creation and setting necessary properties when using
@@ -206,14 +208,12 @@ public class PortAudioManager
         if(suggestedLatency != PortAudio.LATENCY_UNSEPCIFIED)
             return suggestedLatency;
 
-        String osName = System.getProperty("os.name");
-        if (osName.startsWith("Mac"))
+        if (OSUtils.isMac() || OSUtils.isLinux())
             return PortAudio.LATENCY_HIGH;
-        else if (osName.startsWith("Linux"))
-            return PortAudio.LATENCY_HIGH;
-        else if (osName.startsWith("Windows"))
+        else if (OSUtils.isWindows())
             return 0.1d;
-        return PortAudio.LATENCY_UNSEPCIFIED;
+        else
+            return PortAudio.LATENCY_UNSEPCIFIED;
     }
 
     /**
