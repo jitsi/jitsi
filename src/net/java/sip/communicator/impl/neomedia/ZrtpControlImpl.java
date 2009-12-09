@@ -10,7 +10,6 @@ import gnu.java.zrtp.*;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.neomedia.keyshare.*;
 import net.java.sip.communicator.impl.neomedia.transform.zrtp.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.event.*;
@@ -33,25 +32,6 @@ public class ZrtpControlImpl
     * of secure communication
     */
     private boolean usingZRTP = false;
-
-        /**
-     * Vector used to hold references of the various key management solutions
-     * that are implemented. For now only ZRTP and dummy (hardcoded keys) are
-     * present.
-     */
-    private static Vector<KeyProviderAlgorithm> keySharingAlgorithms = null;
-
-    /**
-     * Insert ZRTPKeyProvider at index 0 which is priority 0
-     * and the dummy provider with priority 1.
-     */
-    static
-    {
-        keySharingAlgorithms = new Vector<KeyProviderAlgorithm>();
-
-        keySharingAlgorithms.add(KeyProviderAlgorithm.ZRTP_PROVIDER);
-        keySharingAlgorithms.add(KeyProviderAlgorithm.DUMMY_PROVIDER);
-    }
 
     /**
      * Additional info codes for and data to support ZRTP4J.
@@ -147,64 +127,50 @@ public class ZrtpControlImpl
     {
         usingZRTP = true;
 
-        /* Select a key management type from the present ones to use
-         * for now using the zero - top priority solution (ZRTP);
-         * TODO: should be extended to a selection algorithm to choose the
-         * key management type
-         */
-        KeyProviderAlgorithm selectedKeyProviderAlgorithm =
-            keySharingAlgorithms.get(0);
+        // Create security user callback for each peer.
+        SecurityEventManager securityEventManager
+            = new SecurityEventManager(stream);
 
-        // Selected key management type == ZRTP branch
-        if (selectedKeyProviderAlgorithm != null &&
-            selectedKeyProviderAlgorithm
-                == KeyProviderAlgorithm.ZRTP_PROVIDER)
+        boolean zrtpAutoStart = false;
+
+        // Decide if this will become the ZRTP Master session:
+        // - Statement: audio media session will be started before video
+        //   media session
+        // - if no other audio session was started before then this will
+        //   become
+        //   ZRTP Master session
+        // - only the ZRTP master sessions start in "auto-sensing" mode
+        //   to immediately catch ZRTP communication from other client
+        // - after the master session has completed its key negotiation
+        //   it will start other media sessions (see SCCallback)
+        if (masterSession)
         {
-            // Create security user callback for each peer.
-            SecurityEventManager securityEventManager
-                = new SecurityEventManager(stream);
+            zrtpAutoStart = true;
+            securityEventManager.setDHSession(true);
 
-            boolean zrtpAutoStart = false;
-
-            // Decide if this will become the ZRTP Master session:
-            // - Statement: audio media session will be started before video
-            //   media session
-            // - if no other audio session was started before then this will
-            //   become
-            //   ZRTP Master session
-            // - only the ZRTP master sessions start in "auto-sensing" mode
-            //   to immediately catch ZRTP communication from other client
-            // - after the master session has completed its key negotiation
-            //   it will start other media sessions (see SCCallback)
-            if (masterSession)
-            {
-                zrtpAutoStart = true;
-                securityEventManager.setDHSession(true);
-
-                // we now that audio is considered as master for zrtp
-               securityEventManager.setSessionType(
-                   SecurityEventManager.AUDIO_SESSION);
-            }
-            else
-            {
-                securityEventManager.setSessionType(
-                    SecurityEventManager.VIDEO_SESSION);
-            }
-
-            // ZRTP engine initialization
-            ZRTPTransformEngine zrtpEngine = stream.getZrtpEngine();
-            zrtpEngine.initialize("GNUZRTP4J.zid", zrtpAutoStart);
-            
-            zrtpEngine.setConnector(stream.getRtpConnector());
-
-            zrtpEngine.setUserCallback(securityEventManager);
-
-            usingZRTP = true;
-            zrtpEngine.sendInfo(
-                ZrtpCodes.MessageSeverity.Info,
-                EnumSet.of(
-                        ZRTPCustomInfoCodes.ZRTPEnabledByDefault));
+            // we now that audio is considered as master for zrtp
+           securityEventManager.setSessionType(
+               SecurityEventManager.AUDIO_SESSION);
         }
+        else
+        {
+            securityEventManager.setSessionType(
+                SecurityEventManager.VIDEO_SESSION);
+        }
+
+        // ZRTP engine initialization
+        ZRTPTransformEngine zrtpEngine = stream.getZrtpEngine();
+        zrtpEngine.initialize("GNUZRTP4J.zid", zrtpAutoStart);
+
+        zrtpEngine.setConnector(stream.getRtpConnector());
+
+        zrtpEngine.setUserCallback(securityEventManager);
+
+        usingZRTP = true;
+        zrtpEngine.sendInfo(
+            ZrtpCodes.MessageSeverity.Info,
+            EnumSet.of(
+                    ZRTPCustomInfoCodes.ZRTPEnabledByDefault));
     }
 
     /**
