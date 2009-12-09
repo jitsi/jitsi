@@ -547,12 +547,34 @@ public class CallPeerMediaHandler
                     direction = direction.and(MediaDirection.SENDONLY);
 
                 if(direction != MediaDirection.INACTIVE)
-                    mediaDescs.add(
+                {
+                    MediaDescription md =
                         createMediaDescription(
                                         dev.getSupportedFormats(),
                                         getStreamConnector(mediaType),
                                         direction,
-                                        dev.getSupportedExtensions()));
+                                        dev.getSupportedExtensions());
+
+                    if(peer.getCall().isSipZrtpAttribute())
+                    {
+//                        try
+//                        {
+//                            String helloHash =
+//                                SipActivator.getMediaService().createZrtpHelloHash();
+//                            System.out.println("eeeeeeeeeee " + helloHash);
+//                            zrtpHelloHashes.put(mediaType, helloHash);
+//
+//                            if(helloHash != null && helloHash.length() > 0)
+//                                md.setAttribute("zrtp-hash", helloHash);
+//
+//                        } catch (SdpException ex)
+//                        {
+//                            logger.error("Cannot add zrtp-hash to sdp", ex);
+//                        }
+                    }
+
+                    mediaDescs.add(md);
+                }
             }
         }
 
@@ -749,6 +771,16 @@ public class CallPeerMediaHandler
         }
         else
             setVideoStream((VideoMediaStream)stream);
+
+        if(peer.getCall().isDefaultEncrypted())
+        {
+            // we use the audio stream for master stream
+            //when using zrtp multistreams
+            stream.getZrtpControl().setZrtpListener(peer);
+
+            stream.getZrtpControl().start(
+                stream instanceof AudioMediaStream);
+        }
 
         if ( ! stream.isStarted())
             stream.start();
@@ -1009,6 +1041,9 @@ public class CallPeerMediaHandler
                                     List<RTPExtension> remoteExtensions,
                                     List<RTPExtension> supportedExtensions)
     {
+        if(remoteExtensions == null || supportedExtensions == null)
+            return new ArrayList<RTPExtension>();
+
         List<RTPExtension> intersection = new ArrayList<RTPExtension>(
                 Math.min(remoteExtensions.size(), supportedExtensions.size()));
 
@@ -1676,5 +1711,53 @@ public class CallPeerMediaHandler
                                                 SoundLevelListener listener)
     {
 
+    }
+
+    /**
+     * Sets the SAS verifications state of the call.
+     *
+     * @param isVerified the new SAS verification status
+     */
+    void setSasVerified(boolean isVerified )
+    {
+        if(audioStream != null)
+            audioStream.getZrtpControl().setSASVerification(isVerified);
+
+        if(videoStream != null)
+            videoStream.getZrtpControl().setSASVerification(isVerified);
+    }
+
+    /**
+     * Gets the secure state of the call. If both audio and video is secured.
+     *
+     * @return the call secure state
+     */
+    boolean isSecure()
+    {
+        boolean isAudioSecured = false;
+        if(audioStream != null)
+            isAudioSecured = audioStream.getZrtpControl()
+                .getSecureCommunicationStatus();
+        else
+            isAudioSecured = true; // as we don't use audio, we don't mind it
+
+        boolean isVideoSecured = false;
+        if(videoStream != null)
+            isVideoSecured = videoStream.getZrtpControl()
+                .getSecureCommunicationStatus();
+        else
+            isVideoSecured = true; // as we don't use video, we don't mind it
+
+        return isAudioSecured && isVideoSecured;
+    }
+
+    /**
+     * 
+     * @param multiStreamData
+     */
+    void startZrtpMultistream(byte[] multiStreamData)
+    {
+        if(videoStream != null)
+            videoStream.getZrtpControl().setMultistream(multiStreamData);
     }
 }

@@ -271,4 +271,10 @@ public interface MediaStream
      * <tt>false</tt>, otherwise
      */
     public boolean isMute();
+
+    /**
+     * The <tt>ZrtpControl</tt> which controlls the zrtp for the current stream.
+     * @return the <tt>ZrtpControl</tt> for the current stream.
+     */
+    public ZrtpControl getZrtpControl();
 }

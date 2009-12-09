@@ -1508,13 +1508,7 @@ public class OperationSetBasicTelephonySipImpl
      */
     public boolean isSecure(CallPeer peer)
     {
-        return false;
-        /**
-         * @todo update to neomedia.
-        CallSession cs= ((CallPeerSipImpl) peer).getMediaCallSession();
-
-        return (cs != null) && cs.getSecureCommunicationStatus();
-        */
+        return ((CallPeerSipImpl) peer).getMediaHandler().isSecure();
     }
 
     /**
@@ -1523,18 +1517,11 @@ public class OperationSetBasicTelephonySipImpl
      * @param peer the call peer, for which we set the
      * @param isVerified indicates whether the SAS string is verified or not
      * for the given peer.
-     *
-     * @return Emil: I am not sure why this is returning anything at all; should
-     * get rid of this.
      */
     public void setSasVerified(  CallPeer peer, boolean isVerified )
     {
-        /**
-         * @todo update to neomedia.
-        CallSession cs = ((CallPeerSipImpl) peer).getMediaCallSession();
-        */
+        ((CallPeerSipImpl) peer).getMediaHandler().setSasVerified(isVerified);
     }
-
 
     /**
      * Transfers (in the sense of call transfer) a specific

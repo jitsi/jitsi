@@ -6,9 +6,6 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
-import java.math.*;
-import java.util.*;
-
 /**
  * When using TransformConnector, a RTP/RTCP packet is represented using
  * RawPacket. RawPacket stores the buffer holding the RTP/RTCP packet, as well
@@ -23,6 +20,7 @@ import java.util.*;
  * @author Werner Dittmann (Werner.Dittmann@t-online.de)
  * @author Bing SU (nova.su@gmail.com)
  * @author Emil Ivov
+ * @author Damian Minkov
  */
 public class RawPacket
 {
@@ -330,7 +328,6 @@ public class RawPacket
     public long[] extractCsrcList()
     {
         int csrcCount = getCsrcCount();
-        byte[] buffer = getBuffer();
 
         long[] csrcList = new long[csrcCount];
 
@@ -346,5 +343,105 @@ public class RawPacket
         }
 
         return csrcList;
+    }
+
+    /**
+     * Get RTP padding size from a RTP packet
+     *
+     * @return RTP padding size from source RTP packet
+     */
+    public int getPaddingSize()
+    {
+        if ((buffer[offset] & 0x4) == 0)
+        {
+            return 0;
+        }
+        else
+        {
+            return buffer[offset + length - 1];
+        }
+    }
+
+    /**
+     * Get RTP header length from a RTP packet
+     *
+     * @return RTP header length from source RTP packet
+     */
+    public int getHeaderLength()
+    {
+        byte flags = buffer[offset];
+        boolean hasExtension = (flags & 0x8) != 0;
+
+        int len = FIXED_HEADER_SIZE + 4 * getCsrcCount();
+
+        if (hasExtension)
+        {
+            // the first 16 bits are reserved and defined by
+            // the extension profile
+            // 2bit profile + 2bit len + len*32bit
+            len += readUnsignedShortAsInt(len + 2)*4 + 4;
+        }
+
+        return len;
+    }
+
+    /**
+     * Get RTP payload length from a RTP packet
+     *
+     * @return RTP payload length from source RTP packet
+     */
+    public int getPayloadLength()
+    {
+        return length - getHeaderLength();
+    }
+
+    /**
+     * Get RTP SSRC from a RTP packet
+     *
+     * @return RTP SSRC from source RTP packet
+     */
+    public int getSSRC()
+    {
+        return (int)(readUnsignedIntAsLong(8) & 0xffffffff);
+    }
+
+    /**
+     * Get RTP sequence number from a RTP packet
+     *
+     * @return RTP sequence num from source packet
+     */
+    public int getSequenceNumber()
+    {
+        return readUnsignedShortAsInt(2);
+    }
+
+    /**
+     * Test whether if a RTP packet is padded
+     *
+     * @return whether if source RTP packet is padded
+     */
+    public boolean isPacketMarked()
+    {
+        return (buffer[offset + 1] & 0x80) != 0;
+    }
+
+    /**
+     * Get RTP payload type from a RTP packet
+     *
+     * @return RTP payload type of source RTP packet
+     */
+    public byte getPayloadType()
+    {
+        return (byte) (buffer[offset + 1] & (byte)0x7F);
+    }
+
+    /**
+     * Get RTP timestamp from a RTP packet
+     *
+     * @return RTP timestamp of source RTP packet
+     */
+    public byte[] readTimeStampIntoByteArray()
+    {
+        return readRegion(4, 4);
     }
 }

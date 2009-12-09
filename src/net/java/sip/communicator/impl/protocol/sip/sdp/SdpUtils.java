@@ -16,7 +16,6 @@ import javax.sip.header.ContentTypeHeader; // disambiguates MediaType
 
 import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -548,7 +547,11 @@ public class SdpUtils
         RTPExtension rtpExtension
             = new RTPExtension(uri, direction, extensionAttributes);
 
-        extMap.addMapping(rtpExtension, Byte.parseByte(extIDStr));
+        // this rtp extension may already exist if we got invite
+        // and then were reinvited with video or were just hold.
+        byte extID = Byte.parseByte(extIDStr);
+        if(extMap.findExtension(extID) == null)
+            extMap.addMapping(rtpExtension, extID);
 
         return rtpExtension;
     }

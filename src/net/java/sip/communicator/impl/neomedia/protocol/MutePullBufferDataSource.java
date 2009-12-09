@@ -107,19 +107,23 @@ public class MutePullBufferDataSource
             super(stream);
         }
 
-        /*
+        /**
          * Implements PullBufferStream#willReadBlock(). Delegates to the wrapped
          * PullSourceStream.
+         * @return <tt>true</tt> if read would block; otherwise returns
+         *          <tt>false</tt>.
          */
         public boolean willReadBlock()
         {
             return stream.willReadBlock();
         }
 
-        /*
+        /**
          * Implements PullBufferStream#read(Buffer). If this instance is muted
          * (through its owning MutePullBufferDataSource), overwrites the data
          * read from the wrapped PullBufferStream with silence data.
+         * @param buffer which data will be filled.
+         * @throws IOException Thrown if an error occurs while reading. 
          */
         public void read(Buffer buffer)
             throws IOException
@@ -140,5 +144,5 @@ public class MutePullBufferDataSource
         {
             return stream.getFormat();
         }
+        }
     }
-}

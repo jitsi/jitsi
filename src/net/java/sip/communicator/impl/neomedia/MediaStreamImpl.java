@@ -23,6 +23,7 @@ import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
 import net.java.sip.communicator.impl.neomedia.transform.csrc.*;
+import net.java.sip.communicator.impl.neomedia.transform.zrtp.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
@@ -40,7 +41,6 @@ public class MediaStreamImpl
                SendStreamListener,
                SessionListener
 {
-
     /**
      * The <tt>Logger</tt> used by the <tt>MediaStreamImpl</tt> class and its
      * instances for logging output.
@@ -165,6 +165,17 @@ public class MediaStreamImpl
     private boolean mute = false;
 
     /**
+     * The current <tt>ZrtpControl</tt>
+     */
+    private ZrtpControlImpl zrtpControl = null;
+
+    /**
+     * The zrtp TransformEngine used for the current rtp part of the stream.
+     */
+    private ZRTPTransformEngine zrtpEngine = null;
+
+
+    /**
      * The map of currently active <tt>RTPExtension</tt>s and the IDs that they
      * have been assigned for the lifetime of this <tt>MediaStream</tt>.
      */
@@ -202,7 +213,9 @@ public class MediaStreamImpl
         //register the transform engines that we will be using in this stream.
         csrcEngine = new CsrcTransformEngine(this);
 
-        rtpConnector.setEngine(new TransformEngineChain(csrcEngine));
+        zrtpEngine = new ZRTPTransformEngine();
+
+        rtpConnector.setEngine(new TransformEngineChain(csrcEngine, zrtpEngine));
     }
 
     /**
@@ -281,6 +294,14 @@ public class MediaStreamImpl
     {
         stop();
         closeSendStreams();
+
+        ZRTPTransformEngine engine = 
+            ((ZrtpControlImpl)getZrtpControl()).getZrtpEngine();
+        if(engine != null)
+        {
+            engine.stopZrtp();
+            engine.cleanup();
+        }
 
         rtpConnector.removeTargets();
         rtpConnectorTarget = null;
@@ -370,6 +391,16 @@ public class MediaStreamImpl
                                 + streamIndex
                                 + " in RTPManager with hashCode "
                                 + rtpManager.hashCode());
+
+                // If a ZRTP engine is availabe then set the SSRC of this stream
+                // currently ZRTP supports only one SSRC per engine
+                ZRTPTransformEngine engine =
+                    ((ZrtpControlImpl)getZrtpControl()).getZrtpEngine();
+
+                if (engine != null)
+                {
+                    engine.setOwnSSRC(sendStream.getSSRC());
+                }
             }
             catch (IOException ioe)
             {
@@ -475,6 +506,14 @@ public class MediaStreamImpl
     private void deviceSessionSsrcListChanged(PropertyChangeEvent evt)
     {
         long[] ssrcArray = (long[])evt.getNewValue();
+
+        // the list is empty
+        if(ssrcArray == null)
+        {
+            this.localContributingSourceIDList = null;
+            return;
+        }
+
         int elementsToRemove = 0;
         long remoteSrcID = this.getRemoteSourceID();
 
@@ -1527,5 +1566,29 @@ public class MediaStreamImpl
         /** @todo -implement */
 
         return remoteSsrcList;
+    }
+
+    public ZrtpControl getZrtpControl()
+    {
+        if(zrtpControl == null)
+            zrtpControl = new ZrtpControlImpl(this);
+
+        return zrtpControl;
+    }
+
+    /**
+     * Returns the zrtp TransformEngine used for the current stream.
+     * @return the transform engine.
+     */
+    public ZRTPTransformEngine getZrtpEngine()
+    {
+        return zrtpEngine;
+    }
+
+    /**
+     * @return the rtpConnector
+     */
+    public RTPTransformConnector getRtpConnector() {
+        return rtpConnector;
     }
 }

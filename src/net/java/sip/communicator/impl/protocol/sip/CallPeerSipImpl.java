@@ -16,7 +16,8 @@ import javax.sip.header.*;
 import javax.sip.message.*;
 
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
-import net.java.sip.communicator.service.neomedia.event.*;
+import net.java.sip.communicator.service.neomedia.event.ZrtpListener;
+import net.java.sip.communicator.service.neomedia.event.SimpleAudioLevelListener;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -30,7 +31,8 @@ import net.java.sip.communicator.util.*;
 public class CallPeerSipImpl
     extends AbstractCallPeer
     implements SimpleAudioLevelListener,
-               CallPeerConferenceListener
+               CallPeerConferenceListener,
+               ZrtpListener
 {
     /**
      * Our class logger.
@@ -1806,6 +1808,66 @@ public class CallPeerSipImpl
     }
 
     /**
+     * Sets the security status to ON for this call peer.
+     *
+     * @param sessionType the type of the call session - audio or video.
+     * @param cipher the cipher
+     * @param securityString the SAS
+     * @param isVerified indicates if the SAS has been verified
+     * @param multiStreamData the data for the multistream
+     *        used by non master streams.
+     */
+    public void securityTurnedOn(
+        int sessionType,
+        String cipher, String securityString, boolean isVerified,
+        byte[] multiStreamData)
+    {
+        if(multiStreamData != null)
+        {
+            getMediaHandler().startZrtpMultistream(multiStreamData);
+        }
+
+        fireCallPeerSecurityOnEvent(
+                        sessionType, cipher, securityString, isVerified);
+    }
+
+    /**
+     * Sets the security status to OFF for this call peer.
+     *
+     * @param sessionType the type of the call session - audio or video.
+     */
+    public void securityTurnedOff(int sessionType)
+    {
+        // If this event has been triggered because of a call end event and the
+        // call is already ended we don't need to alert the user for
+        // security off.
+        if(getCall() != null
+            && !getCall().getCallState().equals(CallState.CALL_ENDED))
+        {
+            fireCallPeerSecurityOffEvent(sessionType);
+        }
+    }
+
+    /**
+     * Sets the security message associated with a failure/warning or
+     * information coming from the encryption protocol.
+     *
+     * @param messageType the type of the message.
+     * @param i18nMessage the message
+     * @param severity severity level
+     */
+    public void securityMessageReceived(
+        String messageType, String i18nMessage, int severity)
+    {
+        fireCallPeerSecurityMessageEvent(messageType,
+                                         i18nMessage,
+                                         severity);
+    }
+
+    /**
+     * Wraps SoundLevelListener and convert its event to
+     * StreamSoundLevelEvent events to be delivered to
+     * StreamSoundLevelListener.
      * Dummy implementation of {@link CallPeerConferenceListener
      * #conferenceFocusChanged(CallPeerConferenceEvent)}.
      *
