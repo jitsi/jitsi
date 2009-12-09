@@ -11,6 +11,7 @@
 #include <libavutil/avutil.h>
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_av_1free (
@@ -58,11 +59,26 @@ Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodec_1decode_
     if (buf) {
         jbyte *buf_ptr = (*jniEnv)->GetByteArrayElements (jniEnv, buf, NULL);
 
-        if (buf_ptr) {
+
+        if (buf_ptr)
+        {
+            AVPacket avpkt;
+            av_init_packet(&avpkt);
+            avpkt.data = (const uint8_t *)buf_ptr;
+            avpkt.size = (int)buf_size;
+
+            ret = avcodec_decode_video2(
+                (AVCodecContext *) avctx,
+                (AVFrame *) frame,
+                &n_got_picture,
+                &avpkt);
+
+/*        if (buf_ptr) {
             ret = (jint)
                 avcodec_decode_video ((AVCodecContext *) avctx,
                     (AVFrame *) frame, &n_got_picture,
                     (const uint8_t *) buf_ptr, (int) buf_size);
+*/
             (*jniEnv)->ReleaseByteArrayElements (jniEnv, buf, buf_ptr, 0);
 
             if (got_picture) {
@@ -112,10 +128,15 @@ Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodec_1find_1e
     return (jlong) avcodec_find_encoder ((enum CodecID) id);
 }
 
+/* empty log function to skip all the logs coming into the console */
+static void log_callback_help(void* ptr, int level, const char* fmt, va_list vl)
+{}
+
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodec_1init (
         JNIEnv *jniEnv, jclass clazz) {
     avcodec_init ();
+    av_log_set_callback(log_callback_help);
 }
 
 JNIEXPORT jint JNICALL
@@ -364,13 +385,38 @@ Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avpicture_1get_1
     return (jint) avpicture_get_size ((int) pix_fmt, (int) width, (int) height);
 }
 
+
+
+static int image_convert(
+AVPicture* dst, int dst_pix_fmt,
+const AVPicture* src, int pix_fmt, int width, int height)
+{
+   struct SwsContext *img_convert_ctx =
+        sws_getContext(
+            width, height, pix_fmt,
+            width, height, dst_pix_fmt, SWS_BICUBIC, NULL, NULL, NULL);
+
+   int result = sws_scale(img_convert_ctx, 
+        src->data, src->linesize, 0, height,
+        dst->data, dst->linesize);
+   sws_freeContext(img_convert_ctx);
+
+   return result;
+} 
+
 JNIEXPORT jint JNICALL
 Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_img_1convert (
         JNIEnv *jniEnv, jclass clazz, jlong dst, jint dst_pix_fmt, jlong src,
-        jint pix_fmt, jint width, jint height) {
+        jint pix_fmt, jint width, jint height)
+{
     return (jint)
-        img_convert ((AVPicture *) dst, (int) dst_pix_fmt,
-            (const AVPicture *) src, (int) pix_fmt, (int) width, (int) height);
+        image_convert (
+            (AVPicture *) dst,
+            (int) dst_pix_fmt,
+            (const AVPicture *) src,
+            (int) pix_fmt,
+            (int) width,
+            (int) height);
 }
 
 JNIEXPORT void JNICALL
@@ -392,4 +438,18 @@ Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_memcpy__J_3BII (
         jint src_offset, jint src_length) {
     (*jniEnv)->GetByteArrayRegion (jniEnv, src, src_offset, src_length,
             (jbyte *) dst);
+}
+
+JNIEXPORT jint JNICALL
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getRGB32Format
+  (JNIEnv *env, jclass clazz)
+{
+    return PIX_FMT_RGB32;
+}
+
+JNIEXPORT jint JNICALL
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getYUV420PFormat
+  (JNIEnv *env, jclass clazz)
+{
+    return PIX_FMT_YUV420P;
 }

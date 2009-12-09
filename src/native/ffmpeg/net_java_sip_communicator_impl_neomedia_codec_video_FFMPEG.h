@@ -19,10 +19,22 @@ extern "C" {
 #define net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_FF_INPUT_BUFFER_PADDING_SIZE 8L
 #undef net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_FF_MB_DECISION_SIMPLE
 #define net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_FF_MB_DECISION_SIMPLE 0L
-#undef net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_PIX_FMT_RGB32
-#define net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_PIX_FMT_RGB32 6L
-#undef net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_PIX_FMT_YUV420P
-#define net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_PIX_FMT_YUV420P 0L
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    getRGB32Format
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getRGB32Format
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    getYUV420PFormat
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getYUV420PFormat
+  (JNIEnv *, jclass);
+
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
  * Method:    av_free

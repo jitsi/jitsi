@@ -1,4 +1,4 @@
-1. x264-snapshot-20090105-2245
+1. x264-snapshot-20091208-2245
 
 - Windows
 
@@ -8,7 +8,7 @@
 
 ./configure --enable-pic
 
-2. ffmpeg-r16801
+2. ffmpeg-r20783
 
 - Windows
 

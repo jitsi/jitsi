@@ -23,9 +23,15 @@ public class FFMPEG
 
     public static final int FF_MB_DECISION_SIMPLE = 0;
 
-    public static final int PIX_FMT_RGB32 = 6;
+    public static final int PIX_FMT_RGB32;
 
-    public static final int PIX_FMT_YUV420P = 0;
+    public static final int PIX_FMT_YUV420P;
+
+    public static final int X264_RC_ABR = 2;
+
+    public static native int getRGB32Format();
+
+    public static native int getYUV420PFormat();
 
     public static native void av_free(long ptr);
 
@@ -158,5 +164,7 @@ public class FFMPEG
 
         av_register_all();
         avcodec_init();
+        PIX_FMT_RGB32 = getRGB32Format();
+        PIX_FMT_YUV420P = getYUV420PFormat();
     }
 }
