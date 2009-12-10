@@ -165,6 +165,11 @@ public class ZrtpControlImpl
         }
         else
         {
+            // check whether video was not already started
+            // it may happen when using multistreams, audio has inited
+            // and started video
+            // initially engins has value enableZrtp = false
+            zrtpAutoStart = zrtpEngine.isEnableZrtp();
             securityEventManager.setSessionType(
                 SecurityEventManager.VIDEO_SESSION);
         }
