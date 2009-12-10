@@ -176,10 +176,13 @@ public class VideoMediaStreamImpl
      * @param device the <tt>MediaDevice</tt> the new instance is to use for
      * both capture and playback of video exchanged via the specified
      * <tt>StreamConnector</tt>
+     * @param zrtpControl a control which is already created, used to control
+     *        the zrtp operations.
      */
-    public VideoMediaStreamImpl(StreamConnector connector, MediaDevice device)
+    public VideoMediaStreamImpl(StreamConnector connector, MediaDevice device,
+        ZrtpControlImpl zrtpControl)
     {
-        super(connector, device);
+        super(connector, device, zrtpControl);
     }
 
     /**

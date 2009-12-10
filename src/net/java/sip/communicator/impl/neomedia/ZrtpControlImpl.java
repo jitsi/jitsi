@@ -10,6 +10,7 @@ import gnu.java.zrtp.*;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.neomedia.transform.*;
 import net.java.sip.communicator.impl.neomedia.transform.zrtp.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.event.*;
@@ -47,17 +48,21 @@ public class ZrtpControlImpl
     }
 
     /**
-     * The stream holding the control.
+     * The zrtp engine control by this ZrtpControl.
      */
-    private MediaStreamImpl stream = null;
+    private ZRTPTransformEngine zrtpEngine = null;
+
+    /**
+     * This is the connector, required to send ZRTP packets
+     * via the DatagramSocket.
+     */
+    private RTPTransformConnector zrtpConnector = null;
 
     /**
      * Creates the control.
-     * @param stream the stream holding the control.
      */
-    ZrtpControlImpl(MediaStreamImpl stream)
+    ZrtpControlImpl()
     {
-        this.stream = stream;
     }
 
     /**
@@ -115,7 +120,13 @@ public class ZrtpControlImpl
      */
     public ZRTPTransformEngine getZrtpEngine()
     {
-        return stream.getZrtpEngine();
+        if(zrtpEngine == null)
+        {
+            zrtpEngine = new ZRTPTransformEngine();
+            zrtpEngine.initialize("GNUZRTP4J.zid", false);
+        }
+
+        return zrtpEngine;
     }
 
     /**
@@ -129,7 +140,7 @@ public class ZrtpControlImpl
 
         // Create security user callback for each peer.
         SecurityEventManager securityEventManager
-            = new SecurityEventManager(stream);
+            = new SecurityEventManager(this);
 
         boolean zrtpAutoStart = false;
 
@@ -159,10 +170,13 @@ public class ZrtpControlImpl
         }
 
         // ZRTP engine initialization
-        ZRTPTransformEngine zrtpEngine = stream.getZrtpEngine();
-        zrtpEngine.initialize("GNUZRTP4J.zid", zrtpAutoStart);
+        ZRTPTransformEngine engine = getZrtpEngine();
+        // tells the engine whether to autostart(enable)
+        // zrtp communication, if false it just passes packets without
+        // transformation
+        engine.setEnableZrtp(zrtpAutoStart);
 
-        zrtpEngine.setConnector(stream.getRtpConnector());
+        zrtpEngine.setConnector(zrtpConnector);
 
         zrtpEngine.setUserCallback(securityEventManager);
 
@@ -190,5 +204,25 @@ public class ZrtpControlImpl
             engine.setMultiStrParams(multiStreamData);
             engine.setEnableZrtp(true);
         }
+    }
+
+    /**
+     * Return the zrtp hello hash String.
+     *
+     * @return String the zrtp hello hash.
+     */
+    public String getHelloHash()
+    {
+        return getZrtpEngine().getHelloHash();
+    }
+
+    /**
+     * Sets the RTP connector using this ZRTP engine
+     *
+     * @param connector the connector to set
+     */
+    public void setConnector(RTPTransformConnector connector)
+    {
+        zrtpConnector = connector;
     }
 }

@@ -75,10 +75,13 @@ public class AudioMediaStreamImpl
      * @param device the <tt>MediaDevice</tt> the new instance is to use for
      * both capture and playback of audio exchanged via the specified
      * <tt>StreamConnector</tt>
+     * @param zrtpControl a control which is already created, used to control
+     *        the zrtp operations.
      */
-    public AudioMediaStreamImpl(StreamConnector connector, MediaDevice device)
+    public AudioMediaStreamImpl(StreamConnector connector, MediaDevice device,
+        ZrtpControlImpl zrtpControl)
     {
-        super(connector, device);
+        super(connector, device, zrtpControl);
     }
 
     /**

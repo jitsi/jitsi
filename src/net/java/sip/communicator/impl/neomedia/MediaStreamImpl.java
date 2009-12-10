@@ -170,12 +170,6 @@ public class MediaStreamImpl
     private ZrtpControlImpl zrtpControl = null;
 
     /**
-     * The zrtp TransformEngine used for the current rtp part of the stream.
-     */
-    private ZRTPTransformEngine zrtpEngine = null;
-
-
-    /**
      * The map of currently active <tt>RTPExtension</tt>s and the IDs that they
      * have been assigned for the lifetime of this <tt>MediaStream</tt>.
      */
@@ -198,10 +192,12 @@ public class MediaStreamImpl
      * @param device the <tt>MediaDevice</tt> the new instance is to use for
      * both capture and playback of media exchanged via the specified
      * <tt>StreamConnector</tt>
+     * @param zrtpControl a control which is already created, used to control
+     *        the zrtp operations.
      */
-    public MediaStreamImpl(StreamConnector connector, MediaDevice device)
+    public MediaStreamImpl(StreamConnector connector, MediaDevice device,
+        ZrtpControlImpl zrtpControl)
     {
-
         /*
          * XXX Set the device early in order to make sure that its of the right
          * type because we do not support just about any MediaDevice yet.
@@ -210,12 +206,20 @@ public class MediaStreamImpl
 
         this.rtpConnector = new RTPTransformConnector(connector);
 
+        if(zrtpControl != null)
+        {
+            this.zrtpControl = zrtpControl;
+        }
+        else
+            this.zrtpControl = new ZrtpControlImpl();
+
+        this.zrtpControl.setConnector(rtpConnector);
+
         //register the transform engines that we will be using in this stream.
         csrcEngine = new CsrcTransformEngine(this);
 
-        zrtpEngine = new ZRTPTransformEngine();
-
-        rtpConnector.setEngine(new TransformEngineChain(csrcEngine, zrtpEngine));
+        rtpConnector.setEngine(new TransformEngineChain(
+            csrcEngine, this.zrtpControl.getZrtpEngine()));
     }
 
     /**
@@ -295,8 +299,7 @@ public class MediaStreamImpl
         stop();
         closeSendStreams();
 
-        ZRTPTransformEngine engine = 
-            ((ZrtpControlImpl)getZrtpControl()).getZrtpEngine();
+        ZRTPTransformEngine engine = zrtpControl.getZrtpEngine();
         if(engine != null)
         {
             engine.stopZrtp();
@@ -394,8 +397,7 @@ public class MediaStreamImpl
 
                 // If a ZRTP engine is availabe then set the SSRC of this stream
                 // currently ZRTP supports only one SSRC per engine
-                ZRTPTransformEngine engine =
-                    ((ZrtpControlImpl)getZrtpControl()).getZrtpEngine();
+                ZRTPTransformEngine engine = zrtpControl.getZrtpEngine();
 
                 if (engine != null)
                 {
@@ -1568,27 +1570,12 @@ public class MediaStreamImpl
         return remoteSsrcList;
     }
 
+    /**
+     * The <tt>ZrtpControl</tt> which controlls the zrtp for the current stream.
+     * @return the <tt>ZrtpControl</tt> for the current stream.
+     */
     public ZrtpControl getZrtpControl()
     {
-        if(zrtpControl == null)
-            zrtpControl = new ZrtpControlImpl(this);
-
         return zrtpControl;
-    }
-
-    /**
-     * Returns the zrtp TransformEngine used for the current stream.
-     * @return the transform engine.
-     */
-    public ZRTPTransformEngine getZrtpEngine()
-    {
-        return zrtpEngine;
-    }
-
-    /**
-     * @return the rtpConnector
-     */
-    public RTPTransformConnector getRtpConnector() {
-        return rtpConnector;
     }
 }

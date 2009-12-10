@@ -108,12 +108,38 @@ public class MediaServiceImpl
             StreamConnector connector,
             MediaDevice device)
     {
+        return createMediaStream(connector, device, null);
+    }
+
+    /**
+     * Creates a new <tt>MediaStream</tt> instance which will use the specified
+     * <tt>MediaDevice</tt> for both capture and playback of media exchanged
+     * via the specified <tt>StreamConnector</tt>.
+     *
+     * @param connector the <tt>StreamConnector</tt> that the new
+     * <tt>MediaStream</tt> instance is to use for sending and receiving media
+     * @param device the <tt>MediaDevice</tt> that the new <tt>MediaStream</tt>
+     * instance is to use for both capture and playback of media exchanged via
+     * the specified <tt>connector</tt>
+     * @param zrtpControl a control which is already created, used to control
+     *        the zrtp operations.
+     *
+     * @return a new <tt>MediaStream</tt> instance
+     * @see MediaService#createMediaStream(StreamConnector, MediaDevice)
+     */
+    public MediaStream createMediaStream(
+            StreamConnector connector,
+            MediaDevice device,
+            ZrtpControl zrtpControl)
+    {
         switch (device.getMediaType())
         {
         case AUDIO:
-            return new AudioMediaStreamImpl(connector, device);
+            return new AudioMediaStreamImpl(connector, device, 
+                (ZrtpControlImpl)zrtpControl);
         case VIDEO:
-            return new VideoMediaStreamImpl(connector, device);
+            return new VideoMediaStreamImpl(connector, device, 
+                (ZrtpControlImpl)zrtpControl);
         default:
             return null;
         }
@@ -430,5 +456,16 @@ public class MediaServiceImpl
      */
     void stop()
     {
+    }
+
+    /**
+     * Creates <tt>ZrtpControl</tt> used to control all zrtp options
+     * on particular stream.
+     *
+     * @return ZrtpControl instance.
+     */
+    public ZrtpControl createZrtpControl()
+    {
+        return new ZrtpControlImpl();
     }
 }

@@ -214,6 +214,12 @@ public class CallPeerMediaHandler
     private Object streamAudioLevelListenerLock = new Object();
 
     /**
+     * Holds the zrtp controls used for the current call.
+     */
+    private Map<MediaType, ZrtpControl> zrtpControls =
+        new Hashtable<MediaType, ZrtpControl>();
+
+    /**
      * Creates a new handler that will be managing media streams for
      * <tt>peer</tt>.
      *
@@ -432,6 +438,9 @@ public class CallPeerMediaHandler
                 videoStreamConnector = null;
             }
         }
+
+        // clears the zrtp controls used for current call.
+        zrtpControls.remove(type);
     }
 
     /**
@@ -557,20 +566,24 @@ public class CallPeerMediaHandler
 
                     if(peer.getCall().isSipZrtpAttribute())
                     {
-//                        try
-//                        {
-//                            String helloHash =
-//                                SipActivator.getMediaService().createZrtpHelloHash();
-//                            System.out.println("eeeeeeeeeee " + helloHash);
-//                            zrtpHelloHashes.put(mediaType, helloHash);
-//
-//                            if(helloHash != null && helloHash.length() > 0)
-//                                md.setAttribute("zrtp-hash", helloHash);
-//
-//                        } catch (SdpException ex)
-//                        {
-//                            logger.error("Cannot add zrtp-hash to sdp", ex);
-//                        }
+                        try
+                        {
+                            ZrtpControl control = zrtpControls.get(mediaType);
+                            if(control == null)
+                            {
+                                control = SipActivator.getMediaService()
+                                    .createZrtpControl();
+                                zrtpControls.put(mediaType, control);
+                            }
+
+                            String helloHash = control.getHelloHash();
+                            if(helloHash != null && helloHash.length() > 0)
+                                md.setAttribute("zrtp-hash", helloHash);
+
+                        } catch (SdpException ex)
+                        {
+                            logger.error("Cannot add zrtp-hash to sdp", ex);
+                        }
                     }
 
                     mediaDescs.add(md);
@@ -697,7 +710,13 @@ public class CallPeerMediaHandler
 
         if (stream == null)
         {
-            stream = mediaService.createMediaStream(connector, device);
+            // check whether a control already exists
+            ZrtpControl control = zrtpControls.get(format.getMediaType());
+            if(control == null)
+                stream = mediaService.createMediaStream(connector, device);
+            else
+                stream = mediaService.createMediaStream(
+                                            connector, device, control);
         }
         else
         {

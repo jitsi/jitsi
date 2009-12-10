@@ -9,7 +9,6 @@ package net.java.sip.communicator.service.neomedia;
 import java.util.*;
 
 import net.java.sip.communicator.service.neomedia.device.*;
-import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 
 /**
@@ -61,6 +60,24 @@ public interface MediaService
                                          MediaDevice     device);
 
     /**
+     * Creates a <tt>MediaStream</tt> that will be using the specified
+     * <tt>MediaDevice</tt> for both capture and playback of media exchanged
+     * via the specified <tt>StreamConnector</tt>.
+     *
+     * @param connector the connector that the stream should use for sending and
+     * receiving media.
+     * @param device the device to be used for both capture and playback of
+     * media exchanged via the specified <tt>StreamConnector</tt>
+     * @param zrtpControl a control which is already created, used to control
+     *        the zrtp operations.
+     *
+     * @return the newly created <tt>MediaStream</tt>.
+     */
+    public MediaStream createMediaStream(StreamConnector connector,
+                                         MediaDevice     device,
+                                         ZrtpControl zrtpControl);
+
+    /**
      * Creates a new <tt>MediaDevice</tt> which uses a specific
      * <tt>MediaDevice</tt> to capture and play back media and performs mixing
      * of the captured media and the media played back by any other users of the
@@ -88,4 +105,11 @@ public interface MediaService
      * with the <tt>MediaStream</tt>s created by this <tt>MediaService</tt>
      */
     public MediaFormatFactory getFormatFactory();
+
+    /**
+     * Creates <tt>ZrtpControl</tt> used to control all zrtp options.
+     *
+     * @return ZrtpControl instance.
+     */
+    public ZrtpControl createZrtpControl();
 }

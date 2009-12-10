@@ -286,11 +286,8 @@ public class ZRTPTransformEngine
     protected static final int ZRTP_PACKET_HEADER = 12;
 
     /**
-     * This is the own ZRTP connector, required to send ZRTP packets
+     * This is the connector, required to send ZRTP packets
      * via the DatagramSocket.
-     * (Note: in order to further multistream support this should be
-     *  replaced with a connector array; each connector would handle
-     *  a stream)
      */
     private RTPTransformConnector zrtpConnector = null;
 

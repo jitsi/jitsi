@@ -61,4 +61,11 @@ public interface ZrtpControl
      *        needed to start rest of the streams in the session.
      */
     public void setMultistream(byte[] multiStreamData);
+
+    /**
+     * Return the zrtp hello hash String.
+     *
+     * @return String the zrtp hello hash.
+     */
+    public String getHelloHash();
 }

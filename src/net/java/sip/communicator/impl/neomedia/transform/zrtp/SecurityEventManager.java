@@ -64,9 +64,9 @@ public class SecurityEventManager extends ZrtpUserCallback
         CallPeerSecurityStatusEvent.VIDEO_SESSION;
 
     /**
-     * The stream that this manager is associated with.
+     * The zrtp control that this manager is associated with.
      */
-    private final MediaStreamImpl mediaStream;
+    private final ZrtpControlImpl zrtpControl;
 
     /**
      * A callback to the instance that created us.
@@ -101,13 +101,12 @@ public class SecurityEventManager extends ZrtpUserCallback
     /**
      * The class constructor.
      *
-     * @param mediaStream the mediaStream that this manager is to be associated
-     * with.
+     * @param zrtpControl that this manager is to be associated with.
      */
-    public SecurityEventManager(MediaStreamImpl mediaStream)
+    public SecurityEventManager(ZrtpControlImpl zrtpControl)
     {
-        this.mediaStream = mediaStream;
-        this.securityListener = mediaStream.getZrtpControl().getZrtpListener();
+        this.zrtpControl = zrtpControl;
+        this.securityListener = zrtpControl.getZrtpListener();
     }
 
     /**
@@ -211,8 +210,7 @@ public class SecurityEventManager extends ZrtpUserCallback
                 {
                     securityListener.securityTurnedOn(
                         sessionType, cipher, sas, isSasVerified,
-                        ((ZrtpControlImpl)mediaStream.getZrtpControl()).
-                            getZrtpEngine().getMultiStrParams());
+                        zrtpControl.getZrtpEngine().getMultiStrParams());
                 }
                 else
                 {
