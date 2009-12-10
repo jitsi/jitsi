@@ -104,7 +104,7 @@ public final class PortAudio
      * Used when creating new stream parameters for suggested latency.
      * To use default value.
      */
-    public static final double LATENCY_UNSEPCIFIED = 0d;
+    public static final double LATENCY_UNSPECIFIED = 0d;
 
     /**
      * Used when creating new stream parameters for suggested latency.
@@ -457,7 +457,7 @@ public final class PortAudio
      * @param channelCount the channels to be used.
      * @param sampleFormat the sample format.
      * @param suggestedLatency the suggested latency in milliseconds:
-     *          LATENCY_UNSEPCIFIED -
+     *          LATENCY_UNSPECIFIED -
      *              use default(default high input/output latency)
      *          LATENCY_HIGH - use default high input/output latency
      *          LATENCY_LOW - use default low input/output latency

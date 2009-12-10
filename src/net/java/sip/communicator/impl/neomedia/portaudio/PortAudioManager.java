@@ -43,7 +43,7 @@ public class PortAudioManager
     private int frameSize = NUM_SAMPLES;
     private int filterLength = 2048;
 
-    private static double suggestedLatency = PortAudio.LATENCY_UNSEPCIFIED;
+    private static double suggestedLatency = PortAudio.LATENCY_UNSPECIFIED;
 
     /**
      * Private constructor as we have one static instance of this manager.
@@ -205,7 +205,7 @@ public class PortAudioManager
      */
     public static double getSuggestedLatency()
     {
-        if(suggestedLatency != PortAudio.LATENCY_UNSEPCIFIED)
+        if(suggestedLatency != PortAudio.LATENCY_UNSPECIFIED)
             return suggestedLatency;
 
         if (OSUtils.IS_MAC || OSUtils.IS_LINUX)
@@ -213,7 +213,7 @@ public class PortAudioManager
         else if (OSUtils.IS_WINDOWS)
             return 0.1d;
         else
-            return PortAudio.LATENCY_UNSEPCIFIED;
+            return PortAudio.LATENCY_UNSPECIFIED;
     }
 
     /**
