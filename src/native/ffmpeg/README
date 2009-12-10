@@ -6,7 +6,7 @@
 ./configure --disable-pthread
 
 64-bit
-./configure --disable-pthread --disable-avis-input --disable-asm
+./configure --disable-pthread --disable-avs-input --disable-asm
 
 - Linux, Mac OS X
 
@@ -50,6 +50,9 @@ Then run:
   --disable-debug \
   --disable-ffserver --disable-ffplay --disable-ffmpeg \
   --disable-pthreads --enable-w32threads
+
+mingw32-make
+Note: mingw64-make failed to work (segmentation fault) that's why we fallback to mingw32-make.
 
 - Linux
 
