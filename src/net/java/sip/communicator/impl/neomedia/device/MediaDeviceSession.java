@@ -91,21 +91,28 @@ public class MediaDeviceSession
     private boolean mute = false;
 
     /**
+     * The <tt>DataSource</tt> being played back on the <tt>MediaDevice</tt>
+     * represented by this instance.
+     */
+    private DataSource playbackDataSource;
+
+    /**
+     * The <tt>Object</tt> used to synchronize the access to the
+     * playback-related state of this instance.
+     */
+    private final Object playbackSyncRoot = new Object();
+
+    /**
+     * The <tt>Player</tt> rendering {@link #playbackDataSource} on the
+     * <tt>MediaDevice</tt> represented by this instance.
+     */
+    private Player player;
+
+    /**
      * The <tt>ControllerListener</tt> which listens to the <tt>Player</tt>
      * instances in {@link #players} for <tt>ControllerEvent</tt>s.
      */
     private ControllerListener playerControllerListener;
-
-    /**
-     * The <tt>Player</tt>s rendering <tt>ReceiveStream</tt>s on the
-     * <tt>MediaDevice</tt> represented by this instance. Associated with
-     * <tt>DataSource</tt> because different <tt>ReceiveStream</tt>s may be
-     * added with one and the same <tt>DataSource</tt> so it has to be clear
-     * when a new <tt>Player</tt> is to be created and when it is to be
-     * disposed.
-     */
-    private final Map<DataSource, Player> players
-        = new HashMap<DataSource, Player>();
 
     /**
      * The JMF <tt>Processor</tt> which transcodes {@link #captureDevice} into
@@ -140,19 +147,13 @@ public class MediaDeviceSession
     private boolean processorIsPrematurelyClosed;
 
     /**
-     * The <tt>ReceiveStream</tt>s rendered by this instance on its associated
-     * <tt>MediaDevice</tt>. Mapped to <tt>DataSource</tt> because extenders may
-     * choose to override their <tt>DataSource</tt> and use one and the same
-     * instance for different <tt>ReceiveStream</tt>s (e.g. audio mixing).
+     * The <tt>ReceiveStream</tt> rendered by this instance on its associated
+     * <tt>MediaDevice</tt>. The <tt>DataSource</tt> of the
+     * <tt>ReceiveStream</tt> is actually rendered and is assigned to
+     * {@link #playbackDataSource}. It is possible to have a
+     * <tt>playbackDataSource</tt> and not have a <tt>ReceiveStream</tt>.
      */
-    private final Map<ReceiveStream, DataSource> receiveStreams
-        = new HashMap<ReceiveStream, DataSource>();
-
-    /**
-     * The last <tt>ReceiveStream</tt> that was added to this session
-     * @todo make this the only stream that this session cares about
-     */
-    private ReceiveStream receiveStream = null;
+    private ReceiveStream receiveStream;
 
     /**
      * The list of SSRC identifiers representing the parties that we are
@@ -182,114 +183,39 @@ public class MediaDeviceSession
     }
 
     /**
-     * Adds a <tt>ReceiveStream</tt> to this <tt>MediaDeviceSession</tt> to be
-     * played back on the associated <tt>MediaDevice</tt>.
+     * Adds <tt>ssrc</tt> to the array of SSRC identifiers representing parties
+     * that this <tt>MediaDeviceSession</tt> is currently receiving streams
+     * from. We use this method mostly as a way of to caching SSRC identifiers
+     * during a conference call so that the streams that are sending CSRC lists
+     * could have them ready for use rather than have to construct them for
+     * every RTP packet.
      *
-     * @param receiveStream the <tt>ReceiveStream</tt> to be played back by this
-     * <tt>MediaDeviceSession</tt> on its associated <tt>MediaDevice</tt>
+     * @param ssrc the new SSRC identifier that we'd like to add to the array of
+     * <tt>ssrc</tt> identifiers stored by this session.
      */
-    public void addReceiveStream(ReceiveStream receiveStream)
+    protected void addSSRC(long ssrc)
     {
-        DataSource receiveStreamDataSource = receiveStream.getDataSource();
-
-        if (receiveStreamDataSource != null)
+        //init if necessary
+        if ( ssrcList == null)
         {
-            if (receiveStreamDataSource instanceof PushBufferDataSource)
-                receiveStreamDataSource
-                    = new ReceiveStreamPushBufferDataSource(
-                            receiveStream,
-                            (PushBufferDataSource) receiveStreamDataSource,
-                            true);
-            else
-                logger.warn(
-                        "Adding ReceiveStream with DataSource"
-                            + " not of type PushBufferDataSource but "
-                            + receiveStreamDataSource.getClass().getSimpleName()
-                            + " which may prevent the ReceiveStream from"
-                            + " properly transferring to another MediaDevice"
-                            + " if such a need arises.");
-
-            //todo: this should eventually become the only ref we keep to a
-            //receive stream.
-            this.receiveStream = receiveStream;
-
-            addReceiveStream(receiveStream, receiveStreamDataSource);
-        }
-    }
-
-    /**
-     * Adds a <tt>ReceiveStream</tt> to this <tt>MediaDeviceSession</tt> to be
-     * played back on the associated <tt>MediaDevice</tt> and a specific
-     * <tt>DataSource</tt> is to be used to access its media data during the
-     * playback. The <tt>DataSource</tt> is explicitly specified in order to
-     * allow extenders to override the <tt>DataSource</tt> of the
-     * <tt>ReceiveStream</tt> (e.g. create a clone of it).
-     *
-     * @param receiveStream the <tt>ReceiveStream</tt> to be played back by this
-     * <tt>MediaDeviceSession</tt> on its associated <tt>MediaDevice</tt>
-     * @param receiveStreamDataSource the <tt>DataSource</tt> to be used for
-     * accessing the media data of <tt>receiveStream</tt> during its playback
-     */
-    protected synchronized void addReceiveStream(
-            ReceiveStream receiveStream,
-            DataSource receiveStreamDataSource)
-    {
-
-        /*
-         * Though we check for null in #addReceiveStream(ReceiveStream), we have
-         * to check again because we may have been overridden.
-         */
-        if (receiveStreamDataSource == null)
+            setSsrcList(new long[]{ssrc});
             return;
-
-        receiveStreams.put(receiveStream, receiveStreamDataSource);
-        if (logger.isTraceEnabled())
-            logger.trace(
-                    "Added ReceiveStream with ssrc " + receiveStream.getSSRC());
-
-        addSSRC(receiveStream.getSSRC());
-
-        synchronized (players)
-        {
-            Player player = players.get(receiveStreamDataSource);
-
-            if (player == null)
-            {
-                /*
-                 * A Player is documented to be created on a connected
-                 * DataSource.
-                 */
-                Throwable exception;
-
-                try
-                {
-                    receiveStreamDataSource.connect();
-                    exception = null;
-                }
-                catch (IOException ioex)
-                {
-                    // TODO
-                    exception = ioex;
-                }
-
-                if (exception == null)
-                {
-                    player
-                        = createPlayer(receiveStream, receiveStreamDataSource);
-                    if (player == null)
-                        receiveStreamDataSource.disconnect();
-                    else
-                        players.put(receiveStreamDataSource, player);
-                }
-                else
-                    logger
-                        .error(
-                            "Failed to connect to DataSource"
-                                + " of ReceiveStream with ssrc "
-                                + receiveStream.getSSRC(),
-                            exception);
-            }
         }
+
+        //check whether we already have this ssrc
+        for ( long i : ssrcList)
+        {
+            if ( i == ssrc)
+                return;
+        }
+
+        //resize the array and add the new ssrc to the end.
+        long[] newSsrcList = new long[ssrcList.length + 1];
+
+        System.arraycopy(ssrcList, 0, newSsrcList, 0, ssrcList.length);
+        newSsrcList[newSsrcList.length - 1] = ssrc;
+
+        setSsrcList(newSsrcList);
     }
 
     /**
@@ -369,8 +295,10 @@ public class MediaDeviceSession
      */
     public void close()
     {
-        disposePlayers();
+        // playback
+        disposePlayer();
 
+        // capture
         disconnectCaptureDevice();
         closeProcessor();
     }
@@ -446,28 +374,64 @@ public class MediaDeviceSession
     }
 
     /**
-     * Creates a new <tt>Player</tt> for a specific <tt>DataSource</tt> which is
-     * known to be related to a specific <tt>ReceiveStream</tt>. The relation is
-     * in the sense that either the specified <tt>DataSource</tt> belongs to the
-     * specified <tt>ReceiveStream</tt> or it was determined as the appropriate
-     * playback source for the specified <tt>ReceiveStream</tt>
+     * Creates a new <tt>Player</tt> to render the <tt>playbackDataSource</tt>
+     * of this instance on the associated <tt>MediaDevice</tt>.
      *
-     * @param receiveStream the <tt>ReceiveStream</tt> related to the specified
-     * <tt>DataSource</tt>
-     * @param receiveStreamDataSource the <tt>DataSource</tt> to create a new
-     * <tt>Player</tt> for
-     * @return a new <tt>Player</tt> for the specified
-     * <tt>receiveStreamDataSource</tt>
+     * @return a new <tt>Player</tt> to render the <tt>playbackDataSource</tt>
+     * of this instance on the associated <tt>MediaDevice</tt> or <tt>null</tt>
+     * if the <tt>playbackDataSource</tt> of this instance is not to be rendered
      */
-    private Player createPlayer( ReceiveStream receiveStream,
-                                    DataSource receiveStreamDataSource)
+    protected Player createPlayer()
+    {
+        // A Player is documented to be created on a connected DataSource.
+        Throwable exception;
+
+        try
+        {
+            this.playbackDataSource.connect();
+            exception = null;
+        }
+        catch (IOException ioex)
+        {
+            // TODO
+            exception = ioex;
+        }
+
+        if (exception == null)
+        {
+            Player player = createPlayer(this.playbackDataSource);
+
+            if (player == null)
+                this.playbackDataSource.disconnect();
+            else
+                return player;
+        }
+        else
+            logger
+                .error(
+                    "Failed to connect to "
+                        + MediaStreamImpl.toString(this.playbackDataSource),
+                    exception);
+        return null;
+    }
+
+    /**
+     * Creates a new <tt>Player</tt> for a specific <tt>DataSource</tt> so that
+     * it is played back on the <tt>MediaDevice</tt> represented by this
+     * instance.
+     *
+     * @param dataSource the <tt>DataSource</tt> to create a new <tt>Player</tt>
+     * for
+     * @return a new <tt>Player</tt> for the specified <tt>dataSource</tt>
+     */
+    private Player createPlayer(DataSource dataSource)
     {
         Processor player = null;
         Throwable exception = null;
 
         try
         {
-            player = Manager.createProcessor(receiveStreamDataSource);
+            player = Manager.createProcessor(dataSource);
         }
         catch (IOException ioe)
         {
@@ -480,13 +444,13 @@ public class MediaDeviceSession
 
         if (exception != null)
             logger.error(
-                    "Failed to create player for ReceiveStream with ssrc "
-                        + receiveStream.getSSRC(),
+                    "Failed to create Player for "
+                        + MediaStreamImpl.toString(dataSource),
                     exception);
         else if (!waitForState(player, Processor.Configured))
             logger.error(
-                    "Failed to configure player for ReceiveStream with ssrc "
-                        + receiveStream.getSSRC());
+                    "Failed to configure Player for "
+                        + MediaStreamImpl.toString(dataSource));
         else
         {
             playerConfigureComplete(player);
@@ -507,15 +471,15 @@ public class MediaDeviceSession
                     logger .trace(
                             "Created Player with hashCode "
                                 + player.hashCode()
-                                + " for ReceiveStream with ssrc "
-                                + receiveStream.getSSRC());
+                                + " for "
+                                + MediaStreamImpl.toString(dataSource));
 
                 return player;
             }
             else
-                logger.error( "Failed to realize player"
-                            + " for ReceiveStream with ssrc "
-                            + receiveStream.getSSRC());
+                logger.error(
+                        "Failed to realize Player for"
+                            + MediaStreamImpl.toString(dataSource));
         }
         return null;
     }
@@ -555,6 +519,19 @@ public class MediaDeviceSession
     }
 
     /**
+     * Releases the resources allocated by {@link #player} in the course of its
+     * execution and prepares it to be garbage collected.
+     */
+    private void disposePlayer()
+    {
+        synchronized (playbackSyncRoot)
+        {
+            if (player != null)
+                disposePlayer(player);
+        }
+    }
+
+    /**
      * Releases the resources allocated by a specific <tt>Player</tt> in the
      * course of its execution and prepares it to be garbage collected.
      *
@@ -562,17 +539,10 @@ public class MediaDeviceSession
      */
     protected void disposePlayer(Player player)
     {
-        synchronized (players)
+        synchronized (playbackSyncRoot)
         {
-            Iterator<Map.Entry<DataSource, Player>> playerIter
-                = players.entrySet().iterator();
-
-            while (playerIter.hasNext())
-                if (playerIter.next().getValue().equals(player))
-                {
-                    playerIter.remove();
-                    break;
-                }
+            if (this.player == player)
+                this.player = null;
 
             if (playerControllerListener != null)
                 player.removeControllerListener(playerControllerListener);
@@ -580,33 +550,6 @@ public class MediaDeviceSession
             player.deallocate();
             player.close();
         }
-    }
-
-    /**
-     * Releases the resources allocated by {@link #players} in the course of
-     * their execution and prepares them to be garbage collected.
-     */
-    private void disposePlayers()
-    {
-        synchronized (players)
-        {
-            for (Player player : getPlayers())
-                disposePlayer(player);
-        }
-    }
-
-    /**
-     * Returns the <tt>Player</tt> associated with the specified
-     * <tt>dataSource</tt> or <tt>null</tt> if there isn't one.
-     *
-     * @param dataSource the <tt>DataSource</tt> whose processor we are trying
-     * to obtain
-     * @return the <tt>Player</tt> associated with the specified
-     * <tt>dataSource</tt> or <tt>null</tt> if there isn't one.
-     */
-    protected Player getPlayer(DataSource dataSource)
-    {
-        return players.get(dataSource);
     }
 
     /**
@@ -791,20 +734,18 @@ public class MediaDeviceSession
     }
 
     /**
-     * Gets the <tt>Player</tt>s rendering <tt>ReceiveStream</tt>s for this
-     * instance on its associated <tt>MediaDevice</tt>. The returned
-     * <tt>List</tt> is a copy of the internal storage and, consequently,
-     * modifications to it do not affect this instance.
+     * Gets the <tt>Player</tt> rendering the <tt>ReceiveStream</tt> of this
+     * instance on its associated <tt>MediaDevice</tt>.
      *
-     * @return a new <tt>List</tt> of <tt>Player</tt>s rendering
-     * <tt>ReceiveStream</tt>s for this instance on its associated
-     * <tt>MediaDevice</tt>
+     * @return the <tt>Player</tt> rendering the <tt>ReceiveStream</tt>s of this
+     * instance on its associated <tt>MediaDevice</tt> if it exists; otherwise,
+     * <tt>null</tt>
      */
-    protected List<Player> getPlayers()
+    protected Player getPlayer()
     {
-        synchronized (players)
+        synchronized (playbackSyncRoot)
         {
-            return new ArrayList<Player>(players.values());
+            return player;
         }
     }
 
@@ -892,22 +833,32 @@ public class MediaDeviceSession
     }
 
     /**
-     * Returns the <tt>ReceiveStream</tt> associated with this
-     * <tt>MediaDeviceSession</tt> or <tt>null</tt> if no <tt>ReceiveStream</tt>
-     * has been set yet.
+     * Gets the <tt>ReceiveStream</tt> being played back on the
+     * <tt>MediaDevice</tt> represented by this instance.
      *
-     * @return the <tt>ReceiveStream</tt> associated with this
-     * <tt>MediaDeviceSession</tt> or <tt>null</tt> if no <tt>ReceiveStream</tt>
-     * has been set yet.
-     *
-     * @todo right now this method is a bit of a hack as it returns the last
-     * receive stream that we added to this session. We are however planning
-     * changes on the architecture here that are going to replace the
-     * multi-stream nature of this class with a single stream one.
+     * @return the <tt>ReceiveStream</tt> being played back on the
+     * <tt>MediaDevice</tt> represented by this instance if it has been
+     * previously set; otherwise, <tt>null</tt>
      */
     public ReceiveStream getReceiveStream()
     {
         return receiveStream;
+    }
+
+    /**
+     * Returns the list of SSRC identifiers that this device session is handling
+     * streams from. In this case (i.e. the case of a device session handling
+     * a single remote party) we would rarely (if ever) have more than a single
+     * SSRC identifier returned. However, we would also be using the same method
+     * to query a device session operating over a mixer in which case we would
+     * have the SSRC IDs of all parties currently contributing to the mixing.
+     *
+     * @return a <tt>long[]</tt> array of SSRC identifiers that this device
+     * session is handling streams from.
+     */
+    public long[] getRemoteSSRCList()
+    {
+        return ssrcList;
     }
 
     /**
@@ -991,6 +942,23 @@ public class MediaDeviceSession
     }
 
     /**
+     * Notifies this instance that the value of its <tt>playbackDataSource</tt>
+     * property has changed from a specific <tt>oldValue</tt> to a specific
+     * <tt>newValue</tt>. Allows extenders to override and perform additional
+     * processing of the change.
+     *
+     * @param oldValue the <tt>DataSource</tt> which used to be the value of the
+     * <tt>playbackDataSource</tt> property of this instance
+     * @param newValue the <tt>DataSource</tt> which is the value of the
+     * <tt>playbackDataSource</tt> property of this instance
+     */
+    protected void playbackDataSourceChanged(
+            DataSource oldValue,
+            DataSource newValue)
+    {
+    }
+
+    /**
      * Notifies this instance that a specific <tt>Player</tt> of remote content
      * has generated a <tt>ConfigureCompleteEvent</tt>. Allows extenders to
      * carry out additional processing on the <tt>Player</tt>.
@@ -1066,34 +1034,76 @@ public class MediaDeviceSession
     }
 
     /**
-     * Removes a <tt>ReceiveStream</tt> from this <tt>MediaDeviceSession</tt> so
-     * that it no longer plays back on the associated <tt>MediaDevice</tt>.
+     * Removes <tt>ssrc</tt> from the array of SSRC identifiers representing
+     * parties that this <tt>MediaDeviceSession</tt> is currently receiving
+     * streams from.
      *
-     * @param receiveStream the <tt>ReceiveStream</tt> to be removed from this
-     * <tt>MediaDeviceSession</tt> and playback on the associated
-     * <tt>MediaDevice</tt>
+     * @param ssrc the SSRC identifier that we'd like to remove from the array
+     * of <tt>ssrc</tt> identifiers stored by this session.
      */
-    public synchronized void removeReceiveStream(ReceiveStream receiveStream)
+    protected void removeSSRC(long ssrc)
     {
-        DataSource receiveStreamDataSource
-            = receiveStreams.remove(receiveStream);
+        //find the ssrc
+        int index = -1;
 
-        removeSSRC(receiveStream.getSSRC());
+        if (ssrcList == null || ssrcList.length == 0)
+        {
+            //list is already empty so there's nothing to do.
+            return;
+        }
 
-        if ((receiveStreamDataSource != null)
-                && !receiveStreams.containsValue(receiveStreamDataSource))
-            synchronized (players)
+        for (int i = 0; i < ssrcList.length; i++)
+        {
+            if (ssrcList[i] == ssrc)
             {
-                Player player = players.get(receiveStreamDataSource);
-
-                if (player != null)
-                    disposePlayer(player);
+                index = i;
+                break;
             }
+        }
 
-        //todo: this should eventually become the only ref we keep to a
-        //receive stream.
-        if (this.receiveStream == receiveStream)
-            this.receiveStream = null;
+        if (index < 0 || index >= ssrcList.length)
+        {
+            //the ssrc we are trying to remove is not in the list so there's
+            //nothing to do.
+            return;
+        }
+
+        //if we get here and the list has a single element this would mean we
+        //simply need to empty it as the only element is the one we are removing
+        if (ssrcList.length == 1)
+        {
+            setSsrcList(null);
+            return;
+        }
+
+        long[] newSsrcList = new long[ssrcList.length];
+
+        System.arraycopy(ssrcList, 0, newSsrcList, 0, index);
+        if (index < ssrcList.length - 1)
+        {
+            System.arraycopy(ssrcList,    index + 1,
+                             newSsrcList, index,
+                             ssrcList.length - index - 1);
+        }
+
+        setSsrcList(newSsrcList);
+    }
+
+    /**
+     * Notifies this instance that the value of its <tt>receiveStream</tt>
+     * property has changed from a specific <tt>oldValue</tt> to a specific
+     * <tt>newValue</tt>. Allows extenders to override and perform additional
+     * processing of the change.
+     *
+     * @param oldValue the <tt>ReceiveStream</tt> which used to be the value of
+     * the <tt>receiveStream</tt> property of this instance
+     * @param newValue the <tt>ReceiveStream</tt> which is the value of the
+     * <tt>receiveStream</tt> property of this instance
+     */
+    protected void receiveStreamChanged(
+            ReceiveStream oldValue,
+            ReceiveStream newValue)
+    {
     }
 
     /**
@@ -1274,6 +1284,34 @@ public class MediaDeviceSession
     }
 
     /**
+     * Sets the <tt>DataSource</tt> to be played back on the
+     * <tt>MediaDevice</tt> represented by this instance.
+     *
+     * @param playbackDataSource the <tt>DataSource</tt> to be played back on
+     * the <tt>MediaDevice</tt> represented by this instance or <tt>null</tt> to
+     * have this instance not play anything back
+     */
+    public void setPlaybackDataSource(DataSource playbackDataSource)
+    {
+        synchronized (playbackSyncRoot)
+        {
+            if (this.playbackDataSource == playbackDataSource)
+                return;
+
+            DataSource oldValue = this.playbackDataSource;
+
+            if (this.playbackDataSource != null)
+                disposePlayer();
+
+            this.playbackDataSource = playbackDataSource;
+            playbackDataSourceChanged(oldValue, this.playbackDataSource);
+
+            if (this.playbackDataSource != null)
+                player = createPlayer();
+        }
+    }
+
+    /**
      * Sets the JMF <tt>Processor</tt> which is to transcode
      * {@link #captureDevice} into the format of this instance.
      *
@@ -1294,6 +1332,79 @@ public class MediaDeviceSession
              */
             firePropertyChange(OUTPUT_DATA_SOURCE, null, null);
         }
+    }
+
+    /**
+     * Sets the <tt>ReceiveStream</tt> which is to be played back on the
+     * <tt>MediaDevice</tt> represented by this instance.
+     *
+     * @param receiveStream the <tt>ReceiveStream</tt> which is to be played
+     * back on the <tt>MediaDevice</tt> represented by this instance
+     */
+    public void setReceiveStream(ReceiveStream receiveStream)
+    {
+        synchronized (playbackSyncRoot)
+        {
+            if (this.receiveStream == receiveStream)
+                return;
+
+            ReceiveStream oldValue = this.receiveStream;
+
+            if (this.receiveStream != null)
+            {
+                removeSSRC(this.receiveStream.getSSRC());
+                setPlaybackDataSource(null);
+            }
+
+            this.receiveStream = receiveStream;
+            receiveStreamChanged(oldValue, this.receiveStream);
+
+            if (this.receiveStream != null)
+            {
+                addSSRC(this.receiveStream.getSSRC());
+
+                // playbackDataSource
+                DataSource receiveStreamDataSource
+                    = receiveStream.getDataSource();
+
+                if (receiveStreamDataSource != null)
+                {
+                    if (receiveStreamDataSource instanceof PushBufferDataSource)
+                        receiveStreamDataSource
+                            = new ReceiveStreamPushBufferDataSource(
+                                    receiveStream,
+                                    (PushBufferDataSource)
+                                        receiveStreamDataSource,
+                                    true);
+                    else
+                        logger.warn(
+                                "Adding ReceiveStream with DataSource"
+                                    + " not of type PushBufferDataSource but "
+                                    + receiveStreamDataSource
+                                        .getClass().getSimpleName()
+                                    + " which may prevent the ReceiveStream"
+                                    + " from properly transferring to another"
+                                    + " MediaDevice if such a need arises.");
+                    setPlaybackDataSource(receiveStreamDataSource);
+                }
+            }
+        }
+    }
+
+    /**
+     * Sets the list of SSRC identifiers that this device stores to
+     * <tt>newSsrcList</tt> and fires a <tt>PropertyChangeEvent</tt> for the
+     * <tt>SSRC_LIST</tt> property.
+     *
+     * @param newSsrcList that SSRC array that we'd like to replace the existing
+     * SSRC list with.
+     */
+    private void setSsrcList(long[] newSsrcList)
+    {
+        long[] oldSsrcList = ssrcList;
+        ssrcList = newSsrcList;
+
+        firePropertyChange(SSRC_LIST, oldSsrcList, newSsrcList);
     }
 
     /**
@@ -1412,129 +1523,5 @@ public class MediaDeviceSession
     private static boolean waitForState(Processor processor, int state)
     {
         return new ProcessorUtility().waitForState(processor, state);
-    }
-
-    /**
-     * Returns the list of SSRC identifiers that this device session is handling
-     * streams from. In this case (i.e. the case of a device session handling
-     * a single remote party) we would rarely (if ever) have more than a single
-     * SSRC identifier returned. However, we would also be using the same method
-     * to query a device session operating over a mixer in which case we would
-     * have the SSRC IDs of all parties currently contributing to the mixing.
-     *
-     * @return a <tt>long[]</tt> array of SSRC identifiers that this device
-     * session is handling streams from.
-     */
-    public long[] getRemoteSSRCList()
-    {
-        return ssrcList;
-    }
-
-    /**
-     * Adds <tt>ssrc</tt> to the array of SSRC identifiers representing parties
-     * that this <tt>MediaDeviceSession</tt> is currently receiving streams
-     * from. We use this method mostly as a way of to caching SSRC identifiers
-     * during a conference call so that the streams that are sending CSRC lists
-     * could have them ready for use rather than have to construct them for
-     * every RTP packet.
-     *
-     * @param ssrc the new SSRC identifier that we'd like to add to the array of
-     * <tt>ssrc</tt> identifiers stored by this session.
-     */
-    private void addSSRC(long ssrc)
-    {
-        //init if necessary
-        if ( ssrcList == null)
-        {
-            setSsrcList(new long[]{ssrc});
-            return;
-        }
-
-        //check whether we already have this ssrc
-        for ( long i : ssrcList)
-        {
-            if ( i == ssrc)
-                return;
-        }
-
-        //resize the array and add the new ssrc to the end.
-        long[] newSsrcList = new long[ssrcList.length + 1];
-
-        System.arraycopy(ssrcList, 0, newSsrcList, 0, ssrcList.length);
-        newSsrcList[newSsrcList.length - 1] = ssrc;
-
-        setSsrcList(newSsrcList);
-    }
-
-    /**
-     * Removes <tt>ssrc</tt> from the array of SSRC identifiers representing
-     * parties that this <tt>MediaDeviceSession</tt> is currently receiving
-     * streams from.
-     *
-     * @param ssrc the SSRC identifier that we'd like to remove from the array
-     * of <tt>ssrc</tt> identifiers stored by this session.
-     */
-    private void removeSSRC(long ssrc)
-    {
-        //find the ssrc
-        int index = -1;
-
-        if (ssrcList == null || ssrcList.length == 0)
-        {
-            //list is already empty so there's nothing to do.
-            return;
-        }
-
-        for (int i = 0; i < ssrcList.length; i++)
-        {
-            if (ssrcList[i] == ssrc)
-            {
-                index = i;
-                break;
-            }
-        }
-
-        if (index < 0 || index >= ssrcList.length)
-        {
-            //the ssrc we are trying to remove is not in the list so there's
-            //nothing to do.
-            return;
-        }
-
-        //if we get here and the list has a single element this would mean we
-        //simply need to empty it as the only element is the one we are removing
-        if (ssrcList.length == 1)
-        {
-            setSsrcList(null);
-            return;
-        }
-
-        long[] newSsrcList = new long[ssrcList.length];
-
-        System.arraycopy(ssrcList, 0, newSsrcList, 0, index);
-        if (index < ssrcList.length - 1)
-        {
-            System.arraycopy(ssrcList,    index + 1,
-                             newSsrcList, index,
-                             ssrcList.length - index - 1);
-        }
-
-        setSsrcList(newSsrcList);
-    }
-
-    /**
-     * Sets the list of SSRC identifiers that this device stores to
-     * <tt>newSsrcList</tt> and fires a <tt>PropertyChangeEvent</tt> for the
-     * <tt>SSRC_LIST</tt> property.
-     *
-     * @param newSsrcList that SSRC array that we'd like to replace the existing
-     * SSRC list with.
-     */
-    private void setSsrcList(long[] newSsrcList)
-    {
-        long[] oldSsrcList = ssrcList;
-        ssrcList = newSsrcList;
-
-        firePropertyChange(SSRC_LIST, oldSsrcList, newSsrcList);
     }
 }

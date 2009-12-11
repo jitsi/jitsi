@@ -158,14 +158,9 @@ public class VideoMediaDeviceSession
      */
     public Component getVisualComponent()
     {
-        for (Player player : getPlayers())
-        {
-            Component visualComponent = getVisualComponent(player);
+        Player player = getPlayer();
 
-            if (visualComponent != null)
-                return visualComponent;
-        }
-        return null;
+        return (player == null) ? null : getVisualComponent(player);
     }
 
     /**

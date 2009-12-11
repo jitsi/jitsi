@@ -911,7 +911,7 @@ public class MediaStreamImpl
                 synchronized (receiveStreamSyncRoot)
                 {
                     if (receiveStream != null)
-                        deviceSession.addReceiveStream(receiveStream);
+                        deviceSession.setReceiveStream(receiveStream);
                 }
             }
         }
@@ -1448,7 +1448,7 @@ public class MediaStreamImpl
                         MediaDeviceSession deviceSession = getDeviceSession();
 
                         if (deviceSession != null)
-                            deviceSession.addReceiveStream(this.receiveStream);
+                            deviceSession.setReceiveStream(this.receiveStream);
                     }
                 }
             }
@@ -1467,7 +1467,7 @@ public class MediaStreamImpl
                         MediaDeviceSession deviceSession = getDeviceSession();
 
                         if (deviceSession != null)
-                            deviceSession.removeReceiveStream(receiveStream);
+                            deviceSession.setReceiveStream(null);
                     }
                 }
         }
@@ -1565,13 +1565,13 @@ public class MediaStreamImpl
     {
         long[] remoteSsrcList = getDeviceSession().getRemoteSSRCList();
 
-        /** @todo -implement */
+        // TODO implement
 
         return remoteSsrcList;
     }
 
     /**
-     * The <tt>ZrtpControl</tt> which controlls the zrtp for the current stream.
+     * The <tt>ZrtpControl</tt> which controls the ZRTP for the current stream.
      * @return the <tt>ZrtpControl</tt> for the current stream.
      */
     public ZrtpControl getZrtpControl()
