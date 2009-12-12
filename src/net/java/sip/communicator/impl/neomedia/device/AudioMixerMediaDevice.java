@@ -992,6 +992,38 @@ public class AudioMixerMediaDevice
                         .removeStreamAudioLevelListener(receiveStream);
             }
         }
+
+        /**
+         * Returns the last audio level that was measured by the underlying
+         * mixer for the specified <tt>csrc</tt>.
+         *
+         * @param csrc the CSRC ID whose last measured audio level we'd like to
+         * retrieve.
+         *
+         * @return the audio level that was last measured by the underlying
+         * mixer for the specified <tt>csrc</tt> or <tt>-1</tt> if the
+         * <tt>csrc</tt> does not belong to neither of the conference
+         * participants.
+         */
+        @Override
+        public int getLastMeasuredAudioLevel(long csrc)
+        {
+            return ((AudioMixerMediaDevice)getDevice())
+                .audioLevelCache.getLevel(csrc);
+        }
+
+        /**
+         * Returns the last audio level that was measured by the underlying
+         * mixer for local user.
+         *
+         * @return the audio level that was last measured for the local user.
+         */
+        @Override
+        public int getLastMeasuredLocalUserAudioLevel()
+        {
+            return ((AudioMixerMediaDevice)getDevice())
+                .lastMeasuredLocalUserAudioLevel;
+        }
     }
 
     /**
@@ -1049,38 +1081,6 @@ public class AudioMixerMediaDevice
              * the only field appropriate for the calculation of the hashCode.
              */
             return listener.hashCode();
-        }
-
-        /**
-         * Returns the last audio level that was measured by the underlying
-         * mixer for the specified <tt>csrc</tt>.
-         *
-         * @param csrc the CSRC ID whose last measured audio level we'd like to
-         * retrieve.
-         *
-         * @return the audio level that was last measured by the underlying
-         * mixer for the specified <tt>csrc</tt> or <tt>-1</tt> if the
-         * <tt>csrc</tt> does not belong to neither of the conference
-         * participants.
-         */
-        @Override
-        public int getLastMeasuredAudioLevel(long csrc)
-        {
-            return ((AudioMixerMediaDevice)getDevice())
-                .audioLevelCache.getLevel(csrc);
-        }
-
-        /**
-         * Returns the last audio level that was measured by the underlying
-         * mixer for local user.
-         *
-         * @return the audio level that was last measured for the local user.
-         */
-        @Override
-        public int getLastMeasuredLocalUserAudioLevel()
-        {
-            return ((AudioMixerMediaDevice)getDevice())
-                .lastMeasuredLocalUserAudioLevel;
         }
     }
 }
