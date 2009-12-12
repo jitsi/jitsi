@@ -1832,7 +1832,6 @@ public class CallPeerSipImpl
                     .soundLevelChanged(evt);
             }
         }
-
     }
 
     /**
