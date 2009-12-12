@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.neomedia.transform.csrc;
 
+import javax.media.*;
+
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
 
@@ -42,6 +44,11 @@ public class CsrcTransformEngine
      * <tt>extensionBuff</tt> buffer.
      */
     private int extensionBuffLen = 0;
+
+    /**
+     * The dispatcher that is delivering audio levels to the media steam.
+     */
+    private CsrcAudioLevelDispatcher csrcLevelDispatcher = null;
 
     /**
      * Creates an engine instance that will be adding CSRC lists to the
@@ -94,6 +101,22 @@ public class CsrcTransformEngine
      */
     public RawPacket reverseTransform(RawPacket pkt)
     {
+        if (csrcAudioLevelExtID > 0)
+        {
+            //extract the audio levels and send them to the dispatcher.
+            long[][] levels = pkt.extractCsrcLevels(csrcAudioLevelExtID);
+
+            if(levels != null)
+            {
+                if (csrcLevelDispatcher == null)
+                    csrcLevelDispatcher = new CsrcAudioLevelDispatcher();
+
+                if( ! csrcLevelDispatcher.isRunning )
+                    new Thread(csrcLevelDispatcher).start();
+
+                csrcLevelDispatcher.addLevels(levels);
+            }
+        }
         return pkt;
     }
 
@@ -131,6 +154,15 @@ public class CsrcTransformEngine
         }
 
         return pkt;
+    }
+
+    /**
+     * Stops threads that this transform engine is using for even delivery.
+     */
+    public void stop()
+    {
+        if(csrcLevelDispatcher != null)
+            csrcLevelDispatcher.stop();
     }
 
     /**
@@ -197,6 +229,92 @@ public class CsrcTransformEngine
 
         extensionBuffLen = ensureCapacity;
         return extensionBuff;
+    }
+
+    /**
+     * A simple thread that waits for new levels to be reported from incoming
+     * RTP packets and then delivers them to the <tt>AudioMediaStream</tt>
+     * associated with this engine. The reason we need to do this in a separate
+     * thread is of course the time sensitive nature of incoming RTP packets.
+     */
+    private class CsrcAudioLevelDispatcher
+        implements Runnable
+    {
+        /** Indicates whether this thread is supposed to be running */
+        private boolean isRunning = true;
+
+        /** The levels that we last received from the reverseTransform thread*/
+        private long[][] lastReportedLevels = null;
+
+        /**
+         * Waits for new levels to be reported via the <tt>addLevels()</tt>
+         * method and then delivers them to the <tt>AudioMediaStream</tt> that
+         * we are associated with.
+         */
+        public void run()
+        {
+            isRunning = true;
+
+            //no point in listening if our stream is not an audio one.
+            if(!(mediaStream instanceof AudioMediaStreamImpl))
+                return;
+
+            while(isRunning)
+            {
+                synchronized(this)
+                {
+                    if(lastReportedLevels == null)
+                    {
+                        try
+                        {
+                            wait();
+                        }
+                        catch (InterruptedException ie) {}
+                    }
+                }
+
+                if(lastReportedLevels != null)
+                {
+                    //now notify our listener
+                    if (mediaStream != null)
+                    {
+                        ((AudioMediaStreamImpl)mediaStream)
+                            .fireConferenceAudioLevelEvent(lastReportedLevels);
+                    }
+                }
+            }
+        }
+
+        /**
+         * A level matrix that we should deliver to our media stream and
+         * its listeners in a separate thread.
+         *
+         * @param levels the levels that we'd like to queue for processing.
+         */
+        public void addLevels(long[][] levels)
+        {
+            synchronized(this)
+            {
+                this.lastReportedLevels = levels;
+
+                notifyAll();
+            }
+        }
+
+        /**
+         * Causes our run method to exit so that this thread would stop
+         * handling levels.
+         */
+        public void stop()
+        {
+            synchronized(this)
+            {
+                this.lastReportedLevels = null;
+                isRunning = false;
+
+                notifyAll();
+            }
+        }
     }
 
 }

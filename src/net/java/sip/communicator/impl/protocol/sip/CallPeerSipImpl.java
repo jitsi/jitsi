@@ -16,8 +16,7 @@ import javax.sip.header.*;
 import javax.sip.message.*;
 
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
-import net.java.sip.communicator.service.neomedia.event.ZrtpListener;
-import net.java.sip.communicator.service.neomedia.event.SimpleAudioLevelListener;
+import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -32,6 +31,7 @@ public class CallPeerSipImpl
     extends AbstractCallPeer
     implements SimpleAudioLevelListener,
                CallPeerConferenceListener,
+               CsrcAudioLevelListener,
                ZrtpListener
 {
     /**
@@ -128,6 +128,15 @@ public class CallPeerSipImpl
      */
     private List<SoundLevelListener> streamAudioLevelListeners
         = new ArrayList<SoundLevelListener>();
+
+    /**
+     * Holds listeners registered for level changes in the audio of participants
+     * that this peer might be mixing and that we are not directly communicating
+     * with.
+     */
+    private List<ConferenceMembersSoundLevelListener>
+        conferenceMemberAudioLevelListeners
+            = new ArrayList<ConferenceMembersSoundLevelListener>();
 
     /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
@@ -1742,8 +1751,21 @@ public class CallPeerSipImpl
      * @param listener the <tt>ConferenceMembersSoundLevelListener</tt> to add
      */
     public void addConferenceMembersSoundLevelListener(
-        ConferenceMembersSoundLevelListener listener)
+                                ConferenceMembersSoundLevelListener listener)
     {
+        synchronized (conferenceMemberAudioLevelListeners)
+        {
+
+            if (conferenceMemberAudioLevelListeners.size() == 0)
+            {
+                // if this is the first listener that's being registered with
+                // us, we also need to register ourselves as a CSRC audio level
+                // listener with the media handler.
+                getMediaHandler().setCsrcAudioLevelListener(this);
+            }
+
+            conferenceMemberAudioLevelListeners.add(listener);
+        }
     }
 
     /**
@@ -1757,6 +1779,31 @@ public class CallPeerSipImpl
     public void removeConferenceMembersSoundLevelListener(
         ConferenceMembersSoundLevelListener listener)
     {
+        synchronized (conferenceMemberAudioLevelListeners)
+        {
+            conferenceMemberAudioLevelListeners.remove(listener);
+
+            if (conferenceMemberAudioLevelListeners.size() == 0)
+            {
+                // if this was the last listener then we also remove ourselves
+                // as a CSRC audio level listener from the handler so that we
+                // don't have to create new events and maps for something no one
+                // is interested in.
+                getMediaHandler().setCsrcAudioLevelListener(null);
+            }
+        }
+    }
+
+    /**
+     * Implements {@link CsrcAudioLevelListener#audioLevelsReceived(long[][])}
+     * so that we could deliver to {@link ConferenceMembersSoundLevelListener}s
+     * the events corresponding to the audio level changes that are being
+     * reported here.
+     */
+    public void audioLevelsReceived(long[][] audioLevels)
+    {
+        // TODO Auto-generated method stub
+
     }
 
     /**

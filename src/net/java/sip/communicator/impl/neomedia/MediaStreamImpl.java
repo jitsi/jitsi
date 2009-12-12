@@ -345,6 +345,9 @@ public class MediaStreamImpl
             engine.cleanup();
         }
 
+        if(csrcEngine != null)
+            csrcEngine.stop();
+
         rtpConnector.removeTargets();
         rtpConnectorTarget = null;
 
