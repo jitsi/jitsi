@@ -124,9 +124,6 @@ public class CsrcTransformEngine
         if(this.csrcAudioLevelExtID > 0
            && mediaStream instanceof AudioMediaStreamImpl)
         {
-            AudioMediaStreamImpl audioStream
-                = (AudioMediaStreamImpl)mediaStream;
-
             byte[] levelsExt = createLevelExtensionBuffer(csrcList);
 
             pkt.addExtension(levelsExt, extensionBuffLen);

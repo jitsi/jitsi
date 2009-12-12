@@ -47,6 +47,11 @@ public class RawPacket
     public static final int FIXED_HEADER_SIZE = 12;
 
     /**
+     * The size of the extension header as defined by RFC 3550.
+     */
+    public static final int EXT_HEADER_SIZE = 12;
+
+    /**
      * Construct a RawPacket using specified value.
      *
      * @param buffer Byte array holding the content of this Packet
@@ -466,13 +471,49 @@ public class RawPacket
      * @param extBit the flag that indicates whether we are to set or clear
      * the extension bit of this packet.
      */
-    public void setExtensionBit(boolean extBit)
+    private void setExtensionBit(boolean extBit)
     {
         if(extBit)
             buffer[offset] |= 0x10;
         else
             buffer[offset] &= 0xEF;
     }
+
+    /**
+     * Returns the length of the extensions currently added to this packet.
+     *
+     * @return the length of the extensions currently added to this packet.
+     */
+    public int getExtensionsLength()
+    {
+        //the extension length comes after the RTP header, the CSRC list, and
+        //after two bytes in the extension header called "defined by profile"
+        int extLenIndex =  offset
+                        + FIXED_HEADER_SIZE
+                        + getCsrcCount()*4 + 2;
+
+        return (int)( (buffer[extLenIndex] << 4) | buffer[extLenIndex + 1]);
+    }
+
+    /**
+     * Sets the length of the extensions currently recorded in this packet's
+     * buffer.
+     *
+     * @param length the length of the extensions currently recorded in the
+     * buffer of this packet.
+     */
+    private void setExtensionsLength(int length)
+    {
+        //the extension length comes after the RTP header, the CSRC list, and
+        //after two bytes in the extension header called "defined by profile"
+        int extLenIndex =  offset
+                        + FIXED_HEADER_SIZE
+                        + getCsrcCount()*4 + 2;
+
+        buffer[extLenIndex] = (byte)(length >> 4);
+        buffer[extLenIndex + 1] = (byte)length;
+    }
+
 
     /**
      * Adds the <tt>extBuff</tt> buffer to as an extension of this packet
@@ -486,6 +527,8 @@ public class RawPacket
      */
     public void addExtension(byte[] extBuff, int length)
     {
+        byte[] newBuffer = new byte[getLength() + EXT_HEADER_SIZE + length ];
+
 
 
     }
