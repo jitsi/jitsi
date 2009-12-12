@@ -17,7 +17,6 @@ package net.java.sip.communicator.service.neomedia.event;
  */
 public interface CsrcAudioLevelListener
 {
-
     /**
      * Called by the media service implementation after it has received audio
      * levels for the various participants (Contributing SouRCes) that are

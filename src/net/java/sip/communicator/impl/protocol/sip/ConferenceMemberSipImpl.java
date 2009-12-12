@@ -65,7 +65,7 @@ public class ConferenceMemberSipImpl
     /**
      * The SSRC value if transmitted by the focus of the conference.
      */
-    private String ssrc;
+    private long ssrc = -1;
 
     /**
      * Initializes a new <tt>ConferenceMemberSipImpl</tt> instance with a
@@ -141,19 +141,21 @@ public class ConferenceMemberSipImpl
     }
 
     /**
-     * Return the SSRC value;
+     * Returns the SSRC value associated with this participant;
+     *
      * @return the ssrc
      */
-    public String getSSRC()
+    public long getSSRC()
     {
         return ssrc;
     }
 
     /**
-     * Changes SSRC value;
-     * @param ssrc the ssrc to set
+     * Sets the SSRC identifier of this member.
+     *
+     * @param ssrc the SSRC ID to set for this member.
      */
-    public void setSSRC(String ssrc)
+    public void setSSRC(long ssrc)
     {
         this.ssrc = ssrc;
     }

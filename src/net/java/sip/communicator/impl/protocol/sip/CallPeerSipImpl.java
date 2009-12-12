@@ -1802,6 +1802,8 @@ public class CallPeerSipImpl
      */
     public void audioLevelsReceived(long[][] audioLevels)
     {
+        if ( getConferenceMemberCount() == 0 )
+            return;
 
         //ConferenceMembersSoundLevelEvent evt
         //    = new ConferenceMembersSoundLevelEvent(this, levels);

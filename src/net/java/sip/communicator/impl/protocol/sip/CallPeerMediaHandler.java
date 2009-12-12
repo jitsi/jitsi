@@ -15,8 +15,10 @@ import javax.sdp.*;
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
 import net.java.sip.communicator.service.neomedia.*;
 
-//disambiguates VideoListener which is also available in protocol.event
+//the following two disambiguate VideoListener which is also available in
+//protocol.event
 import net.java.sip.communicator.service.neomedia.event.SimpleAudioLevelListener;
+import net.java.sip.communicator.service.neomedia.event.CsrcAudioLevelListener;
 
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
@@ -212,6 +214,18 @@ public class CallPeerMediaHandler
      * <tt>streamAudioLevelListener</tt>.
      */
     private Object streamAudioLevelListenerLock = new Object();
+
+    /**
+     * The listener that our <tt>CallPeer</tt> registers for CSRC audio level
+     * events.
+     */
+    private CsrcAudioLevelListener csrcAudioLevelListener = null;
+
+    /**
+     * The object that we are using to sync operations on
+     * <tt>csrcAudioLevelListener</tt>.
+     */
+    private Object csrcAudioLevelListenerLock = new Object();
 
     /**
      * Holds the zrtp controls used for the current call.
@@ -768,25 +782,7 @@ public class CallPeerMediaHandler
         {
             this.audioStream = (AudioMediaStream)stream;
 
-            // if we already have a local level listener - register it now.
-            synchronized (localAudioLevelListenerLock)
-            {
-                if (localAudioLevelListener != null)
-                {
-                    audioStream.setLocalUserAudioLevelListener(
-                                    localAudioLevelListener);
-                }
-            }
-
-            // if we already have a stream level listener - register it now.
-            synchronized (streamAudioLevelListenerLock)
-            {
-                if (streamAudioLevelListener != null)
-                {
-                    audioStream.setStreamAudioLevelListener(
-                                    streamAudioLevelListener);
-                }
-            }
+            registerAudioLevelListeners(audioStream);
         }
         else
             setVideoStream((VideoMediaStream)stream);
@@ -805,6 +801,45 @@ public class CallPeerMediaHandler
             stream.start();
 
         return stream;
+    }
+
+    /**
+     * Registers all audio level listeners currently known to this media handler
+     * with the specified <tt>audioStream</tt>.
+     *
+     * @param audioStream the <tt>AudioMediaStream</tt> that we'd like to
+     * register our audio level listeners with.
+     */
+    private void registerAudioLevelListeners(AudioMediaStream audioStream)
+    {
+        // if we already have a local level listener - register it now.
+        synchronized (localAudioLevelListenerLock)
+        {
+            if (localAudioLevelListener != null)
+            {
+                audioStream.setLocalUserAudioLevelListener(
+                                localAudioLevelListener);
+            }
+        }
+
+        // if we already have a stream level listener - register it now.
+        synchronized (streamAudioLevelListenerLock)
+        {
+            if (streamAudioLevelListener != null)
+            {
+                audioStream.setStreamAudioLevelListener(
+                                streamAudioLevelListener);
+            }
+        }
+
+        // if we already have a csrc level listener - register it now.
+        synchronized (csrcAudioLevelListenerLock)
+        {
+            if (csrcAudioLevelListener != null)
+            {
+                audioStream.setCsrcAudioLevelListener(csrcAudioLevelListener);
+            }
+        }
     }
 
     /**
@@ -1706,30 +1741,25 @@ public class CallPeerMediaHandler
     }
 
     /**
-     * Adds a specific <tt>ConferenceMembersSoundLevelListener</tt> to the list
-     * of listeners interested in and notified about changes in conference
-     * members sound level.
+     * Sets <tt>csrcAudioLevelListener</tt> as the listener that will be
+     * receiving notifications for changes in the audio levels of the remote
+     * participants that our peer is mixing.
      *
-     * @param listener the <tt>ConferenceMembersSoundLevelListener</tt> to add
+     * @param csrcAudioLevelListener the <tt>CsrcAudioLevelListener</tt> to set
+     * to our audio streams.
      */
-    public void addConferenceMembersSoundLevelListener(
-                                                SoundLevelListener listener)
+    public void setCsrcAudioLevelListener(
+                                CsrcAudioLevelListener csrcAudioLevelListener)
     {
+        synchronized(csrcAudioLevelListenerLock)
+        {
+            this.csrcAudioLevelListener = csrcAudioLevelListener;
 
-    }
-
-    /**
-     * Removes a specific <tt>ConferenceMembersSoundLevelListener</tt> of the
-     * list of listeners interested in and notified about changes in conference
-     * members sound level.
-     *
-     * @param listener the <tt>ConferenceMembersSoundLevelListener</tt> to
-     * remove
-     */
-    public void removeConferenceMembersSoundLevelListener(
-                                                SoundLevelListener listener)
-    {
-
+            if(audioStream != null)
+            {
+                audioStream.setCsrcAudioLevelListener(csrcAudioLevelListener);
+            }
+        }
     }
 
     /**
@@ -1771,8 +1801,12 @@ public class CallPeerMediaHandler
     }
 
     /**
+     * Passes <tt>multiStreamData</tt> to the video stream that we are using
+     * in this media handler (if any) so that the underlying ZRTP lib could
+     * properly handle stream security.
      *
-     * @param multiStreamData
+     * @param multiStreamData the data that we are supposed to pass to our
+     * video stream.
      */
     void startZrtpMultistream(byte[] multiStreamData)
     {

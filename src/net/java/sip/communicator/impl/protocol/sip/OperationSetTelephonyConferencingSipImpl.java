@@ -1067,15 +1067,16 @@ public class OperationSetTelephonyConferencingSipImpl
                         else if (ELEMENT_ENDPOINT.equals(userChildName))
                         {
                             endpointStatus = getEndpointStatus(userChild);
-                            ssrc
-                                = getEndpointMediaSrcId(
+                            ssrc = getEndpointMediaSrcId(
                                     userChild,
                                     MediaType.AUDIO);
                         }
                     }
                     existingConferenceMember.setDisplayName(displayName);
                     existingConferenceMember.setEndpointStatus(endpointStatus);
-                    existingConferenceMember.setSSRC(ssrc);
+
+                    if (ssrc != null)
+                        existingConferenceMember.setSSRC(Long.parseLong(ssrc));
 
                     if (addConferenceMember)
                         callPeer.addConferenceMember(existingConferenceMember);
