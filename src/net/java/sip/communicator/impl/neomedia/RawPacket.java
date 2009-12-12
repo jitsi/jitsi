@@ -630,22 +630,156 @@ public class RawPacket
      * @param csrcExtID the ID of the extension that's transporting csrc audio
      * levels in the session that this <tt>RawPacket</tt> belongs to.
      *
-     * @return the ID
+     * @return the CSRC audio level at the specified index of the csrc audio
+     * level option or <tt>0</tt> if there was no level at that index.
      */
     private int getCsrcLevel(int index, byte csrcExtID)
     {
         if( !getExtensionBit() || getExtensionLength() == 0)
             return 0;
 
+        int levelsStart = findExtension(csrcExtID);
+        int levelsCount = getLengthForExtension(levelsStart);
+
+        if(levelsCount < index)
+        {
+            //apparently the remote side sent more CSRCs than levels.
+            // ... yeah remote sides do that now and then ...
+            return 0;
+        }
+
+        return buffer[levelsStart + index];
+    }
+
+    /**
+     * Returns the index of the element in this packet's buffer where the
+     * content of the header with the specified <tt>extensionID</tt> starts.
+     *
+     * @param extensionID the ID of the extension whose content we are looking
+     * for.
+     *
+     * @return the index of the first byte of the content of the extension
+     * with the specified <tt>extensionID</tt> or -1 if no such extension was
+     * found.
+     */
+    private int findExtension(int extensionID)
+    {
+        if( !getExtensionBit() || getExtensionLength() == 0)
+            return 0;
+
         int extOffset = FIXED_HEADER_SIZE + getCsrcCount()*4 + EXT_HEADER_SIZE;
 
-        //find the start of the audio level option
-        if
         int extensionEnd = extOffset + getExtensionLength();
+        int extHdrLen = getExtensionHeaderLength();
 
-        while (extOffset < extensionsEnd)
+        if (extHdrLen != 1 && extHdrLen != 2)
+            return -1;
+
+        while (extOffset < extensionEnd)
         {
+            int currType = -1;
+            int currLen = -1;
 
+            if(extHdrLen == 1)
+            {
+                //short header. type is in the lefter 4 bits and length is on
+                //the right; like this:
+                //      0
+                //      0 1 2 3 4 5 6 7
+                //      +-+-+-+-+-+-+-+-+
+                //      |  ID   |  len  |
+                //      +-+-+-+-+-+-+-+-+
+
+                currType = buffer[extOffset] >> 4;
+                currLen = (buffer[extOffset] & 0x0F) + 1; //add one as per 5285
+
+                //now skip the header
+                extOffset ++;
+            }
+            else
+            {
+                //long header. type is in the first byte and length is in the
+                //second
+                //       0                   1
+                //       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
+                //      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+                //      |       ID      |     length    |
+                //      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+                currType = buffer[extOffset];
+                currLen = buffer[extOffset + 1];
+
+                //now skip the header
+                extOffset += 2;
+            }
+
+            if(currType == extensionID)
+                return extOffset;
+
+            extOffset += currLen;
         }
+
+        return -1;
+    }
+
+    /**
+     * Returns the length of the header extension that is carrying the content
+     * starting at <tt>contentStart</tt>. In other words this method checks the
+     * size of extension headers in this packet and then either returns the
+     * value of the byte right before <tt>contentStart</tt> or its lower 4 bits.
+     * This is a very basic method so if you are using it - make sure u know
+     * what you are doing.
+     *
+     * @param contentStart the index of the first element of the content of
+     * the extension whose size we are trying to obtain.
+     *
+     * @return the length of the extension carrying the content starting at
+     * <tt>contentStart</tt>.
+     */
+    private int getLengthForExtension(int contentStart)
+    {
+        int hdrLen = getExtensionHeaderLength();
+
+        if( hdrLen == 1 )
+            return ( buffer[contentStart - 1] & 0x0F ) + 1;
+        else
+            return buffer[contentStart - 1];
+    }
+
+    /**
+     * Returns the length of the extension header being used in this packet or
+     * <tt>-1</tt> in case there were no extension headers here or we didn't
+     * understand the kind of extension being used.
+     *
+     * @return  the length of the extension header being used in this packet or
+     * <tt>-1</tt> in case there were no extension headers here or we didn't
+     * understand the kind of extension being used.
+     */
+    private int getExtensionHeaderLength()
+    {
+        if (!getExtensionBit())
+            return -1;
+
+        //the type of the extension header comes right after the RTP header and
+        //the CSRC list.
+        int extLenIndex =  offset
+                        + FIXED_HEADER_SIZE
+                        + getCsrcCount()*4;
+
+        //0xBEDE means short extension header.
+        if (buffer[extLenIndex]== 0xBE
+            && buffer[extLenIndex + 1]== 0xDE)
+        {
+            return 1;
+        }
+
+        //0x100 means a two-byte extension header.
+        if (buffer[extLenIndex]== 0x10
+            && (buffer[extLenIndex + 1] >> 4)== 0)
+        {
+           return 2;
+        }
+
+        return -1;
     }
 }
