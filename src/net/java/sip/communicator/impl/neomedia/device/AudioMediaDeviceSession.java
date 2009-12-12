@@ -216,4 +216,30 @@ public class AudioMediaDeviceSession
         // Assume there is only one audio track
         trackControl.setCodecChain(new Codec[]{streamAudioLevelEffect});
     }
+
+    /**
+     * Returns the last audio level that was measured by this device session
+     * for the specified <tt>ssrc</tt>.
+     *
+     * @param ssrc the SSRC ID whose last measured audio level we'd like to
+     * retrieve.
+     *
+     * @return the audio level that was last measured for the specified
+     * <tt>ssrc</tt> or <tt>-1</tt> if no level has been cached for that ID.
+     */
+    public int getLastMeasuredAudioLevel(long ssrc)
+    {
+        return -1;
+    }
+
+    /**
+     * Returns the last audio level that was measured by the underlying
+     * mixer for local user.
+     *
+     * @return the audio level that was last measured for the local user.
+     */
+    public int getLastMeasuredLocalUserAudioLevel()
+    {
+        return -1;
+    }
 }

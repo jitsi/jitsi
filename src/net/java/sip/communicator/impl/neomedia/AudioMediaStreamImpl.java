@@ -233,4 +233,28 @@ public class AudioMediaStreamImpl
     {
         return (AudioMediaDeviceSession)super.getDeviceSession();
     }
+
+    /**
+     * Returns the last audio level that was measured by the underlying device
+     * session for the specified <tt>ssrc</tt> (where <tt>ssrc</tt> could also
+     * correspond to our local sync source identifier).
+     *
+     * @param ssrc the SSRC ID whose last measured audio level we'd like to
+     * retrieve.
+     *
+     * @return the audio level that was last measured for the specified
+     * <tt>ssrc</tt> or <tt>-1</tt> if no level has been cached for that ID.
+     */
+    public int getLastMeasuredAudioLevel(long ssrc)
+    {
+        AudioMediaDeviceSession devSession = getDeviceSession();
+
+        if (devSession == null)
+            return -1;
+
+        if ( ssrc == getLocalSourceID() )
+            return devSession.getLastMeasuredLocalUserAudioLevel();
+        else
+            return devSession.getLastMeasuredAudioLevel(ssrc);
+    }
 }
