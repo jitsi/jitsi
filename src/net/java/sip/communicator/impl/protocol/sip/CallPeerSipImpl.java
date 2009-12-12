@@ -1802,7 +1802,9 @@ public class CallPeerSipImpl
      */
     public void audioLevelsReceived(long[][] audioLevels)
     {
-        // TODO Auto-generated method stub
+
+        //ConferenceMembersSoundLevelEvent evt
+        //    = new ConferenceMembersSoundLevelEvent(this, levels);
 
     }
 
@@ -1843,14 +1845,17 @@ public class CallPeerSipImpl
         if (isConferenceFocus())
         {
             // this peer is now a conference focus so we need to remove the
-            //stream  level listeners, and
+            //stream  level listeners, and move to csrc level listening
+            getMediaHandler().setStreamAudioLevelListener(null);
+            getMediaHandler().setCsrcAudioLevelListener(this);
 
         }
         else
         {
-            // our call became from focus to not focus
-            // lets remove listeners if any
-
+            // this call peer is no longer a focus. lets stop being a CSRC
+            // listener and move back to listening th stream.
+            getMediaHandler().setStreamAudioLevelListener(this);
+            getMediaHandler().setCsrcAudioLevelListener(null);
         }
     }
 
