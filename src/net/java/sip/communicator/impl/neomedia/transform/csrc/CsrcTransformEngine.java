@@ -43,6 +43,9 @@ public class CsrcTransformEngine
      */
     private int audioLevelListLength = 0;
 
+    /**
+     * The buffer that we use to encode the csrc audio level extensions.
+     */
     private byte[] extensionBuff = null;
 
     /**
@@ -181,6 +184,20 @@ public class CsrcTransformEngine
 
             csrcOffset += 4;
         }
+
+        return extensionBuff;
+    }
+
+    /**
+     * Returns a reusable byte array which is guaranteed to have the requested
+     * <tt>ensureCapacity</tt> length.
+     * @param ensureCapacity
+     * @return
+     */
+    private byte[] getExtensionBuff(int ensureCapacity)
+    {
+        if (extensionBuff == null || extensionBuff.length < ensureCapacity)
+            extensionBuff = new byte[ensureCapacity];
 
         return extensionBuff;
     }
