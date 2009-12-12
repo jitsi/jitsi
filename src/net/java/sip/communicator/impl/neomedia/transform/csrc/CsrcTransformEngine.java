@@ -33,20 +33,15 @@ public class CsrcTransformEngine
     private byte csrcAudioLevelExtID = -1;
 
     /**
-     * The buffer where we store audio levels.
-     */
-    private byte[] audioLevelList = null;
-
-    /**
-     * Indicates the length that we are currently using in the
-     * <tt>audioLevelList</tt> buffer.
-     */
-    private int audioLevelListLength = 0;
-
-    /**
      * The buffer that we use to encode the csrc audio level extensions.
      */
     private byte[] extensionBuff = null;
+
+    /**
+     * Indicates the length that we are currently using in the
+     * <tt>extensionBuff</tt> buffer.
+     */
+    private int extensionBuffLen = 0;
 
     /**
      * Creates an engine instance that will be adding CSRC lists to the
@@ -134,7 +129,7 @@ public class CsrcTransformEngine
 
             byte[] levelsExt = createLevelExtensionBuffer(csrcList);
 
-            pkt.addExtension(levelsExt);
+            pkt.addExtension(levelsExt, extensionBuffLen);
 
         }
 
@@ -168,8 +163,9 @@ public class CsrcTransformEngine
      */
     private byte[] createLevelExtensionBuffer(long[] csrcList)
     {
-        byte[] extensionBuff = new byte[1 + //CSRC one byte extension hdr
-                                        csrcList.length ];
+        int buffLen = 1 + //CSRC one byte extension hdr
+                      csrcList.length;
+        byte[] extensionBuff = getExtensionBuff(buffLen);
 
         extensionBuff[0] = (byte)((csrcAudioLevelExtID << 4) | csrcList.length);
 
@@ -177,12 +173,11 @@ public class CsrcTransformEngine
 
         for(long csrc : csrcList)
         {
-            extensionBuff[csrcOffset] = (byte)(csrc >> 24);
-            extensionBuff[csrcOffset+1] = (byte)(csrc >> 16);
-            extensionBuff[csrcOffset+2] = (byte)(csrc >> 8);
-            extensionBuff[csrcOffset+3] = (byte)csrc;
+            byte level = (byte)((AudioMediaStreamImpl)mediaStream)
+                .getLastMeasuredAudioLevel(csrc);
+            extensionBuff[csrcOffset] = level;
 
-            csrcOffset += 4;
+            csrcOffset ++;
         }
 
         return extensionBuff;
@@ -190,15 +185,20 @@ public class CsrcTransformEngine
 
     /**
      * Returns a reusable byte array which is guaranteed to have the requested
-     * <tt>ensureCapacity</tt> length.
-     * @param ensureCapacity
-     * @return
+     * <tt>ensureCapacity</tt> length and sets our internal length keeping
+     * var.
+     *
+     * @param ensureCapacity the minimum length that we need the returned buffer
+     * to have.
+     * @return a reusable <tt>byte[]</tt> array guaranteed to have a length
+     * equal to or greater than <tt>ensureCapacity</tt>.
      */
     private byte[] getExtensionBuff(int ensureCapacity)
     {
         if (extensionBuff == null || extensionBuff.length < ensureCapacity)
             extensionBuff = new byte[ensureCapacity];
 
+        extensionBuffLen = ensureCapacity;
         return extensionBuff;
     }
 
