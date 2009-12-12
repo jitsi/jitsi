@@ -337,13 +337,8 @@ public class MediaStreamImpl
         stop();
         closeSendStreams();
 
-<<<<<<< HEAD:src/net/java/sip/communicator/impl/neomedia/MediaStreamImpl.java
         ZRTPTransformEngine engine = zrtpControl.getZrtpEngine();
-=======
-        ZRTPTransformEngine engine
-            = ((ZrtpControlImpl)getZrtpControl()).getZrtpEngine();
 
->>>>>>> First pieces of the CSRC audio level encoding code:src/net/java/sip/communicator/impl/neomedia/MediaStreamImpl.java
         if(engine != null)
         {
             engine.stopZrtp();
