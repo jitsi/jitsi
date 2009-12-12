@@ -63,11 +63,6 @@ public class ConferenceMemberSipImpl
     static final String PENDING = "pending";
 
     /**
-     * The SSRC value if transmitted by the focus of the conference.
-     */
-    private long ssrc = -1;
-
-    /**
      * Initializes a new <tt>ConferenceMemberSipImpl</tt> instance with a
      * specific SIP address as indicated by the conference-info XML received
      * from its <tt>conferenceFocusCallPeer</tt>.
@@ -138,25 +133,5 @@ public class ConferenceMemberSipImpl
             state = ConferenceMemberState.UNKNOWN;
 
         setState(state);
-    }
-
-    /**
-     * Returns the SSRC value associated with this participant;
-     *
-     * @return the ssrc
-     */
-    public long getSSRC()
-    {
-        return ssrc;
-    }
-
-    /**
-     * Sets the SSRC identifier of this member.
-     *
-     * @param ssrc the SSRC ID to set for this member.
-     */
-    public void setSSRC(long ssrc)
-    {
-        this.ssrc = ssrc;
     }
 }

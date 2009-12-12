@@ -14,6 +14,7 @@ import net.java.sip.communicator.util.*;
  *
  * @author Lubomir Marinov
  * @author Yana Stamcheva
+ * @author Emil Ivov
  */
 public class AbstractConferenceMember
     extends PropertyChangeNotifier
@@ -41,6 +42,11 @@ public class AbstractConferenceMember
      * <tt>ConferenceMember</tt> in the conference.
      */
     private ConferenceMemberState state = ConferenceMemberState.UNKNOWN;
+
+    /**
+     * The SSRC value if transmitted by the focus of the conference.
+     */
+    private long ssrc = -1;
 
     /**
      * Creates an instance of <tt>AbstractConferenceMember</tt> by specifying
@@ -146,5 +152,25 @@ public class AbstractConferenceMember
 
             firePropertyChange(STATE_PROPERTY_NAME, oldValue, this.state);
         }
+    }
+
+    /**
+     * Returns the SSRC value associated with this participant;
+     *
+     * @return the ssrc
+     */
+    public long getSSRC()
+    {
+        return ssrc;
+    }
+
+    /**
+     * Sets the SSRC identifier of this member.
+     *
+     * @param ssrc the SSRC ID to set for this member.
+     */
+    public void setSSRC(long ssrc)
+    {
+        this.ssrc = ssrc;
     }
 }

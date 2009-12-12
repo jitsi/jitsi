@@ -688,4 +688,34 @@ public abstract class AbstractCallPeer
                 break;
             }
     }
+
+    /**
+     * Returns the <tt>ConferenceMember</tt> with the specified <tt>ssrc</tt>
+     * ID or <tt>null</tt> if there is no such <tt>ConferenceMember</tt>. The
+     * method is meant for very frequent use and every call simply iterates
+     * through the conference members collection without creating an iterator
+     * or other object that may have an impact on garbage collection when used
+     * frequently.
+     *
+     * @param ssrc the SSRC identifier of the RTP streams transmitted by the
+     * <tt>ConferenceMember</tt> that we are looking for.
+     *
+     * @return the <tt>ConferenceMember</tt> with the specified <tt>ssrc</tt>
+     * ID or <tt>null</tt> if there is no such member.
+     */
+    protected ConferenceMember findConferenceMember(long ssrc)
+    {
+        synchronized ( conferenceMembers)
+        {
+            for ( int i = 0; i < conferenceMembers.size(); i++)
+            {
+                ConferenceMember mmbr = conferenceMembers.get(i);
+
+                if (mmbr.getSSRC() == ssrc)
+                    return mmbr;
+            }
+
+            return null;
+        }
+    }
 }

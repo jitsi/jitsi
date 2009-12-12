@@ -1799,14 +1799,39 @@ public class CallPeerSipImpl
      * so that we could deliver to {@link ConferenceMembersSoundLevelListener}s
      * the events corresponding to the audio level changes that are being
      * reported here.
+     *
+     * @param audioLevels the levels that we need to dispatch to all registered
+     * <tt>ConferenceMemberSoundLevelListeners</tt>.
      */
     public void audioLevelsReceived(long[][] audioLevels)
     {
         if ( getConferenceMemberCount() == 0 )
             return;
 
-        //ConferenceMembersSoundLevelEvent evt
-        //    = new ConferenceMembersSoundLevelEvent(this, levels);
+        Map<ConferenceMember, Integer> levelsMap
+            = new HashMap<ConferenceMember, Integer>();
+
+        for (int i = 0; i < audioLevels.length; i++ )
+        {
+            ConferenceMember mmbr = findConferenceMember(audioLevels[i][0]);
+
+            if (mmbr == null)
+                continue;
+
+            levelsMap.put(mmbr, (int)audioLevels[i][1]);
+        }
+
+        ConferenceMembersSoundLevelEvent evt
+            = new ConferenceMembersSoundLevelEvent(this, levelsMap);
+
+        synchronized( conferenceMemberAudioLevelListeners)
+        {
+            for (int i = 0; i < conferenceMemberAudioLevelListeners.size(); i++)
+            {
+                conferenceMemberAudioLevelListeners.get(0)
+                    .soundLevelChanged(evt);
+            }
+        }
 
     }
 
