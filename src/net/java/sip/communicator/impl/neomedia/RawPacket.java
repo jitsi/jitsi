@@ -583,4 +583,63 @@ public class RawPacket
                         FIXED_HEADER_SIZE
                             + getCsrcCount()*4 + getExtensionLength());
     }
+
+    /**
+     * Returns a bi-dimensional byte array containing a map binding CSRC IDs to
+     * audio levels as reported by the remote party that sent this packet.
+     *
+     * @return a bi-dimensional byte array containing a map binding CSRC IDs to
+     * audio levels as reported by the remote party that sent this packet.
+     */
+    public long[][] extractCsrcLevels()
+    {
+        if( !getExtensionBit() || getExtensionLength() == 0
+                        || getCsrcCount() == 0)
+            return null;
+
+        int csrcCount = getCsrcCount();
+        long[][] csrcLevels = new long[csrcCount][2];
+
+        //first extract the csrc IDs
+        int csrcStartIndex = offset + FIXED_HEADER_SIZE;
+        for (int i = 0; i < csrcCount; i++)
+        {
+            csrcLevels[i][0] = buffer[csrcStartIndex]     << 24
+                             & buffer[csrcStartIndex + 1] << 16
+                             & buffer[csrcStartIndex + 2] << 8
+                             & buffer[csrcStartIndex + 3];
+
+
+            csrcLevels[i][1] = getCsrcLevel(i);
+
+            csrcStartIndex += 4;
+        }
+
+        return csrcLevels;
+    }
+
+    /**
+     * Returns the CSRC level at the specified index or <tt>0</tt> if there was
+     * no level at that index.
+     *
+     * @param index the sequence number of the CSRC audio level extension to
+     * return.
+     */
+    private getCsrcLevel(int index)
+    {
+        if( !getExtensionBit() || getExtensionLength() == 0)
+            return 0;
+
+        int extOffset = FIXED_HEADER_SIZE + getCsrcCount()*4 + EXT_HEADER_SIZE;
+
+        //find the start of the audio level option
+        int extensionEnd = extOffset + getExtensionLength();
+
+        while (extOffset < getLength())
+        {
+
+        }
+
+
+    }
 }
