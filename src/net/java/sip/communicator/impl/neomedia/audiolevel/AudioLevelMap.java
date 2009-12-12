@@ -182,8 +182,8 @@ public class AudioLevelMap
         long[][] newLevels = new long[newLength][2];
 
         //put the new level.
-        levels[0][0] = csrc;
-        levels[0][1] = level;
+        newLevels[0][0] = csrc;
+        newLevels[0][1] = level;
 
         if( newLength == 1)
             return newLevels;
