@@ -69,6 +69,7 @@ public class AudioMixerMediaDevice
             {
                 public void audioLevelChanged(int level)
                 {
+                    lastMeasuredLocalUserAudioLevel = level;
                     fireLocalUserAudioLevelException(level);
                 }
             };
@@ -92,6 +93,17 @@ public class AudioMixerMediaDevice
     private final List<SimpleAudioLevelListenerWrapper>
         localUserAudioLevelListeners
             = new ArrayList<SimpleAudioLevelListenerWrapper>();
+
+    /**
+     * The levels map that we use to cache last measured audio levels for all
+     * streams associated with this mixer.
+     */
+    private final AudioLevelMap audioLevelCache = new AudioLevelMap();
+
+    /**
+     * The most recently measured level of the locally captured audio stream.
+     */
+    private int lastMeasuredLocalUserAudioLevel = 0;
 
     /**
      * The <tt>List</tt> of RTP extensions supported by this device (at the time
@@ -573,6 +585,7 @@ public class AudioMixerMediaDevice
                     //this is not a replacement but a registration for a stream
                     //that was not listened to so far. create it and "put" it
                     dispatcher = new AudioLevelEventDispatcher();
+                    dispatcher.setMapCache(audioLevelCache, stream.getSSRC());
                     streamAudioLevelListeners.put(stream, dispatcher);
                 }
 

@@ -45,6 +45,18 @@ public class AudioLevelEventDispatcher
     private byte[] data = null;
 
     /**
+     * The map where we'd need to register our measurements in addition to
+     * notifying listeners about them.
+     */
+    private AudioLevelMap levelMap = null;
+
+    /**
+     * The SSRC of the stream we are measuring that we should use as a key for
+     * entries of the levelMap level cache.
+     */
+    private long ssrc = -1;
+
+    /**
      * The length of the data last recorded in the <tt>data</tt> array.
      */
     private int dataLength = 0;
@@ -98,6 +110,14 @@ public class AudioLevelEventDispatcher
                         SimpleAudioLevelListener.MIN_LEVEL,
                         lastLevel);
 
+                //cache the result for csrc delivery in case a cache has been
+                //set
+                if(levelMap != null && ssrc != -1)
+                {
+                    levelMap.putLevel(ssrc, newLevel);
+                }
+
+                //now notify our listener
                 if (listenerToNotify != null)
                     listenerToNotify.audioLevelChanged(newLevel);
 
@@ -167,5 +187,20 @@ public class AudioLevelEventDispatcher
     public boolean isRunning()
     {
         return !stopped;
+    }
+
+    /**
+     * Sets an <tt>AudioLevelMap</tt> that this dispatcher could use to cache
+     * levels it's measuring in addition to simply delivering them to a
+     * listener.
+     *
+     * @param cacheMap the <tt>AudioLevelMap</tt> where this dispatcher should
+     * cache measured results.
+     * @param ssrc the SSRC key where entires should be logged
+     */
+    public void setMapCache(AudioLevelMap cacheMap, long ssrc)
+    {
+        this.levelMap = cacheMap;
+        this.ssrc = ssrc;
     }
 }
