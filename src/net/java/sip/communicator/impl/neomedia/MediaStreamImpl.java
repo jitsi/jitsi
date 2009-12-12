@@ -289,6 +289,44 @@ public class MediaStreamImpl
     }
 
     /**
+     * Returns the ID currently assigned to the RTP extension with the specified
+     * <tt>urn</tt> or -1 if no ID has been defined for this extension so far.
+     *
+     * @param urn the urn whose extensions ID we are trying to obtain.
+     *
+     * @return the ID currently assigned to the RTP extension with the specified
+     * <tt>urn</tt> or -1 if no ID has been defined for this extension so far.
+     */
+    public byte getActiveRTPExtensionID(String urn)
+    {
+        synchronized (activeRTPExtensions)
+        {
+            Set<Map.Entry<Byte, RTPExtension>> extSet
+                = this.activeRTPExtensions.entrySet();
+
+            for (Map.Entry<Byte, RTPExtension> entry : extSet)
+            {
+                if (entry.getValue().equals(urn))
+                    return entry.getKey();
+            }
+        }
+
+        return -1;
+    }
+
+    /**
+     * Returns the engine that is responsible for adding the list of CSRC
+     * identifiers to outgoing RTP packets during a conference.
+     *
+     * @return the engine that is responsible for adding the list of CSRC
+     * identifiers to outgoing RTP packets during a conference.
+     */
+    protected CsrcTransformEngine getCsrcEngine()
+    {
+        return csrcEngine;
+    }
+
+    /**
      * Releases the resources allocated by this instance in the course of its
      * execution and prepares it to be garbage collected.
      *
@@ -299,7 +337,13 @@ public class MediaStreamImpl
         stop();
         closeSendStreams();
 
+<<<<<<< HEAD:src/net/java/sip/communicator/impl/neomedia/MediaStreamImpl.java
         ZRTPTransformEngine engine = zrtpControl.getZrtpEngine();
+=======
+        ZRTPTransformEngine engine
+            = ((ZrtpControlImpl)getZrtpControl()).getZrtpEngine();
+
+>>>>>>> First pieces of the CSRC audio level encoding code:src/net/java/sip/communicator/impl/neomedia/MediaStreamImpl.java
         if(engine != null)
         {
             engine.stopZrtp();

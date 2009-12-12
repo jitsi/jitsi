@@ -444,4 +444,49 @@ public class RawPacket
     {
         return readRegion(4, 4);
     }
+
+
+    /**
+     * Returns <tt>true</tt> if the extension bit of this packet has been set
+     * and false otherwise.
+     *
+     * @return  <tt>true</tt> if the extension bit of this packet has been set
+     * and false otherwise.
+     */
+    public boolean getExtensionBit()
+    {
+        return (buffer[offset] & 0x10) == 0x10;
+    }
+
+    /**
+     * Raises the extension bit of this packet is <tt>extBit</tt> is
+     * <tt>true</tt> or set it to <tt>0</tt> if <tt>extBit</tt> is
+     * <tt>false</tt>.
+     *
+     * @param extBit the flag that indicates whether we are to set or clear
+     * the extension bit of this packet.
+     */
+    public void setExtensionBit(boolean extBit)
+    {
+        if(extBit)
+            buffer[offset] |= 0x10;
+        else
+            buffer[offset] &= 0xEF;
+    }
+
+    /**
+     * Adds the <tt>extBuff</tt> buffer to as an extension of this packet
+     * according the rules specified in RFC 5285. Note that this method does
+     * not replace extensions so if you add the same buffer twice it would be
+     * added as to separate extensions.
+     *
+     * @param extBuff the buffer that we'd like to add as an extension in this
+     * packet.
+     * @param length the length of the data in extBuff.
+     */
+    public void addExtension(byte[] extBuff, int length)
+    {
+
+
+    }
 }

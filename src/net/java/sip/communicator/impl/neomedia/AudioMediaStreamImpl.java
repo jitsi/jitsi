@@ -207,6 +207,26 @@ public class AudioMediaStreamImpl
     }
 
     /**
+     * In addition to calling {@link MediaStreamImpl#
+     * addRTPExtension(byte, RTPExtension)} this method enables sending of
+     * CSRC audio levels. The reason we are doing this here rather than in the
+     * super class is that CSRC levels only make sense for audio streams so
+     * we don't want them enabled in any other kind.
+     *
+     * @param extensionID the ID assigned to <tt>rtpExtension</tt> for the
+     * lifetime of this stream.
+     * @param rtpExtension the RTPExtension that is being added to this stream.
+     */
+    public void addRTPExtension(byte extensionID, RTPExtension rtpExtension)
+    {
+        super.addRTPExtension(extensionID, rtpExtension);
+
+        if ( RTPExtension.CSRC_AUDIO_LEVEL_URN
+                        .equals(rtpExtension.getURI().toString()))
+            getCsrcEngine().setCsrcAudioLevelsEnabled(true);
+    }
+
+    /**
      * Sets <tt>listener</tt> as the <tt>SimpleAudioLevelListener</tt>
      * registered to receive notifications from our device session for changes
      * in the levels of the audio that this stream is sending out.
