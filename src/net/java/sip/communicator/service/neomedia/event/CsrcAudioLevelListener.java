@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.neomedia.audiolevel;
+package net.java.sip.communicator.service.neomedia.event;
 
 /**
  * The <tt>CsrcAudioLevelListener</tt> delivers audio level events reported by
