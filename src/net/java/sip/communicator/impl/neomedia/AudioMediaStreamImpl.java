@@ -10,6 +10,7 @@ import javax.media.*;
 import javax.media.format.*;
 import javax.media.rtp.*;
 
+import net.java.sip.communicator.impl.neomedia.audiolevel.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.*;
@@ -66,6 +67,12 @@ public class AudioMediaStreamImpl
     private static boolean formatsRegisteredOnce = false;
 
     /**
+     * The listener that gets notified of changes in the audio level of
+     * remote conference participants.
+     */
+    private CsrcAudioLevelListener csrcAudioLevelListener = null;
+
+    /**
      * Initializes a new <tt>AudioMediaStreamImpl</tt> instance which will use
      * the specified <tt>MediaDevice</tt> for both capture and playback of audio
      * exchanged via the specified <tt>StreamConnector</tt>.
@@ -114,16 +121,16 @@ public class AudioMediaStreamImpl
     }
 
     /**
-     * Registers <tt>listener</tt> as the <tt>SoundLevelListener</tt> that will
-     * receive notifications for changes in the levels of conference
+     * Registers <tt>listener</tt> as the <tt>CsrcAudioLevelListener</tt> that
+     * will receive notifications for changes in the levels of conference
      * participants that the remote party could be mixing.
      *
-     * @param listener the <tt>SoundLevelListener</tt> that we'd like to
+     * @param listener the <tt>CsrcAudioLevelListener</tt> that we'd like to
      * register or <tt>null</tt> if we'd like to stop receiving notifications.
      */
-    public void setConferenceMemberAudioLevelListener(
-        SimpleAudioLevelListener listener)
+    public void setCsrcAudioLevelListener(CsrcAudioLevelListener listener)
     {
+        this.csrcAudioLevelListener = listener;
     }
 
     /**
@@ -223,7 +230,7 @@ public class AudioMediaStreamImpl
 
         if ( RTPExtension.CSRC_AUDIO_LEVEL_URN
                         .equals(rtpExtension.getURI().toString()))
-            getCsrcEngine().setCsrcAudioLevelsEnabled(true);
+            getCsrcEngine().setCsrcAudioLevelAudioLevelExtensionID(extensionID);
     }
 
     /**
@@ -276,5 +283,17 @@ public class AudioMediaStreamImpl
             return devSession.getLastMeasuredLocalUserAudioLevel();
         else
             return devSession.getLastMeasuredAudioLevel(ssrc);
+    }
+
+    /**
+     * Delivers the <tt>audioLevels</tt> map to whoever's interested.
+     *
+     * @param audioLevels a bidimensional array mapping CSRC IDs to audio
+     * levels.
+     */
+    private void fireConferenceAudioLevelEvent(final long[][] audioLevels)
+    {
+        if (this.csrcAudioLevelListener != null)
+            this.csrcAudioLevelListener.audioLevelsReceived(audioLevels);
     }
 }

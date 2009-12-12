@@ -56,8 +56,7 @@ public class AudioMediaDeviceSession
     }
 
     /**
-     * Called by {@link MediaDeviceSession#addReceiveStream(ReceiveStream,
-     * DataSource)} when the player associated with this session's
+     * Called by {@link MediaDeviceSession#addReceiveStream(ReceiveStream)} when the player associated with this session's
      * <tt>ReceiveStream</tt> moves enters the <tt>Configured</tt> state, so
      * we use the occasion to add our audio level effect.
      *

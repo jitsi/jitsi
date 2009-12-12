@@ -484,8 +484,11 @@ public class RawPacket
      *
      * @return the length of the extensions currently added to this packet.
      */
-    public int getExtensionsLength()
+    public int getExtensionLength()
     {
+        if (!getExtensionBit())
+            return 0;
+
         //the extension length comes after the RTP header, the CSRC list, and
         //after two bytes in the extension header called "defined by profile"
         int extLenIndex =  offset
@@ -502,7 +505,7 @@ public class RawPacket
      * @param length the length of the extensions currently recorded in the
      * buffer of this packet.
      */
-    private void setExtensionsLength(int length)
+    private void setExtensionLength(int length)
     {
         //the extension length comes after the RTP header, the CSRC list, and
         //after two bytes in the extension header called "defined by profile"
@@ -527,9 +530,57 @@ public class RawPacket
      */
     public void addExtension(byte[] extBuff, int length)
     {
-        byte[] newBuffer = new byte[getLength() + EXT_HEADER_SIZE + length ];
+        int newBuffLen = getLength() + length;
 
+        //if there was no extension previously, we also need to consider adding
+        //the extension header.
+        if (!getExtensionBit())
+            newBuffLen += EXT_HEADER_SIZE;
 
+        byte[] newBuffer = new byte[ newBuffLen ];
 
+        //copy header and CSRC list any previous extensions if any
+        System.arraycopy(buffer, offset, newBuffer, offset,
+                         FIXED_HEADER_SIZE
+                             + getCsrcCount()*4 + getExtensionLength());
+
+        //raise the extension bit.
+        newBuffer[offset] |= 0x10;
+
+        //if there were no extensions previously, we need to add the hdr now
+        if(! getExtensionBit())
+        {
+           // we will now be adding the RFC 5285 ext header which looks like
+           // this:
+           //
+           //  0                   1                   2                   3
+           //  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+           // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+           // |       0xBE    |    0xDE       |           length=3            |
+           // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+           int extHdrOffset = FIXED_HEADER_SIZE + getCsrcCount()*4;
+           newBuffer[extHdrOffset]   = (byte)0xBE;
+           newBuffer[extHdrOffset+1] = (byte)0xDE;
+
+           int newExtensionLen = length + getExtensionLength();
+           newBuffer[extHdrOffset+2] = (byte)(newExtensionLen >>4);
+           newBuffer[extHdrOffset+3] = (byte)newExtensionLen;
+        }
+
+        //copy the extension content from the new extension.
+        System.arraycopy(extBuff, 0, newBuffer, FIXED_HEADER_SIZE
+                                    + getCsrcCount()*4 + getExtensionLength(),
+                         length);
+
+        //now copy the payload
+        int oldPayloadOffset = FIXED_HEADER_SIZE + getCsrcCount()*4
+                                                    + getExtensionLength();
+        int newPayloadOffset = oldPayloadOffset + length;
+
+        System.arraycopy(buffer, oldPayloadOffset,
+                        newBuffer, newPayloadOffset,
+                        FIXED_HEADER_SIZE
+                            + getCsrcCount()*4 + getExtensionLength());
     }
 }

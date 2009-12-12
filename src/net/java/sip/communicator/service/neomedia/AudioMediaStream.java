@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.service.neomedia;
 
+import net.java.sip.communicator.impl.neomedia.audiolevel.*;
 import net.java.sip.communicator.service.neomedia.event.*;
 
 /**
@@ -29,15 +30,14 @@ public interface AudioMediaStream
     public void setStreamAudioLevelListener(SimpleAudioLevelListener listener);
 
     /**
-     * Registers <tt>listener</tt> as the <tt>SoundLevelListener</tt> that will
-     * receive notifications for changes in the levels of conference
+     * Registers <tt>listener</tt> as the <tt>CsrcAudioLevelListener</tt> that
+     * will receive notifications for changes in the levels of conference
      * participants that the remote party could be mixing.
      *
-     * @param listener the <tt>SoundLevelListener</tt> that we'd like to
+     * @param listener the <tt>CsrcAudioLevelListener</tt> that we'd like to
      * register or <tt>null</tt> if we'd like to stop receiving notifications.
      */
-    public void setConferenceMemberAudioLevelListener(
-                                            SimpleAudioLevelListener listener);
+    public void setCsrcAudioLevelListener(CsrcAudioLevelListener listener);
 
     /**
      * Sets <tt>listener</tt> as the <tt>SimpleAudioLevelListener</tt>
