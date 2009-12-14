@@ -64,7 +64,7 @@ class InputDataSourceDesc
 
     /**
      * The <tt>AudioMixingPushBufferDataSource</tt> in which the mix
-     * contributions of {@link inputDataSource} are to not be included.
+     * contributions of {@link #inputDataSource} are to not be included.
      */
     public final AudioMixingPushBufferDataSource outputDataSource;
 

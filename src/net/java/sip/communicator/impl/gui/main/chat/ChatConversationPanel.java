@@ -113,7 +113,7 @@ public class ChatConversationPanel
     private boolean scrollToBottomIsPending = false;
 
     /**
-     * The implementation of the routine which scrolls {@chatTextPane} to its
+     * The implementation of the routine which scrolls {@link #chatTextPane} to its
      * bottom.
      */
     private final Runnable scrollToBottomRunnable = new Runnable()

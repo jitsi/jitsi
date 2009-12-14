@@ -132,7 +132,7 @@ public class ZrtpConfigureTableModel<T extends Enum<T>> extends AbstractTableMod
      *        Because the functions converts a move up into a move down
      *        this flag shows what the caller intented. Needed to adjust
      *        an index return value.
-     * @return
+     * @return new row index of entry
      */
     public int move(int row, boolean up, boolean upSave) {
         if (up) {

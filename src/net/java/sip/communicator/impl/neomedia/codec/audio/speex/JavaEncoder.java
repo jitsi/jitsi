@@ -71,8 +71,8 @@ public class JavaEncoder
 
     /**
      * Returns the output format that matches the supplied input format.
-     * @param in
-     * @return
+     * @param in input format
+     * @return array of formats that match input ones
      */
     protected Format[] getMatchingOutputFormats(Format in)
     {

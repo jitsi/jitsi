@@ -17,7 +17,7 @@ import net.java.sip.communicator.impl.neomedia.protocol.*;
  * is introduced because it seems that after the <tt>DataSource</tt> of a
  * <tt>ReceiveStream</tt> is disconnected, it cannot be connected to or started
  * and if a <tt>Processor</tt> is created on it, it freezes in the
- * {@link Processor#Configuring} state.
+ * {@link javax.media.Processor#Configuring} state.
  *
  * @author Lubomir Marinov
  */

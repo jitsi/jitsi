@@ -183,10 +183,10 @@ public class CallPeerMenu
     public void peerTransportAddressChanged(CallPeerChangeEvent evt) {}
 
     /**
-     * Implements <tt>{@link PropertyChangeListener#
-     * propertyChange(PropertyChangeEvent)}</tt> in order to update the
-     * "Mute/Unmute" menu item to fit the current state of the mute property for
-     * this call peer.
+     * Implements <tt>
+     * {@link PropertyChangeListener#propertyChange(PropertyChangeEvent)}</tt>
+     * in order to update the "Mute/Unmute" menu item to fit the current state
+     * of the mute property for this call peer.
      *
      * @param evt the <tt>PropertyChangeEvent</tt> that notified us of the
      * property change

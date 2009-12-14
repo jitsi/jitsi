@@ -273,10 +273,6 @@ public class AdHocChatRoomIcqImpl
      * <tt>ChatRoomPropertyChangelistener</tt> to this room.
      * <p>
      * 
-     * 
-     * To change the room's subject use {@link #setSubject(String)}. Note: Not
-     * possible inside the msn protocol!
-     * 
      * @return the room subject or <tt>null</tt> if the user hasn't joined the
      *         room or the room does not have a subject yet.
      */
@@ -309,7 +305,7 @@ public class AdHocChatRoomIcqImpl
      * @param userAddress the address of the user (email address) to invite to
      *            the room.(one may also invite users not on their contact
      *            list).
-     * @param reason You cannot specify a Reason inside the msn protocol
+     * @param reason invitation message
      */
     public void invite(String userAddress, String reason)
     {

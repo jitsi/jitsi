@@ -206,10 +206,12 @@ public class FacebookAdapter
     }
 
     /**
-     * 
-     * @param message
-     * @param to
-     * @return
+     * Post message to someone.
+     *
+     * @param message message to post
+     * @param to contact
+     * @return null if postMessage succeed, <tt>MessageDeliveryFailedEvent</tt>
+     * otherwise
      */
     public synchronized MessageDeliveryFailedEvent postMessage(
             Message message,

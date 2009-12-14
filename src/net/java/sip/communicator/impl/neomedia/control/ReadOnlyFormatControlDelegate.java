@@ -40,7 +40,7 @@ public class ReadOnlyFormatControlDelegate
     }
 
     /**
-     * Implements {@link Controls#getControlComponent()}.
+     * Implements {@link Control#getControlComponent()}.
      *
      * @return a <tt>Component</tt> which represents UI associated with this
      * instance if any; otherwise, <tt>null</tt>

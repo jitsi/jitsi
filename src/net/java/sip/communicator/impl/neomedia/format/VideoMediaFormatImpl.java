@@ -188,7 +188,7 @@ public class VideoMediaFormatImpl
      * Overrides <tt>MediaFormatImpl#hashCode()</tt> because
      * <tt>Object#equals(Object)</tt> is overridden.
      *
-     * @returns a hash code value for this <tt>VideoMediaFormatImpl</tt>
+     * @return a hash code value for this <tt>VideoMediaFormatImpl</tt>
      * @see MediaFormatImpl#hashCode()
      */
     @Override

@@ -948,7 +948,7 @@ public class ZRTPTransformEngine
     /**
      * 
      * @param sas
-     * @return 
+     * @return false if signature check fails, true otherwise
      * @see gnu.java.zrtp.ZrtpCallback#checkSASSignature(java.lang.String)
      */
     public boolean checkSASSignature(String sas)

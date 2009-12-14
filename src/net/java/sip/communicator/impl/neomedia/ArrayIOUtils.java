@@ -54,7 +54,7 @@ public class ArrayIOUtils
     /**
      * Converts a short integer to a series of bytes and writes the result into
      * a specific output array of bytes starting the writing at a specific
-     * offset in it. The difference with {@link #writeShort(short, byte[], int)
+     * offset in it. The difference with {@link #writeShort(short, byte[], int)}
      * is that the input is an <tt>int</tt> and just two bytes of it are
      * written.
      * 

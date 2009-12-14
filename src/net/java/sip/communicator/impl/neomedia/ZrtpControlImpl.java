@@ -116,7 +116,7 @@ public class ZrtpControlImpl
 
     /**
      * Returns the zrtp engine currently used by this stream.
-     * @return
+     * @return the zrtp engine
      */
     public ZRTPTransformEngine getZrtpEngine()
     {

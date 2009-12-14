@@ -16,7 +16,7 @@ import com.apple.eio.*;
  * an OS-specific associated browser.
  * 
  * @author Yana Stamcheva
- * @authro Lubomir Marinov
+ * @author Lubomir Marinov
  */
 public class BrowserLauncherImpl
     implements BrowserLauncherService

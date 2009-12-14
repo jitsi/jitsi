@@ -23,9 +23,9 @@ public class ControlsAdapter
     public static final Object[] EMPTY_CONTROLS = new Object[0];
 
     /**
-     * Implements {@link Controls#getControls()}. Gets the controls available
-     * for the owner of this instance. The current implementation returns an
-     * empty array because it has no available controls.
+     * Implements {@link javax.media.Controls#getControls()}. Gets the controls
+     * available for the owner of this instance. The current implementation
+     * returns an empty array because it has no available controls.
      *
      * @return an array of <tt>Object</tt>s which represent the controls
      * available for the owner of this instance

@@ -49,7 +49,7 @@ public class ReadOnlyBufferControlDelegate
     }
 
     /**
-     * Implements {@link Control#getControlComponent()}. Gets the UI
+     * Implements {@link javax.media.Control#getControlComponent()}. Gets the UI
      * <tt>Component</tt> representing this instance and exported by the owner
      * of the wrapped <tt>BufferControl</tt>.
      *

@@ -59,8 +59,8 @@ public class JavaDecoder
 
     /**
      * Returns the output format that matches the supplied input format.
-     * @param in
-     * @return
+     * @param in input format
+     * @return array of format that match input ones
      */
     protected Format[] getMatchingOutputFormats(Format in)
     {

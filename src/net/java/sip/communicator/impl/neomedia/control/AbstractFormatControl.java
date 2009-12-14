@@ -27,7 +27,7 @@ public abstract class AbstractFormatControl
     private boolean enabled;
 
     /**
-     * Implements {@link Controls#getControlComponent()}. Returns <tt>null</tt>.
+     * Implements {@link Control#getControlComponent()}. Returns <tt>null</tt>.
      *
      * @return a <tt>Component</tt> which represents UI associated with this
      * instance if any; otherwise, <tt>null</tt>
