@@ -1,5 +1,5 @@
 Source: _PACKAGE_NAME_
-Section: contrib/net
+Section: net
 Priority: optional
 Maintainer: Martin Andre <mandre@dev.java.net>
 Build-Depends: debhelper (>= 5), ant, ant-optional
@@ -7,7 +7,7 @@ Standards-Version: 3.7.2
 
 Package: _PACKAGE_NAME_
 Architecture: i386 amd64
-Depends: sun-java6-jre, libxalan2-java, alsa-oss
+Depends: openjdk-6-jre | sun-java6-jre, libxalan2-java, alsa-oss
 Description: the Java VoIP and Instant Messaging client
  SIP Communicator is an application that allows you to do audio/video
  conversations over the Internet through the SIP protocol, as well as chat with
