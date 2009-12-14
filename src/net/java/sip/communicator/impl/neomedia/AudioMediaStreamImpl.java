@@ -214,11 +214,11 @@ public class AudioMediaStreamImpl
     }
 
     /**
-     * In addition to calling 
-     * {@link MediaStreamImpl#addRTPExtension(byte, RTPExtension)} 
-     * this method enables sending of CSRC audio levels. The reason we are 
-     * doing this here rather than in the super class is that CSRC levels only 
-     * make sense for audio streams so we don't want them enabled in any other 
+     * In addition to calling
+     * {@link MediaStreamImpl#addRTPExtension(byte, RTPExtension)}
+     * this method enables sending of CSRC audio levels. The reason we are
+     * doing this here rather than in the super class is that CSRC levels only
+     * make sense for audio streams so we don't want them enabled in any other
      * kind.
      *
      * @param extensionID the ID assigned to <tt>rtpExtension</tt> for the
@@ -231,7 +231,10 @@ public class AudioMediaStreamImpl
 
         if ( RTPExtension.CSRC_AUDIO_LEVEL_URN
                         .equals(rtpExtension.getURI().toString()))
-            getCsrcEngine().setCsrcAudioLevelAudioLevelExtensionID(extensionID);
+        {
+            getCsrcEngine().setCsrcAudioLevelAudioLevelExtensionID(
+                            extensionID, rtpExtension.getDirection());
+        }
     }
 
     /**

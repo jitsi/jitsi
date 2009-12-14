@@ -153,4 +153,48 @@ public class RTPExtension
     {
         return extensionAttributes;
     }
+
+    /**
+     * Returns a <tt>String</tt> representation of this <tt>RTPExtension</tt>'s
+     * <tt>URI</tt>.
+     *
+     * @return a <tt>String</tt> representation of this <tt>RTPExtension</tt>'s
+     * <tt>URI</tt>.
+     */
+    @Override
+    public String toString()
+    {
+        return extensionURI.toString();
+    }
+
+    /**
+     * Returns <tt>true</tt> if and only if <tt>o</tt> is an instance of
+     * <tt>RTPExtension</tt> and <tt>o</tt>'s <tt>URI</tt> is equal to this
+     * extension's <tt>URI</tt>. The method returns <tt>false</tt> otherwise.
+     *
+     * @param o the <tt>Object</tt> that we'd like to compare to this
+     * <tt>RTPExtension</tt>.
+     *
+     * @return <tt>true</tt> when <tt>o</tt>'s <tt>URI</tt> is equal to this
+     * extension's <tt>URI</tt> and <tt>false</tt> otherwise.
+     */
+    @Override
+    public boolean equals(Object o)
+    {
+        return (o instanceof RTPExtension)
+            && ((RTPExtension)o).getURI().equals(getURI());
+    }
+
+    /**
+     * Returns the hash code of this extension instance which is actually the
+     * hash code of the <tt>URI</tt> that this extension is encapsulating.
+     *
+     * @return the hash code of this extension instance which is actually the
+     * hash code of the <tt>URI</tt> that this extension is encapsulating.
+     */
+    @Override
+    public int hashCode()
+    {
+        return getURI().hashCode();
+    }
 }

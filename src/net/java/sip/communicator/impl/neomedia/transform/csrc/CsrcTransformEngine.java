@@ -10,6 +10,7 @@ import javax.media.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
+import net.java.sip.communicator.service.neomedia.*;
 
 /**
  * We use this engine to add the list of CSRC identifiers in RTP packets that
@@ -49,6 +50,11 @@ public class CsrcTransformEngine
      * The dispatcher that is delivering audio levels to the media steam.
      */
     private CsrcAudioLevelDispatcher csrcLevelDispatcher = null;
+
+    /**
+     * The direction that we are supposed to handle audio levels in.
+     */
+    private MediaDirection audioLevelDirection = MediaDirection.INACTIVE;
 
     /**
      * Creates an engine instance that will be adding CSRC lists to the
@@ -101,7 +107,7 @@ public class CsrcTransformEngine
      */
     public RawPacket reverseTransform(RawPacket pkt)
     {
-        if (csrcAudioLevelExtID > 0)
+        if (csrcAudioLevelExtID > 0 && audioLevelDirection.allowsReceiving())
         {
             //extract the audio levels and send them to the dispatcher.
             long[][] levels = pkt.extractCsrcLevels(csrcAudioLevelExtID);
@@ -145,6 +151,7 @@ public class CsrcTransformEngine
 
         //attach audio levels if we are expected to do so.
         if(this.csrcAudioLevelExtID > 0
+           && audioLevelDirection.allowsSending()
            && mediaStream instanceof AudioMediaStreamImpl)
         {
             byte[] levelsExt = createLevelExtensionBuffer(csrcList);
@@ -172,11 +179,14 @@ public class CsrcTransformEngine
      *
      * @param extID ID that this transformer should be using for audio level
      * extensions or <tt>-1</tt> if audio level extensions should be disabled
+     * @param dir the direction that we are expected to hand this extension in.
      *
      */
-    public void setCsrcAudioLevelAudioLevelExtensionID(byte extID)
+    public void setCsrcAudioLevelAudioLevelExtensionID(byte           extID,
+                                                       MediaDirection dir)
     {
         this.csrcAudioLevelExtID = extID;
+        this.audioLevelDirection = dir;
 
     }
 
