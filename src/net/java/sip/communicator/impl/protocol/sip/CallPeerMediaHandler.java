@@ -772,6 +772,7 @@ public class CallPeerMediaHandler
            throws OperationFailedException
     {
         registerDynamicPTsWithStream(stream);
+        registerRTPExtensionsWithStream(stream);
 
         stream.setDevice(device);
         stream.setTarget(target);
@@ -858,6 +859,25 @@ public class CallPeerMediaHandler
             MediaFormat fmt = mapEntry.getKey();
 
             stream.addDynamicRTPPayloadType(pt, fmt);
+        }
+    }
+
+    /**
+     * Registers with the specified <tt>MediaStream</tt> all RTP extensions
+     * negotiated by this <tt>MediaHandler</tt>.
+     *
+     * @param stream the <tt>MediaStream</tt> that we'd like to register our
+     * <tt>RTPExtension</tt>s with.
+     */
+    private void registerRTPExtensionsWithStream(MediaStream stream)
+    {
+        for ( Map.Entry<RTPExtension, Byte> mapEntry
+                        : rtpExtensionsRegistry.getMappings().entrySet())
+        {
+            byte extensionID = mapEntry.getValue();
+            RTPExtension rtpExtension = mapEntry.getKey();
+
+            stream.addRTPExtension(extensionID, rtpExtension);
         }
     }
 
