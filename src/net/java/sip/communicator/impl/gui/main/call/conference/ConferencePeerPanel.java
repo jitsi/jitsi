@@ -425,12 +425,88 @@ public class ConferencePeerPanel
     public void conferenceMemberAdded(CallPeerConferenceEvent conferenceEvent)
     {
         ConferenceMember member = conferenceEvent.getConferenceMember();
+        String memberAddress = member.getAddress();
+        String localUserAddress
+            = callPeer.getProtocolProvider().getAccountID().getAccountAddress();
 
-        String localUserAddress = callPeer.getProtocolProvider()
-            .getAccountID().getAccountAddress();
+        /*
+         * The local user isn't depicted by this ConferencePeerPanel and its
+         * ConferenceMemberPanels.
+         */
+        if (!addressesAreEqual(memberAddress, localUserAddress))
+            addConferenceMemberPanel(member);
+    }
 
-        if (!member.getAddress().equals(localUserAddress))
-            this.addConferenceMemberPanel(member);
+    /**
+     * Determines whether two specific addresses refer to one and the same
+     * peer/resource/contact.
+     * <p>
+     * <b>Warning</b>: Use the functionality sparingly because it assumes that
+     * an unspecified service is equal to any service.
+     * </p>
+     *
+     * @param a one of the addresses to be compared
+     * @param b the other address to be compared to <tt>a</tt>
+     * @return <tt>true</tt> if <tt>a</tt> and <tt>b</tt> name one and the same
+     * peer/resource/contact; <tt>false</tt>, otherwise
+     */
+    private static boolean addressesAreEqual(String a, String b)
+    {
+        if (a.equals(b))
+            return true;
+
+        int aServiceBegin = a.indexOf('@');
+        String aUserID;
+        String aService;
+
+        if (aServiceBegin > -1)
+        {
+            aUserID = a.substring(0, aServiceBegin);
+            aService = a.substring(aServiceBegin + 1);
+        }
+        else
+        {
+            aUserID = a;
+            aService = null;
+        }
+
+        int bServiceBegin = b.indexOf('@');
+        String bUserID;
+        String bService;
+
+        if (bServiceBegin > -1)
+        {
+            bUserID = b.substring(0, bServiceBegin);
+            bService = b.substring(bServiceBegin + 1);
+        }
+        else
+        {
+            bUserID = b;
+            bService = null;
+        }
+
+        boolean userIDsAreEqual;
+
+        if ((aUserID == null) || (aUserID.length() < 1))
+            userIDsAreEqual = ((bUserID == null) || (bUserID.length() < 1));
+        else
+            userIDsAreEqual = aUserID.equals(bUserID);
+        if (!userIDsAreEqual)
+            return false;
+
+        boolean servicesAreEqual;
+
+        /*
+         * It's probably a veeery long shot but it's assumed here that an
+         * unspecified service is equal to any service. Such a case is, for
+         * example, RegistrarLess SIP.
+         */
+        if (((aService == null) || (aService.length() < 1))
+                || ((bService == null) || (bService.length() < 1)))
+            servicesAreEqual = true;
+        else
+            servicesAreEqual = aService.equals(bService);
+        return servicesAreEqual;
     }
 
     /**
