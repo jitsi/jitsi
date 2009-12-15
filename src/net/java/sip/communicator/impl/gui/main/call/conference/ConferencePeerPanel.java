@@ -14,7 +14,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
-import net.java.sip.communicator.impl.gui.main.call.CallPeerAdapter;
+import net.java.sip.communicator.impl.gui.main.call.CallPeerAdapter; // disambiguation
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -25,6 +25,7 @@ import net.java.sip.communicator.util.swing.*;
  * which is not a conference focus.
  *
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class ConferencePeerPanel
     extends BasicConferenceParticipantPanel
@@ -39,7 +40,7 @@ public class ConferencePeerPanel
     /**
      * The call peer shown in this panel.
      */
-    private CallPeer callPeer;
+    private final CallPeer callPeer;
 
     /**
      * The tools menu available for each peer.
@@ -100,6 +101,7 @@ public class ConferencePeerPanel
                                 ProtocolProviderService protocolProvider)
     {
         this.callDialog = callDialog;
+        this.callPeer = null;
 
         this.setPeerName(protocolProvider.getAccountID().getUserID()
             + " (" + GuiActivator.getResources()
@@ -121,6 +123,7 @@ public class ConferencePeerPanel
     public ConferencePeerPanel(CallDialog callDialog, CallPeer callPeer)
     {
         this.callDialog = callDialog;
+        this.callPeer = callPeer;
 
         this.setPeerName(callPeer.getDisplayName());
 
@@ -143,9 +146,7 @@ public class ConferencePeerPanel
 
         // Add the UI for all contained conference members.
         for (ConferenceMember member : callPeer.getConferenceMembers())
-        {
             this.addConferenceMemberPanel(member);
-        }
     }
 
     /**
@@ -172,9 +173,9 @@ public class ConferencePeerPanel
         securityStatusLabel.setIcon(new ImageIcon(ImageLoader
             .getImage(ImageLoader.SECURE_BUTTON_ON)));
 
-        if (securityPanel == null)
+        if ((securityPanel == null) && (callPeer != null))
         {
-            SecurityPanel securityPanel = new SecurityPanel(callPeer);
+            securityPanel = new SecurityPanel(callPeer);
 
             GridBagConstraints constraints = new GridBagConstraints();
 
@@ -187,8 +188,8 @@ public class ConferencePeerPanel
 
             this.add(securityPanel, constraints);
         }
-
-        securityPanel.refreshStates(securityString, isSecurityVerified);
+        if (securityPanel != null)
+            securityPanel.refreshStates(securityString, isSecurityVerified);
 
         this.revalidate();
     }
@@ -449,10 +450,10 @@ public class ConferencePeerPanel
     /**
      * Enables or disables the conference focus UI depending on the change.
      *
-     * When a peer changes its staus from focus to not focus or the reverse.
+     * When a peer changes its status from focus to not focus or the reverse.
      * we must change its listeners.
      * If the peer is focus we use conference member lister, cause we will
-     * receive its status and the statuses of its conf memebers.
+     * receive its status and the statuses of its conference members.
      * And if it is not a focus we must listen with stream
      * sound level listener
      *
@@ -461,15 +462,14 @@ public class ConferencePeerPanel
     public void conferenceFocusChanged(CallPeerConferenceEvent conferenceEvent)
     {
         if (conferenceEvent.getSourceCallPeer().equals(callPeer))
-        {
-            this.setFocusUI(callPeer.isConferenceFocus());
-        }
+            setFocusUI(callPeer.isConferenceFocus());
     }
 
     /**
      * Paints a special background for conference focus peers.
      * @param g the <tt>Graphics</tt> object used for painting
      */
+    @Override
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
@@ -535,21 +535,14 @@ public class ConferencePeerPanel
         {
             Map<ConferenceMember, Integer> levels = event.getLevels();
 
-            Iterator<Entry<ConferenceMember, ConferenceMemberPanel>>
-                memberPanelsIter = conferenceMembersPanels.entrySet().iterator();
-
-            while (memberPanelsIter.hasNext())
+            for (Map.Entry<ConferenceMember, ConferenceMemberPanel> entry
+                    : conferenceMembersPanels.entrySet())
             {
-                Map.Entry<ConferenceMember, ConferenceMemberPanel>
-                     entry = memberPanelsIter.next();
-
                 ConferenceMember member = entry.getKey();
-                ConferenceMemberPanel memberPanel = entry.getValue();
+                int memberSoundLevel
+                    = levels.containsKey(member) ? levels.get(member) : 0;
 
-                if (levels.containsKey(member))
-                    memberPanel.updateSoundBar(levels.get(member));
-                else
-                    memberPanel.updateSoundBar(0);
+                entry.getValue().updateSoundBar(memberSoundLevel);
             }
         }
     }
@@ -567,11 +560,11 @@ public class ConferencePeerPanel
          */
         public void soundLevelChanged(SoundLevelChangeEvent evt)
         {
-            if (evt.getSource() instanceof CallPeer &&
-                    ((CallPeer)evt.getSource()).isConferenceFocus())
-                return;
+            Object evtSource = evt.getSource();
 
-            updateSoundBar(evt.getLevel());
+            if ((evtSource instanceof CallPeer) &&
+                    ((CallPeer) evtSource).isConferenceFocus())
+                updateSoundBar(evt.getLevel());
         }
     }
 }
