@@ -2923,9 +2923,19 @@ public class OperationSetPresenceSipImpl
             this.contact = contact;
         }
 
-        /*
-         * Implements EventPackageSupport.Subscription#addressEquals(Address).
+        /**
+         * Determines whether the <tt>Address</tt>/Request URI of this
+         * <tt>Subscription</tt> is equal to a specific <tt>Address</tt> in the
+         * sense of identifying one and the same resource.
+         *
+         * @param address the <tt>Address</tt> to be checked for value equality
+         * to the <tt>Address</tt>/Request URI of this <tt>Subscription</tt>
+         * @return <tt>true</tt> if the <tt>Address</tt>/Request URI of this
+         * <tt>Subscription</tt> is equal to the specified <tt>Address</tt> in
+         * the sense of identifying one and the same resource
+         * @see EventPackageSupport.Subscription#addressEquals(Address)
          */
+        @Override
         protected boolean addressEquals(Address address)
         {
             String addressString = address.getURI().toString();

@@ -38,6 +38,7 @@ public class OperationSetTelephonyConferencingSipImpl
                CallChangeListener,
                CallListener,
                MethodProcessorListener,
+               PropertyChangeListener,
                RegistrationStateChangeListener
 {
 
@@ -302,6 +303,7 @@ public class OperationSetTelephonyConferencingSipImpl
         CallPeerSipImpl callPeer = (CallPeerSipImpl) event.getSourceCallPeer();
 
         callPeer.addMethodProcessorListener(this);
+        callPeer.getMediaHandler().addPropertyChangeListener(this);
 
         callPeersChanged(event);
     }
@@ -318,6 +320,7 @@ public class OperationSetTelephonyConferencingSipImpl
         CallPeerSipImpl callPeer = (CallPeerSipImpl) event.getSourceCallPeer();
 
         callPeer.removeMethodProcessorListener(this);
+        callPeer.getMediaHandler().removePropertyChangeListener(this);
 
         callPeersChanged(event);
     }
@@ -332,7 +335,7 @@ public class OperationSetTelephonyConferencingSipImpl
      */
     private void callPeersChanged(CallPeerEvent event)
     {
-        notifyAll(SubscriptionStateHeader.ACTIVE, null, event.getSourceCall());
+        notifyAll(event.getSourceCall());
     }
 
     /**
@@ -397,7 +400,9 @@ public class OperationSetTelephonyConferencingSipImpl
             Address localPartyAddress = dialog.getLocalParty();
 
             if (localPartyAddress != null)
-                localParty = localPartyAddress.getURI().toString();
+                localParty
+                    = stripParametersFromAddress(
+                        localPartyAddress.getURI().toString());
         }
 
         StringBuffer xml = new StringBuffer();
@@ -451,10 +456,7 @@ public class OperationSetTelephonyConferencingSipImpl
         xml.append(ConferenceMemberSipImpl.CONNECTED);
         // </status>
         append(xml, "</", ELEMENT_STATUS, ">");
-        // <media>
-        append(xml, "<", ELEMENT_MEDIA, ">");
-        // </media>
-        append(xml, "</", ELEMENT_MEDIA, ">");
+        getMediaXML(callPeer, false, xml);
         // </endpoint>
         append(xml, "</", ELEMENT_ENDPOINT, ">");
         // </user>
@@ -602,13 +604,19 @@ public class OperationSetTelephonyConferencingSipImpl
      * <tt>Call</tt>.
      *
      * @param callPeer the <tt>CallPeer</tt> which is to get its media streaming
-     * state describes in <tt>media</tt> XML element trees appended to the
+     * state described in <tt>media</tt> XML element trees appended to the
      * specified <tt>StringBuffer</tt>
+     * @param remote <tt>true</tt> if the streaming from the <tt>callPeer</tt>
+     * to the local peer is to be described or <tt>false</tt> if the streaming
+     * from the local peer to the remote <tt>callPeer</tt> is to be described
      * @param xml the <tt>StringBuffer</tt> to append the <tt>media</tt> XML
      * trees describing the media streaming state of the specified
-     * <tt>callPeer</tt> to
+     * <tt>callPeer</tt>
      */
-    private void getMediaXML(CallPeerSipImpl callPeer, StringBuffer xml)
+    private void getMediaXML(
+            CallPeerSipImpl callPeer,
+            boolean remote,
+            StringBuffer xml)
     {
         CallPeerMediaHandler mediaHandler = callPeer.getMediaHandler();
 
@@ -626,9 +634,12 @@ public class OperationSetTelephonyConferencingSipImpl
                 // </type>
                 append(xml, "</", ELEMENT_TYPE, ">");
 
-                String srcId = Long.toString(stream.getRemoteSourceID());
+                long srcId
+                    = remote
+                        ? stream.getRemoteSourceID()
+                        : stream.getLocalSourceID();
 
-                if (srcId != null)
+                if (srcId != -1)
                 {
                     // <src-id>
                     append(xml, "<", ELEMENT_SRC_ID, ">");
@@ -673,7 +684,8 @@ public class OperationSetTelephonyConferencingSipImpl
         append(
             xml,
             " entity=\"",
-            domElementWriter.encode(callPeer.getAddress()),
+            domElementWriter
+                .encode(stripParametersFromAddress(callPeer.getAddress())),
             "\"");
         // state
         xml.append(" state=\"full\">");
@@ -701,7 +713,7 @@ public class OperationSetTelephonyConferencingSipImpl
             // </status>
             append(xml, "</", ELEMENT_STATUS, ">");
         }
-        getMediaXML(callPeer, xml);
+        getMediaXML(callPeer, true, xml);
         // </endpoint>
         append(xml, "</", ELEMENT_ENDPOINT, ">");
         // </user>
@@ -838,6 +850,64 @@ public class OperationSetTelephonyConferencingSipImpl
     }
 
     /**
+     * Notifies all <tt>Subscription</tt>s associated with and established in a
+     * specific <tt>Call</tt> about an <tt>ACTIVE</tt> subscription state
+     * without a reason for that subscription state.
+     *
+     * @param call the <tt>Call</tt> in which the <tt>Subscription</tt>s to be
+     * notified have been established
+     */
+    private void notifyAll(Call call)
+    {
+        notifyAll(SubscriptionStateHeader.ACTIVE, null, call);
+    }
+
+    /**
+     * Notifies all <tt>Subscription</tt>s associated with and established in a
+     * specific <tt>Call</tt> about a specific subscription state and the reason
+     * for that subscription state.
+     *
+     * @param subscriptionState the subscription state to notify about
+     * @param reason the reason for entering the specified
+     * <tt>subscriptionState</tt>
+     * @param call the <tt>Call</tt> in which the <tt>Subscription</tt>s to be
+     * notified have been established
+     */
+    private void notifyAll(
+            String subscriptionState,
+            String reason,
+            final Call call)
+    {
+        EventPackageNotifier.SubscriptionFilter subscriptionFilter
+            = new EventPackageNotifier.SubscriptionFilter()
+            {
+                public boolean accept(
+                        EventPackageNotifier.Subscription subscription)
+                {
+                    return
+                        (subscription instanceof ConferenceNotifierSubscription)
+                            && call
+                                    .equals(
+                                        ((ConferenceNotifierSubscription)
+                                                subscription)
+                                            .getCall());
+                }
+            };
+
+        try
+        {
+            notifier.notifyAll(subscriptionState, reason, subscriptionFilter);
+        }
+        catch (OperationFailedException ofe)
+        {
+            logger
+                .error(
+                    "Failed to notify the conference subscriptions of " + call,
+                    ofe);
+        }
+    }
+
+    /**
      * Notifies this <tt>CallListener</tt> that a specific outgoing
      * <tt>Call</tt> has been created.
      *
@@ -876,6 +946,31 @@ public class OperationSetTelephonyConferencingSipImpl
                     pe,
                     logger);
             return null;
+        }
+    }
+
+    /**
+     * Notifies this <tt>PropertyChangeListener</tt> that the value of a
+     * specific property of the notifier it is registered with has changed.
+     *
+     * @param event a <tt>PropertyChangeEvent</tt> which describes the source of
+     * the event, the name of the property which has changed its value and the
+     * old and new values of the property
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
+    public void propertyChange(PropertyChangeEvent event)
+    {
+        String propertyName = event.getPropertyName();
+
+        if (CallPeerMediaHandler.AUDIO_LOCAL_SSRC.equals(propertyName)
+                || CallPeerMediaHandler.AUDIO_REMOTE_SSRC.equals(propertyName)
+                || CallPeerMediaHandler.VIDEO_LOCAL_SSRC.equals(propertyName)
+                || CallPeerMediaHandler.VIDEO_REMOTE_SSRC.equals(propertyName))
+        {
+            Call call = ((CallPeerMediaHandler) event.getSource()).peer.getCall();
+
+            if (call != null)
+                notifyAll(call);
         }
     }
 
@@ -1005,7 +1100,9 @@ public class OperationSetTelephonyConferencingSipImpl
                 if (!ELEMENT_USER.equals(user.getNodeName()))
                     continue;
 
-                String address = ((Element) user).getAttribute("entity");
+                String address
+                    = stripParametersFromAddress(
+                        ((Element) user).getAttribute("entity"));
 
                 if ((address == null) || (address.length() < 1))
                     continue;
@@ -1168,48 +1265,24 @@ public class OperationSetTelephonyConferencingSipImpl
     }
 
     /**
-     * Notifies all <tt>Subscription</tt>s associated with and established in a
-     * specific <tt>Call</tt> about a specific subscription state and the reason
-     * for that subscription state.
+     * Removes the parameters (specified after a semicolon) from a specific
+     * address <tt>String</tt> if any are present in it.
      *
-     * @param subscriptionState the subscription state to notify about
-     * @param reason the reason for entering the specified
-     * <tt>subscriptionState</tt>
-     * @param call the <tt>Call</tt> in which the <tt>Subscription</tt>s to be
-     * notified have been established
+     * @param address the <tt>String</tt> value representing an address from
+     * which any parameters are to be removed
+     * @return a <tt>String</tt> representing the specified <tt>address</tt>
+     * without any parameters
      */
-    private void notifyAll(
-            String subscriptionState,
-            String reason,
-            final Call call)
+    private static String stripParametersFromAddress(String address)
     {
-        EventPackageNotifier.SubscriptionFilter subscriptionFilter
-            = new EventPackageNotifier.SubscriptionFilter()
-            {
-                public boolean accept(
-                        EventPackageNotifier.Subscription subscription)
-                {
-                    return
-                        (subscription instanceof ConferenceNotifierSubscription)
-                            && call
-                                    .equals(
-                                        ((ConferenceNotifierSubscription)
-                                                subscription)
-                                            .getCall());
-                }
-            };
+        if (address != null)
+        {
+            int parametersBeginIndex = address.indexOf(';');
 
-        try
-        {
-            notifier.notifyAll(subscriptionState, reason, subscriptionFilter);
+            if (parametersBeginIndex > -1)
+                address = address.substring(0, parametersBeginIndex);
         }
-        catch (OperationFailedException ofe)
-        {
-            logger
-                .error(
-                    "Failed to notify the conference subscriptions of " + call,
-                    ofe);
-        }
+        return address;
     }
 
     /**
