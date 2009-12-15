@@ -1401,10 +1401,12 @@ public class MediaDeviceSession
      */
     private void setSsrcList(long[] newSsrcList)
     {
-        long[] oldSsrcList = ssrcList;
+        // use getRemoteSSRCList() instead of direct access to ssrcList
+        // as the extender may override it
+        long[] oldSsrcList = getRemoteSSRCList();
         ssrcList = newSsrcList;
 
-        firePropertyChange(SSRC_LIST, oldSsrcList, newSsrcList);
+        firePropertyChange(SSRC_LIST, oldSsrcList, getRemoteSSRCList());
     }
 
     /**

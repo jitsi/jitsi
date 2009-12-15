@@ -65,7 +65,19 @@ public class MediaStreamImpl
      * {@link #deviceSession} and changes in the values of its
      * {@link MediaDeviceSession#OUTPUT_DATA_SOURCE} property.
      */
-    private PropertyChangeListener deviceSessionPropertyChangeListener;
+    private final PropertyChangeListener deviceSessionPropertyChangeListener =
+        new PropertyChangeListener()
+        {
+            public void propertyChange(PropertyChangeEvent event)
+            {
+                if (MediaDeviceSession
+                        .OUTPUT_DATA_SOURCE.equals(event.getPropertyName()))
+                    deviceSessionOutputDataSourceChanged();
+                else if (MediaDeviceSession
+                                .SSRC_LIST.equals(event.getPropertyName()))
+                                deviceSessionSsrcListChanged(event);
+            }
+        };
 
     /**
      * The <tt>MediaDirection</tt> in which this <tt>MediaStream</tt> is allowed
@@ -483,22 +495,6 @@ public class MediaStreamImpl
                         + " is "
                         + sendStreamCount);
         }
-
-        if (deviceSessionPropertyChangeListener == null)
-            deviceSessionPropertyChangeListener = new PropertyChangeListener()
-            {
-                public void propertyChange(PropertyChangeEvent event)
-                {
-                    if (MediaDeviceSession
-                            .OUTPUT_DATA_SOURCE.equals(event.getPropertyName()))
-                        deviceSessionOutputDataSourceChanged();
-                    else if (MediaDeviceSession
-                                    .SSRC_LIST.equals(event.getPropertyName()))
-                                    deviceSessionSsrcListChanged(event);
-                }
-            };
-        deviceSession
-            .addPropertyChangeListener(deviceSessionPropertyChangeListener);
     }
 
     /**
@@ -921,9 +917,8 @@ public class MediaStreamImpl
             {
                 startedDirection = deviceSession.getStartedDirection();
 
-                if (deviceSessionPropertyChangeListener != null)
-                    deviceSession.removePropertyChangeListener(
-                            deviceSessionPropertyChangeListener);
+                deviceSession.removePropertyChangeListener(
+                    deviceSessionPropertyChangeListener);
 
                 deviceSession.close();
                 deviceSession = null;
@@ -932,6 +927,9 @@ public class MediaStreamImpl
                 startedDirection = MediaDirection.INACTIVE;
 
             deviceSession = abstractMediaDevice.createSession();
+
+            deviceSession.addPropertyChangeListener(
+                deviceSessionPropertyChangeListener);
 
             /*
              * Setting a new device resets any previously-set direction.
