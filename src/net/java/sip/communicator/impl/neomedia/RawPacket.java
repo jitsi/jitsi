@@ -172,11 +172,8 @@ public class RawPacket
     public byte[] readRegion(int off, int len)
     {
         int startOffset = this.offset + off;
-        if (off < 0 || len <= 0
-            || startOffset + len > this.buffer.length)
-        {
+        if (off < 0 || len <= 0 || startOffset + len > this.buffer.length)
             return null;
-        }
 
         byte[] region = new byte[len];
 
@@ -196,16 +193,12 @@ public class RawPacket
     public void readRegionToBuff(int off, int len, byte[] outBuff)
     {
         int startOffset = this.offset + off;
-        if (off < 0 || len <= 0
-            || startOffset + len > this.buffer.length)
-        {
+        if (off < 0 || len <= 0 || startOffset + len > this.buffer.length)
             return;
-        }
 
         if (outBuff.length < len)
-        {
             return;
-        }
+
         System.arraycopy(this.buffer, startOffset, outBuff, 0, len);
     }
 
@@ -219,9 +212,7 @@ public class RawPacket
     public void append(byte[] data, int len)
     {
         if (data == null || len == 0)
-        {
             return;
-        }
 
         byte[] newBuffer = new byte[this.length + len];
         System.arraycopy(this.buffer, this.offset, newBuffer, 0, this.length);
@@ -229,8 +220,8 @@ public class RawPacket
         this.offset = 0;
         this.length = this.length + len;
         this.buffer = newBuffer;
-
     }
+
     /**
      * Shrink the buffer of this packet by specified length
      *
@@ -239,15 +230,11 @@ public class RawPacket
     public void shrink(int len)
     {
         if (len <= 0)
-        {
             return;
-        }
 
         this.length -= len;
         if (this.length < 0)
-        {
             this.length = 0;
-        }
     }
 
     /**
@@ -270,7 +257,6 @@ public class RawPacket
      */
     public void setCsrcList(long[] newCsrcList)
     {
-
         int newCsrcCount = newCsrcList.length;
         byte[] csrcBuff = new byte[newCsrcCount * 4];
         int csrcOffset = 0;
@@ -321,7 +307,6 @@ public class RawPacket
 
         this.buffer = newBuffer;
         this.length = newBuffer.length;
-
     }
 
     /**
@@ -333,10 +318,9 @@ public class RawPacket
     public long[] extractCsrcList()
     {
         int csrcCount = getCsrcCount();
-
         long[] csrcList = new long[csrcCount];
-
         int csrcStartIndex = offset + FIXED_HEADER_SIZE;
+
         for (int i = 0; i < csrcCount; i++)
         {
             csrcList[i] =   buffer[csrcStartIndex]     << 24
@@ -358,13 +342,9 @@ public class RawPacket
     public int getPaddingSize()
     {
         if ((buffer[offset] & 0x4) == 0)
-        {
             return 0;
-        }
         else
-        {
             return buffer[offset + length - 1];
-        }
     }
 
     /**
@@ -450,7 +430,6 @@ public class RawPacket
         return readRegion(4, 4);
     }
 
-
     /**
      * Returns <tt>true</tt> if the extension bit of this packet has been set
      * and false otherwise.
@@ -495,7 +474,7 @@ public class RawPacket
                         + FIXED_HEADER_SIZE
                         + getCsrcCount()*4 + 2;
 
-        return (int)( (buffer[extLenIndex] << 4) | buffer[extLenIndex + 1]);
+        return ((buffer[extLenIndex] << 4) | buffer[extLenIndex + 1]);
     }
 
     /**
@@ -516,7 +495,6 @@ public class RawPacket
         buffer[extLenIndex] = (byte)(length >> 4);
         buffer[extLenIndex + 1] = (byte)length;
     }
-
 
     /**
      * Adds the <tt>extBuff</tt> buffer to as an extension of this packet
@@ -762,23 +740,15 @@ public class RawPacket
 
         //the type of the extension header comes right after the RTP header and
         //the CSRC list.
-        int extLenIndex =  offset
-                        + FIXED_HEADER_SIZE
-                        + getCsrcCount()*4;
+        int extLenIndex =  offset + FIXED_HEADER_SIZE + getCsrcCount()*4;
 
         //0xBEDE means short extension header.
-        if (buffer[extLenIndex]== 0xBE
-            && buffer[extLenIndex + 1]== 0xDE)
-        {
+        if (buffer[extLenIndex] == 0xBE && buffer[extLenIndex + 1] == 0xDE)
             return 1;
-        }
 
         //0x100 means a two-byte extension header.
-        if (buffer[extLenIndex]== 0x10
-            && (buffer[extLenIndex + 1] >> 4)== 0)
-        {
+        if (buffer[extLenIndex]== 0x10 && (buffer[extLenIndex + 1] >> 4)== 0)
            return 2;
-        }
 
         return -1;
     }

@@ -9,13 +9,14 @@ package net.java.sip.communicator.impl.protocol.sip;
 import java.util.*;
 
 import org.osgi.framework.*;
+
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.version.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Activates the SIP package

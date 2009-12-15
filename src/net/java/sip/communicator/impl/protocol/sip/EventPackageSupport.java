@@ -25,6 +25,11 @@ import net.java.sip.communicator.util.*;
 public class EventPackageSupport
     extends MethodProcessorAdapter
 {
+
+    /**
+     * The <tt>Logger</tt> used by the <tt>EventPackageSupport</tt> class and
+     * its instances for logging output.
+     */
     private static final Logger logger
         = Logger.getLogger(EventPackageSupport.class);
 
@@ -317,18 +322,15 @@ public class EventPackageSupport
         }
 
         /**
-         * Determines whether the <code>Address</code>/Request URI of this
-         * <code>Subscription</code> is equal to a specific <code>Address</code>
-         * in the sense of identifying one and the same resource.
+         * Determines whether the <tt>Address</tt>/Request URI of this
+         * <tt>Subscription</tt> is equal to a specific <tt>Address</tt> in the
+         * sense of identifying one and the same resource.
          * 
-         * @param address
-         *            the <code>Address</code> to be checked for value equality
-         *            to the <code>Address</code>/Request URI of this
-         *            <code>Subscription</code>
-         * @return <tt>true</tt> if the <code>Address</code>/Request URI of this
-         *         <code>Subscription</code> is equal to the specified
-         *         <code>Address</code> in the sense of identifying one and the
-         *         same resource
+         * @param address the <tt>Address</tt> to be checked for value equality
+         * to the <tt>Address</tt>/Request URI of this <tt>Subscription</tt>
+         * @return <tt>true</tt> if the <tt>Address</tt>/Request URI of this
+         * <tt>Subscription</tt> is equal to the specified <tt>Address</tt> in
+         * the sense of identifying one and the same resource
          */
         protected boolean addressEquals(Address address)
         {
@@ -336,21 +338,17 @@ public class EventPackageSupport
         }
 
         /**
-         * Determines whether this <code>Subscription</code> is identified by a
-         * specific subscription <code>Address</code>/Request URI and a specific
-         * id tag of Event headers.
+         * Determines whether this <tt>Subscription</tt> is identified by a
+         * specific subscription <tt>Address</tt>/Request URI and a specific id
+         * tag of Event headers.
          * 
-         * @param address
-         *            the subscription <code>Address</code>/Request URI to be
-         *            compared to the respective property of this
-         *            <code>Subscription</code>
-         * @param eventId
-         *            the id tag of Event headers to be compared to the
-         *            respective property of this <code>Subscription</code>
-         * @return <tt>true</tt> if this <code>Subscription</code> has the
-         *         specified subscription <code>Address</code>/Request URI and
-         *         the specified id tag of Event headers; otherwise,
-         *         <tt>false</tt>
+         * @param address the subscription <tt>Address</tt>/Request URI to be
+         * compared to the respective property of this <tt>Subscription</tt>
+         * @param eventId the id tag of Event headers to be compared to the
+         * respective property of this <tt>Subscription</tt>
+         * @return <tt>true</tt> if this <tt>Subscription</tt> has the specified
+         * subscription <tt>Address</t>/Request URI and the specified id tag of
+         * Event headers; otherwise, <tt>false</tt>
          */
         protected boolean equals(Address address, String eventId)
         {
