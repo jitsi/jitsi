@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.neomedia.transform.zrtp;
 
 import gnu.java.zrtp.packets.*;
 import gnu.java.zrtp.utils.*;
+
 import net.java.sip.communicator.impl.neomedia.*;
 
 /**
@@ -21,7 +22,7 @@ import net.java.sip.communicator.impl.neomedia.*;
 public class ZrtpRawPacket extends RawPacket 
 {
     /**
-     * Each ZRTP packet conatins this magic number.
+     * Each ZRTP packet contains this magic number.
      */
     public static byte[] zrtpMagic;
     
@@ -82,7 +83,7 @@ public class ZrtpRawPacket extends RawPacket
         }
         return false;
     }
-    
+
     /**
      * Check if it is really a ZRTP packet.
      * 
@@ -93,17 +94,13 @@ public class ZrtpRawPacket extends RawPacket
      */
     protected boolean hasMagic() 
     {
-        if (buffer[offset + 4] == zrtpMagic[0]
-                && buffer[offset + 5] == zrtpMagic[1]
-                && buffer[offset + 6] == zrtpMagic[2]
-                && buffer[offset + 7] == zrtpMagic[3]) 
-        {
-            return true;
-        }
-
-        return false;
+        return
+            (buffer[offset + 4] == zrtpMagic[0])
+                && (buffer[offset + 5] == zrtpMagic[1])
+                && (buffer[offset + 6] == zrtpMagic[2])
+                && (buffer[offset + 7] == zrtpMagic[3]);
     }
-    
+
     /**
      * Set the sequence number in this packet.
      * @param seq

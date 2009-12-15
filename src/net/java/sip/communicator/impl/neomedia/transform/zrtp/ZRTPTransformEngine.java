@@ -110,7 +110,7 @@ import java.util.EnumSet;
  * The following short code snippets show how an application could instantiate a
  * ZrtpTransformConnector, get the ZRTP4J engine and initialize it. Then the
  * code get a RTP manager instance and initializes it with the
- * ZRTPTransformConnector. Plase note: setting the target must be done with the
+ * ZRTPTransformConnector. Please note: setting the target must be done with the
  * connector, not with the RTP manager.
  *
  * <pre>
@@ -231,6 +231,7 @@ public class ZRTPTransformEngine
         /**
          * The running part of the thread.
          */
+        @Override
         public void run()
         {
             while (!stop)
@@ -600,10 +601,8 @@ public class ZRTPTransformEngine
     {
         // Check if we need to start ZRTP
         if (!started && enableZrtp && ownSSRC != 0)
-        {
-            
             startZrtp();
-        }
+
         /*
          * Check if incoming packt is a ZRTP packet, if not treat
          * it as normal RTP packet and handle it accordingly.
@@ -613,15 +612,16 @@ public class ZRTPTransformEngine
         if ((buffer[offset] & 0x10) != 0x10) 
         {
             if (srtpInTransformer == null)
-            {
                 return pkt;
-            }
+
             pkt = srtpInTransformer.reverseTransform(pkt);
             // if packet was valid (i.e. not null) and ZRTP engine started and
             // in Wait for Confirm2 Ack then emulate a Conf2Ack packet. 
             // See ZRTP specification chap. 5.6
-            if (pkt != null && started
-                && zrtpEngine.inState(ZrtpStateClass.ZrtpStates.WaitConfAck))
+            if ((pkt != null)
+                    && started
+                    && zrtpEngine
+                        .inState(ZrtpStateClass.ZrtpStates.WaitConfAck))
             {
                 zrtpEngine.conf2AckSecure();
             }
@@ -639,17 +639,17 @@ public class ZRTPTransformEngine
             ZrtpRawPacket zPkt = new ZrtpRawPacket(pkt);
             if (!zPkt.checkCrc())
             {
-                securityEventManager.showMessage(ZrtpCodes.MessageSeverity.Warning,
+                securityEventManager
+                    .showMessage(
+                        ZrtpCodes.MessageSeverity.Warning,
                         EnumSet.of(ZrtpCodes.WarningCodes.WarningCRCmismatch));
-                return null;
             }
             // Check if it is really a ZRTP packet, if not don't process it
-            if (!zPkt.hasMagic())
+            else if (zPkt.hasMagic())
             {
-                return null;
+                byte[] extHeader = zPkt.getMessagePart();
+                zrtpEngine.processZrtpMessage(extHeader, zPkt.getSSRC());
             }
-            byte[] extHeader = zPkt.getMessagePart();
-            zrtpEngine.processZrtpMessage(extHeader, zPkt.getSSRC());
         }
         return null;
     }

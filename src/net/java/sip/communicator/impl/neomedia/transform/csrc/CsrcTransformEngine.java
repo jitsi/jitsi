@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.neomedia.transform.csrc;
 
-import javax.media.*;
-
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
 import net.java.sip.communicator.service.neomedia.*;
