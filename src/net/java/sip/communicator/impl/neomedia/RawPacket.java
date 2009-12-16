@@ -49,7 +49,7 @@ public class RawPacket
     /**
      * The size of the extension header as defined by RFC 3550.
      */
-    public static final int EXT_HEADER_SIZE = 12;
+    public static final int EXT_HEADER_SIZE = 4;
 
     /**
      * Construct a RawPacket using specified value.
@@ -504,29 +504,45 @@ public class RawPacket
      *
      * @param extBuff the buffer that we'd like to add as an extension in this
      * packet.
-     * @param length the length of the data in extBuff.
+     * @param newExtensionLen the length of the data in extBuff.
      */
-    public void addExtension(byte[] extBuff, int length)
+    public void addExtension(byte[] extBuff, int newExtensionLen)
     {
-        int newBuffLen = getLength() + length;
-
+        int newBuffLen = buffer.length + newExtensionLen;
+        int bufferOffset = offset;
+        int newBufferOffset = offset;
+        int lengthToCopy = FIXED_HEADER_SIZE + getCsrcCount()*4;
+        boolean extensionBit = getExtensionBit();
         //if there was no extension previously, we also need to consider adding
         //the extension header.
-        if (!getExtensionBit())
+        if (extensionBit)
+        {
+            // without copying the extension length value, will set it later
+            lengthToCopy += EXT_HEADER_SIZE - 2;
+        }
+        else
             newBuffLen += EXT_HEADER_SIZE;
 
         byte[] newBuffer = new byte[ newBuffLen ];
 
-        //copy header and CSRC list any previous extensions if any
-        System.arraycopy(buffer, offset, newBuffer, offset,
-                         FIXED_HEADER_SIZE
-                             + getCsrcCount()*4 + getExtensionLength());
-
+        /*
+         * Copy header, CSRC list and the leading two bytes of the extension
+         * header if any.
+         */
+        System.arraycopy(buffer, bufferOffset,
+            newBuffer, newBufferOffset, lengthToCopy);
         //raise the extension bit.
-        newBuffer[offset] |= 0x10;
+        newBuffer[newBufferOffset] |= 0x10;
+        bufferOffset += lengthToCopy;
+        newBufferOffset += lengthToCopy;       
+
+        // Set the extension header or modify the existing one.
+        int totalExtensionLen = newExtensionLen + getExtensionLength();
 
         //if there were no extensions previously, we need to add the hdr now
-        if(! getExtensionBit())
+        if(extensionBit)
+            bufferOffset += 4;
+        else
         {
            // we will now be adding the RFC 5285 ext header which looks like
            // this:
@@ -536,30 +552,33 @@ public class RawPacket
            // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
            // |       0xBE    |    0xDE       |           length=3            |
            // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+           newBuffer[newBufferOffset++] = (byte)0xBE;
+           newBuffer[newBufferOffset++] = (byte)0xDE;
+        }
+        newBuffer[newBufferOffset++] = (byte)(totalExtensionLen >>4);
+        newBuffer[newBufferOffset++] = (byte)totalExtensionLen;
 
-           int extHdrOffset = FIXED_HEADER_SIZE + getCsrcCount()*4;
-           newBuffer[extHdrOffset]   = (byte)0xBE;
-           newBuffer[extHdrOffset+1] = (byte)0xDE;
-
-           int newExtensionLen = length + getExtensionLength();
-           newBuffer[extHdrOffset+2] = (byte)(newExtensionLen >>4);
-           newBuffer[extHdrOffset+3] = (byte)newExtensionLen;
+        // Copy the existing extension content if any.
+        if (extensionBit)
+        {
+            lengthToCopy = getExtensionLength();
+            System.arraycopy(buffer, bufferOffset,
+                newBuffer, newBufferOffset, lengthToCopy);
+            bufferOffset += lengthToCopy;
+            newBufferOffset += lengthToCopy;
         }
 
         //copy the extension content from the new extension.
-        System.arraycopy(extBuff, 0, newBuffer, FIXED_HEADER_SIZE
-                                    + getCsrcCount()*4 + getExtensionLength(),
-                         length);
+        System.arraycopy(extBuff, 0,
+            newBuffer, newBufferOffset, newExtensionLen);
+        newBufferOffset += newExtensionLen;
 
         //now copy the payload
-        int oldPayloadOffset = FIXED_HEADER_SIZE + getCsrcCount()*4
-                                                    + getExtensionLength();
-        int newPayloadOffset = oldPayloadOffset + length;
+        System.arraycopy(buffer, bufferOffset,
+            newBuffer, newBufferOffset, getPayloadLength());
 
-        System.arraycopy(buffer, oldPayloadOffset,
-                        newBuffer, newPayloadOffset,
-                        FIXED_HEADER_SIZE
-                            + getCsrcCount()*4 + getExtensionLength());
+        buffer = newBuffer;
+        this.length = newBuffLen - offset;
     }
 
     /**
