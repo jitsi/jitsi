@@ -249,6 +249,11 @@ public class LaunchArgHandler
                 returnAction = ACTION_CONTINUE_LOCK_DISABLED;
                 continue;
             }
+            else if (args[i].equals("--desktop-stream") || args[i].equals("-s"))
+            {
+                handleDesktopStreaming();
+                break;
+            }
             //if this is the last arg and it's not an option then it's probably
             //an URI
             else if ( i == args.length - 1
@@ -286,6 +291,14 @@ public class LaunchArgHandler
     {
         System.setProperty("java.net.preferIPv4Stack", "true");
         System.setProperty("java.net.preferIPv6Addresses", "false");
+    }
+
+    /**
+     * Allows to use desktop streaming as video device.
+     */
+    private void handleDesktopStreaming()
+    {
+        System.setProperty("net.java.sip.communicator.impl.neomedia.imgstreaming", "true");
     }
 
     /**
@@ -444,6 +457,7 @@ public class LaunchArgHandler
         System.out.println("  -m, --multiple    do not ensure single instance");
         System.out.println("  -6, --ipv6        prefer IPv6 addresses where possible only");
         System.out.println("  -4, --ipv4        forces use of IPv4 only");
+        System.out.println("  -s, --desktop-stream     use desktop streaming");
         System.out.println("  -v, --version     display the current version and exit");
     }
 

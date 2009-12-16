@@ -20,16 +20,19 @@ public class ImageStreamingAuto
 {
     /**
      * Add capture devices.
+     *
+     * @throws Exception if problem when adding capture devices
      */
-    public ImageStreamingAuto()
+    public ImageStreamingAuto() throws Exception
     {
-        String name = "DesktopStreaming";
+        String name = "Desktop streaming";
         CaptureDeviceInfo devInfo = new CaptureDeviceInfo(name, 
             new MediaLocator(ImageStreamingUtils.LOCATOR_PREFIX + name),
             DataSource.getFormats());
             
         /* add to JMF device manager */
         CaptureDeviceManager.addDevice(devInfo);
+        CaptureDeviceManager.commit();
     }
 }
 
