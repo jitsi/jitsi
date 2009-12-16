@@ -79,6 +79,11 @@ public class ImageStream implements PushBufferStream, Runnable
     private RingBuffer ringBuffer = null;
 
     /**
+     * Destkop interaction (screen capture, key press, ...).
+     */
+    private DesktopInteract desktopInteract = null;
+
+    /**
      * Constructor.
      */
     public ImageStream()
@@ -276,91 +281,75 @@ public class ImageStream implements PushBufferStream, Runnable
         final RGBFormat format = (RGBFormat)currentFormat;
         final int width = (int)format.getSize().getWidth();
         final int height = (int)format.getSize().getHeight();
-        BufferedImage scaledScreen = null;
-        BufferedImage screen = null;
         Buffer buffer = new Buffer();
-        byte data[] = null;
 
-        /* capture first full desktop screen 
-        try
+        if(desktopInteract == null)
         {
-            screen = RobotDesktopInteractImpl.getInstance().captureScreen();
-            scaledScreen = ImageStreamingUtils.getScaledImage(screen, 
-                width, height, BufferedImage.TYPE_INT_ARGB);
-        }
-        catch(Exception e)
-        {
-        }
-
-        screen = null;
-        */
-/*
-        synchronized(this)
-        {
-            while(transferHandler == null && started) 
+            try
             {
-                try 
-                {
-                    wait(1000);
-                } 
-                catch (InterruptedException e)
-                {
-                }
+                desktopInteract = new DesktopInteractImpl();
+            }
+            catch(Exception e)
+            {
+                logger.warn("Cannot create DesktopInteract object!");
+                started = false;
+                return;
             }
         }
-*/
+
         while(started)
         {
-            try 
-            {
-                long t = System.nanoTime();
+            byte data[] = null;
+            BufferedImage scaledScreen = null;
+            BufferedImage screen = null;
 
-                /* get desktop screen and resize it */
-                screen = RobotDesktopInteractImpl.getInstance().captureScreen();
-                scaledScreen = ImageStreamingUtils.getScaledImage(screen, 
+            long t = System.nanoTime();
+
+            /* get desktop screen and resize it */
+            screen = desktopInteract.captureScreen();
+            scaledScreen = ImageStreamingUtils.getScaledImage(screen, 
                     width, height, BufferedImage.TYPE_INT_ARGB);
 
-                /* get raw bytes */
-                data = ImageStreamingUtils.getImageByte(scaledScreen);
-        
-                /* add it to a RingBuffer and notify JMF that new data
-                 * is available
-                 */
-                buffer.setData(data);
-                buffer.setOffset(0);
-                buffer.setLength(data.length);
-                buffer.setFormat(currentFormat);
-                buffer.setHeader(null);
-                buffer.setTimeStamp(System.nanoTime());
-                buffer.setSequenceNumber(seqNo);
-                buffer.setFlags(Buffer.FLAG_LIVE_DATA | Buffer.FLAG_SYSTEM_TIME);
-                seqNo++;
+            /* get raw bytes */
+            data = ImageStreamingUtils.getImageByte(scaledScreen);
 
-                ringBuffer.put(buffer);
+            /* add it to a RingBuffer and notify JMF that new data
+             * is available
+             */
+            buffer.setData(data);
+            buffer.setOffset(0);
+            buffer.setLength(data.length);
+            buffer.setFormat(currentFormat);
+            buffer.setHeader(null);
+            buffer.setTimeStamp(System.nanoTime());
+            buffer.setSequenceNumber(seqNo);
+            buffer.setFlags(Buffer.FLAG_LIVE_DATA | Buffer.FLAG_SYSTEM_TIME);
+            seqNo++;
 
-                /* pass to JMF handler */
-                if(transferHandler != null)
-                {
-                    transferHandler.transferData(this);
-                }
-                
-                t = System.nanoTime() - t;
-                logger.info("Desktop capture processing time: " + t);
-                
-                /* cleanup */
-                screen = null;
-                scaledScreen = null;
-                data = null;
+            ringBuffer.put(buffer);
 
+            /* pass to JMF handler */
+            if(transferHandler != null)
+            {
+                transferHandler.transferData(this);
+            }
+
+            t = System.nanoTime() - t;
+            logger.info("Desktop capture processing time: " + t);
+
+            /* cleanup */
+            screen = null;
+            scaledScreen = null;
+            data = null;
+
+            try
+            {
                 /* 500 ms */
                 Thread.sleep(500);
-            } 
-            catch(AWTException ae)
-            {
-                logger.warn("Desktop capture failed!");
             }
-            catch (InterruptedException e) 
+            catch(InterruptedException e)
             {
+                /* do nothing */
             }
         }
 

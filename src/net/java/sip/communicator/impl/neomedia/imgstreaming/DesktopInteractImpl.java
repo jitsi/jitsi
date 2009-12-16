@@ -13,18 +13,18 @@ import net.java.sip.communicator.util.*;
 
 /**
  * This singleton class provide screen capture and key/mouse 
- * events generation by wrapping <tt>java.awt.Robot</tt>
- * to interact with desktop.
+ * events generation by wrapping partial or all <tt>java.awt.Robot</tt>
+ * methods to interact with desktop.
  *
  * @see java.awt.Robot
  * @author Sebastien Vincent
  */
-public class RobotDesktopInteractImpl implements DesktopInteract 
+public class DesktopInteractImpl implements DesktopInteract 
 {
     /**
      * The <tt>Logger</tt>.
      */
-    private static final Logger logger = Logger.getLogger(RobotDesktopInteractImpl.class);
+    private static final Logger logger = Logger.getLogger(DesktopInteractImpl.class);
 
     /**
      * Screen capture robot.
@@ -34,31 +34,17 @@ public class RobotDesktopInteractImpl implements DesktopInteract
     /**
      * The unique instance of this class (singleton).
      */
-    private static RobotDesktopInteractImpl instance = null;
+    private static DesktopInteractImpl instance = null;
 
     /**
      * Constructor.
-     */
-    private RobotDesktopInteractImpl() 
-    {
-    }
-
-    /**
-     * Get the unique instance of <tt>RobotDesktopInteractImpl</tt>.
-     *
-     * @return instance
+     * 
      * @throws AWTException if platform configuration does not allow low-level input control
      * @throws SecurityException if Robot creation is not permitted
      */
-    public static RobotDesktopInteractImpl getInstance() throws AWTException, SecurityException
+    public DesktopInteractImpl() throws AWTException, SecurityException 
     {
-        if(instance == null)
-        {
-            instance = new RobotDesktopInteractImpl();
-            instance.robot = new Robot();
-        }
-
-        return instance;
+        robot = new Robot();
     }
 
     /**
@@ -76,6 +62,10 @@ public class RobotDesktopInteractImpl implements DesktopInteract
     /**
      * Capture a part of the desktop screen.
      *
+     * @param x x position to start capture
+     * @param y y position to start capture
+     * @param width capture width
+     * @param height capture height
      * @return <tt>BufferedImage</tt> of a part of the desktop screen
      * or null if Robot problem
      */
@@ -83,18 +73,25 @@ public class RobotDesktopInteractImpl implements DesktopInteract
     {
         BufferedImage img = null;
         Rectangle rect = null;
-      
-        /* Robot has not been created so abort */
-        if(robot == null)
-        {
-            return null;
-        }
 
-        logger.info("Begin capture: " + System.nanoTime());
-        rect = new Rectangle(x, y, width, height);
-        img = robot.createScreenCapture(rect);
-        logger.info("End capture: " + System.nanoTime());
-        return img;
+        if(OSUtils.IS_LINUX)
+        {
+            return UnixScreenCapture.captureScreen(x, y, width, height);
+        }
+        else
+        {
+            /* Robot has not been created so abort */
+            if(robot == null)
+            {
+                return null;
+            }
+
+            logger.info("Begin capture: " + System.nanoTime());
+            rect = new Rectangle(x, y, width, height);
+            img = robot.createScreenCapture(rect);
+            logger.info("End capture: " + System.nanoTime());
+            return img;
+        }
     }
 
     /**
