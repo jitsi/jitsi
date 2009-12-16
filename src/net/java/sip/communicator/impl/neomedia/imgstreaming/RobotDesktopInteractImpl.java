@@ -29,7 +29,7 @@ public class RobotDesktopInteractImpl implements DesktopInteract
     /**
      * Screen capture robot.
      */
-    private Robot robot = new Robot();
+    private Robot robot = null;
 
     /**
      * The unique instance of this class (singleton).
@@ -38,11 +38,8 @@ public class RobotDesktopInteractImpl implements DesktopInteract
 
     /**
      * Constructor.
-     *
-     * @throws AWTException if platform configuration does not allow low-level input control
-     * @throws SecurityException if Robot creation is not permitted
      */
-    private RobotDesktopInteractImpl() throws AWTException, SecurityException
+    private RobotDesktopInteractImpl() 
     {
     }
 
@@ -58,7 +55,9 @@ public class RobotDesktopInteractImpl implements DesktopInteract
         if(instance == null)
         {
             instance = new RobotDesktopInteractImpl();
+            instance.robot = new Robot();
         }
+
         return instance;
     }
 
@@ -91,10 +90,10 @@ public class RobotDesktopInteractImpl implements DesktopInteract
             return null;
         }
 
-        logger.info("Begin " + System.nanoTime());
+        logger.info("Begin capture: " + System.nanoTime());
         rect = new Rectangle(x, y, width, height);
         img = robot.createScreenCapture(rect);
-        logger.info("End " + System.nanoTime());
+        logger.info("End capture: " + System.nanoTime());
         return img;
     }
 

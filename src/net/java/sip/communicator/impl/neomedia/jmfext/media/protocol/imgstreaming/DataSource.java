@@ -138,7 +138,7 @@ public class DataSource extends PushBufferDataSource
         {
             stream = new ImageStream(getLocator());
             /* XXX allow to select other format */
-            stream.setFormat(getFormats()[4]);
+            stream.setFormat(getFormats()[5]);
         }
 
         return (stream == null) ? EMPTY_STREAMS : 

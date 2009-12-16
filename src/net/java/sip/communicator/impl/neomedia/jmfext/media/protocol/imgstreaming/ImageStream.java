@@ -15,13 +15,15 @@ import javax.media.*;
 import javax.media.format.*;
 import javax.media.protocol.*;
 
+import net.sf.fmj.utility.*;
+
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.impl.neomedia.imgstreaming.*;
 
 /**
  * The stream used by JMF for our image streaming.
  * 
- * This class launch a thread to handle <tt>java.awt.Robot</tt>
+ * This class launch a thread to handle desktop capture
  * interactions.
  *
  * @author Sebastien Vincent
@@ -72,9 +74,9 @@ public class ImageStream implements PushBufferStream, Runnable
     private boolean started = false;
 
     /**
-     * Last desktop screen.
+     * Buffer container.
      */
-    private BufferedImage screen = null;
+    private RingBuffer ringBuffer = null;
 
     /**
      * Constructor.
@@ -120,46 +122,23 @@ public class ImageStream implements PushBufferStream, Runnable
      */
     public void read(Buffer buffer) throws IOException
     {
-        /* TODO get last screen capture of the desktop,
-         * convert and put the result in buffer
-         */
-        RGBFormat format = (RGBFormat)currentFormat;
-        int intData[] = null;
-        byte data[] = null;
-        /* BufferedImage screen = null; */
-        BufferedImage scaledScreen = null;
-        int width = (int)format.getSize().getWidth();
-        int height = (int)format.getSize().getHeight();
-
-        /* get last screencapture and resize it */
         try
         {
-            scaledScreen = ImageStreamingUtils.getScaledImage(
-                    screen, width, height, BufferedImage.TYPE_INT_ARGB);
+            /* get the next data */
+            Buffer buf = (Buffer)ringBuffer.get();
+
+            buffer.setData(buf.getData());
+            buffer.setOffset(0);
+            buffer.setLength(buf.getLength());
+            buffer.setFormat(buf.getFormat());
+            buffer.setHeader(null);
+            buffer.setTimeStamp(buf.getTimeStamp());
+            buffer.setSequenceNumber(buf.getSequenceNumber());
+            buffer.setFlags(buf.getFlags());
         }
         catch(Exception e)
         {
-            logger.warn("Cannot capture screen.");
-            return;
         }
-        
-        long t = System.nanoTime();
-
-        data = ImageStreamingUtils.getImageByte(scaledScreen);
-
-        t = System.nanoTime() - t;
-        /* System.out.println("Time: " + t); */
-
-        buffer.setData(data);
-        buffer.setOffset(0);
-        buffer.setLength(data.length * 4);
-        buffer.setFormat(currentFormat);
-        buffer.setHeader(null);
-        buffer.setTimeStamp(System.nanoTime());
-        buffer.setSequenceNumber(seqNo);
-        seqNo++;
-
-        buffer.setFlags(Buffer.FLAG_LIVE_DATA | Buffer.FLAG_SYSTEM_TIME);
     }
 
     /**
@@ -270,9 +249,10 @@ public class ImageStream implements PushBufferStream, Runnable
     {
         if(captureThread == null || !captureThread.isAlive())
         {
-            System.out.println("Start stream!");
+            logger.info("Start stream");
             captureThread = new Thread(this);
             captureThread.start();
+            ringBuffer = new RingBuffer(5);
             started = true;
         }
     }
@@ -282,7 +262,7 @@ public class ImageStream implements PushBufferStream, Runnable
      */
     public void stop()
     {
-        System.out.println("Stop stream!");
+        logger.info("Stop stream");
         started = false;
         captureThread = null;
     }
@@ -292,8 +272,29 @@ public class ImageStream implements PushBufferStream, Runnable
      */
     public void run()
     {
-        screen = null;
+        final Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        final RGBFormat format = (RGBFormat)currentFormat;
+        final int width = (int)format.getSize().getWidth();
+        final int height = (int)format.getSize().getHeight();
+        BufferedImage scaledScreen = null;
+        BufferedImage screen = null;
+        Buffer buffer = new Buffer();
+        byte data[] = null;
 
+        /* capture first full desktop screen 
+        try
+        {
+            screen = RobotDesktopInteractImpl.getInstance().captureScreen();
+            scaledScreen = ImageStreamingUtils.getScaledImage(screen, 
+                width, height, BufferedImage.TYPE_INT_ARGB);
+        }
+        catch(Exception e)
+        {
+        }
+
+        screen = null;
+        */
+/*
         synchronized(this)
         {
             while(transferHandler == null && started) 
@@ -307,28 +308,63 @@ public class ImageStream implements PushBufferStream, Runnable
                 }
             }
         }
-    
+*/
         while(started)
         {
-            if(started && transferHandler != null) 
+            try 
             {
-                try 
-                {
-                    screen = RobotDesktopInteractImpl.getInstance().captureScreen();
-                    transferHandler.transferData(this);
+                long t = System.nanoTime();
 
-                    /* 200 ms */
-                    Thread.sleep(200);
-                } 
-                catch(AWTException ae)
+                /* get desktop screen and resize it */
+                screen = RobotDesktopInteractImpl.getInstance().captureScreen();
+                scaledScreen = ImageStreamingUtils.getScaledImage(screen, 
+                    width, height, BufferedImage.TYPE_INT_ARGB);
+
+                /* get raw bytes */
+                data = ImageStreamingUtils.getImageByte(scaledScreen);
+        
+                /* add it to a RingBuffer and notify JMF that new data
+                 * is available
+                 */
+                buffer.setData(data);
+                buffer.setOffset(0);
+                buffer.setLength(data.length);
+                buffer.setFormat(currentFormat);
+                buffer.setHeader(null);
+                buffer.setTimeStamp(System.nanoTime());
+                buffer.setSequenceNumber(seqNo);
+                buffer.setFlags(Buffer.FLAG_LIVE_DATA | Buffer.FLAG_SYSTEM_TIME);
+                seqNo++;
+
+                ringBuffer.put(buffer);
+
+                /* pass to JMF handler */
+                if(transferHandler != null)
                 {
-                    logger.warn("Desktop capture failed!");
+                    transferHandler.transferData(this);
                 }
-                catch (InterruptedException e) 
-                {
-                }
+                
+                t = System.nanoTime() - t;
+                logger.info("Desktop capture processing time: " + t);
+                
+                /* cleanup */
+                screen = null;
+                scaledScreen = null;
+                data = null;
+
+                /* 500 ms */
+                Thread.sleep(500);
+            } 
+            catch(AWTException ae)
+            {
+                logger.warn("Desktop capture failed!");
+            }
+            catch (InterruptedException e) 
+            {
             }
         }
+
+        buffer = null;
     }
 }
 

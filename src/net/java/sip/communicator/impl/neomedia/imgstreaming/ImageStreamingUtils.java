@@ -44,6 +44,7 @@ public class ImageStreamingUtils
         tx.scale(scaleWidth, scaleHeight);
         op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
         dst = new BufferedImage(width, height, type);
+
         return op.filter(src, dst);
     }
 
@@ -61,28 +62,11 @@ public class ImageStreamingUtils
             return null;
         }
 
-if(false)
-{
-        /* get raw bytes */
-        int intData[] = ((DataBufferInt)src.getData().getDataBuffer()).getData();
-        byte data[] = new byte[intData.length * 4];
-
-        /* convert to byte (Java is always big endian) */
-        for(int i = 0 ; i < intData.length ; i++)
-        {
-            data[(i * 4) + 3] = (byte)(intData[i] >>> 24);
-            data[(i * 4) + 2] = (byte)(intData[i] >>> 16);
-            data[(i * 4) + 1] = (byte)(intData[i] >>> 8);
-            data[(i * 4)] = (byte)(intData[i]);
-        }
-        return data;
-}
-
         WritableRaster raster = src.getRaster();
         byte data[] = null;
+        int pixel[] = new int[4];
         int width = src.getWidth();
         int height = src.getHeight();
-        int pixel[] = new int[4];
         int off = 0;
 
         /* allocate our bytes array */
