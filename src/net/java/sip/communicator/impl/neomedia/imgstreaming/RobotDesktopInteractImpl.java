@@ -38,6 +38,7 @@ public class RobotDesktopInteractImpl implements DesktopInteract
 
     /**
      * Constructor.
+     *
      * @throws AWTException if platform configuration does not allow low-level input control
      * @throws SecurityException if Robot creation is not permitted
      */
@@ -46,7 +47,8 @@ public class RobotDesktopInteractImpl implements DesktopInteract
     }
 
     /**
-     * Get the unique instance of <tt>RobotDesktopInteractImpl</tt>
+     * Get the unique instance of <tt>RobotDesktopInteractImpl</tt>.
+     *
      * @return instance
      * @throws AWTException if platform configuration does not allow low-level input control
      * @throws SecurityException if Robot creation is not permitted
@@ -62,6 +64,7 @@ public class RobotDesktopInteractImpl implements DesktopInteract
 
     /**
      * Capture the full desktop screen.
+     *
      * @return <tt>BufferedImage</tt> of the desktop screen
      */
     public BufferedImage captureScreen()
@@ -73,6 +76,7 @@ public class RobotDesktopInteractImpl implements DesktopInteract
 
     /**
      * Capture a part of the desktop screen.
+     *
      * @return <tt>BufferedImage</tt> of a part of the desktop screen
      * or null if Robot problem
      */
@@ -96,6 +100,7 @@ public class RobotDesktopInteractImpl implements DesktopInteract
 
     /**
      * Generates keyPress event.
+     *
      * @param keycode keycode the user hit
      */
     public void keyPress(int keycode)
@@ -105,6 +110,7 @@ public class RobotDesktopInteractImpl implements DesktopInteract
 
     /**
      * Generates keyRelease event.
+     *
      * @param keycode keycode the user hit
      */
     public void keyRelease(int keycode)
@@ -114,6 +120,7 @@ public class RobotDesktopInteractImpl implements DesktopInteract
 
     /**
      * Generates mouseMove event.
+     *
      * @param x position x in the screen
      * @param y position y in the screen
      */
@@ -124,6 +131,7 @@ public class RobotDesktopInteractImpl implements DesktopInteract
 
     /**
      * Generates mousePress event.
+     *
      * @param buttons buttons mask (right, middle, left)
      */
     public void mousePress(int buttons)
@@ -133,6 +141,7 @@ public class RobotDesktopInteractImpl implements DesktopInteract
 
     /**
      * Generates mouseRelease event.
+     *
      * @param buttons buttons mask (right, middle, left)
      */
     public void mouseRelease(int buttons)
@@ -142,6 +151,7 @@ public class RobotDesktopInteractImpl implements DesktopInteract
 
     /**
      * Generates mouseWheel event.
+     *
      * @param wheelAmt "notches"
      */
     public void mouseWheel(int wheelAmt)

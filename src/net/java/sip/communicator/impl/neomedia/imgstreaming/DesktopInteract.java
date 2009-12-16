@@ -19,31 +19,36 @@ public interface DesktopInteract
 {
     /**
      * Capture the full desktop screen.
+     *
      * @return <tt>BufferedImage</tt> of the desktop screen
      */
     public BufferedImage captureScreen();
 
     /**
      * Capture a part of the desktop screen.
+     *
      * @return <tt>BufferedImage</tt> of a part of the desktop screen
-     * or null if Robot problem
+     * or null if <tt>Robot</tt> problem
      */
     public BufferedImage captureScreen(int x, int y, int width, int height);
 
     /**
      * Generates keyPress event.
+     *
      * @param keycode keycode the user hit
      */
     public void keyPress(int keycode);
 
     /**
      * Generates keyRelease event.
+     *
      * @param keycode keycode the user hit
      */
     public void keyRelease(int keycode);
 
     /**
      * Generates mouseMove event.
+     *
      * @param x position x in the screen
      * @param y position y in the screen
      */
@@ -51,18 +56,21 @@ public interface DesktopInteract
 
     /**
      * Generates mousePress event.
+     *
      * @param buttons buttons mask (right, middle, left)
      */
     public void mousePress(int buttons);
 
     /**
      * Generates mouseRelease event.
+     *
      * @param buttons buttons mask (right, middle, left)
      */
     public void mouseRelease(int buttons);
 
     /**
      * Generates mouseWheel event.
+     *
      * @param wheelAmt "notches"
      */
     public void mouseWheel(int wheelAmt);

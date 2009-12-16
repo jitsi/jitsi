@@ -21,7 +21,7 @@ public class ImageStreamingAuto
     /**
      * Add capture devices.
      */
-    public ImageStreamingAuto() throws Exception
+    public ImageStreamingAuto()
     {
         String name = "DesktopStreaming";
         CaptureDeviceInfo devInfo = new CaptureDeviceInfo(name, 

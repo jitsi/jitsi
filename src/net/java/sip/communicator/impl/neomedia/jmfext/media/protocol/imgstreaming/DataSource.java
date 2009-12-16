@@ -24,6 +24,8 @@ import net.java.sip.communicator.util.*;
  * Desktop streaming).
  *
  * @author Sebastien Vincent
+ * @author Lubomir Marinov
+ * @author Damian Minkov
  */
 public class DataSource extends PushBufferDataSource
     implements CaptureDevice
@@ -47,7 +49,7 @@ public class DataSource extends PushBufferDataSource
      * The JMF controls (which are likely of type <tt>Control</tt>) available
      * for this <tt>DataSource</tt>.
      */
-    private final Object[] controls = null;
+    private final Object[] controls = { new FormatControlImpl() };
 
     /**
      * Image stream.
@@ -80,19 +82,19 @@ public class DataSource extends PushBufferDataSource
      */
     private static final Format formats[];
 
-    /* initialize supported format array */
     static
     {
+        /* initialize supported format array */
         int i = 0;
         formats = new Format[res.length];
 
         for(Dimension dim : res)
         {
             formats[i] = new RGBFormat(dim, /* resolution */
-                      (int)(dim.getWidth() * dim.getHeight()), /* max data length */
+                      (int)(dim.getWidth() * dim.getHeight() * 4), /* max data length */
                       Format.byteArray, /* format */
                       -1.0f, /* frame rate */
-                      24, /* color is coded in 24 bit/pixel */
+                      32, /* color is coded in 24 bit/pixel */
                       1, 2, 3); /* color masks (red, green, blue) */
             i++;
         }
@@ -107,6 +109,7 @@ public class DataSource extends PushBufferDataSource
 
     /**
      * Constructor.
+     *
      * @param locator associated <tt>MediaLocator</tt>
      */
     public DataSource(MediaLocator locator)
@@ -116,6 +119,7 @@ public class DataSource extends PushBufferDataSource
 
     /**
      * Get supported formats.
+     *
      * @return supported formats
      */
     public static Format[] getFormats()
@@ -125,6 +129,7 @@ public class DataSource extends PushBufferDataSource
 
     /**
      * Get the JMF streams.
+     *
      * @return streams (one element in image streaming case)
      */
     public PushBufferStream[] getStreams()
@@ -132,6 +137,8 @@ public class DataSource extends PushBufferDataSource
         if(stream == null)
         {
             stream = new ImageStream(getLocator());
+            /* XXX allow to select other format */
+            stream.setFormat(getFormats()[4]);
         }
 
         return (stream == null) ? EMPTY_STREAMS : 
@@ -139,7 +146,8 @@ public class DataSource extends PushBufferDataSource
     }
 
     /**
-     * Initialize <tt>DataSource</tt>
+     * Initialize <tt>DataSource</tt>.
+     *
      * @throws IOException if initialization problem occured
      */
     public void connect() throws IOException
@@ -162,6 +170,7 @@ public class DataSource extends PushBufferDataSource
 
     /**
      * Get content type.
+     *
      * @return RAW content type
      */
     public String getContentType()
@@ -171,6 +180,7 @@ public class DataSource extends PushBufferDataSource
 
     /**
      * Get duration for this source which is unknown.
+     *
      * @return DURATION_UNKNOWN
      */
     public Time getDuration()
@@ -179,7 +189,8 @@ public class DataSource extends PushBufferDataSource
     }
 
     /**
-     * Gives control information to the caller
+     * Gives control information to the caller.
+     *
      * @return the collection of object controls.
      */
     public Object[] getControls()
@@ -194,6 +205,7 @@ public class DataSource extends PushBufferDataSource
     /**
      * Return required control from the Control[] array
      * if exists.
+     *
      * @param controlType the control we are interested in.
      * @return the object that implements the control, or null if not found
      */
@@ -222,6 +234,7 @@ public class DataSource extends PushBufferDataSource
     /**
      * Get the <CaptureDeviceInfo</tt> associated
      * with this datasource.
+     *
      * @return <tt>CaptureDeviceInfo</tt> associated
      */
     public CaptureDeviceInfo getCaptureDeviceInfo()
@@ -231,6 +244,7 @@ public class DataSource extends PushBufferDataSource
 
     /**
      * Get supported <tt>FormatControl</tt>.
+     *
      * @return array of supported <tt>FormatControl</tt>
      */
     public FormatControl[] getFormatControls()
@@ -250,6 +264,7 @@ public class DataSource extends PushBufferDataSource
 
     /**
      * Start capture.
+     *
      * @throws IOException
      */
     public void start() throws IOException
@@ -265,6 +280,7 @@ public class DataSource extends PushBufferDataSource
             throw new IOException("DataSource must be connected!");
         }
 
+        stream.start();
         started = true;
     }
 
@@ -276,6 +292,7 @@ public class DataSource extends PushBufferDataSource
         if(started)
         {
             started = false;
+            stream.stop();
         }
     }
 
@@ -293,6 +310,7 @@ public class DataSource extends PushBufferDataSource
 
         /**
          * Set the format used.
+         *
          * @param format format to use
          * @return format used or null if format is not supported
          */
@@ -310,6 +328,7 @@ public class DataSource extends PushBufferDataSource
 
         /**
          * Get current format used.
+         *
          * @return the <tt>Format</tt> of this <tt>DataSource</tt>
          */
         public Format getFormat()
@@ -319,6 +338,7 @@ public class DataSource extends PushBufferDataSource
 
         /**
          * Get supported formats.
+         *
          * @return an array of <tt>Format</tt> element type which lists the JMF
          * formats supported by this <tt>DataSource</tt> i.e. the ones in which
          * it is able to output

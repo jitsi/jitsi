@@ -182,6 +182,10 @@ public class JmfDeviceDetector
         {
             logger.debug("No FMJ CIVIL video detected: " + exc.getMessage(), exc);
         }
+
+        /* Desktop capture */
+        /* it should not throw exception */
+        new ImageStreamingAuto();
     }
 
     /**

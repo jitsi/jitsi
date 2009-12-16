@@ -8,9 +8,15 @@ package net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.imgstreami
 
 import java.io.*;
 
+import java.awt.*;
+import java.awt.image.*;
+
 import javax.media.*;
 import javax.media.format.*;
 import javax.media.protocol.*;
+
+import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.impl.neomedia.imgstreaming.*;
 
 /**
  * The stream used by JMF for our image streaming.
@@ -19,9 +25,16 @@ import javax.media.protocol.*;
  * interactions.
  *
  * @author Sebastien Vincent
+ * @author Lubomir Marinov
+ * @author Damian Minkov
  */
 public class ImageStream implements PushBufferStream, Runnable
 {
+    /**
+     * The <tt>Logger</tt>
+     */
+    private static final Logger logger = Logger.getLogger(ImageStream.class);
+
     /**
      * Content descriptor of this stream which is always RAW.
      */
@@ -44,6 +57,26 @@ public class ImageStream implements PushBufferStream, Runnable
     private BufferTransferHandler transferHandler = null;
 
     /**
+     * Sequence number.
+     */
+    private long seqNo = 0;
+
+    /**
+     * Capture thread reference.
+     */
+    private Thread captureThread = null;
+
+    /**
+     * If stream is started or not.
+     */
+    private boolean started = false;
+
+    /**
+     * Last desktop screen.
+     */
+    private BufferedImage screen = null;
+
+    /**
      * Constructor.
      */
     public ImageStream()
@@ -52,6 +85,7 @@ public class ImageStream implements PushBufferStream, Runnable
 
     /**
      * Constructor.
+     *
      * @param locator <tt>MediaLocator</tt> to use
      */
     public ImageStream(MediaLocator locator)
@@ -60,6 +94,7 @@ public class ImageStream implements PushBufferStream, Runnable
 
     /**
      * Set format to use.
+     *
      * @param format new format to use
      */
     public void setFormat(Format format)
@@ -69,6 +104,7 @@ public class ImageStream implements PushBufferStream, Runnable
 
     /**
      * Returns the supported format by this stream.
+     *
      * @return supported formats
      */
     public Format getFormat()
@@ -87,10 +123,48 @@ public class ImageStream implements PushBufferStream, Runnable
         /* TODO get last screen capture of the desktop,
          * convert and put the result in buffer
          */
+        RGBFormat format = (RGBFormat)currentFormat;
+        int intData[] = null;
+        byte data[] = null;
+        /* BufferedImage screen = null; */
+        BufferedImage scaledScreen = null;
+        int width = (int)format.getSize().getWidth();
+        int height = (int)format.getSize().getHeight();
+
+        /* get last screencapture and resize it */
+        try
+        {
+            scaledScreen = ImageStreamingUtils.getScaledImage(
+                    screen, width, height, BufferedImage.TYPE_INT_ARGB);
+        }
+        catch(Exception e)
+        {
+            logger.warn("Cannot capture screen.");
+            return;
+        }
+        
+        long t = System.nanoTime();
+
+        data = ImageStreamingUtils.getImageByte(scaledScreen);
+
+        t = System.nanoTime() - t;
+        /* System.out.println("Time: " + t); */
+
+        buffer.setData(data);
+        buffer.setOffset(0);
+        buffer.setLength(data.length * 4);
+        buffer.setFormat(currentFormat);
+        buffer.setHeader(null);
+        buffer.setTimeStamp(System.nanoTime());
+        buffer.setSequenceNumber(seqNo);
+        seqNo++;
+
+        buffer.setFlags(Buffer.FLAG_LIVE_DATA | Buffer.FLAG_SYSTEM_TIME);
     }
 
     /**
      * Query if the next read will block.
+     *
      * @return true if a read will block.
      */
     public boolean willReadBlock()
@@ -100,6 +174,7 @@ public class ImageStream implements PushBufferStream, Runnable
 
     /**
      * Register an object to service data transfers to this stream.
+     *
      * @param transferHandler handler to transfer data to
      */
     public void setTransferHandler(BufferTransferHandler transferHandler)
@@ -115,6 +190,7 @@ public class ImageStream implements PushBufferStream, Runnable
      * Indicates whether or not the end of media stream.
      *
      * In case of image streaming it is always false.
+     *
      * @return false
      */
     public boolean endOfStream()
@@ -125,7 +201,8 @@ public class ImageStream implements PushBufferStream, Runnable
     /**
      * Get content length of the stream.
      *
-     * In case of image streaming it is unknown
+     * In case of image streaming it is unknown.
+     *
      * @return LENGTH_UNKNOWN
      */
     public long getContentLength()
@@ -134,7 +211,8 @@ public class ImageStream implements PushBufferStream, Runnable
     }
 
     /**
-     * We are providing access to raw data
+     * We are providing access to raw data.
+     *
      * @return RAW content descriptor.
      */
     public ContentDescriptor getContentDescriptor()
@@ -143,7 +221,8 @@ public class ImageStream implements PushBufferStream, Runnable
     }
 
     /**
-     * Gives control information to the caller
+     * Gives control information to the caller.
+     *
      * @return the collection of object controls.
      */
     public Object[] getControls()
@@ -158,6 +237,7 @@ public class ImageStream implements PushBufferStream, Runnable
     /**
      * Return required control from the Control[] array
      * if exists.
+     *
      * @param controlType the control we are interested in.
      * @return the object that implements the control, or null.
      */
@@ -184,10 +264,71 @@ public class ImageStream implements PushBufferStream, Runnable
     }
 
     /**
+     * Start desktop capture stream.
+     */
+    public void start()
+    {
+        if(captureThread == null || !captureThread.isAlive())
+        {
+            System.out.println("Start stream!");
+            captureThread = new Thread(this);
+            captureThread.start();
+            started = true;
+        }
+    }
+
+    /**
+     * Stop desktop capture stream.
+     */
+    public void stop()
+    {
+        System.out.println("Stop stream!");
+        started = false;
+        captureThread = null;
+    }
+
+    /**
      * Thread entry point.
      */
     public void run()
     {
+        screen = null;
+
+        synchronized(this)
+        {
+            while(transferHandler == null && started) 
+            {
+                try 
+                {
+                    wait(1000);
+                } 
+                catch (InterruptedException e)
+                {
+                }
+            }
+        }
+    
+        while(started)
+        {
+            if(started && transferHandler != null) 
+            {
+                try 
+                {
+                    screen = RobotDesktopInteractImpl.getInstance().captureScreen();
+                    transferHandler.transferData(this);
+
+                    /* 200 ms */
+                    Thread.sleep(200);
+                } 
+                catch(AWTException ae)
+                {
+                    logger.warn("Desktop capture failed!");
+                }
+                catch (InterruptedException e) 
+                {
+                }
+            }
+        }
     }
 }
 
