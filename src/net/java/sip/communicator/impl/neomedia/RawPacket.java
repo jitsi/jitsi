@@ -347,10 +347,7 @@ public class RawPacket
 
         for (int i = 0; i < csrcCount; i++)
         {
-            csrcList[i] =   buffer[csrcStartIndex]     << 24
-                          & buffer[csrcStartIndex + 1] << 16
-                          & buffer[csrcStartIndex + 2] << 8
-                          & buffer[csrcStartIndex + 3];
+            csrcList[i] = readInt(csrcStartIndex);
 
             csrcStartIndex += 4;
         }
@@ -609,11 +606,7 @@ public class RawPacket
         int csrcStartIndex = offset + FIXED_HEADER_SIZE;
         for (int i = 0; i < csrcCount; i++)
         {
-            csrcLevels[i][0] = buffer[csrcStartIndex]     << 24
-                             & buffer[csrcStartIndex + 1] << 16
-                             & buffer[csrcStartIndex + 2] << 8
-                             & buffer[csrcStartIndex + 3];
-
+            csrcLevels[i][0] = readInt(csrcStartIndex);
 
             csrcLevels[i][1] = getCsrcLevel(i, csrcExtID);
 
@@ -641,6 +634,10 @@ public class RawPacket
             return 0;
 
         int levelsStart = findExtension(csrcExtID);
+
+        if(levelsStart == -1)
+            return 0;
+
         int levelsCount = getLengthForExtension(levelsStart);
 
         if(levelsCount < index)
@@ -669,13 +666,16 @@ public class RawPacket
         if( !getExtensionBit() || getExtensionLength() == 0)
             return 0;
 
-        int extOffset = FIXED_HEADER_SIZE + getCsrcCount()*4 + EXT_HEADER_SIZE;
+        int extOffset = offset + FIXED_HEADER_SIZE
+                + getCsrcCount()*4 + EXT_HEADER_SIZE;
 
         int extensionEnd = extOffset + getExtensionLength();
         int extHdrLen = getExtensionHeaderLength();
 
         if (extHdrLen != 1 && extHdrLen != 2)
+        {
             return -1;
+        }
 
         while (extOffset < extensionEnd)
         {
@@ -716,7 +716,9 @@ public class RawPacket
             }
 
             if(currType == extensionID)
+            {
                 return extOffset;
+            }
 
             extOffset += currLen;
         }
@@ -767,13 +769,28 @@ public class RawPacket
         int extLenIndex =  offset + FIXED_HEADER_SIZE + getCsrcCount()*4;
 
         //0xBEDE means short extension header.
-        if (buffer[extLenIndex] == 0xBE && buffer[extLenIndex + 1] == 0xDE)
-            return 1;
+        if (buffer[extLenIndex] == (byte)0xBE
+            && buffer[extLenIndex + 1] == (byte)0xDE)
+                return 1;
 
         //0x100 means a two-byte extension header.
-        if (buffer[extLenIndex]== 0x10 && (buffer[extLenIndex + 1] >> 4)== 0)
-           return 2;
+        if (buffer[extLenIndex]== (byte)0x10
+            && (buffer[extLenIndex + 1] >> 4)== 0)
+                return 2;
 
         return -1;
+    }
+
+    /**
+     * Return the define by profile part of the extension header.
+     * @return the starting two bytes of extension header.
+     */
+    public int getHeaderExtensionType()
+    {
+        if (!getExtensionBit())
+            return 0;
+
+        return readUnsignedShortAsInt(
+                    offset + FIXED_HEADER_SIZE + getCsrcCount()*4);
     }
 }

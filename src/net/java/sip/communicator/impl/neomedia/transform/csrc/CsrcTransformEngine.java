@@ -113,10 +113,10 @@ public class CsrcTransformEngine
             if(levels != null)
             {
                 if (csrcLevelDispatcher == null)
+                {
                     csrcLevelDispatcher = new CsrcAudioLevelDispatcher();
-
-                if( ! csrcLevelDispatcher.isRunning )
                     new Thread(csrcLevelDispatcher).start();
+                }
 
                 csrcLevelDispatcher.addLevels(levels);
             }
@@ -204,7 +204,8 @@ public class CsrcTransformEngine
                       csrcList.length;
         byte[] extensionBuff = getExtensionBuff(buffLen);
 
-        extensionBuff[0] = (byte)((csrcAudioLevelExtID << 4) | csrcList.length);
+        extensionBuff[0] =
+            (byte)((csrcAudioLevelExtID << 4) | (csrcList.length - 1));
 
         int csrcOffset = 1; // initial offset is equal to ext hdr size
 
@@ -249,7 +250,7 @@ public class CsrcTransformEngine
         implements Runnable
     {
         /** Indicates whether this thread is supposed to be running */
-        private boolean isRunning = true;
+        private boolean isRunning = false;
 
         /** The levels that we last received from the reverseTransform thread*/
         private long[][] lastReportedLevels = null;

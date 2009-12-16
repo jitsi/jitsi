@@ -561,16 +561,12 @@ public class ZRTPTransformEngine
      */
     public RawPacket transform(RawPacket pkt)
     {
-        
         /*
          * Never transform outgoing ZRTP (invalid RTP) packets.
-         * check if the first byte of the received data
-         * matches the defined ZRTP pattern 0x10
-         */
-        
+         */        
         byte[] buffer = pkt.getBuffer();
         int offset = pkt.getOffset();
-        if ((buffer[offset] & 0x10) == 0x10) 
+        if (ZrtpRawPacket.isZrtpData(pkt))
         {
             return pkt;
         }
@@ -607,9 +603,7 @@ public class ZRTPTransformEngine
          * Check if incoming packt is a ZRTP packet, if not treat
          * it as normal RTP packet and handle it accordingly.
          */
-        byte[] buffer = pkt.getBuffer();
-        int offset = pkt.getOffset();
-        if ((buffer[offset] & 0x10) != 0x10) 
+        if (!ZrtpRawPacket.isZrtpData(pkt))
         {
             if (srtpInTransformer == null)
                 return pkt;
@@ -655,6 +649,7 @@ public class ZRTPTransformEngine
                 zrtpEngine.processZrtpMessage(extHeader, zPkt.getSSRC());
             }
         }
+
         return null;
     }
 

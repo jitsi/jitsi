@@ -77,7 +77,24 @@ public class ZrtpRawPacket extends RawPacket
      */
     protected boolean isZrtpPacket() 
     {
-        return (readByte(0) & 0x10) == 0x10;
+        return isZrtpData(this);
+    }
+
+    /**
+     * Checks whether extension bit is set and if so is the extension header
+     * an zrtp one.
+     * @param pkt the packet to check.
+     * @return <tt>true</tt> if data is zrtp packet.
+     */
+    static boolean isZrtpData(RawPacket pkt)
+    {
+        if(!pkt.getExtensionBit())
+            return false;
+
+        if(pkt.getHeaderExtensionType() == 0x505a)
+            return true;
+
+        return false;
     }
 
     /**

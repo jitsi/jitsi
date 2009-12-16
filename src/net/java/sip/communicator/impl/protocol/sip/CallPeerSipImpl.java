@@ -1828,7 +1828,7 @@ public class CallPeerSipImpl
         {
             for (int i = 0; i < conferenceMemberAudioLevelListeners.size(); i++)
             {
-                conferenceMemberAudioLevelListeners.get(0)
+                conferenceMemberAudioLevelListeners.get(i)
                     .soundLevelChanged(evt);
             }
         }
