@@ -647,7 +647,11 @@ public class ZRTPTransformEngine
             // Check if it is really a ZRTP packet, if not don't process it
             else if (zPkt.hasMagic())
             {
-                byte[] extHeader = zPkt.getMessagePart();
+                // zrtp engine need a "pointer" to the extension header, so
+                // we give him the extension header and the payload data
+                byte[] extHeader = zPkt.readRegion(
+                    zPkt.getHeaderLength() - zPkt.getExtensionLength(),
+                    zPkt.getExtensionLength() + zPkt.getPayloadLength());
                 zrtpEngine.processZrtpMessage(extHeader, zPkt.getSSRC());
             }
         }

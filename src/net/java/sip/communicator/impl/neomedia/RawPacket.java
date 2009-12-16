@@ -25,23 +25,6 @@ package net.java.sip.communicator.impl.neomedia;
 public class RawPacket
 {
     /**
-     * Byte array storing the content of this Packet
-     */
-    protected byte[] buffer;
-
-    /**
-     * Start offset of the packet data inside buffer.
-     * Usually this value would be 0. But in order to be compatible with
-     * RTPManager we store this info. (Not assuming the offset is always zero)
-     */
-    protected int offset;
-
-    /**
-     * Length of this packet's data
-     */
-    protected int length;
-
-    /**
      * The size of the fixed part of the RTP header as defined by RFC 3550.
      */
     public static final int FIXED_HEADER_SIZE = 12;
@@ -50,6 +33,23 @@ public class RawPacket
      * The size of the extension header as defined by RFC 3550.
      */
     public static final int EXT_HEADER_SIZE = 4;
+
+    /**
+     * Byte array storing the content of this Packet
+     */
+    private byte[] buffer;
+
+    /**
+     * Start offset of the packet data inside buffer.
+     * Usually this value would be 0. But in order to be compatible with
+     * RTPManager we store this info. (Not assuming the offset is always zero)
+     */
+    private int offset;
+
+    /**
+     * Length of this packet's data
+     */
+    private int length;
 
     /**
      * Construct a RawPacket using specified value.
@@ -110,6 +110,20 @@ public class RawPacket
     }
 
     /**
+     * Set an integer at specified offset in network order.
+     *
+     * @param off Offset into the buffer
+     * @param data The integer to store in the packet
+     */
+    public void writeInt(int off, int data)
+    {
+        buffer[offset + off++] = (byte)(data>>24);
+        buffer[offset + off++] = (byte)(data>>16);
+        buffer[offset + off++] = (byte)(data>>8);
+        buffer[offset + off] = (byte)data;
+    }
+
+    /**
      * Read a short from this packet at specified offset
      *
      * @param off start offset of this short
@@ -144,6 +158,17 @@ public class RawPacket
     public byte readByte(int off)
     {
         return buffer[offset + off];
+    }
+
+    /**
+     * Write a byte to this packet at specified offset
+     *
+     * @param off start offset of the byte
+     * @param b byte to write
+     */
+    public void writeByte(int off, byte b)
+    {
+        buffer[offset + off] = b;
     }
 
     /**
@@ -203,7 +228,7 @@ public class RawPacket
     }
 
     /**
-     * Append a byte array to then end of the packet. This will change the data
+     * Append a byte array to the end of the packet. This will change the data
      * buffer of this packet.
      *
      * @param data byte array to append
@@ -214,11 +239,10 @@ public class RawPacket
         if (data == null || len == 0)
             return;
 
-        byte[] newBuffer = new byte[this.length + len];
-        System.arraycopy(this.buffer, this.offset, newBuffer, 0, this.length);
-        System.arraycopy(data, 0, newBuffer, this.length, len);
-        this.offset = 0;
-        this.length = this.length + len;
+        byte[] newBuffer = new byte[buffer.length + len];
+        System.arraycopy(this.buffer, 0, newBuffer, 0, buffer.length);
+        System.arraycopy(data, 0, newBuffer, buffer.length, len);
+        this.length += len;
         this.buffer = newBuffer;
     }
 
@@ -306,7 +330,7 @@ public class RawPacket
                                     | newCsrcCount);
 
         this.buffer = newBuffer;
-        this.length = newBuffer.length;
+        this.length = newBuffer.length - offset;
     }
 
     /**
@@ -354,20 +378,7 @@ public class RawPacket
      */
     public int getHeaderLength()
     {
-        byte flags = buffer[offset];
-        boolean hasExtension = (flags & 0x8) != 0;
-
-        int len = FIXED_HEADER_SIZE + 4 * getCsrcCount();
-
-        if (hasExtension)
-        {
-            // the first 16 bits are reserved and defined by
-            // the extension profile
-            // 2bit profile + 2bit len + len*32bit
-            len += readUnsignedShortAsInt(len + 2)*4 + 4;
-        }
-
-        return len;
+        return FIXED_HEADER_SIZE + 4 * getCsrcCount() + getExtensionLength();
     }
 
     /**
@@ -418,6 +429,17 @@ public class RawPacket
     public byte getPayloadType()
     {
         return (byte) (buffer[offset + 1] & (byte)0x7F);
+    }
+
+    /**
+     * Get the RTP payload (bytes) of this RTP packet.
+     *
+     * @return an array of <tt>byte</tt>s which represents the RTP payload of
+     * this RTP packet
+     */
+    public byte[] getPayload()
+    {
+        return readRegion(getHeaderLength(), getPayloadLength());
     }
 
     /**
@@ -474,26 +496,7 @@ public class RawPacket
                         + FIXED_HEADER_SIZE
                         + getCsrcCount()*4 + 2;
 
-        return ((buffer[extLenIndex] << 4) | buffer[extLenIndex + 1]);
-    }
-
-    /**
-     * Sets the length of the extensions currently recorded in this packet's
-     * buffer.
-     *
-     * @param length the length of the extensions currently recorded in the
-     * buffer of this packet.
-     */
-    private void setExtensionLength(int length)
-    {
-        //the extension length comes after the RTP header, the CSRC list, and
-        //after two bytes in the extension header called "defined by profile"
-        int extLenIndex =  offset
-                        + FIXED_HEADER_SIZE
-                        + getCsrcCount()*4 + 2;
-
-        buffer[extLenIndex] = (byte)(length >> 4);
-        buffer[extLenIndex + 1] = (byte)length;
+        return ((buffer[extLenIndex] << 4) | buffer[extLenIndex + 1]) * 4;
     }
 
     /**
@@ -555,8 +558,10 @@ public class RawPacket
            newBuffer[newBufferOffset++] = (byte)0xBE;
            newBuffer[newBufferOffset++] = (byte)0xDE;
         }
-        newBuffer[newBufferOffset++] = (byte)(totalExtensionLen >>4);
-        newBuffer[newBufferOffset++] = (byte)totalExtensionLen;
+        // length field counts the number of 32-bit words in the extension
+        int lengthInWords = (totalExtensionLen + 3)/4;
+        newBuffer[newBufferOffset++] = (byte)(lengthInWords >>4);
+        newBuffer[newBufferOffset++] = (byte)lengthInWords;
 
         // Copy the existing extension content if any.
         if (extensionBit)

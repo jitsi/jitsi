@@ -57,14 +57,14 @@ public class ZrtpRawPacket extends RawPacket
     public ZrtpRawPacket(byte[] buf, int off, int len)  
     {
         super (buf, off, len);  
-        buffer[offset] = 0x10;
-        buffer[offset+1] = 0;
+        writeByte(0, (byte)0x10);
+        writeByte(1, (byte)0);
 
         int at = 4;
-        buffer[offset + at++] = zrtpMagic[0];
-        buffer[offset + at++] = zrtpMagic[1];
-        buffer[offset + at++] = zrtpMagic[2];
-        buffer[offset + at] = zrtpMagic[3];
+        writeByte(at++, zrtpMagic[0]);
+        writeByte(at++, zrtpMagic[1]);
+        writeByte(at++, zrtpMagic[2]);
+        writeByte(at, zrtpMagic[3]);
     }
 
     /**
@@ -77,11 +77,7 @@ public class ZrtpRawPacket extends RawPacket
      */
     protected boolean isZrtpPacket() 
     {
-        if ((buffer[offset] & 0x10) == 0x10) 
-        {
-            return true;
-        }
-        return false;
+        return (readByte(0) & 0x10) == 0x10;
     }
 
     /**
@@ -95,10 +91,10 @@ public class ZrtpRawPacket extends RawPacket
     protected boolean hasMagic() 
     {
         return
-            (buffer[offset + 4] == zrtpMagic[0])
-                && (buffer[offset + 5] == zrtpMagic[1])
-                && (buffer[offset + 6] == zrtpMagic[2])
-                && (buffer[offset + 7] == zrtpMagic[3]);
+            (readByte(4) == zrtpMagic[0])
+                && (readByte(5) == zrtpMagic[1])
+                && (readByte(6) == zrtpMagic[2])
+                && (readByte(7) == zrtpMagic[3]);
     }
 
     /**
@@ -108,8 +104,8 @@ public class ZrtpRawPacket extends RawPacket
     protected void setSeqNum(short seq) 
     {
         int at = 2;
-        buffer[offset + at++] = (byte)(seq>>8);
-        buffer[offset + at] = (byte)seq;
+        writeByte(at++, (byte)(seq>>8));
+        writeByte(at, (byte)seq);
     }
 
     /**
@@ -118,7 +114,7 @@ public class ZrtpRawPacket extends RawPacket
      */
     protected void setSSRC(int ssrc) 
     {
-        setIntegerAt(ssrc, 8);
+        writeInt(8, ssrc);
     }
 
     /**
@@ -128,8 +124,9 @@ public class ZrtpRawPacket extends RawPacket
      */
     protected boolean checkCrc() 
     {
-        int crc = readInt(length-ZrtpPacketBase.CRC_SIZE);
-        return ZrtpCrc32.zrtpCheckCksum(buffer, offset, length-ZrtpPacketBase.CRC_SIZE, crc);
+        int crc = readInt(getLength()-ZrtpPacketBase.CRC_SIZE);
+        return ZrtpCrc32.zrtpCheckCksum(getBuffer(), getOffset(),
+            getLength()-ZrtpPacketBase.CRC_SIZE, crc);
     }
 
     /**
@@ -137,34 +134,10 @@ public class ZrtpRawPacket extends RawPacket
      */
     protected void setCrc() 
     {
-        int crc = ZrtpCrc32.zrtpGenerateCksum(buffer, offset,length-ZrtpPacketBase.CRC_SIZE);
+        int crc = ZrtpCrc32.zrtpGenerateCksum(getBuffer(), getOffset(),
+            getLength() - ZrtpPacketBase.CRC_SIZE);
         // convert and store CRC in crc field of ZRTP packet.
         crc = ZrtpCrc32.zrtpEndCksum(crc);
-        setIntegerAt(crc, length - ZrtpPacketBase.CRC_SIZE);
-    }
-
-    /**
-     * Get the ZRTP message part from the ZRTP packet.
-     * 
-     * @return The ZRTP message part.
-     */
-    protected byte[] getMessagePart() 
-    {
-        int headerLen = getHeaderLength();
-        return readRegion(headerLen, length-headerLen);
-    }
-
-    /**
-     * Set an integer at specified offset in network order.
-     * 
-     * @param data The integer to store in the packet
-     * @param at Offset into the buffer
-     */
-    private void setIntegerAt(int data, int at) 
-    {
-        buffer[offset + at++] = (byte)(data>>24);
-        buffer[offset + at++] = (byte)(data>>16);
-        buffer[offset + at++] = (byte)(data>>8);
-        buffer[offset + at] = (byte)data;
+        writeInt(getLength() - ZrtpPacketBase.CRC_SIZE, crc);
     }
 }
