@@ -17,5 +17,4 @@ libscreencapture-32: net_java_sip_communicator_impl_neomedia_imgstreaming_UnixSc
 	$(CC) -shared -m32 $(CFLAGS) -o libscreencapture.so -O $<
 
 clean:
-	rm -f *.o *.so 
-
+	rm -f *.o *.so
