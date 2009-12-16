@@ -31,12 +31,13 @@
  * \param x11display display string (i.e. :0.0), if NULL getenv("DISPLAY") is used
  * \param x x position to start capture
  * \param y y position to start capture
- * \param width capture width
- * \param height capture height 
+ * \param w capture width
+ * \param h capture height 
  * \return array of integers which will contains screen capture
- * (ARGB format) or NULL if failure. This parameter needs to be freed by caller
+ * (ARGB format) or NULL if failure. It needs to be freed by caller
+ * \note Return pointer if not NULL needs to be freed by caller
  */
-static int32_t* grab_screen(const char* x11display, int32_t x, int32_t y, int32_t w, int32_t h)
+static int32_t* x11_grab_screen(const char* x11display, int32_t x, int32_t y, int32_t w, int32_t h)
 {
   const char* display_str; /* display string */
   Display* display = NULL; /* X11 display */
@@ -166,10 +167,10 @@ static int32_t* grab_screen(const char* x11display, int32_t x, int32_t y, int32_
   {
     for(i = 0 ; i < w ; i++)
     {
-      /* do not care about hight 32-bit for 64 bit host
-       * (sizeof(long) = 8 on 64 bit Linux host)
+      /* do not care about hight 32-bit for Linux 64 bit 
+       * machine (sizeof(unsigned long) = 8)
        */
-      unsigned int pixel = (unsigned int)XGetPixel(img, i, j);
+      uint32_t pixel = (uint32_t)XGetPixel(img, i, j);
 
       pixel |= 0xff000000; /* ARGB */
       data[off++] = pixel;
@@ -191,6 +192,16 @@ static int32_t* grab_screen(const char* x11display, int32_t x, int32_t y, int32_
   return data;
 }
 
+/**
+ * \brief JNI native method to grab desktop screen and retrieve ARGB pixels.
+ * \param env JVM environment
+ * \param obj UnixScreenCapture Java object
+ * \param x x position to start capture
+ * \param y y position to start capture
+ * \param width capture width
+ * \param height capture height
+ * \return array of ARGB pixels (jint)
+ */
 JNIEXPORT jintArray JNICALL Java_net_java_sip_communicator_impl_neomedia_imgstreaming_UnixScreenCapture_grabScreen
   (JNIEnv* env, jobject obj, jint x, jint y, jint width, jint height)
 {
@@ -200,7 +211,7 @@ JNIEXPORT jintArray JNICALL Java_net_java_sip_communicator_impl_neomedia_imgstre
 
   obj = obj; /* not used */
 
-  data = grab_screen(NULL, x, y, width, height);
+  data = x11_grab_screen(NULL, x, y, width, height);
 
   if(!data)
   {
