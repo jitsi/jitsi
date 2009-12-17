@@ -347,26 +347,30 @@ public class SRTPCryptoContext
      *
      * @param pkt the RTP packet that is going to be sent out
      */
-    public void transformPacket(RawPacket pkt) {
+    public void transformPacket(RawPacket pkt)
+    {
         /* Encrypt the packet using Counter Mode encryption */
-        if (policy.getEncType() == SRTPPolicy.AESCM_ENCRYPTION) {
+        if (policy.getEncType() == SRTPPolicy.AESCM_ENCRYPTION)
+        {
             processPacketAESCM(pkt);
         }
-
-        /* Encrypt the packet using F8 Mode encryption */
-        else if (policy.getEncType() == SRTPPolicy.AESF8_ENCRYPTION) {
+        else if (policy.getEncType() == SRTPPolicy.AESF8_ENCRYPTION) 
+        {
+            /* Encrypt the packet using F8 Mode encryption */
             processPacketAESF8(pkt);
         }
 
         /* Authenticate the packet */
-        if (policy.getAuthType() == SRTPPolicy.HMACSHA1_AUTHENTICATION) {
+        if (policy.getAuthType() == SRTPPolicy.HMACSHA1_AUTHENTICATION)
+        {
             authenticatePacketHMCSHA1(pkt, roc);
             pkt.append(tagStore, policy.getAuthTagLength());
         }
 
         /* Update the ROC if necessary */
         int seqNo = pkt.getSequenceNumber();
-        if (seqNo == 0xFFFF) {
+        if (seqNo == 0xFFFF)
+        {
             roc++;
         }
     }
@@ -509,7 +513,7 @@ public class SRTPCryptoContext
      */
     private void authenticatePacketHMCSHA1(RawPacket pkt, int rocIn) 
     {
-        hmacSha1.update(pkt.getBuffer(), 0, pkt.getLength());
+        hmacSha1.update(pkt.getBuffer(), pkt.getOffset(), pkt.getLength());
         // byte[] rb = new byte[4];
         rbStore[0] = (byte) (rocIn >> 24);
         rbStore[1] = (byte) (rocIn >> 16);

@@ -10,7 +10,6 @@ import java.io.*;
 import java.net.*;
 
 import javax.media.protocol.*;
-import javax.media.rtp.*;
 
 /**
  * @author Bing SU (nova.su@gmail.com)

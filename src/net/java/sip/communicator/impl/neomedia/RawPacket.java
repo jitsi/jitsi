@@ -588,6 +588,26 @@ public class RawPacket
     }
 
     /**
+     * Removes the extension from the packet and its header.
+     */
+    public void removeExtension()
+    {
+        if(!getExtensionBit())
+            return;
+
+        int payloadOffset = offset + getHeaderLength();
+
+        int extHeaderLen = getExtensionLength() + EXT_HEADER_SIZE;
+
+        System.arraycopy(buffer, payloadOffset,
+            buffer, payloadOffset - extHeaderLen, getPayloadLength());
+
+        this.length -= extHeaderLen;
+
+        setExtensionBit(false);
+    }
+
+    /**
      * Returns a bi-dimensional byte array containing a map binding CSRC IDs to
      * audio levels as reported by the remote party that sent this packet.
      *

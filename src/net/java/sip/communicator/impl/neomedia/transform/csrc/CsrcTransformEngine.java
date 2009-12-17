@@ -120,6 +120,8 @@ public class CsrcTransformEngine
 
                 csrcLevelDispatcher.addLevels(levels);
             }
+
+            pkt.removeExtension();
         }
         return pkt;
     }
@@ -161,7 +163,6 @@ public class CsrcTransformEngine
             byte[] levelsExt = createLevelExtensionBuffer(csrcList);
 
             pkt.addExtension(levelsExt, extensionBuffLen);
-
         }
 
         return pkt;
@@ -208,6 +209,15 @@ public class CsrcTransformEngine
     {
         int buffLen = 1 + //CSRC one byte extension hdr
                       csrcList.length;
+
+        // calculate extension padding
+        int padLen = 4 - buffLen%4;
+
+        if(padLen == 4)
+            padLen = 0;
+
+        buffLen += padLen;
+
         byte[] extensionBuff = getExtensionBuff(buffLen);
 
         extensionBuff[0] =
