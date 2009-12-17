@@ -302,7 +302,10 @@ public class AudioMixerMediaDevice
                                 = streamAudioLevelListeners.get(receiveStream);
                         }
 
-                        if(streamEventDispatcher != null)
+                        if(streamEventDispatcher != null
+                            && !buffer.isDiscard()
+                            && buffer.getLength() > 0
+                            && buffer.getData() != null)
                         {
                             if(! streamEventDispatcher.isRunning())
                                 new Thread(streamEventDispatcher,

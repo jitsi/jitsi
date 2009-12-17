@@ -375,7 +375,11 @@ public class RawPacket
      */
     public int getHeaderLength()
     {
-        return FIXED_HEADER_SIZE + 4 * getCsrcCount() + getExtensionLength();
+        if(getExtensionBit())
+            return FIXED_HEADER_SIZE + 4 * getCsrcCount()
+                + EXT_HEADER_SIZE + getExtensionLength();
+        else
+            return FIXED_HEADER_SIZE + 4 * getCsrcCount();
     }
 
     /**

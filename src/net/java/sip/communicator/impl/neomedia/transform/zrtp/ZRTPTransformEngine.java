@@ -564,8 +564,6 @@ public class ZRTPTransformEngine
         /*
          * Never transform outgoing ZRTP (invalid RTP) packets.
          */        
-        byte[] buffer = pkt.getBuffer();
-        int offset = pkt.getOffset();
         if (ZrtpRawPacket.isZrtpData(pkt))
         {
             return pkt;
@@ -574,7 +572,7 @@ public class ZRTPTransformEngine
         // ZRTP needs the SSRC of the sending stream.
         if (enableZrtp && ownSSRC == 0)
         {
-            ownSSRC = (int)(pkt.readUnsignedIntAsLong(8) & 0xffffffff);
+            ownSSRC = pkt.getSSRC();
         }
 
         // If SRTP is active then srtpTransformer is set, use it.
