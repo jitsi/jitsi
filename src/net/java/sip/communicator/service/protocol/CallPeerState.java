@@ -158,7 +158,7 @@ public class CallPeerState
 
     /**
      * This constant value indicates that the state of the call peer is
-     * is DISCONNECTET - which means that this peer is not participating :)
+     * is DISCONNECTED - which means that this peer is not participating :)
      * in the call any more.
      */
     public static final CallPeerState DISCONNECTED    =

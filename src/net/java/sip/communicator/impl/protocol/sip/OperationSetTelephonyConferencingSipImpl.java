@@ -146,6 +146,45 @@ public class OperationSetTelephonyConferencingSipImpl
     private OperationSetBasicTelephonySipImpl basicTelephony;
 
     /**
+     * The <tt>CallPeerListener</tt> which listens to modifications in the
+     * properties/state of <tt>CallPeer</tt> so that NOTIFY requests can be sent
+     * from a conference focus to its conference members to update them with
+     * the latest information about the <tt>CallPeer</tt>.
+     */
+    private final CallPeerListener callPeerListener = new CallPeerAdapter()
+    {
+
+        /**
+         * Indicates that a change has occurred in the status of the source
+         * <tt>CallPeer</tt>.
+         *
+         * @param evt the <tt>CallPeerChangeEvent</tt> instance containing the
+         * source event as well as its previous and its new status
+         */
+        @Override
+        public void peerStateChanged(CallPeerChangeEvent evt)
+        {
+            CallPeer peer = evt.getSourceCallPeer();
+
+            if (peer != null)
+            {
+                Call call = peer.getCall();
+
+                if (call != null)
+                {
+                    CallPeerState state = peer.getState();
+
+                    if ((state != null)
+                            && !state.equals(CallPeerState.DISCONNECTED)
+                            && !state.equals(CallPeerState.FAILED))
+                        OperationSetTelephonyConferencingSipImpl.this
+                                .notifyAll(call);
+                }
+            }
+        }
+    };
+
+    /**
      * The utility which encodes text so that it's acceptable as the text of an
      * XML element or attribute.
      */
@@ -303,6 +342,7 @@ public class OperationSetTelephonyConferencingSipImpl
         CallPeerSipImpl callPeer = (CallPeerSipImpl) event.getSourceCallPeer();
 
         callPeer.addMethodProcessorListener(this);
+        callPeer.addCallPeerListener(callPeerListener);
         callPeer.getMediaHandler().addPropertyChangeListener(this);
 
         callPeersChanged(event);
@@ -320,6 +360,7 @@ public class OperationSetTelephonyConferencingSipImpl
         CallPeerSipImpl callPeer = (CallPeerSipImpl) event.getSourceCallPeer();
 
         callPeer.removeMethodProcessorListener(this);
+        callPeer.removeCallPeerListener(callPeerListener);
         callPeer.getMediaHandler().removePropertyChangeListener(this);
 
         callPeersChanged(event);

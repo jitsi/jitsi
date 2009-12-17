@@ -75,7 +75,7 @@ public class CallSipImpl
     /**
      * Holds listeners registered for level changes in local audio.
      */
-    private List<SoundLevelListener> localUserAudioLevelListeners
+    private final List<SoundLevelListener> localUserAudioLevelListeners
         = new ArrayList<SoundLevelListener>();
 
     /**
@@ -83,7 +83,7 @@ public class CallSipImpl
      * media handler if there's at least one listener in
      * <tt>localUserAudioLevelListeners</tt>.
      */
-    private SimpleAudioLevelListener localAudioLevelDelegator
+    private final SimpleAudioLevelListener localAudioLevelDelegator
         = new SimpleAudioLevelListener()
         {
             public void audioLevelChanged(int level)
