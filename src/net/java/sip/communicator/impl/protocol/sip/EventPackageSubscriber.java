@@ -932,51 +932,61 @@ public class EventPackageSubscriber
     }
 
     /**
-     * Removes a <tt>Subscription</tt> from the list of subscriptions
-     * managed by this instance which is associated with a specific subscription
+     * Removes a <tt>Subscription</tt> from the list of subscriptions managed by
+     * this instance which is associated with a specific subscription
      * <tt>Address</tt>/Request URI and has a specific id tag in its Event
      * header. If such an instance is not found, does nothing.
      *
-     * @param toAddress
-     *            the subscription <tt>Address</tt>/Request URI of the
-     *            <tt>Subscription</tt> to be removed
-     * @param eventId
-     *            the id tag in the Event header of the
-     *            <tt>Subscription</tt> to be removed; <tt>null</tt> if the
-     *            <tt>Subscription</tt> should have no id tag in its Event
-     *            header
+     * @param toAddress the subscription <tt>Address</tt>/Request URI of the
+     * <tt>Subscription</tt> to be removed
+     * @param eventId the id tag in the Event header of the
+     * <tt>Subscription</tt> to be removed; <tt>null</tt> if the
+     * <tt>Subscription</tt> should have no id tag in its Event header
+     * @return <tt>true</tt> if a <tt>Subscription</tt> was indeed removed by
+     * the call; otherwise, <tt>false</tt>
      */
-    public void removeSubscription(Address toAddress, String eventId)
+    public boolean removeSubscription(Address toAddress, String eventId)
     {
+        boolean removed = false;
+
         synchronized (subscriptions)
         {
-            for (Map.Entry<String, Subscription> entry
-                    : subscriptions.entrySet())
+            Iterator<Map.Entry<String, Subscription>> subscriptionIter
+                = subscriptions.entrySet().iterator();
+
+            while (subscriptionIter.hasNext())
             {
-                Subscription subscription = entry.getValue();
+                Map.Entry<String, Subscription> subscriptionEntry
+                    = subscriptionIter.next();
+                Subscription subscription = subscriptionEntry.getValue();
 
                 if (subscription.equals(toAddress, eventId))
-                    removeSubscription(entry.getKey(), subscription);
+                {
+                    subscriptionIter.remove();
+                    removed = true;
+                    subscription.removed();
+                }
             }
         }
+        return removed;
     }
 
     /**
-     * Removes a specific <tt>Subscription</tt> from the list of
-     * subscriptions managed by this instance if it is associated with a
-     * specific CallId. If the specified <tt>Subscription</tt> is not
-     * associated with the specified CallId (including the case of no known
-     * association for the specified CallId), does nothing.
+     * Removes a specific <tt>Subscription</tt> from the list of subscriptions
+     * managed by this instance if it is associated with a specific CallId. If the
+     * specified <tt>Subscription</tt> is not associated with the specified
+     * CallId (including the case of no known association for the specified
+     * CallId), does nothing.
      *
-     * @param callId
-     *            the CallId which is expected to be associated with the
-     *            specified <tt>Subscription</tt>
-     * @param subscription
-     *            the <tt>Subscription</tt> to be removed from the list of
-     *            subscriptions managed by this instance if it is associated
-     *            with the specified CallId
+     * @param callId the CallId which is expected to be associated with the
+     * specified <tt>Subscription</tt>
+     * @param subscription the <tt>Subscription</tt> to be removed from the list
+     * of subscriptions managed by this instance if it is associated with the
+     * specified CallId
+     * @return <tt>true</tt> if a <tt>Subscription</tt> was indeed removed by
+     * the call; otherwise, <tt>false</tt>
      */
-    private void removeSubscription(String callId, Subscription subscription)
+    private boolean removeSubscription(String callId, Subscription subscription)
     {
         synchronized (subscriptions)
         {
@@ -987,8 +997,10 @@ public class EventPackageSubscriber
             {
                 subscription = subscriptions.remove(callId);
                 subscription.removed();
+                return true;
             }
         }
+        return false;
     }
 
     /**
