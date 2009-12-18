@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
  * @author Yana Stamcheva
  * @author Valentin Martinet
  */
+@SuppressWarnings("serial")
 public class ChatOperationReasonDialog extends MessageDialog
 {
     private final JLabel reasonLabel = new JLabel(
@@ -37,7 +38,7 @@ public class ChatOperationReasonDialog extends MessageDialog
             GuiActivator.getResources().getI18NString(
             "service.gui.SPECIFY_REASON"),
             GuiActivator.getResources().getI18NString(
-            "service.gui.OK"));
+            "service.gui.OK"), true);
     }
 
     /**
@@ -51,8 +52,8 @@ public class ChatOperationReasonDialog extends MessageDialog
         this(null,
             title,
             message,
-            GuiActivator.getResources().getI18NString(
-            "service.gui.OK"));
+            GuiActivator.getResources().getI18NString("service.gui.OK"),
+            true);
     }
 
     /**
@@ -62,16 +63,26 @@ public class ChatOperationReasonDialog extends MessageDialog
      * @param title the title of this dialog
      * @param message the message shown in this dialog
      * @param okButtonName the custom name of the ok button
+     * @param showReasonLabel specify if we want the "Reason:" label 
      */
-    public ChatOperationReasonDialog(
-        ChatWindow chatWindow, String title, String message, String okButtonName)
+    public ChatOperationReasonDialog(ChatWindow chatWindow, String title, 
+    		String message, String okButtonName, boolean showReasonLabel)
     {
         super(chatWindow, title, message, okButtonName, false);
 
         JPanel reasonPanel = new JPanel(new BorderLayout());
-        reasonPanel.add(reasonLabel, BorderLayout.WEST);
+        
+        if(showReasonLabel)
+        {
+        	reasonPanel.add(reasonLabel, BorderLayout.WEST);
+        }
+        
+        reasonPanel.add(new JLabel("          "), BorderLayout.WEST);
+        reasonPanel.add(new JLabel("          "), BorderLayout.EAST);
         reasonPanel.add(reasonField, BorderLayout.CENTER);
-
+        reasonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        reasonPanel.setOpaque(false);
+        
         this.getContentPane().add(reasonPanel, BorderLayout.CENTER);
 
         this.pack();
@@ -84,5 +95,14 @@ public class ChatOperationReasonDialog extends MessageDialog
     public String getReason()
     {
         return reasonField.getText();
+    }
+    
+    /**
+     * Sets a default value for the reason field.
+     * @param value the text to set as default text for the reason field
+     */
+    public void setReasonFieldText(String value)
+    {
+    	reasonField.setText(value);
     }
 }
