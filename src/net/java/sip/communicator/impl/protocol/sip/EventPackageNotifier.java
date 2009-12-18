@@ -43,12 +43,6 @@ public abstract class EventPackageNotifier
     private static final int SUBSCRIBE_MIN_EXPIRE = 120;
 
     /**
-     * The list of subscriptions managed by this instance.
-     */
-    private final List<Subscription> subscriptions
-        = new LinkedList<Subscription>();
-
-    /**
      * A reference to the <tt>SipMessageFactory</tt> instance that we should
      * use when creating requests.
      */
@@ -84,35 +78,6 @@ public abstract class EventPackageNotifier
                         contentSubType, timer);
 
         this.messageFactory = protocolProvider.getMessageFactory();
-    }
-
-    /**
-     * Adds a specific <tt>Subscription</tt> to this list of subscriptions
-     * managed by this instance. If a <tt>Subscription</tt> with matching
-     * <tt>Address</tt>/Request URI and EventId tag exists in the list of
-     * subscriptions managed by this instance already, that matching
-     * <tt>Subscription</tt> is removed before the specified
-     * <tt>Subscription</tt> is added.
-     *
-     * @param subscription the <tt>Subscription</tt> to be added to the list of
-     * subscriptions managed by this instance
-     */
-    private void addSubscription(Subscription subscription)
-    {
-        synchronized (subscriptions)
-        {
-            Address address = subscription.getAddress();
-            String eventId = subscription.getEventId();
-
-            for (Subscription s : subscriptions)
-                if (s.equals(address, eventId))
-                {
-                    removeSubscription(s);
-                    break;
-                }
-
-            subscriptions.add(subscription);
-        }
     }
 
     /**
@@ -344,32 +309,27 @@ public abstract class EventPackageNotifier
      * if no such <tt>Subscription</tt> exists in the list of subscriptions
      * managed by this instance
      */
-    private Subscription getSubscription(Address fromAddress, String eventId)
+    @Override
+    protected Subscription getSubscription(Address fromAddress, String eventId)
     {
-        synchronized (subscriptions)
-        {
-            for (Subscription subscription : subscriptions)
-                if (subscription.equals(fromAddress, eventId))
-                    return subscription;
-        }
-        return null;
+        return (Subscription) super.getSubscription(fromAddress, eventId);
     }
 
     /**
-     * Gets a new copy of the list of <tt>Subscription</tt>s managed by this
-     * instance.
+     * Gets the <tt>Subscription</tt> from the list of subscriptions managed by
+     * this instance which is associated with a specific CallId.
      *
-     * @return a new copy of the list of <tt>Subscription</tt>s managed by this
-     * instance; if this instance currently manages no <tt>Subscription</tt>s,
-     * an empty array of <tt>Subscription</tt> element type
+     * @param callId the CallId associated with the <tt>Subscription</tt> to be
+     * retrieved
+     * @return an existing <tt>Subscription</tt> from the list of subscriptions
+     * managed by this instance which is associated with the specified CallId;
+     * <tt>null</tt> if no such <tt>Subscription</tt> exists in the list of
+     * subscriptions managed by this instance
      */
-    private Subscription[] getSubscriptions()
+    @Override
+    protected Subscription getSubscription(String callId)
     {
-        synchronized (subscriptions)
-        {
-            return
-                subscriptions.toArray(new Subscription[subscriptions.size()]);
-        }
+        return (Subscription) super.getSubscription(callId);
     }
 
     /**
@@ -383,8 +343,7 @@ public abstract class EventPackageNotifier
      * @param subscriptionState the subscription state to notify the target
      * represented by its <tt>Subscription</tt> about
      * @param reason the reason for that subscription state
-     *
-     * @throws OperationFailedException
+     * @throws OperationFailedException if sending the NOTIFY request failed
      */
     public void notify( Subscription subscription,
                         String subscriptionState,
@@ -394,6 +353,7 @@ public abstract class EventPackageNotifier
         Dialog dialog = subscription.getDialog();
         ClientTransaction transac
             = createNotify(dialog, subscription, subscriptionState, reason);
+        String callId = dialog.getCallId().getCallId();
 
         try
         {
@@ -409,7 +369,7 @@ public abstract class EventPackageNotifier
         }
 
         if (SubscriptionState.TERMINATED.equals(subscriptionState))
-            removeSubscription(subscription);
+            removeSubscription(callId, subscription);
     }
 
     /**
@@ -453,9 +413,13 @@ public abstract class EventPackageNotifier
             SubscriptionFilter filter)
         throws OperationFailedException
     {
-        for (Subscription subscription : getSubscriptions())
-            if ((filter == null) || filter.accept(subscription))
-                notify(subscription, subscriptionState, reason);
+        for (EventPackageSupport.Subscription subscription : getSubscriptions())
+        {
+            Subscription s = (Subscription) subscription;
+
+            if ((filter == null) || filter.accept(s))
+                notify(s, subscriptionState, reason);
+        }
     }
 
     /**
@@ -496,6 +460,9 @@ public abstract class EventPackageNotifier
             = (expHeader == null)
                 ? subscriptionDuration
                 : expHeader.getExpires();
+        CallIdHeader callIdHeader
+            = (CallIdHeader) request.getHeader(CallIdHeader.NAME);
+        String callId = callIdHeader.getCallId();
 
         // interval too brief
         if ((expires < SUBSCRIBE_MIN_EXPIRE) && (expires > 0))
@@ -516,7 +483,9 @@ public abstract class EventPackageNotifier
             MinExpiresHeader min;
             try
             {
-                min = protocolProvider .getHeaderFactory()
+                min
+                    = protocolProvider
+                        .getHeaderFactory()
                             .createMinExpiresHeader(SUBSCRIBE_MIN_EXPIRE);
             }
             catch (InvalidArgumentException e)
@@ -540,10 +509,7 @@ public abstract class EventPackageNotifier
             return true;
         }
 
-        FromHeader fromHeader = (FromHeader) request.getHeader(FromHeader.NAME);
-        Address fromAddress = fromHeader.getAddress();
-        String eventId = eventHeader.getEventId();
-        Subscription subscription = getSubscription(fromAddress, eventId);
+        Subscription subscription = getSubscription(callId);
 
         /*
          * Is it a subscription refresh? (No need to synchronize the access to
@@ -622,7 +588,7 @@ public abstract class EventPackageNotifier
                     return false;
                 }
 
-                removeSubscription(subscription);
+                removeSubscription(callId, subscription);
 
                 try
                 {
@@ -637,7 +603,14 @@ public abstract class EventPackageNotifier
         }
 
         if (subscription == null)
+        {
+            FromHeader fromHeader
+                = (FromHeader) request.getHeader(FromHeader.NAME);
+            Address fromAddress = fromHeader.getAddress();
+            String eventId = eventHeader.getEventId();
+
             subscription = createSubscription(fromAddress, eventId);
+        }
 
         // Remember the dialog we will use to send the NOTIFYs.
         Dialog dialog;
@@ -651,7 +624,7 @@ public abstract class EventPackageNotifier
         if (expires == 0)
         {
             // remove the subscription
-            removeSubscription(subscription);
+            removeSubscription(callId, subscription);
 
             // send him OK
             Response response;
@@ -752,7 +725,7 @@ public abstract class EventPackageNotifier
             return false;
         }
 
-        addSubscription(subscription);
+        addSubscription(callId, subscription);
 
         // send a NOTIFY
         ClientTransaction transac;
@@ -889,10 +862,12 @@ public abstract class EventPackageNotifier
         String eventId,
         ClientTransaction clientTransaction)
     {
+        CallIdHeader callIdHeader
+            = (CallIdHeader) response.getHeader(CallIdHeader.NAME);
+        String callId = callIdHeader.getCallId();
         FromHeader fromHeader
             = (FromHeader) response.getHeader(FromHeader.NAME);
-        Address fromAddress = fromHeader.getAddress();
-        Subscription subscription = getSubscription(fromAddress, eventId);
+        Subscription subscription = getSubscription(callId);
 
         if (subscription != null)
         {
@@ -903,32 +878,10 @@ public abstract class EventPackageNotifier
              */
             synchronized (subscription)
             {
-                if (subscription.getDialog()
-                        .equals(clientTransaction.getDialog()))
-                    removeSubscription(subscription);
+                if (subscription
+                        .getDialog().equals(clientTransaction.getDialog()))
+                    removeSubscription(callId, subscription);
             }
-        }
-    }
-
-    /**
-     * Removes a specific <tt>Subscription</tt> from the list of subscriptions
-     * managed by this instance. If the specified <tt>Subscription</tt> is
-     * contained in the list of subscriptions managed by this instance, it is
-     * removed and then its <tt>Subscription#removed()</tt> method is called to
-     * notify it that it has been removed from the list of subscriptions of its
-     * containing <tt>EventPackageNotifier</tt>. If the specified
-     * <tt>Subscription</tt> is not contained in the list of subscriptions
-     * managed by this instance, does nothing.
-     *
-     * @param subscription the <tt>Subscription</tt> to be removed from the list
-     * of subscriptions managed by this instance
-     */
-    private void removeSubscription(Subscription subscription)
-    {
-        synchronized (subscriptions)
-        {
-            if (subscriptions.remove(subscription))
-                subscription.removed();
         }
     }
 
@@ -943,8 +896,6 @@ public abstract class EventPackageNotifier
      * <tt>Response</tt> s thus allowing implementers to tap into the
      * general event package subscription operations and provide the event
      * package-specific processing.
-     *
-     * @author Lubomir Marinov
      */
     public static abstract class Subscription
         extends EventPackageSupport.Subscription

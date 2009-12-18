@@ -63,6 +63,13 @@ public class EventPackageSupport
     protected final int subscriptionDuration;
 
     /**
+     * The list of subscriptions managed by this instance and indexed by their
+     * CallId.
+     */
+    private final Map<String, Subscription> subscriptions
+        = new HashMap<String, Subscription>();
+
+    /**
      * The <code>Timer</code> support which executes the time-based tasks of
      * this instance.
      */
@@ -126,6 +133,27 @@ public class EventPackageSupport
     }
 
     /**
+     * Adds a specific <tt>Subscription</tt> associated with a specific CallId
+     * to the list of subscriptions managed by this instance.
+     *
+     * @param callId the CallId associated with the <tt>Subscription</tt> to be
+     * added
+     * @param subscription the <tt>Subscription</tt> to be added to the list of
+     * subscriptions managed by this instance
+     */
+    protected void addSubscription(String callId, Subscription subscription)
+    {
+        synchronized (subscriptions)
+        {
+            Subscription existingSubscription = subscriptions.get(callId);
+
+            if (existingSubscription != null)
+                removeSubscription(callId, existingSubscription);
+            subscriptions.put(callId, subscription);
+        }
+    }
+
+    /**
      * Safely returns the <code>ServerTransaction</code> associated with a
      * specific <code>RequestEvent</code> or creates a new one if the specified
      * <code>RequestEvent</code> is not associated with one. Does not throw
@@ -171,6 +199,73 @@ public class EventPackageSupport
                 , ex);
         }
         return serverTransaction;
+    }
+
+    /**
+     * Gets the <tt>Subscription</tt> from the list of subscriptions managed by
+     * this instance which is associated with a specific subscription
+     * <tt>Address</tt>/Request URI and has a specific id tag in its Event
+     * header.
+     *
+     * @param toAddress the subscription <tt>Address</tt>/Request URI of the
+     * <tt>Subscription</tt> to be retrieved
+     * @param eventId the id tag placed in the Event header of the
+     * <tt>Subscription</tt> to be retrieved if there is one or <tt>null</tt> if
+     * the <tt>Subscription</tt> should have no id tag in its Event header
+     * @return an existing <tt>Subscription</tt> from the list of subscriptions
+     * managed by this instance with the specified subscription
+     * <tt>Address</tt>/Request URI and the specified id tag in its Event
+     * header; <tt>null</tt> if no such <tt>Subscription</tt> exists in the list
+     * of subscriptions managed by this instance
+     */
+    protected Subscription getSubscription(Address toAddress, String eventId)
+    {
+        synchronized (subscriptions)
+        {
+            for (Subscription subscription : subscriptions.values())
+                if (subscription.equals(toAddress, eventId))
+                    return subscription;
+        }
+        return null;
+    }
+
+    /**
+     * Gets the <tt>Subscription</tt> from the list of subscriptions managed by
+     * this instance which is associated with a specific CallId.
+     *
+     * @param callId the CallId associated with the <tt>Subscription</tt> to be
+     * retrieved
+     * @return an existing <tt>Subscription</tt> from the list of subscriptions
+     * managed by this instance which is associated with the specified CallId;
+     * <tt>null</tt> if no such <tt>Subscription</tt> exists in the list of
+     * subscriptions managed by this instance
+     */
+    protected Subscription getSubscription(String callId)
+    {
+        synchronized (subscriptions)
+        {
+            return subscriptions.get(callId);
+        }
+    }
+
+    /**
+     * Gets a new copy of the list of <tt>Subscription</tt>s managed by this
+     * instance.
+     *
+     * @return a new copy of the list of <tt>Subscription</tt>s managed by this
+     * instance; if this instance currently manages no <tt>Subscription</tt>s,
+     * an empty array of <tt>Subscription</tt> element type
+     */
+    protected Subscription[] getSubscriptions()
+    {
+        synchronized (this.subscriptions)
+        {
+            Collection<Subscription> subscriptions
+                = this.subscriptions.values();
+
+            return
+                subscriptions.toArray(new Subscription[subscriptions.size()]);
+        }
     }
 
     /**
@@ -255,6 +350,92 @@ public class EventPackageSupport
                         OperationFailedException.INTERNAL_ERROR,
                         exc);
         }
+    }
+
+    /**
+     * Removes a <tt>Subscription</tt> from the list of subscriptions managed by
+     * this instance which is associated with a specific subscription
+     * <tt>Address</tt>/Request URI and has an id tag in its Event header of
+     * <tt>null</tt>. If such an instance is not found, does nothing.
+     *
+     * @param toAddress the subscription <tt>Address</tt>/Request URI of the
+     * <tt>Subscription</tt> to be removed
+     */
+    public void removeSubscription(Address toAddress)
+    {
+        removeSubscription(toAddress, null);
+    }
+
+    /**
+     * Removes a <tt>Subscription</tt> from the list of subscriptions managed by
+     * this instance which is associated with a specific subscription
+     * <tt>Address</tt>/Request URI and has a specific id tag in its Event
+     * header. If such an instance is not found, does nothing.
+     *
+     * @param toAddress the subscription <tt>Address</tt>/Request URI of the
+     * <tt>Subscription</tt> to be removed
+     * @param eventId the id tag in the Event header of the
+     * <tt>Subscription</tt> to be removed; <tt>null</tt> if the
+     * <tt>Subscription</tt> should have no id tag in its Event header
+     * @return <tt>true</tt> if a <tt>Subscription</tt> was indeed removed by
+     * the call; otherwise, <tt>false</tt>
+     */
+    public boolean removeSubscription(Address toAddress, String eventId)
+    {
+        boolean removed = false;
+
+        synchronized (subscriptions)
+        {
+            Iterator<Map.Entry<String, Subscription>> subscriptionIter
+                = subscriptions.entrySet().iterator();
+
+            while (subscriptionIter.hasNext())
+            {
+                Map.Entry<String, Subscription> subscriptionEntry
+                    = subscriptionIter.next();
+                Subscription subscription = subscriptionEntry.getValue();
+
+                if (subscription.equals(toAddress, eventId))
+                {
+                    subscriptionIter.remove();
+                    removed = true;
+                    subscription.removed();
+                }
+            }
+        }
+        return removed;
+    }
+
+    /**
+     * Removes a specific <tt>Subscription</tt> from the list of subscriptions
+     * managed by this instance if it is associated with a specific CallId. If the
+     * specified <tt>Subscription</tt> is not associated with the specified
+     * CallId (including the case of no known association for the specified
+     * CallId), does nothing.
+     *
+     * @param callId the CallId which is expected to be associated with the
+     * specified <tt>Subscription</tt>
+     * @param subscription the <tt>Subscription</tt> to be removed from the list
+     * of subscriptions managed by this instance if it is associated with the
+     * specified CallId
+     * @return <tt>true</tt> if a <tt>Subscription</tt> was indeed removed by
+     * the call; otherwise, <tt>false</tt>
+     */
+    protected boolean removeSubscription(String callId, Subscription subscription)
+    {
+        synchronized (subscriptions)
+        {
+            Subscription subscriptionToRemove = subscriptions.get(callId);
+
+            if ((subscriptionToRemove != null)
+                    && subscriptionToRemove.equals(subscription))
+            {
+                subscription = subscriptions.remove(callId);
+                subscription.removed();
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

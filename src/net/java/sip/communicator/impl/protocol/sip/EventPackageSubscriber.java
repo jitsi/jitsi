@@ -42,13 +42,6 @@ public class EventPackageSubscriber
     private final int refreshMargin;
 
     /**
-     * The list of subscriptions managed by this instance and indexed by their
-     * CallId.
-     */
-    private final Map<String, Subscription> subscriptions
-        = new HashMap<String, Subscription>();
-
-    /**
      * A reference to the <tt>SipMessageFactory</tt> instance that we should
      * use when creating requests.
      */
@@ -99,25 +92,6 @@ public class EventPackageSubscriber
 
         this.refreshMargin = refreshMargin;
         this.messageFactory = protocolProvider.getMessageFactory();
-    }
-
-    /**
-     * Adds a specific <tt>Subscription</tt> associated with a specific
-     * CallId to the list of subscriptions managed by this instance.
-     *
-     * @param callId
-     *            the CallId associated with the <tt>Subscription</tt> to be
-     *            added
-     * @param subscription
-     *            the <tt>Subscription</tt> to be added to the list of
-     *            subscriptions managed by this instance
-     */
-    private void addSubscription(String callId, Subscription subscription)
-    {
-        synchronized (subscriptions)
-        {
-            subscriptions.put(callId, subscription);
-        }
     }
 
     /**
@@ -336,82 +310,66 @@ public class EventPackageSubscriber
     }
 
     /**
-     * Gets the <tt>Subscription</tt> from the list of subscriptions managed
-     * by this instance which is associated with a specific subscription
+     * Gets the <tt>Subscription</tt> from the list of subscriptions managed by
+     * this instance which is associated with a specific subscription
      * <tt>Address</tt>/Request URI and has a specific id tag in its Event
      * header.
      *
-     * @param toAddress
-     *            the subscription <tt>Address</tt>/Request URI of the
-     *            <tt>Subscription</tt> to be retrieved
-     * @param eventId
-     *            the id tag placed in the Event header of the
-     *            <tt>Subscription</tt> to be retrieved if there is one or
-     *            <tt>null</tt> if the <tt>Subscription</tt> should have no
-     *            id tag in its Event header
-     * @return an existing <tt>Subscription</tt> from the list of
-     *         subscriptions managed by this instance with the specified
-     *         subscription <tt>Address</tt>/Request URI and the specified
-     *         id tag in its Event header; <tt>null</tt> if no such
-     *         <tt>Subscription</tt> exists in the list of subscriptions
-     *         managed by this instance
+     * @param toAddress the subscription <tt>Address</tt>/Request URI of the
+     * <tt>Subscription</tt> to be retrieved
+     * @param eventId the id tag placed in the Event header of the
+     * <tt>Subscription</tt> to be retrieved if there is one or <tt>null</tt> if
+     * the <tt>Subscription</tt> should have no id tag in its Event header
+     * @return an existing <tt>Subscription</tt> from the list of subscriptions
+     * managed by this instance with the specified subscription
+     * <tt>Address</tt>/Request URI and the specified id tag in its Event
+     * header; <tt>null</tt> if no such <tt>Subscription</tt> exists in the list
+     * of subscriptions managed by this instance
      */
-    private Subscription getSubscription(Address toAddress, String eventId)
+    @Override
+    protected Subscription getSubscription(Address toAddress, String eventId)
     {
-        synchronized (subscriptions)
-        {
-            for (Subscription subscription : subscriptions.values())
-                if (subscription.equals(toAddress, eventId))
-                    return subscription;
-        }
-        return null;
+        return (Subscription) super.getSubscription(toAddress, eventId);
     }
 
     /**
-     * Gets the <tt>Subscription</tt> from the list of subscriptions managed
-     * by this instance which is associated with a specific CallId.
+     * Gets the <tt>Subscription</tt> from the list of subscriptions managed by
+     * this instance which is associated with a specific CallId.
      *
-     * @param callId
-     *            the CallId associated with the <tt>Subscription</tt> to be
-     *            retrieved
-     * @return an existing <tt>Subscription</tt> from the list of
-     *         subscriptions managed by this instance which is associated with
-     *         the specified CallId; <tt>null</tt> if no such
-     *         <tt>Subscription</tt> exists in the list of subscriptions
-     *         managed by this instance
+     * @param callId the CallId associated with the <tt>Subscription</tt> to be
+     * retrieved
+     * @return an existing <tt>Subscription</tt> from the list of subscriptions
+     * managed by this instance which is associated with the specified CallId;
+     * <tt>null</tt> if no such <tt>Subscription</tt> exists in the list of
+     * subscriptions managed by this instance
      */
-    private Subscription getSubscription(String callId)
+    @Override
+    protected Subscription getSubscription(String callId)
     {
-        synchronized (subscriptions)
-        {
-            return subscriptions.get(callId);
-        }
+        return (Subscription) super.getSubscription(callId);
     }
 
     /**
      * Adds a specific <tt>Subscription</tt> to the list of subscriptions
-     * managed by this instance only if another <tt>Subscription</tt> with
-     * the same subscription <tt>Address</tt>/Request URI and id tag of its
+     * managed by this instance only if another <tt>Subscription</tt> with the
+     * same subscription <tt>Address</tt>/Request URI and id tag of its
      * associated Event header does not exist in the list.
      *
-     * @param subscription
-     *            the new <tt>Subscription</tt> to be added to the list of
-     *            subscriptions managed by this instance if there is no other
-     *            <tt>Subscription</tt> in the list which has the same
-     *            subscription <tt>Address</tt>/Request URI and id tag of
-     *            its Event header
+     * @param subscription the new <tt>Subscription</tt> to be added to the list
+     * of subscriptions managed by this instance if there is no other
+     * <tt>Subscription</tt> in the list which has the same subscription
+     * <tt>Address</tt>/Request URI and id tag of its Event header
      * @throws OperationFailedException if we fail constructing or sending the
-     * subscription request.
+     * subscription request
      */
     public void poll(Subscription subscription)
         throws OperationFailedException
     {
         if (getSubscription(
-                subscription.getAddress(), subscription.getEventId())
+                    subscription.getAddress(),
+                    subscription.getEventId())
                 == null)
-        {
             subscribe(subscription);
-        }
     }
 
     /**
@@ -914,93 +872,6 @@ public class EventPackageSubscriber
         }
 
         return true;
-    }
-
-    /**
-     * Removes a <tt>Subscription</tt> from the list of subscriptions
-     * managed by this instance which is associated with a specific subscription
-     * <tt>Address</tt>/Request URI and has an id tag in its Event header of
-     * <tt>null</tt>. If such an instance is not found, does nothing.
-     *
-     * @param toAddress
-     *            the subscription <tt>Address</tt>/Request URI of the
-     *            <tt>Subscription</tt> to be removed
-     */
-    public void removeSubscription(Address toAddress)
-    {
-        removeSubscription(toAddress, null);
-    }
-
-    /**
-     * Removes a <tt>Subscription</tt> from the list of subscriptions managed by
-     * this instance which is associated with a specific subscription
-     * <tt>Address</tt>/Request URI and has a specific id tag in its Event
-     * header. If such an instance is not found, does nothing.
-     *
-     * @param toAddress the subscription <tt>Address</tt>/Request URI of the
-     * <tt>Subscription</tt> to be removed
-     * @param eventId the id tag in the Event header of the
-     * <tt>Subscription</tt> to be removed; <tt>null</tt> if the
-     * <tt>Subscription</tt> should have no id tag in its Event header
-     * @return <tt>true</tt> if a <tt>Subscription</tt> was indeed removed by
-     * the call; otherwise, <tt>false</tt>
-     */
-    public boolean removeSubscription(Address toAddress, String eventId)
-    {
-        boolean removed = false;
-
-        synchronized (subscriptions)
-        {
-            Iterator<Map.Entry<String, Subscription>> subscriptionIter
-                = subscriptions.entrySet().iterator();
-
-            while (subscriptionIter.hasNext())
-            {
-                Map.Entry<String, Subscription> subscriptionEntry
-                    = subscriptionIter.next();
-                Subscription subscription = subscriptionEntry.getValue();
-
-                if (subscription.equals(toAddress, eventId))
-                {
-                    subscriptionIter.remove();
-                    removed = true;
-                    subscription.removed();
-                }
-            }
-        }
-        return removed;
-    }
-
-    /**
-     * Removes a specific <tt>Subscription</tt> from the list of subscriptions
-     * managed by this instance if it is associated with a specific CallId. If the
-     * specified <tt>Subscription</tt> is not associated with the specified
-     * CallId (including the case of no known association for the specified
-     * CallId), does nothing.
-     *
-     * @param callId the CallId which is expected to be associated with the
-     * specified <tt>Subscription</tt>
-     * @param subscription the <tt>Subscription</tt> to be removed from the list
-     * of subscriptions managed by this instance if it is associated with the
-     * specified CallId
-     * @return <tt>true</tt> if a <tt>Subscription</tt> was indeed removed by
-     * the call; otherwise, <tt>false</tt>
-     */
-    private boolean removeSubscription(String callId, Subscription subscription)
-    {
-        synchronized (subscriptions)
-        {
-            Subscription subscriptionToRemove = subscriptions.get(callId);
-
-            if ((subscriptionToRemove != null)
-                    && subscriptionToRemove.equals(subscription))
-            {
-                subscription = subscriptions.remove(callId);
-                subscription.removed();
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
