@@ -17,12 +17,9 @@ import javax.swing.event.*;
 import javax.swing.table.*;
 
 import net.java.sip.communicator.impl.neomedia.device.*;
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
-
-import org.osgi.framework.*;
 
 /**
  * @author Lubomir Marinov
@@ -31,26 +28,27 @@ import org.osgi.framework.*;
 public class MediaConfigurationPanel
     extends TransparentPanel
 {
+    /**
+     * The horizontal gap between components.
+     */
     private static final int HGAP = 5;
 
+    /**
+     * The vertical gap between the components.
+     */
     private static final int VGAP = 5;
 
-    private static MediaServiceImpl getMediaService()
-    {
-        BundleContext bundleContext = NeomediaActivator.getBundleContext();
-        ServiceReference serviceReference
-            = bundleContext.getServiceReference(MediaService.class.getName());
-
-        return
-            (serviceReference == null)
-                ? null
-                : (MediaServiceImpl) bundleContext.getService(serviceReference);
-    }
-
+    /**
+     * The logger.
+     */
     private final Logger logger
         = Logger.getLogger(MediaConfigurationPanel.class);
 
-    private final MediaServiceImpl mediaService = getMediaService();
+    /**
+     * The current instance of the media service.
+     */
+    private final MediaServiceImpl mediaService = 
+        NeomediaActivator.getMediaServiceImpl();
 
     /**
      * The video <code>CaptureDeviceInfo</code> this instance started to create
@@ -88,6 +86,11 @@ public class MediaConfigurationPanel
             add(createControls(type));
     }
 
+    /**
+     * Listens and shows the video in the video container when needed.
+     * @param event the event when player has ready visual component.
+     * @param videoContainer the container.
+     */
     private void controllerUpdateForPreview(ControllerEvent event,
         Container videoContainer)
     {
@@ -100,6 +103,11 @@ public class MediaConfigurationPanel
         }
     }
 
+    /**
+     * Creates the ui controls for portaudio.
+     * @param portAudioPanel the panel
+     * @param parentPanel the parent panel
+     */
     private void createPortAudioControls(
         JPanel portAudioPanel, JPanel parentPanel)
     {
@@ -154,15 +162,18 @@ public class MediaConfigurationPanel
         final JCheckBox echoCancelCheckBox = new JCheckBox(
             NeomediaActivator.getResources().getI18NString(
                 "impl.media.configform.ECHOCANCEL"));
+        // first set the selected one than add the listener
+        // in order to avoid saving tha value when using the default one
+        // and only showing to user without modification
+        echoCancelCheckBox.setSelected(
+            mediaService.getDeviceConfiguration().isEchoCancelEnabled());
         echoCancelCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e)
             {
                 mediaService.getDeviceConfiguration().setEchoCancel(
-                    echoCancelCheckBox.isSelected());
+                    echoCancelCheckBox.isSelected(), true);
             }
         });
-        echoCancelCheckBox.setSelected(
-            mediaService.getDeviceConfiguration().isEchoCancelEnabled());
         portAudioPanel.add(echoCancelCheckBox, constraints);
 
         constraints.gridy = 4;
@@ -170,21 +181,29 @@ public class MediaConfigurationPanel
         final JCheckBox denoiseCheckBox = new JCheckBox(
             NeomediaActivator.getResources().getI18NString(
                 "impl.media.configform.DENOISE"));
+        // first set the selected one than add the listener
+        // in order to avoid saving tha value when using the default one
+        // and only showing to user without modification
+        denoiseCheckBox.setSelected(
+            mediaService.getDeviceConfiguration().isDenoiseEnabled());
         denoiseCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e)
             {
                 mediaService.getDeviceConfiguration().setDenoise(
-                    denoiseCheckBox.isSelected());
+                    denoiseCheckBox.isSelected(), true);
             }
         });
-        denoiseCheckBox.setSelected(
-            mediaService.getDeviceConfiguration().isDenoiseEnabled());
         portAudioPanel.add(denoiseCheckBox, constraints);
 
         parentPanel.setBorder(
                 BorderFactory.createTitledBorder("Devices"));
     }
 
+    /**
+     * Creates all the controls for a type(AUDIO or VIDEO)
+     * @param type the type.
+     * @return the build Component.
+     */
     private Component createControls(int type)
     {
         final JComboBox comboBox = new JComboBox();
@@ -291,6 +310,11 @@ public class MediaConfigurationPanel
         return container;
     }
 
+    /**
+     * Creates Component for the encodings of type(AUDIO or VIDEO).
+     * @param type the type
+     * @return the component.
+     */
     private Component createEncodingControls(int type)
     {
         ResourceManagementService resources = NeomediaActivator.getResources();
@@ -404,6 +428,13 @@ public class MediaConfigurationPanel
         return container;
     }
 
+    /**
+     * Creates preview for the device(video) in the video container.
+     * @param device the device
+     * @param videoContainer the container
+     * @throws IOException a problem accessing the device.
+     * @throws MediaException a problem getting preview.
+     */
     private void createPreview(CaptureDeviceInfo device,
                                final Container videoContainer)
         throws IOException,
@@ -436,6 +467,12 @@ public class MediaConfigurationPanel
         player.start();
     }
 
+    /**
+     * Create preview component.
+     * @param type type
+     * @param comboBox the options.
+     * @return the component.
+     */
     private Component createPreview(int type, final JComboBox comboBox)
     {
         final Container preview;
@@ -519,11 +556,20 @@ public class MediaConfigurationPanel
         return preview;
     }
 
+    /**
+     * Creates the video container.
+     * @param noVideoComponent the container component.
+     * @return the video container.
+     */
     private Container createVideoContainer(Component noVideoComponent)
     {
         return new VideoContainer(noVideoComponent);
     }
 
+    /**
+     * Dispose the player used for the preview.
+     * @param player the player.
+     */
     private void disposePlayer(Player player)
     {
         player.stop();
@@ -535,6 +581,11 @@ public class MediaConfigurationPanel
             videoPlayerInPreview = null;
     }
 
+    /**
+     * The mnemonic for a type.
+     * @param type audio or video type.
+     * @return the mnemonic.
+     */
     private char getDisplayedMnemonic(int type)
     {
         switch (type)
@@ -550,6 +601,11 @@ public class MediaConfigurationPanel
         }
     }
 
+    /**
+     * A label for a type.
+     * @param type the type.
+     * @return the label.
+     */
     private String getLabelText(int type)
     {
         switch (type)
@@ -574,6 +630,11 @@ public class MediaConfigurationPanel
         }
     }
 
+    /**
+     * Used to move encoding options.
+     * @param table the table with encodings
+     * @param up move direction.
+     */
     private void move(JTable table, boolean up)
     {
         int index =
@@ -582,6 +643,12 @@ public class MediaConfigurationPanel
         table.getSelectionModel().setSelectionInterval(index, index);
     }
 
+    /**
+     * Shows the preview panel.
+     * @param previewContainer the container
+     * @param preview the preview component.
+     * @param player the player.
+     */
     private void showPreview(final Container previewContainer,
         final Component preview, final Player player)
     {

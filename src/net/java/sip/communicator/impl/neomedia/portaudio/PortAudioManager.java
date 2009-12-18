@@ -29,20 +29,49 @@ public class PortAudioManager
      */
     private static PortAudioManager instance = null;
 
+    /**
+     * We keep track of created inputstreams.
+     */
     private Hashtable<Integer, MasterPortAudioStream> inputStreams =
         new Hashtable<Integer, MasterPortAudioStream>();
 
+    /**
+     * We keep track of created outputstreams.
+     */
     private ArrayList<OutputPortAudioStream> outputStreams =
         new ArrayList<OutputPortAudioStream>();
 
     /**
      * default values for the params.
      */
-    private boolean enabledEchoCancel = false;
+    /**
+     * Echo cancel enabled by default.
+     */
+    private boolean enabledEchoCancel = true;
+
+    /**
+     * Denoise enabled by default.
+     */
     private boolean enabledDeNoise = true;
+
+    /**
+     * The default value for the frame size we use to read and write
+     * by portaudio. Currently 20 ms.
+     */
     private int frameSize = NUM_SAMPLES;
+
+    /**
+     * The default value for number of samples of echo to cancel.
+     * Currently set to 256ms.
+     */
     private int filterLength = 2048;
 
+    /**
+     * The default value for suggested latency used to open devices.
+     * The suggested latency is later calculated dependent the OS we use.
+     * If its not calculated this is the default value.
+     * Currently -1 (unspecified).
+     */
     private static double suggestedLatency = PortAudio.LATENCY_UNSPECIFIED;
 
     /**

@@ -103,6 +103,9 @@ public class PortAudioRenderer
     {
         try
         {
+            if(started)
+                return;
+
             stream.start();
             started = true;
         }
@@ -119,6 +122,9 @@ public class PortAudioRenderer
     {
         try
         {
+            if(!started)
+                return;
+
             started = false;
             stream.stop();
         }

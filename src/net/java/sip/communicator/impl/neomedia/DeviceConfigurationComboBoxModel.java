@@ -86,17 +86,29 @@ public class DeviceConfigurationComboBoxModel
      */
     public static final int AUDIO_NOTIFY = 5;
 
+    /**
+     * The current device configuration.
+     */
     private final DeviceConfiguration deviceConfiguration;
 
+    /**
+     * All the devices.
+     */
     private CaptureDevice[] devices;
 
+    /**
+     * Listener for data changes.
+     */
     private final List<ListDataListener> listeners =
         new ArrayList<ListDataListener>();
 
+    /**
+     * The type of the media for this combo.
+     */
     private final int type;
 
     /**
-     * Creates device combobx model
+     * Creates device combobox model
      * @param deviceConfiguration the current device configuration
      * @param type the device - audio/video
      */
@@ -142,11 +154,10 @@ public class DeviceConfigurationComboBoxModel
         }
     }
 
-    private DeviceConfiguration getDeviceConfiguration()
-    {
-        return deviceConfiguration;
-    }
-
+    /**
+     * Extracts the devices for the current type.
+     * @return the devices.
+     */
     private CaptureDevice[] getDevices()
     {
         if (devices != null)
@@ -183,6 +194,10 @@ public class DeviceConfigurationComboBoxModel
         return devices;
     }
 
+    /**
+     * Extracts the devices selected by the configuration.
+     * @return
+     */
     private CaptureDevice getSelectedDevice()
     {
         CaptureDeviceInfo info;
@@ -244,6 +259,10 @@ public class DeviceConfigurationComboBoxModel
         listeners.remove(listener);
     }
 
+    /**
+     * Selects and saves the new choice.
+     * @param device the device we choose.
+     */
     private void setSelectedDevice(CaptureDevice device)
     {
         // We cannot clear the selection of DeviceConfiguration.
@@ -253,20 +272,19 @@ public class DeviceConfigurationComboBoxModel
         CaptureDevice selectedDevice = getSelectedDevice();
         if (selectedDevice != device)
         {
-            DeviceConfiguration deviceConfiguration = getDeviceConfiguration();
             switch (type)
             {
             case AUDIO_CAPTURE:
-                deviceConfiguration.setAudioCaptureDevice(device.info);
+                deviceConfiguration.setAudioCaptureDevice(device.info, true);
                 break;
             case AUDIO_NOTIFY:
-                deviceConfiguration.setAudioNotifyDevice(device.info);
+                deviceConfiguration.setAudioNotifyDevice(device.info, true);
                 break;
             case AUDIO_PLAYBACK:
-                deviceConfiguration.setAudioPlaybackDevice(device.info);
+                deviceConfiguration.setAudioPlaybackDevice(device.info, true);
                 break;
             case VIDEO:
-                deviceConfiguration.setVideoCaptureDevice(device.info);
+                deviceConfiguration.setVideoCaptureDevice(device.info, true);
                 break;
             }
 
@@ -282,7 +300,7 @@ public class DeviceConfigurationComboBoxModel
 
             if(!systemName.equals(deviceConfiguration.getAudioSystem()))
             {
-                deviceConfiguration.setAudioSystem(systemName, null);
+                deviceConfiguration.setAudioSystem(systemName, null, true);
                 fireContentsChanged(-1, -1);
             }
         }

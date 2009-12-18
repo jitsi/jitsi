@@ -199,6 +199,15 @@ public class ConferenceCallPanel
         if (confPeerPanel == null)
             return;
 
+        // first remove the listeners as after removing the panel
+        // we may still receive sound level indicators and there are
+        // missing ui components leading to exception
+        peer.removeCallPeerConferenceListener(confPeerPanel);
+        peer.removeConferenceMembersSoundLevelListener(
+            confPeerPanel.getConferenceMembersSoundLevelListener());
+        peer.removeStreamSoundLevelListener(
+            confPeerPanel.getStreamSoundLevelListener());
+
         // Remove the corresponding renderer.
         callPeerPanels.remove(peer);
 
@@ -209,12 +218,6 @@ public class ConferenceCallPanel
 
         // Remove the renderer component.
         mainPanel.remove(confPeerPanel);
-
-        peer.removeCallPeerConferenceListener(confPeerPanel);
-        peer.removeConferenceMembersSoundLevelListener(
-            confPeerPanel.getConferenceMembersSoundLevelListener());
-        peer.removeStreamSoundLevelListener(
-            confPeerPanel.getStreamSoundLevelListener());
 
         // Remove all common listeners.
         CallPeerAdapter adapter = confPeerPanel.getCallPeerAdapter();
