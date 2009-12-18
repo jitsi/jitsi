@@ -656,6 +656,12 @@ public class SipStackSharing
                             + event.getResponse().getStatusCode()
                             + " " + event.getResponse().getReasonPhrase());
 
+            if(transaction == null)
+            {
+                logger.warn("Transaction is null, probably already expired!");
+                return;
+            }
+
             ProtocolProviderServiceSipImpl service
                 = getServiceData(transaction);
             if (service != null)

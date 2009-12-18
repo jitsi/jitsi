@@ -330,7 +330,8 @@ public class RawPacket
                                     | newCsrcCount);
 
         this.buffer = newBuffer;
-        this.length = newBuffer.length - offset;
+        this.length = payloadOffsetForNewBuff + oldBuffer.length
+                - payloadOffsetForOldBuff - offset;
     }
 
     /**
@@ -582,9 +583,10 @@ public class RawPacket
         //now copy the payload
         System.arraycopy(buffer, bufferOffset,
             newBuffer, newBufferOffset, getPayloadLength());
+        newBufferOffset += getPayloadLength();
 
         buffer = newBuffer;
-        this.length = newBuffLen - offset;
+        this.length = newBufferOffset - offset;
     }
 
     /**

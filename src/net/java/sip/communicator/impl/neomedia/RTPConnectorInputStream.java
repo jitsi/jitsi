@@ -28,9 +28,14 @@ public class RTPConnectorInputStream
     private static final Object[] EMPTY_CONTROLS = new Object[0];
 
     /**
+     * The size of the buffers receiving packets coming from network.
+     */
+    private static final int PACKET_RECEIVE_BUFFER = 4000;
+
+    /**
      * Packet receive buffer
      */
-    private final byte[] buffer = new byte[65535];
+    private final byte[] buffer = new byte[PACKET_RECEIVE_BUFFER];
 
     /**
      * Whether this stream is closed. Used to control the termination of worker
@@ -222,7 +227,8 @@ public class RTPConnectorInputStream
     {
         while (!closed)
         {
-            DatagramPacket p = new DatagramPacket(buffer, 0, 65535);
+            DatagramPacket p = new DatagramPacket(
+                buffer, 0, PACKET_RECEIVE_BUFFER);
 
             try
             {
