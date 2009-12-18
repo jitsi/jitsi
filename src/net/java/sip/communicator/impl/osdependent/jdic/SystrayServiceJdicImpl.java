@@ -503,10 +503,13 @@ public class SystrayServiceJdicImpl
 
             try
             {
-                if (toChangeDockIcon != null)
-                    Dock.setDockTileImage(toChangeDockIcon);
-                else
-                    Dock.restoreDockTileImage();
+                if(OSUtils.IS_MAC32)
+                {
+                    if (toChangeDockIcon != null)
+                        Dock.setDockTileImage(toChangeDockIcon);
+                    else
+                        Dock.restoreDockTileImage();
+                }
             }
             catch (Exception e)
             {
