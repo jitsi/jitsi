@@ -665,24 +665,24 @@ public class ProtocolProviderServiceJabberImpl
             //check if we are supposed to start telephony
 
             //initialize the telephony opset
-            boolean enableJingle
-                = JabberActivator
-                    .getConfigurationService()
-                        .getBoolean(PNAME_ENABLE_JINGLE, false);
-            if(enableJingle && JabberActivator.getMediaService() != null)
-            {
-                addSupportedOperationSet(
-                    OperationSetBasicTelephony.class,
-                    new OperationSetBasicTelephonyJabberImpl(this));
-
-                // Add Jingle features to supported features.
-                supportedFeatures.add("urn:xmpp:jingle:1");
-                supportedFeatures.add("urn:xmpp:jingle:apps:rtp:1");
-                supportedFeatures.add("urn:xmpp:jingle:apps:rtp:audio");
-
-                //one day:
-                //supportedFeatures.add("urn:xmpp:jingle:apps:rtp:video");
-            }
+//            boolean enableJingle
+//                = JabberActivator
+//                    .getConfigurationService()
+//                        .getBoolean(PNAME_ENABLE_JINGLE, false);
+//            if(enableJingle && JabberActivator.getMediaService() != null)
+//            {
+//                addSupportedOperationSet(
+//                    OperationSetBasicTelephony.class,
+//                    new OperationSetBasicTelephonyJabberImpl(this));
+//
+//                // Add Jingle features to supported features.
+//                supportedFeatures.add("urn:xmpp:jingle:1");
+//                supportedFeatures.add("urn:xmpp:jingle:apps:rtp:1");
+//                supportedFeatures.add("urn:xmpp:jingle:apps:rtp:audio");
+//
+//                //one day:
+//                //supportedFeatures.add("urn:xmpp:jingle:apps:rtp:video");
+//            }
 
             isInitialized = true;
         }

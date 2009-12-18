@@ -77,19 +77,19 @@ public class JingleScMediaManager extends JingleMediaManager
          * situations i.e. in most of the cases the allocation will immediately
          * be thrown away as garbage. Checking for null is faster.
          */
-        String[] audioEnc;
+        String[] audioEnc = null;
 
-        try
-        {
-            audioEnc = JabberActivator.getMediaService().
-                getSupportedAudioEncodings();
-        }
-        catch (Exception e)
-        {
-            audioEnc = null;
-
-            logger.warn("Cannot get Audio encodings!", e);
-        }
+//        try
+//        {
+//            audioEnc = JabberActivator.getMediaService().
+//                getSupportedAudioEncodings();
+//        }
+//        catch (Exception e)
+//        {
+//            audioEnc = null;
+//
+//            logger.warn("Cannot get Audio encodings!", e);
+//        }
 
         if (audioEnc != null)
         {

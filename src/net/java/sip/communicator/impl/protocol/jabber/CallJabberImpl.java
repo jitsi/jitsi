@@ -8,7 +8,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.media.*;
+//import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -40,7 +40,7 @@ public class CallJabberImpl
      * The <tt>CallSession</tt> that the media service has created for this
      * call.
      */
-    private CallSession mediaCallSession = null;
+//    private CallSession mediaCallSession = null;
 
     /**
      * Crates a CallJabberImpl instance belonging to <tt>sourceProvider</tt> and
@@ -238,10 +238,10 @@ public class CallJabberImpl
      * @param callSession the <tt>CallSession</tt> that the media service has
      * created for this call.
      */
-    public void setMediaCallSession(CallSession callSession)
-    {
-        this.mediaCallSession = callSession;
-    }
+//    public void setMediaCallSession(CallSession callSession)
+//    {
+//        this.mediaCallSession = callSession;
+//    }
 
     /**
      * Sets the <tt>CallSession</tt> that the media service has created for this
@@ -251,10 +251,10 @@ public class CallJabberImpl
      * created for this call or null if no call session has been created so
      * far.
      */
-    public CallSession getMediaCallSession()
-    {
-        return this.mediaCallSession;
-    }
+//    public CallSession getMediaCallSession()
+//    {
+//        return this.mediaCallSession;
+//    }
 
     /**
      * Gets the indicator which determines whether the local peer represented by

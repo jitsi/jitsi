@@ -7,6 +7,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#undef net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_LATENCY_UNSPECIFIED
+#define net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_LATENCY_UNSPECIFIED 0.0
+#undef net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_LATENCY_HIGH
+#define net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_LATENCY_HIGH -1.0
+#undef net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_LATENCY_LOW
+#define net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_LATENCY_LOW -2.0
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
  * Method:    setEchoCancelParams

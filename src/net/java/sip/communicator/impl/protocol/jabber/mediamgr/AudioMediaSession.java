@@ -9,8 +9,8 @@ package net.java.sip.communicator.impl.protocol.jabber.mediamgr;
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.*;
-import net.java.sip.communicator.service.media.*;
-import net.java.sip.communicator.service.media.event.*;
+//import net.java.sip.communicator.service.media.*;
+//import net.java.sip.communicator.service.media.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smackx.jingle.*;
@@ -27,7 +27,7 @@ import org.jivesoftware.smackx.jingle.nat.*;
  */
 public class AudioMediaSession
         extends JingleMediaSession
-        implements MediaListener
+//        implements MediaListener
 {
     /**
      * the logger used by this class
@@ -38,7 +38,7 @@ public class AudioMediaSession
     /**
      * An audio media session encapsulate a RtpFlow which handle media transfer
      */
-    private RtpFlow rtpFlow = null;
+//    private RtpFlow rtpFlow = null;
 
     /**
      * Creates an AudioMediaSession with defined payload type,
@@ -111,25 +111,25 @@ public class AudioMediaSession
 
         Map<String, List<String>> mediaEncoding
             = MediaUtils.getAudioEncoding(getPayloadType().getId());
-        try
-        {
-            rtpFlow = JabberActivator.getMediaService().
-                    createRtpFlow(
-                    localIp, localPort,
-                    remoteIp, remotePort,
-                    mediaEncoding);
-        }
-        catch (MediaException ex)
-        {
-            logger.error("failed to create a RtpFlow between " +
-                    localIp + ":" + localPort + " and " +
-                    remoteIp + ":" + remotePort, ex);
-            rtpFlow = null;
-            throw new RuntimeException("failed to create a RtpFlow between " 
-                                        + localIp + ":" + localPort + " and " 
-                                        + remoteIp + ":" + remotePort, 
-                                        ex);
-        }
+//        try
+//        {
+//            rtpFlow = JabberActivator.getMediaService().
+//                    createRtpFlow(
+//                    localIp, localPort,
+//                    remoteIp, remotePort,
+//                    mediaEncoding);
+//        }
+//        catch (MediaException ex)
+//        {
+//            logger.error("failed to create a RtpFlow between " +
+//                    localIp + ":" + localPort + " and " +
+//                    remoteIp + ":" + remotePort, ex);
+//            rtpFlow = null;
+//            throw new RuntimeException("failed to create a RtpFlow between "
+//                                        + localIp + ":" + localPort + " and "
+//                                        + remoteIp + ":" + remotePort,
+//                                        ex);
+//        }
     }
 
     /**
@@ -137,7 +137,7 @@ public class AudioMediaSession
      */
     public void startTrasmit()
     {
-        rtpFlow.start();
+//        rtpFlow.start();
     }
 
     /**
@@ -153,10 +153,10 @@ public class AudioMediaSession
      */
     public void setTrasmit(boolean active)
     {
-        if (active)
-            rtpFlow.resume();
-        else
-            rtpFlow.pause();
+//        if (active)
+//            rtpFlow.resume();
+//        else
+//            rtpFlow.pause();
     }
 
     /**
@@ -165,7 +165,7 @@ public class AudioMediaSession
     public void stopTrasmit()
     {
         //if (rtpFlow != null)
-        rtpFlow.stop();
+//        rtpFlow.stop();
     }
 
     /**
@@ -220,12 +220,12 @@ public class AudioMediaSession
      * Implementation of <tt>receivedMediaStream</tt> from
      * <tt>RtpFlow</tt>.
      */
-    public void receivedMediaStream(MediaEvent evt)
-    {
-        mediaReceived(evt.getFrom());
-    }
-
-    public void mediaServiceStatusChanged()
-    {
-    }
+//    public void receivedMediaStream(MediaEvent evt)
+//    {
+//        mediaReceived(evt.getFrom());
+//    }
+//
+//    public void mediaServiceStatusChanged()
+//    {
+//    }
 }

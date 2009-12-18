@@ -8,7 +8,6 @@ package net.java.sip.communicator.service.protocol;
 
 import java.awt.*;
 
-import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
@@ -136,8 +135,7 @@ public interface OperationSetVideoTelephony
      * The property which indicates whether a specific <tt>Call</tt> is
      * currently streaming the local video (to a remote destination).
      */
-    public static final String LOCAL_VIDEO_STREAMING
-        = CallSession.LOCAL_VIDEO_STREAMING;
+    public static final String LOCAL_VIDEO_STREAMING = "LOCAL_VIDEO_STREAMING";
 
     /**
      * Gets the indicator which determines whether a specific <tt>Call</tt>
