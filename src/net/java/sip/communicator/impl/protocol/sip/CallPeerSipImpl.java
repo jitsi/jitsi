@@ -1849,43 +1849,6 @@ public class CallPeerSipImpl
     {}
 
     /**
-     * Called when this peer becomes or stops being a conference focus, this
-     * method adds or removes stream listeners because the levels they deliver
-     * no longer represent the level of a particular member. The method
-     * therefore replaces them (if supported by the peer) with a conference
-     * member audio level listener.
-     *
-     * @param evt a <tt>CallPeerConferenceEvent</tt> with ID
-     * <tt>CallPeerConferenceEvent#CONFERENCE_FOCUS_CHANGED</tt> and no
-     * associated <tt>ConferenceMember</tt>
-     */
-    public void conferenceFocusChanged(CallPeerConferenceEvent evt)
-    {
-        //we are only interested in CONFERENCE_FOCUS_CHANGED
-        if(evt.getEventID() != CallPeerConferenceEvent.CONFERENCE_FOCUS_CHANGED)
-            return;
-
-        if (evt.getSourceCallPeer() != this)
-            return;
-
-        if (isConferenceFocus())
-        {
-            // this peer is now a conference focus so we need to remove the
-            //stream  level listeners, and move to csrc level listening
-            getMediaHandler().setStreamAudioLevelListener(null);
-            getMediaHandler().setCsrcAudioLevelListener(this);
-
-        }
-        else
-        {
-            // this call peer is no longer a focus. lets stop being a CSRC
-            // listener and move back to listening th stream.
-            getMediaHandler().setStreamAudioLevelListener(this);
-            getMediaHandler().setCsrcAudioLevelListener(null);
-        }
-    }
-
-    /**
      * Sets the security status to ON for this call peer.
      *
      * @param sessionType the type of the call session - audio or video.
@@ -1943,28 +1906,60 @@ public class CallPeerSipImpl
     }
 
     /**
-     * Wraps SoundLevelListener and convert its event to
-     * StreamSoundLevelEvent events to be delivered to
-     * StreamSoundLevelListener.
      * Dummy implementation of {@link CallPeerConferenceListener
      * #conferenceFocusChanged(CallPeerConferenceEvent)}.
      *
-     * @param conferenceEvent ignored
+     * @param evt ignored
      */
-    public void conferenceMemberAdded(CallPeerConferenceEvent conferenceEvent)
+    public void conferenceFocusChanged(CallPeerConferenceEvent evt)
     {
-
     }
 
     /**
-     * Dummy implementation of {@link CallPeerConferenceListener
-     * #conferenceMemberRemoved(CallPeerConferenceEvent)}.
+     * Called when this peer becomes a mixer. The method add removes this class
+     * as the stream audio level listener for the media coming from this peer
+     * because the levels it delivers no longer represent the level of a
+     * particular member. The method also adds this class as a member (CSRC)
+     * audio level listener.
      *
-     * @param conferenceEvent ignored
+     * @param conferenceEvent the event containing information (that we don't
+     * really use) on the newly add member.
+     */
+    public void conferenceMemberAdded(CallPeerConferenceEvent conferenceEvent)
+    {
+        if (isConferenceFocus() && getConferenceMemberCount() >= 3)
+        {
+            // this peer is now a conference focus with more than three
+            // participants. This means that the this peer is mixing and sending
+            // us audio for at least two separate participants. We therefore
+            // need to remove the stream level listeners and switch to CSRC
+            // level listening
+            getMediaHandler().setStreamAudioLevelListener(null);
+            getMediaHandler().setCsrcAudioLevelListener(this);
+        }
+    }
+
+    /**
+     * Called when this peer stops being a mixer. The method add removes this
+     * class as the stream audio level listener for the media coming from this
+     * peer because the levels it delivers no longer represent the level of a
+     * particular member. The method also adds this class as a member (CSRC)
+     * audio level listener.
+     *
+     * @param conferenceEvent the event containing information (that we don't
+     * really use) on the freshly removed member.
      */
     public void conferenceMemberRemoved(CallPeerConferenceEvent conferenceEvent)
     {
-
+        if (getConferenceMemberCount() < 3)
+        {
+            // this call peer is no longer mixing audio from multiple sources
+            // since there's only us and her in the call. Lets stop being a CSRC
+            // listener and move back to listening the audio level of the
+            // stream itself.
+            getMediaHandler().setStreamAudioLevelListener(this);
+            getMediaHandler().setCsrcAudioLevelListener(null);
+        }
     }
 
     /**
