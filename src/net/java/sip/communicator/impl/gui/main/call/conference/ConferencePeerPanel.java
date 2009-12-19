@@ -600,7 +600,6 @@ public class ConferencePeerPanel
     {
         if(streamSoundLevelListener == null)
             streamSoundLevelListener = new StreamSoundLevelListener();
-
         return streamSoundLevelListener;
     }
 

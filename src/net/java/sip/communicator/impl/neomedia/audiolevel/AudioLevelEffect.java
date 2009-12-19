@@ -171,8 +171,6 @@ public class AudioLevelEffect
         return BUFFER_PROCESSED_OK;
     }
 
-
-
     /**
      * Gets the name of this plug-in as a human-readable string.
      *
@@ -196,7 +194,7 @@ public class AudioLevelEffect
         synchronized(eventDispatcher)
         {
             new Thread(eventDispatcher, "AudioLevelEffect Notification Thread")
-                .start();
+                    .start();
         }
     }
 

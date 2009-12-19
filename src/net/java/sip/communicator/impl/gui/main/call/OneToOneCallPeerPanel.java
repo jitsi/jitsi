@@ -343,13 +343,13 @@ public class OneToOneCallPeerPanel
         });
 
         this.callPeer.getCall().addLocalUserSoundLevelListener(
-        new SoundLevelListener()
-        {
-            public void soundLevelChanged(SoundLevelChangeEvent event)
+            new SoundLevelListener()
             {
-                localLevelIndicator.updateSoundLevel(event.getLevel());
-            }
-        });
+                public void soundLevelChanged(SoundLevelChangeEvent event)
+                {
+                    localLevelIndicator.updateSoundLevel(event.getLevel());
+                }
+            });
     }
 
     private class VideoTelephonyListener

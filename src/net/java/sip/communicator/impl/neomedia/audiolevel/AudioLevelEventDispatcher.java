@@ -74,6 +74,7 @@ public class AudioLevelEventDispatcher
         stopped = false;
 
         SimpleAudioLevelListener listenerToNotify = null;
+
         while(!stopped)
         {
             byte[] dataToProcess = null;
@@ -94,7 +95,9 @@ public class AudioLevelEventDispatcher
                         //it before we've had a chance to notify it.
                         listenerToNotify = levelListener;
                     }
-                    catch (InterruptedException ie) {}
+                    catch (InterruptedException ie)
+                    {
+                    }
                 }
 
                 dataToProcess = data;
@@ -112,10 +115,8 @@ public class AudioLevelEventDispatcher
 
                 //cache the result for csrc delivery in case a cache has been
                 //set
-                if(levelMap != null && ssrc != -1)
-                {
+                if((levelMap != null) && (ssrc != -1))
                     levelMap.putLevel(ssrc, newLevel);
-                }
 
                 //now notify our listener
                 if (listenerToNotify != null)
@@ -131,21 +132,16 @@ public class AudioLevelEventDispatcher
      *
      * @param buffer the data that we'd like to queue for processing.
      */
-    public void addData(Buffer buffer)
+    public synchronized void addData(Buffer buffer)
     {
-        synchronized(this)
-        {
-            dataLength = buffer.getLength();
-            if(data == null || data.length < dataLength)
-            {
-                data = new byte[dataLength];
-            }
+        dataLength = buffer.getLength();
+        if((data == null) || (data.length < dataLength))
+            data = new byte[dataLength];
 
-            System.arraycopy( buffer.getData(), buffer.getOffset(),
-                            data, 0, dataLength);
+        System.arraycopy( buffer.getData(), buffer.getOffset(),
+                        data, 0, dataLength);
 
-            notifyAll();
-        }
+        notifyAll();
     }
 
     /**
@@ -155,24 +151,18 @@ public class AudioLevelEventDispatcher
      * @param l the listener that we will be notifying or <tt>null</tt> if we
      * are to remove it.
      */
-    public void setAudioLevelListener(SimpleAudioLevelListener l)
+    public synchronized void setAudioLevelListener(SimpleAudioLevelListener l)
     {
-        synchronized(this)
-        {
-            this.levelListener = l;
-        }
+        this.levelListener = l;
     }
 
     /**
      * Interrupts this audio level dispatcher so that it would no longer analyze
      */
-    public void stop()
+    public synchronized void stop()
     {
-        synchronized(this)
-        {
-            stopped = true;
-            notifyAll();
-        }
+        stopped = true;
+        notifyAll();
     }
 
     /**
@@ -196,7 +186,7 @@ public class AudioLevelEventDispatcher
      *
      * @param cacheMap the <tt>AudioLevelMap</tt> where this dispatcher should
      * cache measured results.
-     * @param ssrc the SSRC key where entires should be logged
+     * @param ssrc the SSRC key where entries should be logged
      */
     public void setMapCache(AudioLevelMap cacheMap, long ssrc)
     {

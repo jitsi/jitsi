@@ -299,7 +299,10 @@ public class AudioMediaStreamImpl
      */
     public void fireConferenceAudioLevelEvent(final long[][] audioLevels)
     {
-        if (this.csrcAudioLevelListener != null)
-            this.csrcAudioLevelListener.audioLevelsReceived(audioLevels);
+        CsrcAudioLevelListener csrcAudioLevelListener
+            = this.csrcAudioLevelListener;
+
+        if (csrcAudioLevelListener != null)
+            csrcAudioLevelListener.audioLevelsReceived(audioLevels);
     }
 }

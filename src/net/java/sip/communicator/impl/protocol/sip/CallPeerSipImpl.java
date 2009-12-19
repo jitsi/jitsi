@@ -126,7 +126,7 @@ public class CallPeerSipImpl
      * Holds listeners registered for level changes in the audio we are getting
      * from the remote participant.
      */
-    private List<SoundLevelListener> streamAudioLevelListeners
+    private final List<SoundLevelListener> streamAudioLevelListeners
         = new ArrayList<SoundLevelListener>();
 
     /**
@@ -134,7 +134,7 @@ public class CallPeerSipImpl
      * that this peer might be mixing and that we are not directly communicating
      * with.
      */
-    private List<ConferenceMembersSoundLevelListener>
+    private final List<ConferenceMembersSoundLevelListener>
         conferenceMemberAudioLevelListeners
             = new ArrayList<ConferenceMembersSoundLevelListener>();
 
@@ -190,13 +190,18 @@ public class CallPeerSipImpl
      */
     public Address getPeerAddress()
     {
-        if (getDialog() != null
-            && getDialog().getRemoteParty() != null)
-        {
-            //update the address we've cached.
-            peerAddress = getDialog().getRemoteParty();
-        }
+        Dialog dialog = getDialog();
 
+        if (dialog != null)
+        {
+            Address remoteParty = dialog.getRemoteParty();
+
+            if (remoteParty != null)
+            {
+                //update the address we've cached.
+                peerAddress = remoteParty;
+            }
+        }
         return peerAddress;
     }
 
@@ -1705,7 +1710,6 @@ public class CallPeerSipImpl
     {
         synchronized (streamAudioLevelListeners)
         {
-
             if (streamAudioLevelListeners.size() == 0)
             {
                 // if this is the first listener that's being registered with
@@ -1934,8 +1938,10 @@ public class CallPeerSipImpl
             // us audio for at least two separate participants. We therefore
             // need to remove the stream level listeners and switch to CSRC
             // level listening
-            getMediaHandler().setStreamAudioLevelListener(null);
-            getMediaHandler().setCsrcAudioLevelListener(this);
+            CallPeerMediaHandler mediaHandler = getMediaHandler();
+
+            mediaHandler.setStreamAudioLevelListener(null);
+            mediaHandler.setCsrcAudioLevelListener(this);
         }
     }
 
@@ -1957,8 +1963,10 @@ public class CallPeerSipImpl
             // since there's only us and her in the call. Lets stop being a CSRC
             // listener and move back to listening the audio level of the
             // stream itself.
-            getMediaHandler().setStreamAudioLevelListener(this);
-            getMediaHandler().setCsrcAudioLevelListener(null);
+            CallPeerMediaHandler mediaHandler = getMediaHandler();
+
+            mediaHandler.setStreamAudioLevelListener(this);
+            mediaHandler.setCsrcAudioLevelListener(null);
         }
     }
 
@@ -1972,13 +1980,16 @@ public class CallPeerSipImpl
      */
     public void audioLevelChanged(int newLevel)
     {
-        SoundLevelChangeEvent evt
-            = new SoundLevelChangeEvent(this, newLevel);
-
         synchronized( streamAudioLevelListeners )
         {
-            for(SoundLevelListener listener : streamAudioLevelListeners)
-                 listener.soundLevelChanged(evt);
+            if (streamAudioLevelListeners.size() > 0)
+            {
+                SoundLevelChangeEvent evt
+                    = new SoundLevelChangeEvent(this, newLevel);
+
+                for(SoundLevelListener listener : streamAudioLevelListeners)
+                    listener.soundLevelChanged(evt);
+            }
         }
     }
 }
