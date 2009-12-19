@@ -192,10 +192,10 @@ public class OutputPortAudioStream
 
         synchronized(this)
         {
+            PortAudioManager.getInstance().stoppedOutputPortAudioStream(this);
+            started = false;
             stream = 0;
             bufferLeft = null;
-            started = false;
-            PortAudioManager.getInstance().stoppedOutputPortAudioStream(this);
         }
     }
 

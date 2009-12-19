@@ -186,30 +186,44 @@ JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1CloseStream(
 	JNIEnv *env, jclass clazz, jlong stream)
 {
-	PortAudioStream *portAudioStream = (PortAudioStream *) stream;
-	PaError errorCode = Pa_CloseStream(portAudioStream->stream);
+    PortAudioStream *portAudioStream = (PortAudioStream *) stream;
 
-    if(portAudioStream->outputResampleFactor != 1.0)
+    if(!portAudioStream)
+        return;
+
+    PaError errorCode = Pa_CloseStream(portAudioStream->stream);
+
+    if(portAudioStream->outputResampleFactor != 1.0
+        && portAudioStream->outputResampler)
+    {
         speex_resampler_destroy(portAudioStream->outputResampler);
+        portAudioStream->outputResampler = NULL;
+    }
 
-    if(portAudioStream->inputResampleFactor != 1.0)
+    if(portAudioStream->inputResampleFactor != 1.0
+        && portAudioStream->inputResampler)
     {
         speex_resampler_destroy(portAudioStream->inputResampler);
+        portAudioStream->inputResampler = NULL;
 
-        if(portAudioStream->preprocessor != NULL)
+        if(portAudioStream->preprocessor)
+        {
             speex_preprocess_state_destroy(portAudioStream->preprocessor);
+            portAudioStream->preprocessor = NULL;
+        }
 
-        if(portAudioStream->echoState != NULL)
+        if(portAudioStream->echoState)
         {
             speex_echo_state_destroy(portAudioStream->echoState);
+            portAudioStream->echoState = NULL;
         }        
         clear(portAudioStream);
     }
 
-	if (paNoError != errorCode)
-		PortAudio_throwException(env, errorCode);
-	else
-		PortAudioStream_free(env, portAudioStream);
+    if (paNoError != errorCode)
+            PortAudio_throwException(env, errorCode);
+    else
+            PortAudioStream_free(env, portAudioStream);
 }
 
 JNIEXPORT void JNICALL
