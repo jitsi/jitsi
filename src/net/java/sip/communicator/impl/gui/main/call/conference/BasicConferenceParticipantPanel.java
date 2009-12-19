@@ -54,6 +54,9 @@ public class BasicConferenceParticipantPanel
 
     private final TransparentPanel peerDetailsPanel = new TransparentPanel();
 
+    private final TransparentPanel rightDetailsPanel
+        = new TransparentPanel(new GridLayout(0, 1));
+
     /**
      * The component showing the sound level of the participant.
      */
@@ -125,9 +128,10 @@ public class BasicConferenceParticipantPanel
         constraints.gridy = 0;
         constraints.weightx = 1;
         constraints.weighty = 0;
-        constraints.insets = new Insets(2, 20, 2, 20);
+        constraints.insets = new Insets(5, 20, 5, 20);
 
-        peerDetailsPanel.add(soundIndicator, constraints);
+        rightDetailsPanel.add(soundIndicator);
+        peerDetailsPanel.add(rightDetailsPanel, constraints);
     }
 
     /**
@@ -164,10 +168,6 @@ public class BasicConferenceParticipantPanel
      */
     public void setSingleFocusUI(boolean isSingleFocusUI)
     {
-        // Only set the single focus UI if we're in a focus UI at all.
-        if (!isFocusUI)
-            return;
-
         this.isSingleFocusUI = isSingleFocusUI;
 
         if (isSingleFocusUI)
@@ -269,6 +269,15 @@ public class BasicConferenceParticipantPanel
     public void addToNameBar(Component component)
     {
         this.nameBar.add(component);
+    }
+
+    /**
+     * Adds the given <tt>component</tt> to the center below the sound bar.
+     * @param component the component to add
+     */
+    public void addToCenter(Component component)
+    {
+        rightDetailsPanel.add(component);
     }
 
     /**

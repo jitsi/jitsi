@@ -11,6 +11,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
@@ -46,15 +47,14 @@ public class SecurityPanel
     {
         this.peer = peer;
 
-        this.setLayout(new GridLayout(1, 0, 5, 5));
+        this.setBorder(null);
+        this.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 0));
 
-        this.setPreferredSize(new Dimension(200, 60));
+        this.setToolTipText(GuiActivator.getResources()
+            .getI18NString("service.gui.COMPARE_WITH_PARTNER"));
 
-        this.setBorder(
-            BorderFactory.createTitledBorder("Compare with partner"));
-
-        iconEncrVerified =
-                ImageLoader.getImage(ImageLoader.ENCR_VERIFIED);
+        iconEncrVerified
+            = ImageLoader.getImage(ImageLoader.ENCR_VERIFIED);
         iconEncr = ImageLoader.getImage(ImageLoader.ENCR);
         sasVerificationButton = new SIPCommButton(iconEncr);
 
@@ -68,6 +68,9 @@ public class SecurityPanel
     {
         this.add(sasVerificationButton);
         this.add(securityStringLabel);
+
+        securityStringLabel
+            .setFont(securityStringLabel.getFont().deriveFont(10f));
 
         // Action to trigger SAS verification
         sasVerificationButton.addActionListener(new ActionListener()

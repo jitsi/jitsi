@@ -177,21 +177,14 @@ public class ConferencePeerPanel
         {
             securityPanel = new SecurityPanel(callPeer);
 
-            GridBagConstraints constraints = new GridBagConstraints();
+            securityPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 
-            constraints.fill = GridBagConstraints.NONE;
-            constraints.gridx = 0;
-            constraints.gridy = 2;
-            constraints.weightx = 0;
-            constraints.weighty = 0;
-            constraints.insets = new Insets(5, 0, 0, 0);
-
-            this.add(securityPanel, constraints);
+            this.addToCenter(securityPanel);
         }
         if (securityPanel != null)
             securityPanel.refreshStates(securityString, isSecurityVerified);
 
-        this.revalidate();
+        callDialog.refreshWindow();
     }
 
     /**
@@ -378,10 +371,6 @@ public class ConferencePeerPanel
 
         this.add(memberPanel, constraints);
 
-        // Refresh this panel.
-        this.revalidate();
-        this.repaint();
-
         member.addPropertyChangeListener(memberPanel);
     }
 
@@ -400,9 +389,6 @@ public class ConferencePeerPanel
             this.remove(memberPanel);
             conferenceMembersPanels.remove(member);
             member.removePropertyChangeListener(memberPanel);
-
-            this.revalidate();
-            this.repaint();
         }
     }
 
@@ -430,8 +416,13 @@ public class ConferencePeerPanel
             = callPeer.getProtocolProvider().getAccountID().getAccountAddress();
 
         // If we're not in a focus UI, when a new member is added we switch to it.
-        if (!isFocusUI())
+        if (!isFocusUI() && !addressesAreEqual(memberAddress, localUserAddress))
             setFocusUI(true);
+
+        if (conferenceEvent.getSourceCallPeer().getCall().getCallPeerCount() > 1)
+            setSingleFocusUI(false);
+        else
+            setSingleFocusUI(true);
 
         /*
          * The local user isn't depicted by this ConferencePeerPanel and its
@@ -439,6 +430,8 @@ public class ConferencePeerPanel
          */
         if (!addressesAreEqual(memberAddress, localUserAddress))
             addConferenceMemberPanel(member);
+
+        callDialog.refreshWindow();
     }
 
     /**
@@ -528,6 +521,8 @@ public class ConferencePeerPanel
             setFocusUI(false);
 
         this.removeConferenceMemberPanel(member);
+
+        callDialog.refreshWindow();
     }
 
     /**

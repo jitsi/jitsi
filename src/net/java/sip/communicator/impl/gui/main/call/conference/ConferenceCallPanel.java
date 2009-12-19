@@ -158,12 +158,6 @@ public class ConferenceCallPanel
         // Map the call peer to its renderer.
         callPeerPanels.put(peer, confPeerPanel);
 
-        // Depending on call peer count enables or disables the 
-        if (call.getCallPeerCount() > 1)
-            setSingleConferenceFocusUI(false);
-        else
-            setSingleConferenceFocusUI(true);
-
         // Add the renderer component to this container.
         constraints.fill = GridBagConstraints.BOTH;
         constraints.gridx = 0;
@@ -211,13 +205,11 @@ public class ConferenceCallPanel
         // Remove the corresponding renderer.
         callPeerPanels.remove(peer);
 
-        if (call.getCallPeerCount() > 1)
-            setSingleConferenceFocusUI(false);
-        else
-            setSingleConferenceFocusUI(true);
-
         // Remove the renderer component.
         mainPanel.remove(confPeerPanel);
+
+        if (call.getCallPeerCount() < 2)
+            setSingleConferenceFocusUI(true);
 
         // Remove all common listeners.
         CallPeerAdapter adapter = confPeerPanel.getCallPeerAdapter();
