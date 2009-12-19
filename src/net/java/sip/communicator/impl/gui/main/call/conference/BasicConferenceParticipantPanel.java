@@ -164,6 +164,10 @@ public class BasicConferenceParticipantPanel
      */
     public void setSingleFocusUI(boolean isSingleFocusUI)
     {
+        // Only set the single focus UI if we're in a focus UI at all.
+        if (!isFocusUI)
+            return;
+
         this.isSingleFocusUI = isSingleFocusUI;
 
         if (isSingleFocusUI)
@@ -273,7 +277,8 @@ public class BasicConferenceParticipantPanel
      */
     public void updateSoundBar(int soundLevel)
     {
-        soundIndicator.updateSoundLevel(soundLevel);
+        if (soundIndicator != null)
+            soundIndicator.updateSoundLevel(soundLevel);
     }
 
     /**

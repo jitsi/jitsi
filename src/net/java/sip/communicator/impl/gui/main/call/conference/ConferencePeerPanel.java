@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.gui.main.call.conference;
 
 import java.awt.*;
 import java.util.*;
-import java.util.Map.*;
 
 import javax.swing.*;
 
@@ -127,7 +126,8 @@ public class ConferencePeerPanel
 
         this.setPeerName(callPeer.getDisplayName());
 
-        if (callPeer.isConferenceFocus())
+        // If we have any members we switch to the focus UI.
+        if (callPeer.getConferenceMemberCount() > 0)
             setFocusUI(true);
 
         // We initialize the status bar for call peers only.
@@ -429,6 +429,10 @@ public class ConferencePeerPanel
         String localUserAddress
             = callPeer.getProtocolProvider().getAccountID().getAccountAddress();
 
+        // If we're not in a focus UI, when a new member is added we switch to it.
+        if (!isFocusUI())
+            setFocusUI(true);
+
         /*
          * The local user isn't depicted by this ConferencePeerPanel and its
          * ConferenceMemberPanels.
@@ -520,6 +524,9 @@ public class ConferencePeerPanel
     {
         ConferenceMember member = conferenceEvent.getConferenceMember();
 
+        if (callPeer.getConferenceMemberCount() == 0 && isFocusUI())
+            setFocusUI(false);
+
         this.removeConferenceMemberPanel(member);
     }
 
@@ -537,8 +544,12 @@ public class ConferencePeerPanel
      */
     public void conferenceFocusChanged(CallPeerConferenceEvent conferenceEvent)
     {
-        if (conferenceEvent.getSourceCallPeer().equals(callPeer))
-            setFocusUI(callPeer.isConferenceFocus());
+        // We disable the focus UI when a callPeer looses focus. However in the
+        // other direction we'll only enable it when we receive the first
+        // conference member.
+        if (conferenceEvent.getSourceCallPeer().equals(callPeer)
+            && !callPeer.isConferenceFocus() && isFocusUI())
+            setFocusUI(false);
     }
 
     /**
@@ -638,9 +649,10 @@ public class ConferencePeerPanel
         {
             Object evtSource = evt.getSource();
 
-            if ((evtSource instanceof CallPeer) &&
-                    ((CallPeer) evtSource).isConferenceFocus())
+            if (evtSource.equals(callPeer))
+            {
                 updateSoundBar(evt.getLevel());
+            }
         }
     }
 }

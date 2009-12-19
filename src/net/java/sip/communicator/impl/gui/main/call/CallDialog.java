@@ -515,7 +515,7 @@ public class CallDialog
     public boolean isConference()
     {
         // If we're the focus of the conference.
-        if (call.isConferenceFocus() && call.getCallPeerCount() > 1)
+        if (call.isConferenceFocus())
             return true;
 
         // If one of our peers is a conference focus, we're in a
