@@ -129,7 +129,7 @@ public class DeviceConfiguration
 
     /**
      * Property used to store the latency option we use for current OS.
-     * Must be like 0.1(means 100 ms.).
+     * Must be in milliseconds.
      */
     private static final String PROP_AUDIO_LATENCY =
         "net.java.sip.communicator.impl.neomedia.latency";

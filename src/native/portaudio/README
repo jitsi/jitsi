@@ -54,7 +54,7 @@
     - Mac OS X
     CC=gcc -arch i386 -arch ppc -arch x86_64 -mmacosx-version-min=10.3
     LDFLAGS=-dynamiclib
-    LIBS=-L$(PORTAUDIO_HOME)/lib/.libs -framework AudioToolbox -framework AudioUnit -framework CoreAudio -framework Carbon -lpthread -pthread -dynamic -lportaudio -lspeexdsp
+    LIBS=-L$(SPEEX_HOME)/libspeex/.libs -L$(PORTAUDIO_HOME)/lib/.libs -framework AudioToolbox -framework AudioUnit -framework CoreAudio -framework Carbon -lpthread -pthread -dynamic -lportaudio -lspeexdsp
     $ make
 
     - Windows

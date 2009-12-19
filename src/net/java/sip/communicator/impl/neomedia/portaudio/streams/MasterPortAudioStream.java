@@ -106,6 +106,10 @@ public class MasterPortAudioStream
             if(stream == 0)
                 initStream();
 
+            // if still not initted return
+            if(stream == 0)
+                return;
+
             // start
             PortAudio.Pa_StartStream(stream);
             started = true;
