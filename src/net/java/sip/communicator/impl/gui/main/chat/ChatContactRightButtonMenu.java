@@ -26,11 +26,12 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  * @author Valentin Martinet
  */
-@SuppressWarnings("serial")
 public class ChatContactRightButtonMenu
     extends JPopupMenu
     implements  ActionListener
 {
+	private static final long serialVersionUID = -4069653895234333083L;
+
 	private Logger logger = Logger.getLogger(ChatContactRightButtonMenu.class);
 
     private final JMenuItem kickItem

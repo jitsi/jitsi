@@ -17,10 +17,11 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
  * @author Yana Stamcheva
  * @author Valentin Martinet
  */
-@SuppressWarnings("serial")
 public class ChatOperationReasonDialog extends MessageDialog
 {
-    private final JLabel reasonLabel = new JLabel(
+	private static final long serialVersionUID = 3290030744711759011L;
+
+	private final JLabel reasonLabel = new JLabel(
         GuiActivator.getResources()
             .getI18NString("service.gui.REASON") + ":");
 
