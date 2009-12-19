@@ -15,7 +15,7 @@ import javax.media.control.*;
  * @author Lubomir Marinov
  */
 public class ReadOnlyBufferControlDelegate
-        implements BufferControl
+    implements BufferControl
 {
 
     /**

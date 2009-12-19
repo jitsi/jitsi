@@ -301,15 +301,13 @@ public class MediaStreamImpl
     }
 
     /**
-     * Returns the ID currently assigned to the RTP extension with the specified
-     * <tt>urn</tt> or -1 if no ID has been defined for this extension so far.
+     * Returns the ID currently assigned to a specific RTP extension.
      *
-     * @param urn the urn whose extensions ID we are trying to obtain.
-     *
-     * @return the ID currently assigned to the RTP extension with the specified
-     * <tt>urn</tt> or -1 if no ID has been defined for this extension so far.
+     * @param rtpExtension the RTP extension to get the currently assigned ID of
+     * @return the ID currently assigned to the specified RTP extension or
+     * <tt>-1</tt> if no ID has been defined for this extension so far
      */
-    public byte getActiveRTPExtensionID(String urn)
+    public byte getActiveRTPExtensionID(RTPExtension rtpExtension)
     {
         synchronized (activeRTPExtensions)
         {
@@ -318,7 +316,7 @@ public class MediaStreamImpl
 
             for (Map.Entry<Byte, RTPExtension> entry : extSet)
             {
-                if (entry.getValue().equals(urn))
+                if (entry.getValue().equals(rtpExtension))
                     return entry.getKey();
             }
         }

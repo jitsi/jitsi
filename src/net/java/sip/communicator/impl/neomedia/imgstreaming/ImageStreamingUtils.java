@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.neomedia.imgstreaming;
 
-import java.awt.*;
 import java.awt.geom.*;
 import java.awt.image.*;
 
@@ -26,14 +25,18 @@ public class ImageStreamingUtils
      * Get a scaled <tt>BufferedImage</tt>.
      *
      * Mainly inspired by:
-     * http://java.developpez.com/faq/gui/?page=graphique_general_images#GRAPHIQUE_IMAGE_redimensionner
+     * http://java.developpez.com/faq/gui/?page=graphique_general_images
+     * #GRAPHIQUE_IMAGE_redimensionner
      *
      * @param src source image
      * @param width width of scaled image
      * @param height height of scaled image
      * @return scaled <tt>BufferedImage</tt>
      */
-    public static BufferedImage getScaledImage(BufferedImage src, int width, int height, int type)
+    public static BufferedImage getScaledImage(BufferedImage src,
+                                               int width,
+                                               int height,
+                                               int type)
     {
         AffineTransform tx = new AffineTransform();
         AffineTransformOp op = null;
@@ -89,4 +92,3 @@ public class ImageStreamingUtils
         return data;
     }
 }
-

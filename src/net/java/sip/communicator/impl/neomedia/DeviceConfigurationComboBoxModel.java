@@ -50,6 +50,14 @@ public class DeviceConfigurationComboBoxModel
             this.info = info;
         }
 
+        /**
+         * Gets a human-readable <tt>String</tt> representation of this
+         * instance.
+         *
+         * @return a <tt>String</tt> value which is a human-readable
+         * representation of this instance
+         */
+        @Override
         public String toString()
         {
             return

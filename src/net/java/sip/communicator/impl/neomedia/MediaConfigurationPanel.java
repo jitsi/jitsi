@@ -705,31 +705,29 @@ public class MediaConfigurationPanel
                 {
                     if ((event.getChangeFlags()
                                     & HierarchyEvent.DISPLAYABILITY_CHANGED)
-                                != 0)
+                                == 0)
+                        return;
+
+                    if (!preview.isDisplayable())
                     {
-                        if (preview.isDisplayable())
+                        dispose();
+                        return;
+                    }
+
+                    if (windowListener == null)
+                    {
+                        window = SwingUtilities.windowForComponent(preview);
+                        if (window != null)
                         {
-                            if (windowListener == null)
+                            windowListener = new WindowAdapter()
                             {
-                                window =
-                                    SwingUtilities.windowForComponent(preview);
-                                if (window != null)
+                                @Override
+                                public void windowClosing(WindowEvent event)
                                 {
-                                    windowListener = new WindowAdapter()
-                                    {
-                                        public void windowClosing(
-                                            WindowEvent event)
-                                        {
-                                            dispose();
-                                        }
-                                    };
-                                    window.addWindowListener(windowListener);
+                                    dispose();
                                 }
-                            }
-                        }
-                        else
-                        {
-                            dispose();
+                            };
+                            window.addWindowListener(windowListener);
                         }
                     }
                 }

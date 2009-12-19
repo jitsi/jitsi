@@ -113,7 +113,8 @@ public class AudioNotifierServiceImpl
      */
     public void destroyAudio(SCAudioClip audioClip)
     {
-        synchronized (audioClips) {
+        synchronized (audioClips)
+        {
             audioClips.remove(audioClip);
         }
     }

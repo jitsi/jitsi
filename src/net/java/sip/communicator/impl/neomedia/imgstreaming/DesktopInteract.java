@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.neomedia.imgstreaming;
 
-import java.awt.*;
 import java.awt.image.*;
 
 /**
@@ -27,6 +26,10 @@ public interface DesktopInteract
     /**
      * Capture a part of the desktop screen.
      *
+     * @param x x position to start capture
+     * @param y y position to start capture
+     * @param width capture width
+     * @param height capture height
      * @return <tt>BufferedImage</tt> of a part of the desktop screen
      * or null if <tt>Robot</tt> problem
      */
@@ -75,4 +78,3 @@ public interface DesktopInteract
      */
     public void mouseWheel(int wheelAmt);
 }
-

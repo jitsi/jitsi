@@ -155,4 +155,3 @@ public class DesktopInteractImpl implements DesktopInteract
         robot.mouseWheel(wheelAmt);
     }
 }
-

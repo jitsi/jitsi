@@ -10,7 +10,6 @@ import javax.media.*;
 import javax.media.format.*;
 import javax.media.rtp.*;
 
-import net.java.sip.communicator.impl.neomedia.audiolevel.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.*;
@@ -225,6 +224,7 @@ public class AudioMediaStreamImpl
      * lifetime of this stream.
      * @param rtpExtension the RTPExtension that is being added to this stream.
      */
+    @Override
     public void addRTPExtension(byte extensionID, RTPExtension rtpExtension)
     {
         super.addRTPExtension(extensionID, rtpExtension);

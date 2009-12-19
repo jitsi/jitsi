@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.neomedia.imgstreaming;
 
-import java.awt.*;
 import java.awt.image.*;
 
 /**
@@ -33,9 +32,13 @@ public class UnixScreenCapture
      * @param height capture height
      * @return <tt>BufferedImage</tt> of the desktop screen
      */
-    public static BufferedImage captureScreen(int x, int y, int width, int height)
+    public static BufferedImage captureScreen(int x,
+                                              int y,
+                                              int width,
+                                              int height)
     {
-        DirectColorModel model = new DirectColorModel(24, 0xFF0000, 0x00FF00, 0xFF);
+        DirectColorModel model
+            = new DirectColorModel(24, 0xFF0000, 0x00FF00, 0xFF);
         int masks[] = {0xFF0000, 0xFF00, 0xFF};
         WritableRaster raster = null;
         DataBufferInt buffer = null;
@@ -50,7 +53,9 @@ public class UnixScreenCapture
         }
 
         buffer = new DataBufferInt(data, data.length);
-        raster = Raster.createPackedRaster(buffer, width, height, width, masks, null);
+        raster
+            = Raster.createPackedRaster(
+                    buffer, width, height, width, masks, null);
         image = new BufferedImage(model, raster, false, null);
         
         return image;
@@ -67,4 +72,3 @@ public class UnixScreenCapture
      */
     private static native int[] grabScreen(int x, int y, int width, int height);
 }
-

@@ -11,7 +11,6 @@ import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -115,7 +114,8 @@ public class NeomediaActivator
             .registerService(
                 ConfigurationForm.class.getName(),
                 new LazyConfigurationForm(
-                        "net.java.sip.communicator.impl.neomedia.MediaConfigurationPanel",
+                        "net.java.sip.communicator.impl.neomedia"
+                            + ".MediaConfigurationPanel",
                         getClass().getClassLoader(),
                         "plugin.mediaconfig.PLUGIN_ICON",
                         "impl.neomedia.configform.TITLE",
@@ -138,10 +138,10 @@ public class NeomediaActivator
                         true));
 
         getBundleContext()
-                .registerService(
-                    AudioNotifierService.class.getName(),
-                    audioNotifier,
-                    null);
+            .registerService(
+                AudioNotifierService.class.getName(),
+                audioNotifier,
+                null);
 
         logger.info("Audio Notifier Service ...[REGISTERED]");
     }
