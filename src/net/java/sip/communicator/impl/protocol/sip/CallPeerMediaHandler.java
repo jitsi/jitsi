@@ -55,6 +55,11 @@ public class CallPeerMediaHandler
     public static final String AUDIO_REMOTE_SSRC = "AUDIO_REMOTE_SSRC";
 
     /**
+     * The constant which signals that a SSRC value is unknown.
+     */
+    static final long SSRC_UNKNOWN = -1;
+
+    /**
      * The name of the <tt>CallPeerMediaHandler</tt> property which specifies
      * the local SSRC of its video <tt>MediaStream</tt>.
      */
@@ -131,12 +136,12 @@ public class CallPeerMediaHandler
     /**
      * The last-known local SSRC of {@link #audioStream}.
      */
-    private long audioLocalSSRC = -1;
+    private long audioLocalSSRC = SSRC_UNKNOWN;
 
     /**
      * The last-known remote SSRC of {@link #audioStream}.
      */
-    private long audioRemoteSSRC = -1;
+    private long audioRemoteSSRC = SSRC_UNKNOWN;
 
     /**
      * The RTP/RTCP socket couple that this media handler should use to send
@@ -152,12 +157,12 @@ public class CallPeerMediaHandler
     /**
      * The last-known local SSRC of {@link #videoStream}.
      */
-    private long videoLocalSSRC = -1;
+    private long videoLocalSSRC = SSRC_UNKNOWN;
 
     /**
      * The last-known remote SSRC of {@link #videoStream}.
      */
-    private long videoRemoteSSRC = -1;
+    private long videoRemoteSSRC = SSRC_UNKNOWN;
 
     /**
      * The <tt>PropertyChangeListener</tt> which listens to changes in the
@@ -1643,6 +1648,18 @@ public class CallPeerMediaHandler
     }
 
     /**
+     * Gets the last-known remote SSRC of the audio <tt>MediaStream</tt> of this
+     * instance.
+     *
+     * @return the last-known remote SSRC of the audio <tt>MediaStream</tt> of
+     * this instance
+     */
+    long getAudioRemoteSSRC()
+    {
+        return audioRemoteSSRC;
+    }
+
+    /**
      * Sets the RTP media stream that this instance uses to stream audio to a
      * specific <tt>AudioMediaStream</tt>.
      *
@@ -1676,7 +1693,7 @@ public class CallPeerMediaHandler
                 audioRemoteSSRC = this.audioStream.getRemoteSourceID();
             }
             else
-                audioLocalSSRC = audioRemoteSSRC = -1;
+                audioLocalSSRC = audioRemoteSSRC = SSRC_UNKNOWN;
 
             setAudioLocalSSRC(audioLocalSSRC);
             setAudioRemoteSSRC(audioRemoteSSRC);
@@ -1772,7 +1789,7 @@ public class CallPeerMediaHandler
                 newVisualComponent = this.videoStream.getVisualComponent();
             }
             else
-                videoLocalSSRC = videoRemoteSSRC = -1;
+                videoLocalSSRC = videoRemoteSSRC = SSRC_UNKNOWN;
 
             setVideoLocalSSRC(videoLocalSSRC);
             setVideoRemoteSSRC(videoRemoteSSRC);

@@ -501,7 +501,7 @@ public abstract class AbstractCallPeer
 
         synchronized (this.conferenceMembers)
         {
-            int conferenceMemberCount = this.conferenceMembers.size();
+            int conferenceMemberCount = getConferenceMemberCount();
 
             if (conferenceMemberCount <= 0)
                 conferenceMembers = NO_CONFERENCE_MEMBERS;
@@ -523,7 +523,7 @@ public abstract class AbstractCallPeer
      */
     public int getConferenceMemberCount()
     {
-        return conferenceMembers.size();
+        return isConferenceFocus() ? conferenceMembers.size() : 0;
     }
 
     /**
@@ -705,16 +705,17 @@ public abstract class AbstractCallPeer
      */
     protected ConferenceMember findConferenceMember(long ssrc)
     {
-        synchronized ( conferenceMembers)
+        synchronized (conferenceMembers)
         {
-            for ( int i = 0; i < conferenceMembers.size(); i++)
+            int conferenceMemberCount = conferenceMembers.size();
+
+            for (int i = 0; i < conferenceMemberCount; i++)
             {
                 ConferenceMember mmbr = conferenceMembers.get(i);
 
                 if (mmbr.getSSRC() == ssrc)
                     return mmbr;
             }
-
             return null;
         }
     }

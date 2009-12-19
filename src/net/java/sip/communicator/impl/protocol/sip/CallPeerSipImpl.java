@@ -163,7 +163,7 @@ public class CallPeerSipImpl
         setJainSipProvider(sourceProvider);
 
         //create the uid
-        this.peerID = String.valueOf( System.currentTimeMillis())
+        this.peerID = String.valueOf(System.currentTimeMillis())
                              + String.valueOf(hashCode());
 
         // we listen fr events when the call will become focus or not
@@ -1809,20 +1809,20 @@ public class CallPeerSipImpl
      */
     public void audioLevelsReceived(long[][] audioLevels)
     {
-        if ( getConferenceMemberCount() == 0 )
+        if (getConferenceMemberCount() == 0)
             return;
 
         Map<ConferenceMember, Integer> levelsMap
             = new HashMap<ConferenceMember, Integer>();
 
-        for (int i = 0; i < audioLevels.length; i++ )
+        for (int i = 0; i < audioLevels.length; i++)
         {
             ConferenceMember mmbr = findConferenceMember(audioLevels[i][0]);
 
             if (mmbr == null)
                 continue;
-
-            levelsMap.put(mmbr, (int)audioLevels[i][1]);
+            else
+                levelsMap.put(mmbr, (int)audioLevels[i][1]);
         }
 
         ConferenceMembersSoundLevelEvent evt
@@ -1830,11 +1830,12 @@ public class CallPeerSipImpl
 
         synchronized( conferenceMemberAudioLevelListeners)
         {
-            for (int i = 0; i < conferenceMemberAudioLevelListeners.size(); i++)
-            {
-                conferenceMemberAudioLevelListeners.get(i)
-                    .soundLevelChanged(evt);
-            }
+            int conferenceMemberAudioLevelListenerCount
+                = conferenceMemberAudioLevelListeners.size();
+
+            for (int i = 0; i < conferenceMemberAudioLevelListenerCount; i++)
+                conferenceMemberAudioLevelListeners
+                    .get(i).soundLevelChanged(evt);
         }
     }
 
@@ -1886,11 +1887,10 @@ public class CallPeerSipImpl
         // If this event has been triggered because of a call end event and the
         // call is already ended we don't need to alert the user for
         // security off.
-        if(getCall() != null
-            && !getCall().getCallState().equals(CallState.CALL_ENDED))
-        {
+        Call call = getCall();
+
+        if((call != null) && !call.getCallState().equals(CallState.CALL_ENDED))
             fireCallPeerSecurityOffEvent(sessionType);
-        }
     }
 
     /**
@@ -1931,7 +1931,7 @@ public class CallPeerSipImpl
      */
     public void conferenceMemberAdded(CallPeerConferenceEvent conferenceEvent)
     {
-        if (isConferenceFocus() && getConferenceMemberCount() >= 3)
+        if (getConferenceMemberCount() > 2)
         {
             // this peer is now a conference focus with more than three
             // participants. This means that the this peer is mixing and sending
@@ -1980,6 +1980,29 @@ public class CallPeerSipImpl
      */
     public void audioLevelChanged(int newLevel)
     {
+        /*
+         * If we're in a conference in which this CallPeer is the focus and
+         * we're the only member in it besides the focus, we will not receive
+         * audio levels in the RTP and our media will instead measure the audio
+         * levels of the received media. In order to make the UI oblivious of
+         * the difference, we have to translate the event to the appropriate
+         * type of listener.
+         */
+        if (isConferenceFocus() && (getConferenceMemberCount() < 3))
+        {
+            long audioRemoteSSRC = getMediaHandler().getAudioRemoteSSRC();
+
+            if (audioRemoteSSRC != CallPeerMediaHandler.SSRC_UNKNOWN)
+            {
+                long[][] audioLevels = new long[1][2];
+                audioLevels[0][0] = audioRemoteSSRC;
+                audioLevels[0][1] = newLevel;
+
+                audioLevelsReceived(audioLevels);
+                return;
+            }
+        }
+
         synchronized( streamAudioLevelListeners )
         {
             if (streamAudioLevelListeners.size() > 0)
