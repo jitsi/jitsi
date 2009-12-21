@@ -62,4 +62,11 @@ public interface SipCommFileChooser
 	 * @param filter the filter to add
 	 */
 	public void addFilter(SipCommFileFilter filter);
+	
+	/**
+	 * Returns the filter the user has chosen for saving a file.
+	 *
+	 * @return SipCommFileFilter the used filter when saving a file
+	 */
+	public SipCommFileFilter getUsedFilter();
 }

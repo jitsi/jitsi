@@ -42,18 +42,6 @@ implements SipCommFileChooser
 	public SipCommFileDialogImpl(Frame parent, String title, int fileOperation)
 	{
 		super(parent, title, fileOperation);
-		if(fileOperation != SipCommFileChooser.LOAD_FILE_OPERATION
-				|| fileOperation != SipCommFileChooser.SAVE_FILE_OPERATION)
-		{
-			try 
-			{
-				throw new Exception("UnknownFileOperation");
-			} 
-			catch (Exception e) 
-			{
-				e.printStackTrace();
-			}
-		}
 	}
 
 	/**
@@ -103,5 +91,15 @@ implements SipCommFileChooser
 	public void addFilter(SipCommFileFilter filter) 
 	{
 		this.setFilenameFilter(filter);
+	}
+	
+	/**
+	 * Returns the filter the user has chosen for saving a file.
+	 *
+	 * @return SipCommFileFilter the used filter when saving a file
+	 */
+	public SipCommFileFilter getUsedFilter()
+	{
+		return (SipCommFileFilter)this.getFilenameFilter();
 	}
 }

@@ -152,4 +152,14 @@ implements SipCommFileChooser
 	{
 		this.addChoosableFileFilter(filter);
 	}
+	
+	/**
+	 * Returns the filter the user has chosen for saving a file.
+	 *
+	 * @return SipCommFileFilter the used filter when saving a file
+	 */
+	public SipCommFileFilter getUsedFilter()
+	{
+		return (SipCommFileFilter)this.getFileFilter();
+	}
 }

@@ -34,7 +34,9 @@ public class FirstWizardPage
     extends TransparentPanel
     implements WizardPage, DocumentListener
 {
-    public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
+	private static final long serialVersionUID = 8576006544813706541L;
+
+	public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
     private JPanel accountPanel = new TransparentPanel(new BorderLayout(10, 10));
 
@@ -213,7 +215,8 @@ public class FirstWizardPage
             public void actionPerformed(ActionEvent event)
             {
             	identityFileChooser = GenericFileDialog.create(
-            			null, "Select Identify File");
+            			null, "Select Identify File", 
+            			SipCommFileChooser.LOAD_FILE_OPERATION);
             	File f = identityFileChooser.getFileFromDialog();
                
             	if(f != null)
@@ -227,7 +230,8 @@ public class FirstWizardPage
             public void actionPerformed(ActionEvent event)
             {
             	knownHostsFileChooser = GenericFileDialog.create(
-            			null, "Select SSH Known Hosts File");
+            			null, "Select SSH Known Hosts File",
+            			SipCommFileChooser.LOAD_FILE_OPERATION);
             	File f = knownHostsFileChooser.getFileFromDialog();
                 
             	if(f != null)

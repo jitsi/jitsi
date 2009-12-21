@@ -8,14 +8,15 @@
 package net.java.sip.communicator.plugin.whiteboard.gui;
 
 import java.io.File;
-import javax.swing.filechooser.FileFilter;
+
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * A simple file filter manager
  *
  * @author Julien Waechter
  */
-public class WhiteboardFileFilter extends FileFilter {
+public class WhiteboardFileFilter extends SipCommFileFilter {
     
     /**
      * file extension

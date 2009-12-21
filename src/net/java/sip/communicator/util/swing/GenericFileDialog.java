@@ -29,11 +29,28 @@ public class GenericFileDialog
 	 * @param title dialog's title
 	 * @return SipCommFileChooser an implementation of SipCommFileChooser
 	 */
-	public static SipCommFileChooser create(Frame parent, String title)
+	public static SipCommFileChooser create(
+			Frame parent, String title, int fileOperation)
 	{
+		
 		if(OSUtils.IS_MAC)
 		{
-			return new SipCommFileDialogImpl(parent, title);
+			int operation = -1;
+			if(fileOperation == SipCommFileChooser.LOAD_FILE_OPERATION)
+				operation = FileDialog.LOAD;
+			else if(fileOperation == SipCommFileChooser.SAVE_FILE_OPERATION)
+				operation = FileDialog.SAVE;
+			else
+				try 
+				{
+					throw new Exception("UnknownFileOperation");
+				} 
+				catch (Exception e) 
+				{
+					e.printStackTrace();
+				}
+	
+			return new SipCommFileDialogImpl(parent, title, operation);
 		}
 		else
 		{
@@ -51,10 +68,13 @@ public class GenericFileDialog
 	 * @return SipCommFileChooser an implementation of SipCommFileChooser
 	 */
 	public static SipCommFileChooser create(
-			Frame parent, String title, String path)
+			Frame parent, String title, int fileOperation, String path)
 	{
-		SipCommFileChooser scfc = GenericFileDialog.create(parent, title);
-		scfc.setStartPath(path);
+		SipCommFileChooser scfc = 
+			GenericFileDialog.create(parent, title, fileOperation);
+		
+		if(path != null)
+			scfc.setStartPath(path);
 		
 		return scfc;
 	}

@@ -29,11 +29,14 @@ import net.java.sip.communicator.util.swing.*;
  * The frame for the Whiteboard
  *
  * @author Julien Waechter
+ * @author Valentin Martinet
  */
 public class WhiteboardFrame
     extends SIPCommFrame
 {
-    private static final Logger logger =
+	private static final long serialVersionUID = 5441329948483907247L;
+
+	private static final Logger logger =
         Logger.getLogger(WhiteboardFrame.class);
 
     /**
@@ -215,7 +218,8 @@ public class WhiteboardFrame
     /**
      * List of WhiteboardShape
      */
-    private List<WhiteboardShape> displayList = new CopyOnWriteArrayList<WhiteboardShape>();
+    private List<WhiteboardShape> displayList = 
+    	new CopyOnWriteArrayList<WhiteboardShape>();
 
     /**
      * Aarray of WhiteboardPoint
@@ -694,8 +698,8 @@ public class WhiteboardFrame
                             if (currentTool == MODIF)
                             {
 
-                                setCursor(Cursor
-                                    .getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+                                setCursor(Cursor.getPredefinedCursor(
+                                		Cursor.CROSSHAIR_CURSOR));
 
                                 if (preselected == null)
                                 {
@@ -854,7 +858,8 @@ public class WhiteboardFrame
 
         jToolBar1.add(jButtonSave);
 
-        jButtonOpen.setToolTipText(Resources.getString("plugin.whiteboard.OPEN"));
+        jButtonOpen.setToolTipText(
+        		Resources.getString("plugin.whiteboard.OPEN"));
         jButtonOpen.setEnabled(false);
         jToolBar1.add(jButtonOpen);
 
@@ -875,7 +880,8 @@ public class WhiteboardFrame
         toolBar.setBorder(BorderFactory.createEmptyBorder(5, 8, 5, 8));
 
         buttonGroup.add(selectionButton);
-        selectionButton.setToolTipText(Resources.getString("plugin.whiteboard.SELECT"));
+        selectionButton.setToolTipText(
+        		Resources.getString("plugin.whiteboard.SELECT"));
         selectionButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -887,7 +893,8 @@ public class WhiteboardFrame
         toolBar.add(selectionButton);
 
         buttonGroup.add(modifButton);
-        modifButton.setToolTipText(Resources.getString("plugin.whiteboard.MODIFICATION"));
+        modifButton.setToolTipText(
+        		Resources.getString("plugin.whiteboard.MODIFICATION"));
         modifButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -923,7 +930,8 @@ public class WhiteboardFrame
         toolBar.add(textButton);
 
         buttonGroup.add(lineButton);
-        lineButton.setToolTipText(Resources.getString("plugin.whiteboard.LINE"));
+        lineButton.setToolTipText(
+        		Resources.getString("plugin.whiteboard.LINE"));
         lineButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -935,7 +943,8 @@ public class WhiteboardFrame
         toolBar.add(lineButton);
 
         buttonGroup.add(polylineButton);
-        polylineButton.setToolTipText(Resources.getString("plugin.whiteboard.POLYLINE"));
+        polylineButton.setToolTipText(
+        		Resources.getString("plugin.whiteboard.POLYLINE"));
         polylineButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -959,7 +968,8 @@ public class WhiteboardFrame
         toolBar.add(rectangleButton);
 
         buttonGroup.add(fillRectangleButton);
-        fillRectangleButton.setToolTipText(Resources.getString("plugin.whiteboard.FILLED_RECTANGLE"));
+        fillRectangleButton.setToolTipText(
+        		Resources.getString("plugin.whiteboard.FILLED_RECTANGLE"));
         fillRectangleButton
             .addActionListener(new java.awt.event.ActionListener()
             {
@@ -972,7 +982,8 @@ public class WhiteboardFrame
         toolBar.add(fillRectangleButton);
 
         buttonGroup.add(imageButton);
-        imageButton.setToolTipText(Resources.getString("plugin.whiteboard.IMAGE"));
+        imageButton.setToolTipText(
+        		Resources.getString("plugin.whiteboard.IMAGE"));
         imageButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -984,7 +995,8 @@ public class WhiteboardFrame
         toolBar.add(imageButton);
 
         buttonGroup.add(polygonButton);
-        polygonButton.setToolTipText(Resources.getString("plugin.whiteboard.POLYGON"));
+        polygonButton.setToolTipText(
+        		Resources.getString("plugin.whiteboard.POLYGON"));
         polygonButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -996,7 +1008,8 @@ public class WhiteboardFrame
         toolBar.add(polygonButton);
 
         buttonGroup.add(fillPolygonButton);
-        fillPolygonButton.setToolTipText(Resources.getString("plugin.whiteboard.FILLEDPOLYGON"));
+        fillPolygonButton.setToolTipText(
+        		Resources.getString("plugin.whiteboard.FILLEDPOLYGON"));
         fillPolygonButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -1008,7 +1021,8 @@ public class WhiteboardFrame
         toolBar.add(fillPolygonButton);
 
         buttonGroup.add(circleButton);
-        circleButton.setToolTipText(Resources.getString("plugin.whiteboard.CIRCLE"));
+        circleButton.setToolTipText(
+        		Resources.getString("plugin.whiteboard.CIRCLE"));
         circleButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -1020,7 +1034,8 @@ public class WhiteboardFrame
         toolBar.add(circleButton);
 
         buttonGroup.add(fillCircleButton);
-        fillCircleButton.setToolTipText(Resources.getString("plugin.whiteboard.FILLED_CIRCLE"));
+        fillCircleButton.setToolTipText(
+        		Resources.getString("plugin.whiteboard.FILLED_CIRCLE"));
         fillCircleButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -1031,7 +1046,8 @@ public class WhiteboardFrame
 
         toolBar.add(fillCircleButton);
 
-        colorChooserButton.setToolTipText(Resources.getString("plugin.whiteboard.COLOR"));
+        colorChooserButton.setToolTipText(
+        		Resources.getString("plugin.whiteboard.COLOR"));
         colorChooserButton
             .addActionListener(new java.awt.event.ActionListener()
             {
@@ -1052,7 +1068,8 @@ public class WhiteboardFrame
 
         jPanel2.setLayout(new GridBagLayout());
 
-        jLabelThickness.setText(Resources.getString("plugin.whiteboard.THICKNESS"));
+        jLabelThickness.setText(
+        		Resources.getString("plugin.whiteboard.THICKNESS"));
 
         jPanel2.add(jLabelThickness);
 
@@ -1131,7 +1148,8 @@ public class WhiteboardFrame
 
         editMenu.add(gridMenuItem);
 
-        deselectMenuItem.setText(Resources.getString("plugin.whiteboard.DESELECT"));
+        deselectMenuItem.setText(
+        		Resources.getString("plugin.whiteboard.DESELECT"));
         deselectMenuItem.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -1163,7 +1181,8 @@ public class WhiteboardFrame
 
         editMenu.add(deleteMenuItem);
 
-        propertiesMenuItem.setText(Resources.getString("plugin.whiteboard.PROPERTIES"));
+        propertiesMenuItem.setText(
+        		Resources.getString("plugin.whiteboard.PROPERTIES"));
         propertiesMenuItem.setEnabled(false);
         editMenu.add(propertiesMenuItem);
 
@@ -1203,22 +1222,28 @@ public class WhiteboardFrame
     private void jButtonSaveActionPerformed(java.awt.event.ActionEvent evt)
     {
 
-        JFileChooser chooser = new JFileChooser(lastDir);
-        chooser.removeChoosableFileFilter(chooser.getAcceptAllFileFilter());
+        SipCommFileChooser chooser = GenericFileDialog.create(
+        		WhiteboardFrame.this, 
+        		"Save file...", 
+        		SipCommFileChooser.SAVE_FILE_OPERATION);
+        
+        //chooser.removeChoosableFileFilter(chooser.getAcceptAllFileFilter());
         WhiteboardFileFilter filterJpg =
             new WhiteboardFileFilter("jpg", "JPEG Files (*.jpg)");
         WhiteboardFileFilter filterPng =
             new WhiteboardFileFilter("png", "PNG Files (*.png)");
-        chooser.setFileFilter(filterJpg);
-        chooser.addChoosableFileFilter(filterPng);
-        int returnVal = chooser.showSaveDialog(WhiteboardFrame.this);
-        if (returnVal == JFileChooser.APPROVE_OPTION)
+        
+        chooser.addFilter(filterJpg);
+        chooser.addFilter(filterPng);
+        
+        File file = chooser.getFileFromDialog();
+        
+        if (file != null)
         {
             try
             {
-                File file = chooser.getSelectedFile();
                 WhiteboardFileFilter ff =
-                    (WhiteboardFileFilter) chooser.getFileFilter();
+                    (WhiteboardFileFilter) chooser.getUsedFilter();
                 if (!ff.getExtension().equals(ff.getExtension(file)))
                 {
                     file =
@@ -1267,7 +1292,8 @@ public class WhiteboardFrame
      *
      * @param evt
      */
-    private void jSpinnerThicknessStateChanged(javax.swing.event.ChangeEvent evt)
+    private void jSpinnerThicknessStateChanged(
+    		javax.swing.event.ChangeEvent evt)
     {// GEN-FIRST:event_jSpinnerThicknessStateChanged
         if (selectedShape != null)
         {
@@ -1282,7 +1308,8 @@ public class WhiteboardFrame
      *
      * @param evt
      */
-    private void fillCircleButtonActionPerformed(java.awt.event.ActionEvent evt)
+    private void fillCircleButtonActionPerformed(
+    		java.awt.event.ActionEvent evt)
     {// GEN-FIRST:event_fillCircleButtonActionPerformed
         if (fillCircleButton.isSelected())
             currentTool = FILL_CIRCLE;
@@ -1315,7 +1342,8 @@ public class WhiteboardFrame
      *
      * @param evt
      */
-    private void fillPolygonButtonActionPerformed(java.awt.event.ActionEvent evt)
+    private void fillPolygonButtonActionPerformed(
+    		java.awt.event.ActionEvent evt)
     {// GEN-FIRST:event_fillPolygonButtonActionPerformed
         if (fillPolygonButton.isSelected())
             currentTool = FILL_POLYGON;
@@ -1627,8 +1655,9 @@ public class WhiteboardFrame
      *
      * @param e
      */
-    /* not sure why this is here but it's never used. i am not deleting it though
-     * in case we decide to revive the whiteboard one day. and this appears necessary
+    /* not sure why this is here but it's never used. i am not deleting it 
+     * though in case we decide to revive the whiteboard one day. and this 
+     * appears necessary
     private void ellipseOperation(MouseEvent e)
     {
         Graphics g = drawCanvas.getGraphics();
@@ -2019,16 +2048,21 @@ public class WhiteboardFrame
     {
         doneDrawing = true;
 
-        JFileChooser chooser = new JFileChooser(lastDir);
+        SipCommFileChooser chooser = GenericFileDialog.create(
+        		WhiteboardFrame.this, 
+        		"Choose image...",
+        		SipCommFileChooser.LOAD_FILE_OPERATION);
+        
+        File file = chooser.getFileFromDialog();
         WhiteboardFileFilter filter =
             new WhiteboardFileFilter("jpg", "JPEG Files (*.jpg)");
-        chooser.setFileFilter(filter);
-        int returnVal = chooser.showOpenDialog(WhiteboardFrame.this);
-        if (returnVal == JFileChooser.APPROVE_OPTION)
+        
+        chooser.addFilter(filter);
+        
+        if (file != null)
         {
             try
             {
-                File file = chooser.getSelectedFile();
                 lastDir = file.getParentFile();
                 FileInputStream in = new FileInputStream(file);
                 byte buffer[] = new byte[in.available()];
@@ -2122,7 +2156,8 @@ public class WhiteboardFrame
 
         String t =
             (String) JOptionPane.showInputDialog(this,
-                "Please enter your text", "plugin.whiteboard.TEXT", JOptionPane.QUESTION_MESSAGE,
+                "Please enter your text", "plugin.whiteboard.TEXT", 
+                JOptionPane.QUESTION_MESSAGE,
                 null, null, "plugin.whiteboard.TEXT");
 
         if (t != null && t.length() > 0)

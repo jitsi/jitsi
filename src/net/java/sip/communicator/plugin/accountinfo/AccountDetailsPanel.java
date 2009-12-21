@@ -14,7 +14,6 @@ import java.util.*;
 import javax.imageio.*;
 import javax.swing.*;
 import javax.swing.event.*;
-import javax.swing.filechooser.FileFilter;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
@@ -31,7 +30,9 @@ import net.java.sip.communicator.util.swing.*;
 public class AccountDetailsPanel
     extends TransparentPanel
 {
-    private Logger logger = Logger.getLogger(AccountDetailsPanel.class);
+	private static final long serialVersionUID = 5524135388175045624L;
+
+	private Logger logger = Logger.getLogger(AccountDetailsPanel.class);
 
     /**
      * The operation set giving access to the server stored account details.
@@ -661,7 +662,9 @@ public class AccountDetailsPanel
         public void actionPerformed(ActionEvent e)
         {
             SipCommFileChooser chooser = GenericFileDialog.create(
-            		null, "Change avatar...", lastAvatarDir.getAbsolutePath());
+            		null, "Change avatar...", 
+            		SipCommFileChooser.LOAD_FILE_OPERATION,
+            		lastAvatarDir.getAbsolutePath());
             chooser.addFilter(new ImageFilter());
 
             File file = chooser.getFileFromDialog();

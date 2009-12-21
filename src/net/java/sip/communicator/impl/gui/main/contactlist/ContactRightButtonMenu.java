@@ -525,6 +525,7 @@ public class ContactRightButtonMenu
 
                             SipCommFileChooser scfc = GenericFileDialog.create(
                             		null, "Send file...", 
+                            		SipCommFileChooser.LOAD_FILE_OPERATION,
                         			ConfigurationManager.getSendFileLastDir());
                         	File selectedFile = scfc.getFileFromDialog();
                         	if(selectedFile != null)

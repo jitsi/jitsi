@@ -36,7 +36,9 @@ public class NotificationConfigurationPanel
                DocumentListener,
                NotificationChangeListener
 {
-    private final Logger logger
+	private static final long serialVersionUID = 5784331951722787598L;
+
+	private final Logger logger
             = Logger.getLogger(NotificationConfigurationPanel.class);
 
     // Declaration of variables on the table notifications
@@ -321,9 +323,10 @@ public class NotificationConfigurationPanel
         this.setLayout(gridLayoutGlobal);
 
 
-        fileChooserSound = GenericFileDialog.create(null, "Choose a sound...");
-        fileChooserProgram = GenericFileDialog.create(
-        		null, "Choose a program...");
+        fileChooserSound = GenericFileDialog.create(null, "Choose a sound...",
+        		SipCommFileChooser.LOAD_FILE_OPERATION);
+        fileChooserProgram = GenericFileDialog.create(null, 
+        		"Choose a program...", SipCommFileChooser.LOAD_FILE_OPERATION);
         //fileChooserSound.setMultiSelectionEnabled(false);
         //fileChooserProgram.setMultiSelectionEnabled(false);
         fileChooserSound.addFilter(new SoundFilter());
