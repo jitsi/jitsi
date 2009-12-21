@@ -58,6 +58,14 @@ public class ConferenceInviteDialog
         accountSelectorPanel.add(accountSelectorLabel, BorderLayout.WEST);
         accountSelectorPanel.add(accountSelectorBox, BorderLayout.CENTER);
 
+        // Initialize the account selector box.
+        this.initAccountListData();
+
+        // Initialize the list of contacts to select from.
+        this.initContactListData(
+            (ProtocolProviderService) accountSelectorBox
+                .getSelectedItem());
+
         this.getContentPane().add(accountSelectorPanel, BorderLayout.NORTH);
 
         this.accountSelectorBox.setRenderer(new DefaultListCellRenderer()
@@ -101,14 +109,6 @@ public class ConferenceInviteDialog
             }
         });
 
-        // Initialize the account selector box.
-        this.initAccountListData();
-
-        // Initialize the list of contacts to select from.
-        this.initContactListData(
-            (ProtocolProviderService) accountSelectorBox
-                .getSelectedItem());
-
         this.addInviteButtonListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
@@ -116,13 +116,19 @@ public class ConferenceInviteDialog
                 if (getSelectedMetaContacts() != null
                     || getSelectedStrings() != null)
                 {
-                    inviteContacts();
+                    ProtocolProviderService selectedProvider
+                        = (ProtocolProviderService) accountSelectorBox
+                            .getSelectedItem();
+
+                    if (selectedProvider == null)
+                        return;
+
+                    inviteContacts(selectedProvider);
 
                     // Store the last used account in order to pre-select it
                     // next time.
                     ConfigurationManager.setLastCallConferenceProvider(
-                        (ProtocolProviderService) accountSelectorBox
-                            .getSelectedItem());
+                        selectedProvider);
 
                     dispose();
                 }
@@ -170,10 +176,6 @@ public class ConferenceInviteDialog
                 = GuiActivator.getUIService()
                     .getMainFrame().getProtocolProviders();
 
-            // Obtain the last conference provider used.
-            ProtocolProviderService lastConfProvider
-                = ConfigurationManager.getLastCallConferenceProvider();
-
             while(protocolProviders.hasNext())
             {
                 ProtocolProviderService protocolProvider
@@ -186,14 +188,17 @@ public class ConferenceInviteDialog
                 if (opSet != null && protocolProvider.isRegistered())
                 {
                     accountSelectorBox.addItem(protocolProvider);
-
-                    // Try to select the last used account if it's available.
-                    if (lastConfProvider != null
-                            && lastConfProvider.equals(protocolProvider))
-                        accountSelectorBox.setSelectedItem(protocolProvider);
                 }
             }
         }
+
+        // Obtain the last conference provider used.
+        ProtocolProviderService lastConfProvider
+            = ConfigurationManager.getLastCallConferenceProvider();
+
+        // Try to select the last used account if it's available.
+        if (lastConfProvider != null)
+            accountSelectorBox.setSelectedItem(lastConfProvider);
     }
 
     /**
@@ -224,12 +229,10 @@ public class ConferenceInviteDialog
 
     /**
      * Invites the contacts to the chat conference.
+     * @param selectedProvider the selected protocol provider
      */
-    private void inviteContacts()
+    private void inviteContacts(ProtocolProviderService selectedProvider)
     {
-        ProtocolProviderService selectedProvider
-            = (ProtocolProviderService) accountSelectorBox.getSelectedItem();
-
         java.util.List<String> selectedContactAddresses
             = new ArrayList<String>();
 
