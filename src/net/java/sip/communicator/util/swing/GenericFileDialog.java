@@ -25,7 +25,7 @@ import net.java.sip.communicator.util.*;
 public class GenericFileDialog 
 {
 	/**
-	 * Creates a file dialog (AWT FileDialog or Swing JFileChooser) regarding to
+	 * Creates a file dialog (AWT's FileDialog or Swing's JFileChooser) regarding to
 	 * user's operating system.
 	 * 
 	 * @param parent the parent Frame/JFrame of this dialog
