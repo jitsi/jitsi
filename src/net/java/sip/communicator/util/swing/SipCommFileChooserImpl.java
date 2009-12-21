@@ -28,10 +28,15 @@ implements SipCommFileChooser
 	
 	/**
 	 * Constructor
+	 * 
+	 * @param title title for this dialog
+	 * @param operation 'Save file' or 'Load file' operation
 	 */
-	public SipCommFileChooserImpl()
+	public SipCommFileChooserImpl(String title, int operation)
 	{
 		super();
+		this.setDialogTitle(title);
+		this.setDialogType(operation);
 	}
 	
 	/**
@@ -39,42 +44,12 @@ implements SipCommFileChooser
 	 * 
 	 * @param path
 	 */
-	public SipCommFileChooserImpl(Component pparent, String path)
+	public SipCommFileChooserImpl(
+			Component pparent, String path, String title, int operation)
 	{
-		this();
+		this(title, operation);
 		this.setStartPath(path);
 		this.parent = pparent;
-	}
-	
-	/**
-	 * Constructor
-	 * 
-	 * @param path
-	 * @param fileOperation
-	 */
-	public SipCommFileChooserImpl(Component parent, String path, int fileOperation)
-	{
-		this(parent, path);
-		
-		if(fileOperation == SipCommFileChooser.LOAD_FILE_OPERATION)
-		{
-			this.setDialogType(JFileChooser.OPEN_DIALOG);
-		}
-		else if(fileOperation == SipCommFileChooser.SAVE_FILE_OPERATION)
-		{
-			this.setDialogType(JFileChooser.SAVE_DIALOG);
-		}
-		else
-		{
-			try 
-			{
-				throw new Exception("UnknownFileOperation");
-			} 
-			catch (Exception e) 
-			{
-				e.printStackTrace();
-			}
-		}
 	}
 
 	/**

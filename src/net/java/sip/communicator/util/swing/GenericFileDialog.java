@@ -7,6 +7,9 @@
 package net.java.sip.communicator.util.swing;
 
 import java.awt.*;
+
+import javax.swing.JFileChooser;
+
 import net.java.sip.communicator.util.*;
 
 
@@ -32,10 +35,10 @@ public class GenericFileDialog
 	public static SipCommFileChooser create(
 			Frame parent, String title, int fileOperation)
 	{
-		
+		int operation = -1;
+	
 		if(OSUtils.IS_MAC)
 		{
-			int operation = -1;
 			if(fileOperation == SipCommFileChooser.LOAD_FILE_OPERATION)
 				operation = FileDialog.LOAD;
 			else if(fileOperation == SipCommFileChooser.SAVE_FILE_OPERATION)
@@ -54,7 +57,21 @@ public class GenericFileDialog
 		}
 		else
 		{
-			return new SipCommFileChooserImpl();
+			if(fileOperation == SipCommFileChooser.LOAD_FILE_OPERATION)
+				operation = JFileChooser.OPEN_DIALOG;
+			else if(fileOperation == SipCommFileChooser.SAVE_FILE_OPERATION)
+				operation = JFileChooser.SAVE_DIALOG;
+			else
+				try 
+				{
+					throw new Exception("UnknownFileOperation");
+				} 
+				catch (Exception e) 
+				{
+					e.printStackTrace();
+				}
+				
+			return new SipCommFileChooserImpl(title, operation);
 		}
 	}
 	
