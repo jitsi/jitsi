@@ -500,6 +500,10 @@ public class CallManager
             {
                 exception = onse;
             }
+            catch (IllegalArgumentException iae)
+            {
+                exception = iae;
+            }
             if (exception != null)
             {
                 logger.error("Failed to create conference call. " + exception);
@@ -563,6 +567,10 @@ public class CallManager
                 catch (OperationNotSupportedException onse)
                 {
                     exception = onse;
+                }
+                catch (IllegalArgumentException iae)
+                {
+                    exception = iae;
                 }
                 if (exception != null)
                 {
