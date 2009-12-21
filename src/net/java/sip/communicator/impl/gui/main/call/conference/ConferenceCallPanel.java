@@ -104,6 +104,7 @@ public class ConferenceCallPanel
             this.addCallPeerPanel(iterator.next());
         }
 
+        this.setBorder(null);
         this.setViewportBorder(BorderFactory
             .createEmptyBorder(5, 5, 5, 5));
 
