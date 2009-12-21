@@ -101,18 +101,16 @@ public class NewBundleDialog
         }
         else if (sourceButton.equals(fileChooserButton))
         {
-            JFileChooser fileChooser
-                = new JFileChooser();
+            SipCommFileChooser chooser = GenericFileDialog.create(
+            		null, "New bundle...");
 
-            int result
-                = fileChooser.showOpenDialog(NewBundleDialog.this);
+            File newBundleFile
+                = chooser.getFileFromDialog();
 
-            if (result == JFileChooser.APPROVE_OPTION)
+            if (newBundleFile != null)
             {
                 try
                 {
-                    File newBundleFile = fileChooser.getSelectedFile();
-
                     bundlePathField.setText(newBundleFile.toURI()
                                .toURL().toString());
                 }

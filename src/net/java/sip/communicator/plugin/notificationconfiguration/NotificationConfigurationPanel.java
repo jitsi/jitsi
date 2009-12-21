@@ -70,8 +70,8 @@ public class NotificationConfigurationPanel
     private JButton apply;
     private JButton restore;
 
-    private JFileChooser fileChooserProgram;
-    private JFileChooser fileChooserSound;
+    private SipCommFileChooser fileChooserProgram;
+    private SipCommFileChooser fileChooserSound;
 
     private int index = -1;
     private boolean turnAll = false;
@@ -321,11 +321,12 @@ public class NotificationConfigurationPanel
         this.setLayout(gridLayoutGlobal);
 
 
-        fileChooserSound = new JFileChooser();
-        fileChooserProgram = new JFileChooser();
-        fileChooserSound.setMultiSelectionEnabled(false);
-        fileChooserProgram.setMultiSelectionEnabled(false);
-        fileChooserSound.addChoosableFileFilter(new SoundFilter());
+        fileChooserSound = GenericFileDialog.create(null, "Choose a sound...");
+        fileChooserProgram = GenericFileDialog.create(
+        		null, "Choose a program...");
+        //fileChooserSound.setMultiSelectionEnabled(false);
+        //fileChooserProgram.setMultiSelectionEnabled(false);
+        fileChooserSound.addFilter(new SoundFilter());
 
         notificationList.addMouseListener(new MyMouseAdapter());
 
@@ -406,15 +407,15 @@ public class NotificationConfigurationPanel
         }
         else if(e.getSource() == soundFileChooser)
         {
-            int returnVal = fileChooserSound.showOpenDialog(this);
+        	File file = fileChooserSound.getFileFromDialog();
 
             noListener = true;
-            if (returnVal == JFileChooser.APPROVE_OPTION)
+            if (file != null)
             {
                 try
                 {
                     NotificationsTableEntry tmpNTE = dataVector.elementAt(index);
-                    File file = fileChooserSound.getSelectedFile();
+                    
                     //This is where a real application would open the file.
                     logger.debug("Opening: "
                             + file.toURI().toURL().toExternalForm());
@@ -439,13 +440,13 @@ public class NotificationConfigurationPanel
         }
         else if(e.getSource() == programFileChooser)
         {
-            int returnVal = fileChooserProgram.showOpenDialog(this);
+        	File file = fileChooserProgram.getFileFromDialog();
             noListener = true;
 
-            if (returnVal == JFileChooser.APPROVE_OPTION)
+            if (file != null)
             {
                 NotificationsTableEntry tmpNTE = dataVector.elementAt(index);
-                File file = fileChooserProgram.getSelectedFile();
+                
                 //This is where a real application would open the file.
                 logger.debug("Opening: " +file.getAbsolutePath());
                 tmpNTE.setProgramFile(file.getAbsolutePath());

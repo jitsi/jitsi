@@ -523,25 +523,19 @@ public class ContactRightButtonMenu
                         {
                             super.run();
 
-                            JFileChooser fileChooser = new JFileChooser(
-                                ConfigurationManager.getSendFileLastDir());
-
-                            int result = fileChooser.showOpenDialog(
-                                GuiActivator.getUIService().
-                                    getChatWindowManager().getSelectedChat().
-                                        getChatWindow());
-
-                            if (result == JFileChooser.APPROVE_OPTION)
-                            {
-                                File selectedFile = fileChooser.getSelectedFile();
-
-                                ConfigurationManager
-                                    .setSendFileLastDir(selectedFile.getParent());
-
-                                GuiActivator.getUIService().
-                                    getChatWindowManager().getSelectedChat().
-                                        sendFile(selectedFile);
-                            }
+                            SipCommFileChooser scfc = GenericFileDialog.create(
+                            		null, "Send file...", 
+                        			ConfigurationManager.getSendFileLastDir());
+                        	File selectedFile = scfc.getFileFromDialog();
+                        	if(selectedFile != null)
+                        	{
+                        		ConfigurationManager.setSendFileLastDir(
+                        				selectedFile.getParent());
+                        		
+                        		GuiActivator.getUIService().
+                                getChatWindowManager().getSelectedChat().
+                                    sendFile(selectedFile);
+                        	}
                         }
                     });
         }

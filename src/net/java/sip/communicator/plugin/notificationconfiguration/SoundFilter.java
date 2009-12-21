@@ -8,14 +8,16 @@
 package net.java.sip.communicator.plugin.notificationconfiguration;
 
 import java.io.File;
-import javax.swing.filechooser.*;
+
+import net.java.sip.communicator.util.swing.SipCommFileFilter;
 
 /**
  * Filter to display only the sound files in the filechooser
+ * 
  * @author Alexandre Maillard
  */
 public class SoundFilter 
-    extends FileFilter
+    extends SipCommFileFilter
 {
     /**
      * Method which describes differents permits extensions and defines which file or

@@ -660,17 +660,16 @@ public class AccountDetailsPanel
     {
         public void actionPerformed(ActionEvent e)
         {
-            JFileChooser chooser = new JFileChooser(lastAvatarDir);
+            SipCommFileChooser chooser = GenericFileDialog.create(
+            		null, "Change avatar...", lastAvatarDir.getAbsolutePath());
+            chooser.addFilter(new ImageFilter());
 
-            chooser.addChoosableFileFilter(new ImageFilter());
+            File file = chooser.getFileFromDialog();
 
-            int returnVal = chooser.showOpenDialog(null);
-
-            if (returnVal == JFileChooser.APPROVE_OPTION)
+            if (file != null)
             {
                 try
                 {
-                    File file = chooser.getSelectedFile();
                     lastAvatarDir = file.getParentFile();
 
                     FileInputStream in = new FileInputStream(file);
@@ -696,11 +695,15 @@ public class AccountDetailsPanel
     /**
      * A custom filter that would accept only image files.
      */
-    private static class ImageFilter extends FileFilter
-    {
+    private static class ImageFilter extends SipCommFileFilter
+    {		
         /**
          * Accept all directories and all gif, jpg, tiff, or png files.
+         * Method implemented from FileFilter abstract class.
+         *
+         * @param f a file to accept or not
          */
+		@Override
         public boolean accept(File f)
         {
             if (f.isDirectory())
@@ -747,10 +750,12 @@ public class AccountDetailsPanel
         /**
          * The description of this filter.
          */
+        @Override
         public String getDescription()
         {
             return Resources.getString("plugin.accountinfo.ONLY_MESSAGE");
         }
+
     }
 
     /**

@@ -41,7 +41,9 @@ public class MainToolBar
                ChatChangeListener,
                ChatSessionChangeListener
 {
-    private final ChatToolbarButton inviteButton
+	private static final long serialVersionUID = -5572510509556499465L;
+
+	private final ChatToolbarButton inviteButton
         = new ChatToolbarButton(
                 ImageLoader.getImage(ImageLoader.ADD_TO_CHAT_ICON));
 
@@ -211,19 +213,16 @@ public class MainToolBar
         }
         else if (buttonText.equals("sendFile"))
         {
-            JFileChooser fileChooser = new JFileChooser(
-                ConfigurationManager.getSendFileLastDir());
-
-            int result = fileChooser.showOpenDialog(this);
-
-            if (result == JFileChooser.APPROVE_OPTION)
-            {
-                File selectedFile = fileChooser.getSelectedFile();
-
-                ConfigurationManager
-                    .setSendFileLastDir(selectedFile.getParent());
-                messageWindow.getCurrentChatPanel().sendFile(selectedFile);
-            }
+        	SipCommFileChooser scfc = GenericFileDialog.create(
+        			null, "Send file...", 
+        			ConfigurationManager.getSendFileLastDir());
+        	File selectedFile = scfc.getFileFromDialog();
+        	if(selectedFile != null)
+        	{
+        		ConfigurationManager.setSendFileLastDir(
+        				selectedFile.getParent());
+        		messageWindow.getCurrentChatPanel().sendFile(selectedFile);
+        	}
         }
         else if (buttonText.equals("history"))
         {

@@ -14,6 +14,7 @@ package net.java.sip.communicator.plugin.sshaccregwizz;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -76,7 +77,7 @@ public class FirstWizardPage
     private JButton identityFileButton = new JButton(
         Resources.getString("service.gui.BROWSE"));
 
-    private JFileChooser identityFileChooser = new JFileChooser();
+    private SipCommFileChooser identityFileChooser;
 
     private JPanel identityFilePanel = new TransparentPanel();
 
@@ -86,7 +87,7 @@ public class FirstWizardPage
     private JButton knownHostsFileButton = new JButton(
         Resources.getString("service.gui.BROWSE"));
 
-    private JFileChooser knownHostsFileChooser = new JFileChooser();
+    private SipCommFileChooser knownHostsFileChooser;
 
     private JPanel knownHostsFilePanel = new TransparentPanel();
 
@@ -125,9 +126,9 @@ public class FirstWizardPage
 
         knownHostsFileField.setEditable(false);
 
-        identityFileChooser.setFileHidingEnabled(false);
+        //identityFileChooser.setFileHidingEnabled(false);
 
-        knownHostsFileChooser.setFileHidingEnabled(false);
+        //knownHostsFileChooser.setFileHidingEnabled(false);
 
         this.init();
 
@@ -211,12 +212,12 @@ public class FirstWizardPage
         {
             public void actionPerformed(ActionEvent event)
             {
-                int returnVal = identityFileChooser.showDialog
-                        (FirstWizardPage.this, "Select Identify File");
-
-                if(returnVal == JFileChooser.APPROVE_OPTION)
-                    identityFileField.setText(identityFileChooser
-                            .getSelectedFile().getAbsolutePath());
+            	identityFileChooser = GenericFileDialog.create(
+            			null, "Select Identify File");
+            	File f = identityFileChooser.getFileFromDialog();
+               
+            	if(f != null)
+                    identityFileField.setText(f.getAbsolutePath());
             }
         }
         );
@@ -225,12 +226,12 @@ public class FirstWizardPage
         {
             public void actionPerformed(ActionEvent event)
             {
-                int returnVal = knownHostsFileChooser.showDialog
-                        (FirstWizardPage.this, "Select SSH Known Hosts File");
-
-                if(returnVal == JFileChooser.APPROVE_OPTION)
-                    knownHostsFileField.setText(knownHostsFileChooser
-                            .getSelectedFile().getAbsolutePath());
+            	knownHostsFileChooser = GenericFileDialog.create(
+            			null, "Select SSH Known Hosts File");
+            	File f = knownHostsFileChooser.getFileFromDialog();
+                
+            	if(f != null)
+            		knownHostsFileField.setText(f.getAbsolutePath());
             }
         }
         );
