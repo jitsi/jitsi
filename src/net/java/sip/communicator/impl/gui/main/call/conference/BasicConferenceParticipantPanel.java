@@ -324,7 +324,8 @@ public class BasicConferenceParticipantPanel
                 AntialiasingManager.activateAntialiasing(g);
 
                 g.setColor(bgColor);
-                g.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), 20, 20);
+                g.fillRoundRect(
+                    0, 0, this.getWidth(), this.getHeight(), 20, 20);
             }
             finally
             {

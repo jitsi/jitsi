@@ -87,6 +87,15 @@ public class ConferenceCallPanel
 
         mainPanel.setLayout(new GridBagLayout());
 
+        this.setHorizontalScrollBarPolicy(
+            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        this.setViewport(new MyViewport());
+        this.setViewportView(mainPanel);
+
+        this.setOpaque(false);
+        this.getViewport().setOpaque(false);
+
         this.addLocalCallPeer();
 
         Iterator<? extends CallPeer> iterator = this.call.getCallPeers();
@@ -95,15 +104,8 @@ public class ConferenceCallPanel
             this.addCallPeerPanel(iterator.next());
         }
 
-        this.setBorder(BorderFactory
-            .createEmptyBorder(10, 10, 10, 10));
-
-        this.setOpaque(false);
-        this.setHorizontalScrollBarPolicy(
-            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-
-        this.getViewport().setOpaque(false);
-        this.getViewport().add(mainPanel);
+        this.setViewportBorder(BorderFactory
+            .createEmptyBorder(5, 5, 5, 5));
 
         mainPanel.setTransferHandler(new CallTransferHandler(call));
     }
@@ -122,7 +124,7 @@ public class ConferenceCallPanel
         constraints.gridy = 0;
         constraints.weightx = 1;
         constraints.weighty = 0;
-        constraints.insets = new Insets(0, 0, 10, 10);
+        constraints.insets = new Insets(0, 0, 10, 0);
 
         mainPanel.add(localPeerPanel, constraints);
 
@@ -133,6 +135,8 @@ public class ConferenceCallPanel
                 localPeerPanel.fireLocalUserSoundLevelChanged(evt.getLevel());
             }
         });
+
+        SwingUtilities.invokeLater(scrollToBottomRunnable);
     }
 
     /**
@@ -164,7 +168,7 @@ public class ConferenceCallPanel
         constraints.gridy = mainPanel.getComponentCount() + 1;
         constraints.weightx = 1;
         constraints.weighty = 0;
-        constraints.insets = new Insets(0, 0, 10, 10);
+        constraints.insets = new Insets(0, 0, 10, 0);
 
         mainPanel.add(confPeerPanel, constraints);
 
@@ -237,6 +241,135 @@ public class ConferenceCallPanel
                 callPeerPanels.get(callPeer)
                     .setSingleFocusUI(isSingleConferenceFocusUI);
             }
+        }
+    }
+
+    private static class MyViewport
+        extends JViewport
+    {
+        /**
+         * Subclassers can override this to install a different
+         * layout manager (or <code>null</code>) in the constructor.  Returns
+         * the <code>LayoutManager</code> to install on the
+         * <code>JViewport</code>.
+         * @return a <code>LayoutManager</code>
+         */
+        protected LayoutManager createLayoutManager()
+        {
+            return MyViewportLayout.SHARED_INSTANCE;
+        }
+    }
+
+    /**
+     * Custom ViewportLayout that fixes viewport size while resizing the window
+     * containing the scrollpane.
+     */
+    private static class MyViewportLayout extends ViewportLayout
+    {
+        // Single instance used by JViewport.
+        static MyViewportLayout SHARED_INSTANCE = new MyViewportLayout();
+
+        public void layoutContainer(Container parent)
+        {
+            JViewport vp = (JViewport)parent;
+            Component view = vp.getView();
+            Scrollable scrollableView = null;
+
+            if (view == null)
+                return;
+            else if (view instanceof Scrollable)
+                scrollableView = (Scrollable) view;
+
+            /* All of the dimensions below are in view coordinates, except
+             * vpSize which we're converting.
+             */
+            Dimension viewPrefSize = view.getPreferredSize();
+            Dimension vpSize = vp.getSize();
+            Dimension extentSize = vp.toViewCoordinates(vpSize);
+            Dimension viewSize = new Dimension(viewPrefSize);
+
+            if (scrollableView != null)
+            {
+                if (scrollableView.getScrollableTracksViewportWidth())
+                    viewSize.width = vpSize.width;
+                if (scrollableView.getScrollableTracksViewportHeight())
+                    viewSize.height = vpSize.height;
+            }
+
+            Point viewPosition = vp.getViewPosition();
+
+            /* If the new viewport size would leave empty space to the
+             * right of the view, right justify the view or left justify
+             * the view when the width of the view is smaller than the
+             * container.
+             */
+            if (scrollableView == null ||
+                vp.getParent() == null ||
+                vp.getParent().getComponentOrientation().isLeftToRight())
+            {
+                if ((viewPosition.x + extentSize.width) > viewSize.width)
+                {
+                    viewPosition.x
+                        = Math.max(0, viewSize.width - extentSize.width);
+                }
+            }
+            else
+            {
+                if (extentSize.width > viewSize.width)
+                {
+                    viewPosition.x = viewSize.width - extentSize.width;
+                }
+                else
+                {
+                    viewPosition.x = Math.max(0, Math.min(
+                        viewSize.width - extentSize.width, viewPosition.x));
+                }
+            }
+
+            /* If the new viewport size would leave empty space below the
+             * view, bottom justify the view or top justify the view when
+             * the height of the view is smaller than the container.
+             */
+            if ((viewPosition.y + extentSize.height) > viewSize.height)
+            {
+                viewPosition.y
+                    = Math.max(0, viewSize.height - extentSize.height);
+            }
+
+            /* If we haven't been advised about how the viewports size 
+             * should change wrt to the viewport, i.e. if the view isn't
+             * an instance of Scrollable, then adjust the views size as follows.
+             * 
+             * If the origin of the view is showing and the viewport is
+             * bigger than the views preferred size, then make the view
+             * the same size as the viewport.
+             */
+            if (scrollableView == null)
+            {
+                if ((viewPosition.x == 0)
+                    && (vpSize.width > viewPrefSize.width))
+                {
+                    viewSize.width = vpSize.width;
+                }
+                if ((viewPosition.y == 0)
+                    && (vpSize.height > viewPrefSize.height))
+                {
+                    viewSize.height = vpSize.height;
+                }
+            }
+
+            // Fixes incorrect size of the view.
+            if (vpSize.width < viewSize.width)
+            {
+                viewSize.width = vpSize.width;
+            }
+            else if (vpSize.height < viewSize.height)
+            {
+                viewSize.height = vpSize.height;
+            }
+
+            vp.setViewPosition(viewPosition);
+            vp.setViewSize(viewSize);
         }
     }
 }
