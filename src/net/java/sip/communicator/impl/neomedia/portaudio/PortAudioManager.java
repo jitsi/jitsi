@@ -106,7 +106,7 @@ public class PortAudioManager
      *        input stream.
      * @param channels the channels that the stream will serve.
      * @return the stream.
-     * @throws PortAudioException if opening of the stream failes.
+     * @throws PortAudioException if opening of the stream fails.
      */
     public InputPortAudioStream getInputStream(
         int deviceIndex, double sampleRate, int channels)
@@ -143,19 +143,20 @@ public class PortAudioManager
      *        output stream.
      * @param channels the channels that the stream will serve.
      * @return the stream.
-     * @throws PortAudioException if opening of the stream failes.
+     * @throws PortAudioException if opening of the stream fails.
      */
-    public OutputPortAudioStream getOutputStream(
-        int deviceIndex, double sampleRate, int channels)
+    public OutputPortAudioStream getOutputStream(int deviceIndex,
+                                                 double sampleRate,
+                                                 int channels)
         throws PortAudioException
     {
-        OutputPortAudioStream out = 
-            new OutputPortAudioStream(deviceIndex, sampleRate, channels);
+        OutputPortAudioStream out
+            = new OutputPortAudioStream(deviceIndex, sampleRate, channels);
         outputStreams.add(out);
 
         // if there are input streams created, get the first one
         // and link it to this output
-        // todo: what to do with the others
+        // TODO what to do with the others
         if(isEnabledEchoCancel() && inputStreams.size() > 0)
         {
             MasterPortAudioStream st = inputStreams.values().iterator().next();
@@ -168,10 +169,10 @@ public class PortAudioManager
     }
 
     /**
-     * Output stream is stopped.
-     * @param st the stream that is stopped.
+     * Output stream is closed.
+     * @param st the stream that is closed.
      */
-    public void stoppedOutputPortAudioStream(OutputPortAudioStream st)
+    public void closedOutputPortAudioStream(OutputPortAudioStream st)
     {
         outputStreams.remove(st);
     }

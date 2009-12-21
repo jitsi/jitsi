@@ -6,32 +6,32 @@
  */
 package net.java.sip.communicator.impl.neomedia.portaudio.streams;
 
-import net.java.sip.communicator.impl.neomedia.portaudio.PortAudioManager;
-import net.java.sip.communicator.impl.neomedia.portaudio.PortAudio;
-import net.java.sip.communicator.impl.neomedia.portaudio.PortAudioException;
-import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.portaudio.*;
+import net.java.sip.communicator.impl.neomedia.portaudio.*;
 
 /**
  * The output stream that opens and writes to the PortAudio stream.
  *
  * @author Damian Minkov
+ * @author Lubomir Marinov
  */
 public class OutputPortAudioStream
 {
-    private int deviceIndex = -1;
-    private long stream = 0;
-    private byte[] bufferLeft = null;
-    private int frameSize;
-    private boolean started = false;
+    private final int deviceIndex;
 
-    private double sampleRate;
-    private int channels;
-    private long sampleFormat;
+    private final double sampleRate;
+    private final int channels;
+    private final long sampleFormat;
+
+    private final int frameSize;
+
+    private long stream;
+    private boolean started = false;
+    private byte[] bufferLeft = null;
 
     /**
      * Creates output stream.
      * @param deviceIndex the index of the device to use.
-     * @param sampleRate the samepl rate.
+     * @param sampleRate the sample rate.
      * @param channels the channels to serve.
      * @throws PortAudioException if stream fails to open.
      */
@@ -45,7 +45,7 @@ public class OutputPortAudioStream
     /**
      * Creates output stream.
      * @param deviceIndex the index of the device to use.
-     * @param sampleRate the samepl rate.
+     * @param sampleRate the sample rate.
      * @param channels the channels to serve.
      * @param sampleFormat the sample format to use.
      * @throws PortAudioException if stream fails to open.
@@ -59,24 +59,48 @@ public class OutputPortAudioStream
         this.channels = channels;
         this.sampleFormat = sampleFormat;
 
-        initStream();
-
         frameSize = PortAudio.Pa_GetSampleSize(sampleFormat)*channels;
+        stream = createStream();
+    }
+
+    /**
+     * Closes this <tt>OutputPortAudioStream</tt> and prepares it to be garbage
+     * collected.
+     *
+     * @throws PortAudioException if anything wrong happens while closing this
+     * <tt>OutputPortAudioStream</tt>
+     */
+    public synchronized void close()
+        throws PortAudioException
+    {
+        stop();
+
+        if(stream != 0)
+        {
+            // stop
+            PortAudio.Pa_CloseStream(stream);
+            stream = 0;
+
+            PortAudioManager.getInstance().closedOutputPortAudioStream(this);
+        }
     }
 
     /**
      * Creates the PortAudio stream.
+     *
+     * @return the pointer to the native PortAudio stream
      * @throws PortAudioException if stream fails to open.
      */
-    private void initStream()
+    private long createStream()
         throws PortAudioException
     {
         long parameters = PortAudio.PaStreamParameters_new(
-            getDeviceIndex(),channels,
+            getDeviceIndex(),
+            channels,
             sampleFormat,
             PortAudioManager.getSuggestedLatency());
 
-        stream = PortAudio.Pa_OpenStream(
+        return PortAudio.Pa_OpenStream(
             0,
             parameters,
             sampleRate,
@@ -96,7 +120,7 @@ public class OutputPortAudioStream
     public synchronized void write(byte[] buffer)
         throws PortAudioException
     {
-        if(!started)
+        if((stream == 0) || !started)
             return;
 
         int numSamples = PortAudioManager.NUM_SAMPLES*frameSize;
@@ -116,7 +140,7 @@ public class OutputPortAudioStream
                 bufferLeft = null;
                 
                 PortAudio.Pa_WriteStream(
-                    getStream(),tmp, tmp.length/frameSize);
+                    stream,tmp, tmp.length/frameSize);
             }
             else
             {
@@ -140,7 +164,7 @@ public class OutputPortAudioStream
                 System.arraycopy(buffer, currentIx, tmp, 0, numSamples);
 
                 PortAudio.Pa_WriteStream(
-                    getStream(),tmp, tmp.length/frameSize);
+                    stream,tmp, tmp.length/frameSize);
                 currentIx += numSamples;
             }
 
@@ -157,9 +181,8 @@ public class OutputPortAudioStream
         else
         {
             PortAudio.Pa_WriteStream(
-                    getStream(),buffer, buffer.length/frameSize);
+                    stream,buffer, buffer.length/frameSize);
         }
-        
     }
 
     /**
@@ -169,36 +192,27 @@ public class OutputPortAudioStream
     public synchronized void start()
         throws PortAudioException
     {
-        if(started)
-            return;
-
-        if(getStream() == 0)
-            initStream();
-
-        // start
-        PortAudio.Pa_StartStream(getStream());
-        started = true;
+        if (!started && (stream != 0))
+        {
+            // start
+            PortAudio.Pa_StartStream(stream);
+            started = true;
+        }
     }
 
     /**
      * Stops the stream operation.
      * @throws PortAudioException
      */
-    public void stop()
+    public synchronized void stop()
         throws PortAudioException
     {
-        if(!started)
-            return;
-
-        // stop
-        PortAudio.Pa_CloseStream(getStream());
-
-        synchronized(this)
+        if (started && (stream != 0))
         {
-            stream = 0;
-            bufferLeft = null;
             started = false;
-            PortAudioManager.getInstance().stoppedOutputPortAudioStream(this);
+            PortAudio.Pa_StopStream(stream);
+
+            bufferLeft = null;
         }
     }
 

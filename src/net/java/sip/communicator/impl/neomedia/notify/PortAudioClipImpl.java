@@ -19,10 +19,15 @@ import net.java.sip.communicator.util.*;
  * Implementation of SCAudioClip using PortAudio.
  *
  * @author Damian Minkov
+ * @author Lubomir Marinov
  */
 public class PortAudioClipImpl
     extends SCAudioClipImpl
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>PortAudioClipImpl</tt> class and its
+     * instances for logging output.
+     */
     private static final Logger logger
         = Logger.getLogger(PortAudioClipImpl.class);
 
@@ -96,7 +101,7 @@ public class PortAudioClipImpl
     private class PlayThread
         implements Runnable
     {
-        byte[] buffer = new byte[1024];
+        private final byte[] buffer = new byte[1024];
         private OutputPortAudioStream portAudioStream = null;
 
         public void run()
@@ -129,17 +134,17 @@ public class PortAudioClipImpl
                     if(!started)
                     {
                         portAudioStream.stop();
+                        portAudioStream.close();
                         return;
                     }
 
                     while(audioStream.read(buffer) != -1)
-                    {
                         portAudioStream.write(buffer);
-                    }
 
                     if(!isLooping())
                     {
                         portAudioStream.stop();
+                        portAudioStream.close();
                         break;
                     }
                     else

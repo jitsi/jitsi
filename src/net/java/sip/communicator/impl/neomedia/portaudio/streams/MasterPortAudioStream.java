@@ -201,10 +201,7 @@ public class MasterPortAudioStream
         boolean deNoiseEnabled,
         boolean echoCancelEnabled, int frameSize, int filterLength)
     {
-        long outStream = 0;
-
-        if(out != null)
-            outStream = out.getStream();
+        long outStream = (out == null) ? 0 : out.getStream();
 
         PortAudio.setEchoCancelParams(
             stream,

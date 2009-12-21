@@ -22,7 +22,7 @@ import net.java.sip.communicator.util.*;
  */
 public class PortAudioRenderer
     extends ControlsAdapter
-    implements  Renderer
+    implements Renderer
 {
     /**
      * logger
@@ -42,7 +42,7 @@ public class PortAudioRenderer
     public static Format[] supportedInputFormats = new Format[]{};
 
     /**
-     * The standart supported sample rates.
+     * The standard supported sample rates.
      */
     private static double[] supportedSampleRates =
         new double[]{8000, 16000, 22050, 44100, 48000};
@@ -53,7 +53,7 @@ public class PortAudioRenderer
     private AudioFormat inputFormat;
 
     /**
-     * Portaudio output stream currently in use.
+     * PortAudio output stream currently in use.
      */
     private OutputPortAudioStream stream = null;
 
@@ -85,9 +85,7 @@ public class PortAudioRenderer
     public Format setInputFormat(Format format)
     {
         if(!(format instanceof AudioFormat))
-        {
             return null;
-        }
 
         this.inputFormat = (AudioFormat) format;
 
@@ -99,19 +97,15 @@ public class PortAudioRenderer
      * When start is called, the renderer begins rendering
      * any data available in its internal buffers.
      */
-    public void start()
+    public synchronized void start()
     {
         try
         {
-            if(started)
-                return;
-
             stream.start();
-            started = true;
         }
-        catch (PortAudioException e)
+        catch (PortAudioException paex)
         {
-            logger.error("Starting portaudio stream failed", e);
+            logger.error("Starting portaudio stream failed", paex);
         }
     }
 
@@ -122,15 +116,11 @@ public class PortAudioRenderer
     {
         try
         {
-            if(!started)
-                return;
-
-            started = false;
             stream.stop();
         }
-        catch (PortAudioException e)
+        catch (PortAudioException paex)
         {
-            logger.error("Closing portaudio stream failed", e);
+            logger.error("Closing portaudio stream failed", paex);
         }
     }
 
@@ -163,8 +153,9 @@ public class PortAudioRenderer
     }
 
     /**
-     * Returns the name of the pluging.
-     * @return A String that contains the descriptive name of the plug-in.
+     * Returns the name of this plug-in.
+     * @return a <tt>String</tt> which contains the descriptive name of this
+     * plug-in.
      */
     public String getName()
     {
@@ -176,25 +167,42 @@ public class PortAudioRenderer
      * @throws  ResourceUnavailableException If required resources cannot
      *          be opened/created.
      */
-    public void open()
+    public synchronized void open()
         throws ResourceUnavailableException
     {
-        try
-        {
-            stream = PortAudioManager.getInstance().getOutputStream(deviceIndex,
-                inputFormat.getSampleRate(), inputFormat.getChannels());
-        }
-        catch (PortAudioException e)
-        {
-            throw new ResourceUnavailableException(e.getMessage());
-        }
+        if (stream == null)
+            try
+            {
+                stream
+                    = PortAudioManager
+                        .getInstance()
+                            .getOutputStream(
+                                deviceIndex,
+                                inputFormat.getSampleRate(),
+                                inputFormat.getChannels());
+            }
+            catch (PortAudioException e)
+            {
+                throw new ResourceUnavailableException(e.getMessage());
+            }
     }
 
     /**
      *  Closes the plug-in.
      */
-    public void close()
+    public synchronized void close()
     {
+        stop();
+
+        if (stream != null)
+            try
+            {
+                stream.close();
+            }
+            catch (PortAudioException paex)
+            {
+                logger.error("Failed to close stream", paex);
+            }
     }
 
     /**
