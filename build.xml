@@ -818,7 +818,7 @@
         bundle-plugin-yahooaccregwizz,bundle-plugin-aimaccregwizz,
         bundle-version,bundle-version-impl,bundle-shutdown-timeout,
         bundle-growlnotification,bundle-swingnotification,bundle-galagonotification,
-        bundle-sparkle, bundle-plugin-branding,
+        bundle-sparkle, bundle-plugin-branding, bundle-audionotifier,
         bundle-osdependent,bundle-browserlauncher,bundle-gibberish,
         bundle-gibberish-slick,bundle-plugin-gibberishaccregwizz,
         bundle-plugin-call-history-form,

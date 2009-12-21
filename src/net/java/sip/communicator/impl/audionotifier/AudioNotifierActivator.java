@@ -41,39 +41,42 @@ public class AudioNotifierActivator implements BundleActivator
      */
     public void start(BundleContext bContext) throws Exception
     {
-        try {
-            AudioNotifierActivator.bundleContext = bContext;
-            
-            //Create the audio notifier service
-            audioNotifier = new AudioNotifierServiceImpl();
-
-            ServiceReference configReference = bundleContext
-                .getServiceReference(ConfigurationService.class.getName());
-        
-            configService = (ConfigurationService) bundleContext
-                .getService(configReference);
-
-            audioNotifier.setMute(
-                !configService
-                    .getBoolean(
-                        "net.java.sip.communicator.impl.sound.isSoundEnabled",
-                        true));
-
-            logger.logEntry();
-            
-            logger.info("Audio Notifier Service...[  STARTED ]");
-
-            bundleContext
-                .registerService(
-                    AudioNotifierService.class.getName(),
-                    audioNotifier,
-                    null);
-
-            logger.info("Audio Notifier Service ...[REGISTERED]");
-            
-        } finally {
-            logger.logExit();
-        }
+        // this service is deprecated, will leave it for now
+        // we suspect that even we remove it from starting
+        // felix starts the version it has in its cache
+//        try {
+//            AudioNotifierActivator.bundleContext = bContext;
+//
+//            //Create the audio notifier service
+//            audioNotifier = new AudioNotifierServiceImpl();
+//
+//            ServiceReference configReference = bundleContext
+//                .getServiceReference(ConfigurationService.class.getName());
+//
+//            configService = (ConfigurationService) bundleContext
+//                .getService(configReference);
+//
+//            audioNotifier.setMute(
+//                !configService
+//                    .getBoolean(
+//                        "net.java.sip.communicator.impl.sound.isSoundEnabled",
+//                        true));
+//
+//            logger.logEntry();
+//
+//            logger.info("Audio Notifier Service...[  STARTED ]");
+//
+//            bundleContext
+//                .registerService(
+//                    AudioNotifierService.class.getName(),
+//                    audioNotifier,
+//                    null);
+//
+//            logger.info("Audio Notifier Service ...[REGISTERED]");
+//
+//        } finally {
+//            logger.logExit();
+//        }
     }
     
     /**
@@ -88,19 +91,19 @@ public class AudioNotifierActivator implements BundleActivator
      */
     public void stop(BundleContext bContext) throws Exception
     {
-        //TODO: Stop all currently playing sounds here
-        try {
-            configService.setProperty(
-                "net.java.sip.communicator.impl.sound.isSoundEnabled",
-                Boolean.toString(!audioNotifier.isMute()));
-
-        }
-        catch (PropertyVetoException e1) {
-            logger.error("The proposed property change "
-                    + "represents an unacceptable value");
-        }
-        
-        logger.info("AudioNotifier Service ...[STOPPED]");
+        // deprecated
+//        try {
+//            configService.setProperty(
+//                "net.java.sip.communicator.impl.sound.isSoundEnabled",
+//                Boolean.toString(!audioNotifier.isMute()));
+//
+//        }
+//        catch (PropertyVetoException e1) {
+//            logger.error("The proposed property change "
+//                    + "represents an unacceptable value");
+//        }
+//
+//        logger.info("AudioNotifier Service ...[STOPPED]");
     }
     
     public static ResourceManagementService getResources()
