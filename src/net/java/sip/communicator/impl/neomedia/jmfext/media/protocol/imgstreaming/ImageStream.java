@@ -302,8 +302,10 @@ public class ImageStream implements PushBufferStream, Runnable
             byte data[] = null;
             BufferedImage scaledScreen = null;
             BufferedImage screen = null;
-
+            
+            /*
             long t = System.nanoTime();
+            */
 
             /* get desktop screen and resize it */
             screen = desktopInteract.captureScreen();
@@ -332,10 +334,12 @@ public class ImageStream implements PushBufferStream, Runnable
             if(transferHandler != null)
             {
                 transferHandler.transferData(this);
+                Thread.yield();
             }
-
+            /*
             t = System.nanoTime() - t;
             logger.info("Desktop capture processing time: " + t);
+            */
 
             /* cleanup */
             screen = null;
@@ -344,8 +348,8 @@ public class ImageStream implements PushBufferStream, Runnable
 
             try
             {
-                /* 500 ms */
-                Thread.sleep(500);
+                /* 100 ms */
+                Thread.sleep(100);
             }
             catch(InterruptedException e)
             {

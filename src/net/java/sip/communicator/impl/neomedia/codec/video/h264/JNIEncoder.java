@@ -288,7 +288,7 @@ public class JNIEncoder
         FFMPEG.avcodeccontext_set_scenechange_threshold(avcontext, 40);
         // Constant quality mode (also known as constant ratefactor)
         FFMPEG.avcodeccontext_set_crf(avcontext, 0);
-        FFMPEG.avcodeccontext_set_rc_buffer_size(avcontext, 10000000);
+        FFMPEG.avcodeccontext_set_rc_buffer_size(avcontext, 0);
         FFMPEG.avcodeccontext_set_gop_size(avcontext, IFRAME_INTERVAL);
         FFMPEG.avcodeccontext_set_i_quant_factor(avcontext, 1f / 1.4f);
 
