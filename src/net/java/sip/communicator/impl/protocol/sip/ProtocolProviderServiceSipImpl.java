@@ -1790,16 +1790,40 @@ public class ProtocolProviderServiceSipImpl
         }
         else
         {
-            Class<? extends MethodProcessor> methodProcessorClass =
-                methodProcessor.getClass();
-            for (Iterator<MethodProcessor> processorIter =
-                processors.iterator(); processorIter.hasNext();)
+            /*
+             * Prevent the registering of multiple instances of one and the same
+             * OperationSet class and take only the latest registration into
+             * account.
+             */
+            Iterator<MethodProcessor> processorIter = processors.iterator();
+            Class<? extends MethodProcessor> methodProcessorClass
+                = methodProcessor.getClass();
+            /*
+             * EventPackageSupport and its extenders provide a generic mechanizm
+             * for building support for a specific event package so allow them
+             * to register multiple instances of one and the same class as long
+             * as they are handling different event packages.
+             */
+            String eventPackage
+                = (methodProcessor instanceof EventPackageSupport)
+                    ? ((EventPackageSupport) methodProcessor).getEventPackage()
+                    : null;
+
+            while (processorIter.hasNext())
             {
-                if (processorIter.next().getClass()
-                    .equals(methodProcessorClass))
-                {
-                    processorIter.remove();
-                }
+                MethodProcessor processor = processorIter.next();
+
+                if (!processor.getClass().equals(methodProcessorClass))
+                    continue;
+                if ((eventPackage != null)
+                        && (processor instanceof EventPackageSupport)
+                        && !eventPackage
+                                .equals(
+                                    ((EventPackageSupport) processor)
+                                        .getEventPackage()))
+                    continue;
+
+                processorIter.remove();
             }
         }
         processors.add(methodProcessor);

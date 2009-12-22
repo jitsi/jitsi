@@ -104,7 +104,7 @@ public class EventPackageSupport
      *            the <code>Timer</code> support which is to execute the
      *            time-based tasks of the new instance
      */
-    public EventPackageSupport(
+    protected EventPackageSupport(
         ProtocolProviderServiceSipImpl protocolProvider,
         String eventPackage,
         int subscriptionDuration,
@@ -151,6 +151,18 @@ public class EventPackageSupport
                 removeSubscription(callId, existingSubscription);
             subscriptions.put(callId, subscription);
         }
+    }
+
+    /**
+     * Gets the name of the event package this instance implements and carried
+     * in the Event and Allow-Events headers.
+     *
+     * @return the name of the event package this instance implements and
+     * carried in the Event and Allow-Events headers
+     */
+    public final String getEventPackage()
+    {
+        return eventPackage;
     }
 
     /**
