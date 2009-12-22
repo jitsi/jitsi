@@ -192,9 +192,10 @@ public class PortAudioRenderer
      */
     public synchronized void close()
     {
-        stop();
-
         if (stream != null)
+        {
+            stop();
+
             try
             {
                 stream.close();
@@ -203,6 +204,7 @@ public class PortAudioRenderer
             {
                 logger.error("Failed to close stream", paex);
             }
+        }
     }
 
     /**
