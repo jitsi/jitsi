@@ -1,4 +1,4 @@
-package net.java.sip.communicator.plugin.zrtpconfigure;
+package net.java.sip.communicator.impl.neomedia;
 
 import java.util.ArrayList;
 

@@ -123,7 +123,8 @@ public class ZrtpControlImpl
         if(zrtpEngine == null)
         {
             zrtpEngine = new ZRTPTransformEngine();
-            zrtpEngine.initialize("GNUZRTP4J.zid", false);
+            ZrtpConfigure config = ZrtpConfigureUtils.getZrtpConfiguration();
+            zrtpEngine.initialize("GNUZRTP4J.zid", false, config);
         }
 
         return zrtpEngine;
@@ -159,8 +160,8 @@ public class ZrtpControlImpl
             zrtpAutoStart = true;
             securityEventManager.setDHSession(true);
 
-            // we now that audio is considered as master for zrtp
-           securityEventManager.setSessionType(
+            // we know that audio is considered as master for zrtp
+            securityEventManager.setSessionType(
                SecurityEventManager.AUDIO_SESSION);
         }
         else
@@ -168,7 +169,7 @@ public class ZrtpControlImpl
             // check whether video was not already started
             // it may happen when using multistreams, audio has inited
             // and started video
-            // initially engins has value enableZrtp = false
+            // initially engine has value enableZrtp = false
             zrtpAutoStart = zrtpEngine.isEnableZrtp();
             securityEventManager.setSessionType(
                 SecurityEventManager.VIDEO_SESSION);

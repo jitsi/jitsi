@@ -122,6 +122,18 @@ public class NeomediaActivator
                         41),
                 null);
 
+        // ZRTPConfiguration panel
+        bundleContext
+        .registerService(
+            ConfigurationForm.class.getName(),
+            new LazyConfigurationForm(
+                "net.java.sip.communicator.impl.neomedia.ZrtpConfigurePanel",
+                getClass().getClassLoader(),
+                "impl.media.security.zrtp.CONF_ICON",
+                "impl.media.security.zrtp.TITLE",
+                1100),
+            null);
+
         //we use the nist-sdp stack to make parse sdp and we need to set the
         //following property to make sure that it would accept java generated
         //IPv6 addresses that contain address scope zones.

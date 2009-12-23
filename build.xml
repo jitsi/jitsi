@@ -839,7 +839,7 @@
         bundle-argdelegation,bundle-zrtp4j,
         bundle-filehistory,bundle-metahistory,bundle-metahistory-slick,
         bundle-facebook,bundle-plugin-facebookaccregwizz,
-        bundle-bouncycastle,bundle-plugin-otr,bundle-plugin-zrtpconfigure"/>
+        bundle-bouncycastle,bundle-plugin-otr"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -2216,14 +2216,6 @@ org.apache.http.util"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/metahistory"
                 prefix="net/java/sip/communicator/slick/metahistory"/>
         </jar>
-    </target>
-    <target name="bundle-plugin-zrtpconfigure">
-        <jar compress="false" destfile="${bundles.dest}/zrtpconfigure.jar" 
-        	manifest="${src}/net/java/sip/communicator/plugin/zrtpconfigure/zrtp.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/zrtpconfigure"
-                prefix="net/java/sip/communicator/plugin/zrtpconfigure"/>
-        </jar>
-    </target>
-	
+    </target>	
 
 </project>

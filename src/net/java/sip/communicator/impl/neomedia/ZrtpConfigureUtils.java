@@ -1,4 +1,4 @@
-package net.java.sip.communicator.plugin.zrtpconfigure;
+package net.java.sip.communicator.impl.neomedia;
 
 import gnu.java.zrtp.ZrtpConfigure;
 import gnu.java.zrtp.ZrtpConstants;
@@ -24,7 +24,7 @@ public class ZrtpConfigureUtils {
 
         
         String id = ZrtpConfigureUtils.getPropertyID(algo);
-        String savedConf = ZrtpConfigureActivator.configService.getString(id);
+        String savedConf = NeomediaActivator.getConfigurationService().getString(id);
         if (savedConf == null)
             savedConf = "";
         

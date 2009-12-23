@@ -27,7 +27,6 @@ import net.java.sip.communicator.impl.media.codec.*;
 import net.java.sip.communicator.impl.media.keyshare.*;
 import net.java.sip.communicator.impl.media.transform.*;
 import net.java.sip.communicator.impl.media.transform.zrtp.*;
-import net.java.sip.communicator.plugin.zrtpconfigure.ZrtpConfigureUtils;
 import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.media.MediaException;
 import net.java.sip.communicator.service.media.event.*;
@@ -2375,8 +2374,7 @@ public class CallSessionImpl
                 // the account registration wizard
                 if (this.getCall().isDefaultEncrypted())
                 {
-                    ZrtpConfigure config = ZrtpConfigureUtils.getZrtpConfiguration();
-                    if (engine.initialize("GNUZRTP4J.zid", zrtpAutoStart, config))
+                    if (engine.initialize("GNUZRTP4J.zid", zrtpAutoStart))
                     {
                         usingZRTP = true;
                         engine.sendInfo(

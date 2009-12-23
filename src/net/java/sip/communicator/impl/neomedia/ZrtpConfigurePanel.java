@@ -3,7 +3,7 @@
  *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.zrtpconfigure;
+package net.java.sip.communicator.impl.neomedia;
 
 import gnu.java.zrtp.ZrtpConfigure;
 import gnu.java.zrtp.ZrtpConstants;
@@ -48,15 +48,15 @@ public class ZrtpConfigurePanel
         panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         panel.setLayout(new GridLayout(5, 1));
 
-        final JButton stdButton = new JButton(ZrtpConfigureActivator.resourceService
+        final JButton stdButton = new JButton(NeomediaActivator.getResources()
                 .getI18NString("impl.media.security.zrtp.STANDARD"));
         stdButton.setOpaque(false);
 
-        final JButton mandButton = new JButton(ZrtpConfigureActivator.resourceService
+        final JButton mandButton = new JButton(NeomediaActivator.getResources()
                 .getI18NString("impl.media.security.zrtp.MANDATORY"));
         mandButton.setOpaque(false);
 
-        final JButton saveButton = new JButton(ZrtpConfigureActivator.resourceService
+        final JButton saveButton = new JButton(NeomediaActivator.getResources()
                 .getI18NString("service.gui.SAVE"));
         saveButton.setOpaque(false);
 
@@ -68,13 +68,13 @@ public class ZrtpConfigurePanel
         mainPanel.add(buttonBar);
         mainPanel.add(Box.createVerticalStrut(7));
 
-        boolean trusted = ZrtpConfigureActivator.configService.getBoolean(TRUSTED_PROP, false);
-        boolean sasSign = ZrtpConfigureActivator.configService.getBoolean(SASSIGN_PROP, false);
+        boolean trusted = NeomediaActivator.getConfigurationService().getBoolean(TRUSTED_PROP, false);
+        boolean sasSign = NeomediaActivator.getConfigurationService().getBoolean(SASSIGN_PROP, false);
         
         JPanel checkBar = new JPanel(new GridLayout(1,2));
-        final JCheckBox trustedMitM = new JCheckBox(ZrtpConfigureActivator.resourceService
+        final JCheckBox trustedMitM = new JCheckBox(NeomediaActivator.getResources()
                 .getI18NString("impl.media.security.zrtp.TRUSTED"), trusted);
-        final JCheckBox sasSignature = new JCheckBox(ZrtpConfigureActivator.resourceService
+        final JCheckBox sasSignature = new JCheckBox(NeomediaActivator.getResources()
                 .getI18NString("impl.media.security.zrtp.SASSIGNATURE"), sasSign);
         checkBar.add(trustedMitM);
         checkBar.add(sasSignature);
@@ -106,8 +106,8 @@ public class ZrtpConfigurePanel
                 else if (source == saveButton) {
                     Boolean t = new Boolean(active.isTrustedMitM());
                     Boolean s = new Boolean(active.isSasSignature());
-                    ZrtpConfigureActivator.configService.setProperty(TRUSTED_PROP, t);
-                    ZrtpConfigureActivator.configService.setProperty(SASSIGN_PROP, s);
+                    NeomediaActivator.getConfigurationService().setProperty(TRUSTED_PROP, t);
+                    NeomediaActivator.getConfigurationService().setProperty(SASSIGN_PROP, s);
                     pkc.saveConfig();
                     hc.saveConfig();
                     sc.saveConfig();
@@ -166,13 +166,13 @@ public class ZrtpConfigurePanel
         
         PublicKeyControls() {
             String id = ZrtpConfigureUtils.getPropertyID(ZrtpConstants.SupportedPubKeys.DH2K);
-            String savedConf = ZrtpConfigureActivator.configService.getString(id);
+            String savedConf = NeomediaActivator.getConfigurationService().getString(id);
             if (savedConf == null)
                 savedConf = "";
             
             dataModel = new ZrtpConfigureTableModel<ZrtpConstants.SupportedPubKeys>(
                     ZrtpConstants.SupportedPubKeys.DH2K, active, inActive, savedConf);
-            createControls(this, dataModel, ZrtpConfigureActivator.resourceService
+            createControls(this, dataModel, NeomediaActivator.getResources()
                     .getI18NString("impl.media.security.zrtp.PUB_KEYS"));
         }
         
@@ -183,7 +183,7 @@ public class ZrtpConfigurePanel
         void saveConfig() {
             String value = getPropertyValue(ZrtpConstants.SupportedPubKeys.DH2K);
             String id = ZrtpConfigureUtils.getPropertyID(ZrtpConstants.SupportedPubKeys.DH2K);
-            ZrtpConfigureActivator.configService.setProperty(id, value);
+            NeomediaActivator.getConfigurationService().setProperty(id, value);
         }
     }
 
@@ -193,13 +193,13 @@ public class ZrtpConfigurePanel
         
         HashControls() {
             String id = ZrtpConfigureUtils.getPropertyID(ZrtpConstants.SupportedHashes.S256);
-            String savedConf = ZrtpConfigureActivator.configService.getString(id);
+            String savedConf = NeomediaActivator.getConfigurationService().getString(id);
             if (savedConf == null)
                 savedConf = "";
             
             dataModel = new ZrtpConfigureTableModel<ZrtpConstants.SupportedHashes>(
                     ZrtpConstants.SupportedHashes.S256, active, inActive, savedConf);
-            createControls(this, dataModel, ZrtpConfigureActivator.resourceService
+            createControls(this, dataModel, NeomediaActivator.getResources()
                     .getI18NString("impl.media.security.zrtp.HASHES"));
         }
 
@@ -210,7 +210,7 @@ public class ZrtpConfigurePanel
         void saveConfig() {
             String value = getPropertyValue(ZrtpConstants.SupportedHashes.S256);
             String id = ZrtpConfigureUtils.getPropertyID(ZrtpConstants.SupportedHashes.S256);
-            ZrtpConfigureActivator.configService.setProperty(id, value);
+            NeomediaActivator.getConfigurationService().setProperty(id, value);
         }
     }
 
@@ -220,13 +220,13 @@ public class ZrtpConfigurePanel
         
         CipherControls() {
             String id = ZrtpConfigureUtils.getPropertyID(ZrtpConstants.SupportedSymCiphers.AES1);
-            String savedConf = ZrtpConfigureActivator.configService.getString(id);
+            String savedConf = NeomediaActivator.getConfigurationService().getString(id);
             if (savedConf == null)
                 savedConf = "";
             
             dataModel = new ZrtpConfigureTableModel<ZrtpConstants.SupportedSymCiphers>(
                     ZrtpConstants.SupportedSymCiphers.AES1, active, inActive, savedConf);
-            createControls(this, dataModel, ZrtpConfigureActivator.resourceService
+            createControls(this, dataModel, NeomediaActivator.getResources()
                     .getI18NString("impl.media.security.zrtp.SYM_CIPHERS"));
         }
 
@@ -237,7 +237,7 @@ public class ZrtpConfigurePanel
         void saveConfig() {
             String value = getPropertyValue(ZrtpConstants.SupportedSymCiphers.AES1);
             String id = ZrtpConfigureUtils.getPropertyID(ZrtpConstants.SupportedSymCiphers.AES1);
-            ZrtpConfigureActivator.configService.setProperty(id, value);
+            NeomediaActivator.getConfigurationService().setProperty(id, value);
         }
     }
 
@@ -247,13 +247,13 @@ public class ZrtpConfigurePanel
         
         SasControls() {
             String id = ZrtpConfigureUtils.getPropertyID(ZrtpConstants.SupportedSASTypes.B32);
-            String savedConf = ZrtpConfigureActivator.configService.getString(id);
+            String savedConf = NeomediaActivator.getConfigurationService().getString(id);
             if (savedConf == null)
                 savedConf = "";
             
             dataModel = new ZrtpConfigureTableModel<ZrtpConstants.SupportedSASTypes>(
                     ZrtpConstants.SupportedSASTypes.B32, active, inActive, savedConf);
-            createControls(this, dataModel, ZrtpConfigureActivator.resourceService
+            createControls(this, dataModel, NeomediaActivator.getResources()
                     .getI18NString("impl.media.security.zrtp.SAS_TYPES"));
         }
 
@@ -264,7 +264,7 @@ public class ZrtpConfigurePanel
         void saveConfig() {
             String value = getPropertyValue(ZrtpConstants.SupportedSASTypes.B32);
             String id = ZrtpConfigureUtils.getPropertyID(ZrtpConstants.SupportedSASTypes.B32);
-            ZrtpConfigureActivator.configService.setProperty(id, value);
+            NeomediaActivator.getConfigurationService().setProperty(id, value);
         }
     }
 
@@ -274,13 +274,13 @@ public class ZrtpConfigurePanel
         
         LengthControls() {
             String id = ZrtpConfigureUtils.getPropertyID(ZrtpConstants.SupportedAuthLengths.HS32);
-            String savedConf = ZrtpConfigureActivator.configService.getString(id);
+            String savedConf = NeomediaActivator.getConfigurationService().getString(id);
             if (savedConf == null)
                 savedConf = "";
             
             dataModel = new ZrtpConfigureTableModel<ZrtpConstants.SupportedAuthLengths>(
                     ZrtpConstants.SupportedAuthLengths.HS32, active, inActive, savedConf);
-            createControls(this, dataModel, ZrtpConfigureActivator.resourceService
+            createControls(this, dataModel, NeomediaActivator.getResources()
                     .getI18NString("impl.media.security.zrtp.SRTP_LENGTHS"));
         }
 
@@ -291,18 +291,18 @@ public class ZrtpConfigurePanel
         void saveConfig() {
             String value = getPropertyValue(ZrtpConstants.SupportedAuthLengths.HS32);
             String id = ZrtpConfigureUtils.getPropertyID(ZrtpConstants.SupportedAuthLengths.HS32);
-            ZrtpConfigureActivator.configService.setProperty(id, value);
+            NeomediaActivator.getConfigurationService().setProperty(id, value);
         }
     }
 
     private <T extends Enum<T>> void createControls(JPanel panel,
             ZrtpConfigureTableModel<T> model, String title) {
 
-        final JButton upButton = new JButton(ZrtpConfigureActivator.resourceService
+        final JButton upButton = new JButton(NeomediaActivator.getResources()
                 .getI18NString("impl.media.configform.UP"));
         upButton.setOpaque(false);
 
-        final JButton downButton = new JButton(ZrtpConfigureActivator.resourceService
+        final JButton downButton = new JButton(NeomediaActivator.getResources()
                 .getI18NString("impl.media.configform.DOWN"));
         downButton.setOpaque(false);
 
