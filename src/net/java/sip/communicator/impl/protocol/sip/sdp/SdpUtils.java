@@ -757,6 +757,10 @@ public class SdpUtils
             fmtParamsMap.put(paramName, paramValue);
         }
 
+        // No valid fmtp tokens found, just return null
+        if (fmtParamsMap.size() == 0)
+            return null;
+        
         return fmtParamsMap;
     }
 
