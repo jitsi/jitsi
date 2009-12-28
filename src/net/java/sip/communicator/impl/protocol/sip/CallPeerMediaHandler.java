@@ -1299,7 +1299,15 @@ public class CallPeerMediaHandler
         for ( MediaDescription mediaDescription : remoteDescriptions)
         {
             MediaType mediaType = SdpUtils.getMediaType(mediaDescription);
-
+            //stream target
+            MediaStreamTarget target
+                = SdpUtils.extractDefaultTarget(mediaDescription, answer);
+            // not target port - try next media description
+            if(target.getDataAddress().getPort() == 0)
+            {
+                    closeStream(mediaType);
+                    continue;
+            }            
             List<MediaFormat> supportedFormats = SdpUtils.extractFormats(
                             mediaDescription, dynamicPayloadTypes);
 
@@ -1325,21 +1333,9 @@ public class CallPeerMediaHandler
             MediaDirection direction
                 = devDirection.getDirectionForAnswer(remoteDirection);
 
-            //stream target
-            MediaStreamTarget target
-                = SdpUtils.extractDefaultTarget(mediaDescription, answer);
-
             // create the corresponding stream...
-            if(target.getDataAddress().getPort() != 0)
-            {
-                initStream(connector, dev, supportedFormats.get(0), target,
+            initStream(connector, dev, supportedFormats.get(0), target,
                                 direction);
-            }
-            else
-            // or destroy it in case the target port was 0.
-            {
-                closeStream(mediaType);
-            }
         }
     }
 
