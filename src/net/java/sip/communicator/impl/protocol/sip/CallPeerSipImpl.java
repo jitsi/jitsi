@@ -795,12 +795,6 @@ public class CallPeerSipImpl
      */
     public void processAck(ServerTransaction serverTransaction, Request ack)
     {
-//        CallPeerState peerState = getState();
-//        if (!CallPeerState.isOnHold(peerState))
-//        {
-//            setState(CallPeerState.CONNECTED);
-//        }
-
         ContentLengthHeader contentLength = ack.getContentLength();
         if ((contentLength != null) && (contentLength.getContentLength() > 0))
         {
@@ -901,9 +895,6 @@ public class CallPeerSipImpl
             return;
         }
 
-        if (!CallPeerState.isOnHold(getState()))
-            setState(CallPeerState.CONNECTED);
-        
         try
         {
              //Process SDP unless we've just had an answer in a 18X response
@@ -939,8 +930,8 @@ public class CallPeerSipImpl
         }
 
         // change status
-//        if (!CallPeerState.isOnHold(getState()))
-//            setState(CallPeerState.CONNECTED);
+        if (!CallPeerState.isOnHold(getState()))
+            setState(CallPeerState.CONNECTED);
 
         fireResponseProcessed(ok, null);
     }
