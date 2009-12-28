@@ -36,6 +36,8 @@ public class PortAudioClipImpl
     private boolean started = false;
 
     private final URL url;
+    
+    private Object syncObject = new Object();
 
     /**
      * Creates the audio clip and initialize the listener used from the
@@ -94,8 +96,14 @@ public class PortAudioClipImpl
      */
     public void internalStop()
     {
-        if (url != null)
-            started = false;
+        synchronized (syncObject) 
+        {
+            if (url != null && started) 
+            {
+                started = false;
+                syncObject.notifyAll();
+            }
+        }
     }
 
     private class PlayThread
@@ -138,7 +146,7 @@ public class PortAudioClipImpl
                         return;
                     }
 
-                    while(audioStream.read(buffer) != -1)
+                    while(started && audioStream.read(buffer) != -1)
                         portAudioStream.write(buffer);
 
                     if(!isLooping())
@@ -149,7 +157,14 @@ public class PortAudioClipImpl
                     }
                     else
                     {
-                        Thread.sleep(getLoopInterval());
+                        synchronized(syncObject) {
+                            if (started) {
+                                try {
+                                    syncObject.wait(getLoopInterval());
+                                } catch (InterruptedException e) {
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -161,10 +176,6 @@ public class PortAudioClipImpl
             catch (IOException e)
             {
                 logger.error("Error reading from audio resource", e);
-            }
-            catch (InterruptedException e)
-            {
-                logger.error("Cannot wait the interval between plays", e);
             }
             catch (UnsupportedAudioFileException e)
             {
