@@ -191,6 +191,18 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1CloseStream
     if(!portAudioStream)
         return;
 
+    /* Before clearing and destroying any part of current stream
+     * clear it from any connected stream so it wont be used
+     */
+    if(portAudioStream->connectedToStream != NULL
+        && ((PortAudioStream *)portAudioStream->connectedToStream)->
+                connectedToStream != NULL)
+    {
+        ((PortAudioStream *)portAudioStream->connectedToStream)->
+            connectedToStream = NULL;
+        portAudioStream->connectedToStream = NULL;
+    }
+
     PaError errorCode = Pa_CloseStream(portAudioStream->stream);
 
     if(portAudioStream->outputResampleFactor != 1.0
@@ -285,13 +297,30 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1OpenStream(
 	if (!stream)
 		return 0;
 
+        double defSampleRate = DEFAULT_SAMPLE_RATE;
+
+        /*
+         *  Obay default sample rate of the device. some devices has
+         *  default 44.1 kHz and some 48 kHz.
+         */
+        if(outputStreamParameters)
+        {
+            defSampleRate = 
+                Pa_GetDeviceInfo(outputStreamParameters->device)->defaultSampleRate;
+        }
+        else if(inputStreamParameters)
+        {
+            defSampleRate =
+                Pa_GetDeviceInfo(inputStreamParameters->device)->defaultSampleRate;
+        }
+
 	errorCode
 		= Pa_OpenStream(
 			&(stream->stream),
 			PortAudio_fixInputParametersSuggestedLatency(inputStreamParameters),
 			PortAudio_fixOutputParametersSuggestedLatency(
 				outputStreamParameters),
-			DEFAULT_SAMPLE_RATE,
+			defSampleRate,
 			framesPerBuffer,
 			streamFlags,
 			streamCallback ? PortAudioStream_callback : NULL,
@@ -301,14 +330,14 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1OpenStream(
 
     if(outputStreamParameters)
     {
-        stream->outputResampleFactor = DEFAULT_SAMPLE_RATE / sampleRate;
+        stream->outputResampleFactor = defSampleRate / sampleRate;
         if(stream->outputResampleFactor != 1.0)
         {
             stream->outputChannelCount = outputStreamParameters->channelCount;
 
             // resample quality 3 is for voip
             stream->outputResampler = speex_resampler_init(
-                stream->outputChannelCount, sampleRate, DEFAULT_SAMPLE_RATE, 3, NULL);
+                stream->outputChannelCount, sampleRate, defSampleRate, 3, NULL);
         }
     }
     else
@@ -316,7 +345,7 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1OpenStream(
     
     if(inputStreamParameters)
     {
-        stream->inputResampleFactor = DEFAULT_SAMPLE_RATE / sampleRate;
+        stream->inputResampleFactor = defSampleRate / sampleRate;
 
         if(stream->inputResampleFactor != 1.0)
         {
@@ -324,7 +353,7 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1OpenStream(
 
             // resample quality 3 is for voip
             stream->inputResampler = speex_resampler_init(
-                stream->inputChannelCount, DEFAULT_SAMPLE_RATE, sampleRate, 3, NULL);
+                stream->inputChannelCount, defSampleRate, sampleRate, 3, NULL);
 
             stream->inputFrameSize
 				= PortAudio_getFrameSize(inputStreamParameters);
