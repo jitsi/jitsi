@@ -16,17 +16,52 @@ import net.java.sip.communicator.impl.neomedia.portaudio.*;
  */
 public class OutputPortAudioStream
 {
+    /**
+     * The device index we are currently using.
+     */
     private final int deviceIndex;
 
+    /**
+     * The sample rate for the current stream.
+     */
     private final double sampleRate;
+    /**
+     * The number of channel for the current stream.
+     */
     private final int channels;
+    /**
+     * The sample format for the current stream.
+     */
     private final long sampleFormat;
 
+    /**
+     * The frame size we use.
+     */
     private final int frameSize;
 
+    /**
+     * The stream pointer we are using or 0 if stopped and not initialized.
+     */
     private long stream;
+    /**
+     * Whether this stream is started.
+     */
     private boolean started = false;
+
+    /**
+     * Buffer left for writing from previous write,
+     * as everything is split into parts of PortAudioManager.NUM_SAMPLES,
+     * this is what has left.
+     */
     private byte[] bufferLeft = null;
+
+    /**
+     * We use this object to sync input stream reads with this output stream
+     * closes, if this output stream is connected to input stream(when using
+     * echo cancellation). Cause input stream uses output stream while reading
+     * and must not use it while this stream is closing.
+     */
+    private Object closeSyncObject = new Object();
 
     /**
      * Creates output stream.
@@ -78,8 +113,11 @@ public class OutputPortAudioStream
         if(stream != 0)
         {
             // stop
-            PortAudio.Pa_CloseStream(stream);
-            stream = 0;
+            synchronized(closeSyncObject)
+            {
+                PortAudio.Pa_CloseStream(stream);
+                stream = 0;
+            }
 
             PortAudioManager.getInstance().closedOutputPortAudioStream(this);
         }
@@ -232,5 +270,14 @@ public class OutputPortAudioStream
     public long getStream()
     {
         return stream;
+    }
+
+    /**
+     * Return the object we have used to synchronize Pa_CloseStream.
+     * @return the closeSyncObject the sync object.
+     */
+    Object getCloseSyncObject()
+    {
+        return closeSyncObject;
     }
 }

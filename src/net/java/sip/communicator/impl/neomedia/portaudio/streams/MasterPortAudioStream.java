@@ -20,17 +20,43 @@ import net.java.sip.communicator.impl.neomedia.portaudio.*;
  */
 public class MasterPortAudioStream
 {
+    /**
+     * The device index we are currently using.
+     */
     private int deviceIndex = -1;
 
+    /**
+     * The stream pointer we are using or 0 if stopped and not initialized.
+     */
     private long stream = 0;
 
+    /**
+     * Whether this stream is started.
+     */
     private boolean started = false;
 
+    /**
+     * The frame size we use.
+     */
     private int frameSize;
 
-    double sampleRate;
+    /**
+     * The sample rate for the current stream.
+     */
+    private double sampleRate;
 
-    int channels;
+    /**
+     * The number of channel for the current stream.
+     */
+    private int channels;
+
+    /**
+     * This is the output stream which is connected to the current input stream.
+     * When using echo cancellation its the actual output stream, otherwise its
+     * just a non null object. Need to synch closing stream in order to avoid
+     * concurrency: using the output stream(in Pa_ReadStream) while closing it.
+     */
+    private Object connectedToStreamSync = new Object();
 
     /**
      * The <tt>InputPortAudioStream</tt>s which read audio from this
@@ -178,8 +204,12 @@ public class MasterPortAudioStream
             return new byte[0];
 
         byte[] bytebuff = new byte[PortAudioManager.NUM_SAMPLES*frameSize];
-        PortAudio.Pa_ReadStream(
-            stream, bytebuff, PortAudioManager.NUM_SAMPLES);
+
+        synchronized(connectedToStreamSync)
+        {
+            PortAudio.Pa_ReadStream(
+                stream, bytebuff, PortAudioManager.NUM_SAMPLES);
+        }
 
         for(InputPortAudioStream slave : slaves)
             slave.setBuffer(bytebuff);
@@ -201,6 +231,11 @@ public class MasterPortAudioStream
         boolean deNoiseEnabled,
         boolean echoCancelEnabled, int frameSize, int filterLength)
     {
+        if(out != null)
+        {
+            this.connectedToStreamSync = out.getCloseSyncObject();
+        }
+
         long outStream = (out == null) ? 0 : out.getStream();
 
         PortAudio.setEchoCancelParams(
