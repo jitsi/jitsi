@@ -12,6 +12,7 @@ import javax.media.rtp.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
+import net.java.sip.communicator.impl.neomedia.transform.dtmf.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.event.*;
@@ -35,6 +36,11 @@ public class AudioMediaStreamImpl
      */
     private static final Logger logger
         = Logger.getLogger(AudioMediaStreamImpl.class);
+
+    /**
+     * The transformer that we use for sending and receiving DTMF packets.
+     */
+    private final DtmfTransformEngine dtmfTransfrmEngine ;
 
     /**
      * List of RTP format strings which are supported by SIP Communicator in
@@ -82,12 +88,28 @@ public class AudioMediaStreamImpl
      * both capture and playback of audio exchanged via the specified
      * <tt>StreamConnector</tt>
      * @param zrtpControl a control which is already created, used to control
-     *        the zrtp operations.
+     * the zrtp operations.
      */
-    public AudioMediaStreamImpl(StreamConnector connector, MediaDevice device,
-        ZrtpControlImpl zrtpControl)
+    public AudioMediaStreamImpl(StreamConnector connector,
+                                MediaDevice     device,
+                                ZrtpControlImpl zrtpControl)
     {
         super(connector, device, zrtpControl);
+
+        this.dtmfTransfrmEngine = new DtmfTransformEngine(this);
+    }
+
+    /**
+     * A stub that allows audio oriented streams to create and keep a reference
+     * to a <tt>DtmfTransformEngine</tt>.
+     *
+     * @return a <tt>DtmfTransformEngine</tt> if this is an audio oriented
+     * stream and <tt>null</tt> otherwise.
+     */
+    @Override
+    protected DtmfTransformEngine createDtmfTransformEngine()
+    {
+        return dtmfTransfrmEngine;
     }
 
     /**

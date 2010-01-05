@@ -19,7 +19,7 @@ import net.java.sip.communicator.service.neomedia.format.*;
 
 /**
  * Implements static utility methods used by media classes.
- * 
+ *
  * @author Emil Ivov
  * @author Lubomir Marinov
  */
@@ -126,6 +126,12 @@ public class MediaUtils
                 MediaType.AUDIO,
                 AudioFormat.G729_RTP,
                 8000);
+        addMediaFormats(
+            MediaFormat.RTP_PAYLOAD_TYPE_UNKNOWN,
+            "telephone-event",
+            MediaType.AUDIO,
+            Constants.TELEPHONE_EVENT,
+            8000);
 
         addMediaFormats(
             (byte) SdpConstants.H263,

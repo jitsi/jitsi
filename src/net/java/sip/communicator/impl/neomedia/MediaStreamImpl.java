@@ -23,6 +23,7 @@ import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
 import net.java.sip.communicator.impl.neomedia.transform.csrc.*;
+import net.java.sip.communicator.impl.neomedia.transform.dtmf.*;
 import net.java.sip.communicator.impl.neomedia.transform.zrtp.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
@@ -192,7 +193,7 @@ public class MediaStreamImpl
      * The engine that we are using in order to add CSRC lists in conference
      * calls, send CSRC sound levels, and handle incoming levels and CSRC lists.
      */
-    private final CsrcTransformEngine csrcEngine;
+    private CsrcTransformEngine csrcEngine;
 
     /**
      * Initializes a new <tt>MediaStreamImpl</tt> instance which will use the
@@ -205,7 +206,7 @@ public class MediaStreamImpl
      * both capture and playback of media exchanged via the specified
      * <tt>StreamConnector</tt>
      * @param zrtpControl a control which is already created, used to control
-     *        the zrtp operations.
+     * the zrtp operations.
      */
     public MediaStreamImpl(StreamConnector connector, MediaDevice device,
         ZrtpControlImpl zrtpControl)
@@ -228,10 +229,52 @@ public class MediaStreamImpl
         this.zrtpControl.setConnector(rtpConnector);
 
         //register the transform engines that we will be using in this stream.
-        csrcEngine = new CsrcTransformEngine(this);
+        TransformEngineChain engineChain = createTransformEngineChain();
 
-        rtpConnector.setEngine(new TransformEngineChain(
-            csrcEngine, this.zrtpControl.getZrtpEngine()));
+        rtpConnector.setEngine(engineChain);
+    }
+
+    /**
+     * Creates a chain of transform engines for use with this stream. Note
+     * that this is the only place where the <tt>TransformEngineChain</tt> is
+     * and should be manipulated to avoid problems with the order of the
+     * transformers.
+     *
+     * @return the <tt>TransformEngineChain</tt> that this stream should be
+     * using.
+     */
+    private TransformEngineChain createTransformEngineChain()
+    {
+        ArrayList<TransformEngine> engineChain
+                                        = new ArrayList<TransformEngine>(3);
+
+        //ZRTP
+        engineChain.add(zrtpControl.getZrtpEngine());
+
+        //DTMF
+        DtmfTransformEngine dtmfEngine = createDtmfTransformEngine();
+
+        if(dtmfEngine != null)
+            engineChain.add(dtmfEngine);
+
+        //CSRCs and audio levels
+        csrcEngine = new CsrcTransformEngine(this);
+        engineChain.add(csrcEngine);
+
+        return new TransformEngineChain( engineChain.toArray(
+                                    new TransformEngine[engineChain.size()]));
+    }
+
+    /**
+     * A stub that allows audio oriented streams to create and keep a reference
+     * to a <tt>DtmfTransformEngine</tt>.
+     *
+     * @return a <tt>DtmfTransformEngine</tt> if this is an audio oriented
+     * stream and <tt>null</tt> otherwise.
+     */
+    protected DtmfTransformEngine createDtmfTransformEngine()
+    {
+        return null;
     }
 
     /**

@@ -13,7 +13,7 @@ import net.java.sip.communicator.util.*;
  * in order to get the constants define in
  * <tt>net.java.sip.communicator.impl.neomedia.codec.Constants</tt> without star
  * import of <tt>net.java.sip.communicator.impl.neomedia.codec</tt>.
- * 
+ *
  * @author Lubomir Marinov
  */
 public class Constants
@@ -23,6 +23,11 @@ public class Constants
     public static final String SPEEX = "speex";
     public static final String ILBC_RTP = "ilbc/rtp";
     public static final String ILBC = "ilbc";
+
+    /**
+     * Pseudo format representing DTMF tones sent over RTP.
+     */
+    public static final String TELEPHONE_EVENT = "telephone-event";
 
     public static final String H264_RTP = "h264/rtp";
     public static final String H264 = "h264";

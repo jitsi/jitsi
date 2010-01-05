@@ -47,7 +47,7 @@ public class TransformEngineChain
      * @param engineChain an array containing <tt>TransformEngine</tt>s in the
      * order that they are to be applied on outgoing packets.
      */
-    public TransformEngineChain(TransformEngine... engineChain)
+    public TransformEngineChain(TransformEngine[] engineChain)
     {
         this.engineChain = engineChain.clone();
 
