@@ -6,14 +6,16 @@
  */
 package net.java.sip.communicator.impl.neomedia.transform.dtmf;
 
+
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
 import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The class is responsible for sending DTMF tones in an RTP audio stream as
- * descirbed by RFC4733.
+ * described by RFC4733.
  *
  * @author Emil Ivov
  * @author Romain Philibert
@@ -22,6 +24,11 @@ public class DtmfTransformEngine
     implements TransformEngine,
                PacketTransformer
 {
+
+    /**
+     * Our class logger.
+     */
+    private Logger logger = Logger.getLogger(DtmfTransformEngine.class);
 
     /**
      * The <tt>AudioMediaStreamImpl</tt> that this transform engine was created
@@ -76,6 +83,12 @@ public class DtmfTransformEngine
      * The tone that we are supposed to be currently transmitting.
      */
     private DTMFTone currentTone = null;
+
+    /**
+     * The duration (in timestamp units or in other words ms*8) that we have
+     * transmitted the current tone for.
+     */
+    private int currentDuration = 0;
 
     /**
      * Creates an engine instance that will be replacing audio packets
@@ -156,30 +169,26 @@ public class DtmfTransformEngine
                         pkt.getOffset(), currentDtmfPayload);
 
         long audioPacketTimestamp = dtmfPkt.getTimestamp();
-        this.currentTone.getValue();
-        int pktCode = engine.getDtmfCode();
-            boolean pktEnd = false;
-            boolean pktMarker = false;
-            int pktDuration = 0;
-            long pktTimestamp = engine.getCurrentTimestamp();
-            if (STATUS_START_SENDING))
-            {
+        boolean pktEnd = false;
+        boolean pktMarker = false;
+        int pktDuration = 0;
+
+        /*
+        long pktTimestamp = engine.getCurrentTimestamp();
+
+        if (STATUS_START_SENDING))
+        {
                 logger.trace("START_SENDING");
-                /*
-                 * The first packet is send with the RTP Marker set to 1.
-                 */
+                 // The first packet is send with the RTP Marker set to 1.
                 pktMarker=true;
                 pktTimestamp = audioPacketTimestamp;
 
-                /*
-                 * Save the audioPacketTimestamp value. T
-                 * This value will be used in the next dtmf packets.
-                 */
+                 // Save the audioPacketTimestamp value. T
+                 // This value will be used in the next dtmf packets.
                 logger.trace("Timestamp read = "+audioPacketTimestamp);
                 engine.setCurrentTimestamp(audioPacketTimestamp);
                 engine.setSendingState(DtmfTransformEngine.SENDING_UPDATE);
             }
-
             else if (engine.isSendingStateEquals(DtmfTransformEngine.SENDING_UPDATE))
             {
                 logger.trace("SENDING_UPDATE");
@@ -189,12 +198,11 @@ public class DtmfTransformEngine
                 if (duration>0xFFFF)
                 {
                     logger.trace("LONG_DURATION_EVENT");
-                    /*
-                     * When duration > 0xFFFF we first send a packet with
-                     * duration = 0xFFFF. For the next packet, the duration
-                     * start from begining but the audioPacketTimestamp is set to the
-                     * time when the long duration event occurs.
-                     */
+
+                     // When duration > 0xFFFF we first send a packet with
+                     // duration = 0xFFFF. For the next packet, the duration
+                     // start from begining but the audioPacketTimestamp is set to the
+                     // time when the long duration event occurs.
                     pktDuration = 0xFFFF;
                     pktTimestamp = audioPacketTimestamp;
                     engine.setCurrentTimestamp(audioPacketTimestamp);
@@ -207,13 +215,12 @@ public class DtmfTransformEngine
             else if (engine.isSendingStateEquals(DtmfTransformEngine.STOP_SENDING))
             {
                 logger.trace("STOP_SENDING");
-                /**
-                 * The first ending packet do have the End flag set.
-                 * But the 2 next will have the End flag set.
-                 *
-                 * The audioPacketTimestamp and the duration field stay unchanged for
-                 * the 3 last packets
-                 */
+
+                 // The first ending packet do have the End flag set.
+                 // But the 2 next will have the End flag set.
+                 //
+                 // The audioPacketTimestamp and the duration field stay unchanged for
+                 // the 3 last packets
                 pktDuration = (int)(audioPacketTimestamp-pktTimestamp);
 
                 engine.setEndTimestamp(audioPacketTimestamp);
@@ -223,11 +230,10 @@ public class DtmfTransformEngine
             else if (engine.isSendingStateEquals(DtmfTransformEngine.STOP_SENDING_REPEATING))
             {
                 logger.trace("STOP_SENDING_REPEATING");
-                /**
-                 * We set the End flag for the 2 last packets.
-                 * The audioPacketTimestamp and the duration field stay unchanged for
-                 * the 3 last packets.
-                 */
+
+                 // We set the End flag for the 2 last packets.
+                 // The audioPacketTimestamp and the duration field stay unchanged for
+                 // the 3 last packets.
                 pktEnd=true;
                 pktDuration=(int)(engine.getEndTimestamp()-pktTimestamp);
 
@@ -240,11 +246,17 @@ public class DtmfTransformEngine
             dtmfPkt.fillRawPacket(pktCode, pktEnd, pktMarker, pktDuration, pktTimestamp);
             pkt = dtmfPkt;
         }
-        return pkt;
+        */
         return pkt;
     }
 
 
+    /**
+     * DTMF sending stub: this is where we should set the transformer in the
+     * proper state so that it would start replacing packets with dtmf codes.
+     *
+     * @param tone the tone that we'd like to start sending.
+     */
     public void startSending(DTMFTone tone)
     {
 
