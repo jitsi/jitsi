@@ -96,6 +96,59 @@ public class RawPacket
     }
 
     /**
+     * Sets or resets the marker bit of this packet according to the
+     * <tt>marker</tt> parameter.
+     * @param marker <tt>true</tt> if we are to raise the marker bit and
+     * <tt>false</tt> otherwise.
+     */
+    public void setMarker(boolean marker)
+    {
+        if(marker)
+        {
+             getBuffer()[getOffset() + 1] |= (byte) 0x80;
+        }
+        else
+        {
+            getBuffer()[getOffset() + 1] &= (byte) 0x7F;
+        }
+    }
+
+    /**
+     * Sets the payload of this packet.
+     *
+     * @param payload the RTP payload type describing the content of this
+     * packet.
+     */
+    public void setPayload(byte payload)
+    {
+        //this is supposed to be a 7bit payload so make sure that the leftmost
+        //bit is 0 so that we don't accidentally overwrite the marker.
+        payload &= (byte)0x7F;
+
+        getBuffer()[getOffset() + 1] |= payload;
+    }
+
+    /**
+     * Returns the timestamp for this RTP <tt>RawPacket</tt>.
+     *
+     * @return the timestamp for this RTP <tt>RawPacket</tt>.
+     */
+    public long getTimestamp()
+    {
+        return readInt(getOffset() + 4);
+    }
+
+    /**
+     * Set the timestamp value of the RTP Packet
+     *
+     * @param timestamp : the RTP Timestamp
+     */
+    public void setTimestamp(long timestamp)
+    {
+        writeInt(getOffset(), (int)timestamp);
+    }
+
+    /**
      * Read a integer from this packet at specified offset
      *
      * @param off start offset of the integer to be read
@@ -539,7 +592,7 @@ public class RawPacket
         //raise the extension bit.
         newBuffer[newBufferOffset] |= 0x10;
         bufferOffset += lengthToCopy;
-        newBufferOffset += lengthToCopy;       
+        newBufferOffset += lengthToCopy;
 
         // Set the extension header or modify the existing one.
         int totalExtensionLen = newExtensionLen + getExtensionLength();

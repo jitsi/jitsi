@@ -712,6 +712,34 @@ public class MediaStreamImpl
     }
 
     /**
+     * Returns the payload type number that has been negotiated for the
+     * specified <tt>encoding</tt> or <tt>-1</tt> if no payload type has been
+     * negotiated for it. If multiple formats match the specified
+     * <tt>encoding</tt>, then this method would return the first one it
+     * encounters while iterating through the map.
+     *
+     * @param encoding the encoding whose payload type we are trying to obtain.
+     *
+     * @return the payload type number that has been negotiated for the
+     * specified <tt>encoding</tt> or <tt>-1</tt> if no payload type has been
+     * negotiated for it.
+     */
+    public byte getDynamicRTPPayloadType(String encoding)
+    {
+        synchronized (dynamicRTPPayloadTypes)
+        {
+            for (Map.Entry<Byte, MediaFormat> entry
+                                        : dynamicRTPPayloadTypes.entrySet())
+            {
+                if (entry.getValue().getEncoding().equals(encoding))
+                    return entry.getKey().byteValue();
+            }
+
+            return -1;
+        }
+    }
+
+    /**
      * Gets the <tt>MediaFormat</tt> that this stream is currently transmitting
      * in.
      *

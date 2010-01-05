@@ -10,6 +10,7 @@ package net.java.sip.communicator.service.neomedia;
  * Represents all DTMF tones.
  *
  * @author JM HEITZ
+ * @author Emil Ivov
  */
 public final class DTMFTone
 {
@@ -121,7 +122,7 @@ public final class DTMFTone
 
     /**
      * Indicates whether some other object is "equal to" this tone.
-     * 
+     *
      * @param target the reference object with which to compare.
      *
      * @return  <tt>true</tt> if target represents the same tone as this

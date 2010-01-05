@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.neomedia.transform.dtmf;
 
-import net.java.sip.communicator.impl.media.transform.*;
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.util.*;
 
@@ -29,18 +28,28 @@ public class DtmfRawPacket
         = Logger.getLogger(DtmfRawPacket.class);
 
     /**
+     * The fixed size of a DTMF packet.
+     */
+    public static final int DTMF_PACKET_SIZE = 16;
+
+    /**
      * Creates a <tt>DtmfRawPacket</tt> using the specified buffer.
      *
-     * @param buffer Byte array holding the content of this Packet
+     * @param buffer the <tt>byte</tt> array that we should use to store packet
+     * content
+     * @param offset the index where we should start using the <tt>buffer</tt>.
+     * @param payload the payload that has been negotiated for telephone events
+     * by our signaling modules.
      */
-    public DtmfRawPacket(byte[] buffer)
+    public DtmfRawPacket(byte[] buffer, int offset, byte payload)
     {
-        //DTMF buffer length = 16.
-        super (buffer, 0, 16);
+        super (buffer, offset, DTMF_PACKET_SIZE);
+
+        setPayload(payload);
     }
 
     /**
-     * Fill the RTP packet with DTMF fields.
+     * Initializes DTMF specific values in this packet.
      *
      * @param code the DTMF code representing the digit.
      * @param end the DTMF End flag
@@ -48,13 +57,18 @@ public class DtmfRawPacket
      * @param duration the DTMF duration
      * @param timestamp the RTP timestamp
      */
-    public void fillRawPacket(int code, boolean end, boolean marker, int duration, long timestamp)
+    public void init(int     code,
+                     boolean end,
+                     boolean marker,
+                     int     duration,
+                     long    timestamp)
     {
-        logger.trace("DTMF send on RTP, code : " + code + " " +
-                "dur = "+duration +" "+
-                "ts = "+timestamp +" "+
-                (marker?"Marker":"") +
-                (end?"End":""));
+        if(logger.isTraceEnabled())
+        {
+            logger.trace("DTMF send on RTP, code : " + code +
+                " duration = "+duration +" timestamps = "+timestamp +
+                " Marker = " + marker + " End = " + end);
+        }
 
         // Set the payload type and the marker
         setMarker(marker);
@@ -63,11 +77,11 @@ public class DtmfRawPacket
         setTimestamp(timestamp);
 
          // Create the RTP data
-        setData(code, end, duration);
+        setDtmfPayload(code, end, duration);
     }
 
     /**
-     * Create a DTMF raw data using event, E and duration field.
+     * Initializes the  a DTMF raw data using event, E and duration field.
      * Event : the digits to transmit (0-15).
      * E : End field, used to mark the two last packets.
      * R always = 0.
@@ -84,57 +98,18 @@ public class DtmfRawPacket
      * </pre>
      *
      * @param code the digit to transmit 0-15
-     * @param end : boolean used to mark the two last packets
-     * @param duration : int increments for each dtmf sending
-     *          updates, stay unchanged at the end for the 2 last packets.
-     * @return the DTMF raw data
+     * @param end boolean used to mark the two last packets
+     * @param duration int increments for each dtmf sending
+     * updates, stay unchanged at the end for the 2 last packets.
      */
-    private void setData(int code, boolean end, int duration)
+    private void setDtmfPayload(int code, boolean end, int duration)
     {
-        byte[] data = new byte[4];
-        data[0]=(byte)code;
-        data[1]= end ? (byte)0x80 : (byte)0;
-        data[2]=(byte)(duration >> 8);
-        data[3]=(byte) duration;
-        System.arraycopy(data, 0, this.buffer, 12, 4);
-    }
+        byte[] buffer = getBuffer();
+        int offset = getOffset();
 
-    /**
-     * Read the timestamp value of the RTP Packet;
-     * @return the timestamp value
-     */
-    public long getTimestamp()
-    {
-        return readInt(4);
+        buffer[offset + 12]=(byte)code;
+        buffer[offset + 13]= end ? (byte)0x80 : (byte)0;
+        buffer[offset + 14]=(byte)(duration >> 8);
+        buffer[offset + 15]=(byte) duration;
     }
-
-    /**
-     * Set the timestamp value of the RTP Packet
-     * @param timestamp : the RTP Timestamp
-     */
-    public void setTimestamp(long timestamp)
-    {
-        this.buffer[4] = (byte) ((timestamp >> 24) & 0xFF);
-        this.buffer[5] = (byte) ((timestamp >> 16) & 0xFF);
-        this.buffer[6] = (byte) ((timestamp >> 8) & 0xFF);
-        this.buffer[7] = (byte) (timestamp & 0xFF);
-    }
-
-    /**
-     * Set the marker of the RTP Packet and the PayloadType to
-     * <tt>DtmfConstants.DtmfSDP</tt>;
-     * @param marker : the RTP Marker
-     */
-    private void setMarker(boolean marker)
-    {
-        if(marker)
-        {
-             this.buffer[1] = (byte) (DtmfConstants.DtmfSDP | 0x80);
-        }
-        else
-        {
-             this.buffer[1] = (byte) DtmfConstants.DtmfSDP;
-        }
-    }
-
 }
