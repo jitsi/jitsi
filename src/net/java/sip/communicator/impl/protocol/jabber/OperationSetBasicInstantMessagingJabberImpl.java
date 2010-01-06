@@ -37,6 +37,9 @@ import org.jivesoftware.smackx.packet.*;
 public class OperationSetBasicInstantMessagingJabberImpl
     extends AbstractOperationSetBasicInstantMessaging
 {
+    /**
+     * Our class logger
+     */
     private static final Logger logger =
         Logger.getLogger(OperationSetBasicInstantMessagingJabberImpl.class);
 
@@ -50,6 +53,9 @@ public class OperationSetBasicInstantMessagingJabberImpl
      */
     private static final long KEEPALIVE_WAIT = 20000l;
 
+    /**
+     * Indicates whether we should be sending our own keep alive packets.
+     */
     private boolean keepAliveEnabled = false;
 
     /**
@@ -60,11 +66,39 @@ public class OperationSetBasicInstantMessagingJabberImpl
             +"MAX_GMAIL_THREADS_PER_NOTIFICATION";
 
     /**
-     * The maximum number of unread threads that we'd be notifying the user of.
+     * A map
      */
-    private static final String PNAME_ENABLE_GMAIL_NOTIFICATIONS
-        = "net.java.sip.communicator.impl.protocol.jabber."
-            +"ENABLE_GMAIL_NOTIFICATIONS";
+    private Map<String, String> jids = new Hashtable<String, String>();
+    /**
+     * Contains a list of currently active threads and several related details.
+     */
+    private List<ActiveThread> activeThreads = new ArrayList<ActiveThread>();
+
+    /**
+     * Describes a single active thread that we are maintaining with a
+     * particular contact. <tt>ActiveThread</tt>s are stored in a thread list
+     * and are updated every time we send a new message.
+     */
+    private class ActiveThread
+    {
+        /** The id of the thread */
+        String threadID;
+
+        /** The last complete JID (including resource) that we got a msg from*/
+        String lastFrom;
+
+        /** The time that we last sent or received a message in this thread */
+        long lastUpdatedTime;
+
+        /** The id of the remote party */
+        String jid;
+    }
+
+    /**
+     * The number of milliseconds that we preserve threads with no traffic
+     * before considering them dead.
+     */
+    private static final long THREAD_INACTIVITY_TIMEOUT = 10*60*1000;//10 min.
 
     /**
      * The task sending packets
@@ -89,6 +123,9 @@ public class OperationSetBasicInstantMessagingJabberImpl
     private final LinkedList<KeepAliveEvent> receivedKeepAlivePackets
         = new LinkedList<KeepAliveEvent>();
 
+    /**
+     * Stores the number of keep alive packets that we haven't heard back for.
+     */
     private int failedKeepalivePackets = 0;
 
     /**
@@ -144,6 +181,16 @@ public class OperationSetBasicInstantMessagingJabberImpl
         return createMessage(content, contentType, DEFAULT_MIME_ENCODING, null);
     }
 
+    /**
+     * Create a Message instance for sending arbitrary MIME-encoding content.
+     *
+     * @param content content value
+     * @param contentType the MIME-type for <tt>content</tt>
+     * @param subject the Subject of the message that we'd like to create.
+     * @param encoding the enconding of the message that we will be sending.
+     *
+     * @return the newly created message.
+     */
     public Message createMessage(String content, String contentType,
         String encoding, String subject)
     {
@@ -184,6 +231,103 @@ public class OperationSetBasicInstantMessagingJabberImpl
     }
 
     /**
+     * Returns a reference to an open chat with the specified
+     * <tt>jid</tt> if one exists or creates a new one otherwise.
+     *
+     * @param jid the Jabber ID that we'd like to obtain a chat instance for.
+     *
+     * @return a reference to an open chat with the specified
+     * <tt>jid</tt> if one exists or creates a new one otherwise.
+     */
+    public Chat obtainChatInstance(String jid)
+    {
+        ActiveThread resultThread = null;
+        long currentTime = System.currentTimeMillis();
+
+        //first, try to find a thread for the specified jid and prune all
+        //dead threads in the process.
+        synchronized (activeThreads)
+        {
+            Iterator<ActiveThread> threadsIter = activeThreads.iterator();
+
+
+            while(threadsIter.hasNext())
+            {
+                ActiveThread currentThread = threadsIter.next();
+
+                //first check if this is the thread we are looking for.
+                if(currentThread.jid.equals(jid))
+                {
+                    resultThread = currentThread;
+                }
+                else
+                {
+                    if(currentTime - currentThread.lastUpdatedTime
+                                    < THREAD_INACTIVITY_TIMEOUT)
+                    {
+                        //this thread has obviously expired.
+                        threadsIter.remove();
+                    }
+                }
+            }
+
+            XMPPConnection jabberConnection
+                = jabberProvider.getConnection();
+
+            org.jivesoftware.smack.MessageListener msgListener
+                = new org.jivesoftware.smack.MessageListener()
+                {
+                    public void processMessage(
+                        Chat chat,
+                        org.jivesoftware.smack.packet.Message message)
+                    {
+                        //we are not fully supporting chat based messaging
+                        //right now and only use a hack to make it look that
+                        //way. as a result we don't listen on the chat
+                        //itself and the only thing we do here is an update
+                        //of the active thread timestamp.
+                    }
+                };
+
+            Chat chat = null;
+            if (resultThread != null)
+            {
+                // we may already have a thread for this chat, so let's
+                // reuse it.
+                chat = jabberConnection.getChatManager()
+                            .getThreadChat(resultThread.threadID);
+
+                //update the time of the thread
+                resultThread.lastUpdatedTime = currentTime;
+
+                if(chat == null)
+                {
+                    //chat may have been closed since last time we used it.
+                    //create one with the same thread ID.
+                    chat = jabberConnection.getChatManager().createChat(
+                             jid, resultThread.threadID, msgListener);
+                }
+            }
+            else
+            {
+                //we don't have a thread for this chat, so let's create one.
+                chat = jabberConnection.getChatManager()
+                    .createChat(jid, msgListener);
+
+                ActiveThread newThread = new ActiveThread();
+
+                newThread.jid = jid;
+                newThread.lastUpdatedTime = currentTime;
+                newThread.threadID = chat.getThreadID();
+
+                activeThreads.add(newThread);
+            }
+
+            return chat;
+        }
+    }
+
+    /**
      * Sends the <tt>message</tt> to the destination indicated by the
      * <tt>to</tt> contact.
      *
@@ -206,24 +350,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
         {
             assertConnected();
 
-            org.jivesoftware.smack.MessageListener msgListener =
-                new org.jivesoftware.smack.MessageListener()
-                {
-                    public void processMessage(
-                        Chat arg0,
-                        org.jivesoftware.smack.packet.Message arg1)
-                    {
-                        //we are not supporting chat base messaging right now
-                        //so we don't listen on the chat itself.
-                        //this should be implemented once we start supporting
-                        //session oriented chats.
-                    }
-                };
-
-            XMPPConnection jabberConnection = jabberProvider.getConnection();
-
-            Chat chat = jabberConnection.getChatManager()
-                .createChat(to.getAddress(), msgListener);
+            Chat chat = obtainChatInstance(to.getAddress());
 
             org.jivesoftware.smack.packet.Message msg =
                 new org.jivesoftware.smack.packet.Message();
@@ -239,6 +366,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
             String content = msgDeliveryPendingEvt
                                     .getSourceMessage().getContent();
+
+            XMPPConnection jabberConnection = jabberProvider.getConnection();
 
             if(message.getContentType().equals(HTML_MIME_TYPE))
             {
@@ -296,6 +425,49 @@ public class OperationSetBasicInstantMessagingJabberImpl
             throw new IllegalStateException(
                 "The provider must be signed on the service before "
                 +"being able to communicate.");
+    }
+
+    /**
+     * Updates the timestamp of the <tt>ActiveThread</tt> with the specified
+     * <tt>threadID</tt> and also uses the loop to purge any dead threads.
+     *
+     * @param threadID the ID of the <tt>ActiveThread</tt> whose timestamp we'd
+     * like to update.
+     * @param from the address that sent the message.
+     */
+    private void updateActiveThread(String threadID, String from)
+    {
+        logger.trace("Updating thread=" + threadID + " from=" + from);
+        long currentTime = System.currentTimeMillis();
+
+        synchronized (activeThreads)
+        {
+            Iterator<ActiveThread> threadsIter = activeThreads.iterator();
+
+
+            while(threadsIter.hasNext())
+            {
+                ActiveThread currentThread = threadsIter.next();
+
+                //first check if this is the thread we are looking for.
+                if(from.startsWith(currentThread.jid)
+                   || currentThread.threadID.equals(threadID))
+                {
+                    currentThread.lastUpdatedTime = currentTime;
+                    currentThread.lastFrom = from;
+                    currentThread.threadID = threadID;
+                }
+                else
+                {
+                    if(currentTime - currentThread.lastUpdatedTime
+                                    < THREAD_INACTIVITY_TIMEOUT)
+                    {
+                        //this thread has obviously expired.
+                        threadsIter.remove();
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -369,6 +541,11 @@ public class OperationSetBasicInstantMessagingJabberImpl
     private class SmackMessageListener
         implements PacketListener
     {
+        /**
+         * Handles incoming messages and dispatches whatever events are
+         * necessary.
+         * @param packet the packet that we need to handle (if it is a message).
+         */
         public void processPacket(Packet packet)
         {
             if(!(packet instanceof org.jivesoftware.smack.packet.Message))
@@ -427,8 +604,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 }
             }
 
-            Contact sourceContact =
-                opSetPersPresence.findContactByID(fromUserID);
+            Contact sourceContact
+                = opSetPersPresence.findContactByID(fromUserID);
 
             if(msg.getType()
                             == org.jivesoftware.smack.packet.Message.Type.error)
@@ -451,10 +628,10 @@ public class OperationSetBasicInstantMessagingJabberImpl
                     }
                 }
 
-                MessageDeliveryFailedEvent ev =
-                    new MessageDeliveryFailedEvent(newMessage,
-                                                   sourceContact,
-                                                   errorResultCode);
+                MessageDeliveryFailedEvent ev
+                    = new MessageDeliveryFailedEvent(newMessage,
+                                                     sourceContact,
+                                                     errorResultCode);
 
                 // ev = messageDeliveryFailedTransform(ev);
 
@@ -462,6 +639,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
                     fireMessageEvent(ev);
                 return;
             }
+
+            updateActiveThread(msg.getThread(), msg.getFrom());
 
             // In the second condition we filter all group chat messages,
             // because they are managed by the multi user chat operation set.
@@ -485,12 +664,19 @@ public class OperationSetBasicInstantMessagingJabberImpl
         }
     }
 
+
     /**
      * Receives incoming KeepAlive Packets
      */
     private class KeepalivePacketListener
         implements PacketListener
     {
+        /**
+         * Handles incoming keep alive packets.
+         *
+         * @param packet the packet that we need to handle if it is a keep alive
+         * one.
+         */
         public void processPacket(Packet packet)
         {
             if(packet != null &&  !(packet instanceof KeepAliveEvent))
@@ -517,6 +703,9 @@ public class OperationSetBasicInstantMessagingJabberImpl
     private class KeepAliveSendTask
         extends TimerTask
     {
+        /**
+         * Sends a single <tt>KeepAliveEvent</tt>.
+         */
         public void run()
         {
             // if we are not registerd do nothing
@@ -556,6 +745,11 @@ public class OperationSetBasicInstantMessagingJabberImpl
     private class KeepAliveCheckTask
         extends TimerTask
     {
+        /**
+         * Checks if the first received packet in the queue is ok and if it is
+         * not or if the queue has no received packets then this means there
+         * is some network problem, so we fire an event
+         */
         public void run()
         {
             try
@@ -588,8 +782,10 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
         /**
          * Checks whether first packet in queue is ok
-         * @return boolean
-         * @throws NoSuchElementException
+         * @return <tt>true</tt> if the topmost keep alive packet seems to be ok
+         * and <tt>false</tt> otherwise.
+         *
+         * @throws NoSuchElementException if the topmost packet is malformed.
          */
         private boolean checkFirstPacket()
             throws NoSuchElementException
@@ -603,22 +799,6 @@ public class OperationSetBasicInstantMessagingJabberImpl
                             == receivedEvent.getSrcOpSetHash()
                     && jabberProvider.getAccountID().getUserID()
                             .equals(receivedEvent.getFromUserID()));
-        }
-
-        /**
-         * Fire Unregistered event
-         */
-        private void fireUnregisterd()
-        {
-            jabberProvider.fireRegistrationStateChanged(
-                jabberProvider.getRegistrationState(),
-                RegistrationState.CONNECTION_FAILED,
-                RegistrationStateChangeEvent.REASON_INTERNAL_ERROR, null);
-
-            opSetPersPresence.fireProviderStatusChangeEvent(
-                opSetPersPresence.getPresenceStatus(),
-                jabberProvider
-                    .getJabberStatusEnum().getStatus(JabberStatusEnum.OFFLINE));
         }
     }
 
@@ -637,6 +817,15 @@ public class OperationSetBasicInstantMessagingJabberImpl
      */
     private static class GroupMessagePacketFilter implements PacketFilter
     {
+        /**
+         * Returns <tt>true</tt> if <tt>packet</tt> is a <tt>Message</tt> and
+         * false otherwise.
+         *
+         * @param packet the packet that we need to check.
+         *
+         * @return  <tt>true</tt> if <tt>packet</tt> is a <tt>Message</tt> and
+         * false otherwise.
+         */
         public boolean accept(Packet packet)
         {
             if(!(packet instanceof org.jivesoftware.smack.packet.Message))
@@ -783,6 +972,12 @@ public class OperationSetBasicInstantMessagingJabberImpl
     private class MailboxIQListener
         implements PacketListener
     {
+        /**
+         * Handles incoming <tt>MailboxIQ</tt> packets.
+         *
+         * @param packet the IQ that we need to handle in case it is a
+         * <tt>MailboxIQ</tt>.
+         */
         public void processPacket(Packet packet)
         {
             if(packet != null &&  !(packet instanceof MailboxIQ))
@@ -817,11 +1012,17 @@ public class OperationSetBasicInstantMessagingJabberImpl
     }
 
     /**
-     * Receives incoming NewMailNotification Packets
+     * Receives incoming NewMailNotification Packets.
      */
     private class NewMailNotificationListener
         implements PacketListener
     {
+        /**
+         * Handles incoming <tt>NewMailNotificationIQ</tt> packets.
+         *
+         * @param packet the IQ that we need to handle in case it is a
+         * <tt>NewMailNotificationIQ</tt>.
+         */
         public void processPacket(Packet packet)
         {
             if(packet != null &&  !(packet instanceof NewMailNotificationIQ))
