@@ -755,8 +755,16 @@ public class UIServiceImpl
         String laf = UIManager.getSystemLookAndFeelClassName();
         boolean lafIsSet = false;
 
-        if ((laf != null)
-                && !laf.equals(UIManager.getCrossPlatformLookAndFeelClassName()))
+        /*
+         * SIPCommLookAndFeel used to be set in case the system L&F was the same
+         * as the cross-platform L&F. Unfortunately, SIPCommLookAndFeel is now
+         * broken because its classes are loaded by different ClassLoaders which
+         * results in exceptions. That's why the check
+         * !laf.equals(UIManager.getCrossPlatformLookAndFeelClassName()) is
+         * removed from the if statement bellow and thus the cross-platform L&F
+         * is preferred over SIPCommLookAndFeel.
+         */
+        if (laf != null)
         {
             try
             {
