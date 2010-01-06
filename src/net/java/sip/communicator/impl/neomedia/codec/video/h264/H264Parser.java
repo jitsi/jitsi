@@ -40,6 +40,11 @@ public class H264Parser
 
     private final int encodedFramePaddingSize;
 
+    /**
+     * If last processed packet has a marker (indicate end of frame).
+     */
+    private boolean lastHasMarker = false;
+
     public H264Parser()
     {
         this(0);
@@ -67,7 +72,8 @@ public class H264Parser
             (inputBuffer.getFlags() & Buffer.FLAG_RTP_MARKER) != 0;
 
         // if the timestamp changes we are starting receiving a new frame
-        if(!(currentStamp == lastTimestamp))
+        // this is also the case when last processed packet has marker
+        if(!(currentStamp == lastTimestamp) || lastHasMarker)
         {
             reset();
         }
@@ -116,6 +122,7 @@ public class H264Parser
             return false;
         }
 
+        lastHasMarker = hasMarker;
         return hasMarker;
     }
 
