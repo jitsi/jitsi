@@ -66,39 +66,31 @@ public class OperationSetBasicInstantMessagingJabberImpl
             +"MAX_GMAIL_THREADS_PER_NOTIFICATION";
 
     /**
-     * A map
+     * A table mapping contact addresses to full jids that can be used to
+     * target a specific resource (rather than sending a message to all logged
+     * instances of a user).
      */
-    private Map<String, String> jids = new Hashtable<String, String>();
-    /**
-     * Contains a list of currently active threads and several related details.
-     */
-    private List<ActiveThread> activeThreads = new ArrayList<ActiveThread>();
+    private Map<String, TargetAddress> jids
+                                    = new Hashtable<String, TargetAddress>();
 
     /**
-     * Describes a single active thread that we are maintaining with a
-     * particular contact. <tt>ActiveThread</tt>s are stored in a thread list
-     * and are updated every time we send a new message.
+     * Contains the complete jid of a specific user and the time that it was
+     * last used so that we could remove it after a certain point.
      */
-    private class ActiveThread
+    private class TargetAddress
     {
-        /** The id of the thread */
-        String threadID;
-
         /** The last complete JID (including resource) that we got a msg from*/
-        String lastFrom;
-
-        /** The time that we last sent or received a message in this thread */
-        long lastUpdatedTime;
-
-        /** The id of the remote party */
         String jid;
+
+        /** The time that we last sent or received a message from this jid */
+        long lastUpdatedTime;
     }
 
     /**
      * The number of milliseconds that we preserve threads with no traffic
      * before considering them dead.
      */
-    private static final long THREAD_INACTIVITY_TIMEOUT = 10*60*1000;//10 min.
+    private static final long JID_INACTIVITY_TIMEOUT = 10*60*1000;//10 min.
 
     /**
      * The task sending packets
@@ -241,89 +233,116 @@ public class OperationSetBasicInstantMessagingJabberImpl
      */
     public Chat obtainChatInstance(String jid)
     {
-        ActiveThread resultThread = null;
+        XMPPConnection jabberConnection
+            = jabberProvider.getConnection();
+
+        Chat chat = jabberConnection.getChatManager().getUserChat(jid);
+
+        if (chat != null)
+            return chat;
+
+        org.jivesoftware.smack.MessageListener msgListener
+            = new org.jivesoftware.smack.MessageListener()
+            {
+                public void processMessage(
+                    Chat chat,
+                    org.jivesoftware.smack.packet.Message message)
+                {
+                    //we are not fully supporting chat based messaging
+                    //right now and only use a hack to make it look that
+                    //way. as a result we don't listen on the chat
+                    //itself and the only thing we do here is an update
+                    //of the active thread timestamp.
+                }
+            };
+
+
+            //we don't have a thread for this chat, so let's create one.
+            chat = jabberConnection.getChatManager()
+                .createChat(jid, msgListener);
+
+        return chat;
+    }
+
+    /**
+     * Remove from our <tt>jids</tt> map all entries that have not seen any
+     * activity (i.e. neither outgoing nor incoming messags) for more than
+     * JID_INACTIVITY_TIMEOUT. Note that this method is not synchronous and that
+     * it is only meant for use by the {@link #getJidForAddress(String)} and
+     * {@link #putJidForAddress(String, String)}
+     */
+    private void purgeOldJids()
+    {
         long currentTime = System.currentTimeMillis();
 
-        //first, try to find a thread for the specified jid and prune all
-        //dead threads in the process.
-        synchronized (activeThreads)
+        Iterator<Map.Entry<String, TargetAddress>> entries
+            = jids.entrySet().iterator();
+
+
+        while( entries.hasNext() )
         {
-            Iterator<ActiveThread> threadsIter = activeThreads.iterator();
+            Map.Entry<String, TargetAddress> entry = entries.next();
+            TargetAddress target = entry.getValue();
 
+            if (currentTime - target.lastUpdatedTime
+                            > JID_INACTIVITY_TIMEOUT)
+                entries.remove();
+        }
+    }
 
-            while(threadsIter.hasNext())
-            {
-                ActiveThread currentThread = threadsIter.next();
+    /**
+     * Returns the last jid that the party with the specified <tt>address</tt>
+     * contacted us from or <tt>null</tt> if we don't have a jid for the
+     * specified <tt>address</tt> yet. The method would also purge all entries
+     * that haven't seen any activity (i.e. no one has tried to get or remap it)
+     * for a delay longer than <tt>JID_INACTIVITY_TIMEOUT</tt>.
+     *
+     * @param address the <tt>address</tt> that we'd like to obtain a jid for.
+     *
+     * @return the last jid that the party with the specified <tt>address</tt>
+     * contacted us from or <tt>null</tt> if we don't have a jid for the
+     * specified <tt>address</tt> yet.
+     */
+    private String getJidForAddress(String address)
+    {
+        synchronized(jids)
+        {
+            purgeOldJids();
+            TargetAddress ta = jids.get(address);
 
-                //first check if this is the thread we are looking for.
-                if(currentThread.jid.equals(jid))
-                {
-                    resultThread = currentThread;
-                }
-                else
-                {
-                    if(currentTime - currentThread.lastUpdatedTime
-                                    < THREAD_INACTIVITY_TIMEOUT)
-                    {
-                        //this thread has obviously expired.
-                        threadsIter.remove();
-                    }
-                }
-            }
+            if (ta == null)
+                return null;
 
-            XMPPConnection jabberConnection
-                = jabberProvider.getConnection();
+            ta.lastUpdatedTime = System.currentTimeMillis();
 
-            org.jivesoftware.smack.MessageListener msgListener
-                = new org.jivesoftware.smack.MessageListener()
-                {
-                    public void processMessage(
-                        Chat chat,
-                        org.jivesoftware.smack.packet.Message message)
-                    {
-                        //we are not fully supporting chat based messaging
-                        //right now and only use a hack to make it look that
-                        //way. as a result we don't listen on the chat
-                        //itself and the only thing we do here is an update
-                        //of the active thread timestamp.
-                    }
-                };
+            return ta.jid;
+        }
+    }
 
-            Chat chat = null;
-            if (resultThread != null)
-            {
-                // we may already have a thread for this chat, so let's
-                // reuse it.
-                chat = jabberConnection.getChatManager()
-                            .getThreadChat(resultThread.threadID);
+    /**
+     * Maps the specified <tt>address</tt> to <tt>jid</tt>. The point of this
+     * method is to allow us to send all messages destined to the contact with
+     * the specified <tt>address</tt> to the <tt>jid</tt> that they last
+     * contacted us from.
+     *
+     * @param address the bare address (i.e. no resource included) of the
+     * contact that we'd like to set a jid for.
+     * @param jid the jid (i.e. address/resource) that the contact with the
+     * specified <tt>address</tt> last contacted us from.
+     */
+    private void putJidForAddress(String address, String jid)
+    {
+        synchronized(jids)
+        {
+            purgeOldJids();
 
-                //update the time of the thread
-                resultThread.lastUpdatedTime = currentTime;
+            TargetAddress ta = jids.get(address);
 
-                if(chat == null)
-                {
-                    //chat may have been closed since last time we used it.
-                    //create one with the same thread ID.
-                    chat = jabberConnection.getChatManager().createChat(
-                             jid, resultThread.threadID, msgListener);
-                }
-            }
-            else
-            {
-                //we don't have a thread for this chat, so let's create one.
-                chat = jabberConnection.getChatManager()
-                    .createChat(jid, msgListener);
+            if (ta == null)
+                ta = new TargetAddress();
 
-                ActiveThread newThread = new ActiveThread();
-
-                newThread.jid = jid;
-                newThread.lastUpdatedTime = currentTime;
-                newThread.threadID = chat.getThreadID();
-
-                activeThreads.add(newThread);
-            }
-
-            return chat;
+            ta.jid = jid;
+            ta.lastUpdatedTime = System.currentTimeMillis();
         }
     }
 
@@ -350,10 +369,21 @@ public class OperationSetBasicInstantMessagingJabberImpl
         {
             assertConnected();
 
-            Chat chat = obtainChatInstance(to.getAddress());
-
             org.jivesoftware.smack.packet.Message msg =
                 new org.jivesoftware.smack.packet.Message();
+
+            String toJID = getJidForAddress(to.getAddress());
+
+            if (toJID == null)
+                toJID = to.getAddress();
+
+            Chat chat = obtainChatInstance(toJID);
+
+            msg.setTo(toJID);
+
+            logger.trace("Will send a message to:" + toJID
+                            + " chat.jid=" + chat.getParticipant()
+                            + " chat.tid=" + chat.getThreadID());
 
             MessageDeliveredEvent msgDeliveryPendingEvt
                 = new MessageDeliveredEvent(message, to);
@@ -425,49 +455,6 @@ public class OperationSetBasicInstantMessagingJabberImpl
             throw new IllegalStateException(
                 "The provider must be signed on the service before "
                 +"being able to communicate.");
-    }
-
-    /**
-     * Updates the timestamp of the <tt>ActiveThread</tt> with the specified
-     * <tt>threadID</tt> and also uses the loop to purge any dead threads.
-     *
-     * @param threadID the ID of the <tt>ActiveThread</tt> whose timestamp we'd
-     * like to update.
-     * @param from the address that sent the message.
-     */
-    private void updateActiveThread(String threadID, String from)
-    {
-        logger.trace("Updating thread=" + threadID + " from=" + from);
-        long currentTime = System.currentTimeMillis();
-
-        synchronized (activeThreads)
-        {
-            Iterator<ActiveThread> threadsIter = activeThreads.iterator();
-
-
-            while(threadsIter.hasNext())
-            {
-                ActiveThread currentThread = threadsIter.next();
-
-                //first check if this is the thread we are looking for.
-                if(from.startsWith(currentThread.jid)
-                   || currentThread.threadID.equals(threadID))
-                {
-                    currentThread.lastUpdatedTime = currentTime;
-                    currentThread.lastFrom = from;
-                    currentThread.threadID = threadID;
-                }
-                else
-                {
-                    if(currentTime - currentThread.lastUpdatedTime
-                                    < THREAD_INACTIVITY_TIMEOUT)
-                    {
-                        //this thread has obviously expired.
-                        threadsIter.remove();
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -640,7 +627,12 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 return;
             }
 
-            updateActiveThread(msg.getThread(), msg.getFrom());
+            //cache the jid (resource included) of the contact that's sending us
+            //a message so that all following messages would go to the resource
+            //that they contacted us from.
+            putJidForAddress(fromUserID, msg.getFrom());
+
+            logger.trace("just mapped: " + fromUserID + " to " + msg.getFrom());
 
             // In the second condition we filter all group chat messages,
             // because they are managed by the multi user chat operation set.
