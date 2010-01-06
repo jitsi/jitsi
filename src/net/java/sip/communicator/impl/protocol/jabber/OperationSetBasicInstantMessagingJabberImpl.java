@@ -257,8 +257,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
             };
 
 
-            //we don't have a thread for this chat, so let's create one.
-            chat = jabberConnection.getChatManager()
+        //we don't have a thread for this chat, so let's create one.
+        chat = jabberConnection.getChatManager()
                 .createChat(jid, msgListener);
 
         return chat;
