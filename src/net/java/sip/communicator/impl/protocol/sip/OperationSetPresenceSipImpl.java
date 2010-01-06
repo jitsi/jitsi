@@ -996,6 +996,8 @@ public class OperationSetPresenceSipImpl
                IllegalStateException,
                OperationFailedException
     {
+        assertConnected();
+
         if (!(contact instanceof ContactSipImpl))
             throw
                 new IllegalArgumentException(
@@ -1003,7 +1005,13 @@ public class OperationSetPresenceSipImpl
 
         ContactSipImpl sipcontact = (ContactSipImpl) contact;
 
-        unsubscribe(sipcontact, true);
+        /**
+         * Does not assert if there is no subscription cause if the user
+         * becomes offline he has terminated the subscription and so we have
+         * no subscription of this contact but we wont to remove it.
+         * Does not assert on connected cause have already has made the check.
+         */
+        unsubscribe(sipcontact, false);
 
         ((ContactGroupSipImpl) sipcontact.getParentContactGroup())
             .removeContact(sipcontact);

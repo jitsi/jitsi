@@ -106,6 +106,10 @@ accounts.sip.account2.PROXY_ADDRESS=
 # (Optional)
 accounts.sip.account2.PROXY_PORT=
 
+# This will be the contact list which we will use to test persistent storing
+# of sip protocol
+accounts.sip.CONTACT_LIST=
+
 # JABBER PROPERTIES
 
 # JABBER ACCOUNT 1

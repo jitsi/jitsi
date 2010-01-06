@@ -47,7 +47,7 @@ public class SipProtocolProviderServiceLick
      * contains the contact list that.
      */
     public static final String CONTACT_LIST_PROPERTY_NAME
-        = "accounts.gibberish.CONTACT_LIST";
+        = "accounts.sip.CONTACT_LIST";
 
     /**
      * Initializes and registers all tests that we'll run as a part of this
