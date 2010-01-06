@@ -339,7 +339,10 @@ public class OperationSetBasicInstantMessagingJabberImpl
             TargetAddress ta = jids.get(address);
 
             if (ta == null)
+            {
                 ta = new TargetAddress();
+                jids.put(address, ta);
+            }
 
             ta.jid = jid;
             ta.lastUpdatedTime = System.currentTimeMillis();
