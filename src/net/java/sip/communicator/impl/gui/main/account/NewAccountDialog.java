@@ -186,7 +186,7 @@ public class NewAccountDialog
                 public int compare(AccountRegistrationWizard arg0,
                                    AccountRegistrationWizard arg1)
                 {
-                    return arg0.getProtocolName().compareTo(
+                    return arg0.getProtocolName().compareToIgnoreCase(
                                     arg1.getProtocolName());
                 }
             });

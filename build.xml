@@ -850,7 +850,7 @@
         bundle-argdelegation,bundle-zrtp4j,
         bundle-filehistory,bundle-metahistory,bundle-metahistory-slick,
         bundle-facebook,bundle-plugin-facebookaccregwizz,
-        bundle-bouncycastle,bundle-plugin-otr"/>
+        bundle-bouncycastle,bundle-plugin-otr,bundle-plugin-iptelaccregwizz"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -1559,6 +1559,16 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
+    <!-- BUNDLE-PLUGIN-IPTELACCREGWIZZ -->
+    <target name="bundle-plugin-iptelaccregwizz">
+        <!-- Creates a bundle for the plugin IP Tel Account Registration Wizard.-->
+        <jar compress="false" destfile="${bundles.dest}/iptelaccregwizz.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/iptelaccregwizz/iptelaccregwizz.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/iptelaccregwizz"
+                prefix="net/java/sip/communicator/plugin/iptelaccregwizz"/>
+        </jar>
+    </target>
+
     <!-- BUNDLE-PLUGIN-GIBBERISHACCREGWIZZ -->
     <target name="bundle-plugin-gibberishaccregwizz">
         <!-- Creates a bundle for the plugin Gibberish Account Registration
@@ -2227,6 +2237,6 @@ org.apache.http.util"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/metahistory"
                 prefix="net/java/sip/communicator/slick/metahistory"/>
         </jar>
-    </target>	
+    </target>
 
 </project>
