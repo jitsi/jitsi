@@ -257,7 +257,7 @@ public class TestOperationSetBasicInstantMessaging
         opSetBasicIM2.sendInstantMessage(testerAgentContact,
                                          opSetBasicIM2.createMessage(body));
 
-        evtCollector.waitForEvent(10000);
+        evtCollector.waitForEvent(25000);
 
         opSetBasicIM1.removeMessageListener(evtCollector);
 
@@ -322,6 +322,9 @@ public class TestOperationSetBasicInstantMessaging
 
         Contact testerAgentContact
             = opSetPresence1.findContactByID(fixture.userID2);
+
+        logger.debug("Will send message " + body
+            + " to: " + testerAgentContact.getAddress());
 
         opSetBasicIM1.sendInstantMessage(testerAgentContact, msg);
 

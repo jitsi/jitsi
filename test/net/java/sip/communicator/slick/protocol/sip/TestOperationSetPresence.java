@@ -228,6 +228,14 @@ public class TestOperationSetPresence
             newStatus,
             this.operationSetPresence1.getPresenceStatus());
 
+        // Will wait for the status to be received before quering for it
+        Object lock = new Object();
+        synchronized(lock)
+        {
+            logger.trace("Will wait status to be received from the other side!");
+            lock.wait(5000);
+        }
+
         PresenceStatus actualStatus = 
             this.operationSetPresence2.queryContactStatus(this.fixture.userID1);
 
@@ -401,7 +409,7 @@ public class TestOperationSetPresence
         synchronized(lock)
         {
             logger.info("Will wait all subscription events to be received");
-            lock.wait(3000);
+            lock.wait(10000);
         }
         
         // make the user agent tester change its states and make sure we are

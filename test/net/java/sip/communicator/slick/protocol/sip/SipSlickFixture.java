@@ -266,12 +266,18 @@ public class SipSlickFixture
         ContactGroup rootGroup1
             = opSetPersPresence1.getServerStoredContactListRoot();
 
+        // used to pause between changes in order servers to be happy
+        Object lock = new Object();
+
         // first delete the groups
         Iterator<ContactGroup> cgiter = rootGroup1.subgroups();
         while (cgiter.hasNext())
         {
             ContactGroup item = cgiter.next();
             opSetPersPresence1.removeServerStoredContactGroup(item);
+            synchronized(lock){
+                lock.wait(1000);
+            }
             cgiter = rootGroup1.subgroups();
         }
 
@@ -280,6 +286,9 @@ public class SipSlickFixture
         while (citer.hasNext())
         {
             opSetPersPresence1.unsubscribe(citer.next());
+            synchronized(lock){
+                lock.wait(1000);
+            }
             citer = rootGroup1.contacts();
         }
 
@@ -292,6 +301,9 @@ public class SipSlickFixture
         while (cgiter.hasNext())
         {
             ContactGroup item = cgiter.next();
+            synchronized(lock){
+                lock.wait(1000);
+            }
             opSetPersPresence2.removeServerStoredContactGroup(item);
         }
 
@@ -300,6 +312,9 @@ public class SipSlickFixture
         while (citer.hasNext())
         {
             opSetPersPresence2.unsubscribe(citer.next());
+            synchronized(lock){
+                lock.wait(1000);
+            }
             citer = rootGroup2.contacts();
         }
     }
