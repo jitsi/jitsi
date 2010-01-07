@@ -77,6 +77,11 @@ public class ImageStream implements PushBufferStream, Runnable
     private Buffer buf = null;
 
     /**
+     * Synchronization object to protect buf.
+     */
+    private Object syncBuf = new Object();
+
+    /**
      * Destkop interaction (screen capture, key press, ...).
      */
     private DesktopInteract desktopInteract = null;
@@ -127,14 +132,24 @@ public class ImageStream implements PushBufferStream, Runnable
     {
         try
         {
-            buffer.setData(buf.getData());
-            buffer.setOffset(0);
-            buffer.setLength(buf.getLength());
-            buffer.setFormat(buf.getFormat());
-            buffer.setHeader(null);
-            buffer.setTimeStamp(buf.getTimeStamp());
-            buffer.setSequenceNumber(buf.getSequenceNumber());
-            buffer.setFlags(buf.getFlags());
+            synchronized(syncBuf)
+            {
+                if(buf != null)
+                {
+
+                    buffer.setData(buf.getData());
+                    buffer.setOffset(0);
+                    buffer.setLength(buf.getLength());
+                    buffer.setFormat(buf.getFormat());
+                    buffer.setHeader(null);
+                    buffer.setTimeStamp(buf.getTimeStamp());
+                    buffer.setSequenceNumber(buf.getSequenceNumber());
+                    buffer.setFlags(buf.getFlags());
+    
+                    /* clear buf so JMF will not get twice the same image */
+                    buf = null;
+                }
+            }
         }
         catch(Exception e)
         {
@@ -320,7 +335,10 @@ public class ImageStream implements PushBufferStream, Runnable
             buffer.setFlags(Buffer.FLAG_LIVE_DATA | Buffer.FLAG_SYSTEM_TIME);
             seqNo++;
 
-            buf = buffer;
+            synchronized(syncBuf)
+            {
+                buf = buffer;
+            }
 
             /* pass to JMF handler */
             if(transferHandler != null)
