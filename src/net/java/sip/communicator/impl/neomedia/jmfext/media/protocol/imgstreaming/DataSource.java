@@ -6,10 +6,8 @@
  */
 package net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.imgstreaming;
 
-import java.util.*;
-import java.io.*;
-
 import java.awt.*;
+import java.io.*;
 
 import javax.media.*;
 import javax.media.format.*;
@@ -27,7 +25,8 @@ import net.java.sip.communicator.util.*;
  * @author Lubomir Marinov
  * @author Damian Minkov
  */
-public class DataSource extends PushBufferDataSource
+public class DataSource
+    extends PushBufferDataSource
     implements CaptureDevice
 {
     /**
@@ -70,11 +69,11 @@ public class DataSource extends PushBufferDataSource
      */
     private static final Dimension res[] = new Dimension[] {
         new Dimension(128,96),
-            new Dimension(176, 144),
-            new Dimension(320, 240) ,
-            new Dimension(352, 288),
-            new Dimension(704, 576),
-            new Dimension(720, 480),
+        new Dimension(176, 144),
+        new Dimension(320, 240),
+        new Dimension(352, 288),
+        new Dimension(704, 576),
+        new Dimension(720, 480),
     };
 
     /**
@@ -86,16 +85,20 @@ public class DataSource extends PushBufferDataSource
     {
         /* initialize supported format array */
         int i = 0;
-        formats = new Format[res.length];
 
+        formats = new Format[res.length];
         for(Dimension dim : res)
         {
-            formats[i] = new RGBFormat(dim, /* resolution */
-                      (int)(dim.getWidth() * dim.getHeight() * 4), /* max data length */
-                      Format.byteArray, /* format */
-                      -1.0f, /* frame rate */
-                      32, /* color is coded in 24 bit/pixel */
-                      1, 2, 3); /* color masks (red, green, blue) */
+            formats[i]
+                = new RGBFormat(
+                        dim, /* resolution */
+                        (int)(dim.getWidth() * dim.getHeight() * 4), /* max data length */
+                        Format.byteArray, /* format */
+                        -1.0f, /* frame rate */
+                        32, /* color is coded in 24 bit/pixel */
+                        1,
+                        2,
+                        3); /* color masks (red, green, blue) */
             i++;
         }
     }
@@ -148,7 +151,7 @@ public class DataSource extends PushBufferDataSource
     /**
      * Initialize <tt>DataSource</tt>.
      *
-     * @throws IOException if initialization problem occured
+     * @throws IOException if initialization problem occurred
      */
     public void connect() throws IOException
     {
@@ -196,8 +199,8 @@ public class DataSource extends PushBufferDataSource
     public Object[] getControls()
     {
         /*
-         * The field controls represents is private so we cannot directly return
-         * it. Otherwise, the caller will be able to modify it.
+         * The field controls is private so we cannot directly return it.
+         * Otherwise, the caller will be able to modify it.
          */
         return controls.clone();
     }
@@ -211,35 +214,24 @@ public class DataSource extends PushBufferDataSource
      */
     public Object getControl(String controlType)
     {
-        try
-        {
-            Class<?> controlClass = Class.forName(controlType);
-
-            for(Object control : getControls())
-            {
-                if (controlClass.isInstance(control))
-                {
-                    return control;
-                }
-            }
-        }
-        catch (ClassNotFoundException cnfex)
-        {
-            logger.warn("Failed to load class of requested controlType "
-                        + controlType, cnfex);
-        }
-        return null;
+        return AbstractControls.getControl(this, controlType);
     }
 
     /**
-     * Get the <CaptureDeviceInfo</tt> associated
+     * Get the <tt>CaptureDeviceInfo</tt> associated
      * with this datasource.
      *
      * @return <tt>CaptureDeviceInfo</tt> associated
      */
     public CaptureDeviceInfo getCaptureDeviceInfo()
     {
-        return new CaptureDeviceInfo(getLocator().getRemainder(), getLocator(), getFormatControls()[0].getSupportedFormats());
+        MediaLocator locator = getLocator();
+
+        return
+            new CaptureDeviceInfo(
+                    locator.getRemainder(),
+                    locator,
+                    getFormatControls()[0].getSupportedFormats());
     }
 
     /**
@@ -249,17 +241,7 @@ public class DataSource extends PushBufferDataSource
      */
     public FormatControl[] getFormatControls()
     {
-        java.util.List<FormatControl> formatControls = new ArrayList<FormatControl>();
-
-        for(Object control : getControls())
-        {
-            if(control instanceof FormatControl)
-            {
-                formatControls.add((FormatControl)control);
-            }
-        }
-
-        return formatControls.toArray(new FormatControl[formatControls.size()]);
+        return AbstractFormatControl.getFormatControls(this);
     }
 
     /**
@@ -301,12 +283,13 @@ public class DataSource extends PushBufferDataSource
      *
      * @author Sebastien Vincent
      */
-    private class FormatControlImpl extends AbstractFormatControl
+    private class FormatControlImpl
+        extends AbstractFormatControl
     {
         /**
          * Current format used.
          */
-        Format currentFormat = formats[0];
+        private Format format = formats[0];
 
         /**
          * Set the format used.
@@ -314,15 +297,13 @@ public class DataSource extends PushBufferDataSource
          * @param format format to use
          * @return format used or null if format is not supported
          */
+        @Override
         public Format setFormat(Format format)
         {
             Format f = AbstractFormatControl.setFormat(this, format);
 
             if(f != null)
-            {
-                currentFormat = f;
-            }
-
+                this.format = f;
             return f;
         }
 
@@ -333,7 +314,7 @@ public class DataSource extends PushBufferDataSource
          */
         public Format getFormat()
         {
-            return currentFormat;
+            return format;
         }
 
         /**
@@ -349,4 +330,3 @@ public class DataSource extends PushBufferDataSource
         }
     }
 }
-

@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.neomedia.control;
 
+import java.util.*;
+
 import javax.media.*;
 import javax.media.control.*;
 
@@ -36,6 +38,25 @@ public abstract class AbstractFormatControl
     {
         // No Component is exported by this instance.
         return null;
+    }
+
+    /**
+     * Gets an array of <tt>FormatControl</tt> instances from the list of
+     * controls available for a specific <tt>Controls</tt> implementation.
+     *
+     * @param controlsImpl the <tt>Controls</tt> implementation from which the
+     * <tt>FormatControl</tt> instances are to be retrieved
+     * @return an array of <tt>FormatControl</tt> instances from the list of
+     * controls available for the specified <tt>Controls</tt> implementation
+     */
+    public static FormatControl[] getFormatControls(Controls controlsImpl)
+    {
+        List<FormatControl> formatControls = new ArrayList<FormatControl>();
+
+        for (Object control : controlsImpl.getControls())
+            if (control instanceof FormatControl)
+                formatControls.add((FormatControl) control);
+        return formatControls.toArray(new FormatControl[formatControls.size()]);
     }
 
     /**

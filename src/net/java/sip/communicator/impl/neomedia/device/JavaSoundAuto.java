@@ -6,10 +6,10 @@
  */
 package net.java.sip.communicator.impl.neomedia.device;
 
+import java.io.*;
 import java.util.*;
 
 import javax.media.*;
-
 import javax.sound.sampled.*;
 
 import net.java.sip.communicator.util.*;
@@ -31,7 +31,7 @@ public class JavaSoundAuto
      * Creates <tt>JavaSoundAuto</tt> and checks is javasound supported
      * on current operating system.
      */
-    @SuppressWarnings("unchecked") //legacy JMF code.
+    @SuppressWarnings("unchecked") // legacy JMF code.
     public JavaSoundAuto()
     {
         boolean supported = false;
@@ -42,7 +42,8 @@ public class JavaSoundAuto
                     null,
                     AudioSystem.NOT_SPECIFIED);
             supported = AudioSystem.isLineSupported(info);
-        } catch (Throwable thr)
+        }
+        catch (Throwable thr)
         {
             supported = false;
             logger.error("Failed detecting java sound audio", thr);
@@ -54,7 +55,8 @@ public class JavaSoundAuto
         {
             // It's there, start to register JavaSound with CaptureDeviceManager
             Vector<CaptureDeviceInfo> devices
-                = (Vector) CaptureDeviceManager.getDeviceList(null).clone();
+                = CaptureDeviceManager.getDeviceList(null);
+            devices = (Vector<CaptureDeviceInfo>) devices.clone();
 
             // remove the old javasound capturers
             String name;
@@ -69,21 +71,22 @@ public class JavaSoundAuto
 
             // collect javasound capture device info from JavaSoundSourceStream
             // and register them with CaptureDeviceManager
-            CaptureDeviceInfo[] cdi
+            CaptureDeviceInfo[] cdis
                 =  com.sun.media.protocol.javasound.JavaSoundSourceStream
                     .listCaptureDeviceInfo();
-            if ( cdi != null )
+            if ( cdis != null )
             {
-                for (int i = 0; i < cdi.length; i++)
-                    CaptureDeviceManager.addDevice(cdi[i]);
+                for (CaptureDeviceInfo cdi : cdis)
+                    CaptureDeviceManager.addDevice(cdi);
 
                 try
                 {
                     CaptureDeviceManager.commit();
                     logger.info("JavaSoundAuto: Committed ok");
-                } catch (java.io.IOException ioe)
+                }
+                catch (IOException ioex)
                 {
-                    logger.error("JavaSoundAuto: error committing cdm");
+                    logger.error("JavaSoundAuto: error committing cdm", ioex);
                 }
             }
 

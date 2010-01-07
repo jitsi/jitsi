@@ -188,8 +188,8 @@ public class DataSource
     public Object[] getControls()
     {
         /*
-         * The field controls represents is private so we cannot directly return
-         * it. Otherwise, the caller will be able to modify it.
+         * The field controls is private so we cannot directly return it.
+         * Otherwise, the caller will be able to modify it.
          */
         return controls.clone();
     }
@@ -216,12 +216,7 @@ public class DataSource
      */
     public FormatControl[] getFormatControls()
     {
-        List<FormatControl> formatControls = new ArrayList<FormatControl>();
-
-        for (Object control : getControls())
-            if (control instanceof FormatControl)
-                formatControls.add((FormatControl) control);
-        return formatControls.toArray(new FormatControl[formatControls.size()]);
+        return AbstractFormatControl.getFormatControls(this);
     }
 
     /**

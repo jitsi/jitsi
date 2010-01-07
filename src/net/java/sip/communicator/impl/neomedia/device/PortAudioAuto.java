@@ -39,7 +39,15 @@ public class PortAudioAuto
      */
     public static CaptureDeviceInfo defaultCaptureDevice = null;
 
-    PortAudioAuto() throws Exception
+    /**
+     * Initializes a new <tt>PortAudioAuto</tt> instance which creates PortAudio
+     * capture devices by enumerating all host devices with input channels.
+     *
+     * @throws Exception if anything wrong happens while creating the PortAudio
+     * capture devices
+     */
+    PortAudioAuto()
+        throws Exception
     {
         // if PortAudio has a problem initializing like missing native
         // components it will trow exception here and PortAudio rendering will
@@ -51,7 +59,6 @@ public class PortAudioAuto
             Registry.set("allowLogging", true);
 
         int deviceCount = PortAudio.Pa_GetDeviceCount();
-        int deviceIndex = 0;
 
         int defaultInputDeviceIx = PortAudio.Pa_GetDefaultInputDevice();
         int defaultOutputDeviceIx = PortAudio.Pa_GetDefaultOutputDevice();
@@ -59,7 +66,7 @@ public class PortAudioAuto
         Vector<CaptureDeviceInfo> playbackDevVector =
             new Vector<CaptureDeviceInfo>();
 
-        for (; deviceIndex < deviceCount; deviceIndex++)
+        for (int deviceIndex = 0; deviceIndex < deviceCount; deviceIndex++)
         {
             long deviceInfo = PortAudio.Pa_GetDeviceInfo(deviceIndex);
             int maxInputChannels =

@@ -6,29 +6,30 @@
  */
 package net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.imgstreaming;
 
-import java.io.*;
-
 import java.awt.*;
 import java.awt.image.*;
+import java.io.*;
 
 import javax.media.*;
 import javax.media.format.*;
 import javax.media.protocol.*;
 
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.impl.neomedia.imgstreaming.*;
+import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The stream used by JMF for our image streaming.
  * 
- * This class launch a thread to handle desktop capture
- * interactions.
+ * This class launches a thread to handle desktop capture interactions.
  *
  * @author Sebastien Vincent
  * @author Lubomir Marinov
  * @author Damian Minkov
  */
-public class ImageStream implements PushBufferStream, Runnable
+public class ImageStream
+    extends AbstractPushBufferStream
+    implements Runnable
 {
     /**
      * The <tt>Logger</tt>
@@ -36,25 +37,9 @@ public class ImageStream implements PushBufferStream, Runnable
     private static final Logger logger = Logger.getLogger(ImageStream.class);
 
     /**
-     * Content descriptor of this stream which is always RAW.
-     */
-    private final static ContentDescriptor contentDescriptor =
-        new ContentDescriptor(ContentDescriptor.RAW);
-
-    /**
-     * Controls associated with the stream.
-     */
-    private final Control[] controls = new Control[0];
-
-    /**
      * Current format used.
      */
     private Format currentFormat = null;
-
-    /**
-     * Callback handler when data from stream is available.
-     */
-    private BufferTransferHandler transferHandler = null;
 
     /**
      * Sequence number.
@@ -74,15 +59,10 @@ public class ImageStream implements PushBufferStream, Runnable
     /**
      * Buffer for the last image.
      */
-    private Buffer buf = null;
+    private final Buffer buf = new Buffer();
 
     /**
-     * Synchronization object to protect buf.
-     */
-    private Object syncBuf = new Object();
-
-    /**
-     * Destkop interaction (screen capture, key press, ...).
+     * Desktop interaction (screen capture, key press, ...).
      */
     private DesktopInteract desktopInteract = null;
 
@@ -128,132 +108,35 @@ public class ImageStream implements PushBufferStream, Runnable
      * @param buffer the <tt>Buffer</tt> to read captured media into
      * @throws IOException if an error occurs while reading.
      */
-    public void read(Buffer buffer) throws IOException
+    public void read(Buffer buffer)
+        throws IOException
     {
-        try
+        synchronized(buf)
         {
-            synchronized(syncBuf)
+            try
             {
-                if(buf != null)
-                {
+                Object bufData = buf.getData();
+                int bufLength = buf.getLength();
 
-                    buffer.setData(buf.getData());
+                if ((bufData != null) || (bufLength != 0))
+                {
+                    buffer.setData(bufData);
                     buffer.setOffset(0);
-                    buffer.setLength(buf.getLength());
+                    buffer.setLength(bufLength);
                     buffer.setFormat(buf.getFormat());
                     buffer.setHeader(null);
                     buffer.setTimeStamp(buf.getTimeStamp());
                     buffer.setSequenceNumber(buf.getSequenceNumber());
                     buffer.setFlags(buf.getFlags());
-    
+
                     /* clear buf so JMF will not get twice the same image */
-                    buf = null;
+                    buf.setData(null);
+                    buf.setLength(0);
                 }
             }
-        }
-        catch(Exception e)
-        {
-        }
-    }
-
-    /**
-     * Query if the next read will block.
-     *
-     * @return true if a read will block.
-     */
-    public boolean willReadBlock()
-    {
-        return false;
-    }
-
-    /**
-     * Register an object to service data transfers to this stream.
-     *
-     * @param transferHandler handler to transfer data to
-     */
-    public void setTransferHandler(BufferTransferHandler transferHandler)
-    {
-        synchronized(this)
-        {
-            this.transferHandler = transferHandler;
-            notifyAll();
-        }
-    }
-
-    /**
-     * Indicates whether or not the end of media stream.
-     *
-     * In case of image streaming it is always false.
-     *
-     * @return false
-     */
-    public boolean endOfStream()
-    {
-        return false;
-    }
-
-    /**
-     * Get content length of the stream.
-     *
-     * In case of image streaming it is unknown.
-     *
-     * @return LENGTH_UNKNOWN
-     */
-    public long getContentLength()
-    {
-        return LENGTH_UNKNOWN;
-    }
-
-    /**
-     * We are providing access to raw data.
-     *
-     * @return RAW content descriptor.
-     */
-    public ContentDescriptor getContentDescriptor()
-    {
-        return contentDescriptor;
-    }
-
-    /**
-     * Gives control information to the caller.
-     *
-     * @return the collection of object controls.
-     */
-    public Object[] getControls()
-    {
-        /*
-         * The field controls represents is private so we cannot directly return
-         * it. Otherwise, the caller will be able to modify it.
-         */
-        return controls.clone();
-    }
-
-    /**
-     * Return required control from the Control[] array
-     * if exists.
-     *
-     * @param controlType the control we are interested in.
-     * @return the object that implements the control, or null.
-     */
-    public Object getControl(String controlType)
-    {
-        try
-        {
-            Class<?> cls = Class.forName(controlType);
-            Object cs[] = getControls();
-            for(int i = 0; i < cs.length; i++)
+            catch (Exception e)
             {
-                if(cls.isInstance(cs[i]))
-                {
-                    return cs[i];
-                }
             }
-
-            return null;
-        }
-        catch (Exception e)
-        {
-            return null;
         }
     }
 
@@ -286,11 +169,10 @@ public class ImageStream implements PushBufferStream, Runnable
      */
     public void run()
     {
-        final Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         final RGBFormat format = (RGBFormat)currentFormat;
-        final int width = (int)format.getSize().getWidth();
-        final int height = (int)format.getSize().getHeight();
-        Buffer buffer = new Buffer();
+        Dimension formatSize = format.getSize();
+        final int width = (int)formatSize.getWidth();
+        final int height = (int)formatSize.getHeight();
 
         if(desktopInteract == null)
         {
@@ -311,10 +193,6 @@ public class ImageStream implements PushBufferStream, Runnable
             byte data[] = null;
             BufferedImage scaledScreen = null;
             BufferedImage screen = null;
-            
-            /*
-            long t = System.nanoTime();
-            */
 
             /* get desktop screen and resize it */
             screen = desktopInteract.captureScreen();
@@ -325,31 +203,26 @@ public class ImageStream implements PushBufferStream, Runnable
             data = ImageStreamingUtils.getImageByte(scaledScreen);
 
             /* notify JMF that new data is available */
-            buffer.setData(data);
-            buffer.setOffset(0);
-            buffer.setLength(data.length);
-            buffer.setFormat(currentFormat);
-            buffer.setHeader(null);
-            buffer.setTimeStamp(System.nanoTime());
-            buffer.setSequenceNumber(seqNo);
-            buffer.setFlags(Buffer.FLAG_LIVE_DATA | Buffer.FLAG_SYSTEM_TIME);
-            seqNo++;
-
-            synchronized(syncBuf)
+            synchronized (buf)
             {
-                buf = buffer;
+                buf.setData(data);
+                buf.setOffset(0);
+                buf.setLength(data.length);
+                buf.setFormat(currentFormat);
+                buf.setHeader(null);
+                buf.setTimeStamp(System.nanoTime());
+                buf.setSequenceNumber(seqNo++);
+                buf.setFlags(Buffer.FLAG_LIVE_DATA | Buffer.FLAG_SYSTEM_TIME);
             }
 
             /* pass to JMF handler */
+            BufferTransferHandler transferHandler = this.transferHandler;
+
             if(transferHandler != null)
             {
                 transferHandler.transferData(this);
                 Thread.yield();
             }
-            /*
-            t = System.nanoTime() - t;
-            logger.info("Desktop capture processing time: " + t);
-            */
 
             /* cleanup */
             screen = null;
@@ -366,8 +239,5 @@ public class ImageStream implements PushBufferStream, Runnable
                 /* do nothing */
             }
         }
-
-        buffer = null;
     }
 }
-
