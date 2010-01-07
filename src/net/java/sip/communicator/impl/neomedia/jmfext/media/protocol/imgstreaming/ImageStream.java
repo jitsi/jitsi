@@ -15,8 +15,6 @@ import javax.media.*;
 import javax.media.format.*;
 import javax.media.protocol.*;
 
-import net.sf.fmj.utility.*;
-
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.impl.neomedia.imgstreaming.*;
 
@@ -74,9 +72,9 @@ public class ImageStream implements PushBufferStream, Runnable
     private boolean started = false;
 
     /**
-     * Buffer container.
+     * Buffer for the last image.
      */
-    private RingBuffer ringBuffer = null;
+    private Buffer buf = null;
 
     /**
      * Destkop interaction (screen capture, key press, ...).
@@ -129,9 +127,6 @@ public class ImageStream implements PushBufferStream, Runnable
     {
         try
         {
-            /* get the next data */
-            Buffer buf = (Buffer)ringBuffer.get();
-
             buffer.setData(buf.getData());
             buffer.setOffset(0);
             buffer.setLength(buf.getLength());
@@ -257,7 +252,6 @@ public class ImageStream implements PushBufferStream, Runnable
             logger.info("Start stream");
             captureThread = new Thread(this);
             captureThread.start();
-            ringBuffer = new RingBuffer(5);
             started = true;
         }
     }
@@ -315,9 +309,7 @@ public class ImageStream implements PushBufferStream, Runnable
             /* get raw bytes */
             data = ImageStreamingUtils.getImageByte(scaledScreen);
 
-            /* add it to a RingBuffer and notify JMF that new data
-             * is available
-             */
+            /* notify JMF that new data is available */
             buffer.setData(data);
             buffer.setOffset(0);
             buffer.setLength(data.length);
@@ -328,7 +320,7 @@ public class ImageStream implements PushBufferStream, Runnable
             buffer.setFlags(Buffer.FLAG_LIVE_DATA | Buffer.FLAG_SYSTEM_TIME);
             seqNo++;
 
-            ringBuffer.put(buffer);
+            buf = buffer;
 
             /* pass to JMF handler */
             if(transferHandler != null)
