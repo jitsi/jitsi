@@ -248,18 +248,18 @@ public class MediaStreamImpl
         ArrayList<TransformEngine> engineChain
                                         = new ArrayList<TransformEngine>(3);
 
-        //ZRTP
-        engineChain.add(zrtpControl.getZrtpEngine());
+        //CSRCs and audio levels
+        csrcEngine = new CsrcTransformEngine(this);
+        engineChain.add(csrcEngine);
 
-        //DTMF
+                //DTMF
         DtmfTransformEngine dtmfEngine = createDtmfTransformEngine();
 
         if(dtmfEngine != null)
             engineChain.add(dtmfEngine);
 
-        //CSRCs and audio levels
-        csrcEngine = new CsrcTransformEngine(this);
-        engineChain.add(csrcEngine);
+        //ZRTP
+        engineChain.add(zrtpControl.getZrtpEngine());
 
         return new TransformEngineChain( engineChain.toArray(
                                     new TransformEngine[engineChain.size()]));
