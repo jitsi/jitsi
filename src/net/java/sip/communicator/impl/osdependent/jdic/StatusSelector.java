@@ -67,8 +67,9 @@ public class StatusSelector
             if (swing)
             {
                 JMenu menu = new JMenu(text);
-                menu.setIcon(new ImageIcon(presence.getPresenceStatus()
-                    .getStatusIcon()));
+                byte[] icBytes = presence.getPresenceStatus().getStatusIcon();
+                if(icBytes != null)
+                    menu.setIcon(new ImageIcon(icBytes));
 
                 this.menu = menu;
             }
@@ -90,8 +91,11 @@ public class StatusSelector
 
             if (menu instanceof Container)
             {
-                ImageIcon icon = new ImageIcon(status.getStatusIcon());
-                JMenuItem item = new JMenuItem(text, icon);
+                JMenuItem item = new JMenuItem(text);
+
+                byte[] icBytes = status.getStatusIcon();
+                if(icBytes != null)
+                    item.setIcon(new ImageIcon(icBytes));
 
                 item.addActionListener(this);
 
