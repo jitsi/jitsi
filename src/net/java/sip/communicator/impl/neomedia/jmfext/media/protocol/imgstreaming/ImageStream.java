@@ -11,6 +11,7 @@ import java.awt.image.*;
 import java.io.*;
 
 import javax.media.*;
+import javax.media.control.*;
 import javax.media.format.*;
 import javax.media.protocol.*;
 
@@ -35,11 +36,6 @@ public class ImageStream
      * The <tt>Logger</tt>
      */
     private static final Logger logger = Logger.getLogger(ImageStream.class);
-
-    /**
-     * Current format used.
-     */
-    private Format currentFormat = null;
 
     /**
      * Sequence number.
@@ -67,39 +63,15 @@ public class ImageStream
     private DesktopInteract desktopInteract = null;
 
     /**
-     * Constructor.
-     */
-    public ImageStream()
-    {
-    }
-
-    /**
-     * Constructor.
+     * Initializes a new <tt>ImageStream</tt> instance which is to have a
+     * specific <tt>FormatControl</tt>
      *
-     * @param locator <tt>MediaLocator</tt> to use
+     * @param formatControl the <tt>FormatControl</tt> of the new instance which
+     * is to specify the format in which it is to provide its media data
      */
-    public ImageStream(MediaLocator locator)
+    ImageStream(FormatControl formatControl)
     {
-    }
-
-    /**
-     * Set format to use.
-     *
-     * @param format new format to use
-     */
-    public void setFormat(Format format)
-    {
-        currentFormat = format;
-    }
-
-    /**
-     * Returns the supported format by this stream.
-     *
-     * @return supported formats
-     */
-    public Format getFormat()
-    {
-        return currentFormat;
+        super(formatControl);
     }
 
     /**
@@ -142,6 +114,8 @@ public class ImageStream
 
     /**
      * Start desktop capture stream.
+     *
+     * @see AbstractPushBufferStream#start()
      */
     public void start()
     {
@@ -149,13 +123,21 @@ public class ImageStream
         {
             logger.info("Start stream");
             captureThread = new Thread(this);
-            captureThread.start();
+
+            /*
+             * Set the started indicator before calling Thread#start() because
+             * the Thread may exist upon start if Thread#run() starts executing
+             * before setting the started indicator.
+             */
             started = true;
+            captureThread.start();
         }
     }
 
     /**
      * Stop desktop capture stream.
+     *
+     * @see AbstractPushBufferStream#stop()
      */
     public void stop()
     {
@@ -169,7 +151,7 @@ public class ImageStream
      */
     public void run()
     {
-        final RGBFormat format = (RGBFormat)currentFormat;
+        final RGBFormat format = (RGBFormat) getFormat();
         Dimension formatSize = format.getSize();
         final int width = (int)formatSize.getWidth();
         final int height = (int)formatSize.getHeight();
@@ -208,7 +190,7 @@ public class ImageStream
                 buf.setData(data);
                 buf.setOffset(0);
                 buf.setLength(data.length);
-                buf.setFormat(currentFormat);
+                buf.setFormat(format);
                 buf.setHeader(null);
                 buf.setTimeStamp(System.nanoTime());
                 buf.setSequenceNumber(seqNo++);

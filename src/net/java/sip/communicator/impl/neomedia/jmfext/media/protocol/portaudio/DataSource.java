@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.portaudio;
 
 import java.io.*;
-import java.util.*;
 
 import javax.media.*;
 import javax.media.control.*;
@@ -16,6 +15,7 @@ import javax.media.protocol.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.control.*;
+import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
 import net.java.sip.communicator.impl.neomedia.portaudio.*;
 import net.java.sip.communicator.util.*;
 
@@ -144,20 +144,7 @@ public class DataSource
      */
     public CaptureDeviceInfo getCaptureDeviceInfo()
     {
-        /*
-         * TODO The implemented search for the CaptureDeviceInfo of this
-         * CaptureDevice by looking for its MediaLocator is inefficient.
-         */
-        @SuppressWarnings("unchecked")
-        Vector<CaptureDeviceInfo> captureDeviceInfos
-            = (Vector<CaptureDeviceInfo>)
-                CaptureDeviceManager.getDeviceList(null);
-        MediaLocator locator = getLocator();
-
-        for (CaptureDeviceInfo captureDeviceInfo : captureDeviceInfos)
-            if (captureDeviceInfo.getLocator().equals(locator))
-                return captureDeviceInfo;
-        return null;
+        return AbstractPushBufferCaptureDevice.getCaptureDeviceInfo(this);
     }
 
     /**
