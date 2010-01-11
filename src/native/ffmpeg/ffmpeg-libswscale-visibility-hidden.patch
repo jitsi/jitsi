@@ -1,0 +1,31 @@
+Index: libswscale/swscale.c
+===================================================================
+--- libswscale/swscale.c	(révision 30204)
++++ libswscale/swscale.c	(copie de travail)
+@@ -259,17 +259,17 @@
+ DECLARE_ALIGNED(8, const uint64_t, ff_M24C)         = 0x0000FF0000FF0000LL;
+ 
+ #ifdef FAST_BGR2YV12
+-DECLARE_ALIGNED(8, const uint64_t, ff_bgr2YCoeff)   = 0x000000210041000DULL;
+-DECLARE_ALIGNED(8, const uint64_t, ff_bgr2UCoeff)   = 0x0000FFEEFFDC0038ULL;
+-DECLARE_ALIGNED(8, const uint64_t, ff_bgr2VCoeff)   = 0x00000038FFD2FFF8ULL;
++DECLARE_ALIGNED(8, const uint64_t, ff_bgr2YCoeff) __attribute__((visibility("hidden"))) = 0x000000210041000DULL;
++DECLARE_ALIGNED(8, const uint64_t, ff_bgr2UCoeff) __attribute__((visibility("hidden")))  = 0x0000FFEEFFDC0038ULL;
++DECLARE_ALIGNED(8, const uint64_t, ff_bgr2VCoeff) __attribute__((visibility("hidden")))  = 0x00000038FFD2FFF8ULL;
+ #else
+-DECLARE_ALIGNED(8, const uint64_t, ff_bgr2YCoeff)   = 0x000020E540830C8BULL;
+-DECLARE_ALIGNED(8, const uint64_t, ff_bgr2UCoeff)   = 0x0000ED0FDAC23831ULL;
+-DECLARE_ALIGNED(8, const uint64_t, ff_bgr2VCoeff)   = 0x00003831D0E6F6EAULL;
++DECLARE_ALIGNED(8, const uint64_t, ff_bgr2YCoeff) __attribute__((visibility("hidden")))  = 0x000020E540830C8BULL;
++DECLARE_ALIGNED(8, const uint64_t, ff_bgr2UCoeff) __attribute__((visibility("hidden")))  = 0x0000ED0FDAC23831ULL;
++DECLARE_ALIGNED(8, const uint64_t, ff_bgr2VCoeff) __attribute__((visibility("hidden")))  = 0x00003831D0E6F6EAULL;
+ #endif /* FAST_BGR2YV12 */
+-DECLARE_ALIGNED(8, const uint64_t, ff_bgr2YOffset)  = 0x1010101010101010ULL;
+-DECLARE_ALIGNED(8, const uint64_t, ff_bgr2UVOffset) = 0x8080808080808080ULL;
+-DECLARE_ALIGNED(8, const uint64_t, ff_w1111)        = 0x0001000100010001ULL;
++DECLARE_ALIGNED(8, const uint64_t, ff_bgr2YOffset) __attribute__((visibility("hidden"))) = 0x1010101010101010ULL;
++DECLARE_ALIGNED(8, const uint64_t, ff_bgr2UVOffset) __attribute__((visibility("hidden"))) = 0x8080808080808080ULL;
++DECLARE_ALIGNED(8, const uint64_t, ff_w1111) __attribute__((visibility("hidden"))) = 0x0001000100010001ULL;
+ 
+ DECLARE_ASM_CONST(8, uint64_t, ff_bgr24toY1Coeff) = 0x0C88000040870C88ULL;
+ DECLARE_ASM_CONST(8, uint64_t, ff_bgr24toY2Coeff) = 0x20DE4087000020DEULL;

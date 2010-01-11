@@ -132,6 +132,27 @@ public class FFMPEG
     public static native void avcodeccontext_set_workaround_bugs(long avctx,
         int workaround_bugs);
 
+    public static native void avcodeccontext_set_max_b_frames(long avctx, 
+        int max_b_frames);
+    
+    public static native void avcodeccontext_set_b_frame_strategy(long avctx, 
+        int b_frame_strategy);
+
+    public static native void avcodeccontext_set_trellis(long avctx, 
+        int trellis);
+    
+    public static native void avcodeccontext_set_refs(long avctx, 
+        int refs);
+    
+    public static native void avcodeccontext_set_chromaoffset(long avctx, 
+        int chromaoffset);
+    
+    public static native void avcodeccontext_set_deblockbeta(long avctx, 
+        int deblockbeta);
+    
+    public static native void avcodeccontext_set_ticks_per_frame(long avctx, 
+        int ticks_per_frame);
+
     public static native void avframe_set_data(long frame, long data0,
         long offset1, long offset2);
 

@@ -19,6 +19,8 @@ extern "C" {
 #define net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_FF_INPUT_BUFFER_PADDING_SIZE 8L
 #undef net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_FF_MB_DECISION_SIMPLE
 #define net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_FF_MB_DECISION_SIMPLE 0L
+#undef net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_X264_RC_ABR
+#define net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_X264_RC_ABR 2L
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
  * Method:    getRGB32Format
@@ -345,6 +347,62 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_
  * Signature: (JI)V
  */
 JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1workaround_1bugs
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    avcodeccontext_set_max_b_frames
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1max_1b_1frames
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    avcodeccontext_set_b_frame_strategy
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1b_1frame_1strategy
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    avcodeccontext_set_trellis
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1trellis
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    avcodeccontext_set_refs
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1refs
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    avcodeccontext_set_chromaoffset
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1chromaoffset
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    avcodeccontext_set_deblockbeta
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1deblockbeta
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    avcodeccontext_set_ticks_per_frame
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1ticks_1per_1frame
   (JNIEnv *, jclass, jlong, jint);
 
 /*

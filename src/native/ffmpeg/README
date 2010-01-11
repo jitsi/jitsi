@@ -57,7 +57,7 @@ Note: mingw64-make failed to work (segmentation fault) that's why we fallback to
 - Linux
 
 ./configure \
-  --disable-mmx \
+  --disable-mmx --enable-pic \
   --enable-static --disable-shared --shlibdir=. \
   --disable-encoders --disable-decoders --disable-muxers --disable-demuxers \
   --disable-parsers --disable-bsfs --disable-protocols --disable-devices \
@@ -82,3 +82,20 @@ Note: mingw64-make failed to work (segmentation fault) that's why we fallback to
   --disable-debug \
   --disable-ffserver --disable-ffplay --disable-ffmpeg \
   --enable-pthreads
+
+3. libffmpeg
+
+Open Makefile, uncomment the section for your OS and comment out the others.
+Be careful to correctly set X264_HOME, FFMPEG_HOME and JAVA_HOME variables.
+
+Then run:
+make
+
+Note:
+If compilation errors related to "relocation" occured, you 
+have to patch ffmpeg (more specifically libswscale) and x264.
+
+Apply the following patches in the relevant directory:
+- x264-20091208-visibility-hidden.patch
+- ffmpeg-libswcale-visibility-hidden.patch
+
