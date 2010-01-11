@@ -11,7 +11,7 @@ CPPFLAGS=-DJNI_IMPLEMENTATION \
 
 # MacOS X configuration
 #CPPFLAGS+=-I$(JAVA_HOME)/Headers/
-#LDFLAGS=-dynamiclib -Wl,-read_only_relocs,suppress -arch ppc -arch x86_64 -arch i386
+#LDFLAGS=-dynamiclib -Wl,-read_only_relocs,suppress
 #TARGET=../../../lib/native/mac/libffmpeg.jnilib
 
 # Windows configuration
