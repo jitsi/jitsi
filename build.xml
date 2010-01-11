@@ -1380,7 +1380,7 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/impl/protocol/yahoo/yahoo.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/yahoo"
                 prefix="net/java/sip/communicator/impl/protocol/yahoo"/>
-            <zipfileset src="${lib.noinst}/ymsg_network_v0_63.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/ymsg_network_v0_67.jar" prefix=""/>
         </jar>
     </target>
 
@@ -1391,7 +1391,7 @@ javax.swing.event, javax.swing.border"/>
             manifest="${testsrc}/net/java/sip/communicator/slick/protocol/yahoo/yahoo.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/yahoo"
                 prefix="net/java/sip/communicator/slick/protocol/yahoo"/>
-            <zipfileset src="${lib.noinst}/ymsg_network_v0_63.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/ymsg_network_v0_67.jar" prefix=""/>
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/generic"
                 prefix="net/java/sip/communicator/slick/protocol/generic"/>
         </jar>
