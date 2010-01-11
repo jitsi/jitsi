@@ -47,7 +47,7 @@
     <classpathentry kind="lib" path="lib/installer-exclude/Stun4J.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/swing-worker-1.2.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/transparency.jar"/>
-    <classpathentry kind="lib" path="lib/installer-exclude/ymsg_network_v0_63.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/ymsg_network_v0_67.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/zrtp4j-light.jar"/>
     <classpathentry kind="lib" path="lib/os-specific/linux/installer-exclude/jmf.jar"/>
     <classpathentry kind="lib" path="lib/os-specific/linux/jdic_stub.jar"/>
