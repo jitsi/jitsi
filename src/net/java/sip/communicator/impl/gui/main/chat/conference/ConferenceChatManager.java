@@ -24,7 +24,7 @@ import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 // Java 1.6 has javax.swing.SwingWorker so we have to disambiguate.
-import org.jdesktop.swingworker.SwingWorker;
+import org.jdesktop.swingworker.*;
 import org.osgi.framework.*;
 
 /**
@@ -793,7 +793,10 @@ public class ConferenceChatManager
                 members.add(opSet.findContactByID(contact));
             }
 
-            chatRoom = groupChatOpSet.createAdHocChatRoom(null, members);
+            
+            chatRoom = groupChatOpSet.createAdHocChatRoom(
+            		"chatroom-" + new Date().getTime(),
+            		members);
         }
         catch (OperationFailedException ex)
         {
