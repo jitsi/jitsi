@@ -7,6 +7,9 @@
 package net.java.sip.communicator.slick.protocol.jabber;
 
 import java.util.*;
+
+import org.jivesoftware.smack.util.*;
+
 import junit.framework.*;
 
 import net.java.sip.communicator.service.protocol.*;
@@ -17,6 +20,7 @@ import net.java.sip.communicator.util.*;
  * Tests multi user chat functionalities
  *
  * @author Symphorien Wanko
+ * @author Valentin Martinet
  */
 public class TestOperationSetMultiUserChat2
     extends TestCase
@@ -449,8 +453,9 @@ public class TestOperationSetMultiUserChat2
 
         ChatRoomInvitation invitation = invitationReceivedEvent.getInvitation();
 
-        assertEquals("The inviter is not the expected user"
-            , fixture.userID1, invitation.getInviter());
+        assertEquals("The inviter is not the expected user", 
+        		StringUtils.parseBareAddress(fixture.userID1), 
+        		StringUtils.parseBareAddress(invitation.getInviter()));
 
         assertEquals("The invitation reason received differs from the one sent"
             , "testInviteReject", invitation.getReason());
@@ -471,7 +476,8 @@ public class TestOperationSetMultiUserChat2
             opSet1Collector.collectedEvents.get(0);
 
         assertEquals("the invitation has been declined  by an unexpected user",
-            fixture.userID2, invitationRejectedEvent.getInvitee());
+            StringUtils.parseBareAddress(fixture.userID2), 
+            StringUtils.parseBareAddress(invitationRejectedEvent.getInvitee()));
 
         assertEquals("the invitation is not declined for the expected reason",
             "testInviteReject", invitationRejectedEvent.getReason());
@@ -515,7 +521,8 @@ public class TestOperationSetMultiUserChat2
         ChatRoomInvitation invitation = invitationReceivedEvent.getInvitation();
 
         assertEquals("The inviter is not the expected user",
-            fixture.userID1, invitation.getInviter());
+            StringUtils.parseBareAddress(fixture.userID1), 
+            StringUtils.parseBareAddress(invitation.getInviter()));
 
         assertEquals("The invitation reason received differs from the one sent"
             , "testInviteAccept", invitation.getReason());
