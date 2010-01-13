@@ -794,6 +794,18 @@ public class ServerStoredContactListMsnImpl
     private class ContactListListener
         implements net.sf.jml.event.MsnContactListListener
     {
+        public void contactPersonalMessageChanged(MsnMessenger messenger ,
+            MsnContact contact)
+        {
+            ContactMsnImpl contactImpl =
+                findContactById(contact.getEmail().getEmailAddress());
+
+            if (contactImpl != null)
+                return;
+
+            contactImpl.setStatusMessage(contact.getPersonalMessage());
+        }
+
         public void contactListSyncCompleted(MsnMessenger messenger)
         {
         }
@@ -897,6 +909,16 @@ public class ServerStoredContactListMsnImpl
 
         public void ownerStatusChanged(MsnMessenger messenger)
         {
+        }
+
+        public void contactAddedMe(MsnMessenger messenger,
+            MsnContactPending[] pendingContacts)
+        {
+            logger.trace("Contact add us ");
+            /**
+             * TODO this method introduced for msn15 currently used.
+             * the old one below no more used.
+             */
         }
 
         public void contactAddedMe(MsnMessenger messenger, MsnContact contact)

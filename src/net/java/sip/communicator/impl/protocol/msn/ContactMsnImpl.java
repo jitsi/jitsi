@@ -25,6 +25,11 @@ public class ContactMsnImpl
     private boolean isResolved = false;
 
     /**
+     * The contact's status message.
+     */
+    private String statusMessage = null;
+
+    /**
      * Creates an MsnContactImpl
      * @param contact the contact object that we will be encapsulating.
      * @param ssclCallback a reference to the ServerStoredContactListImpl
@@ -291,10 +296,20 @@ public class ContactMsnImpl
     /**
      * Return the current status message of this contact.
      *
-     * @return null as the protocol has currently no support of status messages
+     * @return the current status messages
      */
     public String getStatusMessage()
     {
-        return null;
+        return statusMessage;
+    }
+
+    /**
+     * Changes the current status message of this contact.
+     * 
+     * @param newStatusMessage the new message.
+     */
+    public void setStatusMessage(String newStatusMessage)
+    {
+        this.statusMessage = newStatusMessage;
     }
 }
