@@ -250,30 +250,32 @@ public class ChatWindowManager
         synchronized (syncChat)
         {
             ChatPanel activePanel = null;
-
-            for (ChatPanel chatPanel : chatPanels)
+            synchronized (chatPanels) 
             {
-                if (chatPanel.getChatSession() instanceof
-                    AdHocConferenceChatSession)
-                {
-                    AdHocConferenceChatSession adHocSession
-                        = (AdHocConferenceChatSession) chatPanel
-                            .getChatSession();
+            	for (ChatPanel chatPanel : chatPanels)
+            	{
+            		if (chatPanel.getChatSession() instanceof
+            				AdHocConferenceChatSession)
+            		{
+            			AdHocConferenceChatSession adHocSession
+            			= (AdHocConferenceChatSession) chatPanel
+            			.getChatSession();
 
-                    GuiActivator.getUIService().getConferenceChatManager()
-                        .leaveChatRoom(
-                            (AdHocChatRoomWrapper) adHocSession.getDescriptor());
-                }
+            			GuiActivator.getUIService().getConferenceChatManager()
+            			.leaveChatRoom((AdHocChatRoomWrapper) 
+            					adHocSession.getDescriptor());
+            		}
 
-                if (!chatPanel.isWriteAreaEmpty()
-                    || chatPanel.containsActiveFileTransfers()
-                    || System.currentTimeMillis() - chatWindow
-                    .getLastIncomingMsgTimestamp(chatPanel) < 2 * 1000)
-                {
-                    activePanel = chatPanel;
-                }
+            		if (!chatPanel.isWriteAreaEmpty()
+            				|| chatPanel.containsActiveFileTransfers()
+            				|| System.currentTimeMillis() - chatWindow
+            				.getLastIncomingMsgTimestamp(chatPanel) < 2 * 1000)
+            		{
+            			activePanel = chatPanel;
+            		}
+            	}
             }
-
+            
             if (activePanel == null)
             {
                 this.disposeChatWindow(chatWindow);
