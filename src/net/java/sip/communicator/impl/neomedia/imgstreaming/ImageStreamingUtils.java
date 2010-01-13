@@ -44,7 +44,12 @@ public class ImageStreamingUtils
         double scaleHeight = ((double)height) / ((double)src.getHeight());
         BufferedImage dst = null;
 
-        tx.scale(scaleWidth, scaleHeight);
+        /* skip rescaling if input and output size are the same */
+        if(scaleWidth != 1 || scaleHeight != 1)
+        {
+            tx.scale(scaleWidth, scaleHeight);
+        }
+
         op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
         dst = new BufferedImage(width, height, type);
 

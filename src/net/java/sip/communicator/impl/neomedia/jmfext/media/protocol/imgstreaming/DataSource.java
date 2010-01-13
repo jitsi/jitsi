@@ -36,12 +36,15 @@ public class DataSource
      * preference.
      */
     private static final Dimension res[] = new Dimension[] {
+        Toolkit.getDefaultToolkit().getScreenSize(), /* current desktop screen size */
+        new Dimension(1024, 768),
+        new Dimension(800, 600),
         new Dimension(720, 480),
         new Dimension(704, 576),
         new Dimension(352, 288),
         new Dimension(320, 240),
         new Dimension(176, 144),
-        new Dimension(128,96),
+        new Dimension(128, 96),
     };
 
     static
