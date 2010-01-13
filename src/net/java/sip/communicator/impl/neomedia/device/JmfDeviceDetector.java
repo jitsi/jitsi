@@ -49,7 +49,7 @@ public class JmfDeviceDetector
         = "secure.allowSaveFileFromApplets";
 
     /**
-     * The JMF registry property that specifies that have initilized the
+     * The JMF registry property that specifies that have initialized the
      * currently valid repository.
      */
     private static final String PROP_REGISTRY_AUTHOR
@@ -57,14 +57,14 @@ public class JmfDeviceDetector
 
     /**
      * The value of the JMF registry property that determines whether we have
-     * initilized the currentl repository.
+     * initialized the current repository.
      */
     private static final String PROP_REGISTRY_AUTHOR_VALUE
         = "sip-communicator.org";
 
     /**
      * The name of the file that the JMF registry uses for storing and loading
-     * jmf properties.
+     * JMF properties.
      */
     private static final String JMF_PROPERTIES_FILE_NAME = "jmf.properties";
 
@@ -173,15 +173,29 @@ public class JmfDeviceDetector
         logger.info("Looking for video capture devices");
 
         //FMJ
+        boolean fmjVideoAvailable = isFMJVideoAvailable();
+
         try
         {
-            if(isFMJVideoAvailable())
+            if(fmjVideoAvailable)
                 new FMJCivilVideoAuto();
         }
         catch (Throwable exc)
         {
             logger.debug("No FMJ CIVIL video detected: " + exc.getMessage(), exc);
+            fmjVideoAvailable = false;
         }
+
+        // QuickTime
+        if (!fmjVideoAvailable && OSUtils.IS_MAC)
+            try
+            {
+                new QuickTimeAuto();
+            }
+            catch (Throwable t)
+            {
+                logger.debug("No QuickTime detected: " + t.getMessage(), t);
+            }
 
         /* Desktop capture */
 
@@ -189,19 +203,23 @@ public class JmfDeviceDetector
          * user needs to add --desktop-stream argument:
          * ant run -Dargs=--desktop-stream
          */
-        String allowDs = System.getProperty("net.java.sip.communicator.impl.neomedia.imgstreaming");
+        String allowDs
+            = System
+                .getProperty(
+                    "net.java.sip.communicator.impl.neomedia.imgstreaming");
 
-        if(allowDs != null && allowDs.equals("true"))
-        {
+        if(Boolean.parseBoolean(allowDs))
             try
             {
                 new ImageStreamingAuto();
             }
             catch(Throwable exc)
             {
-                logger.debug("No desktop streaming available: " + exc.getMessage(), exc);
+                logger
+                    .debug(
+                        "No desktop streaming available: " + exc.getMessage(),
+                        exc);
             }
-        }
     }
 
     /**

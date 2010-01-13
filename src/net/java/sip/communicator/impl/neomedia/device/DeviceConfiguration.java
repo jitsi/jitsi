@@ -345,7 +345,7 @@ public class DeviceConfiguration
 
             if (videoCaptureDevice != null)
                 logger.info("Found " + videoCaptureDevice.getName()
-                    + " as an RGB Video Device.");
+                    + " as an " + format + " Video Device.");
         }
         return videoCaptureDevice;
     }
