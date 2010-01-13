@@ -53,6 +53,9 @@ public class GenericFileDialog
 					e.printStackTrace();
 				}
 	
+			if (parent == null)
+				parent = new Frame();
+			
 			return new SipCommFileDialogImpl(parent, title, operation);
 		}
 		else
