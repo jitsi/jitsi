@@ -99,30 +99,6 @@ public abstract class AbstractPushBufferCaptureDevice
     }
 
     /**
-     * Determines whether it is allowed to set the format of a specific
-     * <tt>FormatControl</tt> of the <tt>PushBufferStream</tt> of this
-     * <tt>PushBufferDataSource</tt> with a specific index to a specific
-     * <tt>Format</tt>. The <tt>AbstractPushBufferCaptureDevice</tt>
-     * implementation always returns <tt>false</tt>.
-     *
-     * @param format the <tt>Format</tt> which is to be set
-     * @param streamIndex the zero-based index of the <tt>PushBufferStream</tt>
-     * in the list of streams of this <tt>PushBufferDataSource</tt> which is to
-     * have its <tt>Format</tt> set
-     * @param formatControl the <tt>FormatControl</tt> of the stream through
-     * which the set request is received
-     * @return <tt>true</tt> if the specified <tt>Format</tt> is to be set as
-     * the format of <tt>formatControl</tt>; otherwise, <tt>false</tt>
-     */
-    protected boolean canSetFormat(
-            Format format,
-            int streamIndex,
-            FormatControl formatControl)
-    {
-        return false;
-    }
-
-    /**
      * Opens a connection to the media source specified by the
      * <tt>MediaLocator</tt> of this <tt>DataSource</tt>.
      *
@@ -176,10 +152,9 @@ public abstract class AbstractPushBufferCaptureDevice
                  */
                 public Format getFormat()
                 {
-                    if (format == null)
-                        format
-                            = AbstractPushBufferCaptureDevice.this
-                                    .getFormat(streamIndex, this);
+                    format
+                        = AbstractPushBufferCaptureDevice.this
+                                .internalGetFormat(streamIndex, format);
                     return format;
                 }
 
@@ -195,7 +170,7 @@ public abstract class AbstractPushBufferCaptureDevice
                 {
                     return
                         AbstractPushBufferCaptureDevice.this
-                                .getSupportedFormats(streamIndex, this);
+                                .getSupportedFormats(streamIndex);
                 }
 
                 /**
@@ -213,12 +188,20 @@ public abstract class AbstractPushBufferCaptureDevice
                 @Override
                 public Format setFormat(Format format)
                 {
-                    format = super.setFormat(format);
+                    Format setFormat = super.setFormat(format);
 
-                    if ((format != null)
-                            && canSetFormat(format, streamIndex, this))
-                        this.format = format;
-                    return getFormat();
+                    if (setFormat != null)
+                    {
+                        setFormat
+                            = AbstractPushBufferCaptureDevice.this
+                                    .internalSetFormat(
+                                        streamIndex,
+                                        setFormat,
+                                        format);
+                        if (setFormat != null)
+                            this.format = setFormat;
+                    }
+                    return setFormat;
                 }
             };
     }
@@ -455,25 +438,29 @@ public abstract class AbstractPushBufferCaptureDevice
     }
 
     /**
-     * Gets the <tt>Format</tt> which is to be reported by a specific
-     * <tt>FormatControl</tt> for a <tt>PushBufferStream</tt> at a specific
-     * zero-based index in the list of streams of this
-     * <tt>PushBufferDataSource</tt>.
+     * Gets the <tt>Format</tt> to be reported by the <tt>FormatControl</tt> of
+     * a <tt>PushBufferStream</tt> at a specific zero-based index in the list of
+     * streams of this <tt>PushBufferDataSource</tt>. The
+     * <tt>PushBufferStream</tt> may not exist at the time of requesting its
+     * <tt>Format</tt>. Allows extenders to override the default behavior which
+     * is to report any last-known format or the first <tt>Format</tt> from the
+     * list of supported formats as defined in the JMF registration of this
+     * <tt>CaptureDevice</tt>.
      *
      * @param streamIndex the zero-based index of the <tt>PushBufferStream</tt>
-     * in the list of streams of this <tt>PushBufferDataSource</tt> for which
-     * the specified <tt>FormatControl</tt> is to report a <tt>Format</tt>
-     * @param formatControl the <tt>FormatControl</tt> which si to report the
-     * <tt>Format</tt>
-     * @return the <tt>Format</tt> which is to be reported by
-     * <tt>formatControl</tt> as the format of the <tt>PushBufferStream</tt> at
-     * the specified <tt>streamIndex</tt> in the list of streams of this
-     * <tt>PushBufferDataSource</tt>
+     * the <tt>Format</tt> of which is to be retrieved
+     * @param oldValue the last-known <tt>Format</tt> for the
+     * <tt>PushBufferStream</tt> at the specified <tt>streamIndex</tt>
+     * @return the <tt>Format</tt> to be reported by the <tt>FormatControl</tt>
+     * of the <tt>PushBufferStream</tt> at the specified <tt>streamIndex</tt> in
+     * the list of streams of this <tt>PushBufferDataSource</tt>.
      */
-    protected Format getFormat(int streamIndex, FormatControl formatControl)
+    protected Format getFormat(int streamIndex, Format oldValue)
     {
-        Format[] supportedFormats
-            = getSupportedFormats(streamIndex, formatControl);
+        if (oldValue != null)
+            return oldValue;
+
+        Format[] supportedFormats = getSupportedFormats(streamIndex);
 
         return
             ((supportedFormats == null) || (supportedFormats.length < 1))
@@ -544,7 +531,7 @@ public abstract class AbstractPushBufferCaptureDevice
     }
 
     /**
-     * Gets the <tt>Format</tt>s which are to be reported by a specific
+     * Gets the <tt>Format</tt>s which are to be reported by a
      * <tt>FormatControl</tt> as supported formats for a
      * <tt>PushBufferStream</tt> at a specific zero-based index in the list of
      * streams of this <tt>PushBufferDataSource</tt>.
@@ -552,21 +539,52 @@ public abstract class AbstractPushBufferCaptureDevice
      * @param streamIndex the zero-based index of the <tt>PushBufferStream</tt>
      * for which the specified <tt>FormatControl</tt> is to report the list of
      * supported <tt>Format</tt>s
-     * @param formatControl the <tt>FormatControl</tt> which is to reports a
-     * list of supported <tt>Format</tt>s
-     * @return an array of <tt>Format</tt>s to be reported by
-     * <tt>formatControl</tt> as the supported formats for the
+     * @return an array of <tt>Format</tt>s to be reported by a
+     * <tt>FormatControl</tt> as the supported formats for the
      * <tt>PushBufferStream</tt> at the specified <tt>streamIndex</tt> in the
      * list of streams of this <tt>PushBufferDataSource</tt>
      */
-    protected Format[] getSupportedFormats(
-            int streamIndex,
-            FormatControl formatControl)
+    protected Format[] getSupportedFormats(int streamIndex)
     {
         CaptureDeviceInfo captureDeviceInfo = getCaptureDeviceInfo();
 
         return
             (captureDeviceInfo == null) ? null : captureDeviceInfo.getFormats();
+    }
+
+    /**
+     * Gets the <tt>Format</tt> to be reported by the <tt>FormatControl</tt> of
+     * a <tt>PushBufferStream</tt> at a specific zero-based index in the list of
+     * streams of this <tt>PushBufferDataSource</tt>. The
+     * <tt>PushBufferStream</tt> may not exist at the time of requesting its
+     * <tt>Format</tt>.
+     *
+     * @param streamIndex the zero-based index of the <tt>PushBufferStream</tt>
+     * the <tt>Format</tt> of which is to be retrieved
+     * @param oldValue the last-known <tt>Format</tt> for the
+     * <tt>PushBufferStream</tt> at the specified <tt>streamIndex</tt>
+     * @return the <tt>Format</tt> to be reported by the <tt>FormatControl</tt>
+     * of the <tt>PushBufferStream</tt> at the specified <tt>streamIndex</tt> in
+     * the list of streams of this <tt>PushBufferDataSource</tt>.
+     */
+    private Format internalGetFormat(int streamIndex, Format oldValue)
+    {
+        synchronized (this)
+        {
+            if (streams != null)
+            {
+                AbstractPushBufferStream stream = streams[streamIndex];
+
+                if (stream != null)
+                {
+                    Format streamFormat = stream.internalGetFormat();
+
+                    if (streamFormat != null)
+                        return streamFormat;
+                }
+            }
+        }
+        return getFormat(streamIndex, oldValue);
     }
 
     /**
@@ -583,6 +601,73 @@ public abstract class AbstractPushBufferCaptureDevice
         if (formatControls == null)
             formatControls = createFormatControls();
         return formatControls;
+    }
+
+    /**
+     * Attempts to set the <tt>Format</tt> to be reported by the
+     * <tt>FormatControl</tt> of a <tt>PushBufferStream</tt> at a specific
+     * zero-based index in the list of streams of this
+     * <tt>PushBufferDataSource</tt>.
+     *
+     * @param streamIndex the zero-based index of the <tt>PushBufferStream</tt>
+     * the <tt>Format</tt> of which is to be set
+     * @param oldValue the last-known <tt>Format</tt> for the
+     * <tt>PushBufferStream</tt> at the specified <tt>streamIndex</tt>
+     * @param newValue the <tt>Format</tt> which is to be set
+     * @return the <tt>Format</tt> to be reported by the <tt>FormatControl</tt>
+     * of the <tt>PushBufferStream</tt> at the specified <tt>streamIndex</tt>
+     * in the list of streams of this <tt>PushBufferStream</tt> or <tt>null</tt>
+     * if the attempt to set the <tt>Format</tt> did not success and any
+     * last-known <tt>Format</tt> is to be left in effect
+     */
+    private Format internalSetFormat(
+            int streamIndex,
+            Format oldValue,
+            Format newValue)
+    {
+        synchronized (this)
+        {
+            if (streams != null)
+            {
+                AbstractPushBufferStream stream = streams[streamIndex];
+
+                if (stream != null)
+                    return stream.internalSetFormat(newValue);
+            }
+        }
+        return setFormat(streamIndex, oldValue, newValue);
+    }
+
+    /**
+     * Attempts to set the <tt>Format</tt> to be reported by the
+     * <tt>FormatControl</tt> of a <tt>PushBufferStream</tt> at a specific
+     * zero-based index in the list of streams of this
+     * <tt>PushBufferDataSource</tt>. The <tt>PushBufferStream</tt> does not
+     * exist at the time of the attempt to set its <tt>Format</tt>. Allows
+     * extenders to override the default behavior which is to not attempt to set
+     * the specified <tt>Format</tt> so that they can enable setting the
+     * <tt>Format</tt> prior to creating the <tt>PushBufferStream</tt>. If
+     * setting the <tt>Format</tt> of an existing <tt>PushBufferStream</tt> is
+     * desired, <tt>AbstractPushBufferStream#doSetFormat(Format)</tt> should be
+     * overridden instead.
+     *
+     * @param streamIndex the zero-based index of the <tt>PushBufferStream</tt>
+     * the <tt>Format</tt> of which is to be set
+     * @param oldValue the last-known <tt>Format</tt> for the
+     * <tt>PushBufferStream</tt> at the specified <tt>streamIndex</tt>
+     * @param newValue the <tt>Format</tt> which is to be set
+     * @return the <tt>Format</tt> to be reported by the <tt>FormatControl</tt>
+     * of the <tt>PushBufferStream</tt> at the specified <tt>streamIndex</tt>
+     * in the list of streams of this <tt>PushBufferStream</tt> or <tt>null</tt>
+     * if the attempt to set the <tt>Format</tt> did not success and any
+     * last-known <tt>Format</tt> is to be left in effect
+     */
+    protected Format setFormat(
+            int streamIndex,
+            Format oldValue,
+            Format newValue)
+    {
+        return oldValue;
     }
 
     /**

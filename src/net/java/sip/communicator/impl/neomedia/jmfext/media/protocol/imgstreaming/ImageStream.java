@@ -117,6 +117,7 @@ public class ImageStream
      *
      * @see AbstractPushBufferStream#start()
      */
+    @Override
     public void start()
     {
         if(captureThread == null || !captureThread.isAlive())
@@ -139,6 +140,7 @@ public class ImageStream
      *
      * @see AbstractPushBufferStream#stop()
      */
+    @Override
     public void stop()
     {
         logger.info("Stop stream");

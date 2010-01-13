@@ -85,6 +85,41 @@ public abstract class AbstractPushBufferStream
     }
 
     /**
+     * Gets the <tt>Format</tt> of this <tt>PushBufferStream</tt> as directly
+     * known by it. Allows extenders to override the <tt>Format</tt> known to
+     * the <tt>PushBufferDataSource</tt> which created this instance and
+     * possibly provide more details on the currently set <tt>Format</tt>.
+     *
+     * @return the <tt>Format</tt> of this <tt>PushBufferStream</tt> as directly
+     * known by it or <tt>null</tt> if this <tt>PushBufferStream</tt> does not
+     * directly know its <tt>Format</tt> and it relies on the
+     * <tt>PushBufferDataSource</tt> which created it to report its
+     * <tt>Format</tt>
+     */
+    protected Format doGetFormat()
+    {
+        return null;
+    }
+
+    /**
+     * Attempts to set the <tt>Format</tt> of this <tt>PushBufferStream</tt>.
+     * Allows extenders to enable setting the <tt>Format</tt> of an existing
+     * <tt>PushBufferStream</tt> (in contract to setting it before the
+     * <tt>PushBufferStream</tt> is created by the <tt>PushBufferDataSource</tt>
+     * which will provide it).
+     *
+     * @param format the <tt>Format</tt> to be set as the format of this
+     * <tt>PushBufferStream</tt>
+     * @return the <tt>Format</tt> of this <tt>PushBufferStream</tt> or
+     * <tt>null</tt> if the attempt to set the <tt>Format</tt> did not succeed
+     * and any last-known <tt>Format</tt> is to be left in effect
+     */
+    protected Format doSetFormat(Format format)
+    {
+        return null;
+    }
+
+    /**
      * Determines whether the end of this <tt>SourceStream</tt> has been
      * reached. The <tt>AbstractPushBufferStream</tt> implementation always
      * returns <tt>false</tt>.
@@ -153,6 +188,32 @@ public abstract class AbstractPushBufferStream
     }
 
     /**
+     * Gets the <tt>Format</tt> of this <tt>PushBufferStream</tt> as directly
+     * known by it.
+     *
+     * @return the <tt>Format</tt> of this <tt>PushBufferStream</tt> as directly
+     * known by it
+     */
+    Format internalGetFormat()
+    {
+        return doGetFormat();
+    }
+
+    /**
+     * Attempts to set the <tt>Format</tt> of this <tt>PushBufferStream</tt>.
+     *
+     * @param format the <tt>Format</tt> to be set as the format of this
+     * <tt>PushBufferStream</tt>
+     * @return the <tt>Format</tt> of this <tt>PushBufferStream</tt> or
+     * <tt>null</tt> if the attempt to set the <tt>Format</tt> did not succeed
+     * and any last-known <tt>Format</tt> is to be left in effect
+     */
+    Format internalSetFormat(Format format)
+    {
+        return doSetFormat(format);
+    }
+
+    /**
      * Sets the <tt>BufferTransferHandler</tt> which is to be notified by this
      * <tt>PushBufferStream</tt> when data is available for reading.
      *
@@ -171,8 +232,10 @@ public abstract class AbstractPushBufferStream
      * @throws IOException if anything goes wrong while starting the transfer of
      * media data from this <tt>PushBufferStream</tt>
      */
-    public abstract void start()
-        throws IOException;
+    public void start()
+        throws IOException
+    {
+    }
 
     /**
      * Stops the transfer of media data from this <tt>PushBufferStream</tt>.
@@ -180,6 +243,8 @@ public abstract class AbstractPushBufferStream
      * @throws IOException if anything goes wrong while stopping the transfer of
      * media data from this <tt>PushBufferStream</tt>
      */
-    public abstract void stop()
-        throws IOException;
+    public void stop()
+        throws IOException
+    {
+    }
 }
