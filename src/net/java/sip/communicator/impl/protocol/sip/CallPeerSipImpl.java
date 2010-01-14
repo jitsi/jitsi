@@ -1507,9 +1507,9 @@ public class CallPeerSipImpl
                                 listener.propertyChange(thisEvent);
                         }
                     };
-//                getMediaHandler()
-//                    .addPropertyChangeListener(
-//                        mediaHandlerPropertyChangeListener);
+                getMediaHandler()
+                    .addPropertyChangeListener(
+                        mediaHandlerPropertyChangeListener);
             }
         }
     }

@@ -89,26 +89,8 @@ public class OperationSetVideoTelephonySipImpl
             VideoListener listener)
         throws OperationFailedException
     {
-        /**
-         * @todo update to neomedia.
-        CallSession callSession =((CallPeerSipImpl) peer).getMediaCallSession();
-
-        if (callSession != null)
-        {
-            try
-            {
-                return callSession.createLocalVisualComponent(listener);
-            }
-            catch (MediaException ex)
-            {
-                throw new OperationFailedException(
-                    "Failed to create visual Component for local "
-                    +"video (capture).",
-                    OperationFailedException.INTERNAL_ERROR, ex);
-            }
-        }
-        */
-        return null;
+        CallPeerMediaHandler mediaHandler = ((CallPeerSipImpl) peer).getMediaHandler();
+        return mediaHandler.createLocalVisualComponent();
     }
 
     /**
@@ -122,13 +104,8 @@ public class OperationSetVideoTelephonySipImpl
      */
     public void disposeLocalVisualComponent(CallPeer peer, Component component)
     {
-        /**
-         * @todo update to neomedia.
-        CallSession callSession =((CallPeerSipImpl) peer).getMediaCallSession();
-
-        if (callSession != null)
-            callSession.disposeLocalVisualComponent(component);
-        */
+        CallPeerMediaHandler mediaHandler = ((CallPeerSipImpl) peer).getMediaHandler();
+        mediaHandler.disposeLocalVisualComponent();
     }
 
     /**

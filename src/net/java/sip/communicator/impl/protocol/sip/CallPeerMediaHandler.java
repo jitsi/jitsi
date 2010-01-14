@@ -344,8 +344,15 @@ public class CallPeerMediaHandler
      */
     public void setLocalVideoTransmissionEnabled(boolean enabled)
     {
+        MediaDirection oldValue = videoDirectionUserPreference;
+        MediaDirection newValue = null;
+
         videoDirectionUserPreference
             = enabled ? MediaDirection.SENDRECV : MediaDirection.RECVONLY;
+        
+        newValue = videoDirectionUserPreference;
+
+        firePropertyChange(OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING, oldValue, newValue);
     }
 
     /**
@@ -1884,6 +1891,29 @@ public class CallPeerMediaHandler
         else
             consumed = false;
         return consumed;
+    }
+
+    /**
+     * Gets local visual <tt>Component</tt> of the local peer.
+     *
+     * @return visual <tt>Component</tt>
+     */
+    public Component createLocalVisualComponent()
+    {
+        return (videoStream == null || !isLocalVideoTransmissionEnabled()) ? null : videoStream.createLocalVisualComponent();
+    }
+              
+    /**
+     * Dispose local visual <tt>Component</tt> of the local peer.
+     *
+     * @return visual <tt>Component</tt>
+     */
+    public void disposeLocalVisualComponent()
+    {
+        if(videoStream != null)  
+        {
+            videoStream.disposeLocalVisualComponent();
+        }
     }
 
     /**

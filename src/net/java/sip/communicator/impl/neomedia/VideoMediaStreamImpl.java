@@ -311,6 +311,33 @@ public class VideoMediaStreamImpl
     }
 
     /**
+     * Gets local visual <tt>Component</tt> of the local peer.
+     *
+     * @return visual <tt>Component</tt>
+     */
+    public Component createLocalVisualComponent()
+    {
+        MediaDeviceSession deviceSession = getDeviceSession();
+
+        return
+            (deviceSession instanceof VideoMediaDeviceSession)
+                ? ((VideoMediaDeviceSession) deviceSession).createLocalVisualComponent()
+                : null;
+    }
+
+    /**
+     * Dispose local visual <tt>Component</tt> of the local peer.
+     */
+    public void disposeLocalVisualComponent()
+    {
+        MediaDeviceSession deviceSession = getDeviceSession();
+        if(deviceSession instanceof VideoMediaDeviceSession)
+        {
+            ((VideoMediaDeviceSession) deviceSession).disposeLocalVisualComponent();
+        }
+    }
+
+    /**
      * Returns a reference to the visual <tt>Component</tt> where video from the
      * remote peer is being rendered or <tt>null</tt> if no video is currently
      * rendered.
