@@ -800,7 +800,7 @@ public class ServerStoredContactListMsnImpl
             ContactMsnImpl contactImpl =
                 findContactById(contact.getEmail().getEmailAddress());
 
-            if (contactImpl != null)
+            if (contactImpl == null)
                 return;
 
             contactImpl.setStatusMessage(contact.getPersonalMessage());
