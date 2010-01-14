@@ -75,9 +75,11 @@ Java_net_java_sip_communicator_impl_neomedia_quicktime_QTCaptureDecompressedVide
     captureDecompressedVideoOutput = (QTCaptureDecompressedVideoOutput *) ptr;
     autoreleasePool = [[NSAutoreleasePool alloc] init];
 
-    [captureDecompressedVideoOutput
-        setAutomaticallyDropsLateVideoFrames:
-            ((JNI_TRUE == automaticallyDropsLateVideoFrames) ? YES : NO)];
+    if ([captureDecompressedVideoOutput
+            respondsToSelector:@selector(setAutomaticallyDropsLateVideoFrames)])
+        [captureDecompressedVideoOutput
+            setAutomaticallyDropsLateVideoFrames:
+                ((JNI_TRUE == automaticallyDropsLateVideoFrames) ? YES : NO)];
 
     [autoreleasePool release];
 }
