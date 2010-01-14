@@ -15,6 +15,22 @@ extern "C" {
 JNIEXPORT jbyteArray JNICALL Java_net_java_sip_communicator_impl_neomedia_quicktime_CVPixelBuffer_getBytes
   (JNIEnv *, jclass, jlong);
 
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_quicktime_CVPixelBuffer
+ * Method:    getHeight
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_quicktime_CVPixelBuffer_getHeight
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_quicktime_CVPixelBuffer
+ * Method:    getWidth
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_quicktime_CVPixelBuffer_getWidth
+  (JNIEnv *, jclass, jlong);
+
 #ifdef __cplusplus
 }
 #endif

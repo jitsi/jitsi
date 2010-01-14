@@ -29,3 +29,17 @@ Java_net_java_sip_communicator_impl_neomedia_quicktime_CVPixelBuffer_getBytes
     }
     return bytes;
 }
+
+JNIEXPORT jint JNICALL
+Java_net_java_sip_communicator_impl_neomedia_quicktime_CVPixelBuffer_getHeight
+    (JNIEnv *jniEnv, jclass clazz, jlong ptr)
+{
+    return (jint) CVPixelBufferGetHeight((CVPixelBufferRef) ptr);
+}
+
+JNIEXPORT jint JNICALL
+Java_net_java_sip_communicator_impl_neomedia_quicktime_CVPixelBuffer_getWidth
+    (JNIEnv *jniEnv, jclass clazz, jlong ptr)
+{
+    return (jint) CVPixelBufferGetWidth((CVPixelBufferRef) ptr);
+}

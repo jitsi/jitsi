@@ -48,4 +48,46 @@ public class CVPixelBuffer
      * specified CoreVideo <tt>CVPixelBufferRef</tt>
      */
     private static native byte[] getBytes(long ptr);
+
+    /**
+     * Gets the height in pixels of this <tt>CVPixelBuffer</tt>.
+     *
+     * @return the height in pixels of this <tt>CVPixelBuffer</tt>
+     */
+    public int getHeight()
+    {
+        return getHeight(getPtr());
+    }
+
+    /**
+     * Gets the height in pixels of a specific CoreVideo
+     * <tt>CVPixelBufferRef</tt>.
+     *
+     * @param ptr the CoreVideo <tt>CVPixelBufferRef</tt> to get the height in
+     * pixels of
+     * @return the height in pixels of the specified CoreVideo
+     * <tt>CVPixelBufferRef</tt>
+     */
+    private static native int getHeight(long ptr);
+
+    /**
+     * Gets the width in pixels of this <tt>CVPixelBuffer</tt>.
+     *
+     * @return the width in pixels of this <tt>CVPixelBuffer</tt>
+     */
+    public int getWidth()
+    {
+        return getWidth(getPtr());
+    }
+
+    /**
+     * Gets the width in pixels of a specific CoreVideo
+     * <tt>CVPixelBufferRef</tt>.
+     *
+     * @param ptr the CoreVideo <tt>CVPixelBufferRef</tt> to get the width in
+     * pixels of
+     * @return the width in pixels of the specified CoreVideo
+     * <tt>CVPixelBufferRef</tt>
+     */
+    private static native int getWidth(long ptr);
 }

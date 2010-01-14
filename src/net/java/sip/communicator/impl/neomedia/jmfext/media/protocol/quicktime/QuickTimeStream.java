@@ -38,6 +38,13 @@ public class QuickTimeStream
     private byte[] data;
 
     /**
+     * The <tt>Format</tt> of {@link #data} if known. If possible, determined by
+     * the <tt>CVPixelBuffer</tt> video frame from which <tt>data</tt> is
+     * acquired.
+     */
+    private Format dataFormat;
+
+    /**
      * The <tt>Object</tt> which synchronizes the access to the
      * {@link #data}-related fields of this instance.
      */
@@ -121,13 +128,17 @@ public class QuickTimeStream
             CVImageBuffer videoFrame,
             QTSampleBuffer sampleBuffer)
     {
+        CVPixelBuffer pixelBuffer = (CVPixelBuffer) videoFrame;
         boolean transferData;
 
         synchronized (dataSyncRoot)
         {
-            data = ((CVPixelBuffer) videoFrame).getBytes();
+            data = pixelBuffer.getBytes();
             dataTimeStamp = System.nanoTime();
             transferData = (data != null);
+
+            if (dataFormat == null)
+                dataFormat = getVideoFrameFormat(pixelBuffer);
         }
 
         if (transferData)
@@ -167,9 +178,34 @@ public class QuickTimeStream
     @Override
     protected Format doGetFormat()
     {
-        if (format == null)
+        Format format;
+
+        if (this.format == null)
+        {
             format = getCaptureOutputFormat();
-        return (format == null) ? super.doGetFormat() : format;
+            if (format == null)
+                format = super.doGetFormat();
+            else
+            {
+                VideoFormat videoFormat = (VideoFormat) format;
+
+                if (videoFormat.getSize() != null)
+                    this.format = format;
+                else
+                    format
+                        = videoFormat
+                            .intersects(
+                                new VideoFormat(
+                                        null,
+                                        new Dimension(640, 480),
+                                        Format.NOT_SPECIFIED,
+                                        Format.byteArray,
+                                        Format.NOT_SPECIFIED));
+            }
+        }
+        else
+            format = this.format;
+        return format;
     }
 
     /**
@@ -202,7 +238,9 @@ public class QuickTimeStream
 
             return
                 new RGBFormat(
-                        new Dimension(width, height),
+                        ((width == 0) && (height == 0)
+                            ? null
+                            : new Dimension(width, height)),
                         Format.NOT_SPECIFIED,
                         Format.byteArray,
                         Format.NOT_SPECIFIED,
@@ -212,6 +250,38 @@ public class QuickTimeStream
                         4);
         }
         return null;
+    }
+
+    /**
+     * Gets the <tt>Format</tt> of the media data made available by this
+     * <tt>PushBufferStream</tt> as indicated by a specific
+     * <tt>CVPixelBuffer</tt>.
+     *
+     * @param videoFrame the <tt>CVPixelBuffer</tt> which provides details about
+     * the <tt>Format</tt> of the media data made available by this
+     * <tt>PushBufferStream</tt>
+     * @return the <tt>Format</tt> of the media data made available by this
+     * <tt>PushBufferStream</tt> as indicated by the specified
+     * <tt>CVPixelBuffer</tt>
+     */
+    private Format getVideoFrameFormat(CVPixelBuffer videoFrame)
+    {
+        Format format = getFormat();
+        Dimension size = ((VideoFormat) format).getSize();
+
+        if ((size == null) || ((size.width == 0) && (size.height == 0)))
+            format
+                = format
+                    .intersects(
+                        new VideoFormat(
+                                null,
+                                new Dimension(
+                                        videoFrame.getWidth(),
+                                        videoFrame.getHeight()),
+                                Format.NOT_SPECIFIED,
+                                Format.byteArray,
+                                Format.NOT_SPECIFIED));
+        return format;
     }
 
     /**
@@ -235,6 +305,8 @@ public class QuickTimeStream
                 buffer.setData(data);
                 buffer
                     .setFlags(Buffer.FLAG_LIVE_DATA | Buffer.FLAG_SYSTEM_TIME);
+                if (dataFormat != null)
+                    buffer.setFormat(dataFormat);
                 buffer.setLength(data.length);
                 buffer.setOffset(0);
                 buffer.setTimeStamp(dataTimeStamp);
@@ -255,6 +327,15 @@ public class QuickTimeStream
     {
         VideoFormat videoFormat = (VideoFormat) format;
         Dimension size = videoFormat.getSize();
+
+        /*
+         * FIXME Mac OS X Leopard does not seem to report the size of the
+         * QTCaptureDevice in its formatDescriptions early in its creation.
+         * The workaround presented here is to just force a specific size.
+         */
+        if (size == null)
+            size = new Dimension(640, 480);
+
         NSMutableDictionary pixelBufferAttributes = null;
 
         if (size != null)
@@ -300,6 +381,7 @@ public class QuickTimeStream
         synchronized (dataSyncRoot)
         {
             data = null;
+            dataFormat = null;
         }
     }
 }
