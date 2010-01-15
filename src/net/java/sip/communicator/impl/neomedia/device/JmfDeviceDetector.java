@@ -187,7 +187,7 @@ public class JmfDeviceDetector
         }
 
         // QuickTime
-        if (!fmjVideoAvailable && OSUtils.IS_MAC)
+        if (OSUtils.IS_MAC)
             try
             {
                 new QuickTimeAuto();
