@@ -55,7 +55,11 @@ public class QuickTimeAuto
                                 LOCATOR_PROTOCOL
                                     + ':'
                                     + inputDevice.uniqueID()),
-                        new Format[] { new RGBFormat() });
+                        new Format[]
+                                {
+                                    new RGBFormat(),
+                                    //new YUVFormat(YUVFormat.YUV_420)
+                                });
 
             CaptureDeviceManager.addDevice(device);
             captureDeviceInfoIsAdded = true;

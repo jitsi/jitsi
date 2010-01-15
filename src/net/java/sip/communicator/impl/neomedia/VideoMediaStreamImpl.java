@@ -104,17 +104,25 @@ public class VideoMediaStreamImpl
 
                     Dimension size = format.getSize();
 
-                    int width = size.width;
-                    double xScale =
-                        (width == preferredWidth)
-                            ? 1
-                            : (preferredWidth / (double) width);
+                    int width = (size == null) ? 0 : size.width;
+                    double xScale;
 
-                    int height = size.height;
-                    double yScale =
-                        (height == preferredHeight)
-                            ? 1
-                            : (preferredHeight / (double) height);
+                    if (width == 0)
+                        xScale = Double.POSITIVE_INFINITY;
+                    else if (width == preferredWidth)
+                        xScale = 1;
+                    else
+                        xScale = (preferredWidth / (double) width);
+
+                    int height = (size == null) ? 0 : size.height;
+                    double yScale;
+
+                    if (height == 0)
+                        yScale = Double.POSITIVE_INFINITY;
+                    else if (height == preferredHeight)
+                        yScale = 1;
+                    else
+                        yScale = (preferredHeight / (double) height);
 
                     difference = Math.abs(1 - Math.min(xScale, yScale));
                 }
@@ -145,6 +153,20 @@ public class VideoMediaStreamImpl
                 });
                 selectedFormat = infos[0].format;
             }
+//            if ((selectedFormat != null)
+//                    && (selectedFormat.getSize() == null))
+//                selectedFormat
+//                    = (VideoFormat)
+//                        selectedFormat
+//                            .intersects(
+//                                new VideoFormat(
+//                                        null,
+//                                        new Dimension(
+//                                                preferredWidth,
+//                                                preferredHeight),
+//                                        Format.NOT_SPECIFIED,
+//                                        null,
+//                                        Format.NOT_SPECIFIED));
         }
 
         formatControl.setFormat(selectedFormat);
@@ -321,7 +343,8 @@ public class VideoMediaStreamImpl
 
         return
             (deviceSession instanceof VideoMediaDeviceSession)
-                ? ((VideoMediaDeviceSession) deviceSession).createLocalVisualComponent()
+                ? ((VideoMediaDeviceSession) deviceSession)
+                    .createLocalVisualComponent()
                 : null;
     }
 
@@ -331,10 +354,10 @@ public class VideoMediaStreamImpl
     public void disposeLocalVisualComponent()
     {
         MediaDeviceSession deviceSession = getDeviceSession();
+
         if(deviceSession instanceof VideoMediaDeviceSession)
-        {
-            ((VideoMediaDeviceSession) deviceSession).disposeLocalVisualComponent();
-        }
+            ((VideoMediaDeviceSession) deviceSession)
+                .disposeLocalVisualComponent();
     }
 
     /**

@@ -1,7 +1,5 @@
 #include "net_java_sip_communicator_impl_neomedia_quicktime_QTCaptureDecompressedVideoOutput.h"
 
-#include <stdio.h>
-
 #import <CoreVideo/CVImageBuffer.h>
 #import <Foundation/NSAutoreleasePool.h>
 #import <Foundation/NSDictionary.h>

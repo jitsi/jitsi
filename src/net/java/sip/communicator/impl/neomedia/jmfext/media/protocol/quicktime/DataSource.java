@@ -9,6 +9,8 @@ package net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.quicktime;
 import java.awt.*;
 import java.io.*;
 import java.lang.reflect.*;
+import java.util.*;
+import java.util.List; // disambiguation
 
 import javax.media.*;
 import javax.media.control.*;
@@ -36,6 +38,18 @@ public class DataSource
     private static final Logger logger = Logger.getLogger(DataSource.class);
 
     /**
+     * The default width of <tt>DataSource</tt> when the associated
+     * <tt>QTCaptureDevice</tt> does not report the actual width.
+     */
+    static final int DEFAULT_WIDTH = 640;
+
+    /**
+     * The default height of <tt>DataSource</tt> when the associated
+     * <tt>QTCaptureDevice</tt> does not report the actual height.
+     */
+    static final int DEFAULT_HEIGHT = 480;
+
+    /**
      * The <tt>QTCaptureSession</tt> which captures from {@link #device} and
      * pushes media data to the <tt>PushBufferStream</tt>s of this
      * <tt>PushBufferDataSource</tt>.
@@ -47,6 +61,12 @@ public class DataSource
      * <tt>DataSource</tt>.
      */
     private QTCaptureDevice device;
+
+    /**
+     * The list of <tt>Format</tt>s to be reported by <tt>DataSource</tt>
+     * instances as supported formats.
+     */
+    private static Format[] supportedFormats;
 
     /**
      * Initializes a new <tt>DataSource</tt> instance.
@@ -253,6 +273,111 @@ public class DataSource
             }
         }
         return format;
+    }
+
+    /**
+     * Gets the <tt>Format</tt>s which are to be reported by a
+     * <tt>FormatControl</tt> as supported formats for a
+     * <tt>PushBufferStream</tt> at a specific zero-based index in the list of
+     * streams of this <tt>PushBufferDataSource</tt>.
+     *
+     * @param streamIndex the zero-based index of the <tt>PushBufferStream</tt>
+     * for which the specified <tt>FormatControl</tt> is to report the list of
+     * supported <tt>Format</tt>s
+     * @return an array of <tt>Format</tt>s to be reported by a
+     * <tt>FormatControl</tt> as the supported formats for the
+     * <tt>PushBufferStream</tt> at the specified <tt>streamIndex</tt> in the
+     * list of streams of this <tt>PushBufferDataSource</tt>
+     * @see AbstractPushBufferCaptureDevice#getSupportedFormats(int)
+     */
+    @Override
+    protected Format[] getSupportedFormats(int streamIndex)
+    {
+        return getSupportedFormats(super.getSupportedFormats(streamIndex));
+    }
+
+    /**
+     * Gets a list of <tt>Format</tt>s which are more specific than given
+     * <tt>Format</tt>s with respect to video size. The implementation tries to
+     * come up with sane video sizes (for example, by looking for codecs which
+     * accept the encodings of the specified generic <tt>Format</tt>s and using
+     * their sizes if any).
+     *
+     * @param genericFormats the <tt>Format</tt>s from which more specific are
+     * to be derived
+     * @return a list of <tt>Format</tt>s which are more specific than the given
+     * <tt>Format</tt>s with respect to video size
+     */
+    private static synchronized Format[] getSupportedFormats(
+            Format[] genericFormats)
+    {
+        if ((supportedFormats != null) && (supportedFormats.length > 0))
+            return supportedFormats.clone();
+
+        List<Format> specificFormats = new LinkedList<Format>();
+
+        for (Format genericFormat : genericFormats)
+        {
+            VideoFormat genericVideoFormat = (VideoFormat) genericFormat;
+
+            if (genericVideoFormat.getSize() == null)
+            {
+//                specificFormats
+//                    .add(
+//                        genericFormat
+//                            .intersects(
+//                                new VideoFormat(
+//                                        null,
+//                                        new Dimension(
+//                                                DEFAULT_WIDTH,
+//                                                DEFAULT_HEIGHT),
+//                                        Format.NOT_SPECIFIED,
+//                                        null,
+//                                        Format.NOT_SPECIFIED)));
+
+                @SuppressWarnings("unchecked")
+                Vector<String> codecs
+                    = PlugInManager
+                        .getPlugInList(
+                            new VideoFormat(genericVideoFormat.getEncoding()),
+                            null,
+                            PlugInManager.CODEC);
+
+                for (String codec : codecs)
+                {
+                    Format[] supportedInputFormats
+                        = PlugInManager
+                            .getSupportedInputFormats(
+                                codec,
+                                PlugInManager.CODEC);
+
+                    for (Format supportedInputFormat : supportedInputFormats)
+                        if (supportedInputFormat instanceof VideoFormat)
+                        {
+                            Dimension size
+                                = ((VideoFormat) supportedInputFormat)
+                                    .getSize();
+
+                            if (size != null)
+                                specificFormats
+                                    .add(
+                                        genericFormat
+                                            .intersects(
+                                                new VideoFormat(
+                                                        null,
+                                                        size,
+                                                        Format.NOT_SPECIFIED,
+                                                        null,
+                                                        Format.NOT_SPECIFIED)));
+                        }
+                }
+            }
+
+            specificFormats.add(genericFormat);
+        }
+        supportedFormats
+            = specificFormats.toArray(new Format[specificFormats.size()]);
+        return supportedFormats.clone();
     }
 
     /**

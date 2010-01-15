@@ -7,14 +7,27 @@ Java_net_java_sip_communicator_impl_neomedia_quicktime_CVPixelBuffer_getBytes
     (JNIEnv *jniEnv, jclass clazz, jlong ptr)
 {
     CVPixelBufferRef pixelBuffer;
+    size_t planeCount;
     size_t byteCount;
     jbyteArray bytes;
 
     pixelBuffer = (CVPixelBufferRef) ptr;
 
-    byteCount
-        = CVPixelBufferGetBytesPerRow(pixelBuffer)
-            * CVPixelBufferGetHeight(pixelBuffer);
+    planeCount = CVPixelBufferGetPlaneCount(pixelBuffer);
+    if (planeCount)
+    {
+        size_t planeIndex;
+
+        byteCount = 0;
+        for (planeIndex = 0; planeIndex < planeCount; planeIndex++)
+            byteCount
+                += CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, planeIndex)
+                    * CVPixelBufferGetHeightOfPlane(pixelBuffer, planeIndex);
+    }
+    else
+        byteCount
+            = CVPixelBufferGetBytesPerRow(pixelBuffer)
+                * CVPixelBufferGetHeight(pixelBuffer);
     bytes = (*jniEnv)->NewByteArray(jniEnv, byteCount);
     if (!bytes)
         return NULL;
@@ -23,8 +36,40 @@ Java_net_java_sip_communicator_impl_neomedia_quicktime_CVPixelBuffer_getBytes
     {
         jbyte *cBytes;
 
-        cBytes = CVPixelBufferGetBaseAddress(pixelBuffer);
-        (*jniEnv)->SetByteArrayRegion(jniEnv, bytes, 0, byteCount, cBytes);
+        if (planeCount)
+        {
+            size_t byteOffset;
+            size_t planeIndex;
+
+            byteOffset = 0;
+            for (planeIndex = 0; planeIndex < planeCount; planeIndex++)
+            {
+                cBytes
+                    = CVPixelBufferGetBaseAddressOfPlane(
+                        pixelBuffer,
+                        planeIndex);
+                byteCount
+                    += CVPixelBufferGetBytesPerRowOfPlane(
+                            pixelBuffer,
+                            planeIndex)
+                        * CVPixelBufferGetHeightOfPlane(
+                                pixelBuffer,
+                                planeIndex);
+                (*jniEnv)
+                    ->SetByteArrayRegion(
+                        jniEnv,
+                        bytes,
+                        byteOffset,
+                        byteCount,
+                        cBytes);
+                byteOffset += byteCount;
+            }
+        }
+        else
+        {
+            cBytes = CVPixelBufferGetBaseAddress(pixelBuffer);
+            (*jniEnv)->SetByteArrayRegion(jniEnv, bytes, 0, byteCount, cBytes);
+        }
         CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
     }
     return bytes;

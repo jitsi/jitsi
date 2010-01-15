@@ -220,13 +220,13 @@ public class QuickTimeStream
         NSDictionary pixelBufferAttributes
             = captureOutput.pixelBufferAttributes();
 
-        if ((pixelBufferAttributes != null)
-                && (CVPixelFormatType.kCVPixelFormatType_32ARGB
-                        == pixelBufferAttributes
-                            .intForKey(
-                                CVPixelBufferAttributeKey
-                                    .kCVPixelBufferPixelFormatTypeKey)))
+        if (pixelBufferAttributes != null)
         {
+            int pixelFormatType
+                = pixelBufferAttributes
+                    .intForKey(
+                        CVPixelBufferAttributeKey
+                            .kCVPixelBufferPixelFormatTypeKey);
             int width
                 = pixelBufferAttributes
                     .intForKey(
@@ -236,18 +236,46 @@ public class QuickTimeStream
                     .intForKey(
                         CVPixelBufferAttributeKey.kCVPixelBufferHeightKey);
 
-            return
-                new RGBFormat(
-                        ((width == 0) && (height == 0)
-                            ? null
-                            : new Dimension(width, height)),
-                        Format.NOT_SPECIFIED,
-                        Format.byteArray,
-                        Format.NOT_SPECIFIED,
-                        32,
-                        2,
-                        3,
-                        4);
+            switch (pixelFormatType)
+            {
+            case CVPixelFormatType.kCVPixelFormatType_32ARGB:
+                return
+                    new RGBFormat(
+                            ((width == 0) && (height == 0)
+                                ? null
+                                : new Dimension(width, height)),
+                            Format.NOT_SPECIFIED,
+                            Format.byteArray,
+                            Format.NOT_SPECIFIED,
+                            32,
+                            2,
+                            3,
+                            4);
+            case CVPixelFormatType.kCVPixelFormatType_420YpCbCr8Planar:
+                if ((width == 0) && (height == 0))
+                    return new YUVFormat(YUVFormat.YUV_420);
+                else
+                {
+                    int strideY = width;
+                    int strideUV = strideY / 2;
+                    int offsetY = 0;
+                    int offsetU = strideY * height;
+                    int offsetV = offsetU + strideUV * height / 2;
+
+                    return
+                        new YUVFormat(
+                                new Dimension(width, height),
+                                Format.NOT_SPECIFIED,
+                                Format.byteArray,
+                                Format.NOT_SPECIFIED,
+                                YUVFormat.YUV_420,
+                                strideY,
+                                strideUV,
+                                offsetY,
+                                offsetU,
+                                offsetV);
+                }
+            }
         }
         return null;
     }
@@ -327,14 +355,17 @@ public class QuickTimeStream
     {
         VideoFormat videoFormat = (VideoFormat) format;
         Dimension size = videoFormat.getSize();
-
+System.err.println(format);
         /*
          * FIXME Mac OS X Leopard does not seem to report the size of the
          * QTCaptureDevice in its formatDescriptions early in its creation.
          * The workaround presented here is to just force a specific size.
          */
         if (size == null)
-            size = new Dimension(640, 480);
+            size
+                = new Dimension(
+                        DataSource.DEFAULT_WIDTH,
+                        DataSource.DEFAULT_HEIGHT);
 
         NSMutableDictionary pixelBufferAttributes = null;
 
@@ -359,6 +390,15 @@ public class QuickTimeStream
             pixelBufferAttributes
                 .setIntForKey(
                     CVPixelFormatType.kCVPixelFormatType_32ARGB,
+                    CVPixelBufferAttributeKey.kCVPixelBufferPixelFormatTypeKey);
+        }
+        else if (format.isSameEncoding(VideoFormat.YUV))
+        {
+            if (pixelBufferAttributes == null)
+                pixelBufferAttributes = new NSMutableDictionary();
+            pixelBufferAttributes
+                .setIntForKey(
+                    CVPixelFormatType.kCVPixelFormatType_420YpCbCr8Planar,
                     CVPixelBufferAttributeKey.kCVPixelBufferPixelFormatTypeKey);
         }
         else
