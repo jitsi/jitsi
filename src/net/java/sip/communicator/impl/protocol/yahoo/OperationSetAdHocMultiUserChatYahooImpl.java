@@ -290,6 +290,7 @@ public class OperationSetAdHocMultiUserChatYahooImpl
             throw new OperationFailedException(errorMessage,
                 OperationFailedException.CHAT_ROOM_NOT_JOINED, e);
         }
+        chatRoom.join();
         return chatRoom;
     }
 
