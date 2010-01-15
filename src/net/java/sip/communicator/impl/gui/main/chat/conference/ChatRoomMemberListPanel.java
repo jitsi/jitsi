@@ -14,6 +14,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>ChatContactListPanel</tt> is the panel added on the right of the
@@ -24,11 +25,14 @@ import net.java.sip.communicator.impl.gui.main.contactlist.*;
  * which allows to add new contact to the chat.
  *
  * @author Yana Stamcheva
+ * @author Valentin Martinet
  */
 public class ChatRoomMemberListPanel
     extends JPanel
 {
-    /**
+	private static final long serialVersionUID = -8250816784228586068L;
+
+	/**
      * The list of members.
      */
     private final DefaultContactList memberList = new DefaultContactList();
@@ -54,18 +58,27 @@ public class ChatRoomMemberListPanel
         this.memberList.setModel(memberListModel);
         this.memberList.addKeyListener(new CListKeySearchListener(memberList));
         this.memberList.setCellRenderer(new ChatContactCellRenderer());
-        this.memberList.addMouseListener(new MouseAdapter()
+        
+        // It's pertinent to add the ChatContactRightButtonMenu only we aren't 
+        // in an ad-hoc multi user chat (which support roles)
+        if(this.chatPanel.getChatSession().getCurrentChatTransport()
+        		.getProtocolProvider().getSupportedOperationSets().containsKey(
+        				OperationSetMultiUserChat.class.getName()))
         {
-            public void mouseClicked(MouseEvent e)
+        	this.memberList.addMouseListener(new MouseAdapter()
             {
-                if(e.getButton() == MouseEvent.BUTTON3)
+                public void mouseClicked(MouseEvent e)
                 {
-                    new ChatContactRightButtonMenu(
-                        chat, (ChatContact)memberList.getSelectedValue()).show(
-                            memberList, e.getX(), e.getY());
+                    if(e.getButton() == MouseEvent.BUTTON3)
+                    {
+                        new ChatContactRightButtonMenu(
+                            chat, (ChatContact)memberList.getSelectedValue())
+                        		.show( memberList, e.getX(), e.getY());
+                    }
                 }
-            }
-        });
+            });
+        }
+        
 
         JScrollPane contactsScrollPane = new SCScrollPane();
         contactsScrollPane.setHorizontalScrollBarPolicy(
