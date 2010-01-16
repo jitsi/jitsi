@@ -95,7 +95,12 @@ public class OSUtils
         // arch i.e. x86, amd64
         String osArch = System.getProperty("sun.arch.data.model");
 
-        if (osArch.indexOf("32") != -1)
+        if(osArch == null)
+        {
+            IS_32_BIT = true;
+            IS_64_BIT = false;
+        }
+        else if (osArch.indexOf("32") != -1)
         {
             IS_32_BIT = true;
             IS_64_BIT = false;
