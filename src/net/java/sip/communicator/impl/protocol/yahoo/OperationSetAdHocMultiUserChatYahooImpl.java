@@ -315,6 +315,34 @@ public class OperationSetAdHocMultiUserChatYahooImpl
             return newChatRoom;
         }
     }
+    
+    /**
+     * Creates a <tt>AdHocChatRoom</tt> instance from the specified Yahoo
+     * conference.
+     * 
+     * @param yahooConference The chat room model from the yahoo lib.
+     * 
+     * @return AdHocChatRoom the chat room that we've just created.
+     */
+    private AdHocChatRoomYahooImpl createLocalChatRoomInstance(
+        YahooConference yahooConference, String inviterID)
+    {
+        synchronized (chatRoomCache)
+        {
+            AdHocChatRoomYahooImpl newChatRoom
+                = new AdHocChatRoomYahooImpl(yahooConference, yahooProvider);
+
+            OperationSetPersistentPresenceYahooImpl opSetPresence  = 
+            	(OperationSetPersistentPresenceYahooImpl) yahooProvider
+            	.getOperationSet(OperationSetPersistentPresence.class);
+            
+            newChatRoom.addChatRoomParticipant(
+            		opSetPresence.findContactByID(inviterID));
+            chatRoomCache.put(yahooConference.getName(), newChatRoom);
+
+            return newChatRoom;
+        }
+    }
 
     /**
      * Returns the <tt>AdHocChatRoomYahooImpl</tt> corresponding to the given
@@ -550,14 +578,16 @@ public class OperationSetAdHocMultiUserChatYahooImpl
             try
             {
                 AdHocChatRoom chatRoom = getLocalChatRoomInstance(ev.getRoom());
-
+                
                 if (chatRoom == null)
                 {
-                    chatRoom = createLocalChatRoomInstance(ev.getRoom());
-
-                    fireInvitationEvent(chatRoom, ev.getFrom(), ev.getMessage());
+                    chatRoom = 
+                    	createLocalChatRoomInstance(ev.getRoom(), ev.getFrom());
+                    
+                    fireInvitationEvent(
+                    		chatRoom, ev.getFrom(), ev.getMessage());
                 }
-
+                
             }
             catch (Exception e)
             {
