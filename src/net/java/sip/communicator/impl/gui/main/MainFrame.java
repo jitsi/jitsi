@@ -1440,11 +1440,13 @@ public class MainFrame
                 logger.error("Failed to gently shutdown Felix", ex);
                 System.exit(0);
             }
-            //stopping a bundle doesn't leave the time to the felix thread to
+            //Callig System.exit() doesn't leave the time to the felix thread to
             //properly end all bundles and call their Activator.stop() methods.
-            //if this causes problems don't uncomment the following line but
-            //try and see why felix isn't exiting (suggesting: is it running
-            //in embedded mode?)
+            //Even if felix is not shutting down properly, you should still not
+            //try uncommenting the following line but rather see why this is
+            //happening. A likely reason might be that it is running in embedded
+            //mode or that we still have active threads that are not marked as
+            //daemon.
             //System.exit(0);
         }
     }
