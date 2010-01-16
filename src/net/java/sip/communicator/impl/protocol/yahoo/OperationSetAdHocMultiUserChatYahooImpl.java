@@ -317,10 +317,11 @@ public class OperationSetAdHocMultiUserChatYahooImpl
     }
     
     /**
-     * Creates a <tt>AdHocChatRoom</tt> instance from the specified Yahoo
-     * conference.
+     * Creates a <tt>AdHocChatRoom</tt> instance (where the inviter is 
+     * represented by inviterID parameter) from the specified Yahoo conference.
      * 
      * @param yahooConference The chat room model from the yahoo lib.
+     * @param inviterID inviter's Yahoo ID which has to be added as room member
      * 
      * @return AdHocChatRoom the chat room that we've just created.
      */
