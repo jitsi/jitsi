@@ -97,6 +97,19 @@ public abstract class PullBufferDataSourceDelegate<T extends DataSource>
     }
 
     /**
+     * Implements {@link DataSource#getLocator()}. Delegates to the wrapped
+     * <tt>DataSource</tt>. 
+     *
+     * @return a <tt>MediaLocator</tt> value which describes the locator of the
+     * wrapped <tt>DataSource</tt>
+     */
+    @Override
+    public MediaLocator getLocator()
+    {
+        return dataSource.getLocator();
+    }
+
+    /**
      * Implements {@link DataSource#getControl(String)}. Delegates to the
      * wrapped <tt>DataSource</tt>. Overrides
      * {@link CaptureDeviceDelegatePullBufferDataSource#getControl(String)}

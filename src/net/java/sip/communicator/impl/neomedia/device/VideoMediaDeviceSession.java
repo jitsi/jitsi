@@ -12,6 +12,8 @@ import javax.media.*;
 import javax.media.protocol.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
+import net.java.sip.communicator.impl.neomedia.protocol.*;
+import net.java.sip.communicator.impl.neomedia.imgstreaming.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.util.*;
@@ -90,23 +92,22 @@ public class VideoMediaDeviceSession
          * Create our DataSource as SourceCloneable so we can use it to both
          * display local video and stream to remote peer.
          */
-        /*
-         * FIXME By overriding the super implementation, we have disabled muting
-         * support.
-         */
-        DataSource captureDevice = getDevice().createOutputDataSource();
+        DataSource captureDevice = super.createCaptureDevice();
 
         if (captureDevice != null)
         {
             MediaLocator locator = captureDevice.getLocator();
-
+            
             /*
              * FIXME There is no video in calls when using the QuickTime/QTKit
-             * CaptureDevice so the local video support is disabled for it now.
+             * CaptureDevice and desktop streaming, so the local video support 
+             * is disabled for them now.
              */
             if ((locator == null)
-                    || !QuickTimeAuto.LOCATOR_PROTOCOL
-                            .equals(locator.getProtocol()))
+                    || (!QuickTimeAuto.LOCATOR_PROTOCOL
+                            .equals(locator.getProtocol()) &&
+                        !ImageStreamingUtils.LOCATOR_PREFIX
+                            .equals(locator.getProtocol())))
             {
                 DataSource cloneableDataSource
                     = Manager.createCloneableDataSource(captureDevice);

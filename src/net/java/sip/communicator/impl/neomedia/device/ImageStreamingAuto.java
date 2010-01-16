@@ -27,7 +27,7 @@ public class ImageStreamingAuto
     {
         String name = "Desktop streaming";
         CaptureDeviceInfo devInfo = new CaptureDeviceInfo(name, 
-            new MediaLocator(ImageStreamingUtils.LOCATOR_PREFIX + name),
+            new MediaLocator(ImageStreamingUtils.LOCATOR_PREFIX + ":" + name),
             DataSource.getFormats());
             
         /* add to JMF device manager */

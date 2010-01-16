@@ -19,7 +19,7 @@ public class ImageStreamingUtils
     /**
      * The locator prefix used when creating or parsing <tt>MediaLocator</tt>s.
      */
-    public static final String LOCATOR_PREFIX = "imgstreaming:";
+    public static final String LOCATOR_PREFIX = "imgstreaming";
 
     /**
      * Get a scaled <tt>BufferedImage</tt>.
