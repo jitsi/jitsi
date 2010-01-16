@@ -365,7 +365,7 @@ public class DeviceConfiguration
      * Gets the list of audio capture devices which are available through this
      * <code>DeviceConfiguration</code>, amongst which is
      * {@link #getAudioCaptureDevice()} and represent acceptable values
-     * for {@link #setAudioCaptureDevice(CaptureDeviceInfo)}
+     * for {@link #setAudioCaptureDevice(CaptureDeviceInfo, boolean)}
      *
      * @return an array of <code>CaptureDeviceInfo</code> describing the audio
      *         capture devices available through this
@@ -384,7 +384,7 @@ public class DeviceConfiguration
      * Gets the list of audio capture devices which are available through this
      * <code>DeviceConfiguration</code>, amongst which is
      * {@link #getAudioCaptureDevice()} and represent acceptable values
-     * for {@link #setAudioCaptureDevice(CaptureDeviceInfo)}
+     * for {@link #setAudioCaptureDevice(CaptureDeviceInfo, boolean)}
      *
      * @param soundSystem
      *         filter capture devices only from the supplied audio system.
@@ -434,7 +434,7 @@ public class DeviceConfiguration
      * Gets the list of video capture devices which are available through this
      * <code>DeviceConfiguration</code>, amongst which is
      * {@link #getVideoCaptureDevice()} and represent acceptable values
-     * for {@link #setVideoCaptureDevice(CaptureDeviceInfo)}
+     * for {@link #setVideoCaptureDevice(CaptureDeviceInfo, boolean)}
      *
      * @return an array of <code>CaptureDeviceInfo</code> describing the video
      *         capture devices available through this

@@ -1905,8 +1905,6 @@ public class CallPeerMediaHandler
               
     /**
      * Dispose local visual <tt>Component</tt> of the local peer.
-     *
-     * @return visual <tt>Component</tt>
      */
     public void disposeLocalVisualComponent()
     {
