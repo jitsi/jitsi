@@ -762,12 +762,14 @@ public class ConferenceChatManager
      *
      * @param protocolProvider the parent protocol provider.
      * @param contacts the contacts invited when creating the chat room.
+     * @param reason the reason for this invitation
      * @return the <tt>AdHocChatRoomWrapper</tt> corresponding to the created
      * ad hoc chat room
      */
     public AdHocChatRoomWrapper createAdHocChatRoom(
         ProtocolProviderService protocolProvider,
-        Collection<String> contacts)
+        Collection<String> contacts,
+        String reason)
     {
         AdHocChatRoomWrapper chatRoomWrapper = null;
 
@@ -795,8 +797,7 @@ public class ConferenceChatManager
 
             
             chatRoom = groupChatOpSet.createAdHocChatRoom(
-            		"chatroom-" + new Date().getTime(),
-            		members);
+            		"chatroom-" + new Date().getTime(), members, reason);
         }
         catch (OperationFailedException ex)
         {

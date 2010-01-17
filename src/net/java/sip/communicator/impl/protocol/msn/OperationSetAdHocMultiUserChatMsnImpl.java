@@ -173,13 +173,16 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      *
      * @param adHocRoomName the name of the ad-hoc room
      * @param contacts the list of contacts
+     * @param reason the reason (will not be used since MSN does not support
+     * invitation with the possibility to reject it)
      *
      * @return the ad-hoc room that has been just created
      * @throws OperationFailedException
      * @throws OperationNotSupportedException
      */
     public AdHocChatRoom createAdHocChatRoom(   String adHocRoomName,
-                                                List<Contact> contacts)
+                                                List<Contact> contacts,
+                                                String reason)
         throws OperationFailedException, OperationNotSupportedException
     {
         AdHocChatRoom adHocChatRoom = createAdHocChatRoom(
@@ -191,7 +194,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
             {
                 ContactMsnImpl newContact = (ContactMsnImpl) contact;
 
-                adHocChatRoom.invite(newContact.getAddress(), "");
+                adHocChatRoom.invite(newContact.getAddress(), reason);
             }
         }
 
@@ -199,8 +202,8 @@ public class OperationSetAdHocMultiUserChatMsnImpl
     }
 
     /**
-     * Creates an <tt>AdHocChatRoom</tt> whose name is _adHocRoomName with the
-     * properties contained in _adHocRoomProperties
+     * Creates an <tt>AdHocChatRoom</tt> whose name is adHocRoomName with the
+     * properties contained in adHocRoomProperties
      *
      * @param adHocRoomName the name of the ad-hoc room
      * @param adHocRoomProperties the ad-hoc room's properties
@@ -227,7 +230,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
             // when the room hasn't been created, we create it.
             adHocRoom = createLocalAdHocChatRoomInstance(adHocRoomName, id);
         }
-
+        
         return adHocRoom;
     }
 
@@ -245,7 +248,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
         {
             AdHocChatRoomMsnImpl adHocChatRoom =
                 new AdHocChatRoomMsnImpl(adHocChatRoomName, this.provider);
-
+            
             // We put it to the pending ad hoc chat rooms, waiting for the
             // switchboard to be created.
             this.pendingAdHocChatRoomList.put(switchboardId, adHocChatRoom);
@@ -533,7 +536,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
         {
             if (!isGroupChatMessage(switchboard))
                 return;
-
+            
             try
             {
                 AdHocChatRoomMsnImpl chatRoom
@@ -543,7 +546,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
                 {
                     chatRoom = createLocalAdHocChatRoomInstance(switchboard);
                 }
-
+                
                 OperationSetPersistentPresenceMsnImpl presenceOpSet
                     = (OperationSetPersistentPresenceMsnImpl) provider
                         .getOperationSet(OperationSetPersistentPresence.class);
@@ -626,8 +629,8 @@ public class OperationSetAdHocMultiUserChatMsnImpl
          */
         public void switchboardStarted(MsnSwitchboard switchboard)
         {
-            Object switchboardID = switchboard.getAttachment();
-
+        	Object switchboardID = switchboard.getAttachment();
+        	
             AdHocChatRoomMsnImpl adHocChatRoom = null;
             if (switchboardID != null
                     && pendingAdHocChatRoomList.containsKey(switchboardID))

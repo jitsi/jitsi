@@ -1957,7 +1957,8 @@ public class ChatPanel
             {
                 ChatRoomWrapper chatRoomWrapper
                     = conferenceChatManager.createChatRoom(
-                        inviteChatTransport.getProtocolProvider(), chatContacts);
+                        inviteChatTransport.getProtocolProvider(), 
+                        chatContacts);
 
                 conferenceChatSession
                     = new ConferenceChatSession(this, chatRoomWrapper);
@@ -1968,7 +1969,8 @@ public class ChatPanel
                 AdHocChatRoomWrapper chatRoomWrapper
                     = conferenceChatManager.createAdHocChatRoom(
                             inviteChatTransport.getProtocolProvider(),
-                            chatContacts);
+                            chatContacts,
+                            reason);
 
                 conferenceChatSession
                     = new AdHocConferenceChatSession(this, chatRoomWrapper);

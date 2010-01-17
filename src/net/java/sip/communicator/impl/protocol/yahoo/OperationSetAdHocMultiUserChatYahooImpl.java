@@ -218,24 +218,24 @@ public class OperationSetAdHocMultiUserChatYahooImpl
                                              Map<String, Object> roomProperties)
         throws  OperationFailedException
     {
-        return createAdHocChatRoom(roomName, (String[]) null);
+        return createAdHocChatRoom(roomName, (String[]) null, "");
     }
 
     /**
      * Creates an ad-hoc room with the named <tt>adHocRoomName</tt> and in
      * including to the specified <tt>contacts</tt>. When the method returns the
-     * ad-hoc room the local user will not have joined it and thus will not
-     * receive messages on it until the <tt>AdHocChatRoom.join()</tt> method is
-     * called.
+     * ad-hoc room the local user will have joined it.
      *
      * @return the ad-hoc room that has been just created
      * @param adHocRoomName the name of the room to be created
      * @param contacts the list of contacts
+     * @param reason the reason for contacts' invitation
      * @throws OperationFailedException if the room couldn't be created for
      * some reason
      */
     public AdHocChatRoom createAdHocChatRoom(   String adHocRoomName,
-                                                List<Contact> contacts)
+                                                List<Contact> contacts,
+                                                String reason)
         throws OperationFailedException
     {
         String[] invitedContacts = null; // parameter used for room's creation
@@ -258,12 +258,22 @@ public class OperationSetAdHocMultiUserChatYahooImpl
             }
         }
 
-        return createAdHocChatRoom(adHocRoomName, invitedContacts);
+        return createAdHocChatRoom(adHocRoomName, invitedContacts, reason);
     }
 
+    /**
+     * 
+     * 
+     * @param roomName name of the chatroom
+     * @param invitedContacts contacts to be invited to this room
+     * @param reason reason of this invitation
+     * @return AdHocChatRoom the ad-hoc room that has been just created 
+     * @throws OperationFailedException
+     */
     private AdHocChatRoom createAdHocChatRoom(
             String roomName,
-            String[] invitedContacts)
+            String[] invitedContacts,
+            String reason)
         throws OperationFailedException
     {
         if (invitedContacts == null)
@@ -276,7 +286,7 @@ public class OperationSetAdHocMultiUserChatYahooImpl
             YahooConference conference =
                 yahooProvider.getYahooSession().createConference(
                     invitedContacts, // users invited to this conference
-                    "", // invite message / topic
+                    reason, // invite message / topic
                     yahooProvider.getYahooSession().getLoginIdentity());
 
             chatRoom = createLocalChatRoomInstance(conference);
