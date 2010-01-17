@@ -22,9 +22,7 @@ public interface OperationSetAdHocMultiUserChat
     /**
      * Creates an ad-hoc room with the named <tt>adHocRoomName</tt> and 
      * according to the specified <tt>adHocRoomProperties</tt>. When the method
-     * returns the ad-hoc room the local user will not have joined it and thus 
-     * will not receive messages on it until the <tt>AdHocChatRoom.join()</tt> 
-     * method is called.
+     * returns the ad-hoc room the local user will have joined it.
      * <p>
      * 
      * @param adHocRoomName
@@ -46,10 +44,9 @@ public interface OperationSetAdHocMultiUserChat
 
     /**
      * Creates an ad-hoc room with the named <tt>adHocRoomName</tt> and in 
-     * including to the specified <tt>contacts</tt>. When the method
-     * returns the ad-hoc room the local user will not have joined it and thus 
-     * will not receive messages on it until the <tt>AdHocChatRoom.join()</tt> 
-     * method is called.
+     * including to the specified <tt>contacts</tt> for the given <tt>reason
+     * </tt>. When the method returns the ad-hoc room the local user will have 
+     * joined it.
      * <p>
      * 
      * @param adHocRoomName
@@ -57,6 +54,7 @@ public interface OperationSetAdHocMultiUserChat
      * @param contacts
      *            the contacts who are added to the room when it's created;
      *            <tt>null</tt> for no contacts
+     * @param reason the reason for this invitation
      * @throws OperationFailedException
      *             if the ad-hoc room couldn't be created for some reason.
      * @throws OperationNotSupportedException
@@ -65,7 +63,7 @@ public interface OperationSetAdHocMultiUserChat
      * @return the newly created <tt>AdHocChatRoom</tt> named <tt>roomName</tt>.
      */
     public AdHocChatRoom createAdHocChatRoom(String adHocRoomName, 
-                                   List<Contact> contacts)
+                                   List<Contact> contacts, String reason)
         throws OperationFailedException, OperationNotSupportedException;
 
     /**
