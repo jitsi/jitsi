@@ -98,6 +98,8 @@ public class SystrayServiceJdicImpl
     /**
      * The dock Icons used only in Mac version
      */
+    private URL dockIconOnline;
+    
     private URL dockIconOffline;
 
     private URL dockIconAway;
@@ -195,6 +197,8 @@ public class SystrayServiceJdicImpl
         if (isMac)
         {
             // init dock Icons
+            dockIconOnline = Resources.getImageURL(
+                "service.systray.DOCK_ICON_ONLINE");
             dockIconOffline = Resources.getImageURL(
                 "service.systray.DOCK_ICON_OFFLINE");
             dockIconAway = Resources.getImageURL(
@@ -488,7 +492,7 @@ public class SystrayServiceJdicImpl
             switch (imageType)
             {
                 case SystrayService.SC_IMG_TYPE:
-                    // online will restore the original image
+                    toChangeDockIcon = dockIconOnline;
                     break;
                 case SystrayService.SC_IMG_OFFLINE_TYPE:
                     toChangeDockIcon = dockIconOffline;
