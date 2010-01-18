@@ -91,7 +91,7 @@ Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodec_1decode_
             ret = -1;
     } else
         ret = -1;
-	return ret;
+    return ret;
 }
 
 JNIEXPORT jint JNICALL
@@ -333,56 +333,56 @@ Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1workaround_1bugs (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jint workaround_bugs) {
-	((AVCodecContext *) avctx)->workaround_bugs = (int) workaround_bugs;
+    ((AVCodecContext *) avctx)->workaround_bugs = (int) workaround_bugs;
 }
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1max_1b_1frames
   (JNIEnv *jniEnv, jclass clazz, jlong avctx, jint max_b_frames)
 {
-	((AVCodecContext *) avctx)->max_b_frames = (int) max_b_frames;
+    ((AVCodecContext *) avctx)->max_b_frames = (int) max_b_frames;
 }
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1b_1frame_1strategy
   (JNIEnv *jniEnv, jclass clazz, jlong avctx, jint b_frame_strategy)
 {
-	((AVCodecContext *) avctx)->b_frame_strategy = (int) b_frame_strategy;
+    ((AVCodecContext *) avctx)->b_frame_strategy = (int) b_frame_strategy;
 }
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1trellis
   (JNIEnv *jniEnv, jclass clazz, jlong avctx, jint trellis)
 {
-	((AVCodecContext *) avctx)->trellis = (int) trellis;
+    ((AVCodecContext *) avctx)->trellis = (int) trellis;
 }
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1refs
   (JNIEnv *jniEnv, jclass clazz, jlong avctx, jint refs)
 {
-	((AVCodecContext *) avctx)->refs = (int) refs;
+    ((AVCodecContext *) avctx)->refs = (int) refs;
 }
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1chromaoffset
   (JNIEnv *jniEnv, jclass clazz, jlong avctx, jint chromaoffset)
 {
-	((AVCodecContext *) avctx)->chromaoffset = (int) chromaoffset;
+    ((AVCodecContext *) avctx)->chromaoffset = (int) chromaoffset;
 }
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1deblockbeta
   (JNIEnv *jniEnv, jclass clazz, jlong avctx, jint deblockbeta)
 {
-	((AVCodecContext *) avctx)->deblockbeta = (int) deblockbeta;
+    ((AVCodecContext *) avctx)->deblockbeta = (int) deblockbeta;
 }
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1ticks_1per_1frame
   (JNIEnv *jniEnv, jclass clazz, jlong avctx, jint ticks_per_frame)
 {
-	((AVCodecContext *) avctx)->ticks_per_frame = (int) ticks_per_frame;
+    ((AVCodecContext *) avctx)->ticks_per_frame = (int) ticks_per_frame;
 }
 
 JNIEXPORT void JNICALL

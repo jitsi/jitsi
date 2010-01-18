@@ -4,13 +4,16 @@
 
 32-bit
 ./configure --disable-pthread
+make 
 
 64-bit
 ./configure --disable-pthread --disable-avs-input --disable-asm
+make
 
 - Linux, Mac OS X
 
 ./configure --enable-pic
+make
 
 2. ffmpeg-r20783
 
