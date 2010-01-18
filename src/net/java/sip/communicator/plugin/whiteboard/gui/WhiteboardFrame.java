@@ -34,9 +34,9 @@ import net.java.sip.communicator.util.swing.*;
 public class WhiteboardFrame
     extends SIPCommFrame
 {
-	private static final long serialVersionUID = 5441329948483907247L;
+    private static final long serialVersionUID = 5441329948483907247L;
 
-	private static final Logger logger =
+    private static final Logger logger =
         Logger.getLogger(WhiteboardFrame.class);
 
     /**
@@ -219,7 +219,7 @@ public class WhiteboardFrame
      * List of WhiteboardShape
      */
     private List<WhiteboardShape> displayList = 
-    	new CopyOnWriteArrayList<WhiteboardShape>();
+        new CopyOnWriteArrayList<WhiteboardShape>();
 
     /**
      * Aarray of WhiteboardPoint
@@ -699,7 +699,7 @@ public class WhiteboardFrame
                             {
 
                                 setCursor(Cursor.getPredefinedCursor(
-                                		Cursor.CROSSHAIR_CURSOR));
+                                    Cursor.CROSSHAIR_CURSOR));
 
                                 if (preselected == null)
                                 {
@@ -859,7 +859,7 @@ public class WhiteboardFrame
         jToolBar1.add(jButtonSave);
 
         jButtonOpen.setToolTipText(
-        		Resources.getString("plugin.whiteboard.OPEN"));
+            Resources.getString("plugin.whiteboard.OPEN"));
         jButtonOpen.setEnabled(false);
         jToolBar1.add(jButtonOpen);
 
@@ -881,7 +881,7 @@ public class WhiteboardFrame
 
         buttonGroup.add(selectionButton);
         selectionButton.setToolTipText(
-        		Resources.getString("plugin.whiteboard.SELECT"));
+            Resources.getString("plugin.whiteboard.SELECT"));
         selectionButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -894,7 +894,7 @@ public class WhiteboardFrame
 
         buttonGroup.add(modifButton);
         modifButton.setToolTipText(
-        		Resources.getString("plugin.whiteboard.MODIFICATION"));
+            Resources.getString("plugin.whiteboard.MODIFICATION"));
         modifButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -931,7 +931,7 @@ public class WhiteboardFrame
 
         buttonGroup.add(lineButton);
         lineButton.setToolTipText(
-        		Resources.getString("plugin.whiteboard.LINE"));
+            Resources.getString("plugin.whiteboard.LINE"));
         lineButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -944,7 +944,7 @@ public class WhiteboardFrame
 
         buttonGroup.add(polylineButton);
         polylineButton.setToolTipText(
-        		Resources.getString("plugin.whiteboard.POLYLINE"));
+            Resources.getString("plugin.whiteboard.POLYLINE"));
         polylineButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -969,7 +969,7 @@ public class WhiteboardFrame
 
         buttonGroup.add(fillRectangleButton);
         fillRectangleButton.setToolTipText(
-        		Resources.getString("plugin.whiteboard.FILLED_RECTANGLE"));
+            Resources.getString("plugin.whiteboard.FILLED_RECTANGLE"));
         fillRectangleButton
             .addActionListener(new java.awt.event.ActionListener()
             {
@@ -983,7 +983,7 @@ public class WhiteboardFrame
 
         buttonGroup.add(imageButton);
         imageButton.setToolTipText(
-        		Resources.getString("plugin.whiteboard.IMAGE"));
+            Resources.getString("plugin.whiteboard.IMAGE"));
         imageButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -996,7 +996,7 @@ public class WhiteboardFrame
 
         buttonGroup.add(polygonButton);
         polygonButton.setToolTipText(
-        		Resources.getString("plugin.whiteboard.POLYGON"));
+            Resources.getString("plugin.whiteboard.POLYGON"));
         polygonButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -1009,7 +1009,7 @@ public class WhiteboardFrame
 
         buttonGroup.add(fillPolygonButton);
         fillPolygonButton.setToolTipText(
-        		Resources.getString("plugin.whiteboard.FILLEDPOLYGON"));
+            Resources.getString("plugin.whiteboard.FILLEDPOLYGON"));
         fillPolygonButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -1022,7 +1022,7 @@ public class WhiteboardFrame
 
         buttonGroup.add(circleButton);
         circleButton.setToolTipText(
-        		Resources.getString("plugin.whiteboard.CIRCLE"));
+            Resources.getString("plugin.whiteboard.CIRCLE"));
         circleButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -1035,7 +1035,7 @@ public class WhiteboardFrame
 
         buttonGroup.add(fillCircleButton);
         fillCircleButton.setToolTipText(
-        		Resources.getString("plugin.whiteboard.FILLED_CIRCLE"));
+            Resources.getString("plugin.whiteboard.FILLED_CIRCLE"));
         fillCircleButton.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -1047,7 +1047,7 @@ public class WhiteboardFrame
         toolBar.add(fillCircleButton);
 
         colorChooserButton.setToolTipText(
-        		Resources.getString("plugin.whiteboard.COLOR"));
+            Resources.getString("plugin.whiteboard.COLOR"));
         colorChooserButton
             .addActionListener(new java.awt.event.ActionListener()
             {
@@ -1069,7 +1069,7 @@ public class WhiteboardFrame
         jPanel2.setLayout(new GridBagLayout());
 
         jLabelThickness.setText(
-        		Resources.getString("plugin.whiteboard.THICKNESS"));
+            Resources.getString("plugin.whiteboard.THICKNESS"));
 
         jPanel2.add(jLabelThickness);
 
@@ -1149,7 +1149,7 @@ public class WhiteboardFrame
         editMenu.add(gridMenuItem);
 
         deselectMenuItem.setText(
-        		Resources.getString("plugin.whiteboard.DESELECT"));
+            Resources.getString("plugin.whiteboard.DESELECT"));
         deselectMenuItem.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -1182,7 +1182,7 @@ public class WhiteboardFrame
         editMenu.add(deleteMenuItem);
 
         propertiesMenuItem.setText(
-        		Resources.getString("plugin.whiteboard.PROPERTIES"));
+            Resources.getString("plugin.whiteboard.PROPERTIES"));
         propertiesMenuItem.setEnabled(false);
         editMenu.add(propertiesMenuItem);
 
@@ -1223,9 +1223,9 @@ public class WhiteboardFrame
     {
 
         SipCommFileChooser chooser = GenericFileDialog.create(
-        		WhiteboardFrame.this, 
-        		"Save file...", 
-        		SipCommFileChooser.SAVE_FILE_OPERATION);
+            WhiteboardFrame.this, 
+            "Save file...", 
+            SipCommFileChooser.SAVE_FILE_OPERATION);
         
         //chooser.removeChoosableFileFilter(chooser.getAcceptAllFileFilter());
         WhiteboardFileFilter filterJpg =
@@ -1293,7 +1293,7 @@ public class WhiteboardFrame
      * @param evt
      */
     private void jSpinnerThicknessStateChanged(
-    		javax.swing.event.ChangeEvent evt)
+        javax.swing.event.ChangeEvent evt)
     {// GEN-FIRST:event_jSpinnerThicknessStateChanged
         if (selectedShape != null)
         {
@@ -1309,7 +1309,7 @@ public class WhiteboardFrame
      * @param evt
      */
     private void fillCircleButtonActionPerformed(
-    		java.awt.event.ActionEvent evt)
+        java.awt.event.ActionEvent evt)
     {// GEN-FIRST:event_fillCircleButtonActionPerformed
         if (fillCircleButton.isSelected())
             currentTool = FILL_CIRCLE;
@@ -1343,7 +1343,7 @@ public class WhiteboardFrame
      * @param evt
      */
     private void fillPolygonButtonActionPerformed(
-    		java.awt.event.ActionEvent evt)
+        java.awt.event.ActionEvent evt)
     {// GEN-FIRST:event_fillPolygonButtonActionPerformed
         if (fillPolygonButton.isSelected())
             currentTool = FILL_POLYGON;
@@ -2049,9 +2049,9 @@ public class WhiteboardFrame
         doneDrawing = true;
 
         SipCommFileChooser chooser = GenericFileDialog.create(
-        		WhiteboardFrame.this, 
-        		"Choose image...",
-        		SipCommFileChooser.LOAD_FILE_OPERATION);
+            WhiteboardFrame.this, 
+            "Choose image...",
+            SipCommFileChooser.LOAD_FILE_OPERATION);
         
         File file = chooser.getFileFromDialog();
         WhiteboardFileFilter filter =

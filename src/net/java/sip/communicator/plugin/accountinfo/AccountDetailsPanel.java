@@ -28,11 +28,11 @@ import net.java.sip.communicator.util.swing.*;
  * @author Yana Stamcheva
  */
 public class AccountDetailsPanel
-    extends TransparentPanel
+extends TransparentPanel
 {
-	private static final long serialVersionUID = 5524135388175045624L;
+    private static final long serialVersionUID = 5524135388175045624L;
 
-	private Logger logger = Logger.getLogger(AccountDetailsPanel.class);
+    private Logger logger = Logger.getLogger(AccountDetailsPanel.class);
 
     /**
      * The operation set giving access to the server stored account details.
@@ -63,7 +63,7 @@ public class AccountDetailsPanel
     private JLabel avatarLabel = new JLabel();
 
     private JButton applyButton
-        = new JButton(Resources.getString("service.gui.APPLY"));
+    = new JButton(Resources.getString("service.gui.APPLY"));
 
     private JPanel buttonPanel =
         new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
@@ -108,11 +108,10 @@ public class AccountDetailsPanel
         super(new BorderLayout());
 
         this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-//        this.setPreferredSize(new Dimension(500, 400));
+        //        this.setPreferredSize(new Dimension(500, 400));
 
-        accountInfoOpSet
-            = protocolProvider
-                .getOperationSet(OperationSetServerStoredAccountInfo.class);
+        accountInfoOpSet = protocolProvider
+        .getOperationSet(OperationSetServerStoredAccountInfo.class);
 
         this.protocolProvider = protocolProvider;
 
@@ -143,7 +142,7 @@ public class AccountDetailsPanel
         JPanel avatarPanel = new TransparentPanel(new BorderLayout());
         JButton changeAvatarButton = new JButton(Resources.getString("plugin.accountinfo.CHANGE"));
         JPanel changeButtonPanel
-            = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
+        = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
         changeAvatarButton.addActionListener(new ChangeAvatarActionListener());
 
@@ -169,7 +168,7 @@ public class AccountDetailsPanel
 
         labelsPanel.add(new JLabel(
             Resources.getString("plugin.accountinfo.FIRST_NAME")));
-//        labelsPanel.add(new JLabel(Resources.getString("plugin.accountinfo.MIDDLE_NAME")));
+        //        labelsPanel.add(new JLabel(Resources.getString("plugin.accountinfo.MIDDLE_NAME")));
         labelsPanel.add(new JLabel(
             Resources.getString("plugin.accountinfo.LAST_NAME")));
         labelsPanel.add(new JLabel(
@@ -189,7 +188,7 @@ public class AccountDetailsPanel
         JPanel valuesPanel = new TransparentPanel(new GridLayout(0, 1, 5, 5));
 
         valuesPanel.add(firstNameField);
-//        valuesPanel.add(middleNameField);
+        //        valuesPanel.add(middleNameField);
         valuesPanel.add(lastNameField);
         valuesPanel.add(genderField);
         valuesPanel.add(ageField);
@@ -264,7 +263,7 @@ public class AccountDetailsPanel
 
         // Avatar details.
         contactDetails
-            = accountInfoOpSet.getDetails(BinaryDetail.class);
+        = accountInfoOpSet.getDetails(BinaryDetail.class);
 
         byte[] avatarImage = null;
         if (contactDetails.hasNext())
@@ -331,7 +330,7 @@ public class AccountDetailsPanel
         {
             genderDetail = (GenderDetail) contactDetails.next();
             genderDetailString = genderDetailString + " "
-                                    + genderDetail.getDetailValue();
+            + genderDetail.getDetailValue();
         }
 
         genderField.setText(genderDetailString);
@@ -375,7 +374,7 @@ public class AccountDetailsPanel
         {
             emailDetail = (EmailAddressDetail) contactDetails.next();
             emailDetailString = emailDetailString + " "
-                + emailDetail.getDetailValue();
+            + emailDetail.getDetailValue();
         }
 
         emailField.setText(emailDetailString);
@@ -466,14 +465,14 @@ public class AccountDetailsPanel
                 detailLabel.setText(detail.getDetailDisplayName() + ": ");
 
                 detailValueArea.setText(((Locale) detail.getDetailValue())
-                        .getDisplayName().trim());
+                    .getDisplayName().trim());
             }
             else if (detail instanceof TimeZoneDetail)
             {
                 detailLabel.setText(detail.getDetailDisplayName() + ": ");
 
                 detailValueArea.setText(((TimeZone) detail.getDetailValue())
-                        .getDisplayName().trim());
+                    .getDisplayName().trim());
             }
             else
             {
@@ -487,15 +486,15 @@ public class AccountDetailsPanel
         // If the contact's protocol supports web info, give them a button to
         // get it
         if (protocolProvider.getOperationSet(
-                OperationSetWebContactInfo.class) != null)
+            OperationSetWebContactInfo.class) != null)
         {
             final String urlString
-                = protocolProvider
-                    .getOperationSet(OperationSetWebContactInfo.class)
-                        .getWebContactInfo(
-                                protocolProvider
-                                    .getAccountID().getAccountAddress())
-                            .toString();
+            = protocolProvider
+            .getOperationSet(OperationSetWebContactInfo.class)
+            .getWebContactInfo(
+                protocolProvider
+                .getAccountID().getAccountAddress())
+                .toString();
 
             JLabel webInfoLabel = new JLabel("Click to see web info: ");
             JEditorPane webInfoValue = new JEditorPane();
@@ -510,19 +509,19 @@ public class AccountDetailsPanel
             webInfoValue.setContentType("text/html");
             webInfoValue.setEditable(false);
             webInfoValue.setText(   "<a href='"
-                                    + urlString + "'>"
-                                    + protocolProvider.getAccountID().getUserID()
-                                    + " web info</a>");
+                + urlString + "'>"
+                + protocolProvider.getAccountID().getUserID()
+                + " web info</a>");
 
             webInfoValue.addHyperlinkListener(new HyperlinkListener()
             {
                 public void hyperlinkUpdate(HyperlinkEvent e)
                 {
                     if (e.getEventType()
-                            .equals(HyperlinkEvent.EventType.ACTIVATED))
+                        .equals(HyperlinkEvent.EventType.ACTIVATED))
                     {
                         AccountInfoActivator
-                            .getBrowserLauncher().openURL(urlString);
+                        .getBrowserLauncher().openURL(urlString);
                     }
                 }
             });
@@ -544,7 +543,7 @@ public class AccountDetailsPanel
         public void actionPerformed(ActionEvent e)
         {
             String firstName = firstNameField.getText();
-//            String middleName = middleNameField.getText();
+            //            String middleName = middleNameField.getText();
             String lastName = lastNameField.getText();
             String gender = genderField.getText();
             String email = emailField.getText();
@@ -558,7 +557,7 @@ public class AccountDetailsPanel
                 try
                 {
                     DateFormat dateFormat
-                        = DateFormat.getDateInstance(DateFormat.DEFAULT);
+                    = DateFormat.getDateInstance(DateFormat.DEFAULT);
 
                     Date birthDate = dateFormat.parse(birthdayField.getText());
 
@@ -573,25 +572,25 @@ public class AccountDetailsPanel
             try
             {
                 FirstNameDetail newFirstNameDetail
-                    = new ServerStoredDetails.FirstNameDetail(firstName);
+                = new ServerStoredDetails.FirstNameDetail(firstName);
 
                 if (firstNameDetail == null)
                     accountInfoOpSet.addDetail(newFirstNameDetail);
                 else
                     accountInfoOpSet.replaceDetail( firstNameDetail,
-                                                    newFirstNameDetail);
+                        newFirstNameDetail);
 
-//                MiddleNameDetail newMiddleNameDetail
-//                    = new ServerStoredDetails.MiddleNameDetail(middleName);
-//
-//                if (middleNameDetail == null)
-//                    accountInfoOpSet.addDetail(newMiddleNameDetail);
-//                else
-//                    accountInfoOpSet.replaceDetail( middleNameDetail,
-//                                                    newMiddleNameDetail);
+                //                MiddleNameDetail newMiddleNameDetail
+                //                    = new ServerStoredDetails.MiddleNameDetail(middleName);
+                //
+                //                if (middleNameDetail == null)
+                //                    accountInfoOpSet.addDetail(newMiddleNameDetail);
+                //                else
+                //                    accountInfoOpSet.replaceDetail( middleNameDetail,
+                //                                                    newMiddleNameDetail);
 
                 LastNameDetail newLastNameDetail
-                    = new ServerStoredDetails.LastNameDetail(lastName);
+                = new ServerStoredDetails.LastNameDetail(lastName);
 
                 if (lastNameDetail == null)
                     accountInfoOpSet.addDetail(newLastNameDetail);
@@ -600,51 +599,51 @@ public class AccountDetailsPanel
                         newLastNameDetail);
 
                 GenderDetail newGenderDetail
-                    = new ServerStoredDetails.GenderDetail(gender);
+                = new ServerStoredDetails.GenderDetail(gender);
 
                 if (genderDetail == null)
                     accountInfoOpSet.addDetail(newGenderDetail);
                 else
                     accountInfoOpSet.replaceDetail( genderDetail,
-                                                    newGenderDetail);
+                        newGenderDetail);
 
                 BirthDateDetail newBirthDateDetail
-                    = new ServerStoredDetails.BirthDateDetail(birthDateCalendar);
+                = new ServerStoredDetails.BirthDateDetail(birthDateCalendar);
 
                 if (birthDateDetail == null)
                     accountInfoOpSet.addDetail(newBirthDateDetail);
                 else
                     accountInfoOpSet.replaceDetail( birthDateDetail,
-                                                    newBirthDateDetail);
+                        newBirthDateDetail);
 
                 EmailAddressDetail newEmailDetail
-                    = new ServerStoredDetails.EmailAddressDetail(email);
+                = new ServerStoredDetails.EmailAddressDetail(email);
 
                 if (emailDetail == null)
                     accountInfoOpSet.addDetail(newEmailDetail);
                 else
                     accountInfoOpSet.replaceDetail( emailDetail,
-                                                    newEmailDetail);
+                        newEmailDetail);
 
                 PhoneNumberDetail newPhoneDetail
-                    = new ServerStoredDetails.PhoneNumberDetail(phoneNumber);
+                = new ServerStoredDetails.PhoneNumberDetail(phoneNumber);
 
                 if (phoneDetail == null)
                     accountInfoOpSet.addDetail(newPhoneDetail);
                 else
                     accountInfoOpSet.replaceDetail( phoneDetail,
-                                                    newPhoneDetail);
+                        newPhoneDetail);
 
                 BinaryDetail newAvatarDetail
-                    = new ServerStoredDetails.BinaryDetail(
-                        "Avatar",
-                        newAvatarImage);
+                = new ServerStoredDetails.BinaryDetail(
+                    "Avatar",
+                    newAvatarImage);
 
                 if (avatarDetail == null)
                     accountInfoOpSet.addDetail(newAvatarDetail);
                 else
                     accountInfoOpSet.replaceDetail( avatarDetail,
-                                                    newAvatarDetail);
+                        newAvatarDetail);
             }
             catch (ClassCastException e1)
             {
@@ -662,9 +661,9 @@ public class AccountDetailsPanel
         public void actionPerformed(ActionEvent e)
         {
             SipCommFileChooser chooser = GenericFileDialog.create(
-            		null, "Change avatar...", 
-            		SipCommFileChooser.LOAD_FILE_OPERATION,
-            		lastAvatarDir.getAbsolutePath());
+                null, "Change avatar...", 
+                SipCommFileChooser.LOAD_FILE_OPERATION,
+                lastAvatarDir.getAbsolutePath());
             chooser.addFilter(new ImageFilter());
 
             File file = chooser.getFileFromDialog();
@@ -699,14 +698,14 @@ public class AccountDetailsPanel
      * A custom filter that would accept only image files.
      */
     private static class ImageFilter extends SipCommFileFilter
-    {		
+    {
         /**
          * Accept all directories and all gif, jpg, tiff, or png files.
          * Method implemented from FileFilter abstract class.
          *
          * @param f a file to accept or not
          */
-		@Override
+        @Override
         public boolean accept(File f)
         {
             if (f.isDirectory())
@@ -774,7 +773,7 @@ public class AccountDetailsPanel
         try
         {
             resultImage = ImageIO.read(
-                    new ByteArrayInputStream(image));
+                new ByteArrayInputStream(image));
         }
         catch (Exception e)
         {

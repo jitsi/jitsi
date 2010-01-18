@@ -52,7 +52,7 @@ public interface OperationSetAdHocMultiUserChat
      * @param adHocRoomName
      *            the name of the <tt>AdHocChatRoom</tt> to create.
      * @param contacts
-     *            the contacts who are added to the room when it's created;
+     *            the contacts (ID) who are added to the room when it's created;
      *            <tt>null</tt> for no contacts
      * @param reason the reason for this invitation
      * @throws OperationFailedException
@@ -63,7 +63,7 @@ public interface OperationSetAdHocMultiUserChat
      * @return the newly created <tt>AdHocChatRoom</tt> named <tt>roomName</tt>.
      */
     public AdHocChatRoom createAdHocChatRoom(String adHocRoomName, 
-                                   List<Contact> contacts, String reason)
+                                   List<String> contacts, String reason)
         throws OperationFailedException, OperationNotSupportedException;
 
     /**

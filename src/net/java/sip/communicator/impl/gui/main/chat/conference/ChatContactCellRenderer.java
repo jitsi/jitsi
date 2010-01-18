@@ -56,7 +56,7 @@ public class ChatContactCellRenderer
         ChatRoomMember member = null;
         
         if (chatContact.getDescriptor() instanceof ChatRoomMember)
-        	member = (ChatRoomMember) chatContact.getDescriptor();
+            member = (ChatRoomMember) chatContact.getDescriptor();
 
         this.setPreferredSize(new Dimension(20, 30));
 
@@ -72,9 +72,9 @@ public class ChatContactCellRenderer
         this.nameLabel.setText(displayName);
 
         if(member != null)
-        	if(member.getRole() != null)
-        		this.nameLabel.setIcon(
-        				ChatContactRoleIcon.getRoleIcon(member.getRole()));
+            if(member.getRole() != null)
+                this.nameLabel.setIcon(
+                    ChatContactRoleIcon.getRoleIcon(member.getRole()));
 
         if (contactForegroundColor != null)
             this.nameLabel.setForeground(contactForegroundColor);

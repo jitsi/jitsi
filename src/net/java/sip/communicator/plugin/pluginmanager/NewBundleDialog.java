@@ -23,7 +23,7 @@ public class NewBundleDialog
     implements ActionListener
 {private static final long serialVersionUID = 7638976584338100969L;
 
-	private JButton installButton
+    private JButton installButton
         = new JButton(Resources.getString("plugin.pluginmanager.INSTALL"));
     
     private JButton cancelButton
@@ -103,8 +103,8 @@ public class NewBundleDialog
         else if (sourceButton.equals(fileChooserButton))
         {
             SipCommFileChooser chooser = GenericFileDialog.create(
-            		null, "New bundle...", 
-            		SipCommFileChooser.LOAD_FILE_OPERATION);
+                null, "New bundle...", 
+                SipCommFileChooser.LOAD_FILE_OPERATION);
 
             File newBundleFile
                 = chooser.getFileFromDialog();

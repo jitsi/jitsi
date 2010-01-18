@@ -30,9 +30,9 @@ import net.java.sip.communicator.service.protocol.*;
 public class ChatRoomMemberListPanel
     extends JPanel
 {
-	private static final long serialVersionUID = -8250816784228586068L;
+    private static final long serialVersionUID = -8250816784228586068L;
 
-	/**
+    /**
      * The list of members.
      */
     private final DefaultContactList memberList = new DefaultContactList();
@@ -62,10 +62,10 @@ public class ChatRoomMemberListPanel
         // It's pertinent to add the ChatContactRightButtonMenu only we aren't 
         // in an ad-hoc multi user chat (which support roles)
         if(this.chatPanel.getChatSession().getCurrentChatTransport()
-        		.getProtocolProvider().getSupportedOperationSets().containsKey(
-        				OperationSetMultiUserChat.class.getName()))
+                .getProtocolProvider().getSupportedOperationSets().containsKey(
+                    OperationSetMultiUserChat.class.getName()))
         {
-        	this.memberList.addMouseListener(new MouseAdapter()
+            this.memberList.addMouseListener(new MouseAdapter()
             {
                 public void mouseClicked(MouseEvent e)
                 {
@@ -73,7 +73,7 @@ public class ChatRoomMemberListPanel
                     {
                         new ChatContactRightButtonMenu(
                             chat, (ChatContact)memberList.getSelectedValue())
-                        		.show( memberList, e.getX(), e.getY());
+                            .show( memberList, e.getX(), e.getY());
                     }
                 }
             });

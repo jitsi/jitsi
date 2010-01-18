@@ -128,9 +128,7 @@ public class ConferenceChatManager
     {
         InvitationReceivedDialog dialog
             = new InvitationReceivedDialog(
-                    this,
-                    evt.getSourceOperationSet(),
-                    evt.getInvitation());
+                this, evt.getSourceOperationSet(), evt.getInvitation());
 
         dialog.setVisible(true);
     }
@@ -152,11 +150,8 @@ public class ConferenceChatManager
         logger.trace(
                 "MESSAGE DELIVERED to chat room: " + sourceChatRoom.getName());
 
-        ChatPanel chatPanel
-            = GuiActivator
-                .getUIService()
-                    .getChatWindowManager()
-                        .getMultiChat(sourceChatRoom, false);
+        ChatPanel chatPanel = GuiActivator.getUIService().getChatWindowManager()
+            .getMultiChat(sourceChatRoom, false);
 
         if(chatPanel != null)
         {
@@ -177,14 +172,12 @@ public class ConferenceChatManager
 
             Message msg = evt.getMessage();
 
-            chatPanel
-                .addMessage(
-                    sourceChatRoom
-                        .getParentProvider().getAccountID().getUserID(),
-                    evt.getTimestamp(),
-                    messageType,
-                    msg.getContent(),
-                    msg.getContentType());
+            chatPanel.addMessage(
+                sourceChatRoom.getParentProvider().getAccountID().getUserID(),
+                evt.getTimestamp(),
+                messageType,
+                msg.getContent(),
+                msg.getContentType());
         }
     }
 
@@ -236,20 +229,13 @@ public class ConferenceChatManager
                 = chatRoomList.findServerWrapperFromProvider(
                     sourceChatRoom.getParentProvider());
 
-            chatPanel
-                = chatWindowManager
-                    .getMultiChat(
-                        serverWrapper.getSystemRoomWrapper(),
-                        true);
+            chatPanel = chatWindowManager.getMultiChat(
+                serverWrapper.getSystemRoomWrapper(), true);
         }
         else
         {
-            chatPanel
-                = chatWindowManager
-                    .getMultiChat(
-                        sourceChatRoom,
-                        true,
-                        message.getMessageUID());
+            chatPanel = chatWindowManager.getMultiChat(
+                sourceChatRoom, true, message.getMessageUID());
         }
 
         String messageContent = message.getContent();
@@ -272,8 +258,8 @@ public class ConferenceChatManager
          * the nickname of the local user.
          */
         if (sourceChatRoom.isSystem()
-                || isPrivate(sourceChatRoom)
-                || (messageContent == null))
+            || isPrivate(sourceChatRoom)
+            || (messageContent == null))
             fireChatNotification = true;
         else
         {
@@ -282,14 +268,14 @@ public class ConferenceChatManager
             fireChatNotification =
                 (nickname == null)
                     || messageContent.toLowerCase().contains(
-                            nickname.toLowerCase());
+                        nickname.toLowerCase());
         }
         if (fireChatNotification)
         {
             String title
                 = GuiActivator.getResources().getI18NString(
-                        "service.gui.MSG_RECEIVED",
-                        new String[] { sourceMember.getName() });
+                    "service.gui.MSG_RECEIVED",
+                    new String[] { sourceMember.getName() });
 
             NotificationManager.fireChatNotification(
                 sourceChatRoom,
@@ -315,8 +301,8 @@ public class ConferenceChatManager
     static boolean isPrivate(ChatRoom chatRoom)
     {
         if (!chatRoom.isSystem()
-                && chatRoom.isJoined()
-                && (chatRoom.getMembersCount() == 1))
+            && chatRoom.isJoined()
+            && (chatRoom.getMembersCount() == 1))
         {
             String nickname = chatRoom.getUserNickname();
 
@@ -359,33 +345,33 @@ public class ConferenceChatManager
         ChatRoomMember destMember = evt.getDestinationChatRoomMember();
 
         if (evt.getErrorCode()
-                == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED)
+            == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED)
         {
             errorMsg = GuiActivator.getResources().getI18NString(
-                    "service.gui.MSG_DELIVERY_NOT_SUPPORTED");
+                "service.gui.MSG_DELIVERY_NOT_SUPPORTED");
         }
         else if (evt.getErrorCode()
-                == MessageDeliveryFailedEvent.NETWORK_FAILURE)
+            == MessageDeliveryFailedEvent.NETWORK_FAILURE)
         {
             errorMsg = GuiActivator.getResources()
                 .getI18NString("service.gui.MSG_NOT_DELIVERED");
         }
         else if (evt.getErrorCode()
-                == MessageDeliveryFailedEvent.PROVIDER_NOT_REGISTERED)
+            == MessageDeliveryFailedEvent.PROVIDER_NOT_REGISTERED)
         {
             errorMsg = GuiActivator.getResources().getI18NString(
-                    "service.gui.MSG_SEND_CONNECTION_PROBLEM");
+                "service.gui.MSG_SEND_CONNECTION_PROBLEM");
         }
         else if (evt.getErrorCode()
-                == MessageDeliveryFailedEvent.INTERNAL_ERROR)
+            == MessageDeliveryFailedEvent.INTERNAL_ERROR)
         {
             errorMsg = GuiActivator.getResources().getI18NString(
-                    "service.gui.MSG_DELIVERY_INTERNAL_ERROR");
+                "service.gui.MSG_DELIVERY_INTERNAL_ERROR");
         }
         else
         {
             errorMsg = GuiActivator.getResources().getI18NString(
-                    "service.gui.MSG_DELIVERY_UNKNOWN_ERROR");
+                 "service.gui.MSG_DELIVERY_UNKNOWN_ERROR");
         }
 
         ChatWindowManager chatWindowManager
@@ -394,15 +380,15 @@ public class ConferenceChatManager
             = chatWindowManager.getMultiChat(sourceChatRoom, true);
 
         chatPanel.addMessage(
-                destMember.getName(),
-                System.currentTimeMillis(),
-                Chat.OUTGOING_MESSAGE,
-                sourceMessage.getContent(),
-                sourceMessage.getContentType());
+            destMember.getName(),
+            System.currentTimeMillis(),
+            Chat.OUTGOING_MESSAGE,
+            sourceMessage.getContent(),
+            sourceMessage.getContentType());
 
         chatPanel.addErrorMessage(
-                destMember.getName(),
-                errorMsg);
+            destMember.getName(),
+            errorMsg);
 
         chatWindowManager.openChat(chatPanel, false);
     }
@@ -449,7 +435,7 @@ public class ConferenceChatManager
                 else
                     chatWindowManager.openChat(chatPanel, true);
             }
-
+            
             sourceAdHocChatRoom.addMessageListener(this);
         }
         else if (evt.getEventType().equals(
@@ -785,19 +771,13 @@ public class ConferenceChatManager
 
         try
         {
-            List<Contact> members = new LinkedList<Contact>();
-            OperationSetPersistentPresence opSet = 
-                protocolProvider.getOperationSet(
-                        OperationSetPersistentPresence.class);
+            List<String> members = new LinkedList<String>();
 
-            for(String contact : contacts)
-            {
-                members.add(opSet.findContactByID(contact));
-            }
-
+            for(String address : contacts)
+                members.add(address);
             
             chatRoom = groupChatOpSet.createAdHocChatRoom(
-            		"chatroom-" + new Date().getTime(), members, reason);
+                "chatroom-" + new Date().getTime(), members, reason);
         }
         catch (OperationFailedException ex)
         {

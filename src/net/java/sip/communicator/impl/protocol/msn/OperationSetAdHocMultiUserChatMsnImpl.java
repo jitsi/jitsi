@@ -21,19 +21,19 @@ import net.sf.jml.message.*;
  * @author Valentin Martinet
  */
 public class OperationSetAdHocMultiUserChatMsnImpl
-    implements  OperationSetAdHocMultiUserChat
+implements OperationSetAdHocMultiUserChat
 {
     /**
      * The logger used to log messages.
      */
-     private static final Logger logger
-         = Logger.getLogger(OperationSetAdHocMultiUserChatMsnImpl.class);
+    private static final Logger logger
+    = Logger.getLogger(OperationSetAdHocMultiUserChatMsnImpl.class);
 
     /**
      * Listeners that will be notified of changes in our status in the room.
      */
     private Vector<LocalUserAdHocChatRoomPresenceListener> presenceListeners
-        = new Vector<LocalUserAdHocChatRoomPresenceListener>();
+    = new Vector<LocalUserAdHocChatRoomPresenceListener>();
 
     /**
      * The currently valid MSN protocol provider service implementation.
@@ -44,28 +44,28 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      * The ad-hoc rooms we currently are in.
      */
     private Hashtable<MsnSwitchboard, AdHocChatRoomMsnImpl> adHocChatRoomCache
-                        = new Hashtable<MsnSwitchboard, AdHocChatRoomMsnImpl>();
+    = new Hashtable<MsnSwitchboard, AdHocChatRoomMsnImpl>();
 
     /**
      * A list of listeners subscribed for invitations multi user chat events.
      */
     private Vector<AdHocChatRoomInvitationListener> invitationListeners
-            = new Vector<AdHocChatRoomInvitationListener>();
+    = new Vector<AdHocChatRoomInvitationListener>();
 
     /**
      * A list of listeners subscribed for events indicating rejection of a multi
      * user chat invitation sent by us.
      */
     private Vector<AdHocChatRoomInvitationRejectionListener>
-        invitationRejectionListeners
-            = new Vector<AdHocChatRoomInvitationRejectionListener>();
+    invitationRejectionListeners
+    = new Vector<AdHocChatRoomInvitationRejectionListener>();
 
     /**
      * A list of the ad-hoc rooms that are currently open and created by this
      * account.
      */
     private Hashtable<Object, AdHocChatRoom> pendingAdHocChatRoomList
-        = new Hashtable<Object, AdHocChatRoom>();
+    = new Hashtable<Object, AdHocChatRoom>();
 
     /**
      * Creates an <tt>OperationSetAdHocMultiUserChatMsnImpl</tt> by specifying
@@ -73,11 +73,11 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      * @param provider the Msn provider
      */
     public OperationSetAdHocMultiUserChatMsnImpl(
-            ProtocolProviderServiceMsnImpl provider)
+        ProtocolProviderServiceMsnImpl provider)
     {
         this.provider = provider;
         this.provider.addRegistrationStateChangeListener(
-                new RegistrationStateListener());
+            new RegistrationStateListener());
     }
 
     /**
@@ -86,7 +86,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      * @param listener the listener to add
      */
     public void addPresenceListener(
-            LocalUserAdHocChatRoomPresenceListener listener)
+        LocalUserAdHocChatRoomPresenceListener listener)
     {
         synchronized(presenceListeners)
         {
@@ -95,7 +95,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
         }
     }
 
-     /**
+    /**
      * Adds a listener to invitation notifications.
      *
      * @param listener an invitation listener.
@@ -116,7 +116,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      * @param listener the invitation listener to remove.
      */
     public void removeInvitationListener(
-            AdHocChatRoomInvitationListener listener)
+        AdHocChatRoomInvitationListener listener)
     {
         synchronized (invitationListeners)
         {
@@ -172,7 +172,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      * including to the specified <tt>contacts</tt>.
      *
      * @param adHocRoomName the name of the ad-hoc room
-     * @param contacts the list of contacts
+     * @param contacts the list of contacts ID
      * @param reason the reason (will not be used since MSN does not support
      * invitation with the possibility to reject it)
      *
@@ -180,21 +180,19 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      * @throws OperationFailedException
      * @throws OperationNotSupportedException
      */
-    public AdHocChatRoom createAdHocChatRoom(   String adHocRoomName,
-                                                List<Contact> contacts,
-                                                String reason)
-        throws OperationFailedException, OperationNotSupportedException
+    public AdHocChatRoom createAdHocChatRoom(String adHocRoomName,
+        List<String> contacts,
+        String reason)
+    throws OperationFailedException, OperationNotSupportedException
     {
         AdHocChatRoom adHocChatRoom = createAdHocChatRoom(
-                        adHocRoomName, new Hashtable<String, Object>());
+            adHocRoomName, new Hashtable<String, Object>());
 
         if (adHocChatRoom != null && contacts != null)
         {
-            for (Contact contact : contacts)
+            for (String address : contacts)
             {
-                ContactMsnImpl newContact = (ContactMsnImpl) contact;
-
-                adHocChatRoom.invite(newContact.getAddress(), reason);
+                adHocChatRoom.invite(address, reason);
             }
         }
 
@@ -213,8 +211,8 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      * @throws OperationNotSupportedException
      */
     public AdHocChatRoom createAdHocChatRoom(String adHocRoomName,
-            Map<String, Object> adHocRoomProperties)
-            throws OperationFailedException, OperationNotSupportedException
+        Map<String, Object> adHocRoomProperties)
+    throws OperationFailedException, OperationNotSupportedException
     {
         AdHocChatRoom adHocRoom = adHocChatRoomCache.get(adHocRoomName);
 
@@ -230,7 +228,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
             // when the room hasn't been created, we create it.
             adHocRoom = createLocalAdHocChatRoomInstance(adHocRoomName, id);
         }
-        
+
         return adHocRoom;
     }
 
@@ -242,13 +240,13 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      * @return the ad-hoc chat room that we've just created.
      */
     private AdHocChatRoomMsnImpl createLocalAdHocChatRoomInstance(
-            String adHocChatRoomName, Object switchboardId)
+        String adHocChatRoomName, Object switchboardId)
     {
         synchronized (this.pendingAdHocChatRoomList)
         {
             AdHocChatRoomMsnImpl adHocChatRoom =
                 new AdHocChatRoomMsnImpl(adHocChatRoomName, this.provider);
-            
+
             // We put it to the pending ad hoc chat rooms, waiting for the
             // switchboard to be created.
             this.pendingAdHocChatRoomList.put(switchboardId, adHocChatRoom);
@@ -269,7 +267,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      * <tt>switchboard</tt>, otherwise null
      */
     private AdHocChatRoomMsnImpl getLocalAdHocChatRoomInstance(
-            MsnSwitchboard switchboard)
+        MsnSwitchboard switchboard)
     {
         return adHocChatRoomCache.get(switchboard);
     }
@@ -283,22 +281,22 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      * <tt>switchboard</tt>
      */
     private AdHocChatRoomMsnImpl createLocalAdHocChatRoomInstance(
-            MsnSwitchboard switchboard)
+        MsnSwitchboard switchboard)
     {
         AdHocChatRoomMsnImpl adHocChatRoom
-            = adHocChatRoomCache.get(switchboard);
+        = adHocChatRoomCache.get(switchboard);
 
         if (adHocChatRoom == null)
         {
             String name = String.valueOf(switchboard.hashCode());
             adHocChatRoom
-                = new AdHocChatRoomMsnImpl(name, provider, switchboard);
+            = new AdHocChatRoomMsnImpl(name, provider, switchboard);
 
             this.adHocChatRoomCache.put(switchboard, adHocChatRoom);
 
             Object attachment = switchboard.getAttachment();
             if (attachment != null && pendingAdHocChatRoomList
-                    .containsKey(attachment))
+                .containsKey(attachment))
             {
                 pendingAdHocChatRoomList.remove(attachment);
             }
@@ -319,25 +317,25 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      * @param reason the reason
      */
     public void fireLocalUserPresenceEvent( AdHocChatRoom   adHocChatRoom,
-                                            String          eventType,
-                                            String          reason)
+        String          eventType,
+        String          reason)
     {
         LocalUserAdHocChatRoomPresenceChangeEvent evt
-            = new LocalUserAdHocChatRoomPresenceChangeEvent(this,
-                                                            adHocChatRoom,
-                                                            eventType,
-                                                            reason);
+        = new LocalUserAdHocChatRoomPresenceChangeEvent(this,
+            adHocChatRoom,
+            eventType,
+            reason);
 
         Iterator<LocalUserAdHocChatRoomPresenceListener> listeners = null;
         synchronized(this.presenceListeners)
         {
             listeners = new ArrayList<LocalUserAdHocChatRoomPresenceListener>
-                            (this.presenceListeners).iterator();
+            (this.presenceListeners).iterator();
         }
 
         while (listeners.hasNext())
         {
-             LocalUserAdHocChatRoomPresenceListener listener = listeners.next();
+            LocalUserAdHocChatRoomPresenceListener listener = listeners.next();
 
             listener.localUserAdHocPresenceChanged(evt);
         }
@@ -379,7 +377,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      * @param listener the listener to remove
      */
     public void removePresenceListener(
-            LocalUserAdHocChatRoomPresenceListener listener)
+        LocalUserAdHocChatRoomPresenceListener listener)
     {
         synchronized (this.presenceListeners)
         {
@@ -398,24 +396,24 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      *             the server.
      */
     private void assertConnected()
-        throws OperationFailedException,
-        OperationNotSupportedException
+    throws OperationFailedException,
+    OperationNotSupportedException
     {
         if (this.provider == null)
             throw new IllegalStateException(
                 "The provider must be non-null and signed on the "
-                    + "service before being able to communicate.");
+                + "service before being able to communicate.");
         if (!this.provider.isRegistered())
             throw new IllegalStateException(
                 "The provider must be signed on the service before "
-                    + "being able to communicate.");
+                + "being able to communicate.");
     }
 
     /**
      * Our listener that will tell us when we're registered to msn.
      */
     private class RegistrationStateListener
-        implements RegistrationStateChangeListener
+    implements RegistrationStateChangeListener
     {
         /**
          * The method is called by a ProtocolProvider implementation whenever a
@@ -443,8 +441,8 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      * the the jml library.
      */
     private class MsnMessageListener
-        extends MsnMessageAdapter
-        implements MsnEmailListener
+    extends MsnMessageAdapter
+    implements MsnEmailListener
     {
         /**
          * Indicates that an instant message has been received.
@@ -453,8 +451,8 @@ public class OperationSetAdHocMultiUserChatMsnImpl
          * @param contact the contact sending the message
          */
         public void instantMessageReceived( MsnSwitchboard switchboard,
-                                            MsnInstantMessage message,
-                                            MsnContact contact)
+            MsnInstantMessage message,
+            MsnContact contact)
         {
             if (!isGroupChatMessage(switchboard))
                 return;
@@ -464,7 +462,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
             logger.debug("Group chat message received.");
 
             AdHocChatRoomMsnImpl chatRoom
-                = getLocalAdHocChatRoomInstance(switchboard);
+            = getLocalAdHocChatRoomInstance(switchboard);
 
             if (chatRoom == null)
             {
@@ -481,7 +479,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
                     System.currentTimeMillis(),
                     newMessage,
                     AdHocChatRoomMessageReceivedEvent
-                        .CONVERSATION_MESSAGE_RECEIVED);
+                    .CONVERSATION_MESSAGE_RECEIVED);
 
             chatRoom.fireMessageEvent(msgReceivedEvent);
         }
@@ -523,7 +521,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      *
      */
     private class MsnSwitchboardListener
-        extends MsnSwitchboardAdapter
+    extends MsnSwitchboardAdapter
     {
         /**
          * Indicates that the given <tt>msnContact</tt> has joined the given
@@ -532,39 +530,39 @@ public class OperationSetAdHocMultiUserChatMsnImpl
          * @param msnContact the contact that has joined
          */
         public void contactJoinSwitchboard( MsnSwitchboard switchboard,
-                                            MsnContact msnContact)
+            MsnContact msnContact)
         {
             if (!isGroupChatMessage(switchboard))
                 return;
-            
+
             try
             {
                 AdHocChatRoomMsnImpl chatRoom
-                    = getLocalAdHocChatRoomInstance(switchboard);
+                = getLocalAdHocChatRoomInstance(switchboard);
 
                 if (chatRoom == null)
                 {
                     chatRoom = createLocalAdHocChatRoomInstance(switchboard);
                 }
-                
+
                 OperationSetPersistentPresenceMsnImpl presenceOpSet
-                    = (OperationSetPersistentPresenceMsnImpl) provider
-                        .getOperationSet(OperationSetPersistentPresence.class);
+                = (OperationSetPersistentPresenceMsnImpl) provider
+                .getOperationSet(OperationSetPersistentPresence.class);
 
                 ContactMsnImpl contact
-                    = presenceOpSet.getServerStoredContactList()
-                        .findContactById(
-                            msnContact.getEmail().getEmailAddress());
+                = presenceOpSet.getServerStoredContactList()
+                .findContactById(
+                    msnContact.getEmail().getEmailAddress());
 
                 if (contact == null)
                     contact = new ContactMsnImpl(
-                                    msnContact,
-                                    presenceOpSet.getServerStoredContactList(),
-                                    false,
-                                    false);
+                        msnContact,
+                        presenceOpSet.getServerStoredContactList(),
+                        false,
+                        false);
 
                 chatRoom.addAdHocChatRoomParticipant(   msnContact.getId(),
-                                                        contact);
+                    contact);
             }
             catch (Exception e)
             {
@@ -579,13 +577,13 @@ public class OperationSetAdHocMultiUserChatMsnImpl
          * @param contact the contact that has left
          */
         public void contactLeaveSwitchboard(MsnSwitchboard switchboard,
-                                            MsnContact contact)
+            MsnContact contact)
         {
             logger
-                .debug(contact.getDisplayName() + " has left the Switchboard");
+            .debug(contact.getDisplayName() + " has left the Switchboard");
 
             AdHocChatRoomMsnImpl chatRoom
-                = getLocalAdHocChatRoomInstance(switchboard);
+            = getLocalAdHocChatRoomInstance(switchboard);
 
             if (chatRoom == null)
                 return;
@@ -593,7 +591,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
             String participantId = contact.getId();
 
             Contact participant
-                = chatRoom.getAdHocChatRoomParticipant(participantId);
+            = chatRoom.getAdHocChatRoomParticipant(participantId);
 
             if (participant != null)
             {
@@ -608,7 +606,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
         public void switchboardClosed(MsnSwitchboard switchboard)
         {
             AdHocChatRoomMsnImpl adHocChatRoom
-                = getLocalAdHocChatRoomInstance(switchboard);
+            = getLocalAdHocChatRoomInstance(switchboard);
 
             if (adHocChatRoom == null)
                 return;
@@ -619,7 +617,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
                 adHocChatRoom.leave();
                 fireLocalUserPresenceEvent(adHocChatRoom,
                     LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_DROPPED ,
-                     "Switchboard closed.");
+                    "Switchboard closed.");
             }
         }
 
@@ -629,15 +627,15 @@ public class OperationSetAdHocMultiUserChatMsnImpl
          */
         public void switchboardStarted(MsnSwitchboard switchboard)
         {
-        	Object switchboardID = switchboard.getAttachment();
-        	
+            Object switchboardID = switchboard.getAttachment();
+
             AdHocChatRoomMsnImpl adHocChatRoom = null;
             if (switchboardID != null
-                    && pendingAdHocChatRoomList.containsKey(switchboardID))
+                && pendingAdHocChatRoomList.containsKey(switchboardID))
             {
                 adHocChatRoom
-                    = (AdHocChatRoomMsnImpl) pendingAdHocChatRoomList
-                        .get(switchboardID);
+                = (AdHocChatRoomMsnImpl) pendingAdHocChatRoomList
+                .get(switchboardID);
 
                 // Remove this room from the list of pending chat rooms.
                 pendingAdHocChatRoomList.remove(switchboardID);
@@ -656,7 +654,7 @@ public class OperationSetAdHocMultiUserChatMsnImpl
      * Note: Not supported inside the MSN.
      */
     public void rejectInvitation(AdHocChatRoomInvitation invitation,
-                                 String                  rejectReason)
+        String                  rejectReason)
     {
         // there is no way to block invitations, because there arn't any
         // invitations.

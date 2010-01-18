@@ -36,9 +36,9 @@ public class NotificationConfigurationPanel
                DocumentListener,
                NotificationChangeListener
 {
-	private static final long serialVersionUID = 5784331951722787598L;
+    private static final long serialVersionUID = 5784331951722787598L;
 
-	private final Logger logger
+    private final Logger logger
             = Logger.getLogger(NotificationConfigurationPanel.class);
 
     // Declaration of variables on the table notifications
@@ -324,9 +324,9 @@ public class NotificationConfigurationPanel
 
 
         fileChooserSound = GenericFileDialog.create(null, "Choose a sound...",
-        		SipCommFileChooser.LOAD_FILE_OPERATION);
+            SipCommFileChooser.LOAD_FILE_OPERATION);
         fileChooserProgram = GenericFileDialog.create(null, 
-        		"Choose a program...", SipCommFileChooser.LOAD_FILE_OPERATION);
+            "Choose a program...", SipCommFileChooser.LOAD_FILE_OPERATION);
         //fileChooserSound.setMultiSelectionEnabled(false);
         //fileChooserProgram.setMultiSelectionEnabled(false);
         fileChooserSound.addFilter(new SoundFilter());
@@ -410,7 +410,7 @@ public class NotificationConfigurationPanel
         }
         else if(e.getSource() == soundFileChooser)
         {
-        	File file = fileChooserSound.getFileFromDialog();
+            File file = fileChooserSound.getFileFromDialog();
 
             noListener = true;
             if (file != null)
@@ -443,7 +443,7 @@ public class NotificationConfigurationPanel
         }
         else if(e.getSource() == programFileChooser)
         {
-        	File file = fileChooserProgram.getFileFromDialog();
+            File file = fileChooserProgram.getFileFromDialog();
             noListener = true;
 
             if (file != null)

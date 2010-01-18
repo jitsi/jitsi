@@ -454,8 +454,8 @@ public class TestOperationSetMultiUserChat2
         ChatRoomInvitation invitation = invitationReceivedEvent.getInvitation();
 
         assertEquals("The inviter is not the expected user", 
-        		StringUtils.parseBareAddress(fixture.userID1), 
-        		StringUtils.parseBareAddress(invitation.getInviter()));
+            StringUtils.parseBareAddress(fixture.userID1), 
+            StringUtils.parseBareAddress(invitation.getInviter()));
 
         assertEquals("The invitation reason received differs from the one sent"
             , "testInviteReject", invitation.getReason());

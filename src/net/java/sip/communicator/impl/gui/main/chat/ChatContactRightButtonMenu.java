@@ -30,9 +30,9 @@ public class ChatContactRightButtonMenu
     extends JPopupMenu
     implements  ActionListener
 {
-	private static final long serialVersionUID = -4069653895234333083L;
+    private static final long serialVersionUID = -4069653895234333083L;
 
-	private Logger logger = Logger.getLogger(ChatContactRightButtonMenu.class);
+    private Logger logger = Logger.getLogger(ChatContactRightButtonMenu.class);
 
     private final JMenuItem kickItem
         = new JMenuItem(GuiActivator.getResources().getI18NString(
@@ -341,7 +341,7 @@ public class ChatContactRightButtonMenu
         {
             ChatOperationReasonDialog reasonDialog
                 = new ChatOperationReasonDialog(
-                	chatPanel.getChatWindow(),
+                    chatPanel.getChatWindow(),
                     GuiActivator.getResources().getI18NString(
                     "service.gui.CHANGE_ROOM_SUBJECT"),
                     GuiActivator.getResources().getI18NString(
@@ -350,7 +350,7 @@ public class ChatContactRightButtonMenu
                     false);
 
             //reasonDialog.setIconImage(
-            //		ImageLoader.getImage(ImageLoader.CHANGE_ROOM_SUBJECT_ICON_16x16));
+            //ImageLoader.getImage(ImageLoader.CHANGE_ROOM_SUBJECT_ICON_16x16));
             reasonDialog.setReasonFieldText(room.getSubject());
             
             int result = reasonDialog.showDialog();
@@ -371,7 +371,7 @@ public class ChatContactRightButtonMenu
         {
             ChatOperationReasonDialog reasonDialog
                 = new ChatOperationReasonDialog(
-                	chatPanel.getChatWindow(),
+                chatPanel.getChatWindow(),
                     GuiActivator.getResources().getI18NString(
                     "service.gui.CHANGE_NICKNAME"),
                     GuiActivator.getResources().getI18NString(
@@ -380,7 +380,7 @@ public class ChatContactRightButtonMenu
                     false);
 
            // reasonDialog.setIconImage(ImageLoader.getImage(
-           // 		ImageLoader.CHANGE_NICKNAME_ICON_16x16));
+           //   ImageLoader.CHANGE_NICKNAME_ICON_16x16));
             reasonDialog.setReasonFieldText(chatContact.getName());
             
             int result = reasonDialog.showDialog();

@@ -34,9 +34,9 @@ public class FirstWizardPage
     extends TransparentPanel
     implements WizardPage, DocumentListener
 {
-	private static final long serialVersionUID = 8576006544813706541L;
+    private static final long serialVersionUID = 8576006544813706541L;
 
-	public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
+    public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
     private JPanel accountPanel = new TransparentPanel(new BorderLayout(10, 10));
 
@@ -214,12 +214,12 @@ public class FirstWizardPage
         {
             public void actionPerformed(ActionEvent event)
             {
-            	identityFileChooser = GenericFileDialog.create(
-            			null, "Select Identify File", 
-            			SipCommFileChooser.LOAD_FILE_OPERATION);
-            	File f = identityFileChooser.getFileFromDialog();
+                identityFileChooser = GenericFileDialog.create(
+                    null, "Select Identify File", 
+                    SipCommFileChooser.LOAD_FILE_OPERATION);
+                File f = identityFileChooser.getFileFromDialog();
                
-            	if(f != null)
+                if(f != null)
                     identityFileField.setText(f.getAbsolutePath());
             }
         }
@@ -229,13 +229,13 @@ public class FirstWizardPage
         {
             public void actionPerformed(ActionEvent event)
             {
-            	knownHostsFileChooser = GenericFileDialog.create(
-            			null, "Select SSH Known Hosts File",
-            			SipCommFileChooser.LOAD_FILE_OPERATION);
-            	File f = knownHostsFileChooser.getFileFromDialog();
+                knownHostsFileChooser = GenericFileDialog.create(
+                    null, "Select SSH Known Hosts File",
+                    SipCommFileChooser.LOAD_FILE_OPERATION);
+                File f = knownHostsFileChooser.getFileFromDialog();
                 
-            	if(f != null)
-            		knownHostsFileField.setText(f.getAbsolutePath());
+                if(f != null)
+                    knownHostsFileField.setText(f.getAbsolutePath());
             }
         }
         );

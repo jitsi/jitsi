@@ -193,7 +193,7 @@ public class OperationSetAdHocMultiUserChatIcqImpl
      * the specified list of <tt>contacts</tt>.
      *
      * @param adHocRoomName the name of the ad-hoc room
-     * @param contacts the list of contacts
+     * @param contacts the list of contacts ID
      * @param reason the reason to be sent with the invitation for contacts.
      *
      * @return the ad-hoc room that has been just created
@@ -201,20 +201,18 @@ public class OperationSetAdHocMultiUserChatIcqImpl
      * @throws OperationNotSupportedException
      */
     public AdHocChatRoom createAdHocChatRoom(String adHocRoomName,
-        List<Contact> contacts, String reason)
+        List<String> contacts, String reason)
         throws OperationFailedException,
         OperationNotSupportedException
     {
         AdHocChatRoom adHocChatRoom = createAdHocChatRoom(
-                        adHocRoomName, new Hashtable<String, Object>());
+            adHocRoomName, new Hashtable<String, Object>());
 
         if (adHocChatRoom != null && contacts != null)
         {
-            for (Contact contact : contacts)
+            for (String address : contacts)
             {
-                ContactIcqImpl newContact = (ContactIcqImpl) contact;
-
-                adHocChatRoom.invite(newContact.getAddress(), reason);
+                adHocChatRoom.invite(address, reason);
             }
         }
 

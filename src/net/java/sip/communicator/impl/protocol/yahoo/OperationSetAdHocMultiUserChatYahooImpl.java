@@ -25,7 +25,7 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class OperationSetAdHocMultiUserChatYahooImpl
-    implements OperationSetAdHocMultiUserChat
+implements OperationSetAdHocMultiUserChat
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetAdHocMultiUserChatYahooImpl.class);
@@ -34,28 +34,28 @@ public class OperationSetAdHocMultiUserChatYahooImpl
      * A list of listeners subscribed for invitations multi user chat events.
      */
     private final List<AdHocChatRoomInvitationListener> invitationListeners
-        = new Vector<AdHocChatRoomInvitationListener>();
+    = new Vector<AdHocChatRoomInvitationListener>();
 
     /**
      * A list of listeners subscribed for events indicating rejection of a multi
      * user chat invitation sent by us.
      */
     private final List<AdHocChatRoomInvitationRejectionListener>
-        invitationRejectionListeners
-            = new Vector<AdHocChatRoomInvitationRejectionListener>();
+    invitationRejectionListeners
+    = new Vector<AdHocChatRoomInvitationRejectionListener>();
 
     /**
      * Listeners that will be notified of changes in our status in the room such
      * as us being kicked, banned, or granted admin permissions.
      */
     private final List<LocalUserAdHocChatRoomPresenceListener> presenceListeners
-        = new Vector<LocalUserAdHocChatRoomPresenceListener>();
+    = new Vector<LocalUserAdHocChatRoomPresenceListener>();
 
     /**
      * A list of the rooms that are currently open by this account.
      */
     private final Hashtable<String, AdHocChatRoomYahooImpl> chatRoomCache
-        = new Hashtable<String, AdHocChatRoomYahooImpl>();
+    = new Hashtable<String, AdHocChatRoomYahooImpl>();
 
     /**
      * The currently valid Yahoo protocol provider service implementation.
@@ -87,11 +87,11 @@ public class OperationSetAdHocMultiUserChatYahooImpl
         this.yahooProvider = yahooProvider;
 
         yahooProvider
-            .addRegistrationStateChangeListener(new RegistrationStateListener());
+        .addRegistrationStateChangeListener(new RegistrationStateListener());
 
         opSetBasic =
             (OperationSetBasicInstantMessagingYahooImpl) yahooProvider
-                .getOperationSet(OperationSetBasicInstantMessaging.class);
+            .getOperationSet(OperationSetBasicInstantMessaging.class);
     }
 
     /**
@@ -206,8 +206,8 @@ public class OperationSetAdHocMultiUserChatYahooImpl
      * @return ChatRoom the chat room that we've just created.
      */
     public AdHocChatRoom createAdHocChatRoom(String roomName,
-                                             Map<String, Object> roomProperties)
-        throws  OperationFailedException
+        Map<String, Object> roomProperties)
+    throws  OperationFailedException
     {
         return createAdHocChatRoom(roomName, (String[]) null, "");
     }
@@ -219,27 +219,29 @@ public class OperationSetAdHocMultiUserChatYahooImpl
      *
      * @return the ad-hoc room that has been just created
      * @param adHocRoomName the name of the room to be created
-     * @param contacts the list of contacts
+     * @param contacts the list of contacts ID
      * @param reason the reason for contacts' invitation
      * @throws OperationFailedException if the room couldn't be created for
      * some reason
      */
     public AdHocChatRoom createAdHocChatRoom(   String adHocRoomName,
-                                                List<Contact> contacts,
-                                                String reason)
-        throws OperationFailedException
+        List<String> contacts,
+        String reason)
+    throws OperationFailedException
     {
-    	String[] contactsToInvite = new String[contacts.size()];
-    	for(int i=0; i<contacts.size(); i++)
-    	{	System.out.println(contacts.get(i).getAddress()+" is being invited");
-    		contactsToInvite[i] = contacts.get(i).getAddress();
-    	}
+        String[] contactsToInvite = new String[contacts.size()];
+        for(int i=0; i<contacts.size(); i++)
+        {
+            contactsToInvite[i] = contacts.get(i);
+        }
         return createAdHocChatRoom(
-        		adHocRoomName, contactsToInvite, reason);
+            adHocRoomName, contactsToInvite, reason);
     }
 
     /**
-     * 
+     * Creates an ad-hoc room with the named <tt>adHocRoomName</tt> and in
+     * including to the specified <tt>contacts</tt>. When the method returns the
+     * ad-hoc room the local user will have joined it.
      * 
      * @param roomName name of the chatroom
      * @param invitedContacts contacts to be invited to this room
@@ -248,10 +250,10 @@ public class OperationSetAdHocMultiUserChatYahooImpl
      * @throws OperationFailedException
      */
     private AdHocChatRoom createAdHocChatRoom(
-            String roomName,
-            String[] invitedContacts,
-            String reason)
-        throws OperationFailedException
+        String roomName,
+        String[] invitedContacts,
+        String reason)
+    throws OperationFailedException
     {
         if (invitedContacts == null)
             invitedContacts = new String[0];
@@ -271,7 +273,7 @@ public class OperationSetAdHocMultiUserChatYahooImpl
         catch (Exception e)
         {
             String errorMessage
-                = "Failed to create chat room with name: " + roomName;
+            = "Failed to create chat room with name: " + roomName;
 
             logger.debug(errorMessage, e);
             throw new OperationFailedException(errorMessage,
@@ -295,14 +297,14 @@ public class OperationSetAdHocMultiUserChatYahooImpl
         synchronized (chatRoomCache)
         {
             AdHocChatRoomYahooImpl newChatRoom
-                = new AdHocChatRoomYahooImpl(yahooConference, yahooProvider);
+            = new AdHocChatRoomYahooImpl(yahooConference, yahooProvider);
 
             chatRoomCache.put(yahooConference.getName(), newChatRoom);
 
             return newChatRoom;
         }
     }
-    
+
     /**
      * Creates a <tt>AdHocChatRoom</tt> instance (where the inviter is 
      * represented by inviterID parameter) from the specified Yahoo conference.
@@ -318,14 +320,14 @@ public class OperationSetAdHocMultiUserChatYahooImpl
         synchronized (chatRoomCache)
         {
             AdHocChatRoomYahooImpl newChatRoom
-                = new AdHocChatRoomYahooImpl(yahooConference, yahooProvider);
+            = new AdHocChatRoomYahooImpl(yahooConference, yahooProvider);
 
             OperationSetPersistentPresenceYahooImpl opSetPresence  = 
-            	(OperationSetPersistentPresenceYahooImpl) yahooProvider
-            	.getOperationSet(OperationSetPersistentPresence.class);
-            
+                (OperationSetPersistentPresenceYahooImpl) yahooProvider
+                .getOperationSet(OperationSetPersistentPresence.class);
+
             newChatRoom.addChatRoomParticipant(
-            		opSetPresence.findContactByID(inviterID));
+                opSetPresence.findContactByID(inviterID));
             chatRoomCache.put(yahooConference.getName(), newChatRoom);
 
             return newChatRoom;
@@ -342,7 +344,7 @@ public class OperationSetAdHocMultiUserChatYahooImpl
      * <tt>conference</tt> if such exists, otherwise returns null
      */
     private AdHocChatRoomYahooImpl getLocalChatRoomInstance(
-            YahooConference conference)
+        YahooConference conference)
     {
         synchronized (chatRoomCache)
         {
@@ -402,8 +404,8 @@ public class OperationSetAdHocMultiUserChatYahooImpl
         synchronized (invitationListeners)
         {
             listeners
-                = new ArrayList<AdHocChatRoomInvitationListener>(
-                        invitationListeners);
+            = new ArrayList<AdHocChatRoomInvitationListener>(
+                invitationListeners);
         }
 
         for (AdHocChatRoomInvitationListener listener : listeners)
@@ -430,8 +432,8 @@ public class OperationSetAdHocMultiUserChatYahooImpl
         synchronized (invitationRejectionListeners)
         {
             listeners
-                = new ArrayList<AdHocChatRoomInvitationRejectionListener>(
-                        invitationRejectionListeners);
+            = new ArrayList<AdHocChatRoomInvitationRejectionListener>(
+                invitationRejectionListeners);
         }
 
         for (AdHocChatRoomInvitationRejectionListener listener : listeners)
@@ -460,7 +462,7 @@ public class OperationSetAdHocMultiUserChatYahooImpl
         {
             listeners =
                 new ArrayList<LocalUserAdHocChatRoomPresenceListener>(
-                        presenceListeners);
+                    presenceListeners);
         }
 
         for (LocalUserAdHocChatRoomPresenceListener listener : listeners)
@@ -502,7 +504,7 @@ public class OperationSetAdHocMultiUserChatYahooImpl
      * 
      */
     private class RegistrationStateListener
-        implements RegistrationStateChangeListener
+    implements RegistrationStateChangeListener
     {
         /**
          * The method is called by a ProtocolProvider implementation whenever a
@@ -528,7 +530,7 @@ public class OperationSetAdHocMultiUserChatYahooImpl
      * 
      */
     private class YahooMessageListener
-        extends SessionAdapter
+    extends SessionAdapter
     {
 
         public void conferenceInviteDeclinedReceived(SessionConferenceEvent ev)
@@ -555,16 +557,16 @@ public class OperationSetAdHocMultiUserChatYahooImpl
             try
             {
                 AdHocChatRoom chatRoom = getLocalChatRoomInstance(ev.getRoom());
-                
+
                 if (chatRoom == null)
                 {
                     chatRoom = 
-                    	createLocalChatRoomInstance(ev.getRoom(), ev.getFrom());
-                    
+                        createLocalChatRoomInstance(ev.getRoom(), ev.getFrom());
+
                     fireInvitationEvent(
-                    		chatRoom, ev.getFrom(), ev.getMessage());
+                        chatRoom, ev.getFrom(), ev.getMessage());
                 }
-                
+
             }
             catch (Exception e)
             {
@@ -579,7 +581,7 @@ public class OperationSetAdHocMultiUserChatYahooImpl
             try
             {
                 AdHocChatRoomYahooImpl chatRoom
-                    = getLocalChatRoomInstance(ev.getRoom());
+                = getLocalChatRoomInstance(ev.getRoom());
 
                 if (chatRoom != null)
                 {
@@ -592,7 +594,7 @@ public class OperationSetAdHocMultiUserChatYahooImpl
             catch (Exception e)
             {
                 logger
-                    .debug("Failed to remove a user from the chat room. " + e);
+                .debug("Failed to remove a user from the chat room. " + e);
             }
         }
 
@@ -603,14 +605,14 @@ public class OperationSetAdHocMultiUserChatYahooImpl
             try
             {
                 AdHocChatRoomYahooImpl chatRoom
-                    = getLocalChatRoomInstance(ev.getRoom());
+                = getLocalChatRoomInstance(ev.getRoom());
 
                 if (chatRoom != null)
                 {
                     OperationSetPersistentPresenceYahooImpl presenceOpSet =
                         (OperationSetPersistentPresenceYahooImpl) chatRoom
-                            .getParentProvider().getOperationSet(
-                                OperationSetPersistentPresence.class);
+                        .getParentProvider().getOperationSet(
+                            OperationSetPersistentPresence.class);
 
                     Contact participant =
                         presenceOpSet.findContactByID(ev.getFrom());
@@ -637,7 +639,7 @@ public class OperationSetAdHocMultiUserChatYahooImpl
                 // first.
                 if (formattedMessage.startsWith("\u001b"))
                     formattedMessage
-                        = messageDecoder.decodeToHTML(formattedMessage);
+                    = messageDecoder.decodeToHTML(formattedMessage);
 
                 formattedMessage = opSetBasic.processLinks(formattedMessage);
 
@@ -646,11 +648,11 @@ public class OperationSetAdHocMultiUserChatYahooImpl
                 // here, the zero 0 correspond to 10px
                 formattedMessage =
                     formattedMessage.replaceAll("(<font) (.*) size=\"0\">",
-                        "$1 $2 size=\"10\">");
+                    "$1 $2 size=\"10\">");
                 formattedMessage =
                     formattedMessage.replaceAll(
                         "(<font) (.*) size=\"(\\d+)\">",
-                        "$1 $2 style=\"font-size: $3px;\">");
+                    "$1 $2 style=\"font-size: $3px;\">");
 
                 logger.debug("formatted Message : " + formattedMessage);
                 // As no indications in the protocol is it html or not. No harm
@@ -679,7 +681,7 @@ public class OperationSetAdHocMultiUserChatYahooImpl
                             System.currentTimeMillis(),
                             newMessage,
                             AdHocChatRoomMessageReceivedEvent
-                                .CONVERSATION_MESSAGE_RECEIVED);
+                            .CONVERSATION_MESSAGE_RECEIVED);
 
                     chatRoom.fireMessageEvent(msgReceivedEvent);
                 }
@@ -687,8 +689,8 @@ public class OperationSetAdHocMultiUserChatYahooImpl
             catch (Exception e)
             {
                 logger
-                    .debug("Error while receiving a multi user chat message: "
-                        + e);
+                .debug("Error while receiving a multi user chat message: "
+                    + e);
             }
 
         }

@@ -19,9 +19,9 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
  */
 public class ChatOperationReasonDialog extends MessageDialog
 {
-	private static final long serialVersionUID = 3290030744711759011L;
+    private static final long serialVersionUID = 3290030744711759011L;
 
-	private final JLabel reasonLabel = new JLabel(
+    private final JLabel reasonLabel = new JLabel(
         GuiActivator.getResources()
             .getI18NString("service.gui.REASON") + ":");
 
@@ -67,7 +67,7 @@ public class ChatOperationReasonDialog extends MessageDialog
      * @param showReasonLabel specify if we want the "Reason:" label 
      */
     public ChatOperationReasonDialog(ChatWindow chatWindow, String title, 
-    		String message, String okButtonName, boolean showReasonLabel)
+        String message, String okButtonName, boolean showReasonLabel)
     {
         super(chatWindow, title, message, okButtonName, false);
 
@@ -75,7 +75,7 @@ public class ChatOperationReasonDialog extends MessageDialog
         
         if(showReasonLabel)
         {
-        	reasonPanel.add(reasonLabel, BorderLayout.WEST);
+            reasonPanel.add(reasonLabel, BorderLayout.WEST);
         }
         
         reasonPanel.add(new JLabel("          "), BorderLayout.WEST);
@@ -104,6 +104,6 @@ public class ChatOperationReasonDialog extends MessageDialog
      */
     public void setReasonFieldText(String value)
     {
-    	reasonField.setText(value);
+        reasonField.setText(value);
     }
 }

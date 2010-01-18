@@ -36,17 +36,17 @@ extends FileFilter
 implements FilenameFilter
 {
 
-	/**
-	 * Avoid to be obliged to implement 
-	 * 'public boolean accept(File dir, String name)'
-	 * in your own file filter.
-	 * 
-	 * @param dir file's parent directory
-	 * @param name file's name
-	 * @return boolean if the file is accepted or not
-	 */
-	public boolean accept(File dir, String name) 
-	{
-		return accept(new File(dir.getAbsolutePath(), name));
-	}
+    /**
+     * Avoid to be obliged to implement 
+     * 'public boolean accept(File dir, String name)'
+     * in your own file filter.
+     * 
+     * @param dir file's parent directory
+     * @param name file's name
+     * @return boolean if the file is accepted or not
+     */
+    public boolean accept(File dir, String name) 
+    {
+        return accept(new File(dir.getAbsolutePath(), name));
+    }
 }
