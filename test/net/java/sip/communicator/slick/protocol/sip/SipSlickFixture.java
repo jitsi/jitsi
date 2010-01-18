@@ -317,5 +317,10 @@ public class SipSlickFixture
             }
             citer = rootGroup2.contacts();
         }
+
+        // be gentle to servers
+        synchronized(lock){
+            lock.wait(5000);
+        }
     }
 }
